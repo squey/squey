@@ -24,42 +24,46 @@
 
 #include <memory>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVMapped;
 
 /**
  * \class PVPlotting
  */
-class PVPlotting {
+class PVPlotting
+{
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotted;
-public:
+
+  public:
 	typedef std::shared_ptr<PVPlotting> p_type;
-public:
+
+  public:
 	/**
 	 * Constructor
 	 */
 	PVPlotting(PVPlotted* mapped);
-	
+
 	/**
 	 * Destructor
 	 */
 	~PVPlotting();
 
-protected:
+  protected:
 	// Serialization
 	PVPlotting();
-	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVPlotted
 	void set_uptodate_for_col(PVCol j);
 	void invalidate_column(PVCol j);
 	void add_column(PVPlottingProperties const& props);
 
-public:
+  public:
 	// Parents
-	
+
 	/**
 	 * Gets the associated format
 	 */
@@ -73,18 +77,26 @@ public:
 
 	void reset_from_format(PVRush::PVFormat const& format);
 
-public:
+  public:
 	// Data access
 	Inendi::PVPlottingFilter::p_type get_filter_for_col(PVCol col);
-	PVPlottingProperties const& get_properties_for_col(PVCol col) const { assert(col < _columns.size()); return _columns.at(col); }
-	PVPlottingProperties& get_properties_for_col(PVCol col) { assert(col < _columns.size()); return _columns[col]; }
+	PVPlottingProperties const& get_properties_for_col(PVCol col) const
+	{
+		assert(col < _columns.size());
+		return _columns.at(col);
+	}
+	PVPlottingProperties& get_properties_for_col(PVCol col)
+	{
+		assert(col < _columns.size());
+		return _columns[col];
+	}
 	bool is_col_uptodate(PVCol j) const;
 	void set_type_for_col(QString const& type, PVCol col);
 
 	QString const& get_name() const { return _name; }
 	void set_name(QString const& name) { _name = name; }
 
-protected:
+  protected:
 	QList<PVPlottingProperties> _columns;
 
 	PVPlotted* _plotted;
@@ -92,7 +104,6 @@ protected:
 };
 
 typedef PVPlotting::p_type PVPlotting_p;
-
 }
 
-#endif	/* INENDI_PVPLOTTING_H */
+#endif /* INENDI_PVPLOTTING_H */

@@ -15,30 +15,31 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSpinBoxType.h>
 
-namespace Inendi {
+namespace Inendi
+{
 class PVView;
 }
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 class PVViewRowsSpinBoxEditor : public QSpinBox
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVSpinBoxType _s READ get_spin WRITE set_spin USER true)
 
-public:
-	PVViewRowsSpinBoxEditor(Inendi::PVView const& view, QWidget *parent = 0);
+  public:
+	PVViewRowsSpinBoxEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVViewRowsSpinBoxEditor();
 
-public:
+  public:
 	PVCore::PVSpinBoxType get_spin() const;
 	void set_spin(PVCore::PVSpinBoxType s);
 
-protected:
+  protected:
 	PVCore::PVSpinBoxType _s;
 	Inendi::PVView const& _view;
 };
-
 }
 
 #endif // PVCORE_PVSPINBOXEDITOR_H

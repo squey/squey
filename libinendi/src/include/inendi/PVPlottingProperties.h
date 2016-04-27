@@ -18,7 +18,8 @@
 #include <inendi/PVRoot.h>
 #include <inendi/PVPlottingFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVPlotting;
 class PVMapping;
@@ -28,15 +29,17 @@ class PVMapping;
 *
 * \brief Stored functions and variables that can to be modified by those functions
 */
-class PVPlottingProperties {
+class PVPlottingProperties
+{
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotting;
 	friend class PVPlotted;
-public:
+
+  public:
 	PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& fmt, PVCol idx);
 	PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx);
 
-protected:
+  protected:
 	// Serialization
 	PVPlottingProperties() { _mapping = NULL; }
 	void set_mapping(const PVMapping& mapping);
@@ -45,7 +48,7 @@ protected:
 	inline void set_uptodate() { _is_uptodate = true; }
 	inline void invalidate() { _is_uptodate = false; }
 
-public:
+  public:
 	PVPlottingFilter::p_type get_plotting_filter();
 	void set_from_axis(PVRush::PVAxisFormat const& axis);
 	void set_from_axis(Inendi::PVAxis const& axis);
@@ -56,13 +59,13 @@ public:
 	QString get_type() const;
 	inline bool is_uptodate() const { return _is_uptodate; }
 
-public:
+  public:
 	bool operator==(PVPlottingProperties const& org);
 
-protected:
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-private:
+  private:
 	QString _type;
 	QString _mode;
 	PVCol _index;
@@ -71,7 +74,6 @@ private:
 	bool _is_uptodate = false;
 	const PVMapping* _mapping;
 };
-
 }
 
-#endif	/* INENDI_PVPLOTTINGPROPERTIES_H */
+#endif /* INENDI_PVPLOTTINGPROPERTIES_H */

@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
 	bool delete_nraw_parent_dir = false;
 	QDir nraw_dir(QString::fromStdString(PVRush::PVNraw::default_tmp_path));
-	if (!nraw_dir.exists()){
+	if (!nraw_dir.exists()) {
 		nraw_dir.mkdir(QString::fromStdString(PVRush::PVNraw::default_tmp_path));
 		delete_nraw_parent_dir = true;
 	}
@@ -55,7 +55,8 @@ int main(int argc, char** argv)
 	std::ofstream stream(output_file);
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
-	const PVCore::PVColumnIndexes& col_indexes = view->get_axes_combination().get_original_axes_indexes();
+	const PVCore::PVColumnIndexes& col_indexes =
+	    view->get_axes_combination().get_original_axes_indexes();
 	nraw.export_lines(stream, sel, col_indexes, 0, nraw.get_row_count());
 	stream.flush();
 
@@ -64,7 +65,9 @@ int main(int argc, char** argv)
 	std::remove(output_file.c_str());
 
 	// Remove nraw folder
-	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path() : QString::fromStdString(nraw.collection().rootdir()));
+	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir
+	                                    ? nraw_dir.path()
+	                                    : QString::fromStdString(nraw.collection().rootdir()));
 
-	return (!same_content)*5;
+	return (!same_content) * 5;
 }

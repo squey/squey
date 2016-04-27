@@ -7,8 +7,7 @@
 
 #include "PVMappingFilterIntegerDefault.h"
 
-Inendi::PVMappingFilterIntegerDefault::PVMappingFilterIntegerDefault():
-	PVMappingFilter()
+Inendi::PVMappingFilterIntegerDefault::PVMappingFilterIntegerDefault() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterIntegerDefault);
 }

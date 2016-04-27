@@ -13,11 +13,10 @@ static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.f
 static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation.pvi";
 static constexpr unsigned int ROW_COUNT = 100000;
 #ifdef INSPECTOR_BENCH
-    static constexpr unsigned int dupl = 200;
+static constexpr unsigned int dupl = 200;
 #else
-    static constexpr unsigned int dupl = 1;
+static constexpr unsigned int dupl = 1;
 #endif
-
 
 double save_investigation()
 {
@@ -46,13 +45,15 @@ double save_investigation()
 	const PVRow row_count = view->get_row_count();
 	Inendi::PVSelection sel(row_count);
 	sel.select_all();
-	view->get_layer_stack().get_layer_n(2).get_lines_properties().selection_set_color(sel, row_count, HSV_COLOR_GREEN);
+	view->get_layer_stack().get_layer_n(2).get_lines_properties().selection_set_color(
+	    sel, row_count, HSV_COLOR_GREEN);
 
 	/**
 	 *  Sort axes and remove last one
 	 */
 	// use of const_cast to get direct access to API (don't try this at home)
-	Inendi::PVAxesCombination& axes_comb = const_cast<Inendi::PVAxesCombination&>(view->get_axes_combination());
+	Inendi::PVAxesCombination& axes_comb =
+	    const_cast<Inendi::PVAxesCombination&>(view->get_axes_combination());
 	axes_comb.sort_by_name();
 	axes_comb.remove_axis(14);
 
@@ -104,21 +105,9 @@ double load_investigation()
 	auto axes = view->get_axes_names_list();
 	PV_VALID(axes.size(), 14);
 	constexpr const char* expected_axes_name[] = {
-		"domain",
-		"host",
-		"http_method",
-		"http_status",
-		"login_id",
-		"mime_type",
-		"port",
-		"protocol",
-		"result_code",
-		"src_ip",
-		"subdomain",
-		"time",
-		"time_spent",
-		"tld",
-		//"total_bytes" (removed)
+	    "domain",   "host",        "http_method", "http_status", "login_id", "mime_type",  "port",
+	    "protocol", "result_code", "src_ip",      "subdomain",   "time",     "time_spent", "tld",
+	    //"total_bytes" (removed)
 	};
 	for (int i = 0; i < axes.size(); i++) {
 		PV_ASSERT_VALID(axes[i] == QString(expected_axes_name[i]));
@@ -137,7 +126,8 @@ double load_investigation()
 	/**
 	 * Check line properties
 	 */
-	PVCore::PVHSVColor const* colors = view->get_layer_stack().get_layer_n(2).get_lines_properties().get_buffer();
+	PVCore::PVHSVColor const* colors =
+	    view->get_layer_stack().get_layer_n(2).get_lines_properties().get_buffer();
 	bool colors_ok = true;
 	for (size_t i = 0; i < row_count; i++) {
 		colors_ok &= colors[i] == HSV_COLOR_GREEN;
@@ -152,16 +142,16 @@ int main()
 	double saving_time = save_investigation();
 
 #ifndef INSPECTOR_BENCH
-		pvlogger::info() << "saving time took " << saving_time << " sec" << std::endl;
+	pvlogger::info() << "saving time took " << saving_time << " sec" << std::endl;
 #endif
 
 	double loading_time = load_investigation();
 
 #ifndef INSPECTOR_BENCH
-		pvlogger::info() << "loading time took " << loading_time << " sec" << std::endl;
+	pvlogger::info() << "loading time took " << loading_time << " sec" << std::endl;
 #else
-		std::cout << saving_time + loading_time;
+	std::cout << saving_time + loading_time;
 #endif
 
-    return 0;
+	return 0;
 }

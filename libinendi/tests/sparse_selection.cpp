@@ -20,8 +20,7 @@
 #include <cstdlib>
 #include <ctime>
 
-template <class L>
-bool check_equals(const size_t n, const size_t* bits, L const& l)
+template <class L> bool check_equals(const size_t n, const size_t* bits, L const& l)
 {
 	bool ret = (n == l.size());
 	if (ret) {
@@ -34,7 +33,7 @@ bool check_equals(const size_t n, const size_t* bits, L const& l)
 			std::cerr << bits[i] << " ";
 		}
 		std::cerr << std::endl << "Selection is: ";
-		for (const size_t b: l) {
+		for (const size_t b : l) {
 			std::cerr << b << " ";
 		}
 		std::cerr << std::endl;
@@ -47,7 +46,7 @@ void dump_sel(const char* str, Inendi::PVSparseSelection const& s)
 	std::vector<size_t> bits;
 	s.to_list(bits);
 	std::cerr << str << ": ";
-	for (size_t b: bits) {
+	for (size_t b : bits) {
 		std::cerr << b << " ";
 	}
 	std::cerr << std::endl;
@@ -55,18 +54,20 @@ void dump_sel(const char* str, Inendi::PVSparseSelection const& s)
 
 int main()
 {
-	std::cout << "sizeof map_chunks_t::value_t: " << sizeof(Inendi::PVSparseSelection::map_chunks_t::value_type) << std::endl;
+	std::cout << "sizeof map_chunks_t::value_t: "
+	          << sizeof(Inendi::PVSparseSelection::map_chunks_t::value_type) << std::endl;
 	Inendi::PVSparseSelection s;
 
 	// Set bits i ndifferent chunks and check that the returned list is okay.
-	const size_t bits[] = {1,10,64,66,102305064UL, 10329495499UL};
-	size_t nbits = sizeof(bits)/sizeof(size_t);
+	const size_t bits[] = {1, 10, 64, 66, 102305064UL, 10329495499UL};
+	size_t nbits = sizeof(bits) / sizeof(size_t);
 
 	for (size_t i = 0; i < nbits; i++) {
 		s.set(bits[i]);
 	}
 
-	std::vector<size_t> set_bits; set_bits.reserve(nbits);
+	std::vector<size_t> set_bits;
+	set_bits.reserve(nbits);
 	s.to_list(set_bits);
 	PV_ASSERT_VALID(check_equals(nbits, &bits[0], set_bits));
 
@@ -74,14 +75,16 @@ int main()
 	nbits = 10000;
 	s.clear();
 	srand(time(NULL));
-	std::vector<size_t> bits_ref; bits_ref.reserve(nbits);
+	std::vector<size_t> bits_ref;
+	bits_ref.reserve(nbits);
 	for (size_t i = 0; i < nbits; i++) {
 		size_t v = rand();
 		bits_ref.push_back(v);
 		s.set(v);
 	}
 	std::sort(bits_ref.begin(), bits_ref.end());
-	set_bits.clear(); set_bits.reserve(nbits);
+	set_bits.clear();
+	set_bits.reserve(nbits);
 	s.to_list(set_bits);
 	PV_ASSERT_VALID(check_equals(bits_ref.size(), &bits_ref[0], set_bits));
 
@@ -89,12 +92,18 @@ int main()
 	Inendi::PVSparseSelection s2;
 	s.clear();
 
-	s.set(1); s2.set(1);
-	s.set(65); s2.set(65);
-	s.set(66); s2.set(64);
-	s.set(10000ULL); s2.set(10000000ULL);
-	s.set(1245678901ULL); s2.set(1245678901ULL);
-	s.set(1245678902ULL); s2.set(1245678902ULL);
+	s.set(1);
+	s2.set(1);
+	s.set(65);
+	s2.set(65);
+	s.set(66);
+	s2.set(64);
+	s.set(10000ULL);
+	s2.set(10000000ULL);
+	s.set(1245678901ULL);
+	s2.set(1245678901ULL);
+	s.set(1245678902ULL);
+	s2.set(1245678902ULL);
 	dump_sel("s", s);
 	dump_sel("s2", s2);
 	s &= s2;
@@ -103,17 +112,20 @@ int main()
 	set_bits.clear();
 	s.to_list(set_bits);
 	{
-		const size_t bits_ref[] = {1,65,1245678901ULL,1245678902ULL};
-		PV_ASSERT_VALID(check_equals(4, (size_t*) bits_ref, set_bits));
+		const size_t bits_ref[] = {1, 65, 1245678901ULL, 1245678902ULL};
+		PV_ASSERT_VALID(check_equals(4, (size_t*)bits_ref, set_bits));
 	}
 
 	// Check the OR operator
-	s.clear(); s2.clear();
+	s.clear();
+	s2.clear();
 	s.set(1);
-	s.set(65); s2.set(67);
-	s.set(66); s2.set(64);
+	s.set(65);
+	s2.set(67);
+	s.set(66);
+	s2.set(64);
 	s.set(10000ULL);
-	                 s2.set(10000000ULL);
+	s2.set(10000000ULL);
 	dump_sel("s", s);
 	dump_sel("s2", s2);
 	s |= s2;
@@ -122,13 +134,14 @@ int main()
 	set_bits.clear();
 	s.to_list(set_bits);
 	{
-		const size_t bits_ref[] = {1,64,65,66,67,10000ULL,10000000ULL};
-		PV_ASSERT_VALID(check_equals(sizeof(bits_ref)/sizeof(size_t), (size_t*) bits_ref, set_bits));
+		const size_t bits_ref[] = {1, 64, 65, 66, 67, 10000ULL, 10000000ULL};
+		PV_ASSERT_VALID(
+		    check_equals(sizeof(bits_ref) / sizeof(size_t), (size_t*)bits_ref, set_bits));
 	}
 
 	// Performance tests
 	//
-	
+
 	// Random number generation that will be used for the following tests
 	std::vector<size_t> random_bits;
 	std::vector<size_t> random_sorted_bits(random_bits);
@@ -148,14 +161,16 @@ int main()
 	for (size_t i = 0; i < nbits; i++) {
 		s.set(random_bits[i]);
 	}
-	BENCH_END(creation, "creation-random", sizeof(size_t), nbits, sizeof(Inendi::PVSparseSelection::map_chunks_t::value_type), s.get_chunks().size());
+	BENCH_END(creation, "creation-random", sizeof(size_t), nbits,
+	          sizeof(Inendi::PVSparseSelection::map_chunks_t::value_type), s.get_chunks().size());
 
 	s.clear();
 	BENCH_START(creation2);
 	for (size_t i = 0; i < nbits; i++) {
 		s.set(random_sorted_bits[i]);
 	}
-	BENCH_END(creation2, "creation-sorted", sizeof(size_t), nbits, sizeof(Inendi::PVSparseSelection::map_chunks_t::value_type), s.get_chunks().size());
+	BENCH_END(creation2, "creation-sorted", sizeof(size_t), nbits,
+	          sizeof(Inendi::PVSparseSelection::map_chunks_t::value_type), s.get_chunks().size());
 
 	// Fast creation/removing with small number of objects
 	s.clear();
@@ -184,9 +199,9 @@ int main()
 	for (size_t i = 0; i < nbits; i++) {
 		const size_t r = random_bits[i];
 		s2.set(r);
-		s2.set(r+1);
-		s2.set(r+2);
-		s2.set(r+4);
+		s2.set(r + 1);
+		s2.set(r + 2);
+		s2.set(r + 4);
 		s &= s2;
 		s2.clear();
 	}
@@ -200,9 +215,9 @@ int main()
 	for (size_t i = 0; i < nbits; i++) {
 		const size_t r = random_bits[i];
 		s2.set(r);
-		s2.set(r+1);
-		s2.set(r+2);
-		s2.set(r+4);
+		s2.set(r + 1);
+		s2.set(r + 2);
+		s2.set(r + 4);
 		s &= s2;
 		s &= s2;
 		s &= s2;

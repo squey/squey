@@ -14,22 +14,24 @@
 
 #include <QHBoxLayout>
 
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QString const& type, QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QString const& type, QWidget* parent)
+    : QWidget(parent)
 {
 	init(false);
 	populate_from_type(type);
 }
 
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting, bool params_btn, QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting,
+                                                      bool params_btn, QWidget* parent)
+    : QWidget(parent)
 {
 	init(params_btn);
 	populate_from_plotting(axis_id, plotting);
 }
 
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Inendi::PVView& view, bool params_btn, QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Inendi::PVView& view,
+                                                      bool params_btn, QWidget* parent)
+    : QWidget(parent)
 {
 	init(params_btn);
 	populate_from_plotting(axis_id, view.get_parent<Inendi::PVPlotted>()->get_plotting());
@@ -48,7 +50,7 @@ void PVWidgets::PVPlottingModeWidget::init(bool params_btn)
 {
 	_combo = new PVComboBox(this);
 	_props = NULL;
-	
+
 	QHBoxLayout* layout = new QHBoxLayout();
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(10);
@@ -60,18 +62,18 @@ void PVWidgets::PVPlottingModeWidget::init(bool params_btn)
 		layout->addWidget(_params_btn);
 
 		connect(_params_btn, SIGNAL(clicked()), this, SLOT(change_params()));
-	}
-	else {
+	} else {
 		_params_btn = NULL;
 	}
 	setLayout(layout);
-	
+
 	setFocusPolicy(Qt::StrongFocus);
 }
 
 void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type)
 {
-	LIB_CLASS(Inendi::PVPlottingFilter)::list_classes const& map_filters = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVPlottingFilter)::list_classes const& map_filters =
+	    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list();
 	LIB_CLASS(Inendi::PVPlottingFilter)::list_classes::const_iterator it;
 	for (it = map_filters.begin(); it != map_filters.end(); it++) {
 		Inendi::PVPlottingFilter::p_type filter = it->value();
@@ -84,7 +86,8 @@ void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type)
 	}
 }
 
-void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id, Inendi::PVPlotting& plotting)
+void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
+                                                             Inendi::PVPlotting& plotting)
 {
 	Inendi::PVPlottingProperties& props = plotting.get_properties_for_col(axis_id);
 	_props = &props;
@@ -107,7 +110,9 @@ void PVWidgets::PVPlottingModeWidget::change_params()
 	if (args.size() == 0) {
 		return;
 	}
-	bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), args, this);
+	bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
+	    PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), args,
+	    this);
 	if (!ret) {
 		return;
 	}

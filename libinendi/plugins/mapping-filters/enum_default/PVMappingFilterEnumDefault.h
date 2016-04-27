@@ -12,45 +12,47 @@
 
 #include <pvcop/db/read_dict.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * Mapping class for enum type.
  *
  * This mapping is an equireparteed one.
  */
-class PVMappingFilterEnumDefault: public PVMappingFilter
+class PVMappingFilterEnumDefault : public PVMappingFilter
 {
-	public:
-		PVMappingFilterEnumDefault();
+  public:
+	PVMappingFilterEnumDefault();
 
-		/**
-		 * Compute distinct value and associate for each of the an equi-reparteed 
-		 * value between 0 and uint32_t MAX.
-		 */
-		decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override {
-			auto array = nraw.collection().column(col);
-			auto& core_array = array.to_core_array<uint32_t>();
+	/**
+	 * Compute distinct value and associate for each of the an equi-reparteed
+	 * value between 0 and uint32_t MAX.
+	 */
+	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override
+	{
+		auto array = nraw.collection().column(col);
+		auto& core_array = array.to_core_array<uint32_t>();
 
-			// Apply this factor to make sure we use the full uint32 range.
-			double extend_factor = std::numeric_limits<uint32_t>::max() / (double)nraw.collection().dict(col)->size();
+		// Apply this factor to make sure we use the full uint32 range.
+		double extend_factor =
+		    std::numeric_limits<uint32_t>::max() / (double)nraw.collection().dict(col)->size();
 
-			for(size_t row=0; row< array.size(); row++) {
-				_dest[row].storage_as_uint() = extend_factor * core_array[row];
-			}
-
-			return _dest;
+		for (size_t row = 0; row < array.size(); row++) {
+			_dest[row].storage_as_uint() = extend_factor * core_array[row];
 		}
 
-		/**
-		 * MetaInformations about this plugins.
-		 */
-		QString get_human_name() const override { return QString("Default"); }
-		PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
+		return _dest;
+	}
 
-		CLASS_FILTER_NOPARAM(PVMappingFilterEnumDefault)
+	/**
+	 * MetaInformations about this plugins.
+	 */
+	QString get_human_name() const override { return QString("Default"); }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
+
+	CLASS_FILTER_NOPARAM(PVMappingFilterEnumDefault)
 };
-
 }
 
 #endif

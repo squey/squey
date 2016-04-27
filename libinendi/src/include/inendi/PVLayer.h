@@ -26,35 +26,39 @@
 #define INENDI_LAYER_ARCHIVE_EXT "pvl"
 #define INENDI_LAYER_ARCHIVE_FILTER "INENDI layer-stack files (*." INENDI_LAYER_ARCHIVE_EXT ")"
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVPlotted;
 
 /**
  * \class PVLayer
  */
-class PVLayer {
+class PVLayer
+{
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	typedef std::vector<PVRow> list_row_indexes_t;
-private:
-	int                index;
-	bool               locked;
-	bool               visible;
-	QString            name;
-	PVSelection        selection;
-	PVLinesProperties  lines_properties;
-	PVRow              selectable_count;
+
+  private:
+	int index;
+	bool locked;
+	bool visible;
+	QString name;
+	PVSelection selection;
+	PVLinesProperties lines_properties;
+	PVRow selectable_count;
 	list_row_indexes_t _row_mins;
 	list_row_indexes_t _row_maxs;
 
-public:
-
+  public:
 	/**
 	 * Constructor
 	 */
-	PVLayer(const QString & name_);
-	PVLayer(const QString & name_, const PVSelection & sel_, const PVLinesProperties & lp_ = PVLinesProperties());
+	PVLayer(const QString& name_);
+	PVLayer(const QString& name_, const PVSelection& sel_,
+	        const PVLinesProperties& lp_ = PVLinesProperties());
 
 	/**
 	 * Copy this layer properties as b properties for selected elements (from selection)
@@ -62,16 +66,17 @@ public:
 	 *
 	 * @param[in] : nelts is the number of elements in the selection.
 	 */
-	void A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVSelection const& selection, PVRow nelts);
+	void A2B_copy_restricted_by_selection_and_nelts(PVLayer& b, PVSelection const& selection,
+	                                                PVRow nelts);
 
-	int get_index() const {return index;}
-	const PVLinesProperties& get_lines_properties() const {return lines_properties;}
-	PVLinesProperties& get_lines_properties() {return lines_properties;}
-	bool get_locked() const {return locked;}
-	const QString & get_name() const {return name;}
-	const PVSelection & get_selection() const {return selection;}
-	PVSelection& get_selection() {return selection;}
-	bool get_visible() const {return visible;}
+	int get_index() const { return index; }
+	const PVLinesProperties& get_lines_properties() const { return lines_properties; }
+	PVLinesProperties& get_lines_properties() { return lines_properties; }
+	bool get_locked() const { return locked; }
+	const QString& get_name() const { return name; }
+	const PVSelection& get_selection() const { return selection; }
+	PVSelection& get_selection() { return selection; }
+	bool get_visible() const { return visible; }
 
 	void compute_selectable_count(PVRow const& nrows);
 	PVRow get_selectable_count() const { return selectable_count; }
@@ -86,23 +91,30 @@ public:
 	void reset_to_full_and_default_color(PVRow row_count);
 	void reset_to_default_color(PVRow row_count);
 
-	void set_index(int index_) {index = index_;}
-	void set_locked(bool locked_) {locked = locked_;}
-	void set_name(const QString & name_) {name = name_; name.truncate(INENDI_LAYER_NAME_MAXLEN);}
-	void set_visible(bool visible_) {visible = visible_;}
-	void set_count(PVRow count) { selection.set_count(count); lines_properties.set_row_count(count); }
+	void set_index(int index_) { index = index_; }
+	void set_locked(bool locked_) { locked = locked_; }
+	void set_name(const QString& name_)
+	{
+		name = name_;
+		name.truncate(INENDI_LAYER_NAME_MAXLEN);
+	}
+	void set_visible(bool visible_) { visible = visible_; }
+	void set_count(PVRow count)
+	{
+		selection.set_count(count);
+		lines_properties.set_row_count(count);
+	}
 
-public:
+  public:
 	void load_from_file(QString const& path);
 	void save_to_file(QString const& path);
 
-protected:
+  protected:
 	// Default constructor is needed when recreating the object
 	PVLayer() : PVLayer("") {}
 
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 };
-
 }
 
 // This must be done outside of any namespace

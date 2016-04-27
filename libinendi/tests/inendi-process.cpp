@@ -57,7 +57,8 @@ int main(int argc, char** argv)
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
 	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
 	scene->set_parent(root);
-	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Inendi::PVSource_sp src(
+	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	src->set_parent(scene);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
@@ -97,6 +98,6 @@ int main(int argc, char** argv)
 	BENCH_START(visibility);
 	view->process_visibility();
 	BENCH_END(visibility, "visibility", 1, 1, 1, 1);
-	
+
 	return 0;
 }

@@ -17,26 +17,30 @@
 #include <inendi/PVLayer.h>
 #include <inendi/PVLayerFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * \class PVLayerFilterCreateLayers
  */
-class PVLayerFilterCreateLayers : public PVLayerFilter {
-public:
-	PVLayerFilterCreateLayers(QString section_name, QMap<QString, QStringList> layers_regex, PVCore::PVArgumentList const& l = PVLayerFilterCreateLayers::default_args());
-public:
-	void operator()(PVLayer const& in, PVLayer &out) override;
+class PVLayerFilterCreateLayers : public PVLayerFilter
+{
+  public:
+	PVLayerFilterCreateLayers(
+	    QString section_name, QMap<QString, QStringList> layers_regex,
+	    PVCore::PVArgumentList const& l = PVLayerFilterCreateLayers::default_args());
+
+  public:
+	void operator()(PVLayer const& in, PVLayer& out) override;
 	PVCore::PVArgumentList get_default_args_for_view(PVView const& view) override;
 	QString menu_name() const override { return _menu_name; }
 
-private:
+  private:
 	QString _section_name;
 	QString _menu_name;
-	QMap <QString, QStringList> _layers_regex;
+	QMap<QString, QStringList> _layers_regex;
 
 	CLASS_FILTER(Inendi::PVLayerFilterCreateLayers)
-
 };
 }
 

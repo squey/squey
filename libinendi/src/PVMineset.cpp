@@ -24,13 +24,13 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-constexpr const char DATASET_NAME[]               = "inendi_export";
+constexpr const char DATASET_NAME[] = "inendi_export";
 
 static size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp)
 {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
+	((std::string*)userp)->append((char*)contents, size * nmemb);
 
-    return size * nmemb;
+	return size * nmemb;
 }
 
 /**
@@ -43,7 +43,8 @@ CURL* Inendi::PVMineset::init_curl()
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 	curl_easy_setopt(curl, CURLOPT_USERPWD, (_login + ":" + _password).c_str());
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, (std::string("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR).c_str());
+	curl_easy_setopt(curl, CURLOPT_USERAGENT,
+	                 (std::string("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR).c_str());
 	curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -68,16 +69,12 @@ std::string Inendi::PVMineset::upload_dataset(const std::string& dataset_path)
 	struct curl_httppost* last = nullptr;
 
 	// dataset name
-	curl_formadd(&post, &last,
-			  CURLFORM_COPYNAME, "name",
-			  CURLFORM_COPYCONTENTS, (std::string(DATASET_NAME) + ".tar.gz").c_str(),
-			  CURLFORM_END);
+	curl_formadd(&post, &last, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS,
+	             (std::string(DATASET_NAME) + ".tar.gz").c_str(), CURLFORM_END);
 
 	// dataset content
-	curl_formadd(&post, &last,
-			  CURLFORM_COPYNAME, "file",
-			  CURLFORM_FILE, dataset_path.c_str(),
-			  CURLFORM_END);
+	curl_formadd(&post, &last, CURLFORM_COPYNAME, "file", CURLFORM_FILE, dataset_path.c_str(),
+	             CURLFORM_END);
 
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
 
@@ -89,7 +86,7 @@ std::string Inendi::PVMineset::upload_dataset(const std::string& dataset_path)
 	curl_formfree(post);
 	curl_easy_cleanup(curl);
 
-	if(res != CURLE_OK) {
+	if (res != CURLE_OK) {
 		throw Inendi::PVMineset::mineset_error(curl_easy_strerror(res));
 	}
 
@@ -106,10 +103,9 @@ std::string Inendi::PVMineset::dataset_url(const std::string& server_result)
 	if (json.HasMember("message")) {
 		if (std::string(json["message"].GetString()) == "Ok") {
 			if (json.HasMember("result") and json["result"].HasMember("id")) {
-			    return MINESET_API_DATASET + std::to_string(json["result"]["id"].GetUint());
+				return MINESET_API_DATASET + std::to_string(json["result"]["id"].GetUint());
 			}
-		}
-		else if (json.HasMember("result")) {
+		} else if (json.HasMember("result")) {
 			throw Inendi::PVMineset::mineset_error(json["message"].GetString());
 		}
 	}
@@ -118,7 +114,8 @@ std::string Inendi::PVMineset::dataset_url(const std::string& server_result)
 }
 
 /**
- * Returns the Mineset JSON string representation of the format associated with the view
+ * Returns the Mineset JSON string representation of the format associated with
+ * the view
  */
 static std::string schema(const Inendi::PVView& view)
 {
@@ -133,7 +130,7 @@ static std::string schema(const Inendi::PVView& view)
 	rapidjson::Value json_axes(rapidjson::kArrayType);
 
 	const Inendi::PVAxesCombination& axis_combination = view.get_axes_combination();
-	for(const Inendi::PVAxis& axis : axis_combination.get_axes_list()) {
+	for (const Inendi::PVAxis& axis : axis_combination.get_axes_list()) {
 		rapidjson::Value val;
 		rapidjson::Value obj;
 		obj.SetObject();
@@ -146,17 +143,12 @@ static std::string schema(const Inendi::PVView& view)
 
 		if (axis_type == "time") {
 			column_type = "date";
-		}
-		else if (axis_type == "string" ||
-				 axis_type == "enum" ||
-				 axis_type == "host" ||
-				 axis_type == "ipv4") {
+		} else if (axis_type == "string" || axis_type == "enum" || axis_type == "host" ||
+		           axis_type == "ipv4") {
 			column_type = "string";
-		}
-		else if (axis_type == "integer") {
+		} else if (axis_type == "integer") {
 			column_type = "int";
-		}
-		else {
+		} else {
 			assert(axis_type == "float" && "Unkown axis type");
 			column_type = "double";
 		}
@@ -181,81 +173,85 @@ static std::string schema(const Inendi::PVView& view)
  */
 static std::string compress_data(std::string const& tmp_dir)
 {
-    // Compress dataset
-    std::string dataset_zip_path = tmp_dir + "/" + DATASET_NAME + ".tar.gz";
+	// Compress dataset
+	std::string dataset_zip_path = tmp_dir + "/" + DATASET_NAME + ".tar.gz";
 
-    int ret_code = system((std::string("tar -c -I pigz -f ") + dataset_zip_path + " -C " + tmp_dir + " " + DATASET_NAME).c_str());
-    if (ret_code != 0) { // no pigz support ? falling back on standard gzip compression...
-	pvlogger::warn() << "Mineset export : error when compressing. Is pigz installed ? Retrying with standard gzip..." << std::endl;
-	if (system((std::string("tar zcf ") + dataset_zip_path + " -C " + tmp_dir + " " + DATASET_NAME).c_str()) != 0) {
-	    throw Inendi::PVMineset::mineset_error("Error when compressing dataset");
+	int ret_code = system((std::string("tar -c -I pigz -f ") + dataset_zip_path + " -C " + tmp_dir +
+	                       " " + DATASET_NAME).c_str());
+	if (ret_code != 0) { // no pigz support ? falling back on standard gzip compression...
+		pvlogger::warn() << "Mineset export : error when compressing. Is pigz "
+		                    "installed ? Retrying with standard gzip..." << std::endl;
+		if (system((std::string("tar zcf ") + dataset_zip_path + " -C " + tmp_dir + " " +
+		            DATASET_NAME).c_str()) != 0) {
+			throw Inendi::PVMineset::mineset_error("Error when compressing dataset");
+		}
 	}
-    }
-    return dataset_zip_path;
+	return dataset_zip_path;
 }
 
 // Use anonymous namespace to keep this class local.
-namespace {
-    /**
-     * RAII class that change NRaw format for times to match mineset format and set back its correct values at the end.
-     */
-    class LocalMinesetFormat
-    {
-	public:
-	    /**
-	     * Update format to match Mineset datetime format.
-	     */
-	    LocalMinesetFormat(Inendi::PVView& view): _view(view)
-	    {
+namespace
+{
+/**
+ * RAII class that change NRaw format for times to match mineset format and set
+ * back its correct values at the end.
+ */
+class LocalMinesetFormat
+{
+  public:
+	/**
+	 * Update format to match Mineset datetime format.
+	 */
+	LocalMinesetFormat(Inendi::PVView& view) : _view(view)
+	{
 		PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 
-		for(const Inendi::PVAxesCombination::axes_comb_id_t& a: view.get_axes_combination().get_axes_index_list()) {
-		    /**
-		     * Convert time to ISO 8601 standard
-		     */
-		    if (view.get_axes_combination().get_original_axis(a.get_axis()).get_type() == "time") {
-			auto f = nraw.collection().formatter(a.get_axis());
+		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
+		     view.get_axes_combination().get_axes_index_list()) {
+			/**
+			 * Convert time to ISO 8601 standard
+			 */
+			if (view.get_axes_combination().get_original_axis(a.get_axis()).get_type() == "time") {
+				auto f = nraw.collection().formatter(a.get_axis());
 
-			pvcop::collection::formatter_sp formatter_datetime;
-			if (std::string(f->name()) == "datetime") {
-			    formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
-				    pvcop::types::factory::create("datetime", "%Y-%m-%dT%H:%M:%SZ"));
-			}
-			else if (std::string(f->name()) == "datetime_us") {
-			    formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
-				    pvcop::types::factory::create("datetime_us", "%Y-%m-%dT%H:%M:%S.%FZ"));
-			}
-			else {
-			    assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
-			    formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
-				    pvcop::types::factory::create("datetime_ms", "yyyy-MM-dd'T'HH:mm:ss.S'Z'"));
-			}
+				pvcop::collection::formatter_sp formatter_datetime;
+				if (std::string(f->name()) == "datetime") {
+					formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
+					    pvcop::types::factory::create("datetime", "%Y-%m-%dT%H:%M:%SZ"));
+				} else if (std::string(f->name()) == "datetime_us") {
+					formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
+					    pvcop::types::factory::create("datetime_us", "%Y-%m-%dT%H:%M:%S.%FZ"));
+				} else {
+					assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
+					formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
+					    pvcop::types::factory::create("datetime_ms", "yyyy-MM-dd'T'HH:mm:ss.S'Z'"));
+				}
 
-			_datetime_formatters[a.get_axis()] = f;
-			nraw.collection().set_formatter(a.get_axis(), formatter_datetime);
-		    }
+				_datetime_formatters[a.get_axis()] = f;
+				nraw.collection().set_formatter(a.get_axis(), formatter_datetime);
+			}
 		}
+	}
 
-	    }
-
-	    /**
-	     * Set back NRaw format for time.
-	     */
-	    ~LocalMinesetFormat() {
+	/**
+	 * Set back NRaw format for time.
+	 */
+	~LocalMinesetFormat()
+	{
 		PVRush::PVNraw& nraw = _view.get_rushnraw_parent();
 
 		// Put datetime formatters back
 		for (const auto& datetime_formatter_it : _datetime_formatters) {
-		    nraw.collection().set_formatter(datetime_formatter_it.first, datetime_formatter_it.second);
+			nraw.collection().set_formatter(datetime_formatter_it.first,
+			                                datetime_formatter_it.second);
 		}
-	    }
+	}
 
-
-	private:
-	    std::unordered_map<size_t, pvcop::collection::formatter_sp> _datetime_formatters; //!< Updates format.
-	    Inendi::PVView & _view; //!< Changed view.
-
-    };
+  private:
+	std::unordered_map<size_t, pvcop::collection::formatter_sp>
+	    _datetime_formatters; //!< Updates format.
+	Inendi::PVView& _view;    //!< Changed view.
+};
 }
 
 /**
@@ -264,12 +260,12 @@ namespace {
  * [mineset]
  * login=
  * password=
- * host = 
+ * host =
  */
-Inendi::PVMineset::PVMineset():
-    _login(PVCore::PVConfig::get().config().value("mineset/login").toString().toStdString()),
-    _password(PVCore::PVConfig::get().config().value("mineset/password").toString().toStdString()),
-    _url(PVCore::PVConfig::get().config().value("mineset/url").toString().toStdString())
+Inendi::PVMineset::PVMineset()
+    : _login(PVCore::PVConfig::get().config().value("mineset/login").toString().toStdString())
+    , _password(PVCore::PVConfig::get().config().value("mineset/password").toString().toStdString())
+    , _url(PVCore::PVConfig::get().config().value("mineset/url").toString().toStdString())
 {
 }
 
@@ -282,7 +278,8 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 	PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 
 	// Create temporary directory
-	std::string tmp_dir_pattern(PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/mineset_export.XXXXXXXX");
+	std::string tmp_dir_pattern(PVRush::PVNrawCacheManager::nraw_dir().toStdString() +
+	                            "/mineset_export.XXXXXXXX");
 	char tmp_dir[1024];
 	strcpy(tmp_dir, tmp_dir_pattern.c_str());
 	mkdtemp(tmp_dir);
@@ -296,23 +293,19 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 	// Export dataset content
 	{
 
-	    LocalMinesetFormat lf(view);
+		LocalMinesetFormat lf(view);
 
-	    std::ofstream data_file(dataset_base_path + ".data");
+		std::ofstream data_file(dataset_base_path + ".data");
 
-	    PVCore::PVColumnIndexes column_indexes;
-	    for(const Inendi::PVAxesCombination::axes_comb_id_t& a: view.get_axes_combination().get_axes_index_list()) {
-		column_indexes.emplace_back(a.get_axis());
-	    }
+		PVCore::PVColumnIndexes column_indexes;
+		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
+		     view.get_axes_combination().get_axes_index_list()) {
+			column_indexes.emplace_back(a.get_axis());
+		}
 
-	    view.get_rushnraw_parent().export_lines(
-		    data_file,
-		    sel,
-		    column_indexes,
-		    0,
-		    nraw.get_row_count(),
-		    "\t" /* = default_sep_char */
-		    );
+		view.get_rushnraw_parent().export_lines(data_file, sel, column_indexes, 0,
+		                                        nraw.get_row_count(), "\t" /* = default_sep_char */
+		                                        );
 	}
 
 	// Compress dataset
@@ -337,7 +330,7 @@ void Inendi::PVMineset::delete_dataset(const std::string& dataset_url)
 
 	CURLcode res = curl_easy_perform(curl);
 
-	if(res != CURLE_OK) {
+	if (res != CURLE_OK) {
 		pvlogger::error() << curl_easy_strerror(res) << std::endl;
 	}
 
@@ -346,6 +339,6 @@ void Inendi::PVMineset::delete_dataset(const std::string& dataset_url)
 
 Inendi::PVMineset& Inendi::PVMineset::instance()
 {
-    static Inendi::PVMineset sing;
-    return sing;
+	static Inendi::PVMineset sing;
+	return sing;
 }

@@ -11,16 +11,17 @@
 #include <pvkernel/core/general.h>
 #include <inendi/PVMappingFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * String mapping sorted on first 4 bytes.
  */
-class PVMappingFilterString4Bsort: public PVMappingFilter
+class PVMappingFilterString4Bsort : public PVMappingFilter
 {
-public:
-
-	PVMappingFilter::decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
+  public:
+	PVMappingFilter::decimal_storage_type* operator()(PVCol const col,
+	                                                  PVRush::PVNraw const& nraw) override;
 
 	/**
 	 * Meta information from this plugin.
@@ -28,10 +29,9 @@ public:
 	QString get_human_name() const { return QString("Pseudo-sort on the first 4 bytes"); }
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
-protected:
+  protected:
 	CLASS_FILTER_NOPARAM(PVMappingFilterString4Bsort)
 };
-
 }
 
-#endif	/* PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H */
+#endif /* PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H */

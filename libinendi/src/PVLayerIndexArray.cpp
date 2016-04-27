@@ -39,7 +39,8 @@ void Inendi::PVLayerIndexArray::set_value(PVRow row_index, int value)
 	_array[row_index] = value;
 }
 
-void Inendi::PVLayerIndexArray::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVLayerIndexArray::serialize(PVCore::PVSerializeObject& so,
+                                          PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	PVRow row_count = _array.size();
 	so.attribute("row_count", row_count);

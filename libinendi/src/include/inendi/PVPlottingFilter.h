@@ -15,18 +15,21 @@
 #include <inendi/PVMandatoryMappingFilter.h>
 #include <inendi/PVMapped_types.h>
 
-namespace Inendi {
-
-class PVPlottingFilter: public PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>, public PVCore::PVRegistrableClass<PVPlottingFilter>
+namespace Inendi
 {
-public:
+
+class PVPlottingFilter
+    : public PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>,
+      public PVCore::PVRegistrableClass<PVPlottingFilter>
+{
+  public:
 	typedef std::shared_ptr<PVPlottingFilter> p_type;
 	typedef PVPlottingFilter FilterT;
 
-public:
+  public:
 	PVPlottingFilter();
 
-public:
+  public:
 	virtual uint32_t* operator()(mapped_decimal_storage_type const* value);
 	virtual uint32_t operator()(mapped_decimal_storage_type const value);
 
@@ -35,21 +38,22 @@ public:
 	void set_mapping_mode(QString const& mapping_mode);
 	void set_mandatory_params(Inendi::mandatory_param_map const& params);
 
-	virtual void init_expand(uint32_t const /*min*/, uint32_t const /*max*/) { };
+	virtual void init_expand(uint32_t const /*min*/, uint32_t const /*max*/){};
 	virtual uint32_t expand_plotted(uint32_t const value) const { return value; }
 
 	virtual QString get_human_name() const;
 
 	virtual bool can_expand() const { return false; }
-public:
+
+  public:
 	static QStringList list_modes(QString const& type, bool only_expandable = false);
 	static QList<p_type> list_modes_lib(QString const& type, bool only_expandable);
 	static QString mode_from_registered_name(QString const& rn);
 
-protected:
+  protected:
 	void copy_mapped_to_plotted(mapped_decimal_storage_type const* value);
 
-protected:
+  protected:
 	QString _mapping_mode;
 	PVRow _dest_size;
 	uint32_t* _dest;
@@ -58,7 +62,6 @@ protected:
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;
-
 }
 
 #endif

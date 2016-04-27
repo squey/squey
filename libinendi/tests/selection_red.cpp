@@ -42,7 +42,8 @@ int main(int argc, char** argv)
 		for (size_t i = 1; i < n; i++) {
 			first_sel |= sels[i];
 		}
-		BENCH_END(serial, "serial", n, sizeof(uint32_t)*first_sel.chunk_count(), 1, sizeof(uint32_t)*first_sel.chunk_count());
+		BENCH_END(serial, "serial", n, sizeof(uint32_t) * first_sel.chunk_count(), 1,
+		          sizeof(uint32_t) * first_sel.chunk_count());
 	}
 
 	{
@@ -52,13 +53,14 @@ int main(int argc, char** argv)
 		PVSelection& first_sel_omp = sels[0];
 
 		BENCH_START(omp);
-		#pragma omp parallel for num_threads(6)
+#pragma omp parallel for num_threads(6)
 		for (size_t c = 0; c < first_sel_omp.chunk_count(); c++) {
 			for (size_t i = 0; i < n; i++) {
 				first_sel_omp.get_buffer()[c] |= sels[i].get_buffer()[c];
 			}
 		}
-		BENCH_END(omp, "omp", n, sizeof(uint32_t)*first_sel_omp.chunk_count(), 1, sizeof(uint32_t)*first_sel_omp.chunk_count());
+		BENCH_END(omp, "omp", n, sizeof(uint32_t) * first_sel_omp.chunk_count(), 1,
+		          sizeof(uint32_t) * first_sel_omp.chunk_count());
 	}
 
 	return 0;

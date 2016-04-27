@@ -23,25 +23,23 @@ constexpr const char* ref_out = TEST_FOLDER "/picviz/honeypot.csv.ref";
  */
 int main()
 {
-    // Init nraw
-    pvtest::TestEnv env(filename, fileformat);
-    env.compute_mapping();
+	// Init nraw
+	pvtest::TestEnv env(filename, fileformat);
+	env.compute_mapping();
 
-    Inendi::PVView* view = env.compute_plotting()->current_view();
+	Inendi::PVView* view = env.compute_plotting()->current_view();
 
-    // Check result
-    PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
+	// Check result
+	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 
-    std::string out_path = pvtest::get_tmp_filename();
-    // Dump the NRAW to file and check value is the same
-    nraw.dump_csv(out_path);
+	std::string out_path = pvtest::get_tmp_filename();
+	// Dump the NRAW to file and check value is the same
+	nraw.dump_csv(out_path);
 
-    std::cout << out_path << " - " << ref_out << std::endl;
-    PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(out_path, ref_out));
+	std::cout << out_path << " - " << ref_out << std::endl;
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(out_path, ref_out));
 
-    std::remove(out_path.c_str());
+	std::remove(out_path.c_str());
 
-    return 0;
+	return 0;
 }
-
-

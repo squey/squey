@@ -14,21 +14,19 @@
 
 #include <QHBoxLayout>
 
-
-
 /******************************************************************************
  *
  * PVCore::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor
  *
  *****************************************************************************/
-PVWidgets::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor(Inendi::PVView const& view, QWidget *parent):
-	QWidget(parent),
-	_view(view)
+PVWidgets::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor(Inendi::PVView const& view,
+                                                                QWidget* parent)
+    : QWidget(parent), _view(view)
 {
 	// _checked = true;	// Default is checked
 	// _current_index = 0;
 
-	QHBoxLayout *layout = new QHBoxLayout;
+	QHBoxLayout* layout = new QHBoxLayout;
 	checkbox = new QCheckBox;
 	checkbox->setCheckState(Qt::Checked);
 	layout->addWidget(checkbox);
@@ -56,7 +54,8 @@ PVWidgets::PVAxisIndexCheckBoxEditor::~PVAxisIndexCheckBoxEditor()
  * PVWidgets::PVAxisIndexCheckBoxEditor::set_axis_index
  *
  *****************************************************************************/
-void PVWidgets::PVAxisIndexCheckBoxEditor::set_axis_index(PVCore::PVAxisIndexCheckBoxType /*axis_index*/)
+void PVWidgets::PVAxisIndexCheckBoxEditor::set_axis_index(
+    PVCore::PVAxisIndexCheckBoxType /*axis_index*/)
 {
 	PVLOG_INFO("WE SET THE INDEX OF OUR CHECKBOX FROM THE EDITOR!\n");
 
@@ -73,4 +72,3 @@ PVCore::PVAxisIndexCheckBoxType PVWidgets::PVAxisIndexCheckBoxEditor::get_axis_i
 
 	return PVCore::PVAxisIndexCheckBoxType(combobox->currentIndex(), 0);
 }
-

@@ -16,7 +16,7 @@
 #include <inendi/PVSparseSelection.h>
 #include <inendi/PVAxesCombination.h>
 
-Inendi::PVSelection & Inendi::PVSelection::operator|=(const PVSparseSelection &rhs)
+Inendi::PVSelection& Inendi::PVSelection::operator|=(const PVSparseSelection& rhs)
 {
 	if (!_table) {
 		allocate_table();

@@ -64,7 +64,8 @@ int main(int argc, char** argv)
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
 	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
 	scene->set_parent(root);
-	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Inendi::PVSource_sp src(
+	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	src->set_parent(scene);
 	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
 	mapped->set_parent(src);
@@ -84,18 +85,18 @@ int main(int argc, char** argv)
 		PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 	}
 
-	//
-	/*QStringList const& inv(job->get_invalid_evts());
-	foreach (QString const& sinv, inv) {
-		PVLOG_INFO("invalid: %s\n", qPrintable(sinv));
-	}*/
+//
+/*QStringList const& inv(job->get_invalid_evts());
+foreach (QString const& sinv, inv) {
+        PVLOG_INFO("invalid: %s\n", qPrintable(sinv));
+}*/
 
-	// Map the nraw
-	//mapped->process_from_parent_source();
-	// Dump the mapped table to stdout in a CSV format
-	//mapped->to_csv();
+// Map the nraw
+// mapped->process_from_parent_source();
+// Dump the mapped table to stdout in a CSV format
+// mapped->to_csv();
 
-	// Save current mapped table
+// Save current mapped table
 #if 0
 	Inendi::PVMapped_p mapped(src);
 	Inendi::PVMapped::mapped_table_t save(mapped->get_table());

@@ -19,7 +19,7 @@
  *
  *****************************************************************************/
 Inendi::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVCore::PVArgumentList const& l)
-	: PVLayerFilter(l)
+    : PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterAxisGradient, l);
 	add_ctxt_menu_entry("Gradient on this axis", &PVLayerFilterAxisGradient::gradient_menu);
@@ -33,7 +33,8 @@ Inendi::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVCore::PVArgumentL
 DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterAxisGradient)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVOriginalAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(
+	    PVCore::PVOriginalAxisIndexType(0));
 	return args;
 }
 
@@ -42,35 +43,38 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterAxisGradient)
  * Inendi::PVLayerFilterAxisGradient::operator()
  *
  *****************************************************************************/
-void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer &out)
-{	
+void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer& out)
+{
 	int axis_id;
 
 	PVCore::PVHSVColor color;
 
-	//const PVSource* source = _view.get_source_parent();
+	// const PVSource* source = _view.get_source_parent();
 	const PVPlotted* plotted = _view->get_parent<PVPlotted>();
 	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 
-	PVRow r_max,r_min;
+	PVRow r_max, r_min;
 	plotted->get_col_minmax(r_min, r_max, in.get_selection(), axis_id);
 	const uint32_t min_plotted = ~(plotted->get_value(r_min, axis_id));
 	const uint32_t max_plotted = ~(plotted->get_value(r_max, axis_id));
 	PVLOG_INFO("PVLayerFilterAxisGradient: min/max = %u/%u\n", min_plotted, max_plotted);
-	const double diff = max_plotted-min_plotted;
-	in.get_selection().visit_selected_lines([&](PVRow const r)
-		{
-			const uint32_t plotted_value = ~(plotted->get_value(r, axis_id));
+	const double diff = max_plotted - min_plotted;
+	in.get_selection().visit_selected_lines(
+	    [&](PVRow const r) {
+		    const uint32_t plotted_value = ~(plotted->get_value(r, axis_id));
 
-			PVCore::PVHSVColor color;
-			// From green to red.. !
-			color = ((uint8_t) (((double)(plotted_value-min_plotted)/diff)*(double)(HSV_COLOR_RED-HSV_COLOR_GREEN))) + HSV_COLOR_GREEN;
-			out.get_lines_properties().line_set_color(r, color);
+		    PVCore::PVHSVColor color;
+		    // From green to red.. !
+		    color = ((uint8_t)(((double)(plotted_value - min_plotted) / diff) *
+		                       (double)(HSV_COLOR_RED - HSV_COLOR_GREEN))) +
+		            HSV_COLOR_GREEN;
+		    out.get_lines_properties().line_set_color(r, color);
 		},
-		_view->get_row_count());
+	    _view->get_row_count());
 }
 
-std::vector<PVCore::PVArgumentKey> Inendi::PVLayerFilterAxisGradient::get_args_keys_for_preset() const
+std::vector<PVCore::PVArgumentKey>
+Inendi::PVLayerFilterAxisGradient::get_args_keys_for_preset() const
 {
 	PVCore::PVArgumentKeyList keys = get_default_args().keys();
 	keys.erase(std::find(keys.begin(), keys.end(), ARG_NAME_AXIS));
@@ -84,15 +88,19 @@ QString Inendi::PVLayerFilterAxisGradient::status_bar_description()
 
 QString Inendi::PVLayerFilterAxisGradient::detailed_description()
 {
-	return QString("<b>Purpose</b><br/>This filter applies a color gradient on a wanted axis<hr><b>Behavior</b><br/>It will colorize with a gradient from green to red from the lowest axis value to the highest.");
+	return QString("<b>Purpose</b><br/>This filter applies a color gradient on a wanted "
+	               "axis<hr><b>Behavior</b><br/>It will colorize with a gradient from green to red "
+	               "from the lowest axis value to the highest.");
 }
 
-PVCore::PVArgumentList Inendi::PVLayerFilterAxisGradient::gradient_menu(PVRow /*row*/, PVCol /*col*/, PVCol org_col, QString const& /*v*/)
+PVCore::PVArgumentList Inendi::PVLayerFilterAxisGradient::gradient_menu(PVRow /*row*/,
+                                                                        PVCol /*col*/,
+                                                                        PVCol org_col,
+                                                                        QString const& /*v*/)
 {
 	PVCore::PVArgumentList args;
 	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 	return args;
-
 }
 
 IMPL_FILTER(Inendi::PVLayerFilterAxisGradient)

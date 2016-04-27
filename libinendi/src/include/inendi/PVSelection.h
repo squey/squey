@@ -23,11 +23,13 @@
 
 #include <vector>
 
-namespace PVRush {
+namespace PVRush
+{
 class PVNraw;
 }
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVAxesCombination;
 class PVSparseSelection;
@@ -35,44 +37,72 @@ class PVSparseSelection;
 /**
 * \class PVSelection
 */
-class PVSelection: public PVCore::PVSelBitField
+class PVSelection : public PVCore::PVSelBitField
 {
 	friend class PVCore::PVSerializeObject;
 
-public:
-	struct tag_allocate_empty { };
+  public:
+	struct tag_allocate_empty
+	{
+	};
 
-public:
-	PVSelection(PVRow row_count = INENDI_LINES_MAX): PVCore::PVSelBitField(row_count) { }
+  public:
+	PVSelection(PVRow row_count = INENDI_LINES_MAX) : PVCore::PVSelBitField(row_count) {}
 
-	PVSelection(PVSelection const& o): PVCore::PVSelBitField(o) { }
-	PVSelection(PVSelection&& o): PVCore::PVSelBitField(o) { }
+	PVSelection(PVSelection const& o) : PVCore::PVSelBitField(o) {}
+	PVSelection(PVSelection&& o) : PVCore::PVSelBitField(o) {}
 
+  public:
+	PVSelection& operator|=(const PVSparseSelection& rhs);
 
-public:
-	PVSelection& operator|=(const PVSparseSelection &rhs);
+	inline PVSelection& operator|=(const PVSelection& rhs)
+	{
+		PVCore::PVSelBitField::operator|=(rhs);
+		return *this;
+	}
+	inline PVSelection& operator=(const PVSelection& rhs)
+	{
+		PVCore::PVSelBitField::operator=(rhs);
+		return *this;
+	}
+	inline PVSelection& operator=(PVSelection&& rhs)
+	{
+		PVCore::PVSelBitField::operator=(rhs);
+		return *this;
+	};
+	inline PVSelection& operator&=(const PVSelection& rhs)
+	{
+		PVCore::PVSelBitField::operator&=(rhs);
+		return *this;
+	};
+	inline PVSelection& operator-=(const PVSelection& rhs)
+	{
+		PVCore::PVSelBitField::operator-=(rhs);
+		return *this;
+	};
+	inline PVSelection& operator^=(const PVSelection& rhs)
+	{
+		PVCore::PVSelBitField::operator^=(rhs);
+		return *this;
+	};
+	inline bool operator==(const PVSelection& rhs) const
+	{
+		return PVCore::PVSelBitField::operator==(rhs);
+	}
 
-	inline PVSelection& operator|=(const PVSelection& rhs) { PVCore::PVSelBitField::operator|=(rhs); return *this; }
-	inline PVSelection& operator= (const PVSelection &rhs) { PVCore::PVSelBitField::operator=(rhs); return *this; }
-	inline PVSelection& operator= (PVSelection&& rhs) { PVCore::PVSelBitField::operator=(rhs); return *this; };
-	inline PVSelection& operator&=(const PVSelection &rhs) { PVCore::PVSelBitField::operator&=(rhs); return *this; };
-	inline PVSelection& operator-=(const PVSelection &rhs) { PVCore::PVSelBitField::operator-=(rhs); return *this; };
-	inline PVSelection& operator^=(const PVSelection &rhs) { PVCore::PVSelBitField::operator^=(rhs); return *this; };
-	inline bool operator==(const PVSelection &rhs) const { return PVCore::PVSelBitField::operator==(rhs); }
-
-	inline PVSelection operator&(const PVSelection &rhs) const
+	inline PVSelection operator&(const PVSelection& rhs) const
 	{
 		PVSelection ret(*this);
 		ret &= rhs;
 		return ret;
 	}
-	inline PVSelection operator-(const PVSelection &rhs) const
+	inline PVSelection operator-(const PVSelection& rhs) const
 	{
 		PVSelection ret(*this);
 		ret -= rhs;
 		return ret;
 	}
-	inline PVSelection operator^(const PVSelection &rhs) const
+	inline PVSelection operator^(const PVSelection& rhs) const
 	{
 		PVSelection ret(*this);
 		ret ^= rhs;
@@ -84,14 +114,14 @@ public:
 		move_from_base(ret, PVCore::PVSelBitField::operator~());
 		return ret;
 	}
-	inline PVSelection operator|(const PVSelection &rhs) const
+	inline PVSelection operator|(const PVSelection& rhs) const
 	{
 		PVSelection ret(*this);
 		ret |= rhs;
 		return ret;
 	}
 
-private:
+  private:
 	static void move_from_base(PVSelection& ret, PVCore::PVSelBitField&& b)
 	{
 		assert(&ret != &b);
@@ -102,7 +132,6 @@ private:
 		b._table = nullptr;
 	}
 };
-
 }
 
 #endif /* INENDI_PVSELECTION_H */

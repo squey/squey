@@ -13,14 +13,14 @@
  * Inendi::PVStateMachine::PVStateMachine
  *
  *****************************************************************************/
-Inendi::PVStateMachine::PVStateMachine() 
+Inendi::PVStateMachine::PVStateMachine()
 {
 	antialiased = false;
 	axes_mode = false;
 	sync_all_views = true;
 	grabbed = false;
 	edit_mode_all = true;
-	square_area_mode = AREA_MODE_OFF;	
+	square_area_mode = AREA_MODE_OFF;
 
 	listing_unselected_visible = false;
 	listing_zombie_visible = false;

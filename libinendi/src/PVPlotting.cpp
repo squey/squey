@@ -17,19 +17,17 @@
 
 #include <iostream>
 
-
 /******************************************************************************
  *
  * Inendi::PVPlotting::PVPlotting
  *
  *****************************************************************************/
-Inendi::PVPlotting::PVPlotting(PVPlotted* plotted):
-	_plotted(plotted),
-	_name("default")
+Inendi::PVPlotting::PVPlotting(PVPlotted* plotted) : _plotted(plotted), _name("default")
 {
-	PVRush::PVFormat const& format = _plotted->get_parent<Inendi::PVSource>()->get_extractor().get_format();
+	PVRush::PVFormat const& format =
+	    _plotted->get_parent<Inendi::PVSource>()->get_extractor().get_format();
 
-	for (int i=0; i < format.get_axes().size(); i++) {
+	for (int i = 0; i < format.get_axes().size(); i++) {
 		Inendi::PVMapping const* mapping = _plotted->get_parent()->get_mapping();
 		assert(mapping);
 		PVPlottingProperties plotting_axis(*mapping, format, i);
@@ -43,7 +41,9 @@ Inendi::PVPlotting::PVPlotting(PVPlotted* plotted):
  * Inendi::PVPlotting::PVPlotting
  *
  *****************************************************************************/
-Inendi::PVPlotting::PVPlotting() {}
+Inendi::PVPlotting::PVPlotting()
+{
+}
 
 /******************************************************************************
  *
@@ -52,7 +52,6 @@ Inendi::PVPlotting::PVPlotting() {}
  *****************************************************************************/
 Inendi::PVPlotting::~PVPlotting()
 {
-
 }
 
 /******************************************************************************
@@ -65,8 +64,6 @@ void Inendi::PVPlotting::add_column(PVPlottingProperties const& props)
 	_columns.push_back(props);
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVPlotting::get_column_type
@@ -74,11 +71,10 @@ void Inendi::PVPlotting::add_column(PVPlottingProperties const& props)
  *****************************************************************************/
 QString const& Inendi::PVPlotting::get_column_type(PVCol col) const
 {
-	PVMappingProperties const& prop(_plotted->get_parent()->get_mapping()->get_properties_for_col(col));
+	PVMappingProperties const& prop(
+	    _plotted->get_parent()->get_mapping()->get_properties_for_col(col));
 	return prop.get_type();
 }
-
-
 
 /******************************************************************************
  *
@@ -89,8 +85,6 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlotting::get_filter_for_col(PVCol co
 {
 	return _columns[col].get_plotting_filter();
 }
-
-
 
 /******************************************************************************
  *
@@ -111,9 +105,7 @@ void Inendi::PVPlotting::invalidate_column(PVCol j)
 {
 	assert(j < _columns.size());
 	return get_properties_for_col(j).invalidate();
-}	
-
-
+}
 
 /******************************************************************************
  *
@@ -125,8 +117,6 @@ bool Inendi::PVPlotting::is_col_uptodate(PVCol j) const
 	assert(j < _columns.size());
 	return get_properties_for_col(j).is_uptodate();
 }
-
-
 
 /******************************************************************************
  *
@@ -143,8 +133,6 @@ bool Inendi::PVPlotting::is_uptodate() const
 	}
 	return true;
 }
-
-
 
 /******************************************************************************
  *
@@ -163,27 +151,24 @@ void Inendi::PVPlotting::reset_from_format(PVRush::PVFormat const& format)
 	}
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVPlotting::serialize
  *
  *****************************************************************************/
-void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
+                                   PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", _columns);
 	so.attribute("name", _name);
 	if (!so.is_writing()) {
 		Inendi::PVMapping const* mapping = _plotted->get_parent()->get_mapping();
 		assert(mapping);
-		for (PVPlottingProperties& p: _columns) {
+		for (PVPlottingProperties& p : _columns) {
 			p.set_mapping(*mapping);
 		}
 	}
 }
-
-
 
 /******************************************************************************
  *
@@ -194,4 +179,4 @@ void Inendi::PVPlotting::set_uptodate_for_col(PVCol j)
 {
 	assert(j < _columns.size());
 	return get_properties_for_col(j).set_uptodate();
-}	
+}

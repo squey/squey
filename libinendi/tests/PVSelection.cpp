@@ -17,11 +17,11 @@ static constexpr size_t SELECTION_COUNT = 1000000;
 int main(void)
 {
 
-// #include "test-env.h"
+	// #include "test-env.h"
 
-	Inendi::PVSelection *selection;
-	Inendi::PVSelection *selection2 = new Inendi::PVSelection(SELECTION_COUNT);
-	Inendi::PVSelection *selection3 = new Inendi::PVSelection(SELECTION_COUNT);
+	Inendi::PVSelection* selection;
+	Inendi::PVSelection* selection2 = new Inendi::PVSelection(SELECTION_COUNT);
+	Inendi::PVSelection* selection3 = new Inendi::PVSelection(SELECTION_COUNT);
 	Inendi::PVSelection a(SELECTION_COUNT);
 	Inendi::PVSelection b(SELECTION_COUNT);
 
@@ -35,39 +35,44 @@ int main(void)
 	**********************************************************************/
 
 	selection = new Inendi::PVSelection(SELECTION_COUNT);
-	delete(selection);
-
+	delete (selection);
 
 	a.select_none();
 	BENCH_START(sel);
-	std::cout << "get_last_nonzero_chunk_index on empty sel: " << a.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "get_last_nonzero_chunk_index on empty sel: " << a.get_last_nonzero_chunk_index()
+	          << std::endl;
 	BENCH_END(sel, "bench", sizeof(uint32_t), a.chunk_count(), 1, 1);
 
 	a.select_all();
 	BENCH_START(self);
-	std::cout << "get_last_nonzero_chunk_index on full sel (should be " << (a.chunk_count()-1) << "): " << a.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "get_last_nonzero_chunk_index on full sel (should be " << (a.chunk_count() - 1)
+	          << "): " << a.get_last_nonzero_chunk_index() << std::endl;
 	BENCH_END(self, "bench", sizeof(uint32_t), a.chunk_count(), 1, 1);
 
 	a.select_none();
 	a.set_bit_fast(4);
-	std::cout << "get_last_nonzero_chunk_index with bit 4: " << a.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "get_last_nonzero_chunk_index with bit 4: " << a.get_last_nonzero_chunk_index()
+	          << std::endl;
 
 	a.set_bit_fast(44);
-	std::cout << "get_last_nonzero_chunk_index with bit 44: " << a.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "get_last_nonzero_chunk_index with bit 44: " << a.get_last_nonzero_chunk_index()
+	          << std::endl;
 
-	a.set_bit_fast(32*4);
-	std::cout << "get_last_nonzero_chunk_index with bit 32*4: " << a.get_last_nonzero_chunk_index() << std::endl;
+	a.set_bit_fast(32 * 4);
+	std::cout << "get_last_nonzero_chunk_index with bit 32*4: " << a.get_last_nonzero_chunk_index()
+	          << std::endl;
 
-	a.visit_selected_lines([&](PVRow r) { std::cout << r << "," ; } );
+	a.visit_selected_lines([&](PVRow r) { std::cout << r << ","; });
 	std::cout << std::endl;
 
 	a.select_none();
 #define NLINES_TEST 10000
 	for (int i = 0; i < NLINES_TEST; i++) {
-		a.set_bit_fast(rand()%(SELECTION_COUNT/4));
+		a.set_bit_fast(rand() % (SELECTION_COUNT / 4));
 	}
-	std::vector<PVRow> ref,test;
-	ref.reserve(NLINES_TEST); test.reserve(NLINES_TEST);
+	std::vector<PVRow> ref, test;
+	ref.reserve(NLINES_TEST);
+	test.reserve(NLINES_TEST);
 	BENCH_START(ref);
 	a.visit_selected_lines([&](PVRow r) { ref.push_back(r); });
 	BENCH_END(ref, "visit ref", sizeof(uint32_t), a.chunk_count(), sizeof(PVRow), ref.size());
@@ -124,16 +129,16 @@ int main(void)
 	std::cout << "we test select_even()\n";
 	selection->select_even();
 	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << SELECTION_COUNT/2 << " = to " << count << " ?\n\n";
-	if (count != SELECTION_COUNT/2) {
+	std::cout << "is " << SELECTION_COUNT / 2 << " = to " << count << " ?\n\n";
+	if (count != SELECTION_COUNT / 2) {
 		return 1;
 	}
-	
+
 	std::cout << "we test select_odd()\n";
 	selection->select_odd();
 	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << SELECTION_COUNT/2 << " = to " << count << " ?\n\n";
-	if (count != SELECTION_COUNT/2) {
+	std::cout << "is " << SELECTION_COUNT / 2 << " = to " << count << " ?\n\n";
+	if (count != SELECTION_COUNT / 2) {
 		return 1;
 	}
 
@@ -145,7 +150,7 @@ int main(void)
 	}
 
 	// Test of is_empty
-	for(int i = 0; i<256; i++) {
+	for (int i = 0; i < 256; i++) {
 		a.select_none();
 		a.set_bit_fast(i);
 		PV_ASSERT_VALID(not a.is_empty());
@@ -171,7 +176,6 @@ int main(void)
 	a.set_bit_fast(64);
 	a.visit_selected_lines([&](const PVRow r) { std::cout << r << " "; });
 	std::cout << std::endl;
-	
 
 	// Test of C++0x features
 	a.select_even();
@@ -179,23 +183,27 @@ int main(void)
 
 	Inendi::PVSelection c = std::move(a & b);
 	PVLOG_INFO("a: %p , b = %p , c = %p\n", &a, &b, &c);
-	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty() << std::endl;
+	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty()
+	          << std::endl;
 
 	c = a;
 	c.and_optimized(b);
-	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty() << std::endl;
+	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty()
+	          << std::endl;
 
 	c = a;
 	BENCH_START(original_or);
 	c |= b;
 	BENCH_END_TRANSFORM(original_or, "Original OR", sizeof(uint32_t), c.chunk_count());
-	std::cout << "Last chunk should be " << c.chunk_count()-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "Last chunk should be " << c.chunk_count() - 1 << " : "
+	          << c.get_last_nonzero_chunk_index() << std::endl;
 
 	c = a;
 	BENCH_START(opt_or);
 	c.or_optimized(b);
 	BENCH_END_TRANSFORM(opt_or, "Opt OR", sizeof(uint32_t), c.chunk_count());
-	std::cout << "Last chunk should be " << c.chunk_count()-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "Last chunk should be " << c.chunk_count() - 1 << " : "
+	          << c.get_last_nonzero_chunk_index() << std::endl;
 
 	b.select_none();
 
@@ -215,56 +223,78 @@ int main(void)
 	a.set_bit_fast(1);
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); });
-	for (PVRow r: ref) { std::cout << r << " "; }
+	for (PVRow r : ref) {
+		std::cout << r << " ";
+	}
 	std::cout << std::endl;
 
 	ref.clear();
 	a.select_all();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 1);
-	for (PVRow r: ref) { std::cout << r << " "; }
+	for (PVRow r : ref) {
+		std::cout << r << " ";
+	}
 	std::cout << std::endl;
 
-	
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 2);
-	for (PVRow r: ref) { std::cout << r << " "; }
+	for (PVRow r : ref) {
+		std::cout << r << " ";
+	}
 	std::cout << std::endl;
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 69);
-	for (PVRow r: ref) { std::cout << r << " "; }
+	for (PVRow r : ref) {
+		std::cout << r << " ";
+	}
 	std::cout << std::endl;
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 115);
-	for (PVRow r: ref) { std::cout << r << " "; }
+	for (PVRow r : ref) {
+		std::cout << r << " ";
+	}
 	std::cout << std::endl;
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 2, 1);
-	for (PVRow r: ref) { std::cout << r << " "; }
+	for (PVRow r : ref) {
+		std::cout << r << " ";
+	}
 	std::cout << std::endl;
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 4600, 4568);
-	for (PVRow r: ref) { std::cout << r << " "; }
+	for (PVRow r : ref) {
+		std::cout << r << " ";
+	}
 	std::cout << std::endl;
 	ref.clear();
 	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 1000000);
-	
 
 	a.select_none();
 	b.select_none();
 	a.set_line(34, true);
-	b.set_line(32*5+2, true);
+	b.set_line(32 * 5 + 2, true);
 
-	std::cout << "Line 34 set, last nonzero chunk (1) = " << a.get_last_nonzero_chunk_index() << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk (5) = " << b.get_last_nonzero_chunk_index() << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk from 4 (5) = " << b.get_last_nonzero_chunk_index(4) << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk from 5 (5) = " << b.get_last_nonzero_chunk_index(5) << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk from 6 (5) = " << b.get_last_nonzero_chunk_index(6) << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk from 7 (5) = " << b.get_last_nonzero_chunk_index(7) << std::endl;
+	std::cout << "Line 34 set, last nonzero chunk (1) = " << a.get_last_nonzero_chunk_index()
+	          << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk (5) = " << b.get_last_nonzero_chunk_index()
+	          << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 4 (5) = "
+	          << b.get_last_nonzero_chunk_index(4) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 5 (5) = "
+	          << b.get_last_nonzero_chunk_index(5) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 6 (5) = "
+	          << b.get_last_nonzero_chunk_index(6) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 7 (5) = "
+	          << b.get_last_nonzero_chunk_index(7) << std::endl;
 
-	std::cout << "Line 32*5+2 set, last nonzero chunk to 4 (5) = " << b.get_last_nonzero_chunk_index(0, 4) << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk to 5 (5) = " << b.get_last_nonzero_chunk_index(0, 5) << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk to 6 (5) = " << b.get_last_nonzero_chunk_index(0, 6) << std::endl;
-	std::cout << "Line 32*5+2 set, last nonzero chunk to 7 (5) = " << b.get_last_nonzero_chunk_index(0, 7) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 4 (5) = "
+	          << b.get_last_nonzero_chunk_index(0, 4) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 5 (5) = "
+	          << b.get_last_nonzero_chunk_index(0, 5) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 6 (5) = "
+	          << b.get_last_nonzero_chunk_index(0, 6) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 7 (5) = "
+	          << b.get_last_nonzero_chunk_index(0, 7) << std::endl;
 
 	/**********************************************************************
 	***********************************************************************
@@ -273,7 +303,6 @@ int main(void)
 	*
 	***********************************************************************
 	**********************************************************************/
-
 
 	/**********************************************************************
 	*
@@ -289,7 +318,7 @@ int main(void)
 	a = ~b;
 
 	size_t i, good;
-	for (i=0; i<SELECTION_COUNT; i++) {
+	for (i = 0; i < SELECTION_COUNT; i++) {
 		good = (a.get_line(i));
 		if (not good) {
 			std::cout << " i = " << i << ", and state of line n is : " << good << "\n";
@@ -298,22 +327,16 @@ int main(void)
 		}
 	}
 
-
-
-
-
 	/**********************************************************************
 	*
 	* We delete remaining objects
 	*
 	**********************************************************************/
-	//delete(selection);
-	delete(selection2);
-	delete(selection3);
+	// delete(selection);
+	delete (selection2);
+	delete (selection3);
 
 	return 0;
 
-
 	std::cout << "#### MAPPED ####\n";
-
 }

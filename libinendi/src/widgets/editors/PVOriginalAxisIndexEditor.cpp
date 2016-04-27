@@ -17,9 +17,9 @@
  * PVCore::PVOriginalAxisIndexEditor::PVOriginalAxisIndexEditor
  *
  *****************************************************************************/
-PVWidgets::PVOriginalAxisIndexEditor::PVOriginalAxisIndexEditor(Inendi::PVView const& view, QWidget *parent):
-	QComboBox(parent),
-	_view(view)
+PVWidgets::PVOriginalAxisIndexEditor::PVOriginalAxisIndexEditor(Inendi::PVView const& view,
+                                                                QWidget* parent)
+    : QComboBox(parent), _view(view)
 {
 }
 
@@ -37,7 +37,8 @@ PVWidgets::PVOriginalAxisIndexEditor::~PVOriginalAxisIndexEditor()
  * PVWidgets::PVOriginalAxisIndexEditor::set_axis_index
  *
  *****************************************************************************/
-void PVWidgets::PVOriginalAxisIndexEditor::set_axis_index(PVCore::PVOriginalAxisIndexType axis_index)
+void
+PVWidgets::PVOriginalAxisIndexEditor::set_axis_index(PVCore::PVOriginalAxisIndexType axis_index)
 {
 	clear();
 	addItems(_view.get_original_axes_names_list());

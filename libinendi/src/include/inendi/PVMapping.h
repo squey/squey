@@ -25,7 +25,8 @@
 
 #include <memory>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVMapped;
 
@@ -36,13 +37,14 @@ class PVMapping
 {
 	friend class PVMapped;
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	typedef std::shared_ptr<PVMapping> p_type;
 
-public:
+  public:
 	PVMapping(PVMapped* mapped);
 
-protected:
+  protected:
 	// For serialization
 	PVMapping();
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
@@ -53,11 +55,11 @@ protected:
 
 	void add_column(PVMappingProperties const& props);
 
-public:
+  public:
 	float get_position(int column, QString const& value);
 	bool is_uptodate() const;
 
-public:
+  public:
 	void set_mapped(PVMapped* mapped) { _mapped = mapped; }
 	PVMapped* get_mapped() { return _mapped; }
 
@@ -65,13 +67,21 @@ public:
 
 	PVRush::PVFormat const& get_format() const;
 
-public:
+  public:
 	// Column properties
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
 	QString const& get_type_for_col(PVCol col) const;
 	QString const& get_mode_for_col(PVCol col) const;
-	PVMappingProperties const& get_properties_for_col(PVCol col) const { assert(col < columns.size()); return columns.at(col); }
-	PVMappingProperties& get_properties_for_col(PVCol col) { assert(col < columns.size()); return columns[col]; }
+	PVMappingProperties const& get_properties_for_col(PVCol col) const
+	{
+		assert(col < columns.size());
+		return columns.at(col);
+	}
+	PVMappingProperties& get_properties_for_col(PVCol col)
+	{
+		assert(col < columns.size());
+		return columns[col];
+	}
 	bool is_col_uptodate(PVCol j) const;
 	PVCol get_number_cols() const { return columns.size(); }
 	PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const;
@@ -82,12 +92,12 @@ public:
 	void reset_from_format(PVRush::PVFormat const& format);
 	void set_default_args(PVRush::PVFormat const& format);
 
-public:
+  public:
 	// Mandatory parameters
 	mandatory_param_map const& get_mandatory_params_for_col(PVCol col) const;
 	mandatory_param_map& get_mandatory_params_for_col(PVCol col);
 
-protected:
+  protected:
 	QVector<mandatory_param_map> _mandatory_filters_values;
 	QList<PVMappingProperties> columns;
 
@@ -96,7 +106,6 @@ protected:
 };
 
 typedef PVMapping::p_type PVMapping_p;
-
 }
 
-#endif	/* INENDI_PVMAPPING_H */
+#endif /* INENDI_PVMAPPING_H */

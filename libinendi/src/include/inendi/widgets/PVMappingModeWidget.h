@@ -18,24 +18,26 @@
 #include <QPushButton>
 #include <QWidget>
 
-namespace Inendi {
+namespace Inendi
+{
 class PVMappingProperties;
 }
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
-class PVMappingModeWidget: public QWidget
+class PVMappingModeWidget : public QWidget
 {
 	Q_OBJECT
-public:
-	PVMappingModeWidget(QWidget* parent = NULL):
-		QWidget(parent)
-	{ init(false); }
+  public:
+	PVMappingModeWidget(QWidget* parent = NULL) : QWidget(parent) { init(false); }
 	PVMappingModeWidget(QString const& type, QWidget* parent = NULL);
-	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping, bool params_btn = false, QWidget* parent = NULL);
-	PVMappingModeWidget(PVCol axis_id, Inendi::PVView& view, bool params_btn = false, QWidget* parent = NULL);
+	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping, bool params_btn = false,
+	                    QWidget* parent = NULL);
+	PVMappingModeWidget(PVCol axis_id, Inendi::PVView& view, bool params_btn = false,
+	                    QWidget* parent = NULL);
 
-public:
+  public:
 	void populate_from_type(QString const& type);
 	void populate_from_mapping(PVCol axis_id, Inendi::PVMapping& mapping);
 	inline void select_default() { set_mode("default"); }
@@ -43,30 +45,29 @@ public:
 
 	virtual QSize sizeHint() const;
 
-public:
+  public:
 	bool set_mode(QString const& mode);
 	inline QString get_mode() const { return _combo->get_sel_userdata().toString(); }
 
-public:
-	PVComboBox *get_combo_box() { return _combo; }
+  public:
+	PVComboBox* get_combo_box() { return _combo; }
 	PVCore::PVArgumentList const& get_cur_filter_params() const { return _cur_filter_params; }
 
-private:
+  private:
 	void init(bool params_btn);
 	void set_filter_params_from_type_mode(QString const& type, QString const& mode);
 
-private slots:
+  private slots:
 	void change_params();
 
-private:
+  private:
 	PVComboBox* _combo;
 	QPushButton* _params_btn;
 	Inendi::PVMappingProperties* _props;
-	QHash<QString, QHash<QString, PVCore::PVArgumentList> > _filter_params;
+	QHash<QString, QHash<QString, PVCore::PVArgumentList>> _filter_params;
 	PVCore::PVArgumentList _cur_filter_params;
 	QString _cur_type;
 };
-
 }
 
 #endif

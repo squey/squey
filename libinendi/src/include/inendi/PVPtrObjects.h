@@ -13,29 +13,29 @@
 
 #include <memory>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVRoot;
-//typedef std::shared_ptr<PVRoot> PVRoot_p;
+// typedef std::shared_ptr<PVRoot> PVRoot_p;
 
 class PVSource;
-//typedef std::shared_ptr<PVSource> PVSource_p;
+// typedef std::shared_ptr<PVSource> PVSource_p;
 
 class PVScene;
-//typedef std::shared_ptr<PVScene> PVScene_p;
+// typedef std::shared_ptr<PVScene> PVScene_p;
 
 class PVPlotting;
-//typedef std::shared_ptr<PVPlotting> PVPlotting_p;
+// typedef std::shared_ptr<PVPlotting> PVPlotting_p;
 
 class PVPlotted;
-//typedef std::shared_ptr<PVPlotted> PVPlotted_p;
+// typedef std::shared_ptr<PVPlotted> PVPlotted_p;
 
 class PVMapping;
-//typedef std::shared_ptr<PVMapping> PVMapping_p;
+// typedef std::shared_ptr<PVMapping> PVMapping_p;
 
 class PVMapped;
-//typedef std::shared_ptr<PVMapped> PVMapped_p;
-
+// typedef std::shared_ptr<PVMapped> PVMapped_p;
 }
 
 #endif

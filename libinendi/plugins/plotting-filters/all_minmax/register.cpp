@@ -23,4 +23,3 @@ LibCPPExport void register_class()
 	REGISTER_CLASS("ipv4_minmax", Inendi::PVPlottingFilterMinmax);
 	REGISTER_CLASS("date_default", Inendi::PVPlottingFilterMinmax);
 }
-

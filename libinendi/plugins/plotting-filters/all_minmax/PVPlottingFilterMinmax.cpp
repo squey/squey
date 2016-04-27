@@ -16,10 +16,13 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 
 	const ssize_t size = _dest_size;
 
-	Inendi::mandatory_param_map::const_iterator it_min = _mandatory_params->find(Inendi::mandatory_ymin);
-	Inendi::mandatory_param_map::const_iterator it_max = _mandatory_params->find(Inendi::mandatory_ymax);
+	Inendi::mandatory_param_map::const_iterator it_min =
+	    _mandatory_params->find(Inendi::mandatory_ymin);
+	Inendi::mandatory_param_map::const_iterator it_max =
+	    _mandatory_params->find(Inendi::mandatory_ymax);
 	if (it_min == _mandatory_params->end() || it_max == _mandatory_params->end()) {
-		PVLOG_WARN("ymin and/or ymax don't exist for an axis. Maybe the mandatory minmax mapping hasn't be run ?\n");
+		PVLOG_WARN("ymin and/or ymax don't exist for an axis. Maybe the mandatory minmax mapping "
+		           "hasn't be run ?\n");
 		copy_mapped_to_plotted(values);
 		return _dest;
 	}
@@ -31,7 +34,7 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX>>1);
+				_dest[i] = ~(UINT_MAX >> 1);
 			}
 			return _dest;
 		}
@@ -40,19 +43,18 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 		const uint64_t diff = (uint64_t)ymax - (uint64_t)ymin;
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			const uint64_t v_tmp = (((int64_t) values[i].storage_as_uint() - ymin)*(int64_t)(UINT_MAX))/diff;
-			_dest[i] = ~((uint32_t) (v_tmp & 0x00000000FFFFFFFFULL));
+			const uint64_t v_tmp =
+			    (((int64_t)values[i].storage_as_uint() - ymin) * (int64_t)(UINT_MAX)) / diff;
+			_dest[i] = ~((uint32_t)(v_tmp & 0x00000000FFFFFFFFULL));
 		}
-	}
-	else
-	if (_decimal_type == PVCore::IntegerType) {
+	} else if (_decimal_type == PVCore::IntegerType) {
 		int32_t ymin, ymax;
 		ymin = (*it_min).second.second.storage_as_int();
 		ymax = (*it_max).second.second.storage_as_int();
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX>>1);
+				_dest[i] = ~(UINT_MAX >> 1);
 			}
 			return _dest;
 		}
@@ -61,18 +63,18 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 		const int64_t diff = (int64_t)ymax - (int64_t)ymin;
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			const uint64_t v_tmp = (((int64_t) values[i].storage_as_int() - ymin)*(int64_t)(UINT_MAX))/diff;
-			_dest[i] = ~((uint32_t) (v_tmp & 0x00000000FFFFFFFFULL));
+			const uint64_t v_tmp =
+			    (((int64_t)values[i].storage_as_int() - ymin) * (int64_t)(UINT_MAX)) / diff;
+			_dest[i] = ~((uint32_t)(v_tmp & 0x00000000FFFFFFFFULL));
 		}
-	}
-	else {
+	} else {
 		float ymin, ymax;
 		ymin = (*it_min).second.second.storage_as_float();
 		ymax = (*it_max).second.second.storage_as_float();
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX>>1);
+				_dest[i] = ~(UINT_MAX >> 1);
 			}
 			return _dest;
 		}
@@ -80,7 +82,8 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(mapped_decimal_storage_type
 		const float diff = ymax - ymin;
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = ~((uint32_t) ((double) ((values[i].storage_as_float() - ymin)/diff) * (double)UINT_MAX));
+			_dest[i] = ~((uint32_t)((double)((values[i].storage_as_float() - ymin) / diff) *
+			                        (double)UINT_MAX));
 		}
 	}
 
@@ -91,12 +94,12 @@ void Inendi::PVPlottingFilterMinmax::init_expand(uint32_t min, uint32_t max)
 {
 	_expand_min = min;
 	_expand_max = max;
-	_expand_diff = max-min;
+	_expand_diff = max - min;
 }
 
 uint32_t Inendi::PVPlottingFilterMinmax::expand_plotted(uint32_t value) const
 {
-	return (value-_expand_min)/(_expand_diff);
+	return (value - _expand_min) / (_expand_diff);
 }
 
 IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterMinmax)

@@ -10,10 +10,10 @@
 
 #include <pvkernel/core/general.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVAxesCombination;
-
 }
 
 #endif

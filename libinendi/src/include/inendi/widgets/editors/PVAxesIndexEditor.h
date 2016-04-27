@@ -16,7 +16,8 @@
 
 #include <inendi/PVView.h>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 /**
  * \class PVAxesIndexEditor
@@ -24,20 +25,20 @@ namespace PVWidgets {
 class PVAxesIndexEditor : public PVWidgets::PVSizeHintListWidget<>
 {
 	Q_OBJECT
-	Q_PROPERTY(PVCore::PVAxesIndexType _axes_index READ get_axes_index WRITE set_axes_index USER true)
+	Q_PROPERTY(PVCore::PVAxesIndexType _axes_index READ get_axes_index WRITE set_axes_index
+	               USER true)
 
-public:
-	PVAxesIndexEditor(Inendi::PVView const& view, QWidget *parent = 0);
+  public:
+	PVAxesIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVAxesIndexEditor();
 
-public:
+  public:
 	PVCore::PVAxesIndexType get_axes_index() const;
 	void set_axes_index(PVCore::PVAxesIndexType axes_index);
 
-protected:
+  protected:
 	Inendi::PVView const& _view;
 };
-
 }
 
 #endif

@@ -11,7 +11,8 @@
 #include <pvkernel/core/general.h>
 #include <inendi/PVSelection.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVView;
 
@@ -19,15 +20,15 @@ class PVView;
  */
 class PVTransformationFunctionView
 {
-public:
-	PVTransformationFunctionView() { }
+  public:
+	PVTransformationFunctionView() {}
 
-public:
+  public:
 	virtual void pre_process(PVView const& view_src, PVView const& view_dst) = 0;
 
-	virtual PVSelection operator()(PVView const& view_org, PVView const& view_dst, PVSelection const& sel_org) const = 0;
+	virtual PVSelection operator()(PVView const& view_org, PVView const& view_dst,
+	                               PVSelection const& sel_org) const = 0;
 };
-
 }
 
 #endif

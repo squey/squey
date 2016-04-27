@@ -8,26 +8,27 @@
 #ifndef INENDI_PVLAYERFILTERHeatline_H
 #define INENDI_PVLAYERFILTERHeatline_H
 
-
 #include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 
 #include <inendi/PVLayer.h>
 #include <inendi/PVLayerFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
-	/**
-	 * HeatLine plugins create a new layer based on frequency information.
-	 *
-	 * Frequency is the number of occurrence for a values compare to the number of row.
-	 *
-	 * Line are unselected if they are out of the frequency range.
-	 * Selected line are colorized from red (max freq) to green (min freq).
-	 */
-class PVLayerFilterHeatline : public PVLayerFilter {
+/**
+ * HeatLine plugins create a new layer based on frequency information.
+ *
+ * Frequency is the number of occurrence for a values compare to the number of row.
+ *
+ * Line are unselected if they are out of the frequency range.
+ * Selected line are colorized from red (max freq) to green (min freq).
+ */
+class PVLayerFilterHeatline : public PVLayerFilter
+{
 
-public:
+  public:
 	PVLayerFilterHeatline(PVCore::PVArgumentList const& l = PVLayerFilterHeatline::default_args());
 
 	/**
@@ -35,7 +36,7 @@ public:
 	 *
 	 * It computes frequency for each values on selected axis
 	 */
-	void operator()(PVLayer const& in, PVLayer &out) override;
+	void operator()(PVLayer const& in, PVLayer& out) override;
 
 	/**
 	 * Get preset keys.
@@ -53,7 +54,7 @@ public:
 	 */
 	PVCore::PVArgumentList get_default_args_for_view(PVView const& view) override;
 
-protected:
+  protected:
 	/**
 	 * Set color and selection parameter to the line.
 	 *
@@ -63,8 +64,7 @@ protected:
 	 * @param fmax: Above this frequency, we don't want to select the line.
 	 * @param line_id: The line to set these informations.
 	 */
-	void post(PVLayer &out,
-	          const double ratio, const double fmin, const double fmax,
+	void post(PVLayer& out, const double ratio, const double fmin, const double fmax,
 	          const PVRow line_id);
 
 	/**
@@ -74,7 +74,6 @@ protected:
 
 	CLASS_FILTER(Inendi::PVLayerFilterHeatline)
 };
-
 }
 
 #endif

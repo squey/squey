@@ -12,7 +12,8 @@
 
 #include <pvkernel/core/PVSerializeArchive.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /******************************************************************************
  *
@@ -36,8 +37,8 @@ class PVLayerIndexArray
 {
 	friend class PVCore::PVSerializeObject;
 
-public:
-	int get_value(int row_index) const { return _array[row_index];}
+  public:
+	int get_value(int row_index) const { return _array[row_index]; }
 	PVRow get_row_count() const { return _array.size(); }
 
 	void initialize();
@@ -45,15 +46,13 @@ public:
 	void set_row_count(PVRow row_count);
 	void set_value(PVRow row_index, int value);
 
-protected:
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-private:
+  private:
 	std::vector<int> _array;
 };
 
 } // namespace Inendi
 
 #endif /* INENDI_PVLAYERINDEXARRAY_H_ */
-
-

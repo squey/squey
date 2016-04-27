@@ -57,8 +57,7 @@ void Inendi::PVMappingProperties::set_args(PVCore::PVArgumentList const& args)
 		PVArgumentList_set_common_args_from(new_args, args);
 		_mapping_filter->set_args(new_args);
 		_args = new_args;
-	}
-	else {
+	} else {
 		_args = args;
 	}
 }
@@ -70,7 +69,8 @@ void Inendi::PVMappingProperties::set_mode(QString const& mode)
 	}
 	_is_uptodate = false;
 	_mode = mode;
-	PVMappingFilter::p_type lib_filter = LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
+	PVMappingFilter::p_type lib_filter =
+	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
 
 	_mapping_filter = lib_filter->clone<PVMappingFilter>();
 	set_args(_args);
@@ -78,11 +78,13 @@ void Inendi::PVMappingProperties::set_mode(QString const& mode)
 
 bool Inendi::PVMappingProperties::operator==(const PVMappingProperties& org)
 {
-	// These properties are equal if and only if the same filter is used on the same index
+	// These properties are equal if and only if the same filter is used on the
+	// same index
 	return (_mapping_filter == org._mapping_filter) && (_index == org._index);
 }
 
-void Inendi::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVMappingProperties::serialize(PVCore::PVSerializeObject& so,
+                                            PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("type", _type);
 	so.attribute("mode", _mode);

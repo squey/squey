@@ -10,11 +10,11 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVScene;
 typedef PVCore::PVSharedPtr<PVScene> PVScene_sp;
-
 }
 
 #endif

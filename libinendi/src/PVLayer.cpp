@@ -9,7 +9,8 @@
 #include <inendi/PVLayer.h>
 #include <inendi/PVPlotted.h>
 
-// AG: FIXME: we don't have to incldue PVView here. There is a weird issue w/ forward
+// AG: FIXME: we don't have to incldue PVView here. There is a weird issue w/
+// forward
 // declaration and inendi's shared pointer
 #include <inendi/PVView.h>
 
@@ -18,11 +19,7 @@
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-Inendi::PVLayer::PVLayer(const QString & name_) :
-	index(0),
-	locked(false),
-	visible(true),
-	name(name_)
+Inendi::PVLayer::PVLayer(const QString& name_) : index(0), locked(false), visible(true), name(name_)
 {
 }
 
@@ -31,13 +28,9 @@ Inendi::PVLayer::PVLayer(const QString & name_) :
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-Inendi::PVLayer::PVLayer(const QString & name_, const PVSelection & sel_, const PVLinesProperties & lp_) :
-	index(0),
-	locked(false),
-	visible(true),
-	name(name_),
-	selection(sel_),
-	lines_properties(lp_)
+Inendi::PVLayer::PVLayer(const QString& name_, const PVSelection& sel_,
+                         const PVLinesProperties& lp_)
+    : index(0), locked(false), visible(true), name(name_), selection(sel_), lines_properties(lp_)
 {
 	set_count(selection.count());
 	name.truncate(INENDI_LAYER_NAME_MAXLEN);
@@ -48,9 +41,12 @@ Inendi::PVLayer::PVLayer(const QString & name_, const PVSelection & sel_, const 
  * Inendi::PVLayer::A2B_copy_restricted_by_selection_and_nelts
  *
  *****************************************************************************/
-void Inendi::PVLayer::A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVSelection const& selection, PVRow nelts)
+void Inendi::PVLayer::A2B_copy_restricted_by_selection_and_nelts(PVLayer& b,
+                                                                 PVSelection const& selection,
+                                                                 PVRow nelts)
 {
-	get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(b.get_lines_properties(), selection, nelts);
+	get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(b.get_lines_properties(),
+	                                                                  selection, nelts);
 	b.get_selection() &= get_selection();
 	b.compute_selectable_count(nelts);
 }
@@ -100,7 +96,7 @@ void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 
 #pragma omp parallel for
 	for (PVCol j = 0; j < col_count; j++) {
-		PVRow min,max;
+		PVRow min, max;
 		plotted.get_col_minmax(min, max, selection, j);
 		_row_mins[j] = min;
 		_row_maxs[j] = max;
@@ -109,7 +105,7 @@ void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 
 bool Inendi::PVLayer::get_min_for_col(PVCol col, PVRow& row) const
 {
-	if (col >= (PVCol) _row_mins.size()) {
+	if (col >= (PVCol)_row_mins.size()) {
 		return false;
 	}
 
@@ -119,7 +115,7 @@ bool Inendi::PVLayer::get_min_for_col(PVCol col, PVRow& row) const
 
 bool Inendi::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
 {
-	if (col >= (PVCol) _row_maxs.size()) {
+	if (col >= (PVCol)_row_maxs.size()) {
 		return false;
 	}
 
@@ -127,27 +123,29 @@ bool Inendi::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
 	return true;
 }
 
-void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so,
+                                PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.object("selection", selection, "selection", true, (PVSelection*) NULL, false);
-	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*) NULL, false);
+	so.object("selection", selection, "selection", true, (PVSelection*)NULL, false);
+	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)NULL, false);
 	so.attribute("name", name);
 	so.attribute("visible", visible);
 	so.attribute("index", index);
 	so.attribute("locked", locked);
 }
 
-
 void Inendi::PVLayer::load_from_file(QString const& path)
 {
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
+	    path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
 	ar->get_root()->object("layer", *this);
 	ar->finish();
 }
 
 void Inendi::PVLayer::save_to_file(QString const& path)
 {
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
+	    path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
 	ar->get_root()->object("layer", *this);
 	ar->finish();
 }

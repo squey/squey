@@ -10,39 +10,40 @@
 
 #include <inendi/PVMappingFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * Class to compute default mapping for float type.
  */
-class PVMappingFilterFloatDefault: public PVMappingFilter
+class PVMappingFilterFloatDefault : public PVMappingFilter
 {
-	public:
-		/**
-		 * Compute mapping value which is the same as float values.
-		 *
-		 * @warning : storage type have to be float.
-		 */
-		decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override {
-			auto array = nraw.collection().column(col);
-			auto& core_array = array.to_core_array<float>();
+  public:
+	/**
+	 * Compute mapping value which is the same as float values.
+	 *
+	 * @warning : storage type have to be float.
+	 */
+	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override
+	{
+		auto array = nraw.collection().column(col);
+		auto& core_array = array.to_core_array<float>();
 
-			for(size_t row=0; row< array.size(); row++) {
-				_dest[row].storage_as_float() = core_array[row];
-			}
-
-			return _dest;
+		for (size_t row = 0; row < array.size(); row++) {
+			_dest[row].storage_as_float() = core_array[row];
 		}
 
-		/**
-		 * MetaInformation of this plugins.
-		 */
-		QString get_human_name() const { return QString("Default"); }
-		PVCore::DecimalType get_decimal_type() const override { return PVCore::FloatType; }
+		return _dest;
+	}
+
+	/**
+	 * MetaInformation of this plugins.
+	 */
+	QString get_human_name() const { return QString("Default"); }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::FloatType; }
 
 	CLASS_FILTER_NOPARAM(PVMappingFilterFloatDefault)
 };
-
 }
 
 #endif

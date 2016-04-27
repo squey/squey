@@ -7,8 +7,7 @@
 
 #include "PVMappingFilterTimeDefault.h"
 
-Inendi::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault():
-	PVMappingFilter()
+Inendi::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterTimeDefault);
 }

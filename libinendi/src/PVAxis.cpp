@@ -14,7 +14,7 @@
  * Inendi::PVAxis::PVAxis
  *
  *****************************************************************************/
-Inendi::PVAxis::PVAxis(QString type, QString mapping, QString plotting): PVRush::PVAxisFormat()
+Inendi::PVAxis::PVAxis(QString type, QString mapping, QString plotting) : PVRush::PVAxisFormat()
 {
 	set_type(type);
 	set_mapping(mapping);
@@ -22,8 +22,7 @@ Inendi::PVAxis::PVAxis(QString type, QString mapping, QString plotting): PVRush:
 	init();
 }
 
-Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) :
-	PVRush::PVAxisFormat(axis_format)
+Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) : PVRush::PVAxisFormat(axis_format)
 {
 	init();
 }
@@ -35,17 +34,21 @@ void Inendi::PVAxis::init()
 	thickness = 1.0;
 
 	// Create mapping arguments
-	
+
 	// Get the mapping filter from the library
 	{
-		Inendi::PVMappingFilter::p_type lib_filter = LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(get_type() + "_" + get_mapping());
+		Inendi::PVMappingFilter::p_type lib_filter =
+		    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(get_type() + "_" +
+		                                                                get_mapping());
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_mapping = args_from_node(get_args_mapping_string(), def_args);
 	}
 
 	// Same for the plotting filter
 	{
-		Inendi::PVPlottingFilter::p_type lib_filter = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + get_plotting());
+		Inendi::PVPlottingFilter::p_type lib_filter =
+		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_type() + "_" +
+		                                                                 get_plotting());
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_plotting = args_from_node(get_args_plotting_string(), def_args);
 	}
@@ -56,11 +59,12 @@ void Inendi::PVAxis::init()
  * Inendi::PVAxis::serialize
  *
  *****************************************************************************/
-void Inendi::PVAxis::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/)
+void Inendi::PVAxis::serialize(PVCore::PVSerializeObject& so,
+                               PVCore::PVSerializeArchive::version_t /*version*/)
 {
 	so.attribute("name", name);
-	//so.attribute("color", color);
-	//so.attribute("titlecolor", titlecolor);
+	// so.attribute("color", color);
+	// so.attribute("titlecolor", titlecolor);
 }
 
 /******************************************************************************
@@ -70,10 +74,10 @@ void Inendi::PVAxis::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializ
  *****************************************************************************/
 Inendi::PVAxis::~PVAxis()
 {
-
 }
 
-PVCore::PVArgumentList Inendi::PVAxis::args_from_node(node_args_t const& args_str, PVCore::PVArgumentList const& def_args)
+PVCore::PVArgumentList Inendi::PVAxis::args_from_node(node_args_t const& args_str,
+                                                      PVCore::PVArgumentList const& def_args)
 {
 	PVCore::PVArgumentList ret;
 	node_args_t::const_iterator it;

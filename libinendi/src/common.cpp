@@ -39,11 +39,11 @@ void Inendi::common::load_filters()
  *****************************************************************************/
 int Inendi::common::load_layer_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_layer_filters_dir()), LAYER_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
+	    QString::fromStdString(inendi_plugins_get_layer_filters_dir()), LAYER_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No layer filters have been loaded !\n");
-	}
-	else {
+	} else {
 		PVLOG_INFO("%d layer filters have been loaded.\n", ret);
 	}
 
@@ -59,11 +59,11 @@ int Inendi::common::load_layer_filters()
  *****************************************************************************/
 int Inendi::common::load_mapping_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_mapping_filters_dir()), MAPPING_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
+	    QString::fromStdString(inendi_plugins_get_mapping_filters_dir()), MAPPING_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No mapping filters have been loaded !\n");
-	}
-	else {
+	} else {
 		PVLOG_INFO("%d mapping filters have been loaded.\n", ret);
 	}
 	return ret;
@@ -78,11 +78,11 @@ int Inendi::common::load_mapping_filters()
  *****************************************************************************/
 int Inendi::common::load_plotting_filters()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString::fromStdString(inendi_plugins_get_plotting_filters_dir()), PLOTTING_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
+	    QString::fromStdString(inendi_plugins_get_plotting_filters_dir()), PLOTTING_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No plotting filters have been loaded !\n");
-	}
-	else {
+	} else {
 		PVLOG_INFO("%d plotting filters have been loaded.\n", ret);
 	}
 	return ret;

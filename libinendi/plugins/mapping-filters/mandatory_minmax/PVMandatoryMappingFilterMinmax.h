@@ -17,21 +17,20 @@
 // Used by the concurrennt hash map below
 size_t tbb_hasher(const QString& str);
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVMandatoryMappingFilterMinmax : public PVMandatoryMappingFilter
 {
-public:
+  public:
 	PVMandatoryMappingFilterMinmax();
 
-public:
+  public:
 	int operator()(mandatory_param_list_values const& values);
 
-protected:
-
+  protected:
 	CLASS_FILTER(PVMandatoryMappingFilterMinmax)
 };
-
 }
 
 #endif

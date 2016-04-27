@@ -10,21 +10,22 @@
 
 #include <pvkernel/core/general.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * \class PVSquareArea
  */
-class PVSquareArea {
-public:
+class PVSquareArea
+{
+  public:
 	PVSquareArea();
 
-public:
+  public:
 	float get_end_x() const;
 	float get_end_y() const;
 	float get_start_x() const;
 	float get_start_y() const;
-
 
 	void set_end(float ex, float ey);
 	void set_end_x(float ex);
@@ -37,14 +38,14 @@ public:
 	void set_dirty();
 	void set_clean();
 	bool is_empty() const;
-private:
+
+  private:
 	float end_x;
 	float end_y;
 	float start_x;
 	float start_y;
-	bool  dirty;
+	bool dirty;
 };
-
 }
 
 #endif

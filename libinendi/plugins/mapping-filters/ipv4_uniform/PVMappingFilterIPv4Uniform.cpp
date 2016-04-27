@@ -7,8 +7,7 @@
 
 #include "PVMappingFilterIPv4Uniform.h"
 
-Inendi::PVMappingFilterIPv4Uniform::PVMappingFilterIPv4Uniform():
-	PVMappingFilter()
+Inendi::PVMappingFilterIPv4Uniform::PVMappingFilterIPv4Uniform() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterIPv4Uniform);
 }

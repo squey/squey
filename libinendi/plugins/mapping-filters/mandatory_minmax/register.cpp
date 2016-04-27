@@ -12,7 +12,8 @@
 #include "PVMandatoryMappingFilterMinmax.h"
 
 // This method will be called by libinendi
-// This mapping filter will be registered as a mandatory mapping filter ! (FilterT is set to PVMandatoryMappingFilter in PVMandatoryMappingFilter.h)
+// This mapping filter will be registered as a mandatory mapping filter ! (FilterT is set to
+// PVMandatoryMappingFilter in PVMandatoryMappingFilter.h)
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("mandatory_minmax", Inendi::PVMandatoryMappingFilterMinmax);

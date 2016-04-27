@@ -17,7 +17,8 @@
 
 #include <inendi/PVView.h>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 /**
  * \class PVOriginalAxisIndexEditor
@@ -25,20 +26,20 @@ namespace PVWidgets {
 class PVOriginalAxisIndexEditor : public QComboBox
 {
 	Q_OBJECT
-	Q_PROPERTY(PVCore::PVOriginalAxisIndexType _axis_index READ get_axis_index WRITE set_axis_index USER true)
+	Q_PROPERTY(PVCore::PVOriginalAxisIndexType _axis_index READ get_axis_index WRITE set_axis_index
+	               USER true)
 
-public:
-	PVOriginalAxisIndexEditor(Inendi::PVView const& view, QWidget *parent = 0);
+  public:
+	PVOriginalAxisIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVOriginalAxisIndexEditor();
 
-public:
+  public:
 	PVCore::PVOriginalAxisIndexType get_axis_index() const;
 	void set_axis_index(PVCore::PVOriginalAxisIndexType axis_index);
 
-protected:
+  protected:
 	Inendi::PVView const& _view;
 };
-
 }
 
 #endif // PVCORE_PVAXISINDEXEDITOR_H

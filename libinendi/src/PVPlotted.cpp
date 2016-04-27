@@ -28,18 +28,22 @@
 
 #include <iostream>
 
-#define dbg { std::cout<<"*** CUDA TRACE ***  file "<<__FILE__<<"  line "<<__LINE__<<std::endl; }
+#define dbg                                                                                        \
+	{                                                                                              \
+		std::cout << "*** CUDA TRACE ***  file " << __FILE__ << "  line " << __LINE__              \
+		          << std::endl;                                                                    \
+	}
 
 Inendi::PVPlotted::PVPlotted()
 {
-	//process_from_parent_mapped(false);
+	// process_from_parent_mapped(false);
 }
 
 Inendi::PVPlotted::~PVPlotted()
 {
 	remove_all_children();
 	PVLOG_DEBUG("In PVPlotted destructor\n");
-	for (PVView_sp& v: get_children()) {
+	for (PVView_sp& v : get_children()) {
 		std::cout << v.use_count() << std::endl;
 	}
 }
@@ -65,13 +69,14 @@ int Inendi::PVPlotted::create_table()
 	const PVRow nrows = get_row_count();
 
 	// Transposed normalized unisnged integer.
-	// Align the number of lines on a mulitple of 4, in order to have 16-byte aligned starting adresses for each axis
-	
+	// Align the number of lines on a mulitple of 4, in order to have 16-byte
+	// aligned starting adresses for each axis
+
 	const PVRow nrows_aligned = get_aligned_row_count();
-	_uint_table.resize((size_t) mapped_col_count * (size_t) nrows_aligned);
-	
+	_uint_table.resize((size_t)mapped_col_count * (size_t)nrows_aligned);
+
 	tbb::tick_count tstart = tbb::tick_count::now();
-	
+
 	// Create our own plugins from the library
 	std::vector<PVPlottingFilter::p_type> plotting_filters;
 	plotting_filters.resize(mapped_col_count);
@@ -99,7 +104,8 @@ int Inendi::PVPlotted::create_table()
 			}
 
 			plotting_filter->set_mapping_mode(get_parent()->get_mapping()->get_mode_for_col(j));
-			plotting_filter->set_mandatory_params(get_parent()->get_mapping()->get_mandatory_params_for_col(j));
+			plotting_filter->set_mandatory_params(
+			    get_parent()->get_mapping()->get_mandatory_params_for_col(j));
 			plotting_filter->set_dest_array(nrows, get_column_pointer(j));
 			plotting_filter->set_decimal_type(get_parent()->get_decimal_type_of_col(j));
 			boost::this_thread::interruption_point();
@@ -107,7 +113,10 @@ int Inendi::PVPlotted::create_table()
 			plotting_filter->operator()(get_parent()->get_column_pointer(j));
 			tbb::tick_count plend = tbb::tick_count::now();
 
-			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds, plugin was %s.\n", j, (plend-plstart).seconds(), qPrintable(plotting_filter->registered_name()));
+			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took "
+			           "%0.4f seconds, plugin was %s.\n",
+			           j, (plend - plstart).seconds(),
+			           qPrintable(plotting_filter->registered_name()));
 
 			boost::this_thread::interruption_point();
 			_plotting->set_uptodate_for_col(j);
@@ -118,10 +127,9 @@ int Inendi::PVPlotted::create_table()
 		PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
 
 		tbb::tick_count tend = tbb::tick_count::now();
-		PVLOG_INFO("(PVPlotted::create_table) plotting took %0.4f seconds.\n", (tend-tstart).seconds());
-	}
-	catch (boost::thread_interrupted const& e)
-	{
+		PVLOG_INFO("(PVPlotted::create_table) plotting took %0.4f seconds.\n",
+		           (tend - tstart).seconds());
+	} catch (boost::thread_interrupted const& e) {
 		PVLOG_INFO("(PVPlotted::create_table) plotting canceled.\n");
 		throw e;
 	}
@@ -136,30 +144,33 @@ bool Inendi::PVPlotted::dump_buffer_to_file(QString const& file, bool write_as_t
 	//  * 4 bytes: number of columns
 	//  * 1 byte: is it written in a transposed form
 	//  * the rest is the plotted
-	
+
 	QFile f(file);
 	if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), qPrintable(f.errorString()));
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file),
+		            qPrintable(f.errorString()));
 		return false;
 	}
 
 	PVCol ncols = get_column_count();
-	f.write((const char*) &ncols, sizeof(ncols));
-	f.write((const char*) &write_as_transposed, sizeof(bool));
+	f.write((const char*)&ncols, sizeof(ncols));
+	f.write((const char*)&write_as_transposed, sizeof(bool));
 
 	const uint32_t* buf_to_write = get_column_pointer(0);
 	PVCore::PVMatrix<uint32_t, PVRow, PVCol> plotted;
 	if (!write_as_transposed) {
 		PVCore::PVMatrix<uint32_t, PVCol, PVRow> matrix_plotted;
-		matrix_plotted.set_raw_buffer((uint32_t*) buf_to_write, get_column_count(), get_aligned_row_count());
+		matrix_plotted.set_raw_buffer((uint32_t*)buf_to_write, get_column_count(),
+		                              get_aligned_row_count());
 		matrix_plotted.transpose_to(plotted);
 		buf_to_write = plotted.get_row_ptr(0);
 	}
-	
-	const ssize_t sbuf_col = get_row_count()*sizeof(uint32_t);
+
+	const ssize_t sbuf_col = get_row_count() * sizeof(uint32_t);
 	for (PVCol j = 0; j < get_column_count(); j++) {
-		if (f.write((const char*) get_column_pointer(j), sbuf_col) != sbuf_col) {
-			PVLOG_ERROR("Error while writing '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+		if (f.write((const char*)get_column_pointer(j), sbuf_col) != sbuf_col) {
+			PVLOG_ERROR("Error while writing '%s': %s.\n", qPrintable(file),
+			            qPrintable(f.errorString()));
 			return false;
 		}
 	}
@@ -168,7 +179,8 @@ bool Inendi::PVPlotted::dump_buffer_to_file(QString const& file, bool write_as_t
 	return true;
 }
 
-bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& nrows, PVCol& ncols, bool get_transposed_version, QString const& file)
+bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& nrows, PVCol& ncols,
+                                              bool get_transposed_version, QString const& file)
 {
 	ncols = 0;
 
@@ -178,27 +190,29 @@ bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& 
 		return false;
 	}
 
-	static_assert(sizeof(off_t) == sizeof(uint64_t), "sizeof(off_t) != sizeof(uint64_t). Please define -D_FILE_OFFSET_BITS=64");
+	static_assert(sizeof(off_t) == sizeof(uint64_t),
+	              "sizeof(off_t) != sizeof(uint64_t). Please define "
+	              "-D_FILE_OFFSET_BITS=64");
 
 	// Get file size
 	fseek(f, 0, SEEK_END);
 	const uint64_t fsize = ftello(f);
 	fseek(f, 0, SEEK_SET);
 
-	ssize_t size_buf = fsize-sizeof(PVCol)-sizeof(bool);
+	ssize_t size_buf = fsize - sizeof(PVCol) - sizeof(bool);
 	if (size_buf <= 0) {
 		fclose(f);
 		PVLOG_ERROR("File is too small to be valid !\n");
 		return false;
 	}
 
-	if (fread((void*) &ncols, sizeof(PVCol), 1, f) != 1) {
+	if (fread((void*)&ncols, sizeof(PVCol), 1, f) != 1) {
 		PVLOG_ERROR("File is too small to be valid !\n");
 		fclose(f);
 		return false;
 	}
 	bool is_transposed = false;
-	if (fread((char*) &is_transposed, sizeof(bool), 1, f) != 1) {
+	if (fread((char*)&is_transposed, sizeof(bool), 1, f) != 1) {
 		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
 		fclose(f);
 		return false;
@@ -206,20 +220,24 @@ bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& 
 
 	bool must_transpose = (is_transposed != get_transposed_version);
 
-	const size_t nuints = size_buf/sizeof(uint32_t);
-	nrows = nuints/ncols;
-	const size_t nrows_aligned = ((nrows+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
-	buf.resize(nrows_aligned*ncols);
+	const size_t nuints = size_buf / sizeof(uint32_t);
+	nrows = nuints / ncols;
+	const size_t nrows_aligned =
+	    ((nrows + PVROW_VECTOR_ALIGNEMENT - 1) / (PVROW_VECTOR_ALIGNEMENT)) *
+	    PVROW_VECTOR_ALIGNEMENT;
+	buf.resize(nrows_aligned * ncols);
 
-	PVLOG_INFO("(Inendi::load_buffer_from_file) number of cols: %d , nuint: %u, nrows: %u\n", ncols, nuints, nuints/ncols);
+	PVLOG_INFO("(Inendi::load_buffer_from_file) number of cols: %d , nuint: %u, "
+	           "nrows: %u\n",
+	           ncols, nuints, nuints / ncols);
 
 	uint32_t* dest_buf = &buf[0];
 	if (must_transpose) {
-		dest_buf = (uint32_t*) malloc(nrows_aligned*ncols*sizeof(uint32_t));
+		dest_buf = (uint32_t*)malloc(nrows_aligned * ncols * sizeof(uint32_t));
 	}
 
 	for (PVCol j = 0; j < ncols; j++) {
-		if (fread((void*) &dest_buf[j*nrows_aligned], sizeof(uint32_t), nrows, f) != nrows) {
+		if (fread((void*)&dest_buf[j * nrows_aligned], sizeof(uint32_t), nrows, f) != nrows) {
 			PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
 			return false;
 		}
@@ -230,10 +248,9 @@ bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& 
 			PVCore::PVMatrix<uint32_t, PVCol, PVRow> final;
 			PVCore::PVMatrix<uint32_t, PVRow, PVCol> org;
 			org.set_raw_buffer(dest_buf, nrows, ncols);
-			
+
 			org.transpose_to(final);
-		}
-		else {
+		} else {
 			PVCore::PVMatrix<uint32_t, PVCol, PVRow> org;
 			PVCore::PVMatrix<uint32_t, PVRow, PVCol> final;
 			org.set_raw_buffer(dest_buf, nrows_aligned, ncols);
@@ -248,7 +265,8 @@ bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& 
 	return true;
 }
 
-bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transposed_version, QString const& file)
+bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols,
+                                              bool get_transposed_version, QString const& file)
 {
 	ncols = 0;
 
@@ -258,27 +276,29 @@ bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 		return false;
 	}
 
-	static_assert(sizeof(off_t) == sizeof(uint64_t), "sizeof(off_t) != sizeof(uint64_t). Please define -D_FILE_OFFSET_BITS=64");
+	static_assert(sizeof(off_t) == sizeof(uint64_t),
+	              "sizeof(off_t) != sizeof(uint64_t). Please define "
+	              "-D_FILE_OFFSET_BITS=64");
 
 	// Get file size
 	fseek(f, 0, SEEK_END);
 	const uint64_t fsize = ftello(f);
 	fseek(f, 0, SEEK_SET);
 
-	ssize_t size_buf = fsize-sizeof(PVCol)-sizeof(bool);
+	ssize_t size_buf = fsize - sizeof(PVCol) - sizeof(bool);
 	if (size_buf <= 0) {
 		fclose(f);
 		PVLOG_ERROR("File is too small to be valid !\n");
 		return false;
 	}
 
-	if (fread((void*) &ncols, sizeof(PVCol), 1, f) != 1) {
+	if (fread((void*)&ncols, sizeof(PVCol), 1, f) != 1) {
 		PVLOG_ERROR("File is too small to be valid !\n");
 		fclose(f);
 		return false;
 	}
 	bool is_transposed = false;
-	if (fread((char*) &is_transposed, sizeof(bool), 1, f) != 1) {
+	if (fread((char*)&is_transposed, sizeof(bool), 1, f) != 1) {
 		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
 		fclose(f);
 		return false;
@@ -286,18 +306,20 @@ bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 
 	bool must_transpose = (is_transposed != get_transposed_version);
 
-	size_t nfloats = size_buf/sizeof(float);
-	size_t size_read = nfloats*sizeof(float);
+	size_t nfloats = size_buf / sizeof(float);
+	size_t size_read = nfloats * sizeof(float);
 	buf.resize(nfloats);
 
-	PVLOG_INFO("(Inendi::load_buffer_from_file) number of cols: %d , nfloats: %u, nrows: %u\n", ncols, nfloats, nfloats/ncols);
+	PVLOG_INFO("(Inendi::load_buffer_from_file) number of cols: %d , nfloats: "
+	           "%u, nrows: %u\n",
+	           ncols, nfloats, nfloats / ncols);
 
 	float* dest_buf = &buf[0];
 	if (must_transpose) {
-		dest_buf = (float*) malloc(size_read);
+		dest_buf = (float*)malloc(size_read);
 	}
 
-	if (fread((void*) dest_buf, sizeof(float), nfloats, f) != nfloats) {
+	if (fread((void*)dest_buf, sizeof(float), nfloats, f) != nfloats) {
 		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
 		return false;
 	}
@@ -306,15 +328,14 @@ bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 		if (is_transposed) {
 			PVCore::PVMatrix<float, PVRow, PVCol> final;
 			PVCore::PVMatrix<float, PVCol, PVRow> org;
-			org.set_raw_buffer(dest_buf, ncols, nfloats/ncols);
-			
+			org.set_raw_buffer(dest_buf, ncols, nfloats / ncols);
+
 			org.transpose_to(final);
-		}
-		else {
+		} else {
 			PVCore::PVMatrix<float, PVRow, PVCol> org;
 			PVCore::PVMatrix<float, PVCol, PVRow> final;
-			org.set_raw_buffer(dest_buf, nfloats/ncols, ncols);
-			final.set_raw_buffer(&buf[0], ncols, nfloats/ncols);
+			org.set_raw_buffer(dest_buf, nfloats / ncols, ncols);
+			final.set_raw_buffer(&buf[0], ncols, nfloats / ncols);
 			org.transpose_to(final);
 		}
 		free(dest_buf);
@@ -345,14 +366,13 @@ void Inendi::PVPlotted::to_csv()
 
 	for (PVRow r = 0; r < row_count; r++) {
 		for (PVCol c = 0; c < col_count; c++) {
-			printf("%u", get_value(r,c));
-			if (c!=col_count-1) {
+			printf("%u", get_value(r, c));
+			if (c != col_count - 1) {
 				std::cout << "|";
 			}
 		}
 		std::cout << "\n";
 	}
-
 }
 
 QList<PVCol> Inendi::PVPlotted::get_singleton_columns_indexes()
@@ -383,7 +403,8 @@ QList<PVCol> Inendi::PVPlotted::get_singleton_columns_indexes()
 	return cols_ret;
 }
 
-QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_t max, double rate)
+QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_t max,
+                                                                        double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
@@ -393,7 +414,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t
 		return cols_ret;
 	}
 
-	double nrows_d = (double) nrows;
+	double nrows_d = (double)nrows;
 	for (PVCol j = 0; j < ncols; j++) {
 		PVRow nmatch = 0;
 		const uint32_t* cplotted = get_column_pointer(j);
@@ -403,7 +424,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t
 				nmatch++;
 			}
 		}
-		if ((double)nmatch/nrows_d >= rate) {
+		if ((double)nmatch / nrows_d >= rate) {
 			cols_ret << j;
 		}
 	}
@@ -411,7 +432,9 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t
 	return cols_ret;
 }
 
-QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint32_t const min, uint32_t const max, double rate)
+QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint32_t const min,
+                                                                            uint32_t const max,
+                                                                            double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
@@ -421,7 +444,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 		return cols_ret;
 	}
 
-	double nrows_d = (double) nrows;
+	double nrows_d = (double)nrows;
 	for (PVCol j = 0; j < ncols; j++) {
 		PVRow nmatch = 0;
 		const uint32_t* cplotted = get_column_pointer(j);
@@ -431,7 +454,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 				nmatch++;
 			}
 		}
-		if ((double)nmatch/nrows_d >= rate) {
+		if ((double)nmatch / nrows_d >= rate) {
 			cols_ret << j;
 		}
 	}
@@ -439,25 +462,27 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 	return cols_ret;
 }
 
-void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const
+void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel,
+                                       PVCol col) const
 {
-	PVRow local_min,local_max;
-	uint32_t vmin,vmax;
+	PVRow local_min, local_max;
+	uint32_t vmin, vmax;
 	vmin = PVPlotted::MAX_VALUE;
 	vmax = 0;
 	local_min = 0;
 	local_max = 0;
 	sel.visit_selected_lines([&](PVRow i) {
-		const uint32_t v = this->get_value(i, col);
-		if (v > vmax) {
-			vmax = v;
-			local_max = i;
-		}
-		if (v < vmin) {
-			vmin = v;
-			local_min = i;
-		}
-	}, get_row_count());
+		                         const uint32_t v = this->get_value(i, col);
+		                         if (v > vmax) {
+			                         vmax = v;
+			                         local_max = i;
+		                         }
+		                         if (v < vmin) {
+			                         vmin = v;
+			                         local_min = i;
+		                         }
+		                     },
+	                         get_row_count());
 
 	// We need to swap as the plotted has been reversed
 	std::swap(local_min, local_max);
@@ -478,7 +503,7 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 	uint32_t vmin = PVPlotted::MAX_VALUE;
 	uint32_t vmax = 0;
 	const PVRow nrows = get_row_count();
-	// TODO: use the SSE4.2 optimised version here
+// TODO: use the SSE4.2 optimised version here
 #pragma omp parallel
 	{
 		// Define thread local variables for local minmax extraction
@@ -487,31 +512,29 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 		PVRow local_min_col = 0;
 		PVRow local_max_col = 0;
 
-		// Share work among threads
+// Share work among threads
 #pragma omp for
-	for (PVRow i = 0; i < nrows; i++) {
-		const uint32_t v = this->get_value(i, col);
-		if (v > local_max) {
-			local_max = v;
-			local_max_col = i;
+		for (PVRow i = 0; i < nrows; i++) {
+			const uint32_t v = this->get_value(i, col);
+			if (v > local_max) {
+				local_max = v;
+				local_max_col = i;
+			} else if (v < local_min) {
+				local_min = v;
+				local_min_col = i;
+			}
 		}
-		else if (v < local_min) {
-			local_min = v;
-			local_min_col = i;
-		}
-	}
 
-	// Perform final reduction. This is not a parallel reduction but it should
-	// not be really expensive.
-	// TODO : As it is a two arguments reduction, it can be done using
-	// OpenMP 3.1 but maybe with custom reduction from OpenMP 4.0
+// Perform final reduction. This is not a parallel reduction but it should
+// not be really expensive.
+// TODO : As it is a two arguments reduction, it can be done using
+// OpenMP 3.1 but maybe with custom reduction from OpenMP 4.0
 #pragma omp critical
 		{
-			if(local_min < vmin) {
+			if (local_min < vmin) {
 				vmin = local_min;
 				min = local_min_col;
-			}
-			else if(local_max > vmax) {
+			} else if (local_max > vmax) {
 				vmax = local_max;
 				max = local_max_col;
 			}
@@ -549,7 +572,7 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 	}
 
 	process_parent_mapped();
-	
+
 	PVView_sp cur_view;
 	if (get_children_count() == 0) {
 		cur_view.reset(new PVView());
@@ -569,7 +592,6 @@ bool Inendi::PVPlotted::is_uptodate() const
 	return _plotting->is_uptodate();
 }
 
-
 void Inendi::PVPlotted::add_column(PVPlottingProperties const& props)
 {
 	_plotting->add_column(props);
@@ -583,7 +605,7 @@ void Inendi::PVPlotted::child_added(PVView& child)
 bool Inendi::PVPlotted::is_current_plotted() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
-	for (auto const& cv: get_children()) {
+	for (auto const& cv : get_children()) {
 		if (cv.get() == cur_view) {
 			return true;
 		}
@@ -593,11 +615,10 @@ bool Inendi::PVPlotted::is_current_plotted() const
 
 void Inendi::PVPlotted::finish_process_from_rush_pipeline()
 {
-	for(auto view : get_children<PVView>()) {
+	for (auto view : get_children<PVView>()) {
 		view->finish_process_from_rush_pipeline();
 	}
 }
-
 
 QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 {
@@ -616,30 +637,33 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
 	data_tree_plotted_t::serialize_write(so);
 
-	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
+	so.object("plotting", _plotting, QString(), false, (PVPlotting*)NULL, false);
 }
 
-void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
+                                       PVCore::PVSerializeArchive::version_t v)
 {
-	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
+	so.object("plotting", _plotting, QString(), false, (PVPlotting*)NULL, false);
 
 	data_tree_plotted_t::serialize_read(so, v);
 }
 
-void Inendi::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols)
+void Inendi::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted,
+                                         uint_plotted_table_t& res, PVCol ncols)
 {
 	// Here, we make every row starting on a 16-byte boundary
-	PVRow nrows = trans_plotted.size()/ncols;
-	PVRow nrows_aligned = ((nrows+3)/4)*4;
-	size_t dest_size = nrows_aligned*ncols;
+	PVRow nrows = trans_plotted.size() / ncols;
+	PVRow nrows_aligned = ((nrows + 3) / 4) * 4;
+	size_t dest_size = nrows_aligned * ncols;
 	res.resize(dest_size);
 #pragma omp parallel for
 	for (PVCol c = 0; c < ncols; c++) {
 		for (PVRow r = 0; r < nrows; r++) {
-			res[c*nrows_aligned+r] = ((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)PVPlotted::MAX_VALUE));
+			res[c * nrows_aligned + r] =
+			    ((uint32_t)((double)trans_plotted[c * nrows + r] * (double)PVPlotted::MAX_VALUE));
 		}
 		for (PVRow r = nrows; r < nrows_aligned; r++) {
-			res[c*nrows_aligned+r] = 0;
+			res[c * nrows_aligned + r] = 0;
 		}
 	}
 }
