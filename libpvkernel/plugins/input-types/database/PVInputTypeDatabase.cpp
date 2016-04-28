@@ -10,13 +10,16 @@
 
 #include "../../common/database/PVDBInfos.h"
 
-PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
-	PVInputTypeDesc<PVDBQuery>(),
-	_is_custom_format(false)
+PVRush::PVInputTypeDatabase::PVInputTypeDatabase()
+    : PVInputTypeDesc<PVDBQuery>(), _is_custom_format(false)
 {
 }
 
-bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& /*args_ext*/, QWidget* parent) const
+bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
+                                               hash_formats& new_formats, list_inputs& inputs,
+                                               QString& format,
+                                               PVCore::PVArgumentList& /*args_ext*/,
+                                               QWidget* parent) const
 {
 	connect_parent(parent);
 	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(this, formats, parent);
@@ -36,8 +39,7 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, hash
 		custom_format.populate_from_xml(params->get_custom_format().documentElement());
 		new_formats["custom"] = custom_format;
 		format = "custom";
-	}
-	else {
+	} else {
 		format = params->get_existing_format();
 	}
 
@@ -47,7 +49,6 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, hash
 PVRush::PVInputTypeDatabase::~PVInputTypeDatabase()
 {
 }
-
 
 QString PVRush::PVInputTypeDatabase::name() const
 {
@@ -80,7 +81,8 @@ QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) c
 	return query->human_name();
 }
 
-bool PVRush::PVInputTypeDatabase::get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const
+bool PVRush::PVInputTypeDatabase::get_custom_formats(PVInputDescription_p /*in*/,
+                                                     hash_formats& /*formats*/) const
 {
 	return false;
 }

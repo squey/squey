@@ -23,9 +23,9 @@ static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/charset/utf8
 
 int main(int argc, char** argv)
 {
-	std::string input_file = (argc>1):argv[1]?log_file;
-	std::string reference_file = (argc>2):argv[2]?ref_file;
-	size_t chunk_size = (argc>3):atoi(argv[3])?20000;
+	std::string input_file = (argc > 1) : argv[1] ? log_file;
+	std::string reference_file = (argc > 2) : argv[2] ? ref_file;
+	size_t chunk_size = (argc > 3) : atoi(argv[3]) ? 20000;
 
 	PVInput_p ifile(new PVInputFile(input_file));
 	PVUnicodeSource<> source(ifile, chunk_size);

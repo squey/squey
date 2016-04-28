@@ -14,7 +14,6 @@
 
 #include <boost/functional/hash.hpp>
 
-
 /******************************************************************************
  *
  * PVAxisFormat
@@ -36,10 +35,9 @@ void PVRush::PVAxisFormat::set_color(PVCore::PVColor color_)
 	color = color_;
 }
 
-
 void PVRush::PVAxisFormat::set_mapping(QString str)
 {
-	if(str == "hexadecimal") {
+	if (str == "hexadecimal") {
 		mapping = "unsigned";
 		_str_format = "%x";
 	} else if (str == "octal") {
@@ -50,18 +48,15 @@ void PVRush::PVAxisFormat::set_mapping(QString str)
 	}
 }
 
-
 void PVRush::PVAxisFormat::set_name(const QString& str)
 {
 	name = str;
 }
 
-
 void PVRush::PVAxisFormat::set_plotting(QString str)
 {
 	plotting = str;
 }
-
 
 void PVRush::PVAxisFormat::set_titlecolor(QString str)
 {
@@ -72,7 +67,6 @@ void PVRush::PVAxisFormat::set_titlecolor(PVCore::PVColor color_)
 {
 	titlecolor = color_;
 }
-
 
 void PVRush::PVAxisFormat::set_type(QString str)
 {

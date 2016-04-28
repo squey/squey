@@ -20,22 +20,21 @@ class PVScatterView;
 
 class PVScatterViewParamsWidget : public QToolBar
 {
-Q_OBJECT
+	Q_OBJECT
 
-public:
+  public:
 	PVScatterViewParamsWidget(PVScatterView* parent);
 
-private slots:
+  private slots:
 	void set_selection_mode(int mode);
 
-private:
+  private:
 	PVScatterView* parent_sv();
 
-private:
-	QSignalMapper *_sel_mode_signal_mapper;
-	QToolButton   *_sel_mode_button;
+  private:
+	QSignalMapper* _sel_mode_signal_mapper;
+	QToolButton* _sel_mode_button;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVSCATTERVIEWPARAMSWIDGET_H

@@ -19,37 +19,46 @@
 #include <typeinfo>
 #include <stdexcept>
 
-namespace PVCore {
+namespace PVCore
+{
 
-class InvalidPlugin: public std::runtime_error
+class InvalidPlugin : public std::runtime_error
 {
 	using std::runtime_error::runtime_error;
 };
 
-/*! \brief Template class library used to register relevant classes, with associated tags if necessary. used by the plugin system.
- *  \tparam RegAs Kind of class library. Must be a base class of T (see \ref register_class). This is generally the interface of a plugin type.
+/*! \brief Template class library used to register relevant classes, with associated tags if
+ *necessary. used by the plugin system.
+ *  \tparam RegAs Kind of class library. Must be a base class of T (see \ref register_class). This
+ *is generally the interface of a plugin type.
  *
- * This class is used by the plugin system to keep track of the different registered plugin. Each plugin implements RegAs (or one of its children),
+ * This class is used by the plugin system to keep track of the different registered plugin. Each
+ *plugin implements RegAs (or one of its children),
  * and is registered thanks to the REGISTER_CLASS or REGISTER_CLASS_AS macros.
  *
- * The REGISTER_CLASS(desc, T) macro can be used when T defines the type T::RegAs. Indeed, these two codes are equivalent:
+ * The REGISTER_CLASS(desc, T) macro can be used when T defines the type T::RegAs. Indeed, these two
+ *codes are equivalent:
  *
  * \code
  * REGISTER_CLASS("plugin-name", MyMappingPlugin);
  * // is the same as
- * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name", MyMappingPlugin());
+ * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name",
+ *MyMappingPlugin());
  * \endcode
  *
  * Note that you need a valid default constructor for this macro to work.
- * You can also use the REGISTER_CLASS_WITH_ARGS macros that helps you tune your registration. Both codes are equivalent:
+ * You can also use the REGISTER_CLASS_WITH_ARGS macros that helps you tune your registration. Both
+ *codes are equivalent:
  *
  * \code
  * REGISTER_CLASS_WITH_ARGS("plugin-name", MyMappingPlugin, arg1, arg2, ...);
  * // is the same as
- * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name", MyMappingPlugin(arg1, arg2, ...));
+ * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name",
+ *MyMappingPlugin(arg1, arg2, ...));
  * \endcode
  *
- * This technique is used so that, for instance, the same plugin can be registered with different default parameters (in terms of PVArgumentList)
+ * This technique is used so that, for instance, the same plugin can be registered with different
+ *default parameters (in terms of PVArgumentList)
  * and eventually using different constructors.
  *
  * For instance, if you have a plugin implementation like this:
@@ -59,7 +68,8 @@ class InvalidPlugin: public std::runtime_error
  * {
  * public:
  *     MyMappingPlugin(PVCore::PVArgumentList args = MyMappingPlugin::default_args());
- *     MyMappingPlugin(int param_construct, PVCore::PVArgumentList args = MyMappingPlugin::default_args());
+ *     MyMappingPlugin(int param_construct, PVCore::PVArgumentList args =
+ *MyMappingPlugin::default_args());
  * [...]
  *     CLASS_REGISTRABLE(MyMappingPlugin)
  * };
@@ -77,32 +87,28 @@ class InvalidPlugin: public std::runtime_error
  * AG: WARNING: there is *no* and this is *wanted* !
  *              check the wiki for more informations
  */
-template<class RegAs>
-class PVClassLibrary {
-public:
+template <class RegAs> class PVClassLibrary
+{
+  public:
 	// PF is a shared pointer to a registered class's base class
 	typedef typename RegAs::p_type PF;
-	typedef PVCore::PVOrderedMap<QString,PF> list_classes;
+	typedef PVCore::PVOrderedMap<QString, PF> list_classes;
 	typedef PVClassLibrary<RegAs> C;
 	typedef PVTag<RegAs> tag;
 	typedef QList<tag> list_tags;
 
-private:
-	PVClassLibrary()
-	{
-		_last_registered_id = 0;
-	}
+  private:
+	PVClassLibrary() { _last_registered_id = 0; }
 
-public:
+  public:
 	static C& get()
 	{
 		static C obj;
 		return obj;
 	}
 
-public:
-	template<class T>
-	void register_class(QString const& name, T const& f)
+  public:
+	template <class T> void register_class(QString const& name, T const& f)
 	{
 		PF pf = f.template clone<RegAs>();
 		pf->__registered_class_name = name;
@@ -111,8 +117,7 @@ public:
 		_classes[name] = pf;
 	}
 
-	template<class T>
-	void declare_tag(QString const& name, QString const& desc)
+	template <class T> void declare_tag(QString const& name, QString const& desc)
 	{
 		// Looks for a registered version of 'T', and take it if it exists
 		typename list_classes::iterator it_c;
@@ -123,15 +128,15 @@ public:
 				break;
 			}
 		}
-		// If this assert fails, it means that 'T' hasn't been previously registered as 'RegAs' (see REGISTER_CLASS)
+		// If this assert fails, it means that 'T' hasn't been previously registered as 'RegAs' (see
+		// REGISTER_CLASS)
 		assert(pf);
 		typename list_tags::iterator it = std::find(_tags.begin(), _tags.end(), tag(name, ""));
 		if (it == _tags.end()) {
 			tag new_tag(name, desc);
 			new_tag.add_class(pf);
 			_tags.push_back(new_tag);
-		}
-		else {
+		} else {
 			tag& cur_tag = *it;
 			cur_tag.add_class(pf);
 		}
@@ -141,8 +146,7 @@ public:
 
 	list_tags const& get_tags() const { return _tags; }
 
-	template <class T>
-	list_tags get_tags_for_class(T const& f) const
+	template <class T> list_tags get_tags_for_class(T const& f) const
 	{
 		list_tags ret;
 		typename list_tags::const_iterator it;
@@ -167,7 +171,8 @@ public:
 
 	tag const& get_tag(QString name)
 	{
-		typename list_tags::const_iterator it = std::find(_tags.begin(), _tags.end(), tag(name, ""));
+		typename list_tags::const_iterator it =
+		    std::find(_tags.begin(), _tags.end(), tag(name, ""));
 		if (it == _tags.end()) {
 			throw PVTagUndefinedException(name);
 		}
@@ -185,14 +190,15 @@ public:
 		return _classes.at(name);
 	}
 
-private:
+  private:
 	list_classes _classes;
 	list_tags _tags;
 	int _last_registered_id;
 };
 
-class PVClassLibraryLibLoader {
-public:
+class PVClassLibraryLibLoader
+{
+  public:
 	static bool load_class(QString const& path);
 	static int load_class_from_dir(QString const& pluginsdir, QString const& prefix);
 
@@ -200,26 +206,27 @@ public:
 	 * Load plugins from several directories
 	 *
 	 * @param pluginsdirs list of directories separated with the semicolon char ';'
-	 * @param prefix plugin type prefix, such as "plotting_filter" for the plotting filter plugin type
+	 * @param prefix plugin type prefix, such as "plotting_filter" for the plotting filter plugin
+	 *type
 	 */
 	static int load_class_from_dirs(QString const& pluginsdirs, QString const& prefix);
 	static QStringList split_plugin_dirs(QString const& dirs);
 };
 
-#define REGISTER_CLASS_AS(name, T, RegAs) \
+#define REGISTER_CLASS_AS(name, T, RegAs)                                                          \
 	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T());
 #define REGISTER_CLASS(name, T) REGISTER_CLASS_AS(name, T, T::RegAs)
-	
-#define REGISTER_CLASS_AS_WITH_ARGS(name, T, RegAs, ...) \
-	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(__VA_ARGS__));
-#define REGISTER_CLASS_WITH_ARGS(name, T, ...) REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, __VA_ARGS__)
 
-#define DECLARE_TAG_AS(name, desc, T, RegAs) \
+#define REGISTER_CLASS_AS_WITH_ARGS(name, T, RegAs, ...)                                           \
+	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(__VA_ARGS__));
+#define REGISTER_CLASS_WITH_ARGS(name, T, ...)                                                     \
+	REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, __VA_ARGS__)
+
+#define DECLARE_TAG_AS(name, desc, T, RegAs)                                                       \
 	PVCore::PVClassLibrary<RegAs>::get().declare_tag<T>(name, desc);
 #define DECLARE_TAG(name, desc, T) DECLARE_TAG_AS(name, desc, T, T::RegAs)
 
-#define LIB_CLASS(T) \
-	PVCore::PVClassLibrary<T::RegAs>
+#define LIB_CLASS(T) PVCore::PVClassLibrary<T::RegAs>
 }
 
 #endif

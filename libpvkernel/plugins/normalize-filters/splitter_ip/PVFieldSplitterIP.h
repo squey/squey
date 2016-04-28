@@ -12,7 +12,8 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
 /**
  * Split an IP in multiple field.
@@ -31,26 +32,28 @@ namespace PVFilter {
  *
  * @note incomplete ipv6 result in empty fields.
  */
-class PVFieldSplitterIP : public PVFieldsSplitter {
+class PVFieldSplitterIP : public PVFieldsSplitter
+{
 
-public:
+  public:
 	// Separator between quad information for params.
 	static const QString sep;
 
-public:
+  public:
 	PVFieldSplitterIP(PVCore::PVArgumentList const& args = PVFieldSplitterIP::default_args());
 
-public:
+  public:
 	void set_args(PVCore::PVArgumentList const& args);
-	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field);
+	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
+	                                           PVCore::list_fields::iterator it_ins,
+	                                           PVCore::PVField& field);
 
-private:
-	bool _ipv6; //!< Wether we split on ipv6 (or ipv4)
+  private:
+	bool _ipv6;                   //!< Wether we split on ipv6 (or ipv4)
 	std::vector<size_t> _indexes; //!< Elements to keep from previous position.
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterIP)
 };
-
 }
 
 #endif // PVFILTER_PVFIELDSPLITTERIP_H

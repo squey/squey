@@ -10,11 +10,11 @@
 
 #include <memory>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVZoneRendering;
 typedef std::shared_ptr<PVZoneRendering> PVZoneRendering_p;
-
 }
 
 #endif

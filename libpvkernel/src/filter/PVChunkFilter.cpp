@@ -13,8 +13,8 @@
  * PVFilter::PVChunkFilter::PVChunkFilter
  *
  *****************************************************************************/
-PVFilter::PVChunkFilter::PVChunkFilter() :
-	PVFilterFunctionBase<PVCore::PVChunk*,PVCore::PVChunk*>()
+PVFilter::PVChunkFilter::PVChunkFilter()
+    : PVFilterFunctionBase<PVCore::PVChunk*, PVCore::PVChunk*>()
 {
 }
 
@@ -23,8 +23,7 @@ PVFilter::PVChunkFilter::PVChunkFilter() :
  * PVFilter::PVChunkFilter::operator()
  *
  *****************************************************************************/
-PVCore::PVChunk* PVFilter::PVChunkFilter::operator()(PVCore::PVChunk *chunk)
+PVCore::PVChunk* PVFilter::PVChunkFilter::operator()(PVCore::PVChunk* chunk)
 {
 	return chunk;
 }
-

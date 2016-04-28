@@ -14,12 +14,12 @@
 
 #include "PVPerlSource.h"
 
-
-namespace PVRush {
-
-class PVSourceCreatorPerlfile: public PVSourceCreator
+namespace PVRush
 {
-public:
+
+class PVSourceCreatorPerlfile : public PVSourceCreator
+{
+  public:
 	source_p create_source_from_input(PVInputDescription_p input, const PVFormat& format) const;
 	QString supported_type() const;
 	hash_formats get_supported_formats() const;
@@ -28,7 +28,6 @@ public:
 
 	CLASS_REGISTRABLE(PVSourceCreatorPerlfile)
 };
-
 }
 
-#endif	/* INENDI_PVSOURCECREATORPERLFILE_H */
+#endif /* INENDI_PVSOURCECREATORPERLFILE_H */

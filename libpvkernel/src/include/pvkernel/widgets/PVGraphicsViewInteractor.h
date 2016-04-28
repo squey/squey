@@ -14,48 +14,49 @@
 
 #include <type_traits>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 class PVGraphicsView;
 
-class PVGraphicsViewInteractorBase: public QObject
+class PVGraphicsViewInteractorBase : public QObject
 {
 	Q_OBJECT
 
 	friend class PVGraphicsView;
 
-	virtual bool call(QObject *obj, QEvent *event) = 0;
+	virtual bool call(QObject* obj, QEvent* event) = 0;
 
-protected:
+  protected:
 	PVGraphicsViewInteractorBase(PVGraphicsView* parent);
 };
 
 /*! \brief Template class that defines an interactor for a PVGraphicsView-based class.
  *
- * This class defines an interactor for a PVGraphicsView-based class. Thus, T must be a subclass of PVGraphicsView.
- * It is recommanded to set a public typedef for any PVGraphicsView-based class, so that it is easier to create a new interactor for that type of view.
+ * This class defines an interactor for a PVGraphicsView-based class. Thus, T must be a subclass of
+ *PVGraphicsView.
+ * It is recommanded to set a public typedef for any PVGraphicsView-based class, so that it is
+ *easier to create a new interactor for that type of view.
  *
- * For instance, in the parallel view library, this typedef is defined in PVZoomableDrawingAreaInteractor.h:
+ * For instance, in the parallel view library, this typedef is defined in
+ *PVZoomableDrawingAreaInteractor.h:
  *
  * \code
- * typedef PVWidgets::PVGraphicsViewInteractor<PVZoomableDrawingArea> PVZoomableDrawingAreaInteractor;
+ * typedef PVWidgets::PVGraphicsViewInteractor<PVZoomableDrawingArea>
+ *PVZoomableDrawingAreaInteractor;
  * \endcode
  */
-template <class T>
-class PVGraphicsViewInteractor: public PVGraphicsViewInteractorBase
+template <class T> class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
 {
 	typedef T object_type;
 	friend class PVGraphicsView;
 
-protected:
-	PVGraphicsViewInteractor(PVGraphicsView* parent):
-		PVGraphicsViewInteractorBase(parent)
-	{}
+  protected:
+	PVGraphicsViewInteractor(PVGraphicsView* parent) : PVGraphicsViewInteractorBase(parent) {}
 
-	virtual	~PVGraphicsViewInteractor()
-	{}
+	virtual ~PVGraphicsViewInteractor() {}
 
-protected:
+  protected:
 	/*! \brief Called when a cotnext menu event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
 	 *  \param[in] event a QContextMenuEvent object that describes the event
@@ -63,7 +64,10 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool contextMenuEvent(object_type* /*obj*/, QContextMenuEvent* /*event*/) { return false; }
+	virtual bool contextMenuEvent(object_type* /*obj*/, QContextMenuEvent* /*event*/)
+	{
+		return false;
+	}
 
 	/*! \brief Called when a mouse button press event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -72,7 +76,10 @@ protected:
 	 *  \return true if the event has been processed and must not be processed
 	 *  by the other interactors. false otherwise.
 	 */
-	virtual bool mouseDoubleClickEvent(object_type* /*obj*/, QMouseEvent* /*event*/) { return false; }
+	virtual bool mouseDoubleClickEvent(object_type* /*obj*/, QMouseEvent* /*event*/)
+	{
+		return false;
+	}
 
 	/*! \brief Called when a mouse button press event has occured.
 	 *  \param[in] obj   A pointer to the view that received the event
@@ -137,7 +144,7 @@ protected:
 	 */
 	virtual bool resizeEvent(object_type* /*obj*/, QResizeEvent* /*event*/) { return false; }
 
-protected:
+  protected:
 	bool call(QObject* obj, QEvent* event) override
 	{
 		object_type* real_obj = qobject_cast<object_type*>(obj);
@@ -171,7 +178,6 @@ protected:
 		return false;
 	}
 };
-
 }
 
 #endif

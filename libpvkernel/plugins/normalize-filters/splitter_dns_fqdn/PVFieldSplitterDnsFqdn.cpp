@@ -38,12 +38,12 @@
 
 #include "PVFieldSplitterDnsFqdn.h"
 
-const char* PVFilter::PVFieldSplitterDnsFqdn::TLD1      = "tld1";
-const char* PVFilter::PVFieldSplitterDnsFqdn::TLD2      = "tld2";
-const char* PVFilter::PVFieldSplitterDnsFqdn::TLD3      = "tld3";
-const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD1     = "subd1";
-const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD2     = "subd2";
-const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD3     = "subd3";
+const char* PVFilter::PVFieldSplitterDnsFqdn::TLD1 = "tld1";
+const char* PVFilter::PVFieldSplitterDnsFqdn::TLD2 = "tld2";
+const char* PVFilter::PVFieldSplitterDnsFqdn::TLD3 = "tld3";
+const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD1 = "subd1";
+const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD2 = "subd2";
+const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD3 = "subd3";
 const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD1_REV = "subd1_rev";
 const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD2_REV = "subd2_rev";
 const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD3_REV = "subd3_rev";
@@ -52,8 +52,8 @@ const char* PVFilter::PVFieldSplitterDnsFqdn::SUBD3_REV = "subd3_rev";
  * PVFilter::PVFieldSplitterDnsFqdn::PVFieldSplitterDnsFqdn
  *****************************************************************************/
 
-PVFilter::PVFieldSplitterDnsFqdn::PVFieldSplitterDnsFqdn(PVCore::PVArgumentList const& args) :
-	PVFieldsFilter<PVFilter::one_to_many>()
+PVFilter::PVFieldSplitterDnsFqdn::PVFieldSplitterDnsFqdn(PVCore::PVArgumentList const& args)
+    : PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterDnsFqdn, args);
 }
@@ -66,12 +66,12 @@ void PVFilter::PVFieldSplitterDnsFqdn::set_args(PVCore::PVArgumentList const& ar
 {
 	FilterT::set_args(args);
 
-	_tld1      = args.at(TLD1).toBool();
-	_tld2      = args.at(TLD2).toBool();
-	_tld3      = args.at(TLD3).toBool();
-	_subd1     = args.at(SUBD1).toBool();
-	_subd2     = args.at(SUBD2).toBool();
-	_subd3     = args.at(SUBD3).toBool();
+	_tld1 = args.at(TLD1).toBool();
+	_tld2 = args.at(TLD2).toBool();
+	_tld3 = args.at(TLD3).toBool();
+	_subd1 = args.at(SUBD1).toBool();
+	_subd2 = args.at(SUBD2).toBool();
+	_subd3 = args.at(SUBD3).toBool();
 	_subd1_rev = args.at(SUBD1_REV).toBool();
 	_subd2_rev = args.at(SUBD2_REV).toBool();
 	_subd3_rev = args.at(SUBD3_REV).toBool();
@@ -87,12 +87,12 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterDnsFqdn)
 {
 	PVCore::PVArgumentList args;
 
-	args[TLD1]      = true;
-	args[TLD2]      = false;
-	args[TLD3]      = false;
-	args[SUBD1]     = true;
-	args[SUBD2]     = false;
-	args[SUBD3]     = false;
+	args[TLD1] = true;
+	args[TLD2] = false;
+	args[TLD3] = false;
+	args[SUBD1] = true;
+	args[SUBD2] = false;
+	args[SUBD3] = false;
 	args[SUBD1_REV] = true;
 	args[SUBD2_REV] = true;
 	args[SUBD3_REV] = true;
@@ -105,7 +105,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterDnsFqdn)
  * domain in a FQDN. It returns true only if the string seems to have a
  * lower level domain.
  */
-static inline bool str_rscan(char *str, int &pos, int &start, int& len)
+static inline bool str_rscan(char* str, int& pos, int& start, int& len)
 {
 	len = 0;
 
@@ -126,10 +126,8 @@ static inline bool str_rscan(char *str, int &pos, int &start, int& len)
 	}
 }
 
-static inline void check_arpa_ip(char *str,
-                                 int tld1_pos, int tld1_len,
-                                 int tld2_pos, int tld2_len,
-                                 bool &is_ipv4, bool &is_ipv6)
+static inline void check_arpa_ip(char* str, int tld1_pos, int tld1_len, int tld2_pos, int tld2_len,
+                                 bool& is_ipv4, bool& is_ipv6)
 {
 	static char ARPA[] = "arpa";
 	static char ARPA_INADDR[] = "in-addr";
@@ -150,7 +148,7 @@ static inline void check_arpa_ip(char *str,
 	}
 }
 
-static void fill_field(PVCore::PVField &field, char* str, int len)
+static void fill_field(PVCore::PVField& field, char* str, int len)
 {
 	field.allocate_new(len);
 	if (len) {
@@ -163,14 +161,12 @@ static void fill_field(PVCore::PVField &field, char* str, int len)
  * PVFilter::PVFieldSplitterDnsFqdn::one_to_many
  *****************************************************************************/
 
-PVCore::list_fields::size_type
-PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
-                                              PVCore::list_fields::iterator it_ins,
-                                              PVCore::PVField &field)
+PVCore::list_fields::size_type PVFilter::PVFieldSplitterDnsFqdn::one_to_many(
+    PVCore::list_fields& l, PVCore::list_fields::iterator it_ins, PVCore::PVField& field)
 {
 	PVCore::list_fields::size_type ret = 0;
 
-	char*str = field.begin();
+	char* str = field.begin();
 
 	int str_len = field.size();
 
@@ -280,26 +276,26 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 	int len = tld1_len;
 
 	if (_tld1) {
-		PVCore::PVField &f(*l.insert(it_ins, field));
+		PVCore::PVField& f(*l.insert(it_ins, field));
 		f.set_begin(str + tld1_pos);
 		f.set_end(str + tld1_pos + len);
 		++ret;
 	}
 
-	len += (has_tld2 == false)?0:(tld2_len + 1);
+	len += (has_tld2 == false) ? 0 : (tld2_len + 1);
 
 	if (_tld2) {
-		PVCore::PVField &f(*l.insert(it_ins, field));
+		PVCore::PVField& f(*l.insert(it_ins, field));
 		// set tld1 and tld2
 		f.set_begin(str + tld2_pos);
 		f.set_end(str + tld2_pos + len);
 		++ret;
 	}
 
-	len += (has_tld3 == false)?0:(tld3_len + 1);
+	len += (has_tld3 == false) ? 0 : (tld3_len + 1);
 
 	if (_tld3) {
-		PVCore::PVField &f(*l.insert(it_ins, field));
+		PVCore::PVField& f(*l.insert(it_ins, field));
 		if (is_ip) {
 			// Empty field.
 			f.set_end(f.begin());
@@ -310,7 +306,7 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 	}
 
 	if (_subd1) {
-		PVCore::PVField &f(*l.insert(it_ins, field));
+		PVCore::PVField& f(*l.insert(it_ins, field));
 		if (not is_ip and tld1_pos != 0) {
 			f.set_end(f.begin() + tld1_pos - 1);
 		} else if (tld2_pos != 0) {
@@ -327,7 +323,7 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 	}
 
 	if (_subd2) {
-		PVCore::PVField &f(*l.insert(it_ins, field));
+		PVCore::PVField& f(*l.insert(it_ins, field));
 		if (not is_ip) {
 			if (tld2_pos != 0) {
 				// there is a sub-domain under the SLD
@@ -350,7 +346,7 @@ PVFilter::PVFieldSplitterDnsFqdn::one_to_many(PVCore::list_fields &l,
 	}
 
 	if (_subd3) {
-		PVCore::PVField &f(*l.insert(it_ins, field));
+		PVCore::PVField& f(*l.insert(it_ins, field));
 		if (!is_ip) {
 			if (tld3_pos != 0) {
 				// there is a sub-domain under the 3rd LD

@@ -37,7 +37,7 @@
  *
  *****************************************************************************/
 Inendi::PVLayerFilterHeatline::PVLayerFilterHeatline(PVCore::PVArgumentList const& l)
-	: PVLayerFilter(l)
+    : PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterHeatline, l);
 }
@@ -60,7 +60,7 @@ PVCore::PVArgumentList Inendi::PVLayerFilterHeatline::get_default_args_for_view(
  * Inendi::PVLayerFilterHeatline::operator()
  *
  *****************************************************************************/
-void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer &out)
+void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 {
 	// Extract Nraw data
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
@@ -72,7 +72,7 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer &out)
 	// Extract ratio information
 	PVCore::PVPercentRangeType ratios = _args[ARG_NAME_COLORS].value<PVCore::PVPercentRangeType>();
 
-	const double *freq_values = ratios.get_values();
+	const double* freq_values = ratios.get_values();
 
 	const double freq_min = freq_values[0];
 	const double freq_max = freq_values[1];
@@ -108,11 +108,10 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer &out)
 	if (max_n == min_n) {
 		// Case where every value have the same frequency.
 		// Set the same color depending on the number of value
-		for(auto it=sel.begin(); it != sel.end(); ++it) {
+		for (auto it = sel.begin(); it != sel.end(); ++it) {
 			post(out, 1.0 / extents.size(), freq_min, freq_max, it.index());
 		}
-	}
-	else {
+	} else {
 		auto const& group_array = group.to_core_array();
 		auto const& count_array = count.to_core_array<pvcop::db::indexes::type>();
 
@@ -120,8 +119,8 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer &out)
 		size_t selected_index = 0;
 		// FIXME : We should implement a pvcop::db::array::sel_iterator to iterate
 		//         more efficiently on selected rows
-		for(auto it=sel.begin(); it != sel.end(); ++it, index++) {
-			if(not *it) {
+		for (auto it = sel.begin(); it != sel.end(); ++it, index++) {
+			if (not*it) {
 				continue;
 			}
 			double cum = count_array[group_array[selected_index++]];
@@ -131,7 +130,7 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer &out)
 			if (bLog) {
 				ratio = PVCore::log_scale(cum, min_n, max_n);
 			} else {
-				ratio = (cum - min_n)/(max_n - min_n);
+				ratio = (cum - min_n) / (max_n - min_n);
 			}
 			post(out, ratio, freq_min, freq_max, index);
 		}
@@ -150,21 +149,23 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatline)
 {
 	PVCore::PVArgumentList args;
 
-	PVCore::PVEnumType scale(QStringList() << "Linear" << "Log", 0);
+	PVCore::PVEnumType scale(QStringList() << "Linear"
+	                                       << "Log",
+	                         0);
 
 	args[PVCore::PVArgumentKey(ARG_NAME_SCALE, ARG_DESC_SCALE)].setValue(scale);
 	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxisIndexType());
-	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVPercentRangeType());
+	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(
+	    PVCore::PVPercentRangeType());
 	return args;
 }
 
-void Inendi::PVLayerFilterHeatline::post(PVLayer& out,
-                                         const double ratio,
-                                         const double fmin, const double fmax,
-                                         const PVRow line_id)
+void Inendi::PVLayerFilterHeatline::post(PVLayer& out, const double ratio, const double fmin,
+                                         const double fmax, const PVRow line_id)
 {
 	// Colorize line dpeending on ratio value. (High ratio -> red, low ratio -> green)
-	const PVCore::PVHSVColor color((uint8_t)((double)(HSV_COLOR_RED-HSV_COLOR_GREEN)*ratio + (double)HSV_COLOR_GREEN));
+	const PVCore::PVHSVColor color(
+	    (uint8_t)((double)(HSV_COLOR_RED - HSV_COLOR_GREEN) * ratio + (double)HSV_COLOR_GREEN));
 	out.get_lines_properties().line_set_color(line_id, color);
 
 	// UnSelect line out of min/max choosen frequency.

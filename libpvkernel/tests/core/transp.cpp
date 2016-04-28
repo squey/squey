@@ -25,26 +25,26 @@ int main(int argc, char** argv)
 	size_t nrows = atol(argv[1]);
 	size_t ncols = atol(argv[2]);
 
-	PVCore::PVMatrix<float, uint32_t, uint32_t> matrix,transp;
+	PVCore::PVMatrix<float, uint32_t, uint32_t> matrix, transp;
 	matrix.resize(nrows, ncols, 0);
 	transp.resize(ncols, nrows);
 
-	PVCore::PVMatrix<float, int, int> mnoop,tnoop;
+	PVCore::PVMatrix<float, int, int> mnoop, tnoop;
 	mnoop.resize(nrows, ncols, 0);
 	tnoop.resize(ncols, nrows);
 
-	tbb::tick_count start,end;
+	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
 	matrix.transpose_to(transp);
 	end = tbb::tick_count::now();
 
-	double opt_time = (end-start).seconds();
+	double opt_time = (end - start).seconds();
 
 	start = tbb::tick_count::now();
 	mnoop.transpose_to(tnoop);
 	end = tbb::tick_count::now();
 
-	double time = (end-start).seconds();
+	double time = (end - start).seconds();
 
 	std::stringstream ss;
 	ss << "transposition_speedup_" << nrows << "_" << ncols;

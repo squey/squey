@@ -13,26 +13,27 @@
 
 class connect_functor_helper : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 
-public:
-    connect_functor_helper(QObject *parent, const std::function<void()> &f) : QObject(parent), _function(f) {}
+  public:
+	connect_functor_helper(QObject* parent, const std::function<void()>& f)
+	    : QObject(parent), _function(f)
+	{
+	}
 
-public slots:
-    void signaled()
-    {
-        _function();
-    }
+  public slots:
+	void signaled() { _function(); }
 
-private:
-    std::function<void()> _function;
+  private:
+	std::function<void()> _function;
 };
 
 template <class T>
-bool connect(QObject *sender, const char *signal, const T &receiver, Qt::ConnectionType type = Qt::AutoConnection)
+bool connect(QObject* sender, const char* signal, const T& receiver,
+             Qt::ConnectionType type = Qt::AutoConnection)
 {
-    return QObject::connect(sender, signal, new connect_functor_helper(sender, receiver), SLOT(signaled()), type);
+	return QObject::connect(sender, signal, new connect_functor_helper(sender, receiver),
+	                        SLOT(signaled()), type);
 }
-
 
 #endif /* _PVCORE_LAMBDA_CONNECT_H__ */

@@ -11,32 +11,31 @@
 #include <QRect>
 #include <QMetaType>
 
-QHash<QString,QString> PVCore::PVArgumentKey::_key_desc;
+QHash<QString, QString> PVCore::PVArgumentKey::_key_desc;
 
-QDataStream &operator<<(QDataStream &out, const PVCore::PVArgumentTypeBase &obj)
+QDataStream& operator<<(QDataStream& out, const PVCore::PVArgumentTypeBase& obj)
 {
 	obj.serialize(out);
 	return out;
 }
 
-QDataStream &operator>>(QDataStream &in, const PVCore::PVArgumentTypeBase &obj)
+QDataStream& operator>>(QDataStream& in, const PVCore::PVArgumentTypeBase& obj)
 {
 	obj.unserialize(in);
 	return in;
 }
 
-QString PVCore::PVArgument_to_QString(const PVCore::PVArgument &v)
+QString PVCore::PVArgument_to_QString(const PVCore::PVArgument& v)
 {
 	QString str;
 
 	if (v.userType() >= QMetaType::User) { // custom type
-		str = static_cast<PVArgumentTypeBase*>(const_cast<PVCore::PVArgument*>(&v)->data())->to_string();
-	}
-	else { // builtin type
+		str = static_cast<PVArgumentTypeBase*>(const_cast<PVCore::PVArgument*>(&v)->data())
+		          ->to_string();
+	} else { // builtin type
 		if (v.canConvert<QString>()) {
 			str = v.toString();
-		}
-		else if (v.canConvert<QStringList>()) {
+		} else if (v.canConvert<QStringList>()) {
 			str = v.toStringList().join(",");
 		}
 	}
@@ -44,15 +43,15 @@ QString PVCore::PVArgument_to_QString(const PVCore::PVArgument &v)
 	return str;
 }
 
-PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVariant& v, bool* res_ok /* = 0 */)
+PVCore::PVArgument PVCore::QString_to_PVArgument(const QString& s, const QVariant& v,
+                                                 bool* res_ok /* = 0 */)
 {
 	QVariant var;
 	bool ok = true;
 
 	if (v.userType() >= QMetaType::User) { // custom type
 		var = static_cast<const PVArgumentTypeBase*>(v.constData())->from_string(s, &ok);
-	}
-	else // builtin type
+	} else // builtin type
 	{
 		switch (v.type()) {
 		case QMetaType::Bool:
@@ -92,7 +91,8 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 	}
 
 	if (!ok) {
-		PVLOG_WARN("String '%s' can't be interpreted as a '%s' object ! Using default value...\n", qPrintable(s), v.typeName());
+		PVLOG_WARN("String '%s' can't be interpreted as a '%s' object ! Using default value...\n",
+		           qPrintable(s), v.typeName());
 		var = v;
 	}
 
@@ -103,7 +103,8 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 	return var;
 }
 
-void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name)
+void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings,
+                                         const QString& group_name)
 {
 	PVArgumentList::const_iterator it;
 	settings.beginGroup(group_name);
@@ -113,7 +114,9 @@ void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& 
 	settings.endGroup();
 }
 
-PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name)
+PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings,
+                                                           const PVArgumentList& def_args,
+                                                           const QString& group_name)
 {
 	PVArgumentList args;
 	settings.beginGroup(group_name);
@@ -122,11 +125,10 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, 
 		QString const& key = keys.at(i);
 		if (def_args.contains(key)) {
 			QString str;
-			if (settings.value(key).type() == (QVariant::Type) QMetaType::QStringList) {
+			if (settings.value(key).type() == (QVariant::Type)QMetaType::QStringList) {
 				// QSettings returns strings containing commas as QStringList
 				str = settings.value(key).toStringList().join(",");
-			}
-			else {
+			} else {
 				str = settings.value(key).toString();
 			}
 			args[key] = QString_to_PVArgument(str, def_args.at(key));
@@ -150,7 +152,8 @@ void PVCore::PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomEleme
 	}
 }
 
-PVCore::PVArgumentList PVCore::QDomElement_to_PVArgumentList(QDomElement const& elt, const PVArgumentList& def_args)
+PVCore::PVArgumentList PVCore::QDomElement_to_PVArgumentList(QDomElement const& elt,
+                                                             const PVArgumentList& def_args)
 {
 	// TODO: refaire ça !
 	PVArgumentList args;
@@ -170,11 +173,15 @@ void PVCore::dump_argument_list(PVArgumentList const& l)
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		PVLOG_INFO("%s = %s (%s)\n", qPrintable(it->key().key()), qPrintable(it->value().toString()), qPrintable(PVArgument_to_QString(it->value())));
+		PVLOG_INFO("%s = %s (%s)\n", qPrintable(it->key().key()),
+		           qPrintable(it->value().toString()),
+		           qPrintable(PVArgument_to_QString(it->value())));
 	}
 }
 
-PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList const& args, PVArgumentKeyList const& keys, PVArgumentList const& def_args)
+PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList const& args,
+                                                              PVArgumentKeyList const& keys,
+                                                              PVArgumentList const& def_args)
 {
 	PVCore::PVArgumentList ret;
 	foreach (QString const& key, keys) {
@@ -184,8 +191,7 @@ PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList con
 		PVCore::PVArgument arg;
 		if (args.contains(key)) {
 			arg = args.at(key);
-		}
-		else {
+		} else {
 			arg = def_args.at(key);
 		}
 		ret[key] = arg;
@@ -193,7 +199,8 @@ PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList con
 	return ret;
 }
 
-void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& ref)
+void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret,
+                                                 PVCore::PVArgumentList const& ref)
 {
 	PVCore::PVArgumentList::iterator it;
 	for (it = ret.begin(); it != ret.end(); it++) {
@@ -204,7 +211,8 @@ void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PV
 	}
 }
 
-void PVCore::PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& def_args)
+void PVCore::PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret,
+                                             PVCore::PVArgumentList const& def_args)
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = def_args.begin(); it != def_args.end(); it++) {

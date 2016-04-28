@@ -22,28 +22,28 @@
  * PVInspector::PVLayerStackView::PVLayerStackView
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
-	QTableView(parent)
+PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent)
 {
 	// SIZE STUFF
 	setMinimumWidth(190);
-	setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 
 	// OBJECTNAME STUFF
 	setObjectName("PVLayerStackView");
-	// We need to name the headers if we want to style them by CSS (without interfering with other headers...
+	// We need to name the headers if we want to style them by CSS (without
+	// interfering with other headers...
 	horizontalHeader()->setObjectName("horizontalHeader_of_PVLayerStackView");
 	verticalHeader()->setObjectName("verticalHeader_of_PVLayerStackView");
-	
+
 	// FOCUS POLICY
 	setFocusPolicy(Qt::NoFocus);
-	
+
 	// HEADERS : we hide them
 	verticalHeader()->hide();
 	horizontalHeader()->hide();
 
-	//viewport()->setMouseTracking(true);
-	//viewport()->setAttribute(Qt::WA_Hover, true);
+// viewport()->setMouseTracking(true);
+// viewport()->setAttribute(Qt::WA_Hover, true);
 
 #if 0
 	// We use a delegate to render the Icons 
@@ -57,11 +57,14 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 	last_mouse_hover_layer_index = -1;
 #endif
 
-	connect(this, SIGNAL(clicked(QModelIndex const&)), this, SLOT(layer_clicked(QModelIndex const&)));
-	connect(this, SIGNAL(doubleClicked(QModelIndex const&)), this, SLOT(layer_double_clicked(QModelIndex const&)));
+	connect(this, SIGNAL(clicked(QModelIndex const&)), this,
+	        SLOT(layer_clicked(QModelIndex const&)));
+	connect(this, SIGNAL(doubleClicked(QModelIndex const&)), this,
+	        SLOT(layer_double_clicked(QModelIndex const&)));
 
 	// Context menu
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+	        SLOT(show_ctxt_menu(const QPoint&)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_ctxt_menu = new QMenu(this);
@@ -85,10 +88,10 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
 	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
 	_ctxt_menu->addSeparator();
 
-	_ctxt_menu_copy_to_clipboard_act = new QAction(tr("Copy the layer stack's details to clipboard"), nullptr);
+	_ctxt_menu_copy_to_clipboard_act =
+	    new QAction(tr("Copy the layer stack's details to clipboard"), nullptr);
 	_ctxt_menu->addAction(_ctxt_menu_copy_to_clipboard_act);
 }
-
 
 /******************************************************************************
  *
@@ -97,7 +100,9 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent):
  *****************************************************************************/
 void PVGuiQt::PVLayerStackView::import_layer()
 {
-	QString file = _layer_dialog.getOpenFileName(this, tr("Import a layer..."), _layer_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	QString file = _layer_dialog.getOpenFileName(this, tr("Import a layer..."),
+	                                             _layer_dialog.directory().absolutePath(),
+	                                             INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 
 	if (!file.isEmpty()) {
 		// Create a new layer
@@ -130,12 +135,12 @@ void PVGuiQt::PVLayerStackView::enterEvent(QEvent*)
  * PVGuiQt::PVLayerStackView::leaveEvent
  *
  *****************************************************************************/
-void PVGuiQt::PVLayerStackView::leaveEvent(QEvent * /*event*/)
+void PVGuiQt::PVLayerStackView::leaveEvent(QEvent* /*event*/)
 {
 	PVLOG_DEBUG("PVGuiQt::PVLayerStackView::%s\n", __FUNCTION__);
 
-	//mouse_hover_layer_index = -1;
-	//last_mouse_hover_layer_index = -1;
+	// mouse_hover_layer_index = -1;
+	// last_mouse_hover_layer_index = -1;
 	viewport()->update();
 	clearFocus();
 }
@@ -162,11 +167,9 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 	case Qt::Key_F2:
 		int model_index = ls_model()->lib_layer_stack().get_selected_layer_index();
-		Inendi::PVLayer &layer = get_layer_from_idx(model_index);
+		Inendi::PVLayer& layer = get_layer_from_idx(model_index);
 		QString current_name = layer.get_name();
-		QString name = QInputDialog::getText(this,
-		                                     "Rename current layer",
-		                                     "New layer name:",
+		QString name = QInputDialog::getText(this, "Rename current layer", "New layer name:",
 		                                     QLineEdit::Normal, current_name);
 		if (!name.isEmpty()) {
 			layer.set_name(name);
@@ -187,8 +190,10 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 void PVGuiQt::PVLayerStackView::load_layer_stack()
 {
-	QString file = _layerstack_dialog.getOpenFileName(this, tr("Import a layer stack..."), _layerstack_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if(!file.isEmpty()) {
+	QString file = _layerstack_dialog.getOpenFileName(
+	    this, tr("Import a layer stack..."), _layerstack_dialog.directory().absolutePath(),
+	    INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if (!file.isEmpty()) {
 		ls_model()->load_from_file(file);
 	}
 }
@@ -200,7 +205,9 @@ void PVGuiQt::PVLayerStackView::load_layer_stack()
  *****************************************************************************/
 void PVGuiQt::PVLayerStackView::save_layer(int idx)
 {
-	QString file = _layer_dialog.getSaveFileName(this, tr("Export this layer..."), _layer_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	QString file = _layer_dialog.getSaveFileName(this, tr("Export this layer..."),
+	                                             _layer_dialog.directory().absolutePath(),
+	                                             INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	if (!file.isEmpty()) {
 		get_layer_from_idx(idx).save_to_file(file);
 	}
@@ -208,7 +215,8 @@ void PVGuiQt::PVLayerStackView::save_layer(int idx)
 
 Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
-	QVariant var = ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
+	QVariant var =
+	    ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
 	return *reinterpret_cast<Inendi::PVLayer*>(var.value<void*>());
 }
 
@@ -219,8 +227,10 @@ Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
  *****************************************************************************/
 void PVGuiQt::PVLayerStackView::save_layer_stack()
 {
-	QString file = _layerstack_dialog.getSaveFileName(this, tr("Save layer stack..."), _layerstack_dialog.directory().absolutePath(), INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if(!file.isEmpty()) {
+	QString file = _layerstack_dialog.getSaveFileName(
+	    this, tr("Save layer stack..."), _layerstack_dialog.directory().absolutePath(),
+	    INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if (!file.isEmpty()) {
 		Inendi::PVLayerStack& layer_stack = ls_model()->lib_layer_stack();
 		layer_stack.save_to_file(file);
 	}
@@ -250,7 +260,7 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 		set_current_selection_from_layer(idx_click.row());
 		return;
 	}
-	if(act == _ctxt_menu_export_layer_sel) {
+	if (act == _ctxt_menu_export_layer_sel) {
 		export_layer_selection(idx_click.row());
 		return;
 	}
@@ -260,20 +270,14 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 	_ctxt_menu_save_act->setEnabled(idx_click.isValid());
 	if (act == _ctxt_menu_save_act) {
 		save_layer(idx_click.row());
-	}
-	else
-	if (act == _ctxt_menu_load_act) {
+	} else if (act == _ctxt_menu_load_act) {
 		import_layer();
-	}
-	else
-	if (act == _ctxt_menu_save_ls_act) {
+	} else if (act == _ctxt_menu_save_ls_act) {
 		save_layer_stack();
-	}
-	else
-	if (act == _ctxt_menu_load_ls_act) {
+	} else if (act == _ctxt_menu_load_ls_act) {
 		load_layer_stack();
 	}
-	if(act == _ctxt_menu_copy_to_clipboard_act) {
+	if (act == _ctxt_menu_copy_to_clipboard_act) {
 		copy_to_clipboard();
 	}
 }
@@ -306,7 +310,7 @@ void PVGuiQt::PVLayerStackView::layer_clicked(QModelIndex const& idx)
 		// Qt says it's only called when idx is valid, but still..
 		return;
 	}
-	
+
 	ls_model()->setData(idx, QVariant(true), PVCustomQtRoles::RoleSetSelectedItem);
 }
 

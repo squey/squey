@@ -20,9 +20,10 @@
 #include <QTabWidget>
 #include <QLabel>
 
-PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options, QString const& suffix, QString const& filter, QWidget* parent):
-	QFileDialog(parent),
-	_options(*options)
+PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options,
+                                                        QString const& suffix,
+                                                        QString const& filter, QWidget* parent)
+    : QFileDialog(parent), _options(*options)
 {
 	// Do not use native dialog as we modify the layout
 	setOption(QFileDialog::DontUseNativeDialog, true);
@@ -31,11 +32,12 @@ PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(PVCore::PVSerializeArchi
 	setWindowTitle(tr("Save project..."));
 	setNameFilters(QStringList() << filter << ALL_FILES_FILTER);
 
-	QGridLayout* main_layout = (QGridLayout*) layout();
+	QGridLayout* main_layout = (QGridLayout*)layout();
 
 	_save_everything_checkbox = new QCheckBox(tr("Include formats and original files"));
 	_save_everything_checkbox->setTristate(false);
-	connect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this, SLOT(include_files_Slot(int)));
+	connect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this,
+	        SLOT(include_files_Slot(int)));
 	main_layout->addWidget(_save_everything_checkbox, 5, 1);
 
 	QTabWidget* tabs = new QTabWidget();
@@ -45,7 +47,9 @@ PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(PVCore::PVSerializeArchi
 
 	// Show the options
 	QVBoxLayout* options_layout = new QVBoxLayout();
-	options_layout->addWidget(new QLabel(tr("You can choose which elements your project will contain.\nFor instance, source files can be included or not in the project.")));
+	options_layout->addWidget(
+	    new QLabel(tr("You can choose which elements your project will contain.\nFor "
+	                  "instance, source files can be included or not in the project.")));
 
 	QHBoxLayout* options_h_l = new QHBoxLayout();
 	PVSerializeOptionsWidget* widget_options = new PVSerializeOptionsWidget(options);
@@ -88,8 +92,10 @@ void PVInspector::PVSaveDataTreeDialog::tab_changed_Slot(int idx)
 		// AG: still part of the "include all" hack.
 		// We're back ine the mai ntab, update the state of the check box according
 		// to the options.
-		disconnect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this, SLOT(include_files_Slot(int)));
-		_save_everything_checkbox->setCheckState((Qt::CheckState) _options.does_include_all_files());
-		connect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this, SLOT(include_files_Slot(int)));
+		disconnect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this,
+		           SLOT(include_files_Slot(int)));
+		_save_everything_checkbox->setCheckState((Qt::CheckState)_options.does_include_all_files());
+		connect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this,
+		        SLOT(include_files_Slot(int)));
 	}
 }

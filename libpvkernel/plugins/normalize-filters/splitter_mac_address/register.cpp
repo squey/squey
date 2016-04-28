@@ -16,7 +16,8 @@
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("mac_address", PVFilter::PVFieldSplitterMacAddress);
-	REGISTER_CLASS_AS("splitter_mac_address", PVFilter::PVFieldSplitterMacAddress, PVFilter::PVFieldsFilterReg);
+	REGISTER_CLASS_AS("splitter_mac_address", PVFilter::PVFieldSplitterMacAddress,
+	                  PVFilter::PVFieldsFilterReg);
 
 	REGISTER_CLASS("mac_address", PVFilter::PVFieldSplitterMacAddressParamWidget);
 }

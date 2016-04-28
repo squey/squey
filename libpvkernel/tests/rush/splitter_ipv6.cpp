@@ -25,13 +25,13 @@ constexpr static size_t nb_dup = 1;
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/ip/ipv6";
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/ip/ipv6.out";
 
-
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
-	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("ip");
+	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("ip");
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
 	args["ipv6"] = true;

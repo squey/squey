@@ -22,24 +22,24 @@
  * PVGuiQt::PVLayerStackWidget::PVLayerStackWidget
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWidget* parent):
-	QWidget(parent)
+PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWidget* parent)
+    : QWidget(parent)
 {
-	QVBoxLayout *main_layout;
-	QToolBar    *layer_stack_toolbar;
+	QVBoxLayout* main_layout;
+	QToolBar* layer_stack_toolbar;
 
 	// SIZE STUFF
 	// WARNING: nothing should be set here.
 
 	// OBJECTNAME STUFF
 	setObjectName("PVLayerStackWidget");
-	
+
 	// LAYOUT STUFF
 	// We need a Layout for that Widget
 	main_layout = new QVBoxLayout(this);
 	// We fix the margins for that Layout
-	main_layout->setContentsMargins(0,0,0,0);
-	
+	main_layout->setContentsMargins(0, 0, 0, 0);
+
 	// PVLAYERSTACKVIEW
 	PVLayerStackModel* model = new PVLayerStackModel(lib_view);
 	PVLayerStackDelegate* delegate = new PVLayerStackDelegate(*lib_view, this);
@@ -57,7 +57,7 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWi
 	layer_stack_toolbar->setObjectName("QToolBar_of_PVLayerStackWidget");
 	// SIZE STUFF for the ToolBar
 	layer_stack_toolbar->setMinimumWidth(185);
-	layer_stack_toolbar->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+	layer_stack_toolbar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	// And we fill the ToolBar
 	create_actions(layer_stack_toolbar);
 
@@ -67,7 +67,8 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWi
 
 	setLayout(main_layout);
 
-	PVHive::PVObserverSignal<Inendi::PVView*>* obs = new PVHive::PVObserverSignal<Inendi::PVView*>(this);
+	PVHive::PVObserverSignal<Inendi::PVView*>* obs =
+	    new PVHive::PVObserverSignal<Inendi::PVView*>(this);
 	PVHive::get().register_observer(lib_view, *obs);
 	obs->connect_about_to_be_deleted(this, SLOT(deleteLater()));
 
@@ -84,15 +85,15 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWi
  * PVGuiQt::PVLayerStackWidget::create_actions()
  *
  *****************************************************************************/
-void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar *toolbar)
+void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 {
-	QAction *delete_layer_Action;
-	QAction *duplicate_layer_Action;
-	QAction *move_down_Action;
-	QAction *move_up_Action;
-	QAction *new_layer_Action;
+	QAction* delete_layer_Action;
+	QAction* duplicate_layer_Action;
+	QAction* move_down_Action;
+	QAction* move_up_Action;
+	QAction* new_layer_Action;
 	PVLOG_DEBUG("PVGuiQt::PVLayerStackWidget::%s\n", __FUNCTION__);
-	
+
 	// The new_layer Action
 	new_layer_Action = new QAction(tr("New Layer"), this);
 	new_layer_Action->setIcon(QIcon(":/new_layer_icon"));
@@ -156,7 +157,8 @@ void PVGuiQt::PVLayerStackWidget::delete_layer()
 void PVGuiQt::PVLayerStackWidget::duplicate_layer()
 {
 	bool& should_hide_layers = ls_model()->lib_layer_stack().should_hide_layers();
-	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
+	    ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
 
 	if (!name.isEmpty()) {
 
@@ -196,7 +198,8 @@ void PVGuiQt::PVLayerStackWidget::move_up()
 void PVGuiQt::PVLayerStackWidget::new_layer()
 {
 	bool& should_hide_layers = ls_model()->lib_layer_stack().should_hide_layers();
-	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
+	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
+	    ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
 
 	if (!name.isEmpty()) {
 		if (should_hide_layers) {

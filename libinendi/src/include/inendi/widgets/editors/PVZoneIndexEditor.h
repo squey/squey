@@ -17,7 +17,8 @@
 
 #include <inendi/PVView.h>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 /**
  * \class PVZoneIndexEditor
@@ -25,20 +26,20 @@ namespace PVWidgets {
 class PVZoneIndexEditor : public QComboBox
 {
 	Q_OBJECT
-	Q_PROPERTY(PVCore::PVZoneIndexType _zone_index READ get_zone_index WRITE set_zone_index USER true)
+	Q_PROPERTY(PVCore::PVZoneIndexType _zone_index READ get_zone_index WRITE set_zone_index
+	               USER true)
 
-public:
-	PVZoneIndexEditor(Inendi::PVView const& view, QWidget *parent = 0);
+  public:
+	PVZoneIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVZoneIndexEditor();
 
-public:
+  public:
 	PVCore::PVZoneIndexType get_zone_index() const;
 	void set_zone_index(PVCore::PVZoneIndexType zone_index);
 
-protected:
+  protected:
 	Inendi::PVView const& _view;
 };
-
 }
 
 #endif // PVCORE_PVZONEINDEXEDITOR_H

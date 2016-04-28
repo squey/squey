@@ -13,15 +13,17 @@
 
 #include <QString>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVElasticsearchInfos
 {
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	PVElasticsearchInfos();
 
-public:
+  public:
 	void set_host(QString const& host) { _host = host; }
 	void set_port(uint16_t port) { _port = port; }
 	void set_index(QString const& index) { _index = index; }
@@ -38,18 +40,14 @@ public:
 
 	inline bool operator==(PVElasticsearchInfos const& o) const
 	{
-		return _host == o._host &&
-			   _port == o._port &&
-			   _index == o._index &&
-			   _login == o._login &&
-			   _importer == o._importer &&
-			   _password == o._password;
+		return _host == o._host && _port == o._port && _index == o._index && _login == o._login &&
+		       _importer == o._importer && _password == o._password;
 	}
 
-protected:
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-protected:
+  protected:
 	QString _host;
 	uint16_t _port;
 	QString _index;
@@ -57,7 +55,6 @@ protected:
 	QString _login;
 	QString _password;
 };
-
 }
 
 #endif

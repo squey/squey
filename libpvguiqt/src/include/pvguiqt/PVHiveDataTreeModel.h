@@ -13,34 +13,35 @@
 
 #include <list>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
-class PVHiveDataTreeModel: public PVWidgets::PVDataTreeModel
+class PVHiveDataTreeModel : public PVWidgets::PVDataTreeModel
 {
 	Q_OBJECT
 
 	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
-public:
+
+  public:
 	PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0);
 
-protected:
-	int rowCount(const QModelIndex &index) const override;
+  protected:
+	int rowCount(const QModelIndex& index) const override;
 
-private slots:
+  private slots:
 	void hive_refresh(PVHive::PVObserverBase* o);
 	void root_about_to_be_deleted(PVHive::PVObserverBase* o);
 	void about_to_be_deleted(PVHive::PVObserverBase* o);
 
-private:
+  private:
 	void register_all_observers();
 	bool is_object_observed(PVCore::PVDataTreeObjectBase* o) const;
 
-private:
+  private:
 	std::list<datatree_obs_t> _obs;
 	PVHive::PVObserver_p<PVCore::PVDataTreeObjectBase> _root_recursive_observer;
 	bool _view_valid = true;
 };
-
 }
 
 #endif

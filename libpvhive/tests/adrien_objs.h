@@ -12,19 +12,19 @@
 
 class ObjectProperty
 {
-public:
-	ObjectProperty(int v = 0): _v(v)
-	{ }
-public:
+  public:
+	ObjectProperty(int v = 0) : _v(v) {}
+
+  public:
 	int _v;
 };
 
 class MyObject
 {
-public:
-	MyObject(int i): _i(i) { }
+  public:
+	MyObject(int i) : _i(i) {}
 
-public:
+  public:
 	int const& get_i() const { return _i; };
 	void set_i(int i) { _i = i; }
 	void set_i2(int const& i) { _i = i; }
@@ -37,7 +37,7 @@ public:
 	ObjectProperty const& get_prop() const { return _prop; }
 	ObjectProperty& get_prop() { return _prop; }
 
-private:
+  private:
 	int _i;
 	ObjectProperty _prop;
 };

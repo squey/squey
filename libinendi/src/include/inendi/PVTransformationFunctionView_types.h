@@ -10,11 +10,11 @@
 
 #include <memory>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVTransformationFunctionView;
 typedef std::shared_ptr<PVTransformationFunctionView> PVTransformationFunctionView_p;
-
 }
 
 #endif

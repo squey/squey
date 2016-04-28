@@ -18,7 +18,7 @@ size_t bit_count_ref(uint64_t v)
 {
 	size_t ret = 0;
 	for (int i = 0; i < 64; i++) {
-		if ((v & (1ULL<<(i)))) {
+		if ((v & (1ULL << (i)))) {
 			ret++;
 		}
 	}
@@ -29,7 +29,7 @@ size_t bit_count_ref(uint32_t v)
 {
 	size_t ret = 0;
 	for (int i = 0; i < 32; i++) {
-		if ((v & (1UL<<(i)))) {
+		if ((v & (1UL << (i)))) {
 			ret++;
 		}
 	}
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 
 		std::cout << "64-bit tests (random). It can take a while..." << std::endl;
 		for (size_t i = 0; i < n / 2; i++) {
-			uint64_t vrand = rand()*rand();
+			uint64_t vrand = rand() * rand();
 			size_t ref = bit_count_ref(vrand);
 			size_t test = PVCore::PVBitCount::bit_count(vrand);
 
@@ -72,8 +72,8 @@ int main(int argc, char** argv)
 			size_t test = PVCore::PVBitCount::bit_count(i);
 			if (ref != test) {
 #pragma omp critical
-				std::cerr << "failed at " << i << ": " << test
-						  << " but " << ref << " was expected" << std::endl;
+				std::cerr << "failed at " << i << ": " << test << " but " << ref << " was expected"
+				          << std::endl;
 				ret = 1;
 			}
 		}
@@ -87,8 +87,8 @@ int main(int argc, char** argv)
 			size_t test = PVCore::PVBitCount::bit_count(i);
 			if (ref != test) {
 #pragma omp critical
-				std::cerr << "failed at " << i << ": " << test
-				          << " but " << ref << " was expected" << std::endl;
+				std::cerr << "failed at " << i << ": " << test << " but " << ref << " was expected"
+				          << std::endl;
 				ret = 1;
 			}
 		}
@@ -96,5 +96,4 @@ int main(int argc, char** argv)
 		PV_ASSERT_VALID(ret == 0);
 		return ret;
 	}
-
 }

@@ -18,30 +18,29 @@
 
 class QPainter;
 
-namespace PVCore {
+namespace PVCore
+{
 class PVHSVColor;
 }
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVZoomedZoneTree;
 
-class PVScatterViewImage: boost::noncopyable
+class PVScatterViewImage : boost::noncopyable
 {
-public:
+  public:
 	constexpr static uint32_t image_width = 2048;
 	constexpr static uint32_t image_height = image_width;
 
-public:
+  public:
 	PVScatterViewImage();
-	PVScatterViewImage(PVScatterViewImage&& o)
-	{
-		swap(o);
-	}
+	PVScatterViewImage(PVScatterViewImage&& o) { swap(o); }
 
 	~PVScatterViewImage();
 
-public:
+  public:
 	void clear(const QRect& rect = QRect());
 
 	void convert_image_from_hsv_to_rgb(QRect const& img_rect = QRect());
@@ -50,9 +49,9 @@ public:
 	QImage& get_rgb_image() { return _rgb_image; };
 
 	const PVCore::PVHSVColor* get_hsv_image() const { return _hsv_image; }
-	const QImage& get_rgb_image()  const { return _rgb_image; };
+	const QImage& get_rgb_image() const { return _rgb_image; };
 
-public:
+  public:
 	PVScatterViewImage& operator=(PVScatterViewImage&& o)
 	{
 		swap(o);
@@ -74,11 +73,10 @@ public:
 		return *this;
 	}
 
-private:
+  private:
 	PVCore::PVHSVColor* _hsv_image;
 	QImage _rgb_image;
 };
-
 }
 
 #endif // __PVSCATTERVIEWIMAGE_H__

@@ -18,19 +18,20 @@
 #include <QSqlQuery>
 #include <QMetaType>
 
+namespace PVRush
+{
 
-namespace PVRush {
-
-class PVDBQuery: public PVInputDescription
+class PVDBQuery : public PVInputDescription
 {
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	PVDBQuery();
 	PVDBQuery(PVDBServ_p db);
 	PVDBQuery(PVDBServ_p db, QString const& query);
 	~PVDBQuery();
 
-public:
+  public:
 	virtual bool operator==(const PVInputDescription& other) const;
 
 	void set_query(QString const& query) { _query = query; }
@@ -44,22 +45,21 @@ public:
 
 	bool connect_serv();
 	QString last_error_serv();
-	
-public:
+
+  public:
 	virtual void save_to_qsettings(QSettings& settings) const;
 	virtual void load_from_qsettings(const QSettings& settings);
 
-protected:
+  protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
 
 	PVSERIALIZEOBJECT_SPLIT
 
-protected:
+  protected:
 	PVDBServ_p _infos;
 	QString _query;
 };
-
 }
 
 #endif

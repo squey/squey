@@ -7,27 +7,29 @@
 
 #include <PVCustomStyle.h>
 
-PVInspector::PVCustomStyle::PVCustomStyle():
-	QProxyStyle(/*new QGtkStyle()*/)
+PVInspector::PVCustomStyle::PVCustomStyle() : QProxyStyle(/*new QGtkStyle()*/)
 {
 }
 
-void PVInspector::PVCustomStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex* option, QPainter* painter, const QWidget* widget) const
+void PVInspector::PVCustomStyle::drawComplexControl(ComplexControl control,
+                                                    const QStyleOptionComplex* option,
+                                                    QPainter* painter, const QWidget* widget) const
 {
 	switch (control) {
-		//case QStyle::CC_TitleBar:
-		//	return;
-		default:
-			QProxyStyle::drawComplexControl(control, option, painter, widget);
+	// case QStyle::CC_TitleBar:
+	//	return;
+	default:
+		QProxyStyle::drawComplexControl(control, option, painter, widget);
 	};
 }
 
-void PVInspector::PVCustomStyle::drawControl(ControlElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget) const
+void PVInspector::PVCustomStyle::drawControl(ControlElement element, const QStyleOption* option,
+                                             QPainter* painter, const QWidget* widget) const
 {
 	switch (element) {
-		//case QStyle::CE_PushButton:
-		//	break;
-		default:
-			QProxyStyle::drawControl(element, option, painter, widget);
+	// case QStyle::CE_PushButton:
+	//	break;
+	default:
+		QProxyStyle::drawControl(element, option, painter, widget);
 	};
 }

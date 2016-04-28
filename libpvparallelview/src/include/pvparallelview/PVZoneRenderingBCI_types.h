@@ -12,18 +12,15 @@
 
 #include <memory>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVZoneRenderingBCIBase;
 typedef std::shared_ptr<PVZoneRenderingBCIBase> PVZoneRenderingBCIBase_p;
 
-template <size_t Bbits>
-class PVZoneRenderingBCI;
+template <size_t Bbits> class PVZoneRenderingBCI;
 
-template <size_t Bbits>
-using PVZoneRenderingBCI_p = std::shared_ptr<PVZoneRenderingBCI<Bbits>>;
-
+template <size_t Bbits> using PVZoneRenderingBCI_p = std::shared_ptr<PVZoneRenderingBCI<Bbits>>;
 }
-
 
 #endif

@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -35,21 +35,21 @@ class PVQueryBuilder : public QWidget
 {
 	Q_OBJECT;
 
-private:
+  private:
 	using columns_t = std::vector<std::pair<std::string, std::string>>;
 
-public:
+  public:
 	PVQueryBuilder(QWidget* parent = nullptr);
 
-public:
-    /** Set the widget filters
-     *
-     * Note that as the jQuery widget doesn't expose any method
-     * to change the filters at runtime, this call causes the
-     * whole jQuery widget to be recreated using the reinit method.
-     *
-     * @param filters a valid JSON string containing the filters
-     */
+  public:
+	/** Set the widget filters
+	 *
+	 * Note that as the jQuery widget doesn't expose any method
+	 * to change the filters at runtime, this call causes the
+	 * whole jQuery widget to be recreated using the reinit method.
+	 *
+	 * @param filters a valid JSON string containing the filters
+	 */
 	void set_filters(const std::string& filters);
 
 	/** Convenient method to set the widget filters using a list
@@ -59,7 +59,7 @@ public:
 	 */
 	void set_filters(const columns_t& cols);
 
-public:
+  public:
 	/** Set the rules (for deserialization)
 	 *
 	 * @param JSON string containing the rules
@@ -76,10 +76,10 @@ public:
 	 */
 	void reset_rules();
 
-public:
+  public:
 	void setVisible(bool v);
 
-private:
+  private:
 	/** Execute javascript statement in a synchroneous way in the main Qt thread
 	 *
 	 * @param javascript the javascript content to be executed
@@ -96,12 +96,12 @@ private:
 signals:
 	void run_javascript_signal(const QString& javascript, QString* result /*= nullptr*/) const;
 
-private slots:
+  private slots:
 	void run_javascript_slot(const QString& javascript, QString* result /*= nullptr*/) const;
 
-protected:
+  protected:
 #ifdef QT_WEBKIT
-	QWebView* 		_view;
+	QWebView* _view;
 #else
 	QWebEngineView* _view;
 #endif

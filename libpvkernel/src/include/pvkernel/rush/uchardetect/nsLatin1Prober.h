@@ -42,30 +42,28 @@
 #include "universalchardet.h"
 #include "nsCharSetProber.h"
 
-#define FREQ_CAT_NUM    4
+#define FREQ_CAT_NUM 4
 
-class nsLatin1Prober: public nsCharSetProber {
-public:
-  nsLatin1Prober(void){Reset();}
-  virtual ~nsLatin1Prober(void){}
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return CHARDET_ENCODING_WINDOWS_1252;}
-  nsProbingState GetState(void) {return mState;}
-  void      Reset(void);
-  float     GetConfidence(void);
-  void      SetOpion() {}
+class nsLatin1Prober : public nsCharSetProber
+{
+  public:
+	nsLatin1Prober(void) { Reset(); }
+	virtual ~nsLatin1Prober(void) {}
+	nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
+	const char* GetCharSetName() { return CHARDET_ENCODING_WINDOWS_1252; }
+	nsProbingState GetState(void) { return mState; }
+	void Reset(void);
+	float GetConfidence(void);
+	void SetOpion() {}
 
 #ifdef DEBUG_chardet
-  virtual void  DumpStatus();
+	virtual void DumpStatus();
 #endif
 
-protected:
-  
-  nsProbingState mState;
-  char mLastCharClass;
-  PRUint32 mFreqCounter[FREQ_CAT_NUM];
+  protected:
+	nsProbingState mState;
+	char mLastCharClass;
+	PRUint32 mFreqCounter[FREQ_CAT_NUM];
 };
 
-
 #endif /* nsLatin1Prober_h__ */
-

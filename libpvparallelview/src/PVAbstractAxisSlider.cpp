@@ -24,11 +24,15 @@
 
 PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
                                                            PVAxisSliderOrientation orientation,
-														   QGraphicsItem* parent_item):
-	QGraphicsObject(parent_item),
-	_offset_min(omin), _offset_max(omax), _offset(o),
-	_orientation(orientation), _moving(false), _is_hover(false),
-	_removable(true)
+                                                           QGraphicsItem* parent_item)
+    : QGraphicsObject(parent_item)
+    , _offset_min(omin)
+    , _offset_max(omax)
+    , _offset(o)
+    , _orientation(orientation)
+    , _moving(false)
+    , _is_hover(false)
+    , _removable(true)
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 
@@ -41,7 +45,7 @@ PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin, int64_t
 
 PVParallelView::PVAbstractAxisSlider::~PVAbstractAxisSlider()
 {
-	QGraphicsScene *s = scene();
+	QGraphicsScene* s = scene();
 
 	if (s != 0) {
 		s->removeItem(this);
@@ -69,7 +73,7 @@ void PVParallelView::PVAbstractAxisSlider::set_value(int64_t v)
 
 void PVParallelView::PVAbstractAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	//PVLOG_INFO("PVAbstractAxisSlider::hoverEnterEvent\n");
+	// PVLOG_INFO("PVAbstractAxisSlider::hoverEnterEvent\n");
 	_is_hover = true;
 	group()->update();
 }
@@ -80,7 +84,7 @@ void PVParallelView::PVAbstractAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEv
 
 void PVParallelView::PVAbstractAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	//PVLOG_INFO("PVAbstractAxisSlider::hoverMoveEvent\n");
+	// PVLOG_INFO("PVAbstractAxisSlider::hoverMoveEvent\n");
 	_is_hover = true;
 	group()->update();
 }
@@ -91,7 +95,7 @@ void PVParallelView::PVAbstractAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEve
 
 void PVParallelView::PVAbstractAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	//PVLOG_INFO("PVAbstractAxisSlider::hoverLeaveEvent\n");
+	// PVLOG_INFO("PVAbstractAxisSlider::hoverLeaveEvent\n");
 	_is_hover = false;
 	group()->update();
 }
@@ -130,14 +134,14 @@ void PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent(QGraphicsSceneMouse
 void PVParallelView::PVAbstractAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->buttons() == Qt::LeftButton) {
-		double sy = ((double)BUCKET_ELT_COUNT * (event->scenePos().y() + _move_offset)) / _owner->get_sliders_group()->get_axis_scale();
+		double sy = ((double)BUCKET_ELT_COUNT * (event->scenePos().y() + _move_offset)) /
+		            _owner->get_sliders_group()->get_axis_scale();
 		set_value(sy);
 
 		group()->update();
 		event->accept();
 	}
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVAbstractAxisSlider::contextMenuEvent
@@ -148,7 +152,7 @@ void PVParallelView::PVAbstractAxisSlider::contextMenuEvent(QGraphicsSceneContex
 	if (_removable) {
 		QMenu menu;
 
-		QAction *rem = menu.addAction("Remove cursors");
+		QAction* rem = menu.addAction("Remove cursors");
 		connect(rem, SIGNAL(triggered()), _owner, SLOT(remove_from_axis()));
 
 		if (menu.exec(event->screenPos()) != nullptr) {
@@ -157,7 +161,9 @@ void PVParallelView::PVAbstractAxisSlider::contextMenuEvent(QGraphicsSceneContex
 	}
 }
 
-void PVParallelView::PVAbstractAxisSlider::paint(QPainter *painter, const QStyleOptionGraphicsItem* /*option*/, QWidget* /*widget*/)
+void PVParallelView::PVAbstractAxisSlider::paint(QPainter* painter,
+                                                 const QStyleOptionGraphicsItem* /*option*/,
+                                                 QWidget* /*widget*/)
 {
 #ifdef INENDI_DEVELOPER_MODE
 	if (common::show_bboxes()) {

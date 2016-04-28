@@ -21,8 +21,9 @@
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
-Inendi::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format):
-	data_tree_source_t()
+Inendi::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs,
+                           PVRush::PVSourceCreator_p sc, PVRush::PVFormat format)
+    : data_tree_source_t()
 {
 	init();
 
@@ -36,14 +37,12 @@ Inendi::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRus
 	files_append_noextract();
 }
 
-Inendi::PVSource::PVSource():
-	data_tree_source_t()
+Inendi::PVSource::PVSource() : data_tree_source_t()
 {
 	init();
 }
 
-Inendi::PVSource::PVSource(const PVSource& org):
-	data_tree_source_t()
+Inendi::PVSource::PVSource(const PVSource& org) : data_tree_source_t()
 {
 	set_parent(const_cast<PVScene*>(org.get_parent()));
 	init();
@@ -58,20 +57,22 @@ Inendi::PVSource::~PVSource()
 	}
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
 	/*for (auto& m: get_children()) {
-		PVMapped* pm = m.get();
-		m.reset();
-		PVLOG_INFO("Mapped %p use count: %u\n", pm, pm->weak_from_this().use_count());
+	        PVMapped* pm = m.get();
+	        m.reset();
+	        PVLOG_INFO("Mapped %p use count: %u\n", pm,
+	pm->weak_from_this().use_count());
 	}*/
 }
 
 void Inendi::PVSource::init()
 {
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	nraw = &(_extractor.get_nraw());
 	// Set extractor default values
 	_extractor.set_last_start(0);
-	_extractor.set_last_nlines(pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
+	_extractor.set_last_nlines(
+	    pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
 
 	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
 	if (nchunks != 0) {
@@ -86,7 +87,7 @@ Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
 
 	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
 	mapped->set_parent(src);
-	
+
 	return src;
 }
 
@@ -120,25 +121,28 @@ void Inendi::PVSource::set_parent_from_ptr(PVScene* parent)
 void Inendi::PVSource::files_append_noextract()
 {
 	for (int i = 0; i < _inputs.count(); i++) {
-		PVRush::PVSourceCreator::source_p src = _src_plugin->create_source_from_input(_inputs[i], _extractor.get_format());
+		PVRush::PVSourceCreator::source_p src =
+		    _src_plugin->create_source_from_input(_inputs[i], _extractor.get_format());
 		_extractor.add_source(src);
 	}
 }
 
-PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count /*= 0*/, size_t line_count /*= 0*/)
+PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count /*= 0*/,
+                                                    size_t line_count /*= 0*/)
 {
 	// Set all views as non-consistent
 	for (auto view_p : get_children<PVView>()) {
 		view_p->set_consistent(false);
 	}
 
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(skip_lines_count,
-	                                                                   line_count ? line_count : INENDI_LINES_MAX);
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(
+	    skip_lines_count, line_count ? line_count : INENDI_LINES_MAX);
 
 	return job;
 }
 
-PVRush::PVControllerJob_p Inendi::PVSource::extract_from_agg_nlines(chunk_index start, chunk_index nlines)
+PVRush::PVControllerJob_p Inendi::PVSource::extract_from_agg_nlines(chunk_index start,
+                                                                    chunk_index nlines)
 {
 	// Set all views as non-consistent
 	decltype(get_children<PVView>())::iterator it_view;
@@ -223,7 +227,7 @@ void Inendi::PVSource::create_default_view()
 		PVMapped_p def_mapped(new PVMapped());
 		def_mapped->set_parent(shared_from_this());
 	}
-	for (PVMapped_p& m: get_children()) {
+	for (PVMapped_p& m : get_children()) {
 		PVPlotted_p def_plotted(new PVPlotted());
 		def_plotted->set_parent(m);
 
@@ -243,8 +247,8 @@ void Inendi::PVSource::process_from_source()
 
 void Inendi::PVSource::add_view(PVView_sp view)
 {
-	//if (!current_view()) {
-		get_parent<PVRoot>()->select_view(*view);
+	// if (!current_view()) {
+	get_parent<PVRoot>()->select_view(*view);
 	//}
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {
@@ -255,7 +259,7 @@ void Inendi::PVSource::add_view(PVView_sp view)
 
 void Inendi::PVSource::add_column(PVAxis const& axis)
 {
-	PVCol new_col_idx = get_rushnraw().get_number_cols()-1;
+	PVCol new_col_idx = get_rushnraw().get_number_cols() - 1;
 	PVMappingProperties map_prop(axis, new_col_idx);
 
 	// Add that column to our children
@@ -293,17 +297,18 @@ void Inendi::PVSource::add_column(PVAxisComputation_f f_axis, PVAxis const& axis
 QString Inendi::PVSource::get_window_name() const
 {
 	const size_t line_start = get_extraction_last_start();
-	const size_t line_end   = line_start + get_row_count() - 1;
-	return get_name() + QString(" / ") + get_format_name() + QString("\n(%L1 -> %L2)").arg(line_start).arg(line_end);
+	const size_t line_end = line_start + get_row_count() - 1;
+	return get_name() + QString(" / ") + get_format_name() +
+	       QString("\n(%L1 -> %L2)").arg(line_start).arg(line_end);
 }
 
 QString Inendi::PVSource::get_tooltip() const
 {
 	const size_t line_start = get_extraction_last_start();
-	const size_t line_end   = line_start + get_row_count() - 1;
+	const size_t line_end = line_start + get_row_count() - 1;
 
 	QString format = QString("format: %1").arg(get_format_name());
-	QString range  = QString("range: %L1 - %L2").arg(line_start).arg(line_end);
+	QString range = QString("range: %L1 - %L2").arg(line_start).arg(line_end);
 
 	return format + "\n" + range;
 }
@@ -316,10 +321,10 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	assert(in_t);
 	PVCore::PVSerializeObject_p so_inputs = get_parent<PVScene>()->get_so_inputs(*this);
 	if (so_inputs) {
-		// The inputs have been serialized by our parents, so just make references to them
+		// The inputs have been serialized by our parents, so just make references
+		// to them
 		in_t->serialize_inputs_ref(so, "inputs", _inputs, so_inputs);
-	}
-	else {
+	} else {
 		// Serialize the inputs
 		in_t->serialize_inputs(so, "inputs", _inputs);
 	}
@@ -340,11 +345,13 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("format", _extractor.get_format(), QObject::tr("Format"));
 }
 
-void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so,
+                                      PVCore::PVSerializeArchive::version_t v)
 {
 	QString src_name;
 	so.attribute("source-plugin", src_name);
-	PVRush::PVSourceCreator_p sc_lib = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
+	PVRush::PVSourceCreator_p sc_lib =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
 	if (!sc_lib) {
 		return;
 	}
@@ -355,10 +362,10 @@ void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	assert(get_parent<PVScene>());
 	PVCore::PVSerializeObject_p so_inputs = get_parent<PVScene>()->get_so_inputs(*this);
 	if (so_inputs) {
-		// The inputs have been serialized by our parents, so just make references to them
+		// The inputs have been serialized by our parents, so just make references
+		// to them
 		get_input_type()->serialize_inputs_ref(so, "inputs", _inputs, so_inputs);
-	}
-	else {
+	} else {
 		// Serialize the inputs
 		get_input_type()->serialize_inputs(so, "inputs", _inputs);
 	}
@@ -373,12 +380,12 @@ void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	so.attribute("nraw_path", _nraw_folder, QString());
 
 	if (_nraw_folder.isEmpty() == false) {
-		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QDir(_nraw_folder).dirName();
+		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() +
+		                              QDir(_nraw_folder).dirName();
 		QFileInfo fi(user_based_nraw_dir);
 		if (fi.exists() == true && fi.isDir() == true) {
 			_nraw_folder = user_based_nraw_dir;
-		}
-		else {
+		} else {
 			_nraw_folder = QString();
 		}
 	}
@@ -388,7 +395,7 @@ void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	so.object("format", format);
 	if (!so.has_repairable_errors()) {
 		set_format(format);
-		//get_parent()->add_source(shared_from_this());
+		// get_parent()->add_source(shared_from_this());
 
 		// "Append" the files to the extractor
 		files_append_noextract();

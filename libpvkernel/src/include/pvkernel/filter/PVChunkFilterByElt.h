@@ -12,13 +12,15 @@
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVElementFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
 /**
  * Apply filter to split the line from One PVElement to multiple.
  */
-class PVChunkFilterByElt : public PVChunkFilter {
-public:
+class PVChunkFilterByElt : public PVChunkFilter
+{
+  public:
 	/**
 	 * Build filter from the splitting function : "elt_filter".
 	 */
@@ -29,12 +31,11 @@ public:
 	 */
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
-protected:
+  protected:
 	mutable PVElementFilter_f _elt_filter; // filter to apply for splitting.
 
 	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByElt)
 };
-
 }
 
 #endif

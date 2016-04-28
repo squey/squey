@@ -15,23 +15,26 @@
 #include <QString>
 #include <QMetaType>
 
-
 #include <set>
 #include "PVElasticsearchInfos.h"
 
-namespace PVRush {
+namespace PVRush
+{
 
-class PVElasticsearchQuery: public PVInputDescription
+class PVElasticsearchQuery : public PVInputDescription
 {
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	typedef std::set<uint32_t> fields_indexes_t;
-public:
-	PVElasticsearchQuery() {} ;
-	PVElasticsearchQuery(PVElasticsearchInfos const& infos, QString const& query, QString const& query_type);
+
+  public:
+	PVElasticsearchQuery(){};
+	PVElasticsearchQuery(PVElasticsearchInfos const& infos, QString const& query,
+	                     QString const& query_type);
 	~PVElasticsearchQuery();
 
-public:
+  public:
 	virtual bool operator==(const PVInputDescription& other) const;
 
 	void set_start_ms(int64_t start_ms) { _start_ms = start_ms; }
@@ -55,18 +58,18 @@ public:
 
 	fields_indexes_t const& get_fields_kept() const { return _fields_kept; }
 	fields_indexes_t& get_fields_kept() { return _fields_kept; }
-	
-public:
+
+  public:
 	virtual void save_to_qsettings(QSettings& settings) const;
 	virtual void load_from_qsettings(const QSettings& settings);
 
-protected:
+  protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
 
 	PVSERIALIZEOBJECT_SPLIT
 
-protected:
+  protected:
 	PVElasticsearchInfos _infos;
 	QString _query;
 	QString _query_type;
@@ -74,7 +77,6 @@ protected:
 	int64_t _end_ms;
 	fields_indexes_t _fields_kept;
 };
-
 }
 
 #endif

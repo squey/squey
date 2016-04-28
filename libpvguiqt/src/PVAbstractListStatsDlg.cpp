@@ -81,12 +81,13 @@ namespace __impl
 
 class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 {
-public:
-	PVAbstractListStatsRangePicker(double relative_min_count, double relative_max_count, double absolute_max_count, QWidget *parent = nullptr) :
-		PVWidgets::PVAbstractRangePicker(relative_min_count, relative_max_count, parent),
-		_relative_min_count(relative_min_count),
-		_relative_max_count(relative_max_count),
-		_absolute_max_count(absolute_max_count)
+  public:
+	PVAbstractListStatsRangePicker(double relative_min_count, double relative_max_count,
+	                               double absolute_max_count, QWidget* parent = nullptr)
+	    : PVWidgets::PVAbstractRangePicker(relative_min_count, relative_max_count, parent)
+	    , _relative_min_count(relative_min_count)
+	    , _relative_max_count(relative_max_count)
+	    , _absolute_max_count(absolute_max_count)
 	{
 		update_gradient();
 	}
@@ -95,8 +96,7 @@ public:
 	{
 		if (_use_percent_mode) {
 			return value / max_count() * 100;
-		}
-		else {
+		} else {
 			return value;
 		}
 	}
@@ -105,8 +105,7 @@ public:
 	{
 		if (_use_percent_mode) {
 			return value * max_count() / 100;
-		}
-		else {
+		} else {
 			return value;
 		}
 	}
@@ -199,14 +198,17 @@ public:
 		double ratio1, ratio2, ratio3;
 		QColor color;
 
-		if (_use_logarithmic_scale && _relative_min_count != _relative_max_count) { // If only one value, use linear scale to avoid divisions by 0.
+		if (_use_logarithmic_scale &&
+		    _relative_min_count != _relative_max_count) { // If only one value, use
+			                                              // linear scale to avoid
+			                                              // divisions by 0.
 			ratio1 = PVCore::log_scale(_relative_min_count, 0., max_count());
 			ratio3 = PVCore::log_scale(_relative_max_count, 0., max_count());
 			ratio2 = ratio1 + (ratio3 - ratio1) / 2;
-		}
-		else {
+		} else {
 			ratio1 = _relative_min_count / max_count();
-			ratio2 = (_relative_min_count + (_relative_max_count - _relative_min_count) / 2) / max_count();
+			ratio2 = (_relative_min_count + (_relative_max_count - _relative_min_count) / 2) /
+			         max_count();
 			ratio3 = _relative_max_count / max_count();
 		}
 
@@ -222,13 +224,13 @@ public:
 		_range_ramp->set_gradient(gradient);
 	}
 
-protected:
+  protected:
 	double map_from_spinbox(const double& value) const override
 	{
 		if (_use_logarithmic_scale) {
 			double v = convert_from(value);
 			if (_use_percent_mode) {
-				v = std::max(convert_from(value-convert_to(_relative_min_count)), 1.0);
+				v = std::max(convert_from(value - convert_to(_relative_min_count)), 1.0);
 			}
 			return PVCore::log_scale(v, _relative_min_count, _relative_max_count);
 		} else {
@@ -240,26 +242,28 @@ protected:
 	{
 
 		if (_use_logarithmic_scale) {
-			return convert_to(PVCore::inv_log_scale(value, _relative_min_count, _relative_max_count));
+			return convert_to(
+			    PVCore::inv_log_scale(value, _relative_min_count, _relative_max_count));
 		} else {
 			return convert_to(PVWidgets::PVAbstractRangePicker::map_to_spinbox(value));
 		}
 	}
 
-private:
-	inline double max_count() const { return _use_absolute_max_count ? _absolute_max_count : _relative_max_count; }
+  private:
+	inline double max_count() const
+	{
+		return _use_absolute_max_count ? _absolute_max_count : _relative_max_count;
+	}
 
-protected:
+  protected:
 	double _relative_min_count;
 	double _relative_max_count;
 	double _absolute_max_count;
-	bool   _use_logarithmic_scale = true;
-	bool   _use_absolute_max_count = true;
-	bool   _use_percent_mode = false;
+	bool _use_logarithmic_scale = true;
+	bool _use_absolute_max_count = true;
+	bool _use_percent_mode = false;
 };
-
 }
-
 }
 
 /******************************************************************************
@@ -267,48 +271,52 @@ protected:
  * PVGuiQt::PVAbstractListStatsDlg
  *
  *****************************************************************************/
-PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
-	Inendi::PVView_sp& view,
-	PVCol c,
-	PVStatsModel* model,
-	QWidget* parent /* = nullptr */) :
-	PVListDisplayDlg(model, parent),
-	_col(c)
+PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView_sp& view, PVCol c,
+                                                        PVStatsModel* model,
+                                                        QWidget* parent /* = nullptr */)
+    : PVListDisplayDlg(model, parent), _col(c)
 {
 	PVHive::get().register_observer(view, _obs);
 	PVHive::get().register_actor(view, _actor);
 	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
 
 	QString search_multiples = "search-multiple";
-	Inendi::PVLayerFilter::p_type search_multiple = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(search_multiples);
+	Inendi::PVLayerFilter::p_type search_multiple =
+	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(search_multiples);
 	Inendi::PVLayerFilter::p_type fclone = search_multiple->clone<Inendi::PVLayerFilter>();
 	Inendi::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
 	Inendi::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
 	for (it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
 		QAction* act = new QAction(it_ent->key(), _values_view);
-		act->setData(QVariant(search_multiples)); // Save the name of the layer filter associated to this action
+		act->setData(QVariant(search_multiples)); // Save the name of the layer
+		                                          // filter associated to this
+		                                          // action
 		_ctxt_menu->addAction(act);
 
-		// RH: a little hack. See comment of _msearch_action_for_layer_creation in .h
+		// RH: a little hack. See comment of _msearch_action_for_layer_creation in
+		// .h
 		if (act->text() == QString("Search for this value")) {
 			_msearch_action_for_layer_creation = act;
 		}
 	}
 
-	_values_view->horizontalHeader()->setSortIndicator(_sort_section, Qt::SortOrder::AscendingOrder);
+	_values_view->horizontalHeader()->setSortIndicator(_sort_section,
+	                                                   Qt::SortOrder::AscendingOrder);
 	sort_by_column(_sort_section);
 
 	connect(_values_view, &PVTableView::resize, this, &PVAbstractListStatsDlg::view_resized);
 	_values_view->horizontalHeader()->show();
 	_values_view->verticalHeader()->show();
 	_values_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-	_values_view->setAlternatingRowColors (true);
-	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(section_resized(int, int, int)));
+	_values_view->setAlternatingRowColors(true);
+	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this,
+	        SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
 	// Add content for right click menu on vertical headers
 	_hhead_ctxt_menu = new QMenu(this);
-	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
+	        this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
 
 	QActionGroup* act_group_scale = new QActionGroup(this);
 	act_group_scale->setExclusive(true);
@@ -347,20 +355,21 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	model->set_format(ValueFormat::Count, true);
 	model->set_format(ValueFormat::Percent, true);
 	connect(_act_show_count, &QAction::triggered,
-		[model](bool e) { model->set_format(ValueFormat::Count, e); });
+	        [model](bool e) { model->set_format(ValueFormat::Count, e); });
 	connect(_act_show_scientific_notation, &QAction::triggered,
-		[model](bool e) { model->set_format(ValueFormat::Scientific, e); });
+	        [model](bool e) { model->set_format(ValueFormat::Scientific, e); });
 	connect(_act_show_percentage, &QAction::triggered,
-		[model](bool e) { model->set_format(ValueFormat::Percent, e); });
+	        [model](bool e) { model->set_format(ValueFormat::Percent, e); });
 
 	_hhead_ctxt_menu->addAction(_act_show_count);
 	_hhead_ctxt_menu->addAction(_act_show_scientific_notation);
 	_hhead_ctxt_menu->addAction(_act_show_percentage);
 
 	//_values_view->setShowGrid(false);
-	//_values_view->setStyleSheet("QTableView::item { border-left: 1px solid grey; }");
+	//_values_view->setStyleSheet("QTableView::item { border-left: 1px solid grey;
+	//}");
 
-	QHBoxLayout *hbox = new QHBoxLayout();
+	QHBoxLayout* hbox = new QHBoxLayout();
 
 	_select_groupbox->setLayout(hbox);
 
@@ -377,12 +386,13 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	connect(r1, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_count(bool)));
 	connect(r2, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_frequency(bool)));
 
-	QPushButton *b = new QPushButton("Select");
+	QPushButton* b = new QPushButton("Select");
 	connect(b, SIGNAL(clicked(bool)), this, SLOT(select_refresh(bool)));
 
 	vl->addWidget(b);
 
-	_select_picker = new __impl::PVAbstractListStatsRangePicker(model->relative_min_count(), model->relative_max_count(), model->absolute_max_count());
+	_select_picker = new __impl::PVAbstractListStatsRangePicker(
+	    model->relative_min_count(), model->relative_max_count(), model->absolute_max_count());
 	_select_picker->use_logarithmic_scale(model->use_log_scale());
 	hbox->addWidget(_select_picker, 2);
 
@@ -409,7 +419,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
 
 	// Bind the click on header to sort the clicked column
-	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(section_clicked(int)));
+	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
+	        SLOT(section_clicked(int)));
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
@@ -432,11 +443,11 @@ void PVGuiQt::PVAbstractListStatsDlg::sort()
 
 void PVGuiQt::PVAbstractListStatsDlg::show_hhead_ctxt_menu(const QPoint& pos)
 {
-   // Show the menu if we click on the second column
-   if (_values_view->horizontalHeader()->logicalIndexAt(pos) == 1) {
-	   //  Menu appear next to the mouse
-	_hhead_ctxt_menu->exec(QCursor::pos());
-   }
+	// Show the menu if we click on the second column
+	if (_values_view->horizontalHeader()->logicalIndexAt(pos) == 1) {
+		//  Menu appear next to the mouse
+		_hhead_ctxt_menu->exec(QCursor::pos());
+	}
 }
 
 bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
@@ -470,9 +481,8 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 	if (act) { // TODO : Check it is the correct act?
 		QStringList values;
 
-		model().current_selection().visit_selected_lines([&](int row_id) {
-				values << QString::fromStdString(model().value_col().at(row_id));
-			});
+		model().current_selection().visit_selected_lines(
+		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
 		multiple_search(act, values);
 		return true;
@@ -531,8 +541,10 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	 *
 	 * So that, the nice formula to get the count values corresponding to
 	 * the displayed percentage are (in LaTeX):
-	 * - v_{min} = \lceil N × ( \frac{ \lfloor 10 × p_{min} \rfloor}{1000} - \frac{5}{10000} ) \rceil
-	 * - v_{max} = \lfloor N × ( \frac{ \lfloor 10 × p_{max} \rfloor}{1000} + \frac{5}{10000} ) \rfloor
+	 * - v_{min} = \lceil N × ( \frac{ \lfloor 10 × p_{min} \rfloor}{1000} -
+	 *\frac{5}{10000} ) \rceil
+	 * - v_{max} = \lfloor N × ( \frac{ \lfloor 10 × p_{max} \rfloor}{1000} +
+	 *\frac{5}{10000} ) \rfloor
 	 * where:
 	 * - p_{min} is the lower bound percentage
 	 * - p_{max} is the upper bound percentage
@@ -543,61 +555,68 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	if (_select_is_count) {
 		vmin = _select_picker->get_range_min();
 		vmax = _select_picker->get_range_max();
-	}
-	else {
-		vmin = freq_to_count_min(count_to_freq_min(_select_picker->get_range_min(), model().max_count()), model().max_count());
-		vmax = freq_to_count_max(count_to_freq_max(_select_picker->get_range_max(), model().max_count()), model().max_count());
+	} else {
+		vmin = freq_to_count_min(
+		    count_to_freq_min(_select_picker->get_range_min(), model().max_count()),
+		    model().max_count());
+		vmax = freq_to_count_max(
+		    count_to_freq_max(_select_picker->get_range_max(), model().max_count()),
+		    model().max_count());
 	}
 
 	int row_count = model().stat_col().size();
 
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Computing selection..."), this);
+	PVCore::PVProgressBox* pbox =
+	    new PVCore::PVProgressBox(QObject::tr("Computing selection..."), this);
 	pbox->set_enable_cancel(true);
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 
 	BENCH_START(select_values);
 
-	PVCore::PVProgressBox::progress([this, row_count, vmax, vmin]
-	{
-		const pvcop::db::array& col2_array = model().stat_col();
-		std::string min_, max_;
+	PVCore::PVProgressBox::progress(
+	    [this, row_count, vmax, vmin] {
+		    const pvcop::db::array& col2_array = model().stat_col();
+		    std::string min_, max_;
 
-		// Manual check for typing convertion to string.
-		// FIXME : We should handle this with more specific widgets for each type.
-		switch(col2_array.type())
-		{
-		case pvcop::db::type_t::type_uint32:
-		min_ =  std::to_string(static_cast<uint32_t>(vmin));
-		max_ =  std::to_string(static_cast<uint32_t>(vmax));
-		break;
-		case pvcop::db::type_t::type_int32:
-		min_ =  std::to_string(static_cast<int32_t>(vmin));
-		max_ =  std::to_string(static_cast<int32_t>(vmax));
-		break;
-		case pvcop::db::type_t::type_uint64:
-		min_ =  std::to_string(static_cast<uint64_t>(vmin));
-		max_ =  std::to_string(static_cast<uint64_t>(vmax));
-		break;
-		case pvcop::db::type_t::type_int64:
-		min_ =  std::to_string(static_cast<int64_t>(vmin));
-		max_ =  std::to_string(static_cast<int64_t>(vmax));
-		break;
-		case pvcop::db::type_t::type_double:
-		min_ =  std::to_string(static_cast<double>(vmin));
-		max_ =  std::to_string(static_cast<double>(vmax));
-		   break;
-		default:
-		   PVLOG_ERROR(("Incorrect type to compute range selection." + std::to_string(col2_array.type())).c_str());
-		   return;
-		}
-		model().reset_selection();
-		Inendi::PVSelection & sel = model().current_selection();
+		    // Manual check for typing convertion to string.
+		    // FIXME : We should handle this with more specific widgets for each
+		    // type.
+		    switch (col2_array.type()) {
+		    case pvcop::db::type_t::type_uint32:
+			    min_ = std::to_string(static_cast<uint32_t>(vmin));
+			    max_ = std::to_string(static_cast<uint32_t>(vmax));
+			    break;
+		    case pvcop::db::type_t::type_int32:
+			    min_ = std::to_string(static_cast<int32_t>(vmin));
+			    max_ = std::to_string(static_cast<int32_t>(vmax));
+			    break;
+		    case pvcop::db::type_t::type_uint64:
+			    min_ = std::to_string(static_cast<uint64_t>(vmin));
+			    max_ = std::to_string(static_cast<uint64_t>(vmax));
+			    break;
+		    case pvcop::db::type_t::type_int64:
+			    min_ = std::to_string(static_cast<int64_t>(vmin));
+			    max_ = std::to_string(static_cast<int64_t>(vmax));
+			    break;
+		    case pvcop::db::type_t::type_double:
+			    min_ = std::to_string(static_cast<double>(vmin));
+			    max_ = std::to_string(static_cast<double>(vmax));
+			    break;
+		    default:
+			    PVLOG_ERROR(("Incorrect type to compute range selection." +
+			                 std::to_string(col2_array.type())).c_str());
+			    return;
+		    }
+		    model().reset_selection();
+		    Inendi::PVSelection& sel = model().current_selection();
 
-		pvcop::db::algo::range_select(col2_array, min_, max_, pvcop::db::selection(), sel);
+		    pvcop::db::algo::range_select(col2_array, min_, max_, pvcop::db::selection(), sel);
 
-	}, ctxt, pbox);
+		},
+	    ctxt, pbox);
 
-	// FIXME : Qt selection is not rendered: PVGuiQt::PVListingModel::data (case Qt::BackgroundRole)
+	// FIXME : Qt selection is not rendered: PVGuiQt::PVListingModel::data (case
+	// Qt::BackgroundRole)
 	//         should be moved elsewhere in order to use it properly
 
 	// Update the viewport to display selection.
@@ -606,7 +625,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::showEvent(QShowEvent * event)
+void PVGuiQt::PVAbstractListStatsDlg::showEvent(QShowEvent* event)
 {
 	PVListDisplayDlg::showEvent(event);
 	resize_section();
@@ -614,7 +633,8 @@ void PVGuiQt::PVAbstractListStatsDlg::showEvent(QShowEvent * event)
 
 void PVGuiQt::PVAbstractListStatsDlg::view_resized()
 {
-	// We don't want the resize of the view to change the stored last section width
+	// We don't want the resize of the view to change the stored last section
+	// width
 	_store_last_section_width = false;
 	resize_section();
 }
@@ -624,7 +644,8 @@ void PVGuiQt::PVAbstractListStatsDlg::resize_section()
 	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_width);
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex, int /*oldSize*/, int newSize)
+void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex, int /*oldSize*/,
+                                                      int newSize)
 {
 	if (logicalIndex == 1) {
 		if (_store_last_section_width) {
@@ -641,29 +662,34 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 	int section = _values_view->horizontalHeader()->sortIndicatorSection();
 
 	Qt::SortOrder old_order = _values_view->horizontalHeader()->sortIndicatorOrder();
-	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not (bool) old_order : col == 0 ? Qt::SortOrder::AscendingOrder : Qt::SortOrder::DescendingOrder;
+	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not(bool)old_order
+	                                               : col == 0 ? Qt::SortOrder::AscendingOrder
+	                                                          : Qt::SortOrder::DescendingOrder;
 
 	model().sort(col, new_order);
 
 	_sort_section = section;
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList &sl,
+void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList& sl,
                                                       bool hide_dialog)
 {
 
 	// Get the filter associated with that menu entry
 	QString filter_name = act->data().toString();
-	Inendi::PVLayerFilter_p lib_filter = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
+	Inendi::PVLayerFilter_p lib_filter =
+	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
-		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n", qPrintable(filter_name));
+		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n",
+		            qPrintable(filter_name));
 		return;
 	}
 
 	Inendi::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
 	QString act_name = act->text();
 	if (entries.find(act_name) == entries.end()) {
-		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n", qPrintable(act_name), qPrintable(filter_name));
+		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n",
+		            qPrintable(act_name), qPrintable(filter_name));
 		return;
 	}
 	Inendi::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
@@ -681,9 +707,11 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 		_ctxt_process->deleteLater();
 	}
 
-	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
+	// Creating the PVLayerFilterProcessWidget will save the current args for this
+	// filter.
 	// Then we can change them !
-	_ctxt_process = new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
+	_ctxt_process =
+	    new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
 
 	if (hide_dialog) {
 		connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(close()));
@@ -698,10 +726,11 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStrin
 
 void PVGuiQt::PVAbstractListStatsDlg::ask_for_copying_count()
 {
-	if (QMessageBox::question(this, tr("Copy count values"), tr("Do you want to copy count values as well?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+	if (QMessageBox::question(
+	        this, tr("Copy count values"), tr("Do you want to copy count values as well?"),
+	        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
 		model().set_copy_count(true);
-	}
-	else {
+	} else {
 		model().set_copy_count(false);
 	}
 }
@@ -713,9 +742,8 @@ void PVGuiQt::PVAbstractListStatsDlg::ask_for_copying_count()
 void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 {
 	PVWidgets::PVLayerNamingPatternDialog dlg("create one new layer with all selected values",
-	                                          "string format for new layer's name",
-	                                          "%v", PVWidgets::PVLayerNamingPatternDialog::ON_TOP,
-	                                          this);
+	                                          "string format for new layer's name", "%v",
+	                                          PVWidgets::PVLayerNamingPatternDialog::ON_TOP, this);
 
 	if (dlg.exec() == QDialog::Rejected) {
 		return;
@@ -727,7 +755,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	PVHive::PVActor<Inendi::PVView> actor;
 	PVHive::get().register_actor(view_sp, actor);
-	Inendi::PVLayerStack &ls = view_sp->get_layer_stack();
+	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
 	text.replace("%l", ls.get_selected_layer().get_name());
 	text.replace("%a", view_sp->get_axes_combination().get_axis(_col).get_name());
@@ -736,14 +764,14 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QStringList value_names;
 
 	model().current_selection().visit_selected_lines([&](int row_id) {
-			QString s = QString::fromStdString(model().value_col().at(row_id));
-			sl += s;
-			if (s.isEmpty()) {
-				value_names += "(empty)";
-			} else {
-				value_names += s;
-			}
-		});
+		QString s = QString::fromStdString(model().value_col().at(row_id));
+		sl += s;
+		if (s.isEmpty()) {
+			value_names += "(empty)";
+		} else {
+			value_names += s;
+		}
+	});
 	text.replace("%v", value_names.join(","));
 
 	/*
@@ -768,7 +796,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 	actor.call<FUNC(Inendi::PVView::add_new_layer)>(text);
-	Inendi::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
+	Inendi::PVLayer& layer = view_sp->get_layer_stack().get_selected_layer();
 	int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
 	actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
 
@@ -782,7 +810,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 		int insert_pos;
 
-		if( mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
+		if (mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
 			insert_pos = old_selected_layer_index + 1;
 		} else {
 			insert_pos = old_selected_layer_index;
@@ -795,7 +823,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 	view_sp->get_volatile_selection() = old_sel;
 	actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
-        actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+	actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 }
 
 /******************************************************************************
@@ -807,27 +835,31 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
-	int layer_num = model().current_selection().get_number_of_selected_lines_in_range(0, model().value_col().size());;
+	int layer_num = model().current_selection().get_number_of_selected_lines_in_range(
+	    0, model().value_col().size());
+	;
 	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
-		                      QString("You try to create %1 layer(s) but no more than %2 layer(s) can be created").arg(layer_num).arg(layer_max));
+		                      QString("You try to create %1 layer(s) but no more "
+		                              "than %2 layer(s) can be created")
+		                          .arg(layer_num)
+		                          .arg(layer_max));
 		return;
 	}
 
 	/* now, we can ask for the layers' names format
 	 */
 	PVWidgets::PVLayerNamingPatternDialog dlg("create one new layer with all selected values",
-	                                          "string format for new layer's name",
-	                                          "%v", PVWidgets::PVLayerNamingPatternDialog::ON_TOP,
-	                                          this);
+	                                          "string format for new layer's name", "%v",
+	                                          PVWidgets::PVLayerNamingPatternDialog::ON_TOP, this);
 
 	if (dlg.exec() == QDialog::Rejected) {
 		return;
 	}
 
 	QString text = dlg.get_name_pattern();
-	PVWidgets::PVLayerNamingPatternDialog::insert_mode  mode = dlg.get_insertion_mode();
+	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
 
 	/* some "static" formatting
 	 */
@@ -863,46 +895,46 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 	int offset = 1;
 	model().current_selection().visit_selected_lines([&](int row_id) {
-			QString layer_name(text);
-			QString s = QString::fromStdString(model().value_col().at(row_id));
-			if (s.isEmpty()) {
-				layer_name.replace("%v", "(empty)");
+		QString layer_name(text);
+		QString s = QString::fromStdString(model().value_col().at(row_id));
+		if (s.isEmpty()) {
+			layer_name.replace("%v", "(empty)");
+		} else {
+			layer_name.replace("%v", s);
+		}
+
+		QStringList sl;
+		sl.append(s);
+		multiple_search(_msearch_action_for_layer_creation, sl, false);
+
+		actor.call<FUNC(Inendi::PVView::add_new_layer)>(layer_name);
+		Inendi::PVLayer& layer = view_sp->get_layer_stack().get_selected_layer();
+		int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
+		actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+
+		// We need to configure the layer
+		view_sp->commit_selection_to_layer(layer);
+		actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
+
+		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
+			int insert_pos;
+
+			if (mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
+				insert_pos = old_selected_layer_index + offset;
 			} else {
-				layer_name.replace("%v", s);
+				insert_pos = old_selected_layer_index;
+				++old_selected_layer_index;
 			}
+			actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
+		}
 
-			QStringList sl;
-			sl.append(s);
-			multiple_search(_msearch_action_for_layer_creation, sl, false);
-
-			actor.call<FUNC(Inendi::PVView::add_new_layer)>(layer_name);
-			Inendi::PVLayer &layer = view_sp->get_layer_stack().get_selected_layer();
-			int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-			actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
-
-			// We need to configure the layer
-			view_sp->commit_selection_to_layer(layer);
-			actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
-			actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
-
-			if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
-				int insert_pos;
-
-				if( mode == PVWidgets::PVLayerNamingPatternDialog::ABOVE_CURRENT) {
-					insert_pos = old_selected_layer_index + offset;
-				} else {
-					insert_pos = old_selected_layer_index;
-					++old_selected_layer_index;
-				}
-				actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
-			}
-
-			ls.set_selected_layer_index(old_selected_layer_index);
-			view_sp->get_volatile_selection() = old_sel;
-			actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
-			actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
-			++offset;
-		});
+		ls.set_selected_layer_index(old_selected_layer_index);
+		view_sp->get_volatile_selection() = old_sel;
+		actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+		actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+		++offset;
+	});
 
 	// we can update the layer-stack once all layers have been created
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
@@ -916,10 +948,9 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 #define ALTERNATING_BG_COLOR 1
 
-void PVGuiQt::__impl::PVListStringsDelegate::paint(
-	QPainter* painter,
-	const QStyleOptionViewItem& option,
-	const QModelIndex& index) const
+void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
+                                                   const QStyleOptionViewItem& option,
+                                                   const QModelIndex& index) const
 {
 	assert(index.isValid());
 
@@ -941,12 +972,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 
 		// Fill rectangle with color
 		painter->fillRect(
-			option.rect.x(),
-			option.rect.y(),
-			option.rect.width()*(log_scale ? log_ratio : ratio),
-			option.rect.height(),
-			QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255)
-		);
+		    option.rect.x(), option.rect.y(), option.rect.width() * (log_scale ? log_ratio : ratio),
+		    option.rect.height(),
+		    QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255));
 		painter->setPen(Qt::black);
 
 		// Draw occurence count and/or scientific notation and/or percentage
@@ -963,65 +991,50 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(
 		size_t representation_count = 0;
 		if (d()->_act_show_count->isChecked()) {
 			occurence = PVStatsModel::format_occurence(occurence_count);
-			occurence_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_occurence(d()->relative_max_count()));
+			occurence_max_width = QFontMetrics(painter->font()).width(
+			    PVStatsModel::format_occurence(d()->relative_max_count()));
 			margin -= occurence_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_scientific_notation->isChecked()) {
 			scientific_notation = PVStatsModel::format_scientific_notation(ratio);
-			scientific_notation_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_scientific_notation(1));
+			scientific_notation_max_width =
+			    QFontMetrics(painter->font()).width(PVStatsModel::format_scientific_notation(1));
 			margin -= scientific_notation_max_width;
 			representation_count++;
 		}
 		if (d()->_act_show_percentage->isChecked()) {
 			percentage = PVStatsModel::format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(PVStatsModel::format_percentage(d()->relative_max_count() / d()->max_count()));
+			percentage_max_width = QFontMetrics(painter->font()).width(
+			    PVStatsModel::format_percentage(d()->relative_max_count() / d()->max_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}
 
-		margin /= representation_count+1;
+		margin /= representation_count + 1;
 
-		int x =  option.rect.x();
+		int x = option.rect.x();
 		if (d()->_act_show_count->isChecked()) {
 			x += margin;
-			painter->drawText(
-				x,
-				option.rect.y(),
-				occurence_max_width,
-				option.rect.height(),
-				Qt::AlignRight,
-				occurence
-			);
+			painter->drawText(x, option.rect.y(), occurence_max_width, option.rect.height(),
+			                  Qt::AlignRight, occurence);
 			x += occurence_max_width;
 		}
 		if (d()->_act_show_scientific_notation->isChecked()) {
 			x += margin;
-			painter->drawText(
-				x,
-				option.rect.y(),
-				scientific_notation_max_width,
-				option.rect.height(),
-				Qt::AlignLeft,
-				scientific_notation
-			);
+			painter->drawText(x, option.rect.y(), scientific_notation_max_width,
+			                  option.rect.height(), Qt::AlignLeft, scientific_notation);
 			x += scientific_notation_max_width;
 		}
 		if (d()->_act_show_percentage->isChecked()) {
 			x += margin;
-			painter->drawText(
-				x,
-				option.rect.y(),
-				percentage_max_width,
-				option.rect.height(),
-				Qt::AlignRight,
-				percentage
-			);
+			painter->drawText(x, option.rect.y(), percentage_max_width, option.rect.height(),
+			                  Qt::AlignRight, percentage);
 		}
 	}
 }
 
 PVGuiQt::PVAbstractListStatsDlg* PVGuiQt::__impl::PVListStringsDelegate::d() const
 {
-	 return static_cast<PVGuiQt::PVAbstractListStatsDlg*>(parent());
+	return static_cast<PVGuiQt::PVAbstractListStatsDlg*>(parent());
 }

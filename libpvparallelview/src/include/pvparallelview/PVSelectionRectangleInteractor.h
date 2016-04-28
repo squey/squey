@@ -19,9 +19,10 @@ namespace PVParallelView
 
 class PVSelectionRectangle;
 
-class PVSelectionRectangleInteractor: public PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView>
+class PVSelectionRectangleInteractor
+    : public PVWidgets::PVGraphicsViewInteractor<PVWidgets::PVGraphicsView>
 {
-public:
+  public:
 	PVSelectionRectangleInteractor(PVWidgets::PVGraphicsView* parent,
 	                               PVSelectionRectangle* selection_rectangle);
 
@@ -30,10 +31,9 @@ public:
 	bool mouseReleaseEvent(PVWidgets::PVGraphicsView* view, QMouseEvent* event) override;
 	bool mouseMoveEvent(PVWidgets::PVGraphicsView* view, QMouseEvent* event) override;
 
-private:
-	PVParallelView::PVSelectionRectangle *_selection_rectangle;
+  private:
+	PVParallelView::PVSelectionRectangle* _selection_rectangle;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVSELECTIONRECTANGLEINTERACTOR_H

@@ -12,16 +12,17 @@
 #include <ui_PVAxisTagHelp.h>
 #include <QDialog>
 
-namespace PVInspector {
+namespace PVInspector
+{
 
-class PVAxisTagHelp: public QDialog, private Ui::PVAxisTagHelp
+class PVAxisTagHelp : public QDialog, private Ui::PVAxisTagHelp
 {
 	Q_OBJECT
-public:
+  public:
 	PVAxisTagHelp(QStringList sel_tags = QStringList(), QWidget* parent = NULL);
-protected:
-	template <class T>
-	QString tag_to_classes_name(T const& tag)
+
+  protected:
+	template <class T> QString tag_to_classes_name(T const& tag)
 	{
 		QString used_by;
 		typename T::list_classes const& filters = tag.associated_classes();
@@ -32,7 +33,6 @@ protected:
 		return used_by;
 	}
 };
-
 }
 
 #endif

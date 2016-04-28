@@ -12,11 +12,13 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterDnsFqdn : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterDnsFqdn : public PVFieldsFilter<one_to_many>
+{
 
-public:
+  public:
 	static const char* TLD1;
 	static const char* TLD2;
 	static const char* TLD3;
@@ -27,14 +29,17 @@ public:
 	static const char* SUBD2_REV;
 	static const char* SUBD3_REV;
 
-public:
-	PVFieldSplitterDnsFqdn(PVCore::PVArgumentList const& args = PVFieldSplitterDnsFqdn::default_args());
+  public:
+	PVFieldSplitterDnsFqdn(
+	    PVCore::PVArgumentList const& args = PVFieldSplitterDnsFqdn::default_args());
 
-public:
+  public:
 	void set_args(PVCore::PVArgumentList const& args);
-	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field);
+	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
+	                                           PVCore::list_fields::iterator it_ins,
+	                                           PVCore::PVField& field);
 
-private:
+  private:
 	bool _tld1;
 	bool _tld2;
 	bool _tld3;
@@ -48,7 +53,6 @@ private:
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterDnsFqdn)
 };
-
 }
 
 #endif // PVFILTER_PVFIELDSPLITTERDNSFQDN_H

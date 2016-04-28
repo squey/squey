@@ -15,14 +15,13 @@
 #include "data-in-thread_obj.h"
 #include "data-in-thread_dlg.h"
 
-Entity_p *static_e = nullptr;
+Entity_p* static_e = nullptr;
 
 typedef PVHive::PVActor<Entity> EntityActor;
 
 void th_actor_func()
 {
-	std::cout << "th_actor: init - " << boost::this_thread::get_id()
-	          << std::endl;
+	std::cout << "th_actor: init - " << boost::this_thread::get_id() << std::endl;
 	int count = 0;
 	Entity_p e = Entity_p(new Entity(42));
 
@@ -40,8 +39,8 @@ void th_actor_func()
 	std::cout << "th_actor: run" << std::endl;
 	while (count < 10) {
 		sleep(1);
-		std::cout << "th_actor_func - " << boost::this_thread::get_id()
-		          << " - e.set_i(" << count << ")" << std::endl;
+		std::cout << "th_actor_func - " << boost::this_thread::get_id() << " - e.set_i(" << count
+		          << ")" << std::endl;
 		PVACTOR_CALL(a, &Entity::set_i, count);
 		++count;
 	}

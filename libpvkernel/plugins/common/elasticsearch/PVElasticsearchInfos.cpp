@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -13,7 +13,8 @@ PVRush::PVElasticsearchInfos::PVElasticsearchInfos()
 {
 }
 
-void PVRush::PVElasticsearchInfos::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVElasticsearchInfos::serialize(PVCore::PVSerializeObject& so,
+                                             PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("host", _host);
 	so.attribute("port", _port);

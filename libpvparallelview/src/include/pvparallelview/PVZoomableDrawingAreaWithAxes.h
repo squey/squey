@@ -55,15 +55,15 @@ namespace PVParallelView
 
 class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 {
-protected:
+  protected:
 	// minimum gap (in pixel) between 2 subticks to make them visible of not.
 	constexpr static int subtick_min_gap = 32;
 
-public:
+  public:
 	/**
 	 * CTOR
 	 */
-	PVZoomableDrawingAreaWithAxes(QWidget *parent = nullptr);
+	PVZoomableDrawingAreaWithAxes(QWidget* parent = nullptr);
 
 	/**
 	 * DTOR
@@ -75,46 +75,37 @@ public:
 	 *
 	 * @param color the color to use
 	 */
-	void set_decoration_color(const QColor &color);
+	void set_decoration_color(const QColor& color);
 
 	/**
 	 * Return the color used when drawing scales & legends
 	 *
 	 */
-	QColor get_decoration_color() const
-	{
-		return _decoration_color;
-	}
+	QColor get_decoration_color() const { return _decoration_color; }
 
 	/**
 	 * Set the legend for the horizontal axis
 	 *
 	 * @param legend the text to use
 	 */
-	void set_x_legend(const QString &legend);
+	void set_x_legend(const QString& legend);
 
 	/**
 	 * Return the legend of the horizontal axis
 	 */
-	const QString &get_x_legend() const
-	{
-		return _x_legend;
-	}
+	const QString& get_x_legend() const { return _x_legend; }
 
 	/**
 	 * Set the legend for the vertical axis
 	 *
 	 * @param legend the text to use
 	 */
-	void set_y_legend(const QString &legend);
+	void set_y_legend(const QString& legend);
 
 	/**
 	 * Return the legend of the vertical axis
 	 */
-	const QString &get_y_legend() const
-	{
-		return _y_legend;
-	}
+	const QString& get_y_legend() const { return _y_legend; }
 
 	/**
 	 * Set the ticks count per level
@@ -124,12 +115,9 @@ public:
 	/**
 	 * Return the current ticks count
 	 */
-	int get_ticks_per_level() const
-	{
-		return _ticks_per_level;
-	}
+	int get_ticks_per_level() const { return _ticks_per_level; }
 
-protected:
+  protected:
 	/**
 	 * Return the text to print in x scale for a given value
 	 *
@@ -154,33 +142,26 @@ protected:
 	 */
 	virtual QString get_y_value_at(const qint64 value) const;
 
+	int get_x_axis_length() const { return _x_axis_length; }
 
-	int get_x_axis_length() const
-	{
-		return _x_axis_length;
-	}
+	int get_y_axis_length() const { return _y_axis_length; }
 
-	int get_y_axis_length() const
-	{
-		return _y_axis_length;
-	}
-
-protected:
+  protected:
 	void recompute_margins() override;
 	void recompute_decorations();
-	virtual void draw_decorations(QPainter *painter, const QRectF &rect);
+	virtual void draw_decorations(QPainter* painter, const QRectF& rect);
 
-protected:
-	virtual void drawBackground(QPainter *painter, const QRectF &rect);
+  protected:
+	virtual void drawBackground(QPainter* painter, const QRectF& rect);
 
-private:
-	void draw_deco_v1(QPainter *painter, const QRectF &rect);
-	void draw_deco_v2(QPainter *painter, const QRectF &rect);
-	void draw_deco_v3(QPainter *painter, const QRectF &rect);
-	void draw_deco_v4(QPainter *painter, const QRectF &rect);
+  private:
+	void draw_deco_v1(QPainter* painter, const QRectF& rect);
+	void draw_deco_v2(QPainter* painter, const QRectF& rect);
+	void draw_deco_v3(QPainter* painter, const QRectF& rect);
+	void draw_deco_v4(QPainter* painter, const QRectF& rect);
 
-private:
-	QColor  _decoration_color;
+  private:
+	QColor _decoration_color;
 	QString _x_legend;
 	QString _y_legend;
 
@@ -191,7 +172,6 @@ private:
 
 	bool _first_resize;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAWITHAXES_H

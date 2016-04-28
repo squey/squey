@@ -14,27 +14,23 @@
 #include <QMetaType>
 #include <QStringList>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /**
  * \class PVZoneIndexType
  */
 class PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
 {
-public:
+  public:
 	/**
 	 * Constructor
 	 */
-	PVZoneIndexType(int zone_index = 0):
-		_zone_index(zone_index)
-	{ }
+	PVZoneIndexType(int zone_index = 0) : _zone_index(zone_index) {}
 
 	int get_zone_index() const { return _zone_index; }
 
-	QString to_string() const
-	{
-		return QString::number(get_zone_index());
-	}
+	QString to_string() const { return QString::number(get_zone_index()); }
 
 	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
@@ -56,20 +52,15 @@ public:
 
 		return arg;
 	}
-	
-	bool operator==(const PVZoneIndexType &other) const
-	{
-		return _zone_index == other._zone_index;
-	}
 
-protected:
+	bool operator==(const PVZoneIndexType& other) const { return _zone_index == other._zone_index; }
+
+  protected:
 	int _zone_index;
 };
-
 }
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVZoneIndexType)
-
 
 #endif // PVCORE_PVZONEINDEXTYPE_H

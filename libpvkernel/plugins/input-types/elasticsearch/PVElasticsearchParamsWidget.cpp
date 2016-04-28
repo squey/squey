@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -13,13 +13,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-static const char* query_types[] = { "Query Builder", "JSON", "SQL" };
+static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
 
 PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
-	PVInputTypeElasticsearch const* in_t,
-	PVRush::hash_formats const& formats,
-	QWidget* parent
-) : PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos, PVElasticsearchQuery>(in_t, formats, parent)
+    PVInputTypeElasticsearch const* in_t, PVRush::hash_formats const& formats, QWidget* parent)
+    : PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
+                     PVElasticsearchQuery>(in_t, formats, parent)
 {
 	QLabel* label_index = new QLabel("Index :");
 	_btn_refresh = new QPushButton("&Refresh");
@@ -36,30 +35,39 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 
 	_custom_layout->addLayout(custom_layout);
 
-	connect(_combo_index, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(index_changed_slot(const QString&)));
+	connect(_combo_index, SIGNAL(currentIndexChanged(const QString&)), this,
+	        SLOT(index_changed_slot(const QString&)));
 	connect(_combo_index, SIGNAL(activated(int)), this, SLOT(index_changed_by_user_slot()));
 	connect(_btn_refresh, SIGNAL(clicked()), this, SLOT(fetch_server_data_slot()));
 
-	for (const char * const qtype_name: query_types) {
+	for (const char* const qtype_name : query_types) {
 		_query_type_cb->addItem(qtype_name);
 	}
 
 	_help_label->setText(
-	"<html>"
-		"<head/>"
-			"<body>"
-				"<p><span style=\" text-decoration: underline;\">Elasticsearch limitation:</span><br/></p>"
-				"<p><ul><li>The order of the lines returned by Elasticsearch queries does not respect the order of the lines as imported by Logstash.</li>"
-				"<li>Requests use tokenized strings. If filters were applied during import, the search have to respect their constraints.<br/>"
-				"<i>Eg : If a lowercase filter was used at import time, the according search must be done in lowercase too.</i></li></ul>"
-				"</p><br/>"
-				"<p><span style=\" text-decoration: underline;\">Logstash CSV plugin limitation:</span><br/></p>"
-				"<p>When importing logs into Elasticsearch using Logstash CSV plugin, be careful not to name any of your columns "
-				"<span style=\" font-weight:600;\">message</span>, <span style=\" font-weight:600;\">type</span>, "
-				"<span style=\" font-weight:600;\">host</span>,<span style=\" font-weight:600;\"> path</span> or "
-				"<span style=\" font-weight:600;\">geoip </span>because these are internally used by Logstash and will likely to cause conflicts.</p>"
-			"</body>"
-	"</html>");
+	    "<html>"
+	    "<head/>"
+	    "<body>"
+	    "<p><span style=\" text-decoration: underline;\">Elasticsearch limitation:</span><br/></p>"
+	    "<p><ul><li>The order of the lines returned by Elasticsearch queries does not respect the "
+	    "order of the lines as imported by Logstash.</li>"
+	    "<li>Requests use tokenized strings. If filters were applied during import, the search "
+	    "have to respect their constraints.<br/>"
+	    "<i>Eg : If a lowercase filter was used at import time, the according search must be done "
+	    "in lowercase too.</i></li></ul>"
+	    "</p><br/>"
+	    "<p><span style=\" text-decoration: underline;\">Logstash CSV plugin "
+	    "limitation:</span><br/></p>"
+	    "<p>When importing logs into Elasticsearch using Logstash CSV plugin, be careful not to "
+	    "name any of your columns "
+	    "<span style=\" font-weight:600;\">message</span>, <span style=\" "
+	    "font-weight:600;\">type</span>, "
+	    "<span style=\" font-weight:600;\">host</span>,<span style=\" font-weight:600;\"> "
+	    "path</span> or "
+	    "<span style=\" font-weight:600;\">geoip </span>because these are internally used by "
+	    "Logstash and will likely to cause conflicts.</p>"
+	    "</body>"
+	    "</html>");
 }
 
 QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const
@@ -118,34 +126,32 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 	if (query_type == EQueryType::SQL) {
 		_txt_query->setPlainText("");
 		_reference_label->setText(
-			"<a href=\"https://github.com/NLPchina/elasticsearch-sql/\">"
-			"<span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch SQL plugin"
-		);
+		    "<a href=\"https://github.com/NLPchina/elasticsearch-sql/\">"
+		    "<span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch SQL plugin");
 		PVRush::PVElasticsearchAPI es(get_infos());
 		if (es.is_sql_available()) {
 			_gb_query->setTitle(get_sql_query_prefix() + " ...");
 			_txt_query->setEnabled(true);
-		}
-		else {
-			_txt_query->setPlainText("Please, install the SQL plugin to your Elasticsearch instance to support this feature.");
+		} else {
+			_txt_query->setPlainText("Please, install the SQL plugin to your Elasticsearch "
+			                         "instance to support this feature.");
 			_txt_query->setEnabled(false);
-			//buttonBox->buttons()[0]->setEnabled(false);
+			// buttonBox->buttons()[0]->setEnabled(false);
 		}
 		_txt_query->setVisible(true);
-	}
-	else if (query_type == EQueryType::QUERY_BUILDER) {
+	} else if (query_type == EQueryType::QUERY_BUILDER) {
 		_gb_query->setTitle("Query");
 		_reference_label->setText("");
 		_querybuilder->reset_rules();
 		_querybuilder->setVisible(true);
-	}
-	else { // EQueryType::JSON
+	} else { // EQueryType::JSON
 		_txt_query->setPlainText("{ \"query\" : { \"match_all\" : { } } }");
 		_gb_query->setTitle("Query");
-		_reference_label->setText(
-			"<a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-filters.html\">"
-			"<span style=\" text-decoration: underline; color:#0000ff;\">Elasticsearch Filters reference"
-		);
+		_reference_label->setText("<a "
+		                          "href=\"https://www.elastic.co/guide/en/elasticsearch/reference/"
+		                          "current/query-dsl-filters.html\">"
+		                          "<span style=\" text-decoration: underline; "
+		                          "color:#0000ff;\">Elasticsearch Filters reference");
 		_txt_query->setVisible(true);
 		_txt_query->setEnabled(true);
 	}
@@ -160,7 +166,9 @@ QString PVRush::PVElasticsearchParamsWidget::get_export_filters()
 	return "CSV File (*.csv)";
 }
 
-void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& output_stream, PVCore::PVProgressBox& pbox, std::string* error /*= nullptr*/)
+void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& output_stream,
+                                                              PVCore::PVProgressBox& pbox,
+                                                              std::string* error /*= nullptr*/)
 {
 	size_t count = 0;
 	bool query_end = false;
@@ -180,7 +188,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 		}
 
 		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
-			pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
+		    pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
 			break;
 		}
 
@@ -203,7 +211,8 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 
 bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& infos)
 {
-	bool res = PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos, PVElasticsearchQuery>::set_infos(infos);
+	bool res = PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets,
+	                          PVElasticsearchInfos, PVElasticsearchQuery>::set_infos(infos);
 
 	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
 
@@ -212,21 +221,23 @@ bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& 
 
 PVRush::PVElasticsearchInfos PVRush::PVElasticsearchParamsWidget::get_infos() const
 {
-	PVRush::PVElasticsearchInfos infos = PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos, PVElasticsearchQuery>::get_infos();
+	PVRush::PVElasticsearchInfos infos =
+	    PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
+	                   PVElasticsearchQuery>::get_infos();
 	infos.set_index(_combo_index->currentText());
 
 	return infos;
 }
 
-QString PVRush::PVElasticsearchParamsWidget::get_server_query(std::string* error /* = nullptr */) const
+QString
+PVRush::PVElasticsearchParamsWidget::get_server_query(std::string* error /* = nullptr */) const
 {
 	QString q = get_serialize_query();
 	int query_type = _query_type_cb->currentIndex();
 
 	if (query_type == EQueryType::JSON) {
 		q = _txt_query->toPlainText();
-	}
-	else {
+	} else {
 		PVRush::PVElasticsearchAPI es(get_infos());
 
 		if (query_type == EQueryType::SQL) {
@@ -236,7 +247,8 @@ QString PVRush::PVElasticsearchParamsWidget::get_server_query(std::string* error
 		}
 	}
 
-	while(q.endsWith('\n')) q.chop(1);
+	while (q.endsWith('\n'))
+		q.chop(1);
 
 	return q;
 }
@@ -247,8 +259,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_serialize_query() const
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
 		return QString(_querybuilder->get_rules().c_str());
-	}
-	else {
+	} else {
 		return _txt_query->toPlainText();
 	}
 }
@@ -261,8 +272,7 @@ void PVRush::PVElasticsearchParamsWidget::set_query(QString const& query)
 		PVRush::PVElasticsearchAPI es(get_infos());
 		_querybuilder->set_filters(es.columns(get_query()));
 		_querybuilder->set_rules(query.toStdString());
-	}
-	else {
+	} else {
 		_txt_query->setPlainText(query);
 	}
 }

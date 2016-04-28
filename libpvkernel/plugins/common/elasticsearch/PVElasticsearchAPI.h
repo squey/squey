@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -15,7 +15,8 @@
 
 #include <curl/curl.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVElasticsearchQuery;
 
@@ -24,53 +25,54 @@ class PVElasticsearchQuery;
  */
 class PVElasticsearchAPI
 {
-public:
+  public:
 	static constexpr size_t DEFAULT_PORT = 9200;
 
-public:
+  public:
 	using indexes_t = std::vector<std::string>;
 	using columns_t = std::vector<std::pair<std::string, std::string>>;
 	using rows_t = std::vector<std::string>;
 	using rows_chunk_t = std::vector<rows_t>;
 
-public:
+  public:
 	PVElasticsearchAPI(const PVElasticsearchInfos& infos);
 	~PVElasticsearchAPI();
 
-public:
-    /** Check if the connection to the server is successful
-     *
-     * @param error Store any occured error if provided
-     *
-     * @return true if successfully connected to the server, false otherwise.
-     */
+  public:
+	/** Check if the connection to the server is successful
+	 *
+	 * @param error Store any occured error if provided
+	 *
+	 * @return true if successfully connected to the server, false otherwise.
+	 */
 	bool check_connection(std::string* error = nullptr) const;
 
-    /** Fetch the list of indexes from the server
-     *
-     * @param error Store any occured error if provided
-     *
-     * @return the list of indexes
-     */
+	/** Fetch the list of indexes from the server
+	 *
+	 * @param error Store any occured error if provided
+	 *
+	 * @return the list of indexes
+	 */
 	indexes_t indexes(std::string* error = nullptr) const;
 
-    /** Fetch the list of columns for a given index provided in the Query object
-     *
-     * @param error Store any occured error if provided
-     *
-     * @return the list of columns
-     */
-	columns_t columns(const PVRush::PVElasticsearchQuery& query, std::string* error = nullptr) const;
+	/** Fetch the list of columns for a given index provided in the Query object
+	 *
+	 * @param error Store any occured error if provided
+	 *
+	 * @return the list of columns
+	 */
+	columns_t columns(const PVRush::PVElasticsearchQuery& query,
+	                  std::string* error = nullptr) const;
 
-    /** Get the number of lines returned by a given query using the "count" API
-     *
-     * @param error Store any occured error if provided
-     *
-     * @return the query result count
-     */
+	/** Get the number of lines returned by a given query using the "count" API
+	 *
+	 * @param error Store any occured error if provided
+	 *
+	 * @return the query result count
+	 */
 	size_t count(const PVRush::PVElasticsearchQuery& query, std::string* error = nullptr) const;
 
-public:
+  public:
 	/** Get several batches of results from a query using Elasticsearch efficient scoll API.
 	 *
 	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
@@ -88,11 +90,9 @@ public:
 	 *
 	 * @return true if more data is available, false otherwise
 	 */
-	bool extract(
-		const PVRush::PVElasticsearchQuery& query,
-		PVRush::PVElasticsearchAPI::rows_chunk_t& rows_array,
-		std::string* error = nullptr
-	);
+	bool extract(const PVRush::PVElasticsearchQuery& query,
+	             PVRush::PVElasticsearchAPI::rows_chunk_t& rows_array,
+	             std::string* error = nullptr);
 
 	/** Get the total count of expected results
 	 *
@@ -111,7 +111,7 @@ public:
 	 */
 	bool clear_scroll();
 
-public:
+  public:
 	/** Convert json from QueryBuilder to json as ElasticSearch input
 	 *
 	 * @param rules : json from QueryBuilder
@@ -133,7 +133,7 @@ public:
 	 */
 	bool is_sql_available() const;
 
-private:
+  private:
 	/** Execute the request previously prepared by the prepare_query method.
 	 *
 	 * This will store the returning scroll_id in the _scroll_id member variable
@@ -153,7 +153,8 @@ private:
 	 * @param query the query to be executed by the server
 	 * @param error Store any occured error if provided
 	 */
-	bool scroll(const PVRush::PVElasticsearchQuery& query, std::string& json_data, std::string* error = nullptr);
+	bool scroll(const PVRush::PVElasticsearchQuery& query, std::string& json_data,
+	            std::string* error = nullptr);
 
 	/** Extract the raw data from a JSON scroll batch results.
 	 *
@@ -162,38 +163,37 @@ private:
 	 */
 	bool parse_scroll_results(const std::string& json_data, rows_t& rows) const;
 
-private:
-    /** Setup cURL handler before executing a request.
-     *
-     * As Elasticsearch scroll API imply executing the exact same request over and over
-     * in order to exhaust the available results, there is no need to setup cURL over and
-     * over again, that's why the setup of the request is decorrelated from the request execution
-     *
-     * @param uri GET content
-     * @param body POST content
-     */
+  private:
+	/** Setup cURL handler before executing a request.
+	 *
+	 * As Elasticsearch scroll API imply executing the exact same request over and over
+	 * in order to exhaust the available results, there is no need to setup cURL over and
+	 * over again, that's why the setup of the request is decorrelated from the request execution
+	 *
+	 * @param uri GET content
+	 * @param body POST content
+	 */
 	void prepare_query(const std::string& uri, const std::string& body = std::string()) const;
 
-    /** Execute the request previously prepared by the prepare_query method.
-     *
-     * @param result the JSON content returned by the server
-     * @param error Store any occured error if provided
-     */
+	/** Execute the request previously prepared by the prepare_query method.
+	 *
+	 * @param result the JSON content returned by the server
+	 * @param error Store any occured error if provided
+	 */
 	bool perform_query(std::string& result, std::string* error = nullptr) const;
 
-private:
+  private:
 	/**
 	 * @return the server API endpoint needed to establish the communication with Elasticsearch
 	 */
 	std::string socket() const;
 
-private:
-	CURL* _curl; 							// cURL request handler
-	PVRush::PVElasticsearchInfos _infos; 	// Contains all the info to reach Elasticsearch server
-	std::string _scroll_id;					// ID returned by Elasticsearch scroll API
-	size_t _scroll_count = 0;				// total count of event that will be returned by a scrolling session
+  private:
+	CURL* _curl;                         // cURL request handler
+	PVRush::PVElasticsearchInfos _infos; // Contains all the info to reach Elasticsearch server
+	std::string _scroll_id;              // ID returned by Elasticsearch scroll API
+	size_t _scroll_count = 0; // total count of event that will be returned by a scrolling session
 };
-
 }
 
 #endif // __PVELASTICSEARCHAPI_H__

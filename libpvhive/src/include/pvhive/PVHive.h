@@ -27,7 +27,8 @@
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVActorBase.h>
 
-namespace PVCore {
+namespace PVCore
+{
 class PVDataTreeObjectBase;
 class PVDataTreeObjectWithParentBase;
 }
@@ -42,83 +43,82 @@ namespace PVHive
  */
 class no_object : public std::exception
 {
-public:
-	no_object(const char* text) : _text(text)
-	{}
+  public:
+	no_object(const char* text) : _text(text) {}
 
-	virtual ~no_object() throw()
-	{}
+	virtual ~no_object() throw() {}
 
-	virtual const char * what() const throw()
-	{
-		return _text;
-	}
-private:
-	const char *_text;
+	virtual const char* what() const throw() { return _text; }
+
+  private:
+	const char* _text;
 };
 
 /// @}
 
-template <class T>
-class PVActor;
+template <class T> class PVActor;
 
 namespace __impl
 {
 
 // declaration of hive_deleter
-inline void hive_deleter(void *ptr);
-
+inline void hive_deleter(void* ptr);
 
 // definition of PVCallReturn
-template <typename T, typename F, F f, bool is_void = std::is_void<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value,
-                                       bool is_ref  = std::is_reference<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value>
+template <typename T, typename F, F f,
+          bool is_void =
+              std::is_void<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value,
+          bool is_ref = std::is_reference<
+              typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value>
 class PVCallReturn;
 
 // Specialization for functions returning non-void and non-reference
-template <typename T, typename F, F f>
-class PVCallReturn<T, F, f, false, false>
+template <typename T, typename F, F f> class PVCallReturn<T, F, f, false, false>
 {
-public:
+  public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::result_type result_type;
 
-public:
-	template<typename... P>
-	inline void call(T* object, P && ... params) { _result = (object->*f)(std::forward<P>(params)...); }
+  public:
+	template <typename... P> inline void call(T* object, P&&... params)
+	{
+		_result = (object->*f)(std::forward<P>(params)...);
+	}
 	inline result_type result() const { return {std::move(_result)}; }
 	inline result_type default_value() const { return {}; }
 
-private:
+  private:
 	result_type _result;
 };
 
 // Specialization for functions returning non-void and reference
-template <typename T, typename F, F f>
-class PVCallReturn<T, F, f, false, true>
+template <typename T, typename F, F f> class PVCallReturn<T, F, f, false, true>
 {
-public:
+  public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::result_type result_type;
 
-public:
-	template<typename... P>
-	inline void call(T* object, P && ... params) { _result = &(object->*f)(std::forward<P>(params)...); }
+  public:
+	template <typename... P> inline void call(T* object, P&&... params)
+	{
+		_result = &(object->*f)(std::forward<P>(params)...);
+	}
 	inline result_type result() const { return *_result; }
 	inline result_type default_value() const { return *_result; }
 
-private:
-	typename std::remove_reference<result_type>::type * _result;
+  private:
+	typename std::remove_reference<result_type>::type* _result;
 };
 
 // Specialization for functions returning void
-template <typename T, typename F, F f>
-class PVCallReturn<T, F, f, true, false>
+template <typename T, typename F, F f> class PVCallReturn<T, F, f, true, false>
 {
-public:
-	template<typename... P>
-	inline void call(T* object, P && ... params) { (object->*f)(std::forward<P>(params)...); }
+  public:
+	template <typename... P> inline void call(T* object, P&&... params)
+	{
+		(object->*f)(std::forward<P>(params)...);
+	}
 	void result() const {}
 	void default_value() const {}
 };
-
 }
 
 /**
@@ -166,7 +166,8 @@ class PVHive
 		static inline size_t hash(const void* a) { return (size_t)a; }
 		static inline bool equal(const void* a, const void* b) { return a == b; }
 	};
-private:
+
+  private:
 	typedef std::set<PVActorBase*> actors_t;
 	typedef std::list<PVObserverBase*> observers_t;
 	typedef std::unordered_multimap<void*, PVFuncObserverBase*> func_observers_t;
@@ -174,25 +175,24 @@ private:
 
 	struct observable_t
 	{
-		actors_t          actors;
-		observers_t       observers;
-		func_observers_t  func_observers;
-		properties_t      properties;
+		actors_t actors;
+		observers_t observers;
+		func_observers_t func_observers;
+		properties_t properties;
 	};
 
 	typedef tbb::concurrent_hash_map<void*, observable_t, tbb_hash_ptr> observables_t;
 
-private:
-	friend void __impl::hive_deleter(void *ptr);
+  private:
+	friend void __impl::hive_deleter(void* ptr);
 	friend class PVActorBase;
-	template<typename T>
-	friend class PVActor;
+	template <typename T> friend class PVActor;
 
-public:
+  public:
 	/**
 	 * @return a reference on the global PVHive
 	 */
-	static PVHive &get()
+	static PVHive& get()
 	{
 		if (_hive == nullptr) {
 			_hive = new PVHive;
@@ -200,14 +200,13 @@ public:
 		return *_hive;
 	}
 
-public:
+  public:
 	/**
 	 * Register an object
 	 *
 	 * @param object the new managed object
 	 */
-	template <class T>
-	void register_object(PVCore::PVSharedPtr<T>& object)
+	template <class T> void register_object(PVCore::PVSharedPtr<T>& object)
 	{
 		observables_t::accessor acc;
 
@@ -224,7 +223,7 @@ public:
 	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
-	void register_object(PVCore::PVSharedPtr<T>& object, F const &prop_get)
+	void register_object(PVCore::PVSharedPtr<T>& object, F const& prop_get)
 	{
 		auto* property = prop_get(*object);
 
@@ -245,8 +244,7 @@ public:
 	 * @param object the managed object
 	 * @param actor the actor
 	 */
-	template <class T>
-	void register_actor(PVCore::PVSharedPtr<T>& object, PVActorBase& actor)
+	template <class T> void register_actor(PVCore::PVSharedPtr<T>& object, PVActorBase& actor)
 	{
 		// an actor must be set for only one object
 		assert(actor.get_object() == nullptr);
@@ -259,7 +257,7 @@ public:
 
 		// create/get object's entry
 		acc->second.actors.insert(&actor);
-		actor.set_object((void*) object.get(), registered_object);
+		actor.set_object((void*)object.get(), registered_object);
 		object.set_deleter(&__impl::hive_deleter);
 	}
 
@@ -269,8 +267,7 @@ public:
 	 * @param object the observed object
 	 * @return the actor
 	 */
-	template <class T>
-	PVActor<T>* register_actor(PVCore::PVSharedPtr<T>& object)
+	template <class T> PVActor<T>* register_actor(PVCore::PVSharedPtr<T>& object)
 	{
 		PVActor<T>* actor = new PVActor<T>();
 		register_actor(object, *actor);
@@ -293,14 +290,14 @@ public:
 		observables_t::accessor acc;
 
 		// create/get object's entry
-		void* registered_object = (void*) PVCore::PVTypeTraits::get_starting_address(object.get());
+		void* registered_object = (void*)PVCore::PVTypeTraits::get_starting_address(object.get());
 		_observables.insert(acc, registered_object);
 
 		// observer must not be in _observables[&object].observers
 		assert(already_registered(acc->second.observers, observer) == false);
 
 		acc->second.observers.push_back(&observer);
-		observer.set_object((void*) object.get(), registered_object);
+		observer.set_object((void*)object.get(), registered_object);
 		object.set_deleter(&__impl::hive_deleter);
 	}
 
@@ -311,7 +308,8 @@ public:
 	 * @param observer the observer
 	 */
 	template <class B, class T, class F, F f>
-	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserverTemplatedBase<B, T, F, f>& observer)
+	void register_func_observer(PVCore::PVSharedPtr<T>& object,
+	                            PVFuncObserverTemplatedBase<B, T, F, f>& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
@@ -323,15 +321,15 @@ public:
 		_observables.insert(acc, registered_object);
 
 #ifdef __GNUG__
-		// Disable warning for GCC for this line
+// Disable warning for GCC for this line
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
 #endif
-		acc->second.func_observers.insert(std::make_pair((void*) f, &observer));
+		acc->second.func_observers.insert(std::make_pair((void*)f, &observer));
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
 #endif
-		observer.set_object((void*) object.get(), registered_object);
+		observer.set_object((void*)object.get(), registered_object);
 		object.set_deleter(&__impl::hive_deleter);
 	}
 
@@ -345,7 +343,8 @@ public:
 	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
-	void register_observer(PVCore::PVSharedPtr<T>& object, F const &prop_get, PVObserverBase& observer)
+	void register_observer(PVCore::PVSharedPtr<T>& object, F const& prop_get,
+	                       PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
@@ -355,7 +354,7 @@ public:
 		observables_t::accessor acc;
 
 		// create/get property's entry
-		void* registered_object = (void*) PVCore::PVTypeTraits::get_starting_address(property);
+		void* registered_object = (void*)PVCore::PVTypeTraits::get_starting_address(property);
 		_observables.insert(acc, registered_object);
 
 		// observer must not be in _observables[&property].observers
@@ -363,7 +362,7 @@ public:
 
 		// adding observer
 		acc->second.observers.push_back(&observer);
-		observer.set_object((void*) property, registered_object);
+		observer.set_object((void*)property, registered_object);
 
 		// adding property
 		// create/get object's entry
@@ -372,7 +371,7 @@ public:
 		object.set_deleter(&__impl::hive_deleter);
 	}
 
-public:
+  public:
 	/**
 	 * Unregister an actor an notify all dependent observers
 	 * that they must stop observing
@@ -395,7 +394,7 @@ public:
 	 */
 	bool unregister_func_observer(PVFuncObserverBase& observer, void* f);
 
-public:
+  public:
 	/**
 	 * Write on std::cout a structured view of PVHive content
 	 */
@@ -430,11 +429,11 @@ public:
 		size_t s = sizeof(observables_t);
 
 		// memory used by observables_t's entries
-		s += _observables.size() * sizeof (observables_t::value_type);
+		s += _observables.size() * sizeof(observables_t::value_type);
 
 		// memory used by entries values
-		for (observables_t::const_iterator it = _observables.begin();
-		     it != _observables.end(); ++it) {
+		for (observables_t::const_iterator it = _observables.begin(); it != _observables.end();
+		     ++it) {
 			s += it->second.actors.size() * sizeof(actors_t::value_type);
 			s += it->second.observers.size() * sizeof(observers_t::value_type);
 			s += it->second.properties.size() * sizeof(properties_t::value_type);
@@ -443,9 +442,10 @@ public:
 		return s;
 	}
 
-protected:
+  protected:
 	template <typename T, typename F, F f, typename... P>
-	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_interface(T* object, P && ... params)
+	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type
+	call_object_interface(T* object, P&&... params)
 	{
 		typedef PVCore::PVTypeTraits::function_traits<F> ftraits;
 		// object must be a valid address
@@ -457,7 +457,7 @@ protected:
 		return call_object<F, f>(object, args);
 	}
 
-private:
+  private:
 	/**
 	 * Generic call to apply an action on a object
 	 *
@@ -465,31 +465,31 @@ private:
 	 * @param params the method parameters
 	 */
 	template <typename F, F f>
-	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object(typename PVCore::PVTypeTraits::function_traits<F>::class_type* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type
+	call_object(typename PVCore::PVTypeTraits::function_traits<F>::class_type* object,
+	            typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args)
 	{
 		typedef PVCore::PVTypeTraits::function_traits<F> ftraits;
 		typedef typename ftraits::class_type class_type;
-		//std::cout << "call_object: " << __PRETTY_FUNCTION__ << std::endl;
+		// std::cout << "call_object: " << __PRETTY_FUNCTION__ << std::endl;
 
 		// object must be a valid address
 		assert(object != nullptr);
 		return call_object_default<class_type, F, f>(object, args);
 	}
 
-protected:
-
+  protected:
 	/**
 	 * Tell all observers of an object that a change is about to occure
 	 *
 	 * @param object the observed object
 	 */
-	template <typename T>
-	inline void about_to_refresh_observers(T const* object)
+	template <typename T> inline void about_to_refresh_observers(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
 
-		do_about_to_refresh_observers((void*) PVCore::PVTypeTraits::get_starting_address(object));
+		do_about_to_refresh_observers((void*)PVCore::PVTypeTraits::get_starting_address(object));
 	}
 
 	/**
@@ -497,8 +497,7 @@ protected:
 	 *
 	 * @param object the observed object
 	 */
-	template <typename T>
-	inline void refresh_observers(T const* object)
+	template <typename T> inline void refresh_observers(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
@@ -506,35 +505,40 @@ protected:
 		// Check if that object still exists
 		{
 			observables_t::const_accessor acc;
-			if (!_observables.find(acc, (void*) object)) {
+			if (!_observables.find(acc, (void*)object)) {
 				return;
 			}
 		}
-		PVCore::PVDataTreeObjectWithParentBase const* dt = PVCore::PVTypeTraits::dynamic_cast_if_possible<PVCore::PVDataTreeObjectWithParentBase const*>(object);
+		PVCore::PVDataTreeObjectWithParentBase const* dt =
+		    PVCore::PVTypeTraits::dynamic_cast_if_possible<
+		        PVCore::PVDataTreeObjectWithParentBase const*>(object);
 		if (dt) {
-			refresh_observers(dt, (void*) PVCore::PVTypeTraits::get_starting_address(object));
-		}
-		else {
-			do_refresh_observers((void*) PVCore::PVTypeTraits::get_starting_address(object));
+			refresh_observers(dt, (void*)PVCore::PVTypeTraits::get_starting_address(object));
+		} else {
+			do_refresh_observers((void*)PVCore::PVTypeTraits::get_starting_address(object));
 		}
 	}
 
-	template <typename T>
-	inline void refresh_observers_maybe_recursive(T const* object)
+	template <typename T> inline void refresh_observers_maybe_recursive(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
-		PVCore::PVDataTreeObjectWithParentBase const* dt = PVCore::PVTypeTraits::dynamic_cast_if_possible<PVCore::PVDataTreeObjectWithParentBase const*>(object);
+		PVCore::PVDataTreeObjectWithParentBase const* dt =
+		    PVCore::PVTypeTraits::dynamic_cast_if_possible<
+		        PVCore::PVDataTreeObjectWithParentBase const*>(object);
 		if (dt) {
-			refresh_observers_maybe_recursive(dt, const_cast<void*>(PVCore::PVTypeTraits::dynamic_cast_if_possible<const void*>(object)));
-		}
-		else {
-			do_refresh_observers_maybe_recursive((void*) PVCore::PVTypeTraits::get_starting_address(object));
+			refresh_observers_maybe_recursive(
+			    dt, const_cast<void*>(
+			            PVCore::PVTypeTraits::dynamic_cast_if_possible<const void*>(object)));
+		} else {
+			do_refresh_observers_maybe_recursive(
+			    (void*)PVCore::PVTypeTraits::get_starting_address(object));
 		}
 	}
 
 	void refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh);
-	void refresh_observers_maybe_recursive(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh);
+	void refresh_observers_maybe_recursive(PVCore::PVDataTreeObjectWithParentBase const* object,
+	                                       void* obj_refresh);
 
 	/**
 	 * Tell all observers of function that a change is about to occure
@@ -543,7 +547,7 @@ protected:
 	 * @param params the f_hiveunction parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void about_to_refresh_func_observers(T const* object, P && ... params)
+	void about_to_refresh_func_observers(T const* object, P&&... params)
 	{
 		process_func_observers<true, T, F, f>(object, std::forward<P>(params)...);
 	}
@@ -555,7 +559,7 @@ protected:
 	 * @param params the function parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void refresh_func_observers(T const* object, P && ... params)
+	void refresh_func_observers(T const* object, P&&... params)
 	{
 		process_func_observers<false, T, F, f>(object, std::forward<P>(params)...);
 	}
@@ -565,17 +569,17 @@ protected:
 	 *
 	 * @param object the object
 	 */
-	void unregister_object(void *object);
+	void unregister_object(void* object);
 
-private:
+  private:
 	template <bool about, typename T, typename F, F f, typename... P>
-	void process_func_observers(T const* object, P && ... params)
+	void process_func_observers(T const* object, P&&... params)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
 
 		observables_t::accessor acc;
-		if (!_observables.find(acc, (void*) object)) {
+		if (!_observables.find(acc, (void*)object)) {
 			return;
 		}
 
@@ -583,11 +587,11 @@ private:
 		func_observers_t const& fobs(acc->second.func_observers);
 		func_observers_t::const_iterator it_fo, it_fo_e;
 #ifdef __GNUG__
-		// Disable warning for GCC for this line
+// Disable warning for GCC for this line
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
 #endif
-		std::tie(it_fo, it_fo_e) = fobs.equal_range((void*) f);
+		std::tie(it_fo, it_fo_e) = fobs.equal_range((void*)f);
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
 #endif
@@ -612,32 +616,32 @@ private:
 
 		for (size_t i = 0; i < len; ++i) {
 			const PVFuncObserverBase* fo = static_cast<const PVFuncObserverBase*>(func_obs[i]);
-			const PVFuncObserverSignal<T, F, f>* fo_signal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(fo);
+			const PVFuncObserverSignal<T, F, f>* fo_signal =
+			    dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(fo);
 
 			if (fo_signal) {
-				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;
+				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type
+				    arguments_deep_copy_type;
 
 				arguments_deep_copy_type* args = new arguments_deep_copy_type;
 				args->set_args(params...);
 
 				if (about) {
-					fo->do_about_to_be_updated((const void*) args);
+					fo->do_about_to_be_updated((const void*)args);
+				} else {
+					fo->do_update((const void*)args);
 				}
-				else {
-					fo->do_update((const void*) args);
-				}
-			}
-			else {
-				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
+			} else {
+				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type
+				    arguments_type;
 
 				arguments_type args;
 				args.set_args(params...);
 
 				if (about) {
-					fo->do_about_to_be_updated((const void*) &args);
-				}
-				else {
-					fo->do_update((const void*) &args);
+					fo->do_about_to_be_updated((const void*)&args);
+				} else {
+					fo->do_update((const void*)&args);
 				}
 			}
 		}
@@ -650,20 +654,26 @@ private:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f>
-	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args)
+	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(
+	    T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args)
 	{
 		// Unpack arguments
-		return do_call_object_default<T, F, f>(object, args, typename PVCore::PVTypeTraits::gen_seq_n<(int)PVCore::PVTypeTraits::function_traits<F>::arity>::type());
+		return do_call_object_default<T, F, f>(
+		    object, args, typename PVCore::PVTypeTraits::gen_seq_n<
+		                      (int)PVCore::PVTypeTraits::function_traits<F>::arity>::type());
 	}
 
 	template <typename T, typename F, F f, int... S>
-	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type do_call_object_default(T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args, PVCore::PVTypeTraits::seq_n<S...>)
+	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type do_call_object_default(
+	    T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args,
+	    PVCore::PVTypeTraits::seq_n<S...>)
 	{
 		return call_object_default<T, F, f>(object, std::get<S>(args)...);
 	}
 
 	template <typename T, typename F, F f, typename... P>
-	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(T* object, P && ... params)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type
+	call_object_default(T* object, P&&... params)
 	{
 		__impl::PVCallReturn<T, F, f> caller;
 
@@ -671,7 +681,7 @@ private:
 
 			observables_t::const_accessor acc;
 
-			if (_observables.find(acc, (void*) object)) {
+			if (_observables.find(acc, (void*)object)) {
 				/* TODO: be sure releasing acc is safe
 				 * RH: I think we may have the same problem than in
 				 * ::process_func_observers
@@ -701,37 +711,37 @@ private:
 	 *
 	 * @param object the object which has been modified
 	 */
-	void do_about_to_refresh_observers(void *object);
+	void do_about_to_refresh_observers(void* object);
 
 	/**
 	 * Propagate refresh event to all observers
 	 *
 	 * @param object the object which has been modified
 	 */
-	void do_refresh_observers(void *object);
-	void do_refresh_observers_maybe_recursive(void *object);
+	void do_refresh_observers(void* object);
+	void do_refresh_observers_maybe_recursive(void* object);
 
-private:
+  private:
 	// private to secure the singleton
 	PVHive() {}
 	~PVHive() {}
 	PVHive(const PVHive&) {}
-	PVHive &operator=(const PVHive&) { return *this; }
+	PVHive& operator=(const PVHive&) { return *this; }
 
-private:
+  private:
 	/**
 	 * Tests if observer is already registered
 	 *
 	 * @param observers the container
 	 * @param observer the observer to find
 	 */
-	bool already_registered(const observers_t &observers, const PVObserverBase &observer) const
+	bool already_registered(const observers_t& observers, const PVObserverBase& observer) const
 	{
 		return (std::find(observers.begin(), observers.end(), &observer) != observers.end());
 	}
 
-private:
-	static PVHive *_hive;
+  private:
+	static PVHive* _hive;
 
 	observables_t _observables;
 };
@@ -746,13 +756,11 @@ namespace __impl
 {
 
 // definition of hive_deleter
-inline void hive_deleter(void *ptr)
+inline void hive_deleter(void* ptr)
 {
 	PVHive::get().unregister_object(ptr);
 }
-
 }
-
 }
 
 #endif // LIBPVHIVE_PVHIVE_H

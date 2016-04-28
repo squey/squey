@@ -23,35 +23,35 @@
 
 #define SUBCLASSING_VERSION 0
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
-class PVAxesListModel: public QAbstractListModel
+class PVAxesListModel : public QAbstractListModel
 {
 	Q_OBJECT;
 
-public:
+  public:
 	PVAxesListModel(Inendi::PVView_sp& view_p, QObject* parent = NULL);
 
-public:
-	int rowCount(const QModelIndex &parent) const override;
+  public:
+	int rowCount(const QModelIndex& parent) const override;
 	int rowCount() const;
-	QVariant data(const QModelIndex &index, int role) const override;
-	Qt::ItemFlags flags(const QModelIndex &index) const override;
+	QVariant data(const QModelIndex& index, int role) const override;
+	Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-private slots:
+  private slots:
 	void about_to_be_deleted_slot(PVHive::PVObserverBase*);
 	void refresh_slot(PVHive::PVObserverBase*);
 
-protected:
+  protected:
 	inline Inendi::PVView const& inendi_view() const { return *_view_observer.get_object(); }
 
-private:
+  private:
 	bool _view_deleted;
 
 	// Observers
 	PVHive::PVObserverSignal<Inendi::PVView> _view_observer;
 };
-
 }
 
 #endif // __AXESLISTMODEL__H_

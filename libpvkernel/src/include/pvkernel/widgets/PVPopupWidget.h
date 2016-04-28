@@ -32,7 +32,7 @@ namespace PVWidgets
 
 class PVPopupWidget : public QWidget
 {
-public:
+  public:
 	/**
 	 * create a new popup widget
 	 *
@@ -42,7 +42,7 @@ public:
 	 */
 	PVPopupWidget(QWidget* parent);
 
-public:
+  public:
 	/**
 	 * make the popup visible at screen coord
 	 *
@@ -59,7 +59,7 @@ public:
 	 */
 	void setVisible(bool visible) override;
 
-public:
+  public:
 	/**
 	 * test if key is one of those to close the widget
 	 *
@@ -71,7 +71,7 @@ public:
 	 */
 	virtual bool is_close_key(int key);
 
-protected:
+  protected:
 	/**
 	 * reimplement QDialog::mouseMoveEvent(QMouseEvent)
 	 *
@@ -79,7 +79,6 @@ protected:
 	 */
 	void mouseMoveEvent(QMouseEvent* event) override;
 };
-
 }
 
 #endif // PVWIDGETS_PVPOPUPWIDGET_H

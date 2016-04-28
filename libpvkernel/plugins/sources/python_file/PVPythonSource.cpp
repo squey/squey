@@ -17,17 +17,15 @@
 
 #include <string>
 
-PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_chunk_size, const QString& python_file):
-	PVRawSourceBase(),
-	_python_file(python_file),
-	_min_chunk_size(min_chunk_size),
-	_next_index(0)
+PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_chunk_size,
+                                       const QString& python_file)
+    : PVRawSourceBase(), _python_file(python_file), _min_chunk_size(min_chunk_size), _next_index(0)
 {
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);
 
 	// This needs to be done before calling the locker, in case we are the first to use python.
-	
+
 	PVCore::PVPythonInitializer& python = PVCore::PVPythonInitializer::get();
 	PVCore::PVPythonLocker locker;
 
@@ -35,13 +33,12 @@ PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_ch
 
 	try {
 		// Load our script
-		boost::python::exec_file(qPrintable(python_file), _python_own_namespace, _python_own_namespace);
-		//boost::python::exec_file(qPrintable(python_file), _python_main, _python_main_namespace);
+		boost::python::exec_file(qPrintable(python_file), _python_own_namespace,
+		                         _python_own_namespace);
+		// boost::python::exec_file(qPrintable(python_file), _python_main, _python_main_namespace);
 		boost::python::object open_file_f = _python_own_namespace["inendi_open_file"];
 		open_file_f(file->path().toUtf8().constData());
-	}
-	catch (boost::python::error_already_set const&)
-	{
+	} catch (boost::python::error_already_set const&) {
 		PyErr_Print();
 		throw PVPythonExecException(python_file, "");
 	}
@@ -52,9 +49,7 @@ PVRush::PVPythonSource::~PVPythonSource()
 	PVCore::PVPythonLocker locker;
 	try {
 		_python_own_namespace["inendi_close"]();
-	}
-	catch (boost::python::error_already_set const&)
-	{
+	} catch (boost::python::error_already_set const&) {
 		PyErr_Print();
 	}
 }
@@ -69,9 +64,7 @@ void PVRush::PVPythonSource::seek_begin()
 	PVCore::PVPythonLocker locker;
 	try {
 		_python_own_namespace["inendi_seek_begin"]();
-	}
-	catch (boost::python::error_already_set const&)
-	{
+	} catch (boost::python::error_already_set const&) {
 		PyErr_Print();
 	}
 }
@@ -87,7 +80,8 @@ PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 
 	PVCore::PVChunk* chunk;
 	try {
-		boost::python::list elements = boost::python::extract<boost::python::list>(_python_own_namespace["inendi_get_next_chunk"](_min_chunk_size));
+		boost::python::list elements = boost::python::extract<boost::python::list>(
+		    _python_own_namespace["inendi_get_next_chunk"](_min_chunk_size));
 		nelts = boost::python::len(elements);
 		if (nelts == 0) {
 			// That's the end
@@ -115,19 +109,16 @@ PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 				elt->fields().push_back(f);
 			}
 		}
-	}
-	catch (boost::python::error_already_set const&)
-	{
+	} catch (boost::python::error_already_set const&) {
 		PyErr_Print();
 		return NULL;
 	}
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();
-	if (_next_index-1>_last_elt_index) {
-		_last_elt_index = _next_index-1;
+	if (_next_index - 1 > _last_elt_index) {
+		_last_elt_index = _next_index - 1;
 	}
 
 	return chunk;
 }
-

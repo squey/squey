@@ -1,15 +1,15 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/inendi_assert.h>
-#include <pvkernel/rush/PVPluginsLoad.h>                                        
+#include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/rush/PVSourceCreator.h>                                      
+#include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVUtils.h>
 
 // FIXME : It should not be include this way if plugins provide correct API.
@@ -39,16 +39,17 @@ int main()
 	 * It contains all information required to define data to extract
 	 */
 	std::string query_type = "json";
-	std::string query_str =
-		"{ \"query\" : { \"range\" : {"
-			"\"total_bytes\" : {"
-				"\"gte\": 350000"
-			"}"
-		 "} } }";
-	PVRush::PVInputDescription_p ind(new PVRush::PVElasticsearchQuery(infos, query_str.c_str(), query_type.c_str()));
+	std::string query_str = "{ \"query\" : { \"range\" : {"
+	                        "\"total_bytes\" : {"
+	                        "\"gte\": 350000"
+	                        "}"
+	                        "} } }";
+	PVRush::PVInputDescription_p ind(
+	    new PVRush::PVElasticsearchQuery(infos, query_str.c_str(), query_type.c_str()));
 
-	PVRush::PVSourceCreator_p sc = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("elasticsearch");
-	PVRush::PVFormat format;                                                    
+	PVRush::PVSourceCreator_p sc =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("elasticsearch");
+	PVRush::PVFormat format;
 	PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(ind, format);
 	auto& source = *src;
 

@@ -11,7 +11,9 @@
 #include <assert.h>
 #include <iostream>
 
-uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_serial(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret)
+uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_serial(uint8_t const* buffer,
+                                                                   size_t sbuf, size_t n,
+                                                                   size_t& size_ret)
 {
 	n++;
 	// n now is the number of '\0' that we have to look for
@@ -21,17 +23,19 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_serial(uint8_t const
 		if (buffer[i] == 0) {
 			nfound++;
 			if (nfound == n) {
-				size_ret = i-off_start;
+				size_ret = i - off_start;
 				return &buffer[off_start];
 			}
-			off_start = i+1;
+			off_start = i + 1;
 		}
 	}
 
 	return nullptr;
 }
 
-uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret, bool* complete)
+uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* buffer, size_t sbuf,
+                                                                size_t n, size_t& size_ret,
+                                                                bool* complete)
 {
 	if (complete) {
 		*complete = true;
@@ -49,28 +53,28 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* b
 	size_t i = 0;
 	const uint8_t align_idx = ((uintptr_t)buffer & (15U));
 	if (align_idx) {
-		const uint8_t read_align = 16-align_idx;
+		const uint8_t read_align = 16 - align_idx;
 		for (; i < read_align; i++) {
 			if (buffer[i] == 0) {
 				nfound++;
 				if (nfound == n) {
-					size_ret = i-off_start;
+					size_ret = i - off_start;
 					return &buffer[off_start];
 				}
-				off_start = i+1;
+				off_start = i + 1;
 			}
 		}
 	}
 
 	for (; i < sbuf_sse; i += 16) {
-		const __m128i sse_buf = _mm_load_si128((__m128i const*) &buffer[i]);
+		const __m128i sse_buf = _mm_load_si128((__m128i const*)&buffer[i]);
 		__m128i sse_cmp = _mm_cmpeq_epi8(sse_buf, _mm_setzero_si128());
 		if (_mm_test_all_zeros(sse_cmp, sse_ff)) {
 			continue;
 		}
 
 		const uint64_t b0 = _mm_extract_epi64(sse_cmp, 0);
-		const uint64_t b1 = _mm_extract_epi64(sse_cmp, 1); 
+		const uint64_t b1 = _mm_extract_epi64(sse_cmp, 1);
 		const size_t sse_found = (_mm_popcnt_u64(b0) + _mm_popcnt_u64(b1)) >> 3;
 		if ((sse_found == 1) && (nfound + 1) == n) {
 			// This branch should be fast as it covers most cases
@@ -220,16 +224,17 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* b
 		if (buffer[i] == 0) {
 			nfound++;
 			if (nfound == n) {
-				size_ret = i-off_start;
+				size_ret = i - off_start;
 				return &buffer[off_start];
 			}
-			off_start = i+1;
+			off_start = i + 1;
 		}
 	}
 
-	if (nfound == (n-1)) {
-		// When the last '\0' is not found, return the buffer with the partial size instead of nullptr
-		size_ret = i-off_start;
+	if (nfound == (n - 1)) {
+		// When the last '\0' is not found, return the buffer with the partial size instead of
+		// nullptr
+		size_ret = i - off_start;
 		if (complete) {
 			*complete = false;
 		}

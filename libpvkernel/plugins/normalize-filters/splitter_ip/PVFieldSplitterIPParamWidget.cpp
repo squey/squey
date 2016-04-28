@@ -26,8 +26,8 @@ constexpr size_t group_ipv6_count = 8;
  * PVFilter::PVFieldSplitterIPParamWidget::PVFieldSplitterCSVParamWidget
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterIPParamWidget::PVFieldSplitterIPParamWidget() :
-	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterIP()))
+PVFilter::PVFieldSplitterIPParamWidget::PVFieldSplitterIPParamWidget()
+    : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterIP()))
 {
 	_action_menu = new QAction(QString("add IP Splitter"), this);
 }
@@ -39,9 +39,9 @@ PVFilter::PVFieldSplitterIPParamWidget::PVFieldSplitterIPParamWidget() :
  *****************************************************************************/
 QAction* PVFilter::PVFieldSplitterIPParamWidget::get_action_menu()
 {
-    PVLOG_DEBUG("get action PVFieldSplitterIPParamWidget\n");
-    assert(_action_menu);
-    return _action_menu;
+	PVLOG_DEBUG("get action PVFieldSplitterIPParamWidget\n");
+	assert(_action_menu);
+	return _action_menu;
 }
 
 /******************************************************************************
@@ -56,7 +56,7 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 
 	QWidget* param_widget = new QWidget();
 
-	//get args
+	// get args
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
 	QVBoxLayout* layout = new QVBoxLayout(param_widget);
@@ -80,16 +80,15 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 	_cb_list.clear();
 	QVBoxLayout* groups_layout = new QVBoxLayout();
 	for (size_t i = 0; i < group_ipv6_count; i++) {
-		QLabel* label = new QLabel(QString("Group%1").arg(i+1));
+		QLabel* label = new QLabel(QString("Group%1").arg(i + 1));
 		_label_list.append(label);
 		groups_layout->addWidget(label, 0, Qt::AlignHCenter);
-		if (i < group_ipv6_count-1) {
+		if (i < group_ipv6_count - 1) {
 			QCheckBox* checkbox = new QCheckBox();
 			checkbox->setStyleSheet(
-				"QCheckBox::indicator {width: 22px; height: 22px; }"
-				"QCheckBox::indicator:checked{ image: url(:/scissors_on); }"
-				"QCheckBox::indicator:unchecked{ image: url(:/scissors_off); }"
-			);
+			    "QCheckBox::indicator {width: 22px; height: 22px; }"
+			    "QCheckBox::indicator:checked{ image: url(:/scissors_on); }"
+			    "QCheckBox::indicator:unchecked{ image: url(:/scissors_off); }");
 			checkbox->setCursor(QCursor(Qt::PointingHandCursor));
 			connect(checkbox, SIGNAL(stateChanged(int)), this, SLOT(update_child_count()));
 			_cb_list.append(checkbox);
@@ -133,17 +132,16 @@ void PVFilter::PVFieldSplitterIPParamWidget::set_ip_type(bool reset_groups_check
 		for (size_t i = 0; i < group_ipv6_count; i++) {
 			_label_list[i]->setText(QString("Group%1").arg(i));
 		}
-	}
-	else {
+	} else {
 		for (size_t i = 0; i < group_ipv4_count; i++) {
 			_label_list[i]->setText(QString("Quad%1").arg(i));
 		}
 	}
-	for (size_t i = group_ipv4_count-1; i < group_ipv6_count; i++) {
-		if (i < group_ipv6_count-1) {
+	for (size_t i = group_ipv4_count - 1; i < group_ipv6_count; i++) {
+		if (i < group_ipv6_count - 1) {
 			_cb_list[i]->setVisible(ipv6);
 		}
-		if (i > group_ipv4_count-1) {
+		if (i > group_ipv4_count - 1) {
 			_label_list[i]->setVisible(ipv6);
 		}
 	}
@@ -165,24 +163,22 @@ void PVFilter::PVFieldSplitterIPParamWidget::set_groups_check_state(bool check_a
 		bool ipv6 = _ipv6->isChecked();
 		QStringList list;
 		if (ipv6) {
-			for (size_t i = 0; i < group_ipv6_count-1; i++) {
+			for (size_t i = 0; i < group_ipv6_count - 1; i++) {
 				_cb_list[i]->setChecked(true);
 				list << QString::number(i);
 			}
-		}
-		else {
-			for (size_t i = 0; i < group_ipv4_count-1; i++) {
+		} else {
+			for (size_t i = 0; i < group_ipv4_count - 1; i++) {
 				_cb_list[i]->setChecked(true);
 				list << QString::number(i);
 			}
 		}
 		args["params"] = list.join(PVFieldSplitterIP::sep);
 		get_filter()->set_args(args);
-		set_child_count(list.size()+1);
+		set_child_count(list.size() + 1);
 		emit args_changed_Signal();
 		emit nchilds_changed_Signal();
-	}
-	else {
+	} else {
 		for (const QString& s : pl) {
 			size_t index = s.toUInt();
 			if (index < group_ipv6_count) {
@@ -204,7 +200,7 @@ void PVFilter::PVFieldSplitterIPParamWidget::update_child_count()
 	size_t n = 1;
 
 	QStringList list;
-	for (size_t i = 0; i < _group_count-1; i++) {
+	for (size_t i = 0; i < _group_count - 1; i++) {
 		if (_cb_list[i]->isChecked()) {
 			list << QString::number(i);
 			n++;
@@ -214,6 +210,6 @@ void PVFilter::PVFieldSplitterIPParamWidget::update_child_count()
 
 	get_filter()->set_args(args);
 	set_child_count(n);
-    emit args_changed_Signal();
+	emit args_changed_Signal();
 	emit nchilds_changed_Signal();
 }

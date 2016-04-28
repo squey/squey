@@ -24,7 +24,8 @@
 #include <QObject>
 #include <QStringList>
 
-namespace PVRush {
+namespace PVRush
+{
 
 /*! \brief Defines a job to import data.
  *
@@ -45,24 +46,21 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 	// This is defined as a QObject so that Qt objects can connect to the "job done" signal
 	Q_OBJECT
 
-public:
-	typedef enum _stop_cdtion
-	{
-		sc_n_elts,
-		sc_idx_end
-	} stop_cdtion;
+  public:
+	typedef enum _stop_cdtion { sc_n_elts, sc_idx_end } stop_cdtion;
 
 	typedef std::shared_ptr<PVControllerJob> p_type;
 
-public:
+  public:
 	/*! \brief Create a PVControllerJob object.
 	 */
 	PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
-		PVAggregator &agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter, size_t ntokens);
+	                PVAggregator& agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter,
+	                size_t ntokens);
 	PVControllerJob(PVControllerJob const&) = delete;
-	PVControllerJob(PVControllerJob &&) = delete;
+	PVControllerJob(PVControllerJob&&) = delete;
 	PVControllerJob& operator=(PVControllerJob const&) = delete;
-	PVControllerJob& operator=(PVControllerJob &&) = delete;
+	PVControllerJob& operator=(PVControllerJob&&) = delete;
 
 	bool done() const;
 	bool running() const;
@@ -82,43 +80,45 @@ public:
 	void run_job();
 	void run_read_all_job();
 
-public:
+  public:
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
-private:
-	tbb::filter_t<void,void> create_tbb_filter();
-	void job_has_run(); // Called when the job has finish to run
+  private:
+	tbb::filter_t<void, void> create_tbb_filter();
+	void job_has_run();                  // Called when the job has finish to run
 	void job_has_run_no_output_update(); // Called when the job has finish to run
 
 signals:
 	void job_done_signal();
 
-private:
+  private:
 	// Lists
 	std::map<size_t, std::string> _inv_elts; //!< Store all invalid elements.
-	
+
 	// Filters
 	PVFilter::PVChunkFilterDumpElts _elt_invalid_filter; //!< Filter that may dump every elements.
 
-	bool _job_done; //!< Wether the job is over or not. // FIXME : It should work but it doesn't for now
-	PVAggregator& _agg; //!< Aggregator use to generate chunks.
+	bool _job_done; //!< Wether the job is over or not. // FIXME : It should work but it doesn't for
+	// now
+	PVAggregator& _agg;                          //!< Aggregator use to generate chunks.
 	PVFilter::PVChunkFilterByElt& _split_filter; //!< Filter to split a line in multiple elements.
-	PVOutput& _out_filter; //!< Filter Saving chunk in the NRaw.
+	PVOutput& _out_filter;                       //!< Filter Saving chunk in the NRaw.
 
 	// Indexes are aggregator indexes !
 	chunk_index _idx_begin; //!< Line number where we start extraction.
-	chunk_index _idx_end; //!< Line number where we stop extraction (excluded)
+	chunk_index _idx_end;   //!< Line number where we stop extraction (excluded)
 	// Number of elements to read
-	chunk_index _max_n_elts; //!< Number of line we want to extract (Handle invalide elements so it is not begin - end)
+	chunk_index _max_n_elts; //!< Number of line we want to extract (Handle invalide elements so it
+	// is not begin - end)
 	size_t _ntokens; //!< Number of tokens use in the TBB pipeline process.
-	
+
 	// TBB doesn't provide a way to get state of the task (wether it is over or not)
-	std::future<void> _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
+	std::future<void>
+	    _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
 	PVPipelineTask* _pipeline; //!< The TBB pipeline performing data import.
 };
 
 typedef PVControllerJob::p_type PVControllerJob_p;
-
 }
 
 #endif

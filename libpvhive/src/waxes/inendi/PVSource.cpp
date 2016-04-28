@@ -16,9 +16,9 @@ IMPL_WAX(Inendi::PVSource::process_from_source, src, args)
 {
 	call_object_default<Inendi::PVSource, FUNC(Inendi::PVSource::process_from_source)>(src, args);
 
-	for (Inendi::PVView_sp& v: src->get_children<Inendi::PVView>()) {
+	for (Inendi::PVView_sp& v : src->get_children<Inendi::PVView>()) {
 		refresh_observers(&v->get_layer_stack_output_layer());
-		//refresh_observers(&v->get_pre_filter_layer());
+		// refresh_observers(&v->get_pre_filter_layer());
 		refresh_observers(&v->get_post_filter_layer());
 		refresh_observers(&v->get_output_layer());
 		refresh_observers(&v->get_real_output_selection());

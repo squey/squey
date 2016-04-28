@@ -11,14 +11,15 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvdisplays/PVDisplayIf.h>
 
-namespace PVDisplays {
-
-class PVDisplayViewZoomedParallel: public PVDisplayViewAxisIf
+namespace PVDisplays
 {
-public:
+
+class PVDisplayViewZoomedParallel : public PVDisplayViewAxisIf
+{
+  public:
 	PVDisplayViewZoomedParallel();
 
-public:
+  public:
 	QWidget* create_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent) const override;
 	QIcon toolbar_icon() const override;
 	QString widget_title(Inendi::PVView* view, PVCol axis_comb) const override;
@@ -26,7 +27,6 @@ public:
 
 	CLASS_REGISTRABLE(PVDisplayViewZoomedParallel)
 };
-
 }
 
 #endif // PVDISPLAYS_PVDISPLAYVIEWZOOMEDPARALLEL_H

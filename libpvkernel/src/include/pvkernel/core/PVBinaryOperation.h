@@ -10,10 +10,10 @@
 
 #include <QString>
 
-namespace PVCore {
-
-enum PVBinaryOperation
+namespace PVCore
 {
+
+enum PVBinaryOperation {
 	FIRST_BINOP = 0,
 	OR = FIRST_BINOP,
 	AND,
@@ -25,7 +25,6 @@ enum PVBinaryOperation
 };
 
 QString get_binary_operation_name(PVBinaryOperation binop);
-
 }
 
 #endif

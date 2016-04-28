@@ -16,7 +16,6 @@ namespace Inendi
 {
 
 class PVView;
-
 }
 
 namespace PVParallelView
@@ -24,18 +23,17 @@ namespace PVParallelView
 
 class PVZoomedParallelView;
 
-
 class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	/**
 	 * create a selection rectangle for hit-count view
 	 *
 	 * @param hcv the "parent" hit-count view
 	 */
-	PVZoomedParallelViewSelectionLine(PVZoomedParallelView *zpv);
+	PVZoomedParallelViewSelectionLine(PVZoomedParallelView* zpv);
 
 	/**
 	 * DTOR!
@@ -56,11 +54,10 @@ public:
 	 * @param option the QGrapghicsItem's style to use
 	 * @param widget the widget requesting the paint (consider it as null)
 	 */
-	void paint(QPainter *painter,
-	           const QStyleOptionGraphicsItem *option,
-	           QWidget *widget = nullptr) override;
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = nullptr) override;
 
-public:
+  public:
 	/**
 	 * clear the selection line
 	 */
@@ -92,23 +89,23 @@ public:
 	 *
 	 * @param p the current scene coordinate
 	 */
-	void begin(const QPointF &p);
+	void begin(const QPointF& p);
 
 	/**
 	 * process a step in selection line creation
 	 *
 	 * @param p the current scene coordinate
 	 */
-	void step(const QPointF &p, bool need_timer = true);
+	void step(const QPointF& p, bool need_timer = true);
 
 	/**
 	 * finalize a selection line creation
 	 *
 	 * @param p the current scene coordinate
 	 */
-	void end(const QPointF &p);
+	void end(const QPointF& p);
 
-public:
+  public:
 	/**
 	 * set the view related scale factor
 	 *
@@ -125,7 +122,7 @@ signals:
 	 */
 	void commit_volatile_selection();
 
-protected:
+  protected:
 	/**
 	 * start the internal timer used to start the selection update
 	 */
@@ -136,25 +133,24 @@ protected:
 	 *
 	 * @return the zoomed parallel view
 	 */
-	PVZoomedParallelView *get_zpview() { return _zpv; }
+	PVZoomedParallelView* get_zpview() { return _zpv; }
 
-protected slots:
+  protected slots:
 	/**
 	 * the timeout slot
 	 */
 	void timeout();
 
-private:
-	QTimer               *_timer;
-	PVZoomedParallelView *_zpv;
-	QPointF               _ref_pos;
-	QPointF               _tl_pos;
-	QPointF               _br_pos;
-	QColor                _pen_color;
-	qreal                 _x_scale;
-	qreal                 _y_scale;
+  private:
+	QTimer* _timer;
+	PVZoomedParallelView* _zpv;
+	QPointF _ref_pos;
+	QPointF _tl_pos;
+	QPointF _br_pos;
+	QColor _pen_color;
+	qreal _x_scale;
+	qreal _y_scale;
 };
-
 }
 
 #endif // PVZOOMEDPARALLELVIEWSELECTIONLINE_H

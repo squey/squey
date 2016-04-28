@@ -37,10 +37,9 @@ namespace PVParallelView
  * \f$z2s_{dec}(zoom) = 2^{zoom \bmod N}\f$
  */
 
-template <int STEPS = 5>
-class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
+template <int STEPS = 5> class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
 {
-public:
+  public:
 	/**
 	 * store the template parameter STEPS
 	 */
@@ -66,10 +65,7 @@ public:
 	 *
 	 * @return the integer part of the zoom_to_scale() formula
 	 */
-	qreal zoom_to_scale_integer(const int value) const
-	{
-		return pow(2.0, value / zoom_steps);
-	}
+	qreal zoom_to_scale_integer(const int value) const { return pow(2.0, value / zoom_steps); }
 
 	/**
 	 * Returns the decimal part of the zoom_to_scale() formula
@@ -81,7 +77,6 @@ public:
 		return pow(root_step, value % zoom_steps);
 	}
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMCONVERTERSCALEDPOWEROFTWO_H

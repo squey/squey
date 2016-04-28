@@ -7,8 +7,7 @@
 
 #include "PVMappingFilterTimeWeek.h"
 
-Inendi::PVMappingFilterTimeWeek::PVMappingFilterTimeWeek():
-	PVMappingFilter()
+Inendi::PVMappingFilterTimeWeek::PVMappingFilterTimeWeek() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterTimeWeek);
 }

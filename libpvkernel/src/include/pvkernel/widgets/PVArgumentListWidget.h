@@ -20,20 +20,22 @@
 
 #include <pvkernel/core/PVArgument.h>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 class PVArgumentListModel;
 
-class PVArgumentListWidget: public QWidget
+class PVArgumentListWidget : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVArgumentListWidget(QWidget* parent = NULL);
 	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent = NULL);
-	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent = NULL);
+	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList& args,
+	                     QWidget* parent = NULL);
 	virtual ~PVArgumentListWidget();
-	//bool eventFilter(QObject *obj, QEvent *event);
+	// bool eventFilter(QObject *obj, QEvent *event);
 	void set_args(PVCore::PVArgumentList& args);
 	void set_args_values(PVCore::PVArgumentList const& args);
 	void set_widget_factory(QItemEditorFactory* factory);
@@ -41,43 +43,45 @@ public:
 	inline void clear_args_state() { _args_has_changed = false; }
 	PVCore::PVArgumentList* get_args() { return _args; }
 
-public slots:
+  public slots:
 	inline void force_submit() { _mapper->submit(); }
 
-public:
-	static QDialog* create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
-	static bool modify_arguments_dlg(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
+  public:
+	static QDialog* create_dialog_for_arguments(QItemEditorFactory* widget_factory,
+	                                            PVCore::PVArgumentList& args,
+	                                            QWidget* parent = NULL);
+	static bool modify_arguments_dlg(QItemEditorFactory* widget_factory,
+	                                 PVCore::PVArgumentList& args, QWidget* parent = NULL);
 
-private:
+  private:
 	void init_widgets();
 
-private slots:
-	void args_changed_Slot(const QModelIndex& a = QModelIndex(), const QModelIndex& b = QModelIndex());
+  private slots:
+	void args_changed_Slot(const QModelIndex& a = QModelIndex(),
+	                       const QModelIndex& b = QModelIndex());
 
 signals:
 	void args_changed_Signal();
 
-/* public slots: */
-/* 	void widget_clicked_Slot(); */
+	/* public slots: */
+	/* 	void widget_clicked_Slot(); */
 
-protected:
-	QItemEditorFactory*       _args_widget_factory;
-	PVCore::PVArgumentList*   _args;
-	QDataWidgetMapper*        _mapper;
+  protected:
+	QItemEditorFactory* _args_widget_factory;
+	PVCore::PVArgumentList* _args;
+	QDataWidgetMapper* _mapper;
 
-	QGridLayout*              _args_layout;
-	PVArgumentListModel*      _args_model;
+	QGridLayout* _args_layout;
+	PVArgumentListModel* _args_model;
 
 	// Standard buttons
-	QPushButton*              _apply_btn;
-	QPushButton*              _cancel_btn;
-	QHBoxLayout*              _btn_layout;
+	QPushButton* _apply_btn;
+	QPushButton* _cancel_btn;
+	QHBoxLayout* _btn_layout;
 
-private:
+  private:
 	bool _args_has_changed;
 };
-
-
 }
 
 #endif

@@ -31,32 +31,18 @@ namespace PVHive
  * - for "about_to_be_deleted" event:
  *   void connect_about_to_be_deleted(QObject* receiver, const char *slot);
  */
-template <class T>
-class PVObserverSignal : public __impl::PVRefreshSignal, public PVObserver<T>
+template <class T> class PVObserverSignal : public __impl::PVRefreshSignal, public PVObserver<T>
 {
-public:
-	PVObserverSignal(QObject* parent = NULL) :
-		__impl::PVRefreshSignal(parent),
-		PVObserver<T>()
-	{}
+  public:
+	PVObserverSignal(QObject* parent = NULL) : __impl::PVRefreshSignal(parent), PVObserver<T>() {}
 
-protected:
-	virtual void about_to_be_refreshed()
-	{
-		emit_about_to_be_refreshed_signal(this);
-	}
+  protected:
+	virtual void about_to_be_refreshed() { emit_about_to_be_refreshed_signal(this); }
 
-	virtual void refresh()
-	{
-		emit_refresh_signal(this);
-	}
+	virtual void refresh() { emit_refresh_signal(this); }
 
-	virtual void about_to_be_deleted()
-	{
-		emit_about_to_be_deleted_signal(this);
-	}
+	virtual void about_to_be_deleted() { emit_about_to_be_deleted_signal(this); }
 };
-
 }
 
 #endif // LIBPVHIVE_PVOBSERVERSIGNAL_H

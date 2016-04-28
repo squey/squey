@@ -14,19 +14,22 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/core/PVElement.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVElementFilterByFields : public PVElementFilter {
-public:
+class PVElementFilterByFields : public PVElementFilter
+{
+  public:
 	PVElementFilterByFields(PVFieldsBaseFilter_f fields_f);
-public:
+
+  public:
 	PVCore::PVElement& operator()(PVCore::PVElement& elt);
-protected:
+
+  protected:
 	PVFieldsBaseFilter_f _ff;
 
 	CLASS_FILTER_NONREG_NOPARAM(PVElementFilterByFields)
 };
-
 }
 
 #endif

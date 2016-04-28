@@ -8,8 +8,9 @@
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
-PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* parent, Qt::WindowFlags f) :
-	QWidget(parent, f)
+PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* parent,
+                                            Qt::WindowFlags f)
+    : QWidget(parent, f)
 {
 	// groupBox
 	_group_box = new QGroupBox(title);
@@ -18,7 +19,7 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* paren
 	setObjectName("PVPresetsWidget");
 	_toolbar = new QToolBar("Presets Widget ToolBar");
 	_toolbar->setObjectName("QToolBar_of_PVPresetsWidget");
-	_toolbar->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+	_toolbar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	_toolbar->setIconSize(QSize(22, 22));
 	QHBoxLayout* toolbar_layout = new QHBoxLayout();
 	toolbar_layout->addStretch(1);
@@ -49,7 +50,8 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* paren
 	connect(_renameAct, SIGNAL(triggered()), this, SLOT(rename_Slot()));
 	connect(_removeAct, SIGNAL(triggered()), this, SLOT(remove_Slot()));
 	connect(_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(load_Slot()));
-	connect(_list, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(item_changed_Slot(QListWidgetItem*)));
+	connect(_list, SIGNAL(itemChanged(QListWidgetItem*)), this,
+	        SLOT(item_changed_Slot(QListWidgetItem*)));
 
 	// Layout
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -119,10 +121,9 @@ void PVWidgets::PVPresetsWidget::load_Slot()
 	}
 
 	_list->blockSignals(true);
-	for (int i = 0; i < _list->count(); i++)
-	{
+	for (int i = 0; i < _list->count(); i++) {
 		QListWidgetItem* it = _list->item(i);
-		it->setFlags(it->flags() &~ Qt::ItemIsEditable);
+		it->setFlags(it->flags() & ~Qt::ItemIsEditable);
 	}
 	_list->blockSignals(false);
 
@@ -142,8 +143,7 @@ void PVWidgets::PVPresetsWidget::save_Slot()
 			_list->setCurrentItem(item);
 			emit btn_new_clicked_Signal(preset);
 			update_actions_availability();
-		}
-		else {
+		} else {
 			emit btn_save_clicked_Signal(preset);
 		}
 	}
@@ -159,34 +159,36 @@ void PVWidgets::PVPresetsWidget::rename_Slot()
 	_old_preset_name = item->text();
 
 	_list->blockSignals(true);
-	item->setFlags(item->flags ()|Qt::ItemIsEditable);
+	item->setFlags(item->flags() | Qt::ItemIsEditable);
 	_list->blockSignals(false);
 	_list->editItem(item);
-
 }
 
 void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 {
 	_list->blockSignals(true);
-	item->setFlags(item->flags() &~ Qt::ItemIsEditable);
+	item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 
 	QString new_preset_name = item->text();
 
 	// Invalid preset name
 	if (new_preset_name.isEmpty()) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid preset"), tr("Invalid preset name"), QMessageBox::Ok, this);
+		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid preset"),
+		                                   tr("Invalid preset name"), QMessageBox::Ok, this);
 		box->exec();
 		new_preset_name = _old_preset_name;
 		item->setText(new_preset_name);
 	}
 	// Already existing preset
-	else if(_list->findItems(new_preset_name, Qt::MatchFixedString).count() > 1) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Existing preset"), tr("The preset \"%1\" already exists. Replace?").arg(item->text()), QMessageBox::Yes | QMessageBox::No, this);
+	else if (_list->findItems(new_preset_name, Qt::MatchFixedString).count() > 1) {
+		QMessageBox* box =
+		    new QMessageBox(QMessageBox::Question, tr("Existing preset"),
+		                    tr("The preset \"%1\" already exists. Replace?").arg(item->text()),
+		                    QMessageBox::Yes | QMessageBox::No, this);
 		if (box->exec() == QMessageBox::Yes) {
 			delete _list->takeItem(_list->currentRow());
 			update_actions_availability();
-		}
-		else {
+		} else {
 			new_preset_name = _old_preset_name;
 			item->setText(new_preset_name);
 		}
@@ -208,21 +210,20 @@ void PVWidgets::PVPresetsWidget::update_actions_availability()
 	_renameAct->setEnabled(enabled);
 	_removeAct->setEnabled(enabled);
 
-//	_list->removeAction(_loadAct);
-//	_list->removeAction(_saveAct);
-//	_list->removeAction(_renameAct);
-//	_list->removeAction(_removeAct);
-//
-//	if (enabled) {
-//		_list->addAction(_loadAct);
-//		_list->addAction(_saveAct);
-//		_list->addAction(_renameAct);
-//		_list->addAction(_removeAct);
-//	}
-//	else {
-//		_list->addAction(_saveAct);
-//	}
-
+	//	_list->removeAction(_loadAct);
+	//	_list->removeAction(_saveAct);
+	//	_list->removeAction(_renameAct);
+	//	_list->removeAction(_removeAct);
+	//
+	//	if (enabled) {
+	//		_list->addAction(_loadAct);
+	//		_list->addAction(_saveAct);
+	//		_list->addAction(_renameAct);
+	//		_list->addAction(_removeAct);
+	//	}
+	//	else {
+	//		_list->addAction(_saveAct);
+	//	}
 }
 
 void PVWidgets::PVPresetsWidget::remove_Slot()
@@ -232,7 +233,10 @@ void PVWidgets::PVPresetsWidget::remove_Slot()
 		return;
 	}
 	QString preset = item->text();
-	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm delete"), tr("Are you sure you want to delete preset \"%1\"?").arg(preset), QMessageBox::Yes | QMessageBox::No, this);
+	QMessageBox* box =
+	    new QMessageBox(QMessageBox::Question, tr("Confirm delete"),
+	                    tr("Are you sure you want to delete preset \"%1\"?").arg(preset),
+	                    QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
 		emit btn_remove_clicked_Signal(preset);
 		delete _list->takeItem(_list->currentRow());
@@ -245,15 +249,16 @@ bool PVWidgets::PVPresetsWidget::is_preset_txt_new(const QString& str) const
 	return _list->findItems(str, Qt::MatchFixedString).count() == 0;
 }
 
-PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*= 0*/, Qt::WindowFlags /*f = 0*/) :
-	QDialog(parent, Qt::Dialog),
-	_parent(parent)
+PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*= 0*/,
+                                                      Qt::WindowFlags /*f = 0*/)
+    : QDialog(parent, Qt::Dialog), _parent(parent)
 {
 	setWindowModality(Qt::WindowModal);
 
 	// Buttons
 	_btn_save = new QPushButton(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"));
-	QPushButton* btn_cancel = new QPushButton(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Cancel"));
+	QPushButton* btn_cancel =
+	    new QPushButton(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Cancel"));
 	connect(_btn_save, SIGNAL(clicked()), this, SLOT(save_Slot()));
 	connect(btn_cancel, SIGNAL(clicked()), this, SLOT(reject()));
 
@@ -262,20 +267,20 @@ PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*
 
 	// ComboBox
 	_comboBox = new QComboBox();
-	connect(_comboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(text_changed_Slot(const QString &)));
+	connect(_comboBox, SIGNAL(editTextChanged(const QString&)), this,
+	        SLOT(text_changed_Slot(const QString&)));
 	_comboBox->setEditable(true);
-	if (! _parent->_last_preset_loaded.isEmpty()) {
+	if (!_parent->_last_preset_loaded.isEmpty()) {
 		_comboBox->addItem(_parent->_last_preset_loaded);
 		_comboBox->insertSeparator(1);
 	}
-	for (int i = 0 ; i < _parent->_list->count() ; i++) {
+	for (int i = 0; i < _parent->_list->count(); i++) {
 		_comboBox->addItem(_parent->_list->item(i)->text());
 	}
 	QListWidgetItem* parent_selected_item = _parent->_list->currentItem();
 	if (parent_selected_item /*&& parent_selected_item->text() != _parent->_last_preset_loaded*/) {
 		_comboBox->setEditText(parent_selected_item->text());
-	}
-	else {
+	} else {
 		_comboBox->setEditText("");
 	}
 
@@ -295,10 +300,10 @@ PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*
 void PVWidgets::PVSavePresetAsDialog::save_Slot()
 {
 	if (_comboBox->currentText().isEmpty()) {
-		QMessageBox err(QMessageBox::Critical, tr("Invalid preset"), tr("This preset name is invalid."), QMessageBox::Ok);
+		QMessageBox err(QMessageBox::Critical, tr("Invalid preset"),
+		                tr("This preset name is invalid."), QMessageBox::Ok);
 		err.exec();
-	}
-	else {
+	} else {
 		accept();
 	}
 }
@@ -308,8 +313,7 @@ void PVWidgets::PVSavePresetAsDialog::text_changed_Slot(const QString& text)
 	if (_comboBox->findText(text, Qt::MatchFixedString) != -1) {
 		_btn_save->setText("Save");
 		_btn_save->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
-	}
-	else {
+	} else {
 		_btn_save->setText("New");
 		_btn_save->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
 	}

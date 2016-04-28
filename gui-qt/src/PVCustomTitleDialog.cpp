@@ -12,8 +12,8 @@
 #include <QRect>
 #include <QStyleOptionTitleBar>
 
-PVInspector::PVCustomTitleDialog::PVCustomTitleDialog(QWidget* parent, Qt::WindowFlags f):
-	QDialog(parent, f | Qt::FramelessWindowHint)
+PVInspector::PVCustomTitleDialog::PVCustomTitleDialog(QWidget* parent, Qt::WindowFlags f)
+    : QDialog(parent, f | Qt::FramelessWindowHint)
 {
 }
 
@@ -35,7 +35,8 @@ void PVInspector::PVCustomTitleDialog::paintEvent(QPaintEvent* /*event*/)
 	t_opt.titleBarFlags = windowFlags();
 	t_opt.text = t_opt.fontMetrics.elidedText(windowTitle(), Qt::ElideRight, t_opt.rect.width());
 	style->drawComplexControl(QStyle::CC_TitleBar, &t_opt, &p, this);
-	style->drawItemText(&p, t_opt.rect, Qt::AlignCenter, t_opt.palette, true, t_opt.text, QPalette::ToolTipText);
+	style->drawItemText(&p, t_opt.rect, Qt::AlignCenter, t_opt.palette, true, t_opt.text,
+	                    QPalette::ToolTipText);
 
 	// Background widget.
 	active_area.setTopLeft(QPoint(0, titlebar_height));

@@ -24,14 +24,10 @@ namespace PVWidgets
  */
 class PVLayerNamingPatternDialog : public QDialog
 {
-public:
-	enum insert_mode {
-		ON_TOP = 0,
-		ABOVE_CURRENT,
-		BELOW_CURRENT
-	};
+  public:
+	enum insert_mode { ON_TOP = 0, ABOVE_CURRENT, BELOW_CURRENT };
 
-public:
+  public:
 	/**
 	 * CTOR
 	 *
@@ -41,10 +37,8 @@ public:
 	 * @param m the default mode
 	 * @param parent the parent widget
 	 */
-	PVLayerNamingPatternDialog(const QString& title,
-	                           const QString& text,
-	                           const QString& pattern = "%v",
-	                           insert_mode m = ON_TOP,
+	PVLayerNamingPatternDialog(const QString& title, const QString& text,
+	                           const QString& pattern = "%v", insert_mode m = ON_TOP,
 	                           QWidget* parent = nullptr);
 
 	/**
@@ -61,11 +55,10 @@ public:
 	 */
 	insert_mode get_insertion_mode() const;
 
-private:
+  private:
 	QLineEdit* _line_edit;
 	QComboBox* _combo_box;
 };
-
 }
 
 #endif // PVWIDGETS_PVLAYERNAMINGPATTERNDIALOG_H

@@ -10,7 +10,8 @@
 
 #include <QWidget>
 
-namespace PVInspector {
+namespace PVInspector
+{
 class PVMainWindow;
 
 /**
@@ -18,28 +19,29 @@ class PVMainWindow;
  */
 class PVDualSlider : public QWidget
 {
-Q_OBJECT
+	Q_OBJECT
 
-	PVMainWindow *main_window;
+	PVMainWindow* main_window;
 	float kx;
 	float ky;
 	QPointF last_mouse_press_position;
 	float left_margin;
 	QPolygonF left_slider_polygon;
-	QPainter *painter;
+	QPainter* painter;
 	int SELECTED_SLIDER;
 	float right_margin;
 	QPolygonF right_slider_polygon;
 	float SLIDER_WIDTH;
-	float sliders_positions [2];
+	float sliders_positions[2];
 	QPolygonF sliders_relative_extents;
 	float XMAX;
 	float YMAX;
-public:
+
+  public:
 	/**
 	 * Constructor
 	 */
-	PVDualSlider(PVMainWindow *mw, QWidget *parent = 0);
+	PVDualSlider(PVMainWindow* mw, QWidget* parent = 0);
 
 	/**
 	 * Gets the index of the closest sliders from position x
@@ -49,7 +51,7 @@ public:
 	 * @return The index (int) of the selected slider
 	 */
 	int get_selected_slider_index(float x);
-	
+
 	/**
 	 * Get the actual value of the slider
 	 *
@@ -60,18 +62,17 @@ public:
 	float get_slider_value(int index);
 	QSize sizeHint();
 
-public slots:
+  public slots:
 	void toggle_visibility_Slot();
 
 signals:
 	void value_changed_Signal();
 
-protected:
-	void mouseMoveEvent(QMouseEvent *event);
-	void mousePressEvent(QMouseEvent *event);
-	void mouseReleaseEvent(QMouseEvent *event);
-	void paintEvent(QPaintEvent *event);
-
+  protected:
+	void mouseMoveEvent(QMouseEvent* event);
+	void mousePressEvent(QMouseEvent* event);
+	void mouseReleaseEvent(QMouseEvent* event);
+	void paintEvent(QPaintEvent* event);
 };
 }
 

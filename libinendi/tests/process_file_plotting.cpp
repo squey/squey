@@ -32,7 +32,8 @@
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " file format [raw_dump] [raw_dump_transpose] [output]" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " file format [raw_dump] [raw_dump_transpose] [output]"
+		          << std::endl;
 		return 1;
 	}
 
@@ -110,7 +111,8 @@ int main(int argc, char** argv)
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
 	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
 	scene->set_parent(root);
-	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Inendi::PVSource_sp src(
+	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	src->set_parent(scene);
 	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
 	mapped->set_parent(src);
@@ -137,10 +139,9 @@ int main(int argc, char** argv)
 		PVLOG_INFO("Writing output...\n");
 		plotted->dump_buffer_to_file(out_path, raw_dump_transp);
 		PVLOG_INFO("Done !\n");
-	}
-	else {
+	} else {
 		// Dump the mapped table to stdout in a CSV format
-		//plotted->to_csv();
+		// plotted->to_csv();
 	}
 
 	return 0;

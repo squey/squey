@@ -60,7 +60,8 @@ int main(int argc, char** argv)
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
 	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
 	scene->set_parent(root);
-	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Inendi::PVSource_sp src(
+	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	src->set_parent(scene);
 	scene->add_source(src);
 	PVRush::PVControllerJob_p job = src->extract();
@@ -70,7 +71,8 @@ int main(int argc, char** argv)
 	src->get_rushnraw().dump_csv();
 
 	// Serialize the scene
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
+	PVCore::PVSerializeArchive_p ar(
+	    new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
 	ar->get_root()->object("scene", *scene);
 	ar->finish();
 
@@ -88,11 +90,12 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	src = srcs.at(0)->shared_from_this();
-	
+
 	job = src->extract();
 	job->wait_end();
 
-	std::cerr << "--------" << std::endl << "New output: " << std::endl << "----------" << std::endl << std::endl;
+	std::cerr << "--------" << std::endl << "New output: " << std::endl << "----------" << std::endl
+	          << std::endl;
 	// Dump the NRAW
 	src->get_rushnraw().dump_csv();
 

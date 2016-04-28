@@ -39,89 +39,85 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "qkeysequencewidget.h"
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 class QShortcutButton;
 class QKeySequenceWidget;
 
 class QKeySequenceWidgetPrivate // : public QObject
 {
-    //Q_OBJECT
-    Q_DECLARE_PUBLIC(QKeySequenceWidget);
-    
-public:
-    QKeySequenceWidget * q_ptr;
+	// Q_OBJECT
+	Q_DECLARE_PUBLIC(QKeySequenceWidget);
 
-    QKeySequenceWidgetPrivate();
-    virtual ~QKeySequenceWidgetPrivate();
+  public:
+	QKeySequenceWidget* q_ptr;
 
-    void init(const QKeySequence keySeq, const QString noneStr);
-    void updateView();
+	QKeySequenceWidgetPrivate();
+	virtual ~QKeySequenceWidgetPrivate();
 
-    void startRecording();
-    void doneRecording();
-    inline void cancelRecording();
-    inline void controlModifierlessTimout();
-    inline void keyNotSupported();
+	void init(const QKeySequence keySeq, const QString noneStr);
+	void updateView();
 
-    void updateDisplayShortcut();
+	void startRecording();
+	void doneRecording();
+	inline void cancelRecording();
+	inline void controlModifierlessTimout();
+	inline void keyNotSupported();
 
-    // members
-    QKeySequence currentSequence;
-    QKeySequence oldSequence;
-    QString noneSequenceText;
+	void updateDisplayShortcut();
 
-    QTimer modifierlessTimeout;
+	// members
+	QKeySequence currentSequence;
+	QKeySequence oldSequence;
+	QString noneSequenceText;
 
-    quint32 numKey;
+	QTimer modifierlessTimeout;
+
+	quint32 numKey;
 	quint32 maxNumKey;
-    quint32 modifierKeys;
+	quint32 modifierKeys;
 
-    void setToolTip(const QString& tip);
+	void setToolTip(const QString& tip);
 
-    QHBoxLayout *layout;
-    QToolButton *clearButton;
-    QShortcutButton *shortcutButton;
+	QHBoxLayout* layout;
+	QToolButton* clearButton;
+	QShortcutButton* shortcutButton;
 
-    int showClearButton;
+	int showClearButton;
 
-    bool isRecording;
-
+	bool isRecording;
 };
 
 class QShortcutButton : public QPushButton
 {
-    Q_OBJECT
+	Q_OBJECT
 
-public:
-    explicit QShortcutButton(QKeySequenceWidgetPrivate *p, QWidget *parent = 0)
-        :  QPushButton(parent)
-        , d(p)
-    {
-        /* qDebug() << "qShortcut button Create"; */
-        /* qDebug() << "parent----" << parent; */
+  public:
+	explicit QShortcutButton(QKeySequenceWidgetPrivate* p, QWidget* parent = 0)
+	    : QPushButton(parent), d(p)
+	{
+		/* qDebug() << "qShortcut button Create"; */
+		/* qDebug() << "parent----" << parent; */
 
-        /* qDebug() << "visible " << isVisible();       */
-        setMinimumWidth(QPushButton::minimumWidth());
-        QPushButton::setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    }
+		/* qDebug() << "visible " << isVisible();       */
+		setMinimumWidth(QPushButton::minimumWidth());
+		QPushButton::setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	}
 
-    virtual ~QShortcutButton()
-    {
-    }
+	virtual ~QShortcutButton() {}
 
-    virtual QSize sizeHint() const;
+	virtual QSize sizeHint() const;
 
-protected:
-    // Reimplemented for internal reasons.
-    virtual bool event(QEvent *e);
-    virtual void keyPressEvent(QKeyEvent *keyEvent);
-    virtual void keyReleaseEvent(QKeyEvent *keyEvent);
+  protected:
+	// Reimplemented for internal reasons.
+	virtual bool event(QEvent* e);
+	virtual void keyPressEvent(QKeyEvent* keyEvent);
+	virtual void keyReleaseEvent(QKeyEvent* keyEvent);
 
-private:
-    QKeySequenceWidgetPrivate * const d;
+  private:
+	QKeySequenceWidgetPrivate* const d;
 };
-
 }
 
 #endif // QKEYSEQUENCEWIDGET_P_H

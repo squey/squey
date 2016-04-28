@@ -28,11 +28,13 @@ class QResizeEvent;
 class QEvent;
 class QGLFormat;
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 class PVGraphicsViewInteractorScene;
 
-namespace __impl {
+namespace __impl
+{
 class PVViewportEventFilter;
 }
 
@@ -80,28 +82,23 @@ class PVGraphicsView : public QWidget
 
 	typedef std::vector<PVGraphicsViewInteractorBase*> interactor_enum_t;
 	typedef std::list<PVGraphicsViewInteractorBase*> interactor_list_t;
-	typedef std::map<QEvent::Type, interactor_list_t > interactor_affectation_map_t;
+	typedef std::map<QEvent::Type, interactor_list_t> interactor_affectation_map_t;
 
-public:
-	typedef enum {
-		NoAnchor,
-		AnchorViewCenter,
-		AnchorUnderMouse
-	} ViewportAnchor;
+  public:
+	typedef enum { NoAnchor, AnchorViewCenter, AnchorUnderMouse } ViewportAnchor;
 
-public:
-	PVGraphicsView(QWidget *parent = nullptr);
+  public:
+	PVGraphicsView(QWidget* parent = nullptr);
 
-	PVGraphicsView(QGraphicsScene *scene = nullptr,
-	               QWidget *parent = nullptr);
+	PVGraphicsView(QGraphicsScene* scene = nullptr, QWidget* parent = nullptr);
 
 	~PVGraphicsView();
 
-public:
+  public:
 	/**
 	 * Returns the viewport.
 	 */
-	QWidget *get_viewport() const;
+	QWidget* get_viewport() const;
 
 	/**
 	 * Set the viewport's widget.
@@ -134,37 +131,31 @@ public:
 	 */
 	void set_viewport_cursor(const QCursor& cursor);
 
-public:
+  public:
 	/**
 	 * Sets displayed scene.
 	 *
 	 * @param scene the new used QGraphicsScene
 	 */
-	void set_scene(QGraphicsScene *scene);
+	void set_scene(QGraphicsScene* scene);
 
 	/**
 	 * Returns the displayed scene.
 	 */
-	QGraphicsScene *get_scene()
-	{
-		return _scene;
-	}
+	QGraphicsScene* get_scene() { return _scene; }
 
 	/**
 	 * Returns the displayed scene.
 	 */
-	const QGraphicsScene *get_scene() const
-	{
-		return _scene;
-	}
+	const QGraphicsScene* get_scene() const { return _scene; }
 
-public:
+  public:
 	/**
 	 * Maps a point from margined viewport's space to scene's space.
 	 *
 	 * @param p the point to transform in scene space
 	 */
-	QPointF map_margined_to_scene(const QPointF &p) const
+	QPointF map_margined_to_scene(const QPointF& p) const
 	{
 		return map_to_scene(map_from_margined(p));
 	}
@@ -183,7 +174,7 @@ public:
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QRectF map_margined_to_scene(const QRectF &r) const
+	QRectF map_margined_to_scene(const QRectF& r) const
 	{
 		return map_to_scene(map_from_margined(r));
 	}
@@ -192,8 +183,7 @@ public:
 	 * This convenience function is equivalent to calling
 	 * map_to_scene(QRectF(@a x, @a y, @a w, @a h)).
 	 */
-	QRectF map_margined_to_scene(const qreal x, const qreal y,
-	                    const qreal w, const qreal h) const
+	QRectF map_margined_to_scene(const qreal x, const qreal y, const qreal w, const qreal h) const
 	{
 		return map_margined_to_scene(QRectF(x, y, w, h));
 	}
@@ -203,7 +193,7 @@ public:
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QPointF map_margined_from_scene(const QPointF &p) const
+	QPointF map_margined_from_scene(const QPointF& p) const
 	{
 		return map_to_margined(map_from_scene(p));
 	}
@@ -222,7 +212,7 @@ public:
 	 *
 	 * @param r the rectangle to map in the scene space
 	 */
-	QRectF map_margined_from_scene(const QRectF &r) const
+	QRectF map_margined_from_scene(const QRectF& r) const
 	{
 		return map_to_margined(map_from_scene(r));
 	}
@@ -231,42 +221,37 @@ public:
 	 * This convenience function is equivalent to calling
 	 * map_from_scene(QRectF(@a x, @a y, @a w, @a h)).
 	 */
-	QRectF map_margined_from_scene(const qreal x, const qreal y,
-	                    const qreal w, const qreal h) const
+	QRectF map_margined_from_scene(const qreal x, const qreal y, const qreal w, const qreal h) const
 	{
 		return map_margined_from_scene(QRectF(x, y, w, h));
 	}
 
-public:
+  public:
 	/**
 	 * Maps a point from viewport's space to scene's space.
 	 *
 	 * @param p the point to transform in scene space
 	 */
-	QPointF map_to_scene(const QPointF &p) const;
+	QPointF map_to_scene(const QPointF& p) const;
 
 	/**
 	 * This convenience function is equivalent to calling
 	 * map_to_scene(QPointF(@a x, @a y)).
 	 */
-	QPointF map_to_scene(const qreal x, const qreal y) const
-	{
-		return map_to_scene(QPointF(x, y));
-	}
+	QPointF map_to_scene(const qreal x, const qreal y) const { return map_to_scene(QPointF(x, y)); }
 
 	/**
 	 * Maps a rectangle from margined viewport's space to scene's space.
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QRectF map_to_scene(const QRectF &r) const;
+	QRectF map_to_scene(const QRectF& r) const;
 
 	/**
 	 * This convenience function is equivalent to calling
 	 * map_to_scene(QRectF(@a x, @a y, @a w, @a h)).
 	 */
-	QRectF map_to_scene(const qreal x, const qreal y,
-	                    const qreal w, const qreal h) const
+	QRectF map_to_scene(const qreal x, const qreal y, const qreal w, const qreal h) const
 	{
 		return map_to_scene(QRectF(x, y, w, h));
 	}
@@ -276,7 +261,7 @@ public:
 	 *
 	 * @param r the rectangle to map in scene space
 	 */
-	QPointF map_from_scene(const QPointF &p) const;
+	QPointF map_from_scene(const QPointF& p) const;
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -292,14 +277,13 @@ public:
 	 *
 	 * @param r the rectangle to map in the scene space
 	 */
-	QRectF map_from_scene(const QRectF &r) const;
+	QRectF map_from_scene(const QRectF& r) const;
 
 	/**
 	 * This convenience function is equivalent to calling
 	 * map_from_scene(QRectF(@a x, @a y, @a w, @a h)).
 	 */
-	QRectF map_from_scene(const qreal x, const qreal y,
-	                    const qreal w, const qreal h) const
+	QRectF map_from_scene(const qreal x, const qreal y, const qreal w, const qreal h) const
 	{
 		return map_from_scene(QRectF(x, y, w, h));
 	}
@@ -314,7 +298,7 @@ public:
 	 */
 	QTransform get_transform_to_scene() const;
 
-public:
+  public:
 	/**
 	 * Maps a rectange from margined viewport's space to viewport's space.
 	 *
@@ -353,7 +337,7 @@ public:
 	 */
 	QTransform get_transform_from_margined_viewport() const;
 
-public:
+  public:
 	/**
 	 * Maps a rectange from view's space to margined viewport's space.
 	 *
@@ -392,7 +376,7 @@ public:
 	 */
 	QTransform get_transform_from_view() const;
 
-public:
+  public:
 	/**
 	 * Sets the scene's visible area.
 	 *
@@ -402,7 +386,7 @@ public:
 	 *
 	 * @param r the visible area in scene space
 	 */
-	void set_scene_rect(const QRectF &r);
+	void set_scene_rect(const QRectF& r);
 
 	/**
 	 * This convenience function is equivalent to calling
@@ -425,7 +409,7 @@ public:
 	 * @param combine a flag telling if @a t is combined with the current
 	 * transformation or not
 	 */
-	void set_transform(const QTransform &t, bool combine = false);
+	void set_transform(const QTransform& t, bool combine = false);
 
 	QTransform const& get_transform() const { return _transform; }
 	QTransform const& get_inv_transform() const { return _inv_transform; }
@@ -448,21 +432,18 @@ public:
 	 *
 	 * \param pos Position in scene coordinate system on which the view must be centered
 	 */
-	void center_on(const QPointF &pos);
+	void center_on(const QPointF& pos);
 
 	/**
 	 * This convenience function is equivalent to calling
 	 * set_scene_rect(QRectF(@a x, @a y, @a w, @a h)).
 	 */
-	void center_on(const qreal x, const qreal y)
-	{
-		center_on(QPointF(x, y));
-	}
+	void center_on(const qreal x, const qreal y) { center_on(QPointF(x, y)); }
 
-public:
+  public:
 	void fake_mouse_move();
 
-public:
+  public:
 	/**
 	 * set the color to fill the view's background
 	 *
@@ -475,20 +456,14 @@ public:
 	 *
 	 * @return the horizontal scrollbar
 	 */
-	QScrollBar64 *get_horizontal_scrollbar() const
-	{
-		return _hbar;
-	}
+	QScrollBar64* get_horizontal_scrollbar() const { return _hbar; }
 
 	/**
 	 * get the vertical scrollbar
 	 *
 	 * @return the vertical scrollbar
 	 */
-	QScrollBar64 *get_vertical_scrollbar() const
-	{
-		return _vbar;
-	}
+	QScrollBar64* get_vertical_scrollbar() const { return _vbar; }
 
 	/**
 	 * Sets the policy for the horizontal scrollbar.
@@ -560,40 +535,27 @@ public:
 	 * @ param top the top margin height
 	 * @ param bottom the bottom margin height
 	 */
-	void set_scene_margins(const int left, const int right,
-	                       const int top, const int bottom);
+	void set_scene_margins(const int left, const int right, const int top, const int bottom);
 
 	/**
 	 * Returns the scene's left margin value.
 	 */
-	int get_scene_left_margin() const
-	{
-		return _scene_margin_left;
-	}
+	int get_scene_left_margin() const { return _scene_margin_left; }
 
 	/**
 	 * Returns the scene's right margin value.
 	 */
-	int get_scene_right_margin() const
-	{
-		return _scene_margin_right;
-	}
+	int get_scene_right_margin() const { return _scene_margin_right; }
 
 	/**
 	 * Returns the scene's top margin value.
 	 */
-	int get_scene_top_margin() const
-	{
-		return _scene_margin_top;
-	}
+	int get_scene_top_margin() const { return _scene_margin_top; }
 
 	/**
 	 * Returns the scene's left margin value.
 	 */
-	int get_scene_bottom_margin() const
-	{
-		return _scene_margin_bottom;
-	}
+	int get_scene_bottom_margin() const { return _scene_margin_bottom; }
 
 	/**
 	 * Return the margined viewport's height in which the scene is rendered.
@@ -628,8 +590,8 @@ public:
 	 */
 	QRect get_margined_viewport_rect() const
 	{
-		return QRect(_scene_margin_left, _scene_margin_top,
-		             get_margined_viewport_width(), get_margined_viewport_height());
+		return QRect(_scene_margin_left, _scene_margin_top, get_margined_viewport_width(),
+		             get_margined_viewport_height());
 	}
 
 	/**
@@ -642,10 +604,7 @@ public:
 	/**
 	 * Returns the current viewport widget.
 	 */
-	inline QWidget* get_viewport()
-	{
-		return _viewport;
-	}
+	inline QWidget* get_viewport() { return _viewport; }
 
 	/**
 	 * Set scene alignment when it fits in viewport.
@@ -659,12 +618,9 @@ public:
 	 *
 	 * @return the used ored values for horizontal and vertical alignment mode
 	 */
-	Qt::Alignment get_alignment() const
-	{
-		return _alignment;
-	}
+	Qt::Alignment get_alignment() const { return _alignment; }
 
-protected:
+  protected:
 	/**
 	 * declare a new interactor in the instance context
 	 *
@@ -672,8 +628,7 @@ protected:
 	 *
 	 * @return a pointer on the declared interactor
 	 */
-	template <typename T, typename... P>
-	T* declare_interactor(P && ... params)
+	template <typename T, typename... P> T* declare_interactor(P&&... params)
 	{
 		T* new_interactor = new T(this, std::forward<P>(params)...);
 		_interactor_enum.push_back(new_interactor);
@@ -685,7 +640,8 @@ protected:
 	 *
 	 * the interactor is implictly unregistered.
 	 *
-	 * @param interactor [in] The pointer to the interactor to remove (previously returned by declate_interactor).
+	 * @param interactor [in] The pointer to the interactor to remove (previously returned by
+	 *declate_interactor).
 	 *
 	 * @note the interactor is not freed.
 	 *
@@ -750,7 +706,7 @@ protected:
 	 *
 	 * @param event the QEvent to process
 	 */
-	bool call_interactor(QEvent *event);
+	bool call_interactor(QEvent* event);
 
 	/**
 	 * install a default PVGraphicsViewInteractorScene
@@ -762,20 +718,20 @@ protected:
 	 */
 	void install_default_scene_interactor();
 
-protected:
+  protected:
 	/**
 	 * Redraws the widget according to the paint event.
 	 *
 	 * @param event the corresponding paint event
 	 */
-	//virtual void paintEvent(QPaintEvent *event) override;
+	// virtual void paintEvent(QPaintEvent *event) override;
 
 	/**
 	 * Resizes the widget according to the resize event.
 	 *
 	 * @param event the corresponding resize event
 	 */
-	virtual void resizeEvent(QResizeEvent *event) override;
+	virtual void resizeEvent(QResizeEvent* event) override;
 
 	/**
 	 * reimplements QWidget::enterEvent
@@ -787,27 +743,27 @@ protected:
 	 */
 	void leaveEvent(QEvent* event) override;
 
-protected:
+  protected:
 	// Called by PVViewportEventFilter
 	bool viewportPaintEvent(QPaintEvent* event);
 
-protected:
-	void contextMenuEvent(QContextMenuEvent *event) override;
+  protected:
+	void contextMenuEvent(QContextMenuEvent* event) override;
 
-	void focusInEvent(QFocusEvent *event) override;
+	void focusInEvent(QFocusEvent* event) override;
 	// does not need reimplementation
 	// bool focusNextPrevChild(bool next) override;
-	void focusOutEvent(QFocusEvent *event) override;
+	void focusOutEvent(QFocusEvent* event) override;
 
-	void keyPressEvent(QKeyEvent *event) override;
-	void keyReleaseEvent(QKeyEvent *event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
 
-	void mouseDoubleClickEvent(QMouseEvent *event) override;
-	void mouseMoveEvent(QMouseEvent *event) override;
-	void mousePressEvent(QMouseEvent *event) override;
-	void mouseReleaseEvent(QMouseEvent *event) override;
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void mouseMoveEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
 
-	void wheelEvent(QWheelEvent *event) override;
+	void wheelEvent(QWheelEvent* event) override;
 
 #if 0
 	// needed or not?
@@ -822,7 +778,7 @@ protected:
 	virtual void scrollContentsBy(int dx, int dy);
 #endif
 
-protected:
+  protected:
 	/**
 	 * Draws scene's background.
 	 *
@@ -831,7 +787,7 @@ protected:
 	 * @param painter the used painter
 	 * @param margined_rect the area to redraw, in the margined viewport coordinate system.
 	 */
-	virtual void drawBackground(QPainter *painter, const QRectF &margined_rect);
+	virtual void drawBackground(QPainter* painter, const QRectF& margined_rect);
 
 	/**
 	 * Draws scene's foreground.
@@ -841,29 +797,28 @@ protected:
 	 * @param painter the used painter
 	 * @param margined_rect the area to redraw, in the margined viewport coordinate system.
 	 */
-	virtual void drawForeground(QPainter *painter, const QRectF &margined_rect);
+	virtual void drawForeground(QPainter* painter, const QRectF& margined_rect);
 
 	/**
 	 * \reimpl
 	 */
 	QSize sizeHint() const;
 
-protected:
+  protected:
 	/**
 	 * Modifies the viewport..
 	 *
 	 * @param area a rectangle in scene's coordinates system
 	 * @param mode an indication on how the area must fits in window
 	 */
-	void set_view(const QRectF &area,
-	              Qt::AspectRatioMode mode = Qt::KeepAspectRatio);
+	void set_view(const QRectF& area, Qt::AspectRatioMode mode = Qt::KeepAspectRatio);
 
 	/**
 	 * force the viewport cursor
 	 */
 	void update_viewport_cursor();
 
-private:
+  private:
 	/**
 	 * Initializes internal stuff.
 	 */
@@ -931,56 +886,55 @@ private:
 	 */
 	const QPointF get_scroll() const;
 
-private:
-	QGridLayout        *_layout;
-	QScrollBar64         *_hbar;
-	QScrollBar64         *_vbar;
-	QWidget            *_viewport;
+  private:
+	QGridLayout* _layout;
+	QScrollBar64* _hbar;
+	QScrollBar64* _vbar;
+	QWidget* _viewport;
 
-	QGraphicsScene     *_scene;
-	QRectF              _scene_rect;
-	QColor              _background_color;
+	QGraphicsScene* _scene;
+	QRectF _scene_rect;
+	QColor _background_color;
 
 	Qt::ScrollBarPolicy _hbar_policy;
 	Qt::ScrollBarPolicy _vbar_policy;
-	ViewportAnchor      _resize_anchor;
-	ViewportAnchor      _transformation_anchor;
+	ViewportAnchor _resize_anchor;
+	ViewportAnchor _transformation_anchor;
 
-	int                 _scene_margin_left;
-	int                 _scene_margin_right;
-	int                 _scene_margin_top;
-	int                 _scene_margin_bottom;
+	int _scene_margin_left;
+	int _scene_margin_right;
+	int _scene_margin_top;
+	int _scene_margin_bottom;
 
-	Qt::Alignment       _alignment;
+	Qt::Alignment _alignment;
 
-	QPointF             _scene_offset;
-	qreal               _screen_offset_x;
-	qreal               _screen_offset_y;
-	QTransform          _transform;
-	QTransform          _inv_transform;
+	QPointF _scene_offset;
+	qreal _screen_offset_x;
+	qreal _screen_offset_y;
+	QTransform _transform;
+	QTransform _inv_transform;
 
-	Qt::MouseButton     _mouse_pressed_button;
-	QPoint              _mouse_pressed_screen_coord;
-	QPoint              _mouse_pressed_view_coord;
-	QPointF             _mouse_pressed_scene_coord;
+	Qt::MouseButton _mouse_pressed_button;
+	QPoint _mouse_pressed_screen_coord;
+	QPoint _mouse_pressed_view_coord;
+	QPointF _mouse_pressed_scene_coord;
 
-	QPoint              _last_mouse_move_screen_coord;
-	QPointF             _last_mouse_move_scene_coord;
+	QPoint _last_mouse_move_screen_coord;
+	QPointF _last_mouse_move_scene_coord;
 
-	QPointF             _last_center_coord;
+	QPointF _last_center_coord;
 
 	__impl::PVViewportEventFilter* _viewport_event_filter;
 
-	interactor_enum_t            _interactor_enum;
+	interactor_enum_t _interactor_enum;
 	interactor_affectation_map_t _interactor_map;
 
-	QCursor                      _viewport_cursor;
+	QCursor _viewport_cursor;
 
-private:
-	static QEvent::Type  _usable_events[];
-	static QEvent::Type *_usable_events_end;
+  private:
+	static QEvent::Type _usable_events[];
+	static QEvent::Type* _usable_events_end;
 };
-
 }
 
 #endif // PVWIDGETS_PVGRAPHICSVIEW_H

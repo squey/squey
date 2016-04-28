@@ -23,12 +23,11 @@ static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/charset/utf8
 
 int main(int argc, char** argv)
 {
-	const char* input = (argc < 4)?input_file:argv[1];
+	const char* input = (argc < 4) ? input_file : argv[1];
 #ifndef INSPECTOR_BENCH
-	const char* ref = (argc < 4)?ref_file:argv[2];
+	const char* ref = (argc < 4) ? ref_file : argv[2];
 #endif
-	const size_t chunk_size = (argc < 4)?20000:atoi(argv[3]);
-
+	const size_t chunk_size = (argc < 4) ? 20000 : atoi(argv[3]);
 
 	PVCore::PVIntrinsics::init_cpuid();
 	PVInput_p ifile(new PVInputFile(input));

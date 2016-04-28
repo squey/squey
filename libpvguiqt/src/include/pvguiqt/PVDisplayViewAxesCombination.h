@@ -11,19 +11,19 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvdisplays/PVDisplayIf.h>
 
-namespace PVDisplays {
-
-class PVDisplayViewAxesCombination: public PVDisplayViewIf
+namespace PVDisplays
 {
-public:
+
+class PVDisplayViewAxesCombination : public PVDisplayViewIf
+{
+  public:
 	PVDisplayViewAxesCombination();
 
-public:
+  public:
 	QWidget* create_widget(Inendi::PVView* view, QWidget* parent) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewAxesCombination)
 };
-
 }
 
 #endif

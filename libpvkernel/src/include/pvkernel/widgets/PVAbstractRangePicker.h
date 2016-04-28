@@ -32,11 +32,8 @@ class PVAbstractRangeRampCursor : public QWidget
 {
 	Q_OBJECT
 
-public:
-	enum cursor_type {
-		MINIMUM  = 0,
-		MAXIMUM = 1
-	};
+  public:
+	enum cursor_type { MINIMUM = 0, MAXIMUM = 1 };
 
 	/**
 	 * CTOR
@@ -52,7 +49,7 @@ signals:
 	 */
 	void moved(int value);
 
-protected:
+  protected:
 	/**
 	 * Redefinition of QWidget::paintEvent
 	 *
@@ -81,9 +78,9 @@ protected:
 	 */
 	void mouseMoveEvent(QMouseEvent* event) override;
 
-private:
+  private:
 	cursor_type _type;
-	int         _move_offset;
+	int _move_offset;
 };
 
 /**
@@ -99,7 +96,7 @@ class PVAbstractRangeRamp : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	/**
 	 * CTOR
 	 *
@@ -122,7 +119,7 @@ public:
 	void set_min_cursor(double value);
 	void set_max_cursor(double value);
 
-protected:
+  protected:
 	/**
 	 * Redefinition of QWidget::paintEvent
 	 *
@@ -151,7 +148,7 @@ protected:
 	 */
 	void mouseMoveEvent(QMouseEvent* event) override;
 
-private:
+  private:
 	/**
 	 * Process its parameter to move the cursor designated by
 	 * the pressed mouse button
@@ -174,7 +171,7 @@ private:
 	 */
 	void update_gradient();
 
-private slots:
+  private slots:
 	/**
 	 * This slot is called each time the minimum cursor is moved
 	 *
@@ -204,8 +201,8 @@ signals:
 	 */
 	void max_changed(double value);
 
-private:
-	QLinearGradient            _gradient;
+  private:
+	QLinearGradient _gradient;
 	PVAbstractRangeRampCursor* _min_cursor;
 	PVAbstractRangeRampCursor* _max_cursor;
 };
@@ -223,15 +220,10 @@ private:
  */
 class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 {
-public:
-	PVMimeticDoubleSpinBox(QDoubleSpinBox* other = nullptr) :
-	_other(other)
-	{}
+  public:
+	PVMimeticDoubleSpinBox(QDoubleSpinBox* other = nullptr) : _other(other) {}
 
-	void set_other(QDoubleSpinBox* other)
-	{
-		_other = other;
-	}
+	void set_other(QDoubleSpinBox* other) { _other = other; }
 
 	QSize sizeHint() const
 	{
@@ -243,8 +235,7 @@ public:
 
 		QSize fsize = _other->QDoubleSpinBox::sizeHint();
 
-		return QSize(qMax(lsize.width(), fsize.width()),
-		             qMax(lsize.height(), fsize.height()));
+		return QSize(qMax(lsize.width(), fsize.width()), qMax(lsize.height(), fsize.height()));
 	}
 
 	QSize minimumSizeHint() const
@@ -256,17 +247,13 @@ public:
 		}
 
 		QSize fsize = _other->QDoubleSpinBox::minimumSizeHint();
-		return QSize(qMax(lsize.width(), fsize.width()),
-		             qMax(lsize.height(), fsize.height()));
+		return QSize(qMax(lsize.width(), fsize.width()), qMax(lsize.height(), fsize.height()));
 	}
 
-public:
-	void use_floating_point(bool floating_point)
-	{
-		_use_floating_point = floating_point;
-	}
+  public:
+	void use_floating_point(bool floating_point) { _use_floating_point = floating_point; }
 
-protected:
+  protected:
 	virtual QString textFromValue(double value) const override
 	{
 		// Using QLocale::toString(double) with high values returns QString as scientific notation,
@@ -274,17 +261,15 @@ protected:
 
 		if (_use_floating_point) {
 			return locale().toString(value, 'f', decimals());
-		}
-		else {
+		} else {
 			return locale().toString((qulonglong)value);
 		}
 	}
 
-private:
-	QDoubleSpinBox *_other;
+  private:
+	QDoubleSpinBox* _other;
 	bool _use_floating_point;
 };
-
 }
 
 /**
@@ -297,7 +282,7 @@ class PVAbstractRangePicker : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	/**
 	 * CTOR
 	 *
@@ -305,11 +290,8 @@ public:
 	 * @param max_limit the range upper value
 	 * @param widget the parent widget
 	 */
-	PVAbstractRangePicker(
-		const double& min_limit,
-	    const double& max_limit,
-	    QWidget* parent = nullptr
-	);
+	PVAbstractRangePicker(const double& min_limit, const double& max_limit,
+	                      QWidget* parent = nullptr);
 
 	/**
 	 * Set the range's minimum value
@@ -341,7 +323,8 @@ public:
 
 	/**
 	 * Convert a value to another representation.
-	 * Base implementation does nothing, derived implementations can work with percentage for example.
+	 * Base implementation does nothing, derived implementations can work with percentage for
+	 *example.
 	 *
 	 * @return the converted value
 	 */
@@ -349,28 +332,28 @@ public:
 
 	/**
 	 * Convert a value from another representation.
-	 * Base implementation does nothing, derived implementations can work with percentage for example.
+	 * Base implementation does nothing, derived implementations can work with percentage for
+	 *example.
 	 *
 	 * @return the converted value
 	 */
 	virtual double convert_from(const double& value) const { return value; }
 
-public:
+  public:
 	void connect_ranges_to_spinboxes();
 	void disconnect_ranges_from_spinboxes();
 
 	void connect_spinboxes_to_ranges();
 	void disconnect_spinboxes_from_ranges();
 
-public:
+  public:
 	/**
 	 * Set the lower and upper bound limits
 	 *
 	 * @param min_limit the lower bound
 	 * @param max_limit the upper bound
 	 */
-	void set_limits(const double& min_limit,
-	                const double& max_limit);
+	void set_limits(const double& min_limit, const double& max_limit);
 
 	/**
 	 * get the lower bound limit
@@ -393,7 +376,7 @@ public:
 	 */
 	double get_limit_range() const { return _limit_range; }
 
-protected:
+  protected:
 	/**
 	 * Redefinition of QWidget::resizeEvent
 	 *
@@ -401,7 +384,7 @@ protected:
 	 */
 	void resizeEvent(QResizeEvent* event) override;
 
-protected:
+  protected:
 	/**
 	 * Set the gradient used for the color ramp
 	 *
@@ -420,7 +403,7 @@ protected:
 	 */
 	void set_epsilon(const double& epsilon);
 
-protected:
+  protected:
 	/**
 	 * Returns the spinbox used for the minimum value
 	 *
@@ -435,7 +418,7 @@ protected:
 	 */
 	QDoubleSpinBox* get_max_spinbox() { return _max_spinbox; }
 
-protected:
+  protected:
 	/**
 	 * Converts a value from spinbox's value space to color ramp's value space
 	 *
@@ -458,7 +441,7 @@ protected:
 	 */
 	virtual double map_from_spinbox(const double& value) const;
 
-private slots:
+  private slots:
 	/**
 	 * This slot is called each time the minimum spinbox's value has changed
 	 *
@@ -487,18 +470,17 @@ private slots:
 	 */
 	void max_ramp_changed(double value);
 
-protected:
-	__impl::PVAbstractRangeRamp*    _range_ramp;
+  protected:
+	__impl::PVAbstractRangeRamp* _range_ramp;
 	__impl::PVMimeticDoubleSpinBox* _min_spinbox;
 	__impl::PVMimeticDoubleSpinBox* _max_spinbox;
-	double                          _limit_min;
-	double						    _min;
-	double						    _max;
-	double                          _limit_max;
-	double                          _limit_range;
-	double                          _epsilon;
+	double _limit_min;
+	double _min;
+	double _max;
+	double _limit_max;
+	double _limit_range;
+	double _epsilon;
 };
-
 }
 
 #endif // PVWIDGETS_PVABSTRACTRANGEPICKER_H

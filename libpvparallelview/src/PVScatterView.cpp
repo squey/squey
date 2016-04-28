@@ -47,26 +47,21 @@
 namespace PVParallelView
 {
 
-template <int STEPS>
-using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
-
+template <int STEPS> using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 }
 
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
-PVParallelView::PVScatterView::PVScatterView(
-	Inendi::PVView_sp &pvview_sp,
-	PVZonesManager const& zm,
-	PVCol const zone_index,
-	PVZonesProcessor& zp_bg,
-	PVZonesProcessor& zp_sel,
-	QWidget* parent /*= nullptr*/
-) :
-	PVZoomableDrawingAreaWithAxes(parent),
-	_view(*pvview_sp),
-	_images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->get_output_layer_color_buffer(), pvview_sp->get_real_output_selection()),
-	_view_deleted(false),
-	_show_bg(true)
+PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp, PVZonesManager const& zm,
+                                             PVCol const zone_index, PVZonesProcessor& zp_bg,
+                                             PVZonesProcessor& zp_sel, QWidget* parent /*= nullptr*/
+                                             )
+    : PVZoomableDrawingAreaWithAxes(parent)
+    , _view(*pvview_sp)
+    , _images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->get_output_layer_color_buffer(),
+                      pvview_sp->get_real_output_selection())
+    , _view_deleted(false)
+    , _show_bg(true)
 {
 #ifdef SV_FPS
 	_nframes = 0;
@@ -115,8 +110,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	get_y_axis_zoom().set_range(zoom_min, zoom_extra);
 	get_y_axis_zoom().set_default_value(zoom_min);
 
-	set_zoom_value(PVZoomableDrawingAreaConstraints::X
-	               | PVZoomableDrawingAreaConstraints::Y,
+	set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
 	               zoom_min);
 
 	// decorations
@@ -154,8 +148,7 @@ PVParallelView::PVScatterView::PVScatterView(
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
 
-	_help_widget->initTextFromFile("scatter view's help",
-	                               ":help-style");
+	_help_widget->initTextFromFile("scatter view's help", ":help-style");
 	_help_widget->addTextFromFile(":help-selection");
 	_help_widget->addTextFromFile(":help-layers");
 	_help_widget->newColumn();
@@ -173,11 +166,9 @@ PVParallelView::PVScatterView::PVScatterView(
 
 	// Register view for unselected & zombie events toggle
 	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(pvview_sp,
-	                                [=](Inendi::PVView& view) {
-		                                return &view.are_view_unselected_zombie_visible();
-	                                },
-	                                *obs);
+	PVHive::get().register_observer(
+	    pvview_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); },
+	    *obs);
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
@@ -253,12 +244,12 @@ void PVParallelView::PVScatterView::update_all_async()
  *****************************************************************************/
 void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
 {
-		PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
+	PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
 #ifdef INENDI_DEVELOPER_MODE
-		if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
-			PVScatterView::toggle_show_quadtrees();
-		}
-		get_viewport()->update();
+	if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
+		PVScatterView::toggle_show_quadtrees();
+	}
+	get_viewport()->update();
 #endif
 }
 
@@ -301,7 +292,8 @@ void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, int /*zo
 		return;
 	}
 
-	_image_bg.swap(get_images_manager().get_image_all(), _last_image_margined_viewport, _last_image_mv2s);
+	_image_bg.swap(get_images_manager().get_image_all(), _last_image_margined_viewport,
+	               _last_image_mv2s);
 	get_viewport()->update();
 }
 
@@ -312,7 +304,8 @@ void PVParallelView::PVScatterView::update_img_sel(PVZoneRendering_p zr, int /*z
 		return;
 	}
 
-	_image_sel.swap(get_images_manager().get_image_sel(), _last_image_margined_viewport, _last_image_mv2s);
+	_image_sel.swap(get_images_manager().get_image_sel(), _last_image_margined_viewport,
+	                _last_image_mv2s);
 	get_viewport()->update();
 }
 
@@ -334,12 +327,11 @@ void PVParallelView::PVScatterView::do_update_all()
 {
 	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
 
-	uint64_t y1_min,y1_max,y2_min,y2_max;
+	uint64_t y1_min, y1_max, y2_min, y2_max;
 	int64_t zoom;
 	double alpha;
 
-	_sel_rect->set_handles_scale(1. / get_transform().m11(),
-	                             1. / get_transform().m22());
+	_sel_rect->set_handles_scale(1. / get_transform().m11(), 1. / get_transform().m22());
 
 	if (get_y_axis_zoom().get_clamped_value() < zoom_min) {
 		/*y1_min = 0;
@@ -348,26 +340,27 @@ void PVParallelView::PVScatterView::do_update_all()
 		y2_max = 0xFFFFFFFF;
 		zoom = 1;
 		alpha = 0.5;
-		_last_image_margined_viewport = QRectF(0.0, 0.0, 1<<(PARALLELVIEW_ZZT_BBITS-1), 1<<(PARALLELVIEW_ZZT_BBITS-1));*/
+		_last_image_margined_viewport = QRectF(0.0, 0.0,
+		1<<(PARALLELVIEW_ZZT_BBITS-1), 1<<(PARALLELVIEW_ZZT_BBITS-1));*/
 		get_viewport()->update();
 		return;
 	}
 
 	// Hack to revert plotting inversion
-	y1_min = PVCore::invert_plotting_value(view_rect.x()+view_rect.width());
+	y1_min = PVCore::invert_plotting_value(view_rect.x() + view_rect.width());
 	y1_max = PVCore::invert_plotting_value(view_rect.x());
 	y2_min = view_rect.y();
-	y2_max = view_rect.y()+view_rect.height();
+	y2_max = view_rect.y() + view_rect.height();
 
-	zoom = (get_y_axis_zoom().get_clamped_value()-zoom_min);
+	zoom = (get_y_axis_zoom().get_clamped_value() - zoom_min);
 	alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
-	zoom = (zoom / zoom_steps) +1;
+	zoom = (zoom / zoom_steps) + 1;
 
 	_last_image_margined_viewport = QRectF(0.0, 0.0, get_x_axis_length(), get_y_axis_length());
 
 	_last_image_mv2s = get_transform_from_margined_viewport() * get_transform_to_scene();
 
-	//PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
+	// PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
 	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
 
 	get_viewport()->update();
@@ -383,8 +376,7 @@ bool PVParallelView::PVScatterView::update_zones()
 		}
 
 		new_zone = get_zone_index();
-	}
-	else if (new_zone == lib_view().get_axes_count()-1) {
+	} else if (new_zone == lib_view().get_axes_count() - 1) {
 		return false;
 	}
 
@@ -396,14 +388,14 @@ bool PVParallelView::PVScatterView::update_zones()
 void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
 	_axis_id = lib_view().get_axes_combination().get_axes_comb_id(zid);
-	const uint32_t *y1_plotted, *y2_plotted;
+	const uint32_t* y1_plotted, *y2_plotted;
 	get_zones_manager().get_zone_plotteds(zid, &y1_plotted, &y2_plotted);
 	get_images_manager().set_zone(zid);
 	_sel_rect->set_plotteds(y1_plotted, y2_plotted, get_zones_manager().get_row_count());
 
 	// TODO: register axis name change through the hive
 	set_x_legend(lib_view().get_axis_name(zid));
-	set_y_legend(lib_view().get_axis_name(zid+1));
+	set_y_legend(lib_view().get_axis_name(zid + 1));
 }
 
 /*****************************************************************************
@@ -413,7 +405,7 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 {
 	painter->save();
 
-	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length()+4, get_y_axis_length()+2);
+	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length() + 4, get_y_axis_length() + 2);
 	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
 
 	if (show_bg()) {
@@ -433,22 +425,23 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 		const Inendi::PVSelection& sel = _view.get_real_output_selection();
 		PVParallelView::PVBCode code_b;
 		PVParallelView::PVZoneTree const& zt = get_zone_tree();
-		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
-		{
+		for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
 			if (zt.branch_valid(branch)) {
 				const PVRow row = zt.get_first_elt_of_branch(branch);
 				code_b.int_v = branch;
-				const double x_scene = ((uint32_t)code_b.s.l) << (32-PARALLELVIEW_ZT_BBITS);
-				const double y_scene = ((uint32_t)code_b.s.r) << (32-PARALLELVIEW_ZT_BBITS);
+				const double x_scene = ((uint32_t)code_b.s.l) << (32 - PARALLELVIEW_ZT_BBITS);
+				const double y_scene = ((uint32_t)code_b.s.r) << (32 - PARALLELVIEW_ZT_BBITS);
 
-				const double x_rect_scene = ((uint32_t)((code_b.s.l+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
-				const double y_rect_scene = ((uint32_t)((code_b.s.r+1) << (32-PARALLELVIEW_ZT_BBITS))) - 1;
+				const double x_rect_scene =
+				    ((uint32_t)((code_b.s.l + 1) << (32 - PARALLELVIEW_ZT_BBITS))) - 1;
+				const double y_rect_scene =
+				    ((uint32_t)((code_b.s.r + 1) << (32 - PARALLELVIEW_ZT_BBITS))) - 1;
 
 				QPointF view_point = map_margined_from_scene(QPointF(x_scene, y_scene));
-				QPointF view_point_rect = map_margined_from_scene(QPointF(x_rect_scene, y_rect_scene));
+				QPointF view_point_rect =
+				    map_margined_from_scene(QPointF(x_rect_scene, y_rect_scene));
 
-				painter->setPen(QPen(_view.get_color_in_output_layer(row).toQColor(),
-									 0));
+				painter->setPen(QPen(_view.get_color_in_output_layer(row).toQColor(), 0));
 				painter->setOpacity(sel.get_line_fast(row) ? 1.0 : 0.25);
 				painter->drawRect(QRectF(view_point, view_point_rect));
 			}
@@ -488,7 +481,7 @@ void PVParallelView::PVScatterView::set_enabled(bool en)
 void PVParallelView::PVScatterView::compute_fps()
 {
 #ifdef SV_FPS
-	const double fps = (double)_nframes/(TIMEOUT_FPS/1000.0);
+	const double fps = (double)_nframes / (TIMEOUT_FPS / 1000.0);
 	_nframes = 0;
 	_fps_str = QString("FPS: %1").arg(fps, 0, 'f', 5);
 #endif
@@ -508,7 +501,9 @@ QString PVParallelView::PVScatterView::get_y_value_at(const qint64 /*pos*/) cons
 // PVParallelView::PVScatterView::RenderedImage implementation
 ////
 
-void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRectF const& viewport_rect, QTransform const& mv2s)
+void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img,
+                                                        QRectF const& viewport_rect,
+                                                        QTransform const& mv2s)
 {
 	_mv2s = mv2s;
 	_img = img.copy(viewport_rect.toAlignedRect()).mirrored(true, false);
@@ -516,12 +511,13 @@ void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img, QRect
 
 void PVParallelView::PVScatterView::RenderedImage::draw(PVGraphicsView* view, QPainter* painter)
 {
-	const QTransform img_trans = _mv2s * view->get_transform_from_scene() * view->get_transform_to_margined_viewport();
-	//const QPainter::RenderHints hints = painter->renderHints();
+	const QTransform img_trans =
+	    _mv2s * view->get_transform_from_scene() * view->get_transform_to_margined_viewport();
+	// const QPainter::RenderHints hints = painter->renderHints();
 
 	painter->save();
 	painter->setTransform(img_trans, true);
-	//painter->setRenderHints(hints | QPainter::SmoothPixmapTransform);
+	// painter->setRenderHints(hints | QPainter::SmoothPixmapTransform);
 	painter->drawImage(QPointF(0.0, 0.0), _img);
 	painter->restore();
 }

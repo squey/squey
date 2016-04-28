@@ -12,22 +12,22 @@
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/core/PVElement.h>
 
-namespace PVFilter {
-
-class PVElementFilter: public PVFilterFunctionBase<PVCore::PVElement&, PVCore::PVElement&>
+namespace PVFilter
 {
-public:
+
+class PVElementFilter : public PVFilterFunctionBase<PVCore::PVElement&, PVCore::PVElement&>
+{
+  public:
 	typedef PVElementFilter FilterT;
 	typedef std::shared_ptr<PVElementFilter> p_type;
 
-public:
+  public:
 	PVCore::PVElement& operator()(PVCore::PVElement& in) { return in; }
 
 	CLASS_FILTER_NONREG_NOPARAM(PVElementFilter)
 };
 
 typedef PVElementFilter::func_type PVElementFilter_f;
-
 }
 
 #endif

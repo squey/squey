@@ -15,11 +15,11 @@ void PVCore::PVChunk::init_elements_fields()
 	allocate_fields_buffer(nelts, nfields_src);
 	void* chunk_fields = _p_chunk_fields;
 	list_elts::iterator it;
-	size_t buffer_size_for_elt = nfields_src*sizeof(__node_list_field);
+	size_t buffer_size_for_elt = nfields_src * sizeof(__node_list_field);
 	for (it = _elts.begin(); it != _elts.end(); it++) {
 		PVElement* elt = *it;
 		elt->init_fields(chunk_fields, buffer_size_for_elt);
-		chunk_fields = (void*) ((uintptr_t)chunk_fields + buffer_size_for_elt);
+		chunk_fields = (void*)((uintptr_t)chunk_fields + buffer_size_for_elt);
 	}
 }
 

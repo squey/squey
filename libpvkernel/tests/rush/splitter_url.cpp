@@ -22,16 +22,18 @@ constexpr static size_t nb_dup = 1000;
 constexpr static size_t nb_dup = 1;
 #endif
 
-static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/url/http_from_squid.url";
-static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/url/http_from_squid.url.out";
-
+static constexpr const char* log_file =
+    TEST_FOLDER "/pvkernel/rush/splitters/url/http_from_squid.url";
+static constexpr const char* ref_file =
+    TEST_FOLDER "/pvkernel/rush/splitters/url/http_from_squid.url.out";
 
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
-	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("url");
+	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("url");
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());

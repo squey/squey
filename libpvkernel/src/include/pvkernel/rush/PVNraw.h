@@ -16,16 +16,19 @@
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
 
-namespace Inendi {
-	class PVAxesCombination;
+namespace Inendi
+{
+class PVAxesCombination;
 }
 
-namespace PVCore {
-	class PVSelBitField;
-	class PVChunk;
+namespace PVCore
+{
+class PVSelBitField;
+class PVChunk;
 }
 
-namespace PVRush {
+namespace PVRush
+{
 
 /**
  * Contains all informations to access imported data.
@@ -33,12 +36,12 @@ namespace PVRush {
  * Start in an invalid state as format is not known yet.
  * Then, we set format so we can create the collector (import struct)
  * Finally, data is imported, we don't need collector and use collection instead.
- 
+
  * We can say it has : invalide state, read state and write state.
  */
 class PVNraw
 {
-public:
+  public:
 	static const std::string config_nraw_tmp;
 	static const std::string default_tmp_path;
 	static const std::string nraw_tmp_pattern;
@@ -46,7 +49,7 @@ public:
 	static const std::string default_sep_char;
 	static const std::string default_quote_char;
 
-public:
+  public:
 	PVNraw();
 
 	/**
@@ -60,8 +63,15 @@ public:
 	/**
 	 * Access layout of the NRaw.
 	 */
-	inline PVRow get_row_count() const { return _collection?_collection->row_count():_real_nrows; }
-	inline PVCol get_number_cols() const { assert(_collection && "We should be in read state"); return _collection->column_count(); }
+	inline PVRow get_row_count() const
+	{
+		return _collection ? _collection->row_count() : _real_nrows;
+	}
+	inline PVCol get_number_cols() const
+	{
+		assert(_collection && "We should be in read state");
+		return _collection->column_count();
+	}
 
 	/**
 	 * Random access to an element in the NRaw.
@@ -97,12 +107,9 @@ public:
 	 *
 	 * Column ordering may differ from original ordering.
 	 */
-	std::string export_line(
-		PVRow idx,
-		const PVCore::PVColumnIndexes& col_indexes,
-		const std::string sep_char = default_sep_char,
-		const std::string quote_char = default_quote_char
-	) const;
+	std::string export_line(PVRow idx, const PVCore::PVColumnIndexes& col_indexes,
+	                        const std::string sep_char = default_sep_char,
+	                        const std::string quote_char = default_quote_char) const;
 
 	/**
 	 * Export step_count lines from start_index with a specific column ordering.
@@ -111,20 +118,15 @@ public:
 	 *
 	 * Column ordering may differ from original ordering.
 	 */
-	void export_lines(
-		std::ostream& stream,
-		const PVCore::PVSelBitField& sel,
-		const PVCore::PVColumnIndexes& col_indexes,
-		size_t start_index,
-		size_t step_count,
-		const std::string& sep_char = default_sep_char,
-		const std::string& quote_char = default_quote_char
-	) const;
+	void export_lines(std::ostream& stream, const PVCore::PVSelBitField& sel,
+	                  const PVCore::PVColumnIndexes& col_indexes, size_t start_index,
+	                  size_t step_count, const std::string& sep_char = default_sep_char,
+	                  const std::string& quote_char = default_quote_char) const;
 
 	/**
 	 * Export the PVNraw with initial ordering.
 	 */
-	void dump_csv(std::ostream &os=std::cout) const;
+	void dump_csv(std::ostream& os = std::cout) const;
 	void dump_csv(const std::string& file_path) const;
 
 	/**
@@ -144,7 +146,7 @@ public:
 
 	size_t get_invalid_count() const { return _invalid_count; }
 
-public:
+  public:
 	/**
 	 * Create a NRaw from and NRaw folder on HDD.
 	 *
@@ -152,19 +154,18 @@ public:
 	 */
 	bool load_from_disk(const std::string& nraw_folder);
 
-private:
+  private:
 	/// Variable usefull for reading
 	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
 
 	/// Variable usefull for loading
-	PVRow _real_nrows; //!< Current number of line in the NRaw.
-	PVRow _max_nrows;  //!< Maximum number of lines required.
+	PVRow _real_nrows;                                      //!< Current number of line in the NRaw.
+	PVRow _max_nrows;                                       //!< Maximum number of lines required.
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	/// Variable usefull for both
 	size_t _invalid_count; //!< Number of invalid elements found during import.
 };
-
 }
 
-#endif	/* PVRUSH_NRAW_H */
+#endif /* PVRUSH_NRAW_H */

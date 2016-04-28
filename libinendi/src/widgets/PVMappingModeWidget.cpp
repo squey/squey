@@ -15,24 +15,26 @@
 
 #include <QHBoxLayout>
 
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QString const& type, QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QString const& type, QWidget* parent)
+    : QWidget(parent)
 {
 	init(false);
 	populate_from_type(type);
 }
 
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping, bool params_btn, QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping,
+                                                    bool params_btn, QWidget* parent)
+    : QWidget(parent)
 {
 	init(params_btn);
 	populate_from_mapping(axis_id, mapping);
 }
 
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Inendi::PVView& view, bool params_btn, QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Inendi::PVView& view,
+                                                    bool params_btn, QWidget* parent)
+    : QWidget(parent)
 {
-init(params_btn);
+	init(params_btn);
 	populate_from_mapping(axis_id, *view.get_parent<Inendi::PVMapped>()->get_mapping());
 }
 
@@ -40,7 +42,7 @@ void PVWidgets::PVMappingModeWidget::init(bool params_btn)
 {
 	_combo = new PVComboBox(this);
 	_props = NULL;
-	
+
 	QHBoxLayout* layout = new QHBoxLayout();
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(10);
@@ -52,18 +54,18 @@ void PVWidgets::PVMappingModeWidget::init(bool params_btn)
 		layout->addWidget(_params_btn);
 
 		connect(_params_btn, SIGNAL(clicked()), this, SLOT(change_params()));
-	}
-	else {
+	} else {
 		_params_btn = NULL;
 	}
 	setLayout(layout);
-	
+
 	setFocusPolicy(Qt::StrongFocus);
 }
 
 void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
 {
-	LIB_CLASS(Inendi::PVMappingFilter)::list_classes const& map_filters = LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVMappingFilter)::list_classes const& map_filters =
+	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
 	LIB_CLASS(Inendi::PVMappingFilter)::list_classes::const_iterator it;
 	for (it = map_filters.begin(); it != map_filters.end(); it++) {
 		Inendi::PVMappingFilter::p_type filter = it->value();
@@ -77,7 +79,8 @@ void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
 	_cur_type = type;
 }
 
-void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id, Inendi::PVMapping& mapping)
+void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id,
+                                                           Inendi::PVMapping& mapping)
 {
 	Inendi::PVMappingProperties& props = mapping.get_properties_for_col(axis_id);
 	_props = &props;
@@ -88,16 +91,17 @@ void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id, Inendi
 
 	// FIXME : This is a hack as integer unsigned is a mapping while it should be a type.
 	// This should be fix when mapping/plotting and type will be more standard.
-	if(mode == "unsigned") {
+	if (mode == "unsigned") {
 		_combo->removeItem(_combo->findText("Signed decimal"));
-	} else if(mode == "default" and type == "integer") {
+	} else if (mode == "default" and type == "integer") {
 		_combo->removeItem(_combo->findText("Unsigned decimal"));
 	}
 
 	set_mode(mode);
 }
 
-void PVWidgets::PVMappingModeWidget::set_filter_params_from_type_mode(QString const& type, QString const& mode)
+void PVWidgets::PVMappingModeWidget::set_filter_params_from_type_mode(QString const& type,
+                                                                      QString const& mode)
 {
 	PVCore::PVArgumentList new_args;
 	if (_filter_params.contains(type)) {
@@ -106,7 +110,8 @@ void PVWidgets::PVMappingModeWidget::set_filter_params_from_type_mode(QString co
 
 	if (new_args.size() == 0) {
 		// Get default argument
-		Inendi::PVMappingFilter::p_type lib_filter = LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(type + "_" + mode);
+		Inendi::PVMappingFilter::p_type lib_filter =
+		    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(type + "_" + mode);
 		new_args = lib_filter->get_default_args();
 	}
 
@@ -137,7 +142,9 @@ void PVWidgets::PVMappingModeWidget::change_params()
 	if (args.size() == 0) {
 		return;
 	}
-	bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), args, this);
+	bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
+	    PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), args,
+	    this);
 	if (!ret) {
 		return;
 	}

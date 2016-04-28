@@ -17,15 +17,17 @@
  * Inendi::PVPlottingProperties::PVPlottingProperties
  *
  *****************************************************************************/
-Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& format, PVCol idx):
-	_mapping(&mapping)
+Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
+                                                   PVRush::PVFormat const& format, PVCol idx)
+    : _mapping(&mapping)
 {
 	_index = idx;
 	set_from_axis(format.get_axes().at(idx));
 }
 
-Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx):
-	_mapping(&mapping)
+Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
+                                                   PVRush::PVAxisFormat const& axis, PVCol idx)
+    : _mapping(&mapping)
 {
 	_index = idx;
 	set_from_axis(axis);
@@ -67,8 +69,7 @@ void Inendi::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
 		PVArgumentList_set_common_args_from(new_args, args);
 		_plotting_filter->set_args(new_args);
 		_args = new_args;
-	}
-	else {
+	} else {
 		_args = args;
 	}
 }
@@ -80,7 +81,8 @@ void Inendi::PVPlottingProperties::set_mode(QString const& mode)
 	}
 
 	_mode = mode;
-	PVPlottingFilter::p_type lib_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + mode);
+	PVPlottingFilter::p_type lib_filter =
+	    LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + mode);
 
 	_plotting_filter = lib_filter->clone<PVPlottingFilter>();
 	set_args(_args);
@@ -103,7 +105,8 @@ bool Inendi::PVPlottingProperties::operator==(PVPlottingProperties const& org)
 	return (_plotting_filter == org._plotting_filter) && (_index == org._index);
 }
 
-void Inendi::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so,
+                                             PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("index", _index);
 	so.attribute("mode", _mode);
@@ -112,6 +115,6 @@ void Inendi::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so, PVCo
 		_is_uptodate = false;
 	}
 	/*if (_plotting_filter) {
-		so.arguments("properties", _args, _plotting_filter->default_args());
+	        so.arguments("properties", _args, _plotting_filter->default_args());
 	}*/
 }

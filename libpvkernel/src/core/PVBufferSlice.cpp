@@ -10,17 +10,14 @@
 
 #include <tbb/tbb_allocator.h>
 
-
 #define REALLOC_GROWBY_ADD 20
 
 // No buffer simulation
 static uint32_t g_null_buf_data = 0;
-static char* g_null_buf = (char*) &g_null_buf_data;
-static char* g_null_buf_end = ((char*) &g_null_buf_data)+sizeof(uint32_t);
+static char* g_null_buf = (char*)&g_null_buf_data;
+static char* g_null_buf_end = ((char*)&g_null_buf_data) + sizeof(uint32_t);
 
-
-PVCore::PVBufferSlice::PVBufferSlice(buf_list_t& buf_list) :
-	_buf_list(buf_list)
+PVCore::PVBufferSlice::PVBufferSlice(buf_list_t& buf_list) : _buf_list(buf_list)
 {
 	_begin = g_null_buf;
 	_end = g_null_buf_end;
@@ -28,8 +25,8 @@ PVCore::PVBufferSlice::PVBufferSlice(buf_list_t& buf_list) :
 	_realloc_buf = NULL;
 }
 
-PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_list) :
-	_buf_list(buf_list)
+PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_list)
+    : _buf_list(buf_list)
 {
 	assert(end >= begin);
 	_begin = begin;
@@ -58,10 +55,8 @@ void PVCore::PVBufferSlice::set_physical_end(char* p)
 bool PVCore::PVBufferSlice::grow_by(size_t n)
 {
 	if (n == 0) {
-		n = (uintptr_t) _physical_end - (uintptr_t) _end;
-	}
-	else
-	if (_end + n > _physical_end) {
+		n = (uintptr_t)_physical_end - (uintptr_t)_end;
+	} else if (_end + n > _physical_end) {
 		return false;
 	}
 	set_end(_end + n);
@@ -74,30 +69,29 @@ void PVCore::PVBufferSlice::grow_by_reallocate(size_t n)
 		return;
 	// No choice here...
 	// TODO: allocate this in a circular buffer
-	
+
 	static tbb::tbb_allocator<char> alloc;
 	size_t s = size();
 	char* new_buf;
 	if (_realloc_buf) {
 		_buf_list.remove(buf_list_t::value_type(_realloc_buf, _physical_end - _begin));
 		char* tmp_new = alloc.allocate(s + n + REALLOC_GROWBY_ADD);
-		_buf_list.push_back(buf_list_t::value_type(tmp_new, s+n+REALLOC_GROWBY_ADD));
+		_buf_list.push_back(buf_list_t::value_type(tmp_new, s + n + REALLOC_GROWBY_ADD));
 		memcpy(tmp_new, _begin, s);
 		new_buf = tmp_new;
 		alloc.deallocate(_realloc_buf, _physical_end - _begin);
 		_realloc_buf = tmp_new;
-	}
-	else {
+	} else {
 		_realloc_buf = alloc.allocate(s + n + REALLOC_GROWBY_ADD);
-		_buf_list.push_back(buf_list_t::value_type(_realloc_buf, s+n+REALLOC_GROWBY_ADD));
+		_buf_list.push_back(buf_list_t::value_type(_realloc_buf, s + n + REALLOC_GROWBY_ADD));
 		new_buf = _realloc_buf;
 		memcpy(new_buf, _begin, s);
 	}
-	memset(new_buf+s, 0, n);
+	memset(new_buf + s, 0, n);
 	_begin = new_buf;
-	_end = new_buf+s+n;
+	_end = new_buf + s + n;
 	_physical_end = _end + REALLOC_GROWBY_ADD;
-	//init_qstr();
+	// init_qstr();
 }
 
 void PVCore::PVBufferSlice::allocate_new(size_t n)
@@ -108,7 +102,7 @@ void PVCore::PVBufferSlice::allocate_new(size_t n)
 		_buf_list.remove(buf_list_t::value_type(_realloc_buf, _physical_end - _begin));
 	}
 	_begin = alloc.allocate(n);
-	_end = _begin+n;
+	_end = _begin + n;
 	_physical_end = _end;
 	_buf_list.push_back(buf_list_t::value_type(_begin, n));
 }
@@ -127,13 +121,13 @@ void PVCore::PVBufferSlice::_realloc_data()
 	memcpy(new_buf, _begin, s);
 
 	_begin = new_buf;
-	_end = new_buf+old_size;
-	_physical_end = new_buf+s;
+	_end = new_buf + old_size;
+	_physical_end = new_buf + s;
 }
 
 size_t PVCore::PVBufferSlice::size() const
 {
-	return (size_t) ((uintptr_t)_end - (uintptr_t)_begin);
+	return (size_t)((uintptr_t)_end - (uintptr_t)_begin);
 }
 
 char* PVCore::PVBufferSlice::begin() const

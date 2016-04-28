@@ -27,48 +27,44 @@
 #pragma pack(push)
 #pragma pack(4)
 
-struct entry {
+struct entry
+{
 	uint32_t y1, y2;
 	uint32_t idx;
 };
 
-bool are_diff(const entry &e1, const entry &e2)
+bool are_diff(const entry& e1, const entry& e2)
 {
 	return ((e1.y1 != e2.y1) || (e1.y2 != e2.y2) || (e1.idx != e2.idx));
 }
 
 #pragma pack(pop)
 
-enum {
-	SW = 0,
-	SE,
-	NW,
-	NE
-};
+enum { SW = 0, SE, NW, NE };
 
 #include "quadtree.h"
 #include "quadtree-tmpl.h"
 #include "quadtree-flat.h"
 
-void printb (uint32_t v)
+void printb(uint32_t v)
 {
-	for(int i = 31; i >= 0; --i) {
-		if((i & 7) == 7)
+	for (int i = 31; i >= 0; --i) {
+		if ((i & 7) == 7)
 			std::cout << " ";
-		if(v & (1 << i))
+		if (v & (1 << i))
 			std::cout << "1";
 		else
 			std::cout << "0";
 	}
 }
 
-void print_mem (const char *text, size_t s)
+void print_mem(const char* text, size_t s)
 {
 	double v = s / (1024. * 1024.);
-	std::cout << text  << ": memory usage is: " << v << " Mib" << std::endl;
+	std::cout << text << ": memory usage is: " << v << " Mib" << std::endl;
 }
 
-#define MAX_VALUE ((1<<22) - 1)
+#define MAX_VALUE ((1 << 22) - 1)
 
 void usage()
 {
@@ -85,7 +81,7 @@ void usage()
 // it's 8 because QuadTreeTmpl's size can not set
 #define DEPTH 8
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	if (argc < 3) {
 		usage();
@@ -103,18 +99,18 @@ int main(int argc, char **argv)
 	boost::mt19937 rnd(0);
 	boost::random::uniform_int_distribution<unsigned> uni(0, UINT_MAX);
 
-	entry *entries = new entry [count];
-	for(int i = 0; i < count; ++i) {
+	entry* entries = new entry[count];
+	for (int i = 0; i < count; ++i) {
 		entries[i].y1 = random() & MAX_VALUE;
 		entries[i].y2 = random() & MAX_VALUE;
 		entries[i].idx = i;
 	}
 
-	entry *ranges = new entry [count];
-	for(int i = 0; i < count; ++i) {
+	entry* ranges = new entry[count];
+	for (int i = 0; i < count; ++i) {
 		uint32_t y1 = random() & MAX_VALUE;
 		uint32_t y2 = random() & MAX_VALUE;
-		if(y1 < y2) {
+		if (y1 < y2) {
 			ranges[i].y1 = y1;
 			ranges[i].y2 = y2;
 		} else {
@@ -123,12 +119,12 @@ int main(int argc, char **argv)
 		}
 	}
 
-	PVQuadTree<Vector1<entry>, entry> *sqt1 = 0;
+	PVQuadTree<Vector1<entry>, entry>* sqt1 = 0;
 	if (TESTS_CHECK(tests, 0)) {
 		sqt1 = new PVQuadTree<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
 		MEM_START(usage);
 		BENCH_START(time);
-		for(int i = 0; i < count; ++i) {
+		for (int i = 0; i < count; ++i) {
 			sqt1->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTree", count, sizeof(entry), 1, 1);
@@ -148,12 +144,12 @@ int main(int argc, char **argv)
 		std::cout << "search result size : " << res2.size() << std::endl;
 	}
 
-	PVQuadTreeTmpl<Vector1<entry>, entry, 8> *tqt1 = 0;
+	PVQuadTreeTmpl<Vector1<entry>, entry, 8>* tqt1 = 0;
 	if (TESTS_CHECK(tests, 1)) {
 		tqt1 = new PVQuadTreeTmpl<Vector1<entry>, entry, 8>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
 		MEM_START(usage);
 		BENCH_START(time);
-		for(int i = 0; i < count; ++i) {
+		for (int i = 0; i < count; ++i) {
 			tqt1->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTreeTmpl", count, sizeof(entry), 1, 1);
@@ -161,12 +157,12 @@ int main(int argc, char **argv)
 		print_mem("PVQuadTreeTmpl", tqt1->memory());
 	}
 
-	PVQuadTreeFlat<Vector1<entry>, entry> *fqt1 = 0;
+	PVQuadTreeFlat<Vector1<entry>, entry>* fqt1 = 0;
 	if (TESTS_CHECK(tests, 2)) {
 		fqt1 = new PVQuadTreeFlat<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
 		MEM_START(usage);
 		BENCH_START(time);
-		for(int i = 0; i < count; ++i) {
+		for (int i = 0; i < count; ++i) {
 			fqt1->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTreeFlat", count, sizeof(entry), 1, 1);
@@ -192,15 +188,15 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(sqt1) {
+	if (sqt1) {
 		delete sqt1;
 	}
 
-	if(tqt1) {
+	if (tqt1) {
 		delete tqt1;
 	}
 
-	if(fqt1) {
+	if (fqt1) {
 		delete fqt1;
 	}
 

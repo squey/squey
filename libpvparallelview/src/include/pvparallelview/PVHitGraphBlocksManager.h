@@ -13,30 +13,33 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphData.h>
 
-namespace Inendi {
+namespace Inendi
+{
 class PVSelection;
 }
 
-namespace PVParallelView {
-
-class PVHitGraphBlocksManager: boost::noncopyable
+namespace PVParallelView
 {
-protected:
-	typedef PVHitGraphData::ProcessParams DataProcessParams ;
 
-public:
-	PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Inendi::PVSelection& layer_sel, Inendi::PVSelection const& sel);
+class PVHitGraphBlocksManager : boost::noncopyable
+{
+  protected:
+	typedef PVHitGraphData::ProcessParams DataProcessParams;
 
-public:
+  public:
+	PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks,
+	                        Inendi::PVSelection& layer_sel, Inendi::PVSelection const& sel);
+
+  public:
 	bool change_and_process_view(const uint32_t y_min, const int zoom, double alpha);
 	void process_buffer_all();
 	void process_buffer_selected();
 	void process_all_buffers();
 
-public:
-	void set_layer_sel(const Inendi::PVSelection &sel);
+  public:
+	void set_layer_sel(const Inendi::PVSelection& sel);
 
-public:
+  public:
 	uint32_t const* buffer_all() const;
 	uint32_t const* buffer_selectable() const;
 	uint32_t const* buffer_selected() const;
@@ -51,12 +54,12 @@ public:
 	inline PVRow get_nrows() const { return _data_params.nrows; }
 
 	uint32_t get_count_for(const uint32_t value) const;
-	__m128i  get_count_for(__m128i value) const;
+	__m128i get_count_for(__m128i value) const;
 
 	uint32_t get_max_count_all() const;
 	uint32_t get_max_count_selected() const;
 
-public:
+  public:
 	inline int last_zoom() const { return _data_params.zoom; }
 	inline int last_nbits() const { return _data_params.nbits; }
 	inline double last_alpha() const { return _data_params.alpha; }
@@ -65,13 +68,16 @@ public:
 
 	PVHitGraphData const& hgdata() const;
 
-protected:
-	inline bool full_view() const { return (_data_params.zoom == 0) && (_data_params.alpha == 1.0); }
+  protected:
+	inline bool full_view() const
+	{
+		return (_data_params.zoom == 0) && (_data_params.alpha == 1.0);
+	}
 	PVHitGraphData& hgdata();
 
 	void shift_blocks(int blocks_shift, const double alpha);
 
-protected:
+  protected:
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVHitGraphData _data;
 
@@ -80,7 +86,6 @@ protected:
 
 	DataProcessParams _data_params;
 };
-
 }
 
 #endif

@@ -51,14 +51,14 @@ class PVZoomedParallelViewSelectionLine;
  */
 class PVZoomedParallelScene : public QGraphicsScene
 {
-Q_OBJECT
+	Q_OBJECT
 
-private:
+  private:
 	friend class zoom_sliders_update_obs;
 	friend class zoom_sliders_del_obs;
 	friend class zoomed_sel_sliders_del_obs;
 
-private:
+  private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
 	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
 
@@ -75,13 +75,13 @@ private:
 	constexpr static int extra_zoom = 4; // actually inactive
 	constexpr static int max_wheel_value = (max_zoom_value + extra_zoom) * zoom_steps;
 
-private:
+  private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
 
-public:
+  public:
 	typedef PVBCIBackendImage_p backend_image_p_t;
 
-public:
+  public:
 	/**
 	 * Constructor
 	 *
@@ -94,13 +94,10 @@ public:
 	 * @param axis_index the axis index this scene zoom on
 
 	 */
-	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-	                      Inendi::PVView_sp& pvview_sp,
-	                      PVSlidersManager_p sliders_manager_p,
-	                      PVZonesProcessor& zp_sel,
-	                      PVZonesProcessor& zp_bg,
-	                      PVZonesManager const& zm,
-	                      PVCol axis_index);
+	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView* zpview,
+	                      Inendi::PVView_sp& pvview_sp, PVSlidersManager_p sliders_manager_p,
+	                      PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg,
+	                      PVZonesManager const& zm, PVCol axis_index);
 
 	/**
 	 * Destructor
@@ -116,7 +113,7 @@ public:
 	 *
 	 * @param event the pressed button event
 	 */
-	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mousePressEvent(QGraphicsSceneMouseEvent* event);
 
 	/**
 	 * Overloaded methods when a mouse button is released.
@@ -125,7 +122,7 @@ public:
 	 *
 	 * @param event the released button event
 	 */
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 
 	/**
 	 * Overloaded methods when the mouse cursor moves.
@@ -134,7 +131,7 @@ public:
 	 *
 	 * @param event the movement event
 	 */
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
 	/**
 	 * Overloaded method for zooming and panning.
@@ -150,9 +147,9 @@ public:
 	 *
 	 * @param event the key pressed event
 	 */
-	void keyPressEvent(QKeyEvent *event);
+	void keyPressEvent(QKeyEvent* event);
 
-	void update(const QRectF &rect = QRectF());
+	void update(const QRectF& rect = QRectF());
 
 	/**
 	 * Start asynchronously an update of selection rendering.
@@ -171,10 +168,7 @@ public:
 	/**
 	 * Getter of the axis index used by this view.
 	 */
-	PVCol get_axis_index() const
-	{
-		return _axis_index;
-	}
+	PVCol get_axis_index() const { return _axis_index; }
 
 	/**
 	 * Enable/disable the scene.
@@ -201,15 +195,12 @@ public:
 	 * @param painter the used QPainter
 	 * @param rect the (unused) area to redraw
 	 */
-	virtual void drawBackground(QPainter *painter, const QRectF &rect);
+	virtual void drawBackground(QPainter* painter, const QRectF& rect);
 
 	/**
 	 * Function to call when the view is resized.
 	 */
-	void resize_display(bool need_recomputation = true)
-	{
-		update_zoom(need_recomputation);
-	}
+	void resize_display(bool need_recomputation = true) { update_zoom(need_recomputation); }
 
 	/**
 	 * Test if the zone \z has been rendered or not.
@@ -223,7 +214,7 @@ public:
 	{
 		bool ret = false;
 		if (_left_zone) {
-			ret |= (z == _axis_index-1);
+			ret |= (z == _axis_index - 1);
 		}
 		if (_right_zone) {
 			ret |= (z == _axis_index);
@@ -241,7 +232,7 @@ public:
 		cancel_and_wait_all_rendering();
 	}
 
-protected:
+  protected:
 	bool show_bg() const { return _show_bg; }
 
 	/**
@@ -251,7 +242,7 @@ protected:
 	 */
 	void configure_axis(bool reset_view_param = false);
 
-private slots:
+  private slots:
 	/**
 	 * Start an update of the selection images.
 	 */
@@ -277,7 +268,8 @@ private slots:
 	void update_display();
 
 	/**
-	 * Update the graphical elements after a change of zoom parameter (mouse event or through the hive).
+	 * Update the graphical elements after a change of zoom parameter (mouse event or through the
+	 * hive).
 	 */
 	void update_zoom(bool need_recomputation = true);
 
@@ -291,22 +283,16 @@ private slots:
 	 */
 	void change_to_col(int index);
 
-private:
+  private:
 	/**
 	 * Get the zoom level corresponding to the current mouse wheel state.
 	 */
-	inline int get_zoom_level()
-	{
-		return _wheel_value / zoom_steps;
-	}
+	inline int get_zoom_level() { return _wheel_value / zoom_steps; }
 
 	/**
 	 * Get the zoom step corresponding to the current mouse wheel state.
 	 */
-	inline int get_zoom_step()
-	{
-		return _wheel_value % zoom_steps;
-	}
+	inline int get_zoom_step() { return _wheel_value % zoom_steps; }
 
 	/**
 	 * Get the scale factor corresponding to the current mouse wheel state.
@@ -324,7 +310,7 @@ private:
 	 *
 	 * @param a the desired scale factor
 	 */
-	inline double retrieve_wheel_value_from_alpha(const double &a)
+	inline double retrieve_wheel_value_from_alpha(const double& a)
 	{
 		// non simplified formula is: log2(1/a) / log2(root_steps)
 		return -zoom_steps * log2(a);
@@ -335,16 +321,13 @@ private:
 	 */
 	inline PVZoneID left_zone_id() const
 	{
-		return (_left_zone) ? _axis_index-1 : PVZONEID_INVALID;
+		return (_left_zone) ? _axis_index - 1 : PVZONEID_INVALID;
 	}
 
 	/**
 	 * Get the right zone's identifier.
 	 */
-	inline PVZoneID right_zone_id() const
-	{
-		return (_right_zone) ? _axis_index : PVZONEID_INVALID;
-	}
+	inline PVZoneID right_zone_id() const { return (_right_zone) ? _axis_index : PVZONEID_INVALID; }
 
 	/**
 	 * Getter of the underlying VPZonesManager.
@@ -354,15 +337,24 @@ private:
 	/**
 	 * Getter of the shared selection.
 	 */
-	inline Inendi::PVSelection const& real_selection() const { return _pvview.get_real_output_selection(); }
-	inline Inendi::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
+	inline Inendi::PVSelection const& real_selection() const
+	{
+		return _pvview.get_real_output_selection();
+	}
+	inline Inendi::PVSelection& layer_stack_output_selection()
+	{
+		return _pvview.get_layer_stack_output_layer().get_selection();
+	}
 
 	/**
 	 * Get the \z zone's PVZoomedZoneTree.
 	 *
 	 * @param z the zone
 	 */
-	inline PVZoomedZoneTree const& get_zztree(PVZoneID const z) { return _zm.get_zoom_zone_tree(z); }
+	inline PVZoomedZoneTree const& get_zztree(PVZoneID const z)
+	{
+		return _zm.get_zoom_zone_tree(z);
+	}
 
 	/**
 	 * Connect in Qt's sense the slot \slots to the PVZoneRendering \zr.
@@ -372,14 +364,14 @@ private:
 	 */
 	void connect_zr(PVZoneRenderingBCI<bbits>* zr, const char* slots);
 
-	inline size_t qimage_height() const { return 1<<PARALLELVIEW_ZZT_BBITS; }
+	inline size_t qimage_height() const { return 1 << PARALLELVIEW_ZZT_BBITS; }
 
 	/**
 	 * recreate composed images
 	 */
 	void recreate_images();
 
-private slots:
+  private slots:
 	/**
 	 * The slot called when the vertical scrollbar's value has changed.
 	 *
@@ -418,24 +410,23 @@ private slots:
 	 */
 	void toggle_unselected_zombie_visibility();
 
-private:
+  private:
 	/**
 	 * @class zoom_sliders_update_obs
 	 *
 	 * PVHive observer when a zoom sliders has been updated.
 	 */
-	class zoom_sliders_update_obs :
-		public PVHive::PVFuncObserver<PVSlidersManager,
-		                              FUNC(PVSlidersManager::update_zoom_sliders)>
+	class zoom_sliders_update_obs
+	    : public PVHive::PVFuncObserver<PVSlidersManager,
+	                                    FUNC(PVSlidersManager::update_zoom_sliders)>
 	{
-	public:
-		zoom_sliders_update_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
-		{}
+	  public:
+		zoom_sliders_update_obs(PVZoomedParallelScene* parent = nullptr) : _parent(parent) {}
 
 		void update(arguments_deep_copy_type const& args) const;
 
-	private:
-		PVZoomedParallelScene *_parent;
+	  private:
+		PVZoomedParallelScene* _parent;
 	};
 
 	/**
@@ -443,18 +434,16 @@ private:
 	 *
 	 * PVHive observer when a zoom sliders is deleted.
 	 */
-	class zoom_sliders_del_obs :
-		public PVHive::PVFuncObserver<PVSlidersManager,
-		                              FUNC(PVSlidersManager::del_zoom_sliders)>
+	class zoom_sliders_del_obs
+	    : public PVHive::PVFuncObserver<PVSlidersManager, FUNC(PVSlidersManager::del_zoom_sliders)>
 	{
-	public:
-		zoom_sliders_del_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
-		{}
+	  public:
+		zoom_sliders_del_obs(PVZoomedParallelScene* parent = nullptr) : _parent(parent) {}
 
 		void update(arguments_deep_copy_type const& args) const;
 
-	private:
-		PVZoomedParallelScene *_parent;
+	  private:
+		PVZoomedParallelScene* _parent;
 	};
 
 	/**
@@ -462,33 +451,29 @@ private:
 	 *
 	 * PVHive observer when its zoomed selection sliders is deleted
 	 */
-	class zoomed_sel_sliders_del_obs :
-		public PVHive::PVFuncObserver<PVSlidersManager,
-		                              FUNC(PVSlidersManager::del_zoomed_selection_sliders)>
+	class zoomed_sel_sliders_del_obs
+	    : public PVHive::PVFuncObserver<PVSlidersManager,
+	                                    FUNC(PVSlidersManager::del_zoomed_selection_sliders)>
 	{
-	public:
-		zoomed_sel_sliders_del_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
-		{}
+	  public:
+		zoomed_sel_sliders_del_obs(PVZoomedParallelScene* parent = nullptr) : _parent(parent) {}
 
 		void update(arguments_deep_copy_type const& args) const;
 
-	private:
-		PVZoomedParallelScene *_parent;
+	  private:
+		PVZoomedParallelScene* _parent;
 	};
 
-private:
+  private:
 	typedef PVParallelView::PVSlidersManager::axis_id_t axis_id_t;
 
-private:
+  private:
 	/**
 	 * @enum render_t
 	 *
 	 * Type of rendering when an update is requested.
 	 */
-	typedef enum {
-		RENDER_ALL,
-		RENDER_SEL
-	} render_t;
+	typedef enum { RENDER_ALL, RENDER_SEL } render_t;
 
 	/**
 	 * @class zone_desc_t
@@ -499,10 +484,7 @@ private:
 
 	struct zone_desc_t
 	{
-		zone_desc_t():
-			last_zr_sel(),
-			last_zr_bg()
-		{ }
+		zone_desc_t() : last_zr_sel(), last_zr_bg() {}
 
 		inline void cancel_last_sel()
 		{
@@ -545,59 +527,58 @@ private:
 			}
 		}
 
-		backend_image_p_t           bg_image;   // the image for unselected/zombie events
-		backend_image_p_t           sel_image;  // the image for selected events
-		QGraphicsPixmapItem        *item;       // the scene's element
-		QPointF                     next_pos;   // the item position of the next rendering
+		backend_image_p_t bg_image;  // the image for unselected/zombie events
+		backend_image_p_t sel_image; // the image for selected events
+		QGraphicsPixmapItem* item;   // the scene's element
+		QPointF next_pos;            // the item position of the next rendering
 		PVZoneRenderingBCI_p<bbits> last_zr_sel;
 		PVZoneRenderingBCI_p<bbits> last_zr_bg;
 	};
 
-private:
-	PVZoomedParallelView           *_zpview;
-	Inendi::PVView&                 _pvview;
-	PVSlidersManager_p              _sliders_manager_p;
-	PVSlidersGroup                 *_sliders_group;
-	zoom_sliders_update_obs         _zsu_obs;
-	zoom_sliders_del_obs            _zsd_obs;
-	zoomed_sel_sliders_del_obs      _zssd_obs;
-	PVCol                           _axis_index;
-	axis_id_t                       _axis_id;
-	PVZonesManager const&           _zm;
+  private:
+	PVZoomedParallelView* _zpview;
+	Inendi::PVView& _pvview;
+	PVSlidersManager_p _sliders_manager_p;
+	PVSlidersGroup* _sliders_group;
+	zoom_sliders_update_obs _zsu_obs;
+	zoom_sliders_del_obs _zsd_obs;
+	zoomed_sel_sliders_del_obs _zssd_obs;
+	PVCol _axis_index;
+	axis_id_t _axis_id;
+	PVZonesManager const& _zm;
 
 	// this flag helps not killing twice through the hive and the destructor
-	bool                            _pending_deletion;
+	bool _pending_deletion;
 
 	// about mouse
-	int                             _wheel_value;
-	qint64                          _pan_reference_y;
+	int _wheel_value;
+	qint64 _pan_reference_y;
 
 	// about zones rendering/display
-	zone_desc_t                    *_left_zone;
-	zone_desc_t                    *_right_zone;
-	qreal                           _next_beta;
-	qreal                           _current_beta;
-	uint32_t                        _last_y_min;
-	uint32_t                        _last_y_max;
-	bool                            _show_bg;
+	zone_desc_t* _left_zone;
+	zone_desc_t* _right_zone;
+	qreal _next_beta;
+	qreal _current_beta;
+	uint32_t _last_y_min;
+	uint32_t _last_y_max;
+	bool _show_bg;
 
 	// about rendering
-	QTimer                          _updateall_timer;
-	PVZonesProcessor&		_zp_sel;
-	PVZonesProcessor&		_zp_bg;
+	QTimer _updateall_timer;
+	PVZonesProcessor& _zp_sel;
+	PVZonesProcessor& _zp_bg;
 
 	// about selection in the zoom view
-	PVZoomedParallelViewSelectionLine *_sel_line;
-	PVZoomedSelectionAxisSliders   *_selection_sliders;
+	PVZoomedParallelViewSelectionLine* _sel_line;
+	PVZoomedSelectionAxisSliders* _selection_sliders;
 	PVHive::PVActor<Inendi::PVView> _view_actor;
 
 	// about rendering invalidation
-	render_t                        _render_type;
-	int                             _renderable_zone_number;
+	render_t _render_type;
+	int _renderable_zone_number;
 
-	std::atomic_bool                _view_deleted;
+	std::atomic_bool _view_deleted;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H

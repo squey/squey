@@ -10,12 +10,11 @@
 
 #include <pvparallelview/PVScatterViewDataImpl.h>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 // Choose which implementation must be used.
 typedef PVScatterViewDataImpl PVScatterViewData;
-
 }
 
 #endif //__PVSCATTERVIEWDATA_H__
-

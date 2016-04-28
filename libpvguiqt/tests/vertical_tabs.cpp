@@ -32,49 +32,47 @@
 
 class CustomMainWindow : public QMainWindow
 {
-public:
+  public:
 	CustomMainWindow(QWidget* parent = 0) : QMainWindow(parent)
 	{
-		setGeometry(
-			QStyle::alignedRect(
-					Qt::LeftToRight,
-					Qt::AlignCenter,
-					size(),
-					QApplication::desktop()->availableGeometry()
-			));
+		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
+		                                QApplication::desktop()->availableGeometry()));
 		resize(1024, 768);
 	}
 };
 
 class PVSplitterHandle : public QSplitterHandle
 {
-public:
-	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0) : QSplitterHandle(orientation, parent) {}
+  public:
+	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0)
+	    : QSplitterHandle(orientation, parent)
+	{
+	}
 	void set_max_size(int max_size) { _max_size = max_size; }
-protected:
+
+  protected:
 	void mouseMoveEvent(QMouseEvent* event) override
 	{
 		// assert(_max_size > 0) // set splitter handle max size!
 		QList<int> sizes = splitter()->sizes();
-		//assert(sizes.size() > 0);
-		if ((sizes[0] == 0 && event->pos().x() < _max_size) || (sizes[0] != 0 && event->pos().x() < 0)) {
+		// assert(sizes.size() > 0);
+		if ((sizes[0] == 0 && event->pos().x() < _max_size) ||
+		    (sizes[0] != 0 && event->pos().x() < 0)) {
 			QSplitterHandle::mouseMoveEvent(event);
 		}
 	}
-private:
+
+  private:
 	int _max_size = 0;
 };
 
 class PVSplitter : public QSplitter
 {
-public:
-	PVSplitter(Qt::Orientation orientation, QWidget * parent = 0) : QSplitter(orientation, parent) {}
+  public:
+	PVSplitter(Qt::Orientation orientation, QWidget* parent = 0) : QSplitter(orientation, parent) {}
 
-protected:
-    QSplitterHandle *createHandle()
-    {
-    	return new PVSplitterHandle(orientation(), this);
-    }
+  protected:
+	QSplitterHandle* createHandle() { return new PVSplitterHandle(orientation(), this); }
 };
 
 int main(int argc, char** argv)
@@ -94,7 +92,6 @@ int main(int argc, char** argv)
 	src2->create_default_view();
 	src->create_default_view();
 
-
 	Inendi::PVView_p view(new Inendi::PVView());
 	view->set_parent(src->current_view()->get_parent()->shared_from_this());
 	view->process_parent_plotted();
@@ -104,12 +101,13 @@ int main(int argc, char** argv)
 
 	CustomMainWindow* mw = new CustomMainWindow();
 
-	PVGuiQt::PVProjectsTabWidget* projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(root.get(), mw);
+	PVGuiQt::PVProjectsTabWidget* projects_tab_widget =
+	    new PVGuiQt::PVProjectsTabWidget(root.get(), mw);
 
 	projects_tab_widget->add_source(src.get());
 
-	//projects_tab_widget->collapse_tabs();
-	//projects_tab_widget->collapse_tabs(false);
+	// projects_tab_widget->collapse_tabs();
+	// projects_tab_widget->collapse_tabs(false);
 
 	mw->show();
 

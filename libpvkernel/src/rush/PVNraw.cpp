@@ -37,10 +37,9 @@ const std::string PVRush::PVNraw::default_quote_char = "\"";
  *
  ****************************************************************************/
 
-PVRush::PVNraw::PVNraw():
-	_real_nrows(0),
-	_invalid_count(0)
-{}
+PVRush::PVNraw::PVNraw() : _real_nrows(0), _invalid_count(0)
+{
+}
 
 /*****************************************************************************
  *
@@ -51,7 +50,8 @@ PVRush::PVNraw::PVNraw():
 void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
-	std::string collector_path = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
+	std::string collector_path =
+	    PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
 	if (mkdtemp(&collector_path.front()) == nullptr) {
 		throw PVNrawException("unable to create temporary directory " + collector_path);
 	}
@@ -61,7 +61,7 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list 
 	_collection.reset();
 
 	// Define maximum number of row;
-	if(nrows == 0) {
+	if (nrows == 0) {
 		_max_nrows = INENDI_LINES_MAX;
 	} else {
 		_max_nrows = nrows;
@@ -97,11 +97,11 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	// Count number of extracted line. It is not the same as the number of elements as some of them
 	// may be invalid or empty or we may skip the end when enough data is extracted.
 	PVRow local_row = elts.size();
-	for (PVCore::PVElement* elt: elts) {
+	for (PVCore::PVElement* elt : elts) {
 
 		PVCore::PVElement& e = *elt;
 		if (!e.valid()) {
-			for(size_t i=0; i<column_count; i++) {
+			for (size_t i = 0; i < column_count; i++) {
 				pvcop_fields.emplace_back(pvcop::sink::field_t{"", 0});
 			}
 			continue;
@@ -109,19 +109,18 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 
 		PVCore::list_fields const& fields = e.c_fields();
 		if (fields.size() == 0) {
-			for(size_t i=0; i<column_count; i++) {
+			for (size_t i = 0; i < column_count; i++) {
 				pvcop_fields.emplace_back(pvcop::sink::field_t{"", 0});
 			}
 			continue;
 		}
 
 		assert(column_count == fields.size());
-		for (PVCore::PVField const& field :fields) {
+		for (PVCore::PVField const& field : fields) {
 			// Save the field
 			pvcop_fields.emplace_back(pvcop::sink::field_t{field.begin(), field.size()});
 		}
 	}
-
 
 	int i = snk.write_chunk_by_row(chunk.agg_index(), local_row, pvcop_fields.data());
 
@@ -146,7 +145,7 @@ void PVRush::PVNraw::load_done()
 	// Close collector to be sure it is saved before we load it in the collection.
 	_collector->close();
 
-	if(_real_nrows != 0) {
+	if (_real_nrows != 0) {
 		// Create the collection only if there are imported lines.
 		_collection.reset(new pvcop::collection(_collector->rootdir()));
 	}
@@ -217,11 +216,10 @@ void PVRush::PVNraw::dump_csv(std::string const& file_path) const
  *
  ****************************************************************************/
 
-std::string PVRush::PVNraw::export_line(PVRow idx,
-	const PVCore::PVColumnIndexes& col_indexes,
-	const std::string sep_char /* = default_sep_char */,
-	const std::string quote_char /* = default_quote_char */
-) const
+std::string PVRush::PVNraw::export_line(PVRow idx, const PVCore::PVColumnIndexes& col_indexes,
+                                        const std::string sep_char /* = default_sep_char */,
+                                        const std::string quote_char /* = default_quote_char */
+                                        ) const
 {
 	static std::string escaped_quote("\\" + quote_char);
 
@@ -230,7 +228,7 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	// Displayed column, not NRaw column
 	std::string line;
 
-	for(int c: col_indexes) {
+	for (int c : col_indexes) {
 		line += PVRush::PVUtils::safe_export(at_string(idx, c), sep_char, quote_char) + sep_char;
 	}
 
@@ -246,25 +244,22 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::export_lines(
-	std::ostream& stream,
-	const PVCore::PVSelBitField& sel,
-	const PVCore::PVColumnIndexes& col_indexes,
-	size_t start_index,
-	size_t step_count,
-	const std::string& sep_char /* = default_sep_char */,
-	const std::string& quote_char /* = default_quote_char */
-) const
+void PVRush::PVNraw::export_lines(std::ostream& stream, const PVCore::PVSelBitField& sel,
+                                  const PVCore::PVColumnIndexes& col_indexes, size_t start_index,
+                                  size_t step_count,
+                                  const std::string& sep_char /* = default_sep_char */,
+                                  const std::string& quote_char /* = default_quote_char */
+                                  ) const
 {
 	assert(get_number_cols() > 0);
 	assert(col_indexes.size() != 0);
 	// volatile as it will be modify by another thread.
 	int volatile current_thread = 0;
 
-	// Parallelize export algo:
-	// Each thread have a local string. Thanks to static scheduling, first thread
-	// will handle N first line, second one, N to 2N, ...
-	// Finally, these string will be written in stream in thread order.
+// Parallelize export algo:
+// Each thread have a local string. Thanks to static scheduling, first thread
+// will handle N first line, second one, N to 2N, ...
+// Finally, these string will be written in stream in thread order.
 #pragma omp parallel
 	{
 		std::string content;
@@ -280,7 +275,8 @@ void PVRush::PVNraw::export_lines(
 
 		// Data is in content but we lock here to make sure it is written ordered.
 		// Ordered reduction may be available in OpenMP 4.0
-		while(omp_get_thread_num() != current_thread);
+		while (omp_get_thread_num() != current_thread)
+			;
 
 		stream << content;
 		current_thread++; // The next thread can do it.

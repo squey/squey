@@ -36,72 +36,76 @@
  * \brief Formating a log file
  * @{
  *
- * A format is used to know how to split the input file or buffer in columns. It is based on a XML description
+ * A format is used to know how to split the input file or buffer in columns. It is based on a XML
+ *description
  * Then is then used by the normalization part.
  *
  */
 
 #define FORMAT_CUSTOM_NAME "custom"
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVFormatException : public std::runtime_error
 {
-	public:
-		using std::runtime_error::runtime_error;
+  public:
+	using std::runtime_error::runtime_error;
 };
 
-class PVFormatInvalid: public PVFormatException
+class PVFormatInvalid : public PVFormatException
 {
-public:
+  public:
 	using PVFormatException::PVFormatException;
 	PVFormatInvalid() : PVFormatException("invalid format (no filters and/or axes)") {}
 };
 
-class PVFormatUnknownType: public PVFormatException
+class PVFormatUnknownType : public PVFormatException
 {
-public:
+  public:
 	using PVFormatException::PVFormatException;
 };
 
-class PVFormatNoTimeMapping: public PVFormatException
+class PVFormatNoTimeMapping : public PVFormatException
 {
-public:
+  public:
 	using PVFormatException::PVFormatException;
 };
-
 
 /**
 * This is the Format class
 */
-class PVFormat {
+class PVFormat
+{
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	typedef PVFormat_p p_type;
 
-public:
+  public:
 	class Comparaison
 	{
 		friend class PVFormat;
-	public:
+
+	  public:
 		bool same() const { return !_need_extract & !_mapping & !_plotting & !_other; }
 		bool need_extract() const { return _need_extract; }
 		bool different_mapping() const { return _mapping; }
 		bool different_plotting() const { return _plotting; }
 		bool different_other_axes_properties() const { return _other; }
-	protected:
+
+	  protected:
 		bool _need_extract;
 		bool _mapping;
 		bool _plotting;
 		bool _other;
 	};
 
-private:
-
+  private:
 	QString format_name; // human readable name, displayed in a widget for instance
 	QString full_path;
 
-public:
+  public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
 	~PVFormat();
@@ -115,12 +119,14 @@ public:
 	bool populate(bool forceOneAxis = false);
 
 	Comparaison comp(PVFormat const& original) const;
-	
-	PVFilter::PVChunkFilter_f create_tbb_filters_autodetect(float timeout, bool *cancellation = nullptr);
+
+	PVFilter::PVChunkFilter_f create_tbb_filters_autodetect(float timeout,
+	                                                        bool* cancellation = nullptr);
 	PVFilter::PVChunkFilterByElt* create_tbb_filters();
 	PVFilter::PVElementFilter_f create_tbb_filters_elt();
 
-	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix, QString const& dir);
+	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix,
+	                                                            QString const& dir);
 
 	QString const& get_format_name() const;
 	QString const& get_full_path() const;
@@ -129,7 +135,6 @@ public:
 
 	void dump_elts(bool dump) { _dump_elts = dump; }
 	void restore_invalid_evts(bool restore) { _restore_inv_elts = restore; }
-
 
 	list_axes_t const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
@@ -143,39 +148,40 @@ public:
 
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
-public:
+  public:
 	/* Attributes */
 
 	// List of filters to apply
 	PVRush::PVXmlParamParser::list_params filters_params;
 
-	unsigned int axes_count;	//!< It is equivalent to the number of axes except we add the decoded axes. This property must be used to know the number of axes, never count using axes.count()
+	unsigned int axes_count; //!< It is equivalent to the number of axes except we add the decoded
+	// axes. This property must be used to know the number of axes, never
+	// count using axes.count()
 
 	int time_format_axis_id;
 
-protected:
+  protected:
 	PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
 	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
 
-protected:
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-protected:
+  protected:
 	list_axes_t _axes;
 	std::vector<PVCol> _axes_comb;
 	size_t _first_line;
 	size_t _line_count;
 
-private:
+  private:
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	bool _dump_elts;
 	bool _already_pop;
 	bool _original_was_serialized;
 	bool _restore_inv_elts;
 };
-
 };
 
 /*@}*/
 
-#endif	/* PVCORE_FORMAT_H */
+#endif /* PVCORE_FORMAT_H */

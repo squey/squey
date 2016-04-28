@@ -36,20 +36,21 @@ int main(int argc, char** argv)
 		slices.push_back(std::move(rand_str));
 	}
 	size_t buf_size = 0;
-	for (std::string const& s: slices) {
+	for (std::string const& s : slices) {
 		buf_size += s.size() + 1;
 	}
-	char* buf = (char*) malloc(buf_size);
+	char* buf = (char*)malloc(buf_size);
 	char* cur_buf = buf;
-	for (std::string const& s: slices) {
-		memcpy(cur_buf, s.c_str(), s.size()+1);
-		cur_buf += s.size()+1;
+	for (std::string const& s : slices) {
+		memcpy(cur_buf, s.c_str(), s.size() + 1);
+		cur_buf += s.size() + 1;
 	}
 
 	BENCH_START(slices_serial);
 	for (size_t i = 0; i < n; i++) {
 		size_t ret;
-		if (PVCore::PVByteVisitor::__impl::get_nth_slice_serial((const uint8_t*) buf, buf_size, i, ret) == nullptr) {
+		if (PVCore::PVByteVisitor::__impl::get_nth_slice_serial((const uint8_t*)buf, buf_size, i,
+		                                                        ret) == nullptr) {
 			std::cerr << "Fatal error: unable to find the " << i << "-th slice." << std::endl;
 			return 1;
 		}
@@ -59,7 +60,8 @@ int main(int argc, char** argv)
 	BENCH_START(slices_sse);
 	for (size_t i = 0; i < n; i++) {
 		size_t ret;
-		if (PVCore::PVByteVisitor::__impl::get_nth_slice_sse((const uint8_t*) buf, buf_size, i, ret) == nullptr) {
+		if (PVCore::PVByteVisitor::__impl::get_nth_slice_sse((const uint8_t*)buf, buf_size, i,
+		                                                     ret) == nullptr) {
 			std::cerr << "Fatal error: unable to find the " << i << "-th slice." << std::endl;
 			return 1;
 		}

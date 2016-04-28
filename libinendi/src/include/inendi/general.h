@@ -6,7 +6,7 @@
  */
 
 /* #ifdef CUSTOMER_RELEASE */
-//AUTO_CUSTOMER_RELEASE #include <inendi/api-obfuscate.h> 
+// AUTO_CUSTOMER_RELEASE #include <inendi/api-obfuscate.h>
 /* #endif */
 
 #include <pvbase/types.h>
@@ -17,10 +17,10 @@
 /* #define INENDI_CLOSE_NAMESPACE } */
 
 #ifndef VM_START
-	#define VM_START
-	#define VM_END
-	#define CODEREPLACE_START
-	#define CODEREPLACE_END
+#define VM_START
+#define VM_END
+#define CODEREPLACE_START
+#define CODEREPLACE_END
 #endif
 
 /* Global that holds the error message */
@@ -38,25 +38,24 @@
 
 #define INENDI_RING_STRUCTOF(s) _##s
 /* #define INENDI_ARRAY_PUSH(array,type) (*((type *)apr_array_push (array))) */
-#define INENDI_USERDATA(userdata,type) (*(type *)(userdata))
+#define INENDI_USERDATA(userdata, type) (*(type*)(userdata))
 
 /* #define INENDI_ARRAY(t) apr_array_header_t * */
 
 #ifdef _POSIX_C_SOURCE
 /* /usr/include/python2.6/pyconfig-32.h:1019:1: warning: "_POSIX_C_SOURCE" redefined */
-#undef _POSIX_C_SOURCE 
+#undef _POSIX_C_SOURCE
 #endif
 #ifdef _XOPEN_SOURCE
 /* /usr/include/python2.6/pyconfig-32.h:1028:1: warning: "_XOPEN_SOURCE" redefined */
 #undef _XOPEN_SOURCE
 #endif
 
-
-#define INENDI_TIME_MSEC    * 1
-#define INENDI_TIME_SEC     * 1000 MSEC
-#define INENDI_TIME_MIN     * 60 SEC
-#define INENDI_TIME_HOUR    * 60 MIN
-#define INENDI_TIME_DAY     * 24 HOUR
+#define INENDI_TIME_MSEC *1
+#define INENDI_TIME_SEC *1000 MSEC
+#define INENDI_TIME_MIN *60 SEC
+#define INENDI_TIME_HOUR *60 MIN
+#define INENDI_TIME_DAY *24 HOUR
 
 #define INENDI_OBJECT_DTRI(x) x
 #define INENDI_OBJECT_SCENE(x) x
@@ -80,4 +79,3 @@
 //#ifdef __cplusplus
 // }
 //#endif
-

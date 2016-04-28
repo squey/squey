@@ -11,15 +11,13 @@
 #include <textdig/textdig.h>
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-int interactive_console_start(textdig_options_t options, int argc, char **argv);
+int interactive_console_start(textdig_options_t options, int argc, char** argv);
 
 #ifdef __cplusplus
- }
+}
 #endif
 
-
 #endif /* _TD_CONSOLE_H_ */
-

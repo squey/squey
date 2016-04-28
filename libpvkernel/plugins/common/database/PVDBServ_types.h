@@ -10,12 +10,11 @@
 
 #include <memory>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVDBServ;
 typedef std::shared_ptr<PVDBServ> PVDBServ_p;
-
 }
-
 
 #endif

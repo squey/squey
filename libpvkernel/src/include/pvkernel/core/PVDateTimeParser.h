@@ -21,10 +21,12 @@
 
 #include <boost/pool/object_pool.hpp>
 
-namespace PVCore {
+namespace PVCore
+{
 
-class PVDateTimeParser {
-public:
+class PVDateTimeParser
+{
+  public:
 	PVDateTimeParser();
 	PVDateTimeParser(QStringList const& time_format);
 	PVDateTimeParser(const PVDateTimeParser& src);
@@ -32,7 +34,7 @@ public:
 
 	PVDateTimeParser& operator=(const PVDateTimeParser& src);
 
-public:
+  public:
 	inline bool mapping_time_to_cal(QString const& value, Calendar* cal)
 	{
 		return mapping_time_to_cal(icuFromQStringAlias(value), cal);
@@ -40,24 +42,27 @@ public:
 	bool mapping_time_to_cal(UnicodeString const& v, Calendar* cal);
 	QStringList const& original_time_formats() const { return _org_time_format; }
 
-private:
+  private:
 	void copy(const PVDateTimeParser& src);
 
-protected:
-	struct TimeFormatInterface {
+  protected:
+	struct TimeFormatInterface
+	{
 		virtual ~TimeFormatInterface() {}
 		virtual bool to_datetime(UnicodeString const& value, Calendar* cal) = 0;
 	};
 
-	class TimeFormat : public TimeFormatInterface {
+	class TimeFormat : public TimeFormatInterface
+	{
 		typedef SimpleDateFormat* SimpleDateFormat_p;
-		//typedef std::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
-	private:
+		// typedef std::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
+	  private:
 		UErrorCode _err;
 		QString time_format_;
 		SimpleDateFormat* _parsers;
 		size_t _nparsers;
-	public:
+
+	  public:
 		TimeFormat(QString const& time_format, bool prepend_year);
 		TimeFormat(const TimeFormat&);
 		~TimeFormat();
@@ -66,38 +71,38 @@ protected:
 
 		bool prepend_year_value;
 		// One object per locale
-		//std::vector<SimpleDateFormat_p> parsers;
+		// std::vector<SimpleDateFormat_p> parsers;
 		SimpleDateFormat local_parser;
 		SimpleDateFormat* last_good_parser;
 		UnicodeString current_year;
 
-	private:
+	  private:
 		void create_parsers(QString const& time_format);
 		void copy(TimeFormat const& src);
 
-	private:
+	  private:
 		boost::object_pool<SimpleDateFormat> _alloc_df;
 	};
 
-	struct TimeFormatEpoch : public TimeFormatInterface {
+	struct TimeFormatEpoch : public TimeFormatInterface
+	{
 		bool to_datetime(UnicodeString const& value, Calendar* cal);
 	};
 
-//	typedef std::shared_ptr<TimeFormat> TimeFormat_p;
-//	typedef std::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
-//	typedef std::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
+	//	typedef std::shared_ptr<TimeFormat> TimeFormat_p;
+	//	typedef std::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
+	//	typedef std::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
 	typedef TimeFormat* TimeFormat_p;
 	typedef TimeFormatEpoch* TimeFormatEpoch_p;
 	typedef TimeFormatInterface* TimeFormatInterface_p;
 
-	//boost::object_pool<TimeFormat> _alloc_tf;
-	//boost::object_pool<TimeFormatEpoch> _alloc_tfe;
+	// boost::object_pool<TimeFormat> _alloc_tf;
+	// boost::object_pool<TimeFormatEpoch> _alloc_tfe;
 
-private:
+  private:
 	static UnicodeString icuFromQStringAlias(const QString& src);
 
-
-protected:
+  protected:
 	typedef std::vector<TimeFormatInterface_p> list_time_format;
 	list_time_format _time_format;
 
@@ -106,7 +111,6 @@ protected:
 
 	QStringList _org_time_format;
 };
-
 }
 
 #endif

@@ -24,15 +24,18 @@
 #include <inendi/general.h>
 #include <inendi/PVSource.h>
 
-namespace PVCore {
+namespace PVCore
+{
 class PVProgressBox;
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 class PVProjectsTabWidget;
 }
 
-namespace PVInspector {
+namespace PVInspector
+{
 
 /**
  * \class PVExtractorWidget
@@ -41,11 +44,12 @@ class PVExtractorWidget : public QDialog
 {
 	Q_OBJECT
 
-public:
+  public:
 	/**
 	 * Constructor.
 	 */
-	PVExtractorWidget(Inendi::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab, QWidget* parent = NULL);
+	PVExtractorWidget(Inendi::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab,
+	                  QWidget* parent = NULL);
 
 	void refresh_and_show();
 	static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job);
@@ -57,19 +61,19 @@ public:
 	 *
 	 * @todo : use nlines as maximum number of line to have a real progress bar.
 	 */
-	static bool show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent);
+	static bool show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc,
+	                                  int nlines, QWidget* parent);
 
-private:
-	
+  private:
 	QTreeWidget* _list_inputs;
 	QSlider* _slider_index;
 	QLineEdit* _size_batch_widget;
 	QLabel* _source_starts_filename;
 	QLabel* _source_starts_directory;
-	QComboBox *_source_starts_sel;
-	QLineEdit *_source_starts_line;
+	QComboBox* _source_starts_sel;
+	QLineEdit* _source_starts_line;
 
-public slots:
+  public slots:
 	void exit_Slot();
 	void read_all_Slot();
 	void process_Slot();
@@ -77,9 +81,9 @@ public slots:
 	void slider_pressed_Slot();
 	void slider_released_Slot();
 	void size_batch_edited_Slot(const QString& text);
-	void line_start_edited_Slot(const QString &text);
+	void line_start_edited_Slot(const QString& text);
 
-protected:
+  protected:
 	void fill_source_list();
 	void update_scroll();
 	void update_infos();
@@ -87,23 +91,19 @@ protected:
 	size_t _batch_size;
 	size_t _cur_src_offset;
 
-private:
+  private:
 	inline Inendi::PVSource& lib_src() { return *_lib_src; }
 	inline Inendi::PVSource const& lib_src() const { return *_lib_src; }
-	inline PVRush::PVExtractor & get_extractor() { return lib_src().get_extractor(); }
+	inline PVRush::PVExtractor& get_extractor() { return lib_src().get_extractor(); }
 
-	//bool process_extraction_job(PVRush::PVControllerJob_p job);
+	// bool process_extraction_job(PVRush::PVControllerJob_p job);
 
-private:
+  private:
 	Inendi::PVSource* _lib_src;
 	int _slider_pressed_value;
 	QLineEdit* _sources_number_lines;
 	PVGuiQt::PVProjectsTabWidget* _projects_tab;
 };
-
 }
 
 #endif
-
-
-

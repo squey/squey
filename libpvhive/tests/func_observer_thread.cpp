@@ -23,7 +23,7 @@ void boost_thread(MyClass::shared_pointer test_sp)
 	uint32_t counter;
 	do {
 		counter = test_sp->get_counter();
-		PVHive::call<FUNC(MyClass::set_counter)>(test_sp, counter+1);
+		PVHive::call<FUNC(MyClass::set_counter)>(test_sp, counter + 1);
 		sleep(1);
 	} while (counter < 99);
 }
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	TestDlg test_dlg(nullptr, test_sp);
 	test_dlg.show();
 
-	boost::thread th(boost::bind(boost_thread,  boost::ref(test_sp)));
+	boost::thread th(boost::bind(boost_thread, boost::ref(test_sp)));
 
 	app.exec();
 
@@ -51,8 +51,8 @@ void set_counter_Observer::update(arguments_deep_copy_type const& args) const
 	if (_parent->thread() == QThread::currentThread()) {
 		std::cout << "set_counter_Observer::update = " << counter << " QT THREAD :-)" << std::endl;
 		_parent->update_counter(counter);
-	}
-	else {
-		std::cout << "set_counter_Observer::update = " << counter << " BOOST THREAD :-(" << std::endl;
+	} else {
+		std::cout << "set_counter_Observer::update = " << counter << " BOOST THREAD :-("
+		          << std::endl;
 	}
 }

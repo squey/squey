@@ -12,24 +12,26 @@
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVElementFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVChunkFilterByEltCancellable : public PVChunkFilter {
-public:
+class PVChunkFilterByEltCancellable : public PVChunkFilter
+{
+  public:
 	PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter, float timeout,
-	                              bool *cancellation = nullptr);
+	                              bool* cancellation = nullptr);
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
-protected:
+
+  protected:
 	mutable PVElementFilter_f _elt_filter;
 	mutable PVRow _n_elts_invalid;
 
 	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByEltCancellable)
 
-private:
-	float  _timeout;
-	bool  *_cancellation;
+  private:
+	float _timeout;
+	bool* _cancellation;
 };
-
 }
 
 #endif

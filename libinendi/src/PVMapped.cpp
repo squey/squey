@@ -58,7 +58,7 @@ void Inendi::PVMapped::set_parent_from_ptr(PVSource* source)
 void Inendi::PVMapped::allocate_table(PVRow const nrows, PVCol const ncols)
 {
 	_trans_table.resize(ncols);
-	for (mapped_row_t& mrow: _trans_table) {
+	for (mapped_row_t& mrow : _trans_table) {
 		mrow.resize(nrows);
 	}
 }
@@ -72,7 +72,8 @@ void Inendi::PVMapped::compute()
 {
 	// Prepare mandatory mapping filters
 	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
-	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes const& lfmf = LIB_CLASS(Inendi::PVMandatoryMappingFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes const& lfmf =
+	    LIB_CLASS(Inendi::PVMandatoryMappingFilter)::get().get_list();
 	mand_mapping_filters.reserve(lfmf.size());
 	for (auto it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
 		PVMandatoryMappingFilter::p_type mf = it_lfmf->value()->clone<PVMandatoryMappingFilter>();
@@ -96,8 +97,10 @@ void Inendi::PVMapped::compute()
 
 /**
  * For now, the mapping parallelization is only done by column
- * but when we will want to parallelise the computation of the mapping also by rows
- * (to speed up the recomputation of one specific mapping) we should carrefelluly
+ * but when we will want to parallelise the computation of the mapping also by
+ * rows
+ * (to speed up the recomputation of one specific mapping) we should
+ * carrefelluly
  * handle this nested parallelization, using tasks for example.
  */
 #pragma omp parallel for
@@ -116,17 +119,20 @@ void Inendi::PVMapped::compute()
 		// Set MappingFilter array in filter to set it from filter.
 		// FIXME : Ugly interface
 		mapping_filter->set_dest_array(nrows, get_column_pointer(j));
-		
+
 		// Set mapping for the full column
 		mapping_filter->operator()(j, nraw);
 
 		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
-		// Init the mandatory mapping
-		// FIXME : This part is critical has filter are function object and they are not thread local.
-		// FIXME : This is a generique handling of mandatory mapping while there is only one of these mapping.
-		// A less generique approach would make the code nicer and thread safe.
+// Init the mandatory mapping
+// FIXME : This part is critical has filter are function object and they are not
+// thread local.
+// FIXME : This is a generique handling of mandatory mapping while there is only
+// one of these mapping.
+// A less generique approach would make the code nicer and thread safe.
 #pragma omp critical
-		for (auto it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
+		for (auto it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end();
+		     it_pmf++) {
 			(*it_pmf)->set_dest_params(params_map);
 			(*it_pmf)->set_decimal_type(mapping_filter->get_decimal_type());
 			(*it_pmf)->set_mapped(*this);
@@ -148,16 +154,21 @@ void Inendi::PVMapped::compute()
  * Inendi::PVMapped::to_csv
  *
  *****************************************************************************/
-namespace Inendi { namespace __impl {
+namespace Inendi
+{
+namespace __impl
+{
 struct to_csv_value_holder
 {
 	template <typename T>
-	static void call(Inendi::PVMapped::mapped_table_t const& trans_table, PVRow const i, PVCol const j)
+	static void call(Inendi::PVMapped::mapped_table_t const& trans_table, PVRow const i,
+	                 PVCol const j)
 	{
 		std::cout << trans_table[j][i].storage_cast<T>();
 	}
 };
-} }
+}
+}
 
 void Inendi::PVMapped::to_csv() const
 {
@@ -165,8 +176,9 @@ void Inendi::PVMapped::to_csv() const
 	// debugging purpose only !
 	for (PVRow i = 0; i < get_row_count(); i++) {
 		for (PVCol j = 0; j < get_column_count(); j++) {
-			decimal_storage_type::call_from_type<__impl::to_csv_value_holder>(get_decimal_type_of_col(j), _trans_table, i, j);
-			if (j != (get_column_count()-1)) {
+			decimal_storage_type::call_from_type<__impl::to_csv_value_holder>(
+			    get_decimal_type_of_col(j), _trans_table, i, j);
+			if (j != (get_column_count() - 1)) {
 				std::cout << ",";
 			}
 		}
@@ -238,7 +250,7 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 bool Inendi::PVMapped::is_current_mapped() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
-	for (auto const& cv: get_children<Inendi::PVView>()) {
+	for (auto const& cv : get_children<Inendi::PVView>()) {
 		if (cv.get() == cur_view) {
 			return true;
 		}
@@ -255,7 +267,7 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
 	data_tree_mapped_t::serialize_write(so);
 
-	so.object(QString("mapping"), *_mapping, QString(), false, (PVMapping*) NULL, false);
+	so.object(QString("mapping"), *_mapping, QString(), false, (PVMapping*)NULL, false);
 }
 
 /******************************************************************************
@@ -263,13 +275,15 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
  * Inendi::PVMapped::serialize_read
  *
  *****************************************************************************/
-void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
+                                      PVCore::PVSerializeArchive::version_t v)
 {
 	PVMapping* mapping = new PVMapping();
-	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
+	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*)NULL, false);
 	_mapping = PVMapping_p(mapping);
 	_mapping->set_mapped(this);
 
-	// It important to deserialize the children after the mapping otherwise PVPlottingProperties complains that there is no mapping!
+	// It important to deserialize the children after the mapping otherwise
+	// PVPlottingProperties complains that there is no mapping!
 	data_tree_mapped_t::serialize_read(so, v);
 }

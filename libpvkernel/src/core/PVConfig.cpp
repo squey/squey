@@ -39,7 +39,8 @@ PVCore::PVConfig::PVConfig()
 	dir.mkdir("whitelist");
 	dir.mkdir("greylist");
 
-	QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator() + CONFIG_FILENAME);
+	QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR +
+	             QDir::separator() + CONFIG_FILENAME);
 
 	if (fi.exists() == false) {
 		fi.dir().mkpath(fi.path());

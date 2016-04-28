@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -24,13 +24,9 @@
 
 static constexpr size_t BUFFER_SIZE = 2 * 1024 * 1024;
 
-static int socket_callback(
-	CURL* /*easy*/,
-	curl_socket_t s,
-	int what,
-	PVRush::PVSplunkAPI* splunk,
-	void* /*sockdata*/
-)
+static int socket_callback(CURL* /*easy*/, curl_socket_t s, int what, PVRush::PVSplunkAPI* splunk,
+                           void* /*sockdata*/
+                           )
 {
 	if (what == CURL_POLL_REMOVE) {
 		splunk->set_socket(-1);
@@ -48,7 +44,8 @@ static int timer_callback(CURLM* /*multi*/, long timeout_ms, PVRush::PVSplunkAPI
 	return 0;
 }
 
-static size_t write_callback_export(void* data, size_t size, size_t count, PVRush::PVSplunkAPI* splunk)
+static size_t write_callback_export(void* data, size_t size, size_t count,
+                                    PVRush::PVSplunkAPI* splunk)
 {
 	size_t real_size = size * count;
 
@@ -59,14 +56,12 @@ static size_t write_callback_export(void* data, size_t size, size_t count, PVRus
 
 static size_t write_callback_query(void* contents, size_t size, size_t nmemb, void* userp)
 {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
+	((std::string*)userp)->append((char*)contents, size * nmemb);
 
-    return size * nmemb;
+	return size * nmemb;
 }
 
-PVRush::PVSplunkAPI::PVSplunkAPI(const PVRush::PVSplunkInfos& infos) :
-	_infos(infos),
-	_socket(-1)
+PVRush::PVSplunkAPI::PVSplunkAPI(const PVRush::PVSplunkInfos& infos) : _infos(infos), _socket(-1)
 {
 	_multi = curl_multi_init();
 	_easy = curl_easy_init();
@@ -88,15 +83,15 @@ bool PVRush::PVSplunkAPI::check_connection(std::string* error /* =  nullptr */) 
 {
 	std::string buffer;
 
-	if(not perform_query("", buffer, "json", error)) {
-	    return false; // Abort as the query didn't succeed
+	if (not perform_query("", buffer, "json", error)) {
+		return false; // Abort as the query didn't succeed
 	}
 
 	rapidjson::Document json;
 	json.Parse<0>(buffer.c_str());
 
 	if (not json.HasMember("messages")) {
-	    return false; // Abort as the answer is ill-formed
+		return false; // Abort as the answer is ill-formed
 	}
 
 	// We are connected if the server answer with a message type : FATAL
@@ -111,13 +106,14 @@ bool PVRush::PVSplunkAPI::check_connection(std::string* error /* =  nullptr */) 
 	correct_connection &= err == "Empty search.";
 
 	if (error and not correct_connection) {
-	    *error = err;
+		*error = err;
 	}
 
 	return correct_connection;
 }
 
-PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::indexes(std::string* error /* =  nullptr */) const
+PVRush::PVSplunkAPI::strings_t
+PVRush::PVSplunkAPI::indexes(std::string* error /* =  nullptr */) const
 {
 	return list("| eventcount summarize=f index=*", "index", error);
 }
@@ -127,19 +123,22 @@ PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::hosts(std::string* error /* 
 	return list("metadata type=hosts", "host", error);
 }
 
-PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::sourcetypes(std::string* error /* =  nullptr */) const
+PVRush::PVSplunkAPI::strings_t
+PVRush::PVSplunkAPI::sourcetypes(std::string* error /* =  nullptr */) const
 {
 	return list("metadata type=sourcetypes", "sourcetype", error);
 }
 
-PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::list(const std::string& search, const std::string& type, std::string* error /* =  nullptr */) const
+PVRush::PVSplunkAPI::strings_t PVRush::PVSplunkAPI::list(const std::string& search,
+                                                         const std::string& type,
+                                                         std::string* error /* =  nullptr */) const
 {
 	PVRush::PVSplunkAPI::strings_t list;
 	std::string buffer;
 
 	if (perform_query(search, buffer, "json", error)) {
 		std::istringstream iss(buffer);
-		for (std::string line; std::getline(iss, line); ) {
+		for (std::string line; std::getline(iss, line);) {
 			rapidjson::Document json;
 			json.Parse<0>(line.c_str());
 			list.emplace_back(json["result"][type.c_str()].GetString());
@@ -162,7 +161,7 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 	}
 
 	// As splunk is unable to return valid XML content, we're going to build our own valid XML !
-	buffer.insert(buffer.find_first_of(">")+1, "<splunk_sucks>").append("</splunk_sucks>");
+	buffer.insert(buffer.find_first_of(">") + 1, "<splunk_sucks>").append("</splunk_sucks>");
 
 	QDomDocument xml;
 	QString error_msg;
@@ -187,7 +186,8 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 	static constexpr char INENDI_PREFIX[] = "inendi_isnum_";
 	for (auto& col : cols) {
 		const std::string& column_name = col.first;
-		search_query += std::string("| eval ") + INENDI_PREFIX + column_name + "=if(isnum(" + column_name + "),\"1\",\"0\") ";
+		search_query += std::string("| eval ") + INENDI_PREFIX + column_name + "=if(isnum(" +
+		                column_name + "),\"1\",\"0\") ";
 	}
 	buffer.clear();
 	if (perform_query(search_query, buffer, "json", error)) {
@@ -198,14 +198,16 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 			const std::string& column_name = col.first;
 			std::string& column_type = col.second;
 			std::string type_name = INENDI_PREFIX + column_name;
-			column_type = json_result[type_name.c_str()].GetString()[0] == '1' ? "integer" : "string";
+			column_type =
+			    json_result[type_name.c_str()].GetString()[0] == '1' ? "integer" : "string";
 		}
 	}
 
 	return cols;
 }
 
-size_t PVRush::PVSplunkAPI::count(const PVRush::PVSplunkQuery& query, std::string* error /* = nullptr */) const
+size_t PVRush::PVSplunkAPI::count(const PVRush::PVSplunkQuery& query,
+                                  std::string* error /* = nullptr */) const
 {
 	std::string json_buffer;
 	std::string search = filtered_search() + query.get_query().toStdString() + " | stats count";
@@ -215,7 +217,7 @@ size_t PVRush::PVSplunkAPI::count(const PVRush::PVSplunkQuery& query, std::strin
 		std::istringstream is(json_buffer.c_str());
 		std::string line;
 		std::string last_line;
-		while(std::getline(is, line)) {
+		while (std::getline(is, line)) {
 			last_line = line;
 		}
 
@@ -228,10 +230,8 @@ size_t PVRush::PVSplunkAPI::count(const PVRush::PVSplunkQuery& query, std::strin
 	return 0;
 }
 
-bool PVRush::PVSplunkAPI::extract(
-	const PVRush::PVSplunkQuery& query,
-	std::string& data_batch,
-	std::string* error /* = nullptr */)
+bool PVRush::PVSplunkAPI::extract(const PVRush::PVSplunkQuery& query, std::string& data_batch,
+                                  std::string* error /* = nullptr */)
 {
 	std::string search_query = filtered_search() + query.get_query().toStdString();
 
@@ -239,7 +239,7 @@ bool PVRush::PVSplunkAPI::extract(
 		prepare_extract(search_query, error);
 	}
 
-	while(poll()) {
+	while (poll()) {
 		if (extract_buffer_size() > BUFFER_SIZE) {
 			extract_buffer(data_batch);
 			return true;
@@ -255,8 +255,8 @@ bool PVRush::PVSplunkAPI::extract(
 
 std::string PVRush::PVSplunkAPI::rules_to_json(const std::string& rules) const
 {
-    PVSplunkJsonConverter sjc(rules);
-    return sjc.rules_to_json();
+	PVSplunkJsonConverter sjc(rules);
+	return sjc.rules_to_json();
 }
 
 bool PVRush::PVSplunkAPI::poll()
@@ -270,7 +270,7 @@ bool PVRush::PVSplunkAPI::poll()
 		ret = 0;
 	} else {
 		FD_SET(_socket, &_fdset);
-		ret = select(_socket+1, &_fdset, NULL, NULL, &tv);
+		ret = select(_socket + 1, &_fdset, NULL, NULL, &tv);
 	}
 
 	if (ret == 0) {
@@ -291,7 +291,7 @@ void PVRush::PVSplunkAPI::extract_buffer(std::string& buffer)
 
 	size_t pos = _data.find_last_of("\n");
 
-	std::string last_line = _data.substr(pos+1, _data.size());
+	std::string last_line = _data.substr(pos + 1, _data.size());
 
 	_data.resize(_data.size() - last_line.size());
 
@@ -300,7 +300,8 @@ void PVRush::PVSplunkAPI::extract_buffer(std::string& buffer)
 	_data = std::move(last_line);
 }
 
-void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query, std::string* /* error = nullptr */)
+void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query,
+                                          std::string* /* error = nullptr */)
 {
 	_extract_canceled = false;
 	_data.clear();
@@ -330,7 +331,7 @@ void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query, std::
 	curl_easy_setopt(_easy, CURLOPT_WRITEDATA, this);
 	curl_easy_setopt(_easy, CURLOPT_PRIVATE, this);
 
-	//curl_easy_setopt(_easy, CURLOPT_PIPEWAIT, 1L); // Added in 7.43.0
+	// curl_easy_setopt(_easy, CURLOPT_PIPEWAIT, 1L); // Added in 7.43.0
 
 	curl_easy_setopt(_easy, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 	curl_easy_setopt(_easy, CURLOPT_USERPWD, credential.c_str());
@@ -347,12 +348,10 @@ void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query, std::
 	FD_ZERO(&_fdset);
 }
 
-bool PVRush::PVSplunkAPI::perform_query(
-	const std::string& search_query,
-	std::string& result,
-	const std::string& output_mode /* = "json" */,
-	std::string* error /* = nullptr */
-) const
+bool PVRush::PVSplunkAPI::perform_query(const std::string& search_query, std::string& result,
+                                        const std::string& output_mode /* = "json" */,
+                                        std::string* error /* = nullptr */
+                                        ) const
 {
 	std::string url = export_api_url(search_query, output_mode);
 
@@ -361,13 +360,14 @@ bool PVRush::PVSplunkAPI::perform_query(
 	curl_easy_setopt(_easy, CURLOPT_WRITEDATA, &result);
 	if (_infos.get_login().isEmpty() == false) {
 		curl_easy_setopt(_easy, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-		curl_easy_setopt(_easy, CURLOPT_USERPWD, (_infos.get_login().toStdString() + ":" + _infos.get_password().toStdString()).c_str());
+		curl_easy_setopt(_easy, CURLOPT_USERPWD, (_infos.get_login().toStdString() + ":" +
+		                                          _infos.get_password().toStdString()).c_str());
 	}
 	curl_easy_setopt(_easy, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(_easy, CURLOPT_SSL_VERIFYHOST, 0L);
 	CURLcode res = curl_easy_perform(_easy);
 
-	if(res != CURLE_OK) {
+	if (res != CURLE_OK) {
 		if (error) {
 			*error = curl_easy_strerror(res);
 		}
@@ -377,11 +377,10 @@ bool PVRush::PVSplunkAPI::perform_query(
 	return true;
 }
 
-std::string PVRush::PVSplunkAPI::export_api_url(
-	const std::string& search_query,
-	const std::string& output_mode /* = "json" */,
-	std::string* /* error  =  nullptr */
-) const
+std::string PVRush::PVSplunkAPI::export_api_url(const std::string& search_query,
+                                                const std::string& output_mode /* = "json" */,
+                                                std::string* /* error  =  nullptr */
+                                                ) const
 {
 	std::stringstream api_url;
 
@@ -397,7 +396,8 @@ std::string PVRush::PVSplunkAPI::export_api_url(
 
 	char* escaped_search_query = curl_easy_escape(_easy, search_query.c_str(), 0);
 
-	api_url << "?search=" << escaped_search_query << "&output_mode=" << output_mode << "&exec_mode=oneshot";
+	api_url << "?search=" << escaped_search_query << "&output_mode=" << output_mode
+	        << "&exec_mode=oneshot";
 
 	curl_free(escaped_search_query);
 

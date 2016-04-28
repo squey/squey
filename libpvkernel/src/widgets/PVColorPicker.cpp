@@ -24,8 +24,7 @@
  * PVWidgets::PVColorPicker::PVColorPicker
  *****************************************************************************/
 
-PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent) : QWidget(parent)
 {
 	init();
 }
@@ -34,8 +33,8 @@ PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent):
  * PVWidgets::PVColorPicker::PVColorPicker
  *****************************************************************************/
 
-PVWidgets::PVColorPicker::PVColorPicker(PVCore::PVHSVColor const& c, QWidget* parent):
-	QWidget(parent)
+PVWidgets::PVColorPicker::PVColorPicker(PVCore::PVHSVColor const& c, QWidget* parent)
+    : QWidget(parent)
 {
 	init();
 	set_color(c);
@@ -51,7 +50,7 @@ void PVWidgets::PVColorPicker::init()
 
 	_x0 = 0;
 	_x1 = PVCore::PVHSVColor::color_max - 1;
-	_c.h()  = _x0;
+	_c.h() = _x0;
 	_c1.h() = _x1;
 	_mode = SelectionSingle;
 	setFocusPolicy(Qt::StrongFocus);
@@ -69,8 +68,7 @@ void PVWidgets::PVColorPicker::set_color(PVCore::PVHSVColor const& c)
 		if (c.h() == HSV_COLOR_WHITE) {
 			// Special case for white color
 			_c = c;
-		}
-		else {
+		} else {
 			_c.h() = PVCore::clamp(c.h(), x0(), x1());
 		}
 		update();
@@ -81,10 +79,11 @@ void PVWidgets::PVColorPicker::set_color(PVCore::PVHSVColor const& c)
  * PVWidgets::PVColorPicker::set_interval
  *****************************************************************************/
 
-void PVWidgets::PVColorPicker::set_interval(PVCore::PVHSVColor const& c0, PVCore::PVHSVColor const& c1)
+void PVWidgets::PVColorPicker::set_interval(PVCore::PVHSVColor const& c0,
+                                            PVCore::PVHSVColor const& c1)
 {
 	if (is_interval_mode()) {
-		_c.h()  = PVCore::clamp(c0.h(), x0(), x1());
+		_c.h() = PVCore::clamp(c0.h(), x0(), x1());
 		_c1.h() = PVCore::clamp(c1.h(), x0(), x1());
 		if (_c.h() > _c1.h()) {
 			std::swap(_c, _c1);
@@ -100,8 +99,8 @@ void PVWidgets::PVColorPicker::set_interval(PVCore::PVHSVColor const& c0, PVCore
 uint8_t PVWidgets::PVColorPicker::screen_x_to_h(int x) const
 {
 	x = PVCore::clamp(x, 0, size().width());
-	const int width  = contentsRect().width() - 1;
-	uint8_t h = (uint8_t) ((((x-contentsRect().left())*x_interval())/width) + x0());
+	const int width = contentsRect().width() - 1;
+	uint8_t h = (uint8_t)((((x - contentsRect().left()) * x_interval()) / width) + x0());
 	return h;
 }
 
@@ -112,9 +111,9 @@ uint8_t PVWidgets::PVColorPicker::screen_x_to_h(int x) const
 int PVWidgets::PVColorPicker::h_to_screen_x(uint8_t h) const
 {
 	h = PVCore::clamp(h, x0(), x1());
-	const int width  = contentsRect().width() - 1;
+	const int width = contentsRect().width() - 1;
 	const int view_h = h;
-	int ret = ((view_h-x0())*width)/(x_interval());
+	int ret = ((view_h - x0()) * width) / (x_interval());
 	return ret + contentsRect().left();
 }
 
@@ -189,7 +188,7 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 	const int c1_x = h_to_screen_x(_c1.h());
 
 	const int height = size().height();
-	QRect const &draw_rect = contentsRect();
+	QRect const& draw_rect = contentsRect();
 
 	QColor color;
 	for (int x = draw_rect.left(); x <= draw_rect.right(); ++x) {
@@ -200,7 +199,7 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 				color = color.darker(200);
 			}
 		}
-		painter.fillRect(QRect(x, VERT_MARGIN, 1, height-2*VERT_MARGIN), color);
+		painter.fillRect(QRect(x, VERT_MARGIN, 1, height - 2 * VERT_MARGIN), color);
 	}
 
 	// For the white color, do not draw anything
@@ -221,7 +220,7 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 void PVWidgets::PVColorPicker::draw_up_triangle(int x, QPainter& painter)
 {
 	QPolygon triangle;
-	triangle << QPoint(x - (WIDTH_TRIANGLE-1)/2, 1) << QPoint(x + (WIDTH_TRIANGLE-1)/2, 1)
+	triangle << QPoint(x - (WIDTH_TRIANGLE - 1) / 2, 1) << QPoint(x + (WIDTH_TRIANGLE - 1) / 2, 1)
 	         << QPoint(x, HEIGHT_TRIANGLE + 1);
 	painter.setBrush(Qt::SolidPattern);
 	painter.drawConvexPolygon(triangle);
@@ -235,8 +234,8 @@ void PVWidgets::PVColorPicker::draw_down_triangle(int x, QPainter& painter)
 {
 	const int height = size().height() - 2;
 	QPolygon triangle;
-	triangle << QPoint(x - (WIDTH_TRIANGLE-1)/2, height) << QPoint(x + (WIDTH_TRIANGLE-1)/2, height)
-	         << QPoint(x, height-HEIGHT_TRIANGLE);
+	triangle << QPoint(x - (WIDTH_TRIANGLE - 1) / 2, height)
+	         << QPoint(x + (WIDTH_TRIANGLE - 1) / 2, height) << QPoint(x, height - HEIGHT_TRIANGLE);
 	painter.setBrush(QBrush(Qt::white));
 	painter.drawConvexPolygon(triangle);
 }

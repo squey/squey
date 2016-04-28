@@ -16,7 +16,9 @@ typedef quint32 PVRow;
 #define PVROW_INVALID_VALUE 0xFFFFFFFF
 #define PVCOL_INVALID_VALUE ((PVCol)-1)
 
-#define PVROW_VECTOR_ALIGNEMENT (128/(sizeof(PVRow)*8)) // Define necessary alignement of pointers of PVRows for vectorisation usage
+#define PVROW_VECTOR_ALIGNEMENT                                                                    \
+	(128 / (sizeof(PVRow) * 8)) // Define necessary alignement of pointers of
+                                // PVRows for vectorisation usage
 
 #define _U_ __attribute__((unused))
 
@@ -27,8 +29,8 @@ typedef unsigned short pv_uint16_t;
 
 typedef quint64 chunk_index;
 
-#ifdef __cplusplus		/* FIXME: We need this since we still have C code somewhere. That should all be C++ */
-
+#ifdef __cplusplus /* FIXME: We need this since we still have C code                               \
+                      somewhere. That should all be C++ */
 
 /**
  *
@@ -37,9 +39,14 @@ struct vec2
 {
 	float x; //!< The x coordinate of the vector.
 	float y; //!< The y coordinate of the vector.
-	vec2(float x_=0, float y_=0):x(x_),y(y_){}
-	vec2&operator+=(const vec2&v){x+=v.x;y+=v.y;return *this;}
-	vec2 operator-(const vec2&v)const{return vec2(x-v.x,y-v.y);}
+	vec2(float x_ = 0, float y_ = 0) : x(x_), y(y_) {}
+	vec2& operator+=(const vec2& v)
+	{
+		x += v.x;
+		y += v.y;
+		return *this;
+	}
+	vec2 operator-(const vec2& v) const { return vec2(x - v.x, y - v.y); }
 };
 
 /**
@@ -50,7 +57,7 @@ struct vec3
 	float x; //!< The x coordinate of the vector.
 	float y; //!< The y coordinate of the vector.
 	float z; //!< The z coordinate of the vector.
-	vec3(float x_, float y_, float z_):x(x_),y(y_),z(z_){}
+	vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
 };
 
 /**
@@ -62,7 +69,7 @@ struct vec4
 	float y; //!< The y coordinate of the vector.
 	float z; //!< The z coordinate of the vector.
 	float w; //!< The w coordinate of the vector.
-	vec4(float x_, float y_, float z_, float w_):x(x_),y(y_),z(z_),w(w_){}
+	vec4(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
 };
 
 /**
@@ -74,11 +81,14 @@ struct ubvec4
 	unsigned char y; //!< The y coordinate of the vector.
 	unsigned char z; //!< The z coordinate of the vector.
 	unsigned char w; //!< The w coordinate of the vector.
-	ubvec4(unsigned char x_ = 0, unsigned char y_ = 0, unsigned char z_ = 0, unsigned char w_ = 255):x(x_),y(y_),z(z_),w(w_){}
-	ubvec4(const unsigned char *v):x(v[0]),y(v[1]),z(v[2]),w(v[3]){}
+	ubvec4(unsigned char x_ = 0, unsigned char y_ = 0, unsigned char z_ = 0, unsigned char w_ = 255)
+	    : x(x_), y(y_), z(z_), w(w_)
+	{
+	}
+	ubvec4(const unsigned char* v) : x(v[0]), y(v[1]), z(v[2]), w(v[3]) {}
 };
 #endif // __cplusplus
 
 #define DECLARE_ALIGN(n) __attribute__((aligned(n)))
 
-#endif	/* PVBASE_TYPES_H */
+#endif /* PVBASE_TYPES_H */

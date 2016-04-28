@@ -25,53 +25,52 @@ class PVLogoModel;
 
 class PVLogoScene : public QGraphicsScene
 {
-    Q_OBJECT
+	Q_OBJECT
 
-public:
-    PVLogoScene();
+  public:
+	PVLogoScene();
 
-    void drawBackground(QPainter* painter, const QRectF &rect);
+	void drawBackground(QPainter* painter, const QRectF& rect);
 
-public slots:
-    void enableWireframe(bool enabled);
-    void enableNormals(bool enabled);
-    void setModelColor();
-    void loadModel(const QString &filePath);
-    void modelLoaded();
+  public slots:
+	void enableWireframe(bool enabled);
+	void enableNormals(bool enabled);
+	void setModelColor();
+	void loadModel(const QString& filePath);
+	void modelLoaded();
 
-protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent* event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+  protected:
+	void mousePressEvent(QGraphicsSceneMouseEvent* event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
-private:
-    QDialog* createDialog(const QString &windowTitle) const;
+  private:
+	QDialog* createDialog(const QString& windowTitle) const;
 
-    void setModel(PVLogoModel* model);
+	void setModel(PVLogoModel* model);
 
-    bool m_wireframeEnabled;
-    bool m_normalsEnabled;
+	bool m_wireframeEnabled;
+	bool m_normalsEnabled;
 
-    QColor m_modelColor;
+	QColor m_modelColor;
 
-    PVLogoModel* m_model;
+	PVLogoModel* m_model;
 
-    QTime m_time;
-    int m_lastTime;
-    int m_mouseEventTime;
+	QTime m_time;
+	int m_lastTime;
+	int m_mouseEventTime;
 
-    float m_distance;
-    PVPoint3D m_rotation;
-    PVPoint3D m_angularMomentum;
-    PVPoint3D m_accumulatedMomentum;
+	float m_distance;
+	PVPoint3D m_rotation;
+	PVPoint3D m_angularMomentum;
+	PVPoint3D m_accumulatedMomentum;
 
-    PVPoint3D m_lightPosition;
+	PVPoint3D m_lightPosition;
 
 #ifndef QT_NO_CONCURRENT
-    QFutureWatcher<PVLogoModel*> m_modelLoader;
+	QFutureWatcher<PVLogoModel*> m_modelLoader;
 #endif
 };
-
 }
 
 #endif

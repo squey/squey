@@ -39,11 +39,11 @@ namespace PVCore
  */
 class PVRecentItemsManager
 {
-public:
+  public:
 	typedef PVCore::PVSharedPtr<PVRecentItemsManager> PVRecentItemsManager_p;
 	typedef QList<QVariant> variant_list_t;
 
-public:
+  public:
 	// List of all available categories of recent items
 	enum Category {
 		FIRST = 0,
@@ -68,10 +68,7 @@ public:
 
 	/*! \brief Return the serializable name of a given category.
 	 */
-	const QString get_key(Category category)
-	{
-		return _recents_items_keys[category];
-	}
+	const QString get_key(Category category) { return _recents_items_keys[category]; }
 
 	/*! \brief Add an item (path) for a given category.
 	 */
@@ -79,7 +76,8 @@ public:
 
 	/*! \brief Add a source item for a given category.
 	 */
-	void add_source(PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVInputType::list_inputs& inputs, const PVRush::PVFormat& format);
+	void add_source(PVRush::PVSourceCreator_p source_creator_p,
+	                const PVRush::PVInputType::list_inputs& inputs, const PVRush::PVFormat& format);
 
 	/*! \brief Return a source description from the settings current group.
 	 */
@@ -87,17 +85,19 @@ public:
 
 	void clear(Category category, QList<int> indexes = QList<int>());
 
-private:
+  private:
 	PVRush::PVSourceDescription deserialize_source_description() const;
 
-	/*! \brief Get the best source timestamp to replace (oldest, matching the same source description or 0).
-	 *  \return The timestamp to replace or 0 if the list count is less than the maximum allowed items.
+	/*! \brief Get the best source timestamp to replace (oldest, matching the same source
+	 * description or 0).
+	 *  \return The timestamp to replace or 0 if the list count is less than the maximum allowed
+	 * items.
 	 */
 	uint64_t get_source_timestamp_to_replace(const PVRush::PVSourceDescription& source_description);
 
 	void clear_missing_files();
 
-private:
+  private:
 	/*! \brief Return a list of recent items of a given category as a list of QString QVariant.
 	 */
 	const variant_list_t items_list(Category category, bool update_removed_files = false) const;
@@ -110,25 +110,26 @@ private:
 	 */
 	const variant_list_t supported_format_list() const;
 
-private:
+  private:
 	PVRecentItemsManager();
 	PVRecentItemsManager(const PVRecentItemsManager&);
-	PVRecentItemsManager &operator=(const PVRecentItemsManager&);
+	PVRecentItemsManager& operator=(const PVRecentItemsManager&);
 
-public:
+  public:
 	/* this singleton requires a public destructor because it uses a PVSharedPtr
 	 * in the data segment to delete it (and to permit the hive to work on it).
 	 */
 	~PVRecentItemsManager();
 
-private:
+  private:
 	static PVRecentItemsManager_p _recent_items_manager_p;
 
-	mutable QSettings *_recents_settings;
+	mutable QSettings* _recents_settings;
 	const int64_t _max_recent_items = 30;
-	const QStringList _recents_items_keys = { "recent_projects", "recent_sources", "recent_used_formats", "recent_edited_formats", "supported_formats" };
+	const QStringList _recents_items_keys = {"recent_projects", "recent_sources",
+	                                         "recent_used_formats", "recent_edited_formats",
+	                                         "supported_formats"};
 };
-
 }
 
 #endif /* PVRECENTITEMSMANAGER_H_ */

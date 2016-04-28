@@ -21,9 +21,11 @@ bool PVRush::PVUtils::files_have_same_content(const std::string& path1, const st
 	std::ifstream ifs1(path1);
 	std::ifstream ifs2(path2);
 
-	auto res = std::mismatch(std::istreambuf_iterator<char>(ifs1), std::istreambuf_iterator<char>(), std::istreambuf_iterator<char>(ifs2));
+	auto res = std::mismatch(std::istreambuf_iterator<char>(ifs1), std::istreambuf_iterator<char>(),
+	                         std::istreambuf_iterator<char>(ifs2));
 
-	return res.first == std::istreambuf_iterator<char>() && res.second == std::istreambuf_iterator<char>();
+	return res.first == std::istreambuf_iterator<char>() &&
+	       res.second == std::istreambuf_iterator<char>();
 }
 
 void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file /*= nullptr*/)
@@ -48,7 +50,8 @@ void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file 
 	fout.close();
 }
 
-std::string PVRush::PVUtils::safe_export(std::string str, const std::string& sep_char, const std::string& quote_char)
+std::string PVRush::PVUtils::safe_export(std::string str, const std::string& sep_char,
+                                         const std::string& quote_char)
 {
 	static std::string escaped_quote("\\" + quote_char);
 
@@ -69,7 +72,8 @@ std::string PVRush::PVUtils::safe_export(std::string str, const std::string& sep
 	return str;
 }
 
-void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& sep_char, const std::string& quote_char)
+void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& sep_char,
+                                  const std::string& quote_char)
 {
 	for (QString& str : str_list) {
 		str = QString::fromStdString(safe_export(str.toStdString(), sep_char, quote_char));

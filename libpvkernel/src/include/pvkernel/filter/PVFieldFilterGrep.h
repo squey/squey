@@ -12,22 +12,26 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <QString>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldFilterGrep: public PVFieldsFilter<one_to_one> {
-public:
+class PVFieldFilterGrep : public PVFieldsFilter<one_to_one>
+{
+  public:
 	PVFieldFilterGrep(PVCore::PVArgumentList const& args = PVFieldFilterGrep::default_args());
-public:
+
+  public:
 	virtual void set_args(PVCore::PVArgumentList const& args);
-public:
+
+  public:
 	virtual PVCore::PVField& one_to_one(PVCore::PVField& obj);
-protected:
+
+  protected:
 	QString _str;
 	bool _inverse;
 
 	CLASS_FILTER(PVFilter::PVFieldFilterGrep)
 };
-
 }
 
 #endif

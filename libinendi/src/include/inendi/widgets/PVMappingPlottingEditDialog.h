@@ -23,20 +23,23 @@
 class QScrollArea;
 class QGroupBox;
 
-namespace Inendi {
+namespace Inendi
+{
 class PVMapping;
 class PVPlotting;
 }
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
-class PVMappingPlottingEditDialog: public QDialog
+class PVMappingPlottingEditDialog : public QDialog
 {
 	Q_OBJECT
-public:
-	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping, Inendi::PVPlotting* plotting, QWidget* parent = nullptr);
+  public:
+	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping, Inendi::PVPlotting* plotting,
+	                            QWidget* parent = nullptr);
 
-private:
+  private:
 	inline bool has_mapping() const { return _mapping != nullptr; };
 	inline bool has_plotting() const { return _plotting != nullptr; }
 
@@ -47,11 +50,11 @@ private:
 
 	static QLabel* create_label(QString const& text, Qt::Alignment align = Qt::AlignCenter);
 
-private slots:
+  private slots:
 	void type_changed(const QString& type);
 	void save_settings();
 
-private:
+  private:
 	QGridLayout* _main_grid;
 	QVBoxLayout* _main_layout;
 	QLineEdit* _edit_name;
@@ -60,9 +63,7 @@ private:
 	Inendi::PVMapping* _mapping;
 	Inendi::PVPlotting* _plotting;
 	const Inendi::PVAxesCombination::list_axes_t* _axes;
-
 };
-
 }
 
 #endif

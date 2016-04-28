@@ -19,9 +19,9 @@
  * PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget
  *****************************************************************************/
 
-PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCountView* parent) :
-	QToolBar(parent)
-	//	PVWidgets::PVConfigPopupWidget(parent)
+PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCountView* parent)
+    : QToolBar(parent)
+//	PVWidgets::PVConfigPopupWidget(parent)
 {
 #if RH_USE_PVConfigPopupWidget
 	setWindowTitle(tr("Hit count view - options"));
@@ -30,8 +30,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	setContentLayout(layout);
 
 	_signal_mapper = new QSignalMapper(this);
-	QObject::connect(_signal_mapper, SIGNAL(mapped(int)),
-	                 this, SLOT(set_selection_mode(int)));
+	QObject::connect(_signal_mapper, SIGNAL(mapped(int)), this, SLOT(set_selection_mode(int)));
 
 	_toolbar = new QToolBar("Selection mode");
 	_toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -44,15 +43,13 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_toolbar->layout()->setAlignment(Qt::AlignLeft);
 	layout->addWidget(_toolbar);
 
-	PVSelectionRectangle::add_selection_mode_selector(parent,
-	                                                  _toolbar,
-	                                                  _signal_mapper);
+	PVSelectionRectangle::add_selection_mode_selector(parent, _toolbar, _signal_mapper);
 
-	QLayout *l = _toolbar->layout();
+	QLayout* l = _toolbar->layout();
 	for (int i = 0; i < l->count(); ++i) {
 		QLayoutItem* item = l->itemAt(i);
 		item->setAlignment(Qt::AlignLeft);
-		QWidget *w = item->widget();
+		QWidget* w = item->widget();
 		if (w != nullptr) {
 			w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		}
@@ -66,18 +63,14 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_toolbar->addWidget(_cb_autofit);
 	_toolbar->addWidget(_cb_use_log_color);
 
-	connect(_cb_autofit, SIGNAL(toggled(bool)),
-	        parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
-	connect(_cb_use_log_color,  SIGNAL(toggled(bool)),
-	        parent_hcv(), SLOT(toggle_log_color()));
+	connect(_cb_autofit, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
+	connect(_cb_use_log_color, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_log_color()));
 #else // is a QToolBar
 	_signal_mapper = new QSignalMapper(this);
-	QObject::connect(_signal_mapper, SIGNAL(mapped(int)),
-	                 this, SLOT(set_selection_mode(int)));
+	QObject::connect(_signal_mapper, SIGNAL(mapped(int)), this, SLOT(set_selection_mode(int)));
 
-	_sel_mode_button = PVSelectionRectangle::add_selection_mode_selector(parent,
-	                                                                     this,
-	                                                                     _signal_mapper);
+	_sel_mode_button =
+	    PVSelectionRectangle::add_selection_mode_selector(parent, this, _signal_mapper);
 
 	addSeparator();
 
@@ -87,12 +80,11 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_autofit->setChecked(false);
 	_autofit->setShortcut(Qt::Key_F);
 	_autofit->setText("View auto-fit on selected events");
-	_autofit->setToolTip("Activate/deactivate horizontal auto-fit on selected events ("
-	                    + _autofit->shortcut().toString() + ")");
+	_autofit->setToolTip("Activate/deactivate horizontal auto-fit on selected events (" +
+	                     _autofit->shortcut().toString() + ")");
 	addAction(_autofit);
 	parent->addAction(_autofit);
-	connect(_autofit, SIGNAL(toggled(bool)),
-	        parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
+	connect(_autofit, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
 
 	_use_log_color = new QAction("Logarithmic colormap", this);
 	_use_log_color->setIcon(QIcon(":/colormap-log"));
@@ -100,12 +92,12 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_use_log_color->setChecked(false);
 	_use_log_color->setShortcut(Qt::Key_L);
 	_use_log_color->setText("Logarithmic colormap");
-	_use_log_color->setToolTip("Activate/deactivate use of a logarithmic colormap for visible events ("
-	                           + _use_log_color->shortcut().toString() + ")");
+	_use_log_color->setToolTip(
+	    "Activate/deactivate use of a logarithmic colormap for visible events (" +
+	    _use_log_color->shortcut().toString() + ")");
 	addAction(_use_log_color);
 	parent->addAction(_use_log_color);
-	connect(_use_log_color, SIGNAL(toggled(bool)),
-	        parent_hcv(), SLOT(toggle_log_color()));
+	connect(_use_log_color, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_log_color()));
 #endif
 }
 
@@ -142,13 +134,12 @@ void PVParallelView::PVHitCountViewParamsWidget::update_widgets()
 
 void PVParallelView::PVHitCountViewParamsWidget::set_selection_mode(int mode)
 {
-	PVHitCountView *hcv = parent_hcv();
+	PVHitCountView* hcv = parent_hcv();
 	hcv->get_selection_rect()->set_selection_mode(mode);
 	hcv->fake_mouse_move();
 	hcv->get_viewport()->update();
 
-	PVSelectionRectangle::update_selection_mode_selector(_sel_mode_button,
-	                                                     mode);
+	PVSelectionRectangle::update_selection_mode_selector(_sel_mode_button, mode);
 }
 
 /*****************************************************************************
@@ -160,4 +151,3 @@ PVParallelView::PVHitCountView* PVParallelView::PVHitCountViewParamsWidget::pare
 	assert(qobject_cast<PVHitCountView*>(parentWidget()));
 	return static_cast<PVHitCountView*>(parentWidget());
 }
-

@@ -17,9 +17,8 @@
  * PVCore::PVAxisIndexEditor::PVAxisIndexEditor
  *
  *****************************************************************************/
-PVWidgets::PVAxisIndexEditor::PVAxisIndexEditor(Inendi::PVView const& view, QWidget *parent):
-	QComboBox(parent),
-	_view(view)
+PVWidgets::PVAxisIndexEditor::PVAxisIndexEditor(Inendi::PVView const& view, QWidget* parent)
+    : QComboBox(parent), _view(view)
 {
 }
 

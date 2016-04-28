@@ -13,14 +13,14 @@
  * PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(PVCore::PVArgumentList const& args) :
-	PVFieldsFilter<PVFilter::one_to_many>()
+PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(PVCore::PVArgumentList const& args)
+    : PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterRegexp, args);
 }
 
-PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(const PVFieldSplitterRegexp& src) :
-	PVFieldsFilter<PVFilter::one_to_many>(src)
+PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(const PVFieldSplitterRegexp& src)
+    : PVFieldsFilter<PVFilter::one_to_many>(src)
 {
 	_regexp = src._regexp;
 	_full_line = src._full_line;
@@ -57,22 +57,28 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
  *
  *****************************************************************************/
 
-PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
+PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(
+    PVCore::list_fields& l, PVCore::list_fields::iterator it_ins, PVCore::PVField& field)
 {
 	std::cmatch base_match;
 	bool parse_success = true;
-	if(_full_line) {
-		parse_success = std::regex_match<const char*>(field.begin(), field.end(), base_match, _regexp);
+	if (_full_line) {
+		parse_success =
+		    std::regex_match<const char*>(field.begin(), field.end(), base_match, _regexp);
 	} else {
-		parse_success = std::regex_search<const char*>(field.begin(), field.end(), base_match, _regexp);
+		parse_success =
+		    std::regex_search<const char*>(field.begin(), field.end(), base_match, _regexp);
 	}
 
 	if (parse_success) {
-		for(auto it = ++base_match.begin(); it != base_match.end(); it++) {
+		for (auto it = ++base_match.begin(); it != base_match.end(); it++) {
 			PVCore::list_fields::value_type elt(field);
-			elt.set_begin(field.begin() + std::distance(static_cast<const char*>(field.begin()), it->first));
-			elt.set_end(field.begin() + std::distance(static_cast<const char*>(field.begin()), it->second));
-			elt.set_physical_end(field.begin() + std::distance(static_cast<const char*>(field.begin()), it->second));
+			elt.set_begin(field.begin() +
+			              std::distance(static_cast<const char*>(field.begin()), it->first));
+			elt.set_end(field.begin() +
+			            std::distance(static_cast<const char*>(field.begin()), it->second));
+			elt.set_physical_end(
+			    field.begin() + std::distance(static_cast<const char*>(field.begin()), it->second));
 			l.insert(it_ins, elt);
 		}
 

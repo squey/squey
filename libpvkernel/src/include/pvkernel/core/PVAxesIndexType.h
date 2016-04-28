@@ -18,14 +18,13 @@
 #include <QMetaType>
 #include <QStringList>
 
-namespace PVCore {
-
-class PVAxesIndexType: public std::vector<PVCol>, public PVArgumentType<PVAxesIndexType>
+namespace PVCore
 {
-public:
-	PVAxesIndexType():
-		std::vector<PVCol>()
-	{ }
+
+class PVAxesIndexType : public std::vector<PVCol>, public PVArgumentType<PVAxesIndexType>
+{
+  public:
+	PVAxesIndexType() : std::vector<PVCol>() {}
 
 	QString to_string() const
 	{
@@ -54,7 +53,7 @@ public:
 		arg.setValue(PVAxesIndexType(vec));
 		return arg;
 	}
-	bool operator==(const PVAxesIndexType &other) const
+	bool operator==(const PVAxesIndexType& other) const
 	{
 		if (this->size() != other.size()) {
 			return false;
@@ -62,11 +61,9 @@ public:
 		return std::equal(this->begin(), this->end(), other.begin());
 	}
 };
-
 }
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVAxesIndexType)
-
 
 #endif // PVCORE_PVAXESINDEXTYPE_H

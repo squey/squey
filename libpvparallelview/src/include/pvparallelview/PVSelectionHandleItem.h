@@ -34,7 +34,7 @@ class PVSelectionHandleItem : public QGraphicsItem
 {
 	friend PVSelectionRectangleItem;
 
-public:
+  public:
 	static constexpr int handle_size = 11;
 
 	typedef enum {
@@ -49,15 +49,14 @@ public:
 		CENTER = N | S | E | W
 	} handle_type;
 
-public:
+  public:
 	/**
 	 * constructor
 	 *
 	 * @param type the handle's type
 	 * @param sel_rect the associated selection rectangle
 	 */
-	PVSelectionHandleItem(handle_type type,
-	                      PVSelectionRectangleItem* sel_rect);
+	PVSelectionHandleItem(handle_type type, PVSelectionRectangleItem* sel_rect);
 
 	/**
 	 * set the handle's pen's color
@@ -90,22 +89,16 @@ public:
 	 *
 	 * @return the x scale factor
 	 */
-	qreal get_x_scale() const
-	{
-		return _xscale;
-	}
+	qreal get_x_scale() const { return _xscale; }
 
 	/**
 	 * get the y scale factor
 	 *
 	 * @return the y scale factor
 	 */
-	qreal get_y_scale() const
-	{
-		return _yscale;
-	}
+	qreal get_y_scale() const { return _yscale; }
 
-public:
+  public:
 	/**
 	 * get the handle's bounding box
 	 *
@@ -118,16 +111,16 @@ public:
 	/**
 	 * paint the handle
 	 *
-	 * @reimpl QGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+	 * @reimpl QGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	 *QWidget* widget)
 	 *
 	 * @param painter the current painter
 	 * @param option the current style
 	 * @param widget the current QWidget
 	 */
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-	           QWidget* widget) override;
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
-protected:
+  protected:
 	/**
 	 * highlight the handle.
 	 *
@@ -173,7 +166,7 @@ protected:
 	 */
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
-protected:
+  protected:
 	/**
 	 * get the associated selection rectangle
 	 *
@@ -254,20 +247,19 @@ protected:
 	 */
 	bool is_type(int mask);
 
-private:
+  private:
 	PVSelectionRectangleItem* _sel_rect;
-	QPen                      _pen;
-	QBrush                    _brush;
-	QColor                    _brush_color;
-	QRectF                    _rect;
-	QPointF                   _ref;
-	qreal                     _xscale;
-	qreal                     _yscale;
-	int                       _type;
-	bool                      _is_visible;
-	bool                      _always_hidden;
+	QPen _pen;
+	QBrush _brush;
+	QColor _brush_color;
+	QRectF _rect;
+	QPointF _ref;
+	qreal _xscale;
+	qreal _yscale;
+	int _type;
+	bool _is_visible;
+	bool _always_hidden;
 };
-
 }
 
 #endif // PVWIDGETS_PVSELECTIONHANDLEITEM_H

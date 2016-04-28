@@ -13,12 +13,13 @@
 
 using namespace PVFilter;
 
-//FIXME: what this program is supposed to test?
+// FIXME: what this program is supposed to test?
 
 std::list<PVFilter::PVFieldsFilterReg_p> container;
 PVFieldsBaseFilter_f get_f()
 {
-	PVFilter::PVFieldsSplitter::p_type filter = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
+	PVFilter::PVFieldsSplitter::p_type filter =
+	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsFilterReg_p filter_clone = filter->clone<PVFilter::PVFieldsFilterReg>();
 	container.push_back(filter_clone);
 	return filter_clone->f();

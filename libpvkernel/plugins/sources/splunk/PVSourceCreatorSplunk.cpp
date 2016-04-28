@@ -1,14 +1,16 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
 #include "PVSourceCreatorSplunk.h"
 #include "PVSplunkSource.h"
 
-PVRush::PVSourceCreatorSplunk::source_p PVRush::PVSourceCreatorSplunk::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorSplunk::source_p
+PVRush::PVSourceCreatorSplunk::create_source_from_input(PVInputDescription_p input,
+                                                        const PVFormat& /*format*/) const
 {
 	source_p src(new PVRush::PVSplunkSource(input));
 

@@ -12,36 +12,28 @@
 
 #include <QMetaType>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVPlottingRangeType
 {
-public:
-	enum {
-		RangeUserDefined = 0,
-		RangeAxisMinMax,
-		RangeGroupMinMax
-	} RangeType;
+  public:
+	enum { RangeUserDefined = 0, RangeAxisMinMax, RangeGroupMinMax } RangeType;
 
-public:
-	PVPlottingRangeType():
-		_type(RangeAxisMinMax),
-		_user_min(0.0),
-		_user_max(0.0)
-	{ }
+  public:
+	PVPlottingRangeType() : _type(RangeAxisMinMax), _user_min(0.0), _user_max(0.0) {}
 
-	PVPlottingRangeType(QString const& group_name):
-		_type(RangeGroupMinMax),
-		_group_name(group_name)
-	{ }
+	PVPlottingRangeType(QString const& group_name)
+	    : _type(RangeGroupMinMax), _group_name(group_name)
+	{
+	}
 
-	PVPlottingRangeType(double min, double max):
-		_type(RangeUserDefined),
-		_user_min(min),
-		_user_max(max)
-	{ }
+	PVPlottingRangeType(double min, double max)
+	    : _type(RangeUserDefined), _user_min(min), _user_max(max)
+	{
+	}
 
-public:
+  public:
 	inline RangeType type() const { return _type; }
 	inline double user_min() const
 	{
@@ -60,17 +52,15 @@ public:
 		return _group_name;
 	}
 
-private:
+  private:
 	RangeType _type;
 	double _user_min;
 	double _user_max;
 	QString _group_name;
 };
-
 }
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(Inendi::PVPlottingRangeType)
-
 
 #endif // PVCORE_PVAXESINDEXTYPE_H

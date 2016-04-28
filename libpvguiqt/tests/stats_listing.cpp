@@ -36,13 +36,8 @@ struct CustomMainWindow : public QMainWindow
 {
 	CustomMainWindow(QWidget* parent = 0) : QMainWindow(parent)
 	{
-		setGeometry(
-			QStyle::alignedRect(
-					Qt::LeftToRight,
-					Qt::AlignCenter,
-					QSize(500, 800),
-					QApplication::desktop()->availableGeometry()
-			));
+		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(500, 800),
+		                                QApplication::desktop()->availableGeometry()));
 	}
 };
 
@@ -66,13 +61,11 @@ int main(int argc, char** argv)
 
 	// Qt app
 
-
 	Inendi::PVView_sp view = src->current_view()->shared_from_this();
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
 
 	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
 	qt_view->setModel(model);
-
 
 	ViewSlots view_slots(*view);
 
@@ -91,17 +84,17 @@ int main(int argc, char** argv)
 
 	QShortcut* change_axes_comb = new QShortcut(QKeySequence(Qt::Key_B), mw);
 	select_all->setContext(Qt::ApplicationShortcut);
-	QObject::connect(change_axes_comb, SIGNAL(activated()), &view_slots, SLOT(change_axes_combination()));
+	QObject::connect(change_axes_comb, SIGNAL(activated()), &view_slots,
+	                 SLOT(change_axes_combination()));
 
 	// Remove listing when pressing enter
-	boost::thread key_thread([&]
-		{
-			std::cerr << "Press enter to remove data-tree..." << std::endl;
-			while (getchar() != '\n');
-			//pview->remove_from_tree();
-			root.reset();
-		}
-	);
+	boost::thread key_thread([&] {
+		std::cerr << "Press enter to remove data-tree..." << std::endl;
+		while (getchar() != '\n')
+			;
+		// pview->remove_from_tree();
+		root.reset();
+	});
 
 	int ret = app.exec();
 	key_thread.join();

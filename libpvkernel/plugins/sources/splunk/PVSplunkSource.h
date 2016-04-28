@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -27,35 +27,36 @@ namespace PVRush
 
 class PVSplunkQuery;
 
-class PVSplunkSource: public PVRawSourceBase
+class PVSplunkSource : public PVRawSourceBase
 {
-public:
+  public:
 	PVSplunkSource(PVInputDescription_p input);
 
 	virtual ~PVSplunkSource();
 
-public:
+  public:
 	QString human_name() override;
 	void seek_begin() override;
 	bool seek(input_offset /*off*/) override;
 	void prepare_for_nelts(chunk_index nelts) override;
 	PVCore::PVChunk* operator()() override;
 
-	input_offset get_input_offset_from_index(chunk_index /*idx*/, chunk_index& /*known_idx*/) override
+	input_offset get_input_offset_from_index(chunk_index /*idx*/,
+	                                         chunk_index& /*known_idx*/) override
 	{
 		return 0;
 	}
 
-public:
+  public:
 	func_type f() override
 	{
 		return boost::bind<PVCore::PVChunk*>(&PVSplunkSource::operator(), this);
 	}
 
-protected:
+  protected:
 	chunk_index _next_index;
 
-private:
+  private:
 	PVSplunkQuery& _query;
 	PVSplunkAPI _splunk;
 	bool _query_end = false;

@@ -13,44 +13,46 @@
 #include <QString>
 #include <QHash>
 
-namespace PVRush {
+namespace PVRush
+{
 
 typedef QHash<int, QString> map_type;
 
 class PVSQLTypeMap
 {
-public:
+  public:
 	typedef std::shared_ptr<PVSQLTypeMap> p_type;
-public:
+
+  public:
 	static p_type get_map(QString const& driver);
-public:
+
+  public:
 	virtual QString map(int type) const = 0;
 	virtual QString map_inendi(int type) const = 0;
 };
 
 typedef PVSQLTypeMap::p_type PVSQLTypeMap_p;
 
-class PVSQLTypeMapMysql: public PVSQLTypeMap
+class PVSQLTypeMapMysql : public PVSQLTypeMap
 {
-public:
+  public:
 	QString map(int type) const;
 	QString map_inendi(int type) const;
 };
 
-class PVSQLTypeMapODBC: public PVSQLTypeMap
+class PVSQLTypeMapODBC : public PVSQLTypeMap
 {
-public:
+  public:
 	QString map(int /*type*/) const { return "unknown"; }
 	QString map_inendi(int /*type*/) const { return "enum"; }
 };
 
-class PVSQLTypeMapSQLite: public PVSQLTypeMap
+class PVSQLTypeMapSQLite : public PVSQLTypeMap
 {
-public:
+  public:
 	QString map(int /*type*/) const { return "unknown"; }
 	QString map_inendi(int /*type*/) const { return "enum"; }
 };
-
 }
 
 #endif

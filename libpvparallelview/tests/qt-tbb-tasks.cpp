@@ -19,15 +19,9 @@
 /*****************************************************************************
  * about program's parameters
  */
-enum {
-	P_PROG = 0,
-	P_QT_HEIGHT,
-	P_QT_LIMIT,
-	P_THREADS,
-	P_MAX_VALUE
-};
+enum { P_PROG = 0, P_QT_HEIGHT, P_QT_LIMIT, P_THREADS, P_MAX_VALUE };
 
-void usage(char *program)
+void usage(char* program)
 {
 	std::cerr << "usage: " << basename(program) << " height limit thread_num" << std::endl;
 	std::cerr << "\theight    : height of quadtree" << std::endl;
@@ -39,27 +33,16 @@ void usage(char *program)
  * code \o/
  */
 
-enum child_pos_t
-{
-	SW = 0,
-	SE,
-	NW,
-	NE
-};
+enum child_pos_t { SW = 0, SE, NW, NE };
 
 class context_t
 {
-public:
-	context_t()
-	{
-	}
+  public:
+	context_t() {}
 
-	void accum_value(size_t v)
-	{
-		_value += v;
-	}
+	void accum_value(size_t v) { _value += v; }
 
-private:
+  private:
 	size_t _value;
 };
 
@@ -131,11 +114,15 @@ public:
 
 class QuadTree
 {
-public:
-	QuadTree(int height, int depth, uint64_t y1_min, uint64_t y1_max, uint64_t y2_min, uint64_t y2_max) :
-		_y1_min(y1_min), _y1_max(y1_max),
-		_y2_min(y2_min), _y2_max(y2_max),
-		_heigth(height), _depth(depth)
+  public:
+	QuadTree(int height, int depth, uint64_t y1_min, uint64_t y1_max, uint64_t y2_min,
+	         uint64_t y2_max)
+	    : _y1_min(y1_min)
+	    , _y1_max(y1_max)
+	    , _y2_min(y2_min)
+	    , _y2_max(y2_max)
+	    , _heigth(height)
+	    , _depth(depth)
 	{
 		if (height == 0) {
 			_nodes[SW] = nullptr;
@@ -143,26 +130,23 @@ public:
 			_nodes[NW] = nullptr;
 			_nodes[NE] = nullptr;
 		} else {
-			_nodes[SW] = new QuadTree(height - 1, depth + 1,
-			                          y1_min,                        (y1_min + y1_max) / 2,
-			                          y2_min,                        (y2_min + y2_max) / 2);
-			_nodes[SE] = new QuadTree(height - 1, depth + 1,
-			                          (y1_min + y1_max) / 2,                        y1_max,
-			                          y2_min,                        (y2_min + y2_max) / 2);
-			_nodes[NW] = new QuadTree(height - 1, depth + 1,
-			                          y1_min,                        (y1_min + y1_max) / 2,
-			                          (y2_min + y2_max) / 2,                        y2_max);
-			_nodes[NE] = new QuadTree(height - 1, depth + 1,
-			                          (y1_min + y1_max) / 2,                        y1_max,
-			                          (y2_min + y2_max) / 2,                        y2_max);
+			_nodes[SW] = new QuadTree(height - 1, depth + 1, y1_min, (y1_min + y1_max) / 2, y2_min,
+			                          (y2_min + y2_max) / 2);
+			_nodes[SE] = new QuadTree(height - 1, depth + 1, (y1_min + y1_max) / 2, y1_max, y2_min,
+			                          (y2_min + y2_max) / 2);
+			_nodes[NW] = new QuadTree(height - 1, depth + 1, y1_min, (y1_min + y1_max) / 2,
+			                          (y2_min + y2_max) / 2, y2_max);
+			_nodes[NE] = new QuadTree(height - 1, depth + 1, (y1_min + y1_max) / 2, y1_max,
+			                          (y2_min + y2_max) / 2, y2_max);
 		}
 	}
 
-	QuadTree(int height, uint64_t y1_min, uint64_t y1_max, uint64_t y2_min, uint64_t y2_max) :
-		QuadTree(height, 0, y1_min, y1_max, y2_min, y2_max)
-	{}
+	QuadTree(int height, uint64_t y1_min, uint64_t y1_max, uint64_t y2_min, uint64_t y2_max)
+	    : QuadTree(height, 0, y1_min, y1_max, y2_min, y2_max)
+	{
+	}
 
-	void do_job(tls_set_t &tls) const
+	void do_job(tls_set_t& tls) const
 	{
 		if (is_splitted()) {
 			for (int i = 0; i < 4; ++i) {
@@ -170,63 +154,50 @@ public:
 			}
 		} else {
 			size_t s = 0;
-			for(uint64_t y1 = _y1_min; y1 < _y1_max; ++y1) {
-				for(uint64_t y2 = _y2_min; y2 < _y2_max; ++y2) {
+			for (uint64_t y1 = _y1_min; y1 < _y1_max; ++y1) {
+				for (uint64_t y2 = _y2_min; y2 < _y2_max; ++y2) {
 					s += y1 + y2;
 				}
 			}
-			context_t &ctx = tls.local();
+			context_t& ctx = tls.local();
 			ctx.accum_value(s);
 		}
 	}
 
-	bool is_splitted() const
-	{
-		return (_nodes[SW] != nullptr);
-	}
+	bool is_splitted() const { return (_nodes[SW] != nullptr); }
 
-	bool depth_reached(int depth) const
-	{
-		return (_depth == depth);
-	}
+	bool depth_reached(int depth) const { return (_depth == depth); }
 
-	QuadTree *get_child(child_pos_t child) const
-	{
-		return _nodes[child];
-	}
+	QuadTree* get_child(child_pos_t child) const { return _nodes[child]; }
 
-private:
+  private:
 	QuadTree* _nodes[4];
 	uint64_t _y1_min;
 	uint64_t _y1_max;
 	uint64_t _y2_min;
 	uint64_t _y2_max;
-	int      _heigth;
-	int      _depth;
+	int _heigth;
+	int _depth;
 };
 
 typedef std::atomic<size_t> atomic_size_t;
 
 class JobTask : public tbb::task
 {
-public:
-	JobTask (QuadTree &qt, tls_set_t &tls) : _qt(qt), _tls(tls)
-	{
-		++_task_count;
-	}
+  public:
+	JobTask(QuadTree& qt, tls_set_t& tls) : _qt(qt), _tls(tls) { ++_task_count; }
 
-	virtual ~JobTask()
-	{}
+	virtual ~JobTask() {}
 
 	virtual tbb::task* execute()
 	{
 		if (_qt.is_splitted() && !_qt.depth_reached(_limit)) {
-			tbb::empty_task &c = *new(allocate_continuation()) tbb::empty_task;
+			tbb::empty_task& c = *new (allocate_continuation()) tbb::empty_task;
 
-			JobTask &jNE = *new(c.allocate_child()) JobTask(*_qt.get_child(NE), _tls);
-			JobTask &jNW = *new(c.allocate_child()) JobTask(*_qt.get_child(NW), _tls);
-			JobTask &jSE = *new(c.allocate_child()) JobTask(*_qt.get_child(SE), _tls);
-			JobTask &jSW = *new(c.allocate_child()) JobTask(*_qt.get_child(SW), _tls);
+			JobTask& jNE = *new (c.allocate_child()) JobTask(*_qt.get_child(NE), _tls);
+			JobTask& jNW = *new (c.allocate_child()) JobTask(*_qt.get_child(NW), _tls);
+			JobTask& jSE = *new (c.allocate_child()) JobTask(*_qt.get_child(SE), _tls);
+			JobTask& jSW = *new (c.allocate_child()) JobTask(*_qt.get_child(SW), _tls);
 
 			c.set_ref_count(4);
 
@@ -241,28 +212,19 @@ public:
 		return nullptr;
 	}
 
-	static void clear_task_count()
-	{
-		_task_count = 0;
-	}
+	static void clear_task_count() { _task_count = 0; }
 
-	static size_t get_task_count()
-	{
-		return _task_count.load();
-	}
+	static size_t get_task_count() { return _task_count.load(); }
 
-	static void set_limit(size_t l)
-	{
-		_limit = l;
-	}
+	static void set_limit(size_t l) { _limit = l; }
 
-private:
-	QuadTree  &_qt;
-	tls_set_t &_tls;
+  private:
+	QuadTree& _qt;
+	tls_set_t& _tls;
 
-private:
+  private:
 	static atomic_size_t _task_count;
-	static size_t        _limit;
+	static size_t _limit;
 };
 
 atomic_size_t JobTask::_task_count(0);
@@ -273,7 +235,7 @@ size_t JobTask::_limit;
  */
 #define MAX_VALUE (1ULL << 16)
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	if (argc != P_MAX_VALUE) {
 		usage(argv[P_PROG]);
@@ -314,7 +276,7 @@ int main(int argc, char **argv)
 
 	tls_set_t tls_tbb;
 
-	JobTask &t = *new(tbb::task::allocate_root()) JobTask(qt, tls_tbb);
+	JobTask& t = *new (tbb::task::allocate_root()) JobTask(qt, tls_tbb);
 
 	JobTask::clear_task_count();
 	BENCH_START(run_tbb);

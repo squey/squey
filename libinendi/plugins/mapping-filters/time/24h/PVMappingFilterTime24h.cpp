@@ -7,8 +7,7 @@
 
 #include "PVMappingFilterTime24h.h"
 
-Inendi::PVMappingFilterTime24h::PVMappingFilterTime24h():
-	PVMappingFilter()
+Inendi::PVMappingFilterTime24h::PVMappingFilterTime24h() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterTime24h);
 }

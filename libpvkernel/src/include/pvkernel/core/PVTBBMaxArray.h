@@ -11,30 +11,28 @@
 #include <tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
 
-namespace PVCore {
+namespace PVCore
+{
 
-template <typename T>
-class PVTBBMaxArray {
-protected:
+template <typename T> class PVTBBMaxArray
+{
+  protected:
 	const T* _arr;
 	T _max_value;
 	T _min_value;
 
-public:
-	PVTBBMaxArray(const T* arr, T min_value):
-		_arr(arr),
-		_max_value(min_value),
-		_min_value(min_value)
+  public:
+	PVTBBMaxArray(const T* arr, T min_value)
+	    : _arr(arr), _max_value(min_value), _min_value(min_value)
 	{
 	}
 
-	PVTBBMaxArray(PVTBBMaxArray& x, tbb::split):
-		_arr(x._arr),
-		_max_value(x._min_value),
-		_min_value(x._min_value)
+	PVTBBMaxArray(PVTBBMaxArray& x, tbb::split)
+	    : _arr(x._arr), _max_value(x._min_value), _min_value(x._min_value)
 	{
 	}
-public:
+
+  public:
 	void operator()(const tbb::blocked_range<uint64_t>& r)
 	{
 		const T* arr = _arr;
@@ -55,7 +53,6 @@ public:
 
 	const T& get_max_value() { return _max_value; }
 };
-
 }
 
 #endif

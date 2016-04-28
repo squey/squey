@@ -8,17 +8,17 @@
 #ifndef PVPARALLELVIEW_PVHITGRAPHCOMMON_H
 #define PVPARALLELVIEW_PVHITGRAPHCOMMON_H
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
-namespace PVHitGraphCommon {
+namespace PVHitGraphCommon
+{
 
 /*enum {
-	NBITS = 10,
-	NBLOCKS = 2
+    NBITS = 10,
+    NBLOCKS = 2
 };*/
-
 }
-
 }
 
 #endif

@@ -17,35 +17,33 @@
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterDuplicateParamWidget: public PVFieldsSplitterParamWidget
+class PVFieldSplitterDuplicateParamWidget : public PVFieldsSplitterParamWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVFieldSplitterDuplicateParamWidget();
 
-public:
+  public:
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-	size_t force_number_children() {
-		return 0;
-	}
+	size_t force_number_children() { return 0; }
 
-private slots:
+  private slots:
 	void updateNChilds(int n);
 
-private:
+  private:
 	QAction* _action_menu;
 	QWidget* _param_widget;
 	QSpinBox* _duplications_spin_box;
 
-private:
+  private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterDuplicateParamWidget)
 };
-
 }
 
 #endif // PVFIELDSPLITTERDUPLICATEPARAMWIDGET_H

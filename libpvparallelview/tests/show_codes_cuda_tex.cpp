@@ -35,17 +35,19 @@ void init_codes(LBView* v, PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t
 
 	std::vector<int32_t>& pts = *(new std::vector<int32_t>);
 	std::vector<PVRGB>& colors = *(new std::vector<PVRGB>);
-	pts.reserve(n*4);
+	pts.reserve(n * 4);
 	colors.reserve(n);
 	PVRGB rgb;
 	rgb.int_v = 0;
 	for (size_t i = 0; i < n; i++) {
 		PVParallelView::PVBCICode<NBITS_INDEX> c = codes[i];
-		pts.push_back(0); pts.push_back(c.s.l);
-		pts.push_back(1); pts.push_back(c.s.r);
+		pts.push_back(0);
+		pts.push_back(c.s.l);
+		pts.push_back(1);
+		pts.push_back(c.s.r);
 
 		PVCore::PVHSVColor hsv(c.s.color);
-		hsv.to_rgb((uint8_t*) &rgb);
+		hsv.to_rgb((uint8_t*)&rgb);
 		colors.push_back(rgb);
 	}
 }
@@ -53,7 +55,8 @@ void init_codes(LBView* v, PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
-		std::cerr << "Usage: " << argv[0] << " nlines" << " [width]" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " nlines"
+		          << " [width]" << std::endl;
 		return 1;
 	}
 
@@ -74,7 +77,8 @@ int main(int argc, char** argv)
 
 	size_t n = atoll(argv[1]);
 
-	PVParallelView::PVBCICode<NBITS_INDEX>* codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
+	PVParallelView::PVBCICode<NBITS_INDEX>* codes =
+	    PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
 	PVParallelView::PVBCIPatterns<NBITS_INDEX>::init_random_codes(codes, n);
 
 	v->set_size(WIDTH, 1024);
@@ -88,7 +92,6 @@ int main(int argc, char** argv)
 	mw->setCentralWidget(v);
 	mw->resize(v->sizeHint());
 	mw->show();
-
 
 	app.exec();
 

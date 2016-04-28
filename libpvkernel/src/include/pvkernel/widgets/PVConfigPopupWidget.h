@@ -26,9 +26,9 @@ namespace PVWidgets
 
 class PVConfigPopupWidget : public PVPopupWidget
 {
-Q_OBJECT
+	Q_OBJECT
 
-public:
+  public:
 	/**
 	 * a constructor
 	 *
@@ -51,7 +51,7 @@ public:
 	 */
 	void setContentLayout(QLayout* l);
 
-public slots:
+  public slots:
 	/**
 	 * set if the popup is persistent or not
 	 *
@@ -60,10 +60,9 @@ public slots:
 	 */
 	void setPersistence(bool persistent);
 
-private:
+  private:
 	QToolButton* _pers_button;
 };
-
 }
 
 #endif // PVWIDGETS_PVCONFIGPOPUPWIDGET_H

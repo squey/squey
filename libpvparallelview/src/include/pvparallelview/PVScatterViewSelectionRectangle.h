@@ -19,26 +19,23 @@ class PVScatterView;
 
 class PVScatterViewSelectionRectangle : public PVSelectionRectangle
 {
-public:
+  public:
 	PVScatterViewSelectionRectangle(PVScatterView* sv);
 
-public:
-	void set_plotteds(const uint32_t* y1_plotted,
-	                  const uint32_t* y2_plotted,
-	                  const PVRow nrows);
+  public:
+	void set_plotteds(const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows);
 
-protected:
+  protected:
 	void commit(bool use_selection_modifiers) override;
 
 	Inendi::PVView& lib_view() override;
 
-private:
+  private:
 	const uint32_t* _y1_plotted;
 	const uint32_t* _y2_plotted;
 	PVRow _nrows;
 	PVScatterView* _sv;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVSCATTERVIEWSELECTIONSQUARE_H

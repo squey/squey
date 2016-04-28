@@ -15,55 +15,59 @@
 #include <iostream>
 
 #ifdef INSPECTOR_BENCH
-    // 10 000 000 lines.
-    static constexpr int dupl = 200;
+// 10 000 000 lines.
+static constexpr int dupl = 200;
 #else
-    static constexpr int dupl = 1;
+static constexpr int dupl = 1;
 #endif
 
 static constexpr const char* csv_file = TEST_FOLDER "/picviz/time_mapping.csv";
-static constexpr const char* csv_file_format = TEST_FOLDER "/picviz/datetime_week_mapping.csv.format";
+static constexpr const char* csv_file_format =
+    TEST_FOLDER "/picviz/datetime_week_mapping.csv.format";
 
 int main()
 {
-    pvtest::TestEnv env(csv_file, csv_file_format, dupl);
+	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
 
-    auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
-    Inendi::PVMapped_p mapped = env.compute_mapping();
+	Inendi::PVMapped_p mapped = env.compute_mapping();
 
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> diff = end - start;
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> diff = end - start;
 
-    std::cout << diff.count();
+	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
-    // Compute distinct values.
-    PVRush::PVNraw const& nraw = env.src->get_rushnraw();
-    const pvcop::db::array& column = nraw.collection().column(0);
-    auto& array = column.to_core_array<uint32_t>();
+	// Compute distinct values.
+	PVRush::PVNraw const& nraw = env.src->get_rushnraw();
+	const pvcop::db::array& column = nraw.collection().column(0);
+	auto& array = column.to_core_array<uint32_t>();
 
-    std::vector<uint32_t> order(column.size());
-    std::iota(order.begin(), order.end(), 0);
+	std::vector<uint32_t> order(column.size());
+	std::iota(order.begin(), order.end(), 0);
 
-    std::sort(order.begin(), order.end(), [&array](uint32_t a, uint32_t b) {
-	    tm tm_a;
-	    tm tm_b;
-	    const time_t ta = static_cast<int64_t>(array[a]);
-	    const time_t tb = static_cast<int64_t>(array[b]);
-	    gmtime_r(&ta, &tm_a);
-	    gmtime_r(&tb, &tm_b);
-	    return tm_a.tm_wday < tm_b.tm_wday or
-		   (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour < tm_b.tm_hour) or
-		   (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour == tm_b.tm_hour and tm_a.tm_min < tm_b.tm_min) or
-		   (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour == tm_b.tm_hour and tm_a.tm_min == tm_b.tm_min and tm_a.tm_sec < tm_b.tm_sec); });
+	std::sort(order.begin(), order.end(), [&array](uint32_t a, uint32_t b) {
+		tm tm_a;
+		tm tm_b;
+		const time_t ta = static_cast<int64_t>(array[a]);
+		const time_t tb = static_cast<int64_t>(array[b]);
+		gmtime_r(&ta, &tm_a);
+		gmtime_r(&tb, &tm_b);
+		return tm_a.tm_wday < tm_b.tm_wday or
+		       (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour < tm_b.tm_hour) or
+		       (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour == tm_b.tm_hour and
+		        tm_a.tm_min < tm_b.tm_min) or
+		       (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour == tm_b.tm_hour and
+		        tm_a.tm_min == tm_b.tm_min and tm_a.tm_sec < tm_b.tm_sec);
+	});
 
-    uint32_t prev = mapped->get_value(order[0], 0).storage_as_uint();
-    for(size_t i=0; i<column.size(); i++) {
-	PV_ASSERT_VALID(prev <= mapped->get_value(order[i], 0).storage_as_uint());
-	prev = mapped->get_value(order[i], 0).storage_as_uint();
-    }
+	uint32_t prev = mapped->get_value(order[0], 0).storage_as_uint();
+	for (size_t i = 0; i < column.size(); i++) {
+		PV_ASSERT_VALID(prev <= mapped->get_value(order[i], 0).storage_as_uint());
+		prev = mapped->get_value(order[i], 0).storage_as_uint();
+	}
 #endif
 
-    return 0;
+	return 0;
 }

@@ -23,7 +23,7 @@
 using namespace PVRush;
 using namespace PVCore;
 
-void dump_agg(PVAggregator& agg, std::ostream & out)
+void dump_agg(PVAggregator& agg, std::ostream& out)
 {
 	while (PVChunk* pc = agg()) {
 		dump_chunk_csv(*pc, out);
@@ -31,13 +31,14 @@ void dump_agg(PVAggregator& agg, std::ostream & out)
 	}
 }
 
-void show_src_index(PVAggregator& agg, size_t index, std::ostream & out)
+void show_src_index(PVAggregator& agg, size_t index, std::ostream& out)
 {
 	chunk_index offset = 0;
 	PVRush::PVRawSourceBase_p src = agg.agg_index_to_source(index, &offset);
 	QFileInfo fi(src->human_name());
 	// Output in UTF8 !
-	out << "Index " << index << " for source " << fi.fileName().toUtf8().constData() << " at offset " << offset << std::endl;
+	out << "Index " << index << " for source " << fi.fileName().toUtf8().constData()
+	    << " at offset " << offset << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -61,7 +62,7 @@ int main(int argc, char** argv)
 		PVRush::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size));
 		agg.add_input(source);
 	}
-	
+
 	agg.read_all_chunks_from_beggining();
 	agg.debug();
 
@@ -74,17 +75,17 @@ int main(int argc, char** argv)
 	show_src_index(agg, 250, out);
 	show_src_index(agg, 420, out);
 	show_src_index(agg, 550, out);
-	
+
 	out << "Process from 0 to 100..." << std::endl;
 	agg.process_indexes(0, 100);
 	dump_agg(agg, out);
 
 	out << "Process from 100 to 500..." << std::endl;
-	agg.process_indexes(100,500);
+	agg.process_indexes(100, 500);
 	dump_agg(agg, out);
 
 	out << "Show 1000000 lines..." << std::endl;
-	agg.process_indexes(0,1000000);
+	agg.process_indexes(0, 1000000);
 	dump_agg(agg, out);
 
 #ifndef INSPECTOR_BENCH

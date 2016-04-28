@@ -14,21 +14,21 @@
 #include <QUrl>
 #include <QComboBox>
 
-class PVLogViewerDialog: public QDialog
+class PVLogViewerDialog : public QDialog
 {
 	Q_OBJECT
-public:
+  public:
 	PVLogViewerDialog(QStringList const& formats, QWidget* parent);
 	virtual ~PVLogViewerDialog();
 
-public:
+  public:
 	QHash<QString, QUrl> const& getDlFiles() { return _dl_files; }
 	QString getSelFormat();
 
-public slots:
+  public slots:
 	void slotDownloadFiles();
 
-protected:
+  protected:
 	LogViewerWidget* pv_RemoteLog;
 	QHash<QString, QUrl> _dl_files;
 	QComboBox* _combo_format;

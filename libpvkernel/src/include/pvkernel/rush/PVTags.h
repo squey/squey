@@ -25,16 +25,18 @@
  *
  */
 
-namespace PVRush {
-class PVTags {
+namespace PVRush
+{
+class PVTags
+{
 
- private:
+  private:
 	QSet<QString> _tags;
 
- public:
+  public:
 	PVTags();
 	~PVTags();
-	
+
 	void add_tag(QString tag);
 	bool del_tag(QString tag);
 	bool has_tag(QString tag) const;
@@ -47,4 +49,4 @@ class PVTags {
 
 /*@}*/
 
-#endif	/* PVCORE_PVTAG_H */
+#endif /* PVCORE_PVTAG_H */

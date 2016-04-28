@@ -9,7 +9,6 @@
 #include <inendi/PVLayer_types.h>
 #include <inendi/PVView_types.h>
 
-
 int main()
 {
 	return 0;

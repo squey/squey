@@ -10,10 +10,11 @@
 #include <QStringList>
 #include "PVElasticsearchPresets.h"
 
-const char PVRush::PVElasticsearchPresets::PV_SETTINGS_INPUT[] = "plugins/input_type/elasticsearch/";
+const char PVRush::PVElasticsearchPresets::PV_SETTINGS_INPUT[] =
+    "plugins/input_type/elasticsearch/";
 
-PVRush::PVElasticsearchPresets::PVElasticsearchPresets():
-	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+PVRush::PVElasticsearchPresets::PVElasticsearchPresets()
+    : _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
 {
 	_settings.beginGroup(QString(PV_SETTINGS_INPUT) + "presets");
 }
@@ -29,13 +30,9 @@ PVRush::PVElasticsearchPresets& PVRush::PVElasticsearchPresets::get()
 	return obj;
 }
 
-
-PVRush::PVElasticsearchPresets::id_t PVRush::PVElasticsearchPresets::add(
-	QString const& name,
-	PVElasticsearchInfos const& infos,
-	QString const& query,
-	QString const& query_type
-)
+PVRush::PVElasticsearchPresets::id_t
+PVRush::PVElasticsearchPresets::add(QString const& name, PVElasticsearchInfos const& infos,
+                                    QString const& query, QString const& query_type)
 {
 	QStringList grps = _settings.childGroups();
 	id_t max = 0;
@@ -46,17 +43,14 @@ PVRush::PVElasticsearchPresets::id_t PVRush::PVElasticsearchPresets::add(
 		}
 	}
 
-	id_t new_id = max+1;
+	id_t new_id = max + 1;
 	set(new_id, infos, query, query_type, name);
 	return new_id;
 }
 
-void PVRush::PVElasticsearchPresets::set(
-	id_t id, PVElasticsearchInfos const& infos,
-	QString const& query,
-	QString const& query_type,
-	QString const& name
-)
+void PVRush::PVElasticsearchPresets::set(id_t id, PVElasticsearchInfos const& infos,
+                                         QString const& query, QString const& query_type,
+                                         QString const& name)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -73,7 +67,8 @@ void PVRush::PVElasticsearchPresets::set(
 	_settings.endGroup();
 }
 
-bool PVRush::PVElasticsearchPresets::get(id_t id, PVElasticsearchInfos& infos, QString& query, QString& query_type)
+bool PVRush::PVElasticsearchPresets::get(id_t id, PVElasticsearchInfos& infos, QString& query,
+                                         QString& query_type)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -81,7 +76,7 @@ bool PVRush::PVElasticsearchPresets::get(id_t id, PVElasticsearchInfos& infos, Q
 	if (_settings.contains("name")) {
 		infos.set_host(_settings.value("host", "").toString());
 		infos.set_port(_settings.value("port", "").toUInt());
-		infos.set_port((uint16_t) _settings.value("port", 0).toUInt());
+		infos.set_port((uint16_t)_settings.value("port", 0).toUInt());
 		infos.set_login(_settings.value("login", "").toString());
 		infos.set_password(_settings.value("password", "").toString());
 		infos.set_index(_settings.value("index", "").toString());

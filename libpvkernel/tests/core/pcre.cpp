@@ -10,7 +10,7 @@
 
 int main()
 {
-	pcrecpp::RE re("héllo", PCRE_CASELESS|PCRE_UTF8);
+	pcrecpp::RE re("héllo", PCRE_CASELESS | PCRE_UTF8);
 	std::cout << re.FullMatch("hÉllo") << std::endl;
 	std::cout << re.FullMatch("hello") << std::endl;
 	std::cout << re.FullMatch("ahélloz") << std::endl;

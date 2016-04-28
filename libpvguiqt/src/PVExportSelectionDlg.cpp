@@ -21,9 +21,10 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/PVProgressBox.h>
 
-PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination,
-													Inendi::PVView& view, QWidget* parent /* = 0 */) :
-	QFileDialog(parent)
+PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
+    Inendi::PVAxesCombination& custom_axes_combination, Inendi::PVView& view,
+    QWidget* parent /* = 0 */)
+    : QFileDialog(parent)
 {
 	setWindowTitle(tr("Export selection"));
 	setAcceptMode(QFileDialog::AcceptSave);
@@ -43,7 +44,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVAxesCombination& c
 	// ||                  export_layout                         ||
 	// |----------------------------------------------------------|
 	// ------------------------------------------------------------
-	QGridLayout* main_layout = static_cast<QGridLayout *>(layout());
+	QGridLayout* main_layout = static_cast<QGridLayout*>(layout());
 
 	QGroupBox* group_box = new QGroupBox();
 	main_layout->addWidget(group_box, 4, 0, 1, 3);
@@ -127,19 +128,16 @@ void PVGuiQt::PVExportSelectionDlg::show_edit_axes_widget(bool show)
 void PVGuiQt::PVExportSelectionDlg::show_axes_combination_widget()
 {
 	_axes_combination_widget->show();
-
 }
 
 PVGuiQt::PVExportSelectionDlg::AxisCombinationKind
 PVGuiQt::PVExportSelectionDlg::combination_kind() const
 {
-	if(_all_axis->isChecked()) {
+	if (_all_axis->isChecked()) {
 		return AxisCombinationKind::ALL;
-	}
-	else if(_current_axis->isChecked()) {
+	} else if (_current_axis->isChecked()) {
 		return AxisCombinationKind::CURRENT;
-	}
-	else {
+	} else {
 		assert(_custom_axis->isChecked());
 		return AxisCombinationKind::CUSTOM;
 	}
@@ -149,9 +147,8 @@ PVGuiQt::PVExportSelectionDlg::combination_kind() const
  *
  * It creates the ExportSelectionDlg and handle the result.
  */
-void PVGuiQt::PVExportSelectionDlg::export_selection(
-	Inendi::PVView& view,
-	const Inendi::PVSelection& sel)
+void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
+                                                     const Inendi::PVSelection& sel)
 {
 	// Axis (column) to export
 	Inendi::PVAxesCombination const& axes_combination = view.get_axes_combination();
@@ -176,11 +173,8 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 		}
 
 		// Error case
-		QMessageBox::critical(
-			&export_selection_dlg,
-			tr("Error while exporting the selection"),
-			tr("Can not create the file \"%1\"").arg(filename)
-			);
+		QMessageBox::critical(&export_selection_dlg, tr("Error while exporting the selection"),
+		                      tr("Can not create the file \"%1\"").arg(filename));
 	}
 
 	// TODO: put an option in the widget for the file locale
@@ -198,23 +192,24 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 	// ALL: Use the view combination but export original axis
 	PVCore::PVColumnIndexes column_indexes;
 	QStringList str_list;
-	switch(export_selection_dlg.combination_kind())
-	{
-		case AxisCombinationKind::CUSTOM:
-			for(const Inendi::PVAxesCombination::axes_comb_id_t& a: custom_axes_combination.get_axes_index_list())
-				column_indexes.push_back(a.get_axis());
-			str_list = custom_axes_combination.get_axes_names_list();
-			break;
-		case AxisCombinationKind::CURRENT:
-			for(const Inendi::PVAxesCombination::axes_comb_id_t& a: axes_combination.get_axes_index_list())
-				column_indexes.push_back(a.get_axis());
-			str_list = axes_combination.get_axes_names_list();
-			break;
-		case AxisCombinationKind::ALL:
-			for(int a=0; a<axes_combination.get_original_axes_count(); a++)
-				column_indexes.push_back(a);
-			str_list = axes_combination.get_original_axes_names_list();
-			break;
+	switch (export_selection_dlg.combination_kind()) {
+	case AxisCombinationKind::CUSTOM:
+		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
+		     custom_axes_combination.get_axes_index_list())
+			column_indexes.push_back(a.get_axis());
+		str_list = custom_axes_combination.get_axes_names_list();
+		break;
+	case AxisCombinationKind::CURRENT:
+		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
+		     axes_combination.get_axes_index_list())
+			column_indexes.push_back(a.get_axis());
+		str_list = axes_combination.get_axes_names_list();
+		break;
+	case AxisCombinationKind::ALL:
+		for (int a = 0; a < axes_combination.get_original_axes_count(); a++)
+			column_indexes.push_back(a);
+		str_list = axes_combination.get_original_axes_names_list();
+		break;
 	}
 
 	// Export header
@@ -236,17 +231,20 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(
 	// Export selected lines
 	// TODO : We know the number of line to set a progression
 	PVCore::PVProgressBox::progress([&]() {
-		while (true) {
-			start = sel.find_next_set_bit(start, nrows);
-			if (start == PVROW_INVALID_VALUE) {
-				break;
-			}
-			step_count = std::min(step_count, nrows - start);
-			nraw.export_lines(ofs, sel, column_indexes, start, step_count, sep_char, quote_char);
-			start += step_count;
-			if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
-				return;
-			}
-		}
-	}, &pbox);
+		                                while (true) {
+			                                start = sel.find_next_set_bit(start, nrows);
+			                                if (start == PVROW_INVALID_VALUE) {
+				                                break;
+			                                }
+			                                step_count = std::min(step_count, nrows - start);
+			                                nraw.export_lines(ofs, sel, column_indexes, start,
+			                                                  step_count, sep_char, quote_char);
+			                                start += step_count;
+			                                if (pbox.get_cancel_state() !=
+			                                    PVCore::PVProgressBox::CONTINUE) {
+				                                return;
+			                                }
+		                                }
+		                            },
+	                                &pbox);
 }

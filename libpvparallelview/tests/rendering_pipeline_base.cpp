@@ -32,25 +32,23 @@ void show_qimage(QString const& title, QImage const& img)
 	dlg->show();
 }
 
-PVParallelView::PVZoneRenderingBCI<10>* new_zr(PVParallelView::PVBCIDrawingBackend& backend, size_t n, PVParallelView::PVBCIBackendImage_p& dst_img)
+PVParallelView::PVZoneRenderingBCI<10>* new_zr(PVParallelView::PVBCIDrawingBackend& backend,
+                                               size_t n,
+                                               PVParallelView::PVBCIBackendImage_p& dst_img)
 {
 	dst_img = backend.create_image(1024, 10);
 	PVParallelView::PVZoneRenderingBCI<10>* zr = new PVParallelView::PVZoneRenderingBCI<10>(
-		0,
-		[n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes)
-		{
-			for (size_t i = 0; i < n; i++) {
-				codes[i].int_v = 0;
-				codes[i].s.l = 0;
-				codes[i].s.r = i & MASK_INT_YCOORD;
-				codes[i].s.color = colors_[i].h();
-				codes[i].s.idx = i;
-			}
-			return n;
-		},
-		*dst_img,
-		0,
-		1024);
+	    0, [n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes) {
+		       for (size_t i = 0; i < n; i++) {
+			       codes[i].int_v = 0;
+			       codes[i].s.l = 0;
+			       codes[i].s.r = i & MASK_INT_YCOORD;
+			       codes[i].s.color = colors_[i].h();
+			       codes[i].s.idx = i;
+		       }
+		       return n;
+		   },
+	    *dst_img, 0, 1024);
 	return zr;
 }
 
@@ -64,15 +62,18 @@ int main(int argc, char** argv)
 	size_t n = std::min(atoll(argv[1]), PVParallelView::MaxBciCodes);
 
 	PVCuda::init_cuda();
-	PVParallelView::PVBCIDrawingBackendCUDA& backend = PVParallelView::PVBCIDrawingBackendCUDA::get();
-	PVParallelView::PVRenderingPipeline* pipeline = new PVParallelView::PVRenderingPipeline(backend);
+	PVParallelView::PVBCIDrawingBackendCUDA& backend =
+	    PVParallelView::PVBCIDrawingBackendCUDA::get();
+	PVParallelView::PVRenderingPipeline* pipeline =
+	    new PVParallelView::PVRenderingPipeline(backend);
 
 	PVCore::PVHSVColor* colors = std::allocator<PVCore::PVHSVColor>().allocate(n);
 	for (size_t i = 0; i < n; i++) {
-		colors[i] = (i%(HSV_COLOR_RED-HSV_COLOR_GREEN))+HSV_COLOR_GREEN;
+		colors[i] = (i % (HSV_COLOR_RED - HSV_COLOR_GREEN)) + HSV_COLOR_GREEN;
 	}
 
-	PVParallelView::PVZonesProcessor p = pipeline->declare_processor([](PVZoneID z) { std::cout << "Preprocess for zone " << z << std::endl; }, colors, 2);
+	PVParallelView::PVZonesProcessor p = pipeline->declare_processor(
+	    [](PVZoneID z) { std::cout << "Preprocess for zone " << z << std::endl; }, colors, 2);
 
 #define NJOBS 40
 	std::vector<PVParallelView::PVZoneRenderingBCI<10>*> zrs;
@@ -92,26 +93,27 @@ int main(int argc, char** argv)
 	}
 	/*double time_cancel = 0.0;
 	for (size_t i = NJOBS/2; i < NJOBS; i++) {
-		zrs[i]->cancel();
-		std::cout << zrs[i] << " canceled." << std::endl;
+	        zrs[i]->cancel();
+	        std::cout << zrs[i] << " canceled." << std::endl;
 	}
-	
-	for (size_t i = 0; i < NJOBS; i++) {
-		std::cout << "Waiting for " << zrs[i] << " to finished" << std::endl;
-		tbb::tick_count start = tbb::tick_count::now();
-		zrs[i]->wait_end();
-		tbb::tick_count end = tbb::tick_count::now();
-		time_cancel += (end-start).seconds();
-	}
-	std::cout << "Average cancelation time: " << (time_cancel*1000.0)/((double)NJOBS) << " ms." << std::endl;
 
-	
+	for (size_t i = 0; i < NJOBS; i++) {
+	        std::cout << "Waiting for " << zrs[i] << " to finished" << std::endl;
+	        tbb::tick_count start = tbb::tick_count::now();
+	        zrs[i]->wait_end();
+	        tbb::tick_count end = tbb::tick_count::now();
+	        time_cancel += (end-start).seconds();
+	}
+	std::cout << "Average cancelation time: " <<
+	(time_cancel*1000.0)/((double)NJOBS) << " ms." << std::endl;
+
+
 	QApplication app(argc, argv);
 	for (size_t i = 0; i < NJOBS; i++) {
-		PVParallelView::PVZoneRendering<10>* zr = zrs[i];
-		if (zr->wait_end()) {
-			show_qimage(QString::number(i), dimgs[i]->qimage());
-		}
+	        PVParallelView::PVZoneRendering<10>* zr = zrs[i];
+	        if (zr->wait_end()) {
+	                show_qimage(QString::number(i), dimgs[i]->qimage());
+	        }
 	}
 	app.exec();*/
 

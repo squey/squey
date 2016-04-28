@@ -9,8 +9,7 @@
 #include <fstream>
 #include <errno.h>
 
-PVRush::PVInputFile::PVInputFile(const char* path) :
-	_path(path)
+PVRush::PVInputFile::PVInputFile(const char* path) : _path(path)
 {
 	_file.open(path, std::ifstream::in);
 	if (_file.fail()) {
@@ -73,4 +72,3 @@ uint64_t PVRush::PVInputFile::file_size()
 }
 
 IMPL_INPUT(PVRush::PVInputFile)
-

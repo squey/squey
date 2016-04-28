@@ -24,28 +24,26 @@ class B;
 class C;
 class D;
 
-#define PVSERIALIZEOBJECT_SPLIT\
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)\
-	{\
-		so.split(*this);\
-	}\
+#define PVSERIALIZEOBJECT_SPLIT                                                                    \
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)     \
+	{                                                                                              \
+		so.split(*this);                                                                           \
+	}
 
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
 
-public:
-	A(int i = 0):
-		data_tree_a_t(),
-		_i(i)
-	{}
+  public:
+	A(int i = 0) : data_tree_a_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~A() { std::cout << "~A(" << this << ")" << std::endl; }
 
 	void save_to_file(QString const& path, bool save_everything = true)
 	{
-		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
+		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
+		    path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
 		ar->set_save_everything(save_everything);
 		QString name = "root";
 		ar->get_root()->object(name, *this);
@@ -54,7 +52,8 @@ public:
 
 	void load_from_file(QString const& path)
 	{
-		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
+		PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
+		    path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
 		QString name = "root";
 		ar->get_root()->object(name, *this);
 	}
@@ -66,7 +65,8 @@ public:
 		so.attribute("_i", _i);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t v)
 	{
 		data_tree_a_t::serialize_read(so, v);
 
@@ -77,10 +77,10 @@ public:
 
 	int get_i() { return _i; }
 
-protected:
+  protected:
 	void child_added(B& b);
 
-private:
+  private:
 	int _i;
 };
 
@@ -89,20 +89,16 @@ class B : public data_tree_b_t
 {
 	friend class A;
 
-public:
-	B(int i = 0):
-		data_tree_b_t(),
-		_a_was_here(false),
-		_i(i)
-   	{}
+  public:
+	B(int i = 0) : data_tree_b_t(), _a_was_here(false), _i(i) {}
 
-public:
+  public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
 
 	void set_parent_from_ptr(A* parent)
 	{
 		data_tree_b_t::set_parent_from_ptr(parent);
-		_j = get_parent()->get_i()*2;
+		_j = get_parent()->get_i() * 2;
 	}
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
@@ -113,7 +109,8 @@ public:
 		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t v)
 	{
 		data_tree_b_t::serialize_read(so, v);
 
@@ -129,14 +126,14 @@ public:
 
 	inline bool a_was_here() const { return _a_was_here; }
 
-public:
+  public:
 	void f() const { std::cout << "B i = " << _i << std::endl; }
 	inline int i() const { return _i; }
 
-protected:
+  protected:
 	bool _a_was_here;
 
-private:
+  private:
 	int _i;
 	int _j;
 };
@@ -146,24 +143,20 @@ void A::child_added(B& b)
 	b._a_was_here = true;
 }
 
-
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
 
-public:
-	C(int i = 0):
-		data_tree_c_t(),
-		_i(i)
-	{ }
+  public:
+	C(int i = 0) : data_tree_c_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
 
 	virtual void set_parent_from_ptr(B* parent)
 	{
 		data_tree_c_t::set_parent_from_ptr(parent);
-		_j = get_parent()->get_i()*2;
+		_j = get_parent()->get_i() * 2;
 	}
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
@@ -174,7 +167,8 @@ public:
 		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t v)
 	{
 		data_tree_c_t::serialize_read(so, v);
 
@@ -188,7 +182,7 @@ public:
 	int get_j() { return _j; }
 	void set_j(int j) { _j = j; }
 
-private:
+  private:
 	int _i;
 	int _j;
 };
@@ -197,22 +191,16 @@ typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> da
 class D : public data_tree_d_t
 {
 
-public:
-	D(int i = 0):
-		data_tree_d_t(),
-		_i(i)
-   	{ }
+  public:
+	D(int i = 0) : data_tree_d_t(), _i(i) {}
 
-public:
-	virtual ~D()
-	{
-		std::cout << "~D(" << this << ")" << std::endl;
-	}
+  public:
+	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
 
 	virtual void set_parent_from_ptr(C* parent)
 	{
 		data_tree_d_t::set_parent_from_ptr(parent);
-		_j = get_parent()->get_i()*2;
+		_j = get_parent()->get_i() * 2;
 	}
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
@@ -221,7 +209,8 @@ public:
 		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t /*v*/)
 	{
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
@@ -233,11 +222,10 @@ public:
 	int get_j() { return _j; }
 	void set_j(int j) { _j = j; }
 
-private:
+  private:
 	int _i;
 	int _j;
 };
-
 
 typedef typename A::p_type A_p;
 typedef typename B::p_type B_p;
@@ -323,7 +311,6 @@ void standard_use_case()
 	PV_ASSERT_VALID(d->get_parent<C>() == c.get());
 	PVLOG_INFO("Parent access passed\n");
 
-
 	//////////////////////////////////////////
 	//  Test2 - Children access
 	//////////////////////////////////////////
@@ -341,23 +328,22 @@ void standard_use_case()
 	}
 	PVLOG_INFO("Children access passed\n");
 
-
 	//////////////////////////////////////////
 	//  Test3 - Same parent
 	//////////////////////////////////////////
-	//a1->set_parent(nullptr);
-	//a2->set_parent(nullptr);
+	// a1->set_parent(nullptr);
+	// a2->set_parent(nullptr);
 	b1->set_parent(a1);
 	b1->set_parent(a1);
 	b1->set_parent(a1);
 	b3->set_parent(a2);
-	//c->set_parent(b0);
+	// c->set_parent(b0);
 	c->set_parent(b1);
 	d->set_parent(c);
 
 	{
-		//PV_ASSERT_VALID(a1->get_parent() == nullptr);
-		//PV_ASSERT_VALID(a2->get_parent() == nullptr);
+		// PV_ASSERT_VALID(a1->get_parent() == nullptr);
+		// PV_ASSERT_VALID(a2->get_parent() == nullptr);
 		PV_ASSERT_VALID(b1->get_parent() == a1.get());
 		PV_ASSERT_VALID(b2->get_parent() == a1.get());
 		PV_ASSERT_VALID(b3->get_parent() == a2.get());
@@ -382,8 +368,8 @@ void standard_use_case()
 	std::cout << "a1:" << std::endl;
 	a1->dump();
 	std::cout << "a2:" << std::endl;
-	a2->dump(); std::cout << std::endl;
-
+	a2->dump();
+	std::cout << std::endl;
 
 	PVLOG_INFO("Reaffecting same parent passed\n");
 
@@ -395,8 +381,8 @@ void standard_use_case()
 	std::cout << "a1:" << std::endl;
 	a1->dump();
 	std::cout << "a2:" << std::endl;
-	a2->dump(); std::cout << std::endl;
-
+	a2->dump();
+	std::cout << std::endl;
 
 	{
 		// a1 <-> b2
@@ -437,7 +423,8 @@ void standard_use_case()
 	std::cout << "a1:" << std::endl;
 	a1->dump();
 	std::cout << "a2:" << std::endl;
-	a2->dump(); std::cout << std::endl;
+	a2->dump();
+	std::cout << std::endl;
 
 	{
 		// a1 <-> b2
@@ -494,7 +481,8 @@ void standard_use_case()
 	std::cout << "a1:" << std::endl;
 	a1->dump();
 	std::cout << "a2:" << std::endl;
-	a2->dump(); std::cout << std::endl;
+	a2->dump();
+	std::cout << std::endl;
 
 	PVLOG_INFO("Create with parent and set same parent passed\n");
 
@@ -511,7 +499,8 @@ void standard_use_case()
 	std::cout << "a1:" << std::endl;
 	a1->dump();
 	std::cout << "a2:" << std::endl;
-	a2->dump(); std::cout << std::endl;
+	a2->dump();
+	std::cout << std::endl;
 
 	PVLOG_INFO("Removing child passed\n");
 
@@ -537,9 +526,9 @@ void standard_use_case()
 	PVLOG_INFO("Removing parent passed\n");
 #endif
 
-	//////////////////////////////////////////
-	//  Test9 - Create an object without parent and then set a parent
-	//////////////////////////////////////////
+//////////////////////////////////////////
+//  Test9 - Create an object without parent and then set a parent
+//////////////////////////////////////////
 #if 0
 	std::shared_ptr<C> c3(new C());
 	c3->set_parent(b3);
@@ -591,7 +580,8 @@ void standard_use_case()
 	//////////////////////////////////////////
 	// obase is 'd' here
 	std::cout << "Base object pointer = " << obase << std::endl;
-	std::cout << "Starting address of final object = " << PVCore::PVTypeTraits::get_starting_address(obase) << std::endl;
+	std::cout << "Starting address of final object = "
+	          << PVCore::PVTypeTraits::get_starting_address(obase) << std::endl;
 	std::cout << "Final object (D) pointer is = " << d.get() << std::endl;
 	PV_ASSERT_VALID(PVCore::PVTypeTraits::get_starting_address(obase) == d.get());
 
@@ -671,10 +661,10 @@ void serialize_use_case()
 	PV_ASSERT_VALID(c->get_i() == 2);
 	PV_ASSERT_VALID(d->get_i() == 1);
 
-	PV_ASSERT_VALID(b1->get_j() == b1->get_parent()->get_i()*2);
-	PV_ASSERT_VALID(b2->get_j() == b2->get_parent()->get_i()*2);
-	PV_ASSERT_VALID(c->get_j() == c->get_parent()->get_i()*2*10);
-	PV_ASSERT_VALID(d->get_j() == d->get_parent()->get_i()*2*10);
+	PV_ASSERT_VALID(b1->get_j() == b1->get_parent()->get_i() * 2);
+	PV_ASSERT_VALID(b2->get_j() == b2->get_parent()->get_i() * 2);
+	PV_ASSERT_VALID(c->get_j() == c->get_parent()->get_i() * 2 * 10);
+	PV_ASSERT_VALID(d->get_j() == d->get_parent()->get_i() * 2 * 10);
 
 	PVLOG_INFO("Class content integrity passed\n");
 	PVLOG_INFO("Class content from parent integrity passed\n");

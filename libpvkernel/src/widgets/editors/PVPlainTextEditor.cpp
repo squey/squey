@@ -25,16 +25,16 @@
  * PVCore::PVPlainTextEditor::PVPlainTextEditor
  *
  *****************************************************************************/
-PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget *parent):
-	QWidget(parent)
+PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget* parent) : QWidget(parent)
 {
 	_file_dlg.setDirectory(PVCore::PVConfig::get().get_lists_dir());
 
 	_text_edit = new QPlainTextEdit();
 	QFontMetrics m(_text_edit->font());
-	_text_edit->setMinimumHeight(5*m.lineSpacing());
+	_text_edit->setMinimumHeight(5 * m.lineSpacing());
 	_text_edit->installEventFilter(this);
-	_text_edit->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+	_text_edit->setSizePolicy(
+	    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 	QPushButton* import_file = new QPushButton();
 	import_file->setIcon(QIcon(":/import_file"));
 	import_file->setIconSize(QSize(24, 24));
@@ -70,19 +70,20 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget *parent):
 
 void PVWidgets::PVPlainTextEditor::save_to_file(const bool append)
 {
-	QString file = _file_dlg.getSaveFileName(this, tr("Save text file..."), _file_dlg.directory().absolutePath());
+	QString file = _file_dlg.getSaveFileName(this, tr("Save text file..."),
+	                                         _file_dlg.directory().absolutePath());
 
-    QFile outfile;
-    outfile.setFileName(file);
+	QFile outfile;
+	outfile.setFileName(file);
 	QIODevice::OpenMode flags = QIODevice::Text | QIODevice::WriteOnly;
 	if (append) {
 		flags |= QIODevice::ReadOnly;
 	}
-    outfile.open(flags);
+	outfile.open(flags);
 
 	const size_t file_size = outfile.size();
 	if (append && file_size > 0) {
-		outfile.seek(file_size-1);
+		outfile.seek(file_size - 1);
 		char last_char = 0;
 		outfile.read(&last_char, 1);
 		if (last_char != '\n') {
@@ -91,13 +92,13 @@ void PVWidgets::PVPlainTextEditor::save_to_file(const bool append)
 		}
 	}
 
-    QTextStream out(&outfile);
+	QTextStream out(&outfile);
 	out.setCodec(QTextCodec::codecForName("UTF-8"));
 	QString text_write = _text_edit->toPlainText();
-	if (*(text_write.constEnd()-1) != QChar('\n')) {
+	if (*(text_write.constEnd() - 1) != QChar('\n')) {
 		text_write.append(QChar('\n'));
 	}
-    out << text_write;
+	out << text_write;
 }
 
 void PVWidgets::PVPlainTextEditor::slot_export_file()
@@ -112,7 +113,8 @@ void PVWidgets::PVPlainTextEditor::slot_export_and_import_file()
 
 void PVWidgets::PVPlainTextEditor::slot_import_file()
 {
-	QString file = _file_dlg.getOpenFileName(this, tr("Open text file..."), _file_dlg.directory().absolutePath());
+	QString file = _file_dlg.getOpenFileName(this, tr("Open text file..."),
+	                                         _file_dlg.directory().absolutePath());
 	if (file.isEmpty()) {
 		return;
 	}
@@ -121,20 +123,21 @@ void PVWidgets::PVPlainTextEditor::slot_import_file()
 	try {
 		PVRush::PVInputFile* pfile = new PVRush::PVInputFile(qPrintable(file));
 		PVRush::PVInput_p input(pfile);
-		PVRush::PVUnicodeSource<std::allocator> txt_src(input, 10*1024*1024);
+		PVRush::PVUnicodeSource<std::allocator> txt_src(input, 10 * 1024 * 1024);
 		PVCore::PVChunk* chunk = txt_src();
 		std::string txt;
 		while (chunk) {
-			for (auto const* elt: chunk->c_elements()) {
+			for (auto const* elt : chunk->c_elements()) {
 				txt += std::string(elt->begin(), elt->size());
 			}
 			chunk->free();
 			chunk = txt_src();
 		}
 		_text_edit->setPlainText(QString::fromStdString(txt));
-	}
-	catch (PVRush::PVInputException const& ex) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while opening file..."), QString::fromStdString(ex.what()), QMessageBox::Ok, this);
+	} catch (PVRush::PVInputException const& ex) {
+		QMessageBox* box =
+		    new QMessageBox(QMessageBox::Critical, tr("Error while opening file..."),
+		                    QString::fromStdString(ex.what()), QMessageBox::Ok, this);
 		box->exec();
 	}
 }
@@ -153,9 +156,8 @@ void PVWidgets::PVPlainTextEditor::set_text(PVCore::PVPlainTextType const& text)
 
 bool PVWidgets::PVPlainTextEditor::eventFilter(QObject* object, QEvent* event)
 {
-	if (event->type() == QEvent::FocusOut)
-	{
-		if (object == (QObject*) _text_edit) {
+	if (event->type() == QEvent::FocusOut) {
+		if (object == (QObject*)_text_edit) {
 			// AG: force the widget to lose focus
 			// Using setFocusProxy with _text_edit does not seem to work...
 			// Same as in PVTimeFormatEditor.cpp

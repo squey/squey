@@ -17,7 +17,7 @@
 #include "modal_obj.h"
 #include "modal_dlg.h"
 
-Entity_p *shared_e = nullptr;
+Entity_p* shared_e = nullptr;
 
 /*****************************************************************************
  * about the actor (not the artist)
@@ -27,8 +27,7 @@ typedef PVHive::PVActor<Entity> EntityActor;
 
 void th_actor_func()
 {
-	std::cout << "# actor: init - " << boost::this_thread::get_id()
-	          << std::endl;
+	std::cout << "# actor: init - " << boost::this_thread::get_id() << std::endl;
 	int count = 0;
 	Entity_p e = Entity_p(new Entity(42));
 
@@ -44,8 +43,8 @@ void th_actor_func()
 	std::cout << "# actor: run" << std::endl;
 	while (count < 10) {
 		sleep(1);
-		std::cout << "# actor_func - " << boost::this_thread::get_id()
-		          << " - e.set_i(" << count << ")" << std::endl;
+		std::cout << "# actor_func - " << boost::this_thread::get_id() << " - e.set_i(" << count
+		          << ")" << std::endl;
 		PVACTOR_CALL(a, &Entity::set_i, count);
 		++count;
 	}
@@ -55,8 +54,6 @@ void th_actor_func()
 
 	std::cout << "# actor: terminate" << std::endl;
 }
-
-
 
 int main(int argc, char** argv)
 {

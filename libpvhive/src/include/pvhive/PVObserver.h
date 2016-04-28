@@ -18,30 +18,29 @@ namespace PVHive
 
 class PVHive;
 
-class PVObserverBase: public PVObserverObjectBase
+class PVObserverBase : public PVObserverObjectBase
 {
 	friend class PVHive;
 
-public:
-	PVObserverBase()
-	{ }
+  public:
+	PVObserverBase() {}
 	virtual ~PVObserverBase();
 
-protected:
+  protected:
 	/**
 	 * Action to do before the "refresh" event occurs.
 	 */
-	virtual void about_to_be_refreshed() {};
+	virtual void about_to_be_refreshed(){};
 
 	/**
 	 * Action to do when the "refresh" event occurs.
 	 */
-	virtual void refresh() {};
+	virtual void refresh(){};
 
 	/**
 	 * Action to do when the "about_to_be_deleted" event occurs.
 	 */
-	virtual void about_to_be_deleted() {};
+	virtual void about_to_be_deleted(){};
 };
 
 /**
@@ -52,10 +51,9 @@ protected:
  * All subclasses must implements PVObserverBase::refresh() and
  * PVObserverBase::about_to_be_deleted().
  */
-template <class T>
-class PVObserver : public PVObserverBase
+template <class T> class PVObserver : public PVObserverBase
 {
-public:
+  public:
 	friend class PVHive;
 
 	/**
@@ -76,9 +74,7 @@ public:
 	}
 };
 
-template <typename T>
-using PVObserver_p = std::shared_ptr<PVObserver<T> >;
-
+template <typename T> using PVObserver_p = std::shared_ptr<PVObserver<T>>;
 }
 
 #endif // LIBPVHIVE_PVOBSERVER_H

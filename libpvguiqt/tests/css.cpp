@@ -19,31 +19,24 @@
 
 class CustomMainWindow : public QMainWindow
 {
-public:
-
+  public:
 	CustomMainWindow()
 	{
-		setMinimumSize(500,600);
+		setMinimumSize(500, 600);
 
-		setGeometry(
-		    QStyle::alignedRect(
-		        Qt::LeftToRight,
-		        Qt::AlignCenter,
-		        size(),
-		        qApp->desktop()->availableGeometry()
-		    ));
+		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
+		                                qApp->desktop()->availableGeometry()));
 
 		load_stylesheet();
 	}
 
-	void keyPressEvent(QKeyEvent *event)
+	void keyPressEvent(QKeyEvent* event)
 	{
 		switch (event->key()) {
-			case Qt::Key_Dollar:
-			{
-				load_stylesheet();
-				break;
-			}
+		case Qt::Key_Dollar: {
+			load_stylesheet();
+			break;
+		}
 		}
 	}
 
@@ -76,19 +69,24 @@ int main(int argc, char** argv)
 
 	// Note: Setting layout to a widget change the parent of the widget
 	QVBoxLayout* main_layout = new QVBoxLayout(widget1);
-	std::cout << "main_layout parent is widget1:" << std::boolalpha << (main_layout->parent() ==  widget1) << std::endl;
+	std::cout << "main_layout parent is widget1:" << std::boolalpha
+	          << (main_layout->parent() == widget1) << std::endl;
 	std::cout << "(setting main_layout to main_widget)" << std::endl;
 	main_widget->setLayout(main_layout);
-	std::cout << "main_layout parent is main_widget:" << std::boolalpha << (main_layout->parent() ==  main_widget) << std::endl;
+	std::cout << "main_layout parent is main_widget:" << std::boolalpha
+	          << (main_layout->parent() == main_widget) << std::endl;
 
 	QLabel* label1 = new QLabel("Test1", widget1);
 
 	// Note: Adding a widget to a layout change the parent of the widget
-	std::cout << "label1 parent is widget1:" << std::boolalpha << (label1->parent() ==  widget1) << std::endl;
+	std::cout << "label1 parent is widget1:" << std::boolalpha << (label1->parent() == widget1)
+	          << std::endl;
 	std::cout << "(adding label1 to main_layout)" << std::endl;
 	main_layout->addWidget(label1);
-	std::cout << "label1 parent is widget1:" << std::boolalpha << (label1->parent() ==  widget1) << std::endl;
-	std::cout << "label1 parent is main_widget:" << std::boolalpha << (label1->parent() ==  main_widget) << std::endl;
+	std::cout << "label1 parent is widget1:" << std::boolalpha << (label1->parent() == widget1)
+	          << std::endl;
+	std::cout << "label1 parent is main_widget:" << std::boolalpha
+	          << (label1->parent() == main_widget) << std::endl;
 
 	// Widget2
 	QWidget* widget2 = new QWidget();
@@ -103,7 +101,8 @@ int main(int argc, char** argv)
 	QVBoxLayout* layout2 = new QVBoxLayout();
 	widget3->setLayout(layout2);
 
-	// Note: several widgets can have the same object name, thus allowing to simulate a CSS class behavior.
+	// Note: several widgets can have the same object name, thus allowing to
+	// simulate a CSS class behavior.
 	QLabel* label3 = new QLabel("Test3");
 	label3->setObjectName("CSSClassLabel");
 	QLabel* label4 = new QLabel("Test4");
@@ -111,7 +110,8 @@ int main(int argc, char** argv)
 	layout2->addWidget(label3);
 	layout2->addWidget(label4);
 
-	// main_layout parent is main_widget, so widget2 and widget3 respectively match "CSSWidget2" and "CSSWidget3" but also "CSSMainWidget".
+	// main_layout parent is main_widget, so widget2 and widget3 respectively
+	// match "CSSWidget2" and "CSSWidget3" but also "CSSMainWidget".
 	main_layout->addWidget(widget2);
 	main_layout->addWidget(widget3);
 

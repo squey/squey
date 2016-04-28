@@ -13,15 +13,14 @@
 #include <textdig/textdig.h>
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-inendi_source_t *textdig_read_file_get_source(inendi_file_t *file, textdig_options_t options);
-void textdig_read_file_source_to_csv(inendi_source_t *source);
+inendi_source_t* textdig_read_file_get_source(inendi_file_t* file, textdig_options_t options);
+void textdig_read_file_source_to_csv(inendi_source_t* source);
 
 #ifdef __cplusplus
- }
+}
 #endif
-
 
 #endif /* _READ_FILE_H_ */

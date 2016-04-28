@@ -11,21 +11,24 @@
 #include <pvkernel/core/general.h>
 #include <inendi/PVMappingFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * Compute string default mapping.
  *
  * This mapping split first on string len, then sort them on value.
  */
-class PVMappingFilterStringDefault: public PVMappingFilter
+class PVMappingFilterStringDefault : public PVMappingFilter
 {
-public:
-	PVMappingFilterStringDefault(PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
+  public:
+	PVMappingFilterStringDefault(
+	    PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
 
-	PVMappingFilter::decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
+	PVMappingFilter::decimal_storage_type* operator()(PVCol const col,
+	                                                  PVRush::PVNraw const& nraw) override;
 
-public:
+  public:
 	/**
 	 * Setter for case_sensitif information.
 	 */
@@ -37,12 +40,11 @@ public:
 	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 	QString get_human_name() const override { return "Default"; }
 
-private:
+  private:
 	bool _case_sensitive; //!< Whether we should care about case for mapping.
 
 	CLASS_FILTER(PVMappingFilterStringDefault)
 };
-
 }
 
 #endif

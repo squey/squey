@@ -24,10 +24,8 @@ class TestMdl : public QDialog
 {
 	Q_OBJECT
 
-public:
-	TestMdl(QWidget *parent = nullptr) :
-		QDialog(parent),
-		_obj_observer(this)
+  public:
+	TestMdl(QWidget* parent = nullptr) : QDialog(parent), _obj_observer(this)
 	{
 		_label = new QLabel("NA", this);
 
@@ -37,19 +35,17 @@ public:
 		setLayout(layout);
 		setModal(true);
 
-		resize(320,200);
+		resize(320, 200);
 
 		PVHive::PVHive::get().register_observer(*shared_e, _obj_observer);
 
 		_text = "modal";
 
-		_obj_observer.connect_refresh(this,
-		                              SLOT(entity_refresh(PVHive::PVObserverBase*)));
-		_obj_observer.connect_about_to_be_deleted(this,
-		                                          SLOT(entity_atbd(PVHive::PVObserverBase*)));
+		_obj_observer.connect_refresh(this, SLOT(entity_refresh(PVHive::PVObserverBase*)));
+		_obj_observer.connect_about_to_be_deleted(this, SLOT(entity_atbd(PVHive::PVObserverBase*)));
 	}
 
-private slots:
+  private slots:
 	void entity_refresh(PVHive::PVObserverBase* o)
 	{
 		PVHive::PVObserverSignal<Entity>* os = dynamic_cast<PVHive::PVObserverSignal<Entity>*>(o);
@@ -57,7 +53,7 @@ private slots:
 		_label->setText(QString::number(i));
 	}
 
-	void entity_atbd(PVHive::PVObserverBase* )
+	void entity_atbd(PVHive::PVObserverBase*)
 	{
 		_label->setText("closing");
 
@@ -69,40 +65,36 @@ private slots:
 		done(0);
 	}
 
-protected:
+  protected:
 	PVHive::PVObserverSignal<Entity> _obj_observer;
 	QLabel* _label;
-	const char *_text;
+	const char* _text;
 };
-
 
 class TestDlg : public TestMdl
 {
 	Q_OBJECT
 
-public:
-	TestDlg(QWidget *parent = nullptr) :
-		TestMdl(parent)
+  public:
+	TestDlg(QWidget* parent = nullptr) : TestMdl(parent)
 	{
 		setModal(false);
 		_text = "dialog";
 
-		QVBoxLayout *l = static_cast<QVBoxLayout*>(layout());
-		QPushButton *b = new QPushButton("open modal");
+		QVBoxLayout* l = static_cast<QVBoxLayout*>(layout());
+		QPushButton* b = new QPushButton("open modal");
 		l->addWidget(b);
 
 		connect(b, SIGNAL(clicked(bool)), this, SLOT(open_modal(bool)));
 	}
 
-private slots:
+  private slots:
 	void open_modal(bool)
 	{
-		TestMdl *m = new TestMdl(this);
+		TestMdl* m = new TestMdl(this);
 
 		m->exec();
 	}
-
 };
-
 
 #endif // MODAL_DLG_H

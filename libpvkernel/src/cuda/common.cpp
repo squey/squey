@@ -38,7 +38,7 @@ void PVCuda::init_gl_cuda()
 {
 #ifdef CUDA
 	inendi_verify_cuda(cudaGLSetGLDevice(DEV_CUDA)); // Tesla
-	//inendi_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
+// inendi_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
 #endif
 }
 

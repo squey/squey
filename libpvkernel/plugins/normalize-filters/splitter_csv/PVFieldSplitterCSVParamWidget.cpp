@@ -10,7 +10,6 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 
-
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QSpinBox>
@@ -23,8 +22,8 @@
  * PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget() :
-	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterCSV()))
+PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget()
+    : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterCSV()))
 {
 	init();
 }
@@ -51,33 +50,32 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 {
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()     start\n");
 
-	//get args
-	PVCore::PVArgumentList l =  get_filter()->get_args();
-
+	// get args
+	PVCore::PVArgumentList l = get_filter()->get_args();
 
 	/*
 	 * creating the widget param
 	 */
 	param_widget = new QWidget();
 
-	//init layout
+	// init layout
 	QVBoxLayout* layout = new QVBoxLayout(param_widget);
 	QGridLayout* gridLayout = new QGridLayout();
 	param_widget->setLayout(layout);
 	param_widget->setObjectName("splitter");
 
-	//title
-	QLabel* label = new QLabel(tr("CSV"),NULL);
+	// title
+	QLabel* label = new QLabel(tr("CSV"), NULL);
 	label->setAlignment(Qt::AlignHCenter);
 	layout->addWidget(label);
 
-	//field separator
+	// field separator
 	QLabel* separator_label = new QLabel(tr("Field separator:"));
 	gridLayout->addWidget(separator_label, 0, 0, Qt::AlignLeft);
 
 	separator_text = new PVWidgets::QKeySequenceWidget();
 	separator_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toLatin1()));
+	separator_text->setKeySequence(QKeySequence((int)l["sep"].toChar().toLatin1()));
 	separator_text->setMaxNumKey(1);
 	gridLayout->addWidget(separator_text, 0, 1);
 
@@ -87,11 +85,11 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	quote_text = new PVWidgets::QKeySequenceWidget();
 	quote_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-	quote_text->setKeySequence(QKeySequence((int) l["quote"].toChar().toLatin1()));
+	quote_text->setKeySequence(QKeySequence((int)l["quote"].toChar().toLatin1()));
 	quote_text->setMaxNumKey(1);
 	gridLayout->addWidget(quote_text, 1, 1);
 
-	//field number of col
+	// field number of col
 	QLabel* col_label = new QLabel(tr("Number of columns:"));
 	gridLayout->addWidget(col_label, 2, 0, Qt::AlignLeft);
 
@@ -109,11 +107,14 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	_recommands_label = new QLabel();
 	layout->addWidget(_recommands_label);
 
-	layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
+	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-	//connect(separator_text, SIGNAL(textChanged(const QString &)), this, SLOT(updateSeparator(const QString &)));
-	connect(separator_text, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(updateSeparator(QKeySequence)));
-	connect(quote_text, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(updateQuote(QKeySequence)));
+	// connect(separator_text, SIGNAL(textChanged(const QString &)), this,
+	// SLOT(updateSeparator(const QString &)));
+	connect(separator_text, SIGNAL(keySequenceChanged(QKeySequence)), this,
+	        SLOT(updateSeparator(QKeySequence)));
+	connect(quote_text, SIGNAL(keySequenceChanged(QKeySequence)), this,
+	        SLOT(updateQuote(QKeySequence)));
 	connect(set_nchilds_btn, SIGNAL(clicked()), this, SLOT(updateNChilds()));
 
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()     end\n");
@@ -122,8 +123,6 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	return param_widget;
 }
-
-
 
 /******************************************************************************
  *
@@ -176,10 +175,11 @@ void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
 	// Compute the frequency of the number of fields with this parameters
 	QHash<PVCol, PVRow> freq_fields;
 	for (int i = 0; i < data.size(); i++) {
-        QString myLine = data[i];
+		QString myLine = data[i];
 		const QChar* start = myLine.constData();
 		QString deep_copy(start, myLine.size());
-		PVCore::PVElement elt(NULL, (char*) deep_copy.constData(), (char*) (deep_copy.constData() + myLine.size()));
+		PVCore::PVElement elt(NULL, (char*)deep_copy.constData(),
+		                      (char*)(deep_copy.constData() + myLine.size()));
 		// Filter this element
 		elt_f(elt);
 		if (!elt.valid()) {
@@ -188,14 +188,13 @@ void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
 		PVCol nfields_elt = elt.c_fields().size();
 		if (freq_fields.contains(nfields_elt)) {
 			freq_fields[nfields_elt]++;
-		}
-		else {
+		} else {
 			freq_fields[nfields_elt] = 1;
 		}
 	}
 
 	// Sort this
-	std::vector<std::pair<PVCol, PVRow> > sorted_freq;
+	std::vector<std::pair<PVCol, PVRow>> sorted_freq;
 	sorted_freq.reserve(freq_fields.size());
 	QHash<PVCol, PVRow>::const_iterator it;
 	for (it = freq_fields.begin(); it != freq_fields.end(); it++) {
@@ -204,9 +203,10 @@ void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
 	std::sort(sorted_freq.begin(), sorted_freq.end(), sort_freq);
 
 	QString txt_info = tr("Recommanded number of fields") + QString(":\n");
-	std::vector<std::pair<PVCol, PVRow> >::const_iterator it_fr;
+	std::vector<std::pair<PVCol, PVRow>>::const_iterator it_fr;
 	for (it_fr = sorted_freq.begin(); it_fr != sorted_freq.end(); it_fr++) {
-		txt_info += tr("\t%1\t (matches %2% of the elements)").arg(it_fr->first).arg(((double)(it_fr->second)/(double)(data.size()))*100.0);
+		txt_info += tr("\t%1\t (matches %2% of the elements)").arg(it_fr->first).arg(
+		    ((double)(it_fr->second) / (double)(data.size())) * 100.0);
 		txt_info += QString("\n");
 	}
 

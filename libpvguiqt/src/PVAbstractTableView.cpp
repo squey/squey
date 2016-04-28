@@ -20,14 +20,16 @@ namespace PVGuiQt
  *
  *****************************************************************************/
 
-PVAbstractTableView::PVAbstractTableView(QWidget* parent):
-	PVTableView(parent)
+PVAbstractTableView::PVAbstractTableView(QWidget* parent) : PVTableView(parent)
 {
-	 connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PVAbstractTableView::slider_move_to);
-	 connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PVAbstractTableView::scrollclick);
-	 connect(verticalScrollBar(), &QScrollBar::rangeChanged, this,
-			 (void (PVAbstractTableView::*)(int, int)) &PVAbstractTableView::new_range);
-	 connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, &PVAbstractTableView::clip_slider);
+	connect(verticalScrollBar(), &QScrollBar::valueChanged, this,
+	        &PVAbstractTableView::slider_move_to);
+	connect(verticalScrollBar(), &QScrollBar::actionTriggered, this,
+	        &PVAbstractTableView::scrollclick);
+	connect(verticalScrollBar(), &QScrollBar::rangeChanged, this,
+	        (void (PVAbstractTableView::*)(int, int)) & PVAbstractTableView::new_range);
+	connect(verticalScrollBar(), &QScrollBar::sliderReleased, this,
+	        &PVAbstractTableView::clip_slider);
 
 	// Sorting disable as we do it ourself
 	setSortingEnabled(false);
@@ -37,8 +39,10 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent):
 
 	setSelectionMode(QAbstractItemView::NoSelection);
 
-	// Show contextual menu on right click in the table (set menuPolicy to emit signals)
-	connect(this, &QWidget::customContextMenuRequested, this, &PVAbstractTableView::show_rclick_menu);
+	// Show contextual menu on right click in the table (set menuPolicy to emit
+	// signals)
+	connect(this, &QWidget::customContextMenuRequested, this,
+	        &PVAbstractTableView::show_rclick_menu);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
@@ -60,7 +64,7 @@ void PVAbstractTableView::show_rclick_menu(QPoint const& p)
  *****************************************************************************/
 void PVAbstractTableView::slider_move_to(int value)
 {
-	if(value == verticalScrollBar()->maximum()) {
+	if (value == verticalScrollBar()->maximum()) {
 		// Move to the end of the listing
 		move_to_end();
 	} else {
@@ -76,26 +80,27 @@ void PVAbstractTableView::slider_move_to(int value)
  * PVAbstractTableView::scrollclick
  *
  *****************************************************************************/
-void PVAbstractTableView::scrollclick(int action) {
-	switch(action) {
-		case QAbstractSlider::SliderSingleStepAdd:
-			move_by(1);
-			break;
-		case QAbstractSlider::SliderSingleStepSub:
-			move_by(-1);
-			break;
-		case QAbstractSlider::SliderPageStepAdd:
-			move_by(verticalScrollBar()->pageStep());
-			break;
-		case QAbstractSlider::SliderPageStepSub:
-			move_by(-verticalScrollBar()->pageStep());
-			break;
-		case QAbstractSlider::SliderToMinimum:
-			move_to_page(0);
-			break;
-		case QAbstractSlider::SliderToMaximum:
-			move_to_end();
-			break;
+void PVAbstractTableView::scrollclick(int action)
+{
+	switch (action) {
+	case QAbstractSlider::SliderSingleStepAdd:
+		move_by(1);
+		break;
+	case QAbstractSlider::SliderSingleStepSub:
+		move_by(-1);
+		break;
+	case QAbstractSlider::SliderPageStepAdd:
+		move_by(verticalScrollBar()->pageStep());
+		break;
+	case QAbstractSlider::SliderPageStepSub:
+		move_by(-verticalScrollBar()->pageStep());
+		break;
+	case QAbstractSlider::SliderToMinimum:
+		move_to_page(0);
+		break;
+	case QAbstractSlider::SliderToMaximum:
+		move_to_end();
+		break;
 	}
 }
 
@@ -166,7 +171,7 @@ void PVAbstractTableView::update_on_move()
 	size_t pos_in_page = table_model()->pos_in_page();
 	// Check if there is a scrollbar, otherwise current_page can be 0 but
 	// setValue(1) is invalid.
-	if(table_model()->is_last_pos() and table_model()->current_page() != 0) {
+	if (table_model()->is_last_pos() and table_model()->current_page() != 0) {
 		// Last tick is only use when we reach the end
 		verticalScrollBar()->setValue(table_model()->current_page() + 1);
 	} else {
@@ -184,8 +189,9 @@ void PVAbstractTableView::update_on_move()
  *****************************************************************************/
 void PVAbstractTableView::new_range(int min, int max)
 {
-	if(model()) {
-		// min == max means we have only the current page so it contains every lines without
+	if (model()) {
+		// min == max means we have only the current page so it contains every lines
+		// without
 		// scroll. The page size must be big enought to get them all.
 		size_t step = verticalScrollBar()->pageStep();
 		table_model()->update_pages(max - min + 1, step);
@@ -205,9 +211,9 @@ void PVAbstractTableView::new_range()
  *****************************************************************************/
 void PVAbstractTableView::clip_slider()
 {
-	if(verticalScrollBar()->value() == 0) {
+	if (verticalScrollBar()->value() == 0) {
 		move_to_page(0);
-	} else if(verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
+	} else if (verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
 		move_to_end();
 	}
 }
@@ -227,13 +233,13 @@ PVAbstractTableModel* PVAbstractTableView::table_model()
  * PVAbstractTableView::mousePressEvent
  *
  *****************************************************************************/
-void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
+void PVAbstractTableView::mousePressEvent(QMouseEvent* event)
 {
-	if(event->button() == Qt::LeftButton) {
+	if (event->button() == Qt::LeftButton) {
 		Qt::KeyboardModifiers mod = event->modifiers();
 		int clc_row = rowAt(event->y());
 
-		if(clc_row < 0) {
+		if (clc_row < 0) {
 			// No valid row under the mouse
 			if (mod == Qt::NoModifier) {
 				// Reset the whole selection only if there is no used modifier
@@ -247,7 +253,8 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 			table_model()->set_selection_mode(PVAbstractTableModel::SET);
 			table_model()->end_selection(clc_row);
 		} else if (mod == Qt::ControlModifier) {
-			// Start the range selection by getting the start row state an applying it to other rows
+			// Start the range selection by getting the start row state an applying it
+			// to other rows
 			table_model()->commit_selection();
 			table_model()->set_selection_mode(PVAbstractTableModel::TOGGLE_AND_USE);
 			table_model()->start_selection(clc_row);
@@ -265,7 +272,7 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 
 		// Move below if we click on the half shown row
 		int row_pos = rowViewportPosition(clc_row);
-		if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
+		if ((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
 			move_by(1);
 		}
 	} else if (event->button() == Qt::RightButton) {
@@ -289,41 +296,41 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent * event)
 void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
 {
 	switch (event->key()) {
-		case Qt::Key_Return:
-		case Qt::Key_Enter:
-			if (table_model()->has_selection()) {
-				table_model()->commit_selection();
-				emit validate_selection();
-			}
-			break;
+	case Qt::Key_Return:
+	case Qt::Key_Enter:
+		if (table_model()->has_selection()) {
+			table_model()->commit_selection();
+			emit validate_selection();
+		}
+		break;
 
-		// Bind document displacement key
-		case Qt::Key_PageUp:
-			scrollclick(QAbstractSlider::SliderPageStepSub);
-			break;
-		case Qt::Key_PageDown:
-			scrollclick(QAbstractSlider::SliderPageStepAdd);
-			break;
-		case Qt::Key_Up:
-			scrollclick(QAbstractSlider::SliderSingleStepSub);
-			break;
-		case Qt::Key_Down:
-			scrollclick(QAbstractSlider::SliderSingleStepAdd);
-			break;
-		case Qt::Key_Home:
-			scrollclick(QAbstractSlider::SliderToMinimum);
-			break;
-		case Qt::Key_End:
-			scrollclick(QAbstractSlider::SliderToMaximum);
-			break;
-		case Qt::Key_Right:
-			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
-			break;
-		case Qt::Key_Left:
-			horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
-			break;
-		default:
-			PVTableView::keyPressEvent(event);
+	// Bind document displacement key
+	case Qt::Key_PageUp:
+		scrollclick(QAbstractSlider::SliderPageStepSub);
+		break;
+	case Qt::Key_PageDown:
+		scrollclick(QAbstractSlider::SliderPageStepAdd);
+		break;
+	case Qt::Key_Up:
+		scrollclick(QAbstractSlider::SliderSingleStepSub);
+		break;
+	case Qt::Key_Down:
+		scrollclick(QAbstractSlider::SliderSingleStepAdd);
+		break;
+	case Qt::Key_Home:
+		scrollclick(QAbstractSlider::SliderToMinimum);
+		break;
+	case Qt::Key_End:
+		scrollclick(QAbstractSlider::SliderToMaximum);
+		break;
+	case Qt::Key_Right:
+		horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+		break;
+	case Qt::Key_Left:
+		horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+		break;
+	default:
+		PVTableView::keyPressEvent(event);
 	}
 }
 
@@ -338,7 +345,7 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
 	// to convert it to "wheel step"
 	// http://doc.qt.io/qt-5/qwheelevent.html
 	// Scroll 3 line by wheel step on listing
-	move_by(- e->delta() / 8 / 15 * 3);
+	move_by(-e->delta() / 8 / 15 * 3);
 	e->accept(); // I am the one who handle event
 }
 
@@ -347,7 +354,7 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
  * PVAbstractTableView::mouseReleaseEvent
  *
  *****************************************************************************/
-void PVAbstractTableView::mouseReleaseEvent(QMouseEvent * event)
+void PVAbstractTableView::mouseReleaseEvent(QMouseEvent* event)
 {
 	viewport()->update();
 	event->accept();
@@ -358,22 +365,22 @@ void PVAbstractTableView::mouseReleaseEvent(QMouseEvent * event)
  * PVAbstractTableView::mouseMoveEvent
  *
  *****************************************************************************/
-void PVAbstractTableView::mouseMoveEvent(QMouseEvent * event)
+void PVAbstractTableView::mouseMoveEvent(QMouseEvent* event)
 {
 	int pos = event->y();
 	// Scroll up while the clicked mouse is above the listing
-	while(pos < 0) {
+	while (pos < 0) {
 		move_by(-1);
 		table_model()->end_selection(rowAt(0));
 		pos += rowHeight(rowAt(0));
-		if(table_model()->current_page() == 0 and table_model()->pos_in_page() == 0) {
+		if (table_model()->current_page() == 0 and table_model()->pos_in_page() == 0) {
 			// We reach the top of the listing, stop scrolling upper
 			return;
 		}
 	}
 
 	int clc_row = rowAt(pos);
-	if(clc_row < 0) {
+	if (clc_row < 0) {
 		// We are max up and we keep moving upper
 		return;
 	}
@@ -383,7 +390,7 @@ void PVAbstractTableView::mouseMoveEvent(QMouseEvent * event)
 
 	// We are in the last partially shown cell, move below
 	int row_pos = rowViewportPosition(clc_row);
-	if((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
+	if ((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
 		move_by(1);
 	}
 
@@ -396,11 +403,10 @@ void PVAbstractTableView::mouseMoveEvent(QMouseEvent * event)
  * PVAbstractTableView::setModel
  *
  *****************************************************************************/
-void PVAbstractTableView::setModel(QAbstractItemModel * model)
+void PVAbstractTableView::setModel(QAbstractItemModel* model)
 {
 	PVTableView::setModel(model);
 	connect(model, &QAbstractItemModel::layoutChanged, this,
-			(void (PVAbstractTableView::*)()) &PVAbstractTableView::new_range);
+	        (void (PVAbstractTableView::*)()) & PVAbstractTableView::new_range);
 }
-
 }

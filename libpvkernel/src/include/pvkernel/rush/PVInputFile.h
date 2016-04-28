@@ -13,56 +13,60 @@
 #include <fstream>
 #include <string>
 
-namespace PVRush {
+namespace PVRush
+{
 
-class PVInputFile : public PVInput {
-public:
+class PVInputFile : public PVInput
+{
+  public:
 	PVInputFile(const char* path);
 	~PVInputFile();
 
-public:
+  public:
 	void release() override;
 
-private:
+  private:
 	PVInputFile(const PVInputFile& /*org*/) { assert(false); }
-public:
+
+  public:
 	size_t operator()(char* buffer, size_t n);
 	virtual input_offset current_input_offset();
 	virtual void seek_begin();
 	virtual bool seek(input_offset off);
 	virtual QString human_name();
-public:
+
+  public:
 	// File specific
 	uint64_t file_size();
-protected:
+
+  protected:
 	std::ifstream _file;
 	std::string _path;
 
 	CLASS_INPUT(PVRush::PVInputFile)
 };
 
-class PVInputFileOpenException: public PVInputException {
-public:
-	PVInputFileOpenException(const char* path, int err) :
-		_path(path),
-		_err(err)
+class PVInputFileOpenException : public PVInputException
+{
+  public:
+	PVInputFileOpenException(const char* path, int err) : _path(path), _err(err)
 	{
 		_what = "Unable to open file ";
 		_what += _path;
 		_what += ": ";
 		_what += strerror(err);
 	}
-public:
+
+  public:
 	inline int err() const { return _err; }
 	inline std::string const& path() const { return _path; }
 	std::string const& what() const { return _what; }
-protected:
+
+  protected:
 	std::string _path;
 	int _err;
 	std::string _what;
 };
-
 }
-
 
 #endif

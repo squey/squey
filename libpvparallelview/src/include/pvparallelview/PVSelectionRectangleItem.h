@@ -37,23 +37,17 @@ class PVSelectionRectangleItem : public QGraphicsObject
 
 	friend PVSelectionHandleItem;
 
-public:
-	enum SelectionMode
-	{
-		RECTANGLE,
-		HORIZONTAL,
-		VERTICAL
-	};
+  public:
+	enum SelectionMode { RECTANGLE, HORIZONTAL, VERTICAL };
 
-public:
+  public:
 	static constexpr qreal MOVE_STEP_PX = 1;
 	static constexpr qreal GROW_STEP_RATIO = 1.2;
 
-public:
-	PVSelectionRectangleItem(const QRectF& rect = QRectF(),
-	                         QGraphicsItem* parent = nullptr);
+  public:
+	PVSelectionRectangleItem(const QRectF& rect = QRectF(), QGraphicsItem* parent = nullptr);
 
-public:
+  public:
 	/**
 	 * clear and hide the selection rectangle
 	 */
@@ -74,7 +68,7 @@ public:
 	 */
 	void end(const QPointF& p);
 
-public:
+  public:
 	/**
 	 * set the selection mode
 	 *
@@ -87,12 +81,9 @@ public:
 	 *
 	 * @return the selection mode
 	 */
-	SelectionMode selection_mode() const
-	{
-		return _sel_mode;
-	}
+	SelectionMode selection_mode() const { return _sel_mode; }
 
-public:
+  public:
 	/**
 	 * set the pen color to use to draw the rectangle
 	 *
@@ -206,42 +197,30 @@ public:
 	 *
 	 * @return the horizontal lower bound
 	 */
-	qreal get_x_min() const
-	{
-		return _x_min_value;
-	}
+	qreal get_x_min() const { return _x_min_value; }
 
 	/**
 	 * get the horizontal upper bound
 	 *
 	 * @return the horizontal upper bound
 	 */
-	qreal get_x_max() const
-	{
-		return _x_max_value;
-	}
+	qreal get_x_max() const { return _x_max_value; }
 
 	/**
 	 * get the vertical lower bound
 	 *
 	 * @return the vertical lower bound
 	 */
-	qreal get_y_min() const
-	{
-		return _y_min_value;
-	}
+	qreal get_y_min() const { return _y_min_value; }
 
 	/**
 	 * get the vertical upper bound
 	 *
 	 * @return the vertical upper bound
 	 */
-	qreal get_y_max() const
-	{
-		return _y_max_value;
-	}
+	qreal get_y_max() const { return _y_max_value; }
 
-public:
+  public:
 	/**
 	 * get the selection rectangle's bounding box
 	 *
@@ -254,31 +233,27 @@ public:
 	/**
 	 * paint the selection rectangle
 	 *
-	 * @reimpl QGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+	 * @reimpl QGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	 *QWidget* widget)
 	 *
 	 * @param painter the current painter
 	 * @param option the current style
 	 * @param widget the current QWidget
 	 */
-	void paint(QPainter* painter,
-	           const QStyleOptionGraphicsItem* option,
-	           QWidget* widget) override;
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
-public:
+  public:
 	/**
 	 * get the central handle
 	 *
 	 * @return the central handle
 	 */
-	PVSelectionHandleItem *get_central_handle() const
-	{
-		return _central_handle;
-	}
+	PVSelectionHandleItem* get_central_handle() const { return _central_handle; }
 
 signals:
 	void geometry_has_changed(const QRectF& old_rect, const QRectF& new_rect);
 
-protected:
+  protected:
 	/**
 	 * make the handles been moved to the rectangle's scene.
 	 *
@@ -287,7 +262,7 @@ protected:
 	 */
 	QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
-protected:
+  protected:
 	/**
 	 * update all handles
 	 */
@@ -329,20 +304,19 @@ protected:
 	 */
 	void hide_all_handles_but(PVSelectionHandleItem* handle) const;
 
-private:
+  private:
 	std::vector<PVSelectionHandleItem*> _handles;
-	PVSelectionHandleItem*              _central_handle;
-	QCursor                             _default_cursor;
-	QPen                                _pen;
-	QRectF                              _rect;
-	QPointF                             _ref;
-	qreal                               _x_min_value;
-	qreal                               _x_max_value;
-	qreal                               _y_min_value;
-	qreal                               _y_max_value;
-	SelectionMode                       _sel_mode;
+	PVSelectionHandleItem* _central_handle;
+	QCursor _default_cursor;
+	QPen _pen;
+	QRectF _rect;
+	QPointF _ref;
+	qreal _x_min_value;
+	qreal _x_max_value;
+	qreal _y_min_value;
+	qreal _y_max_value;
+	SelectionMode _sel_mode;
 };
-
 }
 
 #endif // PVWIDGETS_PVSELECTIONRECTANGLEITEM_H

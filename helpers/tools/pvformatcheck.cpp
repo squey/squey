@@ -11,20 +11,18 @@
 
 void display_help(void)
 {
-
-  std::cout << "Syntax: pvformatcheck format-file\n";
-
+	std::cout << "Syntax: pvformatcheck format-file\n";
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	QString formatfile;
 	PVRush::PVFormat format;
 
 	if (argc <= 1) {
-    		display_help();
-    		return 1;
-  	}
+		display_help();
+		return 1;
+	}
 
 	formatfile = QString(argv[1]);
 	format.populate_from_xml(formatfile);
@@ -32,4 +30,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-

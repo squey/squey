@@ -15,17 +15,20 @@
 #include <QDialog>
 #include <QSqlQueryModel>
 
-namespace PVRush {
-
-class PVDBPreviewWidget: public QDialog, public Ui::DbPreview
+namespace PVRush
 {
-public:
-	PVDBPreviewWidget(PVDBInfos const& infos, QString const& query, uint32_t nrows, QDialog* parent = 0);
-public:
+
+class PVDBPreviewWidget : public QDialog, public Ui::DbPreview
+{
+  public:
+	PVDBPreviewWidget(PVDBInfos const& infos, QString const& query, uint32_t nrows,
+	                  QDialog* parent = 0);
+
+  public:
 	bool init();
 	void preview();
 
-protected:
+  protected:
 	bool _init;
 	PVDBServ_p _serv;
 
@@ -33,10 +36,9 @@ protected:
 	QString _query_str;
 	uint32_t _nrows;
 
-protected:
+  protected:
 	QSqlQueryModel* _table_model;
 };
-
 }
 
 #endif

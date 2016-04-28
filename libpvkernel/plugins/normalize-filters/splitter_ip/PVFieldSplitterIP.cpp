@@ -10,7 +10,6 @@
 #include <numeric>
 #include <iostream>
 
-
 const QString PVFilter::PVFieldSplitterIP::sep = QString(",");
 
 /******************************************************************************
@@ -18,8 +17,8 @@ const QString PVFilter::PVFieldSplitterIP::sep = QString(",");
  * PVFilter::PVFieldSplitterIP::PVFieldSplitterIP
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterIP::PVFieldSplitterIP(PVCore::PVArgumentList const& args) :
-	PVFieldsSplitter()
+PVFilter::PVFieldSplitterIP::PVFieldSplitterIP(PVCore::PVArgumentList const& args)
+    : PVFieldsSplitter()
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterIP, args);
 }
@@ -54,10 +53,11 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterIP)
  * PVFilter::PVFieldSplitterIP::one_to_many
  *
  *****************************************************************************/
-PVCore::list_fields::size_type PVFilter::PVFieldSplitterIP::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
+PVCore::list_fields::size_type PVFilter::PVFieldSplitterIP::one_to_many(
+    PVCore::list_fields& l, PVCore::list_fields::iterator it_ins, PVCore::PVField& field)
 {
 	PVCore::list_fields::size_type ret = 0;
-	char token = (_ipv6)?':':'.';
+	char token = (_ipv6) ? ':' : '.';
 
 	char* pos = field.begin();
 	PVCore::PVField f(field);
@@ -73,6 +73,5 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterIP::one_to_many(PVCore::
 
 	return _indexes.size();
 }
-
 
 IMPL_FILTER(PVFilter::PVFieldSplitterIP)

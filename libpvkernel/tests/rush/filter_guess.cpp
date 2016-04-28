@@ -45,7 +45,8 @@ int main(int argc, char** argv)
 
 	// Get the source creator
 	QString file_path(argv[1]);
-	PVRush::PVSourceCreator_p sc_file = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
+	PVRush::PVSourceCreator_p sc_file =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
 
 	PVRush::PVFormat format;
 	// Process that file with the found source creator thanks to the extractor
@@ -59,8 +60,9 @@ int main(int argc, char** argv)
 	PVCore::PVChunk* chunk = (*src)();
 
 	// Guess the first splitter
-	
-	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
+
+	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_classes const& lf =
+	    LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
 	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_classes::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
 		PVFilter::PVFieldSplitterChunkMatch match(it->value());
@@ -70,7 +72,8 @@ int main(int argc, char** argv)
 		size_t nfields;
 
 		if (match.get_match(args, nfields)) {
-			std::cout << "Filter " << qPrintable(it->key()) << " matches with " << nfields << " fields and arguments:" << std::endl;
+			std::cout << "Filter " << qPrintable(it->key()) << " matches with " << nfields
+			          << " fields and arguments:" << std::endl;
 			PVCore::dump_argument_list(args);
 		}
 	}

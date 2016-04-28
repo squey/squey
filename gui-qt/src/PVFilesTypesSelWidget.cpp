@@ -21,16 +21,16 @@
 #include <PVFilesTypesSelWidget.h>
 
 // Model
-PVInspector::PVFilesTypesSelModel::PVFilesTypesSelModel(map_files_types& files_types, QObject* parent):
-	QAbstractTableModel(parent),
-	_files_types(files_types)
+PVInspector::PVFilesTypesSelModel::PVFilesTypesSelModel(map_files_types& files_types,
+                                                        QObject* parent)
+    : QAbstractTableModel(parent), _files_types(files_types)
 {
 	_header_name[0] = "File path";
 	_header_name[1] = "File types";
 	_org_files_types = files_types;
 }
 
-int PVInspector::PVFilesTypesSelModel::rowCount(const QModelIndex &parent) const
+int PVInspector::PVFilesTypesSelModel::rowCount(const QModelIndex& parent) const
 {
 	// Cf. QAbstractTableModel's documentation. This is for a table view.
 	if (parent.isValid())
@@ -60,7 +60,8 @@ QVariant PVInspector::PVFilesTypesSelModel::data(const QModelIndex& index, int r
 	if (role == Qt::DisplayRole)
 		return (*it).second.join("\n");
 
-	// Provide a list with two QStringList: the first one correspond to the selected items, and the second one to the original ones
+	// Provide a list with two QStringList: the first one correspond to the
+	// selected items, and the second one to the original ones
 	QList<QVariant> ret;
 	ret << (*it).second;
 
@@ -71,7 +72,8 @@ QVariant PVInspector::PVFilesTypesSelModel::data(const QModelIndex& index, int r
 	return ret;
 }
 
-bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index, const QVariant &value, int role)
+bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index, const QVariant& value,
+                                                int role)
 {
 	if (index.column() != 1 || role != Qt::EditRole)
 		return false; // File name are not editable !
@@ -96,7 +98,8 @@ Qt::ItemFlags PVInspector::PVFilesTypesSelModel::flags(const QModelIndex& index)
 	return ret;
 }
 
-QVariant PVInspector::PVFilesTypesSelModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant PVInspector::PVFilesTypesSelModel::headerData(int section, Qt::Orientation orientation,
+                                                       int role) const
 {
 	if (orientation != Qt::Horizontal || section >= 2 || role != Qt::DisplayRole)
 		return QAbstractTableModel::headerData(section, orientation, role);
@@ -105,25 +108,29 @@ QVariant PVInspector::PVFilesTypesSelModel::headerData(int section, Qt::Orientat
 
 void PVInspector::PVFilesTypesSelModel::emitAllTypesChanged()
 {
-	emit dataChanged(QAbstractTableModel::index(1,0), QAbstractTableModel::index(1,_files_types.size()-1));
+	emit dataChanged(QAbstractTableModel::index(1, 0),
+	                 QAbstractTableModel::index(1, _files_types.size() - 1));
 }
 
 // Delegate
 // Show a combo box on the second column
 
-PVInspector::PVFilesTypesSelDelegate::PVFilesTypesSelDelegate(QObject* parent) :
-	QStyledItemDelegate(parent)
+PVInspector::PVFilesTypesSelDelegate::PVFilesTypesSelDelegate(QObject* parent)
+    : QStyledItemDelegate(parent)
 {
 }
 
-QWidget* PVInspector::PVFilesTypesSelDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem& /*option*/, const QModelIndex& /*index*/) const
+QWidget* PVInspector::PVFilesTypesSelDelegate::createEditor(QWidget* parent,
+                                                            const QStyleOptionViewItem& /*option*/,
+                                                            const QModelIndex& /*index*/) const
 {
 	QListWidget* editor = new QListWidget(parent);
 	editor->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	return editor;
 }
 
-void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
+void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
+                                                         const QModelIndex& index) const
 {
 	QList<QVariant> model_data = index.model()->data(index, Qt::EditRole).toList();
 	QStringList sel_list = model_data[0].toStringList();
@@ -133,7 +140,7 @@ void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor, const 
 	listBox->clear();
 
 	// Insert items
-	QListWidgetItem *item;
+	QListWidgetItem* item;
 	for (int i = 0; i < org_list.size(); i++) {
 		QString const& f = org_list[i];
 		bool issel = sel_list.contains(f);
@@ -143,7 +150,8 @@ void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor, const 
 	}
 }
 
-void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
+                                                        const QModelIndex& index) const
 {
 	QStringList type_list;
 
@@ -158,32 +166,34 @@ void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget *editor, QAbstra
 	model->setData(index, type_list, Qt::EditRole);
 }
 
-void PVInspector::PVFilesTypesSelDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem &option, const QModelIndex& /*index*/) const
+void PVInspector::PVFilesTypesSelDelegate::updateEditorGeometry(QWidget* editor,
+                                                                const QStyleOptionViewItem& option,
+                                                                const QModelIndex& /*index*/) const
 {
 	editor->setGeometry(option.rect);
 }
 
-QSize PVInspector::PVFilesTypesSelDelegate::sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const
+QSize PVInspector::PVFilesTypesSelDelegate::sizeHint(const QStyleOptionViewItem& option,
+                                                     const QModelIndex& index) const
 {
 	QSize ret = QStyledItemDelegate::sizeHint(option, index);
-	ret.setWidth(ret.width()*1.2);
-	ret.setHeight(ret.height()*1.2);
+	ret.setWidth(ret.width() * 1.2);
+	ret.setHeight(ret.height() * 1.2);
 	return ret;
 }
 
-
 // Actual widget
 
-PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWindow *parent, map_files_types& files_types):
-	QDialog(parent),
-	_files_types(files_types)
+PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWindow* parent,
+                                                          map_files_types& files_types)
+    : QDialog(parent), _files_types(files_types)
 {
 	main_window = parent;
 
 	// Initalise layouts
-	QVBoxLayout *main_layout = new QVBoxLayout();
-	QVBoxLayout *all_types_layout = new QVBoxLayout();
-	QHBoxLayout *btn_layout = new QHBoxLayout();
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	QVBoxLayout* all_types_layout = new QVBoxLayout();
+	QHBoxLayout* btn_layout = new QHBoxLayout();
 
 	// Files -> types
 	_files_types_view = new QTableView();
@@ -194,12 +204,12 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	_files_types_view->resizeRowsToContents();
 	_files_types_view->resizeColumnsToContents();
 
-
 	// Types for everyone
 	_all_types_check = new QCheckBox("Set types for every files:");
 	_all_types_list = new QListWidget();
 	_all_types_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_all_types_list->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding));
+	_all_types_list->setSizePolicy(
+	    QSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding));
 	_all_types_list->setMaximumHeight(100);
 
 	// Compute the union and intersection of types
@@ -210,7 +220,7 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	for (it = files_types.begin(); it != files_types.end(); it++) {
 		QStringList& types = (*it).second;
 
-		// Union
+// Union
 #if (QT_VERSION >= 0x040700) // QList<T>::reserve has been introduced in QT 4.7
 		if (types_union.size() < types.size()) {
 			types_union.reserve(types.size());
@@ -225,7 +235,7 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 
 		// Intersec
 		it_t = types_intersec.begin();
-	   	while (it_t != types_intersec.end()) {
+		while (it_t != types_intersec.end()) {
 			if (!types.contains(*it_t)) {
 				QStringList::iterator it_rem = it_t;
 				it_t++;
@@ -234,8 +244,7 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 				if (was_last) {
 					break;
 				}
-			}
-			else {
+			} else {
 				it_t++;
 			}
 		}
@@ -243,7 +252,7 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 
 	// Set the intersection as the default selection
 	// and set a gray background for the union
-	
+
 	QListWidgetItem* item;
 	QStringList::const_iterator it_sl;
 	for (it_sl = types_union.begin(); it_sl != types_union.end(); it_sl++) {
@@ -259,10 +268,9 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 
 	all_types_layout->addWidget(_all_types_check);
 
-	//QPushButton* apply_all_btn = new QPushButton("Apply");
+	// QPushButton* apply_all_btn = new QPushButton("Apply");
 	all_types_layout->addWidget(_all_types_list);
-	//all_types_layout->addWidget(apply_all_btn);
-
+	// all_types_layout->addWidget(apply_all_btn);
 
 	// Buttons and layout
 	QPushButton* ok_btn = new QPushButton("Load");
@@ -278,7 +286,9 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	connect(_all_types_check, SIGNAL(stateChanged(int)), this, SLOT(all_types_check_Slot(int)));
 
 	// Set the layouts
-	main_layout->addWidget(new QLabel("Multiple possible types have been detected for these files.\nPlease select which type(s) they should belong to :"));
+	main_layout->addWidget(new QLabel("Multiple possible types have been "
+	                                  "detected for these files.\nPlease select "
+	                                  "which type(s) they should belong to :"));
 	main_layout->addWidget(_files_types_view);
 	main_layout->addLayout(all_types_layout);
 	main_layout->addLayout(btn_layout);

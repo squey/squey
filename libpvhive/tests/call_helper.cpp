@@ -60,7 +60,7 @@ int main()
 	PVHive::call<decltype(&Test::func), &Test::func>(test_p, INT_CST1, INT_CST2);
 
 	PVHive::call<FUNC_PROTOTYPE(void, Test, funcOv, bool)>(test_p, BOOL_CST);
-	PVHive::call<void(Test::*)(int, int), &Test::funcOv>(test_p, INT_CST1, INT_CST2);
+	PVHive::call<void (Test::*)(int, int), &Test::funcOv>(test_p, INT_CST1, INT_CST2);
 
 	PV_VALID(PVHive::call<FUNC(Test::func2)>(test_p), INT_CST1);
 	std::cout << PVHive::call<FUNC(Test::func2)>(test_p) << std::endl;

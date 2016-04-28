@@ -33,22 +33,22 @@ typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data
 class A : public data_tree_a_t
 {
 
-public:
-	A(int i = 0):
-		data_tree_a_t(),
-		_i(i)
-	{}
+  public:
+	A(int i = 0) : data_tree_a_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~A() { std::cout << "~A(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("A: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("A: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -57,46 +57,45 @@ class B : public data_tree_b_t
 {
 	friend class A;
 
-public:
-	B(int i = 0):
-		data_tree_b_t(),
-		_i(i)
-   	{}
+  public:
+	B(int i = 0) : data_tree_b_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("B: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("B: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
-
 
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
 
-public:
-	C(int i = 0):
-		data_tree_c_t(),
-		_i(i)
-	{ }
+  public:
+	C(int i = 0) : data_tree_c_t(), _i(i) {}
 
-public:
+  public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("C: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("C: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -104,25 +103,22 @@ typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> da
 class D : public data_tree_d_t
 {
 
-public:
-	D(int i = 0):
-		data_tree_d_t(),
-		_i(i)
-   	{ }
+  public:
+	D(int i = 0) : data_tree_d_t(), _i(i) {}
 
-public:
-	virtual ~D()
-	{
-		std::cout << "~D(" << this << ")" << std::endl;
-	}
+  public:
+	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
 
-public:
+  public:
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const { return QString("D: ") + QString::number(get_i()); }
+	virtual QString get_serialize_description() const
+	{
+		return QString("D: ") + QString::number(get_i());
+	}
 
-private:
+  private:
 	int _i;
 };
 
@@ -134,7 +130,8 @@ typedef typename D::p_type D_p;
 int main(int argc, char** argv)
 {
 	// Objects, let's create our tree !
-	A_p a(new A());;
+	A_p a(new A());
+	;
 	B_p b1(new B(0));
 	b1->set_parent(a);
 	B_p b2(new B(1));
@@ -174,33 +171,32 @@ int main(int argc, char** argv)
 	mw->show();
 
 	// Boost thread that changes values
-	boost::thread th([&]
-		{
-			PVHive::PVActor<B> actor_b1;
-			PVHive::PVActor<B> actor_b2;
-			PVHive::PVActor<C> actor_c1;
-			PVHive::PVActor<D> actor_d2;
-			PVHive::PVActor<D> actor_d7;
-			PVHive::get().register_actor(b1, actor_b1);
-			PVHive::get().register_actor(b2, actor_b2);
-			PVHive::get().register_actor(c1, actor_c1);
-			PVHive::get().register_actor(d2, actor_d2);
-			PVHive::get().register_actor(d7, actor_d7);
-			int i_b = 0;
-			int i_c = 1;
-			int i_d = 2;
-			while (true) {
-				actor_b1.call<FUNC(B::set_i)>(i_b);
-				actor_b2.call<FUNC(B::set_i)>(i_b);
-				actor_c1.call<FUNC(C::set_i)>(i_c);
-				actor_d2.call<FUNC(D::set_i)>(i_d);
-				actor_d7.call<FUNC(D::set_i)>(i_d);
-				i_b++; i_c++; i_d++;
-				usleep(100*1000);
-			}
+	boost::thread th([&] {
+		PVHive::PVActor<B> actor_b1;
+		PVHive::PVActor<B> actor_b2;
+		PVHive::PVActor<C> actor_c1;
+		PVHive::PVActor<D> actor_d2;
+		PVHive::PVActor<D> actor_d7;
+		PVHive::get().register_actor(b1, actor_b1);
+		PVHive::get().register_actor(b2, actor_b2);
+		PVHive::get().register_actor(c1, actor_c1);
+		PVHive::get().register_actor(d2, actor_d2);
+		PVHive::get().register_actor(d7, actor_d7);
+		int i_b = 0;
+		int i_c = 1;
+		int i_d = 2;
+		while (true) {
+			actor_b1.call<FUNC(B::set_i)>(i_b);
+			actor_b2.call<FUNC(B::set_i)>(i_b);
+			actor_c1.call<FUNC(C::set_i)>(i_c);
+			actor_d2.call<FUNC(D::set_i)>(i_d);
+			actor_d7.call<FUNC(D::set_i)>(i_d);
+			i_b++;
+			i_c++;
+			i_d++;
+			usleep(100 * 1000);
 		}
-	);
-	
+	});
 
 	return app.exec();
 }

@@ -8,14 +8,13 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
 
-
 /******************************************************************************
  *
  * PVFilter::PVFieldFilterGrep::PVFieldFilterGrep
  *
  *****************************************************************************/
-PVFilter::PVFieldFilterGrep::PVFieldFilterGrep(PVCore::PVArgumentList const& args) :
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>()
+PVFilter::PVFieldFilterGrep::PVFieldFilterGrep(PVCore::PVArgumentList const& args)
+    : PVFilter::PVFieldsFilter<PVFilter::one_to_one>()
 {
 	INIT_FILTER(PVFilter::PVFieldFilterGrep, args);
 }

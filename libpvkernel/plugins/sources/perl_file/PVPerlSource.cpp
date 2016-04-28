@@ -12,11 +12,9 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 
-PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input, size_t min_chunk_size, const QString& perl_file):
-	PVRawSourceBase(),
-	_perl_file(perl_file),
-	_min_chunk_size(min_chunk_size),
-	_next_index(0)
+PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input, size_t min_chunk_size,
+                                   const QString& perl_file)
+    : PVRawSourceBase(), _perl_file(perl_file), _min_chunk_size(min_chunk_size), _next_index(0)
 {
 	SV* svp;
 
@@ -29,9 +27,9 @@ PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input, size_t min_chunk_
 
 	QByteArray perl_file_str(perl_file.toLocal8Bit());
 
-	char *args[2] = {(char*) "", perl_file_str.data()} ;
+	char* args[2] = {(char*)"", perl_file_str.data()};
 
-	if (perl_parse(my_perl, NULL, 2, args, (char **)NULL) != 0) {
+	if (perl_parse(my_perl, NULL, 2, args, (char**)NULL) != 0) {
 		throw PVPerlFormatInvalid(perl_file);
 	}
 
@@ -52,7 +50,7 @@ PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input, size_t min_chunk_
 
 	PUTBACK;
 	FREETMPS;
-	LEAVE; 
+	LEAVE;
 }
 
 PVRush::PVPerlSource::~PVPerlSource()
@@ -75,7 +73,7 @@ PVRush::PVPerlSource::~PVPerlSource()
 
 	PUTBACK;
 	FREETMPS;
-	LEAVE; 
+	LEAVE;
 
 	perl_destruct(my_perl);
 	perl_free(my_perl);
@@ -94,7 +92,7 @@ void PVRush::PVPerlSource::seek_begin()
 	// because w have no argument (so no need for Perl stack stuff) and
 	// we discard the output of the function.
 	// Still, it does not work (segfault) so we are using the code below...
-	
+
 	SV* svp;
 	dSP;
 	ENTER;
@@ -113,7 +111,7 @@ void PVRush::PVPerlSource::seek_begin()
 
 	PUTBACK;
 	FREETMPS;
-	LEAVE; 
+	LEAVE;
 }
 
 void PVRush::PVPerlSource::prepare_for_nelts(chunk_index /*nelts*/)
@@ -123,11 +121,11 @@ void PVRush::PVPerlSource::prepare_for_nelts(chunk_index /*nelts*/)
 PVCore::PVChunk* PVRush::PVPerlSource::operator()()
 {
 	SV* svp;
-	AV *av;
-	SV *sv;
-	SV *array_sv;
-	SV **array_elem_pp;
-	SV *array_elem;
+	AV* av;
+	SV* sv;
+	SV* array_sv;
+	SV** array_elem_pp;
+	SV* array_elem;
 	int nelts;
 
 	// Initialize PERL stack
@@ -135,7 +133,7 @@ PVCore::PVChunk* PVRush::PVPerlSource::operator()()
 	ENTER;
 	SAVETMPS;
 	PUSHMARK(SP);
-	mXPUSHu((UV) _min_chunk_size);
+	mXPUSHu((UV)_min_chunk_size);
 	PUTBACK;
 	nelts = perl_call_pv("inendi_get_next_chunk", G_ARRAY | G_EVAL);
 	SPAGAIN;
@@ -158,7 +156,7 @@ PVCore::PVChunk* PVRush::PVPerlSource::operator()()
 	for (int i = 0; i < nelts; i++) {
 		sv = POPs;
 		array_sv = SvRV(sv);
-		av = (AV *)array_sv;
+		av = (AV*)array_sv;
 
 		PVCore::PVElement* elt = chunk->add_element();
 		elt->fields().clear();
@@ -173,10 +171,11 @@ PVCore::PVChunk* PVRush::PVPerlSource::operator()()
 			char* field_buf;
 			if (SvPOK(array_elem)) {
 				field_buf = SvPV_nolen(array_elem);
-			}
-			else {
-				PVLOG_ERROR("Field %d of chunk element %d does not contain a string. Using an empty one...\n", i, j);
-				field_buf = (char*) "";
+			} else {
+				PVLOG_ERROR("Field %d of chunk element %d does not contain a string. Using an "
+				            "empty one...\n",
+				            i, j);
+				field_buf = (char*)"";
 			}
 			QString value = QString::fromUtf8(field_buf);
 			PVCore::PVField f(*elt);
@@ -190,17 +189,16 @@ PVCore::PVChunk* PVRush::PVPerlSource::operator()()
 	// Clear PERL stack
 	PUTBACK;
 	FREETMPS;
-	LEAVE; 
+	LEAVE;
 
 	// Set the index of the elements inside the chunk
 	chunk->set_elements_index();
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();
-	if (_next_index-1>_last_elt_index) {
-		_last_elt_index = _next_index-1;
+	if (_next_index - 1 > _last_elt_index) {
+		_last_elt_index = _next_index - 1;
 	}
 
 	return chunk;
 }
-

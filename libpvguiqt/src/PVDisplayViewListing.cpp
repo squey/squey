@@ -15,12 +15,15 @@
 
 #include <QObject>
 
-PVDisplays::PVDisplayViewListing::PVDisplayViewListing():
-	PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget | PVDisplayIf::DefaultPresenceInSourceWorkspace, "Listing", Qt::NoDockWidgetArea)
+PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
+                          PVDisplayIf::DefaultPresenceInSourceWorkspace,
+                      "Listing", Qt::NoDockWidgetArea)
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view, QWidget* parent) const
+QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view,
+                                                         QWidget* parent) const
 {
 	Inendi::PVView_sp view_sp = view->shared_from_this();
 
@@ -28,7 +31,8 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view, Q
 	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(view_sp, parent);
 	listing_view->setModel(model);
 
-	PVGuiQt::PVHorizontalHeaderView* hheaderview = new PVGuiQt::PVHorizontalHeaderView(Qt::Horizontal, listing_view);
+	PVGuiQt::PVHorizontalHeaderView* hheaderview =
+	    new PVGuiQt::PVHorizontalHeaderView(Qt::Horizontal, listing_view);
 	listing_view->setHorizontalHeader(hheaderview);
 
 	PVGuiQt::PVStatsListingWidget* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);

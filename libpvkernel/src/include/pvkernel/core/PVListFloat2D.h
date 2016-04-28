@@ -12,28 +12,19 @@
 #include <pvkernel/core/PVMatrix.h>
 #include <QVector>
 
-namespace PVCore {
-
-class PVListFloat2D: PVMatrix<float, PVRow, PVCol>
+namespace PVCore
 {
-public:
-	PVListFloat2D():
-		PVMatrix<float, PVRow, PVCol>()
-	{
-	}
 
-	PVListFloat2D(const PVListFloat2D& o):
-		PVMatrix<float, PVRow, PVCol>()
-	{
-		o.copy_to(*this);
-	}
-	
-	inline bool reserve(PVCol width, PVRow height)
-	{
-		return resize(height, width);
-	}
+class PVListFloat2D : PVMatrix<float, PVRow, PVCol>
+{
+  public:
+	PVListFloat2D() : PVMatrix<float, PVRow, PVCol>() {}
 
-	inline size_t count() const { return get_nrows()*get_ncols(); }
+	PVListFloat2D(const PVListFloat2D& o) : PVMatrix<float, PVRow, PVCol>() { o.copy_to(*this); }
+
+	inline bool reserve(PVCol width, PVRow height) { return resize(height, width); }
+
+	inline size_t count() const { return get_nrows() * get_ncols(); }
 
 	/**
 	 * return an array with all data
@@ -64,7 +55,6 @@ public:
 
 	inline PVRow getHeight() const { return get_nrows(); }
 };
-
 }
 
-#endif	/* INENDI_PVPLOTTED_CREATE_TABLE_CUDA_H */
+#endif /* INENDI_PVPLOTTED_CREATE_TABLE_CUDA_H */

@@ -67,9 +67,8 @@
  *****************************************************************************/
 
 PVWidgets::__impl::PVAbstractRangeRampCursor::PVAbstractRangeRampCursor(cursor_type type,
-                                                                        QWidget* parent) :
-	QWidget(parent),
-	_type(type)
+                                                                        QWidget* parent)
+    : QWidget(parent), _type(type)
 {
 	setCursor(Qt::OpenHandCursor);
 
@@ -95,14 +94,12 @@ void PVWidgets::__impl::PVAbstractRangeRampCursor::paintEvent(QPaintEvent* event
 		/* Qt is a dunce to draw correctly this triangle; the .1 is
 		 * required to have a nice isosceles rectangle triangle...
 		 */
-		triangle_up << QPointF(              CURSOR_EXTRA_HGRAB - 1, 0)
+		triangle_up << QPointF(CURSOR_EXTRA_HGRAB - 1, 0)
 		            << QPointF(CURSOR_EXTRA_HGRAB + CURSOR_SIDE - 1, 0)
 		            << QPointF(CURSOR_EXTRA_HGRAB + CURSOR_SIDE - 1, CURSOR_SIDE + .1);
 	} else {
 		// for this one, there is no wrong drawing
-		triangle_up << QPointF(          0, 0)
-		            << QPointF(CURSOR_SIDE, 0)
-		            << QPointF(          0, CURSOR_SIDE);
+		triangle_up << QPointF(0, 0) << QPointF(CURSOR_SIDE, 0) << QPointF(0, CURSOR_SIDE);
 	}
 
 	painter.setBrush(Qt::SolidPattern);
@@ -110,13 +107,13 @@ void PVWidgets::__impl::PVAbstractRangeRampCursor::paintEvent(QPaintEvent* event
 
 	// no problem for the bottom triangles...
 	if (_type == MINIMUM) {
-		triangle_down << QPoint(              CURSOR_EXTRA_HGRAB - 1, CURSOR_HEIGHT - 1)
+		triangle_down << QPoint(CURSOR_EXTRA_HGRAB - 1, CURSOR_HEIGHT - 1)
 		              << QPoint(CURSOR_EXTRA_HGRAB + CURSOR_SIDE - 1, CURSOR_HEIGHT - 1)
-		              << QPoint(CURSOR_EXTRA_HGRAB + CURSOR_SIDE - 1, CURSOR_HEIGHT - CURSOR_SIDE - 1);
+		              << QPoint(CURSOR_EXTRA_HGRAB + CURSOR_SIDE - 1,
+		                        CURSOR_HEIGHT - CURSOR_SIDE - 1);
 	} else {
-		triangle_down << QPoint(          0, CURSOR_HEIGHT - 1)
-		              << QPoint(CURSOR_SIDE, CURSOR_HEIGHT - 1)
-		              << QPoint(          0, CURSOR_HEIGHT - CURSOR_SIDE - 1);
+		triangle_down << QPoint(0, CURSOR_HEIGHT - 1) << QPoint(CURSOR_SIDE, CURSOR_HEIGHT - 1)
+		              << QPoint(0, CURSOR_HEIGHT - CURSOR_SIDE - 1);
 	}
 
 	painter.setBrush(QBrush(Qt::white));
@@ -188,28 +185,21 @@ void PVWidgets::__impl::PVAbstractRangeRampCursor::mouseMoveEvent(QMouseEvent* e
 	event->accept();
 }
 
-
-
 /*****************************************************************************
  * PVWidgets::__impl::PVAbstractRangeRamp::PVAbstractRangeRamp
  *****************************************************************************/
 
-PVWidgets::__impl::PVAbstractRangeRamp::PVAbstractRangeRamp(QWidget* parent) :
-	QWidget(parent)
+PVWidgets::__impl::PVAbstractRangeRamp::PVAbstractRangeRamp(QWidget* parent) : QWidget(parent)
 {
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	setMinimumHeight(RANGE_RAMP_HEIGHT);
 	setContentsMargins(0, 0, 0, 0);
 
-	_min_cursor = new PVAbstractRangeRampCursor(PVAbstractRangeRampCursor::MINIMUM,
-	                                            this);
-	connect(_min_cursor, SIGNAL(moved(int)),
-	        this, SLOT(min_cursor_moved(int)));
+	_min_cursor = new PVAbstractRangeRampCursor(PVAbstractRangeRampCursor::MINIMUM, this);
+	connect(_min_cursor, SIGNAL(moved(int)), this, SLOT(min_cursor_moved(int)));
 
-	_max_cursor = new PVAbstractRangeRampCursor(PVAbstractRangeRampCursor::MAXIMUM,
-	                                            this);
-	connect(_max_cursor, SIGNAL(moved(int)),
-	        this, SLOT(max_cursor_moved(int)));
+	_max_cursor = new PVAbstractRangeRampCursor(PVAbstractRangeRampCursor::MAXIMUM, this);
+	connect(_max_cursor, SIGNAL(moved(int)), this, SLOT(max_cursor_moved(int)));
 }
 
 /*****************************************************************************
@@ -228,8 +218,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::set_gradient(const QLinearGradient&
 void PVWidgets::__impl::PVAbstractRangeRamp::set_min_cursor(double value)
 {
 	// range ramp's denormalization to pass it to the cursor
-	_min_cursor->move(round(MINIMUM_CURSOR_OFFSET + (value * get_real_width())),
-	                  CURSOR_VOFFSET);
+	_min_cursor->move(round(MINIMUM_CURSOR_OFFSET + (value * get_real_width())), CURSOR_VOFFSET);
 }
 
 /*****************************************************************************
@@ -239,8 +228,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::set_min_cursor(double value)
 void PVWidgets::__impl::PVAbstractRangeRamp::set_max_cursor(double value)
 {
 	// range ramp's denormalization to pass it to the cursor
-	_max_cursor->move(round(RAMP_MARGIN + (value * get_real_width())),
-	                  CURSOR_VOFFSET);
+	_max_cursor->move(round(RAMP_MARGIN + (value * get_real_width())), CURSOR_VOFFSET);
 }
 
 /*****************************************************************************
@@ -253,10 +241,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::paintEvent(QPaintEvent* event)
 
 	/* first, the whole color ramp is drawn in "selected" mode
 	 */
-	QRect area(RAMP_MARGIN,
-	           RAMP_MARGIN,
-	           rect().width() - (2 * RAMP_MARGIN),
-	           RAMP_HEIGHT);
+	QRect area(RAMP_MARGIN, RAMP_MARGIN, rect().width() - (2 * RAMP_MARGIN), RAMP_HEIGHT);
 
 	painter.setClipping(false);
 	painter.setPen(Qt::NoPen);
@@ -276,9 +261,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::paintEvent(QPaintEvent* event)
 	int end = _min_cursor->pos().x() + CURSOR_WIDTH;
 
 	if (end >= area.left()) {
-		QRect left_mask(RAMP_MARGIN, RAMP_MARGIN,
-		                end - area.left(),
-		                area.height());
+		QRect left_mask(RAMP_MARGIN, RAMP_MARGIN, end - area.left(), area.height());
 
 		painter.drawRect(left_mask);
 	}
@@ -286,9 +269,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::paintEvent(QPaintEvent* event)
 	int start = _max_cursor->pos().x();
 
 	if (start <= area.right()) {
-		QRect right_mask(start, RAMP_MARGIN,
-		                 area.right() - start + 1,
-		                 area.height());
+		QRect right_mask(start, RAMP_MARGIN, area.right() - start + 1, area.height());
 		painter.drawRect(right_mask);
 	}
 	event->accept();
@@ -370,18 +351,15 @@ void PVWidgets::__impl::PVAbstractRangeRamp::max_cursor_moved(int value)
  * PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker
  *****************************************************************************/
 
-PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(
-	const double& min_limit,
-    const double& max_limit,
-    QWidget* parent
-) :
-	QWidget(parent),
-	_limit_min(min_limit),
-	_min(min_limit),
-	_max(max_limit),
-	_limit_max(max_limit),
-	_limit_range(max_limit - min_limit),
-	_epsilon(0.)
+PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(const double& min_limit,
+                                                        const double& max_limit, QWidget* parent)
+    : QWidget(parent)
+    , _limit_min(min_limit)
+    , _min(min_limit)
+    , _max(max_limit)
+    , _limit_max(max_limit)
+    , _limit_range(max_limit - min_limit)
+    , _epsilon(0.)
 {
 	setContentsMargins(2, 2, 2, 2);
 
@@ -455,10 +433,8 @@ void PVWidgets::PVAbstractRangePicker::disconnect_spinboxes_from_ranges()
  * PVWidgets::PVAbstractRangePicker::set_range_min
  *****************************************************************************/
 
-void PVWidgets::PVAbstractRangePicker::set_range_min(
-	const double& value,
-    bool force /* = false */
-)
+void PVWidgets::PVAbstractRangePicker::set_range_min(const double& value, bool force /* = false */
+                                                     )
 {
 	if (force) {
 		_min_spinbox->blockSignals(true);
@@ -481,10 +457,8 @@ double PVWidgets::PVAbstractRangePicker::get_range_min() const
  * PVWidgets::PVAbstractRangePicker::set_range_max
  *****************************************************************************/
 
-void PVWidgets::PVAbstractRangePicker::set_range_max(
-	const double& value,
-	bool force /* = false */
-)
+void PVWidgets::PVAbstractRangePicker::set_range_max(const double& value, bool force /* = false */
+                                                     )
 {
 	if (force) {
 		_max_spinbox->blockSignals(true);
@@ -507,8 +481,7 @@ double PVWidgets::PVAbstractRangePicker::get_range_max() const
  * PVWidgets::PVAbstractRangePicker::set_limits
  *****************************************************************************/
 
-void PVWidgets::PVAbstractRangePicker::set_limits(const double& min_limit,
-                                                  const double& max_limit)
+void PVWidgets::PVAbstractRangePicker::set_limits(const double& min_limit, const double& max_limit)
 {
 	_min_spinbox->setMinimum(min_limit);
 	_min_spinbox->setMaximum(max_limit);

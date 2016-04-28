@@ -33,7 +33,8 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	ignore_first_lines_layout->addWidget(ignore_label);
 	ignore_first_lines_layout->addWidget(_ignore_first_lines_spinbox);
 	ignore_first_lines_layout->addWidget(first_lines_label);
-	ignore_first_lines_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+	ignore_first_lines_layout->addItem(
+	    new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
 	QHBoxLayout* line_count_layout = new QHBoxLayout();
 	_line_count_checkbox = new QCheckBox();
@@ -44,17 +45,20 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	line_count_layout->addWidget(_line_count_checkbox);
 	line_count_layout->addWidget(_line_count_label);
 	line_count_layout->addWidget(_line_count_spinbox);
-	line_count_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+	line_count_layout->addItem(
+	    new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
 	group_box_layout->addLayout(ignore_first_lines_layout);
 	group_box_layout->addLayout(line_count_layout);
-	group_box_layout->addItem(new QSpacerItem(100, 100, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
+	group_box_layout->addItem(
+	    new QSpacerItem(100, 100, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
 
 	main_layout->addWidget(group_box);
 
 	setLayout(main_layout);
 
-	connect(_line_count_checkbox, SIGNAL(stateChanged(int)), this, SLOT(disable_specify_line_count(int)));
+	connect(_line_count_checkbox, SIGNAL(stateChanged(int)), this,
+	        SLOT(disable_specify_line_count(int)));
 }
 
 void PVInspector::PVOptionsWidget::set_lines_range(int first_line, int line_count)

@@ -17,20 +17,19 @@ namespace PVParallelView
 
 class PVZoomableDrawingAreaInteractorHomothetic : public PVZoomableDrawingAreaInteractor
 {
-public:
+  public:
 	PVZoomableDrawingAreaInteractorHomothetic(PVWidgets::PVGraphicsView* parent);
 
-protected:
+  protected:
 	bool mousePressEvent(PVZoomableDrawingArea* zda, QMouseEvent* event) override;
 
 	bool mouseMoveEvent(PVZoomableDrawingArea* zda, QMouseEvent* event) override;
 
 	bool wheelEvent(PVZoomableDrawingArea* zda, QWheelEvent* event) override;
 
-private:
+  private:
 	QPoint _pan_reference;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAINTERACTORHOMOTHETIC_H

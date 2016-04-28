@@ -11,21 +11,21 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvdisplays/PVDisplayIf.h>
 
-namespace PVDisplays {
-
-class PVDisplayViewLayerStack: public PVDisplayViewIf
+namespace PVDisplays
 {
-public:
+
+class PVDisplayViewLayerStack : public PVDisplayViewIf
+{
+  public:
 	PVDisplayViewLayerStack();
 
-public:
+  public:
 	QWidget* create_widget(Inendi::PVView* view, QWidget* parent) const override;
 	QIcon toolbar_icon() const override;
 	QString widget_title(Inendi::PVView* view) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewLayerStack)
 };
-
 }
 
 #endif

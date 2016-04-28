@@ -27,7 +27,7 @@ class PVAxisZoom
 {
 	friend class PVZoomableDrawingAreaConstraints;
 
-public:
+  public:
 	/**
 	 * CTOR
 	 *
@@ -36,10 +36,15 @@ public:
 	 * @attention @a zoom_converter's deletion is not PVAxisZoom's job.
 
 	 */
-	PVAxisZoom() :
-		_value(0), _value_min(INT_MIN), _value_max(INT_MAX), _value_default(0),
-		_inverted(false), _zoom_converter(nullptr)
-	{}
+	PVAxisZoom()
+	    : _value(0)
+	    , _value_min(INT_MIN)
+	    , _value_max(INT_MAX)
+	    , _value_default(0)
+	    , _inverted(false)
+	    , _zoom_converter(nullptr)
+	{
+	}
 
 	/**
 	 * Returns the current value.
@@ -67,7 +72,10 @@ public:
 	 *
 	 * @return the relative value
 	 */
-	int get_clamped_relative_value() const { return PVCore::clamp(_value, _value_min, _value_max)  - _value_min; }
+	int get_clamped_relative_value() const
+	{
+		return PVCore::clamp(_value, _value_min, _value_max) - _value_min;
+	}
 
 	/**
 	 * set range
@@ -86,20 +94,14 @@ public:
 	 *
 	 * @param vdefault the default value
 	 */
-	void set_default_value(int vdefault)
-	{
-		_value_default = vdefault;
-	}
+	void set_default_value(int vdefault) { _value_default = vdefault; }
 
 	/**
 	 * set associated PVZoomConverter
 	 *
 	 * @param vdefault the default value
 	 */
-	void set_zoom_converter(PVZoomConverter *zoom_converter)
-	{
-		_zoom_converter = zoom_converter;
-	}
+	void set_zoom_converter(PVZoomConverter* zoom_converter) { _zoom_converter = zoom_converter; }
 
 	/**
 	 * Returns the lower bound.
@@ -127,7 +129,7 @@ public:
 	 *
 	 * @return the associated zoom converter
 	 */
-	const PVZoomConverter *get_zoom_converter() const { return _zoom_converter; }
+	const PVZoomConverter* get_zoom_converter() const { return _zoom_converter; }
 
 	/**
 	 * Set whether the axis orientation should be inverted.
@@ -144,7 +146,7 @@ public:
 	 */
 	bool valid() const { return _zoom_converter != nullptr; }
 
-protected:
+  protected:
 	/**
 	 * Change the stored value.
 	 *
@@ -159,23 +161,24 @@ protected:
 	 *
 	 * @param value [in] the new value
 	 */
-	void set_clamped_value(const int value) { _value = PVCore::clamp(value, _value_min, _value_max); }
+	void set_clamped_value(const int value)
+	{
+		_value = PVCore::clamp(value, _value_min, _value_max);
+	}
 
 	/**
 	 * Resets the current value to its default value
 	 */
 	void reset_to_default() { _value = _value_default; }
 
-private:
-	int                    _value;
-	int                    _value_min;
-	int                    _value_max;
-	int                    _value_default;
-	bool                   _inverted;
-	const PVZoomConverter *_zoom_converter;
+  private:
+	int _value;
+	int _value_min;
+	int _value_max;
+	int _value_default;
+	bool _inverted;
+	const PVZoomConverter* _zoom_converter;
 };
-
-
 }
 
 #endif // PVPARALLELVIEW_PVAXISZOOM_H

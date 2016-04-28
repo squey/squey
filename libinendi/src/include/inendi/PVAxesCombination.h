@@ -24,23 +24,23 @@
 
 namespace PVRush
 {
-	class PVNraw;
+class PVNraw;
 }
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
 * \class PVAxesCombination
 */
-class PVAxesCombination {
+class PVAxesCombination
+{
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	struct axes_comb_id_t
 	{
-		axes_comb_id_t()
-		{
-			data.raw = 0;
-		}
+		axes_comb_id_t() { data.raw = 0; }
 
 		axes_comb_id_t(PVCol ai, uint32_t ci)
 		{
@@ -48,77 +48,53 @@ public:
 			data.info.copy_id = ci;
 		}
 
-		axes_comb_id_t(const QVariant &v)
-		{
-			data.raw = v.toULongLong();
-		}
+		axes_comb_id_t(const QVariant& v) { data.raw = v.toULongLong(); }
 
-		operator QVariant() const
-		{
-			return QVariant::fromValue((qulonglong)data.raw);
-		}
+		operator QVariant() const { return QVariant::fromValue((qulonglong)data.raw); }
 
-		bool operator ==(const axes_comb_id_t &e) const
-		{
-			return data.raw == e.data.raw;
-		}
+		bool operator==(const axes_comb_id_t& e) const { return data.raw == e.data.raw; }
 
-		bool operator <(const axes_comb_id_t &e) const
-		{
-			return data.raw < e.data.raw;
-		}
+		bool operator<(const axes_comb_id_t& e) const { return data.raw < e.data.raw; }
 
-		bool operator !=(const axes_comb_id_t &e) const
-		{
-			return data.raw != e.data.raw;
-		}
+		bool operator!=(const axes_comb_id_t& e) const { return data.raw != e.data.raw; }
 
-		PVCol get_axis() const
-		{
-			return data.info.axis;
-		}
+		PVCol get_axis() const { return data.info.axis; }
 
-		void set_axis(PVCol v)
-		{
-			data.info.axis = v;
-		}
+		void set_axis(PVCol v) { data.info.axis = v; }
 
-		PVCol get_id() const
-		{
-			return data.info.copy_id;
-		}
+		PVCol get_id() const { return data.info.copy_id; }
 
-		void set_id(uint32_t v)
-		{
-			data.info.copy_id = v;
-		}
+		void set_id(uint32_t v) { data.info.copy_id = v; }
 
 		static inline axes_comb_id_t from_qvariant(QVariant const& v)
 		{
 			axes_comb_id_t ret;
-			ret.data.raw = (uint64_t) v.toULongLong(NULL);
+			ret.data.raw = (uint64_t)v.toULongLong(NULL);
 			return ret;
 		}
 
-		union {
+		union
+		{
 			struct
 			{
-				PVCol    axis;
+				PVCol axis;
 				uint32_t copy_id;
 			} info;
 			uint64_t raw;
 		} data;
-	} ;
+	};
 
-	typedef QVector<PVAxis>          list_axes_t;
-	typedef QVector<axes_comb_id_t>  columns_indexes_t;
+	typedef QVector<PVAxis> list_axes_t;
+	typedef QVector<axes_comb_id_t> columns_indexes_t;
 
-private:
-	list_axes_t       axes_list;            //!< Contains all the used axes
-	columns_indexes_t columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
-	list_axes_t       original_axes_list;   //!< All the axes, left as how they were upon loading the format.
-	bool              _is_consistent;                  //!< Whether this object is consistent
-public:
+  private:
+	list_axes_t axes_list; //!< Contains all the used axes
+	columns_indexes_t
+	    columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
+	list_axes_t
+	    original_axes_list; //!< All the axes, left as how they were upon loading the format.
+	bool _is_consistent;    //!< Whether this object is consistent
+  public:
 	PVAxesCombination();
 
 	/**
@@ -127,7 +103,7 @@ public:
 	* @todo do not work as it does not update columns_indexes_list !
 	* @param axis The axis to add.
 	*/
-	void axis_append(const PVAxis &axis);
+	void axis_append(const PVAxis& axis);
 
 	/**
 	* Add an axis to the list of used axes by index in the original list
@@ -164,7 +140,7 @@ public:
 	 *
 	 */
 	QStringList get_axes_names_list() const;
-	
+
 	/**
 	* Get an axis, from its index in the list of the currently used axes.
 	*
@@ -221,7 +197,8 @@ public:
 	*
 	* @return The current column index for this axis.
 	*
-	* @note This function is the same as #get_axis_column_index but doesn't do any range index checking, and thus is much faster.
+	* @note This function is the same as #get_axis_column_index but doesn't do any range index
+	*checking, and thus is much faster.
 	*/
 	PVCol get_axis_column_index_fast(PVCol index) const
 	{
@@ -246,8 +223,10 @@ public:
 	*
 	* @return The number of original axes.
 	*
-	* @note This number is constant, and not always the same as the number of currently used axes since
-	*       the user might have deleted one or more axes (or, in the future added or duplicated axes).
+	* @note This number is constant, and not always the same as the number of currently used axes
+	*since
+	*       the user might have deleted one or more axes (or, in the future added or duplicated
+	*axes).
 	*/
 	PVCol get_original_axes_count() const;
 	/** @} */
@@ -284,8 +263,7 @@ public:
 	*/
 	bool move_axis_left_one_position(PVCol index);
 
-	template <class Iterator>
-	bool move_axes_left_one_position(Iterator begin, Iterator end);
+	template <class Iterator> bool move_axes_left_one_position(Iterator begin, Iterator end);
 
 	/**
 	* Move one of the used axes to the right.
@@ -298,8 +276,7 @@ public:
 	*/
 	bool move_axis_right_one_position(PVCol index);
 
-	template <class Iterator>
-	bool move_axes_right_one_position(Iterator begin, Iterator end);
+	template <class Iterator> bool move_axes_right_one_position(Iterator begin, Iterator end);
 
 	/**
 	* Move one of the used axes to a new position.
@@ -319,9 +296,8 @@ public:
 	*
 	*/
 	bool remove_axis(PVCol index);
-	
-	template <class L>
-	bool remove_axes(L const& list_idx);
+
+	template <class L> bool remove_axes(L const& list_idx);
 
 	/**
 	 * Reset the axis combination to the default one.
@@ -337,7 +313,7 @@ public:
 	/**
 	*
 	*/
-	void set_from_format(PVRush::PVFormat &format);
+	void set_from_format(PVRush::PVFormat& format);
 
 	/**
 	 * Sets the name of the given axis, according to the current positions of axes
@@ -346,7 +322,7 @@ public:
 	 * @param name_ The new name_
 	 *
 	 */
-	void set_axis_name(PVCol index, const QString &name_);
+	void set_axis_name(PVCol index, const QString& name_);
 
 	/**
 	 * @brief Replace original axes.
@@ -365,15 +341,18 @@ public:
 	 */
 	inline axes_comb_id_t get_axes_comb_id(PVCol i) const
 	{
-		assert (i < columns_indexes_list.size());
+		assert(i < columns_indexes_list.size());
 		return columns_indexes_list[i];
 	}
 
 	/**
 	 * @brief Get the index of e
 	 */
-	PVCol get_index_by_id(const axes_comb_id_t &e) const;
-	inline bool is_last_axis(const axes_comb_id_t &e) const { return get_index_by_id(e) == get_axes_count()-1; }
+	PVCol get_index_by_id(const axes_comb_id_t& e) const;
+	inline bool is_last_axis(const axes_comb_id_t& e) const
+	{
+		return get_index_by_id(e) == get_axes_count() - 1;
+	}
 
 	QString to_string() const;
 
@@ -388,14 +367,12 @@ public:
 		axes_list = axes;
 	}
 
-protected:
+  protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
 
-
 	PVSERIALIZEOBJECT_SPLIT
 };
-
 
 template <class Iterator>
 bool PVAxesCombination::move_axes_left_one_position(Iterator begin, Iterator end)
@@ -431,15 +408,14 @@ bool PVAxesCombination::move_axes_to_new_position(Iterator begin, Iterator end, 
 		ret |= move_axis_to_new_position(*it, index_dest);
 		index_dest++;
 		if (index_dest >= axes_list.size()) {
-			index_dest = axes_list.size()-1;
+			index_dest = axes_list.size() - 1;
 		}
 	}
 
 	return ret;
 }
 
-template <class L>
-bool PVAxesCombination::remove_axes(L const& list_idx)
+template <class L> bool PVAxesCombination::remove_axes(L const& list_idx)
 {
 	QVector<PVAxis> tmp_axes;
 	columns_indexes_t tmp_col_indexes;
@@ -456,9 +432,8 @@ bool PVAxesCombination::remove_axes(L const& list_idx)
 	columns_indexes_list = tmp_col_indexes;
 	return true;
 }
-
 }
 
 Q_DECLARE_METATYPE(Inendi::PVAxesCombination::axes_comb_id_t)
 
-#endif	/* INENDI_PVAXESCOMBINATION_H */
+#endif /* INENDI_PVAXESCOMBINATION_H */

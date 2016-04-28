@@ -20,18 +20,22 @@
 #include <memory>
 #include <list>
 
-namespace PVRush {
-
-class PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
+namespace PVRush
 {
-public:
+
+class PVSourceCreator : public PVCore::PVRegistrableClass<PVSourceCreator>
+{
+  public:
 	typedef PVRush::PVRawSourceBase source_t;
 	typedef std::shared_ptr<source_t> source_p;
 	typedef std::shared_ptr<PVSourceCreator> p_type;
-public:
+
+  public:
 	virtual ~PVSourceCreator() {}
-public:
-	virtual source_p create_source_from_input(PVInputDescription_p input, const PVFormat& format) const = 0;
+
+  public:
+	virtual source_p create_source_from_input(PVInputDescription_p input,
+	                                          const PVFormat& format) const = 0;
 	virtual QString supported_type() const = 0;
 	PVInputType_p supported_type_lib()
 	{
@@ -43,13 +47,13 @@ public:
 	virtual hash_formats get_supported_formats() const = 0;
 
 	// "pre-discovery" is called before processing the source into the TBB filters created
-	// by its PVFormat objects. If this function returns false, this PVSourceCreator is automatically
+	// by its PVFormat objects. If this function returns false, this PVSourceCreator is
+	// automatically
 	// discared (for *all* its formats) for this input.
 	virtual bool pre_discovery(PVInputDescription_p input) const = 0;
 };
 
 typedef PVSourceCreator::p_type PVSourceCreator_p;
-
 }
 
 #endif

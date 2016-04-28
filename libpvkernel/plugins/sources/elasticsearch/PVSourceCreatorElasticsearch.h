@@ -12,11 +12,12 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 
-namespace PVRush {
-
-class PVSourceCreatorElasticsearch: public PVSourceCreator
+namespace PVRush
 {
-public:
+
+class PVSourceCreatorElasticsearch : public PVSourceCreator
+{
+  public:
 	source_p create_source_from_input(PVInputDescription_p input, const PVFormat& format) const;
 	QString supported_type() const;
 	hash_formats get_supported_formats() const;
@@ -25,7 +26,6 @@ public:
 
 	CLASS_REGISTRABLE(PVSourceCreatorElasticsearch)
 };
-
 }
 
-#endif	// INENDI_PVSOURCECREATORELASTICSEARCH_H
+#endif // INENDI_PVSOURCECREATORELASTICSEARCH_H

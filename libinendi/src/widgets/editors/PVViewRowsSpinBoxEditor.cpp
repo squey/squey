@@ -16,9 +16,9 @@
  * PVCore::PVViewRowsSpinBoxEditor::PVViewRowsSpinBoxEditor
  *
  *****************************************************************************/
-PVWidgets::PVViewRowsSpinBoxEditor::PVViewRowsSpinBoxEditor(Inendi::PVView const& view, QWidget *parent):
-	QSpinBox(parent),
-	_view(view)
+PVWidgets::PVViewRowsSpinBoxEditor::PVViewRowsSpinBoxEditor(Inendi::PVView const& view,
+                                                            QWidget* parent)
+    : QSpinBox(parent), _view(view)
 {
 }
 

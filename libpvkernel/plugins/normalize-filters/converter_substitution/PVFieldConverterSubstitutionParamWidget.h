@@ -18,29 +18,31 @@ class QWidget;
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
-namespace PVWidgets {
-	class QKeySequenceWidget;
+namespace PVWidgets
+{
+class QKeySequenceWidget;
 }
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldConverterSubstitutionParamWidget: public PVFieldsConverterParamWidget
+class PVFieldConverterSubstitutionParamWidget : public PVFieldsConverterParamWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVFieldConverterSubstitutionParamWidget();
 
-public:
+  public:
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-private slots:
+  private slots:
 	void update_params();
 	void browse_conversion_file();
 	void use_default_value_checkbox_changed(int state);
 
-private:
+  private:
 	QAction* _action_menu;
 	QWidget* _param_widget;
 	QLineEdit* _file_path_line_edit;
@@ -49,10 +51,9 @@ private:
 	PVWidgets::QKeySequenceWidget* _separator_char;
 	PVWidgets::QKeySequenceWidget* _quote_char;
 
-private:
+  private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterSubstitutionParamWidget)
 };
-
 }
 
 #endif // PVFIELDSUBSTITUTIONPARAMWIDGET_H

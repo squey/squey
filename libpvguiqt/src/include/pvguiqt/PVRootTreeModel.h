@@ -10,19 +10,19 @@
 
 #include <pvguiqt/PVHiveDataTreeModel.h>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
-class PVRootTreeModel: public PVHiveDataTreeModel
+class PVRootTreeModel : public PVHiveDataTreeModel
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVRootTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0);
 
-public:
-	QVariant data(const QModelIndex &index, int role) const;
+  public:
+	QVariant data(const QModelIndex& index, int role) const;
 };
-
 }
 
 #endif

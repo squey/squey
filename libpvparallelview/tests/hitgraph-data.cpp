@@ -20,10 +20,9 @@
 bool compare(uint32_t const* ref, uint32_t const* tab, int block_count)
 {
 	bool ret = true;
-	for(int i = 0; i < BUFFER_SIZE * block_count; ++i) {
+	for (int i = 0; i < BUFFER_SIZE * block_count; ++i) {
 		if (tab[i] != ref[i]) {
-			std::cerr << "differs at " << i
-			          << ": " << tab[i] << " instead of " << ref[i]
+			std::cerr << "differs at " << i << ": " << tab[i] << " instead of " << ref[i]
 			          << std::endl;
 			ret = false;
 		}
@@ -37,7 +36,7 @@ typedef enum {
 	ARG_ZOOM,
 } EXTRA_ARG;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	set_extra_param(3, "col y_min zoom");
 
@@ -55,14 +54,14 @@ int main(int argc, char **argv)
 	int col = atoi(argv[pos + ARG_COL]);
 	uint64_t y_min = atol(argv[pos + ARG_MIN]);
 	int zoom = atol(argv[pos + ARG_ZOOM]);
-	
+
 	uint64_t y_max = y_min + (1UL << (32 - zoom));
 
 	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
 	PVParallelView::PVZoneTree& zt = *new PVParallelView::PVZoneTree(zp);
 
-	const uint32_t *col_y1 = zp.get_plotted_col_a();
-	const uint32_t *col_y2 = zp.get_plotted_col_b();
+	const uint32_t* col_y1 = zp.get_plotted_col_a();
+	const uint32_t* col_y2 = zp.get_plotted_col_b();
 
 	int buffer_size = 1024;
 
@@ -71,7 +70,7 @@ int main(int argc, char **argv)
 	std::cout << "start test" << std::endl;
 
 	PVParallelView::PVHitGraphDataOMP lib_omp;
-	lib_omp.process(zt, col_y2, row_count, 0, 
+	    lib_omp.process(zt, col_y2, row_count, 0, 
 
 	return 0;
 }

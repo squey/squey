@@ -22,7 +22,8 @@ int main(int argc, char** argv)
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " file" << std::endl;
 		std::cerr << "where file is an UTF-8 encoded CSV-like file with :" << std::endl;
-		std::cerr << "time string,time format,epoch in ms,hour in day,minute in day,seconds in day" << std::endl << std::endl;
+		std::cerr << "time string,time format,epoch in ms,hour in day,minute in day,seconds in day"
+		          << std::endl << std::endl;
 		std::cerr << "For instance:" << std::endl;
 		std::cerr << "01/01/1970 00:00:01,d/M/yyyy h:m:s,1" << std::endl;
 		return 1;
@@ -67,21 +68,19 @@ int main(int argc, char** argv)
 
 		PVCore::PVDateTimeParser parser(QStringList() << time_format);
 
-		PV_ASSERT_VALID(parser.mapping_time_to_cal(time_str, cal),
-		                "time_str", qPrintable(time_str));
+		PV_ASSERT_VALID(parser.mapping_time_to_cal(time_str, cal), "time_str",
+		                qPrintable(time_str));
 
 		// Copy the date time parser and try it !
 		PVCore::PVDateTimeParser parser_copy(parser);
 
-		PV_ASSERT_VALID(parser_copy.mapping_time_to_cal(time_str, cal_copy),
-		                "time_str", qPrintable(time_str));
+		PV_ASSERT_VALID(parser_copy.mapping_time_to_cal(time_str, cal_copy), "time_str",
+		                qPrintable(time_str));
 
 		UErrorCode err = U_ZERO_ERROR;
-		PV_ASSERT_VALID(cal->equals(*cal_copy, err_) != 0,
-		                "line_num", line_num,
-		                "time_str", qPrintable(time_str),
-		                "cal", cal->getTime(err),
-		                "cal_copy", cal_copy->getTime(err));
+		PV_ASSERT_VALID(cal->equals(*cal_copy, err_) != 0, "line_num", line_num, "time_str",
+		                qPrintable(time_str), "cal", cal->getTime(err), "cal_copy",
+		                cal_copy->getTime(err));
 
 		err = U_ZERO_ERROR;
 		int64_t res = cal->getTime(err);

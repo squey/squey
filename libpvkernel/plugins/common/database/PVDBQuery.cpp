@@ -14,13 +14,11 @@ PVRush::PVDBQuery::PVDBQuery()
 {
 }
 
-PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos):
-	_infos(infos)
+PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos) : _infos(infos)
 {
 }
 
-PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos, QString const& query):
-	_infos(infos)
+PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos, QString const& query) : _infos(infos)
 {
 	set_query(query);
 }
@@ -31,19 +29,19 @@ PVRush::PVDBQuery::~PVDBQuery()
 
 bool PVRush::PVDBQuery::operator==(const PVInputDescription& other) const
 {
-	PVDBQuery& other_query = (PVDBQuery&) other;
+	PVDBQuery& other_query = (PVDBQuery&)other;
 	return _infos->get_type() == other_query._infos->get_type() &&
-		   _infos->get_host() == other_query._infos->get_host() &&
-		   _infos->get_username() == other_query._infos->get_username() &&
-		   _infos->get_password() == other_query._infos->get_password() &&
-		   _infos->get_options() == other_query._infos->get_options() &&
-		   _infos->get_dbname() == other_query._infos->get_dbname() &&
-		   _infos->get_port() == other_query._infos->get_port();
+	       _infos->get_host() == other_query._infos->get_host() &&
+	       _infos->get_username() == other_query._infos->get_username() &&
+	       _infos->get_password() == other_query._infos->get_password() &&
+	       _infos->get_options() == other_query._infos->get_options() &&
+	       _infos->get_dbname() == other_query._infos->get_dbname() &&
+	       _infos->get_port() == other_query._infos->get_port();
 }
 
 QSqlQuery PVRush::PVDBQuery::to_query(chunk_index /*start*/, chunk_index /*nelts*/) const
 {
-	QString querystr = _query/* + QString(" LIMIT %1 OFFSET %2").arg(nelts).arg(start)*/;
+	QString querystr = _query /* + QString(" LIMIT %1 OFFSET %2").arg(nelts).arg(start)*/;
 	QSqlQuery query(_infos->to_database());
 	query.prepare(querystr);
 	return query;
@@ -67,10 +65,11 @@ QString PVRush::PVDBQuery::human_name() const
 void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.attribute("query", _query);
-	so.object("server", *_infos, QString(), false, (PVDBServ*) NULL, false);
+	so.object("server", *_infos, QString(), false, (PVDBServ*)NULL, false);
 }
 
-void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so,
+                                       PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	QString query;
 	so.attribute("query", query);

@@ -11,12 +11,12 @@
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVWeakPointer.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVSource;
 typedef PVCore::PVSharedPtr<PVSource> PVSource_sp;
-typedef PVCore::PVWeakPtr<PVSource>   PVSource_wp;
+typedef PVCore::PVWeakPtr<PVSource> PVSource_wp;
 }
-
 
 #endif

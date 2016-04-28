@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-/* 
+/*
  * File:   PVXmlParamParserData.h
  * Author: rpernaudat
  *
@@ -13,7 +13,7 @@
  */
 
 #ifndef PVXMLPARAMPARSERDATA_H
-#define	PVXMLPARAMPARSERDATA_H
+#define PVXMLPARAMPARSERDATA_H
 #include <QString>
 
 #include <pvkernel/core/general.h>
@@ -21,11 +21,13 @@
 #include <pvkernel/core/PVCompList.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
-class PVXmlParamParserData {
+class PVXmlParamParserData
+{
 
-public:    
+  public:
 	PVXmlParamParserData()
 	{
 		// By default, the number of children is unknown.
@@ -37,13 +39,13 @@ public:
 	size_t nchildren;
 	PVFilter::filter_child_axes_tag_t children_axes_tag;
 
-	bool operator==(PVXmlParamParserData const& other) const {
-		return filter_lib->registered_id() == other.filter_lib->registered_id() && PVCore::comp_hash(filter_args, other.filter_args);
+	bool operator==(PVXmlParamParserData const& other) const
+	{
+		return filter_lib->registered_id() == other.filter_lib->registered_id() &&
+		       PVCore::comp_hash(filter_args, other.filter_args);
 	}
 
 	bool operator!=(PVXmlParamParserData const& other) const { return !(*this == other); }
 };
-
 }
-#endif	/* PVXMLPARAMPARSERDATA_H */
-
+#endif /* PVXMLPARAMPARSERDATA_H */

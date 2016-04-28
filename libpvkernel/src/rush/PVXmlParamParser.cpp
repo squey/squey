@@ -5,10 +5,10 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-/* 
+/*
  * File:   PVRush::PVXmlParamParser.cpp
  * Author: rpernaudat
- * 
+ *
  * Created on 12 mai 2011, 11:27
  */
 
@@ -17,11 +17,13 @@
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 
-// Exceptions 
+// Exceptions
 
-PVRush::PVXmlParamParserExceptionPluginNotFound::PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name)
+PVRush::PVXmlParamParserExceptionPluginNotFound::PVXmlParamParserExceptionPluginNotFound(
+    QString type, QString plugin_name)
 {
-	_what = QString("Plugin '") + plugin_name + QString("' of type '") + type + QString("' isn't available.");
+	_what = QString("Plugin '") + plugin_name + QString("' of type '") + type +
+	        QString("' isn't available.");
 }
 
 QString PVRush::PVXmlParamParserExceptionPluginNotFound::what()
@@ -35,7 +37,7 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 {
 	QFile xmlfile(nameFile);
 
-	if(!xmlfile.exists()) {
+	if (!xmlfile.exists()) {
 		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) file to parse not found!\n");
 		throw std::runtime_error("Can't create the xml parameter parser");
 	}
@@ -65,7 +67,8 @@ void PVRush::PVXmlParamParser::dump_filters()
 {
 	QList<PVXmlParamParserData>::iterator it;
 	for (it = fields.begin(); it != fields.end(); it++) {
-		PVLOG_DEBUG("On axis %d, apply filter %s\n", it->axis_id, qPrintable(it->filter_lib->registered_name()));
+		PVLOG_DEBUG("On axis %d, apply filter %s\n", it->axis_id,
+		            qPrintable(it->filter_lib->registered_name()));
 	}
 }
 
@@ -95,7 +98,7 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromRootNode(QDomElement const&
 		if (!child_node.isElement()) {
 			continue;
 		}
-		
+
 		QDomElement elt = child_node.toElement();
 		if (elt.tagName() != PVFORMAT_XML_TAG_AXES_COMBINATION_STR) {
 			continue;
@@ -128,17 +131,18 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 	}
 }
 
-PVRush::PVAxisFormat::node_args_t PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
+PVRush::PVAxisFormat::node_args_t
+PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
 {
 	PVAxisFormat::node_args_t args;
 	// Get the first mapping/plotting elements (ignore other if there are multiples)
 	QDomElement node = elt.firstChildElement(tag);
-	if(node.isNull()) {
+	if (node.isNull()) {
 		// No mapping or plotting, use default mapping/plotting
 		mode = PVFORMAT_MAP_PLOT_MODE_DEFAULT;
 		return {};
 	}
-	
+
 	// Save every attributes
 	QDomNamedNodeMap attrs = node.attributes();
 	for (int i = 0; i < attrs.size(); i++) {
@@ -167,19 +171,22 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 	int nchilds = childs.size();
 
 	// For a given axis, we need to first create the corresponding one_to_one field filters
-	// because we have the good id. Then we process the axes and the splitters that will change the next field's id !
-	// The order of the different for loops is *important* here. Change it if you know what you're doing !
-	for(int i=0; i< nchilds; i++) {
+	// because we have the good id. Then we process the axes and the splitters that will change the
+	// next field's id !
+	// The order of the different for loops is *important* here. Change it if you know what you're
+	// doing !
+	for (int i = 0; i < nchilds; i++) {
 		QDomElement child = childs.at(i).toElement();
 		QString node_type = getNodeType(child);
 
-		if (node_type == PVFORMAT_XML_TAG_FILTER_STR || node_type == PVFORMAT_XML_TAG_CONVERTER_STR) {
+		if (node_type == PVFORMAT_XML_TAG_FILTER_STR ||
+		    node_type == PVFORMAT_XML_TAG_CONVERTER_STR) {
 			pushFilter(child, newId);
 		}
 	}
 
 	uint32_t* new_tree_id = NULL;
-	for(int i=0; i< nchilds; i++) {
+	for (int i = 0; i < nchilds; i++) {
 		QDomElement child = childs.at(i).toElement();
 		QString node_type = getNodeType(child);
 		if (node_type == PVFORMAT_XML_TAG_SPLITTER_STR) {
@@ -187,35 +194,33 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			if (new_tree_id == NULL) {
 				tree_ids.push_back(i);
 				new_tree_id = &tree_ids.back();
-			}
-			else {
+			} else {
 				*new_tree_id = i;
 			}
 			newId = setDom(child, newId, tree_ids);
-		}
-		else
-		if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
+		} else if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
 			if (new_tree_id == NULL) {
 				tree_ids.push_back(i);
 				new_tree_id = &tree_ids.back();
-			}
-			else {
+			} else {
 				*new_tree_id = i;
 			}
 			newId = setDom(child, newId, tree_ids);
 		}
 	}
 
-	for(int i = 0; i < nchilds; i++){
+	for (int i = 0; i < nchilds; i++) {
 		QDomElement child = childs.at(i).toElement();
 
 		if (getNodeType(child) == "axis") {
 			PVAxisFormat axis;
 			axis.set_name(child.attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT));
 			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));
-			axis.set_type_format(child.attribute(PVFORMAT_AXIS_TYPE_FORMAT_STR, PVFORMAT_AXIS_TYPE_FORMAT_DEFAULT));
+			axis.set_type_format(
+			    child.attribute(PVFORMAT_AXIS_TYPE_FORMAT_STR, PVFORMAT_AXIS_TYPE_FORMAT_DEFAULT));
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
-			axis.set_titlecolor(child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
+			axis.set_titlecolor(
+			    child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
 			axis.compute_unique_id(tree_ids);
 			QString tag = child.attribute(PVFORMAT_AXIS_TAG_STR, QString());
 			if (!tag.isEmpty()) {
@@ -227,7 +232,8 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 
 			// Mapping and plotting parameters
 			QString mode;
-			PVAxisFormat::node_args_t args = getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
+			PVAxisFormat::node_args_t args =
+			    getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
 			axis.set_mapping(mode);
 			axis.set_args_mapping(args);
 			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING, mode);
@@ -247,9 +253,11 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 
 void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 {
-	static PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>::get();
+	static PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib =
+	    PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>::get();
 	QString node_type = getNodeType(elt);
-	QString filter_plugin_name = elt.attribute(PVFORMAT_FILTER_TYPE_STR, PVFORMAT_FILTER_TYPE_DEFAULT);
+	QString filter_plugin_name =
+	    elt.attribute(PVFORMAT_FILTER_TYPE_STR, PVFORMAT_FILTER_TYPE_DEFAULT);
 	PVCore::PVArgumentList args;
 	PVRush::PVXmlParamParserData data;
 	data.axis_id = newId;
@@ -301,7 +309,6 @@ PVRush::list_axes_t const& PVRush::PVXmlParamParser::getAxes() const
 	return _axes;
 }
 
-
 /******************************* private *************************************/
 int PVRush::PVXmlParamParser::countChild(QDomElement node)
 {
@@ -315,21 +322,20 @@ QList<PVRush::PVXmlParamParserData> const& PVRush::PVXmlParamParser::getFields()
 
 QString PVRush::PVXmlParamParser::getNodeRegExp(QDomElement node)
 {
-	return node.attribute("expression","");
+	return node.attribute("expression", "");
 }
 
 QString PVRush::PVXmlParamParser::getNodeTypeGrep(QDomElement node)
 {
-	return node.attribute("type","");
+	return node.attribute("type", "");
 }
 
 QString PVRush::PVXmlParamParser::getNodeName(QDomElement node)
 {
-	return node.attribute("name","");
+	return node.attribute("name", "");
 }
 
 QString PVRush::PVXmlParamParser::getNodeType(QDomElement node)
 {
 	return node.tagName();
 }
-

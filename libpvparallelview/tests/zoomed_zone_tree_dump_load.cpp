@@ -15,7 +15,6 @@
 
 #include "common.h"
 
-
 using zzt_t = PVParallelView::PVZoomedZoneTree;
 
 const std::string dump_file = "/tmp/zoomed_zone_tree.dump";
@@ -37,14 +36,14 @@ int main()
 
 	PVParallelView::PVLibView* pv = env.get_lib_view();
 
-	PVParallelView::PVZonesManager &zm = pv->get_zones_manager();
+	PVParallelView::PVZonesManager& zm = pv->get_zones_manager();
 
 	for (PVZoneID zid = 0; zid < zm.get_number_of_managed_zones(); ++zid) {
 		std::cout << "testing zone " << zid << std::endl;
 
 		std::cout << "  initialization, it can take a while" << std::endl;
 		zm.request_zoomed_zone(zid);
-		zzt_t &zzt = zm.get_zoom_zone_tree(zid);
+		zzt_t& zzt = zm.get_zoom_zone_tree(zid);
 		std::cout << "  done" << std::endl;
 
 		std::cout << "  dumping" << std::endl;
@@ -53,7 +52,7 @@ int main()
 		std::cout << "  done" << std::endl;
 
 		std::cout << "  exhuming" << std::endl;
-		zzt_t *zzt2 = zzt_t::load_from_file(dump_file.c_str());
+		zzt_t* zzt2 = zzt_t::load_from_file(dump_file.c_str());
 		PV_ASSERT_VALID(zzt2 != nullptr);
 		std::cout << "  done" << std::endl;
 

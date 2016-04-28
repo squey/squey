@@ -21,16 +21,19 @@
 
 #include "adrien_objs.h"
 
-class MyObjObserver: public PVHive::PVObserver<MyObject>
+class MyObjObserver : public PVHive::PVObserver<MyObject>
 {
-public:
-	void refresh() { std::cout << "  MyObjObserver refresh to i=" << get_object()->get_i() << std::endl; }
-	void about_to_be_deleted() { }
+  public:
+	void refresh()
+	{
+		std::cout << "  MyObjObserver refresh to i=" << get_object()->get_i() << std::endl;
+	}
+	void about_to_be_deleted() {}
 };
 
-class MyObjActor: public PVHive::PVActor<MyObject>
+class MyObjActor : public PVHive::PVActor<MyObject>
 {
-public:
+  public:
 #if 0
 	template <typename F, F f, typename... Ttypes>
 	void call(Ttypes... params)
@@ -50,15 +53,15 @@ public:
 	template <typename... Ttypes>
 	void call(decltype(&MyObject::set_i2) f, Ttypes... params)
 	{
-		std::cout << "set_i2 special actor" << std::endl;
-		Actor<MyObject>::call(f, params...);
+	        std::cout << "set_i2 special actor" << std::endl;
+	        Actor<MyObject>::call(f, params...);
 	}
 
 	template <typename... Ttypes>
 	void call(decltype(&MyObject::set_i) f, Ttypes... params)
 	{
-		std::cout << "set_i special actor" << std::endl;
-		Actor<MyObject>::call(f, params...);
+	        std::cout << "set_i special actor" << std::endl;
+	        Actor<MyObject>::call(f, params...);
 	}*/
 };
 
@@ -66,11 +69,8 @@ class MyThread : public QThread
 {
 	Q_OBJECT
 
-public:
-	MyThread(MyObject_p &o, QObject *parent = 0) :
-		QThread(parent),
-		_o(o),
-		_c(0)
+  public:
+	MyThread(MyObject_p& o, QObject* parent = 0) : QThread(parent), _o(o), _c(0)
 	{
 		PVHive::PVHive::get().register_actor(o, _actor);
 		_timer = new QTimer(this);
@@ -90,7 +90,7 @@ public:
 		exec();
 	}
 
-public slots:
+  public slots:
 	void update_prop()
 	{
 		std::cout << "Update prop to " << _c << std::endl;
@@ -98,11 +98,11 @@ public slots:
 		++_c;
 	}
 
-private:
+  private:
 	MyObject_p _o;
 	int _c;
 	MyObjActor _actor;
-	QTimer *_timer;
+	QTimer* _timer;
 };
 
 #endif // TEST_ADRIEN_HDR_H

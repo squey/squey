@@ -48,20 +48,20 @@ namespace PVWidgets
 
 class PVTextPopupWidget : public PVPopupWidget
 {
-public:
+  public:
 	/**
 	 * a orizable enumeration to tell how a popup will be placed on screen
 	 */
 	typedef enum {
-		AlignNone       =  0,
-		AlignLeft       =  1,
-		AlignRight      =  2,
-		AlignHCenter    =  4,
-		AlignTop        =  8,
-		AlignBottom     = 16,
-		AlignVCenter    = 32,
+		AlignNone = 0,
+		AlignLeft = 1,
+		AlignRight = 2,
+		AlignHCenter = 4,
+		AlignTop = 8,
+		AlignBottom = 16,
+		AlignVCenter = 32,
 		AlignUnderMouse = 64,
-		AlignCenter     = AlignHCenter + AlignVCenter
+		AlignCenter = AlignHCenter + AlignVCenter
 	} AlignEnum;
 
 	/**
@@ -69,12 +69,12 @@ public:
 	 */
 	typedef enum {
 		ExpandNone = 0,
-		ExpandX    = 1,
-		ExpandY    = 2,
-		ExpandAll  = ExpandX + ExpandY
+		ExpandX = 1,
+		ExpandY = 2,
+		ExpandAll = ExpandX + ExpandY
 	} ExpandEnum;
 
-public:
+  public:
 	/**
 	 * a constructor
 	 *
@@ -85,7 +85,9 @@ public:
 	/**
 	 * set the content (which is HTML text)
 	 *
-	 * See http://www.developer.nokia.com/Community/Discussion/showthread.php?188112-QWebView-load-page-from-memory, for examples about how to set text.
+	 * See
+	 *http://www.developer.nokia.com/Community/Discussion/showthread.php?188112-QWebView-load-page-from-memory,
+	 *for examples about how to set text.
 	 *
 	 * @param text the HTML text to display
 	 */
@@ -109,8 +111,7 @@ public:
 	 * @param title the page's title
 	 * @param css_filename the filename or resource id of the css content
 	 */
-	void initTextFromFile(const QString& title,
-	                      const QString& css_filename);
+	void initTextFromFile(const QString& title, const QString& css_filename);
 
 	/**
 	 * add a new entry in the current column
@@ -148,10 +149,9 @@ public:
 	 * @param align how the popup must be expanded according to its parent
 	 * @param border the border around the popup in its parent's geometry
 	 */
-	void popup(QWidget* widget, int align = AlignNone, int expand = ExpandNone,
-	           int border = 0);
+	void popup(QWidget* widget, int align = AlignNone, int expand = ExpandNone, int border = 0);
 
-protected:
+  protected:
 	/**
 	 * reimplement PVPopupWidget::setVisible(bool)
 	 *
@@ -166,21 +166,20 @@ protected:
 	 * to reconfigure the popup it when its alignment widget's
 	 * geometry has changed.
 	 */
-	bool eventFilter(QObject *obj, QEvent *event);
+	bool eventFilter(QObject* obj, QEvent* event);
 
-private:
+  private:
 #ifdef QT_WEBKIT
-	QWebView*		_webview;
+	QWebView* _webview;
 #else
 	QWebEngineView* _webview;
 #endif
-	QWidget*		_last_widget;
-	QString			_temp_text;
-	int				_last_align;
-	int				_last_expand;
-	int				_last_border;
+	QWidget* _last_widget;
+	QString _temp_text;
+	int _last_align;
+	int _last_expand;
+	int _last_border;
 };
-
 }
 
 #endif // PVWIDGETS_PVTEXTPOPUPWIDGET_H

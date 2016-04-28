@@ -8,14 +8,13 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 
-
 /******************************************************************************
  *
  * PVFilter::PVElementFilterByFields::PVElementFilterByFields
  *
  *****************************************************************************/
 PVFilter::PVElementFilterByFields::PVElementFilterByFields(PVFieldsBaseFilter_f fields_f)
-	: PVElementFilter()
+    : PVElementFilter()
 {
 	_ff = fields_f;
 	INIT_FILTER_NOPARAM(PVFilter::PVElementFilterByFields);
@@ -26,7 +25,7 @@ PVFilter::PVElementFilterByFields::PVElementFilterByFields(PVFieldsBaseFilter_f 
  * PVFilter::PVElementFilterByFields::operator()
  *
  *****************************************************************************/
-PVCore::PVElement& PVFilter::PVElementFilterByFields::operator()(PVCore::PVElement &elt)
+PVCore::PVElement& PVFilter::PVElementFilterByFields::operator()(PVCore::PVElement& elt)
 {
 	elt.fields() = _ff(elt.fields());
 	return elt;

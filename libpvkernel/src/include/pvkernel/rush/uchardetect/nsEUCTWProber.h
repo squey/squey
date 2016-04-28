@@ -43,30 +43,31 @@
 #include "nsCodingStateMachine.h"
 #include "CharDistribution.h"
 
-class nsEUCTWProber: public nsCharSetProber {
-public:
-  nsEUCTWProber(void){mCodingSM = new nsCodingStateMachine(&EUCTWSMModel);
-                      Reset();}
-  virtual ~nsEUCTWProber(void){delete mCodingSM;}
-  nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return CHARDET_ENCODING_EUC_TW;}
-  nsProbingState GetState(void) {return mState;}
-  void      Reset(void);
-  float     GetConfidence(void);
-  void      SetOpion() {}
+class nsEUCTWProber : public nsCharSetProber
+{
+  public:
+	nsEUCTWProber(void)
+	{
+		mCodingSM = new nsCodingStateMachine(&EUCTWSMModel);
+		Reset();
+	}
+	virtual ~nsEUCTWProber(void) { delete mCodingSM; }
+	nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
+	const char* GetCharSetName() { return CHARDET_ENCODING_EUC_TW; }
+	nsProbingState GetState(void) { return mState; }
+	void Reset(void);
+	float GetConfidence(void);
+	void SetOpion() {}
 
-protected:
-  void      GetDistribution(PRUint32 aCharLen, const char* aStr);
-  
-  nsCodingStateMachine* mCodingSM;
-  nsProbingState mState;
+  protected:
+	void GetDistribution(PRUint32 aCharLen, const char* aStr);
 
-  //EUCTWContextAnalysis mContextAnalyser;
-  EUCTWDistributionAnalysis mDistributionAnalyser;
-  char mLastChar[2];
+	nsCodingStateMachine* mCodingSM;
+	nsProbingState mState;
 
+	// EUCTWContextAnalysis mContextAnalyser;
+	EUCTWDistributionAnalysis mDistributionAnalyser;
+	char mLastChar[2];
 };
 
-
 #endif /* nsEUCTWProber_h__ */
-

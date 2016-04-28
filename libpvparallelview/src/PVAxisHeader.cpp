@@ -35,16 +35,14 @@
  *
  *****************************************************************************/
 
-PVParallelView::PVAxisHeader::PVAxisHeader(
-	const Inendi::PVView& view,
-	PVSlidersGroup* sg,
-	PVAxisGraphicsItem* parent) :
-	QGraphicsRectItem(parent),
-	_view(view),
-	_sliders_group(sg),
-	_axis_selected_animation(new __impl::PVAxisSelectedAnimation(this)),
-	_clicked(false),
-	_click_event(QEvent::GraphicsSceneMousePress)
+PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view, PVSlidersGroup* sg,
+                                           PVAxisGraphicsItem* parent)
+    : QGraphicsRectItem(parent)
+    , _view(view)
+    , _sliders_group(sg)
+    , _axis_selected_animation(new __impl::PVAxisSelectedAnimation(this))
+    , _clicked(false)
+    , _click_event(QEvent::GraphicsSceneMousePress)
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 	setCursor(Qt::ArrowCursor);
@@ -52,21 +50,26 @@ PVParallelView::PVAxisHeader::PVAxisHeader(
 	setBrush(QBrush(Qt::NoBrush));
 }
 
-void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
 	QWidget* parent_view = event->widget();
-	PVDisplays::PVDisplaysContainer* container = PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(parent_view);
+	PVDisplays::PVDisplaysContainer* container =
+	    PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(parent_view);
 
 	QMenu menu;
 
 	if (container) {
-		PVDisplays::get().add_displays_view_axis_menu(menu, container, SLOT(create_view_axis_widget()), (Inendi::PVView*) &_view, get_axis_index());
+		PVDisplays::get().add_displays_view_axis_menu(menu, container,
+		                                              SLOT(create_view_axis_widget()),
+		                                              (Inendi::PVView*)&_view, get_axis_index());
 		if (!is_last_axis()) {
-			PVDisplays::get().add_displays_view_zone_menu(menu, container, SLOT(create_view_zone_widget()), (Inendi::PVView*) &_view, get_axis_index());
+			PVDisplays::get().add_displays_view_zone_menu(
+			    menu, container, SLOT(create_view_zone_widget()), (Inendi::PVView*)&_view,
+			    get_axis_index());
 		}
 		menu.addSeparator();
 	}
-	QAction *ars = menu.addAction("New selection cursors");
+	QAction* ars = menu.addAction("New selection cursors");
 	connect(ars, SIGNAL(triggered()), this, SLOT(new_selection_sliders()));
 
 	if (menu.exec(event->screenPos()) != nullptr) {
@@ -132,7 +135,7 @@ void PVParallelView::PVAxisHeader::mouseReleaseEvent(QGraphicsSceneMouseEvent* e
 	}
 }
 
-void PVParallelView::PVAxisHeader::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
+void PVParallelView::PVAxisHeader::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (_clicked) {
 		_clicked = false;
@@ -154,7 +157,7 @@ PVParallelView::PVAxisGraphicsItem* PVParallelView::PVAxisHeader::axis()
 	return dynamic_cast<PVAxisGraphicsItem*>(parentItem());
 }
 
-PVParallelView::PVAxisGraphicsItem const* PVParallelView::PVAxisHeader::axis()  const
+PVParallelView::PVAxisGraphicsItem const* PVParallelView::PVAxisHeader::axis() const
 {
 	return dynamic_cast<PVAxisGraphicsItem const*>(parentItem());
 }
@@ -173,7 +176,6 @@ void PVParallelView::PVAxisHeader::new_zoomed_parallel_view()
 	emit new_zoomed_parallel_view(get_axis_index());
 }
 
-
 void PVParallelView::PVAxisHeader::new_selection_sliders()
 {
 	_sliders_group->add_selection_sliders(0, 1024);
@@ -185,8 +187,8 @@ void PVParallelView::PVAxisHeader::new_selection_sliders()
  *
  *****************************************************************************/
 
-PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisHeader* parent) :
-	QObject(parent)
+PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisHeader* parent)
+    : QObject(parent)
 {
 	// Setup opacity animation
 	_opacity_animation = new QPropertyAnimation(this, "opacity");
@@ -206,42 +208,43 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	qreal min_height = 15;
 	local_bounding_rect.setWidth(std::max(local_bounding_rect.width(), min_width));
 	local_bounding_rect.setHeight(std::max(local_bounding_rect.height(), min_height));
-	QRectF transformed_bounding_rect = header()->axis()->label()->mapToParent(local_bounding_rect).boundingRect();
+	QRectF transformed_bounding_rect =
+	    header()->axis()->label()->mapToParent(local_bounding_rect).boundingRect();
 
-	qreal a = 8;   // margin under and over text
-	qreal b = a;   // thickness
-	qreal c = 5;   // margin after text
-	qreal e = 5;   // bevel
-	qreal d = c;   // width of the shape after the end of the text
+	qreal a = 8; // margin under and over text
+	qreal b = a; // thickness
+	qreal c = 5; // margin after text
+	qreal e = 5; // bevel
+	qreal d = c; // width of the shape after the end of the text
 	qreal y_trans = PVAxisGraphicsItem::axis_extend - 4;
 
 	qreal label_width = transformed_bounding_rect.width();
 	qreal label_height = transformed_bounding_rect.height();
-	int label_length = cos(PVAxisGraphicsItem::label_rotation)*(local_bounding_rect.height()*3);
+	int label_length = cos(PVAxisGraphicsItem::label_rotation) * (local_bounding_rect.height() * 3);
 
 	qreal x0 = 0;
 	qreal y0 = -a;
 
 	qreal x1 = x0;
-	qreal y1 = y0 -b;
+	qreal y1 = y0 - b;
 
-	qreal x2 = label_width -(a/2) +c -b -e +d;
-	qreal y2 = -label_height + (a/2) -c -a -e -d;
+	qreal x2 = label_width - (a / 2) + c - b - e + d;
+	qreal y2 = -label_height + (a / 2) - c - a - e - d;
 
-	qreal x3 = x2 +b +label_length +a -2*b +2*e;
-	qreal y3 = y2 +a +label_length -b +2*e;
+	qreal x3 = x2 + b + label_length + a - 2 * b + 2 * e;
+	qreal y3 = y2 + a + label_length - b + 2 * e;
 
-	qreal x4 = a+c+e+b/2;
-	qreal y4 = +c+e-b/2;
+	qreal x4 = a + c + e + b / 2;
+	qreal y4 = +c + e - b / 2;
 
-	qreal x5 = a+c+e+b/2-b;
-	qreal y5 = +c+e-b/2;
+	qreal x5 = a + c + e + b / 2 - b;
+	qreal y5 = +c + e - b / 2;
 
-	qreal x6 = x3 -b -e -d;
-	qreal y6 = y3 -e +d;
+	qreal x6 = x3 - b - e - d;
+	qreal y6 = y3 - e + d;
 
-	qreal x7 = x2 +e -d;
-	qreal y7 = y2 +b +e +d;
+	qreal x7 = x2 + e - d;
+	qreal y7 = y2 + b + e + d;
 
 	QPolygonF polygon;
 	polygon << QPointF(x0, y0);
@@ -264,7 +267,6 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	_title_highlight->setParentItem(header()->axis()->label());
 }
 
-
 PVParallelView::__impl::PVAxisSelectedAnimation::~PVAxisSelectedAnimation()
 {
 	delete _opacity_animation;
@@ -276,8 +278,7 @@ void PVParallelView::__impl::PVAxisSelectedAnimation::start(bool start)
 		_title_highlight->setVisible(true);
 		_opacity_animation->setDirection(QAbstractAnimation::Forward);
 		_opacity_animation->start();
-	}
-	else {
+	} else {
 		_title_highlight->setVisible(false);
 		_opacity_animation->setDirection(QAbstractAnimation::Backward);
 		_opacity_animation->start();
@@ -286,17 +287,16 @@ void PVParallelView::__impl::PVAxisSelectedAnimation::start(bool start)
 
 void PVParallelView::__impl::PVAxisSelectedAnimation::set_opacity(qreal opacity)
 {
-	QGraphicsOpacityEffect* opacity_effect1 = (QGraphicsOpacityEffect*) _title_highlight->graphicsEffect();
+	QGraphicsOpacityEffect* opacity_effect1 =
+	    (QGraphicsOpacityEffect*)_title_highlight->graphicsEffect();
 	opacity_effect1->setOpacity(opacity);
-	QGraphicsOpacityEffect* opacity_effect2 = (QGraphicsOpacityEffect*) header()->graphicsEffect();
+	QGraphicsOpacityEffect* opacity_effect2 = (QGraphicsOpacityEffect*)header()->graphicsEffect();
 	opacity_effect2->setOpacity(opacity);
 }
 
-
-void PVParallelView::__impl::PVGraphicsPolygonItem::paint(
-	QPainter* painter,
-	const QStyleOptionGraphicsItem* option,
-	QWidget* widget)
+void PVParallelView::__impl::PVGraphicsPolygonItem::paint(QPainter* painter,
+                                                          const QStyleOptionGraphicsItem* option,
+                                                          QWidget* widget)
 {
 	painter->setRenderHint(QPainter::Antialiasing, true);
 	painter->setRenderHint(QPainter::HighQualityAntialiasing, true);

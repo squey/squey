@@ -7,6 +7,5 @@
 
 #include "helpers.h"
 
-
 INIT_STATIC_PATTERNS(10)
 INIT_STATIC_PATTERNS(11)

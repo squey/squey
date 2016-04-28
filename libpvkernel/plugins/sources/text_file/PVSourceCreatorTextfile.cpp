@@ -16,9 +16,11 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorTextfile::source_p
+PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p input,
+                                                          const PVFormat& /*format*/) const
 {
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input->human_name()));
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
@@ -27,7 +29,7 @@ PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::creat
 	// FIXME: chunk size must be computed somewhere once and for all !
 	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
 	if (size_chunk <= 0) {
-		size_chunk = 4096*100; // Aligned on a page boundary (4ko)
+		size_chunk = 4096 * 100; // Aligned on a page boundary (4ko)
 	}
 	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, size_chunk));
 

@@ -18,7 +18,7 @@
 #include <arpa/inet.h>
 
 typedef std::vector<QString> list_strings_t;
-#define RAND_BYTE (rand()%256)
+#define RAND_BYTE (rand() % 256)
 
 int main(int argc, char** argv)
 {
@@ -27,10 +27,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	tbb::tick_count start,end;
+	tbb::tick_count start, end;
 	size_t n = atol(argv[1]);
 
-	if (n < 10) n=10;
+	if (n < 10)
+		n = 10;
 
 	srand(time(NULL));
 
@@ -38,20 +39,22 @@ int main(int argc, char** argv)
 	list_strings_t ips;
 	ips.reserve(n);
 	QString pt(".");
-	QString str("this is not a valid IP address !!!!!! qskfdpsogjfotjirjoyotjhytrohyntroiyjà(')ç-");
+	QString str("this is not a valid IP address !!!!!! "
+	            "qskfdpsogjfotjirjoyotjhytrohyntroiyjà(')ç-");
 	for (size_t i = 0; i < n; i++) {
-		QString ip = QString::number(RAND_BYTE) + pt + QString::number(RAND_BYTE) + pt + QString::number(RAND_BYTE) + pt + QString::number(RAND_BYTE);
-		//std::cout << qPrintable(ip) << std::endl;
+		QString ip = QString::number(RAND_BYTE) + pt + QString::number(RAND_BYTE) + pt +
+		             QString::number(RAND_BYTE) + pt + QString::number(RAND_BYTE);
+		// std::cout << qPrintable(ip) << std::endl;
 		ips.push_back(ip);
 		// Insert a non valid IP string
 		ips.push_back(str);
 	}
-	n = 2*n;
-	float* dst = (float*) malloc(n*sizeof(float));
-	memset(dst, 0, n*sizeof(float));
+	n = 2 * n;
+	float* dst = (float*)malloc(n * sizeof(float));
+	memset(dst, 0, n * sizeof(float));
 
 	// And convert them with different ways
-	
+
 	// Using PVCore::Network::ipv4_aton (self-made function)
 	start = tbb::tick_count::now();
 	for (size_t i = 0; i < n; i++) {
@@ -60,10 +63,10 @@ int main(int argc, char** argv)
 		dst[i] = ip_n;
 	}
 	end = tbb::tick_count::now();
-	std::cout << "PVCore::Network::ipv4_aton: " << (end-start).seconds() << std::endl;
+	std::cout << "PVCore::Network::ipv4_aton: " << (end - start).seconds() << std::endl;
 
 	for (size_t i = 0; i < n; i++) {
-		//std::cout << dst[i] << std::endl;
+		// std::cout << dst[i] << std::endl;
 	}
 
 	// Using inet_aton
@@ -74,7 +77,7 @@ int main(int argc, char** argv)
 		dst[i] = ip_n;
 	}
 	end = tbb::tick_count::now();
-	std::cout << "inet_aton: " << (end-start).seconds() << std::endl;
+	std::cout << "inet_aton: " << (end - start).seconds() << std::endl;
 
 	// Using dnet's aton
 	start = tbb::tick_count::now();
@@ -85,9 +88,9 @@ int main(int argc, char** argv)
 		dst[i] = ip_n;
 	}
 	end = tbb::tick_count::now();
-	std::cout << "dnet's aton: " << (end-start).seconds() << std::endl;
+	std::cout << "dnet's aton: " << (end - start).seconds() << std::endl;
 
 	free(dst);
-	
+
 	return 0;
 }

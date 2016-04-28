@@ -18,38 +18,46 @@
 
 inline static uint32_t y_to_block_idx(const uint32_t y, const uint32_t zoom)
 {
-	return y >> (32-zoom);
+	return y >> (32 - zoom);
 }
 
 inline static uint32_t y_to_idx_in_buffer(const uint32_t y, const uint32_t zoom)
 {
-	return y >> (32-(zoom+PARALLELVIEW_ZZT_BBITS));
+	return y >> (32 - (zoom + PARALLELVIEW_ZZT_BBITS));
 }
 
-inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom, const double alpha)
+inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom,
+                                              const double alpha)
 {
-	return ((double)y_to_idx_in_buffer(y, zoom))*alpha;
+	return ((double)y_to_idx_in_buffer(y, zoom)) * alpha;
 }
 
-PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted, const PVRow nrows, uint32_t nblocks, Inendi::PVSelection& layer_sel, Inendi::PVSelection const& sel):
-	_data_z0(PARALLELVIEW_ZT_BBITS, 1),
-	_data(PARALLELVIEW_ZZT_BBITS, nblocks),
-	_layer_sel(layer_sel),
-	_sel(sel),
-	_data_params(col_plotted, nrows, 0, -1, PARALLELVIEW_ZT_BBITS, 0.5, 0, nblocks)
+PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted,
+                                                                 const PVRow nrows,
+                                                                 uint32_t nblocks,
+                                                                 Inendi::PVSelection& layer_sel,
+                                                                 Inendi::PVSelection const& sel)
+    : _data_z0(PARALLELVIEW_ZT_BBITS, 1)
+    , _data(PARALLELVIEW_ZZT_BBITS, nblocks)
+    , _layer_sel(layer_sel)
+    , _sel(sel)
+    , _data_params(col_plotted, nrows, 0, -1, PARALLELVIEW_ZT_BBITS, 0.5, 0, nblocks)
 {
 }
 
-bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min, const int zoom, double alpha)
+bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min,
+                                                                      const int zoom, double alpha)
 {
 	const uint32_t block_idx = y_to_block_idx(y_min, zoom);
-	const uint32_t y_min_block = block_idx << (32-zoom);
+	const uint32_t y_min_block = block_idx << (32 - zoom);
 
 	const int32_t y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(y_min_block, zoom, alpha);
 	const int32_t last_y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(last_y_min(), zoom, alpha);
-	int32_t blocks_shift = (last_y_min_idx_in_red_buffer-y_min_idx_in_red_buffer)/((int)((double)(size_block())*alpha));
+	int32_t blocks_shift = (last_y_min_idx_in_red_buffer - y_min_idx_in_red_buffer) /
+	                       ((int)((double)(size_block()) * alpha));
 
-	// This is done because, at the original zoom, a reduction over 10 bits is done
+	// This is done because, at the original zoom, a reduction over 10 bits is
+	// done
 	if ((alpha == 0.5) && (zoom == 0)) {
 		alpha = 1.0;
 		blocks_shift = 0;
@@ -65,7 +73,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 		//
 		_data_params.nbits = nbits();
 
-		if (abs(blocks_shift) >= (int) nblocks()) {
+		if (abs(blocks_shift) >= (int)nblocks()) {
 			// Reprocess all
 			_data_params.y_min = y_min_block;
 			_data_params.block_start = 0;
@@ -83,12 +91,11 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			_data_params.y_min = y_min_block;
 			_data_params.block_start = 0;
 			_data_params.nblocks = blocks_shift;
-		}
-		else {
+		} else {
 			// The shift was on the left, so let's process the last missing blocks.
 			const int abs_blocks_shift = -blocks_shift;
 			_data_params.block_start = nblocks() - abs_blocks_shift;
-			_data_params.y_min = (block_idx + _data_params.block_start)<<(32-zoom);
+			_data_params.y_min = (block_idx + _data_params.block_start) << (32 - zoom);
 			_data_params.nblocks = abs_blocks_shift;
 		}
 
@@ -120,8 +127,7 @@ void PVParallelView::PVHitGraphBlocksManager::process_buffer_all()
 	if (full_view()) {
 		_data_z0.buffer_all().set_zero();
 		_data_z0.process_buffer_all(_data_params);
-	}
-	else {
+	} else {
 		_data.buffer_all().set_zero();
 		_data.process_buffer_all(_data_params);
 	}
@@ -132,8 +138,7 @@ void PVParallelView::PVHitGraphBlocksManager::process_buffer_selected()
 	if (full_view()) {
 		_data_z0.buffer_selected().set_zero();
 		_data_z0.process_buffer_selected(_data_params, _sel);
-	}
-	else {
+	} else {
 		_data.buffer_selected().set_zero();
 		_data.process_buffer_selected(_data_params, _sel);
 	}
@@ -144,14 +149,13 @@ void PVParallelView::PVHitGraphBlocksManager::process_all_buffers()
 	if (full_view()) {
 		_data_z0.set_zero();
 		_data_z0.process_all_buffers(_data_params, _layer_sel, _sel);
-	}
-	else {
+	} else {
 		_data.set_zero();
 		_data.process_all_buffers(_data_params, _layer_sel, _sel);
 	}
 }
 
-void PVParallelView::PVHitGraphBlocksManager::set_layer_sel(const Inendi::PVSelection &sel)
+void PVParallelView::PVHitGraphBlocksManager::set_layer_sel(const Inendi::PVSelection& sel)
 {
 	_layer_sel = sel;
 }
@@ -185,12 +189,12 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_selected() const
 
 uint32_t PVParallelView::PVHitGraphBlocksManager::y_start() const
 {
-	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32-_data_params.zoom);
+	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32 - _data_params.zoom);
 }
 
 int PVParallelView::PVHitGraphBlocksManager::nbits() const
 {
-	return full_view()?PARALLELVIEW_ZT_BBITS:PARALLELVIEW_ZZT_BBITS;
+	return full_view() ? PARALLELVIEW_ZT_BBITS : PARALLELVIEW_ZZT_BBITS;
 }
 
 uint32_t PVParallelView::PVHitGraphBlocksManager::get_count_for(const uint32_t value) const
@@ -249,30 +253,31 @@ __m128i PVParallelView::PVHitGraphBlocksManager::get_count_for(__m128i value) co
 	const __m128i base_sse = _mm_srli_epi32(value, zoom_shift);
 	const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
 
-	const __m128i res_sse = _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_setzero_si128()),
-	                                         _mm_cmplt_epi32(p_sse, _mm_set1_epi32(data.nblocks())));
+	const __m128i res_sse =
+	    _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_setzero_si128()),
+	                     _mm_cmplt_epi32(p_sse, _mm_set1_epi32(data.nblocks())));
 
 	if (_mm_test_all_zeros(res_sse, _mm_set1_epi32(0xFFFFFFFFU))) {
 		return _mm_setzero_si128();
-	}   
+	}
 
-	const __m128i idx_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(value, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift, nbits);
+	const __m128i idx_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
+	    value, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift, nbits);
 
 	const uint32_t* buffer = data.buffer_all().buffer();
 
 	// Waiting for gather support in AVX2...
-	return _mm_set_epi32(buffer[_mm_extract_epi32(idx_sse, 3)],
-	                     buffer[_mm_extract_epi32(idx_sse, 2)],
-	                     buffer[_mm_extract_epi32(idx_sse, 1)],
-	                     buffer[_mm_extract_epi32(idx_sse, 0)]);
+	return _mm_set_epi32(
+	    buffer[_mm_extract_epi32(idx_sse, 3)], buffer[_mm_extract_epi32(idx_sse, 2)],
+	    buffer[_mm_extract_epi32(idx_sse, 1)], buffer[_mm_extract_epi32(idx_sse, 0)]);
 }
 
-void PVParallelView::PVHitGraphBlocksManager::shift_blocks(const int blocks_shift, const double alpha)
+void PVParallelView::PVHitGraphBlocksManager::shift_blocks(const int blocks_shift,
+                                                           const double alpha)
 {
 	if (blocks_shift > 0) {
 		hgdata().shift_right(blocks_shift, alpha);
-	}
-	else {
+	} else {
 		hgdata().shift_left(-blocks_shift, alpha);
 	}
 }
@@ -281,8 +286,7 @@ PVParallelView::PVHitGraphData& PVParallelView::PVHitGraphBlocksManager::hgdata(
 {
 	if (full_view()) {
 		return _data_z0;
-	}
-	else {
+	} else {
 		return _data;
 	}
 }
@@ -291,8 +295,7 @@ PVParallelView::PVHitGraphData const& PVParallelView::PVHitGraphBlocksManager::h
 {
 	if (full_view()) {
 		return _data_z0;
-	}
-	else {
+	} else {
 		return _data;
 	}
 }

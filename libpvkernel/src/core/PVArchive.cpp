@@ -20,10 +20,11 @@ static void inendi_archive_read_support(struct archive* a)
 {
 	// Support all formats
 	archive_read_support_format_all(a);
-	//archive_read_support_format_raw(a);
+	// archive_read_support_format_raw(a);
 
 	// Support all compression schemes but UUE
-	// (cf. issue #163 and http://groups.google.com/group/libarchive-discuss/browse_thread/thread/641feadda4ff94b1)
+	// (cf. issue #163 and
+	// http://groups.google.com/group/libarchive-discuss/browse_thread/thread/641feadda4ff94b1)
 	archive_read_support_filter_bzip2(a);
 	archive_read_support_filter_compress(a);
 	archive_read_support_filter_gzip(a);
@@ -43,10 +44,10 @@ static void inendi_archive_read_support_noformat(struct archive* a)
 	archive_clear_error(a);
 }
 
-static int copy_data(struct archive *ar, struct archive *aw)
+static int copy_data(struct archive* ar, struct archive* aw)
 {
 	int r;
-	const void *buff;
+	const void* buff;
 	size_t size;
 	off_t offset;
 
@@ -70,7 +71,7 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 {
 	bool ret;
 	struct archive* a;
-	struct archive_entry *entry;
+	struct archive_entry* entry;
 
 	QByteArray path_local = path.toLocal8Bit();
 	const char* filename = path_local.constData();
@@ -102,11 +103,12 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 	return ret;
 }
 
-bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QStringList &extracted_files)
+bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest,
+                                QStringList& extracted_files)
 {
 	struct archive* a;
 	struct archive* ext;
-	struct archive_entry *entry;
+	struct archive_entry* entry;
 	int flags;
 	int r;
 	const char* filename_ext;
@@ -118,12 +120,11 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 	if (!qdir_dest.exists()) {
 		// Try to create it
 		if (!QDir().mkpath(dir_dest)) {
-			PVLOG_WARN("Unable to create the directory %s for extraction !\n", qPrintable(dir_dest));
+			PVLOG_WARN("Unable to create the directory %s for extraction !\n",
+			           qPrintable(dir_dest));
 			return false;
 		}
 	}
-
-
 
 	// Convert the path to local encoding, and use it in libarchive
 	QByteArray path_local = path.toLocal8Bit();
@@ -156,7 +157,8 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			if (r == ARCHIVE_EOF)
 				break;
 			if (r != ARCHIVE_OK) {
-				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename,
+				            archive_error_string(a));
 				return false;
 			}
 			if (r < ARCHIVE_WARN) {
@@ -165,26 +167,27 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			QString qentry(archive_entry_pathname(entry));
 			qentry = qentry.trimmed();
 			if (qentry.startsWith(QChar('/')) || qentry.startsWith(QChar('\\'))) {
-				qentry = qentry.mid(1,-1);
+				qentry = qentry.mid(1, -1);
 			}
 			path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(qentry));
 			path_extract_local = path_extract.toLocal8Bit();
 			filename_ext = path_extract_local.constData();
 
-			//PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename, filename_ext);
+			// PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename,
+			// filename_ext);
 			archive_entry_set_pathname(entry, filename_ext);
 			if (read_raw) {
 				archive_entry_set_perm(entry, 0400);
 			}
 			r = archive_write_header(ext, entry);
 			if (r != ARCHIVE_OK) {
-				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
-			}
-			else
-			if (archive_entry_size(entry) > 0 || read_raw) {
+				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename,
+				            archive_error_string(a));
+			} else if (archive_entry_size(entry) > 0 || read_raw) {
 				r = copy_data(a, ext);
 				if (r != ARCHIVE_OK) {
-					PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+					PVLOG_ERROR("Error while extracting archive %s: %s\n", filename,
+					            archive_error_string(a));
 					return false;
 				}
 				if (r < ARCHIVE_WARN) {
@@ -193,7 +196,8 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			}
 			r = archive_write_finish_entry(ext);
 			if (r != ARCHIVE_OK) {
-				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename,
+				            archive_error_string(a));
 				return false;
 			}
 			if (r < ARCHIVE_WARN) {
@@ -204,25 +208,23 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			r = archive_read_next_header(a, &entry);
 			boost::this_thread::interruption_point();
 		}
-	}
-	catch (boost::thread_interrupted const& e) {
+	} catch (boost::thread_interrupted const& e) {
 		PVLOG_INFO("(PVArchive::extract) Extraction canceled.\n");
-		//archive_read_finish(a);
-		//archive_write_finish(ext);
+		// archive_read_finish(a);
+		// archive_write_finish(ext);
 		PVCore::PVDirectory::remove_rec(dir_dest); // cleanup
 		throw e;
 	}
 	archive_read_free(a);
 	archive_write_free(ext);
-	
-	return true;
 
+	return true;
 }
 
 bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir_path)
 {
-	struct archive *a;
-	struct archive_entry *entry;
+	struct archive* a;
+	struct archive_entry* entry;
 	struct stat st;
 	char buff[8192];
 	int len;
@@ -238,11 +240,14 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 	}
 	QByteArray ar_path_ba = ar_path.toLocal8Bit();
 	if (archive_write_open_filename(a, ar_path_ba.constData()) != ARCHIVE_OK) {
-		PVLOG_ERROR("Unable to open file %s: %s.\n", ar_path_ba.constData(), archive_error_string(a));
+		PVLOG_ERROR("Unable to open file %s: %s.\n", ar_path_ba.constData(),
+		            archive_error_string(a));
 		return false;
 	}
 
-	QDirIterator it(dir_path_abs, QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot | QDir::Hidden, QDirIterator::Subdirectories);
+	QDirIterator it(dir_path_abs,
+	                QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot | QDir::Hidden,
+	                QDirIterator::Subdirectories);
 	try {
 		while (it.hasNext()) {
 			it.next();
@@ -267,7 +272,7 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 				return false;
 			}
 			len = f.read(buff, sizeof(buff));
-			while ( len > 0 ) {
+			while (len > 0) {
 				archive_write_data(a, buff, len);
 				len = f.read(buff, sizeof(buff));
 			}
@@ -275,11 +280,10 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 			archive_entry_free(entry);
 			boost::this_thread::interruption_point();
 		}
-	}
-	catch (boost::thread_interrupted const& e) {
+	} catch (boost::thread_interrupted const& e) {
 		PVLOG_INFO("(PVArchive::create_tarbz2) Compression canceled.\n");
-		//archive_write_close(a);
-		//archive_write_finish(a);
+		// archive_write_close(a);
+		// archive_write_finish(a);
 		PVCore::PVDirectory::remove_rec(dir_path); // cleanup
 		throw e;
 	}

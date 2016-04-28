@@ -28,36 +28,25 @@ namespace PVHive
 template <class T, class AboutToBeRefreshedF, class RefreshF, class DeleteF>
 class PVObserverCallback : public PVObserver<T>
 {
-public:
-	PVObserverCallback()
-	{}
+  public:
+	PVObserverCallback() {}
 
-	PVObserverCallback(AboutToBeRefreshedF const& atbr, RefreshF const& r, DeleteF const& d) :
-		_about_to_be_refreshed_cb(atbr),
-		_refresh_cb(r),
-		_delete_cb(d)
-	{}
-
-protected:
-	virtual void about_to_be_refreshed()
+	PVObserverCallback(AboutToBeRefreshedF const& atbr, RefreshF const& r, DeleteF const& d)
+	    : _about_to_be_refreshed_cb(atbr), _refresh_cb(r), _delete_cb(d)
 	{
-		_about_to_be_refreshed_cb(PVObserver<T>::get_object());
 	}
 
-	virtual void refresh()
-	{
-		_refresh_cb(PVObserver<T>::get_object());
-	}
+  protected:
+	virtual void about_to_be_refreshed() { _about_to_be_refreshed_cb(PVObserver<T>::get_object()); }
 
-	virtual void about_to_be_deleted()
-	{
-		_delete_cb(PVObserver<T>::get_object());
-	}
+	virtual void refresh() { _refresh_cb(PVObserver<T>::get_object()); }
 
-private:
+	virtual void about_to_be_deleted() { _delete_cb(PVObserver<T>::get_object()); }
+
+  private:
 	AboutToBeRefreshedF _about_to_be_refreshed_cb;
 	RefreshF _refresh_cb;
-	DeleteF  _delete_cb;
+	DeleteF _delete_cb;
 };
 
 /**
@@ -72,11 +61,12 @@ create_observer_callback(AboutToBeRefreshedF const& atbr, RefreshF const& r, Del
 }
 
 template <class T, class AboutToBeRefreshedF, class RefreshF, class DeleteF>
-PVObserver_p<T> create_observer_callback_heap(AboutToBeRefreshedF const& atbr, RefreshF const& r, DeleteF const& d)
+PVObserver_p<T> create_observer_callback_heap(AboutToBeRefreshedF const& atbr, RefreshF const& r,
+                                              DeleteF const& d)
 {
-	return PVObserver_p<T>(new PVObserverCallback<T, AboutToBeRefreshedF, RefreshF, DeleteF>(atbr, r, d));
+	return PVObserver_p<T>(
+	    new PVObserverCallback<T, AboutToBeRefreshedF, RefreshF, DeleteF>(atbr, r, d));
 }
-
 }
 
 #endif // LIBPVHIVE_PVOBSERVERCALLBACK_H

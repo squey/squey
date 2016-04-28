@@ -27,7 +27,6 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-
 }
 
 namespace Inendi
@@ -55,7 +54,8 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 	// the "digital" zoom level (to space consecutive values)
 	constexpr static int y_zoom_extra_level = 5;
 	constexpr static int y_zoom_extra = y_zoom_extra_level * zoom_steps;
-	// to have a scale factor of 1 when the view fits in a 1024x1024 window (i.e. 2^22 value per pixel)
+	// to have a scale factor of 1 when the view fits in a 1024x1024 window (i.e. 2^22 value per
+	// pixel)
 	constexpr static int y_min_zoom_level = 22;
 
 	constexpr static int zoom_min = -y_min_zoom_level * zoom_steps;
@@ -65,24 +65,18 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 	 */
 	constexpr static int digital_zoom_level = y_min_zoom_level - 1;
 
-private:
+  private:
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
-public:
-	PVHitCountView(Inendi::PVView_sp &pvview_sp,
-	               const uint32_t *col_plotted,
-	               const PVRow nrows,
-	               const PVCol axis_index,
-	               QWidget *parent = nullptr);
+  public:
+	PVHitCountView(Inendi::PVView_sp& pvview_sp, const uint32_t* col_plotted, const PVRow nrows,
+	               const PVCol axis_index, QWidget* parent = nullptr);
 
 	~PVHitCountView();
 
-	QSize sizeHint() const override
-	{
-		return QSize(800, 200);
-	}
+	QSize sizeHint() const override { return QSize(800, 200); }
 
-public:
+  public:
 	void about_to_be_deleted();
 	void update_new_selection_async();
 	void update_all_async();
@@ -98,20 +92,14 @@ public:
 		return _hit_graph_manager;
 	}
 
-	inline PVHitGraphBlocksManager& get_hit_graph_manager()
-	{
-		return _hit_graph_manager;
-	}
+	inline PVHitGraphBlocksManager& get_hit_graph_manager() { return _hit_graph_manager; }
 
-public:
-	PVHitCountViewSelectionRectangle* get_selection_rect() const
-	{
-		return _sel_rect;
-	}
+  public:
+	PVHitCountViewSelectionRectangle* get_selection_rect() const { return _sel_rect; }
 
-protected:
-	void drawBackground(QPainter *painter, const QRectF &rect) override;
-	void drawForeground(QPainter *painter, const QRectF &rect) override;
+  protected:
+	void drawBackground(QPainter* painter, const QRectF& rect) override;
+	void drawForeground(QPainter* painter, const QRectF& rect) override;
 
 	void set_x_axis_zoom();
 	void set_x_zoom_level_from_sel();
@@ -123,11 +111,18 @@ protected:
 
 	inline int32_t get_x_zoom_min() const
 	{
-		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width()/(double)_max_count);
+		return x_zoom_converter().scale_to_zoom((double)get_margined_viewport_width() /
+		                                        (double)_max_count);
 	}
 
-	inline Inendi::PVSelection const& real_selection() const { return _pvview.get_real_output_selection(); }
-	inline Inendi::PVSelection& layer_stack_output_selection() { return _pvview.get_layer_stack_output_layer().get_selection(); }
+	inline Inendi::PVSelection const& real_selection() const
+	{
+		return _pvview.get_real_output_selection();
+	}
+	inline Inendi::PVSelection& layer_stack_output_selection()
+	{
+		return _pvview.get_layer_stack_output_layer().get_selection();
+	}
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
 	inline bool use_log_color() const { return _use_log_color; }
@@ -138,68 +133,69 @@ protected:
 
 	void set_params_widget_position();
 
-protected slots:
+  protected slots:
 	void toggle_auto_x_zoom_sel();
 	void toggle_log_color();
 
-private:
+  private:
 	void reset_view();
 
-	void draw_lines(QPainter *painter,
-	                const int x_max,
-	                const int block_view_offset,
-	                const double rel_y_scale,
-	                const uint32_t *buffer,
-	                const int hsv_value);
+	void draw_lines(QPainter* painter, const int x_max, const int block_view_offset,
+	                const double rel_y_scale, const uint32_t* buffer, const int hsv_value);
 
-private:
-	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       x_zoom_converter()       { return _x_zoom_converter; }
-	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& x_zoom_converter() const { return _x_zoom_converter; }
+  private:
+	PVZoomConverterScaledPowerOfTwo<zoom_steps>& x_zoom_converter() { return _x_zoom_converter; }
+	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& x_zoom_converter() const
+	{
+		return _x_zoom_converter;
+	}
 
-	PVZoomConverterScaledPowerOfTwo<zoom_steps>&       y_zoom_converter()       { return _y_zoom_converter; }
-	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& y_zoom_converter() const { return _y_zoom_converter; }
+	PVZoomConverterScaledPowerOfTwo<zoom_steps>& y_zoom_converter() { return _y_zoom_converter; }
+	PVZoomConverterScaledPowerOfTwo<zoom_steps> const& y_zoom_converter() const
+	{
+		return _y_zoom_converter;
+	}
 
 	PVHitCountViewParamsWidget* params_widget() { return _params_widget; }
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
-private slots:
+  private slots:
 	void do_zoom_change(int axes);
 	void do_pan_change();
 	void do_update_all();
 
 	void toggle_unselected_zombie_visibility();
 
-private slots:
+  private slots:
 	void update_all();
 	void update_sel();
 
-private:
-	Inendi::PVView&                              _pvview;
-	PVCol                                        _axis_index;
-	Inendi::PVAxesCombination::axes_comb_id_t    _axis_id;
-	QTimer                                       _update_all_timer;
+  private:
+	Inendi::PVView& _pvview;
+	PVCol _axis_index;
+	Inendi::PVAxesCombination::axes_comb_id_t _axis_id;
+	QTimer _update_all_timer;
 
-	PVHitGraphBlocksManager                      _hit_graph_manager;
-	bool                                         _view_deleted;
-	uint64_t                                     _max_count;
-	int                                          _block_zoom_value;
-	bool                                         _show_bg;
-	bool                                         _auto_x_zoom_sel;
-	bool                                         _do_auto_scale;
-	bool                                         _use_log_color;
-	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _x_zoom_converter;
-	PVZoomConverterScaledPowerOfTwo<zoom_steps>  _y_zoom_converter;
+	PVHitGraphBlocksManager _hit_graph_manager;
+	bool _view_deleted;
+	uint64_t _max_count;
+	int _block_zoom_value;
+	bool _show_bg;
+	bool _auto_x_zoom_sel;
+	bool _do_auto_scale;
+	bool _use_log_color;
+	PVZoomConverterScaledPowerOfTwo<zoom_steps> _x_zoom_converter;
+	PVZoomConverterScaledPowerOfTwo<zoom_steps> _y_zoom_converter;
 
-	PVZoomableDrawingAreaInteractor             *_my_interactor;
-	PVZoomableDrawingAreaInteractor             *_hcv_interactor;
+	PVZoomableDrawingAreaInteractor* _my_interactor;
+	PVZoomableDrawingAreaInteractor* _hcv_interactor;
 
-	PVHitCountViewSelectionRectangle            *_sel_rect;
-	PVSelectionRectangleInteractor              *_sel_rect_interactor;
+	PVHitCountViewSelectionRectangle* _sel_rect;
+	PVSelectionRectangleInteractor* _sel_rect_interactor;
 
-	PVHitCountViewParamsWidget                  *_params_widget;
-	PVWidgets::PVHelpWidget                     *_help_widget;
+	PVHitCountViewParamsWidget* _params_widget;
+	PVWidgets::PVHelpWidget* _help_widget;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEW_H

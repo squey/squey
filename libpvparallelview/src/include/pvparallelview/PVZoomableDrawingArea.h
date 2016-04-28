@@ -50,18 +50,18 @@ class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 
 	friend class PVZoomableDrawingAreaInteractor;
 
-public:
+  public:
 	/**
 	 * The Constructor
 	 */
-	PVZoomableDrawingArea(QWidget *parent = nullptr);
+	PVZoomableDrawingArea(QWidget* parent = nullptr);
 
 	/**
 	 * The Destructor :-)
 	 */
 	~PVZoomableDrawingArea();
 
-protected:
+  protected:
 	bool set_zoom_value(int axes, int value)
 	{
 		assert(_constraints != nullptr);
@@ -74,28 +74,16 @@ protected:
 		return _constraints->increment_zoom_value(axes, value, _x_axis_zoom, _y_axis_zoom);
 	}
 
-	PVAxisZoom& get_x_axis_zoom()
-	{
-		return _x_axis_zoom;
-	}
+	PVAxisZoom& get_x_axis_zoom() { return _x_axis_zoom; }
 
-	const PVAxisZoom& get_x_axis_zoom() const
-	{
-		return _x_axis_zoom;
-	}
+	const PVAxisZoom& get_x_axis_zoom() const { return _x_axis_zoom; }
 
-	PVAxisZoom& get_y_axis_zoom()
-	{
-		return _y_axis_zoom;
-	}
+	PVAxisZoom& get_y_axis_zoom() { return _y_axis_zoom; }
 
-	const PVAxisZoom& get_y_axis_zoom() const
-	{
-		return _y_axis_zoom;
-	}
+	const PVAxisZoom& get_y_axis_zoom() const { return _y_axis_zoom; }
 
-protected:
-	void set_constraints(PVZoomableDrawingAreaConstraints *constraints)
+  protected:
+	void set_constraints(PVZoomableDrawingAreaConstraints* constraints)
 	{
 		_constraints = constraints;
 	}
@@ -148,7 +136,7 @@ protected:
 	 */
 	int y_scale_to_zoom(const qreal value) const;
 
-public:
+  public:
 	/**
 	 * Simply process from "zoom to scale" to "update widget".
 	 */
@@ -173,23 +161,19 @@ signals:
 	 */
 	void pan_has_changed();
 
-private:
+  private:
 	/**
 	 * This method is volontarily private, so use the scene provided
 	 * by ::get_scene()
 	 */
-	void set_scene(QGraphicsScene *scene)
-	{
-		PVWidgets::PVGraphicsView::set_scene(scene);
-	}
+	void set_scene(QGraphicsScene* scene) { PVWidgets::PVGraphicsView::set_scene(scene); }
 
-private:
+  private:
 	PVAxisZoom _x_axis_zoom;
 	PVAxisZoom _y_axis_zoom;
 
-	PVZoomableDrawingAreaConstraints *_constraints;
+	PVZoomableDrawingAreaConstraints* _constraints;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREA_H

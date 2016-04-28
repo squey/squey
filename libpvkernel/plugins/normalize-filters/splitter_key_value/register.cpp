@@ -18,7 +18,8 @@
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("key_value", PVFilter::PVFieldSplitterKeyValue);
-	REGISTER_CLASS_AS("splitter_key_value", PVFilter::PVFieldSplitterKeyValue, PVFilter::PVFieldsFilterReg);
+	REGISTER_CLASS_AS("splitter_key_value", PVFilter::PVFieldSplitterKeyValue,
+	                  PVFilter::PVFieldsFilterReg);
 
 	REGISTER_CLASS("key_value", PVFilter::PVFieldSplitterKeyValueParamWidget);
 }

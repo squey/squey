@@ -17,7 +17,7 @@
 PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
 {
 	QString itype = in_t->name();
-	LIB_CLASS(PVRush::PVSourceCreator) &src_creators = LIB_CLASS(PVRush::PVSourceCreator)::get();
+	LIB_CLASS(PVRush::PVSourceCreator)& src_creators = LIB_CLASS(PVRush::PVSourceCreator)::get();
 	LIB_CLASS(PVRush::PVSourceCreator)::list_classes const& list_creators = src_creators.get_list();
 	LIB_CLASS(PVRush::PVSourceCreator)::list_classes::const_iterator itc;
 
@@ -36,7 +36,9 @@ PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputT
 	return lcreators_type;
 }
 
-PVRush::list_creators PVRush::PVSourceCreatorFactory::filter_creators_pre_discovery(PVRush::list_creators const& lcr, PVInputDescription_p input)
+PVRush::list_creators
+PVRush::PVSourceCreatorFactory::filter_creators_pre_discovery(PVRush::list_creators const& lcr,
+                                                              PVInputDescription_p input)
 {
 	PVRush::list_creators::const_iterator itc;
 	PVRush::list_creators pre_discovered_c;
@@ -50,8 +52,8 @@ PVRush::list_creators PVRush::PVSourceCreatorFactory::filter_creators_pre_discov
 	return pre_discovered_c;
 }
 
-
-PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_formats(list_creators const& lcr)
+PVRush::hash_format_creator
+PVRush::PVSourceCreatorFactory::get_supported_formats(list_creators const& lcr)
 {
 	list_creators::const_iterator it;
 	hash_format_creator ret;
@@ -62,7 +64,8 @@ PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_format
 		hash_formats::const_iterator it_sf;
 		for (it_sf = src_formats.begin(); it_sf != src_formats.end(); it_sf++) {
 			if (ret.contains(it_sf.key())) {
-				PVLOG_WARN("Two source creators plugins using the same input type define the same format !\n");
+				PVLOG_WARN("Two source creators plugins using the same input type define the same "
+				           "format !\n");
 				continue;
 			}
 			PVLOG_INFO("Found format %s\n", qPrintable(it_sf.key()));
@@ -73,16 +76,18 @@ PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_format
 	return ret;
 }
 
-float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVInputDescription_p input, bool *cancellation)
+float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_,
+                                                     PVInputDescription_p input, bool* cancellation)
 {
 	PVFormat format = format_.first;
-	tbb::tick_count start,end;
+	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
 	if (!format.populate()) {
 		throw PVRush::PVFormatInvalid();
 	}
 	end = tbb::tick_count::now();
-	PVLOG_INFO("Format %s population took %0.4f.\n", qPrintable(format.get_format_name()), (end-start).seconds());
+	PVLOG_INFO("Format %s population took %0.4f.\n", qPrintable(format.get_format_name()),
+	           (end - start).seconds());
 	PVSourceCreator_p sc = format_.second;
 
 	PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters_autodetect(1.0, cancellation);
@@ -97,7 +102,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	size_t nelts = 0;
 	size_t nelts_valid = 0;
 
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	static size_t nelts_max = pvconfig.value("pvkernel/auto_discovery_number_elts", 500).toInt();
 
@@ -111,7 +116,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		// Limit the number of elements filtered
 		if (chunk->c_elements().size() + nelts > nelts_max) {
 			PVCore::list_elts& l = chunk->elements();
-			size_t new_size = nelts_max-nelts;
+			size_t new_size = nelts_max - nelts;
 			PVLOG_DEBUG("(PVSourceCreatorFactory::discover_input) new chunk size %d.\n", new_size);
 			// Free the elements that we are going to remove
 			PVCore::list_elts::iterator it_elt = l.begin();
@@ -136,9 +141,11 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		PVCol chunk_nfields = (*(chunk->c_elements().begin()))->c_fields().size();
 		PVCol format_nfields = format.get_axes().size();
 		if (chunk_nfields != format_nfields) {
-		   PVLOG_DEBUG("For format %s, the number of fields after the normalization is %d, different of the number of axes of the format (%d).\n",	qPrintable(format.get_format_name()), chunk_nfields, format_nfields);
-		   chunk->free();
-		   return 0;
+			PVLOG_DEBUG("For format %s, the number of fields after the normalization is %d, "
+			            "different of the number of axes of the format (%d).\n",
+			            qPrintable(format.get_format_name()), chunk_nfields, format_nfields);
+			chunk->free();
+			return 0;
 		}
 
 		// Count the number of valid elts
@@ -158,23 +165,25 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	}
 
 	end = tbb::tick_count::now();
-	PVLOG_INFO("Discovery with format %s took %0.4f, %d/%d elements are valid.\n", qPrintable(format.get_format_name()), (end-start).seconds(), nelts_valid, nelts);
+	PVLOG_INFO("Discovery with format %s took %0.4f, %d/%d elements are valid.\n",
+	           qPrintable(format.get_format_name()), (end - start).seconds(), nelts_valid, nelts);
 
-	return (float)nelts_valid/(float)nelts;
+	return (float)nelts_valid / (float)nelts;
 }
 
-std::multimap<float, PVRush::pair_format_creator> PVRush::PVSourceCreatorFactory::discover_input(PVInputType_p input_type, PVInputDescription_p input)
+std::multimap<float, PVRush::pair_format_creator>
+PVRush::PVSourceCreatorFactory::discover_input(PVInputType_p input_type, PVInputDescription_p input)
 {
 	std::multimap<float, pair_format_creator> ret;
-	PVRush::list_creators creators = filter_creators_pre_discovery(PVRush::PVSourceCreatorFactory::get_by_input_type(input_type), input);
+	PVRush::list_creators creators = filter_creators_pre_discovery(
+	    PVRush::PVSourceCreatorFactory::get_by_input_type(input_type), input);
 	PVRush::hash_format_creator formats_creators = get_supported_formats(creators);
 	PVRush::hash_format_creator::const_iterator it_fc;
 	for (it_fc = formats_creators.begin(); it_fc != formats_creators.end(); it_fc++) {
 		float success = 0.0f;
 		try {
 			success = discover_input(it_fc.value(), input);
-		}
-		catch (...) {
+		} catch (...) {
 			continue;
 		}
 		if (success > 0) {

@@ -14,7 +14,8 @@
 
 #include <inendi/PVView_types.h>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVLayerStackModel;
 class PVLayerStackView;
@@ -26,30 +27,26 @@ class PVLayerStackWidget : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWidget* parent = NULL);
 
-public:
-	PVLayerStackView *get_layer_stack_view() const { return _layer_stack_view; }
+  public:
+	PVLayerStackView* get_layer_stack_view() const { return _layer_stack_view; }
 
-private:
+  private:
 	void create_actions(QToolBar* toolbar);
 	PVLayerStackModel* ls_model();
 
-private slots:
+  private slots:
 	void delete_layer();
 	void duplicate_layer();
 	void move_down();
 	void move_up();
 	void new_layer();
 
-private:
-	PVLayerStackView *_layer_stack_view;
+  private:
+	PVLayerStackView* _layer_stack_view;
 };
-
-
 }
 
 #endif // PVLAYERSTACKWIDGET_H
-
-

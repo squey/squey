@@ -8,8 +8,9 @@
 #include "PVSerializeOptionsWidget.h"
 #include <QVBoxLayout>
 
-PVInspector::PVSerializeOptionsWidget::PVSerializeOptionsWidget(PVCore::PVSerializeArchiveOptions_p options, QWidget* parent):
-	QWidget(parent)
+PVInspector::PVSerializeOptionsWidget::PVSerializeOptionsWidget(
+    PVCore::PVSerializeArchiveOptions_p options, QWidget* parent)
+    : QWidget(parent)
 {
 	_model = new PVSerializeOptionsModel(options, parent);
 

@@ -36,7 +36,9 @@ int main(int argc, char** argv)
 	init_env();
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name("regexp");
+	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name(
+	        "regexp");
 
 	PVCore::PVArgumentList args;
 	args["regexp"] = PVCore::PVArgument(QString(argv[3]));
@@ -46,7 +48,7 @@ int main(int argc, char** argv)
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 
-	 PVInput_p ifile(new PVInputFile(argv[1]));
+	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVFilter::PVChunkFilter null;
 	PVUnicodeSource<> source(ifile, atoi(argv[2]), null);
 

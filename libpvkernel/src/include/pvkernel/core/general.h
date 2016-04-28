@@ -14,5 +14,4 @@
 
 extern PVCore::PVLogger pvlog;
 
-
-#endif	/* PVCORE_GENERAL_H */
+#endif /* PVCORE_GENERAL_H */

@@ -10,28 +10,37 @@
 
 #include <pvkernel/core/general.h>
 
-namespace PVRush {
+namespace PVRush
+{
 class PVNraw;
 }
 
-namespace Inendi {
+namespace Inendi
+{
 class PVSelection;
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVListUniqStringsDlg;
 
 struct PVQNraw
 {
-	static bool show_unique_values(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c, Inendi::PVSelection const& sel, QWidget* parent = NULL, QDialog** dialog = nullptr);
-	static bool show_count_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
-	static bool show_sum_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
-	static bool show_max_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
-	static bool show_min_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
-	static bool show_avg_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
+	static bool show_unique_values(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol c,
+	                               Inendi::PVSelection const& sel, QWidget* parent = NULL,
+	                               QDialog* *dialog = nullptr);
+	static bool show_count_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1,
+	                          PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
+	static bool show_sum_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1,
+	                        PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
+	static bool show_max_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1,
+	                        PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
+	static bool show_min_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1,
+	                        PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
+	static bool show_avg_by(Inendi::PVView_sp& view, PVRush::PVNraw const& nraw, PVCol col1,
+	                        PVCol col2, Inendi::PVSelection const& sel, QWidget* parent = NULL);
 };
-
 }
 
 #endif

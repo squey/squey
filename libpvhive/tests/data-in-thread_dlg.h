@@ -20,10 +20,8 @@ class TestDlg : public QDialog
 {
 	Q_OBJECT
 
-public:
-	TestDlg(QWidget *parent = nullptr):
-		QDialog(parent),
-		_obj_observer(this)
+  public:
+	TestDlg(QWidget* parent = nullptr) : QDialog(parent), _obj_observer(this)
 	{
 		_label = new QLabel("NA", this);
 
@@ -31,21 +29,18 @@ public:
 		layout->addWidget(_label);
 		setLayout(layout);
 
-		resize(320,200);
+		resize(320, 200);
 
-		PVHive::PVHive &hive = PVHive::PVHive::get();
+		PVHive::PVHive& hive = PVHive::PVHive::get();
 
 		std::cout << "registering for " << static_e << std::endl;
 		hive.register_observer(*static_e, _obj_observer);
 
-		_obj_observer.connect_refresh(this,
-		                              SLOT(entity_refresh(PVHive::PVObserverBase*)));
-		_obj_observer.connect_about_to_be_deleted(this,
-		                                          SLOT(entity_atbd(PVHive::PVObserverBase*)));
-
+		_obj_observer.connect_refresh(this, SLOT(entity_refresh(PVHive::PVObserverBase*)));
+		_obj_observer.connect_about_to_be_deleted(this, SLOT(entity_atbd(PVHive::PVObserverBase*)));
 	}
 
-public slots:
+  public slots:
 	void entity_refresh(PVHive::PVObserverBase* o)
 	{
 		std::cout << "entity_refresh(...)" << std::endl;
@@ -76,7 +71,7 @@ public slots:
 		done(0);
 	}
 
-private:
+  private:
 	PVHive::PVObserverSignal<Entity> _obj_observer;
 	QLabel* _label;
 };

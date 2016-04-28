@@ -14,7 +14,8 @@ PVCore::PVAxisIndexType::PVAxisIndexType(bool append_none_axis)
 	_append_none_axis = append_none_axis;
 }
 
-PVCore::PVAxisIndexType::PVAxisIndexType(int origin_axis_index, bool append_none_axis, int axis_index)
+PVCore::PVAxisIndexType::PVAxisIndexType(int origin_axis_index, bool append_none_axis,
+                                         int axis_index)
 {
 	_origin_axis_index = origin_axis_index;
 	_append_none_axis = append_none_axis;

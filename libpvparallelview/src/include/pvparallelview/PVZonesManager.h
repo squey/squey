@@ -23,28 +23,31 @@
 #include <boost/utility.hpp>
 
 // Forward declarations
-namespace Inendi {
+namespace Inendi
+{
 class PVView;
 class PVSelection;
 }
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
-namespace __impl {
+namespace __impl
+{
 class ZoneCreation;
 }
 
-class PVZonesManager: public QObject, boost::noncopyable
+class PVZonesManager : public QObject, boost::noncopyable
 {
 	friend class PVParallelView::__impl::ZoneCreation;
 
 	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
 
-public:
+  public:
 	explicit PVZonesManager(Inendi::PVView const& view);
 
-public:
-	typedef Inendi::PVAxesCombination::axes_comb_id_t    axes_comb_id_t;
+  public:
+	typedef Inendi::PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 	typedef Inendi::PVAxesCombination::columns_indexes_t columns_indexes_t;
 
 	void update_all();
@@ -59,14 +62,14 @@ public:
 
 	void request_zoomed_zone(PVZoneID zone);
 
-public:
+  public:
 	PVZoneTree const& get_zone_tree(PVZoneID z) const
 	{
 		assert(z < get_number_of_managed_zones());
 		return _zones[z].ztree();
 	}
 
-	PVZoneTree & get_zone_tree(PVZoneID z) 
+	PVZoneTree& get_zone_tree(PVZoneID z)
 	{
 		assert(z < get_number_of_managed_zones());
 		return _zones[z].ztree();
@@ -78,7 +81,7 @@ public:
 		return _zones[z].zoomed_ztree();
 	}
 
-	PVZoomedZoneTree & get_zoom_zone_tree(PVZoneID z) 
+	PVZoomedZoneTree& get_zoom_zone_tree(PVZoneID z)
 	{
 		assert(z < get_number_of_managed_zones());
 		return _zones[z].zoomed_ztree();
@@ -87,40 +90,45 @@ public:
 	void filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel);
 	void filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel);
 
-public:
-	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size()-1; }
+  public:
+	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size() - 1; }
 	inline PVCol get_number_cols() const { return _ncols; }
 	inline PVRow get_row_count() const { return _nrows; }
 
-	inline Inendi::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
+	inline Inendi::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const
+	{
+		assert(_uint_plotted);
+		return *_uint_plotted;
+	}
 
-public:
-	inline void get_zone_plotteds(PVZoneID const z, uint32_t const* *plotted_a, uint32_t const* *plotted_b) const
+  public:
+	inline void get_zone_plotteds(PVZoneID const z, uint32_t const** plotted_a,
+	                              uint32_t const** plotted_b) const
 	{
 		PVCol a, b;
 		get_zone_cols(z, a, b);
-		*plotted_a = Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), a);
-		*plotted_b = Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), b);
+		*plotted_a =
+		    Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), a);
+		*plotted_b =
+		    Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), b);
 	}
 
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b) const
 	{
 		assert(z < get_number_of_managed_zones());
 		a = _axes_comb[z].get_axis();
-		b = _axes_comb[z+1].get_axis();
+		b = _axes_comb[z + 1].get_axis();
 	}
 
-protected:
-	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted = nullptr; //FIXME : This is a duplication, it should get it from view
-	PVRow _nrows = 0; //FIXME : This is a duplication, it should get it from view
-	PVCol _ncols = 0; //FIXME : This is a duplication, it should get it from view
-	columns_indexes_t _axes_comb; //FIXME : This is a duplication, it should get it from view
+  protected:
+	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted =
+	    nullptr;                  // FIXME : This is a duplication, it should get it from view
+	PVRow _nrows = 0;             // FIXME : This is a duplication, it should get it from view
+	PVCol _ncols = 0;             // FIXME : This is a duplication, it should get it from view
+	columns_indexes_t _axes_comb; // FIXME : This is a duplication, it should get it from view
 	std::vector<PVZone> _zones;
 	process_ztree_tls_t _tls_ztree;
 };
-
-
-
 }
 
 #endif

@@ -10,9 +10,9 @@
 
 // Ensure CUDA is set if using nvcc
 #ifdef __CUDACC__
-	#ifndef CUDA
-		#define CUDA
-	#endif
+#ifndef CUDA
+#define CUDA
+#endif
 #endif
 
 #ifdef CUDA
@@ -28,19 +28,21 @@
 #include <pvkernel/cuda/constexpr.h>
 
 #define inendi_verify_cuda(e) __inendi_verify_cuda(e, __FILE__, __LINE__)
-#define __inendi_verify_cuda(e, F, L)\
-		if ((e) != cudaSuccess) {\
-			fprintf(stderr, "Cuda assert failed in %s:%d with %s.\n", F, L, cudaGetErrorString(cudaGetLastError()));\
-			abort();\
-		}
+#define __inendi_verify_cuda(e, F, L)                                                              \
+	if ((e) != cudaSuccess) {                                                                      \
+		fprintf(stderr, "Cuda assert failed in %s:%d with %s.\n", F, L,                            \
+		        cudaGetErrorString(cudaGetLastError()));                                           \
+		abort();                                                                                   \
+	}
 #define inendi_verify_cuda_kernel() __verify_cuda_kernel(__FILE__, __LINE__)
-#define __verify_cuda_kernel(F, L)\
-	do {\
-		int last_err = cudaGetLastError();\
-		__inendi_verify_cuda(last_err, F, L);\
-	} while(0);
+#define __verify_cuda_kernel(F, L)                                                                 \
+	do {                                                                                           \
+		int last_err = cudaGetLastError();                                                         \
+		__inendi_verify_cuda(last_err, F, L);                                                      \
+	} while (0);
 
-namespace PVCuda {
+namespace PVCuda
+{
 
 void init_gl_cuda();
 int get_number_blocks();
@@ -49,7 +51,6 @@ size_t get_number_of_devices();
 #ifndef __CUDACC__
 void visit_usable_cuda_devices(std::function<void(int)> const& f);
 #endif
-
 }
 
 #endif

@@ -15,20 +15,20 @@ static uint32_t powui(uint32_t base, uint32_t n)
 	uint32_t ret = 1;
 	for (uint32_t i = 0; i < n; i++) {
 		ret *= base;
-	}   
+	}
 	return ret;
 }
 
 bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 {
-	return ipv4_a16ton((const uint16_t*) ip.constData(), ip.size(), ip_n);
+	return ipv4_a16ton((const uint16_t*)ip.constData(), ip.size(), ip_n);
 }
 
 bool PVCore::Network::ipv4_a16ton(const uint16_t* str, size_t n, uint32_t& ret)
 {
 	if ((n > 15) || (n == 0)) {
 		return false;
-	}   
+	}
 
 	// TODO: vectorize this
 	uint32_t ndots = 0;
@@ -45,46 +45,45 @@ bool PVCore::Network::ipv4_a16ton(const uint16_t* str, size_t n, uint32_t& ret)
 		if (c16 > 128) {
 			return false;
 		}
-		const char c = (char) (c16 & 0x00FF);
+		const char c = (char)(c16 & 0x00FF);
 		if (c == '.') {
 			if (prev_c == '.') {
 				return false;
-			}   
+			}
 			ndots++;
-			nip /= powui(10, cur_d+1);
+			nip /= powui(10, cur_d + 1);
 			if (nip > 255 || ndots > 3) {
 				return false;
-			}   
-			ret |= nip << ((4-ndots)*8);
+			}
+			ret |= nip << ((4 - ndots) * 8);
 			nip = 0;
 			cur_d = 2;
-		}   
-		else {
+		} else {
 			if ((c < '0') || (c > '9')) {
 				if (prev_c == '.') {
 					return false;
-				}   
+				}
 				break;
-			}   
+			}
 			if (cur_d < 0) {
 				return false;
-			}   
-			nip += ((uint32_t)((c-'0')))*powui(10, cur_d);
+			}
+			nip += ((uint32_t)((c - '0'))) * powui(10, cur_d);
 			cur_d--;
-		}   
+		}
 		prev_c = c;
-	}   
-	nip /= powui(10, cur_d+1);
+	}
+	nip /= powui(10, cur_d + 1);
 	if (nip > 255) {
 		return false;
-	}   
+	}
 	ret |= nip;
 	// Check trailing characters
 	for (; i < n; i++) {
 		if (!isspace(str[i] & 0x00FF)) {
 			return false;
-		}   
-	}   
+		}
+	}
 	return ndots == 3;
 }
 
@@ -92,7 +91,7 @@ bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
 {
 	if ((n > 15) || (n == 0)) {
 		return false;
-	}   
+	}
 
 	// TODO: vectorize this
 	uint32_t ndots = 0;
@@ -101,7 +100,7 @@ bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
 	size_t i = 0;
 	while ((i < n) && isspace(str[i])) {
 		i++;
-	}   
+	}
 	char prev_c = 0;
 	ret = 0;
 	for (; i < n; i++) {
@@ -109,42 +108,41 @@ bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
 		if (c == '.') {
 			if (prev_c == '.') {
 				return false;
-			}   
+			}
 			ndots++;
-			nip /= powui(10, cur_d+1);
+			nip /= powui(10, cur_d + 1);
 			if (nip > 255 || ndots > 3) {
 				return false;
-			}   
-			ret |= nip << ((4-ndots)*8);
+			}
+			ret |= nip << ((4 - ndots) * 8);
 			nip = 0;
 			cur_d = 2;
-		}   
-		else {
+		} else {
 			if ((c < '0') || (c > '9')) {
 				if (prev_c == '.') {
 					return false;
-				}   
+				}
 				break;
-			}   
+			}
 			if (cur_d < 0) {
 				return false;
-			}   
-			nip += ((uint32_t)((c-'0')))*powui(10, cur_d);
+			}
+			nip += ((uint32_t)((c - '0'))) * powui(10, cur_d);
 			cur_d--;
-		}   
+		}
 		prev_c = c;
-	}   
-	nip /= powui(10, cur_d+1);
+	}
+	nip /= powui(10, cur_d + 1);
 	if (nip > 255) {
 		return false;
-	}   
+	}
 	ret |= nip;
 	// Check trailing characters
 	for (; i < n; i++) {
 		if (!isspace(str[i])) {
 			return false;
-		}   
-	}   
+		}
+	}
 	return ndots == 3;
 }
 
@@ -154,7 +152,6 @@ char* PVCore::Network::ipv4_ntoa(const ip_addr_t addr)
 	addr_source.s_addr = (in_addr_t)addr;
 	return inet_ntoa(addr_source);
 }
-
 
 #if 0
 bool parse_ipv4(QString const& value, uint32_t& intval)

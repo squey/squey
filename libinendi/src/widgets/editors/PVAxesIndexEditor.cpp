@@ -8,7 +8,6 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 
-
 #include <inendi/PVView.h>
 
 #include <inendi/widgets/editors/PVAxesIndexEditor.h>
@@ -22,17 +21,16 @@
  * PVCore::PVAxesIndexEditor::PVAxesIndexEditor
  *
  *****************************************************************************/
-PVWidgets::PVAxesIndexEditor::PVAxesIndexEditor(Inendi::PVView const& view, QWidget *parent):
-	PVWidgets::PVSizeHintListWidget<>(parent),
-	_view(view)
+PVWidgets::PVAxesIndexEditor::PVAxesIndexEditor(Inendi::PVView const& view, QWidget* parent)
+    : PVWidgets::PVSizeHintListWidget<>(parent), _view(view)
 {
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	//sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
+	// sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
 	setSizePolicy(sp);
-//	setMinimumHeight(20);
-//	setMaximumHeight(40);
+	//	setMinimumHeight(20);
+	//	setMaximumHeight(40);
 }
 
 /******************************************************************************
@@ -52,14 +50,15 @@ PVWidgets::PVAxesIndexEditor::~PVAxesIndexEditor()
 void PVWidgets::PVAxesIndexEditor::set_axes_index(PVCore::PVAxesIndexType axes_index)
 {
 	clear();
-			
+
 	QStringList const& axes = _view.get_axes_names_list();
 	QListWidgetItem* item;
 
 	for (int i = 0; i < axes.count(); i++) {
 		item = new QListWidgetItem(axes[i]);
 		addItem(item);
-		if (std::find(axes_index.begin(), axes_index.end(), _view.get_axes_combination().get_axis_column_index(i)) != axes_index.end()) {
+		if (std::find(axes_index.begin(), axes_index.end(),
+		              _view.get_axes_combination().get_axis_column_index(i)) != axes_index.end()) {
 			item->setSelected(true);
 		}
 	}

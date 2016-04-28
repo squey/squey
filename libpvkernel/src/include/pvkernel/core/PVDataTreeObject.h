@@ -30,15 +30,13 @@ namespace PVCore
 
 /*! \brief Special class to represent the fact that a tree object is at the root of the hierarchy.
 */
-template <typename Treal>
-struct PVDataTreeNoParent
+template <typename Treal> struct PVDataTreeNoParent
 {
 };
 
 /*! \brief Special class to represent the fact that a tree object is not meant to have any children.
 */
-template <typename Treal>
-struct PVDataTreeNoChildren
+template <typename Treal> struct PVDataTreeNoChildren
 {
 };
 
@@ -46,24 +44,23 @@ class PVDataTreeObjectBase;
 
 class PVDataTreeObjectWithParentBase
 {
-public:
-	PVDataTreeObjectWithParentBase():
-		_parent(nullptr)
-	{ }
+  public:
+	PVDataTreeObjectWithParentBase() : _parent(nullptr) {}
 
-public:
+  public:
 	inline PVDataTreeObjectBase* get_parent_base() { return _parent; }
 	inline const PVDataTreeObjectBase* get_parent_base() const { return _parent; }
 
-protected:
+  protected:
 	PVDataTreeObjectBase* _parent;
 };
 
 class PVDataTreeObjectWithChildrenBase
 {
-public:
+  public:
 	typedef QList<PVDataTreeObjectBase*> children_base_t;
-public:
+
+  public:
 	// This is virtual and shouldn't be. Children should be stored as a list of shared_ptr to
 	// PVDataTreeObjectBase and converted when necessary.
 	virtual children_base_t get_children_base() const = 0;
@@ -72,26 +69,38 @@ public:
 
 class PVDataTreeObjectBase
 {
-public:
+  public:
 	typedef PVCore::PVSharedPtr<PVDataTreeObjectBase> base_p_type;
 	typedef PVCore::PVSharedPtr<PVDataTreeObjectBase const> const_base_p_type;
-public:
-	virtual ~PVDataTreeObjectBase() { }
 
-public:
-	PVDataTreeObjectWithParentBase const* cast_with_parent() const { return dynamic_cast<PVDataTreeObjectWithParentBase const*>(this); }
-	PVDataTreeObjectWithParentBase*       cast_with_parent()       { return dynamic_cast<PVDataTreeObjectWithParentBase*>(this); }
+  public:
+	virtual ~PVDataTreeObjectBase() {}
 
-	PVDataTreeObjectWithChildrenBase const* cast_with_children() const { return dynamic_cast<PVDataTreeObjectWithChildrenBase const*>(this); }
-	PVDataTreeObjectWithChildrenBase*       cast_with_children()       { return dynamic_cast<PVDataTreeObjectWithChildrenBase*>(this); }
+  public:
+	PVDataTreeObjectWithParentBase const* cast_with_parent() const
+	{
+		return dynamic_cast<PVDataTreeObjectWithParentBase const*>(this);
+	}
+	PVDataTreeObjectWithParentBase* cast_with_parent()
+	{
+		return dynamic_cast<PVDataTreeObjectWithParentBase*>(this);
+	}
 
-public:
+	PVDataTreeObjectWithChildrenBase const* cast_with_children() const
+	{
+		return dynamic_cast<PVDataTreeObjectWithChildrenBase const*>(this);
+	}
+	PVDataTreeObjectWithChildrenBase* cast_with_children()
+	{
+		return dynamic_cast<PVDataTreeObjectWithChildrenBase*>(this);
+	}
+
+  public:
 	virtual base_p_type base_shared_from_this() = 0;
 	virtual const_base_p_type base_shared_from_this() const = 0;
 
-public:
-	template <class F>
-	void depth_first_list(F const& f)
+  public:
+	template <class F> void depth_first_list(F const& f)
 	{
 		PVDataTreeObjectWithChildrenBase* obj_children = cast_with_children();
 		if (!obj_children) {
@@ -103,33 +112,29 @@ public:
 		}
 	}
 
-public:
+  public:
 	virtual QString get_serialize_description() const { return QString(); }
 };
 
-namespace __impl {
+namespace __impl
+{
 
-template <typename Tparent, typename real_type_t>
-class PVDataTreeObjectWithParent;
+template <typename Tparent, typename real_type_t> class PVDataTreeObjectWithParent;
 
 template <typename Tchild, typename real_type_t>
-class PVDataTreeObjectWithChildren: public PVDataTreeObjectWithChildrenBase
+class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 {
 	template <typename T1, typename T2> friend class PVDataTreeObjectWithParent;
 
-public:
+  public:
 	typedef Tchild child_t;
 	typedef PVSharedPtr<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
 
-public:
-	virtual ~PVDataTreeObjectWithChildren()
-	{
-		_children.clear();
-	}
+  public:
+	virtual ~PVDataTreeObjectWithChildren() { _children.clear(); }
 
-public:
-
+  public:
 	child_t* new_child_default()
 	{
 		PVCore::PVSharedPtr<child_t> ret(new child_t());
@@ -138,18 +143,17 @@ public:
 		return ret.get();
 	}
 
-	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a class type).
+	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a
+	 * class type).
 	 *  If no level is specified, the direct children are returned.
 	 *  \return The list of children.
 	 *  Note: Compile with '-std=c++0x' flag to support function template default parameter.
 	 */
-	template <typename T = child_t>
-	typename T::parent_t::children_t get_children()
+	template <typename T = child_t> typename T::parent_t::children_t get_children()
 	{
 		return GetChildrenImpl<child_t, T>::get_children(_children);
 	}
-	template <typename T = child_t>
-	const typename T::parent_t::children_t get_children() const
+	template <typename T = child_t> const typename T::parent_t::children_t get_children() const
 	{
 		return GetChildrenImpl<child_t, T>::get_children(_children);
 	}
@@ -176,8 +180,8 @@ public:
 		for (int i = 0; i < _children.size(); i++) {
 			if (&child == _children[i].get()) {
 				pchild = _children[i];
-				_children.erase(_children.begin()+i);
-				//pchild->_parent = nullptr;
+				_children.erase(_children.begin() + i);
+				// pchild->_parent = nullptr;
 				break;
 			}
 		}
@@ -186,37 +190,33 @@ public:
 	}
 	inline pchild_t remove_child(pchild_t const& child) { return remove_child(*child); }
 
-	template <typename T = child_t>
-	void dump_children()
+	template <typename T = child_t> void dump_children()
 	{
 		auto children = get_children<T>();
 		std::cout << "(";
-		for (int i = 0; i < children.size() ; i++) {
-			if(i != 0)
+		for (int i = 0; i < children.size(); i++) {
+			if (i != 0)
 				std::cout << ", ";
 			std::cout << children[i] << " (" << children[i].use_count() << ")" << std::endl;
 		}
 		std::cout << ")" << std::endl;
 	}
 
-	template <typename T>
-	bool children_belongs_to_me(T const& children) const
+	template <typename T> bool children_belongs_to_me(T const& children) const
 	{
 		typedef typename T::value_type other_child_t;
-		for (other_child_t const& c: children) {
-			if (PVCore::PVTypeTraits::get_pointer(c)->template get_parent<real_type_t>() != static_cast<real_type_t const*>(this)) {
+		for (other_child_t const& c : children) {
+			if (PVCore::PVTypeTraits::get_pointer(c)->template get_parent<real_type_t>() !=
+			    static_cast<real_type_t const*>(this)) {
 				return false;
 			}
 		}
 		return true && children.size() > 0;
 	}
 
-	void remove_all_children()
-	{
-		_children.clear();
-	}
+	void remove_all_children() { _children.clear(); }
 
-public:
+  public:
 	virtual children_base_t get_children_base() const
 	{
 		children_base_t ret;
@@ -229,33 +229,41 @@ public:
 
 	virtual size_t get_children_count() const { return _children.size(); }
 
-public:
+  public:
 	/*! \brief Dump the data tree object and all of it's underlying children hierarchy.
 	 */
 	void dump(uint32_t spacing = 20)
 	{
 		real_type_t* me = static_cast<real_type_t*>(this);
-		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(real_type_t).name() << "(" << me << ")" << std::endl;
-		for (auto child: _children) {
+		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(real_type_t).name()
+		          << "(" << me << ")" << std::endl;
+		for (auto child : _children) {
 			child->dump(spacing + 10);
 		}
 	}
 
-public:
+  public:
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
 		QStringList descriptions;
 		for (auto child : _children) {
 			descriptions << child->get_serialize_description();
 		}
-		so.list(get_children_serialize_name(), _children, get_children_description(), (child_t*) NULL, descriptions);
+		so.list(get_children_serialize_name(), _children, get_children_description(),
+		        (child_t*)NULL, descriptions);
 	};
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t /*v*/)
 	{
 		PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
-		auto create_func = [&]{ PVSharedPtr<child_t> tmp(new child_t()); tmp->set_parent(me_p); return tmp; };
-		if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(), true, true)) {
+		auto create_func = [&] {
+			PVSharedPtr<child_t> tmp(new child_t());
+			tmp->set_parent(me_p);
+			return tmp;
+		};
+		if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(),
+		                  true, true)) {
 			// No children born in here...
 			return;
 		}
@@ -265,42 +273,38 @@ public:
 	{
 		if (so.is_writing()) {
 			serialize_write(so);
-		}
-		else {
+		} else {
 			serialize_read(so, v);
 		}
 	}
 
-
-protected:
+  protected:
 	void do_add_child(pchild_t c)
 	{
 		_children.push_back(c);
 		child_added(*c);
 	}
 
-
 	virtual QString get_children_description() const { return "Children"; }
 	virtual QString get_children_serialize_name() const { return "children"; }
 
-protected:
+  protected:
 	// Events
-	virtual void child_added(child_t& /*child*/) { }
+	virtual void child_added(child_t& /*child*/) {}
 
-private:
+  private:
 	/*! \brief Implementation of the PVDataTreeObject::get_children() method.
 	 *	"function template partial specialization is not allowed":
 	 * 	we must use static methods inside a template class
 	 */
-	template <typename T, typename Tc, bool B = std::is_same<T, Tc>::value>
-	struct GetChildrenImpl;
+	template <typename T, typename Tc, bool B = std::is_same<T, Tc>::value> struct GetChildrenImpl;
 
 	/*! \brief Partial specialization for the case we have found the child class.
 	*/
-	template <typename T, typename Tc>
-	struct GetChildrenImpl<T, Tc, true>
+	template <typename T, typename Tc> struct GetChildrenImpl<T, Tc, true>
 	{
-		static inline typename Tc::parent_t::children_t get_children(typename Tc::parent_t::children_t children)
+		static inline typename Tc::parent_t::children_t
+		get_children(typename Tc::parent_t::children_t children)
 		{
 			return children;
 		}
@@ -309,10 +313,10 @@ private:
 	/*! \brief Partial specialization for the case we haven't found the child class yet.
 	 * 	Recursively specialize this class with a child class of one level lower.
 	 */
-	template <typename T, typename Tc>
-	struct GetChildrenImpl<T, Tc, false>
+	template <typename T, typename Tc> struct GetChildrenImpl<T, Tc, false>
 	{
-		static inline typename Tc::parent_t::children_t get_children(typename T::parent_t::children_t children)
+		static inline typename Tc::parent_t::children_t
+		get_children(typename T::parent_t::children_t children)
 		{
 			typename T::children_t children_tmp;
 			for (auto child : children) {
@@ -324,40 +328,39 @@ private:
 		}
 	};
 
-private:
+  private:
 	children_t _children;
 };
 
 template <typename Tparent, typename real_type_t>
-class PVDataTreeObjectWithParent: public PVDataTreeObjectWithParentBase
+class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 {
 	template <typename T1, typename T2> friend class PVDataTreeObjectWithChildren;
 
-public:
+  public:
 	typedef Tparent parent_t;
 	typedef PVCore::PVSharedPtr<parent_t> pparent_t;
 
-public:
-	PVDataTreeObjectWithParent():
-		PVDataTreeObjectWithParentBase()
-	{ }
+  public:
+	PVDataTreeObjectWithParent() : PVDataTreeObjectWithParentBase() {}
 
-public:
-	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
+  public:
+	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a
+	 * class type).
 	 *  If no level is specified, the parent is returned.
 	 *  \return An ancestor.
 	 *  Note: Compile with '-std=c++0x' flag to support function template default parameter.
 	 */
-	template <typename Tancestor = parent_t>
-	inline Tancestor* get_parent()
+	template <typename Tancestor = parent_t> inline Tancestor* get_parent()
 	{
-		static_assert(std::is_same<Tancestor, real_type_t>::value == false, "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
+		static_assert(std::is_same<Tancestor, real_type_t>::value == false,
+		              "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
 		return GetParentImpl<parent_t, Tancestor>::get_parent(get_real_parent());
 	}
-	template <typename Tancestor = parent_t>
-	inline const Tancestor* get_parent()  const
+	template <typename Tancestor = parent_t> inline const Tancestor* get_parent() const
 	{
-		static_assert(std::is_same<Tancestor, real_type_t>::value == false, "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
+		static_assert(std::is_same<Tancestor, real_type_t>::value == false,
+		              "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
 		return GetParentImpl<parent_t const, Tancestor const>::get_parent(get_real_parent());
 	}
 
@@ -370,7 +373,7 @@ public:
 		get_real_parent()->remove_child(*me);
 	}
 
-protected:
+  protected:
 	/*! \brief Set the parent of a data tree object.
 	 *  \param[in] parent Parent of the data tree object.
 	 *  If a parent is already set, properly reparent with taking care of the child.
@@ -399,7 +402,7 @@ protected:
 		}
 	}
 
-private:
+  private:
 	/*! \brief Implementation of the PVDataTreeObject::get_parent() method.
 	 *	"function template partial specialization is not allowed":
 	 * 	we must use static methods inside a template class
@@ -409,25 +412,22 @@ private:
 
 	/*! \brief Partial specialization for the case we have found the ancestor.
 	 */
-	template <typename T, typename Tancestor>
-	struct GetParentImpl<T, Tancestor, true>
+	template <typename T, typename Tancestor> struct GetParentImpl<T, Tancestor, true>
 	{
-		static inline Tancestor* get_parent(Tancestor* parent)
-		{
-			return parent;
-		}
+		static inline Tancestor* get_parent(Tancestor* parent) { return parent; }
 	};
 
 	/*! \brief Partial specialization for the case we haven't found the ancestor yet.
 	 * 	Recursively specialize this class with a parent of one level higher.
 	 */
-	template <typename T, typename Tancestor>
-	struct GetParentImpl<T, Tancestor, false>
+	template <typename T, typename Tancestor> struct GetParentImpl<T, Tancestor, false>
 	{
 		static inline Tancestor* get_parent(T* parent)
 		{
 			if (parent != nullptr) {
-				return GetParentImpl<typename PVCore::PVTypeTraits::const_fwd<typename T::parent_t, T>::type, Tancestor>::get_parent(parent->get_parent());
+				return GetParentImpl<
+				    typename PVCore::PVTypeTraits::const_fwd<typename T::parent_t, T>::type,
+				    Tancestor>::get_parent(parent->get_parent());
 			}
 
 			return nullptr;
@@ -437,9 +437,11 @@ private:
 	/*! \brief Get parent as a parent_t object
 	 */
 	parent_t* get_real_parent() { return static_cast<parent_t*>(get_parent_base()); }
-	parent_t const* get_real_parent() const { return static_cast<parent_t const*>(get_parent_base()); }
+	parent_t const* get_real_parent() const
+	{
+		return static_cast<parent_t const*>(get_parent_base());
+	}
 };
-
 }
 
 /*! \brief Data tree object base class.
@@ -447,42 +449,40 @@ private:
  * This class is the base class for all objects of the data tree.
  */
 template <typename Tparent, typename Tchild>
-class PVDataTreeObject: public PVEnableSharedFromThis<typename Tparent::child_t >,
-                        public __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t>,
-						public __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t>,
-						public PVDataTreeObjectBase
+class PVDataTreeObject
+    : public PVEnableSharedFromThis<typename Tparent::child_t>,
+      public __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t>,
+      public __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t>,
+      public PVDataTreeObjectBase
 {
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t> impl_children_t;
-	typedef __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t>  impl_parent_t;
+	typedef __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t> impl_parent_t;
 
-	template<typename T1, typename T2> friend class PVDataTreeObject;
+	template <typename T1, typename T2> friend class PVDataTreeObject;
 
-public:
-	typedef typename impl_children_t::child_t    child_t;
-	typedef typename impl_children_t::pchild_t   pchild_t;
+  public:
+	typedef typename impl_children_t::child_t child_t;
+	typedef typename impl_children_t::pchild_t pchild_t;
 	typedef typename impl_children_t::children_t children_t;
 
-	typedef typename impl_parent_t::parent_t  parent_t;
+	typedef typename impl_parent_t::parent_t parent_t;
 	typedef typename impl_parent_t::pparent_t pparent_t;
 
 	typedef typename parent_t::root_t root_t;
 
 	typedef PVDataTreeObject<parent_t, child_t> data_tree_t;
 
-private:
+  private:
 	typedef typename parent_t::child_t real_type_t;
 
-public:
+  public:
 	typedef PVSharedPtr<real_type_t> p_type;
-	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
+	typedef PVCore::PVWeakPtr<real_type_t> wp_type;
 
-public:
+  public:
 	/*! \brief Default constructor
 	 */
-	PVDataTreeObject():
-		PVEnableSharedFromThis<real_type_t>(),
-		impl_children_t(),
-		impl_parent_t()
+	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t()
 	{
 	}
 
@@ -490,7 +490,7 @@ public:
 	 */
 	virtual ~PVDataTreeObject() {}
 
-public:
+  public:
 	virtual base_p_type base_shared_from_this()
 	{
 		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
@@ -498,38 +498,40 @@ public:
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
-		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
+		PVCore::PVSharedPtr<real_type_t const> p(
+		    static_cast<real_type_t const*>(this)->shared_from_this());
 		return const_base_p_type{p};
 	}
 };
 
 // Special case when root item !
 template <typename Troot, typename Tchild>
-class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>: public PVEnableSharedFromThis<Troot>,
-                                                           public __impl::PVDataTreeObjectWithChildren<Tchild, Troot>,
-														   public PVDataTreeObjectBase
+class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>
+    : public PVEnableSharedFromThis<Troot>,
+      public __impl::PVDataTreeObjectWithChildren<Tchild, Troot>,
+      public PVDataTreeObjectBase
 {
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, Troot> impl_children_t;
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, Troot> impl_base_t;
-	
-	template<typename T1, typename T2> friend class PVDataTreeObject;
 
-public:
-	typedef typename impl_children_t::child_t    child_t;
-	typedef typename impl_children_t::pchild_t   pchild_t;
+	template <typename T1, typename T2> friend class PVDataTreeObject;
+
+  public:
+	typedef typename impl_children_t::child_t child_t;
+	typedef typename impl_children_t::pchild_t pchild_t;
 	typedef typename impl_children_t::children_t children_t;
 
 	typedef PVDataTreeObject<PVDataTreeNoParent<Troot>, child_t> data_tree_t;
 
-private:
+  private:
 	typedef Troot real_type_t;
 
-public:
+  public:
 	typedef PVSharedPtr<real_type_t> p_type;
-	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
+	typedef PVCore::PVWeakPtr<real_type_t> wp_type;
 	typedef real_type_t root_t;
 
-public:
+  public:
 	virtual base_p_type base_shared_from_this()
 	{
 		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
@@ -537,18 +539,15 @@ public:
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
-		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
+		PVCore::PVSharedPtr<real_type_t const> p(
+		    static_cast<real_type_t const*>(this)->shared_from_this());
 		return const_base_p_type(p);
 	}
 
-public:
+  public:
 	/*! \brief Default constructor
 	 */
-	PVDataTreeObject():
-		PVEnableSharedFromThis<real_type_t>(),
-		impl_children_t()
-	{
-	}
+	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_children_t() {}
 
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
@@ -557,40 +556,37 @@ public:
 
 // Special case when no children !
 template <typename Tparent, typename Treal>
-class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal> >: public PVEnableSharedFromThis<Treal>,
-                                                               public __impl::PVDataTreeObjectWithParent<Tparent, Treal>,
-															   public PVDataTreeObjectBase
+class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
+    : public PVEnableSharedFromThis<Treal>,
+      public __impl::PVDataTreeObjectWithParent<Tparent, Treal>,
+      public PVDataTreeObjectBase
 {
 	typedef __impl::PVDataTreeObjectWithParent<Tparent, Treal> impl_parent_t;
 
-	template<typename T1, typename T2> friend class PVDataTreeObject;
+	template <typename T1, typename T2> friend class PVDataTreeObject;
 
-public:
-	typedef PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal> > data_tree_t;
+  public:
+	typedef PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>> data_tree_t;
 
-private:
+  private:
 	typedef Treal real_type_t;
 
-public:
+  public:
 	typedef PVSharedPtr<real_type_t> p_type;
-	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
+	typedef PVCore::PVWeakPtr<real_type_t> wp_type;
 	typedef Tparent parent_t;
 	typedef typename parent_t::root_t root_t;
 
-public:
+  public:
 	/*! \brief Default constructor
 	 */
-	PVDataTreeObject():
-		PVEnableSharedFromThis<real_type_t>(),
-		impl_parent_t()
-	{
-	}
+	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_parent_t() {}
 
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
 	virtual ~PVDataTreeObject() {}
 
-public:
+  public:
 	virtual base_p_type base_shared_from_this()
 	{
 		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
@@ -598,24 +594,28 @@ public:
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
-		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
+		PVCore::PVSharedPtr<real_type_t const> p(
+		    static_cast<real_type_t const*>(this)->shared_from_this());
 		return const_base_p_type{p};
 	}
 
-public:
-	virtual void serialize(PVCore::PVSerializeObject& /*so*/, PVCore::PVSerializeArchive::version_t /*v*/) { }
+  public:
+	virtual void serialize(PVCore::PVSerializeObject& /*so*/,
+	                       PVCore::PVSerializeArchive::version_t /*v*/)
+	{
+	}
 
-public:
+  public:
 	/*! \brief Dump the data tree object and all of it's underlying children hierarchy.
 	 */
 	void dump(uint32_t spacing = 20)
 	{
 		real_type_t* me = static_cast<real_type_t*>(this);
 		PVDataTreeObjectBase* base = static_cast<PVDataTreeObjectBase*>(this);
-		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(real_type_t).name() << "(" << me << ", base: " << base << ")" << std::endl;
+		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(real_type_t).name()
+		          << "(" << me << ", base: " << base << ")" << std::endl;
 	}
 };
-
 }
 
 #endif /* PVDATATREEOBJECT_H_ */

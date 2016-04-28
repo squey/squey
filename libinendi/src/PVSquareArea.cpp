@@ -7,13 +7,7 @@
 
 #include <inendi/PVSquareArea.h>
 
-
-Inendi::PVSquareArea::PVSquareArea() :
-	end_x(0),
-	end_y(0),
-	start_x(0),
-	start_y(0),
-	dirty(false)
+Inendi::PVSquareArea::PVSquareArea() : end_x(0), end_y(0), start_x(0), start_y(0), dirty(false)
 {
 }
 
@@ -27,8 +21,6 @@ float Inendi::PVSquareArea::get_end_x() const
 	return end_x;
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVSquareArea::get_end_y
@@ -38,8 +30,6 @@ float Inendi::PVSquareArea::get_end_y() const
 {
 	return end_y;
 }
-
-
 
 /******************************************************************************
  *
@@ -51,8 +41,6 @@ float Inendi::PVSquareArea::get_start_x() const
 	return start_x;
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVSquareArea::get_start_y
@@ -62,8 +50,6 @@ float Inendi::PVSquareArea::get_start_y() const
 {
 	return start_y;
 }
-
-
 
 /******************************************************************************
  *
@@ -76,8 +62,6 @@ void Inendi::PVSquareArea::set_end(float ex, float ey)
 	end_y = ey;
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVSquareArea::set_end_x
@@ -87,8 +71,6 @@ void Inendi::PVSquareArea::set_end_x(float ex)
 {
 	end_x = ex;
 }
-
-
 
 /******************************************************************************
  *
@@ -100,8 +82,6 @@ void Inendi::PVSquareArea::set_end_y(float ey)
 	end_y = ey;
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVSquareArea::set_start
@@ -112,8 +92,6 @@ void Inendi::PVSquareArea::set_start(float sx, float sy)
 	start_x = sx;
 	start_y = sy;
 }
-
-
 
 /******************************************************************************
  *

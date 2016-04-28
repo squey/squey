@@ -18,4 +18,3 @@ PVCore::PVAxisIndexCheckBoxType::PVAxisIndexCheckBoxType(int origin_axis_index, 
 	_origin_axis_index = origin_axis_index;
 	_is_checked = is_checked;
 }
-

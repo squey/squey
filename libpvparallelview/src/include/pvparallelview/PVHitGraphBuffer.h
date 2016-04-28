@@ -15,11 +15,12 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace PVParallelView {
-
-class PVHitGraphBuffer: boost::noncopyable
+namespace PVParallelView
 {
-public:
+
+class PVHitGraphBuffer : boost::noncopyable
+{
+  public:
 	PVHitGraphBuffer(uint32_t nbits, uint32_t nblocks);
 	~PVHitGraphBuffer();
 
@@ -33,11 +34,11 @@ public:
 		_size_block = o._size_block;
 	}
 
-public:
-	inline size_t size_bytes() const { return size_int()*sizeof(uint32_t); }
-	inline size_t size_int()   const { return nblocks()*size_block(); }
+  public:
+	inline size_t size_bytes() const { return size_int() * sizeof(uint32_t); }
+	inline size_t size_int() const { return nblocks() * size_block(); }
 
-public:
+  public:
 	PVHitGraphBuffer& operator=(PVHitGraphBuffer&& o)
 	{
 		if (&o != this) {
@@ -53,52 +54,53 @@ public:
 
 	bool copy_from(PVHitGraphBuffer const& other);
 
-public:
+  public:
 	inline uint32_t* buffer() { return _buf; }
 	inline uint32_t const* buffer() const { return _buf; }
 
-	inline uint32_t* buffer_block(uint32_t n) { return &_buf[n*size_block()]; }
-	inline uint32_t const* buffer_block(uint32_t n) const { return &_buf[n*size_block()]; }
+	inline uint32_t* buffer_block(uint32_t n) { return &_buf[n * size_block()]; }
+	inline uint32_t const* buffer_block(uint32_t n) const { return &_buf[n * size_block()]; }
 
 	inline uint32_t at(uint32_t block, uint32_t idx) const { return buffer_block(block)[idx]; }
 
 	inline uint32_t* zoomed_buffer_block(uint32_t n, const float alpha)
 	{
-		return &_buf[n*size_zoomed_block(alpha)];
-		//return &_zoomed_buf[n*size_zoomed_block(alpha)];
+		return &_buf[n * size_zoomed_block(alpha)];
+		// return &_zoomed_buf[n*size_zoomed_block(alpha)];
 	}
 	inline uint32_t const* zoomed_buffer_block(uint32_t n, const float alpha) const
 	{
-		//return &_zoomed_buf[n*size_zoomed_block(alpha)];
-		return &_buf[n*size_zoomed_block(alpha)];
+		// return &_zoomed_buf[n*size_zoomed_block(alpha)];
+		return &_buf[n * size_zoomed_block(alpha)];
 	}
 
 	uint32_t get_zoomed_max_count(const float alpha) const;
 	uint32_t get_max_count() const;
 
-public:
+  public:
 	void set_zero();
 	void shift_left(const uint32_t nblocks);
 	void shift_right(const uint32_t nblocks);
 	void shift_zoomed_left(const uint32_t nblocks, const float alpha);
 	void shift_zoomed_right(const uint32_t nblocks, const float alpha);
 
-public:
+  public:
 	inline uint32_t nbits() const { return _nbits; }
 	// returned size is in number of integers
 	inline uint32_t size_block() const { return _size_block; }
-	inline uint32_t size_zoomed_block(const float alpha) const { return (int)((float)size_block()*alpha); }
+	inline uint32_t size_zoomed_block(const float alpha) const
+	{
+		return (int)((float)size_block() * alpha);
+	}
 	inline uint32_t nblocks() const { return _nblocks; }
 
-private:
+  private:
 	uint32_t* _buf;
 
 	uint32_t _nbits;
 	uint32_t _nblocks;
 	uint32_t _size_block;
-
 };
-
 }
 
 #endif

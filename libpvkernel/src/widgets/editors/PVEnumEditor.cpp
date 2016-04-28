@@ -15,8 +15,7 @@
  * PVCore::PVEnumEditor::PVEnumEditor
  *
  *****************************************************************************/
-PVWidgets::PVEnumEditor::PVEnumEditor(QWidget *parent):
-	QComboBox(parent)
+PVWidgets::PVEnumEditor::PVEnumEditor(QWidget* parent) : QComboBox(parent)
 {
 }
 

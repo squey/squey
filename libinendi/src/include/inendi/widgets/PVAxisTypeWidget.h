@@ -10,14 +10,15 @@
 
 #include <pvkernel/widgets/PVComboBox.h>
 
-namespace PVWidgets{
+namespace PVWidgets
+{
 
 /**
  * This widget is a combo box showing types names.
  */
-class PVAxisTypeWidget: public PVComboBox
+class PVAxisTypeWidget : public PVComboBox
 {
-public:
+  public:
 	/**
 	 * Build the combo box with only type that have same storage as current_type.
 	 *
@@ -25,12 +26,10 @@ public:
 	 */
 	PVAxisTypeWidget(QString const& current_type, QWidget* parent = nullptr);
 
-public:
+  public:
 	inline QString get_sel_type() const { return currentText(); }
 	inline bool sel_type(QString const& type) { return select(type); }
 };
-
-
 }
 
 #endif

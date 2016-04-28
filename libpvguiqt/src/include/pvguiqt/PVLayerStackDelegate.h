@@ -12,7 +12,8 @@
 
 #include <QStyledItemDelegate>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 /**
  * \class PVLayerStackDelegate
@@ -21,7 +22,7 @@ class PVLayerStackDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 
-public:
+  public:
 	/**
 	 *  Constructor.
 	 *
@@ -38,16 +39,15 @@ public:
 	 *
 	 *  @return
 	 */
-	bool editorEvent (QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
+	bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option,
+	                 const QModelIndex& index);
 
-private:
+  private:
 	Inendi::PVView const& lib_view() const { return _view; }
 
-private:
+  private:
 	Inendi::PVView const& _view;
 };
-
 }
 
 #endif // PVLAYERSTACKDELEGATE_H
-

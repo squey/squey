@@ -15,7 +15,6 @@
 #include <QDir>
 #include <QCoreApplication>
 
-
 #include <stdlib.h>
 
 #include <pvkernel/core/general.h>
@@ -37,11 +36,12 @@ QStringList PVRush::normalize_get_helpers_plugins_dirs(QString helper)
 	pluginsdirs += "/normalize-helpers";
 
 	QStringList pluginsdirs_list = pluginsdirs.split(PVCORE_DIRECTORY_SEP);
-	for (int counter=0; counter < pluginsdirs_list.count(); counter++) {
-		if (pluginsdirs_list[counter].startsWith ("~/")) {
-			pluginsdirs_list[counter].replace (0, 1, QDir::homePath());
+	for (int counter = 0; counter < pluginsdirs_list.count(); counter++) {
+		if (pluginsdirs_list[counter].startsWith("~/")) {
+			pluginsdirs_list[counter].replace(0, 1, QDir::homePath());
 		}
-		pluginsdirs_list[counter] = pluginsdirs_list[counter] + QDir::separator() + helper + QDir::separator();
+		pluginsdirs_list[counter] =
+		    pluginsdirs_list[counter] + QDir::separator() + helper + QDir::separator();
 	}
 
 	return pluginsdirs_list;

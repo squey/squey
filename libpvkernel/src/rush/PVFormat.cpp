@@ -58,7 +58,6 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	}
 }
 
-
 PVRush::PVFormat::~PVFormat()
 {
 }
@@ -93,7 +92,8 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 			if (str[str_pos] == delimiter) {
 				/* The literal block case.
 				 */
-				while ((str_pos < str_size) && (str[++str_pos] != delimiter)) {}
+				while ((str_pos < str_size) && (str[++str_pos] != delimiter)) {
+				}
 				++str_pos;
 			} else {
 				size_t substr_pos = 0;
@@ -102,7 +102,8 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 					/* The substr case.
 					 */
 					while ((str_pos < str_size) && (substr_pos < substr_size) &&
-					       (str[++str_pos] == substr[++substr_pos])) {}
+					       (str[++str_pos] == substr[++substr_pos])) {
+					}
 					if (substr_pos == substr_size) {
 						/* substr has been entirely tested, have found it.
 						 */
@@ -116,12 +117,9 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 		return false;
 	};
 
-
-	auto contains_one_of = [&](const std::string& tf, const std::vector<std::string>& tokens)
-	{
-		return std::any_of(tokens.cbegin(), tokens.cend(), [&](const std::string& token) {
-			return contains(tf, token);
-		});
+	auto contains_one_of = [&](const std::string& tf, const std::vector<std::string>& tokens) {
+		return std::any_of(tokens.cbegin(), tokens.cend(),
+		                   [&](const std::string& token) { return contains(tf, token); });
 	};
 
 	/**
@@ -136,94 +134,90 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	 * 3. "datetime_ms" (ICU)   : in any other cases
 	 */
 	// rfc_timezone = X, XX, x, xx, Z, ZZ, ZZZ
-	bool rfc_timezone = (contains_one_of(tf, { "X" }) && not contains_one_of(tf, { "XXX" })) ||
-			            (contains_one_of(tf, { "x" }) && not contains_one_of(tf, { "xxx" })) ||
-					    (contains_one_of(tf, { "Z" }) && not contains_one_of(tf, { "ZZZZ" }));
-	bool no_timezone = not contains_one_of(tf, { "x", "X", "z", "Z", "v", "V" });
+	bool rfc_timezone = (contains_one_of(tf, {"X"}) && not contains_one_of(tf, {"XXX"})) ||
+	                    (contains_one_of(tf, {"x"}) && not contains_one_of(tf, {"xxx"})) ||
+	                    (contains_one_of(tf, {"Z"}) && not contains_one_of(tf, {"ZZZZ"}));
+	bool no_timezone = not contains_one_of(tf, {"x", "X", "z", "Z", "v", "V"});
 	bool no_extended_timezone = no_timezone || rfc_timezone;
 	bool no_millisec_precision = not contains(tf, "S");
 	bool no_epoch = not contains(tf, "epoch");
 	bool no_12h_format = not contains(tf, "h") && no_epoch;
-	bool no_two_digit_year = not (contains(tf, "yy") && not contains(tf, "yyyy"));
+	bool no_two_digit_year = not(contains(tf, "yy") && not contains(tf, "yyyy"));
 
 	if (no_millisec_precision && no_extended_timezone) {
 		formatter = "datetime";
-	}
-	else {
+	} else {
 		bool dot_before_millisec = contains(tf, ".S");
 
 		if (dot_before_millisec && no_epoch && no_timezone && no_two_digit_year && no_12h_format) {
 			formatter = "datetime_us";
-		}
-		else {
+		} else {
 			// No need to make any format conversion as our input format is already good (ICU)
 			return {"datetime_ms", tf};
 		}
 	}
 
-	static std::vector<std::pair<std::string, std::string>> map = {
-		// epoch
-		{"epoch", "%s"},
+	static std::vector<std::pair<std::string, std::string>> map = {// epoch
+	                                                               {"epoch", "%s"},
 
-		// year
-		{"yyyy", "%Y"},
-		{"yy", "%y"},
+	                                                               // year
+	                                                               {"yyyy", "%Y"},
+	                                                               {"yy", "%y"},
 
-		// day of week
-		{"eeee", "%a"},
-		{"eee", "%a"},
-		{"e", "%a"},
-		{"EEEE", "%a"},
-		{"EEE", "%a"},
+	                                                               // day of week
+	                                                               {"eeee", "%a"},
+	                                                               {"eee", "%a"},
+	                                                               {"e", "%a"},
+	                                                               {"EEEE", "%a"},
+	                                                               {"EEE", "%a"},
 
-		// month
-		{"MMMM", "%b"},
-		{"MMM", "%b"},
-		{"MM", "%m"},
-		{"M", "%m"},
+	                                                               // month
+	                                                               {"MMMM", "%b"},
+	                                                               {"MMM", "%b"},
+	                                                               {"MM", "%m"},
+	                                                               {"M", "%m"},
 
-		// day in month
-		{"dd", "%d"},
-		{"d", "%d"},
+	                                                               // day in month
+	                                                               {"dd", "%d"},
+	                                                               {"d", "%d"},
 
-		// hour
-		{"HH", "%H"},
-		{"H", "%H"},
-		{"hh", "%l"},
-		{"h", "%l"},
-		{"K", "%h"},
+	                                                               // hour
+	                                                               {"HH", "%H"},
+	                                                               {"H", "%H"},
+	                                                               {"hh", "%l"},
+	                                                               {"h", "%l"},
+	                                                               {"K", "%h"},
 
-		// minute
-		{"mm", "%M"},
-		{"m", "%M"},
+	                                                               // minute
+	                                                               {"mm", "%M"},
+	                                                               {"m", "%M"},
 
-		// seconde
-		{"ss", "%S"},
-		{"s", "%S"},
+	                                                               // seconde
+	                                                               {"ss", "%S"},
+	                                                               {"s", "%S"},
 
-		// fractional second
-		{"SSSSSS", "%F"},
-		{"SSSSS", "%F"},
-		{"SSSS", "%F"},
-		{"SSS", "%F"},
-		{"SS", "%F"},
-		{"S", "%F"},
+	                                                               // fractional second
+	                                                               {"SSSSSS", "%F"},
+	                                                               {"SSSSS", "%F"},
+	                                                               {"SSSS", "%F"},
+	                                                               {"SSS", "%F"},
+	                                                               {"SS", "%F"},
+	                                                               {"S", "%F"},
 
-		// am/pm marker
-		{"aaa", "%p"},
-		{"aa", "%p"},
-		{"a", "%p"},
+	                                                               // am/pm marker
+	                                                               {"aaa", "%p"},
+	                                                               {"aa", "%p"},
+	                                                               {"a", "%p"},
 
-		// timezone
-		{"Z", "%z"},
-		{"zzzz", "%Z"},
-		{"zzz", "%Z"},
-		{"zz", "%Z"},
-		{"z", "%Z"},
-		{"v", "%Z"},
-		{"VVV", "%Z"},
-		{"V", "%z"}
-	};
+	                                                               // timezone
+	                                                               {"Z", "%z"},
+	                                                               {"zzzz", "%Z"},
+	                                                               {"zzz", "%Z"},
+	                                                               {"zz", "%Z"},
+	                                                               {"z", "%Z"},
+	                                                               {"v", "%Z"},
+	                                                               {"VVV", "%Z"},
+	                                                               {"V", "%z"}};
 
 	std::string time_format = tf;
 
@@ -236,15 +230,16 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 		const std::string& key = token.first;
 		const std::string& value = token.second;
 
-		int pos = - value.size();
-		while ((pos = time_format.find(key, pos + value.size())) != (int) std::string::npos) {
+		int pos = -value.size();
+		while ((pos = time_format.find(key, pos + value.size())) != (int)std::string::npos) {
 
 			// check that we are not in a '...' section
-			bool verbatim = std::count(time_format.begin(), time_format.begin() + pos, delimiter) % 2 == 1;
+			bool verbatim =
+			    std::count(time_format.begin(), time_format.begin() + pos, delimiter) % 2 == 1;
 			if (not verbatim) {
 
 				// Don't try to replace an already replaced token
-				bool already_replaced_token = (pos > 0 && time_format[pos -1] == '%');
+				bool already_replaced_token = (pos > 0 && time_format[pos - 1] == '%');
 				if (not already_replaced_token) {
 					time_format.replace(pos, key.size(), value);
 				}
@@ -257,10 +252,10 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	// replace '' by ' and remove verbatim
 	std::string value = "";
 	std::string key = "'";
-	int pos = - value.size();
-	while ((pos = time_format.find(key, pos + value.size())) != (int) std::string::npos) {
-		if(time_format[pos + 1] == '\'') {
-			pos+=1;
+	int pos = -value.size();
+	while ((pos = time_format.find(key, pos + value.size())) != (int)std::string::npos) {
+		if (time_format[pos + 1] == '\'') {
+			pos += 1;
 			continue;
 		}
 		time_format.replace(pos, key.size(), value);
@@ -286,28 +281,23 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 			}
 
 			formatters.emplace_back(get_datetime_formatter_desc(time_format));
-		}
-		else {
+		} else {
 			std::string formatter;
 			std::string formatter_params;
 
 			if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
 				formatter = "string";
-			}
-			else if (axe_type == "integer") {
+			} else if (axe_type == "integer") {
 				if (axe_mapping == "default") {
 					formatter = "number_int32";
-				}
-				else {
+				} else {
 					assert(axe_mapping == "unsigned");
 					formatter = "number_uint32";
 					formatter_params = axe.get_str_format().toStdString();
 				}
-			}
-			else if (axe_type == "float") {
+			} else if (axe_type == "float") {
 				formatter = "number_float";
-			}
-			else if (axe_type == "ipv4") {
+			} else if (axe_type == "ipv4") {
 				formatter = "ipv4";
 			} else {
 				throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
@@ -346,16 +336,16 @@ bool PVRush::PVFormat::exists() const
 	return (fi.exists() && fi.isReadable());
 }
 
-char *fill_spaces(QString str, int max_spaces)
+char* fill_spaces(QString str, int max_spaces)
 {
 	// Use for debug so we display the different elements
-	char *retbuf;
+	char* retbuf;
 
-	retbuf = (char *)malloc(max_spaces + 1);
+	retbuf = (char*)malloc(max_spaces + 1);
 
 	int until = max_spaces - str.length();
 
-	for (int i=0; i < until; i++) {
+	for (int i = 0; i < until; i++) {
 		retbuf[i] = ' ';
 		// retstr += " ";
 	}
@@ -367,50 +357,53 @@ char *fill_spaces(QString str, int max_spaces)
 
 void PVRush::PVFormat::debug() const
 {
-	PVLOG_PLAIN( "\n"
-				 "id     |      type      |      mapping     |     plotting     |  color  |name \n");
-	PVLOG_PLAIN( "-------+----------------+------------------+------------------+---------+------...\n");
+	PVLOG_PLAIN("\n"
+	            "id     |      type      |      mapping     |     plotting     |  color  |name \n");
+	PVLOG_PLAIN(
+	    "-------+----------------+------------------+------------------+---------+------...\n");
 
 	list_axes_t::const_iterator it;
 	unsigned int i = 0;
 	for (it = _axes.begin(); it != _axes.end(); it++) {
-		char *fill;
+		char* fill;
 		PVAxisFormat const& axis = *it;
 
-		fill = fill_spaces(QString::number(i+1, 10), 7);
-		PVLOG_PLAIN( "%d%s", i, fill);
+		fill = fill_spaces(QString::number(i + 1, 10), 7);
+		PVLOG_PLAIN("%d%s", i, fill);
 		free(fill);
 		fill = fill_spaces(axis.get_type(), 15);
-		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_type()), fill);
+		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_type()), fill);
 		free(fill);
 		fill = fill_spaces(axis.get_mapping(), 17);
-		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_mapping()), fill);
+		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_mapping()), fill);
 		free(fill);
 		fill = fill_spaces(axis.get_plotting(), 17);
-		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_plotting()), fill);
+		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_plotting()), fill);
 		free(fill);
 		fill = fill_spaces(axis.get_color_str(), 8);
-		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_color_str()), fill);
+		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_color_str()), fill);
 		free(fill);
-		PVLOG_PLAIN( "| %s\n", qPrintable(axis.get_name()));
+		PVLOG_PLAIN("| %s\n", qPrintable(axis.get_name()));
 		i++;
 	}
 
 	// Dump filters
 	if (filters_params.size() == 0) {
 		PVLOG_PLAIN("No filters\n");
-	}
-	else {
+	} else {
 		PVLOG_PLAIN("Filters:\n");
 		PVLOG_PLAIN("--------\n");
 		PVXmlParamParser::list_params::const_iterator it_filters;
-		for (it_filters = filters_params.begin(); it_filters != filters_params.end(); it_filters++) {
+		for (it_filters = filters_params.begin(); it_filters != filters_params.end();
+		     it_filters++) {
 			PVXmlParamParserData const& fdata = *it_filters;
-			PVLOG_PLAIN("%d -> %s. Arguments:\n", fdata.axis_id, qPrintable(fdata.filter_lib->registered_name()));
+			PVLOG_PLAIN("%d -> %s. Arguments:\n", fdata.axis_id,
+			            qPrintable(fdata.filter_lib->registered_name()));
 			PVCore::PVArgumentList const& args = fdata.filter_args;
 			PVCore::PVArgumentList::const_iterator it_a;
 			for (it_a = args.begin(); it_a != args.end(); it_a++) {
-				PVLOG_PLAIN("'%s' = '%s'\n", qPrintable(it_a->key()), qPrintable(PVCore::PVArgument_to_QString(it_a->value())));
+				PVLOG_PLAIN("'%s' = '%s'\n", qPrintable(it_a->key()),
+				            qPrintable(PVCore::PVArgument_to_QString(it_a->value())));
 			}
 		}
 	}
@@ -453,7 +446,8 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 	return _already_pop;
 }
 
-PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
+PVFilter::PVFieldsBaseFilter_f
+PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 {
 	PVFilter::PVFieldsBaseFilter_f field_f;
 	PVCore::PVArgumentList args;
@@ -465,7 +459,8 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 
 	// Check if this is a "one_to_many" filter, and, in such case, set the number of
 	// expected fields.
-	PVFilter::PVFieldsFilter<PVFilter::one_to_many>* sp_p = dynamic_cast<PVFilter::PVFieldsFilter<PVFilter::one_to_many>*>(filter_clone.get());
+	PVFilter::PVFieldsFilter<PVFilter::one_to_many>* sp_p =
+	    dynamic_cast<PVFilter::PVFieldsFilter<PVFilter::one_to_many>*>(filter_clone.get());
 	if (sp_p) {
 		sp_p->set_number_expected_fields(fdata.nchildren);
 	}
@@ -486,21 +481,20 @@ PVFilter::PVChunkFilterByElt* PVRush::PVFormat::create_tbb_filters()
 	assert(elt_f);
 	if (_dump_elts) {
 		return new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f);
-	}
-	else
-	if (_restore_inv_elts) {
+	} else if (_restore_inv_elts) {
 		return new PVFilter::PVChunkFilterByEltRestoreInvalid(elt_f);
-	}
-	else {
+	} else {
 		return new PVFilter::PVChunkFilterByElt(elt_f);
 	}
 }
 
-PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool *cancellation)
+PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters_autodetect(float timeout,
+                                                                          bool* cancellation)
 {
 	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
 	assert(elt_f);
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilterByEltCancellable(elt_f, timeout, cancellation);
+	PVFilter::PVChunkFilter* chk_flt =
+	    new PVFilter::PVChunkFilterByEltCancellable(elt_f, timeout, cancellation);
 	return chk_flt->f();
 }
 
@@ -525,7 +519,8 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 	PVFilter::PVFieldsBaseFilter_f final_filter_f = first_filter;
 	PVRush::PVXmlParamParser::list_params::const_iterator it_filters;
 	if (filters_params.count() > 1) {
-		for (it_filters = filters_params.begin()+1; it_filters != filters_params.end(); it_filters++) {
+		for (it_filters = filters_params.begin() + 1; it_filters != filters_params.end();
+		     it_filters++) {
 			PVRush::PVXmlParamParserData const& fdata = *it_filters;
 			PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
 			if (field_f == NULL) {
@@ -547,20 +542,23 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 	}
 
 	// Finalise the pipeline
-	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(final_filter_f);
+	PVFilter::PVElementFilterByFields* elt_f =
+	    new PVFilter::PVElementFilterByFields(final_filter_f);
 	return elt_f->f();
 }
 
-QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString const& dir)
+QHash<QString, PVRush::PVFormat>
+PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString const& dir)
 {
 	QHash<QString, PVRush::PVFormat> ret;
 	QStringList normalize_helpers_dir_list = PVRush::normalize_get_helpers_plugins_dirs(dir);
 
-	for (int counter=0; counter < normalize_helpers_dir_list.count(); counter++) {
+	for (int counter = 0; counter < normalize_helpers_dir_list.count(); counter++) {
 		QString normalize_helpers_dir_str(normalize_helpers_dir_list[counter]);
 		PVLOG_INFO("Search for formats in %s\n", qPrintable(normalize_helpers_dir_str));
 		QDir normalize_helpers_dir(normalize_helpers_dir_str);
-		normalize_helpers_dir.setNameFilters(QStringList() << "*.format" << "*.pcre");
+		normalize_helpers_dir.setNameFilters(QStringList() << "*.format"
+		                                                   << "*.pcre");
 		QStringList files = normalize_helpers_dir.entryList();
 		QStringListIterator filesIterator(files);
 		while (filesIterator.hasNext()) {
@@ -569,7 +567,8 @@ QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString c
 			QString filename = fileInfo.completeBaseName();
 			QString plugin_name = format_name_prefix + QString(":") + filename;
 			PVLOG_INFO("Adding format '%s'\n", qPrintable(plugin_name));
-			ret.insert(plugin_name, PVFormat(plugin_name, normalize_helpers_dir.absoluteFilePath(current_file)));
+			ret.insert(plugin_name,
+			           PVFormat(plugin_name, normalize_helpers_dir.absoluteFilePath(current_file)));
 		}
 	}
 
@@ -584,21 +583,23 @@ void PVRush::PVFormat::only_keep_axes()
 	PVLOG_DEBUG("(PVRush::PVFormat) removing filters, we have '%d' fields.\n", _axes.size());
 }
 
-void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
+                                 PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("name", format_name);
 	so.attribute("path", full_path);
 	PVCore::PVFileSerialize format_file(full_path);
-	if (so.object("file", format_file, "Include original format file", !_original_was_serialized, (PVCore::PVFileSerialize*) NULL, !_original_was_serialized, false)) {
+	if (so.object("file", format_file, "Include original format file", !_original_was_serialized,
+	              (PVCore::PVFileSerialize*)NULL, !_original_was_serialized, false)) {
 		full_path = format_file.get_path();
 		if (!so.is_writing()) {
 			_original_was_serialized = true;
 		}
-	}
-	else
-	if (!so.is_writing() && !QFileInfo(full_path).isReadable()) {
-		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path));
-		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
+	} else if (!so.is_writing() && !QFileInfo(full_path).isReadable()) {
+		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
+		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path));
+		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
+		    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
 		so.repairable_error(error);
 		return;
 	}
@@ -614,9 +615,7 @@ PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) c
 		ret._mapping = true;
 		ret._plotting = true;
 		ret._other = true;
-	}
-	else
-	if (_axes.size() == original._axes.size()) {
+	} else if (_axes.size() == original._axes.size()) {
 		list_axes_t::const_iterator it, it_org;
 		it = _axes.begin();
 		it_org = original._axes.begin();
@@ -630,17 +629,19 @@ PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) c
 				break;
 			}
 			if (it->get_mapping() != it_org->get_mapping() ||
-				!PVCore::comp_hash(it->get_args_mapping_string(), it_org->get_args_mapping_string())) {
+			    !PVCore::comp_hash(it->get_args_mapping_string(),
+			                       it_org->get_args_mapping_string())) {
 				ret._mapping = true;
 			}
 			if (it->get_plotting() != it_org->get_plotting() ||
-				!PVCore::comp_hash(it->get_args_plotting_string(), it_org->get_args_plotting_string())) {
+			    !PVCore::comp_hash(it->get_args_plotting_string(),
+			                       it_org->get_args_plotting_string())) {
 				ret._plotting = true;
 			}
 			if (it->get_tags() != it_org->get_tags() ||
-				it->get_color_str() != it_org->get_color_str() ||
-				it->get_titlecolor_str() != it_org->get_titlecolor_str() ||
-				it->get_name() != it_org->get_name()) {
+			    it->get_color_str() != it_org->get_color_str() ||
+			    it->get_titlecolor_str() != it_org->get_titlecolor_str() ||
+			    it->get_name() != it_org->get_name()) {
 				ret._other = true;
 			}
 			it_org++;

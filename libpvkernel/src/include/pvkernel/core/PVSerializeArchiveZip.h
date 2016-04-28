@@ -11,26 +11,26 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-namespace PVCore {
-
-class PVSerializeArchiveZip: public PVSerializeArchive
+namespace PVCore
 {
-public:
+
+class PVSerializeArchiveZip : public PVSerializeArchive
+{
+  public:
 	PVSerializeArchiveZip(version_t v);
 	PVSerializeArchiveZip(QString const& zip_path, archive_mode mode, version_t v);
 	~PVSerializeArchiveZip();
 
-public:
+  public:
 	void open_zip(QString const& zip_path, archive_mode mode);
 
-public:
+  public:
 	virtual void finish();
 
-protected:
+  protected:
 	QString _zip_path;
 	QString _tmp_path;
 };
-
 }
 
 #endif

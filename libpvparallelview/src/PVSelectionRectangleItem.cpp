@@ -16,16 +16,12 @@
 
 #include <iostream>
 
-
 #define print_r(R) __print_rect(#R, R)
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R>
-void __print_rect(const char *text, const R &r)
+template <typename R> void __print_rect(const char* text, const R& r)
 {
-	std::cout << text << ": "
-	          << r.x() << " " << r.y() << ", "
-	          << r.width() << " " << r.height()
+	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
 }
 
@@ -34,14 +30,14 @@ void __print_rect(const char *text, const R &r)
  *****************************************************************************/
 
 PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem(const QRectF& rect,
-                                                                   QGraphicsItem* parent) :
-	QGraphicsObject(parent),
-	_rect(rect),
-	_x_min_value(0.),
-	_x_max_value(0.),
-	_y_min_value(0.),
-	_y_max_value(0.),
-	_sel_mode(RECTANGLE)
+                                                                   QGraphicsItem* parent)
+    : QGraphicsObject(parent)
+    , _rect(rect)
+    , _x_min_value(0.)
+    , _x_max_value(0.)
+    , _y_min_value(0.)
+    , _y_max_value(0.)
+    , _sel_mode(RECTANGLE)
 {
 	setAcceptHoverEvents(true);
 	setHandlesChildEvents(false);
@@ -80,7 +76,7 @@ void PVParallelView::PVSelectionRectangleItem::clear()
 	_rect = QRectF();
 	update_handles();
 	hide();
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->hide();
 		it->activate_cursor(false);
 	}
@@ -122,7 +118,7 @@ void PVParallelView::PVSelectionRectangleItem::begin(const QPointF& p)
 	prepareGeometryChange();
 	update_handles();
 	show();
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->show();
 	}
 	set_handles_cursor(Qt::BlankCursor);
@@ -163,7 +159,6 @@ void PVParallelView::PVSelectionRectangleItem::step(const QPointF& p)
 	update_handles();
 }
 
-
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangleItem::end
  *****************************************************************************/
@@ -193,15 +188,15 @@ void PVParallelView::PVSelectionRectangleItem::set_selection_mode(int sel_mode)
 	 */
 	clear();
 
-	std::cout << "PVSelectionRectangleItem::set_selection_mode(" << sel_mode << ")" <<std::endl;
-	switch(sel_mode) {
+	std::cout << "PVSelectionRectangleItem::set_selection_mode(" << sel_mode << ")" << std::endl;
+	switch (sel_mode) {
 	case RECTANGLE:
-		for(auto it : _handles) {
+		for (auto it : _handles) {
 			it->force_hidden(false);
 		}
 		break;
 	case HORIZONTAL:
-		for(auto it : _handles) {
+		for (auto it : _handles) {
 			if (it->is_type(PVSelectionHandleItem::W | PVSelectionHandleItem::E)) {
 				it->force_hidden(true);
 			} else {
@@ -210,7 +205,7 @@ void PVParallelView::PVSelectionRectangleItem::set_selection_mode(int sel_mode)
 		}
 		break;
 	case VERTICAL:
-		for(auto it : _handles) {
+		for (auto it : _handles) {
 			if (it->is_type(PVSelectionHandleItem::N | PVSelectionHandleItem::S)) {
 				it->force_hidden(true);
 			} else {
@@ -254,7 +249,7 @@ QCursor PVParallelView::PVSelectionRectangleItem::get_default_cursor() const
 
 void PVParallelView::PVSelectionRectangleItem::set_handles_pen_color(const QColor& col) const
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->set_pen_color(col);
 	}
 }
@@ -265,7 +260,7 @@ void PVParallelView::PVSelectionRectangleItem::set_handles_pen_color(const QColo
 
 void PVParallelView::PVSelectionRectangleItem::set_handles_brush_color(const QColor& col) const
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->set_brush_color(col);
 	}
 }
@@ -277,7 +272,7 @@ void PVParallelView::PVSelectionRectangleItem::set_handles_brush_color(const QCo
 void PVParallelView::PVSelectionRectangleItem::set_handles_scale(const qreal xscale,
                                                                  const qreal yscale) const
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->set_scale(xscale, yscale);
 	}
 }
@@ -306,8 +301,7 @@ qreal PVParallelView::PVSelectionRectangleItem::get_handles_y_scale() const
  * PVParallelView::PVSelectionRectangleItem::set_rect
  *****************************************************************************/
 
-void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect,
-                                                        bool commit)
+void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect, bool commit)
 {
 	prepareGeometryChange();
 
@@ -327,7 +321,7 @@ void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect,
 	QRectF old_rect = _rect;
 	_rect = QRectF(QPointF(lc, tc), QPointF(rc, bc));
 
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		if (need_hor_swap) {
 			it->swap_horizontally();
 		}
@@ -367,8 +361,7 @@ const QRectF PVParallelView::PVSelectionRectangleItem::get_rect() const
  * PVParallelView::PVSelectionRectangleItem::set_x_range
  *****************************************************************************/
 
-void PVParallelView::PVSelectionRectangleItem::set_x_range(qreal min_value,
-                                                           qreal max_value)
+void PVParallelView::PVSelectionRectangleItem::set_x_range(qreal min_value, qreal max_value)
 {
 	_x_min_value = min_value;
 	_x_max_value = max_value;
@@ -378,8 +371,7 @@ void PVParallelView::PVSelectionRectangleItem::set_x_range(qreal min_value,
  * PVParallelView::PVSelectionRectangleItem::set_y_range
  *****************************************************************************/
 
-void PVParallelView::PVSelectionRectangleItem::set_y_range(qreal min_value,
-                                                           qreal max_value)
+void PVParallelView::PVSelectionRectangleItem::set_y_range(qreal min_value, qreal max_value)
 {
 	_y_min_value = min_value;
 	_y_max_value = max_value;
@@ -433,13 +425,13 @@ QVariant PVParallelView::PVSelectionRectangleItem::itemChange(GraphicsItemChange
 {
 	if (change == QGraphicsItem::ItemSceneHasChanged) {
 		if (scene()) {
-			for(const auto h : _handles) {
+			for (const auto h : _handles) {
 				scene()->addItem(h);
 			}
 		}
 	} else if (change == QGraphicsItem::ItemZValueHasChanged) {
 		qreal zvalue = zValue();
-		for(const auto h : _handles) {
+		for (const auto h : _handles) {
 			h->setZValue(2. * zvalue);
 		}
 		_central_handle->setZValue(3. * zvalue);
@@ -454,7 +446,7 @@ QVariant PVParallelView::PVSelectionRectangleItem::itemChange(GraphicsItemChange
 
 void PVParallelView::PVSelectionRectangleItem::update_handles() const
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->update_geometry(_rect);
 	}
 }
@@ -465,7 +457,7 @@ void PVParallelView::PVSelectionRectangleItem::update_handles() const
 
 void PVParallelView::PVSelectionRectangleItem::set_handles_cursor(const QCursor& cursor)
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->setCursor(cursor);
 	}
 }
@@ -476,7 +468,7 @@ void PVParallelView::PVSelectionRectangleItem::set_handles_cursor(const QCursor&
 
 void PVParallelView::PVSelectionRectangleItem::reset_handles_cursor()
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->activate_cursor(true);
 	}
 }
@@ -487,7 +479,7 @@ void PVParallelView::PVSelectionRectangleItem::reset_handles_cursor()
 
 void PVParallelView::PVSelectionRectangleItem::show_all_handles() const
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		it->set_visible(true);
 	}
 }
@@ -505,9 +497,10 @@ void PVParallelView::PVSelectionRectangleItem::hide_all_handles() const
  * PVParallelView::PVSelectionRectangleItem::hide_all_handles_but
  *****************************************************************************/
 
-void PVParallelView::PVSelectionRectangleItem::hide_all_handles_but(PVSelectionHandleItem* handle) const
+void
+PVParallelView::PVSelectionRectangleItem::hide_all_handles_but(PVSelectionHandleItem* handle) const
 {
-	for(auto it : _handles) {
+	for (auto it : _handles) {
 		if (it != handle) {
 			it->set_visible(false);
 		}

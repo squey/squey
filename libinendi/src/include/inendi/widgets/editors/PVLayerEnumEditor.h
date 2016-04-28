@@ -13,25 +13,25 @@
 #include <pvkernel/core/general.h>
 #include <inendi/PVView.h>
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
 class PVLayerEnumEditor : public QComboBox
 {
 	Q_OBJECT
 	Q_PROPERTY(Inendi::PVLayer* _layer READ get_layer WRITE set_layer USER true)
 
-public:
-	PVLayerEnumEditor(Inendi::PVView const& view, QWidget *parent = 0);
+  public:
+	PVLayerEnumEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVLayerEnumEditor();
 
-public:
+  public:
 	Inendi::PVLayer* get_layer() const;
 	void set_layer(Inendi::PVLayer* l);
 
-protected:
+  protected:
 	Inendi::PVView const& _view;
 };
-
 }
 
 #endif

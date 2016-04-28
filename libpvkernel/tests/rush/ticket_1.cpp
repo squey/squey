@@ -7,7 +7,8 @@
 
 /* Test case for ticket 1.
  * Here, we try to reproduce this bug by reading a lot of format consecutively, and checking if,
- * for the regexp, the correct one is choosen. This is due to th fact that thread-local objects are used
+ * for the regexp, the correct one is choosen. This is due to th fact that thread-local objects are
+ * used
  * the regexp object, so that it cnap ersist between different formats.
  */
 
@@ -45,10 +46,12 @@ int main(int argc, char** argv)
 
 	// Format reading
 	QDir dir_files(QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/1/"));
-	QStringList files = dir_files.entryList(QStringList() << QString("*.format"), QDir::Files | QDir::Readable, QDir::Name);
+	QStringList files = dir_files.entryList(QStringList() << QString("*.format"),
+	                                        QDir::Files | QDir::Readable, QDir::Name);
 
 	// Text file source creator
-	PVRush::PVSourceCreator_p text_file_lib = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
+	PVRush::PVSourceCreator_p text_file_lib =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
 
 	if (files.size() == 0) {
 		std::cerr << "No files in tickets/1/. Test failed." << std::endl;
@@ -69,7 +72,8 @@ int main(int argc, char** argv)
 			PVRush::PVFormat format("format", fpath);
 
 			PVRush::PVInputDescription_p file_arg(new PVRush::PVFileDescription(file_load));
-			float sr = PVRush::PVSourceCreatorFactory::discover_input(PVRush::pair_format_creator(format, text_file_lib), file_arg);
+			float sr = PVRush::PVSourceCreatorFactory::discover_input(
+			    PVRush::pair_format_creator(format, text_file_lib), file_arg);
 			if (sr > 0.8 && files[j] == files[i]) {
 				ok = true;
 			}

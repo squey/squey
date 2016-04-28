@@ -11,18 +11,14 @@
 #include <QMetaType>
 Q_DECLARE_METATYPE(std::string)
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
-namespace PVCustomQtRoles {
+namespace PVCustomQtRoles
+{
 
-enum {
-	Sort = Qt::UserRole,
-	RoleSetSelectedItem,
-	UnderlyingObject
-};
-
+enum { Sort = Qt::UserRole, RoleSetSelectedItem, UnderlyingObject };
 }
-
 }
 
 #endif

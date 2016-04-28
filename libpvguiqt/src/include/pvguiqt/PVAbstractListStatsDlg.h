@@ -21,39 +21,37 @@
 
 class QComboBox;
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVStatsModel;
 
-namespace __impl {
+namespace __impl
+{
 class PVListStringsDelegate;
 class PVAbstractListStatsRangePicker;
 }
 
 class PVStatsSortProxyModel;
 
-class PVAbstractListStatsDlg: public PVListDisplayDlg
+class PVAbstractListStatsDlg : public PVListDisplayDlg
 {
 	// TODO: Better members visibility
 	Q_OBJECT
 
 	friend class __impl::PVListStringsDelegate;
 
-public:
-	PVAbstractListStatsDlg(
-		Inendi::PVView_sp& view,
-		PVCol c,
-		PVStatsModel* model,
-		QWidget* parent = nullptr
-	);
+  public:
+	PVAbstractListStatsDlg(Inendi::PVView_sp& view, PVCol c, PVStatsModel* model,
+	                       QWidget* parent = nullptr);
 
 	void init(Inendi::PVView_sp& view);
 
-public:
+  public:
 	/**
 	 * Get the model with correct type.
 	 */
-	PVStatsModel& model() override { return *static_cast<PVStatsModel *>(_model); }
+	PVStatsModel& model() override { return *static_cast<PVStatsModel*>(_model); }
 	PVStatsModel const& model() const override { return *static_cast<PVStatsModel const*>(_model); }
 
 	inline double absolute_max_count() const { return model().absolute_max_count(); }
@@ -61,10 +59,10 @@ public:
 	inline double relative_max_count() const { return model().relative_max_count(); }
 	inline double max_count() const { return model().max_count(); }
 
-	inline bool use_logarithmic_scale() { return model().use_log_scale();  }
+	inline bool use_logarithmic_scale() { return model().use_log_scale(); }
 
-protected:
-	void showEvent(QShowEvent * event) override;
+  protected:
+	void showEvent(QShowEvent* event) override;
 	void sort_by_column(int col);
 	bool process_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
@@ -79,7 +77,7 @@ protected:
 	 */
 	void create_layers_for_selected_values();
 
-protected slots:
+  protected slots:
 	void view_resized();
 	void section_resized(int logicalIndex, int oldSize, int newSize);
 	void scale_changed(QAction* act);
@@ -87,7 +85,7 @@ protected slots:
 	void section_clicked(int col);
 	void sort();
 
-protected slots:
+  protected slots:
 	void select_set_mode_count(bool checked);
 	void select_set_mode_frequency(bool checked);
 	void select_refresh(bool checked);
@@ -97,12 +95,12 @@ protected slots:
 	 */
 	void show_hhead_ctxt_menu(const QPoint& pos);
 
-protected:
+  protected:
 	Inendi::PVView* lib_view() { return _obs.get_object(); }
-	void multiple_search(QAction* act, const QStringList &sl, bool hide_dialog = true);
+	void multiple_search(QAction* act, const QStringList& sl, bool hide_dialog = true);
 	void resize_section();
 
-protected:
+  protected:
 	PVCol _col;
 	PVHive::PVObserverSignal<Inendi::PVView> _obs;
 	PVHive::PVActor<Inendi::PVView> _actor;
@@ -119,7 +117,7 @@ protected:
 	QAction* _act_show_scientific_notation;
 
 	__impl::PVAbstractListStatsRangePicker* _select_picker;
-	bool                                    _select_is_count;
+	bool _select_is_count;
 
 	QMenu* _copy_values_menu;
 	QAction* _copy_values_without_count_act;
@@ -133,7 +131,7 @@ protected:
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
 	PVCore::PVArgumentList _ctxt_args;
 
-private:
+  private:
 	/**
 	 * RH: a litle hack to replace a bigger one :-]
 	 * We use the multiple search action named "Search for this value" to
@@ -145,24 +143,23 @@ private:
 	int _sort_section = 1;
 };
 
-namespace __impl {
+namespace __impl
+{
 
-class PVListStringsDelegate: public QStyledItemDelegate
+class PVListStringsDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVListStringsDelegate(PVAbstractListStatsDlg* parent) : QStyledItemDelegate(parent) {}
 
-protected:
-	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+  protected:
+	void paint(QPainter* painter, const QStyleOptionViewItem& option,
+	           const QModelIndex& index) const override;
 
 	PVGuiQt::PVAbstractListStatsDlg* d() const;
 };
-
 }
-
 }
-
 
 #endif // __PVGUIQT_PVABSTRACTLISTSTATSDLG_H__

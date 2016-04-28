@@ -49,23 +49,24 @@ class PVViewDisplay : public QDockWidget
 	friend PVSourceWorkspace;
 	friend PVOpenWorkspace;
 
-	enum EState{ HIDDEN, CAN_MAXIMIZE, CAN_RESTORE };
+	enum EState { HIDDEN, CAN_MAXIMIZE, CAN_RESTORE };
 
-public:
+  public:
 	~PVViewDisplay() { delete _obs_plotting; }
 
-public:
+  public:
 	/*! \brief Call Inendi::PVRoot::select_view through the Hive.
-	 * This is called by the application level events filter DisplaysFocusInEventFilter on PVViewDisplay QEvent::FocusIn events.
+	 * This is called by the application level events filter DisplaysFocusInEventFilter on
+	 * PVViewDisplay QEvent::FocusIn events.
 	 */
 	void set_current_view();
 
-public:
+  public:
 	Inendi::PVView* get_view() { return _view; }
 	void set_view(Inendi::PVView* view) { _view = view; }
 	void about_to_be_deleted() { _about_to_be_deleted = true; }
 
-protected:
+  protected:
 	/*! \brief Filter events to allow a PVViewDisplay to be docked inside any other PVWorkspace.
 	 */
 	bool event(QEvent* event) override;
@@ -74,7 +75,7 @@ protected:
 	 */
 	void contextMenuEvent(QContextMenuEvent* event) override;
 
-private slots:
+  private slots:
 	/*! \brief Store the state of the drag&drop operation.
 	 */
 	void drag_started(bool started);
@@ -98,12 +99,12 @@ signals:
 	 */
 	void try_automatic_tab_switch();
 
-private:
+  private:
 	/*! \brief Register the view to handle several events.
 	 */
 	void register_view(Inendi::PVView* view);
 
-private:
+  private:
 	/*! \brief Creates a view display.
 	 *  \param[in] view The underlying PVView.
 	 *  \param[in] view_widget The widget displayed by the dock widget.
@@ -112,23 +113,18 @@ private:
 	 *  \param[in] delete_on_close Specifies if the display is deleted when closed.
 	 *  \param[in] workspace The parent workspace.
 	 *
-	 *  \note this constructor is intended to be called only by PVWorkspace, hence the private visibility.
+	 *  \note this constructor is intended to be called only by PVWorkspace, hence the private
+	 *visibility.
 	 */
-	PVViewDisplay(
-		Inendi::PVView* view,
-		QWidget* view_widget,
-		std::function<QString()> name,
-		bool can_be_central_widget,
-		bool delete_on_close,
-		PVWorkspaceBase* parent
-	);
+	PVViewDisplay(Inendi::PVView* view, QWidget* view_widget, std::function<QString()> name,
+	              bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* parent);
 
-private:
+  private:
 	Inendi::PVView* _view;
 	std::function<QString()> _name;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
-	PVHive::PVObserverSignal<Inendi::PVPlotting>*  _obs_plotting = nullptr;
+	PVHive::PVObserverSignal<Inendi::PVPlotting>* _obs_plotting = nullptr;
 	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
 	bool _about_to_be_deleted = false;
 	bool _can_be_central_widget;
@@ -140,9 +136,7 @@ private:
 	EState _state = HIDDEN;
 
 	QSignalMapper* _screenSignalMapper;
-
 };
-
 }
 
 #endif // #ifndef __PVGUIQT_PVVIEWDISPLAY_H__

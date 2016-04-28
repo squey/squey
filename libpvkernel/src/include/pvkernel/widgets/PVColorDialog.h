@@ -12,29 +12,32 @@
 
 #include <pvkernel/ui_PVColorDialog.h>
 
-namespace PVCore {
+namespace PVCore
+{
 class PVHSVColor;
 }
 
-namespace PVWidgets {
+namespace PVWidgets
+{
 
-namespace __impl {
+namespace __impl
+{
 class PVLabelEventFilter;
 }
 
 class PVColorPicker;
 
-class PVColorDialog: public QDialog, Ui::PVColorDialog
+class PVColorDialog : public QDialog, Ui::PVColorDialog
 {
 	Q_OBJECT
 
 	friend class __impl::PVLabelEventFilter;
 
-public:
+  public:
 	PVColorDialog(QWidget* parent = NULL);
 	PVColorDialog(PVCore::PVHSVColor const& c, QWidget* parent = NULL);
 
-public:
+  public:
 	void set_color(PVCore::PVHSVColor const c);
 	inline PVCore::PVHSVColor color() const { return picker()->color(); };
 
@@ -48,11 +51,11 @@ public:
 signals:
 	void color_changed(int h);
 
-protected:
+  protected:
 	void label_button_pressed(QLabel* label, QMouseEvent* event);
 	void label_button_released(QLabel* label, QMouseEvent* event);
 
-private:
+  private:
 	void init();
 	void show_color(PVCore::PVHSVColor const c);
 
@@ -62,15 +65,14 @@ private:
 	void set_predefined_color_from_label(QLabel* label);
 	void unselect_all_preselected_colors();
 
-private slots:
+  private slots:
 	void picker_color_changed(int h);
 	void set_predefined_color_from_action();
 	void reset_predefined_color_from_action();
 
-private:
+  private:
 	__impl::PVLabelEventFilter* _label_event_filter;
 };
-
 }
 
 #endif

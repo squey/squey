@@ -11,7 +11,8 @@
 #include <QDialog>
 #include <QComboBox>
 
-namespace Inendi {
+namespace Inendi
+{
 class PVScene;
 class PVRoot;
 }
@@ -22,16 +23,17 @@ namespace PVGuiQt
 class PVImportSourceToProjectDlg : public QDialog
 {
 	Q_OBJECT;
-public:
-	PVImportSourceToProjectDlg(Inendi::PVRoot const& root, Inendi::PVScene const* sel_scene, QWidget* parent = 0);
 
-public:
+  public:
+	PVImportSourceToProjectDlg(Inendi::PVRoot const& root, Inendi::PVScene const* sel_scene,
+	                           QWidget* parent = 0);
+
+  public:
 	Inendi::PVScene const* get_selected_scene() const;
 
-private:
+  private:
 	QComboBox* _combo_box;
 };
-
 }
 
 #endif /* __PVGUIQT_PVIMPORTSOURCETOPROJECTDLG_H__ */

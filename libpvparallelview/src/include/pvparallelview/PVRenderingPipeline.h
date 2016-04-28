@@ -20,15 +20,18 @@
 
 #include <functional>
 
-namespace PVCore {
+namespace PVCore
+{
 class PVHSVColor;
 }
 
-namespace Inendi {
+namespace Inendi
+{
 class PVSelection;
 }
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVRenderingPipelinePreprocessRouter;
 class PVBCIDrawingBackend;
@@ -36,17 +39,18 @@ class PVRenderingPipeline;
 
 class PVZonesManager;
 
-class PVRenderingPipeline: boost::noncopyable
+class PVRenderingPipeline : boost::noncopyable
 {
 	// Structures of objects passed through the graph
 	struct ZoneRenderingWithBCI
 	{
 		// Used by TBB internally
-		ZoneRenderingWithBCI() { }
+		ZoneRenderingWithBCI() {}
 
-		ZoneRenderingWithBCI(PVZoneRenderingBCIBase_p zr_, PVBCICodeBase* codes_, size_t ncodes_):
-			zr(zr_), codes(codes_), ncodes(ncodes_)
-		{ }
+		ZoneRenderingWithBCI(PVZoneRenderingBCIBase_p zr_, PVBCICodeBase* codes_, size_t ncodes_)
+		    : zr(zr_), codes(codes_), ncodes(ncodes_)
+		{
+		}
 
 		PVZoneRenderingBCIBase_p zr;
 		PVBCICodeBase* codes;
@@ -62,38 +66,42 @@ class PVRenderingPipeline: boost::noncopyable
 	/**
 	 * Preprocessing before entering the pipeline.
 	 */
-	class Preprocessor: boost::noncopyable
+	class Preprocessor : boost::noncopyable
 	{
-		public:
-			/**
-			 * Type of the preprocessing function to apply for a given ZoneID
-			 */
-			using preprocess_func_type = std::function<void(PVZoneID)>;
+	  public:
+		/**
+		 * Type of the preprocessing function to apply for a given ZoneID
+		 */
+		using preprocess_func_type = std::function<void(PVZoneID)>;
 
-		private:
-			using multinode_router = PVRenderingPipelinePreprocessRouter::multinode_router;
-			using input_port_type = tbb::flow::receiver<PVZoneRendering_p>;
+	  private:
+		using multinode_router = PVRenderingPipelinePreprocessRouter::multinode_router;
+		using input_port_type = tbb::flow::receiver<PVZoneRendering_p>;
 
-		public:
-			/**
-			 * Build a TBB pipeline to apply preprocessing.
-			 */
-			Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job, preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
+	  public:
+		/**
+		 * Build a TBB pipeline to apply preprocessing.
+		 */
+		Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job,
+		             input_port_cancel_type& node_cancel_job, preprocess_func_type const& f,
+		             PVCore::PVHSVColor const* colors, size_t nzones);
 
-			/**
-			 * Input where we should push "token ZoneRedering"
-			 */
-			inline input_port_type& input_port() { return node_router; }
+		/**
+		 * Input where we should push "token ZoneRedering"
+		 */
+		inline input_port_type& input_port() { return node_router; }
 
-			/**
-			 * Routing function to update state defining if preprocessing should be recomputed.
-			 */
-			PVRenderingPipelinePreprocessRouter& get_router() { return router; }
+		/**
+		 * Routing function to update state defining if preprocessing should be recomputed.
+		 */
+		PVRenderingPipelinePreprocessRouter& get_router() { return router; }
 
-		private:
-			PVRenderingPipelinePreprocessRouter router; //!< Routing functor on preprocess node or continue pipeline.
-			tbb::flow::function_node<PVZoneRendering_p, PVZoneRendering_p> node_process; //!< Preprocessing function node.
-			multinode_router node_router; //!< routing node based on router.
+	  private:
+		PVRenderingPipelinePreprocessRouter
+		    router; //!< Routing functor on preprocess node or continue pipeline.
+		tbb::flow::function_node<PVZoneRendering_p, PVZoneRendering_p>
+		    node_process;             //!< Preprocessing function node.
+		multinode_router node_router; //!< routing node based on router.
 	};
 
 	// Cancellation points types
@@ -104,30 +112,37 @@ class PVRenderingPipeline: boost::noncopyable
 	constexpr static size_t wr_bci = 0;
 	constexpr static size_t wr_scatter = 1;
 
-	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, PVZoneRendering_p, tbb::flow::continue_msg> > cp_postlimiter_type;
-	typedef tbb::flow::multifunction_node<ZoneRenderingWithBCI, std::tuple<ZoneRenderingWithBCI, ZoneRenderingWithBCI> > cp_postcomputebci_type;
-	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, ZoneRenderingWithColors> > workflow_router_type;
+	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors,
+	                                      std::tuple<ZoneRenderingWithColors, PVZoneRendering_p,
+	                                                 tbb::flow::continue_msg>> cp_postlimiter_type;
+	typedef tbb::flow::multifunction_node<ZoneRenderingWithBCI,
+	                                      std::tuple<ZoneRenderingWithBCI, ZoneRenderingWithBCI>>
+	    cp_postcomputebci_type;
+	typedef tbb::flow::multifunction_node<
+	    ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, ZoneRenderingWithColors>>
+	    workflow_router_type;
 
-public:
+  public:
 	PVRenderingPipeline(PVBCIDrawingBackend& bci_backend);
 	~PVRenderingPipeline();
 
-public:
-	PVZonesProcessor declare_processor(Preprocessor::preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones);
+  public:
+	PVZonesProcessor declare_processor(Preprocessor::preprocess_func_type const& f,
+	                                   PVCore::PVHSVColor const* colors, size_t nzones);
 
 	void cancel_all();
 	void wait_for_all();
 
-private:
+  private:
 	inline tbb::flow::graph& tbb_graph() { return _g; }
 	inline tbb::flow::graph const& tbb_graph() const { return _g; }
 
-private:
+  private:
 	// FIXME : Unique ptr is use as move constructor is disabled
 	std::vector<std::unique_ptr<Preprocessor>> _preprocessors;
 	PVBCIBuffers<BCI_BUFFERS_COUNT> _bci_buffers;
 
-private:
+  private:
 	tbb::flow::graph _g;
 	tbb::flow::function_node<ZoneRenderingWithColors, ZoneRenderingWithBCI>* _node_compute_bci;
 	tbb::flow::function_node<ZoneRenderingWithBCI, ZoneRenderingWithBCI>* _node_draw_bci;
@@ -135,7 +150,6 @@ private:
 	tbb::flow::function_node<PVZoneRendering_p>* _node_finish;
 	tbb::flow::function_node<ZoneRenderingWithColors, PVZoneRendering_p>* _node_compute_scatter;
 	workflow_router_type* _workflow_router;
-	
 
 	// Cancellation points
 	cp_postlimiter_type* _cp_postlimiter;
@@ -144,7 +158,6 @@ private:
 	tbb::flow::limiter_node<ZoneRenderingWithColors> _node_limiter;
 	tbb::flow::buffer_node<ZoneRenderingWithColors> _node_buffer;
 };
-
 }
 
 #endif

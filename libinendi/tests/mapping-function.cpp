@@ -14,7 +14,8 @@ using Inendi::PVMappingFactory;
 
 int main(void)
 {
-	// PVMappingFunction mappingfunction("../plugins/functions/libfunction_mapping_enum_default.so");
+	// PVMappingFunction
+	// mappingfunction("../plugins/functions/libfunction_mapping_enum_default.so");
 	PVMappingFactory mf;
 
 #include "test-env.h"

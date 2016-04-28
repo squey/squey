@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -18,12 +18,13 @@
  * PVGuiQt::PVTableView::viewportEvent
  *
  *****************************************************************************/
-bool PVGuiQt::PVTableView::viewportEvent(QEvent *event) {
+bool PVGuiQt::PVTableView::viewportEvent(QEvent* event)
+{
 	if (event->type() == QEvent::ToolTip) {
 		// Check if the text is elided. If it is, keep going, otherwise, hide
 		// the current ToolTip (from another cell maybe) and intercept the
 		// event.
-		QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
+		QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
 		// We don't need to care about row reindexing as row are fixed height
 		// and column give same width for every row
 		QModelIndex index = indexAt(helpEvent->pos());
@@ -45,7 +46,8 @@ bool PVGuiQt::PVTableView::viewportEvent(QEvent *event) {
  * PVGuiQt::PVTableView::resizeEvent
  *
  *****************************************************************************/
-void PVGuiQt::PVTableView::resizeEvent(QResizeEvent *event) {
+void PVGuiQt::PVTableView::resizeEvent(QResizeEvent* event)
+{
 	QTableView::resizeEvent(event);
 	emit resize();
 }

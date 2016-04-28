@@ -47,11 +47,6 @@ typedef unsigned short PRUint16;
 #define PR_TRUE true
 #define nsnull 0
 
-
-enum nsresult
-{
-    NS_OK,
-    NS_ERROR_OUT_OF_MEMORY
-};
+enum nsresult { NS_OK, NS_ERROR_OUT_OF_MEMORY };
 
 #endif

@@ -16,14 +16,14 @@
 
 namespace PVWidgets
 {
-	class QKeySequenceWidget;
+class QKeySequenceWidget;
 }
 
 namespace Inendi
 {
-	class PVAxesCombination;
-	class PVView;
-	class PVSelection;
+class PVAxesCombination;
+class PVView;
+class PVSelection;
 }
 
 namespace PVGuiQt
@@ -39,7 +39,7 @@ class PVExportSelectionDlg : public QFileDialog
 {
 	Q_OBJECT;
 
-public:
+  public:
 	/** Pop the FileDialog and perform the export.
 	 *
 	 * ExportSelectionDlg can't be created directly, creation and export are
@@ -47,8 +47,8 @@ public:
 	 */
 	static void export_selection(Inendi::PVView& view, const Inendi::PVSelection& sel);
 
-private: // Interfaces used to export the selection
-	enum class AxisCombinationKind {ALL, CURRENT, CUSTOM};
+  private: // Interfaces used to export the selection
+	enum class AxisCombinationKind { ALL, CURRENT, CUSTOM };
 
 	/** Create a FileDialog to export selection
 	 *
@@ -56,7 +56,8 @@ private: // Interfaces used to export the selection
 	 * @param view : The view to export
 	 * @param parent : parent widget (as usual in Qt)
 	 */
-	PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination, Inendi::PVView& view, QWidget* parent = 0);
+	PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination, Inendi::PVView& view,
+	                     QWidget* parent = 0);
 
 	/** Return the kind of axis combination we want to export. */
 	AxisCombinationKind combination_kind() const;
@@ -70,24 +71,24 @@ private: // Interfaces used to export the selection
 	/** Wether we want to export an header line or not. */
 	inline bool export_columns_header() const { return _columns_header->isChecked(); }
 
-private slots:
+  private slots:
 	/** Enable or disable the button to edit custom axis exported. */
 	void show_edit_axes_widget(bool show);
 
 	/** Show the widget to edit axis combination */
 	void show_axes_combination_widget();
 
-private:
-	PVAxesCombinationWidget* _axes_combination_widget; //!< The axis combination widget to select axis to export
-	PVWidgets::QKeySequenceWidget* _quote_char; //!< Character to use to quote a field
+  private:
+	PVAxesCombinationWidget*
+	    _axes_combination_widget; //!< The axis combination widget to select axis to export
+	PVWidgets::QKeySequenceWidget* _quote_char;     //!< Character to use to quote a field
 	PVWidgets::QKeySequenceWidget* _separator_char; //!< Character to use as a csv separator
-	QCheckBox* _columns_header; //!< Box to say if we want to export header line or not
+	QCheckBox* _columns_header;          //!< Box to say if we want to export header line or not
 	QPushButton* _edit_axes_combination; //!< The edit button to select custom axis
-	QRadioButton* _all_axis; //!< Buttom if all axis are exported
-	QRadioButton* _current_axis; //!< Button to export only axis from current view
-	QRadioButton* _custom_axis; //!< Button if custom selected axis are exported
+	QRadioButton* _all_axis;             //!< Buttom if all axis are exported
+	QRadioButton* _current_axis;         //!< Button to export only axis from current view
+	QRadioButton* _custom_axis;          //!< Button if custom selected axis are exported
 };
-
 }
 
 #endif // __PVGUIQT_PVEXPORTSELECTIONDLG_H__

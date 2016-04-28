@@ -11,34 +11,37 @@
 #include <pvkernel/core/general.h>
 #include <QTreeView>
 
-namespace PVCore {
+namespace PVCore
+{
 class PVDataTreeObjectBase;
 }
 
-namespace Inendi {
+namespace Inendi
+{
 class PVPlotted;
 class PVMapped;
 class PVView;
 }
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVRootTreeModel;
 
-class PVRootTreeView: public QTreeView
+class PVRootTreeView : public QTreeView
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVRootTreeView(QAbstractItemModel* model, QWidget* parent = 0);
 
-public:
-	template <typename T, typename F>
-	void visit_selected_objs_as(F const& f)
+  public:
+	template <typename T, typename F> void visit_selected_objs_as(F const& f)
 	{
 		QModelIndexList sel = selectedIndexes();
-		for (QModelIndex const& idx: sel) {
-			PVCore::PVDataTreeObjectBase* obj_base = (PVCore::PVDataTreeObjectBase*) idx.internalPointer();
+		for (QModelIndex const& idx : sel) {
+			PVCore::PVDataTreeObjectBase* obj_base =
+			    (PVCore::PVDataTreeObjectBase*)idx.internalPointer();
 			T* obj = dynamic_cast<T*>(obj_base);
 			if (obj) {
 				f(obj);
@@ -46,40 +49,37 @@ public:
 		}
 	}
 
-protected:
+  protected:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void contextMenuEvent(QContextMenuEvent* event) override;
 	void enterEvent(QEvent* event) override;
 	void leaveEvent(QEvent* event) override;
 
-protected slots:
+  protected slots:
 	// Actions slots
 	void create_new_view();
 	void edit_mapping();
 	void edit_plotting();
 
-protected:
+  protected:
 	PVCore::PVDataTreeObjectBase* get_selected_obj();
 
-	template <typename T>
-	T* get_selected_obj_as()
+	template <typename T> T* get_selected_obj_as()
 	{
 		return dynamic_cast<T*>(this->get_selected_obj());
 	}
 
-protected:
+  protected:
 	PVRootTreeModel* tree_model();
 	PVRootTreeModel const* tree_model() const;
 
-private:
+  private:
 	QAction* _act_new_view;
 	QAction* _act_new_plotted;
 	QAction* _act_new_mapped;
 	QAction* _act_edit_mapping;
 	QAction* _act_edit_plotting;
-
 };
-
 }
 
 #endif // PVROOTTREEVIEW_H

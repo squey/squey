@@ -6,253 +6,253 @@
  */
 
 #ifndef NODEDOM_H
-#define	NODEDOM_H
+#define NODEDOM_H
 
 #include <QObject>
-#include<QString>
-#include<QStringList>
-#include<QList>
-#include<QDomElement>
-#include<QDomDocument>
-#include<QDebug>
+#include <QString>
+#include <QStringList>
+#include <QList>
+#include <QDomElement>
+#include <QDomDocument>
+#include <QDebug>
 #include <QSet>
 #include <QHash>
 
-#include<iostream>
+#include <iostream>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
-#define trace_2(texte,texte2) { std::cout<<texte<<" "<<texte2<<std::endl; }
+#define trace_2(texte, texte2)                                                                     \
+	{                                                                                              \
+		std::cout << texte << " " << texte2 << std::endl;                                          \
+	}
 
+#define PVXmlTreeNodeDom_initXml                                                                   \
+	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"
 
-#define PVXmlTreeNodeDom_initXml "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"
-    
-namespace PVRush {
+namespace PVRush
+{
 
-typedef QHash<QString, QSet<QString> > types_groups_t;
+typedef QHash<QString, QSet<QString>> types_groups_t;
 
-class PVXmlTreeNodeDom:public QObject {
-    Q_OBJECT
-public:
-    enum Type {
-        Root, field, RegEx, filter, axis, url, splitter, converter
-    };
-    
-    
-    PVXmlTreeNodeDom();
-    PVXmlTreeNodeDom(QDomElement const& dom);
+class PVXmlTreeNodeDom : public QObject
+{
+	Q_OBJECT
+  public:
+	enum Type { Root, field, RegEx, filter, axis, url, splitter, converter };
 
-    
-    /**
-     * Constructor defining the name for le node.
-     * @param _type
-     * @param _str
-     */
-    PVXmlTreeNodeDom(Type _type, const QString &_str,  QDomElement &dom, QDomDocument &file);
-    void init(Type _type, const QString &_str, QDomElement &dom, QDomDocument &xmlFile_);
-    virtual ~PVXmlTreeNodeDom();
+	PVXmlTreeNodeDom();
+	PVXmlTreeNodeDom(QDomElement const& dom);
 
+	/**
+	 * Constructor defining the name for le node.
+	 * @param _type
+	 * @param _str
+	 */
+	PVXmlTreeNodeDom(Type _type, const QString& _str, QDomElement& dom, QDomDocument& file);
+	void init(Type _type, const QString& _str, QDomElement& dom, QDomDocument& xmlFile_);
+	virtual ~PVXmlTreeNodeDom();
 
 	static PVRush::PVXmlTreeNodeDom* new_format(QDomDocument& file);
-    
-    /**
-     * Add a child.
-     * @param child
-     */
-    void addChild(PVXmlTreeNodeDom *child);
-    /**
-     * Add a child specifying the row index.
-     * @param child
-     * @param row
-     */
-    void addChildAt(PVXmlTreeNodeDom *child, int row);
-    
-    /**
-     * Remove a child
-     * @param child
-     */
-    void removeChild(PVXmlTreeNodeDom *child);
-    
-    /**
-     * Return the child from index row.
-     * @param i
-     * @return the child
-     */
-    PVXmlTreeNodeDom* getChild(int i);
-    
-    /**
-     * Return the list with the children.
-     * @return children list
-     */
-    QList<PVXmlTreeNodeDom*> getChildren();
-    
-    /**
-     * Return the children count.
-     * @return number
-     */
-    int countChildren();
-    
-    /**
-     * Return the parent node.
-     * @return parent
-     */
-    PVXmlTreeNodeDom *getParent();
-    
-    
-    /**
-     * Return index row in the child list of parent.
-     * @return 
-     */
-    int getRow();
 
-	static void setFromArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args);
+	/**
+	 * Add a child.
+	 * @param child
+	 */
+	void addChild(PVXmlTreeNodeDom* child);
+	/**
+	 * Add a child specifying the row index.
+	 * @param child
+	 * @param row
+	 */
+	void addChildAt(PVXmlTreeNodeDom* child, int row);
+
+	/**
+	 * Remove a child
+	 * @param child
+	 */
+	void removeChild(PVXmlTreeNodeDom* child);
+
+	/**
+	 * Return the child from index row.
+	 * @param i
+	 * @return the child
+	 */
+	PVXmlTreeNodeDom* getChild(int i);
+
+	/**
+	 * Return the list with the children.
+	 * @return children list
+	 */
+	QList<PVXmlTreeNodeDom*> getChildren();
+
+	/**
+	 * Return the children count.
+	 * @return number
+	 */
+	int countChildren();
+
+	/**
+	 * Return the parent node.
+	 * @return parent
+	 */
+	PVXmlTreeNodeDom* getParent();
+
+	/**
+	 * Return index row in the child list of parent.
+	 * @return
+	 */
+	int getRow();
+
+	static void setFromArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args,
+	                                PVCore::PVArgumentList const& args);
 	void setFromArgumentList(PVCore::PVArgumentList const& args);
-	
-	static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
-	//static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList& args);
+
+	static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args,
+	                           PVCore::PVArgumentList& args);
+	// static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList& args);
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
 
-    bool isEditable() {
-        if (type == splitter || type == converter || type == filter || type == url || type == axis || type == RegEx) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	bool isEditable()
+	{
+		if (type == splitter || type == converter || type == filter || type == url ||
+		    type == axis || type == RegEx) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	static void deleteAllAttributes(QDomElement& elt);
 
-    /**
-     * Setup the DomDocument reference.
-     * @param DomDocument
-     */
-    void setDoc(QDomDocument &file);
-    
-    
-    
-    
+	/**
+	 * Setup the DomDocument reference.
+	 * @param DomDocument
+	 */
+	void setDoc(QDomDocument& file);
 
-    QString getName();
-    void setName(QString nom);
-    
+	QString getName();
+	void setName(QString nom);
 
-    QString getExpression();
-    void setExpression(QString exp);
-    
+	QString getExpression();
+	void setExpression(QString exp);
 
-    int getNbr();
-    void setNbr(int nbr);
+	int getNbr();
+	void setNbr(int nbr);
 
-    void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin) {
-        splitterPlugin = plugin;
+	void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin)
+	{
+		splitterPlugin = plugin;
 		splitterPlugin->connect_to_args_changed(this, SLOT(slot_update()));
 		splitterPlugin->connect_to_nchilds_changed(this, SLOT(slot_update_number_childs()));
-    }
+	}
 
-    PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin() {
-        if(!splitterPlugin){
-            if (createSplitterPlugin(xmlDomElement)) {
+	PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin()
+	{
+		if (!splitterPlugin) {
+			if (createSplitterPlugin(xmlDomElement)) {
 				splitterPlugin->set_child_count(countChildren());
 			}
-        }
-        return splitterPlugin;
-    }
-    
-    void setConverterPlugin(PVFilter::PVFieldsConverterParamWidget_p plugin) {
+		}
+		return splitterPlugin;
+	}
+
+	void setConverterPlugin(PVFilter::PVFieldsConverterParamWidget_p plugin)
+	{
 		converterPlugin = plugin;
 		assert(converterPlugin);
 		converterPlugin->connect_to_args_changed(this, SLOT(slot_update()));
 	}
 
-	PVFilter::PVFieldsConverterParamWidget_p getConverterPlugin() {
-		if(!converterPlugin){
+	PVFilter::PVFieldsConverterParamWidget_p getConverterPlugin()
+	{
+		if (!converterPlugin) {
 			createConverterPlugin(xmlDomElement);
 		}
 		return converterPlugin;
 	}
 
-    bool createSplitterPlugin(const QDomElement &);
-    bool createConverterPlugin(const QDomElement &);
-    
-    QDomElement getDom();
-    
+	bool createSplitterPlugin(const QDomElement&);
+	bool createConverterPlugin(const QDomElement&);
+
+	QDomElement getDom();
+
 	void updateFiltersDataDisplay();
 
-    /**
-     * General attribute setter.
-     * @param name
-     * @param Value
-     */
-    void setAttribute(QString name, QString Value, bool flagSaveInXml=true);
-    /**
-     * General attribute getter.
-     * @param name
-     * @return 
-     */
-    QString attribute(QString name, bool flagReadInXml=true);
-    
-    QWidget* getSplitterParamWidget(){
-        PVCore::PVArgumentList args,args_default;
-        args_default = getSplitterPlugin()->get_default_argument();
-        toArgumentList(args_default,args);
-        getSplitterPlugin()->get_filter()->set_args(args);
-        return getSplitterPlugin()->get_param_widget();
-    }
-    
-    QWidget* getConverterParamWidget(){
-		PVCore::PVArgumentList args,args_default;
+	/**
+	 * General attribute setter.
+	 * @param name
+	 * @param Value
+	 */
+	void setAttribute(QString name, QString Value, bool flagSaveInXml = true);
+	/**
+	 * General attribute getter.
+	 * @param name
+	 * @return
+	 */
+	QString attribute(QString name, bool flagReadInXml = true);
+
+	QWidget* getSplitterParamWidget()
+	{
+		PVCore::PVArgumentList args, args_default;
+		args_default = getSplitterPlugin()->get_default_argument();
+		toArgumentList(args_default, args);
+		getSplitterPlugin()->get_filter()->set_args(args);
+		return getSplitterPlugin()->get_param_widget();
+	}
+
+	QWidget* getConverterParamWidget()
+	{
+		PVCore::PVArgumentList args, args_default;
 		args_default = getConverterPlugin()->get_default_argument();
-		toArgumentList(args_default,args);
+		toArgumentList(args_default, args);
 		getConverterPlugin()->get_filter()->set_args(args);
 		return getConverterPlugin()->get_param_widget();
 	}
 
 	void getChildrenFromField(PVCore::PVField const& field);
 	void clearFiltersData();
-    
-    
-    /**
-     * définie un parent au node.
-     * @param parent
-     */
-    void setParent(PVXmlTreeNodeDom *parent);
 
-    
-    void addRegExRacine();
-    void addFilterRacine();
-    
-    void deleteFromTree();
-    
+	/**
+	 * définie un parent au node.
+	 * @param parent
+	 */
+	void setParent(PVXmlTreeNodeDom* parent);
 
-    /**
-     * add one field.
+	void addRegExRacine();
+	void addFilterRacine();
+
+	void deleteFromTree();
+
+	/**
+	 * add one field.
 	 * @return the axis node that corresponds to that field
-     */
+	 */
 	PVRush::PVXmlTreeNodeDom* addOneField(QString const& name);
 	PVRush::PVXmlTreeNodeDom* addOneField(QString const& name, QString const& axis_type);
 
-    /**
-     * Return the type of node in a QString.
-     * @return type
-     */
-    QString typeToString();
-    
-    /**
-     * return the name of axis regexp or url name of each field.
-     * @return 
-     */
-    QString getOutName();
-    /**
-     * return the node of axis regexp or url name of each field.
-     * @return 
-     */
-    PVXmlTreeNodeDom *getOutWidget();
-    
-    void version0to1();
-    
-    bool isOnRoot;
+	/**
+	 * Return the type of node in a QString.
+	 * @return type
+	 */
+	QString typeToString();
+
+	/**
+	 * return the name of axis regexp or url name of each field.
+	 * @return
+	 */
+	QString getOutName();
+	/**
+	 * return the node of axis regexp or url name of each field.
+	 * @return
+	 */
+	PVXmlTreeNodeDom* getOutWidget();
+
+	void version0to1();
+
+	bool isOnRoot;
 
 	QStringList getDataForRegexp() { return _data_for_regexp; }
 
@@ -261,66 +261,66 @@ public:
 	PVCol getFieldLinearId() const { return _field_linear_id; }
 
 	PVXmlTreeNodeDom* getFirstFieldParent();
-	
+
 	bool hasSplitterAsChild();
 
 	PVCol setAxesNames(QStringList const& names, PVCol id);
 
 	void getGroupsByType(types_groups_t& grps);
 
-	void setMappingProperties(QString const& mode, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args);
-	QString getMappingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
+	void setMappingProperties(QString const& mode, PVCore::PVArgumentList const& def_args,
+	                          PVCore::PVArgumentList const& args);
+	QString getMappingProperties(PVCore::PVArgumentList const& def_args,
+	                             PVCore::PVArgumentList& args);
 
-	void setPlottingProperties(QString const& mode, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args);
-	QString getPlottingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
-    
-private:
-    
-    
-    bool isAlreadyExplored;
+	void setPlottingProperties(QString const& mode, PVCore::PVArgumentList const& def_args,
+	                           PVCore::PVArgumentList const& args);
+	QString getPlottingProperties(PVCore::PVArgumentList const& def_args,
+	                              PVCore::PVArgumentList& args);
 
-    /**
-     * method to explore child
-     */
-    void explore();
-    
-    /**
-     * setup the type
-     * @param nom
-     */
-    void setTypeFromString(const QString &nom);
+  private:
+	bool isAlreadyExplored;
 
-    /**
-     * add 'n' field.
-     * @param n
-     */
-    void addField(int n);
-    
-    /**
-     * delete 'n' field.
-     * @param n
-     */
-    void delField(int n);
-    
+	/**
+	 * method to explore child
+	 */
+	void explore();
 
-    bool isFieldOfUrl();
+	/**
+	 * setup the type
+	 * @param nom
+	 */
+	void setTypeFromString(const QString& nom);
 
-private:
+	/**
+	 * add 'n' field.
+	 * @param n
+	 */
+	void addField(int n);
+
+	/**
+	 * delete 'n' field.
+	 * @param n
+	 */
+	void delField(int n);
+
+	bool isFieldOfUrl();
+
+  private:
 	QDomElement getMappingElement();
 	QDomElement getPlottingElement();
-    
-public slots:
-    void slot_update()
+
+  public slots:
+	void slot_update()
 	{
-        PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
-        if (splitterPlugin) {
-        	setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
-        }
-        else if (converterPlugin) {
-        	setFromArgumentList(getConverterPlugin()->get_filter()->get_args());
-        }
-        emit data_changed();
-    }
+		PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
+		if (splitterPlugin) {
+			setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
+		} else if (converterPlugin) {
+			setFromArgumentList(getConverterPlugin()->get_filter()->get_args());
+		}
+		emit data_changed();
+	}
 
 	void slot_update_number_childs()
 	{
@@ -330,21 +330,21 @@ public slots:
 		emit data_changed();
 	}
 
-    signals:
-    void data_changed();
+signals:
+	void data_changed();
 
-    public:
+  public:
 	Type type;
-    private:
 
+  private:
 	QDomDocument xmlFile;
 	QList<PVXmlTreeNodeDom*> children;
-	PVXmlTreeNodeDom *parent;
+	PVXmlTreeNodeDom* parent;
 
 	QDomElement xmlDomElement;
 	QString str;
 
-	QHash<QString,QString> otherData;
+	QHash<QString, QString> otherData;
 
 	PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
 	PVFilter::PVFieldsConverterParamWidget_p converterPlugin;
@@ -356,8 +356,6 @@ public slots:
 	// it means that it has children !
 	// TODO: list the ids of the children, so that they will be selected !
 	ssize_t _field_linear_id;
-
 };
 }
-#endif	/* NODEDOM_H */
-
+#endif /* NODEDOM_H */

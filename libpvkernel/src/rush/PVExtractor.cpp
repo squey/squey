@@ -14,13 +14,13 @@
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor() :
-	_nraw(new PVRush::PVNraw()),
-	_out_nraw(*_nraw),
-	_chunks(tbb::task_scheduler_init::default_num_threads()),
-	_force_naxes(0),
-	_last_start(0),
-	_last_nlines(1)
+PVRush::PVExtractor::PVExtractor()
+    : _nraw(new PVRush::PVNraw())
+    , _out_nraw(*_nraw)
+    , _chunks(tbb::task_scheduler_init::default_num_threads())
+    , _force_naxes(0)
+    , _last_start(0)
+    , _last_nlines(1)
 {
 	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
 	 * number of used cores (it was previously set to 5 * cores_number): That multiplier
@@ -58,9 +58,10 @@ const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 	return _format;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start,
+                                                                       chunk_index nlines)
 {
-	nlines = std::min(nlines, (chunk_index) INENDI_LINES_MAX);
+	nlines = std::min(nlines, (chunk_index)INENDI_LINES_MAX);
 
 	set_sources_number_fields();
 	get_nraw().prepare_load(nlines, _format.get_storage_format());
@@ -68,11 +69,12 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	_agg.set_skip_lines_count(start);
 	_agg.set_strict_mode(start > 0);
 
-	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
+	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
+	// deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(start, 0, nlines, PVControllerJob::sc_n_elts,
-				_agg, *_chk_flt, _out_nraw, _chunks));
-	job->run_job();	
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
+	    start, 0, nlines, PVControllerJob::sc_n_elts, _agg, *_chk_flt, _out_nraw, _chunks));
+	job->run_job();
 
 	_last_start = start;
 	_last_nlines = nlines;
@@ -80,26 +82,28 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	return job;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start,
+                                                                      chunk_index end)
 {
-	end = std::min(end, start + ((chunk_index) INENDI_LINES_MAX) - 1);
+	end = std::min(end, start + ((chunk_index)INENDI_LINES_MAX) - 1);
 
 	set_sources_number_fields();
-	get_nraw().prepare_load(end-start, _format.get_storage_format());
+	get_nraw().prepare_load(end - start, _format.get_storage_format());
 
-	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
+	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
+	// deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(start, end, 0, PVControllerJob::sc_idx_end,
-				_agg, *_chk_flt, _out_nraw, _chunks));
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
+	    start, end, 0, PVControllerJob::sc_idx_end, _agg, *_chk_flt, _out_nraw, _chunks));
 	job->run_job();
-	
+
 	return job;
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything()
 {
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(0, 0, 0, PVControllerJob::sc_idx_end,
-				_agg, *_chk_flt, _out_nraw, _chunks));
+	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
+	    0, 0, 0, PVControllerJob::sc_idx_end, _agg, *_chk_flt, _out_nraw, _chunks));
 	job->run_read_all_job();
 
 	return job;

@@ -15,5 +15,6 @@
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("regexp", PVFilter::PVFieldFilterRegexpGrep);
-	REGISTER_CLASS_AS("filter_regexp", PVFilter::PVFieldFilterRegexpGrep, PVFilter::PVFieldsFilterReg);
+	REGISTER_CLASS_AS("filter_regexp", PVFilter::PVFieldFilterRegexpGrep,
+	                  PVFilter::PVFieldsFilterReg);
 }

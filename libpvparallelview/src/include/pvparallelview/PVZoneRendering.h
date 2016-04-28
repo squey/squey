@@ -25,17 +25,18 @@
 #include <functional>
 #include <atomic>
 
-namespace PVCore {
+namespace PVCore
+{
 class PVHSVColor;
 }
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVRenderingPipeline;
 class PVZonesProcessor;
 
-template <size_t Bbits>
-class PVBCICode;
+template <size_t Bbits> class PVBCICode;
 
 /**
  * It looks like this class is a job scheduler for multiple zone rendering on the same ZoneId
@@ -45,18 +46,15 @@ class PVZoneRendering
 {
 	friend class PVRenderingPipeline;
 
-public:
+  public:
 	typedef PVZoneRendering_p p_type;
 
-private:
+  private:
 	using cancel_state = bool;
 
 	struct next_job
 	{
-		next_job()
-		{
-			zp = nullptr;
-		}
+		next_job() { zp = nullptr; }
 
 		void launch();
 
@@ -64,41 +62,45 @@ private:
 		p_type zr;
 	};
 
-public:
-	PVZoneRendering(PVZoneID zone_id):
-		_zone_id(zone_id),
-		_should_cancel(false),
-		_qobject_finished_success(nullptr),
-		_finished(false)
+  public:
+	PVZoneRendering(PVZoneID zone_id)
+	    : _zone_id(zone_id)
+	    , _should_cancel(false)
+	    , _qobject_finished_success(nullptr)
+	    , _finished(false)
 	{
 	}
 
 	PVZoneRendering(PVZoneRendering const&) = delete;
-	PVZoneRendering(PVZoneRendering &&) = delete;
+	PVZoneRendering(PVZoneRendering&&) = delete;
 	PVZoneRendering& operator=(PVZoneRendering const&) = delete;
-	PVZoneRendering& operator=(PVZoneRendering &&) = delete;
+	PVZoneRendering& operator=(PVZoneRendering&&) = delete;
 
-	PVZoneRendering(): PVZoneRendering(PVZONEID_INVALID)
-	{}
+	PVZoneRendering() : PVZoneRendering(PVZONEID_INVALID) {}
 
-	virtual ~PVZoneRendering()
-	{
-		assert(_job_after_canceled.zp == nullptr);
-	}
+	virtual ~PVZoneRendering() { assert(_job_after_canceled.zp == nullptr); }
 
-public:
+  public:
 	inline PVZoneID get_zone_id() const { return _zone_id; }
-	inline void set_zone_id(PVZoneID const zone_id) { assert(_finished); _zone_id = zone_id; }
+	inline void set_zone_id(PVZoneID const zone_id)
+	{
+		assert(_finished);
+		_zone_id = zone_id;
+	}
 
 	virtual bool cancel() { return _should_cancel.fetch_and_store(true); }
 	inline bool should_cancel() const { return _should_cancel; }
 	void cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr);
 
-	inline bool valid() const { return _zone_id != (PVZoneID) PVZONEID_INVALID; }
+	inline bool valid() const { return _zone_id != (PVZoneID)PVZONEID_INVALID; }
 
-	inline void set_render_finished_slot(QObject* receiver, const char* slot) { _qobject_finished_success = receiver; _qobject_slot = slot; }
+	inline void set_render_finished_slot(QObject* receiver, const char* slot)
+	{
+		_qobject_finished_success = receiver;
+		_qobject_slot = slot;
+	}
 
-public:
+  public:
 	void wait_end()
 	{
 		boost::unique_lock<boost::mutex> lock(_wait_mut);
@@ -109,12 +111,12 @@ public:
 
 	bool finished() const { return _finished; }
 
-protected:
+  protected:
 	void finished(p_type const& this_sp);
 
-private:
+  private:
 	PVZoneID _zone_id;
-	
+
 	tbb::atomic<cancel_state> _should_cancel;
 
 	// Qt signalisation
@@ -129,8 +131,6 @@ private:
 	// Next job when this one has been canceled
 	next_job _job_after_canceled;
 };
-
-
 }
 
 Q_DECLARE_METATYPE(PVParallelView::PVZoneRendering_p)

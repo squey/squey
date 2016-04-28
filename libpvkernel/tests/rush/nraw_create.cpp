@@ -28,11 +28,11 @@ int main()
 {
 	pvtest::TestEnv env(filename, fileformat, nb_dup);
 
-	auto start = std::chrono::system_clock::now(); 
+	auto start = std::chrono::system_clock::now();
 
 	env.load_data(nb_lines);
 
-	auto end = std::chrono::system_clock::now(); 
+	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
@@ -42,10 +42,12 @@ int main()
 	env._ext.get_nraw().dump_csv(out_path);
 
 	std::ifstream ifs_res(out_path);
-	std::string content_res{std::istreambuf_iterator<char>(ifs_res), std::istreambuf_iterator<char>()};
+	std::string content_res{std::istreambuf_iterator<char>(ifs_res),
+	                        std::istreambuf_iterator<char>()};
 
 	std::ifstream ifs_ref(filename);
-	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref), std::istreambuf_iterator<char>()};
+	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref),
+	                        std::istreambuf_iterator<char>()};
 
 	PV_VALID(content_ref, content_res);
 

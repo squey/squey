@@ -20,35 +20,36 @@
 #include <QDialogButtonBox>
 #include <QMessageBox>
 
-namespace PVGuiQt {
+namespace PVGuiQt
+{
 
 class PVAxesCombinationWidget;
 
-class PVAxesCombinationDialog: public QDialog
+class PVAxesCombinationDialog : public QDialog
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVAxesCombinationDialog(Inendi::PVView_sp& view, QWidget* parent = NULL);
 	~PVAxesCombinationDialog();
 
-public:
+  public:
 	void save_current_combination();
 	void update_used_axes();
 
 	void reset_used_axes();
 
-private:
+  private:
 	Inendi::PVView const& lib_view() const { return _lib_view; }
 
-protected slots:
+  protected slots:
 	void axes_comb_updated();
 	void view_about_to_be_deleted();
 	void commit_axes_comb_to_view();
 	void box_btn_clicked(QAbstractButton* btn);
 	void update_box_answered(QAbstractButton* btn);
 
-protected:
+  protected:
 	PVAxesCombinationWidget* _axes_widget;
 	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 	PVHive::PVActor<Inendi::PVView> _actor;
@@ -56,11 +57,10 @@ protected:
 	Inendi::PVView const& _lib_view;
 	bool _valid;
 
-private:
+  private:
 	QDialogButtonBox* _box_buttons;
 	QMessageBox* _update_box;
 };
-
 }
 
 #endif

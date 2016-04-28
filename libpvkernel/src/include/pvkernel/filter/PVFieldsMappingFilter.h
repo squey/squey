@@ -14,20 +14,24 @@
 #include <vector>
 #include <map>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldsMappingFilter : public PVFieldsFilter<many_to_many> {
-public:
+class PVFieldsMappingFilter : public PVFieldsFilter<many_to_many>
+{
+  public:
 	typedef std::vector<chunk_index> list_indexes;
 	typedef std::map<list_indexes, PVFieldsBaseFilter_f> map_filters;
-public:
+
+  public:
 	PVFieldsMappingFilter(map_filters const& mfilters);
-public:
+
+  public:
 	PVCore::list_fields& many_to_many(PVCore::list_fields& fields);
-protected:
+
+  protected:
 	map_filters _mfilters;
 };
-
 }
 
 #endif

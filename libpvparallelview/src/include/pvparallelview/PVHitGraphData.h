@@ -10,12 +10,11 @@
 
 #include <pvparallelview/PVHitGraphDataOMP.h>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 // Choose which implementation must be used.
 typedef PVHitGraphDataOMP PVHitGraphData;
-
 }
-
 
 #endif

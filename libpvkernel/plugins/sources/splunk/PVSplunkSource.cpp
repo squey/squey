@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -15,9 +15,9 @@
 #include "../../common/splunk/PVSplunkQuery.h"
 
 PVRush::PVSplunkSource::PVSplunkSource(PVInputDescription_p input)
-	: PVRawSourceBase(),
-	  _query(*dynamic_cast<PVSplunkQuery*>(input.get())),
-	  _splunk(_query.get_infos())
+    : PVRawSourceBase()
+    , _query(*dynamic_cast<PVSplunkQuery*>(input.get()))
+    , _splunk(_query.get_infos())
 {
 }
 
@@ -77,8 +77,8 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();
-	if (_next_index-1>_last_elt_index) {
-		_last_elt_index = _next_index-1;
+	if (_next_index - 1 > _last_elt_index) {
+		_last_elt_index = _next_index - 1;
 	}
 
 	return chunk;

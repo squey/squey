@@ -17,10 +17,10 @@ namespace PVWidgets
 template <class MaskedClass>
 class PVDataTreeMaskProxyModel : public PVAbstractDataTreeMaskProxyModel
 {
-public:
-	PVDataTreeMaskProxyModel(QObject *parent = nullptr) :
-		PVAbstractDataTreeMaskProxyModel(parent)
-	{}
+  public:
+	PVDataTreeMaskProxyModel(QObject* parent = nullptr) : PVAbstractDataTreeMaskProxyModel(parent)
+	{
+	}
 
 	PVCore::PVDataTreeObjectBase* get_object(QModelIndex const& index) const
 	{
@@ -28,16 +28,16 @@ public:
 		return (static_cast<PVCore::PVDataTreeObjectBase*>(index.internalPointer()));
 	}
 
-public:
+  public:
 	/* return the count of row used for parent's children
 	 */
 	virtual int rowCount(const QModelIndex& parent) const
 	{
-		QAbstractItemModel *src_model = sourceModel();
+		QAbstractItemModel* src_model = sourceModel();
 
 		QModelIndex src_parent = QModelIndex();
 
-		if(parent.isValid()) {
+		if (parent.isValid()) {
 			src_parent = model_search_internal_pointer(src_model, parent);
 		}
 
@@ -53,7 +53,7 @@ public:
 		 */
 		QModelIndex src_first_child = src_model->index(0, 0, src_parent);
 		PVCore::PVDataTreeObjectBase* src_first_child_object = get_object(src_first_child);
-		MaskedClass *mc = dynamic_cast<MaskedClass*>(src_first_child_object);
+		MaskedClass* mc = dynamic_cast<MaskedClass*>(src_first_child_object);
 
 		if (mc == nullptr) {
 			// the children are not of class MaskedClass
@@ -64,7 +64,7 @@ public:
 		 * their children (the grandchildren of parent)
 		 */
 		int sum = 0;
-		for(int i = 0; i < child_count; ++i) {
+		for (int i = 0; i < child_count; ++i) {
 			QModelIndex child_index = src_model->index(i, src_parent.column(), src_parent);
 			sum += src_model->rowCount(child_index);
 		}
@@ -87,7 +87,7 @@ public:
 	 */
 	virtual QModelIndex parent(const QModelIndex& index) const
 	{
-		QAbstractItemModel *src_model = sourceModel();
+		QAbstractItemModel* src_model = sourceModel();
 		if (src_model == nullptr) {
 			return QModelIndex();
 		}
@@ -103,13 +103,12 @@ public:
 			return QModelIndex();
 		}
 		PVCore::PVDataTreeObjectBase* parent_object = get_object(src_parent);
-		MaskedClass *mc = dynamic_cast<MaskedClass*>(parent_object);
+		MaskedClass* mc = dynamic_cast<MaskedClass*>(parent_object);
 
 		if (mc == nullptr) {
 			/* the parent is not of class MaskedClass
 			 */
-			return createIndex(src_parent.row(), src_parent.column(),
-			                   src_parent.internalPointer());
+			return createIndex(src_parent.row(), src_parent.column(), src_parent.internalPointer());
 		}
 
 		QModelIndex p = src_model->parent(src_parent);
@@ -120,7 +119,7 @@ public:
 	 */
 	virtual QModelIndex index(int row, int col, const QModelIndex& parent) const
 	{
-		QAbstractItemModel *src_model = sourceModel();
+		QAbstractItemModel* src_model = sourceModel();
 
 		if (src_model == nullptr) {
 			// no source model
@@ -145,7 +144,7 @@ public:
 		QModelIndex src_first_child = src_model->index(0, col, src_parent);
 
 		PVCore::PVDataTreeObjectBase* child_object = get_object(src_first_child);
-		MaskedClass *mc = dynamic_cast<MaskedClass*>(child_object);
+		MaskedClass* mc = dynamic_cast<MaskedClass*>(child_object);
 
 		if (mc == nullptr) {
 			// the children do not have to be masked
@@ -156,9 +155,8 @@ public:
 		/* the children have to be masked, searching in the grandchildren
 		 */
 		int rel_row = row;
-		for(int i = 0; i < child_count; ++i) {
-			QModelIndex child_index =
-				src_model->index(i, src_parent.column(), src_parent);
+		for (int i = 0; i < child_count; ++i) {
+			QModelIndex child_index = src_model->index(i, src_parent.column(), src_parent);
 			int count = src_model->rowCount(child_index);
 
 			if (rel_row < count) {
@@ -179,9 +177,9 @@ public:
 		}
 
 		PVCore::PVDataTreeObjectBase* src_object = get_object(src_index);
-		MaskedClass *mc = dynamic_cast<MaskedClass*>(src_object);
+		MaskedClass* mc = dynamic_cast<MaskedClass*>(src_object);
 
-		if(mc != nullptr) {
+		if (mc != nullptr) {
 			/* the entry is of class MaskedClass; it must be hidden
 			 */
 			return QModelIndex();
@@ -200,7 +198,7 @@ public:
 		src_object = get_object(src_parent);
 		mc = dynamic_cast<MaskedClass*>(src_object);
 
-		if(mc == nullptr) {
+		if (mc == nullptr) {
 			/* the parent is not a MaskedClass
 			 */
 			return index(src_index.row(), src_index.column(), mapFromSource(src_parent));
@@ -209,13 +207,12 @@ public:
 		/* the parent is a MaskedClass, src_index must be expressed relatively to its
 		 * grand parent
 		 */
-		QAbstractItemModel *src_model = sourceModel();
+		QAbstractItemModel* src_model = sourceModel();
 		QModelIndex grand_parent = src_parent.parent();
 		int row = src_index.row();
 
-		for(int i = 0; i < src_parent.row(); ++i) {
-			QModelIndex parent_child_index =
-				src_model->index(i, 0, grand_parent);
+		for (int i = 0; i < src_parent.row(); ++i) {
+			QModelIndex parent_child_index = src_model->index(i, 0, grand_parent);
 			row += src_model->rowCount(parent_child_index);
 		}
 
@@ -231,12 +228,12 @@ public:
 		return model_search_internal_pointer(sourceModel(), proxy_index);
 	}
 
-	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole)
+	bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole)
 	{
 		return sourceModel()->setData(mapToSource(index), value, role);
 	}
 
-	QVariant data(const QModelIndex &index, int role) const
+	QVariant data(const QModelIndex& index, int role) const
 	{
 		return sourceModel()->data(mapToSource(index), role);
 	}
@@ -246,8 +243,8 @@ public:
 		return sourceModel()->flags(mapToSource(index));
 	}
 
-protected slots:
-	virtual void data_changed(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+  protected slots:
+	virtual void data_changed(const QModelIndex& topLeft, const QModelIndex& bottomRight)
 	{
 		emit dataChanged(mapFromSource(topLeft), mapFromSource(bottomRight));
 	}
@@ -258,15 +255,15 @@ protected slots:
 		endResetModel();
 	}
 
-private:
-	static  QModelIndex model_search_internal_pointer(const QAbstractItemModel *src_model,
-	                                                  const QModelIndex &searched,
-	                                                  const QModelIndex &parent = QModelIndex())
+  private:
+	static QModelIndex model_search_internal_pointer(const QAbstractItemModel* src_model,
+	                                                 const QModelIndex& searched,
+	                                                 const QModelIndex& parent = QModelIndex())
 	{
 		if (parent.internalPointer() == searched.internalPointer()) {
 			return parent;
 		}
-		for(int i = 0; i < src_model->rowCount(parent); ++i) {
+		for (int i = 0; i < src_model->rowCount(parent); ++i) {
 			QModelIndex child_index = src_model->index(i, 0, parent);
 			QModelIndex res = model_search_internal_pointer(src_model, searched, child_index);
 			if (res != QModelIndex()) {
@@ -277,8 +274,6 @@ private:
 		return QModelIndex();
 	}
 };
-
 }
 
 #endif // PVWIDGETS_PVDATATREEMASKPROXYMODEL_H
-

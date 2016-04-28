@@ -16,9 +16,11 @@
 
 #define INENDI_LAYER_STACK_MAX_DEPTH 256
 #define INENDI_LAYERSTACK_ARCHIVE_EXT "pvls"
-#define INENDI_LAYERSTACK_ARCHIVE_FILTER "INENDI layer-stack files (*." INENDI_LAYERSTACK_ARCHIVE_EXT ")"
+#define INENDI_LAYERSTACK_ARCHIVE_FILTER                                                           \
+	"INENDI layer-stack files (*." INENDI_LAYERSTACK_ARCHIVE_EXT ")"
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVPlotted;
 
@@ -29,7 +31,7 @@ class PVLayerStack
 {
 	friend class PVCore::PVSerializeObject;
 
-public:
+  public:
 	/**
 	 * Constructor
 	 */
@@ -37,23 +39,25 @@ public:
 
 	QString get_new_layer_name() const;
 	bool& should_hide_layers() { return _should_hide_layers; }
-	inline int get_layer_count() const {return _table.size();}
- 	PVLayer const& get_layer_n(int n) const { return _table[n]; };
- 	PVLayer& get_layer_n(int n) { return _table[n]; };
+	inline int get_layer_count() const { return _table.size(); }
+	PVLayer const& get_layer_n(int n) const { return _table[n]; };
+	PVLayer& get_layer_n(int n) { return _table[n]; };
 
- 	PVLayer& get_selected_layer() { return _table[get_selected_layer_index()]; }
- 	PVLayer const& get_selected_layer() const { return _table[get_selected_layer_index()]; }
+	PVLayer& get_selected_layer() { return _table[get_selected_layer_index()]; }
+	PVLayer const& get_selected_layer() const { return _table[get_selected_layer_index()]; }
 
-	int const& get_selected_layer_index() const {return _selected_layer_index;}
-	
-	void set_selected_layer_index(int index) {_selected_layer_index = index;}
-// 
- 	void process(PVLayer &output_layer, PVRow row_count);
+	int const& get_selected_layer_index() const { return _selected_layer_index; }
+
+	void set_selected_layer_index(int index) { _selected_layer_index = index; }
+	//
+	void process(PVLayer& output_layer, PVRow row_count);
 	void update_layer_index_array_completely();
-// 
-	PVLayer* append_layer(const PVLayer & layer);
+	//
+	PVLayer* append_layer(const PVLayer& layer);
 	PVLayer* append_new_layer(PVRow row_count, QString const& name = QString());
- 	PVLayer* append_new_layer_from_selection_and_lines_properties(PVSelection const& selection, PVLinesProperties const& lines_properties);
+	PVLayer*
+	append_new_layer_from_selection_and_lines_properties(PVSelection const& selection,
+	                                                     PVLinesProperties const& lines_properties);
 	bool contains_layer(PVLayer* layer) const;
 
 	void compute_min_maxs(PVPlotted const& plotted);
@@ -63,7 +67,7 @@ public:
 	void delete_all_layers();
 	void delete_selected_layer();
 
-	PVLayer* duplicate_selected_layer(const QString &name);
+	PVLayer* duplicate_selected_layer(const QString& name);
 
 	void move_layer_down(int index);
 	void move_layer_up(int index);
@@ -72,26 +76,26 @@ public:
 	void move_selected_layer_up();
 	void hide_layers();
 
-	PVLayerIndexArray& get_lia() {return _lia;}
-	const PVLayerIndexArray& get_lia() const {return _lia;}
+	PVLayerIndexArray& get_lia() { return _lia; }
+	const PVLayerIndexArray& get_lia() const { return _lia; }
 
 	void set_row_count(PVRow row_count) { _lia.set_row_count(row_count); };
 
-public:
+  public:
 	void load_from_file(QString const& path);
 	void save_to_file(QString const& path);
 
 	void copy_details_to_clipboard();
 
-protected:
+  protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-private:
-	PVLayerIndexArray	_lia;
-	int					_selected_layer_index;
-	QList<PVLayer>		_table;
-	bool				_should_hide_layers = true;
+  private:
+	PVLayerIndexArray _lia;
+	int _selected_layer_index;
+	QList<PVLayer> _table;
+	bool _should_hide_layers = true;
 };
 }
 
-#endif	/* INENDI_PVLAYERSTACK_H */
+#endif /* INENDI_PVLAYERSTACK_H */

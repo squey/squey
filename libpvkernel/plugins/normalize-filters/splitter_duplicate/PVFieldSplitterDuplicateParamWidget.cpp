@@ -19,8 +19,8 @@
  * PVFilter::PVFieldSplitterDuplicateParamWidget::PVFieldSplitterCSVParamWidget
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterDuplicateParamWidget::PVFieldSplitterDuplicateParamWidget() :
-	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldDuplicate()))
+PVFilter::PVFieldSplitterDuplicateParamWidget::PVFieldSplitterDuplicateParamWidget()
+    : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldDuplicate()))
 {
 	_action_menu = new QAction(QString("add Duplicate Splitter"), this);
 }
@@ -32,9 +32,9 @@ PVFilter::PVFieldSplitterDuplicateParamWidget::PVFieldSplitterDuplicateParamWidg
  *****************************************************************************/
 QAction* PVFilter::PVFieldSplitterDuplicateParamWidget::get_action_menu()
 {
-    PVLOG_DEBUG("get action PVFieldSplitterDuplicateParamWidget\n");
-    assert(_action_menu);
-    return _action_menu;
+	PVLOG_DEBUG("get action PVFieldSplitterDuplicateParamWidget\n");
+	assert(_action_menu);
+	return _action_menu;
 }
 
 /******************************************************************************
@@ -46,8 +46,8 @@ QWidget* PVFilter::PVFieldSplitterDuplicateParamWidget::get_param_widget()
 {
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterDuplicateParamWidget::get_param_widget()     start\n");
 
-	//get args
-	PVCore::PVArgumentList l =  get_filter()->get_args();
+	// get args
+	PVCore::PVArgumentList l = get_filter()->get_args();
 
 	uint32_t n = l["n"].toUInt();
 	updateNChilds(n);
@@ -80,6 +80,6 @@ void PVFilter::PVFieldSplitterDuplicateParamWidget::updateNChilds(int n)
 	args["n"] = n;
 	get_filter()->set_args(args);
 	set_child_count(n);
-    emit args_changed_Signal();
+	emit args_changed_Signal();
 	emit nchilds_changed_Signal();
 }

@@ -27,11 +27,13 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 {
 	setWindowTitle("About INENDI Inspector");
 
-	QGridLayout *main_layout = new QGridLayout;
+	QGridLayout* main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 	main_layout->setSizeConstraint(QLayout::SetFixedSize);
 
-	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"" + QString(INENDI_VERSION_NAME) + "\"<br/>(c) 2014 Picviz Labs SAS, 2015 ESI Group<br/>";
+	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"" +
+	                  QString(INENDI_VERSION_NAME) +
+	                  "\"<br/>(c) 2014 Picviz Labs SAS, 2015 ESI Group<br/>";
 
 	content += "<br/>contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
@@ -43,10 +45,11 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += "?subject=%5BINENDI%5D\">";
 	content += EMAIL_ADDRESS_SUPPORT;
 	content += "</a><br/>";
-	content += "website - <a href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/>";
+	content += "website - <a "
+	           "href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/>";
 
-	content += QString("Licence expiration in %1 days<br/>").arg(Inendi::Utils::License::get_remaining_days(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE));
-
+	content += QString("Licence expiration in %1 days<br/>").arg(
+	    Inendi::Utils::License::get_remaining_days(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE));
 
 #ifdef CUDA
 	content += "<br/>With CUDA support";
@@ -56,30 +59,36 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	_view3D_layout = new QHBoxLayout();
 	_view3D_layout->setSpacing(0);
 	_view3D = new __impl::GraphicsView(this);
-	_view3D->setStyleSheet("QGraphicsView { background-color: white; color: white; border-style: none; }");
-	_view3D->setViewport(new QGLWidget(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer | QGL::SampleBuffers | QGL::DirectRendering)));
+	_view3D->setStyleSheet("QGraphicsView { background-color: white; color: "
+	                       "white; border-style: none; }");
+	_view3D->setViewport(new QGLWidget(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer |
+	                                             QGL::SampleBuffers | QGL::DirectRendering)));
 	_view3D->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	_view3D->setScene(new PVGuiQt::PVLogoScene());
 	_view3D->setCursor(Qt::OpenHandCursor);
 	_view3D_layout->addWidget(_view3D);
-	QLabel *logo = new QLabel;
+	QLabel* logo = new QLabel;
 	logo->setPixmap(QPixmap(":/logo_text.png"));
 	_view3D_layout->addWidget(logo);
 
-	QLabel *text = new QLabel(content);
+	QLabel* text = new QLabel(content);
 	text->setAlignment(Qt::AlignCenter);
 	text->setTextFormat(Qt::RichText);
 	text->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	text->setOpenExternalLinks(true);
 
-	QPushButton *ok = new QPushButton("OK");
+	QPushButton* ok = new QPushButton("OK");
 
 	QLabel* doc = new QLabel();
-	doc->setText("<br/>Reference Manual: <a href=\"file:///opt/inendi-inspector/docs/inendi_inspector_reference_manual/index.html\">HTML</a> | " \
-	             "<a href=\"file:///opt/inendi-inspector/docs/inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>" \
-	             "All documentations: <a href=\"file:///opt/inendi-inspector/docs/\">local files</a> | " \
-	             "<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>" \
-	);
+	doc->setText("<br/>Reference Manual: <a "
+	             "href=\"file:///opt/inendi-inspector/docs/"
+	             "inendi_inspector_reference_manual/index.html\">HTML</a> | "
+	             "<a "
+	             "href=\"file:///opt/inendi-inspector/docs/"
+	             "inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>"
+	             "All documentations: <a "
+	             "href=\"file:///opt/inendi-inspector/docs/\">local files</a> | "
+	             "<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>");
 	doc->setTextFormat(Qt::RichText);
 	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	doc->setOpenExternalLinks(true);
@@ -95,7 +104,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
-void PVGuiQt::PVAboutBoxDialog::keyPressEvent(QKeyEvent * event)
+void PVGuiQt::PVAboutBoxDialog::keyPressEvent(QKeyEvent* event)
 {
 #if 0
 	bool change_mode = false;
@@ -130,7 +139,7 @@ void PVGuiQt::__impl::GraphicsView::keyPressEvent(QKeyEvent* event)
 	QGraphicsView::keyPressEvent(event);
 }
 
-void PVGuiQt::__impl::GraphicsView::resizeEvent(QResizeEvent *event)
+void PVGuiQt::__impl::GraphicsView::resizeEvent(QResizeEvent* event)
 {
 	if (scene()) {
 		scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
@@ -148,8 +157,7 @@ void PVGuiQt::__impl::GraphicsView::set_fullscreen(bool fullscreen /*= true*/)
 		_parent->setModal(false);
 		setParent(0);
 		showFullScreen();
-	}
-	else {
+	} else {
 		_parent->_view3D_layout->addWidget(this);
 		showNormal();
 	}

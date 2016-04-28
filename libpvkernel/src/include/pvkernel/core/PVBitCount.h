@@ -11,13 +11,21 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/inendi_intrin.h>
 
-namespace PVCore {
+namespace PVCore
+{
 
-namespace PVBitCount {
+namespace PVBitCount
+{
 
 #ifdef __SSE4_2__
-inline size_t bit_count(const uint64_t v) { return _mm_popcnt_u64(v); }
-inline size_t bit_count(const uint32_t v) { return _mm_popcnt_u32(v); }
+inline size_t bit_count(const uint64_t v)
+{
+	return _mm_popcnt_u64(v);
+}
+inline size_t bit_count(const uint32_t v)
+{
+	return _mm_popcnt_u32(v);
+}
 #else
 inline size_t bit_count(uint32_t v)
 {
@@ -38,9 +46,7 @@ size_t bit_count(size_t n, const uint64_t* data);
 // a and b are positions in bits and are inclusive (which means that b-a+1 bits are checked)
 // No boundary checks are done, so be carefull !!
 size_t bit_count_between(size_t a, size_t b, const uint64_t* data);
-
 }
-
 }
 
 #endif

@@ -8,7 +8,7 @@
 #ifndef BLOCKCOINTAINER_H
 #define BLOCKCOINTAINER_H
 
-#define DEFAULT_BLOCK_SIZE_BYTES 5*1024*1024
+#define DEFAULT_BLOCK_SIZE_BYTES 5 * 1024 * 1024
 
 #include <list>
 #include <utility>
@@ -22,14 +22,16 @@
 
 #include <boost/static_assert.hpp>
 
-namespace PVCore {
+namespace PVCore
+{
 
-template<typename T, typename size_type_, template Alloc = std::allocator<T> >
-class PVPODBlockContainer: protected Alloc
+template <typename T, typename size_type_, template Alloc = std::allocator<T>>
+class PVPODBlockContainer : protected Alloc
 {
 	// Assert that Alloc is an allocator for T
 	BOOST_STATIC_ASSERT((boost::is_same<typename Alloc::value_type, T>::value));
-public:
+
+  public:
 	typedef Alloc allocator_type;
 	typedef size_type_ size_type;
 	typedef T value_type;
@@ -38,7 +40,7 @@ public:
 	typedef typename allocator_type::const_pointer const_pointer;
 	typedef typename allocator_type::const_reference const_reference;
 
-private:
+  private:
 	struct block_t
 	{
 		pointer p;
@@ -47,7 +49,7 @@ private:
 	typedef typename list_blocks_t::iterator list_blocks_iterator_t;
 	typedef typename list_blocks_t::const_iterator list_blocks_const_iterator_t;
 
-public:
+  public:
 #if 0
 	template <bool is_const>
 	class PODBlockContainerIterator: public std::iterator<std::forward_iterator_tag, value_type>
@@ -107,25 +109,22 @@ public:
 	typedef PODBlockContainerIterator<false> iterator;
 #endif
 
-public:
-	PVPODBlockContainer(size_type block_size, allocator_type const& a = allocator_type()) :
-		allocator_type(a)
+  public:
+	PVPODBlockContainer(size_type block_size, allocator_type const& a = allocator_type())
+	    : allocator_type(a)
 	{
 		init();
 		set_block_size(block_size);
 	}
 
-	~PVPODBlockContainer()
-	{
-		free();
-	}
-private:
-	void init()
-	{
-	}
-public:
-	size_type size() const { return (_cur_block-_block.begin())*_size_block + _cur_block_size; }
-	size_type capacity() const { return _size_block*_block.size(); }
+	~PVPODBlockContainer() { free(); }
+
+  private:
+	void init() {}
+
+  public:
+	size_type size() const { return (_cur_block - _block.begin()) * _size_block + _cur_block_size; }
+	size_type capacity() const { return _size_block * _block.size(); }
 	size_type max_size() const { return allocator_type::max_size(); }
 
 	void reserve_blocks(
@@ -214,8 +213,6 @@ private:
 	size_type _cur_block_size;
 	size_type _block_size;
 };
-
-
 }
 
 #endif

@@ -30,7 +30,7 @@ using testcase_t = std::pair<options_t, size_t>;
 
 void set_args(PVCore::PVArgumentList& args, const options_t& values)
 {
-	static constexpr const char* params[] = { "include", "case", "entire", "interpret" };
+	static constexpr const char* params[] = {"include", "case", "entire", "interpret"};
 
 	for (size_t i = 0; i < values.first.size(); i++) {
 		PVCore::PVEnumType e = args[params[i]].value<PVCore::PVEnumType>();
@@ -41,28 +41,26 @@ void set_args(PVCore::PVArgumentList& args, const options_t& values)
 	args["exps"].setValue(PVCore::PVPlainTextType(values.second.c_str()));
 }
 
-void run_tests(
-	Inendi::PVLayerFilter::p_type& plugin,
-	PVCore::PVArgumentList &args,
-	Inendi::PVLayer& in,
-	Inendi::PVLayer& out
-)
+void run_tests(Inendi::PVLayerFilter::p_type& plugin, PVCore::PVArgumentList& args,
+               Inendi::PVLayer& in, Inendi::PVLayer& out)
 {
-	std::vector<testcase_t> tests {
-		{{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n"
-				        "Mon Dec 12 23:56:00 2005"}, 100}, // EXACT_MATCH
-		{{{0, 0, 1, 0}, "MoN dEc 12 23:56:00 2005"}, 50},  // EXACT_MATCH + CASE_INSENSITIVE
-		{{{0, 1, 1, 1}, ".*01.*"}, 700},                   // EXACT_MATCH + REGULAR_EXPRESSION
-		{{{0, 0, 1, 1}, ".*w\\D{2}.*"}, 700},              // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
-		{{{0, 1, 0, 1}, "\\d{2}\\:\\d{2}\\:00"}, 200},     // REGULAR_EXPRESSION
-		{{{0, 0, 0, 1}, "j\\D{2}"}, 950},                  // REGULAR_EXPRESSION + CASE_INSENSITIVE
-		{{{1, 0, 0, 0}, "jan"}, 4710},                     // CASE_INSENSITIVE
-		{{{0, 1, 0, 0}, "Oct\nDec"}, 750},                 // NONE
+	std::vector<testcase_t> tests{
+	    {{{0, 1, 1, 0},
+	      "Tue Jan 06 01:23:28 2004\n"
+	      "Mon Dec 12 23:56:00 2005"},
+	     100},                                            // EXACT_MATCH
+	    {{{0, 0, 1, 0}, "MoN dEc 12 23:56:00 2005"}, 50}, // EXACT_MATCH + CASE_INSENSITIVE
+	    {{{0, 1, 1, 1}, ".*01.*"}, 700},                  // EXACT_MATCH + REGULAR_EXPRESSION
+	    {{{0, 0, 1, 1}, ".*w\\D{2}.*"}, 700}, // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
+	    {{{0, 1, 0, 1}, "\\d{2}\\:\\d{2}\\:00"}, 200}, // REGULAR_EXPRESSION
+	    {{{0, 0, 0, 1}, "j\\D{2}"}, 950},              // REGULAR_EXPRESSION + CASE_INSENSITIVE
+	    {{{1, 0, 0, 0}, "jan"}, 4710},                 // CASE_INSENSITIVE
+	    {{{0, 1, 0, 0}, "Oct\nDec"}, 750},             // NONE
 
-		// test blank rows
-		{{{0, 1, 1, 0}, ""}, 10},
-		{{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n"}, 50},
-		{{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n\n"}, 60},
+	    // test blank rows
+	    {{{0, 1, 1, 0}, ""}, 10},
+	    {{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n"}, 50},
+	    {{{0, 1, 1, 0}, "Tue Jan 06 01:23:28 2004\n\n"}, 60},
 	};
 
 	for (const testcase_t& test : tests) {
@@ -78,29 +76,30 @@ void run_tests(
 
 int main()
 {
-    // Init nraw
-    pvtest::TestEnv env(FILENAME, FORMAT, DUPL);
-    env.compute_mapping();
-    Inendi::PVView* view = env.compute_plotting()->current_view();
+	// Init nraw
+	pvtest::TestEnv env(FILENAME, FORMAT, DUPL);
+	env.compute_mapping();
+	Inendi::PVView* view = env.compute_plotting()->current_view();
 
-    // Get plugin reference
-    constexpr char plugin_name[] = "search-multiple";
-    Inendi::PVLayerFilter::p_type filter_org = LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(plugin_name);
-    Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
-    PVCore::PVArgumentList &args = view->get_last_args_filter(plugin_name);
+	// Get plugin reference
+	constexpr char plugin_name[] = "search-multiple";
+	Inendi::PVLayerFilter::p_type filter_org =
+	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(plugin_name);
+	Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
+	PVCore::PVArgumentList& args = view->get_last_args_filter(plugin_name);
 
-    Inendi::PVLayer out("Out", view->get_row_count());
-    out.reset_to_empty_and_default_color(view->get_row_count());
-    Inendi::PVLayer& in = view->get_layer_stack_output_layer();
-    args["axis"].setValue(PVCore::PVOriginalAxisIndexType(COLUMN_INDEX));
+	Inendi::PVLayer out("Out", view->get_row_count());
+	out.reset_to_empty_and_default_color(view->get_row_count());
+	Inendi::PVLayer& in = view->get_layer_stack_output_layer();
+	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(COLUMN_INDEX));
 
-    fclone->set_view(view);
-    fclone->set_output(&out);
+	fclone->set_view(view);
+	fclone->set_output(&out);
 
-    auto start = std::chrono::system_clock::now();
-    run_tests(fclone, args, in, out);
-    auto end = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
+	run_tests(fclone, args, in, out);
+	auto end = std::chrono::system_clock::now();
 
-    std::chrono::duration<double> diff = end - start;
-    std::cout << diff.count();
+	std::chrono::duration<double> diff = end - start;
+	std::cout << diff.count();
 }

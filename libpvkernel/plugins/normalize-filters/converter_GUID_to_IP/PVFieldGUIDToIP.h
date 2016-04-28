@@ -12,23 +12,24 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldGUIDToIP : public PVFieldsConverter {
+class PVFieldGUIDToIP : public PVFieldsConverter
+{
 
-public:
+  public:
 	PVFieldGUIDToIP(PVCore::PVArgumentList const& args = PVFieldGUIDToIP::default_args());
 
-public:
+  public:
 	void set_args(PVCore::PVArgumentList const& args);
 	PVCore::PVField& one_to_one(PVCore::PVField& field) override;
 
-private:
+  private:
 	bool _ipv6;
 
 	CLASS_FILTER(PVFilter::PVFieldGUIDToIP)
 };
-
 }
 
 #endif // PVFILTER_PVFIELGUIDTOIP_H

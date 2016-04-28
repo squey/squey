@@ -7,11 +7,9 @@
 
 #include "PVFieldSplitterCSV.h"
 
-
 PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterCSV, args);
-
 }
 
 void PVFilter::PVFieldSplitterCSV::set_args(PVCore::PVArgumentList const& args)
@@ -29,26 +27,27 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)
 	return args;
 }
 
-PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
+PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
+    PVCore::list_fields& l, PVCore::list_fields::iterator it_ins, PVCore::PVField& field)
 {
 	// FIXME : We should handle double Quote as escaped quote
 	PVCore::list_fields::value_type elt(field);
 	assert(elt.begin() == field.begin());
 	char* cstr = elt.begin();
-	size_t n=0;
-	for(size_t i=0; i<field.size(); i++) {
-		if(cstr[i] == _sep) {
+	size_t n = 0;
+	for (size_t i = 0; i < field.size(); i++) {
+		if (cstr[i] == _sep) {
 			elt.set_end(cstr + i);
 			elt.set_physical_end(cstr + i);
 			l.insert(it_ins, elt);
 			elt.set_begin(cstr + i + 1);
 			n++;
-		} else if(cstr[i] == _quote and (i == 0 or (i > 0 and cstr[i - 1] != '\\'))) {
+		} else if (cstr[i] == _quote and (i == 0 or (i > 0 and cstr[i - 1] != '\\'))) {
 			elt.set_begin(cstr + i + 1);
 			do {
 				i = std::find(cstr + i + 1, cstr + field.size(), _quote) - cstr;
-			} while(cstr[i - 1] == '\\' and i != field.size());
-			if(i == field.size()) {
+			} while (cstr[i - 1] == '\\' and i != field.size());
+			if (i == field.size()) {
 				return 0;
 			}
 			elt.set_end(cstr + i);
@@ -56,7 +55,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 			l.insert(it_ins, elt);
 			i = std::find(cstr + i + 1, cstr + field.size(), _sep) - cstr;
 			n++;
-			if(i == field.size())
+			if (i == field.size())
 				return n;
 			elt.set_begin(cstr + i + 1);
 		}

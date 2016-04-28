@@ -8,14 +8,13 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVElement.h>
 
-PVCore::PVField::PVField(PVCore::PVElement& parent):
-	PVBufferSlice(parent.realloc_bufs())
+PVCore::PVField::PVField(PVCore::PVElement& parent) : PVBufferSlice(parent.realloc_bufs())
 {
 	init(parent);
 }
 
-PVCore::PVField::PVField(PVCore::PVElement& parent, char* begin, char* end):
-	PVBufferSlice(begin, end, parent.realloc_bufs())
+PVCore::PVField::PVField(PVCore::PVElement& parent, char* begin, char* end)
+    : PVBufferSlice(begin, end, parent.realloc_bufs())
 {
 	init(parent);
 }

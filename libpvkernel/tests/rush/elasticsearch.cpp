@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -35,12 +35,11 @@ int main(int argc, char** argv)
 	 * It contains all information required to define data to extract
 	 */
 	std::string query_type = "json";
-	std::string query_str =
-		"{ \"query\" : { \"range\" : {"
-			"\"total_bytes\" : {"
-				"\"gte\": 350000"
-			"}"
-		 "} } }";
+	std::string query_str = "{ \"query\" : { \"range\" : {"
+	                        "\"total_bytes\" : {"
+	                        "\"gte\": 350000"
+	                        "}"
+	                        "} } }";
 	PVRush::PVElasticsearchQuery query(infos, query_str.c_str(), query_type.c_str());
 
 	/*
@@ -68,10 +67,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(
-		indexes.size() == 1 &&
-		indexes[0] == "proxy_sample"
-	);
+	PV_ASSERT_VALID(indexes.size() == 1 && indexes[0] == "proxy_sample");
 
 	/**************************************************************************
 	 * Check all columns are available
@@ -81,21 +77,19 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(columns == PVRush::PVElasticsearchAPI::columns_t({
-		{"category", "string"},
-		{"column13", "string"},
-		{"http_method", "string"},
-		{"login", "string"},
-		{"mime_type", "string"},
-		{"semi_colon", "string"},
-		{"src_ip", "string"},
-		{"status_code", "string"},
-		{"time", "string"},
-		{"time_spent", "integer"},
-		{"total_bytes", "integer"},
-		{"url", "string"},
-		{"user_agent", "string"}
-	 }));
+	PV_ASSERT_VALID(columns == PVRush::PVElasticsearchAPI::columns_t({{"category", "string"},
+	                                                                  {"column13", "string"},
+	                                                                  {"http_method", "string"},
+	                                                                  {"login", "string"},
+	                                                                  {"mime_type", "string"},
+	                                                                  {"semi_colon", "string"},
+	                                                                  {"src_ip", "string"},
+	                                                                  {"status_code", "string"},
+	                                                                  {"time", "string"},
+	                                                                  {"time_spent", "integer"},
+	                                                                  {"total_bytes", "integer"},
+	                                                                  {"url", "string"},
+	                                                                  {"user_agent", "string"}}));
 
 	/**************************************************************************
 	 * Check query count is correct
@@ -135,30 +129,26 @@ int main(int argc, char** argv)
 
 	// Count line in reference file
 	std::ifstream reference_file_stream(reference_file);
-	if(not reference_file_stream.good()) {
+	if (not reference_file_stream.good()) {
 		return 1;
 	}
-	size_t reference_file_line_count = std::count(
-		std::istreambuf_iterator<char>(reference_file_stream),
-		std::istreambuf_iterator<char>(),
-		'\n'
-	);
+	size_t reference_file_line_count =
+	    std::count(std::istreambuf_iterator<char>(reference_file_stream),
+	               std::istreambuf_iterator<char>(), '\n');
 	PVRush::PVUtils::sort_file(reference_file.c_str(), reference_sorted_file.c_str());
 
 	// Count line in extracted file
 	std::ifstream output_file_stream(output_file);
-	if(not output_file_stream.good()) {
+	if (not output_file_stream.good()) {
 		return 1;
 	}
-	size_t output_file_line_count = std::count(
-		std::istreambuf_iterator<char>(output_file_stream),
-		std::istreambuf_iterator<char>(),
-		'\n'
-	);
+	size_t output_file_line_count = std::count(std::istreambuf_iterator<char>(output_file_stream),
+	                                           std::istreambuf_iterator<char>(), '\n');
 	PVRush::PVUtils::sort_file(output_file.c_str());
 
 	// Check number of line is the same with : reference_file / exported_file / count call
-	PV_ASSERT_VALID((output_file_line_count == reference_file_line_count && output_file_line_count == count));
+	PV_ASSERT_VALID(
+	    (output_file_line_count == reference_file_line_count && output_file_line_count == count));
 
 	// Checksum of reference and exported files are sames
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, reference_sorted_file));

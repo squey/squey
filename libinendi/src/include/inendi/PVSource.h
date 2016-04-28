@@ -22,7 +22,7 @@
 
 #include <inendi/PVAxesCombination.h>
 
-#include <pvkernel/rush/PVExtractor.h> 
+#include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -33,31 +33,34 @@
 #include <inendi/PVRoot.h>
 #include <inendi/PVSource_types.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * \class PVSource
  */
 typedef typename PVCore::PVDataTreeObject<PVScene, PVMapped> data_tree_source_t;
-class PVSource: public data_tree_source_t
+class PVSource : public data_tree_source_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
 	friend class PVScene;
 	friend class PVView;
 	friend class PVPlotted;
-public:
+
+  public:
 	typedef children_t list_mapped_t;
 
-protected:
+  protected:
 	PVSource(const PVSource& org);
 
-public:
+  public:
 	PVSource();
-	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
+	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs, PVRush::PVSourceCreator_p sc,
+	         PVRush::PVFormat format);
 	~PVSource();
 
-public:
+  public:
 	/* Functions */
 	PVCol get_column_count() const;
 
@@ -87,8 +90,8 @@ public:
 	 *
 	 * @fixme: Should be remove so we can use the new one form new source.
 	 */
-	PVRush::PVExtractor & get_extractor() { return _extractor; }
-	
+	PVRush::PVExtractor& get_extractor() { return _extractor; }
+
 	/**
 	 * Start extraction of data for current source.
 	 *
@@ -117,7 +120,10 @@ public:
 	void process_from_source();
 
 	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
-	QString get_name() const { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
+	QString get_name() const
+	{
+		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs);
+	}
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const;
 	QString get_tooltip() const;
@@ -135,13 +141,11 @@ public:
 
 	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
 
-	static PVSource_sp create_source_from_description(PVScene_p scene_p, const PVRush::PVSourceDescription& descr)
+	static PVSource_sp create_source_from_description(PVScene_p scene_p,
+	                                                  const PVRush::PVSourceDescription& descr)
 	{
-		PVSource_sp src_p(new PVSource(
-			descr.get_inputs(),
-			descr.get_source_creator(),
-			descr.get_format()
-		));
+		PVSource_sp src_p(
+		    new PVSource(descr.get_inputs(), descr.get_source_creator(), descr.get_format()));
 
 		src_p->set_parent(scene_p);
 
@@ -151,12 +155,7 @@ public:
 	PVRush::PVSourceDescription::shared_pointer create_description()
 	{
 		PVRush::PVSourceDescription::shared_pointer descr_p(
-			new PVRush::PVSourceDescription(
-				get_inputs(),
-				get_source_creator(),
-				get_format()
-			)
-		);
+		    new PVRush::PVSourceDescription(get_inputs(), get_source_creator(), get_format()));
 
 		return descr_p;
 	}
@@ -172,14 +171,18 @@ public:
 	const PVCol& axis_clicked() const { return _axis_clicked_id; }
 	void set_section_hovered(PVCol col, bool entered) { _section_hovered_id = entered ? col : -1; }
 	const int& section_hovered() const { return _section_hovered_id; }
-	void set_section_clicked(PVCol col, size_t pos) { _section_clicked.first = col; _section_clicked.second = pos; }
+	void set_section_clicked(PVCol col, size_t pos)
+	{
+		_section_clicked.first = col;
+		_section_clicked.second = pos;
+	}
 	const std::pair<size_t, size_t>& section_clicked() const { return _section_clicked; }
 
-private:
+  private:
 	void add_column(Inendi::PVAxis const& axis);
 	void set_views_consistent(bool cons);
 
-protected:
+  protected:
 	virtual void set_parent_from_ptr(PVScene* parent);
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
@@ -189,18 +192,19 @@ protected:
 
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 
-protected:
+  protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
-private:
-	PVRush::PVRawSourceBase_p create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
+  private:
+	PVRush::PVRawSourceBase_p create_extractor_source(QString type, QString filename,
+	                                                  PVRush::PVFormat const& format);
 	void files_append_noextract();
 	void init();
 	void extract_finished();
 
-private:
+  private:
 	PVView* _last_active_view = nullptr;
 
 	PVRush::PVExtractor _extractor; //!< Tool to extract data and generate NRaw.
@@ -208,7 +212,7 @@ private:
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
-	PVRush::PVNraw *nraw; //!< Pointer to Nraw data (owned by extractor)
+	PVRush::PVNraw* nraw;                    //!< Pointer to Nraw data (owned by extractor)
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;
@@ -220,7 +224,6 @@ private:
 
 	QString _nraw_folder;
 };
-
 }
 
-#endif	/* INENDI_PVSOURCE_H */
+#endif /* INENDI_PVSOURCE_H */

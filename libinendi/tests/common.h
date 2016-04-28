@@ -18,130 +18,131 @@
 
 #include <QCoreApplication>
 
-namespace pvtest {
+namespace pvtest
+{
 
-    /**
-     * Get a tmp filename not already use.
-     *
-     * @warning, It can be use between this call and your creation.
-     */
-    std::string get_tmp_filename()
-    {
-        std::string out_path;
-        // Duplicate input log to make it bigger
-        out_path.resize(L_tmpnam);
-        // We assume that this name will not be use by another program before we create it.
-        tmpnam (&out_path.front());
+/**
+ * Get a tmp filename not already use.
+ *
+ * @warning, It can be use between this call and your creation.
+ */
+std::string get_tmp_filename()
+{
+	std::string out_path;
+	// Duplicate input log to make it bigger
+	out_path.resize(L_tmpnam);
+	// We assume that this name will not be use by another program before we create it.
+	tmpnam(&out_path.front());
 
-        return out_path;
-    }
+	return out_path;
+}
 
-    /**
-     * Create and save context for a view creation.
-     *
-     * * Required when we want to work with NRaw content
-     */
-    class TestEnv
-    {
+/**
+ * Create and save context for a view creation.
+ *
+ * * Required when we want to work with NRaw content
+ */
+class TestEnv
+{
 
-        public:
-        /**
-         * Initialize Inspector internal until a view is correctly build and return this view.
-         *
-         * dup is the number of time we want to duplicate data.
-         */
-        TestEnv(std::string const& log_file, std::string const& format_file, size_t dup=1):
-                root(new Inendi::PVRoot()),
-                _big_file_path(get_tmp_filename())
-        {
-            // Need this core application to find plugins path.
-            std::string prog_name = "test_inendi";
-            char* arg = const_cast<char*>(prog_name.c_str());
-            int argc = 1;
-            QCoreApplication app(argc, &arg);
+  public:
+	/**
+	 * Initialize Inspector internal until a view is correctly build and return this view.
+	 *
+	 * dup is the number of time we want to duplicate data.
+	 */
+	TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1)
+	    : root(new Inendi::PVRoot()), _big_file_path(get_tmp_filename())
+	{
+		// Need this core application to find plugins path.
+		std::string prog_name = "test_inendi";
+		char* arg = const_cast<char*>(prog_name.c_str());
+		int argc = 1;
+		QCoreApplication app(argc, &arg);
 
-            init_env();
+		init_env();
 
-            // Load plugins to fill the nraw
-            PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
-            PVRush::PVPluginsLoad::load_all_plugins(); // Sources
+		// Load plugins to fill the nraw
+		PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
+		PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
-            // Initialize sse4 detection
-            PVCore::PVIntrinsics::init_cpuid();
+		// Initialize sse4 detection
+		PVCore::PVIntrinsics::init_cpuid();
 
-            {
-                std::ifstream ifs(log_file);
-                std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+		{
+			std::ifstream ifs(log_file);
+			std::string content{std::istreambuf_iterator<char>(ifs),
+			                    std::istreambuf_iterator<char>()};
 
-                std::ofstream big_file(_big_file_path);
-                // Duplicate file to have one millions lines
-                for(size_t i=0; i<dup; i++) {
-                    big_file << content;
-                }
-            }
+			std::ofstream big_file(_big_file_path);
+			// Duplicate file to have one millions lines
+			for (size_t i = 0; i < dup; i++) {
+				big_file << content;
+			}
+		}
 
-            //Input file
-            QString path_file = QString::fromStdString(_big_file_path);
-            PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+		// Input file
+		QString path_file = QString::fromStdString(_big_file_path);
+		PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
-            // Load the given format file
-            QString path_format = QString::fromStdString(format_file);
-            PVRush::PVFormat format("format", path_format);
-            if (!format.populate()) {
-                throw std::runtime_error("Can't read format file " + format_file);
-            }
+		// Load the given format file
+		QString path_format = QString::fromStdString(format_file);
+		PVRush::PVFormat format("format", path_format);
+		if (!format.populate()) {
+			throw std::runtime_error("Can't read format file " + format_file);
+		}
 
-            // Get the source creator
-            PVRush::PVSourceCreator_p sc_file;
-            if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-                throw std::runtime_error("Can't get sources.");
-            }
+		// Get the source creator
+		PVRush::PVSourceCreator_p sc_file;
+		if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
+			throw std::runtime_error("Can't get sources.");
+		}
 
-            // Create the PVSource object
-            Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
-            scene->set_parent(root);
-            src.reset(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-            src->set_parent(scene);
-            PVRush::PVControllerJob_p job = src->extract();
-            job->wait_end();
-        }
+		// Create the PVSource object
+		Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
+		scene->set_parent(root);
+		src.reset(
+		    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+		src->set_parent(scene);
+		PVRush::PVControllerJob_p job = src->extract();
+		job->wait_end();
+	}
 
-        /**
-         * Clean input duplicate file at the end.
-         */
-        ~TestEnv() { std::remove(_big_file_path.c_str()); }
+	/**
+	 * Clean input duplicate file at the end.
+	 */
+	~TestEnv() { std::remove(_big_file_path.c_str()); }
 
-        /**
-         * Compute mapping assuming PVSource is valid.
-         */
-        Inendi::PVMapped_p compute_mapping()
-        {
-                mapped.reset(new Inendi::PVMapped());
-                mapped->set_parent(src);
-                mapped->process_from_parent_source();
-                return mapped;
-        }
+	/**
+	 * Compute mapping assuming PVSource is valid.
+	 */
+	Inendi::PVMapped_p compute_mapping()
+	{
+		mapped.reset(new Inendi::PVMapped());
+		mapped->set_parent(src);
+		mapped->process_from_parent_source();
+		return mapped;
+	}
 
-        /**
-         * Compute plotting assuming PVMapped is valid.
-         */
-        Inendi::PVPlotted_p compute_plotting()
-        {
-                // And plot the mapped values
-                Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-                plotted->set_parent(mapped);
-                plotted->process_from_parent_mapped();
-                return plotted;
-        }
+	/**
+	 * Compute plotting assuming PVMapped is valid.
+	 */
+	Inendi::PVPlotted_p compute_plotting()
+	{
+		// And plot the mapped values
+		Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
+		plotted->set_parent(mapped);
+		plotted->process_from_parent_mapped();
+		return plotted;
+	}
 
-        Inendi::PVMapped_p mapped;
-        Inendi::PVSource_sp src;
-        Inendi::PVRoot_p root;
+	Inendi::PVMapped_p mapped;
+	Inendi::PVSource_sp src;
+	Inendi::PVRoot_p root;
 
-    private:
-        std::string _big_file_path;
-    };
-
+  private:
+	std::string _big_file_path;
+};
 }
 
 #endif

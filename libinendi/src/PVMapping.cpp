@@ -14,23 +14,20 @@
 
 #include <iostream>
 
-
-
 /******************************************************************************
  *
  * Inendi::PVMapping::PVMapping
  *
  *****************************************************************************/
-Inendi::PVMapping::PVMapping(PVMapped* mapped):
-	_name("default"),
-	_mapped(mapped)
+Inendi::PVMapping::PVMapping(PVMapped* mapped) : _name("default"), _mapped(mapped)
 {
 	PVSource* source = _mapped->get_parent();
 
 	PVCol naxes = source->get_column_count();
 
 	if (naxes == 0) {
-		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the format !!!!\n");
+		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the "
+		            "format !!!!\n");
 		assert(false);
 	}
 
@@ -49,7 +46,9 @@ Inendi::PVMapping::PVMapping(PVMapped* mapped):
  * Inendi::PVMapping::PVMapping
  *
  *****************************************************************************/
-Inendi::PVMapping::PVMapping() {}
+Inendi::PVMapping::PVMapping()
+{
+}
 
 /******************************************************************************
  *
@@ -62,7 +61,6 @@ void Inendi::PVMapping::add_column(PVMappingProperties const& props)
 	columns.push_back(props);
 	_mandatory_filters_values.push_back(mandatory_param_map());
 }
-
 
 /******************************************************************************
  *
@@ -101,8 +99,6 @@ Inendi::mandatory_param_map const& Inendi::PVMapping::get_mandatory_params_for_c
 	return _mandatory_filters_values[col];
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVMapping::get_mandatory_params_for_col
@@ -113,8 +109,6 @@ Inendi::mandatory_param_map& Inendi::PVMapping::get_mandatory_params_for_col(PVC
 	assert(col < _mandatory_filters_values.size());
 	return _mandatory_filters_values[col];
 }
-
-
 
 /******************************************************************************
  *
@@ -149,8 +143,6 @@ bool Inendi::PVMapping::is_col_uptodate(PVCol j) const
 	return get_properties_for_col(j).is_uptodate();
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVMapping::is_uptodate
@@ -158,10 +150,9 @@ bool Inendi::PVMapping::is_col_uptodate(PVCol j) const
  *****************************************************************************/
 bool Inendi::PVMapping::is_uptodate() const
 {
-	return std::all_of(columns.begin(), columns.end(), [](PVMappingProperties const& prop) { return prop.is_uptodate(); });
+	return std::all_of(columns.begin(), columns.end(),
+	                   [](PVMappingProperties const& prop) { return prop.is_uptodate(); });
 }
-
-
 
 /******************************************************************************
  *
@@ -180,14 +171,13 @@ void Inendi::PVMapping::reset_from_format(PVRush::PVFormat const& format)
 	}
 }
 
-
-
 /******************************************************************************
  *
  * Inendi::PVMapping::serialize
  *
  *****************************************************************************/
-void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
+                                  PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", columns);
 	so.attribute("name", _name);
@@ -196,8 +186,6 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeria
 		_mandatory_filters_values.resize(columns.size());
 	}
 }
-
-
 
 /******************************************************************************
  *
@@ -217,7 +205,6 @@ void Inendi::PVMapping::set_default_args(PVRush::PVFormat const& format)
 		}
 	}
 }
-
 
 /******************************************************************************
  *
@@ -240,6 +227,3 @@ void Inendi::PVMapping::set_uptodate_for_col(PVCol j)
 	assert(j < columns.size());
 	get_properties_for_col(j).set_uptodate();
 }
-
-
-

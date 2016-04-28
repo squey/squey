@@ -7,8 +7,7 @@
 
 #include "PVMappingFilterIntegerUnsigned.h"
 
-Inendi::PVMappingFilterIntegerUnsigned::PVMappingFilterIntegerUnsigned():
-	PVMappingFilter()
+Inendi::PVMappingFilterIntegerUnsigned::PVMappingFilterIntegerUnsigned() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterIntegerUnsigned);
 }

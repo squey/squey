@@ -8,17 +8,15 @@
 #include <pvkernel/core/general.h>
 #include <PVColorDialog.h>
 
-
 /******************************************************************************
  *
  * PVInspector::PVColorDialog::PVColorDialog
  *
  *****************************************************************************/
-PVInspector::PVColorDialog::PVColorDialog(Inendi::PVView& inendi_view, QWidget* parent):
-	QColorDialog(Qt::white, parent),
-	_inendi_view(inendi_view)
+PVInspector::PVColorDialog::PVColorDialog(Inendi::PVView& inendi_view, QWidget* parent)
+    : QColorDialog(Qt::white, parent), _inendi_view(inendi_view)
 {
 	setOption(QColorDialog::ShowAlphaChannel, true);
-	//setWindowFlags(Qt::WindowStaysOnTopHint);
+	// setWindowFlags(Qt::WindowStaysOnTopHint);
 	setWindowTitle("Select a color...");
 }

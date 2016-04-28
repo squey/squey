@@ -10,14 +10,14 @@
 
 #include <memory>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVBCIBackendImage;
 typedef std::shared_ptr<PVBCIBackendImage> PVBCIBackendImage_p;
 
-//template <size_t Bbits>
-//using PVBCIBackendImage_p = std::shared_ptr<PVBCIBackendImage<Bbits> >;
-
+// template <size_t Bbits>
+// using PVBCIBackendImage_p = std::shared_ptr<PVBCIBackendImage<Bbits> >;
 }
 
 #endif

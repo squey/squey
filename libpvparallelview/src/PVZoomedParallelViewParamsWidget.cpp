@@ -16,8 +16,9 @@
  * PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidget
  *****************************************************************************/
 
-PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidget(PVParallelView::PVZoomedParallelView* parent) :
-	QToolBar(parent)
+PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidget(
+    PVParallelView::PVZoomedParallelView* parent)
+    : QToolBar(parent)
 {
 	setIconSize(QSize(17, 17));
 
@@ -27,8 +28,7 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
 	_menu_toolbutton->setIcon(QIcon(":/select-axis"));
 
 	_axes = new QMenu();
-	connect(_axes, SIGNAL(triggered(QAction*)),
-	        this, SLOT(set_active_axis_action(QAction*)));
+	connect(_axes, SIGNAL(triggered(QAction*)), this, SLOT(set_active_axis_action(QAction*)));
 
 	_menu_toolbutton->setMenu(_axes);
 }
@@ -38,14 +38,14 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
  *****************************************************************************/
 
 void PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu(int active_axis,
-                                                                       const QStringList &sl)
+                                                                       const QStringList& sl)
 {
-	QAction *current_axis_action;
+	QAction* current_axis_action;
 
 	_axes->clear();
 	int i = 0;
 	for (const QString& str : sl) {
-		QAction *act = _axes->addAction(str);
+		QAction* act = _axes->addAction(str);
 
 		act->setData(i);
 		if (i == active_axis) {
@@ -66,7 +66,7 @@ void PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu(int activ
  * PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action(QAction *act)
+void PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action(QAction* act)
 {
 	if (act == _active_axis_action) {
 		return;
@@ -78,7 +78,8 @@ void PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action(QA
 	act->setVisible(false);
 	_active_axis_action = act;
 
-	_menu_toolbutton->setToolTip(QString("Select displayed axis\ncurrent axis is \"") + act->text() + "\"");
+	_menu_toolbutton->setToolTip(QString("Select displayed axis\ncurrent axis is \"") +
+	                             act->text() + "\"");
 
 	PVCol axis = act->data().toInt();
 	if (_active_axis >= 0) {

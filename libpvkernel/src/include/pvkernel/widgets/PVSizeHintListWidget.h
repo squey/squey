@@ -10,19 +10,15 @@
 
 #include <QListWidget>
 
-namespace PVWidgets {
-
-template <class T = QListWidget, int VSize=42>
-class PVSizeHintListWidget : public T
+namespace PVWidgets
 {
-public:
-	PVSizeHintListWidget(QWidget * parent = 0) : T(parent) {}
-	QSize sizeHint() const
-	{
-		return QSize(0, VSize);
-	}
-};
 
+template <class T = QListWidget, int VSize = 42> class PVSizeHintListWidget : public T
+{
+  public:
+	PVSizeHintListWidget(QWidget* parent = 0) : T(parent) {}
+	QSize sizeHint() const { return QSize(0, VSize); }
+};
 }
 
 #endif // PVSIZEHINTLISTWIDGET_H__

@@ -18,28 +18,28 @@
 
 #include <inendi/widgets/editors/PVAxesIndexEditor.h>
 
-namespace PVInspector {
+namespace PVInspector
+{
 
-class PVExpandSelDlg: public QDialog
+class PVExpandSelDlg : public QDialog
 {
 	Q_OBJECT
-public:
+  public:
 	PVExpandSelDlg(Inendi::PVView const& view, QWidget* parent);
 
-public:
+  public:
 	PVCore::PVAxesIndexType get_axes() const;
 	QString get_mode();
 
-private slots:
+  private slots:
 	void update_list_modes();
 
-private:
+  private:
 	Inendi::PVView const& _view;
 	PVWidgets::PVAxesIndexEditor* _axes_editor;
 	QComboBox* _combo_modes;
 	QDialogButtonBox* _btns;
 };
-
 }
 
 #endif

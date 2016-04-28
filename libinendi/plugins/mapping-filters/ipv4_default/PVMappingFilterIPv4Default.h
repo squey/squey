@@ -11,41 +11,42 @@
 #include <pvkernel/core/general.h>
 #include <inendi/PVMappingFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVMappingFilterIPv4Default;
 
 /**
  * IPv4 mapping. It keeps unsigned integer values.
  */
-class PVMappingFilterIPv4Default: public PVMappingFilter
+class PVMappingFilterIPv4Default : public PVMappingFilter
 {
-	public:
-		PVMappingFilterIPv4Default();
+  public:
+	PVMappingFilterIPv4Default();
 
-		/**
-		 * Copy NRaw values (real unsigned integers value) as mapping value.
-		 */
-		decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override {
-			auto array = nraw.collection().column(col);
-			auto& core_array = array.to_core_array<uint32_t>();
+	/**
+	 * Copy NRaw values (real unsigned integers value) as mapping value.
+	 */
+	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override
+	{
+		auto array = nraw.collection().column(col);
+		auto& core_array = array.to_core_array<uint32_t>();
 
-			for(size_t row=0; row< array.size(); row++) {
-				_dest[row].storage_as_int() = core_array[row];
-			}
-
-			return _dest;
+		for (size_t row = 0; row < array.size(); row++) {
+			_dest[row].storage_as_int() = core_array[row];
 		}
 
-		/**
-		 * Metainformation for this plugin.
-		 */
-		QString get_human_name() const override { return QString("Default"); }
-		PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
+		return _dest;
+	}
+
+	/**
+	 * Metainformation for this plugin.
+	 */
+	QString get_human_name() const override { return QString("Default"); }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
 	CLASS_FILTER_NOPARAM(PVMappingFilterIPv4Default)
 };
-
 }
 
 #endif

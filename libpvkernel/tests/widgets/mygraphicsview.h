@@ -15,40 +15,34 @@
 
 #include <iostream>
 
-
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R>
-void __print_rect(const char *text, const R &r)
+template <typename R> void __print_rect(const char* text, const R& r)
 {
-	std::cout << text << ": "
-	          << r.x() << " " << r.y() << ", "
-	          << r.width() << " " << r.height()
+	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
 }
 
 #define print_transform(T) __print_transform(#T, T)
 
-template <typename T>
-void __print_transform(const char *text, const T &t)
+template <typename T> void __print_transform(const char* text, const T& t)
 {
-	std::cout << text << ": " << std::endl
-	          << t.m11() << " " << t.m21() << " " << t.m31() << std::endl
-	          << t.m12() << " " << t.m22() << " " << t.m32() << std::endl
-	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
+	std::cout << text << ": " << std::endl << t.m11() << " " << t.m21() << " " << t.m31()
+	          << std::endl << t.m12() << " " << t.m22() << " " << t.m32() << std::endl << t.m13()
+	          << " " << t.m23() << " " << t.m33() << std::endl;
 }
 
 class MyPVGraphicsView : public PVWidgets::PVGraphicsView
 {
 	Q_OBJECT
 
-	public:
-	MyPVGraphicsView(QGraphicsScene *scene = nullptr,
-	                 QWidget *parent = nullptr) :
-		PVGraphicsView(scene, parent)
-	{}
+  public:
+	MyPVGraphicsView(QGraphicsScene* scene = nullptr, QWidget* parent = nullptr)
+	    : PVGraphicsView(scene, parent)
+	{
+	}
 
-	void keyPressEvent(QKeyEvent *event)
+	void keyPressEvent(QKeyEvent* event)
 	{
 		event->accept();
 		if (event->key() == Qt::Key_A) {
@@ -71,27 +65,24 @@ class MyPVGraphicsView : public PVWidgets::PVGraphicsView
 		} else if (event->key() == Qt::Key_X) {
 			QTransform t;
 			t.scale(1., 1.);
-			set_transform(t);;
+			set_transform(t);
+			;
 		}
 		update();
 	}
 
-	void mousePressEvent(QMouseEvent *event)
-	{
-		_mouse_pos = event->pos();
-	}
+	void mousePressEvent(QMouseEvent* event) { _mouse_pos = event->pos(); }
 
-	virtual void drawBackground(QPainter *painter, const QRectF &rect)
+	virtual void drawBackground(QPainter* painter, const QRectF& rect)
 	{
 		// painter->fillRect(rect, QColor(255, 200, 200));
 		painter->fillRect(rect, Qt::white);
 	}
 
-	virtual void drawForeground(QPainter *, const QRectF &)
-	{}
+	virtual void drawForeground(QPainter*, const QRectF&) {}
 
-public slots:
-	void frame_has_changed (int /*frame*/)
+  public slots:
+	void frame_has_changed(int /*frame*/)
 	{
 		if (get_scene() == nullptr) {
 			return;
@@ -100,24 +91,22 @@ public slots:
 		update();
 	}
 
-	void anim_finished()
-	{
-		std::cout << "MyPVGraphicsView::animation stops" << std::endl;
-	}
+	void anim_finished() { std::cout << "MyPVGraphicsView::animation stops" << std::endl; }
 
-private:
+  private:
 	QPointF _mouse_pos;
 };
 
 class MyQGraphicsView : public QGraphicsView
 {
 	Q_OBJECT
-	public:
-	MyQGraphicsView(QGraphicsScene *scene = nullptr, QWidget *parent = nullptr) :
-		QGraphicsView(scene, parent)
-	{}
+  public:
+	MyQGraphicsView(QGraphicsScene* scene = nullptr, QWidget* parent = nullptr)
+	    : QGraphicsView(scene, parent)
+	{
+	}
 
-	void keyPressEvent(QKeyEvent *event)
+	void keyPressEvent(QKeyEvent* event)
 	{
 		event->accept();
 		if (event->key() == Qt::Key_A) {
@@ -140,18 +129,19 @@ class MyQGraphicsView : public QGraphicsView
 		} else if (event->key() == Qt::Key_X) {
 			QTransform t;
 			t.scale(1., 1.);
-			setTransform(t);;
+			setTransform(t);
+			;
 		}
 		update();
 	}
 
-	void mousePressEvent(QMouseEvent *event)
+	void mousePressEvent(QMouseEvent* event)
 	{
 		_mouse_pos = event->pos();
 		QGraphicsView::mousePressEvent(event);
 	}
 
-	void paintEvent(QPaintEvent *event)
+	void paintEvent(QPaintEvent* event)
 	{
 		// QRect view_area = event->rect().intersected(viewport()->rect());
 		// QRectF scene_area = mapToScene(view_area).boundingRect();
@@ -165,8 +155,8 @@ class MyQGraphicsView : public QGraphicsView
 		QGraphicsView::paintEvent(event);
 	}
 
-public slots:
-	void frame_has_changed (int /*frame*/)
+  public slots:
+	void frame_has_changed(int /*frame*/)
 	{
 		if (scene() == nullptr) {
 			return;
@@ -175,12 +165,9 @@ public slots:
 		update();
 	}
 
-	void anim_finished()
-	{
-		std::cout << "MyQGraphicsView::animation stops" << std::endl;
-	}
+	void anim_finished() { std::cout << "MyQGraphicsView::animation stops" << std::endl; }
 
-private:
+  private:
 	QPoint _mouse_pos;
 };
 

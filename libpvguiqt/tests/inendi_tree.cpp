@@ -42,9 +42,10 @@ int main(int argc, char** argv)
 	// Get a INENDI tree from the given file/format
 	Inendi::PVRoot_p root;
 	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
-	//Inendi::PVSource_sp src2 = get_src_from_file(root->get_children().at(0), argv[1], argv[2]);
+	// Inendi::PVSource_sp src2 = get_src_from_file(root->get_children().at(0),
+	// argv[1], argv[2]);
 	src->create_default_view();
-	//src2->create_default_view();
+	// src2->create_default_view();
 
 	Inendi::PVView_p new_view(new Inendi::PVView());
 	new_view->set_parent(src->current_view()->get_parent()->shared_from_this());
@@ -75,17 +76,16 @@ int main(int argc, char** argv)
 	mw2->show();
 
 	src.reset();
-	//src2.reset();
-	//new_view.reset();
+	// src2.reset();
+	// new_view.reset();
 
 	// Remove listing when pressing enter
-	boost::thread key_thread([&]
-		{
-			std::cerr << "Press enter to remove data-tree..." << std::endl;
-			while (getchar() != '\n');
-			root.reset();
-		}
-	);
+	boost::thread key_thread([&] {
+		std::cerr << "Press enter to remove data-tree..." << std::endl;
+		while (getchar() != '\n')
+			;
+		root.reset();
+	});
 
 	return app.exec();
 }

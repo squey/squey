@@ -12,16 +12,16 @@
 std::string& PVCore::replace(std::string& str, const std::string& from, const std::string& to)
 {
 	// avoid an infinite loop if "from" is an empty string
-    if(from.empty()) {
-        return str;
-    }
+	if (from.empty()) {
+		return str;
+	}
 
-    size_t pos = 0;
-    while ((pos = str.find(from, pos)) != std::string::npos) {
-    	str.replace(pos, from.size(), to);
-    		// Advance to avoid replacing the same substring again
-    		pos += to.size();
-    }
+	size_t pos = 0;
+	while ((pos = str.find(from, pos)) != std::string::npos) {
+		str.replace(pos, from.size(), to);
+		// Advance to avoid replacing the same substring again
+		pos += to.size();
+	}
 
-    return str;
+	return str;
 }

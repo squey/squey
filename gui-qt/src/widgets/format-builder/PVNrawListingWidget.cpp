@@ -16,9 +16,9 @@
 
 #include <pvkernel/core/general.h>
 
-PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_model, QWidget* parent) :
-	QWidget(parent),
-	_nraw_model(nraw_model)
+PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_model,
+                                                      QWidget* parent)
+    : QWidget(parent), _nraw_model(nraw_model)
 {
 	QVBoxLayout* main_layout = new QVBoxLayout();
 
@@ -36,11 +36,13 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	QAction* act_set_axis_name = new QAction(tr("Set axes' name based on this row"), _ctxt_menu);
 	connect(act_set_axis_name, SIGNAL(triggered()), this, SLOT(set_axes_name_selected_row_Slot()));
 	_ctxt_menu->addAction(act_set_axis_name);
-	QAction *act_detect_type = new QAction(tr("Automatically detect axes' type based on this row"), _ctxt_menu);
+	QAction* act_detect_type =
+	    new QAction(tr("Automatically detect axes' type based on this row"), _ctxt_menu);
 	connect(act_detect_type, SIGNAL(triggered()), this, SLOT(set_axes_type_selected_row_Slot()));
 	//_ctxt_menu->addAction(act_detect_type);
-	
-	connect(_nraw_table, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(nraw_custom_menu_Slot(const QPoint&)));
+
+	connect(_nraw_table, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+	        SLOT(nraw_custom_menu_Slot(const QPoint&)));
 	_nraw_table->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// "Mini-extractor" for this NRAW
@@ -48,7 +50,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	ext_layout->addWidget(new QLabel("Preview from line "));
 
 	_ext_start = new QLineEdit();
-	QIntValidator *iv_start = new QIntValidator();
+	QIntValidator* iv_start = new QIntValidator();
 	iv_start->setBottom(0);
 	iv_start->setTop(INENDI_LINES_MAX);
 	_ext_start->setValidator(iv_start);
@@ -58,7 +60,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	ext_layout->addWidget(new QLabel(" to line "));
 
 	_ext_end = new QLineEdit();
-	QIntValidator *iv_end = new QIntValidator();
+	QIntValidator* iv_end = new QIntValidator();
 	iv_end->setBottom(100);
 	iv_end->setTop(INENDI_LINES_MAX);
 	_ext_end->setValidator(iv_start);
@@ -69,7 +71,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	ext_layout->addWidget(_btn_preview);
 	_btn_preview->setAutoDefault(false);
 
-	main_layout->addItem(src_layout);	
+	main_layout->addItem(src_layout);
 	main_layout->addWidget(_nraw_table);
 	main_layout->addItem(ext_layout);
 
@@ -105,7 +107,8 @@ void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 	}
 }
 
-void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t, PVRush::PVInputDescription_p input)
+void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,
+                                                      PVRush::PVInputDescription_p input)
 {
 	if (!in_t) {
 		_src_label->hide();
@@ -131,7 +134,7 @@ void PVInspector::PVNrawListingWidget::select_column(PVCol col)
 	_nraw_model->sel_visible(true);
 
 	// Scroll to that column, but keep the current row
-	QModelIndex first_visible_idx = _nraw_table->indexAt(QPoint(0,0));
+	QModelIndex first_visible_idx = _nraw_table->indexAt(QPoint(0, 0));
 	QModelIndex col_idx = _nraw_model->index(first_visible_idx.row(), col);
 	_nraw_table->scrollTo(col_idx, QAbstractItemView::PositionAtTop);
 }

@@ -28,29 +28,25 @@
  * communication channel
  *****************************************************************************/
 
-enum action_t {
-	ACTION_REFRESH = 0,
-	ACTION_QUIT
-};
+enum action_t { ACTION_REFRESH = 0, ACTION_QUIT };
 
-enum reaction_t {
-	REACTION_PLOP,
-	REACTION_REPLY
-};
+enum reaction_t { REACTION_PLOP, REACTION_REPLY };
 
 struct action_message_t
 {
 	action_t func;
-	union {
-		int        i;
+	union
+	{
+		int i;
 	} param;
 };
 
 struct reaction_message_t
 {
 	reaction_t func;
-	union {
-		bool     b;
+	union
+	{
+		bool b;
 	} param;
 };
 
@@ -59,17 +55,16 @@ typedef std::queue<reaction_message_t> reaction_queue_t;
 
 class MessageChannel
 {
-public:
-	MessageChannel()
-	{}
+  public:
+	MessageChannel() {}
 
-	void put_action(const action_message_t &a)
+	void put_action(const action_message_t& a)
 	{
 		std::lock_guard<std::mutex> lg(_amutex);
 		_aqueue.push(a);
 	}
 
-	bool get_action(action_message_t &a)
+	bool get_action(action_message_t& a)
 	{
 		std::lock_guard<std::mutex> lg(_amutex);
 		if (_aqueue.empty()) {
@@ -80,13 +75,13 @@ public:
 		return true;
 	}
 
-	void put_reaction(const reaction_message_t &r)
+	void put_reaction(const reaction_message_t& r)
 	{
 		std::lock_guard<std::mutex> lg(_rmutex);
 		_rqueue.push(r);
 	}
 
-	bool get_reaction(reaction_message_t &r)
+	bool get_reaction(reaction_message_t& r)
 	{
 		std::lock_guard<std::mutex> lg(_rmutex);
 		if (_rqueue.empty()) {
@@ -97,27 +92,24 @@ public:
 		return true;
 	}
 
-private:
-	action_queue_t   _aqueue;
-	std::mutex       _amutex;
+  private:
+	action_queue_t _aqueue;
+	std::mutex _amutex;
 	reaction_queue_t _rqueue;
-	std::mutex       _rmutex;
+	std::mutex _rmutex;
 };
-
 
 /*****************************************************************************
  * a thread safe printf
  *****************************************************************************/
 
-void Sprintf(const char *format, ...);
-
+void Sprintf(const char* format, ...);
 
 /*****************************************************************************
  * consumer
  *****************************************************************************/
 
-void inner_thread(MessageChannel &chan);
-
+void inner_thread(MessageChannel& chan);
 
 /*****************************************************************************
  * object
@@ -125,9 +117,8 @@ void inner_thread(MessageChannel &chan);
 
 class Obj
 {
-public:
-	Obj()
-	{}
+  public:
+	Obj() {}
 
 	~Obj()
 	{
@@ -137,26 +128,18 @@ public:
 		Sprintf("Obj::~Obj\n");
 	}
 
-	void do_nothing()
-	{}
+	void do_nothing() {}
 
-	void start()
-	{
-		_thread = std::thread(std::bind(inner_thread, std::ref(_chan)));
-	}
+	void start() { _thread = std::thread(std::bind(inner_thread, std::ref(_chan))); }
 
-	MessageChannel &get_message_channel() const
-	{
-		return _chan;
-	}
+	MessageChannel& get_message_channel() const { return _chan; }
 
-private:
+  private:
 	mutable MessageChannel _chan;
-	std::thread            _thread;
+	std::thread _thread;
 };
 
 typedef PVCore::PVSharedPtr<Obj> Obj_p;
-
 
 /*****************************************************************************
  * producer (and observer)
@@ -166,20 +149,15 @@ class ObjObserver : public QObject, public PVHive::PVObserver<Obj>
 {
 	Q_OBJECT
 
-public:
-	ObjObserver(MessageChannel &chan, QObject *parent = nullptr) :
-		QObject(parent),
-		_chan(chan)
+  public:
+	ObjObserver(MessageChannel& chan, QObject* parent = nullptr) : QObject(parent), _chan(chan)
 	{
 		_timer = new QTimer(this);
 		connect(_timer, SIGNAL(timeout()), this, SLOT(check_from_thread()));
 		_timer->start(50);
 	}
 
-	~ObjObserver()
-	{
-		Sprintf("ObjObserver::~ObjObserver\n");
-	}
+	~ObjObserver() { Sprintf("ObjObserver::~ObjObserver\n"); }
 
 	void refresh()
 	{
@@ -204,49 +182,46 @@ public:
 				usleep(50);
 			}
 		}
-
 	}
 
-private:
-	bool check_reaction(reaction_message_t &r)
+  private:
+	bool check_reaction(reaction_message_t& r)
 	{
 		bool ret = false;
 
-		switch(r.func) {
+		switch (r.func) {
 		case REACTION_PLOP:
 			Sprintf("main_thread : receive PLOP\n");
 			break;
 		case REACTION_REPLY:
-			Sprintf("main_thread : receive REPLY with value %d\n",
-			        r.param.b);
+			Sprintf("main_thread : receive REPLY with value %d\n", r.param.b);
 			ret = true;
 			break;
 		default:
-			Sprintf("main_thread : receive unknown action %d\n",
-			        r.func);
+			Sprintf("main_thread : receive unknown action %d\n", r.func);
 			break;
 		}
 
 		return ret;
 	}
 
-private slots:
+  private slots:
 	void check_from_thread()
 	{
 		reaction_message_t r;
 
 		while (true) {
 			if (_chan.get_reaction(r)) {
-				(void) check_reaction(r);
+				(void)check_reaction(r);
 			} else {
 				break;
 			}
 		}
 	}
 
-private:
-	MessageChannel &_chan;
-	QTimer         *_timer;
+  private:
+	MessageChannel& _chan;
+	QTimer* _timer;
 };
 
 /*****************************************************************************
@@ -257,9 +232,8 @@ class ObjActor : public QObject, public PVHive::PVActor<Obj>
 {
 	Q_OBJECT
 
-public:
-	ObjActor(int count, QObject *parent = nullptr) : QObject(parent),
-	                                                _count(count)
+  public:
+	ObjActor(int count, QObject* parent = nullptr) : QObject(parent), _count(count)
 	{
 		_timer = new QTimer(this);
 		connect(_timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -269,7 +243,7 @@ public:
 signals:
 	void finished();
 
-private slots:
+  private slots:
 	void update()
 	{
 		PVACTOR_CALL(*this, &Obj::do_nothing);
@@ -280,10 +254,9 @@ private slots:
 		}
 	}
 
-private:
-	QTimer *_timer;
-	int     _count;
+  private:
+	QTimer* _timer;
+	int _count;
 };
-
 
 #endif // MESSAGE_QUEUE_H

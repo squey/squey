@@ -14,17 +14,17 @@
 #define INPUT_TYPE_PREFIX "input_type"
 #define SOURCE_PREFIX "source"
 
-namespace PVRush {
+namespace PVRush
+{
 
 namespace PVPluginsLoad
 {
-	int load_all_plugins();
-	int load_input_type_plugins();
-	int load_source_plugins();
-	QString get_input_type_dir();
-	QString get_source_dir();
+int load_all_plugins();
+int load_input_type_plugins();
+int load_source_plugins();
+QString get_input_type_dir();
+QString get_source_dir();
 };
-
 }
 
 #endif

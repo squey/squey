@@ -15,13 +15,14 @@
 
 #include <PVLayerStackEventFilter.h>
 
-
 /******************************************************************************
  *
  * PVInspector::PVLayerStackEventFilter::PVLayerStackEventFilter
  *
  *****************************************************************************/
-PVInspector::PVLayerStackEventFilter::PVLayerStackEventFilter(PVMainWindow *mw, PVLayerStackView *parent) : QObject(parent)
+PVInspector::PVLayerStackEventFilter::PVLayerStackEventFilter(PVMainWindow* mw,
+                                                              PVLayerStackView* parent)
+    : QObject(parent)
 {
 	PVLOG_DEBUG("PVInspector::PVLayerStackEventFilter::%s\n", __FUNCTION__);
 
@@ -34,23 +35,21 @@ PVInspector::PVLayerStackEventFilter::PVLayerStackEventFilter(PVMainWindow *mw, 
  * PVInspector::PVLayerStackEventFilter::eventFilter
  *
  *****************************************************************************/
-bool PVInspector::PVLayerStackEventFilter::eventFilter(QObject * /*watched*/, QEvent *event)
+bool PVInspector::PVLayerStackEventFilter::eventFilter(QObject* /*watched*/, QEvent* event)
 {
-	PVLOG_DEBUG("PVInspector::PVLayerStackEventFilter::%s : with an event of type %d\n", __FUNCTION__, event->type());
+	PVLOG_DEBUG("PVInspector::PVLayerStackEventFilter::%s : with an event of type %d\n",
+	            __FUNCTION__, event->type());
 
 	if (event->type() == QEvent::HoverMove) {
-		layer_stack_view->mouse_hover_layer_index = layer_stack_view->rowAt(((QMouseEvent *)event)->x());
-		if (layer_stack_view->mouse_hover_layer_index != layer_stack_view->last_mouse_hover_layer_index) {
-			layer_stack_view->last_mouse_hover_layer_index = layer_stack_view->mouse_hover_layer_index;
+		layer_stack_view->mouse_hover_layer_index =
+		    layer_stack_view->rowAt(((QMouseEvent*)event)->x());
+		if (layer_stack_view->mouse_hover_layer_index !=
+		    layer_stack_view->last_mouse_hover_layer_index) {
+			layer_stack_view->last_mouse_hover_layer_index =
+			    layer_stack_view->mouse_hover_layer_index;
 			layer_stack_view->viewport()->update();
 		}
 		return true;
 	}
 	return false;
 }
-
-
-
-
-
-

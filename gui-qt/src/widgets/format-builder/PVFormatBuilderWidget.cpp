@@ -35,8 +35,7 @@ QList<QUrl> PVInspector::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl
  * PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget * parent):
-	QMainWindow(parent)
+PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent) : QMainWindow(parent)
 {
 	init(parent);
 	setObjectName("PVFormatBuilderWidget");
@@ -44,7 +43,7 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget * parent):
 
 bool PVInspector::PVFormatBuilderWidget::somethingChanged(void)
 {
-  // FIXME : It doesn't perform correct check. We can't save if we need a save after this.
+	// FIXME : It doesn't perform correct check. We can't save if we need a save after this.
 	if (myTreeView->model()->rowCount()) {
 		return true;
 	}
@@ -52,7 +51,7 @@ bool PVInspector::PVFormatBuilderWidget::somethingChanged(void)
 	return false;
 }
 
-void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent *event)
+void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
 {
 	if (somethingChanged()) {
 		QMessageBox msgBox;
@@ -64,7 +63,7 @@ void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent *event)
 		switch (ret) {
 		case QMessageBox::Save:
 			if (save()) {
-	       			event->accept();
+				event->accept();
 			} else {
 				event->ignore();
 			}
@@ -88,58 +87,54 @@ void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent *event)
 void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 {
 	setWindowTitle(FORMAT_BUILDER_TITLE);
-    
+
 	QSplitter* main_splitter = new QSplitter(Qt::Vertical);
-    /*
-     * ****************************************************************************
-     * Création of graphics elements.
-     * ****************************************************************************
-     */    
-    QVBoxLayout *vb=new QVBoxLayout();
-    vb->setMargin(0);
-    QSplitter* vertical_splitter = new QSplitter(Qt::Horizontal);
-    vbParam=new QVBoxLayout();
-    vbParam->setSizeConstraint(QLayout::SetMinimumSize);
-    
-    
-    //initialisation of the toolbar.
-    actionAllocation();
-    
-    //initialisation of the splitters list
-    initSplitters();
+	/*
+	 * ****************************************************************************
+	 * Création of graphics elements.
+	 * ****************************************************************************
+	 */
+	QVBoxLayout* vb = new QVBoxLayout();
+	vb->setMargin(0);
+	QSplitter* vertical_splitter = new QSplitter(Qt::Horizontal);
+	vbParam = new QVBoxLayout();
+	vbParam->setSizeConstraint(QLayout::SetMinimumSize);
 
-    menuBar =new QMenuBar();
-    initMenuBar();
-    //layout()->setMenuBar(menuBar);
-    
-    vb->addWidget(vertical_splitter);
-    
-    //the view
-    myTreeView = new PVXmlTreeView(this);
-    vertical_splitter->addWidget(myTreeView);
+	// initialisation of the toolbar.
+	actionAllocation();
 
+	// initialisation of the splitters list
+	initSplitters();
 
+	menuBar = new QMenuBar();
+	initMenuBar();
+	// layout()->setMenuBar(menuBar);
 
-    
-    //the model
-    myTreeModel = new PVXmlDomModel(this);
-    myTreeView->setModel(myTreeModel);
+	vb->addWidget(vertical_splitter);
 
-    QWidget* vbParamWidget = new QWidget();
-    vbParamWidget->setLayout(vbParam);
-    vertical_splitter->addWidget(vbParamWidget);
-    QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    vertical_splitter->setSizePolicy(sp);
-    vertical_splitter->setStretchFactor(vertical_splitter->indexOf(myTreeView), 1);
-    vertical_splitter->setStretchFactor(vertical_splitter->indexOf(vbParamWidget), 40);
-    //parameter board
-    myParamBord_old_model = new PVXmlParamWidget(this);
-    vbParam->addWidget(myParamBord_old_model);  
+	// the view
+	myTreeView = new PVXmlTreeView(this);
+	vertical_splitter->addWidget(myTreeView);
 
-    //param board plugin splitter
-    myParamBord = &emptyParamBoard;
-    vbParam->addWidget(myParamBord);
-    
+	// the model
+	myTreeModel = new PVXmlDomModel(this);
+	myTreeView->setModel(myTreeModel);
+
+	QWidget* vbParamWidget = new QWidget();
+	vbParamWidget->setLayout(vbParam);
+	vertical_splitter->addWidget(vbParamWidget);
+	QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	vertical_splitter->setSizePolicy(sp);
+	vertical_splitter->setStretchFactor(vertical_splitter->indexOf(myTreeView), 1);
+	vertical_splitter->setStretchFactor(vertical_splitter->indexOf(vbParamWidget), 40);
+	// parameter board
+	myParamBord_old_model = new PVXmlParamWidget(this);
+	vbParam->addWidget(myParamBord_old_model);
+
+	// param board plugin splitter
+	myParamBord = &emptyParamBoard;
+	vbParam->addWidget(myParamBord);
+
 	// Create a table for the preview of the NRAW
 	_nraw_model = new PVNrawListingModel();
 	_nraw_widget = new PVNrawListingWidget(_nraw_model);
@@ -174,7 +169,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	main_layout->addWidget(main_splitter);
 	main_layout->setMenuBar(menuBar);
 
-	QWidget *central_widget = new QWidget();
+	QWidget* central_widget = new QWidget();
 	central_widget->setLayout(main_layout);
 
 	setCentralWidget(central_widget);
@@ -196,7 +191,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 		_original_shortcuts = favorites;
 	}
 
-	for (QString &s : PVRush::normalize_get_helpers_plugins_dirs(QString("text"))) {
+	for (QString& s : PVRush::normalize_get_helpers_plugins_dirs(QString("text"))) {
 		QFileInfo fi(QFileInfo(s).path());
 		if (fi.isWritable()) {
 			favorites.append(QUrl::fromLocalFile(s));
@@ -204,17 +199,17 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	}
 
 	_file_dialog.setSidebarUrls(favorites);
-    
-    //setWindowModality(Qt::ApplicationModal);
-    
-    /*
-     * ****************************************************************************
-     * Initialisation de toutes les connexions.
-     * ****************************************************************************
-     */
-    lastSplitterPluginAdding = -1;
-    initConnexions();
-    
+
+	// setWindowModality(Qt::ApplicationModal);
+
+	/*
+	 * ****************************************************************************
+	 * Initialisation de toutes les connexions.
+	 * ****************************************************************************
+	 */
+	lastSplitterPluginAdding = -1;
+	initConnexions();
+
 	// AG: here, that's a bit tricky. We want our widget to have a maximize button,
 	// but the only way to do that with Qt is to use setWindowFlag(Qt::Window).
 	// According to Qt's documentation (and source code), as we are originally a widget,
@@ -231,98 +226,100 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
  * PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget() {
+PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget()
+{
 	/* RH: restore the original shortcut list to prevent Qt from polluting
 	 * its .ini file (under Unix: ~/.config/Trolltech.conf) by adding
 	 * P-I formats related paths.
 	 */
 	_file_dialog.setSidebarUrls(_original_shortcuts);
-    /*actionAddFilterAfter->deleteLater();
-    actionAddRegExAfter->deleteLater();
-    actionDelete->deleteLater();
-    myTreeView->deleteLater();*/
+	/*actionAddFilterAfter->deleteLater();
+	actionAddRegExAfter->deleteLater();
+	actionDelete->deleteLater();
+	myTreeView->deleteLater();*/
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::actionAllocation
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::actionAllocation(){
-    actionAddAxisIn = new QAction("add an axis",(QObject*)this);
-    actionAddAxisIn->setIcon(QIcon(":/add-axis"));
-    actionAddFilterAfter = new QAction("add a filter",(QObject*)this);
-    actionAddFilterAfter->setIcon(QIcon(":/filter"));
-    actionAddRegExAfter = new QAction("add a RegEx",(QObject*)this);
-    actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
-    actionAddUrl = new QAction("add an URL",(QObject*)this);
-    actionAddUrl->setIcon(QIcon(":/add-url"));
+void PVInspector::PVFormatBuilderWidget::actionAllocation()
+{
+	actionAddAxisIn = new QAction("add an axis", (QObject*)this);
+	actionAddAxisIn->setIcon(QIcon(":/add-axis"));
+	actionAddFilterAfter = new QAction("add a filter", (QObject*)this);
+	actionAddFilterAfter->setIcon(QIcon(":/filter"));
+	actionAddRegExAfter = new QAction("add a RegEx", (QObject*)this);
+	actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
+	actionAddUrl = new QAction("add an URL", (QObject*)this);
+	actionAddUrl->setIcon(QIcon(":/add-url"));
 
-    actionSave = new QAction("&Save format",(QObject*)this);
-    actionSave->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_S));
-    actionSave->setIcon(QIcon(":/save"));
-    actionSaveAs = new QAction("Save format as...",(QObject*)this);
-    actionDelete = new QAction("Delete",(QObject*)this);
-    actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
-    actionDelete->setIcon(QIcon(":/red-cross"));
-    actionDelete->setEnabled(false);
-    actionMoveDown = new QAction("move down",(QObject*)this);
-    actionMoveDown->setShortcut(QKeySequence(Qt::Key_Down));
-    actionMoveDown->setIcon(QIcon(":/go-down.png"));
-    actionMoveUp = new QAction("move up", (QObject*) this);
-    actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
-    actionMoveUp->setIcon(QIcon(":/go-up.png"));
-    actionOpen = new QAction(tr("Open format..."),(QObject*)this);
-    actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
-    actionOpen->setIcon(QIcon(":/document-open.png"));
+	actionSave = new QAction("&Save format", (QObject*)this);
+	actionSave->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+	actionSave->setIcon(QIcon(":/save"));
+	actionSaveAs = new QAction("Save format as...", (QObject*)this);
+	actionDelete = new QAction("Delete", (QObject*)this);
+	actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
+	actionDelete->setIcon(QIcon(":/red-cross"));
+	actionDelete->setEnabled(false);
+	actionMoveDown = new QAction("move down", (QObject*)this);
+	actionMoveDown->setShortcut(QKeySequence(Qt::Key_Down));
+	actionMoveDown->setIcon(QIcon(":/go-down.png"));
+	actionMoveUp = new QAction("move up", (QObject*)this);
+	actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
+	actionMoveUp->setIcon(QIcon(":/go-up.png"));
+	actionOpen = new QAction(tr("Open format..."), (QObject*)this);
+	actionOpen->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+	actionOpen->setIcon(QIcon(":/document-open.png"));
 
-    actionNewWindow = new QAction(tr("New window"),(QObject*)this);
-    actionCloseWindow = new QAction(tr("Close window"),(QObject*)this);
-    actionCloseWindow->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_W));
-
+	actionNewWindow = new QAction(tr("New window"), (QObject*)this);
+	actionCloseWindow = new QAction(tr("Close window"), (QObject*)this);
+	actionCloseWindow->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_W));
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::initConnexions
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initConnexions() {
-    //connexion to update the parameter board
-    connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), myParamBord_old_model, SLOT(edit(const QModelIndex &)));
-    //connexion to endable/desable items in toolsbar menu.
-    connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotUpdateToolDesabled(const QModelIndex &)));
-    
-    //data has changed from tree 
-    connect(myTreeModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )), myTreeView, SLOT(slotDataHasChanged(const QModelIndex & , const QModelIndex & )));
-    
+void PVInspector::PVFormatBuilderWidget::initConnexions()
+{
+	// connexion to update the parameter board
+	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), myParamBord_old_model,
+	        SLOT(edit(const QModelIndex&)));
+	// connexion to endable/desable items in toolsbar menu.
+	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), this,
+	        SLOT(slotUpdateToolDesabled(const QModelIndex&)));
+
+	// data has changed from tree
+	connect(myTreeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), myTreeView,
+	        SLOT(slotDataHasChanged(const QModelIndex&, const QModelIndex&)));
+
 	// When an item is clicked in the tree view, auto-select the good axis in the mini-extractor
-	connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotItemClickedInView(const QModelIndex &)));
-	
+	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), this,
+	        SLOT(slotItemClickedInView(const QModelIndex&)));
 
-    /*
-     * Connexions for both menu and toolbar.
-     */
-    connect(actionAddAxisIn,  SIGNAL(triggered()),this,SLOT(slotAddAxisIn()));
-    connect(actionAddFilterAfter, SIGNAL(triggered()), this, SLOT(slotAddFilterAfter()));
-    connect(actionAddRegExAfter, SIGNAL(triggered()), this, SLOT(slotAddRegExAfter()));
-    connect(actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
-    connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
-    connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
-    connect(actionNewWindow,SIGNAL(triggered()),this,SLOT(slotNewWindow()));
-    connect(actionCloseWindow,SIGNAL(triggered()),this,SLOT(close()));
-    connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
-    connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
-    connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(slotSaveAs()));
-    connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
-    connect(myParamBord_old_model,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
-    connect(myParamBord_old_model,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
-    
-    // Connections for the axes combination editor
+	/*
+	 * Connexions for both menu and toolbar.
+	 */
+	connect(actionAddAxisIn, SIGNAL(triggered()), this, SLOT(slotAddAxisIn()));
+	connect(actionAddFilterAfter, SIGNAL(triggered()), this, SLOT(slotAddFilterAfter()));
+	connect(actionAddRegExAfter, SIGNAL(triggered()), this, SLOT(slotAddRegExAfter()));
+	connect(actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
+	connect(actionMoveDown, SIGNAL(triggered()), this, SLOT(slotMoveDown()));
+	connect(actionMoveUp, SIGNAL(triggered()), this, SLOT(slotMoveUp()));
+	connect(actionNewWindow, SIGNAL(triggered()), this, SLOT(slotNewWindow()));
+	connect(actionCloseWindow, SIGNAL(triggered()), this, SLOT(close()));
+	connect(actionOpen, SIGNAL(triggered()), this, SLOT(slotOpen()));
+	connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
+	connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(slotSaveAs()));
+	connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
+	connect(myParamBord_old_model, SIGNAL(signalNeedApply()), this, SLOT(slotNeedApply()));
+	connect(myParamBord_old_model, SIGNAL(signalSelectNext()), myTreeView, SLOT(slotSelectNext()));
+
+	// Connections for the axes combination editor
 	connect(_main_tab, SIGNAL(currentChanged(int)), this, SLOT(slotMainTabChanged(int)));
-
 }
 
 /******************************************************************************
@@ -330,64 +327,71 @@ void PVInspector::PVFormatBuilderWidget::initConnexions() {
  * PVInspector::PVFormatBuilderWidget::initToolBar
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout *vb){
+void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
+{
 
-    QToolBar *tools = new QToolBar();
+	QToolBar* tools = new QToolBar();
 
+	tools->addAction(actionAddFilterAfter);
+	tools->addAction(actionAddAxisIn);
 
-    tools->addAction(actionAddFilterAfter);
-    tools->addAction(actionAddAxisIn);
+	tools->addSeparator();
+	tools->addAction(actionMoveDown);
+	tools->addAction(actionMoveUp);
+	tools->addSeparator();
+	tools->addAction(actionDelete);
+	tools->addSeparator();
+	tools->addAction(actionOpen);
+	tools->addAction(actionSave);
 
-    tools->addSeparator();
-    tools->addAction(actionMoveDown);
-    tools->addAction(actionMoveUp);
-    tools->addSeparator();
-    tools->addAction(actionDelete);
-    tools->addSeparator();
-    tools->addAction(actionOpen);
-    tools->addAction(actionSave);
-
-    vb->addWidget(tools);
+	vb->addWidget(tools);
 }
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::initSplitters
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initSplitters() {
-        LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
-        LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes converters = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
+void PVInspector::PVFormatBuilderWidget::initSplitters()
+{
+	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes splitters =
+	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes converters =
+	    LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
 
-        // _list_* is a QHash. Its keys are a QString with the registered name of the class (in our case, "csv", "regexp", etc...).
-        // Its values are a std::shared_ptr<PVFieldsSplitterParamWidget> or std::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
-        // For instance :
-        LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
-        for (it = splitters.begin(); it != splitters.end(); it++) {
-			PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it->value();
-			assert(pluginsSplitter);
-			_list_splitters.push_back(pluginsSplitter);
-			pluginsSplitter->get_action_menu()->setData(it->key());
-			connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
-        }
+	// _list_* is a QHash. Its keys are a QString with the registered name of the class (in our
+	// case, "csv", "regexp", etc...).
+	// Its values are a std::shared_ptr<PVFieldsSplitterParamWidget> or
+	// std::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
+	// For instance :
+	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
+	for (it = splitters.begin(); it != splitters.end(); it++) {
+		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it->value();
+		assert(pluginsSplitter);
+		_list_splitters.push_back(pluginsSplitter);
+		pluginsSplitter->get_action_menu()->setData(it->key());
+		connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this,
+		        SLOT(slotAddSplitter()));
+	}
 
-        LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes::const_iterator itc;
-		for (itc = converters.begin(); itc != converters.end(); itc++) {
-			PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = itc->value();
-			assert(pluginsConverter);
-			_list_converters.push_back(pluginsConverter);
-			pluginsConverter->get_action_menu()->setData(itc->key());
-			connect(pluginsConverter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddConverter()));
-		}
+	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes::const_iterator itc;
+	for (itc = converters.begin(); itc != converters.end(); itc++) {
+		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = itc->value();
+		assert(pluginsConverter);
+		_list_converters.push_back(pluginsConverter);
+		pluginsConverter->get_action_menu()->setData(itc->key());
+		connect(pluginsConverter->get_action_menu(), SIGNAL(triggered()), this,
+		        SLOT(slotAddConverter()));
+	}
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotAddAxisIn
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddAxisIn() {
-    myTreeView->addAxisIn();
+void PVInspector::PVFormatBuilderWidget::slotAddAxisIn()
+{
+	myTreeView->addAxisIn();
 }
 
 /******************************************************************************
@@ -395,8 +399,9 @@ void PVInspector::PVFormatBuilderWidget::slotAddAxisIn() {
  * PVInspector::PVFormatBuilderWidget::slotAddFilterAfter
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddFilterAfter() {
-    myTreeView->addFilterAfter();
+void PVInspector::PVFormatBuilderWidget::slotAddFilterAfter()
+{
+	myTreeView->addFilterAfter();
 }
 
 /******************************************************************************
@@ -404,8 +409,9 @@ void PVInspector::PVFormatBuilderWidget::slotAddFilterAfter() {
  * PVInspector::PVFormatBuilderWidget::slotAddRegExAfter
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter() {
-    myTreeView->addRegExIn();
+void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter()
+{
+	myTreeView->addRegExIn();
 }
 /******************************************************************************
  *
@@ -414,12 +420,15 @@ void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter() {
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
 {
-	QAction* action_src = (QAction*) sender();
+	QAction* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
-	PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
-	PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
+	PVFilter::PVFieldsSplitterParamWidget_p in_t =
+	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
+	PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy =
+	    in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
 	QString registered_name = in_t_cpy->registered_name();
-	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddSplitter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
+	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddSplitter) type_name %s, %s\n",
+	            qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
 	myTreeView->addSplitter(in_t_cpy);
 }
 
@@ -430,83 +439,86 @@ void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotAddConverter()
 {
-	QAction* action_src = (QAction*) sender();
+	QAction* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
-	PVFilter::PVFieldsConverterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_class_by_name(itype);
-	PVFilter::PVFieldsConverterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsConverterParamWidget>();
+	PVFilter::PVFieldsConverterParamWidget_p in_t =
+	    LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_class_by_name(itype);
+	PVFilter::PVFieldsConverterParamWidget_p in_t_cpy =
+	    in_t->clone<PVFilter::PVFieldsConverterParamWidget>();
 	QString registered_name = in_t_cpy->registered_name();
-	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddConverter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
+	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddConverter) type_name %s, %s\n",
+	            qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
 	myTreeView->addConverter(in_t_cpy);
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotAddUrl
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddUrl(){
-    myTreeView->addUrlIn();
+void PVInspector::PVFormatBuilderWidget::slotAddUrl()
+{
+	myTreeView->addUrlIn();
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotApplyModification
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotApplyModification() {
-  QModelIndex index;
-    myTreeView->applyModification(myParamBord_old_model,index);
+void PVInspector::PVFormatBuilderWidget::slotApplyModification()
+{
+	QModelIndex index;
+	myTreeView->applyModification(myParamBord_old_model, index);
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotDelete
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotDelete() {
-    QDialog confirm(this);
-    QVBoxLayout vb;
-    confirm.setLayout(&vb);
-    vb.addWidget(new QLabel("Do realy want to delete it ?"));
-    QHBoxLayout bas;
-    vb.addLayout(&bas);
-    QPushButton no("No");
-    bas.addWidget(&no);
-    QPushButton yes("Yes");
-    bas.addWidget(&yes);
-    
-    connect(&no,SIGNAL(clicked()),&confirm,SLOT(reject()));
-    connect(&yes,SIGNAL(clicked()),&confirm,SLOT(accept()));
+void PVInspector::PVFormatBuilderWidget::slotDelete()
+{
+	QDialog confirm(this);
+	QVBoxLayout vb;
+	confirm.setLayout(&vb);
+	vb.addWidget(new QLabel("Do realy want to delete it ?"));
+	QHBoxLayout bas;
+	vb.addLayout(&bas);
+	QPushButton no("No");
+	bas.addWidget(&no);
+	QPushButton yes("Yes");
+	bas.addWidget(&yes);
 
-    //if confirmed then apply
-    if(confirm.exec()){
-        myTreeView->deleteSelection();
-        QModelIndex ind;
-        myParamBord_old_model->drawForNo(ind);
-    }
+	connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
+	connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
+
+	// if confirmed then apply
+	if (confirm.exec()) {
+		myTreeView->deleteSelection();
+		QModelIndex ind;
+		myParamBord_old_model->drawForNo(ind);
+	}
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotMoveUp
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotMoveUp() {
-    myTreeView->moveUp();
+void PVInspector::PVFormatBuilderWidget::slotMoveUp()
+{
+	myTreeView->moveUp();
 }
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotMoveDown
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotMoveDown() {
-    myTreeView->moveDown();
+void PVInspector::PVFormatBuilderWidget::slotMoveDown()
+{
+	myTreeView->moveDown();
 }
 
 /******************************************************************************
@@ -514,9 +526,10 @@ void PVInspector::PVFormatBuilderWidget::slotMoveDown() {
  * PVInspector::PVFormatBuilderWidget::slotNeedApply
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotNeedApply(){
-  QModelIndex index;
-    myTreeView->applyModification(myParamBord_old_model,index);
+void PVInspector::PVFormatBuilderWidget::slotNeedApply()
+{
+	QModelIndex index;
+	myTreeView->applyModification(myParamBord_old_model, index);
 }
 
 /******************************************************************************
@@ -524,9 +537,9 @@ void PVInspector::PVFormatBuilderWidget::slotNeedApply(){
  * PVInspector::PVFormatBuilderWidget::slotNewWindow
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotNewWindow() 
+void PVInspector::PVFormatBuilderWidget::slotNewWindow()
 {
-	PVFormatBuilderWidget *other = new PVFormatBuilderWidget;
+	PVFormatBuilderWidget* other = new PVFormatBuilderWidget;
 	other->move(x() + 40, y() + 40);
 	other->show();
 }
@@ -554,8 +567,8 @@ QString PVInspector::PVFormatBuilderWidget::slotOpen()
 	return urlFile;
 }
 
-
-bool PVInspector::PVFormatBuilderWidget::save() {
+bool PVInspector::PVFormatBuilderWidget::save()
+{
 	// Take focus, so any currently edited argument will be set
 	setFocus(Qt::MouseFocusReason);
 
@@ -568,11 +581,16 @@ bool PVInspector::PVFormatBuilderWidget::save() {
 
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {
-		PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), _cur_file, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
+		PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
+		    PVCore::PVRecentItemsManager::get(), _cur_file,
+		    PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 		return true;
 	}
 
-	QMessageBox err(QMessageBox::Question, tr("Error while saving format"), tr("Unable to save the changes to %1. Do you want to save this format to another location ?").arg(_cur_file), QMessageBox::Yes | QMessageBox::No);
+	QMessageBox err(QMessageBox::Question, tr("Error while saving format"),
+	                tr("Unable to save the changes to %1. Do you want to save this format to "
+	                   "another location ?").arg(_cur_file),
+	                QMessageBox::Yes | QMessageBox::No);
 	if (err.exec() == QMessageBox::No) {
 		return false;
 	}
@@ -585,15 +603,17 @@ bool PVInspector::PVFormatBuilderWidget::save() {
  * PVInspector::PVFormatBuilderWidget::slotSave
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotSave() {
+void PVInspector::PVFormatBuilderWidget::slotSave()
+{
 	save();
 }
 
-bool PVInspector::PVFormatBuilderWidget::saveAs() {
+bool PVInspector::PVFormatBuilderWidget::saveAs()
+{
 	setFocus(Qt::MouseFocusReason);
 
 	QModelIndex index;
-	myTreeView->applyModification(myParamBord_old_model,index);
+	myTreeView->applyModification(myParamBord_old_model, index);
 
 	_file_dialog.setWindowTitle("Save format to...");
 	_file_dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -607,7 +627,9 @@ bool PVInspector::PVFormatBuilderWidget::saveAs() {
 		if (myTreeModel->saveXml(urlFile)) {
 			_cur_file = urlFile;
 			setWindowTitleForFile(urlFile);
-			PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), urlFile, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
+			PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
+			    PVCore::PVRecentItemsManager::get(), urlFile,
+			    PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 			return true;
 		}
 	}
@@ -620,7 +642,8 @@ bool PVInspector::PVFormatBuilderWidget::saveAs() {
  * PVInspector::PVFormatBuilderWidget::slotSaveAs
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotSaveAs() {
+void PVInspector::PVFormatBuilderWidget::slotSaveAs()
+{
 	saveAs();
 }
 
@@ -631,111 +654,108 @@ void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& pa
 	setWindowTitle(FORMAT_BUILDER_TITLE + QString(" - ") + fi.fileName());
 }
 
-
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled(const QModelIndex &index){
-    PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
-    
-    //hideParamBoard();
-    
-    if (node->getDom().tagName() == "field") {
-        myTreeView->expandRecursive(index);
-        actionAddFilterAfter->setEnabled(true);
-        actionAddAxisIn->setEnabled(true);
-        actionAddRegExAfter->setEnabled(true);
-        actionAddUrl->setEnabled(true);
-        actionDelete->setEnabled(false);
-    } else if (node->getDom().tagName() == "axis") {
-        actionAddFilterAfter->setEnabled(false);
-        actionAddAxisIn->setEnabled(false);
-        actionAddRegExAfter->setEnabled(false);
-        actionAddUrl->setEnabled(false);
-        actionDelete->setEnabled(true);
-    } else if (node->getDom().tagName() == "filter" || node->getDom().tagName() == "converter") {
-        actionAddFilterAfter->setEnabled(false);
-        actionAddAxisIn->setEnabled(false);
-        actionAddRegExAfter->setEnabled(false);
-        actionAddUrl->setEnabled(false);
-        actionDelete->setEnabled(true);
-    } else if (node->getDom().tagName() == "splitter") {
-        myTreeView->expandRecursive(index);
-        actionAddFilterAfter->setEnabled(false);
-        actionAddAxisIn->setEnabled(false);
-        actionAddRegExAfter->setEnabled(false);
-        actionAddUrl->setEnabled(false);
-        actionDelete->setEnabled(true);
-    } else if (node->getDom().tagName() == "RegEx") {
-        myTreeView->expandRecursive(index);
-        actionAddFilterAfter->setEnabled(false);
-        actionAddAxisIn->setEnabled(false);
-        actionAddRegExAfter->setEnabled(false);
-        actionAddUrl->setEnabled(false);
-        actionDelete->setEnabled(true);
-    } else if (node->getDom().tagName() == "url") {
-        actionAddFilterAfter->setEnabled(false);
-        actionAddAxisIn->setEnabled(false);
-        actionAddRegExAfter->setEnabled(false);
-        actionAddUrl->setEnabled(false);
-        actionDelete->setEnabled(true);
-    } else {
-        actionAddFilterAfter->setEnabled(true);
-        actionAddAxisIn->setEnabled(true);
-        actionAddRegExAfter->setEnabled(true);
-        actionAddUrl->setEnabled(true);
-        actionDelete->setEnabled(false);
-    }
+void PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled(const QModelIndex& index)
+{
+	PVRush::PVXmlTreeNodeDom* node = myTreeModel->nodeFromIndex(index);
+
+	// hideParamBoard();
+
+	if (node->getDom().tagName() == "field") {
+		myTreeView->expandRecursive(index);
+		actionAddFilterAfter->setEnabled(true);
+		actionAddAxisIn->setEnabled(true);
+		actionAddRegExAfter->setEnabled(true);
+		actionAddUrl->setEnabled(true);
+		actionDelete->setEnabled(false);
+	} else if (node->getDom().tagName() == "axis") {
+		actionAddFilterAfter->setEnabled(false);
+		actionAddAxisIn->setEnabled(false);
+		actionAddRegExAfter->setEnabled(false);
+		actionAddUrl->setEnabled(false);
+		actionDelete->setEnabled(true);
+	} else if (node->getDom().tagName() == "filter" || node->getDom().tagName() == "converter") {
+		actionAddFilterAfter->setEnabled(false);
+		actionAddAxisIn->setEnabled(false);
+		actionAddRegExAfter->setEnabled(false);
+		actionAddUrl->setEnabled(false);
+		actionDelete->setEnabled(true);
+	} else if (node->getDom().tagName() == "splitter") {
+		myTreeView->expandRecursive(index);
+		actionAddFilterAfter->setEnabled(false);
+		actionAddAxisIn->setEnabled(false);
+		actionAddRegExAfter->setEnabled(false);
+		actionAddUrl->setEnabled(false);
+		actionDelete->setEnabled(true);
+	} else if (node->getDom().tagName() == "RegEx") {
+		myTreeView->expandRecursive(index);
+		actionAddFilterAfter->setEnabled(false);
+		actionAddAxisIn->setEnabled(false);
+		actionAddRegExAfter->setEnabled(false);
+		actionAddUrl->setEnabled(false);
+		actionDelete->setEnabled(true);
+	} else if (node->getDom().tagName() == "url") {
+		actionAddFilterAfter->setEnabled(false);
+		actionAddAxisIn->setEnabled(false);
+		actionAddRegExAfter->setEnabled(false);
+		actionAddUrl->setEnabled(false);
+		actionDelete->setEnabled(true);
+	} else {
+		actionAddFilterAfter->setEnabled(true);
+		actionAddAxisIn->setEnabled(true);
+		actionAddRegExAfter->setEnabled(true);
+		actionAddUrl->setEnabled(true);
+		actionDelete->setEnabled(false);
+	}
 }
-
-
 
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::initMenuBar
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initMenuBar() {
-        QMenu *file = menuBar->addMenu(tr("&File"));
+void PVInspector::PVFormatBuilderWidget::initMenuBar()
+{
+	QMenu* file = menuBar->addMenu(tr("&File"));
 
 	file->addAction(actionNewWindow);
-        file->addSeparator();
-        file->addAction(actionOpen);
-        file->addAction(actionSave);
-        file->addAction(actionSaveAs);
-        file->addSeparator();
-		PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
-        file->addSeparator();
+	file->addSeparator();
+	file->addAction(actionOpen);
+	file->addAction(actionSave);
+	file->addAction(actionSaveAs);
+	file->addSeparator();
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
+	file->addSeparator();
 
-
-        QMenu *splitter = menuBar->addMenu(tr("&Splitter"));
-        splitter->addAction(actionAddUrl);  
-        splitter->addSeparator();
-        //add all plugins splitters
-        for (int i = 0; i < _list_splitters.size(); i++) {
-                QAction *action = _list_splitters.at(i)->get_action_menu();
-                assert(action);
-                if (action) {
-                        splitter->addAction(action);
-                }
-        }
-
-        //add all plugins converters
-        QMenu *converter = menuBar->addMenu(tr("&Converter"));
-		//add all plugins converters
-		for (int i = 0; i < _list_converters.size(); i++) {
-			QAction *action = _list_converters.at(i)->get_action_menu();
-			assert(action);
-			if (action) {
-				converter->addAction(action);
-			}
+	QMenu* splitter = menuBar->addMenu(tr("&Splitter"));
+	splitter->addAction(actionAddUrl);
+	splitter->addSeparator();
+	// add all plugins splitters
+	for (int i = 0; i < _list_splitters.size(); i++) {
+		QAction* action = _list_splitters.at(i)->get_action_menu();
+		assert(action);
+		if (action) {
+			splitter->addAction(action);
 		}
+	}
 
-        file->addSeparator();
+	// add all plugins converters
+	QMenu* converter = menuBar->addMenu(tr("&Converter"));
+	// add all plugins converters
+	for (int i = 0; i < _list_converters.size(); i++) {
+		QAction* action = _list_converters.at(i)->get_action_menu();
+		assert(action);
+		if (action) {
+			converter->addAction(action);
+		}
+	}
+
+	file->addSeparator();
 	file->addAction(actionCloseWindow);
-
 }
 
 /******************************************************************************
@@ -754,7 +774,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 		// This case is only encountered when a source is loaded from the menu
 		PVCore::PVArgumentList args;
-		if (!_log_input_type->createWidget(formats, new_formats, _inputs, choosenFormat, args, this)) {
+		if (!_log_input_type->createWidget(formats, new_formats, _inputs, choosenFormat, args,
+		                                   this)) {
 			return; // This means that the user pressed the "cancel" button
 		}
 		assert(not _inputs.empty() && "At least one file ahve to be seleced");
@@ -770,14 +791,15 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		_log_sc.reset();
 
 		// Get list of inputs from the plugin.
-		for (PVRush::PVSourceCreator_p sc: PVRush::PVSourceCreatorFactory::get_by_input_type(_log_input_type)) {
+		for (PVRush::PVSourceCreator_p sc :
+		     PVRush::PVSourceCreatorFactory::get_by_input_type(_log_input_type)) {
 			if (sc->pre_discovery(_log_input)) {
 				try {
 					_log_sc = sc;
-					// The moni-extractor use the discovery source, as not that much processing is done (it can be handle locally for instance !)
+					// The moni-extractor use the discovery source, as not that much processing is
+					// done (it can be handle locally for instance !)
 					_log_source = _log_sc->create_source_from_input(_log_input, format);
-				}
-				catch (PVRush::PVFormatInvalid& e) {
+				} catch (PVRush::PVFormatInvalid& e) {
 					_log_sc.reset();
 					continue;
 				} catch (std::ios_base::failure const& e) {
@@ -797,14 +819,16 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		// No source found to load data. Show an error and quit.
 		if (!_log_sc) {
 			_log_input = PVRush::PVInputDescription_p();
-			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(_log_input_type->human_name_of_input(_log_input)));
+			QMessageBox box(QMessageBox::Critical, tr("Error"),
+			                tr("No input plugins can manage the source file '%1'. Aborting...")
+			                    .arg(_log_input_type->human_name_of_input(_log_input)));
 			box.show();
 			return;
 		}
 
 		// First extraction
 		if (is_dom_empty()) {
-		  // Try to fill the dom with data if non exists.
+			// Try to fill the dom with data if non exists.
 			guess_first_splitter();
 		}
 
@@ -815,10 +839,10 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 		update_table(rstart, rend);
 
-	}
-	catch (PVRush::PVInputException &e) {
+	} catch (PVRush::PVInputException& e) {
 		_log_input = PVRush::PVInputDescription_p();
-		QMessageBox err(QMessageBox::Critical, tr("Error"), tr("Error while importing a source: %1").arg(QString(e.what().c_str())));
+		QMessageBox err(QMessageBox::Critical, tr("Error"),
+		                tr("Error while importing a source: %1").arg(QString(e.what().c_str())));
 		err.show();
 		return;
 	}
@@ -835,7 +859,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 {
-	_log_input_type = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
+	_log_input_type = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*)sender());
 
 	_inputs.clear();
 
@@ -859,7 +883,8 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 
 	PVLOG_DEBUG("(format_builder) trying to guess first splitter...");
 	PVCol naxes;
-	PVFilter::PVFieldsSplitter_p sp = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source, naxes);
+	PVFilter::PVFieldsSplitter_p sp =
+	    PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source, naxes);
 	if (!sp) {
 		// No splitter matches, just do nothing
 		return;
@@ -867,32 +892,41 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 
 	// Ok, we got a match, add it to the dom.
 	QString first_input_name = _log_input_type->human_name_of_input(_log_input);
-	PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d axes. Arguments:\n", qPrintable(first_input_name), naxes);
+	PVLOG_INFO(
+	    "(format_builder) For input '%s', found a splitter that creates %d axes. Arguments:\n",
+	    qPrintable(first_input_name), naxes);
 	PVCore::dump_argument_list(sp->get_args());
 
-	QString msg = tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n").arg(sp->registered_name()).arg(first_input_name).arg(naxes);
+	QString msg = tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n")
+	                  .arg(sp->registered_name())
+	                  .arg(first_input_name)
+	                  .arg(naxes);
 	msg += tr("Do you want to automatically add that splitter to the format ?");
-	QMessageBox ask_auto(QMessageBox::Question, tr("Filter automatically found"), msg, QMessageBox::Yes | QMessageBox::No, this);
+	QMessageBox ask_auto(QMessageBox::Question, tr("Filter automatically found"), msg,
+	                     QMessageBox::Yes | QMessageBox::No, this);
 	if (ask_auto.exec() == QMessageBox::No) {
 		return;
 	}
-	
+
 	// Get the widget that comes with the splitter. TODO: do better than that
 	QString type_name = sp->type_name();
 	QString filter_name = sp->registered_name();
-	PVFilter::PVFieldsSplitterParamWidget_p sp_widget = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(filter_name);
+	PVFilter::PVFieldsSplitterParamWidget_p sp_widget =
+	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(filter_name);
 	if (!sp_widget) {
-		PVLOG_WARN("Filter '%s' of type '%s' has no associated widget !\n", qPrintable(type_name), qPrintable(filter_name));
+		PVLOG_WARN("Filter '%s' of type '%s' has no associated widget !\n", qPrintable(type_name),
+		           qPrintable(filter_name));
 		return;
 	}
 
 	// Then we need to create 'naxes' children
 	QStringList axes_name;
 	for (PVCol i = 0; i < naxes; i++) {
-		axes_name << QString("Axis %1").arg(i+1);
+		axes_name << QString("Axis %1").arg(i + 1);
 	}
 
-	PVRush::PVXmlTreeNodeDom* node = myTreeModel->addSplitterWithAxes(myTreeModel->index(0,0,QModelIndex()), sp_widget, axes_name);
+	PVRush::PVXmlTreeNodeDom* node = myTreeModel->addSplitterWithAxes(
+	    myTreeModel->index(0, 0, QModelIndex()), sp_widget, axes_name);
 	node->setFromArgumentList(sp->get_args());
 }
 
@@ -901,8 +935,9 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
  * PVInspector::PVFormatBuilderWidget::hideParamBoard
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::hideParamBoard(){
-        PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::hideParamBoard\n");
+void PVInspector::PVFormatBuilderWidget::hideParamBoard()
+{
+	PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::hideParamBoard\n");
 }
 
 PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
@@ -919,13 +954,13 @@ PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
  * PVInspector::PVFormatBuilderWidget::showParamBoard
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *node)
+void PVInspector::PVFormatBuilderWidget::showParamBoard(PVRush::PVXmlTreeNodeDom* node)
 {
 	PV_UNUSED(node);
 	assert(node);
 	PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::showParamBoard()\n");
 
-	//myParamBord=node->getSplitterPlugin()->get_param_widget();
+	// myParamBord=node->getSplitterPlugin()->get_param_widget();
 }
 
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
@@ -950,15 +985,15 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();
-	for (auto const& line: job->get_invalid_evts()) {
+	for (auto const& line : job->get_invalid_evts()) {
 		_inv_lines_widget->addItem(QString::fromStdString(line.second));
 	}
 }
 
 void PVInspector::PVFormatBuilderWidget::slotExtractorPreview()
 {
-	PVRow start,end;
-	_nraw_widget->get_ext_args(start,end);
+	PVRow start, end;
+	_nraw_widget->get_ext_args(start, end);
 	load_log(start, end);
 }
 
@@ -968,22 +1003,22 @@ bool PVInspector::PVFormatBuilderWidget::is_dom_empty()
 	return !rootDom.hasChildNodes();
 }
 
-void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex &index)
+void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex& index)
 {
 	// Automatically set the good columns in the mini-extractor
-	
+
 	// Get the PVXmlTreeNodeDom object that comes with that index
-    PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
+	PVRush::PVXmlTreeNodeDom* node = myTreeModel->nodeFromIndex(index);
 
 	// If this is the root item, do nothing.
 	if (!node || node->getParent() == NULL) {
 		_nraw_widget->unselect_column();
 		return;
 	}
-	
+
 	// Then, update the linear fields id in PVXmlTreeNode's tree.
 	myTreeModel->updateFieldsLinearId();
-	
+
 	// If this is not a field, get the parent field
 	if (node->typeToString() != "field" || node->getFieldLinearId() == -1) {
 		node = node->getFirstFieldParent();
@@ -994,10 +1029,10 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 			return;
 		}
 	}
-	
+
 	// Then get that field's linear id
 	PVCol field_id = node->getFieldLinearId();
-	
+
 	// And tell that to the mini-extractor widget
 	_nraw_widget->select_column(field_id);
 }
@@ -1019,9 +1054,10 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 {
 	QFile f(path);
-	if (f.exists()) {//if the file exists...
+	if (f.exists()) { // if the file exists...
 		if (myTreeModel->openXml(path)) {
-			_options_widget->set_lines_range(myTreeModel->get_first_line(), myTreeModel->get_line_count());
+			_options_widget->set_lines_range(myTreeModel->get_first_line(),
+			                                 myTreeModel->get_line_count());
 			_cur_file = path;
 			setWindowTitleForFile(path);
 			return true;

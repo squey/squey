@@ -22,7 +22,8 @@
 #include <inendi/PVMapping.h>
 #include <inendi/PVSource.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVPlotted;
 class PVSelection;
@@ -37,16 +38,18 @@ class PVSelection;
  * It contains only mapping values which certainly should be merged in PVMapping.
  */
 typedef typename PVCore::PVDataTreeObject<PVSource, PVPlotted> data_tree_mapped_t;
-class PVMapped : public data_tree_mapped_t {
+class PVMapped : public data_tree_mapped_t
+{
 	friend class PVPlotted;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	using decimal_storage_type = Inendi::mapped_decimal_storage_type;
 	using mapped_row_t = PVCore::PVHugePODVector<decimal_storage_type, 16>;
 	using mapped_table_t = std::vector<mapped_row_t>;
 
-public:
+  public:
 	PVMapped();
 
 	/**
@@ -58,8 +61,8 @@ public:
 
 	// For PVSource
 	void add_column(PVMappingProperties const& props);
-	
-public:
+
+  public:
 	/**
 	 * Compute mapping and chain to plottings.
 	 */
@@ -81,12 +84,16 @@ public:
 	 *
 	 * Use to compute plotting.
 	 */
-	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const { return _mapping->get_decimal_type_of_col(j); }
+	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const
+	{
+		return _mapping->get_decimal_type_of_col(j);
+	}
 
 	/**
 	 * Whether it is the current display mapped information.
 	 *
-	 * @fixme : As we do nothing in this case, it should not be possible to trigger this function with incorrect mapped.
+	 * @fixme : As we do nothing in this case, it should not be possible to trigger this function
+	 *with incorrect mapped.
 	 */
 	bool is_current_mapped() const;
 
@@ -97,7 +104,7 @@ public:
 	 */
 	void compute();
 
-public:
+  public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
@@ -105,20 +112,28 @@ public:
 	/**
 	 * Access mapping value for given row/col.
 	 */
-	inline decimal_storage_type get_value(PVRow row, PVCol col) const { return _trans_table[col][row]; }
-	inline decimal_storage_type const* get_column_pointer(PVCol col) const { return &_trans_table[col][0]; }
-private:
+	inline decimal_storage_type get_value(PVRow row, PVCol col) const
+	{
+		return _trans_table[col][row];
+	}
+	inline decimal_storage_type const* get_column_pointer(PVCol col) const
+	{
+		return &_trans_table[col][0];
+	}
+
+  private:
 	inline decimal_storage_type* get_column_pointer(PVCol col) { return &_trans_table[col][0]; }
 
-public:
+  public:
 	// Debugging functions
 	void to_csv() const;
 
-protected:
+  protected:
 	/**
 	 * Set a new parent rebuilding mapping.
 	 *
-	 * @fixme : It should disappear as it require rebuilding and it means we may have node without parent.
+	 * @fixme : It should disappear as it require rebuilding and it means we may have node without
+	 *parent.
 	 */
 	virtual void set_parent_from_ptr(PVSource* source);
 
@@ -128,15 +143,15 @@ protected:
 	virtual QString get_children_description() const { return "Plotted(s)"; }
 	virtual QString get_children_serialize_name() const { return "plotted"; }
 
-public:
+  public:
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
 
-protected:
+  protected:
 	void serialize_write(PVCore::PVSerializeObject& so);
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	PVSERIALIZEOBJECT_SPLIT
 
-private:
+  private:
 	/**
 	 * Mark plotted as invalid as they will need to be recomputed.
 	 */
@@ -147,14 +162,14 @@ private:
 	 */
 	void allocate_table(PVRow const nrows, PVCol const ncols);
 
-protected:
-	mapped_table_t _trans_table; //!< This is a vector of vector which contains "for each column" mapping of cell.
+  protected:
+	mapped_table_t _trans_table; //!< This is a vector of vector which contains "for each column"
+	// mapping of cell.
 	PVMapping_p _mapping; //!< Contains properties for every column.
 };
 
 using PVMapped_p = PVMapped::p_type;
 using PVMapped_wp = PVMapped::wp_type;
-
 }
 
-#endif	/* INENDI_PVMAPPED_H */
+#endif /* INENDI_PVMAPPED_H */

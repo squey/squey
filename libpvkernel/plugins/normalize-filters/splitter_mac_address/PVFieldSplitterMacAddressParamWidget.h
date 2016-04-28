@@ -12,31 +12,29 @@
 
 #include <QWidget>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterMacAddressParamWidget: public PVFieldsSplitterParamWidget
+class PVFieldSplitterMacAddressParamWidget : public PVFieldsSplitterParamWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVFieldSplitterMacAddressParamWidget();
 
-public:
+  public:
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-	size_t force_number_children() {
-		return 2;
-	}
+	size_t force_number_children() { return 2; }
 
-private:
-	QAction*     _action_menu;
-	QWidget*     _param_widget;
+  private:
+	QAction* _action_menu;
+	QWidget* _param_widget;
 
-private:
+  private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterMacAddressParamWidget)
 };
-
 }
 
 #endif // PVFIELDSPLITTERMACADDRESSPARAMWIDGET_H

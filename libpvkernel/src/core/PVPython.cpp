@@ -16,7 +16,8 @@ PVCore::PVPythonInitializer::PVPythonInitializer()
 	Py_InitializeEx(0);
 	PyEval_InitThreads();
 	python_main = boost::python::import("__main__");
-	python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
+	python_main_namespace =
+	    boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
 
 	// Expose "exposable" class to Python
 	for (auto const& decl : get_class_list()) {
@@ -25,7 +26,6 @@ PVCore::PVPythonInitializer::PVPythonInitializer()
 
 	mainThreadState = PyEval_SaveThread();
 }
-
 
 PVCore::PVPythonInitializer::~PVPythonInitializer()
 {
@@ -48,7 +48,7 @@ QString PVCore::PVPython::get_list_index_as_qstring(boost::python::list pylist, 
 	} else {
 		PVLOG_DEBUG("%s returning an empty string!\n", __FUNCTION__);
 		value = QString("");
-	}	
+	}
 
 	return value;
 }

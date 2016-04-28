@@ -11,5 +11,4 @@
 #include <pvhive/PVWax.h>
 #include <inendi/PVScene.h>
 
-
 #endif /* __PVHIVE_WAXES_INENDI_PVSCENE__ */

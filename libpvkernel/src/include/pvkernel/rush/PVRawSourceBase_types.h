@@ -10,12 +10,11 @@
 
 #include <pvbase/export.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVRawSourceBase;
 typedef std::shared_ptr<PVRawSourceBase> PVRawSourceBase_p;
-
 }
-
 
 #endif

@@ -15,19 +15,19 @@
 typedef struct rand_handle rand_t;
 
 __BEGIN_DECLS
-rand_t	*rand_open(void);
+rand_t* rand_open(void);
 
-int	 rand_get(rand_t *r, void *buf, size_t len);
-int	 rand_set(rand_t *r, const void *seed, size_t len);
-int	 rand_add(rand_t *r, const void *buf, size_t len);
+int rand_get(rand_t* r, void* buf, size_t len);
+int rand_set(rand_t* r, const void* seed, size_t len);
+int rand_add(rand_t* r, const void* buf, size_t len);
 
-uint8_t	 rand_uint8(rand_t *r);
-uint16_t rand_uint16(rand_t *r);
-uint32_t rand_uint32(rand_t *r);
+uint8_t rand_uint8(rand_t* r);
+uint16_t rand_uint16(rand_t* r);
+uint32_t rand_uint32(rand_t* r);
 
-int	 rand_shuffle(rand_t *r, void *base, size_t nmemb, size_t size);
+int rand_shuffle(rand_t* r, void* base, size_t nmemb, size_t size);
 
-rand_t	*rand_close(rand_t *r);
+rand_t* rand_close(rand_t* r);
 __END_DECLS
 
 #endif /* DNET_RAND_H */

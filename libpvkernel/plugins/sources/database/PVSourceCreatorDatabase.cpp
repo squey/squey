@@ -9,7 +9,9 @@
 #include "PVDBSource.h"
 #include "../../common/database/PVDBQuery.h"
 
-PVRush::PVSourceCreatorDatabase::source_p PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorDatabase::source_p
+PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p input,
+                                                          const PVFormat& /*format*/) const
 {
 	PVDBQuery* query = dynamic_cast<PVDBQuery*>(input.get());
 	assert(query);

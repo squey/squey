@@ -13,19 +13,15 @@
 
 #include <pvkernel/core/PVArgument.h>
 
-namespace PVCore {
-
-struct PVTimeFormatType: public QStringList, public PVArgumentType<PVTimeFormatType>
+namespace PVCore
 {
-	PVTimeFormatType(): QStringList() { }
-	PVTimeFormatType(QStringList const& list):
-		QStringList(list)
-	{ }
 
-	QString to_string() const
-	{
-		return join("\n");
-	}
+struct PVTimeFormatType : public QStringList, public PVArgumentType<PVTimeFormatType>
+{
+	PVTimeFormatType() : QStringList() {}
+	PVTimeFormatType(QStringList const& list) : QStringList(list) {}
+
+	QString to_string() const { return join("\n"); }
 
 	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
@@ -39,7 +35,6 @@ struct PVTimeFormatType: public QStringList, public PVArgumentType<PVTimeFormatT
 		return arg;
 	}
 };
-
 }
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVTimeFormatType)

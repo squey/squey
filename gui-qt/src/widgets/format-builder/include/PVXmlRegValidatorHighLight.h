@@ -6,7 +6,7 @@
  */
 
 #ifndef PVXMLREGVALIDATORHIGHLIGHT_H
-#define	PVXMLREGVALIDATORHIGHLIGHT_H
+#define PVXMLREGVALIDATORHIGHLIGHT_H
 
 #include <QSyntaxHighlighter>
 #include <QDebug>
@@ -18,31 +18,30 @@
 
 #include "PVXmlParamTextEdit.h"
 
+// class QTextEdit;
+namespace PVInspector
+{
+class PVXmlRegValidatorHighLight : public QSyntaxHighlighter
+{
+	Q_OBJECT
 
+  public:
+	PVXmlRegValidatorHighLight(QTextEdit* pParent);
+	/**
+	 * Modify de regular expression.
+	 * @param pRegStr
+	 */
+	void setRegExp(const QString& pRegStr);
+	virtual ~PVXmlRegValidatorHighLight();
+	/**
+	 * Function subclass to define highlighting rules.
+	 * @param
+	 */
+	virtual void highlightBlock(const QString&);
 
-//class QTextEdit;
-namespace PVInspector{
-class PVXmlRegValidatorHighLight : public QSyntaxHighlighter {
-     Q_OBJECT
-     
-public:
-    PVXmlRegValidatorHighLight(QTextEdit* pParent);
-    /**
-     * Modify de regular expression.
-     * @param pRegStr
-     */
-    void setRegExp( const QString &pRegStr);
-    virtual ~PVXmlRegValidatorHighLight();
-    /**
-     * Function subclass to define highlighting rules.
-     * @param 
-     */
-    virtual void highlightBlock(const QString&);
-    
-private:
-        PVXmlParamTextEdit *aParent;
-        QString aRegExp;
+  private:
+	PVXmlParamTextEdit* aParent;
+	QString aRegExp;
 };
 }
-#endif	/* PVXMLREGVALIDATORHIGHLIGHT_H */
-
+#endif /* PVXMLREGVALIDATORHIGHLIGHT_H */

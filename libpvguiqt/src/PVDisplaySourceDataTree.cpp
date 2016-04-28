@@ -12,15 +12,16 @@
 
 #include <pvguiqt/PVDisplaySourceDataTree.h>
 
-PVDisplays::PVDisplaySourceDataTree::PVDisplaySourceDataTree():
-	PVDisplaySourceIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::UniquePerParameters, "Data tree")
+PVDisplays::PVDisplaySourceDataTree::PVDisplaySourceDataTree()
+    : PVDisplaySourceIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::UniquePerParameters, "Data tree")
 {
 }
 
-QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Inendi::PVSource* src, QWidget* parent) const
+QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Inendi::PVSource* src,
+                                                            QWidget* parent) const
 {
-	PVGuiQt::PVRootTreeModel* model  = new PVGuiQt::PVRootTreeModel(*src);
-	PVGuiQt::PVRootTreeView*  widget = new PVGuiQt::PVRootTreeView(model, parent);
+	PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*src);
+	PVGuiQt::PVRootTreeView* widget = new PVGuiQt::PVRootTreeView(model, parent);
 
 	return widget;
 }

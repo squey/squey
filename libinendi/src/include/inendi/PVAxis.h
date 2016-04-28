@@ -15,14 +15,17 @@
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <inendi/PVLayerFilter.h>
 
-namespace Inendi {
+namespace Inendi
+{
 
 /**
  * \class PVAxis
  */
-class PVAxis: public PVRush::PVAxisFormat {
+class PVAxis : public PVRush::PVAxisFormat
+{
 	friend class PVCore::PVSerializeObject;
-public:
+
+  public:
 	bool is_expandable;
 	bool is_expanded;
 	float thickness;
@@ -30,7 +33,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVAxis() {};
+	PVAxis(){};
 	PVAxis(QString type, QString mapping, QString plotting);
 	PVAxis(PVRush::PVAxisFormat const& axis_format);
 
@@ -39,21 +42,23 @@ public:
 	 */
 	~PVAxis();
 
-public:
+  public:
 	PVCore::PVArgumentList const& get_args_mapping() const { return _args_mapping; }
 	PVCore::PVArgumentList const& get_args_plotting() const { return _args_plotting; }
 
-protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/);
+  protected:
+	void serialize(PVCore::PVSerializeObject& so,
+	               PVCore::PVSerializeArchive::version_t /*version*/);
 
-private:
+  private:
 	void init();
-	static PVCore::PVArgumentList args_from_node(node_args_t const& args_str, PVCore::PVArgumentList const& def_args);
+	static PVCore::PVArgumentList args_from_node(node_args_t const& args_str,
+	                                             PVCore::PVArgumentList const& def_args);
 
-private:
+  private:
 	PVCore::PVArgumentList _args_mapping;
 	PVCore::PVArgumentList _args_plotting;
 };
 }
 
-#endif	/* INENDI_PVAXIS_H */
+#endif /* INENDI_PVAXIS_H */

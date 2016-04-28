@@ -21,7 +21,7 @@ class PVLinesView;
 
 class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 {
-public:
+  public:
 	struct barycenter
 	{
 		PVZoneID zone_id1;
@@ -29,10 +29,7 @@ public:
 		double factor1;
 		double factor2;
 
-		barycenter()
-		{
-			clear();
-		}
+		barycenter() { clear(); }
 
 		void clear()
 		{
@@ -43,21 +40,21 @@ public:
 		}
 	};
 
-public:
+  public:
 	PVFullParallelViewSelectionRectangle(PVFullParallelScene* fps);
 
-public:
+  public:
 	void clear() override;
 
-public:
+  public:
 	void update_position();
 
-protected:
+  protected:
 	void commit(bool use_selection_modifiers) override;
 
 	Inendi::PVView& lib_view() override;
 
-private:
+  private:
 	void store();
 
 	PVFullParallelScene* scene_parent();
@@ -66,11 +63,10 @@ private:
 	PVLinesView& get_lines_view();
 	PVLinesView const& get_lines_view() const;
 
-private:
+  private:
 	PVFullParallelScene* _fps;
-	barycenter           _barycenter;
+	barycenter _barycenter;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVFULLPARALLELVIEWSELECTIONSQUARE_H

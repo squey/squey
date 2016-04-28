@@ -48,7 +48,6 @@ PVCore::PVLogger::PVLogger()
 			level = PVLOG_HEAVYDEBUG;
 		}
 	}
-
 }
 
 PVCore::PVLogger::~PVLogger()
@@ -64,12 +63,13 @@ QString PVCore::PVLogger::get_now_str()
 	return now.toString(datetime_format);
 }
 
-void PVCore::PVLogger::heavydebug(const char *format, ...)
+void PVCore::PVLogger::heavydebug(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_HEAVYDEBUG) return;
+	if (level < PVLOG_HEAVYDEBUG)
+		return;
 
 	va_start(ap, format);
 	res.vsprintf(format, ap);
@@ -83,12 +83,13 @@ void PVCore::PVLogger::heavydebug(const char *format, ...)
 	va_end(ap);
 }
 
-void PVCore::PVLogger::debug(const char *format, ...)
+void PVCore::PVLogger::debug(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_DEBUG) return;
+	if (level < PVLOG_DEBUG)
+		return;
 
 	va_start(ap, format);
 	res.vsprintf(format, ap);
@@ -102,12 +103,13 @@ void PVCore::PVLogger::debug(const char *format, ...)
 	va_end(ap);
 }
 
-void PVCore::PVLogger::info(const char *format, ...)
+void PVCore::PVLogger::info(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_INFO) return;
+	if (level < PVLOG_INFO)
+		return;
 
 	mutex.lock();
 
@@ -123,15 +125,15 @@ void PVCore::PVLogger::info(const char *format, ...)
 	va_end(ap);
 
 	mutex.unlock();
-
 }
 
-void PVCore::PVLogger::warn(const char *format, ...)
+void PVCore::PVLogger::warn(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_WARN) return;
+	if (level < PVLOG_WARN)
+		return;
 
 	va_start(ap, format);
 	res.vsprintf(format, ap);
@@ -145,12 +147,13 @@ void PVCore::PVLogger::warn(const char *format, ...)
 	va_end(ap);
 }
 
-void PVCore::PVLogger::error(const char *format, ...)
+void PVCore::PVLogger::error(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_ERROR) return;
+	if (level < PVLOG_ERROR)
+		return;
 
 	va_start(ap, format);
 	res.vsprintf(format, ap);
@@ -164,12 +167,13 @@ void PVCore::PVLogger::error(const char *format, ...)
 	va_end(ap);
 }
 
-void PVCore::PVLogger::cudaError(const char *format, ...)
+void PVCore::PVLogger::cudaError(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_ERROR) return;
+	if (level < PVLOG_ERROR)
+		return;
 
 	va_start(ap, format);
 	res.vsprintf(format, ap);
@@ -183,12 +187,13 @@ void PVCore::PVLogger::cudaError(const char *format, ...)
 	va_end(ap);
 }
 
-void PVCore::PVLogger::fatal(const char *format, ...)
+void PVCore::PVLogger::fatal(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_FATAL) return;
+	if (level < PVLOG_FATAL)
+		return;
 
 	va_start(ap, format);
 	res.vsprintf(format, ap);
@@ -202,12 +207,13 @@ void PVCore::PVLogger::fatal(const char *format, ...)
 	va_end(ap);
 }
 
-void PVCore::PVLogger::plain(const char *format, ...)
+void PVCore::PVLogger::plain(const char* format, ...)
 {
 	QString res;
 	va_list ap;
 
-	if (level < PVLOG_INFO) return;
+	if (level < PVLOG_INFO)
+		return;
 
 	va_start(ap, format);
 	res.vsprintf(format, ap);
@@ -221,9 +227,8 @@ void PVCore::PVLogger::plain(const char *format, ...)
 	va_end(ap);
 }
 
-PVCore::PVLogger *PVCore::PVLogger::getInstance()
+PVCore::PVLogger* PVCore::PVLogger::getInstance()
 {
 	static PVCore::PVLogger instance;
 	return &instance;
 }
-

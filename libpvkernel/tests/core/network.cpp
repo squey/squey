@@ -15,13 +15,11 @@
 
 // TODO: add more tests, surely performance stats
 const char* ip_text[] = {
-	"192.168.23.4",
-	"192.168.23.04",
+    "192.168.23.4", "192.168.23.04",
 };
 
 const uint32_t ip_num[] = {
-	3232241412,
-	3232241412,
+    3232241412, 3232241412,
 };
 
 constexpr size_t ip_test_size = sizeof(ip_text) / sizeof(ip_text[0]);

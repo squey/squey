@@ -13,7 +13,8 @@
 
 #include <memory>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVFormat;
 typedef std::shared_ptr<PVFormat> PVFormat_p;
@@ -73,7 +74,6 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_CURRENT_VERSION "6"
 
 #define PVFORMAT_NUMBER_FIELD_URL 6
-
 }
 
 #endif

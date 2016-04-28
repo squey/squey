@@ -8,32 +8,25 @@
 #include <pvkernel/widgets/PVArgumentListModel.h>
 #include <QStandardItemModel>
 
+/******************************************************************************
+ *
+ * PVWidgets::PVArgumentListModel::PVArgumentListModel
+ *
+ *****************************************************************************/
+PVWidgets::PVArgumentListModel::PVArgumentListModel(QObject* parent)
+    : QAbstractTableModel(parent), _args(NULL)
+{
+}
 
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListModel::PVArgumentListModel
  *
  *****************************************************************************/
-PVWidgets::PVArgumentListModel::PVArgumentListModel(QObject* parent):
-	QAbstractTableModel(parent),
-	_args(NULL)
+PVWidgets::PVArgumentListModel::PVArgumentListModel(PVCore::PVArgumentList& args, QObject* parent)
+    : QAbstractTableModel(parent), _args(&args)
 {
 }
-
-
-
-/******************************************************************************
- *
- * PVWidgets::PVArgumentListModel::PVArgumentListModel
- *
- *****************************************************************************/
-PVWidgets::PVArgumentListModel::PVArgumentListModel(PVCore::PVArgumentList &args, QObject* parent):
-	QAbstractTableModel(parent),
-	_args(&args)
-{
-}
-
-
 
 /******************************************************************************
  *
@@ -49,8 +42,6 @@ int PVWidgets::PVArgumentListModel::columnCount(const QModelIndex& parent) const
 	return 1;
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListModel::data
@@ -58,7 +49,8 @@ int PVWidgets::PVArgumentListModel::columnCount(const QModelIndex& parent) const
  *****************************************************************************/
 QVariant PVWidgets::PVArgumentListModel::data(const QModelIndex& index, int role) const
 {
-	// We check if we have no args, and then restrict to the cases of Qt::DisplayRole and Qt::EditRole
+	// We check if we have no args, and then restrict to the cases of Qt::DisplayRole and
+	// Qt::EditRole
 	if (_args == NULL || (role != Qt::DisplayRole && role != Qt::EditRole))
 		return QVariant();
 
@@ -70,8 +62,6 @@ QVariant PVWidgets::PVArgumentListModel::data(const QModelIndex& index, int role
 	// We return the value of tha argument at that position
 	return it->value();
 }
-
-
 
 /******************************************************************************
  *
@@ -96,26 +86,23 @@ Qt::ItemFlags PVWidgets::PVArgumentListModel::flags(const QModelIndex& index) co
 	return ret;
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListModel::headerData
  *
  *****************************************************************************/
-QVariant PVWidgets::PVArgumentListModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant PVWidgets::PVArgumentListModel::headerData(int section, Qt::Orientation orientation,
+                                                    int role) const
 {
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
-
-
 
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListModel::rowCount
  *
  *****************************************************************************/
-int PVWidgets::PVArgumentListModel::rowCount(const QModelIndex &parent) const
+int PVWidgets::PVArgumentListModel::rowCount(const QModelIndex& parent) const
 {
 	// Cf. QAbstractTableModel's documentation. This is for a table view.
 	if (_args == NULL || parent.isValid())
@@ -123,8 +110,6 @@ int PVWidgets::PVArgumentListModel::rowCount(const QModelIndex &parent) const
 
 	return _args->size();
 }
-
-
 
 /******************************************************************************
  *
@@ -138,15 +123,13 @@ void PVWidgets::PVArgumentListModel::set_args(PVCore::PVArgumentList& args)
 	endResetModel();
 }
 
-
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListModel::setData
  *
  *****************************************************************************/
-bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index, const QVariant &value, int role)
+bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index, const QVariant& value,
+                                             int role)
 {
 	if (_args == NULL || index.column() != 0 || role != Qt::EditRole)
 		return false;
@@ -162,6 +145,3 @@ bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index, const QVa
 
 	return true;
 }
-
-
-

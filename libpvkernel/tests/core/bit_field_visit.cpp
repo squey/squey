@@ -15,8 +15,7 @@
 
 static constexpr size_t SELECTION_COUNT = 100000000;
 
-template <class A, class B>
-bool show_diff(A const& cmp, B const& ref)
+template <class A, class B> bool show_diff(A const& cmp, B const& ref)
 {
 	size_t size_ref = ref.size();
 	size_t size_cmp = cmp.size();
@@ -24,7 +23,7 @@ bool show_diff(A const& cmp, B const& ref)
 	if (size_ref != size_cmp) {
 		std::cerr << "Size differs: cmp " << size_cmp << " != ref " << size_ref << std::endl;
 		ret = true;
-	}	
+	}
 	for (size_t i = 0; i < std::min(size_cmp, size_ref); i++) {
 		if (cmp[i] != ref[i]) {
 			std::cerr << i << ": cmp " << cmp[i] << " != ref " << ref[i] << std::endl;
@@ -51,11 +50,11 @@ void do_tests(PVCore::PVSelBitField const& bits, std::vector<std::pair<PVRow, PV
 	std::vector<PVRow> cur;
 	tbb::concurrent_vector<PVRow> tbb_cur;
 
-	for (std::pair<PVRow, PVRow> const& r: ranges) {
+	for (std::pair<PVRow, PVRow> const& r : ranges) {
 		const PVRow a = r.first;
 		const PVRow b = r.second;
 		assert(b > a);
-		const PVRow nrows = b-a;
+		const PVRow nrows = b - a;
 		ref.reserve(nrows);
 		cur.reserve(nrows);
 		tbb_cur.reserve(nrows);
@@ -86,11 +85,12 @@ void do_tests(PVCore::PVSelBitField const& bits, std::vector<std::pair<PVRow, PV
 void do_tests_packet(PVCore::PVSelBitField& bits)
 {
 	for (uint32_t i = 0; i < 16; ++i) {
-		uint32_t v = (i << 28) | (i << 24) | (i << 20) | (i << 16) | (i << 12) | (i << 8) | (i << 4) | (i);
+		uint32_t v =
+		    (i << 28) | (i << 24) | (i << 20) | (i << 16) | (i << 12) | (i << 8) | (i << 4) | (i);
 		memset(bits.get_buffer(), v, 2048);
-		for(uint32_t j = 0; j < 32; ++j) {
-			for(uint32_t k = 0; k < 64; k += 4) {
-				PV_VALID(bits.get_lines_fast((j*32)+k, 4), i, "i", i, "j", j, "k", k);
+		for (uint32_t j = 0; j < 32; ++j) {
+			for (uint32_t k = 0; k < 64; k += 4) {
+				PV_VALID(bits.get_lines_fast((j * 32) + k, 4), i, "i", i, "j", j, "k", k);
 			}
 		}
 	}
@@ -179,7 +179,8 @@ int main()
 	for (size_t i = 0; i < PVCore::PVSelBitField::CHUNK_SIZE; i++) {
 		bits.set_bit_fast(i);
 	}
-	for (size_t i = PVCore::PVSelBitField::CHUNK_SIZE; i < PVCore::PVSelBitField::CHUNK_SIZE*2; i++) {
+	for (size_t i = PVCore::PVSelBitField::CHUNK_SIZE; i < PVCore::PVSelBitField::CHUNK_SIZE * 2;
+	     i++) {
 		if (rand() & 1) {
 			bits.set_bit_fast(i);
 		}
@@ -188,16 +189,16 @@ int main()
 
 	std::cout << "Tests with the two first chunks full and a random third one..." << std::endl;
 	bits.select_none();
-	for (size_t i = 0; i < PVCore::PVSelBitField::CHUNK_SIZE*2; i++) {
+	for (size_t i = 0; i < PVCore::PVSelBitField::CHUNK_SIZE * 2; i++) {
 		bits.set_bit_fast(i);
 	}
-	for (size_t i = PVCore::PVSelBitField::CHUNK_SIZE*2; i < PVCore::PVSelBitField::CHUNK_SIZE*3; i++) {
+	for (size_t i = PVCore::PVSelBitField::CHUNK_SIZE * 2;
+	     i < PVCore::PVSelBitField::CHUNK_SIZE * 3; i++) {
 		if (rand() & 1) {
 			bits.set_bit_fast(i);
 		}
 	}
 	do_tests(bits, ranges);
-
 
 	for (size_t i = 1; i <= 128; i++) {
 		std::cout << "Tests with " << i << " randomly selected lines" << std::endl;

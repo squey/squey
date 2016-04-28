@@ -10,7 +10,8 @@
 
 #include <pvbase/export.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
 // Forward declaration of PVInput
 class PVInput;
@@ -20,7 +21,6 @@ typedef std::shared_ptr<PVInput> PVInput_p;
 
 // Input offset
 typedef uint64_t input_offset;
-
 }
 
 #endif

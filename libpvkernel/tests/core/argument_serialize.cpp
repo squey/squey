@@ -22,14 +22,25 @@
 #include <pvkernel/core/PVSpinBoxType.h>
 #include <pvkernel/core/PVTimeFormatType.h>
 
-
 // Declare a custom type
-class PVMyCustomType: public PVCore::PVArgumentType<PVMyCustomType>
+class PVMyCustomType : public PVCore::PVArgumentType<PVMyCustomType>
 {
-public:
-	PVMyCustomType() {_str1 = ""; _str2 = ""; }
-	PVMyCustomType(QString str1, QString str2) {_str1 = str1; _str2 = str2;}
-	PVMyCustomType(QStringList strList) {_str1 = strList[0]; _str2 = strList[1];}
+  public:
+	PVMyCustomType()
+	{
+		_str1 = "";
+		_str2 = "";
+	}
+	PVMyCustomType(QString str1, QString str2)
+	{
+		_str1 = str1;
+		_str2 = str2;
+	}
+	PVMyCustomType(QStringList strList)
+	{
+		_str1 = strList[0];
+		_str2 = strList[1];
+	}
 	virtual QString to_string() const
 	{
 		QString str;
@@ -41,7 +52,7 @@ public:
 	}
 	virtual PVCore::PVArgument from_string(QString const& s, bool* ok /*= 0*/) const
 	{
-		bool res_ok = false ;
+		bool res_ok = false;
 		PVCore::PVArgument arg;
 
 		QStringList parts = s.split("+");
@@ -57,11 +68,12 @@ public:
 
 		return arg;
 	}
-	virtual bool operator==(const PVMyCustomType &other) const
+	virtual bool operator==(const PVMyCustomType& other) const
 	{
 		return _str1 == other._str1 && _str2 == other._str2;
 	}
-private:
+
+  private:
 	QString _str1;
 	QString _str2;
 };
@@ -113,7 +125,7 @@ int main()
 	expectedStrings.append("1,2,3");
 	mustFail.append(true);
 
-    // PVAxisIndexType
+	// PVAxisIndexType
 	vars.append(QVariant::fromValue(PVCore::PVAxisIndexType(8, true)));
 	expectedStrings.append("8:true");
 	mustFail.append(true);
@@ -130,7 +142,11 @@ int main()
 	mustFail.append(true);
 
 	// PVEnumType
-	vars.append(QVariant::fromValue(PVCore::PVEnumType(QStringList() << "this" << "is" << "an" << "enum", 3)));
+	vars.append(QVariant::fromValue(PVCore::PVEnumType(QStringList() << "this"
+	                                                                 << "is"
+	                                                                 << "an"
+	                                                                 << "enum",
+	                                                   3)));
 	expectedStrings.append("3");
 	mustFail.append(true);
 
@@ -146,7 +162,9 @@ int main()
 	mustFail.append(true);
 
 	// PVTimeFormat
-	vars.append(QVariant::fromValue(PVCore::PVTimeFormatType(QStringList() << "dd" << "mm" << "yyyy")));
+	vars.append(QVariant::fromValue(PVCore::PVTimeFormatType(QStringList() << "dd"
+	                                                                       << "mm"
+	                                                                       << "yyyy")));
 	expectedStrings.append("dd\nmm\nyyyy");
 	mustFail.append(false);
 
@@ -156,12 +174,12 @@ int main()
 		serializedStrings.append(PVCore::PVArgument_to_QString(v));
 	}
 	bool serialization_passed = true;
-	for (int i=0; i<expectedStrings.count(); i++) {
+	for (int i = 0; i < expectedStrings.count(); i++) {
 		bool res = serializedStrings[i].compare(expectedStrings[i]) == 0;
 		serialization_passed &= res;
-		if (!res)
-		{
-			PVLOG_ERROR("get '%s' string were '%s' was expected\n", qPrintable(serializedStrings[i]), qPrintable(expectedStrings[i]));
+		if (!res) {
+			PVLOG_ERROR("get '%s' string were '%s' was expected\n",
+			            qPrintable(serializedStrings[i]), qPrintable(expectedStrings[i]));
 		}
 	}
 	PVLOG_INFO("Serialization passed: %d\n", serialization_passed);
@@ -170,12 +188,14 @@ int main()
 	bool deserialization_passed = true;
 	for (int i = 0; i < vars.count(); i++) {
 		bool convert_ok;
-		PVCore::PVArgument arg = PVCore::QString_to_PVArgument(serializedStrings[i], vars[i], &convert_ok);
+		PVCore::PVArgument arg =
+		    PVCore::QString_to_PVArgument(serializedStrings[i], vars[i], &convert_ok);
 		QString str = PVCore::PVArgument_to_QString(arg);
 		bool res = str.compare(serializedStrings[i]) == 0 && convert_ok;
 		deserialization_passed &= res;
 		if (!res) {
-			PVLOG_ERROR("String '%s' wasn't successfully unserialized\n", qPrintable(serializedStrings[i]));
+			PVLOG_ERROR("String '%s' wasn't successfully unserialized\n",
+			            qPrintable(serializedStrings[i]));
 		}
 	}
 	PVLOG_INFO("Deserialization passed: %d\n", deserialization_passed);
@@ -183,9 +203,10 @@ int main()
 	// Test deserialization failure fallback
 	bool bad_deserialization_passed = true;
 	for (int i = 0; i < vars.count(); i++) {
-		if(vars[i].userType() >= QMetaType::User) {
+		if (vars[i].userType() >= QMetaType::User) {
 			PVLOG_DEBUG("Crash test for argument type '%s'\n", vars[i].typeName());
-			static_cast<const PVCore::PVArgumentTypeBase*>(vars[i].constData())->from_string(""); // test for potential crash without opt arg
+			static_cast<const PVCore::PVArgumentTypeBase*>(vars[i].constData())
+			    ->from_string(""); // test for potential crash without opt arg
 		}
 		if (mustFail[i]) {
 			bool convert_ok;
@@ -194,7 +215,9 @@ int main()
 			QString str_ko = PVCore::PVArgument_to_QString(arg_ko);
 			bad_deserialization_passed &= !convert_ok && str_ref == str_ko;
 			if (convert_ok) {
-				PVLOG_ERROR("Badly formed string for argument type '%s' was considered to be successfully converted \n", vars[i].typeName());
+				PVLOG_ERROR("Badly formed string for argument type '%s' was considered to be "
+				            "successfully converted \n",
+				            vars[i].typeName());
 			}
 		}
 	}
@@ -217,5 +240,6 @@ int main()
 	// Cleanup
 	QFile::remove(iniFilename);
 
-	return !(serialization_passed && deserialization_passed && qsettings_passed && bad_deserialization_passed);
+	return !(serialization_passed && deserialization_passed && qsettings_passed &&
+	         bad_deserialization_passed);
 }

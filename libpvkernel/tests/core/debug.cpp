@@ -14,15 +14,16 @@
 int main(void)
 {
 
-	// QStringList list;
-	//PVCore::PVAxisIndexEditor test;
+// QStringList list;
+// PVCore::PVAxisIndexEditor test;
 
 #include "test-env.h"
 
 	// PVCore::log(PVCore::loglevel::empty, "This is an empty message\n");
 	// PVCore::log(PVCore::loglevel::notice, "This is a notice message\n");
 	// PVCore::log("This is a notice message without the first argument\n");
-	// PVCore::log("This is a notice message without the first argument with the value 'hello': '%s'\n", "hello");
+	// PVCore::log("This is a notice message without the first argument with the value 'hello':
+	// '%s'\n", "hello");
 	// PVCore::log(PVCore::loglevel::warning, "This is a warning message\n");
 	// PVCore::log(PVCore::loglevel::critical, "This is a critical message %s:%f\n", "toto", 23.43);
 	// PVCore::log(PVCore::loglevel::debug, "This is a debug message\n");

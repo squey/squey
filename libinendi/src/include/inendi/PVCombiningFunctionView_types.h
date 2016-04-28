@@ -10,11 +10,11 @@
 
 #include <memory>
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVCombiningFunctionView;
 typedef std::shared_ptr<PVCombiningFunctionView> PVCombiningFunctionView_p;
-
 }
 
 #endif // INENDI_PVCOMBININGFUNCTIONVIEW_TYPES_H

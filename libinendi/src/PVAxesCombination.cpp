@@ -20,8 +20,7 @@
  *
  *****************************************************************************/
 
-Inendi::PVAxesCombination::PVAxesCombination():
-	_is_consistent(true)
+Inendi::PVAxesCombination::PVAxesCombination() : _is_consistent(true)
 {
 }
 
@@ -30,7 +29,7 @@ Inendi::PVAxesCombination::PVAxesCombination():
  * Inendi::PVAxesCombination::axis_append
  *
  *****************************************************************************/
-void Inendi::PVAxesCombination::axis_append(const PVAxis &axis)
+void Inendi::PVAxesCombination::axis_append(const PVAxis& axis)
 {
 	original_axes_list.push_back(axis);
 	axis_append(original_axes_list.size() - 1);
@@ -44,8 +43,8 @@ void Inendi::PVAxesCombination::axis_append(const PVAxis &axis)
 void Inendi::PVAxesCombination::axis_append(PVCol org_axis_id)
 {
 	assert(org_axis_id < original_axes_list.size());
-	columns_indexes_list.push_back(axes_comb_id_t(org_axis_id,
-	                                              get_first_free_child_id(org_axis_id)));
+	columns_indexes_list.push_back(
+	    axes_comb_id_t(org_axis_id, get_first_free_child_id(org_axis_id)));
 	axes_list.push_back(original_axes_list.at(org_axis_id));
 }
 
@@ -78,10 +77,10 @@ PVCol Inendi::PVAxesCombination::get_axes_count() const
  *****************************************************************************/
 QStringList Inendi::PVAxesCombination::get_axes_names_list() const
 {
-	int         i;
+	int i;
 	QStringList output_list;
 
-	for (i=0; i<axes_list.size(); i++) {
+	for (i = 0; i < axes_list.size(); i++) {
 		output_list << axes_list[i].get_name();
 	}
 
@@ -93,7 +92,7 @@ QStringList Inendi::PVAxesCombination::get_axes_names_list() const
  * Inendi::PVAxesCombination::get_axis
  *
  *****************************************************************************/
-const Inendi::PVAxis &Inendi::PVAxesCombination::get_axis(PVCol index) const
+const Inendi::PVAxis& Inendi::PVAxesCombination::get_axis(PVCol index) const
 {
 	assert(!axes_list.empty());
 
@@ -106,7 +105,7 @@ const Inendi::PVAxis &Inendi::PVAxesCombination::get_axis(PVCol index) const
 	return axes_list[index];
 }
 
-const Inendi::PVAxis &Inendi::PVAxesCombination::get_original_axis(PVCol index) const
+const Inendi::PVAxis& Inendi::PVAxesCombination::get_original_axis(PVCol index) const
 {
 	assert(index < original_axes_list.size());
 	return original_axes_list.at(index);
@@ -141,11 +140,11 @@ PVCol Inendi::PVAxesCombination::get_combined_axis_column_index(PVCol index) con
 
 	/* We check that the given axis' index is not out of range */
 	if (index >= original_axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, original_axes_list.size());
+		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index,
+		            original_axes_list.size());
 		return columns_indexes_list.last().get_axis();
 	}
 
-	
 	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
 		if (columns_indexes_list[i].get_axis() == index) {
 			return i;
@@ -167,7 +166,8 @@ QList<PVCol> Inendi::PVAxesCombination::get_combined_axes_columns_indexes(PVCol 
 
 	/* We check that the given axis' index is not out of range */
 	if (index >= original_axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, original_axes_list.size());
+		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index,
+		            original_axes_list.size());
 		return cols_ret;
 	}
 
@@ -197,10 +197,10 @@ PVCol Inendi::PVAxesCombination::get_original_axes_count() const
  *****************************************************************************/
 QStringList Inendi::PVAxesCombination::get_original_axes_names_list() const
 {
-	int         i;
+	int i;
 	QStringList output_list;
 
-	for (i=0; i< original_axes_list.size(); i++) {
+	for (i = 0; i < original_axes_list.size(); i++) {
 		output_list << original_axes_list[i].get_name();
 	}
 
@@ -293,7 +293,7 @@ bool Inendi::PVAxesCombination::move_axis_left_one_position(PVCol index)
 	}
 
 	std::swap(axes_list[index], axes_list[index - 1]);
-	std::swap(columns_indexes_list[index], columns_indexes_list[index -1]);
+	std::swap(columns_indexes_list[index], columns_indexes_list[index - 1]);
 
 	return true;
 }
@@ -331,11 +331,13 @@ bool Inendi::PVAxesCombination::move_axis_to_new_position(PVCol index_source, PV
 		return false;
 	}
 	if (index_source >= axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_source, axes_list.size());
+		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_source,
+		            axes_list.size());
 		return false;
 	}
 	if (index_dest >= axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_dest, axes_list.size());
+		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_dest,
+		            axes_list.size());
 		return false;
 	}
 
@@ -361,7 +363,7 @@ bool Inendi::PVAxesCombination::move_axis_to_new_position(PVCol index_source, PV
  *****************************************************************************/
 bool Inendi::PVAxesCombination::remove_axis(PVCol index)
 {
-	if ( axes_list.size() <= index ) {
+	if (axes_list.size() <= index) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
 		return false;
 	}
@@ -395,7 +397,7 @@ void Inendi::PVAxesCombination::reset_to_default()
  * Inendi::PVAxesCombination::set_axis_name
  *
  *****************************************************************************/
-void Inendi::PVAxesCombination::set_axis_name(PVCol index, const QString &name_)
+void Inendi::PVAxesCombination::set_axis_name(PVCol index, const QString& name_)
 {
 	assert(!axes_list.empty());
 
@@ -413,7 +415,7 @@ void Inendi::PVAxesCombination::set_axis_name(PVCol index, const QString &name_)
  * Inendi::PVAxesCombination::set_from_format
  *
  *****************************************************************************/
-void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
+void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat& format)
 {
 	PVRush::list_axes_t const& axes = format.get_axes();
 	PVRush::list_axes_t::const_iterator it;
@@ -423,11 +425,9 @@ void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 		if (axes_comb.size() == 0) {
 			axes_comb = columns_indexes_list;
 		}
-	}
-	else {
+	} else {
 		for (PVCol index : format.get_axes_comb()) {
 			axes_comb.push_back(axes_comb_id_t(index, get_first_free_child_id(index)));
-
 		}
 		if (axes_comb.size() == 0) {
 			axes_comb.reserve(axes.size());
@@ -473,10 +473,15 @@ void Inendi::PVAxesCombination::set_original_axes(PVRush::list_axes_t const& axe
 
 	for (int id = 0; id < old_axes_list.size(); id++) {
 		PVAxis const& axis = old_axes_list.at(id);
-		PVLOG_DEBUG("(Inendi::PVAxesCombination::set_original_axes) axis '%s' has unique id '%d'\n", qPrintable(axis.get_name()), axis.get_unique_id());
+		PVLOG_DEBUG("(Inendi::PVAxesCombination::set_original_axes) axis '%s' has "
+		            "unique id '%d'\n",
+		            qPrintable(axis.get_name()), axis.get_unique_id());
 		int id_org = original_axes_list.indexOf(axis);
 		if (id_org != -1) {
-			PVLOG_DEBUG("(Inendi::PVAxesCombination::set_original_axes) id_org: %d, axis '%s', unique id: %d \n", id_org, qPrintable(original_axes_list.at(id_org).get_name()), original_axes_list.at(id_org).get_unique_id());
+			PVLOG_DEBUG("(Inendi::PVAxesCombination::set_original_axes) id_org: %d, "
+			            "axis '%s', unique id: %d \n",
+			            id_org, qPrintable(original_axes_list.at(id_org).get_name()),
+			            original_axes_list.at(id_org).get_unique_id());
 			// We found it. Set the new id.
 			axis_append(id_org);
 		}
@@ -493,7 +498,7 @@ uint32_t Inendi::PVAxesCombination::get_first_free_child_id(PVCol index)
 	uint32_t id = 0;
 	size_t i, size = columns_indexes_list.size();
 
-	while(true) {
+	while (true) {
 		axes_comb_id_t ci(index, id);
 
 		for (i = 0; i < size; ++i) {
@@ -513,7 +518,7 @@ uint32_t Inendi::PVAxesCombination::get_first_free_child_id(PVCol index)
  * Inendi::PVAxesCombination::get_index_by_id
  *
  *****************************************************************************/
-PVCol Inendi::PVAxesCombination::get_index_by_id(const axes_comb_id_t &e) const
+PVCol Inendi::PVAxesCombination::get_index_by_id(const axes_comb_id_t& e) const
 {
 	for (int i = 0; i < columns_indexes_list.size(); ++i) {
 		if (columns_indexes_list[i] == e) {
@@ -524,11 +529,13 @@ PVCol Inendi::PVAxesCombination::get_index_by_id(const axes_comb_id_t &e) const
 	return PVCOL_INVALID_VALUE;
 }
 
-static bool comp_sort(std::pair<QStringRef, PVCol> const& o1, std::pair<QStringRef, PVCol> const& o2)
+static bool comp_sort(std::pair<QStringRef, PVCol> const& o1,
+                      std::pair<QStringRef, PVCol> const& o2)
 {
 	return o1.first < o2.first;
 }
-static bool comp_inv_sort(std::pair<QStringRef, PVCol> const& o1, std::pair<QStringRef, PVCol> const& o2)
+static bool comp_inv_sort(std::pair<QStringRef, PVCol> const& o1,
+                          std::pair<QStringRef, PVCol> const& o2)
 {
 	return o1.first > o2.first;
 }
@@ -536,7 +543,7 @@ static bool comp_inv_sort(std::pair<QStringRef, PVCol> const& o1, std::pair<QStr
 void Inendi::PVAxesCombination::sort_by_name(bool order)
 {
 	QStringList names = get_original_axes_names_list();
-	std::vector<std::pair<QStringRef, PVCol> > vec_tosort;
+	std::vector<std::pair<QStringRef, PVCol>> vec_tosort;
 	vec_tosort.reserve(names.size());
 	for (int i = 0; i < names.size(); i++) {
 		vec_tosort.push_back(std::pair<QStringRef, PVCol>(QStringRef(&names.at(i)), i));
@@ -544,8 +551,7 @@ void Inendi::PVAxesCombination::sort_by_name(bool order)
 
 	if (order) {
 		std::stable_sort(vec_tosort.begin(), vec_tosort.end(), comp_sort);
-	}
-	else {
+	} else {
 		std::stable_sort(vec_tosort.begin(), vec_tosort.end(), comp_inv_sort);
 	}
 
@@ -553,7 +559,7 @@ void Inendi::PVAxesCombination::sort_by_name(bool order)
 	columns_indexes_list.clear();
 	axes_list.clear();
 
-	std::vector<std::pair<QStringRef, PVCol> >::const_iterator it;
+	std::vector<std::pair<QStringRef, PVCol>>::const_iterator it;
 	for (it = vec_tosort.begin(); it != vec_tosort.end(); it++) {
 		axis_append(it->second);
 	}
@@ -568,18 +574,20 @@ QString Inendi::PVAxesCombination::to_string() const
 	}
 
 	QString ret;
-	for (int i = 0; i < columns_indexes_list.size()-1; i++) {
+	for (int i = 0; i < columns_indexes_list.size() - 1; i++) {
 		ret += QString::number(columns_indexes_list[i].get_axis()) + ",";
 	}
-	ret += QString::number(columns_indexes_list[columns_indexes_list.size()-1].get_axis());
+	ret += QString::number(columns_indexes_list[columns_indexes_list.size() - 1].get_axis());
 	PVLOG_DEBUG("(Inendi::PVAxesCombination::to_string) string: %s\n", qPrintable(ret));
 	return ret;
 }
 
-void Inendi::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so,
+                                               PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	columns_indexes_list.clear();
-	so.list_attributes("columns_indexes_list", columns_indexes_list, [=](QVariant const& v) { return axes_comb_id_t::from_qvariant(v); });
+	so.list_attributes("columns_indexes_list", columns_indexes_list,
+	                   [=](QVariant const& v) { return axes_comb_id_t::from_qvariant(v); });
 	axes_list.clear();
 }
 
@@ -587,8 +595,8 @@ PVCore::PVColumnIndexes Inendi::PVAxesCombination::get_original_axes_indexes() c
 {
 	PVCore::PVColumnIndexes col_array;
 
-	const columns_indexes_t & axes_index_list =  get_axes_index_list();
-	for (axes_comb_id_t i: axes_index_list) {
+	const columns_indexes_t& axes_index_list = get_axes_index_list();
+	for (axes_comb_id_t i : axes_index_list) {
 		col_array.push_back(i.get_axis());
 	}
 

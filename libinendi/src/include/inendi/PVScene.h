@@ -26,7 +26,8 @@
 #define INENDI_SCENE_ARCHIVE_EXT "pv"
 #define INENDI_SCENE_ARCHIVE_FILTER "INENDI project files (*." INENDI_SCENE_ARCHIVE_EXT ")"
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVSource;
 
@@ -34,27 +35,30 @@ class PVSource;
  * \class PVScene
  */
 typedef typename PVCore::PVDataTreeObject<PVRoot, PVSource> data_tree_scene_t;
-class PVScene: public data_tree_scene_t
+class PVScene : public data_tree_scene_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
 	friend class PVSource;
 	friend class PVView;
-public:
-	typedef QList<PVSource*> list_sources_t;
-private:
-	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
-	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p> hash_type_so_inputs;
 
-public:
+  public:
+	typedef QList<PVSource*> list_sources_t;
+
+  private:
+	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
+	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p>
+	    hash_type_so_inputs;
+
+  public:
 	PVScene(QString scene_path = QString());
 	~PVScene();
 
-public:
+  public:
 	void set_name(QString name) { _name = name; }
-	const QString & get_name() const { return _name; }
+	const QString& get_name() const { return _name; }
 	void set_path(QString path) { _path = path; }
-	const QString & get_path() const { return _path; }
+	const QString& get_path() const { return _path; }
 
 	PVSource* current_source();
 	PVSource const* current_source() const;
@@ -65,13 +69,15 @@ public:
 	inline PVSource* last_active_source() { return _last_active_src; }
 	inline PVSource const* last_active_source() const { return _last_active_src; }
 
-public:
+  public:
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
-	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(), bool save_everything = false);
+	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options =
+	                                           PVCore::PVSerializeArchiveOptions_p(),
+	                  bool save_everything = false);
 	void load_from_file(QString const& path);
 	void load_from_archive(PVCore::PVSerializeArchive_p ar);
 
-public:
+  public:
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	PVRush::PVInputType::list_inputs_desc get_inputs_desc(PVRush::PVInputType const& type) const;
 
@@ -82,7 +88,7 @@ public:
 
 	virtual QString get_serialize_description() const { return get_name(); }
 
-protected:
+  protected:
 	/*int32_t get_new_view_id() const;
 	void set_views_id();
 
@@ -95,11 +101,11 @@ protected:
 
 	inline void set_last_active_source(PVSource* src) { _last_active_src = src; }
 
-protected:
+  protected:
 	// Events
 	void child_added(PVSource& src);
 
-protected:
+  protected:
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -107,7 +113,7 @@ protected:
 
 	PVCore::PVSerializeObject_p get_so_inputs(PVSource const& src);
 
-private:
+  private:
 	Inendi::PVSource* _last_active_src;
 
 	hash_type_so_inputs _so_inputs;
@@ -117,9 +123,8 @@ private:
 	QString _name;
 };
 
-typedef PVScene::p_type  PVScene_p;
+typedef PVScene::p_type PVScene_p;
 typedef PVScene::wp_type PVScene_wp;
-
 }
 
-#endif	/* INENDI_PVSCENE_H */
+#endif /* INENDI_PVSCENE_H */

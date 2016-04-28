@@ -20,4 +20,3 @@ PVMapWidget::PVMapWidget(QWidget *parent) : QWebView(parent)
 	view->show();
 }
 #endif
-

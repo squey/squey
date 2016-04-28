@@ -12,8 +12,8 @@
 
 const char PVRush::PVSplunkPresets::PV_SETTINGS_INPUT[] = "plugins/input_type/splunk/";
 
-PVRush::PVSplunkPresets::PVSplunkPresets():
-	_settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+PVRush::PVSplunkPresets::PVSplunkPresets()
+    : _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
 {
 	_settings.beginGroup(QString(PV_SETTINGS_INPUT) + "presets");
 }
@@ -29,13 +29,10 @@ PVRush::PVSplunkPresets& PVRush::PVSplunkPresets::get()
 	return obj;
 }
 
-
-PVRush::PVSplunkPresets::id_t PVRush::PVSplunkPresets::add(
-	QString const& name,
-	PVSplunkInfos const& infos,
-	QString const& query,
-	QString const& query_type
-)
+PVRush::PVSplunkPresets::id_t PVRush::PVSplunkPresets::add(QString const& name,
+                                                           PVSplunkInfos const& infos,
+                                                           QString const& query,
+                                                           QString const& query_type)
 {
 	QStringList grps = _settings.childGroups();
 	id_t max = 0;
@@ -46,17 +43,13 @@ PVRush::PVSplunkPresets::id_t PVRush::PVSplunkPresets::add(
 		}
 	}
 
-	id_t new_id = max+1;
+	id_t new_id = max + 1;
 	set(new_id, infos, query, query_type, name);
 	return new_id;
 }
 
-void PVRush::PVSplunkPresets::set(
-	id_t id, PVSplunkInfos const& infos,
-	QString const& query,
-	QString const& query_type,
-	QString const& name
-)
+void PVRush::PVSplunkPresets::set(id_t id, PVSplunkInfos const& infos, QString const& query,
+                                  QString const& query_type, QString const& name)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -75,7 +68,8 @@ void PVRush::PVSplunkPresets::set(
 	_settings.endGroup();
 }
 
-bool PVRush::PVSplunkPresets::get(id_t id, PVSplunkInfos& infos, QString& query, QString& query_type)
+bool PVRush::PVSplunkPresets::get(id_t id, PVSplunkInfos& infos, QString& query,
+                                  QString& query_type)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -83,7 +77,7 @@ bool PVRush::PVSplunkPresets::get(id_t id, PVSplunkInfos& infos, QString& query,
 	if (_settings.contains("name")) {
 		infos.set_host(_settings.value("host", "").toString());
 		infos.set_port(_settings.value("port", "").toUInt());
-		infos.set_port((uint16_t) _settings.value("port", 0).toUInt());
+		infos.set_port((uint16_t)_settings.value("port", 0).toUInt());
 		infos.set_login(_settings.value("login", "").toString());
 		infos.set_password(_settings.value("password", "").toString());
 		infos.set_splunk_index(_settings.value("splunk_index", "").toString());

@@ -15,7 +15,8 @@
 #include <pvparallelview/common.h>
 #include <tbb/cache_aligned_allocator.h>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVBCICodeBase;
 
@@ -29,30 +30,27 @@ class PVBCICodeBase;
  *     * color
  *     * direction (use?)
  */
-template <size_t Bbits = NBITS_INDEX>
-struct PVBCICode
+template <size_t Bbits = NBITS_INDEX> struct PVBCICode
 {
 #ifndef __CUDACC__
 	static_assert((Bbits >= 1) & (Bbits <= 11), "PVBCICode: Bbits must be between 1 and 11.");
 #endif
 
 	typedef tbb::cache_aligned_allocator<PVBCICode> allocator;
-	union {
+	union
+	{
 		uint64_t int_v;
-		struct {
+		struct
+		{
 			uint32_t idx;
-			uint32_t l: Bbits;
-			uint32_t r: Bbits;
-			uint32_t color: 8;
-			uint32_t type: 2;
+			uint32_t l : Bbits;
+			uint32_t r : Bbits;
+			uint32_t color : 8;
+			uint32_t type : 2;
 		} __attribute((packed)) s;
 	};
 
-	typedef enum {
-		STRAIGHT = 0,
-		UP = 1,
-		DOWN = 2
-	} _type_t;
+	typedef enum { STRAIGHT = 0, UP = 1, DOWN = 2 } _type_t;
 
 	static PVBCICode* allocate_codes(size_t n)
 	{
@@ -60,20 +58,11 @@ struct PVBCICode
 		return ret;
 	}
 
-	static void free_codes(PVBCICode* codes)
-	{
-		PVBCICode::allocator().deallocate(codes, 0);
-	}
+	static void free_codes(PVBCICode* codes) { PVBCICode::allocator().deallocate(codes, 0); }
 
-	operator PVBCICodeBase& ()
-	{
-		return *((PVBCICodeBase*)this);
-	}
+	operator PVBCICodeBase&() { return *((PVBCICodeBase*)this); }
 
-	operator PVBCICodeBase const& ()
-	{
-		return *((PVBCICodeBase*)this);
-	}
+	operator PVBCICodeBase const&() { return *((PVBCICodeBase*)this); }
 };
 
 struct PVBCICodeBase
@@ -81,16 +70,16 @@ struct PVBCICodeBase
 	uint64_t& as_uint64() { return *((uint64_t*)this); }
 	uint64_t const& as_uint64() const { return *((uint64_t*)this); }
 
-	template <size_t Bbits>
-	PVBCICode<Bbits> const& as() const { return *((PVBCICode<Bbits>*)this); }
+	template <size_t Bbits> PVBCICode<Bbits> const& as() const
+	{
+		return *((PVBCICode<Bbits>*)this);
+	}
 
-	template <size_t Bbits>
-	PVBCICode<Bbits>& as() { return *((PVBCICode<Bbits>*)this); }
+	template <size_t Bbits> PVBCICode<Bbits>& as() { return *((PVBCICode<Bbits>*)this); }
 
-private:
+  private:
 	uint64_t _int_v;
 };
-
 }
 
 #endif

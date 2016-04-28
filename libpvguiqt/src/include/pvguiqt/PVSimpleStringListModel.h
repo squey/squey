@@ -14,18 +14,19 @@
 #include <QString>
 #include <pvguiqt/PVAbstractTableModel.h>
 
-namespace PVGuiQt {
-
-class PVSimpleStringListModel: public PVAbstractTableModel
+namespace PVGuiQt
 {
-public:
+
+class PVSimpleStringListModel : public PVAbstractTableModel
+{
+  public:
 	using container_type = std::map<size_t, std::string>;
 
-public:
-	PVSimpleStringListModel(container_type const& values, QObject* parent = NULL):
-		PVAbstractTableModel(values.size(), parent),
-		_values(values)
-	{ }
+  public:
+	PVSimpleStringListModel(container_type const& values, QObject* parent = NULL)
+	    : PVAbstractTableModel(values.size(), parent), _values(values)
+	{
+	}
 
 	QString export_line(int row) const override
 	{
@@ -34,20 +35,19 @@ public:
 		return QString::fromStdString(it->second);
 	}
 
-public:
+  public:
 	QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const
 	{
-		switch(role) {
-			case Qt::DisplayRole:
-				{
-					auto it = _values.begin();
-					std::advance(it, rowIndex(index));
-					return QString::fromStdString(it->second);
-				}
-			case Qt::BackgroundRole:
-				if (is_selected(index)) {
-					return _selection_brush;
-				}
+		switch (role) {
+		case Qt::DisplayRole: {
+			auto it = _values.begin();
+			std::advance(it, rowIndex(index));
+			return QString::fromStdString(it->second);
+		}
+		case Qt::BackgroundRole:
+			if (is_selected(index)) {
+				return _selection_brush;
+			}
 		}
 
 		return {};
@@ -68,15 +68,11 @@ public:
 		return QVariant();
 	}
 
-int columnCount(QModelIndex const& index = QModelIndex()) const override
-{
-	return 1;
-}
+	int columnCount(QModelIndex const& index = QModelIndex()) const override { return 1; }
 
-private:
+  private:
 	container_type const& _values;
 };
-
 }
 
 #endif // __PVQUIQT_PVSIMPLELISTSTRINGMODEL_H__

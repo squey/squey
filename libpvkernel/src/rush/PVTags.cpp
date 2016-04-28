@@ -14,13 +14,10 @@
  *****************************************************************************/
 PVRush::PVTags::PVTags()
 {
-
 }
-
 
 PVRush::PVTags::~PVTags()
 {
-
 }
 
 void PVRush::PVTags::add_tag(QString tag)

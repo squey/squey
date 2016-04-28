@@ -11,12 +11,15 @@
 
 #include <pvparallelview/PVDisplayViewZoomedParallel.h>
 
-PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel():
-	PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Zoomed parallel view")
+PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
+    : PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                          "Zoomed parallel view")
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent) const
+QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* view,
+                                                                PVCol axis_comb,
+                                                                QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
 	QWidget* widget = lib_view->create_zoomed_view(axis_comb, parent);
@@ -29,12 +32,14 @@ QIcon PVDisplays::PVDisplayViewZoomedParallel::toolbar_icon() const
 	return QIcon(":/view-parallel-zoomed");
 }
 
-QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view, PVCol axis_comb) const
+QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view,
+                                                              PVCol axis_comb) const
 {
 	return QString("Zoomed view [" + view->get_name() + "]");
 }
 
-QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView const* /*view*/, PVCol /*axis_comb*/) const
+QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView const* /*view*/,
+                                                                PVCol /*axis_comb*/) const
 {
 	return QString("New zoomed parallel view");
 }

@@ -12,41 +12,44 @@
 
 #include <QImage>
 
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 /**
  * It represents an image convertible to QImage.
  */
 class PVBCIBackendImage
 {
-public:
-	PVBCIBackendImage(uint32_t width, uint8_t height_bits):
-		_width(width),
-		_height_bits(height_bits)
-	{ }
+  public:
+	PVBCIBackendImage(uint32_t width, uint8_t height_bits)
+	    : _width(width), _height_bits(height_bits)
+	{
+	}
 
 	PVBCIBackendImage(PVBCIBackendImage const&) = delete;
-	PVBCIBackendImage(PVBCIBackendImage &&) = delete;
-	PVBCIBackendImage& operator=(PVBCIBackendImage &&) = delete;
+	PVBCIBackendImage(PVBCIBackendImage&&) = delete;
+	PVBCIBackendImage& operator=(PVBCIBackendImage&&) = delete;
 	PVBCIBackendImage& operator=(PVBCIBackendImage const&) = delete;
-	virtual ~PVBCIBackendImage() { }
+	virtual ~PVBCIBackendImage() {}
 
-public:
+  public:
 	inline QImage qimage() const { return qimage(height()); }
 	virtual QImage qimage(size_t height_crop) const = 0;
-	virtual bool set_width(uint32_t width) { _width = width; return true; }
+	virtual bool set_width(uint32_t width)
+	{
+		_width = width;
+		return true;
+	}
 
 	inline uint32_t width() const { return _width; }
-	inline uint32_t height() const { return 1U<<_height_bits; }
-	inline size_t size_pixel() const { return _width*height(); }
+	inline uint32_t height() const { return 1U << _height_bits; }
+	inline size_t size_pixel() const { return _width * height(); }
 	inline uint8_t height_bits() const { return _height_bits; }
 
-private:
+  private:
 	uint32_t _width;
 	uint8_t _height_bits;
 };
-
-
 }
 
 #endif

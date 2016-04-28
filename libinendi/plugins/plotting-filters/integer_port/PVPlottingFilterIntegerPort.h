@@ -11,17 +11,17 @@
 #include <pvkernel/core/general.h>
 #include <inendi/PVPlottingFilter.h>
 
-namespace Inendi {
-
-class PVPlottingFilterIntegerPort: public PVPlottingFilter
+namespace Inendi
 {
-public:
+
+class PVPlottingFilterIntegerPort : public PVPlottingFilter
+{
+  public:
 	uint32_t* operator()(mapped_decimal_storage_type const* values) override;
 	QString get_human_name() const { return QString("TCP/UDP port"); }
 
 	CLASS_FILTER(PVPlottingFilterIntegerPort)
 };
-
 }
 
 #endif

@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -9,7 +9,9 @@
 
 #include "PVElasticsearchSource.h"
 
-PVRush::PVSourceCreatorElasticsearch::source_p PVRush::PVSourceCreatorElasticsearch::create_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorElasticsearch::source_p
+PVRush::PVSourceCreatorElasticsearch::create_source_from_input(PVInputDescription_p input,
+                                                               const PVFormat& /*format*/) const
 {
 	source_p src(new PVRush::PVElasticsearchSource(input));
 

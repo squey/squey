@@ -11,7 +11,8 @@
 #include <QObject>
 #include <QEvent>
 
-namespace PVInspector {
+namespace PVInspector
+{
 class PVMainWindow;
 class PVLayerStackView;
 
@@ -22,26 +23,25 @@ class PVLayerStackEventFilter : public QObject
 {
 	Q_OBJECT
 
-		PVMainWindow     *main_window;
-		PVLayerStackView *layer_stack_view;
+	PVMainWindow* main_window;
+	PVLayerStackView* layer_stack_view;
 
-	public:
-		/**
-		 *  Constructor.
-		 *
-		 *  @param mw
-		 *  @param parent
-		 */
-		PVLayerStackEventFilter(PVMainWindow *mw, PVLayerStackView *parent);
+  public:
+	/**
+	 *  Constructor.
+	 *
+	 *  @param mw
+	 *  @param parent
+	 */
+	PVLayerStackEventFilter(PVMainWindow* mw, PVLayerStackView* parent);
 
-		/**
-		 *
-		 * @param watched
-		 * @param event
-		 */
-		bool eventFilter(QObject *watched, QEvent *event);
+	/**
+	 *
+	 * @param watched
+	 * @param event
+	 */
+	bool eventFilter(QObject* watched, QEvent* event);
 };
 }
 
 #endif // PVLAYERSTACKEVENTFILTER_H
-

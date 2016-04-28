@@ -12,7 +12,7 @@
 static std::string get_inendi_plugins_path()
 {
 	const char* path = std::getenv("INENDI_PLUGIN_PATH");
-	if(path) {
+	if (path) {
 		return path;
 	}
 	return INENDI_PLUGIN_PATH;

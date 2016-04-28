@@ -10,18 +10,15 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace PVCore {
-
-template <typename V, size_t MAX_DEPTH>
-class PVListFastCmp
+namespace PVCore
 {
-public:
-	PVListFastCmp():
-		_cur_size(0),
-		_hash(0)
-	{ }
 
-public:
+template <typename V, size_t MAX_DEPTH> class PVListFastCmp
+{
+  public:
+	PVListFastCmp() : _cur_size(0), _hash(0) {}
+
+  public:
 	inline void clear()
 	{
 		_hash = 0;
@@ -62,12 +59,12 @@ public:
 
 		return true;
 	}
-private:
+
+  private:
 	V _v[MAX_DEPTH];
 	size_t _cur_size;
 	size_t _hash;
 };
-
 }
 
 #endif

@@ -13,10 +13,10 @@
 
 #include <pvkernel/core/general.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
-	QStringList normalize_get_helpers_plugins_dirs(QString helper);
-
+QStringList normalize_get_helpers_plugins_dirs(QString helper);
 };
 
-#endif	/* PVRUSH_PVNORMALIZER_H */
+#endif /* PVRUSH_PVNORMALIZER_H */

@@ -29,9 +29,8 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::zoom_y_available() 
  * PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::set_zoom_value
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::set_zoom_value(int axes, int value,
-	      PVParallelView::PVAxisZoom &zx,
-	      PVParallelView::PVAxisZoom &zy)
+bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::set_zoom_value(
+    int axes, int value, PVParallelView::PVAxisZoom& zx, PVParallelView::PVAxisZoom& zy)
 {
 	if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
 		set_clamped_value(zx, value);
@@ -46,9 +45,8 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::set_zoom_value(int 
  * PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::increment_zoom_value
  *****************************************************************************/
 
-bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::increment_zoom_value(int axes, int value,
-	            PVParallelView::PVAxisZoom &zx,
-	            PVParallelView::PVAxisZoom &zy)
+bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::increment_zoom_value(
+    int axes, int value, PVParallelView::PVAxisZoom& zx, PVParallelView::PVAxisZoom& zy)
 {
 	if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
 		set_clamped_value(zx, zx.get_value() + value);
@@ -63,6 +61,7 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::increment_zoom_valu
  * PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::adjust_pan
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::adjust_pan(QScrollBar64 */*xsb*/,
-	  QScrollBar64 */*ysb*/)
-{}
+void PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::adjust_pan(QScrollBar64* /*xsb*/,
+                                                                        QScrollBar64* /*ysb*/)
+{
+}

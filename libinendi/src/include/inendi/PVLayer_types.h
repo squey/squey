@@ -8,10 +8,10 @@
 #ifndef INENDI_PVLAYER_TYPES_H
 #define INENDI_PVLAYER_TYPES_H
 
-namespace Inendi {
+namespace Inendi
+{
 
 class PVLayer;
-
 }
 
 #endif

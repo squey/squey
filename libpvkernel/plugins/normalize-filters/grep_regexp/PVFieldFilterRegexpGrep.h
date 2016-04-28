@@ -12,23 +12,25 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <regex>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldFilterRegexpGrep: public PVFieldsFilter<one_to_one> {
-public:
-	PVFieldFilterRegexpGrep(PVCore::PVArgumentList const& args = PVFieldFilterRegexpGrep::default_args());
+class PVFieldFilterRegexpGrep : public PVFieldsFilter<one_to_one>
+{
+  public:
+	PVFieldFilterRegexpGrep(
+	    PVCore::PVArgumentList const& args = PVFieldFilterRegexpGrep::default_args());
 	void set_args(PVCore::PVArgumentList const& args) override;
 
-public:
+  public:
 	PVCore::PVField& one_to_one(PVCore::PVField& obj) override;
 
-private:
+  private:
 	std::regex _rx;
 	bool _inverse;
 
 	CLASS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 };
-
 }
 
 #endif

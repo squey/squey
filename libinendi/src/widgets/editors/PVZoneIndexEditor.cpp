@@ -17,9 +17,8 @@
  * PVCore::PVZoneIndexEditor::PVZoneIndexEditor
  *
  *****************************************************************************/
-PVWidgets::PVZoneIndexEditor::PVZoneIndexEditor(Inendi::PVView const& view, QWidget *parent):
-	QComboBox(parent),
-	_view(view)
+PVWidgets::PVZoneIndexEditor::PVZoneIndexEditor(Inendi::PVView const& view, QWidget* parent)
+    : QComboBox(parent), _view(view)
 {
 }
 

@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -11,13 +11,16 @@
 
 #include "../../common/elasticsearch/PVElasticsearchInfos.h"
 
-PVRush::PVInputTypeElasticsearch::PVInputTypeElasticsearch() :
-	PVInputTypeDesc<PVElasticsearchQuery>(),
-	_is_custom_format(false)
+PVRush::PVInputTypeElasticsearch::PVInputTypeElasticsearch()
+    : PVInputTypeDesc<PVElasticsearchQuery>(), _is_custom_format(false)
 {
 }
 
-bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& /*args_ext*/, QWidget* parent) const
+bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
+                                                    hash_formats& /*new_formats*/,
+                                                    list_inputs& inputs, QString& format,
+                                                    PVCore::PVArgumentList& /*args_ext*/,
+                                                    QWidget* parent) const
 {
 	connect_parent(parent);
 	PVElasticsearchParamsWidget* params = new PVElasticsearchParamsWidget(this, formats, parent);
@@ -29,7 +32,6 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
 
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);
-
 
 	format = INENDI_BROWSE_FORMAT_STR;
 
@@ -67,7 +69,8 @@ QString PVRush::PVInputTypeElasticsearch::tab_name_of_inputs(list_inputs const& 
 	return query->human_name();
 }
 
-bool PVRush::PVInputTypeElasticsearch::get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const
+bool PVRush::PVInputTypeElasticsearch::get_custom_formats(PVInputDescription_p /*in*/,
+                                                          hash_formats& /*formats*/) const
 {
 	return false;
 }

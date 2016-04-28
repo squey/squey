@@ -21,12 +21,13 @@
  * main
  *****************************************************************************/
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	tbb::tick_count t1, t2;
 
 	if (argc <= 3) {
-		std::cerr << "usage: " << argv[0] << " actions_per_actors actors_number observers" << std::endl;
+		std::cerr << "usage: " << argv[0] << " actions_per_actors actors_number observers"
+		          << std::endl;
 		return 1;
 	}
 
@@ -36,11 +37,10 @@ int main(int argc, char **argv)
 	char title[512];
 
 	Block_p block = Block_p(new Block(1));
-	BlockObs *observers = new BlockObs [obs_num];
-	BlockAct *actors = new BlockAct [actor_num];
+	BlockObs* observers = new BlockObs[obs_num];
+	BlockAct* actors = new BlockAct[actor_num];
 
-	PVHive::PVHive &hive = PVHive::PVHive::get();
-
+	PVHive::PVHive& hive = PVHive::PVHive::get();
 
 	std::cout << "# init" << std::endl;
 	hive.register_object(block);
@@ -53,7 +53,6 @@ int main(int argc, char **argv)
 		actors[i] = BlockAct();
 		hive.register_actor(block, actors[i]);
 	}
-
 
 	long v = 100, ov = -1;
 	std::cout << "# doing calls (it can take a while)" << std::endl;
@@ -85,5 +84,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-
-

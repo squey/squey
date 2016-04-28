@@ -23,31 +23,26 @@ namespace PVParallelView
 
 class PVAbstractAxisSliders;
 
-enum PVAxisSliderOrientation {
-	Min,
-	Max
-};
+enum PVAxisSliderOrientation { Min, Max };
 
 class PVAbstractAxisSlider : public QGraphicsObject
 {
-Q_OBJECT
+	Q_OBJECT
 
-public:
+  public:
 	constexpr static int64_t min_value = 0LL;
 	constexpr static int64_t max_value = (1LL << 32);
 
-public:
+  public:
 	PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
-	                     PVAxisSliderOrientation orientation = Min, QGraphicsItem* parent_item = nullptr);
+	                     PVAxisSliderOrientation orientation = Min,
+	                     QGraphicsItem* parent_item = nullptr);
 
 	~PVAbstractAxisSlider();
 
 	void set_value(int64_t v);
 
-	inline int64_t get_value() const
-	{
-		return _offset;
-	}
+	inline int64_t get_value() const { return _offset; }
 
 	void set_range(int64_t omin, int64_t omax)
 	{
@@ -55,49 +50,43 @@ public:
 		_offset_max = omax;
 	}
 
-	void set_owner(PVAbstractAxisSliders *owner)
-	{
-		_owner = owner;
-	}
+	void set_owner(PVAbstractAxisSliders* owner) { _owner = owner; }
 
-	bool is_moving() const
-	{
-		return _moving;
-	}
+	bool is_moving() const { return _moving; }
 
-public:
-	virtual QRectF boundingRect () const = 0;
+  public:
+	virtual QRectF boundingRect() const = 0;
 
-	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
+	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	                   QWidget* widget = 0) override;
 
 signals:
 	void slider_moved();
 
-protected:
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
-	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
+  protected:
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent* event);
+	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
 
 	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 	virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
 	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 
-	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* event);
 
 	bool mouse_is_hover() const { return _is_hover; }
 
-protected:
-	int64_t                 _offset_min;
-	int64_t                 _offset_max;
-	int64_t                 _offset;
-	double                  _move_offset;
+  protected:
+	int64_t _offset_min;
+	int64_t _offset_max;
+	int64_t _offset;
+	double _move_offset;
 	PVAxisSliderOrientation _orientation;
-	bool                    _moving;
-	bool                    _is_hover;
-	PVAbstractAxisSliders  *_owner;
-	bool                    _removable;
+	bool _moving;
+	bool _is_hover;
+	PVAbstractAxisSliders* _owner;
+	bool _removable;
 };
-
 }
 
 #endif // PVPARALLELVIEW_PVABSTRACTAXISSLIDER_H

@@ -11,14 +11,12 @@
 
 #include <pvkernel/core/environ.h>
 
-int PVCore::mkenv(const char *name, const char *value)
+int PVCore::mkenv(const char* name, const char* value)
 {
-  return setenv(name, value, 0);
+	return setenv(name, value, 0);
 }
 
-int PVCore::rmenv(const char *name)
+int PVCore::rmenv(const char* name)
 {
-  return unsetenv(name);
+	return unsetenv(name);
 }
-
-

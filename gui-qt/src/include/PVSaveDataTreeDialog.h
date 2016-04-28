@@ -14,23 +14,24 @@
 #include <QFileDialog>
 #include <QWidget>
 
-namespace PVInspector {
+namespace PVInspector
+{
 
-class PVSaveDataTreeDialog: public QFileDialog
+class PVSaveDataTreeDialog : public QFileDialog
 {
 	Q_OBJECT
-public:
-	PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options, QString const& suffix, QString const& filter, QWidget* parent);
+  public:
+	PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options, QString const& suffix,
+	                     QString const& filter, QWidget* parent);
 
-protected slots:
+  protected slots:
 	void include_files_Slot(int state);
 	void tab_changed_Slot(int idx);
 
-protected:
+  protected:
 	PVCore::PVSerializeArchiveOptions& _options;
 	QCheckBox* _save_everything_checkbox;
 };
-
 }
 
 #endif

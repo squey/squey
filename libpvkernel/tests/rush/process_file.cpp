@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 	}
 	PVLOG_INFO("Source created.\n");
 
-	//getchar();
+	// getchar();
 	// Create the extractor
 	{
 		PVRush::PVExtractor ext;
@@ -79,7 +79,6 @@ int main(int argc, char** argv)
 		job->wait_end();
 
 		dump_nraw_csv(ext.get_nraw());
-
 	}
 
 	// Dump the NRAW to stdout

@@ -11,19 +11,14 @@
 #include <pvparallelview/PVZonesProcessor.h>
 
 PVParallelView::PVScatterViewImagesManager::PVScatterViewImagesManager(
-	PVZoneID const zid,
-	PVZonesProcessor& zp_bg,
-	PVZonesProcessor& zp_sel,
-	PVZonesManager const& zm,
-	const PVCore::PVHSVColor* colors,
-	Inendi::PVSelection const& sel
-):
-	_zm(zm),
-	_sel(sel),
-	_colors(colors),
-	_zp_bg(zp_bg),
-	_zp_sel(zp_sel),
-	_img_update_receiver(nullptr)
+    PVZoneID const zid, PVZonesProcessor& zp_bg, PVZonesProcessor& zp_sel, PVZonesManager const& zm,
+    const PVCore::PVHSVColor* colors, Inendi::PVSelection const& sel)
+    : _zm(zm)
+    , _sel(sel)
+    , _colors(colors)
+    , _zp_bg(zp_bg)
+    , _zp_sel(zp_sel)
+    , _img_update_receiver(nullptr)
 {
 	set_zone(zid);
 }
@@ -54,13 +49,8 @@ void PVParallelView::PVScatterViewImagesManager::set_zone(PVZoneID const zid)
 }
 
 bool PVParallelView::PVScatterViewImagesManager::change_and_process_view(
-	const uint64_t y1_min,
-	const uint64_t y1_max,
-	const uint64_t y2_min,
-	const uint64_t y2_max,
-	const int zoom,
-	const double alpha
-)
+    const uint64_t y1_min, const uint64_t y1_max, const uint64_t y2_min, const uint64_t y2_max,
+    const int zoom, const double alpha)
 {
 	DataProcessParams params;
 	bool ret = false;
@@ -102,11 +92,13 @@ void PVParallelView::PVScatterViewImagesManager::process_bg(DataProcessParams co
 	PVScatterViewData& data = _data;
 
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, process_params,
-			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
-			{
-				PVScatterViewImagesManager::copy_processed_in_processing(params, data_if.image_bg_processing(), data_if.image_bg());
-				data_if.process_image_bg(params, &ctxt);
-			}));
+	                                                       [&](PVScatterViewDataInterface& data_if,
+	                                                           DataProcessParams const& params,
+	                                                           tbb::task_group_context& ctxt) {
+		PVScatterViewImagesManager::copy_processed_in_processing(
+		    params, data_if.image_bg_processing(), data_if.image_bg());
+		data_if.process_image_bg(params, &ctxt);
+	}));
 
 	connect_zr(*zr, "update_img_bg");
 
@@ -114,22 +106,24 @@ void PVParallelView::PVScatterViewImagesManager::process_bg(DataProcessParams co
 	_zr_bg = zr;
 	if (old_zr) {
 		old_zr->cancel_and_add_job(_zp_bg, zr);
-	}
-	else {
+	} else {
 		_zp_bg.add_job(zr);
 	}
 }
 
-void PVParallelView::PVScatterViewImagesManager::process_sel(DataProcessParams const& process_params)
+void
+PVParallelView::PVScatterViewImagesManager::process_sel(DataProcessParams const& process_params)
 {
 	PVScatterViewData& data = _data;
 
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(_zid, data, process_params,
-			[&](PVScatterViewDataInterface& data_if, DataProcessParams const& params, tbb::task_group_context& ctxt)
-			{
-				PVScatterViewImagesManager::copy_processed_in_processing(params, data_if.image_sel_processing(), data_if.image_sel());
-				data_if.process_image_sel(params, this->_sel, &ctxt);
-			}));
+	                                                       [&](PVScatterViewDataInterface& data_if,
+	                                                           DataProcessParams const& params,
+	                                                           tbb::task_group_context& ctxt) {
+		PVScatterViewImagesManager::copy_processed_in_processing(
+		    params, data_if.image_sel_processing(), data_if.image_sel());
+		data_if.process_image_sel(params, this->_sel, &ctxt);
+	}));
 
 	connect_zr(*zr, "update_img_sel");
 
@@ -137,8 +131,7 @@ void PVParallelView::PVScatterViewImagesManager::process_sel(DataProcessParams c
 	_zr_sel = zr;
 	if (old_zr) {
 		old_zr->cancel_and_add_job(_zp_sel, zr);
-	}
-	else {
+	} else {
 		_zp_sel.add_job(zr);
 	}
 }
@@ -170,25 +163,24 @@ const QImage& PVParallelView::PVScatterViewImagesManager::get_image_all() const
 	return data.image_bg().get_rgb_image();
 }
 
-void PVParallelView::PVScatterViewImagesManager::connect_zr(PVZoneRenderingScatter& zr, const char* slot)
+void PVParallelView::PVScatterViewImagesManager::connect_zr(PVZoneRenderingScatter& zr,
+                                                            const char* slot)
 {
 	if (_img_update_receiver) {
 		zr.set_render_finished_slot(_img_update_receiver, slot);
 	}
 }
 
-void PVParallelView::PVScatterViewImagesManager::copy_processed_in_processing(DataProcessParams const& params, PVScatterViewImage& processing, PVScatterViewImage const& processed)
+void PVParallelView::PVScatterViewImagesManager::copy_processed_in_processing(
+    DataProcessParams const& params, PVScatterViewImage& processing,
+    PVScatterViewImage const& processed)
 {
 	processing.clear();
 
 	if (params.can_optimize_translation()) {
-		PVCore::memcpy2d(
-			processing.get_hsv_image(),
-			processed.get_hsv_image(),
-			PVScatterViewImage::image_width,
-			PVScatterViewImage::image_height,
-			params.map_to_view(params.y1_offset),
-			params.map_to_view(params.y2_offset)
-		);
+		PVCore::memcpy2d(processing.get_hsv_image(), processed.get_hsv_image(),
+		                 PVScatterViewImage::image_width, PVScatterViewImage::image_height,
+		                 params.map_to_view(params.y1_offset),
+		                 params.map_to_view(params.y2_offset));
 	}
 }

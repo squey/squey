@@ -21,7 +21,6 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 IMPL_WAX(MyObject::set_prop, o, args)
@@ -42,24 +41,30 @@ IMPL_WAX(MyObject::set_i, o, args)
 
 /*
 template <typename P>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, P>(MyObject* o, P&& i)
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2),
+&MyObject::set_i2, P>(MyObject* o, P&& i)
 {
-	std::cout << "  PVHive::call_object for MyObject::set_i2" << std::endl;
-	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2>(o, i);
+        std::cout << "  PVHive::call_object for MyObject::set_i2" << std::endl;
+        std::cout << "    in thread " << boost::this_thread::get_id() <<
+std::endl;
+        call_object_default<MyObject, decltype(&MyObject::set_i2),
+&MyObject::set_i2>(o, i);
 }*/
 
 PVHIVE_CALL_OBJECT_BLOCK_END()
 
 /* would be nice to have:
 
-a "class_func" class whose type defines completely a emberfunction of a class (see boost::function_traits that can help !)
-a helper function "func" that creates class_func given a pointer-to-member function
+a "class_func" class whose type defines completely a emberfunction of a class
+(see boost::function_traits that can help !)
+a helper function "func" that creates class_func given a pointer-to-member
+function
 
 template <>
-void Hive::call_object<decltype(func(&MyObject::set_prop))>(MyObject* o, boost::reference_wrapper<ObjectProperty const> p)
+void Hive::call_object<decltype(func(&MyObject::set_prop))>(MyObject* o,
+boost::reference_wrapper<ObjectProperty const> p)
 {
-	// etc...
+        // etc...
 }
 */
 
@@ -70,14 +75,19 @@ void update_prop(PVHive::PVHive& cc, MyObject_p& o)
 
 	std::cout << "Update thread is " << boost::this_thread::get_id() << std::endl;
 	int v = 0;
-	while(true) {
+	while (true) {
 		sleep(1);
 		std::cout << "Update prop to " << v << std::endl;
-		//ObjectProperty tmp(v);
-		//std::cout << "Before calling set_prop, ObjectProperty address: " << &tmp << std::endl;
-		//actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::reference_wrapper<ObjectProperty const>(tmp));
-		//static_assert(std::is_same<decltype(boost::cref(tmp)), boost::reference_wrapper<ObjectProperty const> const>::value, "test");
-		//actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::cref(ObjectProperty(v)));
+		// ObjectProperty tmp(v);
+		// std::cout << "Before calling set_prop, ObjectProperty address: " << &tmp
+		// << std::endl;
+		// actor.call<decltype(&MyObject::set_prop),
+		// &MyObject::set_prop>(boost::reference_wrapper<ObjectProperty
+		// const>(tmp));
+		// static_assert(std::is_same<decltype(boost::cref(tmp)),
+		// boost::reference_wrapper<ObjectProperty const> const>::value, "test");
+		// actor.call<decltype(&MyObject::set_prop),
+		// &MyObject::set_prop>(boost::cref(ObjectProperty(v)));
 		ObjectProperty op(v);
 		actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(op);
 		v++;
@@ -91,16 +101,21 @@ int main(int argc, char** argv)
 	MyObjObserver observer;
 
 	auto observer_callback = PVHive::create_observer_callback<MyObject>(
-			[](MyObject const* o) { std::cout << "  Callback about_to_be_refreshed to i=" << o->get_i() << std::endl; },
-			[](MyObject const* o) { std::cout << "  Callback refresh to i=" << o->get_i() << std::endl; },
-			[](MyObject const* o) { std::cout << "  Callback delete for i=" << o->get_i() << std::endl; }
-		);
+	    [](MyObject const* o) {
+		    std::cout << "  Callback about_to_be_refreshed to i=" << o->get_i() << std::endl;
+		},
+	    [](MyObject const* o) {
+		    std::cout << "  Callback refresh to i=" << o->get_i() << std::endl;
+		},
+	    [](MyObject const* o) {
+		    std::cout << "  Callback delete for i=" << o->get_i() << std::endl;
+		});
 
 	QApplication app(argc, argv);
 
 	std::cout << "Main thread is " << boost::this_thread::get_id() << std::endl;
 
-	PVHive::PVHive &hive = PVHive::PVHive::get();
+	PVHive::PVHive& hive = PVHive::PVHive::get();
 
 	hive.register_object(o);
 	hive.register_actor(o, actor);
@@ -110,7 +125,7 @@ int main(int argc, char** argv)
 	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(8);
 	int i = 4;
 	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(i);
-	//actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
+	// actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
 
 	TestDlg* dlg = new TestDlg(o, NULL);
 	dlg->show();

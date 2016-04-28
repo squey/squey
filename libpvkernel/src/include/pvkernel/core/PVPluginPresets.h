@@ -10,13 +10,15 @@
 
 #include <pvkernel/core/PVFunctionArgs.h>
 
-namespace PVCore {
+namespace PVCore
+{
 
-namespace __impl {
+namespace __impl
+{
 
 class PVPluginPresets
 {
-public:
+  public:
 	PVPluginPresets(PVFunctionArgsBase* fargs, QString const& registered_name, QString const& path);
 
 	QStringList list_presets() const;
@@ -30,22 +32,20 @@ public:
 	PVArgumentList get_args_for_preset() const;
 	bool can_have_presets() const;
 
-private:
+  private:
 	PVFunctionArgsBase* _fargs;
-	QString     	    _abs_reg_name;
+	QString _abs_reg_name;
 };
-
 }
 
-template <class T>
-class PVPluginPresets: public __impl::PVPluginPresets
+template <class T> class PVPluginPresets : public __impl::PVPluginPresets
 {
-public:
-	PVPluginPresets(T& o, QString const& path):
-		__impl::PVPluginPresets(dynamic_cast<PVFunctionArgsBase*>(&o), o.registered_name(), path)
-	{ }
+  public:
+	PVPluginPresets(T& o, QString const& path)
+	    : __impl::PVPluginPresets(dynamic_cast<PVFunctionArgsBase*>(&o), o.registered_name(), path)
+	{
+	}
 };
-
 }
 
 #endif // PVCORE_PVPLUGIN_PRESETS_H

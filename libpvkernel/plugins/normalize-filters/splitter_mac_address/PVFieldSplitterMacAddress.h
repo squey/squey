@@ -12,7 +12,8 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
 /**
  * Split mac address with device part and constructor part.
@@ -20,15 +21,14 @@ namespace PVFilter {
 class PVFieldSplitterMacAddress : public PVFieldsFilter<one_to_many>
 {
 
-public:
+  public:
 	PVFieldSplitterMacAddress();
-	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l,
+	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
 	                                           PVCore::list_fields::iterator it_ins,
-	                                           PVCore::PVField &field);
+	                                           PVCore::PVField& field);
 
 	CLASS_FILTER_NOPARAM(PVFilter::PVFieldSplitterMacAddress)
 };
-
 }
 
 #endif // PVFILTER_PVFIELDMACADDRESS_H

@@ -17,32 +17,34 @@
 #include <QVariant>
 #include <QHash>
 
-namespace PVCore {
+namespace PVCore
+{
 
 class PVSerializeArchiveOptions;
 
-class PVSerializeArchive: public std::enable_shared_from_this<PVSerializeArchive>
+class PVSerializeArchive : public std::enable_shared_from_this<PVSerializeArchive>
 {
 	friend class PVSerializeObject;
-public:
-	enum archive_mode {
-		read = 0,
-		write
-	};
+
+  public:
+	enum archive_mode { read = 0, write };
 	typedef uint32_t version_t;
-	typedef QList<std::shared_ptr<PVSerializeArchiveFixError> > list_errors_t;
-public:
+	typedef QList<std::shared_ptr<PVSerializeArchiveFixError>> list_errors_t;
+
+  public:
 	PVSerializeArchive(version_t version);
 	PVSerializeArchive(QString const& dir, archive_mode mode, version_t version);
 
 	virtual ~PVSerializeArchive();
 
-protected:
-	PVSerializeArchive(const PVSerializeArchive& obj):
-		std::enable_shared_from_this<PVSerializeArchive>(obj)
-	{ assert(false); }
+  protected:
+	PVSerializeArchive(const PVSerializeArchive& obj)
+	    : std::enable_shared_from_this<PVSerializeArchive>(obj)
+	{
+		assert(false);
+	}
 
-public:
+  public:
 	void open(QString const& dir, archive_mode mode);
 	PVSerializeObject_p get_root();
 	version_t get_version() const;
@@ -53,13 +55,11 @@ public:
 
 	// Repairable errors
 	inline bool has_repairable_errors() const { return _repairable_errors.size() > 0; }
-	template <class T>
-	bool has_repairable_errors_of_type() const;
+	template <class T> bool has_repairable_errors_of_type() const;
 	inline list_errors_t const& get_repairable_errors() const { return _repairable_errors; }
-	template <class T>
-	list_errors_t get_repairable_errors_of_type() const;
+	template <class T> list_errors_t get_repairable_errors_of_type() const;
 
-protected:
+  protected:
 	bool is_writing() const { return _mode == write; }
 	QString get_object_logical_path(PVSerializeObject const& so) { return so.get_logical_path(); };
 	PVSerializeObject_p allocate_object(QString const& name, PVSerializeObject* parent);
@@ -69,18 +69,24 @@ protected:
 	PVSerializeObject_p get_object_by_path(QString const& path) const;
 	bool object_exists_by_path(QString const& path) const;
 
-protected:
+  protected:
 	// If you want to create another way of storing archives, you must reimplement these functions
-	
+
 	// Object create function
 	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject* parent);
 	// Attribute access functions
-	virtual void attribute_write(PVSerializeObject const& so, QString const& name, QVariant const& obj);
-	virtual void attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj, QVariant const& def);
-	virtual void list_attributes_write(PVSerializeObject const& so, QString const& name, std::vector<QVariant> const& obj);
-	virtual void list_attributes_read(PVSerializeObject const& so, QString const& name, std::vector<QVariant>& obj);
-	virtual void hash_arguments_write(PVSerializeObject const& so, QString const& name, PVArgumentList const& obj);
-	void hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
+	virtual void attribute_write(PVSerializeObject const& so, QString const& name,
+	                             QVariant const& obj);
+	virtual void attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj,
+	                            QVariant const& def);
+	virtual void list_attributes_write(PVSerializeObject const& so, QString const& name,
+	                                   std::vector<QVariant> const& obj);
+	virtual void list_attributes_read(PVSerializeObject const& so, QString const& name,
+	                                  std::vector<QVariant>& obj);
+	virtual void hash_arguments_write(PVSerializeObject const& so, QString const& name,
+	                                  PVArgumentList const& obj);
+	void hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj,
+	                         PVArgumentList const& def_args);
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
 	virtual void buffer_path(PVSerializeObject const& so, QString const& name, QString& path);
 	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
@@ -91,12 +97,12 @@ protected:
 
 	QString get_object_path_in_archive(const void* obj_ptr) const;
 
-private:
+  private:
 	void init();
 	void create_attributes(PVSerializeObject const& so);
 	QString get_object_config_path(PVSerializeObject const& so) const;
 
-protected:
+  protected:
 	PVSerializeObject_p _root_obj;
 	archive_mode _mode;
 	QString _root_dir;
@@ -108,7 +114,7 @@ protected:
 	 */
 	QHash<QString, PVSerializeObject_p> _objects;
 
-private:
+  private:
 	std::shared_ptr<PVSerializeArchiveOptions> _options;
 	bool _save_everything;
 
@@ -116,11 +122,9 @@ private:
 	 *  \sa repairable_error
 	 */
 	list_errors_t _repairable_errors;
-
 };
 
-template <class T>
-bool PVSerializeArchive::has_repairable_errors_of_type() const
+template <class T> bool PVSerializeArchive::has_repairable_errors_of_type() const
 {
 	list_errors_t::const_iterator it;
 	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
@@ -143,7 +147,6 @@ PVSerializeArchive::list_errors_t PVSerializeArchive::get_repairable_errors_of_t
 	}
 	return ret;
 }
-
 }
 
 #endif

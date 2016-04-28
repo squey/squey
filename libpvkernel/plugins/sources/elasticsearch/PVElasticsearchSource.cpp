@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * 
+ *
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
@@ -16,16 +16,16 @@
 
 #include <string>
 
-PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input):
-	PVRawSourceBase(),
-	_next_index(0),
-	_query(*dynamic_cast<PVElasticsearchQuery*>(input.get())),
-	_elasticsearch(_query.get_infos())
+PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input)
+    : PVRawSourceBase()
+    , _next_index(0)
+    , _query(*dynamic_cast<PVElasticsearchQuery*>(input.get()))
+    , _elasticsearch(_query.get_infos())
 {
 	const PVElasticsearchInfos& infos = _query.get_infos();
 
 	PVLOG_INFO("Create elasticsearch source with: host=%s, port=%d, index=%s\n",
-		qPrintable(infos.get_host()), infos.get_port(), qPrintable(infos.get_index()));
+	           qPrintable(infos.get_host()), infos.get_port(), qPrintable(infos.get_index()));
 }
 
 PVRush::PVElasticsearchSource::~PVElasticsearchSource()
@@ -86,8 +86,8 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();
-	if (_next_index-1>_last_elt_index) {
-		_last_elt_index = _next_index-1;
+	if (_next_index - 1 > _last_elt_index) {
+		_last_elt_index = _next_index - 1;
 	}
 
 	return chunk;

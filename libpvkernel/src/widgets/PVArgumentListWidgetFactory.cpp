@@ -26,23 +26,32 @@
 QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory()
 {
 	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
-	QItemEditorCreatorBase *pv_enum_creator = new QStandardItemEditorCreator<PVWidgets::PVEnumEditor>();
-	QItemEditorCreatorBase *regexp_creator = new QStandardItemEditorCreator<PVWidgets::PVRegexpEditor>();
-	QItemEditorCreatorBase *dualslider_creator = new QStandardItemEditorCreator<PVWidgets::PVColorGradientDualSliderEditor>();
-	QItemEditorCreatorBase *plaintext_creator = new QStandardItemEditorCreator<PVWidgets::PVPlainTextEditor>();
-	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
-	QItemEditorCreatorBase *pv_checkbox_creator = new QItemEditorCreator<QCheckBox>("checked");
-	QItemEditorCreatorBase *percentrange_creator = new QStandardItemEditorCreator<PVWidgets::PVPercentRangeEditor>();
+	QItemEditorCreatorBase* pv_enum_creator =
+	    new QStandardItemEditorCreator<PVWidgets::PVEnumEditor>();
+	QItemEditorCreatorBase* regexp_creator =
+	    new QStandardItemEditorCreator<PVWidgets::PVRegexpEditor>();
+	QItemEditorCreatorBase* dualslider_creator =
+	    new QStandardItemEditorCreator<PVWidgets::PVColorGradientDualSliderEditor>();
+	QItemEditorCreatorBase* plaintext_creator =
+	    new QStandardItemEditorCreator<PVWidgets::PVPlainTextEditor>();
+	QItemEditorCreatorBase* qstr_creator = new QItemEditorCreator<QLineEdit>("text");
+	QItemEditorCreatorBase* pv_checkbox_creator = new QItemEditorCreator<QCheckBox>("checked");
+	QItemEditorCreatorBase* percentrange_creator =
+	    new QStandardItemEditorCreator<PVWidgets::PVPercentRangeEditor>();
 
 	// And register them into the factory
 	args_widget_factory->registerEditor(QVariant::Bool, pv_checkbox_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVEnumType>(), pv_enum_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVPlainTextType>(), plaintext_creator);
+	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVEnumType>(),
+	                                    pv_enum_creator);
+	args_widget_factory->registerEditor(
+	    (QVariant::Type)qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
+	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVPlainTextType>(),
+	                                    plaintext_creator);
 	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
 
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVPercentRangeType>(), percentrange_creator);
+	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVPercentRangeType>(),
+	                                    percentrange_creator);
 
 	return args_widget_factory;
 }

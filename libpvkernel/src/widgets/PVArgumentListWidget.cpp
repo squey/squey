@@ -30,71 +30,55 @@
  *****************************************************************************/
 static void clearLayout(QLayout* layout)
 {
-	while (QLayoutItem* item = layout->takeAt(0))
-	{
+	while (QLayoutItem* item = layout->takeAt(0)) {
 		if (QWidget* widget = item->widget()) {
 			widget->deleteLater();
-		}
-		else
-		if (QLayout* childLayout = item->layout()) {
+		} else if (QLayout* childLayout = item->layout()) {
 			clearLayout(childLayout);
 		}
 		delete item;
 	}
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListWidget::PVArgumentListWidget
  *
  *****************************************************************************/
-PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent):
-	QWidget(parent),
-	_args_widget_factory(NULL),
-	_args(NULL),
-	_mapper(NULL)
+PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent)
+    : QWidget(parent), _args_widget_factory(NULL), _args(NULL), _mapper(NULL)
 {
 	clear_args_state();
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListWidget::PVArgumentListWidget
  *
  *****************************************************************************/
-PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent):
-	QWidget(parent),
-	_args_widget_factory(args_widget_factory),
-	_args(NULL)
+PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
+                                                      QWidget* parent)
+    : QWidget(parent), _args_widget_factory(args_widget_factory), _args(NULL)
 {
 	assert(_args_widget_factory);
 	init_widgets();
 	clear_args_state();
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListWidget::PVArgumentListWidget
  *
  *****************************************************************************/
-PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent):
-	QWidget(parent),
-	_args_widget_factory(args_widget_factory),
-	_args(&args)
+PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
+                                                      PVCore::PVArgumentList& args, QWidget* parent)
+    : QWidget(parent), _args_widget_factory(args_widget_factory), _args(&args)
 {
 	assert(_args_widget_factory);
 
 	init_widgets();
 	set_args(args);
 }
-
-
 
 /******************************************************************************
  *
@@ -105,8 +89,6 @@ PVWidgets::PVArgumentListWidget::~PVArgumentListWidget()
 {
 	_args_model->deleteLater();
 }
-
-
 
 /******************************************************************************
  *
@@ -119,20 +101,19 @@ void PVWidgets::PVArgumentListWidget::args_changed_Slot(const QModelIndex&, cons
 	emit args_changed_Signal();
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListWidget::create_dialog_for_arguments
  *
  *****************************************************************************/
 // Helper functions
-QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
+QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(
+    QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
 {
 	// Create a dialog with Ok/Cancel buttons that will modify the given arguments
 	// It is the responsability of the user to save the given argument if he wants to retrieve them.
 	// For this purpose, see also modify_arguments_dlg.
-	
+
 	// Widgets
 	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	PVArgumentListWidget* args_widget = new PVArgumentListWidget(widget_factory, args);
@@ -154,8 +135,6 @@ QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(QItemEdito
 	return dlg;
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListWidget::init_widgets
@@ -163,7 +142,7 @@ QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(QItemEdito
  *****************************************************************************/
 void PVWidgets::PVArgumentListWidget::init_widgets()
 {
-	QVBoxLayout *main_layout = new QVBoxLayout();
+	QVBoxLayout* main_layout = new QVBoxLayout();
 	_btn_layout = new QHBoxLayout();
 
 	_args_model = new PVArgumentListModel();
@@ -181,17 +160,18 @@ void PVWidgets::PVArgumentListWidget::init_widgets()
 
 	setLayout(main_layout);
 
-	connect(_args_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(args_changed_Slot(const QModelIndex&, const QModelIndex&)));
+	connect(_args_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this,
+	        SLOT(args_changed_Slot(const QModelIndex&, const QModelIndex&)));
 }
-
-
 
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListWidget::modify_arguments_dlg
  *
  *****************************************************************************/
-bool PVWidgets::PVArgumentListWidget::modify_arguments_dlg(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
+bool PVWidgets::PVArgumentListWidget::modify_arguments_dlg(QItemEditorFactory* widget_factory,
+                                                           PVCore::PVArgumentList& args,
+                                                           QWidget* parent)
 {
 	QDialog* dlg = create_dialog_for_arguments(widget_factory, args, parent);
 	PVCore::PVArgumentList org_args(args);
@@ -203,8 +183,6 @@ bool PVWidgets::PVArgumentListWidget::modify_arguments_dlg(QItemEditorFactory* w
 	dlg->deleteLater();
 	return ret;
 }
-
-
 
 /******************************************************************************
  *
@@ -222,7 +200,7 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 	// Delete all items from this main QGridLayout
 	clearLayout(_args_layout);
 	for (it = args.begin(); it != args.end(); it++) {
-		QVariant::Type vtype = (QVariant::Type) it->value().userType();
+		QVariant::Type vtype = (QVariant::Type)it->value().userType();
 		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
 		QLabel* label = new QLabel(it->key().desc() + QLatin1String(":"));
 		label->setBuddy(widget);
@@ -236,8 +214,6 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 	clear_args_state();
 }
 
-
-
 /******************************************************************************
  *
  * PVWidgets::PVArgumentListWidget::set_args_values
@@ -246,7 +222,7 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 void PVWidgets::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
 {
 	PVCore::PVArgumentKeyList keys_to_change = args.keys();
-	foreach(PVCore::PVArgumentList::key_type const& key, keys_to_change) {
+	foreach (PVCore::PVArgumentList::key_type const& key, keys_to_change) {
 		if (_args->contains(key)) {
 			(*_args)[key] = args.at(key);
 		}
@@ -254,8 +230,6 @@ void PVWidgets::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList con
 	_mapper->revert();
 	args_changed_Slot();
 }
-
-
 
 /******************************************************************************
  *
@@ -268,8 +242,7 @@ void PVWidgets::PVArgumentListWidget::set_widget_factory(QItemEditorFactory* fac
 		_args_widget_factory = factory;
 		if (!_mapper) {
 			init_widgets();
-		}
-		else {
+		} else {
 			QItemDelegate* delegate = new QItemDelegate();
 			delegate->setItemEditorFactory(_args_widget_factory);
 			_mapper->setItemDelegate(delegate);
@@ -279,6 +252,3 @@ void PVWidgets::PVArgumentListWidget::set_widget_factory(QItemEditorFactory* fac
 		}
 	}
 }
-
-
-

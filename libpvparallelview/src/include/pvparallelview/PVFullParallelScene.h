@@ -23,20 +23,14 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVSlidersManager.h>
 
-
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVObserverSignal.h>
 
 #include <tbb/atomic.h>
-#include <tbb/task_group.h>
 
-
-namespace tbb {
-class task;
-}
-
-namespace PVParallelView {
+namespace PVParallelView
+{
 
 class PVFullParallelScene : public QGraphicsScene
 {
@@ -47,11 +41,14 @@ class PVFullParallelScene : public QGraphicsScene
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
 
-public:
+  public:
 	typedef PVSlidersManager::axis_id_t axis_id_t;
 
-public:
-	PVFullParallelScene(PVFullParallelView* full_parallel_view, Inendi::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg);
+  public:
+	PVFullParallelScene(PVFullParallelView* full_parallel_view, Inendi::PVView_sp& view_sp,
+	                    PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend,
+	                    PVZonesManager const& zm, PVZonesProcessor& zp_sel,
+	                    PVZonesProcessor& zp_bg);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
@@ -99,13 +96,13 @@ public:
 
 	QRectF axes_scene_bounding_box() const;
 
-protected:
+  protected:
 	/**
 	 * recompute the selected event number and update the displayed statistics
 	 */
 	void update_selected_event_number();
 
-private slots:
+  private slots:
 	void update_new_selection();
 	void update_all();
 	void update_number_of_zones();
@@ -114,7 +111,7 @@ private slots:
 	void axis_clicked(PVCol col);
 	void disconnect_axes();
 
-private:
+  private:
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
 
@@ -128,8 +125,14 @@ private:
 	void helpEvent(QGraphicsSceneHelpEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-	inline QPointF map_to_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapFromScene(p); }
-	inline QPointF map_from_axis(PVZoneID zone_id, QPointF p) const { return _axes[zone_id]->mapToScene(p); }
+	inline QPointF map_to_axis(PVZoneID zone_id, QPointF p) const
+	{
+		return _axes[zone_id]->mapFromScene(p);
+	}
+	inline QPointF map_from_axis(PVZoneID zone_id, QPointF p) const
+	{
+		return _axes[zone_id]->mapToScene(p);
+	}
 	QRect map_to_axis(PVZoneID zone_id, QRectF rect) const
 	{
 		QRect r = _axes[zone_id]->map_from_scene(rect);
@@ -140,7 +143,7 @@ private:
 
 		const int32_t zone_width = _lines_view.get_zone_width(zone_id);
 		if (r.width() + r.x() > zone_width) {
-			r.setRight(zone_width-1);
+			r.setRight(zone_width - 1);
 		}
 
 		return r;
@@ -155,7 +158,7 @@ private:
 
 	size_t qimage_height() const;
 
-private slots:
+  private slots:
 	void update_zone_pixmap_bg(int zone_id);
 	void update_zone_pixmap_sel(int zone_id);
 	void update_zone_pixmap_bgsel(int zone_id);
@@ -174,28 +177,26 @@ private slots:
 		emit _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}
 
-private slots:
+  private slots:
 	// Slots called from PVLinesView
 	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
-	void zr_bg_finished(PVParallelView::PVZoneRendering_p  zr, int zone_id);
+	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
 
 	void render_all_zones_all_imgs();
 	void render_single_zone_all_imgs();
 
 	void update_axes_layer_min_max();
 
-private:
+  private:
 	int32_t pos_last_axis() const;
 
-private:
+  private:
 	struct SingleZoneImagesItems
 	{
 		QGraphicsPixmapItem* sel;
 		QGraphicsPixmapItem* bg;
 
-		SingleZoneImagesItems()
-		{
-		}
+		SingleZoneImagesItems() {}
 
 		void setPos(QPointF point)
 		{
@@ -228,16 +229,16 @@ private:
 		}
 	};
 
-private:
+  private:
 	typedef std::vector<PVParallelView::PVAxisGraphicsItem*> axes_list_t;
 
-private:
+  private:
 	PVParallelView::PVLinesView _lines_view;
 
 	std::vector<SingleZoneImagesItems> _zones;
-	axes_list_t             _axes;
+	axes_list_t _axes;
 
-	PVHive::PVObserver_p<int>       _obs_selected_layer;
+	PVHive::PVObserver_p<int> _obs_selected_layer;
 	PVHive::PVObserverSignal<int> _section_hover_obs;
 	typedef std::pair<size_t, size_t> section_pos_t;
 	PVHive::PVObserverSignal<section_pos_t> _section_click_obs;
@@ -246,12 +247,12 @@ private:
 
 	PVFullParallelView* _full_parallel_view;
 
-	PVFullParallelViewSelectionRectangle *_sel_rect;
+	PVFullParallelViewSelectionRectangle* _sel_rect;
 
 	qreal _translation_start_x = 0.0;
 
-	float           _zoom_y;
-	float           _axis_length;
+	float _zoom_y;
+	float _axis_length;
 
 	PVSlidersManager_p _sm_p;
 
@@ -262,11 +263,10 @@ private:
 
 	tbb::atomic<bool> _view_deleted;
 
-	bool              _show_min_max_values;
+	bool _show_min_max_values;
 
 	int _hovered_axis_id = -1;
 };
-
 }
 
 #endif // __PVFULLPARALLELSCENE_h__

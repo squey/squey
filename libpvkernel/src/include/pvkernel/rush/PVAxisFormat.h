@@ -25,74 +25,76 @@
 #include <pvkernel/core/PVListFastCmp.h>
 #include <pvkernel/rush/PVTags.h>
 
-namespace PVRush {
+namespace PVRush
+{
 
 class PVXmlParamParser;
 
-class PVAxisFormat {
+class PVAxisFormat
+{
 	friend class PVXmlParamParser;
-public:
+
+  public:
 	typedef PVCore::PVListFastCmp<uint32_t, 2> id_t;
 	typedef QHash<QString, QString> node_args_t;
 
-	public:
-		PVAxisFormat();
+  public:
+	PVAxisFormat();
 
-		QString get_color_str() const { return color.toQColor().name(); }
-		PVCore::PVColor const& get_color() const { return color; }
-		QString get_mapping() const { return mapping; }
-		const QString& get_name() const { return name; }
-		QString get_plotting() const { return plotting; }
-		QString get_titlecolor_str() const { return titlecolor.toQColor().name(); }
-		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
-		QString get_type() const { return type; }
-		QString get_type_format() const { return type_format; }
-		QString get_str_format() const { return _str_format; }
-		node_args_t const& get_args_mapping_string() const { return args_mapping; }
-		node_args_t const& get_args_plotting_string() const { return args_plotting; }
-		id_t const& get_unique_id() const { return unique_id; }
-		PVTags const& get_tags() const { return tags; }
-		bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
+	QString get_color_str() const { return color.toQColor().name(); }
+	PVCore::PVColor const& get_color() const { return color; }
+	QString get_mapping() const { return mapping; }
+	const QString& get_name() const { return name; }
+	QString get_plotting() const { return plotting; }
+	QString get_titlecolor_str() const { return titlecolor.toQColor().name(); }
+	PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
+	QString get_type() const { return type; }
+	QString get_type_format() const { return type_format; }
+	QString get_str_format() const { return _str_format; }
+	node_args_t const& get_args_mapping_string() const { return args_mapping; }
+	node_args_t const& get_args_plotting_string() const { return args_plotting; }
+	id_t const& get_unique_id() const { return unique_id; }
+	PVTags const& get_tags() const { return tags; }
+	bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
 
-		void set_color(QString str);
-		void set_color(PVCore::PVColor color_);
-		void set_mapping(QString str);
-		void set_name(const QString& str);
-		void set_plotting(QString str);
-		void set_titlecolor(QString str);
-		void set_titlecolor(PVCore::PVColor color_);
-		void set_type(QString str);
-		void set_type_format(QString str);
-		void set_args_mapping(node_args_t const& args) { args_mapping = args; }
-		void set_args_plotting(node_args_t const& args) { args_plotting = args; }
-		void add_tag(QString const& tag) { tags.add_tag(tag); }
+	void set_color(QString str);
+	void set_color(PVCore::PVColor color_);
+	void set_mapping(QString str);
+	void set_name(const QString& str);
+	void set_plotting(QString str);
+	void set_titlecolor(QString str);
+	void set_titlecolor(PVCore::PVColor color_);
+	void set_type(QString str);
+	void set_type_format(QString str);
+	void set_args_mapping(node_args_t const& args) { args_mapping = args; }
+	void set_args_plotting(node_args_t const& args) { args_plotting = args; }
+	void add_tag(QString const& tag) { tags.add_tag(tag); }
 
-	public:
-		inline bool operator==(const PVAxisFormat& other)
-		{
-			assert(unique_id_computed);
-			return unique_id == other.unique_id;
-		}
+  public:
+	inline bool operator==(const PVAxisFormat& other)
+	{
+		assert(unique_id_computed);
+		return unique_id == other.unique_id;
+	}
 
-	protected:
-		PVCore::PVColor titlecolor; //!< Color of the title for this axis
-		PVCore::PVColor color; //!< Color for this axis
-		QString name; //!< Name of this axis
-		QString type; //!< Type of this axis
-		QString type_format; //!< Format of the type of this axis
-		QString mapping; //!< Mapping name for this axis
-		QString plotting; //!< Plotting name for this axis
-		QString _str_format; //!< Parameter of string representation for this axis.
-		node_args_t args_mapping; //!< Arguments to compute Mapping.
-		node_args_t args_plotting; //!< Arguments to compute plotting.
-		PVTags tags;
-		id_t unique_id;
-		bool unique_id_computed;
+  protected:
+	PVCore::PVColor titlecolor; //!< Color of the title for this axis
+	PVCore::PVColor color;      //!< Color for this axis
+	QString name;               //!< Name of this axis
+	QString type;               //!< Type of this axis
+	QString type_format;        //!< Format of the type of this axis
+	QString mapping;            //!< Mapping name for this axis
+	QString plotting;           //!< Plotting name for this axis
+	QString _str_format;        //!< Parameter of string representation for this axis.
+	node_args_t args_mapping;   //!< Arguments to compute Mapping.
+	node_args_t args_plotting;  //!< Arguments to compute plotting.
+	PVTags tags;
+	id_t unique_id;
+	bool unique_id_computed;
 
-	protected:
-		void compute_unique_id(QVector<uint32_t> const& tree_ids);
+  protected:
+	void compute_unique_id(QVector<uint32_t> const& tree_ids);
 };
-
 }
 
-#endif	/* PVCORE_PVAXISFORMAT_H */
+#endif /* PVCORE_PVAXISFORMAT_H */

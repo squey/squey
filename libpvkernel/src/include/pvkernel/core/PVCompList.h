@@ -11,16 +11,17 @@
 #include <pvkernel/core/PVArgument.h>
 #include <QList>
 
-namespace PVCore {
+namespace PVCore
+{
 
 /*! \brief Compares two C++ standard compliant containers.
  *  \tparam T A C++ standard compliant container. T::value_type::operator!= must exists.
  *  \param[in] l1 The first container
  *  \param[in] l2 The second container
- *  \return true if both containers have the same size and that all their elements are equal (and in the same order), false otherwise.
+ *  \return true if both containers have the same size and that all their elements are equal (and in
+ * the same order), false otherwise.
  */
-template <class T>
-bool comp_list(T const& l1, T const& l2)
+template <class T> bool comp_list(T const& l1, T const& l2)
 {
 	typedef typename T::value_type Tv;
 	typedef typename T::const_iterator Tit;
@@ -29,7 +30,7 @@ bool comp_list(T const& l1, T const& l2)
 		return false;
 	}
 
-	Tit it1,it2;
+	Tit it1, it2;
 	it1 = l1.begin();
 	it2 = l2.begin();
 
@@ -45,11 +46,9 @@ bool comp_list(T const& l1, T const& l2)
 }
 
 // AG: that's a hack so that format comparaison works. Waiting for better... :s
-template <>
-bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2);
+template <> bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2);
 
-template <class K, class V>
-bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
+template <class K, class V> bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
 {
 	typedef typename QHash<K, V>::const_iterator Tit;
 
@@ -69,8 +68,8 @@ bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
 
 bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2);
 
-bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2, const PVCore::PVArgumentKeyList& keys);
-
+bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2,
+               const PVCore::PVArgumentKeyList& keys);
 }
 
 #endif

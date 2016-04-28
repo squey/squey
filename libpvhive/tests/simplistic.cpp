@@ -15,38 +15,22 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 
-
 struct Obj1
 {
-	~Obj1()
-	{
-		std::cout << "  Obj1::~Obj1 for object " << this << std::endl;
-	}
+	~Obj1() { std::cout << "  Obj1::~Obj1 for object " << this << std::endl; }
 
-	void print()
-	{
-		std::cout << "  Obj1::print" << std::endl;
-	}
+	void print() { std::cout << "  Obj1::print" << std::endl; }
 };
 
 typedef PVCore::PVSharedPtr<Obj1> Obj1_p;
 
 struct Obj2
 {
-	~Obj2()
-	{
-		std::cout << "  Obj2::~Obj2 for object " << this << std::endl;
-	}
+	~Obj2() { std::cout << "  Obj2::~Obj2 for object " << this << std::endl; }
 
-	void print()
-	{
-		std::cout << "  Obj2::print" << std::endl;
-	}
+	void print() { std::cout << "  Obj2::print" << std::endl; }
 
-	void my_action(int param)
-	{
-		std::cout << "  Obj2::myaction with " << param << std::endl;
-	}
+	void my_action(int param) { std::cout << "  Obj2::myaction with " << param << std::endl; }
 
 	void test_ref(int& i)
 	{
@@ -59,7 +43,7 @@ typedef PVCore::PVSharedPtr<Obj2> Obj2_p;
 
 class Obj1Observer : public PVHive::PVObserver<Obj1>
 {
-public:
+  public:
 	virtual void refresh()
 	{
 		std::cout << "  Obj1Observer::refresh for object " << get_object() << std::endl;
@@ -67,15 +51,16 @@ public:
 
 	virtual void about_to_be_deleted()
 	{
-		std::cout << "    Obj1Observer::about_to_be_deleted for object " << get_object() << std::endl;
+		std::cout << "    Obj1Observer::about_to_be_deleted for object " << get_object()
+		          << std::endl;
 	}
 
-private:
+  private:
 };
 
 class Obj2Observer : public PVHive::PVObserver<Obj2>
 {
-public:
+  public:
 	virtual void refresh()
 	{
 		std::cout << "  Obj2Observer::refresh for object " << get_object() << std::endl;
@@ -83,27 +68,30 @@ public:
 
 	virtual void about_to_be_deleted()
 	{
-		std::cout << "    Obj2Observer::about_to_be_deleted for object " << get_object() << std::endl;
+		std::cout << "    Obj2Observer::about_to_be_deleted for object " << get_object()
+		          << std::endl;
 	}
 
-private:
+  private:
 };
 
-class FuncObserver: public PVHive::PVFuncObserver<Obj2, decltype(&Obj2::my_action), &Obj2::my_action>
+class FuncObserver
+    : public PVHive::PVFuncObserver<Obj2, decltype(&Obj2::my_action), &Obj2::my_action>
 {
-protected:
+  protected:
 	virtual void update(arguments_type const& args) const
 	{
-		std::cout << "    FuncObserver on Obj2::my_action for object " << get_object() <<  "with param " << std::get<0>(args) << std::endl;
+		std::cout << "    FuncObserver on Obj2::my_action for object " << get_object()
+		          << "with param " << std::get<0>(args) << std::endl;
 	}
 };
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
-	PVHive::PVHive &h1 = PVHive::PVHive::get();
-	PVHive::PVHive &h2 = PVHive::PVHive::get();
+	PVHive::PVHive& h1 = PVHive::PVHive::get();
+	PVHive::PVHive& h2 = PVHive::PVHive::get();
 
 	if (&h1 != &h2) {
 		std::cerr << "PVHive::get() returns different addresses" << std::endl;

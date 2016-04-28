@@ -18,20 +18,21 @@ class QLineEdit;
 
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
-namespace PVFilter {
+namespace PVFilter
+{
 
-class PVFieldSplitterKeyValueParamWidget: public PVFieldsSplitterParamWidget
+class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	PVFieldSplitterKeyValueParamWidget();
 
-public:
+  public:
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-private slots:
+  private slots:
 	void update_params();
 	void add_new_key();
 	void del_keys();
@@ -39,7 +40,7 @@ private slots:
 	void move_key_up();
 	void update_children_count();
 
-private:
+  private:
 	QAction* _action_menu;
 	QWidget* _param_widget;
 
@@ -49,10 +50,9 @@ private:
 
 	QListWidget* _keys_list;
 
-private:
+  private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterKeyValueParamWidget)
 };
-
 }
 
 #endif // PVFIELDSPLITTERKEYVALUEPARAMWIDGET_H

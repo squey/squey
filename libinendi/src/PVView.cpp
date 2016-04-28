@@ -37,17 +37,18 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  * Inendi::PVView::PVView
  *
  *****************************************************************************/
-Inendi::PVView::PVView():
-	post_filter_layer("post_filter_layer"),
-	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer"),
-	_is_consistent(false),
-	_rushnraw_parent(nullptr),
-	_view_id(-1),
-	_active_axis(0)
+Inendi::PVView::PVView()
+    : post_filter_layer("post_filter_layer")
+    , layer_stack_output_layer("view_layer_stack_output_layer")
+    , output_layer("output_layer")
+    , _is_consistent(false)
+    , _rushnraw_parent(nullptr)
+    , _view_id(-1)
+    , _active_axis(0)
 {
-	QSettings &pvconfig = PVCore::PVConfig::get().config();
-	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
+	last_extractor_batch_size =
+	    pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 }
 
 void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
@@ -57,9 +58,9 @@ void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
 	_rushnraw_parent = &get_parent<PVSource>()->get_rushnraw();
 
 	// Create layer filter arguments for that view
-	LIB_CLASS(Inendi::PVLayerFilter) &filters_layer = 	LIB_CLASS(Inendi::PVLayerFilter)::get();
+	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	
+
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
@@ -82,12 +83,13 @@ void Inendi::PVView::process_parent_plotted()
 	Inendi::PVPlotted* plotted = get_parent();
 	PVSource* source = plotted->get_parent<PVSource>();
 	_axes_combination.set_from_format(source->get_format());
-	_axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
+	_axes_combination.set_axis_name(
+	    0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	set_row_count(get_row_count());
 
 	// First process
-	//select_all_nonzb_lines(); Fixes bug #279
+	// select_all_nonzb_lines(); Fixes bug #279
 	nu_selection.select_none();
 
 	process_from_layer_stack();
@@ -101,7 +103,8 @@ void Inendi::PVView::reset_view()
 
 	PVSource* source = get_parent<PVSource>();
 	_axes_combination = source->get_axes_combination();
-	_axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
+	_axes_combination.set_axis_name(
+	    0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 }
 
 void Inendi::PVView::set_fake_axes_comb(PVCol const ncols)
@@ -153,7 +156,8 @@ void Inendi::PVView::reset_layers()
 
 	PVRow row_count = get_row_count();
 
-	// This function remove all the layers and add the default one with all events selected
+	// This function remove all the layers and add the default one with all events
+	// selected
 	bool old_consistent = _is_consistent;
 	_is_consistent = false;
 	layer_stack.delete_all_layers();
@@ -205,7 +209,7 @@ void Inendi::PVView::delete_layer_n(int idx)
 	layer_stack.delete_by_index(idx);
 }
 
-void Inendi::PVView::duplicate_selected_layer(const QString &name)
+void Inendi::PVView::duplicate_selected_layer(const QString& name)
 {
 	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
 	compute_layer_min_max(*new_layer);
@@ -237,30 +241,31 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 {
 	/* We set it's selection to the final selection */
 	new_layer.get_selection() = post_filter_layer.get_selection();
-	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), get_row_count());
+	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(
+	    new_layer.get_lines_properties(), new_layer.get_selection(), get_row_count());
 }
 
 void Inendi::PVView::commit_volatile_in_floating_selection()
 {
 	switch (_state_machine.get_square_area_mode()) {
-		case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-			floating_selection |= volatile_selection;
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
+		floating_selection |= volatile_selection;
+		break;
 
-		case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-			floating_selection &= volatile_selection;
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
+		floating_selection &= volatile_selection;
+		break;
 
-		case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
-			floating_selection = volatile_selection;
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
+		floating_selection = volatile_selection;
+		break;
 
-		case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-			floating_selection -= volatile_selection;
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
+		floating_selection -= volatile_selection;
+		break;
 
-		case Inendi::PVStateMachine::AREA_MODE_OFF:
-			;
+	case Inendi::PVStateMachine::AREA_MODE_OFF:
+		;
 	}
 }
 
@@ -303,8 +308,8 @@ QStringList Inendi::PVView::get_zones_names_list() const
 
 	const QString del(" <-> ");
 
-	for (int i = 0; i < axes.size()-1; i++) {
-		ret << axes[i] + del + axes[i+1];
+	for (int i = 0; i < axes.size() - 1; i++) {
+		ret << axes[i] + del + axes[i + 1];
 	}
 
 	return ret;
@@ -397,7 +402,7 @@ PVCol Inendi::PVView::get_real_axis_index(PVCol col) const
  * Inendi::PVView::get_layer_stack
  *
  *****************************************************************************/
-Inendi::PVLayerStack &Inendi::PVView::get_layer_stack()
+Inendi::PVLayerStack& Inendi::PVView::get_layer_stack()
 {
 	return layer_stack;
 }
@@ -440,7 +445,7 @@ int Inendi::PVView::get_layer_stack_layer_n_visible_state(int n) const
  * Inendi::PVView::get_layer_stack_output_layer
  *
  *****************************************************************************/
-Inendi::PVLayer &Inendi::PVView::get_layer_stack_output_layer()
+Inendi::PVLayer& Inendi::PVView::get_layer_stack_output_layer()
 {
 	return layer_stack_output_layer;
 }
@@ -470,7 +475,7 @@ bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
  * Inendi::PVView::get_nu_selection
  *
  *****************************************************************************/
-Inendi::PVSelection &Inendi::PVView::get_nu_selection()
+Inendi::PVSelection& Inendi::PVView::get_nu_selection()
 {
 	return nu_selection;
 }
@@ -500,7 +505,7 @@ PVCol Inendi::PVView::get_original_axes_count() const
  * Inendi::PVView::get_output_layer
  *
  *****************************************************************************/
-Inendi::PVLayer &Inendi::PVView::get_output_layer()
+Inendi::PVLayer& Inendi::PVView::get_output_layer()
 {
 	return output_layer;
 }
@@ -510,7 +515,7 @@ Inendi::PVLayer &Inendi::PVView::get_output_layer()
  * Inendi::PVView::get_post_filter_layer
  *
  *****************************************************************************/
-Inendi::PVLayer &Inendi::PVView::get_post_filter_layer()
+Inendi::PVLayer& Inendi::PVView::get_post_filter_layer()
 {
 	return post_filter_layer;
 }
@@ -563,7 +568,7 @@ int Inendi::PVView::move_active_axis_closest_to_position(float x)
 	PVCol new_index = get_active_axis_closest_to_position(x);
 
 	/* We move the axis if there is a movement */
-	if ( new_index != _active_axis ) {
+	if (new_index != _active_axis) {
 		_axes_combination.move_axis_to_new_position(_active_axis, new_index);
 		_active_axis = new_index;
 
@@ -585,14 +590,12 @@ PVCol Inendi::PVView::get_active_axis_closest_to_position(float x)
 	if (ret < 0) {
 		/* We set the leftmost AXIS as destination */
 		return 0;
-	}
-	else
-	if ( ret >= axes_count ) {
+	} else if (ret >= axes_count) {
 		/* We set the rightmost AXIS as destination */
 		return (PVCol)(axes_count - 1);
 	}
 
-	return (PVCol) ret;
+	return (PVCol)ret;
 }
 
 /******************************************************************************
@@ -607,7 +610,7 @@ void Inendi::PVView::process_eventline()
 
 	/* We refresh the nu_selection */
 	nu_selection = std::move(~layer_stack_output_layer.get_selection());
-	
+
 	nu_selection |= real_output_selection;
 
 	PVLinesProperties& out_lps = output_layer.get_lines_properties();
@@ -621,7 +624,8 @@ void Inendi::PVView::process_eventline()
 			/* It is selected, so we copy its line properties */
 			out_lp = post_lp;
 		} else {
-			/* It is not selected in the end, so we check if it was available in the beginning */
+			/* It is not selected in the end, so we check if it was available in the
+			 * beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
 				/* The event was available, but is unselected */
 				out_lp = post_lp;
@@ -660,7 +664,9 @@ void Inendi::PVView::process_from_layer_stack()
 	process_visibility();
 
 	tbb::tick_count end = tbb::tick_count::now();
-	PVLOG_INFO("(Inendi::PVView::process_from_layer_stack) function took %0.4f seconds.\n", (end-start).seconds());
+	PVLOG_INFO("(Inendi::PVView::process_from_layer_stack) function took %0.4f "
+	           "seconds.\n",
+	           (end - start).seconds());
 }
 
 /******************************************************************************
@@ -670,7 +676,7 @@ void Inendi::PVView::process_from_layer_stack()
  *****************************************************************************/
 void Inendi::PVView::process_from_selection()
 {
-	PVLOG_DEBUG("Inendi::PVView::%s\n",__FUNCTION__);
+	PVLOG_DEBUG("Inendi::PVView::%s\n", __FUNCTION__);
 	process_selection();
 	process_eventline();
 	process_visibility();
@@ -701,25 +707,25 @@ void Inendi::PVView::process_selection()
 {
 	/* We treat the selection according to specific SQUARE_AREA_SELECTION mode */
 	switch (_state_machine.get_square_area_mode()) {
-		case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
-			post_filter_layer.get_selection() = volatile_selection;
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
+		post_filter_layer.get_selection() = volatile_selection;
+		break;
 
-		case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-			post_filter_layer.get_selection() = std::move(floating_selection | volatile_selection);
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
+		post_filter_layer.get_selection() = std::move(floating_selection | volatile_selection);
+		break;
 
-		case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-			post_filter_layer.get_selection().AB_sub(floating_selection, volatile_selection);
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
+		post_filter_layer.get_selection().AB_sub(floating_selection, volatile_selection);
+		break;
 
-		case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-			post_filter_layer.get_selection() = std::move(floating_selection & volatile_selection);
-			break;
+	case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
+		post_filter_layer.get_selection() = std::move(floating_selection & volatile_selection);
+		break;
 
-		default:
-			post_filter_layer.get_selection() = layer_stack_output_layer.get_selection();
-			break;
+	default:
+		post_filter_layer.get_selection() = layer_stack_output_layer.get_selection();
+		break;
 	}
 
 	/* We cut the resulting selection with what is available in the layer_stack */
@@ -730,7 +736,9 @@ void Inendi::PVView::process_selection()
 	post_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
 
 	/* Now we MUST refresh the index_array associated to nznu */
-	/* WARNING ! nothing is done here because this function should be followed by process_eventline which changes the selection and DO update the nznu_index_array */
+	/* WARNING ! nothing is done here because this function should be followed by
+	 * process_eventline which changes the selection and DO update the
+	 * nznu_index_array */
 }
 
 /******************************************************************************
@@ -740,7 +748,7 @@ void Inendi::PVView::process_selection()
  *****************************************************************************/
 void Inendi::PVView::process_visibility()
 {
-    PVLOG_DEBUG("Inendi::PVView::process_visibility\n");
+	PVLOG_DEBUG("Inendi::PVView::process_visibility\n");
 	/* We First need to check if the UNSELECTED lines are visible */
 	if (_state_machine.are_listing_unselected_visible()) {
 		/* The UNSELECTED are visible */
@@ -773,15 +781,15 @@ void Inendi::PVView::set_active_axis_closest_to_position(float x)
 	/* VARIABLES */
 	int closest_int;
 	int axes_count;
-	
+
 	/* CODE */
 	closest_int = (int)floor(x + 0.5);
-	if ( closest_int < 0 ) {
+	if (closest_int < 0) {
 		/* We set the leftmost AXIS as active */
 		_active_axis = 0;
 	} else {
 		axes_count = _axes_combination.get_axes_count();
-		if ( closest_int >= axes_count ) {
+		if (closest_int >= axes_count) {
 			/* We set the rightmost AXIS as active */
 			_active_axis = axes_count - 1;
 		} else {
@@ -796,7 +804,7 @@ void Inendi::PVView::set_active_axis_closest_to_position(float x)
  * Inendi::PVView::set_axis_name
  *
  *****************************************************************************/
-void Inendi::PVView::set_axis_name(PVCol index, const QString &name_)
+void Inendi::PVView::set_axis_name(PVCol index, const QString& name_)
 {
 	PVAxis axis;
 
@@ -811,9 +819,10 @@ void Inendi::PVView::set_axis_name(PVCol index, const QString &name_)
 void Inendi::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 {
 	/* VARIABLES */
-	PVLayer &active_layer = layer_stack.get_selected_layer();
+	PVLayer& active_layer = layer_stack.get_selected_layer();
 
-	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(), get_row_count(), c);
+	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(),
+	                                                        get_row_count(), c);
 }
 
 /******************************************************************************
@@ -823,7 +832,8 @@ void Inendi::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
  *****************************************************************************/
 void Inendi::PVView::set_color_on_post_filter_layer(const PVCore::PVHSVColor c)
 {
-	post_filter_layer.get_lines_properties().selection_set_color(post_filter_layer.get_selection(), get_row_count(), c);
+	post_filter_layer.get_lines_properties().selection_set_color(post_filter_layer.get_selection(),
+	                                                             get_row_count(), c);
 }
 
 /******************************************************************************
@@ -831,7 +841,7 @@ void Inendi::PVView::set_color_on_post_filter_layer(const PVCore::PVHSVColor c)
  * Inendi::PVView::set_floating_selection
  *
  *****************************************************************************/
-void Inendi::PVView::set_floating_selection(PVSelection &selection)
+void Inendi::PVView::set_floating_selection(PVSelection& selection)
 {
 	floating_selection = selection;
 }
@@ -843,7 +853,7 @@ void Inendi::PVView::set_floating_selection(PVSelection &selection)
  *****************************************************************************/
 int Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 {
-	PVLayer &layer = layer_stack.get_layer_n(n);
+	PVLayer& layer = layer_stack.get_layer_n(n);
 	layer.set_name(name);
 	return 0;
 }
@@ -886,7 +896,7 @@ void Inendi::PVView::set_selection_view(PVSelection const& sel)
  *****************************************************************************/
 int Inendi::PVView::toggle_layer_stack_layer_n_locked_state(int n)
 {
-	PVLayer &layer = layer_stack.get_layer_n(n);
+	PVLayer& layer = layer_stack.get_layer_n(n);
 
 	if (layer.get_locked()) {
 		layer.set_locked(0);
@@ -905,14 +915,14 @@ int Inendi::PVView::toggle_layer_stack_layer_n_locked_state(int n)
  *****************************************************************************/
 int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 {
-	PVLayer &layer = layer_stack.get_layer_n(n);
-	
+	PVLayer& layer = layer_stack.get_layer_n(n);
+
 	if (layer.get_visible()) {
 		layer.set_visible(0);
 	} else {
 		layer.set_visible(1);
 	}
-	
+
 	layer_stack.update_layer_index_array_completely();
 	return 0;
 }
@@ -933,7 +943,7 @@ void Inendi::PVView::set_consistent(bool c)
 
 bool Inendi::PVView::is_consistent() const
 {
-	//return get_plotted_parent()->is_uptodate() && _is_consistent;
+	// return get_plotted_parent()->is_uptodate() && _is_consistent;
 	return _is_consistent;
 }
 
@@ -968,7 +978,10 @@ void Inendi::PVView::select_inv_lines()
 
 QString Inendi::PVView::get_name() const
 {
-	return QString("%1 (%2/%3)").arg(QString::number(get_display_view_id())).arg(get_parent<PVMapped>()->get_name()).arg(get_parent<PVPlotted>()->get_name());
+	return QString("%1 (%2/%3)")
+	    .arg(QString::number(get_display_view_id()))
+	    .arg(get_parent<PVMapped>()->get_name())
+	    .arg(get_parent<PVPlotted>()->get_name());
 }
 
 QString Inendi::PVView::get_window_name() const
@@ -1040,7 +1053,8 @@ void Inendi::PVView::finish_process_from_rush_pipeline()
 	layer_stack.compute_selectable_count(get_row_count());
 }
 
-void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)
+void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
+                                                  PVAxesCombination::list_axes_t const& axes)
 {
 	_axes_combination.set_axes_index_list(idxes, axes);
 }
@@ -1057,7 +1071,8 @@ PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
 	return get_parent<PVPlotted>()->get_col_max_row(col);
 }
 
-void Inendi::PVView::sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::task_group_context* /*ctxt = NULL*/) const
+void Inendi::PVView::sort_indexes(PVCol col, pvcop::db::indexes& idxes,
+                                  tbb::task_group_context* /*ctxt = NULL*/) const
 {
 	BENCH_START(pvcop_sort);
 	pvcop::db::array column = get_rushnraw_parent().collection().column(col);
@@ -1073,7 +1088,8 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 	set_last_so(so.shared_from_this());
 }
 
-void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
+                                    PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
 		// If no layer stack, reset all layers so that we have one :)

@@ -68,70 +68,69 @@ int main()
 
 	changed = PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
 	PV_VALID(changed, true);
-	PV_ASSERT_VALID(std::equal (v.begin (), v.end (), vref.begin ()));
-
+	PV_ASSERT_VALID(std::equal(v.begin(), v.end(), vref.begin()));
 
 	std::cout << "  10 elements" << std::endl;
 	v.resize(10);
 	vref.resize(10);
 	for (int i = 0; i < 5; i++) {
 		v[i] = pair_int_t(i, 0);
-		vref[i+(10-5)] = pair_int_t(i, 0);
+		vref[i + (10 - 5)] = pair_int_t(i, 0);
 	}
 	for (int i = 5; i < 10; i++) {
 		v[i] = pair_int_t(i, 1);
-		vref[i-5] = pair_int_t(i, 1);
+		vref[i - 5] = pair_int_t(i, 1);
 	}
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
-	PV_ASSERT_VALID(std::equal (v.begin (), v.end (), vref.begin ()));
+	PV_ASSERT_VALID(std::equal(v.begin(), v.end(), vref.begin()));
 
 	std::cout << "  14 elements case 1" << std::endl;
 	v.resize(14);
 	vref.resize(14);
 	for (int i = 0; i < 5; i++) {
 		v[i] = pair_int_t(i, 0);
-		vref[i+(14-5)] = pair_int_t(i, 0);
+		vref[i + (14 - 5)] = pair_int_t(i, 0);
 	}
 	for (int i = 5; i < 14; i++) {
 		v[i] = pair_int_t(i, 1);
-		vref[i-5] = pair_int_t(i, 1);
+		vref[i - 5] = pair_int_t(i, 1);
 	}
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
-	PV_ASSERT_VALID(std::equal (v.begin (), v.end (), vref.begin ()));
+	PV_ASSERT_VALID(std::equal(v.begin(), v.end(), vref.begin()));
 
 	std::cout << "  14 elements case 2" << std::endl;
 	for (int i = 0; i < 10; i++) {
 		v[i] = pair_int_t(i, 0);
-		vref[i+(14-10)] = pair_int_t(i, 0);
+		vref[i + (14 - 10)] = pair_int_t(i, 0);
 	}
 	for (int i = 10; i < 14; i++) {
 		v[i] = pair_int_t(i, 1);
-		vref[i-10] = pair_int_t(i, 1);
+		vref[i - 10] = pair_int_t(i, 1);
 	}
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
-	PV_ASSERT_VALID(std::equal (v.begin (), v.end (), vref.begin ()));
+	PV_ASSERT_VALID(std::equal(v.begin(), v.end(), vref.begin()));
 
 	std::cout << "  20 elements" << std::endl;
 	v.resize(20);
 	vref.resize(20);
 	for (int i = 0; i < 10; i++) {
 		v[i] = pair_int_t(i, 0);
-		vref[i+10] = pair_int_t(i, 0);
+		vref[i + 10] = pair_int_t(i, 0);
 	}
 	for (int i = 10; i < 14; i++) {
 		v[i] = pair_int_t(i, 1);
-		vref[i-4] = pair_int_t(i, 1);
+		vref[i - 4] = pair_int_t(i, 1);
 	}
 	for (int i = 14; i < 16; i++) {
 		v[i] = pair_int_t(i, 5);
-		vref[i-10] = pair_int_t(i, 5);
+		vref[i - 10] = pair_int_t(i, 5);
 	}
 	for (int i = 16; i < 20; i++) {
 		v[i] = pair_int_t(i, 6);
-		vref[i-16] = pair_int_t(i, 6);
+		vref[i - 16] = pair_int_t(i, 6);
 	}
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
-	PV_ASSERT_VALID(std::equal (v.begin (), v.end (), vref.begin ()));
+	PV_ASSERT_VALID(std::equal(v.begin(), v.end(), vref.begin()));
 
 	std::cout << "test after a std::stable_sort" << std::endl;
 	v.resize(21);
@@ -140,37 +139,37 @@ int main()
 	vref[19] = pair_int_t(0, -1);
 	for (int i = 1; i < 10; i++) {
 		v[i] = pair_int_t(i, 0);
-		vref[i+9] = pair_int_t(i, 0);
+		vref[i + 9] = pair_int_t(i, 0);
 	}
 	for (int i = 10; i < 14; i++) {
 		v[i] = pair_int_t(i, 1);
-		vref[i-4] = pair_int_t(i, 1);
+		vref[i - 4] = pair_int_t(i, 1);
 	}
 	v[14] = pair_int_t(14, -1);
 	vref[20] = pair_int_t(14, -1);
 
 	for (int i = 15; i < 17; i++) {
 		v[i] = pair_int_t(i, 5);
-		vref[i-11] = pair_int_t(i, 5);
+		vref[i - 11] = pair_int_t(i, 5);
 	}
 	for (int i = 17; i < 21; i++) {
 		v[i] = pair_int_t(i, 6);
-		vref[i-17] = pair_int_t(i, 6);
+		vref[i - 17] = pair_int_t(i, 6);
 	}
 
 	std::stable_sort(v.begin(), v.end(), less_p);
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
-	PV_ASSERT_VALID(std::equal (v.begin (), v.end (), vref.begin ()));
+	PV_ASSERT_VALID(std::equal(v.begin(), v.end(), vref.begin()));
 
 	std::cout << "test after a second call to PVCore::stable_sort_reverse" << std::endl;
 	vref[0] = pair_int_t(0, -1);
 	vref[1] = pair_int_t(14, -1);
 	for (int i = 1; i < 10; i++) {
-		vref[i+1] = pair_int_t(i, 0);
+		vref[i + 1] = pair_int_t(i, 0);
 	}
 
 	for (int i = 10; i < 14; i++) {
-		vref[i+1] = pair_int_t(i, 1);
+		vref[i + 1] = pair_int_t(i, 1);
 	}
 
 	for (int i = 15; i < 17; i++) {
@@ -182,7 +181,7 @@ int main()
 	}
 
 	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
-	PV_ASSERT_VALID(std::equal (v.begin (), v.end (), vref.begin ()));
+	PV_ASSERT_VALID(std::equal(v.begin(), v.end(), vref.begin()));
 
 	return 0;
 }

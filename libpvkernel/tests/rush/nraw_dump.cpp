@@ -31,23 +31,24 @@ int main()
 	env.load_data(nb_lines);
 
 	// Dump the NRAW to file and check value is the same
-	auto start = std::chrono::system_clock::now(); 
+	auto start = std::chrono::system_clock::now();
 
 	std::string out_path = pvtest::get_tmp_filename();
 
 	env._ext.get_nraw().dump_csv(out_path);
 
-	auto end = std::chrono::system_clock::now(); 
+	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-
 #ifndef INSPECTOR_BENCH
 	std::ifstream ifs_res(out_path);
-	std::string content_res{std::istreambuf_iterator<char>(ifs_res), std::istreambuf_iterator<char>()};
+	std::string content_res{std::istreambuf_iterator<char>(ifs_res),
+	                        std::istreambuf_iterator<char>()};
 
 	std::ifstream ifs_ref(filename);
-	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref), std::istreambuf_iterator<char>()};
+	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref),
+	                        std::istreambuf_iterator<char>()};
 
 	PV_VALID(content_ref, content_res);
 #endif

@@ -19,7 +19,6 @@
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVNraw.h>
 
-
 #include <cstdlib>
 #include <iostream>
 
@@ -28,7 +27,6 @@
 using std::cout;
 using std::cerr;
 using std::endl;
-
 
 int main(int argc, char** argv)
 {
