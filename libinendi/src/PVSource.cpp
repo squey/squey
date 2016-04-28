@@ -51,11 +51,11 @@ Inendi::PVSource::PVSource(const PVSource& org) : data_tree_source_t()
 
 Inendi::PVSource::~PVSource()
 {
-	remove_all_children();
 	PVRoot* root = get_parent<PVRoot>();
 	if (root) {
 		root->source_being_deleted(this);
 	}
+	remove_all_children();
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
 	/*for (auto& m: get_children()) {
 	        PVMapped* pm = m.get();
