@@ -43,12 +43,6 @@ Inendi::PVSource::PVSource() : data_tree_source_t()
 	init();
 }
 
-Inendi::PVSource::PVSource(const PVSource& org) : data_tree_source_t()
-{
-	set_parent(const_cast<PVScene*>(org.get_parent()));
-	init();
-}
-
 Inendi::PVSource::~PVSource()
 {
 	PVRoot* root = get_parent<PVRoot>();
@@ -57,12 +51,6 @@ Inendi::PVSource::~PVSource()
 	}
 	remove_all_children();
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
-	/*for (auto& m: get_children()) {
-	        PVMapped* pm = m.get();
-	        m.reset();
-	        PVLOG_INFO("Mapped %p use count: %u\n", pm,
-	pm->weak_from_this().use_count());
-	}*/
 }
 
 void Inendi::PVSource::init()
@@ -84,10 +72,12 @@ void Inendi::PVSource::init()
 Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
 {
 	Inendi::PVSource_sp src(new Inendi::PVSource(_inputs, _src_plugin, get_format()));
-	src->set_parent(get_parent()->shared_from_this());
+	get_parent()->do_add_child(src);
+	get_parent<PVRoot>()->set_views_id();
 
 	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	mapped->set_parent(src);
+	src->do_add_child(mapped);
+	mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
 
 	return src;
 }
@@ -108,15 +98,6 @@ Inendi::PVView const* Inendi::PVSource::current_view() const
 		return view;
 	}
 	return nullptr;
-}
-
-void Inendi::PVSource::set_parent_from_ptr(PVScene* parent)
-{
-	data_tree_source_t::set_parent_from_ptr(parent);
-
-	if (parent) {
-		parent->get_parent<PVRoot>()->set_views_id();
-	}
 }
 
 void Inendi::PVSource::files_append_noextract()
@@ -226,14 +207,17 @@ void Inendi::PVSource::create_default_view()
 {
 	if (get_children_count() == 0) {
 		PVMapped_p def_mapped(new PVMapped());
-		def_mapped->set_parent(shared_from_this());
+		do_add_child(def_mapped);
+		def_mapped->set_mapping(new Inendi::PVMapping(def_mapped.get()));
 	}
 	for (PVMapped_p& m : get_children()) {
 		PVPlotted_p def_plotted(new PVPlotted());
-		def_plotted->set_parent(m);
+		m->do_add_child(def_plotted);
+		def_plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(def_plotted.get())));
 
 		PVView_p def_view(new PVView());
-		def_view->set_parent(def_plotted);
+		def_plotted->do_add_child(def_view);
+		def_view->init();
 		def_view->get_parent<PVRoot>()->select_view(*def_view);
 		process_from_source();
 	}

@@ -41,17 +41,6 @@ Inendi::PVMapped::~PVMapped()
 
 /******************************************************************************
  *
- * Inendi::PVMapped::set_parent_from_ptr
- *
- *****************************************************************************/
-void Inendi::PVMapped::set_parent_from_ptr(PVSource* source)
-{
-	data_tree_mapped_t::set_parent_from_ptr(source);
-	_mapping = PVMapping_p(new PVMapping(this));
-}
-
-/******************************************************************************
- *
  * Inendi::PVMapped::allocate_table
  *
  *****************************************************************************/

@@ -63,12 +63,14 @@ int main(int argc, char** argv)
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
 	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
-	scene->set_parent(root);
+	root->do_add_child(scene);
 	Inendi::PVSource_sp src(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src->set_parent(scene);
+	scene->do_add_child(src);
+	root->set_views_id();
 	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	mapped->set_parent(src);
+	src->do_add_child(mapped);
+	mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {
@@ -84,39 +86,6 @@ int main(int argc, char** argv)
 	} else {
 		PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 	}
-
-//
-/*QStringList const& inv(job->get_invalid_evts());
-foreach (QString const& sinv, inv) {
-        PVLOG_INFO("invalid: %s\n", qPrintable(sinv));
-}*/
-
-// Map the nraw
-// mapped->process_from_parent_source();
-// Dump the mapped table to stdout in a CSV format
-// mapped->to_csv();
-
-// Save current mapped table
-#if 0
-	Inendi::PVMapped_p mapped(src);
-	Inendi::PVMapped::mapped_table_t save(mapped->get_table());
-
-	mapped->invalidate_all();
-	mapped->process_from_parent_source();
-	//mapped->to_csv();
-	
-	// Compare table
-	PV_ASSERT_VALID(save.size() == mapped->get_table().size());
-	for (size_t i = 0; i < save.size(); i++) {
-		Inendi::PVMapped::mapped_row_t const& rsave = save[i];
-		Inendi::PVMapped::mapped_row_t const& rcmp  = mapped->get_table()[i];
-
-		PV_ASSERT_VALID(rsave.size() == rcmp.size());
-		//PV_ASSERT_VALID(memcmp(&rsave.at(0), &rcmp.at(0), rsave.size()*sizeof(Inendi::PVMapped::decimal_storage_type)) == 0);
-		write(4, &rsave.at(0), rsave.size()*sizeof(Inendi::PVMapped::decimal_storage_type));
-		write(5, &rcmp.at(0),  rcmp.size()*sizeof(Inendi::PVMapped::decimal_storage_type));
-	}
-#endif
 
 	return 0;
 }

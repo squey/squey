@@ -51,9 +51,6 @@ class PVSource : public data_tree_source_t
   public:
 	typedef children_t list_mapped_t;
 
-  protected:
-	PVSource(const PVSource& org);
-
   public:
 	PVSource();
 	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs,
@@ -147,8 +144,7 @@ class PVSource : public data_tree_source_t
 	{
 		PVSource_sp src_p(
 		    new PVSource(descr.get_inputs(), descr.get_source_creator(), descr.get_format()));
-
-		src_p->set_parent(scene_p);
+		scene_p->do_add_child(src_p);
 
 		return src_p;
 	}
@@ -184,7 +180,6 @@ class PVSource : public data_tree_source_t
 	void set_views_consistent(bool cons);
 
   protected:
-	virtual void set_parent_from_ptr(PVScene* parent);
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 

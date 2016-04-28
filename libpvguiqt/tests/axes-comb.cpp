@@ -52,10 +52,10 @@ Inendi::PVSource_sp create_src(const QString& path_file, const QString& path_for
 	}
 
 	Inendi::PVScene_p scene(new Inendi::PVScene());
-	scene->set_parent(root);
+	root->do_add_child(scene);
 	Inendi::PVSource_sp src(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src->set_parent(scene);
+	scene->add_source(src);
 	src->get_extractor().get_agg().set_strict_mode(true);
 	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
 	job->wait_end();
@@ -124,12 +124,15 @@ int main(int argc, char** argv)
 
 	Inendi::PVSource_sp src = create_src(argv[1], argv[2]);
 	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	mapped->set_parent(src);
+	src->do_add_child(mapped);
+	mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
 	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-	plotted->set_parent(mapped);
+	mapped->do_add_child(plotted);
+	plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(plotted.get())));
 
 	Inendi::PVView_p view_p(new Inendi::PVView());
-	view_p->set_parent(plotted);
+	plotted->do_add_child(view_p);
+	view_p->init();
 
 	boost::thread th(boost::bind(thread, view_p.get()));
 	PVViewObs view_observer = PVViewObs(th);

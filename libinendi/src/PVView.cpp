@@ -51,10 +51,8 @@ Inendi::PVView::PVView()
 	    pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 }
 
-void Inendi::PVView::set_parent_from_ptr(PVPlotted* plotted)
+void Inendi::PVView::init()
 {
-	data_tree_view_t::set_parent_from_ptr(plotted);
-
 	_rushnraw_parent = &get_parent<PVSource>()->get_rushnraw();
 
 	// Create layer filter arguments for that view

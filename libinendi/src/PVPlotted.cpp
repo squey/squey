@@ -48,21 +48,6 @@ Inendi::PVPlotted::~PVPlotted()
 	}
 }
 
-void Inendi::PVPlotted::set_parent_from_ptr(PVMapped* mapped)
-{
-	data_tree_plotted_t::set_parent_from_ptr(mapped);
-
-	if (!_plotting) {
-		_plotting.reset(new PVPlotting(this));
-	}
-
-	// Set parent mapping for properties
-	QList<PVPlottingProperties>::iterator it;
-	for (it = _plotting->_columns.begin(); it != _plotting->_columns.end(); it++) {
-		it->set_mapping(*get_parent()->get_mapping());
-	}
-}
-
 int Inendi::PVPlotted::create_table()
 {
 	const PVCol mapped_col_count = get_column_count();
@@ -581,10 +566,10 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 
 	process_parent_mapped();
 
-	PVView_sp cur_view;
 	if (get_children_count() == 0) {
-		cur_view.reset(new PVView());
-		cur_view->set_parent(shared_from_this());
+		PVView_sp cur_view(new PVView());
+		do_add_child(cur_view);
+		cur_view->init();
 	}
 	for (auto view : get_children<PVView>()) {
 		view->process_parent_plotted();

@@ -130,14 +130,6 @@ class PVMapped : public data_tree_mapped_t
 
   protected:
 	/**
-	 * Set a new parent rebuilding mapping.
-	 *
-	 * @fixme : It should disappear as it require rebuilding and it means we may have node without
-	 *parent.
-	 */
-	virtual void set_parent_from_ptr(PVSource* source);
-
-	/**
 	 * Submode information.
 	 */
 	virtual QString get_children_description() const { return "Plotted(s)"; }

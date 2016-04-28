@@ -439,7 +439,7 @@ Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
 	QString scene_name = tr("Data collection %1").arg(sequence_n++);
 	PVCore::PVSharedPtr<Inendi::PVScene> scene_p(new Inendi::PVScene(scene_name));
-	scene_p->set_parent(get_root_sp());
+	get_root_sp()->do_add_child(scene_p);
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;

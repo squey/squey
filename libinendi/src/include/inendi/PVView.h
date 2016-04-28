@@ -371,8 +371,9 @@ class PVView : public data_tree_view_t
 		_state_machine.set_square_area_mode(mode);
 	}
 
+	void init();
+
   protected:
-	void set_parent_from_ptr(PVPlotted* plotted);
 	/******************************************************************************
 	******************************************************************************
 	*

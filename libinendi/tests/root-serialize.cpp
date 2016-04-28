@@ -59,10 +59,10 @@ int main(int argc, char** argv)
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
 	Inendi::PVScene_p scene(new Inendi::PVScene("scene0"));
-	scene->set_parent(root);
+	root->do_add_child(scene);
 	Inendi::PVSource_sp src(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src->set_parent(scene);
+	scene->add_source(src);
 	scene->add_source(src);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
@@ -73,10 +73,10 @@ int main(int argc, char** argv)
 	Inendi::PVView& v1 = *src->get_children<Inendi::PVView>().at(1);
 
 	Inendi::PVScene_p scene2(new Inendi::PVScene("scene1"));
-	scene2->set_parent(root);
+	root->do_add_child(scene2);
 	Inendi::PVSource_sp src2(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src2->set_parent(scene2);
+	scene2->add_source(src2);
 	src2->create_default_view();
 	src2->create_default_view();
 

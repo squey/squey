@@ -108,8 +108,9 @@ class PVRoot : public data_tree_root_t
 
   protected:
 	// Serialization
-	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_read(PVCore::PVSerializeObject& so,
+	                    PVCore::PVSerializeArchive::version_t v) override;
+	void serialize_write(PVCore::PVSerializeObject& so) override;
 	PVSERIALIZEOBJECT_SPLIT
 
   private:

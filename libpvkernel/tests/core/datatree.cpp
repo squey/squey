@@ -95,11 +95,7 @@ class B : public data_tree_b_t
   public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
 
-	void set_parent_from_ptr(A* parent)
-	{
-		data_tree_b_t::set_parent_from_ptr(parent);
-		_j = get_parent()->get_i() * 2;
-	}
+	void set_parent_from_ptr(A* parent) { _j = get_parent()->get_i() * 2; }
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
@@ -153,11 +149,7 @@ class C : public data_tree_c_t
   public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
 
-	virtual void set_parent_from_ptr(B* parent)
-	{
-		data_tree_c_t::set_parent_from_ptr(parent);
-		_j = get_parent()->get_i() * 2;
-	}
+	virtual void set_parent_from_ptr(B* parent) { _j = get_parent()->get_i() * 2; }
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
@@ -197,11 +189,7 @@ class D : public data_tree_d_t
   public:
 	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
 
-	virtual void set_parent_from_ptr(C* parent)
-	{
-		data_tree_d_t::set_parent_from_ptr(parent);
-		_j = get_parent()->get_i() * 2;
-	}
+	virtual void set_parent_from_ptr(C* parent) { _j = get_parent()->get_i() * 2; }
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
@@ -238,13 +226,13 @@ void delete_use_case()
 	A_p a1(new A(4));
 	{
 		B_p b1(new B(5));
-		b1->set_parent(a1);
+		a1->do_add_child(b1);
 		B_p b2(new B());
-		b2->set_parent(a1);
+		a1->do_add_child(b2);
 		C_p c(new C());
-		c->set_parent(b1);
+		b1->do_add_child(c);
 		D_p d(new D());
-		d->set_parent(c);
+		c->do_add_child(d);
 	}
 
 	a1.reset();
@@ -259,15 +247,15 @@ void standard_use_case()
 	A_p a1(new A(4));
 	A_p a2(new A());
 	B_p b1(new B(5));
-	b1->set_parent(a1);
+	a1->do_add_child(b1);
 	B_p b2(new B());
-	b2->set_parent(a1);
+	a1->do_add_child(b2);
 	B_p b3(new B());
-	b3->set_parent(a2);
+	a2->do_add_child(b3);
 	C_p c(new C());
-	c->set_parent(b1);
+	b1->do_add_child(c);
 	D_p d(new D());
-	d->set_parent(c);
+	c->do_add_child(d);
 
 	// Check "child_added"
 	PV_ASSERT_VALID(b1->a_was_here());
@@ -329,171 +317,13 @@ void standard_use_case()
 	PVLOG_INFO("Children access passed\n");
 
 	//////////////////////////////////////////
-	//  Test3 - Same parent
-	//////////////////////////////////////////
-	// a1->set_parent(nullptr);
-	// a2->set_parent(nullptr);
-	b1->set_parent(a1);
-	b1->set_parent(a1);
-	b1->set_parent(a1);
-	b3->set_parent(a2);
-	// c->set_parent(b0);
-	c->set_parent(b1);
-	d->set_parent(c);
-
-	{
-		// PV_ASSERT_VALID(a1->get_parent() == nullptr);
-		// PV_ASSERT_VALID(a2->get_parent() == nullptr);
-		PV_ASSERT_VALID(b1->get_parent() == a1.get());
-		PV_ASSERT_VALID(b2->get_parent() == a1.get());
-		PV_ASSERT_VALID(b3->get_parent() == a2.get());
-		PV_ASSERT_VALID(c->get_parent() == b1.get());
-		PV_ASSERT_VALID(c->get_parent<A>() == a1.get());
-		PV_ASSERT_VALID(d->get_parent() == c.get());
-		PV_ASSERT_VALID(d->get_parent<B>() == b1.get());
-		PV_ASSERT_VALID(d->get_parent<A>() == a1.get());
-		PV_ASSERT_VALID(d->get_parent<C>() == c.get());
-		auto a1_children = a1->get_children();
-		PV_ASSERT_VALID(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
-		auto a2_children = a2->get_children();
-		PV_ASSERT_VALID(a2_children.size() == 1 && a2_children[0] == b3);
-		auto b1_children = b1->get_children();
-		PV_ASSERT_VALID(b1_children.size() == 1 && b1_children[0] == c);
-		PV_ASSERT_VALID(b2->get_children().size() == 0);
-		PV_ASSERT_VALID(b3->get_children().size() == 0);
-		auto c_children = c->get_children();
-		PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
-	}
-
-	std::cout << "a1:" << std::endl;
-	a1->dump();
-	std::cout << "a2:" << std::endl;
-	a2->dump();
-	std::cout << std::endl;
-
-	PVLOG_INFO("Reaffecting same parent passed\n");
-
-	//////////////////////////////////////////
-	//  Test4 - Changing parent
-	//////////////////////////////////////////
-	b1->set_parent(a2);
-
-	std::cout << "a1:" << std::endl;
-	a1->dump();
-	std::cout << "a2:" << std::endl;
-	a2->dump();
-	std::cout << std::endl;
-
-	{
-		// a1 <-> b2
-		auto a1_children = a1->get_children();
-		PV_ASSERT_VALID(a1_children.size() == 1);
-		PV_ASSERT_VALID(a1_children[0] == b2);
-		PV_ASSERT_VALID(b2->get_parent() == a1.get());
-		PV_ASSERT_VALID(b2->get_children().size() == 0);
-
-		// a2 <-> (b1, b3)
-		auto a2_children = a2->get_children();
-		PV_ASSERT_VALID(a2_children.size() == 2);
-		PV_ASSERT_VALID(a2_children[0] == b3);
-		PV_ASSERT_VALID(a2_children[1] == b1);
-		PV_ASSERT_VALID(b1->get_parent() == a2.get());
-		PV_ASSERT_VALID(b3->get_parent() == a2.get());
-
-		// (b1, b3) <-> c
-		auto b1_children = b1->get_children();
-		PV_ASSERT_VALID(b1_children.size() == 1);
-		PV_ASSERT_VALID(b1_children[0] == c);
-		PV_ASSERT_VALID(c->get_parent() == b1.get());
-		PV_ASSERT_VALID(b3->get_children().size() == 0);
-
-		// c <-> d
-		PV_ASSERT_VALID(d->get_parent() == c.get());
-		auto c_children = c->get_children();
-		PV_ASSERT_VALID(c_children.size() == 1);
-		PV_ASSERT_VALID(c_children[0] == d);
-	}
-	PVLOG_INFO("Changing parent passed\n");
-
-	//////////////////////////////////////////
-	//  Test5 - Changing child
-	//////////////////////////////////////////
-	b2->add_child(c);
-
-	std::cout << "a1:" << std::endl;
-	a1->dump();
-	std::cout << "a2:" << std::endl;
-	a2->dump();
-	std::cout << std::endl;
-
-	{
-		// a1 <-> b2
-		auto a1_children = a1->get_children();
-		PV_ASSERT_VALID(a1_children.size() == 1 && a1_children[0] == b2);
-		PV_ASSERT_VALID(b2->get_parent() == a1.get());
-
-		// b2 <-> c
-		auto b2_children = b2->get_children();
-		PV_ASSERT_VALID(b2_children.size() == 1 && b2_children[0] == c);
-		PV_ASSERT_VALID(c->get_parent() == b2.get());
-
-		// c <-> d
-		auto c_children = c->get_children();
-		PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
-		PV_ASSERT_VALID(d->get_parent() == c.get());
-
-		// a2 <-> (b1, b3)
-		auto a2_children = a2->get_children();
-		PV_ASSERT_VALID(a2_children.size() == 2 && a2_children[0] == b3 && a2_children[1] == b1);
-		PV_ASSERT_VALID(b1->get_parent() == a2.get());
-		PV_ASSERT_VALID(b3->get_parent() == a2.get());
-		PV_ASSERT_VALID(b1->get_children().size() == 0);
-		PV_ASSERT_VALID(b3->get_children().size() == 0);
-	}
-
-	PVLOG_INFO("Changing child passed\n");
-
-	//////////////////////////////////////////
-	//  Test6 - Create with parent and set same parent
-	//////////////////////////////////////////
-	PVCore::PVSharedPtr<C> c2(new C());
-	c2->set_parent(b2);
-
-	{
-		// a1 <-> b2
-		auto a1_children = a1->get_children();
-		PV_ASSERT_VALID(a1_children.size() == 1 && a1_children[0] == b2);
-
-		// b2 <-> (c, c2)
-		PV_ASSERT_VALID(b2->get_parent() == a1.get());
-		auto b2_children = b2->get_children();
-		PV_ASSERT_VALID(b2_children.size() == 2 && b2_children[0] == c && b2_children[1] == c2);
-		PV_ASSERT_VALID(c->get_parent() == b2.get());
-		PV_ASSERT_VALID(c2->get_parent() == b2.get());
-		PV_ASSERT_VALID(c2->get_children().size() == 0);
-
-		// c <-> d
-		PV_ASSERT_VALID(d->get_parent() == c.get());
-		auto c_children = c->get_children();
-		PV_ASSERT_VALID(c_children.size() == 1 && c_children[0] == d);
-	}
-
-	std::cout << "a1:" << std::endl;
-	a1->dump();
-	std::cout << "a2:" << std::endl;
-	a2->dump();
-	std::cout << std::endl;
-
-	PVLOG_INFO("Create with parent and set same parent passed\n");
-
-	//////////////////////////////////////////
 	//  Test7 - Remove child
 	//////////////////////////////////////////
 
 	a1->remove_child(b2);
 
 	{
-		PV_ASSERT_VALID(a1->get_children().size() == 0);
+		PV_VALID(a1->get_children().size(), 1);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -504,48 +334,6 @@ void standard_use_case()
 
 	PVLOG_INFO("Removing child passed\n");
 
-#if 0
-	//////////////////////////////////////////
-	//  Test8 - Remove parent
-	//////////////////////////////////////////
-	b1->set_parent(nullptr);
-
-	{
-		PV_ASSERT_VALID(a2->get_parent() == nullptr);
-		auto a2_children = a2->get_children();
-		PV_ASSERT_VALID(a2_children.size() == 1 && a2_children[0] == b3);
-		PV_ASSERT_VALID(b3->get_parent() == a2.get());
-		PV_ASSERT_VALID(b3->get_children().size() == 0);
-	}
-
-	std::cout << "a1:" << std::endl;
-	a1->dump();
-	std::cout << "a2:" << std::endl;
-	a2->dump(); std::cout << std::endl;
-
-	PVLOG_INFO("Removing parent passed\n");
-#endif
-
-//////////////////////////////////////////
-//  Test9 - Create an object without parent and then set a parent
-//////////////////////////////////////////
-#if 0
-	std::shared_ptr<C> c3(new C());
-	c3->set_parent(b3);
-
-	std::cout << "a1:" << std::endl;
-	a1->dump();
-	std::cout << "a2:" << std::endl;
-	a2->dump(); std::cout << std::endl;
-
-	{
-		PV_ASSERT_VALID(c3->get_parent() == b3.get());
-		auto b3_children = b3->get_children();
-		PV_ASSERT_VALID(b3_children.size() == 1 && b3_children[0] == c3);
-	}
-
-	PVLOG_INFO("Create without parent and set parent passed\n");
-#endif
 	//////////////////////////////////////////
 	//  Test10 - Get null ancestor if parent is null
 	//////////////////////////////////////////
@@ -599,14 +387,14 @@ void serialize_use_case()
 	{
 		A_p a1(new A(5));
 		B_p b1(new B(4));
-		b1->set_parent(a1);
+		a1->do_add_child(b1);
 		B_p b2(new B(3));
-		b2->set_parent(a1);
+		a1->do_add_child(b2);
 		C_p c(new C(2));
-		c->set_parent(b1);
+		b1->do_add_child(c);
 		c->set_j(c->get_j() * 10);
 		D_p d(new D(1));
-		d->set_parent(c);
+		c->do_add_child(d);
 		d->set_j(d->get_j() * 10);
 		std::cout << "b1 = " << b1.get() << std::endl;
 		std::cout << "b2 = " << b2.get() << std::endl;
@@ -626,7 +414,7 @@ void serialize_use_case()
 
 	auto a1_children = a1->get_children();
 
-	PV_ASSERT_VALID(a1_children.size() == 2);
+	PV_VALID(a1_children.size(), 2);
 
 	auto b1 = a1_children[0];
 	auto b2 = a1_children[1];

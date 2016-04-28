@@ -138,14 +138,6 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	virtual ~PVDataTreeObjectWithChildren() { _children.clear(); }
 
   public:
-	child_t* new_child_default()
-	{
-		PVCore::PVSharedPtr<child_t> ret(new child_t());
-		real_type_t* me = static_cast<real_type_t*>(this);
-		ret->set_parent(me);
-		return ret.get();
-	}
-
 	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a
 	 * class type).
 	 *  If no level is specified, the direct children are returned.
@@ -164,16 +156,6 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	}
 
 	inline children_t const& get_children() const { return _children; }
-
-	/*! \brief Add a child to the data tree object.
-	 *  \param[in] child Child of the data tree object to add.
-	 *  This is basically a helper method doing a set_parent on the child.
-	 */
-	void add_child(pchild_t const& child_p)
-	{
-		real_type_t* me = static_cast<real_type_t*>(this);
-		child_p->set_parent(me);
-	}
 
 	/*! \brief Remove a child of the data tree object.
 	 *  \param[in] child Child of the data tree object to remove.
@@ -263,35 +245,29 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	virtual void serialize_read(PVCore::PVSerializeObject& so,
 	                            PVCore::PVSerializeArchive::version_t /*v*/)
 	{
+	  (void)so;
 		PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
-		auto create_func = [&] {
-			PVSharedPtr<child_t> tmp(new child_t());
-			tmp->set_parent(me_p);
-			return tmp;
-		};
-		if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(),
-		                  true, true)) {
-			// No children born in here...
-			return;
-		}
+		//	// TODO : Re-enable this
+		// auto create_func = [&] {
+		//	PVSharedPtr<child_t> tmp(new child_t());
+		//	tmp->set_parent(me_p);
+		//	return tmp;
+		//};
+		// if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(),
+		//                  true, true)) {
+		//	// No children born in here...
+		//	return;
+		//}
 	}
 
-	virtual void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
-	{
-		if (so.is_writing()) {
-			serialize_write(so);
-		} else {
-			serialize_read(so, v);
-		}
-	}
-
-  protected:
 	void do_add_child(pchild_t c)
 	{
+		c->_parent = static_cast<real_type_t*>(this);
 		_children.push_back(c);
 		child_added(*c);
 	}
 
+  protected:
 	virtual QString get_children_description() const { return "Children"; }
 	virtual QString get_children_serialize_name() const { return "children"; }
 
@@ -375,42 +351,10 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 		return GetParentImpl<parent_t const, Tancestor const>::get_parent(get_real_parent());
 	}
 
-	inline void set_parent(pparent_t const& parent) { set_parent_from_ptr(parent.get()); }
-	inline void set_parent(parent_t* parent) { set_parent_from_ptr(parent); }
-
 	void remove_from_tree()
 	{
 		real_type_t* me = static_cast<real_type_t*>(this);
 		get_real_parent()->remove_child(*me);
-	}
-
-  protected:
-	/*! \brief Set the parent of a data tree object.
-	 *  \param[in] parent Parent of the data tree object.
-	 *  If a parent is already set, properly reparent with taking care of the child.
-	 */
-	virtual void set_parent_from_ptr(parent_t* parent)
-	{
-		if (get_real_parent() == parent) {
-			return;
-		}
-
-		real_type_t* me = static_cast<real_type_t*>(this);
-		PVCore::PVSharedPtr<real_type_t> me_p;
-		bool child_added = false;
-		if (get_real_parent()) {
-			me_p = get_real_parent()->remove_child(*me);
-			if (parent) {
-				parent->do_add_child(me_p);
-				child_added = true;
-			}
-		}
-		parent_t* old_parent = get_real_parent();
-		_parent = parent;
-		if (old_parent == nullptr && parent && !child_added) {
-			me_p = PVCore::static_pointer_cast<real_type_t>(me->shared_from_this());
-			parent->do_add_child(me_p);
-		}
 	}
 
   private:
@@ -611,12 +555,6 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
 		PVCore::PVSharedPtr<real_type_t const> p(
 		    static_cast<real_type_t const*>(this)->shared_from_this());
 		return const_base_p_type{p};
-	}
-
-  public:
-	virtual void serialize(PVCore::PVSerializeObject& /*so*/,
-	                       PVCore::PVSerializeArchive::version_t /*v*/)
-	{
 	}
 
   public:
