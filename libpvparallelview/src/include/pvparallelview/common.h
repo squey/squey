@@ -95,8 +95,8 @@ enum {
 #define CUDA_CONSTEXPR constexpr
 #endif
 
-template <size_t Bbits> struct constants
-{
+template <size_t Bbits>
+struct constants {
 	CUDA_CONSTEXPR static uint32_t image_height = ((uint32_t)1) << Bbits;
 	CUDA_CONSTEXPR static uint32_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
 };

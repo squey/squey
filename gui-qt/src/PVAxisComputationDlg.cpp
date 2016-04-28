@@ -29,8 +29,8 @@ PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Inendi::PVView& view, QW
 void PVInspector::PVAxisComputationDlg::init_plugins(QComboBox* cb)
 {
 	// List all available plugins and add them to the combo box
-	LIB_CLASS(Inendi::PVAxisComputation)::list_classes const& axis_plugins =
-	    LIB_CLASS(Inendi::PVAxisComputation)::get().get_list();
+	LIB_CLASS(Inendi::PVAxisComputation)
+	::list_classes const& axis_plugins = LIB_CLASS(Inendi::PVAxisComputation)::get().get_list();
 	LIB_CLASS(Inendi::PVAxisComputation)::list_classes::const_iterator it;
 	for (it = axis_plugins.begin(); it != axis_plugins.end(); it++) {
 		QString name = it->value()->get_human_name();

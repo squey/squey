@@ -60,7 +60,7 @@ class PVXmlParamWidgetBoardFilter : public QWidget
 	void slotVerifRegExpInName();
 	void slotEmitNext();
 
-signals:
+  signals:
 	void signalRefreshView();
 	void signalEmitNext();
 };

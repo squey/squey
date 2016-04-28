@@ -18,7 +18,8 @@ namespace PVCore
 {
 
 // Forward declaration
-template <class RegAs> class PVClassLibrary;
+template <class RegAs>
+class PVClassLibrary;
 
 /*! \brief Define a class type that is "registreable".
  *
@@ -96,9 +97,11 @@ template <class RegAs> class PVClassLibrary;
  *
  * For more informations, see \ref PVTag.
  */
-template <typename RegAs_> class PVRegistrableClass
+template <typename RegAs_>
+class PVRegistrableClass
 {
-	template <class RegAs> friend class PVCore::PVClassLibrary;
+	template <class RegAs>
+	friend class PVCore::PVClassLibrary;
 
   public:
 	typedef RegAs_ RegAs;
@@ -115,7 +118,8 @@ template <typename RegAs_> class PVRegistrableClass
 	 * \return a shared pointer to a Tc object
 	 * \sa _clone_me
 	 */
-	template <typename Tc> std::shared_ptr<Tc> clone() const
+	template <typename Tc>
+	std::shared_ptr<Tc> clone() const
 	{
 		base_registrable* rc = _clone_me();
 		assert(rc);
@@ -158,7 +162,8 @@ template <typename RegAs_> class PVRegistrableClass
 	reg_id_t __registered_class_id;
 };
 
-template <class T> unsigned int qHash(PVRegistrableClass<T> const& rc)
+template <class T>
+unsigned int qHash(PVRegistrableClass<T> const& rc)
 {
 	return rc.registered_id();
 }

@@ -483,7 +483,7 @@ class EntityQObserver : public PVHive::PVQObserver<Entity>, public Interactor
 
 	virtual void terminate() { deleteLater(); }
 
-signals:
+  signals:
 	void finished(int);
 };
 
@@ -522,7 +522,7 @@ class PropertyQObserver : public PVHive::PVQObserver<Property>, public Interacto
 
 	virtual void terminate() { deleteLater(); }
 
-signals:
+  signals:
 	void finished(int);
 };
 
@@ -538,23 +538,24 @@ class EntityObserverCB : public QObject, public Interactor
 	{
 		auto func_about_to_be_ref = std::bind([](const Entity* /*e*/, EntityObserverCB* /*o*/) {},
 		                                      std::placeholders::_1, this);
-		auto func_ref = std::bind([](const Entity* e, EntityObserverCB* o) {
-			                          std::cout << "entity observercb " << o->get_id()
-			                                    << ": value: " << e->get_value() << std::endl;
-			                      },
-		                          std::placeholders::_1, this);
+		auto func_ref = std::bind(
+		    [](const Entity* e, EntityObserverCB* o) {
+			    std::cout << "entity observercb " << o->get_id() << ": value: " << e->get_value()
+			              << std::endl;
+			},
+		    std::placeholders::_1, this);
 
-		auto func_atbd =
-		    std::bind([](const Entity* e, EntityObserverCB* o) {
-			              QMessageBox box;
-			              box.setText("Sure to quit entity observercb " + o->get_id_str() + "?");
-			              box.setStandardButtons(QMessageBox::Ok);
-			              box.exec();
-			              std::cout << "entity observercb of object" << e->get_id() << ": suicide"
-			                        << std::endl;
-			              o->terminate();
-			          },
-		              std::placeholders::_1, this);
+		auto func_atbd = std::bind(
+		    [](const Entity* e, EntityObserverCB* o) {
+			    QMessageBox box;
+			    box.setText("Sure to quit entity observercb " + o->get_id_str() + "?");
+			    box.setStandardButtons(QMessageBox::Ok);
+			    box.exec();
+			    std::cout << "entity observercb of object" << e->get_id() << ": suicide"
+			              << std::endl;
+			    o->terminate();
+			},
+		    std::placeholders::_1, this);
 
 		_ocb = PVHive::create_observer_callback<Entity, func_type, func_type, func_type>(
 		    func_about_to_be_ref, func_ref, func_atbd);
@@ -570,7 +571,7 @@ class EntityObserverCB : public QObject, public Interactor
 
 	void terminate() { deleteLater(); }
 
-signals:
+  signals:
 	void finished(int);
 
   private:
@@ -587,30 +588,31 @@ class PropertyObserverCB : public QObject, public Interactor
 
 	PropertyObserverCB(int id) : Interactor(id)
 	{
-		auto func_about_to_be_ref = std::bind([](const Property* p, PropertyObserverCB* o) {
-			                                      std::cout << "property observercb " << o->get_id()
-			                                                << ": value: " << p->get_value()
-			                                                << std::endl;
-			                                  },
-		                                      std::placeholders::_1, this);
+		auto func_about_to_be_ref = std::bind(
+		    [](const Property* p, PropertyObserverCB* o) {
+			    std::cout << "property observercb " << o->get_id() << ": value: " << p->get_value()
+			              << std::endl;
+			},
+		    std::placeholders::_1, this);
 
-		auto func_ref = std::bind([](const Property* p, PropertyObserverCB* o) {
-			                          std::cout << "property observercb " << o->get_id()
-			                                    << ": value: " << p->get_value() << std::endl;
-			                      },
-		                          std::placeholders::_1, this);
+		auto func_ref = std::bind(
+		    [](const Property* p, PropertyObserverCB* o) {
+			    std::cout << "property observercb " << o->get_id() << ": value: " << p->get_value()
+			              << std::endl;
+			},
+		    std::placeholders::_1, this);
 
-		auto func_atbd =
-		    std::bind([](const Property* p, PropertyObserverCB* o) {
-			              QMessageBox box;
-			              box.setText("Sure to quit property observercb " + o->get_id_str() + "?");
-			              box.setStandardButtons(QMessageBox::Ok);
-			              box.exec();
-			              std::cout << "property observercb of object" << p->get_id() << ": suicide"
-			                        << std::endl;
-			              o->terminate();
-			          },
-		              std::placeholders::_1, this);
+		auto func_atbd = std::bind(
+		    [](const Property* p, PropertyObserverCB* o) {
+			    QMessageBox box;
+			    box.setText("Sure to quit property observercb " + o->get_id_str() + "?");
+			    box.setStandardButtons(QMessageBox::Ok);
+			    box.exec();
+			    std::cout << "property observercb of object" << p->get_id() << ": suicide"
+			              << std::endl;
+			    o->terminate();
+			},
+		    std::placeholders::_1, this);
 
 		_ocb = PVHive::create_observer_callback<Property, func_type, func_type, func_type>(
 		    func_about_to_be_ref, func_ref, func_atbd);
@@ -626,7 +628,7 @@ class PropertyObserverCB : public QObject, public Interactor
 
 	void terminate() { deleteLater(); }
 
-signals:
+  signals:
 	void finished(int);
 
   private:
@@ -655,7 +657,7 @@ class EntityObserverSignal : public QObject, public Interactor
 
 	virtual void terminate() { deleteLater(); }
 
-signals:
+  signals:
 	void finished(int);
 
   public slots:
@@ -701,7 +703,7 @@ class PropertyObserverSignal : public QObject, public Interactor
 
 	virtual void terminate() { deleteLater(); }
 
-signals:
+  signals:
 	void finished(int);
 
   public slots:

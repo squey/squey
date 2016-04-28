@@ -71,7 +71,8 @@ PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_w
  *
  *****************************************************************************/
 PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
-                                                      PVCore::PVArgumentList& args, QWidget* parent)
+                                                      PVCore::PVArgumentList& args,
+                                                      QWidget* parent)
     : QWidget(parent), _args_widget_factory(args_widget_factory), _args(&args)
 {
 	assert(_args_widget_factory);

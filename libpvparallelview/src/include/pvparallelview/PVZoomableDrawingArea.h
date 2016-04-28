@@ -148,7 +148,7 @@ class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 	bool x_axis_inverted() const { return get_x_axis_zoom().inverted(); }
 	bool y_axis_inverted() const { return get_y_axis_zoom().inverted(); }
 
-signals:
+  signals:
 	/**
 	 * This signal is emitted each time a zoom change has been done.
 	 *

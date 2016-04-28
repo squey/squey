@@ -40,8 +40,7 @@ class PVRenderingPipelinePreprocessRouter
 	/**
 	 * Gather all data required for processing from the pipeline.
 	 */
-	struct ZoneRenderingWithColors
-	{
+	struct ZoneRenderingWithColors {
 		// Used by TBB internally
 		ZoneRenderingWithColors() {}
 
@@ -127,8 +126,7 @@ class PVRenderingPipelinePreprocessRouter
 	 *
 	 * * Processing state and colors.
 	 */
-	struct RouterData
-	{
+	struct RouterData {
 		std::vector<ZoneInfos> _zones_infos;
 		PVCore::PVHSVColor const* _colors;
 	};

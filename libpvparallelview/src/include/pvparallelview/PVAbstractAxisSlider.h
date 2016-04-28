@@ -34,7 +34,9 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	constexpr static int64_t max_value = (1LL << 32);
 
   public:
-	PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
+	PVAbstractAxisSlider(int64_t omin,
+	                     int64_t omax,
+	                     int64_t o,
 	                     PVAxisSliderOrientation orientation = Min,
 	                     QGraphicsItem* parent_item = nullptr);
 
@@ -57,10 +59,10 @@ class PVAbstractAxisSlider : public QGraphicsObject
   public:
 	virtual QRectF boundingRect() const = 0;
 
-	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-	                   QWidget* widget = 0) override;
+	virtual void
+	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
 
-signals:
+  signals:
 	void slider_moved();
 
   protected:

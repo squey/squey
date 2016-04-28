@@ -28,13 +28,17 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom()
  * PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom
  *
  *****************************************************************************/
-PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString& _str, QDomElement& dom,
+PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type,
+                                           const QString& _str,
+                                           QDomElement& dom,
                                            QDomDocument& xmlFile_)
 {
 	init(_type, _str, dom, xmlFile_);
 }
 
-void PVRush::PVXmlTreeNodeDom::init(Type _type, const QString& _str, QDomElement& dom,
+void PVRush::PVXmlTreeNodeDom::init(Type _type,
+                                    const QString& _str,
+                                    QDomElement& dom,
                                     QDomDocument& xmlFile_)
 {
 	this->type = _type;
@@ -219,12 +223,9 @@ QString PVRush::PVXmlTreeNodeDom::getName()
 {
 	// if(this->type==Root)return "root";
 	switch (this->type) {
-	case RegEx:
-		;
-	case axis:
-		;
-	case url:
-		;
+	case RegEx:;
+	case axis:;
+	case url:;
 	case filter:
 		return this->xmlDomElement.attribute(PVFORMAT_FILTER_NAME_STR,
 		                                     PVFORMAT_FILTER_NAME_DEFAULT);
@@ -269,18 +270,15 @@ QString PVRush::PVXmlTreeNodeDom::getName()
 void PVRush::PVXmlTreeNodeDom::setName(QString nom)
 {
 	switch (this->type) {
-	case RegEx:
-		; // // set the attribute name
-	case axis:
-		; // // set the attribute name
+	case RegEx:; // // set the attribute name
+	case axis:;  // // set the attribute name
 	case filter:
 		this->xmlDomElement.setAttribute(PVFORMAT_FILTER_NAME_STR, nom);
 		break; // set the attribute name
 	case splitter:
 		this->xmlDomElement.setAttribute(PVFORMAT_FILTER_NAME_STR, nom);
 		break;
-	case field:
-		;
+	case field:;
 	default:
 		this->str = nom;
 	}
@@ -390,8 +388,7 @@ void PVRush::PVXmlTreeNodeDom::setDoc(QDomDocument& file)
 QString PVRush::PVXmlTreeNodeDom::getExpression()
 {
 	switch (this->type) {
-	case RegEx:
-		;
+	case RegEx:;
 	case filter:
 		return this->xmlDomElement.attribute("expression", ".*");
 		break;

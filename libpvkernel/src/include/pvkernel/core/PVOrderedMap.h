@@ -20,7 +20,8 @@ namespace PVCore
  *
  * Inspired from https://github.com/zzjin/CoopES/blob/master/include/ssyntax/qorderedmap.h
  */
-template <class Key, class Value> class PVOrderedMapNode
+template <class Key, class Value>
+class PVOrderedMapNode
 {
   public:
 	/**
@@ -69,7 +70,8 @@ template <class Key, class Value> class PVOrderedMapNode
  * they were inserted.
  *
  */
-template <class Key, class Value> class PVOrderedMap
+template <class Key, class Value>
+class PVOrderedMap
 {
   public:
 	/**
@@ -213,7 +215,8 @@ template <class Key, class Value> class PVOrderedMap
  * PVCore::PVOrderedMap<Key, Value>::clear
  *
  *****************************************************************************/
-template <class Key, class Value> void PVOrderedMap<Key, Value>::clear()
+template <class Key, class Value>
+void PVOrderedMap<Key, Value>::clear()
 {
 	_nodes.clear();
 }
@@ -223,7 +226,8 @@ template <class Key, class Value> void PVOrderedMap<Key, Value>::clear()
  * PVCore::PVOrderedMap<Key, Value>::contains
  *
  *****************************************************************************/
-template <class Key, class Value> bool PVOrderedMap<Key, Value>::contains(const Key& key) const
+template <class Key, class Value>
+bool PVOrderedMap<Key, Value>::contains(const Key& key) const
 {
 	return std::any_of(_nodes.begin(), _nodes.end(),
 	                   [&key](PVOrderedMapNode<Key, Value> const& n) { return n.key() == key; });
@@ -234,7 +238,8 @@ template <class Key, class Value> bool PVOrderedMap<Key, Value>::contains(const 
  * PVCore::PVOrderedMap<Key, Value>::empty
  *
  *****************************************************************************/
-template <class Key, class Value> bool PVOrderedMap<Key, Value>::empty() const
+template <class Key, class Value>
+bool PVOrderedMap<Key, Value>::empty() const
 {
 	return _nodes.empty();
 }
@@ -244,7 +249,8 @@ template <class Key, class Value> bool PVOrderedMap<Key, Value>::empty() const
  * PVCore::PVOrderedMap<Key, Value>::size
  *
  *****************************************************************************/
-template <class Key, class Value> size_t PVOrderedMap<Key, Value>::size() const
+template <class Key, class Value>
+size_t PVOrderedMap<Key, Value>::size() const
 {
 	return _nodes.size();
 }
@@ -254,7 +260,8 @@ template <class Key, class Value> size_t PVOrderedMap<Key, Value>::size() const
  * PVCore::PVOrderedMap<Key, Value>::keys
  *
  *****************************************************************************/
-template <class Key, class Value> const std::vector<Key> PVOrderedMap<Key, Value>::keys() const
+template <class Key, class Value>
+const std::vector<Key> PVOrderedMap<Key, Value>::keys() const
 {
 	std::vector<Key> list;
 
@@ -339,7 +346,8 @@ typename PVOrderedMap<Key, Value>::iterator PVOrderedMap<Key, Value>::find(const
  * PVCore::PVOrderedMap<Key, Value>::operator[]
  *
  *****************************************************************************/
-template <class Key, class Value> Value& PVOrderedMap<Key, Value>::operator[](const Key& key)
+template <class Key, class Value>
+Value& PVOrderedMap<Key, Value>::operator[](const Key& key)
 {
 	// test if key exist, only return its value
 	iterator it = find(key);
@@ -357,7 +365,8 @@ template <class Key, class Value> Value& PVOrderedMap<Key, Value>::operator[](co
  * PVCore::PVOrderedMap<Key, Value>::at
  *
  *****************************************************************************/
-template <class Key, class Value> Value& PVOrderedMap<Key, Value>::at(const Key& key)
+template <class Key, class Value>
+Value& PVOrderedMap<Key, Value>::at(const Key& key)
 {
 	// test if key exist, only return its value
 	iterator it = find(key);
@@ -374,7 +383,8 @@ template <class Key, class Value> Value& PVOrderedMap<Key, Value>::at(const Key&
  * PVCore::PVOrderedMap<Key, Value>::at
  *
  *****************************************************************************/
-template <class Key, class Value> const Value& PVOrderedMap<Key, Value>::at(const Key& key) const
+template <class Key, class Value>
+const Value& PVOrderedMap<Key, Value>::at(const Key& key) const
 {
 	// test if key exist, only return its value
 	const_iterator it = find(key);

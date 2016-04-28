@@ -28,7 +28,8 @@ Inendi::PVLayer::PVLayer(const QString& name_) : index(0), locked(false), visibl
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-Inendi::PVLayer::PVLayer(const QString& name_, const PVSelection& sel_,
+Inendi::PVLayer::PVLayer(const QString& name_,
+                         const PVSelection& sel_,
                          const PVLinesProperties& lp_)
     : index(0), locked(false), visible(true), name(name_), selection(sel_), lines_properties(lp_)
 {

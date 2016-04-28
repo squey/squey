@@ -78,8 +78,7 @@ class PVMainWindow : public QMainWindow
 	friend class PVStartScreenWidget;
 
   private:
-	struct PVFormatDetectCtxt
-	{
+	struct PVFormatDetectCtxt {
 		PVFormatDetectCtxt(PVRush::PVInputType::list_inputs const& inputs_,
 		                   QHash<QString, PVRush::PVInputDescription_p>& hash_input_name_,
 		                   PVRush::hash_formats& formats_,
@@ -87,7 +86,8 @@ class PVMainWindow : public QMainWindow
 		                   map_files_types& files_multi_formats_,
 		                   QHash<QString, PVRush::PVInputType::list_inputs>& discovered_,
 		                   QHash<QString, std::pair<QString, QString>>& formats_error_,
-		                   PVRush::list_creators& lcr_, PVRush::PVInputType_p in_t_,
+		                   PVRush::list_creators& lcr_,
+		                   PVRush::PVInputType_p in_t_,
 		                   QHash<QString, PVCore::PVMeanValue<float>>& discovered_types_)
 		    : inputs(inputs_)
 		    , hash_input_name(hash_input_name_)
@@ -140,8 +140,10 @@ class PVMainWindow : public QMainWindow
 	void set_color(Inendi::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
-	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs,
-	                 PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator,
+	void import_type(PVRush::PVInputType_p in_t,
+	                 PVRush::PVInputType::list_inputs const& inputs,
+	                 PVRush::hash_formats& formats,
+	                 PVRush::hash_format_creator& format_creator,
 	                 QString const& choosenFormat);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
@@ -383,7 +385,7 @@ class PVMainWindow : public QMainWindow
 	void reset_root();
 	void close_solution();
 
-signals:
+  signals:
 	void change_of_current_view_Signal();
 	void filter_applied_Signal();
 	void zombie_mode_changed_Signal();

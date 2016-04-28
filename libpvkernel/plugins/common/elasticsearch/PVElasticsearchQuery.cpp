@@ -10,7 +10,8 @@
 #include <time.h>
 
 PVRush::PVElasticsearchQuery::PVElasticsearchQuery(PVElasticsearchInfos const& infos,
-                                                   QString const& query, QString const& query_type)
+                                                   QString const& query,
+                                                   QString const& query_type)
     : _infos(infos)
     , _query(query)
     , _query_type(query_type)

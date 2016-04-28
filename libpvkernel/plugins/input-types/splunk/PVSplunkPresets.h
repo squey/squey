@@ -35,9 +35,14 @@ class PVSplunkPresets
 	static PVSplunkPresets& get();
 
   public:
-	id_t add(QString const& name, PVSplunkInfos const& infos, QString const& query,
+	id_t add(QString const& name,
+	         PVSplunkInfos const& infos,
+	         QString const& query,
 	         QString const& query_type);
-	void set(id_t id, PVSplunkInfos const& infos, QString const& query, QString const& query_type,
+	void set(id_t id,
+	         PVSplunkInfos const& infos,
+	         QString const& query,
+	         QString const& query_type,
 	         QString const& name = QString());
 	list_id_names_t list_id_names();
 	bool get(id_t id, PVSplunkInfos& infos, QString& query, QString& query_type);

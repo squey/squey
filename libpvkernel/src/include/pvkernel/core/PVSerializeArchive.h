@@ -55,9 +55,11 @@ class PVSerializeArchive : public std::enable_shared_from_this<PVSerializeArchiv
 
 	// Repairable errors
 	inline bool has_repairable_errors() const { return _repairable_errors.size() > 0; }
-	template <class T> bool has_repairable_errors_of_type() const;
+	template <class T>
+	bool has_repairable_errors_of_type() const;
 	inline list_errors_t const& get_repairable_errors() const { return _repairable_errors; }
-	template <class T> list_errors_t get_repairable_errors_of_type() const;
+	template <class T>
+	list_errors_t get_repairable_errors_of_type() const;
 
   protected:
 	bool is_writing() const { return _mode == write; }
@@ -75,17 +77,22 @@ class PVSerializeArchive : public std::enable_shared_from_this<PVSerializeArchiv
 	// Object create function
 	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject* parent);
 	// Attribute access functions
-	virtual void attribute_write(PVSerializeObject const& so, QString const& name,
-	                             QVariant const& obj);
-	virtual void attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj,
-	                            QVariant const& def);
-	virtual void list_attributes_write(PVSerializeObject const& so, QString const& name,
+	virtual void
+	attribute_write(PVSerializeObject const& so, QString const& name, QVariant const& obj);
+	virtual void
+	attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj, QVariant const& def);
+	virtual void list_attributes_write(PVSerializeObject const& so,
+	                                   QString const& name,
 	                                   std::vector<QVariant> const& obj);
-	virtual void list_attributes_read(PVSerializeObject const& so, QString const& name,
+	virtual void list_attributes_read(PVSerializeObject const& so,
+	                                  QString const& name,
 	                                  std::vector<QVariant>& obj);
-	virtual void hash_arguments_write(PVSerializeObject const& so, QString const& name,
+	virtual void hash_arguments_write(PVSerializeObject const& so,
+	                                  QString const& name,
 	                                  PVArgumentList const& obj);
-	void hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj,
+	void hash_arguments_read(PVSerializeObject const& so,
+	                         QString const& name,
+	                         PVArgumentList& obj,
 	                         PVArgumentList const& def_args);
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
 	virtual void buffer_path(PVSerializeObject const& so, QString const& name, QString& path);
@@ -124,7 +131,8 @@ class PVSerializeArchive : public std::enable_shared_from_this<PVSerializeArchiv
 	list_errors_t _repairable_errors;
 };
 
-template <class T> bool PVSerializeArchive::has_repairable_errors_of_type() const
+template <class T>
+bool PVSerializeArchive::has_repairable_errors_of_type() const
 {
 	list_errors_t::const_iterator it;
 	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {

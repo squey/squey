@@ -13,9 +13,11 @@
  * PVParallelView::PVZonesProcessor::declare_processor_zm_sel
  *
  *****************************************************************************/
-PVParallelView::PVZonesProcessor PVParallelView::PVZonesProcessor::declare_processor_zm_sel(
-    PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors,
-    Inendi::PVSelection const& sel)
+PVParallelView::PVZonesProcessor
+PVParallelView::PVZonesProcessor::declare_processor_zm_sel(PVRenderingPipeline& pipeline,
+                                                           PVZonesManager& zm,
+                                                           PVCore::PVHSVColor const* colors,
+                                                           Inendi::PVSelection const& sel)
 {
 	return pipeline.declare_processor(
 	    [&](PVZoneID zone_id) { zm.filter_zone_by_sel(zone_id, sel); }, colors,
@@ -24,7 +26,9 @@ PVParallelView::PVZonesProcessor PVParallelView::PVZonesProcessor::declare_proce
 
 PVParallelView::PVZonesProcessor
 PVParallelView::PVZonesProcessor::declare_background_processor_zm_sel(
-    PVRenderingPipeline& pipeline, PVZonesManager& zm, PVCore::PVHSVColor const* colors,
+    PVRenderingPipeline& pipeline,
+    PVZonesManager& zm,
+    PVCore::PVHSVColor const* colors,
     Inendi::PVSelection const& sel)
 {
 	return pipeline.declare_processor(

@@ -24,8 +24,7 @@ namespace PVParallelView
 #pragma pack(push)
 #pragma pack(4)
 
-struct PVMultiGridEntry
-{
+struct PVMultiGridEntry {
 	uint32_t y1;
 	uint32_t y2;
 	PVRow idx;
@@ -34,11 +33,15 @@ struct PVMultiGridEntry
 
 typedef PVCore::PVVector<PVMultiGridEntry> pvmultigrid_entries_t;
 
-template <int ORDER> class PVMultiGrid
+template <int ORDER>
+class PVMultiGrid
 {
   public:
-	PVMultiGrid(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value,
-	            uint32_t y2_max_value, int max_level)
+	PVMultiGrid(uint32_t y1_min_value,
+	            uint32_t y1_max_value,
+	            uint32_t y2_min_value,
+	            uint32_t y2_max_value,
+	            int max_level)
 	{
 		uint32_t y1_step = (y1_max_value + 1 - y1_min_value) >> ORDER;
 		uint32_t y2_step = (y2_max_value + 1 - y2_min_value) >> ORDER;
@@ -105,8 +108,11 @@ template <int ORDER> class PVMultiGrid
 	// CTOR to use with call to init()
 	PVMultiGrid() {}
 
-	void init(uint32_t y1_min_value, uint32_t y1_step_value, uint32_t y2_min_value,
-	          uint32_t y2_step_value, int max_level)
+	void init(uint32_t y1_min_value,
+	          uint32_t y1_step_value,
+	          uint32_t y2_min_value,
+	          uint32_t y2_step_value,
+	          int max_level)
 	{
 		_y1_min_value = y1_min_value;
 		_y2_min_value = y2_min_value;

@@ -796,8 +796,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::or_optimized(const PVSelBitField& 
 	return *this;
 }
 
-PVCore::PVSelBitField& PVCore::PVSelBitField::or_range(const PVSelBitField& rhs, PVRow start,
-                                                       PVRow end)
+PVCore::PVSelBitField&
+PVCore::PVSelBitField::or_range(const PVSelBitField& rhs, PVRow start, PVRow end)
 {
 	if ((&rhs == this) || (!rhs._table)) {
 		return *this;

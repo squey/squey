@@ -27,9 +27,9 @@ void f(size_t n, decimal_t* fr, decimal_t const* fa, decimal_t const* fb)
 	}
 }
 
-struct holder
-{
-	template <typename T> static bool call(decimal_t const a, decimal_t const b)
+struct holder {
+	template <typename T>
+	static bool call(decimal_t const a, decimal_t const b)
 	{
 		return a.storage_cast<T>() < b.storage_cast<T>();
 	}

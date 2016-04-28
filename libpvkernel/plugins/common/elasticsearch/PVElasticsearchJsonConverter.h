@@ -58,8 +58,8 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 *
 	 * {"range": {"id": {"gte" : begin, "lte": end}}}
 	 */
-	void between(rapidjson::Value const& id, rapidjson::Value const& begin,
-	             rapidjson::Value const& end);
+	void
+	between(rapidjson::Value const& id, rapidjson::Value const& begin, rapidjson::Value const& end);
 
 	/** Generic comparison for less/greater/less_or_equal/greater_or_equal */
 	void compare(rapidjson::Value const& id, rapidjson::Value const& end, const char*);

@@ -20,8 +20,8 @@
 
 #include "common.h"
 
-Inendi::PVSource_sp get_src_from_file(Inendi::PVScene_sp scene, QString const& path_file,
-                                      QString const& path_format)
+Inendi::PVSource_sp
+get_src_from_file(Inendi::PVScene_sp scene, QString const& path_file, QString const& path_format)
 {
 	// Input file
 	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
@@ -47,8 +47,8 @@ Inendi::PVSource_sp get_src_from_file(Inendi::PVScene_sp scene, QString const& p
 	return src;
 }
 
-Inendi::PVSource_sp get_src_from_file(Inendi::PVRoot_sp root, QString const& file,
-                                      QString const& format)
+Inendi::PVSource_sp
+get_src_from_file(Inendi::PVRoot_sp root, QString const& file, QString const& format)
 {
 	Inendi::PVScene_p scene(new Inendi::PVScene());
 	scene->set_parent(root);

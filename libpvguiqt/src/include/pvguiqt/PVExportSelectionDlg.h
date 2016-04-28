@@ -56,7 +56,8 @@ class PVExportSelectionDlg : public QFileDialog
 	 * @param view : The view to export
 	 * @param parent : parent widget (as usual in Qt)
 	 */
-	PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination, Inendi::PVView& view,
+	PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination,
+	                     Inendi::PVView& view,
 	                     QWidget* parent = 0);
 
 	/** Return the kind of axis combination we want to export. */

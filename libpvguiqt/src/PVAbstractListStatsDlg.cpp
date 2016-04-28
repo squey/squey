@@ -82,8 +82,10 @@ namespace __impl
 class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 {
   public:
-	PVAbstractListStatsRangePicker(double relative_min_count, double relative_max_count,
-	                               double absolute_max_count, QWidget* parent = nullptr)
+	PVAbstractListStatsRangePicker(double relative_min_count,
+	                               double relative_max_count,
+	                               double absolute_max_count,
+	                               QWidget* parent = nullptr)
 	    : PVWidgets::PVAbstractRangePicker(relative_min_count, relative_max_count, parent)
 	    , _relative_min_count(relative_min_count)
 	    , _relative_max_count(relative_max_count)
@@ -271,7 +273,8 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
  * PVGuiQt::PVAbstractListStatsDlg
  *
  *****************************************************************************/
-PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView_sp& view, PVCol c,
+PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView_sp& view,
+                                                        PVCol c,
                                                         PVStatsModel* model,
                                                         QWidget* parent /* = nullptr */)
     : PVListDisplayDlg(model, parent), _col(c)
@@ -604,7 +607,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 			    break;
 		    default:
 			    PVLOG_ERROR(("Incorrect type to compute range selection." +
-			                 std::to_string(col2_array.type())).c_str());
+			                 std::to_string(col2_array.type()))
+			                    .c_str());
 			    return;
 		    }
 		    model().reset_selection();
@@ -644,7 +648,8 @@ void PVGuiQt::PVAbstractListStatsDlg::resize_section()
 	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_width);
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex, int /*oldSize*/,
+void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex,
+                                                      int /*oldSize*/,
                                                       int newSize)
 {
 	if (logicalIndex == 1) {
@@ -662,7 +667,7 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 	int section = _values_view->horizontalHeader()->sortIndicatorSection();
 
 	Qt::SortOrder old_order = _values_view->horizontalHeader()->sortIndicatorOrder();
-	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not(bool)old_order
+	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not(bool) old_order
 	                                               : col == 0 ? Qt::SortOrder::AscendingOrder
 	                                                          : Qt::SortOrder::DescendingOrder;
 
@@ -671,7 +676,8 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 	_sort_section = section;
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act, const QStringList& sl,
+void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
+                                                      const QStringList& sl,
                                                       bool hide_dialog)
 {
 
@@ -991,8 +997,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 		size_t representation_count = 0;
 		if (d()->_act_show_count->isChecked()) {
 			occurence = PVStatsModel::format_occurence(occurence_count);
-			occurence_max_width = QFontMetrics(painter->font()).width(
-			    PVStatsModel::format_occurence(d()->relative_max_count()));
+			occurence_max_width =
+			    QFontMetrics(painter->font())
+			        .width(PVStatsModel::format_occurence(d()->relative_max_count()));
 			margin -= occurence_max_width;
 			representation_count++;
 		}
@@ -1005,8 +1012,9 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 		}
 		if (d()->_act_show_percentage->isChecked()) {
 			percentage = PVStatsModel::format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font()).width(
-			    PVStatsModel::format_percentage(d()->relative_max_count() / d()->max_count()));
+			percentage_max_width = QFontMetrics(painter->font())
+			                           .width(PVStatsModel::format_percentage(
+			                               d()->relative_max_count() / d()->max_count()));
 			margin -= percentage_max_width;
 			representation_count++;
 		}

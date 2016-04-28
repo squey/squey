@@ -558,14 +558,15 @@ class FunctionalDlg : public QDialog
 		if (is_entity) {
 			PVHive::PVHive::get().register_observer(s, *o);
 		} else {
-			PVHive::PVHive::get().register_observer(s, [](Storage & s) -> Property * {
-				                                           PropertyEntity* pe =
-				                                               static_cast<PropertyEntity*>(&s);
-				                                           Property* pp = pe->get_prop();
-				                                           std::cout << "reg obs for obj " << pp
-				                                                     << std::endl;
-				                                           return pp;
-				                                       },
+			PVHive::PVHive::get().register_observer(s,
+			                                        [](Storage& s) -> Property* {
+				                                        PropertyEntity* pe =
+				                                            static_cast<PropertyEntity*>(&s);
+				                                        Property* pp = pe->get_prop();
+				                                        std::cout << "reg obs for obj " << pp
+				                                                  << std::endl;
+				                                        return pp;
+				                                    },
 			                                        *o);
 		}
 	}

@@ -9,7 +9,8 @@
 
 #include <time.h>
 
-PVRush::PVSplunkQuery::PVSplunkQuery(PVSplunkInfos const& infos, QString const& query,
+PVRush::PVSplunkQuery::PVSplunkQuery(PVSplunkInfos const& infos,
+                                     QString const& query,
                                      QString const& query_type)
     : _infos(infos)
     , _query(query)

@@ -15,8 +15,7 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 
-struct Obj1
-{
+struct Obj1 {
 	~Obj1() { std::cout << "  Obj1::~Obj1 for object " << this << std::endl; }
 
 	void print() { std::cout << "  Obj1::print" << std::endl; }
@@ -24,8 +23,7 @@ struct Obj1
 
 typedef PVCore::PVSharedPtr<Obj1> Obj1_p;
 
-struct Obj2
-{
+struct Obj2 {
 	~Obj2() { std::cout << "  Obj2::~Obj2 for object " << this << std::endl; }
 
 	void print() { std::cout << "  Obj2::print" << std::endl; }

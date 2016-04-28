@@ -24,9 +24,9 @@
 
 static constexpr size_t BUFFER_SIZE = 2 * 1024 * 1024;
 
-static int socket_callback(CURL* /*easy*/, curl_socket_t s, int what, PVRush::PVSplunkAPI* splunk,
-                           void* /*sockdata*/
-                           )
+static int socket_callback(
+    CURL* /*easy*/, curl_socket_t s, int what, PVRush::PVSplunkAPI* splunk, void* /*sockdata*/
+    )
 {
 	if (what == CURL_POLL_REMOVE) {
 		splunk->set_socket(-1);
@@ -44,8 +44,8 @@ static int timer_callback(CURLM* /*multi*/, long timeout_ms, PVRush::PVSplunkAPI
 	return 0;
 }
 
-static size_t write_callback_export(void* data, size_t size, size_t count,
-                                    PVRush::PVSplunkAPI* splunk)
+static size_t
+write_callback_export(void* data, size_t size, size_t count, PVRush::PVSplunkAPI* splunk)
 {
 	size_t real_size = size * count;
 
@@ -230,7 +230,8 @@ size_t PVRush::PVSplunkAPI::count(const PVRush::PVSplunkQuery& query,
 	return 0;
 }
 
-bool PVRush::PVSplunkAPI::extract(const PVRush::PVSplunkQuery& query, std::string& data_batch,
+bool PVRush::PVSplunkAPI::extract(const PVRush::PVSplunkQuery& query,
+                                  std::string& data_batch,
                                   std::string* error /* = nullptr */)
 {
 	std::string search_query = filtered_search() + query.get_query().toStdString();
@@ -348,7 +349,8 @@ void PVRush::PVSplunkAPI::prepare_extract(const std::string& search_query,
 	FD_ZERO(&_fdset);
 }
 
-bool PVRush::PVSplunkAPI::perform_query(const std::string& search_query, std::string& result,
+bool PVRush::PVSplunkAPI::perform_query(const std::string& search_query,
+                                        std::string& result,
                                         const std::string& output_mode /* = "json" */,
                                         std::string* error /* = nullptr */
                                         ) const
@@ -360,8 +362,9 @@ bool PVRush::PVSplunkAPI::perform_query(const std::string& search_query, std::st
 	curl_easy_setopt(_easy, CURLOPT_WRITEDATA, &result);
 	if (_infos.get_login().isEmpty() == false) {
 		curl_easy_setopt(_easy, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-		curl_easy_setopt(_easy, CURLOPT_USERPWD, (_infos.get_login().toStdString() + ":" +
-		                                          _infos.get_password().toStdString()).c_str());
+		curl_easy_setopt(
+		    _easy, CURLOPT_USERPWD,
+		    (_infos.get_login().toStdString() + ":" + _infos.get_password().toStdString()).c_str());
 	}
 	curl_easy_setopt(_easy, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(_easy, CURLOPT_SSL_VERIFYHOST, 0L);

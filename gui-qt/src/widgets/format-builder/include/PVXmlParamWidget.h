@@ -160,7 +160,7 @@ class PVXmlParamWidget : public QWidget
 
 	void slotSelectNext();
 
-signals:
+  signals:
 	void signalNeedApply();
 	void signalNeedConfirmApply(QModelIndex&);
 	void signalForceApply(QModelIndex&);

@@ -41,7 +41,8 @@ class PVBCIBuffersAlloc
  *
  * A buffer is big enought to contains data for a full zone.
  */
-template <size_t N> class PVBCIBuffers : private PVBCIBuffersAlloc
+template <size_t N>
+class PVBCIBuffers : private PVBCIBuffersAlloc
 {
 	static_assert(PARALLELVIEW_MAX_BCI_CODES % 16 == 0,
 	              "PARALLELVIEW_MAX_BCI_CODES must be a multiple of 16.");
@@ -53,7 +54,7 @@ template <size_t N> class PVBCIBuffers : private PVBCIBuffersAlloc
 		// "+2" as sizeof(bci) == 8 and we need 15 more bytes for potential alignment issues
 		_org_codes = allocate(PARALLELVIEW_MAX_BCI_CODES * N + 2, backend);
 
-		if (((uintptr_t)(_org_codes) & 15) == 0) {
+		if (((uintptr_t)(_org_codes)&15) == 0) {
 			// Already aligned, good.
 			_codes = _org_codes;
 		} else {

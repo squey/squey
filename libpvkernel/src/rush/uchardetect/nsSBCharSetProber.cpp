@@ -53,11 +53,11 @@ nsProbingState nsSingleByteCharSetProber::HandleData(const char* aBuf, PRUint32 
 			if (mLastOrder < SAMPLE_SIZE) {
 				mTotalSeqs++;
 				if (!mReversed)
-					++(mSeqCounters[(int)
-					                mModel->precedenceMatrix[mLastOrder * SAMPLE_SIZE + order]]);
+					++(mSeqCounters[(int)mModel
+					                    ->precedenceMatrix[mLastOrder * SAMPLE_SIZE + order]]);
 				else // reverse the order of the letters in the lookup
-					++(mSeqCounters[(int)
-					                mModel->precedenceMatrix[order * SAMPLE_SIZE + mLastOrder]]);
+					++(mSeqCounters[(int)mModel
+					                    ->precedenceMatrix[order * SAMPLE_SIZE + mLastOrder]]);
 			}
 		}
 		mLastOrder = order;

@@ -20,7 +20,8 @@ namespace PVWidgets
 
 // Inspired by QStandardItemEditorCreator
 // Reuse the Q_PROPERTY macros
-template <class T> class PVViewArgumentEditorCreator : public QItemEditorCreatorBase
+template <class T>
+class PVViewArgumentEditorCreator : public QItemEditorCreatorBase
 {
   public:
 	inline PVViewArgumentEditorCreator(Inendi::PVView const& view)

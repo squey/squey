@@ -44,8 +44,7 @@ class PVStatsListingWidget : public QWidget
 	friend class __impl::PVCellWidgetBase;
 
   public:
-	struct PVParams
-	{
+	struct PVParams {
 		QString cached_value;
 		bool auto_refresh;
 	};
@@ -67,7 +66,8 @@ class PVStatsListingWidget : public QWidget
   private:
 	void init_plugins();
 
-	template <typename T> int init_plugin(QString header_text, bool visible = false)
+	template <typename T>
+	int init_plugin(QString header_text, bool visible = false)
 	{
 		int row = _stats_panel->rowCount();
 		_stats_panel->insertRow(row);
@@ -85,7 +85,8 @@ class PVStatsListingWidget : public QWidget
 		return row;
 	}
 
-	template <typename T> void create_item(int row, int col)
+	template <typename T>
+	void create_item(int row, int col)
 	{
 		QTableWidgetItem* item = new QTableWidgetItem();
 		_stats_panel->setItem(row, col, item);
@@ -156,7 +157,7 @@ class PVLoadingLabel : public QLabel
 		}
 	}
 
-signals:
+  signals:
 	void clicked();
 };
 
@@ -199,7 +200,7 @@ class PVCellWidgetBase : public QWidget
 	void toggle_auto_refresh();
 	void copy_to_clipboard();
 
-signals:
+  signals:
 	void refresh_impl_finished(QString value);
 	void cell_refreshed(int col);
 
@@ -245,7 +246,8 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
   public:
-	PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView const& view,
+	PVUniqueValuesCellWidget(QTableWidget* table,
+	                         Inendi::PVView const& view,
 	                         QTableWidgetItem* item);
 
   public slots:

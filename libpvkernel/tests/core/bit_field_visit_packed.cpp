@@ -56,14 +56,14 @@ int main()
 
 	std::vector<PVRow> sse;
 	sse.reserve(N);
-	bits.visit_selected_lines_gather_sse([&sse](__m128i const v) {
-		                                     sse.push_back(_mm_extract_epi32(v, 0));
-		                                     sse.push_back(_mm_extract_epi32(v, 1));
-		                                     sse.push_back(_mm_extract_epi32(v, 2));
-		                                     sse.push_back(_mm_extract_epi32(v, 3));
-		                                 },
-	                                     [&sse](PVRow const res) { sse.push_back(res); },
-	                                     gather_func, N);
+	bits.visit_selected_lines_gather_sse(
+	    [&sse](__m128i const v) {
+		    sse.push_back(_mm_extract_epi32(v, 0));
+		    sse.push_back(_mm_extract_epi32(v, 1));
+		    sse.push_back(_mm_extract_epi32(v, 2));
+		    sse.push_back(_mm_extract_epi32(v, 3));
+		},
+	    [&sse](PVRow const res) { sse.push_back(res); }, gather_func, N);
 
 	if (sse != ref) {
 		std::cerr << "gather_sse != ref" << std::endl;

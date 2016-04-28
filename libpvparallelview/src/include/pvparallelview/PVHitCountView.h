@@ -69,8 +69,11 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
   public:
-	PVHitCountView(Inendi::PVView_sp& pvview_sp, const uint32_t* col_plotted, const PVRow nrows,
-	               const PVCol axis_index, QWidget* parent = nullptr);
+	PVHitCountView(Inendi::PVView_sp& pvview_sp,
+	               const uint32_t* col_plotted,
+	               const PVRow nrows,
+	               const PVCol axis_index,
+	               QWidget* parent = nullptr);
 
 	~PVHitCountView();
 
@@ -140,8 +143,12 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
   private:
 	void reset_view();
 
-	void draw_lines(QPainter* painter, const int x_max, const int block_view_offset,
-	                const double rel_y_scale, const uint32_t* buffer, const int hsv_value);
+	void draw_lines(QPainter* painter,
+	                const int x_max,
+	                const int block_view_offset,
+	                const double rel_y_scale,
+	                const uint32_t* buffer,
+	                const int hsv_value);
 
   private:
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>& x_zoom_converter() { return _x_zoom_converter; }

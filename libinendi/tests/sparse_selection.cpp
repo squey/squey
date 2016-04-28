@@ -20,7 +20,8 @@
 #include <cstdlib>
 #include <ctime>
 
-template <class L> bool check_equals(const size_t n, const size_t* bits, L const& l)
+template <class L>
+bool check_equals(const size_t n, const size_t* bits, L const& l)
 {
 	bool ret = (n == l.size());
 	if (ret) {

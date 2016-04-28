@@ -77,7 +77,8 @@ class PVRecentItemsManager
 	/*! \brief Add a source item for a given category.
 	 */
 	void add_source(PVRush::PVSourceCreator_p source_creator_p,
-	                const PVRush::PVInputType::list_inputs& inputs, const PVRush::PVFormat& format);
+	                const PVRush::PVInputType::list_inputs& inputs,
+	                const PVRush::PVFormat& format);
 
 	/*! \brief Return a source description from the settings current group.
 	 */

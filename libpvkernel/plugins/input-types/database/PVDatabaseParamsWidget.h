@@ -33,7 +33,8 @@ class PVDatabaseParamsWidget : public QDialog, private Ui::DbParams
 	Q_OBJECT
 
   public:
-	PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t, PVRush::hash_formats const& formats,
+	PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t,
+	                       PVRush::hash_formats const& formats,
 	                       QWidget* parent);
 	~PVDatabaseParamsWidget();
 

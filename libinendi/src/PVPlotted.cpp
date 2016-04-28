@@ -179,8 +179,11 @@ bool Inendi::PVPlotted::dump_buffer_to_file(QString const& file, bool write_as_t
 	return true;
 }
 
-bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& nrows, PVCol& ncols,
-                                              bool get_transposed_version, QString const& file)
+bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf,
+                                              PVRow& nrows,
+                                              PVCol& ncols,
+                                              bool get_transposed_version,
+                                              QString const& file)
 {
 	ncols = 0;
 
@@ -265,8 +268,10 @@ bool Inendi::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& 
 	return true;
 }
 
-bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols,
-                                              bool get_transposed_version, QString const& file)
+bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf,
+                                              PVCol& ncols,
+                                              bool get_transposed_version,
+                                              QString const& file)
 {
 	ncols = 0;
 
@@ -403,8 +408,8 @@ QList<PVCol> Inendi::PVPlotted::get_singleton_columns_indexes()
 	return cols_ret;
 }
 
-QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_t max,
-                                                                        double rate)
+QList<PVCol>
+Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_t max, double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
@@ -462,7 +467,9 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 	return cols_ret;
 }
 
-void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel,
+void Inendi::PVPlotted::get_col_minmax(PVRow& min,
+                                       PVRow& max,
+                                       PVSelection const& sel,
                                        PVCol col) const
 {
 	PVRow local_min, local_max;
@@ -471,18 +478,19 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 	vmax = 0;
 	local_min = 0;
 	local_max = 0;
-	sel.visit_selected_lines([&](PVRow i) {
-		                         const uint32_t v = this->get_value(i, col);
-		                         if (v > vmax) {
-			                         vmax = v;
-			                         local_max = i;
-		                         }
-		                         if (v < vmin) {
-			                         vmin = v;
-			                         local_min = i;
-		                         }
-		                     },
-	                         get_row_count());
+	sel.visit_selected_lines(
+	    [&](PVRow i) {
+		    const uint32_t v = this->get_value(i, col);
+		    if (v > vmax) {
+			    vmax = v;
+			    local_max = i;
+		    }
+		    if (v < vmin) {
+			    vmin = v;
+			    local_min = i;
+		    }
+		},
+	    get_row_count());
 
 	// We need to swap as the plotted has been reversed
 	std::swap(local_min, local_max);
@@ -649,7 +657,8 @@ void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
 }
 
 void Inendi::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted,
-                                         uint_plotted_table_t& res, PVCol ncols)
+                                         uint_plotted_table_t& res,
+                                         PVCol ncols)
 {
 	// Here, we make every row starting on a 16-byte boundary
 	PVRow nrows = trans_plotted.size() / ncols;

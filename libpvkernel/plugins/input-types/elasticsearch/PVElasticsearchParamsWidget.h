@@ -28,9 +28,10 @@ class PVInputTypeElasticsearch;
 class PVElasticsearchQuery;
 class PVElasticsearchInfos;
 
-class PVElasticsearchParamsWidget
-    : public PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
-                            PVElasticsearchQuery>
+class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsearch,
+                                                          PVElasticsearchPresets,
+                                                          PVElasticsearchInfos,
+                                                          PVElasticsearchQuery>
 {
 	Q_OBJECT
 
@@ -45,7 +46,8 @@ class PVElasticsearchParamsWidget
 
   public:
 	PVElasticsearchParamsWidget(PVInputTypeElasticsearch const* in_t,
-	                            PVRush::hash_formats const& formats, QWidget* parent);
+	                            PVRush::hash_formats const& formats,
+	                            QWidget* parent);
 
   public:
 	QString get_server_query(std::string* error = nullptr) const override;
@@ -69,7 +71,8 @@ class PVElasticsearchParamsWidget
 	bool set_infos(PVElasticsearchInfos const& infos);
 	void set_query(QString const& query);
 	bool check_connection(std::string* error = nullptr) override;
-	void export_query_result(QTextStream& output_stream, PVCore::PVProgressBox& pbox,
+	void export_query_result(QTextStream& output_stream,
+	                         PVCore::PVProgressBox& pbox,
 	                         std::string* error = nullptr) override;
 	void set_query_type(QString const& query_type);
 

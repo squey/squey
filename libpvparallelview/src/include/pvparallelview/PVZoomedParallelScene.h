@@ -95,9 +95,12 @@ class PVZoomedParallelScene : public QGraphicsScene
 
 	 */
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView* zpview,
-	                      Inendi::PVView_sp& pvview_sp, PVSlidersManager_p sliders_manager_p,
-	                      PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg,
-	                      PVZonesManager const& zm, PVCol axis_index);
+	                      Inendi::PVView_sp& pvview_sp,
+	                      PVSlidersManager_p sliders_manager_p,
+	                      PVZonesProcessor& zp_sel,
+	                      PVZonesProcessor& zp_bg,
+	                      PVZonesManager const& zm,
+	                      PVCol axis_index);
 
 	/**
 	 * Destructor
@@ -482,8 +485,7 @@ class PVZoomedParallelScene : public QGraphicsScene
 	 * PVZoneRendering, etc.
 	 */
 
-	struct zone_desc_t
-	{
+	struct zone_desc_t {
 		zone_desc_t() : last_zr_sel(), last_zr_bg() {}
 
 		inline void cancel_last_sel()

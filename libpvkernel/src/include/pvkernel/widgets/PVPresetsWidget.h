@@ -48,7 +48,7 @@ class PVPresetsWidget : public QWidget
 	void item_changed_Slot(QListWidgetItem* item);
 	void update_actions_availability();
 
-Q_SIGNALS:
+  Q_SIGNALS:
 	void btn_load_clicked_Signal(const QString& preset);
 	void btn_new_clicked_Signal(const QString& preset);
 	void btn_save_clicked_Signal(const QString& preset);

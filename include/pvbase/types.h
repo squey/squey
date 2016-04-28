@@ -35,8 +35,7 @@ typedef quint64 chunk_index;
 /**
  *
  */
-struct vec2
-{
+struct vec2 {
 	float x; //!< The x coordinate of the vector.
 	float y; //!< The y coordinate of the vector.
 	vec2(float x_ = 0, float y_ = 0) : x(x_), y(y_) {}
@@ -52,8 +51,7 @@ struct vec2
 /**
  *
  */
-struct vec3
-{
+struct vec3 {
 	float x; //!< The x coordinate of the vector.
 	float y; //!< The y coordinate of the vector.
 	float z; //!< The z coordinate of the vector.
@@ -63,8 +61,7 @@ struct vec3
 /**
  *
  */
-struct vec4
-{
+struct vec4 {
 	float x; //!< The x coordinate of the vector.
 	float y; //!< The y coordinate of the vector.
 	float z; //!< The z coordinate of the vector.
@@ -75,8 +72,7 @@ struct vec4
 /**
  *
  */
-struct ubvec4
-{
+struct ubvec4 {
 	unsigned char x; //!< The x coordinate of the vector.
 	unsigned char y; //!< The y coordinate of the vector.
 	unsigned char z; //!< The z coordinate of the vector.

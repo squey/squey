@@ -200,7 +200,8 @@ void PVRush::PVDatabaseParamsWidget::load_preset(PVDBPresets::id_t id)
 		QMessageBox msg(QMessageBox::Critical, tr("Error while loading preset..."),
 		                tr("Preset %1 could not be loaded. Maybe it has been modified and/or "
 		                   "deleted by another application. The list of available presets will be "
-		                   "refreshed.").arg(_presets_widget->get_current_preset_name()),
+		                   "refreshed.")
+		                    .arg(_presets_widget->get_current_preset_name()),
 		                QMessageBox::Ok);
 		msg.exec();
 		populate_presets();

@@ -13,7 +13,8 @@
 namespace PVWidgets
 {
 
-template <class T = QListWidget, int VSize = 42> class PVSizeHintListWidget : public T
+template <class T = QListWidget, int VSize = 42>
+class PVSizeHintListWidget : public T
 {
   public:
 	PVSizeHintListWidget(QWidget* parent = 0) : T(parent) {}

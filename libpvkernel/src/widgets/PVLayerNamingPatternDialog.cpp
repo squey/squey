@@ -21,7 +21,8 @@
 PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString& title,
                                                                   const QString& text,
                                                                   const QString& pattern,
-                                                                  insert_mode m, QWidget* parent)
+                                                                  insert_mode m,
+                                                                  QWidget* parent)
     : QDialog(parent)
 {
 	setWindowTitle(title);

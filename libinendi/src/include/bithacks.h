@@ -64,10 +64,10 @@
 #define B_PROPAGATE_1(x) ((x) |= ((x)-1))
 
 /* isolate right-most 0-bit in x */
-#define B_ISOLATE_0(x) ((x) = ~(x) & ((x)+1))
+#define B_ISOLATE_0(x) ((x) = ~(x) & ((x) + 1))
 
 /* turn on right-most 0-bit in x */
-#define B_TURNON_0(x) ((x) |= ((x)+1))
+#define B_TURNON_0(x) ((x) |= ((x) + 1))
 
 /*
 ** more bit hacks coming as soon as I post an article on advanced bit hacks

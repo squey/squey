@@ -100,8 +100,8 @@ void PVWidgets::PVQueryBuilder::set_filters(const std::string& filters)
 	std::vector<std::string> plugins = {
 	    "bt-tooltip-errors",
 	    //"sortable", // doesn't seem to be supported by Qt for the moment
-	    "filter-description", "unique-filter", "bt-tooltip-errors",
-	    "bt-selectpicker",    "bt-checkbox"};
+	    "filter-description", "unique-filter", "bt-tooltip-errors", "bt-selectpicker",
+	    "bt-checkbox"};
 	for (const std::string& plugin : plugins) {
 		rapidjson::Value json_plugin;
 		json_plugin.SetString(plugin.c_str(), json.GetAllocator());

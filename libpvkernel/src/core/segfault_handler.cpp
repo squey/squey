@@ -12,7 +12,8 @@
 
 #include <client/linux/handler/exception_handler.h>
 
-static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor, void* /*context*/,
+static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
+                          void* /*context*/,
                           bool succeeded)
 {
 	if (fork() == 0) {

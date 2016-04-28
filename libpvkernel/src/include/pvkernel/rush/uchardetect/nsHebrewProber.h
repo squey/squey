@@ -77,7 +77,7 @@ class nsHebrewProber : public nsCharSetProber
 	char mPrev, mBeforePrev;
 
 	// These probers are owned by the group prober.
-	nsCharSetProber* mLogicalProb, *mVisualProb;
+	nsCharSetProber *mLogicalProb, *mVisualProb;
 };
 
 /**

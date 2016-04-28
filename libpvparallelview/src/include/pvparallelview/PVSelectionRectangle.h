@@ -254,8 +254,8 @@ class PVSelectionRectangle : public QObject
 	 *
 	 * @return the added tool button
 	 */
-	static QToolButton* add_selection_mode_selector(QWidget* view, QToolBar* toolbar,
-	                                                QSignalMapper* signal_mapper);
+	static QToolButton*
+	add_selection_mode_selector(QWidget* view, QToolBar* toolbar, QSignalMapper* signal_mapper);
 
 	/**
 	 * update a selection mode selector according to a given mode
@@ -264,7 +264,7 @@ class PVSelectionRectangle : public QObject
 	 * @param mode the new selection mode
 	 */
 	static void update_selection_mode_selector(QToolButton* button, int mode);
-signals:
+  signals:
 	/**
 	 * the signal which is fired when the volatile selection must
 	 * be committed to the final selection

@@ -17,8 +17,7 @@ extern "C" {
 #define TEXTDIG_VER_MAJOR 0
 #define TEXTDIG_VER_MINOR 1
 
-struct _textdig_options_t
-{
+struct _textdig_options_t {
 	int do_count;
 	long n_line_print;
 	long current_line_count;

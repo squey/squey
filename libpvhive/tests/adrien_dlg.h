@@ -103,7 +103,7 @@ class TestDlg : public QDialog
 		PVHive::PVHive& hive = PVHive::PVHive::get();
 		hive.register_observer(o, _myobj_observer);
 
-		auto prop_get = [](MyObject & o) -> ObjectProperty * { return &o.get_prop(); };
+		auto prop_get = [](MyObject& o) -> ObjectProperty* { return &o.get_prop(); };
 
 		hive.register_observer(o, prop_get, _objprop_observer);
 		hive.register_observer(o, prop_get, *_other_label);

@@ -21,8 +21,7 @@ namespace PVCore
  * All the user-defined constructors have been deleted so that this type
  * is considered a POD in C++03.
  */
-struct PVColor : ubvec4
-{
+struct PVColor : ubvec4 {
 
 	QColor toQColor() const;
 	void fromQColor(QColor qcolor);

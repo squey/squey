@@ -29,13 +29,13 @@ namespace __impl
 /* A convenient way to print a list of heterogeneous values.
  * ::print_with_comma() must never be called (obvious reason).
  */
-template <typename... P> struct va_printer
-{
+template <typename... P>
+struct va_printer {
 	static void print() {}
 };
 
-template <typename N, typename V, typename... P> struct va_printer<N, V, P...>
-{
+template <typename N, typename V, typename... P>
+struct va_printer<N, V, P...> {
 	static void print_with_comma(const N& name, const V& value, P... p)
 	{
 		std::cerr << ", " << name << "=" << value;
@@ -49,8 +49,8 @@ template <typename N, typename V, typename... P> struct va_printer<N, V, P...>
 	}
 };
 
-template <> struct va_printer<>
-{
+template <>
+struct va_printer<> {
 	static void print_with_comma() {}
 
 	static void print() {}
@@ -95,7 +95,8 @@ template <> struct va_printer<>
  * @param expected the expression's expected value
  */
 
-template <typename T> void printer(const char* expr, const T& value, const T& expected)
+template <typename T>
+void printer(const char* expr, const T& value, const T& expected)
 {
 	std::cerr << std::boolalpha << expr << " = " << value << " (expected: " << expected << ")"
 	          << std::noboolalpha << std::endl;
@@ -137,7 +138,8 @@ template <typename T> void printer(const char* expr, const T& value, const T& ex
  *
  * @return true if @a value matchs @a expected, false otherwise
  */
-template <typename T> bool checker(const T& value, const T& expected)
+template <typename T>
+bool checker(const T& value, const T& expected)
 {
 	return value == expected;
 }
@@ -164,8 +166,13 @@ template <typename T> bool checker(const T& value, const T& expected)
  *follow: param1's name, param1's value, ..., paramN's name, paramN's value.
  */
 template <typename T, typename... P>
-void validate(const char* file, int line, const char* expr, const T& value, const T& expected,
-              const bool print_info_anytime, P... p)
+void validate(const char* file,
+              int line,
+              const char* expr,
+              const T& value,
+              const T& expected,
+              const bool print_info_anytime,
+              P... p)
 {
 	if (print_info_anytime) {
 		printer<T>(expr, value, expected);

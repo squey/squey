@@ -11,8 +11,7 @@
 
 #pragma pack(push)
 #pragma pack(1)
-struct PlottedFileHeader
-{
+struct PlottedFileHeader {
 	uint32_t ncols;
 	bool is_transposed;
 };

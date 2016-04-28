@@ -15,7 +15,8 @@
  * a map function to iterate over input plugins according to their sorted
  * ::internal_name().
  */
-template <typename F> static void map_input_by_sorted_internal_name(const F& f)
+template <typename F>
+static void map_input_by_sorted_internal_name(const F& f)
 {
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
@@ -34,7 +35,8 @@ template <typename F> static void map_input_by_sorted_internal_name(const F& f)
 	}
 }
 
-void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObject* parent,
+void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu,
+                                                         QObject* parent,
                                                          const char* slot)
 {
 	map_input_by_sorted_internal_name([&](const QString& key, const PVRush::PVInputType_p& in) {
@@ -46,7 +48,8 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObject* p
 	});
 }
 
-void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout, QObject* parent,
+void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout,
+                                                           QObject* parent,
                                                            const char* slot)
 {
 	map_input_by_sorted_internal_name([&](const QString& key, const PVRush::PVInputType_p& in) {

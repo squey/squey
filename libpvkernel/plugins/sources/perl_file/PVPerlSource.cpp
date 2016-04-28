@@ -12,7 +12,8 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 
-PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input, size_t min_chunk_size,
+PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input,
+                                   size_t min_chunk_size,
                                    const QString& perl_file)
     : PVRawSourceBase(), _perl_file(perl_file), _min_chunk_size(min_chunk_size), _next_index(0)
 {

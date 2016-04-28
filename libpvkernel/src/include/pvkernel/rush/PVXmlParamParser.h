@@ -65,8 +65,8 @@ class PVXmlParamParser
 	virtual ~PVXmlParamParser();
 
   public:
-	int setDom(QDomElement const& node, int id = -1,
-	           QVector<uint32_t> tree_ids = QVector<uint32_t>());
+	int
+	setDom(QDomElement const& node, int id = -1, QVector<uint32_t> tree_ids = QVector<uint32_t>());
 	list_axes_t const& getAxes() const;
 	QList<PVXmlParamParserData> const& getFields() const;
 	unsigned int getVersion() { return format_version; }
@@ -83,8 +83,8 @@ class PVXmlParamParser
 	void setAxesCombinationFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromString(QString const& str);
 	void setLinesRangeFromRootNode(QDomElement const& rootNode);
-	static PVAxisFormat::node_args_t getMapPlotParameters(QDomElement& elt, QString const& tag,
-	                                                      QString& mode);
+	static PVAxisFormat::node_args_t
+	getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode);
 
   private:
 	QList<PVXmlParamParserData> fields;

@@ -25,7 +25,8 @@ namespace PVByteVisitor
 namespace __impl
 {
 
-template <typename T, typename F> class visit_bytes_base
+template <typename T, typename F>
+class visit_bytes_base
 {
   protected:
 	// Ensure that T is an unsigned integer type
@@ -41,8 +42,8 @@ template <typename T, typename F> class visit_bytes_base
 	static constexpr byte_t nbytes = sizeof(T);
 };
 
-template <typename T, typename F> struct visit_bytes : private visit_bytes_base<T, F>
-{
+template <typename T, typename F>
+struct visit_bytes : private visit_bytes_base<T, F> {
   private:
 	typedef visit_bytes_base<T, F> base_t;
 	typedef typename base_t::byte_t byte_t;
@@ -73,8 +74,8 @@ template <typename T, typename F> struct visit_bytes : private visit_bytes_base<
 };
 
 // Finest granulairty is the byte
-template <typename F> struct visit_bytes<uint32_t, F> : private visit_bytes_base<uint32_t, F>
-{
+template <typename F>
+struct visit_bytes<uint32_t, F> : private visit_bytes_base<uint32_t, F> {
   private:
 	typedef visit_bytes_base<uint32_t, F> base_t;
 	typedef typename base_t::byte_t byte_t;
@@ -96,8 +97,8 @@ template <typename F> struct visit_bytes<uint32_t, F> : private visit_bytes_base
 
 #ifdef __SSE4_1__
 // Specialisation if SSE4.1 is enabled
-template <typename F> struct visit_bytes<__m128i, F>
-{
+template <typename F>
+struct visit_bytes<__m128i, F> {
   private:
 	typedef size_t byte_t;
 
@@ -128,8 +129,8 @@ template <typename F> struct visit_bytes<__m128i, F>
 #endif
 
 uint8_t const* get_nth_slice_serial(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret);
-uint8_t const* get_nth_slice_sse(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret,
-                                 bool* complete = nullptr);
+uint8_t const* get_nth_slice_sse(
+    uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret, bool* complete = nullptr);
 
 } // __impl
 
@@ -140,8 +141,8 @@ inline void visit_bytes(const T chunk, F const& f, const size_t offset = 0)
 	__impl::visit_bytes<T, F>::f(chunk, f, offset);
 }
 
-inline uint8_t const* get_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret,
-                                    bool* complete = nullptr)
+inline uint8_t const* get_nth_slice(
+    uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret, bool* complete = nullptr)
 {
 	return __impl::get_nth_slice_sse(buffer, sbuf, n, size_ret, complete);
 }
@@ -149,7 +150,8 @@ inline uint8_t const* get_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n
 // Get back the n-th slice, that is, if a buffer is like this:
 // [data 0] \0 [data 1] \0,
 // the 0'th slice is data 0, the "1-th" slice is data 1, etc...
-template <typename F> bool visit_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, F const& f)
+template <typename F>
+bool visit_nth_slice(uint8_t const* buffer, size_t sbuf, size_t n, F const& f)
 {
 	size_t size_final;
 	uint8_t const* const buf_start = get_nth_slice(buffer, sbuf, n, size_final);

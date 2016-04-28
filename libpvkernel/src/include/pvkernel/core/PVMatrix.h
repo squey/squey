@@ -26,8 +26,8 @@ namespace PVCore
 void __transpose_float(float* res, float* data, uint32_t nrows, uint32_t ncols);
 
 // Fake allocator in order to specify an mmap-based allocation
-template <class T> struct PVMatrixAllocatorMmap
-{
+template <class T>
+struct PVMatrixAllocatorMmap {
 	typedef T* pointer;
 	typedef const T* const_pointer;
 	typedef T& reference;
@@ -37,12 +37,13 @@ template <class T> struct PVMatrixAllocatorMmap
 namespace __impl
 {
 
-template <class T, class IndexRow, class IndexCol,
+template <class T,
+          class IndexRow,
+          class IndexCol,
           bool is_float_multiple = PVTypeTraits::is_size_multiple<T, float>::value,
           bool bigger_than = PVTypeTraits::bigger_than<T, float>::value,
           bool is_pod = boost::is_pod<T>::value>
-struct PVMatrixComputation
-{
+struct PVMatrixComputation {
 	static void transpose(T* res, T* data, IndexRow nrows, IndexCol ncols)
 	{
 		// TODO: optimise this !
@@ -65,8 +66,8 @@ struct PVMatrixComputation
 
 // If `T' is a POD, a multiple of sizeof(float) less or equal than sizeof(float), then we can
 // optimise its transposition as it is done with floatting values with SSE.
-template <class T> struct PVMatrixComputation<T, uint32_t, uint32_t, true, false, true>
-{
+template <class T>
+struct PVMatrixComputation<T, uint32_t, uint32_t, true, false, true> {
 	static void transpose(T* res, T* data, uint32_t nrows, uint32_t ncols)
 	{
 		__transpose_float((float*)res, (float*)data, nrows * sizeof(float) / sizeof(T),
@@ -83,8 +84,7 @@ template <class T> struct PVMatrixComputation<T, uint32_t, uint32_t, true, false
 };
 
 template <class T, class IndexRow, class IndexCol, bool mod, bool greater>
-struct PVMatrixComputation<T, IndexRow, IndexCol, mod, greater, true>
-{
+struct PVMatrixComputation<T, IndexRow, IndexCol, mod, greater, true> {
 	static void transpose(T* res, T* data, IndexRow nrows, IndexCol ncols)
 	{
 		// TODO: optimise this !
@@ -103,7 +103,8 @@ struct PVMatrixComputation<T, IndexRow, IndexCol, mod, greater, true>
 	}
 };
 
-template <class T, template <class Talloc> class Alloc = std::allocator> class PVMatrixMemory
+template <class T, template <class Talloc> class Alloc = std::allocator>
+class PVMatrixMemory
 {
 	typedef Alloc<T> allocator_type;
 	typedef T value_type;
@@ -135,7 +136,8 @@ template <class T, template <class Talloc> class Alloc = std::allocator> class P
 	allocator_type _alloc;
 };
 
-template <class T> class PVMatrixMemory<T, PVMatrixAllocatorMmap>
+template <class T>
+class PVMatrixMemory<T, PVMatrixAllocatorMmap>
 {
 	typedef PVMatrixAllocatorMmap<T> allocator_type;
 	typedef T value_type;
@@ -170,7 +172,9 @@ template <class T> class PVMatrixMemory<T, PVMatrixAllocatorMmap>
 };
 }
 
-template <typename T, typename IndexRow = uint32_t, typename IndexCol = uint32_t,
+template <typename T,
+          typename IndexRow = uint32_t,
+          typename IndexCol = uint32_t,
           template <class Talloc> class Alloc = std::allocator>
 class PVMatrix
 {

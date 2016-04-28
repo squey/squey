@@ -83,7 +83,9 @@ colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
         //}
 }*/
 
-void sse_bci(unsigned int* bcodes, unsigned int* /*indexes*/, PVCore::PVHSVColor* colors,
+void sse_bci(unsigned int* bcodes,
+             unsigned int* /*indexes*/,
+             PVCore::PVHSVColor* colors,
              PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
 {
 	size_t idx_code = 0;
@@ -154,7 +156,9 @@ void sse_bci(unsigned int* bcodes, unsigned int* /*indexes*/, PVCore::PVHSVColor
 	}
 }
 
-void serial_bci(unsigned int* bcodes, unsigned int* indexes, PVCore::PVHSVColor* colors,
+void serial_bci(unsigned int* bcodes,
+                unsigned int* indexes,
+                PVCore::PVHSVColor* colors,
                 PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
 {
 	for (int i = 0; i < NBUCKET; i++) {

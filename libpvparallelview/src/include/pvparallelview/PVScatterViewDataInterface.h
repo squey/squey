@@ -37,10 +37,8 @@ class PVScatterViewDataInterface : boost::noncopyable
 	virtual ~PVScatterViewDataInterface(){};
 
   public:
-	struct ProcessParams
-	{
-		struct dirty_rect
-		{
+	struct ProcessParams {
+		struct dirty_rect {
 			dirty_rect() : y1_min(0), y1_max(0), y2_min(0), y2_max(0) {}
 			uint64_t y1_min;
 			uint64_t y1_max;
@@ -82,11 +80,19 @@ class PVScatterViewDataInterface : boost::noncopyable
 		int32_t map_to_view(int64_t scene_value) const;
 		QRect map_to_view(const dirty_rect& rect) const;
 
-		bool params_changed(uint64_t y1_min_, uint64_t y1_max_, uint64_t y2_min_, uint64_t y2_max_,
-		                    int zoom_, double alpha_) const;
+		bool params_changed(uint64_t y1_min_,
+		                    uint64_t y1_max_,
+		                    uint64_t y2_min_,
+		                    uint64_t y2_max_,
+		                    int zoom_,
+		                    double alpha_) const;
 
-		void set_params(uint64_t y1_min_, uint64_t y1_max_, uint64_t y2_min_, uint64_t y2_max_,
-		                int zoom_, double alpha_);
+		void set_params(uint64_t y1_min_,
+		                uint64_t y1_max_,
+		                uint64_t y2_min_,
+		                uint64_t y2_max_,
+		                int zoom_,
+		                double alpha_);
 
 		PVZoomedZoneTree const* zzt;
 		const PVCore::PVHSVColor* colors;
@@ -134,7 +140,8 @@ class PVScatterViewDataInterface : boost::noncopyable
 		}
 	}
 
-	inline void process_image_sel(ProcessParams const& params, Inendi::PVSelection const& sel,
+	inline void process_image_sel(ProcessParams const& params,
+	                              Inendi::PVSelection const& sel,
 	                              tbb::task_group_context* ctxt = nullptr)
 	{
 		process_sel(params, image_sel_processing(), sel, ctxt);
@@ -143,7 +150,8 @@ class PVScatterViewDataInterface : boost::noncopyable
 		}
 	}
 
-	inline void process_all_images(ProcessParams const& params, Inendi::PVSelection const& sel,
+	inline void process_all_images(ProcessParams const& params,
+	                               Inendi::PVSelection const& sel,
 	                               tbb::task_group_context* ctxt = nullptr)
 	{
 		process_all(params, image_bg_processing(), image_sel_processing(), sel, ctxt);
@@ -179,13 +187,17 @@ class PVScatterViewDataInterface : boost::noncopyable
 	}
 
   protected:
-	virtual void process_bg(ProcessParams const& params, PVScatterViewImage& image,
+	virtual void process_bg(ProcessParams const& params,
+	                        PVScatterViewImage& image,
 	                        tbb::task_group_context* ctxt = nullptr) const = 0;
-	virtual void process_sel(ProcessParams const& params, PVScatterViewImage& image,
+	virtual void process_sel(ProcessParams const& params,
+	                         PVScatterViewImage& image,
 	                         Inendi::PVSelection const& sel,
 	                         tbb::task_group_context* ctxt = nullptr) const = 0;
-	virtual void process_all(ProcessParams const& params, PVScatterViewImage& image_bg,
-	                         PVScatterViewImage& image_sel, Inendi::PVSelection const& sel,
+	virtual void process_all(ProcessParams const& params,
+	                         PVScatterViewImage& image_bg,
+	                         PVScatterViewImage& image_sel,
+	                         Inendi::PVSelection const& sel,
 	                         tbb::task_group_context* ctxt = nullptr) const
 	{
 		process_bg(params, image_bg, ctxt);

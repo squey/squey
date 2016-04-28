@@ -16,7 +16,8 @@
 #include <cstdint>
 
 // Taken from Qt's qhash.h
-template <class T> inline unsigned int qHash(std::shared_ptr<T> const& p)
+template <class T>
+inline unsigned int qHash(std::shared_ptr<T> const& p)
 {
 	uintptr_t key = (uintptr_t)p.get();
 	if (sizeof(uintptr_t) > sizeof(unsigned int)) {

@@ -26,8 +26,8 @@ namespace PVWidgets
 class PVAxisIndexEditor : public QComboBox
 {
 	Q_OBJECT
-	Q_PROPERTY(PVCore::PVAxisIndexType _axis_index READ get_axis_index WRITE set_axis_index
-	               USER true)
+	Q_PROPERTY(
+	    PVCore::PVAxisIndexType _axis_index READ get_axis_index WRITE set_axis_index USER true)
 
   public:
 	PVAxisIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);

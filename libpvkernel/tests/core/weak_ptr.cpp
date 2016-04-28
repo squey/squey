@@ -30,20 +30,19 @@ typedef PVCore::PVWeakPtr<Test3> Test3_wp;
 
 static int g_deleter_count = 0;
 
-template <typename T> inline void deleter(void* /*ptr*/)
+template <typename T>
+inline void deleter(void* /*ptr*/)
 {
 	std::cout << "deleter" << std::endl;
 	g_deleter_count++;
 }
 
-struct Test1 : public PVCore::PVEnableSharedFromThis<Test1>
-{
+struct Test1 : public PVCore::PVEnableSharedFromThis<Test1> {
 	Test1() { std::cout << "+Test1::Test1 (" << this << ")" << std::endl; }
 	virtual ~Test1() { std::cout << "~Test1::Test1 (" << this << ")" << std::endl; }
 };
 
-struct Test2 : public Test1
-{
+struct Test2 : public Test1 {
 	Test2() { std::cout << "+Test2::Test2 (" << this << ")" << std::endl; }
 	virtual ~Test2() { std::cout << "~Test2::Test2 (" << this << ")" << std::endl; }
 };
@@ -187,8 +186,7 @@ int main()
 	return 0;
 }
 
-struct Test3
-{
+struct Test3 {
 	Test3() { std::cout << "+Test3::Test3 (" << this << ")" << std::endl; }
 	virtual ~Test3() { std::cout << "~Test3::Test3 (" << this << ")" << std::endl; }
 };

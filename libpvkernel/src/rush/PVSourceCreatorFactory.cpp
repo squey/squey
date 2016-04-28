@@ -77,7 +77,8 @@ PVRush::PVSourceCreatorFactory::get_supported_formats(list_creators const& lcr)
 }
 
 float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_,
-                                                     PVInputDescription_p input, bool* cancellation)
+                                                     PVInputDescription_p input,
+                                                     bool* cancellation)
 {
 	PVFormat format = format_.first;
 	tbb::tick_count start, end;

@@ -15,7 +15,8 @@
 
 static constexpr size_t SELECTION_COUNT = 100000000;
 
-template <class A, class B> bool show_diff(A const& cmp, B const& ref)
+template <class A, class B>
+bool show_diff(A const& cmp, B const& ref)
 {
 	size_t size_ref = ref.size();
 	size_t size_cmp = cmp.size();

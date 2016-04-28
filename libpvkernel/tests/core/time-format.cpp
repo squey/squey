@@ -23,7 +23,8 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " file" << std::endl;
 		std::cerr << "where file is an UTF-8 encoded CSV-like file with :" << std::endl;
 		std::cerr << "time string,time format,epoch in ms,hour in day,minute in day,seconds in day"
-		          << std::endl << std::endl;
+		          << std::endl
+		          << std::endl;
 		std::cerr << "For instance:" << std::endl;
 		std::cerr << "01/01/1970 00:00:01,d/M/yyyy h:m:s,1" << std::endl;
 		return 1;

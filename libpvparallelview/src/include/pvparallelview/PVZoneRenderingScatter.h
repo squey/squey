@@ -19,8 +19,9 @@ namespace PVParallelView
 class PVZoneRenderingScatter : public PVZoneRenderingTBB
 {
 	typedef PVScatterViewDataInterface::ProcessParams DataProcessParams;
-	typedef std::function<void(PVScatterViewDataInterface&, DataProcessParams const&,
-	                           tbb::task_group_context&)> process_function_type;
+	typedef std::function<void(
+	    PVScatterViewDataInterface&, DataProcessParams const&, tbb::task_group_context&)>
+	    process_function_type;
 	// typedef std::function<void(PVScatterViewDataInterface*, PVZoneID, uint64_t, uint64_t,
 	// uint64_t, uint64_t, int, double, PVCore::PVHSVColor const*)> process_function_type;
 
@@ -46,8 +47,10 @@ class PVZoneRenderingScatter : public PVZoneRenderingTBB
 	{
 	}*/
 
-	PVZoneRenderingScatter(PVZoneID zid, PVScatterViewDataInterface& data_interface,
-	                       DataProcessParams const& params, process_function_type const& f)
+	PVZoneRenderingScatter(PVZoneID zid,
+	                       PVScatterViewDataInterface& data_interface,
+	                       DataProcessParams const& params,
+	                       process_function_type const& f)
 	    : PVZoneRenderingTBB(zid), _data_interface(&data_interface), _params(params), _process(f)
 	{
 	}

@@ -45,7 +45,8 @@ class PVHiveTest
 	{
 		{
 			std::cout << "PVHiveTest::unregister_actor() trying to lock "
-			             "_observers_lock (read)" << std::endl;
+			             "_observers_lock (read)"
+			          << std::endl;
 			read_lock_t read_lock(_observers_lock);
 			std::cout << "PVHiveTest::unregister_actor() _observers_lock locked (read)"
 			          << std::endl;
@@ -72,7 +73,8 @@ class PVHiveTest
 	{
 		{
 			std::cout << "PVHiveTest::register_observer() trying to lock "
-			             "_observers_lock (write)" << std::endl;
+			             "_observers_lock (write)"
+			          << std::endl;
 			write_lock_t write_lock(_observers_lock);
 			std::cout << "PVHiveTest::register_observer() _observers_lock locked (write)"
 			          << std::endl;
@@ -90,7 +92,8 @@ class PVHiveTest
 	{
 		{
 			std::cout << "PVHiveTest::refresh_observers() trying to lock "
-			             "_observers_lock (read)" << std::endl;
+			             "_observers_lock (read)"
+			          << std::endl;
 			read_lock_t read_lock(_observers_lock);
 			std::cout << "PVHiveTest::refresh_observers() _observers_lock locked (read)"
 			          << std::endl;

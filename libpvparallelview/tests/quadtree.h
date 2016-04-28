@@ -18,13 +18,17 @@
 #include <pvparallelview/PVBCICode.h>
 #include <inendi/PVSelection.h>
 
-template <class DataContainer, class Data> class PVQuadTree
+template <class DataContainer, class Data>
+class PVQuadTree
 {
 	typedef DataContainer list_rows_t;
 
   public:
-	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value,
-	           uint32_t y2_max_value, int max_level)
+	PVQuadTree(uint32_t y1_min_value,
+	           uint32_t y1_max_value,
+	           uint32_t y2_min_value,
+	           uint32_t y2_max_value,
+	           int max_level)
 	    : _y1_min_value(y1_min_value)
 	    , _y1_max_value(y1_max_value)
 	    , _y2_min_value(y2_min_value)
@@ -127,7 +131,8 @@ template <class DataContainer, class Data> class PVQuadTree
 		}
 	}
 
-	void extract_first_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max,
+	void extract_first_from_y1_and_selection(uint32_t y1_min,
+	                                         uint32_t y1_max,
 	                                         const Inendi::PVSelection& selection,
 	                                         std::vector<Data>& results) const
 	{
@@ -167,7 +172,8 @@ template <class DataContainer, class Data> class PVQuadTree
 		}
 	}
 
-	void extract_first_from_y2_and_selection(uint32_t y1_min, uint32_t y1_max,
+	void extract_first_from_y2_and_selection(uint32_t y1_min,
+	                                         uint32_t y1_max,
 	                                         const Inendi::PVSelection& selection,
 	                                         std::vector<Data>& results) const
 	{
@@ -191,7 +197,10 @@ template <class DataContainer, class Data> class PVQuadTree
 		}
 	}
 
-	void extract_first_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max,
+	void extract_first_from_y1y2(uint32_t y1_min,
+	                             uint32_t y1_max,
+	                             uint32_t y2_min,
+	                             uint32_t y2_max,
 	                             std::vector<Data>& results) const
 	{
 		if (_datas.is_null()) {
@@ -216,7 +225,9 @@ template <class DataContainer, class Data> class PVQuadTree
 		}
 	}
 
-	void extract_first_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min,
+	void extract_first_from_y1y2_and_selection(uint32_t y1_min,
+	                                           uint32_t y1_max,
+	                                           uint32_t y2_min,
 	                                           uint32_t y2_max,
 	                                           const Inendi::PVSelection& selection,
 	                                           std::vector<Data>& results) const
@@ -267,7 +278,8 @@ template <class DataContainer, class Data> class PVQuadTree
 	}
 
 	void
-	extract_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max,
+	extract_first_bci_from_y1(uint32_t y1_min,
+	                          uint32_t y1_max,
 	                          std::vector<PVParallelView::PVBCICode<NBITS_INDEX>>& results) const
 	{
 		if (_datas.is_null()) {
@@ -291,7 +303,9 @@ template <class DataContainer, class Data> class PVQuadTree
 	}
 
 	void extract_first_bci_from_y1_and_selection(
-	    uint32_t y1_min, uint32_t y1_max, const Inendi::PVSelection& selection,
+	    uint32_t y1_min,
+	    uint32_t y1_max,
+	    const Inendi::PVSelection& selection,
 	    std::vector<PVParallelView::PVBCICode<NBITS_INDEX>>& results) const
 	{
 		if (_datas.is_null()) {
@@ -324,7 +338,8 @@ template <class DataContainer, class Data> class PVQuadTree
 	}
 
 	void
-	extract_first_bci_from_y2(uint32_t y2_min, uint32_t y2_max,
+	extract_first_bci_from_y2(uint32_t y2_min,
+	                          uint32_t y2_max,
 	                          std::vector<PVParallelView::PVBCICode<NBITS_INDEX>>& results) const
 	{
 		if (_datas.is_null()) {
@@ -348,7 +363,9 @@ template <class DataContainer, class Data> class PVQuadTree
 	}
 
 	void extract_first_bci_from_y2_and_selection(
-	    uint32_t y1_min, uint32_t y1_max, const Inendi::PVSelection& selection,
+	    uint32_t y1_min,
+	    uint32_t y1_max,
+	    const Inendi::PVSelection& selection,
 	    std::vector<PVParallelView::PVBCICode<NBITS_INDEX>>& results) const
 	{
 		if (_datas.is_null()) {
@@ -381,7 +398,10 @@ template <class DataContainer, class Data> class PVQuadTree
 	}
 
 	void
-	extract_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max,
+	extract_first_bci_from_y1y2(uint32_t y1_min,
+	                            uint32_t y1_max,
+	                            uint32_t y2_min,
+	                            uint32_t y2_max,
 	                            std::vector<PVParallelView::PVBCICode<NBITS_INDEX>>& results) const
 	{
 		if (_datas.is_null()) {
@@ -417,7 +437,10 @@ template <class DataContainer, class Data> class PVQuadTree
 	}
 
 	void extract_first_bci_from_y1y2_and_selection(
-	    uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max,
+	    uint32_t y1_min,
+	    uint32_t y1_max,
+	    uint32_t y2_min,
+	    uint32_t y2_max,
 	    const Inendi::PVSelection& selection,
 	    std::vector<PVParallelView::PVBCICode<NBITS_INDEX>>& results) const
 	{
@@ -543,8 +566,8 @@ template <class DataContainer, class Data> class PVQuadTree
 		return new_tree;
 	}
 
-	PVQuadTree<DataContainer, Data>* extract_subtree_y1y2(uint32_t y1_min, uint32_t y1_max,
-	                                                      uint32_t y2_min, uint32_t y2_max) const
+	PVQuadTree<DataContainer, Data>*
+	extract_subtree_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max) const
 	{
 		PVQuadTree<DataContainer, Data>* new_tree = new PVQuadTree<DataContainer, Data>(*this);
 		if (_datas.is_null()) {

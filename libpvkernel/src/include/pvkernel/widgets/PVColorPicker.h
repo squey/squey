@@ -60,7 +60,7 @@ class PVColorPicker : public QWidget
   public:
 	QSize sizeHint() const override;
 
-signals:
+  signals:
 	void color_changed_left(int h);
 	void color_changed_right(int h);
 

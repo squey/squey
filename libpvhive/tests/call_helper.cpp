@@ -18,8 +18,7 @@
 #define INT_CST2 43
 #define BOOL_CST true
 
-struct Test
-{
+struct Test {
 	void func(int i1, int i2)
 	{
 		PV_VALID(i1, INT_CST1);

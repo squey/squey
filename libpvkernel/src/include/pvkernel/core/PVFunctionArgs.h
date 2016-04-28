@@ -100,7 +100,8 @@ class PVFunctionArgsBase
 };
 
 // FIXME: is this really useful ?!
-template <class F> class PVFunctionArgs : public PVFunctionArgsBase
+template <class F>
+class PVFunctionArgs : public PVFunctionArgsBase
 {
   public:
 	typedef F func_type;

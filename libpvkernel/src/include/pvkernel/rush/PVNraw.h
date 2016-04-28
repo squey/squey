@@ -107,7 +107,8 @@ class PVNraw
 	 *
 	 * Column ordering may differ from original ordering.
 	 */
-	std::string export_line(PVRow idx, const PVCore::PVColumnIndexes& col_indexes,
+	std::string export_line(PVRow idx,
+	                        const PVCore::PVColumnIndexes& col_indexes,
 	                        const std::string sep_char = default_sep_char,
 	                        const std::string quote_char = default_quote_char) const;
 
@@ -118,9 +119,12 @@ class PVNraw
 	 *
 	 * Column ordering may differ from original ordering.
 	 */
-	void export_lines(std::ostream& stream, const PVCore::PVSelBitField& sel,
-	                  const PVCore::PVColumnIndexes& col_indexes, size_t start_index,
-	                  size_t step_count, const std::string& sep_char = default_sep_char,
+	void export_lines(std::ostream& stream,
+	                  const PVCore::PVSelBitField& sel,
+	                  const PVCore::PVColumnIndexes& col_indexes,
+	                  size_t start_index,
+	                  size_t step_count,
+	                  const std::string& sep_char = default_sep_char,
 	                  const std::string& quote_char = default_quote_char) const;
 
 	/**

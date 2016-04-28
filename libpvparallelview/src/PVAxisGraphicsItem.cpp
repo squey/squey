@@ -31,8 +31,8 @@ static inline QString make_elided_text(const QFont& font, const QString& text, i
 	return QFontMetrics(font).elidedText(text, Qt::ElideRight, elided_width);
 }
 
-static void set_item_text_value(QGraphicsTextItem* text_item, QString text, QColor const& color,
-                                int width)
+static void
+set_item_text_value(QGraphicsTextItem* text_item, QString text, QColor const& color, int width)
 {
 	if (text.isEmpty()) {
 		text = QObject::tr("(empty string)");

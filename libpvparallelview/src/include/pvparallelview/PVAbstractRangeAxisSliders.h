@@ -25,8 +25,10 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	typedef std::pair<int64_t, int64_t> range_t;
 
   public:
-	PVAbstractRangeAxisSliders(QGraphicsItem* parent, PVSlidersManager_p sm_p,
-	                           PVSlidersGroup* group, const char* text);
+	PVAbstractRangeAxisSliders(QGraphicsItem* parent,
+	                           PVSlidersManager_p sm_p,
+	                           PVSlidersGroup* group,
+	                           const char* text);
 
 	virtual ~PVAbstractRangeAxisSliders();
 
@@ -52,8 +54,8 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	}
 
   protected:
-	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-	                   QWidget* widget = 0);
+	virtual void
+	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
 
   protected:
 	PVAbstractAxisSlider* _sl_min;

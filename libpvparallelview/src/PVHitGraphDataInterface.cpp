@@ -37,10 +37,10 @@ void PVParallelView::PVHitGraphDataInterface::shift_right(const uint32_t n, cons
 	buffer_selectable().shift_zoomed_right(n, alpha);
 }
 
-void
-PVParallelView::PVHitGraphDataInterface::process_all_buffers(ProcessParams const& params,
-                                                             Inendi::PVSelection const& layer_sel,
-                                                             Inendi::PVSelection const& sel)
+void PVParallelView::PVHitGraphDataInterface::process_all_buffers(
+    ProcessParams const& params,
+    Inendi::PVSelection const& layer_sel,
+    Inendi::PVSelection const& sel)
 {
 	process_buffer_all(params);
 	process_buffer_selected(params, sel);

@@ -43,8 +43,8 @@ QString PVCore::PVArgument_to_QString(const PVCore::PVArgument& v)
 	return str;
 }
 
-PVCore::PVArgument PVCore::QString_to_PVArgument(const QString& s, const QVariant& v,
-                                                 bool* res_ok /* = 0 */)
+PVCore::PVArgument
+PVCore::QString_to_PVArgument(const QString& s, const QVariant& v, bool* res_ok /* = 0 */)
 {
 	QVariant var;
 	bool ok = true;
@@ -103,7 +103,8 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString& s, const QVarian
 	return var;
 }
 
-void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings,
+void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args,
+                                         QSettings& settings,
                                          const QString& group_name)
 {
 	PVArgumentList::const_iterator it;

@@ -41,8 +41,10 @@ void set_args(PVCore::PVArgumentList& args, const options_t& values)
 	args["exps"].setValue(PVCore::PVPlainTextType(values.second.c_str()));
 }
 
-void run_tests(Inendi::PVLayerFilter::p_type& plugin, PVCore::PVArgumentList& args,
-               Inendi::PVLayer& in, Inendi::PVLayer& out)
+void run_tests(Inendi::PVLayerFilter::p_type& plugin,
+               PVCore::PVArgumentList& args,
+               Inendi::PVLayer& in,
+               Inendi::PVLayer& out)
 {
 	std::vector<testcase_t> tests{
 	    {{{0, 1, 1, 0},

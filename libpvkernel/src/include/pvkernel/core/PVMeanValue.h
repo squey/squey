@@ -25,7 +25,8 @@ namespace PVCore
  *
  * This a template class and each lib will include its versions. There is *no* need for
  */
-template <typename T, typename Tsum = T> class PVMeanValue
+template <typename T, typename Tsum = T>
+class PVMeanValue
 {
   public:
 	PVMeanValue() : _cur_sum(0), _n_values(0) {}

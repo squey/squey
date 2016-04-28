@@ -57,7 +57,8 @@ class PVLayer
 	 * Constructor
 	 */
 	PVLayer(const QString& name_);
-	PVLayer(const QString& name_, const PVSelection& sel_,
+	PVLayer(const QString& name_,
+	        const PVSelection& sel_,
 	        const PVLinesProperties& lp_ = PVLinesProperties());
 
 	/**
@@ -66,7 +67,8 @@ class PVLayer
 	 *
 	 * @param[in] : nelts is the number of elements in the selection.
 	 */
-	void A2B_copy_restricted_by_selection_and_nelts(PVLayer& b, PVSelection const& selection,
+	void A2B_copy_restricted_by_selection_and_nelts(PVLayer& b,
+	                                                PVSelection const& selection,
 	                                                PVRow nelts);
 
 	int get_index() const { return index; }

@@ -19,7 +19,8 @@
 #define print_r(R) __print_rect(#R, R)
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R> void __print_rect(const char* text, const R& r)
+template <typename R>
+void __print_rect(const char* text, const R& r)
 {
 	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
@@ -497,8 +498,8 @@ void PVParallelView::PVSelectionRectangleItem::hide_all_handles() const
  * PVParallelView::PVSelectionRectangleItem::hide_all_handles_but
  *****************************************************************************/
 
-void
-PVParallelView::PVSelectionRectangleItem::hide_all_handles_but(PVSelectionHandleItem* handle) const
+void PVParallelView::PVSelectionRectangleItem::hide_all_handles_but(
+    PVSelectionHandleItem* handle) const
 {
 	for (auto it : _handles) {
 		if (it != handle) {

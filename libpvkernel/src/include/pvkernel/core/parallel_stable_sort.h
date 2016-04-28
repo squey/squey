@@ -60,8 +60,10 @@ void insertion_sort(RandomAccessIterator first, RandomAccessIterator last, Compa
 }
 
 template <typename RandomAccessIterator, typename Distance, typename Compare>
-void chunk_insertion_sort(RandomAccessIterator first, RandomAccessIterator last,
-                          Distance chunk_size, Compare comp)
+void chunk_insertion_sort(RandomAccessIterator first,
+                          RandomAccessIterator last,
+                          Distance chunk_size,
+                          Compare comp)
 {
 	while (last - first >= chunk_size) {
 		insertion_sort(first, first + chunk_size, comp);
@@ -70,10 +72,16 @@ void chunk_insertion_sort(RandomAccessIterator first, RandomAccessIterator last,
 	insertion_sort(first, last, comp);
 }
 
-template <typename InputIterator1, typename InputIterator2, typename OutputIterator,
+template <typename InputIterator1,
+          typename InputIterator2,
+          typename OutputIterator,
           typename Compare>
-OutputIterator move_merge(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2,
-                          InputIterator2 last2, OutputIterator result, Compare comp)
+OutputIterator move_merge(InputIterator1 first1,
+                          InputIterator1 last1,
+                          InputIterator2 first2,
+                          InputIterator2 last2,
+                          OutputIterator result,
+                          Compare comp)
 {
 	while (first1 != last1 && first2 != last2) {
 		if (comp(*first2, *first1)) {
@@ -88,10 +96,15 @@ OutputIterator move_merge(InputIterator1 first1, InputIterator1 last1, InputIter
 	return _MOVE3(first2, last2, _MOVE3(first1, last1, result));
 }
 
-template <typename RandomAccessIterator1, typename RandomAccessIterator2, typename Distance,
+template <typename RandomAccessIterator1,
+          typename RandomAccessIterator2,
+          typename Distance,
           typename Compare>
-void merge_sort_loop(RandomAccessIterator1 first, RandomAccessIterator1 last,
-                     RandomAccessIterator2 result, Distance step_size, Compare comp)
+void merge_sort_loop(RandomAccessIterator1 first,
+                     RandomAccessIterator1 last,
+                     RandomAccessIterator2 result,
+                     Distance step_size,
+                     Compare comp)
 {
 	const Distance two_step = 2 * step_size;
 
@@ -106,7 +119,9 @@ void merge_sort_loop(RandomAccessIterator1 first, RandomAccessIterator1 last,
 }
 
 template <typename RandomAccessIterator, typename Pointer, typename Compare>
-void merge_sort_with_buffer(RandomAccessIterator begin, RandomAccessIterator end, Pointer buffer,
+void merge_sort_with_buffer(RandomAccessIterator begin,
+                            RandomAccessIterator end,
+                            Pointer buffer,
                             Compare comp)
 {
 	typedef typename std::iterator_traits<RandomAccessIterator>::difference_type Distance;
@@ -125,10 +140,16 @@ void merge_sort_with_buffer(RandomAccessIterator begin, RandomAccessIterator end
 	}
 }
 
-template <typename InputIterator1, typename InputIterator2, typename OutputIterator,
+template <typename InputIterator1,
+          typename InputIterator2,
+          typename OutputIterator,
           typename Compare>
-void move_merge_adaptive(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2,
-                         InputIterator2 last2, OutputIterator result, Compare comp)
+void move_merge_adaptive(InputIterator1 first1,
+                         InputIterator1 last1,
+                         InputIterator2 first2,
+                         InputIterator2 last2,
+                         OutputIterator result,
+                         Compare comp)
 {
 	while (first1 != last1 && first2 != last2) {
 		if (comp(*first2, *first1)) {
@@ -144,11 +165,16 @@ void move_merge_adaptive(InputIterator1 first1, InputIterator1 last1, InputItera
 		_MOVE3(first1, last1, result);
 }
 
-template <typename BidirectionalIterator1, typename BidirectionalIterator2,
-          typename BidirectionalIterator3, typename Compare>
-void move_merge_adaptive_backward(BidirectionalIterator1 first1, BidirectionalIterator1 last1,
-                                  BidirectionalIterator2 first2, BidirectionalIterator2 last2,
-                                  BidirectionalIterator3 result, Compare comp)
+template <typename BidirectionalIterator1,
+          typename BidirectionalIterator2,
+          typename BidirectionalIterator3,
+          typename Compare>
+void move_merge_adaptive_backward(BidirectionalIterator1 first1,
+                                  BidirectionalIterator1 last1,
+                                  BidirectionalIterator2 first2,
+                                  BidirectionalIterator2 last2,
+                                  BidirectionalIterator3 result,
+                                  Compare comp)
 {
 	if (first1 == last1) {
 		_MOVE_BACKWARD3(first2, last2, result);
@@ -176,9 +202,13 @@ void move_merge_adaptive_backward(BidirectionalIterator1 first1, BidirectionalIt
 }
 
 template <typename BidirectionalIterator1, typename BidirectionalIterator2, typename Distance>
-BidirectionalIterator1 rotate_adaptive(BidirectionalIterator1 first, BidirectionalIterator1 middle,
-                                       BidirectionalIterator1 last, Distance len1, Distance len2,
-                                       BidirectionalIterator2 buffer, Distance buffersize)
+BidirectionalIterator1 rotate_adaptive(BidirectionalIterator1 first,
+                                       BidirectionalIterator1 middle,
+                                       BidirectionalIterator1 last,
+                                       Distance len1,
+                                       Distance len2,
+                                       BidirectionalIterator2 buffer,
+                                       Distance buffersize)
 {
 	BidirectionalIterator2 bufferend;
 	if (len1 > len2 && len2 <= buffersize) {
@@ -203,9 +233,15 @@ BidirectionalIterator1 rotate_adaptive(BidirectionalIterator1 first, Bidirection
 }
 
 template <typename BidirectionalIterator, typename Distance, typename Pointer, typename Compare>
-void merge_adaptive(BidirectionalIterator first, BidirectionalIterator middle,
-                    BidirectionalIterator last, Distance len1, Distance len2, Pointer buffer,
-                    Distance buffersize, Compare comp, tbb::task_group_context* context)
+void merge_adaptive(BidirectionalIterator first,
+                    BidirectionalIterator middle,
+                    BidirectionalIterator last,
+                    Distance len1,
+                    Distance len2,
+                    Pointer buffer,
+                    Distance buffersize,
+                    Compare comp,
+                    tbb::task_group_context* context)
 {
 	if (len1 <= len2 && len1 <= buffersize) {
 		Pointer bufferend = _MOVE3(first, middle, buffer);
@@ -242,8 +278,12 @@ void merge_adaptive(BidirectionalIterator first, BidirectionalIterator middle,
 }
 
 template <typename RandomAccessIterator, typename Pointer, typename Distance, typename Compare>
-void stable_sort_adaptive(RandomAccessIterator begin, RandomAccessIterator end, Pointer buffer,
-                          Distance buffer_size, Compare comp, tbb::task_group_context* context)
+void stable_sort_adaptive(RandomAccessIterator begin,
+                          RandomAccessIterator end,
+                          Pointer buffer,
+                          Distance buffer_size,
+                          Compare comp,
+                          tbb::task_group_context* context)
 {
 	const Distance len = (end - begin + 1) / 2;
 	const RandomAccessIterator middle = begin + len;
@@ -264,8 +304,12 @@ void stable_sort_adaptive(RandomAccessIterator begin, RandomAccessIterator end, 
 }
 
 template <typename BidirectionalIterator, typename Distance, typename Compare>
-void merge_without_buffer(BidirectionalIterator first, BidirectionalIterator middle,
-                          BidirectionalIterator last, Distance len1, Distance len2, Compare comp)
+void merge_without_buffer(BidirectionalIterator first,
+                          BidirectionalIterator middle,
+                          BidirectionalIterator last,
+                          Distance len1,
+                          Distance len2,
+                          Compare comp)
 {
 	if (len1 == 0 || len2 == 0)
 		return;
@@ -297,7 +341,9 @@ void merge_without_buffer(BidirectionalIterator first, BidirectionalIterator mid
 }
 
 template <typename RandomAccessIterator, typename Compare>
-void inplace_stable_sort(RandomAccessIterator first, RandomAccessIterator last, Compare comp,
+void inplace_stable_sort(RandomAccessIterator first,
+                         RandomAccessIterator last,
+                         Compare comp,
                          tbb::task_group_context* context)
 {
 	if (last - first < 15) {
@@ -315,7 +361,9 @@ void inplace_stable_sort(RandomAccessIterator first, RandomAccessIterator last, 
 
 // stable_sort
 template <typename RandomAccessIterator, typename Compare>
-void parallel_stable_sort(RandomAccessIterator begin, RandomAccessIterator end, const Compare& comp,
+void parallel_stable_sort(RandomAccessIterator begin,
+                          RandomAccessIterator end,
+                          const Compare& comp,
                           tbb::task_group_context& context)
 {
 	typedef typename std::iterator_traits<RandomAccessIterator>::value_type ValueType;

@@ -26,8 +26,8 @@ inline static uint32_t y_to_idx_in_buffer(const uint32_t y, const uint32_t zoom)
 	return y >> (32 - (zoom + PARALLELVIEW_ZZT_BBITS));
 }
 
-inline static uint32_t y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom,
-                                              const double alpha)
+inline static uint32_t
+y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom, const double alpha)
 {
 	return ((double)y_to_idx_in_buffer(y, zoom)) * alpha;
 }
@@ -46,7 +46,8 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t*
 }
 
 bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint32_t y_min,
-                                                                      const int zoom, double alpha)
+                                                                      const int zoom,
+                                                                      double alpha)
 {
 	const uint32_t block_idx = y_to_block_idx(y_min, zoom);
 	const uint32_t y_min_block = block_idx << (32 - zoom);

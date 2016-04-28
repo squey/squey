@@ -48,8 +48,9 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += "website - <a "
 	           "href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/>";
 
-	content += QString("Licence expiration in %1 days<br/>").arg(
-	    Inendi::Utils::License::get_remaining_days(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE));
+	content += QString("Licence expiration in %1 days<br/>")
+	               .arg(Inendi::Utils::License::get_remaining_days(INENDI_FLEX_PREFIX,
+	                                                               INENDI_FLEX_FEATURE));
 
 #ifdef CUDA
 	content += "<br/>With CUDA support";

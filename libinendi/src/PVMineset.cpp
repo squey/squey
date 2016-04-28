@@ -177,12 +177,15 @@ static std::string compress_data(std::string const& tmp_dir)
 	std::string dataset_zip_path = tmp_dir + "/" + DATASET_NAME + ".tar.gz";
 
 	int ret_code = system((std::string("tar -c -I pigz -f ") + dataset_zip_path + " -C " + tmp_dir +
-	                       " " + DATASET_NAME).c_str());
+	                       " " + DATASET_NAME)
+	                          .c_str());
 	if (ret_code != 0) { // no pigz support ? falling back on standard gzip compression...
 		pvlogger::warn() << "Mineset export : error when compressing. Is pigz "
-		                    "installed ? Retrying with standard gzip..." << std::endl;
-		if (system((std::string("tar zcf ") + dataset_zip_path + " -C " + tmp_dir + " " +
-		            DATASET_NAME).c_str()) != 0) {
+		                    "installed ? Retrying with standard gzip..."
+		                 << std::endl;
+		if (system(
+		        (std::string("tar zcf ") + dataset_zip_path + " -C " + tmp_dir + " " + DATASET_NAME)
+		            .c_str()) != 0) {
 			throw Inendi::PVMineset::mineset_error("Error when compressing dataset");
 		}
 	}

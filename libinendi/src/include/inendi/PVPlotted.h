@@ -48,8 +48,7 @@ class PVPlotted : public data_tree_plotted_t
 	static constexpr value_type MAX_VALUE = std::numeric_limits<value_type>::max();
 
   private:
-	struct ExpandedSelection
-	{
+	struct ExpandedSelection {
 		ExpandedSelection(PVCol col_, PVSelection const& sel_, QString const& type_)
 		    : col(col_), sel_p(new PVSelection(sel_)), type(type_)
 		{
@@ -66,8 +65,7 @@ class PVPlotted : public data_tree_plotted_t
 		}
 	};
 
-	struct MinMax
-	{
+	struct MinMax {
 		PVRow min;
 		PVRow max;
 	};
@@ -107,8 +105,8 @@ class PVPlotted : public data_tree_plotted_t
 	void set_name(QString const& name) { _plotting->set_name(name); }
 	QString const& get_name() const { return _plotting->get_name(); }
 
-	static void norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res,
-	                             PVCol ncols);
+	static void
+	norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
 
 	void set_plotting(PVPlotting_p const& plotting) { _plotting = plotting; }
 
@@ -140,10 +138,10 @@ class PVPlotted : public data_tree_plotted_t
 	bool is_uptodate() const;
 
 	QList<PVCol> get_singleton_columns_indexes();
-	QList<PVCol> get_columns_indexes_values_within_range(uint32_t min, uint32_t max,
-	                                                     double rate = 1.0);
-	QList<PVCol> get_columns_indexes_values_not_within_range(uint32_t min, uint32_t max,
-	                                                         double rate = 1.0);
+	QList<PVCol>
+	get_columns_indexes_values_within_range(uint32_t min, uint32_t max, double rate = 1.0);
+	QList<PVCol>
+	get_columns_indexes_values_not_within_range(uint32_t min, uint32_t max, double rate = 1.0);
 	QList<PVCol> get_columns_to_update() const;
 
   public:
@@ -194,8 +192,8 @@ class PVPlotted : public data_tree_plotted_t
 	 *
 	 * @return the base address of the column
 	 */
-	static const uint32_t* get_plotted_col_addr(const uint32_t* plotted, const PVRow nrows,
-	                                            const PVCol col)
+	static const uint32_t*
+	get_plotted_col_addr(const uint32_t* plotted, const PVRow nrows, const PVCol col)
 	{
 		return plotted + get_plotted_col_offset(nrows, col);
 	}
@@ -209,8 +207,8 @@ class PVPlotted : public data_tree_plotted_t
 	 *
 	 * @return the base address of the column
 	 */
-	static const uint32_t* get_plotted_col_addr(const uint_plotted_table_t& plotted,
-	                                            const PVRow nrows, const PVCol col)
+	static const uint32_t*
+	get_plotted_col_addr(const uint_plotted_table_t& plotted, const PVRow nrows, const PVCol col)
 	{
 		return get_plotted_col_addr(&plotted.at(0), nrows, col);
 	}
@@ -232,10 +230,15 @@ class PVPlotted : public data_tree_plotted_t
 
 	// Plotted dump/load
 	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;
-	static bool load_buffer_from_file(uint_plotted_table_t& buf, PVRow& nrows, PVCol& ncols,
-	                                  bool get_transposed_version, QString const& file);
-	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols,
-	                                  bool get_transposed_version, QString const& file);
+	static bool load_buffer_from_file(uint_plotted_table_t& buf,
+	                                  PVRow& nrows,
+	                                  PVCol& ncols,
+	                                  bool get_transposed_version,
+	                                  QString const& file);
+	static bool load_buffer_from_file(plotted_table_t& buf,
+	                                  PVCol& ncols,
+	                                  bool get_transposed_version,
+	                                  QString const& file);
 
 	inline QList<PVCol> const& last_updated_cols() const { return _last_updated_cols; }
 

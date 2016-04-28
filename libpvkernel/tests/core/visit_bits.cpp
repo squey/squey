@@ -37,7 +37,7 @@ void check_slices_visitor(std::vector<std::string> const& slices)
 	}
 
 	// Create an aligned and an un-aligned buffer
-	char* buf, *abuf, *abuf_org;
+	char *buf, *abuf, *abuf_org;
 	posix_memalign((void**)&buf, 16, buf_size * sizeof(char));
 	posix_memalign((void**)&abuf_org, 16, buf_size * sizeof(char) + 5);
 	abuf = abuf_org + 5;
@@ -55,14 +55,14 @@ void check_slices_visitor(std::vector<std::string> const& slices)
 	slices_ret.reserve(slices.size());
 	slices_aret.reserve(slices.size());
 	for (size_t i = 0; i < slices.size(); i++) {
-		PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*)buf, buf_size, i,
-		                                       [&slices_ret](uint8_t const* str, size_t n) {
-			slices_ret.push_back(std::string((const char*)str, n));
-		});
-		PVCore::PVByteVisitor::visit_nth_slice((const uint8_t*)abuf, buf_size, i,
-		                                       [&slices_aret](uint8_t const* str, size_t n) {
-			slices_aret.push_back(std::string((const char*)str, n));
-		});
+		PVCore::PVByteVisitor::visit_nth_slice(
+		    (const uint8_t*)buf, buf_size, i, [&slices_ret](uint8_t const* str, size_t n) {
+			    slices_ret.push_back(std::string((const char*)str, n));
+			});
+		PVCore::PVByteVisitor::visit_nth_slice(
+		    (const uint8_t*)abuf, buf_size, i, [&slices_aret](uint8_t const* str, size_t n) {
+			    slices_aret.push_back(std::string((const char*)str, n));
+			});
 	}
 
 	free(buf);
@@ -72,7 +72,9 @@ void check_slices_visitor(std::vector<std::string> const& slices)
 	PV_ASSERT_VALID(slices == slices_aret);
 }
 
-void generate_random_slices(std::vector<std::string>& slices, size_t n, size_t min_len,
+void generate_random_slices(std::vector<std::string>& slices,
+                            size_t n,
+                            size_t min_len,
                             size_t max_len)
 {
 	slices.clear();

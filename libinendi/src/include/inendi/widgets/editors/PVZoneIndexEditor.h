@@ -26,8 +26,8 @@ namespace PVWidgets
 class PVZoneIndexEditor : public QComboBox
 {
 	Q_OBJECT
-	Q_PROPERTY(PVCore::PVZoneIndexType _zone_index READ get_zone_index WRITE set_zone_index
-	               USER true)
+	Q_PROPERTY(
+	    PVCore::PVZoneIndexType _zone_index READ get_zone_index WRITE set_zone_index USER true)
 
   public:
 	PVZoneIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);

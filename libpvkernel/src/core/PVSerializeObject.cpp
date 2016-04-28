@@ -8,7 +8,8 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-PVCore::PVSerializeObject::PVSerializeObject(QString const& path, PVSerializeArchive* parent_ar,
+PVCore::PVSerializeObject::PVSerializeObject(QString const& path,
+                                             PVSerializeArchive* parent_ar,
                                              PVSerializeObject* parent)
     : _parent_ar(parent_ar)
     , _parent(parent)
@@ -24,10 +25,8 @@ bool PVCore::PVSerializeObject::is_writing() const
 	return _parent_ar->is_writing();
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name,
-                                                                     QString const& desc,
-                                                                     bool optional, bool visible,
-                                                                     bool def_option)
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(
+    QString const& name, QString const& desc, bool optional, bool visible, bool def_option)
 {
 	p_type child = _parent_ar->create_object(name, this);
 	child->_visible = visible;
@@ -88,7 +87,8 @@ void PVCore::PVSerializeObject::attribute_write(QString const& name, QVariant co
 	_parent_ar->attribute_write(*this, name, obj);
 }
 
-void PVCore::PVSerializeObject::attribute_read(QString const& name, QVariant& obj,
+void PVCore::PVSerializeObject::attribute_read(QString const& name,
+                                               QVariant& obj,
                                                QVariant const& def)
 {
 	_parent_ar->attribute_read(*this, name, obj, def);
@@ -111,7 +111,8 @@ void PVCore::PVSerializeObject::hash_arguments_write(QString const& name, PVArgu
 	_parent_ar->hash_arguments_write(*this, name, obj);
 }
 
-void PVCore::PVSerializeObject::hash_arguments_read(QString const& name, PVArgumentList& obj,
+void PVCore::PVSerializeObject::hash_arguments_read(QString const& name,
+                                                    PVArgumentList& obj,
                                                     PVArgumentList const& def_args)
 {
 	_parent_ar->hash_arguments_read(*this, name, obj, def_args);
@@ -205,7 +206,8 @@ bool PVCore::PVSerializeObject::visible() const
 	return _visible;
 }
 
-void PVCore::PVSerializeObject::arguments(QString const& name, PVArgumentList& obj,
+void PVCore::PVSerializeObject::arguments(QString const& name,
+                                          PVArgumentList& obj,
                                           PVArgumentList const& def_args)
 {
 	if (is_writing()) {

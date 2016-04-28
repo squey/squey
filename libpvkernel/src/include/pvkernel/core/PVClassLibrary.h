@@ -87,7 +87,8 @@ class InvalidPlugin : public std::runtime_error
  * AG: WARNING: there is *no* and this is *wanted* !
  *              check the wiki for more informations
  */
-template <class RegAs> class PVClassLibrary
+template <class RegAs>
+class PVClassLibrary
 {
   public:
 	// PF is a shared pointer to a registered class's base class
@@ -108,7 +109,8 @@ template <class RegAs> class PVClassLibrary
 	}
 
   public:
-	template <class T> void register_class(QString const& name, T const& f)
+	template <class T>
+	void register_class(QString const& name, T const& f)
 	{
 		PF pf = f.template clone<RegAs>();
 		pf->__registered_class_name = name;
@@ -117,7 +119,8 @@ template <class RegAs> class PVClassLibrary
 		_classes[name] = pf;
 	}
 
-	template <class T> void declare_tag(QString const& name, QString const& desc)
+	template <class T>
+	void declare_tag(QString const& name, QString const& desc)
 	{
 		// Looks for a registered version of 'T', and take it if it exists
 		typename list_classes::iterator it_c;
@@ -146,7 +149,8 @@ template <class RegAs> class PVClassLibrary
 
 	list_tags const& get_tags() const { return _tags; }
 
-	template <class T> list_tags get_tags_for_class(T const& f) const
+	template <class T>
+	list_tags get_tags_for_class(T const& f) const
 	{
 		list_tags ret;
 		typename list_tags::const_iterator it;

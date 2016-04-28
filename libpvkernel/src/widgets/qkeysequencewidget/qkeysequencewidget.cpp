@@ -73,7 +73,8 @@ PVWidgets::QKeySequenceWidget::QKeySequenceWidget(QWidget* parent)
   Creates a QKeySequenceWidget object wuth \a parent and keysequence \a keySequence
   and string for \a noneString
 */
-PVWidgets::QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq, QString noneString,
+PVWidgets::QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq,
+                                                  QString noneString,
                                                   QWidget* parent)
     : QWidget(parent), d_ptr(new PVWidgets::QKeySequenceWidgetPrivate())
 {

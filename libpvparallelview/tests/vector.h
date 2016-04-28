@@ -16,7 +16,8 @@
  * version "classique"
  */
 
-template <class C, int SIZE = 1000, int INCREMENT = 1000> class Vector1
+template <class C, int SIZE = 1000, int INCREMENT = 1000>
+class Vector1
 {
   public:
 	Vector1(const unsigned size = SIZE) : _size(size), _index(0) { _array = 0; }
@@ -114,7 +115,8 @@ enum { VectorImplIndex = 0, VectorImplSize };
  * version avec classe Impl
  */
 
-template <class C> class Vector2Impl
+template <class C>
+class Vector2Impl
 {
   public:
 	static Vector2Impl* allocate(unsigned size)
@@ -139,7 +141,8 @@ template <class C> class Vector2Impl
 	unsigned index;
 };
 
-template <class C, int SIZE = 1000, int INCREMENT = 1000> class Vector2
+template <class C, int SIZE = 1000, int INCREMENT = 1000>
+class Vector2
 {
   public:
 	Vector2() { _v = 0; }

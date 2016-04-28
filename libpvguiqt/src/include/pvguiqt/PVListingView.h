@@ -106,7 +106,7 @@ class PVListingView : public PVAbstractTableView
 	 */
 	void paintEvent(QPaintEvent* event) override;
 
-signals:
+  signals:
 	/**
 	 * Signal emited to update the Stat view (lower part of listing)
 	 */
@@ -284,7 +284,7 @@ class PVHorizontalHeaderView : public QHeaderView
   public:
 	PVHorizontalHeaderView(Qt::Orientation orientation, PVListingView* parent);
 
-signals:
+  signals:
 	void mouse_hovered_section(int index, bool entered);
 
   protected:

@@ -109,7 +109,8 @@ class PVArgumentTypeBase
 	}
 };
 
-template <class T> class PVArgumentType : public PVArgumentTypeBase
+template <class T>
+class PVArgumentType : public PVArgumentTypeBase
 {
 	virtual bool is_equal(const PVArgumentTypeBase& other) const
 	{
@@ -127,9 +128,11 @@ QDataStream& operator>>(QDataStream& in, const PVArgumentTypeBase& obj);
 QString PVArgument_to_QString(PVArgument const& v);
 PVArgument QString_to_PVArgument(const QString& s, const QVariant& v, bool* res_ok = 0);
 
-void PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings,
+void PVArgumentList_to_QSettings(const PVArgumentList& args,
+                                 QSettings& settings,
                                  const QString& group_name);
-PVArgumentList QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args,
+PVArgumentList QSettings_to_PVArgumentList(QSettings& settings,
+                                           const PVArgumentList& def_args,
                                            const QString& group_name);
 
 void PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomElement& elt);

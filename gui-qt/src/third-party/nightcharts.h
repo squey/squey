@@ -74,7 +74,7 @@ class Nightcharts
 	int GetQuater(double angle);
 	double Angle360(double angle);
 
-signals:
+  signals:
 
   public slots:
 };

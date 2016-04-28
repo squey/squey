@@ -30,9 +30,13 @@ class PVPlottingModeWidget : public QWidget
   public:
 	PVPlottingModeWidget(QWidget* parent = NULL) : QWidget(parent) { init(false); }
 	PVPlottingModeWidget(QString const& type, QWidget* parent = NULL);
-	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting, bool params_btn = false,
+	PVPlottingModeWidget(PVCol axis_id,
+	                     Inendi::PVPlotting& plotting,
+	                     bool params_btn = false,
 	                     QWidget* parent = NULL);
-	PVPlottingModeWidget(PVCol axis_id, Inendi::PVView& view, bool params_btn = false,
+	PVPlottingModeWidget(PVCol axis_id,
+	                     Inendi::PVView& view,
+	                     bool params_btn = false,
 	                     QWidget* parent = NULL);
 
   public:

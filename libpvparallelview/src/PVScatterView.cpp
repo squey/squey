@@ -47,18 +47,26 @@
 namespace PVParallelView
 {
 
-template <int STEPS> using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
+template <int STEPS>
+using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 }
 
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
-PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp, PVZonesManager const& zm,
-                                             PVCol const zone_index, PVZonesProcessor& zp_bg,
-                                             PVZonesProcessor& zp_sel, QWidget* parent /*= nullptr*/
+PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp,
+                                             PVZonesManager const& zm,
+                                             PVCol const zone_index,
+                                             PVZonesProcessor& zp_bg,
+                                             PVZonesProcessor& zp_sel,
+                                             QWidget* parent /*= nullptr*/
                                              )
     : PVZoomableDrawingAreaWithAxes(parent)
     , _view(*pvview_sp)
-    , _images_manager(zone_index, zp_bg, zp_sel, zm, pvview_sp->get_output_layer_color_buffer(),
+    , _images_manager(zone_index,
+                      zp_bg,
+                      zp_sel,
+                      zm,
+                      pvview_sp->get_output_layer_color_buffer(),
                       pvview_sp->get_real_output_selection())
     , _view_deleted(false)
     , _show_bg(true)
@@ -388,7 +396,7 @@ bool PVParallelView::PVScatterView::update_zones()
 void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
 	_axis_id = lib_view().get_axes_combination().get_axes_comb_id(zid);
-	const uint32_t* y1_plotted, *y2_plotted;
+	const uint32_t *y1_plotted, *y2_plotted;
 	get_zones_manager().get_zone_plotteds(zid, &y1_plotted, &y2_plotted);
 	get_images_manager().set_zone(zid);
 	_sel_rect->set_plotteds(y1_plotted, y2_plotted, get_zones_manager().get_row_count());

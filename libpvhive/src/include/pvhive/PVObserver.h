@@ -51,7 +51,8 @@ class PVObserverBase : public PVObserverObjectBase
  * All subclasses must implements PVObserverBase::refresh() and
  * PVObserverBase::about_to_be_deleted().
  */
-template <class T> class PVObserver : public PVObserverBase
+template <class T>
+class PVObserver : public PVObserverBase
 {
   public:
 	friend class PVHive;
@@ -74,7 +75,8 @@ template <class T> class PVObserver : public PVObserverBase
 	}
 };
 
-template <typename T> using PVObserver_p = std::shared_ptr<PVObserver<T>>;
+template <typename T>
+using PVObserver_p = std::shared_ptr<PVObserver<T>>;
 }
 
 #endif // LIBPVHIVE_PVOBSERVER_H

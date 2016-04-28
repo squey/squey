@@ -14,7 +14,8 @@
 namespace PVCore
 {
 
-template <typename T> class PVTBBMinMaxArray
+template <typename T>
+class PVTBBMinMaxArray
 {
   protected:
 	const T* _arr;

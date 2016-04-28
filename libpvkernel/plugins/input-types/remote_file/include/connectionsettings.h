@@ -12,8 +12,7 @@
 
 enum Protocol { Http = 0, Https, Ftp, Ftps, Scp, SFtp, Local };
 
-struct ConnectionSettings
-{
+struct ConnectionSettings {
 	ConnectionSettings() : port(0), protocol(Local), ignoreSslError(true) {}
 	QString sshKeyFile;
 	QString password;
@@ -24,15 +23,13 @@ struct ConnectionSettings
 	bool ignoreSslError;
 };
 
-struct RegisteredFile
-{
+struct RegisteredFile {
 	QString remoteFile;
 	QString localFile;
 	ConnectionSettings settings;
 };
 
-struct MachineConfig
-{
+struct MachineConfig {
 	MachineConfig(const QString& _name = QString(), const QString& _hostname = QString())
 	    : name(_name), hostname(_hostname)
 	{

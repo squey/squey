@@ -264,8 +264,7 @@ void Inendi::PVView::commit_volatile_in_floating_selection()
 		floating_selection -= volatile_selection;
 		break;
 
-	case Inendi::PVStateMachine::AREA_MODE_OFF:
-		;
+	case Inendi::PVStateMachine::AREA_MODE_OFF:;
 	}
 }
 
@@ -1071,7 +1070,8 @@ PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
 	return get_parent<PVPlotted>()->get_col_max_row(col);
 }
 
-void Inendi::PVView::sort_indexes(PVCol col, pvcop::db::indexes& idxes,
+void Inendi::PVView::sort_indexes(PVCol col,
+                                  pvcop::db::indexes& idxes,
                                   tbb::task_group_context* /*ctxt = NULL*/) const
 {
 	BENCH_START(pvcop_sort);

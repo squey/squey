@@ -15,8 +15,7 @@
 namespace PVGuiQt
 {
 
-struct PVPoint3D
-{
+struct PVPoint3D {
 	float x, y, z;
 
 	PVPoint3D() : x(0), y(0), z(0) {}

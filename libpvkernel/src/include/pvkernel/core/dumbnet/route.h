@@ -14,8 +14,7 @@
 /*
  * Routing table entry
  */
-struct route_entry
-{
+struct route_entry {
 	struct addr route_dst; /* destination address */
 	struct addr route_gw;  /* gateway address */
 };

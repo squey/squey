@@ -45,10 +45,13 @@
  * PVParallelView::PVFullParallelScene::PVFullParallelScene
  *
  *****************************************************************************/
-PVParallelView::PVFullParallelScene::PVFullParallelScene(
-    PVFullParallelView* full_parallel_view, Inendi::PVView_sp& view_sp,
-    PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend, PVZonesManager const& zm,
-    PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg)
+PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* full_parallel_view,
+                                                         Inendi::PVView_sp& view_sp,
+                                                         PVParallelView::PVSlidersManager_p sm_p,
+                                                         PVBCIDrawingBackend& backend,
+                                                         PVZonesManager const& zm,
+                                                         PVZonesProcessor& zp_sel,
+                                                         PVZonesProcessor& zp_bg)
     : QGraphicsScene()
     , _lines_view(backend, zm, zp_sel, zp_bg, this)
     , _lib_view(*view_sp)

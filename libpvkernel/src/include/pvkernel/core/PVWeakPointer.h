@@ -14,12 +14,15 @@
 namespace PVCore
 {
 
-template <typename T> class PVSharedPtr;
+template <typename T>
+class PVSharedPtr;
 
-template <typename T> class PVWeakPtr
+template <typename T>
+class PVWeakPtr
 {
   public:
-	template <typename X> friend class PVSharedPtr;
+	template <typename X>
+	friend class PVSharedPtr;
 
   public:
 	typedef T type;
@@ -33,14 +36,16 @@ template <typename T> class PVWeakPtr
 
 	PVWeakPtr(PVSharedPtr<T>& r) : _weak_count(r._shared_count), _px(r._px) {}
 
-	template <typename Y> PVWeakPtr& operator=(PVWeakPtr<Y> const& r)
+	template <typename Y>
+	PVWeakPtr& operator=(PVWeakPtr<Y> const& r)
 	{
 		_weak_count = r._weak_count;
 		_px = static_cast<Y*>(r._px);
 		return *this;
 	}
 
-	template <typename Y> PVWeakPtr& operator=(PVSharedPtr<Y> const& r)
+	template <typename Y>
+	PVWeakPtr& operator=(PVSharedPtr<Y> const& r)
 	{
 		_weak_count = r._shared_count;
 		_px = static_cast<Y*>(r._px);

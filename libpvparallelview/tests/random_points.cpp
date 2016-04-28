@@ -20,8 +20,7 @@ constexpr uint32_t PIXEL_COUNT = IMAGE_WIDTH * IMAGE_HEIGHT;
 
 #define RANDOM 0
 
-struct random_point_t
-{
+struct random_point_t {
 	random_point_t(uint32_t r, uint32_t c) : row(r), col(c) {}
 	uint32_t row;
 	uint32_t col;

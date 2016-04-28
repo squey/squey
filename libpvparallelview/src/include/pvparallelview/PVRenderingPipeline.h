@@ -42,8 +42,7 @@ class PVZonesManager;
 class PVRenderingPipeline : boost::noncopyable
 {
 	// Structures of objects passed through the graph
-	struct ZoneRenderingWithBCI
-	{
+	struct ZoneRenderingWithBCI {
 		// Used by TBB internally
 		ZoneRenderingWithBCI() {}
 
@@ -82,9 +81,12 @@ class PVRenderingPipeline : boost::noncopyable
 		/**
 		 * Build a TBB pipeline to apply preprocessing.
 		 */
-		Preprocessor(tbb::flow::graph& g, input_port_zrc_type& node_in_job,
-		             input_port_cancel_type& node_cancel_job, preprocess_func_type const& f,
-		             PVCore::PVHSVColor const* colors, size_t nzones);
+		Preprocessor(tbb::flow::graph& g,
+		             input_port_zrc_type& node_in_job,
+		             input_port_cancel_type& node_cancel_job,
+		             preprocess_func_type const& f,
+		             PVCore::PVHSVColor const* colors,
+		             size_t nzones);
 
 		/**
 		 * Input where we should push "token ZoneRedering"
@@ -112,14 +114,16 @@ class PVRenderingPipeline : boost::noncopyable
 	constexpr static size_t wr_bci = 0;
 	constexpr static size_t wr_scatter = 1;
 
-	typedef tbb::flow::multifunction_node<ZoneRenderingWithColors,
-	                                      std::tuple<ZoneRenderingWithColors, PVZoneRendering_p,
-	                                                 tbb::flow::continue_msg>> cp_postlimiter_type;
+	typedef tbb::flow::multifunction_node<
+	    ZoneRenderingWithColors,
+	    std::tuple<ZoneRenderingWithColors, PVZoneRendering_p, tbb::flow::continue_msg>>
+	    cp_postlimiter_type;
 	typedef tbb::flow::multifunction_node<ZoneRenderingWithBCI,
 	                                      std::tuple<ZoneRenderingWithBCI, ZoneRenderingWithBCI>>
 	    cp_postcomputebci_type;
 	typedef tbb::flow::multifunction_node<
-	    ZoneRenderingWithColors, std::tuple<ZoneRenderingWithColors, ZoneRenderingWithColors>>
+	    ZoneRenderingWithColors,
+	    std::tuple<ZoneRenderingWithColors, ZoneRenderingWithColors>>
 	    workflow_router_type;
 
   public:
@@ -128,7 +132,8 @@ class PVRenderingPipeline : boost::noncopyable
 
   public:
 	PVZonesProcessor declare_processor(Preprocessor::preprocess_func_type const& f,
-	                                   PVCore::PVHSVColor const* colors, size_t nzones);
+	                                   PVCore::PVHSVColor const* colors,
+	                                   size_t nzones);
 
 	void cancel_all();
 	void wait_for_all();

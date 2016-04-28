@@ -25,9 +25,12 @@
 
 #include <inendi/PVView.h>
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view, QWidget* view_widget,
-                                      std::function<QString()> name, bool can_be_central_widget,
-                                      bool delete_on_close, PVWorkspaceBase* workspace)
+PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
+                                      QWidget* view_widget,
+                                      std::function<QString()> name,
+                                      bool can_be_central_widget,
+                                      bool delete_on_close,
+                                      PVWorkspaceBase* workspace)
     : QDockWidget((QWidget*)workspace)
     , _view(view)
     , _name(name)

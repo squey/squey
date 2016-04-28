@@ -111,7 +111,7 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
   public slots:
 	void slotDataHasChanged(const QModelIndex&, const QModelIndex&);
 	void slotSelectNext();
-signals:
+  signals:
 	void refresh();
 };
 }

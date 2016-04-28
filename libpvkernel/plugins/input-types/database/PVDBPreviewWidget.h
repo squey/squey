@@ -21,7 +21,9 @@ namespace PVRush
 class PVDBPreviewWidget : public QDialog, public Ui::DbPreview
 {
   public:
-	PVDBPreviewWidget(PVDBInfos const& infos, QString const& query, uint32_t nrows,
+	PVDBPreviewWidget(PVDBInfos const& infos,
+	                  QString const& query,
+	                  uint32_t nrows,
 	                  QDialog* parent = 0);
 
   public:

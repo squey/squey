@@ -10,7 +10,8 @@
 #include <QString>
 #include <QStringList>
 
-bool PVCore::PVVersion::from_network_reply(QByteArray const& reply, version_t& current,
+bool PVCore::PVVersion::from_network_reply(QByteArray const& reply,
+                                           version_t& current,
                                            version_t& last)
 {
 	// Format is:
@@ -67,14 +68,17 @@ bool PVCore::PVVersion::from_network_reply(QByteArray const& reply, version_t& c
 
 QString PVCore::PVVersion::to_str(version_t v)
 {
-	return QString("%1.%2.%3").arg(INENDI_MAJOR_VERSION(v)).arg(INENDI_MINOR_VERSION(v)).arg(
-	    INENDI_PATCH_VERSION(v));
+	return QString("%1.%2.%3")
+	    .arg(INENDI_MAJOR_VERSION(v))
+	    .arg(INENDI_MINOR_VERSION(v))
+	    .arg(INENDI_PATCH_VERSION(v));
 }
 
 QString PVCore::PVVersion::update_url()
 {
 	// return
 	// QString("http://files.geekou.info/pv-test/update-%1.%2").arg(INENDI_CURRENT_VERSION_MAJOR).arg(INENDI_CURRENT_VERSION_MINOR);
-	return QString("http://www.picviz.com/update-%1.%2").arg(INENDI_CURRENT_VERSION_MAJOR).arg(
-	    INENDI_CURRENT_VERSION_MINOR);
+	return QString("http://www.picviz.com/update-%1.%2")
+	    .arg(INENDI_CURRENT_VERSION_MAJOR)
+	    .arg(INENDI_CURRENT_VERSION_MINOR);
 }

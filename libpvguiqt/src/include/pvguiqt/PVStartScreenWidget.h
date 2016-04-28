@@ -97,7 +97,7 @@ class PVStartScreenWidget : public QWidget
 
 	QString format_selected_item_string(PVCore::PVRecentItemsManager::Category cat);
 
-signals:
+  signals:
 	// These signals are used by to the PVMainWindow.
 	void new_project();
 	void load_project();
@@ -169,7 +169,9 @@ class PVListWidgetItem : public QObject, public QListWidgetItem
 	Q_OBJECT
 
   public:
-	PVListWidgetItem(PVCore::PVRecentItemsManager::Category cat, QVariant var, int index,
+	PVListWidgetItem(PVCore::PVRecentItemsManager::Category cat,
+	                 QVariant var,
+	                 int index,
 	                 PVGuiQt::PVStartScreenWidget::custom_listwidget_t* parent,
 	                 PVGuiQt::PVStartScreenWidget* start_screen_widget);
 

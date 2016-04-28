@@ -107,9 +107,8 @@ bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PV
  * PVParallelView::PVSelectionRectangleInteractor::mousePressEvent
  *****************************************************************************/
 
-bool
-PVParallelView::PVSelectionRectangleInteractor::mousePressEvent(PVWidgets::PVGraphicsView* view,
-                                                                QMouseEvent* event)
+bool PVParallelView::PVSelectionRectangleInteractor::mousePressEvent(
+    PVWidgets::PVGraphicsView* view, QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
 		QPointF p = view->map_to_scene(event->pos());
@@ -123,9 +122,8 @@ PVParallelView::PVSelectionRectangleInteractor::mousePressEvent(PVWidgets::PVGra
  * PVParallelView::PVSelectionRectangleInteractor::mouseReleaseEvent
  *****************************************************************************/
 
-bool
-PVParallelView::PVSelectionRectangleInteractor::mouseReleaseEvent(PVWidgets::PVGraphicsView* view,
-                                                                  QMouseEvent* event)
+bool PVParallelView::PVSelectionRectangleInteractor::mouseReleaseEvent(
+    PVWidgets::PVGraphicsView* view, QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
 		QPointF p = view->map_to_scene(event->pos());

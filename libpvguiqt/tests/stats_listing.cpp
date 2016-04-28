@@ -32,8 +32,7 @@
 
 #include "stats_listing.h"
 
-struct CustomMainWindow : public QMainWindow
-{
+struct CustomMainWindow : public QMainWindow {
 	CustomMainWindow(QWidget* parent = 0) : QMainWindow(parent)
 	{
 		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(500, 800),

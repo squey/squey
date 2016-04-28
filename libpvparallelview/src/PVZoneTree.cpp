@@ -164,7 +164,8 @@ class TBBMergeTreesTask
 {
   public:
 	TBBMergeTreesTask(PVParallelView::PVZoneTree* ztree,
-	                  PVParallelView::PVZoneTree::PVTreeParams const& params, uint32_t task_num)
+	                  PVParallelView::PVZoneTree::PVTreeParams const& params,
+	                  uint32_t task_num)
 	    : _ztree(ztree), _params(params), _task_num(task_num)
 	{
 	}
@@ -197,8 +198,10 @@ class TBBMergeTreesTask
 class TBBSelFilterMaxCount
 {
   public:
-	TBBSelFilterMaxCount(PVParallelView::PVZoneTree* tree, PVRow* buf_elts,
-	                     const Inendi::PVSelection& sel, tbb::atomic<ssize_t>& nelts,
+	TBBSelFilterMaxCount(PVParallelView::PVZoneTree* tree,
+	                     PVRow* buf_elts,
+	                     const Inendi::PVSelection& sel,
+	                     tbb::atomic<ssize_t>& nelts,
 	                     tbb::task_group_context& ctxt)
 	    : _tree(tree), _buf_elts(buf_elts), _sel(sel), _nelts(&nelts), _ctxt(&ctxt)
 	{
@@ -310,7 +313,8 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel,
-                                                         const PVRow nrows, PVRow* buf_elts)
+                                                         const PVRow nrows,
+                                                         PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
 	tbb::atomic<ssize_t> nelts_sel;
@@ -338,33 +342,34 @@ void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSe
 	BENCH_START(subtree2);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE),
 	                  [&](const tbb::blocked_range<size_t>& range) {
-		PVRow* buf_elts_ = buf_elts;
-		PVZoneTree* tree = this;
-		for (PVRow b = range.begin(); b != range.end(); b++) {
-			PVRow res = PVROW_INVALID_VALUE;
-			if (tree->branch_valid(b)) {
-				const PVRow r = tree->get_first_elt_of_branch(b);
-				if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-				    (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
-					res = r;
-				} else {
-					for (size_t i = 0; i < tree->_treeb[b].count; i++) {
-						const PVRow r = tree->_treeb[b].p[i];
-						if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-						    (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
-							res = r;
-							break;
-						}
-					}
-				}
-				// If nothing from the nu_selection, take the first event (a zombie one)
-				if (res == PVROW_INVALID_VALUE) {
-					res = r;
-				}
-			}
-			buf_elts_[b] = res;
-		}
-	});
+		                  PVRow* buf_elts_ = buf_elts;
+		                  PVZoneTree* tree = this;
+		                  for (PVRow b = range.begin(); b != range.end(); b++) {
+			                  PVRow res = PVROW_INVALID_VALUE;
+			                  if (tree->branch_valid(b)) {
+				                  const PVRow r = tree->get_first_elt_of_branch(b);
+				                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
+				                      (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+					                  res = r;
+				                  } else {
+					                  for (size_t i = 0; i < tree->_treeb[b].count; i++) {
+						                  const PVRow r = tree->_treeb[b].p[i];
+						                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
+						                      (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+							                  res = r;
+							                  break;
+						                  }
+					                  }
+				                  }
+				                  // If nothing from the nu_selection, take the first event (a
+				                  // zombie one)
+				                  if (res == PVROW_INVALID_VALUE) {
+					                  res = r;
+				                  }
+			                  }
+			                  buf_elts_[b] = res;
+		                  }
+		              });
 	BENCH_END(subtree2, "filter_by_sel_background_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 

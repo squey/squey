@@ -24,8 +24,7 @@
 /*
  * TCP header, without options
  */
-struct tcp_hdr
-{
+struct tcp_hdr {
 	uint16_t th_sport; /* source port */
 	uint16_t th_dport; /* destination port */
 	uint32_t th_seq;   /* sequence number */
@@ -122,12 +121,10 @@ struct tcp_hdr
 /*
  * TCP option (following TCP header)
  */
-struct tcp_opt
-{
+struct tcp_opt {
 	uint8_t opt_type; /* option type */
 	uint8_t opt_len;  /* option length >= TCP_OPT_LEN */
-	union tcp_opt_data
-	{
+	union tcp_opt_data {
 		uint16_t mss;          /* TCP_OPT_MSS */
 		uint8_t wscale;        /* TCP_OPT_WSCALE */
 		uint16_t sack[19];     /* TCP_OPT_SACK */

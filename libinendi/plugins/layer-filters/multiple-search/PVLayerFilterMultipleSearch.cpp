@@ -134,9 +134,10 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	} break;
 	case (EXACT_MATCH | CASE_INSENSITIVE): {
 		pvcop::db::algo::subselect_if(
-		    column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
-			                       return strcasecmp(array_value.c_str(), exp_value.c_str()) == 0;
-			                   },
+		    column, exps_utf8,
+		    [](const std::string& array_value, const std::string& exp_value) {
+			    return strcasecmp(array_value.c_str(), exp_value.c_str()) == 0;
+			},
 		    in.get_selection(), out_sel);
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION): {
@@ -159,20 +160,22 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	} break;
 	case (REGULAR_EXPRESSION): {
 		pvcop::db::algo::subselect_if(
-		    column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
-			                       pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
-			                       return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(),
-			                                                                   array_value.size()));
-			                   },
+		    column, exps_utf8,
+		    [](const std::string& array_value, const std::string& exp_value) {
+			    pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
+			    return re.PartialMatch(
+			        pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			},
 		    in.get_selection(), out_sel);
 	} break;
 	case (REGULAR_EXPRESSION | CASE_INSENSITIVE): {
 		pvcop::db::algo::subselect_if(
-		    column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
-			                       pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
-			                       return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(),
-			                                                                   array_value.size()));
-			                   },
+		    column, exps_utf8,
+		    [](const std::string& array_value, const std::string& exp_value) {
+			    pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
+			    return re.PartialMatch(
+			        pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			},
 		    in.get_selection(), out_sel);
 	} break;
 	case (CASE_INSENSITIVE): {
@@ -185,9 +188,10 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	} break;
 	case (NONE): {
 		pvcop::db::algo::subselect_if(
-		    column, exps_utf8, [](const std::string& array_value, const std::string& exp_value) {
-			                       return strstr(array_value.c_str(), exp_value.c_str()) != nullptr;
-			                   },
+		    column, exps_utf8,
+		    [](const std::string& array_value, const std::string& exp_value) {
+			    return strstr(array_value.c_str(), exp_value.c_str()) != nullptr;
+			},
 		    in.get_selection(), out_sel);
 	} break;
 	default: {
@@ -239,9 +243,8 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PV
 	return args;
 }
 
-PVCore::PVArgumentList
-Inendi::PVLayerFilterMultipleSearch::search_using_value_menu(PVRow row, PVCol col, PVCol org_col,
-                                                             QString const& v)
+PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_menu(
+    PVRow row, PVCol col, PVCol org_col, QString const& v)
 {
 	PVCore::PVArgumentList args = search_value_menu(row, col, org_col, v);
 

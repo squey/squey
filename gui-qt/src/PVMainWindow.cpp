@@ -68,7 +68,9 @@ Q_DECLARE_METATYPE(Inendi::PVSource*);
 
 PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , _load_solution_dlg(this, tr("Load an investigation..."), QString(),
+    , _load_solution_dlg(this,
+                         tr("Load an investigation..."),
+                         QString(),
                          INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
     , _root(new Inendi::PVRoot())
 {
@@ -1087,7 +1089,8 @@ void PVInspector::PVMainWindow::display_inv_elts()
  * PVInspector::PVMainWindow::save_screenshot
  *****************************************************************************/
 
-void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap, const QString& title,
+void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
+                                                const QString& title,
                                                 const QString& name)
 {
 	QString filename = "screenshot_" + name;
@@ -1208,7 +1211,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			PVRow nelts = job_import->rejected_elements();
 			if (nelts > 0) {
 				msg += QString("Indeed, <strong>%1 elements</strong> have been extracted "
-				               "but were <strong>all invalid</strong>.</p>").arg(nelts);
+				               "but were <strong>all invalid</strong>.</p>")
+				           .arg(nelts);
 				msg += QString("<p>This is because one or more splitters and/or "
 				               "filters defined in format <strong>%1</strong> reported "
 				               "invalid events during the extraction.<br />")

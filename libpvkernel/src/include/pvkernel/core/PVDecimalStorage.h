@@ -29,7 +29,8 @@ enum DecimalType { IntegerType = 0, UnsignedIntegerType, FloatType };
 namespace __impl
 {
 
-template <size_t storage_bits> class PVDecimalStorageBase
+template <size_t storage_bits>
+class PVDecimalStorageBase
 {
   protected:
 	static_assert((1 << (boost::static_log2<storage_bits>::value) == storage_bits) &&
@@ -128,7 +129,8 @@ class PVDecimalStorage : public __impl::PVDecimalStorageBase<storage_bits>
 	              "PVDecimalStorage has an invalid size !");
 };
 
-template <> class PVDecimalStorage<32> : public __impl::PVDecimalStorageBase<32>
+template <>
+class PVDecimalStorage<32> : public __impl::PVDecimalStorageBase<32>
 {
 	typedef __impl::PVDecimalStorageBase<32> base_type;
 	typedef base_type::storage_type storage_type;
@@ -206,7 +208,8 @@ template <> class PVDecimalStorage<32> : public __impl::PVDecimalStorageBase<32>
 	}
 };
 
-template <> class PVDecimalStorage<64> : public __impl::PVDecimalStorageBase<64>
+template <>
+class PVDecimalStorage<64> : public __impl::PVDecimalStorageBase<64>
 {
 	typedef __impl::PVDecimalStorageBase<64> base_type;
 	typedef typename base_type::storage_type storage_type;
@@ -258,7 +261,8 @@ template <> class PVDecimalStorage<64> : public __impl::PVDecimalStorageBase<64>
 
 namespace std
 {
-template <size_t storage_bits> class hash<PVCore::PVDecimalStorage<storage_bits>>
+template <size_t storage_bits>
+class hash<PVCore::PVDecimalStorage<storage_bits>>
 {
   public:
 	size_t operator()(const PVCore::PVDecimalStorage<storage_bits>& s) const

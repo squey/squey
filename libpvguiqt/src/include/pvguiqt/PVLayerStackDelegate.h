@@ -39,7 +39,9 @@ class PVLayerStackDelegate : public QStyledItemDelegate
 	 *
 	 *  @return
 	 */
-	bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option,
+	bool editorEvent(QEvent* event,
+	                 QAbstractItemModel* model,
+	                 const QStyleOptionViewItem& option,
 	                 const QModelIndex& index);
 
   private:

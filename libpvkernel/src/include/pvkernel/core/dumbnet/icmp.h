@@ -23,8 +23,7 @@
 /*
  * ICMP header
  */
-struct icmp_hdr
-{
+struct icmp_hdr {
 	uint8_t icmp_type;   /* type of message, see below */
 	uint8_t icmp_code;   /* type sub code */
 	uint16_t icmp_cksum; /* ones complement cksum of struct */
@@ -106,8 +105,7 @@ struct icmp_hdr
 /*
  * Echo message data
  */
-struct icmp_msg_echo
-{
+struct icmp_msg_echo {
 	uint16_t icmp_id;
 	uint16_t icmp_seq;
 	uint8_t icmp_data __flexarr; /* optional data */
@@ -116,8 +114,7 @@ struct icmp_msg_echo
 /*
  * Fragmentation-needed (unreachable) message data
  */
-struct icmp_msg_needfrag
-{
+struct icmp_msg_needfrag {
 	uint16_t icmp_void;        /* must be zero */
 	uint16_t icmp_mtu;         /* MTU of next-hop network */
 	uint8_t icmp_ip __flexarr; /* IP hdr + 8 bytes of pkt */
@@ -127,8 +124,7 @@ struct icmp_msg_needfrag
  *  Unreachable, source quench, redirect, time exceeded,
  *  parameter problem message data
  */
-struct icmp_msg_quote
-{
+struct icmp_msg_quote {
 	uint32_t icmp_void;        /* must be zero */
 #define icmp_gwaddr icmp_void  /* router IP address to use */
 #define icmp_pptr icmp_void    /* ptr to bad octet field */
@@ -138,13 +134,11 @@ struct icmp_msg_quote
 /*
  * Router advertisement message data, RFC 1256
  */
-struct icmp_msg_rtradvert
-{
+struct icmp_msg_rtradvert {
 	uint8_t icmp_num_addrs; /* # of address / pref pairs */
 	uint8_t icmp_wpa;       /* words / address == 2 */
 	uint16_t icmp_lifetime; /* route lifetime in seconds */
-	struct icmp_msg_rtr_data
-	{
+	struct icmp_msg_rtr_data {
 		uint32_t icmp_void;
 #define icmp_gwaddr icmp_void /* router IP address */
 		uint32_t icmp_pref;   /* router preference (usu 0) */
@@ -155,8 +149,7 @@ struct icmp_msg_rtradvert
 /*
  * Timestamp message data
  */
-struct icmp_msg_tstamp
-{
+struct icmp_msg_tstamp {
 	uint32_t icmp_id;      /* identifier */
 	uint32_t icmp_seq;     /* sequence number */
 	uint32_t icmp_ts_orig; /* originate timestamp */
@@ -167,8 +160,7 @@ struct icmp_msg_tstamp
 /*
  * Address mask message data, RFC 950
  */
-struct icmp_msg_mask
-{
+struct icmp_msg_mask {
 	uint32_t icmp_id;   /* identifier */
 	uint32_t icmp_seq;  /* sequence number */
 	uint32_t icmp_mask; /* address mask */
@@ -177,8 +169,7 @@ struct icmp_msg_mask
 /*
  * Traceroute message data, RFC 1393, RFC 1812
  */
-struct icmp_msg_traceroute
-{
+struct icmp_msg_traceroute {
 	uint16_t icmp_id;    /* identifier */
 	uint16_t icmp_void;  /* unused */
 	uint16_t icmp_ohc;   /* outbound hop count */
@@ -190,8 +181,7 @@ struct icmp_msg_traceroute
 /*
  * Domain name reply message data, RFC 1788
  */
-struct icmp_msg_dnsreply
-{
+struct icmp_msg_dnsreply {
 	uint16_t icmp_id;             /* identifier */
 	uint16_t icmp_seq;            /* sequence number */
 	uint32_t icmp_ttl;            /* time-to-live */
@@ -201,8 +191,7 @@ struct icmp_msg_dnsreply
 /*
  * Generic identifier, sequence number data
  */
-struct icmp_msg_idseq
-{
+struct icmp_msg_idseq {
 	uint16_t icmp_id;
 	uint16_t icmp_seq;
 };
@@ -210,8 +199,7 @@ struct icmp_msg_idseq
 /*
  * ICMP message union
  */
-union icmp_msg
-{
+union icmp_msg {
 	struct icmp_msg_echo echo;             /* ICMP_ECHO{REPLY} */
 	struct icmp_msg_quote unreach;         /* ICMP_UNREACH */
 	struct icmp_msg_needfrag needfrag;     /* ICMP_UNREACH_NEEDFRAG */

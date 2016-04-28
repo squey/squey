@@ -38,8 +38,7 @@ class PVAxesCombination
 	friend class PVCore::PVSerializeObject;
 
   public:
-	struct axes_comb_id_t
-	{
+	struct axes_comb_id_t {
 		axes_comb_id_t() { data.raw = 0; }
 
 		axes_comb_id_t(PVCol ai, uint32_t ci)
@@ -73,10 +72,8 @@ class PVAxesCombination
 			return ret;
 		}
 
-		union
-		{
-			struct
-			{
+		union {
+			struct {
 				PVCol axis;
 				uint32_t copy_id;
 			} info;
@@ -263,7 +260,8 @@ class PVAxesCombination
 	*/
 	bool move_axis_left_one_position(PVCol index);
 
-	template <class Iterator> bool move_axes_left_one_position(Iterator begin, Iterator end);
+	template <class Iterator>
+	bool move_axes_left_one_position(Iterator begin, Iterator end);
 
 	/**
 	* Move one of the used axes to the right.
@@ -276,7 +274,8 @@ class PVAxesCombination
 	*/
 	bool move_axis_right_one_position(PVCol index);
 
-	template <class Iterator> bool move_axes_right_one_position(Iterator begin, Iterator end);
+	template <class Iterator>
+	bool move_axes_right_one_position(Iterator begin, Iterator end);
 
 	/**
 	* Move one of the used axes to a new position.
@@ -297,7 +296,8 @@ class PVAxesCombination
 	*/
 	bool remove_axis(PVCol index);
 
-	template <class L> bool remove_axes(L const& list_idx);
+	template <class L>
+	bool remove_axes(L const& list_idx);
 
 	/**
 	 * Reset the axis combination to the default one.
@@ -415,7 +415,8 @@ bool PVAxesCombination::move_axes_to_new_position(Iterator begin, Iterator end, 
 	return ret;
 }
 
-template <class L> bool PVAxesCombination::remove_axes(L const& list_idx)
+template <class L>
+bool PVAxesCombination::remove_axes(L const& list_idx)
 {
 	QVector<PVAxis> tmp_axes;
 	columns_indexes_t tmp_col_indexes;

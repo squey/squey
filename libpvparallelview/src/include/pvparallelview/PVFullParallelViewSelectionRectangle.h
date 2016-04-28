@@ -22,8 +22,7 @@ class PVLinesView;
 class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 {
   public:
-	struct barycenter
-	{
+	struct barycenter {
 		PVZoneID zone_id1;
 		PVZoneID zone_id2;
 		double factor1;

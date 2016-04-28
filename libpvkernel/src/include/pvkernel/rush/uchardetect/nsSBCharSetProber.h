@@ -49,8 +49,7 @@
 #define POSITIVE_CAT (NUMBER_OF_SEQ_CAT - 1)
 #define NEGATIVE_CAT 0
 
-typedef struct
-{
+typedef struct {
 	unsigned char* charToOrderMap; // [256] table use to find a char's order
 	char*
 	    precedenceMatrix; // [SAMPLE_SIZE][SAMPLE_SIZE]; table to find a 2-char sequence's frequency

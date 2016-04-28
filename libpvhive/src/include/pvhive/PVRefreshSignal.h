@@ -110,7 +110,7 @@ class PVRefreshSignal : public QObject
 		}
 	}
 
-signals:
+  signals:
 /* Qt's signals/slots mechanism can not work properly with namespaces; leading
  * to run-time errors of type "Incompatible sender/receiver arguments" or
  * "No such signal": the signals use implicit namespaces prefix (otherwise it

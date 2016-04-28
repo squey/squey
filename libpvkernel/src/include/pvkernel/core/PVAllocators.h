@@ -34,7 +34,8 @@ namespace PVCore
  * \todo Improves the way PVField objects are created and destroyed, so that such a thing won't be
  *necessary anymore.
  */
-template <class T, class FallbackAllocator = std::allocator<T>> class PVPreAllocatedListAllocator
+template <class T, class FallbackAllocator = std::allocator<T>>
+class PVPreAllocatedListAllocator
 {
   public:
 	typedef T value_type;
@@ -44,8 +45,8 @@ template <class T, class FallbackAllocator = std::allocator<T>> class PVPreAlloc
 	typedef const T& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
-	template <class U> struct rebind
-	{
+	template <class U>
+	struct rebind {
 		typedef typename FallbackAllocator::template rebind<U>::other OtherFallbackAllocator;
 		typedef PVPreAllocatedListAllocator<U, OtherFallbackAllocator> other;
 	};
@@ -122,7 +123,8 @@ template <class T, class FallbackAllocator = std::allocator<T>> class PVPreAlloc
  * \todo Make this work under Windows (which has a different memory management system than Linux..
  *!)
  */
-template <class T> class PVMMapAllocator
+template <class T>
+class PVMMapAllocator
 {
   public:
 	typedef T value_type;
@@ -132,8 +134,8 @@ template <class T> class PVMMapAllocator
 	typedef const T& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
-	template <class U> struct rebind
-	{
+	template <class U>
+	struct rebind {
 		typedef PVMMapAllocator<U> other;
 	};
 
@@ -171,7 +173,8 @@ template <class T> class PVMMapAllocator
  * \todo Make this work under Windows (which has a different memory management system than Linux..
  *!)
  */
-template <class T> class PVNUMAHugePagedInterleavedAllocator
+template <class T>
+class PVNUMAHugePagedInterleavedAllocator
 {
   public:
 	typedef T value_type;
@@ -181,8 +184,8 @@ template <class T> class PVNUMAHugePagedInterleavedAllocator
 	typedef const T& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
-	template <class U> struct rebind
-	{
+	template <class U>
+	struct rebind {
 		typedef PVNUMAHugePagedInterleavedAllocator<U> other;
 	};
 
@@ -228,7 +231,8 @@ template <class T> class PVNUMAHugePagedInterleavedAllocator
  *
  * \todo Provide a similar behavior under Windows.
  */
-template <class T, int Align> class PVAlignedAllocator
+template <class T, int Align>
+class PVAlignedAllocator
 {
   public:
 	typedef T DECLARE_ALIGN(Align) value_type;
@@ -238,8 +242,8 @@ template <class T, int Align> class PVAlignedAllocator
 	typedef const value_type& const_reference;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
-	template <class U> struct rebind
-	{
+	template <class U>
+	struct rebind {
 		typedef PVAlignedAllocator<U, Align> other;
 	};
 
@@ -275,7 +279,8 @@ template <class T, int Align> class PVAlignedAllocator
 	bool operator!=(const PVAlignedAllocator&) const { return false; }
 };
 
-template <class T> class PVReallocableCAllocator
+template <class T>
+class PVReallocableCAllocator
 {
   public:
 	typedef T value_type;

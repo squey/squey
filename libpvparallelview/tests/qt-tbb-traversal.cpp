@@ -67,10 +67,14 @@ static inline double get_scale_factor(uint32_t zoom)
 	return pow(2, zoom);
 }
 
-static inline void compute_bci_projection_y2(const uint64_t y1, const uint64_t y2,
-                                             const uint64_t y_min, const uint64_t y_lim,
-                                             const int shift, const uint32_t mask,
-                                             const uint32_t width, const float beta,
+static inline void compute_bci_projection_y2(const uint64_t y1,
+                                             const uint64_t y2,
+                                             const uint64_t y_min,
+                                             const uint64_t y_lim,
+                                             const int shift,
+                                             const uint32_t mask,
+                                             const uint32_t width,
+                                             const float beta,
                                              bci_code_t& bci)
 {
 	bci.s.l = ((y1 - y_min) >> shift) & mask;

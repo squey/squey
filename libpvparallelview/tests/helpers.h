@@ -15,8 +15,8 @@
 namespace PVParallelView
 {
 
-template <size_t Bbits> struct PVBCIPatterns
-{
+template <size_t Bbits>
+struct PVBCIPatterns {
 	typedef void (*init_func_t)(PVBCICode<Bbits>*, const size_t);
 	typedef enum { RANDOM = 0, GRADIENT, UPDOWN, UPDOWN2 } codes_pattern_t;
 

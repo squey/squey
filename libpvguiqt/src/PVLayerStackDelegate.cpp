@@ -34,7 +34,8 @@ PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Inendi::PVView const& view, 
  * PVGuiQt::PVLayerStackDelegate::editorEvent
  *
  *****************************************************************************/
-bool PVGuiQt::PVLayerStackDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
+bool PVGuiQt::PVLayerStackDelegate::editorEvent(QEvent* event,
+                                                QAbstractItemModel* model,
                                                 const QStyleOptionViewItem& /*option*/,
                                                 const QModelIndex& index)
 {

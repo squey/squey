@@ -22,7 +22,9 @@
  * PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider
  *****************************************************************************/
 
-PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin, int64_t omax, int64_t o,
+PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider(int64_t omin,
+                                                           int64_t omax,
+                                                           int64_t o,
                                                            PVAxisSliderOrientation orientation,
                                                            QGraphicsItem* parent_item)
     : QGraphicsObject(parent_item)

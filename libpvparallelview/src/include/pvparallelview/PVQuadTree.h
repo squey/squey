@@ -38,8 +38,7 @@ namespace PVParallelView
 {
 
 #ifdef INENDI_DEVELOPER_MODE
-struct extract_stat
-{
+struct extract_stat {
 	static double all_dt;
 	static size_t all_cnt;
 	static size_t test_cnt;
@@ -63,8 +62,7 @@ struct extract_stat
  *
  * This structure is the quadtree's internal structure used to store events
  */
-struct PVQuadTreeEntry
-{
+struct PVQuadTreeEntry {
 	uint32_t y1;
 	uint32_t y2;
 	PVRow idx;
@@ -94,8 +92,10 @@ typedef uint32_t pv_quadtree_buffer_entry_t;
  */
 //#define QUADTREE_USE_SSE_EXTRACT
 
-static inline bool test_sse(const __m128i& sse_y1, const __m128i& sse_y1_min,
-                            const __m128i& sse_y1_max, __m128i& sse_res)
+static inline bool test_sse(const __m128i& sse_y1,
+                            const __m128i& sse_y1_min,
+                            const __m128i& sse_y1_max,
+                            __m128i& sse_res)
 {
 	static const __m128i sse_full_ones = _mm_set1_epi32(0xFFFFFFFF);
 	static const __m128i sse_full_zeros = _mm_set1_epi32(0);
@@ -229,8 +229,10 @@ typedef PVCore::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
  * To make the first events extraction efficient, each unsplitted quadtrees
  * nodes store events in ascending order relatively to their indices.
  */
-template <int MAX_ELEMENTS_PER_NODE = 512, int REALLOC_ELEMENT_COUNT = 1000,
-          int PREALLOC_ELEMENT_COUNT = 0, size_t Bbits = NBITS_INDEX>
+template <int MAX_ELEMENTS_PER_NODE = 512,
+          int REALLOC_ELEMENT_COUNT = 1000,
+          int PREALLOC_ELEMENT_COUNT = 0,
+          size_t Bbits = NBITS_INDEX>
 class PVQuadTree
 {
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
@@ -252,8 +254,11 @@ class PVQuadTree
 	 * @param y2_max_value the exclusive maximal bound along the y2 coordinate
 	 * @param max_level the depth limit to stop splitting the quadtres
 	 */
-	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value,
-	           uint32_t y2_max_value, int max_level)
+	PVQuadTree(uint32_t y1_min_value,
+	           uint32_t y1_max_value,
+	           uint32_t y2_min_value,
+	           uint32_t y2_max_value,
+	           int max_level)
 	{
 		uint32_t y1_mid = y1_min_value + ((y1_max_value - y1_min_value) >> 1);
 		uint32_t y2_mid = y2_min_value + ((y2_max_value - y2_min_value) >> 1);
@@ -290,8 +295,11 @@ class PVQuadTree
 	 * @param y2_mid_value the range middle value bound along the y2 coordinate
 	 * @param max_level the depth limit to stop splitting the quadtres
 	 */
-	void init(uint32_t y1_min_value, uint32_t y1_mid_value, uint32_t y2_min_value,
-	          uint32_t y2_mid_value, int max_level)
+	void init(uint32_t y1_min_value,
+	          uint32_t y1_mid_value,
+	          uint32_t y2_min_value,
+	          uint32_t y2_mid_value,
+	          int max_level)
 	{
 		_y1_min_value = y1_min_value;
 		_y1_mid_value = y1_mid_value;
@@ -389,14 +397,19 @@ class PVQuadTree
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline size_t get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom,
-	                                uint32_t y2_count, pv_quadtree_buffer_entry_t* buffer,
-	                                const insert_entry_f& insert_f, pv_tlr_buffer_t& tlr) const
+	inline size_t get_first_from_y1(uint64_t y1_min,
+	                                uint64_t y1_max,
+	                                uint32_t zoom,
+	                                uint32_t y2_count,
+	                                pv_quadtree_buffer_entry_t* buffer,
+	                                const insert_entry_f& insert_f,
+	                                pv_tlr_buffer_t& tlr) const
 	{
 		return visit_y1::get_n_m(
 		    *this, y1_min, y1_max, zoom, y2_count,
-		    [](const PVQuadTreeEntry& e, const uint64_t y1_min, const uint64_t y1_max)
-		        -> bool { return (e.y1 >= y1_min) && (e.y1 < y1_max); },
+		    [](const PVQuadTreeEntry& e, const uint64_t y1_min, const uint64_t y1_max) -> bool {
+			    return (e.y1 >= y1_min) && (e.y1 < y1_max);
+			},
 		    insert_f, buffer, tlr);
 	}
 
@@ -416,14 +429,19 @@ class PVQuadTree
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline size_t get_first_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom,
-	                                uint32_t y1_count, pv_quadtree_buffer_entry_t* buffer,
-	                                const insert_entry_f& insert_f, pv_tlr_buffer_t& tlr) const
+	inline size_t get_first_from_y2(uint64_t y2_min,
+	                                uint64_t y2_max,
+	                                uint32_t zoom,
+	                                uint32_t y1_count,
+	                                pv_quadtree_buffer_entry_t* buffer,
+	                                const insert_entry_f& insert_f,
+	                                pv_tlr_buffer_t& tlr) const
 	{
 		return visit_y2::get_n_m(
 		    *this, y2_min, y2_max, zoom, y1_count,
-		    [](const PVQuadTreeEntry& e, const uint64_t y2_min, const uint64_t y2_max)
-		        -> bool { return (e.y2 >= y2_min) && (e.y2 < y2_max); },
+		    [](const PVQuadTreeEntry& e, const uint64_t y2_min, const uint64_t y2_max) -> bool {
+			    return (e.y2 >= y2_min) && (e.y2 < y2_max);
+			},
 		    insert_f, buffer, tlr);
 	}
 
@@ -444,8 +462,12 @@ class PVQuadTree
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline size_t get_first_from_y1_y2(uint64_t y1_min, uint64_t y1_max, uint64_t y2_min,
-	                                   uint64_t y2_max, uint32_t zoom, const double alpha,
+	inline size_t get_first_from_y1_y2(uint64_t y1_min,
+	                                   uint64_t y1_max,
+	                                   uint64_t y2_min,
+	                                   uint64_t y2_max,
+	                                   uint32_t zoom,
+	                                   const double alpha,
 	                                   PVCore::PVHSVColor* image,
 	                                   const insert_entry_y1_y2_f& insert_f) const
 	{
@@ -458,8 +480,12 @@ class PVQuadTree
 		    insert_f, image);
 	}
 
-	inline size_t get_first_from_y1_y2_sel(uint64_t y1_min, uint64_t y1_max, uint64_t y2_min,
-	                                       uint64_t y2_max, uint32_t zoom, const double alpha,
+	inline size_t get_first_from_y1_y2_sel(uint64_t y1_min,
+	                                       uint64_t y1_max,
+	                                       uint64_t y2_min,
+	                                       uint64_t y2_max,
+	                                       uint32_t zoom,
+	                                       const double alpha,
 	                                       PVCore::PVHSVColor* image,
 	                                       const insert_entry_y1_y2_f& insert_f,
 	                                       Inendi::PVSelection const& sel) const
@@ -490,10 +516,14 @@ class PVQuadTree
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline size_t get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
-	                                    const Inendi::PVSelection& selection, uint32_t zoom,
-	                                    uint32_t y2_count, pv_quadtree_buffer_entry_t* buffer,
-	                                    const insert_entry_f& insert_f, pv_tlr_buffer_t& tlr) const
+	inline size_t get_first_sel_from_y1(uint64_t y1_min,
+	                                    uint64_t y1_max,
+	                                    const Inendi::PVSelection& selection,
+	                                    uint32_t zoom,
+	                                    uint32_t y2_count,
+	                                    pv_quadtree_buffer_entry_t* buffer,
+	                                    const insert_entry_f& insert_f,
+	                                    pv_tlr_buffer_t& tlr) const
 	{
 		return visit_y1::get_n_m(*this, y1_min, y1_max, zoom, y2_count,
 		                         [&selection](const PVQuadTreeEntry& e, const uint64_t y1_min,
@@ -520,10 +550,14 @@ class PVQuadTree
 	 * @param insert_f the function executed for each relevant found event
 	 * @param tls a TLR buffer used to store the result of extraction
 	 */
-	inline size_t get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
-	                                    const Inendi::PVSelection& selection, uint32_t zoom,
-	                                    uint32_t y1_count, pv_quadtree_buffer_entry_t* buffer,
-	                                    const insert_entry_f& insert_f, pv_tlr_buffer_t& tlr) const
+	inline size_t get_first_sel_from_y2(uint64_t y2_min,
+	                                    uint64_t y2_max,
+	                                    const Inendi::PVSelection& selection,
+	                                    uint32_t zoom,
+	                                    uint32_t y1_count,
+	                                    pv_quadtree_buffer_entry_t* buffer,
+	                                    const insert_entry_f& insert_f,
+	                                    pv_tlr_buffer_t& tlr) const
 	{
 		return visit_y2::get_n_m(*this, y2_min, y2_max, zoom, y1_count,
 		                         [&selection](const PVQuadTreeEntry& e, const uint64_t y2_min,
@@ -546,7 +580,8 @@ class PVQuadTree
 	 *
 	 * @return the number of selected events
 	 */
-	size_t compute_selection_y1(const uint64_t y1_min, const uint64_t y1_max,
+	size_t compute_selection_y1(const uint64_t y1_min,
+	                            const uint64_t y1_max,
 	                            Inendi::PVSelection& selection) const
 	{
 		return compute_selection_y1(*this, y1_min, y1_max, selection);
@@ -564,7 +599,8 @@ class PVQuadTree
 	 *
 	 * @return the number of selected events
 	 */
-	size_t compute_selection_y2(const uint64_t y2_min, const uint64_t y2_max,
+	size_t compute_selection_y2(const uint64_t y2_min,
+	                            const uint64_t y2_max,
 	                            Inendi::PVSelection& selection) const
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
@@ -989,8 +1025,7 @@ class PVQuadTree
 	 *
 	 * Visitor used for quadtree traversal using strong constraints on y1 coordinate.
 	 */
-	struct visit_y1
-	{
+	struct visit_y1 {
 		/**
 		 * Traversal function to extract a NxM events grid.
 		 *
@@ -1005,9 +1040,14 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t get_n_m(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max,
-		                      const uint32_t zoom, const uint32_t y2_count, const Ftest& test_f,
-		                      const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static size_t get_n_m(PVQuadTree const& obj,
+		                      const uint64_t y1_min,
+		                      const uint64_t y1_max,
+		                      const uint32_t zoom,
+		                      const uint32_t y2_count,
+		                      const Ftest& test_f,
+		                      const insert_entry_f& insert_f,
+		                      pv_quadtree_buffer_entry_t* buffer,
 		                      pv_tlr_buffer_t& tlr)
 		{
 			size_t ret = 0;
@@ -1062,9 +1102,13 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t get_1_m(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max,
-		                      const uint32_t y2_count, const Ftest& test_f,
-		                      const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static size_t get_1_m(PVQuadTree const& obj,
+		                      const uint64_t y1_min,
+		                      const uint64_t y1_max,
+		                      const uint32_t y2_count,
+		                      const Ftest& test_f,
+		                      const insert_entry_f& insert_f,
+		                      pv_quadtree_buffer_entry_t* buffer,
 		                      pv_tlr_buffer_t& tlr)
 		{
 			size_t ret = 0;
@@ -1116,9 +1160,13 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t get_n_1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max,
-		                      const uint32_t zoom, const Ftest& test_f,
-		                      const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static size_t get_n_1(PVQuadTree const& obj,
+		                      const uint64_t y1_min,
+		                      const uint64_t y1_max,
+		                      const uint32_t zoom,
+		                      const Ftest& test_f,
+		                      const insert_entry_f& insert_f,
+		                      pv_quadtree_buffer_entry_t* buffer,
 		                      pv_tlr_buffer_t& tlr)
 		{
 			size_t ret = 0;
@@ -1167,8 +1215,11 @@ class PVQuadTree
 		 * @param insert_f the function executed for each relevant found event
 		 */
 		template <typename Ftest>
-		static void get_1_1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max,
-		                    const Ftest& test_f, PVQuadTreeEntry& result)
+		static void get_1_1(PVQuadTree const& obj,
+		                    const uint64_t y1_min,
+		                    const uint64_t y1_max,
+		                    const Ftest& test_f,
+		                    PVQuadTreeEntry& result)
 		{
 			if (obj._nodes != 0) {
 				/* pick the first relevant element from the children
@@ -1207,11 +1258,15 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t extract_seq(PVQuadTree const& obj, const uint64_t y1_min,
-		                          const uint64_t y1_max, const uint32_t zoom,
-		                          const uint32_t y2_count, const Ftest& test_f,
+		static size_t extract_seq(PVQuadTree const& obj,
+		                          const uint64_t y1_min,
+		                          const uint64_t y1_max,
+		                          const uint32_t zoom,
+		                          const uint32_t y2_count,
+		                          const Ftest& test_f,
 		                          const insert_entry_f& insert_f,
-		                          pv_quadtree_buffer_entry_t* buffer, pv_tlr_buffer_t& tlr)
+		                          pv_quadtree_buffer_entry_t* buffer,
+		                          pv_tlr_buffer_t& tlr)
 		{
 			BENCH_START(extract);
 			const uint64_t max_count = 1 << zoom;
@@ -1280,9 +1335,14 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void extract_sse(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max,
-		                        const uint32_t zoom, const uint32_t y2_count, const Ftest& test_f,
-		                        const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static void extract_sse(PVQuadTree const& obj,
+		                        const uint64_t y1_min,
+		                        const uint64_t y1_max,
+		                        const uint32_t zoom,
+		                        const uint32_t y2_count,
+		                        const Ftest& test_f,
+		                        const insert_entry_f& insert_f,
+		                        pv_quadtree_buffer_entry_t* buffer,
 		                        pv_tlr_buffer_t& tlr)
 		{
 
@@ -1432,8 +1492,7 @@ class PVQuadTree
 	 *
 	 * Visitor used for quadtree traversal using strong constraints on y2 coordinate.
 	 */
-	struct visit_y2
-	{
+	struct visit_y2 {
 		/**
 		 * Traversal function to extract a NxM events grid.
 		 *
@@ -1448,9 +1507,14 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t get_n_m(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max,
-		                      const uint32_t zoom, const uint32_t y1_count, const Ftest& test_f,
-		                      const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static size_t get_n_m(PVQuadTree const& obj,
+		                      const uint64_t y2_min,
+		                      const uint64_t y2_max,
+		                      const uint32_t zoom,
+		                      const uint32_t y1_count,
+		                      const Ftest& test_f,
+		                      const insert_entry_f& insert_f,
+		                      pv_quadtree_buffer_entry_t* buffer,
 		                      pv_tlr_buffer_t& tlr)
 		{
 			size_t ret = 0;
@@ -1505,9 +1569,13 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t get_1_m(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max,
-		                      const uint32_t y1_count, const Ftest& test_f,
-		                      const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static size_t get_1_m(PVQuadTree const& obj,
+		                      const uint64_t y2_min,
+		                      const uint64_t y2_max,
+		                      const uint32_t y1_count,
+		                      const Ftest& test_f,
+		                      const insert_entry_f& insert_f,
+		                      pv_quadtree_buffer_entry_t* buffer,
 		                      pv_tlr_buffer_t& tlr)
 		{
 			size_t ret = 0;
@@ -1559,9 +1627,13 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t get_n_1(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max,
-		                      const uint32_t zoom, const Ftest& test_f,
-		                      const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static size_t get_n_1(PVQuadTree const& obj,
+		                      const uint64_t y2_min,
+		                      const uint64_t y2_max,
+		                      const uint32_t zoom,
+		                      const Ftest& test_f,
+		                      const insert_entry_f& insert_f,
+		                      pv_quadtree_buffer_entry_t* buffer,
 		                      pv_tlr_buffer_t& tlr)
 		{
 			size_t ret = 0;
@@ -1609,8 +1681,11 @@ class PVQuadTree
 		 * @param test_f the function executed to test if an event is relevant or not
 		 */
 		template <typename Ftest>
-		static void get_1_1(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max,
-		                    const Ftest& test_f, PVQuadTreeEntry& result)
+		static void get_1_1(PVQuadTree const& obj,
+		                    const uint64_t y2_min,
+		                    const uint64_t y2_max,
+		                    const Ftest& test_f,
+		                    PVQuadTreeEntry& result)
 		{
 			if (obj._nodes != 0) {
 				/* pick the first relevant element from the children
@@ -1649,11 +1724,15 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static size_t extract_seq(PVQuadTree const& obj, const uint64_t y2_min,
-		                          const uint64_t y2_max, const uint32_t zoom,
-		                          const uint32_t y1_count, const Ftest& test_f,
+		static size_t extract_seq(PVQuadTree const& obj,
+		                          const uint64_t y2_min,
+		                          const uint64_t y2_max,
+		                          const uint32_t zoom,
+		                          const uint32_t y1_count,
+		                          const Ftest& test_f,
 		                          const insert_entry_f& insert_f,
-		                          pv_quadtree_buffer_entry_t* buffer, pv_tlr_buffer_t& tlr)
+		                          pv_quadtree_buffer_entry_t* buffer,
+		                          pv_tlr_buffer_t& tlr)
 		{
 			const uint64_t max_count = 1 << zoom;
 			const uint64_t y1_orig = obj._y1_min_value;
@@ -1705,9 +1784,14 @@ class PVQuadTree
 		 * @param tls a TLR buffer used to store the result of extraction
 		 */
 		template <typename Ftest>
-		static void extract_sse(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max,
-		                        const uint32_t zoom, const uint32_t y1_count, const Ftest& test_f,
-		                        const insert_entry_f& insert_f, pv_quadtree_buffer_entry_t* buffer,
+		static void extract_sse(PVQuadTree const& obj,
+		                        const uint64_t y2_min,
+		                        const uint64_t y2_max,
+		                        const uint32_t zoom,
+		                        const uint32_t y1_count,
+		                        const Ftest& test_f,
+		                        const insert_entry_f& insert_f,
+		                        pv_quadtree_buffer_entry_t* buffer,
 		                        pv_tlr_buffer_t& tlr)
 		{
 			const uint64_t max_count = 1 << zoom;
@@ -1856,8 +1940,7 @@ class PVQuadTree
 	 *
 	 * Visitor used for quadtree traversal using strong constraints on both y1 and y2 coordinates.
 	 */
-	struct visit_y1_y2
-	{
+	struct visit_y1_y2 {
 		/**
 		 * Traversal function to extract a NxM events grid.
 		 *
@@ -1872,10 +1955,16 @@ class PVQuadTree
 		 * @param image the output PVHSVColor image
 		 */
 		template <typename Ftest>
-		static size_t get_n_m(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max,
-		                      const uint64_t y2_min, const uint64_t y2_max,
-		                      const uint32_t current_zoom, const double alpha, const Ftest& test_f,
-		                      const insert_entry_y1_y2_f& insert_f, PVCore::PVHSVColor* image)
+		static size_t get_n_m(PVQuadTree const& obj,
+		                      const uint64_t y1_min,
+		                      const uint64_t y1_max,
+		                      const uint64_t y2_min,
+		                      const uint64_t y2_max,
+		                      const uint32_t current_zoom,
+		                      const double alpha,
+		                      const Ftest& test_f,
+		                      const insert_entry_y1_y2_f& insert_f,
+		                      PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
 			if (obj._nodes != 0) {
@@ -1933,11 +2022,16 @@ class PVQuadTree
 		 * @param image the output PVHSVColor image
 		 */
 		template <typename Ftest>
-		static size_t extract_seq(PVQuadTree const& obj, const uint64_t y1_min,
-		                          const uint64_t y1_max, const uint64_t y2_min,
-		                          const uint64_t y2_max, const uint32_t current_zoom,
-		                          const double alpha, const Ftest& test_f,
-		                          const insert_entry_y1_y2_f& insert_f, PVCore::PVHSVColor* image)
+		static size_t extract_seq(PVQuadTree const& obj,
+		                          const uint64_t y1_min,
+		                          const uint64_t y1_max,
+		                          const uint64_t y2_min,
+		                          const uint64_t y2_max,
+		                          const uint32_t current_zoom,
+		                          const double alpha,
+		                          const Ftest& test_f,
+		                          const insert_entry_y1_y2_f& insert_f,
+		                          PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
 			uint32_t img_width = ceil(double(1U << (current_zoom + 1)) * alpha);
@@ -1957,11 +2051,16 @@ class PVQuadTree
 		}
 
 		template <typename Ftest>
-		static size_t get_n_m_sel(PVQuadTree const& obj, const uint64_t y1_min,
-		                          const uint64_t y1_max, const uint64_t y2_min,
-		                          const uint64_t y2_max, const int32_t current_zoom,
-		                          const double alpha, const Ftest& test_f,
-		                          const insert_entry_y1_y2_f& insert_f, PVCore::PVHSVColor* image)
+		static size_t get_n_m_sel(PVQuadTree const& obj,
+		                          const uint64_t y1_min,
+		                          const uint64_t y1_max,
+		                          const uint64_t y2_min,
+		                          const uint64_t y2_max,
+		                          const int32_t current_zoom,
+		                          const double alpha,
+		                          const Ftest& test_f,
+		                          const insert_entry_y1_y2_f& insert_f,
+		                          PVCore::PVHSVColor* image)
 		{
 			size_t ret = 0;
 			if (obj._nodes != 0) {
@@ -2019,7 +2118,9 @@ class PVQuadTree
 	 *
 	 * @return the count of selected events in selection
 	 */
-	size_t compute_selection_y1(PVQuadTree const& obj, const uint64_t y1_min, const uint64_t y1_max,
+	size_t compute_selection_y1(PVQuadTree const& obj,
+	                            const uint64_t y1_min,
+	                            const uint64_t y1_max,
 	                            Inendi::PVSelection& selection) const
 	{
 		size_t num = 0;
@@ -2055,7 +2156,9 @@ class PVQuadTree
 	 *
 	 * @return the count of selected events in selection
 	 */
-	size_t compute_selection_y2(PVQuadTree const& obj, const uint64_t y2_min, const uint64_t y2_max,
+	size_t compute_selection_y2(PVQuadTree const& obj,
+	                            const uint64_t y2_min,
+	                            const uint64_t y2_max,
 	                            Inendi::PVSelection& selection) const
 	{
 		size_t num = 0;

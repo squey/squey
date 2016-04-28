@@ -67,7 +67,7 @@ class PVFullParallelView : public QGraphicsView
 
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
-signals:
+  signals:
 	void new_zoomed_parallel_view(Inendi::PVView* view, int axis_index);
 
   private:

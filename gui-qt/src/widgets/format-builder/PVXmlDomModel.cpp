@@ -242,8 +242,8 @@ Qt::ItemFlags PVInspector::PVXmlDomModel::flags(const QModelIndex& index) const
  * PVInspector::PVXmlDomModel::headerData
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlDomModel::headerData(int section, Qt::Orientation orientation,
-                                                int role) const
+QVariant
+PVInspector::PVXmlDomModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	// If it's view is displaying
 	if (role == Qt::DisplayRole) {
@@ -572,7 +572,8 @@ PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
 }
 
 PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitterWithAxes(
-    const QModelIndex& index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin,
+    const QModelIndex& index,
+    PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin,
     QStringList axesName)
 {
 	PVRush::PVXmlTreeNodeDom* splitter_node = addSplitter(index, splitterPlugin);
@@ -799,7 +800,8 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	emit layoutChanged(); // to resfresh screen
 }
 
-void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt, QString const& type,
+void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,
+                                                       QString const& type,
                                                        QString const& mode_mapping,
                                                        QString const& mode_plotting)
 {

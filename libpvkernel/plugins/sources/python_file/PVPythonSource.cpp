@@ -17,7 +17,8 @@
 
 #include <string>
 
-PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_chunk_size,
+PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input,
+                                       size_t min_chunk_size,
                                        const QString& python_file)
     : PVRawSourceBase(), _python_file(python_file), _min_chunk_size(min_chunk_size), _next_index(0)
 {

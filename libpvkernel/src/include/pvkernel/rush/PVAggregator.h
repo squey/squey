@@ -122,8 +122,8 @@ class PVAggregator
 	 *param[in]_start, then the following
 	 *       source will be used.
 	 */
-	void process_from_source(list_inputs::iterator input_start, chunk_index nstart,
-	                         chunk_index nend);
+	void
+	process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend);
 
 	/*! \brief Returns true if the end of param[in]s has been reached. It is set by operator().
 	 * Returns false otherwise.

@@ -35,7 +35,8 @@ class PVParallelViewImpl : boost::noncopyable
 	static PVParallelViewImpl& get();
 
   public:
-	template <class Backend> void init_backends()
+	template <class Backend>
+	void init_backends()
 	{
 		_backend = static_cast<PVBCIDrawingBackend*>(&Backend::get());
 		init_pipeline();
@@ -43,7 +44,8 @@ class PVParallelViewImpl : boost::noncopyable
 	}
 	PVLibView* get_lib_view(Inendi::PVView& view);
 	PVLibView* get_lib_view(Inendi::PVView& view,
-	                        Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows,
+	                        Inendi::PVPlotted::uint_plotted_table_t const& plotted,
+	                        PVRow nrows,
 	                        PVCol ncols);
 
 	void remove_lib_view(Inendi::PVView& view);
@@ -120,7 +122,8 @@ inline PVLibView* get_lib_view(Inendi::PVView& view)
 	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view);
 }
 inline PVLibView* get_lib_view(Inendi::PVView& view,
-                               Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows,
+                               Inendi::PVPlotted::uint_plotted_table_t const& plotted,
+                               PVRow nrows,
                                PVCol ncols)
 {
 	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, plotted, nrows, ncols);

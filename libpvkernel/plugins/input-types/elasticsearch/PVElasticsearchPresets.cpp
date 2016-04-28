@@ -31,8 +31,10 @@ PVRush::PVElasticsearchPresets& PVRush::PVElasticsearchPresets::get()
 }
 
 PVRush::PVElasticsearchPresets::id_t
-PVRush::PVElasticsearchPresets::add(QString const& name, PVElasticsearchInfos const& infos,
-                                    QString const& query, QString const& query_type)
+PVRush::PVElasticsearchPresets::add(QString const& name,
+                                    PVElasticsearchInfos const& infos,
+                                    QString const& query,
+                                    QString const& query_type)
 {
 	QStringList grps = _settings.childGroups();
 	id_t max = 0;
@@ -48,8 +50,10 @@ PVRush::PVElasticsearchPresets::add(QString const& name, PVElasticsearchInfos co
 	return new_id;
 }
 
-void PVRush::PVElasticsearchPresets::set(id_t id, PVElasticsearchInfos const& infos,
-                                         QString const& query, QString const& query_type,
+void PVRush::PVElasticsearchPresets::set(id_t id,
+                                         PVElasticsearchInfos const& infos,
+                                         QString const& query,
+                                         QString const& query_type,
                                          QString const& name)
 {
 	QString grp = QString::number(id);
@@ -67,7 +71,9 @@ void PVRush::PVElasticsearchPresets::set(id_t id, PVElasticsearchInfos const& in
 	_settings.endGroup();
 }
 
-bool PVRush::PVElasticsearchPresets::get(id_t id, PVElasticsearchInfos& infos, QString& query,
+bool PVRush::PVElasticsearchPresets::get(id_t id,
+                                         PVElasticsearchInfos& infos,
+                                         QString& query,
                                          QString& query_type)
 {
 	QString grp = QString::number(id);

@@ -18,7 +18,8 @@
  *
  *****************************************************************************/
 Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
-                                                   PVRush::PVFormat const& format, PVCol idx)
+                                                   PVRush::PVFormat const& format,
+                                                   PVCol idx)
     : _mapping(&mapping)
 {
 	_index = idx;
@@ -26,7 +27,8 @@ Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
 }
 
 Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
-                                                   PVRush::PVAxisFormat const& axis, PVCol idx)
+                                                   PVRush::PVAxisFormat const& axis,
+                                                   PVCol idx)
     : _mapping(&mapping)
 {
 	_index = idx;

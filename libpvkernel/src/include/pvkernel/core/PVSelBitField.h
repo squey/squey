@@ -22,7 +22,8 @@ namespace pvcop
 namespace core
 {
 
-template <typename T> class array;
+template <typename T>
+class array;
 }
 }
 
@@ -539,8 +540,8 @@ class PVSelBitField
 	}
 
 	template <class F>
-	void visit_selected_lines_tbb(F const& f, PVRow b = PVROW_INVALID_VALUE,
-	                              const PVRow a = 0) const
+	void
+	visit_selected_lines_tbb(F const& f, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
 	{
 		if (b == PVROW_INVALID_VALUE) {
 			b = count();
@@ -612,8 +613,10 @@ class PVSelBitField
 	}
 
 	template <size_t N, class Fpacked, class Funpacked>
-	void visit_selected_lines_packed(Fpacked const& fpacked, Funpacked const& funpacked,
-	                                 PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
+	void visit_selected_lines_packed(Fpacked const& fpacked,
+	                                 Funpacked const& funpacked,
+	                                 PVRow b = PVROW_INVALID_VALUE,
+	                                 const PVRow a = 0) const
 	{
 		if (b == PVROW_INVALID_VALUE) {
 			b = count();
@@ -621,37 +624,41 @@ class PVSelBitField
 
 		PVRow packed_rows[N];
 		int cur_packed = 0;
-		visit_selected_lines([&](PVRow const r) {
-			                     if (cur_packed == N) {
-				                     fpacked(packed_rows);
-				                     cur_packed = 0;
-			                     }
-			                     packed_rows[cur_packed] = r;
-			                     cur_packed++;
-			                 },
-		                     b, a);
+		visit_selected_lines(
+		    [&](PVRow const r) {
+			    if (cur_packed == N) {
+				    fpacked(packed_rows);
+				    cur_packed = 0;
+			    }
+			    packed_rows[cur_packed] = r;
+			    cur_packed++;
+			},
+		    b, a);
 		for (int i = 0; i < cur_packed; i++) {
 			funpacked(packed_rows[i]);
 		}
 	}
 
 	template <class Fpacked, class Funpacked, class Fload>
-	void visit_selected_lines_gather_sse(Fpacked const& fpacked, Funpacked const& funpacked,
-	                                     Fload const& fload, PVRow b = PVROW_INVALID_VALUE,
+	void visit_selected_lines_gather_sse(Fpacked const& fpacked,
+	                                     Funpacked const& funpacked,
+	                                     Fload const& fload,
+	                                     PVRow b = PVROW_INVALID_VALUE,
 	                                     const PVRow a = 0) const
 	{
 		if (b == PVROW_INVALID_VALUE) {
 			b = count();
 		}
 
-		visit_selected_lines_packed<4>([&](PVRow const packed_rows[4]) {
-			                               const int32_t v0 = fload(packed_rows[0]);
-			                               const int32_t v1 = fload(packed_rows[1]);
-			                               const int32_t v2 = fload(packed_rows[2]);
-			                               const int32_t v3 = fload(packed_rows[3]);
-			                               fpacked(_mm_set_epi32(v3, v2, v1, v0));
-			                           },
-		                               [&](PVRow const r) { funpacked(fload(r)); }, b, a);
+		visit_selected_lines_packed<4>(
+		    [&](PVRow const packed_rows[4]) {
+			    const int32_t v0 = fload(packed_rows[0]);
+			    const int32_t v1 = fload(packed_rows[1]);
+			    const int32_t v2 = fload(packed_rows[2]);
+			    const int32_t v3 = fload(packed_rows[3]);
+			    fpacked(_mm_set_epi32(v3, v2, v1, v0));
+			},
+		    [&](PVRow const r) { funpacked(fload(r)); }, b, a);
 	}
 
 	/**
@@ -666,8 +673,8 @@ class PVSelBitField
 
   public:
 	template <class F>
-	void visit_selected_lines_serial(F const& f, PVRow b = PVROW_INVALID_VALUE,
-	                                 const PVRow a = 0) const
+	void
+	visit_selected_lines_serial(F const& f, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
 	{
 		if (b == PVROW_INVALID_VALUE) {
 			b = count();

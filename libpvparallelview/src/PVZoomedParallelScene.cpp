@@ -51,9 +51,13 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
-    PVParallelView::PVZoomedParallelView* zpview, Inendi::PVView_sp& pvview_sp,
-    PVParallelView::PVSlidersManager_p sliders_manager_p, PVZonesProcessor& zp_sel,
-    PVZonesProcessor& zp_bg, PVZonesManager const& zm, PVCol axis_index)
+    PVParallelView::PVZoomedParallelView* zpview,
+    Inendi::PVView_sp& pvview_sp,
+    PVParallelView::PVSlidersManager_p sliders_manager_p,
+    PVZonesProcessor& zp_sel,
+    PVZonesProcessor& zp_bg,
+    PVZonesManager const& zm,
+    PVCol axis_index)
     : QGraphicsScene(zpview)
     , _zpview(zpview)
     , _pvview(*pvview_sp)
@@ -627,8 +631,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		_renderable_zone_number++;
 		PVZoneRenderingBCI_p<bbits> zr(new PVZoneRenderingBCI<bbits>(
 		    left_zone_id(),
-		    [&, y_min, y_max, y_lim, zoom_level, beta](
-		        PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes) {
+		    [&, y_min, y_max, y_lim, zoom_level,
+		     beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes) {
 			    zzt_context_t ctxt;
 			    return get_zztree(z).browse_bci_sel_by_y2(ctxt, y_min, y_max, y_lim,
 			                                              real_selection(), zoom_level, image_width,
@@ -671,8 +675,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		_renderable_zone_number++;
 		PVZoneRenderingBCI_p<bbits> zr(new PVZoneRenderingBCI<bbits>(
 		    right_zone_id(),
-		    [&, y_min, y_max, y_lim, zoom_level, beta](
-		        PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes) {
+		    [&, y_min, y_max, y_lim, zoom_level,
+		     beta](PVZoneID const z, PVCore::PVHSVColor const* colors, PVBCICode<bbits>* codes) {
 			    zzt_context_t ctxt;
 			    return get_zztree(z).browse_bci_sel_by_y1(ctxt, y_min, y_max, y_lim,
 			                                              real_selection(), zoom_level, image_width,

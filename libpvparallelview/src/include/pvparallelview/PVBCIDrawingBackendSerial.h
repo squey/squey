@@ -18,7 +18,8 @@
 namespace PVParallelView
 {
 
-template <class Engine> class PVBCIDrawingBackendSerial : protected Engine
+template <class Engine>
+class PVBCIDrawingBackendSerial : protected Engine
 {
 	typedef PVCore::PVTypeTraits::function_traits<decltype(&PVBCIDrawingBackend<10>::operator())>
 	    backend10_functor_traits_t;
@@ -27,11 +28,9 @@ template <class Engine> class PVBCIDrawingBackendSerial : protected Engine
 
 	typedef typename PVBCIDrawingBackend<>::render_group_t render_group_t;
 
-	struct drawing_job
-	{
+	struct drawing_job {
 		size_t _bbits;
-		struct
-		{
+		struct {
 			backend10_functor_traits_t::arguments_deep_copy_type args_10;
 			backend11_functor_traits_t::arguments_deep_copy_type args_11;
 		} _args;
@@ -61,11 +60,11 @@ template <class Engine> class PVBCIDrawingBackendSerial : protected Engine
 		inline void run(Engine& e)
 		{
 			if (_bbits == 10) {
-				PVCore::PVTypeTraits::function_traits<decltype(&(Engine::template run<
-				    10>))>::template call<&Engine::template run<10>>(e, _args.args_10);
+				PVCore::PVTypeTraits::function_traits<decltype(&(Engine::template run<10>))>::
+				    template call<&Engine::template run<10>>(e, _args.args_10);
 			} else if (_bbits == 11) {
-				PVCore::PVTypeTraits::function_traits<decltype(&(Engine::template run<
-				    11>))>::template call<&Engine::template run<11>>(e, _args.args_11);
+				PVCore::PVTypeTraits::function_traits<decltype(&(Engine::template run<11>))>::
+				    template call<&Engine::template run<11>>(e, _args.args_11);
 			} else {
 				assert(false);
 			}
@@ -89,14 +88,19 @@ template <class Engine> class PVBCIDrawingBackendSerial : protected Engine
   public:
 	template <size_t Bbits>
 	inline void
-	add_job(PVBCIBackendImage<Bbits>& dst_img, size_t x_start, size_t width,
-	        PVBCICode<Bbits>* codes, size_t n, const float zoom_y, bool reverse,
+	add_job(PVBCIBackendImage<Bbits>& dst_img,
+	        size_t x_start,
+	        size_t width,
+	        PVBCICode<Bbits>* codes,
+	        size_t n,
+	        const float zoom_y,
+	        bool reverse,
 	        typename PVBCIDrawingBackend<Bbits>::func_cleaning_t const& cleaning_func,
 	        typename PVBCIDrawingBackend<Bbits>::func_drawing_done_t const& drawing_done,
 	        render_group_t const rgrp)
 	{
-		typename PVCore::PVTypeTraits::function_traits<
-		    decltype(&PVBCIDrawingBackend<Bbits>::operator())>::arguments_type args;
+		typename PVCore::PVTypeTraits::function_traits<decltype(
+		    &PVBCIDrawingBackend<Bbits>::operator())>::arguments_type args;
 		args.set_args(dst_img, x_start, width, codes, n, zoom_y, reverse, cleaning_func,
 		              drawing_done, rgrp);
 

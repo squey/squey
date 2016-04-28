@@ -28,7 +28,8 @@
 #define print_r(R) print_rect(R)
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R> void __print_rect(const char* text, const R& r)
+template <typename R>
+void __print_rect(const char* text, const R& r)
 {
 	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
@@ -37,7 +38,8 @@ template <typename R> void __print_rect(const char* text, const R& r)
 #define print_s(V) print_scalar(V)
 #define print_scalar(V) __print_scalar(#V, V)
 
-template <typename V> void __print_scalar(const char* text, const V& v)
+template <typename V>
+void __print_scalar(const char* text, const V& v)
 {
 	std::cout << text << ": " << v << std::endl;
 }

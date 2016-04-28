@@ -38,16 +38,17 @@ PVParallelView::PVZoneRenderingBCI<10>* new_zr(PVParallelView::PVBCIDrawingBacke
 {
 	dst_img = backend.create_image(1024, 10);
 	PVParallelView::PVZoneRenderingBCI<10>* zr = new PVParallelView::PVZoneRenderingBCI<10>(
-	    0, [n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes) {
-		       for (size_t i = 0; i < n; i++) {
-			       codes[i].int_v = 0;
-			       codes[i].s.l = 0;
-			       codes[i].s.r = i & MASK_INT_YCOORD;
-			       codes[i].s.color = colors_[i].h();
-			       codes[i].s.idx = i;
-		       }
-		       return n;
-		   },
+	    0,
+	    [n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes) {
+		    for (size_t i = 0; i < n; i++) {
+			    codes[i].int_v = 0;
+			    codes[i].s.l = 0;
+			    codes[i].s.r = i & MASK_INT_YCOORD;
+			    codes[i].s.color = colors_[i].h();
+			    codes[i].s.idx = i;
+		    }
+		    return n;
+		},
 	    *dst_img, 0, 1024);
 	return zr;
 }

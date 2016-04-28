@@ -18,7 +18,8 @@
 PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
-                      "Listing", Qt::NoDockWidgetArea)
+                      "Listing",
+                      Qt::NoDockWidgetArea)
 {
 }
 

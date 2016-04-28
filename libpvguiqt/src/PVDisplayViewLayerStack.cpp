@@ -13,7 +13,8 @@
 PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
-                      "Layer stack", Qt::RightDockWidgetArea)
+                      "Layer stack",
+                      Qt::RightDockWidgetArea)
 {
 }
 

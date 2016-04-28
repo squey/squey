@@ -23,13 +23,11 @@
 #define ETH_MTU (ETH_LEN_MAX - ETH_HDR_LEN - ETH_CRC_LEN)
 #define ETH_MIN (ETH_LEN_MIN - ETH_HDR_LEN - ETH_CRC_LEN)
 
-typedef struct eth_addr
-{
+typedef struct eth_addr {
 	uint8_t data[ETH_ADDR_LEN];
 } eth_addr_t;
 
-struct eth_hdr
-{
+struct eth_hdr {
 	eth_addr_t eth_dst; /* destination address */
 	eth_addr_t eth_src; /* source address */
 	uint16_t eth_type;  /* payload type */

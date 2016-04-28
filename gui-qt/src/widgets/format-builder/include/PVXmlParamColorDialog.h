@@ -31,7 +31,7 @@ class PVXmlParamColorDialog : public QPushButton
 
   public slots:
 	void chooseColor();
-signals:
+  signals:
 	void changed();
 };
 }

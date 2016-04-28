@@ -353,10 +353,10 @@ void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::initSplitters()
 {
-	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes splitters =
-	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
-	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes converters =
-	    LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)
+	::list_classes splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)
+	::list_classes converters = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
 
 	// _list_* is a QHash. Its keys are a QString with the registered name of the class (in our
 	// case, "csv", "regexp", etc...).
@@ -589,7 +589,8 @@ bool PVInspector::PVFormatBuilderWidget::save()
 
 	QMessageBox err(QMessageBox::Question, tr("Error while saving format"),
 	                tr("Unable to save the changes to %1. Do you want to save this format to "
-	                   "another location ?").arg(_cur_file),
+	                   "another location ?")
+	                    .arg(_cur_file),
 	                QMessageBox::Yes | QMessageBox::No);
 	if (err.exec() == QMessageBox::No) {
 		return false;

@@ -11,8 +11,7 @@
 namespace PVCore
 {
 
-struct PVFileHelper
-{
+struct PVFileHelper {
 
 	static bool is_already_opened(const char* file_name);
 };

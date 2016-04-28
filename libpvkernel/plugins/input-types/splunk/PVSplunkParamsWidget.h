@@ -40,7 +40,8 @@ class PVSplunkParamsWidget
 	};
 
   public:
-	PVSplunkParamsWidget(PVInputTypeSplunk const* in_t, PVRush::hash_formats const& formats,
+	PVSplunkParamsWidget(PVInputTypeSplunk const* in_t,
+	                     PVRush::hash_formats const& formats,
 	                     QWidget* parent);
 
   public:
@@ -57,7 +58,8 @@ class PVSplunkParamsWidget
 	bool set_infos(PVSplunkInfos const& infos);
 	void set_query(QString const& query);
 	bool check_connection(std::string* error = nullptr) override;
-	void export_query_result(QTextStream& output_stream, PVCore::PVProgressBox& pbox,
+	void export_query_result(QTextStream& output_stream,
+	                         PVCore::PVProgressBox& pbox,
 	                         std::string* error = nullptr) override;
 	void set_query_type(QString const& query_type);
 

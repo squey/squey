@@ -29,7 +29,9 @@ class connect_functor_helper : public QObject
 };
 
 template <class T>
-bool connect(QObject* sender, const char* signal, const T& receiver,
+bool connect(QObject* sender,
+             const char* signal,
+             const T& receiver,
              Qt::ConnectionType type = Qt::AutoConnection)
 {
 	return QObject::connect(sender, signal, new connect_functor_helper(sender, receiver),

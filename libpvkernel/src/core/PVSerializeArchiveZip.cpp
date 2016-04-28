@@ -13,7 +13,8 @@ PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v) : PVSerializeA
 {
 }
 
-PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(QString const& zip_path, archive_mode mode,
+PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(QString const& zip_path,
+                                                     archive_mode mode,
                                                      version_t v)
     : PVSerializeArchive(v)
 {

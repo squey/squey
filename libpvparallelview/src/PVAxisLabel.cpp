@@ -24,7 +24,8 @@
  * PVParallelView::PVAxisLabel::PVAxisLabel
  *****************************************************************************/
 
-PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView& view, PVSlidersGroup* sg,
+PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView& view,
+                                         PVSlidersGroup* sg,
                                          QGraphicsItem* parent)
     : QGraphicsSimpleTextItem(parent), _lib_view(view), _sliders_group(sg)
 {

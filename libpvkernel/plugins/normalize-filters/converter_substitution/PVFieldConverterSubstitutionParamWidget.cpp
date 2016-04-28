@@ -160,8 +160,8 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::browse_conversion_file()
 	update_params();
 }
 
-void
-PVFilter::PVFieldConverterSubstitutionParamWidget::use_default_value_checkbox_changed(int state)
+void PVFilter::PVFieldConverterSubstitutionParamWidget::use_default_value_checkbox_changed(
+    int state)
 {
 	_default_value_line_edit->setEnabled(state == Qt::Checked);
 

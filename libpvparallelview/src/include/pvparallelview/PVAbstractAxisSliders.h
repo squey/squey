@@ -25,7 +25,9 @@ class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 	Q_OBJECT
 
   public:
-	PVAbstractAxisSliders(QGraphicsItem* parent, PVSlidersManager_p sm_p, PVSlidersGroup* group,
+	PVAbstractAxisSliders(QGraphicsItem* parent,
+	                      PVSlidersManager_p sm_p,
+	                      PVSlidersGroup* group,
 	                      const char* text);
 
 	inline PVSlidersGroup* get_sliders_group() const { return _group; }
@@ -35,13 +37,13 @@ class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 	virtual void refresh() = 0;
 
 	QRectF boundingRect() const override;
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-	           QWidget* widget = 0) override;
+	void
+	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
 
   public slots:
 	virtual void remove_from_axis() = 0;
 
-signals:
+  signals:
 	void sliders_moved();
 
   protected:

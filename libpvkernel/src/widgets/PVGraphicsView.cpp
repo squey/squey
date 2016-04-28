@@ -44,7 +44,8 @@ static inline qint64 sb_round(const qreal& d)
 #define print_r(R) print_rect(R)
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R> void __print_rect(const char* text, const R& r)
+template <typename R>
+void __print_rect(const char* text, const R& r)
 {
 	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
@@ -53,7 +54,8 @@ template <typename R> void __print_rect(const char* text, const R& r)
 #define print_p(P) print_point(P)
 #define print_point(P) __print_point(#P, P)
 
-template <typename P> void __print_point(const char* text, const P& p)
+template <typename P>
+void __print_point(const char* text, const P& p)
 {
 	std::cout << text << ": " << p.x() << " " << p.y() << std::endl;
 }
@@ -61,11 +63,13 @@ template <typename P> void __print_point(const char* text, const P& p)
 #define print_t(T) print_transform(T)
 #define print_transform(T) __print_transform(#T, T)
 
-template <typename T> void __print_transform(const char* text, const T& t)
+template <typename T>
+void __print_transform(const char* text, const T& t)
 {
-	std::cout << text << ": " << std::endl << t.m11() << " " << t.m21() << " " << t.m31()
-	          << std::endl << t.m12() << " " << t.m22() << " " << t.m32() << std::endl << t.m13()
-	          << " " << t.m23() << " " << t.m33() << std::endl;
+	std::cout << text << ": " << std::endl
+	          << t.m11() << " " << t.m21() << " " << t.m31() << std::endl
+	          << t.m12() << " " << t.m22() << " " << t.m32() << std::endl
+	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
 }
 
 namespace PVWidgets
@@ -391,8 +395,8 @@ Qt::ScrollBarPolicy PVWidgets::PVGraphicsView::get_vertical_scrollbar_policy() c
  * PVWidgets::PVGraphicsView::set_resize_anchor
  *****************************************************************************/
 
-void
-PVWidgets::PVGraphicsView::set_resize_anchor(const PVWidgets::PVGraphicsView::ViewportAnchor anchor)
+void PVWidgets::PVGraphicsView::set_resize_anchor(
+    const PVWidgets::PVGraphicsView::ViewportAnchor anchor)
 {
 	switch (anchor) {
 	case NoAnchor:
@@ -448,7 +452,9 @@ PVWidgets::PVGraphicsView::get_transformation_anchor() const
  * PVWidgets::PVGraphicsView::set_scene_margins
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::set_scene_margins(const int left, const int right, const int top,
+void PVWidgets::PVGraphicsView::set_scene_margins(const int left,
+                                                  const int right,
+                                                  const int top,
                                                   const int bottom)
 {
 	if ((_scene_margin_left != left) || (_scene_margin_right != right) ||
@@ -1138,9 +1144,8 @@ void PVWidgets::PVGraphicsView::undeclare_interactor(PVGraphicsViewInteractorBas
  * PVWidgets::PVGraphicsView::register_front_one
  *****************************************************************************/
 
-void
-PVWidgets::PVGraphicsView::register_front_one(QEvent::Type type,
-                                              PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void PVWidgets::PVGraphicsView::register_front_one(
+    QEvent::Type type, PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(is_event_supported(type));
 	assert(interactor);
@@ -1154,8 +1159,8 @@ PVWidgets::PVGraphicsView::register_front_one(QEvent::Type type,
  * PVWidgets::PVGraphicsView::register_front_all
  *****************************************************************************/
 
-void
-PVWidgets::PVGraphicsView::register_front_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void PVWidgets::PVGraphicsView::register_front_all(
+    PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(interactor);
 
@@ -1168,9 +1173,8 @@ PVWidgets::PVGraphicsView::register_front_all(PVWidgets::PVGraphicsViewInteracto
  * PVWidgets::PVGraphicsView::register_back_one
  *****************************************************************************/
 
-void
-PVWidgets::PVGraphicsView::register_back_one(QEvent::Type type,
-                                             PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void PVWidgets::PVGraphicsView::register_back_one(
+    QEvent::Type type, PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(is_event_supported(type));
 	assert(interactor);
@@ -1184,8 +1188,8 @@ PVWidgets::PVGraphicsView::register_back_one(QEvent::Type type,
  * PVWidgets::PVGraphicsView::register_back_all
  *****************************************************************************/
 
-void
-PVWidgets::PVGraphicsView::register_back_all(PVWidgets::PVGraphicsViewInteractorBase* interactor)
+void PVWidgets::PVGraphicsView::register_back_all(
+    PVWidgets::PVGraphicsViewInteractorBase* interactor)
 {
 	assert(interactor);
 

@@ -208,8 +208,8 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			return ret;
 		}
 	}
-	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes const& lf =
-	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsSplitter)
+	::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
 	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
 		PVFilter::PVFieldsSplitter_p sp = it->value()->clone<PVFilter::PVFieldsSplitter>();

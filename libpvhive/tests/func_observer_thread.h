@@ -20,8 +20,7 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
 
-struct MyClass
-{
+struct MyClass {
   public:
 	typedef PVCore::PVSharedPtr<MyClass> shared_pointer;
 

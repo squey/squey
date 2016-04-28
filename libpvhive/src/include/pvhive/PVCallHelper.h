@@ -43,8 +43,8 @@ static typename PVCore::PVTypeTraits::function_traits<F>::result_type call(T& ob
 	return PVCallHelper::call<F, f>(obj, std::forward<P>(params)...);
 }
 
-template <typename F, F f> struct PVHiveFuncCaller
-{
+template <typename F, F f>
+struct PVHiveFuncCaller {
 	typedef F func_t;
 
 	template <typename T, typename... P>

@@ -21,8 +21,12 @@ enum ValueFormat { Count = 1, Percent = 2, Scientific = 4 };
 class PVStatsModel : public PVAbstractTableModel
 {
   public:
-	PVStatsModel(pvcop::db::array col1, pvcop::db::array col2, double absolute_max,
-	             double relative_min, double relative_max, QWidget* parent = nullptr)
+	PVStatsModel(pvcop::db::array col1,
+	             pvcop::db::array col2,
+	             double absolute_max,
+	             double relative_min,
+	             double relative_max,
+	             QWidget* parent = nullptr)
 	    : PVAbstractTableModel(col1.size(), parent)
 	    , _col1(std::move(col1))
 	    , _col2(std::move(col2))

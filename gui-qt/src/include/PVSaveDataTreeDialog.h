@@ -21,8 +21,10 @@ class PVSaveDataTreeDialog : public QFileDialog
 {
 	Q_OBJECT
   public:
-	PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options, QString const& suffix,
-	                     QString const& filter, QWidget* parent);
+	PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options,
+	                     QString const& suffix,
+	                     QString const& filter,
+	                     QWidget* parent);
 
   protected slots:
 	void include_files_Slot(int state);

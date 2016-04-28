@@ -26,8 +26,8 @@ void PVGuiQt::__impl::remove_column_Observer::update(const arguments_type& /*arg
 	_model->endRemoveRow();
 }
 
-void
-PVGuiQt::__impl::axis_append_Observer::about_to_be_updated(const arguments_type& /*args*/) const
+void PVGuiQt::__impl::axis_append_Observer::about_to_be_updated(
+    const arguments_type& /*args*/) const
 {
 	int axis_index = ((Inendi::PVView*)get_object())->get_axes_count();
 
@@ -43,8 +43,8 @@ void PVGuiQt::__impl::set_axis_name_Observer::update(arguments_type const& args)
 {
 	int axis_index = std::get<0>(args);
 
-	emit const_cast<PVGuiQt::PVAxesCombinationModel*>(_model)
-	    ->dataChanged(_model->index(axis_index, 0), _model->index(axis_index, 0));
+	emit const_cast<PVGuiQt::PVAxesCombinationModel*>(_model)->dataChanged(
+	    _model->index(axis_index, 0), _model->index(axis_index, 0));
 }
 
 void PVGuiQt::__impl::move_axis_to_new_position_Observer::update(arguments_type const& args) const
@@ -145,7 +145,8 @@ Qt::ItemFlags PVGuiQt::PVAxesCombinationModel::flags(const QModelIndex& index) c
 	       Qt::ItemIsEditable;
 }
 
-bool PVGuiQt::PVAxesCombinationModel::setData(const QModelIndex& index, const QVariant& value,
+bool PVGuiQt::PVAxesCombinationModel::setData(const QModelIndex& index,
+                                              const QVariant& value,
                                               int role)
 {
 	if (index.row() >= 0 && index.row() < rowCount()) {

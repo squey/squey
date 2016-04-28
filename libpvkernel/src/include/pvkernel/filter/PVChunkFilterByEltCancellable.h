@@ -18,7 +18,8 @@ namespace PVFilter
 class PVChunkFilterByEltCancellable : public PVChunkFilter
 {
   public:
-	PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter, float timeout,
+	PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter,
+	                              float timeout,
 	                              bool* cancellation = nullptr);
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 

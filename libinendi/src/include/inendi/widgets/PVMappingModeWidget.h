@@ -32,9 +32,13 @@ class PVMappingModeWidget : public QWidget
   public:
 	PVMappingModeWidget(QWidget* parent = NULL) : QWidget(parent) { init(false); }
 	PVMappingModeWidget(QString const& type, QWidget* parent = NULL);
-	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping, bool params_btn = false,
+	PVMappingModeWidget(PVCol axis_id,
+	                    Inendi::PVMapping& mapping,
+	                    bool params_btn = false,
 	                    QWidget* parent = NULL);
-	PVMappingModeWidget(PVCol axis_id, Inendi::PVView& view, bool params_btn = false,
+	PVMappingModeWidget(PVCol axis_id,
+	                    Inendi::PVView& view,
+	                    bool params_btn = false,
 	                    QWidget* parent = NULL);
 
   public:

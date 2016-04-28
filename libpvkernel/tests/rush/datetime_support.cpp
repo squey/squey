@@ -12,9 +12,10 @@
 
 #include <iostream>
 
-struct testcase_t
-{
-	testcase_t(const std::string& f, const std::string& tf, const std::string& tsi,
+struct testcase_t {
+	testcase_t(const std::string& f,
+	           const std::string& tf,
+	           const std::string& tsi,
 	           const std::string& tso = "")
 	    : formatter(f), time_format(tf), time_string_in(tsi)
 	{

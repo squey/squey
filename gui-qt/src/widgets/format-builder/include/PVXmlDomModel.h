@@ -118,8 +118,8 @@ class PVXmlDomModel : public QAbstractItemModel
 	 * @param role : what we are doing
 	 * @return something to write on tree header
 	 */
-	virtual QVariant headerData(int section, Qt::Orientation orientation,
-	                            int role = Qt::DisplayRole) const;
+	virtual QVariant
+	headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 	bool saveXml(QString xml_file);
 
@@ -158,7 +158,9 @@ class PVXmlDomModel : public QAbstractItemModel
 
   private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
-	void setEltMappingPlotting(QDomElement& elt, QString const& type, QString const& mode_mapping,
+	void setEltMappingPlotting(QDomElement& elt,
+	                           QString const& type,
+	                           QString const& mode_mapping,
 	                           QString const& mode_plotting);
 
   private:

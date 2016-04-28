@@ -19,9 +19,13 @@ class PVCustomStyle : public QProxyStyle
 	PVCustomStyle();
 
   public:
-	void drawComplexControl(ComplexControl control, const QStyleOptionComplex* option,
-	                        QPainter* painter, const QWidget* widget = 0) const;
-	void drawControl(ControlElement element, const QStyleOption* option, QPainter* painter,
+	void drawComplexControl(ComplexControl control,
+	                        const QStyleOptionComplex* option,
+	                        QPainter* painter,
+	                        const QWidget* widget = 0) const;
+	void drawControl(ControlElement element,
+	                 const QStyleOption* option,
+	                 QPainter* painter,
 	                 const QWidget* widget = 0) const;
 };
 }

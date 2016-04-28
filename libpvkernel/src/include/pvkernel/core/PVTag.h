@@ -17,7 +17,8 @@
 namespace PVCore
 {
 
-template <class RegAs> class PVClassLibrary;
+template <class RegAs>
+class PVClassLibrary;
 
 class PVTagUndefinedException
 {
@@ -31,9 +32,11 @@ class PVTagUndefinedException
 	QString _tag_name;
 };
 
-template <class TReg> class PVTag
+template <class TReg>
+class PVTag
 {
-	template <class RegAs> friend class PVClassLibrary;
+	template <class RegAs>
+	friend class PVClassLibrary;
 
   public:
 	typedef typename TReg::p_type PF;

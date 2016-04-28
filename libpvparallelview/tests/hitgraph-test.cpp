@@ -38,9 +38,15 @@
  * sequential algos
  *****************************************************************************/
 
-void count_y1_seq_v1(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double /*alpha*/, uint32_t* buffer,
+void count_y1_seq_v1(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint32_t* col_y2,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double /*alpha*/,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const uint64_t dy = y_max - y_min;
@@ -56,9 +62,15 @@ void count_y1_seq_v1(const PVRow row_count, const uint32_t* col_y1, const uint32
 
 /* sequential version using shift'n mask but which keeps relative indexes
  */
-void count_y1_seq_v2(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_seq_v2(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint32_t* col_y2,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int shift = (32 - 10) - zoom;
@@ -76,9 +88,15 @@ void count_y1_seq_v2(const PVRow row_count, const uint32_t* col_y1, const uint32
 
 /* sequential version using shift'n mask which uses indexed block
  */
-void count_y1_seq_v3(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_seq_v3(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint32_t* col_y2,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - 10) - zoom;
@@ -110,9 +128,15 @@ inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 	return _mm256_insertf128_si256(_mm256_castsi128_si256(v0s), v1s, 1);
 }
 
-void count_y1_avx_v3(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_avx_v3(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint32_t* col_y2,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - 10) - zoom;
@@ -171,9 +195,15 @@ void count_y1_avx_v3(const PVRow row_count, const uint32_t* col_y1, const uint32
 
 /* TODO: change it to use SSE intrinsics (and libdivide, see in pvkernel/core)
  */
-void count_y1_sse_v1(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_sse_v1(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint32_t* col_y2,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const uint64_t dy = y_max - y_min;
@@ -187,9 +217,15 @@ void count_y1_sse_v1(const PVRow row_count, const uint32_t* col_y1, const uint32
 	}
 }
 
-void count_y1_sse_v3(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_sse_v3(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint32_t* col_y2,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - 10) - zoom;
@@ -284,12 +320,11 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t* col_y1, const uint32
  * OMP + SSE algos
  *****************************************************************************/
 
-struct omp_sse_v3_ctx_t
-{
+struct omp_sse_v3_ctx_t {
 	omp_sse_v3_ctx_t(uint32_t size)
 	{
 		core_num = PVCore::PVHardwareConcurrency::get_logical_core_number();
-		buffers = new uint32_t* [core_num];
+		buffers = new uint32_t*[core_num];
 		buffer_size = size;
 
 		if (getenv("USE_NUMA") != NULL) {
@@ -333,10 +368,17 @@ struct omp_sse_v3_ctx_t
 	bool use_numa;
 };
 
-void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                         const Inendi::PVSelection& selection, const uint64_t y_min,
-                         const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
-                         const size_t buffer_size, omp_sse_v3_ctx_t& ctx)
+void count_y1_omp_sse_v3(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const uint32_t* col_y2,
+                         const Inendi::PVSelection& selection,
+                         const uint64_t y_min,
+                         const uint64_t y_max,
+                         const int zoom,
+                         double alpha,
+                         uint32_t* buffer,
+                         const size_t buffer_size,
+                         omp_sse_v3_ctx_t& ctx)
 {
 	const int idx_shift = (32 - 10) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
@@ -444,10 +486,17 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t* col_y1, const ui
 	}
 }
 
-void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t* col_y1, const uint32_t* col_y2,
-                           const Inendi::PVSelection& selection, const uint64_t y_min,
-                           const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
-                           const size_t buffer_size, omp_sse_v3_ctx_t& ctx)
+void count_y1_omp_sse_v3_2(const PVRow row_count,
+                           const uint32_t* col_y1,
+                           const uint32_t* col_y2,
+                           const Inendi::PVSelection& selection,
+                           const uint64_t y_min,
+                           const uint64_t y_max,
+                           const int zoom,
+                           double alpha,
+                           uint32_t* buffer,
+                           const size_t buffer_size,
+                           omp_sse_v3_ctx_t& ctx)
 {
 	const int idx_shift = (32 - 10) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
@@ -632,7 +681,8 @@ int main(int argc, char** argv)
 	if (zoom == 0) {
 		zoom = 1;
 		std::cout << "INFO: setting zoom to 1 because block algorithm have an "
-		             "exception for zoom == 0" << std::endl;
+		             "exception for zoom == 0"
+		          << std::endl;
 	}
 
 	if ((alpha < 0.) || (alpha > 1.)) {

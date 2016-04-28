@@ -25,8 +25,11 @@
 
 #include "common.h"
 
-void count_y2_seq(uint32_t* count_buffer, PVParallelView::PVZoneTree const& zt,
-                  const uint32_t* plotted, const uint32_t zoom, const uint32_t y_min)
+void count_y2_seq(uint32_t* count_buffer,
+                  PVParallelView::PVZoneTree const& zt,
+                  const uint32_t* plotted,
+                  const uint32_t zoom,
+                  const uint32_t y_min)
 {
 	assert(zoom >= 1 && zoom <= 10);
 	const int idx_shift = (32 - NBITS_INDEX) - zoom;

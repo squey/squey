@@ -28,7 +28,8 @@
 
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R> void __print_rect(const char* text, const R& r)
+template <typename R>
+void __print_rect(const char* text, const R& r)
 {
 	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
@@ -37,7 +38,8 @@ template <typename R> void __print_rect(const char* text, const R& r)
 #define print_s(V) print_scalar(V)
 #define print_scalar(V) __print_scalar(#V, V)
 
-template <typename V> void __print_scalar(const char* text, const V& v)
+template <typename V>
+void __print_scalar(const char* text, const V& v)
 {
 	std::cout << text << ": " << v << std::endl;
 }
@@ -116,7 +118,9 @@ class PVZoomableDrawingAreaConstraintsHomothetic
 
 	bool zoom_y_available() const { return true; }
 
-	bool set_zoom_value(int /*axes*/, int value, PVParallelView::PVAxisZoom& zx,
+	bool set_zoom_value(int /*axes*/,
+	                    int value,
+	                    PVParallelView::PVAxisZoom& zx,
 	                    PVParallelView::PVAxisZoom& zy)
 	{
 		set_clamped_value(zx, value);
@@ -124,7 +128,9 @@ class PVZoomableDrawingAreaConstraintsHomothetic
 		return true;
 	}
 
-	bool increment_zoom_value(int /*axes*/, int value, PVParallelView::PVAxisZoom& zx,
+	bool increment_zoom_value(int /*axes*/,
+	                          int value,
+	                          PVParallelView::PVAxisZoom& zx,
 	                          PVParallelView::PVAxisZoom& zy)
 	{
 		set_clamped_value(zx, zx.get_value() + value);
@@ -215,7 +221,9 @@ class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDr
 
 	bool zoom_y_available() const { return true; }
 
-	bool set_zoom_value(int axes, int value, PVParallelView::PVAxisZoom& zx,
+	bool set_zoom_value(int axes,
+	                    int value,
+	                    PVParallelView::PVAxisZoom& zx,
 	                    PVParallelView::PVAxisZoom& zy)
 	{
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
@@ -227,7 +235,9 @@ class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDr
 		return true;
 	}
 
-	bool increment_zoom_value(int axes, int value, PVParallelView::PVAxisZoom& zx,
+	bool increment_zoom_value(int axes,
+	                          int value,
+	                          PVParallelView::PVAxisZoom& zx,
 	                          PVParallelView::PVAxisZoom& zy)
 	{
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
@@ -314,7 +324,9 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
 
 	bool zoom_y_available() const { return true; }
 
-	bool set_zoom_value(int /*axes*/, int value, PVParallelView::PVAxisZoom& zx,
+	bool set_zoom_value(int /*axes*/,
+	                    int value,
+	                    PVParallelView::PVAxisZoom& zx,
 	                    PVParallelView::PVAxisZoom& zy)
 	{
 		set_clamped_value(zx, value);
@@ -322,7 +334,9 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
 		return true;
 	}
 
-	bool increment_zoom_value(int /*axes*/, int value, PVParallelView::PVAxisZoom& zx,
+	bool increment_zoom_value(int /*axes*/,
+	                          int value,
+	                          PVParallelView::PVAxisZoom& zx,
 	                          PVParallelView::PVAxisZoom& zy)
 	{
 		set_clamped_value(zx, zx.get_value() + value);

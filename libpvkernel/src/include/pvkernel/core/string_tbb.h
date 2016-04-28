@@ -24,7 +24,8 @@ namespace std
 {
 typedef std::basic_string<char, std::char_traits<char>, tbb::scalable_allocator<char>> string_tbb;
 
-template <> class hash<string_tbb>
+template <>
+class hash<string_tbb>
 {
   public:
 	inline size_t operator()(const string_tbb& s) const

@@ -16,14 +16,19 @@
 
 // #define USE_INIT
 
-template <class DataContainer, class Data> class PVQuadTreeFlatBase
+template <class DataContainer, class Data>
+class PVQuadTreeFlatBase
 {
   public:
 	PVQuadTreeFlatBase() {}
 
 #ifndef USE_INIT
-	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value,
-	         uint32_t y2_max_value, uint32_t position, int max_level)
+	void set(uint32_t y1_min_value,
+	         uint32_t y1_max_value,
+	         uint32_t y2_min_value,
+	         uint32_t y2_max_value,
+	         uint32_t position,
+	         int max_level)
 	{
 		_y1_min_value = y1_min_value;
 		_y1_max_value = y1_max_value;
@@ -50,8 +55,13 @@ template <class DataContainer, class Data> class PVQuadTreeFlatBase
 		return ((e.y2 > _y2_mid_value) << 1) | (e.y1 > _y1_mid_value);
 	}
 
-	void init(PVQuadTreeFlatBase* tab, uint32_t y1_min_value, uint32_t y1_max_value,
-	          uint32_t y2_min_value, uint32_t y2_max_value, uint32_t position, int max_level)
+	void init(PVQuadTreeFlatBase* tab,
+	          uint32_t y1_min_value,
+	          uint32_t y1_max_value,
+	          uint32_t y2_min_value,
+	          uint32_t y2_max_value,
+	          uint32_t position,
+	          int max_level)
 	{
 		_position = position;
 		_max_level = max_level;
@@ -155,11 +165,15 @@ template <class DataContainer, class Data> class PVQuadTreeFlatBase
 	uint32_t _max_level;
 };
 
-template <class DataContainer, class Data> class PVQuadTreeFlat
+template <class DataContainer, class Data>
+class PVQuadTreeFlat
 {
   public:
-	PVQuadTreeFlat(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value,
-	               uint32_t y2_max_value, int max_level)
+	PVQuadTreeFlat(uint32_t y1_min_value,
+	               uint32_t y1_max_value,
+	               uint32_t y2_min_value,
+	               uint32_t y2_max_value,
+	               int max_level)
 	{
 		_count = 1 << (max_level * 2);
 		_trees = (PVQuadTreeFlatBase<DataContainer, Data>*)calloc(

@@ -33,9 +33,12 @@ constexpr static int32_t max_zoom_level =
  * PVParallelView::PVLinesView::PVLinesView
  *
  *****************************************************************************/
-PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend, PVZonesManager const& zm,
-                                         PVZonesProcessor& zp_sel, PVZonesProcessor& zp_bg,
-                                         QObject* img_update_receiver, uint32_t zone_width)
+PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend,
+                                         PVZonesManager const& zm,
+                                         PVZonesProcessor& zp_sel,
+                                         PVZonesProcessor& zp_bg,
+                                         QObject* img_update_receiver,
+                                         uint32_t zone_width)
     : _backend(backend)
     , _first_zone(0)
     , _img_update_receiver(img_update_receiver)
@@ -126,7 +129,8 @@ void PVParallelView::PVLinesView::decrease_global_zoom_level()
  * PVParallelView::PVLinesView::do_translate
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::do_translate(PVZoneID previous_first_zone, uint32_t view_width,
+void PVParallelView::PVLinesView::do_translate(PVZoneID previous_first_zone,
+                                               uint32_t view_width,
                                                std::function<void(PVZoneID)> fzone_draw)
 {
 	const PVZoneID number_of_visible_zones = get_number_of_visible_zones();
@@ -395,7 +399,8 @@ void PVParallelView::PVLinesView::left_rotate_single_zone_images(PVZoneID s)
  * PVParallelView::PVLinesView::render_all_zones_bg_image
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_all_zones_bg_image(int32_t view_x, uint32_t view_width,
+void PVParallelView::PVLinesView::render_all_zones_bg_image(int32_t view_x,
+                                                            uint32_t view_width,
                                                             const float zoom_y)
 {
 	set_new_view(view_x, view_width);
@@ -410,7 +415,8 @@ void PVParallelView::PVLinesView::render_all_zones_bg_image(int32_t view_x, uint
  * PVParallelView::PVLinesView::render_all_zones_sel_image
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_all_zones_sel_image(int32_t view_x, uint32_t view_width,
+void PVParallelView::PVLinesView::render_all_zones_sel_image(int32_t view_x,
+                                                             uint32_t view_width,
                                                              const float zoom_y)
 {
 	set_new_view(view_x, view_width);
@@ -437,7 +443,8 @@ void PVParallelView::PVLinesView::render_single_zone_images(PVZoneID zone_id, co
  * PVParallelView::PVLinesView::render_all_zones_images
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::render_all_zones_images(int32_t view_x, uint32_t view_width,
+void PVParallelView::PVLinesView::render_all_zones_images(int32_t view_x,
+                                                          uint32_t view_width,
                                                           const float zoom_y)
 {
 	set_new_view(view_x, view_width);
@@ -463,11 +470,11 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 	single_zone_images.bg->set_width(width);
 
 	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(
-	    zone_id, [&](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
-	                 PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
-		             return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci(colors,
-		                                                                                     codes);
-		         },
+	    zone_id,
+	    [&](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
+	        PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
+		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci(colors, codes);
+		},
 	    single_zone_images.bg, 0, width, zoom_y,
 	    false // not reversed
 	    ));
@@ -499,11 +506,12 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 	single_zone_images.sel->set_width(width);
 
 	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(
-	    zone_id, [&](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
-	                 PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
-		             return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci_sel(
-		                 colors, codes);
-		         },
+	    zone_id,
+	    [&](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
+	        PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
+		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci_sel(colors,
+		                                                                                codes);
+		},
 	    single_zone_images.sel, 0, width, zoom_y,
 	    false // not reversed
 	    ));
@@ -635,9 +643,8 @@ int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t vie
  * PVParallelView::PVLinesView::visit_all_zones_to_render
  *
  *****************************************************************************/
-void
-PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width,
-                                                       std::function<void(PVZoneID)> const& fzone)
+void PVParallelView::PVLinesView::visit_all_zones_to_render(
+    uint32_t view_width, std::function<void(PVZoneID)> const& fzone)
 {
 	int32_t view_x = _visible_view_x;
 	if (view_x < 0) {
@@ -876,8 +883,8 @@ void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_width(int16_t
  * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_zoom_level
  *
  *****************************************************************************/
-void
-PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_zoom_level(int16_t base_zoom_level)
+void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_zoom_level(
+    int16_t base_zoom_level)
 {
 	if ((base_zoom_level > -10000) && (base_zoom_level < 10000)) {
 		_base_zoom_level = base_zoom_level;

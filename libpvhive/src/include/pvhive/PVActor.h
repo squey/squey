@@ -21,7 +21,8 @@ namespace PVHive
  *
  * A template class to specify actor on a given type/class.
  */
-template <class T> class PVActor : public PVActorBase
+template <class T>
+class PVActor : public PVActorBase
 {
 	friend class PVHive;
 

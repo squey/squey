@@ -67,7 +67,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
 
-signals:
+  signals:
 	void mouse_hover_entered(PVCol col, bool entered);
 	void mouse_clicked(PVCol col);
 	void new_zoomed_parallel_view(int _axis_index);
@@ -130,7 +130,8 @@ class PVAxisSelectedAnimation : QObject
 
 class PVGraphicsPolygonItem : public QGraphicsPolygonItem
 {
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	void paint(QPainter* painter,
+	           const QStyleOptionGraphicsItem* option,
 	           QWidget* widget = nullptr) override;
 };
 }

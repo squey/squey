@@ -32,20 +32,16 @@ enum action_t { ACTION_REFRESH = 0, ACTION_QUIT };
 
 enum reaction_t { REACTION_PLOP, REACTION_REPLY };
 
-struct action_message_t
-{
+struct action_message_t {
 	action_t func;
-	union
-	{
+	union {
 		int i;
 	} param;
 };
 
-struct reaction_message_t
-{
+struct reaction_message_t {
 	reaction_t func;
-	union
-	{
+	union {
 		bool b;
 	} param;
 };
@@ -240,7 +236,7 @@ class ObjActor : public QObject, public PVHive::PVActor<Obj>
 		_timer->start(50);
 	}
 
-signals:
+  signals:
 	void finished();
 
   private slots:

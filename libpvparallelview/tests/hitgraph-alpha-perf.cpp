@@ -45,9 +45,14 @@ static bool verbose = false;
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-void count_y1_seq_v1(const PVRow row_count, const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_seq_v1(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const uint64_t dy = y_max - y_min;
@@ -63,9 +68,14 @@ void count_y1_seq_v1(const PVRow row_count, const uint32_t* col_y1,
 
 /* sequential version using shift'n mask but which keeps relative indexes
  */
-void count_y1_seq_v2(const PVRow row_count, const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_seq_v2(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int shift = (32 - NBITS) - zoom;
@@ -83,9 +93,14 @@ void count_y1_seq_v2(const PVRow row_count, const uint32_t* col_y1,
 
 /* sequential version using shift'n mask which uses indexed block
  */
-void count_y1_seq_v3(const PVRow row_count, const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_seq_v3(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
@@ -106,9 +121,14 @@ void count_y1_seq_v3(const PVRow row_count, const uint32_t* col_y1,
 
 /* sequential version using shift'n mask and N block
  */
-void count_y1_seq_v4(const PVRow row_count, const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_seq_v4(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
@@ -143,9 +163,14 @@ inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 	return _mm256_insertf128_si256(_mm256_castsi128_si256(v0s), v1s, 1);
 }
 
-void count_y1_avx_v3(const PVRow row_count, const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_avx_v3(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
@@ -202,9 +227,14 @@ void count_y1_avx_v3(const PVRow row_count, const uint32_t* col_y1,
  * SSE algos
  *****************************************************************************/
 
-void count_y1_sse_v3(const PVRow row_count, const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_sse_v3(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
@@ -295,9 +325,14 @@ void count_y1_sse_v3(const PVRow row_count, const uint32_t* col_y1,
 	}
 }
 
-void count_y1_sse_v4(const PVRow row_count, const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection, const uint64_t y_min,
-                     const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
+void count_y1_sse_v4(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const Inendi::PVSelection& selection,
+                     const uint64_t y_min,
+                     const uint64_t y_max,
+                     const int zoom,
+                     double alpha,
+                     uint32_t* buffer,
                      const size_t buffer_size)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
@@ -394,12 +429,11 @@ void count_y1_sse_v4(const PVRow row_count, const uint32_t* col_y1,
  * OMP + SSE algos
  *****************************************************************************/
 
-struct omp_sse_v3_ctx_t
-{
+struct omp_sse_v3_ctx_t {
 	omp_sse_v3_ctx_t(uint32_t size)
 	{
 		core_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
-		buffers = new uint32_t* [core_num];
+		buffers = new uint32_t*[core_num];
 		buffer_size = size;
 
 		// if (verbose) {
@@ -462,10 +496,16 @@ struct omp_sse_v3_ctx_t
 	bool use_numa;
 };
 
-void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection, const uint64_t y_min,
-                         const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
-                         const size_t buffer_size, omp_sse_v3_ctx_t& ctx)
+void count_y1_omp_sse_v3(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const Inendi::PVSelection& selection,
+                         const uint64_t y_min,
+                         const uint64_t y_max,
+                         const int zoom,
+                         double alpha,
+                         uint32_t* buffer,
+                         const size_t buffer_size,
+                         omp_sse_v3_ctx_t& ctx)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
@@ -577,10 +617,16 @@ void count_y1_omp_sse_v3(const PVRow row_count, const uint32_t* col_y1,
  * storing at each
  * iteration.
  */
-void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t* col_y1,
-                           const Inendi::PVSelection& selection, const uint64_t y_min,
-                           const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
-                           const size_t buffer_size, omp_sse_v3_ctx_t& ctx)
+void count_y1_omp_sse_v3_2(const PVRow row_count,
+                           const uint32_t* col_y1,
+                           const Inendi::PVSelection& selection,
+                           const uint64_t y_min,
+                           const uint64_t y_max,
+                           const int zoom,
+                           double alpha,
+                           uint32_t* buffer,
+                           const size_t buffer_size,
+                           omp_sse_v3_ctx_t& ctx)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
@@ -691,10 +737,16 @@ void count_y1_omp_sse_v3_2(const PVRow row_count, const uint32_t* col_y1,
 	}
 }
 
-void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection, const uint64_t y_min,
-                         const uint64_t y_max, const int zoom, double alpha, uint32_t* buffer,
-                         const size_t buffer_size, omp_sse_v3_ctx_t& ctx)
+void count_y1_omp_sse_v4(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const Inendi::PVSelection& selection,
+                         const uint64_t y_min,
+                         const uint64_t y_max,
+                         const int zoom,
+                         double alpha,
+                         uint32_t* buffer,
+                         const size_t buffer_size,
+                         omp_sse_v3_ctx_t& ctx)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
@@ -807,10 +859,17 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1,
 	}
 }
 
-void count_y1_lib(const PVRow row_count, const uint32_t* col_y1,
-                  const Inendi::PVSelection& selection, const uint64_t y_min, const uint64_t y_max,
-                  const int zoom, double alpha, uint32_t* buffer, const size_t buffer_size,
-                  omp_sse_v3_ctx_t& ctx, PVParallelView::PVHitGraphData& lib_omp)
+void count_y1_lib(const PVRow row_count,
+                  const uint32_t* col_y1,
+                  const Inendi::PVSelection& selection,
+                  const uint64_t y_min,
+                  const uint64_t y_max,
+                  const int zoom,
+                  double alpha,
+                  uint32_t* buffer,
+                  const size_t buffer_size,
+                  omp_sse_v3_ctx_t& ctx,
+                  PVParallelView::PVHitGraphData& lib_omp)
 {
 
 	lib_omp.process_buffer_all(PVParallelView::PVHitGraphData::ProcessParams(
@@ -826,8 +885,12 @@ void count_y1_lib(const PVRow row_count, const uint32_t* col_y1,
  *****************************************************************************/
 
 template <typename RunFn, typename CleanFn>
-inline void bench_median(const char* text, const RunFn& run, const CleanFn& clean, size_t ele_num,
-                         size_t ele_size, int iter_num = 10)
+inline void bench_median(const char* text,
+                         const RunFn& run,
+                         const CleanFn& clean,
+                         size_t ele_num,
+                         size_t ele_size,
+                         int iter_num = 10)
 {
 	std::vector<double> measures;
 	measures.reserve(iter_num);
@@ -866,10 +929,11 @@ inline void bench_median(const char* text, const RunFn& run, const CleanFn& clea
 	uint32_t* buffer_##ALGO;                                                                       \
 	posix_memalign((void**)&buffer_##ALGO, 16, buffer_size* V4_N * sizeof(uint32_t));              \
 	memset(buffer_##ALGO, 0, buffer_size* V4_N * sizeof(uint32_t));                                \
-	bench_median(#ALGO, [&]() {                                                                    \
-		count_y1_##ALGO(row_count, DATA, selection, y_min, y_max, zoom, alpha, buffer_##ALGO,      \
-		                buffer_size, ##__VA_ARGS__);                                               \
-		                },                                                                         \
+	bench_median(#ALGO,                                                                            \
+	             [&]() {                                                                           \
+		             count_y1_##ALGO(row_count, DATA, selection, y_min, y_max, zoom, alpha,        \
+		                             buffer_##ALGO, buffer_size, ##__VA_ARGS__);                   \
+		         },                                                                                \
 	             [&]() { memset(buffer_##ALGO, 0, sizeof(uint32_t) * V4_N * buffer_size); },       \
 	             row_count, sizeof(uint32_t));
 
@@ -878,13 +942,14 @@ inline void bench_median(const char* text, const RunFn& run, const CleanFn& clea
 	posix_memalign((void**)&buffer_##ALGO, 16, buffer_size* V4_N * sizeof(uint32_t));              \
 	memset(buffer_##ALGO, 0, buffer_size* V4_N * sizeof(uint32_t));                                \
 	omp_sse_v3_ctx_t ALGO##_ctx(buffer_size* V4_N);                                                \
-	bench_median(#ALGO, [&]() {                                                                    \
-		count_y1_##ALGO(row_count, DATA, selection, y_min, y_max, zoom, alpha, buffer_##ALGO,      \
-		                buffer_size, ALGO##_ctx, ##__VA_ARGS__);                                   \
-		                },                                                                         \
+	bench_median(#ALGO,                                                                            \
 	             [&]() {                                                                           \
-		memset(buffer_##ALGO, 0, sizeof(uint32_t) * V4_N * buffer_size);                           \
-		ALGO##_ctx.clear();                                                                        \
+		             count_y1_##ALGO(row_count, DATA, selection, y_min, y_max, zoom, alpha,        \
+		                             buffer_##ALGO, buffer_size, ALGO##_ctx, ##__VA_ARGS__);       \
+		         },                                                                                \
+	             [&]() {                                                                           \
+		             memset(buffer_##ALGO, 0, sizeof(uint32_t) * V4_N * buffer_size);              \
+		             ALGO##_ctx.clear();                                                           \
 		         },                                                                                \
 	             row_count, sizeof(uint32_t));
 
@@ -915,9 +980,18 @@ uint32_t* get_col(uint32_t* p, PVRow row_count, PVCol col)
 }
 
 template <typename Fn1, typename Fn2, typename Fn3>
-void do_one_run(const std::string text, const Fn1& allocate, const Fn2& deallocate,
-                const Fn3& mem_modifier, uint32_t* orig_data, PVRow row_count, PVCol col_count,
-                PVCol col, uint64_t y_min, uint64_t y_max, int zoom, double alpha)
+void do_one_run(const std::string text,
+                const Fn1& allocate,
+                const Fn2& deallocate,
+                const Fn3& mem_modifier,
+                uint32_t* orig_data,
+                PVRow row_count,
+                PVCol col_count,
+                PVCol col,
+                uint64_t y_min,
+                uint64_t y_max,
+                int zoom,
+                double alpha)
 {
 	std::cout << text << std::endl;
 
@@ -1018,9 +1092,16 @@ void do_one_run(const std::string text, const Fn1& allocate, const Fn2& dealloca
 }
 
 template <typename Fn1>
-void do_one_allocator(const std::string text, const Fn1& mem_modifier, uint32_t* data,
-                      PVRow row_count, PVCol col_count, PVCol col, uint64_t y_min, uint64_t y_max,
-                      int zoom, double alpha)
+void do_one_allocator(const std::string text,
+                      const Fn1& mem_modifier,
+                      uint32_t* data,
+                      PVRow row_count,
+                      PVCol col_count,
+                      PVCol col,
+                      uint64_t y_min,
+                      uint64_t y_max,
+                      int zoom,
+                      double alpha)
 {
 #if 0
 	do_one_run("mem=aligned"+text,
@@ -1212,7 +1293,8 @@ int main(int argc, char** argv)
 	if (zoom == 0) {
 		zoom = 1;
 		std::cout << "INFO: setting zoom to 1 because block algorithm have an "
-		             "exception for zoom == 0" << std::endl;
+		             "exception for zoom == 0"
+		          << std::endl;
 	}
 	uint64_t y_max = y_min + (1UL << (32 - zoom));
 

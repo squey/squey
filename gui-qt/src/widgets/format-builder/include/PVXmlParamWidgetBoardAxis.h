@@ -140,7 +140,7 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void slotSetParamsMapping();
 	void slotSetParamsPlotting();
 
-signals:
+  signals:
 	void signalRefreshView();
 	void signalSelectNext();
 };

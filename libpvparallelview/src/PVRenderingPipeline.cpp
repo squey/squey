@@ -175,13 +175,19 @@ PVParallelView::PVZonesProcessor PVParallelView::PVRenderingPipeline::declare_pr
 
 // Preprocess class
 PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(
-    tbb::flow::graph& g, input_port_zrc_type& node_in_job, input_port_cancel_type& node_cancel_job,
-    preprocess_func_type const& f, PVCore::PVHSVColor const* colors, size_t nzones)
+    tbb::flow::graph& g,
+    input_port_zrc_type& node_in_job,
+    input_port_cancel_type& node_cancel_job,
+    preprocess_func_type const& f,
+    PVCore::PVHSVColor const* colors,
+    size_t nzones)
     : router(nzones, colors)
-    , node_process(g, 24, [=](PVZoneRendering_p zr) {
-	      f(zr->get_zone_id());
-	      return zr;
-	  })
+    , node_process(g,
+                   24,
+                   [=](PVZoneRendering_p zr) {
+	                   f(zr->get_zone_id());
+	                   return zr;
+	               })
     , node_router(g, tbb::flow::serial, router)
 {
 	tbb::flow::make_edge(

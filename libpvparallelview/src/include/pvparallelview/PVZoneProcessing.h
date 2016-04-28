@@ -17,8 +17,10 @@ namespace PVParallelView
 class PVZoneProcessing
 {
   public:
-	PVZoneProcessing(Inendi::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows,
-	                 PVCol col_a = 0, PVCol col_b = 1)
+	PVZoneProcessing(Inendi::PVPlotted::uint_plotted_table_t const& plotted,
+	                 PVRow nrows,
+	                 PVCol col_a = 0,
+	                 PVCol col_b = 1)
 	    : _plotted(plotted)
 	    , _nrows(nrows)
 	    , _col_a(col_a)

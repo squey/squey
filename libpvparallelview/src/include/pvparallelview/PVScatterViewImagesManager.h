@@ -29,13 +29,19 @@ class PVScatterViewImagesManager : boost::noncopyable
 	typedef PVScatterViewData::ProcessParams DataProcessParams;
 
   public:
-	PVScatterViewImagesManager(PVZoneID const zid, PVZonesProcessor& zp_bg,
-	                           PVZonesProcessor& zp_sel, PVZonesManager const& zm,
-	                           const PVCore::PVHSVColor* colors, Inendi::PVSelection const& sel);
+	PVScatterViewImagesManager(PVZoneID const zid,
+	                           PVZonesProcessor& zp_bg,
+	                           PVZonesProcessor& zp_sel,
+	                           PVZonesManager const& zm,
+	                           const PVCore::PVHSVColor* colors,
+	                           Inendi::PVSelection const& sel);
 
   public:
-	bool change_and_process_view(const uint64_t y1_min, const uint64_t y1_max,
-	                             const uint64_t y2_min, const uint64_t y2_max, const int zoom,
+	bool change_and_process_view(const uint64_t y1_min,
+	                             const uint64_t y1_max,
+	                             const uint64_t y2_min,
+	                             const uint64_t y2_max,
+	                             const int zoom,
 	                             const double alpha);
 
   public:

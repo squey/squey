@@ -12,7 +12,8 @@
 
 #include <iostream>
 
-template <class T> class init_max
+template <class T>
+class init_max
 {
   public:
 	// these functions are required to be members:
@@ -40,7 +41,7 @@ template <class T> class init_max
 
 	operator T(void) const;
 
-	const T* operator&(void) const;
+	const T* operator&(void)const;
 	T* operator&(void);
 
   private:
@@ -49,91 +50,105 @@ template <class T> class init_max
 
 // members:
 
-template <class T> inline init_max<T>::init_max(T new_value)
+template <class T>
+inline init_max<T>::init_max(T new_value)
 {
 	value = new_value;
 }
 
-template <class T> inline init_max<T>::init_max(const init_max<T>& other)
+template <class T>
+inline init_max<T>::init_max(const init_max<T>& other)
 {
 	value = other.value;
 }
 
-template <class T> inline init_max<T>::~init_max(void)
+template <class T>
+inline init_max<T>::~init_max(void)
 {
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator=(const init_max<T>& other)
 {
 	value = other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator+=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator+=(const init_max<T>& other)
 {
 	value += other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator-=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator-=(const init_max<T>& other)
 {
 	value -= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator*=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator*=(const init_max<T>& other)
 {
 	value *= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator/=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator/=(const init_max<T>& other)
 {
 	value /= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator%=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator%=(const init_max<T>& other)
 {
 	value %= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator<<=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator<<=(const init_max<T>& other)
 {
 	value <<= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator>>=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator>>=(const init_max<T>& other)
 {
 	value >>= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator&=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator&=(const init_max<T>& other)
 {
 	value &= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator|=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator|=(const init_max<T>& other)
 {
 	value |= other.value;
 
 	return *this;
 }
 
-template <class T> inline init_max<T>& init_max<T>::operator^=(const init_max<T>& other)
+template <class T>
+inline init_max<T>& init_max<T>::operator^=(const init_max<T>& other)
 {
 	value ^= other.value;
 
@@ -148,7 +163,8 @@ inline init_max<T>& init_max<T>::operator++(void) // prefix ++. returns an lvalu
 	return *this;
 }
 
-template <class T> inline init_max<T> init_max<T>::operator++(int) // postfix ++. returns an rvalue.
+template <class T>
+inline init_max<T> init_max<T>::operator++(int) // postfix ++. returns an rvalue.
 {
 	// if your compiler doesn't support this syntax:
 	T result(value);
@@ -168,7 +184,8 @@ inline init_max<T>& init_max<T>::operator--(void) // prefix --. returns an lvalu
 	return *this;
 }
 
-template <class T> inline init_max<T> init_max<T>::operator--(int) // postfix --. returns an rvalue.
+template <class T>
+inline init_max<T> init_max<T>::operator--(int) // postfix --. returns an rvalue.
 {
 	// if your compiler doesn't support this syntax:
 	T result(value);
@@ -180,17 +197,20 @@ template <class T> inline init_max<T> init_max<T>::operator--(int) // postfix --
 	return result;
 }
 
-template <class T> inline init_max<T>::operator T(void) const
+template <class T>
+inline init_max<T>::operator T(void) const
 {
 	return value;
 }
 
-template <class T> inline const T* init_max<T>::operator&(void) const
+template <class T>
+inline const T* init_max<T>::operator&(void)const
 {
 	return &value;
 }
 
-template <class T> inline T* init_max<T>::operator&(void)
+template <class T>
+inline T* init_max<T>::operator&(void)
 {
 	return &value;
 }
@@ -199,29 +219,34 @@ template <class T> inline T* init_max<T>::operator&(void)
 
 // unary:
 
-template <class T> inline init_max<T> operator+(const init_max<T>& bi)
+template <class T>
+inline init_max<T> operator+(const init_max<T>& bi)
 {
 	return bi;
 }
 
-template <class T> inline init_max<T> operator-(const init_max<T>& bi)
+template <class T>
+inline init_max<T> operator-(const init_max<T>& bi)
 {
 	return -((T)bi);
 }
 
-template <class T> inline init_max<T> operator~(const init_max<T>& bi)
+template <class T>
+inline init_max<T> operator~(const init_max<T>& bi)
 {
 	return ~((T)bi);
 }
 
-template <class T> inline init_max<T> operator!(const init_max<T>& bi)
+template <class T>
+inline init_max<T> operator!(const init_max<T>& bi)
 {
 	return !((T)bi);
 }
 
 // binary:
 
-template <class T> inline std::istream& operator>>(std::istream& s, init_max<T>& bi)
+template <class T>
+inline std::istream& operator>>(std::istream& s, init_max<T>& bi)
 {
 	T local_t;
 	s >> local_t;
@@ -230,86 +255,103 @@ template <class T> inline std::istream& operator>>(std::istream& s, init_max<T>&
 	return s;
 }
 
-template <class T> inline std::ostream& operator<<(std::ostream& s, const init_max<T>& bi)
+template <class T>
+inline std::ostream& operator<<(std::ostream& s, const init_max<T>& bi)
 {
 	s << ((T)bi);
 
 	return s;
 }
 
-template <class T> inline init_max<T> operator>>(const init_max<T>& bi, int i) // bit shift.
+template <class T>
+inline init_max<T> operator>>(const init_max<T>& bi, int i) // bit shift.
 {
 	return ((T)bi) >> i;
 }
 
-template <class T> inline init_max<T> operator<<(const init_max<T>& bi, int i) // bit shift.
+template <class T>
+inline init_max<T> operator<<(const init_max<T>& bi, int i) // bit shift.
 {
 	return ((T)bi) << i;
 }
 
-template <class T> inline bool operator==(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline bool operator==(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) == ((T)bi2);
 }
 
-template <class T> inline bool operator!=(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline bool operator!=(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) != ((T)bi2);
 }
 
-template <class T> inline bool operator<(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline bool operator<(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) < ((T)bi2);
 }
 
-template <class T> inline bool operator<=(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline bool operator<=(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) <= ((T)bi2);
 }
 
-template <class T> inline bool operator>(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline bool operator>(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) > ((T)bi2);
 }
 
-template <class T> inline bool operator>=(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline bool operator>=(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) >= ((T)bi2);
 }
 
-template <class T> inline init_max<T> operator+(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline init_max<T> operator+(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) + ((T)bi2);
 }
 
-template <class T> inline init_max<T> operator-(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline init_max<T> operator-(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) - ((T)bi2);
 }
 
-template <class T> inline init_max<T> operator*(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline init_max<T> operator*(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) * ((T)bi2);
 }
 
-template <class T> inline init_max<T> operator/(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline init_max<T> operator/(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) / ((T)bi2);
 }
 
-template <class T> inline init_max<T> operator%(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline init_max<T> operator%(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) % ((T)bi2);
 }
 
-template <class T> inline init_max<T> operator&(const init_max<T>& bi1, const init_max<T>& bi2)
+template <class T>
+inline init_max<T> operator&(const init_max<T>& bi1, const init_max<T>& bi2)
 {
 	return ((T)bi1) & ((T)bi2);
 }
 
 template <class T>
-inline init_max<T> operator^(const init_max<T>& bi1,
-                             const init_max<T>& bi2) { return ((T)bi1) ^ ((T)bi2); }
+inline init_max<T> operator^(const init_max<T>& bi1, const init_max<T>& bi2)
+{
+	return ((T)bi1) ^ ((T)bi2);
+}
 
 template <class T>
 inline init_max<T> operator|(const init_max<T>& bi1, const init_max<T>& bi2)

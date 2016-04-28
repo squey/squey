@@ -103,7 +103,8 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 	return ret;
 }
 
-bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest,
+bool PVCore::PVArchive::extract(QString const& path,
+                                QString const& dir_dest,
                                 QStringList& extracted_files)
 {
 	struct archive* a;

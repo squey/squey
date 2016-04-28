@@ -12,8 +12,8 @@
 #include <QStringList>
 #include <QMap>
 
-int create_layers_parse_config(
-    QString filename, int (*handle_create_layers_section)(QString section_name,
-                                                          QMap<QString, QStringList> layers_regex));
+int create_layers_parse_config(QString filename,
+                               int (*handle_create_layers_section)(
+                                   QString section_name, QMap<QString, QStringList> layers_regex));
 
 #endif /* INENDI_CREATELAYERS_PARSECONFIG_H */

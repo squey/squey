@@ -104,8 +104,8 @@ class PVSplunkAPI
 	 *
 	 * @return true if more data is available, false otherwise
 	 */
-	bool extract(const PVRush::PVSplunkQuery& query, std::string& data,
-	             std::string* error = nullptr);
+	bool
+	extract(const PVRush::PVSplunkQuery& query, std::string& data, std::string* error = nullptr);
 
 	/** Convert json from QueryBuilder to json as Splunk input
 	 *
@@ -136,8 +136,10 @@ class PVSplunkAPI
 	 * @param output_mode the wanted output fomat ("xml", "json", "raw")
 	 * @param error Store any occured error if provided
 	 */
-	bool perform_query(const std::string& search_query, std::string& result,
-	                   const std::string& output_mode = "json", std::string* error = nullptr) const;
+	bool perform_query(const std::string& search_query,
+	                   std::string& result,
+	                   const std::string& output_mode = "json",
+	                   std::string* error = nullptr) const;
 
   private:
 	/** Return the Splunk export API URL to query
@@ -168,8 +170,8 @@ class PVSplunkAPI
 	 *
 	 * @return a list of the specified kind
 	 */
-	strings_t list(const std::string& search, const std::string& type,
-	               std::string* error = nullptr) const;
+	strings_t
+	list(const std::string& search, const std::string& type, std::string* error = nullptr) const;
 
   private:
 	/**
@@ -205,7 +207,7 @@ class PVSplunkAPI
 	struct timeval _tv;             //! used by cURL timeout
 	CURLM* _multi;                  //! cURL multi request handler
 	CURL* _easy;                    //! cURL easy request handler
-	curl_socket_t _socket;          //!cURL socket
+	curl_socket_t _socket;          //! cURL socket
 };
 
 } // namespace PVRush

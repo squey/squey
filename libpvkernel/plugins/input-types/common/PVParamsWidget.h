@@ -39,7 +39,8 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	Q_OBJECT;
 
   public:
-	PVParamsWidgetBase(PVInputType const* in_t, PVRush::hash_formats const& formats,
+	PVParamsWidgetBase(PVInputType const* in_t,
+	                   PVRush::hash_formats const& formats,
 	                   QWidget* parent);
 	virtual ~PVParamsWidgetBase(){};
 
@@ -67,7 +68,7 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	void check_connection_slot();
 	void query_result_count_slot();
 
-signals:
+  signals:
 	// A bit hacky: this is to be able to call PVParamsWidget::set_info virtual pure function
 	// from PVParamsWidget constructor
 	void load_preset_deferred(unsigned int);
@@ -135,7 +136,8 @@ class PVParamsWidget : public PVParamsWidgetBase
 	 * @return the result count returned by the query.
 	 *         0 if an error occured
 	 */
-	virtual void export_query_result(QTextStream& output_stream, PVCore::PVProgressBox& pbox,
+	virtual void export_query_result(QTextStream& output_stream,
+	                                 PVCore::PVProgressBox& pbox,
 	                                 std::string* error = nullptr) = 0;
 
   public:

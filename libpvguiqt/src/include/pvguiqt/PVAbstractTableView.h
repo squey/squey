@@ -145,7 +145,7 @@ class PVAbstractTableView : public PVTableView
 	 */
 	void show_rclick_menu(QPoint const& p);
 
-signals:
+  signals:
 	void validate_selection();
 };
 }

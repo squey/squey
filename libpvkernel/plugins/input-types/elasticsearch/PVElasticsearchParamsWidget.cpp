@@ -17,7 +17,9 @@ static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
 
 PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
     PVInputTypeElasticsearch const* in_t, PVRush::hash_formats const& formats, QWidget* parent)
-    : PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
+    : PVParamsWidget<PVInputTypeElasticsearch,
+                     PVElasticsearchPresets,
+                     PVElasticsearchInfos,
                      PVElasticsearchQuery>(in_t, formats, parent)
 {
 	QLabel* label_index = new QLabel("Index :");

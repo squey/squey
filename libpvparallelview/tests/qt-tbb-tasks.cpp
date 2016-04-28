@@ -115,8 +115,8 @@ public:
 class QuadTree
 {
   public:
-	QuadTree(int height, int depth, uint64_t y1_min, uint64_t y1_max, uint64_t y2_min,
-	         uint64_t y2_max)
+	QuadTree(
+	    int height, int depth, uint64_t y1_min, uint64_t y1_max, uint64_t y2_min, uint64_t y2_max)
 	    : _y1_min(y1_min)
 	    , _y1_max(y1_max)
 	    , _y2_min(y2_min)
