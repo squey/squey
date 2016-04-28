@@ -111,7 +111,7 @@ class PVXmlParamWidgetBoardSplitterRegEx : public QWidget
 	void regExCount(const QString& reg);
 	void exit();
 
-signals:
+  signals:
 	void signalRefreshView();
 	void signalNeedConfirmAndSave();
 

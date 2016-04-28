@@ -18,8 +18,7 @@ class PVPlotted;
 namespace PVGuiQt
 {
 
-struct PVQPlotted
-{
+struct PVQPlotted {
 	static bool edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent = NULL);
 };
 }

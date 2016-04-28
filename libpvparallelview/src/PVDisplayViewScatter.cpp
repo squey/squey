@@ -24,7 +24,8 @@ PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
  * PVDisplays::PVDisplayViewScatter::create_widget
  *****************************************************************************/
 
-QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view, PVCol axis_comb,
+QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view,
+                                                         PVCol axis_comb,
                                                          QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);

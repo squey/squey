@@ -26,8 +26,13 @@ std::string get_full_name(const char* name, size_t nrows, size_t ncols)
 
 #define FN(NAME) get_full_name(NAME, nrows, ncols)
 
-void original_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end,
-                   PVCol* cols, size_t ncols)
+void original_fill(float* res,
+                   const float* plotted,
+                   size_t plotted_ncols,
+                   PVRow start,
+                   PVRow end,
+                   PVCol* cols,
+                   size_t ncols)
 {
 	for (PVRow r = start; r < end; r++) {
 		size_t offset_row_res = r * ncols;
@@ -38,8 +43,13 @@ void original_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow
 	}
 }
 
-void fill_sse(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end,
-              PVCol* cols, size_t ncols)
+void fill_sse(float* res,
+              const float* plotted,
+              size_t plotted_ncols,
+              PVRow start,
+              PVRow end,
+              PVCol* cols,
+              size_t ncols)
 {
 	size_t ncols_sse = (ncols << 2) >> 2;
 	for (PVRow r = start; r < end; r++) {
@@ -57,8 +67,13 @@ void fill_sse(float* res, const float* plotted, size_t plotted_ncols, PVRow star
 	}
 }
 
-void omp_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end,
-              PVCol* cols, size_t ncols)
+void omp_fill(float* res,
+              const float* plotted,
+              size_t plotted_ncols,
+              PVRow start,
+              PVRow end,
+              PVCol* cols,
+              size_t ncols)
 {
 #pragma omp parallel for num_threads(12)
 	for (PVRow r = start; r < end; r++) {
@@ -70,8 +85,13 @@ void omp_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow star
 	}
 }
 
-void trans_fill(float* res, const float* plotted, size_t plotted_nrows, PVRow start, PVRow end,
-                PVCol* cols, size_t ncols)
+void trans_fill(float* res,
+                const float* plotted,
+                size_t plotted_nrows,
+                PVRow start,
+                PVRow end,
+                PVCol* cols,
+                size_t ncols)
 {
 	for (PVRow r = start; r < end; r++) {
 		size_t offset_row_res = r * ncols;
@@ -81,8 +101,13 @@ void trans_fill(float* res, const float* plotted, size_t plotted_nrows, PVRow st
 	}
 }
 
-void trans_fill2(float* res, const float* plotted, size_t plotted_nrows, PVRow start, PVRow end,
-                 PVCol* cols, size_t ncols)
+void trans_fill2(float* res,
+                 const float* plotted,
+                 size_t plotted_nrows,
+                 PVRow start,
+                 PVRow end,
+                 PVCol* cols,
+                 size_t ncols)
 {
 	for (size_t c = 0; c < ncols; c++) {
 		const size_t offset_col_plotted = cols[c] * plotted_nrows;
@@ -104,8 +129,11 @@ float* allocate_res(size_t rows, size_t cols)
 }
 
 void init_data(PVCore::PVMatrix<float, size_t, size_t>& plotted,
-               PVCore::PVMatrix<float, size_t, size_t>& trans_plotted, float** res, float** ref_res,
-               size_t nrows, size_t ncols)
+               PVCore::PVMatrix<float, size_t, size_t>& trans_plotted,
+               float** res,
+               float** ref_res,
+               size_t nrows,
+               size_t ncols)
 {
 	plotted.resize(nrows, ncols);
 	for (size_t i = 0; i < nrows * ncols; i++) {
@@ -139,7 +167,7 @@ int main(int argc, char** argv)
 		all_cols.push_back(i);
 	}
 
-	float* res, *ref_res;
+	float *res, *ref_res;
 	{
 		PVCore::PVMatrix<float, size_t, size_t> plotted, trans_plotted;
 		init_data(plotted, trans_plotted, &res, &ref_res, nrows, ncols);

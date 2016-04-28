@@ -31,8 +31,8 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
-void
-PVGuiQt::__impl::PVSaveSceneToFileFuncObserver::update(const arguments_deep_copy_type& args) const
+void PVGuiQt::__impl::PVSaveSceneToFileFuncObserver::update(
+    const arguments_deep_copy_type& args) const
 {
 	_parent->set_project_modified(false, std::get<0>(args));
 }
@@ -325,9 +325,8 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::set_tab_width(int tab_width)
 	tabBar()->setStyleSheet(_tab_animation_ongoing ? str : "");
 }
 
-void
-PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(QAbstractAnimation::State new_state,
-                                                            QAbstractAnimation::State old_state)
+void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(
+    QAbstractAnimation::State new_state, QAbstractAnimation::State old_state)
 {
 	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running) {
 		tabBar()->setStyleSheet("");

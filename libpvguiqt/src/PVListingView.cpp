@@ -87,8 +87,8 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
 
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
-	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf =
-	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVLayerFilter)
+	::list_classes const& lf = LIB_CLASS(Inendi::PVLayerFilter)::get().get_list();
 	using const_layer_iterator = LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator;
 	// Iterator over all layer filter plugins
 	// We can't use autoFor here because iterate over a QMap return only value
@@ -914,7 +914,8 @@ bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 	return QHeaderView::event(ev);
 }
 
-void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter, const QRect& rect,
+void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
+                                                   const QRect& rect,
                                                    int logicalIndex) const
 {
 	painter->save();

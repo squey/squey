@@ -108,8 +108,8 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 		case 1:
 			return lib_layer_stack().get_layer_n(lib_index).get_name();
 		case 2:
-			return QString("%L3")
-			    .arg(lib_layer_stack().get_layer_n(lib_index).get_selectable_count());
+			return QString("%L3").arg(
+			    lib_layer_stack().get_layer_n(lib_index).get_selectable_count());
 		}
 		break;
 
@@ -172,7 +172,8 @@ Qt::ItemFlags PVGuiQt::PVLayerStackModel::flags(const QModelIndex& index) const
  * PVGuiQt::PVLayerStackModel::headerData
  *
  *****************************************************************************/
-QVariant PVGuiQt::PVLayerStackModel::headerData(int /*section*/, Qt::Orientation /*orientation*/,
+QVariant PVGuiQt::PVLayerStackModel::headerData(int /*section*/,
+                                                Qt::Orientation /*orientation*/,
                                                 int role) const
 {
 	// FIXME : this should not be used : delegate...

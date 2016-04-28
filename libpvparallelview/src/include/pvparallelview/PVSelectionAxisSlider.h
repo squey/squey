@@ -16,7 +16,9 @@ namespace PVParallelView
 class PVSelectionAxisSlider : public PVAbstractAxisSlider
 {
   public:
-	PVSelectionAxisSlider(int64_t omin, int64_t omax, int64_t o,
+	PVSelectionAxisSlider(int64_t omin,
+	                      int64_t omax,
+	                      int64_t o,
 	                      PVAxisSliderOrientation orientation = Min)
 	    : PVAbstractAxisSlider(omin, omax, o, orientation)
 	{
@@ -24,8 +26,8 @@ class PVSelectionAxisSlider : public PVAbstractAxisSlider
 
 	virtual QRectF boundingRect() const;
 
-	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-	                   QWidget* widget = 0);
+	virtual void
+	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
 };
 }
 

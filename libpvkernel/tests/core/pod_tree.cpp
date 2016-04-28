@@ -16,7 +16,8 @@
 #include <iostream>
 #include <vector>
 
-template <class T> void dump_tree(T const& pod_tree)
+template <class T>
+void dump_tree(T const& pod_tree)
 {
 	for (typename T::size_type b = 0; b < T::nbranches(); b++) {
 		typename T::const_branch_iterator it, ite;

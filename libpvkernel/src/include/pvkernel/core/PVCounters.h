@@ -15,7 +15,8 @@ namespace PVCore
 {
 
 class PVWeakCounter;
-template <typename T> class PVSharedPointer;
+template <typename T>
+class PVSharedPointer;
 
 class PVSharedCounter
 {
@@ -24,12 +25,14 @@ class PVSharedCounter
   public:
 	PVSharedCounter() : _counted_base(nullptr) {}
 
-	template <typename T> PVSharedCounter(T* p)
+	template <typename T>
+	PVSharedCounter(T* p)
 	{
 		_counted_base = new __impl::PVCountedBasePD<T*, void (*)(void*)>(p);
 	}
 
-	template <typename T> PVSharedCounter(T* p, void (*d)(void*))
+	template <typename T>
+	PVSharedCounter(T* p, void (*d)(void*))
 	{
 		_counted_base = new __impl::PVCountedBasePD<T*, decltype(d)>(p, d);
 	}
@@ -101,7 +104,8 @@ class PVWeakCounter
   public:
 	PVWeakCounter() : _counted_base() {}
 
-	template <typename T> PVWeakCounter(PVWeakCounter const& r) : _counted_base(r._counted_base)
+	template <typename T>
+	PVWeakCounter(PVWeakCounter const& r) : _counted_base(r._counted_base)
 	{
 		if (_counted_base != nullptr) {
 			_counted_base->weak_add_ref();

@@ -22,7 +22,8 @@ class PVAxisTagHelp : public QDialog, private Ui::PVAxisTagHelp
 	PVAxisTagHelp(QStringList sel_tags = QStringList(), QWidget* parent = NULL);
 
   protected:
-	template <class T> QString tag_to_classes_name(T const& tag)
+	template <class T>
+	QString tag_to_classes_name(T const& tag)
 	{
 		QString used_by;
 		typename T::list_classes const& filters = tag.associated_classes();

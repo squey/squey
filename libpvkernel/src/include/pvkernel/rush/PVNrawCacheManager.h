@@ -40,7 +40,8 @@ class PVNrawCacheManager
 	void delete_unused_cache();
 
   private:
-	QStringList visit_nraw_folders(const QString& base_directory, const QString& name_filter,
+	QStringList visit_nraw_folders(const QString& base_directory,
+	                               const QString& name_filter,
 	                               std::function<bool(QDirIterator& it)> f);
 	QStringList list_nraws_used_by_investigations();
 	QStringList list_nraws_used_by_investigation(const QString& investigation);

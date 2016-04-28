@@ -8,7 +8,8 @@
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
-PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* parent,
+PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title,
+                                            QWidget* parent,
                                             Qt::WindowFlags f)
     : QWidget(parent, f)
 {

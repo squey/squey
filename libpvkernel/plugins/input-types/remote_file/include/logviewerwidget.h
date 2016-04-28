@@ -106,7 +106,7 @@ class LOGVIEWER_EXPORT LogViewerWidget : public QWidget
 	 */
 	bool downloadSelectedFiles(QHash<QString, QUrl>& dl_files);
 
-Q_SIGNALS:
+  Q_SIGNALS:
 	/**
 	 * This signal is emitted once a file has been downloaded.
 	 * @param machine the name of machine where original file is stored

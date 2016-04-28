@@ -36,7 +36,8 @@ class PVMappingPlottingEditDialog : public QDialog
 {
 	Q_OBJECT
   public:
-	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping, Inendi::PVPlotting* plotting,
+	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping,
+	                            Inendi::PVPlotting* plotting,
 	                            QWidget* parent = nullptr);
 
   private:

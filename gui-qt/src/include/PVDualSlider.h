@@ -65,7 +65,7 @@ class PVDualSlider : public QWidget
   public slots:
 	void toggle_visibility_Slot();
 
-signals:
+  signals:
 	void value_changed_Signal();
 
   protected:

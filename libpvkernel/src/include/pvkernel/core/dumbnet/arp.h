@@ -23,8 +23,7 @@
 /*
  * ARP header
  */
-struct arp_hdr
-{
+struct arp_hdr {
 	uint16_t ar_hrd; /* format of hardware address */
 	uint16_t ar_pro; /* format of protocol address */
 	uint8_t ar_hln;  /* length of hardware address (ETH_ADDR_LEN) */
@@ -54,8 +53,7 @@ struct arp_hdr
 /*
  * Ethernet/IP ARP message
  */
-struct arp_ethip
-{
+struct arp_ethip {
 	uint8_t ar_sha[ETH_ADDR_LEN]; /* sender hardware address */
 	uint8_t ar_spa[IP_ADDR_LEN];  /* sender protocol address */
 	uint8_t ar_tha[ETH_ADDR_LEN]; /* target hardware address */
@@ -65,8 +63,7 @@ struct arp_ethip
 /*
  * ARP cache entry
  */
-struct arp_entry
-{
+struct arp_entry {
 	struct addr arp_pa; /* protocol address */
 	struct addr arp_ha; /* hardware address */
 };

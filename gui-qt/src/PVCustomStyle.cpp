@@ -13,7 +13,8 @@ PVInspector::PVCustomStyle::PVCustomStyle() : QProxyStyle(/*new QGtkStyle()*/)
 
 void PVInspector::PVCustomStyle::drawComplexControl(ComplexControl control,
                                                     const QStyleOptionComplex* option,
-                                                    QPainter* painter, const QWidget* widget) const
+                                                    QPainter* painter,
+                                                    const QWidget* widget) const
 {
 	switch (control) {
 	// case QStyle::CC_TitleBar:
@@ -23,8 +24,10 @@ void PVInspector::PVCustomStyle::drawComplexControl(ComplexControl control,
 	};
 }
 
-void PVInspector::PVCustomStyle::drawControl(ControlElement element, const QStyleOption* option,
-                                             QPainter* painter, const QWidget* widget) const
+void PVInspector::PVCustomStyle::drawControl(ControlElement element,
+                                             const QStyleOption* option,
+                                             QPainter* painter,
+                                             const QWidget* widget) const
 {
 	switch (element) {
 	// case QStyle::CE_PushButton:

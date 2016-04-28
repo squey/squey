@@ -64,7 +64,8 @@ class PVFieldsBaseFilter : public PVFilterFunction<PVCore::list_fields, PVFields
 	filter_child_axes_tag_t _axes_tag;
 };
 
-template <fields_filter_type Ttype = many_to_many> class PVFieldsFilter : public PVFieldsBaseFilter
+template <fields_filter_type Ttype = many_to_many>
+class PVFieldsFilter : public PVFieldsBaseFilter
 {
   public:
 	typedef PVFieldsFilter<Ttype> FilterT;

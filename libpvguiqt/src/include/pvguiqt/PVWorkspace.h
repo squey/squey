@@ -101,9 +101,11 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \return A pointer to the view display.
 	 */
-	PVViewDisplay* add_view_display(Inendi::PVView* view, QWidget* view_display,
+	PVViewDisplay* add_view_display(Inendi::PVView* view,
+	                                QWidget* view_display,
 	                                std::function<QString()> name,
-	                                bool can_be_central_display = true, bool delete_on_close = true,
+	                                bool can_be_central_display = true,
+	                                bool delete_on_close = true,
 	                                Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
 	/*! \brief Set a widget as the cental view display of the workspace.
@@ -115,8 +117,10 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \return A pointer to the view display.
 	 */
-	PVViewDisplay* set_central_display(Inendi::PVView* view, QWidget* view_widget,
-	                                   std::function<QString()> name, bool delete_on_close);
+	PVViewDisplay* set_central_display(Inendi::PVView* view,
+	                                   QWidget* view_widget,
+	                                   std::function<QString()> name,
+	                                   bool delete_on_close);
 
 	/*! \brief Return the workspace located under the mouse.
 	 */
@@ -178,7 +182,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void display_destroyed(QObject* object = 0);
 
-signals:
+  signals:
 	/*! \brief Signal forwarded when a display is moved in order to detected a potential tab change.
 	 */
 	void try_automatic_tab_switch();

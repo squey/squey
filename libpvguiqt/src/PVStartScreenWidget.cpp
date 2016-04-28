@@ -87,8 +87,9 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent)
 	label = new QLabel(QString(INENDI_CURRENT_VERSION_STR));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 2);
-	label = new QLabel(tr("Last version of the %1.%2 branch").arg(INENDI_CURRENT_VERSION_MAJOR).arg(
-	                       INENDI_CURRENT_VERSION_MINOR) +
+	label = new QLabel(tr("Last version of the %1.%2 branch")
+	                       .arg(INENDI_CURRENT_VERSION_MAJOR)
+	                       .arg(INENDI_CURRENT_VERSION_MINOR) +
 	                   QString(" :"));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 2, 0);
@@ -524,8 +525,8 @@ void PVGuiQt::PVStartScreenWidget::clear_history(PVCore::PVRecentItemsManager::C
 	refresh_recent_items(category);
 }
 
-void
-PVGuiQt::PVStartScreenWidget::clear_history_dlg(PVCore::PVRecentItemsManager::Category category)
+void PVGuiQt::PVStartScreenWidget::clear_history_dlg(
+    PVCore::PVRecentItemsManager::Category category)
 {
 	QString c = format_selected_item_string(category);
 	QMessageBox confirm(QMessageBox::Question, tr("Please confirm"),
@@ -621,7 +622,9 @@ QString PVGuiQt::PVStartScreenWidget::format_selected_item_string(
  *
  *****************************************************************************/
 PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
-    PVCore::PVRecentItemsManager::Category cat, QVariant var, int index,
+    PVCore::PVRecentItemsManager::Category cat,
+    QVariant var,
+    int index,
     PVGuiQt::PVStartScreenWidget::custom_listwidget_t* parent,
     PVGuiQt::PVStartScreenWidget* start_screen_widget)
     : QListWidgetItem(parent), _cat(cat)

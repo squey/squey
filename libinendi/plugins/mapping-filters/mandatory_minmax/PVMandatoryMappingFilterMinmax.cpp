@@ -18,8 +18,7 @@ Inendi::PVMandatoryMappingFilterMinmax::PVMandatoryMappingFilterMinmax()
 	INIT_FILTER_NOPARAM(PVMandatoryMappingFilterMinmax);
 }
 
-struct min_max_holder
-{
+struct min_max_holder {
 	template <typename T>
 	static void call(Inendi::PVMapped const* mapped,
 	                 Inendi::mandatory_param_list_values const& values,

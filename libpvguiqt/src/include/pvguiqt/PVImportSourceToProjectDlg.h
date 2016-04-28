@@ -25,7 +25,8 @@ class PVImportSourceToProjectDlg : public QDialog
 	Q_OBJECT;
 
   public:
-	PVImportSourceToProjectDlg(Inendi::PVRoot const& root, Inendi::PVScene const* sel_scene,
+	PVImportSourceToProjectDlg(Inendi::PVRoot const& root,
+	                           Inendi::PVScene const* sel_scene,
 	                           QWidget* parent = 0);
 
   public:

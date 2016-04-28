@@ -41,8 +41,8 @@
 #define DEFAULT_HTML_TEXT                                                                          \
 	"<html><body style=\"background-color: #FF0000; color: white;\">default text</body></html>"
 
-static QRect reconfigure_geometry(const QRect current_geom, const QWidget* widget, int align,
-                                  int expand, int border)
+static QRect reconfigure_geometry(
+    const QRect current_geom, const QWidget* widget, int align, int expand, int border)
 {
 	QRect parent_geom = widget->geometry();
 

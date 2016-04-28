@@ -62,12 +62,13 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	constexpr static int axis_extend = 8;
 
   public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Inendi::PVView const& view,
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p,
+	                   Inendi::PVView const& view,
 	                   const axis_id_t& axis_id);
 	~PVAxisGraphicsItem();
 
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-	           QWidget* widget = 0) override;
+	void
+	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
 	QRectF boundingRect() const override;
 
 	void update_axis_label_info();
@@ -123,7 +124,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
   protected:
 	void show_tooltip(QGraphicsTextItem* gti, QGraphicsSceneHelpEvent* event) const;
 
-signals:
+  signals:
 	void new_zoomed_parallel_view(int axis_id);
 	void mouse_hover_entered(PVCol axis, bool entered);
 	void mouse_clicked(PVCol axis);

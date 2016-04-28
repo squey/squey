@@ -33,8 +33,7 @@ void fnoarg()
 {
 }
 
-struct A
-{
+struct A {
 	size_t f(size_t i) const { return i * _i; }
 	void add(size_t& i) { i++; }
 	size_t _i;

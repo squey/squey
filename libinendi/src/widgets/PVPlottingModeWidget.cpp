@@ -21,16 +21,20 @@ PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QString const& type, QWidg
 	populate_from_type(type);
 }
 
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting,
-                                                      bool params_btn, QWidget* parent)
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id,
+                                                      Inendi::PVPlotting& plotting,
+                                                      bool params_btn,
+                                                      QWidget* parent)
     : QWidget(parent)
 {
 	init(params_btn);
 	populate_from_plotting(axis_id, plotting);
 }
 
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id, Inendi::PVView& view,
-                                                      bool params_btn, QWidget* parent)
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id,
+                                                      Inendi::PVView& view,
+                                                      bool params_btn,
+                                                      QWidget* parent)
     : QWidget(parent)
 {
 	init(params_btn);
@@ -72,8 +76,8 @@ void PVWidgets::PVPlottingModeWidget::init(bool params_btn)
 
 void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type)
 {
-	LIB_CLASS(Inendi::PVPlottingFilter)::list_classes const& map_filters =
-	    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVPlottingFilter)
+	::list_classes const& map_filters = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list();
 	LIB_CLASS(Inendi::PVPlottingFilter)::list_classes::const_iterator it;
 	for (it = map_filters.begin(); it != map_filters.end(); it++) {
 		Inendi::PVPlottingFilter::p_type filter = it->value();

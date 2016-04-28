@@ -14,7 +14,8 @@
 namespace PVCore
 {
 
-template <typename T, size_t Align = 16> class PVHugePODVector
+template <typename T, size_t Align = 16>
+class PVHugePODVector
 {
 	static_assert(std::is_pod<T>::value, "PVHugePODVector: T must be a POD!");
 

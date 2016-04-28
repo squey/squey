@@ -11,8 +11,7 @@
 namespace PVCore
 {
 
-struct undefined_function
-{
+struct undefined_function {
 	inline operator bool() const { return false; }
 	inline void operator()() const {}
 };

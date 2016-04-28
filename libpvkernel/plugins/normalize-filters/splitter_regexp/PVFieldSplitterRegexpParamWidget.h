@@ -62,7 +62,7 @@ class PVFieldSplitterRegexpParamWidget : public PVFieldsSplitterParamWidget
 	void slotExpressionChanged();
 	void slotFullineChanged(int state);
 
-signals:
+  signals:
 	void data_changed();
 	void signalRefreshView();
 };

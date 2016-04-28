@@ -37,7 +37,7 @@ class ThreadEndSignal : public QObject
 	Q_OBJECT
   public:
 	void emit_finished() { emit finished(); }
-signals:
+  signals:
 	void finished();
 };
 }
@@ -50,7 +50,9 @@ class PVProgressBox : public QDialog
 	enum CancelState { CONTINUE, CANCEL, CANCEL2 };
 
   public:
-	PVProgressBox(QString msg, QWidget* parent = 0, Qt::WindowFlags f = 0,
+	PVProgressBox(QString msg,
+	              QWidget* parent = 0,
+	              Qt::WindowFlags f = 0,
 	              QString const& format_detail = QString());
 	/**
 	* Return the progress bar. It possible to modify Min, Max and progress.
@@ -66,7 +68,8 @@ class PVProgressBox : public QDialog
 	void set_confirmation(bool confirm) { _need_confirmation = confirm; }
 
   private:
-	template <class F> static void worker_thread(F f, __impl::ThreadEndSignal* s)
+	template <class F>
+	static void worker_thread(F f, __impl::ThreadEndSignal* s)
 	{
 		try {
 			f();
@@ -86,7 +89,8 @@ class PVProgressBox : public QDialog
 	}
 
   public:
-	template <typename Tret, typename F> static bool progress(F f, PVProgressBox* pbox, Tret& ret)
+	template <typename Tret, typename F>
+	static bool progress(F f, PVProgressBox* pbox, Tret& ret)
 	{
 		// PVThreadWatcher* watcher = new PVThreadWatcher();
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
@@ -96,7 +100,8 @@ class PVProgressBox : public QDialog
 		return process_worker_thread(end_s, worker, pbox);
 	}
 
-	template <typename F> static bool progress(F f, PVProgressBox* pbox)
+	template <typename F>
+	static bool progress(F f, PVProgressBox* pbox)
 	{
 		// PVThreadWatcher* watcher = new PVThreadWatcher();
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
@@ -140,7 +145,8 @@ class PVProgressBox : public QDialog
 		return progress(f, pbox, ret);
 	}
 
-	template <typename F> static bool progress(F f, QString const& text, QWidget* parent = NULL)
+	template <typename F>
+	static bool progress(F f, QString const& text, QWidget* parent = NULL)
 	{
 		PVProgressBox* pbox = new PVProgressBox(text, parent);
 		return progress(f, pbox);
@@ -175,14 +181,17 @@ class PVProgressBox : public QDialog
 		_cv.notify_one();
 	}
 
-signals:
+  signals:
 	void sig_critical(QString const& title, QString const& msg);
 
   private:
-	static bool process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker,
+	static bool process_worker_thread(__impl::ThreadEndSignal* watcher,
+	                                  boost::thread& worker,
 	                                  PVProgressBox* pbox);
-	static bool process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker,
-	                                  PVProgressBox* pbox, tbb::task_group_context& ctxt);
+	static bool process_worker_thread(__impl::ThreadEndSignal* watcher,
+	                                  boost::thread& worker,
+	                                  PVProgressBox* pbox,
+	                                  tbb::task_group_context& ctxt);
 
   private:
 	void cancel();

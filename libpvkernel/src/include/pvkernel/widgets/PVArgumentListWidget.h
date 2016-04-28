@@ -32,7 +32,8 @@ class PVArgumentListWidget : public QWidget
   public:
 	PVArgumentListWidget(QWidget* parent = NULL);
 	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent = NULL);
-	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList& args,
+	PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
+	                     PVCore::PVArgumentList& args,
 	                     QWidget* parent = NULL);
 	virtual ~PVArgumentListWidget();
 	// bool eventFilter(QObject *obj, QEvent *event);
@@ -51,7 +52,8 @@ class PVArgumentListWidget : public QWidget
 	                                            PVCore::PVArgumentList& args,
 	                                            QWidget* parent = NULL);
 	static bool modify_arguments_dlg(QItemEditorFactory* widget_factory,
-	                                 PVCore::PVArgumentList& args, QWidget* parent = NULL);
+	                                 PVCore::PVArgumentList& args,
+	                                 QWidget* parent = NULL);
 
   private:
 	void init_widgets();
@@ -60,7 +62,7 @@ class PVArgumentListWidget : public QWidget
 	void args_changed_Slot(const QModelIndex& a = QModelIndex(),
 	                       const QModelIndex& b = QModelIndex());
 
-signals:
+  signals:
 	void args_changed_Signal();
 
 	/* public slots: */

@@ -28,8 +28,8 @@ PVRush::PVDBPresets& PVRush::PVDBPresets::get()
 	return obj;
 }
 
-PVRush::PVDBPresets::id_t PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos,
-                                                   QString const& query)
+PVRush::PVDBPresets::id_t
+PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos, QString const& query)
 {
 	QStringList grps = _settings.childGroups();
 	id_t max = 0;
@@ -45,7 +45,9 @@ PVRush::PVDBPresets::id_t PVRush::PVDBPresets::add(QString const& name, PVDBInfo
 	return new_id;
 }
 
-void PVRush::PVDBPresets::set(id_t id, PVDBInfos const& infos, QString const& query,
+void PVRush::PVDBPresets::set(id_t id,
+                              PVDBInfos const& infos,
+                              QString const& query,
                               QString const& name)
 {
 	QString grp = QString::number(id);

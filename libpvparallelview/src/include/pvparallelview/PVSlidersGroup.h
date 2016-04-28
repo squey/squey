@@ -42,7 +42,8 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 	typedef std::vector<range_t> selection_ranges_t;
 
   public:
-	PVSlidersGroup(PVSlidersManager_p sm_p, const axis_id_t& axis_id,
+	PVSlidersGroup(PVSlidersManager_p sm_p,
+	               const axis_id_t& axis_id,
 	               QGraphicsItem* parent = nullptr);
 	~PVSlidersGroup();
 
@@ -72,7 +73,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 
 	selection_ranges_t get_selection_ranges() const;
 
-signals:
+  signals:
 	void selection_sliders_moved(const axis_id_t axis_id);
 
   protected slots:
@@ -86,10 +87,14 @@ signals:
 	 * If id is 0, it is deduced from sliders.
 	 */
 	void add_new_zoom_sliders(id_t id, int64_t y_min, int64_t y_max);
-	void add_new_selection_sliders(PVSelectionAxisSliders* sliders, id_t id, int64_t y_min,
+	void add_new_selection_sliders(PVSelectionAxisSliders* sliders,
+	                               id_t id,
+	                               int64_t y_min,
 	                               int64_t y_max);
-	void add_new_zoomed_selection_sliders(PVZoomedSelectionAxisSliders* sliders, id_t id,
-	                                      int64_t y_min, int64_t y_max);
+	void add_new_zoomed_selection_sliders(PVZoomedSelectionAxisSliders* sliders,
+	                                      id_t id,
+	                                      int64_t y_min,
+	                                      int64_t y_max);
 
 	void del_zoom_sliders(id_t id);
 	void del_selection_sliders(id_t id);

@@ -64,7 +64,10 @@ class PVLayerFilterHeatline : public PVLayerFilter
 	 * @param fmax: Above this frequency, we don't want to select the line.
 	 * @param line_id: The line to set these informations.
 	 */
-	void post(PVLayer& out, const double ratio, const double fmin, const double fmax,
+	void post(PVLayer& out,
+	          const double ratio,
+	          const double fmin,
+	          const double fmax,
 	          const PVRow line_id);
 
 	/**

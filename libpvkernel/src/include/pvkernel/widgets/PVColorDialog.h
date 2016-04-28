@@ -48,7 +48,7 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
 		picker()->set_x1(x1);
 	}
 
-signals:
+  signals:
 	void color_changed(int h);
 
   protected:

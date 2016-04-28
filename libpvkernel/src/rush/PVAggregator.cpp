@@ -53,7 +53,8 @@ void PVRush::PVAggregator::set_stop_condition(bool* cond)
 }
 
 void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start,
-                                               chunk_index nstart, chunk_index nend)
+                                               chunk_index nstart,
+                                               chunk_index nend)
 {
 	// Process from nstart to nend, starting by input_start
 
@@ -83,7 +84,8 @@ void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start
 	process_indexes(_nstart, _nend);
 }
 
-void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
+void PVRush::PVAggregator::process_indexes(chunk_index nstart,
+                                           chunk_index nend,
                                            chunk_index expected_nelts)
 {
 	_nstart = nstart;

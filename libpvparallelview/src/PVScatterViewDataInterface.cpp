@@ -64,8 +64,12 @@ bool PVParallelView::PVScatterViewDataInterface::is_ctxt_cancelled(tbb::task_gro
 	return (ctxt && ctxt->is_group_execution_cancelled());
 }
 
-bool ProcessParamsImpl::params_changed(uint64_t y1_min_, uint64_t y1_max_, uint64_t y2_min_,
-                                       uint64_t y2_max_, int zoom_, double alpha_) const
+bool ProcessParamsImpl::params_changed(uint64_t y1_min_,
+                                       uint64_t y1_max_,
+                                       uint64_t y2_min_,
+                                       uint64_t y2_max_,
+                                       int zoom_,
+                                       double alpha_) const
 {
 	return !(y1_min_ == y1_min && y1_max_ == y1_max && y2_min_ == y2_min && y2_max_ == y2_max &&
 	         zoom_ == zoom && alpha_ == alpha);
@@ -77,8 +81,12 @@ bool PVParallelView::PVScatterViewDataInterface::ProcessParams::can_optimize_tra
 	       ((uint64_t)abs(y2_offset) < (y2_max - y2_min));
 }
 
-void ProcessParamsImpl::set_params(uint64_t y1_min_, uint64_t y1_max_, uint64_t y2_min_,
-                                   uint64_t y2_max_, int zoom_, double alpha_)
+void ProcessParamsImpl::set_params(uint64_t y1_min_,
+                                   uint64_t y1_max_,
+                                   uint64_t y2_min_,
+                                   uint64_t y2_max_,
+                                   int zoom_,
+                                   double alpha_)
 {
 	// Translation
 	if (zoom_ == zoom && alpha_ == alpha && (y1_max - y1_min) == (y1_max_ - y1_min_) &&

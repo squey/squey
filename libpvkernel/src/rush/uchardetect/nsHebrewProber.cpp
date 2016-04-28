@@ -114,7 +114,7 @@ nsProbingState nsHebrewProber::HandleData(const char* aBuf, PRUint32 aLen)
 	if (GetState() == eNotMe)
 		return eNotMe;
 
-	const char* curPtr, *endPtr = aBuf + aLen;
+	const char *curPtr, *endPtr = aBuf + aLen;
 	char cur;
 
 	for (curPtr = (char*)aBuf; curPtr < endPtr; ++curPtr) {

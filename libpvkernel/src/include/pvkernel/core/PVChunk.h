@@ -85,8 +85,7 @@ class PVChunk
 
   protected:
 	// This is what a node in std::list<PVField> looks like !
-	struct __node_list_field
-	{
+	struct __node_list_field {
 		PVCore::PVField f;
 		void* p1;
 		void* p2;
@@ -174,7 +173,8 @@ class PVChunk
 	PVRush::PVRawSourceBase* source() const { return _source; };
 
 	// Only visit one column
-	template <typename F> void visit_column(const PVCol c, F const& f) const
+	template <typename F>
+	void visit_column(const PVCol c, F const& f) const
 	{
 		PVRow r = 0;
 		for (PVElement* elt : c_elements()) {
@@ -196,7 +196,8 @@ class PVChunk
 
 	// Column cache-aware visitor
 	// TODO: at most eight field stream per line!
-	template <typename F> void visit_by_column(F const& f) const
+	template <typename F>
+	void visit_by_column(F const& f) const
 	{
 		PVRow r = 0;
 		for (PVElement* elt : c_elements()) {
@@ -212,7 +213,8 @@ class PVChunk
 		}
 	}
 
-	template <typename F> void visit_by_column(F const& f)
+	template <typename F>
+	void visit_by_column(F const& f)
 	{
 		PVRow r = 0;
 		for (PVElement* elt : elements()) {
@@ -301,8 +303,8 @@ class PVChunkMem : public PVChunk
 
   public:
 	char* begin() const { return (char*)(this + 1); };
-	static PVChunkMem* allocate(size_t size, PVRush::PVRawSourceBase* parent,
-	                            alloc_chunk a = alloc_chunk())
+	static PVChunkMem*
+	allocate(size_t size, PVRush::PVRawSourceBase* parent, alloc_chunk a = alloc_chunk())
 	{
 		size_t size_alloc = sizeof(PVChunkMem<Allocator>) + size + 1;
 		PVChunkMem<Allocator>* p = (PVChunkMem<Allocator>*)(a.allocate(size_alloc));

@@ -16,7 +16,8 @@ namespace PVCore
 namespace __impl
 {
 
-template <class F> static void worker_thread(F f)
+template <class F>
+static void worker_thread(F f)
 {
 	try {
 		f();
@@ -24,7 +25,8 @@ template <class F> static void worker_thread(F f)
 	}
 }
 
-template <class Tret, class F> static void worker_thread(F f, Tret& ret)
+template <class Tret, class F>
+static void worker_thread(F f, Tret& ret)
 {
 	try {
 		ret = f();

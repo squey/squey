@@ -126,8 +126,8 @@ static inline bool str_rscan(char* str, int& pos, int& start, int& len)
 	}
 }
 
-static inline void check_arpa_ip(char* str, int tld1_pos, int tld1_len, int tld2_pos, int tld2_len,
-                                 bool& is_ipv4, bool& is_ipv6)
+static inline void check_arpa_ip(
+    char* str, int tld1_pos, int tld1_len, int tld2_pos, int tld2_len, bool& is_ipv4, bool& is_ipv6)
 {
 	static char ARPA[] = "arpa";
 	static char ARPA_INADDR[] = "in-addr";

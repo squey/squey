@@ -131,8 +131,7 @@ int main()
 	MyObject_p myobj = MyObject_p(new MyObject(42));
 
 	hive.register_object(myobj);
-	hive.register_object(myobj,
-	                     [](MyObject & myo) -> MyObjectProperty * { return &myo.get_prop(); });
+	hive.register_object(myobj, [](MyObject& myo) -> MyObjectProperty* { return &myo.get_prop(); });
 
 	// 1 acteur sur myobj
 	PVHive::PVActor<MyObject> oactor;
@@ -154,7 +153,7 @@ int main()
 	std::cout << "# register observer " << &pobserver << "#  for myobj.get_prop() "
 	          << &(myobj->get_prop()) << std::endl;
 	hive.register_observer(
-	    myobj, [](MyObject & myo) -> MyObjectProperty * { return &myo.get_prop(); }, pobserver);
+	    myobj, [](MyObject& myo) -> MyObjectProperty* { return &myo.get_prop(); }, pobserver);
 
 	std::cout << "# oactor.call(8)" << std::endl;
 	PVACTOR_CALL(oactor, &MyObject::set_i, 8);

@@ -326,8 +326,8 @@ class PVView : public data_tree_view_t
 	 * It sorts idxes based on "col" values.
 	 * "col" is the column id without axis combination modification.
 	 */
-	void sort_indexes(PVCol col, pvcop::db::indexes& idxes,
-	                  tbb::task_group_context* ctxt = NULL) const;
+	void
+	sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::task_group_context* ctxt = NULL) const;
 
 	std::weak_ptr<PVCore::PVSerializeObject> get_last_so() const { return _last_so; }
 	void set_last_so(PVCore::PVSerializeObject_p const& so)

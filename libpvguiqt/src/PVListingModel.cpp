@@ -140,8 +140,8 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
  * PVGuiQt::PVListingModel::headerData
  *
  *****************************************************************************/
-QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation,
-                                             int role) const
+QVariant
+PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	switch (role) {
 	// Horizontal header contains axis labels and Vertical is line number
@@ -215,7 +215,8 @@ void PVGuiQt::PVListingModel::axes_comb_changed()
  * PVGuiQt::PVListingModel::sort
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::sort(PVCol comb_col, Qt::SortOrder order,
+void PVGuiQt::PVListingModel::sort(PVCol comb_col,
+                                   Qt::SortOrder order,
                                    tbb::task_group_context& ctxt)
 {
 	PVCol orig_col = lib_view().get_original_axis_index(comb_col);

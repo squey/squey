@@ -265,7 +265,8 @@ PVCore::PVSerializeArchiveOptions_p Inendi::PVScene::get_default_serialize_optio
 	return ar;
 }
 
-void Inendi::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options,
+void Inendi::PVScene::save_to_file(QString const& path,
+                                   PVCore::PVSerializeArchiveOptions_p options,
                                    bool save_everything)
 {
 	set_path(path);

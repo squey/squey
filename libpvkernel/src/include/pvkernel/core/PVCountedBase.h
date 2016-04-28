@@ -71,7 +71,8 @@ class PVCountedBase
 
 namespace __impl
 {
-template <typename P, typename D> class PVCountedBasePD : public PVCountedBase
+template <typename P, typename D>
+class PVCountedBasePD : public PVCountedBase
 {
   public:
 	PVCountedBasePD(P p, D& d) : PVCountedBase(), _px(p), _deleter(d) {}

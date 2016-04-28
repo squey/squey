@@ -142,7 +142,8 @@ PVWidgets::PVDataTreeModel::index_from_obj(PVCore::PVDataTreeObjectBase const* o
 }
 
 QModelIndex PVWidgets::PVDataTreeModel::index_from_obj_rec(
-    QModelIndex const& cur, PVCore::PVDataTreeObjectWithChildrenBase const* idx_obj,
+    QModelIndex const& cur,
+    PVCore::PVDataTreeObjectWithChildrenBase const* idx_obj,
     PVCore::PVDataTreeObjectBase const* obj_test) const
 {
 	if (!idx_obj) {

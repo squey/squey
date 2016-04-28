@@ -74,7 +74,8 @@ void PVSplunkJsonConverter::equal(rapidjson::Value const& id, rapidjson::Value c
 // between
 ///////////////////////////////////////////////////////////////////////////////
 
-void PVSplunkJsonConverter::between(rapidjson::Value const& id, rapidjson::Value const& begin,
+void PVSplunkJsonConverter::between(rapidjson::Value const& id,
+                                    rapidjson::Value const& begin,
                                     rapidjson::Value const& end)
 {
 	_writer << "(" << id.GetString() << ">=" << begin.GetString() << "AND " << id.GetString()

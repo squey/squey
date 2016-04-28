@@ -25,7 +25,8 @@ subranges
 
 //! A range over which to iterate.
 /** @ingroup algorithms */
-template <typename Value, size_t Align = 1> class PVAlignedBlockedRange
+template <typename Value, size_t Align = 1>
+class PVAlignedBlockedRange
 {
   public:
 	//! Type of a value

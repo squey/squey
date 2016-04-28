@@ -16,7 +16,8 @@
 PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
-                      "Full parallel view", Qt::TopDockWidgetArea)
+                      "Full parallel view",
+                      Qt::TopDockWidgetArea)
 {
 }
 

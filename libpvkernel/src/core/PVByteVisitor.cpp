@@ -12,7 +12,8 @@
 #include <iostream>
 
 uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_serial(uint8_t const* buffer,
-                                                                   size_t sbuf, size_t n,
+                                                                   size_t sbuf,
+                                                                   size_t n,
                                                                    size_t& size_ret)
 {
 	n++;
@@ -33,9 +34,8 @@ uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_serial(uint8_t const
 	return nullptr;
 }
 
-uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(uint8_t const* buffer, size_t sbuf,
-                                                                size_t n, size_t& size_ret,
-                                                                bool* complete)
+uint8_t const* PVCore::PVByteVisitor::__impl::get_nth_slice_sse(
+    uint8_t const* buffer, size_t sbuf, size_t n, size_t& size_ret, bool* complete)
 {
 	if (complete) {
 		*complete = true;

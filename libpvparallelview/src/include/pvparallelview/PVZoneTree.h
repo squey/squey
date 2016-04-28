@@ -66,8 +66,7 @@ class PVZoneTree : public PVZoneTreeBase
 	typedef pdata_tree_t* pdata_tree_pointer_t;
 
   public:
-	struct ProcessData
-	{
+	struct ProcessData {
 		friend class PVZoneTree;
 		friend class __impl::TBBCreateTreeTask;
 		friend class __impl::TBBMergeTreesTask;
@@ -107,18 +106,15 @@ class PVZoneTree : public PVZoneTreeBase
 		uint32_t ntasks;
 	};
 
-	struct PVBranch
-	{
+	struct PVBranch {
 		PVRow* p;
 		size_t count;
 	};
 
   protected:
-	struct PVTreeParams
-	{
+	struct PVTreeParams {
 		// This range is goes from begin (included) to end (*not* included)
-		struct PVRange
-		{
+		struct PVRange {
 			PVRow begin;
 			PVRow end;
 		};
@@ -177,10 +173,10 @@ class PVZoneTree : public PVZoneTreeBase
 		PVRange* _ranges;
 	};
 
-	struct PVTBBFilterSelParams
-	{
+	struct PVTBBFilterSelParams {
 	  public:
-		PVTBBFilterSelParams(PVZoneProcessing const& zp, Inendi::PVSelection const& sel,
+		PVTBBFilterSelParams(PVZoneProcessing const& zp,
+		                     Inendi::PVSelection const& sel,
 		                     PVZoneTree::ProcessData& pdata)
 		    : _zp(zp), _sel(sel), _pdata(pdata)
 		{
@@ -281,9 +277,10 @@ class PVZoneTree : public PVZoneTreeBase
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
-	void filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows,
-	                             PVRow* buf_elts);
-	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows,
+	void
+	filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
+	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel,
+	                                        const PVRow nrows,
 	                                        PVRow* buf_elts);
 
 	uint32_t get_right_axis_count_seq(const uint32_t branch_r) const;

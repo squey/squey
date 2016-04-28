@@ -8,8 +8,7 @@
 #ifndef PVCORE_SSE4DETECTOR_H
 #define PVCORE_SSE4DETECTOR_H
 
-struct CPUIDinfo
-{
+struct CPUIDinfo {
 	unsigned int EAX, EBX, ECX, EDX;
 };
 

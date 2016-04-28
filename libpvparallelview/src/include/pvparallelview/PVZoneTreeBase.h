@@ -23,7 +23,8 @@ class PVHSVColor;
 namespace PVParallelView
 {
 
-template <size_t Bbits> class PVBCICode;
+template <size_t Bbits>
+class PVBCICode;
 
 class PVZoneTreeBase
 {
@@ -54,7 +55,8 @@ class PVZoneTreeBase
 	                           PVBCICode<NBITS_INDEX>* codes) const;
 
   private:
-	size_t browse_tree_bci_from_buffer(const PVRow* elts, PVCore::PVHSVColor const* colors,
+	size_t browse_tree_bci_from_buffer(const PVRow* elts,
+	                                   PVCore::PVHSVColor const* colors,
 	                                   PVBCICode<NBITS_INDEX>* codes) const;
 
   public:

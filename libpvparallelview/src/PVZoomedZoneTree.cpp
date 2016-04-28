@@ -105,10 +105,14 @@ void merge_tlr(PVParallelView::PVZoomedZoneTree::context_t::tls_set_t& tls)
  * compute_bci_projection_y1
  *****************************************************************************/
 
-static inline void compute_bci_projection_y1(const uint64_t y1, const uint64_t y2,
-                                             const uint64_t y_min, const uint64_t y_lim,
-                                             const int shift, const uint32_t mask,
-                                             const uint32_t width, const float beta,
+static inline void compute_bci_projection_y1(const uint64_t y1,
+                                             const uint64_t y2,
+                                             const uint64_t y_min,
+                                             const uint64_t y_lim,
+                                             const int shift,
+                                             const uint32_t mask,
+                                             const uint32_t width,
+                                             const float beta,
                                              PVParallelView::PVZoomedZoneTree::pv_bci_code_t& bci)
 {
 	if (shift < 0) {
@@ -140,10 +144,14 @@ static inline void compute_bci_projection_y1(const uint64_t y1, const uint64_t y
  * compute_bci_projection_y2
  *****************************************************************************/
 
-static inline void compute_bci_projection_y2(const uint64_t y1, const uint64_t y2,
-                                             const uint64_t y_min, const uint64_t y_lim,
-                                             const int shift, const uint32_t mask,
-                                             const uint32_t width, const float beta,
+static inline void compute_bci_projection_y2(const uint64_t y1,
+                                             const uint64_t y2,
+                                             const uint64_t y_min,
+                                             const uint64_t y_lim,
+                                             const int shift,
+                                             const uint32_t mask,
+                                             const uint32_t width,
+                                             const float beta,
                                              PVParallelView::PVZoomedZoneTree::pv_bci_code_t& bci)
 {
 	if (shift < 0) {
@@ -175,10 +183,14 @@ static inline void compute_bci_projection_y2(const uint64_t y1, const uint64_t y
  * compute_sec_coord_count_y1
  *****************************************************************************/
 
-static inline uint32_t compute_sec_coord_count_y1(const uint32_t t1, const uint32_t t2,
-                                                  const uint64_t y_min, const uint64_t y_lim,
-                                                  const int shift, const uint32_t mask,
-                                                  const int zoom, const uint32_t width,
+static inline uint32_t compute_sec_coord_count_y1(const uint32_t t1,
+                                                  const uint32_t t2,
+                                                  const uint64_t y_min,
+                                                  const uint64_t y_lim,
+                                                  const int shift,
+                                                  const uint32_t mask,
+                                                  const int zoom,
+                                                  const uint32_t width,
                                                   const float beta)
 {
 	typedef PVParallelView::PVZoomedZoneTree::pv_bci_code_t bci_code_t;
@@ -246,10 +258,14 @@ static inline uint32_t compute_sec_coord_count_y1(const uint32_t t1, const uint3
  * compute_sec_coord_count_y2
  *****************************************************************************/
 
-static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1, const uint32_t t2,
-                                                  const uint64_t y_min, const uint64_t y_lim,
-                                                  const int shift, const uint32_t mask,
-                                                  const int zoom, const uint32_t width,
+static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
+                                                  const uint32_t t2,
+                                                  const uint64_t y_min,
+                                                  const uint64_t y_lim,
+                                                  const int shift,
+                                                  const uint32_t mask,
+                                                  const int zoom,
+                                                  const uint32_t width,
                                                   const float beta)
 {
 	typedef PVParallelView::PVZoomedZoneTree::pv_bci_code_t bci_code_t;
@@ -317,7 +333,8 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1, const uint3
  * PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree
  *****************************************************************************/
 
-PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow* sel_elts, const PVRow* bg_elts,
+PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow* sel_elts,
+                                                   const PVRow* bg_elts,
                                                    uint32_t max_level)
     : _trees(nullptr)
     , _sel_elts(sel_elts)
@@ -608,10 +625,18 @@ PVParallelView::PVZoomedZoneTree::load_from_file(const char* filename)
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(
-    context_t& ctx, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, uint32_t width,
-    const extract_entries_f& extract_f, const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
-    const float beta, const PVRow* sel_elts) const
+size_t
+PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t& ctx,
+                                                             uint64_t y_min,
+                                                             uint64_t y_max,
+                                                             uint64_t y_lim,
+                                                             int zoom,
+                                                             uint32_t width,
+                                                             const extract_entries_f& extract_f,
+                                                             const PVCore::PVHSVColor* colors,
+                                                             pv_bci_code_t* codes,
+                                                             const float beta,
+                                                             const PVRow* sel_elts) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
@@ -701,10 +726,18 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(
-    context_t& ctx, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, uint32_t width,
-    const extract_entries_f& extract_f, const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
-    const float beta, const PVRow* sel_elts) const
+size_t
+PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t& ctx,
+                                                             uint64_t y_min,
+                                                             uint64_t y_max,
+                                                             uint64_t y_lim,
+                                                             int zoom,
+                                                             uint32_t width,
+                                                             const extract_entries_f& extract_f,
+                                                             const PVCore::PVHSVColor* colors,
+                                                             pv_bci_code_t* codes,
+                                                             const float beta,
+                                                             const PVRow* sel_elts) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
@@ -791,9 +824,17 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(
 }
 
 void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
-    uint64_t y1_min, uint64_t y1_max, uint64_t y2_min, uint64_t y2_max, int zoom, double alpha,
-    PVCore::PVHSVColor const* const colors, PVCore::PVHSVColor* const image, uint32_t image_width,
-    const extract_entries_y1_y2_f& extract_f, PVRow const* const sel_elts,
+    uint64_t y1_min,
+    uint64_t y1_max,
+    uint64_t y2_min,
+    uint64_t y2_max,
+    int zoom,
+    double alpha,
+    PVCore::PVHSVColor const* const colors,
+    PVCore::PVHSVColor* const image,
+    uint32_t image_width,
+    const extract_entries_y1_y2_f& extract_f,
+    PVRow const* const sel_elts,
     tbb::task_group_context* tbb_ctxt) const
 {
 	tbb::task_group_context my_ctxt;
@@ -880,10 +921,18 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(
-    context_t& ctx, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, uint32_t width,
-    const extract_entries_f& extract_f, const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
-    const float beta, const PVRow* sel_elts) const
+size_t
+PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t& ctx,
+                                                             uint64_t y_min,
+                                                             uint64_t y_max,
+                                                             uint64_t y_lim,
+                                                             int zoom,
+                                                             uint32_t width,
+                                                             const extract_entries_f& extract_f,
+                                                             const PVCore::PVHSVColor* colors,
+                                                             pv_bci_code_t* codes,
+                                                             const float beta,
+                                                             const PVRow* sel_elts) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
@@ -903,39 +952,40 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(
 
 	BENCH_START(whole);
 	BENCH_START(extract);
-	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t1_min, t1_max, 0, 1024),
-	                  [&](const tbb::blocked_range2d<uint32_t>& r) {
-		zzt_tls& tls = ctx.get_tls().local();
-		pv_tlr_buffer_t& tlr_buffer = tls.get_tlr_buffer();
-		pv_quadtree_buffer_entry_t* quadtree_buffer = tls.get_quadtree_buffer();
+	tbb::parallel_for(
+	    tbb::blocked_range2d<uint32_t>(t1_min, t1_max, 0, 1024),
+	    [&](const tbb::blocked_range2d<uint32_t>& r) {
+		    zzt_tls& tls = ctx.get_tls().local();
+		    pv_tlr_buffer_t& tlr_buffer = tls.get_tlr_buffer();
+		    pv_quadtree_buffer_entry_t* quadtree_buffer = tls.get_quadtree_buffer();
 
-		// AG: copy this variable to the local stack (or better, register), which
-		// may reduce the number
-		// of loads from the original stack.
-		const PVRow* sel_elts_ = sel_elts;
-		for (uint32_t t1 = r.rows().begin(); t1 != r.rows().end(); ++t1) {
-			for (uint32_t t2 = r.cols().begin(); t2 != r.cols().end(); ++t2) {
-				PVRow tree_idx = (t2 * 1024) + t1;
+		    // AG: copy this variable to the local stack (or better, register), which
+		    // may reduce the number
+		    // of loads from the original stack.
+		    const PVRow* sel_elts_ = sel_elts;
+		    for (uint32_t t1 = r.rows().begin(); t1 != r.rows().end(); ++t1) {
+			    for (uint32_t t2 = r.cols().begin(); t2 != r.cols().end(); ++t2) {
+				    PVRow tree_idx = (t2 * 1024) + t1;
 
-				if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
-					/* when searching for entries using the selection, if there is no
-					 * drawn selected event for the corresponding ZoneTree, it is useless
-					 * to search for a selected event in the quadtree
-					 */
-					continue;
-				}
+				    if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
+					    /* when searching for entries using the selection, if there is no
+					     * drawn selected event for the corresponding ZoneTree, it is useless
+					     * to search for a selected event in the quadtree
+					     */
+					    continue;
+				    }
 
-				/* compute the events number along the secondary coordinate
-				 */
-				const uint32_t y2_count = compute_sec_coord_count_y2(
-				    t1, t2, y_min, y_lim, shift, mask_int_ycoord, zoom, width, beta);
+				    /* compute the events number along the secondary coordinate
+				     */
+				    const uint32_t y2_count = compute_sec_coord_count_y2(
+				        t1, t2, y_min, y_lim, shift, mask_int_ycoord, zoom, width, beta);
 
-				/* lines extraction
-				 */
-				extract_f(_trees[tree_idx], y2_count, quadtree_buffer, tlr_buffer, insert_f);
-			}
-		}
-	});
+				    /* lines extraction
+				     */
+				    extract_f(_trees[tree_idx], y2_count, quadtree_buffer, tlr_buffer, insert_f);
+			    }
+		    }
+		});
 	BENCH_STOP(extract);
 
 	/* merging all TLR buffers
@@ -990,10 +1040,18 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(
-    context_t& ctx, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, uint32_t width,
-    const extract_entries_f& extract_f, const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
-    const float beta, const PVRow* sel_elts) const
+size_t
+PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t& ctx,
+                                                             uint64_t y_min,
+                                                             uint64_t y_max,
+                                                             uint64_t y_lim,
+                                                             int zoom,
+                                                             uint32_t width,
+                                                             const extract_entries_f& extract_f,
+                                                             const PVCore::PVHSVColor* colors,
+                                                             pv_bci_code_t* codes,
+                                                             const float beta,
+                                                             const PVRow* sel_elts) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
@@ -1013,37 +1071,38 @@ size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(
 
 	BENCH_START(whole);
 	BENCH_START(extract);
-	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t2_min, t2_max, 0, 1024),
-	                  [&](const tbb::blocked_range2d<uint32_t>& r) {
-		zzt_tls& tls = ctx.get_tls().local();
-		pv_tlr_buffer_t& tlr_buffer = tls.get_tlr_buffer();
-		pv_quadtree_buffer_entry_t* quadtree_buffer = tls.get_quadtree_buffer();
+	tbb::parallel_for(
+	    tbb::blocked_range2d<uint32_t>(t2_min, t2_max, 0, 1024),
+	    [&](const tbb::blocked_range2d<uint32_t>& r) {
+		    zzt_tls& tls = ctx.get_tls().local();
+		    pv_tlr_buffer_t& tlr_buffer = tls.get_tlr_buffer();
+		    pv_quadtree_buffer_entry_t* quadtree_buffer = tls.get_quadtree_buffer();
 
-		// AG: this copy is wanted. cf. browse_trees_bci_by_y1_tbb.
-		const PVRow* sel_elts_ = sel_elts;
-		for (uint32_t t2 = r.rows().begin(); t2 != r.rows().end(); ++t2) {
-			for (uint32_t t1 = r.cols().begin(); t1 != r.cols().end(); ++t1) {
-				PVRow tree_idx = (t2 * 1024) + t1;
+		    // AG: this copy is wanted. cf. browse_trees_bci_by_y1_tbb.
+		    const PVRow* sel_elts_ = sel_elts;
+		    for (uint32_t t2 = r.rows().begin(); t2 != r.rows().end(); ++t2) {
+			    for (uint32_t t1 = r.cols().begin(); t1 != r.cols().end(); ++t1) {
+				    PVRow tree_idx = (t2 * 1024) + t1;
 
-				if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
-					/* when searching for entries using the selection, if there is no
-					 * drawn selected event for the corresponding ZoneTree, it is useless
-					 * to search for a selected event in the quadtree
-					 */
-					continue;
-				}
+				    if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
+					    /* when searching for entries using the selection, if there is no
+					     * drawn selected event for the corresponding ZoneTree, it is useless
+					     * to search for a selected event in the quadtree
+					     */
+					    continue;
+				    }
 
-				/* compute the events number along the secondary coordinate
-				 */
-				const uint32_t y1_count = compute_sec_coord_count_y1(
-				    t1, t2, y_min, y_lim, shift, mask_int_ycoord, zoom, width, beta);
+				    /* compute the events number along the secondary coordinate
+				     */
+				    const uint32_t y1_count = compute_sec_coord_count_y1(
+				        t1, t2, y_min, y_lim, shift, mask_int_ycoord, zoom, width, beta);
 
-				/* lines extraction
-				 */
-				extract_f(_trees[tree_idx], y1_count, quadtree_buffer, tlr_buffer, insert_f);
-			}
-		}
-	});
+				    /* lines extraction
+				     */
+				    extract_f(_trees[tree_idx], y1_count, quadtree_buffer, tlr_buffer, insert_f);
+			    }
+		    }
+		});
 	BENCH_STOP(extract);
 
 	/* merging all TLR buffers

@@ -31,7 +31,8 @@ namespace PVHive
  * - for "about_to_be_deleted" event:
  *   void connect_about_to_be_deleted(QObject* receiver, const char *slot);
  */
-template <class T> class PVObserverSignal : public __impl::PVRefreshSignal, public PVObserver<T>
+template <class T>
+class PVObserverSignal : public __impl::PVRefreshSignal, public PVObserver<T>
 {
   public:
 	PVObserverSignal(QObject* parent = NULL) : __impl::PVRefreshSignal(parent), PVObserver<T>() {}

@@ -352,7 +352,8 @@ void PVWidgets::__impl::PVAbstractRangeRamp::max_cursor_moved(int value)
  *****************************************************************************/
 
 PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(const double& min_limit,
-                                                        const double& max_limit, QWidget* parent)
+                                                        const double& max_limit,
+                                                        QWidget* parent)
     : QWidget(parent)
     , _limit_min(min_limit)
     , _min(min_limit)

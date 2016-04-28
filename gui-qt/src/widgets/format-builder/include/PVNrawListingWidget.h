@@ -46,7 +46,7 @@ class PVNrawListingWidget : public QWidget
 	void set_axes_name_selected_row_Slot();
 	void set_axes_type_selected_row_Slot();
 
-signals:
+  signals:
 	void set_axes_name_from_nraw(int row);
 	void set_axes_type_from_nraw(int row);
 

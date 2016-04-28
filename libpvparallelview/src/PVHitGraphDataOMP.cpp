@@ -31,7 +31,7 @@ PVParallelView::PVHitGraphDataOMP::omp_ctx_t::omp_ctx_t(uint32_t size)
 	// "size" is the number of integers of a thread-specific buffer
 	// (thus = nblocks * size_int_block)
 	_core_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	_buffers = new uint32_t* [_core_num];
+	_buffers = new uint32_t*[_core_num];
 	_buffer_size = size;
 
 	for (uint32_t i = 0; i < _core_num; ++i) {
@@ -91,9 +91,14 @@ static void merge_ctx_buffers(uint32_t* __restrict buffer,
 //
 
 // Optimised version for 1 block, no-selection
-static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                                const int zoom, const double alpha, uint32_t* buffer,
-                                PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx, size_t nbits,
+static void count_y1_omp_sse_v4(const PVRow row_count,
+                                const uint32_t* col_y1,
+                                const uint64_t y_min,
+                                const int zoom,
+                                const double alpha,
+                                uint32_t* buffer,
+                                PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx,
+                                size_t nbits,
                                 size_t size_block_int)
 {
 	const int idx_shift = (32 - nbits) - zoom;
@@ -177,10 +182,16 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, c
 }
 
 // Version for N blocks (N >= 2), no-selection
-static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                                const int zoom, const double alpha, uint32_t* buffer,
-                                int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx,
-                                size_t nbits, size_t size_block_int)
+static void count_y1_omp_sse_v4(const PVRow row_count,
+                                const uint32_t* col_y1,
+                                const uint64_t y_min,
+                                const int zoom,
+                                const double alpha,
+                                uint32_t* buffer,
+                                int block_count,
+                                PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx,
+                                size_t nbits,
+                                size_t size_block_int)
 {
 	const int idx_shift = (32 - nbits) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
@@ -266,10 +277,16 @@ static void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, c
 }
 
 // Version for N blocks (N>=1), with selection
-void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1,
-                             const Inendi::PVSelection& selection, const uint64_t y_min,
-                             const int zoom, const double& alpha, uint32_t* buffer, int block_count,
-                             PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx, size_t nbits,
+void count_y1_sel_omp_sse_v4(const PVRow row_count,
+                             const uint32_t* col_y1,
+                             const Inendi::PVSelection& selection,
+                             const uint64_t y_min,
+                             const int zoom,
+                             const double& alpha,
+                             uint32_t* buffer,
+                             int block_count,
+                             PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx,
+                             size_t nbits,
                              size_t size_block_int)
 {
 	static DECLARE_ALIGN(16) __m128i mask[16] = {
@@ -399,7 +416,8 @@ void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p,
 	}
 }
 
-void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p, PVHitGraphBuffer& buf,
+void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p,
+                                                    PVHitGraphBuffer& buf,
                                                     Inendi::PVSelection const& sel) const
 {
 	int nblocks_ = std::min((uint32_t)p.nblocks, nblocks() - p.block_start);

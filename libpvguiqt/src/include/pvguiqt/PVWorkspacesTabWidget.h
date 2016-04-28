@@ -177,7 +177,7 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	inline Inendi::PVRoot const& get_root() const { return _root; }
 	inline Inendi::PVRoot& get_root() { return _root; }
 
-signals:
+  signals:
 	/*! \brief Signal emitted when a workspace is dragged outside of a PVMainWindow.
 	 */
 	void workspace_dragged_outside(QWidget*);
@@ -246,7 +246,7 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	 */
 	void tabRemoved(int index) override;
 
-signals:
+  signals:
 	void project_modified(bool, QString = QString());
 
 	/*! \brief Signal emitted when the last source is closed.

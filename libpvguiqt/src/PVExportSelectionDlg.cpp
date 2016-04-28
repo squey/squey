@@ -22,7 +22,8 @@
 #include <pvkernel/core/PVProgressBox.h>
 
 PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
-    Inendi::PVAxesCombination& custom_axes_combination, Inendi::PVView& view,
+    Inendi::PVAxesCombination& custom_axes_combination,
+    Inendi::PVView& view,
     QWidget* parent /* = 0 */)
     : QFileDialog(parent)
 {
@@ -230,21 +231,21 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 
 	// Export selected lines
 	// TODO : We know the number of line to set a progression
-	PVCore::PVProgressBox::progress([&]() {
-		                                while (true) {
-			                                start = sel.find_next_set_bit(start, nrows);
-			                                if (start == PVROW_INVALID_VALUE) {
-				                                break;
-			                                }
-			                                step_count = std::min(step_count, nrows - start);
-			                                nraw.export_lines(ofs, sel, column_indexes, start,
-			                                                  step_count, sep_char, quote_char);
-			                                start += step_count;
-			                                if (pbox.get_cancel_state() !=
-			                                    PVCore::PVProgressBox::CONTINUE) {
-				                                return;
-			                                }
-		                                }
-		                            },
-	                                &pbox);
+	PVCore::PVProgressBox::progress(
+	    [&]() {
+		    while (true) {
+			    start = sel.find_next_set_bit(start, nrows);
+			    if (start == PVROW_INVALID_VALUE) {
+				    break;
+			    }
+			    step_count = std::min(step_count, nrows - start);
+			    nraw.export_lines(ofs, sel, column_indexes, start, step_count, sep_char,
+			                      quote_char);
+			    start += step_count;
+			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
+				    return;
+			    }
+		    }
+		},
+	    &pbox);
 }

@@ -29,8 +29,11 @@
 
 /* optimized version for 1 block
  */
-void count_y1_seq_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                     const int zoom, uint32_t* buffer)
+void count_y1_seq_v4(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint64_t y_min,
+                     const int zoom,
+                     uint32_t* buffer)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -51,8 +54,12 @@ void count_y1_seq_v4(const PVRow row_count, const uint32_t* col_y1, const uint64
 
 /* version for N blocks
  */
-void count_y1_seq_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                     const int zoom, uint32_t* buffer, int block_count)
+void count_y1_seq_v4(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint64_t y_min,
+                     const int zoom,
+                     uint32_t* buffer,
+                     int block_count)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -73,8 +80,11 @@ void count_y1_seq_v4(const PVRow row_count, const uint32_t* col_y1, const uint64
 
 /* optimized version for 1 block
  */
-void count_y1_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                     const int zoom, uint32_t* buffer)
+void count_y1_sse_v4(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint64_t y_min,
+                     const int zoom,
+                     uint32_t* buffer)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -126,8 +136,12 @@ void count_y1_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64
 
 /* version for N blocks
  */
-void count_y1_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                     const int zoom, uint32_t* buffer, int block_count)
+void count_y1_sse_v4(const PVRow row_count,
+                     const uint32_t* col_y1,
+                     const uint64_t y_min,
+                     const int zoom,
+                     uint32_t* buffer,
+                     int block_count)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -181,12 +195,11 @@ void count_y1_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64
 	}
 }
 
-struct omp_ctx_t
-{
+struct omp_ctx_t {
 	omp_ctx_t(uint32_t size = BUFFER_SIZE)
 	{
 		_core_num = PVCore::PVHardwareConcurrency::get_logical_core_number();
-		_buffers = new uint32_t* [_core_num];
+		_buffers = new uint32_t*[_core_num];
 		_buffer_size = size;
 
 		for (uint32_t i = 0; i < _core_num; ++i) {
@@ -232,8 +245,12 @@ struct omp_ctx_t
 
 /* optimized version for 1 block
  */
-void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                         const int zoom, uint32_t* buffer, omp_ctx_t& ctx)
+void count_y1_omp_sse_v4(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const uint64_t y_min,
+                         const int zoom,
+                         uint32_t* buffer,
+                         omp_ctx_t& ctx)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -306,8 +323,13 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const ui
 
 /* version for N blocks
  */
-void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min,
-                         const int zoom, uint32_t* buffer, int block_count, omp_ctx_t& ctx)
+void count_y1_omp_sse_v4(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const uint64_t y_min,
+                         const int zoom,
+                         uint32_t* buffer,
+                         int block_count,
+                         omp_ctx_t& ctx)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -386,9 +408,13 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const ui
  * raw algorithms with selection
  *****************************************************************************/
 
-void count_y1_sel_seq_v4(const PVRow row_count, const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection, const uint64_t y_min, const int zoom,
-                         uint32_t* buffer, int block_count)
+void count_y1_sel_seq_v4(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const Inendi::PVSelection& selection,
+                         const uint64_t y_min,
+                         const int zoom,
+                         uint32_t* buffer,
+                         int block_count)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -410,9 +436,13 @@ void count_y1_sel_seq_v4(const PVRow row_count, const uint32_t* col_y1,
 	}
 }
 
-void count_y1_sel_sse_v4(const PVRow row_count, const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection, const uint64_t y_min, const int zoom,
-                         uint32_t* buffer, int block_count)
+void count_y1_sel_sse_v4(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const Inendi::PVSelection& selection,
+                         const uint64_t y_min,
+                         const int zoom,
+                         uint32_t* buffer,
+                         int block_count)
 {
 	static DECLARE_ALIGN(16) __m128i mask[16] = {
 	    _mm_set_epi32(0, 0, 0, 0),    _mm_set_epi32(0, 0, 0, -1),   _mm_set_epi32(0, 0, -1, 0),
@@ -481,9 +511,14 @@ void count_y1_sel_sse_v4(const PVRow row_count, const uint32_t* col_y1,
 	}
 }
 
-void count_y1_sel_omp_v4(const PVRow row_count, const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection, const uint64_t y_min, const int zoom,
-                         uint32_t* buffer, int block_count, omp_ctx_t& ctx)
+void count_y1_sel_omp_v4(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const Inendi::PVSelection& selection,
+                         const uint64_t y_min,
+                         const int zoom,
+                         uint32_t* buffer,
+                         int block_count,
+                         omp_ctx_t& ctx)
 {
 
 	const int idx_shift = (32 - NBITS) - zoom;
@@ -525,9 +560,14 @@ void count_y1_sel_omp_v4(const PVRow row_count, const uint32_t* col_y1,
 	}
 }
 
-void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1,
-                             const Inendi::PVSelection& selection, const uint64_t y_min,
-                             const int zoom, uint32_t* buffer, int block_count, omp_ctx_t& ctx)
+void count_y1_sel_omp_sse_v4(const PVRow row_count,
+                             const uint32_t* col_y1,
+                             const Inendi::PVSelection& selection,
+                             const uint64_t y_min,
+                             const int zoom,
+                             uint32_t* buffer,
+                             int block_count,
+                             omp_ctx_t& ctx)
 {
 	static DECLARE_ALIGN(16) __m128i mask[16] = {
 	    _mm_set_epi32(0, 0, 0, 0),    _mm_set_epi32(0, 0, 0, -1),   _mm_set_epi32(0, 0, -1, 0),
@@ -617,30 +657,39 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1,
 	}
 }
 
-void count_y1_sel_seq_v5(const PVRow row_count, const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection, const uint64_t y_min, const int zoom,
-                         uint32_t* buffer, int block_count)
+void count_y1_sel_seq_v5(const PVRow row_count,
+                         const uint32_t* col_y1,
+                         const Inendi::PVSelection& selection,
+                         const uint64_t y_min,
+                         const int zoom,
+                         uint32_t* buffer,
+                         int block_count)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
 	const uint32_t zoom_shift = 32 - zoom;
 	const int32_t base_y = y_min >> zoom_shift;
 
-	selection.visit_selected_lines([=](const PVRow r) {
-		                               const uint32_t y = col_y1[r];
-		                               const int32_t base = y >> zoom_shift;
-		                               int p = base - base_y;
-		                               if ((p >= 0) && (p < block_count)) {
-			                               const uint32_t idx = (y >> idx_shift) & idx_mask;
-			                               ++buffer[(p << NBITS) + idx];
-		                               }
-		                           },
-	                               row_count);
+	selection.visit_selected_lines(
+	    [=](const PVRow r) {
+		    const uint32_t y = col_y1[r];
+		    const int32_t base = y >> zoom_shift;
+		    int p = base - base_y;
+		    if ((p >= 0) && (p < block_count)) {
+			    const uint32_t idx = (y >> idx_shift) & idx_mask;
+			    ++buffer[(p << NBITS) + idx];
+		    }
+		},
+	    row_count);
 }
 
-void count_y1_sel_packed_v5(const PVRow row_count, const uint32_t* col_y1,
-                            const Inendi::PVSelection& selection, const uint64_t y_min,
-                            const int zoom, uint32_t* buffer, int block_count)
+void count_y1_sel_packed_v5(const PVRow row_count,
+                            const uint32_t* col_y1,
+                            const Inendi::PVSelection& selection,
+                            const uint64_t y_min,
+                            const int zoom,
+                            uint32_t* buffer,
+                            int block_count)
 {
 	const int idx_shift = (32 - NBITS) - zoom;
 	const uint32_t idx_mask = (1 << NBITS) - 1;
@@ -699,8 +748,12 @@ void count_y1_sel_packed_v5(const PVRow row_count, const uint32_t* col_y1,
  * public API
  *****************************************************************************/
 
-uint32_t* hist_plotted_seq(const uint32_t y_min, const int zoom, uint32_t* buffer,
-                           const uint32_t* col, const PVRow row_count, int block_count)
+uint32_t* hist_plotted_seq(const uint32_t y_min,
+                           const int zoom,
+                           uint32_t* buffer,
+                           const uint32_t* col,
+                           const PVRow row_count,
+                           int block_count)
 {
 	if (block_count == 1) {
 		count_y1_seq_v4(row_count, col, y_min, zoom, buffer);
@@ -711,8 +764,12 @@ uint32_t* hist_plotted_seq(const uint32_t y_min, const int zoom, uint32_t* buffe
 	return buffer;
 }
 
-uint32_t* hist_plotted_sse(const uint32_t y_min, const int zoom, uint32_t* buffer,
-                           const uint32_t* col, const PVRow row_count, int block_count)
+uint32_t* hist_plotted_sse(const uint32_t y_min,
+                           const int zoom,
+                           uint32_t* buffer,
+                           const uint32_t* col,
+                           const PVRow row_count,
+                           int block_count)
 {
 	if (block_count == 1) {
 		count_y1_sse_v4(row_count, col, y_min, zoom, buffer);
@@ -723,8 +780,12 @@ uint32_t* hist_plotted_sse(const uint32_t y_min, const int zoom, uint32_t* buffe
 	return buffer;
 }
 
-uint32_t* hist_plotted_omp_sse(const uint32_t y_min, const int zoom, uint32_t* buffer,
-                               const uint32_t* col, const PVRow row_count, int block_count,
+uint32_t* hist_plotted_omp_sse(const uint32_t y_min,
+                               const int zoom,
+                               uint32_t* buffer,
+                               const uint32_t* col,
+                               const PVRow row_count,
+                               int block_count,
                                omp_ctx_t& ctx)
 {
 	if (block_count == 1) {
@@ -760,9 +821,13 @@ bool compare(uint32_t* ref, uint32_t* tab, int block_count)
 	return ret;
 }
 
-void test_no_sel(const size_t real_buffer_size, const uint32_t y_min, const int zoom,
-                 PVParallelView::PVZoneTree const& /*zt*/, const uint32_t* col_a,
-                 const size_t row_count, const int block_count)
+void test_no_sel(const size_t real_buffer_size,
+                 const uint32_t y_min,
+                 const int zoom,
+                 PVParallelView::PVZoneTree const& /*zt*/,
+                 const uint32_t* col_a,
+                 const size_t row_count,
+                 const int block_count)
 {
 	/* sequential
 	 */
@@ -818,9 +883,14 @@ void test_no_sel(const size_t real_buffer_size, const uint32_t y_min, const int 
 	delete[] hist_omp_sse;
 }
 
-void test_sel(const size_t real_buffer_size, const uint32_t y_min, const int zoom,
-              const Inendi::PVSelection& selection, PVParallelView::PVZoneTree const& /*zt*/,
-              const uint32_t* col_a, const size_t row_count, const int block_count)
+void test_sel(const size_t real_buffer_size,
+              const uint32_t y_min,
+              const int zoom,
+              const Inendi::PVSelection& selection,
+              PVParallelView::PVZoneTree const& /*zt*/,
+              const uint32_t* col_a,
+              const size_t row_count,
+              const int block_count)
 {
 	/* basic one
 	 */
@@ -939,7 +1009,8 @@ int main(int argc, char** argv)
 	if (zoom == 0) {
 		zoom = 1;
 		std::cout << "INFO: setting zoom to 1 because block algorithm have an "
-		             "exception for zoom == 0" << std::endl;
+		             "exception for zoom == 0"
+		          << std::endl;
 	}
 
 	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);

@@ -13,8 +13,7 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
-struct pouet
-{
+struct pouet {
 	pouet* get_addr() { return this; }
 };
 

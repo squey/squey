@@ -26,7 +26,8 @@ class PVSourceDescription
 	PVSourceDescription() : _inputs(), _source_creator_p(), _format() {}
 
 	PVSourceDescription(const PVRush::PVInputType::list_inputs& inputs,
-	                    PVRush::PVSourceCreator_p source_creator_p, const PVRush::PVFormat& format)
+	                    PVRush::PVSourceCreator_p source_creator_p,
+	                    const PVRush::PVFormat& format)
 	    : _inputs(inputs), _source_creator_p(source_creator_p), _format(format)
 	{
 	}

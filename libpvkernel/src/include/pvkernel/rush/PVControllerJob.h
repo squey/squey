@@ -54,8 +54,13 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
   public:
 	/*! \brief Create a PVControllerJob object.
 	 */
-	PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc,
-	                PVAggregator& agg, PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter,
+	PVControllerJob(chunk_index begin,
+	                chunk_index end,
+	                chunk_index n_elts,
+	                stop_cdtion sc,
+	                PVAggregator& agg,
+	                PVFilter::PVChunkFilterByElt& filter,
+	                PVOutput& out_filter,
 	                size_t ntokens);
 	PVControllerJob(PVControllerJob const&) = delete;
 	PVControllerJob(PVControllerJob&&) = delete;
@@ -88,7 +93,7 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 	void job_has_run();                  // Called when the job has finish to run
 	void job_has_run_no_output_update(); // Called when the job has finish to run
 
-signals:
+  signals:
 	void job_done_signal();
 
   private:

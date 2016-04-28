@@ -39,10 +39,14 @@ static inline double get_scale_factor(uint32_t zoom)
 	return pow(2, zoom);
 }
 
-static inline void compute_bci_projection_y2(const uint64_t y1, const uint64_t y2,
-                                             const uint64_t y_min, const uint64_t y_lim,
-                                             const int shift, const uint32_t mask,
-                                             const uint32_t width, const float beta,
+static inline void compute_bci_projection_y2(const uint64_t y1,
+                                             const uint64_t y2,
+                                             const uint64_t y_min,
+                                             const uint64_t y_lim,
+                                             const int shift,
+                                             const uint32_t mask,
+                                             const uint32_t width,
+                                             const float beta,
                                              bci_code_t& bci)
 {
 	bci.s.l = ((y1 - y_min) >> shift) & mask;
@@ -62,10 +66,14 @@ static inline void compute_bci_projection_y2(const uint64_t y1, const uint64_t y
 	}
 }
 
-static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1, const uint32_t t2,
-                                                  const uint64_t y_min, const uint64_t y_lim,
-                                                  const int shift, const uint32_t mask,
-                                                  const int zoom, const uint32_t width,
+static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
+                                                  const uint32_t t2,
+                                                  const uint64_t y_min,
+                                                  const uint64_t y_lim,
+                                                  const int shift,
+                                                  const uint32_t mask,
+                                                  const int zoom,
+                                                  const uint32_t width,
                                                   const float beta)
 {
 	bci_code_t bci_min, bci_max;
@@ -101,9 +109,11 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1, const uint3
 	} else if (bci_max.s.type == bci_code_t::STRAIGHT) {
 		// partial top side
 
-		std::cout << "bci: " << std::endl << "  min: " << bci_min.s.type << " " << bci_min.s.l
-		          << " " << bci_min.s.r << std::endl << "  max: " << bci_max.s.type << " "
-		          << bci_max.s.l << " " << bci_max.s.r << std::endl;
+		std::cout << "bci: " << std::endl
+		          << "  min: " << bci_min.s.type << " " << bci_min.s.l << " " << bci_min.s.r
+		          << std::endl
+		          << "  max: " << bci_max.s.type << " " << bci_max.s.l << " " << bci_max.s.r
+		          << std::endl;
 		// opposite side count
 		y2_count = bci_min.s.r;
 
@@ -133,8 +143,7 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1, const uint3
 /*****************************************************************************
  * input data definition and initialization.
  */
-struct data_t
-{
+struct data_t {
 	uint32_t* col_a;
 	uint32_t* col_b;
 	size_t size;
@@ -162,10 +171,14 @@ void init_data(data_t& data, size_t num)
 /* to make the next function using C name convention, not C++ one
  */
 extern "C" {
-__attribute__((noinline)) void extract(quadtree_t& qt, uint64_t y1_min, uint64_t y1_max,
-                                       uint32_t zoom, uint64_t y2_count,
+__attribute__((noinline)) void extract(quadtree_t& qt,
+                                       uint64_t y1_min,
+                                       uint64_t y1_max,
+                                       uint32_t zoom,
+                                       uint64_t y2_count,
                                        quadtree_buffer_entry_t* buffer,
-                                       const insert_entry_f& insert_f, tlr_buffer_t& tlr)
+                                       const insert_entry_f& insert_f,
+                                       tlr_buffer_t& tlr)
 {
 	qt.get_first_from_y1(y1_min, y1_max, zoom, y2_count, buffer, insert_f, tlr);
 }
@@ -183,7 +196,8 @@ void usage(const char* program)
 	std::cerr << "\tzoom : zoom level in [0,21]" << std::endl;
 	std::cerr << std::endl;
 	std::cerr << "use option --toggle-collect=extract with valgrind to observ "
-	             "extraction" << std::endl;
+	             "extraction"
+	          << std::endl;
 }
 
 /*****************************************************************************

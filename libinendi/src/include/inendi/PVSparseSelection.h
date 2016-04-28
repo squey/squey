@@ -27,8 +27,11 @@ class PVSparseSelection
 	typedef uint32_t chunk_index_t;
 	typedef uint64_t chunk_t;
 
-	typedef std::map<chunk_index_t, chunk_t, std::less<chunk_index_t>,
-	                 tbb::tbb_allocator<std::pair<chunk_index_t, chunk_t>>> map_chunks_t;
+	typedef std::map<chunk_index_t,
+	                 chunk_t,
+	                 std::less<chunk_index_t>,
+	                 tbb::tbb_allocator<std::pair<chunk_index_t, chunk_t>>>
+	    map_chunks_t;
 	// typedef std::map<chunk_index_t, chunk_t> map_chunks_t;
 
   private:
@@ -77,7 +80,8 @@ class PVSparseSelection
 		return (it_c->second) & (1UL << (bit_to_chunk_bit(bit)));
 	}
 
-	template <class F> void visit_selected_lines(F const& f) const
+	template <class F>
+	void visit_selected_lines(F const& f) const
 	{
 		map_chunks_t::const_iterator it;
 		for (it = _chunks.begin(); it != _chunks.end(); it++) {
@@ -102,7 +106,8 @@ class PVSparseSelection
 		}
 	}
 
-	template <class L> inline void to_list(L& l) const
+	template <class L>
+	inline void to_list(L& l) const
 	{
 		visit_selected_lines([=, &l](size_t b) { l.push_back(b); });
 	}

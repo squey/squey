@@ -15,7 +15,8 @@
  * PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders
  *****************************************************************************/
 
-PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders(QGraphicsItem* parent, PVSlidersManager_p sm_p,
+PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders(QGraphicsItem* parent,
+                                                     PVSlidersManager_p sm_p,
                                                      PVSlidersGroup* group)
     : PVAbstractRangeAxisSliders(parent, sm_p, group, "zoom"), _zsu_obs(this)
 {

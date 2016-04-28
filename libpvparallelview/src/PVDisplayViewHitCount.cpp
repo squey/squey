@@ -25,7 +25,8 @@ PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
  * PVDisplays::PVDisplayViewHitCount::create_widget
  *****************************************************************************/
 
-QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view, PVCol axis_comb,
+QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view,
+                                                          PVCol axis_comb,
                                                           QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);

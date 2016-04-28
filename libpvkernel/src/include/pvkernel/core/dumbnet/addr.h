@@ -16,12 +16,10 @@
 #define ADDR_TYPE_IP 2   /* Internet Protocol v4 */
 #define ADDR_TYPE_IP6 3  /* Internet Protocol v6 */
 
-struct addr
-{
+struct addr {
 	uint16_t addr_type;
 	uint16_t addr_bits;
-	union
-	{
+	union {
 		eth_addr_t __eth;
 		ip_addr_t __ip;
 		ip6_addr_t __ip6;

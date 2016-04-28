@@ -27,7 +27,8 @@ class PVLayerFilterCreateLayers : public PVLayerFilter
 {
   public:
 	PVLayerFilterCreateLayers(
-	    QString section_name, QMap<QString, QStringList> layers_regex,
+	    QString section_name,
+	    QMap<QString, QStringList> layers_regex,
 	    PVCore::PVArgumentList const& l = PVLayerFilterCreateLayers::default_args());
 
   public:

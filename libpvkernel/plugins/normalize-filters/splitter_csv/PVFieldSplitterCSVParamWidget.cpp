@@ -205,8 +205,9 @@ void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
 	QString txt_info = tr("Recommanded number of fields") + QString(":\n");
 	std::vector<std::pair<PVCol, PVRow>>::const_iterator it_fr;
 	for (it_fr = sorted_freq.begin(); it_fr != sorted_freq.end(); it_fr++) {
-		txt_info += tr("\t%1\t (matches %2% of the elements)").arg(it_fr->first).arg(
-		    ((double)(it_fr->second) / (double)(data.size())) * 100.0);
+		txt_info += tr("\t%1\t (matches %2% of the elements)")
+		                .arg(it_fr->first)
+		                .arg(((double)(it_fr->second) / (double)(data.size())) * 100.0);
 		txt_info += QString("\n");
 	}
 

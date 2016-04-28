@@ -42,7 +42,9 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	friend class __impl::PVListStringsDelegate;
 
   public:
-	PVAbstractListStatsDlg(Inendi::PVView_sp& view, PVCol c, PVStatsModel* model,
+	PVAbstractListStatsDlg(Inendi::PVView_sp& view,
+	                       PVCol c,
+	                       PVStatsModel* model,
 	                       QWidget* parent = nullptr);
 
 	void init(Inendi::PVView_sp& view);
@@ -154,7 +156,8 @@ class PVListStringsDelegate : public QStyledItemDelegate
 	PVListStringsDelegate(PVAbstractListStatsDlg* parent) : QStyledItemDelegate(parent) {}
 
   protected:
-	void paint(QPainter* painter, const QStyleOptionViewItem& option,
+	void paint(QPainter* painter,
+	           const QStyleOptionViewItem& option,
 	           const QModelIndex& index) const override;
 
 	PVGuiQt::PVAbstractListStatsDlg* d() const;

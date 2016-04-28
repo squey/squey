@@ -94,7 +94,8 @@ class PVQueryBuilderJsonConverter
 
 	/** Generate between clause
 	 */
-	virtual void between(rapidjson::Value const& id, rapidjson::Value const& begin,
+	virtual void between(rapidjson::Value const& id,
+	                     rapidjson::Value const& begin,
 	                     rapidjson::Value const& end) = 0;
 
 	/** Generate ends_with clause
@@ -158,7 +159,8 @@ class PVQueryBuilderJsonConverter
 	 * inheritance dispatching with template and this is a PVQueryBuilderJsonConverter
 	 * and not a derived pointer.
 	 */
-	template <class C, class F, class... T> void not_(F fun, T&&... params)
+	template <class C, class F, class... T>
+	void not_(F fun, T&&... params)
 	{
 		pre_not_();
 

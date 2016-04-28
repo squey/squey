@@ -86,8 +86,12 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	};
 
   public:
-	PVScatterView(Inendi::PVView_sp& pvview_sp, PVZonesManager const& zm, PVCol const axis_index,
-	              PVZonesProcessor& zp_bg, PVZonesProcessor& zp_sel, QWidget* parent = nullptr);
+	PVScatterView(Inendi::PVView_sp& pvview_sp,
+	              PVZonesManager const& zm,
+	              PVCol const axis_index,
+	              PVZonesProcessor& zp_bg,
+	              PVZonesProcessor& zp_sel,
+	              QWidget* parent = nullptr);
 	~PVScatterView();
 
   public:

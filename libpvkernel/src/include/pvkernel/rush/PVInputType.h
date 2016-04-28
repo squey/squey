@@ -35,9 +35,12 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	typedef list_inputs list_inputs_desc;
 
   public:
-	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats,
-	                          list_inputs& inputs, QString& format,
-	                          PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const = 0;
+	virtual bool createWidget(hash_formats const& formats,
+	                          hash_formats& new_formats,
+	                          list_inputs& inputs,
+	                          QString& format,
+	                          PVCore::PVArgumentList& args_ext,
+	                          QWidget* parent = NULL) const = 0;
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	virtual QString human_name_serialize() const = 0;
@@ -51,7 +54,8 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj,
 	                                                     QString const& name,
 	                                                     list_inputs& inputs) const = 0;
-	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name,
+	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj,
+	                                  QString const& name,
 	                                  list_inputs& inputs,
 	                                  PVCore::PVSerializeObject_p so_ref) const = 0;
 
@@ -91,12 +95,13 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 		connect((QObject*)this, SIGNAL(edit_format_signal(QDomDocument&, QWidget*)), parent,
 		        SLOT(edit_format_Slot(QDomDocument&, QWidget*)));
 	}
-signals:
+  signals:
 	void edit_format_signal(QString const& path, QWidget* parent) const;
 	void edit_format_signal(QDomDocument& doc, QWidget* parent) const;
 };
 
-template <typename T> class PVInputTypeDesc : public PVInputType
+template <typename T>
+class PVInputTypeDesc : public PVInputType
 {
   public:
 	virtual PVCore::PVSerializeObject_p
@@ -111,8 +116,10 @@ template <typename T> class PVInputTypeDesc : public PVInputType
 		return obj.list<list_inputs, std::shared_ptr<T>>(name, inputs, human_name_serialize(), NULL,
 		                                                 descs);
 	}
-	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name,
-	                                  list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const
+	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj,
+	                                  QString const& name,
+	                                  list_inputs& inputs,
+	                                  PVCore::PVSerializeObject_p so_ref) const
 	{
 		obj.list_ref(name, inputs, so_ref);
 	}

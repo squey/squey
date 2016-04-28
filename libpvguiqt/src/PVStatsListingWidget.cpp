@@ -214,7 +214,8 @@ void PVGuiQt::PVStatsListingWidget::toggle_stats_panel_visibility()
 	_stats_panel->setVisible(!_stats_panel->isVisible());
 }
 
-void PVGuiQt::PVStatsListingWidget::update_header_width(int column, int /*old_width*/,
+void PVGuiQt::PVStatsListingWidget::update_header_width(int column,
+                                                        int /*old_width*/,
                                                         int new_width)
 {
 	_stats_panel->setColumnWidth(column, new_width);
@@ -341,7 +342,8 @@ std::thread PVGuiQt::__impl::PVCellWidgetBase::_thread = std::thread();
 tbb::task_group_context* PVGuiQt::__impl::PVCellWidgetBase::_ctxt = new tbb::task_group_context();
 bool PVGuiQt::__impl::PVCellWidgetBase::_thread_running = false;
 
-PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table, Inendi::PVView const& view,
+PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
+                                                    Inendi::PVView const& view,
                                                     QTableWidgetItem* item)
     : _table(table)
     , _view(view)

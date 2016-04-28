@@ -50,7 +50,8 @@ void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file 
 	fout.close();
 }
 
-std::string PVRush::PVUtils::safe_export(std::string str, const std::string& sep_char,
+std::string PVRush::PVUtils::safe_export(std::string str,
+                                         const std::string& sep_char,
                                          const std::string& quote_char)
 {
 	static std::string escaped_quote("\\" + quote_char);
@@ -72,7 +73,8 @@ std::string PVRush::PVUtils::safe_export(std::string str, const std::string& sep
 	return str;
 }
 
-void PVRush::PVUtils::safe_export(QStringList& str_list, const std::string& sep_char,
+void PVRush::PVUtils::safe_export(QStringList& str_list,
+                                  const std::string& sep_char,
                                   const std::string& quote_char)
 {
 	for (QString& str : str_list) {

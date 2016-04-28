@@ -46,8 +46,7 @@ namespace __impl
  */
 struct PVListingVisibilityObserver
     : public PVHive::PVFuncObserver<Inendi::PVView,
-                                    FUNC(Inendi::PVView::toggle_listing_unselected_visibility)>
-{
+                                    FUNC(Inendi::PVView::toggle_listing_unselected_visibility)> {
 	/**
 	 * Save the ListingModel to be updated.
 	 *
@@ -78,8 +77,7 @@ struct PVListingVisibilityObserver
  */
 struct PVListingVisibilityZombieObserver
     : public PVHive::PVFuncObserver<Inendi::PVView,
-                                    FUNC(Inendi::PVView::toggle_listing_zombie_visibility)>
-{
+                                    FUNC(Inendi::PVView::toggle_listing_zombie_visibility)> {
 	/**
 	 * Save the ListingModel to be updated.
 	 *

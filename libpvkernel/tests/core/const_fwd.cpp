@@ -13,8 +13,7 @@
 
 #include "is_const.h"
 
-struct A
-{
+struct A {
 	bool is_const() { return false; }
 	bool is_const() const { return true; }
 

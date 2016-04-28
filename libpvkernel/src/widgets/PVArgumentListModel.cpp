@@ -91,8 +91,8 @@ Qt::ItemFlags PVWidgets::PVArgumentListModel::flags(const QModelIndex& index) co
  * PVWidgets::PVArgumentListModel::headerData
  *
  *****************************************************************************/
-QVariant PVWidgets::PVArgumentListModel::headerData(int section, Qt::Orientation orientation,
-                                                    int role) const
+QVariant
+PVWidgets::PVArgumentListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
@@ -128,7 +128,8 @@ void PVWidgets::PVArgumentListModel::set_args(PVCore::PVArgumentList& args)
  * PVWidgets::PVArgumentListModel::setData
  *
  *****************************************************************************/
-bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index, const QVariant& value,
+bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index,
+                                             const QVariant& value,
                                              int role)
 {
 	if (_args == NULL || index.column() != 0 || role != Qt::EditRole)

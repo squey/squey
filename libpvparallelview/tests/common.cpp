@@ -125,7 +125,10 @@ Inendi::PVView_sp& get_view_sp()
 }
 
 bool create_plotted_table_from_args(Inendi::PVPlotted::uint_plotted_table_t& norm_plotted,
-                                    PVRow& nrows, PVCol& ncols, int argc, char** argv)
+                                    PVRow& nrows,
+                                    PVCol& ncols,
+                                    int argc,
+                                    char** argv)
 {
 	QString fplotted(argv[1]);
 	if ((fplotted == "0") || (fplotted == "1") || (fplotted == "2")) {

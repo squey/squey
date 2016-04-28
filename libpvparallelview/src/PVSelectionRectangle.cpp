@@ -109,9 +109,8 @@ QGraphicsScene* PVParallelView::PVSelectionRectangle::scene() const
  * PVParallelView::PVSelectionRectangle::add_selection_mode_selector
  *****************************************************************************/
 
-QToolButton*
-PVParallelView::PVSelectionRectangle::add_selection_mode_selector(QWidget* view, QToolBar* toolbar,
-                                                                  QSignalMapper* signal_mapper)
+QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
+    QWidget* view, QToolBar* toolbar, QSignalMapper* signal_mapper)
 {
 	toolbar->setIconSize(QSize(17, 17));
 

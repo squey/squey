@@ -180,7 +180,7 @@ class PVProjectsTabWidget : public QWidget
 	void project_modified(bool, QString = QString());
 	void select_tab_from_current_scene();
 
-signals:
+  signals:
 	void is_empty();
 	void workspace_dragged_outside(QWidget* workspace);
 	void new_project();

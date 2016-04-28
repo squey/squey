@@ -48,8 +48,11 @@ PVRush::PVSplunkPresets::id_t PVRush::PVSplunkPresets::add(QString const& name,
 	return new_id;
 }
 
-void PVRush::PVSplunkPresets::set(id_t id, PVSplunkInfos const& infos, QString const& query,
-                                  QString const& query_type, QString const& name)
+void PVRush::PVSplunkPresets::set(id_t id,
+                                  PVSplunkInfos const& infos,
+                                  QString const& query,
+                                  QString const& query_type,
+                                  QString const& name)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
@@ -68,7 +71,9 @@ void PVRush::PVSplunkPresets::set(id_t id, PVSplunkInfos const& infos, QString c
 	_settings.endGroup();
 }
 
-bool PVRush::PVSplunkPresets::get(id_t id, PVSplunkInfos& infos, QString& query,
+bool PVRush::PVSplunkPresets::get(id_t id,
+                                  PVSplunkInfos& infos,
+                                  QString& query,
                                   QString& query_type)
 {
 	QString grp = QString::number(id);

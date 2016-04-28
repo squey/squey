@@ -12,9 +12,13 @@
 
 #define PV_MAX_INDEX 1000000000
 
-PVRush::PVControllerJob::PVControllerJob(chunk_index begin, chunk_index end, chunk_index n_elts,
-                                         stop_cdtion sc, PVAggregator& agg,
-                                         PVFilter::PVChunkFilterByElt& filter, PVOutput& out_filter,
+PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
+                                         chunk_index end,
+                                         chunk_index n_elts,
+                                         stop_cdtion sc,
+                                         PVAggregator& agg,
+                                         PVFilter::PVChunkFilterByElt& filter,
+                                         PVOutput& out_filter,
                                          size_t ntokens)
     : _elt_invalid_filter(_inv_elts)
     , _job_done(false)

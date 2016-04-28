@@ -11,7 +11,8 @@
 namespace PVCore
 {
 
-template <> bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2)
+template <>
+bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2)
 {
 	if (l1.size() != l2.size()) {
 		return false;
@@ -68,7 +69,8 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 	return true;
 }
 
-bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2,
+bool comp_hash(PVCore::PVArgumentList const& h1,
+               PVCore::PVArgumentList const& h2,
                const PVCore::PVArgumentKeyList& keys)
 {
 	foreach (PVCore::PVArgumentKey key, keys) {

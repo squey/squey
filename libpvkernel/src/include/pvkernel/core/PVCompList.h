@@ -21,7 +21,8 @@ namespace PVCore
  *  \return true if both containers have the same size and that all their elements are equal (and in
  * the same order), false otherwise.
  */
-template <class T> bool comp_list(T const& l1, T const& l2)
+template <class T>
+bool comp_list(T const& l1, T const& l2)
 {
 	typedef typename T::value_type Tv;
 	typedef typename T::const_iterator Tit;
@@ -46,9 +47,11 @@ template <class T> bool comp_list(T const& l1, T const& l2)
 }
 
 // AG: that's a hack so that format comparaison works. Waiting for better... :s
-template <> bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2);
+template <>
+bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2);
 
-template <class K, class V> bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
+template <class K, class V>
+bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
 {
 	typedef typename QHash<K, V>::const_iterator Tit;
 
@@ -68,7 +71,8 @@ template <class K, class V> bool comp_hash(QHash<K, V> const& h1, QHash<K, V> co
 
 bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2);
 
-bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2,
+bool comp_hash(PVCore::PVArgumentList const& h1,
+               PVCore::PVArgumentList const& h2,
                const PVCore::PVArgumentKeyList& keys);
 }
 

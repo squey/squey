@@ -16,8 +16,7 @@
 
 #define MAX_COUNT 100000
 
-struct Obj1
-{
+struct Obj1 {
 	void test() {}
 };
 
@@ -33,7 +32,9 @@ class Obj1Observer : public PVHive::PVObserver<Obj1>
   private:
 };
 
-void thread1(Obj1_p& obj, PVHive::PVActor<Obj1>& actor, uint32_t& nb_success,
+void thread1(Obj1_p& obj,
+             PVHive::PVActor<Obj1>& actor,
+             uint32_t& nb_success,
              uint32_t& nb_exception)
 {
 	PVHive::PVHive::get().register_actor(obj, actor);

@@ -27,8 +27,8 @@ void Inendi::PVMappingFilter::set_dest_array(PVRow size, decimal_storage_type* p
 
 QStringList Inendi::PVMappingFilter::list_types()
 {
-	LIB_CLASS(PVMappingFilter)::list_classes const& map_filters =
-	    LIB_CLASS(PVMappingFilter)::get().get_list();
+	LIB_CLASS(PVMappingFilter)
+	::list_classes const& map_filters = LIB_CLASS(PVMappingFilter)::get().get_list();
 	LIB_CLASS(PVMappingFilter)::list_classes::const_iterator it;
 	QStringList ret;
 	for (it = map_filters.begin(); it != map_filters.end(); it++) {
@@ -43,8 +43,8 @@ QStringList Inendi::PVMappingFilter::list_types()
 
 QStringList Inendi::PVMappingFilter::list_modes(QString const& type)
 {
-	LIB_CLASS(Inendi::PVMappingFilter)::list_classes const& map_filters =
-	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVMappingFilter)
+	::list_classes const& map_filters = LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
 	LIB_CLASS(Inendi::PVMappingFilter)::list_classes::const_iterator it;
 	QStringList ret;
 	for (it = map_filters.begin(); it != map_filters.end(); it++) {

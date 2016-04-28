@@ -56,7 +56,8 @@ class PVSource : public data_tree_source_t
 
   public:
 	PVSource();
-	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs, PVRush::PVSourceCreator_p sc,
+	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs,
+	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format);
 	~PVSource();
 
@@ -198,8 +199,8 @@ class PVSource : public data_tree_source_t
 	PVSERIALIZEOBJECT_SPLIT
 
   private:
-	PVRush::PVRawSourceBase_p create_extractor_source(QString type, QString filename,
-	                                                  PVRush::PVFormat const& format);
+	PVRush::PVRawSourceBase_p
+	create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	void files_append_noextract();
 	void init();
 	void extract_finished();

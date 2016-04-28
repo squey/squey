@@ -93,11 +93,14 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent* event)
 	}
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::add_view_display(
-    Inendi::PVView* view, QWidget* view_widget, std::function<QString()> name,
-    bool can_be_central_display /*= true*/, bool delete_on_close /* = true*/,
-    Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
-    )
+PVGuiQt::PVViewDisplay*
+PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
+                                           QWidget* view_widget,
+                                           std::function<QString()> name,
+                                           bool can_be_central_display /*= true*/,
+                                           bool delete_on_close /* = true*/,
+                                           Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
+                                           )
 {
 	PVViewDisplay* view_display =
 	    new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
@@ -132,8 +135,8 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Inendi::PV
 	return view_display;
 }
 
-void
-PVGuiQt::PVWorkspaceBase::switch_with_central_widget(PVViewDisplay* display_dock /* = nullptr */)
+void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
+    PVViewDisplay* display_dock /* = nullptr */)
 {
 	if (!display_dock) {
 		display_dock = (PVViewDisplay*)sender()->parent();

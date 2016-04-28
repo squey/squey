@@ -11,7 +11,8 @@
 namespace PVCore
 {
 
-template <class T, std::size_t N, T V> class PVPODStaticArray
+template <class T, std::size_t N, T V>
+class PVPODStaticArray
 {
   public:
 	T elems[N]; // fixed-size array of elements of type T

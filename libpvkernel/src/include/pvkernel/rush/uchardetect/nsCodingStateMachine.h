@@ -44,8 +44,7 @@ typedef enum { eStart = 0, eError = 1, eItsMe = 2 } nsSMState;
 #define GETCLASS(c) GETFROMPCK(((unsigned char)(c)), mModel->classTable)
 
 // state machine model
-typedef struct
-{
+typedef struct {
 	nsPkgInt classTable;
 	PRUint32 classFactor;
 	nsPkgInt stateTable;

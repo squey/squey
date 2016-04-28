@@ -22,16 +22,20 @@ PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QString const& type, QWidget
 	populate_from_type(type);
 }
 
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping,
-                                                    bool params_btn, QWidget* parent)
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id,
+                                                    Inendi::PVMapping& mapping,
+                                                    bool params_btn,
+                                                    QWidget* parent)
     : QWidget(parent)
 {
 	init(params_btn);
 	populate_from_mapping(axis_id, mapping);
 }
 
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Inendi::PVView& view,
-                                                    bool params_btn, QWidget* parent)
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id,
+                                                    Inendi::PVView& view,
+                                                    bool params_btn,
+                                                    QWidget* parent)
     : QWidget(parent)
 {
 	init(params_btn);
@@ -64,8 +68,8 @@ void PVWidgets::PVMappingModeWidget::init(bool params_btn)
 
 void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
 {
-	LIB_CLASS(Inendi::PVMappingFilter)::list_classes const& map_filters =
-	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVMappingFilter)
+	::list_classes const& map_filters = LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
 	LIB_CLASS(Inendi::PVMappingFilter)::list_classes::const_iterator it;
 	for (it = map_filters.begin(); it != map_filters.end(); it++) {
 		Inendi::PVMappingFilter::p_type filter = it->value();

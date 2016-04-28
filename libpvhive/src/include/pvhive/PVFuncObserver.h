@@ -67,7 +67,7 @@ class PVFuncObserverSignalBase : public QObject, public PVHive::PVFuncObserverBa
 	void about_to_be_refreshed_slot(const void*) const;
 	void refresh_slot(const void*) const;
 
-signals:
+  signals:
 	void about_to_be_refreshed_signal(const void*) const;
 	void refresh_signal(const void*) const;
 };
@@ -76,7 +76,8 @@ signals:
 namespace PVHive
 {
 
-template <class B, class T, class F, F bound_function> class PVFuncObserverTemplatedBase : public B
+template <class B, class T, class F, F bound_function>
+class PVFuncObserverTemplatedBase : public B
 {
 	friend class PVHive;
 

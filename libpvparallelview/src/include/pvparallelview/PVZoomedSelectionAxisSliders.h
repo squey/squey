@@ -30,7 +30,8 @@ class PVZoomedSelectionAxisSliders : public PVAbstractRangeAxisSliders
 	typedef PVSlidersManager::id_t id_t;
 
   public:
-	PVZoomedSelectionAxisSliders(QGraphicsItem* parent, PVSlidersManager_p sm_p,
+	PVZoomedSelectionAxisSliders(QGraphicsItem* parent,
+	                             PVSlidersManager_p sm_p,
 	                             PVSlidersGroup* group);
 
 	virtual void initialize(id_t id, int64_t y_min, int64_t y_max);

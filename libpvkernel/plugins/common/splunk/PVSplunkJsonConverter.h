@@ -53,8 +53,8 @@ class PVSplunkJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 *
 	 * ( id<=end AND id>=begin )
 	 */
-	void between(rapidjson::Value const& id, rapidjson::Value const& begin,
-	             rapidjson::Value const& end);
+	void
+	between(rapidjson::Value const& id, rapidjson::Value const& begin, rapidjson::Value const& end);
 
 	/** Generate ends_with splunk request
 	 *

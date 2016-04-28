@@ -31,7 +31,8 @@ int main(int argc, char** argv)
 		std::cerr << "usage: " << argv[0] << " objects_number properties_number "
 		                                     "actor_per_object actor_per_property "
 		                                     "observers_per_object "
-		                                     "observers_per_property" << std::endl;
+		                                     "observers_per_property"
+		          << std::endl;
 		return 1;
 	}
 

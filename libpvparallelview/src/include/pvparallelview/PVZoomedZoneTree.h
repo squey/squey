@@ -37,7 +37,8 @@ namespace PVParallelView
 {
 
 // forward declaration
-template <size_t Bbits> class PVBCICode;
+template <size_t Bbits>
+class PVBCICode;
 
 /**
  * @class PVZoomedZoneTree
@@ -69,12 +70,16 @@ class PVZoomedZoneTree
 	typedef pvquadtree::insert_entry_f insert_entry_f;
 	typedef pvquadtree::insert_entry_y1_y2_f insert_entry_y1_y2_f;
 
-	typedef std::function<void(const pvquadtree& tree, const uint32_t count,
-	                           pv_quadtree_buffer_entry_t* buffer, pv_tlr_buffer_t& tlr,
-	                           const insert_entry_f& insert_f)> extract_entries_f;
+	typedef std::function<void(const pvquadtree& tree,
+	                           const uint32_t count,
+	                           pv_quadtree_buffer_entry_t* buffer,
+	                           pv_tlr_buffer_t& tlr,
+	                           const insert_entry_f& insert_f)>
+	    extract_entries_f;
 
-	typedef std::function<void(const pvquadtree& tree, PVCore::PVHSVColor* colors,
-	                           const insert_entry_y1_y2_f& insert_f)> extract_entries_y1_y2_f;
+	typedef std::function<void(
+	    const pvquadtree& tree, PVCore::PVHSVColor* colors, const insert_entry_y1_y2_f& insert_f)>
+	    extract_entries_y1_y2_f;
 
   public:
 	typedef constants<bbits> zzt_constants;
@@ -143,7 +148,8 @@ class PVZoomedZoneTree
 	 * @param sel_elts the buffer where PVZoneTree store selected events
 	 * @param max_level the depth limit for quadtree
 	 */
-	PVZoomedZoneTree(const PVRow* sel_elts, const PVRow* bg_elts,
+	PVZoomedZoneTree(const PVRow* sel_elts,
+	                 const PVRow* bg_elts,
 	                 uint32_t max_level = quadtree_max_level);
 
 	/**
@@ -264,7 +270,9 @@ class PVZoomedZoneTree
 	 *
 	 * @return the count of selected events in selection
 	 */
-	inline size_t compute_selection_y1(PVRow t1, const uint64_t y_min, const uint64_t y_max,
+	inline size_t compute_selection_y1(PVRow t1,
+	                                   const uint64_t y_min,
+	                                   const uint64_t y_max,
 	                                   Inendi::PVSelection& selection) const
 	{
 		if (_initialized == false) {
@@ -292,7 +300,9 @@ class PVZoomedZoneTree
 	 *
 	 * @return the count of selected events in selection
 	 */
-	inline size_t compute_selection_y2(PVRow t2, const uint64_t y_min, const uint64_t y_max,
+	inline size_t compute_selection_y2(PVRow t2,
+	                                   const uint64_t y_min,
+	                                   const uint64_t y_max,
 	                                   Inendi::PVSelection& selection) const
 	{
 		if (_initialized == false) {
@@ -326,9 +336,15 @@ class PVZoomedZoneTree
 	 *
 	 * @return the count of found events
 	 */
-	inline size_t browse_bci_by_y1(context_t& ctx, uint64_t y_min, uint64_t y_max, uint64_t y_lim,
-	                               int zoom, uint32_t width, const PVCore::PVHSVColor* colors,
-	                               pv_bci_code_t* codes, const float beta = 1.0f) const
+	inline size_t browse_bci_by_y1(context_t& ctx,
+	                               uint64_t y_min,
+	                               uint64_t y_max,
+	                               uint64_t y_lim,
+	                               int zoom,
+	                               uint32_t width,
+	                               const PVCore::PVHSVColor* colors,
+	                               pv_bci_code_t* codes,
+	                               const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -348,10 +364,15 @@ class PVZoomedZoneTree
 		    colors, codes, beta);
 	}
 
-	inline void browse_bci_by_y1_y2(uint64_t y1_min, uint64_t y1_max, uint64_t y2_min,
-	                                uint64_t y2_max, int zoom, double alpha,
+	inline void browse_bci_by_y1_y2(uint64_t y1_min,
+	                                uint64_t y1_max,
+	                                uint64_t y2_min,
+	                                uint64_t y2_max,
+	                                int zoom,
+	                                double alpha,
 	                                PVCore::PVHSVColor const* const colors,
-	                                PVCore::PVHSVColor* const image, uint32_t image_width,
+	                                PVCore::PVHSVColor* const image,
+	                                uint32_t image_width,
 	                                tbb::task_group_context* tbb_ctxt = nullptr) const
 	{
 		browse_trees_bci_by_y1_y2_tbb(y1_min, y1_max, y2_min, y2_max, zoom, alpha, colors, image,
@@ -365,11 +386,16 @@ class PVZoomedZoneTree
 		                              nullptr, tbb_ctxt);
 	}
 
-	inline void browse_bci_by_y1_y2_sel(uint64_t y1_min, uint64_t y1_max, uint64_t y2_min,
-	                                    uint64_t y2_max, int zoom, double alpha,
+	inline void browse_bci_by_y1_y2_sel(uint64_t y1_min,
+	                                    uint64_t y1_max,
+	                                    uint64_t y2_min,
+	                                    uint64_t y2_max,
+	                                    int zoom,
+	                                    double alpha,
 	                                    PVCore::PVHSVColor const* const colors,
 	                                    PVCore::PVHSVColor* const image,
-	                                    Inendi::PVSelection const& sel, uint32_t image_width,
+	                                    Inendi::PVSelection const& sel,
+	                                    uint32_t image_width,
 	                                    tbb::task_group_context* tbb_ctxt = nullptr) const
 	{
 		browse_trees_bci_by_y1_y2_tbb(
@@ -399,9 +425,15 @@ class PVZoomedZoneTree
 	 *
 	 * @return the count of found events
 	 */
-	inline size_t browse_bci_by_y2(context_t& ctx, uint64_t y_min, uint64_t y_max, uint64_t y_lim,
-	                               int zoom, uint32_t width, const PVCore::PVHSVColor* colors,
-	                               pv_bci_code_t* codes, const float beta = 1.0f) const
+	inline size_t browse_bci_by_y2(context_t& ctx,
+	                               uint64_t y_min,
+	                               uint64_t y_max,
+	                               uint64_t y_lim,
+	                               int zoom,
+	                               uint32_t width,
+	                               const PVCore::PVHSVColor* colors,
+	                               pv_bci_code_t* codes,
+	                               const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -437,10 +469,16 @@ class PVZoomedZoneTree
 	 *
 	 * @return the count of found events
 	 */
-	inline size_t browse_bci_sel_by_y1(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                   uint64_t y_lim, const Inendi::PVSelection& selection,
-	                                   int zoom, uint32_t width, const PVCore::PVHSVColor* colors,
-	                                   pv_bci_code_t* codes, const float beta = 1.0f) const
+	inline size_t browse_bci_sel_by_y1(context_t& ctx,
+	                                   uint64_t y_min,
+	                                   uint64_t y_max,
+	                                   uint64_t y_lim,
+	                                   const Inendi::PVSelection& selection,
+	                                   int zoom,
+	                                   uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   pv_bci_code_t* codes,
+	                                   const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -477,10 +515,16 @@ class PVZoomedZoneTree
 	 *
 	 * @return the count of found events
 	 */
-	inline size_t browse_bci_sel_by_y2(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                   uint64_t y_lim, const Inendi::PVSelection& selection,
-	                                   int zoom, uint32_t width, const PVCore::PVHSVColor* colors,
-	                                   pv_bci_code_t* codes, const float beta = 1.0f) const
+	inline size_t browse_bci_sel_by_y2(context_t& ctx,
+	                                   uint64_t y_min,
+	                                   uint64_t y_max,
+	                                   uint64_t y_lim,
+	                                   const Inendi::PVSelection& selection,
+	                                   int zoom,
+	                                   uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   pv_bci_code_t* codes,
+	                                   const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -501,10 +545,16 @@ class PVZoomedZoneTree
 		    colors, codes, beta, _sel_elts);
 	}
 
-	inline size_t browse_bci_bg_by_y1(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                  uint64_t y_lim, const Inendi::PVSelection& unselected,
-	                                  int zoom, uint32_t width, const PVCore::PVHSVColor* colors,
-	                                  pv_bci_code_t* codes, const float beta = 1.0f) const
+	inline size_t browse_bci_bg_by_y1(context_t& ctx,
+	                                  uint64_t y_min,
+	                                  uint64_t y_max,
+	                                  uint64_t y_lim,
+	                                  const Inendi::PVSelection& unselected,
+	                                  int zoom,
+	                                  uint32_t width,
+	                                  const PVCore::PVHSVColor* colors,
+	                                  pv_bci_code_t* codes,
+	                                  const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -528,10 +578,16 @@ class PVZoomedZoneTree
 		    colors, codes, beta, _bg_elts);
 	}
 
-	inline size_t browse_bci_bg_by_y2(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                  uint64_t y_lim, const Inendi::PVSelection& unselected,
-	                                  int zoom, uint32_t width, const PVCore::PVHSVColor* colors,
-	                                  pv_bci_code_t* codes, const float beta = 1.0f) const
+	inline size_t browse_bci_bg_by_y2(context_t& ctx,
+	                                  uint64_t y_min,
+	                                  uint64_t y_max,
+	                                  uint64_t y_lim,
+	                                  const Inendi::PVSelection& unselected,
+	                                  int zoom,
+	                                  uint32_t width,
+	                                  const PVCore::PVHSVColor* colors,
+	                                  pv_bci_code_t* codes,
+	                                  const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -560,9 +616,14 @@ class PVZoomedZoneTree
 	 * Test function for sequential implementation of browse_bci_by_y1
 	 *
 	 */
-	inline size_t browse_bci_by_y1_seq(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                   uint64_t y_lim, int zoom, uint32_t width,
-	                                   const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	inline size_t browse_bci_by_y1_seq(context_t& ctx,
+	                                   uint64_t y_min,
+	                                   uint64_t y_max,
+	                                   uint64_t y_lim,
+	                                   int zoom,
+	                                   uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   pv_bci_code_t* codes,
 	                                   const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
@@ -583,9 +644,14 @@ class PVZoomedZoneTree
 	 * Test function for parallel implementation of browse_bci_by_y1
 	 *
 	 */
-	inline size_t browse_bci_by_y1_tbb(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                   uint64_t y_lim, int zoom, uint32_t width,
-	                                   const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	inline size_t browse_bci_by_y1_tbb(context_t& ctx,
+	                                   uint64_t y_min,
+	                                   uint64_t y_max,
+	                                   uint64_t y_lim,
+	                                   int zoom,
+	                                   uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   pv_bci_code_t* codes,
 	                                   const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
@@ -606,9 +672,14 @@ class PVZoomedZoneTree
 	 * Test function for sequential implementation of browse_bci_by_y2
 	 *
 	 */
-	inline size_t browse_bci_by_y2_seq(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                   uint64_t y_lim, int zoom, uint32_t width,
-	                                   const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	inline size_t browse_bci_by_y2_seq(context_t& ctx,
+	                                   uint64_t y_min,
+	                                   uint64_t y_max,
+	                                   uint64_t y_lim,
+	                                   int zoom,
+	                                   uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   pv_bci_code_t* codes,
 	                                   const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
@@ -629,9 +700,14 @@ class PVZoomedZoneTree
 	 * Test function for parallel implementation of browse_bci_by_y2
 	 *
 	 */
-	inline size_t browse_bci_by_y2_tbb(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                   uint64_t y_lim, int zoom, uint32_t width,
-	                                   const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	inline size_t browse_bci_by_y2_tbb(context_t& ctx,
+	                                   uint64_t y_min,
+	                                   uint64_t y_max,
+	                                   uint64_t y_lim,
+	                                   int zoom,
+	                                   uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   pv_bci_code_t* codes,
 	                                   const float beta = 1.0f) const
 	{
 		if (_initialized == false) {
@@ -655,10 +731,15 @@ class PVZoomedZoneTree
 	 * Sequential implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
 	 *
 	 */
-	size_t browse_trees_bci_by_y1_seq(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                  uint64_t y_lim, int zoom, uint32_t width,
+	size_t browse_trees_bci_by_y1_seq(context_t& ctx,
+	                                  uint64_t y_min,
+	                                  uint64_t y_max,
+	                                  uint64_t y_lim,
+	                                  int zoom,
+	                                  uint32_t width,
 	                                  const extract_entries_f& extract_f,
-	                                  const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	                                  const PVCore::PVHSVColor* colors,
+	                                  pv_bci_code_t* codes,
 	                                  const float beta = 1.0f,
 	                                  const PVRow* sel_elts = nullptr) const;
 
@@ -666,10 +747,15 @@ class PVZoomedZoneTree
 	 * Sequential implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
 	 *
 	 */
-	size_t browse_trees_bci_by_y2_seq(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                  uint64_t y_lim, int zoom, uint32_t width,
+	size_t browse_trees_bci_by_y2_seq(context_t& ctx,
+	                                  uint64_t y_min,
+	                                  uint64_t y_max,
+	                                  uint64_t y_lim,
+	                                  int zoom,
+	                                  uint32_t width,
 	                                  const extract_entries_f& extract_f,
-	                                  const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	                                  const PVCore::PVHSVColor* colors,
+	                                  pv_bci_code_t* codes,
 	                                  const float beta = 1.0f,
 	                                  const PVRow* sel_elts = nullptr) const;
 
@@ -677,10 +763,15 @@ class PVZoomedZoneTree
 	 * Parallel implementation used by browse_bci_by_y1 and browse_bci_sel_by_y1.
 	 *
 	 */
-	size_t browse_trees_bci_by_y1_tbb(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                  uint64_t y_lim, int zoom, uint32_t width,
+	size_t browse_trees_bci_by_y1_tbb(context_t& ctx,
+	                                  uint64_t y_min,
+	                                  uint64_t y_max,
+	                                  uint64_t y_lim,
+	                                  int zoom,
+	                                  uint32_t width,
 	                                  const extract_entries_f& extract_f,
-	                                  const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	                                  const PVCore::PVHSVColor* colors,
+	                                  pv_bci_code_t* codes,
 	                                  const float beta = 1.0f,
 	                                  const PVRow* sel_elts = nullptr) const;
 
@@ -688,17 +779,27 @@ class PVZoomedZoneTree
 	 * Parallel implementation used by browse_bci_by_y2 and browse_bci_sel_by_y2.
 	 *
 	 */
-	size_t browse_trees_bci_by_y2_tbb(context_t& ctx, uint64_t y_min, uint64_t y_max,
-	                                  uint64_t y_lim, int zoom, uint32_t width,
+	size_t browse_trees_bci_by_y2_tbb(context_t& ctx,
+	                                  uint64_t y_min,
+	                                  uint64_t y_max,
+	                                  uint64_t y_lim,
+	                                  int zoom,
+	                                  uint32_t width,
 	                                  const extract_entries_f& extract_f,
-	                                  const PVCore::PVHSVColor* colors, pv_bci_code_t* codes,
+	                                  const PVCore::PVHSVColor* colors,
+	                                  pv_bci_code_t* codes,
 	                                  const float beta = 1.0f,
 	                                  const PVRow* sel_elts = nullptr) const;
 
-	void browse_trees_bci_by_y1_y2_tbb(uint64_t y1_min, uint64_t y1_max, uint64_t y2_min,
-	                                   uint64_t y2_max, int zoom, double alpha,
+	void browse_trees_bci_by_y1_y2_tbb(uint64_t y1_min,
+	                                   uint64_t y1_max,
+	                                   uint64_t y2_min,
+	                                   uint64_t y2_max,
+	                                   int zoom,
+	                                   double alpha,
 	                                   PVCore::PVHSVColor const* const colors,
-	                                   PVCore::PVHSVColor* const image, uint32_t image_width,
+	                                   PVCore::PVHSVColor* const image,
+	                                   uint32_t image_width,
 	                                   const extract_entries_y1_y2_f& extract_f,
 	                                   PVRow const* const sel_elts = nullptr,
 	                                   tbb::task_group_context* tbb_ctxt = nullptr) const;

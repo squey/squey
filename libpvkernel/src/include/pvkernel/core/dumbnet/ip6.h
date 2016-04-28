@@ -20,8 +20,7 @@
 
 #define IP6_MTU_MIN 1280 /* minimum MTU (1024 + 256) */
 
-typedef struct ip6_addr
-{
+typedef struct ip6_addr {
 	uint8_t data[IP6_ADDR_LEN];
 } ip6_addr_t;
 
@@ -33,12 +32,9 @@ typedef struct ip6_addr
 /*
  * IPv6 header
  */
-struct ip6_hdr
-{
-	union
-	{
-		struct ip6_hdr_ctl
-		{
+struct ip6_hdr {
+	union {
+		struct ip6_hdr_ctl {
 			uint32_t ip6_un1_flow; /* 20 bits of flow ID */
 			uint16_t ip6_un1_plen; /* payload length */
 			uint8_t ip6_un1_nxt;   /* next header */
@@ -83,15 +79,13 @@ struct ip6_hdr
 /*
  * Routing header data (IP_PROTO_ROUTING)
  */
-struct ip6_ext_data_routing
-{
+struct ip6_ext_data_routing {
 	uint8_t type;    /* routing type */
 	uint8_t segleft; /* segments left */
 	                 /* followed by routing type specific data */
 } __attribute__((__packed__));
 
-struct ip6_ext_data_routing0
-{
+struct ip6_ext_data_routing0 {
 	uint8_t type;       /* always zero */
 	uint8_t segleft;    /* segments left */
 	uint8_t reserved;   /* reserved field */
@@ -102,8 +96,7 @@ struct ip6_ext_data_routing0
 /*
  * Fragment header data (IP_PROTO_FRAGMENT)
  */
-struct ip6_ext_data_fragment
-{
+struct ip6_ext_data_fragment {
 	uint16_t offlg; /* offset, reserved, and flag */
 	uint32_t ident; /* identification */
 } __attribute__((__packed__));
@@ -146,12 +139,10 @@ struct ip6_ext_data_fragment
 /*
  * Extension header (chained via {ip6,ext}_nxt, following IPv6 header)
  */
-struct ip6_ext_hdr
-{
+struct ip6_ext_hdr {
 	uint8_t ext_nxt; /* next header */
 	uint8_t ext_len; /* following length in units of 8 octets */
-	union
-	{
+	union {
 		struct ip6_ext_data_routing routing;
 		struct ip6_ext_data_fragment fragment;
 	} ext_data;

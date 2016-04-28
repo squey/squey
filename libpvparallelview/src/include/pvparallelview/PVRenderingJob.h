@@ -41,7 +41,7 @@ class PVRenderingJob : public QObject
 	bool should_cancel() const { return _should_cancel == true; }
 	void zone_finished(PVZoneID z) { emit zone_rendered(z); }
 
-signals:
+  signals:
 	void zone_rendered(int z);
 
   protected:

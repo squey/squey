@@ -19,10 +19,14 @@ class PVZoomableDrawingAreaConstraintsMajorY : public PVZoomableDrawingAreaConst
 
 	bool zoom_y_available() const override;
 
-	bool set_zoom_value(int axes, int value, PVParallelView::PVAxisZoom& zx,
+	bool set_zoom_value(int axes,
+	                    int value,
+	                    PVParallelView::PVAxisZoom& zx,
 	                    PVParallelView::PVAxisZoom& zy) override;
 
-	bool increment_zoom_value(int axes, int value, PVParallelView::PVAxisZoom& zx,
+	bool increment_zoom_value(int axes,
+	                          int value,
+	                          PVParallelView::PVAxisZoom& zx,
 	                          PVParallelView::PVAxisZoom& zy) override;
 
 	void adjust_pan(QScrollBar64* xsb, QScrollBar64* ysb) override;

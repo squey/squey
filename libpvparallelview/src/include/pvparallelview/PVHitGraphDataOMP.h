@@ -21,12 +21,12 @@ class PVHitGraphDataOMP : public PVHitGraphDataInterface
 
   protected:
 	void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const override;
-	void process_sel(ProcessParams const& params, PVHitGraphBuffer& buf,
+	void process_sel(ProcessParams const& params,
+	                 PVHitGraphBuffer& buf,
 	                 Inendi::PVSelection const& sel) const override;
 
   public:
-	struct omp_ctx_t
-	{
+	struct omp_ctx_t {
 		omp_ctx_t(uint32_t size); // size is number of integers
 		~omp_ctx_t();
 

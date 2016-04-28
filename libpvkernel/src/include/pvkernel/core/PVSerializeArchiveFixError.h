@@ -34,12 +34,14 @@ class PVSerializeArchiveFixError
 	void error_fixed();
 	PVSerializeArchiveError const& exception() const { return *_ar_err; }
 
-	template <class T> bool exception_of_type()
+	template <class T>
+	bool exception_of_type()
 	{
 		return dynamic_cast<typename PVTypeTraits::pointer<T>::type>(_ar_err.get()) != NULL;
 	}
 
-	template <class T> T* exception_as()
+	template <class T>
+	T* exception_as()
 	{
 		return dynamic_cast<typename PVTypeTraits::pointer<T>::type>(_ar_err.get());
 	}

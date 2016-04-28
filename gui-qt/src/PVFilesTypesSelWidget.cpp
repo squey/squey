@@ -72,7 +72,8 @@ QVariant PVInspector::PVFilesTypesSelModel::data(const QModelIndex& index, int r
 	return ret;
 }
 
-bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index, const QVariant& value,
+bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index,
+                                                const QVariant& value,
                                                 int role)
 {
 	if (index.column() != 1 || role != Qt::EditRole)
@@ -98,7 +99,8 @@ Qt::ItemFlags PVInspector::PVFilesTypesSelModel::flags(const QModelIndex& index)
 	return ret;
 }
 
-QVariant PVInspector::PVFilesTypesSelModel::headerData(int section, Qt::Orientation orientation,
+QVariant PVInspector::PVFilesTypesSelModel::headerData(int section,
+                                                       Qt::Orientation orientation,
                                                        int role) const
 {
 	if (orientation != Qt::Horizontal || section >= 2 || role != Qt::DisplayRole)
@@ -150,7 +152,8 @@ void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
 	}
 }
 
-void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
+void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget* editor,
+                                                        QAbstractItemModel* model,
                                                         const QModelIndex& index) const
 {
 	QStringList type_list;

@@ -11,7 +11,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-PVWidgets::PVNewLayerDialog::PVNewLayerDialog(const QString& layer_name, bool hide_layers,
+PVWidgets::PVNewLayerDialog::PVNewLayerDialog(const QString& layer_name,
+                                              bool hide_layers,
                                               QWidget* parent /*= 0*/)
     : QDialog(parent)
 {

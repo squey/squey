@@ -59,7 +59,8 @@ Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*
 	return Qt::ItemIsEnabled;
 }
 
-QVariant PVInspector::PVNrawListingModel::headerData(int section, Qt::Orientation orientation,
+QVariant PVInspector::PVNrawListingModel::headerData(int section,
+                                                     Qt::Orientation orientation,
                                                      int role) const
 {
 	if (not _nraw) {

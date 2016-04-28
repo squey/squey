@@ -32,7 +32,8 @@ namespace __impl
 {
 
 class set_axis_name_Observer
-    : public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::set_axis_name),
+    : public PVHive::PVFuncObserver<Inendi::PVView,
+                                    decltype(&Inendi::PVView::set_axis_name),
                                     &Inendi::PVView::set_axis_name>
 {
   public:
@@ -46,7 +47,8 @@ class set_axis_name_Observer
 };
 
 class remove_column_Observer
-    : public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::remove_column),
+    : public PVHive::PVFuncObserver<Inendi::PVView,
+                                    decltype(&Inendi::PVView::remove_column),
                                     &Inendi::PVView::remove_column>
 {
   public:
@@ -60,9 +62,9 @@ class remove_column_Observer
 	PVGuiQt::PVAxesCombinationModel* _model;
 };
 
-class axis_append_Observer
-    : public PVHive::PVFuncObserver<Inendi::PVView, decltype(&Inendi::PVView::axis_append),
-                                    &Inendi::PVView::axis_append>
+class axis_append_Observer : public PVHive::PVFuncObserver<Inendi::PVView,
+                                                           decltype(&Inendi::PVView::axis_append),
+                                                           &Inendi::PVView::axis_append>
 {
   public:
 	axis_append_Observer(PVGuiQt::PVAxesCombinationModel* model) : _model(model) {}

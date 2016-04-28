@@ -48,7 +48,8 @@ class PVExtractorWidget : public QDialog
 	/**
 	 * Constructor.
 	 */
-	PVExtractorWidget(Inendi::PVSource& lib_src, PVGuiQt::PVProjectsTabWidget* projects_tab,
+	PVExtractorWidget(Inendi::PVSource& lib_src,
+	                  PVGuiQt::PVProjectsTabWidget* projects_tab,
 	                  QWidget* parent = NULL);
 
 	void refresh_and_show();
@@ -61,8 +62,10 @@ class PVExtractorWidget : public QDialog
 	 *
 	 * @todo : use nlines as maximum number of line to have a real progress bar.
 	 */
-	static bool show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc,
-	                                  int nlines, QWidget* parent);
+	static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
+	                                  QString const& desc,
+	                                  int nlines,
+	                                  QWidget* parent);
 
   private:
 	QTreeWidget* _list_inputs;

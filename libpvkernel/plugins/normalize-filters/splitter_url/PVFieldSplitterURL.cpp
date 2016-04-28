@@ -96,8 +96,8 @@ static bool set_field(int pos, PVCore::PVField** fields, char* str, furl_feature
 /**
  * Add port from url if available or try to guess it from protocol.
  */
-static bool add_port(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff,
-                     furl_feature_t ff_proto)
+static bool
+add_port(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff, furl_feature_t ff_proto)
 {
 	if (pos == -1) {
 		return false;

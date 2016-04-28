@@ -13,9 +13,9 @@
 
 #include "parse-config.h"
 
-int create_layers_parse_config(
-    QString filename, int (*handle_create_layers_section)(QString section_name,
-                                                          QMap<QString, QStringList> layers_regex))
+int create_layers_parse_config(QString filename,
+                               int (*handle_create_layers_section)(
+                                   QString section_name, QMap<QString, QStringList> layers_regex))
 {
 	// PVLOG_INFO("Parse config for %s\n", filename);
 	QMap<QString, QMap<QString, QStringList>> section_layer_regex_list;

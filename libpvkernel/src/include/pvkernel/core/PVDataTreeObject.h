@@ -30,14 +30,14 @@ namespace PVCore
 
 /*! \brief Special class to represent the fact that a tree object is at the root of the hierarchy.
 */
-template <typename Treal> struct PVDataTreeNoParent
-{
+template <typename Treal>
+struct PVDataTreeNoParent {
 };
 
 /*! \brief Special class to represent the fact that a tree object is not meant to have any children.
 */
-template <typename Treal> struct PVDataTreeNoChildren
-{
+template <typename Treal>
+struct PVDataTreeNoChildren {
 };
 
 class PVDataTreeObjectBase;
@@ -100,7 +100,8 @@ class PVDataTreeObjectBase
 	virtual const_base_p_type base_shared_from_this() const = 0;
 
   public:
-	template <class F> void depth_first_list(F const& f)
+	template <class F>
+	void depth_first_list(F const& f)
 	{
 		PVDataTreeObjectWithChildrenBase* obj_children = cast_with_children();
 		if (!obj_children) {
@@ -119,12 +120,14 @@ class PVDataTreeObjectBase
 namespace __impl
 {
 
-template <typename Tparent, typename real_type_t> class PVDataTreeObjectWithParent;
+template <typename Tparent, typename real_type_t>
+class PVDataTreeObjectWithParent;
 
 template <typename Tchild, typename real_type_t>
 class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 {
-	template <typename T1, typename T2> friend class PVDataTreeObjectWithParent;
+	template <typename T1, typename T2>
+	friend class PVDataTreeObjectWithParent;
 
   public:
 	typedef Tchild child_t;
@@ -149,11 +152,13 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	 *  \return The list of children.
 	 *  Note: Compile with '-std=c++0x' flag to support function template default parameter.
 	 */
-	template <typename T = child_t> typename T::parent_t::children_t get_children()
+	template <typename T = child_t>
+	typename T::parent_t::children_t get_children()
 	{
 		return GetChildrenImpl<child_t, T>::get_children(_children);
 	}
-	template <typename T = child_t> const typename T::parent_t::children_t get_children() const
+	template <typename T = child_t>
+	const typename T::parent_t::children_t get_children() const
 	{
 		return GetChildrenImpl<child_t, T>::get_children(_children);
 	}
@@ -190,7 +195,8 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	}
 	inline pchild_t remove_child(pchild_t const& child) { return remove_child(*child); }
 
-	template <typename T = child_t> void dump_children()
+	template <typename T = child_t>
+	void dump_children()
 	{
 		auto children = get_children<T>();
 		std::cout << "(";
@@ -202,7 +208,8 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 		std::cout << ")" << std::endl;
 	}
 
-	template <typename T> bool children_belongs_to_me(T const& children) const
+	template <typename T>
+	bool children_belongs_to_me(T const& children) const
 	{
 		typedef typename T::value_type other_child_t;
 		for (other_child_t const& c : children) {
@@ -297,12 +304,13 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	 *	"function template partial specialization is not allowed":
 	 * 	we must use static methods inside a template class
 	 */
-	template <typename T, typename Tc, bool B = std::is_same<T, Tc>::value> struct GetChildrenImpl;
+	template <typename T, typename Tc, bool B = std::is_same<T, Tc>::value>
+	struct GetChildrenImpl;
 
 	/*! \brief Partial specialization for the case we have found the child class.
 	*/
-	template <typename T, typename Tc> struct GetChildrenImpl<T, Tc, true>
-	{
+	template <typename T, typename Tc>
+	struct GetChildrenImpl<T, Tc, true> {
 		static inline typename Tc::parent_t::children_t
 		get_children(typename Tc::parent_t::children_t children)
 		{
@@ -313,8 +321,8 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	/*! \brief Partial specialization for the case we haven't found the child class yet.
 	 * 	Recursively specialize this class with a child class of one level lower.
 	 */
-	template <typename T, typename Tc> struct GetChildrenImpl<T, Tc, false>
-	{
+	template <typename T, typename Tc>
+	struct GetChildrenImpl<T, Tc, false> {
 		static inline typename Tc::parent_t::children_t
 		get_children(typename T::parent_t::children_t children)
 		{
@@ -335,7 +343,8 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 template <typename Tparent, typename real_type_t>
 class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 {
-	template <typename T1, typename T2> friend class PVDataTreeObjectWithChildren;
+	template <typename T1, typename T2>
+	friend class PVDataTreeObjectWithChildren;
 
   public:
 	typedef Tparent parent_t;
@@ -351,13 +360,15 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 	 *  \return An ancestor.
 	 *  Note: Compile with '-std=c++0x' flag to support function template default parameter.
 	 */
-	template <typename Tancestor = parent_t> inline Tancestor* get_parent()
+	template <typename Tancestor = parent_t>
+	inline Tancestor* get_parent()
 	{
 		static_assert(std::is_same<Tancestor, real_type_t>::value == false,
 		              "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
 		return GetParentImpl<parent_t, Tancestor>::get_parent(get_real_parent());
 	}
-	template <typename Tancestor = parent_t> inline const Tancestor* get_parent() const
+	template <typename Tancestor = parent_t>
+	inline const Tancestor* get_parent() const
 	{
 		static_assert(std::is_same<Tancestor, real_type_t>::value == false,
 		              "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
@@ -412,16 +423,16 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 
 	/*! \brief Partial specialization for the case we have found the ancestor.
 	 */
-	template <typename T, typename Tancestor> struct GetParentImpl<T, Tancestor, true>
-	{
+	template <typename T, typename Tancestor>
+	struct GetParentImpl<T, Tancestor, true> {
 		static inline Tancestor* get_parent(Tancestor* parent) { return parent; }
 	};
 
 	/*! \brief Partial specialization for the case we haven't found the ancestor yet.
 	 * 	Recursively specialize this class with a parent of one level higher.
 	 */
-	template <typename T, typename Tancestor> struct GetParentImpl<T, Tancestor, false>
-	{
+	template <typename T, typename Tancestor>
+	struct GetParentImpl<T, Tancestor, false> {
 		static inline Tancestor* get_parent(T* parent)
 		{
 			if (parent != nullptr) {
@@ -458,7 +469,8 @@ class PVDataTreeObject
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t> impl_children_t;
 	typedef __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t> impl_parent_t;
 
-	template <typename T1, typename T2> friend class PVDataTreeObject;
+	template <typename T1, typename T2>
+	friend class PVDataTreeObject;
 
   public:
 	typedef typename impl_children_t::child_t child_t;
@@ -514,7 +526,8 @@ class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, Troot> impl_children_t;
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, Troot> impl_base_t;
 
-	template <typename T1, typename T2> friend class PVDataTreeObject;
+	template <typename T1, typename T2>
+	friend class PVDataTreeObject;
 
   public:
 	typedef typename impl_children_t::child_t child_t;
@@ -563,7 +576,8 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
 {
 	typedef __impl::PVDataTreeObjectWithParent<Tparent, Treal> impl_parent_t;
 
-	template <typename T1, typename T2> friend class PVDataTreeObject;
+	template <typename T1, typename T2>
+	friend class PVDataTreeObject;
 
   public:
 	typedef PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>> data_tree_t;

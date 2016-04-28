@@ -21,16 +21,16 @@ namespace PVCore
 namespace PVTypeTraits
 {
 
-template <int...> struct seq_n
-{
+template <int...>
+struct seq_n {
 };
 
-template <int N, int... S> struct gen_seq_n : gen_seq_n<N - 1, N - 1, S...>
-{
+template <int N, int... S>
+struct gen_seq_n : gen_seq_n<N - 1, N - 1, S...> {
 };
 
-template <int... S> struct gen_seq_n<0, S...>
-{
+template <int... S>
+struct gen_seq_n<0, S...> {
 	typedef seq_n<S...> type;
 };
 
@@ -38,8 +38,8 @@ template <int... S> struct gen_seq_n<0, S...>
 namespace __impl
 {
 
-template <typename T> struct argument_storage_pointer
-{
+template <typename T>
+struct argument_storage_pointer {
 	typedef T arg_type;
 
   public:
@@ -51,8 +51,8 @@ template <typename T> struct argument_storage_pointer
 	inline static void set_storage(type& _storage, ref_type arg) { _storage = &arg; }
 };
 
-template <typename T> struct argument_storage_copy
-{
+template <typename T>
+struct argument_storage_copy {
 	typedef typename std::remove_reference<T>::type arg_type;
 
   public:
@@ -64,13 +64,12 @@ template <typename T> struct argument_storage_copy
 	inline static void set_storage(type& storage, ref_type arg) { storage = arg; }
 };
 
-template <typename T> struct argument_storage_copy<T&> : public argument_storage_pointer<T&>
-{
+template <typename T>
+struct argument_storage_copy<T&> : public argument_storage_pointer<T&> {
 };
 
 template <size_t N, template <class Y> class storage_traits, typename T, typename... Tparams>
-struct function_args_list_helper
-{
+struct function_args_list_helper {
 	typedef function_args_list_helper<N + 1, storage_traits, Tparams...> next_arg_type;
 	typedef T arg_type;
 	// typedef typename add_pointer_const<arg_type>::type arg_pointer_const_type;
@@ -80,15 +79,17 @@ struct function_args_list_helper
 	typedef typename arg_storage_traits::ref_type arg_reference_const_type;
 	constexpr static size_t arg_n = N;
 
-	template <size_t N_, template <class Y_> class storage_traits_, typename T_,
+	template <size_t N_,
+	          template <class Y_> class storage_traits_,
+	          typename T_,
 	          typename... Tparams_>
 	friend class function_args_list_helper;
 
   protected:
 	typedef function_args_list_helper<N, storage_traits, T, Tparams...> this_type;
 
-	template <size_t aI, bool zero = (aI == 0)> struct get_arg_impl
-	{
+	template <size_t aI, bool zero = (aI == 0)>
+	struct get_arg_impl {
 		typedef typename add_reference_const<typename variadic_n<aI, T, Tparams...>::type>::type
 		    result_type;
 
@@ -99,8 +100,8 @@ struct function_args_list_helper
 		}
 	};
 
-	template <size_t aI> struct get_arg_impl<aI, true>
-	{
+	template <size_t aI>
+	struct get_arg_impl<aI, true> {
 		typedef arg_reference_const_type result_type;
 
 		inline static arg_reference_const_type get_arg(this_type const* p)
@@ -110,7 +111,8 @@ struct function_args_list_helper
 	};
 
   public:
-	template <size_t I> inline typename get_arg_impl<I>::result_type get_arg() const
+	template <size_t I>
+	inline typename get_arg_impl<I>::result_type get_arg() const
 	{
 		return get_arg_impl<I>::get_arg(this);
 	}
@@ -127,25 +129,27 @@ struct function_args_list_helper
 };
 
 template <size_t N, template <class Y> class storage_traits, typename T>
-struct function_args_list_helper<N, storage_traits, T>
-{
+struct function_args_list_helper<N, storage_traits, T> {
 	typedef T arg_type;
 	typedef storage_traits<arg_type> arg_storage_traits;
 	typedef typename storage_traits<arg_type>::type arg_storage_type;
 	typedef typename storage_traits<arg_type>::ref_type arg_reference_const_type;
 	constexpr static size_t arg_n = N;
 
-	template <size_t N_, template <class Y_> class storage_traits_, typename T_,
+	template <size_t N_,
+	          template <class Y_> class storage_traits_,
+	          typename T_,
 	          typename... Tparams_>
 	friend class function_args_list_helper;
 
   protected:
 	typedef function_args_list_helper<N, storage_traits, T> this_type;
 
-	template <size_t aI, bool zero = (aI == 0)> struct get_arg_impl;
+	template <size_t aI, bool zero = (aI == 0)>
+	struct get_arg_impl;
 
-	template <size_t aI> struct get_arg_impl<aI, true>
-	{
+	template <size_t aI>
+	struct get_arg_impl<aI, true> {
 		typedef arg_reference_const_type result_type;
 		inline static result_type get_arg(this_type const* p)
 		{
@@ -154,7 +158,8 @@ struct function_args_list_helper<N, storage_traits, T>
 	};
 
   public:
-	template <size_t I> inline typename get_arg_impl<I>::result_type get_arg() const
+	template <size_t I>
+	inline typename get_arg_impl<I>::result_type get_arg() const
 	{
 		return get_arg_impl<I>::get_arg(this);
 	}
@@ -168,8 +173,7 @@ struct function_args_list_helper<N, storage_traits, T>
 	arg_storage_type _arg;
 };
 
-struct function_no_args_helper
-{
+struct function_no_args_helper {
 	// For API compatibility
 	void set_args() {}
 };
@@ -177,8 +181,8 @@ struct function_no_args_helper
 } // __impl
 
 template <template <class Y> class storage_traits, typename... Tparams>
-struct function_args_list : public __impl::function_args_list_helper<0, storage_traits, Tparams...>
-{
+struct function_args_list
+    : public __impl::function_args_list_helper<0, storage_traits, Tparams...> {
 };
 
 // Enable an function_args_list with copy-storage to be set from the same one with a pointer-storage
@@ -233,7 +237,8 @@ class function_args_list<__impl::argument_storage_copy, Tparams...>
 		do_copy_from(o, typename gen_seq_n<sizeof...(Tparams)>::type());
 	}
 
-	template <int... S> inline void do_copy_from(base_pointer_type const& o, seq_n<S...>)
+	template <int... S>
+	inline void do_copy_from(base_pointer_type const& o, seq_n<S...>)
 	{
 		base_type::set_args(o.template get_arg<S>()...);
 	}
@@ -244,10 +249,11 @@ class function_args_list<__impl::argument_storage_copy, Tparams...>
 namespace __impl
 {
 
-template <typename F> struct function_traits_helper;
+template <typename F>
+struct function_traits_helper;
 
-template <typename R, typename... Tparams> struct function_traits_helper<R (*)(Tparams...)>
-{
+template <typename R, typename... Tparams>
+struct function_traits_helper<R (*)(Tparams...)> {
 	typedef R result_type;
 	typedef function_args_list<argument_storage_pointer, Tparams...> arguments_type;
 	// typedef std::tuple<Tparams...> arguments_type;
@@ -256,13 +262,13 @@ template <typename R, typename... Tparams> struct function_traits_helper<R (*)(T
 	typedef function_args_list<argument_storage_copy, Tparams...> arguments_deep_copy_type;
 	// typedef std::tuple<Tparams...> arguments_deep_copy_type;
 
-	template <size_t I> struct type_of_arg : public variadic_n<I, Tparams...>
-	{
+	template <size_t I>
+	struct type_of_arg : public variadic_n<I, Tparams...> {
 	};
 };
 
-template <typename R> struct function_traits_helper<R (*)()>
-{
+template <typename R>
+struct function_traits_helper<R (*)()> {
 	typedef R result_type;
 	typedef function_no_args_helper arguments_type;
 	typedef function_no_args_helper arguments_deep_copy_type;
@@ -271,14 +277,12 @@ template <typename R> struct function_traits_helper<R (*)()>
 };
 
 template <typename R, typename... Tparams>
-struct function_traits_helper<R(Tparams...)> : public function_traits_helper<R (*)(Tparams...)>
-{
+struct function_traits_helper<R(Tparams...)> : public function_traits_helper<R (*)(Tparams...)> {
 };
 
 template <typename T, typename R, typename... Tparams>
 struct function_traits_helper<R (T::*)(Tparams...)>
-    : public function_traits_helper<R (*)(Tparams...)>
-{
+    : public function_traits_helper<R (*)(Tparams...)> {
 	typedef T class_type;
 	typedef R (T::*pointer_type)(Tparams...);
 	// typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
@@ -287,14 +291,18 @@ struct function_traits_helper<R (T::*)(Tparams...)>
 	typedef arguments_deep_copy_type arguments_type;
 	constexpr static bool is_const = false;
 
-	template <pointer_type f, template <class Y> class argument_storage, typename R_ = R,
+	template <pointer_type f,
+	          template <class Y> class argument_storage,
+	          typename R_ = R,
 	          typename std::enable_if<std::is_same<R_, void>::value == false, int>::type = 0>
 	inline static R call(T& obj, function_args_list<argument_storage, Tparams...> const& args)
 	{
 		return do_call<f>(obj, args, typename gen_seq_n<sizeof...(Tparams)>::type());
 	}
 
-	template <pointer_type f, template <class Y> class argument_storage, typename R_ = R,
+	template <pointer_type f,
+	          template <class Y> class argument_storage,
+	          typename R_ = R,
 	          typename std::enable_if<std::is_same<R_, void>::value == true, int>::type = 0>
 	inline static void call(T& obj, function_args_list<argument_storage, Tparams...> const& args)
 	{
@@ -303,8 +311,8 @@ struct function_traits_helper<R (T::*)(Tparams...)>
 
   private:
 	template <pointer_type f, template <class Y> class argument_storage, int... S>
-	inline static R do_call(T& obj, function_args_list<argument_storage, Tparams...> const& args,
-	                        seq_n<S...>)
+	inline static R
+	do_call(T& obj, function_args_list<argument_storage, Tparams...> const& args, seq_n<S...>)
 	{
 		return (obj.*f)(args.template get_arg<S>()...);
 	}
@@ -312,8 +320,7 @@ struct function_traits_helper<R (T::*)(Tparams...)>
 
 template <typename T, typename R, typename... Tparams>
 struct function_traits_helper<R (T::*)(Tparams...) const>
-    : public function_traits_helper<R (*)(Tparams...)>
-{
+    : public function_traits_helper<R (*)(Tparams...)> {
 	typedef T class_type;
 	typedef R (T::*pointer_type)(Tparams...) const;
 	// typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
@@ -339,8 +346,8 @@ struct function_traits_helper<R (T::*)(Tparams...) const>
 
 } // __impl
 
-template <typename F> struct function_traits : public __impl::function_traits_helper<F>
-{
+template <typename F>
+struct function_traits : public __impl::function_traits_helper<F> {
 };
 
 } // PVTypeTraits

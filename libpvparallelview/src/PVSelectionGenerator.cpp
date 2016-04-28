@@ -25,8 +25,7 @@
 
 #include <omp.h>
 
-struct PVLineEqInt
-{
+struct PVLineEqInt {
 	int a;
 	int b;
 	int c;
@@ -111,8 +110,10 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 }
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
-    PVLinesView& lines_view, PVZoneID zone_id,
-    const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Inendi::PVSelection& sel)
+    PVLinesView& lines_view,
+    PVZoneID zone_id,
+    const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
+    Inendi::PVSelection& sel)
 {
 	uint32_t nb_selected = 0;
 
@@ -285,8 +286,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
  * PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect
  *****************************************************************************/
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect(
-    const PVHitGraphBlocksManager& manager, const QRectF& rect, const uint32_t max_count,
-    Inendi::PVSelection& sel, bool use_selectable)
+    const PVHitGraphBlocksManager& manager,
+    const QRectF& rect,
+    const uint32_t max_count,
+    Inendi::PVSelection& sel,
+    bool use_selectable)
 {
 	return __impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(
 	    manager, rect, max_count, sel, use_selectable);
@@ -296,7 +300,9 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
  * PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect_serial
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial(
-    const PVHitGraphBlocksManager& manager, const QRectF& rect, const uint32_t max_count,
+    const PVHitGraphBlocksManager& manager,
+    const QRectF& rect,
+    const uint32_t max_count,
     Inendi::PVSelection& sel)
 {
 	sel.ensure_allocated();
@@ -341,7 +347,9 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_seri
  * PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial_invariant
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial_invariant(
-    const PVHitGraphBlocksManager& manager, const QRectF& rect, const uint32_t max_count,
+    const PVHitGraphBlocksManager& manager,
+    const QRectF& rect,
+    const uint32_t max_count,
     Inendi::PVSelection& sel)
 {
 	sel.ensure_allocated();
@@ -405,7 +413,9 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_seri
  * PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
-    const PVHitGraphBlocksManager& manager, const QRectF& rect, const uint32_t max_count,
+    const PVHitGraphBlocksManager& manager,
+    const QRectF& rect,
+    const uint32_t max_count,
     Inendi::PVSelection& sel)
 {
 	sel.ensure_allocated();
@@ -484,8 +494,11 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
  * PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(
-    const PVHitGraphBlocksManager& manager, const QRectF& rect, const uint32_t max_count,
-    Inendi::PVSelection& sel, bool use_selectable)
+    const PVHitGraphBlocksManager& manager,
+    const QRectF& rect,
+    const uint32_t max_count,
+    Inendi::PVSelection& sel,
+    bool use_selectable)
 {
 	sel.ensure_allocated();
 
@@ -606,7 +619,11 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 }
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_range(
-    const uint32_t* plotted, PVRow nrows, uint64_t y_min, uint64_t y_max, Inendi::PVSelection& sel,
+    const uint32_t* plotted,
+    PVRow nrows,
+    uint64_t y_min,
+    uint64_t y_max,
+    Inendi::PVSelection& sel,
     Inendi::PVSelection const& layers_sel)
 {
 	return __impl::compute_selection_from_plotted_range_sse(plotted, nrows, y_min, y_max, sel,
@@ -617,7 +634,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_ra
  * PVParallelView::__impl::compute_selection_from_plotted_range_seq
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_seq(
-    const uint32_t* plotted, PVRow nrows, uint64_t y_min, uint64_t y_max, Inendi::PVSelection& sel,
+    const uint32_t* plotted,
+    PVRow nrows,
+    uint64_t y_min,
+    uint64_t y_max,
+    Inendi::PVSelection& sel,
     const Inendi::PVSelection& layers_sel)
 {
 	if (y_min == y_max) {
@@ -650,7 +671,11 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_seq(
  * PVParallelView::__impl::compute_selection_from_plotted_range_sse
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
-    const uint32_t* plotted, PVRow nrows, uint64_t y_min, uint64_t y_max, Inendi::PVSelection& sel,
+    const uint32_t* plotted,
+    PVRow nrows,
+    uint64_t y_min,
+    uint64_t y_max,
+    Inendi::PVSelection& sel,
     const Inendi::PVSelection& layers_sel)
 {
 	if (y_min == y_max) {
@@ -709,8 +734,12 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
  * PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_ranges
  *****************************************************************************/
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_ranges(
-    const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows, const QRectF& rect,
-    Inendi::PVSelection& sel, Inendi::PVSelection const& layers_sel)
+    const uint32_t* y1_plotted,
+    const uint32_t* y2_plotted,
+    const PVRow nrows,
+    const QRectF& rect,
+    Inendi::PVSelection& sel,
+    Inendi::PVSelection const& layers_sel)
 {
 	return __impl::compute_selection_from_plotteds_ranges_sse(y1_plotted, y2_plotted, nrows, rect,
 	                                                          sel, layers_sel);
@@ -720,8 +749,12 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_r
  * PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_ranges_seq
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_plotted_ranges_seq(
-    const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows, const QRectF& rect,
-    Inendi::PVSelection& sel, Inendi::PVSelection const& layers_sel)
+    const uint32_t* y1_plotted,
+    const uint32_t* y2_plotted,
+    const PVRow nrows,
+    const QRectF& rect,
+    Inendi::PVSelection& sel,
+    Inendi::PVSelection const& layers_sel)
 {
 	if (rect.isNull()) {
 		return 0;
@@ -760,8 +793,12 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_ranges_seq(
  * PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse
  *****************************************************************************/
 uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
-    const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows, const QRectF& rect,
-    Inendi::PVSelection& sel, Inendi::PVSelection const& layers_sel)
+    const uint32_t* y1_plotted,
+    const uint32_t* y2_plotted,
+    const PVRow nrows,
+    const QRectF& rect,
+    Inendi::PVSelection& sel,
+    Inendi::PVSelection const& layers_sel)
 {
 	if (rect.isNull()) {
 		return 0;

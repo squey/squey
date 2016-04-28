@@ -72,8 +72,8 @@ void Inendi::PVMapped::compute()
 {
 	// Prepare mandatory mapping filters
 	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
-	LIB_CLASS(Inendi::PVMandatoryMappingFilter)::list_classes const& lfmf =
-	    LIB_CLASS(Inendi::PVMandatoryMappingFilter)::get().get_list();
+	LIB_CLASS(Inendi::PVMandatoryMappingFilter)
+	::list_classes const& lfmf = LIB_CLASS(Inendi::PVMandatoryMappingFilter)::get().get_list();
 	mand_mapping_filters.reserve(lfmf.size());
 	for (auto it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
 		PVMandatoryMappingFilter::p_type mf = it_lfmf->value()->clone<PVMandatoryMappingFilter>();
@@ -158,11 +158,10 @@ namespace Inendi
 {
 namespace __impl
 {
-struct to_csv_value_holder
-{
+struct to_csv_value_holder {
 	template <typename T>
-	static void call(Inendi::PVMapped::mapped_table_t const& trans_table, PVRow const i,
-	                 PVCol const j)
+	static void
+	call(Inendi::PVMapped::mapped_table_t const& trans_table, PVRow const i, PVCol const j)
 	{
 		std::cout << trans_table[j][i].storage_cast<T>();
 	}

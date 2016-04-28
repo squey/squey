@@ -13,7 +13,8 @@
 namespace PVCore
 {
 
-template <typename V, size_t MAX_DEPTH> class PVListFastCmp
+template <typename V, size_t MAX_DEPTH>
+class PVListFastCmp
 {
   public:
 	PVListFastCmp() : _cur_size(0), _hash(0) {}

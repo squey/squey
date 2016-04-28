@@ -94,7 +94,7 @@ class PVViewDisplay : public QDockWidget
 	 */
 	void maximize_on_screen(int screen_number);
 
-signals:
+  signals:
 	/*! \brief Signal emited when the display is moved in order to detected a potential tab change.
 	 */
 	void try_automatic_tab_switch();
@@ -116,8 +116,12 @@ signals:
 	 *  \note this constructor is intended to be called only by PVWorkspace, hence the private
 	 *visibility.
 	 */
-	PVViewDisplay(Inendi::PVView* view, QWidget* view_widget, std::function<QString()> name,
-	              bool can_be_central_widget, bool delete_on_close, PVWorkspaceBase* parent);
+	PVViewDisplay(Inendi::PVView* view,
+	              QWidget* view_widget,
+	              std::function<QString()> name,
+	              bool can_be_central_widget,
+	              bool delete_on_close,
+	              PVWorkspaceBase* parent);
 
   private:
 	Inendi::PVView* _view;

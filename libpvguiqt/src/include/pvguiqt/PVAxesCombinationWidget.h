@@ -43,7 +43,8 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 
   public:
 	PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
-	                        Inendi::PVView* view = NULL, QWidget* parent = 0);
+	                        Inendi::PVView* view = NULL,
+	                        QWidget* parent = 0);
 
   public:
 	void save_current_combination();
@@ -76,7 +77,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	void sel_range_Slot();
 	void sort_Slot();
 
-signals:
+  signals:
 	void axes_combination_changed();
 	void axes_count_changed();
 

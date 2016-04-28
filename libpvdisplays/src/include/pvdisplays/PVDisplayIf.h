@@ -42,7 +42,8 @@ class PVDisplayIf
 	} Flags;
 
   protected:
-	PVDisplayIf(int flags = 0, QString const& tooltip_str = QString(),
+	PVDisplayIf(int flags = 0,
+	            QString const& tooltip_str = QString(),
 	            Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
 	    : _flags(flags), _tooltip_str(tooltip_str), _default_pos(def_pos)
 	{
@@ -80,7 +81,8 @@ class PVDisplayIf
 	Qt::DockWidgetArea _default_pos;
 };
 
-template <class T> class PVDisplayDataTreeIf : public PVDisplayIf
+template <class T>
+class PVDisplayDataTreeIf : public PVDisplayIf
 {
 	friend class PVDisplaysImpl;
 
@@ -88,7 +90,8 @@ template <class T> class PVDisplayDataTreeIf : public PVDisplayIf
 	typedef std::unordered_map<value_type*, QWidget*> hash_widgets_t;
 
   public:
-	PVDisplayDataTreeIf(int flags = 0, QString const& tooltip_str = QString(),
+	PVDisplayDataTreeIf(int flags = 0,
+	                    QString const& tooltip_str = QString(),
 	                    Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
 	    : PVDisplayIf(flags, tooltip_str, def_pos)
 	{
@@ -149,7 +152,8 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Inendi::PVView>,
 	typedef std::shared_ptr<RegAs> p_type;
 
   public:
-	PVDisplayViewIf(int flags = 0, QString const& tooltip_str = QString(),
+	PVDisplayViewIf(int flags = 0,
+	                QString const& tooltip_str = QString(),
 	                Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
 	    : PVDisplayDataTreeIf<Inendi::PVView>(flags, tooltip_str, def_pos)
 	{
@@ -164,7 +168,8 @@ class PVDisplaySourceIf : public PVDisplayDataTreeIf<Inendi::PVSource>,
 	typedef std::shared_ptr<RegAs> p_type;
 
   public:
-	PVDisplaySourceIf(int flags = 0, QString const& tooltip_str = QString(),
+	PVDisplaySourceIf(int flags = 0,
+	                  QString const& tooltip_str = QString(),
 	                  Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
 	    : PVDisplayDataTreeIf<Inendi::PVSource>(flags, tooltip_str, def_pos)
 	{
@@ -177,8 +182,7 @@ namespace __impl
 class PVDisplayViewAxisIf : public PVDisplayIf
 {
   public:
-	struct Params
-	{
+	struct Params {
 		Params() : view(nullptr), axis_comb(0) {}
 		Params(const Params& o) : view(o.view), axis_comb(o.axis_comb) {}
 		Params(Inendi::PVView* view_, PVCol axis_comb_) : view(view_), axis_comb(axis_comb_) {}
@@ -196,7 +200,8 @@ class PVDisplayViewAxisIf : public PVDisplayIf
 	typedef std::map<Params, QWidget*> map_widgets_t;
 
   public:
-	PVDisplayViewAxisIf(int flags = 0, QString const& tooltip_str = QString(),
+	PVDisplayViewAxisIf(int flags = 0,
+	                    QString const& tooltip_str = QString(),
 	                    Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
 	    : PVDisplayIf(flags, tooltip_str, def_pos)
 	{
@@ -215,20 +220,20 @@ class PVDisplayViewAxisIf : public PVDisplayIf
   protected:
 	QWidget* get_unique_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = NULL);
 
-	inline void get_params_from_action(QAction const& action, Inendi::PVView*& view,
-	                                   PVCol& axis_comb)
+	inline void
+	get_params_from_action(QAction const& action, Inendi::PVView*& view, PVCol& axis_comb)
 	{
 		Params p = get_params_from_action(action);
 		view = p.view;
 		axis_comb = p.axis_comb;
 	}
 
-	QAction* action_bound_to_params(Inendi::PVView* view, PVCol axis_comb,
-	                                QObject* parent = NULL) const;
+	QAction*
+	action_bound_to_params(Inendi::PVView* view, PVCol axis_comb, QObject* parent = NULL) const;
 
   protected:
-	virtual QWidget* create_widget(Inendi::PVView* view, PVCol axis_comb,
-	                               QWidget* parent = NULL) const = 0;
+	virtual QWidget*
+	create_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = NULL) const = 0;
 
   private:
 	inline static Params get_params_from_action(QAction const& action)
@@ -247,7 +252,8 @@ class PVDisplayViewAxisIf : public __impl::PVDisplayViewAxisIf,
 	friend class PVDisplaysImpl;
 
   public:
-	PVDisplayViewAxisIf(int flags = 0, QString const& tooltip_str = QString(),
+	PVDisplayViewAxisIf(int flags = 0,
+	                    QString const& tooltip_str = QString(),
 	                    Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
 	    : __impl::PVDisplayViewAxisIf(flags, tooltip_str, def_pos)
 	{
@@ -264,7 +270,8 @@ class PVDisplayViewZoneIf : public __impl::PVDisplayViewAxisIf,
 	friend class PVDisplaysImpl;
 
   public:
-	PVDisplayViewZoneIf(int flags = 0, QString const& tooltip_str = QString(),
+	PVDisplayViewZoneIf(int flags = 0,
+	                    QString const& tooltip_str = QString(),
 	                    Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
 	    : __impl::PVDisplayViewAxisIf(flags, tooltip_str, def_pos)
 	{

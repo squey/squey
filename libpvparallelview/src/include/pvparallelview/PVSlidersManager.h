@@ -40,8 +40,7 @@ class PVSlidersManager
 	typedef Inendi::PVAxesCombination::axes_comb_id_t axis_id_t;
 	typedef void* id_t;
 
-	struct range_geometry_t
-	{
+	struct range_geometry_t {
 		int64_t y_min;
 		int64_t y_max;
 	};
@@ -65,11 +64,17 @@ class PVSlidersManager
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void new_selection_sliders(const axis_id_t& axis_id, const id_t id, const int64_t y_min,
+	void new_selection_sliders(const axis_id_t& axis_id,
+	                           const id_t id,
+	                           const int64_t y_min,
 	                           const int64_t y_max);
-	void new_zoom_sliders(const axis_id_t& axis_id, const id_t id, const int64_t y_min,
+	void new_zoom_sliders(const axis_id_t& axis_id,
+	                      const id_t id,
+	                      const int64_t y_min,
 	                      const int64_t y_max);
-	void new_zoomed_selection_sliders(const axis_id_t& axis_id, const id_t id, const int64_t y_min,
+	void new_zoomed_selection_sliders(const axis_id_t& axis_id,
+	                                  const id_t id,
+	                                  const int64_t y_min,
 	                                  const int64_t y_max);
 
 	/**
@@ -92,12 +97,19 @@ class PVSlidersManager
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void update_selection_sliders(const axis_id_t& axis_id, const id_t id, const int64_t y_min,
+	void update_selection_sliders(const axis_id_t& axis_id,
+	                              const id_t id,
+	                              const int64_t y_min,
 	                              const int64_t y_max);
-	void update_zoom_sliders(const axis_id_t& axis_id, const id_t id, const int64_t y_min,
-	                         const int64_t y_max, const ZoomSliderChange change);
-	void update_zoomed_selection_sliders(const axis_id_t& axis_id, const id_t id,
-	                                     const int64_t y_min, const int64_t y_max);
+	void update_zoom_sliders(const axis_id_t& axis_id,
+	                         const id_t id,
+	                         const int64_t y_min,
+	                         const int64_t y_max,
+	                         const ZoomSliderChange change);
+	void update_zoomed_selection_sliders(const axis_id_t& axis_id,
+	                                     const id_t id,
+	                                     const int64_t y_min,
+	                                     const int64_t y_max);
 
 	/**
 	 * Function to iterate on all range sliders
@@ -116,13 +128,19 @@ class PVSlidersManager
 	typedef std::map<axis_id_t, range_geometry_list_t> range_geometry_set_t;
 
   private:
-	void new_range_sliders(range_geometry_set_t& range, const axis_id_t& axis_id, const id_t id,
-	                       const int64_t y_min, const int64_t y_max);
+	void new_range_sliders(range_geometry_set_t& range,
+	                       const axis_id_t& axis_id,
+	                       const id_t id,
+	                       const int64_t y_min,
+	                       const int64_t y_max);
 
 	void del_range_sliders(range_geometry_set_t& range, const axis_id_t& axis_id, const id_t id);
 
-	void update_range_sliders(range_geometry_set_t& range, const axis_id_t& axis_id, const id_t id,
-	                          const int64_t y_min, const int64_t y_max);
+	void update_range_sliders(range_geometry_set_t& range,
+	                          const axis_id_t& axis_id,
+	                          const id_t id,
+	                          const int64_t y_min,
+	                          const int64_t y_max);
 
 	void iterate_range_sliders(const range_geometry_set_t& range,
 	                           const range_functor_t& functor) const;

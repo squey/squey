@@ -23,7 +23,9 @@
  * PVCore::PVProgressBox::PVProgressBox
  *
  *****************************************************************************/
-PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent, Qt::WindowFlags flags,
+PVCore::PVProgressBox::PVProgressBox(QString msg,
+                                     QWidget* parent,
+                                     Qt::WindowFlags flags,
                                      QString const& format_detail)
     : QDialog(parent, flags), _format_detail(format_detail)
 {
@@ -166,7 +168,8 @@ void PVCore::PVProgressBox::set_enable_cancel(bool enable)
 }
 
 bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watcher,
-                                                  boost::thread& worker, PVProgressBox* pbox)
+                                                  boost::thread& worker,
+                                                  PVProgressBox* pbox)
 {
 	// watcher->set_thread(worker);
 	// Show the window only if the work takes more than 50ms (avoid window flashing)
@@ -185,7 +188,8 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 }
 
 bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watcher,
-                                                  boost::thread& worker, PVProgressBox* pbox,
+                                                  boost::thread& worker,
+                                                  PVProgressBox* pbox,
                                                   tbb::task_group_context& ctxt)
 {
 	// watcher->set_thread(worker);

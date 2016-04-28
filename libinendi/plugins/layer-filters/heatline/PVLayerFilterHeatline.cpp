@@ -160,8 +160,8 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterHeatline)
 	return args;
 }
 
-void Inendi::PVLayerFilterHeatline::post(PVLayer& out, const double ratio, const double fmin,
-                                         const double fmax, const PVRow line_id)
+void Inendi::PVLayerFilterHeatline::post(
+    PVLayer& out, const double ratio, const double fmin, const double fmax, const PVRow line_id)
 {
 	// Colorize line dpeending on ratio value. (High ratio -> red, low ratio -> green)
 	const PVCore::PVHSVColor color(

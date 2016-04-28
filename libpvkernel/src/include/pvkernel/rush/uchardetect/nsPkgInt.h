@@ -51,8 +51,7 @@ typedef enum {
 	eUnitMsk16bits = 0x0000FFFFL
 } nsUnitMsk;
 
-typedef struct nsPkgInt
-{
+typedef struct nsPkgInt {
 	nsIdxSft idxsft;
 	nsSftMsk sftmsk;
 	nsBitSft bitsft;

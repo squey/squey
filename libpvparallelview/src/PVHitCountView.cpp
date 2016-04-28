@@ -46,17 +46,20 @@
 #define print_m(R) __print_mat(#R, R)
 #define print_mat(R) __print_mat(#R, R)
 
-template <typename M> void __print_mat(const char* text, const M& m)
+template <typename M>
+void __print_mat(const char* text, const M& m)
 {
-	std::cout << text << ": " << std::endl << "  " << m.m11() << " " << m.m12() << " " << m.m13()
-	          << std::endl << "  " << m.m21() << " " << m.m22() << " " << m.m23() << std::endl
+	std::cout << text << ": " << std::endl
+	          << "  " << m.m11() << " " << m.m12() << " " << m.m13() << std::endl
+	          << "  " << m.m21() << " " << m.m22() << " " << m.m23() << std::endl
 	          << "  " << m.m31() << " " << m.m32() << " " << m.m33() << std::endl;
 }
 
 #define print_r(R) __print_rect(#R, R)
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R> void __print_rect(const char* text, const R& r)
+template <typename R>
+void __print_rect(const char* text, const R& r)
 {
 	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
@@ -65,7 +68,8 @@ template <typename R> void __print_rect(const char* text, const R& r)
 #define print_v(R) __print_vect(#R, R)
 #define print_vect(R) __print_vect(#R, R)
 
-template <typename R> void __print_vect(const char* text, const R& r)
+template <typename R>
+void __print_vect(const char* text, const R& r)
 {
 	std::cout << text << ": " << r.x() << " " << r.y() << std::endl;
 }
@@ -73,7 +77,8 @@ template <typename R> void __print_vect(const char* text, const R& r)
 #define print_s(V) print_scalar(V)
 #define print_scalar(V) __print_scalar(#V, V)
 
-template <typename V> void __print_scalar(const char* text, const V& v)
+template <typename V>
+void __print_scalar(const char* text, const V& v)
 {
 	std::cout << text << ": " << v << std::endl;
 }
@@ -83,8 +88,10 @@ template <typename V> void __print_scalar(const char* text, const V& v)
  *****************************************************************************/
 
 PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp& pvview_sp,
-                                               const uint32_t* col_plotted, const PVRow nrows,
-                                               const PVCol axis_index, QWidget* parent)
+                                               const uint32_t* col_plotted,
+                                               const PVRow nrows,
+                                               const PVCol axis_index,
+                                               QWidget* parent)
     : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
     , _pvview(*pvview_sp)
     , _axis_index(axis_index)
@@ -389,9 +396,11 @@ void PVParallelView::PVHitCountView::drawForeground(QPainter* /*painter*/, const
  * PVParallelView::PVHitCountView::draw_lines
  *****************************************************************************/
 
-void PVParallelView::PVHitCountView::draw_lines(QPainter* painter, const int x_max,
+void PVParallelView::PVHitCountView::draw_lines(QPainter* painter,
+                                                const int x_max,
                                                 const int block_view_offset,
-                                                const double rel_y_scale, const uint32_t* buffer,
+                                                const double rel_y_scale,
+                                                const uint32_t* buffer,
                                                 const int hsv_value)
 {
 	const int y_axis_length = get_y_axis_length();

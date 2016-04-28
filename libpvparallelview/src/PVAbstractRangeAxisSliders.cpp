@@ -16,7 +16,9 @@
  *****************************************************************************/
 
 PVParallelView::PVAbstractRangeAxisSliders::PVAbstractRangeAxisSliders(
-    QGraphicsItem* parent, PVSlidersManager_p sm_p, PVParallelView::PVSlidersGroup* group,
+    QGraphicsItem* parent,
+    PVSlidersManager_p sm_p,
+    PVParallelView::PVSlidersGroup* group,
     const char* text)
     : PVAbstractAxisSliders(parent, sm_p, group, text)
 {

@@ -16,7 +16,8 @@ PVRush::PVInputTypeDatabase::PVInputTypeDatabase()
 }
 
 bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
-                                               hash_formats& new_formats, list_inputs& inputs,
+                                               hash_formats& new_formats,
+                                               list_inputs& inputs,
                                                QString& format,
                                                PVCore::PVArgumentList& /*args_ext*/,
                                                QWidget* parent) const

@@ -88,7 +88,8 @@ void Inendi::PVLinesProperties::reset_to_default_color(PVRow row_count)
  * Inendi::PVLinesProperties::selection_set_rgba
  *
  *****************************************************************************/
-void Inendi::PVLinesProperties::selection_set_color(PVSelection const& selection, const PVRow nelts,
+void Inendi::PVLinesProperties::selection_set_color(PVSelection const& selection,
+                                                    const PVRow nelts,
                                                     const PVCore::PVHSVColor c)
 {
 	ensure_initialized(nelts);

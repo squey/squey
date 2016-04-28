@@ -38,7 +38,8 @@ class PVPluginPresets
 };
 }
 
-template <class T> class PVPluginPresets : public __impl::PVPluginPresets
+template <class T>
+class PVPluginPresets : public __impl::PVPluginPresets
 {
   public:
 	PVPluginPresets(T& o, QString const& path)

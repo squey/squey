@@ -56,8 +56,8 @@ int main()
 	// Check it is equi-reparteed
 	PV_ASSERT_VALID(std::adjacent_find(distinct_mapping.begin(), distinct_mapping.end(),
 	                                   [](uint32_t a, uint32_t b) {
-		                return std::abs(a - b) > 1;
-		            }) != distinct_mapping.end());
+		                                   return std::abs(a - b) > 1;
+		                               }) != distinct_mapping.end());
 #endif
 
 	return 0;

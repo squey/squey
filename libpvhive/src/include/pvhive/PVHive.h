@@ -56,7 +56,8 @@ class no_object : public std::exception
 
 /// @}
 
-template <class T> class PVActor;
+template <class T>
+class PVActor;
 
 namespace __impl
 {
@@ -65,7 +66,9 @@ namespace __impl
 inline void hive_deleter(void* ptr);
 
 // definition of PVCallReturn
-template <typename T, typename F, F f,
+template <typename T,
+          typename F,
+          F f,
           bool is_void =
               std::is_void<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value,
           bool is_ref = std::is_reference<
@@ -73,13 +76,15 @@ template <typename T, typename F, F f,
 class PVCallReturn;
 
 // Specialization for functions returning non-void and non-reference
-template <typename T, typename F, F f> class PVCallReturn<T, F, f, false, false>
+template <typename T, typename F, F f>
+class PVCallReturn<T, F, f, false, false>
 {
   public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::result_type result_type;
 
   public:
-	template <typename... P> inline void call(T* object, P&&... params)
+	template <typename... P>
+	inline void call(T* object, P&&... params)
 	{
 		_result = (object->*f)(std::forward<P>(params)...);
 	}
@@ -91,13 +96,15 @@ template <typename T, typename F, F f> class PVCallReturn<T, F, f, false, false>
 };
 
 // Specialization for functions returning non-void and reference
-template <typename T, typename F, F f> class PVCallReturn<T, F, f, false, true>
+template <typename T, typename F, F f>
+class PVCallReturn<T, F, f, false, true>
 {
   public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::result_type result_type;
 
   public:
-	template <typename... P> inline void call(T* object, P&&... params)
+	template <typename... P>
+	inline void call(T* object, P&&... params)
 	{
 		_result = &(object->*f)(std::forward<P>(params)...);
 	}
@@ -109,10 +116,12 @@ template <typename T, typename F, F f> class PVCallReturn<T, F, f, false, true>
 };
 
 // Specialization for functions returning void
-template <typename T, typename F, F f> class PVCallReturn<T, F, f, true, false>
+template <typename T, typename F, F f>
+class PVCallReturn<T, F, f, true, false>
 {
   public:
-	template <typename... P> inline void call(T* object, P&&... params)
+	template <typename... P>
+	inline void call(T* object, P&&... params)
 	{
 		(object->*f)(std::forward<P>(params)...);
 	}
@@ -161,8 +170,7 @@ template <typename T, typename F, F f> class PVCallReturn<T, F, f, true, false>
  */
 class PVHive
 {
-	struct tbb_hash_ptr
-	{
+	struct tbb_hash_ptr {
 		static inline size_t hash(const void* a) { return (size_t)a; }
 		static inline bool equal(const void* a, const void* b) { return a == b; }
 	};
@@ -173,8 +181,7 @@ class PVHive
 	typedef std::unordered_multimap<void*, PVFuncObserverBase*> func_observers_t;
 	typedef std::set<void*> properties_t;
 
-	struct observable_t
-	{
+	struct observable_t {
 		actors_t actors;
 		observers_t observers;
 		func_observers_t func_observers;
@@ -186,7 +193,8 @@ class PVHive
   private:
 	friend void __impl::hive_deleter(void* ptr);
 	friend class PVActorBase;
-	template <typename T> friend class PVActor;
+	template <typename T>
+	friend class PVActor;
 
   public:
 	/**
@@ -206,7 +214,8 @@ class PVHive
 	 *
 	 * @param object the new managed object
 	 */
-	template <class T> void register_object(PVCore::PVSharedPtr<T>& object)
+	template <class T>
+	void register_object(PVCore::PVSharedPtr<T>& object)
 	{
 		observables_t::accessor acc;
 
@@ -244,7 +253,8 @@ class PVHive
 	 * @param object the managed object
 	 * @param actor the actor
 	 */
-	template <class T> void register_actor(PVCore::PVSharedPtr<T>& object, PVActorBase& actor)
+	template <class T>
+	void register_actor(PVCore::PVSharedPtr<T>& object, PVActorBase& actor)
 	{
 		// an actor must be set for only one object
 		assert(actor.get_object() == nullptr);
@@ -267,7 +277,8 @@ class PVHive
 	 * @param object the observed object
 	 * @return the actor
 	 */
-	template <class T> PVActor<T>* register_actor(PVCore::PVSharedPtr<T>& object)
+	template <class T>
+	PVActor<T>* register_actor(PVCore::PVSharedPtr<T>& object)
 	{
 		PVActor<T>* actor = new PVActor<T>();
 		register_actor(object, *actor);
@@ -343,8 +354,8 @@ class PVHive
 	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
-	void register_observer(PVCore::PVSharedPtr<T>& object, F const& prop_get,
-	                       PVObserverBase& observer)
+	void
+	register_observer(PVCore::PVSharedPtr<T>& object, F const& prop_get, PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
@@ -484,7 +495,8 @@ class PVHive
 	 *
 	 * @param object the observed object
 	 */
-	template <typename T> inline void about_to_refresh_observers(T const* object)
+	template <typename T>
+	inline void about_to_refresh_observers(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
@@ -497,7 +509,8 @@ class PVHive
 	 *
 	 * @param object the observed object
 	 */
-	template <typename T> inline void refresh_observers(T const* object)
+	template <typename T>
+	inline void refresh_observers(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
@@ -519,7 +532,8 @@ class PVHive
 		}
 	}
 
-	template <typename T> inline void refresh_observers_maybe_recursive(T const* object)
+	template <typename T>
+	inline void refresh_observers_maybe_recursive(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
@@ -659,13 +673,14 @@ class PVHive
 	{
 		// Unpack arguments
 		return do_call_object_default<T, F, f>(
-		    object, args, typename PVCore::PVTypeTraits::gen_seq_n<
-		                      (int)PVCore::PVTypeTraits::function_traits<F>::arity>::type());
+		    object, args, typename PVCore::PVTypeTraits::gen_seq_n<(
+		                      int)PVCore::PVTypeTraits::function_traits<F>::arity>::type());
 	}
 
 	template <typename T, typename F, F f, int... S>
 	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type do_call_object_default(
-	    T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args,
+	    T* object,
+	    typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args,
 	    PVCore::PVTypeTraits::seq_n<S...>)
 	{
 		return call_object_default<T, F, f>(object, std::get<S>(args)...);

@@ -19,8 +19,7 @@ class PVDisplaysContainer;
 class PVDisplaysImpl : public QObject
 {
   public:
-	struct ActionParams
-	{
+	struct ActionParams {
 		PVDisplayIf* disp_if;
 		QVariant params;
 	};
@@ -41,7 +40,8 @@ class PVDisplaysImpl : public QObject
 	static PVDisplaysImpl& get();
 
   public:
-	template <typename F> void visit_all_displays(F const& f, int flags = 0) const
+	template <typename F>
+	void visit_all_displays(F const& f, int flags = 0) const
 	{
 		visit_displays_by_if<PVDisplayViewIf>(f, flags);
 		visit_displays_by_if<PVDisplaySourceIf>(f, flags);
@@ -49,7 +49,8 @@ class PVDisplaysImpl : public QObject
 		visit_displays_by_if<PVDisplayViewZoneIf>(f, flags);
 	}
 
-	template <typename If, typename F> void visit_displays_by_if(F const& f, int flags = 0) const
+	template <typename If, typename F>
+	void visit_displays_by_if(F const& f, int flags = 0) const
 	{
 		// Interface of 'F' must be void f(If& obj), or with a base of If;
 		typename PVCore::PVClassLibrary<If>::list_classes const& lc =
@@ -63,7 +64,8 @@ class PVDisplaysImpl : public QObject
 		}
 	}
 
-	template <typename If, typename... P> QWidget* get_widget(If& interface, P&&... args) const
+	template <typename If, typename... P>
+	QWidget* get_widget(If& interface, P&&... args) const
 	{
 		if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
 			return interface.get_unique_widget(std::forward<P>(args)...);
@@ -104,10 +106,16 @@ class PVDisplaysImpl : public QObject
 		return act;
 	}
 
-	void add_displays_view_axis_menu(QMenu& menu, QObject* receiver, const char* slot,
-	                                 Inendi::PVView* view, PVCol axis_comb) const;
-	void add_displays_view_zone_menu(QMenu& menu, QObject* receiver, const char* slot,
-	                                 Inendi::PVView* view, PVCol axis_comb) const;
+	void add_displays_view_axis_menu(QMenu& menu,
+	                                 QObject* receiver,
+	                                 const char* slot,
+	                                 Inendi::PVView* view,
+	                                 PVCol axis_comb) const;
+	void add_displays_view_zone_menu(QMenu& menu,
+	                                 QObject* receiver,
+	                                 const char* slot,
+	                                 Inendi::PVView* view,
+	                                 PVCol axis_comb) const;
 
 	PVDisplaysContainer* get_parent_container(QWidget* self) const;
 

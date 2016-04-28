@@ -54,7 +54,8 @@ class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 	 * @param option the QGrapghicsItem's style to use
 	 * @param widget the widget requesting the paint (consider it as null)
 	 */
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+	void paint(QPainter* painter,
+	           const QStyleOptionGraphicsItem* option,
 	           QWidget* widget = nullptr) override;
 
   public:
@@ -116,7 +117,7 @@ class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 	 */
 	void set_view_scale(const qreal xscale, const qreal yscale);
 
-signals:
+  signals:
 	/**
 	 * a signal emitted when the timeout occurs
 	 */

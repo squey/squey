@@ -60,7 +60,7 @@ class PVFieldsFilterParamWidgetBase
 		connect(this, SIGNAL(nchilds_changed_Signal()), dst, slot);
 	}
 
-signals:
+  signals:
 	void args_changed_Signal();
 	void nchilds_changed_Signal();
 };

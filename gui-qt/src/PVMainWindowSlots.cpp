@@ -322,17 +322,17 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 	PVCore::PVProgressBox pbox("Exporting data to Mineset...");
 	pbox.set_enable_cancel(false);
 
-	PVCore::PVProgressBox::progress([&]() {
-		                                try {
-			                                std::string dataset_url =
-			                                    Inendi::PVMineset::import_dataset(*current_view());
-			                                current_view()->add_mineset_dataset(dataset_url);
-			                                QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
-		                                } catch (const Inendi::PVMineset::mineset_error& e) {
-			                                emit mineset_error(QString(e.what()));
-		                                }
-		                            },
-	                                &pbox);
+	PVCore::PVProgressBox::progress(
+	    [&]() {
+		    try {
+			    std::string dataset_url = Inendi::PVMineset::import_dataset(*current_view());
+			    current_view()->add_mineset_dataset(dataset_url);
+			    QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
+		    } catch (const Inendi::PVMineset::mineset_error& e) {
+			    emit mineset_error(QString(e.what()));
+		    }
+		},
+	    &pbox);
 }
 
 /******************************************************************************
@@ -445,8 +445,8 @@ Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 	return scene_p;
 }
 
-bool
-PVInspector::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
+bool PVInspector::PVMainWindow::load_source_from_description_Slot(
+    PVRush::PVSourceDescription src_desc)
 {
 	bool has_error = false;
 	Inendi::PVScene_sp scene_p;
@@ -601,7 +601,8 @@ bool PVInspector::PVMainWindow::maybe_save_solution()
 		QString solution_name = QFileInfo(windowFilePath()).fileName();
 		ret = QMessageBox::warning(this, tr("%1").arg(solution_name),
 		                           tr("The solution \"%1\"has been modified.\n"
-		                              "Do you want to save your changes?").arg(solution_name),
+		                              "Do you want to save your changes?")
+		                               .arg(solution_name),
 		                           QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if (ret == QMessageBox::Save) {
 			solution_save_Slot();
@@ -656,8 +657,9 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		} catch (PVCore::PVSerializeArchiveError& e) {
 			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(e.what());
 		} catch (PVRush::PVInputException const& e) {
-			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(
-			    QString::fromStdString(e.what()));
+			err_msg = tr("Error while loading solution %1:\n%2")
+			              .arg(file)
+			              .arg(QString::fromStdString(e.what()));
 		} catch (...) {
 			err_msg = tr("Fatal error while loading solution %1:\n unhandled error(s).").arg(file);
 		}
@@ -794,7 +796,8 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 		QMessageBox* box =
 		    new QMessageBox(QMessageBox::Warning, tr("Error while loading project..."),
 		                    tr("File '%1' cannot be found or isn't readable by the process. Please "
-		                       "select its new path.").arg(old_path),
+		                       "select its new path.")
+		                        .arg(old_path),
 		                    QMessageBox::Ok, this);
 		box->exec();
 		QString new_file =
@@ -1105,7 +1108,8 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 			int current_tab_index =
 			    _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
 			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tabText(
-			                     current_tab_index)).baseName();
+			                     current_tab_index))
+			           .baseName();
 		} else {
 			/* if there is no workspace_tab_widget, it means we are on the
 			 * start screen

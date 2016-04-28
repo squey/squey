@@ -211,29 +211,30 @@ bool PVRush::PVElasticsearchAPI::extract(const PVRush::PVElasticsearchQuery& que
 
 	tbb::parallel_pipeline(
 	    request_count,
-	    tbb::make_filter<void, indexed_json_buffer_t>(tbb::filter::serial_in_order,
-	                                                  [&](tbb::flow_control& fc) {
-		    if (--request_count == -1 || query_end) {
-			    fc.stop();
-			    return indexed_json_buffer_t();
-		    }
-		    std::string json_buffer;
+	    tbb::make_filter<void, indexed_json_buffer_t>(
+	        tbb::filter::serial_in_order,
+	        [&](tbb::flow_control& fc) {
+		        if (--request_count == -1 || query_end) {
+			        fc.stop();
+			        return indexed_json_buffer_t();
+		        }
+		        std::string json_buffer;
 
-		    scroll(query, json_buffer, error);
+		        scroll(query, json_buffer, error);
 
-		    if (error && error->empty() == false) {
-			    query_end = true;
-		    }
-
-		    return indexed_json_buffer_t(std::move(json_buffer), request_count);
-		}) &
-	        tbb::make_filter<indexed_json_buffer_t, void>(tbb::filter::parallel,
-	                                                      [&](indexed_json_buffer_t json_buffer) {
-		        if (parse_scroll_results(json_buffer.first, rows_array[json_buffer.second]) ==
-		            false) {
+		        if (error && error->empty() == false) {
 			        query_end = true;
 		        }
-		    }));
+
+		        return indexed_json_buffer_t(std::move(json_buffer), request_count);
+		    }) &
+	        tbb::make_filter<indexed_json_buffer_t, void>(
+	            tbb::filter::parallel, [&](indexed_json_buffer_t json_buffer) {
+		            if (parse_scroll_results(json_buffer.first, rows_array[json_buffer.second]) ==
+		                false) {
+			            query_end = true;
+		            }
+		        }));
 
 	return query_end;
 }
@@ -369,7 +370,8 @@ bool PVRush::PVElasticsearchAPI::init_scroll(const PVRush::PVElasticsearchQuery&
 }
 
 bool PVRush::PVElasticsearchAPI::scroll(const PVRush::PVElasticsearchQuery& query,
-                                        std::string& json_buffer, std::string* error /* = nullptr */
+                                        std::string& json_buffer,
+                                        std::string* error /* = nullptr */
                                         )
 {
 	if (_scroll_id.empty()) {
@@ -418,8 +420,9 @@ void PVRush::PVElasticsearchAPI::prepare_query(const std::string& uri,
 	}
 	if (_infos.get_login().isEmpty() == false) {
 		curl_easy_setopt(_curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-		curl_easy_setopt(_curl, CURLOPT_USERPWD, (_infos.get_login().toStdString() + ":" +
-		                                          _infos.get_password().toStdString()).c_str());
+		curl_easy_setopt(
+		    _curl, CURLOPT_USERPWD,
+		    (_infos.get_login().toStdString() + ":" + _infos.get_password().toStdString()).c_str());
 	}
 	curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, false);
 }

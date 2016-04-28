@@ -27,8 +27,7 @@
 #pragma pack(push)
 #pragma pack(4)
 
-struct entry
-{
+struct entry {
 	uint32_t y1, y2;
 	uint32_t idx;
 };

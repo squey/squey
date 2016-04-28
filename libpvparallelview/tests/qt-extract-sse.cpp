@@ -67,10 +67,14 @@ static inline double get_scale_factor(uint32_t zoom)
 	return pow(2, zoom);
 }
 
-static inline void compute_bci_projection_y2(const uint64_t y1, const uint64_t y2,
-                                             const uint64_t y_min, const uint64_t y_lim,
-                                             const int shift, const uint32_t mask,
-                                             const uint32_t width, const float beta,
+static inline void compute_bci_projection_y2(const uint64_t y1,
+                                             const uint64_t y2,
+                                             const uint64_t y_min,
+                                             const uint64_t y_lim,
+                                             const int shift,
+                                             const uint32_t mask,
+                                             const uint32_t width,
+                                             const float beta,
                                              bci_code_t& bci)
 {
 	bci.s.l = ((y1 - y_min) >> shift) & mask;
@@ -107,11 +111,20 @@ void usage(const char* program)
  * sequential extraction
  */
 template <typename Ftest, typename Finsert>
-void extract_seq(const quadtree_entry_t* entries, const size_t size, const uint32_t y1_min_value,
-                 const uint32_t y1_mid_value, const uint32_t y2_min_value,
-                 const uint32_t y2_mid_value, const uint64_t y1_min, const uint64_t y1_max,
-                 const uint32_t zoom, const uint32_t y2_count, const Ftest& test_f,
-                 const Finsert& insert_f, uint32_t* buffer, tlr_buffer_t& tlr)
+void extract_seq(const quadtree_entry_t* entries,
+                 const size_t size,
+                 const uint32_t y1_min_value,
+                 const uint32_t y1_mid_value,
+                 const uint32_t y2_min_value,
+                 const uint32_t y2_mid_value,
+                 const uint64_t y1_min,
+                 const uint64_t y1_max,
+                 const uint32_t zoom,
+                 const uint32_t y2_count,
+                 const Ftest& test_f,
+                 const Finsert& insert_f,
+                 uint32_t* buffer,
+                 tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
 	const uint64_t y1_orig = y1_min_value;
@@ -171,7 +184,9 @@ void _sse_p64(const char* text, const __m128i& sse_reg)
 #endif
 
 #define NONE 0
-bool test_sse(const __m128i& sse_y1, const __m128i& sse_y1_min, const __m128i& sse_y1_max,
+bool test_sse(const __m128i& sse_y1,
+              const __m128i& sse_y1_min,
+              const __m128i& sse_y1_max,
               __m128i& sse_res)
 {
 	static const __m128i shuffle_mask =
@@ -215,7 +230,9 @@ bool test_sse(const __m128i& sse_y1, const __m128i& sse_y1_min, const __m128i& s
 	return _mm_testz_si128(sse_res, full_mask);
 }
 
-bool test_sse2(const __m128i& sse_y1, const __m128i& sse_y1_min, const __m128i& sse_y1_max,
+bool test_sse2(const __m128i& sse_y1,
+               const __m128i& sse_y1_min,
+               const __m128i& sse_y1_max,
                __m128i& sse_res)
 {
 	static const __m128i sse_full_ones = _mm_set1_epi32(0xFFFFFFFF);
@@ -315,11 +332,20 @@ bool test_sse2(const __m128i& sse_y1, const __m128i& sse_y1_min, const __m128i& 
  * vectorized extraction
  */
 template <typename Ftest, typename Finsert>
-void extract_sse(const quadtree_entry_t* entries, const size_t size, const uint32_t y1_min_value,
-                 const uint32_t y1_mid_value, const uint32_t y2_min_value,
-                 const uint32_t y2_mid_value, const uint64_t y1_min, const uint64_t y1_max,
-                 const uint32_t zoom, const uint32_t y2_count, const Ftest& test_f,
-                 const Finsert& insert_f, uint32_t* buffer, tlr_buffer_t& tlr)
+void extract_sse(const quadtree_entry_t* entries,
+                 const size_t size,
+                 const uint32_t y1_min_value,
+                 const uint32_t y1_mid_value,
+                 const uint32_t y2_min_value,
+                 const uint32_t y2_mid_value,
+                 const uint64_t y1_min,
+                 const uint64_t y1_max,
+                 const uint32_t zoom,
+                 const uint32_t y2_count,
+                 const Ftest& test_f,
+                 const Finsert& insert_f,
+                 uint32_t* buffer,
+                 tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
 	const uint64_t y1_orig = y1_min_value;
@@ -601,8 +627,8 @@ int main(int argc, char** argv)
 	BENCH_START(seq);
 	extract_seq(entries, ent_num, 0, BUCKET_ELT_COUNT >> 1, 0, BUCKET_ELT_COUNT >> 1, y1_min,
 	            y1_max, zoom, 4096,
-	            [](const quadtree_entry_t& e, const uint64_t y1_min, const uint64_t y1_max)
-	                -> bool { return (e.y1 >= y1_min) && (e.y1 < y1_max); },
+	            [](const quadtree_entry_t& e, const uint64_t y1_min,
+	               const uint64_t y1_max) -> bool { return (e.y1 >= y1_min) && (e.y1 < y1_max); },
 	            [&](const quadtree_entry_t& e, tlr_buffer_t& buffer) {
 		            bci_code_t bci;
 		            compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim, shift, mask_int_ycoord,
@@ -621,8 +647,8 @@ int main(int argc, char** argv)
 	BENCH_START(sse);
 	extract_sse(entries, ent_num, 0, BUCKET_ELT_COUNT >> 1, 0, BUCKET_ELT_COUNT >> 1, y1_min,
 	            y1_max, zoom, 4096,
-	            [](const quadtree_entry_t& e, const uint64_t y1_min, const uint64_t y1_max)
-	                -> bool { return (y1_min <= e.y1) && (e.y1 < y1_max); },
+	            [](const quadtree_entry_t& e, const uint64_t y1_min,
+	               const uint64_t y1_max) -> bool { return (y1_min <= e.y1) && (e.y1 < y1_max); },
 	            [&](const quadtree_entry_t& e, tlr_buffer_t& buffer) {
 		            bci_code_t bci;
 		            compute_bci_projection_y2(e.y1, e.y2, y_min, y_lim, shift, mask_int_ycoord,

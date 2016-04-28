@@ -7,8 +7,8 @@
 
 #include <pvkernel/core/PVColor.h>
 
-PVCore::PVColor PVCore::PVColor::fromRgba(unsigned char r, unsigned char g, unsigned char b,
-                                          unsigned char a)
+PVCore::PVColor
+PVCore::PVColor::fromRgba(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	PVColor color;
 	color.x = r;

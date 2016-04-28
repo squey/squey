@@ -37,7 +37,8 @@ namespace PVParallelView
  * \f$z2s_{dec}(zoom) = 2^{zoom \bmod N}\f$
  */
 
-template <int STEPS = 5> class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
+template <int STEPS = 5>
+class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
 {
   public:
 	/**

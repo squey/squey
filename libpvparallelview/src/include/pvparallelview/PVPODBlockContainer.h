@@ -41,8 +41,7 @@ class PVPODBlockContainer : protected Alloc
 	typedef typename allocator_type::const_reference const_reference;
 
   private:
-	struct block_t
-	{
+	struct block_t {
 		pointer p;
 	};
 	typedef std::list<block_t> list_blocks_t;

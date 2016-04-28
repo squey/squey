@@ -14,7 +14,8 @@
 namespace PVCore
 {
 
-template <typename T, class Alloc = std::allocator<T>> class PVSharedBuffer
+template <typename T, class Alloc = std::allocator<T>>
+class PVSharedBuffer
 {
 	typedef PVCore::PVSharedPtr<T> data_ptr_t;
 	typedef Alloc allocator_type;

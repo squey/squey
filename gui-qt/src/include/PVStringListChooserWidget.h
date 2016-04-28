@@ -18,7 +18,9 @@ class PVStringListChooserWidget : public QDialog
 	Q_OBJECT
 
   public:
-	PVStringListChooserWidget(QWidget* parent_, QString const& text, QStringList const& list,
+	PVStringListChooserWidget(QWidget* parent_,
+	                          QString const& text,
+	                          QStringList const& list,
 	                          QStringList comments = QStringList());
 
   public:

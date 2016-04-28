@@ -46,7 +46,8 @@ class PVGraphicsViewInteractorBase : public QObject
  *PVZoomableDrawingAreaInteractor;
  * \endcode
  */
-template <class T> class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
+template <class T>
+class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
 {
 	typedef T object_type;
 	friend class PVGraphicsView;

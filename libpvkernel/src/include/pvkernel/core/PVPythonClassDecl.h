@@ -36,8 +36,7 @@ class PVPythonClassRegister
 
 #define PYTHON_EXPOSE()                                                                            \
   public:                                                                                          \
-	struct __PythonDecl : public PVCore::PVPythonClassDecl                                         \
-	{                                                                                              \
+	struct __PythonDecl : public PVCore::PVPythonClassDecl {                                       \
 		void declare();                                                                            \
 		PVCore::PVPythonClassDecl* clone() const { return new __PythonDecl(); }                    \
 	};

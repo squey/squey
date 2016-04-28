@@ -43,7 +43,8 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
           [&](Inendi::PVSelection const*) { this->selection_updated(); },
           [&](Inendi::PVSelection const*) {}))
     , _obs_view(PVHive::create_observer_callback_heap<Inendi::PVView>(
-          [&](Inendi::PVView const*) {}, [&](Inendi::PVView const*) {},
+          [&](Inendi::PVView const*) {},
+          [&](Inendi::PVView const*) {},
           [&](Inendi::PVView const*) { this->view_about_to_be_deleted(); }))
     , _obs_axes_comb(
           PVHive::create_observer_callback_heap<Inendi::PVAxesCombination::columns_indexes_t>(
@@ -62,7 +63,9 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
     , _processor_sel(PVZonesProcessor::declare_processor_zm_sel(
           common::pipeline(), _zones_manager, _colors, view_sp->get_real_output_selection()))
     , _processor_bg(PVZonesProcessor::declare_background_processor_zm_sel(
-          common::pipeline(), _zones_manager, _colors,
+          common::pipeline(),
+          _zones_manager,
+          _colors,
           view_sp->get_layer_stack_output_layer().get_selection()))
 {
 	PVHive::get().register_observer(
@@ -424,36 +427,38 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	PVCore::PVProgressBox pbox("Updating zoomed parallel views");
 
-	PVCore::PVProgressBox::progress([&]() {
-		                                for (PVZoomedParallelScene* view :
-		                                     _zoomed_parallel_scenes) {
-			                                view->set_enabled(true);
-			                                request_zoomed_zone_trees(view->get_axis_index());
-			                                view->update_all_async();
-		                                }
-		                            },
-	                                &pbox);
+	PVCore::PVProgressBox::progress(
+	    [&]() {
+		    for (PVZoomedParallelScene* view : _zoomed_parallel_scenes) {
+			    view->set_enabled(true);
+			    request_zoomed_zone_trees(view->get_axis_index());
+			    view->update_all_async();
+		    }
+		},
+	    &pbox);
 
 	PVCore::PVProgressBox pbox2("Updating scatter views");
 
-	PVCore::PVProgressBox::progress([&]() {
-		                                for (PVScatterView* view : _scatter_views) {
-			                                view->set_enabled(true);
-			                                request_zoomed_zone_trees(view->get_zone_index());
-			                                view->update_all_async();
-		                                }
-		                            },
-	                                &pbox2);
+	PVCore::PVProgressBox::progress(
+	    [&]() {
+		    for (PVScatterView* view : _scatter_views) {
+			    view->set_enabled(true);
+			    request_zoomed_zone_trees(view->get_zone_index());
+			    view->update_all_async();
+		    }
+		},
+	    &pbox2);
 
 	PVCore::PVProgressBox pbox3("Updating hit-count views");
 
-	PVCore::PVProgressBox::progress([&]() {
-		                                for (PVHitCountView* view : _hit_count_views) {
-			                                view->set_enabled(true);
-			                                view->update_all_async();
-		                                }
-		                            },
-	                                &pbox3);
+	PVCore::PVProgressBox::progress(
+	    [&]() {
+		    for (PVHitCountView* view : _hit_count_views) {
+			    view->set_enabled(true);
+			    view->update_all_async();
+		    }
+		},
+	    &pbox3);
 }
 
 void PVParallelView::PVLibView::remove_view(PVFullParallelScene* scene)

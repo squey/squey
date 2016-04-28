@@ -29,8 +29,13 @@ class PVDBInfos
 
   public:
 	PVDBInfos();
-	PVDBInfos(QString const& type, QString const& host, uint16_t port, QString const& username,
-	          QString const& password, QString const& dbname, QString const& options = QString(""));
+	PVDBInfos(QString const& type,
+	          QString const& host,
+	          uint16_t port,
+	          QString const& username,
+	          QString const& password,
+	          QString const& dbname,
+	          QString const& options = QString(""));
 
   public:
 	void set_type(QString const& type) { _type = type; }

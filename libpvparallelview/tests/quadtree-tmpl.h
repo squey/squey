@@ -13,7 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-template <class DataContainer> class PVQuadTreeTmplBase
+template <class DataContainer>
+class PVQuadTreeTmplBase
 {
   public:
 	PVQuadTreeTmplBase() : _max_level(0) {}
@@ -71,8 +72,11 @@ class PVQuadTreeTmpl : public PVQuadTreeTmplBase<DataContainer>
   public:
 	PVQuadTreeTmpl() {}
 
-	PVQuadTreeTmpl(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value,
-	               uint32_t y2_max_value, int max_level)
+	PVQuadTreeTmpl(uint32_t y1_min_value,
+	               uint32_t y1_max_value,
+	               uint32_t y2_min_value,
+	               uint32_t y2_max_value,
+	               int max_level)
 	    : _y1_min_value(y1_min_value)
 	    , _y1_max_value(y1_max_value)
 	    , _y2_min_value(y2_min_value)
@@ -111,8 +115,11 @@ class PVQuadTreeTmpl : public PVQuadTreeTmplBase<DataContainer>
 		return mem;
 	}
 
-	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value,
-	         uint32_t y2_max_value, int max_level)
+	void set(uint32_t y1_min_value,
+	         uint32_t y1_max_value,
+	         uint32_t y2_min_value,
+	         uint32_t y2_max_value,
+	         int max_level)
 	{
 		PVQuadTreeTmplBase<DataContainer>::set(max_level);
 		_y1_min_value = y1_min_value;

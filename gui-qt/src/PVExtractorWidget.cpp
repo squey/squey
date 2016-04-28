@@ -176,7 +176,8 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 }
 
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job,
-                                                           QString const& desc, int /*nlines*/,
+                                                           QString const& desc,
+                                                           int /*nlines*/,
                                                            QWidget* parent = NULL)
 {
 	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(

@@ -29,7 +29,8 @@ PVRush::PVInputTypeFilename::PVInputTypeFilename() : PVInputTypeDesc<PVFileDescr
 }
 
 bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats,
-                                               hash_formats& /*new_formats*/, list_inputs& inputs,
+                                               hash_formats& /*new_formats*/,
+                                               list_inputs& inputs,
                                                QString& format,
                                                PVCore::PVArgumentList& /*args_ext*/,
                                                QWidget* parent) const
@@ -48,7 +49,8 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats,
 	return load_files(filenames, inputs, parent);
 }
 
-bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, list_inputs& inputs,
+bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
+                                             list_inputs& inputs,
                                              QWidget* parent) const
 {
 	bool check_archives = true;
@@ -64,7 +66,8 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, list_
 				QMessageBox box_ext(
 				    QMessageBox::Question, "Import files: archive detected",
 				    QString("'%1' has been detected as an archive. Do you want to extract it to a "
-				            "temporary directory and import its content ?").arg(path),
+				            "temporary directory and import its content ?")
+				        .arg(path),
 				    QMessageBox::YesToAll | QMessageBox::Yes | QMessageBox::No |
 				        QMessageBox::NoToAll | QMessageBox::Cancel,
 				    parent);
@@ -212,11 +215,11 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
 
 	QDir d = fi.dir();
 
-	auto path_custom_dir_format = std::find_if(custom_filenames.begin(), custom_filenames.end(),
-	                                           [&d](const QString& filename) {
-		QFileInfo fi = QFileInfo(d.absoluteFilePath(filename));
-		return fi.exists() && fi.isReadable();
-	});
+	auto path_custom_dir_format = std::find_if(
+	    custom_filenames.begin(), custom_filenames.end(), [&d](const QString& filename) {
+		    QFileInfo fi = QFileInfo(d.absoluteFilePath(filename));
+		    return fi.exists() && fi.isReadable();
+		});
 
 	if (path_custom_dir_format == custom_filenames.end()) {
 		return res;

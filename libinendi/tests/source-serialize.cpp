@@ -94,7 +94,9 @@ int main(int argc, char** argv)
 	job = src->extract();
 	job->wait_end();
 
-	std::cerr << "--------" << std::endl << "New output: " << std::endl << "----------" << std::endl
+	std::cerr << "--------" << std::endl
+	          << "New output: " << std::endl
+	          << "----------" << std::endl
 	          << std::endl;
 	// Dump the NRAW
 	src->get_rushnraw().dump_csv();

@@ -41,7 +41,9 @@ class PVBCIBackendImageCUDA : public PVParallelView::PVBCIBackendImage
 	using pixel_t = uint32_t;
 
   public:
-	PVBCIBackendImageCUDA(const uint32_t width, uint8_t height_bits, const int cuda_device,
+	PVBCIBackendImageCUDA(const uint32_t width,
+	                      uint8_t height_bits,
+	                      const int cuda_device,
 	                      cudaStream_t stream);
 	~PVBCIBackendImageCUDA() override;
 
@@ -105,13 +107,11 @@ class PVBCIDrawingBackendCUDA : public PVBCIDrawingBackendAsync
 {
 	typedef PVBCIBackendImageCUDA backend_image_t;
 
-	struct cuda_job_data
-	{
+	struct cuda_job_data {
 		std::function<void()> done_function;
 	};
 
-	struct device_t
-	{
+	struct device_t {
 		PVBCICodeBase* device_codes;
 		cudaStream_t stream;
 	};
@@ -132,8 +132,13 @@ class PVBCIDrawingBackendCUDA : public PVBCIDrawingBackendAsync
 	void free_bci(PVBCICodeBase* buf) override;
 
   public:
-	void operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width,
-	                PVBCICodeBase* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false,
+	void operator()(PVBCIBackendImage_p& dst_img,
+	                size_t x_start,
+	                size_t width,
+	                PVBCICodeBase* codes,
+	                size_t n,
+	                const float zoom_y = 1.0f,
+	                bool reverse = false,
 	                std::function<void()> const& render_done = std::function<void()>()) override;
 	void wait_all() const;
 
@@ -141,8 +146,8 @@ class PVBCIDrawingBackendCUDA : public PVBCIDrawingBackendAsync
 	/**
 	 * Callback function called once image creation is done and back on computer.
 	 */
-	static void image_rendered_and_copied_callback(cudaStream_t stream, cudaError_t status,
-	                                               void* data);
+	static void
+	image_rendered_and_copied_callback(cudaStream_t stream, cudaError_t status, void* data);
 
   private:
 	std::map<int, device_t> _devices; //!< List of available device from their ids

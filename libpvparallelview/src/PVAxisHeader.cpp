@@ -35,7 +35,8 @@
  *
  *****************************************************************************/
 
-PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view, PVSlidersGroup* sg,
+PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view,
+                                           PVSlidersGroup* sg,
                                            PVAxisGraphicsItem* parent)
     : QGraphicsRectItem(parent)
     , _view(view)

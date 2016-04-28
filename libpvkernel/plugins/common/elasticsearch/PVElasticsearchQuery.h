@@ -30,7 +30,8 @@ class PVElasticsearchQuery : public PVInputDescription
 
   public:
 	PVElasticsearchQuery(){};
-	PVElasticsearchQuery(PVElasticsearchInfos const& infos, QString const& query,
+	PVElasticsearchQuery(PVElasticsearchInfos const& infos,
+	                     QString const& query,
 	                     QString const& query_type);
 	~PVElasticsearchQuery();
 

@@ -46,8 +46,7 @@ class PVDateTimeParser
 	void copy(const PVDateTimeParser& src);
 
   protected:
-	struct TimeFormatInterface
-	{
+	struct TimeFormatInterface {
 		virtual ~TimeFormatInterface() {}
 		virtual bool to_datetime(UnicodeString const& value, Calendar* cal) = 0;
 	};
@@ -84,8 +83,7 @@ class PVDateTimeParser
 		boost::object_pool<SimpleDateFormat> _alloc_df;
 	};
 
-	struct TimeFormatEpoch : public TimeFormatInterface
-	{
+	struct TimeFormatEpoch : public TimeFormatInterface {
 		bool to_datetime(UnicodeString const& value, Calendar* cal);
 	};
 

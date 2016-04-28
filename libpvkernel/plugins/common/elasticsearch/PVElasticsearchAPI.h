@@ -153,7 +153,8 @@ class PVElasticsearchAPI
 	 * @param query the query to be executed by the server
 	 * @param error Store any occured error if provided
 	 */
-	bool scroll(const PVRush::PVElasticsearchQuery& query, std::string& json_data,
+	bool scroll(const PVRush::PVElasticsearchQuery& query,
+	            std::string& json_data,
 	            std::string* error = nullptr);
 
 	/** Extract the raw data from a JSON scroll batch results.

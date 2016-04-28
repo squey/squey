@@ -9,9 +9,14 @@
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
 
 __m128i PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
-    __m128i y_sse, __m128i p_sse, const __m128i y_min_ref_sse,
-    const HCSSE_ALPHA_DOUBLE_VEC alpha_sse, const __m128i zoom_mask_sse, uint32_t idx_shift,
-    uint32_t zoom_shift, size_t nbits)
+    __m128i y_sse,
+    __m128i p_sse,
+    const __m128i y_min_ref_sse,
+    const HCSSE_ALPHA_DOUBLE_VEC alpha_sse,
+    const __m128i zoom_mask_sse,
+    uint32_t idx_shift,
+    uint32_t zoom_shift,
+    size_t nbits)
 {
 /* y = (y - y_min_ref) * alpha
  * p = y >> zoom_shift (i.e. base)

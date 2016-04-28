@@ -42,8 +42,7 @@ class PVSelection : public PVCore::PVSelBitField
 	friend class PVCore::PVSerializeObject;
 
   public:
-	struct tag_allocate_empty
-	{
+	struct tag_allocate_empty {
 	};
 
   public:

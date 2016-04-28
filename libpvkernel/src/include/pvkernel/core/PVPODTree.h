@@ -26,7 +26,9 @@
 namespace PVCore
 {
 
-template <typename T, typename size_type_ = size_t, size_type_ NB = 1000,
+template <typename T,
+          typename size_type_ = size_t,
+          size_type_ NB = 1000,
           class Alloc = std::allocator<T>>
 class PVPODTree : protected Alloc::template rebind<unsigned char>::other
 {
@@ -45,15 +47,13 @@ class PVPODTree : protected Alloc::template rebind<unsigned char>::other
 	typedef PVPODTree<value_type, size_type, NB, allocator_type> this_type;
 
   private:
-	struct block_t
-	{
+	struct block_t {
 		block_t() : p((pointer)-1) {}
 
 		pointer p;
 		inline block_t* next(size_type nelts_block) const { return ((block_t*)(p + nelts_block)); }
 	};
-	struct branch_t
-	{
+	struct branch_t {
 		block_t first;
 		block_t cur;
 		pointer p_cur_block;
@@ -129,8 +129,10 @@ class PVPODTree : protected Alloc::template rebind<unsigned char>::other
 		friend class PVPODTree<value_type, size_type, NB, allocator_type>;
 
 	  protected:
-		const_branch_iterator(branch_t const& branch, const block_t& cur_block,
-		                      size_type block_size, size_type cur_index = 0)
+		const_branch_iterator(branch_t const& branch,
+		                      const block_t& cur_block,
+		                      size_type block_size,
+		                      size_type cur_index = 0)
 		    : _branch(&branch)
 		    , _cur_block(cur_block)
 		    , _block_size(block_size)
@@ -237,7 +239,7 @@ class PVPODTree : protected Alloc::template rebind<unsigned char>::other
 		size_type nblocks_max;
 		if (nelts >= NB) {
 			_nelts_block = (nelts + NB - 1) / NB;
-			nblocks_max = (nelts + _nelts_block - 1) / (_nelts_block)+NB / 2;
+			nblocks_max = (nelts + _nelts_block - 1) / (_nelts_block) + NB / 2;
 		} else {
 			_nelts_block = 6;
 			//_nelts_block = g_block_size_fixed;

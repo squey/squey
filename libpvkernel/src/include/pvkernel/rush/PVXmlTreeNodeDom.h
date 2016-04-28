@@ -106,11 +106,13 @@ class PVXmlTreeNodeDom : public QObject
 	 */
 	int getRow();
 
-	static void setFromArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args,
+	static void setFromArgumentList(QDomElement& elt,
+	                                PVCore::PVArgumentList const& def_args,
 	                                PVCore::PVArgumentList const& args);
 	void setFromArgumentList(PVCore::PVArgumentList const& args);
 
-	static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args,
+	static void toArgumentList(QDomElement& elt,
+	                           PVCore::PVArgumentList const& def_args,
 	                           PVCore::PVArgumentList& args);
 	// static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList& args);
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
@@ -268,12 +270,14 @@ class PVXmlTreeNodeDom : public QObject
 
 	void getGroupsByType(types_groups_t& grps);
 
-	void setMappingProperties(QString const& mode, PVCore::PVArgumentList const& def_args,
+	void setMappingProperties(QString const& mode,
+	                          PVCore::PVArgumentList const& def_args,
 	                          PVCore::PVArgumentList const& args);
 	QString getMappingProperties(PVCore::PVArgumentList const& def_args,
 	                             PVCore::PVArgumentList& args);
 
-	void setPlottingProperties(QString const& mode, PVCore::PVArgumentList const& def_args,
+	void setPlottingProperties(QString const& mode,
+	                           PVCore::PVArgumentList const& def_args,
 	                           PVCore::PVArgumentList const& args);
 	QString getPlottingProperties(PVCore::PVArgumentList const& def_args,
 	                              PVCore::PVArgumentList& args);
@@ -330,7 +334,7 @@ class PVXmlTreeNodeDom : public QObject
 		emit data_changed();
 	}
 
-signals:
+  signals:
 	void data_changed();
 
   public:

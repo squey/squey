@@ -13,9 +13,13 @@ PVRush::PVDBInfos::PVDBInfos()
 {
 }
 
-PVRush::PVDBInfos::PVDBInfos(QString const& type, QString const& host, uint16_t port,
-                             QString const& username, QString const& password,
-                             QString const& dbname, QString const& options)
+PVRush::PVDBInfos::PVDBInfos(QString const& type,
+                             QString const& host,
+                             uint16_t port,
+                             QString const& username,
+                             QString const& password,
+                             QString const& dbname,
+                             QString const& options)
 {
 	set_type(type);
 	set_host(host);

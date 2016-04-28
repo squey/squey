@@ -102,7 +102,8 @@ class PVZonesManager : public QObject, boost::noncopyable
 	}
 
   public:
-	inline void get_zone_plotteds(PVZoneID const z, uint32_t const** plotted_a,
+	inline void get_zone_plotteds(PVZoneID const z,
+	                              uint32_t const** plotted_a,
 	                              uint32_t const** plotted_b) const
 	{
 		PVCol a, b;

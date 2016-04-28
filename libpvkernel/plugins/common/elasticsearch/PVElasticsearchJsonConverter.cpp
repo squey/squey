@@ -183,7 +183,8 @@ void PVElasticSearchJsonConverter::less(rapidjson::Value const& id, rapidjson::V
 // compare
 ///////////////////////////////////////////////////////////////////////////////
 
-void PVElasticSearchJsonConverter::compare(rapidjson::Value const& id, rapidjson::Value const& end,
+void PVElasticSearchJsonConverter::compare(rapidjson::Value const& id,
+                                           rapidjson::Value const& end,
                                            const char* op)
 {
 	_writer.StartObject();

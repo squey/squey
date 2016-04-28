@@ -140,34 +140,34 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 	QString content;
 
 	// TODO(pbrunet) : do something on this check.
-	bool success =
-	    PVCore::PVProgressBox::progress([&]() {
-		                                    /* the PVSelection can be safely traversed because the
-		                                     *range selection
-		                                     * has been committed earlier at right click.
-		                                     *
-		                                     * Manual iteration is done to keep sort ordering.
-		                                     */
-		                                    for (size_t row : model().shown_lines()) {
-			                                    if (not _model->current_selection().get_line(row)) {
-				                                    continue;
-			                                    }
-			                                    if
-				                                    unlikely(ctxt.is_group_execution_cancelled())
-				                                    {
-					                                    return false;
-					                                    ;
-				                                    }
+	bool success = PVCore::PVProgressBox::progress(
+	    [&]() {
+		    /* the PVSelection can be safely traversed because the
+		     *range selection
+		     * has been committed earlier at right click.
+		     *
+		     * Manual iteration is done to keep sort ordering.
+		     */
+		    for (size_t row : model().shown_lines()) {
+			    if (not _model->current_selection().get_line(row)) {
+				    continue;
+			    }
+			    if
+				    unlikely(ctxt.is_group_execution_cancelled())
+				    {
+					    return false;
+					    ;
+				    }
 
-			                                    QString s = model().export_line(row);
-			                                    if (!s.isNull()) {
-				                                    content.append(s.append(sep));
-			                                    }
-		                                    }
+			    QString s = model().export_line(row);
+			    if (!s.isNull()) {
+				    content.append(s.append(sep));
+			    }
+		    }
 
-		                                    return true;
-		                                },
-	                                    ctxt, pbox);
+		    return true;
+		},
+	    ctxt, pbox);
 
 	QApplication::clipboard()->setText(content);
 
@@ -236,8 +236,8 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 			    },
 		        // Get ordered result
 		        [](const QString& left, const QString& right) -> QString {
-			        const_cast<QString&>(left)
-			            .append(right); // const_cast needed to use optimized append method
+			        const_cast<QString&>(left).append(
+			            right); // const_cast needed to use optimized append method
 			        return left;
 			    },
 		        tbb::simple_partitioner());

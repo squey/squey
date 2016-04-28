@@ -30,8 +30,7 @@ class PVMineset
 	 * its what() function returns the error message returned
 	 * by the server
 	 */
-	struct mineset_error : public std::runtime_error
-	{
+	struct mineset_error : public std::runtime_error {
 		using std::runtime_error::runtime_error;
 	};
 

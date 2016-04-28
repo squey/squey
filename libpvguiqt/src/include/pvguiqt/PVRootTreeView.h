@@ -36,7 +36,8 @@ class PVRootTreeView : public QTreeView
 	PVRootTreeView(QAbstractItemModel* model, QWidget* parent = 0);
 
   public:
-	template <typename T, typename F> void visit_selected_objs_as(F const& f)
+	template <typename T, typename F>
+	void visit_selected_objs_as(F const& f)
 	{
 		QModelIndexList sel = selectedIndexes();
 		for (QModelIndex const& idx : sel) {
@@ -64,7 +65,8 @@ class PVRootTreeView : public QTreeView
   protected:
 	PVCore::PVDataTreeObjectBase* get_selected_obj();
 
-	template <typename T> T* get_selected_obj_as()
+	template <typename T>
+	T* get_selected_obj_as()
 	{
 		return dynamic_cast<T*>(this->get_selected_obj());
 	}

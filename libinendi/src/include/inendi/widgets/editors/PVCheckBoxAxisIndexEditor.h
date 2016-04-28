@@ -23,8 +23,8 @@ class PVMainWindow;
 class PVCheckBoxAxisIndexEditor : public QWidget
 {
 	Q_OBJECT
-	Q_PROPERTY(PVCore::PVCheckBoxAxisIndexType _color_slider READ get_values WRITE set_values
-	               USER true)
+	Q_PROPERTY(
+	    PVCore::PVCheckBoxAxisIndexType _color_slider READ get_values WRITE set_values USER true)
 
 	float kx;
 	float ky;
@@ -73,7 +73,7 @@ class PVCheckBoxAxisIndexEditor : public QWidget
   public slots:
 	void toggle_visibility_Slot();
 
-signals:
+  signals:
 	void value_changed_Signal();
 
   protected:

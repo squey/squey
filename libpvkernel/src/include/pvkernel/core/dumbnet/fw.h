@@ -11,8 +11,7 @@
 #ifndef DNET_FW_H
 #define DNET_FW_H
 
-struct fw_rule
-{
+struct fw_rule {
 	char fw_device[INTF_NAME_LEN]; /* interface name */
 	uint8_t fw_op;                 /* operation */
 	uint8_t fw_dir;                /* direction */

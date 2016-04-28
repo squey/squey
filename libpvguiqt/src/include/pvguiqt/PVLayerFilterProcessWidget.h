@@ -26,8 +26,10 @@ class PVLayerFilterProcessWidget : public QDialog
 	Q_OBJECT
 
   public:
-	PVLayerFilterProcessWidget(Inendi::PVView* view, PVCore::PVArgumentList& args,
-	                           Inendi::PVLayerFilter_p filter_p, QWidget* parent = NULL);
+	PVLayerFilterProcessWidget(Inendi::PVView* view,
+	                           PVCore::PVArgumentList& args,
+	                           Inendi::PVLayerFilter_p filter_p,
+	                           QWidget* parent = NULL);
 	virtual ~PVLayerFilterProcessWidget();
 
 	void change_args(PVCore::PVArgumentList const& args);
@@ -52,7 +54,8 @@ class PVLayerFilterProcessWidget : public QDialog
 	bool process();
 
   private:
-	static void process_layer_filter(Inendi::PVLayerFilter* filter, Inendi::PVLayer const* layer,
+	static void process_layer_filter(Inendi::PVLayerFilter* filter,
+	                                 Inendi::PVLayer const* layer,
 	                                 Inendi::PVLayer* out_layer);
 
   protected:

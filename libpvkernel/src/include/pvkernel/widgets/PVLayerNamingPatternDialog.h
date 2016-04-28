@@ -37,8 +37,10 @@ class PVLayerNamingPatternDialog : public QDialog
 	 * @param m the default mode
 	 * @param parent the parent widget
 	 */
-	PVLayerNamingPatternDialog(const QString& title, const QString& text,
-	                           const QString& pattern = "%v", insert_mode m = ON_TOP,
+	PVLayerNamingPatternDialog(const QString& title,
+	                           const QString& text,
+	                           const QString& pattern = "%v",
+	                           insert_mode m = ON_TOP,
 	                           QWidget* parent = nullptr);
 
 	/**

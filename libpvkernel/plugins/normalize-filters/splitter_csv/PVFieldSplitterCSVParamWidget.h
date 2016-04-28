@@ -60,7 +60,7 @@ class PVFieldSplitterCSVParamWidget : public PVFieldsSplitterParamWidget
 	void updateQuote(QKeySequence key);
 	void updateNChilds();
 
-signals:
+  signals:
 	void signalRefreshView();
 };
 }

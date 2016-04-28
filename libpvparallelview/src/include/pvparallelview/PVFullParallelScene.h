@@ -45,9 +45,12 @@ class PVFullParallelScene : public QGraphicsScene
 	typedef PVSlidersManager::axis_id_t axis_id_t;
 
   public:
-	PVFullParallelScene(PVFullParallelView* full_parallel_view, Inendi::PVView_sp& view_sp,
-	                    PVParallelView::PVSlidersManager_p sm_p, PVBCIDrawingBackend& backend,
-	                    PVZonesManager const& zm, PVZonesProcessor& zp_sel,
+	PVFullParallelScene(PVFullParallelView* full_parallel_view,
+	                    Inendi::PVView_sp& view_sp,
+	                    PVParallelView::PVSlidersManager_p sm_p,
+	                    PVBCIDrawingBackend& backend,
+	                    PVZonesManager const& zm,
+	                    PVZonesProcessor& zp_sel,
 	                    PVZonesProcessor& zp_bg);
 	virtual ~PVFullParallelScene();
 
@@ -191,8 +194,7 @@ class PVFullParallelScene : public QGraphicsScene
 	int32_t pos_last_axis() const;
 
   private:
-	struct SingleZoneImagesItems
-	{
+	struct SingleZoneImagesItems {
 		QGraphicsPixmapItem* sel;
 		QGraphicsPixmapItem* bg;
 

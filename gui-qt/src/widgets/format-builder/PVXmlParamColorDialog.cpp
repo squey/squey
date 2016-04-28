@@ -12,7 +12,8 @@
  * PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog
  *
  *****************************************************************************/
-PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog(QString name, QString p_color,
+PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog(QString name,
+                                                          QString p_color,
                                                           QWidget* p_parent)
     : QPushButton(p_color, p_parent)
 {

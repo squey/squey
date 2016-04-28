@@ -61,8 +61,8 @@ create_observer_callback(AboutToBeRefreshedF const& atbr, RefreshF const& r, Del
 }
 
 template <class T, class AboutToBeRefreshedF, class RefreshF, class DeleteF>
-PVObserver_p<T> create_observer_callback_heap(AboutToBeRefreshedF const& atbr, RefreshF const& r,
-                                              DeleteF const& d)
+PVObserver_p<T>
+create_observer_callback_heap(AboutToBeRefreshedF const& atbr, RefreshF const& r, DeleteF const& d)
 {
 	return PVObserver_p<T>(
 	    new PVObserverCallback<T, AboutToBeRefreshedF, RefreshF, DeleteF>(atbr, r, d));

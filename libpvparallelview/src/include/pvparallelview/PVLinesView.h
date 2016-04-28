@@ -42,8 +42,7 @@ class PVLinesView
 	/**
 	 * It keep BCI and Image information for a given zone.
 	 */
-	struct SingleZoneImages
-	{
+	struct SingleZoneImages {
 		std::shared_ptr<PVBCIBackendImage> sel;
 		std::shared_ptr<PVBCIBackendImage> bg;
 
@@ -71,8 +70,7 @@ class PVLinesView
 	/**
 	 * It keeps zoom information for a given zone.
 	 */
-	struct ZoneWidthWithZoomLevel
-	{
+	struct ZoneWidthWithZoomLevel {
 		constexpr static int default_base_width = PVParallelView::ZoneBaseWidth;
 
 		ZoneWidthWithZoomLevel()
@@ -108,8 +106,11 @@ class PVLinesView
 	using list_zone_width_with_zoom_level_t = std::vector<ZoneWidthWithZoomLevel>;
 
   public:
-	PVLinesView(PVBCIDrawingBackend& backend, PVZonesManager const& zm, PVZonesProcessor& zp_sel,
-	            PVZonesProcessor& zp_bg, QObject* img_update_receiver = NULL,
+	PVLinesView(PVBCIDrawingBackend& backend,
+	            PVZonesManager const& zm,
+	            PVZonesProcessor& zp_sel,
+	            PVZonesProcessor& zp_bg,
+	            QObject* img_update_receiver = NULL,
 	            uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
   public:
@@ -209,7 +210,8 @@ class PVLinesView
 	}
 
   public:
-	template <class F> inline bool set_all_zones_width(F const& f)
+	template <class F>
+	inline bool set_all_zones_width(F const& f)
 	{
 		bool has_changed = false;
 		for (PVZoneID zone_id = 0; zone_id < (PVZoneID)_zones_width.size(); zone_id++) {
@@ -246,7 +248,8 @@ class PVLinesView
 		return previous_first_zone;
 	}
 
-	void do_translate(PVZoneID previous_first_zone, uint32_t view_width,
+	void do_translate(PVZoneID previous_first_zone,
+	                  uint32_t view_width,
 	                  std::function<void(PVZoneID)> fzone_draw);
 
 	PVZoneID update_and_get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;

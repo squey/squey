@@ -9,8 +9,10 @@
 #include <QMessageBox>
 #include <QSqlError>
 
-PVRush::PVDBPreviewWidget::PVDBPreviewWidget(PVDBInfos const& infos, QString const& query,
-                                             uint32_t nrows, QDialog* parent)
+PVRush::PVDBPreviewWidget::PVDBPreviewWidget(PVDBInfos const& infos,
+                                             QString const& query,
+                                             uint32_t nrows,
+                                             QDialog* parent)
     : QDialog(parent), _init(false), _infos(infos), _query_str(query), _nrows(nrows)
 {
 	setupUi(this);

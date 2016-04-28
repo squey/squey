@@ -11,8 +11,7 @@
 #ifndef DNET_BLOB_H
 #define DNET_BLOB_H
 
-typedef struct blob
-{
+typedef struct blob {
 	u_char* base; /* start of data */
 	int off;      /* offset into data */
 	int end;      /* end of data */
@@ -45,7 +44,9 @@ int blob_print(blob_t* b, char* style, int len);
 
 blob_t* blob_free(blob_t* b);
 
-int blob_register_alloc(size_t size, void* (*bmalloc)(size_t), void (*bfree)(void*),
+int blob_register_alloc(size_t size,
+                        void* (*bmalloc)(size_t),
+                        void (*bfree)(void*),
                         void* (*brealloc)(void*, size_t));
 #ifdef va_start
 typedef int (*blob_fmt_cb)(int pack, int len, blob_t* b, va_list* arg);

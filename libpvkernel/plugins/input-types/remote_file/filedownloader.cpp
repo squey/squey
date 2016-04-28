@@ -33,8 +33,10 @@ class FileDownLoader::FileDownLoaderPrivate
 	}
 	void initialize();
 	void cleanup();
-	void initializeDownload(const QString& remoteFile, const ConnectionSettings& settings,
-	                        const QString& hostName, QUrl& url);
+	void initializeDownload(const QString& remoteFile,
+	                        const ConnectionSettings& settings,
+	                        const QString& hostName,
+	                        QUrl& url);
 	void initializeEncrypted(const ConnectionSettings& settings);
 	void initializeSsl(const ConnectionSettings& settings);
 	static size_t writeData(void* buffer, size_t size, size_t nmemb, void* stream);
@@ -78,7 +80,8 @@ void FileDownLoader::FileDownLoaderPrivate::cleanup()
 
 void FileDownLoader::FileDownLoaderPrivate::initializeDownload(const QString& remoteFile,
                                                                const ConnectionSettings& settings,
-                                                               const QString& hostName, QUrl& url)
+                                                               const QString& hostName,
+                                                               QUrl& url)
 {
 	_cancel_dl = false;
 	// static const char* s_schemes[] = { "file", "http", "https", "ftp", "ftps","scp", "sftp" };
@@ -156,7 +159,9 @@ void FileDownLoader::FileDownLoaderPrivate::initializeEncrypted(const Connection
 	}
 }
 
-size_t FileDownLoader::FileDownLoaderPrivate::writeData(void* buffer, size_t /*size*/, size_t nmemb,
+size_t FileDownLoader::FileDownLoaderPrivate::writeData(void* buffer,
+                                                        size_t /*size*/,
+                                                        size_t nmemb,
                                                         void* stream)
 {
 	if (_cancel_dl) {
@@ -172,8 +177,8 @@ size_t FileDownLoader::FileDownLoaderPrivate::writeData(void* buffer, size_t /*s
 }
 
 #ifdef ADD_DEBUG_TO_FILE
-int FileDownLoader::FileDownLoaderPrivate::writeDebugToFile(CURL*, curl_infotype type, char* data,
-                                                            size_t size, void* stream)
+int FileDownLoader::FileDownLoaderPrivate::writeDebugToFile(
+    CURL*, curl_infotype type, char* data, size_t size, void* stream)
 {
 	QTemporaryFile* downloadFile = static_cast<QTemporaryFile*>(stream);
 	QString text;
@@ -209,7 +214,8 @@ int FileDownLoader::FileDownLoaderPrivate::writeDebugToFile(CURL*, curl_infotype
 #endif
 
 void FileDownLoader::FileDownLoaderPrivate::download_thread(FileDownLoaderPrivate* d,
-                                                            QString* tempFile, CURLcode* curlResult)
+                                                            QString* tempFile,
+                                                            CURLcode* curlResult)
 {
 	/* Define our callback to get called when there's data to be written */
 	curl_easy_setopt(d->curl, CURLOPT_WRITEFUNCTION, d->writeData);
@@ -257,9 +263,13 @@ FileDownLoader::~FileDownLoader()
 	delete d;
 }
 
-bool FileDownLoader::download(const QString& remoteFile, QString& tempFile,
-                              const ConnectionSettings& settings, const QString& hostName,
-                              QString& errorMessage, QUrl& url, bool& cancel)
+bool FileDownLoader::download(const QString& remoteFile,
+                              QString& tempFile,
+                              const ConnectionSettings& settings,
+                              const QString& hostName,
+                              QString& errorMessage,
+                              QUrl& url,
+                              bool& cancel)
 {
 	cancel = false;
 	d->curl = curl_easy_init();

@@ -17,7 +17,8 @@
 
 #define print_rect(R) __print_rect(#R, R)
 
-template <typename R> void __print_rect(const char* text, const R& r)
+template <typename R>
+void __print_rect(const char* text, const R& r)
 {
 	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
 	          << std::endl;
@@ -25,11 +26,13 @@ template <typename R> void __print_rect(const char* text, const R& r)
 
 #define print_transform(T) __print_transform(#T, T)
 
-template <typename T> void __print_transform(const char* text, const T& t)
+template <typename T>
+void __print_transform(const char* text, const T& t)
 {
-	std::cout << text << ": " << std::endl << t.m11() << " " << t.m21() << " " << t.m31()
-	          << std::endl << t.m12() << " " << t.m22() << " " << t.m32() << std::endl << t.m13()
-	          << " " << t.m23() << " " << t.m33() << std::endl;
+	std::cout << text << ": " << std::endl
+	          << t.m11() << " " << t.m21() << " " << t.m31() << std::endl
+	          << t.m12() << " " << t.m22() << " " << t.m32() << std::endl
+	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
 }
 
 class MyPVGraphicsView : public PVWidgets::PVGraphicsView

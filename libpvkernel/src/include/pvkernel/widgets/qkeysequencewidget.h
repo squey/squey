@@ -115,7 +115,7 @@ class QKeySequenceWidget : public QWidget
 
 	static char get_ascii_from_sequence(QKeySequence key);
 
-Q_SIGNALS:
+  Q_SIGNALS:
 	void keySequenceChanged(const QKeySequence& seq);
 	void keyNotSupported();
 

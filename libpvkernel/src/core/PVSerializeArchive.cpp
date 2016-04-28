@@ -15,7 +15,8 @@ PVCore::PVSerializeArchive::PVSerializeArchive(version_t version)
 {
 }
 
-PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir, archive_mode mode,
+PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir,
+                                               archive_mode mode,
                                                version_t version)
     : _version(version), _is_opened(false)
 {
@@ -124,15 +125,18 @@ void PVCore::PVSerializeArchive::finish()
 	_is_opened = false;
 }
 
-void PVCore::PVSerializeArchive::attribute_write(PVSerializeObject const& so, QString const& name,
+void PVCore::PVSerializeArchive::attribute_write(PVSerializeObject const& so,
+                                                 QString const& name,
                                                  QVariant const& obj)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	settings->setValue(name, obj);
 }
 
-void PVCore::PVSerializeArchive::attribute_read(PVSerializeObject& so, QString const& name,
-                                                QVariant& obj, QVariant const& def)
+void PVCore::PVSerializeArchive::attribute_read(PVSerializeObject& so,
+                                                QString const& name,
+                                                QVariant& obj,
+                                                QVariant const& def)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	obj = settings->value(name, def);
@@ -184,7 +188,8 @@ void PVCore::PVSerializeArchive::hash_arguments_write(PVSerializeObject const& s
 }
 
 void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so,
-                                                     QString const& name, PVArgumentList& obj,
+                                                     QString const& name,
+                                                     PVArgumentList& obj,
                                                      PVArgumentList const& def_args)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
@@ -199,8 +204,10 @@ void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so
 	obj = QSettings_to_PVArgumentList(*settings, def_args, name);
 }
 
-size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString const& name,
-                                          void* buf, size_t n)
+size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so,
+                                          QString const& name,
+                                          void* buf,
+                                          size_t n)
 {
 	QFile buf_file(get_dir_for_object(so).absoluteFilePath(name));
 	if (is_writing()) {
@@ -231,7 +238,8 @@ size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString c
 	}
 }
 
-void PVCore::PVSerializeArchive::buffer_path(PVSerializeObject const& so, QString const& name,
+void PVCore::PVSerializeArchive::buffer_path(PVSerializeObject const& so,
+                                             QString const& name,
                                              QString& path)
 {
 	assert(!is_writing());
@@ -263,7 +271,8 @@ QString PVCore::PVSerializeArchive::get_object_config_path(PVSerializeObject con
 	return dir.absoluteFilePath("config.ini");
 }
 
-void PVCore::PVSerializeArchive::file(PVSerializeObject const& so, QString const& name,
+void PVCore::PVSerializeArchive::file(PVSerializeObject const& so,
+                                      QString const& name,
                                       QString& path)
 {
 	QDir dir = get_dir_for_object(so);

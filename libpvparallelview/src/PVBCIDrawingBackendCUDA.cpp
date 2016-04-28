@@ -17,13 +17,19 @@
  *
  *****************************************************************************/
 
-template <size_t Bbits> struct cuda_kernel;
+template <size_t Bbits>
+struct cuda_kernel;
 
-template <> struct cuda_kernel<10>
-{
-	static inline void launch(PVParallelView::PVBCICode<10>* device_codes, uint32_t n,
-	                          uint32_t width, uint32_t* device_img, uint32_t img_width,
-	                          uint32_t x_start, const float zoom_y, cudaStream_t stream = NULL,
+template <>
+struct cuda_kernel<10> {
+	static inline void launch(PVParallelView::PVBCICode<10>* device_codes,
+	                          uint32_t n,
+	                          uint32_t width,
+	                          uint32_t* device_img,
+	                          uint32_t img_width,
+	                          uint32_t x_start,
+	                          const float zoom_y,
+	                          cudaStream_t stream = NULL,
 	                          bool reverse = false)
 	{
 		assert(reverse == false);
@@ -32,11 +38,16 @@ template <> struct cuda_kernel<10>
 	}
 };
 
-template <> struct cuda_kernel<11>
-{
-	static inline void launch(PVParallelView::PVBCICode<11>* device_codes, uint32_t n,
-	                          uint32_t width, uint32_t* device_img, uint32_t img_width,
-	                          uint32_t x_start, const float zoom_y, cudaStream_t stream = NULL,
+template <>
+struct cuda_kernel<11> {
+	static inline void launch(PVParallelView::PVBCICode<11>* device_codes,
+	                          uint32_t n,
+	                          uint32_t width,
+	                          uint32_t* device_img,
+	                          uint32_t img_width,
+	                          uint32_t x_start,
+	                          const float zoom_y,
+	                          cudaStream_t stream = NULL,
 	                          bool reverse = false)
 	{
 		if (reverse) {
@@ -148,9 +159,14 @@ PVParallelView::PVBCIDrawingBackendCUDA::create_image(size_t img_width, uint8_t 
 	return ret;
 }
 
-void PVParallelView::PVBCIDrawingBackendCUDA::
-operator()(PVBCIBackendImage_p& dst_img, size_t x_start, size_t width, PVBCICodeBase* codes,
-           size_t n, const float zoom_y, bool reverse, std::function<void()> const& render_done)
+void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& dst_img,
+                                                         size_t x_start,
+                                                         size_t width,
+                                                         PVBCICodeBase* codes,
+                                                         size_t n,
+                                                         const float zoom_y,
+                                                         bool reverse,
+                                                         std::function<void()> const& render_done)
 {
 #ifdef NDEBUG
 	backend_image_t* dst_img_cuda = static_cast<backend_image_t*>(dst_img.get());

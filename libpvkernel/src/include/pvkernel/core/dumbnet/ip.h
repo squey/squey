@@ -32,8 +32,7 @@ typedef uint32_t ip_addr_t;
 /*
  * IP header, without options
  */
-struct ip_hdr
-{
+struct ip_hdr {
 #if DNET_BYTESEX == DNET_BIG_ENDIAN
 	uint8_t ip_v : 4, /* version */
 	    ip_hl : 4;    /* header length (incl any options) */
@@ -276,8 +275,7 @@ struct ip_hdr
 /*
  * Security option data - RFC 791, 3.1
  */
-struct ip_opt_data_sec
-{
+struct ip_opt_data_sec {
 	uint16_t s;     /* security */
 	uint16_t c;     /* compartments */
 	uint16_t h;     /* handling restrictions */
@@ -296,8 +294,7 @@ struct ip_opt_data_sec
 /*
  * {Loose Source, Record, Strict Source} Route option data - RFC 791, 3.1
  */
-struct ip_opt_data_rr
-{
+struct ip_opt_data_rr {
 	uint8_t ptr;               /* from start of option, >= 4 */
 	uint32_t iplist __flexarr; /* list of IP addresses */
 } __attribute__((__packed__));
@@ -305,8 +302,7 @@ struct ip_opt_data_rr
 /*
  * Timestamp option data - RFC 791, 3.1
  */
-struct ip_opt_data_ts
-{
+struct ip_opt_data_ts {
 	uint8_t ptr; /* from start of option, >= 5 */
 #if DNET_BYTESEX == DNET_BIG_ENDIAN
 	uint8_t oflw : 4, /* number of IPs skipped */
@@ -324,8 +320,7 @@ struct ip_opt_data_ts
 /*
  * Traceroute option data - RFC 1393, 2.2
  */
-struct ip_opt_data_tr
-{
+struct ip_opt_data_tr {
 	uint16_t id;     /* ID number */
 	uint16_t ohc;    /* outbound hop count */
 	uint16_t rhc;    /* return hop count */
@@ -335,12 +330,10 @@ struct ip_opt_data_tr
 /*
  * IP option (following IP header)
  */
-struct ip_opt
-{
+struct ip_opt {
 	uint8_t opt_type; /* option type */
 	uint8_t opt_len;  /* option length >= IP_OPT_LEN */
-	union ip_opt_data
-	{
+	union ip_opt_data {
 		struct ip_opt_data_sec sec; /* IP_OPT_SEC */
 		struct ip_opt_data_rr rr;   /* IP_OPT_{L,S}RR */
 		struct ip_opt_data_ts ts;   /* IP_OPT_TS */
@@ -361,33 +354,33 @@ struct ip_opt
 /*
  * Classful addressing
  */
-#define IP_CLASSA(i) (((uint32_t)(i) & htonl(0x80000000)) == htonl(0x00000000))
+#define IP_CLASSA(i) (((uint32_t)(i)&htonl(0x80000000)) == htonl(0x00000000))
 #define IP_CLASSA_NET (htonl(0xff000000))
 #define IP_CLASSA_NSHIFT 24
 #define IP_CLASSA_HOST (htonl(0x00ffffff))
 #define IP_CLASSA_MAX 128
 
-#define IP_CLASSB(i) (((uint32_t)(i) & htonl(0xc0000000)) == htonl(0x80000000))
+#define IP_CLASSB(i) (((uint32_t)(i)&htonl(0xc0000000)) == htonl(0x80000000))
 #define IP_CLASSB_NET (htonl(0xffff0000))
 #define IP_CLASSB_NSHIFT 16
 #define IP_CLASSB_HOST (htonl(0x0000ffff))
 #define IP_CLASSB_MAX 65536
 
-#define IP_CLASSC(i) (((uint32_t)(i) & htonl(0xe0000000)) == htonl(0xc0000000))
+#define IP_CLASSC(i) (((uint32_t)(i)&htonl(0xe0000000)) == htonl(0xc0000000))
 #define IP_CLASSC_NET (htonl(0xffffff00))
 #define IP_CLASSC_NSHIFT 8
 #define IP_CLASSC_HOST (htonl(0x000000ff))
 
-#define IP_CLASSD(i) (((uint32_t)(i) & htonl(0xf0000000)) == htonl(0xe0000000))
+#define IP_CLASSD(i) (((uint32_t)(i)&htonl(0xf0000000)) == htonl(0xe0000000))
 /* These ones aren't really net and host fields, but routing needn't know. */
 #define IP_CLASSD_NET (htonl(0xf0000000))
 #define IP_CLASSD_NSHIFT 28
 #define IP_CLASSD_HOST (htonl(0x0fffffff))
 #define IP_MULTICAST(i) IP_CLASSD(i)
 
-#define IP_EXPERIMENTAL(i) (((uint32_t)(i) & htonl(0xf0000000)) == htonl(0xf0000000))
-#define IP_BADCLASS(i) (((uint32_t)(i) & htonl(0xf0000000)) == htonl(0xf0000000))
-#define IP_LOCAL_GROUP(i) (((uint32_t)(i) & htonl(0xffffff00)) == htonl(0xe0000000))
+#define IP_EXPERIMENTAL(i) (((uint32_t)(i)&htonl(0xf0000000)) == htonl(0xf0000000))
+#define IP_BADCLASS(i) (((uint32_t)(i)&htonl(0xf0000000)) == htonl(0xf0000000))
+#define IP_LOCAL_GROUP(i) (((uint32_t)(i)&htonl(0xffffff00)) == htonl(0xe0000000))
 /*
  * Reserved addresses
  */

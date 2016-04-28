@@ -43,7 +43,7 @@ class PVAbstractRangeRampCursor : public QWidget
 	 */
 	PVAbstractRangeRampCursor(cursor_type type, QWidget* parent = nullptr);
 
-signals:
+  signals:
 	/**
 	 * this signal is emitted each time the cursor is moved using the mouse
 	 */
@@ -186,7 +186,7 @@ class PVAbstractRangeRamp : public QWidget
 	 */
 	void max_cursor_moved(int value);
 
-signals:
+  signals:
 	/**
 	 * This signal is emitted each time the minimum value is changed
 	 *
@@ -290,7 +290,8 @@ class PVAbstractRangePicker : public QWidget
 	 * @param max_limit the range upper value
 	 * @param widget the parent widget
 	 */
-	PVAbstractRangePicker(const double& min_limit, const double& max_limit,
+	PVAbstractRangePicker(const double& min_limit,
+	                      const double& max_limit,
 	                      QWidget* parent = nullptr);
 
 	/**

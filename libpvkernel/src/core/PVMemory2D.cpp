@@ -16,8 +16,12 @@
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/inendi_bench.h>
 
-void PVCore::memcpy2d(void* dst, const void* source, size_t image_width, size_t image_height,
-                      ssize_t x_offset, ssize_t y_offset)
+void PVCore::memcpy2d(void* dst,
+                      const void* source,
+                      size_t image_width,
+                      size_t image_height,
+                      ssize_t x_offset,
+                      ssize_t y_offset)
 {
 	assert(x_offset < (ssize_t)image_width);
 	assert(y_offset < (ssize_t)image_height);
@@ -44,8 +48,14 @@ void PVCore::memcpy2d(void* dst, const void* source, size_t image_width, size_t 
 	          dest_width * dest_height, sizeof(char));
 }
 
-void PVCore::memset2d(void* source, char value, size_t image_width, size_t image_height,
-                      size_t rect_x, size_t rect_y, size_t rect_width, size_t rect_height)
+void PVCore::memset2d(void* source,
+                      char value,
+                      size_t image_width,
+                      size_t image_height,
+                      size_t rect_x,
+                      size_t rect_y,
+                      size_t rect_width,
+                      size_t rect_height)
 {
 	assert(rect_x + rect_width < image_width);
 	assert(rect_y + rect_height < image_height);
@@ -66,8 +76,8 @@ void PVCore::memset2d(void* source, char value, size_t image_width, size_t image
 	          rect_width * rect_height, sizeof(char));
 }
 
-void PVCore::memset2d(void* source, char value, size_t image_width, size_t image_height,
-                      const QRect& r)
+void PVCore::memset2d(
+    void* source, char value, size_t image_width, size_t image_height, const QRect& r)
 {
 	memset2d(source, value, image_width, image_height, r.x(), r.y(), r.width(), r.height());
 }

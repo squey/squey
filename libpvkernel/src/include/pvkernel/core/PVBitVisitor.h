@@ -25,7 +25,8 @@ namespace PVBitVisitor
 namespace __impl
 {
 
-template <typename T, typename F> class visit_bits_base
+template <typename T, typename F>
+class visit_bits_base
 {
   protected:
 	// Ensure that T is an unsigned integer type
@@ -41,8 +42,8 @@ template <typename T, typename F> class visit_bits_base
 	static constexpr bit_t nbits = std::numeric_limits<T>::digits;
 };
 
-template <typename T, typename F> struct visit_bits : private visit_bits_base<T, F>
-{
+template <typename T, typename F>
+struct visit_bits : private visit_bits_base<T, F> {
   private:
 	typedef visit_bits_base<T, F> base_t;
 	typedef typename base_t::bit_t bit_t;
@@ -72,8 +73,8 @@ template <typename T, typename F> struct visit_bits : private visit_bits_base<T,
 };
 
 // Finest granulairty is the byte
-template <typename F> struct visit_bits<uint8_t, F> : private visit_bits_base<uint8_t, F>
-{
+template <typename F>
+struct visit_bits<uint8_t, F> : private visit_bits_base<uint8_t, F> {
   private:
 	typedef visit_bits_base<uint8_t, F> base_t;
 	typedef typename base_t::bit_t bit_t;
@@ -101,8 +102,8 @@ template <typename F> struct visit_bits<uint8_t, F> : private visit_bits_base<ui
 
 #ifdef __SSE4_1__
 // Specialisation if SSE4.1 is enabled
-template <typename F> struct visit_bits<__m128i, F>
-{
+template <typename F>
+struct visit_bits<__m128i, F> {
   private:
 	typedef size_t bit_t;
 

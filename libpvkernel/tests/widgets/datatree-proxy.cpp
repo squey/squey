@@ -144,7 +144,8 @@ void print_model_index(const QModelIndex& index)
 	}
 }
 
-void print_proxy_tree(const QAbstractItemModel& m, const QModelIndex index = QModelIndex(),
+void print_proxy_tree(const QAbstractItemModel& m,
+                      const QModelIndex index = QModelIndex(),
                       const int decal = 0)
 {
 	for (int i = 0; i < decal; ++i) {

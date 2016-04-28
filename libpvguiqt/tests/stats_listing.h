@@ -16,8 +16,7 @@
 
 #include <iostream>
 
-struct ViewSlots : public QObject
-{
+struct ViewSlots : public QObject {
 	Q_OBJECT
 
   public:

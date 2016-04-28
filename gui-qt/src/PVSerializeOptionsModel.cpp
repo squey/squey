@@ -29,8 +29,8 @@ PVInspector::PVSerializeOptionsModel::get_childs_index(const QModelIndex& parent
 	return childs;
 }
 
-QModelIndex PVInspector::PVSerializeOptionsModel::index(int row, int column,
-                                                        const QModelIndex& parent) const
+QModelIndex
+PVInspector::PVSerializeOptionsModel::index(int row, int column, const QModelIndex& parent) const
 {
 	// Column is always 0 (see columnCount), but asserts it
 	assert(column == 0);
@@ -129,7 +129,8 @@ PVInspector::PVSerializeOptionsModel::get_so_index(const QModelIndex& index) con
 	return ret;
 }
 
-bool PVInspector::PVSerializeOptionsModel::setData(const QModelIndex& index, const QVariant& value,
+bool PVInspector::PVSerializeOptionsModel::setData(const QModelIndex& index,
+                                                   const QVariant& value,
                                                    int role)
 {
 	if (role != Qt::CheckStateRole) {

@@ -36,7 +36,8 @@ namespace PVParallelView
 class PVRenderingPipeline;
 class PVZonesProcessor;
 
-template <size_t Bbits> class PVBCICode;
+template <size_t Bbits>
+class PVBCICode;
 
 /**
  * It looks like this class is a job scheduler for multiple zone rendering on the same ZoneId
@@ -52,8 +53,7 @@ class PVZoneRendering
   private:
 	using cancel_state = bool;
 
-	struct next_job
-	{
+	struct next_job {
 		next_job() { zp = nullptr; }
 
 		void launch();

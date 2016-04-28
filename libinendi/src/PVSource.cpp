@@ -22,7 +22,8 @@
 #include <inendi/PVView.h>
 
 Inendi::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs,
-                           PVRush::PVSourceCreator_p sc, PVRush::PVFormat format)
+                           PVRush::PVSourceCreator_p sc,
+                           PVRush::PVFormat format)
     : data_tree_source_t()
 {
 	init();

@@ -181,7 +181,8 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 	data_tree_root_t::serialize_write(so);
 }
 
-void Inendi::PVRoot::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options,
+void Inendi::PVRoot::save_to_file(QString const& path,
+                                  PVCore::PVSerializeArchiveOptions_p options,
                                   bool save_everything)
 {
 	set_path(path);

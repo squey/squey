@@ -24,7 +24,9 @@ namespace __impl
 
 template <class RandomAccessIterator, class Comp, class Interruptible>
 RandomAccessIterator stable_reverse_find_block(RandomAccessIterator first,
-                                               RandomAccessIterator last, Comp c, size_t& size,
+                                               RandomAccessIterator last,
+                                               Comp c,
+                                               size_t& size,
                                                Interruptible const& interrupt)
 {
 	if (interrupt) {
@@ -51,9 +53,13 @@ RandomAccessIterator stable_reverse_find_block(RandomAccessIterator first,
 }
 
 template <class RandomAccessIterator, class Interruptible>
-void stable_reverse_block(RandomAccessIterator b1_b, RandomAccessIterator b1_e,
-                          RandomAccessIterator b2_b, RandomAccessIterator b2_e, size_t sb1,
-                          size_t sb2, Interruptible const& interrupt)
+void stable_reverse_block(RandomAccessIterator b1_b,
+                          RandomAccessIterator b1_e,
+                          RandomAccessIterator b2_b,
+                          RandomAccessIterator b2_e,
+                          size_t sb1,
+                          size_t sb2,
+                          Interruptible const& interrupt)
 {
 	typename std::iterator_traits<RandomAccessIterator>::value_type v_tmp;
 	if (sb1 == sb2) {
@@ -96,7 +102,9 @@ void stable_reverse_block(RandomAccessIterator b1_b, RandomAccessIterator b1_e,
 }
 
 template <class RandomAccessIterator, class Comp, class Interruptible>
-inline bool stable_sort_reverse(RandomAccessIterator begin, RandomAccessIterator end, Comp c,
+inline bool stable_sort_reverse(RandomAccessIterator begin,
+                                RandomAccessIterator end,
+                                Comp c,
                                 Interruptible const& interrupt)
 {
 	typedef std::reverse_iterator<RandomAccessIterator> reverse_iterator;
@@ -128,23 +136,28 @@ bool stable_sort_reverse(RandomAccessIterator begin, RandomAccessIterator end, C
 }
 
 template <class RandomAccessIterator, class Comp, class Interruptible>
-bool stable_sort_reverse(RandomAccessIterator begin, RandomAccessIterator end, Comp c,
+bool stable_sort_reverse(RandomAccessIterator begin,
+                         RandomAccessIterator end,
+                         Comp c,
                          Interruptible const& interrupt)
 {
 	return __impl::stable_sort_reverse(begin, end, c, interrupt);
 }
 
-template <typename T> T clamp(const T& value, const T& low, const T& high)
+template <typename T>
+T clamp(const T& value, const T& low, const T& high)
 {
 	return value < low ? low : (value > high ? high : value);
 }
 
-template <typename T> T min(const T& value1, const T& value2)
+template <typename T>
+T min(const T& value1, const T& value2)
 {
 	return value1 < value2 ? value1 : value2;
 }
 
-template <typename T> T max(const T& value1, const T& value2)
+template <typename T>
+T max(const T& value1, const T& value2)
 {
 	return value1 > value2 ? value1 : value2;
 }
@@ -279,7 +292,8 @@ inline uint32_t invert_plotting_value(qreal value)
 	return ~((uint32_t)clamp(value, 0., (qreal)std::numeric_limits<uint32_t>::max()));
 }
 
-template <typename T, typename Iterator> T join(const T sep, Iterator b, Iterator e)
+template <typename T, typename Iterator>
+T join(const T sep, Iterator b, Iterator e)
 {
 	T t;
 
