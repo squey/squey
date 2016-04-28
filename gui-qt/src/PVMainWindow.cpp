@@ -57,6 +57,8 @@
 
 #include <PVFormatBuilderWidget.h>
 
+#include <tbb/tick_count.h>
+
 QFile* report_file;
 
 /******************************************************************************
