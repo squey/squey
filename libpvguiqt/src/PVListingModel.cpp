@@ -242,9 +242,6 @@ QString PVGuiQt::PVListingModel::export_line(int row) const
  *****************************************************************************/
 void PVGuiQt::PVListingModel::update_filter()
 {
-	// Reset the current selection as context change
-        reset_selection();
-
 	Inendi::PVSelection const* sel = lib_view().get_selection_visible_listing();
 
 	// Inform view about future update
