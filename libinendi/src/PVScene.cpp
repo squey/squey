@@ -122,23 +122,6 @@ QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
 	return ret;
 }
 
-void Inendi::PVScene::add_source(PVSource_sp const& src)
-{
-	do_add_child(src);
-	get_parent<PVRoot>()->set_views_id();
-}
-
-Inendi::PVSource_sp
-Inendi::PVScene::add_source_from_description(const PVRush::PVSourceDescription& descr)
-{
-	PVSource_sp src_p(
-	    new PVSource(descr.get_inputs(), descr.get_source_creator(), descr.get_format()));
-	do_add_child(src_p);
-	get_parent<PVRoot>()->set_views_id();
-
-	return src_p;
-}
-
 void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
                                      PVCore::PVSerializeArchive::version_t v)
 {

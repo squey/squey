@@ -52,10 +52,11 @@ class PVSource : public data_tree_source_t
 	typedef children_t list_mapped_t;
 
   public:
-	PVSource();
-	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs,
+	PVSource(Inendi::PVScene* scene,
+	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format);
+	PVSource(PVScene* scene, const PVRush::PVSourceDescription& descr): PVSource(scene, descr.get_inputs(), descr.get_source_creator(), descr.get_format()) { }
 	~PVSource();
 
   public:
@@ -139,16 +140,6 @@ class PVSource : public data_tree_source_t
 
 	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
 
-	static PVSource_sp create_source_from_description(PVScene_p scene_p,
-	                                                  const PVRush::PVSourceDescription& descr)
-	{
-		PVSource_sp src_p(
-		    new PVSource(descr.get_inputs(), descr.get_source_creator(), descr.get_format()));
-		scene_p->do_add_child(src_p);
-
-		return src_p;
-	}
-
 	PVRush::PVSourceDescription::shared_pointer create_description()
 	{
 		PVRush::PVSourceDescription::shared_pointer descr_p(
@@ -197,7 +188,6 @@ class PVSource : public data_tree_source_t
 	PVRush::PVRawSourceBase_p
 	create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	void files_append_noextract();
-	void init();
 	void extract_finished();
 
   private:
@@ -208,7 +198,7 @@ class PVSource : public data_tree_source_t
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
-	PVRush::PVNraw* nraw;                    //!< Pointer to Nraw data (owned by extractor)
+	PVRush::PVNraw& _nraw;                    //!< Pointer to Nraw data (owned by extractor)
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;

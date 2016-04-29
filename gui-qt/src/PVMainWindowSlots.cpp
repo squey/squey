@@ -488,7 +488,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 
 	Inendi::PVSource_sp src_p;
 	try {
-		src_p = PVHive::call<FUNC(Inendi::PVScene::add_source_from_description)>(scene_p, src_desc);
+		src_p = scene_p->emplace_add_child(src_desc);
 	} catch (PVRush::PVFormatException const& e) {
 		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
 		has_error = true;

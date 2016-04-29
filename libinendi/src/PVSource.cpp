@@ -21,26 +21,33 @@
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
-Inendi::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs,
+Inendi::PVSource::PVSource(Inendi::PVScene* scene,
+			   PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
                            PVRush::PVFormat format)
-    : data_tree_source_t()
+    : data_tree_source_t(scene)
+      , _inputs(inputs)
+      , _src_plugin(sc)
+      , _nraw(_extractor.get_nraw())
 {
-	init();
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
+
+	// Set extractor default values
+	_extractor.set_last_start(0);
+	_extractor.set_last_nlines(
+	    pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
+
+	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
+	if (nchunks != 0) {
+		_extractor.set_number_living_chunks(nchunks);
+	}
 
 	// Set format
 	format.populate();
 	set_format(format);
 
 	// Set sources
-	_inputs = inputs;
-	_src_plugin = sc;
 	files_append_noextract();
-}
-
-Inendi::PVSource::PVSource() : data_tree_source_t()
-{
-	init();
 }
 
 Inendi::PVSource::~PVSource()
@@ -53,30 +60,11 @@ Inendi::PVSource::~PVSource()
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
 }
 
-void Inendi::PVSource::init()
-{
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	nraw = &(_extractor.get_nraw());
-	// Set extractor default values
-	_extractor.set_last_start(0);
-	_extractor.set_last_nlines(
-	    pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
-
-	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
-	if (nchunks != 0) {
-		_extractor.set_number_living_chunks(nchunks);
-	}
-}
-
 Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
 {
-	Inendi::PVSource_sp src(new Inendi::PVSource(_inputs, _src_plugin, get_format()));
-	get_parent()->do_add_child(src);
-	get_parent<PVRoot>()->set_views_id();
-
+    // FIXME : Should be remove
+	Inendi::PVSource_sp src = get_parent()->emplace_add_child(_inputs, _src_plugin, get_format());
 	src->emplace_add_child();
-
 	return src;
 }
 
@@ -143,11 +131,7 @@ void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 
 bool Inendi::PVSource::load_from_disk()
 {
-	if (nraw == nullptr) {
-		return false;
-	}
-
-	return nraw->load_from_disk(_nraw_folder.toStdString());
+	return _nraw.load_from_disk(_nraw_folder.toStdString());
 }
 
 void Inendi::PVSource::extract_finished()
@@ -172,17 +156,17 @@ void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()
 {
-	return *nraw;
+	return _nraw;
 }
 
 const PVRush::PVNraw& Inendi::PVSource::get_rushnraw() const
 {
-	return *nraw;
+	return _nraw;
 }
 
 PVRow Inendi::PVSource::get_row_count() const
 {
-	return nraw->get_row_count();
+	return _nraw.get_row_count();
 }
 
 PVCol Inendi::PVSource::get_column_count() const
@@ -192,7 +176,7 @@ PVCol Inendi::PVSource::get_column_count() const
 
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 {
-	return nraw->at_string(row, col);
+	return _nraw.at_string(row, col);
 }
 
 PVRush::PVInputType_p Inendi::PVSource::get_input_type() const

@@ -85,9 +85,6 @@ class PVScene : public data_tree_scene_t
 
 	inline bool is_empty() const { return get_children().size() == 0; }
 
-	void add_source(PVSource_sp const& src);
-	Inendi::PVSource_sp add_source_from_description(const PVRush::PVSourceDescription& descr);
-
 	virtual QString get_serialize_description() const { return get_name(); }
 
   protected:
