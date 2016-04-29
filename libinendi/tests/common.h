@@ -126,9 +126,7 @@ class TestEnv
 	Inendi::PVPlotted_p compute_plotting()
 	{
 		// And plot the mapped values
-		Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-		mapped->do_add_child(plotted);
-		plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(plotted.get())));
+		Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 		plotted->process_from_parent_mapped();
 		return plotted;
 	}

@@ -66,9 +66,7 @@ int main(int argc, char** argv)
 	mapped->process_from_parent_source();
 
 	// And plot the mapped values
-	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-	mapped->do_add_child(plotted);
-	plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(plotted.get())));
+	Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 	plotted->process_from_parent_mapped();
 	Inendi::PVView* view = src->current_view();
 

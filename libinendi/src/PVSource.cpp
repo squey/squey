@@ -191,9 +191,7 @@ void Inendi::PVSource::create_default_view()
 		emplace_add_child();
 	}
 	for (PVMapped_p& m : get_children()) {
-		PVPlotted_p def_plotted(new PVPlotted());
-		m->do_add_child(def_plotted);
-		def_plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(def_plotted.get())));
+		PVPlotted_p def_plotted = m->emplace_add_child();
 
 		PVView_p def_view(new PVView());
 		def_plotted->do_add_child(def_view);

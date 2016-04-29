@@ -34,7 +34,7 @@
 		          << std::endl;                                                                    \
 	}
 
-Inendi::PVPlotted::PVPlotted()
+Inendi::PVPlotted::PVPlotted(PVMapped * mapped): data_tree_plotted_t(mapped), _plotting(new Inendi::PVPlotting(this))
 {
 	// process_from_parent_mapped(false);
 }

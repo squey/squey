@@ -133,9 +133,7 @@ class TestEnv
 		Inendi::PVMapped_p mapped = src->emplace_add_child();
 		mapped->process_from_parent_source();
 
-		Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-		mapped->do_add_child(plotted);
-		plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(plotted.get())));
+		Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 		plotted->process_from_parent_mapped();
 
 		view.reset(new Inendi::PVView());

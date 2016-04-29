@@ -46,9 +46,9 @@ Inendi::PVMapping::PVMapping(PVMapped* mapped) : _name("default"), _mapped(mappe
  * Inendi::PVMapping::PVMapping
  *
  *****************************************************************************/
-Inendi::PVMapping::PVMapping()
-{
-}
+//Inendi::PVMapping::PVMapping()
+//{
+//}
 
 /******************************************************************************
  *

@@ -126,9 +126,7 @@ int main(int argc, char** argv)
 
 	Inendi::PVSource_sp src = create_src(argv[1], argv[2]);
 	Inendi::PVMapped_p mapped = src->emplace_add_child();
-	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-	mapped->do_add_child(plotted);
-	plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(plotted.get())));
+	Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 	plotted->process_from_parent_mapped();
 
 	Inendi::PVView_p view_p(new Inendi::PVView());
