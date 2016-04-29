@@ -31,10 +31,11 @@ namespace Inendi
 
 class PVSource;
 
+using data_tree_scene_t = PVCore::PVDataTreeObject<PVRoot, PVSource>;
+
 /**
  * \class PVScene
  */
-typedef typename PVCore::PVDataTreeObject<PVRoot, PVSource> data_tree_scene_t;
 class PVScene : public data_tree_scene_t
 {
 	friend class PVCore::PVSerializeObject;
@@ -51,7 +52,7 @@ class PVScene : public data_tree_scene_t
 	    hash_type_so_inputs;
 
   public:
-	PVScene(QString scene_path = QString());
+	PVScene(PVRoot* root, QString scene_path);
 	~PVScene();
 
   public:
@@ -90,21 +91,12 @@ class PVScene : public data_tree_scene_t
 	virtual QString get_serialize_description() const { return get_name(); }
 
   protected:
-	/*int32_t get_new_view_id() const;
-	void set_views_id();
-
-	QColor get_new_view_color() const;*/
-
 	virtual QString get_children_description() const { return "Source(s)"; }
 	virtual QString get_children_serialize_name() const { return "sources"; }
 
 	QList<PVRush::PVInputType_p> get_all_input_types() const;
 
 	inline void set_last_active_source(PVSource* src) { _last_active_src = src; }
-
-  protected:
-	// Events
-	void child_added(PVSource& src);
 
   protected:
 	// Serialization

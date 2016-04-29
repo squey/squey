@@ -58,8 +58,7 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene(new Inendi::PVScene("scene0"));
-	root->do_add_child(scene);
+	Inendi::PVScene_p scene = root->emplace_add_child("scene");
 	Inendi::PVSource_sp src(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	scene->add_source(src);
@@ -72,8 +71,7 @@ int main(int argc, char** argv)
 	Inendi::PVView& v0 = *src->get_children<Inendi::PVView>().at(0);
 	Inendi::PVView& v1 = *src->get_children<Inendi::PVView>().at(1);
 
-	Inendi::PVScene_p scene2(new Inendi::PVScene("scene1"));
-	root->do_add_child(scene2);
+	Inendi::PVScene_p scene2 = root->emplace_add_child("scene1");
 	Inendi::PVSource_sp src2(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	scene2->add_source(src2);
@@ -102,22 +100,6 @@ int main(int argc, char** argv)
 	ar->finish();
 
 	root->dump();
-
-#if 0
-	Inendi::PVScene::list_sources_t srcs = scene->get_sources(*sc_file->supported_type_lib());
-	if (srcs.size() != 1) {
-		std::cerr << "No source was recreated !" << std::endl;
-		return 1;
-	}
-	src = srcs.at(0)->shared_from_this();
-	
-	job = src->extract();
-	job->wait_end();
-
-	std::cerr << "--------" << std::endl << "New output: " << std::endl << "----------" << std::endl << std::endl;
-	// Dump the NRAW
-	src->get_rushnraw().dump_csv();
-#endif
 
 	return 0;
 }

@@ -50,9 +50,8 @@ get_src_from_file(Inendi::PVScene_sp scene, QString const& path_file, QString co
 Inendi::PVSource_sp
 get_src_from_file(Inendi::PVRoot_sp root, QString const& file, QString const& format)
 {
-	Inendi::PVScene_p scene(new Inendi::PVScene());
-	root->do_add_child(scene);
-	return get_src_from_file(Inendi::PVScene_sp(scene), file, format);
+	Inendi::PVScene_sp scene = root->emplace_add_child("scene");
+	return get_src_from_file(scene, file, format);
 }
 
 void init_random_colors(Inendi::PVView& view)

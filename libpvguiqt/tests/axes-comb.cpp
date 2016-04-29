@@ -51,8 +51,7 @@ Inendi::PVSource_sp create_src(const QString& path_file, const QString& path_for
 		return Inendi::PVSource_sp();
 	}
 
-	Inendi::PVScene_p scene(new Inendi::PVScene());
-	root->do_add_child(scene);
+	Inendi::PVScene_p scene = root->emplace_add_child("scene");
 	Inendi::PVSource_sp src(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	scene->add_source(src);

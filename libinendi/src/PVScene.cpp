@@ -21,7 +21,7 @@
  * Inendi::PVScene::PVScene
  *
  *****************************************************************************/
-Inendi::PVScene::PVScene(QString scene_path) : _last_active_src(nullptr), _path(scene_path)
+Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_path) : data_tree_scene_t(root), _last_active_src(nullptr), _path(scene_path)
 {
 	QFileInfo info(_path);
 	_name = info.fileName();
@@ -101,55 +101,6 @@ Inendi::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 		}
 	}
 	return ret_set.toList();
-}
-
-/*Inendi::PVView::id_t Inendi::PVScene::get_new_view_id() const
-{
-        return get_children<PVView>().size();
-}
-
-void Inendi::PVScene::set_views_id()
-{
-        std::multimap<PVView::id_t, PVView*> map_views;
-        for (auto view : get_children<PVView>()) {
-                map_views.insert(std::make_pair(view->get_view_id(),
-view.get()));
-        }
-        PVView::id_t cur_id = 0;
-        std::multimap<PVView::id_t, PVView*>::iterator it;
-        for (it = map_views.begin(); it != map_views.end(); it++) {
-                it->second->set_view_id(cur_id);
-                cur_id++;
-        }
-}
-
-QColor Inendi::PVScene::get_new_view_color() const
-{
-        return QColor(_view_colors[(get_new_view_id()-1) %
-(sizeof(_view_colors)/sizeof(QRgb))]);
-}*/
-
-void Inendi::PVScene::child_added(PVSource& /*src*/)
-{
-// For information, from PVScene.h:
-// typedef std::map<PVRush::PVInputType, PVRush::PVInputType::list_inputs>
-// hash_type_sources_t;
-// hash_type_sources_t _sources;
-
-#if 0
-	PVRush::PVInputType::list_inputs_desc& inputs(_sources[*(src.get_input_type())]);
-
-	// Add sources' inputs to our `inputs' if they do not exist yet
-	PVRush::PVInputType::list_inputs_desc src_inputs = src.get_inputs();
-	PVRush::PVInputType::list_inputs_desc::const_iterator it;
-	for (it = src_inputs.begin(); it != src_inputs.end(); it++) {
-		if (!inputs.contains(*it)) {
-			inputs.push_back(*it);
-		}
-	}
-#endif
-
-	get_parent<PVRoot>()->set_views_id();
 }
 
 QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
