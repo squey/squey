@@ -34,9 +34,8 @@
 		          << std::endl;                                                                    \
 	}
 
-Inendi::PVPlotted::PVPlotted(PVMapped * mapped): data_tree_plotted_t(mapped), _plotting(new Inendi::PVPlotting(this))
+Inendi::PVPlotted::PVPlotted(PVMapped * mapped): data_tree_plotted_t(mapped), _plotting(this)
 {
-	// process_from_parent_mapped(false);
 }
 
 Inendi::PVPlotted::~PVPlotted()
@@ -66,7 +65,7 @@ int Inendi::PVPlotted::create_table()
 	std::vector<PVPlottingFilter::p_type> plotting_filters;
 	plotting_filters.resize(mapped_col_count);
 	for (PVCol j = 0; j < mapped_col_count; j++) {
-		PVPlottingFilter::p_type mf = _plotting->get_filter_for_col(j);
+		PVPlottingFilter::p_type mf = _plotting.get_filter_for_col(j);
 		if (mf) {
 			plotting_filters[j] = mf->clone<PVPlottingFilter>();
 		}
@@ -79,7 +78,7 @@ int Inendi::PVPlotted::create_table()
 
 		PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
 		for (PVCol j = 0; j < mapped_col_count; j++) {
-			if (_plotting->is_col_uptodate(j)) {
+			if (_plotting.is_col_uptodate(j)) {
 				continue;
 			}
 			PVPlottingFilter::p_type plotting_filter = plotting_filters[j];
@@ -104,7 +103,7 @@ int Inendi::PVPlotted::create_table()
 			           qPrintable(plotting_filter->registered_name()));
 
 			boost::this_thread::interruption_point();
-			_plotting->set_uptodate_for_col(j);
+			_plotting.set_uptodate_for_col(j);
 			_last_updated_cols.push_back(j);
 
 			get_col_minmax(_minmax_values[j].min, _minmax_values[j].max, j);
@@ -582,12 +581,12 @@ bool Inendi::PVPlotted::is_uptodate() const
 		return false;
 	}
 
-	return _plotting->is_uptodate();
+	return _plotting.is_uptodate();
 }
 
 void Inendi::PVPlotted::add_column(PVPlottingProperties const& props)
 {
-	_plotting->add_column(props);
+	_plotting.add_column(props);
 }
 
 void Inendi::PVPlotted::child_added(PVView& child)
@@ -618,7 +617,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 	QList<PVCol> ret;
 
 	for (PVCol j = 0; j < get_column_count(); j++) {
-		if (!_plotting->is_col_uptodate(j)) {
+		if (!_plotting.is_col_uptodate(j)) {
 			ret << j;
 		}
 	}
@@ -628,17 +627,17 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 
 void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
-	data_tree_plotted_t::serialize_write(so);
-
-	so.object("plotting", _plotting, QString(), false, (PVPlotting*)NULL, false);
+//	data_tree_plotted_t::serialize_write(so);
+//
+//	so.object("plotting", &_plotting, QString(), false, (PVPlotting*)NULL, false);
 }
 
 void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
                                        PVCore::PVSerializeArchive::version_t v)
 {
-	so.object("plotting", _plotting, QString(), false, (PVPlotting*)NULL, false);
-
-	data_tree_plotted_t::serialize_read(so, v);
+//	so.object("plotting", &_plotting, QString(), false, (PVPlotting*)NULL, false);
+//
+//	data_tree_plotted_t::serialize_read(so, v);
 }
 
 void Inendi::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted,

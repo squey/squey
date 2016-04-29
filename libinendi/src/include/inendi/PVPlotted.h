@@ -93,7 +93,7 @@ class PVPlotted : public data_tree_plotted_t
 	PVSERIALIZEOBJECT_SPLIT
 
 	// For PVMapped
-	inline void invalidate_column(PVCol j) { return _plotting->invalidate_column(j); }
+	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
 
 	// For PVSource
 	void add_column(PVPlottingProperties const& props);
@@ -102,13 +102,11 @@ class PVPlotted : public data_tree_plotted_t
 	void process_parent_mapped();
 	void process_from_parent_mapped();
 
-	void set_name(QString const& name) { _plotting->set_name(name); }
-	QString const& get_name() const { return _plotting->get_name(); }
+	void set_name(QString const& name) { _plotting.set_name(name); }
+	QString const& get_name() const { return _plotting.get_name(); }
 
 	static void
 	norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
-
-	void set_plotting(PVPlotting_p const& plotting) { _plotting = plotting; }
 
 	virtual QString get_serialize_description() const { return "Plotting: " + get_name(); }
 
@@ -126,13 +124,13 @@ class PVPlotted : public data_tree_plotted_t
 	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
 	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
 
-	PVPlotting& get_plotting() { return *_plotting; }
-	const PVPlotting& get_plotting() const { return *_plotting; }
+	PVPlotting& get_plotting() { return _plotting; }
+	const PVPlotting& get_plotting() const { return _plotting; }
 
 	inline PVPlottingProperties const& get_plotting_properties(PVCol j)
 	{
 		assert(j < get_column_count());
-		return _plotting->get_properties_for_col(j);
+		return _plotting.get_properties_for_col(j);
 	}
 
 	bool is_uptodate() const;
@@ -270,7 +268,7 @@ class PVPlotted : public data_tree_plotted_t
 	}
 
   private:
-	PVPlotting_p _plotting;
+	PVPlotting _plotting;
 	uint_plotted_table_t _uint_table;
 	QList<PVCol> _last_updated_cols;
 	std::vector<MinMax> _minmax_values;
