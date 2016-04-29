@@ -24,8 +24,9 @@
  * Inendi::PVMapped::PVMapped
  *
  *****************************************************************************/
-Inendi::PVMapped::PVMapped()
+Inendi::PVMapped::PVMapped(PVSource * src): data_tree_mapped_t(src), _mapping(this)
 {
+	// FIXME Mapping should be merge in mapped as they are interdependant.
 }
 
 /******************************************************************************
@@ -71,7 +72,7 @@ void Inendi::PVMapped::compute()
 
 	const PVRow nrows = get_row_count();
 
-	PVCol const ncols = _mapping->get_number_cols();
+	PVCol const ncols = _mapping.get_number_cols();
 
 	if (nrows == 0) {
 		// Nothing to map, early stop.
@@ -95,12 +96,12 @@ void Inendi::PVMapped::compute()
 #pragma omp parallel for
 	for (PVCol j = 0; j < ncols; j++) {
 		// Check that an update is required
-		if (_mapping->get_properties_for_col(j).is_uptodate()) {
+		if (_mapping.get_properties_for_col(j).is_uptodate()) {
 			continue;
 		}
 
 		// Create our own plugins from the library
-		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
+		PVMappingFilter::p_type mf = _mapping.get_filter_for_col(j);
 		PVMappingFilter::p_type mapping_filter = mf->clone<PVMappingFilter>();
 		mapping_filter->init();
 
@@ -112,7 +113,7 @@ void Inendi::PVMapped::compute()
 		// Set mapping for the full column
 		mapping_filter->operator()(j, nraw);
 
-		mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
+		mandatory_param_map& params_map = _mapping.get_mandatory_params_for_col(j);
 // Init the mandatory mapping
 // FIXME : This part is critical has filter are function object and they are not
 // thread local.
@@ -128,7 +129,7 @@ void Inendi::PVMapped::compute()
 			(*it_pmf)->operator()(Inendi::mandatory_param_list_values(j, get_column_pointer(j)));
 		}
 
-		_mapping->set_uptodate_for_col(j);
+		_mapping.set_uptodate_for_col(j);
 		invalidate_plotted_children_column(j);
 	}
 
@@ -201,7 +202,7 @@ PVCol Inendi::PVMapped::get_column_count() const
  *****************************************************************************/
 void Inendi::PVMapped::add_column(PVMappingProperties const& props)
 {
-	_mapping->add_column(props);
+	_mapping.add_column(props);
 }
 
 /******************************************************************************
@@ -253,9 +254,9 @@ bool Inendi::PVMapped::is_current_mapped() const
  *****************************************************************************/
 void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
-	data_tree_mapped_t::serialize_write(so);
-
-	so.object(QString("mapping"), *_mapping, QString(), false, (PVMapping*)NULL, false);
+//	data_tree_mapped_t::serialize_write(so);
+//
+//	so.object(QString("mapping"), _mapping, QString(), false, (PVMapping*)NULL, false);
 }
 
 /******************************************************************************
@@ -266,12 +267,12 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
                                       PVCore::PVSerializeArchive::version_t v)
 {
-	PVMapping* mapping = new PVMapping();
-	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*)NULL, false);
-	_mapping = PVMapping_p(mapping);
-	_mapping->set_mapped(this);
-
-	// It important to deserialize the children after the mapping otherwise
-	// PVPlottingProperties complains that there is no mapping!
-	data_tree_mapped_t::serialize_read(so, v);
+//	PVMapping* mapping = new PVMapping();
+//	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*)NULL, false);
+//	_mapping = PVMapping_p(mapping);
+//	_mapping->set_mapped(this);
+//
+//	// It important to deserialize the children after the mapping otherwise
+//	// PVPlottingProperties complains that there is no mapping!
+//	data_tree_mapped_t::serialize_read(so, v);
 }

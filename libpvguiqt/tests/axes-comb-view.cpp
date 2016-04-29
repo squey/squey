@@ -128,9 +128,7 @@ int main(int argc, char** argv)
 	PVLOG_INFO("        format: %s\n", argv[2]);
 
 	Inendi::PVSource_sp src = create_src(argv[1], argv[2]);
-	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	src->do_add_child(mapped);
-	mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
+	Inendi::PVMapped_p mapped = src->emplace_add_child();
 	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
 	mapped->do_add_child(plotted);
 	plotted->set_plotting(Inendi::PVPlotting_p(new Inendi::PVPlotting(plotted.get())));

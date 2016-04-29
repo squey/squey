@@ -46,6 +46,7 @@ class PVDataTreeObjectWithParentBase
 {
   public:
 	PVDataTreeObjectWithParentBase() : _parent(nullptr) {}
+	PVDataTreeObjectWithParentBase(PVDataTreeObjectBase* parent) : _parent(parent) {}
 
   public:
 	inline PVDataTreeObjectBase* get_parent_base() { return _parent; }
@@ -267,6 +268,13 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 		child_added(*c);
 	}
 
+	template <class ...T>
+	pchild_t emplace_add_child(T && ... t)
+	{
+		_children.push_back(pchild_t(new child_t(static_cast<real_type_t*>(this), t...))); 
+		return _children.back();
+	}
+
   protected:
 	virtual QString get_children_description() const { return "Children"; }
 	virtual QString get_children_serialize_name() const { return "children"; }
@@ -327,6 +335,7 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 	typedef PVCore::PVSharedPtr<parent_t> pparent_t;
 
   public:
+	PVDataTreeObjectWithParent(Tparent * parent) : PVDataTreeObjectWithParentBase(parent) {}
 	PVDataTreeObjectWithParent() : PVDataTreeObjectWithParentBase() {}
 
   public:
@@ -438,6 +447,10 @@ class PVDataTreeObject
   public:
 	/*! \brief Default constructor
 	 */
+	PVDataTreeObject(Tparent * p) : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t(p)
+	{
+	}
+
 	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t()
 	{
 	}

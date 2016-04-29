@@ -39,7 +39,7 @@ PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id,
     : QWidget(parent)
 {
 	init(params_btn);
-	populate_from_mapping(axis_id, *view.get_parent<Inendi::PVMapped>()->get_mapping());
+	populate_from_mapping(axis_id, view.get_parent<Inendi::PVMapped>()->get_mapping());
 }
 
 void PVWidgets::PVMappingModeWidget::init(bool params_btn)

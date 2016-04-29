@@ -82,9 +82,7 @@ int main(int argc, char** argv)
 	Inendi::PVSource_sp src(
 	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	scene->add_source(src);
-	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	src->do_add_child(mapped);
-	mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
+	Inendi::PVMapped_p mapped = src->emplace_add_child();
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {

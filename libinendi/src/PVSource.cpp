@@ -75,9 +75,7 @@ Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
 	get_parent()->do_add_child(src);
 	get_parent<PVRoot>()->set_views_id();
 
-	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	src->do_add_child(mapped);
-	mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
+	src->emplace_add_child();
 
 	return src;
 }
@@ -206,9 +204,7 @@ PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
 void Inendi::PVSource::create_default_view()
 {
 	if (get_children_count() == 0) {
-		PVMapped_p def_mapped(new PVMapped());
-		do_add_child(def_mapped);
-		def_mapped->set_mapping(new Inendi::PVMapping(def_mapped.get()));
+		emplace_add_child();
 	}
 	for (PVMapped_p& m : get_children()) {
 		PVPlotted_p def_plotted(new PVPlotted());
@@ -250,7 +246,7 @@ void Inendi::PVSource::add_column(PVAxis const& axis)
 	// Add that column to our children
 	for (auto mapped : get_children<PVMapped>()) {
 		mapped->add_column(map_prop);
-		PVPlottingProperties plot_prop(*mapped->get_mapping(), axis, new_col_idx);
+		PVPlottingProperties plot_prop(mapped->get_mapping(), axis, new_col_idx);
 		for (auto plotted : mapped->get_children<PVPlotted>()) {
 			plotted->add_column(plot_prop);
 		}

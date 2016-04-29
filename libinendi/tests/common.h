@@ -118,9 +118,7 @@ class TestEnv
 	 */
 	Inendi::PVMapped_p compute_mapping()
 	{
-		mapped.reset(new Inendi::PVMapped());
-		src->do_add_child(mapped);
-		mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
+		mapped = src->emplace_add_child();
 		mapped->process_from_parent_source();
 		return mapped;
 	}

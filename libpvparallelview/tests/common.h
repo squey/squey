@@ -133,9 +133,7 @@ class TestEnv
 		PVRush::PVControllerJob_p job = src->extract();
 		job->wait_end();
 
-		Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-		src->do_add_child(mapped);
-		mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
+		Inendi::PVMapped_p mapped = src->emplace_add_child();
 		mapped->process_from_parent_source();
 
 		Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());

@@ -88,9 +88,9 @@ int Inendi::PVPlotted::create_table()
 				continue;
 			}
 
-			plotting_filter->set_mapping_mode(get_parent()->get_mapping()->get_mode_for_col(j));
+			plotting_filter->set_mapping_mode(get_parent()->get_mapping().get_mode_for_col(j));
 			plotting_filter->set_mandatory_params(
-			    get_parent()->get_mapping()->get_mandatory_params_for_col(j));
+			    get_parent()->get_mapping().get_mandatory_params_for_col(j));
 			plotting_filter->set_dest_array(nrows, get_column_pointer(j));
 			plotting_filter->set_decimal_type(get_parent()->get_decimal_type_of_col(j));
 			boost::this_thread::interruption_point();

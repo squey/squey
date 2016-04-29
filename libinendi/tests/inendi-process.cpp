@@ -65,9 +65,7 @@ int main(int argc, char** argv)
 	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 
 	// Map the nraw
-	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	src->do_add_child(mapped);
-	mapped->set_mapping(new Inendi::PVMapping(mapped.get()));
+	Inendi::PVMapped_p mapped = src->emplace_add_child();
 	mapped->process_from_parent_source();
 
 	// And plot the mapped values

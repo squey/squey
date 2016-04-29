@@ -28,6 +28,8 @@ namespace Inendi
 class PVPlotted;
 class PVSelection;
 
+using data_tree_mapped_t = PVCore::PVDataTreeObject<PVSource, PVPlotted>;
+
 /**
  * \class PVMapped
  *
@@ -37,7 +39,6 @@ class PVSelection;
  * PVMapping for others.
  * It contains only mapping values which certainly should be merged in PVMapping.
  */
-typedef typename PVCore::PVDataTreeObject<PVSource, PVPlotted> data_tree_mapped_t;
 class PVMapped : public data_tree_mapped_t
 {
 	friend class PVPlotted;
@@ -50,7 +51,7 @@ class PVMapped : public data_tree_mapped_t
 	using mapped_table_t = std::vector<mapped_row_t>;
 
   public:
-	PVMapped();
+	PVMapped(PVSource * src);
 
 	/**
 	 * Remove its children first.
@@ -68,16 +69,15 @@ class PVMapped : public data_tree_mapped_t
 	 */
 	void process_from_parent_source();
 
-	inline bool is_uptodate() const { return _mapping->is_uptodate(); };
+	inline bool is_uptodate() const { return _mapping.is_uptodate(); };
 
 	/**
 	 * Accessors and modifiers for Mapping.
 	 */
-	PVMapping* get_mapping() { return _mapping.get(); }
-	const PVMapping* get_mapping() const { return _mapping.get(); }
-	void set_mapping(PVMapping* mapping) { _mapping = PVMapping_p(mapping); }
-	void set_name(QString const& name) { _mapping->set_name(name); }
-	QString const& get_name() const { return _mapping->get_name(); }
+	PVMapping& get_mapping() { return _mapping; }
+	const PVMapping& get_mapping() const { return _mapping; }
+	void set_name(QString const& name) { _mapping.set_name(name); }
+	QString const& get_name() const { return _mapping.get_name(); }
 
 	/**
 	 * Provide decimal type for each column.
@@ -86,7 +86,7 @@ class PVMapped : public data_tree_mapped_t
 	 */
 	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const
 	{
-		return _mapping->get_decimal_type_of_col(j);
+		return _mapping.get_decimal_type_of_col(j);
 	}
 
 	/**
@@ -157,7 +157,7 @@ class PVMapped : public data_tree_mapped_t
   protected:
 	mapped_table_t _trans_table; //!< This is a vector of vector which contains "for each column"
 	// mapping of cell.
-	PVMapping_p _mapping; //!< Contains properties for every column.
+	PVMapping _mapping; //!< Contains properties for every column.
 };
 
 using PVMapped_p = PVMapped::p_type;
