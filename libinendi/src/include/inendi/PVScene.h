@@ -19,7 +19,7 @@
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <inendi/PVPtrObjects.h>
 #include <inendi/PVSource_types.h>
-#include <inendi/PVRoot.h>
+#include <inendi/PVSource.h>
 #include <inendi/PVView_types.h>
 #include <inendi/PVScene_types.h>
 

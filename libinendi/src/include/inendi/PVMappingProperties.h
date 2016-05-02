@@ -15,7 +15,6 @@
 #include <pvkernel/rush/PVFormat.h>
 
 #include <inendi/PVAxis.h>
-#include <inendi/PVRoot.h>
 #include <inendi/PVMappingFilter.h>
 
 namespace Inendi

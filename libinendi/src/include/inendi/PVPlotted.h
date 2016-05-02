@@ -19,9 +19,10 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVHugePODVector.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <inendi/PVPtrObjects.h>
-#include <inendi/PVMapped.h>
+#include <inendi/PVView.h>
 #include <inendi/PVView_types.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVSelection.h>
@@ -222,9 +223,6 @@ class PVPlotted : public data_tree_plotted_t
 	 * @param[in] col : Column where we want to extra minmax
 	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
-
-	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }
-	inline const PVView* current_view() const { return get_parent<PVSource>()->current_view(); }
 
 	// Plotted dump/load
 	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;

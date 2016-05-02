@@ -6,6 +6,7 @@
  */
 
 #include <inendi/PVMapping.h>
+#include <inendi/PVMapped.h>
 #include <inendi/PVMappingFilter.h>
 #include <inendi/PVView.h>
 

@@ -8,6 +8,7 @@
 #include "PVMandatoryMappingFilterMinmax.h"
 #include <pvkernel/core/PVTBBMinMaxArray.h>
 #include <inendi/PVMapped.h>
+#include <inendi/PVSource.h>
 
 #include <QVector>
 #include <QString>

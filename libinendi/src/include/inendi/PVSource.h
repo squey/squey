@@ -29,8 +29,7 @@
 #include <pvkernel/rush/PVSourceDescription.h>
 
 #include <inendi/PVAxisComputation.h>
-#include <inendi/PVScene.h>
-#include <inendi/PVRoot.h>
+#include <inendi/PVMapped.h>
 #include <inendi/PVSource_types.h>
 
 namespace Inendi

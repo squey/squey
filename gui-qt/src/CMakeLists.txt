@@ -72,7 +72,6 @@ PVSaveDataTreeDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
-PVViewsModel.cpp
 
 widgets/PVCheckableComboBox.cpp
 

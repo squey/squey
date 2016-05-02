@@ -20,6 +20,7 @@
 #include <inendi/PVScene.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
+#include <inendi/PVRoot.h>
 
 Inendi::PVSource::PVSource(Inendi::PVScene* scene,
 			   PVRush::PVInputType::list_inputs const& inputs,

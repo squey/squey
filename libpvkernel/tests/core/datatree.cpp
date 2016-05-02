@@ -30,6 +30,127 @@ class D;
 		so.split(*this);                                                                           \
 	}
 
+typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> data_tree_d_t;
+class D : public data_tree_d_t
+{
+
+  public:
+	D(C* c, int i = 0) : data_tree_d_t(c), _i(i) {}
+
+  public:
+	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
+
+	virtual void serialize_write(PVCore::PVSerializeObject& so)
+	{
+		so.attribute("_i", _i);
+		so.attribute("_j", _j);
+	}
+
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t /*v*/)
+	{
+		so.attribute("_i", _i);
+		so.attribute("_j", _j);
+	}
+
+	PVSERIALIZEOBJECT_SPLIT
+
+	int get_i() { return _i; }
+	int get_j() { return _j; }
+	void set_j(int j) { _j = j; }
+
+  private:
+	int _i;
+	int _j;
+};
+
+typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
+class C : public data_tree_c_t
+{
+
+  public:
+	C(B* b, int i = 0) : data_tree_c_t(b), _i(i) {}
+
+  public:
+	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
+
+	virtual void serialize_write(PVCore::PVSerializeObject& so)
+	{
+		data_tree_c_t::serialize_write(so);
+
+		so.attribute("_i", _i);
+		so.attribute("_j", _j);
+	}
+
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t v)
+	{
+		data_tree_c_t::serialize_read(so, v);
+
+		so.attribute("_i", _i);
+		so.attribute("_j", _j);
+	}
+
+	PVSERIALIZEOBJECT_SPLIT
+
+	int get_i() { return _i; }
+	int get_j() { return _j; }
+	void set_j(int j) { _j = j; }
+
+  private:
+	int _i;
+	int _j;
+};
+
+
+typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
+class B : public data_tree_b_t
+{
+	friend class A;
+
+  public:
+	B(A* a, int i = 0) : data_tree_b_t(a), _a_was_here(false), _i(i) {}
+
+  public:
+	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
+
+	virtual void serialize_write(PVCore::PVSerializeObject& so)
+	{
+		data_tree_b_t::serialize_write(so);
+
+		so.attribute("_i", _i);
+		so.attribute("_j", _j);
+	}
+
+	virtual void serialize_read(PVCore::PVSerializeObject& so,
+	                            PVCore::PVSerializeArchive::version_t v)
+	{
+		data_tree_b_t::serialize_read(so, v);
+
+		so.attribute("_i", _i);
+		so.attribute("_j", _j);
+	}
+
+	PVSERIALIZEOBJECT_SPLIT
+
+	int get_i() { return _i; }
+	int get_j() { return _j; }
+	void set_j(int j) { _j = j; }
+
+	inline bool a_was_here() const { return _a_was_here; }
+
+  public:
+	void f() const { std::cout << "B i = " << _i << std::endl; }
+	inline int i() const { return _i; }
+
+  protected:
+	bool _a_was_here;
+
+  private:
+	int _i;
+	int _j;
+};
+
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
@@ -84,136 +205,10 @@ class A : public data_tree_a_t
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
-class B : public data_tree_b_t
-{
-	friend class A;
-
-  public:
-	B(A* a, int i = 0) : data_tree_b_t(a), _a_was_here(false), _i(i) {}
-
-  public:
-	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
-
-	void set_parent_from_ptr(A* parent) { _j = get_parent()->get_i() * 2; }
-
-	virtual void serialize_write(PVCore::PVSerializeObject& so)
-	{
-		data_tree_b_t::serialize_write(so);
-
-		so.attribute("_i", _i);
-		so.attribute("_j", _j);
-	}
-
-	virtual void serialize_read(PVCore::PVSerializeObject& so,
-	                            PVCore::PVSerializeArchive::version_t v)
-	{
-		data_tree_b_t::serialize_read(so, v);
-
-		so.attribute("_i", _i);
-		so.attribute("_j", _j);
-	}
-
-	PVSERIALIZEOBJECT_SPLIT
-
-	int get_i() { return _i; }
-	int get_j() { return _j; }
-	void set_j(int j) { _j = j; }
-
-	inline bool a_was_here() const { return _a_was_here; }
-
-  public:
-	void f() const { std::cout << "B i = " << _i << std::endl; }
-	inline int i() const { return _i; }
-
-  protected:
-	bool _a_was_here;
-
-  private:
-	int _i;
-	int _j;
-};
-
 void A::child_added(B& b)
 {
 	b._a_was_here = true;
 }
-
-typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
-class C : public data_tree_c_t
-{
-
-  public:
-	C(B* b, int i = 0) : data_tree_c_t(b), _i(i) {}
-
-  public:
-	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
-
-	virtual void set_parent_from_ptr(B* parent) { _j = get_parent()->get_i() * 2; }
-
-	virtual void serialize_write(PVCore::PVSerializeObject& so)
-	{
-		data_tree_c_t::serialize_write(so);
-
-		so.attribute("_i", _i);
-		so.attribute("_j", _j);
-	}
-
-	virtual void serialize_read(PVCore::PVSerializeObject& so,
-	                            PVCore::PVSerializeArchive::version_t v)
-	{
-		data_tree_c_t::serialize_read(so, v);
-
-		so.attribute("_i", _i);
-		so.attribute("_j", _j);
-	}
-
-	PVSERIALIZEOBJECT_SPLIT
-
-	int get_i() { return _i; }
-	int get_j() { return _j; }
-	void set_j(int j) { _j = j; }
-
-  private:
-	int _i;
-	int _j;
-};
-
-typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> data_tree_d_t;
-class D : public data_tree_d_t
-{
-
-  public:
-	D(C* c, int i = 0) : data_tree_d_t(c), _i(i) {}
-
-  public:
-	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
-
-	virtual void set_parent_from_ptr(C* parent) { _j = get_parent()->get_i() * 2; }
-
-	virtual void serialize_write(PVCore::PVSerializeObject& so)
-	{
-		so.attribute("_i", _i);
-		so.attribute("_j", _j);
-	}
-
-	virtual void serialize_read(PVCore::PVSerializeObject& so,
-	                            PVCore::PVSerializeArchive::version_t /*v*/)
-	{
-		so.attribute("_i", _i);
-		so.attribute("_j", _j);
-	}
-
-	PVSERIALIZEOBJECT_SPLIT
-
-	int get_i() { return _i; }
-	int get_j() { return _j; }
-	void set_j(int j) { _j = j; }
-
-  private:
-	int _i;
-	int _j;
-};
 
 typedef typename A::p_type A_p;
 typedef typename B::p_type B_p;

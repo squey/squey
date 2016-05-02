@@ -14,6 +14,8 @@
 #include <QVector>
 #include <QMutex>
 
+#include <pvcop/db/array.h>
+
 #include <pvkernel/core/general.h>
 
 #include <pvkernel/core/PVHSVColor.h>
@@ -21,16 +23,13 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/core/PVDataTreeObject.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVLinesProperties.h>
-#include <inendi/PVMapped.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVRoot.h>
-#include <inendi/PVSource.h>
+#include <inendi/PVAxesCombination.h>
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVSquareArea.h>
 #include <inendi/PVStateMachine.h>
-#include <inendi/PVPlotted.h>
 
 #include <inendi/PVView_types.h>
 

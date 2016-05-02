@@ -73,7 +73,9 @@ double load_investigation()
 
 	auto start = std::chrono::system_clock::now();
 
-	root->load_from_file(INVESTIGATION_PATH);
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
+	    INVESTIGATION_PATH, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
+	root->load_from_archive(ar);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;

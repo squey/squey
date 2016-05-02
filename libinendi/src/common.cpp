@@ -12,9 +12,6 @@
 
 #include <inendi/common.h>
 #include <inendi/plugins.h>
-#include <inendi/PVRoot.h>
-#include <inendi/PVScene.h>
-#include <inendi/PVView.h>
 
 void Inendi::common::load_filters()
 {
@@ -34,13 +31,13 @@ void Inendi::common::load_filters()
 
 /******************************************************************************
  *
- * Inendi::PVRoot::load_layer_filters
+ * Inendi::common::load_layer_filters
  *
  *****************************************************************************/
 int Inendi::common::load_layer_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
-	    QString::fromStdString(inendi_plugins_get_layer_filters_dir()), LAYER_FILTER_PREFIX);
+	    QString::fromStdString(inendi_plugins_get_layer_filters_dir()), "layer_filter");
 	if (ret == 0) {
 		PVLOG_WARN("No layer filters have been loaded !\n");
 	} else {
@@ -54,13 +51,13 @@ int Inendi::common::load_layer_filters()
 
 /******************************************************************************
  *
- * Inendi::PVRoot::load_mapping_filters
+ * Inendi::common::load_mapping_filters
  *
  *****************************************************************************/
 int Inendi::common::load_mapping_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
-	    QString::fromStdString(inendi_plugins_get_mapping_filters_dir()), MAPPING_FILTER_PREFIX);
+	    QString::fromStdString(inendi_plugins_get_mapping_filters_dir()), "mapping_filter");
 	if (ret == 0) {
 		PVLOG_WARN("No mapping filters have been loaded !\n");
 	} else {
@@ -73,13 +70,13 @@ int Inendi::common::load_mapping_filters()
 
 /******************************************************************************
  *
- * Inendi::PVRoot::load_plotting_filters
+ * Inendi::common::load_plotting_filters
  *
  *****************************************************************************/
 int Inendi::common::load_plotting_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
-	    QString::fromStdString(inendi_plugins_get_plotting_filters_dir()), PLOTTING_FILTER_PREFIX);
+	    QString::fromStdString(inendi_plugins_get_plotting_filters_dir()), "plotting_filter");
 	if (ret == 0) {
 		PVLOG_WARN("No plotting filters have been loaded !\n");
 	} else {

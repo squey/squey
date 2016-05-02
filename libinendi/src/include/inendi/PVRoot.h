@@ -18,17 +18,11 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <inendi/PVRoot_types.h>
+#include <inendi/PVScene.h>
 #include <inendi/PVPtrObjects.h> // For PVScene_p
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"
 #define INENDI_ROOT_ARCHIVE_FILTER "INENDI investigation files (*." INENDI_ROOT_ARCHIVE_EXT ")"
-
-// Plugins prefix
-#define LAYER_FILTER_PREFIX "layer_filter"
-#define MAPPING_FILTER_PREFIX "mapping_filter"
-#define PLOTTING_FILTER_PREFIX "plotting_filter"
-#define AXIS_COMPUTATION_PLUGINS_PREFIX "axis_computation"
-#define SORTING_FUNCTIONS_PLUGINS_PREFIX "sorting"
 
 namespace Inendi
 {

@@ -20,7 +20,9 @@
 #include <inendi/PVPtrObjects.h>
 #include <inendi/PVMapped_types.h>
 #include <inendi/PVMapping.h>
-#include <inendi/PVSource.h>
+#include <inendi/PVMappingProperties.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
 
 namespace Inendi
 {
@@ -161,7 +163,6 @@ class PVMapped : public data_tree_mapped_t
 };
 
 using PVMapped_p = PVMapped::p_type;
-using PVMapped_wp = PVMapped::wp_type;
 }
 
 #endif /* INENDI_PVMAPPED_H */

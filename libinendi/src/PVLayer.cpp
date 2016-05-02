@@ -9,11 +9,6 @@
 #include <inendi/PVLayer.h>
 #include <inendi/PVPlotted.h>
 
-// AG: FIXME: we don't have to incldue PVView here. There is a weird issue w/
-// forward
-// declaration and inendi's shared pointer
-#include <inendi/PVView.h>
-
 /******************************************************************************
  *
  * Inendi::PVLayer::PVLayer
