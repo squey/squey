@@ -107,7 +107,6 @@ class PVScene : public data_tree_scene_t
 	Inendi::PVSource* _last_active_src;
 
 	hash_type_so_inputs _so_inputs;
-	PVCore::PVSerializeArchive_p _original_archive;
 
 	QString _path;
 	QString _name;

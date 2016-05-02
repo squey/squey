@@ -88,7 +88,6 @@ class PVRoot : public data_tree_root_t
 	    QString const& path,
 	    PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(),
 	    bool save_everything = false);
-	void load_from_file(QString const& path);
 	void load_from_archive(PVCore::PVSerializeArchive_p ar);
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
 
@@ -108,9 +107,6 @@ class PVRoot : public data_tree_root_t
 
   protected:
 	// Serialization
-	void serialize_read(PVCore::PVSerializeObject& so,
-	                    PVCore::PVSerializeArchive::version_t v) override;
-	void serialize_write(PVCore::PVSerializeObject& so) override;
 	PVSERIALIZEOBJECT_SPLIT
 
   private:
@@ -124,7 +120,6 @@ class PVRoot : public data_tree_root_t
   private:
 	int _new_view_id = 0;
 
-	PVCore::PVSerializeArchive_p _original_archive;
 	QString _path;
 };
 

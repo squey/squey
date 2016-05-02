@@ -40,7 +40,6 @@ void Inendi::PVRoot::clear()
 	_current_scene = nullptr;
 	_current_source = nullptr;
 	_current_view = nullptr;
-	_original_archive.reset();
 	_path.clear();
 	_new_view_id = 0;
 	reset_colors();
@@ -170,17 +169,6 @@ Inendi::PVScene* Inendi::PVRoot::get_scene_from_path(const QString& path)
 	return nullptr;
 }
 
-void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so,
-                                    PVCore::PVSerializeArchive::version_t v)
-{
-	data_tree_root_t::serialize_read(so, v);
-}
-
-void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
-{
-	data_tree_root_t::serialize_write(so);
-}
-
 void Inendi::PVRoot::save_to_file(QString const& path,
                                   PVCore::PVSerializeArchiveOptions_p options,
                                   bool save_everything)
@@ -196,17 +184,9 @@ void Inendi::PVRoot::save_to_file(QString const& path,
 	ar->finish();
 }
 
-void Inendi::PVRoot::load_from_file(QString const& path)
-{
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
-	load_from_archive(ar);
-}
-
 void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
 {
 	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
-	_original_archive = ar;
 }
 
 PVCore::PVSerializeArchiveOptions_p Inendi::PVRoot::get_default_serialize_options()

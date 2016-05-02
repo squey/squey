@@ -225,5 +225,4 @@ void Inendi::PVScene::load_from_file(QString const& path)
 void Inendi::PVScene::load_from_archive(PVCore::PVSerializeArchive_p ar)
 {
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
-	_original_archive = ar;
 }
