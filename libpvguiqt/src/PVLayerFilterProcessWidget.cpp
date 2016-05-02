@@ -20,6 +20,8 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
 
+#include <chrono>
+
 PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* view,
                                                                 PVCore::PVArgumentList& args,
                                                                 Inendi::PVLayerFilter_p filter_p,
@@ -191,6 +193,8 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	// been updated yet !)
 	_apply_btn->setFocus(Qt::MouseFocusReason);
 
+	auto start = std::chrono::steady_clock::now();
+
 	if (_has_apply) {
 		if (_args_widget->args_changed()) {
 			if (!process()) {
@@ -204,7 +208,11 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 		}
 	}
 
+	auto end = std::chrono::steady_clock::now();
+	std::cout << "Process : " << std::chrono::duration<double>(end - start).count() << std::endl;
+
 	// Save in current layer
+	start = std::chrono::steady_clock::now();
 	Inendi::PVLayer& current_selected_layer = _view->get_current_layer();
 	/* We fill it's lines_properties */
 	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer,
@@ -223,8 +231,17 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	// volatile selection has been set by `process'
 	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
+	end = std::chrono::steady_clock::now();
+	std::cout << "Set properties: " << std::chrono::duration<double>(end - start).count()
+	          << std::endl;
+	start = std::chrono::steady_clock::now();
+
 	Inendi::PVView_sp view_p(_view->shared_from_this());
 	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_p);
+
+	end = std::chrono::steady_clock::now();
+	std::cout << "Process from layer stack: " << std::chrono::duration<double>(end - start).count()
+	          << std::endl;
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
@@ -242,7 +259,6 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	Inendi::PVLayerFilter_p filter_p = _filter_p->clone<Inendi::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
 	filter_p->set_view(_view->shared_from_this());
-	filter_p->set_output(&_view->get_post_filter_layer());
 
 	QWidget* parent_widget = isVisible() ? this : parentWidget();
 
@@ -250,8 +266,12 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	    new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget);
 	bool res = PVCore::PVProgressBox::progress(
 	    [&]() {
+		    auto start = std::chrono::steady_clock::now();
 		    process_layer_filter(filter_p.get(), &_view->get_output_layer(),
 		                         &_view->get_post_filter_layer());
+		    auto end = std::chrono::steady_clock::now();
+		    std::cout << "Process layer filter: "
+		              << std::chrono::duration<double>(end - start).count() << std::endl;
 		},
 	    pbox);
 
@@ -263,9 +283,13 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	_view->get_floating_selection() = _view->get_post_filter_layer().get_selection();
 	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 
+	auto start = std::chrono::steady_clock::now();
 	// We reprocess the pipeline from the eventline stage
 	Inendi::PVView_sp view_p(_view->shared_from_this());
 	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_eventline)>(view_p);
+	auto end = std::chrono::steady_clock::now();
+	std::cout << "Process from event line: " << std::chrono::duration<double>(end - start).count()
+	          << std::endl;
 
 	_has_apply = true;
 	_args_widget->clear_args_state();
