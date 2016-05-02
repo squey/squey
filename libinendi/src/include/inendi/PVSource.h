@@ -174,7 +174,7 @@ class PVSource : public data_tree_source_t
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 
-	void add_view(PVView_sp view);
+	void add_view(PVView* view);
 	void set_views_id();
 
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }

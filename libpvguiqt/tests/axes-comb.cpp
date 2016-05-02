@@ -123,9 +123,7 @@ int main(int argc, char** argv)
 	Inendi::PVMapped_p mapped = src->emplace_add_child();
 	Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 
-	Inendi::PVView_p view_p(new Inendi::PVView());
-	plotted->do_add_child(view_p);
-	view_p->init();
+	Inendi::PVView_p view_p = plotted->emplace_add_child();
 
 	boost::thread th(boost::bind(thread, view_p.get()));
 	PVViewObs view_observer = PVViewObs(th);

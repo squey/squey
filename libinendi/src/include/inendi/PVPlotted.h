@@ -250,7 +250,6 @@ class PVPlotted : public data_tree_plotted_t
   protected:
 	virtual QString get_children_description() const { return "View(s)"; }
 	virtual QString get_children_serialize_name() const { return "views"; }
-	virtual void child_added(PVView& child) override;
 
 	int create_table();
 

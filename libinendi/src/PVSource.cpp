@@ -113,7 +113,6 @@ PVRush::PVControllerJob_p Inendi::PVSource::extract_from_agg_nlines(chunk_index 
                                                                     chunk_index nlines)
 {
 	// Set all views as non-consistent
-	decltype(get_children<PVView>())::iterator it_view;
 	for (auto view_p : get_children<PVView>()) {
 		view_p->set_consistent(false);
 	}
@@ -193,9 +192,7 @@ void Inendi::PVSource::create_default_view()
 	for (PVMapped_p& m : get_children()) {
 		PVPlotted_p def_plotted = m->emplace_add_child();
 
-		PVView_p def_view(new PVView());
-		def_plotted->do_add_child(def_view);
-		def_view->init();
+		PVView_p def_view = def_plotted->emplace_add_child();
 		def_view->get_parent<PVRoot>()->select_view(*def_view);
 		process_from_source();
 	}
@@ -208,16 +205,12 @@ void Inendi::PVSource::process_from_source()
 	}
 }
 
-void Inendi::PVSource::add_view(PVView_sp view)
+void Inendi::PVSource::add_view(PVView* view)
 {
-	// if (!current_view()) {
-	get_parent<PVRoot>()->select_view(*view);
-	//}
 	PVRoot* root = get_parent<PVRoot>();
-	if (root) {
-		view->set_view_id(root->get_new_view_id());
-		view->set_color(root->get_new_view_color());
-	}
+	root->select_view(*view);
+	view->set_view_id(root->get_new_view_id());
+	view->set_color(root->get_new_view_color());
 }
 
 void Inendi::PVSource::add_column(PVAxis const& axis)

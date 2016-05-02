@@ -566,9 +566,7 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 	process_parent_mapped();
 
 	if (get_children_count() == 0) {
-		PVView_sp cur_view(new PVView());
-		do_add_child(cur_view);
-		cur_view->init();
+		emplace_add_child();
 	}
 	for (auto view : get_children<PVView>()) {
 		view->process_parent_plotted();
@@ -587,11 +585,6 @@ bool Inendi::PVPlotted::is_uptodate() const
 void Inendi::PVPlotted::add_column(PVPlottingProperties const& props)
 {
 	_plotting.add_column(props);
-}
-
-void Inendi::PVPlotted::child_added(PVView& child)
-{
-	get_parent<PVSource>()->add_view(child.shared_from_this());
 }
 
 bool Inendi::PVPlotted::is_current_plotted() const

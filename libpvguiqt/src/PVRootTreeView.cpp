@@ -124,9 +124,7 @@ void PVGuiQt::PVRootTreeView::create_new_view()
 {
 	Inendi::PVPlotted* plotted = get_selected_obj_as<Inendi::PVPlotted>();
 	if (plotted) {
-		Inendi::PVView_p view(new Inendi::PVView());
-		plotted->do_add_child(view);
-		view->init();
+	    plotted->emplace_add_child();
 	}
 }
 

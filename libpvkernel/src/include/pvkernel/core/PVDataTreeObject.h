@@ -261,13 +261,6 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 		//}
 	}
 
-	void do_add_child(pchild_t c)
-	{
-		c->_parent = static_cast<real_type_t*>(this);
-		_children.push_back(c);
-		child_added(*c);
-	}
-
 	template <class ...T>
 	pchild_t emplace_add_child(T && ... t)
 	{
@@ -278,10 +271,6 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
   protected:
 	virtual QString get_children_description() const { return "Children"; }
 	virtual QString get_children_serialize_name() const { return "children"; }
-
-  protected:
-	// Events
-	virtual void child_added(child_t& /*child*/) {}
 
   private:
 	/*! \brief Implementation of the PVDataTreeObject::get_children() method.
@@ -336,7 +325,6 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 
   public:
 	PVDataTreeObjectWithParent(Tparent * parent) : PVDataTreeObjectWithParentBase(parent) {}
-	PVDataTreeObjectWithParent() : PVDataTreeObjectWithParentBase() {}
 
   public:
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a
@@ -451,10 +439,6 @@ class PVDataTreeObject
 	{
 	}
 
-	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t()
-	{
-	}
-
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
 	virtual ~PVDataTreeObject() {}
@@ -551,7 +535,7 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
   public:
 	/*! \brief Default constructor
 	 */
-	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_parent_t() {}
+	PVDataTreeObject(Tparent* parent) : PVEnableSharedFromThis<real_type_t>(), impl_parent_t(parent) {}
 
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */

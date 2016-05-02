@@ -58,7 +58,7 @@ class B : public data_tree_b_t
 	friend class A;
 
   public:
-	B(int i = 0) : data_tree_b_t(), _i(i) {}
+	B(A* a, int i = 0) : data_tree_b_t(a), _i(i) {}
 
   public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
@@ -83,7 +83,7 @@ class C : public data_tree_c_t
 {
 
   public:
-	C(int i = 0) : data_tree_c_t(), _i(i) {}
+	C(B* b, int i = 0) : data_tree_c_t(b), _i(i) {}
 
   public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
@@ -108,7 +108,7 @@ class D : public data_tree_d_t
 {
 
   public:
-	D(int i = 0) : data_tree_d_t(), _i(i) {}
+	D(C* c, int i = 0) : data_tree_d_t(c), _i(i) {}
 
   public:
 	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
@@ -137,30 +137,18 @@ int main(int argc, char** argv)
 {
 	// Objects, let's create our tree !
 	A_p a(new A());
-	B_p b1(new B(0));
-	a->do_add_child(b1);
-	B_p b2(new B(1));
-	a->do_add_child(b2);
-	C_p c1(new C(0));
-	b1->do_add_child(c1);
-	C_p c2(new C(1));
-	b1->do_add_child(c2);
-	C_p c4(new C(2));
-	b2->do_add_child(c4);
-	C_p c5(new C(3));
-	b2->do_add_child(c5);
-	D_p d1(new D(0));
-	c1->do_add_child(d1);
-	D_p d2(new D(1));
-	c1->do_add_child(d2);
-	D_p d4(new D(2));
-	c2->do_add_child(d4);
-	D_p d5(new D(3));
-	c2->do_add_child(d5);
-	D_p d6(new D(4));
-	c4->do_add_child(d6);
-	D_p d7(new D(5));
-	c5->do_add_child(d7);
+	B_p b1 = a->emplace_add_child(0);
+	B_p b2 = a->emplace_add_child(1);
+	C_p c1 = b1->emplace_add_child(0);
+	C_p c2 = b1->emplace_add_child(1);
+	C_p c4 = b2->emplace_add_child(2);
+	C_p c5 = b2->emplace_add_child(3);
+	D_p d1 = c1->emplace_add_child(0);
+	D_p d2 = c1->emplace_add_child(1);
+	D_p d4 = c2->emplace_add_child(2);
+	D_p d5 = c2->emplace_add_child(3);
+	D_p d6 = c4->emplace_add_child(4);
+	D_p d7 = c5->emplace_add_child(5);
 
 	// Qt app
 	QApplication app(argc, argv);

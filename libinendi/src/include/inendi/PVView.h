@@ -55,13 +55,11 @@ class PVView : public data_tree_view_t
 	typedef PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 
   public:
-	PVView();
-
-  public:
+	PVView(PVPlotted* plotted);
+	PVView(const PVView& org) = delete;
 	~PVView();
 
   protected:
-	PVView(const PVView& org) = delete;
 
 	// For PVSource
 	void add_column(PVAxis const& axis);
@@ -78,9 +76,6 @@ class PVView : public data_tree_view_t
 		return _axes_combination.move_axis_to_new_position(index_source, index_dest);
 	}
 	void axis_append(const PVAxis& axis) { _axes_combination.axis_append(axis); }
-
-	// void init_from_plotted(PVPlotted* parent, bool keep_layers);
-	void set_fake_axes_comb(PVCol const ncols);
 
 	virtual QString get_serialize_description() const { return "View: " + get_name(); }
 
@@ -270,7 +265,6 @@ class PVView : public data_tree_view_t
 	void process_visibility();
 
 	void process_parent_plotted();
-	void reset_view();
 
 	/******************************************************************************
 	******************************************************************************
@@ -371,8 +365,6 @@ class PVView : public data_tree_view_t
 		_state_machine.set_square_area_mode(mode);
 	}
 
-	void init();
-
   protected:
 	/******************************************************************************
 	******************************************************************************
@@ -403,7 +395,6 @@ class PVView : public data_tree_view_t
 	PVStateMachine _state_machine;
 	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in
 	// floating_selection once it is completed.
-	int last_extractor_batch_size;
 
 	bool _is_consistent;
 	QString _last_filter_name;

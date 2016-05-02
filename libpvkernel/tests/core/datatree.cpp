@@ -90,7 +90,7 @@ class B : public data_tree_b_t
 	friend class A;
 
   public:
-	B(int i = 0) : data_tree_b_t(), _a_was_here(false), _i(i) {}
+	B(A* a, int i = 0) : data_tree_b_t(a), _a_was_here(false), _i(i) {}
 
   public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
@@ -144,7 +144,7 @@ class C : public data_tree_c_t
 {
 
   public:
-	C(int i = 0) : data_tree_c_t(), _i(i) {}
+	C(B* b, int i = 0) : data_tree_c_t(b), _i(i) {}
 
   public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
@@ -184,7 +184,7 @@ class D : public data_tree_d_t
 {
 
   public:
-	D(int i = 0) : data_tree_d_t(), _i(i) {}
+	D(C* c, int i = 0) : data_tree_d_t(c), _i(i) {}
 
   public:
 	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
@@ -224,17 +224,8 @@ void delete_use_case()
 {
 	std::cout << "Delete use case" << std::endl;
 	A_p a1(new A(4));
-	{
-		B_p b1(new B(5));
-		a1->do_add_child(b1);
-		B_p b2(new B());
-		a1->do_add_child(b2);
-		C_p c(new C());
-		b1->do_add_child(c);
-		D_p d(new D());
-		c->do_add_child(d);
-	}
-
+	a1->emplace_add_child(5)->emplace_add_child()->emplace_add_child();
+	a1->emplace_add_child();
 	a1.reset();
 }
 
@@ -246,16 +237,11 @@ void standard_use_case()
 	PVLOG_INFO("Constructing initial tree \n");
 	A_p a1(new A(4));
 	A_p a2(new A());
-	B_p b1(new B(5));
-	a1->do_add_child(b1);
-	B_p b2(new B());
-	a1->do_add_child(b2);
-	B_p b3(new B());
-	a2->do_add_child(b3);
-	C_p c(new C());
-	b1->do_add_child(c);
-	D_p d(new D());
-	c->do_add_child(d);
+	B_p b1 = a1->emplace_add_child(5);
+	B_p b2 = a1->emplace_add_child();
+	B_p b3 = a2->emplace_add_child();
+	C_p c = b1->emplace_add_child();
+	D_p d = c->emplace_add_child();
 
 	// Check "child_added"
 	PV_ASSERT_VALID(b1->a_was_here());
@@ -335,38 +321,10 @@ void standard_use_case()
 	PVLOG_INFO("Removing child passed\n");
 
 	//////////////////////////////////////////
-	//  Test10 - Get null ancestor if parent is null
-	//////////////////////////////////////////
-	D_p d3(new D());
-
-	PV_ASSERT_VALID(d3->get_parent() == nullptr && d3->get_parent<A>() == nullptr);
-
-	PVLOG_INFO("Get null ancestor if parent is null passed\n");
-
-	//////////////////////////////////////////
-	//  Test11 - Start from a PVDataTreeObjectBase and check its property
-	//////////////////////////////////////////
-
-	PVCore::PVDataTreeObjectBase* obase = static_cast<PVCore::PVDataTreeObjectBase*>(a1.get());
-	PVCore::PVDataTreeObjectBase::base_p_type obase_p = obase->base_shared_from_this();
-	PVLOG_INFO("a1=%p obase=%p obase_get=%p\n", a1.get(), obase, obase_p.get());
-
-	PV_ASSERT_VALID(obase_p.get() == obase);
-	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) == nullptr);
-	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
-
-	obase = static_cast<PVCore::PVDataTreeObjectBase*>(b1.get());
-	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
-	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
-
-	obase = static_cast<PVCore::PVDataTreeObjectBase*>(d.get());
-	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
-	PV_ASSERT_VALID(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) == nullptr);
-
-	//////////////////////////////////////////
 	//  Test11 - Start from a PVDataTreeObjectBase and check that casting works
 	//////////////////////////////////////////
 	// obase is 'd' here
+	PVCore::PVDataTreeObjectBase* obase = static_cast<PVCore::PVDataTreeObjectBase*>(d.get());
 	std::cout << "Base object pointer = " << obase << std::endl;
 	std::cout << "Starting address of final object = "
 	          << PVCore::PVTypeTraits::get_starting_address(obase) << std::endl;
@@ -386,15 +344,11 @@ void serialize_use_case()
 	// Serialize datatree
 	{
 		A_p a1(new A(5));
-		B_p b1(new B(4));
-		a1->do_add_child(b1);
-		B_p b2(new B(3));
-		a1->do_add_child(b2);
-		C_p c(new C(2));
-		b1->do_add_child(c);
+		B_p b1 = a1->emplace_add_child(4);
+		B_p b2 = a1->emplace_add_child(3);
+		C_p c = b1->emplace_add_child(2);
 		c->set_j(c->get_j() * 10);
-		D_p d(new D(1));
-		c->do_add_child(d);
+		D_p d = c->emplace_add_child(1);
 		d->set_j(d->get_j() * 10);
 		std::cout << "b1 = " << b1.get() << std::endl;
 		std::cout << "b2 = " << b2.get() << std::endl;

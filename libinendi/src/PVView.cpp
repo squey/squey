@@ -37,41 +37,32 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  * Inendi::PVView::PVView
  *
  *****************************************************************************/
-Inendi::PVView::PVView()
-    : post_filter_layer("post_filter_layer")
+Inendi::PVView::PVView(PVPlotted* plotted)
+    : data_tree_view_t(plotted)
+    , _axes_combination(get_parent<PVSource>()->get_axes_combination())
+    , post_filter_layer("post_filter_layer")
     , layer_stack_output_layer("view_layer_stack_output_layer")
     , output_layer("output_layer")
     , _is_consistent(false)
-    , _rushnraw_parent(nullptr)
+    , _rushnraw_parent(&get_parent<PVSource>()->get_rushnraw())
     , _view_id(-1)
     , _active_axis(0)
 {
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-	last_extractor_batch_size =
-	    pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
-}
-
-void Inendi::PVView::init()
-{
-	_rushnraw_parent = &get_parent<PVSource>()->get_rushnraw();
+	get_parent<PVSource>()->add_view(this);
 
 	// Create layer filter arguments for that view
 	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 
-	LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator it;
-
-	for (it = lf.begin(); it != lf.end(); it++) {
-		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
+	for (auto it = lf.begin(); it != lf.end(); it++) {
+	    filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 
-	/**
-	 *  Avoid inializing view when default constructed...
-	 */
 	PVRow row_count = get_row_count();
 	if (row_count) {
-		set_row_count(row_count);
-		reset_view();
+	    set_row_count(row_count);
+	    reset_layers();
+	    _axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name());
 	}
 }
 
@@ -93,27 +84,6 @@ void Inendi::PVView::process_parent_plotted()
 	process_from_layer_stack();
 
 	_is_consistent = true;
-}
-
-void Inendi::PVView::reset_view()
-{
-	reset_layers();
-
-	PVSource* source = get_parent<PVSource>();
-	_axes_combination = source->get_axes_combination();
-	_axes_combination.set_axis_name(
-	    0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
-}
-
-void Inendi::PVView::set_fake_axes_comb(PVCol const ncols)
-{
-	_axes_combination.clear();
-	for (PVCol c = 0; c < ncols; c++) {
-		PVAxis axis("integer", "default", "port");
-		axis.set_name(QString("axis ") + QString::number(c));
-		axis.set_titlecolor("#ffffff");
-		_axes_combination.axis_append(axis);
-	}
 }
 
 /******************************************************************************

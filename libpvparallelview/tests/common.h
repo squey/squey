@@ -136,9 +136,7 @@ class TestEnv
 		Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 		plotted->process_from_parent_mapped();
 
-		view.reset(new Inendi::PVView());
-		plotted->do_add_child(view);
-		view->init();
+		view = plotted->emplace_add_child();
 	}
 
 	PVParallelView::PVLibView* get_lib_view()
