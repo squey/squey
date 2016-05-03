@@ -82,7 +82,7 @@ class PVPlotted : public data_tree_plotted_t
 	typedef std::vector<PVRow> rows_vector_t;
 
   public:
-	PVPlotted(PVMapped * mapped);
+	PVPlotted(PVMapped* mapped);
 
   public:
 	~PVPlotted();

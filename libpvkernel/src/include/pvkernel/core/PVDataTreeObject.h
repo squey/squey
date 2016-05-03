@@ -234,33 +234,36 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 
   public:
 	virtual void serialize_write(PVCore::PVSerializeObject& so) = 0;
-//	{
-//		QStringList descriptions;
-//		for (auto child : _children) {
-//			descriptions << child->get_serialize_description();
-//		}
-//		so.list(get_children_serialize_name(), _children, get_children_description(),
-//		        (child_t*)NULL, descriptions);
-//	};
+	//	{
+	//		QStringList descriptions;
+	//		for (auto child : _children) {
+	//			descriptions << child->get_serialize_description();
+	//		}
+	//		so.list(get_children_serialize_name(), _children, get_children_description(),
+	//		        (child_t*)NULL, descriptions);
+	//	};
 
 	virtual void serialize_read(PVCore::PVSerializeObject& so,
 	                            PVCore::PVSerializeArchive::version_t /*v*/) = 0;
-//	{
-//	  PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
-//		auto create_func = [&] {
-//		  return me_p->emplace_add_child();
-//		};
-//		 if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(),
-//		                  true, true)) {
-//			// No children born in here...
-//			return;
-//		}
-//	}
+	//	{
+	//	  PVCore::PVSharedPtr<real_type_t>
+	// me_p(static_cast<real_type_t*>(this)->shared_from_this());
+	//		auto create_func = [&] {
+	//		  return me_p->emplace_add_child();
+	//		};
+	//		 if (!so.list_read(create_func, get_children_serialize_name(),
+	// get_children_description(),
+	//		                  true, true)) {
+	//			// No children born in here...
+	//			return;
+	//		}
+	//	}
 
-	template <class ...T>
-	pchild_t emplace_add_child(T && ... t)
+	template <class... T>
+	pchild_t emplace_add_child(T&&... t)
 	{
-		_children.push_back(pchild_t(new child_t(static_cast<typename Tchild::parent_t*>(this), t...))); 
+		_children.push_back(
+		    pchild_t(new child_t(static_cast<typename Tchild::parent_t*>(this), t...)));
 		return _children.back();
 	}
 
@@ -320,7 +323,7 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 	typedef PVCore::PVSharedPtr<parent_t> pparent_t;
 
   public:
-	PVDataTreeObjectWithParent(Tparent * parent) : PVDataTreeObjectWithParentBase(parent) {}
+	PVDataTreeObjectWithParent(Tparent* parent) : PVDataTreeObjectWithParentBase(parent) {}
 
   public:
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a
@@ -427,7 +430,8 @@ class PVDataTreeObject
   public:
 	/*! \brief Default constructor
 	 */
-	PVDataTreeObject(Tparent * p) : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t(p)
+	PVDataTreeObject(Tparent* p)
+	    : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t(p)
 	{
 	}
 
@@ -438,14 +442,14 @@ class PVDataTreeObject
   public:
 	virtual base_p_type base_shared_from_this()
 	{
-	  PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
-	  return base_p_type{p};
+		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
+		return base_p_type{p};
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
-	  PVCore::PVSharedPtr<real_type_t const> p(
-	      static_cast<real_type_t const*>(this)->shared_from_this());
-	  return const_base_p_type{p};
+		PVCore::PVSharedPtr<real_type_t const> p(
+		    static_cast<real_type_t const*>(this)->shared_from_this());
+		return const_base_p_type{p};
 	}
 };
 
@@ -473,17 +477,18 @@ class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>
   public:
 	typedef PVSharedPtr<real_type_t> p_type;
 	typedef PVCore::PVWeakPtr<real_type_t> wp_type;
+
   public:
 	virtual base_p_type base_shared_from_this()
 	{
-	  PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
-	  return base_p_type(p);
+		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
+		return base_p_type(p);
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
-	  PVCore::PVSharedPtr<real_type_t const> p(
-	      static_cast<real_type_t const*>(this)->shared_from_this());
-	  return const_base_p_type(p);
+		PVCore::PVSharedPtr<real_type_t const> p(
+		    static_cast<real_type_t const*>(this)->shared_from_this());
+		return const_base_p_type(p);
 	}
 
   public:
@@ -519,20 +524,22 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
   public:
 	virtual base_p_type base_shared_from_this()
 	{
-	  PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
-	  return base_p_type{p};
+		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
+		return base_p_type{p};
 	}
 	virtual const_base_p_type base_shared_from_this() const
 	{
-	  PVCore::PVSharedPtr<real_type_t const> p(
-	      static_cast<real_type_t const*>(this)->shared_from_this());
-	  return const_base_p_type{p};
+		PVCore::PVSharedPtr<real_type_t const> p(
+		    static_cast<real_type_t const*>(this)->shared_from_this());
+		return const_base_p_type{p};
 	}
 
   public:
 	/*! \brief Default constructor
 	 */
-	PVDataTreeObject(Tparent* parent) : PVEnableSharedFromThis<real_type_t>(), impl_parent_t(parent) {}
+	PVDataTreeObject(Tparent* parent) : PVEnableSharedFromThis<real_type_t>(), impl_parent_t(parent)
+	{
+	}
 
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */

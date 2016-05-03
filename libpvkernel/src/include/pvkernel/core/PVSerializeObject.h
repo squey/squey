@@ -336,6 +336,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	                     bool visible = true,
 	                     bool def_option = true);
 	uint32_t get_version() const;
+
   private:
 	void attribute_write(QString const& name, QVariant const& obj);
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
@@ -383,7 +384,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	void call_serialize(PVSharedPtr<T>& obj, p_type new_obj, T const*)
 	{
 		// TODO : re-enable this
-		//if (!obj) {
+		// if (!obj) {
 		//	assert(!is_writing());
 		//	T* new_p;
 		//	new_p = new T();

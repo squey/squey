@@ -72,7 +72,9 @@ class C : public data_tree_c_t
 	}
 
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override {}
+	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override
+	{
+	}
 	void serialize_write(PVCore::PVSerializeObject&) override {}
 
   private:
@@ -100,7 +102,9 @@ class B : public data_tree_b_t
 	}
 
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override {}
+	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override
+	{
+	}
 	void serialize_write(PVCore::PVSerializeObject&) override {}
 
   private:
@@ -127,13 +131,14 @@ class A : public data_tree_a_t
 	}
 
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override {}
+	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override
+	{
+	}
 	void serialize_write(PVCore::PVSerializeObject&) override {}
 
   private:
 	int _i;
 };
-
 
 typedef typename A::p_type A_p;
 typedef typename B::p_type B_p;

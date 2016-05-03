@@ -24,7 +24,8 @@
  * Inendi::PVScene::PVScene
  *
  *****************************************************************************/
-Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_name) : data_tree_scene_t(root), _last_active_src(nullptr), _name(scene_name)
+Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_name)
+    : data_tree_scene_t(root), _last_active_src(nullptr), _name(scene_name)
 {
 }
 
@@ -137,21 +138,19 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 	}
 
 	// Create a list of source
-	PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
-								get_children_description(),
-								true,
-								true);
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 
 	// Temporary list of input descriptions
 	for (int i = 0; i < input_types.size(); i++) {
 		// Create an object for the source
-	 	PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(i));
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(i));
 
 		QString src_name;
 		new_obj->attribute("source-plugin", src_name);
 		// FIXME : Handle error when source name if not correct
 		PVRush::PVSourceCreator_p sc_lib =
-			LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
+		    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
 
 		// Get the input type lib object
 		QString const& type_name = input_types.at(i);
@@ -180,8 +179,8 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 		new_obj->attribute("nraw_path", nraw_folder, QString());
 
 		if (not nraw_folder.isEmpty()) {
-			QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() +
-						      QDir(nraw_folder).dirName();
+			QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() +
+			                              QDir::separator() + QDir(nraw_folder).dirName();
 			QFileInfo fi(user_based_nraw_dir);
 			if (fi.exists() == true && fi.isDir() == true) {
 				nraw_folder = user_based_nraw_dir;
@@ -190,9 +189,9 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 			}
 		}
 		source->set_nraw_folder(nraw_folder);
-	 	source->serialize(*new_obj, so.get_version());
-	 	new_obj->_bound_obj = source.get();
-	 	new_obj->_bound_obj_type = typeid(PVSource);
+		source->serialize(*new_obj, so.get_version());
+		new_obj->_bound_obj = source.get();
+		new_obj->_bound_obj_type = typeid(PVSource);
 	}
 }
 
@@ -211,7 +210,7 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 
 		// FIXME: Files are not saved in source while they certainly should.
 		PVRush::PVInputType::list_inputs_desc inputs = get_inputs_desc(*in_t);
-		    in_t->serialize_inputs(so, in_t->registered_name(), inputs);
+		in_t->serialize_inputs(so, in_t->registered_name(), inputs);
 		in_types_str.push_back(in_t->registered_name());
 	}
 
@@ -219,14 +218,13 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("name", _name);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
-	        				       get_children_description(),
-	        		     		       true,
-	        		     		       true);
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for(PVCore::PVSharedPtr<PVSource> source: get_children()) {
+	for (PVCore::PVSharedPtr<PVSource> source : get_children()) {
 		QString child_name = QString::number(idx);
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, source->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj =
+		    list_obj->create_object(child_name, source->get_serialize_description(), false);
 		source->serialize(*new_obj, so.get_version());
 		new_obj->_bound_obj = source.get();
 		new_obj->_bound_obj_type = typeid(PVSource);

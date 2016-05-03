@@ -161,7 +161,7 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
 	so.list("properties", _columns);
 	if (not so.is_writing()) {
 		// Set new plotting properties from pvi
-		for(auto& prop: _columns) {
+		for (auto& prop : _columns) {
 			prop.set_mapping(_plotted->get_parent<PVMapped>()->get_mapping());
 		}
 	}

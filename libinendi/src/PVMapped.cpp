@@ -24,7 +24,7 @@
  * Inendi::PVMapped::PVMapped
  *
  *****************************************************************************/
-Inendi::PVMapped::PVMapped(PVSource * src): data_tree_mapped_t(src), _mapping(this)
+Inendi::PVMapped::PVMapped(PVSource* src) : data_tree_mapped_t(src), _mapping(this)
 {
 	// FIXME Mapping should be merge in mapped as they are interdependant.
 }
@@ -257,14 +257,13 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 	so.object(QString("mapping"), _mapping, QString(), false, nullptr, false);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
-	        				       get_children_description(),
-	        		     		       true,
-	        		     		       true);
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for(PVCore::PVSharedPtr<PVPlotted> plotted: get_children()) {
+	for (PVCore::PVSharedPtr<PVPlotted> plotted : get_children()) {
 		QString child_name = QString::number(idx);
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, plotted->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj =
+		    list_obj->create_object(child_name, plotted->get_serialize_description(), false);
 		plotted->serialize(*new_obj, so.get_version());
 		new_obj->_bound_obj = plotted.get();
 		new_obj->_bound_obj_type = typeid(PVPlotted);
@@ -279,26 +278,25 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
                                       PVCore::PVSerializeArchive::version_t v)
 {
-    // Create the list of plotted
-    PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
-	    get_children_description(),
-	    true,
-	    true);
-    int idx = 0;
-    try {
-	while (true) {
-	    // FIXME It throws when there are no more data collections.
-	    // It should not be an exception as it is a normal behavior.
-	    PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-	    PVPlotted_p plotted = emplace_add_child();
-	    // FIXME : Plotting is created invalid then set
-	    new_obj->object(QString("plotting"), plotted->get_plotting(), QString(), false, nullptr, false);
-	    plotted->serialize(*new_obj, so.get_version());
-	    new_obj->_bound_obj = plotted.get();
-	    new_obj->_bound_obj_type = typeid(PVPlotted);
-	    idx++;
+	// Create the list of plotted
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	int idx = 0;
+	try {
+		while (true) {
+			// FIXME It throws when there are no more data collections.
+			// It should not be an exception as it is a normal behavior.
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+			PVPlotted_p plotted = emplace_add_child();
+			// FIXME : Plotting is created invalid then set
+			new_obj->object(QString("plotting"), plotted->get_plotting(), QString(), false, nullptr,
+			                false);
+			plotted->serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = plotted.get();
+			new_obj->_bound_obj_type = typeid(PVPlotted);
+			idx++;
+		}
+	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+		return;
 	}
-    } catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
-	return;
-    }
 }

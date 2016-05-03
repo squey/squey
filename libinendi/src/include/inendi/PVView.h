@@ -59,7 +59,6 @@ class PVView : public data_tree_view_t
 	~PVView();
 
   protected:
-
 	// For PVSource
 	void add_column(PVAxis const& axis);
 	inline void set_view_id(id_t id) { _view_id = id; }

@@ -23,13 +23,10 @@
 #include <inendi/PVRoot.h>
 
 Inendi::PVSource::PVSource(Inendi::PVScene* scene,
-			   PVRush::PVInputType::list_inputs const& inputs,
+                           PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
                            PVRush::PVFormat format)
-    : data_tree_source_t(scene)
-      , _inputs(inputs)
-      , _src_plugin(sc)
-      , _nraw(_extractor.get_nraw())
+    : data_tree_source_t(scene), _inputs(inputs), _src_plugin(sc), _nraw(_extractor.get_nraw())
 {
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
@@ -63,7 +60,7 @@ Inendi::PVSource::~PVSource()
 
 Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
 {
-    // FIXME : Should be remove
+	// FIXME : Should be remove
 	Inendi::PVSource_sp src = get_parent()->emplace_add_child(_inputs, _src_plugin, get_format());
 	src->emplace_add_child();
 	return src;
@@ -289,14 +286,13 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("format", _extractor.get_format(), QObject::tr("Format"));
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
-	        				       get_children_description(),
-	        		     		       true,
-	        		     		       true);
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for(PVCore::PVSharedPtr<PVMapped> mapped: get_children()) {
+	for (PVCore::PVSharedPtr<PVMapped> mapped : get_children()) {
 		QString child_name = QString::number(idx);
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, mapped->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj =
+		    list_obj->create_object(child_name, mapped->get_serialize_description(), false);
 		mapped->serialize(*new_obj, so.get_version());
 		new_obj->_bound_obj = mapped.get();
 		new_obj->_bound_obj_type = typeid(PVMapped);
@@ -306,26 +302,25 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so,
                                       PVCore::PVSerializeArchive::version_t v)
 {
-    // Create the list of mapped
-    PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
-	    get_children_description(),
-	    true,
-	    true);
-    int idx = 0;
-    try {
-	while (true) {
-	    // FIXME It throws when there are no more data collections.
-	    // It should not be an exception as it is a normal behavior.
-	    PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-	    PVMapped_p mapped = emplace_add_child();
-	    // FIXME : Mapping is created invalid then set
-	    new_obj->object(QString("mapping"), mapped->get_mapping(), QString(), false, nullptr, false);
-	    mapped->serialize(*new_obj, so.get_version());
-	    new_obj->_bound_obj = mapped.get();
-	    new_obj->_bound_obj_type = typeid(PVMapped);
-	    idx++;
+	// Create the list of mapped
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	int idx = 0;
+	try {
+		while (true) {
+			// FIXME It throws when there are no more data collections.
+			// It should not be an exception as it is a normal behavior.
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+			PVMapped_p mapped = emplace_add_child();
+			// FIXME : Mapping is created invalid then set
+			new_obj->object(QString("mapping"), mapped->get_mapping(), QString(), false, nullptr,
+			                false);
+			mapped->serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = mapped.get();
+			new_obj->_bound_obj_type = typeid(PVMapped);
+			idx++;
+		}
+	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+		return;
 	}
-    } catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
-	return;
-    }
 }

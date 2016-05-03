@@ -55,14 +55,14 @@ Inendi::PVView::PVView(PVPlotted* plotted)
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 
 	for (auto it = lf.begin(); it != lf.end(); it++) {
-	    filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
+		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 
 	PVRow row_count = get_row_count();
 	if (row_count) {
-	    set_row_count(row_count);
-	    reset_layers();
-	    _axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name());
+		set_row_count(row_count);
+		reset_layers();
+		_axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name());
 	}
 }
 
@@ -74,7 +74,7 @@ void Inendi::PVView::process_parent_plotted()
 	_axes_combination.set_from_format(source->get_format());
 
 	_axes_combination.set_axis_name(
-		0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
+	    0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	set_row_count(get_row_count());
 
