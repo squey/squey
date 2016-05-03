@@ -76,7 +76,7 @@ class C : public data_tree_c_t
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		data_tree_c_t::serialize_write(so);
+		//data_tree_c_t::serialize_write(so);
 
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
@@ -85,7 +85,7 @@ class C : public data_tree_c_t
 	virtual void serialize_read(PVCore::PVSerializeObject& so,
 	                            PVCore::PVSerializeArchive::version_t v)
 	{
-		data_tree_c_t::serialize_read(so, v);
+//		data_tree_c_t::serialize_read(so, v);
 
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
@@ -116,7 +116,7 @@ class B : public data_tree_b_t
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		data_tree_b_t::serialize_write(so);
+		//data_tree_b_t::serialize_write(so);
 
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
@@ -125,7 +125,7 @@ class B : public data_tree_b_t
 	virtual void serialize_read(PVCore::PVSerializeObject& so,
 	                            PVCore::PVSerializeArchive::version_t v)
 	{
-		data_tree_b_t::serialize_read(so, v);
+//		data_tree_b_t::serialize_read(so, v);
 
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
@@ -181,7 +181,7 @@ class A : public data_tree_a_t
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		data_tree_a_t::serialize_write(so);
+//		data_tree_a_t::serialize_write(so);
 
 		so.attribute("_i", _i);
 	}
@@ -189,7 +189,7 @@ class A : public data_tree_a_t
 	virtual void serialize_read(PVCore::PVSerializeObject& so,
 	                            PVCore::PVSerializeArchive::version_t v)
 	{
-		data_tree_a_t::serialize_read(so, v);
+	//	data_tree_a_t::serialize_read(so, v);
 
 		so.attribute("_i", _i);
 	}

@@ -254,9 +254,21 @@ bool Inendi::PVMapped::is_current_mapped() const
  *****************************************************************************/
 void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
-//	data_tree_mapped_t::serialize_write(so);
-//
-//	so.object(QString("mapping"), _mapping, QString(), false, (PVMapping*)NULL, false);
+	so.object(QString("mapping"), _mapping, QString(), false, nullptr, false);
+
+	// Read the data colletions
+	PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
+	        				       get_children_description(),
+	        		     		       true,
+	        		     		       true);
+	int idx = 0;
+	for(PVCore::PVSharedPtr<PVPlotted> plotted: get_children()) {
+		QString child_name = QString::number(idx);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, plotted->get_serialize_description(), false);
+		plotted->serialize(*new_obj, so.get_version());
+		new_obj->_bound_obj = plotted.get();
+		new_obj->_bound_obj_type = typeid(PVPlotted);
+	}
 }
 
 /******************************************************************************
@@ -267,12 +279,26 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
                                       PVCore::PVSerializeArchive::version_t v)
 {
-//	PVMapping* mapping = new PVMapping();
-//	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*)NULL, false);
-//	_mapping = PVMapping_p(mapping);
-//	_mapping->set_mapped(this);
-//
-//	// It important to deserialize the children after the mapping otherwise
-//	// PVPlottingProperties complains that there is no mapping!
-//	data_tree_mapped_t::serialize_read(so, v);
+    // Create the list of plotted
+    PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
+	    get_children_description(),
+	    true,
+	    true);
+    int idx = 0;
+    try {
+	while (true) {
+	    // FIXME It throws when there are no more data collections.
+	    // It should not be an exception as it is a normal behavior.
+	    PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+	    PVPlotted_p plotted = emplace_add_child();
+	    // FIXME : Plotting is created invalid then set
+	    new_obj->object(QString("plotting"), plotted->get_plotting(), QString(), false, nullptr, false);
+	    plotted->serialize(*new_obj, so.get_version());
+	    new_obj->_bound_obj = plotted.get();
+	    new_obj->_bound_obj_type = typeid(PVPlotted);
+	    idx++;
+	}
+    } catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+	return;
+    }
 }

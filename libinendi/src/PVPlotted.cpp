@@ -620,17 +620,46 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 
 void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
-//	data_tree_plotted_t::serialize_write(so);
-//
-//	so.object("plotting", &_plotting, QString(), false, (PVPlotting*)NULL, false);
+	so.object("plotting", _plotting, QString(), false, nullptr, false);
+
+	// Read the data colletions
+	PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
+	        				       get_children_description(),
+	        		     		       true,
+	        		     		       true);
+	int idx = 0;
+	for(PVCore::PVSharedPtr<PVView> view: get_children()) {
+		QString child_name = QString::number(idx);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, view->get_serialize_description(), false);
+		view->serialize(*new_obj, so.get_version());
+		new_obj->_bound_obj = view.get();
+		new_obj->_bound_obj_type = typeid(PVView);
+	}
 }
 
 void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
                                        PVCore::PVSerializeArchive::version_t v)
 {
-//	so.object("plotting", &_plotting, QString(), false, (PVPlotting*)NULL, false);
-//
-//	data_tree_plotted_t::serialize_read(so, v);
+    // Create the list of view
+    PVCore::PVSerializeObject_p list_obj = so.create_object(get_children_serialize_name(),
+	    get_children_description(),
+	    true,
+	    true);
+    int idx = 0;
+    try {
+	while (true) {
+	    // FIXME It throws when there are no more data collections.
+	    // It should not be an exception as it is a normal behavior.
+	    PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+	    PVView_p view = emplace_add_child();
+	    view->serialize(*new_obj, so.get_version());
+	    new_obj->_bound_obj = view.get();
+	    new_obj->_bound_obj_type = typeid(PVView);
+	    idx++;
+	}
+    } catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+	return;
+    }
 }
 
 void Inendi::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted,

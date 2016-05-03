@@ -212,13 +212,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	            bool visible = true,
 	            bool elts_optional = false);
 
-	template <typename F>
-	p_type list_read(F const& func,
-	                 QString const& name,
-	                 QString const& desc = QString(),
-	                 bool visible = true,
-	                 bool elts_optional = false);
-
 	/*! \brief Declare a list to serialize by making references to objects that has already been
 	 *serialized.
 	 *  \param[in] name Name of the list to serialize
@@ -336,13 +329,14 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	void fix_attribute(QString const& name, QVariant const& v);
 	inline const void* bound_obj() const { return _bound_obj; }
 
-  private:
+  public:
 	p_type create_object(QString const& name,
 	                     QString const& desc = QString(),
 	                     bool optional = false,
 	                     bool visible = true,
 	                     bool def_option = true);
 	uint32_t get_version() const;
+  private:
 	void attribute_write(QString const& name, QVariant const& obj);
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
@@ -462,14 +456,15 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	 */
 	list_childs_t _visible_childs;
 
+	/*! \brief Whether or not this object is exposed to the user (for options)
+	 */
+	bool _visible;
+
+  public:
 	/*! \brief If relevant, represents a pointer to the object that has been serialized
 	 */
 	void* _bound_obj;
 	PVTypeInfo _bound_obj_type;
-
-	/*! \brief Whether or not this object is exposed to the user (for options)
-	 */
-	bool _visible;
 };
 
 typedef PVSerializeObject::p_type PVSerializeObject_p;
@@ -582,44 +577,6 @@ PVSerializeObject::list(QString const& name,
 		} catch (PVSerializeArchiveErrorNoObject const& /*e*/) {
 			return list_obj;
 		}
-	}
-	return list_obj;
-}
-
-template <typename F>
-PVSerializeObject::p_type PVSerializeObject::list_read(
-    F const& func, QString const& name, QString const& desc, bool visible, bool elts_optional)
-{
-	assert(!is_writing());
-
-	typedef decltype(func()) V;
-	typedef typename PVTypeTraits::remove_shared_ptr<V>::type const def_t;
-	PVSerializeObject_p list_obj;
-	try {
-		list_obj = create_object(name, desc, elts_optional, visible);
-	} catch (PVSerializeArchiveErrorNoObject& e) {
-		if (!elts_optional && !is_writing()) {
-			throw e;
-		}
-		return p_type();
-	}
-	int idx = 0;
-	try {
-		while (true) {
-			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			// This is really important to have the following line (creation of a new object) after
-			// the creation of the PVSerializeObject_p. Indeed, when the exception of a "not found
-			// element" is thrown,
-			// we would have potentially created a useless object (that might have been added, for
-			// instance, to the datatree).
-			// If you want to store the children to a list, add the child to the list in the func
-			// function and return its address
-			V v(func());
-			call_serialize(v, new_obj, (def_t*)NULL);
-			idx++;
-		}
-	} catch (PVSerializeArchiveErrorNoObject const&) {
-		return list_obj;
 	}
 	return list_obj;
 }

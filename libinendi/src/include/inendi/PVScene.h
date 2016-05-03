@@ -46,11 +46,6 @@ class PVScene : public data_tree_scene_t
   public:
 	typedef QList<PVSource*> list_sources_t;
 
-  private:
-	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
-	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p>
-	    hash_type_so_inputs;
-
   public:
 	PVScene(PVRoot* root, QString scene_name);
 	~PVScene();
@@ -90,12 +85,8 @@ class PVScene : public data_tree_scene_t
 	void serialize_write(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
-	PVCore::PVSerializeObject_p get_so_inputs(PVSource const& src);
-
   private:
 	Inendi::PVSource* _last_active_src;
-
-	hash_type_so_inputs _so_inputs;
 
 	QString _name;
 };

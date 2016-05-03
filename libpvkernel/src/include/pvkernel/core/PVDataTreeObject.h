@@ -233,33 +233,29 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	}
 
   public:
-	virtual void serialize_write(PVCore::PVSerializeObject& so)
-	{
-		QStringList descriptions;
-		for (auto child : _children) {
-			descriptions << child->get_serialize_description();
-		}
-		so.list(get_children_serialize_name(), _children, get_children_description(),
-		        (child_t*)NULL, descriptions);
-	};
+	virtual void serialize_write(PVCore::PVSerializeObject& so) = 0;
+//	{
+//		QStringList descriptions;
+//		for (auto child : _children) {
+//			descriptions << child->get_serialize_description();
+//		}
+//		so.list(get_children_serialize_name(), _children, get_children_description(),
+//		        (child_t*)NULL, descriptions);
+//	};
 
 	virtual void serialize_read(PVCore::PVSerializeObject& so,
-	                            PVCore::PVSerializeArchive::version_t /*v*/)
-	{
-	  (void)so;
-		//PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
-		//	// TODO : Re-enable this
-		// auto create_func = [&] {
-		//	PVSharedPtr<child_t> tmp(new child_t());
-		//	tmp->set_parent(me_p);
-		//	return tmp;
-		//};
-		// if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(),
-		//                  true, true)) {
-		//	// No children born in here...
-		//	return;
-		//}
-	}
+	                            PVCore::PVSerializeArchive::version_t /*v*/) = 0;
+//	{
+//	  PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
+//		auto create_func = [&] {
+//		  return me_p->emplace_add_child();
+//		};
+//		 if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(),
+//		                  true, true)) {
+//			// No children born in here...
+//			return;
+//		}
+//	}
 
 	template <class ...T>
 	pchild_t emplace_add_child(T && ... t)

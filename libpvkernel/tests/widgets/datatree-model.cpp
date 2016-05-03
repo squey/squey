@@ -73,6 +73,8 @@ class D : public data_tree_d_t
 	}
 
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
+	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override {}
+	void serialize_write(PVCore::PVSerializeObject&) override {}
 
   private:
 	int _i;
@@ -99,6 +101,8 @@ class C : public data_tree_c_t
 	}
 
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
+	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override {}
+	void serialize_write(PVCore::PVSerializeObject&) override {}
 
   private:
 	int _i;
@@ -125,6 +129,8 @@ class B : public data_tree_b_t
 	}
 
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
+	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override {}
+	void serialize_write(PVCore::PVSerializeObject&) override {}
 
   private:
 	int _i;
@@ -148,6 +154,10 @@ class A : public data_tree_a_t
 	{
 		return QString("A: ") + QString::number(get_i());
 	}
+
+	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
+	void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) override {}
+	void serialize_write(PVCore::PVSerializeObject&) override {}
 
   private:
 	int _i;

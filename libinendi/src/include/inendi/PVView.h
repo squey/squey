@@ -374,6 +374,8 @@ class PVView : public data_tree_view_t
 	*****************************************************************************/
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
+
+  public:
 	PVSERIALIZEOBJECT_SPLIT
 
   protected:
