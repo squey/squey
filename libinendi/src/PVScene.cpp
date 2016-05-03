@@ -8,6 +8,9 @@
 #include <pvkernel/core/hash_sharedptr.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
+
+#include <pvkernel/rush/PVNrawCacheManager.h>
+
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVSource.h>
@@ -173,19 +176,20 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 		source->get_extractor().set_last_start(start);
 		source->get_extractor().set_last_nlines(nlines);
 
-		// TODO : load the NRaw
-		// so.attribute("nraw_path", _nraw_folder, QString());
+		QString nraw_folder;
+		new_obj->attribute("nraw_path", nraw_folder, QString());
 
-		// if (_nraw_folder.isEmpty() == false) {
-		// 	QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() +
-		// 				      QDir(_nraw_folder).dirName();
-		// 	QFileInfo fi(user_based_nraw_dir);
-		// 	if (fi.exists() == true && fi.isDir() == true) {
-		// 		_nraw_folder = user_based_nraw_dir;
-		// 	} else {
-		// 		_nraw_folder = QString();
-		// 	}
-		// }
+		if (not nraw_folder.isEmpty()) {
+			QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() +
+						      QDir(nraw_folder).dirName();
+			QFileInfo fi(user_based_nraw_dir);
+			if (fi.exists() == true && fi.isDir() == true) {
+				nraw_folder = user_based_nraw_dir;
+			} else {
+				nraw_folder = QString();
+			}
+		}
+		source->set_nraw_folder(nraw_folder);
 	 	source->serialize(*new_obj, so.get_version());
 	 	new_obj->_bound_obj = source.get();
 	 	new_obj->_bound_obj_type = typeid(PVSource);

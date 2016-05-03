@@ -164,6 +164,7 @@ class PVSource : public data_tree_source_t
 		_section_clicked.second = pos;
 	}
 	const std::pair<size_t, size_t>& section_clicked() const { return _section_clicked; }
+	void set_nraw_folder(QString const& nraw_folder) { _nraw_folder = nraw_folder; }
 
   private:
 	void add_column(Inendi::PVAxis const& axis);

@@ -72,8 +72,9 @@ void Inendi::PVView::process_parent_plotted()
 	Inendi::PVPlotted* plotted = get_parent();
 	PVSource* source = plotted->get_parent<PVSource>();
 	_axes_combination.set_from_format(source->get_format());
+
 	_axes_combination.set_axis_name(
-	    0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
+		0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	set_row_count(get_row_count());
 

@@ -158,14 +158,15 @@ void Inendi::PVPlotting::reset_from_format(PVRush::PVFormat const& format)
 void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
                                    PVCore::PVSerializeArchive::version_t /*v*/)
 {
-//	so.list("properties", _columns);
-//	so.attribute("name", _name);
-//	if (!so.is_writing()) {
-//		Inendi::PVMapping const& mapping = _plotted->get_parent()->get_mapping();
-//		for (PVPlottingProperties& p : _columns) {
-//			p.set_mapping(mapping);
-//		}
-//	}
+	so.list("properties", _columns);
+	if (not so.is_writing()) {
+		// Set new plotting properties from pvi
+		for(auto& prop: _columns) {
+			prop.set_mapping(_plotted->get_parent<PVMapped>()->get_mapping());
+		}
+	}
+
+	so.attribute("name", _name);
 }
 
 /******************************************************************************
