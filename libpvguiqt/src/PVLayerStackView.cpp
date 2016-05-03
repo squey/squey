@@ -158,42 +158,11 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	}
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackView::load_layer_stack
- *
- *****************************************************************************/
-void PVGuiQt::PVLayerStackView::load_layer_stack()
-{
-	QString file = _layerstack_dialog.getOpenFileName(
-	    this, tr("Import a layer stack..."), _layerstack_dialog.directory().absolutePath(),
-	    INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		ls_model()->load_from_file(file);
-	}
-}
-
 Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
 	QVariant var =
 	    ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
 	return *reinterpret_cast<Inendi::PVLayer*>(var.value<void*>());
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackView::save_layer_stack
- *
- *****************************************************************************/
-void PVGuiQt::PVLayerStackView::save_layer_stack()
-{
-	QString file = _layerstack_dialog.getSaveFileName(
-	    this, tr("Save layer stack..."), _layerstack_dialog.directory().absolutePath(),
-	    INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		Inendi::PVLayerStack& layer_stack = ls_model()->lib_layer_stack();
-		layer_stack.save_to_file(file);
-	}
 }
 
 /******************************************************************************

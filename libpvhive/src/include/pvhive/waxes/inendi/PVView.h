@@ -27,7 +27,6 @@ DECLARE_WAX(Inendi::PVView::process_real_output_selection)
 //
 
 DECLARE_WAX(Inendi::PVView::add_new_layer)
-DECLARE_WAX(Inendi::PVView::add_new_layer_from_file)
 DECLARE_WAX(Inendi::PVView::delete_layer_n)
 DECLARE_WAX(Inendi::PVView::delete_selected_layer)
 DECLARE_WAX(Inendi::PVView::move_selected_layer_to)

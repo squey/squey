@@ -311,7 +311,6 @@ class PVMainWindow : public QMainWindow
 #ifdef WITH_MINESET
 	QAction* export_selection_to_mineset_Action; //!< Menu to trigger mineset export
 #endif
-	QAction* extractor_file_Action;
 	QAction* new_file_Action;
 	QAction* new_scene_Action;
 	QAction* paste_Action;

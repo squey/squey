@@ -16,7 +16,6 @@ SET(MOC_HEADERS
 include/PVAxisComputationDlg.h
 #include/PVAxesCombinationWidget.h
 #include/PVAxesCombinationDialog.h
-include/PVExtractorWidget.h
 include/PVColorDialog.h
 include/PVDualSlider.h
 include/PVFilesTypesSelWidget.h
@@ -59,7 +58,6 @@ PVAxisComputationDlg.cpp
 #PVAxesCombinationDialog.cpp
 PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
-PVExtractorWidget.cpp
 PVColorDialog.cpp
 PVDualSlider.cpp
 PVMainWindow.cpp

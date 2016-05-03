@@ -186,8 +186,6 @@ class PVView : public data_tree_view_t
 	int move_active_axis_closest_to_position(float x);
 	PVCol get_active_axis_closest_to_position(float x);
 
-	void expand_selection_on_axis(PVCol axis_id, QString const& mode);
-
 	void set_active_axis_closest_to_position(float x);
 	void set_axis_name(PVCol index, const QString& name_);
 
@@ -245,7 +243,6 @@ class PVView : public data_tree_view_t
 	*****************************************************************************/
 
 	void add_new_layer(QString name = QString());
-	void add_new_layer_from_file(const QString& path);
 	void delete_layer_n(int idx);
 	void delete_selected_layer();
 	void duplicate_selected_layer(const QString& name);

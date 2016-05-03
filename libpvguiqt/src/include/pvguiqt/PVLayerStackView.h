@@ -33,9 +33,6 @@ class PVLayerStackView : public QTableView
 	PVLayerStackModel* ls_model();
 
   private:
-	void import_layer();
-	void save_layer_stack();
-	void load_layer_stack();
 	void copy_to_clipboard();
 	void set_current_selection_from_layer(int model_idx);
 	void export_layer_selection(int model_idx);

@@ -146,17 +146,6 @@ void Inendi::PVView::add_new_layer(QString name)
 	layer->compute_selectable_count(get_row_count());
 }
 
-void Inendi::PVView::add_new_layer_from_file(const QString& path)
-{
-	// Create a new layer
-	Inendi::PVLayer* layer = layer_stack.append_new_layer(get_row_count());
-
-	// And load it
-	layer->load_from_file(path);
-	layer->compute_min_max(*get_parent<Inendi::PVPlotted>());
-	layer->compute_selectable_count(get_row_count());
-}
-
 void Inendi::PVView::delete_selected_layer()
 {
 	layer_stack.delete_selected_layer();
@@ -224,16 +213,6 @@ void Inendi::PVView::commit_volatile_in_floating_selection()
 
 	case Inendi::PVStateMachine::AREA_MODE_OFF:;
 	}
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::expand_selection_on_axis
- *
- *****************************************************************************/
-void Inendi::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode)
-{
-	commit_volatile_in_floating_selection();
 }
 
 /******************************************************************************

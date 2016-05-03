@@ -50,7 +50,6 @@ class PVLayerStackModel : public QAbstractTableModel
 	void delete_selected_layer();
 	void duplicate_selected_layer(const QString& name);
 	void add_new_layer(QString name);
-	void add_new_layer_from_file(const QString& path);
 	void load_from_file(const QString& file);
 	void move_selected_layer_up();
 	void move_selected_layer_down();

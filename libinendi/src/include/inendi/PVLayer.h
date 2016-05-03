@@ -107,10 +107,6 @@ class PVLayer
 		lines_properties.set_row_count(count);
 	}
 
-  public:
-	void load_from_file(QString const& path);
-	void save_to_file(QString const& path);
-
   protected:
 	// Default constructor is needed when recreating the object
 	PVLayer() : PVLayer("") {}

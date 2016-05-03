@@ -77,13 +77,6 @@ IMPL_WAX(Inendi::PVView::add_new_layer, view, args)
 	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
-IMPL_WAX(Inendi::PVView::add_new_layer_from_file, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::add_new_layer_from_file)>(view, args);
-	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
-}
-
 IMPL_WAX(Inendi::PVView::delete_layer_n, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::delete_layer_n)>(view, args);

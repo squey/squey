@@ -44,7 +44,6 @@
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
-#include <PVExtractorWidget.h>
 #include <PVAxisComputationDlg.h>
 #include <PVSaveDataTreeDialog.h>
 
