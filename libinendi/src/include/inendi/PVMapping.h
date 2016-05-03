@@ -44,8 +44,6 @@ class PVMapping
   public:
 	PVMapping(PVMapped* mapped);
 
-	// For serialization
-	// PVMapping();
   protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
