@@ -391,26 +391,6 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::extractor_file_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::extractor_file_Slot()
-{
-	if (!current_view()) {
-		// TODO: this should not happen because the menu item should be disabled...
-		// !
-		return;
-	}
-
-	// For now, shows a modal dialog!
-	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Inendi::PVSource>(),
-	                                               _projects_tab_widget, this);
-	ext->exec();
-	ext->deleteLater();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/

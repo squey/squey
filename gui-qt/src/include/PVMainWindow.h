@@ -181,7 +181,6 @@ class PVMainWindow : public QMainWindow
 	void export_selection_to_mineset_Slot();
 #endif
 
-	void extractor_file_Slot();
 	void filter_select_all_Slot();
 	void filter_Slot();
 	void new_format_Slot();
