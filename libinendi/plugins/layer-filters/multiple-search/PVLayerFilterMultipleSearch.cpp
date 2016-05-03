@@ -205,6 +205,7 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 		// invert selection
 		BENCH_START(invert_selection);
 		pvcop::core::algo::invert_selection(out_sel);
+		out_sel &= in.get_selection();
 		BENCH_END(invert_selection, "invert_selection", 1, 1, 1, 1);
 	}
 }
