@@ -159,16 +159,6 @@ QColor Inendi::PVRoot::get_new_view_color()
 	return color;
 }
 
-Inendi::PVScene* Inendi::PVRoot::get_scene_from_path(const QString& path)
-{
-	for (Inendi::PVScene_sp const& scene : get_children()) {
-		if (scene->get_path() == path) {
-			return scene.get();
-		}
-	}
-	return nullptr;
-}
-
 void Inendi::PVRoot::save_to_file(QString const& path,
                                   PVCore::PVSerializeArchiveOptions_p options,
                                   bool save_everything)

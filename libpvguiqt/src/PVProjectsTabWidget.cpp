@@ -186,7 +186,7 @@ PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene_p scene_p)
 	int index = _tab_widget->count();
 	_tab_widget->insertTab(index, new QWidget(), scene_p->get_name());
 	_stacked_widget->insertWidget(index, workspace_tab_widget);
-	_tab_widget->setTabToolTip(index, scene_p->get_path());
+	_tab_widget->setTabToolTip(index, scene_p->get_name());
 	_tab_widget->setCurrentIndex(index);
 
 	return workspace_tab_widget;

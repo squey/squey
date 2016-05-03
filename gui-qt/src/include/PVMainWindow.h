@@ -201,8 +201,6 @@ class PVMainWindow : public QMainWindow
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Inendi::PVScene_p project_new_Slot();
-	bool project_save_Slot();
-	bool project_saveas_Slot();
 	void quit_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
@@ -249,7 +247,6 @@ class PVMainWindow : public QMainWindow
 	void closeEvent(QCloseEvent* event);
 
   private:
-	bool save_project(const QString& file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_selection_from_layer(Inendi::PVView_sp view, Inendi::PVLayer const& layer);
 	void display_inv_elts();
 
@@ -314,8 +311,6 @@ class PVMainWindow : public QMainWindow
 	QAction* cut_Action;
 	QAction* filter_reprocess_last_filter;
 	QAction* project_new_Action;
-	QAction* project_save_Action;
-	QAction* project_saveas_Action;
 	QAction* solution_new_Action;
 	QAction* solution_load_Action;
 	QAction* solution_save_Action;

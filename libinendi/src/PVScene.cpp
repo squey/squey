@@ -21,10 +21,8 @@
  * Inendi::PVScene::PVScene
  *
  *****************************************************************************/
-Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_path) : data_tree_scene_t(root), _last_active_src(nullptr), _path(scene_path)
+Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_name) : data_tree_scene_t(root), _last_active_src(nullptr), _name(scene_name)
 {
-	QFileInfo info(_path);
-	_name = info.fileName();
 }
 
 /******************************************************************************
@@ -190,39 +188,4 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 PVCore::PVSerializeObject_p Inendi::PVScene::get_so_inputs(PVSource const& src)
 {
 	return _so_inputs[*(src.get_input_type())];
-}
-
-PVCore::PVSerializeArchiveOptions_p Inendi::PVScene::get_default_serialize_options()
-{
-	PVCore::PVSerializeArchiveOptions_p ar(
-	    new PVCore::PVSerializeArchiveOptions(INENDI_ARCHIVES_VERSION));
-	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
-	return ar;
-}
-
-void Inendi::PVScene::save_to_file(QString const& path,
-                                   PVCore::PVSerializeArchiveOptions_p options,
-                                   bool save_everything)
-{
-	set_path(path);
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
-	if (options) {
-		ar->set_options(options);
-	}
-	ar->set_save_everything(save_everything);
-	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
-	ar->finish();
-}
-
-void Inendi::PVScene::load_from_file(QString const& path)
-{
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
-	load_from_archive(ar);
-}
-
-void Inendi::PVScene::load_from_archive(PVCore::PVSerializeArchive_p ar)
-{
-	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 }

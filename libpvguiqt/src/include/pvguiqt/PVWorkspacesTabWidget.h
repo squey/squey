@@ -45,23 +45,6 @@ class PVSceneTabBar;
 
 namespace __impl
 {
-/**
- * \class PVSaveSceneToFileFuncObserver
- *
- * \note This class is handling "*" for modified scene workspaces.
- */
-class PVSaveSceneToFileFuncObserver
-    : public PVHive::PVFuncObserverSignal<Inendi::PVScene, FUNC(Inendi::PVScene::save_to_file)>
-{
-  public:
-	PVSaveSceneToFileFuncObserver(PVSceneWorkspacesTabWidget* parent) : _parent(parent) {}
-
-  public:
-	void update(const arguments_deep_copy_type& args) const;
-
-  private:
-	PVSceneWorkspacesTabWidget* _parent;
-};
 
 /**
  * \class TabRenamerEventFilter
@@ -224,7 +207,6 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 {
 	Q_OBJECT
-	friend class __impl::PVSaveSceneToFileFuncObserver;
 	friend class PVSceneTabBar;
 
   public:
@@ -270,7 +252,6 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	bool _project_untitled = true;
 
 	PVHive::PVObserverSignal<Inendi::PVScene> _obs_scene;
-	__impl::PVSaveSceneToFileFuncObserver _save_scene_func_observer;
 };
 
 /**

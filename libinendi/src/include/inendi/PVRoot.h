@@ -75,8 +75,6 @@ class PVRoot : public data_tree_root_t
 	PVView** get_current_view_hive_property() { return &_current_view; }
 	PVSource** get_current_source_hive_property() { return &_current_source; }
 
-	PVScene* get_scene_from_path(const QString& path);
-
   public:
 	void save_to_file(
 	    QString const& path,

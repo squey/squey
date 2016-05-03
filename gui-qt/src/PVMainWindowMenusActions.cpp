@@ -31,8 +31,6 @@ void PVInspector::PVMainWindow::create_actions()
 
 	// The project actions
 	project_new_Action = new QAction(tr("&New data collection"), this);
-	project_save_Action = new QAction(tr("&Save data collection"), this);
-	project_saveas_Action = new QAction(tr("S&ave data collection as..."), this);
 
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
@@ -190,8 +188,6 @@ void PVInspector::PVMainWindow::create_menus()
 
 	QMenu* project_Menu = new QMenu(tr("&Data collection"));
 	project_Menu->addAction(project_new_Action);
-	/*project_Menu->addAction(project_save_Action);
-	project_Menu->addAction(project_saveas_Action);*/
 
 	file_Menu->addMenu(solution_Menu);
 	file_Menu->addSeparator();
@@ -344,8 +340,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(solution_saveas_Action, SIGNAL(triggered()), this, SLOT(solution_saveas_Slot()));
 
 	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
-	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
-	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
 #ifdef WITH_MINESET
 	connect(export_selection_to_mineset_Action, SIGNAL(triggered()), this,
