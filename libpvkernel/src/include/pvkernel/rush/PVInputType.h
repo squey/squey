@@ -54,11 +54,6 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj,
 	                                                     QString const& name,
 	                                                     list_inputs& inputs) const = 0;
-	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj,
-	                                  QString const& name,
-	                                  list_inputs& inputs,
-	                                  PVCore::PVSerializeObject_p so_ref) const = 0;
-
 	virtual QIcon icon() const { return QIcon(); }
 	virtual QCursor cursor() const { return QCursor(); }
 
@@ -115,13 +110,6 @@ class PVInputTypeDesc : public PVInputType
 		}
 		return obj.list<list_inputs, std::shared_ptr<T>>(name, inputs, human_name_serialize(), NULL,
 		                                                 descs);
-	}
-	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj,
-	                                  QString const& name,
-	                                  list_inputs& inputs,
-	                                  PVCore::PVSerializeObject_p so_ref) const
-	{
-		obj.list_ref(name, inputs, so_ref);
 	}
 
 	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings)

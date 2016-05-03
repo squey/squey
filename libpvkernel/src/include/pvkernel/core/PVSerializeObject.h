@@ -212,21 +212,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	            bool visible = true,
 	            bool elts_optional = false);
 
-	/*! \brief Declare a list to serialize by making references to objects that has already been
-	 *serialized.
-	 *  \param[in] name Name of the list to serialize
-	 *  \param[in] obj List to serialize
-	 *  \param[in] ref_so Serialized object returned by a previous call to PVSerializeObject::list
-	 *
-	 *  This method declare a list of object to serialize by making references to objects that has
-	 *already been serialized.
-	 *  Every elements of T must have already been serialized inside ref_so.
-	 *  It emulates a 1-to-n relationship.
-	 *  T must be an STL-compliant container. T::value_type must be serializable.
-	 */
-	template <typename T>
-	void list_ref(QString const& name, T& obj, p_type ref_so);
-
 	/*! \brief Declare a QHash to serialize. V must be serializable.
 	 *  \param[in]     name Name of the QHash to serialize.
 	 *  \param[in,out] obj  QHash input/output object to serialize.
@@ -383,13 +368,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	template <typename T>
 	void call_serialize(PVSharedPtr<T>& obj, p_type new_obj, T const*)
 	{
-		// TODO : re-enable this
-		// if (!obj) {
-		//	assert(!is_writing());
-		//	T* new_p;
-		//	new_p = new T();
-		//	obj.reset(new_p);
-		//}
 		obj->serialize(*new_obj, get_version());
 		new_obj->_bound_obj = obj.get();
 		new_obj->_bound_obj_type = typeid(T);
@@ -580,50 +558,6 @@ PVSerializeObject::list(QString const& name,
 		}
 	}
 	return list_obj;
-}
-
-template <typename T>
-void PVSerializeObject::list_ref(QString const& name, T& obj, p_type ref_so)
-{
-	if (is_writing()) {
-		typename T::iterator it;
-		QStringList ref_paths;
-		for (it = obj.begin(); it != obj.end(); it++) {
-			typename T::value_type& v = *it;
-
-			// Look for `v' in `ref_so' children
-			list_childs_t const& ref_children = ref_so->childs();
-			list_childs_t::const_iterator it_child;
-			PVSerializeObject_p found_ref;
-			for (it_child = ref_children.begin(); it_child != ref_children.end(); it_child++) {
-				PVSerializeObject_p test_so = it_child.value();
-				assert(test_so->_bound_obj);
-				if (obj_pointer(v) == test_so->_bound_obj) {
-					found_ref = *it_child;
-					break;
-				}
-			}
-			// In this version, every elements of T must have already been serialized.
-			assert(found_ref);
-			ref_paths << found_ref->get_logical_path();
-		}
-		// Save the logical path references as a list of attributes
-		list_attributes(name, ref_paths);
-	} else {
-		// Get the list of reference paths
-		QStringList ref_paths;
-		list_attributes(name, ref_paths);
-		obj.clear();
-
-		// Get the objects that must have been read from a previous serialization
-		for (int i = 0; i < ref_paths.size(); i++) {
-			PVSerializeObject_p obj_ref_so = get_archive_object_from_path(ref_paths[i]);
-			assert(obj_ref_so->_bound_obj);
-			typename T::value_type v;
-			pointer_to_obj(obj_ref_so->_bound_obj, v);
-			obj.push_back(v);
-		}
-	}
 }
 
 template <typename K, typename V>
