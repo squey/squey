@@ -19,7 +19,6 @@ include/PVAxisComputationDlg.h
 include/PVExtractorWidget.h
 include/PVColorDialog.h
 include/PVDualSlider.h
-include/PVExpandSelDlg.h
 include/PVFilesTypesSelWidget.h
 include/PVMainWindow.h
 include/PVSaveDataTreeDialog.h
@@ -61,7 +60,6 @@ PVAxisComputationDlg.cpp
 PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
 PVExtractorWidget.cpp
-PVExpandSelDlg.cpp
 PVColorDialog.cpp
 PVDualSlider.cpp
 PVMainWindow.cpp

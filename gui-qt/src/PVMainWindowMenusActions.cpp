@@ -98,7 +98,6 @@ void PVInspector::PVMainWindow::create_actions()
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
 	move_selection_to_new_layer_Action = new QAction(tr("Move selection to new layer"), this);
 	move_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_M));
-	expand_selection_on_axis_Action = new QAction(tr("Expand selection on axis..."), this);
 
 	/******************************
 	 * For the "Filter" menu entry
@@ -231,7 +230,6 @@ void PVInspector::PVMainWindow::create_menus()
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
 	selection_Menu->addAction(move_selection_to_new_layer_Action);
 	selection_Menu->addSeparator();
-	selection_Menu->addAction(expand_selection_on_axis_Action);
 
 	filter_Menu = menubar->addMenu(tr("Fil&ters"));
 	filter_Menu->addAction(filter_reprocess_last_filter);
@@ -359,8 +357,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	        SLOT(selection_set_from_current_layer_Slot()));
 	connect(selection_from_layer_Action, SIGNAL(triggered()), this,
 	        SLOT(selection_set_from_layer_Slot()));
-	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this,
-	        SLOT(expand_selection_on_axis_Slot()));
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
 

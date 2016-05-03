@@ -172,7 +172,6 @@ class PVMainWindow : public QMainWindow
 	void move_selection_to_new_layer_Slot();
 	void selection_set_from_current_layer_Slot();
 	void selection_set_from_layer_Slot();
-	void expand_selection_on_axis_Slot();
 	void export_selection_Slot();
 
 #ifdef WITH_MINESET
@@ -298,7 +297,6 @@ class PVMainWindow : public QMainWindow
 	QAction* axes_mode_Action;
 	QAction* axes_display_edges_Action;
 	QAction* axes_new_Action;
-	QAction* expand_selection_on_axis_Action;
 	QAction* events_display_unselected_listing_Action;
 	QAction* events_display_unselected_GLview_Action;
 	QAction* events_display_zombies_listing_Action;

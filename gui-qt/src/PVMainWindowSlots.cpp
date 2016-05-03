@@ -41,7 +41,6 @@
 #include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <PVMainWindow.h>
-#include <PVExpandSelDlg.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
@@ -272,26 +271,6 @@ void PVInspector::PVMainWindow::events_display_unselected_zombies_parallelview_S
 	/* We refresh the listing */
 	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVView::toggle_view_unselected_zombie_visibility)>(view_sp);
-}
-
-void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-	Inendi::PVView* cur_view_p = current_view();
-	PVExpandSelDlg* dlg = new PVExpandSelDlg(*cur_view_p, this);
-	Inendi::PVView& view = *cur_view_p;
-	if (dlg->exec() != QDialog::Accepted) {
-		return;
-	}
-
-	PVCore::PVAxesIndexType axes = dlg->get_axes();
-	PVCore::PVAxesIndexType::const_iterator it;
-	QString mode = dlg->get_mode();
-	for (it = axes.begin(); it != axes.end(); it++) {
-		view.expand_selection_on_axis(*it, mode);
-	}
 }
 
 /******************************************************************************
