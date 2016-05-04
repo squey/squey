@@ -21,6 +21,8 @@
 
 #include <pcrecpp.h>
 
+#include <QMessageBox>
+
 #define ARG_NAME_EXPS "exps"
 #define ARG_DESC_EXPS "Expressions"
 #define ARG_NAME_AXIS "axis"
@@ -129,7 +131,15 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 		try {
 			pvcop::db::algo::subselect(column, exps_utf8, in.get_selection(), out_sel);
 		} catch (pvcop::db::exception::partially_converted_error& e) {
-			PVLOG_ERROR("multiple-search : Unable to convert some values");
+			if (std::string(nraw.collection().formatter(axis_id)->name()) != "string") {
+				if (e.incomplete_array().size() == 0) {
+					// If every conversions failed, don't make the selection empty
+					out_sel = in.get_selection();
+				}
+				_unconverted_values = e.bad_values();
+				throw PVLayerFilter::error(); // we should maybe not throw through plugin API and
+				                              // set a flag instead...
+			}
 		}
 	} break;
 	case (EXACT_MATCH | CASE_INSENSITIVE): {
@@ -271,6 +281,21 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_menu(PVRow /*
 	args[ARG_NAME_ENTIRE].setValue(e);
 
 	return args;
+}
+
+void Inendi::PVLayerFilterMultipleSearch::show_error(QWidget* parent) const
+{
+	QStringList values;
+	for (const std::string& value : _unconverted_values) {
+		values << QString::fromStdString(value);
+	}
+
+	QMessageBox error_message(
+	    QMessageBox::Warning, "Invalid input values",
+	    "Some input values failed to be interpreted correctly and were ignored.", QMessageBox::Ok,
+	    parent);
+	error_message.setDetailedText(values.join("\n"));
+	error_message.exec();
 }
 
 IMPL_FILTER(Inendi::PVLayerFilterMultipleSearch)

@@ -13,6 +13,8 @@
 #include <inendi/PVLayer.h>
 #include <inendi/PVLayerFilter.h>
 
+#include <pvcop/db/exceptions/partially_converted_error.h>
+
 namespace Inendi
 {
 
@@ -38,6 +40,13 @@ class PVLayerFilterMultipleSearch : public PVLayerFilter
 	search_using_value_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
 	static PVCore::PVArgumentList
 	search_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
+
+	void show_error(QWidget* parent) const override;
+
+  private:
+	using strings_t = std::remove_reference<decltype(
+	    ((pvcop::db::exception::partially_converted_error*)nullptr)->bad_values())>::type;
+	strings_t _unconverted_values;
 
 	CLASS_FILTER(Inendi::PVLayerFilterMultipleSearch)
 };
