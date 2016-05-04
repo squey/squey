@@ -69,8 +69,7 @@ Inendi::PVView::PVView(PVPlotted* plotted)
 void Inendi::PVView::process_parent_plotted()
 {
 	// Init default axes combination from source
-	Inendi::PVPlotted* plotted = get_parent();
-	PVSource* source = plotted->get_parent<PVSource>();
+	PVSource* source = get_parent<PVSource>();
 	_axes_combination.set_from_format(source->get_format());
 
 	_axes_combination.set_axis_name(
@@ -903,13 +902,6 @@ bool Inendi::PVView::is_consistent() const
 {
 	// return get_plotted_parent()->is_uptodate() && _is_consistent;
 	return _is_consistent;
-}
-
-void Inendi::PVView::recreate_mapping_plotting()
-{
-	// Source has been changed, recreate mapping and plotting
-	get_parent<PVMapped>()->compute();
-	get_parent<PVPlotted>()->process_from_parent_mapped();
 }
 
 void Inendi::PVView::select_all_nonzb_lines()

@@ -343,8 +343,6 @@ class PVView : public data_tree_view_t
 	bool is_consistent() const;
 	void set_consistent(bool c);
 
-	void recreate_mapping_plotting();
-
 	PVCol get_real_axis_index(PVCol col) const;
 
 	PVRow get_plotted_col_min_row(PVCol const combined_col) const;
