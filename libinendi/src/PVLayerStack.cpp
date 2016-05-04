@@ -390,13 +390,6 @@ void Inendi::PVLayerStack::update_layer_index_array_completely()
 	******************************/
 }
 
-void Inendi::PVLayerStack::compute_min_maxs(PVPlotted const& plotted)
-{
-	for (int i = 0; i < get_layer_count(); i++) {
-		_table[i].compute_min_max(plotted);
-	}
-}
-
 void Inendi::PVLayerStack::compute_selectable_count(PVRow row_count)
 {
 	for (int i = 0; i < get_layer_count(); i++) {

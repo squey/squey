@@ -60,7 +60,6 @@ class PVLayerStack
 	                                                     PVLinesProperties const& lines_properties);
 	bool contains_layer(PVLayer* layer) const;
 
-	void compute_min_maxs(PVPlotted const& plotted);
 	void compute_selectable_count(PVRow row_count);
 
 	void delete_by_index(int index);
