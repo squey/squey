@@ -50,7 +50,6 @@ include/inendi/widgets/PVMappingPlottingEditDialog.h
 include/inendi/widgets/PVNewLayerDialog.h
 include/inendi/widgets/PVPlottingModeWidget.h
 
-include/inendi/widgets/editors/PVAxesIndexEditor.h
 include/inendi/widgets/editors/PVAxisIndexCheckBoxEditor.h
 include/inendi/widgets/editors/PVAxisIndexEditor.h
 include/inendi/widgets/editors/PVLayerEnumEditor.h
@@ -67,7 +66,6 @@ widgets/PVMappingPlottingEditDialog.cpp
 widgets/PVNewLayerDialog.cpp
 widgets/PVPlottingModeWidget.cpp
 
-widgets/editors/PVAxesIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVLayerEnumEditor.cpp

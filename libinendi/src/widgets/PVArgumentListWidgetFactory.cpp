@@ -16,7 +16,6 @@
 #include <pvkernel/core/PVSpinBoxType.h>
 #include <pvkernel/core/PVZoneIndexType.h>
 
-#include <inendi/widgets/editors/PVAxesIndexEditor.h>
 #include <inendi/widgets/editors/PVAxisIndexCheckBoxEditor.h>
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 #include <inendi/widgets/editors/PVLayerEnumEditor.h>
@@ -42,8 +41,6 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 	// Get core widgets and add ours
 	QItemEditorFactory* args_widget_factory = create_core_widgets_factory();
 
-	QItemEditorCreatorBase* axes_index_creator =
-	    new PVViewArgumentEditorCreator<PVWidgets::PVAxesIndexEditor>(view);
 	QItemEditorCreatorBase* axis_index_creator =
 	    new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase* axis_index_checkbox_creator =
