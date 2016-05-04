@@ -1245,41 +1245,29 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
-	bool success = true;
 	if (src->get_children<Inendi::PVView>().size() == 0) {
 		if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); },
 		                                     tr("Processing..."), (QWidget*)this)) {
-			success = false;
+			return false;
 		}
 	} else {
 		if (!PVCore::PVProgressBox::progress(
 		        boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."),
 		        (QWidget*)this)) {
-			success = false;
+			return false;
 		}
-	}
-
-	if (!success) {
-		return false;
 	}
 
 	_projects_tab_widget->add_source(src);
 
-	if (src->get_children<Inendi::PVView>().size() > 0) {
-		Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
-		first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
-		for (auto& inv_elts : src->get_invalid_evts()) {
-			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
-		}
-		first_view_p->process_from_layer_stack();
-		first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(
-		    first_view_p);
+	Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
+	first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
+	for (auto& inv_elts : src->get_invalid_evts()) {
+		first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
 	}
-
-	// connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-
-	//_projects_tab_widget->setCurrentIndex(new_tab_index);
+	first_view_p->process_from_layer_stack();
+	first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
+	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(first_view_p);
 
 	if (src->get_invalid_evts().size() > 0) {
 		display_inv_elts();
