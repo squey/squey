@@ -41,8 +41,6 @@ class PVZonesManager : public QObject, boost::noncopyable
 {
 	friend class PVParallelView::__impl::ZoneCreation;
 
-	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
-
   public:
 	explicit PVZonesManager(Inendi::PVView const& view);
 
@@ -128,7 +126,6 @@ class PVZonesManager : public QObject, boost::noncopyable
 	PVCol _ncols = 0;             // FIXME : This is a duplication, it should get it from view
 	columns_indexes_t _axes_comb; // FIXME : This is a duplication, it should get it from view
 	std::vector<PVZone> _zones;
-	process_ztree_tls_t _tls_ztree;
 };
 }
 

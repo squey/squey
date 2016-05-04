@@ -27,7 +27,7 @@ class ZoneCreation
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
 		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_row_count());
-		PVParallelView::PVZoneTree::ProcessData& pdata = _tls_pdata.local();
+		PVParallelView::PVZoneTree::ProcessData pdata;
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
 			pdata.clear();
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
@@ -38,9 +38,6 @@ class ZoneCreation
 
   public:
 	PVParallelView::PVZonesManager* _zm;
-
-  private:
-	mutable tbb::enumerable_thread_specific<PVParallelView::PVZoneTree::ProcessData> _tls_pdata;
 };
 }
 }
