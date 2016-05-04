@@ -231,7 +231,8 @@ void PVInspector::PVExtractorWidget::process_Slot()
 		// Inendi::PVSource_sp src = lib_src().shared_from_this();
 		// PVHive::call<FUNC(Inendi::PVSource::process_from_source)>(src);
 		//_view->last_extractor_batch_size = _batch_size;
-		PVHive::call<FUNC(Inendi::PVSource::create_default_view)>(src_clone);
+		// THIS IS REMOVED ANYWAY.
+		// PVHive::call<FUNC(Inendi::PVSource::create_default_view)>(src_clone);
 		_projects_tab->add_source(src_clone.get());
 	} else {
 		src_clone->remove_from_tree();

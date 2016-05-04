@@ -1250,7 +1250,19 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		                                     tr("Processing..."), (QWidget*)this)) {
 			return false;
 		}
+
+		Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
+		first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
+		for (auto& inv_elts : src->get_invalid_evts()) {
+			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
+		}
+		first_view_p->process_from_layer_stack();
+		first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
+		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(
+		    first_view_p);
+
 	} else {
+		// pvi loading case
 		if (!PVCore::PVProgressBox::progress(
 		        boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."),
 		        (QWidget*)this)) {
@@ -1259,15 +1271,6 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	}
 
 	_projects_tab_widget->add_source(src);
-
-	Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
-	first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
-	for (auto& inv_elts : src->get_invalid_evts()) {
-		first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
-	}
-	first_view_p->process_from_layer_stack();
-	first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(first_view_p);
 
 	if (src->get_invalid_evts().size() > 0) {
 		display_inv_elts();
