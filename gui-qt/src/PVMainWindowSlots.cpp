@@ -1184,20 +1184,6 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 	}
 }
 
-void PVInspector::PVMainWindow::layer_reset_color_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
-	if (lib_view) {
-		lib_view->get_current_layer().reset_to_default_color(
-		    lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
-	}
-}
-
 void PVInspector::PVMainWindow::root_modified()
 {
 	setWindowModified(true);

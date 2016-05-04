@@ -227,8 +227,6 @@ class PVMainWindow : public QMainWindow
 
 	void create_new_window_for_workspace(QWidget* workspace);
 
-	void layer_reset_color_Slot();
-
 #ifdef WITH_MINESET
 	/**
 	 * Show error message for mineset export.
