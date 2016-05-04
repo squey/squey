@@ -25,7 +25,7 @@
  *
  *****************************************************************************/
 PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent)
-    : PVAbstractTableModel(view->get_parent<Inendi::PVSource>()->get_row_count(), parent)
+    : PVAbstractTableModel(view->get_row_count(), parent)
     , _zombie_brush(QColor(0, 0, 0))
     , _vheader_font(":/Convergence-Regular")
     , _view(view)
@@ -55,6 +55,9 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	// Update display of unselected lines on option toogling
 	// FIXME : Can't we work without these specific struct?
 	PVHive::get().register_func_observer(view, _obs_vis);
+
+	// Set listing view on visible_selection_listing selection.
+	update_filter();
 }
 
 /******************************************************************************
