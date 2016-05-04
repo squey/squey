@@ -73,8 +73,6 @@ class PVSource : public data_tree_source_t
 
 	bool has_nraw_folder() const { return _nraw_folder.isNull() == false; }
 
-	PVSource_sp clone_with_no_process();
-
 	PVRush::PVNraw& get_rushnraw();
 	const PVRush::PVNraw& get_rushnraw() const;
 

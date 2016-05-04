@@ -75,14 +75,6 @@ Inendi::PVSource::~PVSource()
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
 }
 
-Inendi::PVSource_sp Inendi::PVSource::clone_with_no_process()
-{
-	// FIXME : Should be remove
-	Inendi::PVSource_sp src = get_parent()->emplace_add_child(_inputs, _src_plugin, get_format());
-	src->emplace_add_child();
-	return src;
-}
-
 Inendi::PVView* Inendi::PVSource::current_view()
 {
 	PVView* view = get_parent<PVRoot>()->current_view();
