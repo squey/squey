@@ -422,14 +422,6 @@ void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so,
 	so.object("lia", _lia, QString(), false, (PVLayerIndexArray*)NULL, false);
 }
 
-void Inendi::PVLayerStack::load_from_file(QString const& path)
-{
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
-	ar->get_root()->object("layer-stack", *this);
-	ar->finish();
-}
-
 void Inendi::PVLayerStack::copy_details_to_clipboard()
 {
 	QString s;

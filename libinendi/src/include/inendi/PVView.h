@@ -246,7 +246,6 @@ class PVView : public data_tree_view_t
 	void delete_layer_n(int idx);
 	void delete_selected_layer();
 	void duplicate_selected_layer(const QString& name);
-	void load_from_file(const QString& file);
 	void commit_selection_to_layer(PVLayer& layer);
 
 	void process_from_eventline();

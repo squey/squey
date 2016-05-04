@@ -82,8 +82,6 @@ class PVLayerStack
 	void set_row_count(PVRow row_count) { _lia.set_row_count(row_count); };
 
   public:
-	void load_from_file(QString const& path);
-
 	void copy_details_to_clipboard();
 
   protected:

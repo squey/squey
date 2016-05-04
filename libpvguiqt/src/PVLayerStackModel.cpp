@@ -316,9 +316,3 @@ void PVGuiQt::PVLayerStackModel::delete_layer_n(const int idx)
 	_actor.call<FUNC(Inendi::PVView::delete_layer_n)>(idx);
 	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
-
-void PVGuiQt::PVLayerStackModel::load_from_file(const QString& file)
-{
-	_actor.call<FUNC(Inendi::PVView::load_from_file)>(file);
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
-}

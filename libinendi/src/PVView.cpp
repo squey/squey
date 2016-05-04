@@ -163,13 +163,6 @@ void Inendi::PVView::duplicate_selected_layer(const QString& name)
 	new_layer->compute_selectable_count(get_row_count());
 }
 
-void Inendi::PVView::load_from_file(const QString& file)
-{
-	layer_stack.load_from_file(file);
-	layer_stack.compute_min_maxs(*get_parent<Inendi::PVPlotted>());
-	layer_stack.compute_selectable_count(get_row_count());
-}
-
 /******************************************************************************
  *
  * Inendi::PVView::apply_filter_named_select_all
