@@ -1184,15 +1184,6 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 	}
 }
 
-void PVInspector::PVMainWindow::layer_copy_ls_details_to_clipboard_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	current_view()->get_layer_stack().copy_details_to_clipboard();
-}
-
 void PVInspector::PVMainWindow::layer_reset_color_Slot()
 {
 	if (current_view() == nullptr) {

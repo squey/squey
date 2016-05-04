@@ -227,7 +227,6 @@ class PVMainWindow : public QMainWindow
 
 	void create_new_window_for_workspace(QWidget* workspace);
 
-	void layer_copy_ls_details_to_clipboard_Slot();
 	void layer_reset_color_Slot();
 
 #ifdef WITH_MINESET
