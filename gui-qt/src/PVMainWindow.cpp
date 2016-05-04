@@ -1154,10 +1154,6 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 {
 	// Load a created source
 
-	if (src->get_children<Inendi::PVMapped>().size() == 0) {
-		src->emplace_add_child();
-	}
-
 	bool loaded_from_disk = false;
 
 	if (src->has_nraw_folder()) {
@@ -1251,9 +1247,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	// keeping the existing layers !
 	bool success = true;
 	if (src->get_children<Inendi::PVView>().size() == 0) {
-		if (!PVCore::PVProgressBox::progress(
-		        boost::bind<void>(&Inendi::PVSource::create_default_view, src), tr("Processing..."),
-		        (QWidget*)this)) {
+		if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); },
+		                                     tr("Processing..."), (QWidget*)this)) {
 			success = false;
 		}
 	} else {

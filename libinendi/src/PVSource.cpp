@@ -133,11 +133,6 @@ bool Inendi::PVSource::load_from_disk()
 
 void Inendi::PVSource::extract_finished()
 {
-	// Finish mapping process. That will set all mapping as valid!
-	for (auto mapped_p : get_children<PVMapped>()) {
-		mapped_p->compute();
-	}
-
 	_extractor.get_agg().release_inputs();
 }
 
