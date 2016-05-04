@@ -44,6 +44,8 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 
 	QItemEditorCreatorBase* axes_index_creator =
 	    new PVViewArgumentEditorCreator<PVWidgets::PVAxesIndexEditor>(view);
+	QItemEditorCreatorBase* axis_index_creator =
+	    new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase* axis_index_checkbox_creator =
 	    new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexCheckBoxEditor>(view);
 	QItemEditorCreatorBase* layerenum_creator =
@@ -58,6 +60,8 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 	// And register them into the factory
 	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxesIndexType>(),
 	                                    axes_index_creator);
+	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
+	                                    axis_index_creator);
 	args_widget_factory->registerEditor(
 	    (QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(),
 	    axis_index_checkbox_creator);
