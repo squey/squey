@@ -1054,7 +1054,6 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.object("layer-stack", layer_stack, "Layers", true);
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
-	set_last_so(so.shared_from_this());
 }
 
 void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,

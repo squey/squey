@@ -321,12 +321,6 @@ class PVView : public data_tree_view_t
 	void
 	sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::task_group_context* ctxt = NULL) const;
 
-	std::weak_ptr<PVCore::PVSerializeObject> get_last_so() const { return _last_so; }
-	void set_last_so(PVCore::PVSerializeObject_p const& so)
-	{
-		_last_so = std::weak_ptr<PVCore::PVSerializeObject>(so);
-	}
-
 	/******************************************************************************
 	******************************************************************************
 	*
@@ -400,7 +394,6 @@ class PVView : public data_tree_view_t
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
 	PVRush::PVNraw* _rushnraw_parent = nullptr; //!< Pointer to the NRaw from source.
-	std::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 	PVCol _active_axis;
 	QColor _color;
