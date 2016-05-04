@@ -103,10 +103,7 @@ Inendi::PVView::~PVView()
 	}
 #endif
 
-	PVRoot* root = get_parent<PVRoot>();
-	if (root) {
-		root->view_being_deleted(this);
-	}
+	get_parent<PVRoot>()->view_being_deleted(this);
 }
 
 /******************************************************************************
@@ -116,13 +113,6 @@ Inendi::PVView::~PVView()
  *****************************************************************************/
 void Inendi::PVView::reset_layers()
 {
-	// FIXME: this is a workaround to have a view without a source working
-	// as 'Tpview_zone_tree_dump_load' and 'Tpview_zoomed_zone_tree_dump_load'
-	// tests create a PVView without a PVSource as indirect parent...
-	if (not get_parent()) {
-		return;
-	}
-
 	PVRow row_count = get_row_count();
 
 	// This function remove all the layers and add the default one with all events
