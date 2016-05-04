@@ -83,6 +83,10 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* 
 		main_layout->addWidget(args_widget_box);
 	}
 
+	qRegisterMetaType<Inendi::PVLayerFilter_p>("Inendi::PVLayerFilter_p");
+	connect(this, &PVLayerFilterProcessWidget::layer_filter_error, this,
+	        &PVLayerFilterProcessWidget::show_layer_filter_error);
+
 	main_layout->addLayout(_btn_layout);
 	setLayout(main_layout);
 }
@@ -250,8 +254,16 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 	    new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget);
 	bool res = PVCore::PVProgressBox::progress(
 	    [&]() {
-		    process_layer_filter(filter_p.get(), &_view->get_output_layer(),
-		                         &_view->get_post_filter_layer());
+		    try {
+			    process_layer_filter(filter_p.get(), &_view->get_output_layer(),
+			                         &_view->get_post_filter_layer());
+		    } catch (const Inendi::PVLayerFilter::error& e) {
+
+			    std::unique_lock<std::mutex> lk(_blocking_msg);
+			    emit layer_filter_error(
+			        filter_p); // need to go back to GUI thread to show error widget
+			    _cv.wait(lk);
+		    }
 		},
 	    pbox);
 
@@ -293,4 +305,11 @@ void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Inendi::PVLayerFi
 {
 	filter->set_output(out_layer);
 	filter->operator()(*in_layer);
+}
+
+void PVGuiQt::PVLayerFilterProcessWidget::show_layer_filter_error(
+    const Inendi::PVLayerFilter_p& filter)
+{
+	filter->show_error(this);
+	_cv.notify_one();
 }
