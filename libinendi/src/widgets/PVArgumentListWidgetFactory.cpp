@@ -10,7 +10,6 @@
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <inendi/widgets/PVViewArgumentEditorCreator.h>
 
-#include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVAxisIndexCheckBoxType.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVSpinBoxType.h>
@@ -55,8 +54,6 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 	    new PVViewArgumentEditorCreator<PVWidgets::PVZoneIndexEditor>(view);
 
 	// And register them into the factory
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxesIndexType>(),
-	                                    axes_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
 	                                    axis_index_creator);
 	args_widget_factory->registerEditor(

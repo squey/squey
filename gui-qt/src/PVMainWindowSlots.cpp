@@ -7,7 +7,6 @@
 
 #include <pvkernel/core/qobject_helpers.h>
 
-#include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
