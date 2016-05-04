@@ -10,8 +10,6 @@
 #include <assert.h>
 #include <pvkernel/core/general.h>
 
-#define PV_MAX_INDEX 1000000000
-
 PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
                                          chunk_index end,
                                          chunk_index n_elts,
@@ -32,7 +30,7 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
 	// FIXME : Should be done at compile time using tag dispatching.
 	if (sc == sc_n_elts) {
 		_max_n_elts = n_elts;
-		_idx_end = PV_MAX_INDEX;
+		_idx_end = INENDI_LINES_MAX;
 	} else {
 		_max_n_elts = end - begin;
 		_idx_end = end;
