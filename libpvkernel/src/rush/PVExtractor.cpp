@@ -109,11 +109,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything()
 	return job;
 }
 
-PVRush::PVAggregator::list_inputs const& PVRush::PVExtractor::get_inputs() const
-{
-	return _agg.get_inputs();
-}
-
 void PVRush::PVExtractor::reset_nraw()
 {
 	_nraw.reset(new PVNraw());

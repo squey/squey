@@ -151,12 +151,6 @@ class PVAggregator
 	 */
 	void read_all_chunks_from_beggining();
 
-	/*! \brief Returns a list of the aggregator param[in]s.
-	 *  \return a const-reference tothe std::vector object that stores the shared pointers to the
-	 * sources.
-	 */
-	list_inputs const& get_inputs() const;
-
 	/*! \brief Find the source that contains the given global index.
 	 *  \param[in] idx Global index to search
 	 *  \param[out] index If not NULL, the global index of the first element of the found input

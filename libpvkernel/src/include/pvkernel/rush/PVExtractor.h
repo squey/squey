@@ -77,10 +77,6 @@ class PVExtractor
 	 */
 	PVControllerJob_p read_everything();
 
-	/*! \brief Get the list of sources of the internal aggregator
-	 */
-	PVAggregator::list_inputs const& get_inputs() const;
-
 	/*! \brief Get a reference to the internal aggregator
 	 */
 	PVAggregator& get_agg() { return _agg; }

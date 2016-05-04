@@ -310,11 +310,6 @@ void PVRush::PVAggregator::read_all_chunks_from_beggining()
 	_stop_cond = old_stop_cond;
 }
 
-PVRush::PVAggregator::list_inputs const& PVRush::PVAggregator::get_inputs() const
-{
-	return _inputs;
-}
-
 // Helper function
 PVRush::PVAggregator_p PVRush::PVAggregator::from_unique_source(PVRush::PVRawSourceBase_p source)
 {
