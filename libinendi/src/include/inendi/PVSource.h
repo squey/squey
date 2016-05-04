@@ -55,6 +55,12 @@ class PVSource : public data_tree_source_t
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format);
+	PVSource(Inendi::PVScene* scene,
+	         PVRush::PVInputType::list_inputs_desc const& inputs,
+	         PVRush::PVSourceCreator_p sc,
+	         PVRush::PVFormat format,
+	         size_t ext_start,
+	         size_t ext_end);
 	PVSource(PVScene* scene, const PVRush::PVSourceDescription& descr)
 	    : PVSource(scene, descr.get_inputs(), descr.get_source_creator(), descr.get_format())
 	{
@@ -85,13 +91,6 @@ class PVSource : public data_tree_source_t
 	PVRow get_valid_row_count() const { return get_row_count() - _inv_elts.size(); }
 
 	PVRush::PVExtractor const& get_extractor() const { return _extractor; }
-
-	/**
-	 * This one is call by extractor widget after a source clone.
-	 *
-	 * @fixme: Should be remove so we can use the new one form new source.
-	 */
-	PVRush::PVExtractor& get_extractor() { return _extractor; }
 
 	/**
 	 * Start extraction of data for current source.

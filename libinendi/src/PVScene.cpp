@@ -166,14 +166,14 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 
 		PVRush::PVFormat format;
 		new_obj->object("format", format);
-		PVCore::PVSharedPtr<PVSource> source = emplace_add_child(inputs_for_type, sc_lib, format);
 
 		// Get the state of the extractor
 		chunk_index start, nlines;
 		new_obj->attribute("index_start", start);
 		new_obj->attribute("nlines", nlines);
-		source->get_extractor().set_last_start(start);
-		source->get_extractor().set_last_nlines(nlines);
+
+		PVCore::PVSharedPtr<PVSource> source =
+		    emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
 
 		QString nraw_folder;
 		new_obj->attribute("nraw_path", nraw_folder, QString());

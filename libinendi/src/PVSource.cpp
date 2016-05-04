@@ -26,14 +26,31 @@ Inendi::PVSource::PVSource(Inendi::PVScene* scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
                            PVRush::PVFormat format)
+    : PVSource(scene,
+               inputs,
+               sc,
+               format,
+               0,
+               PVCore::PVConfig::get()
+                   .config()
+                   .value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT)
+                   .toInt())
+{
+}
+
+Inendi::PVSource::PVSource(Inendi::PVScene* scene,
+                           PVRush::PVInputType::list_inputs const& inputs,
+                           PVRush::PVSourceCreator_p sc,
+                           PVRush::PVFormat format,
+                           size_t ext_start,
+                           size_t ext_end)
     : data_tree_source_t(scene), _inputs(inputs), _src_plugin(sc), _nraw(_extractor.get_nraw())
 {
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	// Set extractor default values
-	_extractor.set_last_start(0);
-	_extractor.set_last_nlines(
-	    pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
+	_extractor.set_last_start(ext_start);
+	_extractor.set_last_nlines(ext_end);
 
 	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
 	if (nchunks != 0) {
