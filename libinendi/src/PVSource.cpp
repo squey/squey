@@ -116,18 +116,6 @@ PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count /*= 
 	return job;
 }
 
-PVRush::PVControllerJob_p Inendi::PVSource::extract_from_agg_nlines(chunk_index start,
-                                                                    chunk_index nlines)
-{
-	// Set all views as non-consistent
-	for (auto view_p : get_children<PVView>()) {
-		view_p->set_consistent(false);
-	}
-
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, nlines);
-	return job;
-}
-
 void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 {
 	job->wait_end();

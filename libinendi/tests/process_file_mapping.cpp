@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 	if (raw_dump) {
 		job = src->extract();
 	} else {
-		job = src->extract_from_agg_nlines(0, 200000000);
+		job = src->extract(0, 200000000);
 	}
 
 	src->wait_extract_end(job);

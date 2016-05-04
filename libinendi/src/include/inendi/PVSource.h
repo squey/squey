@@ -99,7 +99,6 @@ class PVSource : public data_tree_source_t
 	 * @return : Pointer to the started job.
 	 */
 	PVRush::PVControllerJob_p extract(size_t skip_lines_count = 0, size_t line_count = 0);
-	PVRush::PVControllerJob_p extract_from_agg_nlines(chunk_index start, chunk_index nlines);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
 
 	bool load_from_disk();
