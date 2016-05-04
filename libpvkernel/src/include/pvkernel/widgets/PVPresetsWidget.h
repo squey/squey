@@ -20,8 +20,7 @@
 #include <QLabel>
 #include <QKeyEvent>
 #include <QToolBar>
-
-#include <pvkernel/widgets/PVSizeHintListWidget.h>
+#include <QListWidget>
 
 namespace PVWidgets
 {
@@ -83,11 +82,10 @@ class PVPresetsWidget : public QWidget
 namespace __impl
 {
 
-class PVPresetsListWidget : public PVWidgets::PVSizeHintListWidget<>
+class PVPresetsListWidget : public QListWidget
 {
   public:
-	PVPresetsListWidget(PVWidgets::PVPresetsWidget* parent)
-	    : PVWidgets::PVSizeHintListWidget<>((QWidget*)parent)
+	PVPresetsListWidget(PVWidgets::PVPresetsWidget* parent) : QListWidget((QWidget*)parent)
 	{
 		_parent = parent;
 	}
@@ -99,6 +97,8 @@ class PVPresetsListWidget : public PVWidgets::PVSizeHintListWidget<>
 			_parent->remove_Slot();
 		}
 	}
+
+	QSize sizeHint() const { return QSize(0, 42); }
 
   private:
 	PVWidgets::PVPresetsWidget* _parent;
