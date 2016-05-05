@@ -190,7 +190,6 @@ class PVView : public data_tree_view_t
 	void set_axis_name(PVCol index, const QString& name_);
 
 	void set_color_on_active_layer(const PVCore::PVHSVColor c);
-	void set_color_on_post_filter_layer(const PVCore::PVHSVColor c);
 
 	int set_layer_stack_layer_n_name(int n, QString const& name);
 

@@ -756,17 +756,6 @@ void Inendi::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 
 /******************************************************************************
  *
- * Inendi::PVView::set_color_on_post_filter_layer
- *
- *****************************************************************************/
-void Inendi::PVView::set_color_on_post_filter_layer(const PVCore::PVHSVColor c)
-{
-	post_filter_layer.get_lines_properties().selection_set_color(post_filter_layer.get_selection(),
-	                                                             get_row_count(), c);
-}
-
-/******************************************************************************
- *
  * Inendi::PVView::set_floating_selection
  *
  *****************************************************************************/

@@ -1373,7 +1373,6 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 	Inendi::PVView_sp view_sp(inendi_view->shared_from_this());
 	PVHive::get().register_actor(view_sp, actor);
 
-	// actor.call<FUNC(Inendi::PVView::set_color_on_post_filter_layer)>(color);
 	actor.call<FUNC(Inendi::PVView::set_color_on_active_layer)>(color);
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 	// commit_selection_in_current_layer(inendi_view);
