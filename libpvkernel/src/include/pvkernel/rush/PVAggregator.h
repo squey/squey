@@ -107,24 +107,6 @@ class PVAggregator
 	 */
 	void process_indexes(chunk_index nstart, chunk_index nend, chunk_index expected_nelts = 0);
 
-	/*! \brief Tell the aggregator to return chunk starting from a given param[in] and a given local
-	 *index range.
-	 * \param[in] input_start Source to start from
-	 * \param[in] nstart Local start index
-	 * \param[in] nend Local end index
-	 *
-	 * This function retrieve the global index of param[in]_start and call process_indexes with the
-	 *global version of nstart
-	 * and nend.
-	 *
-	 * \sa process_indexes
-	 * \note Because process_indexes is used, if nstart is greater than then umber of elements of
-	 *param[in]_start, then the following
-	 *       source will be used.
-	 */
-	void
-	process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend);
-
 	/*! \brief Returns true if the end of param[in]s has been reached. It is set by operator().
 	 * Returns false otherwise.
 	 */

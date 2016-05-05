@@ -52,38 +52,6 @@ void PVRush::PVAggregator::set_stop_condition(bool* cond)
 	_stop_cond = cond;
 }
 
-void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start,
-                                               chunk_index nstart,
-                                               chunk_index nend)
-{
-	// Process from nstart to nend, starting by input_start
-
-	// Find, compute offset for input_start
-	if (!read_until_source(input_start)) {
-		PVLOG_ERROR("(PVAggregator::process_from_source) unable to reach source %s. Using the last "
-		            "one...\n",
-		            qPrintable((*input_start)->human_name()));
-		list_inputs::iterator it_last = _inputs.end();
-		it_last--;
-		if (input_start != it_last) {
-			process_from_source(it_last, nstart, nend);
-		} else {
-			PVLOG_ERROR("(PVAggregator::process_from_source) already searching for the last source "
-			            "! Starting from the beggining...\n");
-			process_indexes(_nstart, _nend);
-			return;
-		}
-	}
-	chunk_index offset = _cur_src_index;
-
-	// Then compute the new nstart and nend value
-	_nstart = nstart + offset;
-	_nend = nend + offset;
-
-	// And use process_indexes
-	process_indexes(_nstart, _nend);
-}
-
 void PVRush::PVAggregator::process_indexes(chunk_index nstart,
                                            chunk_index nend,
                                            chunk_index expected_nelts)
