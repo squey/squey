@@ -150,8 +150,6 @@ class PVView : public data_tree_view_t
 	bool get_line_state_in_output_layer(PVRow index) const;
 	PVSelection const* get_selection_visible_listing() const;
 
-	PVSelection& get_nu_selection();
-	inline PVSelection const& get_nu_selection() const { return nu_selection; };
 	int get_number_of_selected_lines() const;
 
 	inline id_t get_view_id() const { return _view_id; }

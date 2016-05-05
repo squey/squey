@@ -401,16 +401,6 @@ bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
 
 /******************************************************************************
  *
- * Inendi::PVView::get_nu_selection
- *
- *****************************************************************************/
-Inendi::PVSelection& Inendi::PVView::get_nu_selection()
-{
-	return nu_selection;
-}
-
-/******************************************************************************
- *
  * Inendi::PVView::get_number_of_selected_lines
  *
  *****************************************************************************/
