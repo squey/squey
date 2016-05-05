@@ -1395,22 +1395,6 @@ void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::set_version_informations
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::set_version_informations()
-{
-	/*
-	if (_last_known_cur_release != INENDI_VERSION_INVALID) {
-	        pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
-	}
-	if (_last_known_maj_release != INENDI_VERSION_INVALID) {
-	        pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
-	}*/
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::treat_invalid_formats
  *
  *****************************************************************************/

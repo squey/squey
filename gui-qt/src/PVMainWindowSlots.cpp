@@ -863,7 +863,6 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
 		// There was an error retrieving the current version.
 		// Maybe inendi has no internet access !
 		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) network error\n");
-		set_version_informations();
 		return;
 	}
 
@@ -891,15 +890,11 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
 	if (current_v == _last_known_cur_release && last_v == _last_known_maj_release) {
 		// We already informed the user once.
 		// Display version informations
-		set_version_informations();
 		return;
 	}
 
 	_last_known_cur_release = current_v;
 	_last_known_maj_release = last_v;
-
-	// Display version informations
-	set_version_informations();
 
 	// Update PVCONFIG settings
 	QSettings& pvconfig = PVCore::PVConfig::get().config();

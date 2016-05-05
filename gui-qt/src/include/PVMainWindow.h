@@ -347,7 +347,6 @@ class PVMainWindow : public QMainWindow
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView* inendi_view);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView const& inendi_view);
-	void set_version_informations();
 
   private:
 	Inendi::PVRoot& get_root();
