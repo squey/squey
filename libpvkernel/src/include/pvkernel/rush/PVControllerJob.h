@@ -83,15 +83,13 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 	 * Run the job outside of the Controller.
 	 */
 	void run_job();
-	void run_read_all_job();
 
   public:
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
   private:
 	tbb::filter_t<void, void> create_tbb_filter();
-	void job_has_run();                  // Called when the job has finish to run
-	void job_has_run_no_output_update(); // Called when the job has finish to run
+	void job_has_run(); // Called when the job has finish to run
 
   signals:
 	void job_done_signal();

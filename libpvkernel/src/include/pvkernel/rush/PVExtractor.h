@@ -69,14 +69,6 @@ class PVExtractor
 	 */
 	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
-	/*! \brief
-	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal
-	 * job controller. It can be used by the caller to wait for the end of the job (see
-	 * PVControllerJob::wait_end).
-	 *  \sa PVAggregator
-	 */
-	PVControllerJob_p read_everything();
-
 	/*! \brief Get a reference to the internal aggregator
 	 */
 	PVAggregator& get_agg() { return _agg; }
