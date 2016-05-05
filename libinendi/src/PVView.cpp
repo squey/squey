@@ -528,9 +528,7 @@ void Inendi::PVView::process_eventline()
 	real_output_selection = post_filter_layer.get_selection();
 
 	/* We refresh the nu_selection */
-	nu_selection = std::move(~layer_stack_output_layer.get_selection());
-
-	nu_selection |= real_output_selection;
+	nu_selection = ~layer_stack_output_layer.get_selection() | real_output_selection;
 
 	PVLinesProperties& out_lps = output_layer.get_lines_properties();
 	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();

@@ -250,9 +250,31 @@ class PVView : public data_tree_view_t
 	void process_from_selection();
 	void process_real_output_selection();
 
-	void process_eventline();
+	/**
+	 * Compute a merge of all visibles layer of the layer stack.
+	 *
+	 * * Save data in layer_stack_output_layer.
+	 */
 	void process_layer_stack();
+
+	/**
+	 * Set correct selection to post_filter_layer.
+	 *
+	 * * Copy color (FIXME : done every time, should be done only once).
+	 * * Merge selection with layer_stack selection.
+	 */
 	void process_selection();
+
+	/**
+	 * compute real selection (selected elements) and nu selection and copy lines properties.
+	 *
+	 * FIXME : Why not setting real selection without copy?
+	 */
+	void process_eventline();
+
+	/**
+	 * Compute selection of visible elements.
+	 */
 	void process_visibility();
 
 	void process_parent_plotted();
