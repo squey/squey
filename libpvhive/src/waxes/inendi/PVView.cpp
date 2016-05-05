@@ -25,12 +25,6 @@ IMPL_WAX(Inendi::PVView::process_selection, view, args)
 	// refresh_observers(&view->get_pre_filter_layer());
 }
 
-IMPL_WAX(Inendi::PVView::process_layer_stack, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_layer_stack)>(view, args);
-	refresh_observers(&view->get_layer_stack_output_layer());
-}
-
 IMPL_WAX(Inendi::PVView::process_visibility, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_visibility)>(view, args);
