@@ -33,16 +33,6 @@ void dump_agg(PVAggregator& agg)
 	}
 }
 
-void show_src_index(PVAggregator& agg, size_t index)
-{
-	chunk_index offset = 0;
-	PVRush::PVRawSourceBase_p src = agg.agg_index_to_source(index, &offset);
-	QFileInfo fi(src->human_name());
-	// Output in UTF8 !
-	cout << "Index " << index << " for source " << fi.fileName().toUtf8().constData()
-	     << " at offset " << offset << endl;
-}
-
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
@@ -64,18 +54,8 @@ int main(int argc, char** argv)
 		agg.add_input(source);
 	}
 
-	agg.read_all_chunks_from_beggining();
-	agg.debug();
-
 	// Set strict mode
 	agg.set_strict_mode(true);
-
-	show_src_index(agg, 0);
-	show_src_index(agg, 1);
-	show_src_index(agg, 100);
-	show_src_index(agg, 250);
-	show_src_index(agg, 420);
-	show_src_index(agg, 550);
 
 	cout << "Process from 10 to 20..." << endl;
 	agg.process_indexes(10, 20);
