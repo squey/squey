@@ -196,7 +196,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 			if (ret != NULL && ret->_agg_index < _nstart) {
 #ifndef NDEBUG
 				const chunk_index nelts = ret->c_elements().size();
-				assert(ret->_agg_index + nelts - 1 >= _nstart);
+				assert(ret->_agg_index + nelts >= _nstart);
 #endif
 				chunk_index nelts_remove = _nstart - ret->_agg_index;
 				PVCore::list_elts& elts = ret->elements();
