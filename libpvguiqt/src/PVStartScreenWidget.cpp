@@ -87,21 +87,6 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent)
 	label = new QLabel(QString(INENDI_CURRENT_VERSION_STR));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 2);
-	label = new QLabel(tr("Last version of the %1.%2 branch")
-	                       .arg(INENDI_CURRENT_VERSION_MAJOR)
-	                       .arg(INENDI_CURRENT_VERSION_MINOR) +
-	                   QString(" :"));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 2, 0);
-	QLabel* pv_lastCurVersion = new QLabel("N/A");
-	pv_lastCurVersion->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(pv_lastCurVersion, 2, 2);
-	label = new QLabel(tr("Last major version") + QString(" :"));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 4, 0);
-	QLabel* pv_lastMajVersion = new QLabel("N/A");
-	pv_lastMajVersion->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(pv_lastMajVersion, 4, 2);
 
 	QHBoxLayout* hboxVersionLayout = new QHBoxLayout();
 	hboxVersionLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
