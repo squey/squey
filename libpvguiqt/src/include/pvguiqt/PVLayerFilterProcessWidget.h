@@ -51,6 +51,9 @@ class PVLayerFilterProcessWidget : public QDialog
 	void set_btns_layout();
 	void connect_btns();
 
+	/**
+	 * Apply filter computation on post_filter_layer and refresh view.
+	 */
 	bool process();
 
   private:
