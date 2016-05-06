@@ -13,18 +13,11 @@ include_directories(AFTER ${ICU_INCLUDE})
 set(INSPECTOR_ICON "resources////inspector.ico")
 
 SET(MOC_HEADERS
-#include/PVAxesCombinationWidget.h
-#include/PVAxesCombinationDialog.h
-include/PVColorDialog.h
-include/PVDualSlider.h
 include/PVFilesTypesSelWidget.h
 include/PVMainWindow.h
 include/PVSaveDataTreeDialog.h
 include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
-#include/PVViewsiListingWidget.h
-
-widgets/PVCheckableComboBox.h
 
 widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVFormatBuilderWidget.h
@@ -43,21 +36,11 @@ widgets/format-builder/include/PVXmlParamWidgetBoardSplitterRegEx.h
 widgets/format-builder/include/PVXmlRegValidatorHighLight.h
 widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
 widgets/format-builder/include/PVOptionsWidget.h
-
-# include/logviewer/addmachinedialog.h
-# include/logviewer/fileconnectiondialog.h
-# include/logviewer/filedownloader.h
-# include/logviewer/logviewerwidget.h
 )
 
 SET(SRC_FILES
 main.cpp
-#PVAxesCombinationWidget.cpp
-#PVAxesCombinationDialog.cpp
-PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
-PVColorDialog.cpp
-PVDualSlider.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
@@ -66,8 +49,6 @@ PVSaveDataTreeDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
-
-widgets/PVCheckableComboBox.cpp
 
 widgets/format-builder/PVAxisTagHelp.cpp
 widgets/format-builder/PVFormatBuilderWidget.cpp
