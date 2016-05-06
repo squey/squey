@@ -12,7 +12,6 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <inendi/PVLayer.h>
-#include <inendi/PVLayerIndexArray.h>
 
 #define INENDI_LAYER_STACK_MAX_DEPTH 256
 #define INENDI_LAYERSTACK_ARCHIVE_EXT "pvls"
@@ -51,7 +50,6 @@ class PVLayerStack
 	void set_selected_layer_index(int index) { _selected_layer_index = index; }
 	//
 	void process(PVLayer& output_layer, PVRow row_count);
-	void update_layer_index_array_completely();
 	//
 	PVLayer* append_layer(const PVLayer& layer);
 	PVLayer* append_new_layer(PVRow row_count, QString const& name = QString());
@@ -75,11 +73,6 @@ class PVLayerStack
 	void move_selected_layer_up();
 	void hide_layers();
 
-	PVLayerIndexArray& get_lia() { return _lia; }
-	const PVLayerIndexArray& get_lia() const { return _lia; }
-
-	void set_row_count(PVRow row_count) { _lia.set_row_count(row_count); };
-
   public:
 	void copy_details_to_clipboard();
 
@@ -87,7 +80,6 @@ class PVLayerStack
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
   private:
-	PVLayerIndexArray _lia;
 	int _selected_layer_index;
 	QList<PVLayer> _table;
 	bool _should_hide_layers = true;

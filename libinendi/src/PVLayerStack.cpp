@@ -44,7 +44,6 @@ void Inendi::PVLayerStack::hide_layers()
 		PVLayer& layer = get_layer_n(i);
 		layer.set_visible(false);
 	}
-	update_layer_index_array_completely();
 }
 
 /******************************************************************************
@@ -76,9 +75,6 @@ Inendi::PVLayer* Inendi::PVLayerStack::append_layer(const PVLayer& layer)
 	if (get_layer_count() < INENDI_LAYER_STACK_MAX_DEPTH - 1) {
 		_table.append(layer);
 		_selected_layer_index = get_layer_count() - 1;
-
-		/* FIXME! This is before we do something more clever... */
-		update_layer_index_array_completely();
 
 		return &_table.last();
 	}
@@ -120,9 +116,6 @@ void Inendi::PVLayerStack::delete_by_index(int index)
 		} else {
 			_selected_layer_index = 0;
 		}
-
-		/* FIXME! This is before we do something more clever... */
-		update_layer_index_array_completely();
 	}
 }
 
@@ -153,9 +146,6 @@ Inendi::PVLayer* Inendi::PVLayerStack::duplicate_selected_layer(const QString& n
 	new_layer->get_selection() = selected_layer.get_selection();
 	new_layer->get_lines_properties() = selected_layer.get_lines_properties();
 
-	/* FIXME! This is before we do something more clever... */
-	update_layer_index_array_completely();
-
 	return new_layer;
 }
 
@@ -168,7 +158,6 @@ void Inendi::PVLayerStack::delete_all_layers()
 {
 	_table.clear();
 	_selected_layer_index = -1;
-	_lia.initialize();
 }
 
 /**********************************************************************
@@ -180,9 +169,6 @@ void Inendi::PVLayerStack::move_layer_down(int index)
 {
 	if ((0 < index) && (index < get_layer_count())) {
 		_table.move(index, index - 1);
-
-		/* FIXME! This is before we do something more clever... */
-		update_layer_index_array_completely();
 	}
 }
 
@@ -195,9 +181,6 @@ void Inendi::PVLayerStack::move_layer_up(int index)
 {
 	if (index < (get_layer_count() - 1)) {
 		_table.move(index, index + 1);
-
-		/* FIXME! This is before we do something more clever... */
-		update_layer_index_array_completely();
 	}
 }
 
@@ -213,7 +196,6 @@ void Inendi::PVLayerStack::move_selected_layer_to(int new_index)
 
 	_table.move(_selected_layer_index, new_index);
 	_selected_layer_index = new_index;
-	update_layer_index_array_completely();
 }
 
 /**********************************************************************
@@ -303,93 +285,6 @@ void Inendi::PVLayerStack::process(PVLayer& output_layer, PVRow row_count)
 	}
 }
 
-/******************************************************************************
- *
- * update_layer_index_array_completely
- *
- * WARNING!
- *
- * This function, under normal circumstances, should not be use !
- *   The layer_index_array should be maintained up to date, step by step, by
- *   "tacking into account" the changes done in the layer_stack.
- *
- * This function is a starter...
- *
- * HOW IT WORKS.
- *
- * the LIA is a reverse-access data structure used to find the first layer in
- * which an event appears.
- *
- * To construct it, the layer stack is processed from top to bottom:
- * for each layer, if a contained event has not already been referenced in
- * the LIA, it's value is set to the current layer's index.
- *
- * To speed-up the processing, a PVSelection is used to reference already
- * processed events.
- *
- *****************************************************************************/
-/**********************************************************************
- *
- * Inendi::PVLayerStack::update_layer_index_array_completely
- *
- **********************************************************************/
-void Inendi::PVLayerStack::update_layer_index_array_completely()
-{
-	/******************************
-	* Preparation
-	******************************/
-	/* We prepare a reference to the layer of the LS being processed */
-	// 	PVLayer &layer_being_processed;
-	/* We prepare a direct access to the number of layers, and 2 counters */
-	int i;
-	PVRow k;
-
-	/******************************
-	* Main computation
-	******************************/
-	/* The layer-stack might be empty so we have to be carefull... */
-	if (get_layer_count() > 0) {
-		/* We prepare the two selections needed in our algorithm */
-		const PVRow row_count = get_layer_n(0).get_selection().count();
-		PVSelection done_selection(row_count);
-		PVSelection temp_selection(row_count);
-		/* We process the layers from top to bottom */
-		for (i = get_layer_count() - 1; i >= 0; i--) {
-			/* We prepare a direct access to the layer we have to process */
-			PVLayer& layer_being_processed = _table[i];
-			/* We check if the layer is visible */
-			if (layer_being_processed.get_visible()) {
-				/* We remove from temp selection the lines already encountered */
-				temp_selection = layer_being_processed.get_selection();
-				temp_selection -= done_selection;
-				/* We add to done_selection the lines that we are about to process */
-				done_selection |= layer_being_processed.get_selection();
-				for (k = 0; k < _lia.get_row_count(); k++) {
-					if (temp_selection.get_line(k)) {
-						_lia.set_value(k, i + 1);
-					}
-				}
-			}
-		}
-
-		/* We set to 0 the lines that never appeared in any layer */
-		for (k = 0; k < _lia.get_row_count(); k++) {
-			if (!done_selection.get_line(k)) {
-				_lia.set_value(k, 0);
-			}
-		}
-	} else {
-		/* We zero every line since there are no layers */
-		for (k = 0; k < _lia.get_row_count(); k++) {
-			_lia.set_value(k, 0);
-		}
-	}
-
-	/******************************
-	* Garbage collection
-	******************************/
-}
-
 void Inendi::PVLayerStack::compute_selectable_count(PVRow row_count)
 {
 	for (int i = 0; i < get_layer_count(); i++) {
@@ -412,7 +307,6 @@ void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so,
 {
 	so.list("layers", _table, QString(), (PVLayer*)NULL, QStringList(), false);
 	so.attribute("selected_layer_index", _selected_layer_index);
-	so.object("lia", _lia, QString(), false, (PVLayerIndexArray*)NULL, false);
 }
 
 void Inendi::PVLayerStack::copy_details_to_clipboard()

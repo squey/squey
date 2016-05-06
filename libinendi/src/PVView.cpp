@@ -441,7 +441,6 @@ PVRow Inendi::PVView::get_row_count() const
  *****************************************************************************/
 void Inendi::PVView::set_row_count(PVRow row_count)
 {
-	layer_stack.set_row_count(row_count);
 	floating_selection.set_count(row_count);
 	post_filter_layer.set_count(row_count);
 	layer_stack_output_layer.set_count(row_count);
@@ -772,8 +771,6 @@ int Inendi::PVView::toggle_layer_stack_layer_n_locked_state(int n)
 	} else {
 		layer.set_locked(1);
 	}
-
-	layer_stack.update_layer_index_array_completely();
 	return 0;
 }
 
@@ -791,8 +788,6 @@ int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 	} else {
 		layer.set_visible(1);
 	}
-
-	layer_stack.update_layer_index_array_completely();
 	return 0;
 }
 
