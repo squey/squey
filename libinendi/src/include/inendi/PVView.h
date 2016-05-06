@@ -162,7 +162,6 @@ class PVView : public data_tree_view_t
 		return _axes_combination.get_axis_column_index(view_idx);
 	}
 
-	PVLayer& get_output_layer();
 	PVLayer const& get_output_layer() const { return output_layer; }
 
 	QString get_name() const;
