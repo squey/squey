@@ -44,7 +44,6 @@ PVFilesTypesSelWidget.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
-PVMapWidget.cpp
 PVSaveDataTreeDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
@@ -69,11 +68,6 @@ widgets/format-builder/PVXmlTreeItemDelegate.cpp
 widgets/format-builder/PVXmlTreeView.cpp
 widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
 widgets/format-builder/PVOptionsWidget.cpp
-
-# logviewer/addmachinedialog.cpp
-# logviewer/fileconnectiondialog.cpp
-# logviewer/filedownloader.cpp
-# logviewer/logviewerwidget.cpp
 )
 
 SET(QRC_FILES
