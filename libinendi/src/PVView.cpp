@@ -62,7 +62,6 @@ Inendi::PVView::PVView(PVPlotted* plotted)
 	if (row_count) {
 		set_row_count(row_count);
 		reset_layers();
-		_axes_combination.set_axis_name(0, _axes_combination.get_axis(0).get_name());
 	}
 }
 
@@ -71,9 +70,6 @@ void Inendi::PVView::process_parent_plotted()
 	// Init default axes combination from source
 	PVSource* source = get_parent<PVSource>();
 	_axes_combination.set_from_format(source->get_format());
-
-	_axes_combination.set_axis_name(
-	    0, _axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	set_row_count(get_row_count());
 
