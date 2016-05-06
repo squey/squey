@@ -134,7 +134,6 @@ class PVMainWindow : public QMainWindow
 	Inendi::PVScene* current_scene() { return get_root().current_scene(); }
 	Inendi::PVScene const* current_scene() const { return get_root().current_scene(); }
 
-	void commit_selection_in_current_layer(Inendi::PVView* view);
 	void move_selection_to_new_layer(Inendi::PVView* view);
 	void commit_selection_to_new_layer(Inendi::PVView* view);
 	void set_color(Inendi::PVView* view);
@@ -163,7 +162,6 @@ class PVMainWindow : public QMainWindow
 
   public slots:
 	void about_Slot();
-	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();
 	void selection_set_from_current_layer_Slot();
@@ -189,9 +187,7 @@ class PVMainWindow : public QMainWindow
 	void import_type_Slot(const QString& itype);
 	void events_display_unselected_Slot();
 	void events_display_unselected_listing_Slot();
-	void events_display_unselected_GLview_Slot();
 	void events_display_zombies_listing_Slot();
-	void events_display_zombies_GLview_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Inendi::PVScene_p project_new_Slot();
@@ -201,13 +197,11 @@ class PVMainWindow : public QMainWindow
 	void selection_none_Slot();
 	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
-	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
 	void get_screenshot_widget();
 	void get_screenshot_window();
 	void get_screenshot_desktop();
 	void update_reply_finished_Slot(QNetworkReply* reply);
-	void whats_this_Slot();
 	// Called by input_type plugins to edit a format.
 	// Not an elegant solution, must find better.
 	void edit_format_Slot(QString const& path, QWidget* parent);
@@ -267,29 +261,21 @@ class PVMainWindow : public QMainWindow
 	void flag_investigation_as_cached(const QString& file);
 
   private:
-	QMenu* axes_Menu;
 	QMenu* file_Menu;
-	QMenu* edit_Menu;
 	QMenu* events_Menu;
 	QMenu* selection_Menu;
 	QMenu* tools_Menu;
 	QMenu* source_Menu;
 	QMenu* view_Menu;
-	QMenu* windows_Menu;
 	QMenu* help_Menu;
 
 	QAction* about_Action;
 	QAction* axes_combination_editor_Action;
 	QAction* events_display_unselected_listing_Action;
-	QAction* events_display_unselected_GLview_Action;
 	QAction* events_display_zombies_listing_Action;
-	QAction* events_display_zombies_GLview_Action;
 	QAction* events_display_unselected_zombies_parallelview_Action;
-	QAction* copy_Action;
-	QAction* commit_selection_in_current_layer_Action;
 	QAction* commit_selection_to_new_layer_Action;
 	QAction* move_selection_to_new_layer_Action;
-	QAction* cut_Action;
 	QAction* filter_reprocess_last_filter;
 	QAction* project_new_Action;
 	QAction* solution_new_Action;
@@ -302,9 +288,7 @@ class PVMainWindow : public QMainWindow
 #endif
 	QAction* new_file_Action;
 	QAction* new_scene_Action;
-	QAction* paste_Action;
 	QAction* quit_Action;
-	QAction* redo_Action;
 	QAction* select_scene_Action;
 	QAction* selection_all_Action;
 	QAction* selection_inverse_Action;
@@ -314,12 +298,8 @@ class PVMainWindow : public QMainWindow
 	QAction* set_color_Action;
 	QAction* tools_new_format_Action;
 	QAction* tools_cur_format_Action;
-	QAction* undo_Action;
-	QAction* undo_history_Action;
 	QAction* view_Action;
-	QAction* view_new_scatter_Action;
 	QAction* view_display_inv_elts_Action;
-	QAction* whats_this_Action;
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;

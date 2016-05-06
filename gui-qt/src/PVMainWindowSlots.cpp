@@ -48,7 +48,6 @@
 #include <QDockWidget>
 #include <QDesktopServices>
 #include <QDesktopWidget>
-#include <QWhatsThis>
 
 /******************************************************************************
  *
@@ -80,25 +79,6 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 
 	dlg->reset_used_axes();
 	dlg->show();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
-{
-	/* We prepare a direct access to the current lib_view */
-	Inendi::PVView* current_lib_view;
-
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	if (_projects_tab_widget->current_workspace() == nullptr) {
-		return;
-	}
-	current_lib_view = current_view();
-	commit_selection_in_current_layer(current_lib_view);
 }
 
 /******************************************************************************
@@ -147,29 +127,6 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
-{
-	Inendi::PVView* current_lib_view;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-
-	if (_projects_tab_widget->current_workspace() == nullptr) {
-		return;
-	}
-
-	current_lib_view->get_state_machine().toggle_gl_unselected_visibility();
-	/* We refresh the view */
-	current_lib_view->process_visibility();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::events_display_zombies_listing_Sloupdate_recent_projectst()
  *
  *****************************************************************************/
@@ -184,25 +141,6 @@ void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
 
 	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVView::toggle_listing_zombie_visibility)>(view_sp);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
-{
-	Inendi::PVView* current_lib_view;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-
-	current_lib_view->get_state_machine().toggle_gl_zombie_visibility();
-	/* We refresh the view */
-	current_lib_view->process_visibility();
 }
 
 /******************************************************************************
@@ -881,16 +819,6 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
 }
 
 /******************************************************************************
- *
- * PVInspector::PVMainWindow::view_new_scatter_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::view_new_scatter_Slot()
-{
-	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-}
-
-/******************************************************************************
  * PVInspector::PVMainWindow::get_screenshot_widget
  *****************************************************************************/
 
@@ -982,16 +910,6 @@ void PVInspector::PVMainWindow::get_screenshot_desktop()
 	QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
 
 	save_screenshot(pixmap, "Save desktop capture", "desktop");
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::whats_this_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::whats_this_Slot()
-{
-	QWhatsThis::enterWhatsThisMode();
 }
 
 /******************************************************************************

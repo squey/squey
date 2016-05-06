@@ -377,29 +377,6 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::commit_selection_in_current_layer
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_in_current_layer(Inendi::PVView* inendi_view)
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	/* We get the current selected layer */
-	Inendi::PVLayer& current_selected_layer = inendi_view->get_current_layer();
-	/* We fill it's lines_properties */
-	inendi_view->get_output_layer()
-	    .get_lines_properties()
-	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
-	                                                inendi_view->get_real_output_selection(),
-	                                                inendi_view->get_row_count());
-
-	/* We need to process the view from the layer_stack */
-	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_sp);
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::commit_selection_to_new_layer
  *
  *****************************************************************************/
@@ -1375,7 +1352,6 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 
 	actor.call<FUNC(Inendi::PVView::set_color_on_active_layer)>(color);
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
-	// commit_selection_in_current_layer(inendi_view);
 }
 
 /******************************************************************************

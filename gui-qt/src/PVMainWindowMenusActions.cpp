@@ -52,27 +52,6 @@ void PVInspector::PVMainWindow::create_actions()
 	quit_Action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
 
 	/************************
-	 * For the "Edit" menu entry
-	 ************************/
-
-	undo_Action = new QAction(tr("Undo"), this);
-	undo_Action->setIcon(QIcon(":/edit-undo.png"));
-
-	redo_Action = new QAction(tr("Redo"), this);
-	redo_Action->setIcon(QIcon(":/edit-redo.png"));
-
-	undo_history_Action = new QAction(tr("Undo history"), this);
-
-	cut_Action = new QAction(tr("Cut"), this);
-	cut_Action->setIcon(QIcon(":/edit-cut.png"));
-
-	copy_Action = new QAction(tr("Copy"), this);
-	copy_Action->setIcon(QIcon(":/edit-copy.png"));
-
-	paste_Action = new QAction(tr("Paste"), this);
-	paste_Action->setIcon(QIcon(":/edit-paste.png"));
-
-	/************************
 	 * For the "Selection" menu entry
 	 ************************/
 	selection_all_Action = new QAction(tr("Select &all events"), this);
@@ -85,9 +64,6 @@ void PVInspector::PVMainWindow::create_actions()
 	selection_from_current_layer_Action = new QAction(tr("Set selection from current layer"), this);
 	selection_from_layer_Action = new QAction(tr("Set selection from layer..."), this);
 
-	// commit_selection_in_current_layer_Action = new QAction(tr("Keep &current
-	// layer"), this);
-	// commit_selection_in_current_layer_Action->setShortcut(QKeySequence(Qt::Key_K));
 	commit_selection_to_new_layer_Action = new QAction(tr("Create new layer from selection"), this);
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
 	move_selection_to_new_layer_Action = new QAction(tr("Move selection to new layer"), this);
@@ -106,29 +82,22 @@ void PVInspector::PVMainWindow::create_actions()
 	tools_cur_format_Action = new QAction(tr("&Edit current format..."), this);
 
 	/************************
-	 * For the "View" menu entry
+	 * For the "Source" menu entry
 	 ************************/
-	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
 	view_display_inv_elts_Action = new QAction(tr("&Display invalid events..."), this);
 
 	/***************************
-	 * For the "Axes" menu entry
+	 * For the "View" menu entry
 	 ***************************/
 	axes_combination_editor_Action = new QAction(tr("Edit axes combination..."), this);
 
 	/***************************
 	 * For the "Events" menu entry
 	 ***************************/
-	// events_display_unselected_GLview_Action = new QAction(tr("Toggle unselected
-	// events"), this);
-	// events_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::Key_U));
 	events_display_unselected_listing_Action =
 	    new QAction(tr("Toggle unselected events in listing"), this);
 	events_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
 
-	// events_display_zombies_GLview_Action = new QAction(tr("Toggle zombies
-	// events"), this);
-	// events_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::Key_Z));
 	events_display_zombies_listing_Action =
 	    new QAction(tr("Toggle zombies events in listing"), this);
 	events_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
@@ -141,7 +110,6 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "Help" menu entry
 	 **************************/
 	about_Action = new QAction(tr("&About"), this);
-	// whats_this_Action = new QAction(tr("&What's this?"), this);
 }
 
 /******************************************************************************
@@ -183,16 +151,6 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
 
-	// edit_Menu = menubar->addMenu(tr("&Edit"));
-	// edit_Menu->addAction(undo_Action);
-	// edit_Menu->addAction(redo_Action);
-	// edit_Menu->addAction(undo_history_Action);
-	// edit_Menu->addSeparator();
-	// edit_Menu->addAction(cut_Action);
-	// edit_Menu->addAction(copy_Action);
-	// edit_Menu->addAction(paste_Action);
-	// edit_Menu->addSeparator();
-
 	selection_Menu = menubar->addMenu(tr("&Selection"));
 	selection_Menu->addAction(selection_all_Action);
 	selection_Menu->addAction(selection_none_Action);
@@ -203,7 +161,6 @@ void PVInspector::PVMainWindow::create_menus()
 	selection_Menu->addSeparator();
 	selection_Menu->addAction(set_color_Action);
 	selection_Menu->addSeparator();
-	// selection_Menu->addAction(commit_selection_in_current_layer_Action);
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
 	selection_Menu->addAction(move_selection_to_new_layer_Action);
 	selection_Menu->addSeparator();
@@ -218,17 +175,10 @@ void PVInspector::PVMainWindow::create_menus()
 
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(axes_combination_editor_Action);
-	// view_Menu->addAction(view_new_parallel_Action);
-	// view_Menu->addAction(view_new_zoomed_parallel_Action);
-	// view_Menu->addAction(view_new_scatter_Action);
-	// view_Menu->addSeparator();
 
 	events_Menu = menubar->addMenu(tr("&Events"));
 	events_Menu->addAction(events_display_unselected_listing_Action);
-	// events_Menu->addAction(events_display_unselected_GLview_Action);
-	// events_Menu->addSeparator();
 	events_Menu->addAction(events_display_zombies_listing_Action);
-	// events_Menu->addAction(events_display_zombies_GLview_Action);
 	events_Menu->addSeparator();
 	events_Menu->addAction(events_display_unselected_zombies_parallelview_Action);
 
@@ -236,10 +186,7 @@ void PVInspector::PVMainWindow::create_menus()
 	tools_Menu->addAction(tools_new_format_Action);
 	tools_Menu->addAction(tools_cur_format_Action);
 
-	// windows_Menu = menubar->addMenu(tr("&Windows"));
-
 	help_Menu = menubar->addMenu(tr("&Help"));
-	// help_Menu->addAction(whats_this_Action);
 	help_Menu->addAction(about_Action);
 }
 
@@ -265,14 +212,12 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	export_selection_to_mineset_Action->setEnabled(cond);
 #endif
 
-	// axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
 	events_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
 	source_Menu->setEnabled(cond);
 	view_Menu->setEnabled(cond);
-	// windows_Menu->setEnabled(cond);
 	solution_save_Action->setEnabled(cond);
 	solution_saveas_Action->setEnabled(cond);
 }
@@ -298,7 +243,6 @@ void PVInspector::PVMainWindow::connect_actions()
 #endif
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
 
-	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
 	connect(view_display_inv_elts_Action, SIGNAL(triggered()), this,
 	        SLOT(view_display_inv_elts_Slot()));
 
@@ -312,8 +256,6 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
 
-	// connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()),
-	// this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this,
 	        SLOT(commit_selection_to_new_layer_Slot()));
 	connect(move_selection_to_new_layer_Action, SIGNAL(triggered()), this,
@@ -327,19 +269,13 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(events_display_unselected_listing_Action, SIGNAL(triggered()), this,
 	        SLOT(events_display_unselected_listing_Slot()));
-	// connect(events_display_unselected_GLview_Action, SIGNAL(triggered()), this,
-	// SLOT(events_display_unselected_GLview_Slot()));
 	connect(events_display_zombies_listing_Action, SIGNAL(triggered()), this,
 	        SLOT(events_display_zombies_listing_Slot()));
-	// connect(events_display_zombies_GLview_Action, SIGNAL(triggered()), this,
-	// SLOT(events_display_zombies_GLview_Slot()));
 	connect(events_display_unselected_zombies_parallelview_Action, SIGNAL(triggered()), this,
 	        SLOT(events_display_unselected_zombies_parallelview_Slot()));
 
 	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
 	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
 
-	// connect(whats_this_Action, SIGNAL(triggered()), this,
-	// SLOT(whats_this_Slot()));
 	connect(about_Action, SIGNAL(triggered()), this, SLOT(about_Slot()));
 }
