@@ -15,7 +15,6 @@
 #include <pvkernel/core/PVVersion.h>
 #include <pvkernel/core/PVConfig.h>
 
-#include <inendi/PVAxisComputation.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVMapping.h>
 
@@ -43,7 +42,6 @@
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
-#include <PVAxisComputationDlg.h>
 #include <PVSaveDataTreeDialog.h>
 
 #include <QPainter>
@@ -67,13 +65,6 @@ void PVInspector::PVMainWindow::about_Slot()
 	about_dialog->deleteLater();
 }
 
-void PVInspector::PVMainWindow::axes_editor_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-}
-
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 {
 	if (!current_view()) {
@@ -89,44 +80,6 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 
 	dlg->reset_used_axes();
 	dlg->show();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::axes_mode_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::axes_mode_Slot()
-{
-	PVLOG_INFO("%s\n", __FUNCTION__);
-	Inendi::PVView* current_lib_view;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-
-	current_lib_view->get_state_machine().toggle_axes_mode();
-
-	// if we enter in AXES_MODE we must disable SQUARE_AREA_MODE
-	if (current_lib_view->get_state_machine().is_axes_mode()) {
-		/* We turn SQUARE AREA mode OFF */
-		current_lib_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
-		// current_view->update_axes();
-		axes_mode_Action->setText(QString("Leave Axes mode"));
-	} else {
-		axes_mode_Action->setText(QString("Enter Axes mode"));
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::axes_display_edges_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::axes_display_edges_Slot()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 }
 
 /******************************************************************************
@@ -1121,30 +1074,6 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
 	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(parent);
 	editorWidget->show();
 	editorWidget->openFormat(doc);
-}
-
-void PVInspector::PVMainWindow::axes_new_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	Inendi::PVView* view = current_view();
-
-	PVAxisComputationDlg* dlg = new PVAxisComputationDlg(*view, this);
-	if (dlg->exec() != QDialog::Accepted) {
-		return;
-	}
-
-	Inendi::PVAxisComputation_p ac_plugin = dlg->get_plugin();
-
-	Inendi::PVAxis axis;
-	axis.set_type("enum");
-	axis.set_mapping("default");
-	axis.set_plotting("default");
-	axis.set_name("New axis test");
-
-	view->get_parent<Inendi::PVSource>()->add_column(ac_plugin->f(), axis);
 }
 
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()

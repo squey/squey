@@ -28,7 +28,6 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 
-#include <inendi/PVAxisComputation.h>
 #include <inendi/PVMapped.h>
 #include <inendi/PVSource_types.h>
 
@@ -134,8 +133,6 @@ class PVSource : public data_tree_source_t
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
 
-	void add_column(PVAxisComputation_f f_axis, Inendi::PVAxis const& axis);
-
 	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
 
 	PVRush::PVSourceDescription::shared_pointer create_description()
@@ -164,10 +161,6 @@ class PVSource : public data_tree_source_t
 	}
 	const std::pair<size_t, size_t>& section_clicked() const { return _section_clicked; }
 	void set_nraw_folder(QString const& nraw_folder) { _nraw_folder = nraw_folder; }
-
-  private:
-	void add_column(Inendi::PVAxis const& axis);
-	void set_views_consistent(bool cons);
 
   protected:
 	virtual QString get_children_description() const { return "Mapped(s)"; }

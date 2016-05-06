@@ -60,7 +60,6 @@ class PVView : public data_tree_view_t
 
   protected:
 	// For PVSource
-	void add_column(PVAxis const& axis);
 	inline void set_view_id(id_t id) { _view_id = id; }
 
   public:
@@ -355,9 +354,6 @@ class PVView : public data_tree_view_t
 		return *_rushnraw_parent;
 	};
 
-	bool is_consistent() const;
-	void set_consistent(bool c);
-
 	PVCol get_real_axis_index(PVCol col) const;
 
 	PVRow get_plotted_col_min_row(PVCol const combined_col) const;
@@ -402,7 +398,6 @@ class PVView : public data_tree_view_t
 	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in
 	// floating_selection once it is completed.
 
-	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
 	PVRush::PVNraw* _rushnraw_parent = nullptr; //!< Pointer to the NRaw from source.

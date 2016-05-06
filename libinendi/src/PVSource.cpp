@@ -105,11 +105,6 @@ void Inendi::PVSource::files_append_noextract()
 PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count /*= 0*/,
                                                     size_t line_count /*= 0*/)
 {
-	// Set all views as non-consistent
-	for (auto view_p : get_children<PVView>()) {
-		view_p->set_consistent(false);
-	}
-
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(
 	    skip_lines_count, line_count ? line_count : INENDI_LINES_MAX);
 
@@ -201,43 +196,6 @@ void Inendi::PVSource::add_view(PVView* view)
 	root->select_view(*view);
 	view->set_view_id(root->get_new_view_id());
 	view->set_color(root->get_new_view_color());
-}
-
-void Inendi::PVSource::add_column(PVAxis const& axis)
-{
-	PVCol new_col_idx = get_rushnraw().get_number_cols() - 1;
-	PVMappingProperties map_prop(axis, new_col_idx);
-
-	// Add that column to our children
-	for (auto mapped : get_children<PVMapped>()) {
-		mapped->add_column(map_prop);
-		PVPlottingProperties plot_prop(mapped->get_mapping(), axis, new_col_idx);
-		for (auto plotted : mapped->get_children<PVPlotted>()) {
-			plotted->add_column(plot_prop);
-		}
-	}
-	for (auto view_p : get_children<PVView>()) {
-		view_p->add_column(axis);
-	}
-
-	// Reprocess from source
-	process_from_source();
-}
-
-void Inendi::PVSource::set_views_consistent(bool cons)
-{
-	for (auto view_p : get_children<PVView>()) {
-		view_p->set_consistent(cons);
-	}
-}
-
-void Inendi::PVSource::add_column(PVAxisComputation_f f_axis, PVAxis const& axis)
-{
-	set_views_consistent(false);
-	if (f_axis(&get_rushnraw())) {
-		add_column(axis);
-	}
-	set_views_consistent(true);
 }
 
 QString Inendi::PVSource::get_window_name() const

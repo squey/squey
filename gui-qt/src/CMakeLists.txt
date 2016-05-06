@@ -13,7 +13,6 @@ include_directories(AFTER ${ICU_INCLUDE})
 set(INSPECTOR_ICON "resources////inspector.ico")
 
 SET(MOC_HEADERS
-include/PVAxisComputationDlg.h
 #include/PVAxesCombinationWidget.h
 #include/PVAxesCombinationDialog.h
 include/PVColorDialog.h
@@ -53,7 +52,6 @@ widgets/format-builder/include/PVOptionsWidget.h
 
 SET(SRC_FILES
 main.cpp
-PVAxisComputationDlg.cpp
 #PVAxesCombinationWidget.cpp
 #PVAxesCombinationDialog.cpp
 PVCustomTitleDialog.cpp
@@ -102,7 +100,6 @@ inendi-inspector_resource.qrc
 )
 
 SET(UI_FILES
-PVAxisComputationDlg.ui
 widgets/format-builder/PVAxisTagHelp.ui
 )
 

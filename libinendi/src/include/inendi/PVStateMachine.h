@@ -18,7 +18,6 @@ namespace Inendi
 class PVStateMachine
 {
 	bool antialiased; // FIXME remove me! [STR: Why?]
-	bool axes_mode;
 	bool sync_all_views;
 	bool grabbed;
 	bool edit_mode_all; //!< Wether we modify all layer at once. FIXME : Always true
@@ -56,8 +55,6 @@ class PVStateMachine
 	PVStateMachine();
 
 	bool is_antialiased() const { return antialiased; }
-
-	bool is_axes_mode() const { return axes_mode; }
 
 	bool is_synced() const { return sync_all_views; }
 
@@ -106,8 +103,6 @@ class PVStateMachine
 
 	void set_antialiased(bool state) { antialiased = state; }
 
-	void set_axes_mode(bool state) { axes_mode = state; }
-
 	void set_synced(bool state) { sync_all_views = state; }
 
 	void set_grabbed(bool state) { grabbed = state; }
@@ -132,8 +127,6 @@ class PVStateMachine
 	void set_square_area_mode(SquareAreaModes mode) { square_area_mode = mode; }
 
 	void toggle_antialiased() { antialiased = !antialiased; }
-
-	void toggle_axes_mode() { axes_mode = !axes_mode; }
 
 	void toggle_synced() { sync_all_views = !sync_all_views; }
 

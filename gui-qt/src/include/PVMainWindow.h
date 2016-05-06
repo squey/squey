@@ -163,10 +163,6 @@ class PVMainWindow : public QMainWindow
 
   public slots:
 	void about_Slot();
-	void axes_editor_Slot();
-	void axes_mode_Slot();
-	void axes_display_edges_Slot();
-	void axes_new_Slot();
 	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();
@@ -283,11 +279,7 @@ class PVMainWindow : public QMainWindow
 	QMenu* help_Menu;
 
 	QAction* about_Action;
-	QAction* axes_editor_Action;
 	QAction* axes_combination_editor_Action;
-	QAction* axes_mode_Action;
-	QAction* axes_display_edges_Action;
-	QAction* axes_new_Action;
 	QAction* events_display_unselected_listing_Action;
 	QAction* events_display_unselected_GLview_Action;
 	QAction* events_display_zombies_listing_Action;

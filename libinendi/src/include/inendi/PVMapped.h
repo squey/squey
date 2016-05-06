@@ -62,9 +62,6 @@ class PVMapped : public data_tree_mapped_t
 	 */
 	~PVMapped();
 
-	// For PVSource
-	void add_column(PVMappingProperties const& props);
-
   public:
 	/**
 	 * Compute mapping and chain to plottings.

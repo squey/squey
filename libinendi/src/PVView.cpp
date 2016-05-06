@@ -43,7 +43,6 @@ Inendi::PVView::PVView(PVPlotted* plotted)
     , post_filter_layer("post_filter_layer")
     , layer_stack_output_layer("view_layer_stack_output_layer")
     , output_layer("output_layer")
-    , _is_consistent(false)
     , _rushnraw_parent(&get_parent<PVSource>()->get_rushnraw())
     , _view_id(-1)
     , _active_axis(0)
@@ -74,8 +73,6 @@ void Inendi::PVView::process_parent_plotted()
 	set_row_count(get_row_count());
 
 	process_from_layer_stack();
-
-	_is_consistent = true;
 }
 
 /******************************************************************************
@@ -108,8 +105,6 @@ void Inendi::PVView::reset_layers()
 
 	// This function remove all the layers and add the default one with all events
 	// selected
-	bool old_consistent = _is_consistent;
-	_is_consistent = false;
 	layer_stack.delete_all_layers();
 	layer_stack.append_new_layer(row_count);
 	layer_stack.get_layer_n(0).reset_to_full_and_default_color(row_count);
@@ -123,8 +118,6 @@ void Inendi::PVView::reset_layers()
 	post_filter_layer.reset_to_full_and_default_color(row_count);
 	layer_stack_output_layer.reset_to_full_and_default_color(row_count);
 	output_layer.reset_to_full_and_default_color(row_count);
-
-	_is_consistent = old_consistent;
 }
 
 /******************************************************************************
@@ -830,17 +823,6 @@ void Inendi::PVView::move_selected_layer_to(int new_index)
 	get_layer_stack().move_selected_layer_to(new_index);
 }
 
-void Inendi::PVView::set_consistent(bool c)
-{
-	_is_consistent = c;
-}
-
-bool Inendi::PVView::is_consistent() const
-{
-	// return get_plotted_parent()->is_uptodate() && _is_consistent;
-	return _is_consistent;
-}
-
 void Inendi::PVView::select_all_nonzb_lines()
 {
 	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
@@ -876,11 +858,6 @@ QString Inendi::PVView::get_window_name() const
 	QString ret = get_parent<PVSource>()->get_window_name() + " | ";
 	ret += get_name();
 	return ret;
-}
-
-void Inendi::PVView::add_column(PVAxis const& axis)
-{
-	_axes_combination.axis_append(axis);
 }
 
 Inendi::PVSelection const& Inendi::PVView::get_selection_visible_listing() const

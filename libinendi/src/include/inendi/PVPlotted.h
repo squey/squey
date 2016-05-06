@@ -96,9 +96,6 @@ class PVPlotted : public data_tree_plotted_t
 	// For PVMapped
 	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
 
-	// For PVSource
-	void add_column(PVPlottingProperties const& props);
-
   public:
 	void process_parent_mapped();
 	void process_from_parent_mapped();

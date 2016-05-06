@@ -582,11 +582,6 @@ bool Inendi::PVPlotted::is_uptodate() const
 	return _plotting.is_uptodate();
 }
 
-void Inendi::PVPlotted::add_column(PVPlottingProperties const& props)
-{
-	_plotting.add_column(props);
-}
-
 bool Inendi::PVPlotted::is_current_plotted() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();

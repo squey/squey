@@ -197,16 +197,6 @@ PVCol Inendi::PVMapped::get_column_count() const
 
 /******************************************************************************
  *
- * Inendi::PVMapped::add_column
- *
- *****************************************************************************/
-void Inendi::PVMapped::add_column(PVMappingProperties const& props)
-{
-	_mapping.add_column(props);
-}
-
-/******************************************************************************
- *
  * Inendi::PVMapped::process_from_parent_source
  *
  *****************************************************************************/

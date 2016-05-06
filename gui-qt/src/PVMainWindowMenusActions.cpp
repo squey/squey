@@ -114,13 +114,7 @@ void PVInspector::PVMainWindow::create_actions()
 	/***************************
 	 * For the "Axes" menu entry
 	 ***************************/
-	axes_editor_Action = new QAction(tr("Edit axes..."), this);
 	axes_combination_editor_Action = new QAction(tr("Edit axes combination..."), this);
-	axes_mode_Action = new QAction(tr("Enter axes mode"), this);
-	axes_mode_Action->setShortcut(QKeySequence(Qt::Key_X));
-	axes_display_edges_Action = new QAction(tr("Display edges"), this);
-	axes_display_edges_Action->setShortcut(QKeySequence(Qt::Key_Y));
-	axes_new_Action = new QAction(tr("Create new axis..."), this);
 
 	/***************************
 	 * For the "Events" menu entry
@@ -229,15 +223,6 @@ void PVInspector::PVMainWindow::create_menus()
 	// view_Menu->addAction(view_new_scatter_Action);
 	// view_Menu->addSeparator();
 
-	/*axes_Menu = menubar->addMenu(tr("&Axes"));
-	axes_Menu->addAction(axes_editor_Action);
-	axes_Menu->addAction(axes_combination_editor_Action);
-	axes_Menu->addSeparator();
-	axes_Menu->addAction(axes_mode_Action);
-	axes_Menu->addAction(axes_display_edges_Action);
-	axes_Menu->addAction(axes_new_Action);
-	axes_Menu->addSeparator();*/
-
 	events_Menu = menubar->addMenu(tr("&Events"));
 	events_Menu->addAction(events_display_unselected_listing_Action);
 	// events_Menu->addAction(events_display_unselected_GLview_Action);
@@ -334,12 +319,8 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(move_selection_to_new_layer_Action, SIGNAL(triggered()), this,
 	        SLOT(move_selection_to_new_layer_Slot()));
 
-	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot())); //
 	connect(axes_combination_editor_Action, SIGNAL(triggered()), this,
 	        SLOT(axes_combination_editor_Slot())); //
-	connect(axes_mode_Action, SIGNAL(triggered()), this, SLOT(axes_mode_Slot()));
-	connect(axes_display_edges_Action, SIGNAL(triggered()), this, SLOT(axes_display_edges_Slot()));
-	connect(axes_new_Action, SIGNAL(triggered()), this, SLOT(axes_new_Slot()));
 
 	connect(filter_reprocess_last_filter, SIGNAL(triggered()), this,
 	        SLOT(filter_reprocess_last_Slot()));

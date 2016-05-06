@@ -16,7 +16,6 @@
 Inendi::PVStateMachine::PVStateMachine()
 {
 	antialiased = false;
-	axes_mode = false;
 	sync_all_views = true;
 	grabbed = false;
 	edit_mode_all = true;
