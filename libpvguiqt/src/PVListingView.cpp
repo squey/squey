@@ -580,7 +580,7 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 	// Color every lines in the current selection
 	for (PVRow line : listing_model()->shown_lines()) {
 		if (listing_model()->current_selection().get_line_fast(line)) {
-			lines_properties.line_set_color(line, color);
+			lines_properties.set_line_properties(line, color);
 		}
 	}
 

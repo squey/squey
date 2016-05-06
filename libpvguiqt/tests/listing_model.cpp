@@ -39,7 +39,6 @@ int main(int argc, char** argv)
 	Inendi::PVRoot_p root;
 	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
 	src->create_default_view();
-	init_random_colors(*src->current_view());
 
 	// Qt app
 	QApplication app(argc, argv);

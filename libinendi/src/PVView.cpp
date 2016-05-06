@@ -506,21 +506,13 @@ void Inendi::PVView::process_eventline()
 	/* We are now able to process the lines_properties */
 	for (PVRow i = 0; i < get_row_count(); i++) {
 		/* We check if the event is selected at the end of the process */
-		PVCore::PVHSVColor& out_lp = out_lps.get_line_properties(i);
-		PVCore::PVHSVColor const& post_lp = post_lps.get_line_properties(i);
-		if (real_output_selection.get_line(i)) {
+		if (real_output_selection.get_line(i) ||
+		    layer_stack_output_layer.get_selection().get_line(i)) {
 			/* It is selected, so we copy its line properties */
-			out_lp = post_lp;
+			out_lps.set_line_properties(i, post_lps.get_line_properties(i));
 		} else {
-			/* It is not selected in the end, so we check if it was available in the
-			 * beginning */
-			if (layer_stack_output_layer.get_selection().get_line(i)) {
-				/* The event was available, but is unselected */
-				out_lp = post_lp;
-			} else {
-				/* The event is a zombie one */
-				out_lp = _default_zombie_line_properties;
-			}
+			/* The event is a zombie one */
+			out_lps.set_line_properties(i, _default_zombie_line_properties);
 		}
 	}
 }

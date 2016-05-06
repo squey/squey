@@ -51,9 +51,3 @@ get_src_from_file(Inendi::PVRoot_sp root, QString const& file, QString const& fo
 	Inendi::PVScene_sp scene = root->emplace_add_child("scene");
 	return get_src_from_file(scene, file, format);
 }
-
-void init_random_colors(Inendi::PVView& view)
-{
-	view.get_layer_stack().get_layer_n(0).get_lines_properties().set_random(view.get_row_count());
-	view.process_from_layer_stack();
-}
