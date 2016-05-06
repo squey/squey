@@ -77,10 +77,6 @@ void Inendi::PVView::process_parent_plotted()
 
 	set_row_count(get_row_count());
 
-	// First process
-	// select_all_nonzb_lines(); Fixes bug #279
-	nu_selection.select_none();
-
 	process_from_layer_stack();
 
 	_is_consistent = true;
@@ -471,7 +467,6 @@ void Inendi::PVView::set_row_count(PVRow row_count)
 	post_filter_layer.set_count(row_count);
 	layer_stack_output_layer.set_count(row_count);
 	output_layer.set_count(row_count);
-	nu_selection.set_count(row_count);
 	real_output_selection.set_count(row_count);
 	volatile_selection.set_count(row_count);
 }
@@ -526,9 +521,6 @@ void Inendi::PVView::process_eventline()
 {
 	/* We compute the real_output_selection */
 	real_output_selection = post_filter_layer.get_selection();
-
-	/* We refresh the nu_selection */
-	nu_selection = ~layer_stack_output_layer.get_selection() | real_output_selection;
 
 	PVLinesProperties& out_lps = output_layer.get_lines_properties();
 	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();
@@ -895,21 +887,9 @@ void Inendi::PVView::add_column(PVAxis const& axis)
 	_axes_combination.axis_append(axis);
 }
 
-Inendi::PVSelection const* Inendi::PVView::get_selection_visible_listing() const
+Inendi::PVSelection const& Inendi::PVView::get_selection_visible_listing() const
 {
-	if (_state_machine.are_listing_no_nu_nz()) {
-		return &real_output_selection;
-	}
-
-	if (_state_machine.are_listing_no_nu()) {
-		return &nu_selection;
-	}
-
-	if (_state_machine.are_listing_no_nz()) {
-		return &layer_stack_output_layer.get_selection();
-	}
-
-	throw std::runtime_error("Invalid machine state");
+	return output_layer.get_selection();
 }
 
 void Inendi::PVView::toggle_listing_unselected_visibility()

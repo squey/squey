@@ -617,7 +617,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;
 
-	pvcop::db::algo::distinct(col_in, col1_out, col2_out, *_view.get_selection_visible_listing());
+	pvcop::db::algo::distinct(col_in, col1_out, col2_out, _view.get_selection_visible_listing());
 
 	emit refresh_impl_finished(
 	    QString("%L1").arg(col1_out.size())); // We must go back on the Qt thread to update the GUI
@@ -628,7 +628,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 	if (!_dialog) {
 		Inendi::PVView_sp view = (const_cast<Inendi::PVView&>(_view)).shared_from_this();
 		PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_real_axis_col(),
-		                            *_view.get_selection_visible_listing(), this, &_dialog);
+		                            _view.get_selection_visible_listing(), this, &_dialog);
 		connect(_dialog, SIGNAL(finished(int)), this, SLOT(unique_values_dlg_closed()));
 	} else {
 		_dialog->close();
@@ -651,7 +651,7 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 	const pvcop::db::array column =
 	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
-	double sum = pvcop::db::algo::sum(column, *_view.get_selection_visible_listing());
+	double sum = pvcop::db::algo::sum(column, _view.get_selection_visible_listing());
 
 	double intpart;
 	bool integer = std::modf(sum, &intpart) == 0.0;
@@ -671,7 +671,7 @@ void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
 	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
 	const pvcop::db::array& min_array =
-	    pvcop::db::algo::min(column, *_view.get_selection_visible_listing());
+	    pvcop::db::algo::min(column, _view.get_selection_visible_listing());
 
 	std::string min = min_array.size() == 1 ? min_array.at(0) : "";
 
@@ -690,7 +690,7 @@ void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
 	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
 	const pvcop::db::array& max_array =
-	    pvcop::db::algo::max(column, *_view.get_selection_visible_listing());
+	    pvcop::db::algo::max(column, _view.get_selection_visible_listing());
 
 	std::string max = max_array.size() == 1 ? max_array.at(0) : "";
 
@@ -708,7 +708,7 @@ void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 	const pvcop::db::array column =
 	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
 
-	double avg = pvcop::db::algo::average(column, *_view.get_selection_visible_listing());
+	double avg = pvcop::db::algo::average(column, _view.get_selection_visible_listing());
 
 	double intpart;
 	bool integer = std::modf(avg, &intpart) == 0.0;

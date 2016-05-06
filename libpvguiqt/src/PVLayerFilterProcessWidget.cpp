@@ -214,15 +214,6 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	// Save in current layer
 	start = std::chrono::steady_clock::now();
 	Inendi::PVLayer& current_selected_layer = _view->get_current_layer();
-	/* We fill it's lines_properties */
-	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer,
-	// _view->real_output_selection, _view->row_count);
-
-	// we change current layer's lines properties with post filter layer's lines
-	// properties
-	// _view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
-	// _view->real_output_selection, _view->row_count);
-	//
 	_view->get_post_filter_layer()
 	    .get_lines_properties()
 	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),

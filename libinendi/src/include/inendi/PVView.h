@@ -148,7 +148,7 @@ class PVView : public data_tree_view_t
 
 	bool get_line_state_in_layer_stack_output_layer(PVRow index) const;
 	bool get_line_state_in_output_layer(PVRow index) const;
-	PVSelection const* get_selection_visible_listing() const;
+	PVSelection const& get_selection_visible_listing() const;
 
 	int get_number_of_selected_lines() const;
 
@@ -396,7 +396,6 @@ class PVView : public data_tree_view_t
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer;             //!< This is the shown layer.
 	PVLayerStack layer_stack;
-	PVSelection nu_selection;          //!< This is zombi and selected elements
 	PVSelection real_output_selection; //!< This is selected elements
 	PVSquareArea square_area;
 	PVStateMachine _state_machine;
