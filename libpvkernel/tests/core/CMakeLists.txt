@@ -45,9 +45,6 @@ add_test(Tcore_visit_bytes_perf Tcore_visit_bytes_perf 300)
 add_pv_compile_test(Tcore_bit_field_visit LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_field_visit.cpp)
 add_test(Tcore_bit_field_visit Tcore_bit_field_visit)
 
-add_pv_compile_test(Tcore_bit_field_visit_packed LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_field_visit_packed.cpp)
-add_test(Tcore_bit_field_visit_packed Tcore_bit_field_visit_packed)
-
 add_pv_compile_test(Tcore_argument_serialize LINKS pvkernel FILES argument_serialize.cpp)
 add_test(Tcore_argument_serialize Tcore_argument_serialize)
 

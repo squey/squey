@@ -13,7 +13,6 @@
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVBitVisitor.h>
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVAlignedBlockedRange.h>
 
 #include <pvcop/core/memarray.h>
 
@@ -26,8 +25,6 @@ template <typename T>
 class array;
 }
 }
-
-#include <tbb/parallel_for.h>
 
 #include <vector>
 
@@ -537,128 +534,6 @@ class PVSelBitField
 			last_chunk &= ((1ULL << (last_bit + 1)) - 1);
 		}
 		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
-	}
-
-	template <class F>
-	void
-	visit_selected_lines_tbb(F const& f, PVRow b = PVROW_INVALID_VALUE, const PVRow a = 0) const
-	{
-		if (b == PVROW_INVALID_VALUE) {
-			b = count();
-		}
-
-		if (!_table || (b <= 0)) {
-			return;
-		}
-		assert(b > a);
-		assert(b <= count());
-		b--;
-		PVRow last_bit = line_index_to_chunk_bit(b);
-		const ssize_t org_chunk_end = line_index_to_chunk(b);
-		ssize_t chunk_start = line_index_to_chunk(a);
-		ssize_t chunk_end = get_last_nonzero_chunk_index(chunk_start, org_chunk_end);
-		if (chunk_end < chunk_start) {
-			// No lines are selected !
-			return;
-		}
-		if (chunk_end != org_chunk_end) {
-			last_bit = CHUNK_SIZE - 1;
-		}
-
-		// If there are less than or exactly 3 chunks, use the serial version
-		if ((chunk_end - chunk_start + 1) <= 3) {
-			PVRow new_b = b + 1;
-			if (line_index_to_chunk(b) > chunk_end) {
-				new_b = chunk_to_line_index(chunk_end + 1);
-			}
-			visit_selected_lines_serial(f, new_b, a);
-			return;
-		}
-
-		const PVRow cbit = line_index_to_chunk_bit(a);
-		if (cbit > 0) {
-			// Prelogue
-			uint64_t cv = _table[chunk_start];
-			PVCore::PVBitVisitor::visit_bits((cv >> cbit) << cbit, f,
-			                                 chunk_to_line_index(chunk_start));
-			chunk_start++;
-		}
-
-		// Main loop
-		const ssize_t chunk_start_aligned = (chunk_start + 1) & (~(ssize_t)1);
-		const ssize_t chunk_end_sse = chunk_end & (~(ssize_t)1);
-		for (ssize_t c = chunk_start; c < chunk_start_aligned; c++) {
-			const uint64_t sel_buf = _table[c];
-			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(c));
-		}
-		tbb::parallel_for(
-		    PVCore::PVAlignedBlockedRange<ssize_t, 2>(chunk_start_aligned, chunk_end_sse),
-		    [&](PVCore::PVAlignedBlockedRange<ssize_t, 2> const& range) {
-			    for (ssize_t c = range.begin(); c != range.end(); c += 2) {
-				    const __m128i sse_sel = _mm_load_si128((__m128i*)&_table[c]);
-				    PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(c));
-			    }
-			});
-		for (ssize_t c = chunk_end_sse; c < chunk_end; c++) {
-			const uint64_t sel_buf = _table[c];
-			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(c));
-		}
-
-		// Epilogue
-		uint64_t last_chunk = _table[chunk_end];
-		if (last_bit < CHUNK_SIZE - 1) {
-			last_chunk &= ((1ULL << (last_bit + 1)) - 1);
-		}
-		PVCore::PVBitVisitor::visit_bits(last_chunk, f, chunk_to_line_index(chunk_end));
-	}
-
-	template <size_t N, class Fpacked, class Funpacked>
-	void visit_selected_lines_packed(Fpacked const& fpacked,
-	                                 Funpacked const& funpacked,
-	                                 PVRow b = PVROW_INVALID_VALUE,
-	                                 const PVRow a = 0) const
-	{
-		if (b == PVROW_INVALID_VALUE) {
-			b = count();
-		}
-
-		PVRow packed_rows[N];
-		int cur_packed = 0;
-		visit_selected_lines(
-		    [&](PVRow const r) {
-			    if (cur_packed == N) {
-				    fpacked(packed_rows);
-				    cur_packed = 0;
-			    }
-			    packed_rows[cur_packed] = r;
-			    cur_packed++;
-			},
-		    b, a);
-		for (int i = 0; i < cur_packed; i++) {
-			funpacked(packed_rows[i]);
-		}
-	}
-
-	template <class Fpacked, class Funpacked, class Fload>
-	void visit_selected_lines_gather_sse(Fpacked const& fpacked,
-	                                     Funpacked const& funpacked,
-	                                     Fload const& fload,
-	                                     PVRow b = PVROW_INVALID_VALUE,
-	                                     const PVRow a = 0) const
-	{
-		if (b == PVROW_INVALID_VALUE) {
-			b = count();
-		}
-
-		visit_selected_lines_packed<4>(
-		    [&](PVRow const packed_rows[4]) {
-			    const int32_t v0 = fload(packed_rows[0]);
-			    const int32_t v1 = fload(packed_rows[1]);
-			    const int32_t v2 = fload(packed_rows[2]);
-			    const int32_t v3 = fload(packed_rows[3]);
-			    fpacked(_mm_set_epi32(v3, v2, v1, v0));
-			},
-		    [&](PVRow const r) { funpacked(fload(r)); }, b, a);
 	}
 
 	/**

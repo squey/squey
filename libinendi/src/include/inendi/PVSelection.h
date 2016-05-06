@@ -12,7 +12,6 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBitVisitor.h>
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVAlignedBlockedRange.h>
 #include <pvkernel/core/PVSelBitField.h>
 
 #include <inendi/general.h>

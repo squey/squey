@@ -8,9 +8,6 @@
 #include <iostream>
 #include <pvkernel/core/PVSelBitField.h>
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/parallel_sort.h>
-
 #include <pvkernel/core/inendi_assert.h>
 
 static constexpr size_t SELECTION_COUNT = 100000000;
@@ -49,7 +46,6 @@ void do_tests(PVCore::PVSelBitField const& bits, std::vector<std::pair<PVRow, PV
 {
 	std::vector<PVRow> ref;
 	std::vector<PVRow> cur;
-	tbb::concurrent_vector<PVRow> tbb_cur;
 
 	for (std::pair<PVRow, PVRow> const& r : ranges) {
 		const PVRow a = r.first;
@@ -58,7 +54,6 @@ void do_tests(PVCore::PVSelBitField const& bits, std::vector<std::pair<PVRow, PV
 		const PVRow nrows = b - a;
 		ref.reserve(nrows);
 		cur.reserve(nrows);
-		tbb_cur.reserve(nrows);
 
 		std::cout << "Testing with range [" << a << "," << b << "[..." << std::endl;
 
@@ -69,15 +64,6 @@ void do_tests(PVCore::PVSelBitField const& bits, std::vector<std::pair<PVRow, PV
 		bits.visit_selected_lines([&cur](PVRow const r) { cur.push_back(r); }, b, a);
 		if (show_diff(cur, ref)) {
 			std::cerr << "visit_selected_lines failed" << std::endl;
-			exit(1);
-		}
-
-		tbb_cur.clear();
-		bits.visit_selected_lines_tbb([&tbb_cur](PVRow const r) { tbb_cur.push_back(r); }, b, a);
-		tbb::parallel_sort(ref.begin(), ref.end());
-		tbb::parallel_sort(tbb_cur.begin(), tbb_cur.end());
-		if (show_diff(tbb_cur, ref)) {
-			std::cerr << "visit_selected_lines_tbb failed" << std::endl;
 			exit(1);
 		}
 	}
