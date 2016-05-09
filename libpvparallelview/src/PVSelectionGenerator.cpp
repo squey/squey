@@ -21,8 +21,6 @@
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
 
-#include <tbb/enumerable_thread_specific.h>
-
 #include <omp.h>
 
 struct PVLineEqInt {
@@ -50,10 +48,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	PVLineEqInt line;
 	line.b = -width;
 
-	// tbb::tag_tls_construct_args tag_c;
-	// tbb::enumerable_thread_specific<Inendi::PVSelection> sel_tls(tag_c,
-	// Inendi::PVSelection::tag_allocate_empty());
-	// tbb::enumerable_thread_specific<Inendi::PVSelection> sel_tls;
 	for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
 		uint32_t branch_count = ztree.get_branch_count(branch);
 
@@ -282,6 +276,81 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	return nb_selected;
 }
 
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_range(
+    const uint32_t* plotted,
+    PVRow nrows,
+    uint64_t y_min,
+    uint64_t y_max,
+    Inendi::PVSelection& sel,
+    Inendi::PVSelection const& layers_sel)
+{
+	return __impl::compute_selection_from_plotted_range_sse(plotted, nrows, y_min, y_max, sel,
+	                                                        layers_sel);
+}
+
+/*****************************************************************************
+ * PVParallelView::__impl::compute_selection_from_plotted_range_sse
+ *****************************************************************************/
+uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
+    const uint32_t* plotted,
+    PVRow nrows,
+    uint64_t y_min,
+    uint64_t y_max,
+    Inendi::PVSelection& sel,
+    const Inendi::PVSelection& layers_sel)
+{
+	if (y_min == y_max) {
+		return 0;
+	}
+
+	sel.ensure_allocated();
+
+	const __m128i y_min_sse = _mm_set1_epi32(y_min);
+	const __m128i y_max_sse = _mm_set1_epi32(y_max);
+
+	const uint32_t nrows_sse = nrows & ~63U;
+
+	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
+
+	BENCH_START(compute_selection_from_plotted_range_sse);
+
+#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())    \
+    schedule(guided, 16)
+	for (PVRow i = 0; i < nrows_sse; i += 64) {
+		register uint64_t chunk = 0;
+		for (int j = 0; j < 64; j += 4) {
+			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
+
+			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
+
+			if (!(_mm_test_all_zeros(mask_y, sse_ff))) {
+				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y));
+				chunk |= sel_bits << j;
+			}
+		}
+		const PVRow chunk_idx = Inendi::PVSelection::line_index_to_chunk(i);
+		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
+	}
+	for (PVRow i = nrows_sse; i < nrows; i++) {
+		const uint32_t y = plotted[i];
+
+		if ((y >= y_min) && (y <= y_max)) {
+			if (layers_sel.get_line_fast(i)) {
+				sel.set_bit_fast(i);
+				continue;
+			}
+		}
+
+		sel.clear_bit_fast(i);
+	}
+
+	BENCH_END(compute_selection_from_plotted_range_sse, "compute_selection_from_plotted_range_sse",
+	          nrows, sizeof(uint32_t), Inendi::PVSelection::line_index_to_chunk(nrows),
+	          sizeof(uint64_t));
+
+	return 0;
+}
+
 /*****************************************************************************
  * PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect
  *****************************************************************************/
@@ -294,200 +363,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
 {
 	return __impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(
 	    manager, rect, max_count, sel, use_selectable);
-}
-
-/*****************************************************************************
- * PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_view_rect_serial
- *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial(
-    const PVHitGraphBlocksManager& manager,
-    const QRectF& rect,
-    const uint32_t max_count,
-    Inendi::PVSelection& sel)
-{
-	sel.ensure_allocated();
-
-	// The interval described here is of the type [a,b] (that is the maximum is
-	// taken into account)
-	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
-
-	// The interval described here is of the type [a,b[ (that is the maximum isn't
-	// taken into account)
-	// "null" counted event can't be selected, so let's clamp c_min between
-	// [1,max_count]
-	const uint32_t c_min = PVCore::clamp(ceil(rect.left()), 1.0, (double)(max_count + 1));
-	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count + 1));
-
-	uint32_t nb_selected = 0;
-
-	const uint32_t* plotted = manager.get_plotted();
-
-	const uint32_t nrows = manager.get_nrows();
-
-	BENCH_START(b);
-	for (PVRow i = 0; i < nrows; ++i) {
-		const uint32_t v = plotted[i];
-		if ((v >= v_min) && (v <= v_max)) {
-			const uint32_t c = manager.get_count_for(v);
-			if ((c >= c_min) && (c <= c_max)) {
-				sel.set_bit_fast(i);
-				++nb_selected;
-				continue;
-			}
-		}
-		sel.clear_bit_fast(i);
-	}
-	BENCH_END(b, "serial", nrows, sizeof(uint32_t), 1, 1);
-
-	return nb_selected;
-}
-
-/*****************************************************************************
- * PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial_invariant
- *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_serial_invariant(
-    const PVHitGraphBlocksManager& manager,
-    const QRectF& rect,
-    const uint32_t max_count,
-    Inendi::PVSelection& sel)
-{
-	sel.ensure_allocated();
-
-	// The interval described here is of the type [a,b] (that is the maximum is
-	// taken into account)
-	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
-
-	// The interval described here is of the type [a,b[ (that is the maximum isn't
-	// taken into account)
-	// "null" counted event can't be selected, so let's clamp c_min between
-	// [1,max_count]
-	const uint32_t c_min = PVCore::clamp(ceil(rect.left()), 1.0, (double)(max_count + 1));
-	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count + 1));
-
-	uint32_t nb_selected = 0;
-
-	const uint32_t* plotted = manager.get_plotted();
-
-	const uint32_t nrows = manager.get_nrows();
-
-	const PVParallelView::PVHitGraphData& data = manager.hgdata();
-	const int zoom = manager.last_zoom();
-	const int nbits = data.nbits();
-	const int idx_shift = (32 - nbits) - zoom;
-	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t zoom_mask = ((1ULL << zoom_shift) - 1ULL);
-	const int32_t base_y = (uint64_t)(manager.last_y_min()) >> zoom_shift;
-	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
-	const int nblocks = data.nblocks();
-	const double alpha = manager.last_alpha();
-
-	BENCH_START(b);
-	for (PVRow i = 0; i < nrows; ++i) {
-		uint64_t v = plotted[i];
-		if ((v >= v_min) && (v <= v_max)) {
-			const int32_t base = v >> zoom_shift;
-
-			int p = base - base_y;
-			if ((p >= 0) && (p < nblocks)) {
-				v = (v - y_min_ref) * alpha;
-				const uint32_t idx = ((uint32_t)(v & zoom_mask)) >> idx_shift;
-				const uint32_t c = data.buffer_all().buffer()[idx];
-
-				if ((c >= c_min) && (c <= c_max)) {
-					sel.set_bit_fast(i);
-					++nb_selected;
-					continue;
-				}
-			}
-		}
-		sel.clear_bit_fast(i);
-	}
-	BENCH_END(b, "serial-invariant", nrows, sizeof(uint32_t), 1, 1);
-
-	return nb_selected;
-}
-
-/*****************************************************************************
- * PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse
- *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse(
-    const PVHitGraphBlocksManager& manager,
-    const QRectF& rect,
-    const uint32_t max_count,
-    Inendi::PVSelection& sel)
-{
-	sel.ensure_allocated();
-
-	// The interval described here is of the type [a,b] (that is the maximum is
-	// taken into account)
-	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t v_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
-
-	// The interval described here is of the type [a,b[ (that is the maximum isn't
-	// taken into account)
-	// "null" counted event can't be selected, so let's clamp c_min between
-	// [1,max_count]
-	const uint32_t c_min = PVCore::clamp(ceil(rect.left()), 1.0, (double)(max_count + 1));
-	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count + 1));
-
-	const __m128i v_min_sse = _mm_set1_epi32(v_min);
-	const __m128i v_max_sse = _mm_set1_epi32(v_max);
-
-	const __m128i c_min_sse = _mm_set1_epi32(c_min);
-	const __m128i c_max_sse = _mm_set1_epi32(c_max);
-
-	uint32_t nb_selected = 0;
-
-	const uint32_t* plotted = manager.get_plotted();
-	const uint32_t nrows = manager.get_nrows();
-	const uint32_t nrows_sse = nrows & ~63U;
-	BENCH_START(b);
-	PVRow i;
-	for (i = 0; i < nrows_sse; i += 64) {
-		// Compute one chunk of the selection
-		uint64_t chunk = 0;
-		for (int j = 0; j < 64; j += 4) {
-			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
-			// _mm_andnot_si128(a,b) = ~a & b
-			// _mm_cmplt_epi32(a,b) = a < b;
-			// thus andnot(cmplt(a,b),cmplt(a,c)) <=> (!(a < b)) && (a < c) <=> (a
-			// >=b) && (a < c)
-			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
-
-			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
-
-				const __m128i count_sse = manager.get_count_for(y_sse);
-
-				const __m128i mask_count =
-				    inendi_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
-
-				const __m128i mask = _mm_and_si128(mask_y, mask_count);
-
-				// Get selection bits and write them
-				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask));
-				chunk |= sel_bits << j;
-			}
-		}
-		sel.set_chunk_fast(Inendi::PVSelection::line_index_to_chunk(i), chunk);
-	}
-	for (; i < nrows; i++) {
-		const uint32_t v = plotted[i];
-		if ((v >= v_min) && (v < v_max)) {
-			const uint32_t c = manager.get_count_for(v);
-			if ((c >= c_min) && (c <= c_max)) {
-				sel.set_bit_fast(i);
-				++nb_selected;
-				continue;
-			}
-		}
-		sel.clear_bit_fast(i);
-	}
-
-	BENCH_END(b, "sse", nrows, sizeof(uint32_t), 1, 1);
-
-	return nb_selected;
 }
 
 /*****************************************************************************
@@ -618,118 +493,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 	return nb_selected;
 }
 
-uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_range(
-    const uint32_t* plotted,
-    PVRow nrows,
-    uint64_t y_min,
-    uint64_t y_max,
-    Inendi::PVSelection& sel,
-    Inendi::PVSelection const& layers_sel)
-{
-	return __impl::compute_selection_from_plotted_range_sse(plotted, nrows, y_min, y_max, sel,
-	                                                        layers_sel);
-}
-
-/*****************************************************************************
- * PVParallelView::__impl::compute_selection_from_plotted_range_seq
- *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_seq(
-    const uint32_t* plotted,
-    PVRow nrows,
-    uint64_t y_min,
-    uint64_t y_max,
-    Inendi::PVSelection& sel,
-    const Inendi::PVSelection& layers_sel)
-{
-	if (y_min == y_max) {
-		return 0;
-	}
-
-	sel.ensure_allocated();
-
-	BENCH_START(compute_selection_from_plotted_range_seq);
-	for (PVRow i = 0; i < nrows; ++i) {
-
-		const uint32_t y = plotted[i];
-
-		if ((y >= y_min) && (y <= y_max)) {
-			if (layers_sel.get_line_fast(i)) {
-				sel.set_bit_fast(i);
-			}
-			continue;
-		}
-
-		sel.clear_bit_fast(i);
-	}
-	BENCH_END(compute_selection_from_plotted_range_seq, "compute_selection_from_plotted_range_seq",
-	          nrows, sizeof(uint32_t), 1, 1);
-
-	return 0;
-}
-
-/*****************************************************************************
- * PVParallelView::__impl::compute_selection_from_plotted_range_sse
- *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
-    const uint32_t* plotted,
-    PVRow nrows,
-    uint64_t y_min,
-    uint64_t y_max,
-    Inendi::PVSelection& sel,
-    const Inendi::PVSelection& layers_sel)
-{
-	if (y_min == y_max) {
-		return 0;
-	}
-
-	sel.ensure_allocated();
-
-	const __m128i y_min_sse = _mm_set1_epi32(y_min);
-	const __m128i y_max_sse = _mm_set1_epi32(y_max);
-
-	const uint32_t nrows_sse = nrows & ~63U;
-
-	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
-
-	BENCH_START(compute_selection_from_plotted_range_sse);
-
-#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())    \
-    schedule(guided, 16)
-	for (PVRow i = 0; i < nrows_sse; i += 64) {
-		register uint64_t chunk = 0;
-		for (int j = 0; j < 64; j += 4) {
-			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
-
-			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
-
-			if (!(_mm_test_all_zeros(mask_y, sse_ff))) {
-				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y));
-				chunk |= sel_bits << j;
-			}
-		}
-		const PVRow chunk_idx = Inendi::PVSelection::line_index_to_chunk(i);
-		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
-	}
-	for (PVRow i = nrows_sse; i < nrows; i++) {
-		const uint32_t y = plotted[i];
-
-		if ((y >= y_min) && (y <= y_max)) {
-			if (layers_sel.get_line_fast(i)) {
-				sel.set_bit_fast(i);
-				continue;
-			}
-		}
-
-		sel.clear_bit_fast(i);
-	}
-
-	BENCH_END(compute_selection_from_plotted_range_sse, "compute_selection_from_plotted_range_sse",
-	          nrows, sizeof(uint32_t), Inendi::PVSelection::line_index_to_chunk(nrows),
-	          sizeof(uint64_t));
-
-	return 0;
-}
-
 /*****************************************************************************
  * PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_ranges
  *****************************************************************************/
@@ -743,50 +506,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_r
 {
 	return __impl::compute_selection_from_plotteds_ranges_sse(y1_plotted, y2_plotted, nrows, rect,
 	                                                          sel, layers_sel);
-}
-
-/*****************************************************************************
- * PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_ranges_seq
- *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_plotted_ranges_seq(
-    const uint32_t* y1_plotted,
-    const uint32_t* y2_plotted,
-    const PVRow nrows,
-    const QRectF& rect,
-    Inendi::PVSelection& sel,
-    Inendi::PVSelection const& layers_sel)
-{
-	if (rect.isNull()) {
-		return 0;
-	}
-
-	sel.ensure_allocated();
-
-	const uint32_t y1_min = PVCore::clamp(floor(rect.left()), 0.0, (double)UINT32_MAX);
-	const uint32_t y1_max = PVCore::clamp(ceil(rect.right()), 0.0, (double)UINT32_MAX);
-
-	const uint32_t y2_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
-	const uint32_t y2_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
-
-	BENCH_START(scatter_view_plotted_selection_serial);
-	for (PVRow i = 0; i < nrows; ++i) {
-
-		const uint32_t y1 = y1_plotted[i];
-		const uint32_t y2 = y2_plotted[i];
-
-		if ((y1 >= y1_min) && (y1 <= y1_max) && (y2 >= y2_min) && (y2 <= y2_max)) {
-			if (layers_sel.get_line_fast(i)) {
-				sel.set_bit_fast(i);
-			}
-			continue;
-		}
-
-		sel.clear_bit_fast(i);
-	}
-	BENCH_END(scatter_view_plotted_selection_serial, "scatter_view_plotted_selection_serial",
-	          2 * nrows, sizeof(uint32_t), 1, 1);
-
-	return 0;
 }
 
 /*****************************************************************************
