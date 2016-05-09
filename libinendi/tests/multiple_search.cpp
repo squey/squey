@@ -56,7 +56,7 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
 	    {{{0, 0, 1, 1}, ".*w\\D{2}.*"}, 700}, // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
 	    {{{0, 1, 0, 1}, "\\d{2}\\:\\d{2}\\:00"}, 200}, // REGULAR_EXPRESSION
 	    {{{0, 0, 0, 1}, "j\\D{2}"}, 950},              // REGULAR_EXPRESSION + CASE_INSENSITIVE
-	    {{{1, 0, 0, 0}, "jan"}, 4710},                 // CASE_INSENSITIVE
+	    {{{1, 0, 0, 0}, "jan"}, 2355},                 // CASE_INSENSITIVE + EXCLUDE
 	    {{{0, 1, 0, 0}, "Oct\nDec"}, 750},             // NONE
 
 	    // test blank rows
@@ -68,11 +68,16 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
 	for (const testcase_t& test : tests) {
 		set_args(args, test.first);
 		plugin->set_args(args);
-		plugin->operator()(in);
-
-		pvcop::db::selection sel = out.get_selection();
-		pvcop::db::selection pvsel(sel, 0, row_count);
-		PV_VALID(pvcop::core::algo::bit_count(pvsel), test.second * DUPL);
+		if (test.first.first[0]) { // exclude
+			Inendi::PVLayer in_l = in;
+			Inendi::PVSelection& s = in_l.get_selection();
+			s.select_odd();
+			plugin->operator()(in_l);
+		} else {
+			plugin->operator()(in);
+		}
+		PV_VALID(out.get_selection().get_number_of_selected_lines_in_range(0, row_count),
+		         test.second * DUPL);
 	}
 }
 
