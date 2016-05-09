@@ -149,16 +149,6 @@ void Inendi::PVView::duplicate_selected_layer(const QString& name)
 }
 
 /******************************************************************************
- *
- * Inendi::PVView::apply_filter_named_select_all
- *
- *****************************************************************************/
-void Inendi::PVView::apply_filter_named_select_all()
-{
-	post_filter_layer.get_selection().select_all();
-}
-
-/******************************************************************************
  * Inendi::PVView::commit_selection_to_layer
  *****************************************************************************/
 

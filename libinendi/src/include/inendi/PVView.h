@@ -284,8 +284,6 @@ class PVView : public data_tree_view_t
 	******************************************************************************
 	*****************************************************************************/
 
-	void apply_filter_named_select_all();
-
 	/**
 	 * Gets the data using #PVAxesCombination
 	 *
