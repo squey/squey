@@ -5,8 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/general.h>
-
 #include <inendi/PVLinesProperties.h>
 
 /******************************************************************************

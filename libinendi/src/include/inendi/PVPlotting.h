@@ -17,7 +17,6 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
-#include <inendi/general.h>
 #include <inendi/PVPlottingProperties.h>
 #include <inendi/PVPtrObjects.h>
 #include <inendi/PVPlottingFilter.h>

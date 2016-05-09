@@ -10,8 +10,6 @@
 
 #include <QString>
 
-#include <inendi/general.h>
-
 namespace Inendi
 {
 

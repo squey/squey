@@ -14,8 +14,6 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSelBitField.h>
 
-#include <inendi/general.h>
-
 #include <tbb/parallel_for.h>
 
 #include <QTextStream>

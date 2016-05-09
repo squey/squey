@@ -10,8 +10,6 @@
 
 #include <QVector>
 
-#include <inendi/general.h>
-
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <inendi/PVSelection.h>

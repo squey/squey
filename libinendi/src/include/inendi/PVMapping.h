@@ -17,7 +17,6 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNraw.h>
 
-#include <inendi/general.h>
 #include <inendi/PVMappingProperties.h>
 #include <inendi/PVPtrObjects.h>
 #include <inendi/PVMappingFilter.h>

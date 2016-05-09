@@ -16,7 +16,6 @@
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
-#include <inendi/general.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>

@@ -42,7 +42,6 @@
 
 #include <pvkernel/widgets/PVColorDialog.h>
 
-#include <inendi/general.h>
 #include <inendi/PVSelection.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVPlotting.h>
