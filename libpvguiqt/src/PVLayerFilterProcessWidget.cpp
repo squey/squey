@@ -199,6 +199,20 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 		}
 	}
 
+	// FIXME : This is a Hack to commit colors in layer but not the selection.
+	Inendi::PVLayer& current_selected_layer = _view->get_current_layer();
+	_view->get_post_filter_layer()
+	    .get_lines_properties()
+	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
+	                                                _view->get_post_filter_layer().get_selection(),
+	                                                _view->get_row_count());
+
+	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
+	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+
+	Inendi::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_p);
+
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
 
@@ -228,9 +242,6 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 		return false;
 	}
 
-	Inendi::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_eventline)>(view_p);
-
 	_has_apply = true;
 	_args_widget->clear_args_state();
 
@@ -244,6 +255,9 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 	_preview_btn->setFocus(Qt::MouseFocusReason);
 
 	process();
+
+	Inendi::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_eventline)>(view_p);
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
