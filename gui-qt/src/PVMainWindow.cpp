@@ -1278,10 +1278,6 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
 		}
 		first_view_p->process_from_layer_stack();
-		first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(
-		    first_view_p);
-
 	} else {
 		// pvi loading case
 		if (!PVCore::PVProgressBox::progress(
