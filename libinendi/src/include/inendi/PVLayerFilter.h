@@ -32,6 +32,12 @@ namespace Inendi
 class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFilter>
 {
   public:
+	struct error : public std::exception {
+	  public:
+		using std::exception::exception;
+	};
+
+  public:
 	typedef PVFilter::PVFilterFunction<const PVLayer, PVLayerFilter>::base_registrable
 	    base_registrable;
 
@@ -62,7 +68,11 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	virtual QString menu_name() const { return registered_name(); }
 
   public:
-	// Helper function for tags
+	/**
+	 * Show the appropriate error widget if a PVLayerFilter::error exception
+	 * is thrown by the layer filter
+	 */
+	virtual void show_error(QWidget* /*parent*/) const { assert(false); }
 
   public:
 	boost::thread launch_in_thread(PVLayer& layer);

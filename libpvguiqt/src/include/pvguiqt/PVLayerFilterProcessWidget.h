@@ -13,6 +13,9 @@
 #include <inendi/PVLayerFilter.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
+#include <condition_variable>
+#include <mutex>
+
 namespace PVWidgets
 {
 class PVArgumentListWidget;
@@ -61,6 +64,12 @@ class PVLayerFilterProcessWidget : public QDialog
 	                                 Inendi::PVLayer const* layer,
 	                                 Inendi::PVLayer* out_layer);
 
+  signals:
+	void layer_filter_error(const Inendi::PVLayerFilter_p& filter);
+
+  private slots:
+	void show_layer_filter_error(const Inendi::PVLayerFilter_p& filter);
+
   protected:
 	Inendi::PVView* _view;
 	Inendi::PVLayerFilter_p _filter_p;
@@ -79,6 +88,9 @@ class PVLayerFilterProcessWidget : public QDialog
 
   private:
 	bool _has_apply;
+	std::mutex _blocking_msg; //!< Mutex to have blocking message during thread execution.
+	std::condition_variable
+	    _cv; //!< Condition variable to sync thread and message during thread execution.
 };
 }
 
