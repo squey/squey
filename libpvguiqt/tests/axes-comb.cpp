@@ -23,11 +23,8 @@
 #include <inendi/PVPlotted.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVAxesListModel.h>
 
 #include <QApplication>
-#include <QListView>
-#include <QMainWindow>
 
 #include "test-env.h"
 
@@ -131,13 +128,6 @@ int main(int argc, char** argv)
 
 	TestDlg* dlg = new TestDlg(view_p);
 	dlg->show();
-
-	PVGuiQt::PVAxesListModel* model = new PVGuiQt::PVAxesListModel(view_p);
-	QListView* view = new QListView();
-	view->setModel(model);
-	QMainWindow* mw = new QMainWindow();
-	mw->setCentralWidget(view);
-	mw->show();
 
 	PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_p);
 	axes_dlg->show();
