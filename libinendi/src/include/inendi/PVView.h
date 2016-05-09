@@ -28,7 +28,6 @@
 #include <inendi/PVLinesProperties.h>
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVLayerStack.h>
-#include <inendi/PVSquareArea.h>
 #include <inendi/PVStateMachine.h>
 
 #include <inendi/PVView_types.h>
@@ -392,7 +391,6 @@ class PVView : public data_tree_view_t
 	PVLayer output_layer;             //!< This is the shown layer.
 	PVLayerStack layer_stack;
 	PVSelection real_output_selection; //!< This is selected elements
-	PVSquareArea square_area;
 	PVStateMachine _state_machine;
 	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in
 	// floating_selection once it is completed.

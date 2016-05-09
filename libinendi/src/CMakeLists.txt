@@ -29,7 +29,6 @@ PVPlottingFilter.cpp
 PVPlottingProperties.cpp
 PVRoot.cpp
 PVScene.cpp
-PVSquareArea.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
