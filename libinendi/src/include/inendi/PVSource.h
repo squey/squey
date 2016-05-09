@@ -190,7 +190,7 @@ class PVSource : public data_tree_source_t
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
-	PVRush::PVNraw& _nraw;                   //!< Pointer to Nraw data (owned by extractor)
+	PVRush::PVNraw& _nraw;                   //!< Reference to Nraw data (owned by extractor)
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;

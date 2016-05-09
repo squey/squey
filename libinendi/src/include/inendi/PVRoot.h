@@ -99,21 +99,7 @@ class PVRoot : public data_tree_root_t
 
   protected:
 	// Serialization
-	virtual void serialize_write(PVCore::PVSerializeObject& so)
-	{
-		// Read the data colletions
-		PVCore::PVSerializeObject_p list_obj =
-		    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
-		int idx = 0;
-		for (PVScene_p scene : get_children()) {
-			QString child_name = QString::number(idx);
-			PVCore::PVSerializeObject_p new_obj =
-			    list_obj->create_object(child_name, scene->get_serialize_description(), false);
-			scene->serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = scene.get();
-			new_obj->_bound_obj_type = typeid(PVScene);
-		}
-	};
+	void serialize_write(PVCore::PVSerializeObject& so) override;
 
 	/**
 	 * Read Childs from pvi
@@ -124,30 +110,8 @@ class PVRoot : public data_tree_root_t
 	 *       |-> 1
 	 *       |-> ...
 	 */
-	virtual void serialize_read(PVCore::PVSerializeObject& so,
-	                            PVCore::PVSerializeArchive::version_t /*v*/)
-	{
-		// Read the data colletions
-		PVCore::PVSerializeObject_p list_obj =
-		    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
-		int idx = 0;
-		try {
-			while (true) {
-				// FIXME It throws when there are no more data collections.
-				// It should not be an exception as it is a normal behavior.
-				PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				QString name;
-				new_obj->attribute("name", name);
-				PVScene_p scene = emplace_add_child(name);
-				scene->serialize(*new_obj, so.get_version());
-				new_obj->_bound_obj = scene.get();
-				new_obj->_bound_obj_type = typeid(PVScene);
-				idx++;
-			}
-		} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
-			return;
-		}
-	}
+	void serialize_read(PVCore::PVSerializeObject& so,
+	                    PVCore::PVSerializeArchive::version_t /*v*/) override;
 	PVSERIALIZEOBJECT_SPLIT
 
   private:
