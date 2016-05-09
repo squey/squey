@@ -502,7 +502,8 @@ void Inendi::PVView::process_eventline()
 
 	PVLinesProperties& out_lps = output_layer.get_lines_properties();
 	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();
-	/* We are now able to process the lines_properties */
+/* We are now able to process the lines_properties */
+#pragma omp parallel for schedule(dynamic, 2048)
 	for (PVRow i = 0; i < get_row_count(); i++) {
 		/* We check if the event is selected at the end of the process */
 		if (real_output_selection.get_line(i) ||
