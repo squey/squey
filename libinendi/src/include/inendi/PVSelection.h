@@ -31,7 +31,6 @@ namespace Inendi
 {
 
 class PVAxesCombination;
-class PVSparseSelection;
 
 /**
 * \class PVSelection
@@ -51,8 +50,6 @@ class PVSelection : public PVCore::PVSelBitField
 	PVSelection(PVSelection&& o) : PVCore::PVSelBitField(o) {}
 
   public:
-	PVSelection& operator|=(const PVSparseSelection& rhs);
-
 	inline PVSelection& operator|=(const PVSelection& rhs)
 	{
 		PVCore::PVSelBitField::operator|=(rhs);
