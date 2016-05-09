@@ -46,6 +46,7 @@ class PVDataTreeObjectWithParentBase
 {
   public:
 	PVDataTreeObjectWithParentBase() : _parent(nullptr) {}
+	PVDataTreeObjectWithParentBase(PVDataTreeObjectBase* parent) : _parent(parent) {}
 
   public:
 	inline PVDataTreeObjectBase* get_parent_base() { return _parent; }
@@ -138,14 +139,6 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	virtual ~PVDataTreeObjectWithChildren() { _children.clear(); }
 
   public:
-	child_t* new_child_default()
-	{
-		PVCore::PVSharedPtr<child_t> ret(new child_t());
-		real_type_t* me = static_cast<real_type_t*>(this);
-		ret->set_parent(me);
-		return ret.get();
-	}
-
 	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a
 	 * class type).
 	 *  If no level is specified, the direct children are returned.
@@ -164,16 +157,6 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	}
 
 	inline children_t const& get_children() const { return _children; }
-
-	/*! \brief Add a child to the data tree object.
-	 *  \param[in] child Child of the data tree object to add.
-	 *  This is basically a helper method doing a set_parent on the child.
-	 */
-	void add_child(pchild_t const& child_p)
-	{
-		real_type_t* me = static_cast<real_type_t*>(this);
-		child_p->set_parent(me);
-	}
 
 	/*! \brief Remove a child of the data tree object.
 	 *  \param[in] child Child of the data tree object to remove.
@@ -250,54 +233,22 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
 	}
 
   public:
-	virtual void serialize_write(PVCore::PVSerializeObject& so)
-	{
-		QStringList descriptions;
-		for (auto child : _children) {
-			descriptions << child->get_serialize_description();
-		}
-		so.list(get_children_serialize_name(), _children, get_children_description(),
-		        (child_t*)NULL, descriptions);
-	};
+	virtual void serialize_write(PVCore::PVSerializeObject& so) = 0;
 
 	virtual void serialize_read(PVCore::PVSerializeObject& so,
-	                            PVCore::PVSerializeArchive::version_t /*v*/)
-	{
-		PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
-		auto create_func = [&] {
-			PVSharedPtr<child_t> tmp(new child_t());
-			tmp->set_parent(me_p);
-			return tmp;
-		};
-		if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(),
-		                  true, true)) {
-			// No children born in here...
-			return;
-		}
-	}
+	                            PVCore::PVSerializeArchive::version_t /*v*/) = 0;
 
-	virtual void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	template <class... T>
+	pchild_t emplace_add_child(T&&... t)
 	{
-		if (so.is_writing()) {
-			serialize_write(so);
-		} else {
-			serialize_read(so, v);
-		}
+		_children.push_back(
+		    pchild_t(new child_t(static_cast<typename Tchild::parent_t*>(this), t...)));
+		return _children.back();
 	}
 
   protected:
-	void do_add_child(pchild_t c)
-	{
-		_children.push_back(c);
-		child_added(*c);
-	}
-
 	virtual QString get_children_description() const { return "Children"; }
 	virtual QString get_children_serialize_name() const { return "children"; }
-
-  protected:
-	// Events
-	virtual void child_added(child_t& /*child*/) {}
 
   private:
 	/*! \brief Implementation of the PVDataTreeObject::get_children() method.
@@ -351,7 +302,7 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 	typedef PVCore::PVSharedPtr<parent_t> pparent_t;
 
   public:
-	PVDataTreeObjectWithParent() : PVDataTreeObjectWithParentBase() {}
+	PVDataTreeObjectWithParent(Tparent* parent) : PVDataTreeObjectWithParentBase(parent) {}
 
   public:
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a
@@ -375,42 +326,10 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 		return GetParentImpl<parent_t const, Tancestor const>::get_parent(get_real_parent());
 	}
 
-	inline void set_parent(pparent_t const& parent) { set_parent_from_ptr(parent.get()); }
-	inline void set_parent(parent_t* parent) { set_parent_from_ptr(parent); }
-
 	void remove_from_tree()
 	{
 		real_type_t* me = static_cast<real_type_t*>(this);
 		get_real_parent()->remove_child(*me);
-	}
-
-  protected:
-	/*! \brief Set the parent of a data tree object.
-	 *  \param[in] parent Parent of the data tree object.
-	 *  If a parent is already set, properly reparent with taking care of the child.
-	 */
-	virtual void set_parent_from_ptr(parent_t* parent)
-	{
-		if (get_real_parent() == parent) {
-			return;
-		}
-
-		real_type_t* me = static_cast<real_type_t*>(this);
-		PVCore::PVSharedPtr<real_type_t> me_p;
-		bool child_added = false;
-		if (get_real_parent()) {
-			me_p = get_real_parent()->remove_child(*me);
-			if (parent) {
-				parent->do_add_child(me_p);
-				child_added = true;
-			}
-		}
-		parent_t* old_parent = get_real_parent();
-		_parent = parent;
-		if (old_parent == nullptr && parent && !child_added) {
-			me_p = PVCore::static_pointer_cast<real_type_t>(me->shared_from_this());
-			parent->do_add_child(me_p);
-		}
 	}
 
   private:
@@ -461,13 +380,13 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
  */
 template <typename Tparent, typename Tchild>
 class PVDataTreeObject
-    : public PVEnableSharedFromThis<typename Tparent::child_t>,
-      public __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t>,
-      public __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t>,
+    : public PVEnableSharedFromThis<typename Tchild::parent_t>,
+      public __impl::PVDataTreeObjectWithChildren<Tchild, typename Tchild::parent_t>,
+      public __impl::PVDataTreeObjectWithParent<Tparent, typename Tchild::parent_t>,
       public PVDataTreeObjectBase
 {
-	typedef __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t> impl_children_t;
-	typedef __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t> impl_parent_t;
+	typedef __impl::PVDataTreeObjectWithChildren<Tchild, typename Tchild::parent_t> impl_children_t;
+	typedef __impl::PVDataTreeObjectWithParent<Tparent, typename Tchild::parent_t> impl_parent_t;
 
 	template <typename T1, typename T2>
 	friend class PVDataTreeObject;
@@ -480,12 +399,8 @@ class PVDataTreeObject
 	typedef typename impl_parent_t::parent_t parent_t;
 	typedef typename impl_parent_t::pparent_t pparent_t;
 
-	typedef typename parent_t::root_t root_t;
-
-	typedef PVDataTreeObject<parent_t, child_t> data_tree_t;
-
   private:
-	typedef typename parent_t::child_t real_type_t;
+	using real_type_t = typename Tchild::parent_t;
 
   public:
 	typedef PVSharedPtr<real_type_t> p_type;
@@ -494,7 +409,8 @@ class PVDataTreeObject
   public:
 	/*! \brief Default constructor
 	 */
-	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t()
+	PVDataTreeObject(Tparent* p)
+	    : PVEnableSharedFromThis<real_type_t>(), impl_children_t(), impl_parent_t(p)
 	{
 	}
 
@@ -534,15 +450,12 @@ class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>
 	typedef typename impl_children_t::pchild_t pchild_t;
 	typedef typename impl_children_t::children_t children_t;
 
-	typedef PVDataTreeObject<PVDataTreeNoParent<Troot>, child_t> data_tree_t;
-
   private:
 	typedef Troot real_type_t;
 
   public:
 	typedef PVSharedPtr<real_type_t> p_type;
 	typedef PVCore::PVWeakPtr<real_type_t> wp_type;
-	typedef real_type_t root_t;
 
   public:
 	virtual base_p_type base_shared_from_this()
@@ -579,9 +492,6 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
 	template <typename T1, typename T2>
 	friend class PVDataTreeObject;
 
-  public:
-	typedef PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>> data_tree_t;
-
   private:
 	typedef Treal real_type_t;
 
@@ -589,16 +499,6 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
 	typedef PVSharedPtr<real_type_t> p_type;
 	typedef PVCore::PVWeakPtr<real_type_t> wp_type;
 	typedef Tparent parent_t;
-	typedef typename parent_t::root_t root_t;
-
-  public:
-	/*! \brief Default constructor
-	 */
-	PVDataTreeObject() : PVEnableSharedFromThis<real_type_t>(), impl_parent_t() {}
-
-	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
-	 */
-	virtual ~PVDataTreeObject() {}
 
   public:
 	virtual base_p_type base_shared_from_this()
@@ -614,10 +514,15 @@ class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal>>
 	}
 
   public:
-	virtual void serialize(PVCore::PVSerializeObject& /*so*/,
-	                       PVCore::PVSerializeArchive::version_t /*v*/)
+	/*! \brief Default constructor
+	 */
+	PVDataTreeObject(Tparent* parent) : PVEnableSharedFromThis<real_type_t>(), impl_parent_t(parent)
 	{
 	}
+
+	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
+	 */
+	virtual ~PVDataTreeObject() {}
 
   public:
 	/*! \brief Dump the data tree object and all of it's underlying children hierarchy.

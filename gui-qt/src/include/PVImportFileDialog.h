@@ -13,7 +13,6 @@
 #include <QLineEdit>
 #include <QFileDialog>
 
-#include <inendi/general.h>
 #include <inendi/plugins.h>
 
 namespace PVInspector

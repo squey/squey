@@ -124,8 +124,7 @@ void PVGuiQt::PVRootTreeView::create_new_view()
 {
 	Inendi::PVPlotted* plotted = get_selected_obj_as<Inendi::PVPlotted>();
 	if (plotted) {
-		Inendi::PVPlotted_sp plotted_sp = plotted->shared_from_this();
-		PVHive::call<FUNC(Inendi::PVPlotted::new_child_default)>(plotted_sp);
+		plotted->emplace_add_child();
 	}
 }
 

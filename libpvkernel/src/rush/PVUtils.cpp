@@ -7,8 +7,8 @@
 
 #include <QFile>
 #include <QString>
+#include <QStringList>
 
-#include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvkernel/rush/PVUtils.h>

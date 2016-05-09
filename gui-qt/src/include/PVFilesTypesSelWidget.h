@@ -19,8 +19,6 @@
 #include <QCheckBox>
 #include <QVariant>
 
-#include <inendi/general.h>
-
 namespace PVInspector
 {
 class PVMainWindow;

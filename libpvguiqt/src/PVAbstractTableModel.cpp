@@ -417,23 +417,23 @@ void PVAbstractTableModel::sorted(PVCol col, Qt::SortOrder order)
 * PVAbstractTableModel::set_filter
 *
 *****************************************************************************/
-void PVAbstractTableModel::set_filter(Inendi::PVSelection const* sel, size_t size)
+void PVAbstractTableModel::set_filter(Inendi::PVSelection const& sel)
 {
 
 	auto const& sort = _sort.to_core_array();
 
 	// Push selected lines
 	if (_sort_order != Qt::DescendingOrder) {
-		for (PVRow line = 0; line < size; line++) {
+		for (PVRow line = 0; line < sel.count(); line++) {
 			// A line is selected if sorted one is in the selection.
-			if (sel->get_line(sort[line])) {
+			if (sel.get_line(sort[line])) {
 				_filter.push_back(sort[line]);
 			}
 		}
 	} else {
-		for (PVRow line = size; line > 0; line--) {
+		for (PVRow line = sel.count(); line > 0; line--) {
 			// A line is selected if sorted one is in the selection.
-			if (sel->get_line(sort[line - 1])) {
+			if (sel.get_line(sort[line - 1])) {
 				_filter.push_back(sort[line - 1]);
 			}
 		}

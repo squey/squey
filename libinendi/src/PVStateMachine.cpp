@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/general.h>
 #include <inendi/PVStateMachine.h>
 
 /******************************************************************************
@@ -16,7 +15,6 @@
 Inendi::PVStateMachine::PVStateMachine()
 {
 	antialiased = false;
-	axes_mode = false;
 	sync_all_views = true;
 	grabbed = false;
 	edit_mode_all = true;

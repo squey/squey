@@ -118,9 +118,6 @@ class PVFullParallelScene : public QGraphicsScene
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
 
-	void store_selection_square();
-	void update_selection_square();
-
 	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;

@@ -33,10 +33,6 @@ class PVLayerStackView : public QTableView
 	PVLayerStackModel* ls_model();
 
   private:
-	void save_layer(int idx);
-	void import_layer();
-	void save_layer_stack();
-	void load_layer_stack();
 	void copy_to_clipboard();
 	void set_current_selection_from_layer(int model_idx);
 	void export_layer_selection(int model_idx);
@@ -58,11 +54,7 @@ class PVLayerStackView : public QTableView
   private:
 	// Context menu
 	QMenu* _ctxt_menu;
-	QAction* _ctxt_menu_save_act;
-	QAction* _ctxt_menu_load_act;
-	QAction* _ctxt_menu_save_ls_act;
 	QAction* _ctxt_menu_copy_to_clipboard_act;
-	QAction* _ctxt_menu_load_ls_act;
 	QAction* _ctxt_menu_set_sel_layer;
 	QAction* _ctxt_menu_export_layer_sel;
 	QAction* _ctxt_menu_reset_colors;

@@ -13,21 +13,11 @@ include_directories(AFTER ${ICU_INCLUDE})
 set(INSPECTOR_ICON "resources////inspector.ico")
 
 SET(MOC_HEADERS
-include/PVAxisComputationDlg.h
-#include/PVAxesCombinationWidget.h
-#include/PVAxesCombinationDialog.h
-include/PVExtractorWidget.h
-include/PVColorDialog.h
-include/PVDualSlider.h
-include/PVExpandSelDlg.h
 include/PVFilesTypesSelWidget.h
 include/PVMainWindow.h
 include/PVSaveDataTreeDialog.h
 include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
-#include/PVViewsiListingWidget.h
-
-widgets/PVCheckableComboBox.h
 
 widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVFormatBuilderWidget.h
@@ -46,36 +36,18 @@ widgets/format-builder/include/PVXmlParamWidgetBoardSplitterRegEx.h
 widgets/format-builder/include/PVXmlRegValidatorHighLight.h
 widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
 widgets/format-builder/include/PVOptionsWidget.h
-
-# include/logviewer/addmachinedialog.h
-# include/logviewer/fileconnectiondialog.h
-# include/logviewer/filedownloader.h
-# include/logviewer/logviewerwidget.h
 )
 
 SET(SRC_FILES
 main.cpp
-PVAxisComputationDlg.cpp
-#PVAxesCombinationWidget.cpp
-#PVAxesCombinationDialog.cpp
-PVCustomStyle.cpp
-PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
-PVExtractorWidget.cpp
-PVExpandSelDlg.cpp
-PVColorDialog.cpp
-PVDualSlider.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
-PVMapWidget.cpp
 PVSaveDataTreeDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
-PVViewsModel.cpp
-
-widgets/PVCheckableComboBox.cpp
 
 widgets/format-builder/PVAxisTagHelp.cpp
 widgets/format-builder/PVFormatBuilderWidget.cpp
@@ -96,11 +68,6 @@ widgets/format-builder/PVXmlTreeItemDelegate.cpp
 widgets/format-builder/PVXmlTreeView.cpp
 widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
 widgets/format-builder/PVOptionsWidget.cpp
-
-# logviewer/addmachinedialog.cpp
-# logviewer/fileconnectiondialog.cpp
-# logviewer/filedownloader.cpp
-# logviewer/logviewerwidget.cpp
 )
 
 SET(QRC_FILES
@@ -108,7 +75,6 @@ inendi-inspector_resource.qrc
 )
 
 SET(UI_FILES
-PVAxisComputationDlg.ui
 widgets/format-builder/PVAxisTagHelp.ui
 )
 

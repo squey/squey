@@ -259,12 +259,6 @@ void PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed(PVHive::PVObs
 	beginResetModel();
 }
 
-void PVGuiQt::PVLayerStackModel::add_new_layer_from_file(const QString& path)
-{
-	_actor.call<FUNC(Inendi::PVView::add_new_layer_from_file)>(path);
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
-}
-
 void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 {
 	Inendi::PVLayerStack& layerstack = lib_layer_stack();
@@ -320,11 +314,5 @@ void PVGuiQt::PVLayerStackModel::delete_layer_n(const int idx)
 {
 	assert(idx < rowCount());
 	_actor.call<FUNC(Inendi::PVView::delete_layer_n)>(idx);
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
-}
-
-void PVGuiQt::PVLayerStackModel::load_from_file(const QString& file)
-{
-	_actor.call<FUNC(Inendi::PVView::load_from_file)>(file);
 	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }

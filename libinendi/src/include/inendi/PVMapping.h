@@ -17,7 +17,6 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNraw.h>
 
-#include <inendi/general.h>
 #include <inendi/PVMappingProperties.h>
 #include <inendi/PVPtrObjects.h>
 #include <inendi/PVMappingFilter.h>
@@ -45,8 +44,6 @@ class PVMapping
 	PVMapping(PVMapped* mapped);
 
   protected:
-	// For serialization
-	PVMapping();
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped

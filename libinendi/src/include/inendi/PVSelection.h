@@ -12,10 +12,7 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBitVisitor.h>
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVAlignedBlockedRange.h>
 #include <pvkernel/core/PVSelBitField.h>
-
-#include <inendi/general.h>
 
 #include <tbb/parallel_for.h>
 
@@ -32,7 +29,6 @@ namespace Inendi
 {
 
 class PVAxesCombination;
-class PVSparseSelection;
 
 /**
 * \class PVSelection
@@ -52,8 +48,6 @@ class PVSelection : public PVCore::PVSelBitField
 	PVSelection(PVSelection&& o) : PVCore::PVSelBitField(o) {}
 
   public:
-	PVSelection& operator|=(const PVSparseSelection& rhs);
-
 	inline PVSelection& operator|=(const PVSelection& rhs)
 	{
 		PVCore::PVSelBitField::operator|=(rhs);

@@ -37,11 +37,9 @@ get_src_from_file(Inendi::PVScene_sp scene, QString const& path_file, QString co
 		throw std::runtime_error("Can't read file source");
 	}
 
-	Inendi::PVSource_sp src(
-	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src->set_parent(scene);
-	src->get_extractor().get_agg().set_strict_mode(true);
-	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
+	Inendi::PVSource_sp src =
+	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	PVRush::PVControllerJob_p job = src->extract(0, 200000);
 	src->wait_extract_end(job);
 
 	return src;
@@ -50,13 +48,6 @@ get_src_from_file(Inendi::PVScene_sp scene, QString const& path_file, QString co
 Inendi::PVSource_sp
 get_src_from_file(Inendi::PVRoot_sp root, QString const& file, QString const& format)
 {
-	Inendi::PVScene_p scene(new Inendi::PVScene());
-	scene->set_parent(root);
-	return get_src_from_file(Inendi::PVScene_sp(scene), file, format);
-}
-
-void init_random_colors(Inendi::PVView& view)
-{
-	view.get_layer_stack().get_layer_n(0).get_lines_properties().set_random(view.get_row_count());
-	view.process_from_layer_stack();
+	Inendi::PVScene_sp scene = root->emplace_add_child("scene");
+	return get_src_from_file(scene, file, format);
 }

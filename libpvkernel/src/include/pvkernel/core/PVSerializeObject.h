@@ -212,28 +212,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	            bool visible = true,
 	            bool elts_optional = false);
 
-	template <typename F>
-	p_type list_read(F const& func,
-	                 QString const& name,
-	                 QString const& desc = QString(),
-	                 bool visible = true,
-	                 bool elts_optional = false);
-
-	/*! \brief Declare a list to serialize by making references to objects that has already been
-	 *serialized.
-	 *  \param[in] name Name of the list to serialize
-	 *  \param[in] obj List to serialize
-	 *  \param[in] ref_so Serialized object returned by a previous call to PVSerializeObject::list
-	 *
-	 *  This method declare a list of object to serialize by making references to objects that has
-	 *already been serialized.
-	 *  Every elements of T must have already been serialized inside ref_so.
-	 *  It emulates a 1-to-n relationship.
-	 *  T must be an STL-compliant container. T::value_type must be serializable.
-	 */
-	template <typename T>
-	void list_ref(QString const& name, T& obj, p_type ref_so);
-
 	/*! \brief Declare a QHash to serialize. V must be serializable.
 	 *  \param[in]     name Name of the QHash to serialize.
 	 *  \param[in,out] obj  QHash input/output object to serialize.
@@ -336,13 +314,15 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	void fix_attribute(QString const& name, QVariant const& v);
 	inline const void* bound_obj() const { return _bound_obj; }
 
-  private:
+  public:
 	p_type create_object(QString const& name,
 	                     QString const& desc = QString(),
 	                     bool optional = false,
 	                     bool visible = true,
 	                     bool def_option = true);
 	uint32_t get_version() const;
+
+  private:
 	void attribute_write(QString const& name, QVariant const& obj);
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
@@ -388,12 +368,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	template <typename T>
 	void call_serialize(PVSharedPtr<T>& obj, p_type new_obj, T const*)
 	{
-		if (!obj) {
-			assert(!is_writing());
-			T* new_p;
-			new_p = new T();
-			obj.reset(new_p);
-		}
 		obj->serialize(*new_obj, get_version());
 		new_obj->_bound_obj = obj.get();
 		new_obj->_bound_obj_type = typeid(T);
@@ -461,14 +435,15 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	 */
 	list_childs_t _visible_childs;
 
+	/*! \brief Whether or not this object is exposed to the user (for options)
+	 */
+	bool _visible;
+
+  public:
 	/*! \brief If relevant, represents a pointer to the object that has been serialized
 	 */
 	void* _bound_obj;
 	PVTypeInfo _bound_obj_type;
-
-	/*! \brief Whether or not this object is exposed to the user (for options)
-	 */
-	bool _visible;
 };
 
 typedef PVSerializeObject::p_type PVSerializeObject_p;
@@ -583,88 +558,6 @@ PVSerializeObject::list(QString const& name,
 		}
 	}
 	return list_obj;
-}
-
-template <typename F>
-PVSerializeObject::p_type PVSerializeObject::list_read(
-    F const& func, QString const& name, QString const& desc, bool visible, bool elts_optional)
-{
-	assert(!is_writing());
-
-	typedef decltype(func()) V;
-	typedef typename PVTypeTraits::remove_shared_ptr<V>::type const def_t;
-	PVSerializeObject_p list_obj;
-	try {
-		list_obj = create_object(name, desc, elts_optional, visible);
-	} catch (PVSerializeArchiveErrorNoObject& e) {
-		if (!elts_optional && !is_writing()) {
-			throw e;
-		}
-		return p_type();
-	}
-	int idx = 0;
-	try {
-		while (true) {
-			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			// This is really important to have the following line (creation of a new object) after
-			// the creation of the PVSerializeObject_p. Indeed, when the exception of a "not found
-			// element" is thrown,
-			// we would have potentially created a useless object (that might have been added, for
-			// instance, to the datatree).
-			// If you want to store the children to a list, add the child to the list in the func
-			// function and return its address
-			V v(func());
-			call_serialize(v, new_obj, (def_t*)NULL);
-			idx++;
-		}
-	} catch (PVSerializeArchiveErrorNoObject const&) {
-		return list_obj;
-	}
-	return list_obj;
-}
-
-template <typename T>
-void PVSerializeObject::list_ref(QString const& name, T& obj, p_type ref_so)
-{
-	if (is_writing()) {
-		typename T::iterator it;
-		QStringList ref_paths;
-		for (it = obj.begin(); it != obj.end(); it++) {
-			typename T::value_type& v = *it;
-
-			// Look for `v' in `ref_so' children
-			list_childs_t const& ref_children = ref_so->childs();
-			list_childs_t::const_iterator it_child;
-			PVSerializeObject_p found_ref;
-			for (it_child = ref_children.begin(); it_child != ref_children.end(); it_child++) {
-				PVSerializeObject_p test_so = it_child.value();
-				assert(test_so->_bound_obj);
-				if (obj_pointer(v) == test_so->_bound_obj) {
-					found_ref = *it_child;
-					break;
-				}
-			}
-			// In this version, every elements of T must have already been serialized.
-			assert(found_ref);
-			ref_paths << found_ref->get_logical_path();
-		}
-		// Save the logical path references as a list of attributes
-		list_attributes(name, ref_paths);
-	} else {
-		// Get the list of reference paths
-		QStringList ref_paths;
-		list_attributes(name, ref_paths);
-		obj.clear();
-
-		// Get the objects that must have been read from a previous serialization
-		for (int i = 0; i < ref_paths.size(); i++) {
-			PVSerializeObject_p obj_ref_so = get_archive_object_from_path(ref_paths[i]);
-			assert(obj_ref_so->_bound_obj);
-			typename T::value_type v;
-			pointer_to_obj(obj_ref_so->_bound_obj, v);
-			obj.push_back(v);
-		}
-	}
 }
 
 template <typename K, typename V>

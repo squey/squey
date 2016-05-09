@@ -21,7 +21,6 @@
 #include <QShortcut>
 
 #include <PVMainWindow.h>
-#include <PVCustomStyle.h>
 
 #include <string>
 #include <vector>

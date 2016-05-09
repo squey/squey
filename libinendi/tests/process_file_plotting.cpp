@@ -37,38 +37,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-#if 0
-	init_env();
-	QCoreApplication app(argc, argv);
-	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVRush::PVPluginsLoad::load_all_plugins();
-
-	// Input file
-	QString path_file(argv[1]);
-	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
-
-	// Load the given format file
-	QString path_format(argv[2]);
-	PVRush::PVFormat format("format", path_format);
-	if (!format.populate()) {
-		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-		return false;
-	}
-
-	// Get the source creator
-	QString file_path(argv[1]);
-	PVRush::PVSourceCreator_p sc_file;
-	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-		return 1;
-	}
-
-	// Create the PVSource object
-	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVSource_sp src(new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 40000000);
-	job->wait_end();
-	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
-#endif
 	init_env();
 	PVCore::PVIntrinsics::init_cpuid();
 	QCoreApplication app(argc, argv);
@@ -109,19 +77,16 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
-	scene->set_parent(root);
-	Inendi::PVSource_sp src(
-	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src->set_parent(scene);
-	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	mapped->set_parent(src);
+	Inendi::PVScene_p scene = root->emplace_add_child("scene");
+	Inendi::PVSource_sp src =
+	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Inendi::PVMapped_p mapped = src->emplace_add_child();
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {
 		job = src->extract();
 	} else {
-		job = src->extract_from_agg_nlines(0, 200000000);
+		job = src->extract(0, 200000000);
 	}
 
 	src->wait_extract_end(job);
@@ -131,8 +96,7 @@ int main(int argc, char** argv)
 	mapped->process_from_parent_source();
 
 	// And plot the mapped values
-	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-	plotted->set_parent(mapped);
+	Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 	plotted->process_from_parent_mapped();
 
 	if (raw_dump) {

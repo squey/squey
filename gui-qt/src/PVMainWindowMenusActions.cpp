@@ -31,8 +31,6 @@ void PVInspector::PVMainWindow::create_actions()
 
 	// The project actions
 	project_new_Action = new QAction(tr("&New data collection"), this);
-	project_save_Action = new QAction(tr("&Save data collection"), this);
-	project_saveas_Action = new QAction(tr("S&ave data collection as..."), this);
 
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
@@ -50,35 +48,8 @@ void PVInspector::PVMainWindow::create_actions()
 	export_selection_to_mineset_Action->setToolTip(tr("Export the current selection to Mineset"));
 #endif
 
-	// The extractorFile Action
-	extractor_file_Action = new QAction(tr("&Create new source from input..."), this);
-	extractor_file_Action->setToolTip(tr("Launch the INENDI Extractor to create "
-	                                     "a new source from the current input"));
-	extractor_file_Action->setEnabled(false);
-
 	quit_Action = new QAction(tr("&Quit"), this);
 	quit_Action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
-
-	/************************
-	 * For the "Edit" menu entry
-	 ************************/
-
-	undo_Action = new QAction(tr("Undo"), this);
-	undo_Action->setIcon(QIcon(":/edit-undo.png"));
-
-	redo_Action = new QAction(tr("Redo"), this);
-	redo_Action->setIcon(QIcon(":/edit-redo.png"));
-
-	undo_history_Action = new QAction(tr("Undo history"), this);
-
-	cut_Action = new QAction(tr("Cut"), this);
-	cut_Action->setIcon(QIcon(":/edit-cut.png"));
-
-	copy_Action = new QAction(tr("Copy"), this);
-	copy_Action->setIcon(QIcon(":/edit-copy.png"));
-
-	paste_Action = new QAction(tr("Paste"), this);
-	paste_Action->setIcon(QIcon(":/edit-paste.png"));
 
 	/************************
 	 * For the "Selection" menu entry
@@ -93,14 +64,10 @@ void PVInspector::PVMainWindow::create_actions()
 	selection_from_current_layer_Action = new QAction(tr("Set selection from current layer"), this);
 	selection_from_layer_Action = new QAction(tr("Set selection from layer..."), this);
 
-	// commit_selection_in_current_layer_Action = new QAction(tr("Keep &current
-	// layer"), this);
-	// commit_selection_in_current_layer_Action->setShortcut(QKeySequence(Qt::Key_K));
 	commit_selection_to_new_layer_Action = new QAction(tr("Create new layer from selection"), this);
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
 	move_selection_to_new_layer_Action = new QAction(tr("Move selection to new layer"), this);
 	move_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_M));
-	expand_selection_on_axis_Action = new QAction(tr("Expand selection on axis..."), this);
 
 	/******************************
 	 * For the "Filter" menu entry
@@ -115,46 +82,22 @@ void PVInspector::PVMainWindow::create_actions()
 	tools_cur_format_Action = new QAction(tr("&Edit current format..."), this);
 
 	/************************
-	 * For the "View" menu entry
+	 * For the "Source" menu entry
 	 ************************/
-	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
 	view_display_inv_elts_Action = new QAction(tr("&Display invalid events..."), this);
 
 	/***************************
-	 * For the "Axes" menu entry
+	 * For the "View" menu entry
 	 ***************************/
-	axes_editor_Action = new QAction(tr("Edit axes..."), this);
 	axes_combination_editor_Action = new QAction(tr("Edit axes combination..."), this);
-	axes_mode_Action = new QAction(tr("Enter axes mode"), this);
-	axes_mode_Action->setShortcut(QKeySequence(Qt::Key_X));
-	axes_display_edges_Action = new QAction(tr("Display edges"), this);
-	axes_display_edges_Action->setShortcut(QKeySequence(Qt::Key_Y));
-	axes_new_Action = new QAction(tr("Create new axis..."), this);
-
-	/***************************
-	 * For the "Layers" menu entries
-	 ***************************/
-	layer_reset_color_Action = new QAction(tr("Reset current layer's colors to white"), this);
-	layer_export_Action = new QAction(tr("Export the current layer..."), this);
-	layer_import_Action = new QAction(tr("Import a layer..."), this);
-	layer_save_ls_Action = new QAction(tr("Save the layer stack..."), this);
-	layer_load_ls_Action = new QAction(tr("Load a layer stack..."), this);
-	layer_copy_ls_details_to_clipboard_Action =
-	    new QAction(tr("Copy the layer stack's details to clipboard"), this);
 
 	/***************************
 	 * For the "Events" menu entry
 	 ***************************/
-	// events_display_unselected_GLview_Action = new QAction(tr("Toggle unselected
-	// events"), this);
-	// events_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::Key_U));
 	events_display_unselected_listing_Action =
 	    new QAction(tr("Toggle unselected events in listing"), this);
 	events_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
 
-	// events_display_zombies_GLview_Action = new QAction(tr("Toggle zombies
-	// events"), this);
-	// events_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::Key_Z));
 	events_display_zombies_listing_Action =
 	    new QAction(tr("Toggle zombies events in listing"), this);
 	events_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
@@ -167,7 +110,6 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "Help" menu entry
 	 **************************/
 	about_Action = new QAction(tr("&About"), this);
-	// whats_this_Action = new QAction(tr("&What's this?"), this);
 }
 
 /******************************************************************************
@@ -190,8 +132,6 @@ void PVInspector::PVMainWindow::create_menus()
 
 	QMenu* project_Menu = new QMenu(tr("&Data collection"));
 	project_Menu->addAction(project_new_Action);
-	/*project_Menu->addAction(project_save_Action);
-	project_Menu->addAction(project_saveas_Action);*/
 
 	file_Menu->addMenu(solution_Menu);
 	file_Menu->addSeparator();
@@ -211,16 +151,6 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
 
-	// edit_Menu = menubar->addMenu(tr("&Edit"));
-	// edit_Menu->addAction(undo_Action);
-	// edit_Menu->addAction(redo_Action);
-	// edit_Menu->addAction(undo_history_Action);
-	// edit_Menu->addSeparator();
-	// edit_Menu->addAction(cut_Action);
-	// edit_Menu->addAction(copy_Action);
-	// edit_Menu->addAction(paste_Action);
-	// edit_Menu->addSeparator();
-
 	selection_Menu = menubar->addMenu(tr("&Selection"));
 	selection_Menu->addAction(selection_all_Action);
 	selection_Menu->addAction(selection_none_Action);
@@ -231,11 +161,9 @@ void PVInspector::PVMainWindow::create_menus()
 	selection_Menu->addSeparator();
 	selection_Menu->addAction(set_color_Action);
 	selection_Menu->addSeparator();
-	// selection_Menu->addAction(commit_selection_in_current_layer_Action);
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
 	selection_Menu->addAction(move_selection_to_new_layer_Action);
 	selection_Menu->addSeparator();
-	selection_Menu->addAction(expand_selection_on_axis_Action);
 
 	filter_Menu = menubar->addMenu(tr("Fil&ters"));
 	filter_Menu->addAction(filter_reprocess_last_filter);
@@ -243,43 +171,14 @@ void PVInspector::PVMainWindow::create_menus()
 	create_filters_menu_and_actions();
 
 	source_Menu = menubar->addMenu(tr("&Source"));
-	source_Menu->addAction(extractor_file_Action);
 	source_Menu->addAction(view_display_inv_elts_Action);
 
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(axes_combination_editor_Action);
-	// view_Menu->addAction(view_new_parallel_Action);
-	// view_Menu->addAction(view_new_zoomed_parallel_Action);
-	// view_Menu->addAction(view_new_scatter_Action);
-	// view_Menu->addSeparator();
-
-	/*axes_Menu = menubar->addMenu(tr("&Axes"));
-	axes_Menu->addAction(axes_editor_Action);
-	axes_Menu->addAction(axes_combination_editor_Action);
-	axes_Menu->addSeparator();
-	axes_Menu->addAction(axes_mode_Action);
-	axes_Menu->addAction(axes_display_edges_Action);
-	axes_Menu->addAction(axes_new_Action);
-	axes_Menu->addSeparator();*/
-
-	layer_Menu = menubar->addMenu(tr("&Layers"));
-	layer_Menu->addAction(layer_export_Action);
-	layer_Menu->addAction(layer_import_Action);
-	layer_Menu->addSeparator();
-
-	layer_Menu->addAction(layer_reset_color_Action);
-	layer_Menu->addSeparator();
-	layer_Menu->addAction(layer_save_ls_Action);
-	layer_Menu->addAction(layer_load_ls_Action);
-	layer_Menu->addSeparator();
-	layer_Menu->addAction(layer_copy_ls_details_to_clipboard_Action);
 
 	events_Menu = menubar->addMenu(tr("&Events"));
 	events_Menu->addAction(events_display_unselected_listing_Action);
-	// events_Menu->addAction(events_display_unselected_GLview_Action);
-	// events_Menu->addSeparator();
 	events_Menu->addAction(events_display_zombies_listing_Action);
-	// events_Menu->addAction(events_display_zombies_GLview_Action);
 	events_Menu->addSeparator();
 	events_Menu->addAction(events_display_unselected_zombies_parallelview_Action);
 
@@ -287,10 +186,7 @@ void PVInspector::PVMainWindow::create_menus()
 	tools_Menu->addAction(tools_new_format_Action);
 	tools_Menu->addAction(tools_cur_format_Action);
 
-	// windows_Menu = menubar->addMenu(tr("&Windows"));
-
 	help_Menu = menubar->addMenu(tr("&Help"));
-	// help_Menu->addAction(whats_this_Action);
 	help_Menu->addAction(about_Action);
 }
 
@@ -311,21 +207,17 @@ void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
  *****************************************************************************/
 void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
-	extractor_file_Action->setEnabled(cond);
 	export_selection_Action->setEnabled(cond);
 #ifdef WITH_MINESET
 	export_selection_to_mineset_Action->setEnabled(cond);
 #endif
 
-	// axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
 	events_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
 	source_Menu->setEnabled(cond);
 	view_Menu->setEnabled(cond);
-	layer_Menu->setEnabled(cond);
-	// windows_Menu->setEnabled(cond);
 	solution_save_Action->setEnabled(cond);
 	solution_saveas_Action->setEnabled(cond);
 }
@@ -344,17 +236,13 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(solution_saveas_Action, SIGNAL(triggered()), this, SLOT(solution_saveas_Slot()));
 
 	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
-	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
-	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
 #ifdef WITH_MINESET
 	connect(export_selection_to_mineset_Action, SIGNAL(triggered()), this,
 	        SLOT(export_selection_to_mineset_Slot()));
 #endif
-	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
 
-	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
 	connect(view_display_inv_elts_Action, SIGNAL(triggered()), this,
 	        SLOT(view_display_inv_elts_Slot()));
 
@@ -365,52 +253,29 @@ void PVInspector::PVMainWindow::connect_actions()
 	        SLOT(selection_set_from_current_layer_Slot()));
 	connect(selection_from_layer_Action, SIGNAL(triggered()), this,
 	        SLOT(selection_set_from_layer_Slot()));
-	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this,
-	        SLOT(expand_selection_on_axis_Slot()));
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
 
-	// connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()),
-	// this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this,
 	        SLOT(commit_selection_to_new_layer_Slot()));
 	connect(move_selection_to_new_layer_Action, SIGNAL(triggered()), this,
 	        SLOT(move_selection_to_new_layer_Slot()));
 
-	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot())); //
 	connect(axes_combination_editor_Action, SIGNAL(triggered()), this,
 	        SLOT(axes_combination_editor_Slot())); //
-	connect(axes_mode_Action, SIGNAL(triggered()), this, SLOT(axes_mode_Slot()));
-	connect(axes_display_edges_Action, SIGNAL(triggered()), this, SLOT(axes_display_edges_Slot()));
-	connect(axes_new_Action, SIGNAL(triggered()), this, SLOT(axes_new_Slot()));
 
 	connect(filter_reprocess_last_filter, SIGNAL(triggered()), this,
 	        SLOT(filter_reprocess_last_Slot()));
 
 	connect(events_display_unselected_listing_Action, SIGNAL(triggered()), this,
 	        SLOT(events_display_unselected_listing_Slot()));
-	// connect(events_display_unselected_GLview_Action, SIGNAL(triggered()), this,
-	// SLOT(events_display_unselected_GLview_Slot()));
 	connect(events_display_zombies_listing_Action, SIGNAL(triggered()), this,
 	        SLOT(events_display_zombies_listing_Slot()));
-	// connect(events_display_zombies_GLview_Action, SIGNAL(triggered()), this,
-	// SLOT(events_display_zombies_GLview_Slot()));
 	connect(events_display_unselected_zombies_parallelview_Action, SIGNAL(triggered()), this,
 	        SLOT(events_display_unselected_zombies_parallelview_Slot()));
-
-	connect(layer_export_Action, SIGNAL(triggered()), this, SLOT(layer_export_Slot()));
-	connect(layer_import_Action, SIGNAL(triggered()), this, SLOT(layer_import_Slot()));
-
-	connect(layer_save_ls_Action, SIGNAL(triggered()), this, SLOT(layer_save_ls_Slot()));
-	connect(layer_load_ls_Action, SIGNAL(triggered()), this, SLOT(layer_load_ls_Slot()));
-	connect(layer_copy_ls_details_to_clipboard_Action, SIGNAL(triggered()), this,
-	        SLOT(layer_copy_ls_details_to_clipboard_Slot()));
-	connect(layer_reset_color_Action, SIGNAL(triggered()), this, SLOT(layer_reset_color_Slot()));
 
 	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
 	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
 
-	// connect(whats_this_Action, SIGNAL(triggered()), this,
-	// SLOT(whats_this_Slot()));
 	connect(about_Action, SIGNAL(triggered()), this, SLOT(about_Slot()));
 }

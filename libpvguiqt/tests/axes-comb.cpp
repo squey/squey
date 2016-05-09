@@ -23,11 +23,8 @@
 #include <inendi/PVPlotted.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVAxesListModel.h>
 
 #include <QApplication>
-#include <QListView>
-#include <QMainWindow>
 
 #include "test-env.h"
 
@@ -51,13 +48,10 @@ Inendi::PVSource_sp create_src(const QString& path_file, const QString& path_for
 		return Inendi::PVSource_sp();
 	}
 
-	Inendi::PVScene_p scene(new Inendi::PVScene());
-	scene->set_parent(root);
-	Inendi::PVSource_sp src(
-	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src->set_parent(scene);
-	src->get_extractor().get_agg().set_strict_mode(true);
-	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
+	Inendi::PVScene_p scene = root->emplace_add_child("scene");
+	Inendi::PVSource_sp src =
+	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	PVRush::PVControllerJob_p job = src->extract(0, 200000);
 	job->wait_end();
 
 	return src;
@@ -123,13 +117,10 @@ int main(int argc, char** argv)
 	PVLOG_INFO("        format: %s\n", argv[2]);
 
 	Inendi::PVSource_sp src = create_src(argv[1], argv[2]);
-	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	mapped->set_parent(src);
-	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-	plotted->set_parent(mapped);
+	Inendi::PVMapped_p mapped = src->emplace_add_child();
+	Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 
-	Inendi::PVView_p view_p(new Inendi::PVView());
-	view_p->set_parent(plotted);
+	Inendi::PVView_p view_p = plotted->emplace_add_child();
 
 	boost::thread th(boost::bind(thread, view_p.get()));
 	PVViewObs view_observer = PVViewObs(th);
@@ -137,13 +128,6 @@ int main(int argc, char** argv)
 
 	TestDlg* dlg = new TestDlg(view_p);
 	dlg->show();
-
-	PVGuiQt::PVAxesListModel* model = new PVGuiQt::PVAxesListModel(view_p);
-	QListView* view = new QListView();
-	view->setModel(model);
-	QMainWindow* mw = new QMainWindow();
-	mw->setCentralWidget(view);
-	mw->show();
 
 	PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_p);
 	axes_dlg->show();

@@ -64,7 +64,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	inline bool use_logarithmic_scale() { return model().use_log_scale(); }
 
   protected:
-	void showEvent(QShowEvent* event) override;
 	void sort_by_column(int col);
 	bool process_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
@@ -80,8 +79,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	void create_layers_for_selected_values();
 
   protected slots:
-	void view_resized();
-	void section_resized(int logicalIndex, int oldSize, int newSize);
 	void scale_changed(QAction* act);
 	void max_changed(QAction* act);
 	void section_clicked(int col);
@@ -106,8 +103,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	PVCol _col;
 	PVHive::PVObserverSignal<Inendi::PVView> _obs;
 	PVHive::PVActor<Inendi::PVView> _actor;
-	bool _store_last_section_width = true;
-	int _last_section_width = 250;
 
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;

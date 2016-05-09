@@ -28,9 +28,8 @@ Inendi::PVPlotting::PVPlotting(PVPlotted* plotted) : _plotted(plotted), _name("d
 	    _plotted->get_parent<Inendi::PVSource>()->get_extractor().get_format();
 
 	for (int i = 0; i < format.get_axes().size(); i++) {
-		Inendi::PVMapping const* mapping = _plotted->get_parent()->get_mapping();
-		assert(mapping);
-		PVPlottingProperties plotting_axis(*mapping, format, i);
+		Inendi::PVMapping const& mapping = _plotted->get_parent()->get_mapping();
+		PVPlottingProperties plotting_axis(mapping, format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -56,23 +55,13 @@ Inendi::PVPlotting::~PVPlotting()
 
 /******************************************************************************
  *
- * Inendi::PVPlotting::add_column
- *
- *****************************************************************************/
-void Inendi::PVPlotting::add_column(PVPlottingProperties const& props)
-{
-	_columns.push_back(props);
-}
-
-/******************************************************************************
- *
  * Inendi::PVPlotting::get_column_type
  *
  *****************************************************************************/
 QString const& Inendi::PVPlotting::get_column_type(PVCol col) const
 {
 	PVMappingProperties const& prop(
-	    _plotted->get_parent()->get_mapping()->get_properties_for_col(col));
+	    _plotted->get_parent()->get_mapping().get_properties_for_col(col));
 	return prop.get_type();
 }
 
@@ -160,14 +149,14 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
                                    PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", _columns);
-	so.attribute("name", _name);
-	if (!so.is_writing()) {
-		Inendi::PVMapping const* mapping = _plotted->get_parent()->get_mapping();
-		assert(mapping);
-		for (PVPlottingProperties& p : _columns) {
-			p.set_mapping(*mapping);
+	if (not so.is_writing()) {
+		// Set new plotting properties from pvi
+		for (auto& prop : _columns) {
+			prop.set_mapping(_plotted->get_parent<PVMapped>()->get_mapping());
 		}
 	}
+
+	so.attribute("name", _name);
 }
 
 /******************************************************************************

@@ -485,7 +485,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	if (sel == _action_col_unique) {
 		Inendi::PVView_sp view = lib_view().shared_from_this();
 		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col,
-		                            *lib_view().get_selection_visible_listing(), this);
+		                            lib_view().get_selection_visible_listing(), this);
 	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
 		sort(comb_col, order);
@@ -494,23 +494,23 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
 		if (sel->parent() == _menu_col_count_by) {
 			PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2,
-			                       *lib_view().get_selection_visible_listing(),
+			                       lib_view().get_selection_visible_listing(),
 			                       this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_sum_by) {
 			PVQNraw::show_sum_by(view, lib_view().get_rushnraw_parent(), col, col2,
-			                     *lib_view().get_selection_visible_listing(),
+			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_min_by) {
 			PVQNraw::show_min_by(view, lib_view().get_rushnraw_parent(), col, col2,
-			                     *lib_view().get_selection_visible_listing(),
+			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_max_by) {
 			PVQNraw::show_max_by(view, lib_view().get_rushnraw_parent(), col, col2,
-			                     *lib_view().get_selection_visible_listing(),
+			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_avg_by) {
 			PVQNraw::show_avg_by(view, lib_view().get_rushnraw_parent(), col, col2,
-			                     *lib_view().get_selection_visible_listing(),
+			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		}
 	} else {
@@ -580,7 +580,7 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 	// Color every lines in the current selection
 	for (PVRow line : listing_model()->shown_lines()) {
 		if (listing_model()->current_selection().get_line_fast(line)) {
-			lines_properties.line_set_color(line, color);
+			lines_properties.set_line_properties(line, color);
 		}
 	}
 

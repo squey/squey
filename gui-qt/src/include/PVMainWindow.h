@@ -134,7 +134,6 @@ class PVMainWindow : public QMainWindow
 	Inendi::PVScene* current_scene() { return get_root().current_scene(); }
 	Inendi::PVScene const* current_scene() const { return get_root().current_scene(); }
 
-	void commit_selection_in_current_layer(Inendi::PVView* view);
 	void move_selection_to_new_layer(Inendi::PVView* view);
 	void commit_selection_to_new_layer(Inendi::PVView* view);
 	void set_color(Inendi::PVView* view);
@@ -163,16 +162,10 @@ class PVMainWindow : public QMainWindow
 
   public slots:
 	void about_Slot();
-	void axes_editor_Slot();
-	void axes_mode_Slot();
-	void axes_display_edges_Slot();
-	void axes_new_Slot();
-	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();
 	void selection_set_from_current_layer_Slot();
 	void selection_set_from_layer_Slot();
-	void expand_selection_on_axis_Slot();
 	void export_selection_Slot();
 
 #ifdef WITH_MINESET
@@ -182,7 +175,6 @@ class PVMainWindow : public QMainWindow
 	void export_selection_to_mineset_Slot();
 #endif
 
-	void extractor_file_Slot();
 	void filter_select_all_Slot();
 	void filter_Slot();
 	void new_format_Slot();
@@ -195,27 +187,21 @@ class PVMainWindow : public QMainWindow
 	void import_type_Slot(const QString& itype);
 	void events_display_unselected_Slot();
 	void events_display_unselected_listing_Slot();
-	void events_display_unselected_GLview_Slot();
 	void events_display_zombies_listing_Slot();
-	void events_display_zombies_GLview_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Inendi::PVScene_p project_new_Slot();
-	bool project_save_Slot();
-	bool project_saveas_Slot();
 	void quit_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
 	void selection_none_Slot();
 	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
-	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
 	void get_screenshot_widget();
 	void get_screenshot_window();
 	void get_screenshot_desktop();
 	void update_reply_finished_Slot(QNetworkReply* reply);
-	void whats_this_Slot();
 	// Called by input_type plugins to edit a format.
 	// Not an elegant solution, must find better.
 	void edit_format_Slot(QString const& path, QWidget* parent);
@@ -231,13 +217,6 @@ class PVMainWindow : public QMainWindow
 
 	void create_new_window_for_workspace(QWidget* workspace);
 
-	void layer_export_Slot();
-	void layer_import_Slot();
-	void layer_save_ls_Slot();
-	void layer_load_ls_Slot();
-	void layer_copy_ls_details_to_clipboard_Slot();
-	void layer_reset_color_Slot();
-
 #ifdef WITH_MINESET
 	/**
 	 * Show error message for mineset export.
@@ -249,7 +228,6 @@ class PVMainWindow : public QMainWindow
 	void closeEvent(QCloseEvent* event);
 
   private:
-	bool save_project(const QString& file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_selection_from_layer(Inendi::PVView_sp view, Inendi::PVLayer const& layer);
 	void display_inv_elts();
 
@@ -283,39 +261,23 @@ class PVMainWindow : public QMainWindow
 	void flag_investigation_as_cached(const QString& file);
 
   private:
-	QMenu* axes_Menu;
 	QMenu* file_Menu;
-	QMenu* edit_Menu;
-	QMenu* layer_Menu;
 	QMenu* events_Menu;
 	QMenu* selection_Menu;
 	QMenu* tools_Menu;
 	QMenu* source_Menu;
 	QMenu* view_Menu;
-	QMenu* windows_Menu;
 	QMenu* help_Menu;
 
 	QAction* about_Action;
-	QAction* axes_editor_Action;
 	QAction* axes_combination_editor_Action;
-	QAction* axes_mode_Action;
-	QAction* axes_display_edges_Action;
-	QAction* axes_new_Action;
-	QAction* expand_selection_on_axis_Action;
 	QAction* events_display_unselected_listing_Action;
-	QAction* events_display_unselected_GLview_Action;
 	QAction* events_display_zombies_listing_Action;
-	QAction* events_display_zombies_GLview_Action;
 	QAction* events_display_unselected_zombies_parallelview_Action;
-	QAction* copy_Action;
-	QAction* commit_selection_in_current_layer_Action;
 	QAction* commit_selection_to_new_layer_Action;
 	QAction* move_selection_to_new_layer_Action;
-	QAction* cut_Action;
 	QAction* filter_reprocess_last_filter;
 	QAction* project_new_Action;
-	QAction* project_save_Action;
-	QAction* project_saveas_Action;
 	QAction* solution_new_Action;
 	QAction* solution_load_Action;
 	QAction* solution_save_Action;
@@ -324,12 +286,9 @@ class PVMainWindow : public QMainWindow
 #ifdef WITH_MINESET
 	QAction* export_selection_to_mineset_Action; //!< Menu to trigger mineset export
 #endif
-	QAction* extractor_file_Action;
 	QAction* new_file_Action;
 	QAction* new_scene_Action;
-	QAction* paste_Action;
 	QAction* quit_Action;
-	QAction* redo_Action;
 	QAction* select_scene_Action;
 	QAction* selection_all_Action;
 	QAction* selection_inverse_Action;
@@ -339,19 +298,8 @@ class PVMainWindow : public QMainWindow
 	QAction* set_color_Action;
 	QAction* tools_new_format_Action;
 	QAction* tools_cur_format_Action;
-	QAction* undo_Action;
-	QAction* undo_history_Action;
 	QAction* view_Action;
-	QAction* view_new_scatter_Action;
 	QAction* view_display_inv_elts_Action;
-	QAction* whats_this_Action;
-
-	QAction* layer_export_Action;
-	QAction* layer_import_Action;
-	QAction* layer_save_ls_Action;
-	QAction* layer_load_ls_Action;
-	QAction* layer_copy_ls_details_to_clipboard_Action;
-	QAction* layer_reset_color_Action;
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;
@@ -359,8 +307,6 @@ class PVMainWindow : public QMainWindow
 	QStackedWidget* pv_centralWidget;
 	QVBoxLayout* pv_mainLayout;
 	QVBoxLayout* pv_startLayout;
-	QLabel* pv_lastCurVersion;
-	QLabel* pv_lastMajVersion;
 	QFileDialog _load_solution_dlg;
 
 	QString _current_save_root_folder;
@@ -371,7 +317,6 @@ class PVMainWindow : public QMainWindow
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView* inendi_view);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView const& inendi_view);
-	void set_version_informations();
 
   private:
 	Inendi::PVRoot& get_root();

@@ -100,20 +100,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	return job;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything()
-{
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
-	    0, 0, 0, PVControllerJob::sc_idx_end, _agg, *_chk_flt, _out_nraw, _chunks));
-	job->run_read_all_job();
-
-	return job;
-}
-
-PVRush::PVAggregator::list_inputs const& PVRush::PVExtractor::get_inputs() const
-{
-	return _agg.get_inputs();
-}
-
 void PVRush::PVExtractor::reset_nraw()
 {
 	_nraw.reset(new PVNraw());

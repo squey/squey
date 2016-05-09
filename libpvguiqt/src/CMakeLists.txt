@@ -13,7 +13,6 @@ common.cpp
 PVAxesCombinationDialog.cpp
 PVAxesCombinationModel.cpp
 PVAxesCombinationWidget.cpp
-PVAxesListModel.cpp
 PVHiveDataTreeModel.cpp
 PVLayerFilterProcessWidget.cpp
 PVLayerStackDelegate.cpp
@@ -58,7 +57,6 @@ SET(LIBGUIQT_MOC_HEADERS
 include/pvguiqt/PVAxesCombinationDialog.h
 include/pvguiqt/PVAxesCombinationModel.h
 include/pvguiqt/PVAxesCombinationWidget.h
-include/pvguiqt/PVAxesListModel.h
 include/pvguiqt/PVLayerFilterProcessWidget.h
 include/pvguiqt/PVLayerStackDelegate.h
 include/pvguiqt/PVLayerStackModel.h

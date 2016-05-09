@@ -40,7 +40,6 @@ void Inendi::PVRoot::clear()
 	_current_scene = nullptr;
 	_current_source = nullptr;
 	_current_view = nullptr;
-	_original_archive.reset();
 	_path.clear();
 	_new_view_id = 0;
 	reset_colors();
@@ -160,27 +159,6 @@ QColor Inendi::PVRoot::get_new_view_color()
 	return color;
 }
 
-Inendi::PVScene* Inendi::PVRoot::get_scene_from_path(const QString& path)
-{
-	for (Inendi::PVScene_sp const& scene : get_children()) {
-		if (scene->get_path() == path) {
-			return scene.get();
-		}
-	}
-	return nullptr;
-}
-
-void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so,
-                                    PVCore::PVSerializeArchive::version_t v)
-{
-	data_tree_root_t::serialize_read(so, v);
-}
-
-void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
-{
-	data_tree_root_t::serialize_write(so);
-}
-
 void Inendi::PVRoot::save_to_file(QString const& path,
                                   PVCore::PVSerializeArchiveOptions_p options,
                                   bool save_everything)
@@ -196,17 +174,9 @@ void Inendi::PVRoot::save_to_file(QString const& path,
 	ar->finish();
 }
 
-void Inendi::PVRoot::load_from_file(QString const& path)
-{
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
-	load_from_archive(ar);
-}
-
 void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
 {
 	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
-	_original_archive = ar;
 }
 
 PVCore::PVSerializeArchiveOptions_p Inendi::PVRoot::get_default_serialize_options()
@@ -215,4 +185,45 @@ PVCore::PVSerializeArchiveOptions_p Inendi::PVRoot::get_default_serialize_option
 	    new PVCore::PVSerializeArchiveOptions(INENDI_ARCHIVES_VERSION));
 	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
 	return ar;
+}
+
+void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
+{
+	// Read the data colletions
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	int idx = 0;
+	for (PVScene_p scene : get_children()) {
+		QString child_name = QString::number(idx);
+		PVCore::PVSerializeObject_p new_obj =
+		    list_obj->create_object(child_name, scene->get_serialize_description(), false);
+		scene->serialize(*new_obj, so.get_version());
+		new_obj->_bound_obj = scene.get();
+		new_obj->_bound_obj_type = typeid(PVScene);
+	}
+};
+
+void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so,
+                                    PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	// Read the data colletions
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	int idx = 0;
+	try {
+		while (true) {
+			// FIXME It throws when there are no more data collections.
+			// It should not be an exception as it is a normal behavior.
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+			QString name;
+			new_obj->attribute("name", name);
+			PVScene_p scene = emplace_add_child(name);
+			scene->serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = scene.get();
+			new_obj->_bound_obj_type = typeid(PVScene);
+			idx++;
+		}
+	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+		return;
+	}
 }

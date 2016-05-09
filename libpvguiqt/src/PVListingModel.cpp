@@ -25,7 +25,7 @@
  *
  *****************************************************************************/
 PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent)
-    : PVAbstractTableModel(view->get_parent<Inendi::PVSource>()->get_row_count(), parent)
+    : PVAbstractTableModel(view->get_row_count(), parent)
     , _zombie_brush(QColor(0, 0, 0))
     , _vheader_font(":/Convergence-Regular")
     , _view(view)
@@ -55,6 +55,9 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	// Update display of unselected lines on option toogling
 	// FIXME : Can't we work without these specific struct?
 	PVHive::get().register_func_observer(view, _obs_vis);
+
+	// Set listing view on visible_selection_listing selection.
+	update_filter();
 }
 
 /******************************************************************************
@@ -247,23 +250,16 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Reset the current selection as context change
 	reset_selection();
 
-	Inendi::PVSelection const* sel = lib_view().get_selection_visible_listing();
+	Inendi::PVSelection const& sel = lib_view().get_selection_visible_listing();
 
 	// Inform view about future update
 	emit layoutAboutToBeChanged();
-
-	// Everything is selected
-	if (not sel) {
-		reset_filter(lib_view().get_row_count());
-		emit layoutChanged(); // FIXME : Should use RAII
-		return;
-	}
 
 	// Filter out lines according to the good selection.
 	clear_filter();
 
 	const PVRow nvisible_lines =
-	    sel->get_number_of_selected_lines_in_range(0, lib_view().get_row_count());
+	    sel.get_number_of_selected_lines_in_range(0, lib_view().get_row_count());
 
 	// Nothing is visible
 	if (nvisible_lines == 0) {
@@ -272,7 +268,7 @@ void PVGuiQt::PVListingModel::update_filter()
 	}
 
 	// Push selected lines
-	set_filter(sel, lib_view().get_row_count());
+	set_filter(sel);
 
 	// Inform view new_filter is set
 	// This is not done using Hive as _filter have to be set, PVSelection is not

@@ -233,7 +233,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 *
 	 * @note perform convertion from selection to filter removing sort filtering.
 	 */
-	void set_filter(Inendi::PVSelection const* sel, size_t size);
+	void set_filter(Inendi::PVSelection const& sel);
 
   protected:
 	/**

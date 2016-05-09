@@ -12,8 +12,6 @@
 #include <inendi/PVMapped.h>
 #include <inendi/PVSource.h>
 
-#include <iostream>
-
 /******************************************************************************
  *
  * Inendi::PVMapping::PVMapping
@@ -39,15 +37,6 @@ Inendi::PVMapping::PVMapping(PVMapped* mapped) : _name("default"), _mapped(mappe
 		add_column(mapping_axis);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
-}
-
-/**************************************get_mapping****************************************
- *
- * Inendi::PVMapping::PVMapping
- *
- *****************************************************************************/
-Inendi::PVMapping::PVMapping()
-{
 }
 
 /******************************************************************************

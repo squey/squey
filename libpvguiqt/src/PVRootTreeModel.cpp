@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVSource.h>
+#include <inendi/PVRoot.h>
 #include <inendi/PVView.h>
 
 #include <pvguiqt/PVRootTreeModel.h>

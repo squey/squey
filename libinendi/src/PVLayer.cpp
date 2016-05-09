@@ -9,11 +9,6 @@
 #include <inendi/PVLayer.h>
 #include <inendi/PVPlotted.h>
 
-// AG: FIXME: we don't have to incldue PVView here. There is a weird issue w/
-// forward
-// declaration and inendi's shared pointer
-#include <inendi/PVView.h>
-
 /******************************************************************************
  *
  * Inendi::PVLayer::PVLayer
@@ -133,20 +128,4 @@ void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so,
 	so.attribute("visible", visible);
 	so.attribute("index", index);
 	so.attribute("locked", locked);
-}
-
-void Inendi::PVLayer::load_from_file(QString const& path)
-{
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
-	ar->get_root()->object("layer", *this);
-	ar->finish();
-}
-
-void Inendi::PVLayer::save_to_file(QString const& path)
-{
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
-	ar->get_root()->object("layer", *this);
-	ar->finish();
 }

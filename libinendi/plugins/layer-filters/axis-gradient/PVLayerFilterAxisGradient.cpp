@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <inendi/PVView.h>
+#include <inendi/PVPlotted.h>
 
 #define ARG_NAME_AXIS "axis"
 #define ARG_DESC_AXIS "Axis"
@@ -68,7 +69,7 @@ void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer& o
 		    color = ((uint8_t)(((double)(plotted_value - min_plotted) / diff) *
 		                       (double)(HSV_COLOR_RED - HSV_COLOR_GREEN))) +
 		            HSV_COLOR_GREEN;
-		    out.get_lines_properties().line_set_color(r, color);
+		    out.get_lines_properties().set_line_properties(r, color);
 		},
 	    _view->get_row_count());
 }

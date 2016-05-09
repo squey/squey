@@ -68,46 +68,21 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_ctxt_menu = new QMenu(this);
-	_ctxt_menu_save_act = new QAction(tr("Export this layer..."), NULL);
-	_ctxt_menu_load_act = new QAction(tr("Import a layer..."), NULL);
-	_ctxt_menu->addAction(_ctxt_menu_save_act);
-	_ctxt_menu->addAction(_ctxt_menu_load_act);
 	_ctxt_menu->addSeparator();
 
-	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer's content"), NULL);
+	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer content"), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
-	_ctxt_menu_export_layer_sel = new QAction(tr("Export this layer's selection"), NULL);
+	_ctxt_menu_export_layer_sel = new QAction(tr("Export this layer selection"), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_export_layer_sel);
-	_ctxt_menu_reset_colors = new QAction(tr("Reset this layer's colors to white"), NULL);
+	_ctxt_menu_reset_colors = new QAction(tr("Reset this layer colors to white"), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
 
 	_ctxt_menu->addSeparator();
-	_ctxt_menu_save_ls_act = new QAction(tr("Save the layer stack..."), NULL);
-	_ctxt_menu_load_ls_act = new QAction(tr("Load a layer stack..."), NULL);
-	_ctxt_menu->addAction(_ctxt_menu_save_ls_act);
-	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
 	_ctxt_menu->addSeparator();
 
 	_ctxt_menu_copy_to_clipboard_act =
-	    new QAction(tr("Copy the layer stack's details to clipboard"), nullptr);
+	    new QAction(tr("Copy layerstack details to clipboard"), nullptr);
 	_ctxt_menu->addAction(_ctxt_menu_copy_to_clipboard_act);
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackView::import_layer
- *
- *****************************************************************************/
-void PVGuiQt::PVLayerStackView::import_layer()
-{
-	QString file = _layer_dialog.getOpenFileName(this, tr("Import a layer..."),
-	                                             _layer_dialog.directory().absolutePath(),
-	                                             INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-
-	if (!file.isEmpty()) {
-		// Create a new layer
-		ls_model()->add_new_layer_from_file(file);
-	}
 }
 
 PVGuiQt::PVLayerStackModel* PVGuiQt::PVLayerStackView::ls_model()
@@ -183,57 +158,11 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	}
 }
 
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackView::load_layer_stack
- *
- *****************************************************************************/
-void PVGuiQt::PVLayerStackView::load_layer_stack()
-{
-	QString file = _layerstack_dialog.getOpenFileName(
-	    this, tr("Import a layer stack..."), _layerstack_dialog.directory().absolutePath(),
-	    INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		ls_model()->load_from_file(file);
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackView::save_layer
- *
- *****************************************************************************/
-void PVGuiQt::PVLayerStackView::save_layer(int idx)
-{
-	QString file = _layer_dialog.getSaveFileName(this, tr("Export this layer..."),
-	                                             _layer_dialog.directory().absolutePath(),
-	                                             INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		get_layer_from_idx(idx).save_to_file(file);
-	}
-}
-
 Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
 	QVariant var =
 	    ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
 	return *reinterpret_cast<Inendi::PVLayer*>(var.value<void*>());
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackView::save_layer_stack
- *
- *****************************************************************************/
-void PVGuiQt::PVLayerStackView::save_layer_stack()
-{
-	QString file = _layerstack_dialog.getSaveFileName(
-	    this, tr("Save layer stack..."), _layerstack_dialog.directory().absolutePath(),
-	    INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		Inendi::PVLayerStack& layer_stack = ls_model()->lib_layer_stack();
-		layer_stack.save_to_file(file);
-	}
 }
 
 /******************************************************************************
@@ -266,16 +195,6 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 	}
 	if (act == _ctxt_menu_reset_colors) {
 		reset_layer_colors(idx_click.row());
-	}
-	_ctxt_menu_save_act->setEnabled(idx_click.isValid());
-	if (act == _ctxt_menu_save_act) {
-		save_layer(idx_click.row());
-	} else if (act == _ctxt_menu_load_act) {
-		import_layer();
-	} else if (act == _ctxt_menu_save_ls_act) {
-		save_layer_stack();
-	} else if (act == _ctxt_menu_load_ls_act) {
-		load_layer_stack();
 	}
 	if (act == _ctxt_menu_copy_to_clipboard_act) {
 		copy_to_clipboard();

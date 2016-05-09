@@ -7,7 +7,6 @@
 
 #include <pvkernel/core/qobject_helpers.h>
 
-#include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -16,7 +15,6 @@
 #include <pvkernel/core/PVVersion.h>
 #include <pvkernel/core/PVConfig.h>
 
-#include <inendi/PVAxisComputation.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVMapping.h>
 
@@ -41,19 +39,15 @@
 #include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <PVMainWindow.h>
-#include <PVExpandSelDlg.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
-#include <PVExtractorWidget.h>
-#include <PVAxisComputationDlg.h>
 #include <PVSaveDataTreeDialog.h>
 
 #include <QPainter>
 #include <QDockWidget>
 #include <QDesktopServices>
 #include <QDesktopWidget>
-#include <QWhatsThis>
 
 /******************************************************************************
  *
@@ -68,13 +62,6 @@ void PVInspector::PVMainWindow::about_Slot()
 	PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(this);
 	about_dialog->exec();
 	about_dialog->deleteLater();
-}
-
-void PVInspector::PVMainWindow::axes_editor_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
 }
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
@@ -92,63 +79,6 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 
 	dlg->reset_used_axes();
 	dlg->show();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::axes_mode_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::axes_mode_Slot()
-{
-	PVLOG_INFO("%s\n", __FUNCTION__);
-	Inendi::PVView* current_lib_view;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-
-	current_lib_view->get_state_machine().toggle_axes_mode();
-
-	// if we enter in AXES_MODE we must disable SQUARE_AREA_MODE
-	if (current_lib_view->get_state_machine().is_axes_mode()) {
-		/* We turn SQUARE AREA mode OFF */
-		current_lib_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
-		// current_view->update_axes();
-		axes_mode_Action->setText(QString("Leave Axes mode"));
-	} else {
-		axes_mode_Action->setText(QString("Enter Axes mode"));
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::axes_display_edges_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::axes_display_edges_Slot()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
-{
-	/* We prepare a direct access to the current lib_view */
-	Inendi::PVView* current_lib_view;
-
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	if (_projects_tab_widget->current_workspace() == nullptr) {
-		return;
-	}
-	current_lib_view = current_view();
-	commit_selection_in_current_layer(current_lib_view);
 }
 
 /******************************************************************************
@@ -197,29 +127,6 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_unselected_GLview_Slot()
-{
-	Inendi::PVView* current_lib_view;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-
-	if (_projects_tab_widget->current_workspace() == nullptr) {
-		return;
-	}
-
-	current_lib_view->get_state_machine().toggle_gl_unselected_visibility();
-	/* We refresh the view */
-	current_lib_view->process_visibility();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::events_display_zombies_listing_Sloupdate_recent_projectst()
  *
  *****************************************************************************/
@@ -234,25 +141,6 @@ void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
 
 	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVView::toggle_listing_zombie_visibility)>(view_sp);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_zombies_GLview_Slot()
-{
-	Inendi::PVView* current_lib_view;
-
-	if (!current_view()) {
-		return;
-	}
-	current_lib_view = current_view();
-
-	current_lib_view->get_state_machine().toggle_gl_zombie_visibility();
-	/* We refresh the view */
-	current_lib_view->process_visibility();
 }
 
 /******************************************************************************
@@ -272,26 +160,6 @@ void PVInspector::PVMainWindow::events_display_unselected_zombies_parallelview_S
 	/* We refresh the listing */
 	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVView::toggle_view_unselected_zombie_visibility)>(view_sp);
-}
-
-void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-	Inendi::PVView* cur_view_p = current_view();
-	PVExpandSelDlg* dlg = new PVExpandSelDlg(*cur_view_p, this);
-	Inendi::PVView& view = *cur_view_p;
-	if (dlg->exec() != QDialog::Accepted) {
-		return;
-	}
-
-	PVCore::PVAxesIndexType axes = dlg->get_axes();
-	PVCore::PVAxesIndexType::const_iterator it;
-	QString mode = dlg->get_mode();
-	for (it = axes.begin(); it != axes.end(); it++) {
-		view.expand_selection_on_axis(*it, mode);
-	}
 }
 
 /******************************************************************************
@@ -412,34 +280,13 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::extractor_file_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::extractor_file_Slot()
-{
-	if (!current_view()) {
-		// TODO: this should not happen because the menu item should be disabled...
-		// !
-		return;
-	}
-
-	// For now, shows a modal dialog!
-	PVExtractorWidget* ext = new PVExtractorWidget(*current_view()->get_parent<Inendi::PVSource>(),
-	                                               _projects_tab_widget, this);
-	ext->exec();
-	ext->deleteLater();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/
 Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
 	QString scene_name = tr("Data collection %1").arg(sequence_n++);
-	PVCore::PVSharedPtr<Inendi::PVScene> scene_p(new Inendi::PVScene(scene_name));
-	scene_p->set_parent(get_root_sp());
+	PVCore::PVSharedPtr<Inendi::PVScene> scene_p = get_root_sp()->emplace_add_child(scene_name);
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -489,7 +336,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 
 	Inendi::PVSource_sp src_p;
 	try {
-		src_p = PVHive::call<FUNC(Inendi::PVScene::add_source_from_description)>(scene_p, src_desc);
+		src_p = scene_p->emplace_add_child(src_desc);
 	} catch (PVRush::PVFormatException const& e) {
 		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
 		has_error = true;
@@ -816,71 +663,6 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::project_save_Slot
- *
- *****************************************************************************/
-bool PVInspector::PVMainWindow::project_save_Slot()
-{
-	if (is_project_untitled()) {
-		return project_saveas_Slot();
-	} else {
-		PVCore::PVSerializeArchiveOptions_p options(
-		    current_scene()->get_default_serialize_options());
-		return save_project(_cur_project_file, options);
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::project_saveas_Slot
- *
- *****************************************************************************/
-bool PVInspector::PVMainWindow::project_saveas_Slot()
-{
-	bool ret = false;
-	if (current_scene()) {
-		PVCore::PVSerializeArchiveOptions_p options(
-		    current_scene()->get_default_serialize_options());
-		PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_SCENE_ARCHIVE_EXT,
-		                                                     INENDI_SCENE_ARCHIVE_FILTER, this);
-		/*if (!_current_save_project_folder.isEmpty()) {
-		        dlg->setDirectory(_current_save_project_folder);
-		}*/
-		dlg->selectFile(current_scene()->get_path());
-		if (dlg->exec() == QDialog::Accepted) {
-			QString file = dlg->selectedFiles().at(0);
-			ret = save_project(file, options);
-		}
-		//_current_save_project_folder = dlg->directory().absolutePath();
-		dlg->deleteLater();
-	}
-	return ret;
-}
-
-bool PVInspector::PVMainWindow::save_project(QString const& file,
-                                             PVCore::PVSerializeArchiveOptions_p options)
-{
-	try {
-		Inendi::PVScene_p scene_p = current_scene()->shared_from_this();
-		PVHive::call<FUNC(Inendi::PVScene::save_to_file)>(scene_p, file, options, false);
-	} catch (PVCore::PVSerializeArchiveError& e) {
-		QMessageBox* box =
-		    new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."),
-		                    tr("Error while saving project %1:\n%2").arg(file).arg(e.what()),
-		                    QMessageBox::Ok, this);
-		box->exec();
-		return false;
-	}
-
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
-	    PVCore::PVRecentItemsManager::get(), file,
-	    PVCore::PVRecentItemsManager::Category::PROJECTS);
-
-	return true;
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::quit_Slot
  *
  *****************************************************************************/
@@ -972,7 +754,6 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
 		// There was an error retrieving the current version.
 		// Maybe inendi has no internet access !
 		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) network error\n");
-		set_version_informations();
 		return;
 	}
 
@@ -1000,15 +781,11 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
 	if (current_v == _last_known_cur_release && last_v == _last_known_maj_release) {
 		// We already informed the user once.
 		// Display version informations
-		set_version_informations();
 		return;
 	}
 
 	_last_known_cur_release = current_v;
 	_last_known_maj_release = last_v;
-
-	// Display version informations
-	set_version_informations();
 
 	// Update PVCONFIG settings
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
@@ -1039,16 +816,6 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
 		                   tr("A new version is available.\n\n") + desc, QMessageBox::Ok, this);
 		msgBox.exec();
 	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::view_new_scatter_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::view_new_scatter_Slot()
-{
-	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 }
 
 /******************************************************************************
@@ -1147,16 +914,6 @@ void PVInspector::PVMainWindow::get_screenshot_desktop()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::whats_this_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::whats_this_Slot()
-{
-	QWhatsThis::enterWhatsThisMode();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::new_format_Slot()
  *
  *****************************************************************************/
@@ -1237,30 +994,6 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
 	editorWidget->openFormat(doc);
 }
 
-void PVInspector::PVMainWindow::axes_new_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	Inendi::PVView* view = current_view();
-
-	PVAxisComputationDlg* dlg = new PVAxisComputationDlg(*view, this);
-	if (dlg->exec() != QDialog::Accepted) {
-		return;
-	}
-
-	Inendi::PVAxisComputation_p ac_plugin = dlg->get_plugin();
-
-	Inendi::PVAxis axis;
-	axis.set_type("enum");
-	axis.set_mapping("default");
-	axis.set_plotting("default");
-	axis.set_name("New axis test");
-
-	view->get_parent<Inendi::PVSource>()->add_column(ac_plugin->f(), axis);
-}
-
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
 	if (current_view()) {
@@ -1290,95 +1023,6 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 {
 	if (current_view()) {
 		display_inv_elts();
-	}
-}
-
-void PVInspector::PVMainWindow::layer_export_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	QFileDialog fd;
-	QString file =
-	    fd.getSaveFileName(this, "Export current layer...", fd.directory().absolutePath(),
-	                       INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		current_view()->get_current_layer().save_to_file(file);
-	}
-}
-
-void PVInspector::PVMainWindow::layer_import_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	QFileDialog fd;
-	QString file = fd.getOpenFileName(this, "Import a layer...", fd.directory().absolutePath(),
-	                                  INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (file.isEmpty()) {
-		return;
-	}
-
-	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
-	if (lib_view) {
-		lib_view->get_current_layer().reset_to_default_color(
-		    lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::add_new_layer_from_file)>(lib_view, file);
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
-	}
-}
-
-void PVInspector::PVMainWindow::layer_save_ls_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	QFileDialog fd;
-	QString file = fd.getSaveFileName(this, "Save layer stack...", fd.directory().absolutePath(),
-	                                  INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		current_view()->get_layer_stack().save_to_file(file);
-	}
-}
-
-void PVInspector::PVMainWindow::layer_load_ls_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	QFileDialog fd;
-	QString file =
-	    fd.getOpenFileName(this, "Import a layer stack...", fd.directory().absolutePath(),
-	                       INENDI_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
-	if (!file.isEmpty()) {
-		current_view()->get_layer_stack().load_from_file(file);
-	}
-}
-
-void PVInspector::PVMainWindow::layer_copy_ls_details_to_clipboard_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	current_view()->get_layer_stack().copy_details_to_clipboard();
-}
-
-void PVInspector::PVMainWindow::layer_reset_color_Slot()
-{
-	if (current_view() == nullptr) {
-		return;
-	}
-
-	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
-	if (lib_view) {
-		lib_view->get_current_layer().reset_to_default_color(
-		    lib_view->get_parent<Inendi::PVSource>()->get_rushnraw().get_row_count());
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(lib_view);
 	}
 }
 

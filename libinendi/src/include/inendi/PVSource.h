@@ -28,9 +28,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 
-#include <inendi/PVAxisComputation.h>
-#include <inendi/PVScene.h>
-#include <inendi/PVRoot.h>
+#include <inendi/PVMapped.h>
 #include <inendi/PVSource_types.h>
 
 namespace Inendi
@@ -51,14 +49,21 @@ class PVSource : public data_tree_source_t
   public:
 	typedef children_t list_mapped_t;
 
-  protected:
-	PVSource(const PVSource& org);
-
   public:
-	PVSource();
-	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs,
+	PVSource(Inendi::PVScene* scene,
+	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format);
+	PVSource(Inendi::PVScene* scene,
+	         PVRush::PVInputType::list_inputs_desc const& inputs,
+	         PVRush::PVSourceCreator_p sc,
+	         PVRush::PVFormat format,
+	         size_t ext_start,
+	         size_t ext_end);
+	PVSource(PVScene* scene, const PVRush::PVSourceDescription& descr)
+	    : PVSource(scene, descr.get_inputs(), descr.get_source_creator(), descr.get_format())
+	{
+	}
 	~PVSource();
 
   public:
@@ -66,8 +71,6 @@ class PVSource : public data_tree_source_t
 	PVCol get_column_count() const;
 
 	bool has_nraw_folder() const { return _nraw_folder.isNull() == false; }
-
-	PVSource_sp clone_with_no_process();
 
 	PVRush::PVNraw& get_rushnraw();
 	const PVRush::PVNraw& get_rushnraw() const;
@@ -87,13 +90,6 @@ class PVSource : public data_tree_source_t
 	PVRush::PVExtractor const& get_extractor() const { return _extractor; }
 
 	/**
-	 * This one is call by extractor widget after a source clone.
-	 *
-	 * @fixme: Should be remove so we can use the new one form new source.
-	 */
-	PVRush::PVExtractor& get_extractor() { return _extractor; }
-
-	/**
 	 * Start extraction of data for current source.
 	 *
 	 * @param line_count : Number of line to load
@@ -102,7 +98,6 @@ class PVSource : public data_tree_source_t
 	 * @return : Pointer to the started job.
 	 */
 	PVRush::PVControllerJob_p extract(size_t skip_lines_count = 0, size_t line_count = 0);
-	PVRush::PVControllerJob_p extract_from_agg_nlines(chunk_index start, chunk_index nlines);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
 
 	bool load_from_disk();
@@ -138,20 +133,7 @@ class PVSource : public data_tree_source_t
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
 
-	void add_column(PVAxisComputation_f f_axis, Inendi::PVAxis const& axis);
-
 	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
-
-	static PVSource_sp create_source_from_description(PVScene_p scene_p,
-	                                                  const PVRush::PVSourceDescription& descr)
-	{
-		PVSource_sp src_p(
-		    new PVSource(descr.get_inputs(), descr.get_source_creator(), descr.get_format()));
-
-		src_p->set_parent(scene_p);
-
-		return src_p;
-	}
 
 	PVRush::PVSourceDescription::shared_pointer create_description()
 	{
@@ -178,17 +160,13 @@ class PVSource : public data_tree_source_t
 		_section_clicked.second = pos;
 	}
 	const std::pair<size_t, size_t>& section_clicked() const { return _section_clicked; }
-
-  private:
-	void add_column(Inendi::PVAxis const& axis);
-	void set_views_consistent(bool cons);
+	void set_nraw_folder(QString const& nraw_folder) { _nraw_folder = nraw_folder; }
 
   protected:
-	virtual void set_parent_from_ptr(PVScene* parent);
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 
-	void add_view(PVView_sp view);
+	void add_view(PVView* view);
 	void set_views_id();
 
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
@@ -202,7 +180,6 @@ class PVSource : public data_tree_source_t
 	PVRush::PVRawSourceBase_p
 	create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	void files_append_noextract();
-	void init();
 	void extract_finished();
 
   private:
@@ -213,7 +190,7 @@ class PVSource : public data_tree_source_t
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
-	PVRush::PVNraw* nraw;                    //!< Pointer to Nraw data (owned by extractor)
+	PVRush::PVNraw& _nraw;                   //!< Reference to Nraw data (owned by extractor)
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;

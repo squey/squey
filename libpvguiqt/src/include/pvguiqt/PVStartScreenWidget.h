@@ -20,7 +20,6 @@ class QLabel;
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <pvkernel/widgets/PVSizeHintListWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 namespace PVGuiQt

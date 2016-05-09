@@ -6,6 +6,7 @@
  */
 
 #include <inendi/PVPlotting.h>
+#include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
 
 #include <pvkernel/widgets/PVArgumentListWidget.h>

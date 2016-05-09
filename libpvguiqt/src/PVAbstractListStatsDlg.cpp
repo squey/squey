@@ -307,13 +307,10 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView_sp& view,
 	                                                   Qt::SortOrder::AscendingOrder);
 	sort_by_column(_sort_section);
 
-	connect(_values_view, &PVTableView::resize, this, &PVAbstractListStatsDlg::view_resized);
 	_values_view->horizontalHeader()->show();
 	_values_view->verticalHeader()->show();
 	_values_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 	_values_view->setAlternatingRowColors(true);
-	connect(_values_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this,
-	        SLOT(section_resized(int, int, int)));
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
 	// Add content for right click menu on vertical headers
@@ -627,37 +624,6 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	_values_view->viewport()->update();
 
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::showEvent(QShowEvent* event)
-{
-	PVListDisplayDlg::showEvent(event);
-	resize_section();
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::view_resized()
-{
-	// We don't want the resize of the view to change the stored last section
-	// width
-	_store_last_section_width = false;
-	resize_section();
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::resize_section()
-{
-	_values_view->horizontalHeader()->resizeSection(0, _values_view->width() - _last_section_width);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::section_resized(int logicalIndex,
-                                                      int /*oldSize*/,
-                                                      int newSize)
-{
-	if (logicalIndex == 1) {
-		if (_store_last_section_width) {
-			_last_section_width = newSize;
-		}
-		_store_last_section_width = true;
-	}
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)

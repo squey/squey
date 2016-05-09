@@ -191,36 +191,23 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	// been updated yet !)
 	_apply_btn->setFocus(Qt::MouseFocusReason);
 
-	if (_has_apply) {
-		if (_args_widget->args_changed()) {
-			if (!process()) {
-				// It has been canceled, so don't close the window !
-				return;
-			}
-		}
-	} else {
+	if (not _has_apply or _args_widget->args_changed()) {
+		// Nothing already computed, do it now
 		if (!process()) {
+			// It has been canceled, so don't close the window !
 			return;
 		}
 	}
 
-	// Save in current layer
+	// FIXME : This is a Hack to commit colors in layer but not the selection.
 	Inendi::PVLayer& current_selected_layer = _view->get_current_layer();
-	/* We fill it's lines_properties */
-	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer,
-	// _view->real_output_selection, _view->row_count);
-
-	// we change current layer's lines properties with post filter layer's lines
-	// properties
-	// _view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
-	// _view->real_output_selection, _view->row_count);
-	//
 	_view->get_post_filter_layer()
 	    .get_lines_properties()
 	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
-	                                                _view->get_real_output_selection(),
+	                                                _view->get_post_filter_layer().get_selection(),
 	                                                _view->get_row_count());
-	// volatile selection has been set by `process'
+
+	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
 	Inendi::PVView_sp view_p(_view->shared_from_this());
@@ -236,13 +223,9 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 {
 	_args_widget->force_submit();
 
-	//_view->process_selection();
-	//_view->state_machine->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_OFF);
-
 	Inendi::PVLayerFilter_p filter_p = _filter_p->clone<Inendi::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
 	filter_p->set_view(_view->shared_from_this());
-	filter_p->set_output(&_view->get_post_filter_layer());
 
 	QWidget* parent_widget = isVisible() ? this : parentWidget();
 
@@ -259,14 +242,6 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 		return false;
 	}
 
-	// We made it ! :)
-	_view->get_floating_selection() = _view->get_post_filter_layer().get_selection();
-	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
-
-	// We reprocess the pipeline from the eventline stage
-	Inendi::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_eventline)>(view_p);
-
 	_has_apply = true;
 	_args_widget->clear_args_state();
 
@@ -280,6 +255,9 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 	_preview_btn->setFocus(Qt::MouseFocusReason);
 
 	process();
+
+	Inendi::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_eventline)>(view_p);
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()

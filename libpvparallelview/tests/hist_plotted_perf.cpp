@@ -683,67 +683,6 @@ void count_y1_sel_seq_v5(const PVRow row_count,
 	    row_count);
 }
 
-void count_y1_sel_packed_v5(const PVRow row_count,
-                            const uint32_t* col_y1,
-                            const Inendi::PVSelection& selection,
-                            const uint64_t y_min,
-                            const int zoom,
-                            uint32_t* buffer,
-                            int block_count)
-{
-	const int idx_shift = (32 - NBITS) - zoom;
-	const uint32_t idx_mask = (1 << NBITS) - 1;
-	const __m128i idx_mask_sse = _mm_set1_epi32(idx_mask);
-	const uint32_t zoom_shift = 32 - zoom;
-	const uint32_t base_y = y_min >> zoom_shift;
-	const __m128i base_y_sse = _mm_set1_epi32(base_y);
-
-	selection.visit_selected_lines_packed<4>(
-	    [=](const PVRow* packed) {
-		    PVRow v[4];
-		    for (int i = 0; i < 4; ++i) {
-			    v[i] = col_y1[packed[i]];
-		    }
-		    const __m128i y_sse = _mm_load_si128((const __m128i*)&v);
-		    const __m128i base_sse = _mm_srli_epi32(y_sse, zoom_shift);
-		    const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
-
-		    const __m128i res_sse =
-		        _mm_andnot_si128(_mm_cmplt_epi32(p_sse, _mm_set1_epi32(0)),
-		                         _mm_cmplt_epi32(p_sse, _mm_set1_epi32(block_count)));
-
-		    if (_mm_test_all_zeros(res_sse, _mm_set1_epi32(-1))) {
-			    return;
-		    }
-		    const __m128i off_sse =
-		        _mm_add_epi32(_mm_slli_epi32(p_sse, NBITS),
-		                      _mm_and_si128(_mm_srli_epi32(y_sse, idx_shift), idx_mask_sse));
-
-		    if (_mm_extract_epi32(res_sse, 0)) {
-			    ++buffer[_mm_extract_epi32(off_sse, 0)];
-		    }
-		    if (_mm_extract_epi32(res_sse, 1)) {
-			    ++buffer[_mm_extract_epi32(off_sse, 1)];
-		    }
-		    if (_mm_extract_epi32(res_sse, 2)) {
-			    ++buffer[_mm_extract_epi32(off_sse, 2)];
-		    }
-		    if (_mm_extract_epi32(res_sse, 3)) {
-			    ++buffer[_mm_extract_epi32(off_sse, 3)];
-		    }
-		},
-	    [=](const PVRow r) {
-		    const uint32_t y = col_y1[r];
-		    const int32_t base = y >> zoom_shift;
-		    int p = base - base_y;
-		    if ((p >= 0) && (p < block_count)) {
-			    const uint32_t idx = (y >> idx_shift) & idx_mask;
-			    ++buffer[(p << NBITS) + idx];
-		    }
-		},
-	    row_count);
-}
-
 /*****************************************************************************
  * public API
  *****************************************************************************/
@@ -955,20 +894,6 @@ void test_sel(const size_t real_buffer_size,
 	          sizeof(uint32_t));
 	std::cout << "compare to ref: ";
 	if (compare(hist_sel_seq_v4, hist_sel_seq_v5, block_count)) {
-		std::cout << "ok" << std::endl;
-	}
-
-	/* using visit_selected_lines_packed
-	 */
-	uint32_t* hist_sel_packed_v5 = new uint32_t[real_buffer_size];
-	memset(hist_sel_packed_v5, 0, real_buffer_size * sizeof(uint32_t));
-	BENCH_START(packed_v5);
-	count_y1_sel_packed_v5(row_count, col_a, selection, y_min, zoom, hist_sel_packed_v5,
-	                       block_count);
-	BENCH_END(packed_v5, "hist_sel_packed_v5", row_count, sizeof(uint32_t), BUFFER_SIZE,
-	          sizeof(uint32_t));
-	std::cout << "compare to ref: ";
-	if (compare(hist_sel_seq_v4, hist_sel_packed_v5, block_count)) {
 		std::cout << "ok" << std::endl;
 	}
 

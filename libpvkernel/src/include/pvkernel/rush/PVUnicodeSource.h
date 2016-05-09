@@ -340,7 +340,7 @@ class PVUnicodeSource : public PVRawSourceBase
 	{
 		auto it = std::find_if(
 		    _offsets.begin(), _offsets.end(),
-		    [idx](std::pair<chunk_index, input_offset> const& a) { return a.first < idx; });
+		    [idx](std::pair<chunk_index, input_offset> const& a) { return a.first <= idx; });
 		if (it == _offsets.end()) {
 			it = --_offsets.end();
 		}

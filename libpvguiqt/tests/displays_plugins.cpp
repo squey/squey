@@ -12,6 +12,7 @@
 #include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
+#include <inendi/PVRoot.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
@@ -40,7 +41,6 @@ int main(int argc, char** argv)
 	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
 	src->create_default_view();
 	Inendi::PVView* view = src->current_view();
-	init_random_colors(*view);
 
 	QApplication app(argc, argv);
 

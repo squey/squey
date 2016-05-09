@@ -13,7 +13,6 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVCompList.h>
 
-#include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVAxisIndexCheckBoxType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
@@ -115,15 +114,6 @@ int main()
 	vars.append(QVariant::fromValue((PVMyCustomType("AAA", "BBB"))));
 	expectedStrings.append("AAA+BBB");
 	mustFail.append(false);
-
-	// PVAxesIndexType
-	auto ait = PVCore::PVAxesIndexType();
-	ait.push_back(1);
-	ait.push_back(2);
-	ait.push_back(3);
-	vars.append(QVariant::fromValue(ait));
-	expectedStrings.append("1,2,3");
-	mustFail.append(true);
 
 	// PVAxisIndexType
 	vars.append(QVariant::fromValue(PVCore::PVAxisIndexType(8, true)));

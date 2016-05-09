@@ -18,17 +18,11 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <inendi/PVRoot_types.h>
+#include <inendi/PVScene.h>
 #include <inendi/PVPtrObjects.h> // For PVScene_p
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"
 #define INENDI_ROOT_ARCHIVE_FILTER "INENDI investigation files (*." INENDI_ROOT_ARCHIVE_EXT ")"
-
-// Plugins prefix
-#define LAYER_FILTER_PREFIX "layer_filter"
-#define MAPPING_FILTER_PREFIX "mapping_filter"
-#define PLOTTING_FILTER_PREFIX "plotting_filter"
-#define AXIS_COMPUTATION_PLUGINS_PREFIX "axis_computation"
-#define SORTING_FUNCTIONS_PLUGINS_PREFIX "sorting"
 
 namespace Inendi
 {
@@ -81,14 +75,11 @@ class PVRoot : public data_tree_root_t
 	PVView** get_current_view_hive_property() { return &_current_view; }
 	PVSource** get_current_source_hive_property() { return &_current_source; }
 
-	PVScene* get_scene_from_path(const QString& path);
-
   public:
 	void save_to_file(
 	    QString const& path,
 	    PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(),
 	    bool save_everything = false);
-	void load_from_file(QString const& path);
 	void load_from_archive(PVCore::PVSerializeArchive_p ar);
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
 
@@ -108,8 +99,19 @@ class PVRoot : public data_tree_root_t
 
   protected:
 	// Serialization
-	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) override;
+
+	/**
+	 * Read Childs from pvi
+	 *
+	 * root
+	 *   |->data-colletions
+	 *       |-> 0
+	 *       |-> 1
+	 *       |-> ...
+	 */
+	void serialize_read(PVCore::PVSerializeObject& so,
+	                    PVCore::PVSerializeArchive::version_t /*v*/) override;
 	PVSERIALIZEOBJECT_SPLIT
 
   private:
@@ -123,7 +125,6 @@ class PVRoot : public data_tree_root_t
   private:
 	int _new_view_id = 0;
 
-	PVCore::PVSerializeArchive_p _original_archive;
 	QString _path;
 };
 

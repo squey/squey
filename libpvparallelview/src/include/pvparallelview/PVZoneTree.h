@@ -88,7 +88,7 @@ class PVZoneTree : public PVZoneTreeBase
 		void clear()
 		{
 			for (uint32_t t = 0; t < ntasks; t++) {
-				memset(&first_elts[t], PVROW_INVALID_VALUE, sizeof(PVRow) * NBUCKETS);
+				std::fill(first_elts[t].begin(), first_elts[t].end(), PVROW_INVALID_VALUE);
 				for (uint32_t b = 0; b < NBUCKETS; b++) {
 					trees[t][b].clear();
 				}

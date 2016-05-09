@@ -37,15 +37,6 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
 	}
 }
 
-void PVRush::PVControllerJob::run_read_all_job()
-{
-	// TODO : It doesn't work but it didn't neither before....
-	_executor = std::async(std::launch::async, [&]() {
-		_agg.read_all_chunks_from_beggining();
-		job_has_run_no_output_update();
-	});
-}
-
 void PVRush::PVControllerJob::run_job()
 {
 	_executor = std::async(std::launch::async, [&]() {
@@ -105,15 +96,10 @@ void PVRush::PVControllerJob::cancel()
 	wait_end();
 }
 
-void PVRush::PVControllerJob::job_has_run_no_output_update()
-{
-	emit job_done_signal();
-}
-
 void PVRush::PVControllerJob::job_has_run()
 {
 	_out_filter.job_has_finished();
-	job_has_run_no_output_update();
+	emit job_done_signal();
 }
 
 bool PVRush::PVControllerJob::running() const

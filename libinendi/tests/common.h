@@ -99,11 +99,8 @@ class TestEnv
 		}
 
 		// Create the PVSource object
-		Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
-		scene->set_parent(root);
-		src.reset(
-		    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-		src->set_parent(scene);
+		Inendi::PVScene_p scene = root->emplace_add_child("scene");
+		src = scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 		PVRush::PVControllerJob_p job = src->extract();
 		job->wait_end();
 	}
@@ -118,8 +115,7 @@ class TestEnv
 	 */
 	Inendi::PVMapped_p compute_mapping()
 	{
-		mapped.reset(new Inendi::PVMapped());
-		mapped->set_parent(src);
+		mapped = src->emplace_add_child();
 		mapped->process_from_parent_source();
 		return mapped;
 	}
@@ -130,8 +126,7 @@ class TestEnv
 	Inendi::PVPlotted_p compute_plotting()
 	{
 		// And plot the mapped values
-		Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-		plotted->set_parent(mapped);
+		Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 		plotted->process_from_parent_mapped();
 		return plotted;
 	}

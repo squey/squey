@@ -34,9 +34,8 @@
 		          << std::endl;                                                                    \
 	}
 
-Inendi::PVPlotted::PVPlotted()
+Inendi::PVPlotted::PVPlotted(PVMapped* mapped) : data_tree_plotted_t(mapped), _plotting(this)
 {
-	// process_from_parent_mapped(false);
 }
 
 Inendi::PVPlotted::~PVPlotted()
@@ -45,21 +44,6 @@ Inendi::PVPlotted::~PVPlotted()
 	PVLOG_DEBUG("In PVPlotted destructor\n");
 	for (PVView_sp& v : get_children()) {
 		std::cout << v.use_count() << std::endl;
-	}
-}
-
-void Inendi::PVPlotted::set_parent_from_ptr(PVMapped* mapped)
-{
-	data_tree_plotted_t::set_parent_from_ptr(mapped);
-
-	if (!_plotting) {
-		_plotting.reset(new PVPlotting(this));
-	}
-
-	// Set parent mapping for properties
-	QList<PVPlottingProperties>::iterator it;
-	for (it = _plotting->_columns.begin(); it != _plotting->_columns.end(); it++) {
-		it->set_mapping(*get_parent()->get_mapping());
 	}
 }
 
@@ -81,7 +65,7 @@ int Inendi::PVPlotted::create_table()
 	std::vector<PVPlottingFilter::p_type> plotting_filters;
 	plotting_filters.resize(mapped_col_count);
 	for (PVCol j = 0; j < mapped_col_count; j++) {
-		PVPlottingFilter::p_type mf = _plotting->get_filter_for_col(j);
+		PVPlottingFilter::p_type mf = _plotting.get_filter_for_col(j);
 		if (mf) {
 			plotting_filters[j] = mf->clone<PVPlottingFilter>();
 		}
@@ -94,7 +78,7 @@ int Inendi::PVPlotted::create_table()
 
 		PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
 		for (PVCol j = 0; j < mapped_col_count; j++) {
-			if (_plotting->is_col_uptodate(j)) {
+			if (_plotting.is_col_uptodate(j)) {
 				continue;
 			}
 			PVPlottingFilter::p_type plotting_filter = plotting_filters[j];
@@ -103,9 +87,9 @@ int Inendi::PVPlotted::create_table()
 				continue;
 			}
 
-			plotting_filter->set_mapping_mode(get_parent()->get_mapping()->get_mode_for_col(j));
+			plotting_filter->set_mapping_mode(get_parent()->get_mapping().get_mode_for_col(j));
 			plotting_filter->set_mandatory_params(
-			    get_parent()->get_mapping()->get_mandatory_params_for_col(j));
+			    get_parent()->get_mapping().get_mandatory_params_for_col(j));
 			plotting_filter->set_dest_array(nrows, get_column_pointer(j));
 			plotting_filter->set_decimal_type(get_parent()->get_decimal_type_of_col(j));
 			boost::this_thread::interruption_point();
@@ -119,7 +103,7 @@ int Inendi::PVPlotted::create_table()
 			           qPrintable(plotting_filter->registered_name()));
 
 			boost::this_thread::interruption_point();
-			_plotting->set_uptodate_for_col(j);
+			_plotting.set_uptodate_for_col(j);
 			_last_updated_cols.push_back(j);
 
 			get_col_minmax(_minmax_values[j].min, _minmax_values[j].max, j);
@@ -581,10 +565,8 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 
 	process_parent_mapped();
 
-	PVView_sp cur_view;
 	if (get_children_count() == 0) {
-		cur_view.reset(new PVView());
-		cur_view->set_parent(shared_from_this());
+		emplace_add_child();
 	}
 	for (auto view : get_children<PVView>()) {
 		view->process_parent_plotted();
@@ -597,17 +579,7 @@ bool Inendi::PVPlotted::is_uptodate() const
 		return false;
 	}
 
-	return _plotting->is_uptodate();
-}
-
-void Inendi::PVPlotted::add_column(PVPlottingProperties const& props)
-{
-	_plotting->add_column(props);
-}
-
-void Inendi::PVPlotted::child_added(PVView& child)
-{
-	get_parent<PVSource>()->add_view(child.shared_from_this());
+	return _plotting.is_uptodate();
 }
 
 bool Inendi::PVPlotted::is_current_plotted() const
@@ -633,7 +605,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 	QList<PVCol> ret;
 
 	for (PVCol j = 0; j < get_column_count(); j++) {
-		if (!_plotting->is_col_uptodate(j)) {
+		if (!_plotting.is_col_uptodate(j)) {
 			ret << j;
 		}
 	}
@@ -643,17 +615,43 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 
 void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
-	data_tree_plotted_t::serialize_write(so);
+	so.object("plotting", _plotting, QString(), false, nullptr, false);
 
-	so.object("plotting", _plotting, QString(), false, (PVPlotting*)NULL, false);
+	// Read the data colletions
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	int idx = 0;
+	for (PVCore::PVSharedPtr<PVView> view : get_children()) {
+		QString child_name = QString::number(idx);
+		PVCore::PVSerializeObject_p new_obj =
+		    list_obj->create_object(child_name, view->get_serialize_description(), false);
+		view->serialize(*new_obj, so.get_version());
+		new_obj->_bound_obj = view.get();
+		new_obj->_bound_obj_type = typeid(PVView);
+	}
 }
 
 void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
                                        PVCore::PVSerializeArchive::version_t v)
 {
-	so.object("plotting", _plotting, QString(), false, (PVPlotting*)NULL, false);
-
-	data_tree_plotted_t::serialize_read(so, v);
+	// Create the list of view
+	PVCore::PVSerializeObject_p list_obj =
+	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	int idx = 0;
+	try {
+		while (true) {
+			// FIXME It throws when there are no more data collections.
+			// It should not be an exception as it is a normal behavior.
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+			PVView_p view = emplace_add_child();
+			view->serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = view.get();
+			new_obj->_bound_obj_type = typeid(PVView);
+			idx++;
+		}
+	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+		return;
+	}
 }
 
 void Inendi::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted,

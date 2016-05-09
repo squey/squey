@@ -57,9 +57,7 @@ class PVAggregator
 
   public:
 	/*! \brief Add a source to the aggregator.
-	 *  \note The number of elements of that source is not computed when it is added. See
-	 *read_all_chunks_from_beggining
-	 *        for this purpose.
+	 *  \note The number of elements of that source is not computed when it is added.
 	 *
 	 * \todo Add a function to compute the number of element of one source.
 	 */
@@ -107,24 +105,6 @@ class PVAggregator
 	 */
 	void process_indexes(chunk_index nstart, chunk_index nend, chunk_index expected_nelts = 0);
 
-	/*! \brief Tell the aggregator to return chunk starting from a given param[in] and a given local
-	 *index range.
-	 * \param[in] input_start Source to start from
-	 * \param[in] nstart Local start index
-	 * \param[in] nend Local end index
-	 *
-	 * This function retrieve the global index of param[in]_start and call process_indexes with the
-	 *global version of nstart
-	 * and nend.
-	 *
-	 * \sa process_indexes
-	 * \note Because process_indexes is used, if nstart is greater than then umber of elements of
-	 *param[in]_start, then the following
-	 *       source will be used.
-	 */
-	void
-	process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend);
-
 	/*! \brief Returns true if the end of param[in]s has been reached. It is set by operator().
 	 * Returns false otherwise.
 	 */
@@ -142,30 +122,6 @@ class PVAggregator
 	/*! \brief Returns the global index of the last element of the last read chunk.
 	 */
 	chunk_index last_elt_agg_index();
-
-	/*! \brief Reads all the aggregator's sources.
-	 * This will set the number of element of each sources (see PVRawSource::operator()) and updates
-	 * _src_offsets.
-	 *
-	 * \todo Find an elegant way to be efficient.
-	 */
-	void read_all_chunks_from_beggining();
-
-	/*! \brief Returns a list of the aggregator param[in]s.
-	 *  \return a const-reference tothe std::vector object that stores the shared pointers to the
-	 * sources.
-	 */
-	list_inputs const& get_inputs() const;
-
-	/*! \brief Find the source that contains the given global index.
-	 *  \param[in] idx Global index to search
-	 *  \param[out] index If not NULL, the global index of the first element of the found input
-	 * source.
-	 *  \return A shared pointer to the source that contains the given global index if found, or an
-	 * invalid shared
-	 *          pointer otherwise.
-	 */
-	PVRush::PVRawSourceBase_p agg_index_to_source(chunk_index idx, chunk_index* global_index);
 
 	/*! \brief Set strict mode on or off.
 	 *  \param[in] sm Set to true to enable strict mode.
@@ -217,15 +173,14 @@ class PVAggregator
 	/*! \brief Map global start indexes to source.
 	 * The key of this std::map object represent the global start index of the associated source.
 	 * For instance, if an aggregator contains 2 text files, this map object will contain the
-	 *following information:
+	 * following information:
 	 * <ul>
 	 * <li>[Global index 0] -> first source</li>
 	 * <li>[Number of elements of first source] -> second source</li>
 	 * </ul>
 	 *
 	 * These informations are not computed each time a source is added, and are stored as soon as
-	 *they are known
-	 * by the aggregator. See read_all_chunks_from_beggining for this purpose.
+	 * they are known by the aggregator.
 	 *
 	 * \note Global indexes start at 0.
 	 */

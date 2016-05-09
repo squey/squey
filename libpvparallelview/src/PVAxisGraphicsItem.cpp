@@ -231,12 +231,6 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_label_position()
 
 void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 {
-	const Inendi::PVMapping* mapping = _lib_view.get_parent<Inendi::PVMapped>()->get_mapping();
-
-	if (mapping == nullptr) {
-		return;
-	}
-
 	const PVCol combined_col = get_combined_axis_column();
 
 	const PVRow min_row = _lib_view.get_plotted_col_min_row(combined_col);
@@ -271,12 +265,6 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_position()
 
 void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 {
-	const Inendi::PVMapping* mapping = _lib_view.get_parent<Inendi::PVMapped>()->get_mapping();
-
-	if (mapping == nullptr) {
-		return;
-	}
-
 	const Inendi::PVLayer::list_row_indexes_t& vmins = _lib_view.get_current_layer().get_mins();
 	const Inendi::PVLayer::list_row_indexes_t& vmaxs = _lib_view.get_current_layer().get_maxs();
 

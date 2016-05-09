@@ -31,12 +31,6 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
-void PVGuiQt::__impl::PVSaveSceneToFileFuncObserver::update(
-    const arguments_deep_copy_type& args) const
-{
-	_parent->set_project_modified(false, std::get<0>(args));
-}
-
 bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* /*watched*/, QEvent* event)
 {
 	bool rename = false;
@@ -362,7 +356,6 @@ QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_worksp
 PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene& scene,
                                                                 QWidget* parent /* = 0 */)
     : PVWorkspacesTabWidgetBase(*scene.get_parent<Inendi::PVRoot>(), parent)
-    , _save_scene_func_observer(this)
 {
 	Inendi::PVScene_sp scene_p = scene.shared_from_this();
 	PVHive::get().register_observer(scene_p, _obs_scene);
@@ -375,7 +368,6 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene&
 	// react in such consequence.
 	//_obs_scene.connect_refresh(this, SLOT(check_new_sources()));
 
-	PVHive::get().register_func_observer(scene_p, _save_scene_func_observer);
 	_obs_scene.set_accept_recursive_refreshes(true);
 
 	_tab_bar = new PVSceneTabBar(this);

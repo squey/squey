@@ -55,23 +55,19 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene(new Inendi::PVScene("scene"));
-	scene->set_parent(root);
-	Inendi::PVSource_sp src(
-	    new Inendi::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	src->set_parent(scene);
+	Inendi::PVScene_p scene = root->emplace_add_child("scene");
+	Inendi::PVSource_sp src =
+	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
 	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 
 	// Map the nraw
-	Inendi::PVMapped_p mapped(new Inendi::PVMapped());
-	mapped->set_parent(src);
+	Inendi::PVMapped_p mapped = src->emplace_add_child();
 	mapped->process_from_parent_source();
 
 	// And plot the mapped values
-	Inendi::PVPlotted_p plotted(new Inendi::PVPlotted());
-	plotted->set_parent(mapped);
+	Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 	plotted->process_from_parent_mapped();
 	Inendi::PVView* view = src->current_view();
 

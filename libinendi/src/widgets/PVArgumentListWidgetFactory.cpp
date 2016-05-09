@@ -10,13 +10,11 @@
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <inendi/widgets/PVViewArgumentEditorCreator.h>
 
-#include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVAxisIndexCheckBoxType.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVSpinBoxType.h>
 #include <pvkernel/core/PVZoneIndexType.h>
 
-#include <inendi/widgets/editors/PVAxesIndexEditor.h>
 #include <inendi/widgets/editors/PVAxisIndexCheckBoxEditor.h>
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 #include <inendi/widgets/editors/PVLayerEnumEditor.h>
@@ -42,8 +40,8 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 	// Get core widgets and add ours
 	QItemEditorFactory* args_widget_factory = create_core_widgets_factory();
 
-	QItemEditorCreatorBase* axes_index_creator =
-	    new PVViewArgumentEditorCreator<PVWidgets::PVAxesIndexEditor>(view);
+	QItemEditorCreatorBase* axis_index_creator =
+	    new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase* axis_index_checkbox_creator =
 	    new PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexCheckBoxEditor>(view);
 	QItemEditorCreatorBase* layerenum_creator =
@@ -56,8 +54,8 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 	    new PVViewArgumentEditorCreator<PVWidgets::PVZoneIndexEditor>(view);
 
 	// And register them into the factory
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxesIndexType>(),
-	                                    axes_index_creator);
+	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
+	                                    axis_index_creator);
 	args_widget_factory->registerEditor(
 	    (QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(),
 	    axis_index_checkbox_creator);

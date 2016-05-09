@@ -16,7 +16,6 @@ PVAxesCombination.cpp
 PVAxis.cpp
 PVLayer.cpp
 PVLayerFilter.cpp
-PVLayerIndexArray.cpp
 PVLayerStack.cpp
 PVLinesProperties.cpp
 PVMapped.cpp
@@ -30,9 +29,6 @@ PVPlottingFilter.cpp
 PVPlottingProperties.cpp
 PVRoot.cpp
 PVScene.cpp
-PVSelection.cpp
-PVSparseSelection.cpp
-PVSquareArea.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
@@ -50,7 +46,6 @@ include/inendi/widgets/PVMappingPlottingEditDialog.h
 include/inendi/widgets/PVNewLayerDialog.h
 include/inendi/widgets/PVPlottingModeWidget.h
 
-include/inendi/widgets/editors/PVAxesIndexEditor.h
 include/inendi/widgets/editors/PVAxisIndexCheckBoxEditor.h
 include/inendi/widgets/editors/PVAxisIndexEditor.h
 include/inendi/widgets/editors/PVLayerEnumEditor.h
@@ -67,7 +62,6 @@ widgets/PVMappingPlottingEditDialog.cpp
 widgets/PVNewLayerDialog.cpp
 widgets/PVPlottingModeWidget.cpp
 
-widgets/editors/PVAxesIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVLayerEnumEditor.cpp

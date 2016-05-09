@@ -20,7 +20,6 @@
 #include <QVBoxLayout>
 
 #include <PVMainWindow.h>
-#include <PVExtractorWidget.h>
 #include <PVStringListChooserWidget.h>
 
 #include <pvguiqt/PVWorkspace.h>
@@ -43,7 +42,6 @@
 
 #include <pvkernel/widgets/PVColorDialog.h>
 
-#include <inendi/general.h>
 #include <inendi/PVSelection.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVPlotting.h>
@@ -374,29 +372,6 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 	} else {
 		event->ignore();
 	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::commit_selection_in_current_layer
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_in_current_layer(Inendi::PVView* inendi_view)
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	/* We get the current selected layer */
-	Inendi::PVLayer& current_selected_layer = inendi_view->get_current_layer();
-	/* We fill it's lines_properties */
-	inendi_view->get_output_layer()
-	    .get_lines_properties()
-	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
-	                                                inendi_view->get_real_output_selection(),
-	                                                inendi_view->get_row_count());
-
-	/* We need to process the view from the layer_stack */
-	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_sp);
 }
 
 /******************************************************************************
@@ -1145,6 +1120,52 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 	}
 }
 
+static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job)
+{
+	while (job->running()) {
+		pbox->set_status(job->status());
+		pbox->set_extended_status(
+		    QString("Number of rejected elements: %L1").arg(job->rejected_elements()));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+	}
+}
+
+static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
+                                  QString const& desc,
+                                  int /*nlines*/,
+                                  QWidget* parent = NULL)
+{
+	PVCore::PVProgressBox* pbox =
+	    new PVCore::PVProgressBox(QString("Extracting %1...").arg(desc), parent, 0,
+	                              QString("Number of elements extracted: %L1"));
+	pbox->set_cancel2_btn_text("Stop and process");
+	pbox->set_cancel_btn_text("Discard");
+	pbox->set_confirmation(true);
+	QProgressBar* pbar = pbox->getProgressBar();
+	pbar->setValue(0);
+	// set min and max to 0 to have an activity effect
+	// FIXME : We should be able to use nlines as max.
+	pbar->setMaximum(0);
+	pbar->setMinimum(0);
+
+	QObject::connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
+	// launch a thread in order to update the status of the progress bar
+	boost::thread th_status(boost::bind(update_status_ext, pbox, job));
+	pbox->launch_timer_status();
+
+	// Show the progressBox
+	if (pbox->exec() == QDialog::Accepted) {
+		// Job finished, everything is fine.
+		return true;
+	}
+
+	// Cancel this job and ask the user if he wants to keep the extracted data.
+	job->cancel();
+	PVLOG_DEBUG("extractor: job canceled !\n");
+	// Sucess if we ask to continue with loaded data.
+	return (pbox->get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
+}
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::load_source
@@ -1153,11 +1174,6 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 {
 	// Load a created source
-
-	if (src->get_children<Inendi::PVMapped>().size() == 0) {
-		Inendi::PVMapped_p default_mapped(new Inendi::PVMapped());
-		default_mapped->set_parent(src->shared_from_this());
-	}
 
 	bool loaded_from_disk = false;
 
@@ -1198,8 +1214,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			return false;
 		}
 
-		if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(),
-		                                              job_import->nb_elts_max(), this)) {
+		if (!show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(),
+		                           this)) {
 			// If job is canceled, stop here
 			return false;
 		}
@@ -1250,42 +1266,28 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
-	bool success = true;
 	if (src->get_children<Inendi::PVView>().size() == 0) {
-		if (!PVCore::PVProgressBox::progress(
-		        boost::bind<void>(&Inendi::PVSource::create_default_view, src), tr("Processing..."),
-		        (QWidget*)this)) {
-			success = false;
+		if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); },
+		                                     tr("Processing..."), (QWidget*)this)) {
+			return false;
 		}
-	} else {
-		if (!PVCore::PVProgressBox::progress(
-		        boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."),
-		        (QWidget*)this)) {
-			success = false;
-		}
-	}
 
-	if (!success) {
-		return false;
-	}
-
-	_projects_tab_widget->add_source(src);
-
-	if (src->get_children<Inendi::PVView>().size() > 0) {
 		Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
 		first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
 		for (auto& inv_elts : src->get_invalid_evts()) {
 			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
 		}
 		first_view_p->process_from_layer_stack();
-		first_view_p->get_volatile_selection() = first_view_p->get_current_layer().get_selection();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(
-		    first_view_p);
+	} else {
+		// pvi loading case
+		if (!PVCore::PVProgressBox::progress(
+		        boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."),
+		        (QWidget*)this)) {
+			return false;
+		}
 	}
 
-	// connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-
-	//_projects_tab_widget->setCurrentIndex(new_tab_index);
+	_projects_tab_widget->add_source(src);
 
 	if (src->get_invalid_evts().size() > 0) {
 		display_inv_elts();
@@ -1343,10 +1345,8 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 	Inendi::PVView_sp view_sp(inendi_view->shared_from_this());
 	PVHive::get().register_actor(view_sp, actor);
 
-	// actor.call<FUNC(Inendi::PVView::set_color_on_post_filter_layer)>(color);
 	actor.call<FUNC(Inendi::PVView::set_color_on_active_layer)>(color);
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
-	// commit_selection_in_current_layer(inendi_view);
 }
 
 /******************************************************************************
@@ -1362,22 +1362,6 @@ void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
 
 	actor.call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
 	actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::set_version_informations
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::set_version_informations()
-{
-	/*
-	if (_last_known_cur_release != INENDI_VERSION_INVALID) {
-	        pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
-	}
-	if (_last_known_maj_release != INENDI_VERSION_INVALID) {
-	        pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
-	}*/
 }
 
 /******************************************************************************

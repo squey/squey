@@ -52,38 +52,6 @@ void PVRush::PVAggregator::set_stop_condition(bool* cond)
 	_stop_cond = cond;
 }
 
-void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start,
-                                               chunk_index nstart,
-                                               chunk_index nend)
-{
-	// Process from nstart to nend, starting by input_start
-
-	// Find, compute offset for input_start
-	if (!read_until_source(input_start)) {
-		PVLOG_ERROR("(PVAggregator::process_from_source) unable to reach source %s. Using the last "
-		            "one...\n",
-		            qPrintable((*input_start)->human_name()));
-		list_inputs::iterator it_last = _inputs.end();
-		it_last--;
-		if (input_start != it_last) {
-			process_from_source(it_last, nstart, nend);
-		} else {
-			PVLOG_ERROR("(PVAggregator::process_from_source) already searching for the last source "
-			            "! Starting from the beggining...\n");
-			process_indexes(_nstart, _nend);
-			return;
-		}
-	}
-	chunk_index offset = _cur_src_index;
-
-	// Then compute the new nstart and nend value
-	_nstart = nstart + offset;
-	_nend = nend + offset;
-
-	// And use process_indexes
-	process_indexes(_nstart, _nend);
-}
-
 void PVRush::PVAggregator::process_indexes(chunk_index nstart,
                                            chunk_index nend,
                                            chunk_index expected_nelts)
@@ -228,7 +196,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 			if (ret != NULL && ret->_agg_index < _nstart) {
 #ifndef NDEBUG
 				const chunk_index nelts = ret->c_elements().size();
-				assert(ret->_agg_index + nelts - 1 >= _nstart);
+				assert(ret->_agg_index + nelts >= _nstart);
 #endif
 				chunk_index nelts_remove = _nstart - ret->_agg_index;
 				PVCore::list_elts& elts = ret->elements();
@@ -291,30 +259,6 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc) const
 	return ret;
 }
 
-void PVRush::PVAggregator::read_all_chunks_from_beggining()
-{
-	PVLOG_DEBUG("(PVAggregator) read all chunks\n");
-	// Just reset everything
-	process_indexes(0, 1000);
-
-	// Save the old stop condition pointer (just in case)
-	bool* old_stop_cond = _stop_cond;
-	// Never ever ever stop !!
-	_stop_cond = &__stop_cond_false;
-	// And here we go !!
-	PVCore::PVChunk* chunk;
-	while ((chunk = next_chunk()) != NULL) {
-		chunk->free();
-	}
-	// Restore it
-	_stop_cond = old_stop_cond;
-}
-
-PVRush::PVAggregator::list_inputs const& PVRush::PVAggregator::get_inputs() const
-{
-	return _inputs;
-}
-
 // Helper function
 PVRush::PVAggregator_p PVRush::PVAggregator::from_unique_source(PVRush::PVRawSourceBase_p source)
 {
@@ -335,13 +279,6 @@ void PVRush::PVAggregator::add_input(PVRush::PVRawSourceBase_p in)
 chunk_index PVRush::PVAggregator::last_elt_agg_index()
 {
 	return _last_elt_agg_index;
-}
-
-PVRush::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(chunk_index idx,
-                                                                    chunk_index* global_index)
-{
-	list_inputs::iterator it_src = agg_index_to_source_iterator(idx, global_index);
-	return (it_src != _inputs.end()) ? *it_src : PVRawSourceBase_p();
 }
 
 PVRush::PVAggregator::list_inputs::iterator

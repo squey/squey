@@ -19,9 +19,10 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVHugePODVector.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <inendi/PVPtrObjects.h>
-#include <inendi/PVMapped.h>
+#include <inendi/PVView.h>
 #include <inendi/PVView_types.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVSelection.h>
@@ -81,7 +82,7 @@ class PVPlotted : public data_tree_plotted_t
 	typedef std::vector<PVRow> rows_vector_t;
 
   public:
-	PVPlotted();
+	PVPlotted(PVMapped* mapped);
 
   public:
 	~PVPlotted();
@@ -93,22 +94,17 @@ class PVPlotted : public data_tree_plotted_t
 	PVSERIALIZEOBJECT_SPLIT
 
 	// For PVMapped
-	inline void invalidate_column(PVCol j) { return _plotting->invalidate_column(j); }
-
-	// For PVSource
-	void add_column(PVPlottingProperties const& props);
+	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
 
   public:
 	void process_parent_mapped();
 	void process_from_parent_mapped();
 
-	void set_name(QString const& name) { _plotting->set_name(name); }
-	QString const& get_name() const { return _plotting->get_name(); }
+	void set_name(QString const& name) { _plotting.set_name(name); }
+	QString const& get_name() const { return _plotting.get_name(); }
 
 	static void
 	norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
-
-	void set_plotting(PVPlotting_p const& plotting) { _plotting = plotting; }
 
 	virtual QString get_serialize_description() const { return "Plotting: " + get_name(); }
 
@@ -126,13 +122,13 @@ class PVPlotted : public data_tree_plotted_t
 	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
 	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
 
-	PVPlotting& get_plotting() { return *_plotting; }
-	const PVPlotting& get_plotting() const { return *_plotting; }
+	PVPlotting& get_plotting() { return _plotting; }
+	const PVPlotting& get_plotting() const { return _plotting; }
 
 	inline PVPlottingProperties const& get_plotting_properties(PVCol j)
 	{
 		assert(j < get_column_count());
-		return _plotting->get_properties_for_col(j);
+		return _plotting.get_properties_for_col(j);
 	}
 
 	bool is_uptodate() const;
@@ -225,9 +221,6 @@ class PVPlotted : public data_tree_plotted_t
 	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
 
-	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }
-	inline const PVView* current_view() const { return get_parent<PVSource>()->current_view(); }
-
 	// Plotted dump/load
 	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;
 	static bool load_buffer_from_file(uint_plotted_table_t& buf,
@@ -250,10 +243,8 @@ class PVPlotted : public data_tree_plotted_t
 	void to_csv();
 
   protected:
-	virtual void set_parent_from_ptr(PVMapped* mapped);
 	virtual QString get_children_description() const { return "View(s)"; }
 	virtual QString get_children_serialize_name() const { return "views"; }
-	virtual void child_added(PVView& child) override;
 
 	int create_table();
 
@@ -271,7 +262,7 @@ class PVPlotted : public data_tree_plotted_t
 	}
 
   private:
-	PVPlotting_p _plotting;
+	PVPlotting _plotting;
 	uint_plotted_table_t _uint_table;
 	QList<PVCol> _last_updated_cols;
 	std::vector<MinMax> _minmax_values;
