@@ -423,37 +423,16 @@ void PVAbstractTableModel::set_filter(Inendi::PVSelection const& sel)
 {
 
 	auto const& sort = _sort.to_core_array();
-#pragma omp parallel
-	{
-		std::vector<size_t> local_filter;
+	_filter.resize(sort.size());
 
-		// Push selected lines
-		if (_sort_order != Qt::DescendingOrder) {
-#pragma omp for schedule(static) nowait
-			for (PVRow line = 0; line < sel.count(); line++) {
-				// A line is selected if sorted one is in the selection.
-				if (sel.get_line(sort[line])) {
-					local_filter.push_back(sort[line]);
-				}
-			}
-		} else {
-#pragma omp for schedule(static) nowait
-			for (PVRow line = sel.count(); line > 0; line--) {
-				// A line is selected if sorted one is in the selection.
-				if (sel.get_line(sort[line - 1])) {
-					local_filter.push_back(sort[line - 1]);
-				}
-			}
-		}
-#pragma omp for ordered
-		for (int i = 0; i < omp_get_num_threads(); i++) {
-#pragma omp ordered
-			{
-				_filter.resize(_filter.size() + local_filter.size());
-				std::copy(local_filter.begin(), local_filter.end(),
-				          _filter.end() - local_filter.size());
-			}
-		}
+	// Push selected lines
+	size_t copy_size =
+	    std::distance(_filter.begin(), std::copy_if(sort.begin(), sort.end(), _filter.begin(),
+	                                                [&](PVRow row) { return sel.get_line(row); }));
+	_filter.resize(copy_size);
+
+	if (_sort_order == Qt::DescendingOrder) {
+		std::reverse(_filter.begin(), _filter.end());
 	}
 }
 
