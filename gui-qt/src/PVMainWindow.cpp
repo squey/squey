@@ -1166,6 +1166,28 @@ static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
 	return (pbox->get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
 }
 
+static QString
+bad_conversions_as_string(const PVRush::PVNrawBadConversions::bad_conversions_t& bad_conversions,
+                          const Inendi::PVSource* src)
+{
+	QStringList l;
+
+	const Inendi::PVAxesCombination& ac = src->get_axes_combination();
+
+	for (const auto& bad_conversion : bad_conversions) {
+
+		const QString& axis_name = ac.get_original_axis(bad_conversion.first).get_name();
+		const QString& axis_type = ac.get_original_axis(bad_conversion.first).get_type();
+
+		for (const auto& bad_field : bad_conversion.second) {
+			l << axis_name + " (" + axis_type + ") : " + QString::number(bad_field.first + 1) +
+			         " > \"" + QString::fromStdString(bad_field.second) + "\"";
+		}
+	}
+
+	return l.join("\n");
+}
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::load_source
@@ -1253,13 +1275,19 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			}
 			QMessageBox::critical(this, "Cannot load sources", msg);
 			return false;
-		} else if (src->get_rushnraw().get_invalid_count() != 0) {
+		} else if (size_t bc_count = src->get_rushnraw().bad_conversions().count()) {
 			// We can continue with it but user have to know that some values are
 			// incorrect.
-			QMessageBox::warning(this, "Failed conversions",
-			                     "Some conversions from text to binary failed during "
-			                     "import. Please, look at your terminal to know "
-			                     "which conversions failed.");
+			QMessageBox warning_message(
+			    QMessageBox::Warning, "Failed conversions",
+			    "\n" + QString::number(bc_count) +
+			        " conversions from text to binary failed during import...",
+			    QMessageBox::Ok, this);
+			warning_message.setInformativeText(
+			    "(Missing values are interpreted as default values)");
+			warning_message.setDetailedText(
+			    bad_conversions_as_string(src->get_rushnraw().bad_conversions().failures(), src));
+			warning_message.exec();
 		}
 
 		BENCH_STOP(lff);
