@@ -38,48 +38,59 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	int32_t width = lines_view.get_zone_width(zone_id);
 
 	PVZoneTree const& ztree = lines_view.get_zones_manager().get_zone_tree(zone_id);
-	PVParallelView::PVBCode code_b;
 
 	if (rect.isNull()) {
 		return 0;
 	}
 
 	BENCH_START(compute_selection_from_parallel_view_rect);
-	PVLineEqInt line;
-	line.b = -width;
 
-	for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
-		uint32_t branch_count = ztree.get_branch_count(branch);
+#pragma omp parallel
+	{
 
-		if (branch_count == 0) {
-			continue;
+		PVParallelView::PVBCode code_b;
+		Inendi::PVSelection s(sel.count());
+		s.select_none();
+		PVLineEqInt line;
+		line.b = -width;
+
+#pragma omp for reduction(+ : nb_selected)
+		for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
+			uint32_t branch_count = ztree.get_branch_count(branch);
+
+			if (branch_count == 0) {
+				continue;
+			}
+
+			// PVRow r =  ztree.get_first_elt_of_branch(branch);
+			// Inendi::PVSelection& sel_th = sel_tls.local();
+			code_b.int_v = branch;
+			int32_t y1 = code_b.s.l;
+			int32_t y2 = code_b.s.r;
+
+			line.a = y2 - y1;
+			line.c = y1 * width;
+
+			const bool a = line(rect.topLeft().x(), rect.topLeft().y()) >= 0;
+			const bool b = line(rect.topRight().x(), rect.topRight().y()) >= 0;
+			const bool c = line(rect.bottomLeft().x(), rect.bottomLeft().y()) >= 0;
+			const bool d = line(rect.bottomRight().x(), rect.bottomRight().y()) >= 0;
+
+			bool is_line_selected = (a | b | c | d) & (!(a & b & c & d));
+
+			if (is_line_selected == false) {
+				continue;
+			}
+
+			for (size_t i = 0; i < branch_count; i++) {
+				const PVRow cur_r = ztree.get_branch_element(branch, i);
+				s.set_bit_fast(cur_r);
+			}
+			nb_selected += branch_count;
 		}
 
-		// PVRow r =  ztree.get_first_elt_of_branch(branch);
-		// Inendi::PVSelection& sel_th = sel_tls.local();
-		code_b.int_v = branch;
-		int32_t y1 = code_b.s.l;
-		int32_t y2 = code_b.s.r;
-
-		line.a = y2 - y1;
-		line.c = y1 * width;
-
-		const bool a = line(rect.topLeft().x(), rect.topLeft().y()) >= 0;
-		const bool b = line(rect.topRight().x(), rect.topRight().y()) >= 0;
-		const bool c = line(rect.bottomLeft().x(), rect.bottomLeft().y()) >= 0;
-		const bool d = line(rect.bottomRight().x(), rect.bottomRight().y()) >= 0;
-
-		bool is_line_selected = (a | b | c | d) & (!(a & b & c & d));
-
-		if (is_line_selected == false) {
-			continue;
-		}
-
-		for (size_t i = 0; i < branch_count; i++) {
-			const PVRow cur_r = ztree.get_branch_element(branch, i);
-			sel.set_bit_fast(cur_r);
-		}
-		nb_selected += branch_count;
+#pragma omp critical
+		sel |= s;
 	}
 	BENCH_END(compute_selection_from_parallel_view_rect, "compute_selection", sizeof(PVRow),
 	          NBUCKETS, 1, 1);
