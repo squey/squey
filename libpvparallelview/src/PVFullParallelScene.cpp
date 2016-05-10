@@ -58,7 +58,6 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
     , _full_parallel_view(full_parallel_view)
     , _zoom_y(1.0)
     , _sm_p(sm_p)
-    , _zid_timer_render(PVZONEID_INVALID)
     , _show_min_max_values(false)
 {
 	_view_deleted = false;
@@ -137,13 +136,6 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_timer_render->setSingleShot(true);
 	_timer_render->setInterval(RENDER_TIMER_TIMEOUT);
 	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_all_zones_all_imgs()));
-
-	/*
-	_timer_render_single_zone = new QTimer(this);
-	_timer_render_single_zone->setSingleShot(true);
-	_timer_render_single_zone->setInterval(RENDER_TIMER_TIMEOUT);
-	connect(_timer_render, SIGNAL(timeout()), this,
-	SLOT(render_single_zone_all_imgs()));*/
 }
 
 /******************************************************************************
@@ -493,21 +485,6 @@ void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.render_all_zones_images(view_x, view_width, _zoom_y);
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVFullParallelScene::render_single_zone_all_imgs
- *
- *****************************************************************************/
-void PVParallelView::PVFullParallelScene::render_single_zone_all_imgs()
-{
-	assert(_zid_timer_render != PVZONEID_INVALID);
-	if (!_lines_view.is_zone_drawn(_zid_timer_render)) {
-		return;
-	}
-
-	_lines_view.render_single_zone_images(_zid_timer_render, _zoom_y);
 }
 
 void PVParallelView::PVFullParallelScene::scale_all_zones_images()
@@ -1119,9 +1096,6 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 
 		update_scene(false);
 
-		/*_timer_render_one_zone->stop();
-		_zid_timer_render = zone_id;
-		_timer_render_one_zone->start();*/
 		_lines_view.render_single_zone_images(zmouse, _zoom_y);
 
 		event->accept();

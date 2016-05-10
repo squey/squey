@@ -183,7 +183,6 @@ class PVFullParallelScene : public QGraphicsScene
 	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
 
 	void render_all_zones_all_imgs();
-	void render_single_zone_all_imgs();
 
 	void update_axes_layer_min_max();
 
@@ -256,9 +255,6 @@ class PVFullParallelScene : public QGraphicsScene
 	PVSlidersManager_p _sm_p;
 
 	QTimer* _timer_render;
-	QTimer* _timer_render_single_zone;
-
-	PVZoneID _zid_timer_render;
 
 	tbb::atomic<bool> _view_deleted;
 
