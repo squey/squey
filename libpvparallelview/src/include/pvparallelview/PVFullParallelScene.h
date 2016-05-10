@@ -245,7 +245,7 @@ class PVFullParallelScene : public QGraphicsScene
 
 	PVFullParallelView* _full_parallel_view;
 
-	PVFullParallelViewSelectionRectangle* _sel_rect;
+	PVFullParallelViewSelectionRectangle _sel_rect;
 
 	qreal _translation_start_x = 0.0;
 

@@ -56,6 +56,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
     , _lines_view(backend, zm, zp_sel, zp_bg, this)
     , _lib_view(*view_sp)
     , _full_parallel_view(full_parallel_view)
+    , _sel_rect(this)
     , _zoom_y(1.0)
     , _sm_p(sm_p)
     , _show_min_max_values(false)
@@ -65,10 +66,9 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	graphics_view()->setMouseTracking(true);
 	graphics_view()->viewport()->setMouseTracking(true);
 
-	_sel_rect = new PVFullParallelViewSelectionRectangle(this);
 	// selection rectangle must be over axes labels
-	_sel_rect->set_z_value(1e43);
-	_sel_rect->set_default_cursor(Qt::CrossCursor);
+	_sel_rect.set_z_value(1e43);
+	_sel_rect.set_default_cursor(Qt::CrossCursor);
 
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 
@@ -280,7 +280,7 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 
 	switch (event->key()) {
 	case Qt::Key_Escape:
-		_sel_rect->clear();
+		_sel_rect.clear();
 		event->accept();
 		break;
 	case Qt::Key_Space:
@@ -324,49 +324,49 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 	 */
 	case Qt::Key_Left:
 		if (event->modifiers() == Qt::ShiftModifier) {
-			_sel_rect->grow_horizontally();
+			_sel_rect.grow_horizontally();
 			event->accept();
 		} else if (event->modifiers() == Qt::ControlModifier) {
-			_sel_rect->move_left_by_width();
+			_sel_rect.move_left_by_width();
 			event->accept();
 		} else if (event->modifiers() == Qt::NoModifier) {
-			_sel_rect->move_left_by_step();
+			_sel_rect.move_left_by_step();
 			event->accept();
 		}
 		break;
 	case Qt::Key_Right:
 		if (event->modifiers() == Qt::ShiftModifier) {
-			_sel_rect->shrink_horizontally();
+			_sel_rect.shrink_horizontally();
 			event->accept();
 		} else if (event->modifiers() == Qt::ControlModifier) {
-			_sel_rect->move_right_by_width();
+			_sel_rect.move_right_by_width();
 			event->accept();
 		} else if (event->modifiers() == Qt::NoModifier) {
-			_sel_rect->move_right_by_step();
+			_sel_rect.move_right_by_step();
 			event->accept();
 		}
 		break;
 	case Qt::Key_Up:
 		if (event->modifiers() == Qt::ShiftModifier) {
-			_sel_rect->grow_vertically();
+			_sel_rect.grow_vertically();
 			event->accept();
 		} else if (event->modifiers() == Qt::ControlModifier) {
-			_sel_rect->move_up_by_height();
+			_sel_rect.move_up_by_height();
 			event->accept();
 		} else if (event->modifiers() == Qt::NoModifier) {
-			_sel_rect->move_up_by_step();
+			_sel_rect.move_up_by_step();
 			event->accept();
 		}
 		break;
 	case Qt::Key_Down:
 		if (event->modifiers() == Qt::ShiftModifier) {
-			_sel_rect->shrink_vertically();
+			_sel_rect.shrink_vertically();
 			event->accept();
 		} else if (event->modifiers() == Qt::ControlModifier) {
-			_sel_rect->move_down_by_height();
+			_sel_rect.move_down_by_height();
 			event->accept();
 		} else if (event->modifiers() == Qt::NoModifier) {
-			_sel_rect->move_down_by_step();
+			_sel_rect.move_down_by_step();
 			event->accept();
 		}
 		break;
@@ -401,7 +401,7 @@ void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEven
 
 	if (!sliders_moving() && event->buttons() == Qt::LeftButton) {
 		// trace selection rectangle
-		_sel_rect->step(event->scenePos());
+		_sel_rect.step(event->scenePos());
 		graphics_view()->viewport()->update();
 		event->accept();
 	}
@@ -425,7 +425,7 @@ void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEve
 		_translation_start_x = event->scenePos().x();
 		event->accept();
 	} else if (event->button() == Qt::LeftButton) {
-		_sel_rect->begin(event->scenePos());
+		_sel_rect.begin(event->scenePos());
 		event->accept();
 	}
 }
@@ -452,10 +452,10 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
 	}
 
 	if (!sliders_moving() && (event->button() == Qt::LeftButton)) {
-		if (_sel_rect->get_rect().isNull()) {
-			_sel_rect->clear();
+		if (_sel_rect.get_rect().isNull()) {
+			_sel_rect.clear();
 		} else {
-			_sel_rect->end(event->scenePos(), true, true);
+			_sel_rect.end(event->scenePos(), true, true);
 		}
 		graphics_view()->fake_mouse_move();
 		event->accept();
@@ -796,7 +796,7 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
 void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axis_id_t axis_id)
 {
 	PVZoneID zone_id = _lib_view.get_axes_combination().get_index_by_id(axis_id);
-	_sel_rect->clear();
+	_sel_rect.clear();
 	PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
 	    _lines_view, zone_id, _axes[zone_id]->get_selection_ranges(),
 	    lib_view().get_volatile_selection());
@@ -837,7 +837,7 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		axis->set_axis_length(_axis_length);
 	}
 
-	QRectF r = _sel_rect->get_rect();
+	QRectF r = _sel_rect.get_rect();
 
 	if (r.isNull() == false) {
 		/* if the selection rectangle exists, it must be unscaled (using
@@ -849,8 +849,8 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 
 	_zoom_y = _axis_length / 1024.;
 
-	_sel_rect->set_handles_scale(graphics_view()->transform().m11(),
-	                             graphics_view()->transform().m22());
+	_sel_rect.set_handles_scale(graphics_view()->transform().m11(),
+	                            graphics_view()->transform().m22());
 	// propagate this value to all PVSlidersGroup
 	for (PVAxisGraphicsItem* axis : _axes) {
 		axis->get_sliders_group()->set_axis_scale(_zoom_y);
@@ -862,7 +862,7 @@ void PVParallelView::PVFullParallelScene::update_viewport()
 		r.setBottom(r.bottom() * _zoom_y);
 		// AG: don't do an update_rect here since it will change the current
 		// selection!
-		_sel_rect->set_rect(r, false);
+		_sel_rect.set_rect(r, false);
 	}
 }
 
@@ -990,7 +990,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 
 	// It's time to refresh the current selection rectangle
-	_sel_rect->update_position();
+	_sel_rect.update_position();
 }
 
 /******************************************************************************
