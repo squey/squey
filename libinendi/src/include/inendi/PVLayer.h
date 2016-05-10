@@ -17,14 +17,9 @@
 #include <inendi/PVSelection.h>
 #include <inendi/PVLayer_types.h>
 
-//#include <tbb/cache_aligned_allocator.h>
-
 #include <vector>
 
 #define INENDI_LAYER_NAME_MAXLEN 1000
-
-#define INENDI_LAYER_ARCHIVE_EXT "pvl"
-#define INENDI_LAYER_ARCHIVE_FILTER "INENDI layer-stack files (*." INENDI_LAYER_ARCHIVE_EXT ")"
 
 namespace Inendi
 {
