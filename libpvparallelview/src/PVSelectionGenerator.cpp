@@ -601,7 +601,7 @@ void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView_sp v
 	}
 
 	/* Commit the previous volatile selection */
-	view_actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+	view_sp->commit_volatile_in_floating_selection();
 
 	view_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 

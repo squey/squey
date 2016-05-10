@@ -220,7 +220,7 @@ PVGuiQt::PVListingView::~PVListingView()
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
 	/* Commit the previous volatile selection */
-	_actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+	lib_view().commit_volatile_in_floating_selection();
 
 	/* Modify the state of the state machine according to the modifiers */
 	Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
