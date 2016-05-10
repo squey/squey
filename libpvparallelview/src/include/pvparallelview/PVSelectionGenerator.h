@@ -36,7 +36,7 @@ constexpr unsigned int OR_MODIFIER = Qt::ShiftModifier;
 constexpr unsigned int NAND_MODIFIER = Qt::ControlModifier;
 constexpr unsigned int AND_MODIFIER = (Qt::ShiftModifier | Qt::ControlModifier);
 
-uint32_t compute_selection_from_parallel_view_rect(PVLinesView& lines_view,
+uint32_t compute_selection_from_parallel_view_rect(PVLinesView const& lines_view,
                                                    PVZoneID zone_id,
                                                    QRect rect,
                                                    Inendi::PVSelection& sel);

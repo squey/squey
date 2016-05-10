@@ -173,15 +173,6 @@ PVParallelView::PVFullParallelViewSelectionRectangle::scene_parent() const
  * PVParallelView::PVFullParallelViewSelectionRectangle::get_lines_view
  *****************************************************************************/
 
-PVParallelView::PVLinesView& PVParallelView::PVFullParallelViewSelectionRectangle::get_lines_view()
-{
-	return scene_parent()->get_lines_view();
-}
-
-/*****************************************************************************
- * PVParallelView::PVFullParallelViewSelectionRectangle::get_lines_view
- *****************************************************************************/
-
 PVParallelView::PVLinesView const&
 PVParallelView::PVFullParallelViewSelectionRectangle::get_lines_view() const
 {

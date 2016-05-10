@@ -31,7 +31,7 @@ struct PVLineEqInt {
 };
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_rect(
-    PVLinesView& lines_view, PVZoneID zone_id, QRect rect, Inendi::PVSelection& sel)
+    PVLinesView const& lines_view, PVZoneID zone_id, QRect rect, Inendi::PVSelection& sel)
 {
 	uint32_t nb_selected = 0;
 
@@ -77,28 +77,12 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 
 		for (size_t i = 0; i < branch_count; i++) {
 			const PVRow cur_r = ztree.get_branch_element(branch, i);
-			// sel_th.set_bit_fast(cur_r);
 			sel.set_bit_fast(cur_r);
-			//#pragma omp atomic
-			// sel.get_buffer()[Inendi::PVSelection::line_index_to_chunk(cur_r)] |=
-			// 1UL<<Inendi::PVSelection::line_index_to_chunk_bit(cur_r);
 		}
 		nb_selected += branch_count;
 	}
 	BENCH_END(compute_selection_from_parallel_view_rect, "compute_selection", sizeof(PVRow),
 	          NBUCKETS, 1, 1);
-
-	/*
-	if (nb_selected != 0) {
-	        BENCH_START(merge);
-	        decltype(sel_tls)::const_iterator it = sel_tls.begin();
-	        sel = *it;
-	        it++;
-	        for (; it != sel_tls.end(); it++) {
-	                sel.or_optimized(*it);
-	        }
-	        BENCH_END(merge, "compute_selection_merge", 1, 1, 1, 1);
-	}*/
 
 	return nb_selected;
 }
