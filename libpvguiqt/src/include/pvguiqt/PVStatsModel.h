@@ -134,18 +134,18 @@ class PVStatsModel : public PVAbstractTableModel
 	{
 		assert(col_idx == 0 || col_idx == 1);
 
-		if (sorted_column() != col_idx) {
+		if (_display.sorted_column() != col_idx) {
 			const pvcop::db::array& column = (col_idx == 0) ? _col1 : _col2;
 
 			BENCH_START(sort);
-			sorting().parallel_sort_on(column);
+			_display.sorting().parallel_sort_on(column);
 			BENCH_END(sort, "sort", column.size(), /*column.mem_size() / column.size()*/ 1,
 			          column.size(), /*column.mem_size() / column.size()*/ 1);
 		}
 
-		// FIXME(pbrunet) : What ifwe cancel it?
+		// FIXME(pbrunet) : What if we cancel it?
 		sorted(col_idx, order);
-		filter_is_sort();
+		_display.set_filter_as_sort();
 
 		emit layoutChanged();
 	}

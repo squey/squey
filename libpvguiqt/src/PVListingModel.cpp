@@ -223,7 +223,7 @@ void PVGuiQt::PVListingModel::sort(PVCol comb_col,
                                    tbb::task_group_context& ctxt)
 {
 	PVCol orig_col = lib_view().get_original_axis_index(comb_col);
-	lib_view().sort_indexes(orig_col, sorting(), &ctxt);
+	lib_view().sort_indexes(orig_col, _display.sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(comb_col, order); // set Qt sort indicator
 		update_filter();
@@ -255,20 +255,8 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Inform view about future update
 	emit layoutAboutToBeChanged();
 
-	// Filter out lines according to the good selection.
-	clear_filter();
-
-	const PVRow nvisible_lines =
-	    sel.get_number_of_selected_lines_in_range(0, lib_view().get_row_count());
-
-	// Nothing is visible
-	if (nvisible_lines == 0) {
-		emit layoutChanged(); // FIXME : Should use RAII
-		return;
-	}
-
 	// Push selected lines
-	set_filter(sel);
+	_display.set_filter(sel);
 
 	// Inform view new_filter is set
 	// This is not done using Hive as _filter have to be set, PVSelection is not

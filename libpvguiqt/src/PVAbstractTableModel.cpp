@@ -19,9 +19,7 @@ constexpr static size_t MIN_PAGE_SIZE = 100;
 
 PVAbstractTableModel::PVAbstractTableModel(int row_count, QObject* parent)
     : QAbstractTableModel(parent)
-    , _sort(row_count)
-    , _sorted_column(PVCOL_INVALID_VALUE)
-    , _sort_order(Qt::SortOrder::AscendingOrder)
+    , _display(row_count)
     , _current_page(0)
     , _pos_in_page(0)
     , _page_size(0)
@@ -34,27 +32,8 @@ PVAbstractTableModel::PVAbstractTableModel(int row_count, QObject* parent)
     , _in_select_mode(true)
     , _selection_mode(SET)
 {
-	// No filter at start
-	reset_filter(row_count);
-
-	// No reorder at start
-	auto& sort = _sort.to_core_array();
-	std::iota(sort.begin(), sort.end(), 0);
-
 	// Start with empty selection
 	_current_selection.select_none();
-}
-
-/******************************************************************************
- *
- * PVAbstractTableModel::reset_filter
- *
- *****************************************************************************/
-void PVAbstractTableModel::reset_filter(int size)
-{
-	// No filter at start
-	_filter.resize(size);
-	std::iota(_filter.begin(), _filter.end(), 0);
 }
 
 /******************************************************************************
@@ -89,7 +68,7 @@ void PVAbstractTableModel::start_selection(int row)
 {
 	assert(row != -1 && "Should be called only on checked row");
 	_end_sel = _start_sel = row_pos(row);
-	_in_select_mode = not _current_selection.get_line_fast(row_pos_to_index(_end_sel));
+	_in_select_mode = not _current_selection.get_line_fast(_display.row_pos_to_index(_end_sel));
 }
 
 /******************************************************************************
@@ -133,7 +112,7 @@ void PVAbstractTableModel::commit_selection()
 
 	// Update current_selection from "in progress" selection
 	for (; _start_sel <= _end_sel; _end_sel--) {
-		int index = row_pos_to_index(_end_sel);
+		int index = _display.row_pos_to_index(_end_sel);
 		bool is_set = _current_selection.get_line_fast(index);
 		_current_selection.set_line(index, apply_selection_mode(is_set));
 	}
@@ -168,22 +147,10 @@ int PVAbstractTableModel::rowIndex(PVRow index) const
 {
 	// Compute index with : pagination information + offset from the start of
 	// the "screen"
-	// _filter convert listing line number to sorted nraw line number
-	// _sort convert sorted nraw line number to nraw line number
 
 	size_t idx = row_pos(index);
 
-	return row_pos_to_index(idx);
-}
-
-/******************************************************************************
- *
- * PVAbstractTableModel::row_pos_to_index
- *
- *****************************************************************************/
-int PVAbstractTableModel::row_pos_to_index(PVRow idx) const
-{
-	return _filter[idx];
+	return _display.row_pos_to_index(idx);
 }
 
 /******************************************************************************
@@ -212,10 +179,10 @@ int PVAbstractTableModel::row_pos(PVRow index) const
 int PVAbstractTableModel::rowCount(const QModelIndex&) const
 {
 	// Define the number of ticks in the scrollbar
-	if (_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
+	if (_display.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
 		return _page_number + _page_step;
 	} else {
-		return _filter.size();
+		return _display.size();
 	}
 }
 
@@ -257,7 +224,7 @@ void PVAbstractTableModel::move_by(int inc_elts, size_t page_step)
 			_current_page += decp;
 			_pos_in_page = new_pos - decp * _page_size;
 		}
-	} else if ((new_pos + _current_page * _page_size) >= (_filter.size() - page_step)) {
+	} else if ((new_pos + _current_page * _page_size) >= (_display.size() - page_step)) {
 		// It is not the end of the last page but almost the end so we stop
 		// now to show the last line at the bottom of the screen
 		_current_page = _page_number - 1;
@@ -277,7 +244,7 @@ void PVAbstractTableModel::move_to_nraw(PVRow row, size_t page_step)
 {
 	// Row is line number in the full NRaw while line is the line number in
 	// the current selection
-	PVRow line = std::distance(_filter.begin(), std::find(_filter.begin(), _filter.end(), row));
+	PVRow line = _display.row_pos_from_index(row);
 	move_to_row(line, page_step);
 }
 
@@ -288,7 +255,7 @@ void PVAbstractTableModel::move_to_nraw(PVRow row, size_t page_step)
  *****************************************************************************/
 void PVAbstractTableModel::move_to_row(PVRow row, size_t page_step)
 {
-	assert(row < _filter.size() && "Impossible Row id");
+	assert(row < _display.size() && "Impossible Row id");
 	_current_page = row / _page_size;
 	_pos_in_page = row - _current_page * _page_size;
 
@@ -305,7 +272,7 @@ void PVAbstractTableModel::move_to_row(PVRow row, size_t page_step)
  *****************************************************************************/
 void PVAbstractTableModel::move_to_page(size_t page)
 {
-	assert((page == 0 or page < _filter.size()) && "Impossible Row id");
+	assert((page == 0 or page < _display.size()) && "Impossible Row id");
 	_current_page = page;
 	_pos_in_page = 0;
 }
@@ -338,27 +305,27 @@ void PVAbstractTableModel::update_pages(size_t nbr_tick, size_t page_step)
 	_page_step = page_step;
 	// Filter may be updated before scrollbar
 	assert(nbr_tick != 0 && "At least, there is the current page");
-	if (_filter.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
-		if (nbr_tick < SCROLL_SIZE / 2 or nbr_tick > _filter.size()) {
-			// _filter is updated bu nbr_tick is not. Set a dummy value to
+	if (_display.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
+		if (nbr_tick < SCROLL_SIZE / 2 or nbr_tick > _display.size()) {
+			// _display is updated but nbr_tick is not. Set a dummy value to
 			// initiate the fixed point algorithm and get correct page number
-			_page_size = _filter.size() / SCROLL_SIZE;
+			_page_size = _display.size() / SCROLL_SIZE;
 		} else {
 			// We keep the last tick for bottom
-			_page_size = _filter.size() / (nbr_tick - 1);
+			_page_size = _display.size() / (nbr_tick - 1);
 		}
-		_page_number = _filter.size() / _page_size;
+		_page_number = _display.size() / _page_size;
 		// Last page is normal page + remainder
-		_last_page_size = _filter.size() - _page_size * (_page_number - 1);
+		_last_page_size = _display.size() - _page_size * (_page_number - 1);
 	} else {
 		_page_size = 1;
-		if (_page_step <= _filter.size()) {
-			_page_number = _filter.size() - _page_step + 1;
+		if (_page_step <= _display.size()) {
+			_page_number = _display.size() - _page_step + 1;
 		} else {
 			_page_number = 1;
 		}
 		// Last page is normal page + remainder
-		_last_page_size = _filter.size() - _page_number + 1;
+		_last_page_size = _display.size() - _page_number + 1;
 	}
 
 	if (old_page_num != _page_number or _page_step != old_step or
@@ -406,34 +373,11 @@ bool PVAbstractTableModel::is_selected(QModelIndex const& index) const
 *****************************************************************************/
 void PVAbstractTableModel::sorted(PVCol col, Qt::SortOrder order)
 {
-	_sorted_column = col;
-	_sort_order = order;
+	_display.set_sorted_meta(col, order);
 	// Commit the range selection to make the selected rows persistent
 	commit_selection();
 	// And reset the range selection which does not have sense anymore.
 	_end_sel = _start_sel = -1;
-}
-
-/******************************************************************************
-*
-* PVAbstractTableModel::set_filter
-*
-*****************************************************************************/
-void PVAbstractTableModel::set_filter(Inendi::PVSelection const& sel)
-{
-
-	auto const& sort = _sort.to_core_array();
-	_filter.resize(sort.size());
-
-	// Push selected lines
-	size_t copy_size =
-	    std::distance(_filter.begin(), std::copy_if(sort.begin(), sort.end(), _filter.begin(),
-	                                                [&](PVRow row) { return sel.get_line(row); }));
-	_filter.resize(copy_size);
-
-	if (_sort_order == Qt::DescendingOrder) {
-		std::reverse(_filter.begin(), _filter.end());
-	}
 }
 
 /******************************************************************************

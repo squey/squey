@@ -11,8 +11,8 @@
 #include <QBrush>
 
 #include <pvbase/types.h>
+#include <pvguiqt/PVSortFilter.h>
 #include <inendi/PVSelection.h>
-#include <pvcop/db/array.h>
 
 namespace PVGuiQt
 {
@@ -121,7 +121,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 *
 	 * @note : apply filtering and sorting to row with pagination information.
 	 */
-	int row_pos_to_index(PVRow index) const;
+	PVRow row_pos_to_index(PVRow idx) const { return _display.row_pos_to_index(idx); }
 
 	/**
 	 * Number of ticks in the scrollbar
@@ -136,12 +136,12 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/**
 	 * Get real number of elements in the Table.
 	 */
-	size_t size() const { return _filter.size(); }
+	size_t size() const { return _display.size(); }
 
 	/**
 	 * Accessor for all lines in the ListingView
 	 */
-	std::vector<PVRow> const& shown_lines() const { return _filter; }
+	std::vector<PVRow> const& shown_lines() const { return _display.shown_lines(); }
 
 	/**
 	 * Current_selection with possible modification
@@ -216,18 +216,6 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 */
 	bool is_last_pos() const;
 
-	pvcop::db::indexes& sorting() { return _sort; }
-
-	/**
-	 * Use default filtering with all elements from 0 to size;
-	 */
-	void reset_filter(int size);
-
-	/**
- * Remove filter. No more line displaied
- */
-	void clear_filter() { _filter.clear(); }
-
 	/**
 	 * Set the filter with the matching selection.
 	 *
@@ -243,25 +231,6 @@ class PVAbstractTableModel : public QAbstractTableModel
 
   protected:
 	/**
-	 * Accessor for sorted column index.
-	 */
-	PVCol sorted_column() const { return _sorted_column; }
-
-	/**
-	 * filtering is the same as sort (mean everything is selected but sorted.).
-	 */
-	void filter_is_sort()
-	{
-		auto const& sort = _sort.to_core_array();
-		if (_sort_order != Qt::DescendingOrder) {
-			std::copy(sort.begin(), sort.end(), _filter.begin());
-		} else {
-			std::copy(sort.begin(), sort.end(), _filter.rbegin());
-		}
-	}
-
-  protected:
-	/**
 	 * Apply the current selection mode to @p value
 	 *
 	 * @param value the bit value
@@ -273,13 +242,11 @@ class PVAbstractTableModel : public QAbstractTableModel
   protected:
 	const QBrush _selection_brush = QColor(88, 172, 250); //!< Aspect of selected lines
 
-  private:
+  protected:
 	// Sorting information
-	std::vector<PVRow> _filter; //!< Lines to use, map listing_row_id to nraw_row_id unsorted
-	pvcop::db::indexes _sort;  //!< Sorted lines, map listing not filtered position to nraw position
-	PVCol _sorted_column;      //!< The current sorted column
-	Qt::SortOrder _sort_order; //!< The sort order of the current sorted column
+	PVSortFilter _display; //!< Sorted and filtered representation of data.
 
+  private:
 	// Pagination information
 	size_t _current_page;   //!< Page currently processed
 	size_t _pos_in_page;    //!< Position in the page
