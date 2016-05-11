@@ -178,8 +178,6 @@ include/pvkernel/widgets/PVPresetsWidget.h
 include/pvkernel/widgets/PVGraphicsView.h
 include/pvkernel/widgets/PVGraphicsViewInteractor.h
 
-include/pvkernel/widgets/PVConfigPopupWidget.h
-
 include/pvkernel/widgets/PVAbstractRangePicker.h
 
 include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
@@ -216,7 +214,6 @@ widgets/editors/PVPercentRangeEditor.cpp
 widgets/PVUtils.cpp
 
 widgets/PVPopupWidget.cpp
-widgets/PVConfigPopupWidget.cpp
 widgets/PVTextPopupWidget.cpp
 
 widgets/PVHelpWidget.cpp

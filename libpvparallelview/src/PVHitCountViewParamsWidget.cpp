@@ -21,51 +21,7 @@
 
 PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCountView* parent)
     : QToolBar(parent)
-//	PVWidgets::PVConfigPopupWidget(parent)
 {
-#if RH_USE_PVConfigPopupWidget
-	setWindowTitle(tr("Hit count view - options"));
-
-	QVBoxLayout* layout = new QVBoxLayout();
-	setContentLayout(layout);
-
-	_signal_mapper = new QSignalMapper(this);
-	QObject::connect(_signal_mapper, SIGNAL(mapped(int)), this, SLOT(set_selection_mode(int)));
-
-	_toolbar = new QToolBar("Selection mode");
-	_toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	_toolbar->setOrientation(Qt::Vertical);
-	_toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-	_toolbar->setFloatable(false);
-	_toolbar->setMovable(false);
-
-	_toolbar->setContentsMargins(0, 0, 0, 0);
-	_toolbar->layout()->setAlignment(Qt::AlignLeft);
-	layout->addWidget(_toolbar);
-
-	PVSelectionRectangle::add_selection_mode_selector(parent, _toolbar, _signal_mapper);
-
-	QLayout* l = _toolbar->layout();
-	for (int i = 0; i < l->count(); ++i) {
-		QLayoutItem* item = l->itemAt(i);
-		item->setAlignment(Qt::AlignLeft);
-		QWidget* w = item->widget();
-		if (w != nullptr) {
-			w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		}
-	}
-
-	_toolbar->addSeparator();
-
-	_cb_autofit = new QCheckBox(tr("Auto-fit selection on the occurence axis"));
-	_cb_use_log_color = new QCheckBox(tr("Use logarithmic colormap"));
-
-	_toolbar->addWidget(_cb_autofit);
-	_toolbar->addWidget(_cb_use_log_color);
-
-	connect(_cb_autofit, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
-	connect(_cb_use_log_color, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_log_color()));
-#else // is a QToolBar
 	_signal_mapper = new QSignalMapper(this);
 	QObject::connect(_signal_mapper, SIGNAL(mapped(int)), this, SLOT(set_selection_mode(int)));
 
@@ -98,7 +54,6 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	addAction(_use_log_color);
 	parent->addAction(_use_log_color);
 	connect(_use_log_color, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_log_color()));
-#endif
 }
 
 /*****************************************************************************
@@ -107,16 +62,6 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 
 void PVParallelView::PVHitCountViewParamsWidget::update_widgets()
 {
-#if RH_USE_PVConfigPopupWidget
-	_cb_autofit->blockSignals(true);
-	_cb_use_log_color->blockSignals(true);
-
-	_cb_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
-	_cb_use_log_color->setChecked(parent_hcv()->use_log_color());
-
-	_cb_autofit->blockSignals(false);
-	_cb_use_log_color->blockSignals(false);
-#else
 	_autofit->blockSignals(true);
 	_use_log_color->blockSignals(true);
 
@@ -125,7 +70,6 @@ void PVParallelView::PVHitCountViewParamsWidget::update_widgets()
 
 	_autofit->blockSignals(false);
 	_use_log_color->blockSignals(false);
-#endif
 }
 
 /*****************************************************************************

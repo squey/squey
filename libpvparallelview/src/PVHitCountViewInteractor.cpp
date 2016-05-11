@@ -77,21 +77,6 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 		hcv->_sel_rect->clear();
 		zda->get_viewport()->update();
 		break;
-#if RH_USE_PVConfigPopupWidget
-	case Qt::Key_Space:
-		if (event->modifiers() == Qt::NoModifier) {
-			if (hcv->params_widget()->isHidden()) {
-				hcv->params_widget()->setPersistence(false);
-				hcv->params_widget()->popup(QCursor::pos(), true);
-				return true;
-			}
-		} else if (event->modifiers() == Qt::ControlModifier) {
-			hcv->params_widget()->setPersistence(true);
-			hcv->params_widget()->popup(QCursor::pos(), true);
-			return true;
-		}
-		break;
-#endif
 	case Qt::Key_Home:
 		if (event->modifiers() == Qt::ControlModifier) {
 			hcv->set_x_zoom_level_from_sel();
