@@ -5,13 +5,14 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvbase/general.h>
+
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSpacerItem>
 
-#include <pvkernel/core/general.h>
 #include <PVOptionsWidget.h>
 
 #include <iostream>

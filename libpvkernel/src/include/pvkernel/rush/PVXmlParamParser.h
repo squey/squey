@@ -28,7 +28,6 @@
 #include <QHash>
 #include <QVector>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVXmlParamParserData.h>

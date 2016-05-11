@@ -8,7 +8,6 @@
 #ifndef PVROOTTREEVIEW_H
 #define PVROOTTREEVIEW_H
 
-#include <pvkernel/core/general.h>
 #include <QTreeView>
 
 namespace PVCore

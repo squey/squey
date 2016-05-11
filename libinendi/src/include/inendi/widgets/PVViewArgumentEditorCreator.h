@@ -12,7 +12,6 @@
 #include <QItemEditorCreatorBase>
 #include <QWidget>
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVView.h>
 
 namespace PVWidgets

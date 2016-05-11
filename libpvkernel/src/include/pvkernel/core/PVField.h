@@ -8,7 +8,6 @@
 #ifndef PVFIELD_FILE_H
 #define PVFIELD_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVBufferSlice.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 

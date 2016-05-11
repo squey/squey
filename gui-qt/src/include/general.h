@@ -8,6 +8,4 @@
 #ifndef PVINSPECTOR_GENERAL_H
 #define PVINSPECTOR_GENERAL_H
 
-#include <pvkernel/core/general.h>
-
 #endif

@@ -8,7 +8,6 @@
 #ifndef PVMAPPINGPLOTTINGEDITDIALOG_H
 #define PVMAPPINGPLOTTINGEDITDIALOG_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVFormat_types.h>
 #include <inendi/PVPtrObjects.h>
 #include <inendi/PVAxesCombination.h>

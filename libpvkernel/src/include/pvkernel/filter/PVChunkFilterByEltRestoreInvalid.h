@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVCHUNKFILTERBYELTRESTOREINVALID_H
 #define PVFILTER_PVCHUNKFILTERBYELTRESTOREINVALID_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilter.h>
 

@@ -8,7 +8,6 @@
 #include <QtCore>
 #include <QtWidgets>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColor.h>
 
 #include <inendi/PVSource.h>

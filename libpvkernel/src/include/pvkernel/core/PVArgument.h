@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVARGUMENT_H
 #define PVCORE_PVARGUMENT_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVOrderedMap.h>
 #include <QHash>
 #include <QString>

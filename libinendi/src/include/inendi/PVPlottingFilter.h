@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVPLOTTINGFILTER_H
 #define PVFILTER_PVPLOTTINGFILTER_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/filter/PVFilterFunction.h>

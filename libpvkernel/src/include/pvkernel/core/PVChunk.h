@@ -8,7 +8,6 @@
 #ifndef PVCHUNK_FILE_H
 #define PVCHUNK_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>

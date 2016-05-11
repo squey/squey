@@ -8,7 +8,6 @@
 #ifndef PVRUSHAGGREGATOR_FILE_H
 #define PVRUSHAGGREGATOR_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 

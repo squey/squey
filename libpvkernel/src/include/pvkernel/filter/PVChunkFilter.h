@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVCHUNKFILTER_H
 #define PVFILTER_PVCHUNKFILTER_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 

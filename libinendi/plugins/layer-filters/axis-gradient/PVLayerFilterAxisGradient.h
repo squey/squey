@@ -8,8 +8,6 @@
 #ifndef INENDI_PVLAYERFILTERAXISGRADIENT_H
 #define INENDI_PVLAYERFILTERAXISGRADIENT_H
 
-#include <pvkernel/core/general.h>
-
 #include <inendi/PVLayer.h>
 #include <inendi/PVLayerFilter.h>
 

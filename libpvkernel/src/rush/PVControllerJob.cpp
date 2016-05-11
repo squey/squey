@@ -5,10 +5,10 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvbase/general.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/core/PVChunk.h>
-#include <assert.h>
-#include <pvkernel/core/general.h>
+#include <cassert>
 
 PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
                                          chunk_index end,

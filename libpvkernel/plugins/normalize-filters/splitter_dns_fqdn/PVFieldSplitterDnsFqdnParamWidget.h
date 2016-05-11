@@ -8,7 +8,6 @@
 #ifndef PVFIELDSPLITTERDNSFQDNPARAMWIDGET_H
 #define PVFIELDSPLITTERDNSFQDNPARAMWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 #include <QAction>

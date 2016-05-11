@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVPLOTTINGFILTERMINMAX_H
 #define PVFILTER_PVPLOTTINGFILTERMINMAX_H
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVPlottingFilter.h>
 
 namespace Inendi

@@ -20,7 +20,6 @@
 
 #include <iostream>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 

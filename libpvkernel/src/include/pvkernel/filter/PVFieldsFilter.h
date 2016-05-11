@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVFIELDSFILTER_H
 #define PVFILTER_PVFIELDSFILTER_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>

@@ -6,7 +6,6 @@
  */
 
 #include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/PVPODTree.h>
 #include <pvkernel/core/PVHSVColor.h>
 
 #include <inendi/PVSelection.h>

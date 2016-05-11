@@ -8,7 +8,6 @@
 #ifndef INENDI_PVSOURCECREATOR_H
 #define INENDI_PVSOURCECREATOR_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>

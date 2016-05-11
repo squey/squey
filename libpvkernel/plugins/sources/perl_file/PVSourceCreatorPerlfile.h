@@ -8,7 +8,6 @@
 #ifndef INENDI_PVSOURCECREATORPERLFILE_H
 #define INENDI_PVSOURCECREATORPERLFILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 

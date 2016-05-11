@@ -12,11 +12,8 @@
 # Ressources for pvkernel/core
 #########################################################################
 set(CORE_SRC_FILES
-core/debug.cpp
-core/environ.cpp
 core/network.cpp
 core/inendi_intrin.cpp
-core/inendi_trace.cpp
 core/sse4detector.cpp
 core/segfault_handler.cpp
 
@@ -26,9 +23,7 @@ core/PVArgument.cpp
 core/PVOriginalAxisIndexType.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
-core/PVBinaryOperation.cpp
 core/PVBitCount.cpp
-core/PVByteVisitor.cpp
 core/PVBufferSlice.cpp
 core/PVChunk.cpp
 core/PVColor.cpp
@@ -56,7 +51,6 @@ core/PVUtils.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp
-core/string_tbb.cpp
 core/PVConfig.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp

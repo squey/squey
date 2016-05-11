@@ -8,7 +8,6 @@
 #ifndef PVFIELDSPLITTERCHUNKMATCH_H
 #define PVFIELDSPLITTERCHUNKMATCH_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 

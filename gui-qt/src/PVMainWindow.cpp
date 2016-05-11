@@ -29,8 +29,6 @@
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/inendi_bench.h>
 
-#include <pvkernel/core/general.h>
-#include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>

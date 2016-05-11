@@ -8,8 +8,6 @@
 #ifndef INENDI_PVLAYERFILTERCreateLayers_H
 #define INENDI_PVLAYERFILTERCreateLayers_H
 
-#include <pvkernel/core/general.h>
-
 #include <QList>
 #include <QString>
 #include <QPair>

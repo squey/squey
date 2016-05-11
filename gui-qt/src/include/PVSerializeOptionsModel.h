@@ -8,7 +8,6 @@
 #ifndef PVSERIALIZEOPTIONSMODEL_H
 #define PVSERIALIZEOPTIONSMODEL_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/core/PVSerializeObject.h>
 

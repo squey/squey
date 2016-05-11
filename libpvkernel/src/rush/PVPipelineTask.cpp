@@ -5,11 +5,12 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/rush/PVPipelineTask.h>
 #include <tbb/task.h>
 #include <tbb/pipeline.h>
 #include <tbb/tbb_exception.h>
-#include <assert.h>
+#include <cassert>
 
 PVRush::PVPipelineTask::PVPipelineTask() : tbb::task(), _ntokens(240), _running(false)
 {

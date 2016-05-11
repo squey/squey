@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVFIELDSMAPPINGFILTER_H
 #define PVFILTER_PVFIELDSMAPPINGFILTER_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
 #include <vector>

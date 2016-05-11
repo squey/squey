@@ -10,7 +10,6 @@
 
 #include <QString>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>

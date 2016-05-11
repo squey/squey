@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVMAPPINGFILTER_H
 #define PVFILTER_PVMAPPINGFILTER_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/filter/PVFilterFunction.h>

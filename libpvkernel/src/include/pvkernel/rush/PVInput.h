@@ -8,7 +8,6 @@
 #ifndef PVINPUT_FILE_H
 #define PVINPUT_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 

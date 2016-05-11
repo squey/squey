@@ -8,7 +8,6 @@
 #ifndef PVFORMAT_VERSION_H
 #define PVFORMAT_VERSION_H
 
-#include <pvkernel/core/general.h>
 #include <QDomDocument>
 
 namespace PVRush

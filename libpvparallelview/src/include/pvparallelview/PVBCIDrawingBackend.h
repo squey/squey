@@ -8,7 +8,6 @@
 #ifndef PVPARALLELVIEW_PVBCIDRAWINGBACKEND_H
 #define PVPARALLELVIEW_PVBCIDRAWINGBACKEND_H
 
-#include <pvkernel/core/general.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>

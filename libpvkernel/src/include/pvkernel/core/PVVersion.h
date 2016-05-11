@@ -8,8 +8,8 @@
 #ifndef PVCORE_PVVERSION_FILE_H
 #define PVCORE_PVVERSION_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <QByteArray>
+#include <pvbase/general.h>
 
 namespace PVCore
 {

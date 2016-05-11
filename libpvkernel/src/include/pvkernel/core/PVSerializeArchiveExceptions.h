@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEEXCEPTIONS_H
 #define PVCORE_PVSERIALIZEARCHIVEEXCEPTIONS_H
 
-#include <pvkernel/core/general.h>
 #include <QString>
 
 namespace PVCore

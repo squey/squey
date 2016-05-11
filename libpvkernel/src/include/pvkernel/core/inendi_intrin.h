@@ -9,8 +9,7 @@
 #define PVKERNEL_CORE_INENDI_INTRIN_H
 
 #include <immintrin.h>
-
-#include <pvkernel/core/general.h>
+#include <cstdint>
 
 namespace PVCore
 {

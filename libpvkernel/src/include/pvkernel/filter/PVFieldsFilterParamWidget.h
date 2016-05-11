@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVFIELDSFILTERPARAMWIDGET_H
 #define PVFILTER_PVFIELDSFILTERPARAMWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFieldsFilter.h>

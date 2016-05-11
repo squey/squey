@@ -9,8 +9,6 @@
 #include <QRegExp>
 #include <QFile>
 
-#include <pvkernel/core/general.h>
-
 #include "parse-config.h"
 
 int create_layers_parse_config(QString filename,

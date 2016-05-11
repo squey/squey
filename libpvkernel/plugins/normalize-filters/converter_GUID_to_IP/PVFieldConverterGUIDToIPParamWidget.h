@@ -8,7 +8,6 @@
 #ifndef PVFIELDCONVERTERGUIDTOIPPARAMWIDGET_H
 #define PVFIELDCONVERTERGUIDTOIPPARAMWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 class QWidget;

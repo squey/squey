@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVLogger.h>
+
 #include <inendi/PVPlottingFilter.h>
 
 Inendi::PVPlottingFilter::PVPlottingFilter()

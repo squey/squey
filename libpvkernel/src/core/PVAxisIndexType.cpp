@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 
 PVCore::PVAxisIndexType::PVAxisIndexType(bool append_none_axis)

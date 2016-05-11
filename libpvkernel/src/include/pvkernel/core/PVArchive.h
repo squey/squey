@@ -8,8 +8,6 @@
 #ifndef PVCORE_PVARCHIVE_H
 #define PVCORE_PVARCHIVE_H
 
-#include <pvkernel/core/general.h>
-
 #include <QStringList>
 #include <QString>
 

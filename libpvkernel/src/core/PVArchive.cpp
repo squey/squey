@@ -10,7 +10,9 @@
 
 #include <boost/thread.hpp>
 
+#include <pvbase/general.h>
 #include <pvkernel/core/PVArchive.h>
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVDirectory.h>
 
 #include <QDir>

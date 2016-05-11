@@ -5,6 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVClassLibrary.h>
 

@@ -8,7 +8,7 @@
 #ifndef WIDGETS_PVPLOTTINGMODEWIDGET_H
 #define WIDGETS_PVPLOTTINGMODEWIDGET_H
 
-#include <pvkernel/core/general.h>
+#include <pvbase/types.h>
 #include <pvkernel/widgets/PVComboBox.h>
 
 #include <inendi/PVView_types.h>

@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVFUNCTION_ARGS_H
 #define PVCORE_PVFUNCTION_ARGS_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 
 #include <QString>

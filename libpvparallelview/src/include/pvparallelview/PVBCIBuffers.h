@@ -8,8 +8,6 @@
 #ifndef PVPARALLELVIEW_PBBCIBUFFERS_H
 #define PVPARALLELVIEW_PBBCIBUFFERS_H
 
-#include <pvkernel/core/general.h>
-
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 

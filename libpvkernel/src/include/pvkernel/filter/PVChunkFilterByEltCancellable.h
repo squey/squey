@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVCHUNKFILTERBYELTCANCELLABLE_H
 #define PVFILTER_PVCHUNKFILTERBYELTCANCELLABLE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVElementFilter.h>
 

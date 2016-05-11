@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVDIRECTORY_H
 #define PVCORE_PVDIRECTORY_H
 
-#include <pvkernel/core/general.h>
 #include <QString>
 #include <QDir>
 

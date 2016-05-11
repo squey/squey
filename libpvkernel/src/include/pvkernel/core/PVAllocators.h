@@ -8,10 +8,9 @@
 #ifndef PVCORE_PVALLOCATORS_H
 #define PVCORE_PVALLOCATORS_H
 
-#include <pvkernel/core/general.h>
-
 #include <cstddef>
 #include <typeinfo>
+#include <memory>
 
 #include <stdint.h>
 #include <malloc.h>
@@ -19,6 +18,9 @@
 
 #include <numa.h>     // for numa_*
 #include <sys/mman.h> // for madvise
+
+#include <pvbase/types.h>
+#include <pvkernel/core/PVLogger.h>
 
 namespace PVCore
 {

@@ -8,7 +8,6 @@
 #ifndef PVDBINFOS_FILE_H
 #define PVDBINFOS_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <QSqlDatabase>

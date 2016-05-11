@@ -8,7 +8,6 @@
 #ifndef PVPARALLELVIEW_PVZONETREEBASE_H
 #define PVPARALLELVIEW_PVZONETREEBASE_H
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVPlotted.h>
 
 #include <pvparallelview/common.h>

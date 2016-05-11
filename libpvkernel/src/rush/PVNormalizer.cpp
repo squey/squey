@@ -17,9 +17,7 @@
 
 #include <stdlib.h>
 
-#include <pvkernel/core/general.h>
-#include <pvkernel/core/debug.h>
-
+#include <pvbase/general.h>
 #include <pvkernel/rush/PVNormalizer.h>
 
 /******************************************************************************

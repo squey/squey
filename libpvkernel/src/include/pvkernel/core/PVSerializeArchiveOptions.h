@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEOPTIONS_H
 #define PVCORE_PVSERIALIZEARCHIVEOPTIONS_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 

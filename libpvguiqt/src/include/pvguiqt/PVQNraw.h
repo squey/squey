@@ -8,8 +8,6 @@
 #ifndef PVGUIQT_PVQNRAW_H
 #define PVGUIQT_PVQNRAW_H
 
-#include <pvkernel/core/general.h>
-
 namespace PVRush
 {
 class PVNraw;

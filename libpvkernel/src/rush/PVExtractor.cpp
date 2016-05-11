@@ -9,9 +9,6 @@
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <pvkernel/core/debug.h>
-#include <iostream>
-
 #include <tbb/task_scheduler_init.h>
 
 PVRush::PVExtractor::PVExtractor()

@@ -8,6 +8,7 @@
 #include "PVSaveDataTreeDialog.h"
 #include "PVSerializeOptionsWidget.h"
 
+#include <pvbase/general.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <QFileSystemModel>

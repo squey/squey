@@ -8,8 +8,6 @@
 #ifndef PVCORE_PVTAG_FILE_H
 #define PVCORE_PVTAG_FILE_H
 
-#include <pvkernel/core/general.h>
-
 #include <QList>
 #include <QString>
 #include <exception>

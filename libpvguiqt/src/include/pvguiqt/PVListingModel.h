@@ -15,7 +15,6 @@
 #include <QFont>
 
 #include <pvguiqt/PVAbstractTableModel.h>
-#include <pvkernel/core/general.h>
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVView_types.h>
 

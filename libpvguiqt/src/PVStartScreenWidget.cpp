@@ -27,7 +27,6 @@
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/lambda_connect.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>

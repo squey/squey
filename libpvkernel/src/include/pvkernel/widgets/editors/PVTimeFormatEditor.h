@@ -14,7 +14,6 @@
 #include <QTextCharFormat>
 #include <QSyntaxHighlighter>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVTimeFormatType.h>
 
 // Forward declaration

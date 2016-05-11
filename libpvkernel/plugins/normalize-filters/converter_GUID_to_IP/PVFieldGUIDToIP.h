@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVFIELGUIDTOIP_H
 #define PVFILTER_PVFIELGUIDTOIP_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 

@@ -14,8 +14,6 @@
 #include <QMenu>
 #include <QAction>
 
-#include <pvkernel/core/general.h>
-
 PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_model,
                                                       QWidget* parent)
     : QWidget(parent), _nraw_model(nraw_model)

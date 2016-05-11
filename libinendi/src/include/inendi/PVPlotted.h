@@ -15,7 +15,6 @@
 #include <utility>
 #include <limits>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVSerializeArchive.h>

@@ -12,7 +12,6 @@ class QString;
 class QStringList;
 #include <QByteArray>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <string.h>

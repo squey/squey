@@ -8,7 +8,6 @@
 #ifndef INENDI_PVINPUTTYPE_H
 #define INENDI_PVINPUTTYPE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/core/PVClassLibrary.h>

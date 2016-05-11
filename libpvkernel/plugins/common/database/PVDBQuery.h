@@ -10,7 +10,7 @@
 
 #include "PVDBServ_types.h"
 
-#include <pvkernel/core/general.h>
+#include <pvbase/types.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVInputDescription.h>
 

@@ -8,8 +8,6 @@
 #include <QtWidgets>
 #include <QEvent>
 
-#include <pvkernel/core/general.h>
-
 #include <PVLayerStackView.h>
 #include <PVMainWindow.h>
 

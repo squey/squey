@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H
 #define PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVMappingFilter.h>
 
 namespace Inendi

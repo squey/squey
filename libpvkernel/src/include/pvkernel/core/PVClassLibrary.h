@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVCLASSLIBRARY_H
 #define PVCORE_PVCLASSLIBRARY_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVTag.h>
 
 #include <pvkernel/core/PVOrderedMap.h>

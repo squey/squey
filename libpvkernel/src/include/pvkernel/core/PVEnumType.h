@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVENUMTYPE_H
 #define PVCORE_PVENUMTYPE_H
 
-#include <pvkernel/core/general.h>
 #include <QMetaType>
 #include <QString>
 #include <QStringList>

@@ -10,7 +10,6 @@
 
 #include <QStringList>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 
 #include <array>

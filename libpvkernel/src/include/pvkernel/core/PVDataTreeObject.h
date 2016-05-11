@@ -21,7 +21,6 @@
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/core/PVEnableSharedFromThis.h>
 #include <pvkernel/core/PVTypeTraits.h>
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeObject.h>
 

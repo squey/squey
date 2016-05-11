@@ -8,7 +8,6 @@
 #ifndef PVCHARSETDETECT_FILE_H
 #define PVCHARSETDETECT_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/uchardetect/nscore.h>
 #include <pvkernel/rush/uchardetect/nsUniversalDetector.h>
 

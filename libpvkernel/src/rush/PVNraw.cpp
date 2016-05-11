@@ -5,6 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvbase/general.h>
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>

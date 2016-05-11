@@ -8,7 +8,6 @@
 #ifndef PVRUSH_PVPLUGINS_H
 #define PVRUSH_PVPLUGINS_H
 
-#include <pvkernel/core/general.h>
 #include <QString>
 
 #define INPUT_TYPE_PREFIX "input_type"

@@ -8,7 +8,6 @@
 #ifndef PVPARALLELVIW_PVZONEPROCESSING_H
 #define PVPARALLELVIW_PVZONEPROCESSING_H
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVPlotted.h>
 
 namespace PVParallelView

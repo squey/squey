@@ -13,7 +13,6 @@
 #include <QStringList>
 #include <QVector>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 

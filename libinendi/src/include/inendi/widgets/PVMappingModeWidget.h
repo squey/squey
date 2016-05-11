@@ -8,7 +8,6 @@
 #ifndef WIDGETS_PVMAPPINGMODEWIDGET_H
 #define WIDGETS_PVMAPPINGMODEWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVComboBox.h>
 

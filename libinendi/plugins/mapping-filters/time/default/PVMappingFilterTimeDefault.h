@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVMAPPINGFILTERTIMEDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERTIMEDEFAULT_H
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVMappingFilter.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>

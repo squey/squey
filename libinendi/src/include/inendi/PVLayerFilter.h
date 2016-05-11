@@ -8,7 +8,8 @@
 #ifndef INENDI_PVLAYERFILTER_H
 #define INENDI_PVLAYERFILTER_H
 
-#include <pvkernel/core/general.h>
+#include <pvbase/types.h>
+
 #include <inendi/PVLayer_types.h>
 #include <inendi/PVView_types.h>
 

@@ -22,8 +22,6 @@
 
 #include <tbb/task.h>
 
-#include <pvkernel/core/general.h>
-
 #include <condition_variable>
 
 namespace PVCore

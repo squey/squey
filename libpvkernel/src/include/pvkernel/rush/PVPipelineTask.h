@@ -8,7 +8,6 @@
 #ifndef PVPIPELINETASK_FILE_H
 #define PVPIPELINETASK_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <tbb/task.h>
 #include <tbb/pipeline.h>
 

@@ -8,6 +8,7 @@
 // Register the plugin in PVFilterLibrary
 //
 
+#include <pvbase/export.h>
 #include "PVMappingFilterIPv4Uniform.h"
 #include <pvkernel/core/PVClassLibrary.h>
 

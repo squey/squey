@@ -16,8 +16,6 @@
 
 #include <pvcop/db/array.h>
 
-#include <pvkernel/core/general.h>
-
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>

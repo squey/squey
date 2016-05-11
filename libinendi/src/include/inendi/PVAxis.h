@@ -8,7 +8,6 @@
 #ifndef INENDI_PVAXIS_H
 #define INENDI_PVAXIS_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>

@@ -8,9 +8,10 @@
 #ifndef PVBUFFERSLICE_FILE_H
 #define PVBUFFERSLICE_FILE_H
 
-#include <pvkernel/core/general.h>
-
 #include <list>
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 
 namespace PVCore
 {

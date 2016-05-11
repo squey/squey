@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVPLUGINS_H
 #define PVFILTER_PVPLUGINS_H
 
-#include <pvkernel/core/general.h>
 #include <string>
 
 #define NORMALIZE_FILTER_PREFIX "normalize"

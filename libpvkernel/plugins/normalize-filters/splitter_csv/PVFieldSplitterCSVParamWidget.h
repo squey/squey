@@ -8,7 +8,6 @@
 #ifndef PVFIELDSPLITTERCSVPARAMWIDGET_H
 #define PVFIELDSPLITTERCSVPARAMWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 #include <QBoxLayout>
