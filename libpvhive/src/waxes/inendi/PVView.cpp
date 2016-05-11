@@ -122,15 +122,6 @@ IMPL_WAX(Inendi::PVView::set_layer_stack_layer_n_name, view, args)
 	return ret;
 }
 
-IMPL_WAX(Inendi::PVView::toggle_layer_stack_layer_n_locked_state, view, args)
-{
-	auto ret = call_object_default<Inendi::PVView,
-	                               FUNC(Inendi::PVView::toggle_layer_stack_layer_n_locked_state)>(
-	    view, args);
-	refresh_observers(&view->get_layer_stack());
-	return ret;
-}
-
 IMPL_WAX(Inendi::PVView::toggle_layer_stack_layer_n_visible_state, view, args)
 {
 	auto ret = call_object_default<Inendi::PVView,

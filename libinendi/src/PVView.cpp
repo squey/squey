@@ -106,8 +106,10 @@ void Inendi::PVView::reset_layers()
 	// This function remove all the layers and add the default one with all events
 	// selected
 	layer_stack.delete_all_layers();
-	layer_stack.append_new_layer(row_count);
+	layer_stack.append_new_layer(row_count, "All events");
 	layer_stack.get_layer_n(0).reset_to_full_and_default_color(row_count);
+	layer_stack.get_layer_n(0).set_lock();
+
 	if (row_count != 0) {
 		/* when a .pvi is loaded, the mapped and the plotted are
 		 * uninitialized when the view is created (the rush pipeline
@@ -319,17 +321,6 @@ PVCol Inendi::PVView::get_real_axis_index(PVCol col) const
 Inendi::PVLayerStack& Inendi::PVView::get_layer_stack()
 {
 	return layer_stack;
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::get_layer_stack_layer_n_locked_state
- *
- *****************************************************************************/
-int Inendi::PVView::get_layer_stack_layer_n_locked_state(int n) const
-{
-	PVLayer const& layer = layer_stack.get_layer_n(n);
-	return layer.get_locked();
 }
 
 /******************************************************************************
@@ -756,23 +747,6 @@ void Inendi::PVView::set_selection_view(PVSelection const& sel)
 {
 	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = sel;
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::toggle_layer_stack_layer_n_locked_state
- *
- *****************************************************************************/
-int Inendi::PVView::toggle_layer_stack_layer_n_locked_state(int n)
-{
-	PVLayer& layer = layer_stack.get_layer_n(n);
-
-	if (layer.get_locked()) {
-		layer.set_locked(0);
-	} else {
-		layer.set_locked(1);
-	}
-	return 0;
 }
 
 /******************************************************************************

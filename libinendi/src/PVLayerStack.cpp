@@ -102,21 +102,23 @@ Inendi::PVLayer* Inendi::PVLayerStack::append_new_layer_from_selection_and_lines
  *****************************************************************************/
 void Inendi::PVLayerStack::delete_by_index(int index)
 {
-	if (get_layer_count() == 1) {
-		// if there is only one layer, it must not be removable
+	if ((index < 0) || (index >= get_layer_count())) {
 		return;
 	}
 
-	if ((0 <= index) && (index < get_layer_count())) {
-		_table.removeAt(index);
-
-		/* We set the selected layer according to the posibilities */
-		if (get_layer_count() == 0) {
-			_selected_layer_index = -1;
-		} else {
-			_selected_layer_index = 0;
-		}
+	if (_table.at(index).is_locked()) {
+		return;
 	}
+
+	_table.removeAt(index);
+
+	// we set the selected layer according to the posibilities
+	if (_selected_layer_index == get_layer_count()) {
+		_selected_layer_index = get_layer_count() - 1;
+	}
+
+	// and we make sure it is visible
+	_table[_selected_layer_index].set_visible(true);
 }
 
 /******************************************************************************

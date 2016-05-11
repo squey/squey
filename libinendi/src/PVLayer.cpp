@@ -14,7 +14,8 @@
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-Inendi::PVLayer::PVLayer(const QString& name_) : index(0), locked(false), visible(true), name(name_)
+Inendi::PVLayer::PVLayer(const QString& name_)
+    : index(0), _locked(false), visible(true), name(name_)
 {
 }
 
@@ -26,7 +27,7 @@ Inendi::PVLayer::PVLayer(const QString& name_) : index(0), locked(false), visibl
 Inendi::PVLayer::PVLayer(const QString& name_,
                          const PVSelection& sel_,
                          const PVLinesProperties& lp_)
-    : index(0), locked(false), visible(true), name(name_), selection(sel_), lines_properties(lp_)
+    : index(0), _locked(false), visible(true), name(name_), selection(sel_), lines_properties(lp_)
 {
 	set_count(selection.count());
 	name.truncate(INENDI_LAYER_NAME_MAXLEN);
@@ -127,5 +128,5 @@ void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so,
 	so.attribute("name", name);
 	so.attribute("visible", visible);
 	so.attribute("index", index);
-	so.attribute("locked", locked);
+	so.attribute("locked", _locked);
 }
