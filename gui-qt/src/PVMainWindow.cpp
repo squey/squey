@@ -1180,7 +1180,11 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	if (src->has_nraw_folder()) {
 		BENCH_START(lfd);
 		try {
-			loaded_from_disk = src->load_from_disk();
+			if (!PVCore::PVProgressBox::progress(
+			        boost::bind<bool>(&Inendi::PVSource::load_from_disk, src),
+			        tr("Loading sources from disk..."), loaded_from_disk, this)) {
+				return false;
+			}
 		} catch (std::exception& e) {
 			PVLOG_ERROR("PVNraw error: %s\n", e.what());
 			QMessageBox::critical(this, "Cannot load sources",
