@@ -73,35 +73,30 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 
 	// Axis may have been duplicated and moved, get the real one.
 	const PVCol org_col = lib_view().get_original_axis_index(index.column());
+	const PVRow r = rowIndex(index);
+
+	if (r >= lib_view().get_row_count()) {
+		// Nothing for rows out of bound.
+		return {};
+	}
 
 	switch (role) {
-	// Get content of the cell
-	case (Qt::DisplayRole): {
-		const PVRow r = rowIndex(index);
-		if (r >= lib_view().get_row_count()) {
-			// This data should not be shown as it is not in
-			// the NRaw
-			return {};
-		}
-		return QString::fromStdString(
-		    lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
-	}
-	// Define alignment of data
-	case (Qt::TextAlignmentRole):
-		return {Qt::AlignLeft | Qt::AlignVCenter};
-	// Get Tooltip content for the cell
+
+	// Set content and tooltip
+	case Qt::DisplayRole:
 	case Qt::ToolTipRole: {
-		const PVRow r = rowIndex(index);
-		return QString::fromStdString(
-		    lib_view().get_parent<Inendi::PVSource>()->get_value(r, org_col));
+		const Inendi::PVSource* src = lib_view().get_parent<Inendi::PVSource>();
+
+		return QString::fromStdString(src->get_input_value(r, org_col));
 	}
-	// Define brackground color for cells
-	case (Qt::BackgroundRole): {
-		const PVRow r = rowIndex(index);
-		if (r >= lib_view().get_row_count()) {
-			// Nothing for rows out of bound.
-			return {};
-		}
+
+	// Set alignment
+	case Qt::TextAlignmentRole: {
+		return {Qt::AlignLeft | Qt::AlignVCenter};
+	}
+
+	// Set cell color
+	case Qt::BackgroundRole: {
 
 		if (is_selected(index)) {
 			// Visual selected lines from current selection
@@ -120,13 +115,9 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 			return _zombie_brush;
 		}
 	}
-	// Define Font color for cells
+
+	// Set font color
 	case (Qt::ForegroundRole): {
-		const PVRow r = rowIndex(index);
-		if (r >= lib_view().get_row_count()) {
-			// Nothing for rows out of bound.
-			return {};
-		}
 		// Show text in white if this is a zombie event
 		if (!lib_view().get_real_output_selection().get_line(r) &&
 		    !lib_view().get_line_state_in_layer_stack_output_layer(r)) {
@@ -134,8 +125,22 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 		}
 		return QVariant();
 	}
+
+	// Set value in italic if conversion during import has failed
+	case (Qt::FontRole): {
+		QFont f;
+
+		const Inendi::PVSource* src = lib_view().get_parent<Inendi::PVSource>();
+
+		if (src->has_conversion_failed(r, org_col)) {
+			f.setItalic(true);
+		}
+
+		return f;
 	}
-	return QVariant();
+	}
+
+	return {};
 }
 
 /******************************************************************************

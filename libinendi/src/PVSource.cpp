@@ -159,7 +159,41 @@ PVCol Inendi::PVSource::get_column_count() const
 
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 {
+	assert(row < get_row_count());
+	assert(col < get_column_count());
+
 	return _nraw.at_string(row, col);
+}
+
+std::string Inendi::PVSource::get_input_value(PVRow row, PVCol col, bool* res) const
+{
+	assert(row < get_row_count());
+	assert(col < get_column_count());
+
+	const PVRush::PVNrawBadConversions& bad_conv = get_rushnraw().bad_conversions();
+
+	bool conversion_failed;
+	std::string str = bad_conv.get(col, row, &conversion_failed);
+
+	if (res) {
+		*res = conversion_failed;
+	}
+
+	if (conversion_failed) {
+		return str;
+	} else {
+		return get_value(row, col);
+	}
+}
+
+bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
+{
+	assert(row < get_row_count());
+	assert(col < get_column_count());
+
+	const PVRush::PVNrawBadConversions& bad_conv = get_rushnraw().bad_conversions();
+
+	return bad_conv.has_failed(col, row);
 }
 
 PVRush::PVInputType_p Inendi::PVSource::get_input_type() const

@@ -1283,8 +1283,9 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			    "\n" + QString::number(bc_count) +
 			        " conversions from text to binary failed during import...",
 			    QMessageBox::Ok, this);
-			warning_message.setInformativeText(
-			    "(Missing values are interpreted as default values)");
+			warning_message.setInformativeText("Such values are displayed in italic in the "
+			                                   "listing, but are treated as default values "
+			                                   "elsewhere.");
 			warning_message.setDetailedText(
 			    bad_conversions_as_string(src->get_rushnraw().bad_conversions().failures(), src));
 			warning_message.exec();

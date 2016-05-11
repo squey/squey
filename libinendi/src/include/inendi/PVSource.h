@@ -78,6 +78,21 @@ class PVSource : public data_tree_source_t
 	std::string get_value(PVRow row, PVCol col) const;
 
 	/**
+	 * Get the original value encountered during import, even if it
+	 * has failed to be converted correctly
+	 */
+	std::string get_input_value(PVRow row, PVCol col, bool* failed = nullptr) const;
+
+	/**
+	 * Check if the value encountered during import has failed
+	 * to be converted correctly
+	 *
+	 * @return true if the conversion has failed
+	 *         false otherwise
+	 */
+	bool has_conversion_failed(PVRow row, PVCol col) const;
+
+	/**
 	 * Return the number of row in the datastorage.
 	 */
 	PVRow get_row_count() const;
