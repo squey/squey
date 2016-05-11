@@ -354,7 +354,7 @@ class PVDataTreeObjectWithParent : public PVDataTreeObjectWithParentBase
 	struct GetParentImpl<T, Tancestor, false> {
 		static inline Tancestor* get_parent(T* parent)
 		{
-			if (parent != nullptr) {
+			if (parent != nullptr && parent->get_parent() != nullptr) {
 				return GetParentImpl<
 				    typename PVCore::PVTypeTraits::const_fwd<typename T::parent_t, T>::type,
 				    Tancestor>::get_parent(parent->get_parent());
