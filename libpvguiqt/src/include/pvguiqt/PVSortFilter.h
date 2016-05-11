@@ -43,7 +43,7 @@ class PVSortFilter
 		// Push selected lines
 		size_t copy_size = std::distance(
 		    _filter.begin(), std::copy_if(sort.begin(), sort.end(), _filter.begin(),
-		                                  [&](PVRow row) { return sel.get_line(row); }));
+		                                  [&](PVRow row) { return sel.get_line_fast(row); }));
 		_filter.resize(copy_size);
 
 		if (_sort_order == Qt::DescendingOrder) {
