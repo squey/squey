@@ -403,7 +403,7 @@ void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
 		PVMainWindow* other = new PVMainWindow();
 		other->move(x() + 40, y() + 40);
 		other->show();
-		if (!load_solution(file)) {
+		if (!other->load_solution(file)) {
 			other->deleteLater();
 			return;
 		}
