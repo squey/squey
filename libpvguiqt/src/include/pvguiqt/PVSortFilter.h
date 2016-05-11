@@ -7,6 +7,9 @@
 #include <inendi/PVSelection.h>
 
 #include <pvcop/db/array.h>
+#include <pvhwloc.h>
+
+#include <omp.h>
 
 namespace PVGuiQt
 {
@@ -36,15 +39,37 @@ class PVSortFilter
 
 	void set_filter(Inendi::PVSelection const& sel)
 	{
+		size_t num_threads = pvhwloc::thread_count();
+
+		std::vector<PVRow> filters[num_threads];
+		size_t elts[num_threads];
 
 		auto const& sort = _sort.to_core_array();
 		_filter.resize(sort.size());
 
+#pragma omp parallel num_threads(num_threads)
+		{
+			auto& filter = filters[omp_get_thread_num()];
+			filter.resize(sort.size() / omp_get_num_threads() + 1);
+			size_t i = 0;
+#pragma omp for schedule(static) nowait
+			for (auto it = sort.begin(); it < sort.end(); it++) {
+				if (sel.get_line_fast(*it)) {
+					filter[i++] = *it;
+				}
+			}
+
+			// Update it at the end to avoid false-sharing
+			elts[omp_get_thread_num()] = i;
+		}
+
+		auto begin = _filter.begin();
+		for (size_t i = 0; i < num_threads; i++) {
+			begin = std::copy_n(filters[i].begin(), elts[i], begin);
+		}
+
 		// Push selected lines
-		size_t copy_size = std::distance(
-		    _filter.begin(), std::copy_if(sort.begin(), sort.end(), _filter.begin(),
-		                                  [&](PVRow row) { return sel.get_line_fast(row); }));
-		_filter.resize(copy_size);
+		_filter.resize(std::distance(_filter.begin(), begin));
 
 		if (_sort_order == Qt::DescendingOrder) {
 			std::reverse(_filter.begin(), _filter.end());
