@@ -114,12 +114,15 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 {
 	PVLOG_DEBUG("(PVXmlParamParser::setAxesCombinationFromString) string: %s\n", qPrintable(str));
 	_axes_combination.clear();
-	if (str.isEmpty()) {
+
+	QStringList axes_list = str.split(',');
+
+	if (axes_list.size() < 2) {
 		return; // The default combination will be used
 	}
 
-	QStringList axes_list = str.split(',');
 	PVCol naxes = _axes.size();
+
 	_axes_combination.reserve(axes_list.size());
 	for (int i = 0; i < axes_list.size(); i++) {
 		bool ok = false;
