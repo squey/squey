@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVProgressBox.h>
+
 #include <inendi/PVView.h>
 
 #include <pvparallelview/PVLibView.h>
@@ -24,7 +26,15 @@ PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
 QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Inendi::PVView* view,
                                                               QWidget* parent) const
 {
-	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
+	PVCore::PVProgressBox pbox("Initializing full parallel view", parent);
+
+	pbox.set_enable_cancel(false);
+
+	PVParallelView::PVLibView* lib_view;
+
+	PVCore::PVProgressBox::progress(
+	    [&]() { lib_view = PVParallelView::common::get_lib_view(*view); }, &pbox);
+
 	QWidget* widget = lib_view->create_view(parent);
 
 	return widget;
