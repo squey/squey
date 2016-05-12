@@ -85,40 +85,6 @@ void PVGuiQt::PVSceneTabBar::mouseReleaseEvent(QMouseEvent* event)
 	QTabBar::mouseReleaseEvent(event);
 }
 
-void PVGuiQt::PVSceneTabBar::mouseMoveEvent(QMouseEvent*)
-{
-	// Drag&drop is disabled for the moment...
-	/*int tab_index = tabAt(event->pos());
-
-	if (tab_index == count()) {
-	        setCursor(Qt::PointingHandCursor);
-	}
-	else {
-	        setCursor(Qt::ArrowCursor);
-	}
-
-	bool drag_n_drop = !_drag_ongoing && // No ongoing drag&drop action
-	                                  event->buttons() == Qt::LeftButton && //
-	Drag&drop initialized with left button click
-	                          tab_index >=0 && tab_index < count() && // Tab is
-	candidate for drag&drop
-	                          (event->pos() -
-	_drag_start_position).manhattanLength() > QApplication::startDragDistance()*3;
-	// Significant desire to engage drag&drop
-
-	if (drag_n_drop) {
-	        start_drag(_tab_widget->widget(tab_index));
-	}
-
-	QTabBar::mouseMoveEvent(event);*/
-}
-
-void PVGuiQt::PVSceneTabBar::leaveEvent(QEvent* ev)
-{
-	// setCursor(Qt::ArrowCursor);
-	QTabBar::leaveEvent(ev);
-}
-
 void PVGuiQt::PVSceneTabBar::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
@@ -300,10 +266,6 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool animat
 		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
 		animation->setStartValue(_tab_animated_width);
 		animation->start(QAbstractAnimation::DeleteWhenStopped);
-
-		/*QEventLoop loop;
-		loop.connect(this, SIGNAL(animation_finished()), SLOT(quit()));
-		loop.exec();*/
 	} else {
 		removeTab(index);
 	}
@@ -326,7 +288,6 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(
 		tabBar()->setStyleSheet("");
 		removeTab(_tab_animation_index);
 		sender()->deleteLater();
-		emit animation_finished();
 	}
 }
 

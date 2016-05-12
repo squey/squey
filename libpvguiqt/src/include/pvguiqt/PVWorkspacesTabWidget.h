@@ -88,8 +88,6 @@ class PVSceneTabBar : public QTabBar
   protected:
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
-	void mouseMoveEvent(QMouseEvent* event) override;
-	void leaveEvent(QEvent* even) override;
 
 	void start_drag(QWidget* workspace);
 
@@ -165,10 +163,6 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	 */
 	void workspace_dragged_outside(QWidget*);
 
-	/*! \brief Signal emitted when the tab animation is finished.
-	 */
-	void animation_finished();
-
   protected slots:
 	/*! \brief Slot called when the user closes a workspace.
 	 */
@@ -183,7 +177,7 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	 */
 	int get_tab_width() const { return 0; }
 
-	/*! \brief Emit "animation_finished" signal when the animation finished.
+	/*! \brief Remove tab at then end of the animation.
 	 */
 	void animation_state_changed(QAbstractAnimation::State new_state,
 	                             QAbstractAnimation::State old_state);
