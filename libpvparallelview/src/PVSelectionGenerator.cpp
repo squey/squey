@@ -62,8 +62,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 				continue;
 			}
 
-			// PVRow r =  ztree.get_first_elt_of_branch(branch);
-			// Inendi::PVSelection& sel_th = sel_tls.local();
 			code_b.int_v = branch;
 			int32_t y1 = code_b.s.l;
 			int32_t y2 = code_b.s.r;

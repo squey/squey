@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #ifndef BCODE_TYPES_H
@@ -13,8 +13,6 @@
 namespace PVParallelView
 {
 
-#pragma pack(push)
-#pragma pack(4)
 struct PVBCode {
 	union {
 		uint32_t int_v;
@@ -25,7 +23,8 @@ struct PVBCode {
 		} s;
 	};
 };
-#pragma pack(pop)
+
+static_assert(sizeof(PVBCode) == 4, "BCode should be a packed struct.");
 }
 
 #endif
