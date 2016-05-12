@@ -30,14 +30,13 @@
 #define inendi_verify_cuda(e) __inendi_verify_cuda(e, __FILE__, __LINE__)
 #define __inendi_verify_cuda(e, F, L)                                                              \
 	if ((e) != cudaSuccess) {                                                                      \
-		fprintf(stderr, "Cuda assert failed in %s:%d with %s.\n", F, L,                            \
-		        cudaGetErrorString(cudaGetLastError()));                                           \
+		fprintf(stderr, "Cuda assert failed in %s:%d with %s.\n", F, L, cudaGetErrorString(e));    \
 		abort();                                                                                   \
 	}
 #define inendi_verify_cuda_kernel() __verify_cuda_kernel(__FILE__, __LINE__)
 #define __verify_cuda_kernel(F, L)                                                                 \
 	do {                                                                                           \
-		int last_err = cudaGetLastError();                                                         \
+		cudaError_t last_err = cudaGetLastError();                                                 \
 		__inendi_verify_cuda(last_err, F, L);                                                      \
 	} while (0);
 
