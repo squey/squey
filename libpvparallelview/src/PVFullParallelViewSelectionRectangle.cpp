@@ -10,6 +10,7 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVLinesView.h>
+#include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 
 #include <iostream>
@@ -107,7 +108,9 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 		r.setX(std::max(0, r.x()));
 		r.setRight(std::min(pos_end - 1, r.right()));
 		PVSelectionGenerator::compute_selection_from_parallel_view_rect(
-		    get_lines_view(), z, r, lib_view().get_volatile_selection());
+		    get_lines_view().get_zone_width(z),
+		    get_lines_view().get_zones_manager().get_zone_tree(z), r,
+		    lib_view().get_volatile_selection());
 	}
 
 	store();

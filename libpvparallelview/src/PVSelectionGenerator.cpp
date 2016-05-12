@@ -31,13 +31,9 @@ struct PVLineEqInt {
 };
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_rect(
-    PVLinesView const& lines_view, PVZoneID zone_id, QRect rect, Inendi::PVSelection& sel)
+    int32_t width, PVZoneTree const& ztree, QRect rect, Inendi::PVSelection& sel)
 {
 	uint32_t nb_selected = 0;
-
-	int32_t width = lines_view.get_zone_width(zone_id);
-
-	PVZoneTree const& ztree = lines_view.get_zones_manager().get_zone_tree(zone_id);
 
 	if (rect.isNull()) {
 		return 0;
