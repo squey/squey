@@ -12,8 +12,6 @@
 
 #include <pvparallelview/common.h>
 
-#include <vector>
-
 namespace PVCore
 {
 class PVHSVColor;
@@ -27,9 +25,6 @@ class PVBCICode;
 
 class PVZoneTreeBase
 {
-  protected:
-	typedef std::vector<float> pts_t;
-
   public:
 	PVZoneTreeBase();
 	virtual ~PVZoneTreeBase() {}

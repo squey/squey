@@ -263,9 +263,6 @@ class PVZoneTree : public PVZoneTreeBase
 		return get_right_axis_count_seq(branch_r);
 	}
 
-	// inline uint32_t get_right_axis_count(const uint32_t branch_r) const { return
-	// get_right_axis_count_seq(branch_r); }
-
   public:
 	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp)
 	{
@@ -273,7 +270,6 @@ class PVZoneTree : public PVZoneTreeBase
 		process_tbb_sse_treeb(zp, pdata);
 	}
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
-	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void
 	filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
