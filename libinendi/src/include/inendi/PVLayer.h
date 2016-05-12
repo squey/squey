@@ -43,7 +43,7 @@ class PVLayer
 
   private:
 	int index;
-	bool locked;
+	bool _locked;
 	bool visible;
 	QString name;
 	PVSelection selection;
@@ -74,7 +74,6 @@ class PVLayer
 	int get_index() const { return index; }
 	const PVLinesProperties& get_lines_properties() const { return lines_properties; }
 	PVLinesProperties& get_lines_properties() { return lines_properties; }
-	bool get_locked() const { return locked; }
 	const QString& get_name() const { return name; }
 	const PVSelection& get_selection() const { return selection; }
 	PVSelection& get_selection() { return selection; }
@@ -94,7 +93,10 @@ class PVLayer
 	void reset_to_default_color(PVRow row_count);
 
 	void set_index(int index_) { index = index_; }
-	void set_locked(bool locked_) { locked = locked_; }
+
+	void set_lock() { _locked = true; }
+	bool is_locked() const { return _locked; }
+
 	void set_name(const QString& name_)
 	{
 		name = name_;

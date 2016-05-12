@@ -113,8 +113,7 @@ class PVView : public data_tree_view_t
 	PVCol get_column_count() const;
 	PVLayerStack& get_layer_stack();
 	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
-	int get_layer_stack_layer_n_locked_state(int n) const;
-	;
+
 	QString get_layer_stack_layer_n_name(int n) const;
 	int get_layer_stack_layer_n_visible_state(int n) const;
 	PVLayer& get_layer_stack_output_layer();
@@ -195,7 +194,6 @@ class PVView : public data_tree_view_t
 	void set_selection_from_layer(PVLayer const& layer);
 	void set_selection_view(PVSelection const& sel);
 
-	int toggle_layer_stack_layer_n_locked_state(int n);
 	int toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
 

@@ -102,9 +102,6 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 
 	case (Qt::DisplayRole):
 		switch (index.column()) {
-		/*case 1:
-		        return (int)lib_layer_stack().get_layer_n(lib_index).get_locked();*/
-
 		case 1:
 			return lib_layer_stack().get_layer_n(lib_index).get_name();
 		case 2:
@@ -219,10 +216,6 @@ bool PVGuiQt::PVLayerStackModel::setData(const QModelIndex& index, const QVarian
 			_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 			return true;
 
-		/*case 1:
-		        _actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_locked_state)>(lib_index);
-		        return true;*/
-
 		case 1:
 			_actor.call<FUNC(Inendi::PVView::set_layer_stack_layer_n_name)>(lib_index,
 			                                                                value.toString());
@@ -298,6 +291,10 @@ void PVGuiQt::PVLayerStackModel::move_selected_layer_down()
 
 void PVGuiQt::PVLayerStackModel::delete_selected_layer()
 {
+	if (lib_layer_stack().get_selected_layer().is_locked()) {
+		return;
+	}
+
 	_actor.call<FUNC(Inendi::PVView::delete_selected_layer)>();
 	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
@@ -313,6 +310,11 @@ void PVGuiQt::PVLayerStackModel::duplicate_selected_layer(const QString& name)
 void PVGuiQt::PVLayerStackModel::delete_layer_n(const int idx)
 {
 	assert(idx < rowCount());
+
+	if (lib_layer_stack().get_layer_n(idx).is_locked()) {
+		return;
+	}
+
 	_actor.call<FUNC(Inendi::PVView::delete_layer_n)>(idx);
 	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
 }
