@@ -247,28 +247,23 @@ int PVGuiQt::PVWorkspacesTabWidgetBase::add_workspace(PVWorkspaceBase* workspace
 	return index;
 }
 
-void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index, bool animation /*= true*/)
+void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index)
 {
-	if (animation) {
-		QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
-		connect(
-		    animation, SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
-		    this,
-		    SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State)));
-		blockSignals(true);
-		_tab_animation_index = index;
-		setCurrentIndex(index); // Force current index in order to get the animation
-		                        // on the selected tab!
-		blockSignals(false);
-		_tab_animation_index = index;
-		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
-		animation->setEndValue(25);
-		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
-		animation->setStartValue(_tab_animated_width);
-		animation->start(QAbstractAnimation::DeleteWhenStopped);
-	} else {
-		removeTab(index);
-	}
+	QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
+	connect(animation, SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
+	        this,
+	        SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State)));
+	blockSignals(true);
+	_tab_animation_index = index;
+	setCurrentIndex(index); // Force current index in order to get the animation
+	// on the selected tab!
+	blockSignals(false);
+	_tab_animation_index = index;
+	animation->setDuration(TAB_OPENING_EFFECT_MSEC);
+	animation->setEndValue(25);
+	_tab_animated_width = _tab_bar->tabSizeHint(index).width();
+	animation->setStartValue(_tab_animated_width);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::set_tab_width(int tab_width)
@@ -349,6 +344,13 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified(bool modified /* 
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::tabRemoved(int index)
 {
+	PVGuiQt::PVSourceWorkspace* workspace =
+	    qobject_cast<PVGuiQt::PVSourceWorkspace*>(widget(index));
+
+	if (workspace) {
+		get_scene()->remove_child(*workspace->get_source());
+	}
+
 	if (count() == 0) {
 		emit is_empty();
 		hide();
@@ -356,19 +358,6 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tabRemoved(int index)
 		setCurrentIndex(std::min(index, count() - 1));
 	}
 	QTabWidget::tabRemoved(index);
-}
-
-void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index, bool close_source /*= true*/)
-{
-	assert(index != -1);
-	PVGuiQt::PVSourceWorkspace* workspace =
-	    qobject_cast<PVGuiQt::PVSourceWorkspace*>(widget(index));
-
-	if (workspace && close_source) {
-		get_scene()->remove_child(*workspace->get_source());
-	}
-
-	PVWorkspacesTabWidgetBase::remove_workspace(index, close_source);
 }
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)

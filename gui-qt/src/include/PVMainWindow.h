@@ -214,8 +214,6 @@ class PVMainWindow : public QMainWindow
 
 	void close_solution_Slot();
 
-	void create_new_window_for_workspace(QWidget* workspace);
-
 #ifdef WITH_MINESET
 	/**
 	 * Show error message for mineset export.

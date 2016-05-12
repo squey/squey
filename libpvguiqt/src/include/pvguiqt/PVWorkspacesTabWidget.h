@@ -145,7 +145,7 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 
 	/*! \brief Remove a workspace with or without animation.
 	 */
-	virtual void remove_workspace(int index, bool animation = true);
+	virtual void remove_workspace(int index);
 
 	/*! \brief Returns the number of affective tabs in the widget (ie: special tab "+" button is not
 	 * taken into account).
@@ -207,10 +207,6 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	PVSceneWorkspacesTabWidget(Inendi::PVScene& scene, QWidget* parent = 0);
 
   public:
-	/*! \brief Remove the workspace and close its associated source if needed.
-	 */
-	void remove_workspace(int index, bool close_source = true) override;
-
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
 

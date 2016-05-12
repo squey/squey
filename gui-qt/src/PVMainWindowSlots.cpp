@@ -595,24 +595,6 @@ void PVInspector::PVMainWindow::set_window_title_with_filename()
 	setWindowFilePath(file);
 }
 
-void PVInspector::PVMainWindow::create_new_window_for_workspace(QWidget* widget_workspace)
-{
-	// FIXME : This Windows is a memory leak
-	PVMainWindow* other = new PVMainWindow();
-	other->move(QCursor::pos());
-	other->resize(size());
-	other->show();
-
-	// other->_workspaces_tab_widget->setVisible(true);
-
-	PVGuiQt::PVSourceWorkspace* workspace =
-	    dynamic_cast<PVGuiQt::PVSourceWorkspace*>(widget_workspace);
-	if (workspace) {
-		_projects_tab_widget->remove_workspace(workspace, false);
-		other->_projects_tab_widget->add_workspace((PVGuiQt::PVSourceWorkspace*)workspace);
-	}
-}
-
 bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
 {
 	// Fix errors due to invalid file paths

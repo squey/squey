@@ -275,12 +275,11 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 	_tab_widget->setCurrentIndex(_stacked_widget->indexOf(workspace_tab_widget));
 }
 
-void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace,
-                                                    bool animation /* = true */)
+void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace)
 {
 	Inendi::PVScene* scene = workspace->get_source()->get_parent<Inendi::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
-	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace), animation);
+	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace));
 }
 
 void PVGuiQt::PVProjectsTabWidget::remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget)

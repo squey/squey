@@ -128,7 +128,7 @@ class PVProjectsTabWidget : public QWidget
 	PVSourceWorkspace* add_source(Inendi::PVSource* source);
 
 	void add_workspace(PVSourceWorkspace* workspace);
-	void remove_workspace(PVSourceWorkspace* workspace, bool animation = true);
+	void remove_workspace(PVSourceWorkspace* workspace);
 
 	bool save_modified_projects();
 	bool is_current_project_untitled()
