@@ -152,26 +152,6 @@ class PVZoneTree : public PVZoneTreeBase
 		std::vector<PVRange> _ranges;
 	};
 
-	struct PVTBBFilterSelParams {
-	  public:
-		PVTBBFilterSelParams(PVZoneProcessing const& zp,
-		                     Inendi::PVSelection const& sel,
-		                     PVZoneTree::ProcessData& pdata)
-		    : _zp(zp), _sel(sel), _pdata(pdata)
-		{
-		}
-
-	  public:
-		inline PVZoneProcessing const& zp() const { return _zp; }
-		inline ProcessData& pdata() const { return _pdata; }
-		inline Inendi::PVSelection const& sel() const { return _sel; }
-
-	  private:
-		PVZoneProcessing const& _zp;
-		Inendi::PVSelection const& _sel;
-		ProcessData& _pdata;
-	};
-
   public:
 	PVZoneTree();
 	virtual ~PVZoneTree() {}
