@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVDateTimeParser.h>
+#include <pvkernel/core/PVLogger.h>
 #include <QDate>
 
 #include <boost/bind.hpp>

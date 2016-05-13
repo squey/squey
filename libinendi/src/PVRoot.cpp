@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVSerializeArchiveZip.h>
+
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVView.h>

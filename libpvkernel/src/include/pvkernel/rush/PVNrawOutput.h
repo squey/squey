@@ -8,7 +8,6 @@
 #ifndef PVNRAWOUTPUT_FILE_H
 #define PVNRAWOUTPUT_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVOutput.h>

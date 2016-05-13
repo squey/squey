@@ -17,7 +17,6 @@
 #include <QHash>
 #include <QList>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/filter/PVChunkFilter.h>

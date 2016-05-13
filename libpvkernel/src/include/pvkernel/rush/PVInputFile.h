@@ -8,7 +8,6 @@
 #ifndef PVINPUTFILE_FILE_H
 #define PVINPUTFILE_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInput.h>
 #include <fstream>
 #include <string>

@@ -10,7 +10,6 @@
 
 #include <QString>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVHugePODVector.h>

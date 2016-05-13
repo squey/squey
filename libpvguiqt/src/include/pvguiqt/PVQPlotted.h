@@ -8,8 +8,6 @@
 #ifndef PVGUIQT_PVQPLOTTED_H
 #define PVGUIQT_PVQPLOTTED_H
 
-#include <pvkernel/core/general.h>
-
 namespace Inendi
 {
 class PVPlotted;

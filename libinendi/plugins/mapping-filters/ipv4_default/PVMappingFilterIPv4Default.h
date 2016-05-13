@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVMAPPINGFILTERIPV4_DEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERIPV4_DEFAULT_H
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVMappingFilter.h>
 
 namespace Inendi

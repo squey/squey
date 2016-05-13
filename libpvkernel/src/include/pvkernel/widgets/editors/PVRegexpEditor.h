@@ -11,8 +11,6 @@
 #include <QLineEdit>
 #include <QRegExp>
 
-#include <pvkernel/core/general.h>
-
 namespace PVWidgets
 {
 

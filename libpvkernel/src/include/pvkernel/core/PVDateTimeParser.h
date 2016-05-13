@@ -17,8 +17,6 @@
 
 #include <vector>
 
-#include <pvkernel/core/general.h>
-
 #include <boost/pool/object_pool.hpp>
 
 namespace PVCore

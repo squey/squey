@@ -8,7 +8,6 @@
 #ifndef INENDI_PVLAYERSTACK_H
 #define INENDI_PVLAYERSTACK_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <inendi/PVLayer.h>

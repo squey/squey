@@ -8,7 +8,6 @@
 #ifndef PVNRAWLISTINGWIDGET_H
 #define PVNRAWLISTINGWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVInputDescription.h>
 

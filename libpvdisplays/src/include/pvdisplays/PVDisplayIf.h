@@ -8,7 +8,7 @@
 #ifndef PVDISPLAYS_PVDISPLAYIF_H
 #define PVDISPLAYS_PVDISPLAYIF_H
 
-#include <pvkernel/core/general.h>
+#include <pvbase/types.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 

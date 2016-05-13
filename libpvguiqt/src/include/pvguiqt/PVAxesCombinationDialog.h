@@ -8,8 +8,6 @@
 #ifndef PVGUIQT_PVAXESCOMBINATIONDIALOG_H
 #define PVGUIQT_PVAXESCOMBINATIONDIALOG_H
 
-#include <pvkernel/core/general.h>
-
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVView_types.h>
 

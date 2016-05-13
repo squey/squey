@@ -5,8 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/debug.h>
-
 #include <pvkernel/rush/PVFormat.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVMapped.h>

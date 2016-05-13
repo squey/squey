@@ -8,7 +8,6 @@
 #ifndef PVNRAWLISTINGMODEL_H
 #define PVNRAWLISTINGMODEL_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVFormat.h>
 
 #include <QAbstractTableModel>

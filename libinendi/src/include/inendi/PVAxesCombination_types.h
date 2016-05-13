@@ -8,8 +8,6 @@
 #ifndef INENDI_PVAXESCOMBINATION_TYPES_H
 #define INENDI_PVAXESCOMBINATION_TYPES_H
 
-#include <pvkernel/core/general.h>
-
 namespace Inendi
 {
 

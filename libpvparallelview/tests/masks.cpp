@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/general.h>
 #include <pvparallelview/PVBCICode.h>
 
 int main()

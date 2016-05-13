@@ -5,8 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/qhashes.h>
-
 #include "PVLayerFilterHeatline.h"
 
 #include <pvkernel/core/inendi_bench.h>

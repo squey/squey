@@ -12,7 +12,6 @@
 #include <QList>
 #include <QStringList>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>

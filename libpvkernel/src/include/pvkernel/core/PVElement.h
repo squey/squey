@@ -8,7 +8,6 @@
 #ifndef PVELEMENT_FILE_H
 #define PVELEMENT_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBufferSlice.h>
 #include <pvkernel/core/PVField.h>

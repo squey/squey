@@ -5,8 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/general.h>
 #include "PVDBPresets.h"
+
+#include <pvbase/general.h>
 
 #include <QSettings>
 #include <QStringList>

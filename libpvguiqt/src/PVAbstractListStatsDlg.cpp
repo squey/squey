@@ -794,7 +794,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	ls.set_selected_layer_index(old_selected_layer_index);
 
 	view_sp->get_volatile_selection() = old_sel;
-	actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+	view_sp->commit_volatile_in_floating_selection();
 	actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 }
 
@@ -903,7 +903,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 		ls.set_selected_layer_index(old_selected_layer_index);
 		view_sp->get_volatile_selection() = old_sel;
-		actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+		view_sp->commit_volatile_in_floating_selection();
 		actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
 		++offset;
 	});

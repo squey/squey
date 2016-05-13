@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVBITCOUNT_H
 #define PVCORE_PVBITCOUNT_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/inendi_intrin.h>
 
 namespace PVCore

@@ -6,7 +6,6 @@
  */
 
 #include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/debug.h>
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>

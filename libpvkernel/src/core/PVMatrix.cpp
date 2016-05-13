@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVMatrix.h>
+#include <pvbase/types.h>
 
 #include <pvkernel/core/inendi_intrin.h>
 

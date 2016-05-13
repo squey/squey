@@ -11,7 +11,6 @@
 #include <QString>
 
 #include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVInputDescription.h>

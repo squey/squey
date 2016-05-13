@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVAXISINDEXTYPE_H
 #define PVCORE_PVAXISINDEXTYPE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 
 #include <QMetaType>

@@ -8,7 +8,6 @@
 #ifndef PVFIELDSUBSTITUTIONPARAMWIDGET_H
 #define PVFIELDSUBSTITUTIONPARAMWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 class QAction;

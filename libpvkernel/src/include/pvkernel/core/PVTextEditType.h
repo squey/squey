@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVTEXTEDITTYPE_H
 #define PVCORE_PVTEXTEDITTYPE_H
 
-#include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 
 #include <QString>

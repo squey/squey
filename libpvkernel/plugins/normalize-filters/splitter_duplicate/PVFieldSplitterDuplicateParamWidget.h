@@ -8,7 +8,6 @@
 #ifndef PVFIELDSPLITTERDUPLICATEPARAMWIDGET_H
 #define PVFIELDSPLITTERDUPLICATEPARAMWIDGET_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 #include <QSpinBox>

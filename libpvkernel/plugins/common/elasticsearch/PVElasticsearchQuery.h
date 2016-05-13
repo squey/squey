@@ -8,7 +8,6 @@
 #ifndef PVELASTICSEARCHQUERY_FILE_H
 #define PVELASTICSEARCHQUERY_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVInputDescription.h>
 

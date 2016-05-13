@@ -8,8 +8,6 @@
 #ifndef PVGUIQT_PVMAPPED_H
 #define PVGUIQT_PVMAPPED_H
 
-#include <pvkernel/core/general.h>
-
 namespace Inendi
 {
 class PVMapped;

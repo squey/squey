@@ -19,7 +19,8 @@
 #include <boost/python.hpp>
 
 #include <boost/thread/mutex.hpp>
-#include <pvkernel/core/general.h>
+
+#include <pvkernel/core/PVLogger.h>
 
 #include <QString>
 

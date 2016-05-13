@@ -8,7 +8,6 @@
 #ifndef PVRUSH_PVSOURCECREATORFACTORY_H
 #define PVRUSH_PVSOURCECREATORFACTORY_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/core/PVArgument.h>

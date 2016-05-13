@@ -8,7 +8,6 @@
 #ifndef PVWIDGETS_PVPERCENTRANGEEDITOR_H
 #define PVWIDGETS_PVPERCENTRANGEEDITOR_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
 

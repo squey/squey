@@ -11,9 +11,9 @@
 #include <cstdint>
 #include <memory.h>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/PVLogger.h>
+#include <pvbase/general.h>
 #include <pvkernel/core/inendi_bench.h>
 
 void PVCore::memcpy2d(void* dst,

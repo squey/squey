@@ -10,7 +10,6 @@
 
 #include <QString>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/dumbnet.h>
 
 namespace PVCore

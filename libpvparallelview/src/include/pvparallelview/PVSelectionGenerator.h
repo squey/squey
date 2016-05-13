@@ -36,7 +36,7 @@ constexpr unsigned int OR_MODIFIER = Qt::ShiftModifier;
 constexpr unsigned int NAND_MODIFIER = Qt::ControlModifier;
 constexpr unsigned int AND_MODIFIER = (Qt::ShiftModifier | Qt::ControlModifier);
 
-uint32_t compute_selection_from_parallel_view_rect(PVLinesView& lines_view,
+uint32_t compute_selection_from_parallel_view_rect(PVLinesView const& lines_view,
                                                    PVZoneID zone_id,
                                                    QRect rect,
                                                    Inendi::PVSelection& sel);
@@ -72,13 +72,6 @@ void process_selection(Inendi::PVView_sp view, bool use_modifiers = true);
 
 namespace __impl
 {
-uint32_t compute_selection_from_plotted_range_seq(const uint32_t* plotted,
-                                                  PVRow nrows,
-                                                  uint64_t y_min,
-                                                  uint64_t y_max,
-                                                  Inendi::PVSelection& sel,
-                                                  Inendi::PVSelection const& layers_sel);
-
 uint32_t compute_selection_from_plotted_range_sse(const uint32_t* plotted,
                                                   PVRow nrows,
                                                   uint64_t y_min,
@@ -86,35 +79,12 @@ uint32_t compute_selection_from_plotted_range_sse(const uint32_t* plotted,
                                                   Inendi::PVSelection& sel,
                                                   Inendi::PVSelection const& layers_sel);
 
-uint32_t compute_selection_from_plotted_ranges_seq(const uint32_t* y1_plotted,
-                                                   const uint32_t* y2_plotted,
-                                                   const PVRow nrows,
-                                                   const QRectF& rect,
-                                                   Inendi::PVSelection& sel,
-                                                   Inendi::PVSelection const& layers_sel);
-
 uint32_t compute_selection_from_plotteds_ranges_sse(const uint32_t* y1_plotted,
                                                     const uint32_t* y2_plotted,
                                                     const PVRow nrows,
                                                     const QRectF& rect,
                                                     Inendi::PVSelection& sel,
                                                     Inendi::PVSelection const& layers_sel);
-
-uint32_t compute_selection_from_hit_count_view_rect_serial(const PVHitGraphBlocksManager& manager,
-                                                           const QRectF& rect,
-                                                           const uint32_t max_count,
-                                                           Inendi::PVSelection& sel);
-
-uint32_t
-compute_selection_from_hit_count_view_rect_serial_invariant(const PVHitGraphBlocksManager& manager,
-                                                            const QRectF& rect,
-                                                            const uint32_t max_count,
-                                                            Inendi::PVSelection& sel);
-
-uint32_t compute_selection_from_hit_count_view_rect_sse(const PVHitGraphBlocksManager& manager,
-                                                        const QRectF& rect,
-                                                        const uint32_t max_count,
-                                                        Inendi::PVSelection& sel);
 
 uint32_t
 compute_selection_from_hit_count_view_rect_sse_invariant_omp(const PVHitGraphBlocksManager& manager,

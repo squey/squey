@@ -10,7 +10,6 @@
 
 #include <QObject>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <inendi/PVPlotted.h>

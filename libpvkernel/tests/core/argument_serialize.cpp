@@ -10,6 +10,7 @@
 #include <QMetaType>
 #include <QStringList>
 
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVCompList.h>
 

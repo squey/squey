@@ -217,23 +217,6 @@ void PVInspector::PVMainWindow::mineset_error_slot(QString error_msg)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::filter_select_all_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::filter_select_all_Slot()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	if (!current_view()) {
-		return;
-	}
-	/* We do all that has to be done in the lib FIRST */
-	current_view()->apply_filter_named_select_all();
-	current_view()->process_from_eventline();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::filter_Slot
  *
  *****************************************************************************/

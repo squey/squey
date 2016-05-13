@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEFIXERROR
 #define PVCORE_PVSERIALIZEARCHIVEFIXERROR
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVTypeTraits.h>
 
 #include <memory>

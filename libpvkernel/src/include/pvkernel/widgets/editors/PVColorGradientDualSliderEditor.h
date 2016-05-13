@@ -9,7 +9,6 @@
 #define PVCOLORGRADIENTDUALSLIDEREDITOR_H
 
 #include <QWidget>
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/widgets/PVColorPicker.h>
 

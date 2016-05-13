@@ -19,7 +19,6 @@
 
 #include <cassert>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/widgets/PVArgumentListModel.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 

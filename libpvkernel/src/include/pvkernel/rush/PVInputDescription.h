@@ -8,7 +8,6 @@
 #ifndef PVINPUTDESCRIPTION_FILE_H
 #define PVINPUTDESCRIPTION_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <memory>

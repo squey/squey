@@ -12,7 +12,6 @@
 #include <QWidget>
 #include <QPlainTextEdit>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVPlainTextType.h>
 
 namespace PVWidgets

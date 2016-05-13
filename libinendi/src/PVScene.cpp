@@ -7,7 +7,6 @@
 
 #include <pvkernel/core/hash_sharedptr.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
-#include <pvkernel/core/PVSerializeArchiveZip.h>
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 

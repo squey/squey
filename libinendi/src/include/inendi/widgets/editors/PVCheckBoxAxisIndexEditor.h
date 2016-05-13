@@ -10,7 +10,6 @@
 
 #include <QWidget>
 #include <inendi/PVView.h>
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVCheckBoxAxisIndexType.h>
 
 namespace PVWidgets

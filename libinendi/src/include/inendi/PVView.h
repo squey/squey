@@ -16,8 +16,6 @@
 
 #include <pvcop/db/array.h>
 
-#include <pvkernel/core/general.h>
-
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
@@ -281,8 +279,6 @@ class PVView : public data_tree_view_t
 	*
 	******************************************************************************
 	*****************************************************************************/
-
-	void apply_filter_named_select_all();
 
 	/**
 	 * Gets the data using #PVAxesCombination

@@ -8,6 +8,7 @@
 #ifndef INENDI_PVSELECTION_H
 #define INENDI_PVSELECTION_H
 
+#include <pvbase/general.h>
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBitVisitor.h>

@@ -15,7 +15,6 @@
 #include <utility>
 #include <limits>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVSerializeArchive.h>
@@ -49,23 +48,6 @@ class PVPlotted : public data_tree_plotted_t
 	static constexpr value_type MAX_VALUE = std::numeric_limits<value_type>::max();
 
   private:
-	struct ExpandedSelection {
-		ExpandedSelection(PVCol col_, PVSelection const& sel_, QString const& type_)
-		    : col(col_), sel_p(new PVSelection(sel_)), type(type_)
-		{
-		}
-		ExpandedSelection() : col(0) {}
-		PVCol col;
-		std::shared_ptr<PVSelection> sel_p;
-		QString type;
-		void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
-		{
-			so.attribute("column", col);
-			so.attribute("type", type);
-			so.object("selection", sel_p, QString(), false, (PVSelection*)NULL, false);
-		}
-	};
-
 	struct MinMax {
 		PVRow min;
 		PVRow max;

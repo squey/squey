@@ -13,8 +13,6 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-#include <pvkernel/core/general.h>
-
 #include <pvparallelview/PVAxisZoom.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoomableDrawingArea.h>

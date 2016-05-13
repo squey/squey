@@ -59,7 +59,6 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 	PVFullParallelScene* scene_parent();
 	PVFullParallelScene const* scene_parent() const;
 
-	PVLinesView& get_lines_view();
 	PVLinesView const& get_lines_view() const;
 
   private:

@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEZIP_H
 #define PVCORE_PVSERIALIZEARCHIVEZIP_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
 namespace PVCore

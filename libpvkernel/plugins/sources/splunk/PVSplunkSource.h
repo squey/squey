@@ -8,7 +8,6 @@
 #ifndef PVSPLUNKSOURCE_FILE_H
 #define PVSPLUNKSOURCE_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
 
 #include <pvkernel/rush/PVSourceCreator.h>

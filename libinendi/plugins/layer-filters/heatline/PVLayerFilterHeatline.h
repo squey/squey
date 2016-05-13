@@ -8,7 +8,6 @@
 #ifndef INENDI_PVLAYERFILTERHeatline_H
 #define INENDI_PVLAYERFILTERHeatline_H
 
-#include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 
 #include <inendi/PVLayer.h>

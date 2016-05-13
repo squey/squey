@@ -8,7 +8,6 @@
 #ifndef INENDI_PVINPUTTYPEDATABASE_H
 #define INENDI_PVINPUTTYPEDATABASE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 
 #include "../../common/elasticsearch/PVElasticsearchQuery.h"

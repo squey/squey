@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVREGISTRABLE_CLASS
 #define PVCORE_PVREGISTRABLE_CLASS
 
-//#include <pvkernel/core/general.h>
 #include <QString>
 
 #include <memory>

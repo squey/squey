@@ -12,7 +12,6 @@
 #include <QDateTime>
 #include <QFileInfo>
 
-#include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/core/PVCompList.h>
 #include <pvkernel/core/PVUtils.h>

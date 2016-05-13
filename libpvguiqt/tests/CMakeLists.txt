@@ -36,6 +36,10 @@ add_pv_compile_test(Tqt_vertical_tabs LINKS ${COMMON_LIBRARIES} FILES vertical_t
 add_pv_compile_test(Tqt_import_source_to_project_dlg LINKS ${COMMON_LIBRARIES} FILES import_source_to_project_dlg.cpp)
 add_pv_compile_test(Tqt_displays_plugins LINKS ${COMMON_LIBRARIES} FILES displays_plugins.cpp common.cpp)
 
+add_pv_compile_test(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
+add_test(Tpvguiqt_sort_filter Tpvguiqt_sort_filter)
+add_bench(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
+
 # Workspaces
 if (CUDA_FOUND)
 	qt5_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT5_WRAP_OPTIONS})

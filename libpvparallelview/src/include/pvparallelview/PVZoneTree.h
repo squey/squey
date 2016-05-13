@@ -8,11 +8,9 @@
 #ifndef PVPARALLELVIEW_PVZONETREE_H
 #define PVPARALLELVIEW_PVZONETREE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/core/PVPODStaticArray.h>
 #include <pvkernel/core/PVHSVColor.h>
 
 #include <inendi/PVSelection.h>

@@ -5,6 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvbase/general.h>
 #include <pvkernel/core/PVConfig.h>
 
 #include <pvkernel/rush/PVAggregator.h>

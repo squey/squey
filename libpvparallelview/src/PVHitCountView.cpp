@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/widgets/PVConfigPopupWidget.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <inendi/PVView.h>
@@ -172,14 +171,9 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp& pvview_sp,
 	set_ticks_per_level(8);
 
 	_params_widget = new PVHitCountViewParamsWidget(this);
-#if RH_USE_PVConfigPopupWidget
-	_params_widget->update_widgets();
-	_params_widget->hide();
-#else
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 	set_params_widget_position();
-#endif
 
 	_update_all_timer.setInterval(RENDER_TIMEOUT);
 	_update_all_timer.setSingleShot(true);

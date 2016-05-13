@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVFIELDSPLITTERURL_H
 #define PVFILTER_PVFIELDSPLITTERURL_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <QChar>

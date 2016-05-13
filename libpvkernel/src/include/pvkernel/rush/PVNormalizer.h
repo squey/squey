@@ -11,8 +11,6 @@
 #include <QString>
 #include <QStringList>
 
-#include <pvkernel/core/general.h>
-
 namespace PVRush
 {
 

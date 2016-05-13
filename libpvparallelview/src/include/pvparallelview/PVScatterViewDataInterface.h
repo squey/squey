@@ -10,7 +10,6 @@
 
 #include <boost/noncopyable.hpp>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVHSVColor.h>
 
 #include <pvparallelview/PVScatterViewImage.h>

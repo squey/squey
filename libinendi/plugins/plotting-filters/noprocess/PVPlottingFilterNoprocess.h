@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
 #define PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
 
-#include <pvkernel/core/general.h>
 #include <inendi/PVPlottingFilter.h>
 
 namespace Inendi

@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVAXISINDEXCHECKBOXTYPE_H
 #define PVCORE_PVAXISINDEXCHECKBOXTYPE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 
 #include <QMetaType>

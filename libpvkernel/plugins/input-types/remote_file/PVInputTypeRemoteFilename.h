@@ -8,7 +8,6 @@
 #ifndef INENDI_PVINPUTTYPEREMOTEFILENAME_H
 #define INENDI_PVINPUTTYPEREMOTEFILENAME_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 
 #include "../file/PVInputTypeFilename.h"

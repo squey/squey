@@ -5,6 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvbase/general.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/core/PVFileHelper.h>

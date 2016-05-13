@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVVersion.h>
+#include <pvkernel/core/PVLogger.h>
 
 #include <QString>
 #include <QStringList>

@@ -10,7 +10,6 @@
 
 #include "PVImportFileDialog.h"
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVFileDescription.h>
 

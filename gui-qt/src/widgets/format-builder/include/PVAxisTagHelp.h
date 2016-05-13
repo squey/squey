@@ -8,7 +8,6 @@
 #ifndef PVAXISTAGHELP_FILE_H
 #define PVAXISTAGHELP_FILE_H
 
-#include <pvkernel/core/general.h>
 #include <ui_PVAxisTagHelp.h>
 #include <QDialog>
 

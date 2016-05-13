@@ -10,7 +10,6 @@
 
 #include <fstream>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColumnIndexes.h>
 
 #include <pvcop/collection.h>

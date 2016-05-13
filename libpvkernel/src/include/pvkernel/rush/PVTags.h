@@ -11,7 +11,6 @@
 #include <QSet>
 #include <QString>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVCompList.h>
 
 /**

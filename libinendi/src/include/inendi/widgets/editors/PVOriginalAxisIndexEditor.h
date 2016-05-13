@@ -12,7 +12,6 @@
 #include <QString>
 #include <QWidget>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 
 #include <inendi/PVView.h>

@@ -16,7 +16,6 @@
 #define PVXMLPARAMPARSERDATA_H
 #include <QString>
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVCompList.h>
 #include <pvkernel/filter/PVFieldsFilter.h>

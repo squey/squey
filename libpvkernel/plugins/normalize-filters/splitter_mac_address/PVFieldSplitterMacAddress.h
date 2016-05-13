@@ -8,7 +8,6 @@
 #ifndef PVFILTER_PVFIELDMACADDRESS_H
 #define PVFILTER_PVFIELDMACADDRESS_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 

@@ -8,7 +8,6 @@
 #ifndef PVVIEWSMODEL_H
 #define PVVIEWSMODEL_H
 
-#include <pvkernel/core/general.h>
 #include <QAbstractItemModel>
 
 // Forward declaration

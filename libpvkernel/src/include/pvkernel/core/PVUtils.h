@@ -8,7 +8,7 @@
 #ifndef PVCORE_PVUTILS_H
 #define PVCORE_PVUTILS_H
 
-#include <pvkernel/core/general.h>
+#include <string>
 
 #ifdef __GCC__
 #define likely(x) __builtin_expect((x), 1)

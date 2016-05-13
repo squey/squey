@@ -247,6 +247,7 @@ endif(PYTHONLIBS_FOUND)
 ################################################################################
 # TODO : Should be replace by PVHwloc
 pkg_check_modules(HWLOC REQUIRED hwloc)
+find_package(PVHwloc REQUIRED)
 
 ###############################################################################
 # Check for Furl installation

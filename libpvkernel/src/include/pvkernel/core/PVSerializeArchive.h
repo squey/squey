@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVE_H
 #define PVCORE_PVSERIALIZEARCHIVE_H
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVSerializeObject.h>

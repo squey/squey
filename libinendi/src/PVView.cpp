@@ -151,16 +151,6 @@ void Inendi::PVView::duplicate_selected_layer(const QString& name)
 }
 
 /******************************************************************************
- *
- * Inendi::PVView::apply_filter_named_select_all
- *
- *****************************************************************************/
-void Inendi::PVView::apply_filter_named_select_all()
-{
-	post_filter_layer.get_selection().select_all();
-}
-
-/******************************************************************************
  * Inendi::PVView::commit_selection_to_layer
  *****************************************************************************/
 
@@ -497,8 +487,7 @@ void Inendi::PVView::process_eventline()
 #pragma omp parallel for schedule(dynamic, 2048)
 	for (PVRow i = 0; i < get_row_count(); i++) {
 		/* We check if the event is selected at the end of the process */
-		if (real_output_selection.get_line(i) ||
-		    layer_stack_output_layer.get_selection().get_line(i)) {
+		if (layer_stack_output_layer.get_selection().get_line(i)) {
 			/* It is selected, so we copy its line properties */
 			out_lps.set_line_properties(i, post_lps.get_line_properties(i));
 		} else {

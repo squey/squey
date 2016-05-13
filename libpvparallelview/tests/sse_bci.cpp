@@ -11,7 +11,6 @@
 using namespace std;
 
 #include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 
 #include <pvkernel/core/PVHSVColor.h>

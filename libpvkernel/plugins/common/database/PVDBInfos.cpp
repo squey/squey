@@ -5,6 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVLogger.h>
 #include <pvbase/general.h>
 #include "PVDBInfos.h"
 #include <QSqlError>

@@ -8,8 +8,6 @@
 #ifndef PVPARALLELVIEW_PVBCIBACKENDIMAGE_H
 #define PVPARALLELVIEW_PVBCIBACKENDIMAGE_H
 
-#include <pvkernel/core/general.h>
-
 #include <QImage>
 
 namespace PVParallelView

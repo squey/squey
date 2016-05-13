@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/inendi_bench.h>
@@ -220,7 +219,7 @@ PVGuiQt::PVListingView::~PVListingView()
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
 	/* Commit the previous volatile selection */
-	_actor.call<FUNC(Inendi::PVView::commit_volatile_in_floating_selection)>();
+	lib_view().commit_volatile_in_floating_selection();
 
 	/* Modify the state of the state machine according to the modifiers */
 	Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();

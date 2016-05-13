@@ -29,8 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef QKEYSEQUENCEWIDGET_H
 #define QKEYSEQUENCEWIDGET_H
 
-#include <pvkernel/core/general.h>
-
 #include "qkeysequencewidget_p.h"
 
 #include <QWidget>

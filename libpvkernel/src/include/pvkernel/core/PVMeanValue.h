@@ -8,7 +8,7 @@
 #ifndef PVCORE_PVMEANVALUE_H
 #define PVCORE_PVMEANVALUE_H
 
-#include <pvkernel/core/general.h>
+#include <cstddef>
 
 namespace PVCore
 {
