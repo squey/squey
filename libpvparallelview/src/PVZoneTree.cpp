@@ -152,7 +152,6 @@ class TBBComputeAllocSizeAndFirstElts
 	PVParallelView::PVZoneTree* _ztree;
 	PVParallelView::PVZoneTree::ProcessData& _pdata;
 	mutable size_t _alloc_size;
-	uint32_t _nranges;
 };
 
 class TBBMergeTreesTask

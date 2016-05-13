@@ -29,7 +29,7 @@
 #include <tbb/scalable_allocator.h>
 #include <tbb/task_scheduler_init.h>
 
-#define TREE_CREATION_GRAINSIZE 1024
+constexpr uint32_t TREE_CREATION_GRAINSIZE = 1024;
 static_assert(TREE_CREATION_GRAINSIZE % 4 == 0, "TREE_CREATION_GRAINSIZE must be a multiple of 4!");
 
 namespace PVParallelView
@@ -121,43 +121,24 @@ class PVZoneTree : public PVZoneTreeBase
 		PVTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessData& pdata, uint32_t nrows)
 		    : _zp(zp), _pdata(pdata)
 		{
-			_ranges = new PVRange[pdata.ntasks];
-			if (nrows == 0) {
-				pdata.ntasks = 0;
-				return;
-			}
+			// We compute ranges of row to handle with a min threshold for range size.
+			size_t step =
+			    (((std::max((nrows + pdata.ntasks - 1) / pdata.ntasks, TREE_CREATION_GRAINSIZE) +
+			       3) /
+			      4) *
+			     4);
+			pdata.ntasks = (nrows + step - 1) / step;
 
-			// Compute the number of tasks according to a minimum grain size
-			const uint32_t max_tasks =
-			    (nrows + TREE_CREATION_GRAINSIZE - 1) / TREE_CREATION_GRAINSIZE;
-			const uint32_t ntasks = pdata.ntasks;
-			if (max_tasks < ntasks) {
-				PVRow cur_r = 0;
-				uint32_t t;
-				for (t = 0; t < max_tasks - 1; t++) {
-					_ranges[t].begin = cur_r;
-					cur_r += TREE_CREATION_GRAINSIZE;
-					_ranges[t].end = cur_r;
-				}
+			_ranges.resize(pdata.ntasks);
+			PVRow cur_r = 0;
+			for (uint32_t t = 0; t < pdata.ntasks - 1; t++) {
 				_ranges[t].begin = cur_r;
-				_ranges[t].end = nrows;
-				pdata.ntasks = max_tasks;
-			} else {
-				PVRow cur_r = 0;
-				// The range size is nrows/ntasks, aligned on the next multiple of 4
-				PVRow range_size = (((nrows / ntasks) + 3) / 4) * 4;
-				uint32_t t;
-				for (t = 0; t < ntasks - 1; t++) {
-					_ranges[t].begin = cur_r;
-					cur_r += range_size;
-					_ranges[t].end = cur_r;
-				}
-				_ranges[t].begin = cur_r;
-				_ranges[t].end = nrows;
+				cur_r += step;
+				_ranges[t].end = cur_r;
 			}
+			_ranges[pdata.ntasks - 1].begin = cur_r;
+			_ranges[pdata.ntasks - 1].end = nrows;
 		}
-
-		~PVTreeParams() { delete[] _ranges; }
 
 	  public:
 		inline PVZoneProcessing const& zp() const { return _zp; }
@@ -168,7 +149,7 @@ class PVZoneTree : public PVZoneTreeBase
 	  private:
 		PVZoneProcessing const& _zp;
 		ProcessData& _pdata;
-		PVRange* _ranges;
+		std::vector<PVRange> _ranges;
 	};
 
 	struct PVTBBFilterSelParams {
