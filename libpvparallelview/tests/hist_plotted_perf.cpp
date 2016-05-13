@@ -938,11 +938,14 @@ int main(int argc, char** argv)
 		          << std::endl;
 	}
 
-	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
-	PVParallelView::PVZoneTree& zt = *new PVParallelView::PVZoneTree();
+	PVParallelView::PVZoneProcessing zp{
+	    row_count, Inendi::PVPlotted::get_plotted_col_addr(plotted, row_count, col),
+	    Inendi::PVPlotted::get_plotted_col_addr(plotted, row_count, col + 1)};
+	std::unique_ptr<PVParallelView::PVZoneTree> _zt(new PVParallelView::PVZoneTree());
+	PVParallelView::PVZoneTree& zt = *_zt;
 	zt.process(zp);
 
-	const uint32_t* col_a = zp.get_plotted_col_a();
+	const uint32_t* col_a = zp.plotted_a;
 	int real_buffer_size = BUFFER_SIZE * block_count;
 
 	test_no_sel(real_buffer_size, y_min, zoom, zt, col_a, row_count, block_count);

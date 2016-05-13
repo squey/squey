@@ -26,13 +26,11 @@ class ZoneCreation
 	void operator()(const tbb::blocked_range<PVZoneID>& r) const
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
-		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_row_count());
 		PVParallelView::PVZoneTree::ProcessData pdata;
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
 			pdata.clear();
-			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zp, pdata);
+			ztree.process(zm->get_zone_processing(z), pdata);
 		}
 	}
 
@@ -87,8 +85,7 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 
 	_zones[zone_id] = PVZone();
 
-	PVZoneProcessing zp(get_uint_plotted(), get_row_count());
-	get_zone_cols(zone_id, zp.col_a(), zp.col_b());
+	PVZoneProcessing zp = get_zone_processing(zone_id);
 	PVParallelView::PVZoneTree::ProcessData pdata;
 	pdata.clear();
 
@@ -184,10 +181,7 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 	}
 
 	BENCH_START(zztree);
-	PVZoneProcessing zp(get_uint_plotted(), get_row_count());
-
-	get_zone_cols(zone_id, zp.col_a(), zp.col_b());
-
+	PVZoneProcessing zp = get_zone_processing(zone_id);
 	PVZoneTree& ztree = _zones[zone_id].ztree();
 	zztree.process(zp, ztree);
 	BENCH_END(zztree, "ZZTREES PROCESS", 1, 1, 1, 1);

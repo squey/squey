@@ -11,8 +11,6 @@
 
 #include <inendi/PVPlotted.h>
 
-#include <pvparallelview/PVZoneProcessing.h>
-
 #include "common.h"
 
 #include <iostream>
@@ -692,10 +690,8 @@ int main(int argc, char** argv)
 
 	uint64_t y_max = y_min + (1UL << (32 - zoom)) * alpha;
 
-	PVParallelView::PVZoneProcessing zp(plotted, row_count, col, col + 1);
-
-	const uint32_t* col_y1 = zp.get_plotted_col_a();
-	const uint32_t* col_y2 = zp.get_plotted_col_b();
+	const uint32_t* col_y1 = Inendi::PVPlotted::get_plotted_col_addr(plotted, row_count, col);
+	const uint32_t* col_y2 = Inendi::PVPlotted::get_plotted_col_addr(plotted, row_count, col + 1);
 
 	int buffer_size = 1024;
 

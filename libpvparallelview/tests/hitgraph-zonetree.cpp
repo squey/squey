@@ -86,7 +86,9 @@ int main(int argc, char** argv)
 	// Number of rows is aligned on a multiple of 4
 	uint32_t const* plotted_col = &plotted[col * ((nrows / 4) * 4)];
 
-	PVParallelView::PVZoneProcessing zp(plotted, nrows, 0, 1);
+	PVParallelView::PVZoneProcessing zp{nrows,
+	                                    Inendi::PVPlotted::get_plotted_col_addr(plotted, nrows, 0),
+	                                    Inendi::PVPlotted::get_plotted_col_addr(plotted, nrows, 1)};
 	PVParallelView::PVZoneTree& zt = *new PVParallelView::PVZoneTree();
 	zt.process(zp);
 

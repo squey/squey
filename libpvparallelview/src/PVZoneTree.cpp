@@ -49,11 +49,8 @@ class TBBCreateTreeTask
 	{
 		PVParallelView::PVZoneProcessing const& zp = _params.zp();
 
-		PVCol col_a = zp.col_a();
-		PVCol col_b = zp.col_b();
-
-		const uint32_t* pcol_a = zp.get_plotted_col(col_a);
-		const uint32_t* pcol_b = zp.get_plotted_col(col_b);
+		const uint32_t* pcol_a = zp.plotted_a;
+		const uint32_t* pcol_b = zp.plotted_b;
 
 		PVRow r = _params.range(_task_num).begin;
 		PVRow nrows = _params.range(_task_num).end;
@@ -264,10 +261,11 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
                                                        ProcessData& pdata)
 {
 
-	PVRow nrows = zp.nrows();
+	PVRow nrows = zp.size;
 
 	for (uint32_t task = 0; task < pdata.ntasks; task++) {
-		memset(pdata.first_elts[task].elems, PVROW_INVALID_VALUE, sizeof(PVRow) * NBUCKETS);
+		std::fill(pdata.first_elts[task].begin(), pdata.first_elts[task].end(),
+		          PVROW_INVALID_VALUE);
 	}
 
 	BENCH_START(trees);
