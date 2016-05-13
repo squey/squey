@@ -15,6 +15,7 @@
 
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
+#include <pvcop/types/exception/partially_converted_chunk_error.h>
 
 namespace Inendi
 {
@@ -29,6 +30,56 @@ class PVChunk;
 
 namespace PVRush
 {
+
+struct PVNrawBadConversions {
+	using bad_conversions_t =
+	    pvcop::types::exception::partially_converted_chunk_error::bad_conversions_t;
+
+  public:
+	void add(const bad_conversions_t& bad_conversions, size_t bad_conversions_count)
+	{
+		_bad_conversions.insert(bad_conversions.begin(), bad_conversions.end());
+
+		_bad_conversions_count += bad_conversions_count;
+	}
+
+	std::string get(PVCol col, PVRow row, bool* res = nullptr) const
+	{
+		const auto& c = _bad_conversions.find(col);
+
+		if (c != _bad_conversions.end()) {
+			const auto& f = c->second.find(row);
+
+			if (f != c->second.end()) {
+				if (res) {
+					*res = true;
+				}
+				return f->second;
+			}
+		}
+
+		if (res) {
+			*res = false;
+		}
+		return {};
+	}
+
+	bool has_failed(PVCol col, PVRow row) const
+	{
+		bool failed;
+
+		get(col, row, &failed);
+
+		return failed;
+	}
+
+	const bad_conversions_t& failures() const { return _bad_conversions; }
+	size_t count() const { return _bad_conversions_count; }
+
+  private:
+	bad_conversions_t _bad_conversions;
+	size_t _bad_conversions_count = 0;
+};
 
 /**
  * Contains all informations to access imported data.
@@ -148,7 +199,7 @@ class PVNraw
 		return *_collection;
 	}
 
-	size_t get_invalid_count() const { return _invalid_count; }
+	const PVNrawBadConversions& bad_conversions() const { return _bad_conversions; }
 
   public:
 	/**
@@ -168,7 +219,7 @@ class PVNraw
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	/// Variable usefull for both
-	size_t _invalid_count; //!< Number of invalid elements found during import.
+	PVNrawBadConversions _bad_conversions;
 };
 }
 

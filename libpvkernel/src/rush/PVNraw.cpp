@@ -37,7 +37,7 @@ const std::string PVRush::PVNraw::default_quote_char = "\"";
  *
  ****************************************************************************/
 
-PVRush::PVNraw::PVNraw() : _real_nrows(0), _invalid_count(0)
+PVRush::PVNraw::PVNraw() : _real_nrows(0)
 {
 }
 
@@ -122,10 +122,14 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		}
 	}
 
-	int i = snk.write_chunk_by_row(chunk.agg_index(), local_row, pvcop_fields.data());
+	try {
+		snk.write_chunk_by_row(chunk.agg_index(), local_row, pvcop_fields.data());
+	} catch (const pvcop::types::exception::partially_converted_chunk_error& e) {
 
-#pragma omp atomic
-	_invalid_count += i;
+#pragma omp critical
+		_bad_conversions.add(e.bad_conversions(), e.bad_conversions_count());
+	}
+
 #pragma omp atomic
 	_real_nrows += local_row;
 
