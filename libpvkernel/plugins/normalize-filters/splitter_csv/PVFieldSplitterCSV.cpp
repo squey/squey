@@ -37,6 +37,13 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 	size_t n = 0;
 	for (size_t i = 0; i < field.size(); i++) {
 		if (cstr[i] == _sep) {
+			/**
+			 * Don't allow the number of created fields to be greater than expected
+			 * In such a case, the last field can contain one or more separators
+			 */
+			if (n == (_fields_expected - 1)) {
+				break;
+			}
 			elt.set_end(cstr + i);
 			elt.set_physical_end(cstr + i);
 			l.insert(it_ins, elt);
