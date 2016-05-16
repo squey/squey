@@ -308,13 +308,12 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel,
-                                                         const PVRow nrows,
                                                          PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
 	tbb::atomic<ssize_t> nelts_sel;
 	BENCH_START(subtree2);
-	nelts_sel = (ssize_t)sel.get_number_of_selected_lines_in_range(0, nrows);
+	nelts_sel = (ssize_t)sel.get_number_of_selected_lines_in_range(0, sel.count());
 	std::fill_n(buf_elts, NBUCKETS, PVROW_INVALID_VALUE);
 	tbb::task_group_context context;
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE),
@@ -324,7 +323,6 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection con
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel,
-                                                                    const PVRow /*nrows*/,
                                                                     PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events

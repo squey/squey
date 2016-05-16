@@ -162,13 +162,13 @@ class PVZoneTree : public PVZoneTreeBase
 		process_tbb_sse_treeb(zp, pdata);
 	}
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void filter_by_sel(Inendi::PVSelection const& sel, const PVRow nrows)
+	inline void filter_by_sel(Inendi::PVSelection const& sel)
 	{
-		filter_by_sel_tbb_treeb(sel, nrows, _sel_elts);
+		filter_by_sel_tbb_treeb(sel, _sel_elts);
 	}
-	inline void filter_by_sel_background(Inendi::PVSelection const& sel, const PVRow nrows)
+	inline void filter_by_sel_background(Inendi::PVSelection const& sel)
 	{
-		filter_by_sel_background_tbb_treeb(sel, nrows, _bg_elts);
+		filter_by_sel_background_tbb_treeb(sel, _bg_elts);
 	}
 
 	inline uint32_t get_branch_count(uint32_t branch_id) const { return _treeb[branch_id].count; }
@@ -221,11 +221,8 @@ class PVZoneTree : public PVZoneTreeBase
 	}
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 
-	void
-	filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, const PVRow nrows, PVRow* buf_elts);
-	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel,
-	                                        const PVRow nrows,
-	                                        PVRow* buf_elts);
+	void filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, PVRow* buf_elts);
+	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, PVRow* buf_elts);
 
   protected:
 	PVBranch _treeb[NBUCKETS];

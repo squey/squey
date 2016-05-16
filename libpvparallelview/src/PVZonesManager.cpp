@@ -196,14 +196,14 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id,
                                                         const Inendi::PVSelection& sel)
 {
 	assert(zone_id < (PVZoneID)_zones.size());
-	_zones[zone_id].filter_by_sel(sel, _nrows);
+	_zones[zone_id].filter_by_sel(sel);
 }
 
 void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id,
                                                                    const Inendi::PVSelection& sel)
 {
 	assert(zone_id < (PVZoneID)_zones.size());
-	_zones[zone_id].filter_by_sel_background(sel, _nrows);
+	_zones[zone_id].filter_by_sel_background(sel);
 }
 
 /******************************************************************************

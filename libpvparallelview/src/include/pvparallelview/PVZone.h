@@ -36,17 +36,17 @@ class PVZone
 	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
 	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
 
-	inline void filter_by_sel(const Inendi::PVSelection& sel, const PVRow nrows)
+	inline void filter_by_sel(const Inendi::PVSelection& sel)
 	{
-		_ztree->filter_by_sel(sel, nrows);
+		_ztree->filter_by_sel(sel);
 		if (_zoomed_ztree->is_initialized()) {
 			_zoomed_ztree->compute_min_indexes_sel(sel);
 		}
 	}
 
-	inline void filter_by_sel_background(const Inendi::PVSelection& sel, const PVRow nrows)
+	inline void filter_by_sel_background(const Inendi::PVSelection& sel)
 	{
-		_ztree->filter_by_sel_background(sel, nrows);
+		_ztree->filter_by_sel_background(sel);
 	}
 
   private:
