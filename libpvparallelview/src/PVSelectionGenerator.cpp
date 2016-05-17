@@ -30,34 +30,30 @@ struct PVLineEqInt {
 	inline int operator()(int X, int Y) const { return a * X + b * Y + c; }
 };
 
-uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_rect(
+void PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_rect(
     int32_t width, PVZoneTree const& ztree, QRect rect, Inendi::PVSelection& sel)
 {
-	uint32_t nb_selected = 0;
-
 	if (rect.isNull()) {
-		return 0;
+		return;
 	}
 
 	BENCH_START(compute_selection_from_parallel_view_rect);
 
+	PVLineEqInt line;
+	line.b = -width;
+
 #pragma omp parallel
 	{
+		Inendi::PVSelection local_sel(sel.count());
+		local_sel.select_none();
 
-		PVParallelView::PVBCode code_b;
-		Inendi::PVSelection s(sel.count());
-		s.select_none();
-		PVLineEqInt line;
-		line.b = -width;
-
-#pragma omp for reduction(+ : nb_selected)
+#pragma omp for firstprivate(line) nowait
 		for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
-			uint32_t branch_count = ztree.get_branch_count(branch);
-
-			if (branch_count == 0) {
+			if (not ztree.branch_valid(branch)) {
 				continue;
 			}
 
+			PVParallelView::PVBCode code_b;
 			code_b.int_v = branch;
 			int32_t y1 = code_b.s.l;
 			int32_t y2 = code_b.s.r;
@@ -65,6 +61,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 			line.a = y2 - y1;
 			line.c = y1 * width;
 
+			// Check for multi "y" value
 			const bool line_above_tl = line(rect.topLeft().x(), rect.topLeft().y()) < 0;
 			const bool line_above_tr = line(rect.topRight().x(), rect.topRight().y()) < 0;
 			const bool line_below_bl = line(rect.bottomLeft().x(), rect.bottomLeft().y()) > 0;
@@ -74,20 +71,19 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 				continue;
 			}
 
+			uint32_t branch_count = ztree.get_branch_count(branch);
 			for (size_t i = 0; i < branch_count; i++) {
 				const PVRow cur_r = ztree.get_branch_element(branch, i);
-				s.set_bit_fast(cur_r);
+				local_sel.set_bit_fast(cur_r);
 			}
-			nb_selected += branch_count;
 		}
 
 #pragma omp critical
-		sel |= s;
+		sel |= local_sel;
 	}
+
 	BENCH_END(compute_selection_from_parallel_view_rect, "compute_selection", sizeof(PVRow),
 	          NBUCKETS, 1, 1);
-
-	return nb_selected;
 }
 
 uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
