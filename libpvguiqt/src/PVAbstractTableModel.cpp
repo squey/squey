@@ -302,7 +302,14 @@ void PVAbstractTableModel::update_pages(size_t nbr_tick, size_t page_step)
 	size_t old_step = _page_step;
 	size_t old_last_page = _last_page_size;
 
-	_page_step = page_step;
+	if (nbr_tick == 1 and page_step != _display.size()) {
+		// _display may be updated while nbr_tck and page_step are not. Set a dummy
+		// information for the first loop then it will be updated again on the fixed
+		// point computation.
+		_page_step = std::min(SCROLL_SIZE, _display.size());
+	} else {
+		_page_step = page_step;
+	}
 	// Filter may be updated before scrollbar
 	assert(nbr_tick != 0 && "At least, there is the current page");
 	if (_display.size() > MIN_PAGE_SIZE * SCROLL_SIZE) {
