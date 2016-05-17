@@ -408,5 +408,6 @@ void PVAbstractTableView::setModel(QAbstractItemModel* model)
 	PVTableView::setModel(model);
 	connect(model, &QAbstractItemModel::layoutChanged, this,
 	        (void (PVAbstractTableView::*)()) & PVAbstractTableView::new_range);
+	emit table_model()->layoutChanged();
 }
 }
