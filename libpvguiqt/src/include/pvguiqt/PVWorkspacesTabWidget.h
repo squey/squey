@@ -88,8 +88,6 @@ class PVSceneTabBar : public QTabBar
   protected:
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
-	void mouseMoveEvent(QMouseEvent* event) override;
-	void leaveEvent(QEvent* even) override;
 
 	void start_drag(QWidget* workspace);
 
@@ -147,7 +145,7 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 
 	/*! \brief Remove a workspace with or without animation.
 	 */
-	virtual void remove_workspace(int index, bool animation = true);
+	virtual void remove_workspace(int index);
 
 	/*! \brief Returns the number of affective tabs in the widget (ie: special tab "+" button is not
 	 * taken into account).
@@ -165,10 +163,6 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	 */
 	void workspace_dragged_outside(QWidget*);
 
-	/*! \brief Signal emitted when the tab animation is finished.
-	 */
-	void animation_finished();
-
   protected slots:
 	/*! \brief Slot called when the user closes a workspace.
 	 */
@@ -183,7 +177,7 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	 */
 	int get_tab_width() const { return 0; }
 
-	/*! \brief Emit "animation_finished" signal when the animation finished.
+	/*! \brief Remove tab at then end of the animation.
 	 */
 	void animation_state_changed(QAbstractAnimation::State new_state,
 	                             QAbstractAnimation::State old_state);
@@ -213,10 +207,6 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	PVSceneWorkspacesTabWidget(Inendi::PVScene& scene, QWidget* parent = 0);
 
   public:
-	/*! \brief Remove the workspace and close its associated source if needed.
-	 */
-	void remove_workspace(int index, bool close_source = true) override;
-
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
 

@@ -36,10 +36,10 @@ constexpr unsigned int OR_MODIFIER = Qt::ShiftModifier;
 constexpr unsigned int NAND_MODIFIER = Qt::ControlModifier;
 constexpr unsigned int AND_MODIFIER = (Qt::ShiftModifier | Qt::ControlModifier);
 
-uint32_t compute_selection_from_parallel_view_rect(PVLinesView const& lines_view,
-                                                   PVZoneID zone_id,
-                                                   QRect rect,
-                                                   Inendi::PVSelection& sel);
+void compute_selection_from_parallel_view_rect(int32_t width,
+                                               PVZoneTree const& ztree,
+                                               QRect rect,
+                                               Inendi::PVSelection& sel);
 
 uint32_t compute_selection_from_parallel_view_sliders(
     PVLinesView& lines_view,

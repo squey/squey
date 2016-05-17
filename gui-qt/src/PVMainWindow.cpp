@@ -104,8 +104,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
 	_projects_tab_widget->show();
-	connect(_projects_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this,
-	        SLOT(create_new_window_for_workspace(QWidget*)));
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(solution_load_Slot()));
 	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString&)), this,

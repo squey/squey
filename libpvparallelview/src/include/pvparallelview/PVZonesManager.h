@@ -99,23 +99,12 @@ class PVZonesManager : public QObject, boost::noncopyable
 	}
 
   public:
-	inline void get_zone_plotteds(PVZoneID const z,
-	                              uint32_t const** plotted_a,
-	                              uint32_t const** plotted_b) const
+	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
-		PVCol a, b;
-		get_zone_cols(z, a, b);
-		*plotted_a =
-		    Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), a);
-		*plotted_b =
-		    Inendi::PVPlotted::get_plotted_col_addr(get_uint_plotted(), get_row_count(), b);
-	}
-
-	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b) const
-	{
-		assert(z < get_number_of_managed_zones());
-		a = _axes_comb[z].get_axis();
-		b = _axes_comb[z + 1].get_axis();
+		return {get_row_count(), Inendi::PVPlotted::get_plotted_col_addr(
+		                             *_uint_plotted, get_row_count(), _axes_comb[z].get_axis()),
+		        Inendi::PVPlotted::get_plotted_col_addr(*_uint_plotted, get_row_count(),
+		                                                _axes_comb[z + 1].get_axis())};
 	}
 
   protected:
