@@ -252,7 +252,7 @@ class TBBSelFilterMaxCount
 // PVZoneTree implementation
 //
 
-PVParallelView::PVZoneTree::PVZoneTree() : PVZoneTreeBase(), _tree_data(NULL)
+PVParallelView::PVZoneTree::PVZoneTree() : PVZoneTreeBase(), _tree_data(nullptr)
 {
 }
 
@@ -284,7 +284,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	                     tbb::simple_partitioner());
 
 	if (_tree_data) {
-		PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, reduce_body.alloc_size());
+		PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, 0);
 	}
 	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(reduce_body.alloc_size());
 

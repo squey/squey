@@ -154,7 +154,12 @@ class PVZoneTree : public PVZoneTreeBase
 
   public:
 	PVZoneTree();
-	virtual ~PVZoneTree() {}
+	virtual ~PVZoneTree()
+	{
+		if (_tree_data) {
+			PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, 0);
+		}
+	}
 
   public:
 	inline void process(PVZoneProcessing const& zp, ProcessData& pdata)
