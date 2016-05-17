@@ -45,6 +45,10 @@ add_test(Tpview_quadtree_dump_load Tpview_quadtree_dump_load 1000000 42)
 add_pv_compile_test(Tpview_zoomed_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zoomed_zone_tree_dump_load.cpp common.cpp)
 add_test(Tpview_zoomed_zone_tree_dump_load Tpview_zoomed_zone_tree_dump_load 0 100 2)
 
+add_pv_compile_test(Tpview_square_selection LINKS ${LINK_LIBRARIES} FILES square_selection.cpp)
+add_test(Tpview_square_selection Tpview_square_selection)
+add_bench(Tpview_square_selection LINKS ${LINK_LIBRARIES} FILES square_selection.cpp)
+
 add_pv_compile_test(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_tree_create.cpp)
 add_test(Tpview_zone_tree_create Tpview_zone_tree_create)
 add_bench(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_tree_create.cpp)

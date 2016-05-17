@@ -65,14 +65,12 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 			line.a = y2 - y1;
 			line.c = y1 * width;
 
-			const bool a = line(rect.topLeft().x(), rect.topLeft().y()) >= 0;
-			const bool b = line(rect.topRight().x(), rect.topRight().y()) >= 0;
-			const bool c = line(rect.bottomLeft().x(), rect.bottomLeft().y()) >= 0;
-			const bool d = line(rect.bottomRight().x(), rect.bottomRight().y()) >= 0;
+			const bool line_above_tl = line(rect.topLeft().x(), rect.topLeft().y()) < 0;
+			const bool line_above_tr = line(rect.topRight().x(), rect.topRight().y()) < 0;
+			const bool line_below_bl = line(rect.bottomLeft().x(), rect.bottomLeft().y()) > 0;
+			const bool line_below_br = line(rect.bottomRight().x(), rect.bottomRight().y()) > 0;
 
-			bool is_line_selected = (a | b | c | d) & (!(a & b & c & d));
-
-			if (is_line_selected == false) {
+			if ((line_above_tl and line_above_tr) or (line_below_bl and line_below_br)) {
 				continue;
 			}
 
