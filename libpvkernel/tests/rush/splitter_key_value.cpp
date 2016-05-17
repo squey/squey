@@ -36,13 +36,41 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("key_value");
 
 	PVCore::PVArgumentList args;
-	args["sep"] = " ";
+	args["sep"] = "  ";
 	args["quote"] = '"';
 	args["affectation"] = "=";
 	args["keys"] = QStringList() << "time"
-	                             << "arg"
+	                             << "fw"
+	                             << "tz"
+	                             << "startime"
+	                             << "pri"
+	                             << "confid"
+	                             << "slotlevel"
+	                             << "ruleid"
+	                             << "srcif"
+	                             << "srcifname"
+	                             << "ipproto"
 	                             << "dstif"
-	                             << "src";
+	                             << "dstifname"
+	                             << "proto"
+	                             << "src"
+	                             << "srcport"
+	                             << "dst"
+	                             << "dstport"
+	                             << "dstportname"
+	                             << "dstname"
+	                             << "modsrc"
+	                             << "modsrcport"
+	                             << "origdst"
+	                             << "origdstport"
+	                             << "sent"
+	                             << "rcvd"
+	                             << "duration"
+	                             << "op"
+	                             << "result"
+	                             << "arg"
+	                             << "logtype";
+
 	sp_lib_p->set_args(args);
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
