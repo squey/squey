@@ -49,6 +49,10 @@ add_pv_compile_test(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_t
 add_test(Tpview_zone_tree_create Tpview_zone_tree_create)
 add_bench(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_tree_create.cpp)
 
+add_pv_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
+add_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
+add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
+
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 
