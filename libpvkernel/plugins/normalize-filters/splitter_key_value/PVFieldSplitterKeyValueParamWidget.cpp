@@ -19,7 +19,7 @@
 #include <QListWidget>
 #include <QInputDialog>
 #include <QFileDialog>
-#include <iostream>
+#include <QMessageBox>
 
 /******************************************************************************
  *
@@ -177,11 +177,19 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_key()
 	QString key =
 	    QInputDialog::getText(nullptr, tr("Enter new key"), tr("Key:"), QLineEdit::Normal, "", &ok);
 
-	if (!key.isEmpty()) {
-		QListWidgetItem* new_item = new QListWidgetItem(key);
-		new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
-		_keys_list->addItem(new_item);
-		update_children_count();
+	// Look if the value already exist
+	QList<QListWidgetItem*> items = _keys_list->findItems(key, Qt::MatchExactly);
+	if (items.count() == 0) {
+		if (!key.isEmpty()) {
+			QListWidgetItem* new_item = new QListWidgetItem(key);
+			new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
+			_keys_list->addItem(new_item);
+			update_children_count();
+		}
+	} else {
+		QMessageBox(QMessageBox::Warning, tr("This key already exist."),
+		            tr("This key '%1' already exist!").arg(key), QMessageBox::Ok)
+		    .exec();
 	}
 }
 
