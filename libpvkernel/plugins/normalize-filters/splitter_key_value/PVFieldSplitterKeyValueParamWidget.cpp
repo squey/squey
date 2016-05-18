@@ -19,6 +19,7 @@
 #include <QListWidget>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <iostream>
 
 /******************************************************************************
  *
@@ -115,7 +116,18 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 
 	_keys_list = new QListWidget();
 	_keys_list->addItems(args["keys"].toStringList());
-	_keys_list->setSelectionMode(QAbstractItemView::MultiSelection);
+
+	// Make each item editable
+	for (int i = 0; i < _keys_list->count(); i++) {
+		_keys_list->item(i)->setFlags(_keys_list->item(i)->flags() | Qt::ItemIsEditable);
+	}
+	_keys_list->setEditTriggers(QAbstractItemView::DoubleClicked |
+	                            QAbstractItemView::EditKeyPressed);
+	_keys_list->setAlternatingRowColors(true);
+
+	// selection mode
+	_keys_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
 	keys_layout->addWidget(_keys_list);
 	keys_layout->addLayout(buttons_layout);
 
@@ -166,7 +178,9 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_key()
 	    QInputDialog::getText(nullptr, tr("Enter new key"), tr("Key:"), QLineEdit::Normal, "", &ok);
 
 	if (!key.isEmpty()) {
-		_keys_list->addItem(new QListWidgetItem(key));
+		QListWidgetItem* new_item = new QListWidgetItem(key);
+		new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
+		_keys_list->addItem(new_item);
 		update_children_count();
 	}
 }
