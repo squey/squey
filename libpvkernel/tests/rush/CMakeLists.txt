@@ -4,8 +4,6 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
-
 set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
 add_definitions(-fopenmp)
 
@@ -41,16 +39,8 @@ add_test(TestAggregator2 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test the aggregator in strict mode
 add_pv_compile_test(Trush_agg_strict LINKS ${LINK_LIBRARIES} FILES agg_strict.cpp helpers.cpp)
-add_test(TestAggregatorStrict1 ${TEST_DIFF_STDOUT}
-	${PVRUSH_TEST_FILES}/aggregator/set1.strict.out
-	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set1.strict.diff
-	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg_strict 6000
-	${PVRUSH_TEST_FILES}/aggregator/set1)
-add_test(TestAggregatorStrict2 ${TEST_DIFF_STDOUT}
-	${PVRUSH_TEST_FILES}/aggregator/set2.strict.out
-	${PVRUSH_TEST_FILES_OUTPUT}/aggregator/set2.strict.diff
-	${CMAKE_CURRENT_BINARY_DIR}/Trush_agg_strict 6000
-	${PVRUSH_TEST_FILES}/aggregator/set2)
+add_test(TestAggregatorStrict1 Trush_agg_strict 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
+add_test(TestAggregatorStrict2 Trush_agg_strict 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
 
 # Test for filters
 add_pv_compile_test(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)
