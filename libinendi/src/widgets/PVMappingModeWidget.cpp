@@ -16,55 +16,25 @@
 
 #include <QHBoxLayout>
 
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QString const& type, QWidget* parent)
-    : QWidget(parent)
-{
-	init(false);
-	populate_from_type(type);
-}
-
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id,
-                                                    Inendi::PVMapping& mapping,
-                                                    bool params_btn,
-                                                    QWidget* parent)
-    : QWidget(parent)
-{
-	init(params_btn);
-	populate_from_mapping(axis_id, mapping);
-}
-
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id,
-                                                    Inendi::PVView& view,
-                                                    bool params_btn,
-                                                    QWidget* parent)
-    : QWidget(parent)
-{
-	init(params_btn);
-	populate_from_mapping(axis_id, view.get_parent<Inendi::PVMapped>()->get_mapping());
-}
-
-void PVWidgets::PVMappingModeWidget::init(bool params_btn)
-{
-	_combo = new PVComboBox(this);
-	_props = NULL;
-
-	QHBoxLayout* layout = new QHBoxLayout();
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QWidget* parent) : QWidget(parent),
+	_combo(new PVComboBox(this)),
+	_props(nullptr)
+  {
+	QHBoxLayout* layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(10);
 	layout->addWidget(_combo);
-	if (params_btn) {
-		_params_btn = new QPushButton(tr("Parameters..."));
-		QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Fixed);
-		_params_btn->setSizePolicy(sp);
-		layout->addWidget(_params_btn);
-
-		connect(_params_btn, SIGNAL(clicked()), this, SLOT(change_params()));
-	} else {
-		_params_btn = NULL;
-	}
 	setLayout(layout);
 
 	setFocusPolicy(Qt::StrongFocus);
+  }
+
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id,
+                                                    Inendi::PVMapping& mapping,
+                                                    QWidget* parent)
+    : PVMappingModeWidget(parent)
+{
+	populate_from_mapping(axis_id, mapping);
 }
 
 void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
@@ -161,9 +131,5 @@ void PVWidgets::PVMappingModeWidget::change_params()
 
 bool PVWidgets::PVMappingModeWidget::set_mode(QString const& mode)
 {
-	if (_params_btn) {
-		set_filter_params_from_type_mode(_cur_type, mode);
-		_params_btn->setEnabled(_cur_filter_params.size() > 0);
-	}
 	return _combo->select_userdata(mode);
 }

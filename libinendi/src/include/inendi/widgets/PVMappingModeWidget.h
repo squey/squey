@@ -14,7 +14,6 @@
 #include <inendi/PVMapping.h>
 #include <inendi/PVView_types.h>
 
-#include <QPushButton>
 #include <QWidget>
 
 namespace Inendi
@@ -29,16 +28,10 @@ class PVMappingModeWidget : public QWidget
 {
 	Q_OBJECT
   public:
-	PVMappingModeWidget(QWidget* parent = NULL) : QWidget(parent) { init(false); }
-	PVMappingModeWidget(QString const& type, QWidget* parent = NULL);
+	PVMappingModeWidget(QWidget* parent = nullptr);
 	PVMappingModeWidget(PVCol axis_id,
 	                    Inendi::PVMapping& mapping,
-	                    bool params_btn = false,
-	                    QWidget* parent = NULL);
-	PVMappingModeWidget(PVCol axis_id,
-	                    Inendi::PVView& view,
-	                    bool params_btn = false,
-	                    QWidget* parent = NULL);
+	                    QWidget* parent = nullptr);
 
   public:
 	void populate_from_type(QString const& type);
@@ -57,7 +50,6 @@ class PVMappingModeWidget : public QWidget
 	PVCore::PVArgumentList const& get_cur_filter_params() const { return _cur_filter_params; }
 
   private:
-	void init(bool params_btn);
 	void set_filter_params_from_type_mode(QString const& type, QString const& mode);
 
   private slots:
@@ -65,7 +57,6 @@ class PVMappingModeWidget : public QWidget
 
   private:
 	PVComboBox* _combo;
-	QPushButton* _params_btn;
 	Inendi::PVMappingProperties* _props;
 	QHash<QString, QHash<QString, PVCore::PVArgumentList>> _filter_params;
 	PVCore::PVArgumentList _cur_filter_params;
