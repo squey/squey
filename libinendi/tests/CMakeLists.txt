@@ -124,3 +124,7 @@ add_test(Tinendi_investigation Tinendi_investigation)
 # it in multiple tests
 add_pv_compile_test(TPVSelection LINKS ${LINK_LIBRARIES} FILES PVSelection.cpp)
 add_test(TPVSelection TPVSelection)
+
+add_pv_compile_test(Tinendi_bad_convertions_merge LINKS ${LINK_LIBRARIES} FILES bad_convertions_merge.cpp)
+add_test(Tinendi_bad_convertions_merge Tinendi_bad_convertions_merge)
+add_bench(Tinendi_bad_convertions_merge LINKS ${LINK_LIBRARIES} FILES bad_convertions_merge.cpp)
