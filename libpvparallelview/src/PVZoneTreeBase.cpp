@@ -43,29 +43,24 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(
 
 		if (_mm_testz_si128(see_cmp, sse_ff)) {
 
-			__m128i sse_lr;
-			sse_lr = _mm_insert_epi32(sse_lr, b + 0, 0);
-			sse_lr = _mm_insert_epi32(sse_lr, b + 1, 1);
-			sse_lr = _mm_insert_epi32(sse_lr, b + 2, 2);
-			sse_lr = _mm_insert_epi32(sse_lr, b + 3, 3);
+			__m128i sse_lr = _mm_set_epi32(b, b + 1, b + 2, b + 3);
 
 			//  +------------+------------++------------+------------+
 			//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
 			//  +------------+------------++------------+------------+
 
-			__m128i sse_color;
-			sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 0)].h(), 0);
-			sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 1)].h(), 1);
-			sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 2)].h(), 2);
-			sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 3)].h(), 3);
+			__m128i sse_color = _mm_set_epi32(colors[_mm_extract_epi32(sse_index, 0)].h(),
+			                                  colors[_mm_extract_epi32(sse_index, 1)].h(),
+			                                  colors[_mm_extract_epi32(sse_index, 2)].h(),
+			                                  colors[_mm_extract_epi32(sse_index, 3)].h());
+			;
 			sse_color = _mm_slli_epi32(sse_color, NBITS_INDEX * 2);
 
 			//  +------------+------------++------------+------------+
 			//  |color3 << 20|color2 << 20||color1 << 20|color0 << 20| (sse_color)
 			//  +------------+------------++------------+------------+
 
-			__m128i sse_lrcolor;
-			sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
+			__m128i sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
 
 			//  +------------+------------++------------+------------+
 			//  |   lrcolor3 |   lrcolor2 ||   lrcolor1 |   lrcolor0 | (sse_lrcolor)
