@@ -2,12 +2,11 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2013-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include <pvkernel/core/PVMemory2D.h>
 
-#include <stdlib.h>
 #include <cstdint>
 #include <memory.h>
 
@@ -26,8 +25,8 @@ void PVCore::memcpy2d(void* dst,
 	assert(x_offset < (ssize_t)image_width);
 	assert(y_offset < (ssize_t)image_height);
 
-	size_t dest_width = image_width - abs(x_offset);
-	size_t dest_height = image_height - abs(y_offset);
+	size_t dest_width = image_width - std::abs(x_offset);
+	size_t dest_height = image_height - std::abs(y_offset);
 
 	BENCH_START(memcpy2d);
 
