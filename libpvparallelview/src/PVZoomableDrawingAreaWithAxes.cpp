@@ -56,7 +56,7 @@ void __print_scalar(const char* text, const V& v)
  *****************************************************************************/
 
 PVParallelView::PVZoomableDrawingAreaWithAxes::PVZoomableDrawingAreaWithAxes(QWidget* parent)
-    : PVZoomableDrawingArea(parent), _ticks_per_level(10), _first_resize(true)
+    : PVZoomableDrawingArea(parent), _ticks_per_level(10)
 {
 	set_scene_margins(DEFAULT_HMARGIN, DEFAULT_HMARGIN, DEFAULT_VMARGIN, DEFAULT_VMARGIN);
 	set_alignment(Qt::AlignLeft | Qt::AlignBottom);

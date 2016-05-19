@@ -139,8 +139,7 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 
 	QString content;
 
-	// TODO(pbrunet) : do something on this check.
-	bool success = PVCore::PVProgressBox::progress(
+	PVCore::PVProgressBox::progress(
 	    [&]() {
 		    /* the PVSelection can be safely traversed because the
 		     *range selection
@@ -156,7 +155,6 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 				    unlikely(ctxt.is_group_execution_cancelled())
 				    {
 					    return false;
-					    ;
 				    }
 
 			    QString s = model().export_line(row);

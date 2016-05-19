@@ -169,8 +169,6 @@ class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 
 	int _x_axis_length;
 	int _y_axis_length;
-
-	bool _first_resize;
 };
 }
 
