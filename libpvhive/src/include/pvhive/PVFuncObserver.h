@@ -41,6 +41,22 @@ class PVFuncObserverBase : public PVObserverObjectBase
   protected:
 	void* _f;
 };
+
+namespace __impl
+{
+
+/**
+ * FIXME : This is an horrible pmf-conversion. It may not work in the future because of virtual
+ * methodes factorization by compiler and it certainly can't be converted back as virtuality will
+ * not be handle by the compiler
+ */
+template <class F, F bound_function>
+void* get_unique_id()
+{
+	static char dummy;
+	return &dummy;
+}
+}
 }
 
 namespace __impl
@@ -89,7 +105,7 @@ class PVFuncObserverTemplatedBase : public B
 	typedef typename f_traits::arguments_type arguments_deep_copy_type;
 
   public:
-	PVFuncObserverTemplatedBase() : B((void*)(bound_function)) {}
+	PVFuncObserverTemplatedBase() : B(__impl::get_unique_id<F, bound_function>()) {}
 };
 
 /**

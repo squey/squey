@@ -331,15 +331,8 @@ class PVHive
 		void* registered_object = PVCore::PVTypeTraits::get_starting_address(object.get());
 		_observables.insert(acc, registered_object);
 
-#ifdef __GNUG__
-// Disable warning for GCC for this line
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpmf-conversions"
-#endif
-		acc->second.func_observers.insert(std::make_pair((void*)f, &observer));
-#ifdef __GNUG__
-#pragma GCC diagnostic pop
-#endif
+		acc->second.func_observers.insert(std::make_pair(__impl::get_unique_id<F, f>(), &observer));
+
 		observer.set_object((void*)object.get(), registered_object);
 		object.set_deleter(&__impl::hive_deleter);
 	}
@@ -600,15 +593,7 @@ class PVHive
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
 		func_observers_t::const_iterator it_fo, it_fo_e;
-#ifdef __GNUG__
-// Disable warning for GCC for this line
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpmf-conversions"
-#endif
-		std::tie(it_fo, it_fo_e) = fobs.equal_range((void*)f);
-#ifdef __GNUG__
-#pragma GCC diagnostic pop
-#endif
+		std::tie(it_fo, it_fo_e) = fobs.equal_range(__impl::get_unique_id<F, f>());
 
 		/* RH & AG: to prevent a deadlock when the observers call
 		 * PVHive::register_xxxx, the list is duplicated to release
