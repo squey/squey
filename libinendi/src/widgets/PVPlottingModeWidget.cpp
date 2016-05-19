@@ -15,9 +15,8 @@
 
 #include <QHBoxLayout>
 
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QWidget* parent) : QWidget(parent),
-    _combo(new PVComboBox(this)),
-    _props(nullptr)
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QWidget* parent)
+    : QWidget(parent), _combo(new PVComboBox(this)), _props(nullptr)
 {
 	QHBoxLayout* layout = new QHBoxLayout();
 	layout->setContentsMargins(0, 0, 0, 0);

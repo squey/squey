@@ -68,7 +68,8 @@ class PVZoomedParallelScene : public QGraphicsScene
 	constexpr static uint32_t image_height = 1024;
 
 	constexpr static int zoom_steps = 5;
-	constexpr static double root_step = 1.148698354997035; //std::pow(2.0, 1.0 / zoom_steps) with zoom_step = 5
+	constexpr static double root_step =
+	    1.148698354997035; // std::pow(2.0, 1.0 / zoom_steps) with zoom_step = 5
 
 	// to make 2 consecutive values be separated by 1 pixel
 	constexpr static int max_zoom_value = (32 - bbits);

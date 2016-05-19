@@ -16,10 +16,9 @@
 
 #include <QHBoxLayout>
 
-PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QWidget* parent) : QWidget(parent),
-	_combo(new PVComboBox(this)),
-	_props(nullptr)
-  {
+PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QWidget* parent)
+    : QWidget(parent), _combo(new PVComboBox(this)), _props(nullptr)
+{
 	QHBoxLayout* layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(10);
@@ -27,7 +26,7 @@ PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QWidget* parent) : QWidget(p
 	setLayout(layout);
 
 	setFocusPolicy(Qt::StrongFocus);
-  }
+}
 
 PVWidgets::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id,
                                                     Inendi::PVMapping& mapping,

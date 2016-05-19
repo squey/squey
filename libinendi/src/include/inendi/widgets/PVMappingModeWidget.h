@@ -29,9 +29,7 @@ class PVMappingModeWidget : public QWidget
 	Q_OBJECT
   public:
 	PVMappingModeWidget(QWidget* parent = nullptr);
-	PVMappingModeWidget(PVCol axis_id,
-	                    Inendi::PVMapping& mapping,
-	                    QWidget* parent = nullptr);
+	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping, QWidget* parent = nullptr);
 
   public:
 	void populate_from_type(QString const& type);

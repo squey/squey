@@ -357,11 +357,11 @@ class PVUnicodeSource : public PVRawSourceBase
 	alloc_chunk _alloc;                //!< Allocator to create chunks
 
 	// Attribute for charset conversion to UTF-8
-	PVCharsetDetect _cd;                                      //!< Charset detector
-	std::string _charset;                                     //!< Detected charset
-	PVConverter _utf8_converter;                              //!< ICU converter to UTF 8
+	PVCharsetDetect _cd;                            //!< Charset detector
+	std::string _charset;                           //!< Detected charset
+	PVConverter _utf8_converter;                    //!< ICU converter to UTF 8
 	std::unique_ptr<PVConverter> _origin_converter; //!< ICU converter from origin charset
-	std::string _tmp_buf; //!< Temporary buffer use for charset conversion
+	std::string _tmp_buf;                           //!< Temporary buffer use for charset conversion
 };
 }
 

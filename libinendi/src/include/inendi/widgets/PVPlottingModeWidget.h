@@ -29,9 +29,7 @@ class PVPlottingModeWidget : public QWidget
 	Q_OBJECT
   public:
 	PVPlottingModeWidget(QWidget* parent = nullptr);
-	PVPlottingModeWidget(PVCol axis_id,
-	                     Inendi::PVPlotting& plotting,
-	                     QWidget* parent = nullptr);
+	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting, QWidget* parent = nullptr);
 
   public:
 	void populate_from_type(QString const& type);
