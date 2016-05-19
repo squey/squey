@@ -950,20 +950,6 @@ PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
 	return format;
 }
 
-/******************************************************************************
- *
- * PVInspector::PVFormatBuilderWidget::showParamBoard
- *
- *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::showParamBoard(PVRush::PVXmlTreeNodeDom* node)
-{
-	PV_UNUSED(node);
-	assert(node);
-	PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::showParamBoard()\n");
-
-	// myParamBord=node->getSplitterPlugin()->get_param_widget();
-}
-
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 {
 	assert(_log_extract);

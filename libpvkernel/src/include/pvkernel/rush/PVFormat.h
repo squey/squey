@@ -24,7 +24,6 @@
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
-#include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
 #include <pvcop/formatter_desc_list.h>

@@ -107,10 +107,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	list_splitters_t _list_splitters;   ///!<list of the plugins splitters
 	list_converters_t _list_converters; ///!<list of the plugins converters
 
-	void showParamBoard(PVRush::PVXmlTreeNodeDom* node);
-
-	// Log input management
-
   protected:
 	/**
 	 * Clear filter data and run extraction filling NRaw and invalid elements.

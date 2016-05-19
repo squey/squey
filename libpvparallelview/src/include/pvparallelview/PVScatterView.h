@@ -8,8 +8,6 @@
 #ifndef __PVSCATTERVIEW_H__
 #define __PVSCATTERVIEW_H__
 
-#include <QTimer>
-
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <inendi/PVAxesCombination.h>
@@ -18,9 +16,6 @@
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoneRendering_types.h>
-
-// Uncomment to show FPS
-//#define SV_FPS
 
 class QPainter;
 
@@ -116,14 +111,10 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 
   protected:
 	void drawBackground(QPainter* painter, const QRectF& rect) override;
-	void drawForeground(QPainter* painter, const QRectF& rect) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
   protected:
 	void set_params_widget_position();
-
-	QString get_x_value_at(const qint64 pos) const;
-	QString get_y_value_at(const qint64 pos) const;
 
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
@@ -152,7 +143,6 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
   private slots:
 	void do_zoom_change(int axes);
 	void do_pan_change();
-	void compute_fps();
 
   private:
 	Inendi::PVView& _view;
@@ -167,11 +157,6 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	PVSelectionRectangleInteractor* _sel_rect_interactor;
 
 	static bool _show_quadtrees;
-
-#ifdef SV_FPS
-	uint32_t _nframes;
-	QString _fps_str;
-#endif
 
 	RenderedImage _image_sel;
 	RenderedImage _image_bg;
