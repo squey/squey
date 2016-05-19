@@ -303,20 +303,3 @@ void PVRush::PVAggregator::set_sources_number_fields(PVCol ncols)
 		(*it)->set_number_cols_to_reserve(ncols);
 	}
 }
-
-void PVRush::PVAggregator::debug() const
-{
-	// List sources
-	PVLOG_DEBUG("PVAggregator::debug\n");
-	PVLOG_DEBUG("PVAggregator::debug source\n");
-	for (auto const& input : _inputs) {
-		PVLOG_DEBUG("source %s\n", qPrintable(input->human_name()));
-	}
-
-	PVLOG_DEBUG("PVAggregator::debug offset->source\n");
-	for (auto const& src_off : _src_offsets) {
-		PVLOG_DEBUG("offset %d: source %s\n", src_off.first,
-		            qPrintable((*(src_off.second))->human_name()));
-	}
-	PVLOG_DEBUG("PVAggregator::debug nstart=%d nlast=%d nend=%d\n", _nstart, _nlast, _nend);
-}

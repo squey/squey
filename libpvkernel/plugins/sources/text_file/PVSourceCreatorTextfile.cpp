@@ -45,10 +45,9 @@ QString PVRush::PVSourceCreatorTextfile::supported_type() const
 	return QString("file");
 }
 
-bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVInputDescription_p input) const
+bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVInputDescription_p /*input*/) const
 {
-	// AG: I don't know a magic method for being sure that a file is a text-file
-	// We'll let the TBB filters work for the moment...
+	// FIXME : We shouls check for no elasticsearch/splunk/others?
 	return true;
 }
 
