@@ -188,64 +188,6 @@ class TBBMergeTreesTask
 	PVParallelView::PVZoneTree::PVTreeParams const& _params;
 	uint32_t _task_num;
 };
-
-class TBBSelFilterMaxCount
-{
-  public:
-	TBBSelFilterMaxCount(PVParallelView::PVZoneTree* tree,
-	                     PVRow* buf_elts,
-	                     const Inendi::PVSelection& sel,
-	                     tbb::atomic<ssize_t>& nelts,
-	                     tbb::task_group_context& ctxt)
-	    : _tree(tree), _buf_elts(buf_elts), _sel(sel), _nelts(&nelts), _ctxt(&ctxt)
-	{
-	}
-
-	void operator()(const tbb::blocked_range<size_t>& range) const
-	{
-		const ssize_t cur_remaing = (ssize_t)*_nelts;
-		ssize_t nelts_found = 0;
-		if (cur_remaing == 0) {
-			return;
-		}
-		PVRow* buf_elts = _buf_elts;
-
-		for (PVRow b = range.begin(); b != range.end(); b++) {
-			PVRow res = PVROW_INVALID_VALUE;
-			if (_tree->branch_valid(b)) {
-				const PVRow r = _tree->get_first_elt_of_branch(b);
-				// If bit is selected in selection, mark it
-				if (_sel.get_line_fast(r)) {
-					res = r;
-					nelts_found++;
-				} else {
-					for (size_t i = 0; i < _tree->_treeb[b].count; i++) {
-						const PVRow r = _tree->_treeb[b].p[i];
-						if (_sel.get_line_fast(r)) {
-							res = r;
-							nelts_found++;
-							break;
-						}
-					}
-				}
-			}
-			buf_elts[b] = res;
-			if (nelts_found >= *_nelts) {
-				break;
-			}
-		}
-		if ((nelts_found > 0) && (_nelts->fetch_and_add(-nelts_found) <= nelts_found)) {
-			_ctxt->cancel_group_execution();
-		}
-	}
-
-  private:
-	mutable PVParallelView::PVZoneTree* _tree;
-	mutable PVRow* _buf_elts;
-	Inendi::PVSelection const& _sel;
-	mutable tbb::atomic<ssize_t>* _nelts;
-	mutable tbb::task_group_context* _ctxt;
-};
 }
 }
 
@@ -304,22 +246,28 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 		group.run(__impl::TBBMergeTreesTask(this, merge_tree_params, t));
 	}
 	group.wait();
+
 	BENCH_END(merge, "MERGE", nrows * 2, sizeof(float), nrows * 2, sizeof(float));
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel,
                                                          PVRow* buf_elts)
 {
-	// returns a zone tree with only the selected events
-	tbb::atomic<ssize_t> nelts_sel;
-	BENCH_START(subtree2);
-	nelts_sel = (ssize_t)sel.get_number_of_selected_lines_in_range(0, sel.count());
 	std::fill_n(buf_elts, NBUCKETS, PVROW_INVALID_VALUE);
-	tbb::task_group_context context;
+
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE),
-	                  __impl::TBBSelFilterMaxCount(this, buf_elts, sel, nelts_sel, context),
-	                  tbb::simple_partitioner(), context);
-	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
+	                  [this, &sel, buf_elts](tbb::blocked_range<size_t> const& br) {
+		                  for (PVRow b = br.begin(); b != br.end(); b++) {
+			                  PVRow* end = _treeb[b].p + _treeb[b].count;
+			                  PVRow* res = std::find_if(_treeb[b].p, end, [&sel](PVRow v) {
+				                  return sel.get_line_fast(v);
+				              });
+			                  if (res != end) {
+				                  buf_elts[b] = *res;
+			                  }
+		                  }
+		              },
+	                  tbb::simple_partitioner());
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel,
