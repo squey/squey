@@ -41,7 +41,7 @@ class PVSortFilter
 	{
 		size_t num_threads = pvhwloc::thread_count();
 
-		std::vector<PVRow> filters[num_threads];
+		std::vector<std::vector<PVRow>> filters(num_threads);
 		size_t elts[num_threads];
 
 		auto const& sort = _sort.to_core_array();
