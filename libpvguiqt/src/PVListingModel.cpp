@@ -220,9 +220,9 @@ void PVGuiQt::PVListingModel::axes_comb_changed()
  * PVGuiQt::PVListingModel::sort
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::sort(PVCol comb_col,
-                                   Qt::SortOrder order,
-                                   tbb::task_group_context& ctxt)
+void PVGuiQt::PVListingModel::sort_on_col(PVCol comb_col,
+                                          Qt::SortOrder order,
+                                          tbb::task_group_context& ctxt)
 {
 	PVCol orig_col = lib_view().get_original_axis_index(comb_col);
 	lib_view().sort_indexes(orig_col, _display.sorting(), &ctxt);

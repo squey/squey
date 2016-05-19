@@ -187,7 +187,7 @@ class PVListingModel : public PVAbstractTableModel
 	 * @param[in,out] ctxt : Information about sorting processing to enable cancel.
 	 *
 	 */
-	void sort(PVCol col, Qt::SortOrder order, tbb::task_group_context& ctxt);
+	void sort_on_col(PVCol col, Qt::SortOrder order, tbb::task_group_context& ctxt);
 
 	/**
 	 * Export row-th line in a QString.
