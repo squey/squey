@@ -114,7 +114,6 @@ class Entity : public Storage
   private:
 	int _id;
 	Entity* _parent;
-	bool _dynamic;
 	int _v;
 };
 
@@ -138,9 +137,7 @@ class PropertyEntity : public Entity
 	virtual Property* get_prop() { return &_prop; }
 
   private:
-	int _dummy1;
 	Property _prop;
-	int _dummy2;
 };
 
 class ThreadEntity : public QThread
@@ -401,7 +398,6 @@ class EntityObserver : public QDialog, public Interactor, public PVHive::PVObser
 	virtual void terminate() { close(); }
 
   private:
-	int _id;
 	QLabel* _vl;
 };
 
@@ -446,7 +442,6 @@ class PropertyObserver : public QDialog, public Interactor, public PVHive::PVObs
 	virtual void terminate() { close(); }
 
   private:
-	int _id;
 	QLabel* _vl;
 };
 

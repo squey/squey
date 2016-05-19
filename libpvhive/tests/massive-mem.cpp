@@ -17,48 +17,7 @@
 
 #include <pvkernel/core/inendi_stat.h>
 
-#if 0
-void print_size(const char *text, size_t size, int num)
-{
-	static const char *units[] = {"o", "Kio", "Mio", "Gio", "Tio", "Pio"};
-	int gindex = 0;
-	int eindex = 0;
-	uint64_t gscale = 1;
-	uint64_t escale = 1;
-
-	size_t gmem = size;
-	size_t gs = gmem;
-
-	size_t emem = size / num;
-	size_t es = emem;
-
-	while (gs > 1024) {
-		gscale *= 1024;
-		++gindex;
-		gs /= 1024;
-	}
-
-	while (es > 1024) {
-		escale *= 1024;
-		++eindex;
-		es /= 1024;
-	}
-
-	double dgmem = (double)gmem / gscale;
-	double demem = (double)emem / escale;
-
-	printf("%s: %g %s for %d element(s) -> %g %s per element\n",
-	       text, dgmem, units[gindex], num, demem, units[eindex]);
-}
-#endif
-
-class Block2
-{
-  public:
-	Block2() {}
-
-  private:
-	int _i;
+struct Block2 {
 };
 
 typedef PVCore::PVSharedPtr<Block2> Block2_p;

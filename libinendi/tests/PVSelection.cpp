@@ -181,7 +181,7 @@ int main(void)
 	a.select_even();
 	b.select_odd();
 
-	Inendi::PVSelection c = std::move(a & b);
+	Inendi::PVSelection c = a & b;
 	PVLOG_INFO("a: %p , b = %p , c = %p\n", &a, &b, &c);
 	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty()
 	          << std::endl;

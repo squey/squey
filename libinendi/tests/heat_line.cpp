@@ -18,7 +18,9 @@
 #include <fstream>
 #include <string>
 
+#ifndef INSPECTOR_BENCH
 constexpr size_t CHECK_COUNT = 10000;
+#endif
 
 const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
 const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";

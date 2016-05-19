@@ -23,8 +23,10 @@ constexpr static size_t nb_dup = 1;
 #endif
 
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/converter/guid_to_ip/guid.log";
+#ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file =
     TEST_FOLDER "/pvkernel/rush/converter/guid_to_ip/ipv4.log.out";
+#endif
 
 int main()
 {

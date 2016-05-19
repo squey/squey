@@ -23,8 +23,10 @@ constexpr static size_t nb_dup = 1;
 #endif
 
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/duplicate/lines.txt";
+#ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file =
     TEST_FOLDER "/pvkernel/rush/splitters/duplicate/lines.txt.out";
+#endif
 
 int main()
 {

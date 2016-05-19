@@ -19,7 +19,9 @@ using namespace PVRush;
 using namespace PVCore;
 
 static constexpr const char* input_file = TEST_FOLDER "/pvkernel/rush/charset/utf8";
+#ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/charset/utf8.out";
+#endif
 
 int main(int argc, char** argv)
 {

@@ -23,7 +23,9 @@ static constexpr int dupl = 1;
 
 static constexpr const char* csv_file = TEST_FOLDER "/picviz/string_mapping.csv";
 static constexpr const char* csv_file_format = TEST_FOLDER "/picviz/string_mapping.csv.format";
+#ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/picviz/string_mapping_4bsort.ref";
+#endif
 
 int main()
 {

@@ -11,9 +11,10 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
-#include "is_const.h"
-
 struct A {
+
+	A() {}
+
 	bool is_const() { return false; }
 	bool is_const() const { return true; }
 
@@ -52,13 +53,13 @@ int main()
 
 	PV_VALID_P(gna2.is_const(), true);
 
-	PV_VALID_P(is_const(gna4), false);
+	PV_VALID_P(std::is_const<decltype(gna4)>::value, false);
 
-	PV_VALID_P(is_const(gna8), true);
+	PV_VALID_P(std::is_const<decltype(gna8)>::value, true);
 
-	PV_VALID_P(is_const(gnaa), false);
+	PV_VALID_P(std::is_const<decltype(gnaa)>::value, false);
 
-	PV_VALID_P(is_const(gna10), false, "gna10", gna10, "i", 10);
+	PV_VALID_P(std::is_const<decltype(gna10)>::value, false, "gna10", gna10, "i", 10);
 
 	return 0;
 }

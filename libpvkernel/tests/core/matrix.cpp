@@ -12,8 +12,6 @@
 
 #include <iostream>
 
-#include "is_const.h"
-
 int main()
 {
 	std::cout << "testing ::get_data()" << std::endl;
@@ -21,18 +19,11 @@ int main()
 		PVCore::PVMatrix<int> a(10, 10);
 		PVCore::PVMatrix<int>::pointer p = a.get_data();
 		PV_ASSERT_VALID(p != nullptr);
-		PV_VALID(is_const(p), false);
+		PV_VALID(std::is_const<decltype(p)>::value, false);
 		PVCore::PVMatrix<int>::const_pointer cp = a.get_data();
 		PV_ASSERT_VALID(cp != nullptr);
-		PV_VALID(is_const(cp), true);
+		PV_VALID(std::is_const<decltype(cp)>::value, true);
 		PV_ASSERT_VALID(cp == p);
-	}
-	std::cout << "passed" << std::endl;
-
-	std::cout << "testing ::get_data() const" << std::endl;
-	{
-		PVCore::PVMatrix<int> a(10, 10);
-		PVCore::PVMatrix<int>::const_pointer cp = a.get_data();
 	}
 	std::cout << "passed" << std::endl;
 

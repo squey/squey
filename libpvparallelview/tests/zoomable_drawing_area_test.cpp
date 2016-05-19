@@ -359,8 +359,6 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 	constexpr static int zoom_min = -22 * zoom_steps;
 	constexpr static int zoom_max = 8 * zoom_steps;
 
-	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
-
 	typedef PVParallelView::PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
   public:
@@ -372,13 +370,8 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 		QGraphicsScene* scn = get_scene();
 
 		PVWidgets::PVGraphicsViewInteractorBase* inter;
-#if 0
-		inter = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
-		set_constraints(new PVZoomableDrawingAreaConstraintsHomothetic());
-#else
 		inter = declare_interactor<PVZoomableDrawingAreaInteractorFree>();
 		set_constraints(new PVZoomableDrawingAreaConstraintsFree());
-#endif
 		register_front_all(inter);
 
 		install_default_scene_interactor();
@@ -391,9 +384,6 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 
 		QRectF r(0, 0, (1L << 32), (1L << 32));
 		set_scene_rect(r);
-
-		// setMaximumWidth(1024);
-		// setMaximumHeight(1024);
 
 		PVParallelView::PVZoomConverter* zc = new zoom_converter_t();
 
@@ -436,53 +426,6 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 	void drawForeground(QPainter* painter, const QRectF& rect)
 	{
 		PVParallelView::PVZoomableDrawingAreaWithAxes::drawForeground(painter, rect);
-
-#if 0
-		int top = get_scene_top_margin();
-		int bottom = get_scene_bottom_margin();
-		int left = get_scene_left_margin();
-		int right = get_scene_right_margin();
-
-		print_scalar(left);
-		QRectF screen = QRectF(left, top,
-		                       rect.width() - left -right,
-		                       rect.height() - top -bottom);
-
-		QRectF scene_in_screen = map_from_scene(get_scene_rect());
-		QRectF screen_in_scene = map_to_scene(screen);
-
-		print_rect(scene_in_screen);
-		print_rect(screen_in_scene);
-
-		print_scalar(top);
-		print_scalar(bottom);
-		print_scalar(left);
-		print_scalar(right);
-
-		qreal scene_width  = get_scene_rect().width();
-		//qreal scene_width_in_screen = scene_in_screen.width();
-
-		qreal ref_scale = zoom_to_scale(get_x_axis_zoom().get_min());
-		// print_scalar(scene_width * ref_scale);
-
-		qreal ref_ticks_gap = scene_width * ref_scale / get_ticks_count();
-		// print_scalar(ref_ticks_gap);
-
-		qreal cur_scale = zoom_to_scale(get_zoom_value());
-		qreal cur_ticks_gap = scene_width * cur_scale / get_ticks_count();
-		// print_scalar(cur_ticks_gap);
-
-		print_scalar(log(cur_ticks_gap) / log(ref_ticks_gap));
-		qreal ratio = cur_scale / ref_scale;
-		// print_scalar(ratio);
-
-		qreal root_ratio = (int)ratio;
-		//qreal step_tick_gap = ref_ticks_gap * root_ratio;
-		// std::cout << "draw ticks for " << root_ratio << " (" << step_tick_gap << ")" << std::endl;
-		if ((ratio / root_ratio) > 1.414) {
-			// std::cout << "draw sub-ticks for " << ratio << std::endl;
-		}
-#endif
 	}
 
 	void keyPressEvent(QKeyEvent* event) override

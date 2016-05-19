@@ -48,81 +48,12 @@ class context_t
 
 typedef tbb::enumerable_thread_specific<context_t> tls_set_t;
 
-#if 0
-template <uint64_t y1min, uint64_t y1max, uint64_t y2min, uint64_t y2max>
-class QuadTreeBase
-{
-	constexpr static uint64_t y1_min = y1min;
-	constexpr static uint64_t y1_max = y1max;
-	constexpr static uint64_t y2_min = y2min;
-	constexpr static uint64_t y2_max = y2max;
-
-public:
-	QuadTreeBase()
-	{}
-
-	void do_job(tls_set_t &tls) const
-	{
-		size_t s = 0;
-		for(uint64_t y1 = y1_min; y1 < y1_max; ++y1) {
-			for(uint64_t y2 = y2_min; y2 < y2_max; ++y2) {
-				s += y1 + y2;
-			}
-		}
-
-		tls.local().accum_value(s);
-	}
-};
-
-template <uint64_t y1min, uint64_t y1max, uint64_t y2min, uint64_t y2max, int depth = 4>
-class QuadTreeTmpl : public QuadTreeBase<y1min, y1max, y2min, y2max>
-{
-public:
-	QuadTreeTmpl()
-	{
-	}
-
-	void do_job(tls_set_t &tls) const
-	{
-		childSW.do_job(tls);
-		childSE.do_job(tls);
-		childNW.do_job(tls);
-		childNE.do_job(tls);
-	}
-
-private:
-	QuadTreeTmpl<y1min, (y1min + y1max) / 2, y2min, (y2min + y2max) / 2, depth-1>  childSW;
-	QuadTreeTmpl<(y1min + y1max) / 2, y1max, y2min, (y2min + y2max) / 2, depth-1> childSE;
-	QuadTreeTmpl<y1min, (y1min + y1max) / 2, (y2min + y2max) / 2, y2max, depth-1> childNW;
-	QuadTreeTmpl<(y1min + y1max) / 2, y1max, (y2min + y2max) / 2, y2max, depth-1> childNE;
-};
-
-template <uint64_t y1min, uint64_t y1max, uint64_t y2min, uint64_t y2max>
-class QuadTreeTmpl<y1min, y1max, y2min, y2max, 0> : public QuadTreeBase<y1min, y1max, y2min, y2max>
-{
-	typedef QuadTreeBase<y1min, y1max, y2min, y2max> parent_class;
-public:
-	QuadTreeTmpl()
-	{}
-
-	void do_job(tls_set_t &tls) const
-	{
-		parent_class::do_job(tls);
-	}
-};
-#endif // 0
-
 class QuadTree
 {
   public:
 	QuadTree(
 	    int height, int depth, uint64_t y1_min, uint64_t y1_max, uint64_t y2_min, uint64_t y2_max)
-	    : _y1_min(y1_min)
-	    , _y1_max(y1_max)
-	    , _y2_min(y2_min)
-	    , _y2_max(y2_max)
-	    , _heigth(height)
-	    , _depth(depth)
+	    : _y1_min(y1_min), _y1_max(y1_max), _y2_min(y2_min), _y2_max(y2_max), _depth(depth)
 	{
 		if (height == 0) {
 			_nodes[SW] = nullptr;
@@ -176,7 +107,6 @@ class QuadTree
 	uint64_t _y1_max;
 	uint64_t _y2_min;
 	uint64_t _y2_max;
-	int _heigth;
 	int _depth;
 };
 
@@ -241,20 +171,6 @@ int main(int argc, char** argv)
 		usage(argv[P_PROG]);
 		exit(1);
 	}
-
-#if 0
-	typedef QuadTreeTmpl<0, MAX_VALUE, 0, MAX_VALUE, 5> quadtree_t;
-
-	quadtree_t qtt;
-	tls_set_t tls_tmpl;
-
-	std::cout << "sizeof(quadtree_t) = " << sizeof(quadtree_t) << std::endl;
-	BENCH_START(run_tmpl);
-	qtt.do_job(tls_tmpl);
-	BENCH_STOP(run_tmpl);
-
-	BENCH_SHOW(run_tmpl, "run_tmpl", 1, 1, 1, 1);
-#endif // 0
 
 	int height = atoi(argv[P_QT_HEIGHT]);
 	int limit = atoi(argv[P_QT_LIMIT]);

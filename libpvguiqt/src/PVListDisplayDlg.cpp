@@ -152,10 +152,7 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 				    continue;
 			    }
 			    if
-				    unlikely(ctxt.is_group_execution_cancelled())
-				    {
-					    return false;
-				    }
+				    unlikely(ctxt.is_group_execution_cancelled()) { return false; }
 
 			    QString s = model().export_line(row);
 			    if (!s.isNull()) {

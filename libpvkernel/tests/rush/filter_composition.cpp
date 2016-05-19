@@ -19,7 +19,9 @@
 #include "helpers.h"
 
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/filter_composition";
+#ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/filter_composition.out";
+#endif
 
 #ifdef INSPECTOR_BENCH
 constexpr static size_t nb_dup = 1000;

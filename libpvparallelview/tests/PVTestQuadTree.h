@@ -255,7 +255,7 @@ class PVQuadTree
 	void insert(const PVQuadTreeEntry& e)
 	{
 		// searching for the right child
-		register PVQuadTree* qt = this;
+		PVQuadTree* qt = this;
 		while (qt->_nodes != 0) {
 			qt = &qt->_nodes[qt->compute_index(e)];
 		}
@@ -360,14 +360,14 @@ class PVQuadTree
 		                           insert_f, buffer, tlr);
 	}
 
+	static bool test_f(const PVQuadTreeEntry& e, const uint64_t y1_min, const uint64_t y1_max)
+	{
+		return (e.y1 >= y1_min) && (e.y1 < y1_max);
+	}
+
 	inline void
 	get_first_from_y1(visit_context_t& ctx, const uint32_t zoom, const uint32_t y2_count) const
 	{
-		static auto test_f = [](const PVQuadTreeEntry& e, const uint64_t y1_min,
-		                        const uint64_t y1_max) -> bool {
-			return (e.y1 >= y1_min) && (e.y1 < y1_max);
-		};
-
 		job_visit_y1_n_m<decltype(test_f), test_f>& t =
 		    *new (tbb::task::allocate_root())
 		        job_visit_y1_n_m<decltype(test_f), test_f>(*this, ctx, zoom, y2_count, 0);

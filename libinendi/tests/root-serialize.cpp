@@ -76,9 +76,6 @@ int main(int argc, char** argv)
 	src2->create_default_view();
 	src2->create_default_view();
 
-	Inendi::PVView& v2 = *src2->get_children<Inendi::PVView>().at(0);
-	Inendi::PVView& v3 = *src2->get_children<Inendi::PVView>().at(1);
-
 	// Serialize the root object
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive(
 	    "/srv/tmp-inendi/test", PVCore::PVSerializeArchive::write, 1));

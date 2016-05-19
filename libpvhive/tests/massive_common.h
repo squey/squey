@@ -12,8 +12,6 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 
-#include <tbb/tick_count.h>
-
 /*****************************************************************************
  * datas
  *****************************************************************************/
@@ -34,7 +32,7 @@ class Property
 class Block
 {
   public:
-	Block(int n) : _count(n) { _array = new Property[n]; }
+	Block(int n) { _array = new Property[n]; }
 
 	~Block()
 	{
@@ -56,7 +54,6 @@ class Block
 
   private:
 	Property* _array;
-	int _count;
 	int _value;
 };
 

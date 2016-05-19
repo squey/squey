@@ -24,8 +24,10 @@ constexpr static size_t nb_dup = 1;
 
 static constexpr const char* log_file =
     TEST_FOLDER "/pvkernel/rush/splitters/url/http_from_squid.url";
+#ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file =
     TEST_FOLDER "/pvkernel/rush/splitters/url/http_from_squid.url.out";
+#endif
 
 int main()
 {

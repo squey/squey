@@ -20,7 +20,9 @@
 #include "helpers.h"
 #include "common.h"
 
+#ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/sources/elasticsearch.out";
+#endif
 
 int main()
 {
