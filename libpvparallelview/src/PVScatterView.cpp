@@ -42,8 +42,6 @@
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 
-#define TIMEOUT_FPS 500 // ms
-
 namespace PVParallelView
 {
 
@@ -71,10 +69,6 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp,
     , _view_deleted(false)
     , _show_bg(true)
 {
-#ifdef SV_FPS
-	_nframes = 0;
-#endif
-
 	set_gl_viewport();
 
 	QRectF r(0, 0, (1UL << 32), (1UL << 32));
@@ -139,13 +133,6 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp,
 	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
 	connect(get_horizontal_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
 
-#ifdef SV_FPS
-	QTimer* fps_timer = new QTimer();
-	fps_timer->setInterval(TIMEOUT_FPS);
-	fps_timer->setSingleShot(false);
-	fps_timer->start();
-	connect(fps_timer, SIGNAL(timeout()), this, SLOT(compute_fps()));
-#endif
 	_params_widget = new PVScatterViewParamsWidget(this);
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
@@ -461,47 +448,12 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	draw_decorations(painter, rect);
 }
 
-void PVParallelView::PVScatterView::drawForeground(QPainter* painter, const QRectF& rect)
-{
-	PV_UNUSED(painter);
-	PV_UNUSED(rect);
-#ifdef SV_FPS
-	painter->save();
-	painter->resetTransform();
-	painter->setPen(QPen(Qt::green, 0));
-	painter->setBrush(QColor(Qt::white));
-	painter->drawText(QPointF(20.0, 20.0), _fps_str);
-	painter->restore();
-
-	_nframes++;
-#endif
-}
-
 void PVParallelView::PVScatterView::set_enabled(bool en)
 {
 	setEnabled(en);
 	if (!en) {
 		get_images_manager().cancel_all_and_wait();
 	}
-}
-
-void PVParallelView::PVScatterView::compute_fps()
-{
-#ifdef SV_FPS
-	const double fps = (double)_nframes / (TIMEOUT_FPS / 1000.0);
-	_nframes = 0;
-	_fps_str = QString("FPS: %1").arg(fps, 0, 'f', 5);
-#endif
-}
-
-QString PVParallelView::PVScatterView::get_x_value_at(const qint64 /*pos*/) const
-{
-	return QString();
-}
-
-QString PVParallelView::PVScatterView::get_y_value_at(const qint64 /*pos*/) const
-{
-	return QString();
 }
 
 ////

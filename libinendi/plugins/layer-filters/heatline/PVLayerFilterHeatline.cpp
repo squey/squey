@@ -8,7 +8,6 @@
 #include "PVLayerFilterHeatline.h"
 
 #include <pvkernel/core/inendi_bench.h>
-#include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>

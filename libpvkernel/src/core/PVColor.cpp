@@ -7,17 +7,6 @@
 
 #include <pvkernel/core/PVColor.h>
 
-PVCore::PVColor
-PVCore::PVColor::fromRgba(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
-{
-	PVColor color;
-	color.x = r;
-	color.y = g;
-	color.z = b;
-	color.w = a;
-	return color;
-}
-
 /******************************************************************************
  *
  * PVCore::PVColor::toQColor
@@ -25,7 +14,7 @@ PVCore::PVColor::fromRgba(unsigned char r, unsigned char g, unsigned char b, uns
  *****************************************************************************/
 QColor PVCore::PVColor::toQColor() const
 {
-	return QColor(qRgba(x, y, z, w));
+	return QColor(qRgba(r, g, b, a));
 }
 
 /******************************************************************************
@@ -33,10 +22,10 @@ QColor PVCore::PVColor::toQColor() const
  * PVCore::PVColor::fromQColor
  *
  *****************************************************************************/
-void PVCore::PVColor::fromQColor(QColor color)
+void PVCore::PVColor::fromQColor(QColor const& color)
 {
-	x = color.red();
-	y = color.green();
-	z = color.blue();
-	w = color.alpha();
+	r = color.red();
+	g = color.green();
+	b = color.blue();
+	a = color.alpha();
 }

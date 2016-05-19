@@ -61,16 +61,6 @@ static constexpr const char* ESCAPE_PERCENT = "\%";
 #define INENDI_CONFDIR ".inendi"
 #define INENDI_INSPECTOR_CONFDIR INENDI_CONFDIR INENDI_PATH_SEPARATOR "inspector"
 
-#define inendi_verify(e) __inendi_verify(e, __FILE__, __LINE__)
-#define __inendi_verify(e, F, L)                                                                   \
-	if (!(e)) {                                                                                    \
-		fprintf(stderr, "valid assertion failed at %s:%d: %s.\n", F, L, #e);                       \
-		abort();                                                                                   \
-	}
-
-#define NEXT_MULTIPLE(n, align) ((((n) * (align)-1) / (align)) * (align))
-#define PREV_MULTIPLE(n, align) (((n) / (align)) * (align))
-
 #define PV_UNUSED(v) ((void)v)
 
 #endif /* PVBASE_GENERAL_H */

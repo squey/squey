@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
+#include <pvbase/general.h>
+
 #include "PVInputTypeElasticsearch.h"
 
 #include "PVElasticsearchParamsWidget.h"

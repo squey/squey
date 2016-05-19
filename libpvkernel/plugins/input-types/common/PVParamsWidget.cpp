@@ -7,6 +7,8 @@
 
 #include "PVParamsWidget.h"
 
+#include <pvbase/general.h>
+
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/widgets/PVQueryBuilder.h>
 #include <pvkernel/core/lambda_connect.h>

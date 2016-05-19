@@ -18,6 +18,7 @@
 
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVNormalizer.h>
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>

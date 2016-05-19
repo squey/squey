@@ -7,7 +7,10 @@
 
 #include "PVInputTypeRemoteFilename.h"
 #include "include/PVLogViewerDialog.h"
+
 #include <pvkernel/rush/PVFileDescription.h>
+
+#include <pvbase/general.h>
 
 #include <QMessageBox>
 #include <QFileInfo>

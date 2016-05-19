@@ -11,7 +11,6 @@
 
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVAxis.h>
-#include <pvkernel/core/PVColor.h>
 #include <pvkernel/rush/PVNraw.h>
 
 /******************************************************************************

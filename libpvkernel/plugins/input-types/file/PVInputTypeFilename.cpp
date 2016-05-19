@@ -7,6 +7,8 @@
 
 #include "PVInputTypeFilename.h"
 
+#include <pvbase/general.h>
+
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
 

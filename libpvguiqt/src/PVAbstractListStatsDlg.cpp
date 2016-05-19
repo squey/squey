@@ -10,7 +10,6 @@
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/core/PVColor.h>
 
 #include <pvkernel/rush/PVNraw.h>
 
