@@ -116,8 +116,7 @@ void PVWidgets::PVColorDialog::init()
 	setupUi(this);
 
 	// Init the predefined colors
-	std::vector<PVCore::PVHSVColor> colors =
-	    std::move(PVCore::PVPredefinedHSVColors::get_predefined_colors());
+	std::vector<PVCore::PVHSVColor> colors = PVCore::PVPredefinedHSVColors::get_predefined_colors();
 	for (size_t i = 0; i < colors.size(); i++) {
 		const PVCore::PVHSVColor c = colors[i];
 

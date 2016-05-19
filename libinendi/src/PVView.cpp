@@ -572,7 +572,7 @@ void Inendi::PVView::process_selection()
 		break;
 
 	case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-		post_filter_layer.get_selection() = std::move(floating_selection | volatile_selection);
+		post_filter_layer.get_selection() = floating_selection | volatile_selection;
 		break;
 
 	case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
@@ -580,7 +580,7 @@ void Inendi::PVView::process_selection()
 		break;
 
 	case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-		post_filter_layer.get_selection() = std::move(floating_selection & volatile_selection);
+		post_filter_layer.get_selection() = floating_selection & volatile_selection;
 		break;
 
 	default:
