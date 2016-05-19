@@ -45,10 +45,6 @@ class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
 	 * store the template parameter STEPS
 	 */
 	constexpr static int zoom_steps = STEPS;
-	/**
-	 * store the constants used by zoom_to_scale_decimal()
-	 */
-	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 
 	virtual int scale_to_zoom(const qreal value) const override
 	{
@@ -75,7 +71,7 @@ class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
 	 */
 	qreal zoom_to_scale_decimal(const int value) const
 	{
-		return pow(root_step, value % zoom_steps);
+		return pow(pow(2.0, 1.0 / zoom_steps), value % zoom_steps);
 	}
 };
 }
