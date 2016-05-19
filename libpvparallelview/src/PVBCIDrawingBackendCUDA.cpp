@@ -189,11 +189,11 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage_p& ds
 	                                   cudaMemcpyHostToDevice, stream));
 	switch (dst_img->height_bits()) {
 	case 10:
-		cuda_kernel<10>::launch(&dev.device_codes->as<10>(), n, width, dst_img_cuda->device_img(),
+		cuda_kernel<10>::launch(&dev.device_codes->as_10, n, width, dst_img_cuda->device_img(),
 		                        dst_img_cuda->org_width(), x_start, zoom_y, stream, reverse);
 		break;
 	case 11:
-		cuda_kernel<11>::launch(&dev.device_codes->as<11>(), n, width, dst_img_cuda->device_img(),
+		cuda_kernel<11>::launch(&dev.device_codes->as_11, n, width, dst_img_cuda->device_img(),
 		                        dst_img_cuda->org_width(), x_start, zoom_y, stream, reverse);
 		break;
 	default:

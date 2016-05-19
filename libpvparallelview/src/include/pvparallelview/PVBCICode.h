@@ -17,8 +17,6 @@
 namespace PVParallelView
 {
 
-class PVBCICodeBase;
-
 /**
  * It represents a line in a Zone of ParallelView
  *
@@ -56,31 +54,12 @@ struct PVBCICode {
 	}
 
 	static void free_codes(PVBCICode* codes) { PVBCICode::allocator().deallocate(codes, 0); }
-
-	operator PVBCICodeBase&() { return *((PVBCICodeBase*)this); }
-
-	operator PVBCICodeBase const&() { return *((PVBCICodeBase*)this); }
 };
 
-struct PVBCICodeBase {
-	uint64_t& as_uint64() { return *((uint64_t*)this); }
-	uint64_t const& as_uint64() const { return *((uint64_t*)this); }
-
-	template <size_t Bbits>
-	PVBCICode<Bbits> const& as() const
-	{
-		return *((PVBCICode<Bbits>*)this);
-	}
-
-	template <size_t Bbits>
-	PVBCICode<Bbits>& as()
-	{
-		return *((PVBCICode<Bbits>*)this);
-	}
-
-  private:
-	uint64_t _int_v;
-};
+typedef union {
+	PVBCICode<10> as_10;
+	PVBCICode<11> as_11;
+} PVBCICodeBase;
 }
 
 #endif

@@ -17,8 +17,6 @@
 namespace PVParallelView
 {
 
-class PVBCICodeBase;
-
 /**
  * Management class to create image representation and fill it.
  */

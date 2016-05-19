@@ -42,12 +42,12 @@ PVParallelView::PVBCIBackendImage_p do_test(size_t n, size_t width, int pattern)
 	float time;
 	switch (Bbits) {
 	case 10:
-		time = show_and_perf_codes_cuda10(&dev_codes->as<10>(), n, width,
-		                                  dst_img_cuda->device_img(), width, 0, 1.0f, NULL, &bw);
+		time = show_and_perf_codes_cuda10(&dev_codes->as_10, n, width, dst_img_cuda->device_img(),
+		                                  width, 0, 1.0f, NULL, &bw);
 		break;
 	case 11:
-		time = show_and_perf_codes_cuda11(&dev_codes->as<11>(), n, width,
-		                                  dst_img_cuda->device_img(), width, 0, 1.0f, NULL, &bw);
+		time = show_and_perf_codes_cuda11(&dev_codes->as_11, n, width, dst_img_cuda->device_img(),
+		                                  width, 0, 1.0f, NULL, &bw);
 		break;
 	}
 
