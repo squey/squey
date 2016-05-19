@@ -19,20 +19,18 @@ class PVInputFile : public PVInput
 {
   public:
 	PVInputFile(const char* path);
+	PVInputFile(const PVInputFile& /*org*/) = delete;
 	~PVInputFile();
 
   public:
 	void release() override;
 
-  private:
-	PVInputFile(const PVInputFile& /*org*/) { assert(false); }
-
   public:
-	size_t operator()(char* buffer, size_t n);
-	virtual input_offset current_input_offset();
-	virtual void seek_begin();
-	virtual bool seek(input_offset off);
-	virtual QString human_name();
+	size_t operator()(char* buffer, size_t n) override;
+	input_offset current_input_offset() override;
+	void seek_begin() override;
+	bool seek(input_offset off) override;
+	QString human_name() override;
 
   public:
 	// File specific

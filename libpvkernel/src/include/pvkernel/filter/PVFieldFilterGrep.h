@@ -20,10 +20,10 @@ class PVFieldFilterGrep : public PVFieldsFilter<one_to_one>
 	PVFieldFilterGrep(PVCore::PVArgumentList const& args = PVFieldFilterGrep::default_args());
 
   public:
-	virtual void set_args(PVCore::PVArgumentList const& args);
+	void set_args(PVCore::PVArgumentList const& args) override;
 
   public:
-	virtual PVCore::PVField& one_to_one(PVCore::PVField& obj);
+	PVCore::PVField& one_to_one(PVCore::PVField& obj) override;
 
   protected:
 	QString _str;

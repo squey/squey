@@ -140,7 +140,7 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 	typedef std::shared_ptr<FilterT> p_type;
 
   protected:
-	virtual base_registrable* _clone_me() const
+	base_registrable* _clone_me() const override
 	{
 		FilterT* ret = new FilterT(*this);
 		return ret;

@@ -173,7 +173,7 @@ unsigned int qHash(PVRegistrableClass<T> const& rc)
 	typedef std::shared_ptr<T> p_type;                                                             \
                                                                                                    \
   protected:                                                                                       \
-	virtual T::base_registrable* _clone_me() const                                                 \
+	T::base_registrable* _clone_me() const override                                                 \
 	{                                                                                              \
 		T* ret = new T(*this);                                                                     \
 		return ret;                                                                                \
@@ -184,7 +184,7 @@ unsigned int qHash(PVRegistrableClass<T> const& rc)
 	typedef std::shared_ptr<T> p_type;                                                             \
                                                                                                    \
   protected:                                                                                       \
-	virtual T::base_registrable* _clone_me() const                                                 \
+	T::base_registrable* _clone_me() const override                                                \
 	{                                                                                              \
 		T* ret = new T();                                                                          \
 		ret->__registered_class_name = __registered_class_name;                                    \

@@ -240,7 +240,7 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
 
 #define CLASS_FILTER_NONREG(T)                                                                     \
   public:                                                                                          \
-	virtual func_type f()                                                                          \
+	func_type f() override                                                                         \
 	{                                                                                              \
 		return boost::bind<Tout>((Tout (T::*)(Tin))(&T::operator()), this, _1);                    \
 	}                                                                                              \
@@ -248,7 +248,7 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
 
 #define CLASS_FILTER_NONREG_NOPARAM(T)                                                             \
   public:                                                                                          \
-	virtual func_type f()                                                                          \
+	func_type f() override                                                                         \
 	{                                                                                              \
 		return boost::bind<Tout>((Tout (T::*)(Tin))(&T::operator()), this, _1);                    \
 	}                                                                                              \

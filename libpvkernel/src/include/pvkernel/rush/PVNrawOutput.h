@@ -21,13 +21,12 @@ class PVNrawOutput : public PVRush::PVOutput
   public:
 	PVNrawOutput(PVNraw& nraw);
 	PVNrawOutput() = delete;
-	;
 
   public:
 	// This is the output of a TBB pipeline
 	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
 	// It *must* call PVChunk->free() in the end !!
-	void operator()(PVCore::PVChunk* out);
+	void operator()(PVCore::PVChunk* out) override;
 
 	void set_nraw_dest(PVNraw& nraw) { _nraw_dest = &nraw; }
 
@@ -47,7 +46,7 @@ class PVNrawOutput : public PVRush::PVOutput
 	}
 
   protected:
-	void job_has_finished();
+	void job_has_finished() override;
 
   protected:
 	PVNraw* _nraw_dest;
