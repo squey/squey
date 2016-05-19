@@ -237,7 +237,7 @@ void PVGuiQt::PVListingModel::sort(PVCol comb_col,
  * PVGuiQt::PVListingModel::export_line
  *
  *****************************************************************************/
-QString PVGuiQt::PVListingModel::export_line(int row) const
+QString PVGuiQt::PVListingModel::export_line(int /*row*/) const
 {
 	return "Not implemented.";
 }

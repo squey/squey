@@ -33,8 +33,9 @@ QIcon PVDisplays::PVDisplayViewZoomedParallel::toolbar_icon() const
 	return QIcon(":/view-parallel-zoomed");
 }
 
+// FIXME : Hidden argument reflect bad design properties, inheritance should certainly be improved.
 QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view,
-                                                              PVCol axis_comb) const
+                                                              PVCol /*axis_comb*/) const
 {
 	return QString("Zoomed view [" + view->get_name() + "]");
 }

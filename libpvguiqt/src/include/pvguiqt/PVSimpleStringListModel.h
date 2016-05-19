@@ -68,7 +68,7 @@ class PVSimpleStringListModel : public PVAbstractTableModel
 		return QVariant();
 	}
 
-	int columnCount(QModelIndex const& index = QModelIndex()) const override { return 1; }
+	int columnCount(QModelIndex const&) const override { return 1; }
 
   private:
 	container_type const& _values;

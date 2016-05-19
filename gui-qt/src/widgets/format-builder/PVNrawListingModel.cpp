@@ -15,7 +15,7 @@ PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent)
 {
 }
 
-int PVInspector::PVNrawListingModel::rowCount(const QModelIndex& parent) const
+int PVInspector::PVNrawListingModel::rowCount(const QModelIndex&) const
 {
 	if (not _nraw) {
 		return 0;
@@ -24,7 +24,7 @@ int PVInspector::PVNrawListingModel::rowCount(const QModelIndex& parent) const
 	return _nraw->get_row_count();
 }
 
-int PVInspector::PVNrawListingModel::columnCount(const QModelIndex& parent) const
+int PVInspector::PVNrawListingModel::columnCount(const QModelIndex&) const
 {
 	if (not _nraw) {
 		return 0;

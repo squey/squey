@@ -25,7 +25,7 @@ constexpr int QTABLEWIDGET_OFFSET = 4;
 
 // Originally from
 // http://stackoverflow.com/questions/8766633/how-to-determine-the-correct-size-of-a-qtablewidget
-static uint32_t compute_qtablewidget_height(QTableWidget* stats, QTableView* listing)
+static uint32_t compute_qtablewidget_height(QTableWidget* stats)
 {
 	int h = stats->horizontalHeader()->height() + QTABLEWIDGET_OFFSET;
 	for (int i = 0; i < stats->verticalHeader()->count(); i++) {
@@ -146,7 +146,7 @@ void PVGuiQt::PVStatsListingWidget::plugin_visibility_toggled(bool checked)
 	} else {
 		_stats_panel->hideRow(row);
 	}
-	_stats_panel->setMaximumHeight(compute_qtablewidget_height(_stats_panel, _listing_view));
+	_stats_panel->setMaximumHeight(compute_qtablewidget_height(_stats_panel));
 };
 
 void PVGuiQt::PVStatsListingWidget::resize_listing_column_if_needed(int col)
@@ -223,7 +223,7 @@ void PVGuiQt::PVStatsListingWidget::update_header_width(int column,
 
 void PVGuiQt::PVStatsListingWidget::resize_panel()
 {
-	_stats_panel->setMaximumHeight(compute_qtablewidget_height(_stats_panel, _listing_view));
+	_stats_panel->setMaximumHeight(compute_qtablewidget_height(_stats_panel));
 	for (PVCol col = 0; col < _stats_panel->columnCount(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->columnWidth(col));
 	}
