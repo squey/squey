@@ -31,12 +31,8 @@ class PVAboutBoxDialog : public QDialog
   public:
 	PVAboutBoxDialog(QWidget* parent = 0);
 
-  protected:
-	void keyPressEvent(QKeyEvent* event);
-
   private:
 	__impl::GraphicsView* _view3D;
-	bool _fullscreen;
 	QHBoxLayout* _view3D_layout;
 };
 
@@ -46,16 +42,10 @@ namespace __impl
 class GraphicsView : public QGraphicsView
 {
   public:
-	GraphicsView(PVAboutBoxDialog* parent) : _parent(parent) {}
-
-	void set_fullscreen(bool fullscreen = true);
+	GraphicsView(PVAboutBoxDialog* parent) : QGraphicsView(parent) {}
 
   protected:
 	void resizeEvent(QResizeEvent* event);
-	void keyPressEvent(QKeyEvent* event);
-
-  private:
-	PVAboutBoxDialog* _parent;
 };
 }
 }

@@ -105,63 +105,10 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
-void PVGuiQt::PVAboutBoxDialog::keyPressEvent(QKeyEvent* event)
-{
-#if 0
-	bool change_mode = false;
-
-	if (event->key() == Qt::Key_F) {
-		change_mode = true;
-		_fullscreen = !_fullscreen;
-	}
-	else if (event->key() == Qt::Key_Escape) {
-		change_mode = true;
-		_fullscreen = false;
-	}
-
-	if (change_mode) {
-		_view3D->set_fullscreen(_fullscreen);
-	}
-#endif
-}
-
-void PVGuiQt::__impl::GraphicsView::keyPressEvent(QKeyEvent* event)
-{
-#if 0
-	if (_parent->_fullscreen) {
-		if (event->key() == Qt::Key_F || event->key() == Qt::Key_Escape) {
-			set_fullscreen(false);
-		}
-
-		return;
-	}
-#endif
-
-	QGraphicsView::keyPressEvent(event);
-}
-
 void PVGuiQt::__impl::GraphicsView::resizeEvent(QResizeEvent* event)
 {
 	if (scene()) {
 		scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
 	}
 	QGraphicsView::resizeEvent(event);
-}
-
-void PVGuiQt::__impl::GraphicsView::set_fullscreen(bool fullscreen /*= true*/)
-{
-	// Note: in order to hide the dialog, we have to set it as non modal.
-	//       However it seems impossible to set it modal afterwards...
-	//       Hiding the dialog works too, but again, unable to show it afterwards!
-
-	if (fullscreen) {
-		_parent->setModal(false);
-		setParent(0);
-		showFullScreen();
-	} else {
-		_parent->_view3D_layout->addWidget(this);
-		showNormal();
-	}
-
-	_parent->_fullscreen = fullscreen;
 }

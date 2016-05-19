@@ -457,67 +457,6 @@ void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessin
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::process_omp
- *****************************************************************************/
-
-void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneProcessing& zp)
-{
-	init_structures();
-
-	const uint32_t* pcol_a = zp.plotted_a;
-	const uint32_t* pcol_b = zp.plotted_b;
-	const PVRow nrows = zp.size;
-
-	uint32_t THREAD_ELE_COUNT = 64 / sizeof(PVQuadTreeEntry);
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	uint32_t STEP_ELE_COUNT = THREAD_ELE_COUNT * nthreads;
-	uint32_t nrows_omp = (nrows / STEP_ELE_COUNT) * STEP_ELE_COUNT;
-	uint32_t tree_count = (NBUCKETS) / nthreads;
-	char* buffer = new char[nthreads * 64];
-
-#pragma omp parallel num_threads(4)
-	{
-		unsigned tid = omp_get_thread_num();
-		PVQuadTreeEntry* me = (PVQuadTreeEntry*)&(buffer)[tid * 64];
-		PVQuadTreeEntry* e;
-		unsigned tmin = tree_count * tid;
-		unsigned tmax = tree_count * (tid + 1);
-
-		for (PVRow r = 0; r < nrows_omp; r += STEP_ELE_COUNT) {
-			unsigned base = r + tid * THREAD_ELE_COUNT;
-
-			for (unsigned i = 0; i < THREAD_ELE_COUNT; ++i) {
-				unsigned idx = base + i;
-				me[i] = PVQuadTreeEntry(pcol_a[idx], pcol_b[idx], idx);
-			}
-#pragma omp barrier
-
-			for (unsigned i = 0; i < nthreads; ++i) {
-				e = (PVQuadTreeEntry*)&(buffer)[((tid + i) % nthreads) * 64];
-				for (unsigned j = 0; j < THREAD_ELE_COUNT; ++j) {
-					unsigned idx = compute_index(e[j]);
-					if ((tmin < idx) && (idx < tmax)) {
-						_trees[idx].insert(e[j]);
-					}
-				}
-			}
-#pragma omp barrier
-		}
-	}
-
-	if (buffer) {
-		delete buffer;
-		buffer = 0;
-	}
-
-	// sequential end
-	for (PVRow r = nrows_omp; r < nrows; ++r) {
-		PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
-		_trees[compute_index(e)].insert(e);
-	}
-}
-
-/*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::process_omp_from_zt
  *****************************************************************************/
 
