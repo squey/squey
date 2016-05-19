@@ -95,6 +95,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
+
 	PV_ASSERT_VALID(columns == PVRush::PVSplunkAPI::columns_t({{"category", "string"},
 	                                                           {"date_hour", "integer"},
 	                                                           {"date_mday", "integer"},
@@ -128,6 +129,7 @@ int main(int argc, char** argv)
 	                                                           {"user_agent", "string"},
 	                                                           {"_bkt", "string"},
 	                                                           {"_cd", "string"},
+	                                                           {"_eventtype_color", "string"},
 	                                                           {"_indextime", "integer"},
 	                                                           {"_kv", "integer"},
 	                                                           {"_raw", "string"},
