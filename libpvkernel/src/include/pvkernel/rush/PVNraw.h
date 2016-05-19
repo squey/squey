@@ -42,14 +42,14 @@ struct PVNrawBadConversions {
 		_bad_conversions_count += bad_conversions_count;
 	}
 
-	std::string get(PVCol col, PVRow row, bool* res = nullptr) const
+	std::string get(PVRow row, PVCol col, bool* res = nullptr) const
 	{
-		const auto& c = _bad_conversions.find(col);
+		const auto& r = _bad_conversions.find(row);
 
-		if (c != _bad_conversions.end()) {
-			const auto& f = c->second.find(row);
+		if (r != _bad_conversions.end()) {
+			const auto& f = r->second.find(col);
 
-			if (f != c->second.end()) {
+			if (f != r->second.end()) {
 				if (res) {
 					*res = true;
 				}
@@ -63,11 +63,11 @@ struct PVNrawBadConversions {
 		return {};
 	}
 
-	bool has_failed(PVCol col, PVRow row) const
+	bool has_failed(PVRow row, PVCol col) const
 	{
 		bool failed;
 
-		get(col, row, &failed);
+		get(row, col, &failed);
 
 		return failed;
 	}

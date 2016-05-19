@@ -1172,13 +1172,19 @@ bad_conversions_as_string(const PVRush::PVNrawBadConversions::bad_conversions_t&
 
 	for (const auto& bad_conversion : bad_conversions) {
 
-		const QString& axis_name = ac.get_original_axis(bad_conversion.first).get_name();
-		const QString& axis_type = ac.get_original_axis(bad_conversion.first).get_type();
+		const PVRow row = bad_conversion.first;
+		QString str("row #" + QString::number(row + 1) + " :");
 
 		for (const auto& bad_field : bad_conversion.second) {
-			l << axis_name + " (" + axis_type + ") : " + QString::number(bad_field.first + 1) +
-			         " > \"" + QString::fromStdString(bad_field.second) + "\"";
+			const PVCol col = bad_field.first;
+			const QString& axis_name = ac.get_original_axis(col).get_name();
+			const QString& axis_type = ac.get_original_axis(col).get_type();
+
+			str += " " + axis_name + " (" + axis_type + ") : \"" +
+			       QString::fromStdString(bad_field.second) + "\"";
 		}
+
+		l << str;
 	}
 
 	return l.join("\n");
