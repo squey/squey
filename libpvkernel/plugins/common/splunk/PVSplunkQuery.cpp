@@ -46,8 +46,7 @@ void PVRush::PVSplunkQuery::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("server", _infos);
 }
 
-void PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so,
-                                           PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.attribute("query", _query);
 	so.attribute("query_type", _query_type);

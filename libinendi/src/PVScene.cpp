@@ -123,8 +123,7 @@ QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
 	return ret;
 }
 
-void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
-                                     PVCore::PVSerializeArchive::version_t v)
+void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 {
 	// Get the list of input types
 	QStringList input_types;

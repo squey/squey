@@ -83,8 +83,7 @@ class PVTestBuf
 		so.buffer("data", &buf, sizeof(int) * 4);
 	}
 
-	void serialize_read(PVCore::PVSerializeObject& so,
-	                    PVCore::PVSerializeArchive::version_t /*version*/)
+	void serialize_read(PVCore::PVSerializeObject& so)
 	{
 		so.buffer("data", &buf, sizeof(int) * 4);
 	}

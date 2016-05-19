@@ -109,8 +109,7 @@ class PVRoot : public data_tree_root_t
 	 *       |-> 1
 	 *       |-> ...
 	 */
-	void serialize_read(PVCore::PVSerializeObject& so,
-	                    PVCore::PVSerializeArchive::version_t /*v*/) override;
+	void serialize_read(PVCore::PVSerializeObject& so) override;
 	PVSERIALIZEOBJECT_SPLIT
 
   private:

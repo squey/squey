@@ -80,7 +80,7 @@ class PVScene : public data_tree_scene_t
 
   protected:
 	// Serialization
-	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_read(PVCore::PVSerializeObject& so);
 	void serialize_write(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 

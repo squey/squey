@@ -265,8 +265,7 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
  * Inendi::PVMapped::serialize_read
  *
  *****************************************************************************/
-void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
-                                      PVCore::PVSerializeArchive::version_t v)
+void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so)
 {
 	// Create the list of plotted
 	PVCore::PVSerializeObject_p list_obj =

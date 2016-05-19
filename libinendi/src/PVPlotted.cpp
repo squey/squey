@@ -631,8 +631,7 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 	}
 }
 
-void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
-                                       PVCore::PVSerializeArchive::version_t v)
+void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so)
 {
 	// Create the list of view
 	PVCore::PVSerializeObject_p list_obj =

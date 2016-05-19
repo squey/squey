@@ -581,8 +581,7 @@ QString Inendi::PVAxesCombination::to_string() const
 	return ret;
 }
 
-void Inendi::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so,
-                                               PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so)
 {
 	clear();
 	so.list_attributes("columns_indexes_list", columns_indexes_list,

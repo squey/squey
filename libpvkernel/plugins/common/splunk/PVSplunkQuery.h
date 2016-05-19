@@ -62,7 +62,7 @@ class PVSplunkQuery : public PVInputDescription
 	virtual void load_from_qsettings(const QSettings& settings);
 
   protected:
-	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_read(PVCore::PVSerializeObject& so);
 	void serialize_write(PVCore::PVSerializeObject& so);
 
 	PVSERIALIZEOBJECT_SPLIT

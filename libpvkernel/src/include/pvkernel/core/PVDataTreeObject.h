@@ -234,8 +234,7 @@ class PVDataTreeObjectWithChildren : public PVDataTreeObjectWithChildrenBase
   public:
 	virtual void serialize_write(PVCore::PVSerializeObject& so) = 0;
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so,
-	                            PVCore::PVSerializeArchive::version_t /*v*/) = 0;
+	virtual void serialize_read(PVCore::PVSerializeObject& so) = 0;
 
 	template <class... T>
 	pchild_t emplace_add_child(T&&... t)

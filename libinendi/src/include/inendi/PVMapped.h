@@ -138,7 +138,7 @@ class PVMapped : public data_tree_mapped_t
 
   protected:
 	void serialize_write(PVCore::PVSerializeObject& so);
-	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_read(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
   private:

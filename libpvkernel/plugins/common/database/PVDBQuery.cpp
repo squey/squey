@@ -68,8 +68,7 @@ void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("server", *_infos, QString(), false, (PVDBServ*)NULL, false);
 }
 
-void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so,
-                                       PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	QString query;
 	so.attribute("query", query);

@@ -881,8 +881,7 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }
 
-void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
-                                    PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so)
 {
 	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
 		// If no layer stack, reset all layers so that we have one :)

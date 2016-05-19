@@ -186,7 +186,7 @@ class PVSource : public data_tree_source_t
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 
   protected:
-	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_read(PVCore::PVSerializeObject& so);
 	void serialize_write(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 

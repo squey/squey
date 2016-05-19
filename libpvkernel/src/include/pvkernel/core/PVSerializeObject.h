@@ -84,7 +84,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 		if (is_writing()) {
 			obj.serialize_write(*this);
 		} else {
-			obj.serialize_read(*this, get_version());
+			obj.serialize_read(*this);
 		}
 	}
 

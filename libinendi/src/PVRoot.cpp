@@ -205,8 +205,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 	}
 };
 
-void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so,
-                                    PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 {
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
