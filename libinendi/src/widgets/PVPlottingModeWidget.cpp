@@ -15,31 +15,25 @@
 
 #include <QHBoxLayout>
 
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QString const& type, QWidget* parent)
-    : QWidget(parent)
+PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QWidget* parent) : QWidget(parent),
+    _combo(new PVComboBox(this)),
+    _props(nullptr)
 {
-	init(false);
-	populate_from_type(type);
+	QHBoxLayout* layout = new QHBoxLayout();
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->setSpacing(10);
+	layout->addWidget(_combo);
+	setLayout(layout);
+
+	setFocusPolicy(Qt::StrongFocus);
 }
 
 PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id,
                                                       Inendi::PVPlotting& plotting,
-                                                      bool params_btn,
                                                       QWidget* parent)
-    : QWidget(parent)
+    : PVPlottingModeWidget(parent)
 {
-	init(params_btn);
 	populate_from_plotting(axis_id, plotting);
-}
-
-PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id,
-                                                      Inendi::PVView& view,
-                                                      bool params_btn,
-                                                      QWidget* parent)
-    : QWidget(parent)
-{
-	init(params_btn);
-	populate_from_plotting(axis_id, view.get_parent<Inendi::PVPlotted>()->get_plotting());
 }
 
 QSize PVWidgets::PVPlottingModeWidget::sizeHint() const
@@ -49,30 +43,6 @@ QSize PVWidgets::PVPlottingModeWidget::sizeHint() const
 		return l->sizeHint();
 	}
 	return QSize();
-}
-
-void PVWidgets::PVPlottingModeWidget::init(bool params_btn)
-{
-	_combo = new PVComboBox(this);
-	_props = NULL;
-
-	QHBoxLayout* layout = new QHBoxLayout();
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->setSpacing(10);
-	layout->addWidget(_combo);
-	if (params_btn) {
-		_params_btn = new QPushButton(tr("Parameters..."));
-		QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Fixed);
-		_params_btn->setSizePolicy(sp);
-		layout->addWidget(_params_btn);
-
-		connect(_params_btn, SIGNAL(clicked()), this, SLOT(change_params()));
-	} else {
-		_params_btn = NULL;
-	}
-	setLayout(layout);
-
-	setFocusPolicy(Qt::StrongFocus);
 }
 
 void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type)
@@ -98,10 +68,6 @@ void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
 	_props = &props;
 	populate_from_type(props.get_type());
 	set_mode(props.get_mode());
-
-	if (_props->get_args().size() == 0 && _params_btn) {
-		_params_btn->setEnabled(false);
-	}
 }
 
 void PVWidgets::PVPlottingModeWidget::change_params()

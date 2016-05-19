@@ -28,16 +28,10 @@ class PVPlottingModeWidget : public QWidget
 {
 	Q_OBJECT
   public:
-	PVPlottingModeWidget(QWidget* parent = NULL) : QWidget(parent) { init(false); }
-	PVPlottingModeWidget(QString const& type, QWidget* parent = NULL);
+	PVPlottingModeWidget(QWidget* parent = nullptr);
 	PVPlottingModeWidget(PVCol axis_id,
 	                     Inendi::PVPlotting& plotting,
-	                     bool params_btn = false,
-	                     QWidget* parent = NULL);
-	PVPlottingModeWidget(PVCol axis_id,
-	                     Inendi::PVView& view,
-	                     bool params_btn = false,
-	                     QWidget* parent = NULL);
+	                     QWidget* parent = nullptr);
 
   public:
 	void populate_from_type(QString const& type);
@@ -54,15 +48,11 @@ class PVPlottingModeWidget : public QWidget
   public:
 	PVComboBox* get_combo_box() { return _combo; }
 
-  private:
-	void init(bool params_btn);
-
   private slots:
 	void change_params();
 
   private:
 	PVComboBox* _combo;
-	QPushButton* _params_btn;
 	Inendi::PVPlottingProperties* _props;
 };
 }
