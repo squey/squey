@@ -71,14 +71,11 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterKeyValue::one_to_many(
 		if (start_value[0] == _quote) {
 			start_value++;
 			end = std::find(start_value, field.end(), _quote);
-			new_txt = end + 1;
+			new_txt = end + _separator.size() + 1;
 		} else {
-			end =
-			    std::find_if(start_value, field.end() - _separator.size() + 1,
-			                 [this](char& c) {
-				                 return std::equal(&c, &c + _separator.size(), _separator.c_str());
-				             }) -
-			    _separator.size() + 1;
+			end = std::find_if(start_value, field.end() - _separator.size() + 1, [this](char& c) {
+				return std::equal(&c, &c + _separator.size(), _separator.c_str());
+			});
 			new_txt = end + _separator.size();
 		}
 
