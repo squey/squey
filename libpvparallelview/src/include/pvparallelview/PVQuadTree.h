@@ -327,7 +327,7 @@ class PVQuadTree
 	void insert(const PVQuadTreeEntry& e)
 	{
 		// searching for the right child
-		register PVQuadTree* qt = this;
+		PVQuadTree* qt = this;
 		while (qt->_nodes != 0) {
 			qt = &qt->_nodes[qt->compute_index(e)];
 		}

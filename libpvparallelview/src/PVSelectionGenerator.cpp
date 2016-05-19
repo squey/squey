@@ -300,7 +300,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 #pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())    \
     schedule(guided, 16)
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
-		register uint64_t chunk = 0;
+		uint64_t chunk = 0;
 		for (int j = 0; j < 64; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
 
@@ -529,7 +529,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 #pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())    \
     schedule(guided, 16)
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
-		register uint64_t chunk = 0;
+		uint64_t chunk = 0;
 		for (int j = 0; j < 64; j += 4) {
 			const __m128i y1_sse = _mm_load_si128((__m128i const*)&y1_plotted[i + j]);
 

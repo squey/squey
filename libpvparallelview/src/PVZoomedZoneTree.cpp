@@ -443,8 +443,8 @@ void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessin
 {
 	init_structures();
 
-	register const uint32_t* pcol_a = zp.plotted_a;
-	register const uint32_t* pcol_b = zp.plotted_b;
+	const uint32_t* pcol_a = zp.plotted_a;
+	const uint32_t* pcol_b = zp.plotted_b;
 
 	for (unsigned i = 0; i < NBUCKETS; ++i) {
 		pvquadtree& tree_i = _trees[i];
