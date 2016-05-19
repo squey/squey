@@ -359,8 +359,8 @@ class PVUnicodeSource : public PVRawSourceBase
 	// Attribute for charset conversion to UTF-8
 	PVCharsetDetect _cd;                                      //!< Charset detector
 	std::string _charset;                                     //!< Detected charset
-	PVConverter _utf8_converter = nullptr;                    //!< ICU converter to UTF 8
-	std::unique_ptr<PVConverter> _origin_converter = nullptr; //!< ICU converter from origin charset
+	PVConverter _utf8_converter;                              //!< ICU converter to UTF 8
+	std::unique_ptr<PVConverter> _origin_converter; //!< ICU converter from origin charset
 	std::string _tmp_buf; //!< Temporary buffer use for charset conversion
 };
 }

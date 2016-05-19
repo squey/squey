@@ -26,14 +26,14 @@ class PVCallHelper
 		PVActor<T> actor;
 		PVHive::get().register_actor(object, actor);
 
-		return actor.call<F, f>(std::forward<P>(params)...);
+		return actor.template call<F, f>(std::forward<P>(params)...);
 	}
 
 	template <typename F, F f, typename T, typename... P>
 	static typename PVCore::PVTypeTraits::function_traits<F>::result_type call(PVActor<T>& actor,
 	                                                                           P&&... params)
 	{
-		return actor.call<F, f>(std::forward<P>(params)...);
+		return actor.template call<F, f>(std::forward<P>(params)...);
 	}
 };
 
