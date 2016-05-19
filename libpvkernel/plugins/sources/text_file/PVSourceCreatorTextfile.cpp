@@ -8,7 +8,6 @@
 #include "PVSourceCreatorTextfile.h"
 
 #include <pvkernel/core/PVConfig.h>
-
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
 

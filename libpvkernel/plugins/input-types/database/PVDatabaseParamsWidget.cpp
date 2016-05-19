@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvbase/general.h>
+
 #include "PVDatabaseParamsWidget.h"
 #include "PVDBPreviewWidget.h"
 #include "PVSQLTypeMap.h"

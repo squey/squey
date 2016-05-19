@@ -8,7 +8,6 @@ add_pv_compile_test(Tcore_timeformat_perf LINKS pvkernel ${ICU_LIBRARY} FILES ti
 add_pv_compile_test(Tcore_serialize LINKS pvkernel FILES serialize.cpp)
 add_pv_compile_test(Tcore_matrix LINKS pvkernel FILES matrix.cpp)
 add_pv_compile_test(Tcore_vbo LINKS pvkernel FILES vbo.cpp)
-add_pv_compile_test(Tcore_sizes LINKS pvkernel FILES sizes.cpp)
 add_pv_compile_test(Tcore_stable_reverse LINKS pvkernel FILES stable_reverse.cpp)
 add_pv_compile_test(Tcore_bench_stable_reverse LINKS pvkernel FILES bench_stable_reverse.cpp)
 add_pv_compile_test(Tcore_transp LINKS pvkernel FILES transp.cpp)

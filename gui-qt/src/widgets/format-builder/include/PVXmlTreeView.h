@@ -87,8 +87,7 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 		QModelIndexList lsel = selectedIndexes();
 		int numberOfSelectedIndexes = lsel.count();
 		for (int i = 0; i < numberOfSelectedIndexes; i++) {
-			QModelIndex tmp = lsel[i];
-			PVLOG_DEBUG("selected index: %d %d\n", tmp.row(), tmp.column());
+			PVLOG_DEBUG("selected index: %d %d\n", lsel[i].row(), lsel[i].column());
 		}
 
 		return (numberOfSelectedIndexes > 0) ? lsel[0] : QModelIndex();
