@@ -38,6 +38,11 @@ class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 	void move_key_down();
 	void move_key_up();
 	void update_children_count();
+	void copy_keys();
+	void paste_keys();
+
+  private:
+	void add_new_keys(QStringList& keys);
 
   private:
 	QAction* _action_menu;

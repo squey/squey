@@ -20,6 +20,8 @@
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QApplication>
+#include <QClipboard>
 
 /******************************************************************************
  *
@@ -105,11 +107,17 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	QPushButton* del_button = new QPushButton("-");
 	QPushButton* up_button = new QPushButton("^");
 	QPushButton* down_button = new QPushButton("v");
+	QPushButton* copy_button = new QPushButton(tr("Copy"));
+	QPushButton* paste_button = new QPushButton(tr("Paste"));
+	// copy_button->setEnabled(false);
+	// paste_button->setEnabled(false);
 
 	buttons_layout->addWidget(add_button);
 	buttons_layout->addWidget(del_button);
 	buttons_layout->addWidget(up_button);
 	buttons_layout->addWidget(down_button);
+	buttons_layout->addWidget(copy_button);
+	buttons_layout->addWidget(paste_button);
 
 	QGroupBox* keys_groupbox = new QGroupBox("Keys");
 	keys_groupbox->setLayout(keys_layout);
@@ -144,6 +152,8 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	connect(del_button, SIGNAL(clicked(bool)), this, SLOT(del_keys()));
 	connect(up_button, SIGNAL(clicked(bool)), this, SLOT(move_key_up()));
 	connect(down_button, SIGNAL(clicked(bool)), this, SLOT(move_key_down()));
+	connect(copy_button, SIGNAL(clicked(bool)), this, SLOT(copy_keys()));
+	connect(paste_button, SIGNAL(clicked(bool)), this, SLOT(paste_keys()));
 
 	return _param_widget;
 }
@@ -171,26 +181,42 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_params()
 	emit args_changed_Signal();
 }
 
+void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_keys(QStringList& keys)
+{
+	QStringList keys_found_list;
+
+	for (QString key : keys) {
+		// Look if the value already exist
+		QList<QListWidgetItem*> items = _keys_list->findItems(key, Qt::MatchExactly);
+		if (items.count() == 0) {
+			if (!key.isEmpty()) {
+				QListWidgetItem* new_item = new QListWidgetItem(key);
+				new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
+				_keys_list->addItem(new_item);
+			}
+		} else {
+			keys_found_list << key;
+		}
+	}
+	update_children_count();
+
+	if (!keys_found_list.isEmpty()) {
+		QMessageBox(QMessageBox::Warning, tr("This key(s) already exist."),
+		            tr("This key(s) '%1' already exist!").arg(keys_found_list.join(", ")),
+		            QMessageBox::Ok)
+		    .exec();
+	}
+}
+
 void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_key()
 {
 	bool ok;
 	QString key =
 	    QInputDialog::getText(nullptr, tr("Enter new key"), tr("Key:"), QLineEdit::Normal, "", &ok);
 
-	// Look if the value already exist
-	QList<QListWidgetItem*> items = _keys_list->findItems(key, Qt::MatchExactly);
-	if (items.count() == 0) {
-		if (!key.isEmpty()) {
-			QListWidgetItem* new_item = new QListWidgetItem(key);
-			new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
-			_keys_list->addItem(new_item);
-			update_children_count();
-		}
-	} else {
-		QMessageBox(QMessageBox::Warning, tr("This key already exist."),
-		            tr("This key '%1' already exist!").arg(key), QMessageBox::Ok)
-		    .exec();
-	}
+	QStringList keys = QStringList(key);
+
+	add_new_keys(keys);
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::del_keys()
@@ -233,4 +259,21 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
 	QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
 	_keys_list->insertItem(currentIndex - 1, currentItem);
 	_keys_list->setCurrentRow(currentIndex - 1);
+}
+
+void PVFilter::PVFieldSplitterKeyValueParamWidget::copy_keys()
+{
+	QStringList strings_list;
+	for (QListWidgetItem* item : _keys_list->selectedItems())
+		strings_list << item->text();
+
+	QApplication::clipboard()->setText(strings_list.join("\n"));
+}
+
+void PVFilter::PVFieldSplitterKeyValueParamWidget::paste_keys()
+{
+	QString strings = QApplication::clipboard()->text();
+	strings = strings.simplified();
+	QStringList strings_list = strings.split(" ");
+	add_new_keys(strings_list);
 }
