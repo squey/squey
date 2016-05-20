@@ -40,20 +40,14 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
 void PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu(int active_axis,
                                                                        const QStringList& sl)
 {
-	QAction* current_axis_action;
-
 	_axes->clear();
 	int i = 0;
 	for (const QString& str : sl) {
 		QAction* act = _axes->addAction(str);
-
-		act->setData(i);
-		if (i == active_axis) {
-			current_axis_action = act;
-		}
-
-		++i;
+		act->setData(i++);
 	}
+	auto const& actions = _axes->actions();
+	QAction* current_axis_action = actions.at(std::min(active_axis, actions.size() - 1));
 
 	// resetting active stuff
 	_active_axis_action = nullptr;
