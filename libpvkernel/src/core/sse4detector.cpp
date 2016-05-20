@@ -50,7 +50,7 @@ static int _isSSE4Supported(const unsigned int CHECKBITS)
 {
 	// returns 1 if is a Nehalem or later processor, 0 if prior to Nehalem
 
-	CPUIDinfo Info;
+	CPUIDinfo Info{0, 0, 0, 0};
 	int rVal = 0;
 	// The code first determines if the processor is an Intel Processor.  If it is, then
 	// feature flags bit 19 (SSE 4.1) and 20 (SSE 4.2) in ECX after CPUID call with EAX = 0x1
