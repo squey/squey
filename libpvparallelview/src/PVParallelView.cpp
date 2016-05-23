@@ -12,6 +12,9 @@
 #ifdef CUDA
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #endif
+#ifdef USE_OPENCL
+#include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
+#endif
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVRenderingPipeline.h>
@@ -116,7 +119,8 @@ namespace common
  ************************************************************/
 RAII_cuda_init::RAII_cuda_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	_instance->init_backends<PVBCIDrawingBackendCUDA>();
+	//_instance->init_backends<PVBCIDrawingBackendCUDA>();
+	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 }
 }
 }

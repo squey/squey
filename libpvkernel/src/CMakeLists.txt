@@ -77,6 +77,10 @@ else(CUDA_FOUND)
 	set(CUDA_SRC_FILES "")
 endif(CUDA_FOUND)
 
+set(OPENCL_SRC_FILES
+	opencl/common.cpp
+)
+
 #########################################################################
 # Ressources for pvkernel/filter
 #########################################################################
@@ -245,6 +249,11 @@ PV_QT5_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
 # Declare the new library and linkage options
 ################################################
 
+if(OPENCL_FOUND)
+	list(APPEND SRC_FILES ${OPENCL_SRC_FILES})
+	list(APPEND PVKERNEL_LINK_LIBRARIES ${OPENCL_LIBRARIES})
+endif(OPENCL_FOUND)
+
 # List files use to create the library
 add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})
 
@@ -266,7 +275,12 @@ set(PVKERNEL_LINK_LIBRARIES ${QT5_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 
 if(CUDA_FOUND)
 	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${CUDA_LIBRARIES})
-endif(CUDA_FOUND)	
+endif(CUDA_FOUND)
+
+if(OPENCL_FOUND)
+  list(APPEND PVKERNEL_LINK_LIBRARIES ${OPENCL_LIBRARIES})
+endif(OPENCL_FOUND)
+
 #if(PYTHONLIBS_FOUND)
 #	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON})
 #endif(PYTHONLIBS_FOUND)

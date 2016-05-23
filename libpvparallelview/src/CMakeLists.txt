@@ -105,6 +105,11 @@ set(CUDA_SRC_FILES
 	PVBCIDrawingBackendCUDA.cpp
 )
 
+set(OPENCL_SRC_FILES
+	PVBCIDrawingBackendOpenCL.cpp
+	PVBCIBackendImageOpenCL.cpp
+)
+
 SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
@@ -150,6 +155,11 @@ if (CUDA_FOUND)
 	set(SRC_FILES ${SRC_FILES} ${CUDA_SRC_FILES} ${CUDA_KERNELS})
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 endif (CUDA_FOUND)
+
+if (OPENCL_FOUND)
+	list(APPEND SRC_FILES ${OPENCL_SRC_FILES})
+	list(APPEND LINK_LIBRARIES ${OPENCL_LIBRARIES})
+endif()
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)

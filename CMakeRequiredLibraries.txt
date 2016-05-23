@@ -120,6 +120,19 @@ else()
 	message(FATAL_ERROR "CUDA not found")
 endif(CUDA_FOUND)
 
+###############################################################################
+# Define the OpenCL runtime
+###############################################################################
+
+pkg_check_modules(OPENCL REQUIRED OpenCL)
+
+if(OPENCL_FOUND)
+	message(STATUS "OpenCL runtime libraries: " ${OPENCL_LIBRARIES})
+	add_definitions(-DUSE_OPENCL)
+else()
+	message(STATUS "missing package:")
+	message(STATUS "  on Debian based system, install ocl-icd-opencl-dev")
+endif()
 
 ###############################################################################
 # Define variables for Boost library
