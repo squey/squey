@@ -262,6 +262,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()
 			_keys_list->setCurrentItem(currentItem, QItemSelectionModel::Select);
 		}
 	}
+	update_children_count();
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
@@ -276,6 +277,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
 			_keys_list->setCurrentItem(currentItem, QItemSelectionModel::Select);
 		}
 	}
+	update_children_count();
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::copy_keys()
