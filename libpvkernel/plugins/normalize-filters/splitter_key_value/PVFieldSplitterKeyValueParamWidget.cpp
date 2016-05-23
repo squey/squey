@@ -103,14 +103,19 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	QHBoxLayout* keys_layout = new QHBoxLayout();
 	QVBoxLayout* buttons_layout = new QVBoxLayout();
 
-	QPushButton* add_button = new QPushButton("+");
-	QPushButton* del_button = new QPushButton("-");
-	QPushButton* up_button = new QPushButton("^");
-	QPushButton* down_button = new QPushButton("v");
+	QPushButton* add_button = new QPushButton(tr("Add"));
+	QPushButton* del_button = new QPushButton(tr("Delete"));
+	QPushButton* up_button = new QPushButton(tr("Move up"));
+	QPushButton* down_button = new QPushButton(tr("Move down"));
 	QPushButton* copy_button = new QPushButton(tr("Copy"));
 	QPushButton* paste_button = new QPushButton(tr("Paste"));
-	// copy_button->setEnabled(false);
-	// paste_button->setEnabled(false);
+
+	add_button->setIcon(QIcon(":/document-new"));
+	del_button->setIcon(QIcon(":/red-cross"));
+	up_button->setIcon(QIcon(":/go-up"));
+	down_button->setIcon(QIcon(":/go-down"));
+	copy_button->setIcon(QIcon(":/edit-copy"));
+	paste_button->setIcon(QIcon(":/edit-paste"));
 
 	buttons_layout->addWidget(add_button);
 	buttons_layout->addWidget(del_button);
