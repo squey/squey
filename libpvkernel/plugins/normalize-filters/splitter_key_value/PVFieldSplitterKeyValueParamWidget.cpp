@@ -247,18 +247,30 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_children_count()
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()
 {
-	int currentIndex = _keys_list->currentRow();
-	QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
-	_keys_list->insertItem(currentIndex + 1, currentItem);
-	_keys_list->setCurrentRow(currentIndex + 1);
+	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
+
+	if (_keys_list->row(keys.last()) < (_keys_list->count() - 1)) {
+		for (QListWidgetItem* key : keys) {
+			int currentIndex = _keys_list->row(key);
+			QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
+			_keys_list->insertItem(currentIndex + 1, currentItem);
+			_keys_list->setCurrentItem(currentItem, QItemSelectionModel::Select);
+		}
+	}
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
 {
-	int currentIndex = _keys_list->currentRow();
-	QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
-	_keys_list->insertItem(currentIndex - 1, currentItem);
-	_keys_list->setCurrentRow(currentIndex - 1);
+	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
+
+	if (_keys_list->row(keys.first()) > 0) {
+		for (QListWidgetItem* key : keys) {
+			int currentIndex = _keys_list->row(key);
+			QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
+			_keys_list->insertItem(currentIndex - 1, currentItem);
+			_keys_list->setCurrentItem(currentItem, QItemSelectionModel::Select);
+		}
+	}
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::copy_keys()
