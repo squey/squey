@@ -11,7 +11,7 @@
 
 /******************************************************************************
  *
- * PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP
+ * PVFilter::ConverterSubstitution::ConverterSubstitution
  *
  *****************************************************************************/
 PVFilter::PVFieldConverterSubstitution::PVFieldConverterSubstitution(

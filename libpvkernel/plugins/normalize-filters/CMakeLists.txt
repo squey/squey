@@ -70,6 +70,31 @@ declare_library(normalize_filter_converter_substitution)
 # Splitter
 
 ###############################################################################
+# struct Converter
+###############################################################################
+
+# Define ressources
+SET(Struct_MOC_HEADERS
+converter_struct/PVFieldConverterStructParamWidget.h
+)
+
+SET(STRUCT_SRCS
+converter_struct/PVFieldConverterStruct.cpp
+converter_struct/PVFieldConverterStructParamWidget.cpp
+converter_struct/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(Struct_MOC_SRCS ${Struct_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_converter_struct SHARED ${STRUCT_SRCS} ${Struct_MOC_SRCS})
+target_link_libraries(normalize_filter_converter_struct pvkernel)
+declare_library(normalize_filter_converter_struct)
+
+# Splitter
+
+###############################################################################
 # CSV Splitter
 ###############################################################################
 
