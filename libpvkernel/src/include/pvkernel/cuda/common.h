@@ -23,6 +23,7 @@
 
 #ifndef __CUDACC__
 #include <functional>
+#include <stdexcept>
 #endif
 
 #include <pvkernel/cuda/constexpr.h>
@@ -48,7 +49,19 @@ int get_number_blocks();
 size_t get_shared_mem_size();
 size_t get_number_of_devices();
 #ifndef __CUDACC__
+
+namespace exception
+{
+
+class no_backend_error : public std::runtime_error
+{
+  public:
+	no_backend_error() : std::runtime_error::runtime_error("No CUDA backend found") {}
+};
+}
+
 void visit_usable_cuda_devices(std::function<void(int)> const& f);
+
 #endif
 }
 

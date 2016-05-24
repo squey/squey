@@ -197,12 +197,12 @@ int main(int argc, char* argv[])
 	app.processEvents();
 #endif
 
-#ifdef CUDA
+#if defined CUDA || defined USE_OPENCL
 #ifndef NO_MAIN_WINDOW
-	task_label->setText(QObject::tr("Initializing CUDA..."));
+	task_label->setText(QObject::tr("Initializing backends..."));
 	splash.repaint();
 	app.processEvents();
-	PVParallelView::common::RAII_cuda_init cuda_resources;
+	PVParallelView::common::RAII_backend_init cuda_resources;
 #endif
 #endif
 #ifndef NO_MAIN_WINDOW

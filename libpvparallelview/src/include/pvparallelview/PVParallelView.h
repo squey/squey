@@ -95,18 +95,18 @@ namespace common
 {
 
 /**
- * RAII class to automagicaly free cuda ParallelView resources.
+ * RAII class to automatically free ParallelView backend resources.
  *
  * We need a specific RAII class here instead of scott meyer's singleton as
  * static variables are free'd after global variables so nvidia driver is shutdown
  * before memory disallocation and disallocation will fail.
  */
-class RAII_cuda_init
+class RAII_backend_init
 {
   public:
-	RAII_cuda_init();
+	RAII_backend_init();
 
-	~RAII_cuda_init() { delete _instance; }
+	~RAII_backend_init() { delete _instance; }
 
   private:
 	PVParallelView::PVParallelViewImpl* _instance; // Singleton pointer of the ParallelViewImpl.

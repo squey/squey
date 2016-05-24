@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <functional>
+#include <stdexcept>
 
 #define __inendi_verify_opencl(E, F, L)                                                            \
 	{                                                                                              \
@@ -32,6 +33,17 @@
 
 namespace PVOpenCL
 {
+
+namespace exception
+{
+
+class no_backend_error : public std::runtime_error
+{
+  public:
+	no_backend_error() : std::runtime_error::runtime_error("No OpenCL backend found") {}
+};
+
+}
 
 using device_func = std::function<void(cl_context, cl_device_id)>;
 
