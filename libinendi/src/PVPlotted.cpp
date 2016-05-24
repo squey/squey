@@ -622,7 +622,7 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
 	for (PVCore::PVSharedPtr<PVView> view : get_children()) {
-		QString child_name = QString::number(idx);
+		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj =
 		    list_obj->create_object(child_name, view->get_serialize_description(), false);
 		view->serialize(*new_obj, so.get_version());
