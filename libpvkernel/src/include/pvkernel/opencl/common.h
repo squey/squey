@@ -42,20 +42,20 @@ class no_backend_error : public std::runtime_error
   public:
 	no_backend_error() : std::runtime_error::runtime_error("No OpenCL backend found") {}
 };
-
 }
 
 using device_func = std::function<void(cl_context, cl_device_id)>;
 
 /**
- * find the first OpenCL plateform matching @p type and call @p f on each of its devices
+ * find the first OpenCL plateform matching @p accelerated and call @p f on each of its devices
  *
- * @param type the wanted OpenCL plateform type
+ * @param accelerated a boolean to indicate if the found backend must use decidated hardware or must
+ * used software implementation
  * @param f a function to call on each device of the found context
  *
  * @return a valid OpenCL context in case of success; nullptr othewise.
  */
-cl_context find_first_usable_context(cl_device_type type, device_func const& f);
+cl_context find_first_usable_context(bool accelerated, device_func const& f);
 
 /**
  *

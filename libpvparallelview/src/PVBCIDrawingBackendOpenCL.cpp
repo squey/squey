@@ -5,6 +5,7 @@
  */
 
 #include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/core/PVHSVColor.h>
@@ -166,6 +167,7 @@ kernel void draw_bci(const global uint2* bci_codes,
 		if (color0 == HSV_COLOR_BLACK) {
 			code0.x = 0xFFFFFF00;
 		}
+
 		const uint shared_v = color0 | code0.x;
 		atomic_min(&shared_img[get_local_id(0) + pixel_y00*get_local_size(0)], shared_v);
 		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
@@ -261,21 +263,19 @@ struct opencl_kernel {
  *****************************************************************************/
 
 PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
+    : _context(nullptr), _is_software(false)
 {
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
 	cl_int err;
 
-	cl_device_id first_device = nullptr;
+	auto& config = PVCore::PVConfig::get().config();
+	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
 
 	// List all usable OpenCL devices and create appropriate structures
 	const auto fun = [&](cl_context ctx, cl_device_id dev_id) {
 		device_t dev;
 		cl_int err;
-
-		if (dev_idx == 0) {
-			first_device = dev_id;
-		}
 
 		dev.queue = clCreateCommandQueue(ctx, dev_id, 0, &err);
 		inendi_verify_opencl_var(err);
@@ -289,9 +289,18 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		++dev_idx;
 	};
 
-	_context = PVOpenCL::find_first_usable_context(CL_DEVICE_TYPE_CPU, fun);
+	if (force_cpu == false) {
+		_context = PVOpenCL::find_first_usable_context(true, fun);
+	}
 
-	assert(_context != nullptr && "no OpenCL context found");
+	if (_context == nullptr) {
+		_context = PVOpenCL::find_first_usable_context(false, fun);
+		_is_software = true;
+	}
+
+	if (_context == nullptr) {
+		throw PVOpenCL::exception::no_backend_error();
+	}
 
 	_next_device = _devices.begin();
 
@@ -313,15 +322,6 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	build_options << " -DHSV_COLOR_RED=" << HSV_COLOR_RED;
 
 	err = clBuildProgram(program, 0, nullptr, build_options.str().c_str(), nullptr, nullptr);
-
-#if 0
-	size_t len;
-	char buffer[256];
-	clGetProgramBuildInfo(program, first_device, CL_PROGRAM_BUILD_LOG,
-	                      sizeof(buffer), buffer, &len);
-	std::cout << "build log: " << buffer << std::endl;
-	inendi_verify_opencl_var(err);
-#endif
 
 	_kernel = clCreateKernel(program, "draw_bci", &err);
 	inendi_verify_opencl_var(err);
@@ -478,8 +478,10 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 	                         data);
 	inendi_verify_opencl_var(err);
 
-	// CPU drivers need to do an explicit clFlush to make event happen...
-	clFlush(dev.queue);
+	// CPU drivers need to do an explicit clFlush to make event happen... strange...
+	if (_is_software) {
+		clFlush(dev.queue);
+	}
 
 	BENCH_END(ocl_kernel, "OCL kernel", 1, 1, 1, 1);
 }

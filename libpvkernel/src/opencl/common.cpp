@@ -13,12 +13,23 @@
  * PVOpenCL::visit_usable_devices
  *****************************************************************************/
 
-cl_context PVOpenCL::find_first_usable_context(cl_device_type type, PVOpenCL::device_func const& f)
+cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::device_func const& f)
 {
 	cl_context ctx;
 	cl_int err;
 	cl_uint pcount;
 	cl_uint dcount;
+
+	cl_device_type type;
+	const char* type_name;
+
+	if (accelerated) {
+		type = CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR;
+		type_name = "accelerated";
+	} else {
+		type = CL_DEVICE_TYPE_CPU;
+		type_name = "software";
+	}
 
 	clGetPlatformIDs(0, nullptr, &pcount);
 	if (pcount == 0) {
