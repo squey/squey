@@ -22,16 +22,23 @@ static constexpr unsigned int dupl = 1;
 double save_investigation()
 {
 	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
+	env.add_source(csv_file, csv_file_format, dupl);
 
 	auto sources = env.root->get_children<Inendi::PVSource>();
-	PV_VALID(sources.size(), 1);
+	PV_VALID(sources.size(), 2);
 	auto source = sources[0];
 
-	env.compute_mapping();
-	env.compute_plotting();
+	env.compute_mappings();
+	env.compute_plottings();
 
-	auto views = source->get_children<Inendi::PVView>();
-	PV_VALID(views.size(), 1);
+	auto mappeds = env.root->get_children<Inendi::PVMapped>();
+	PV_VALID(mappeds.size(), 2);
+
+	auto plotteds = env.root->get_children<Inendi::PVPlotted>();
+	PV_VALID(plotteds.size(), 2);
+
+	auto views = env.root->get_children<Inendi::PVView>();
+	PV_VALID(views.size(), 2);
 	auto view = views[0];
 
 	/**
@@ -82,10 +89,10 @@ double load_investigation()
 	std::chrono::duration<double> diff = end - start;
 
 	/**
-	 * Check source
+	 * Check sources
 	 */
 	auto sources = root->get_children<Inendi::PVSource>();
-	PV_VALID(sources.size(), 1);
+	PV_VALID(sources.size(), 2);
 	auto source = sources[0];
 	source->load_from_disk();
 	source->process_from_source();
@@ -94,10 +101,22 @@ double load_investigation()
 	PV_VALID(row_count, ROW_COUNT * dupl);
 
 	/**
+	 * Check mappeds
+	 */
+	auto mappeds = root->get_children<Inendi::PVMapped>();
+	PV_VALID(mappeds.size(), 2);
+
+	/**
+	 * Check plotteds
+	 */
+	auto plotteds = root->get_children<Inendi::PVPlotted>();
+	PV_VALID(plotteds.size(), 2);
+
+	/**
 	 * Check view
 	 */
-	auto views = source->get_children<Inendi::PVView>();
-	PV_VALID(views.size(), 1);
+	auto views = root->get_children<Inendi::PVView>();
+	PV_VALID(views.size(), 2);
 	auto view = views[0];
 	PV_VALID(view->get_row_count(), ROW_COUNT * dupl);
 
