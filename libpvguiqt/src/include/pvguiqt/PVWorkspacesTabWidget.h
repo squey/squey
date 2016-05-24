@@ -66,6 +66,27 @@ class TabRenamerEventFilter : public QObject
 	int _index;
 	QLineEdit* _line_edit;
 };
+
+/**
+ * \class TabResizeEventFilter
+ *
+ * \note This class is handling the resizing of the tabs for prettier TextElideMode display than
+ * QT's way.
+ */
+class TabResizeEventFilter : public QObject
+{
+  public:
+	TabResizeEventFilter(PVGuiQt::PVWorkspacesTabWidgetBase* tab_widget) : _tab_widget(tab_widget)
+	{
+	}
+
+	bool eventFilter(QObject* object, QEvent* event);
+
+  private:
+	PVGuiQt::PVWorkspacesTabWidgetBase* _tab_widget;
+	static constexpr int MIN_WIDTH = 160;
+	/*!< The manimum width of a tab label in pixel.*/ // size of proxy_sample.log
+};
 }
 
 /**

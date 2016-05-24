@@ -31,6 +31,11 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::TabRenamerEventFilter
+ *
+ *****************************************************************************/
 bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* /*watched*/, QEvent* event)
 {
 	bool rename = false;
@@ -49,6 +54,38 @@ bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* /*watched*/, Q
 
 /******************************************************************************
  *
+ * PVGuiQt::__impl::TabRenamerEventFilter
+ *
+ *****************************************************************************/
+void resize_workspace_tab(PVGuiQt::PVWorkspacesTabWidgetBase* tab_widget, const int min_width)
+{
+	printf("size %d\n", tab_widget->size().width());
+	printf("count %d\n", tab_widget->count());
+
+	if (tab_widget->count() > 0) {
+		int width = tab_widget->size().width() / tab_widget->count();
+		printf("width %d\n", width);
+		if (width > min_width)
+
+			tab_widget->setStyleSheet(QString("QTabBar::tab { min-width: %1px; } ").arg(min_width));
+		else
+			tab_widget->setStyleSheet(QString("QTabBar::tab { width: %1px; } ").arg(min_width));
+	}
+}
+
+bool PVGuiQt::__impl::TabResizeEventFilter::eventFilter(QObject* object, QEvent* event)
+{
+	if (object == _tab_widget && (event->type() == QEvent::Resize)) {
+		resize_workspace_tab(_tab_widget, MIN_WIDTH);
+	} else if (object == _tab_widget &&
+	           (event->type() == QEvent::Show)) { // || QEvent::Show || QEvent::UpdateRequest
+		resize_workspace_tab(_tab_widget, MIN_WIDTH);
+	}
+	return false;
+}
+
+/******************************************************************************
+ *
  * PVGuiQt::PVSceneTabBar
  *
  *****************************************************************************/
@@ -59,6 +96,9 @@ PVGuiQt::PVSceneTabBar::PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget)
 	setTabsClosable(true);
 	connect(this, SIGNAL(tabCloseRequested(int)), tab_widget, SLOT(tab_close_requested(int)));
 	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
+
+	setMovable(true);
+	setElideMode(Qt::ElideRight); // Qt::ElideMiddle);
 }
 
 int PVGuiQt::PVSceneTabBar::count() const
@@ -226,6 +266,8 @@ PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Inendi::PVRoot& ro
 	// QTabWidget and its underlying QTabBar
 	setMouseTracking(true);
 	tabBar()->setMouseTracking(true);
+
+	installEventFilter(new __impl::TabResizeEventFilter(this));
 }
 
 int PVGuiQt::PVWorkspacesTabWidgetBase::add_workspace(PVWorkspaceBase* workspace,
