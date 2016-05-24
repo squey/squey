@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVLogger.h>
+
 #include <pvkernel/cuda/common.h>
 #include <stdio.h>
 
@@ -25,11 +27,18 @@ void PVCuda::visit_usable_cuda_devices(std::function<void(int)> const& f)
 {
 #ifdef CUDA
 	cudaDeviceProp prop;
-	for (size_t i = 0; i < get_number_of_devices(); i++) {
+	size_t i;
+	for (i = 0; i < get_number_of_devices(); i++) {
 		inendi_verify_cuda(cudaGetDeviceProperties(&prop, i));
 		if (prop.major >= CUDA_COMP_CAP_MIN_VERSION) {
 			f(i);
 		}
+	}
+
+	if (i != 0) {
+		PVLOG_INFO("CUDA backend found\n");
+	} else {
+		PVLOG_INFO("no CUDA backend found\n");
 	}
 #endif
 }

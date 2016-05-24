@@ -4,6 +4,7 @@
  * @copyright (C) ESI Group INENDI 2016
  */
 
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/opencl/common.h>
 
 #include <memory>
@@ -42,13 +43,6 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 	clGetPlatformIDs(pcount, ptab.get(), nullptr);
 
 	for (size_t i = 0; i < pcount; ++i) {
-		size_t vsize;
-		std::string pname;
-
-		clGetPlatformInfo(ptab[i], CL_PLATFORM_NAME, 0, nullptr, &vsize);
-		pname.resize(vsize);
-		clGetPlatformInfo(ptab[i], CL_PLATFORM_NAME, vsize, &pname[0], nullptr);
-
 		cl_context_properties prop[] = {CL_CONTEXT_PLATFORM, (cl_context_properties)ptab[i], 0};
 
 		ctx = clCreateContextFromType(prop, type, nullptr, nullptr, &err);
@@ -64,6 +58,13 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 		inendi_verify_opencl_var(err);
 
 		if (dcount != 0) {
+			size_t vsize;
+			std::string pname;
+
+			clGetPlatformInfo(ptab[i], CL_PLATFORM_NAME, 0, nullptr, &vsize);
+			pname.resize(vsize);
+			clGetPlatformInfo(ptab[i], CL_PLATFORM_NAME, vsize, &pname[0], nullptr);
+
 			dtab.reset(new cl_device_id[dcount]);
 
 			err = clGetContextInfo(ctx, CL_CONTEXT_DEVICES, sizeof(cl_device_id) * dcount,
@@ -74,12 +75,16 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 				f(ctx, dtab[j]);
 			}
 
+			PVLOG_INFO("OpenCL backend found: %s\n", pname.c_str());
+
 			return ctx;
 		}
 
 		err = clReleaseContext(ctx);
 		inendi_verify_opencl_var(err);
 	}
+
+	PVLOG_INFO("No %s OpenCL backend found\n", type_name);
 
 	return nullptr;
 }
