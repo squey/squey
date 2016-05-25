@@ -66,8 +66,64 @@ class TestEnv
 		PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
 		PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
-		// Initialize sse4 detection
-		PVCore::PVIntrinsics::init_cpuid();
+		import(log_file, format_file, dup);
+	}
+
+	void add_source(std::string const& log_file, std::string const& format_file, size_t dup = 1)
+	{
+		import(log_file, format_file, dup);
+	}
+
+	/**
+	 * Clean input duplicate file at the end.
+	 */
+	~TestEnv() { std::remove(_big_file_path.c_str()); }
+
+	/**
+	 * Compute mapping assuming PVSource is valid.
+	 */
+	Inendi::PVMapped_p compute_mapping(int index = 0)
+	{
+		const auto& sources = root->get_children<Inendi::PVSource>();
+		assert(index < sources.size());
+		Inendi::PVMapped_p mapped = sources[index]->emplace_add_child();
+		mapped->process_from_parent_source();
+		return mapped;
+	}
+
+	void compute_mappings()
+	{
+		for (const auto& source : root->get_children<Inendi::PVSource>()) {
+			Inendi::PVMapped_p mapped = source->emplace_add_child();
+			mapped->process_from_parent_source();
+		}
+	}
+
+	/**
+	 * Compute plotting assuming PVMapped is valid.
+	 */
+	Inendi::PVPlotted_p compute_plotting(int index = 0)
+	{
+		// And plot the mapped values
+		const auto& mappeds = root->get_children<Inendi::PVMapped>();
+		assert(index < mappeds.size());
+		Inendi::PVPlotted_p plotted = mappeds[index]->emplace_add_child();
+		plotted->process_from_parent_mapped();
+		return plotted;
+	}
+
+	void compute_plottings()
+	{
+		// And plot the mapped values
+		for (const auto& mapped : root->get_children<Inendi::PVMapped>()) {
+			Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
+			plotted->process_from_parent_mapped();
+		}
+	}
+
+  private:
+	void import(std::string const& log_file, std::string const& format_file, size_t dup)
+	{
 
 		{
 			std::ifstream ifs(log_file);
@@ -100,39 +156,13 @@ class TestEnv
 
 		// Create the PVSource object
 		Inendi::PVScene_p scene = root->emplace_add_child("scene");
-		src = scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+		Inendi::PVSource_sp src =
+		    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 		PVRush::PVControllerJob_p job = src->extract();
 		job->wait_end();
 	}
 
-	/**
-	 * Clean input duplicate file at the end.
-	 */
-	~TestEnv() { std::remove(_big_file_path.c_str()); }
-
-	/**
-	 * Compute mapping assuming PVSource is valid.
-	 */
-	Inendi::PVMapped_p compute_mapping()
-	{
-		mapped = src->emplace_add_child();
-		mapped->process_from_parent_source();
-		return mapped;
-	}
-
-	/**
-	 * Compute plotting assuming PVMapped is valid.
-	 */
-	Inendi::PVPlotted_p compute_plotting()
-	{
-		// And plot the mapped values
-		Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
-		plotted->process_from_parent_mapped();
-		return plotted;
-	}
-
-	Inendi::PVMapped_p mapped;
-	Inendi::PVSource_sp src;
+  public:
 	Inendi::PVRoot_p root;
 
   private:
