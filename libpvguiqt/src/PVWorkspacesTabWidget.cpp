@@ -54,38 +54,6 @@ bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* /*watched*/, Q
 
 /******************************************************************************
  *
- * PVGuiQt::__impl::TabRenamerEventFilter
- *
- *****************************************************************************/
-void resize_workspace_tab(PVGuiQt::PVWorkspacesTabWidgetBase* tab_widget, const int min_width)
-{
-	printf("size %d\n", tab_widget->size().width());
-	printf("count %d\n", tab_widget->count());
-
-	if (tab_widget->count() > 0) {
-		int width = tab_widget->size().width() / tab_widget->count();
-		printf("width %d\n", width);
-		if (width > min_width)
-
-			tab_widget->setStyleSheet(QString("QTabBar::tab { min-width: %1px; } ").arg(min_width));
-		else
-			tab_widget->setStyleSheet(QString("QTabBar::tab { width: %1px; } ").arg(min_width));
-	}
-}
-
-bool PVGuiQt::__impl::TabResizeEventFilter::eventFilter(QObject* object, QEvent* event)
-{
-	if (object == _tab_widget && (event->type() == QEvent::Resize)) {
-		resize_workspace_tab(_tab_widget, MIN_WIDTH);
-	} else if (object == _tab_widget &&
-	           (event->type() == QEvent::Show)) { // || QEvent::Show || QEvent::UpdateRequest
-		resize_workspace_tab(_tab_widget, MIN_WIDTH);
-	}
-	return false;
-}
-
-/******************************************************************************
- *
  * PVGuiQt::PVSceneTabBar
  *
  *****************************************************************************/
@@ -172,6 +140,34 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 		emit _tab_widget->workspace_dragged_outside(workspace);
 	}
 	_drag_ongoing = false;
+}
+
+void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
+{
+	QString stylesheet = "";
+
+	if (count() > 0) {
+		int width = _tab_widget->size().width() / count();
+
+		if (width > MIN_WIDTH) {
+			QFontMetrics metrics = QFontMetrics(font());
+
+			int i = 0;
+			while (i < count() && stylesheet.isEmpty()) {
+
+				if (metrics.width(tabText(i)) > width) {
+					stylesheet = QString("QTabBar::tab { max-width: %1px; } ").arg(width);
+				}
+				i++;
+			}
+			stylesheet += QString("QTabBar::tab { min-width: %1px; } ").arg(MIN_WIDTH);
+		} else
+			stylesheet = QString("QTabBar::tab { width: %1px; } ").arg(MIN_WIDTH);
+		update();
+	}
+	_tab_widget->setStyleSheet(stylesheet);
+
+	QTabBar::resizeEvent(event);
 }
 
 /******************************************************************************
@@ -266,8 +262,6 @@ PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Inendi::PVRoot& ro
 	// QTabWidget and its underlying QTabBar
 	setMouseTracking(true);
 	tabBar()->setMouseTracking(true);
-
-	installEventFilter(new __impl::TabResizeEventFilter(this));
 }
 
 int PVGuiQt::PVWorkspacesTabWidgetBase::add_workspace(PVWorkspaceBase* workspace,
@@ -345,6 +339,12 @@ QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_worksp
 		ret << workspace;
 	}
 	return ret;
+}
+
+void PVGuiQt::PVWorkspacesTabWidgetBase::resizeEvent(QResizeEvent* event)
+{
+	_tab_bar->resizeEvent(event);
+	QTabWidget::resizeEvent(event);
 }
 
 /******************************************************************************

@@ -66,27 +66,6 @@ class TabRenamerEventFilter : public QObject
 	int _index;
 	QLineEdit* _line_edit;
 };
-
-/**
- * \class TabResizeEventFilter
- *
- * \note This class is handling the resizing of the tabs for prettier TextElideMode display than
- * QT's way.
- */
-class TabResizeEventFilter : public QObject
-{
-  public:
-	TabResizeEventFilter(PVGuiQt::PVWorkspacesTabWidgetBase* tab_widget) : _tab_widget(tab_widget)
-	{
-	}
-
-	bool eventFilter(QObject* object, QEvent* event);
-
-  private:
-	PVGuiQt::PVWorkspacesTabWidgetBase* _tab_widget;
-	static constexpr int MIN_WIDTH = 160;
-	/*!< The manimum width of a tab label in pixel.*/ // size of proxy_sample.log
-};
 }
 
 /**
@@ -106,6 +85,10 @@ class PVSceneTabBar : public QTabBar
   public:
 	virtual PVOpenWorkspace* create_new_workspace() { return nullptr; }
 
+	/*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
+	 */
+	void resizeEvent(QResizeEvent* event) override;
+
   protected:
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
@@ -116,6 +99,10 @@ class PVSceneTabBar : public QTabBar
 	PVWorkspacesTabWidgetBase* _tab_widget;
 	QPoint _drag_start_position;
 	bool _drag_ongoing = false;
+
+  private:
+	static constexpr int MIN_WIDTH = 160;
+	/*!< The manimum width of a tab label in pixel.*/ // size of proxy_sample.log
 };
 
 /**
@@ -188,6 +175,10 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	/*! \brief Slot called when the user closes a workspace.
 	 */
 	void tab_close_requested(int index);
+
+	/*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
+	 */
+	void resizeEvent(QResizeEvent* event) override;
 
   private slots:
 	/*! \brief Change the CSS property width of the selected tab (used by the animation).
