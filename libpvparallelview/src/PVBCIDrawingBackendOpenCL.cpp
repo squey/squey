@@ -21,19 +21,47 @@
 #include <iostream>
 #include <sstream>
 
+/* a simple macro to embed code as a nul-terminated string
+ */
 #define STRINGIFY(X) #X
 
-#define SHARED_MEMORY_SIZE (16 * 1024)
-#define THREAD_NUM_COUNT 512
+/* minimal required for OpenCL 1.0 devices
+ */
+#define LOCAL_MEMORY_SIZE (16 * 1024)
 
 /******************************************************************************
  * opencl_kernel
  *****************************************************************************/
 
-/* image is ARGB, not RGBA ;-)
- * The principle is the following:
- * - the shared memory contains a buffer
+/* As the kernel code is embedded in the present C++ file, the comments are
+ * not inline.
  *
+ * Principle
+ *
+ * To minimize global memory accesses, thre kernel uses computing unit local memory area to do the
+ * collisions in a first step and copy data from the local memory to the global memory are in a
+ * second one. A preliminary step is local memory initialization.
+ *
+ * Final image is processed column by column (don't know why).
+ *
+ * To reduce local memory initialization/copy, more than one image column is processed at the same
+ * time. This number of image column depend of the column number which can fit in the local memory
+ * area (for 1024 pixels height image, it's 4).
+ *
+ * For each image column, the kernel will process BCI codes in parallel to find the corresponding
+ * pixel in the column and do the collisions on their index value.
+ *
+ * When the final image is taller than broad, a BCI code can lead to more than one pixel in an image
+ * column.
+ *
+ * Due to zoomed pararallel coordinate view, there are 3 types of BCI codes:
+ * - "straight" ones (whose type is 0) which hit the final image right border;
+ * - "up" ones (whose type is 1) which hit the final image top border;
+ * - "down" one which hit the final image top border.
+ *
+ * Notes:
+ *
+ * QImage are ARGB, not RGBA ;-)
  *
  * Inspector has its hue starting at blue while standard HSV model starts with red:
  * inspector: B C G Y R M B
@@ -41,8 +69,8 @@
  *
  * H_c = (N_color + R_i - H_i) mod N_color
  * where:
- * - H_c is the corrected hue value
- * - H_i is the hue value in Inspector
+ * - H_c is the correct hue value
+ * - H_i is the Inspector hue value
  * - N_color is the number of color (see HSV_COLOR_COUNT)
  * - R_i is the index of the red color in Inspector
  *
@@ -50,8 +78,10 @@
  * -- code --
  * const float3 r = mix(K.xxx, clamp(p - K.xxx, value0, value1), c.y);
  * -- code --
- * but as c.y == 1.0, it can simplified
- *
+ * but as c.y is always equal to 1.0 in our case, the expression can be simplified into
+ * -- code --
+ * const float3 r = clamp(p - K.xxx, value0, value1);
+ * -- code --
  */
 
 // clang-format off
@@ -66,8 +96,8 @@ uint hue2rgb(uint hue)
 		return 0xFF000000;
 	}
 
-	uint hn = (HSV_COLOR_COUNT + HSV_COLOR_RED - hue) % HSV_COLOR_COUNT;
-	float4 c = (float4)(hn / (float)HSV_COLOR_COUNT, 1.0, 1.0, 1.0);
+	uint nh = (HSV_COLOR_COUNT + HSV_COLOR_RED - hue) % HSV_COLOR_COUNT;
+	float4 c = (float4)(nh / (float)HSV_COLOR_COUNT, 1.0, 1.0, 1.0);
 
 	const float3 value0 = (float)(0.0);
 	const float3 value1 = (float)(1.0);
@@ -82,21 +112,22 @@ uint hue2rgb(uint hue)
 	return 0xFF000000 | (uint)(0xFF * r.x) << 16 | (uint)(0xFF * r.y) << 8 | (uint)(0xFF * r.z);
 }
 
-kernel void draw_bci(const global uint2* bci_codes,
-                     const uint n,
-                     const uint width,
-                     global uint* img_dst,
-                     const uint img_width,
-                     const uint image_height,
-                     const uint img_x_start,
-                     const float zoom_y,
-                     const uint bit_shift,
-                     const uint bit_mask,
-                     const uint reverse)
+kernel void draw(const global uint2* bci_codes,
+                 const uint n,
+                 const uint width,
+                 global uint* image,
+                 const uint image_width,
+                 const uint image_height,
+                 const uint image_x_start,
+                 const float zoom_y,
+                 const uint bit_shift,
+                 const uint bit_mask,
+                 const uint reverse)
 {
-	local uint shared_img[SHARED_MEMORY_SIZE / sizeof(uint)];
+	local uint shared_img[LOCAL_MEMORY_SIZE / sizeof(uint)];
 
 	int band_x = get_local_id(0) + get_group_id(0)*get_local_size(0);
+
 	if (band_x >= width) {
 		return;
 	}
@@ -104,51 +135,56 @@ kernel void draw_bci(const global uint2* bci_codes,
 	const float alpha0 = (float)(width-band_x)/(float)width;
 	const float alpha1 = (float)(width-(band_x+1))/(float)width;
 	const uint y_start = get_local_id(1) + get_group_id(1)*get_local_size(1);
-	const uint size_grid = get_local_size(1)*get_num_groups(1);
+	const uint y_pitch = get_local_size(1)*get_num_groups(1);
 
 	for (int y = get_local_id(1); y < image_height; y += get_local_size(1)) {
 		shared_img[get_local_id(0) + y*get_local_size(0)] = 0xFFFFFFFF;
 	}
 
+	int pixel_y00;
+	int pixel_y01;
+
 	barrier(CLK_LOCAL_MEM_FENCE);
 
-	unsigned int idx_codes = y_start;
-	for (; idx_codes < n; idx_codes += size_grid) {
+	for (uint idx_codes = y_start; idx_codes < n; idx_codes += y_pitch) {
 		uint2 code0 = bci_codes[idx_codes];
+
 		code0.x &= 0xFFFFFF00;
+
 		const float l0 = (float) (code0.y & bit_mask);
 		const int r0i = (code0.y >> bit_shift) & bit_mask;
 		const int type = (code0.y >> ((2*bit_shift) + 8)) & 3;
-		int pixel_y00;
-		int pixel_y01;
+
 		if (type == 0) { // STRAIGHT
 			const float r0 = (float) r0i;
+
 			pixel_y00 = (int) (((r0 + ((l0-r0)*alpha0)) * zoom_y) + 0.5f);
 			pixel_y01 = (int) (((r0 + ((l0-r0)*alpha1)) * zoom_y) + 0.5f);
-		}
-		else {
+		} else {
 			if (band_x > r0i) {
-				// This is out of our drawing scope!
 				continue;
 			}
+
 			const float r0 = (float) r0i;
+
 			if (type == 1) { // UP
 				const float alpha_x = l0/r0;
+
 				pixel_y00 = (int) (((l0-(alpha_x*(float)band_x))*zoom_y) + 0.5f);
+
 				if (band_x == r0i) {
 					pixel_y01 = pixel_y00;
-				}
-				else {
+				} else {
 					pixel_y01 = (int) (((l0-(alpha_x*(float)(band_x+1)))*zoom_y) + 0.5f);
 				}
-			}
-			else {
+			} else {
 				const float alpha_x = ((float)bit_mask-l0)/r0;
+
 				pixel_y00 = (int) (((l0+(alpha_x*(float)band_x))*zoom_y) + 0.5f);
+
 				if (band_x == r0i) {
 					pixel_y01 = pixel_y00;
-				}
-				else {
+				} else {
 					pixel_y01 = (int) (((l0+(alpha_x*(float)(band_x+1)))*zoom_y) + 0.5f);
 				}
 			}
@@ -159,25 +195,30 @@ kernel void draw_bci(const global uint2* bci_codes,
 
 		if (pixel_y00 > pixel_y01) {
 			const int tmp = pixel_y00;
+
 			pixel_y00 = pixel_y01;
 			pixel_y01 = tmp;
 		}
 
 		const uint color0 = (code0.y >> 2*bit_shift) & 0xFF;
+
 		if (color0 == HSV_COLOR_BLACK) {
 			code0.x = 0xFFFFFF00;
 		}
 
 		const uint shared_v = color0 | code0.x;
+
 		atomic_min(&shared_img[get_local_id(0) + pixel_y00*get_local_size(0)], shared_v);
+
 		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
 			atomic_min(&shared_img[get_local_id(0) + pixel_y0*get_local_size(0)], shared_v);
 		}
 	}
 
-	band_x += img_x_start;
+	band_x += image_x_start;
+
 	if (reverse) {
-		band_x = img_width-band_x-1;
+		band_x = image_width-band_x-1;
 	}
 
 	barrier(CLK_LOCAL_MEM_FENCE);
@@ -185,13 +226,13 @@ kernel void draw_bci(const global uint2* bci_codes,
 	for (int y = get_local_id(1); y < image_height; y += get_local_size(1)) {
 		const uint pixel_shared = shared_img[get_local_id(0) + y*get_local_size(0)];
 		uint pixel;
+
 		if (pixel_shared != 0xFFFFFFFF) {
 			pixel = hue2rgb(pixel_shared & 0x000000FF);
-		}
-		else {
+		} else {
 			pixel = 0x00000000;
 		}
-		img_dst[band_x + y*img_width] = pixel;
+		image[band_x + y*image_width] = pixel;
 	}
 }
 
@@ -200,9 +241,8 @@ kernel void draw_bci(const global uint2* bci_codes,
 
 template <size_t Bbits>
 struct opencl_kernel {
-	static cl_int start(const cl_command_queue queue,
+	static cl_int start(const PVParallelView::PVBCIDrawingBackendOpenCL::device_t& dev,
 	                    const cl_kernel kernel,
-	                    const cl_mem bci_mem,
 	                    const cl_uint n,
 	                    const cl_uint width,
 	                    const cl_mem image_mem,
@@ -214,10 +254,11 @@ struct opencl_kernel {
 		const cl_uint bit_shift = Bbits;
 		const cl_uint bit_mask = PVParallelView::constants<Bbits>::mask_int_ycoord;
 		const cl_uint image_height = PVParallelView::constants<Bbits>::image_height;
-		const cl_uint real_reverse = reverse;
 		const size_t column_mem_size = image_height * sizeof(cl_uint);
+		// bool is not a valid type as kernel parameter
+		const cl_uint reverse_flag = reverse;
 
-		inendi_verify_opencl(clSetKernelArg(kernel, 0, sizeof(cl_mem), &bci_mem));
+		inendi_verify_opencl(clSetKernelArg(kernel, 0, sizeof(cl_mem), &dev.mem));
 		inendi_verify_opencl(clSetKernelArg(kernel, 1, sizeof(cl_uint), &n));
 		inendi_verify_opencl(clSetKernelArg(kernel, 2, sizeof(cl_uint), &width));
 		inendi_verify_opencl(clSetKernelArg(kernel, 3, sizeof(cl_mem), &image_mem));
@@ -227,33 +268,20 @@ struct opencl_kernel {
 		inendi_verify_opencl(clSetKernelArg(kernel, 7, sizeof(cl_float), &zoom_y));
 		inendi_verify_opencl(clSetKernelArg(kernel, 8, sizeof(cl_uint), &bit_shift));
 		inendi_verify_opencl(clSetKernelArg(kernel, 9, sizeof(cl_uint), &bit_mask));
-		inendi_verify_opencl(clSetKernelArg(kernel, 10, sizeof(cl_uint), &real_reverse));
+		inendi_verify_opencl(clSetKernelArg(kernel, 10, sizeof(cl_uint), &reverse_flag));
 
-		/* we maximize usefull work group size horizontally
+		/* we make fit the highest number of image column in the work group local memory
 		 */
-		const size_t local_num_x = std::min((size_t)width, SHARED_MEMORY_SIZE / column_mem_size);
-		const size_t local_num_y = THREAD_NUM_COUNT / local_num_x;
+		const size_t local_num_x = std::min((size_t)width, LOCAL_MEMORY_SIZE / column_mem_size);
+		const size_t local_num_y = dev.work_group_size / local_num_x;
 
-		/* make a valid work items count (a multiple of work group size)
-		 */
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
 		const size_t global_num_y = local_num_y;
 
 		const size_t global_work[] = {global_num_x, global_num_y};
 		const size_t local_work[] = {local_num_x, local_num_y};
 
-#if 0
-		std::cout << "########################################" << std::endl;
-		std::cout << "global size : " << global_num_x << " " << global_num_y << std::endl;
-		std::cout << "local size  : " << local_num_x << " " << local_num_y << std::endl;
-		std::cout << "width       : " << width << std::endl;
-		std::cout << "image_width : " << image_width << std::endl;
-		std::cout << "image_height: " << image_height << std::endl;
-		std::cout << "zoom_y      : " << zoom_y << std::endl;
-		std::cout << "n           : " << n << std::endl;
-#endif
-
-		return clEnqueueNDRangeKernel(queue, kernel, 2, nullptr, global_work, local_work, 0,
+		return clEnqueueNDRangeKernel(dev.queue, kernel, 2, nullptr, global_work, local_work, 0,
 		                              nullptr, nullptr);
 	}
 };
@@ -276,6 +304,8 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	const auto fun = [&](cl_context ctx, cl_device_id dev_id) {
 		device_t dev;
 		cl_int err;
+
+		dev.id = dev_id;
 
 		dev.queue = clCreateCommandQueue(ctx, dev_id, 0, &err);
 		inendi_verify_opencl_var(err);
@@ -304,7 +334,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 	_next_device = _devices.begin();
 
-	/* NOTE: 1 because the kernel code is stored in one null-terminated string.
+	/* NOTE: "1" because the kernel code is stored using an array of nul-terminated string.
 	 */
 	cl_program program = clCreateProgramWithSource(_context, 1, &source, nullptr, &err);
 	inendi_verify_opencl_var(err);
@@ -315,7 +345,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	 * count and have better optimisations.
 	 */
 	std::stringstream build_options;
-	build_options << "-DSHARED_MEMORY_SIZE=" << SHARED_MEMORY_SIZE;
+	build_options << "-DLOCAL_MEMORY_SIZE=" << LOCAL_MEMORY_SIZE;
 	build_options << " -DHSV_COLOR_COUNT=" << HSV_COLOR_COUNT;
 	build_options << " -DHSV_COLOR_WHITE=" << HSV_COLOR_WHITE;
 	build_options << " -DHSV_COLOR_BLACK=" << HSV_COLOR_BLACK;
@@ -323,8 +353,38 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 	err = clBuildProgram(program, 0, nullptr, build_options.str().c_str(), nullptr, nullptr);
 
-	_kernel = clCreateKernel(program, "draw_bci", &err);
+#ifdef INENDI_DEVELOPER_MODE
+	if (err != CL_SUCCESS) {
+		/* As we build (implicitly) on all devices, we check every for errors
+		 */
+		for (auto& it : _devices) {
+			cl_build_status status;
+
+			clGetProgramBuildInfo(program, it.second.id, CL_PROGRAM_BUILD_STATUS, sizeof(status),
+			                      &status, nullptr);
+
+			if (status != CL_BUILD_ERROR) {
+				continue;
+			}
+
+			size_t len;
+			char buffer[256];
+			clGetProgramBuildInfo(program, it.second.id, CL_PROGRAM_BUILD_LOG, sizeof(buffer),
+			                      buffer, &len);
+			PVLOG_INFO("build log: %s\n", buffer);
+		}
+	}
+#endif
 	inendi_verify_opencl_var(err);
+
+	_kernel = clCreateKernel(program, "draw", &err);
+	inendi_verify_opencl_var(err);
+
+	for (auto& it : _devices) {
+		err = clGetKernelWorkGroupInfo(_kernel, it.second.id, CL_KERNEL_WORK_GROUP_SIZE,
+		                               sizeof(size_t), &it.second.work_group_size, nullptr);
+		inendi_verify_opencl_var(err);
+	}
 
 	err = clReleaseProgram(program);
 	inendi_verify_opencl_var(err);
@@ -360,7 +420,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL& PVParallelView::PVBCIDrawingBackendOp
  *****************************************************************************/
 
 PVParallelView::PVBCIBackendImage_p
-PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t img_width, uint8_t height_bits)
+PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t image_width, uint8_t height_bits)
 {
 	assert(_devices.size() >= 1);
 
@@ -371,8 +431,8 @@ PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t img_width, uint8_
 	// Create image on a device in a round robin way
 	cl_command_queue queue = _next_device->second.queue;
 
-	PVBCIBackendImage_p ret(
-	    new PVBCIBackendImageOpenCL(img_width, height_bits, _context, queue, _next_device->first));
+	PVBCIBackendImage_p ret(new PVBCIBackendImageOpenCL(image_width, height_bits, _context, queue,
+	                                                    _next_device->first));
 
 	++_next_device;
 
@@ -456,11 +516,11 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 	case 10:
 		assert(reverse == false && "no reverse mode allowed in kernel<10>");
 
-		err = opencl_kernel<10>::start(dev.queue, _kernel, dev.mem, n, width, dst_img->device_mem(),
+		err = opencl_kernel<10>::start(dev, _kernel, n, width, dst_img->device_mem(),
 		                               dst_img->width(), x_start, zoom_y, reverse);
 		break;
 	case 11:
-		err = opencl_kernel<11>::start(dev.queue, _kernel, dev.mem, n, width, dst_img->device_mem(),
+		err = opencl_kernel<11>::start(dev, _kernel, n, width, dst_img->device_mem(),
 		                               dst_img->width(), x_start, zoom_y, reverse);
 		break;
 	default:
@@ -483,7 +543,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 		clFlush(dev.queue);
 	}
 
-	BENCH_END(ocl_kernel, "OCL kernel", 1, 1, 1, 1);
+	BENCH_END(ocl_kernel, "OCL kernel", n, sizeof(PVBCICodeBase), 1, 1);
 }
 
 /*****************************************************************************

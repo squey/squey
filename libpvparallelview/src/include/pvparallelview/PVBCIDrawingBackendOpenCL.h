@@ -23,21 +23,23 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 {
 	using backend_image_t = PVBCIBackendImageOpenCL;
 
-	struct device_t {
-		PVBCICodeBase* addr;
-		cl_mem mem;
-		cl_command_queue queue;
-	};
-
 	struct opencl_job_data_t {
 		cl_event event;
 		std::function<void()> done_function;
 	};
 
-  private:
-	PVBCIDrawingBackendOpenCL();
+  public:
+	struct device_t {
+		cl_device_id id;
+		PVBCICodeBase* addr;
+		cl_mem mem;
+		cl_command_queue queue;
+		size_t work_group_size;
+	};
 
   public:
+	PVBCIDrawingBackendOpenCL();
+
 	virtual ~PVBCIDrawingBackendOpenCL();
 
   public:
