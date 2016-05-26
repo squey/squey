@@ -573,5 +573,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event
 		(job_data->done_function)();
 	}
 
+	clReleaseEvent(job_data->event);
+
 	delete job_data;
 }
