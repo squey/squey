@@ -47,7 +47,7 @@ class PVFieldCreator : public PVFilter::PVFieldsSplitter
   protected:
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
 	                                           PVCore::list_fields::iterator it_ins,
-	                                           PVCore::PVField& field)
+	                                           PVCore::PVField& field) override
 	{
 		PVCore::PVField nf(field);
 		for (int i = 0; i < _nparams; i++) {
@@ -79,11 +79,11 @@ class PVElementsSource : public PVRush::PVRawSourceBase
 	}
 
   public:
-	virtual QString human_name() { return "memory footprint source"; }
-	virtual void seek_begin() {}
-	virtual bool seek(PVRush::input_offset /*off*/) { return true; }
-	virtual void prepare_for_nelts(chunk_index /*nelts*/) {}
-	virtual PVCore::PVChunk* operator()()
+	virtual QString human_name() override { return "memory footprint source"; }
+	virtual void seek_begin() override {}
+	virtual bool seek(PVRush::input_offset /*off*/) override { return true; }
+	virtual void prepare_for_nelts(chunk_index /*nelts*/) override {}
+	virtual PVCore::PVChunk* operator()() override
 	{
 		if (_cur_chunk >= _nchunks) {
 			_cur_chunk = 0;
@@ -101,13 +101,13 @@ class PVElementsSource : public PVRush::PVRawSourceBase
 	}
 
 	virtual PVRush::input_offset get_input_offset_from_index(chunk_index idx,
-	                                                         chunk_index& known_idx)
+	                                                         chunk_index& known_idx) override
 	{
 		known_idx = idx;
 		return idx;
 	}
 
-	virtual func_type f()
+	virtual func_type f() override
 	{
 		return boost::bind<PVCore::PVChunk*>(&PVElementsSource<Allocator>::operator(), this);
 	}

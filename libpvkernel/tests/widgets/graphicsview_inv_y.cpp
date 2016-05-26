@@ -20,7 +20,7 @@
 class EventFilter : public QObject
 {
   protected:
-	bool eventFilter(QObject* obj, QEvent* ev)
+	bool eventFilter(QObject* obj, QEvent* ev) override
 	{
 		if (ev->type() == QEvent::Wheel) {
 			PVWidgets::PVGraphicsView* view = static_cast<PVWidgets::PVGraphicsView*>(obj);

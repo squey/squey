@@ -25,9 +25,9 @@ typedef PVCore::PVSharedPtr<Obj1> Obj1_p;
 class Obj1Observer : public PVHive::PVObserver<Obj1>
 {
   public:
-	virtual void refresh() {}
+	virtual void refresh() override {}
 
-	virtual void about_to_be_deleted() {}
+	virtual void about_to_be_deleted() override {}
 
   private:
 };

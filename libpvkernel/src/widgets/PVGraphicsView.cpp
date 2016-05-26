@@ -83,7 +83,7 @@ class PVViewportEventFilter : public QObject
 	PVViewportEventFilter(PVWidgets::PVGraphicsView* view) : _view(view) {}
 
   protected:
-	bool eventFilter(QObject* obj, QEvent* event)
+	bool eventFilter(QObject* obj, QEvent* event) override
 	{
 		if (obj != _view->get_viewport()) {
 			return QObject::eventFilter(obj, event);

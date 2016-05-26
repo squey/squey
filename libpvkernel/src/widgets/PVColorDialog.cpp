@@ -68,7 +68,7 @@ class PVLabelEventFilter : public QObject
 	PVLabelEventFilter(PVWidgets::PVColorDialog* parent) : QObject(parent) {}
 
   protected:
-	bool eventFilter(QObject* obj, QEvent* ev)
+	bool eventFilter(QObject* obj, QEvent* ev) override
 	{
 		assert(qobject_cast<QLabel*>(obj));
 		QLabel* label = static_cast<QLabel*>(obj);

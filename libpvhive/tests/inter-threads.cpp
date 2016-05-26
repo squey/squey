@@ -38,13 +38,13 @@ class EntityObserver : public PVHive::PVObserver<Entity>
   public:
 	EntityObserver() {}
 
-	void refresh()
+	void refresh() override
 	{
 		std::cout << "  ::refresh thread(" << boost::this_thread::get_id() << ") i("
 		          << get_object()->get_i() << ")" << std::endl;
 	}
 
-	void about_to_be_deleted()
+	void about_to_be_deleted() override
 	{
 		observer_must_run = false;
 		std::cout << "  ::about_to_be_deleted thread(" << boost::this_thread::get_id() << ")"

@@ -56,7 +56,7 @@ class PVZoomableDrawingAreaInteractorHomothetic
 	}
 
   protected:
-	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event)
+	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event) override
 	{
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
@@ -65,7 +65,7 @@ class PVZoomableDrawingAreaInteractorHomothetic
 		return event->isAccepted();
 	}
 
-	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override
 	{
 		if (event->buttons() == Qt::RightButton) {
 
@@ -112,14 +112,14 @@ class PVZoomableDrawingAreaInteractorHomothetic
 class PVZoomableDrawingAreaConstraintsHomothetic
     : public PVParallelView::PVZoomableDrawingAreaConstraints
 {
-	bool zoom_x_available() const { return true; }
+	bool zoom_x_available() const override { return true; }
 
-	bool zoom_y_available() const { return true; }
+	bool zoom_y_available() const override { return true; }
 
 	bool set_zoom_value(int /*axes*/,
 	                    int value,
 	                    PVParallelView::PVAxisZoom& zx,
-	                    PVParallelView::PVAxisZoom& zy)
+	                    PVParallelView::PVAxisZoom& zy) override
 	{
 		set_clamped_value(zx, value);
 		set_clamped_value(zy, value);
@@ -129,14 +129,14 @@ class PVZoomableDrawingAreaConstraintsHomothetic
 	bool increment_zoom_value(int /*axes*/,
 	                          int value,
 	                          PVParallelView::PVAxisZoom& zx,
-	                          PVParallelView::PVAxisZoom& zy)
+	                          PVParallelView::PVAxisZoom& zy) override
 	{
 		set_clamped_value(zx, zx.get_value() + value);
 		set_clamped_value(zy, zy.get_value() + value);
 		return true;
 	}
 
-	void adjust_pan(QScrollBar64* /*xsb*/, QScrollBar64* /*ysb*/) {}
+	void adjust_pan(QScrollBar64* /*xsb*/, QScrollBar64* /*ysb*/) override {}
 };
 
 /*****************************************************************************
@@ -152,7 +152,7 @@ class PVZoomableDrawingAreaInteractorFree : public PVParallelView::PVZoomableDra
 	}
 
   protected:
-	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event)
+	bool mousePressEvent(PVParallelView::PVZoomableDrawingArea*, QMouseEvent* event) override
 	{
 		if (event->button() == Qt::RightButton) {
 			_pan_reference = event->pos();
@@ -161,7 +161,7 @@ class PVZoomableDrawingAreaInteractorFree : public PVParallelView::PVZoomableDra
 		return event->isAccepted();
 	}
 
-	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event)
+	bool mouseMoveEvent(PVParallelView::PVZoomableDrawingArea* zda, QMouseEvent* event) override
 	{
 		if (event->buttons() == Qt::RightButton) {
 
@@ -215,14 +215,14 @@ class PVZoomableDrawingAreaInteractorFree : public PVParallelView::PVZoomableDra
 
 class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDrawingAreaConstraints
 {
-	bool zoom_x_available() const { return true; }
+	bool zoom_x_available() const override { return true; }
 
-	bool zoom_y_available() const { return true; }
+	bool zoom_y_available() const override { return true; }
 
 	bool set_zoom_value(int axes,
 	                    int value,
 	                    PVParallelView::PVAxisZoom& zx,
-	                    PVParallelView::PVAxisZoom& zy)
+	                    PVParallelView::PVAxisZoom& zy) override
 	{
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
 			set_clamped_value(zx, value);
@@ -236,7 +236,7 @@ class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDr
 	bool increment_zoom_value(int axes,
 	                          int value,
 	                          PVParallelView::PVAxisZoom& zx,
-	                          PVParallelView::PVAxisZoom& zy)
+	                          PVParallelView::PVAxisZoom& zy) override
 	{
 		if (axes & PVParallelView::PVZoomableDrawingAreaConstraints::X) {
 			set_clamped_value(zx, zx.get_value() + value);
@@ -247,7 +247,7 @@ class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDr
 		return true;
 	}
 
-	void adjust_pan(QScrollBar64* /*xsb*/, QScrollBar64* /*ysb*/) {}
+	void adjust_pan(QScrollBar64* /*xsb*/, QScrollBar64* /*ysb*/) override {}
 };
 
 /*****************************************************************************
@@ -318,14 +318,14 @@ class PVZoomableDrawingAreaInteractorZPV : public PVParallelView::PVZoomableDraw
 
 class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDrawingAreaConstraints
 {
-	bool zoom_x_available() const { return true; }
+	bool zoom_x_available() const override { return true; }
 
-	bool zoom_y_available() const { return true; }
+	bool zoom_y_available() const override { return true; }
 
 	bool set_zoom_value(int /*axes*/,
 	                    int value,
 	                    PVParallelView::PVAxisZoom& zx,
-	                    PVParallelView::PVAxisZoom& zy)
+	                    PVParallelView::PVAxisZoom& zy) override
 	{
 		set_clamped_value(zx, value);
 		set_clamped_value(zy, value);
@@ -335,14 +335,14 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
 	bool increment_zoom_value(int /*axes*/,
 	                          int value,
 	                          PVParallelView::PVAxisZoom& zx,
-	                          PVParallelView::PVAxisZoom& zy)
+	                          PVParallelView::PVAxisZoom& zy) override
 	{
 		set_clamped_value(zx, zx.get_value() + value);
 		set_clamped_value(zy, zy.get_value() + value);
 		return true;
 	}
 
-	void adjust_pan(QScrollBar64* xsb, QScrollBar64* /*ysb*/)
+	void adjust_pan(QScrollBar64* xsb, QScrollBar64* /*ysb*/) override
 	{
 		int64_t mid = ((int64_t)xsb->maximum() + xsb->minimum()) / 2;
 		xsb->setValue(mid);
@@ -416,14 +416,14 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 	}
 
   protected:
-	void drawBackground(QPainter* painter, const QRectF& rect)
+	void drawBackground(QPainter* painter, const QRectF& rect) override
 	{
 		painter->fillRect(rect, QColor::fromRgbF(0.1, 0.1, 0.1, 1.0));
 
 		PVParallelView::PVZoomableDrawingAreaWithAxes::drawBackground(painter, rect);
 	}
 
-	void drawForeground(QPainter* painter, const QRectF& rect)
+	void drawForeground(QPainter* painter, const QRectF& rect) override
 	{
 		PVParallelView::PVZoomableDrawingAreaWithAxes::drawForeground(painter, rect);
 	}
@@ -492,7 +492,7 @@ class MyZoomingZDA : public PVParallelView::PVZoomableDrawingArea
 		delete get_x_axis_zoom().get_zoom_converter();
 	}
 
-	void drawForeground(QPainter* painter, const QRectF&)
+	void drawForeground(QPainter* painter, const QRectF&) override
 	{
 		/*
 		int c = rect.width() / 2;

@@ -72,7 +72,7 @@ class PVSplitter : public QSplitter
 	PVSplitter(Qt::Orientation orientation, QWidget* parent = 0) : QSplitter(orientation, parent) {}
 
   protected:
-	QSplitterHandle* createHandle() { return new PVSplitterHandle(orientation(), this); }
+	QSplitterHandle* createHandle() override { return new PVSplitterHandle(orientation(), this); }
 };
 
 int main(int argc, char** argv)
