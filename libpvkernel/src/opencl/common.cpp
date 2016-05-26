@@ -4,11 +4,15 @@
  * @copyright (C) ESI Group INENDI 2016
  */
 
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVLogger.h>
+
 #include <pvkernel/opencl/common.h>
 
 #include <memory>
 #include <iostream>
+
+#define PLATFORM_ANY_INDEX -1
 
 /*****************************************************************************
  * PVOpenCL::visit_usable_devices
@@ -42,6 +46,10 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 
 	clGetPlatformIDs(pcount, ptab.get(), nullptr);
 
+	auto& config = PVCore::PVConfig::get().config();
+	const int wanted_platform_index = config.value("backend_opencl/platform_index", -1).toInt();
+	int platform_index = 0;
+
 	for (size_t i = 0; i < pcount; ++i) {
 		cl_context_properties prop[] = {CL_CONTEXT_PLATFORM, (cl_context_properties)ptab[i], 0};
 
@@ -53,6 +61,12 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 		}
 
 		inendi_verify_opencl_var(err);
+
+		if ((wanted_platform_index != PLATFORM_ANY_INDEX) &&
+		    (platform_index != wanted_platform_index)) {
+			++platform_index;
+			continue;
+		}
 
 		err = clGetContextInfo(ctx, CL_CONTEXT_NUM_DEVICES, sizeof(dcount), &dcount, NULL);
 		inendi_verify_opencl_var(err);
@@ -82,6 +96,8 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 
 		err = clReleaseContext(ctx);
 		inendi_verify_opencl_var(err);
+
+		++platform_index;
 	}
 
 	PVLOG_INFO("No %s OpenCL backend found\n", type_name);
