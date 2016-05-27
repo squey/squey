@@ -30,7 +30,7 @@ int main()
 {
 	atexit(clean);
 
-	PVParallelView::common::RAII_cuda_init cuda_resources;
+	PVParallelView::common::RAII_backend_init resources;
 
 	TestEnv env(filename, fileformat);
 

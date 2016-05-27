@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVParallelView::common::RAII_cuda_init cuda_resources;
+	PVParallelView::common::RAII_backend_init resources;
 
 	TestEnv env(filename, fileformat);
 
