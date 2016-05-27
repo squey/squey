@@ -59,10 +59,8 @@ class PVHSVColor
 	bool operator!=(PVHSVColor const& c) const { return not(c == *this); }
 
   public:
-	void to_rgb(T& r, T& g, T& b) const;
 	void to_rgb(T* rgb) const;
 
-	void to_rgba(T& r, T& g, T& b, T& a) const;
 	void to_rgba(T* rgb) const;
 
 	void toQColor(QColor& qc) const;

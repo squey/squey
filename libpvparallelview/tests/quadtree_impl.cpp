@@ -11,7 +11,6 @@
 #include <pvkernel/core/inendi_bench.h>
 
 #include <pvparallelview/PVQuadTree.h>
-#include <pvkernel/core/PVHSVColor.h>
 
 unsigned count;
 unsigned depth;

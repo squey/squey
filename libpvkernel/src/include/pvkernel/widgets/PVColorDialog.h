@@ -9,7 +9,6 @@
 #define PVWIDGETS_PVCOLORDIALOG_H
 
 #include <pvkernel/core/PVHSVColor.h>
-
 #include <pvkernel/ui_PVColorDialog.h>
 
 namespace PVCore
@@ -38,7 +37,7 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
 	PVColorDialog(PVCore::PVHSVColor const& c, QWidget* parent = NULL);
 
   public:
-	void set_color(PVCore::PVHSVColor const c);
+	void set_color(PVCore::PVHSVColor const& c);
 	inline PVCore::PVHSVColor color() const { return picker()->color(); };
 
 	inline void set_interval(uint8_t x0, uint8_t x1)
@@ -57,7 +56,7 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
 
   private:
 	void init();
-	void show_color(PVCore::PVHSVColor const c);
+	void show_color(PVCore::PVHSVColor const& c);
 
 	inline PVColorPicker* picker() { return _picker; }
 	inline PVColorPicker const* picker() const { return _picker; }

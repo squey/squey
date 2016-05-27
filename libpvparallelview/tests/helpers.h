@@ -9,6 +9,7 @@
 #define PVPARALLELVIEW_TESTS_HELPERS_H
 
 #include <pvparallelview/PVBCICode.h>
+#include <pvkernel/core/PVHSVColor.h>
 
 #define NUMBER_BCI_PATTERNS 4
 

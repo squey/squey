@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/cuda/common.h>
+#include <pvkernel/core/PVHSVColor.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
