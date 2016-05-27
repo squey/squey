@@ -4,7 +4,7 @@
  * @copyright (C) ESI Group INENDI 2016
  */
 
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVConfig.h>
 
 #include <pvkernel/opencl/common.h>
@@ -503,8 +503,6 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 
 	cl_int err;
 
-	BENCH_START(ocl_kernel);
-
 	if (n != 0) {
 		// Specs that a size of zero will lead to CL_INVALID_VALUE
 		err = clEnqueueWriteBuffer(dev.queue, dev.mem, CL_FALSE, 0, n * sizeof(codes), codes, 0,
@@ -542,8 +540,6 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 	if (_is_software) {
 		clFlush(dev.queue);
 	}
-
-	BENCH_END(ocl_kernel, "OCL kernel", n, sizeof(PVBCICodeBase), 1, 1);
 }
 
 /*****************************************************************************
