@@ -17,7 +17,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#define NTHREADS_BLOCK 512
+#define NTHREADS_BLOCK 1024
 #define SMEM_IMG_KB (4*4)
 
 // From http://code.google.com/p/cudaraster/source/browse/trunk/src/cudaraster/cuda/Util.hpp?r=4
