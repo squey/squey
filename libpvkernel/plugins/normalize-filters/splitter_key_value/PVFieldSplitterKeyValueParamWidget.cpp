@@ -19,6 +19,9 @@
 #include <QListWidget>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QMessageBox>
+#include <QApplication>
+#include <QClipboard>
 
 /******************************************************************************
  *
@@ -100,22 +103,44 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	QHBoxLayout* keys_layout = new QHBoxLayout();
 	QVBoxLayout* buttons_layout = new QVBoxLayout();
 
-	QPushButton* add_button = new QPushButton("+");
-	QPushButton* del_button = new QPushButton("-");
-	QPushButton* up_button = new QPushButton("^");
-	QPushButton* down_button = new QPushButton("v");
+	QPushButton* add_button = new QPushButton(tr("Add"));
+	QPushButton* del_button = new QPushButton(tr("Delete"));
+	QPushButton* up_button = new QPushButton(tr("Move up"));
+	QPushButton* down_button = new QPushButton(tr("Move down"));
+	QPushButton* copy_button = new QPushButton(tr("Copy"));
+	QPushButton* paste_button = new QPushButton(tr("Paste"));
+
+	add_button->setIcon(QIcon(":/document-new"));
+	del_button->setIcon(QIcon(":/red-cross"));
+	up_button->setIcon(QIcon(":/go-up"));
+	down_button->setIcon(QIcon(":/go-down"));
+	copy_button->setIcon(QIcon(":/edit-copy"));
+	paste_button->setIcon(QIcon(":/edit-paste"));
 
 	buttons_layout->addWidget(add_button);
 	buttons_layout->addWidget(del_button);
 	buttons_layout->addWidget(up_button);
 	buttons_layout->addWidget(down_button);
+	buttons_layout->addWidget(copy_button);
+	buttons_layout->addWidget(paste_button);
 
 	QGroupBox* keys_groupbox = new QGroupBox("Keys");
 	keys_groupbox->setLayout(keys_layout);
 
 	_keys_list = new QListWidget();
 	_keys_list->addItems(args["keys"].toStringList());
-	_keys_list->setSelectionMode(QAbstractItemView::MultiSelection);
+
+	// Make each item editable
+	for (int i = 0; i < _keys_list->count(); i++) {
+		_keys_list->item(i)->setFlags(_keys_list->item(i)->flags() | Qt::ItemIsEditable);
+	}
+	_keys_list->setEditTriggers(QAbstractItemView::DoubleClicked |
+	                            QAbstractItemView::EditKeyPressed);
+	_keys_list->setAlternatingRowColors(true);
+
+	// selection mode
+	_keys_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
 	keys_layout->addWidget(_keys_list);
 	keys_layout->addLayout(buttons_layout);
 
@@ -132,6 +157,8 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	connect(del_button, SIGNAL(clicked(bool)), this, SLOT(del_keys()));
 	connect(up_button, SIGNAL(clicked(bool)), this, SLOT(move_key_up()));
 	connect(down_button, SIGNAL(clicked(bool)), this, SLOT(move_key_down()));
+	connect(copy_button, SIGNAL(clicked(bool)), this, SLOT(copy_keys()));
+	connect(paste_button, SIGNAL(clicked(bool)), this, SLOT(paste_keys()));
 
 	return _param_widget;
 }
@@ -159,16 +186,42 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_params()
 	emit args_changed_Signal();
 }
 
+void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_keys(QStringList& keys)
+{
+	QStringList keys_found_list;
+
+	for (QString key : keys) {
+		// Look if the value already exist
+		QList<QListWidgetItem*> items = _keys_list->findItems(key, Qt::MatchExactly);
+		if (items.count() == 0) {
+			if (!key.isEmpty()) {
+				QListWidgetItem* new_item = new QListWidgetItem(key);
+				new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
+				_keys_list->addItem(new_item);
+			}
+		} else {
+			keys_found_list << key;
+		}
+	}
+	update_children_count();
+
+	if (!keys_found_list.isEmpty()) {
+		QMessageBox(QMessageBox::Warning, tr("This key(s) already exist."),
+		            tr("This key(s) '%1' already exist!").arg(keys_found_list.join(", ")),
+		            QMessageBox::Ok)
+		    .exec();
+	}
+}
+
 void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_key()
 {
 	bool ok;
 	QString key =
 	    QInputDialog::getText(nullptr, tr("Enter new key"), tr("Key:"), QLineEdit::Normal, "", &ok);
 
-	if (!key.isEmpty()) {
-		_keys_list->addItem(new QListWidgetItem(key));
-		update_children_count();
-	}
+	QStringList keys = QStringList(key);
+
+	add_new_keys(keys);
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::del_keys()
@@ -199,16 +252,49 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_children_count()
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()
 {
-	int currentIndex = _keys_list->currentRow();
-	QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
-	_keys_list->insertItem(currentIndex + 1, currentItem);
-	_keys_list->setCurrentRow(currentIndex + 1);
+	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
+
+	if (_keys_list->row(keys.last()) < (_keys_list->count() - 1)) {
+		for (QListWidgetItem* key : keys) {
+			int currentIndex = _keys_list->row(key);
+			QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
+			_keys_list->insertItem(currentIndex + 1, currentItem);
+			_keys_list->setCurrentItem(currentItem, QItemSelectionModel::Select);
+		}
+	}
+	update_children_count();
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
 {
-	int currentIndex = _keys_list->currentRow();
-	QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
-	_keys_list->insertItem(currentIndex - 1, currentItem);
-	_keys_list->setCurrentRow(currentIndex - 1);
+	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
+
+	if (_keys_list->row(keys.first()) > 0) {
+		for (QListWidgetItem* key : keys) {
+			int currentIndex = _keys_list->row(key);
+			QListWidgetItem* currentItem = _keys_list->takeItem(currentIndex);
+			_keys_list->insertItem(currentIndex - 1, currentItem);
+			_keys_list->setCurrentItem(currentItem, QItemSelectionModel::Select);
+		}
+	}
+	update_children_count();
+}
+
+void PVFilter::PVFieldSplitterKeyValueParamWidget::copy_keys()
+{
+	QStringList strings_list;
+	for (QListWidgetItem* item : _keys_list->selectedItems())
+		strings_list << item->text();
+
+	QApplication::clipboard()->setText(strings_list.join("\n"));
+}
+
+void PVFilter::PVFieldSplitterKeyValueParamWidget::paste_keys()
+{
+	QString strings = QApplication::clipboard()->text();
+	// Users can paste text from the clipboard regardless of whether it contains whitespace
+	// characters like '\t', '\n', '\v', '\f', '\r', and ' '.
+	strings = strings.simplified();
+	QStringList strings_list = strings.split(" ");
+	add_new_keys(strings_list);
 }
