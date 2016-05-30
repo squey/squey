@@ -281,6 +281,7 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(
 {
 	if (new_state == QAbstractAnimation::Stopped && old_state == QAbstractAnimation::Running) {
 		tabBar()->setStyleSheet("");
+		widget(_tab_animation_index)->deleteLater();
 		removeTab(_tab_animation_index);
 		sender()->deleteLater();
 	}
