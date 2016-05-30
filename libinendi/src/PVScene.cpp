@@ -197,7 +197,6 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 {
 	// First serialize the input descriptions.
 	QList<PVRush::PVInputType_p> in_types(get_all_input_types());
-	QStringList in_types_str;
 	for (PVRush::PVInputType_p const& in_t : in_types) {
 		list_sources_t sources = get_sources(*in_t);
 
@@ -209,12 +208,11 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		// FIXME: Files are not saved in source while they certainly should.
 		PVRush::PVInputType::list_inputs_desc inputs = get_inputs_desc(*in_t);
 		in_t->serialize_inputs(so, in_t->registered_name(), inputs);
-		in_types_str.push_back(in_t->registered_name());
 	}
 
-	so.list_attributes("types", in_types_str);
 	so.attribute("name", _name);
 
+	QStringList in_types_str;
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
@@ -224,7 +222,12 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		PVCore::PVSerializeObject_p new_obj =
 		    list_obj->create_object(child_name, source->get_serialize_description(), false);
 		source->serialize(*new_obj, so.get_version());
+
+		PVRush::PVInputType_p const& in_t = source->get_input_type();
+		in_types_str.push_back(in_t->registered_name());
+
 		new_obj->_bound_obj = source.get();
 		new_obj->_bound_obj_type = typeid(PVSource);
 	}
+	so.list_attributes("types", in_types_str);
 }
