@@ -292,6 +292,8 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::copy_keys()
 void PVFilter::PVFieldSplitterKeyValueParamWidget::paste_keys()
 {
 	QString strings = QApplication::clipboard()->text();
+	// Users can paste text from the clipboard regardless of whether it contains whitespace
+	// characters like '\t', '\n', '\v', '\f', '\r', and ' '.
 	strings = strings.simplified();
 	QStringList strings_list = strings.split(" ");
 	add_new_keys(strings_list);
