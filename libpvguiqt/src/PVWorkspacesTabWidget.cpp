@@ -344,13 +344,6 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified(bool modified /* 
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::tabRemoved(int index)
 {
-	PVGuiQt::PVSourceWorkspace* workspace =
-	    qobject_cast<PVGuiQt::PVSourceWorkspace*>(widget(index));
-
-	if (workspace) {
-		get_scene()->remove_child(*workspace->get_source());
-	}
-
 	if (count() == 0) {
 		emit is_empty();
 		hide();
