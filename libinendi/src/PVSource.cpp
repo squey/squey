@@ -243,10 +243,11 @@ QString Inendi::PVSource::get_tooltip() const
 	const size_t line_start = get_extraction_last_start();
 	const size_t line_end = line_start + get_row_count() - 1;
 
+	QString source = QString("source: %1").arg(get_name());
 	QString format = QString("format: %1").arg(get_format_name());
 	QString range = QString("range: %L1 - %L2").arg(line_start).arg(line_end);
 
-	return format + "\n" + range;
+	return source + "\n" + format + "\n" + range;
 }
 
 void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)

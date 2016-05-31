@@ -31,6 +31,11 @@
 #define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
 
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::TabRenamerEventFilter
+ *
+ *****************************************************************************/
 bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* /*watched*/, QEvent* event)
 {
 	bool rename = false;
@@ -59,6 +64,9 @@ PVGuiQt::PVSceneTabBar::PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget)
 	setTabsClosable(true);
 	connect(this, SIGNAL(tabCloseRequested(int)), tab_widget, SLOT(tab_close_requested(int)));
 	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
+
+	setMovable(true);
+	setElideMode(Qt::ElideRight); // Qt::ElideMiddle);
 }
 
 int PVGuiQt::PVSceneTabBar::count() const
@@ -132,6 +140,34 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 		emit _tab_widget->workspace_dragged_outside(workspace);
 	}
 	_drag_ongoing = false;
+}
+
+void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
+{
+	QString stylesheet = "";
+
+	if (count() > 0) {
+		int width = _tab_widget->size().width() / count();
+
+		if (width > MIN_WIDTH) {
+			QFontMetrics metrics = QFontMetrics(font());
+
+			int i = 0;
+			while (i < count() && stylesheet.isEmpty()) {
+
+				if (metrics.width(tabText(i)) > width) {
+					stylesheet = QString("QTabBar::tab { max-width: %1px; } ").arg(width);
+				}
+				i++;
+			}
+			stylesheet += QString("QTabBar::tab { min-width: %1px; } ").arg(MIN_WIDTH);
+		} else
+			stylesheet = QString("QTabBar::tab { width: %1px; } ").arg(MIN_WIDTH);
+		update();
+	}
+	_tab_widget->setStyleSheet(stylesheet);
+
+	QTabBar::resizeEvent(event);
 }
 
 /******************************************************************************
@@ -303,6 +339,12 @@ QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_worksp
 		ret << workspace;
 	}
 	return ret;
+}
+
+void PVGuiQt::PVWorkspacesTabWidgetBase::resizeEvent(QResizeEvent* event)
+{
+	_tab_bar->resizeEvent(event);
+	QTabWidget::resizeEvent(event);
 }
 
 /******************************************************************************
