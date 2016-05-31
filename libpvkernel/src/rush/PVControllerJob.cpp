@@ -119,7 +119,7 @@ chunk_index PVRush::PVControllerJob::status() const
 
 chunk_index PVRush::PVControllerJob::rejected_elements() const
 {
-	return 0; // For now, we don't rejected element, we set them to 0.
+	return _inv_elts.size();
 }
 
 chunk_index PVRush::PVControllerJob::nb_elts_max() const
