@@ -5,13 +5,13 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-INSPECTOR_SOURCE_ROOT_DIR=@CMAKE_BINARY_DIR@
-ISRD=$INSPECTOR_SOURCE_ROOT_DIR
+ISRD=@CMAKE_SOURCE_DIR@
+IBRD=@CMAKE_BINARY_DIR@
 
-export PVKERNEL_PLUGIN_PATH=$ISRD/libpvkernel/plugins
-export INENDI_PLUGIN_PATH=$ISRD/libinendi/plugins
-export QUERY_BUILDER_PATH=$ISRD/../libpvkernel/src/widgets/query_builder
-export PVFORMAT_HELPER=$ISRD/../libpvkernel/plugins/
+export PVKERNEL_PLUGIN_PATH=$IBRD/libpvkernel/plugins
+export INENDI_PLUGIN_PATH=$IBRD/libinendi/plugins
+export QUERY_BUILDER_PATH=$ISRD/libpvkernel/src/widgets/querybuilder
+export PVFORMAT_HELPER=$ISRD/libpvkernel/plugins
 
 # Migration from picviz to inendi
 if [ ! -d "$HOME/.inendi" ] && [ -d "$HOME/.picviz" ]
@@ -57,12 +57,12 @@ if [ "$1" == "debug" ]; then
 	export INENDI_DEBUG_LEVEL="DEBUG"
 	#export INENDI_DEBUG_FILE="debug.txt"
 	unset CMD_ARGS[0]
-	gdb -ex run --args $ISRD/gui-qt/src/inendi-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
+	gdb -ex run --args $IBRD/gui-qt/src/inendi-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
 	exit 0
 fi
 
 if [ "$1" == "qdebug" ]; then
-	qtcreator -debug $ISRD/gui-qt/src/inendi-inspector
+	qtcreator -debug $IBRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
@@ -70,14 +70,14 @@ if [ "$1" == "ddd" ]
 then
 export INENDI_DEBUG_LEVEL="DEBUG"
 #export INENDI_DEBUG_FILE="debug.txt"
-	ddd $ISRD/gui-qt/src/inendi-inspector
+	ddd $IBRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 if [ "$1" == "nem" ]
 then
 #export INENDI_DEBUG_LEVEL="DEBUG"
 #export INENDI_DEBUG_FILE="debug.txt"
-	nemiver $ISRD/gui-qt/src/inendi-inspector
+	nemiver $IBRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 if [ "$1" == "debug-nogl" ]
@@ -85,7 +85,7 @@ then
 export INENDI_DEBUG_LEVEL="DEBUG"
 #export INENDI_DEBUG_FILE="debug.txt"
 	unset ARGS[0]
-	gdb --args $ISRD/gui-qt/src/inendi-inspector ${ARGS[@]}
+	gdb --args $IBRD/gui-qt/src/inendi-inspector ${ARGS[@]}
 	exit 0
 fi
 
@@ -94,19 +94,19 @@ then
 export INENDI_DEBUG_LEVEL="NOTICE"
 #export INENDI_DEBUG_FILE="debug.txt"
 	unset ARGS[0]
-	gdb --args $ISRD/gui-qt/src/inendi-inspector ${ARGS[@]}
+	gdb --args $IBRD/gui-qt/src/inendi-inspector ${ARGS[@]}
 	exit 0
 fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes $ISRD/gui-qt/src/inendi-inspector
+	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes $IBRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "massif" ]
 then
-	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.1 $ISRD/gui-qt/src/inendi-inspector
+	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.1 $IBRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
@@ -114,13 +114,13 @@ if [ "$1" == "callgrind" ]
 then
 export INENDI_DEBUG_LEVEL="NOTICE"
 	#valgrind --tool=callgrind --instr-atstart=no gui-qt/src/inendi-inspector
-	valgrind --tool=callgrind $ISRD/gui-qt/src/inendi-inspector
+	valgrind --tool=callgrind $IBRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
 if [ "$1" == "calltrace" ]
 then
-	LD_PRELOAD=`pwd`/calltrace.so $ISRD/gui-qt/src/inendi-inspector
+	LD_PRELOAD=`pwd`/calltrace.so $IBRD/gui-qt/src/inendi-inspector
 	exit 0
 fi
 
@@ -152,4 +152,4 @@ then
 	exit 0
 fi
 
-$ISRD/gui-qt/src/inendi-inspector $LOAD_PROJECT $@
+$IBRD/gui-qt/src/inendi-inspector $LOAD_PROJECT $@
