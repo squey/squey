@@ -19,6 +19,7 @@
 #include <inendi/PVRoot_types.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVPtrObjects.h> // For PVScene_p
+#include <inendi/PVCorrelationEngine.h>
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"
 #define INENDI_ROOT_ARCHIVE_FILTER "INENDI investigation files (*." INENDI_ROOT_ARCHIVE_EXT ")"
@@ -91,6 +92,11 @@ class PVRoot : public data_tree_root_t
 	virtual QString get_children_description() const { return "Data collection(s)"; }
 	virtual QString get_children_serialize_name() const { return "data-collections"; }
 
+  public:
+	PVCorrelationEngine& correlations() { return _correlations; }
+	const PVCorrelationEngine& correlations() const { return _correlations; }
+	Inendi::PVView* process_correlation(Inendi::PVView* view);
+
   protected:
 	void view_being_deleted(Inendi::PVView* view);
 	void scene_being_deleted(Inendi::PVScene* view);
@@ -117,6 +123,8 @@ class PVRoot : public data_tree_root_t
 	PVSource* _current_source;
 	PVView* _current_view;
 
+	PVCorrelationEngine _correlations;
+
 	QList<QRgb> _available_colors;
 	QList<QRgb> _used_colors;
 
@@ -124,6 +132,7 @@ class PVRoot : public data_tree_root_t
 	int _new_view_id = 0;
 
 	QString _path;
+	bool _correlation_running = false;
 };
 
 typedef PVRoot::p_type PVRoot_p;

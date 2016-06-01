@@ -152,6 +152,11 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
 	_action_col_sort->setIcon(QIcon(":/sort_desc"));
 	_hhead_ctxt_menu.addAction(_action_col_sort);
 
+	_hhead_ctxt_menu.addSeparator();
+	_menu_add_correlation = new QMenu(tr("Bind this axis with..."), this);
+	_menu_add_correlation->setIcon(QIcon(":/bind"));
+	_hhead_ctxt_menu.addMenu(_menu_add_correlation);
+
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), &QHeaderView::sectionDoubleClicked, this,
 	        (void (PVGuiQt::PVListingView::*)(int)) &
@@ -476,7 +481,13 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			_menu_col_avg_by->addAction(action_col_avg_by);
 		}
 	}
+
 	_hhead_ctxt_menu.addAction(_action_col_sort);
+
+	/**
+	 * Correlation menu
+	 */
+	show_hhead_ctxt_menu_correlation(col);
 
 	QAction* sel = _hhead_ctxt_menu.exec(QCursor::pos());
 
@@ -515,6 +526,129 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	} else {
 		// No selected action
 	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
+{
+	const QString& this_axis_type =
+	    lib_view().get_axes_combination().get_original_axis(col).get_type();
+	QStringList correlation_types = {"integer", "ipv4"};
+
+	// Don't show correlation menu for unsupported axes types
+	if (not correlation_types.contains(this_axis_type)) {
+		return;
+	}
+
+	_menu_add_correlation->clear();
+
+	Inendi::PVRoot* root = lib_view().get_parent<Inendi::PVRoot>();
+
+	size_t compatible_views_count = 0;
+
+	for (const auto& source : root->get_children<Inendi::PVSource>()) {
+
+		// Don't allow correlation on same source
+		if (source.get() == root->current_source()) {
+			continue;
+		}
+
+		QMenu* source_menu = new QMenu(source->get_name(), this);
+
+		size_t compatible_axes_count = 0;
+
+		const auto& views = source->get_children<Inendi::PVView>();
+
+		QMenu* menu = source_menu;
+
+		for (const Inendi::PVView_sp view : views) {
+
+			// Don't create an intermediary view menu if there is only one view for this source
+			if (views.size() > 1) {
+				QMenu* view_menu = new QMenu(view->get_name(), this);
+				source_menu->addMenu(view_menu);
+				menu = view_menu;
+			}
+
+			const Inendi::PVAxesCombination& ac = view->get_axes_combination();
+			for (PVCol i = 0; i < ac.get_axes_count(); i++) {
+				const QString& axis_name = ac.get_original_axis(i).get_name();
+				const QString& axis_type = ac.get_original_axis(i).get_type();
+
+				// Don't show incompatible axes
+				if (axis_type != this_axis_type) {
+					continue;
+				}
+
+				QAction* axis_action = new QAction(axis_name, this);
+				axis_action->setCheckable(true);
+
+				bool existing_correlation = root->correlations().exists(
+				    lib_view().shared_from_this().get(), col, views[0].get(), i);
+
+				QList<QVariant> v;
+				v << qVariantFromValue((void*)lib_view().shared_from_this().get()) << QVariant(col)
+				  << qVariantFromValue((void*)views[0].get()) << QVariant(i)
+				  << QVariant(existing_correlation);
+
+				axis_action->setChecked(existing_correlation);
+
+				axis_action->setData(v);
+				menu->addAction(axis_action);
+
+				compatible_axes_count++;
+			}
+
+			// Don't show view menu if there is no compatible axes
+			if (compatible_axes_count > 0) {
+				_menu_add_correlation->addMenu(menu);
+				connect(menu, &QMenu::triggered, this,
+				        &PVGuiQt::PVListingView::add_correlation_slot);
+
+				compatible_views_count++;
+			} else {
+				delete menu;
+			}
+		}
+	}
+
+	// Don't show correlation menu if there is no compatible views
+	if (compatible_views_count > 0) {
+		_hhead_ctxt_menu.addSeparator();
+		_hhead_ctxt_menu.addMenu(_menu_add_correlation);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::add_correlation_slot
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::add_correlation_slot(QAction* act)
+{
+	QList<QVariant> corr = act->data().toList();
+
+	Inendi::PVView* view1 = (Inendi::PVView*)corr[0].value<void*>();
+	int axis1_idx = corr[1].toInt();
+	Inendi::PVView* view2 = (Inendi::PVView*)corr[2].value<void*>();
+	int axis2_idx = corr[3].toInt();
+	bool existing_correlation = corr[4].toBool();
+
+	Inendi::PVRoot* root = lib_view().get_parent<Inendi::PVRoot>();
+	const auto& sources = root->get_children<Inendi::PVSource>();
+
+	if (not existing_correlation) {
+		root->correlations().add(view1, axis1_idx, view2, axis2_idx);
+	} else {
+		root->correlations().remove(view1);
+	}
+
+	// refresh headers to show correlation icon right now
+	horizontalHeader()->viewport()->update();
 }
 
 /******************************************************************************
@@ -920,4 +1054,17 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	painter->save();
 	QHeaderView::paintSection(painter, rect, logicalIndex);
 	painter->restore();
+
+	PVListingView* listing = (PVListingView*)parent();
+	Inendi::PVRoot* root = listing->lib_view().get_parent<Inendi::PVRoot>();
+
+	bool existing_correlation =
+	    root->correlations().exists(listing->lib_view().shared_from_this().get(), logicalIndex);
+
+	if (existing_correlation) {
+		QPixmap p(":/bind");
+		p = p.scaledToWidth(rect.height(), Qt::SmoothTransformation);
+		QRect r(QPoint(rect.right() - p.width(), rect.top()), rect.bottomRight());
+		painter->drawPixmap(r, p);
+	}
 }

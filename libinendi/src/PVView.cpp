@@ -84,6 +84,9 @@ Inendi::PVView::~PVView()
 {
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
 
+	// remove correlation
+	get_parent<Inendi::PVRoot>()->correlations().remove(this);
+
 #ifdef WITH_MINESET
 	for (const std::string& mineset_dataset : _mineset_datasets) {
 		std::thread req(Inendi::PVMineset::delete_dataset, mineset_dataset);
@@ -499,6 +502,22 @@ void Inendi::PVView::process_eventline()
 
 /******************************************************************************
  *
+ * Inendi::PVView::process_correlation
+ *
+ *****************************************************************************/
+Inendi::PVView* Inendi::PVView::process_correlation()
+{
+	Inendi::PVRoot* root = get_parent<Inendi::PVRoot>();
+	// in some test cases, there is no PVRoot!
+	if (root) {
+		return root->process_correlation(this);
+	}
+
+	return nullptr;
+}
+
+/******************************************************************************
+ *
  * Inendi::PVView::process_from_eventline
  *
  *****************************************************************************/
@@ -513,7 +532,7 @@ void Inendi::PVView::process_from_eventline()
  * Inendi::PVView::process_from_layer_stack
  *
  *****************************************************************************/
-void Inendi::PVView::process_from_layer_stack()
+Inendi::PVView* Inendi::PVView::process_from_layer_stack()
 {
 	tbb::tick_count start = tbb::tick_count::now();
 
@@ -523,10 +542,13 @@ void Inendi::PVView::process_from_layer_stack()
 	process_eventline();
 	process_visibility();
 
+	Inendi::PVView* v = process_correlation();
+
 	tbb::tick_count end = tbb::tick_count::now();
 	PVLOG_INFO("(Inendi::PVView::process_from_layer_stack) function took %0.4f "
 	           "seconds.\n",
 	           (end - start).seconds());
+	return v;
 }
 
 /******************************************************************************
@@ -534,18 +556,21 @@ void Inendi::PVView::process_from_layer_stack()
  * Inendi::PVView::process_from_selection
  *
  *****************************************************************************/
-void Inendi::PVView::process_from_selection()
+Inendi::PVView* Inendi::PVView::process_from_selection()
 {
 	PVLOG_DEBUG("Inendi::PVView::%s\n", __FUNCTION__);
 	process_selection();
 	process_eventline();
 	process_visibility();
+	Inendi::PVView* v = process_correlation();
+
+	return v;
 }
 
-void Inendi::PVView::process_real_output_selection()
+Inendi::PVView* Inendi::PVView::process_real_output_selection()
 {
 	// AG: TODO: should be optimised to only create real_output_selection
-	process_from_selection();
+	return process_from_selection();
 }
 
 /******************************************************************************

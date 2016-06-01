@@ -32,6 +32,7 @@ PVScene.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
+PVCorrelationEngine.cpp
 
 plugins.cpp
 )
