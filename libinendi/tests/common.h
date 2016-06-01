@@ -69,9 +69,12 @@ class TestEnv
 		import(log_file, format_file, dup);
 	}
 
-	void add_source(std::string const& log_file, std::string const& format_file, size_t dup = 1)
+	void add_source(std::string const& log_file,
+	                std::string const& format_file,
+	                size_t dup = 1,
+	                bool new_scene = true)
 	{
-		import(log_file, format_file, dup);
+		import(log_file, format_file, dup, new_scene);
 	}
 
 	/**
@@ -122,7 +125,10 @@ class TestEnv
 	}
 
   private:
-	void import(std::string const& log_file, std::string const& format_file, size_t dup)
+	void import(std::string const& log_file,
+	            std::string const& format_file,
+	            size_t dup,
+	            bool new_scene = true)
 	{
 
 		{
@@ -155,7 +161,8 @@ class TestEnv
 		}
 
 		// Create the PVSource object
-		Inendi::PVScene_p scene = root->emplace_add_child("scene");
+		Inendi::PVScene_p scene = (new_scene) ? root->emplace_add_child("scene")
+		                                      : root->get_children<Inendi::PVScene>()[0];
 		Inendi::PVSource_sp src =
 		    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 		PVRush::PVControllerJob_p job = src->extract();
