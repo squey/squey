@@ -59,7 +59,7 @@ class PVRenderingPipelinePreprocessRouter
 
   public:
 	PVRenderingPipelinePreprocessRouter(size_t nzones, PVCore::PVHSVColor const* colors)
-	    : _d(new RouterData{std::vector<ZoneInfos>{nzones, ZoneState::NotStarted}, colors})
+	    : _d(new RouterData{std::vector<ZoneInfos>{nzones, {ZoneState::NotStarted, {}}}, colors})
 	{
 	}
 
@@ -79,14 +79,20 @@ class PVRenderingPipelinePreprocessRouter
 		assert(zone_id != PVZONEID_INVALID);
 
 		ZoneInfos& infos = _d->_zones_infos[zone_id];
-		switch (infos) {
+		switch (infos.state) {
 		case ZoneState::NotStarted:
 			if (!zr_in->should_cancel()) {
-				infos = ZoneState::Preprocessed;
+				infos.state = ZoneState::Processing;
 				std::get<OutIdxPreprocess>(op).try_put(zr_in);
 			} else {
 				std::get<OutIdxCancel>(op).try_put(zr_in);
 			}
+			break;
+		case ZoneState::Processing:
+			// It may happen that parallel view is currently processing B code while scatter
+			// required it too. Scatter subscribe in waiters list so that once parallel view is
+			// reinserted in the router, it will launcher scatter too in the pipeline.
+			infos.waiters.push_back(zr_in);
 			break;
 		case ZoneState::Preprocessed: {
 			if (!zr_in->should_cancel()) {
@@ -94,10 +100,21 @@ class PVRenderingPipelinePreprocessRouter
 			} else {
 				std::get<OutIdxCancel>(op).try_put(zr_in);
 			}
+			for (auto& zr : infos.waiters) {
+				if (!zr->should_cancel()) {
+					std::get<OutIdxContinue>(op).try_put(ZoneRenderingWithColors(zr, _d->_colors));
+				} else {
+					std::get<OutIdxCancel>(op).try_put(zr);
+				}
+			}
+			infos.waiters.clear();
 			break;
 		}
 		}
 	}
+
+	// Preprocessing function should inform the pipeline that it is done.
+	void preprocessing_done(PVZoneID id) { _d->_zones_infos[id].state = ZoneState::Preprocessed; }
 
   public:
 	/**
@@ -107,19 +124,22 @@ class PVRenderingPipelinePreprocessRouter
 	inline void set_zone_invalid(size_t i)
 	{
 		assert(i < _d->_zones_infos.size());
-		_d->_zones_infos[i] = ZoneState::NotStarted;
+		_d->_zones_infos[i].state = ZoneState::NotStarted;
 	}
 
   private:
 	/**
 	 * Preprocessing possible state for zone rendering.
 	 */
-	enum class ZoneState { NotStarted, Preprocessed };
+	enum class ZoneState { NotStarted, Preprocessed, Processing };
 
 	/**
 	 * Processing state for a given Zone.
 	 */
-	using ZoneInfos = tbb::atomic<ZoneState>;
+	struct ZoneInfos {
+		tbb::atomic<ZoneState> state;
+		std::vector<PVZoneRendering_p> waiters;
+	};
 
 	/**
 	 * Data for every zone.

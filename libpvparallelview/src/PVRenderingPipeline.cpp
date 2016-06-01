@@ -186,6 +186,7 @@ PVParallelView::PVRenderingPipeline::Preprocessor::Preprocessor(
                    24,
                    [=](PVZoneRendering_p zr) {
 	                   f(zr->get_zone_id());
+	                   router.preprocessing_done(zr->get_zone_id());
 	                   return zr;
 	               })
     , node_router(g, tbb::flow::serial, router)
