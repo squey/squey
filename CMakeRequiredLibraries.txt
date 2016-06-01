@@ -148,10 +148,15 @@ include_directories(AFTER ${BOOST_INCLUDEDIR})
 ###############################################################################
 # Check for OpenMP
 ###############################################################################
-find_package(OpenMP REQUIRED)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(OpenMP_LIBRARIES "-fopenmp=libiomp5")
+  add_definitions("-fopenmp=libiomp5")
+else()
+  find_package(OpenMP REQUIRED)
 # This package does not declare the library used by GCC
-set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
-add_definitions(${OpenMP_CXX_FLAGS})
+  set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
+  add_definitions(${OpenMP_CXX_FLAGS})
+endif()
 
 message(STATUS "OpenMP Libraries: ${OpenMP_LIBRARIES}")
 message(STATUS "OpenMP C FLAGS: ${OpenMP_C_FLAGS}")

@@ -47,7 +47,8 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterRegexp)
 void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_regexp = std::regex(args.at("regexp").toString().toStdString());
+	std::string s = args.at("regexp").toString().toStdString();
+	_regexp.assign(s);
 	_full_line = args.at("full-line").toBool();
 }
 

@@ -119,7 +119,7 @@ class JobTask : public tbb::task
 
 	virtual ~JobTask() {}
 
-	virtual tbb::task* execute()
+	virtual tbb::task* execute() override
 	{
 		if (_qt.is_splitted() && !_qt.depth_reached(_limit)) {
 			tbb::empty_task& c = *new (allocate_continuation()) tbb::empty_task;

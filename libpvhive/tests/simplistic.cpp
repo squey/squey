@@ -42,12 +42,12 @@ typedef PVCore::PVSharedPtr<Obj2> Obj2_p;
 class Obj1Observer : public PVHive::PVObserver<Obj1>
 {
   public:
-	virtual void refresh()
+	virtual void refresh() override
 	{
 		std::cout << "  Obj1Observer::refresh for object " << get_object() << std::endl;
 	}
 
-	virtual void about_to_be_deleted()
+	virtual void about_to_be_deleted() override
 	{
 		std::cout << "    Obj1Observer::about_to_be_deleted for object " << get_object()
 		          << std::endl;
@@ -59,12 +59,12 @@ class Obj1Observer : public PVHive::PVObserver<Obj1>
 class Obj2Observer : public PVHive::PVObserver<Obj2>
 {
   public:
-	virtual void refresh()
+	virtual void refresh() override
 	{
 		std::cout << "  Obj2Observer::refresh for object " << get_object() << std::endl;
 	}
 
-	virtual void about_to_be_deleted()
+	virtual void about_to_be_deleted() override
 	{
 		std::cout << "    Obj2Observer::about_to_be_deleted for object " << get_object()
 		          << std::endl;
@@ -77,7 +77,7 @@ class FuncObserver
     : public PVHive::PVFuncObserver<Obj2, decltype(&Obj2::my_action), &Obj2::my_action>
 {
   protected:
-	virtual void update(arguments_type const& args) const
+	virtual void update(arguments_type const& args) const override
 	{
 		std::cout << "    FuncObserver on Obj2::my_action for object " << get_object()
 		          << "with param " << std::get<0>(args) << std::endl;

@@ -62,7 +62,7 @@ class PVViewObs : public PVHive::PVObserver<Inendi::PVView>
   public:
 	PVViewObs(boost::thread& thread) : _thread(thread) {}
 
-	void about_to_be_deleted()
+	void about_to_be_deleted() override
 	{
 		std::cout << "Killing boost::thread" << std::endl;
 		_thread.detach();

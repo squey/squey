@@ -243,23 +243,19 @@ Inendi::PVRoot_sp PVInspector::PVMainWindow::get_root_sp()
  *****************************************************************************/
 void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 {
-	PVRush::PVInputType::list_inputs::const_iterator itin;
-
 	// Go through the inputs
-	for (itin = ctxt.inputs.begin(); itin != ctxt.inputs.end(); itin++) {
-		QString in_str = (*itin)->human_name();
-		ctxt.hash_input_name[in_str] = *itin;
+	for (auto const& input : ctxt.inputs) {
+		QString in_str = input->human_name();
+		ctxt.hash_input_name[in_str] = input;
 
 		// Pre-discovery to have some sources already eliminated and
 		// save the custom formats of the remaining sources
-		PVRush::list_creators::const_iterator itcr;
 		PVRush::list_creators pre_discovered_creators;
 		PVRush::hash_formats custom_formats;
-		for (itcr = ctxt.lcr.begin(); itcr != ctxt.lcr.end(); itcr++) {
-			PVRush::PVSourceCreator_p sc = *itcr;
-			if (sc->pre_discovery(*itin)) {
+		for (PVRush::PVSourceCreator_p sc : ctxt.lcr) {
+			if (sc->pre_discovery(input)) {
 				pre_discovered_creators.push_back(sc);
-				ctxt.in_t->get_custom_formats(*itin, custom_formats);
+				ctxt.in_t->get_custom_formats(input, custom_formats);
 			}
 		}
 
@@ -268,8 +264,7 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 		    PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
 
 		// Add the custom formats
-		PVRush::hash_formats::const_iterator it_cus_f;
-		for (it_cus_f = custom_formats.begin(); it_cus_f != custom_formats.end(); it_cus_f++) {
+		for (auto it_cus_f = custom_formats.begin(); it_cus_f != custom_formats.end(); it_cus_f++) {
 			// Save this custom format to the global formats object
 			ctxt.formats.insert(it_cus_f.key(), it_cus_f.value());
 
@@ -303,7 +298,7 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 			QString const& str_format = dis_formats.at(i);
 			try {
 				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(
-				    pfc, *itin, &_auto_detect_cancellation);
+				    pfc, input, &_auto_detect_cancellation);
 
 				if (success_rate > 0) {
 #pragma omp critical
@@ -346,7 +341,7 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 
 		if (file_types.count() == 1) {
 			// We got the formats that matches this input
-			ctxt.discovered[file_types.keys()[0]].push_back(*itin);
+			ctxt.discovered[file_types.keys()[0]].push_back(input);
 		} else {
 			if (file_types.count() > 1) {
 				ctxt.files_multi_formats[in_str] = file_types.keys();

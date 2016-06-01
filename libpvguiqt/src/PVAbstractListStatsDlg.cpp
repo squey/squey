@@ -93,7 +93,7 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 		update_gradient();
 	}
 
-	double convert_to(const double& value) const
+	double convert_to(const double& value) const override
 	{
 		if (_use_percent_mode) {
 			return value / max_count() * 100;
@@ -102,7 +102,7 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 		}
 	}
 
-	double convert_from(const double& value) const
+	double convert_from(const double& value) const override
 	{
 		if (_use_percent_mode) {
 			return value * max_count() / 100;

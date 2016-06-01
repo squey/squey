@@ -43,7 +43,7 @@ class D : public data_tree_d_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const
+	virtual QString get_serialize_description() const override
 	{
 		return QString("D: ") + QString::number(get_i());
 	}
@@ -70,7 +70,7 @@ class C : public data_tree_c_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const
+	virtual QString get_serialize_description() const override
 	{
 		return QString("C: ") + QString::number(get_i());
 	}
@@ -98,7 +98,7 @@ class B : public data_tree_b_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const
+	virtual QString get_serialize_description() const override
 	{
 		return QString("B: ") + QString::number(get_i());
 	}
@@ -125,7 +125,7 @@ class A : public data_tree_a_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const
+	virtual QString get_serialize_description() const override
 	{
 		return QString("A: ") + QString::number(get_i());
 	}

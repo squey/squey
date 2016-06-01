@@ -46,12 +46,11 @@ static void get_cpuid_infos(CPUIDinfo* infos, int InfoType)
 	__get_cpuid(InfoType, eax, ebx, ecx, edx);
 }
 
-static int _isSSE4Supported(const unsigned int CHECKBITS)
+static bool _isSSE4Supported(const unsigned int CHECKBITS)
 {
-	// returns 1 if is a Nehalem or later processor, 0 if prior to Nehalem
+	// returns true if is a Nehalem or later processor, false if prior to Nehalem
 
 	CPUIDinfo Info{0, 0, 0, 0};
-	int rVal = 0;
 	// The code first determines if the processor is an Intel Processor.  If it is, then
 	// feature flags bit 19 (SSE 4.1) and 20 (SSE 4.2) in ECX after CPUID call with EAX = 0x1
 	// are checked.
@@ -63,40 +62,37 @@ static int _isSSE4Supported(const unsigned int CHECKBITS)
 		// subleaf doesn't matter so set it to zero
 		get_cpuid_infos(&Info, 0x1);
 		if ((Info.ECX & CHECKBITS) == CHECKBITS) {
-			rVal = 1;
+			return true;
 		}
-	} else {
-		printf("not intel cpu\n");
 	}
-	return (rVal);
+	return false;
 }
 
-int isSSE41Supported(void)
+bool isSSE41Supported()
 {
 	const unsigned int CHECKBITS = SSE4_1_FLAG;
 	return _isSSE4Supported(CHECKBITS);
 }
 
-int isSSE41andSSE42supported(void)
+bool isSSE41andSSE42supported()
 {
 	const unsigned int CHECKBITS = SSE4_1_FLAG | SSE4_2_FLAG;
 	return _isSSE4Supported(CHECKBITS);
 }
 
-int isGenuineIntel(void)
+bool isGenuineIntel()
 {
 	// returns largest function # supported by CPUID if it is a Geniune Intel processor AND it
 	// supports
 	// the CPUID instruction, 0 if not
 	CPUIDinfo Info;
-	int rVal = 0;
 	char procString[] = "GenuineIntel";
 	unsigned int* psint = (unsigned int*)procString;
 	get_cpuid_infos(&Info, 0x0);
 
 	// execute CPUID with eax = 0, subleaf doesn't matter so set it to zero
 	if ((Info.EBX == *psint) && (Info.EDX == *(psint + 1)) && (Info.ECX == *(psint + 2))) {
-		rVal = Info.EAX;
+		return Info.EAX;
 	}
-	return (rVal);
+	return false;
 }

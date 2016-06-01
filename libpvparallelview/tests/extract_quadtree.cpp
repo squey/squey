@@ -20,7 +20,6 @@
 
 #include <pvkernel/core/inendi_bench.h>
 
-#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
 #include <inendi/PVSelection.h>
 

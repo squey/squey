@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PVCORE_PVLOGGER_H
-#define PVCORE_PVLOGGER_H
+#ifndef PVKERNEL_CORE_PVLOGGER_H
+#define PVKERNEL_CORE_PVLOGGER_H
 
 #include <cstdio>
 
@@ -15,27 +15,6 @@
 #include <QString>
 
 #include <pvbase/export.h>
-
-// The following are given be decreasing order of importance/verbosity
-// Rem : Use HEAVYDEBUG level when you know that the message is potentially produced
-//       a lot of times (as in a loop) and don't want it to appear in an everyday
-//       DEBUG level.
-#define PVLOG_FATAL(fmt, ...) PVCore::PVLogger::getInstance()->fatal(fmt, ##__VA_ARGS__)
-#define PVLOG_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->error(fmt, ##__VA_ARGS__)
-#define PVLOG_CUDA_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->cudaError(fmt, ##__VA_ARGS__)
-#define PVLOG_WARN(fmt, ...) PVCore::PVLogger::getInstance()->warn(fmt, ##__VA_ARGS__)
-#define PVLOG_INFO(fmt, ...) PVCore::PVLogger::getInstance()->info(fmt, ##__VA_ARGS__)
-#ifdef NDEBUG
-// If we are in release mode, PVLOG_DEBUG and PVLOG_HEAVYDEBUG must not produce any code !
-#define PVLOG_DEBUG(fmt, ...)
-#define PVLOG_HEAVYDEBUG(fmt, ...)
-#else
-#define PVLOG_DEBUG(fmt, ...) PVCore::PVLogger::getInstance()->debug(fmt, ##__VA_ARGS__)
-#define PVLOG_HEAVYDEBUG(fmt, ...) PVCore::PVLogger::getInstance()->heavydebug(fmt, ##__VA_ARGS__)
-#endif
-// The next MACRO outputs the given message without prefixing it with the usual stuff (works as a
-// printf)
-#define PVLOG_PLAIN(fmt, ...) PVCore::PVLogger::getInstance()->plain(fmt, ##__VA_ARGS__)
 
 namespace PVCore
 {
@@ -81,6 +60,59 @@ class PVLogger
 	QByteArray log_filename;
 	QMutex mutex;
 };
+} // namespace PVCore
+
+// The following are given be decreasing order of importance/verbosity
+// Rem : Use HEAVYDEBUG level when you know that the message is potentially produced
+//       a lot of times (as in a loop) and don't want it to appear in an everyday
+//       DEBUG level.
+template <class T, class... U>
+void PVLOG_FATAL(T&& fmt, U&&... u)
+{
+	PVCore::PVLogger::getInstance()->fatal(std::forward<T>(fmt), std::forward<U>(u)...);
+}
+template <class T, class... U>
+void PVLOG_ERROR(T&& fmt, U&&... u)
+{
+	PVCore::PVLogger::getInstance()->error(std::forward<T>(fmt), std::forward<U>(u)...);
+}
+template <class T, class... U>
+void PVLOG_CUDA_ERROR(T&& fmt, U&&... u)
+{
+	PVCore::PVLogger::getInstance()->cudaError(std::forward<T>(fmt), std::forward<U>(u)...);
+}
+template <class T, class... U>
+void PVLOG_WARN(T&& fmt, U&&... u)
+{
+	PVCore::PVLogger::getInstance()->warn(std::forward<T>(fmt), std::forward<U>(u)...);
+}
+template <class T, class... U>
+void PVLOG_INFO(T&& fmt, U&&... u)
+{
+	PVCore::PVLogger::getInstance()->info(std::forward<T>(fmt), std::forward<U>(u)...);
 }
 
-#endif /* PVCORE_PVLOGGER_H */
+// If we are in release mode, PVLOG_DEBUG and PVLOG_HEAVYDEBUG must not produce any code !
+template <class T, class... U>
+void PVLOG_DEBUG(T&& fmt, U&&... u)
+{
+#ifdef NDEBUG
+	PVCore::PVLogger::getInstance()->debug(std::forward<T>(fmt), std::forward<U>(u)...);
+#endif
+}
+template <class T, class... U>
+void PVLOG_HEAVYDEBUG(T&& fmt, U&&... u)
+{
+#ifdef NDEBUG
+	PVCore::PVLogger::getInstance()->heavydebug(std::forward<T>(fmt), std::forward<U>(u)...);
+#endif
+}
+// The next MACRO outputs the given message without prefixing it with the usual stuff (works as a
+// printf)
+template <class T, class... U>
+void PVLOG_PLAIN(T&& fmt, U&&... u)
+{
+	PVCore::PVLogger::getInstance()->plain(std::forward<T>(fmt), std::forward<U>(u)...);
+}
+
+#endif // PVKERNEL_CORE_PVLOGGER_H

@@ -59,7 +59,7 @@ static QString email_address = EMAIL_ADDRESS_CONTACT;
 class DisplaysFocusInEventFilter : public QObject
 {
   protected:
-	bool eventFilter(QObject* obj, QEvent* event)
+	bool eventFilter(QObject* obj, QEvent* event) override
 	{
 		if (event->type() == QEvent::FocusIn) {
 			// Is the widget a PVViewDisplay?
@@ -80,7 +80,7 @@ class DisplaysFocusInEventFilter : public QObject
 class DragNDropTransparencyHack : public QObject
 {
   public:
-	bool eventFilter(QObject* watched, QEvent* event)
+	bool eventFilter(QObject* watched, QEvent* event) override
 	{
 		if (event->type() == QEvent::Move) {
 			QWidget* window = qobject_cast<QWidget*>(watched);

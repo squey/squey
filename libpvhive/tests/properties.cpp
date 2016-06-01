@@ -60,12 +60,12 @@ class MyObjectObserver : public PVHive::PVObserver<MyObjectProperty>
   public:
 	MyObjectObserver() {}
 
-	void refresh()
+	void refresh() override
 	{
 		std::cout << "  MyObjectObserver::refresh for object " << get_object() << std::endl;
 	}
 
-	void about_to_be_deleted()
+	void about_to_be_deleted() override
 	{
 		std::cout << "  MyObjectObserver::about_to_be_deleted for object " << get_object()
 		          << std::endl;
@@ -77,12 +77,12 @@ class MyObjectPropertyObserver : public PVHive::PVObserver<MyObjectProperty>
   public:
 	MyObjectPropertyObserver() {}
 
-	void refresh()
+	void refresh() override
 	{
 		std::cout << "  MyObjectPropertyObserver::refresh for object " << get_object() << std::endl;
 	}
 
-	void about_to_be_deleted()
+	void about_to_be_deleted() override
 	{
 		std::cout << "  MyObjectPropertyObserver::about_to_be_deleted for object " << get_object()
 		          << std::endl;

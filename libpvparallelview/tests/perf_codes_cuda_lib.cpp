@@ -10,7 +10,6 @@
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/cuda/bci_cuda.h>
-#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVTools.h>
 
 #include "helpers.h"

@@ -14,7 +14,6 @@ static constexpr int64_t INENDI_TIME_24H_MAX = 86399;
 static constexpr int64_t INENDI_TIME_WEEK_MAX =
     604793; /* 'Saturday 23:59:59'. Sun = 0, Sat = 6. (6 * 86399 = 518394) */
 static constexpr int64_t INENDI_TIME_MONTH_MAX = 2678369;
-static constexpr int64_t INENDI_TIME_YEAR_MAX = 29030064;
 
 uint32_t* Inendi::PVPlottingFilterTimeDefault::operator()(mapped_decimal_storage_type const* values)
 {

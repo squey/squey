@@ -12,9 +12,9 @@ struct CPUIDinfo {
 	unsigned int EAX, EBX, ECX, EDX;
 };
 
-int isSSE41Supported(void);
-int isSSE41andSSE42supported(void);
-int isGenuineIntel(void);
-int isCPUIDsupported(void);
+bool isSSE41Supported();
+bool isSSE41andSSE42supported();
+bool isGenuineIntel();
+bool isCPUIDsupported();
 
 #endif

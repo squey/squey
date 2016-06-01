@@ -26,7 +26,7 @@ class PVIntrinsics
 	static bool _has_sse42;
 	static bool _init_done;
 };
-}
+} // namespace PVCore
 
 // Pïcviz's helpers
 
@@ -137,8 +137,8 @@ inline static __m128i inendi_mm_cvttpd_epu32(__m128d const v)
 	__m128d v_under = _mm_sub_pd(v, _mm_and_pd(sse_31_pd, mask_over));
 	__m128i ret = _mm_cvttpd_epi32(v_under);
 
-	__m128i mask_over_int = reinterpret_cast<__m128i>(_mm_shuffle_epi32(
-	    reinterpret_cast<__m128i>(mask_over), 0 | (2 << 2) | (1 << 4) | (3 << 6)));
+	__m128i mask_over_int =
+	    _mm_shuffle_epi32(reinterpret_cast<__m128i>(mask_over), 0 | (2 << 2) | (1 << 4) | (3 << 6));
 
 	return _mm_or_si128(ret, _mm_and_si128(mask_over_int, _mm_set1_epi32(1U << 31)));
 }

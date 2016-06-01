@@ -13,7 +13,6 @@
 #include <bithacks.h>
 
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVVector.h>
 #include <pvkernel/core/inendi_bench.h>

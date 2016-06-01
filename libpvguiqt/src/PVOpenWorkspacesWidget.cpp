@@ -41,7 +41,7 @@ class RootTreeModelViewsSelectable : public PVGuiQt::PVRootTreeModel
 	}
 
   public:
-	Qt::ItemFlags flags(const QModelIndex& index) const
+	Qt::ItemFlags flags(const QModelIndex& index) const override
 	{
 		PVCore::PVDataTreeObjectBase const* obj =
 		    (PVCore::PVDataTreeObjectBase const*)index.internalPointer();

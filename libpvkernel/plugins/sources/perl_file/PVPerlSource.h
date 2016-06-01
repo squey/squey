@@ -19,7 +19,17 @@
 #include <boost/bind.hpp>
 
 #include <EXTERN.h>
+
+// perl issue. It check for non null pointer while it give a nonnull attributs to this arguments.
+// There must be an error somewhere.
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-bool-conversion"
+#endif
 #include <perl.h>
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 namespace PVRush
 {

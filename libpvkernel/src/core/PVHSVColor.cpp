@@ -12,16 +12,6 @@
 #include <QColor>
 #include <QRgb>
 
-PVCore::PVHSVColor* PVCore::PVHSVColor::init_colors(PVRow nb_colors)
-{
-	PVHSVColor* colors = new PVHSVColor[nb_colors];
-#pragma omp parallel for
-	for (PVRow i = 0; i < nb_colors; i++) {
-		colors[i].h() = (i / 4096) % ((1 << HSV_COLOR_NBITS_ZONE) * 6);
-	}
-	return colors;
-}
-
 void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image,
                                  QImage& rgb_image,
                                  QRect const& img_rect_)
@@ -48,10 +38,6 @@ void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image,
 	assert(rect_y <= rgb_image.height());
 
 	QRgb* rgb = (QRgb*)&rgb_image.scanLine(0)[0];
-/*#pragma omp parallel for schedule(static, 16)
-    for (uint32_t i = rect_y*rect_width+rect_x; i < rect_width*rect_height; i++) {
-        hsv_image[i].to_rgba((uint8_t*) &rgb[i]);
-    }*/
 #pragma omp parallel for schedule(static, 16) collapse(2)
 	for (int j = rect_y; j < rect_height + rect_y; j++) {
 		for (int i = rect_x; i < rect_width + rect_x; i++) {
@@ -76,25 +62,6 @@ static unsigned char plus1mod3(unsigned char i)
 	const unsigned char a1 = i & 2;
 
 	return (!i) | (((!a1) & a0) << 1);
-}
-
-void PVCore::PVHSVColor::to_rgb(uint8_t& r, uint8_t& g, uint8_t& b) const
-{
-	uint8_t rgb[3];
-	to_rgb(rgb);
-	r = rgb[0];
-	g = rgb[1];
-	b = rgb[2];
-}
-
-void PVCore::PVHSVColor::to_rgba(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a) const
-{
-	uint8_t rgba[4];
-	to_rgba(rgba);
-	r = rgba[0];
-	g = rgba[1];
-	b = rgba[2];
-	a = rgba[3];
 }
 
 void PVCore::PVHSVColor::to_rgba(uint8_t* rgb) const

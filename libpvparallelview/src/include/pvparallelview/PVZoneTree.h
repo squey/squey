@@ -11,7 +11,6 @@
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/core/PVHSVColor.h>
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVPlotted.h>

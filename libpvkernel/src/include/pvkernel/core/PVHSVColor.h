@@ -51,7 +51,6 @@ class PVHSVColor
   public:
 	inline T& h() { return _h; };
 	inline T h() const { return _h; };
-	static PVHSVColor* init_colors(PVRow nb_colors);
 	static void
 	to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image, QRect const& img_rect = QRect());
 	bool is_valid() const;
@@ -60,10 +59,8 @@ class PVHSVColor
 	bool operator!=(PVHSVColor const& c) const { return not(c == *this); }
 
   public:
-	void to_rgb(T& r, T& g, T& b) const;
 	void to_rgb(T* rgb) const;
 
-	void to_rgba(T& r, T& g, T& b, T& a) const;
 	void to_rgba(T* rgb) const;
 
 	void toQColor(QColor& qc) const;

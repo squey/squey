@@ -68,7 +68,7 @@ class PVLabelEventFilter : public QObject
 	PVLabelEventFilter(PVWidgets::PVColorDialog* parent) : QObject(parent) {}
 
   protected:
-	bool eventFilter(QObject* obj, QEvent* ev)
+	bool eventFilter(QObject* obj, QEvent* ev) override
 	{
 		assert(qobject_cast<QLabel*>(obj));
 		QLabel* label = static_cast<QLabel*>(obj);
@@ -171,12 +171,12 @@ void PVWidgets::PVColorDialog::picker_color_changed(int h)
 	emit color_changed(h);
 }
 
-void PVWidgets::PVColorDialog::show_color(PVCore::PVHSVColor const c)
+void PVWidgets::PVColorDialog::show_color(PVCore::PVHSVColor const& c)
 {
 	fill_label_with_color(_box, c);
 }
 
-void PVWidgets::PVColorDialog::set_color(PVCore::PVHSVColor const c)
+void PVWidgets::PVColorDialog::set_color(PVCore::PVHSVColor const& c)
 {
 	picker()->set_color(c);
 	show_color(c);
