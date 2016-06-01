@@ -39,7 +39,8 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_rx = std::regex(args.at("regexp").toString().toStdString());
+	std::string s = args.at("regexp").toString().toStdString();
+	_rx.assign(s);
 	_inverse = args.at("reverse").toBool();
 }
 
