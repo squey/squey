@@ -130,3 +130,7 @@ add_test(TPVSelection TPVSelection)
 add_pv_compile_test(Tinendi_bad_convertions_merge LINKS ${LINK_LIBRARIES} FILES bad_convertions_merge.cpp)
 add_test(Tinendi_bad_convertions_merge Tinendi_bad_convertions_merge)
 add_bench(Tinendi_bad_convertions_merge LINKS ${LINK_LIBRARIES} FILES bad_convertions_merge.cpp)
+
+add_pv_compile_test(Tinendi_correlation LINKS ${LINK_LIBRARIES} FILES correlation.cpp)
+add_test(Tinendi_correlation Tinendi_correlation)
+add_bench(Tinendi_correlation LINKS ${LINK_LIBRARIES} FILES correlation.cpp)

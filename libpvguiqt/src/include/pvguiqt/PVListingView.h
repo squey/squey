@@ -183,6 +183,8 @@ class PVListingView : public PVAbstractTableView
 	 */
 	void show_hhead_ctxt_menu(const QPoint& pos);
 
+	void show_hhead_ctxt_menu_correlation(PVCol col);
+
 	/**
 	 * Show vertical header context menu and process its actions
 	 */
@@ -234,14 +236,15 @@ class PVListingView : public PVAbstractTableView
 	QAction* _act_set_color; //!< Set a color for clicked row action for context menu
 
 	// Header context menu
-	QMenu _hhead_ctxt_menu;      //!< Context menu for right click on horizontal header
-	QMenu* _menu_col_count_by;   //!< Count by action for horizontal context menu
-	QMenu* _menu_col_sum_by;     //!< Sum by action for horizontal context menu
-	QMenu* _menu_col_min_by;     //!< Min by action for horizontal context menu
-	QMenu* _menu_col_max_by;     //!< Max by action for horizontal context menu
-	QMenu* _menu_col_avg_by;     //!< Average by action for horizontal context menu
-	QAction* _action_col_sort;   //!< Sort a column action for horizontal context menu
-	QAction* _action_col_unique; //!< Count distinct values action for horizontal context menu
+	QMenu _hhead_ctxt_menu;       //!< Context menu for right click on horizontal header
+	QMenu* _menu_col_count_by;    //!< Count by action for horizontal context menu
+	QMenu* _menu_col_sum_by;      //!< Sum by action for horizontal context menu
+	QMenu* _menu_col_min_by;      //!< Min by action for horizontal context menu
+	QMenu* _menu_col_max_by;      //!< Max by action for horizontal context menu
+	QMenu* _menu_col_avg_by;      //!< Average by action for horizontal context menu
+	QAction* _action_col_sort;    //!< Sort a column action for horizontal context menu
+	QAction* _action_col_unique;  //!< Count distinct values action for horizontal context menu
+	QMenu* _menu_add_correlation; //!< Correlation : bind this axis with the axis of another source
 
 	// Vertical context menu
 	QMenu _vhead_ctxt_menu;          //!< Context menu for right click on vertival header

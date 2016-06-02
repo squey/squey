@@ -34,31 +34,65 @@ IMPL_WAX(Inendi::PVView::process_visibility, view, args)
 
 IMPL_WAX(Inendi::PVView::process_from_selection, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_from_selection)>(view, args);
+	Inendi::PVView* v =
+	    call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_from_selection)>(view,
+	                                                                                      args);
+	if (v) {
+		refresh_observers(&v->get_post_filter_layer());
+		refresh_observers(&v->get_output_layer());
+	}
 	refresh_observers(&view->get_post_filter_layer());
 	refresh_observers(&view->get_output_layer());
+
+	return v;
 }
 
 IMPL_WAX(Inendi::PVView::process_from_layer_stack, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_from_layer_stack)>(view, args);
+	Inendi::PVView* v =
+	    call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_from_layer_stack)>(view,
+	                                                                                        args);
+	if (v) {
+		refresh_observers(&v->get_layer_stack_output_layer());
+		refresh_observers(&v->get_post_filter_layer());
+		refresh_observers(&v->get_output_layer());
+	}
 	refresh_observers(&view->get_layer_stack_output_layer());
 	refresh_observers(&view->get_post_filter_layer());
 	refresh_observers(&view->get_output_layer());
+
+	return v;
 }
 
 IMPL_WAX(Inendi::PVView::process_from_eventline, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_from_eventline)>(view, args);
+	Inendi::PVView* v =
+	    call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_from_eventline)>(view,
+	                                                                                      args);
+
 	refresh_observers(&view->get_real_output_selection());
 	refresh_observers(&view->get_output_layer());
+
+	if (v) {
+		refresh_observers(&v->get_real_output_selection());
+		refresh_observers(&v->get_output_layer());
+	}
+
+	return v;
 }
 
 IMPL_WAX(Inendi::PVView::process_real_output_selection, view, args)
 {
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_real_output_selection)>(view,
-	                                                                                         args);
+	Inendi::PVView* v =
+	    call_object_default<Inendi::PVView, FUNC(Inendi::PVView::process_real_output_selection)>(
+	        view, args);
 	refresh_observers(&view->get_real_output_selection());
+
+	if (v) {
+		refresh_observers(&v->get_real_output_selection());
+	}
+
+	return v;
 }
 
 // Layer stack waxes

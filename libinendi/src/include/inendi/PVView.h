@@ -238,10 +238,12 @@ class PVView : public data_tree_view_t
 	void duplicate_selected_layer(const QString& name);
 	void commit_selection_to_layer(PVLayer& layer);
 
-	void process_from_eventline();
-	void process_from_layer_stack();
-	void process_from_selection();
-	void process_real_output_selection();
+	Inendi::PVView* process_correlation();
+
+	Inendi::PVView* process_from_eventline();
+	Inendi::PVView* process_from_layer_stack();
+	Inendi::PVView* process_from_selection();
+	Inendi::PVView* process_real_output_selection();
 
 	/**
 	 * Compute a merge of all visibles layer of the layer stack.
