@@ -43,6 +43,9 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	virtual ~PVBCIDrawingBackendOpenCL();
 
   public:
+	bool is_gpu_accelerated() const override { return _is_gpu_accelerated; }
+
+  public:
 	static PVBCIDrawingBackendOpenCL& get();
 
   public:

@@ -42,6 +42,7 @@ class PVParallelViewImpl : boost::noncopyable
 		init_pipeline();
 		register_displays();
 	}
+
 	PVLibView* get_lib_view(Inendi::PVView& view);
 	PVLibView* get_lib_view(Inendi::PVView& view,
 	                        Inendi::PVPlotted::uint_plotted_table_t const& plotted,
@@ -141,6 +142,11 @@ inline QColor const& color_view_bg()
 	return PVParallelView::PVParallelViewImpl::get().color_view_bg();
 }
 
+inline bool is_gpu_accelerated()
+{
+	return PVParallelView::PVParallelViewImpl::get().backend().is_gpu_accelerated();
+}
+
 #ifdef INENDI_DEVELOPER_MODE
 inline bool show_bboxes()
 {
@@ -150,6 +156,7 @@ inline void toggle_show_bboxes()
 {
 	return PVParallelView::PVParallelViewImpl::get().toggle_show_bboxes();
 }
+
 #endif
 }
 }

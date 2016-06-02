@@ -124,6 +124,9 @@ class PVBCIDrawingBackendCUDA : public PVBCIDrawingBackendAsync
 	static PVBCIDrawingBackendCUDA& get();
 
   public:
+	bool is_gpu_accelerated() const override { return true; }
+
+  public:
 	Flags flags() const { return Serial; }
 	PVBCIBackendImage_p create_image(size_t img_width, uint8_t height_bits) override;
 
