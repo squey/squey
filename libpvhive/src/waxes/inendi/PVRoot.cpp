@@ -48,18 +48,4 @@ IMPL_WAX(Inendi::PVRoot::select_scene, root, args)
 	refresh_observers(root->get_current_scene_hive_property());
 }
 
-IMPL_WAX(Inendi::PVRoot::process_correlation, root, args)
-{
-	Inendi::PVView* view =
-	    call_object_default<Inendi::PVRoot, FUNC(Inendi::PVRoot::process_correlation)>(root, args);
-
-	if (view) {
-		refresh_observers(&view->get_post_filter_layer());
-		refresh_observers(&view->get_output_layer());
-		refresh_observers(&view->get_real_output_selection());
-	}
-
-	return view;
-}
-
 PVHIVE_CALL_OBJECT_BLOCK_END()

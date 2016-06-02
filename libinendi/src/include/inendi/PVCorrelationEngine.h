@@ -5,6 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
+#ifndef __INENDI_PVCORRELATION_ENGINE_H__
+#define __INENDI_PVCORRELATION_ENGINE_H__
+
 #include <pvbase/types.h>
 
 #include <tuple>
@@ -41,12 +44,9 @@ class PVCorrelationEngine
 	/**
 	 * Activate a new correlation
 	 *
-	 * @param view1 the origin view
-	 * @param col1  the origin column
-	 * @param view2 the destination view
-	 * @param col2  the destination column
+	 * @param correlation a given correlation
 	 */
-	void add(const Inendi::PVView* view1, PVCol col1, Inendi::PVView* view2, PVCol col2);
+	void add(const PVCorrelation& correlation);
 
 	/**
 	 * Deactivate an existing correlation
@@ -56,9 +56,12 @@ class PVCorrelationEngine
 	void remove(const Inendi::PVView* view1);
 
 	/**
-	 * Return
+	 * Return the associated correlation for a given view
 	 *
 	 * @param view the origin view
+	 *
+	 * @ return a pointer to the correlation if the view has one
+	 *          nullptr otherwise
 	 */
 	const PVCorrelation* correlation(const Inendi::PVView* view) const;
 
@@ -73,12 +76,9 @@ class PVCorrelationEngine
 	/**
 	 * Check if a correlation exists between a pair of view and columns
 	 *
-	 * @param view1 the origin view
-	 * @param col1  the origin column
-	 * @param view2 the destination view
-	 * @param col2  the destination column
+	 * @param correlation a given correlation
 	 */
-	bool exists(const Inendi::PVView* view1, PVCol col1, Inendi::PVView* view2, PVCol col2) const;
+	bool exists(const PVCorrelation& correlation) const;
 
 	/**
 	 * Propagate the selection of a view through its correlation
@@ -92,3 +92,5 @@ class PVCorrelationEngine
 };
 
 } // namespace Inendi
+
+#endif // __INENDI_PVCORRELATION_ENGINE_H__

@@ -508,12 +508,7 @@ void Inendi::PVView::process_eventline()
 Inendi::PVView* Inendi::PVView::process_correlation()
 {
 	Inendi::PVRoot* root = get_parent<Inendi::PVRoot>();
-	// in some test cases, there is no PVRoot!
-	if (root) {
-		return root->process_correlation(this);
-	}
-
-	return nullptr;
+	return root->process_correlation(this);
 }
 
 /******************************************************************************
@@ -521,10 +516,13 @@ Inendi::PVView* Inendi::PVView::process_correlation()
  * Inendi::PVView::process_from_eventline
  *
  *****************************************************************************/
-void Inendi::PVView::process_from_eventline()
+Inendi::PVView* Inendi::PVView::process_from_eventline()
 {
 	process_eventline();
 	process_visibility();
+	Inendi::PVView* v = process_correlation();
+
+	return v;
 }
 
 /******************************************************************************

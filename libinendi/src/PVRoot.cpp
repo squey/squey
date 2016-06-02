@@ -118,7 +118,7 @@ void Inendi::PVRoot::source_being_deleted(Inendi::PVSource* src)
 
 Inendi::PVView* Inendi::PVRoot::process_correlation(Inendi::PVView* view)
 {
-	if (not _correlation_running) {
+	if (not _correlation_running) { // no indirect correlations to avoid potential infinite loops
 		_correlation_running = true;
 		Inendi::PVView* view2 = correlations().process(view);
 

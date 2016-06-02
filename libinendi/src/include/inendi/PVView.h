@@ -240,7 +240,7 @@ class PVView : public data_tree_view_t
 
 	Inendi::PVView* process_correlation();
 
-	void process_from_eventline();
+	Inendi::PVView* process_from_eventline();
 	Inendi::PVView* process_from_layer_stack();
 	Inendi::PVView* process_from_selection();
 	Inendi::PVView* process_real_output_selection();

@@ -49,7 +49,7 @@ void run_multiplesearch_filter(Inendi::PVView* view1)
 	view1->set_selection_view(view1->get_post_filter_layer().get_selection());
 
 	// explicitely process view to trigger correlation (automatically done by the Hive in Inspector)
-	view1->process_from_layer_stack();
+	view1->process_from_selection();
 }
 
 int main()
@@ -68,12 +68,28 @@ int main()
 	 */
 	Inendi::PVView* view1 = views[0].get();
 	Inendi::PVView* view2 = views[1].get();
-	env.root->correlations().add(view1, 2, view2, 2);
+
+	Inendi::PVCorrelation correlation{view1, 2, view2, 2};
+	PV_ASSERT_VALID(not env.root->correlations().exists(view1, 2));
+	PV_ASSERT_VALID(not env.root->correlations().exists(correlation));
+	PV_ASSERT_VALID(env.root->correlations().correlation(view1) == nullptr);
+
+	env.root->correlations().add(correlation);
+
+	PV_ASSERT_VALID(env.root->correlations().exists(view1, 2));
+	PV_ASSERT_VALID(env.root->correlations().exists(Inendi::PVCorrelation{view1, 2, view2, 2}));
+	PV_ASSERT_VALID(env.root->correlations().correlation(view1) != nullptr);
 
 	/**
 	 * Filter values using multiple-search plugin
 	 */
+	auto start = std::chrono::system_clock::now();
+
 	run_multiplesearch_filter(view1);
+
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> diff = end - start;
+	return diff.count();
 
 #ifndef INSPECTOR_BENCH
 	const Inendi::PVSelection& sel = view2->get_post_filter_layer().get_selection();
@@ -91,6 +107,24 @@ int main()
 	std::vector<size_t> v2;
 	sel.visit_selected_lines([&](PVRow const row) { v2.push_back(row); });
 	PV_ASSERT_VALID(std::equal(v1.begin(), v1.end(), v2.begin()));
+
+	/**
+	 * Remove correlation
+	 */
+	env.root->correlations().remove(correlation.view1);
+	PV_ASSERT_VALID(not env.root->correlations().exists(view1, 2));
+	PV_ASSERT_VALID(not env.root->correlations().exists(correlation));
+	PV_ASSERT_VALID(env.root->correlations().correlation(view1) == nullptr);
+
+	/**
+	 * Replace correlation
+	 */
+	Inendi::PVCorrelation new_correlation{view1, 13, view2, 13};
+	env.root->correlations().add(correlation);
+	env.root->correlations().add(new_correlation);
+	PV_ASSERT_VALID(not env.root->correlations().exists(correlation));
+	PV_ASSERT_VALID(env.root->correlations().exists(new_correlation));
+
 #endif
 
 	return 0;

@@ -172,7 +172,6 @@ class PVListingView : public PVAbstractTableView
 	 */
 	void slotDoubleClickOnVHead(int);
 	void slotDoubleClickOnVHead(QModelIndex const&);
-	void add_correlation_slot(QAction* act);
 
 	/**
 	 * Show context menu and process its actions

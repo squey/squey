@@ -14,6 +14,5 @@
 DECLARE_WAX(Inendi::PVRoot::select_view)
 DECLARE_WAX(Inendi::PVRoot::select_source)
 DECLARE_WAX(Inendi::PVRoot::select_scene)
-DECLARE_WAX(Inendi::PVRoot::process_correlation)
 
 #endif /* __PVHIVE_WAXES_INENDI_PVROOT__ */
