@@ -46,6 +46,7 @@
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVSource.h>
 
+#include <pvparallelview/PVParallelView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVFormatBuilderWidget.h>
@@ -73,24 +74,13 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	reset_root();
 
-	// SIZE STUFF
-	// WARNING: nothing should be set here.
-
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
-
-	// setWindowFlags(Qt::FramelessWindowHint);
-
-	// FIXME
-	//_start_screen_widget = new PVStartScreenWidget(this);
 
 	// FONT stuff
 	QFontDatabase pv_font_database;
 	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
 	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
-
-	setGeometry(20, 10, 1024, 900);
-	//	datatree = inendi_datatreerootitem_new();
 
 	// import_source = NULL;
 	report_started = false;
@@ -98,7 +88,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	report_filename = NULL;
 
 	// We activate all available Windows
-
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
 	_projects_tab_widget->show();
 	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
@@ -123,10 +112,30 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	pv_centralMainWidget->setObjectName("pv_centralMainWidget_of_PVMainWindow");
 
 	pv_mainLayout = new QVBoxLayout();
-	pv_mainLayout->setSpacing(40);
 	pv_mainLayout->setContentsMargins(0, 0, 0, 0);
 
+	_projects_tab_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 	pv_mainLayout->addWidget(_projects_tab_widget);
+
+	/**
+	 * Show warning message when no GPU accelerated device is found
+	 */
+	if (not PVParallelView::common::is_gpu_accelerated()) {
+		QHBoxLayout* warning_layout = new QHBoxLayout;
+		warning_layout->setSpacing(2);
+		warning_layout->addStretch();
+
+		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
+		QLabel* warning_label_icon = new QLabel;
+		warning_label_icon->setPixmap(warning_icon.pixmap(QSize(16, 16)));
+
+		QLabel* warning_msg = new QLabel("<font color=\"orange\"><b>You are running in degraded "
+		                                 "mode without GPU acceleration. </b></font>");
+
+		warning_layout->addWidget(warning_label_icon);
+		warning_layout->addWidget(warning_msg);
+		pv_mainLayout->addLayout(warning_layout);
+	}
 
 	pv_centralMainWidget->setLayout(pv_mainLayout);
 
@@ -137,9 +146,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	setCentralWidget(pv_centralWidget);
 
 	_projects_tab_widget->setFocus(Qt::OtherFocusReason);
-
-	// RemoteLogDialog = new QMainWindow(this, Qt::Dialog);
-	// QObject::connect(RemoteLogDialog, SIGNAL(destroyed()), this, SLOT(hide()));
 
 	// We populate all actions, menus and connect them
 	create_actions();
