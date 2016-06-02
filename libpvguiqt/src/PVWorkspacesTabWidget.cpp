@@ -330,17 +330,6 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::tab_close_requested(int index)
 	remove_workspace(index);
 }
 
-QList<PVGuiQt::PVWorkspaceBase*> PVGuiQt::PVWorkspacesTabWidgetBase::list_workspaces() const
-{
-	QList<PVWorkspaceBase*> ret;
-	for (int i = 0; i < count(); i++) {
-		PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(widget(i));
-		assert(workspace);
-		ret << workspace;
-	}
-	return ret;
-}
-
 void PVGuiQt::PVWorkspacesTabWidgetBase::resizeEvent(QResizeEvent* event)
 {
 	_tab_bar->resizeEvent(event);
@@ -359,14 +348,6 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene&
 	Inendi::PVScene_sp scene_p = scene.shared_from_this();
 	PVHive::get().register_observer(scene_p, _obs_scene);
 	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
-
-	// AG: we need to clear the way GUI-objects related to data-tree ones are
-	// created and destroyed.
-	// This way is one of the good ones, that is keeping track thanks to the hive
-	// of what exists in the data-tree and
-	// react in such consequence.
-	//_obs_scene.connect_refresh(this, SLOT(check_new_sources()));
-
 	_obs_scene.set_accept_recursive_refreshes(true);
 
 	_tab_bar = new PVSceneTabBar(this);
@@ -405,28 +386,6 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 	assert(workspace);
 	Inendi::PVRoot_sp root_sp = get_scene()->get_parent<Inendi::PVRoot>()->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVRoot::select_source)>(root_sp, *workspace->get_source());
-}
-
-void PVGuiQt::PVSceneWorkspacesTabWidget::check_new_sources()
-{
-	QList<Inendi::PVSource*> known_srcs = list_sources();
-	for (Inendi::PVSource_sp& src : get_scene()->get_children<Inendi::PVSource>()) {
-		if (known_srcs.contains(src.get())) {
-			continue;
-		}
-
-		PVSourceWorkspace* new_workspace = new PVSourceWorkspace(src.get());
-		add_workspace(new_workspace, src->get_name());
-	}
-}
-
-QList<Inendi::PVSource*> PVGuiQt::PVSceneWorkspacesTabWidget::list_sources() const
-{
-	QList<Inendi::PVSource*> ret;
-	for (PVWorkspaceBase* w : list_workspaces()) {
-		ret << qobject_cast<PVSourceWorkspace*>(w)->get_source();
-	}
-	return ret;
 }
 
 /******************************************************************************

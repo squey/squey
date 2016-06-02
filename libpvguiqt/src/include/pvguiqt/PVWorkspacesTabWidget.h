@@ -160,8 +160,6 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	 */
 	int count() const { return _tab_bar->count(); }
 
-	QList<PVWorkspaceBase*> list_workspaces() const;
-
   protected:
 	inline Inendi::PVRoot const& get_root() const { return _root; }
 	inline Inendi::PVRoot& get_root() { return _root; }
@@ -222,7 +220,6 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
 
-	QList<Inendi::PVSource*> list_sources() const;
 	Inendi::PVScene* get_scene() { return _obs_scene.get_object(); }
 
   protected:
@@ -241,10 +238,6 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	/*! \brief Call Inendi::PVRoot::select_source throught the Hive to keep track of current source.
 	 */
 	void tab_changed(int index);
-
-  protected slots:
-
-	void check_new_sources();
 
   private slots:
 	void set_project_modified(bool modified = true, QString path = QString());
