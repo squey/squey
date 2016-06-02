@@ -5,7 +5,6 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 add_pv_compile_test(Twidgets_datatreemodel LINKS pvkernel FILES datatree-model.cpp)
-add_pv_compile_test(Twidgets_datatreeproxy LINKS pvkernel FILES datatree-proxy.cpp)
 add_pv_compile_test(Twidgets_color-picker LINKS pvkernel FILES color-picker.cpp)
 add_pv_compile_test(Twidgets_color-dialog LINKS pvkernel FILES color-dialog.cpp)
 

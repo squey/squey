@@ -26,7 +26,6 @@ PVListingModel.cpp
 PVAbstractTableModel.cpp
 PVListingView.cpp
 PVAbstractTableView.cpp
-PVOpenWorkspacesWidget.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
 PVTableView.cpp
@@ -69,7 +68,6 @@ include/pvguiqt/PVAbstractTableModel.h
 include/pvguiqt/PVListingView.h
 include/pvguiqt/PVAbstractTableView.h
 include/pvguiqt/PVTableView.h
-include/pvguiqt/PVOpenWorkspacesWidget.h
 include/pvguiqt/PVRootTreeModel.h
 include/pvguiqt/PVRootTreeView.h
 include/pvguiqt/PVHiveDataTreeModel.h

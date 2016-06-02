@@ -238,20 +238,6 @@ class PVSourceWorkspace : public PVWorkspaceBase
 
 	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.
 };
-
-/**
- * \class PVOpenWorkspace
- *
- * \note This class is a PVWorkspaceBase derivation representing open workspaces i.e, not related to
- *any particular source.
- */
-class PVOpenWorkspace : public PVWorkspaceBase
-{
-	Q_OBJECT
-
-  public:
-	PVOpenWorkspace(QWidget* parent = 0) : PVWorkspaceBase(parent) {}
-};
 }
 
 #endif /* __PVGUIQT_PVWORKSPACE_H__ */

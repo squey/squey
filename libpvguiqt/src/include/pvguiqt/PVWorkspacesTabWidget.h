@@ -35,38 +35,10 @@ class PVScene;
 namespace PVGuiQt
 {
 
-class PVOpenWorkspace;
 class PVWorkspaceBase;
 class PVWorkspacesTabWidgetBase;
 class PVSceneWorkspacesTabWidget;
-class PVOpenWorkspaceTabBar;
-class PVOpenWorkspacesTabWidget;
 class PVSceneTabBar;
-
-namespace __impl
-{
-
-/**
- * \class TabRenamerEventFilter
- *
- * \note This class is handling in-place tab name editing for open workspaces.
- */
-class TabRenamerEventFilter : public QObject
-{
-  public:
-	TabRenamerEventFilter(PVGuiQt::PVOpenWorkspaceTabBar* tab_bar, int index, QLineEdit* line_edit)
-	    : _tab_bar(tab_bar), _index(index), _line_edit(line_edit)
-	{
-	}
-
-	bool eventFilter(QObject* watched, QEvent* event);
-
-  private:
-	PVGuiQt::PVOpenWorkspaceTabBar* _tab_bar;
-	int _index;
-	QLineEdit* _line_edit;
-};
-}
 
 /**
  * \class PVSceneTabBar
@@ -83,8 +55,6 @@ class PVSceneTabBar : public QTabBar
 	virtual int count() const;
 
   public:
-	virtual PVOpenWorkspace* create_new_workspace() { return nullptr; }
-
 	/*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
 	 */
 	void resizeEvent(QResizeEvent* event) override;
@@ -106,31 +76,6 @@ class PVSceneTabBar : public QTabBar
 };
 
 /**
- * \class PVOpenWorkspaceTabBar
- *
- * \note This class is a PVSceneTabBar derivation handling tab bar event for
- *PVOpenWorkspacesTabWidget.
- */
-class PVOpenWorkspaceTabBar : public PVSceneTabBar
-{
-	Q_OBJECT
-
-  public:
-	PVOpenWorkspaceTabBar(PVOpenWorkspacesTabWidget* tab_widget);
-	int count() const;
-	PVOpenWorkspace* create_new_workspace() override;
-
-  protected:
-	void mousePressEvent(QMouseEvent* event) override;
-	void mouseDoubleClickEvent(QMouseEvent* event) override;
-	void wheelEvent(QWheelEvent* event) override;
-	void keyPressEvent(QKeyEvent* event) override;
-
-  private:
-	int _workspace_id = 0;
-};
-
-/**
  * \class PVWorkspacesTabWidgetBase
  *
  * \note This class is the base class for workspaces tab widgets.
@@ -141,7 +86,6 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	Q_PROPERTY(int tab_width READ get_tab_width WRITE set_tab_width);
 
 	friend class PVSceneTabBar;
-	friend class PVOpenWorkspaceTabBar;
 
   public:
 	PVWorkspacesTabWidgetBase(Inendi::PVRoot& root, QWidget* parent = 0);
@@ -247,48 +191,6 @@ class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 	bool _project_untitled = true;
 
 	PVHive::PVObserverSignal<Inendi::PVScene> _obs_scene;
-};
-
-/**
- * \class PVOpenWorkspacesTabWidget
- *
- * \note This class is a PVWorkspacesTabWidgetBase derivation representing an open workspace tab
- *widget.
- */
-class PVOpenWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
-{
-	Q_OBJECT
-	friend class PVOpenWorkspaceTabBar;
-
-  public:
-	PVOpenWorkspacesTabWidget(Inendi::PVRoot& root, QWidget* parent = 0);
-
-  public:
-	PVOpenWorkspace* current_workspace() const;
-	PVOpenWorkspace* current_workspace_or_create();
-
-  protected:
-	/*! \brief Special behavior on workspace creation (handle drag&drop tab switch).
-	 */
-	void tabInserted(int index) override;
-
-	/*! \brief Special behavior on workspace removal (emit "is_empty" signal when the last source is
-	 * closed).
-	 */
-	void tabRemoved(int index) override;
-
-  public slots:
-	/*! \brief Slot called to check if display drag&drop needs to switch tab.
-	 */
-	void start_checking_for_automatic_tab_switch();
-
-	/*! \brief Slot called to switch tab based on the cursor position.
-	 */
-	void switch_tab();
-
-  private:
-	QTimer _automatic_tab_switch_timer;
-	int _tab_switch_index;
 };
 }
 

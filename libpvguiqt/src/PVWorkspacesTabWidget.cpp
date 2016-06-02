@@ -28,29 +28,7 @@
 #include <QPropertyAnimation>
 #include <QPushButton>
 
-#define AUTOMATIC_TAB_SWITCH_TIMER_MSEC 500
 #define TAB_OPENING_EFFECT_MSEC 200
-
-/******************************************************************************
- *
- * PVGuiQt::__impl::TabRenamerEventFilter
- *
- *****************************************************************************/
-bool PVGuiQt::__impl::TabRenamerEventFilter::eventFilter(QObject* /*watched*/, QEvent* event)
-{
-	bool rename = false;
-	if (event->type() == QEvent::Leave) {
-		rename = true;
-	} else if (event->type() == QEvent::KeyPress) {
-		QKeyEvent* key_event = (QKeyEvent*)event;
-		rename = key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Escape;
-	}
-	if (rename) {
-		_tab_bar->setTabText(_index, _line_edit->text());
-		_line_edit->deleteLater();
-	}
-	return rename;
-}
 
 /******************************************************************************
  *
@@ -168,83 +146,6 @@ void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
 	_tab_widget->setStyleSheet(stylesheet);
 
 	QTabBar::resizeEvent(event);
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVOpenWorkspaceTabBar
- *
- *****************************************************************************/
-
-PVGuiQt::PVOpenWorkspaceTabBar::PVOpenWorkspaceTabBar(PVOpenWorkspacesTabWidget* tab_widget)
-    : PVSceneTabBar(tab_widget)
-{
-	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
-}
-
-int PVGuiQt::PVOpenWorkspaceTabBar::count() const
-{
-	return QTabBar::count() - 1;
-}
-
-void PVGuiQt::PVOpenWorkspaceTabBar::wheelEvent(QWheelEvent* event)
-{
-	// Prevent mouse wheel to trigger the creation of a new open workspace
-	if (currentIndex() == count() - 1 && event->delta() < 0) {
-		return;
-	}
-	QTabBar::wheelEvent(event);
-}
-
-void PVGuiQt::PVOpenWorkspaceTabBar::keyPressEvent(QKeyEvent* event)
-{
-	// Prevent keyboard to trigger the creation of a new open workspace
-	if (currentIndex() == count() - 1 && event->key() == Qt::Key_Right) {
-		return;
-	}
-	QTabBar::keyPressEvent(event);
-}
-
-void PVGuiQt::PVOpenWorkspaceTabBar::mouseDoubleClickEvent(QMouseEvent* event)
-{
-	// Tabs titles are inplace edited on mouse double click
-	int index = tabAt(event->pos());
-	if (!_tab_widget->_tab_animation_ongoing && index < count()) {
-		QLineEdit* line_edit = new QLineEdit(this);
-		QRect tab_rect = tabRect(index);
-		line_edit->move(tab_rect.topLeft());
-		line_edit->resize(QSize(tab_rect.width(), tab_rect.height()));
-		line_edit->setText(tabText(index));
-		line_edit->show();
-		line_edit->setFocus();
-		line_edit->setSelection(0, tabText(index).length());
-		line_edit->installEventFilter(new __impl::TabRenamerEventFilter(this, index, line_edit));
-	}
-}
-
-void PVGuiQt::PVOpenWorkspaceTabBar::mousePressEvent(QMouseEvent* event)
-{
-	int index = -1;
-	for (int i = 0; i < count() + 1; i++) {
-		if (tabRect(i).contains(event->pos())) {
-			index = i;
-			break;
-		}
-	}
-	if (index == count()) {
-		// Special case for "new open workspace" tab
-		create_new_workspace();
-	}
-
-	PVSceneTabBar::mousePressEvent(event);
-}
-
-PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspaceTabBar::create_new_workspace()
-{
-	PVOpenWorkspace* open_workspace = new PVOpenWorkspace(this);
-	_tab_widget->add_workspace(open_workspace, QString("Workspace %1").arg(++_workspace_id));
-
-	return open_workspace;
 }
 
 /******************************************************************************
@@ -386,81 +287,4 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 	assert(workspace);
 	Inendi::PVRoot_sp root_sp = get_scene()->get_parent<Inendi::PVRoot>()->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVRoot::select_source)>(root_sp, *workspace->get_source());
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVOpenWorkspacesTabWidget
- *
- *****************************************************************************/
-PVGuiQt::PVOpenWorkspacesTabWidget::PVOpenWorkspacesTabWidget(Inendi::PVRoot& root,
-                                                              QWidget* parent /* = 0 */)
-    : PVWorkspacesTabWidgetBase(root, parent), _automatic_tab_switch_timer(this)
-{
-	_tab_bar = new PVOpenWorkspaceTabBar(this);
-	setTabBar(_tab_bar);
-
-	QWidget* new_tab = new QWidget();
-	QTabWidget::addTab(new_tab, QIcon(":/more.png"), "");
-	setTabToolTip(0, tr("New workspace"));
-	QPushButton* hidden_close_button = new QPushButton();
-	hidden_close_button->resize(QSize(0, 0));
-	tabBar()->setTabButton(0, QTabBar::RightSide, hidden_close_button);
-
-	// Automatic tab switching handling  for drag&drop
-	_automatic_tab_switch_timer.setSingleShot(true);
-	connect(&_automatic_tab_switch_timer, SIGNAL(timeout()), this, SLOT(switch_tab()));
-
-	((PVOpenWorkspaceTabBar*)_tab_bar)->create_new_workspace();
-}
-
-void PVGuiQt::PVOpenWorkspacesTabWidget::tabInserted(int index)
-{
-	if (count() > 0) {
-		PVWorkspaceBase* workspace = (PVWorkspaceBase*)widget(index);
-		connect(workspace, SIGNAL(try_automatic_tab_switch()), this,
-		        SLOT(start_checking_for_automatic_tab_switch()));
-	}
-}
-
-void PVGuiQt::PVOpenWorkspacesTabWidget::tabRemoved(int index)
-{
-	if (index == count()) {
-		// Prevent selection of open workspace "+" tab.
-		setCurrentIndex(index - 1);
-	}
-}
-
-PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace() const
-{
-	return qobject_cast<PVOpenWorkspace*>(currentWidget());
-}
-
-void PVGuiQt::PVOpenWorkspacesTabWidget::start_checking_for_automatic_tab_switch()
-{
-	QPoint mouse_pos = tabBar()->mapFromGlobal(QCursor::pos());
-	_tab_switch_index = tabBar()->tabAt(mouse_pos);
-
-	if (_tab_switch_index != -1) {
-		_automatic_tab_switch_timer.start(AUTOMATIC_TAB_SWITCH_TIMER_MSEC);
-		// QApplication::setOverrideCursor(Qt::PointingHandCursor);
-	} else {
-		_automatic_tab_switch_timer.stop();
-		// QApplication::restoreOverrideCursor();
-	}
-}
-
-void PVGuiQt::PVOpenWorkspacesTabWidget::switch_tab()
-{
-	// QApplication::restoreOverrideCursor();
-	setCurrentIndex(_tab_switch_index);
-}
-
-PVGuiQt::PVOpenWorkspace* PVGuiQt::PVOpenWorkspacesTabWidget::current_workspace_or_create()
-{
-	PVOpenWorkspace* ret = current_workspace();
-	if (!ret) {
-		ret = _tab_bar->create_new_workspace();
-	}
-	return ret;
 }
