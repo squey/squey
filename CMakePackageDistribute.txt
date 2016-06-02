@@ -103,5 +103,5 @@ install(FILES
 # doc
 if(DOC_ROOT_DIR)
 	message(STATUS "Documentation directory: " ${DOC_ROOT_DIR})
-	install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION share)
+	install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION share/doc/inendi-inspector)
 endif(DOC_ROOT_DIR)
