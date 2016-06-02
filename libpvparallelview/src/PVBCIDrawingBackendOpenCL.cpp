@@ -291,7 +291,7 @@ struct opencl_kernel {
  *****************************************************************************/
 
 PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
-    : _context(nullptr), _is_software(false)
+    : _context(nullptr), _is_gpu_accelerated(true)
 {
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
@@ -325,7 +325,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 	if (_context == nullptr) {
 		_context = PVOpenCL::find_first_usable_context(false, fun);
-		_is_software = true;
+		_is_gpu_accelerated = false;
 	}
 
 	if (_context == nullptr) {
@@ -537,7 +537,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 	inendi_verify_opencl_var(err);
 
 	// CPU drivers need to do an explicit clFlush to make event happen... strange...
-	if (_is_software) {
+	if (not _is_gpu_accelerated) {
 		clFlush(dev.queue);
 	}
 }

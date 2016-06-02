@@ -83,7 +83,7 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	devices_t _devices;
 	devices_t::const_iterator _next_device;
 	host_buffers_t _mapped_buffers;
-	bool _is_software;
+	bool _is_gpu_accelerated;
 };
 
 } // namespace PVParallelView
