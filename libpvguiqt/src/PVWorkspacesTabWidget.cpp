@@ -176,9 +176,6 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::add_workspace(PVWorkspaceBase* workspac
 void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index)
 {
 	QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
-	connect(animation, SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
-	        this,
-	        SLOT(animation_state_changed(QAbstractAnimation::State, QAbstractAnimation::State)));
 	blockSignals(true);
 	_tab_animation_index = index;
 	setCurrentIndex(index); // Force current index in order to get the animation
@@ -190,8 +187,11 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index)
 	animation->setEndValue(25);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
 
-	connect(animation, &QPropertyAnimation::finished, this,
-	        &PVWorkspacesTabWidgetBase::animation_finished);
+	connect(animation, &QPropertyAnimation::finished, []() {
+		tabBar()->setStyleSheet("");
+		widget(_tab_animation_index)->deleteLater();
+		removeTab(_tab_animation_index);
+	});
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::set_tab_width(int tab_width)

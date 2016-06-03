@@ -132,11 +132,6 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 		return 0;
 	}
 
-	/*! \brief Remove tab at then end of the animation.
-	 */
-	void animation_state_changed(QAbstractAnimation::State new_state,
-	                             QAbstractAnimation::State old_state);
-
 	void animation_finished();
 
   protected:
