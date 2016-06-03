@@ -325,7 +325,7 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	}
 }
 
-PVGuiQt::PVWorkspacesTabWidgetBase*
+PVGuiQt::PVSceneWorkspacesTabWidget*
 PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const
 {
 	if (_current_workspace_tab_widget_index < 0) {
@@ -334,7 +334,7 @@ PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const
 
 	QWidget* w = _stacked_widget->widget(_current_workspace_tab_widget_index);
 
-	return qobject_cast<PVWorkspacesTabWidgetBase*>(w);
+	return qobject_cast<PVSceneWorkspacesTabWidget*>(w);
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget*

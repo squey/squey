@@ -138,7 +138,7 @@ class PVProjectsTabWidget : public QWidget
 	void collapse_tabs(bool collapse = true);
 
 	inline Inendi::PVScene* current_scene() const { return _root->current_scene(); }
-	PVWorkspacesTabWidgetBase* current_workspace_tab_widget() const;
+	PVSceneWorkspacesTabWidget* current_workspace_tab_widget() const;
 	inline PVSceneWorkspacesTabWidget* current_project() const
 	{
 		return (_current_workspace_tab_widget_index >= FIRST_PROJECT_INDEX)

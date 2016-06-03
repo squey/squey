@@ -45,7 +45,7 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 		if (w) {
 			for (PVProjectsTabWidget* project_tab_widget :
 			     w->findChildren<PVProjectsTabWidget*>("PVProjectsTabWidget")) {
-				PVWorkspacesTabWidgetBase* workspace_tab_widget =
+				PVSceneWorkspacesTabWidget* workspace_tab_widget =
 				    project_tab_widget->current_workspace_tab_widget();
 				if (workspace_tab_widget) {
 					PVWorkspaceBase* workspace =
