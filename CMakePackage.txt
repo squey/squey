@@ -24,7 +24,7 @@ ENDIF(CUDA_FOUND)
 
 IF(OPENCL_FOUND)
 	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, ocl-icd-libopencl1, pocl-opencl-icd")
-	SET(CPACK_DEBIAN_PACKAGE_SUGGESTS "amd-opencl-icd, beignet-opencl-icd, mesa-opencl-icd, nvidia-legacy-340xx-opencl-icd, nvidia-opencl-icd")
+	SET(CPACK_DEBIAN_PACKAGE_RECOMMENDS "amd-opencl-icd, beignet-opencl-icd, mesa-opencl-icd, nvidia-opencl-icd")
 ENDIF(OPENCL_FOUND)
 
 include(CPack)
