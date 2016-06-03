@@ -12,21 +12,12 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <inendi/PVSource.h>
-
-#include <pvkernel/core/lambda_connect.h>
-
-#include <QApplication>
-#include <QComboBox>
 #include <QDrag>
-#include <QEvent>
 #include <QImage>
-#include <QLineEdit>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
 #include <QPropertyAnimation>
-#include <QPushButton>
 
 #define TAB_OPENING_EFFECT_MSEC 200
 
@@ -145,7 +136,7 @@ void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
  *****************************************************************************/
 PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene& scene,
                                                                 QWidget* parent /* = 0 */)
-    : QTabWidget(parent), _root(*scene.get_parent<Inendi::PVRoot>())
+    : QTabWidget(parent)
 {
 	setObjectName("PVWorkspacesTabWidget");
 
@@ -250,6 +241,6 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 
 	PVSourceWorkspace* workspace = qobject_cast<PVSourceWorkspace*>(widget(index));
 	assert(workspace);
-	Inendi::PVRoot_sp root_sp = get_scene()->get_parent<Inendi::PVRoot>()->shared_from_this();
+	Inendi::PVRoot_sp root_sp = get_scene().get_parent<Inendi::PVRoot>()->shared_from_this();
 	PVHive::call<FUNC(Inendi::PVRoot::select_source)>(root_sp, *workspace->get_source());
 }

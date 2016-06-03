@@ -14,31 +14,18 @@
 #include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVFuncObserver.h>
 
-#include <pvkernel/core/lambda_connect.h>
-
-class QLineEdit;
-class QMouseEvent;
-class QWidget;
-#include <QAbstractAnimation>
-#include <QObject>
 #include <QPoint>
 #include <QTabBar>
 #include <QTabWidget>
-#include <QTimer>
 
-namespace Inendi
-{
-class PVSource;
-class PVScene;
-}
+class QMouseEvent;
+class QWidget;
 
 namespace PVGuiQt
 {
 
 class PVWorkspaceBase;
 class PVSceneWorkspacesTabWidget;
-class PVSceneWorkspacesTabWidget;
-class PVSceneTabBar;
 
 /**
  * \class PVSceneTabBar
@@ -101,11 +88,7 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 	bool is_project_modified() { return _project_modified; }
 	bool is_project_untitled() { return _project_untitled; }
 
-	Inendi::PVScene* get_scene() { return _obs_scene.get_object(); }
-
-  protected:
-	inline Inendi::PVRoot const& get_root() const { return _root; }
-	inline Inendi::PVRoot& get_root() { return _root; }
+	Inendi::PVScene& get_scene() { return *_obs_scene.get_object(); }
 
   public slots:
 	/*! \brief Call Inendi::PVRoot::select_source throught the Hive to keep track of current source.
@@ -151,8 +134,6 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 	void workspace_dragged_outside(QWidget*);
 
   private:
-	Inendi::PVRoot& _root;
-
 	bool _project_modified = false;
 	bool _project_untitled = true;
 
