@@ -186,20 +186,22 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index)
 	blockSignals(false);
 	_tab_animation_index = index;
 	animation->setDuration(TAB_OPENING_EFFECT_MSEC);
+	animation->setStartValue(_tab_bar->tabRect(index).width());
 	animation->setEndValue(25);
-	_tab_animated_width = _tab_bar->tabSizeHint(index).width();
-	animation->setStartValue(_tab_animated_width);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
+
+	connect(animation, &QPropertyAnimation::finished, this,
+	        &PVWorkspacesTabWidgetBase::animation_finished);
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::set_tab_width(int tab_width)
 {
-	// QString str = QString("QTabBar::tab:selected { width: %1px; color: rgba(0,
-	// 0, 0, %2%);}").arg(tab_width).arg((float)tab_width / _tab_animated_width *
-	// 100);
-	QString str = QString("QTabBar::tab:selected { width: %1px;}").arg(tab_width);
-	_tab_animation_ongoing = tab_width != _tab_animated_width;
-	tabBar()->setStyleSheet(_tab_animation_ongoing ? str : "");
+	tabBar()->setStyleSheet(QString("QTabBar::tab:selected { width: %1px;}").arg(tab_width));
+}
+
+void PVGuiQt::PVWorkspacesTabWidgetBase::animation_finished()
+{
+	tabBar()->setStyleSheet("");
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(
@@ -209,7 +211,6 @@ void PVGuiQt::PVWorkspacesTabWidgetBase::animation_state_changed(
 		tabBar()->setStyleSheet("");
 		widget(_tab_animation_index)->deleteLater();
 		removeTab(_tab_animation_index);
-		sender()->deleteLater();
 	}
 }
 
