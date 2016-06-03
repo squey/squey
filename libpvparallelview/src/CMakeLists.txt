@@ -157,7 +157,15 @@ if (CUDA_FOUND)
 endif (CUDA_FOUND)
 
 if (OPENCL_FOUND)
-	list(APPEND SRC_FILES ${OPENCL_SRC_FILES})
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
+		COMMAND ${CMAKE_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
+		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
+		)
+
+	include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
+
+	list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 	list(APPEND LINK_LIBRARIES ${OPENCL_LIBRARIES})
 endif()
 
