@@ -51,8 +51,6 @@ class PVSceneTabBar : public QTabBar
 
   public:
 	PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget);
-	QSize tabSizeHint(int index) const;
-	virtual int count() const;
 
   public:
 	/*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
@@ -71,8 +69,8 @@ class PVSceneTabBar : public QTabBar
 	bool _drag_ongoing = false;
 
   private:
-	static constexpr int MIN_WIDTH = 160;
-	/*!< The manimum width of a tab label in pixel.*/ // size of proxy_sample.log
+	// size of proxy_sample.log
+	static constexpr int MIN_WIDTH = 160; //!< The manimum width of a tab label in pixel.
 };
 
 /**
@@ -85,15 +83,13 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 	Q_OBJECT
 	Q_PROPERTY(int tab_width READ get_tab_width WRITE set_tab_width);
 
-	friend class PVSceneTabBar;
-
   public:
 	PVWorkspacesTabWidgetBase(Inendi::PVRoot& root, QWidget* parent = 0);
 
   public:
 	/*! \brief Add a workspace with or without animation.
 	 */
-	virtual int add_workspace(PVWorkspaceBase* page, const QString& label, bool animation = true);
+	void add_workspace(PVWorkspaceBase* page, const QString& label);
 
 	/*! \brief Remove a workspace with or without animation.
 	 */
@@ -129,19 +125,24 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
 
 	/*! \brief Dummy slot to avoid warning with the tab_width Q_PROPERTY.
 	 */
-	int get_tab_width() const { return 0; }
+	int get_tab_width() const
+	{
+		assert(false and "The property doesn't really contains a value, it is use only to have an "
+		                 "animation calling the setter");
+		return 0;
+	}
 
 	/*! \brief Remove tab at then end of the animation.
 	 */
 	void animation_state_changed(QAbstractAnimation::State new_state,
 	                             QAbstractAnimation::State old_state);
 
+	void animation_finished();
+
   protected:
 	PVSceneTabBar* _tab_bar;
 
   private:
-	int _tab_animated_width;
-	bool _tab_animation_ongoing = false;
 	int _tab_animation_index;
 
 	Inendi::PVRoot& _root;
@@ -151,6 +152,8 @@ class PVWorkspacesTabWidgetBase : public QTabWidget
  * \class PVSceneWorkspacesTabWidget
  *
  * \note This class is a PVWorkspacesTabWidgetBase derivation representing a scene tab widget.
+ * ie: It is the tab widget with all sources of the scene and tab modification add/updage/change
+ * sources.
  */
 class PVSceneWorkspacesTabWidget : public PVWorkspacesTabWidgetBase
 {

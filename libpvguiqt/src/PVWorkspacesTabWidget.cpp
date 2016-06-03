@@ -44,17 +44,7 @@ PVGuiQt::PVSceneTabBar::PVSceneTabBar(PVWorkspacesTabWidgetBase* tab_widget)
 	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
 
 	setMovable(true);
-	setElideMode(Qt::ElideRight); // Qt::ElideMiddle);
-}
-
-int PVGuiQt::PVSceneTabBar::count() const
-{
-	return QTabBar::count();
-}
-
-QSize PVGuiQt::PVSceneTabBar::tabSizeHint(int index) const
-{
-	return QTabBar::tabSizeHint(index);
+	setElideMode(Qt::ElideRight);
 }
 
 void PVGuiQt::PVSceneTabBar::mouseReleaseEvent(QMouseEvent* event)
@@ -165,23 +155,22 @@ PVGuiQt::PVWorkspacesTabWidgetBase::PVWorkspacesTabWidgetBase(Inendi::PVRoot& ro
 	tabBar()->setMouseTracking(true);
 }
 
-int PVGuiQt::PVWorkspacesTabWidgetBase::add_workspace(PVWorkspaceBase* workspace,
-                                                      const QString& label,
-                                                      bool animation /*= true*/)
+void PVGuiQt::PVWorkspacesTabWidgetBase::add_workspace(PVWorkspaceBase* workspace,
+                                                       const QString& label)
 {
-	int index = insertTab(count(), workspace, label);
+	// Add the new workspace and select it
+	int index = addTab(workspace, label);
 	setCurrentIndex(index);
 
-	if (animation) {
-		QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
-		animation->setDuration(TAB_OPENING_EFFECT_MSEC);
-		animation->setStartValue(25);
-		_tab_animated_width = _tab_bar->tabSizeHint(index).width();
-		animation->setEndValue(_tab_animated_width);
-		animation->start(QAbstractAnimation::DeleteWhenStopped);
-	}
+	// Add an animation on the tabBar.
+	QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
+	animation->setDuration(TAB_OPENING_EFFECT_MSEC);
+	animation->setStartValue(25);
+	animation->setEndValue(_tab_bar->tabRect(index).width());
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
 
-	return index;
+	connect(animation, &QPropertyAnimation::finished, this,
+	        &PVWorkspacesTabWidgetBase::animation_finished);
 }
 
 void PVGuiQt::PVWorkspacesTabWidgetBase::remove_workspace(int index)
