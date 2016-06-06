@@ -39,8 +39,7 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
-	auto const& scenes = env.root->get_children().front();
-	PVRush::PVNraw const& nraw = scenes->get_children().front()->get_rushnraw();
+	PVRush::PVNraw const& nraw = env.root->get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.collection().column(0);
 	pvcop::db::array dist;
 	pvcop::db::algo::distinct(column, dist);

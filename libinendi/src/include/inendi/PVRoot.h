@@ -47,7 +47,7 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>,
 	~PVRoot();
 
   public:
-	bool is_empty() const { return get_children().empty(); }
+	bool is_empty() const { return size() == 0; }
 	void clear();
 	void reset_colors();
 

@@ -455,37 +455,33 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	refresh_views_menus();
 
-	for (auto& mapped : _source->get_children()) {
-		for (auto& plotted : mapped->get_children()) {
-			for (Inendi::PVView_sp const& view : plotted->get_children()) {
-				bool already_center = false;
-				// Create default widgets
-				PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
-				    [&](PVDisplays::PVDisplayViewIf& obj) {
-					    QWidget* w = PVDisplays::get().get_widget(obj, view.get());
+	for (Inendi::PVView_sp const& view : _source->get_children<Inendi::PVView>()) {
+		bool already_center = false;
+		// Create default widgets
+		PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
+		    [&](PVDisplays::PVDisplayViewIf& obj) {
+			    QWidget* w = PVDisplays::get().get_widget(obj, view.get());
 
-					    Inendi::PVView* v = view.get();
-					    std::function<QString()> name = [&, v]() { return obj.widget_title(v); };
-					    const bool as_central = obj.default_position_as_central_hint();
+			    Inendi::PVView* v = view.get();
+			    std::function<QString()> name = [&, v]() { return obj.widget_title(v); };
+			    const bool as_central = obj.default_position_as_central_hint();
 
-					    const bool delete_on_close =
-					        !obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
-					    if (as_central && !already_center) {
-						    set_central_display(view.get(), w, name, delete_on_close);
-					    } else {
-						    Qt::DockWidgetArea pos = obj.default_position_hint();
-						    if (as_central && already_center) {
-							    pos = Qt::TopDockWidgetArea;
-						    }
-						    add_view_display(
-						        view.get(), w, name,
-						        obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
-						        delete_on_close, pos);
-					    }
-					},
-				    PVDisplays::PVDisplayIf::DefaultPresenceInSourceWorkspace);
-			}
-		}
+			    const bool delete_on_close =
+			        !obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
+			    if (as_central && !already_center) {
+				    set_central_display(view.get(), w, name, delete_on_close);
+			    } else {
+				    Qt::DockWidgetArea pos = obj.default_position_hint();
+				    if (as_central && already_center) {
+					    pos = Qt::TopDockWidgetArea;
+				    }
+				    add_view_display(
+				        view.get(), w, name,
+				        obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
+				        delete_on_close, pos);
+			    }
+			},
+		    PVDisplays::PVDisplayIf::DefaultPresenceInSourceWorkspace);
 	}
 }
 
@@ -528,44 +524,40 @@ void PVGuiQt::PVSourceWorkspace::refresh_views_menus()
 		}
 	}
 
-	for (auto& mapped : _source->get_children()) {
-		for (auto& plotted : mapped->get_children()) {
-			for (Inendi::PVView_sp const& view : plotted->get_children()) {
-				QString action_name = view->get_name();
+	for (Inendi::PVView_sp const& view : _source->get_children<Inendi::PVView>()) {
+		QString action_name = view->get_name();
 
-				for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p :
-				     _view_display_if_btns) {
-					QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get());
-					act->setText(action_name);
-					p.first->addAction(act);
+		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p :
+		     _view_display_if_btns) {
+			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get());
+			act->setText(action_name);
+			p.first->addAction(act);
 
-					connect(act, SIGNAL(triggered()), this, SLOT(create_view_widget()));
-				}
+			connect(act, SIGNAL(triggered()), this, SLOT(create_view_widget()));
+		}
 
-				// AG: this category could go into PVDisplayViewIf w/ a
-				// PVCore::PVArgumentList object with one axis !
-				for (std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*> const& p :
-				     _view_axis_display_if_btns) {
-					QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get(),
-					                                                        PVCOL_INVALID_VALUE);
-					act->setText(action_name + "...");
-					p.first->addAction(act);
+		// AG: this category could go into PVDisplayViewIf w/ a
+		// PVCore::PVArgumentList object with one axis !
+		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*> const& p :
+		     _view_axis_display_if_btns) {
+			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get(),
+			                                                        PVCOL_INVALID_VALUE);
+			act->setText(action_name + "...");
+			p.first->addAction(act);
 
-					connect(act, SIGNAL(triggered()), this, SLOT(create_view_axis_widget()));
-				}
+			connect(act, SIGNAL(triggered()), this, SLOT(create_view_axis_widget()));
+		}
 
-				// AG: this category could go into PVDisplayViewIf w/ a
-				// PVCore::PVArgumentList object with one axis !
-				for (std::pair<QToolButton*, PVDisplays::PVDisplayViewZoneIf*> const& p :
-				     _view_zone_display_if_btns) {
-					QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get(),
-					                                                        PVCOL_INVALID_VALUE);
-					act->setText(action_name + "...");
-					p.first->addAction(act);
+		// AG: this category could go into PVDisplayViewIf w/ a
+		// PVCore::PVArgumentList object with one axis !
+		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewZoneIf*> const& p :
+		     _view_zone_display_if_btns) {
+			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view.get(),
+			                                                        PVCOL_INVALID_VALUE);
+			act->setText(action_name + "...");
+			p.first->addAction(act);
 
-					connect(act, SIGNAL(triggered()), this, SLOT(create_view_zone_widget()));
-				}
-			}
+			connect(act, SIGNAL(triggered()), this, SLOT(create_view_zone_widget()));
 		}
 	}
 }

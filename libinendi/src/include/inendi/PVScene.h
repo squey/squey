@@ -66,7 +66,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	PVRush::PVInputType::list_inputs_desc get_inputs_desc(PVRush::PVInputType const& type) const;
 
-	inline bool is_empty() const { return get_children().size() == 0; }
+	inline bool is_empty() const { return size() == 0; }
 
 	virtual QString get_serialize_description() const { return get_name(); }
 

@@ -60,16 +60,7 @@ int main()
 	env.compute_mappings();
 	env.compute_plottings();
 
-	std::list<PVCore::PVSharedPtr<Inendi::PVView>> views;
-	for (auto scene : env.root->get_children()) {
-		for (auto source : scene->get_children()) {
-			for (auto mapped : source->get_children()) {
-				for (auto plotted : mapped->get_children()) {
-					views.splice(views.begin(), plotted->get_children());
-				}
-			}
-		}
-	}
+	auto views = env.root->get_children<Inendi::PVView>();
 	PV_VALID(views.size(), 2UL);
 
 	/**

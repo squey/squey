@@ -39,16 +39,7 @@ double save_investigation()
 
 	size_t view_size = env.root->size<Inendi::PVView>();
 	PV_VALID(view_size, 3UL);
-	auto view = env.root->get_children()
-	                .front() // scene
-	                ->get_children()
-	                .front() // source
-	                ->get_children()
-	                .front() // mapped
-	                ->get_children()
-	                .front() // plotted
-	                ->get_children()
-	                .front(); // view
+	auto view = env.root->get_children<Inendi::PVView>().front();
 
 	/**
 	 * Add layers
@@ -100,10 +91,7 @@ double load_investigation()
 	/**
 	 * Check sources
 	 */
-	std::list<PVCore::PVSharedPtr<Inendi::PVSource>> sources;
-	for (auto const& scene : root->get_children()) {
-		sources.splice(sources.end(), scene->get_children());
-	}
+	auto sources = root->get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 3UL);
 	auto source = *sources.begin();
 	source->load_from_disk();
@@ -127,16 +115,7 @@ double load_investigation()
 	/**
 	 * Check view
 	 */
-	std::list<PVCore::PVSharedPtr<Inendi::PVView>> views;
-	for (auto scene : root->get_children()) {
-		for (auto source : scene->get_children()) {
-			for (auto mapped : source->get_children()) {
-				for (auto plotted : mapped->get_children()) {
-					views.splice(views.end(), plotted->get_children());
-				}
-			}
-		}
-	}
+	auto views = root->get_children<Inendi::PVView>();
 	PV_VALID(views.size(), 3UL);
 	auto view = views.front();
 	PV_VALID(view->get_row_count(), ROW_COUNT * dupl);

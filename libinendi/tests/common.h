@@ -104,11 +104,9 @@ class TestEnv
 
 	void compute_mappings()
 	{
-		for (const auto& scene : root->get_children()) {
-			for (const auto& source : scene->get_children()) {
-				Inendi::PVMapped_p mapped = source->emplace_add_child();
-				mapped->process_from_parent_source();
-			}
+		for (const auto& source : root->get_children<Inendi::PVSource>()) {
+			Inendi::PVMapped_p mapped = source->emplace_add_child();
+			mapped->process_from_parent_source();
 		}
 	}
 
@@ -142,13 +140,9 @@ class TestEnv
 	void compute_plottings()
 	{
 		// And plot the mapped values
-		for (const auto& scene : root->get_children()) {
-			for (const auto& source : scene->get_children()) {
-				for (const auto& mapped : source->get_children()) {
-					Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
-					plotted->process_from_parent_mapped();
-				}
-			}
+		for (const auto& mapped : root->get_children<Inendi::PVMapped>()) {
+			Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
+			plotted->process_from_parent_mapped();
 		}
 	}
 

@@ -1343,7 +1343,7 @@ void PVInspector::PVMainWindow::remove_source(Inendi::PVSource* src_p)
 	Inendi::PVScene_sp scene_p = src_p->get_parent()->shared_from_this();
 
 	scene_p->remove_child(*src_p);
-	if (scene_p->get_children().size() == 0) {
+	if (scene_p->size() == 0) {
 		PVGuiQt::PVSceneWorkspacesTabWidget* tab =
 		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
 		if (tab != nullptr) {

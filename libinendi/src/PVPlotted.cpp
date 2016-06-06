@@ -576,10 +576,11 @@ bool Inendi::PVPlotted::is_uptodate() const
 bool Inendi::PVPlotted::is_current_plotted() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
-	return std::find_if(get_children().begin(), get_children().end(),
+	auto children = get_children();
+	return std::find_if(children.begin(), children.end(),
 	                    [cur_view](PVCore::PVSharedPtr<const PVView> const& view) {
 		                    return view.get() == cur_view;
-		                }) != get_children().end();
+		                }) != children.end();
 }
 
 void Inendi::PVPlotted::finish_process_from_rush_pipeline()

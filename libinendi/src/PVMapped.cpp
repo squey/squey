@@ -229,10 +229,11 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
  *****************************************************************************/
 bool Inendi::PVMapped::is_current_mapped() const
 {
-	return std::find_if(get_children().begin(), get_children().end(),
+	auto children = get_children();
+	return std::find_if(children.begin(), children.end(),
 	                    [](PVCore::PVSharedPtr<const PVPlotted> const& plotted) {
 		                    return plotted->is_current_plotted();
-		                }) != get_children().end();
+		                }) != children.end();
 }
 
 /******************************************************************************
