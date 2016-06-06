@@ -210,8 +210,6 @@ class PVSourceWorkspace : public PVWorkspaceBase
   public:
 	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = 0);
 
-	~PVSourceWorkspace();
-
   public:
 	inline Inendi::PVSource* get_source() const { return _source; }
 

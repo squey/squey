@@ -485,11 +485,6 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
  *
  *****************************************************************************/
 
-PVGuiQt::PVSourceWorkspace::~PVSourceWorkspace()
-{
-	_source->remove_from_tree();
-}
-
 void PVGuiQt::PVSourceWorkspace::update_view_count(PVHive::PVObserverBase* /*obs_base*/)
 {
 	uint64_t views_count = _source->get_children<Inendi::PVView>().size();

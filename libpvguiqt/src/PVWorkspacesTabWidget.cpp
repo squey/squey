@@ -187,11 +187,13 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index)
 		tabBar()->setStyleSheet("");
 		QWidget* w = widget(index);
 		removeTab(index);
-		delete w;
 		if (count() == 0) {
+			delete w;
 			emit is_empty();
 			hide();
 		} else {
+			get_scene().remove_child(*qobject_cast<PVGuiQt::PVSourceWorkspace*>(w)->get_source());
+			delete w;
 			setCurrentIndex(std::min(index, count() - 1));
 		}
 	});
