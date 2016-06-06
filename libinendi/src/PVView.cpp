@@ -38,7 +38,7 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  *
  *****************************************************************************/
 Inendi::PVView::PVView(PVPlotted* plotted)
-    : data_tree_view_t(plotted)
+    : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
     , _axes_combination(get_parent<PVSource>()->get_axes_combination())
     , post_filter_layer("post_filter_layer")
     , layer_stack_output_layer("view_layer_stack_output_layer")

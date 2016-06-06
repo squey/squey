@@ -30,12 +30,12 @@ namespace Inendi
 
 class PVSource;
 
-using data_tree_scene_t = PVCore::PVDataTreeObject<PVRoot, PVSource>;
-
 /**
  * \class PVScene
  */
-class PVScene : public data_tree_scene_t
+class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
+                public PVCore::PVDataTreeChild<PVRoot, PVScene>,
+                public PVCore::PVEnableSharedFromThis<PVScene>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
@@ -90,8 +90,7 @@ class PVScene : public data_tree_scene_t
 	QString _name;
 };
 
-typedef PVScene::p_type PVScene_p;
-typedef PVScene::wp_type PVScene_wp;
+using PVScene_p = PVCore::PVSharedPtr<PVScene>;
 }
 
 #endif /* INENDI_PVSCENE_H */

@@ -58,7 +58,8 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	friend class PVViewWidgets;
 
   public:
-	typedef PVHive::PVObserverSignal<PVCore::PVDataTreeObjectBase> datatree_obs_t;
+	typedef PVHive::PVObserverSignal<Inendi::PVMapped> mapped_obs_t;
+	typedef PVHive::PVObserverSignal<Inendi::PVPlotted> plotted_obs_t;
 
   private:
 	class PVViewWidgets
@@ -231,7 +232,8 @@ class PVSourceWorkspace : public PVWorkspaceBase
   private:
 	Inendi::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
-	std::list<datatree_obs_t> _obs;
+	std::list<mapped_obs_t> _obs_mapped;
+	std::list<plotted_obs_t> _obs_plotted;
 	uint64_t _views_count;
 
 	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.

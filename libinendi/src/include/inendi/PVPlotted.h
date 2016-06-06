@@ -36,8 +36,9 @@ class PVSource;
 /**
  * \class PVPlotted
  */
-typedef typename PVCore::PVDataTreeObject<PVMapped, PVView> data_tree_plotted_t;
-class PVPlotted : public data_tree_plotted_t
+class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
+                  public PVCore::PVDataTreeParent<PVView, PVPlotted>,
+                  public PVCore::PVEnableSharedFromThis<PVPlotted>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
@@ -250,8 +251,8 @@ class PVPlotted : public data_tree_plotted_t
 	std::vector<MinMax> _minmax_values;
 };
 
-typedef PVPlotted::p_type PVPlotted_p;
-typedef PVCore::PVSharedPtr<PVPlotted> PVPlotted_sp;
+using PVPlotted_sp = PVCore::PVSharedPtr<PVPlotted>;
+using PVPlotted_p = PVCore::PVSharedPtr<PVPlotted>;
 }
 
 #endif /* INENDI_PVPLOTTED_H */

@@ -22,16 +22,11 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/core/PVFunctionTraits.h>
+#include <pvkernel/core/PVDataTreeObject.h>
 
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVActorBase.h>
-
-namespace PVCore
-{
-class PVDataTreeObjectBase;
-class PVDataTreeObjectWithParentBase;
-}
 
 namespace PVHive
 {
@@ -502,6 +497,23 @@ class PVHive
 	 *
 	 * @param object the observed object
 	 */
+	template <typename T, class U>
+	inline void refresh_observers(PVCore::PVDataTreeChild<T, U> const* object)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+
+		// Check if that object still exists
+		{
+			observables_t::const_accessor acc;
+			if (!_observables.find(acc, (void*)object)) {
+				return;
+			}
+		}
+		do_refresh_observers((void*)PVCore::PVTypeTraits::get_starting_address(object));
+		refresh_observers_maybe_recursive(object->get_parent());
+	}
+
 	template <typename T>
 	inline void refresh_observers(T const* object)
 	{
@@ -515,37 +527,25 @@ class PVHive
 				return;
 			}
 		}
-		PVCore::PVDataTreeObjectWithParentBase const* dt =
-		    PVCore::PVTypeTraits::dynamic_cast_if_possible<
-		        PVCore::PVDataTreeObjectWithParentBase const*>(object);
-		if (dt) {
-			refresh_observers(dt, (void*)PVCore::PVTypeTraits::get_starting_address(object));
-		} else {
-			do_refresh_observers((void*)PVCore::PVTypeTraits::get_starting_address(object));
-		}
+		do_refresh_observers((void*)PVCore::PVTypeTraits::get_starting_address(object));
 	}
 
+	template <typename T, class U>
+	inline void refresh_observers_maybe_recursive(PVCore::PVDataTreeChild<T, U> const* object)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+		do_refresh_observers_maybe_recursive((void*)object);
+		refresh_observers_maybe_recursive(object->get_parent());
+	}
 	template <typename T>
 	inline void refresh_observers_maybe_recursive(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
-		PVCore::PVDataTreeObjectWithParentBase const* dt =
-		    PVCore::PVTypeTraits::dynamic_cast_if_possible<
-		        PVCore::PVDataTreeObjectWithParentBase const*>(object);
-		if (dt) {
-			refresh_observers_maybe_recursive(
-			    dt, const_cast<void*>(
-			            PVCore::PVTypeTraits::dynamic_cast_if_possible<const void*>(object)));
-		} else {
-			do_refresh_observers_maybe_recursive(
-			    (void*)PVCore::PVTypeTraits::get_starting_address(object));
-		}
+		do_refresh_observers_maybe_recursive(
+		    (void*)PVCore::PVTypeTraits::get_starting_address(object));
 	}
-
-	void refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh);
-	void refresh_observers_maybe_recursive(PVCore::PVDataTreeObjectWithParentBase const* object,
-	                                       void* obj_refresh);
 
 	/**
 	 * Tell all observers of function that a change is about to occure

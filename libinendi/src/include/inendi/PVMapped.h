@@ -29,8 +29,6 @@ namespace Inendi
 class PVPlotted;
 class PVSelection;
 
-using data_tree_mapped_t = PVCore::PVDataTreeObject<PVSource, PVPlotted>;
-
 /**
  * \class PVMapped
  *
@@ -40,7 +38,9 @@ using data_tree_mapped_t = PVCore::PVDataTreeObject<PVSource, PVPlotted>;
  * PVMapping for others.
  * It contains only mapping values which certainly should be merged in PVMapping.
  */
-class PVMapped : public data_tree_mapped_t
+class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
+                 public PVCore::PVDataTreeChild<PVSource, PVMapped>,
+                 public PVCore::PVEnableSharedFromThis<PVMapped>
 {
 	friend class PVPlotted;
 	friend class PVSource;
@@ -158,7 +158,7 @@ class PVMapped : public data_tree_mapped_t
 	PVMapping _mapping; //!< Contains properties for every column.
 };
 
-using PVMapped_p = PVMapped::p_type;
+using PVMapped_p = PVCore::PVSharedPtr<PVMapped>;
 }
 
 #endif /* INENDI_PVMAPPED_H */

@@ -42,7 +42,10 @@ Inendi::PVSource::PVSource(Inendi::PVScene* scene,
                            PVRush::PVFormat format,
                            size_t ext_start,
                            size_t ext_end)
-    : data_tree_source_t(scene), _inputs(inputs), _src_plugin(sc), _nraw(_extractor.get_nraw())
+    : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
+    , _inputs(inputs)
+    , _src_plugin(sc)
+    , _nraw(_extractor.get_nraw())
 {
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
@@ -203,7 +206,7 @@ PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
 
 void Inendi::PVSource::create_default_view()
 {
-	if (get_children_count() == 0) {
+	if (get_children().empty()) {
 		emplace_add_child();
 	}
 	for (PVMapped_p& m : get_children()) {
@@ -217,7 +220,7 @@ void Inendi::PVSource::create_default_view()
 
 void Inendi::PVSource::process_from_source()
 {
-	for (auto mapped_p : get_children<PVMapped>()) {
+	for (auto mapped_p : get_children()) {
 		mapped_p->process_from_parent_source();
 	}
 }

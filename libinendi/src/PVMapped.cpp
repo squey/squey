@@ -24,7 +24,8 @@
  * Inendi::PVMapped::PVMapped
  *
  *****************************************************************************/
-Inendi::PVMapped::PVMapped(PVSource* src) : data_tree_mapped_t(src), _mapping(this)
+Inendi::PVMapped::PVMapped(PVSource* src)
+    : PVCore::PVDataTreeChild<PVSource, PVMapped>(src), _mapping(this)
 {
 	// FIXME Mapping should be merge in mapped as they are interdependant.
 }
@@ -134,7 +135,7 @@ void Inendi::PVMapped::compute()
 	}
 
 	// force plotteds updates (in case of .pvi load)
-	for (auto plotted : get_children<PVPlotted>()) {
+	for (auto plotted : get_children()) {
 		plotted->finish_process_from_rush_pipeline();
 	}
 }
@@ -204,7 +205,7 @@ void Inendi::PVMapped::process_from_parent_source()
 {
 	compute();
 	// Process plotting children
-	for (auto plotted_p : get_children<PVPlotted>()) {
+	for (auto plotted_p : get_children()) {
 		plotted_p->process_from_parent_mapped();
 	}
 }
@@ -216,7 +217,7 @@ void Inendi::PVMapped::process_from_parent_source()
  *****************************************************************************/
 void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 {
-	for (auto plotted_p : get_children<PVPlotted>()) {
+	for (auto plotted_p : get_children()) {
 		plotted_p->invalidate_column(j);
 	}
 }
@@ -228,13 +229,10 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
  *****************************************************************************/
 bool Inendi::PVMapped::is_current_mapped() const
 {
-	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
-	for (auto const& cv : get_children<Inendi::PVView>()) {
-		if (cv.get() == cur_view) {
-			return true;
-		}
-	}
-	return false;
+	return std::find_if(get_children().begin(), get_children().end(),
+	                    [](PVCore::PVSharedPtr<PVPlotted> const& plotted) {
+		                    return plotted->is_current_plotted();
+		                }) != get_children().end();
 }
 
 /******************************************************************************

@@ -11,16 +11,8 @@
 #include <QFont>
 
 PVWidgets::PVDataTreeModel::PVDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent)
-    : QAbstractItemModel(parent)
+    : QAbstractItemModel(parent), _root(root)
 {
-	_root_base = &root;
-	_root = root.cast_with_children();
-}
-
-PVCore::PVDataTreeObjectBase* PVWidgets::PVDataTreeModel::get_object(QModelIndex const& index) const
-{
-	assert(index.isValid());
-	return (static_cast<PVCore::PVDataTreeObjectBase*>(index.internalPointer()));
 }
 
 QModelIndex PVWidgets::PVDataTreeModel::index(int row, int column, const QModelIndex& parent) const
@@ -28,47 +20,35 @@ QModelIndex PVWidgets::PVDataTreeModel::index(int row, int column, const QModelI
 	// Column is always 0 (see columnCount), but asserts it
 	assert(column == 0);
 
-	PVCore::PVDataTreeObjectWithChildrenBase::children_base_t children;
 	if (!parent.isValid()) {
-		assert(_root);
 		// Root element: get its children !
-		children = _root->get_children_base();
-	} else {
-		// Get children of this parent !
-		PVCore::PVDataTreeObjectWithChildrenBase* node_obj =
-		    get_object(parent)->cast_with_children();
-		if (!node_obj) {
-			return QModelIndex();
+		auto& children = _root.get_children();
+		if (row >= children.size()) {
+			return {};
+		} else {
+			return createIndex(row, column, &*std::advance(children.begin(), row));
 		}
-		children = node_obj->get_children_base();
+	} else {
+		// TODO : It is not root but parent.internalPointer casted to correct type. (see
+		// evtx-rewriter)
+		auto& children = _root.get_children();
+		if (row >= children.size()) {
+			return {};
+		} else {
+			return createIndex(row, column, &*std::advance(children.begin(), row));
+		}
 	}
-	if (row >= children.size()) {
-		return QModelIndex();
-	}
-
-	PVCore::PVDataTreeObjectBase* final_obj = children.at(row);
-	return createIndex(row, column, final_obj);
 }
 
 int PVWidgets::PVDataTreeModel::rowCount(const QModelIndex& index) const
 {
-	if (!_root) {
-		return 0;
-	}
-
 	if (!index.isValid()) {
 		// Root object. Get its number of children.
-		return _root->get_children_count();
+		return _root.get_children().size();
 	}
 
-	PVCore::PVDataTreeObjectWithChildrenBase* node_obj = get_object(index)->cast_with_children();
-	if (node_obj) {
-		// This object has children, so return its count.
-		return node_obj->get_children_count();
-	}
-
-	// In this case, there is no children left.
-	return 0;
+	// TODO : It is not root but index.internalPointer casted to correct type. (see evtx-rewriter)
+	return _root.get_children().size();
 }
 
 int PVWidgets::PVDataTreeModel::columnCount(const QModelIndex& /*index*/) const
@@ -80,59 +60,42 @@ int PVWidgets::PVDataTreeModel::columnCount(const QModelIndex& /*index*/) const
 QVariant PVWidgets::PVDataTreeModel::data(const QModelIndex& index, int role) const
 {
 	if (!index.isValid()) {
-		return QVariant();
+		return {};
 	}
-	PVCore::PVDataTreeObjectBase* node_obj = get_object(index);
+
 	switch (role) {
 	case Qt::DisplayRole: {
-		return node_obj->get_serialize_description();
+		// TODO : It is not root but index.internalPointer casted to correct type. (see
+		// evtx-rewriter)
+		return _root.get_serialize_description();
 	}
 	default:
 		break;
 	};
 
-	return QVariant();
+	return {};
 }
 
 Qt::ItemFlags PVWidgets::PVDataTreeModel::flags(const QModelIndex& /*index*/) const
 {
-	Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-	return flags;
+	return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 QModelIndex PVWidgets::PVDataTreeModel::parent(const QModelIndex& index) const
 {
 	if (!index.isValid()) {
-		return QModelIndex();
+		return {};
 	}
 
-	PVCore::PVDataTreeObjectWithParentBase* const node_obj = get_object(index)->cast_with_parent();
-	if (!node_obj) {
-		return QModelIndex();
+	if (index.internalPointer() == &_root) {
+		return {}
 	}
 
-	PVCore::PVDataTreeObjectBase* const node_parent = node_obj->get_parent_base();
-	assert(_root);
-	if (node_parent->cast_with_children() == _root) {
-		// Parent is root element, thus no parent.
-		return QModelIndex();
-	}
-
-	// We need to take the parent of node_parent, and get the index of node_parent into its
-	// children.
-	PVCore::PVDataTreeObjectWithChildrenBase* const super_parent =
-	    node_parent->cast_with_parent()->get_parent_base()->cast_with_children();
-	assert(super_parent);
-
-	int idx_parent = 0;
-	for (PVCore::PVDataTreeObjectBase* const c : super_parent->get_children_base()) {
-		if (c == node_parent) {
-			break;
-		}
-		idx_parent++;
-	}
-
-	return createIndex(idx_parent, 0, node_obj->get_parent_base());
+	// TODO : It is not root but index.internalPointer casted to correct type. (see evtx-rewriter)
+	int row = std::distance(_root.begin(),
+	                        std::find(_root.get_children().begin(), _root.get_children().end(),
+	                                  index.internalPointer()));
+	return createIndex(row, 0, _root->get_parent());
 }
 
 QModelIndex

@@ -20,10 +20,11 @@ class PVDataTreeObjectWithChildrenBase;
 namespace PVWidgets
 {
 
+template <class Root>
 class PVDataTreeModel : public QAbstractItemModel
 {
   public:
-	PVDataTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0);
+	PVDataTreeModel(Root& root, QObject* parent = 0);
 
   public:
 	QVariant data(const QModelIndex& index, int role) const;
@@ -45,8 +46,7 @@ class PVDataTreeModel : public QAbstractItemModel
 	                               PVCore::PVDataTreeObjectBase const* obj_test) const;
 
   protected:
-	PVCore::PVDataTreeObjectWithChildrenBase* _root;
-	PVCore::PVDataTreeObjectBase* _root_base;
+	Root& _root;
 };
 };
 

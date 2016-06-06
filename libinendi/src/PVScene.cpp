@@ -24,7 +24,7 @@
  *
  *****************************************************************************/
 Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_name)
-    : data_tree_scene_t(root), _last_active_src(nullptr), _name(scene_name)
+    : PVCore::PVDataTreeChild<PVRoot, PVScene>(root), _last_active_src(nullptr), _name(scene_name)
 {
 }
 
@@ -45,9 +45,8 @@ Inendi::PVScene::~PVScene()
 
 Inendi::PVScene::list_sources_t Inendi::PVScene::get_sources(PVRush::PVInputType const& type) const
 {
-	children_t const& sources = get_children();
 	list_sources_t ret;
-	for (PVSource_sp const& src : sources) {
+	for (PVSource_sp const& src : get_children()) {
 		if (*src->get_input_type() == type) {
 			ret.push_back(src.get());
 		}
@@ -94,9 +93,8 @@ Inendi::PVView const* Inendi::PVScene::current_view() const
 PVRush::PVInputType::list_inputs_desc
 Inendi::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 {
-	children_t const& sources = get_children();
 	QSet<PVRush::PVInputDescription_p> ret_set;
-	for (PVSource_sp const& src : sources) {
+	for (PVSource_sp const& src : get_children()) {
 		if (*src->get_input_type() == type) {
 			ret_set.unite(src->get_inputs().toSet());
 		}

@@ -26,12 +26,11 @@ class C;
 class D;
 class E;
 
-typedef typename PVCore::PVDataTreeObject<D, PVCore::PVDataTreeNoChildren<E>> data_tree_e_t;
-class E : public data_tree_e_t
+class E : public PVCore::PVDataTreeChild<D, E>
 {
 
   public:
-	E(D* d, int i = 0) : data_tree_e_t(d), _i(i) {}
+	E(D* d, int i = 0) : PVCore::PVDataTreeChild<D, E>(d), _i(i) {}
 
   public:
 	virtual ~E() { std::cout << "~E(" << this << ")" << std::endl; }
@@ -40,23 +39,15 @@ class E : public data_tree_e_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("E: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-
   private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<C, E> data_tree_d_t;
-class D : public data_tree_d_t
+class D : public PVCore::PVDataTreeParent<E, D>, public PVCore::PVDataTreeChild<C, D>
 {
 
   public:
-	D(C* c, int i = 0) : data_tree_d_t(c), _i(i) {}
+	D(C* c, int i = 0) : PVCore::PVDataTreeChild<C, D>(c), _i(i) {}
 
   public:
 	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
@@ -65,25 +56,15 @@ class D : public data_tree_d_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("D: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) override {}
-	void serialize_write(PVCore::PVSerializeObject&) override {}
-
   private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
-class C : public data_tree_c_t
+class C : public PVCore::PVDataTreeParent<D, C>, public PVCore::PVDataTreeChild<B, C>
 {
 
   public:
-	C(B* b, int i = 0) : data_tree_c_t(b), _i(i) {}
+	C(B* b, int i = 0) : PVCore::PVDataTreeChild<B, C>(b), _i(i) {}
 
   public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
@@ -92,26 +73,16 @@ class C : public data_tree_c_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("C: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) override {}
-	void serialize_write(PVCore::PVSerializeObject&) override {}
-
   private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
-class B : public data_tree_b_t
+class B : public PVCore::PVDataTreeParent<C, B>, public PVCore::PVDataTreeChild<A, B>
 {
 	friend class A;
 
   public:
-	B(A* a, int i = 0) : data_tree_b_t(a), _i(i) {}
+	B(A* a, int i = 0) : PVCore::PVDataTreeChild<A, B>(a), _i(i) {}
 
   public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
@@ -120,25 +91,15 @@ class B : public data_tree_b_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("B: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) override {}
-	void serialize_write(PVCore::PVSerializeObject&) override {}
-
   private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
-class A : public data_tree_a_t
+class A : public PVCore::PVDataTreeParent<B, A>
 {
 
   public:
-	A(int i = 0) : data_tree_a_t(), _i(i) {}
+	A(int i = 0) : PVCore::PVDataTreeParent<B, A>(), _i(i) {}
 
   public:
 	virtual ~A() { std::cout << "~A(" << this << ")" << std::endl; }
@@ -147,24 +108,15 @@ class A : public data_tree_a_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("A: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) override {}
-	void serialize_write(PVCore::PVSerializeObject&) override {}
-
   private:
 	int _i;
 };
 
-typedef typename A::p_type A_p;
-typedef typename B::p_type B_p;
-typedef typename C::p_type C_p;
-typedef typename D::p_type D_p;
-typedef typename E::p_type E_p;
+using A_p = PVCore::PVSharedPtr<A>;
+using B_p = PVCore::PVSharedPtr<B>;
+using C_p = PVCore::PVSharedPtr<C>;
+using D_p = PVCore::PVSharedPtr<D>;
+using E_p = PVCore::PVSharedPtr<E>;
 
 void usage(char* progname)
 {
@@ -204,17 +156,18 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// Create our model and its view
-	PVWidgets::PVDataTreeModel* model = new PVWidgets::PVDataTreeModel(*a);
+	return 0;
+	//// Create our model and its view
+	// PVWidgets::PVDataTreeModel* model = new PVWidgets::PVDataTreeModel(*a);
 
-	QTreeView* view = new QTreeView();
-	view->setModel(model);
-	view->expandAll();
+	// QTreeView* view = new QTreeView();
+	// view->setModel(model);
+	// view->expandAll();
 
-	QMainWindow* mw = new QMainWindow();
-	mw->setCentralWidget(view);
-	mw->setWindowTitle("Data Tree - Model");
-	mw->show();
+	// QMainWindow* mw = new QMainWindow();
+	// mw->setCentralWidget(view);
+	// mw->setWindowTitle("Data Tree - Model");
+	// mw->show();
 
-	return app.exec();
+	// return app.exec();
 }

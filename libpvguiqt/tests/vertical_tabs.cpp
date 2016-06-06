@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 	// Get a INENDI tree from the given file/format
 	Inendi::PVRoot_p root;
 	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
-	Inendi::PVSource_sp src2 = get_src_from_file(root->get_children().at(0), argv[1], argv[2]);
+	Inendi::PVSource_sp src2 = get_src_from_file(root->get_children().front(), argv[1], argv[2]);
 	src2->create_default_view();
 	src->create_default_view();
 

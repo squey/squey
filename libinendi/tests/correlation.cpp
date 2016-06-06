@@ -60,14 +60,24 @@ int main()
 	env.compute_mappings();
 	env.compute_plottings();
 
-	auto views = env.root->get_children<Inendi::PVView>();
-	PV_VALID(views.size(), 2);
+	std::list<PVCore::PVSharedPtr<Inendi::PVView>> views;
+	for (auto scene : env.root->get_children()) {
+		for (auto source : scene->get_children()) {
+			for (auto mapped : source->get_children()) {
+				for (auto plotted : mapped->get_children()) {
+					views.insert(views.begin(), plotted->get_children().begin(),
+					             plotted->get_children().end());
+				}
+			}
+		}
+	}
+	PV_VALID(views.size(), 2UL);
 
 	/**
 	 * Add correlation between source IP columns
 	 */
-	Inendi::PVView* view1 = views[0].get();
-	Inendi::PVView* view2 = views[1].get();
+	Inendi::PVView* view1 = views.front().get();
+	Inendi::PVView* view2 = views.back().get();
 
 	Inendi::PVCorrelation correlation{view1, 2, view2, 2};
 	PV_ASSERT_VALID(not env.root->correlations().exists(view1, 2));

@@ -199,7 +199,7 @@ widgets/PVArgumentListWidgetFactory.cpp
 widgets/PVComboBox.cpp
 widgets/PVColorDialog.cpp
 widgets/PVColorPicker.cpp
-widgets/PVDataTreeModel.cpp
+#widgets/PVDataTreeModel.cpp
 widgets/PVGraphicsView.cpp
 widgets/PVGraphicsViewInteractor.cpp
 widgets/PVGraphicsViewInteractorScene.cpp

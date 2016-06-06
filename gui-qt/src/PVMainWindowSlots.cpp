@@ -289,7 +289,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		return false;
 	}
 
-	QList<Inendi::PVScene_p> scenes = get_root().get_children();
+	auto& scenes = get_root().get_children();
 
 	bool new_scene = false;
 	if (scenes.size() == 0) {
@@ -298,7 +298,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		new_scene = true;
 	} else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
-		scene_p = scenes.at(0)->shared_from_this();
+		scene_p = scenes.front();
 		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
 		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(root_sp, *scene_p.get());
 	} else {
@@ -574,8 +574,10 @@ void PVInspector::PVMainWindow::save_solution(QString const& file,
 void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& investigation)
 {
 	QStringList nraws;
-	for (Inendi::PVSource_sp& source : get_root().get_children<Inendi::PVSource>()) {
-		nraws << QString::fromStdString(source->get_rushnraw().collection().rootdir());
+	for (Inendi::PVScene_sp& scene : get_root().get_children()) {
+		for (Inendi::PVSource_sp& source : scene->get_children()) {
+			nraws << QString::fromStdString(source->get_rushnraw().collection().rootdir());
+		}
 	}
 	PVRush::PVNrawCacheManager::get().add_investigation(investigation, nraws);
 }

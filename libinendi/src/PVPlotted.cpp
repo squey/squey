@@ -28,23 +28,14 @@
 
 #include <iostream>
 
-#define dbg                                                                                        \
-	{                                                                                              \
-		std::cout << "*** CUDA TRACE ***  file " << __FILE__ << "  line " << __LINE__              \
-		          << std::endl;                                                                    \
-	}
-
-Inendi::PVPlotted::PVPlotted(PVMapped* mapped) : data_tree_plotted_t(mapped), _plotting(this)
+Inendi::PVPlotted::PVPlotted(PVMapped* mapped)
+    : PVCore::PVDataTreeChild<PVMapped, PVPlotted>(mapped), _plotting(this)
 {
 }
 
 Inendi::PVPlotted::~PVPlotted()
 {
-	remove_all_children();
 	PVLOG_DEBUG("In PVPlotted destructor\n");
-	for (PVView_sp& v : get_children()) {
-		std::cout << v.use_count() << std::endl;
-	}
 }
 
 int Inendi::PVPlotted::create_table()
@@ -565,10 +556,10 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 
 	process_parent_mapped();
 
-	if (get_children_count() == 0) {
+	if (get_children().empty()) {
 		emplace_add_child();
 	}
-	for (auto view : get_children<PVView>()) {
+	for (auto view : get_children()) {
 		view->process_parent_plotted();
 	}
 }
@@ -585,17 +576,15 @@ bool Inendi::PVPlotted::is_uptodate() const
 bool Inendi::PVPlotted::is_current_plotted() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
-	for (auto const& cv : get_children()) {
-		if (cv.get() == cur_view) {
-			return true;
-		}
-	}
-	return false;
+	return std::find_if(get_children().begin(), get_children().end(),
+	                    [cur_view](PVCore::PVSharedPtr<PVView> const& view) {
+		                    return view.get() == cur_view;
+		                }) != get_children().end();
 }
 
 void Inendi::PVPlotted::finish_process_from_rush_pipeline()
 {
-	for (auto view : get_children<PVView>()) {
+	for (auto view : get_children()) {
 		view->finish_process_from_rush_pipeline();
 	}
 }

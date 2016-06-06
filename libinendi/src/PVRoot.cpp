@@ -20,7 +20,10 @@
  *
  *****************************************************************************/
 Inendi::PVRoot::PVRoot()
-    : data_tree_root_t(), _current_scene(nullptr), _current_source(nullptr), _current_view(nullptr)
+    : PVCore::PVDataTreeParent<PVScene, PVRoot>()
+    , _current_scene(nullptr)
+    , _current_source(nullptr)
+    , _current_view(nullptr)
 {
 	reset_colors();
 }
@@ -142,25 +145,6 @@ Inendi::PVView* Inendi::PVRoot::process_correlation(Inendi::PVView* view)
 Inendi::PVView::id_t Inendi::PVRoot::get_new_view_id()
 {
 	return _new_view_id++;
-}
-
-/******************************************************************************
- *
- * Inendi::PVRoot::set_views_id
- *
- *****************************************************************************/
-void Inendi::PVRoot::set_views_id()
-{
-	std::multimap<PVView::id_t, PVView*> map_views;
-	for (auto view : get_children<PVView>()) {
-		map_views.insert(std::make_pair(view->get_view_id(), view.get()));
-	}
-	PVView::id_t cur_id = 0;
-	std::multimap<PVView::id_t, PVView*>::iterator it;
-	for (it = map_views.begin(); it != map_views.end(); it++) {
-		it->second->set_view_id(cur_id);
-		cur_id++;
-	}
 }
 
 /******************************************************************************

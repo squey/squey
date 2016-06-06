@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
-#include <pvguiqt/PVHiveDataTreeModel.h>
+//#include <pvguiqt/PVHiveDataTreeModel.h>
 
 #include <QApplication>
 #include <QMainWindow>
@@ -29,12 +29,11 @@ class B;
 class C;
 class D;
 
-typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> data_tree_d_t;
-class D : public data_tree_d_t
+class D : public PVCore::PVDataTreeChild<C, D>
 {
 
   public:
-	D(C* c, int i = 0) : data_tree_d_t(c), _i(i) {}
+	D(C* c, int i = 0) : PVCore::PVDataTreeChild<C, D>(c), _i(i) {}
 
   public:
 	virtual ~D() { std::cout << "~D(" << this << ")" << std::endl; }
@@ -43,25 +42,15 @@ class D : public data_tree_d_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("D: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) {}
-	void serialize_write(PVCore::PVSerializeObject&) {}
-
   private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
-class C : public data_tree_c_t
+class C : public PVCore::PVDataTreeChild<B, C>, public PVCore::PVDataTreeParent<D, C>
 {
 
   public:
-	C(B* b, int i = 0) : data_tree_c_t(b), _i(i) {}
+	C(B* b, int i = 0) : PVCore::PVDataTreeChild<B, C>(b), _i(i) {}
 
   public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
@@ -70,26 +59,16 @@ class C : public data_tree_c_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("C: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) override {}
-	void serialize_write(PVCore::PVSerializeObject&) override {}
-
   private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
-class B : public data_tree_b_t
+class B : public PVCore::PVDataTreeChild<A, B>, public PVCore::PVDataTreeParent<C, B>
 {
 	friend class A;
 
   public:
-	B(A* a, int i = 0) : data_tree_b_t(a), _i(i) {}
+	B(A* a, int i = 0) : PVCore::PVDataTreeChild<A, B>(a), _i(i) {}
 
   public:
 	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
@@ -98,25 +77,15 @@ class B : public data_tree_b_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("B: ") + QString::number(get_i());
-	}
-
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) override {}
-	void serialize_write(PVCore::PVSerializeObject&) override {}
-
   private:
 	int _i;
 };
 
-typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
-class A : public data_tree_a_t
+class A : public PVCore::PVDataTreeParent<B, A>
 {
 
   public:
-	A(int i = 0) : data_tree_a_t(), _i(i) {}
+	A(int i = 0) : PVCore::PVDataTreeParent<B, A>(), _i(i) {}
 
   public:
 	virtual ~A() { std::cout << "~A(" << this << ")" << std::endl; }
@@ -125,24 +94,16 @@ class A : public data_tree_a_t
 	int get_i() const { return _i; }
 	void set_i(int i) { _i = i; }
 
-	virtual QString get_serialize_description() const override
-	{
-		return QString("A: ") + QString::number(get_i());
-	}
-	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void serialize_read(PVCore::PVSerializeObject&) override {}
-	void serialize_write(PVCore::PVSerializeObject&) override {}
-
   private:
 	int _i;
 };
 
-typedef typename A::p_type A_p;
-typedef typename B::p_type B_p;
-typedef typename C::p_type C_p;
-typedef typename D::p_type D_p;
+using A_p = PVCore::PVSharedPtr<A>;
+using B_p = PVCore::PVSharedPtr<B>;
+using C_p = PVCore::PVSharedPtr<C>;
+using D_p = PVCore::PVSharedPtr<D>;
 
-int main(int argc, char** argv)
+int main(/*int argc, char** argv*/)
 {
 	// Objects, let's create our tree !
 	A_p a(new A());
@@ -159,18 +120,18 @@ int main(int argc, char** argv)
 	D_p d6 = c4->emplace_add_child(4);
 	D_p d7 = c5->emplace_add_child(5);
 
-	// Qt app
-	QApplication app(argc, argv);
+	//// Qt app
+	// QApplication app(argc, argv);
 
-	// Create our model and view
-	PVGuiQt::PVHiveDataTreeModel* model = new PVGuiQt::PVHiveDataTreeModel(*a);
-	QTreeView* view = new QTreeView();
-	view->setModel(model);
+	//// Create our model and view
+	// PVGuiQt::PVHiveDataTreeModel* model = new PVGuiQt::PVHiveDataTreeModel(*a);
+	// QTreeView* view = new QTreeView();
+	// view->setModel(model);
 
-	QMainWindow* mw = new QMainWindow();
-	mw->setCentralWidget(view);
+	// QMainWindow* mw = new QMainWindow();
+	// mw->setCentralWidget(view);
 
-	mw->show();
+	// mw->show();
 
 	// Boost thread that changes values
 	boost::thread th([&] {
@@ -200,5 +161,6 @@ int main(int argc, char** argv)
 		}
 	});
 
-	return app.exec();
+	return 0;
+	// return app.exec();
 }

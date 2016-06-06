@@ -13,7 +13,7 @@ common.cpp
 PVAxesCombinationDialog.cpp
 PVAxesCombinationModel.cpp
 PVAxesCombinationWidget.cpp
-PVHiveDataTreeModel.cpp
+#PVHiveDataTreeModel.cpp
 PVLayerFilterProcessWidget.cpp
 PVLayerStackDelegate.cpp
 PVLayerStackModel.cpp
@@ -26,8 +26,8 @@ PVListingModel.cpp
 PVAbstractTableModel.cpp
 PVListingView.cpp
 PVAbstractTableView.cpp
-PVRootTreeModel.cpp
-PVRootTreeView.cpp
+#PVRootTreeModel.cpp
+#PVRootTreeView.cpp
 PVTableView.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
@@ -68,9 +68,9 @@ include/pvguiqt/PVAbstractTableModel.h
 include/pvguiqt/PVListingView.h
 include/pvguiqt/PVAbstractTableView.h
 include/pvguiqt/PVTableView.h
-include/pvguiqt/PVRootTreeModel.h
-include/pvguiqt/PVRootTreeView.h
-include/pvguiqt/PVHiveDataTreeModel.h
+#include/pvguiqt/PVRootTreeModel.h
+#include/pvguiqt/PVRootTreeView.h
+#include/pvguiqt/PVHiveDataTreeModel.h
 include/pvguiqt/PVLogoScene.h
 include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h

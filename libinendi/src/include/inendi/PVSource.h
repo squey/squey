@@ -36,17 +36,15 @@ namespace Inendi
 /**
  * \class PVSource
  */
-typedef typename PVCore::PVDataTreeObject<PVScene, PVMapped> data_tree_source_t;
-class PVSource : public data_tree_source_t
+class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
+                 public PVCore::PVDataTreeChild<PVScene, PVSource>,
+                 public PVCore::PVEnableSharedFromThis<PVSource>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
 	friend class PVScene;
 	friend class PVView;
 	friend class PVPlotted;
-
-  public:
-	typedef children_t list_mapped_t;
 
   public:
 	PVSource(Inendi::PVScene* scene,
@@ -181,7 +179,6 @@ class PVSource : public data_tree_source_t
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 
 	void add_view(PVView* view);
-	void set_views_id();
 
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 

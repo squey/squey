@@ -67,9 +67,6 @@ int main(int argc, char** argv)
 	src->create_default_view();
 	src->create_default_view();
 
-	Inendi::PVView& v0 = *src->get_children<Inendi::PVView>().at(0);
-	Inendi::PVView& v1 = *src->get_children<Inendi::PVView>().at(1);
-
 	Inendi::PVScene_p scene2 = root->emplace_add_child("scene1");
 	Inendi::PVSource_sp src2 =
 	    scene2->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
@@ -84,8 +81,6 @@ int main(int argc, char** argv)
 
 	src.reset();
 	scene.reset();
-	v0.remove_from_tree();
-	v1.remove_from_tree();
 	root.reset(new Inendi::PVRoot());
 
 	// Get it back !
@@ -93,8 +88,6 @@ int main(int argc, char** argv)
 	                                        PVCore::PVSerializeArchive::read, 1));
 	ar->get_root()->object("root", *root);
 	ar->finish();
-
-	root->dump();
 
 	return 0;
 }

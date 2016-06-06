@@ -555,77 +555,85 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 
 	size_t total_compatible_views_count = 0;
 
-	for (const auto& source : root->get_children<Inendi::PVSource>()) {
+	for (const auto& scene : root->get_children()) {
+		for (const auto& source : scene->get_children()) {
 
-		size_t compatible_views_count = 0;
+			size_t compatible_views_count = 0;
 
-		// Don't allow correlation on same source
-		if (source.get() == root->current_source()) {
-			continue;
-		}
-
-		QMenu* source_menu = new QMenu(source->get_name(), this);
-
-		size_t compatible_axes_count = 0;
-
-		const auto& views = source->get_children<Inendi::PVView>();
-		bool need_view_menu = views.size() > 1;
-		for (const Inendi::PVView_sp view : views) {
-
-			QMenu* view_menu = source_menu;
-
-			// Don't create an intermediary view menu if there is only one view for this source
-			if (need_view_menu) {
-				view_menu = new QMenu(view->get_name(), this);
-				source_menu->addMenu(view_menu);
+			// Don't allow correlation on same source
+			if (source.get() == root->current_source()) {
+				continue;
 			}
 
-			const Inendi::PVAxesCombination& ac = view->get_axes_combination();
-			for (PVCol i = 0; i < ac.get_axes_count(); i++) {
-				const QString& axis_name = ac.get_original_axis(i).get_name();
-				const QString& axis_type = ac.get_original_axis(i).get_type();
+			QMenu* source_menu = new QMenu(source->get_name(), this);
 
-				// Don't show incompatible axes
-				if (axis_type != this_axis_type) {
-					continue;
+			size_t compatible_axes_count = 0;
+
+			std::list<PVCore::PVSharedPtr<Inendi::PVView>> views;
+			for (auto mapped : source->get_children()) {
+				for (auto plotted : mapped->get_children()) {
+					views.insert(views.begin(), plotted->get_children().begin(),
+					             plotted->get_children().end());
+				}
+			}
+			bool need_view_menu = views.size() > 1;
+			for (const Inendi::PVView_sp view : views) {
+
+				QMenu* view_menu = source_menu;
+
+				// Don't create an intermediary view menu if there is only one view for this source
+				if (need_view_menu) {
+					view_menu = new QMenu(view->get_name(), this);
+					source_menu->addMenu(view_menu);
 				}
 
-				QAction* axis_action = new QAction(axis_name, this);
-				axis_action->setCheckable(true);
+				const Inendi::PVAxesCombination& ac = view->get_axes_combination();
+				for (PVCol i = 0; i < ac.get_axes_count(); i++) {
+					const QString& axis_name = ac.get_original_axis(i).get_name();
+					const QString& axis_type = ac.get_original_axis(i).get_type();
 
-				Inendi::PVCorrelation correlation{&lib_view(), col, view.get(), i};
-				bool existing_correlation = root->correlations().exists(correlation);
-				axis_action->setChecked(existing_correlation);
-
-				connect(axis_action, &QAction::triggered, [=]() {
-					if (not existing_correlation) {
-						root->correlations().add(correlation);
-					} else {
-						root->correlations().remove(&lib_view());
+					// Don't show incompatible axes
+					if (axis_type != this_axis_type) {
+						continue;
 					}
-					// refresh headers to show correlation icon right now
-					horizontalHeader()->viewport()->update();
-				});
 
-				view_menu->addAction(axis_action);
+					QAction* axis_action = new QAction(axis_name, this);
+					axis_action->setCheckable(true);
 
-				compatible_axes_count++;
+					Inendi::PVCorrelation correlation{&lib_view(), col, view.get(), i};
+					bool existing_correlation = root->correlations().exists(correlation);
+					axis_action->setChecked(existing_correlation);
+
+					connect(axis_action, &QAction::triggered, [=]() {
+						if (not existing_correlation) {
+							root->correlations().add(correlation);
+						} else {
+							root->correlations().remove(&lib_view());
+						}
+						// refresh headers to show correlation icon right now
+						horizontalHeader()->viewport()->update();
+					});
+
+					view_menu->addAction(axis_action);
+
+					compatible_axes_count++;
+				}
+
+				// Don't show view menu if there is no compatible axes
+				if (compatible_axes_count > 0) {
+					_menu_add_correlation->addMenu(view_menu);
+					compatible_views_count++;
+				} else {
+					delete view_menu;
+				}
 			}
 
-			// Don't show view menu if there is no compatible axes
-			if (compatible_axes_count > 0) {
-				_menu_add_correlation->addMenu(view_menu);
-				compatible_views_count++;
-			} else {
-				delete view_menu;
+			if (compatible_views_count == 0 && need_view_menu) {
+				delete source_menu;
 			}
-		}
 
-		if (compatible_views_count == 0 && need_view_menu) {
-			delete source_menu;
+			total_compatible_views_count += compatible_views_count;
 		}
-
-		total_compatible_views_count += compatible_views_count;
 	}
 
 	// Don't show correlation menu if there is no compatible views
