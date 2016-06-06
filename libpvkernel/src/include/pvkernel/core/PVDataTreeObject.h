@@ -19,8 +19,17 @@ namespace PVCore
 
 namespace __impl
 {
+/**
+ * Helper class to have partially specialized methods when performing operations on child nodes.
+ *
+ * T is the current type of the list of nodes processed
+ * B the required type node to handle.
+ */
 template <class T, class B>
 struct ChildrenAccessor {
+	/**
+	 *  Accumulate size of sub-nodes
+	 */
 	static size_t size(std::list<PVSharedPtr<T>> const& c)
 	{
 		return std::accumulate(c.begin(), c.end(), 0UL, [](size_t cum, PVSharedPtr<T> const& c1) {
@@ -29,14 +38,42 @@ struct ChildrenAccessor {
 			return cum + ChildrenAccessor<child_t, B>::size(c1->template get_children());
 		});
 	}
+
+	/**
+	 * Accumulate nodes from sub-nodes
+	 */
+	static std::list<PVSharedPtr<B>> children(std::list<PVSharedPtr<T>>&& c)
+	{
+		std::list<PVSharedPtr<B>> res;
+		for (auto ch : c) {
+			using child_t =
+			    typename std::remove_reference<decltype(*ch->get_children().begin()->get())>::type;
+			res.splice(res.end(), ChildrenAccessor<child_t, B>::children(ch->get_children()));
+		}
+		return res;
+	}
 };
 
+/**
+ * Last case when required node is the same as current node
+ */
 template <class T>
 struct ChildrenAccessor<T, T> {
+	/**
+	 * Size is the size of the children list
+	 */
 	static size_t size(std::list<PVSharedPtr<T>> const& c) { return c.size(); }
+
+	/**
+	 * Children are the ones in the current list.
+	 */
+	static std::list<PVSharedPtr<T>> children(std::list<PVSharedPtr<T>>&& c) { return c; }
 };
 }
 
+/**
+ * DataTree node as parent (containing children)
+ */
 template <class Child, class Derived>
 class PVDataTreeParent
 {
@@ -48,17 +85,21 @@ class PVDataTreeParent
 		return _children.back();
 	}
 
-	std::list<PVSharedPtr<const Child>> get_children() const
+	template <class T = Child>
+	std::list<PVSharedPtr<const T>> get_children() const
 	{
-		return {_children.begin(), _children.end()};
+		return __impl::ChildrenAccessor<const Child, const T>::children(
+		    std::list<PVSharedPtr<const Child>>{_children.begin(), _children.end()});
 	}
 
-	std::list<PVSharedPtr<Child>> get_children() { return _children; }
-
-	void remove_child(Child const& child)
+	template <class T = Child>
+	std::list<PVSharedPtr<T>> get_children()
 	{
-		std::remove(_children.begin(), _children.end(), child.shared_from_this());
+		return __impl::ChildrenAccessor<Child, T>::children(
+		    std::list<PVSharedPtr<Child>>{_children});
 	}
+
+	void remove_child(Child& child) { _children.remove(child.shared_from_this()); }
 
 	void remove_all_children() { _children.clear(); }
 
