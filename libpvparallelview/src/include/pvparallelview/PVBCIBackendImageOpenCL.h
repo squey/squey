@@ -9,7 +9,7 @@
 
 #include <pvparallelview/PVBCIBackendImage.h>
 
-#include <CL/cl.h>
+#include <CL/cl.hpp>
 
 #include <QImage>
 
@@ -32,16 +32,17 @@ class PVBCIBackendImageOpenCL : public PVParallelView::PVBCIBackendImage
 
   public:
 	PVBCIBackendImageOpenCL(const uint32_t width,
-	                        uint8_t height_bits,
-	                        const cl_context context,
-	                        const cl_command_queue queue,
+	                        const uint8_t height_bits,
+	                        const cl::Context& context,
+	                        const cl::CommandQueue& queue,
 	                        int index);
+
+	PVBCIBackendImageOpenCL(const PVBCIBackendImageOpenCL&) = delete;
+	PVBCIBackendImageOpenCL(PVBCIBackendImageOpenCL&&) = delete;
 
 	~PVBCIBackendImageOpenCL();
 
   public:
-	inline cl_command_queue queue() const { return _queue; }
-
 	inline int index() const { return _index; }
 
 	inline size_t width() const { return _width; }
@@ -49,16 +50,14 @@ class PVBCIBackendImageOpenCL : public PVParallelView::PVBCIBackendImage
   public:
 	const pixel_t* host_img() const { return _host_addr; }
 
-	cl_mem host_mem() const { return _host_mem; }
+	const cl::Buffer& host_buffer() const { return _host_buffer; }
 
-	cl_mem device_mem() const { return _device_mem; }
+	const cl::Buffer& device_buffer() const { return _device_buffer; }
 
-	void copy_device_to_host_async(cl_event* event = nullptr) const;
-
-	void copy_device_to_host_sync() const;
+	void copy_device_to_host_async(cl::Event* event = nullptr) const;
 
   public:
-	virtual QImage qimage(size_t crop_height) const;
+	QImage qimage(size_t crop_height) const override;
 
 	virtual bool set_width(uint32_t width)
 	{
@@ -74,10 +73,10 @@ class PVBCIBackendImageOpenCL : public PVParallelView::PVBCIBackendImage
 
   private:
 	pixel_t* _host_addr;
-	cl_mem _host_mem;
-	cl_mem _device_mem;
+	cl::Buffer _host_buffer;
+	cl::Buffer _device_buffer;
 	uint32_t _width;
-	cl_command_queue _queue;
+	cl::CommandQueue _queue;
 	int _index;
 };
 

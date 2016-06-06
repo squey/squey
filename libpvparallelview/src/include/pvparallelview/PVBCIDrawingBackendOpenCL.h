@@ -24,23 +24,20 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	using backend_image_t = PVBCIBackendImageOpenCL;
 
 	struct opencl_job_data_t {
-		cl_event event;
+		cl::Event event;
 		std::function<void()> done_function;
 	};
 
   public:
 	struct device_t {
-		cl_device_id id;
-		PVBCICodeBase* addr;
-		cl_mem mem;
-		cl_command_queue queue;
+		cl::Device dev;
+		cl::Buffer buffer;
+		cl::CommandQueue queue;
 		size_t work_group_size;
 	};
 
   public:
 	PVBCIDrawingBackendOpenCL();
-
-	virtual ~PVBCIDrawingBackendOpenCL();
 
   public:
 	bool is_gpu_accelerated() const override { return _is_gpu_accelerated; }
@@ -78,14 +75,12 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 
   private:
 	using devices_t = std::map<cl_int, device_t>;
-	using host_buffers_t = std::map<PVBCICodeBase*, device_t>;
 
   private:
-	cl_context _context;
-	cl_kernel _kernel;
+	cl::Context _context;
+	cl::Kernel _kernel;
 	devices_t _devices;
 	devices_t::const_iterator _next_device;
-	host_buffers_t _mapped_buffers;
 	bool _is_gpu_accelerated;
 };
 

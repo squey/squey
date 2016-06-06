@@ -12,18 +12,15 @@
 #include <memory>
 #include <iostream>
 
-#define PLATFORM_ANY_INDEX -1
+static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 /*****************************************************************************
  * PVOpenCL::visit_usable_devices
  *****************************************************************************/
 
-cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::device_func const& f)
+cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::device_func const& f)
 {
-	cl_context ctx;
 	cl_int err;
-	cl_uint pcount;
-	cl_uint dcount;
 
 	cl_device_type type;
 	const char* type_name;
@@ -36,24 +33,25 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 		type_name = "software";
 	}
 
-	clGetPlatformIDs(0, nullptr, &pcount);
-	if (pcount == 0) {
-		return nullptr;
+	std::vector<cl::Platform> platforms;
+
+	cl::Platform::get(&platforms);
+
+	if (platforms.size() == 0) {
+		return cl::Context();
 	}
 
-	std::unique_ptr<cl_platform_id[]> ptab(new cl_platform_id[pcount]);
-	std::unique_ptr<cl_device_id[]> dtab;
-
-	clGetPlatformIDs(pcount, ptab.get(), nullptr);
-
 	auto& config = PVCore::PVConfig::get().config();
-	const int wanted_platform_index = config.value("backend_opencl/platform_index", -1).toInt();
+	const int wanted_platform_index =
+	    config.value("backend_opencl/platform_index", PLATFORM_ANY_INDEX).toInt();
+
 	int platform_index = 0;
 
-	for (size_t i = 0; i < pcount; ++i) {
-		cl_context_properties prop[] = {CL_CONTEXT_PLATFORM, (cl_context_properties)ptab[i], 0};
+	for (const auto& platform : platforms) {
+		cl_context_properties prop[] = {CL_CONTEXT_PLATFORM,
+		                                reinterpret_cast<cl_context_properties>(platform()), 0};
 
-		ctx = clCreateContextFromType(prop, type, nullptr, nullptr, &err);
+		cl::Context ctx(type, prop, nullptr, nullptr, &err);
 
 		if (err == CL_DEVICE_NOT_FOUND) {
 			// there is no matching device
@@ -68,95 +66,47 @@ cl_context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devic
 			continue;
 		}
 
-		err = clGetContextInfo(ctx, CL_CONTEXT_NUM_DEVICES, sizeof(dcount), &dcount, NULL);
+		std::vector<cl::Device> devices = ctx.getInfo<CL_CONTEXT_DEVICES>(&err);
 		inendi_verify_opencl_var(err);
 
-		if (dcount != 0) {
-			size_t vsize;
-			std::string pname;
-
-			clGetPlatformInfo(ptab[i], CL_PLATFORM_NAME, 0, nullptr, &vsize);
-			pname.resize(vsize);
-			clGetPlatformInfo(ptab[i], CL_PLATFORM_NAME, vsize, &pname[0], nullptr);
-
-			dtab.reset(new cl_device_id[dcount]);
-
-			err = clGetContextInfo(ctx, CL_CONTEXT_DEVICES, sizeof(cl_device_id) * dcount,
-			                       dtab.get(), nullptr);
-			inendi_verify_opencl_var(err);
-
-			for (size_t j = 0; j < dcount; ++j) {
-				f(ctx, dtab[j]);
+		if (devices.size() != 0) {
+			for (auto& device : devices) {
+				f(ctx, device);
 			}
+
+			std::string pname = platform.getInfo<CL_PLATFORM_NAME>(&err);
+			inendi_verify_opencl_var(err);
 
 			PVLOG_INFO("OpenCL backend found: %s\n", pname.c_str());
 
 			return ctx;
 		}
 
-		err = clReleaseContext(ctx);
-		inendi_verify_opencl_var(err);
-
 		++platform_index;
 	}
 
 	PVLOG_INFO("No %s OpenCL backend found\n", type_name);
 
-	return nullptr;
-}
-
-/*****************************************************************************
- * PVOpenCL::allocate
- *****************************************************************************/
-
-cl_mem
-PVOpenCL::allocate(const cl_context ctx, const cl_mem_flags flags, const size_t size, cl_int& err)
-{
-	return clCreateBuffer(ctx, flags, size, nullptr, &err);
+	return cl::Context();
 }
 
 /*****************************************************************************
  * PVOpenCL::host_alloc
  *****************************************************************************/
 
-void* PVOpenCL::host_alloc(const cl_context ctx,
-                           const cl_command_queue queue,
+void* PVOpenCL::host_alloc(const cl::Context& ctx,
+                           const cl::CommandQueue& queue,
                            const cl_mem_flags mem_flags,
                            const cl_map_flags map_flags,
                            const size_t size,
-                           cl_mem& mem,
+                           cl::Buffer& buffer,
                            cl_int& err)
 {
-	mem = PVOpenCL::allocate(ctx, CL_MEM_ALLOC_HOST_PTR | mem_flags, size, err);
+	buffer = cl::Buffer(ctx, CL_MEM_ALLOC_HOST_PTR | mem_flags, size, nullptr, &err);
 
 	if (err != CL_SUCCESS) {
 		return nullptr;
 	}
 
-	return clEnqueueMapBuffer(queue, mem, CL_TRUE, map_flags, 0, size, 0, nullptr, nullptr, &err);
-}
-
-/*****************************************************************************
- * PVOpenCL::free
- *****************************************************************************/
-
-cl_int PVOpenCL::free(const cl_mem mem)
-{
-	return clReleaseMemObject(mem);
-}
-
-/*****************************************************************************
- * PVOpenCL::host_free
- *****************************************************************************/
-
-cl_int PVOpenCL::host_free(const cl_command_queue queue, const cl_mem mem, void* addr)
-{
-	cl_int err;
-
-	err = clEnqueueUnmapMemObject(queue, mem, addr, 0, nullptr, nullptr);
-	if (err != CL_SUCCESS) {
-		return err;
-	}
-
-	return PVOpenCL::free(mem);
+	return queue.enqueueMapBuffer(buffer, CL_TRUE, map_flags, 0, size, nullptr, nullptr, &err);
 }

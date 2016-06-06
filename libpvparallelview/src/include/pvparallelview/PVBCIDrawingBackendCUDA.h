@@ -75,7 +75,7 @@ class PVBCIBackendImageCUDA : public PVParallelView::PVBCIBackendImage
 	int get_cuda_device() const { return _cuda_device; }
 
   public:
-	virtual QImage qimage(size_t crop_height) const
+	QImage qimage(size_t crop_height) const override
 	{
 		assert(crop_height <= PVBCIBackendImage::height());
 		// This is really important to use the const constructor version of QImage, so that no data

@@ -125,7 +125,7 @@ RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelVi
 	try {
 		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 		backend_found = true;
-	} catch (...) {
+	} catch (PVOpenCL::exception::no_backend_error&) {
 	}
 #endif
 
@@ -134,7 +134,7 @@ RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelVi
 		try {
 			_instance->init_backends<PVBCIDrawingBackendCUDA>();
 			backend_found = true;
-		} catch (...) {
+		} catch (PVCuda::exception::no_backend_error&) {
 		}
 	}
 #endif

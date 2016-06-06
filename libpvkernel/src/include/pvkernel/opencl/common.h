@@ -7,7 +7,7 @@
 #ifndef PVKERNEL_OPENCL_COMMON_H
 #define PVKERNEL_OPENCL_COMMON_H
 
-#include <CL/cl.h>
+#include <CL/cl.hpp>
 
 #include <vector>
 #include <functional>
@@ -44,7 +44,10 @@ class no_backend_error : public std::runtime_error
 };
 }
 
-using device_func = std::function<void(cl_context, cl_device_id)>;
+/**
+ * the function type used as find_first_usable_context(...) parameter
+ */
+using device_func = std::function<void(cl::Context&, cl::Device&)>;
 
 /**
  * find the first OpenCL plateform matching @p accelerated and call @p f on each of its devices
@@ -53,20 +56,9 @@ using device_func = std::function<void(cl_context, cl_device_id)>;
  * used software implementation
  * @param f a function to call on each device of the found context
  *
- * @return a valid OpenCL context in case of success; nullptr othewise.
+ * @return a valid OpenCL context in case of success; a null context otherwise.
  */
-cl_context find_first_usable_context(bool accelerated, device_func const& f);
-
-/**
- *
- * @param ctx the OpenCL context to allocate on
- * @param flags a allocation/usage bit-field
- * @param size the size to allocate in bytes
- * @param err a variable to save the err state
- *
- * @return the memory object ident
- */
-cl_mem allocate(const cl_context ctx, const cl_mem_flags flags, const size_t size, cl_int& err);
+cl::Context find_first_usable_context(bool accelerated, device_func const& f);
 
 /**
  * allocate a host accessible OpenCL buffer object
@@ -76,17 +68,17 @@ cl_mem allocate(const cl_context ctx, const cl_mem_flags flags, const size_t siz
  * @param mem_flags a allocation/usage bit-field for the memory object
  * @param map_flags a allocation/usage bit-field for the mapped memory block
  * @param size the size to allocate in bytes
- * @param the resulting OpenCL memory object
+ * @param buffer the resulting OpenCL memory buffer
  * @param err a variable to save the err state
  *
  * @return the host memory mapped address
  */
-void* host_alloc(const cl_context ctx,
-                 const cl_command_queue queue,
+void* host_alloc(const cl::Context& ctx,
+                 const cl::CommandQueue& queue,
                  const cl_mem_flags mem_flags,
                  const cl_map_flags map_flags,
                  const size_t size,
-                 cl_mem& mem,
+                 cl::Buffer& buffer,
                  cl_int& err);
 
 /**
@@ -95,36 +87,16 @@ void* host_alloc(const cl_context ctx,
  * @see PVOpenCL::host_alloc
  */
 template <typename T>
-T* host_allocate(const cl_context ctx,
-                 cl_command_queue queue,
+T* host_allocate(const cl::Context& ctx,
+                 const cl::CommandQueue& queue,
                  const cl_mem_flags mem_flags,
-                 cl_map_flags map_flags,
+                 const cl_map_flags map_flags,
                  size_t size,
-                 cl_mem& mem,
+                 cl::Buffer& buffer,
                  cl_int& err)
 {
-	return static_cast<T*>(host_alloc(ctx, queue, mem_flags, map_flags, size, mem, err));
+	return static_cast<T*>(host_alloc(ctx, queue, mem_flags, map_flags, size, buffer, err));
 }
-
-/**
- * free memory block
- *
- * @param mem the OpenCL memory object to free
- *
- * @return the operation resulting error code
- */
-cl_int free(const cl_mem mem);
-
-/**
- * free a host mapped memory block
- *
- * @param queue the OpenCL command queue to use
- * @param mem the OpenCL memory object to free
- * @param addr the host mapped memory address
- *
- * @return the operation resulting error code
- */
-cl_int host_free(const cl_command_queue queue, const cl_mem mem, void* addr);
 }
 
 #endif // PVKERNEL_OPENCL_COMMON_H

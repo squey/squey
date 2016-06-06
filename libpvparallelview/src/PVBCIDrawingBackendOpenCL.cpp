@@ -34,10 +34,10 @@
 template <size_t Bbits>
 struct opencl_kernel {
 	static cl_int start(const PVParallelView::PVBCIDrawingBackendOpenCL::device_t& dev,
-	                    const cl_kernel kernel,
+	                    cl::Kernel& kernel,
 	                    const cl_uint n,
 	                    const cl_uint width,
-	                    const cl_mem image_mem,
+	                    const cl::Buffer& image_buffer,
 	                    const cl_uint image_width,
 	                    const cl_uint image_x_start,
 	                    const cl_float zoom_y,
@@ -50,17 +50,17 @@ struct opencl_kernel {
 		// bool is not a valid type as kernel parameter
 		const cl_uint reverse_flag = reverse;
 
-		inendi_verify_opencl(clSetKernelArg(kernel, 0, sizeof(cl_mem), &dev.mem));
-		inendi_verify_opencl(clSetKernelArg(kernel, 1, sizeof(cl_uint), &n));
-		inendi_verify_opencl(clSetKernelArg(kernel, 2, sizeof(cl_uint), &width));
-		inendi_verify_opencl(clSetKernelArg(kernel, 3, sizeof(cl_mem), &image_mem));
-		inendi_verify_opencl(clSetKernelArg(kernel, 4, sizeof(cl_uint), &image_width));
-		inendi_verify_opencl(clSetKernelArg(kernel, 5, sizeof(cl_uint), &image_height));
-		inendi_verify_opencl(clSetKernelArg(kernel, 6, sizeof(cl_uint), &image_x_start));
-		inendi_verify_opencl(clSetKernelArg(kernel, 7, sizeof(cl_float), &zoom_y));
-		inendi_verify_opencl(clSetKernelArg(kernel, 8, sizeof(cl_uint), &bit_shift));
-		inendi_verify_opencl(clSetKernelArg(kernel, 9, sizeof(cl_uint), &bit_mask));
-		inendi_verify_opencl(clSetKernelArg(kernel, 10, sizeof(cl_uint), &reverse_flag));
+		inendi_verify_opencl(kernel.setArg(0, dev.buffer()));
+		inendi_verify_opencl(kernel.setArg(1, n));
+		inendi_verify_opencl(kernel.setArg(2, width));
+		inendi_verify_opencl(kernel.setArg(3, image_buffer()));
+		inendi_verify_opencl(kernel.setArg(4, image_width));
+		inendi_verify_opencl(kernel.setArg(5, image_height));
+		inendi_verify_opencl(kernel.setArg(6, image_x_start));
+		inendi_verify_opencl(kernel.setArg(7, zoom_y));
+		inendi_verify_opencl(kernel.setArg(8, bit_shift));
+		inendi_verify_opencl(kernel.setArg(9, bit_mask));
+		inendi_verify_opencl(kernel.setArg(10, reverse_flag));
 
 		/* we make fit the highest number of image column in the work group local memory
 		 */
@@ -70,11 +70,10 @@ struct opencl_kernel {
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
 		const size_t global_num_y = local_num_y;
 
-		const size_t global_work[] = {global_num_x, global_num_y};
-		const size_t local_work[] = {local_num_x, local_num_y};
+		const cl::NDRange global_work(global_num_x, global_num_y);
+		const cl::NDRange local_work(local_num_x, local_num_y);
 
-		return clEnqueueNDRangeKernel(dev.queue, kernel, 2, nullptr, global_work, local_work, 0,
-		                              nullptr, nullptr);
+		return dev.queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_work, local_work);
 	}
 };
 
@@ -93,21 +92,19 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
 
 	// List all usable OpenCL devices and create appropriate structures
-	const auto fun = [&](cl_context ctx, cl_device_id dev_id) {
-		device_t dev;
+	const auto fun = [&](cl::Context& ctx, cl::Device& dev) {
+		device_t device;
 		cl_int err;
 
-		dev.id = dev_id;
+		device.dev = dev;
 
-		dev.queue = clCreateCommandQueue(ctx, dev_id, 0, &err);
+		device.queue = cl::CommandQueue(ctx, dev, 0, &err);
 		inendi_verify_opencl_var(err);
 
-		dev.addr = PVOpenCL::host_allocate<PVBCICodeBase>(ctx, dev.queue, CL_MEM_READ_ONLY,
-		                                                  CL_MAP_WRITE, size, dev.mem, err);
+		device.buffer = cl::Buffer(ctx, CL_MEM_READ_ONLY, size, nullptr, &err);
 		inendi_verify_opencl_var(err);
-		assert(dev.addr != nullptr);
 
-		this->_devices.insert(std::make_pair(dev_idx, dev));
+		this->_devices.insert(std::make_pair(dev_idx, device));
 		++dev_idx;
 	};
 
@@ -115,20 +112,18 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		_context = PVOpenCL::find_first_usable_context(true, fun);
 	}
 
-	if (_context == nullptr) {
+	if (_context() == nullptr) {
 		_context = PVOpenCL::find_first_usable_context(false, fun);
 		_is_gpu_accelerated = false;
 	}
 
-	if (_context == nullptr) {
+	if (_context() == nullptr) {
 		throw PVOpenCL::exception::no_backend_error();
 	}
 
 	_next_device = _devices.begin();
 
-	/* NOTE: "1" because the kernel code is stored using an array of nul-terminated string.
-	 */
-	cl_program program = clCreateProgramWithSource(_context, 1, &bci_z24_str, nullptr, &err);
+	cl::Program program(_context, bci_z24_str, false, &err);
 	inendi_verify_opencl_var(err);
 
 	/**
@@ -143,58 +138,40 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	build_options << " -DHSV_COLOR_BLACK=" << HSV_COLOR_BLACK;
 	build_options << " -DHSV_COLOR_RED=" << HSV_COLOR_RED;
 
-	err = clBuildProgram(program, 0, nullptr, build_options.str().c_str(), nullptr, nullptr);
+	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>(&err);
+	inendi_verify_opencl_var(err);
+
+	err = program.build(devices, build_options.str().c_str());
 
 #ifdef INENDI_DEVELOPER_MODE
 	if (err != CL_SUCCESS) {
 		/* As we build (implicitly) on all devices, we check every for errors
 		 */
-		for (auto& it : _devices) {
+		for (const auto& dev : devices) {
 			cl_build_status status;
 
-			clGetProgramBuildInfo(program, it.second.id, CL_PROGRAM_BUILD_STATUS, sizeof(status),
-			                      &status, nullptr);
+			inendi_verify_opencl(program.getBuildInfo(dev, CL_PROGRAM_BUILD_STATUS, &status));
 
 			if (status != CL_BUILD_ERROR) {
 				continue;
 			}
 
-			size_t len;
-			char buffer[256];
-			clGetProgramBuildInfo(program, it.second.id, CL_PROGRAM_BUILD_LOG, sizeof(buffer),
-			                      buffer, &len);
-			PVLOG_INFO("build log: %s\n", buffer);
+			std::string log = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
+
+			PVLOG_INFO("build log: %s\n", log.c_str());
 		}
 	}
 #endif
 	inendi_verify_opencl_var(err);
 
-	_kernel = clCreateKernel(program, "DRAW", &err);
+	_kernel = cl::Kernel(program, "DRAW", &err);
 	inendi_verify_opencl_var(err);
 
 	for (auto& it : _devices) {
-		err = clGetKernelWorkGroupInfo(_kernel, it.second.id, CL_KERNEL_WORK_GROUP_SIZE,
-		                               sizeof(size_t), &it.second.work_group_size, nullptr);
+		err = _kernel.getWorkGroupInfo(it.second.dev, CL_KERNEL_WORK_GROUP_SIZE,
+		                               &it.second.work_group_size);
 		inendi_verify_opencl_var(err);
 	}
-
-	err = clReleaseProgram(program);
-	inendi_verify_opencl_var(err);
-}
-
-/*****************************************************************************
- * PVParallelView::PVBCIDrawingBackendOpenCL::~PVBCIDrawingBackendOpenCL
- *****************************************************************************/
-
-PVParallelView::PVBCIDrawingBackendOpenCL::~PVBCIDrawingBackendOpenCL()
-{
-	for (auto& dev : _devices) {
-		inendi_verify_opencl_var(
-		    PVOpenCL::host_free(dev.second.queue, dev.second.mem, dev.second.addr));
-		inendi_verify_opencl(clReleaseCommandQueue(dev.second.queue));
-	}
-
-	clReleaseContext(_context);
 }
 
 /*****************************************************************************
@@ -221,7 +198,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t image_width, uint
 	}
 
 	// Create image on a device in a round robin way
-	cl_command_queue queue = _next_device->second.queue;
+	const cl::CommandQueue& queue = _next_device->second.queue;
 
 	PVBCIBackendImage_p ret(new PVBCIBackendImageOpenCL(image_width, height_bits, _context, queue,
 	                                                    _next_device->first));
@@ -237,20 +214,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t image_width, uint
 
 PVParallelView::PVBCICodeBase* PVParallelView::PVBCIDrawingBackendOpenCL::allocate_bci(size_t n)
 {
-	const size_t size = n * sizeof(PVParallelView::PVBCICodeBase);
-
-	device_t dev;
-	cl_int err;
-
-	dev.queue = _devices[0].queue;
-	dev.addr = PVOpenCL::host_allocate<PVBCICodeBase>(_context, dev.queue, CL_MEM_READ_WRITE,
-	                                                  CL_MAP_READ, size, dev.mem, err);
-	inendi_verify_opencl_var(err);
-	assert(dev.addr != nullptr);
-
-	_mapped_buffers.insert(std::make_pair(dev.addr, dev));
-
-	return dev.addr;
+	return new PVBCICodeBase[n];
 }
 
 /*****************************************************************************
@@ -259,17 +223,7 @@ PVParallelView::PVBCICodeBase* PVParallelView::PVBCIDrawingBackendOpenCL::alloca
 
 void PVParallelView::PVBCIDrawingBackendOpenCL::free_bci(PVParallelView::PVBCICodeBase* buf)
 {
-	auto entry = _mapped_buffers.find(buf);
-
-	if (entry == _mapped_buffers.end()) {
-		assert(false);
-		return;
-	}
-
-	cl_int err = PVOpenCL::host_free(entry->second.queue, entry->second.mem, entry->second.addr);
-	inendi_verify_opencl_var(err);
-
-	_mapped_buffers.erase(buf);
+	delete[] buf;
 }
 
 /*****************************************************************************
@@ -297,8 +251,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 
 	if (n != 0) {
 		// Specs that a size of zero will lead to CL_INVALID_VALUE
-		err = clEnqueueWriteBuffer(dev.queue, dev.mem, CL_FALSE, 0, n * sizeof(codes), codes, 0,
-		                           nullptr, nullptr);
+		err = dev.queue.enqueueWriteBuffer(dev.buffer, CL_FALSE, 0, n * sizeof(codes), codes);
 		inendi_verify_opencl_var(err);
 	}
 
@@ -306,17 +259,17 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 	case 10:
 		assert(reverse == false && "no reverse mode allowed in kernel<10>");
 
-		err = opencl_kernel<10>::start(dev, _kernel, n, width, dst_img->device_mem(),
+		err = opencl_kernel<10>::start(dev, _kernel, n, width, dst_img->device_buffer(),
 		                               dst_img->width(), x_start, zoom_y, reverse);
 		break;
 	case 11:
-		err = opencl_kernel<11>::start(dev, _kernel, n, width, dst_img->device_mem(),
+		err = opencl_kernel<11>::start(dev, _kernel, n, width, dst_img->device_buffer(),
 		                               dst_img->width(), x_start, zoom_y, reverse);
 		break;
 	default:
 		assert(false);
 		break;
-	};
+	}
 	inendi_verify_opencl_var(err);
 
 	opencl_job_data_t* data = new opencl_job_data_t;
@@ -324,13 +277,12 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 
 	dst_img->copy_device_to_host_async(&data->event);
 
-	err = clSetEventCallback(data->event, CL_COMPLETE, &PVBCIDrawingBackendOpenCL::termination_cb,
-	                         data);
+	err = data->event.setCallback(CL_COMPLETE, &PVBCIDrawingBackendOpenCL::termination_cb, data);
 	inendi_verify_opencl_var(err);
 
 	// CPU drivers need to do an explicit clFlush to make event happen... strange...
 	if (not _is_gpu_accelerated) {
-		clFlush(dev.queue);
+		dev.queue.flush();
 	}
 }
 
@@ -342,7 +294,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::wait_all() const
 {
 	// Wait for all devices processing termination
 	for (auto& device : _devices) {
-		clFinish(device.second.queue);
+		device.second.queue.finish();
 	}
 }
 
@@ -360,8 +312,6 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event
 	if (job_data->done_function) {
 		(job_data->done_function)();
 	}
-
-	clReleaseEvent(job_data->event);
 
 	delete job_data;
 }
