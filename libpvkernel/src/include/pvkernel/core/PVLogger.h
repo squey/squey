@@ -98,6 +98,9 @@ void PVLOG_DEBUG(T&& fmt, U&&... u)
 {
 #ifdef NDEBUG
 	PVCore::PVLogger::getInstance()->debug(std::forward<T>(fmt), std::forward<U>(u)...);
+#else
+	(void)fmt;
+	std::tuple<U...> __attribute((unused)) d{u...};
 #endif
 }
 template <class T, class... U>
@@ -105,6 +108,9 @@ void PVLOG_HEAVYDEBUG(T&& fmt, U&&... u)
 {
 #ifdef NDEBUG
 	PVCore::PVLogger::getInstance()->heavydebug(std::forward<T>(fmt), std::forward<U>(u)...);
+#else
+	(void)fmt;
+	std::tuple<U...> __attribute((unused)) d{u...};
 #endif
 }
 // The next MACRO outputs the given message without prefixing it with the usual stuff (works as a
