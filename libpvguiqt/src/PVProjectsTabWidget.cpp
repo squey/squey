@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvguiqt/PVOpenWorkspacesWidget.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVStartScreenWidget.h>
 
@@ -292,7 +291,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 	if (index != -1) {
 		PVSceneWorkspacesTabWidget* tab_widget =
 		    (PVSceneWorkspacesTabWidget*)_stacked_widget->widget(index);
-		tab_widget->get_scene()->remove_from_tree();
+		tab_widget->get_scene().remove_from_tree();
 		_tab_widget->removeTab(index);
 		_stacked_widget->removeWidget(tab_widget);
 
@@ -326,7 +325,7 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	}
 }
 
-PVGuiQt::PVWorkspacesTabWidgetBase*
+PVGuiQt::PVSceneWorkspacesTabWidget*
 PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const
 {
 	if (_current_workspace_tab_widget_index < 0) {
@@ -335,7 +334,7 @@ PVGuiQt::PVProjectsTabWidget::current_workspace_tab_widget() const
 
 	QWidget* w = _stacked_widget->widget(_current_workspace_tab_widget_index);
 
-	return qobject_cast<PVWorkspacesTabWidgetBase*>(w);
+	return qobject_cast<PVSceneWorkspacesTabWidget*>(w);
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget*
@@ -344,7 +343,7 @@ PVGuiQt::PVProjectsTabWidget::get_workspace_tab_widget_from_scene(const Inendi::
 	for (int i = FIRST_PROJECT_INDEX; i < _stacked_widget->count(); i++) {
 		PVSceneWorkspacesTabWidget* workspace_tab_widget =
 		    (PVSceneWorkspacesTabWidget*)_stacked_widget->widget(i);
-		if (workspace_tab_widget->get_scene() == scene) {
+		if (&workspace_tab_widget->get_scene() == scene) {
 			return workspace_tab_widget;
 		}
 	}

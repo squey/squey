@@ -818,7 +818,7 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 		if (p == nullptr) {
 			p = PVCore::get_qobject_hierarchy_of_type<QDockWidget>(w);
 			if (p == nullptr) {
-				p = PVCore::get_qobject_hierarchy_of_type<PVGuiQt::PVWorkspacesTabWidgetBase>(w);
+				p = PVCore::get_qobject_hierarchy_of_type<PVGuiQt::PVSceneWorkspacesTabWidget>(w);
 				if (p == nullptr) {
 					p = PVCore::get_qobject_hierarchy_of_type<PVMainWindow>(w);
 				}

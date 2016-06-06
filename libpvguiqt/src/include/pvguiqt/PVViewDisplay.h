@@ -34,7 +34,6 @@ namespace PVGuiQt
 
 class PVWorkspaceBase;
 class PVSourceWorkspace;
-class PVOpenWorkspace;
 
 /**
  * \class PVViewDisplay
@@ -47,7 +46,6 @@ class PVViewDisplay : public QDockWidget
 
 	friend PVWorkspaceBase;
 	friend PVSourceWorkspace;
-	friend PVOpenWorkspace;
 
 	enum EState { HIDDEN, CAN_MAXIMIZE, CAN_RESTORE };
 

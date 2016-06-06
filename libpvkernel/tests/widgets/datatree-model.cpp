@@ -8,8 +8,6 @@
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/widgets/PVDataTreeModel.h>
 
-#include <pvkernel/widgets/PVDataTreeMaskProxyModel.h>
-
 #include <QApplication>
 #include <QMainWindow>
 #include <QDialog>
@@ -168,15 +166,10 @@ typedef typename C::p_type C_p;
 typedef typename D::p_type D_p;
 typedef typename E::p_type E_p;
 
-typedef PVWidgets::PVDataTreeMaskProxyModel<C> proxy_model_c_t;
-typedef PVWidgets::PVDataTreeMaskProxyModel<std::string> proxy_model_d_t;
-
 void usage(char* progname)
 {
 	std::cerr << "usage: " << basename(progname) << " [1|2|3]" << std::endl;
 	std::cerr << "\t1: to display only model view" << std::endl;
-	std::cerr << "\t2: to display only proxy view" << std::endl;
-	std::cerr << "\t3: to display model view and proxy view" << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -201,7 +194,7 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	int what = 3;
+	int what = 1;
 
 	if (argc != 1) {
 		what = atoi(argv[1]);
@@ -222,23 +215,6 @@ int main(int argc, char** argv)
 	mw->setCentralWidget(view);
 	mw->setWindowTitle("Data Tree - Model");
 	mw->show();
-
-	// Create our proxy and its view
-	proxy_model_c_t* proxy_c = new proxy_model_c_t();
-	proxy_c->setSourceModel(model);
-
-	proxy_model_d_t* proxy_d = new proxy_model_d_t();
-	proxy_d->setSourceModel(proxy_c);
-
-	QTreeView* view2 = new QTreeView();
-	view2->setModel(proxy_d);
-	view2->expandAll();
-
-	QMainWindow* mw2 = new QMainWindow();
-	mw2->setWindowTitle("Data Tree - Proxy on class C");
-	mw2->setCentralWidget(view2);
-
-	mw2->show();
 
 	return app.exec();
 }

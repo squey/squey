@@ -39,12 +39,3 @@ add_pv_compile_test(Tqt_displays_plugins LINKS ${COMMON_LIBRARIES} FILES display
 add_pv_compile_test(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
 add_test(Tpvguiqt_sort_filter Tpvguiqt_sort_filter)
 add_bench(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
-
-# Workspaces
-if (CUDA_FOUND)
-	qt5_wrap_cpp(WORKSPACES_MOC_SRC workspaces.h OPTIONS ${QT5_WRAP_OPTIONS})
-	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
-	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-
-	add_pv_compile_test(Tqt_workspaces LINKS ${MOC_SRC} ${MOC_HEADERS} ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES} FILES workspaces.cpp common.cpp)
-endif(CUDA_FOUND)
