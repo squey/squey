@@ -102,7 +102,7 @@ double load_investigation()
 	 */
 	std::list<PVCore::PVSharedPtr<Inendi::PVSource>> sources;
 	for (auto const& scene : root->get_children()) {
-		sources.insert(sources.end(), scene->get_children().begin(), scene->get_children().end());
+		sources.splice(sources.end(), scene->get_children());
 	}
 	PV_VALID(sources.size(), 3UL);
 	auto source = *sources.begin();
@@ -132,8 +132,7 @@ double load_investigation()
 		for (auto source : scene->get_children()) {
 			for (auto mapped : source->get_children()) {
 				for (auto plotted : mapped->get_children()) {
-					views.insert(views.end(), plotted->get_children().begin(),
-					             plotted->get_children().end());
+					views.splice(views.end(), plotted->get_children());
 				}
 			}
 		}

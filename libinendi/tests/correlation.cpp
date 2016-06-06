@@ -65,8 +65,7 @@ int main()
 		for (auto source : scene->get_children()) {
 			for (auto mapped : source->get_children()) {
 				for (auto plotted : mapped->get_children()) {
-					views.insert(views.begin(), plotted->get_children().begin(),
-					             plotted->get_children().end());
+					views.splice(views.begin(), plotted->get_children());
 				}
 			}
 		}

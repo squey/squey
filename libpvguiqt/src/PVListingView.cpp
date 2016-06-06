@@ -572,8 +572,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 			std::list<PVCore::PVSharedPtr<Inendi::PVView>> views;
 			for (auto mapped : source->get_children()) {
 				for (auto plotted : mapped->get_children()) {
-					views.insert(views.begin(), plotted->get_children().begin(),
-					             plotted->get_children().end());
+					views.splice(views.begin(), plotted->get_children());
 				}
 			}
 			bool need_view_menu = views.size() > 1;

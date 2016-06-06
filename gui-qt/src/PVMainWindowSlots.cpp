@@ -289,7 +289,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		return false;
 	}
 
-	auto& scenes = get_root().get_children();
+	auto scenes = get_root().get_children();
 
 	bool new_scene = false;
 	if (scenes.size() == 0) {
