@@ -577,7 +577,7 @@ bool Inendi::PVPlotted::is_current_plotted() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
 	return std::find_if(get_children().begin(), get_children().end(),
-	                    [cur_view](PVCore::PVSharedPtr<PVView> const& view) {
+	                    [cur_view](PVCore::PVSharedPtr<const PVView> const& view) {
 		                    return view.get() == cur_view;
 		                }) != get_children().end();
 }

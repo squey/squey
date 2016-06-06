@@ -43,7 +43,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	friend class PVView;
 
   public:
-	typedef QList<PVSource*> list_sources_t;
+	typedef QList<PVSource const*> list_sources_t;
 
   public:
 	PVScene(PVRoot* root, QString scene_name);

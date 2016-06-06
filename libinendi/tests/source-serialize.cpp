@@ -80,14 +80,9 @@ int main(int argc, char** argv)
 	ar->get_root()->object("scene", *scene2);
 	ar->finish();
 
-	Inendi::PVScene::list_sources_t srcs = scene2->get_sources(*sc_file->supported_type_lib());
-	if (srcs.size() != 1) {
-		std::cerr << "No source was recreated !" << std::endl;
-		return 1;
-	}
-	src = srcs.at(0)->shared_from_this();
+	auto new_src = scene2->get_children().front();
 
-	job = src->extract();
+	job = new_src->extract();
 	job->wait_end();
 
 	std::cerr << "--------" << std::endl
@@ -95,7 +90,7 @@ int main(int argc, char** argv)
 	          << "----------" << std::endl
 	          << std::endl;
 	// Dump the NRAW
-	src->get_rushnraw().dump_csv();
+	new_src->get_rushnraw().dump_csv();
 
 	return 0;
 }

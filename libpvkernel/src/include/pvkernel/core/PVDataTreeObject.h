@@ -48,7 +48,11 @@ class PVDataTreeParent
 		return _children.back();
 	}
 
-	std::list<PVSharedPtr<Child>> const& get_children() const { return _children; }
+	std::list<PVSharedPtr<const Child>> get_children() const
+	{
+		return {_children.begin(), _children.end()};
+	}
+
 	std::list<PVSharedPtr<Child>>& get_children() { return _children; }
 
 	void remove_child(Child const& child)

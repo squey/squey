@@ -46,7 +46,7 @@ Inendi::PVScene::~PVScene()
 Inendi::PVScene::list_sources_t Inendi::PVScene::get_sources(PVRush::PVInputType const& type) const
 {
 	list_sources_t ret;
-	for (PVSource_sp const& src : get_children()) {
+	for (auto const& src : get_children()) {
 		if (*src->get_input_type() == type) {
 			ret.push_back(src.get());
 		}
@@ -94,7 +94,7 @@ PVRush::PVInputType::list_inputs_desc
 Inendi::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 {
 	QSet<PVRush::PVInputDescription_p> ret_set;
-	for (PVSource_sp const& src : get_children()) {
+	for (auto const& src : get_children()) {
 		if (*src->get_input_type() == type) {
 			ret_set.unite(src->get_inputs().toSet());
 		}
@@ -105,7 +105,7 @@ Inendi::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
 {
 	QList<PVRush::PVInputType_p> ret;
-	for (PVSource_sp const& src : get_children()) {
+	for (auto const& src : get_children()) {
 		PVRush::PVInputType_p in_type = src->get_input_type();
 		bool found = false;
 		for (PVRush::PVInputType_p const& known_in_t : ret) {
