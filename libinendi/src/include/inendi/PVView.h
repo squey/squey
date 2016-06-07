@@ -146,7 +146,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 
 	int get_number_of_selected_lines() const;
 
-	inline id_t get_view_id() const { return _view_id; }
 	inline id_t get_display_view_id() const { return _view_id + 1; }
 
 	PVCol get_original_axes_count() const;

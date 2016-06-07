@@ -74,7 +74,6 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	 */
 	PVMapping& get_mapping() { return _mapping; }
 	const PVMapping& get_mapping() const { return _mapping; }
-	void set_name(std::string const& name) { _mapping.set_name(name); }
 	std::string const& get_name() const { return _mapping.get_name(); }
 
 	/**

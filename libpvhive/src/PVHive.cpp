@@ -7,7 +7,6 @@
 
 #include <QMetaType>
 
-#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
 #include <pvhive/PVObserver.h>

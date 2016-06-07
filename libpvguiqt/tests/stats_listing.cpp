@@ -6,7 +6,6 @@
  */
 
 #include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/PVDataTreeObject.h>
 
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>

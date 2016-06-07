@@ -90,8 +90,8 @@ struct function_args_list_helper {
 
 	template <size_t aI, bool zero = (aI == 0)>
 	struct get_arg_impl {
-		typedef typename add_reference_const<typename variadic_n<aI, T, Tparams...>::type>::type
-		    result_type;
+		using result_type = typename add_reference_const<
+		    typename std::tuple_element<aI, std::tuple<T, Tparams...>>::type>::type;
 
 		inline static result_type get_arg(this_type const* p)
 		{
@@ -256,15 +256,9 @@ template <typename R, typename... Tparams>
 struct function_traits_helper<R (*)(Tparams...)> {
 	typedef R result_type;
 	typedef function_args_list<argument_storage_pointer, Tparams...> arguments_type;
-	// typedef std::tuple<Tparams...> arguments_type;
-	constexpr static size_t arity = variadic_param_count<Tparams...>::count;
+	constexpr static size_t arity = sizeof...(Tparams);
 	typedef R (*pointer_type)(Tparams...);
 	typedef function_args_list<argument_storage_copy, Tparams...> arguments_deep_copy_type;
-	// typedef std::tuple<Tparams...> arguments_deep_copy_type;
-
-	template <size_t I>
-	struct type_of_arg : public variadic_n<I, Tparams...> {
-	};
 };
 
 template <typename R>
