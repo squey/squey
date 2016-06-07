@@ -52,6 +52,3 @@ add_test(Tcore_logger  Tcore_logger)
 add_pv_compile_test(Tcore_timeformat LINKS pvkernel ${ICU_LIBRARY} FILES time-format.cpp)
 add_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
 
-if (OPENCL_FOUND)
-  add_pv_compile_test(Tcore_opencl_test FILES opencl_test.cpp LINKS pvkernel)
-endif(OPENCL_FOUND)

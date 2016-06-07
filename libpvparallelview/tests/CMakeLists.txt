@@ -56,9 +56,13 @@ add_pv_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_t
 add_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
 add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 
-if (CUDA_FOUND)
+if(CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 
 	add_pv_compile_test(show_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES show_codes_cuda_lib.cpp helpers.cpp)
 	add_pv_compile_test(perf_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES perf_codes_cuda_lib.cpp helpers.cpp)
-endif (CUDA_FOUND)
+endif(CUDA_FOUND)
+
+if(OPENCL_FOUND)
+	add_pv_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)
+endif(OPENCL_FOUND)
