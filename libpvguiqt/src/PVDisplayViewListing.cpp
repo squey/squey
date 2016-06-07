@@ -48,5 +48,5 @@ QIcon PVDisplays::PVDisplayViewListing::toolbar_icon() const
 
 QString PVDisplays::PVDisplayViewListing::widget_title(Inendi::PVView* view) const
 {
-	return QString("Listing [" + view->get_name() + "]");
+	return "Listing [" + QString::fromStdString(view->get_name()) + "]";
 }

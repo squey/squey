@@ -91,14 +91,14 @@ class PVPlotting
 	bool is_col_uptodate(PVCol j) const;
 	void set_type_for_col(QString const& type, PVCol col);
 
-	QString const& get_name() const { return _name; }
-	void set_name(QString const& name) { _name = name; }
+	std::string const& get_name() const { return _name; }
+	void set_name(std::string const& name) { _name = name; }
 
   protected:
 	QList<PVPlottingProperties> _columns;
 
 	PVPlotted* _plotted;
-	QString _name;
+	std::string _name;
 };
 
 typedef PVPlotting::p_type PVPlotting_p;

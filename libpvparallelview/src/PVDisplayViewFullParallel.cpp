@@ -47,5 +47,5 @@ QIcon PVDisplays::PVDisplayViewFullParallel::toolbar_icon() const
 
 QString PVDisplays::PVDisplayViewFullParallel::widget_title(Inendi::PVView* view) const
 {
-	return QString("Parallel view [" + view->get_name() + "]");
+	return "Parallel view [" + QString::fromStdString(view->get_name()) + "]";
 }

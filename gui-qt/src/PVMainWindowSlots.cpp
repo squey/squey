@@ -268,7 +268,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  *****************************************************************************/
 Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
-	QString scene_name = tr("Data collection %1").arg(sequence_n++);
+	std::string scene_name = tr("Data collection %1").arg(sequence_n++).toStdString();
 	PVCore::PVSharedPtr<Inendi::PVScene> scene_p = get_root_sp()->emplace_add_child(scene_name);
 	_projects_tab_widget->add_project(scene_p);
 

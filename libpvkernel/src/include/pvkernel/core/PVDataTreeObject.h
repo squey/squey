@@ -17,8 +17,22 @@
 namespace PVCore
 {
 
+/**
+ * it is a diamon base class for every child use to dynamic cast to correct type asap.
+ */
+class PVDataTreeObject
+{
+  public:
+	/**
+	 * This is a dummy function to create the VTable otherwise the compiler doesn't consided
+	 * PVDataTreeObject as a source class.
+	 */
+	virtual std::string get_serialize_description() const = 0;
+};
+
 namespace __impl
 {
+
 /**
  * Helper class to have partially specialized methods when performing operations on child nodes.
  *
@@ -75,7 +89,7 @@ struct ChildrenAccessor<T, T> {
  * DataTree node as parent (containing children)
  */
 template <class Child, class Derived>
-class PVDataTreeParent
+class PVDataTreeParent : virtual public PVDataTreeObject
 {
   public:
 	template <class... T>
@@ -129,7 +143,7 @@ struct ParentAccessor<T, T> {
 }
 
 template <class Parent, class Derived>
-class PVDataTreeChild
+class PVDataTreeChild : virtual public PVDataTreeObject
 {
   public:
 	PVDataTreeChild(Parent* parent) : _parent(parent) {}

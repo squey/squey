@@ -809,18 +809,16 @@ void Inendi::PVView::select_inv_lines()
 	volatile_selection = ~floating_selection;
 }
 
-QString Inendi::PVView::get_name() const
+std::string Inendi::PVView::get_name() const
 {
-	return QString("%1 (%2/%3)")
-	    .arg(QString::number(get_display_view_id()))
-	    .arg(get_parent<PVMapped>()->get_name())
-	    .arg(get_parent<PVPlotted>()->get_name());
+	return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>()->get_name() + "/" +
+	       get_parent<PVPlotted>()->get_name() + ")";
 }
 
 QString Inendi::PVView::get_window_name() const
 {
 	QString ret = get_parent<PVSource>()->get_window_name() + " | ";
-	ret += get_name();
+	ret += QString::fromStdString(get_name());
 	return ret;
 }
 

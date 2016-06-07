@@ -51,7 +51,7 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 			cur_idx = _combo_box->count();
 		}
 
-		_combo_box->addItem(scene->get_name(), var);
+		_combo_box->addItem(QString::fromStdString(scene->get_name()), var);
 	}
 	_combo_box->setCurrentIndex(cur_idx);
 

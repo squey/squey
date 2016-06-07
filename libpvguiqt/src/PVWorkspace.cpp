@@ -525,7 +525,7 @@ void PVGuiQt::PVSourceWorkspace::refresh_views_menus()
 	}
 
 	for (Inendi::PVView_sp const& view : _source->get_children<Inendi::PVView>()) {
-		QString action_name = view->get_name();
+		QString action_name = QString::fromStdString(view->get_name());
 
 		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p :
 		     _view_display_if_btns) {

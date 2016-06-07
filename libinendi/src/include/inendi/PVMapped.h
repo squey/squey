@@ -74,8 +74,8 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	 */
 	PVMapping& get_mapping() { return _mapping; }
 	const PVMapping& get_mapping() const { return _mapping; }
-	void set_name(QString const& name) { _mapping.set_name(name); }
-	QString const& get_name() const { return _mapping.get_name(); }
+	void set_name(std::string const& name) { _mapping.set_name(name); }
+	std::string const& get_name() const { return _mapping.get_name(); }
 
 	/**
 	 * Provide decimal type for each column.
@@ -134,7 +134,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	virtual QString get_children_serialize_name() const { return "plotted"; }
 
   public:
-	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
+	virtual std::string get_serialize_description() const { return "Mapping: " + get_name(); }
 
   protected:
 	void serialize_write(PVCore::PVSerializeObject& so);

@@ -33,5 +33,5 @@ QIcon PVDisplays::PVDisplayViewLayerStack::toolbar_icon() const
 
 QString PVDisplays::PVDisplayViewLayerStack::widget_title(Inendi::PVView* view) const
 {
-	return QString("Layer stack [" + view->get_name() + "]");
+	return "Layer stack [" + QString::fromStdString(view->get_name()) + "]";
 }

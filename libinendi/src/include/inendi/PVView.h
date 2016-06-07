@@ -70,7 +70,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	}
 	void axis_append(const PVAxis& axis) { _axes_combination.axis_append(axis); }
 
-	virtual QString get_serialize_description() const { return "View: " + get_name(); }
+	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
 
 	/* Functions */
 	PVCol get_axes_count() const;
@@ -159,7 +159,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 
 	PVLayer const& get_output_layer() const { return output_layer; }
 
-	QString get_name() const;
+	std::string get_name() const;
 	QString get_window_name() const;
 
 	void set_color(QColor color) { _color = color; }

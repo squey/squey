@@ -4,108 +4,178 @@
  * @copyright (C) Picviz Labs 2012-March 2015
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
-
-#include <pvkernel/core/PVDataTreeObject.h>
-
-#include <pvhive/PVHive.h>
 #include <pvhive/PVObserverCallback.h>
-
 #include <pvguiqt/PVHiveDataTreeModel.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVSource.h>
 
-PVGuiQt::PVHiveDataTreeModel::PVHiveDataTreeModel(PVCore::PVDataTreeObjectBase& root,
-                                                  QObject* parent)
-    : PVDataTreeModel(root, parent)
+#include <list>
+
+namespace PVGuiQt
+{
+
+PVHiveDataTreeModel::PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent)
+    : QAbstractItemModel(parent), _root(root)
 {
 	register_all_observers();
 
-	// Same with root!
-	this->_obs.emplace_back(static_cast<QObject*>(this));
-	datatree_obs_t* obs = &_obs.back();
-	auto datatree_o = root.base_shared_from_this();
-	PVHive::get().register_observer(datatree_o, *obs);
-	obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
-	obs->connect_about_to_be_deleted(this, SLOT(root_about_to_be_deleted(PVHive::PVObserverBase*)));
+	register_obs(&root);
 
-	_root_recursive_observer = PVHive::create_observer_callback_heap<PVCore::PVDataTreeObjectBase>(
-	    [](PVCore::PVDataTreeObjectBase const*) {},
-	    [&](PVCore::PVDataTreeObjectBase const*) { register_all_observers(); },
-	    [](PVCore::PVDataTreeObjectBase const*) {});
+	_root_recursive_observer = PVHive::create_observer_callback_heap<PVCore::PVDataTreeObject>(
+	    [](PVCore::PVDataTreeObject const*) {},
+	    [this](PVCore::PVDataTreeObject const*) { register_all_observers(); },
+	    [](PVCore::PVDataTreeObject const*) {});
 	_root_recursive_observer->set_accept_recursive_refreshes(true);
 
-	auto root_sp = root.base_shared_from_this();
+	auto root_sp = root.shared_from_this();
 	PVHive::get().register_observer(root_sp, *_root_recursive_observer);
 }
 
-int PVGuiQt::PVHiveDataTreeModel::rowCount(const QModelIndex& index) const
+QModelIndex PVHiveDataTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
-	if (!_view_valid) {
-		return 0;
+	// Column is always 0 (see columnCount), but asserts it
+	assert(column == 0);
+
+	PVCore::PVDataTreeObject* p =
+	    (parent.isValid()) ? (PVCore::PVDataTreeObject*)parent.internalPointer() : &_root;
+
+	PVCore::PVDataTreeObject* child = nullptr;
+	if (Inendi::PVPlotted* v = dynamic_cast<Inendi::PVPlotted*>(p)) {
+		auto children = v->get_children();
+		auto it = children.begin();
+		std::advance(it, row);
+		child = it->get();
+	} else if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(p)) {
+		auto children = v->get_children();
+		auto it = children.begin();
+		std::advance(it, row);
+		child = it->get();
+	} else if (Inendi::PVSource* v = dynamic_cast<Inendi::PVSource*>(p)) {
+		auto children = v->get_children();
+		auto it = children.begin();
+		std::advance(it, row);
+		child = it->get();
+	} else {
+		throw std::runtime_error("Invalid kind of node");
 	}
 
-	return PVWidgets::PVDataTreeModel::rowCount(index);
+	return createIndex(row, column, child);
 }
 
-bool PVGuiQt::PVHiveDataTreeModel::is_object_observed(PVCore::PVDataTreeObjectBase* o) const
+int PVHiveDataTreeModel::rowCount(const QModelIndex& parent) const
 {
-	for (datatree_obs_t const& obs : _obs) {
-		if (obs.get_object() == o) {
-			return true;
-		}
+	if (not parent.isValid()) {
+		return 1;
+	} else if (Inendi::PVPlotted* v = dynamic_cast<Inendi::PVPlotted*>(
+	               (PVCore::PVDataTreeObject*)parent.internalPointer())) {
+		return v->size();
+	} else if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(
+	               (PVCore::PVDataTreeObject*)parent.internalPointer())) {
+		return v->size();
+	} else if (Inendi::PVSource* v = dynamic_cast<Inendi::PVSource*>(
+	               (PVCore::PVDataTreeObject*)parent.internalPointer())) {
+		return v->size();
+	} else {
+		return 0; // View case
 	}
-	return false;
 }
 
-void PVGuiQt::PVHiveDataTreeModel::register_all_observers()
+QModelIndex PVHiveDataTreeModel::parent(const QModelIndex& index) const
 {
-	// Register observers on the whole tree
-	_root_base->depth_first_list([&](PVCore::PVDataTreeObjectBase* o) {
-		if (!is_object_observed(o)) {
-			this->_obs.emplace_back(static_cast<QObject*>(this));
-			datatree_obs_t* obs = &_obs.back();
-			auto datatree_o = o->base_shared_from_this();
-			PVHive::get().register_observer(datatree_o, *obs);
-			obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
-			obs->connect_about_to_be_deleted(this,
-			                                 SLOT(about_to_be_deleted(PVHive::PVObserverBase*)));
+	if (!index.isValid()) {
+		return {};
+	}
 
-			// Refresh parent
-			PVCore::PVDataTreeObjectWithParentBase* o_with_parent = o->cast_with_parent();
-			if (o_with_parent) {
-				beginResetModel();
-				endResetModel();
-			}
-		}
-	});
+	if (index.internalPointer() == &_root) {
+		return {};
+	}
+
+	PVCore::PVDataTreeObject* parent = nullptr;
+	PVCore::PVDataTreeObject* id = (PVCore::PVDataTreeObject*)index.internalPointer();
+	int row = 0;
+
+	if (Inendi::PVPlotted* v = dynamic_cast<Inendi::PVPlotted*>(id)) {
+		parent = v->get_parent();
+		row = pos_from_obj(v->get_parent());
+	} else if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(id)) {
+		parent = v->get_parent();
+		row = 0;
+	} else if (Inendi::PVView* v = dynamic_cast<Inendi::PVView*>(id)) {
+		parent = v->get_parent();
+		row = pos_from_obj(v->get_parent());
+	} else {
+		throw std::runtime_error("Invalid kind of node asked for parent");
+	}
+
+	return createIndex(row, 0, parent);
 }
 
-void PVGuiQt::PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
+QVariant PVHiveDataTreeModel::data(const QModelIndex& index, int role) const
+{
+
+	PVCore::PVDataTreeObject* ptr;
+	if (!index.isValid()) {
+		ptr = &_root;
+	} else {
+		ptr = (PVCore::PVDataTreeObject*)index.internalPointer();
+	}
+
+	if (role == Qt::DisplayRole) {
+		return QString::fromStdString(ptr->get_serialize_description());
+	}
+
+	return {};
+}
+
+void PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 {
 	datatree_obs_t* real_o = dynamic_cast<datatree_obs_t*>(o);
 	assert(real_o);
-	const PVCore::PVDataTreeObjectBase* obj_base = real_o->get_object();
-	if (dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase const*>(obj_base) == _root) {
+	const PVCore::PVDataTreeObject* obj_base = real_o->get_object();
+	if (obj_base == &_root) {
 		beginResetModel();
 		endResetModel();
 		return;
 	}
 
 	// Find the index of this object
-	QModelIndex idx = index_from_obj(obj_base);
+	QModelIndex idx = createIndex(pos_from_obj(obj_base), 0, (void*)obj_base);
 	assert(idx.isValid());
 
 	// Emit the fact that data has changed !
 	emit dataChanged(idx, idx);
 }
 
-void PVGuiQt::PVHiveDataTreeModel::root_about_to_be_deleted(PVHive::PVObserverBase*)
+int PVHiveDataTreeModel::pos_from_obj(PVCore::PVDataTreeObject const* id) const
 {
-	beginResetModel();
-	_view_valid = false;
-	endResetModel();
+	if (Inendi::PVPlotted const* v = dynamic_cast<Inendi::PVPlotted const*>(id)) {
+		auto children = v->get_parent()->get_children();
+		return std::distance(
+		    children.begin(),
+		    std::find_if(children.begin(), children.end(),
+		                 [v](PVCore::PVSharedPtr<const Inendi::PVPlotted> const& n) {
+			                 return n.get() == v;
+			             }));
+	} else if (Inendi::PVMapped const* v = dynamic_cast<Inendi::PVMapped const*>(id)) {
+		auto children = v->get_parent()->get_children();
+		return std::distance(
+		    children.begin(),
+		    std::find_if(children.begin(), children.end(),
+		                 [v](PVCore::PVSharedPtr<const Inendi::PVMapped> const& n) {
+			                 return n.get() == v;
+			             }));
+	} else if (Inendi::PVView const* v = dynamic_cast<Inendi::PVView const*>(id)) {
+		auto children = v->get_parent()->get_children();
+		return std::distance(children.begin(),
+		                     std::find_if(children.begin(), children.end(),
+		                                  [v](PVCore::PVSharedPtr<const Inendi::PVView> const& n) {
+			                                  return n.get() == v;
+			                              }));
+	} else if (dynamic_cast<Inendi::PVSource const*>(id)) {
+		return 0;
+	} else {
+		throw std::runtime_error("Invalid kind of node asked for parent");
+	}
 }
-
-void PVGuiQt::PVHiveDataTreeModel::about_to_be_deleted(PVHive::PVObserverBase*)
-{
-	beginResetModel();
-	endResetModel();
 }

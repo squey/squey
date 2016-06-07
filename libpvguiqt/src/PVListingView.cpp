@@ -564,7 +564,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 			continue;
 		}
 
-		QMenu* source_menu = new QMenu(source->get_name(), this);
+		QMenu* source_menu = new QMenu(QString::fromStdString(source->get_name()), this);
 
 		size_t compatible_axes_count = 0;
 
@@ -576,7 +576,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 
 			// Don't create an intermediary view menu if there is only one view for this source
 			if (need_view_menu) {
-				view_menu = new QMenu(view->get_name(), this);
+				view_menu = new QMenu(QString::fromStdString(view->get_name()), this);
 				source_menu->addMenu(view_menu);
 			}
 

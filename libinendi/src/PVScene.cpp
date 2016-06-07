@@ -23,7 +23,7 @@
  * Inendi::PVScene::PVScene
  *
  *****************************************************************************/
-Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_name)
+Inendi::PVScene::PVScene(Inendi::PVRoot* root, std::string const& scene_name)
     : PVCore::PVDataTreeChild<PVRoot, PVScene>(root), _last_active_src(nullptr), _name(scene_name)
 {
 }
@@ -208,7 +208,8 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		in_t->serialize_inputs(so, in_t->registered_name(), inputs);
 	}
 
-	so.attribute("name", _name);
+	QString name = QString::fromStdString(_name);
+	so.attribute("name", name);
 
 	QStringList in_types_str;
 	// Read the data colletions
@@ -217,8 +218,8 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	int idx = 0;
 	for (PVCore::PVSharedPtr<PVSource> source : get_children()) {
 		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj =
-		    list_obj->create_object(child_name, source->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
+		    child_name, QString::fromStdString(source->get_serialize_description()), false);
 		source->serialize(*new_obj, so.get_version());
 
 		PVRush::PVInputType_p const& in_t = source->get_input_type();

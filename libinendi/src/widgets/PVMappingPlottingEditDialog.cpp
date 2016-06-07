@@ -175,9 +175,9 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 	// We must get the official name of the
 	QString name;
 	if (has_mapping()) {
-		name = _mapping->get_name();
+		name = QString::fromStdString(_mapping->get_name());
 	} else {
-		name = _plotting->get_name();
+		name = QString::fromStdString(_plotting->get_name());
 	}
 	_edit_name->setText(name);
 
@@ -222,10 +222,10 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 
 	// If we're editing both at the same time, give the same name !
 	if (has_mapping()) {
-		_mapping->set_name(name);
+		_mapping->set_name(name.toStdString());
 	}
 	if (has_plotting()) {
-		_plotting->set_name(name);
+		_plotting->set_name(name.toStdString());
 	}
 
 	int row = 1;

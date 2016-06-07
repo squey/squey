@@ -128,9 +128,9 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	void process_from_source();
 
 	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
-	QString get_name() const
+	std::string get_name() const
 	{
-		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs);
+		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs).toStdString();
 	}
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const;
@@ -145,7 +145,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
 
-	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
+	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
 
 	PVRush::PVSourceDescription::shared_pointer create_description()
 	{

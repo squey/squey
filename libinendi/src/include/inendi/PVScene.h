@@ -46,12 +46,12 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	typedef QList<PVSource const*> list_sources_t;
 
   public:
-	PVScene(PVRoot* root, QString scene_name);
+	PVScene(PVRoot* root, std::string const& scene_name);
 	~PVScene();
 
   public:
-	void set_name(QString name) { _name = name; }
-	const QString& get_name() const { return _name; }
+	void set_name(std::string name) { _name = name; }
+	const std::string& get_name() const { return _name; }
 
 	PVSource* current_source();
 	PVSource const* current_source() const;
@@ -68,7 +68,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 
 	inline bool is_empty() const { return size() == 0; }
 
-	virtual QString get_serialize_description() const { return get_name(); }
+	virtual std::string get_serialize_description() const { return get_name(); }
 
   protected:
 	virtual QString get_children_description() const { return "Source(s)"; }
@@ -87,7 +87,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
   private:
 	Inendi::PVSource* _last_active_src;
 
-	QString _name;
+	std::string _name;
 };
 
 using PVScene_p = PVCore::PVSharedPtr<PVScene>;

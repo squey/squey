@@ -199,8 +199,8 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 	int idx = 0;
 	for (PVScene_p scene : get_children()) {
 		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj =
-		    list_obj->create_object(child_name, scene->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
+		    child_name, QString::fromStdString(scene->get_serialize_description()), false);
 		scene->serialize(*new_obj, so.get_version());
 		new_obj->_bound_obj = scene.get();
 		new_obj->_bound_obj_type = typeid(PVScene);
@@ -220,7 +220,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
 			QString name;
 			new_obj->attribute("name", name);
-			PVScene_p scene = emplace_add_child(name);
+			PVScene_p scene = emplace_add_child(name.toStdString());
 			scene->serialize(*new_obj, so.get_version());
 			new_obj->_bound_obj = scene.get();
 			new_obj->_bound_obj_type = typeid(PVScene);

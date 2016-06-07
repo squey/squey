@@ -237,7 +237,7 @@ QString Inendi::PVSource::get_window_name() const
 {
 	const size_t line_start = get_extraction_last_start();
 	const size_t line_end = line_start + get_row_count() - 1;
-	return get_name() + QString(" / ") + get_format_name() +
+	return QString::fromStdString(get_name()) + QString(" / ") + get_format_name() +
 	       QString("\n(%L1 -> %L2)").arg(line_start).arg(line_end);
 }
 
@@ -246,7 +246,7 @@ QString Inendi::PVSource::get_tooltip() const
 	const size_t line_start = get_extraction_last_start();
 	const size_t line_end = line_start + get_row_count() - 1;
 
-	QString source = QString("source: %1").arg(get_name());
+	QString source = QString("source: %1").arg(QString::fromStdString(get_name()));
 	QString format = QString("format: %1").arg(get_format_name());
 	QString range = QString("range: %L1 - %L2").arg(line_start).arg(line_end);
 
@@ -277,8 +277,8 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	int idx = 0;
 	for (PVCore::PVSharedPtr<PVMapped> mapped : get_children()) {
 		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj =
-		    list_obj->create_object(child_name, mapped->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
+		    child_name, QString::fromStdString(mapped->get_serialize_description()), false);
 		mapped->serialize(*new_obj, so.get_version());
 		new_obj->_bound_obj = mapped.get();
 		new_obj->_bound_obj_type = typeid(PVMapped);

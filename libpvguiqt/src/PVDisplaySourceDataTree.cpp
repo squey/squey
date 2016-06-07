@@ -7,8 +7,8 @@
 
 #include <inendi/PVSource.h> // Necesseray so that casting to PVCore::PVDataTreeObjectBase works!
 
-//#include <pvguiqt/PVRootTreeModel.h>
-//#include <pvguiqt/PVRootTreeView.h>
+#include <pvguiqt/PVRootTreeModel.h>
+#include <pvguiqt/PVRootTreeView.h>
 
 #include <pvguiqt/PVDisplaySourceDataTree.h>
 
@@ -20,11 +20,10 @@ PVDisplays::PVDisplaySourceDataTree::PVDisplaySourceDataTree()
 QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Inendi::PVSource* src,
                                                             QWidget* parent) const
 {
-	return nullptr;
-	// PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*src);
-	// PVGuiQt::PVRootTreeView* widget = new PVGuiQt::PVRootTreeView(model, parent);
+	PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*src);
+	PVGuiQt::PVRootTreeView* widget = new PVGuiQt::PVRootTreeView(model, parent);
 
-	// return widget;
+	return widget;
 }
 
 QIcon PVDisplays::PVDisplaySourceDataTree::toolbar_icon() const

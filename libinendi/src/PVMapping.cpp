@@ -167,7 +167,8 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
                                   PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", columns);
-	so.attribute("name", _name);
+	QString name = QString::fromStdString(_name);
+	so.attribute("name", name);
 	if (!so.is_writing()) {
 		_mandatory_filters_values.clear();
 		_mandatory_filters_values.resize(columns.size());

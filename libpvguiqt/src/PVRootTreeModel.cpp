@@ -13,30 +13,25 @@
 #include <QBrush>
 #include <QFont>
 
-PVGuiQt::PVRootTreeModel::PVRootTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent)
+PVGuiQt::PVRootTreeModel::PVRootTreeModel(Inendi::PVSource& root, QObject* parent)
     : PVHiveDataTreeModel(root, parent)
 {
 }
 
 QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) const
 {
-	if (role == Qt::FontRole) {
-		PVCore::PVDataTreeObjectBase const* obj =
-		    (PVCore::PVDataTreeObjectBase const*)index.internalPointer();
-		Inendi::PVView const* view = dynamic_cast<Inendi::PVView const*>(obj);
-		if (view && view->get_parent<Inendi::PVRoot>()->current_view() == view) {
-			QFont font;
-			font.setBold(true);
-			return font;
-		}
-	} else if (role == Qt::ForegroundRole) {
-		PVCore::PVDataTreeObjectBase const* obj =
-		    (PVCore::PVDataTreeObjectBase const*)index.internalPointer();
-		Inendi::PVView const* view = dynamic_cast<Inendi::PVView const*>(obj);
-		if (view) {
-			return QBrush(view->get_color());
+	if (Inendi::PVView* v =
+	        dynamic_cast<Inendi::PVView*>((PVCore::PVDataTreeObject*)index.internalPointer())) {
+		if (role == Qt::FontRole) {
+			if (v->get_parent<Inendi::PVRoot>()->current_view() == v) {
+				QFont font;
+				font.setBold(true);
+				return font;
+			}
+		} else if (role == Qt::ForegroundRole) {
+			return QBrush(v->get_color());
 		}
 	}
 
-	return PVDataTreeModel::data(index, role);
+	return PVRootTreeModel::data(index, role);
 }

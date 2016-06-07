@@ -83,13 +83,13 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	void process_parent_mapped();
 	void process_from_parent_mapped();
 
-	void set_name(QString const& name) { _plotting.set_name(name); }
-	QString const& get_name() const { return _plotting.get_name(); }
+	void set_name(std::string const& name) { _plotting.set_name(name); }
+	std::string const& get_name() const { return _plotting.get_name(); }
 
 	static void
 	norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
 
-	virtual QString get_serialize_description() const { return "Plotting: " + get_name(); }
+	std::string get_serialize_description() const override { return "Plotting: " + get_name(); }
 
 	bool is_current_plotted() const;
 
