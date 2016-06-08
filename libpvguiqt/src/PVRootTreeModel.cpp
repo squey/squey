@@ -33,5 +33,5 @@ QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) cons
 		}
 	}
 
-	return PVRootTreeModel::data(index, role);
+	return PVHiveDataTreeModel::data(index, role);
 }
