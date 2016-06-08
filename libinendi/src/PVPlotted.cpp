@@ -577,10 +577,7 @@ bool Inendi::PVPlotted::is_current_plotted() const
 {
 	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
 	auto children = get_children();
-	return std::find_if(children.begin(), children.end(),
-	                    [cur_view](PVCore::PVSharedPtr<const PVView> const& view) {
-		                    return view.get() == cur_view;
-		                }) != children.end();
+	return std::find(children.begin(), children.end(), cur_view) != children.end();
 }
 
 void Inendi::PVPlotted::finish_process_from_rush_pipeline()
@@ -611,12 +608,12 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for (PVCore::PVSharedPtr<PVView> view : get_children()) {
+	for (PVView* view : get_children()) {
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(view->get_serialize_description()), false);
 		view->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = view.get();
+		new_obj->_bound_obj = view;
 		new_obj->_bound_obj_type = typeid(PVView);
 	}
 }

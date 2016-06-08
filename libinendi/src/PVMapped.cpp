@@ -135,7 +135,7 @@ void Inendi::PVMapped::compute()
 	}
 
 	// force plotteds updates (in case of .pvi load)
-	for (auto plotted : get_children()) {
+	for (auto* plotted : get_children()) {
 		plotted->finish_process_from_rush_pipeline();
 	}
 }
@@ -205,7 +205,7 @@ void Inendi::PVMapped::process_from_parent_source()
 {
 	compute();
 	// Process plotting children
-	for (auto plotted_p : get_children()) {
+	for (auto* plotted_p : get_children()) {
 		plotted_p->process_from_parent_mapped();
 	}
 }
@@ -217,7 +217,7 @@ void Inendi::PVMapped::process_from_parent_source()
  *****************************************************************************/
 void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 {
-	for (auto plotted_p : get_children()) {
+	for (auto* plotted_p : get_children()) {
 		plotted_p->invalidate_column(j);
 	}
 }
@@ -230,10 +230,9 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 bool Inendi::PVMapped::is_current_mapped() const
 {
 	auto children = get_children();
-	return std::find_if(children.begin(), children.end(),
-	                    [](PVCore::PVSharedPtr<const PVPlotted> const& plotted) {
-		                    return plotted->is_current_plotted();
-		                }) != children.end();
+	return std::find_if(children.begin(), children.end(), [](const PVPlotted* plotted) {
+		       return plotted->is_current_plotted();
+		   }) != children.end();
 }
 
 /******************************************************************************
@@ -249,12 +248,12 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for (PVCore::PVSharedPtr<PVPlotted> plotted : get_children()) {
+	for (PVPlotted* plotted : get_children()) {
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(plotted->get_serialize_description()), false);
 		plotted->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = plotted.get();
+		new_obj->_bound_obj = plotted;
 		new_obj->_bound_obj_type = typeid(PVPlotted);
 	}
 }

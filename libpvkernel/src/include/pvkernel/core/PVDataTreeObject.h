@@ -44,11 +44,11 @@ struct ChildrenAccessor {
 	/**
 	 *  Accumulate size of sub-nodes
 	 */
-	static size_t size(std::list<PVSharedPtr<T>> const& c)
+	static size_t size(std::list<const T*> const& c)
 	{
-		return std::accumulate(c.begin(), c.end(), 0UL, [](size_t cum, PVSharedPtr<T> const& c1) {
-			using child_t = typename std::remove_reference<
-			    typename std::remove_cv<decltype(*c1->get_children().begin()->get())>::type>::type;
+		return std::accumulate(c.begin(), c.end(), 0UL, [](size_t cum, T const* c1) {
+			using child_t = typename std::remove_cv<
+			    typename std::remove_reference<decltype(**c1->get_children().begin())>::type>::type;
 			return cum + ChildrenAccessor<child_t, B>::size(c1->template get_children());
 		});
 	}
@@ -56,12 +56,12 @@ struct ChildrenAccessor {
 	/**
 	 * Accumulate nodes from sub-nodes
 	 */
-	static std::list<PVSharedPtr<B>> children(std::list<PVSharedPtr<T>>&& c)
+	static std::list<B*> children(std::list<T*>&& c)
 	{
-		std::list<PVSharedPtr<B>> res;
+		std::list<B*> res;
 		for (auto ch : c) {
 			using child_t =
-			    typename std::remove_reference<decltype(*ch->get_children().begin()->get())>::type;
+			    typename std::remove_reference<decltype(**ch->get_children().begin())>::type;
 			res.splice(res.end(), ChildrenAccessor<child_t, B>::children(ch->get_children()));
 		}
 		return res;
@@ -76,12 +76,12 @@ struct ChildrenAccessor<T, T> {
 	/**
 	 * Size is the size of the children list
 	 */
-	static size_t size(std::list<PVSharedPtr<T>> const& c) { return c.size(); }
+	static size_t size(std::list<const T*> const& c) { return c.size(); }
 
 	/**
 	 * Children are the ones in the current list.
 	 */
-	static std::list<PVSharedPtr<T>> children(std::list<PVSharedPtr<T>>&& c) { return c; }
+	static std::list<T*> children(std::list<T*>&& c) { return c; }
 };
 }
 
@@ -100,17 +100,21 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 	}
 
 	template <class T = Child>
-	std::list<PVSharedPtr<const T>> get_children() const
+	std::list<const T*> get_children() const
 	{
-		return __impl::ChildrenAccessor<const Child, const T>::children(
-		    std::list<PVSharedPtr<const Child>>{_children.begin(), _children.end()});
+		std::list<const Child*> tmp_list;
+		std::transform(_children.begin(), _children.end(), back_inserter(tmp_list),
+		               [](PVCore::PVSharedPtr<Child> const& p) { return p.get(); });
+		return __impl::ChildrenAccessor<const Child, const T>::children(std::move(tmp_list));
 	}
 
 	template <class T = Child>
-	std::list<PVSharedPtr<T>> get_children()
+	std::list<T*> get_children()
 	{
-		return __impl::ChildrenAccessor<Child, T>::children(
-		    std::list<PVSharedPtr<Child>>{_children});
+		std::list<Child*> tmp_list;
+		std::transform(_children.begin(), _children.end(), back_inserter(tmp_list),
+		               [](PVCore::PVSharedPtr<Child> const& p) { return p.get(); });
+		return __impl::ChildrenAccessor<Child, T>::children(std::move(tmp_list));
 	}
 
 	void remove_child(Child& child) { _children.remove(child.shared_from_this()); }
@@ -120,7 +124,7 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 	template <class T = Child>
 	size_t size() const
 	{
-		return __impl::ChildrenAccessor<Child, T>::size(_children);
+		return __impl::ChildrenAccessor<Child, T>::size(get_children());
 	}
 
   private:

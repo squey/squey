@@ -1014,9 +1014,9 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 bool PVInspector::PVMainWindow::load_scene(Inendi::PVScene* scene)
 {
 	// Here, load the whole scene.
-	for (auto source_p : scene->get_children()) {
-		if (!load_source(source_p.get())) {
-			remove_source(source_p.get());
+	for (auto* source_p : scene->get_children()) {
+		if (!load_source(source_p)) {
+			remove_source(source_p);
 			return false;
 		}
 	}
@@ -1027,8 +1027,8 @@ bool PVInspector::PVMainWindow::load_scene(Inendi::PVScene* scene)
 bool PVInspector::PVMainWindow::load_root()
 {
 	// Here, load the whole root !
-	for (Inendi::PVScene_sp const& scene_p : get_root().get_children()) {
-		if (!load_scene(scene_p.get())) {
+	for (Inendi::PVScene* scene_p : get_root().get_children()) {
+		if (!load_scene(scene_p)) {
 			return false;
 		}
 	}

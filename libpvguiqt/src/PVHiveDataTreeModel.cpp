@@ -45,17 +45,17 @@ QModelIndex PVHiveDataTreeModel::index(int row, int column, const QModelIndex& p
 		auto children = v->get_children();
 		auto it = children.begin();
 		std::advance(it, row);
-		child = it->get();
+		child = *it;
 	} else if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(p)) {
 		auto children = v->get_children();
 		auto it = children.begin();
 		std::advance(it, row);
-		child = it->get();
+		child = *it;
 	} else if (Inendi::PVSource* v = dynamic_cast<Inendi::PVSource*>(p)) {
 		auto children = v->get_children();
 		auto it = children.begin();
 		std::advance(it, row);
-		child = it->get();
+		child = *it;
 	} else {
 		throw std::runtime_error("Invalid kind of node");
 	}
@@ -151,27 +151,13 @@ int PVHiveDataTreeModel::pos_from_obj(PVCore::PVDataTreeObject const* id) const
 {
 	if (Inendi::PVPlotted const* v = dynamic_cast<Inendi::PVPlotted const*>(id)) {
 		auto children = v->get_parent()->get_children();
-		return std::distance(
-		    children.begin(),
-		    std::find_if(children.begin(), children.end(),
-		                 [v](PVCore::PVSharedPtr<const Inendi::PVPlotted> const& n) {
-			                 return n.get() == v;
-			             }));
+		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
 	} else if (Inendi::PVMapped const* v = dynamic_cast<Inendi::PVMapped const*>(id)) {
 		auto children = v->get_parent()->get_children();
-		return std::distance(
-		    children.begin(),
-		    std::find_if(children.begin(), children.end(),
-		                 [v](PVCore::PVSharedPtr<const Inendi::PVMapped> const& n) {
-			                 return n.get() == v;
-			             }));
+		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
 	} else if (Inendi::PVView const* v = dynamic_cast<Inendi::PVView const*>(id)) {
 		auto children = v->get_parent()->get_children();
-		return std::distance(children.begin(),
-		                     std::find_if(children.begin(), children.end(),
-		                                  [v](PVCore::PVSharedPtr<const Inendi::PVView> const& n) {
-			                                  return n.get() == v;
-			                              }));
+		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
 	} else if (dynamic_cast<Inendi::PVSource const*>(id)) {
 		return 0;
 	} else {

@@ -46,8 +46,8 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 	int cur_idx = 0;
 	for (auto const& scene : root.get_children()) {
 		QVariant var;
-		var.setValue<void*>(const_cast<Inendi::PVScene*>(scene.get()));
-		if (scene.get() == sel_scene) {
+		var.setValue<void*>(const_cast<Inendi::PVScene*>(scene));
+		if (scene == sel_scene) {
 			cur_idx = _combo_box->count();
 		}
 

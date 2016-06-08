@@ -209,7 +209,7 @@ void Inendi::PVSource::create_default_view()
 	if (get_children().empty()) {
 		emplace_add_child();
 	}
-	for (PVMapped_p& m : get_children()) {
+	for (PVMapped* m : get_children()) {
 		PVPlotted_p def_plotted = m->emplace_add_child();
 
 		PVView_p def_view = def_plotted->emplace_add_child();
@@ -220,7 +220,7 @@ void Inendi::PVSource::create_default_view()
 
 void Inendi::PVSource::process_from_source()
 {
-	for (auto mapped_p : get_children()) {
+	for (auto* mapped_p : get_children()) {
 		mapped_p->process_from_parent_source();
 	}
 }
@@ -275,12 +275,12 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for (PVCore::PVSharedPtr<PVMapped> mapped : get_children()) {
+	for (PVMapped* mapped : get_children()) {
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(mapped->get_serialize_description()), false);
 		mapped->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = mapped.get();
+		new_obj->_bound_obj = mapped;
 		new_obj->_bound_obj_type = typeid(PVMapped);
 	}
 }

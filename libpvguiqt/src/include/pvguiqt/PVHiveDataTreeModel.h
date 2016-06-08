@@ -63,21 +63,21 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 
 	void register_all_observers()
 	{
-		for (auto& mapped : _root.get_children()) {
-			if (not is_object_observed(mapped.get())) {
-				register_obs(mapped.get());
+		for (auto* mapped : _root.get_children()) {
+			if (not is_object_observed(mapped)) {
+				register_obs(mapped);
 				beginResetModel();
 				endResetModel();
 			}
-			for (auto& plotted : mapped->get_children()) {
-				if (not is_object_observed(mapped.get())) {
-					register_obs(plotted.get());
+			for (auto* plotted : mapped->get_children()) {
+				if (not is_object_observed(plotted)) {
+					register_obs(plotted);
 					beginResetModel();
 					endResetModel();
 				}
-				for (auto& view : plotted->get_children()) {
-					if (not is_object_observed(mapped.get())) {
-						register_obs(view.get());
+				for (auto* view : plotted->get_children()) {
+					if (not is_object_observed(view)) {
+						register_obs(view);
 						beginResetModel();
 						endResetModel();
 					}

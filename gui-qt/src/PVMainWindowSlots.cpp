@@ -279,7 +279,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
     PVRush::PVSourceDescription src_desc)
 {
 	bool has_error = false;
-	Inendi::PVScene_sp scene_p;
+	Inendi::PVScene* scene_p;
 
 	PVRush::PVFormat format = src_desc.get_format();
 	if ((format.exists() == false) || (QFileInfo(format.get_full_path()).isReadable() == false)) {
@@ -294,13 +294,13 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	bool new_scene = false;
 	if (scenes.size() == 0) {
 		// No loaded project: create a new one and load the source
-		scene_p = project_new_Slot();
+		scene_p = project_new_Slot().get();
 		new_scene = true;
 	} else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
 		scene_p = scenes.front();
 		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(root_sp, *scene_p.get());
+		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(root_sp, *scene_p);
 	} else {
 		// More than one project loaded: ask the user the project he wants to use to
 		// load the source
@@ -313,7 +313,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
 		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(
 		    root_sp, *((Inendi::PVScene*)dlg->get_selected_scene()));
-		scene_p = current_scene()->shared_from_this();
+		scene_p = current_scene();
 		dlg->deleteLater();
 	}
 
@@ -331,7 +331,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 
 	if (has_error && new_scene) {
 		_projects_tab_widget->remove_project(
-		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get()));
+		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p));
 		return false;
 	}
 
@@ -574,7 +574,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file,
 void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& investigation)
 {
 	QStringList nraws;
-	for (Inendi::PVSource_sp& source : get_root().get_children<Inendi::PVSource>()) {
+	for (Inendi::PVSource* source : get_root().get_children<Inendi::PVSource>()) {
 		nraws << QString::fromStdString(source->get_rushnraw().collection().rootdir());
 	}
 	PVRush::PVNrawCacheManager::get().add_investigation(investigation, nraws);
