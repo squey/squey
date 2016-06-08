@@ -88,7 +88,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 
   public:
 	PVWorkspaceBase(QWidget* parent) : PVDisplays::PVDisplaysContainer(parent) {}
-	virtual ~PVWorkspaceBase() = 0;
+	virtual ~PVWorkspaceBase();
 
   public:
 	/*! \brief Create a view display from a widget and add it to the workspace.
@@ -209,7 +209,7 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	Q_OBJECT
 
   public:
-	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = 0);
+	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = nullptr);
 
   public:
 	inline Inendi::PVSource* get_source() const { return _source; }
@@ -220,21 +220,13 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_evts_dlg() const { return _inv_evts_dlg; }
 
   private slots:
-	/*! \brief Check if the view count has changed in order to refresh toolbar menus.
-	 */
-	void update_view_count(PVHive::PVObserverBase* obs_base);
-
-  private:
-	/*! \brief Refresh toolbar menus to reflect views changes.
-	 */
-	void refresh_views_menus();
+	void fill_display_if();
+	void fill_axis_display_if();
+	void fill_zone_display_if();
 
   private:
 	Inendi::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
-	std::list<mapped_obs_t> _obs_mapped;
-	std::list<plotted_obs_t> _obs_plotted;
-	uint64_t _views_count;
 
 	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.
 };
