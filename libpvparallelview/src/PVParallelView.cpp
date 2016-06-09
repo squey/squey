@@ -9,9 +9,6 @@
 
 #include <inendi/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
-#ifdef CUDA
-#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
-#endif
 #ifdef USE_OPENCL
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
 #endif
@@ -126,16 +123,6 @@ RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelVi
 		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 		backend_found = true;
 	} catch (PVOpenCL::exception::no_backend_error&) {
-	}
-#endif
-
-#ifdef CUDA
-	if (backend_found == false) {
-		try {
-			_instance->init_backends<PVBCIDrawingBackendCUDA>();
-			backend_found = true;
-		} catch (PVCuda::exception::no_backend_error&) {
-		}
 	}
 #endif
 

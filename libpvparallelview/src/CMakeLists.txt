@@ -6,16 +6,6 @@
 
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 
-if (CUDA_FOUND)
-	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-endif(CUDA_FOUND)
-
-
-# CUDA
-set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC ${NVCC_GENCODE_FLAGS}" "-Xptxas=-v" "--compiler-bindir gcc")
-#set(CUDA_NVCC_FLAGS "-g -G -Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
-
 ################################################
 # Ressource declaration
 ################################################
@@ -101,10 +91,6 @@ PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
 )
 
-set(CUDA_SRC_FILES
-	PVBCIDrawingBackendCUDA.cpp
-)
-
 set(OPENCL_SRC_FILES
 	PVBCIDrawingBackendOpenCL.cpp
 	PVBCIBackendImageOpenCL.cpp
@@ -149,12 +135,6 @@ set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5Concurrent Qt5OpenGL)
 
 set(LINK_LIBRARIES pvdisplays inendi pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
-
-if (CUDA_FOUND)
-	cuda_compile(CUDA_KERNELS cuda/bci_cuda_z24.cu)
-	set(SRC_FILES ${SRC_FILES} ${CUDA_SRC_FILES} ${CUDA_KERNELS})
-	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
-endif (CUDA_FOUND)
 
 if (OPENCL_FOUND)
 	add_custom_command(

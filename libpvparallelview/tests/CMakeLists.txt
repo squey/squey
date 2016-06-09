@@ -10,10 +10,6 @@ include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-gencode arch=compute_30,code=sm_30" "-Xptxas=-v" "-Xcompiler=-fPIC")
-#set(CUDA_NVCC_FLAGS "-g" "-G")
-
 set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
 QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h)
@@ -55,13 +51,6 @@ add_bench(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_tree_create
 add_pv_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
 add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
-
-if(CUDA_FOUND)
-	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
-
-	add_pv_compile_test(show_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES show_codes_cuda_lib.cpp helpers.cpp)
-	add_pv_compile_test(perf_codes_cuda_lib LINKS ${LINK_LIBRARIES} FILES perf_codes_cuda_lib.cpp helpers.cpp)
-endif(CUDA_FOUND)
 
 if(OPENCL_FOUND)
 	add_pv_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)

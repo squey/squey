@@ -2,13 +2,14 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2012-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
-#include <pvkernel/cuda/common.h>
+#include <pvkernel/core/PVHSVColor.h>
+
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoneRendering.h>
-#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
+#include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
 
 #include <QApplication>
 #include <QDialog>
@@ -62,9 +63,8 @@ int main(int argc, char** argv)
 
 	size_t n = std::min(atoll(argv[1]), PVParallelView::MaxBciCodes);
 
-	PVCuda::init_cuda();
-	PVParallelView::PVBCIDrawingBackendCUDA& backend =
-	    PVParallelView::PVBCIDrawingBackendCUDA::get();
+	PVParallelView::PVBCIDrawingBackendOpenCL& backend =
+	    PVParallelView::PVBCIDrawingBackendOpenCL::get();
 	PVParallelView::PVRenderingPipeline* pipeline =
 	    new PVParallelView::PVRenderingPipeline(backend);
 
@@ -92,35 +92,10 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < NJOBS; i++) {
 		zrs[i]->wait_end();
 	}
-	/*double time_cancel = 0.0;
-	for (size_t i = NJOBS/2; i < NJOBS; i++) {
-	        zrs[i]->cancel();
-	        std::cout << zrs[i] << " canceled." << std::endl;
-	}
-
-	for (size_t i = 0; i < NJOBS; i++) {
-	        std::cout << "Waiting for " << zrs[i] << " to finished" << std::endl;
-	        tbb::tick_count start = tbb::tick_count::now();
-	        zrs[i]->wait_end();
-	        tbb::tick_count end = tbb::tick_count::now();
-	        time_cancel += (end-start).seconds();
-	}
-	std::cout << "Average cancelation time: " <<
-	(time_cancel*1000.0)/((double)NJOBS) << " ms." << std::endl;
-
-
-	QApplication app(argc, argv);
-	for (size_t i = 0; i < NJOBS; i++) {
-	        PVParallelView::PVZoneRendering<10>* zr = zrs[i];
-	        if (zr->wait_end()) {
-	                show_qimage(QString::number(i), dimgs[i]->qimage());
-	        }
-	}
-	app.exec();*/
 
 	// The pipeline must be deleted before the backend !
 	delete pipeline;
-	PVParallelView::PVBCIDrawingBackendCUDA::release();
+	PVParallelView::PVBCIDrawingBackendOpenCL::release();
 
 	return 0;
 }

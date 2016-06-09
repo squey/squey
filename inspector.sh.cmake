@@ -130,21 +130,6 @@ then
 	exit 0
 fi
 
-if [ "$1" == "cuda-debug" ]
-then
-export INENDI_DEBUG_LEVEL="DEBUG"
-#export INENDI_DEBUG_FILE="debug.txt"
-cd libinendi/src/
-make
-cd ../..
-	export LD_LIBRARY_PATH=/usr/local/cuda/lib64
-	#/usr/local/cuda/bin/cuda-memcheck --continue gui-qt/src/inendi-inspector >/tmp/cuda-test-log.txt 2>&1
-	/usr/local/cuda/bin/cuda-gdb --quiet --nw gui-qt/src/inendi-inspector 
-	#gui-qt/src/inendi-inspector
-	#gedit /tmp/cuda-test-log.txt
-	exit 0
-fi
-
 if [ "$1" == "test" ]
 then
 #export INENDI_DEBUG_FILE="debug.txt"

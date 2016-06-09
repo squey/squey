@@ -11,10 +11,8 @@
 #include <vector>
 #include <pvbase/types.h>
 
-#ifndef __CUDACC__
 #include <QMetaType>
 #include <boost/integer/static_log2.hpp>
-#endif
 
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL << (2 * NBITS_INDEX)))
@@ -59,7 +57,6 @@
 #define PARALLELVIEW_ZONE_MAX_WIDTH 1024
 #define PARALLELVIEW_MAX_DRAWN_ZONES 30
 
-#ifndef __CUDACC__
 static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) ==
                PARALLELVIEW_ZONE_MIN_WIDTH),
               "Must be a power of two");
@@ -69,7 +66,6 @@ static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_BASE_WIDTH>::value) ==
 static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value) ==
                PARALLELVIEW_ZONE_MAX_WIDTH),
               "Must be a power of two");
-#endif
 
 #define MASK_INT_PLOTTED (~(1UL << (32 - NBITS_INDEX)) - 1)
 
@@ -88,17 +84,10 @@ enum {
 	MaxBciCodes = PARALLELVIEW_MAX_BCI_CODES
 };
 
-#ifdef __CUDACC__
-// nvcc does not support C++0x !
-#define CUDA_CONSTEXPR const
-#else
-#define CUDA_CONSTEXPR constexpr
-#endif
-
 template <size_t Bbits>
 struct constants {
-	CUDA_CONSTEXPR static uint32_t image_height = ((uint32_t)1) << Bbits;
-	CUDA_CONSTEXPR static uint32_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
+	static const constexpr uint32_t image_height = ((uint32_t)1) << Bbits;
+	static const constexpr uint32_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
 };
 }
 
@@ -107,9 +96,7 @@ struct constants {
 typedef PVCol PVZoneID;
 #define PVZONEID_INVALID (-1)
 
-#ifndef __CUDACC__
 Q_DECLARE_METATYPE(PVZoneID);
-#endif
 
 #define BCI_BUFFERS_COUNT 10
 

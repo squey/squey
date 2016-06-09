@@ -46,7 +46,8 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVParallelView::common::RAII_backend_init cuda_resources; // Will also register displays
+	PVParallelView::common::RAII_backend_init backend_resources;
+	// Will also register displays
 	PVGuiQt::common::register_displays();
 
 	// Display all the possible Qt displays of this view and source
