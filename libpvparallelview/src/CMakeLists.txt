@@ -133,21 +133,18 @@ QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5Concurrent Qt5OpenGL)
 
-set(LINK_LIBRARIES pvdisplays inendi pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
+  COMMAND ${CMAKE_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
+  )
 
-if (OPENCL_FOUND)
-	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
-		COMMAND ${CMAKE_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
-		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
-		)
+include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
 
-	include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
+list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 
-	list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
-	list(APPEND LINK_LIBRARIES ${OPENCL_LIBRARIES})
-endif()
+set(LINK_LIBRARIES pvdisplays inendi pvhive pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
+	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES})
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)

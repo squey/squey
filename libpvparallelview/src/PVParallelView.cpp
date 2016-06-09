@@ -9,9 +9,7 @@
 
 #include <inendi/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
-#ifdef USE_OPENCL
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
-#endif
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVRenderingPipeline.h>
@@ -116,18 +114,11 @@ namespace common
  ************************************************************/
 RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	bool backend_found = false;
-
-#ifdef USE_OPENCL
 	try {
 		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
-		backend_found = true;
 	} catch (PVOpenCL::exception::no_backend_error&) {
-	}
-#endif
-
-	if (backend_found == false) {
-		throw std::runtime_error("No computation backend found");
+		PVLOG_ERROR("No compatible OpenCL backend found, check your configuration.\n");
+		exit(1);
 	}
 }
 }

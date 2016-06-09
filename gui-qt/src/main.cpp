@@ -197,14 +197,13 @@ int main(int argc, char* argv[])
 	app.processEvents();
 #endif
 
-#if defined USE_OPENCL
 #ifndef NO_MAIN_WINDOW
 	task_label->setText(QObject::tr("Initializing backends..."));
 	splash.repaint();
 	app.processEvents();
 	PVParallelView::common::RAII_backend_init backend_resources;
 #endif
-#endif
+
 #ifndef NO_MAIN_WINDOW
 	task_label->setText(QObject::tr("Loading plugins..."));
 	splash.repaint();

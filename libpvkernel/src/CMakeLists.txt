@@ -231,7 +231,7 @@ endif(PYTHONLIBS_FOUND)
 # Generate extra QT files (moc, uic, rcc)
 ################################################
 
-set(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES})
+set(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES} ${OPENCL_SRC_FILES})
 set(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS} ${WIDGETS_MOC_HEADERS})
 
 QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
@@ -240,11 +240,6 @@ PV_QT5_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
 ################################################
 # Declare the new library and linkage options
 ################################################
-
-if(OPENCL_FOUND)
-	list(APPEND SRC_FILES ${OPENCL_SRC_FILES})
-	list(APPEND PVKERNEL_LINK_LIBRARIES ${OPENCL_LIBRARIES})
-endif(OPENCL_FOUND)
 
 # List files use to create the library
 add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})

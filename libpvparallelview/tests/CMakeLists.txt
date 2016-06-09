@@ -52,7 +52,12 @@ add_pv_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_t
 add_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
 add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 
-if(OPENCL_FOUND)
-	add_pv_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)
-	add_test(Topencl_build_test Topencl_build_test)
-endif(OPENCL_FOUND)
+add_pv_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)
+add_test(Topencl_build_test Topencl_build_test)
+
+add_pv_compile_test(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
+add_bench(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
+
+add_pv_compile_test(Trendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)
+add_test(Trendering_pipeline_base Trendering_pipeline_base 1000)
+add_bench(rendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)
