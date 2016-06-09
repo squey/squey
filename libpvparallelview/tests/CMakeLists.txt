@@ -65,4 +65,5 @@ endif(CUDA_FOUND)
 
 if(OPENCL_FOUND)
 	add_pv_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)
+	add_test(Topencl_build_test Topencl_build_test)
 endif(OPENCL_FOUND)
