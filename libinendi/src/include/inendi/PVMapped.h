@@ -54,12 +54,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
   public:
 	PVMapped(PVSource* src);
 
-	/**
-	 * Remove its children first.
-	 *
-	 * @fixme : should be done by default in the datatree.
-	 */
-	~PVMapped();
+	~PVMapped(){};
 
   public:
 	/**

@@ -40,7 +40,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>,
 	friend class PVScene;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
-	// typedef std::shared_ptr<PVRoot> p_type;
 
   public:
 	PVRoot();

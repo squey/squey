@@ -92,6 +92,14 @@ template <class Child, class Derived>
 class PVDataTreeParent : virtual public PVDataTreeObject
 {
   public:
+	PVDataTreeParent() = default;
+	// No copy/move as child reparting would be required.
+	PVDataTreeParent(PVDataTreeParent const&) = delete;
+	PVDataTreeParent(PVDataTreeParent&&) = delete;
+	PVDataTreeParent& operator=(PVDataTreeParent const&) = delete;
+	PVDataTreeParent& operator=(PVDataTreeParent&&) = delete;
+
+  public:
 	template <class... T>
 	PVSharedPtr<Child> emplace_add_child(T&&... t)
 	{
@@ -151,7 +159,13 @@ class PVDataTreeChild : virtual public PVDataTreeObject
 {
   public:
 	PVDataTreeChild(Parent* parent) : _parent(parent) {}
+	// No copy/move as it should also be added to parent
+	PVDataTreeChild(PVDataTreeChild const&) = delete;
+	PVDataTreeChild(PVDataTreeChild&&) = delete;
+	PVDataTreeChild& operator=(PVDataTreeChild const&) = delete;
+	PVDataTreeChild& operator=(PVDataTreeChild&&) = delete;
 
+  public:
 	void remove_from_tree()
 	{
 		Derived* me = static_cast<Derived*>(this);

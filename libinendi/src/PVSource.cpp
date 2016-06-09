@@ -68,11 +68,7 @@ Inendi::PVSource::PVSource(Inendi::PVScene* scene,
 
 Inendi::PVSource::~PVSource()
 {
-	PVRoot* root = get_parent<PVRoot>();
-	if (root) {
-		root->source_being_deleted(this);
-	}
-	remove_all_children();
+	get_parent<PVRoot>()->source_being_deleted(this);
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
 }
 

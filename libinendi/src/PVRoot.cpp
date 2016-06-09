@@ -30,12 +30,15 @@ Inendi::PVRoot::PVRoot()
 
 /******************************************************************************
  *
- * Inendi::PVRoot::PVRoot
+ * Inendi::PVRoot::~PVRoot
  *
  *****************************************************************************/
 Inendi::PVRoot::~PVRoot()
 {
+	// Manually remove all child as we want to destroy them before ourself as
+	// child may ask for modification in the Root (correlations, current_view, current_source, ...)
 	remove_all_children();
+
 	PVLOG_DEBUG("In PVRoot destructor\n");
 }
 

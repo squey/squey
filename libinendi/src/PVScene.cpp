@@ -35,12 +35,8 @@ Inendi::PVScene::PVScene(Inendi::PVRoot* root, std::string const& scene_name)
  *****************************************************************************/
 Inendi::PVScene::~PVScene()
 {
-	remove_all_children();
 	PVLOG_DEBUG("In PVScene destructor\n");
-	PVRoot* root = get_parent<PVRoot>();
-	if (root) {
-		root->scene_being_deleted(this);
-	}
+	get_parent<PVRoot>()->scene_being_deleted(this);
 }
 
 Inendi::PVScene::list_sources_t Inendi::PVScene::get_sources(PVRush::PVInputType const& type) const
