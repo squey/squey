@@ -11,7 +11,6 @@ This major release fixes or improves:
 * improved import speed up to 6 times
 * improved parallel coordinates performances
 * supports up to 2 billions rows
-* support for hardware without GPU acceleration
 * reduced memory footprint
 * various bug fix
 * basic crash reporter
