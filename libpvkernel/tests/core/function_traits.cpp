@@ -46,9 +46,6 @@ int main(int /*argc*/, char** /*argv*/)
 	std::cout << typeid(ftraits::arguments_type::arg_type).name() << std::endl;
 	std::cout << typeid(ftraits::arguments_type::next_arg_type::arg_type).name() << std::endl;
 
-	std::cout << typeid(ftraits::type_of_arg<0>::type).name() << std::endl;
-	std::cout << typeid(ftraits::type_of_arg<1>::type).name() << std::endl;
-
 	std::cout << sizeof(ftraits::arguments_type) << std::endl;
 
 	ftraits::arguments_deep_copy_type args;

@@ -4,7 +4,6 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-add_pv_compile_test(Twidgets_datatreemodel LINKS pvkernel FILES datatree-model.cpp)
 add_pv_compile_test(Twidgets_color-picker LINKS pvkernel FILES color-picker.cpp)
 add_pv_compile_test(Twidgets_color-dialog LINKS pvkernel FILES color-dialog.cpp)
 

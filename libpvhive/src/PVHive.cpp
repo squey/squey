@@ -7,7 +7,6 @@
 
 #include <QMetaType>
 
-#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
 #include <pvhive/PVObserver.h>
@@ -168,39 +167,5 @@ void PVHive::PVHive::do_about_to_refresh_observers(void* object)
 		for (auto it : acc->second.observers) {
 			it->about_to_be_refreshed();
 		}
-	}
-}
-
-void PVHive::PVHive::refresh_observers(PVCore::PVDataTreeObjectWithParentBase const* object,
-                                       void* obj_refresh)
-{
-	// object must be a valid address
-	assert(object != nullptr);
-
-	do_refresh_observers(obj_refresh);
-
-	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake"
-	// objects that have no parents,
-	// thus this check is necessary!
-	PVCore::PVDataTreeObjectBase const* const parent = object->get_parent_base();
-	if (parent) {
-		refresh_observers_maybe_recursive(parent);
-	}
-}
-
-void PVHive::PVHive::refresh_observers_maybe_recursive(
-    PVCore::PVDataTreeObjectWithParentBase const* object, void* obj_refresh)
-{
-	// object must be a valid address
-	assert(object != nullptr);
-
-	do_refresh_observers_maybe_recursive(obj_refresh);
-
-	// AG: in test cases (mainly PVGuiQt and PVParallelView), we use "fake"
-	// objects that have no parents,
-	// thus this check is necessary!
-	PVCore::PVDataTreeObjectBase const* const parent = object->get_parent_base();
-	if (parent) {
-		refresh_observers_maybe_recursive(parent);
 	}
 }

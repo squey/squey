@@ -59,7 +59,7 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 		return;
 	}
 
-	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*)idx_click.internalPointer();
+	PVCore::PVDataTreeObject* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
 	Inendi::PVView* view = dynamic_cast<Inendi::PVView*>(obj);
 	if (!view) {
 		return;
@@ -72,6 +72,8 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 	// Call select_view throught the Hive :)
 	PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *view);
 
+	// TODO : emit datachanged
+
 	event->accept();
 }
 
@@ -82,7 +84,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 		return;
 	}
 
-	PVCore::PVDataTreeObjectBase* obj = (PVCore::PVDataTreeObjectBase*)idx_click.internalPointer();
+	PVCore::PVDataTreeObject* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
 
 	Inendi::PVPlotted* plotted = dynamic_cast<Inendi::PVPlotted*>(obj);
 	if (plotted) {
@@ -144,13 +146,13 @@ void PVGuiQt::PVRootTreeView::edit_plotting()
 	}
 }
 
-PVCore::PVDataTreeObjectBase* PVGuiQt::PVRootTreeView::get_selected_obj()
+PVCore::PVDataTreeObject* PVGuiQt::PVRootTreeView::get_selected_obj()
 {
 	QModelIndexList sel = selectedIndexes();
 	if (sel.size() == 0) {
-		return NULL;
+		return nullptr;
 	}
-	return (PVCore::PVDataTreeObjectBase*)sel.at(0).internalPointer();
+	return (PVCore::PVDataTreeObject*)sel.at(0).internalPointer();
 }
 
 PVGuiQt::PVRootTreeModel* PVGuiQt::PVRootTreeView::tree_model()

@@ -137,7 +137,7 @@ class TestEnv
 		Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
 		plotted->process_from_parent_mapped();
 
-		view = plotted->emplace_add_child();
+		view = plotted->emplace_add_child().get();
 	}
 
 	PVParallelView::PVLibView* get_lib_view()
@@ -146,7 +146,7 @@ class TestEnv
 	}
 
   private:
-	Inendi::PVView_sp view;
+	Inendi::PVView* view;
 	Inendi::PVRoot_p root;
 	std::string _big_file_path;
 };

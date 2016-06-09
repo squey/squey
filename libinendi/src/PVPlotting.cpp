@@ -156,7 +156,8 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
 		}
 	}
 
-	so.attribute("name", _name);
+	QString name = QString::fromStdString(_name);
+	so.attribute("name", name);
 }
 
 /******************************************************************************

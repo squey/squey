@@ -25,22 +25,21 @@ double save_investigation()
 	env.add_source(csv_file, csv_file_format, dupl, true);
 	env.add_source(csv_file, csv_file_format, dupl, false);
 
-	auto sources = env.root->get_children<Inendi::PVSource>();
-	PV_VALID(sources.size(), 3);
-	auto source = sources[0];
+	size_t source_size = env.root->size<Inendi::PVSource>();
+	PV_VALID(source_size, 3UL);
 
 	env.compute_mappings();
 	env.compute_plottings();
 
-	auto mappeds = env.root->get_children<Inendi::PVMapped>();
-	PV_VALID(mappeds.size(), 3);
+	size_t mapped_size = env.root->size<Inendi::PVMapped>();
+	PV_VALID(mapped_size, 3UL);
 
-	auto plotteds = env.root->get_children<Inendi::PVPlotted>();
-	PV_VALID(plotteds.size(), 3);
+	size_t plotted_size = env.root->size<Inendi::PVPlotted>();
+	PV_VALID(plotted_size, 3UL);
 
-	auto views = env.root->get_children<Inendi::PVView>();
-	PV_VALID(views.size(), 3);
-	auto view = views[0];
+	size_t view_size = env.root->size<Inendi::PVView>();
+	PV_VALID(view_size, 3UL);
+	auto view = env.root->get_children<Inendi::PVView>().front();
 
 	/**
 	 * Add layers
@@ -93,8 +92,8 @@ double load_investigation()
 	 * Check sources
 	 */
 	auto sources = root->get_children<Inendi::PVSource>();
-	PV_VALID(sources.size(), 3);
-	auto source = sources[0];
+	PV_VALID(sources.size(), 3UL);
+	auto source = *sources.begin();
 	source->load_from_disk();
 	source->process_from_source();
 
@@ -104,21 +103,21 @@ double load_investigation()
 	/**
 	 * Check mappeds
 	 */
-	auto mappeds = root->get_children<Inendi::PVMapped>();
-	PV_VALID(mappeds.size(), 3);
+	size_t mapped_size = root->size<Inendi::PVMapped>();
+	PV_VALID(mapped_size, 3UL);
 
 	/**
 	 * Check plotteds
 	 */
-	auto plotteds = root->get_children<Inendi::PVPlotted>();
-	PV_VALID(plotteds.size(), 3);
+	size_t plotted_size = root->size<Inendi::PVPlotted>();
+	PV_VALID(plotted_size, 3UL);
 
 	/**
 	 * Check view
 	 */
 	auto views = root->get_children<Inendi::PVView>();
-	PV_VALID(views.size(), 3);
-	auto view = views[0];
+	PV_VALID(views.size(), 3UL);
+	auto view = views.front();
 	PV_VALID(view->get_row_count(), ROW_COUNT * dupl);
 
 	/**

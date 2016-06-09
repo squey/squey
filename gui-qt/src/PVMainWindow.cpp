@@ -1014,9 +1014,9 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 bool PVInspector::PVMainWindow::load_scene(Inendi::PVScene* scene)
 {
 	// Here, load the whole scene.
-	for (auto source_p : scene->get_children<Inendi::PVSource>()) {
-		if (!load_source(source_p.get())) {
-			remove_source(source_p.get());
+	for (auto* source_p : scene->get_children()) {
+		if (!load_source(source_p)) {
+			remove_source(source_p);
 			return false;
 		}
 	}
@@ -1027,8 +1027,8 @@ bool PVInspector::PVMainWindow::load_scene(Inendi::PVScene* scene)
 bool PVInspector::PVMainWindow::load_root()
 {
 	// Here, load the whole root !
-	for (Inendi::PVScene_sp const& scene_p : get_root().get_children()) {
-		if (!load_scene(scene_p.get())) {
+	for (Inendi::PVScene* scene_p : get_root().get_children()) {
+		if (!load_scene(scene_p)) {
 			return false;
 		}
 	}
@@ -1247,7 +1247,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format "
 			                      "<strong>%2</strong> cannot be opened. ")
-			                  .arg(src->get_name())
+			                  .arg(QString::fromStdString(src->get_name()))
 			                  .arg(src->get_format_name());
 			PVRow nelts = job_import->rejected_elements();
 			if (nelts > 0) {
@@ -1296,14 +1296,13 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
-	if (src->get_children<Inendi::PVView>().size() == 0) {
+	if (src->size<Inendi::PVView>() == 0) {
 		if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); },
 		                                     tr("Processing..."), (QWidget*)this)) {
 			return false;
 		}
 
-		Inendi::PVView_sp first_view_p = src->get_children<Inendi::PVView>().at(0);
-		first_view_p->get_parent<Inendi::PVRoot>()->select_view(*first_view_p);
+		Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>()->current_view();
 		for (auto& inv_elts : src->get_invalid_evts()) {
 			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
 		}
@@ -1343,15 +1342,15 @@ void PVInspector::PVMainWindow::remove_source(Inendi::PVSource* src_p)
 {
 	Inendi::PVScene_sp scene_p = src_p->get_parent()->shared_from_this();
 
-	scene_p->remove_child(src_p->shared_from_this());
-	if (scene_p->get_children().size() == 0) {
+	scene_p->remove_child(*src_p);
+	if (scene_p->size() == 0) {
 		PVGuiQt::PVSceneWorkspacesTabWidget* tab =
 		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
 		if (tab != nullptr) {
 			_projects_tab_widget->remove_project(tab);
 			tab->deleteLater();
 		}
-		get_root().remove_child(scene_p->shared_from_this());
+		get_root().remove_child(*scene_p);
 	}
 }
 

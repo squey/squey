@@ -32,29 +32,26 @@ class PVView;
 /**
  * \class PVRoot
  */
-typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVRoot>, PVScene>
-    data_tree_root_t;
-class PVRoot : public data_tree_root_t
+class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>,
+               public PVCore::PVEnableSharedFromThis<PVRoot>
 {
   public:
 	friend class PVView;
 	friend class PVScene;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
-	// typedef std::shared_ptr<PVRoot> p_type;
 
   public:
 	PVRoot();
 	~PVRoot();
 
   public:
-	bool is_empty() const { return get_children_count() == 0; }
+	bool is_empty() const { return size() == 0; }
 	void clear();
 	void reset_colors();
 
   public:
 	int32_t get_new_view_id();
-	void set_views_id();
 	QColor get_new_view_color();
 
   public:
@@ -87,7 +84,7 @@ class PVRoot : public data_tree_root_t
 	const QString& get_path() const { return _path; }
 
   public:
-	virtual QString get_serialize_description() const { return "Investigation"; }
+	std::string get_serialize_description() const override { return "Investigation"; }
 
 	virtual QString get_children_description() const { return "Data collection(s)"; }
 	virtual QString get_children_serialize_name() const { return "data-collections"; }
@@ -104,7 +101,7 @@ class PVRoot : public data_tree_root_t
 
   protected:
 	// Serialization
-	void serialize_write(PVCore::PVSerializeObject& so) override;
+	void serialize_write(PVCore::PVSerializeObject& so);
 
 	/**
 	 * Read Childs from pvi
@@ -115,7 +112,7 @@ class PVRoot : public data_tree_root_t
 	 *       |-> 1
 	 *       |-> ...
 	 */
-	void serialize_read(PVCore::PVSerializeObject& so) override;
+	void serialize_read(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
   private:
@@ -135,7 +132,7 @@ class PVRoot : public data_tree_root_t
 	bool _correlation_running = false;
 };
 
-typedef PVRoot::p_type PVRoot_p;
+using PVRoot_p = PVCore::PVSharedPtr<PVRoot>;
 }
 
 #endif /* INENDI_PVROOT_H */

@@ -7,7 +7,6 @@
 
 #include <iostream>
 
-#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVFileDescription.h>

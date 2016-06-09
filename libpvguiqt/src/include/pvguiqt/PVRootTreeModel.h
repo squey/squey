@@ -18,7 +18,7 @@ class PVRootTreeModel : public PVHiveDataTreeModel
 	Q_OBJECT
 
   public:
-	PVRootTreeModel(PVCore::PVDataTreeObjectBase& root, QObject* parent = 0);
+	PVRootTreeModel(Inendi::PVSource& root, QObject* parent = 0);
 
   public:
 	QVariant data(const QModelIndex& index, int role) const;

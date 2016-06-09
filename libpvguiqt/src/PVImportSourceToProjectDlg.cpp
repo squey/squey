@@ -44,14 +44,14 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 
 	// Set combo box
 	int cur_idx = 0;
-	for (Inendi::PVScene_sp const& scene : root.get_children()) {
+	for (auto const& scene : root.get_children()) {
 		QVariant var;
-		var.setValue<void*>(scene.get());
-		if (scene.get() == sel_scene) {
+		var.setValue<void*>(const_cast<Inendi::PVScene*>(scene));
+		if (scene == sel_scene) {
 			cur_idx = _combo_box->count();
 		}
 
-		_combo_box->addItem(scene->get_name(), var);
+		_combo_box->addItem(QString::fromStdString(scene->get_name()), var);
 	}
 	_combo_box->setCurrentIndex(cur_idx);
 

@@ -17,7 +17,7 @@ typedef std::shared_ptr<Test> Test_p2;
 struct A {
 };
 
-typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, Test> data_tree_plotted_t;
+typedef typename PVCore::PVDataTreeParent<Test, A> data_tree_plotted_t;
 
 struct B : public data_tree_plotted_t {
 };

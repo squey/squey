@@ -17,9 +17,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
 set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive inendi pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES} ${PVLICENSE_LIBRARIES})
 
-add_pv_compile_test(Tqt_datatree LINKS ${COMMON_LIBRARIES} FILES datatree-model.cpp)
-add_pv_compile_test(Tqt_inendi_tree LINKS ${COMMON_LIBRARIES} FILES inendi_tree.cpp common.cpp)
-
 qt5_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
 add_pv_compile_test(Tqt_axes_comb LINKS ${COMMON_LIBRARIES} FILES axes-comb.cpp ${AXES_COMB_MOC_SRC})
 add_pv_compile_test(Tqt_axes_comb_view LINKS ${COMMON_LIBRARIES} FILES axes-comb-view.cpp ${AXES_COMB_MOC_SRC})

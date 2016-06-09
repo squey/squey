@@ -185,12 +185,11 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 		const Inendi::PVCorrelation* correlation = root->correlations().correlation(&lib_view());
 
 		if (correlation and correlation->col1 == section) {
-			const QString& orig_source = lib_view().get_parent<Inendi::PVSource>()->get_name();
-			// const QString& orig_view = lib_view().get_name();
+			const QString orig_source =
+			    QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_name());
 			const QString& orig_axis = lib_view().get_axis_name(section);
-			const QString& dest_source =
-			    correlation->view2->get_parent<Inendi::PVSource>()->get_name();
-			// const QString& dest_view = correlation->view2->get_name();
+			const QString dest_source = QString::fromStdString(
+			    correlation->view2->get_parent<Inendi::PVSource>()->get_name());
 			const QString& dest_axis = correlation->view2->get_axis_name(correlation->col2);
 
 			return "Active correlation :\n" + orig_source + /*" / " + orig_view +*/ " (" +

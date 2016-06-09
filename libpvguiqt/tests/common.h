@@ -14,9 +14,9 @@
 #include <inendi/PVView_types.h>
 #include <QString>
 
-Inendi::PVSource_sp
-get_src_from_file(Inendi::PVScene_sp scene, QString const& file, QString const& format);
-Inendi::PVSource_sp
+Inendi::PVSource*
+get_src_from_file(Inendi::PVScene* scene, QString const& file, QString const& format);
+Inendi::PVSource*
 get_src_from_file(Inendi::PVRoot_sp root, QString const& file, QString const& format);
 
 #endif

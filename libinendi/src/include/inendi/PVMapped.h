@@ -29,8 +29,6 @@ namespace Inendi
 class PVPlotted;
 class PVSelection;
 
-using data_tree_mapped_t = PVCore::PVDataTreeObject<PVSource, PVPlotted>;
-
 /**
  * \class PVMapped
  *
@@ -40,7 +38,9 @@ using data_tree_mapped_t = PVCore::PVDataTreeObject<PVSource, PVPlotted>;
  * PVMapping for others.
  * It contains only mapping values which certainly should be merged in PVMapping.
  */
-class PVMapped : public data_tree_mapped_t
+class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
+                 public PVCore::PVDataTreeChild<PVSource, PVMapped>,
+                 public PVCore::PVEnableSharedFromThis<PVMapped>
 {
 	friend class PVPlotted;
 	friend class PVSource;
@@ -54,12 +54,7 @@ class PVMapped : public data_tree_mapped_t
   public:
 	PVMapped(PVSource* src);
 
-	/**
-	 * Remove its children first.
-	 *
-	 * @fixme : should be done by default in the datatree.
-	 */
-	~PVMapped();
+	~PVMapped(){};
 
   public:
 	/**
@@ -74,8 +69,7 @@ class PVMapped : public data_tree_mapped_t
 	 */
 	PVMapping& get_mapping() { return _mapping; }
 	const PVMapping& get_mapping() const { return _mapping; }
-	void set_name(QString const& name) { _mapping.set_name(name); }
-	QString const& get_name() const { return _mapping.get_name(); }
+	std::string const& get_name() const { return _mapping.get_name(); }
 
 	/**
 	 * Provide decimal type for each column.
@@ -134,7 +128,7 @@ class PVMapped : public data_tree_mapped_t
 	virtual QString get_children_serialize_name() const { return "plotted"; }
 
   public:
-	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
+	virtual std::string get_serialize_description() const { return "Mapping: " + get_name(); }
 
   protected:
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -158,7 +152,7 @@ class PVMapped : public data_tree_mapped_t
 	PVMapping _mapping; //!< Contains properties for every column.
 };
 
-using PVMapped_p = PVMapped::p_type;
+using PVMapped_p = PVCore::PVSharedPtr<PVMapped>;
 }
 
 #endif /* INENDI_PVMAPPED_H */

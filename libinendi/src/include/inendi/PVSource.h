@@ -36,17 +36,15 @@ namespace Inendi
 /**
  * \class PVSource
  */
-typedef typename PVCore::PVDataTreeObject<PVScene, PVMapped> data_tree_source_t;
-class PVSource : public data_tree_source_t
+class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
+                 public PVCore::PVDataTreeChild<PVScene, PVSource>,
+                 public PVCore::PVEnableSharedFromThis<PVSource>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
 	friend class PVScene;
 	friend class PVView;
 	friend class PVPlotted;
-
-  public:
-	typedef children_t list_mapped_t;
 
   public:
 	PVSource(Inendi::PVScene* scene,
@@ -130,9 +128,9 @@ class PVSource : public data_tree_source_t
 	void process_from_source();
 
 	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
-	QString get_name() const
+	std::string get_name() const
 	{
-		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs);
+		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs).toStdString();
 	}
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const;
@@ -147,7 +145,7 @@ class PVSource : public data_tree_source_t
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
 
-	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
+	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
 
 	PVRush::PVSourceDescription::shared_pointer create_description()
 	{
@@ -181,7 +179,6 @@ class PVSource : public data_tree_source_t
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 
 	void add_view(PVView* view);
-	void set_views_id();
 
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 

@@ -36,9 +36,8 @@ namespace Inendi
 /**
  * \class PVView
  */
-typedef typename PVCore::PVDataTreeObject<PVPlotted, PVCore::PVDataTreeNoChildren<PVView>>
-    data_tree_view_t;
-class PVView : public data_tree_view_t
+class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
+               public PVCore::PVEnableSharedFromThis<PVView>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
@@ -71,7 +70,7 @@ class PVView : public data_tree_view_t
 	}
 	void axis_append(const PVAxis& axis) { _axes_combination.axis_append(axis); }
 
-	virtual QString get_serialize_description() const { return "View: " + get_name(); }
+	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
 
 	/* Functions */
 	PVCol get_axes_count() const;
@@ -147,7 +146,6 @@ class PVView : public data_tree_view_t
 
 	int get_number_of_selected_lines() const;
 
-	inline id_t get_view_id() const { return _view_id; }
 	inline id_t get_display_view_id() const { return _view_id + 1; }
 
 	PVCol get_original_axes_count() const;
@@ -160,7 +158,7 @@ class PVView : public data_tree_view_t
 
 	PVLayer const& get_output_layer() const { return output_layer; }
 
-	QString get_name() const;
+	std::string get_name() const;
 	QString get_window_name() const;
 
 	void set_color(QColor color) { _color = color; }
@@ -406,7 +404,7 @@ class PVView : public data_tree_view_t
 	static PVCore::PVHSVColor _default_zombie_line_properties; //!< Default color for Zombies lines.
 };
 
-typedef PVView::p_type PVView_p;
+using PVView_p = PVCore::PVSharedPtr<PVView>;
 }
 
 #endif /* INENDI_PVVIEW_H */

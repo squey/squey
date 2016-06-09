@@ -30,12 +30,12 @@ namespace Inendi
 
 class PVSource;
 
-using data_tree_scene_t = PVCore::PVDataTreeObject<PVRoot, PVSource>;
-
 /**
  * \class PVScene
  */
-class PVScene : public data_tree_scene_t
+class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
+                public PVCore::PVDataTreeChild<PVRoot, PVScene>,
+                public PVCore::PVEnableSharedFromThis<PVScene>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
@@ -43,15 +43,15 @@ class PVScene : public data_tree_scene_t
 	friend class PVView;
 
   public:
-	typedef QList<PVSource*> list_sources_t;
+	typedef QList<PVSource const*> list_sources_t;
 
   public:
-	PVScene(PVRoot* root, QString scene_name);
+	PVScene(PVRoot* root, std::string const& scene_name);
 	~PVScene();
 
   public:
-	void set_name(QString name) { _name = name; }
-	const QString& get_name() const { return _name; }
+	void set_name(std::string name) { _name = name; }
+	const std::string& get_name() const { return _name; }
 
 	PVSource* current_source();
 	PVSource const* current_source() const;
@@ -66,9 +66,9 @@ class PVScene : public data_tree_scene_t
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	PVRush::PVInputType::list_inputs_desc get_inputs_desc(PVRush::PVInputType const& type) const;
 
-	inline bool is_empty() const { return get_children().size() == 0; }
+	inline bool is_empty() const { return size() == 0; }
 
-	virtual QString get_serialize_description() const { return get_name(); }
+	virtual std::string get_serialize_description() const { return get_name(); }
 
   protected:
 	virtual QString get_children_description() const { return "Source(s)"; }
@@ -87,11 +87,10 @@ class PVScene : public data_tree_scene_t
   private:
 	Inendi::PVSource* _last_active_src;
 
-	QString _name;
+	std::string _name;
 };
 
-typedef PVScene::p_type PVScene_p;
-typedef PVScene::wp_type PVScene_wp;
+using PVScene_p = PVCore::PVSharedPtr<PVScene>;
 }
 
 #endif /* INENDI_PVSCENE_H */

@@ -43,7 +43,7 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
-	PVRush::PVNraw const& nraw = env.root->get_children<Inendi::PVSource>()[0]->get_rushnraw();
+	PVRush::PVNraw const& nraw = env.root->get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.collection().column(0);
 
 	std::string res_file = pvtest::get_tmp_filename();

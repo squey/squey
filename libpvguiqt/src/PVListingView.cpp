@@ -555,28 +555,28 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 
 	size_t total_compatible_views_count = 0;
 
-	for (const auto& source : root->get_children<Inendi::PVSource>()) {
+	for (auto* source : root->get_children<Inendi::PVSource>()) {
 
 		size_t compatible_views_count = 0;
 
 		// Don't allow correlation on same source
-		if (source.get() == root->current_source()) {
+		if (source == root->current_source()) {
 			continue;
 		}
 
-		QMenu* source_menu = new QMenu(source->get_name(), this);
+		QMenu* source_menu = new QMenu(QString::fromStdString(source->get_name()), this);
 
 		size_t compatible_axes_count = 0;
 
-		const auto& views = source->get_children<Inendi::PVView>();
+		auto const views = source->get_children<Inendi::PVView>();
 		bool need_view_menu = views.size() > 1;
-		for (const Inendi::PVView_sp view : views) {
+		for (Inendi::PVView* view : views) {
 
 			QMenu* view_menu = source_menu;
 
 			// Don't create an intermediary view menu if there is only one view for this source
 			if (need_view_menu) {
-				view_menu = new QMenu(view->get_name(), this);
+				view_menu = new QMenu(QString::fromStdString(view->get_name()), this);
 				source_menu->addMenu(view_menu);
 			}
 
@@ -593,7 +593,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 				QAction* axis_action = new QAction(axis_name, this);
 				axis_action->setCheckable(true);
 
-				Inendi::PVCorrelation correlation{&lib_view(), col, view.get(), i};
+				Inendi::PVCorrelation correlation{&lib_view(), col, view, i};
 				bool existing_correlation = root->correlations().exists(correlation);
 				axis_action->setChecked(existing_correlation);
 

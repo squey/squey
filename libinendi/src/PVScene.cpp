@@ -23,8 +23,8 @@
  * Inendi::PVScene::PVScene
  *
  *****************************************************************************/
-Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_name)
-    : data_tree_scene_t(root), _last_active_src(nullptr), _name(scene_name)
+Inendi::PVScene::PVScene(Inendi::PVRoot* root, std::string const& scene_name)
+    : PVCore::PVDataTreeChild<PVRoot, PVScene>(root), _last_active_src(nullptr), _name(scene_name)
 {
 }
 
@@ -35,21 +35,16 @@ Inendi::PVScene::PVScene(Inendi::PVRoot* root, QString scene_name)
  *****************************************************************************/
 Inendi::PVScene::~PVScene()
 {
-	remove_all_children();
 	PVLOG_DEBUG("In PVScene destructor\n");
-	PVRoot* root = get_parent<PVRoot>();
-	if (root) {
-		root->scene_being_deleted(this);
-	}
+	get_parent<PVRoot>()->scene_being_deleted(this);
 }
 
 Inendi::PVScene::list_sources_t Inendi::PVScene::get_sources(PVRush::PVInputType const& type) const
 {
-	children_t const& sources = get_children();
 	list_sources_t ret;
-	for (PVSource_sp const& src : sources) {
+	for (auto const* src : get_children()) {
 		if (*src->get_input_type() == type) {
-			ret.push_back(src.get());
+			ret.push_back(src);
 		}
 	}
 	return ret;
@@ -94,9 +89,8 @@ Inendi::PVView const* Inendi::PVScene::current_view() const
 PVRush::PVInputType::list_inputs_desc
 Inendi::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 {
-	children_t const& sources = get_children();
 	QSet<PVRush::PVInputDescription_p> ret_set;
-	for (PVSource_sp const& src : sources) {
+	for (auto const* src : get_children()) {
 		if (*src->get_input_type() == type) {
 			ret_set.unite(src->get_inputs().toSet());
 		}
@@ -107,7 +101,7 @@ Inendi::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
 {
 	QList<PVRush::PVInputType_p> ret;
-	for (PVSource_sp const& src : get_children()) {
+	for (auto const* src : get_children()) {
 		PVRush::PVInputType_p in_type = src->get_input_type();
 		bool found = false;
 		for (PVRush::PVInputType_p const& known_in_t : ret) {
@@ -210,23 +204,24 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		in_t->serialize_inputs(so, in_t->registered_name(), inputs);
 	}
 
-	so.attribute("name", _name);
+	QString name = QString::fromStdString(_name);
+	so.attribute("name", name);
 
 	QStringList in_types_str;
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for (PVCore::PVSharedPtr<PVSource> source : get_children()) {
+	for (PVSource* source : get_children()) {
 		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj =
-		    list_obj->create_object(child_name, source->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
+		    child_name, QString::fromStdString(source->get_serialize_description()), false);
 		source->serialize(*new_obj, so.get_version());
 
 		PVRush::PVInputType_p const& in_t = source->get_input_type();
 		in_types_str.push_back(in_t->registered_name());
 
-		new_obj->_bound_obj = source.get();
+		new_obj->_bound_obj = source;
 		new_obj->_bound_obj_type = typeid(PVSource);
 	}
 	so.list_attributes("types", in_types_str);

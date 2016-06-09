@@ -20,19 +20,25 @@
  *
  *****************************************************************************/
 Inendi::PVRoot::PVRoot()
-    : data_tree_root_t(), _current_scene(nullptr), _current_source(nullptr), _current_view(nullptr)
+    : PVCore::PVDataTreeParent<PVScene, PVRoot>()
+    , _current_scene(nullptr)
+    , _current_source(nullptr)
+    , _current_view(nullptr)
 {
 	reset_colors();
 }
 
 /******************************************************************************
  *
- * Inendi::PVRoot::PVRoot
+ * Inendi::PVRoot::~PVRoot
  *
  *****************************************************************************/
 Inendi::PVRoot::~PVRoot()
 {
+	// Manually remove all child as we want to destroy them before ourself as
+	// child may ask for modification in the Root (correlations, current_view, current_source, ...)
 	remove_all_children();
+
 	PVLOG_DEBUG("In PVRoot destructor\n");
 }
 
@@ -146,25 +152,6 @@ Inendi::PVView::id_t Inendi::PVRoot::get_new_view_id()
 
 /******************************************************************************
  *
- * Inendi::PVRoot::set_views_id
- *
- *****************************************************************************/
-void Inendi::PVRoot::set_views_id()
-{
-	std::multimap<PVView::id_t, PVView*> map_views;
-	for (auto view : get_children<PVView>()) {
-		map_views.insert(std::make_pair(view->get_view_id(), view.get()));
-	}
-	PVView::id_t cur_id = 0;
-	std::multimap<PVView::id_t, PVView*>::iterator it;
-	for (it = map_views.begin(); it != map_views.end(); it++) {
-		it->second->set_view_id(cur_id);
-		cur_id++;
-	}
-}
-
-/******************************************************************************
- *
  * Inendi::PVRoot::get_new_view_color
  *
  *****************************************************************************/
@@ -213,12 +200,12 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
 	int idx = 0;
-	for (PVScene_p scene : get_children()) {
+	for (PVScene* scene : get_children()) {
 		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj =
-		    list_obj->create_object(child_name, scene->get_serialize_description(), false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
+		    child_name, QString::fromStdString(scene->get_serialize_description()), false);
 		scene->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = scene.get();
+		new_obj->_bound_obj = scene;
 		new_obj->_bound_obj_type = typeid(PVScene);
 	}
 };
@@ -236,7 +223,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
 			QString name;
 			new_obj->attribute("name", name);
-			PVScene_p scene = emplace_add_child(name);
+			PVScene_p scene = emplace_add_child(name.toStdString());
 			scene->serialize(*new_obj, so.get_version());
 			new_obj->_bound_obj = scene.get();
 			new_obj->_bound_obj_type = typeid(PVScene);

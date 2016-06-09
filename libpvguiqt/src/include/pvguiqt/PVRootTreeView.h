@@ -12,7 +12,7 @@
 
 namespace PVCore
 {
-class PVDataTreeObjectBase;
+class PVDataTreeObject;
 }
 
 namespace Inendi
@@ -47,7 +47,7 @@ class PVRootTreeView : public QTreeView
 	void edit_plotting();
 
   protected:
-	PVCore::PVDataTreeObjectBase* get_selected_obj();
+	PVCore::PVDataTreeObject* get_selected_obj();
 
 	template <typename T>
 	T* get_selected_obj_as()

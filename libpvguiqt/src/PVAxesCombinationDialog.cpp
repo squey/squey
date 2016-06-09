@@ -48,7 +48,7 @@ PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView_sp& vie
 	    _obs_axes_comb);
 	PVHive::get().register_actor(view, _actor);
 
-	setWindowTitle("Edit axes combination... [" + view->get_name() + "]");
+	setWindowTitle("Edit axes combination... [" + QString::fromStdString(view->get_name()) + "]");
 }
 
 PVGuiQt::PVAxesCombinationDialog::~PVAxesCombinationDialog()

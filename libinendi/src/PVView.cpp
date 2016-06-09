@@ -38,7 +38,7 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  *
  *****************************************************************************/
 Inendi::PVView::PVView(PVPlotted* plotted)
-    : data_tree_view_t(plotted)
+    : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
     , _axes_combination(get_parent<PVSource>()->get_axes_combination())
     , post_filter_layer("post_filter_layer")
     , layer_stack_output_layer("view_layer_stack_output_layer")
@@ -809,18 +809,16 @@ void Inendi::PVView::select_inv_lines()
 	volatile_selection = ~floating_selection;
 }
 
-QString Inendi::PVView::get_name() const
+std::string Inendi::PVView::get_name() const
 {
-	return QString("%1 (%2/%3)")
-	    .arg(QString::number(get_display_view_id()))
-	    .arg(get_parent<PVMapped>()->get_name())
-	    .arg(get_parent<PVPlotted>()->get_name());
+	return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>()->get_name() + "/" +
+	       get_parent<PVPlotted>()->get_name() + ")";
 }
 
 QString Inendi::PVView::get_window_name() const
 {
 	QString ret = get_parent<PVSource>()->get_window_name() + " | ";
-	ret += get_name();
+	ret += QString::fromStdString(get_name());
 	return ret;
 }
 

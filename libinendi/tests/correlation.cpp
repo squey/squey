@@ -61,13 +61,13 @@ int main()
 	env.compute_plottings();
 
 	auto views = env.root->get_children<Inendi::PVView>();
-	PV_VALID(views.size(), 2);
+	PV_VALID(views.size(), 2UL);
 
 	/**
 	 * Add correlation between source IP columns
 	 */
-	Inendi::PVView* view1 = views[0].get();
-	Inendi::PVView* view2 = views[1].get();
+	Inendi::PVView* view1 = views.front();
+	Inendi::PVView* view2 = views.back();
 
 	Inendi::PVCorrelation correlation{view1, 2, view2, 2};
 	PV_ASSERT_VALID(not env.root->correlations().exists(view1, 2));
