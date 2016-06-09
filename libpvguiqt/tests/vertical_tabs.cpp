@@ -87,13 +87,13 @@ int main(int argc, char** argv)
 
 	// Get a INENDI tree from the given file/format
 	Inendi::PVRoot_p root;
-	Inendi::PVSource* src = get_src_from_file(root, argv[1], argv[2]);
-	Inendi::PVSource* src2 = get_src_from_file(root->get_children().front(), argv[1], argv[2]);
-	src2->create_default_view();
-	src->create_default_view();
+	Inendi::PVSource& src = get_src_from_file(*root, argv[1], argv[2]);
+	Inendi::PVSource& src2 = get_src_from_file(*root->get_children().front(), argv[1], argv[2]);
+	src2.create_default_view();
+	src.create_default_view();
 
-	Inendi::PVView_p view = src->current_view()->get_parent()->emplace_add_child();
-	view->process_parent_plotted();
+	Inendi::PVView& view = src.current_view()->get_parent()->emplace_add_child();
+	view.process_parent_plotted();
 
 	// Qt app
 	QApplication app(argc, argv);
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 	PVGuiQt::PVProjectsTabWidget* projects_tab_widget =
 	    new PVGuiQt::PVProjectsTabWidget(root.get(), mw);
 
-	projects_tab_widget->add_source(src);
+	projects_tab_widget->add_source(&src);
 
 	mw->show();
 

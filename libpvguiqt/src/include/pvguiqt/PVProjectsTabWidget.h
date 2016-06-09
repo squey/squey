@@ -122,7 +122,7 @@ class PVProjectsTabWidget : public QWidget
   public:
 	PVProjectsTabWidget(Inendi::PVRoot* root, QWidget* parent = 0);
 
-	PVSceneWorkspacesTabWidget* add_project(Inendi::PVScene_p scene_p);
+	PVSceneWorkspacesTabWidget* add_project(Inendi::PVScene& scene_p);
 	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);
 
 	PVSourceWorkspace* add_source(Inendi::PVSource* source);

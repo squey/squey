@@ -58,20 +58,20 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene = root->emplace_add_child("scene");
-	scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	Inendi::PVSource_sp src =
-	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job = src->extract();
+	Inendi::PVScene& scene = root->emplace_add_child("scene");
+	scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Inendi::PVSource& src =
+	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	PVRush::PVControllerJob_p job = src.extract();
 	job->wait_end();
-	src->create_default_view();
-	src->create_default_view();
+	src.create_default_view();
+	src.create_default_view();
 
-	Inendi::PVScene_p scene2 = root->emplace_add_child("scene1");
-	Inendi::PVSource_sp src2 =
-	    scene2->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	src2->create_default_view();
-	src2->create_default_view();
+	Inendi::PVScene& scene2 = root->emplace_add_child("scene1");
+	Inendi::PVSource& src2 =
+	    scene2.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	src2.create_default_view();
+	src2.create_default_view();
 
 	// Serialize the root object
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive(
@@ -79,8 +79,6 @@ int main(int argc, char** argv)
 	ar->get_root()->object("root", *root);
 	ar->finish();
 
-	src.reset();
-	scene.reset();
 	root.reset(new Inendi::PVRoot());
 
 	// Get it back !

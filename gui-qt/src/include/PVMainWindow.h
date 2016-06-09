@@ -189,7 +189,7 @@ class PVMainWindow : public QMainWindow
 	void events_display_zombies_listing_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
-	Inendi::PVScene_p project_new_Slot();
+	Inendi::PVScene& project_new_Slot();
 	void quit_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();

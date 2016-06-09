@@ -266,10 +266,10 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/
-Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
+Inendi::PVScene& PVInspector::PVMainWindow::project_new_Slot()
 {
 	std::string scene_name = tr("Data collection %1").arg(sequence_n++).toStdString();
-	PVCore::PVSharedPtr<Inendi::PVScene> scene_p = get_root_sp()->emplace_add_child(scene_name);
+	Inendi::PVScene& scene_p = get_root_sp()->emplace_add_child(scene_name);
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -294,7 +294,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	bool new_scene = false;
 	if (scenes.size() == 0) {
 		// No loaded project: create a new one and load the source
-		scene_p = project_new_Slot().get();
+		scene_p = &project_new_Slot();
 		new_scene = true;
 	} else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
@@ -317,9 +317,9 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		dlg->deleteLater();
 	}
 
-	Inendi::PVSource_sp src_p;
+	Inendi::PVSource* src_p;
 	try {
-		src_p = scene_p->emplace_add_child(src_desc);
+		src_p = &scene_p->emplace_add_child(src_desc);
 	} catch (PVRush::PVFormatException const& e) {
 		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
 		has_error = true;
@@ -336,8 +336,8 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	}
 
 	try {
-		if (!load_source(src_p.get())) {
-			remove_source(src_p.get());
+		if (!load_source(src_p)) {
+			remove_source(src_p);
 			return false;
 		}
 	} catch (const PVRush::PVFormatNoTimeMapping& e) {

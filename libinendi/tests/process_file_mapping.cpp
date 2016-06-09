@@ -62,24 +62,24 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene = root->emplace_add_child("scene");
-	Inendi::PVSource_sp src =
-	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	Inendi::PVMapped_p mapped = src->emplace_add_child();
+	Inendi::PVScene& scene = root->emplace_add_child("scene");
+	Inendi::PVSource& src =
+	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Inendi::PVMapped& mapped = src.emplace_add_child();
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {
-		job = src->extract();
+		job = src.extract();
 	} else {
-		job = src->extract(0, 200000000);
+		job = src.extract(0, 200000000);
 	}
 
-	src->wait_extract_end(job);
+	src.wait_extract_end(job);
 
 	if (raw_dump) {
-		mapped->to_csv();
+		mapped.to_csv();
 	} else {
-		PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
+		PVLOG_INFO("Extracted %u lines...\n", src.get_row_count());
 	}
 
 	return 0;

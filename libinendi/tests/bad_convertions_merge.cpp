@@ -20,7 +20,7 @@ int main()
 {
 	pvtest::TestEnv env(log_file, log_format);
 
-	Inendi::PVSource* source = env.compute_mapping()->get_parent<Inendi::PVSource>();
+	Inendi::PVSource* source = env.compute_mapping().get_parent<Inendi::PVSource>();
 
 	for (size_t i = 0; i < ROW_COUNT; i++) {
 		if (i < ROW_COUNT / 2) {

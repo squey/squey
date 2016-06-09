@@ -206,10 +206,9 @@ void Inendi::PVSource::create_default_view()
 		emplace_add_child();
 	}
 	for (PVMapped* m : get_children()) {
-		PVPlotted_p def_plotted = m->emplace_add_child();
+		PVPlotted& def_plotted = m->emplace_add_child();
 
-		PVView_p def_view = def_plotted->emplace_add_child();
-		def_view->get_parent<PVRoot>()->select_view(*def_view);
+		PVView& def_view = def_plotted.emplace_add_child();
 		process_from_source();
 	}
 }
@@ -292,12 +291,12 @@ void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so)
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVMapped_p mapped = emplace_add_child();
+			PVMapped& mapped = emplace_add_child();
 			// FIXME : Mapping is created invalid then set
-			new_obj->object(QString("mapping"), mapped->get_mapping(), QString(), false, nullptr,
+			new_obj->object(QString("mapping"), mapped.get_mapping(), QString(), false, nullptr,
 			                false);
-			mapped->serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = mapped.get();
+			mapped.serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = &mapped;
 			new_obj->_bound_obj_type = typeid(PVMapped);
 			idx++;
 		}

@@ -31,7 +31,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVMapped_p mapped = env.compute_mapping();
+	Inendi::PVMapped& mapped = env.compute_mapping();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -44,7 +44,7 @@ int main()
 	const pvcop::db::array& column = nraw.collection().column(0);
 
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_VALID(mapped->get_value(i, 0).storage_as_uint(), column.to_core_array<uint32_t>()[i]);
+		PV_VALID(mapped.get_value(i, 0).storage_as_uint(), column.to_core_array<uint32_t>()[i]);
 	}
 #endif
 

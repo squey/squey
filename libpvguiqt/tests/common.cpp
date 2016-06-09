@@ -20,8 +20,8 @@
 
 #include "common.h"
 
-Inendi::PVSource*
-get_src_from_file(Inendi::PVScene* scene, QString const& path_file, QString const& path_format)
+Inendi::PVSource&
+get_src_from_file(Inendi::PVScene& scene, QString const& path_file, QString const& path_format)
 {
 	// Input file
 	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
@@ -37,17 +37,17 @@ get_src_from_file(Inendi::PVScene* scene, QString const& path_file, QString cons
 		throw std::runtime_error("Can't read file source");
 	}
 
-	Inendi::PVSource_sp src =
-	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job = src->extract(0, 200000);
-	src->wait_extract_end(job);
+	Inendi::PVSource& src =
+	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	PVRush::PVControllerJob_p job = src.extract(0, 200000);
+	src.wait_extract_end(job);
 
-	return src.get();
+	return src;
 }
 
-Inendi::PVSource*
-get_src_from_file(Inendi::PVRoot_sp root, QString const& file, QString const& format)
+Inendi::PVSource&
+get_src_from_file(Inendi::PVRoot& root, QString const& file, QString const& format)
 {
-	Inendi::PVScene_sp scene = root->emplace_add_child("scene");
-	return get_src_from_file(scene.get(), file, format);
+	Inendi::PVScene& scene = root.emplace_add_child("scene");
+	return get_src_from_file(scene, file, format);
 }

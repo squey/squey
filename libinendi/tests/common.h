@@ -69,10 +69,10 @@ class TestEnv
 		import(log_file, format_file, dup);
 	}
 
-	Inendi::PVSource_sp add_source(std::string const& log_file,
-	                               std::string const& format_file,
-	                               size_t dup = 1,
-	                               bool new_scene = true)
+	Inendi::PVSource& add_source(std::string const& log_file,
+	                             std::string const& format_file,
+	                             size_t dup = 1,
+	                             bool new_scene = true)
 	{
 		return import(log_file, format_file, dup, new_scene);
 	}
@@ -85,7 +85,7 @@ class TestEnv
 	/**
 	 * Compute mapping assuming PVSource is valid.
 	 */
-	Inendi::PVMapped_p compute_mapping(size_t scene_id = 0, size_t src_id = 0)
+	Inendi::PVMapped& compute_mapping(size_t scene_id = 0, size_t src_id = 0)
 	{
 		const auto& scenes = root->get_children();
 		assert(scene_id < scenes.size());
@@ -97,23 +97,23 @@ class TestEnv
 		auto src_it = sources.begin();
 		std::advance(src_it, src_id);
 
-		Inendi::PVMapped_p mapped = (*src_it)->emplace_add_child();
-		mapped->process_from_parent_source();
+		Inendi::PVMapped& mapped = (*src_it)->emplace_add_child();
+		mapped.process_from_parent_source();
 		return mapped;
 	}
 
 	void compute_mappings()
 	{
 		for (const auto& source : root->get_children<Inendi::PVSource>()) {
-			Inendi::PVMapped_p mapped = source->emplace_add_child();
-			mapped->process_from_parent_source();
+			Inendi::PVMapped& mapped = source->emplace_add_child();
+			mapped.process_from_parent_source();
 		}
 	}
 
 	/**
 	 * Compute plotting assuming PVMapped is valid.
 	 */
-	Inendi::PVPlotted_p
+	Inendi::PVPlotted&
 	compute_plotting(size_t scene_id = 0, size_t src_id = 0, size_t mapped_id = 0)
 	{
 		// And plot the mapped values
@@ -132,8 +132,8 @@ class TestEnv
 		auto mapped_it = mappeds.begin();
 		std::advance(mapped_it, mapped_id);
 
-		Inendi::PVPlotted_p plotted = (*mapped_it)->emplace_add_child();
-		plotted->process_from_parent_mapped();
+		Inendi::PVPlotted& plotted = (*mapped_it)->emplace_add_child();
+		plotted.process_from_parent_mapped();
 		return plotted;
 	}
 
@@ -141,16 +141,16 @@ class TestEnv
 	{
 		// And plot the mapped values
 		for (const auto& mapped : root->get_children<Inendi::PVMapped>()) {
-			Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
-			plotted->process_from_parent_mapped();
+			Inendi::PVPlotted& plotted = mapped->emplace_add_child();
+			plotted.process_from_parent_mapped();
 		}
 	}
 
   private:
-	Inendi::PVSource_sp import(std::string const& log_file,
-	                           std::string const& format_file,
-	                           size_t dup,
-	                           bool new_scene = true)
+	Inendi::PVSource& import(std::string const& log_file,
+	                         std::string const& format_file,
+	                         size_t dup,
+	                         bool new_scene = true)
 	{
 
 		{
@@ -184,10 +184,10 @@ class TestEnv
 
 		// Create the PVSource object
 		Inendi::PVScene* scene =
-		    (new_scene) ? root->emplace_add_child("scene").get() : root->get_children().front();
-		Inendi::PVSource_sp src =
+		    (new_scene) ? &root->emplace_add_child("scene") : root->get_children().front();
+		Inendi::PVSource& src =
 		    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-		PVRush::PVControllerJob_p job = src->extract();
+		PVRush::PVControllerJob_p job = src.extract();
 		job->wait_end();
 		return src;
 	}

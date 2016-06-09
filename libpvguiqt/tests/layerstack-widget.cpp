@@ -37,13 +37,13 @@ int main(int argc, char** argv)
 
 	// Get a INENDI tree from the given file/format
 	Inendi::PVRoot_p root;
-	Inendi::PVSource* src = get_src_from_file(root, argv[1], argv[2]);
-	src->create_default_view();
+	Inendi::PVSource& src = get_src_from_file(*root, argv[1], argv[2]);
+	src.create_default_view();
 
 	// Qt app
 	QApplication app(argc, argv);
 
-	Inendi::PVView_sp view = src->current_view()->shared_from_this();
+	Inendi::PVView_sp view = src.current_view()->shared_from_this();
 	view->add_new_layer();
 
 	PVGuiQt::PVLayerStackWidget* ls = new PVGuiQt::PVLayerStackWidget(view);

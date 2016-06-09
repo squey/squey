@@ -31,7 +31,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVMapped_p mapped = env.compute_mapping();
+	Inendi::PVMapped& mapped = env.compute_mapping();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -50,10 +50,10 @@ int main()
 	std::sort(order.begin(), order.end(),
 	          [&array](uint32_t a, uint32_t b) { return (array[a] / 1000) < (array[b] / 1000); });
 
-	uint32_t prev = mapped->get_value(order[0], 0).storage_as_uint();
+	uint32_t prev = mapped.get_value(order[0], 0).storage_as_uint();
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= mapped->get_value(order[i], 0).storage_as_uint());
-		prev = mapped->get_value(order[i], 0).storage_as_uint();
+		PV_ASSERT_VALID(prev <= mapped.get_value(order[i], 0).storage_as_uint());
+		prev = mapped.get_value(order[i], 0).storage_as_uint();
 	}
 #endif
 

@@ -223,9 +223,9 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
 			QString name;
 			new_obj->attribute("name", name);
-			PVScene_p scene = emplace_add_child(name.toStdString());
-			scene->serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = scene.get();
+			PVScene& scene = emplace_add_child(name.toStdString());
+			scene.serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = &scene;
 			new_obj->_bound_obj_type = typeid(PVScene);
 			idx++;
 		}

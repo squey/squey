@@ -30,7 +30,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVMapped_p mapped = env.compute_mapping();
+	Inendi::PVMapped& mapped = env.compute_mapping();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -47,7 +47,7 @@ int main()
 	// compute distinct mapping values.
 	std::set<uint32_t> distinct_mapping;
 	for (size_t i = 0; i < column.size(); i++) {
-		distinct_mapping.insert(mapped->get_value(i, 0).storage_as_uint());
+		distinct_mapping.insert(mapped.get_value(i, 0).storage_as_uint());
 	}
 
 	// Check there is a much distinct mapping than distinct values.

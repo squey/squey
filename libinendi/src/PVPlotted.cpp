@@ -629,9 +629,9 @@ void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so)
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVView_p view = emplace_add_child();
-			view->serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = view.get();
+			PVView& view = emplace_add_child();
+			view.serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = &view;
 			new_obj->_bound_obj_type = typeid(PVView);
 			idx++;
 		}

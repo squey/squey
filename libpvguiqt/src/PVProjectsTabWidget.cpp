@@ -173,9 +173,9 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget*
-PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene_p scene_p)
+PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene& scene_p)
 {
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(*scene_p);
+	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this,
 	        SLOT(emit_workspace_dragged_outside(QWidget*)));
 	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
@@ -183,9 +183,9 @@ PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene_p scene_p)
 	        SLOT(project_modified(bool, QString)));
 
 	int index = _tab_widget->count();
-	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p->get_name()));
+	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p.get_name()));
 	_stacked_widget->insertWidget(index, workspace_tab_widget);
-	_tab_widget->setTabToolTip(index, QString::fromStdString(scene_p->get_name()));
+	_tab_widget->setTabToolTip(index, QString::fromStdString(scene_p.get_name()));
 	_tab_widget->setCurrentIndex(index);
 
 	return workspace_tab_widget;
@@ -261,7 +261,7 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
 
 	if (!workspace_tab_widget) {
-		workspace_tab_widget = add_project(scene->shared_from_this());
+		workspace_tab_widget = add_project(*scene);
 	}
 
 	const Inendi::PVSource* src = workspace->get_source();

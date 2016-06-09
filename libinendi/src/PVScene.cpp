@@ -164,8 +164,7 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 		new_obj->attribute("index_start", start);
 		new_obj->attribute("nlines", nlines);
 
-		PVCore::PVSharedPtr<PVSource> source =
-		    emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
+		PVSource& source = emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
 
 		QString nraw_folder;
 		new_obj->attribute("nraw_path", nraw_folder, QString());
@@ -180,9 +179,9 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 				nraw_folder = QString();
 			}
 		}
-		source->set_nraw_folder(nraw_folder);
-		source->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = source.get();
+		source.set_nraw_folder(nraw_folder);
+		source.serialize(*new_obj, so.get_version());
+		new_obj->_bound_obj = &source;
 		new_obj->_bound_obj_type = typeid(PVSource);
 	}
 }

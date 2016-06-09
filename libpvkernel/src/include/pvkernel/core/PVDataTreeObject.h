@@ -101,10 +101,10 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 
   public:
 	template <class... T>
-	PVSharedPtr<Child> emplace_add_child(T&&... t)
+	Child& emplace_add_child(T&&... t)
 	{
 		_children.push_back(PVSharedPtr<Child>(new Child(static_cast<Derived*>(this), t...)));
-		return _children.back();
+		return *_children.back();
 	}
 
 	template <class T = Child>
