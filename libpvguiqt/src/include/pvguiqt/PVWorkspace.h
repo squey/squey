@@ -26,6 +26,33 @@ class QWidget;
 #include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 
+/**
+ * This helper function is std::get with type as parameter available only from C++14
+ */
+template <class T, size_t I, class... U>
+typename std::enable_if<
+    std::is_same<typename std::tuple_element<I, std::tuple<U...>>::type, T>::value,
+    T&>::type
+__get_typed_arg(std::tuple<U...>& t)
+{
+	return std::get<I>(t);
+}
+
+template <class T, size_t I, class... U>
+typename std::enable_if<
+    not std::is_same<typename std::tuple_element<I, std::tuple<U...>>::type, T>::value,
+    T&>::type
+__get_typed_arg(std::tuple<U...>& t)
+{
+	return __get_typed_arg<T, I - 1>(t);
+}
+
+template <class T, class... U>
+T& get_typed_arg(std::tuple<U...>& u)
+{
+	return __get_typed_arg<T, sizeof...(U)-1>(u);
+}
+
 namespace Inendi
 {
 class PVView;
@@ -146,6 +173,27 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void create_view_widget(QAction* act = nullptr) override;
 
+  public:
+	template <class T>
+	struct Tag {
+	};
+
+	template <class T>
+	void create_view_dispatch(bool, Tag<T>);
+
+	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewIf>)
+	{
+		create_view_widget(nullptr);
+	}
+	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewAxisIf>)
+	{
+		create_view_axis_widget(nullptr);
+	}
+	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewZoneIf>)
+	{
+		create_view_zone_widget(nullptr);
+	}
+
   private slots:
 	/*! \brief Create the widget used by the view display with axis parameter.
 	 *
@@ -190,9 +238,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 
   protected:
 	QList<PVViewDisplay*> _displays;
-	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*>> _view_display_if_btns;
-	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*>> _view_axis_display_if_btns;
-	QList<std::pair<QToolButton*, PVDisplays::PVDisplayViewZoneIf*>> _view_zone_display_if_btns;
 	int _z_order_index = 0;
 	static uint64_t _z_order_counter;
 	static bool _drag_started;
@@ -209,6 +254,10 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	Q_OBJECT
 
   public:
+	template <class T>
+	using list_display = QList<std::pair<QToolButton*, T*>>;
+
+  public:
 	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = nullptr);
 
   public:
@@ -219,16 +268,22 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	 */
 	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_evts_dlg() const { return _inv_evts_dlg; }
 
-  private slots:
-	void fill_display_if();
-	void fill_axis_display_if();
-	void fill_zone_display_if();
+	template <class T>
+	void fill_display();
+
+	template <class T>
+	void populate_display();
 
   private:
 	Inendi::PVSource* _source = nullptr;
 	QToolBar* _toolbar;
 
 	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.
+
+	std::tuple<typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewIf>,
+	           typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewAxisIf>,
+	           typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewZoneIf>>
+	    _tool_buttons;
 };
 }
 

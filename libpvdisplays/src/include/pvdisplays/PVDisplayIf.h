@@ -120,7 +120,8 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 		ret = get_value_from_action(action);
 	}
 
-	QAction* action_bound_to_params(value_type* obj, QObject* parent = NULL) const
+	QAction*
+	action_bound_to_params(value_type* obj, PVCol /*axis_comb*/, QObject* parent = NULL) const
 	{
 		QAction* action = new QAction(parent);
 
