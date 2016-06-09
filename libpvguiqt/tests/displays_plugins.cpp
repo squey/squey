@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
 	// Get a INENDI tree from the given file/format
 	Inendi::PVRoot_p root;
-	Inendi::PVSource_sp src = get_src_from_file(root, argv[1], argv[2]);
+	Inendi::PVSource* src = get_src_from_file(root, argv[1], argv[2]);
 	src->create_default_view();
 	Inendi::PVView* view = src->current_view();
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, src.get());
+		    QWidget* w = PVDisplays::get().get_widget(obj, src);
 		    w->show();
 		});
 

@@ -183,8 +183,8 @@ class TestEnv
 		}
 
 		// Create the PVSource object
-		Inendi::PVScene_p scene =
-		    (new_scene) ? root->emplace_add_child("scene") : root->get_children().front();
+		Inendi::PVScene* scene =
+		    (new_scene) ? root->emplace_add_child("scene").get() : root->get_children().front();
 		Inendi::PVSource_sp src =
 		    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 		PVRush::PVControllerJob_p job = src->extract();
