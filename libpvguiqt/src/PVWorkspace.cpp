@@ -371,7 +371,8 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
-		    QAction* act = PVDisplays::get().action_bound_to_params(obj, source);
+		    QAction* act =
+		        PVDisplays::get().action_bound_to_params(obj, source, PVCOL_INVALID_VALUE);
 		    act->setCheckable(true);
 		    act->setIcon(obj.toolbar_icon());
 		    act->setToolTip(obj.tooltip_str());
@@ -383,69 +384,21 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	_toolbar->addSeparator();
 
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
-	    [&](PVDisplays::PVDisplayViewIf& obj) {
-		    if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
-			    QToolButton* btn = new QToolButton(_toolbar);
-			    btn->setPopupMode(QToolButton::InstantPopup);
-			    btn->setIcon(obj.toolbar_icon());
-			    btn->setToolTip(obj.tooltip_str());
-			    btn->setMenu(new QMenu);
-			    _toolbar->addWidget(btn);
-
-			    _view_display_if_btns << std::make_pair(btn, &obj);
-
-			    connect(btn->menu(), &QMenu::aboutToShow, this,
-			            &PVSourceWorkspace::fill_display_if);
-		    }
-		},
-	    PVDisplays::PVDisplayIf::ShowInToolbar);
+	populate_display<PVDisplays::PVDisplayViewIf>();
 
 	_toolbar->addSeparator();
 
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewAxisIf>(
-	    [&](PVDisplays::PVDisplayViewAxisIf& obj) {
-		    if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
-			    QToolButton* btn = new QToolButton(_toolbar);
-			    btn->setPopupMode(QToolButton::InstantPopup);
-			    btn->setIcon(obj.toolbar_icon());
-			    btn->setToolTip(obj.tooltip_str());
-			    btn->setMenu(new QMenu);
-			    _toolbar->addWidget(btn);
-
-			    _view_axis_display_if_btns << std::make_pair(btn, &obj);
-
-			    connect(btn->menu(), &QMenu::aboutToShow, this,
-			            &PVSourceWorkspace::fill_axis_display_if);
-		    }
-		},
-	    PVDisplays::PVDisplayIf::ShowInToolbar);
+	populate_display<PVDisplays::PVDisplayViewAxisIf>();
 
 	_toolbar->addSeparator();
 
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewZoneIf>(
-	    [&](PVDisplays::PVDisplayViewZoneIf& obj) {
-		    if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
-			    QToolButton* btn = new QToolButton(_toolbar);
-			    btn->setPopupMode(QToolButton::InstantPopup);
-			    btn->setIcon(obj.toolbar_icon());
-			    btn->setToolTip(obj.tooltip_str());
-			    btn->setMenu(new QMenu);
-			    _toolbar->addWidget(btn);
-
-			    _view_zone_display_if_btns << std::make_pair(btn, &obj);
-
-			    connect(btn->menu(), &QMenu::aboutToShow, this,
-			            &PVSourceWorkspace::fill_zone_display_if);
-		    }
-		},
-	    PVDisplays::PVDisplayIf::ShowInToolbar);
+	populate_display<PVDisplays::PVDisplayViewZoneIf>();
 
 	_toolbar->addSeparator();
 
-	fill_axis_display_if();
-	fill_zone_display_if();
-	fill_display_if();
+	fill_display<PVDisplays::PVDisplayViewZoneIf>();
+	fill_display<PVDisplays::PVDisplayViewAxisIf>();
+	fill_display<PVDisplays::PVDisplayViewIf>();
 
 	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
 		bool already_center = false;
@@ -486,32 +439,11 @@ PVGuiQt::PVWorkspaceBase::get_view_widgets(Inendi::PVView* view)
 	return _view_widgets[view];
 }
 
-void PVGuiQt::PVSourceWorkspace::fill_display_if()
+template <class T>
+void PVGuiQt::PVSourceWorkspace::fill_display()
 {
-	for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p : _view_display_if_btns) {
-		for (QAction* act : p.first->menu()->actions()) {
-			p.first->menu()->removeAction(act);
-		}
-	}
-
-	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
-		QString action_name = QString::fromStdString(view->get_name());
-
-		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewIf*> const& p :
-		     _view_display_if_btns) {
-			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view);
-			act->setText(action_name);
-			p.first->menu()->addAction(act);
-
-			connect(act, SIGNAL(triggered()), this, SLOT(create_view_widget()));
-		}
-	}
-}
-
-void PVGuiQt::PVSourceWorkspace::fill_axis_display_if()
-{
-	for (std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*> const& p :
-	     _view_axis_display_if_btns) {
+	for (typename list_display<T>::value_type const& p :
+	     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
 		for (QAction* act : p.first->menu()->actions()) {
 			p.first->menu()->removeAction(act);
 		}
@@ -522,40 +454,37 @@ void PVGuiQt::PVSourceWorkspace::fill_axis_display_if()
 
 		// AG: this category could go into PVDisplayViewIf w/ a
 		// PVCore::PVArgumentList object with one axis !
-		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewAxisIf*> const& p :
-		     _view_axis_display_if_btns) {
+		for (typename list_display<T>::value_type const& p :
+		     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
 			QAction* act =
 			    PVDisplays::get().action_bound_to_params(*p.second, view, PVCOL_INVALID_VALUE);
 			act->setText(action_name + "...");
 			p.first->menu()->addAction(act);
 
-			connect(act, SIGNAL(triggered()), this, SLOT(create_view_axis_widget()));
+			connect(act, &QAction::triggered,
+			        [this](bool checked) { create_view_dispatch(checked, Tag<T>{}); });
 		}
 	}
 }
 
-void PVGuiQt::PVSourceWorkspace::fill_zone_display_if()
+template <class T>
+void PVGuiQt::PVSourceWorkspace::populate_display()
 {
-	for (std::pair<QToolButton*, PVDisplays::PVDisplayViewZoneIf*> const& p :
-	     _view_zone_display_if_btns) {
-		for (QAction* act : p.first->menu()->actions()) {
-			p.first->menu()->removeAction(act);
-		}
-	}
+	PVDisplays::get().visit_displays_by_if<T>(
+	    [&](T& obj) {
+		    if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
+			    QToolButton* btn = new QToolButton(_toolbar);
+			    btn->setPopupMode(QToolButton::InstantPopup);
+			    btn->setIcon(obj.toolbar_icon());
+			    btn->setToolTip(obj.tooltip_str());
+			    btn->setMenu(new QMenu);
+			    _toolbar->addWidget(btn);
 
-	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
-		QString action_name = QString::fromStdString(view->get_name());
+			    get_typed_arg<typename PVSourceWorkspace::list_display<T>>(_tool_buttons)
+			        << std::make_pair(btn, &obj);
 
-		// AG: this category could go into PVDisplayViewIf w/ a
-		// PVCore::PVArgumentList object with one axis !
-		for (std::pair<QToolButton*, PVDisplays::PVDisplayViewZoneIf*> const& p :
-		     _view_zone_display_if_btns) {
-			QAction* act =
-			    PVDisplays::get().action_bound_to_params(*p.second, view, PVCOL_INVALID_VALUE);
-			act->setText(action_name + "...");
-			p.first->menu()->addAction(act);
-
-			connect(act, SIGNAL(triggered()), this, SLOT(create_view_zone_widget()));
-		}
-	}
+			    connect(btn->menu(), &QMenu::aboutToShow, [this]() { fill_display<T>(); });
+		    }
+		},
+	    PVDisplays::PVDisplayIf::ShowInToolbar);
 }

@@ -12,6 +12,37 @@
 
 #include <list>
 
+/**
+ * Helper to call a function on the first correct type (from dynamic cast check).
+ *
+ * @note : It is an O(n) call but we don't require performances in this widget.
+ */
+namespace __impl
+{
+template <class R, class F, class In, size_t I, class... T>
+typename std::enable_if<I == sizeof...(T), R>::type apply_on(In*, F const&)
+{
+	throw std::runtime_error("No possible conversion");
+	return {};
+}
+
+template <class R, class F, class In, size_t I, class... T>
+typename std::enable_if<I != sizeof...(T), R>::type apply_on(In* in, F const& f)
+{
+	using ith_t = typename std::tuple_element<I, std::tuple<T...>>::type;
+	if (ith_t* v = dynamic_cast<ith_t*>(in)) {
+		return f.template call<ith_t>(v);
+	}
+	return apply_on<R, F, In, I + 1, T...>(in, f);
+}
+}
+
+template <class R, class... T, class In, class F>
+R apply_on(In* p, F&& f)
+{
+	return __impl::apply_on<R, F, In, 0, T...>(p, std::forward<F>(f));
+}
+
 namespace PVGuiQt
 {
 
@@ -32,6 +63,22 @@ PVHiveDataTreeModel::PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent
 	PVHive::get().register_observer(root_sp, *_root_recursive_observer);
 }
 
+namespace
+{
+struct ith_child {
+	template <class T>
+	PVCore::PVDataTreeObject* call(T* v) const
+	{
+		auto children = v->get_children();
+		auto it = children.begin();
+		std::advance(it, row);
+		return *it;
+	}
+
+	int row;
+};
+}
+
 QModelIndex PVHiveDataTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
 	// Column is always 0 (see columnCount), but asserts it
@@ -40,45 +87,51 @@ QModelIndex PVHiveDataTreeModel::index(int row, int column, const QModelIndex& p
 	PVCore::PVDataTreeObject* p =
 	    (parent.isValid()) ? (PVCore::PVDataTreeObject*)parent.internalPointer() : &_root;
 
-	PVCore::PVDataTreeObject* child = nullptr;
-	if (Inendi::PVPlotted* v = dynamic_cast<Inendi::PVPlotted*>(p)) {
-		auto children = v->get_children();
-		auto it = children.begin();
-		std::advance(it, row);
-		child = *it;
-	} else if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(p)) {
-		auto children = v->get_children();
-		auto it = children.begin();
-		std::advance(it, row);
-		child = *it;
-	} else if (Inendi::PVSource* v = dynamic_cast<Inendi::PVSource*>(p)) {
-		auto children = v->get_children();
-		auto it = children.begin();
-		std::advance(it, row);
-		child = *it;
-	} else {
-		throw std::runtime_error("Invalid kind of node");
-	}
+	PVCore::PVDataTreeObject* child =
+	    apply_on<PVCore::PVDataTreeObject*, Inendi::PVPlotted, Inendi::PVMapped, Inendi::PVSource>(
+	        p, ith_child{row});
 
 	return createIndex(row, column, child);
 }
 
+namespace
+{
+struct get_size {
+	template <class T>
+	size_t call(T* v) const
+	{
+		return v->size();
+	}
+};
+}
+
 int PVHiveDataTreeModel::rowCount(const QModelIndex& parent) const
 {
+
+	PVCore::PVDataTreeObject* p = (PVCore::PVDataTreeObject*)parent.internalPointer();
+
 	if (not parent.isValid()) {
 		return 1;
-	} else if (Inendi::PVPlotted* v = dynamic_cast<Inendi::PVPlotted*>(
-	               (PVCore::PVDataTreeObject*)parent.internalPointer())) {
-		return v->size();
-	} else if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(
-	               (PVCore::PVDataTreeObject*)parent.internalPointer())) {
-		return v->size();
-	} else if (Inendi::PVSource* v = dynamic_cast<Inendi::PVSource*>(
-	               (PVCore::PVDataTreeObject*)parent.internalPointer())) {
-		return v->size();
+	} else if (dynamic_cast<Inendi::PVView*>(p)) {
+		return 0;
 	} else {
-		return 0; // View case
+		return apply_on<size_t, Inendi::PVPlotted, Inendi::PVMapped, Inendi::PVSource>(p,
+		                                                                               get_size{});
 	}
+}
+
+namespace
+{
+struct parent_pos {
+	template <class T>
+	std::tuple<int, PVCore::PVDataTreeObject*> call(T* v) const
+	{
+		return std::tuple<int, PVCore::PVDataTreeObject*>{_model->pos_from_obj(v->get_parent()),
+		                                                  v->get_parent()};
+	}
+
+	PVHiveDataTreeModel const* _model;
+};
 }
 
 QModelIndex PVHiveDataTreeModel::parent(const QModelIndex& index) const
@@ -91,21 +144,18 @@ QModelIndex PVHiveDataTreeModel::parent(const QModelIndex& index) const
 		return {};
 	}
 
-	PVCore::PVDataTreeObject* parent = nullptr;
 	PVCore::PVDataTreeObject* id = (PVCore::PVDataTreeObject*)index.internalPointer();
+
+	PVCore::PVDataTreeObject* parent = nullptr;
 	int row = 0;
 
-	if (Inendi::PVPlotted* v = dynamic_cast<Inendi::PVPlotted*>(id)) {
-		parent = v->get_parent();
-		row = pos_from_obj(v->get_parent());
-	} else if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(id)) {
+	if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(id)) {
 		parent = v->get_parent();
 		row = 0;
-	} else if (Inendi::PVView* v = dynamic_cast<Inendi::PVView*>(id)) {
-		parent = v->get_parent();
-		row = pos_from_obj(v->get_parent());
 	} else {
-		throw std::runtime_error("Invalid kind of node asked for parent");
+		std::tie(row, parent) =
+		    apply_on<std::tuple<int, PVCore::PVDataTreeObject*>, Inendi::PVPlotted, Inendi::PVView>(
+		        id, parent_pos{this});
 	}
 
 	return createIndex(row, 0, parent);
@@ -147,21 +197,25 @@ void PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 	emit dataChanged(idx, idx);
 }
 
+namespace
+{
+struct obj_pos {
+	template <class T>
+	int call(T* v) const
+	{
+		auto children = v->get_parent()->get_children();
+		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
+	}
+};
+}
+
 int PVHiveDataTreeModel::pos_from_obj(PVCore::PVDataTreeObject const* id) const
 {
-	if (Inendi::PVPlotted const* v = dynamic_cast<Inendi::PVPlotted const*>(id)) {
-		auto children = v->get_parent()->get_children();
-		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
-	} else if (Inendi::PVMapped const* v = dynamic_cast<Inendi::PVMapped const*>(id)) {
-		auto children = v->get_parent()->get_children();
-		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
-	} else if (Inendi::PVView const* v = dynamic_cast<Inendi::PVView const*>(id)) {
-		auto children = v->get_parent()->get_children();
-		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
-	} else if (dynamic_cast<Inendi::PVSource const*>(id)) {
+	if (dynamic_cast<Inendi::PVSource const*>(id)) {
 		return 0;
 	} else {
-		throw std::runtime_error("Invalid kind of node asked for parent");
+		return apply_on<int, const Inendi::PVPlotted, const Inendi::PVMapped, const Inendi::PVView>(
+		    id, obj_pos{});
 	}
 }
 }

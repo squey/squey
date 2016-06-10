@@ -27,6 +27,8 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 	PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent = nullptr);
 	QModelIndex index(int row, int column, const QModelIndex& parent) const override;
 
+	int pos_from_obj(PVCore::PVDataTreeObject const* o) const;
+
   protected:
 	int rowCount(const QModelIndex& index) const override;
 	int columnCount(const QModelIndex&) const override { return 1; }
@@ -92,8 +94,6 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 			       return obs.get_object() == o;
 			   }) != _obs.end();
 	}
-
-	int pos_from_obj(PVCore::PVDataTreeObject const* o) const;
 
   private:
 	Inendi::PVSource& _root;
