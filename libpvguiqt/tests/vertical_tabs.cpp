@@ -93,7 +93,6 @@ int main(int argc, char** argv)
 	src.create_default_view();
 
 	Inendi::PVView& view = src.current_view()->get_parent().emplace_add_child();
-	view.process_parent_plotted();
 
 	// Qt app
 	QApplication app(argc, argv);

@@ -547,13 +547,6 @@ void Inendi::PVPlotted::process_parent_mapped()
 
 void Inendi::PVPlotted::process_from_parent_mapped()
 {
-	// Check parent consistency
-	auto& mapped = get_parent();
-
-	if (!mapped.is_uptodate()) {
-		mapped.compute();
-	}
-
 	process_parent_mapped();
 
 	if (get_children().empty()) {

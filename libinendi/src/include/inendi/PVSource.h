@@ -64,6 +64,19 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	~PVSource();
 
   public:
+	void load_data()
+	{
+		if (has_nraw_folder()) {
+			load_from_disk();
+		} else {
+			// Extract the source
+
+			PVRush::PVControllerJob_p job_import;
+			job_import = extract(get_format().get_first_line(), get_format().get_line_count());
+
+			wait_extract_end(job_import);
+		}
+	}
 	/* Functions */
 	PVCol get_column_count() const;
 

@@ -15,6 +15,5 @@
 //
 
 DECLARE_WAX(Inendi::PVPlotted::process_parent_mapped)
-DECLARE_WAX(Inendi::PVPlotted::process_from_parent_mapped)
 
 #endif

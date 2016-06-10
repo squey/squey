@@ -57,11 +57,12 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 
-	PVRow row_count = get_row_count();
-	if (row_count) {
-		set_row_count(row_count);
-		reset_layers();
-	}
+	_axes_combination.set_from_format(get_parent<PVSource>().get_format());
+
+	set_row_count(get_row_count());
+	reset_layers();
+
+	process_from_layer_stack();
 }
 
 void Inendi::PVView::process_parent_plotted()

@@ -1006,36 +1006,6 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 	import_type(in_file, files_in, formats, format_creator, format);
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::load_scene
- *
- *****************************************************************************/
-bool PVInspector::PVMainWindow::load_scene(Inendi::PVScene* scene)
-{
-	// Here, load the whole scene.
-	for (auto* source_p : scene->get_children()) {
-		if (!load_source(source_p)) {
-			remove_source(source_p);
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool PVInspector::PVMainWindow::load_root()
-{
-	// Here, load the whole root !
-	for (Inendi::PVScene* scene_p : get_root().get_children()) {
-		if (!load_scene(scene_p)) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
 void PVInspector::PVMainWindow::display_inv_elts()
 {
 	if (current_view()) {
@@ -1294,43 +1264,41 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 #endif
 	}
 
-	// If no view is present, create a default one. Otherwise, process them by
-	// keeping the existing layers !
-	if (src->size<Inendi::PVView>() == 0) {
-		if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); },
-		                                     tr("Processing..."), (QWidget*)this)) {
-			return false;
-		}
-
-		Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>().current_view();
-		for (auto& inv_elts : src->get_invalid_evts()) {
-			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
-		}
-		first_view_p->process_from_layer_stack();
-	} else {
-		// pvi loading case
-		if (!PVCore::PVProgressBox::progress(
-		        boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."),
-		        (QWidget*)this)) {
-			return false;
-		}
+	if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); }, tr("Processing..."),
+	                                     (QWidget*)this)) {
+		return false;
 	}
 
-	_projects_tab_widget->add_source(src);
+	Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>().current_view();
+	for (auto& inv_elts : src->get_invalid_evts()) {
+		first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
+	}
+	first_view_p->process_from_layer_stack();
 
-	if (src->get_invalid_evts().size() > 0) {
+	source_loaded(*src);
+
+	return true;
+}
+
+void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src)
+{
+	// Create workspace for this source.
+	_projects_tab_widget->add_source(&src);
+
+	// Show invalide elements.
+	if (src.get_invalid_evts().size() > 0) {
 		display_inv_elts();
 	}
 
+	// Add format as recent format
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
-	    PVCore::PVRecentItemsManager::get(), src->get_format().get_full_path(),
+	    PVCore::PVRecentItemsManager::get(), src.get_format().get_full_path(),
 	    PVCore::PVRecentItemsManager::Category::USED_FORMATS);
 
+	// Add source as recent source
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(
-	    PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(),
-	    src->get_format());
-
-	return true;
+	    PVCore::PVRecentItemsManager::get(), src.get_source_creator(), src.get_inputs(),
+	    src.get_format());
 }
 
 /******************************************************************************

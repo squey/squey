@@ -519,11 +519,10 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		break;
 	}
 
-	if (!load_root()) {
-		PVLOG_ERROR("(PVMainWindow::solution_load) error while processing the "
-		            "solution...\n");
-		reset_root();
-		return false;
+	// Update GUI on loaded sources.
+	for (Inendi::PVSource* src : get_root().get_children<Inendi::PVSource>()) {
+		src->process_from_source();
+		source_loaded(*src);
 	}
 
 	_root->set_path(file);

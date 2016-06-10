@@ -180,6 +180,7 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 			}
 		}
 		source.set_nraw_folder(nraw_folder);
+		source.load_data();
 		source.serialize(*new_obj, so.get_version());
 		new_obj->_bound_obj = &source;
 		new_obj->_bound_obj_type = typeid(PVSource);
