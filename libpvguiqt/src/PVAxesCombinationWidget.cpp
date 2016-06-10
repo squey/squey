@@ -31,12 +31,9 @@ PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(
 	connect(_btn_reset, SIGNAL(clicked()), this, SLOT(reset_comb_Slot()));
 
 	_btn_sel_singleton->setEnabled(view != NULL);
-	_btn_sel_range->setEnabled(view != NULL);
 	if (view != NULL) {
 		connect(_btn_sel_singleton, SIGNAL(clicked()), this, SLOT(sel_singleton_Slot()));
-		connect(_btn_sel_range, SIGNAL(clicked()), this, SLOT(sel_range_Slot()));
 	}
-	_btn_sel_range->hide();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_add_Slot()
@@ -315,48 +312,8 @@ void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> cons
 void PVGuiQt::PVAxesCombinationWidget::sel_singleton_Slot()
 {
 	assert(_view);
-	QList<PVCol> cols_rem = _view->get_parent<Inendi::PVPlotted>()->get_singleton_columns_indexes();
+	QList<PVCol> cols_rem = _view->get_parent<Inendi::PVPlotted>().get_singleton_columns_indexes();
 	set_selection_from_cols(cols_rem);
-}
-
-void PVGuiQt::PVAxesCombinationWidget::sel_range_Slot()
-{
-#if 0
-	assert(_view);
-	PVAxesCombinationWidgetSelRange* dlg = new PVAxesCombinationWidgetSelRange((QWidget*) this);
-	if (dlg->exec() != QDialog::Accepted) {
-		return;
-	}
-
-	float min,max;
-	if (!dlg->get_range(min, max)) {
-		return;
-	}
-
-	Inendi::PVPlotted* plotted = _view->get_parent<Inendi::PVPlotted>();
-	Inendi::PVMapped* mapped = _view->get_parent<Inendi::PVMapped>();
-
-	double rate = dlg->rate();
-	QList<PVCol> cols;
-	PVAxesCombinationWidgetSelRange::values_source_t src = dlg->get_source();
-	if (dlg->reversed()) {
-		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = plotted->get_columns_indexes_values_not_within_range(min, max, rate);
-		}
-		else {
-			cols = mapped->get_columns_indexes_values_not_within_range(min, max, rate);
-		}
-	}
-	else {
-		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = plotted->get_columns_indexes_values_within_range(min, max, rate);
-		}
-		else {
-			cols = mapped->get_columns_indexes_values_within_range(min, max, rate);
-		}
-	}
-	set_selection_from_cols(cols);
-#endif
 }
 
 // PVAxesCombinationWidgetSelRange implementation

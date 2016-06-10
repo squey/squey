@@ -62,7 +62,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
 	PVHive::get().register_observer(view, _obs);
 
 	/// Source events
-	Inendi::PVSource_sp src_sp = view->get_parent<Inendi::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src_sp = view->get_parent<Inendi::PVSource>().shared_from_this();
 	// Register source for axes hovering events
 	PVHive::get().register_observer(
 	    src_sp, [=](Inendi::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
@@ -396,7 +396,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
 	_ctxt_col = idx_click.column(); // This is the *combined* axis index
-	_ctxt_v = QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_value(
+	_ctxt_v = QString::fromStdString(lib_view().get_parent<Inendi::PVSource>().get_value(
 	    _ctxt_row, lib_view().get_original_axis_index(_ctxt_col)));
 
 	// Show the menu at the given pos
@@ -551,16 +551,16 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 
 	_menu_add_correlation->clear();
 
-	Inendi::PVRoot* root = lib_view().get_parent<Inendi::PVRoot>();
+	Inendi::PVRoot& root = lib_view().get_parent<Inendi::PVRoot>();
 
 	size_t total_compatible_views_count = 0;
 
-	for (auto* source : root->get_children<Inendi::PVSource>()) {
+	for (auto* source : root.get_children<Inendi::PVSource>()) {
 
 		size_t compatible_views_count = 0;
 
 		// Don't allow correlation on same source
-		if (source == root->current_source()) {
+		if (source == root.current_source()) {
 			continue;
 		}
 
@@ -594,14 +594,14 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 				axis_action->setCheckable(true);
 
 				Inendi::PVCorrelation correlation{&lib_view(), col, view, i};
-				bool existing_correlation = root->correlations().exists(correlation);
+				bool existing_correlation = root.correlations().exists(correlation);
 				axis_action->setChecked(existing_correlation);
 
-				connect(axis_action, &QAction::triggered, [=]() {
+				connect(axis_action, &QAction::triggered, [=, &root]() {
 					if (not existing_correlation) {
-						root->correlations().add(correlation);
+						root.correlations().add(correlation);
 					} else {
-						root->correlations().remove(&lib_view());
+						root.correlations().remove(&lib_view());
 					}
 					// refresh headers to show correlation icon right now
 					horizontalHeader()->viewport()->update();
@@ -773,7 +773,7 @@ PVGuiQt::PVListingModel* PVGuiQt::PVListingView::listing_model()
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 {
-	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>().shared_from_this();
 	PVHive::call<FUNC(Inendi::PVSource::set_section_hovered)>(src, col, entered);
 	highlight_column(entered ? col : -1);
 }
@@ -785,7 +785,7 @@ void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_clicked(int col)
 {
-	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>().shared_from_this();
 	int x = horizontalHeader()->sectionViewportPosition(col);
 	int width = horizontalHeader()->sectionSize(col);
 	PVHive::call<FUNC(Inendi::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() +
@@ -1040,9 +1040,9 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	painter->restore();
 
 	PVListingView* listing = (PVListingView*)parent();
-	Inendi::PVRoot* root = listing->lib_view().get_parent<Inendi::PVRoot>();
+	Inendi::PVRoot& root = listing->lib_view().get_parent<Inendi::PVRoot>();
 
-	bool existing_correlation = root->correlations().exists(&listing->lib_view(), logicalIndex);
+	bool existing_correlation = root.correlations().exists(&listing->lib_view(), logicalIndex);
 
 	if (existing_correlation) {
 		QPixmap p(":/bind");

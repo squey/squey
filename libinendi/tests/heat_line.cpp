@@ -78,7 +78,7 @@ int main()
 #endif
 
 	env.compute_mapping();
-	Inendi::PVView* view = env.compute_plotting().get_parent<Inendi::PVRoot>()->current_view();
+	Inendi::PVView* view = env.compute_plotting().get_parent<Inendi::PVRoot>().current_view();
 
 	// Load every layer filter.
 	Inendi::common::load_layer_filters();

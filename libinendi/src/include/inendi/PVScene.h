@@ -46,7 +46,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	typedef QList<PVSource const*> list_sources_t;
 
   public:
-	PVScene(PVRoot* root, std::string const& scene_name);
+	PVScene(PVRoot& root, std::string const& scene_name);
 	~PVScene();
 
   public:

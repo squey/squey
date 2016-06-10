@@ -50,7 +50,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	typedef PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 
   public:
-	PVView(PVPlotted* plotted);
+	PVView(PVPlotted& plotted);
 	PVView(const PVView& org) = delete;
 	~PVView();
 

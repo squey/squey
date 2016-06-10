@@ -74,7 +74,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	void axis_remove_Slot();
 	void reset_comb_Slot();
 	void sel_singleton_Slot();
-	void sel_range_Slot();
 	void sort_Slot();
 
   signals:

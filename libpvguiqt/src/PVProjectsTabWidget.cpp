@@ -257,11 +257,11 @@ PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Inendi::PVS
 
 void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 {
-	Inendi::PVScene* scene = workspace->get_source()->get_parent<Inendi::PVScene>();
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
+	Inendi::PVScene& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
+	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
 
 	if (!workspace_tab_widget) {
-		workspace_tab_widget = add_project(*scene);
+		workspace_tab_widget = add_project(scene);
 	}
 
 	const Inendi::PVSource* src = workspace->get_source();
@@ -276,8 +276,8 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 
 void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace)
 {
-	Inendi::PVScene* scene = workspace->get_source()->get_parent<Inendi::PVScene>();
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
+	Inendi::PVScene& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
+	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
 	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace));
 }
 
@@ -358,7 +358,7 @@ void PVGuiQt::PVProjectsTabWidget::select_tab_from_scene(Inendi::PVScene* scene)
 void PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene()
 {
 	Inendi::PVScene* cur_scene = _root->current_scene();
-	if (cur_scene->get_parent<Inendi::PVRoot>() != _root) {
+	if (&cur_scene->get_parent<Inendi::PVRoot>() != _root) {
 		return;
 	}
 

@@ -23,7 +23,7 @@
  * Inendi::PVScene::PVScene
  *
  *****************************************************************************/
-Inendi::PVScene::PVScene(Inendi::PVRoot* root, std::string const& scene_name)
+Inendi::PVScene::PVScene(Inendi::PVRoot& root, std::string const& scene_name)
     : PVCore::PVDataTreeChild<PVRoot, PVScene>(root), _last_active_src(nullptr), _name(scene_name)
 {
 }
@@ -36,7 +36,7 @@ Inendi::PVScene::PVScene(Inendi::PVRoot* root, std::string const& scene_name)
 Inendi::PVScene::~PVScene()
 {
 	PVLOG_DEBUG("In PVScene destructor\n");
-	get_parent<PVRoot>()->scene_being_deleted(this);
+	get_parent<PVRoot>().scene_being_deleted(this);
 }
 
 Inendi::PVScene::list_sources_t Inendi::PVScene::get_sources(PVRush::PVInputType const& type) const
@@ -52,8 +52,8 @@ Inendi::PVScene::list_sources_t Inendi::PVScene::get_sources(PVRush::PVInputType
 
 Inendi::PVSource* Inendi::PVScene::current_source()
 {
-	PVSource* cur_src = get_parent<PVRoot>()->current_source();
-	if (cur_src->get_parent<PVScene>() == this) {
+	PVSource* cur_src = get_parent<PVRoot>().current_source();
+	if (&cur_src->get_parent<PVScene>() == this) {
 		return cur_src;
 	}
 	return nullptr;
@@ -61,8 +61,8 @@ Inendi::PVSource* Inendi::PVScene::current_source()
 
 Inendi::PVSource const* Inendi::PVScene::current_source() const
 {
-	PVSource const* cur_src = get_parent<PVRoot>()->current_source();
-	if (cur_src->get_parent<PVScene>() == this) {
+	PVSource const* cur_src = get_parent<PVRoot>().current_source();
+	if (&cur_src->get_parent<PVScene>() == this) {
 		return cur_src;
 	}
 	return nullptr;
@@ -70,8 +70,8 @@ Inendi::PVSource const* Inendi::PVScene::current_source() const
 
 Inendi::PVView* Inendi::PVScene::current_view()
 {
-	PVView* cur_view = get_parent<PVRoot>()->current_view();
-	if (cur_view->get_parent<PVScene>() == this) {
+	PVView* cur_view = get_parent<PVRoot>().current_view();
+	if (&cur_view->get_parent<PVScene>() == this) {
 		return cur_view;
 	}
 	return nullptr;
@@ -79,8 +79,8 @@ Inendi::PVView* Inendi::PVScene::current_view()
 
 Inendi::PVView const* Inendi::PVScene::current_view() const
 {
-	PVView const* cur_view = get_parent<PVRoot>()->current_view();
-	if (cur_view->get_parent<PVScene>() == this) {
+	PVView const* cur_view = get_parent<PVRoot>().current_view();
+	if (&cur_view->get_parent<PVScene>() == this) {
 		return cur_view;
 	}
 	return nullptr;

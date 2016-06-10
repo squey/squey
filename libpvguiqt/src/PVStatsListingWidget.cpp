@@ -413,7 +413,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	setLayout(_main_layout);
 
 	QString column_type = _view.get_parent<Inendi::PVSource>()
-	                          ->get_extractor()
+	                          .get_extractor()
 	                          .get_format()
 	                          .get_axes()
 	                          .at(get_real_axis_col())

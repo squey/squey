@@ -47,17 +47,17 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	friend class PVPlotted;
 
   public:
-	PVSource(Inendi::PVScene* scene,
+	PVSource(Inendi::PVScene& scene,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format);
-	PVSource(Inendi::PVScene* scene,
+	PVSource(Inendi::PVScene& scene,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format,
 	         size_t ext_start,
 	         size_t ext_end);
-	PVSource(PVScene* scene, const PVRush::PVSourceDescription& descr)
+	PVSource(PVScene& scene, const PVRush::PVSourceDescription& descr)
 	    : PVSource(scene, descr.get_inputs(), descr.get_source_creator(), descr.get_format())
 	{
 	}

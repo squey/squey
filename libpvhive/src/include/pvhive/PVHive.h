@@ -511,7 +511,7 @@ class PVHive
 			}
 		}
 		do_refresh_observers((void*)PVCore::PVTypeTraits::get_starting_address(object));
-		refresh_observers_maybe_recursive(object->get_parent());
+		refresh_observers_maybe_recursive(&object->get_parent());
 	}
 
 	template <typename T>
@@ -536,7 +536,7 @@ class PVHive
 		// object must be a valid address
 		assert(object != nullptr);
 		do_refresh_observers_maybe_recursive((void*)object);
-		refresh_observers_maybe_recursive(object->get_parent());
+		refresh_observers_maybe_recursive(&object->get_parent());
 	}
 	template <typename T>
 	inline void refresh_observers_maybe_recursive(T const* object)

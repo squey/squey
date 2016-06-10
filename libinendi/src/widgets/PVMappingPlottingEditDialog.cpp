@@ -35,8 +35,8 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 
 #ifndef NDEBUG
 	if (has_mapping() && has_plotting()) {
-		assert(_mapping->get_mapped()->get_parent<Inendi::PVSource>() ==
-		       _plotting->get_plotted()->get_parent<Inendi::PVSource>());
+		assert(&_mapping->get_mapped()->get_parent<Inendi::PVSource>() ==
+		       &_plotting->get_plotted()->get_parent<Inendi::PVSource>());
 	} else {
 		assert(has_mapping() || has_plotting());
 	}
@@ -44,13 +44,13 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 	if (has_mapping()) {
 		_axes = &(_mapping->get_mapped()
 		              ->get_parent<Inendi::PVSource>()
-		              ->current_view()
+		              .current_view()
 		              ->get_axes_combination()
 		              .get_original_axes_list());
 	} else {
 		_axes = &(_plotting->get_plotted()
 		              ->get_parent<Inendi::PVSource>()
-		              ->current_view()
+		              .current_view()
 		              ->get_axes_combination()
 		              .get_original_axes_list());
 	}

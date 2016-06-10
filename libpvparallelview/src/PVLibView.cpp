@@ -83,12 +83,10 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
 	    *_obs_axes_comb);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
-	if (view_sp->get_parent()) {
-		Inendi::PVPlotted_sp plotted_sp = view_sp->get_parent()->shared_from_this();
-		PVHive::get().register_observer(
-		    plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); },
-		    *_obs_plotting);
-	}
+	Inendi::PVPlotted_sp plotted_sp = view_sp->get_parent().shared_from_this();
+	PVHive::get().register_observer(
+	    plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); },
+	    *_obs_plotting);
 }
 
 PVParallelView::PVLibView::~PVLibView()
@@ -254,7 +252,7 @@ void PVParallelView::PVLibView::output_layer_updated()
 void PVParallelView::PVLibView::plotting_updated()
 {
 	QList<PVCol> const& cols_updated =
-	    lib_view()->get_parent<Inendi::PVPlotted>()->last_updated_cols();
+	    lib_view()->get_parent<Inendi::PVPlotted>().last_updated_cols();
 	if (cols_updated.size() == 0) {
 		return;
 	}

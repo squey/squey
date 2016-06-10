@@ -23,7 +23,7 @@ QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) cons
 	if (Inendi::PVView* v =
 	        dynamic_cast<Inendi::PVView*>((PVCore::PVDataTreeObject*)index.internalPointer())) {
 		if (role == Qt::FontRole) {
-			if (v->get_parent<Inendi::PVRoot>()->current_view() == v) {
+			if (v->get_parent<Inendi::PVRoot>().current_view() == v) {
 				QFont font;
 				font.setBold(true);
 				return font;

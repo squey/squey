@@ -79,7 +79,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	 * This indicate a design flaw because the scene should be deleted before the
 	 * source !
 	 */
-	Inendi::PVSource_sp src_sp = view_sp->get_parent<Inendi::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src_sp = view_sp->get_parent<Inendi::PVSource>().shared_from_this();
 	PVHive::PVObserverSignal<Inendi::PVSource*>* src_obs =
 	    new PVHive::PVObserverSignal<Inendi::PVSource*>(this);
 	PVHive::get().register_observer(src_sp, *src_obs);
@@ -130,7 +130,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	}
 
 	_full_parallel_view->set_total_events_number(
-	    _lib_view.get_parent<Inendi::PVSource>()->get_valid_row_count());
+	    _lib_view.get_parent<Inendi::PVSource>().get_valid_row_count());
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
@@ -197,14 +197,14 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 
 void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCol col, bool entered)
 {
-	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>().shared_from_this();
 	PVHive::call<FUNC(Inendi::PVSource::set_axis_hovered)>(src, col, entered);
 	highlight_axis(entered ? col : -1);
 }
 
 void PVParallelView::PVFullParallelScene::axis_clicked(PVCol col)
 {
-	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>()->shared_from_this();
+	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>().shared_from_this();
 	PVHive::call<FUNC(Inendi::PVSource::set_axis_clicked)>(src, col);
 }
 

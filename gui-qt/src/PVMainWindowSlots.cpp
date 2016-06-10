@@ -895,14 +895,13 @@ void PVInspector::PVMainWindow::new_format_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::cur_format_Slot()
 {
-	Inendi::PVSource* cur_src = nullptr;
-	if (current_view()) {
-		cur_src = current_view()->get_parent<Inendi::PVSource>();
-	}
-	if (!cur_src) {
+	if (not current_view()) {
+		// FIXME : This button should not be available in this case.
 		return;
 	}
-	PVRush::PVFormat const& format = cur_src->get_format();
+
+	Inendi::PVSource& cur_src = current_view()->get_parent<Inendi::PVSource>();
+	PVRush::PVFormat const& format = cur_src.get_format();
 	if (format.get_full_path().isEmpty()) {
 		return;
 	}

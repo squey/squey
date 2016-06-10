@@ -82,9 +82,9 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	// Set content and tooltip
 	case Qt::DisplayRole:
 	case Qt::ToolTipRole: {
-		const Inendi::PVSource* src = lib_view().get_parent<Inendi::PVSource>();
+		const Inendi::PVSource& src = lib_view().get_parent<Inendi::PVSource>();
 
-		return QString::fromStdString(src->get_input_value(r, org_col));
+		return QString::fromStdString(src.get_input_value(r, org_col));
 	}
 
 	// Set alignment
@@ -127,9 +127,9 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	case (Qt::FontRole): {
 		QFont f;
 
-		const Inendi::PVSource* src = lib_view().get_parent<Inendi::PVSource>();
+		const Inendi::PVSource& src = lib_view().get_parent<Inendi::PVSource>();
 
-		if (src->has_conversion_failed(r, org_col)) {
+		if (src.has_conversion_failed(r, org_col)) {
 			f.setItalic(true);
 		}
 
@@ -181,15 +181,15 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 		break;
 	// Define tooltip text
 	case (Qt::ToolTipRole):
-		const Inendi::PVRoot* root = lib_view().get_parent<Inendi::PVRoot>();
-		const Inendi::PVCorrelation* correlation = root->correlations().correlation(&lib_view());
+		const Inendi::PVRoot& root = lib_view().get_parent<Inendi::PVRoot>();
+		const Inendi::PVCorrelation* correlation = root.correlations().correlation(&lib_view());
 
 		if (correlation and correlation->col1 == section) {
 			const QString orig_source =
-			    QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_name());
+			    QString::fromStdString(lib_view().get_parent<Inendi::PVSource>().get_name());
 			const QString& orig_axis = lib_view().get_axis_name(section);
 			const QString dest_source = QString::fromStdString(
-			    correlation->view2->get_parent<Inendi::PVSource>()->get_name());
+			    correlation->view2->get_parent<Inendi::PVSource>().get_name());
 			const QString& dest_axis = correlation->view2->get_axis_name(correlation->col2);
 
 			return "Active correlation :\n" + orig_source + /*" / " + orig_view +*/ " (" +

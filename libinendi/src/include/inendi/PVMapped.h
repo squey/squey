@@ -52,7 +52,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	using mapped_table_t = std::vector<mapped_row_t>;
 
   public:
-	PVMapped(PVSource* src);
+	PVMapped(PVSource& src);
 
 	~PVMapped(){};
 

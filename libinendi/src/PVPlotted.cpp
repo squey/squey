@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-Inendi::PVPlotted::PVPlotted(PVMapped* mapped)
+Inendi::PVPlotted::PVPlotted(PVMapped& mapped)
     : PVCore::PVDataTreeChild<PVMapped, PVPlotted>(mapped), _plotting(this)
 {
 }
@@ -78,14 +78,14 @@ int Inendi::PVPlotted::create_table()
 				continue;
 			}
 
-			plotting_filter->set_mapping_mode(get_parent()->get_mapping().get_mode_for_col(j));
+			plotting_filter->set_mapping_mode(get_parent().get_mapping().get_mode_for_col(j));
 			plotting_filter->set_mandatory_params(
-			    get_parent()->get_mapping().get_mandatory_params_for_col(j));
+			    get_parent().get_mapping().get_mandatory_params_for_col(j));
 			plotting_filter->set_dest_array(nrows, get_column_pointer(j));
-			plotting_filter->set_decimal_type(get_parent()->get_decimal_type_of_col(j));
+			plotting_filter->set_decimal_type(get_parent().get_decimal_type_of_col(j));
 			boost::this_thread::interruption_point();
 			tbb::tick_count plstart = tbb::tick_count::now();
-			plotting_filter->operator()(get_parent()->get_column_pointer(j));
+			plotting_filter->operator()(get_parent().get_column_pointer(j));
 			tbb::tick_count plend = tbb::tick_count::now();
 
 			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took "
@@ -328,12 +328,12 @@ bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf,
 
 PVRow Inendi::PVPlotted::get_row_count() const
 {
-	return get_parent<PVSource>()->get_row_count();
+	return get_parent<PVSource>().get_row_count();
 }
 
 PVCol Inendi::PVPlotted::get_column_count() const
 {
-	return get_parent<PVMapped>()->get_column_count();
+	return get_parent<PVMapped>().get_column_count();
 }
 
 void Inendi::PVPlotted::to_csv()
@@ -548,10 +548,10 @@ void Inendi::PVPlotted::process_parent_mapped()
 void Inendi::PVPlotted::process_from_parent_mapped()
 {
 	// Check parent consistency
-	auto mapped = get_parent();
+	auto& mapped = get_parent();
 
-	if (!mapped->is_uptodate()) {
-		mapped->compute();
+	if (!mapped.is_uptodate()) {
+		mapped.compute();
 	}
 
 	process_parent_mapped();
@@ -566,7 +566,7 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 
 bool Inendi::PVPlotted::is_uptodate() const
 {
-	if (!get_parent()->is_uptodate()) {
+	if (!get_parent().is_uptodate()) {
 		return false;
 	}
 
@@ -575,7 +575,7 @@ bool Inendi::PVPlotted::is_uptodate() const
 
 bool Inendi::PVPlotted::is_current_plotted() const
 {
-	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
+	Inendi::PVView const* cur_view = get_parent<PVSource>().current_view();
 	auto children = get_children();
 	return std::find(children.begin(), children.end(), cur_view) != children.end();
 }

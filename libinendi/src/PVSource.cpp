@@ -20,7 +20,7 @@
 #include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
 
-Inendi::PVSource::PVSource(Inendi::PVScene* scene,
+Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
                            PVRush::PVFormat format)
@@ -36,7 +36,7 @@ Inendi::PVSource::PVSource(Inendi::PVScene* scene,
 {
 }
 
-Inendi::PVSource::PVSource(Inendi::PVScene* scene,
+Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
                            PVRush::PVFormat format,
@@ -68,14 +68,14 @@ Inendi::PVSource::PVSource(Inendi::PVScene* scene,
 
 Inendi::PVSource::~PVSource()
 {
-	get_parent<PVRoot>()->source_being_deleted(this);
+	get_parent<PVRoot>().source_being_deleted(this);
 	PVLOG_DEBUG("In PVSource destructor: %p\n", this);
 }
 
 Inendi::PVView* Inendi::PVSource::current_view()
 {
-	PVView* view = get_parent<PVRoot>()->current_view();
-	if (view->get_parent<PVSource>() == this) {
+	PVView* view = get_parent<PVRoot>().current_view();
+	if (&view->get_parent<PVSource>() == this) {
 		return view;
 	}
 	return nullptr;
@@ -83,8 +83,8 @@ Inendi::PVView* Inendi::PVSource::current_view()
 
 Inendi::PVView const* Inendi::PVSource::current_view() const
 {
-	PVView const* view = get_parent<PVRoot>()->current_view();
-	if (view->get_parent<PVSource>() == this) {
+	PVView const* view = get_parent<PVRoot>().current_view();
+	if (&view->get_parent<PVSource>() == this) {
 		return view;
 	}
 	return nullptr;
@@ -222,10 +222,10 @@ void Inendi::PVSource::process_from_source()
 
 void Inendi::PVSource::add_view(PVView* view)
 {
-	PVRoot* root = get_parent<PVRoot>();
-	root->select_view(*view);
-	view->set_view_id(root->get_new_view_id());
-	view->set_color(root->get_new_view_color());
+	PVRoot& root = get_parent<PVRoot>();
+	root.select_view(*view);
+	view->set_view_id(root.get_new_view_id());
+	view->set_color(root.get_new_view_color());
 }
 
 QString Inendi::PVSource::get_window_name() const

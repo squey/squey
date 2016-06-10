@@ -564,9 +564,9 @@ PVGuiQt::PVSourceWorkspace*
 PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView const& inendi_view)
 {
 	// This returns the tab associated to a inendi view
-	const Inendi::PVScene* scene = inendi_view.get_parent<Inendi::PVScene>();
+	const Inendi::PVScene& scene = inendi_view.get_parent<Inendi::PVScene>();
 	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget =
-	    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
+	    _projects_tab_widget->get_workspace_tab_widget_from_scene(&scene);
 	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count(); i++) {
 		PVGuiQt::PVSourceWorkspace* tab =
 		    dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspaces_tab_widget->widget(i));
@@ -1039,7 +1039,7 @@ bool PVInspector::PVMainWindow::load_root()
 void PVInspector::PVMainWindow::display_inv_elts()
 {
 	if (current_view()) {
-		if (current_view()->get_parent<Inendi::PVSource>()->get_invalid_evts().size() > 0) {
+		if (current_view()->get_parent<Inendi::PVSource>().get_invalid_evts().size() > 0) {
 			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
 			if (PVGuiQt::PVSourceWorkspace* source_workspace =
 			        dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
@@ -1302,7 +1302,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			return false;
 		}
 
-		Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>()->current_view();
+		Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>().current_view();
 		for (auto& inv_elts : src->get_invalid_evts()) {
 			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
 		}
@@ -1340,17 +1340,17 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
  *****************************************************************************/
 void PVInspector::PVMainWindow::remove_source(Inendi::PVSource* src_p)
 {
-	Inendi::PVScene_sp scene_p = src_p->get_parent()->shared_from_this();
+	Inendi::PVScene& scene_p = src_p->get_parent();
 
-	scene_p->remove_child(*src_p);
-	if (scene_p->size() == 0) {
+	scene_p.remove_child(*src_p);
+	if (scene_p.size() == 0) {
 		PVGuiQt::PVSceneWorkspacesTabWidget* tab =
-		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
+		    _projects_tab_widget->get_workspace_tab_widget_from_scene(&scene_p);
 		if (tab != nullptr) {
 			_projects_tab_widget->remove_project(tab);
 			tab->deleteLater();
 		}
-		get_root().remove_child(*scene_p);
+		get_root().remove_child(scene_p);
 	}
 }
 

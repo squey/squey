@@ -37,17 +37,17 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  * Inendi::PVView::PVView
  *
  *****************************************************************************/
-Inendi::PVView::PVView(PVPlotted* plotted)
+Inendi::PVView::PVView(PVPlotted& plotted)
     : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
-    , _axes_combination(get_parent<PVSource>()->get_axes_combination())
+    , _axes_combination(get_parent<PVSource>().get_axes_combination())
     , post_filter_layer("post_filter_layer")
     , layer_stack_output_layer("view_layer_stack_output_layer")
     , output_layer("output_layer")
-    , _rushnraw_parent(&get_parent<PVSource>()->get_rushnraw())
+    , _rushnraw_parent(&get_parent<PVSource>().get_rushnraw())
     , _view_id(-1)
     , _active_axis(0)
 {
-	get_parent<PVSource>()->add_view(this);
+	get_parent<PVSource>().add_view(this);
 
 	// Create layer filter arguments for that view
 	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
@@ -67,8 +67,8 @@ Inendi::PVView::PVView(PVPlotted* plotted)
 void Inendi::PVView::process_parent_plotted()
 {
 	// Init default axes combination from source
-	PVSource* source = get_parent<PVSource>();
-	_axes_combination.set_from_format(source->get_format());
+	PVSource& source = get_parent<PVSource>();
+	_axes_combination.set_from_format(source.get_format());
 
 	set_row_count(get_row_count());
 
@@ -85,7 +85,7 @@ Inendi::PVView::~PVView()
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
 
 	// remove correlation
-	get_parent<Inendi::PVRoot>()->correlations().remove(this);
+	get_parent<Inendi::PVRoot>().correlations().remove(this);
 
 #ifdef WITH_MINESET
 	for (const std::string& mineset_dataset : _mineset_datasets) {
@@ -94,7 +94,7 @@ Inendi::PVView::~PVView()
 	}
 #endif
 
-	get_parent<PVRoot>()->view_being_deleted(this);
+	get_parent<PVRoot>().view_being_deleted(this);
 }
 
 /******************************************************************************
@@ -415,7 +415,7 @@ Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
  *****************************************************************************/
 PVRow Inendi::PVView::get_row_count() const
 {
-	return get_parent<PVSource>()->get_row_count();
+	return get_parent<PVSource>().get_row_count();
 }
 
 /******************************************************************************
@@ -507,8 +507,8 @@ void Inendi::PVView::process_eventline()
  *****************************************************************************/
 Inendi::PVView* Inendi::PVView::process_correlation()
 {
-	Inendi::PVRoot* root = get_parent<Inendi::PVRoot>();
-	return root->process_correlation(this);
+	Inendi::PVRoot& root = get_parent<Inendi::PVRoot>();
+	return root.process_correlation(this);
 }
 
 /******************************************************************************
@@ -811,13 +811,13 @@ void Inendi::PVView::select_inv_lines()
 
 std::string Inendi::PVView::get_name() const
 {
-	return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>()->get_name() + "/" +
-	       get_parent<PVPlotted>()->get_name() + ")";
+	return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>().get_name() + "/" +
+	       get_parent<PVPlotted>().get_name() + ")";
 }
 
 QString Inendi::PVView::get_window_name() const
 {
-	QString ret = get_parent<PVSource>()->get_window_name() + " | ";
+	QString ret = get_parent<PVSource>().get_window_name() + " | ";
 	ret += QString::fromStdString(get_name());
 	return ret;
 }
@@ -849,7 +849,7 @@ bool& Inendi::PVView::are_view_unselected_zombie_visible()
 
 void Inendi::PVView::compute_layer_min_max(Inendi::PVLayer& layer)
 {
-	layer.compute_min_max(*get_parent<Inendi::PVPlotted>());
+	layer.compute_min_max(get_parent<Inendi::PVPlotted>());
 }
 
 void Inendi::PVView::compute_selectable_count(Inendi::PVLayer& layer)
@@ -876,13 +876,13 @@ void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_ind
 PVRow Inendi::PVView::get_plotted_col_min_row(PVCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
-	return get_parent<PVPlotted>()->get_col_min_row(col);
+	return get_parent<PVPlotted>().get_col_min_row(col);
 }
 
 PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
-	return get_parent<PVPlotted>()->get_col_max_row(col);
+	return get_parent<PVPlotted>().get_col_max_row(col);
 }
 
 void Inendi::PVView::sort_indexes(PVCol col,

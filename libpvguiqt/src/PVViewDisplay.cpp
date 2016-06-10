@@ -80,7 +80,7 @@ void PVGuiQt::PVViewDisplay::register_view(Inendi::PVView* view)
 			delete _obs_plotting;
 		}
 		_obs_plotting = new PVHive::PVObserverSignal<Inendi::PVPlotting>(this);
-		Inendi::PVPlotted_sp plotted_sp = view->get_parent()->shared_from_this();
+		Inendi::PVPlotted_sp plotted_sp = view->get_parent().shared_from_this();
 		PVHive::get().register_observer(
 		    plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); },
 		    *_obs_plotting);
@@ -310,7 +310,7 @@ void PVGuiQt::PVViewDisplay::restore()
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view && !_about_to_be_deleted) {
-		Inendi::PVRoot_sp root_sp = _view->get_parent<Inendi::PVRoot>()->shared_from_this();
+		Inendi::PVRoot_sp root_sp = _view->get_parent<Inendi::PVRoot>().shared_from_this();
 		PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *_view);
 	}
 }

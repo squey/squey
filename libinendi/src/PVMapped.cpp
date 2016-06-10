@@ -24,7 +24,7 @@
  * Inendi::PVMapped::PVMapped
  *
  *****************************************************************************/
-Inendi::PVMapped::PVMapped(PVSource* src)
+Inendi::PVMapped::PVMapped(PVSource& src)
     : PVCore::PVDataTreeChild<PVSource, PVMapped>(src), _mapping(this)
 {
 	// FIXME Mapping should be merge in mapped as they are interdependant.
@@ -73,7 +73,7 @@ void Inendi::PVMapped::compute()
 	allocate_table(nrows, ncols);
 
 	// finalize import's mapping filters
-	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
+	PVRush::PVNraw const& nraw = get_parent().get_rushnraw();
 
 /**
  * For now, the mapping parallelization is only done by column
@@ -172,7 +172,7 @@ void Inendi::PVMapped::to_csv() const
  *****************************************************************************/
 PVRow Inendi::PVMapped::get_row_count() const
 {
-	return get_parent<PVSource>()->get_row_count();
+	return get_parent<PVSource>().get_row_count();
 }
 
 /******************************************************************************

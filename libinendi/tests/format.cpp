@@ -27,7 +27,7 @@ int main()
 	pvtest::TestEnv env(filename, fileformat);
 	env.compute_mapping();
 
-	Inendi::PVView* view = env.compute_plotting().get_parent<Inendi::PVRoot>()->current_view();
+	Inendi::PVView* view = env.compute_plotting().get_parent<Inendi::PVRoot>().current_view();
 
 	// Check result
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();

@@ -25,10 +25,10 @@
 Inendi::PVPlotting::PVPlotting(PVPlotted* plotted) : _plotted(plotted), _name("default")
 {
 	PVRush::PVFormat const& format =
-	    _plotted->get_parent<Inendi::PVSource>()->get_extractor().get_format();
+	    _plotted->get_parent<Inendi::PVSource>().get_extractor().get_format();
 
 	for (int i = 0; i < format.get_axes().size(); i++) {
-		Inendi::PVMapping const& mapping = _plotted->get_parent()->get_mapping();
+		Inendi::PVMapping const& mapping = _plotted->get_parent().get_mapping();
 		PVPlottingProperties plotting_axis(mapping, format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
@@ -61,7 +61,7 @@ Inendi::PVPlotting::~PVPlotting()
 QString const& Inendi::PVPlotting::get_column_type(PVCol col) const
 {
 	PVMappingProperties const& prop(
-	    _plotted->get_parent()->get_mapping().get_properties_for_col(col));
+	    _plotted->get_parent().get_mapping().get_properties_for_col(col));
 	return prop.get_type();
 }
 
@@ -82,7 +82,7 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlotting::get_filter_for_col(PVCol co
  *****************************************************************************/
 PVRush::PVFormat const& Inendi::PVPlotting::get_format() const
 {
-	return _plotted->get_parent<Inendi::PVSource>()->get_extractor().get_format();
+	return _plotted->get_parent<Inendi::PVSource>().get_extractor().get_format();
 }
 
 /******************************************************************************
@@ -152,7 +152,7 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
 	if (not so.is_writing()) {
 		// Set new plotting properties from pvi
 		for (auto& prop : _columns) {
-			prop.set_mapping(_plotted->get_parent<PVMapped>()->get_mapping());
+			prop.set_mapping(_plotted->get_parent<PVMapped>().get_mapping());
 		}
 	}
 

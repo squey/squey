@@ -103,7 +103,7 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 	template <class... T>
 	Child& emplace_add_child(T&&... t)
 	{
-		_children.push_back(PVSharedPtr<Child>(new Child(static_cast<Derived*>(this), t...)));
+		_children.push_back(PVSharedPtr<Child>(new Child(static_cast<Derived&>(*this), t...)));
 		return *_children.back();
 	}
 
@@ -143,14 +143,14 @@ namespace __impl
 {
 template <class T, class B>
 struct ParentAccessor {
-	static T const* access(B const* c) { return c->template get_parent<T>(); }
-	static T* access(B* c) { return c->template get_parent<T>(); }
+	static T const& access(B const& c) { return c.template get_parent<T>(); }
+	static T& access(B& c) { return c.template get_parent<T>(); }
 };
 
 template <class T>
 struct ParentAccessor<T, T> {
-	static T const* access(T const* c) { return c; }
-	static T* access(T* c) { return c; }
+	static T const& access(T const& c) { return c; }
+	static T& access(T& c) { return c; }
 };
 }
 
@@ -158,7 +158,7 @@ template <class Parent, class Derived>
 class PVDataTreeChild : virtual public PVDataTreeObject
 {
   public:
-	PVDataTreeChild(Parent* parent) : _parent(parent) {}
+	PVDataTreeChild(Parent& parent) : _parent(parent) {}
 	// No copy/move as it should also be added to parent
 	PVDataTreeChild(PVDataTreeChild const&) = delete;
 	PVDataTreeChild(PVDataTreeChild&&) = delete;
@@ -169,23 +169,23 @@ class PVDataTreeChild : virtual public PVDataTreeObject
 	void remove_from_tree()
 	{
 		Derived* me = static_cast<Derived*>(this);
-		_parent->remove_child(*me);
+		_parent.remove_child(*me);
 	}
 
 	template <class T = Parent>
-	T const* get_parent() const
+	T const& get_parent() const
 	{
 		return __impl::ParentAccessor<T, Parent>::access(_parent);
 	}
 
 	template <class T = Parent>
-	T* get_parent()
+	T& get_parent()
 	{
 		return __impl::ParentAccessor<T, Parent>::access(_parent);
 	}
 
   private:
-	Parent* _parent;
+	Parent& _parent;
 };
 }
 

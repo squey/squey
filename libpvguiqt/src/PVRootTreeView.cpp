@@ -67,7 +67,7 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 
 	// Double click on a view set this view as the current view of the parent
 	// source
-	Inendi::PVRoot_sp root_sp(view->get_parent<Inendi::PVRoot>()->shared_from_this());
+	Inendi::PVRoot_sp root_sp(view->get_parent<Inendi::PVRoot>().shared_from_this());
 
 	// Call select_view throught the Hive :)
 	PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *view);

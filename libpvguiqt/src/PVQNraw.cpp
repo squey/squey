@@ -75,7 +75,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view,
 	    view, c, std::move(col1_out), std::move(col2_out), count, min, max, parent);
 	dlg->setWindowTitle("Distinct values of axe '" +
 	                    view->get_parent<Inendi::PVSource>()
-	                        ->get_extractor()
+	                        .get_extractor()
 	                        .get_format()
 	                        .get_axes()
 	                        .at(c)
@@ -163,14 +163,14 @@ static bool show_stats_dialog(const QString& title,
 	                                     abs_max, rel_min, rel_max, parent);
 	dlg->setWindowTitle(title + " of axes '" +
 	                    view->get_parent<Inendi::PVSource>()
-	                        ->get_extractor()
+	                        .get_extractor()
 	                        .get_format()
 	                        .get_axes()
 	                        .at(col1)
 	                        .get_name() +
 	                    "' and '" +
 	                    view->get_parent<Inendi::PVSource>()
-	                        ->get_extractor()
+	                        .get_extractor()
 	                        .get_format()
 	                        .get_axes()
 	                        .at(col2)
