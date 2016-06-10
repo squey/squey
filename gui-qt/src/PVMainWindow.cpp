@@ -114,27 +114,24 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setContentsMargins(0, 0, 0, 0);
 
-	_projects_tab_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
 	/**
-	 * Show warning message when no GPU accelerated device is found
+	 * Show warning message when no GPU accelerated device has been found
 	 */
 	if (not PVParallelView::common::is_gpu_accelerated()) {
-		QHBoxLayout* warning_layout = new QHBoxLayout;
-		warning_layout->setSpacing(2);
-		warning_layout->addStretch();
-
+		/* the warning icon
+		 */
 		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
 		QLabel* warning_label_icon = new QLabel;
 		warning_label_icon->setPixmap(warning_icon.pixmap(QSize(16, 16)));
+		statusBar()->addPermanentWidget(warning_label_icon, 0);
 
+		/* and the message
+		 */
 		QLabel* warning_msg = new QLabel("<font color=\"orange\"><b>You are running in degraded "
 		                                 "mode without GPU acceleration. </b></font>");
-
-		warning_layout->addWidget(warning_label_icon);
-		warning_layout->addWidget(warning_msg);
-		pv_mainLayout->addLayout(warning_layout);
+		statusBar()->addPermanentWidget(warning_msg, 0);
 	}
 
 	pv_centralMainWidget->setLayout(pv_mainLayout);
