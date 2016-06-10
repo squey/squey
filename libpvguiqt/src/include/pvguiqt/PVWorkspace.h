@@ -179,19 +179,19 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	};
 
 	template <class T>
-	void create_view_dispatch(bool, Tag<T>);
+	void create_view_dispatch(QAction*, Tag<T>);
 
-	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewIf>)
+	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewIf>)
 	{
-		create_view_widget(nullptr);
+		create_view_widget(act);
 	}
-	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewAxisIf>)
+	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewAxisIf>)
 	{
-		create_view_axis_widget(nullptr);
+		create_view_axis_widget(act);
 	}
-	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewZoneIf>)
+	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewZoneIf>)
 	{
-		create_view_zone_widget(nullptr);
+		create_view_zone_widget(act);
 	}
 
   private slots:
