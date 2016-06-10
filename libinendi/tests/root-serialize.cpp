@@ -64,14 +64,16 @@ int main(int argc, char** argv)
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src.extract();
 	job->wait_end();
-	src.create_default_view();
-	src.create_default_view();
+	auto& plotted = src.emplace_add_child().emplace_add_child();
+	plotted.emplace_add_child();
+	plotted.emplace_add_child();
 
 	Inendi::PVScene& scene2 = root->emplace_add_child("scene1");
 	Inendi::PVSource& src2 =
 	    scene2.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	src2.create_default_view();
-	src2.create_default_view();
+	auto& plotted2 = src2.emplace_add_child().emplace_add_child();
+	plotted2.emplace_add_child();
+	plotted2.emplace_add_child();
 
 	// Serialize the root object
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive(

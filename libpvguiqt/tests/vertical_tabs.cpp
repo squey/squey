@@ -89,8 +89,12 @@ int main(int argc, char** argv)
 	Inendi::PVRoot_p root;
 	Inendi::PVSource& src = get_src_from_file(*root, argv[1], argv[2]);
 	Inendi::PVSource& src2 = get_src_from_file(*root->get_children().front(), argv[1], argv[2]);
-	src2.create_default_view();
-	src.create_default_view();
+	src2.emplace_add_child()  // Mapped
+	    .emplace_add_child()  // Plotted
+	    .emplace_add_child(); // View
+	src.emplace_add_child()   // Mapped
+	    .emplace_add_child()  // Plotted
+	    .emplace_add_child(); // View
 
 	Inendi::PVView& view = src.current_view()->get_parent().emplace_add_child();
 

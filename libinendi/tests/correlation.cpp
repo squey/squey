@@ -59,6 +59,7 @@ int main()
 
 	env.compute_mappings();
 	env.compute_plottings();
+	env.compute_views();
 
 	auto views = env.root->get_children<Inendi::PVView>();
 	PV_VALID(views.size(), 2UL);

@@ -31,6 +31,7 @@
 Inendi::PVPlotted::PVPlotted(PVMapped& mapped)
     : PVCore::PVDataTreeChild<PVMapped, PVPlotted>(mapped), _plotting(this)
 {
+	create_table();
 }
 
 Inendi::PVPlotted::~PVPlotted()
@@ -549,9 +550,6 @@ void Inendi::PVPlotted::process_from_parent_mapped()
 {
 	process_parent_mapped();
 
-	if (get_children().empty()) {
-		emplace_add_child();
-	}
 	for (auto view : get_children()) {
 		view->process_parent_plotted();
 	}

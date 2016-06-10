@@ -28,6 +28,7 @@ Inendi::PVMapped::PVMapped(PVSource& src)
     : PVCore::PVDataTreeChild<PVSource, PVMapped>(src), _mapping(this)
 {
 	// FIXME Mapping should be merge in mapped as they are interdependant.
+	compute();
 }
 
 /******************************************************************************

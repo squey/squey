@@ -132,8 +132,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	inline PVAxesCombination& get_axes_combination() { return _axes_combination; }
 	inline PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 
-	void create_default_view();
-
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }

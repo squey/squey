@@ -200,19 +200,6 @@ PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
 	return _src_plugin->supported_type_lib();
 }
 
-void Inendi::PVSource::create_default_view()
-{
-	if (get_children().empty()) {
-		emplace_add_child();
-	}
-	for (PVMapped* m : get_children()) {
-		PVPlotted& def_plotted = m->emplace_add_child();
-
-		PVView& def_view = def_plotted.emplace_add_child();
-		process_from_source();
-	}
-}
-
 void Inendi::PVSource::process_from_source()
 {
 	for (auto* mapped_p : get_children()) {

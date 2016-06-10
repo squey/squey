@@ -521,7 +521,6 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	// Update GUI on loaded sources.
 	for (Inendi::PVSource* src : get_root().get_children<Inendi::PVSource>()) {
-		src->process_from_source();
 		source_loaded(*src);
 	}
 

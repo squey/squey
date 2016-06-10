@@ -12,18 +12,6 @@
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
-IMPL_WAX(Inendi::PVSource::process_from_source, src, args)
-{
-	call_object_default<Inendi::PVSource, FUNC(Inendi::PVSource::process_from_source)>(src, args);
-
-	for (auto& v : src->get_children<Inendi::PVView>()) {
-		refresh_observers(&v->get_layer_stack_output_layer());
-		refresh_observers(&v->get_post_filter_layer());
-		refresh_observers(&v->get_output_layer());
-		refresh_observers(&v->get_real_output_selection());
-	}
-}
-
 IMPL_WAX(Inendi::PVSource::set_axis_hovered, src, args)
 {
 	call_object_default<Inendi::PVSource, FUNC(Inendi::PVSource::set_axis_hovered)>(src, args);

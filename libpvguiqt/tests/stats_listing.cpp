@@ -54,7 +54,9 @@ int main(int argc, char** argv)
 	// Get a INENDI tree from the given file/format
 	Inendi::PVRoot_p root;
 	Inendi::PVSource& src = get_src_from_file(*root, argv[1], argv[2]);
-	src.create_default_view();
+	src.emplace_add_child()   // Mapped
+	    .emplace_add_child()  // Plotted
+	    .emplace_add_child(); // View
 
 	// Qt app
 

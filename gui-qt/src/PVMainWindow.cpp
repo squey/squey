@@ -1264,11 +1264,18 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 #endif
 	}
 
-	if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); }, tr("Processing..."),
-	                                     (QWidget*)this)) {
+	if (!PVCore::PVProgressBox::progress(
+	        [&]() {
+		        auto& mapped = src->emplace_add_child();
+		        auto& plotted = mapped.emplace_add_child();
+		        plotted.emplace_add_child();
+		    },
+	        tr("Processing..."), (QWidget*)this)) {
 		return false;
 	}
 
+	// FIXME : We should create the view with this dummy selection.
+	// Finally, we will be able to create a layer with invalid elements.
 	Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>().current_view();
 	for (auto& inv_elts : src->get_invalid_evts()) {
 		first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);

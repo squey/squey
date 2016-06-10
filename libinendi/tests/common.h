@@ -97,16 +97,13 @@ class TestEnv
 		auto src_it = sources.begin();
 		std::advance(src_it, src_id);
 
-		Inendi::PVMapped& mapped = (*src_it)->emplace_add_child();
-		mapped.process_from_parent_source();
-		return mapped;
+		return (*src_it)->emplace_add_child();
 	}
 
 	void compute_mappings()
 	{
 		for (const auto& source : root->get_children<Inendi::PVSource>()) {
-			Inendi::PVMapped& mapped = source->emplace_add_child();
-			mapped.process_from_parent_source();
+			source->emplace_add_child();
 		}
 	}
 
@@ -132,17 +129,21 @@ class TestEnv
 		auto mapped_it = mappeds.begin();
 		std::advance(mapped_it, mapped_id);
 
-		Inendi::PVPlotted& plotted = (*mapped_it)->emplace_add_child();
-		plotted.process_from_parent_mapped();
-		return plotted;
+		return (*mapped_it)->emplace_add_child();
 	}
 
 	void compute_plottings()
 	{
 		// And plot the mapped values
-		for (const auto& mapped : root->get_children<Inendi::PVMapped>()) {
-			Inendi::PVPlotted& plotted = mapped->emplace_add_child();
-			plotted.process_from_parent_mapped();
+		for (auto* mapped : root->get_children<Inendi::PVMapped>()) {
+			mapped->emplace_add_child();
+		}
+	}
+
+	void compute_views()
+	{
+		for (auto* plotted : root->get_children<Inendi::PVPlotted>()) {
+			plotted->emplace_add_child();
 		}
 	}
 

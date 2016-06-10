@@ -30,6 +30,7 @@ double save_investigation()
 
 	env.compute_mappings();
 	env.compute_plottings();
+	env.compute_views();
 
 	size_t mapped_size = env.root->size<Inendi::PVMapped>();
 	PV_VALID(mapped_size, 3UL);

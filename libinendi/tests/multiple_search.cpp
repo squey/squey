@@ -87,7 +87,9 @@ int main()
 	// Init nraw
 	pvtest::TestEnv env(FILENAME, FORMAT, DUPL);
 	env.compute_mapping();
-	Inendi::PVView* view = env.compute_plotting().get_parent<Inendi::PVRoot>().current_view();
+	env.compute_plotting();
+	env.compute_views();
+	Inendi::PVView* view = env.root->current_view();
 
 	// Get plugin reference
 	constexpr char plugin_name[] = "search-multiple";
