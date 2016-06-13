@@ -46,6 +46,7 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
     , _inputs(inputs)
     , _src_plugin(sc)
     , _nraw(_extractor.get_nraw())
+    , _axes_combination(format)
 {
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 

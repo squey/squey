@@ -91,7 +91,8 @@ class PVAxesCombination
 	    original_axes_list; //!< All the axes, left as how they were upon loading the format.
 	bool _is_consistent;    //!< Whether this object is consistent
   public:
-	PVAxesCombination();
+	PVAxesCombination(PVRush::PVFormat const&);
+	PVAxesCombination(){};
 
 	/**
 	* Add an axis to the list of used axes.
@@ -308,7 +309,7 @@ class PVAxesCombination
 	/**
 	*
 	*/
-	void set_from_format(PVRush::PVFormat& format);
+	void set_from_format(PVRush::PVFormat const& format);
 
 	/**
 	 * Sets the name of the given axis, according to the current positions of axes

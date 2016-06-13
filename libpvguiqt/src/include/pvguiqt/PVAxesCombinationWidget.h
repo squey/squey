@@ -47,9 +47,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	                        QWidget* parent = 0);
 
   public:
-	void save_current_combination();
-	void restore_saved_combination();
-
 	void reset_used_axes();
 
   public slots:
@@ -82,7 +79,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 
   protected:
 	Inendi::PVAxesCombination& _axes_combination;
-	Inendi::PVAxesCombination _saved_combination;
 	PVMoveToDlg* _move_dlg;
 	Inendi::PVView* _view;
 };

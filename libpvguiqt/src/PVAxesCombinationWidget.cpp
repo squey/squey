@@ -226,22 +226,6 @@ bool PVGuiQt::PVAxesCombinationWidget::is_original_axis_selected()
 	return _list_org->selectedItems().size() > 0;
 }
 
-void PVGuiQt::PVAxesCombinationWidget::save_current_combination()
-{
-	_saved_combination = _axes_combination;
-}
-
-void PVGuiQt::PVAxesCombinationWidget::restore_saved_combination()
-{
-	bool count_changed =
-	    (_axes_combination.get_axes_count() != _saved_combination.get_axes_count());
-	_axes_combination = _saved_combination;
-	if (count_changed) {
-		emit axes_count_changed();
-	}
-	emit axes_combination_changed();
-}
-
 // PVMoveToDlg implementation
 PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::PVMoveToDlg(PVAxesCombinationWidget* parent)
     : QDialog(parent), _parent(parent)

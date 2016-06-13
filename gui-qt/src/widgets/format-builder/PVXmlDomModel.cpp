@@ -14,11 +14,6 @@
 
 #include <QString>
 
-#define dbg()                                                                                      \
-	{                                                                                              \
-		qDebug() << __FILE__ << __LINE__;                                                          \
-	}
-
 /******************************************************************************
  *
  * PVInspector::PVXmlDomModel::PVXmlDomModel
@@ -783,8 +778,7 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	// Get axes combination and remove it from the DOM
 	PVRush::PVFormat format;
 	format.populate_from_xml(xmlRootDom, false);
-	_axes_combination.clear();
-	_axes_combination.set_from_format(format);
+	_axes_combination = Inendi::PVAxesCombination(format);
 	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
 	if (!axes_cb_elt.isNull()) {
 		xmlRootDom.removeChild(axes_cb_elt);

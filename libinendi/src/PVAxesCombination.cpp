@@ -19,8 +19,9 @@
  *
  *****************************************************************************/
 
-Inendi::PVAxesCombination::PVAxesCombination() : _is_consistent(true)
+Inendi::PVAxesCombination::PVAxesCombination(PVRush::PVFormat const& format) : _is_consistent(true)
 {
+	set_from_format(format);
 }
 
 /******************************************************************************
@@ -414,10 +415,13 @@ void Inendi::PVAxesCombination::set_axis_name(PVCol index, const QString& name_)
  * Inendi::PVAxesCombination::set_from_format
  *
  *****************************************************************************/
-void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat& format)
+void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat const& format)
 {
+	if (original_axes_list.size() != 0) {
+		return;
+	}
+
 	PVRush::list_axes_t const& axes = format.get_axes();
-	PVRush::list_axes_t::const_iterator it;
 
 	columns_indexes_t axes_comb;
 	if (columns_indexes_list.size() > 0) {
@@ -436,20 +440,15 @@ void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat& format)
 		}
 	}
 
-	if (original_axes_list.size() == 0) {
-		for (it = axes.begin(); it != axes.end(); it++) {
-			PVRush::PVAxisFormat const& axis_format = *it;
-			PVAxis axis(axis_format);
-			original_axes_list.push_back(axis);
-		}
+	for (PVRush::PVAxisFormat const& axis_format : axes) {
+		original_axes_list.push_back(PVAxis(axis_format));
+	}
 
-		columns_indexes_list.clear();
-		columns_indexes_t::iterator it_comb;
-		for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
-			PVCol col = it_comb->get_axis();
-			if (col < original_axes_list.size()) {
-				axis_append(col);
-			}
+	columns_indexes_list.clear();
+	for (auto it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
+		PVCol col = it_comb->get_axis();
+		if (col < original_axes_list.size()) {
+			axis_append(col);
 		}
 	}
 }
@@ -583,9 +582,14 @@ QString Inendi::PVAxesCombination::to_string() const
 
 void Inendi::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so)
 {
-	clear();
+	columns_indexes_list.clear();
 	so.list_attributes("columns_indexes_list", columns_indexes_list,
 	                   [=](QVariant const& v) { return axes_comb_id_t::from_qvariant(v); });
+
+	axes_list.resize(columns_indexes_list.size());
+	// FIXME : Axis attributes are not saved.
+	std::transform(columns_indexes_list.begin(), columns_indexes_list.end(), axes_list.begin(),
+	               [this](axes_comb_id_t const& id) { return original_axes_list[id.get_axis()]; });
 }
 
 PVCore::PVColumnIndexes Inendi::PVAxesCombination::get_original_axes_indexes() const

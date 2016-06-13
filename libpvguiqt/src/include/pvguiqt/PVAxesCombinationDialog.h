@@ -32,7 +32,6 @@ class PVAxesCombinationDialog : public QDialog
 	~PVAxesCombinationDialog();
 
   public:
-	void save_current_combination();
 	void update_used_axes();
 
 	void reset_used_axes();

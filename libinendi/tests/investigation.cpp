@@ -131,7 +131,7 @@ double load_investigation()
 	    //"total_bytes" (removed)
 	};
 	for (int i = 0; i < axes.size(); i++) {
-		PV_ASSERT_VALID(axes[i] == QString(expected_axes_name[i]));
+		PV_VALID(axes[i].toStdString(), std::string(expected_axes_name[i]));
 	}
 
 	/**

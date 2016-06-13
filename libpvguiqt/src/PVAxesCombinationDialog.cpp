@@ -13,12 +13,11 @@
 #include <QVBoxLayout>
 
 PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView_sp& view, QWidget* parent)
-    : QDialog(parent), _lib_view(*view), _valid(true)
+    : QDialog(parent), _temp_axes_comb(view->get_axes_combination()), _lib_view(*view), _valid(true)
 {
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	_box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel |
 	                                    QDialogButtonBox::Apply);
-	_temp_axes_comb = view->get_axes_combination();
 	_axes_widget = new PVAxesCombinationWidget(_temp_axes_comb, view.get());
 	main_layout->addWidget(_axes_widget);
 	main_layout->addWidget(_box_buttons);
