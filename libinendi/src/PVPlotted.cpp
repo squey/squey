@@ -541,17 +541,17 @@ PVRow Inendi::PVPlotted::get_col_max_row(PVCol const c) const
 	return _minmax_values[c].max;
 }
 
-void Inendi::PVPlotted::process_parent_mapped()
+void Inendi::PVPlotted::plotting_updated()
 {
 	create_table();
 }
 
 void Inendi::PVPlotted::process_from_parent_mapped()
 {
-	process_parent_mapped();
+	plotting_updated();
 
 	for (auto view : get_children()) {
-		view->process_parent_plotted();
+		view->process_from_layer_stack();
 	}
 }
 

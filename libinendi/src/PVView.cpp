@@ -63,17 +63,6 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 	process_from_layer_stack();
 }
 
-void Inendi::PVView::process_parent_plotted()
-{
-	// Init default axes combination from source
-	PVSource& source = get_parent<PVSource>();
-	_axes_combination.set_from_format(source.get_format());
-
-	set_row_count(get_row_count());
-
-	process_from_layer_stack();
-}
-
 /******************************************************************************
  *
  * Inendi::PVView::~PVView

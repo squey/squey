@@ -14,6 +14,6 @@
 // Plotted updating waxes
 //
 
-DECLARE_WAX(Inendi::PVMapped::process_from_parent_source)
+DECLARE_WAX(Inendi::PVMapped::mapping_updated)
 
 #endif

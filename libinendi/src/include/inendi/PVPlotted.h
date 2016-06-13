@@ -76,7 +76,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
 
   public:
-	void process_parent_mapped();
+	void plotting_updated();
 	void process_from_parent_mapped();
 
 	void set_name(std::string const& name) { _plotting.set_name(name); }

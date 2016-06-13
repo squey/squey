@@ -80,7 +80,6 @@ int main(int argc, char** argv)
 	Inendi::PVScene& scene = root->emplace_add_child("scene");
 	Inendi::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	Inendi::PVMapped& mapped = src.emplace_add_child();
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {
@@ -93,11 +92,10 @@ int main(int argc, char** argv)
 	PVLOG_INFO("Extracted %u lines...\n", src.get_row_count());
 
 	// Map the nraw
-	mapped.process_from_parent_source();
+	Inendi::PVMapped& mapped = src.emplace_add_child();
 
 	// And plot the mapped values
 	Inendi::PVPlotted& plotted = mapped.emplace_add_child();
-	plotted.process_from_parent_mapped();
 
 	PVLOG_INFO("Writing output...\n");
 	plotted.dump_buffer_to_file(out_path, raw_dump_transp);

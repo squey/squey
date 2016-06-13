@@ -188,10 +188,10 @@ PVCol Inendi::PVMapped::get_column_count() const
 
 /******************************************************************************
  *
- * Inendi::PVMapped::process_from_parent_source
+ * Inendi::PVMapped::mapping_updated
  *
  *****************************************************************************/
-void Inendi::PVMapped::process_from_parent_source()
+void Inendi::PVMapped::mapping_updated()
 {
 	compute();
 	// Process plotting children

@@ -21,7 +21,7 @@ bool PVGuiQt::PVQMapped::edit_mapped(Inendi::PVMapped& mapped, QWidget* parent)
 
 	if (mapped.is_current_mapped()) {
 		Inendi::PVMapped_sp mapped_sp = mapped.shared_from_this();
-		PVHive::call<FUNC(Inendi::PVMapped::process_from_parent_source)>(mapped_sp);
+		PVHive::call<FUNC(Inendi::PVMapped::mapping_updated)>(mapped_sp);
 	}
 
 	return true;

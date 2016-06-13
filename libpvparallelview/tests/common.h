@@ -132,10 +132,8 @@ class TestEnv
 		job->wait_end();
 
 		Inendi::PVMapped& mapped = src.emplace_add_child();
-		mapped.process_from_parent_source();
 
 		Inendi::PVPlotted& plotted = mapped.emplace_add_child();
-		plotted.process_from_parent_mapped();
 
 		view = &plotted.emplace_add_child();
 	}

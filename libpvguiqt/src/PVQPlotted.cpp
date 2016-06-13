@@ -22,7 +22,7 @@ bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* pare
 
 	if (plotted.is_current_plotted()) {
 		Inendi::PVPlotted_sp plotted_sp = plotted.shared_from_this();
-		PVHive::call<FUNC(Inendi::PVPlotted::process_parent_mapped)>(plotted_sp);
+		PVHive::call<FUNC(Inendi::PVPlotted::plotting_updated)>(plotted_sp);
 	}
 
 	return true;

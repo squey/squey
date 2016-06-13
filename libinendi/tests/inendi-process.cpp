@@ -64,11 +64,10 @@ int main(int argc, char** argv)
 
 	// Map the nraw
 	Inendi::PVMapped& mapped = src.emplace_add_child();
-	mapped.process_from_parent_source();
 
 	// And plot the mapped values
 	Inendi::PVPlotted& plotted = mapped.emplace_add_child();
-	plotted.process_from_parent_mapped();
+	plotted.emplace_add_child();
 	Inendi::PVView* view = src.current_view();
 
 	BENCH_START(ls);

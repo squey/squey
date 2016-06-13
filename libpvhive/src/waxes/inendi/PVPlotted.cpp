@@ -13,11 +13,11 @@ PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 // Plotted updating waxes
 //
 
-IMPL_WAX(Inendi::PVPlotted::process_parent_mapped, plotted, args)
+IMPL_WAX(Inendi::PVPlotted::plotting_updated, plotted, args)
 {
 	about_to_refresh_observers(&plotted->get_plotting());
-	call_object_default<Inendi::PVPlotted, FUNC(Inendi::PVPlotted::process_parent_mapped)>(plotted,
-	                                                                                       args);
+	call_object_default<Inendi::PVPlotted, FUNC(Inendi::PVPlotted::plotting_updated)>(plotted,
+	                                                                                  args);
 	refresh_observers(&plotted->get_plotting());
 }
 

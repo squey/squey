@@ -60,7 +60,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	/**
 	 * Compute mapping and chain to plottings.
 	 */
-	void process_from_parent_source();
+	void mapping_updated();
 
 	inline bool is_uptodate() const { return _mapping.is_uptodate(); };
 

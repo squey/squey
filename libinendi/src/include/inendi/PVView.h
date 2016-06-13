@@ -270,8 +270,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	 */
 	void process_visibility();
 
-	void process_parent_plotted();
-
 	/******************************************************************************
 	******************************************************************************
 	*
