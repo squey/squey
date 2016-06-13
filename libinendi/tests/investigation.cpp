@@ -94,9 +94,7 @@ double load_investigation()
 	 */
 	auto sources = root->get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 3UL);
-	auto source = *sources.begin();
-	source->load_from_disk();
-	source->process_from_source();
+	auto source = sources.front();
 
 	const PVRow row_count = source->get_row_count();
 	PV_VALID(row_count, ROW_COUNT * dupl);

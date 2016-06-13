@@ -136,8 +136,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
-	void process_from_source();
-
 	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
 	std::string get_name() const
 	{

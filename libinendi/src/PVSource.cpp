@@ -200,13 +200,6 @@ PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
 	return _src_plugin->supported_type_lib();
 }
 
-void Inendi::PVSource::process_from_source()
-{
-	for (auto* mapped_p : get_children()) {
-		mapped_p->process_from_parent_source();
-	}
-}
-
 void Inendi::PVSource::add_view(PVView* view)
 {
 	PVRoot& root = get_parent<PVRoot>();
