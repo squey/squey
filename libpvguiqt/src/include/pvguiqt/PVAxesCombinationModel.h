@@ -116,7 +116,7 @@ class PVAxesCombinationModel : public QAbstractListModel
 	void beginRemoveRow(int row);
 	void endRemoveRow();
 
-  private slots:
+  private Q_SLOTS:
 	void about_to_be_deleted_slot(PVHive::PVObserverBase*);
 	void refresh_slot(PVHive::PVObserverBase*);
 

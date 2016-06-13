@@ -49,7 +49,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
   public:
 	void reset_used_axes();
 
-  public slots:
+  public Q_SLOTS:
 	void update_orig_axes();
 	void update_used_axes();
 	void update_all();
@@ -63,7 +63,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	static QVector<PVCol> get_list_selection(QListWidget* widget);
 	void set_selection_from_cols(QList<PVCol> const& cols);
 
-  protected slots:
+  protected Q_SLOTS:
 	void axis_add_Slot();
 	void axis_up_Slot();
 	void axis_down_Slot();

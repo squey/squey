@@ -69,7 +69,7 @@ void PVParallelView::PVSelectionAxisSliders::remove_from_axis()
 
 void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 {
-	emit sliders_moved();
+	Q_EMIT sliders_moved();
 
 	PVHive::call<FUNC(PVSlidersManager::update_selection_sliders)>(
 	    _sliders_manager_p, _group->get_axis_id(), _id, _sl_min->get_value(), _sl_max->get_value());
@@ -96,6 +96,6 @@ void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::updat
 
 		_parent->refresh_value(y_min, y_max);
 
-		emit _parent->sliders_moved();
+		Q_EMIT _parent->sliders_moved();
 	}
 }

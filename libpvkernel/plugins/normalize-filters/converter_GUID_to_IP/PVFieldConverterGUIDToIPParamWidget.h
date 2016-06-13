@@ -31,7 +31,7 @@ class PVFieldConverterGUIDToIPParamWidget : public PVFieldsConverterParamWidget
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-  private slots:
+  private Q_SLOTS:
 	void update_params();
 
   private:

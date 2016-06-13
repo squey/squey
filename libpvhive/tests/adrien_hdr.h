@@ -90,7 +90,7 @@ class MyThread : public QThread
 		exec();
 	}
 
-  public slots:
+  public Q_SLOTS:
 	void update_prop()
 	{
 		std::cout << "Update prop to " << _c << std::endl;

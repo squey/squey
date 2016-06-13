@@ -32,7 +32,7 @@ class PVLogoScene : public QGraphicsScene
 
 	void drawBackground(QPainter* painter, const QRectF& rect);
 
-  public slots:
+  public Q_SLOTS:
 	void enableWireframe(bool enabled);
 	void enableNormals(bool enabled);
 	void setModelColor();

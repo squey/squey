@@ -338,7 +338,7 @@ void PVAbstractTableModel::update_pages(size_t nbr_tick, size_t page_step)
 	if (old_page_num != _page_number or _page_step != old_step or
 	    old_last_page != _last_page_size) {
 		// Loop if we didn't reach a fixed point in pagination information
-		emit layoutChanged();
+		Q_EMIT layoutChanged();
 	}
 }
 

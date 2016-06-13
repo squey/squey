@@ -132,7 +132,7 @@ class PVFormatBuilderWidget : public QMainWindow
   private:
 	void load_log(PVRow rstart, PVRow rend);
 
-  public slots:
+  public Q_SLOTS:
 	// Tree slots
 	void slotAddAxisIn();
 	void slotAddFilterAfter();

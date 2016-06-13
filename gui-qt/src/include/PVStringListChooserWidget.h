@@ -25,7 +25,7 @@ class PVStringListChooserWidget : public QDialog
 
   public:
 	QStringList get_sel_list();
-  public slots:
+  public Q_SLOTS:
 	void ok_Slot();
 
   protected:

@@ -145,7 +145,7 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::update_params()
 	;
 
 	get_filter()->set_args(args);
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }
 
 void PVFilter::PVFieldConverterSubstitutionParamWidget::browse_conversion_file()

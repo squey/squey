@@ -72,7 +72,7 @@ class PVExportSelectionDlg : public QFileDialog
 	/** Wether we want to export an header line or not. */
 	inline bool export_columns_header() const { return _columns_header->isChecked(); }
 
-  private slots:
+  private Q_SLOTS:
 	/** Enable or disable the button to edit custom axis exported. */
 	void show_edit_axes_widget(bool show);
 

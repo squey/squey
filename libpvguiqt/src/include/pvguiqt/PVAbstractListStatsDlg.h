@@ -78,13 +78,13 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	 */
 	void create_layers_for_selected_values();
 
-  protected slots:
+  protected Q_SLOTS:
 	void scale_changed(QAction* act);
 	void max_changed(QAction* act);
 	void section_clicked(int col);
 	void sort();
 
-  protected slots:
+  protected Q_SLOTS:
 	void select_set_mode_count(bool checked);
 	void select_set_mode_frequency(bool checked);
 	void select_refresh(bool checked);

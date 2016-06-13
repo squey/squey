@@ -79,7 +79,7 @@ void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 	} else {
 		_nraw = &nraw;
 	}
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 void PVInspector::PVNrawListingModel::set_selected_column(PVCol col)
@@ -90,5 +90,5 @@ void PVInspector::PVNrawListingModel::set_selected_column(PVCol col)
 void PVInspector::PVNrawListingModel::sel_visible(bool visible)
 {
 	_show_sel = visible;
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }

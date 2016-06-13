@@ -129,7 +129,7 @@ void PVWidgets::PVPresetsWidget::load_Slot()
 	_list->blockSignals(false);
 
 	_last_preset_loaded = item->text();
-	emit btn_load_clicked_Signal(_last_preset_loaded);
+	Q_EMIT btn_load_clicked_Signal(_last_preset_loaded);
 }
 
 void PVWidgets::PVPresetsWidget::save_Slot()
@@ -142,10 +142,10 @@ void PVWidgets::PVPresetsWidget::save_Slot()
 			_list->addItem(item);
 			_list->sortItems();
 			_list->setCurrentItem(item);
-			emit btn_new_clicked_Signal(preset);
+			Q_EMIT btn_new_clicked_Signal(preset);
 			update_actions_availability();
 		} else {
-			emit btn_save_clicked_Signal(preset);
+			Q_EMIT btn_save_clicked_Signal(preset);
 		}
 	}
 }
@@ -196,7 +196,7 @@ void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 	}
 
 	if (_old_preset_name != new_preset_name) {
-		emit preset_renamed_Signal(_old_preset_name, new_preset_name);
+		Q_EMIT preset_renamed_Signal(_old_preset_name, new_preset_name);
 	}
 
 	_old_preset_name = "";
@@ -239,7 +239,7 @@ void PVWidgets::PVPresetsWidget::remove_Slot()
 	                    tr("Are you sure you want to delete preset \"%1\"?").arg(preset),
 	                    QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
-		emit btn_remove_clicked_Signal(preset);
+		Q_EMIT btn_remove_clicked_Signal(preset);
 		delete _list->takeItem(_list->currentRow());
 		update_actions_availability();
 	}

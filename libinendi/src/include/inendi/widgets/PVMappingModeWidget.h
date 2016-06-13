@@ -50,7 +50,7 @@ class PVMappingModeWidget : public QWidget
   private:
 	void set_filter_params_from_type_mode(QString const& type, QString const& mode);
 
-  private slots:
+  private Q_SLOTS:
 	void change_params();
 
   private:

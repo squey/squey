@@ -51,7 +51,7 @@ class PVTabBar : public QTabBar
 	void mousePressEvent(QMouseEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-  private slots:
+  private Q_SLOTS:
 	void rename_tab();
 	void rename_tab(int index);
 
@@ -169,18 +169,18 @@ class PVProjectsTabWidget : public QWidget
 	Inendi::PVScene* get_scene_from_path(const QString& path);
 	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Inendi::PVScene* scene);
 
-  private slots:
+  private Q_SLOTS:
 	void current_tab_changed(int index);
 	void emit_workspace_dragged_outside(QWidget* workspace)
 	{
-		emit workspace_dragged_outside(workspace);
+		Q_EMIT workspace_dragged_outside(workspace);
 	}
 	bool tab_close_requested(int index);
 	void close_project();
 	void project_modified(bool, QString = QString());
 	void select_tab_from_current_scene();
 
-  signals:
+  Q_SIGNALS:
 	void is_empty();
 	void workspace_dragged_outside(QWidget* workspace);
 	void new_project();

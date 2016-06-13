@@ -31,7 +31,7 @@ class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-  private slots:
+  private Q_SLOTS:
 	void update_params();
 	void add_new_key();
 	void del_keys();

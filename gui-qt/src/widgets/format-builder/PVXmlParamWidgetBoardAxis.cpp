@@ -404,7 +404,7 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting(const QS
 void PVInspector::PVXmlParamWidgetBoardAxis::slotGoNextAxis()
 {
 	if (!node->isOnRoot) { // if we are not on root...
-		emit signalSelectNext();
+		Q_EMIT signalSelectNext();
 	}
 }
 
@@ -428,7 +428,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues()
 	updateMappingParams();
 	updatePlottingParams();
 
-	emit signalRefreshView();
+	Q_EMIT signalRefreshView();
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsMapping()

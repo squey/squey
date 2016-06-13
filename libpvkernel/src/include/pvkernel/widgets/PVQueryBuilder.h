@@ -93,10 +93,10 @@ class PVQueryBuilder : public QWidget
 
 	void workaround_qwebengine_refresh_bug();
 
-  signals:
+  Q_SIGNALS:
 	void run_javascript_signal(const QString& javascript, QString* result /*= nullptr*/) const;
 
-  private slots:
+  private Q_SLOTS:
 	void run_javascript_slot(const QString& javascript, QString* result /*= nullptr*/) const;
 
   protected:

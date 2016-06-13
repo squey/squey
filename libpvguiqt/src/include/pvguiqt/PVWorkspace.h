@@ -166,7 +166,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void changeEvent(QEvent* event) override;
 
-  public slots:
+  public Q_SLOTS:
 	/*! \brief Create the widget used by the view display.
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
@@ -194,7 +194,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 		create_view_zone_widget(act);
 	}
 
-  private slots:
+  private Q_SLOTS:
 	/*! \brief Create the widget used by the view display with axis parameter.
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
@@ -231,7 +231,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void display_destroyed(QObject* object = 0);
 
-  signals:
+  Q_SIGNALS:
 	/*! \brief Signal forwarded when a display is moved in order to detected a potential tab change.
 	 */
 	void try_automatic_tab_switch();

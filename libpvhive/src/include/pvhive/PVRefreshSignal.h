@@ -37,7 +37,7 @@ namespace __impl
  * To make this last event synchronous, 2 different cases occur:
  * 1/ sender and receiver are in the same thread, the slot invocation is
  *    automatically synchronous
- * 2/ sender and receiver are in different threads. the sender emit a special
+ * 2/ sender and receiver are in different threads. the sender Q_EMIT a special
  *    signal to "move" the slot invocation in the right thread and a semaphore
  *    is used to force synchronization.
  */
@@ -93,24 +93,24 @@ class PVRefreshSignal : public QObject
   protected:
 	inline void emit_about_to_be_refreshed_signal(PVObserverBase* o)
 	{
-		emit about_to_be_refreshed_signal(o);
+		Q_EMIT about_to_be_refreshed_signal(o);
 	}
 
-	inline void emit_refresh_signal(PVObserverBase* o) { emit refresh_signal(o); }
+	inline void emit_refresh_signal(PVObserverBase* o) { Q_EMIT refresh_signal(o); }
 
 	inline void emit_about_to_be_deleted_signal(PVObserverBase* o)
 	{
 		if (thread() == QThread::currentThread()) {
 			// the signal will be synchronous
-			emit about_to_be_deleted_signal(o);
+			Q_EMIT about_to_be_deleted_signal(o);
 		} else {
 			// the signal will be asynchronous
-			emit sync_about_to_be_deleted_signal(o);
+			Q_EMIT sync_about_to_be_deleted_signal(o);
 			_atbd_sem.acquire(1);
 		}
 	}
 
-  signals:
+  Q_SIGNALS:
 /* Qt's signals/slots mechanism can not work properly with namespaces; leading
  * to run-time errors of type "Incompatible sender/receiver arguments" or
  * "No such signal": the signals use implicit namespaces prefix (otherwise it
@@ -132,7 +132,7 @@ class PVRefreshSignal : public QObject
 	void sync_about_to_be_deleted_signal(PVObserverBase* o);
 #endif
 
-  private slots:
+  private Q_SLOTS:
 /* same problem about Qt and namespaces
  */
 #ifdef Q_MOC_RUN

@@ -46,7 +46,7 @@ class PVPlottingModeWidget : public QWidget
   public:
 	PVComboBox* get_combo_box() { return _combo; }
 
-  private slots:
+  private Q_SLOTS:
 	void change_params();
 
   private:

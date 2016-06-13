@@ -105,7 +105,7 @@ class PVFullParallelScene : public QGraphicsScene
 	 */
 	void update_selected_event_number();
 
-  private slots:
+  private Q_SLOTS:
 	void update_new_selection();
 	void update_all();
 	void update_number_of_zones();
@@ -158,7 +158,7 @@ class PVFullParallelScene : public QGraphicsScene
 
 	size_t qimage_height() const;
 
-  private slots:
+  private Q_SLOTS:
 	void update_zone_pixmap_bg(int zone_id);
 	void update_zone_pixmap_sel(int zone_id);
 	void update_zone_pixmap_bgsel(int zone_id);
@@ -174,10 +174,10 @@ class PVFullParallelScene : public QGraphicsScene
 
 	void emit_new_zoomed_parallel_view(int axis_index)
 	{
-		emit _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
+		Q_EMIT _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}
 
-  private slots:
+  private Q_SLOTS:
 	// Slots called from PVLinesView
 	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
 	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);

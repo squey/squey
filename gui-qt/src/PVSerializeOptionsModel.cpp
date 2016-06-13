@@ -141,7 +141,7 @@ bool PVInspector::PVSerializeOptionsModel::setData(const QModelIndex& index,
 	PVCore::PVSerializeObject* so = get_so_index(index);
 	so->set_write(checked);
 
-	emit dataChanged(index, index);
+	Q_EMIT dataChanged(index, index);
 	emitDataChangedChildren(index);
 
 	return true;
@@ -156,7 +156,7 @@ void PVInspector::PVSerializeOptionsModel::emitDataChangedChildren(const QModelI
 
 	QModelIndex first = index(0, 0, index_);
 	QModelIndex last = index(nchildren - 1, 0, index_);
-	emit dataChanged(first, last);
+	Q_EMIT dataChanged(first, last);
 	for (int i = 0; i < nchildren; i++) {
 		QModelIndex child = index(i, 0, index_);
 		emitDataChangedChildren(child);

@@ -36,10 +36,10 @@ class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders
 
 	id_t get_id() const { return _id; }
 
-  public slots:
+  public Q_SLOTS:
 	void remove_from_axis() override;
 
-  private slots:
+  private Q_SLOTS:
 	void do_sliders_moved();
 
   private:

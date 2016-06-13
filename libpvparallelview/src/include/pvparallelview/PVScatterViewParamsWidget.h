@@ -25,7 +25,7 @@ class PVScatterViewParamsWidget : public QToolBar
   public:
 	PVScatterViewParamsWidget(PVScatterView* parent);
 
-  private slots:
+  private Q_SLOTS:
 	void set_selection_mode(int mode);
 
   private:

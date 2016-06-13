@@ -1013,7 +1013,7 @@ PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientat
 bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 {
 	if (ev->type() == QEvent::HoverLeave || ev->type() == QEvent::Leave) {
-		emit mouse_hovered_section(_index, false);
+		Q_EMIT mouse_hovered_section(_index, false);
 		_index = -1;
 	} else if (ev->type() == QEvent::HoverMove) { // in eventFilter, this event
 		                                          // would have been
@@ -1022,9 +1022,9 @@ bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 		int index = logicalIndexAt(mouse_event->pos());
 		if (index != _index) {
 			if (_index != -1) {
-				emit mouse_hovered_section(_index, false);
+				Q_EMIT mouse_hovered_section(_index, false);
 			}
-			emit mouse_hovered_section(index, true);
+			Q_EMIT mouse_hovered_section(index, true);
 		}
 		_index = index;
 	}

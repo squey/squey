@@ -121,7 +121,7 @@ void PVFilter::PVFieldSplitterIPParamWidget::set_ip_type(bool reset_groups_check
 	_group_count = _ipv6->isChecked() ? group_ipv6_count : group_ipv4_count;
 
 	get_filter()->set_args(args);
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 
 	if (reset_groups_check_state) {
 		set_groups_check_state(/*check_all=*/true);
@@ -176,8 +176,8 @@ void PVFilter::PVFieldSplitterIPParamWidget::set_groups_check_state(bool check_a
 		args["params"] = list.join(PVFieldSplitterIP::sep);
 		get_filter()->set_args(args);
 		set_child_count(list.size() + 1);
-		emit args_changed_Signal();
-		emit nchilds_changed_Signal();
+		Q_EMIT args_changed_Signal();
+		Q_EMIT nchilds_changed_Signal();
 	} else {
 		for (const QString& s : pl) {
 			size_t index = s.toUInt();
@@ -210,6 +210,6 @@ void PVFilter::PVFieldSplitterIPParamWidget::update_child_count()
 
 	get_filter()->set_args(args);
 	set_child_count(n);
-	emit args_changed_Signal();
-	emit nchilds_changed_Signal();
+	Q_EMIT args_changed_Signal();
+	Q_EMIT nchilds_changed_Signal();
 }

@@ -142,7 +142,7 @@ bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index,
 
 	it->value() = value;
 
-	emit dataChanged(index, index);
+	Q_EMIT dataChanged(index, index);
 
 	return true;
 }

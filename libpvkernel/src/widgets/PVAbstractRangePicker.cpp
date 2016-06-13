@@ -180,7 +180,7 @@ void PVWidgets::__impl::PVAbstractRangeRampCursor::mouseMoveEvent(QMouseEvent* e
 		return;
 	}
 
-	emit moved(mapToParent(event->pos()).x() - _move_offset);
+	Q_EMIT moved(mapToParent(event->pos()).x() - _move_offset);
 
 	event->accept();
 }
@@ -334,7 +334,7 @@ int PVWidgets::__impl::PVAbstractRangeRamp::get_real_width() const
 void PVWidgets::__impl::PVAbstractRangeRamp::min_cursor_moved(int value)
 {
 	// cursor's value normalization to pass it to the spinbox
-	emit min_changed(value / (double)get_real_width());
+	Q_EMIT min_changed(value / (double)get_real_width());
 }
 
 /*****************************************************************************
@@ -344,7 +344,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::min_cursor_moved(int value)
 void PVWidgets::__impl::PVAbstractRangeRamp::max_cursor_moved(int value)
 {
 	// cursor's value normalization to pass it to the spinbox
-	emit max_changed((value - RAMP_MARGIN) / (double)get_real_width());
+	Q_EMIT max_changed((value - RAMP_MARGIN) / (double)get_real_width());
 }
 
 /*****************************************************************************

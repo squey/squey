@@ -337,7 +337,7 @@ void PVGuiQt::PVStartScreenWidget::import_type()
 	QAction* action_src = (QAction*)sender();
 	assert(action_src);
 	QString const& itype = action_src->data().toString();
-	emit import_type(itype);
+	Q_EMIT import_type(itype);
 }
 
 void PVGuiQt::PVStartScreenWidget::refresh_all_recent_items()
@@ -461,22 +461,22 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 
 	switch (category) {
 	case PVCore::PVRecentItemsManager::Category::PROJECTS: {
-		emit load_project_from_path(var.toString());
+		Q_EMIT load_project_from_path(var.toString());
 		break;
 	}
 	case PVCore::PVRecentItemsManager::Category::SOURCES: {
 		PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
-		emit load_source_from_description(src_desc);
+		Q_EMIT load_source_from_description(src_desc);
 		break;
 	}
 	case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
 	case PVCore::PVRecentItemsManager::Category::USED_FORMATS: {
-		emit edit_format(var.toString());
+		Q_EMIT edit_format(var.toString());
 		break;
 	}
 	case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS: {
 		PVRush::PVFormat format = var.value<PVRush::PVFormat>();
-		emit edit_format(format.get_full_path());
+		Q_EMIT edit_format(format.get_full_path());
 		break;
 	}
 	default: {

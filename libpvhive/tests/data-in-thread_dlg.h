@@ -40,7 +40,7 @@ class TestDlg : public QDialog
 		_obj_observer.connect_about_to_be_deleted(this, SLOT(entity_atbd(PVHive::PVObserverBase*)));
 	}
 
-  public slots:
+  public Q_SLOTS:
 	void entity_refresh(PVHive::PVObserverBase* o)
 	{
 		std::cout << "entity_refresh(...)" << std::endl;

@@ -116,7 +116,7 @@ class TestDlg : public QDialog
 		_objprop_observer.connect_refresh(this, SLOT(prop_changed(PVHive::PVObserverBase*)));
 	}
 
-  public slots:
+  public Q_SLOTS:
 	void prop_changed(PVHive::PVObserverBase* v)
 	{
 		std::cout << "  TestDlg::prop_changed" << std::endl;

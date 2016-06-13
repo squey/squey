@@ -79,7 +79,7 @@ void PVParallelView::PVZoomedSelectionAxisSliders::remove_from_axis()
 
 void PVParallelView::PVZoomedSelectionAxisSliders::do_sliders_moved()
 {
-	emit sliders_moved();
+	Q_EMIT sliders_moved();
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoomed_selection_sliders)>(
 	    _sliders_manager_p, _group->get_axis_id(), _id, _sl_min->get_value(), _sl_max->get_value());
@@ -106,6 +106,6 @@ void PVParallelView::PVZoomedSelectionAxisSliders::zoomed_selection_sliders_upda
 
 		_parent->refresh_value(y_min, y_max);
 
-		emit _parent->sliders_moved();
+		Q_EMIT _parent->sliders_moved();
 	}
 }

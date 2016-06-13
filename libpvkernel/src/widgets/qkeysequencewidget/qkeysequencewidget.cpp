@@ -377,7 +377,7 @@ void PVWidgets::QKeySequenceWidgetPrivate::doneRecording()
 	}
 
 	// key sequnce is changed
-	emit q_ptr->keySequenceChanged(currentSequence);
+	Q_EMIT q_ptr->keySequenceChanged(currentSequence);
 
 	// update Shortcut display
 	updateDisplayShortcut();

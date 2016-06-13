@@ -1501,7 +1501,7 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(const QSt
 {
 	QString canonicalFilePath = QFileInfo(path).canonicalFilePath();
 
-	foreach (QWidget* widget, qApp->topLevelWidgets()) {
+	for (QWidget* widget : qApp->topLevelWidgets()) {
 		PVMainWindow* mw = qobject_cast<PVMainWindow*>(widget);
 		if (mw && QFileInfo(mw->get_solution_path()).canonicalFilePath() == canonicalFilePath)
 			return mw;

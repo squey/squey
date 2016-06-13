@@ -118,13 +118,13 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	PVAxisLabel* label() const { return _label; }
 
-  public slots:
-	void emit_new_zoomed_parallel_view(int axis_id) { emit new_zoomed_parallel_view(axis_id); }
+  public Q_SLOTS:
+	void emit_new_zoomed_parallel_view(int axis_id) { Q_EMIT new_zoomed_parallel_view(axis_id); }
 
   protected:
 	void show_tooltip(QGraphicsTextItem* gti, QGraphicsSceneHelpEvent* event) const;
 
-  signals:
+  Q_SIGNALS:
 	void new_zoomed_parallel_view(int axis_id);
 	void mouse_hover_entered(PVCol axis, bool entered);
 	void mouse_clicked(PVCol axis);

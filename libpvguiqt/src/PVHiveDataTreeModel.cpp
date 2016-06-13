@@ -194,7 +194,7 @@ void PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 	assert(idx.isValid());
 
 	// Emit the fact that data has changed !
-	emit dataChanged(idx, idx);
+	Q_EMIT dataChanged(idx, idx);
 }
 
 namespace

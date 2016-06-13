@@ -67,7 +67,7 @@ void PVParallelView::PVZoomAxisSliders::remove_from_axis()
 
 void PVParallelView::PVZoomAxisSliders::do_sliders_moved()
 {
-	emit sliders_moved();
+	Q_EMIT sliders_moved();
 
 	int change = PVParallelView::PVSlidersManager::ZoomSliderNone;
 

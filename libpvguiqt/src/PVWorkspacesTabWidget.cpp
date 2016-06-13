@@ -46,7 +46,7 @@ void PVGuiQt::PVSceneTabBar::mouseReleaseEvent(QMouseEvent* event)
 	if (event->button() == Qt::MidButton) {
 		int tab_index = tabAt(event->pos());
 		if (tab_index < count()) {
-			emit tabCloseRequested(tab_index);
+			Q_EMIT tabCloseRequested(tab_index);
 		}
 	}
 	QTabBar::mouseReleaseEvent(event);
@@ -96,7 +96,7 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 	Qt::DropAction action =
 	    drag->exec(Qt::CopyAction | Qt::IgnoreAction | Qt::MoveAction | Qt::IgnoreAction);
 	if (action == Qt::IgnoreAction) {
-		emit _tab_widget->workspace_dragged_outside(workspace);
+		Q_EMIT _tab_widget->workspace_dragged_outside(workspace);
 	}
 	_drag_ongoing = false;
 }
@@ -189,7 +189,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index)
 		removeTab(index);
 		if (count() == 0) {
 			delete w;
-			emit is_empty();
+			Q_EMIT is_empty();
 			hide();
 		} else {
 			get_scene().remove_child(*qobject_cast<PVGuiQt::PVSourceWorkspace*>(w)->get_source());
@@ -227,10 +227,10 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified(bool modified /* 
                                                                QString path /*= QString()*/)
 {
 	if (!_project_modified && modified) {
-		emit project_modified(true);
+		Q_EMIT project_modified(true);
 	} else if (_project_modified && !modified) {
 		_project_untitled = false;
-		emit project_modified(false, path);
+		Q_EMIT project_modified(false, path);
 	}
 	_project_modified = modified;
 }

@@ -117,7 +117,7 @@ class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 	 */
 	void set_view_scale(const qreal xscale, const qreal yscale);
 
-  signals:
+  Q_SIGNALS:
 	/**
 	 * a signal emitted when the timeout occurs
 	 */
@@ -136,7 +136,7 @@ class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 	 */
 	PVZoomedParallelView* get_zpview() { return _zpv; }
 
-  protected slots:
+  protected Q_SLOTS:
 	/**
 	 * the timeout slot
 	 */

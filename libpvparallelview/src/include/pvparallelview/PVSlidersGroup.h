@@ -73,11 +73,11 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 
 	selection_ranges_t get_selection_ranges() const;
 
-  signals:
+  Q_SIGNALS:
 	void selection_sliders_moved(const axis_id_t axis_id);
 
-  protected slots:
-	void selection_slider_moved() { emit selection_sliders_moved(get_axis_id()); }
+  protected Q_SLOTS:
+	void selection_slider_moved() { Q_EMIT selection_sliders_moved(get_axis_id()); }
 
   private:
 	/**

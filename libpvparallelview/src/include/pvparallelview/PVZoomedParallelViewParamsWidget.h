@@ -30,10 +30,10 @@ class PVZoomedParallelViewParamsWidget : public QToolBar
   public:
 	void build_axis_menu(int active_axis, const QStringList& sl);
 
-  signals:
+  Q_SIGNALS:
 	void change_to_col(int new_axis);
 
-  private slots:
+  private Q_SLOTS:
 	void set_active_axis_action(QAction* act);
 
   private:

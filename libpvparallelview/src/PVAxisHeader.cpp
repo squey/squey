@@ -92,12 +92,12 @@ void PVParallelView::PVAxisHeader::set_width(int width)
 
 void PVParallelView::PVAxisHeader::hoverEnterEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	emit mouse_hover_entered(get_axis_index(), true);
+	Q_EMIT mouse_hover_entered(get_axis_index(), true);
 }
 
 void PVParallelView::PVAxisHeader::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	emit mouse_hover_entered(get_axis_index(), false);
+	Q_EMIT mouse_hover_entered(get_axis_index(), false);
 }
 
 void PVParallelView::PVAxisHeader::mousePressEvent(QGraphicsSceneMouseEvent* event)
@@ -129,7 +129,7 @@ void PVParallelView::PVAxisHeader::mouseReleaseEvent(QGraphicsSceneMouseEvent* e
 {
 	if ((event->button() == Qt::LeftButton) && _clicked) {
 		event->accept(); // Prevent the scene from handling this event
-		emit mouse_clicked(get_axis_index());
+		Q_EMIT mouse_clicked(get_axis_index());
 		_clicked = false;
 	} else {
 		event->ignore();
@@ -174,7 +174,7 @@ bool PVParallelView::PVAxisHeader::is_last_axis() const
 
 void PVParallelView::PVAxisHeader::new_zoomed_parallel_view()
 {
-	emit new_zoomed_parallel_view(get_axis_index());
+	Q_EMIT new_zoomed_parallel_view(get_axis_index());
 }
 
 void PVParallelView::PVAxisHeader::new_selection_sliders()

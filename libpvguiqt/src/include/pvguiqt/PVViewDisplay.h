@@ -73,7 +73,7 @@ class PVViewDisplay : public QDockWidget
 	 */
 	void contextMenuEvent(QContextMenuEvent* event) override;
 
-  private slots:
+  private Q_SLOTS:
 	/*! \brief Store the state of the drag&drop operation.
 	 */
 	void drag_started(bool started);
@@ -92,7 +92,7 @@ class PVViewDisplay : public QDockWidget
 	 */
 	void maximize_on_screen(int screen_number);
 
-  signals:
+  Q_SIGNALS:
 	/*! \brief Signal emited when the display is moved in order to detected a potential tab change.
 	 */
 	void try_automatic_tab_switch();

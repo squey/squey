@@ -142,7 +142,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateQuote(QKeySequence key)
@@ -152,13 +152,13 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateQuote(QKeySequence key)
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateNChilds()
 {
 	set_child_count(_child_number_edit->value());
-	emit nchilds_changed_Signal();
+	Q_EMIT nchilds_changed_Signal();
 }
 
 // Used below

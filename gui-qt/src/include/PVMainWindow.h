@@ -160,7 +160,7 @@ class PVMainWindow : public QMainWindow
   protected:
 	bool event(QEvent* event) override;
 
-  public slots:
+  public Q_SLOTS:
 	void about_Slot();
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();
@@ -230,7 +230,7 @@ class PVMainWindow : public QMainWindow
 
 	void save_screenshot(const QPixmap& pixmap, const QString& title, const QString& name);
 
-  private slots:
+  private Q_SLOTS:
 	void root_modified();
 	bool load_solution(QString const& file);
 	void load_solution_and_create_mw(QString const& file);
@@ -326,7 +326,7 @@ class PVMainWindow : public QMainWindow
 	void reset_root();
 	void close_solution();
 
-  signals:
+  Q_SIGNALS:
 	void change_of_current_view_Signal();
 	void filter_applied_Signal();
 	void zombie_mode_changed_Signal();

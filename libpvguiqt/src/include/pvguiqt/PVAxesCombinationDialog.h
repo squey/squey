@@ -39,7 +39,7 @@ class PVAxesCombinationDialog : public QDialog
   private:
 	Inendi::PVView const& lib_view() const { return _lib_view; }
 
-  protected slots:
+  protected Q_SLOTS:
 	void axes_comb_updated();
 	void view_about_to_be_deleted();
 	void commit_axes_comb_to_view();

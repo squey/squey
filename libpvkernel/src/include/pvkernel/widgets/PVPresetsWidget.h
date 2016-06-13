@@ -39,7 +39,7 @@ class PVPresetsWidget : public QWidget
   public:
 	PVPresetsWidget(const QString& title, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-  public slots:
+  public Q_SLOTS:
 	void load_Slot();
 	void save_Slot();
 	void rename_Slot();
@@ -115,7 +115,7 @@ class PVSavePresetAsDialog : public QDialog
   public:
 	PVSavePresetAsDialog(PVPresetsWidget* parent = 0, Qt::WindowFlags f = 0);
 
-  public slots:
+  public Q_SLOTS:
 	void save_Slot();
 	void text_changed_Slot(const QString& text);
 

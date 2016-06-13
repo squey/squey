@@ -36,7 +36,7 @@ class PVFieldConverterSubstitutionParamWidget : public PVFieldsConverterParamWid
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-  private slots:
+  private Q_SLOTS:
 	void update_params();
 	void browse_conversion_file();
 	void use_default_value_checkbox_changed(int state);

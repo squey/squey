@@ -37,7 +37,7 @@ class PVLayerFilterProcessWidget : public QDialog
 
 	void change_args(PVCore::PVArgumentList const& args);
 
-  public slots:
+  public Q_SLOTS:
 	void save_Slot();
 	void preview_Slot();
 	void reset_Slot();
@@ -64,10 +64,10 @@ class PVLayerFilterProcessWidget : public QDialog
 	                                 Inendi::PVLayer const* layer,
 	                                 Inendi::PVLayer* out_layer);
 
-  signals:
+  Q_SIGNALS:
 	void layer_filter_error(const Inendi::PVLayerFilter_p& filter);
 
-  private slots:
+  private Q_SLOTS:
 	void show_layer_filter_error(const Inendi::PVLayerFilter_p& filter);
 
   protected:

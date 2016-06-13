@@ -120,7 +120,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 
 	bool show_bg() const { return _show_bg; }
 
-  private slots:
+  private Q_SLOTS:
 	void do_update_all();
 	void update_all();
 	void update_sel();
@@ -140,7 +140,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes
 	PVZoneTree const& get_zone_tree() const;
 	void set_scatter_view_zone(PVZoneID const zid);
 
-  private slots:
+  private Q_SLOTS:
 	void do_zoom_change(int axes);
 	void do_pan_change();
 

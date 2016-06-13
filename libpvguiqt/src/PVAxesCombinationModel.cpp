@@ -43,7 +43,7 @@ void PVGuiQt::__impl::set_axis_name_Observer::update(arguments_type const& args)
 {
 	int axis_index = std::get<0>(args);
 
-	emit const_cast<PVGuiQt::PVAxesCombinationModel*>(_model)->dataChanged(
+	Q_EMIT const_cast<PVGuiQt::PVAxesCombinationModel*>(_model)->dataChanged(
 	    _model->index(axis_index, 0), _model->index(axis_index, 0));
 }
 
@@ -152,7 +152,7 @@ bool PVGuiQt::PVAxesCombinationModel::setData(const QModelIndex& index,
 	if (index.row() >= 0 && index.row() < rowCount()) {
 		if (role == Qt::EditRole) {
 			_actor.call<FUNC(Inendi::PVView::set_axis_name)>(index.row(), value.toString());
-			// emit dataChanged(index, index);
+			// Q_EMIT dataChanged(index, index);
 			return true;
 		}
 	}

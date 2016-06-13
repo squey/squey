@@ -313,7 +313,7 @@ class PVXmlTreeNodeDom : public QObject
 	QDomElement getMappingElement();
 	QDomElement getPlottingElement();
 
-  public slots:
+  public Q_SLOTS:
 	void slot_update()
 	{
 		PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
@@ -322,7 +322,7 @@ class PVXmlTreeNodeDom : public QObject
 		} else if (converterPlugin) {
 			setFromArgumentList(getConverterPlugin()->get_filter()->get_args());
 		}
-		emit data_changed();
+		Q_EMIT data_changed();
 	}
 
 	void slot_update_number_childs()
@@ -330,10 +330,10 @@ class PVXmlTreeNodeDom : public QObject
 		assert(splitterPlugin);
 		PVLOG_DEBUG("slot_update_number_childs with plugin %x\n", splitterPlugin.get());
 		setNbr(splitterPlugin->get_child_count());
-		emit data_changed();
+		Q_EMIT data_changed();
 	}
 
-  signals:
+  Q_SIGNALS:
 	void data_changed();
 
   public:

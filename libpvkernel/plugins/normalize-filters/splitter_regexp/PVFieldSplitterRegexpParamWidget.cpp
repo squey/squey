@@ -116,8 +116,8 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotExpressionChanged()
 	l["regexp"] = PVCore::PVArgument(expression_lineEdit->text());
 	get_filter()->set_args(l);
 
-	emit args_changed_Signal();
-	emit nchilds_changed_Signal();
+	Q_EMIT args_changed_Signal();
+	Q_EMIT nchilds_changed_Signal();
 
 	slotUpdateTableValidator();
 }
@@ -129,7 +129,7 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotFullineChanged(int state)
 	l["full-line"] = PVCore::PVArgument(state == Qt::Checked);
 	get_filter()->set_args(l);
 
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 	slotUpdateTableValidator();
 }
 

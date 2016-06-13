@@ -22,7 +22,7 @@ struct ViewSlots : public QObject {
   public:
 	ViewSlots(Inendi::PVView& view) : _view(view) {}
 
-  public slots:
+  public Q_SLOTS:
 	void select_all()
 	{
 		std::cout << "change_axes_combination" << std::endl;

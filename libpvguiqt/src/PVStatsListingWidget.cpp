@@ -570,7 +570,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_valid(const QString& value, bool aut
 	_refresh_icon->setVisible(!auto_refresh);
 	_item->setBackground(QBrush(Qt::NoBrush));
 	_valid = true;
-	emit cell_refreshed(get_widget_cell_col());
+	Q_EMIT cell_refreshed(get_widget_cell_col());
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int)
@@ -619,7 +619,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 
 	pvcop::db::algo::distinct(col_in, col1_out, col2_out, _view.get_selection_visible_listing());
 
-	emit refresh_impl_finished(
+	Q_EMIT refresh_impl_finished(
 	    QString("%L1").arg(col1_out.size())); // We must go back on the Qt thread to update the GUI
 }
 
@@ -657,7 +657,7 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 	bool integer = std::modf(sum, &intpart) == 0.0;
 	QString sum_str = integer ? QString("%L1").arg((int64_t)sum) : QString("%L1").arg(sum, 0, 'f');
 
-	emit refresh_impl_finished(sum_str); // We must go back on the Qt thread to update the GUI
+	Q_EMIT refresh_impl_finished(sum_str); // We must go back on the Qt thread to update the GUI
 }
 
 /******************************************************************************
@@ -675,7 +675,7 @@ void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
 
 	std::string min = min_array.size() == 1 ? min_array.at(0) : "";
 
-	emit refresh_impl_finished(
+	Q_EMIT refresh_impl_finished(
 	    QString(min.c_str())); // We must go back on the Qt thread to update the GUI
 }
 
@@ -694,7 +694,7 @@ void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
 
 	std::string max = max_array.size() == 1 ? max_array.at(0) : "";
 
-	emit refresh_impl_finished(
+	Q_EMIT refresh_impl_finished(
 	    QString(max.c_str())); // We must go back on the Qt thread to update the GUI
 }
 
@@ -714,5 +714,5 @@ void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 	bool integer = std::modf(avg, &intpart) == 0.0;
 	QString avg_str = integer ? QString("%L1").arg((int64_t)avg) : QString("%L1").arg(avg, 0, 'f');
 
-	emit refresh_impl_finished(avg_str); // We must go back on the Qt thread to update the GUI
+	Q_EMIT refresh_impl_finished(avg_str); // We must go back on the Qt thread to update the GUI
 }

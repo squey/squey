@@ -299,7 +299,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 
 		if (_tab_widget->count() == FIRST_PROJECT_INDEX) {
 			_tab_widget->setCurrentIndex(0);
-			emit is_empty();
+			Q_EMIT is_empty();
 		}
 	}
 }
@@ -315,9 +315,9 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	QWidget* active_widget = _stacked_widget->currentWidget();
 	if ((active_widget == _start_screen_widget) ||
 	    (_stacked_widget->count() <= FIRST_PROJECT_INDEX)) {
-		emit active_project(false);
+		Q_EMIT active_project(false);
 	} else {
-		emit active_project(true);
+		Q_EMIT active_project(true);
 	}
 
 	if (index == 0) {

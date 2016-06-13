@@ -66,7 +66,7 @@ class PVZoomableDrawingAreaInteractor
 	}
 
 	/**
-	 * emit a PVZoomableDrawingArea::zoom_has_changed signal
+	 * Q_EMIT a PVZoomableDrawingArea::zoom_has_changed signal
 	 *
 	 * Why this method? Simply because friendship can not be inherited in C++.
 	 *
@@ -75,17 +75,20 @@ class PVZoomableDrawingAreaInteractor
 	 */
 	static inline void zoom_has_changed(PVZoomableDrawingArea* zda, int axes)
 	{
-		emit zda->zoom_has_changed(axes);
+		Q_EMIT zda->zoom_has_changed(axes);
 	}
 
 	/**
-	 * emit a PVZoomableDrawingArea::pan_has_changed signal
+	 * Q_EMIT a PVZoomableDrawingArea::pan_has_changed signal
 	 *
 	 * Why this method? Simply because friendship can not be inherited in C++.
 	 *
 	 * @param zda the corresponding PVZoomDrawingArea
 	 */
-	static inline void pan_has_changed(PVZoomableDrawingArea* zda) { emit zda->pan_has_changed(); }
+	static inline void pan_has_changed(PVZoomableDrawingArea* zda)
+	{
+		Q_EMIT zda->pan_has_changed();
+	}
 };
 }
 

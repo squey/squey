@@ -211,7 +211,7 @@ void PVParallelView::PVZoomedParallelViewSelectionLine::start_timer()
 
 void PVParallelView::PVZoomedParallelViewSelectionLine::timeout()
 {
-	emit commit_volatile_selection();
+	Q_EMIT commit_volatile_selection();
 
 	_pen_color = PVSelectionRectangle::rectangle_color;
 	get_zpview()->get_viewport()->update();

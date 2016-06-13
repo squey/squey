@@ -53,7 +53,7 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 	bool subd3_rev = args[PVFieldSplitterDnsFqdn::SUBD3_REV].toBool();
 
 	set_child_count(tld1 + tld2 + tld3 + subd1 + subd2 + subd3);
-	emit nchilds_changed_Signal();
+	Q_EMIT nchilds_changed_Signal();
 
 	_param_widget = new QWidget();
 
@@ -138,8 +138,8 @@ void PVFilter::PVFieldSplitterDnsFqdnParamWidget::split_cb_changed(int)
 
 	set_child_count(n);
 
-	emit nchilds_changed_Signal();
-	emit args_changed_Signal();
+	Q_EMIT nchilds_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }
 
 /******************************************************************************
@@ -154,7 +154,7 @@ void PVFilter::PVFieldSplitterDnsFqdnParamWidget::rev_cb_changed(int)
 
 	get_filter()->set_args(args);
 
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }
 
 /******************************************************************************

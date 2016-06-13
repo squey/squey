@@ -35,7 +35,7 @@ class PVFieldSplitterDnsFqdnParamWidget : public PVFieldsSplitterParamWidget
   private:
 	void update_args(PVCore::PVArgumentList& args);
 
-  private slots:
+  private Q_SLOTS:
 	void split_cb_changed(int state);
 	void rev_cb_changed(int state);
 

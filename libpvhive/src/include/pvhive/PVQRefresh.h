@@ -40,7 +40,7 @@ class PVQRefresh : public PVRefreshSignal
 		connect_about_to_be_deleted(this, SLOT(do_about_to_be_deleted(PVHive::PVObserverBase*)));
 	}
 
-  protected slots:
+  protected Q_SLOTS:
 /* Qt's signals/slots mechanism can not work properly with namespaces; leading
  * to run-time errors of type "Incompatible sender/receiver arguments" or
  * "No such signal": the signals use implicit namespaces prefix (otherwise it

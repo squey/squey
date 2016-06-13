@@ -40,10 +40,10 @@ class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 	void
 	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
 
-  public slots:
+  public Q_SLOTS:
 	virtual void remove_from_axis() = 0;
 
-  signals:
+  Q_SIGNALS:
 	void sliders_moved();
 
   protected:

@@ -34,10 +34,10 @@ class PVZoomAxisSliders : public PVAbstractRangeAxisSliders
 
 	void initialize(id_t id, int64_t y_min, int64_t y_max);
 
-  public slots:
+  public Q_SLOTS:
 	void remove_from_axis() override;
 
-  private slots:
+  private Q_SLOTS:
 	void do_sliders_moved();
 
   private:

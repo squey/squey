@@ -241,7 +241,7 @@ class EntityButtonActor : public QDialog, public EntityActor
 
 	virtual void terminate() { close(); }
 
-  private slots:
+  private Q_SLOTS:
 	void do_inc(bool)
 	{
 		_vl->setText("count: " + QString::number(_value));
@@ -286,7 +286,7 @@ class PropertyButtonActor : public QDialog, public PropertyEntityActor
 
 	virtual void terminate() { close(); }
 
-  private slots:
+  private Q_SLOTS:
 	void do_inc(bool)
 	{
 		_vl->setText("count: " + QString::number(_value));
@@ -456,7 +456,7 @@ class EntityQObserver : public PVHive::PVQObserver<Entity>, public Interactor
 
 	~EntityQObserver()
 	{
-		emit finished(0);
+		Q_EMIT finished(0);
 		std::cout << "entity qobserver " << get_id() << ": death" << std::endl;
 	}
 
@@ -478,7 +478,7 @@ class EntityQObserver : public PVHive::PVQObserver<Entity>, public Interactor
 
 	virtual void terminate() { deleteLater(); }
 
-  signals:
+  Q_SIGNALS:
 	void finished(int);
 };
 
@@ -494,7 +494,7 @@ class PropertyQObserver : public PVHive::PVQObserver<Property>, public Interacto
 
 	~PropertyQObserver()
 	{
-		emit finished(0);
+		Q_EMIT finished(0);
 		std::cout << "property qobserver " << get_id() << ": death" << std::endl;
 	}
 
@@ -517,7 +517,7 @@ class PropertyQObserver : public PVHive::PVQObserver<Property>, public Interacto
 
 	virtual void terminate() { deleteLater(); }
 
-  signals:
+  Q_SIGNALS:
 	void finished(int);
 };
 
@@ -558,7 +558,7 @@ class EntityObserverCB : public QObject, public Interactor
 
 	~EntityObserverCB()
 	{
-		emit finished(0);
+		Q_EMIT finished(0);
 		std::cout << "entity observercb " << get_id() << ": death" << std::endl;
 	}
 
@@ -566,7 +566,7 @@ class EntityObserverCB : public QObject, public Interactor
 
 	void terminate() { deleteLater(); }
 
-  signals:
+  Q_SIGNALS:
 	void finished(int);
 
   private:
@@ -615,7 +615,7 @@ class PropertyObserverCB : public QObject, public Interactor
 
 	~PropertyObserverCB()
 	{
-		emit finished(0);
+		Q_EMIT finished(0);
 		std::cout << "property observercb " << get_id() << ": death" << std::endl;
 	}
 
@@ -623,7 +623,7 @@ class PropertyObserverCB : public QObject, public Interactor
 
 	void terminate() { deleteLater(); }
 
-  signals:
+  Q_SIGNALS:
 	void finished(int);
 
   private:
@@ -644,7 +644,7 @@ class EntityObserverSignal : public QObject, public Interactor
 
 	~EntityObserverSignal()
 	{
-		emit finished(0);
+		Q_EMIT finished(0);
 		std::cout << "entity observersignal " << get_id() << ": death" << std::endl;
 	}
 
@@ -652,10 +652,10 @@ class EntityObserverSignal : public QObject, public Interactor
 
 	virtual void terminate() { deleteLater(); }
 
-  signals:
+  Q_SIGNALS:
 	void finished(int);
 
-  public slots:
+  public Q_SLOTS:
 	void do_refresh(PVHive::PVObserverBase*)
 	{
 		std::cout << "entity observersignal " << get_id()
@@ -690,7 +690,7 @@ class PropertyObserverSignal : public QObject, public Interactor
 
 	~PropertyObserverSignal()
 	{
-		emit finished(0);
+		Q_EMIT finished(0);
 		std::cout << "property observersignal " << get_id() << ": death" << std::endl;
 	}
 
@@ -698,10 +698,10 @@ class PropertyObserverSignal : public QObject, public Interactor
 
 	virtual void terminate() { deleteLater(); }
 
-  signals:
+  Q_SIGNALS:
 	void finished(int);
 
-  public slots:
+  public Q_SLOTS:
 	void do_refresh(PVHive::PVObserverBase*)
 	{
 		std::cout << "property observersignal " << get_id()

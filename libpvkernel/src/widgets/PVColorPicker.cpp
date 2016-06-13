@@ -251,7 +251,7 @@ void PVWidgets::PVColorPicker::update_h_left(uint8_t h)
 		h_max--;
 	}
 	_c = PVCore::clamp(h, x0(), h_max);
-	emit color_changed_left(_c.h());
+	Q_EMIT color_changed_left(_c.h());
 }
 
 /*****************************************************************************
@@ -265,5 +265,5 @@ void PVWidgets::PVColorPicker::update_h_right(uint8_t h)
 		h_min++;
 	}
 	_c1 = PVCore::clamp(h, h_min, x1());
-	emit color_changed_right(_c1.h());
+	Q_EMIT color_changed_right(_c1.h());
 }

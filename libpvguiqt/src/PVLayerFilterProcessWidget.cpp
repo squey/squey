@@ -243,7 +243,7 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 		    } catch (const Inendi::PVLayerFilter::error& e) {
 
 			    std::unique_lock<std::mutex> lk(_blocking_msg);
-			    emit layer_filter_error(
+			    Q_EMIT layer_filter_error(
 			        filter_p); // need to go back to GUI thread to show error widget
 			    _cv.wait(lk);
 		    }

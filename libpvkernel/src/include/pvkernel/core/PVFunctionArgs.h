@@ -69,7 +69,7 @@ class PVFunctionArgsBase
 
 		// Get rid of unwanted args
 		PVArgumentList filtered_args;
-		foreach (PVCore::PVArgumentKey key, keys) {
+		for (PVCore::PVArgumentKey key : keys) {
 			PVArgumentList::const_iterator it = args.find(key);
 			if (it != args.end()) {
 				filtered_args[it->key()] = it->value();

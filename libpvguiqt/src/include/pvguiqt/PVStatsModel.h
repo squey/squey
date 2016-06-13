@@ -147,7 +147,7 @@ class PVStatsModel : public PVAbstractTableModel
 		sorted(col_idx, order);
 		_display.set_filter_as_sort();
 
-		emit layoutChanged();
+		Q_EMIT layoutChanged();
 	}
 
 	int columnCount(const QModelIndex& /*index*/) const { return 2; }

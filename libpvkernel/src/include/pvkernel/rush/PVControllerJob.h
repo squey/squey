@@ -90,7 +90,7 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 	tbb::filter_t<void, void> create_tbb_filter();
 	void job_has_run(); // Called when the job has finish to run
 
-  signals:
+  Q_SIGNALS:
 	void job_done_signal();
 
   private:

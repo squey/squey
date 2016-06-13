@@ -49,5 +49,5 @@ bool PVGuiQt::PVTableView::viewportEvent(QEvent* event)
 void PVGuiQt::PVTableView::resizeEvent(QResizeEvent* event)
 {
 	QTableView::resizeEvent(event);
-	emit resize();
+	Q_EMIT resize();
 }

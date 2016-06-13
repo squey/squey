@@ -58,7 +58,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 	}
 
 	QVector<PVCol> axes_id(get_used_axes_selected());
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		if (c == 0) {
 			return;
 		}
@@ -67,7 +67,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 	_axes_combination.move_axes_left_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
 	QItemSelection new_sel;
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		QModelIndex midx = _list_used->model()->index(c - 1, 0);
 		new_sel.select(midx, midx);
 	}
@@ -81,7 +81,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 	}
 
 	QVector<PVCol> axes_id(get_used_axes_selected());
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		if (c == _list_used->count() - 1) {
 			return;
 		}
@@ -90,7 +90,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 	_axes_combination.move_axes_right_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
 	QItemSelection new_sel;
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		QModelIndex midx = _list_used->model()->index(c + 1, 0);
 		new_sel.select(midx, midx);
 	}
@@ -157,7 +157,7 @@ QVector<PVCol> PVGuiQt::PVAxesCombinationWidget::get_list_selection(QListWidget*
 	QVector<PVCol> ret;
 	QModelIndexList list = widget->selectionModel()->selectedIndexes();
 	ret.reserve(list.size());
-	foreach (const QModelIndex& idx, list) {
+	for (const QModelIndex& idx : list) {
 		ret.push_back(idx.row());
 	}
 	return ret;
@@ -265,9 +265,9 @@ void PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
 void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
 {
 	QItemSelection new_sel;
-	foreach (PVCol c, cols) {
+	for (PVCol c : cols) {
 		QList<PVCol> comb_cols = _axes_combination.get_combined_axes_columns_indexes(c);
-		foreach (PVCol comb_c, comb_cols) {
+		for (PVCol comb_c : comb_cols) {
 			QModelIndex midx = _list_used->model()->index(comb_c, 0);
 			new_sel.select(midx, midx);
 		}

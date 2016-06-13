@@ -90,12 +90,12 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 
 	Inendi::PVScene& get_scene() { return *_obs_scene.get_object(); }
 
-  public slots:
+  public Q_SLOTS:
 	/*! \brief Call Inendi::PVRoot::select_source throught the Hive to keep track of current source.
 	 */
 	void tab_changed(int index);
 
-  protected slots:
+  protected Q_SLOTS:
 	/*! \brief Slot called when the user closes a workspace.
 	 */
 	void tab_close_requested(int index);
@@ -104,7 +104,7 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 	 */
 	void resizeEvent(QResizeEvent* event) override;
 
-  private slots:
+  private Q_SLOTS:
 	/*! \brief Change the CSS property width of the selected tab (used by the animation).
 	 */
 	void set_tab_width(int tab_width);
@@ -122,7 +122,7 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 
 	void set_project_modified(bool modified = true, QString path = QString());
 
-  signals:
+  Q_SIGNALS:
 	void project_modified(bool, QString = QString());
 
 	/*! \brief Signal emitted when the last source is closed.

@@ -34,8 +34,8 @@ class ThreadEndSignal : public QObject
 {
 	Q_OBJECT
   public:
-	void emit_finished() { emit finished(); }
-  signals:
+	void emit_finished() { Q_EMIT finished(); }
+  Q_SIGNALS:
 	void finished();
 };
 }
@@ -155,7 +155,7 @@ class PVProgressBox : public QDialog
 		PVProgressBox* pbox = new PVProgressBox(text, parent);
 		return progress(root, pbox);
 	}
-  public slots:
+  public Q_SLOTS:
 	void update_status_Slot();
 
 	/**
@@ -165,11 +165,11 @@ class PVProgressBox : public QDialog
 	void critical(QString const& title, QString const& msg)
 	{
 		std::unique_lock<std::mutex> lk(_blocking_msg);
-		emit sig_critical(title, msg);
+		Q_EMIT sig_critical(title, msg);
 		_cv.wait(lk);
 	}
 
-  public slots:
+  public Q_SLOTS:
 	void critical_slot(QString const& title, QString const& msg)
 	{
 		{
@@ -179,7 +179,7 @@ class PVProgressBox : public QDialog
 		_cv.notify_one();
 	}
 
-  signals:
+  Q_SIGNALS:
 	void sig_critical(QString const& title, QString const& msg);
 
   private:

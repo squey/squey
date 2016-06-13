@@ -53,7 +53,7 @@ class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsear
 	QString get_server_query(std::string* error = nullptr) const override;
 	QString get_serialize_query() const override;
 
-  protected slots:
+  protected Q_SLOTS:
 	size_t query_result_count(std::string* error = nullptr) override;
 	bool fetch_server_data(const PVElasticsearchInfos& infos) override;
 	void query_type_changed_slot() override;
@@ -61,7 +61,7 @@ class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsear
   protected:
 	QString get_export_filters() override;
 
-  private slots:
+  private Q_SLOTS:
 	void index_changed_by_user_slot();
 	void index_changed_slot(const QString& index);
 	void fetch_server_data_slot();

@@ -175,7 +175,7 @@ class PVXmlDomModel : public QAbstractItemModel
 
 	Inendi::PVAxesCombination _axes_combination;
 
-  public slots:
+  public Q_SLOTS:
 	void saveDefault();
 };
 }

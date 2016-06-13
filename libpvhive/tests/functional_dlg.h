@@ -25,7 +25,7 @@ typedef PVHive::PVObserverSignal<Storage> StorageObs;
 
 /* BUG: add a propertyentity, a thread actor and a qobserver, delete the
  * propertyentity, click "ok" to close the observer. a deadlock occurs:
- * the thread emit a refresh to qobserver which lock on emit_refresh_signal
+ * the thread Q_EMIT a refresh to qobserver which lock on emit_refresh_signal
  * to have synchronous call and the main thread try to get the lock on the
  * entry to unregister interactors.
  */
@@ -120,7 +120,7 @@ class FunctionalDlg : public QDialog
   private:
 	void closeEvent(QCloseEvent*) { clear_stuff(); }
 
-  private slots:
+  private Q_SLOTS:
 	void do_terminate_thread()
 	{
 		std::cerr << "::do_terminate_thread(): after thread" << std::endl;
@@ -167,7 +167,7 @@ class FunctionalDlg : public QDialog
 		}
 	}
 
-  private slots:
+  private Q_SLOTS:
 
 	void do_add_entity()
 	{
@@ -514,7 +514,7 @@ class FunctionalDlg : public QDialog
 		o->terminate();
 	}
 
-  private slots:
+  private Q_SLOTS:
 	void remove_entity(PVHive::PVObserverBase* o)
 	{
 		StorageObs* obs = dynamic_cast<StorageObs*>(o);

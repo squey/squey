@@ -68,7 +68,7 @@ class PVLayerStackModel : public QAbstractTableModel
 		return rowCount() - model_index - 1;
 	}
 
-  private slots:
+  private Q_SLOTS:
 	void layer_stack_about_to_be_deleted(PVHive::PVObserverBase* o);
 	void layer_stack_about_to_be_refreshed(PVHive::PVObserverBase* o);
 	void layer_stack_refreshed(PVHive::PVObserverBase* o);

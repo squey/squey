@@ -197,7 +197,7 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 			    current_view()->add_mineset_dataset(dataset_url);
 			    QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
 		    } catch (const Inendi::PVMineset::mineset_error& e) {
-			    emit mineset_error(QString(e.what()));
+			    Q_EMIT mineset_error(QString(e.what()));
 		    }
 		},
 	    &pbox);
@@ -600,7 +600,7 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 	    ar->get_repairable_errors_of_type<PVCore::PVSerializeArchiveErrorFileNotReadable>();
 	// TODO: a nice widget were file paths can be modified by batch (for instance
 	// modify all the files' directory in one action)
-	foreach (PVCore::PVSerializeArchiveFixError_p err, errs_file) {
+	for (PVCore::PVSerializeArchiveFixError_p err : errs_file) {
 		QString const& old_path(
 		    err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
 		QMessageBox* box =

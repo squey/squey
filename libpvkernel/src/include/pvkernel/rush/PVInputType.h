@@ -74,12 +74,12 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
   public:
 	void edit_format(QString const& path, QWidget* parent) const
 	{
-		emit edit_format_signal(path, parent);
+		Q_EMIT edit_format_signal(path, parent);
 	}
 
 	void edit_format(QDomDocument& doc, QWidget* parent) const
 	{
-		emit edit_format_signal(doc, parent);
+		Q_EMIT edit_format_signal(doc, parent);
 	}
 
 	void connect_parent(QObject const* parent) const
@@ -89,7 +89,7 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 		connect((QObject*)this, SIGNAL(edit_format_signal(QDomDocument&, QWidget*)), parent,
 		        SLOT(edit_format_Slot(QDomDocument&, QWidget*)));
 	}
-  signals:
+  Q_SIGNALS:
 	void edit_format_signal(QString const& path, QWidget* parent) const;
 	void edit_format_signal(QDomDocument& doc, QWidget* parent) const;
 };

@@ -123,7 +123,7 @@ void PVParallelView::PVAbstractAxisSlider::mousePressEvent(QGraphicsSceneMouseEv
 void PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
-		emit slider_moved();
+		Q_EMIT slider_moved();
 		_moving = false;
 		event->accept();
 	}

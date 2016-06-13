@@ -72,7 +72,7 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 	// Call select_view throught the Hive :)
 	PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *view);
 
-	// TODO : emit datachanged
+	// TODO : Q_EMIT datachanged
 
 	event->accept();
 }

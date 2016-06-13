@@ -148,13 +148,13 @@ void PVInspector::PVNrawListingWidget::unselect_column()
 void PVInspector::PVNrawListingWidget::set_axes_name_selected_row_Slot()
 {
 	int row = get_selected_row();
-	emit set_axes_name_from_nraw(row);
+	Q_EMIT set_axes_name_from_nraw(row);
 }
 
 void PVInspector::PVNrawListingWidget::set_axes_type_selected_row_Slot()
 {
 	int row = get_selected_row();
-	emit set_axes_type_from_nraw(row);
+	Q_EMIT set_axes_type_from_nraw(row);
 }
 
 int PVInspector::PVNrawListingWidget::get_selected_row()

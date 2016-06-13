@@ -30,7 +30,7 @@ class PVHitCountViewParamsWidget : public QToolBar
   public:
 	void update_widgets();
 
-  private slots:
+  private Q_SLOTS:
 	void set_selection_mode(int mode);
 
   private:

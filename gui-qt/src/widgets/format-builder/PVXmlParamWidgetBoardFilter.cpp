@@ -147,7 +147,7 @@ void PVInspector::PVXmlParamWidgetBoardFilter::initValue()
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardFilter::slotEmitNext()
 {
-	emit signalEmitNext();
+	Q_EMIT signalEmitNext();
 }
 
 /******************************************************************************
@@ -163,7 +163,7 @@ void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues()
 	node->setAttribute(QString("reverse"),
 	                   (typeOfFilter->val().toString() == "exclude") ? "true" : "false");
 
-	emit signalRefreshView();
+	Q_EMIT signalRefreshView();
 }
 
 /******************************************************************************

@@ -247,7 +247,7 @@ class PVZoomedParallelScene : public QGraphicsScene
 	 */
 	void configure_axis(bool reset_view_param = false);
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * Start an update of the selection images.
 	 */
@@ -376,7 +376,7 @@ class PVZoomedParallelScene : public QGraphicsScene
 	 */
 	void recreate_images();
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * The slot called when the vertical scrollbar's value has changed.
 	 *

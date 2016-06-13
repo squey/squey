@@ -196,7 +196,7 @@ void PVWidgets::PVQueryBuilder::run_javascript(const std::string& javascript,
 
 	_javascript_executed = false;
 
-	emit run_javascript_signal(javascript.c_str(), &r);
+	Q_EMIT run_javascript_signal(javascript.c_str(), &r);
 
 	// Yet another new trick to run asynchronous code synchronously
 	if (not _javascript_executed) {
@@ -221,7 +221,7 @@ void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript,
 
 	_view->page()->runJavaScript(javascript, [&](const QVariant& res) {
 		r = res;
-		emit loop.quit();
+		Q_EMIT loop.quit();
 	});
 
 	loop.exec(); // Trick to run asynchronous code synchronously

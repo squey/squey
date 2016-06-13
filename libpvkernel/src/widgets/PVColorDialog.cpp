@@ -168,7 +168,7 @@ void PVWidgets::PVColorDialog::picker_color_changed(int h)
 	// Change color of our label box
 	show_color(PVCore::PVHSVColor(h));
 	// Forward signal
-	emit color_changed(h);
+	Q_EMIT color_changed(h);
 }
 
 void PVWidgets::PVColorDialog::show_color(PVCore::PVHSVColor const& c)

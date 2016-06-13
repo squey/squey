@@ -98,7 +98,7 @@ PVWidgets::PVArgumentListWidget::~PVArgumentListWidget()
 void PVWidgets::PVArgumentListWidget::args_changed_Slot(const QModelIndex&, const QModelIndex&)
 {
 	_args_has_changed = true;
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }
 
 /******************************************************************************
@@ -222,7 +222,7 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 void PVWidgets::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
 {
 	PVCore::PVArgumentKeyList keys_to_change = args.keys();
-	foreach (PVCore::PVArgumentList::key_type const& key, keys_to_change) {
+	for (PVCore::PVArgumentList::key_type const& key : keys_to_change) {
 		if (_args->contains(key)) {
 			(*_args)[key] = args.at(key);
 		}

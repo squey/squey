@@ -48,7 +48,7 @@ class PVSplunkParamsWidget
 	QString get_server_query(std::string* error = nullptr) const override;
 	QString get_serialize_query() const override;
 
-  protected slots:
+  protected Q_SLOTS:
 	size_t query_result_count(std::string* error = nullptr) override;
 	bool fetch_server_data(const PVSplunkInfos& infos) override;
 	void query_type_changed_slot() override;
@@ -63,7 +63,7 @@ class PVSplunkParamsWidget
 	                         std::string* error = nullptr) override;
 	void set_query_type(QString const& query_type);
 
-  private slots:
+  private Q_SLOTS:
 	void splunk_filter_changed_by_user_slot();
 
   private:

@@ -197,14 +197,14 @@ class PVListingModel : public PVAbstractTableModel
 	 */
 	QString export_line(int row) const override;
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * With axes combination modifications, we have to update the model and
 	 * reorder/add/remove columns.
 	 */
 	void axes_comb_changed();
 
-  public slots:
+  public Q_SLOTS:
 	// public slots call through Hive
 	/**
 	 *  Update the current filter to show selected lines only.

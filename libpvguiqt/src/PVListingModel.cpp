@@ -274,7 +274,7 @@ void PVGuiQt::PVListingModel::update_filter()
 	Inendi::PVSelection const& sel = lib_view().get_selection_visible_listing();
 
 	// Inform view about future update
-	emit layoutAboutToBeChanged();
+	Q_EMIT layoutAboutToBeChanged();
 
 	// Push selected lines
 	_display.set_filter(sel);
@@ -282,7 +282,7 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Inform view new_filter is set
 	// This is not done using Hive as _filter have to be set, PVSelection is not
 	// enough
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************

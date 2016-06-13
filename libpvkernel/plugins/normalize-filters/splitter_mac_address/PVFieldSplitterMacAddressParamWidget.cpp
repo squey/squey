@@ -37,7 +37,7 @@ QAction* PVFilter::PVFieldSplitterMacAddressParamWidget::get_action_menu()
 QWidget* PVFilter::PVFieldSplitterMacAddressParamWidget::get_param_widget()
 {
 	set_child_count(2);
-	emit nchilds_changed_Signal();
+	Q_EMIT nchilds_changed_Signal();
 
 	return new QWidget();
 }

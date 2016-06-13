@@ -277,7 +277,7 @@ bool PVInspector::PVXmlDomModel::setData(const QModelIndex& index, const QVarian
 	if (role == Qt::EditRole) {
 		if (index.column() == 1) { // just choose the second column
 			nodeFromIndex(index)->setName(value.toString());
-			emit dataChanged(index, index);
+			Q_EMIT dataChanged(index, index);
 			return true;
 		}
 	}
@@ -344,7 +344,7 @@ bool PVInspector::PVXmlDomModel::saveXml(QString xml_file)
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::applyModification(QModelIndex&, PVXmlParamWidget*)
 {
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************
@@ -369,7 +369,7 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index)
 		PVRush::PVXmlTreeNodeDom* nodeASupprimer = nodeFromIndex(index);
 		if (nodeASupprimer != rootNode) {
 			nodeASupprimer->deleteFromTree();
-			emit layoutChanged();
+			Q_EMIT layoutChanged();
 		}
 	} else {
 	}
@@ -403,7 +403,7 @@ void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex& index)
 			return;
 		addAxisIn(NULL);
 	}
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************
@@ -454,7 +454,7 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
 		childPrecedent->addChild(child);
 	}
 
-	emit layoutChanged(); // refresh
+	Q_EMIT layoutChanged(); // refresh
 }
 
 /******************************************************************************
@@ -510,7 +510,7 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 	// save the splitter plugin referance
 	child->setSplitterPlugin(splitterPlugin);
 
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 	return child;
 }
 
@@ -562,7 +562,7 @@ PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
 	// save the converter plugin referance
 	child->setConverterPlugin(converterPlugin);
 
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 	return child;
 }
 
@@ -640,7 +640,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 		child->setParent(rootNode);
 		rootNode->addChild(child);
 	}
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************
@@ -664,7 +664,7 @@ void PVInspector::PVXmlDomModel::moveDown(const QModelIndex& index)
 		parent->removeChild(child);
 		parent->addChildAt(child, fllower->getRow() + 1);
 	}
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************
@@ -688,7 +688,7 @@ void PVInspector::PVXmlDomModel::moveUp(const QModelIndex& index)
 		parent->removeChild(follower);
 		parent->addChildAt(follower, child->getRow());
 	}
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************
@@ -791,7 +791,7 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	// Go through the DOM to get all the different groups
 	rootNode->getGroupsByType(_groups);
 
-	emit layoutChanged(); // to resfresh screen
+	Q_EMIT layoutChanged(); // to resfresh screen
 }
 
 void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,
@@ -962,7 +962,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 	child->setParent(field);
 	field->addChild(child);
 
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************
@@ -996,7 +996,7 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex& index)
 void PVInspector::PVXmlDomModel::processChildrenWithField(PVCore::PVField const& field)
 {
 	getRoot()->getChildrenFromField(field);
-	emit layoutChanged();
+	Q_EMIT layoutChanged();
 }
 
 void PVInspector::PVXmlDomModel::clearFiltersData()

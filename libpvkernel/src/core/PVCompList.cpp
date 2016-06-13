@@ -73,7 +73,7 @@ bool comp_hash(PVCore::PVArgumentList const& h1,
                PVCore::PVArgumentList const& h2,
                const PVCore::PVArgumentKeyList& keys)
 {
-	foreach (PVCore::PVArgumentKey key, keys) {
+	for (PVCore::PVArgumentKey key : keys) {
 		PVCore::PVArgument arg1 = h1.at(key);
 		PVCore::PVArgument arg2 = h2.at(key);
 

@@ -80,7 +80,7 @@ void PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action(QA
 		/* only if _active_axis has been initialized (after the first
 		 * call done by ::build_axis_menu(...))
 		 */
-		emit change_to_col(axis);
+		Q_EMIT change_to_col(axis);
 	}
 	_active_axis = axis;
 }

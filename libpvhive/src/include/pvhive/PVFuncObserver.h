@@ -79,11 +79,11 @@ class PVFuncObserverSignalBase : public QObject, public PVHive::PVFuncObserverBa
 	virtual void do_about_to_be_updated_impl(const void*) const;
 	virtual void do_update_impl(const void*) const;
 
-  private slots:
+  private Q_SLOTS:
 	void about_to_be_refreshed_slot(const void*) const;
 	void refresh_slot(const void*) const;
 
-  signals:
+  Q_SIGNALS:
 	void about_to_be_refreshed_signal(const void*) const;
 	void refresh_signal(const void*) const;
 };

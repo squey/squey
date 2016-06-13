@@ -122,7 +122,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 	switch (event->type()) {
 	case QEvent::MouseMove: {
 		if (PVGuiQt::PVSourceWorkspace::_drag_started) {
-			emit try_automatic_tab_switch();
+			Q_EMIT try_automatic_tab_switch();
 
 			QMouseEvent* mouse_event = (QMouseEvent*)event;
 			PVWorkspaceBase* workspace = PVGuiQt::PVSourceWorkspace::workspace_under_mouse();

@@ -40,7 +40,7 @@ class PVLayerStackView : public QTableView
 
 	Inendi::PVLayer& get_layer_from_idx(int model_idx);
 
-  private slots:
+  private Q_SLOTS:
 	void show_ctxt_menu(QPoint const& pt);
 	void layer_clicked(QModelIndex const& idx);
 	void layer_double_clicked(QModelIndex const& idx);

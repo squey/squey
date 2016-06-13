@@ -250,7 +250,7 @@ class PVSelectionRectangleItem : public QGraphicsObject
 	 */
 	PVSelectionHandleItem* get_central_handle() const { return _central_handle; }
 
-  signals:
+  Q_SIGNALS:
 	void geometry_has_changed(const QRectF& old_rect, const QRectF& new_rect);
 
   protected:

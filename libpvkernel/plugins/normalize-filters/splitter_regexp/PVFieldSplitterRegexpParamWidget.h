@@ -56,12 +56,12 @@ class PVFieldSplitterRegexpParamWidget : public PVFieldsSplitterParamWidget
 	void update_data_display();
 
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterRegexpParamWidget)
-  public slots:
+  public Q_SLOTS:
 	void slotUpdateTableValidator();
 	void slotExpressionChanged();
 	void slotFullineChanged(int state);
 
-  signals:
+  Q_SIGNALS:
 	void data_changed();
 	void signalRefreshView();
 };
