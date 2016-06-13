@@ -89,7 +89,6 @@ class PVAxesCombination
 	    columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
 	list_axes_t
 	    original_axes_list; //!< All the axes, left as how they were upon loading the format.
-	bool _is_consistent;    //!< Whether this object is consistent
   public:
 	PVAxesCombination(PVRush::PVFormat const&);
 	PVAxesCombination(){};
@@ -235,8 +234,6 @@ class PVAxesCombination
 	*
 	*/
 	bool increase_axis_column_index(PVCol index);
-
-	inline bool is_consistent() const { return _is_consistent; }
 
 	/**
 	 * Returns true if the current axes combination is the default one.

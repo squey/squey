@@ -19,7 +19,7 @@
  *
  *****************************************************************************/
 
-Inendi::PVAxesCombination::PVAxesCombination(PVRush::PVFormat const& format) : _is_consistent(true)
+Inendi::PVAxesCombination::PVAxesCombination(PVRush::PVFormat const& format)
 {
 	set_from_format(format);
 }
@@ -381,15 +381,12 @@ bool Inendi::PVAxesCombination::remove_axis(PVCol index)
  *****************************************************************************/
 void Inendi::PVAxesCombination::reset_to_default()
 {
-	_is_consistent = false;
 	columns_indexes_list.clear();
 	axes_list.clear();
 
 	for (PVCol i = 0; i < original_axes_list.size(); i++) {
 		axis_append(i);
 	}
-
-	_is_consistent = true;
 }
 
 /******************************************************************************
@@ -553,7 +550,6 @@ void Inendi::PVAxesCombination::sort_by_name(bool order)
 		std::stable_sort(vec_tosort.begin(), vec_tosort.end(), comp_inv_sort);
 	}
 
-	_is_consistent = false;
 	columns_indexes_list.clear();
 	axes_list.clear();
 
@@ -561,8 +557,6 @@ void Inendi::PVAxesCombination::sort_by_name(bool order)
 	for (it = vec_tosort.begin(); it != vec_tosort.end(); it++) {
 		axis_append(it->second);
 	}
-
-	_is_consistent = true;
 }
 
 QString Inendi::PVAxesCombination::to_string() const
