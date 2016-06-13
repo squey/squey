@@ -73,10 +73,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	void sel_singleton_Slot();
 	void sort_Slot();
 
-  signals:
-	void axes_combination_changed();
-	void axes_count_changed();
-
   protected:
 	Inendi::PVAxesCombination& _axes_combination;
 	PVMoveToDlg* _move_dlg;

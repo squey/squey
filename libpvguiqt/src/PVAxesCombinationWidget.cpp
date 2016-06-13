@@ -49,9 +49,6 @@ void PVGuiQt::PVAxesCombinationWidget::axis_add_Slot()
 	_axes_combination.axis_append(axis_id);
 
 	_list_used->setCurrentRow(_list_used->count() - 1);
-
-	emit axes_count_changed();
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
@@ -75,8 +72,6 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 		new_sel.select(midx, midx);
 	}
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
-
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
@@ -100,8 +95,6 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 		new_sel.select(midx, midx);
 	}
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
-
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_move_Slot()
@@ -123,7 +116,6 @@ void PVGuiQt::PVAxesCombinationWidget::axis_move_Slot()
 
 	update_used_axes();
 	_list_used->setCurrentRow(dest);
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
@@ -141,22 +133,13 @@ void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 	_axes_combination.remove_axes(axes_id);
 	update_used_axes();
 	_list_used->setCurrentRow(std::min(axes_id.at(0), _list_used->count() - 1));
-
-	emit axes_count_changed();
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()
 {
-	PVCol nold_axes = _axes_combination.get_axes_count();
 	_axes_combination.reset_to_default();
 
 	update_used_axes();
-
-	if (nold_axes != _axes_combination.get_axes_count()) {
-		emit axes_count_changed();
-	}
-	emit axes_combination_changed();
 }
 
 PVCol PVGuiQt::PVAxesCombinationWidget::get_original_axis_selected()
@@ -213,7 +196,6 @@ void PVGuiQt::PVAxesCombinationWidget::sort_Slot()
 {
 	_axes_combination.sort_by_name(true);
 	update_used_axes();
-	emit axes_combination_changed();
 }
 
 bool PVGuiQt::PVAxesCombinationWidget::is_used_axis_selected()
