@@ -773,7 +773,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
-	actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+	view_sp->update_current_layer_min_max();
 	actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
 	// and to update the layer-stack
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
@@ -885,7 +885,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 		// We need to configure the layer
 		view_sp->commit_selection_to_layer(layer);
-		actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+		view_sp->update_current_layer_min_max();
 		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
 
 		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {

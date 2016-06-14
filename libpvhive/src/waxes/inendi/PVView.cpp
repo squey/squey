@@ -102,35 +102,30 @@ IMPL_WAX(Inendi::PVView::add_new_layer, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::add_new_layer)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Inendi::PVView::delete_layer_n, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::delete_layer_n)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Inendi::PVView::delete_selected_layer, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::delete_selected_layer)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Inendi::PVView::move_selected_layer_to, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::move_selected_layer_to)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Inendi::PVView::duplicate_selected_layer, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::duplicate_selected_layer)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Inendi::PVView::reset_layers, view, args)
@@ -144,7 +139,6 @@ IMPL_WAX(Inendi::PVView::set_layer_stack_selected_layer_index, view, args)
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_layer_stack_selected_layer_index)>(
 	    view, args);
 	refresh_observers(&view->get_layer_stack());
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 IMPL_WAX(Inendi::PVView::set_layer_stack_layer_n_name, view, args)
@@ -176,12 +170,6 @@ IMPL_WAX(Inendi::PVView::hide_layers, view, args)
 {
 	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::hide_layers)>(view, args);
 	refresh_observers(&view->get_layer_stack());
-}
-
-IMPL_WAX(Inendi::PVView::compute_layer_min_max, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::compute_layer_min_max)>(view, args);
-	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
 PVHIVE_CALL_OBJECT_BLOCK_END()

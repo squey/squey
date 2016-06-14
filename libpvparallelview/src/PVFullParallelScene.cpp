@@ -88,14 +88,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	view_sp->_axis_clicked.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::sync_axis_with_section));
 
-	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
-	    [&](int const*) {}, [&](int const*) { this->update_axes_layer_min_max(); },
-	    [&](int const*) {});
-
-	PVHive::get().register_observer(
-	    view_sp,
-	    [=](Inendi::PVView& view) { return &view.get_layer_stack().get_selected_layer_index(); },
-	    *_obs_selected_layer);
+	view_sp->_update_current_min_max.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
 

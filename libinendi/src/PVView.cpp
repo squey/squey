@@ -122,16 +122,22 @@ void Inendi::PVView::add_new_layer(QString name)
 {
 	Inendi::PVLayer* layer = layer_stack.append_new_layer(get_row_count(), name);
 	layer->compute_selectable_count(get_row_count());
+
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::delete_selected_layer()
 {
 	layer_stack.delete_selected_layer();
+
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::delete_layer_n(int idx)
 {
 	layer_stack.delete_by_index(idx);
+
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::duplicate_selected_layer(const QString& name)
@@ -139,6 +145,8 @@ void Inendi::PVView::duplicate_selected_layer(const QString& name)
 	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
 	compute_layer_min_max(*new_layer);
 	new_layer->compute_selectable_count(get_row_count());
+
+	_update_current_min_max.emit();
 }
 
 /******************************************************************************
@@ -726,6 +734,8 @@ int Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 void Inendi::PVView::set_layer_stack_selected_layer_index(int index)
 {
 	layer_stack.set_selected_layer_index(index);
+
+	_update_current_min_max.emit();
 }
 
 /******************************************************************************
@@ -773,6 +783,8 @@ int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 void Inendi::PVView::move_selected_layer_to(int new_index)
 {
 	get_layer_stack().move_selected_layer_to(new_index);
+
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::select_all_nonzb_lines()
@@ -838,6 +850,13 @@ bool& Inendi::PVView::are_view_unselected_zombie_visible()
 void Inendi::PVView::compute_layer_min_max(Inendi::PVLayer& layer)
 {
 	layer.compute_min_max(get_parent<Inendi::PVPlotted>());
+}
+
+void Inendi::PVView::update_current_layer_min_max()
+{
+	compute_layer_min_max(get_current_layer());
+
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::compute_selectable_count(Inendi::PVLayer& layer)

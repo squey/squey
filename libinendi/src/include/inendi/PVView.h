@@ -204,6 +204,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	bool& are_view_unselected_zombie_visible();
 
 	void compute_layer_min_max(Inendi::PVLayer& layer);
+	void update_current_layer_min_max();
 	void compute_selectable_count(Inendi::PVLayer& layer);
 
 	void recompute_all_selectable_count();
@@ -380,6 +381,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	sigc::signal<void, size_t, size_t> _axis_clicked;
 	sigc::signal<void> _axis_combination_updated;
 	sigc::signal<void> _axis_combination_about_to_update;
+	sigc::signal<void> _update_current_min_max;
 
   protected:
 	/*! \brief PVView's specific axes combination

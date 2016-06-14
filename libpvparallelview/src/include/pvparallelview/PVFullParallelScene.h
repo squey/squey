@@ -25,10 +25,6 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVSlidersManager.h>
 
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVObserverSignal.h>
-
 #include <tbb/atomic.h>
 
 namespace PVParallelView
@@ -234,8 +230,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	std::vector<SingleZoneImagesItems> _zones;
 	axes_list_t _axes;
-
-	PVHive::PVObserver_p<int> _obs_selected_layer;
 
 	Inendi::PVView& _lib_view;
 

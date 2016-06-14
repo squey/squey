@@ -389,7 +389,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
-	actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+	view_sp->update_current_layer_min_max();
 	actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
 	// and to update the layer-stack
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
@@ -428,7 +428,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		current_layer.get_selection().and_not(new_layer.get_selection());
 
 		/* We need to reprocess the layer stack */
-		actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(new_layer);
+		view_sp->update_current_layer_min_max();
 		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(new_layer);
 
 		// do not forget to update the current layer
