@@ -29,7 +29,7 @@ int main()
 	env.compute_plotting();
 	env.compute_views();
 
-	Inendi::PVView* view = env.root->current_view();
+	Inendi::PVView* view = env.root.current_view();
 
 	// Check result
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();

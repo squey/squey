@@ -76,7 +76,7 @@ class TestEnv
 	 * dup is the number of time we want to duplicate data.
 	 */
 	TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1)
-	    : root(new Inendi::PVRoot()), _big_file_path(get_tmp_filename())
+	    : _big_file_path(get_tmp_filename())
 	{
 		// Need this core application to find plugins path.
 		std::string prog_name = "test_inendi";
@@ -125,7 +125,7 @@ class TestEnv
 		}
 
 		// Create the PVSource object
-		Inendi::PVScene& scene = root->emplace_add_child("scene");
+		Inendi::PVScene& scene = root.emplace_add_child("scene");
 		Inendi::PVSource& src =
 		    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 		PVRush::PVControllerJob_p job = src.extract();
@@ -145,7 +145,7 @@ class TestEnv
 
   private:
 	Inendi::PVView* view;
-	Inendi::PVRoot_p root;
+	Inendi::PVRoot root;
 	std::string _big_file_path;
 };
 

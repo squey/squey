@@ -8,6 +8,8 @@
 #include <QtCore>
 #include <QtWidgets>
 
+#include <inendi/PVCorrelationEngine.h>
+#include <inendi/PVRoot.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 

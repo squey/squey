@@ -52,7 +52,7 @@ class TestEnv
 	 * dup is the number of time we want to duplicate data.
 	 */
 	TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1)
-	    : root(new Inendi::PVRoot()), _big_file_path(get_tmp_filename())
+	    : _big_file_path(get_tmp_filename())
 	{
 		// Need this core application to find plugins path.
 		std::string prog_name = "test_inendi";
@@ -87,7 +87,7 @@ class TestEnv
 	 */
 	Inendi::PVMapped& compute_mapping(size_t scene_id = 0, size_t src_id = 0)
 	{
-		const auto& scenes = root->get_children();
+		const auto& scenes = root.get_children();
 		assert(scene_id < scenes.size());
 		auto scene_it = scenes.begin();
 		std::advance(scene_it, scene_id);
@@ -102,7 +102,7 @@ class TestEnv
 
 	void compute_mappings()
 	{
-		for (const auto& source : root->get_children<Inendi::PVSource>()) {
+		for (const auto& source : root.get_children<Inendi::PVSource>()) {
 			source->emplace_add_child();
 		}
 	}
@@ -114,7 +114,7 @@ class TestEnv
 	compute_plotting(size_t scene_id = 0, size_t src_id = 0, size_t mapped_id = 0)
 	{
 		// And plot the mapped values
-		const auto& scenes = root->get_children();
+		const auto& scenes = root.get_children();
 		assert(scene_id < scenes.size());
 		auto scene_it = scenes.begin();
 		std::advance(scene_it, scene_id);
@@ -135,14 +135,14 @@ class TestEnv
 	void compute_plottings()
 	{
 		// And plot the mapped values
-		for (auto* mapped : root->get_children<Inendi::PVMapped>()) {
+		for (auto* mapped : root.get_children<Inendi::PVMapped>()) {
 			mapped->emplace_add_child();
 		}
 	}
 
 	void compute_views()
 	{
-		for (auto* plotted : root->get_children<Inendi::PVPlotted>()) {
+		for (auto* plotted : root.get_children<Inendi::PVPlotted>()) {
 			plotted->emplace_add_child();
 		}
 	}
@@ -185,7 +185,7 @@ class TestEnv
 
 		// Create the PVSource object
 		Inendi::PVScene* scene =
-		    (new_scene) ? &root->emplace_add_child("scene") : root->get_children().front();
+		    (new_scene) ? &root.emplace_add_child("scene") : root.get_children().front();
 		Inendi::PVSource& src =
 		    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 		PVRush::PVControllerJob_p job = src.extract();
@@ -194,7 +194,7 @@ class TestEnv
 	}
 
   public:
-	Inendi::PVRoot_p root;
+	Inendi::PVRoot root;
 
   private:
 	std::string _big_file_path;

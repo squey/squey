@@ -25,22 +25,15 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
-#include <inendi/PVRoot_types.h>
 #include <inendi/PVScene_types.h>
 #include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVSelection.h>
 
-#include <pvhive/PVObserverSignal.h>
-
 #include <pvguiqt/PVProjectsTabWidget.h>
 
 #include <PVFilesTypesSelWidget.h>
-
-//#include <>
-
-/* #include <logviewer/logviewerwidget.h> */
 
 #include <tbb/task_scheduler_init.h>
 
@@ -317,7 +310,6 @@ class PVMainWindow : public QMainWindow
   private:
 	Inendi::PVRoot& get_root();
 	Inendi::PVRoot const& get_root() const;
-	Inendi::PVRoot_sp get_root_sp();
 
   private:
 	static PVMainWindow* find_main_window(const QString& path);
@@ -342,8 +334,7 @@ class PVMainWindow : public QMainWindow
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;
-	Inendi::PVRoot_sp _root;
-	PVHive::PVObserverSignal<Inendi::PVRoot> _obs_root;
+	Inendi::PVRoot _root;
 	bool _auto_detect_cancellation;
 
   private:

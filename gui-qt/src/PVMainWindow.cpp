@@ -70,7 +70,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
                          tr("Load an investigation..."),
                          QString(),
                          INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
-    , _root(new Inendi::PVRoot())
+    , _root()
 {
 	setAcceptDrops(true);
 
@@ -222,18 +222,14 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 // as this might change in the near future and save lots of compilation time.
 Inendi::PVRoot& PVInspector::PVMainWindow::get_root()
 {
-	return *_root;
+	return _root;
 }
 
 Inendi::PVRoot const& PVInspector::PVMainWindow::get_root() const
 {
-	return *_root;
-}
-
-Inendi::PVRoot_sp PVInspector::PVMainWindow::get_root_sp()
-{
 	return _root;
 }
+
 ///////////////////////////////////////////////////////////////////////////
 
 /******************************************************************************
@@ -358,7 +354,6 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
 	if (maybe_save_solution()) {
-		_root.reset();
 		event->accept();
 	} else {
 		event->ignore();
@@ -540,7 +535,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::display_icon_Slot
+ * PVInspector::PVMainWindow::close_solution_Slot
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::close_solution_Slot()

@@ -8,11 +8,11 @@
 #ifndef __PVGUIQT_PVPROJECTSTABWIDGET_H__
 #define __PVGUIQT_PVPROJECTSTABWIDGET_H__
 
-#include <assert.h>
-#include <list>
+#include <sigc++/sigc++.h>
+#include <cassert>
 
 #include <inendi/PVScene.h>
-#include <inendi/PVRoot_types.h>
+#include <inendi/PVRoot.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
@@ -29,6 +29,11 @@
 #include <QSplitterHandle>
 #include <QSplitter>
 #include <QTabBar>
+
+namespace Inendi
+{
+class PVRoot;
+}
 
 namespace PVGuiQt
 {
@@ -112,7 +117,7 @@ class PVSplitter : public QSplitter
  *
  * \note This class is representing a project tab widget.
  */
-class PVProjectsTabWidget : public QWidget
+class PVProjectsTabWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 

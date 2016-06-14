@@ -28,7 +28,6 @@
 #include <sys/resource.h>
 
 #include <stdio.h>
-//#include <dlfcn.h>
 
 #include <time.h>
 #include <pvkernel/core/inendi_intrin.h>
@@ -38,7 +37,6 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <inendi/common.h>
-#include <inendi/PVRoot.h>
 
 #include <pvparallelview/PVParallelView.h>
 
@@ -48,8 +46,6 @@
 #include <pvdisplays/PVDisplaysImpl.h>
 
 #include <boost/program_options.hpp>
-
-#define JULY_5 1309856400
 
 static QString email_address = EMAIL_ADDRESS_CONTACT;
 

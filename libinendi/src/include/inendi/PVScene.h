@@ -28,7 +28,7 @@
 namespace Inendi
 {
 
-class PVSource;
+class PVRoot;
 
 /**
  * \class PVScene

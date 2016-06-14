@@ -23,7 +23,6 @@ waxes/inendi/PVScene.cpp
 waxes/inendi/PVMapped.cpp
 waxes/inendi/PVSource.cpp
 waxes/inendi/PVView.cpp
-waxes/inendi/PVRoot.cpp
 waxes/inendi/PVPlotted.cpp
 )
 

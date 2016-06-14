@@ -24,6 +24,7 @@
 #include <pvhive/PVObserverCallback.h>
 
 #include <inendi/PVView.h>
+#include <inendi/PVRoot.h>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
                                       QWidget* view_widget,
@@ -310,8 +311,7 @@ void PVGuiQt::PVViewDisplay::restore()
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view && !_about_to_be_deleted) {
-		Inendi::PVRoot_sp root_sp = _view->get_parent<Inendi::PVRoot>().shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *_view);
+		_view->get_parent<Inendi::PVRoot>().select_view(*_view);
 	}
 }
 

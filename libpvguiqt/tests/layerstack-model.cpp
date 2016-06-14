@@ -11,6 +11,7 @@
 #include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
+#include <inendi/PVRoot.h>
 
 #include <pvhive/PVObserverCallback.h>
 
@@ -36,8 +37,8 @@ int main(int argc, char** argv)
 	init_env();
 
 	// Get a INENDI tree from the given file/format
-	Inendi::PVRoot_p root;
-	Inendi::PVSource& src = get_src_from_file(*root, argv[1], argv[2]);
+	Inendi::PVRoot root;
+	Inendi::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
 	src.emplace_add_child()   // Mapped
 	    .emplace_add_child()  // Plotted
 	    .emplace_add_child(); // View

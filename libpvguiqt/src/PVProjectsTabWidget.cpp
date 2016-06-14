@@ -125,15 +125,8 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Inendi::PVRoot* root, QWidget*
 	connect(_tab_widget->tabBar(), SIGNAL(tabCloseRequested(int)), this,
 	        SLOT(tab_close_requested(int)));
 
-	// Hive
-	// Register for current scene changing
-	Inendi::PVRoot_sp root_sp = root->shared_from_this();
-	PVHive::PVObserverSignal<Inendi::PVRoot>* obs =
-	    new PVHive::PVObserverSignal<Inendi::PVRoot>(this);
-	obs->connect_refresh(this, SLOT(select_tab_from_current_scene()));
-	PVHive::get().register_observer(
-	    root_sp, [=](Inendi::PVRoot& root) { return root.get_current_scene_hive_property(); },
-	    *obs);
+	root->_scene_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene));
 }
 
 void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()

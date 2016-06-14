@@ -13,6 +13,7 @@
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVView.h>
+#include <inendi/PVRoot.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>

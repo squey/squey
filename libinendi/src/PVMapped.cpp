@@ -15,8 +15,6 @@
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
-#include <inendi/PVRoot.h>
-
 #include <iostream>
 
 /******************************************************************************

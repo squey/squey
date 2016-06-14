@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 	env.compute_mapping();
 	env.compute_plotting();
 	env.compute_views();
-	Inendi::PVView* view = env.root->current_view();
+	Inendi::PVView* view = env.root.current_view();
 
 	std::string dataset_url = Inendi::PVMineset::import_dataset(*view);
 	Inendi::PVMineset::delete_dataset(dataset_url);

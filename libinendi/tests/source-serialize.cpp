@@ -57,8 +57,8 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene& scene = root->emplace_add_child("scene");
+	Inendi::PVRoot root;
+	Inendi::PVScene& scene = root.emplace_add_child("scene");
 	Inendi::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src.extract();
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 	ar->finish();
 
 	// Get it back !
-	Inendi::PVScene& scene2 = root->emplace_add_child("scene");
+	Inendi::PVScene& scene2 = root.emplace_add_child("scene");
 	ar.reset(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
 	ar->get_root()->object("scene", scene2);
 	ar->finish();

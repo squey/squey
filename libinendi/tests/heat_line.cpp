@@ -8,6 +8,7 @@
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVLayer.h>
+
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -80,7 +81,7 @@ int main()
 	env.compute_mapping();
 	env.compute_plotting();
 	env.compute_views();
-	Inendi::PVView* view = env.root->current_view();
+	Inendi::PVView* view = env.root.current_view();
 
 	// Load every layer filter.
 	Inendi::common::load_layer_filters();

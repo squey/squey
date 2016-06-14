@@ -91,7 +91,7 @@ set_target_properties(inendi PROPERTIES SOVERSION 1)
 
 target_link_libraries(inendi ${QT5_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
-			     ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} pvkernel curl)
+			     ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} ${SIGCPP_LIBRARIES} pvkernel curl)
 
 ###############################################################################
 # Install files

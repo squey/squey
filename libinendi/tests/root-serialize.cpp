@@ -57,8 +57,8 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene& scene = root->emplace_add_child("scene");
+	Inendi::PVRoot root;
+	Inendi::PVScene& scene = root.emplace_add_child("scene");
 	scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	Inendi::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 	plotted.emplace_add_child();
 	plotted.emplace_add_child();
 
-	Inendi::PVScene& scene2 = root->emplace_add_child("scene1");
+	Inendi::PVScene& scene2 = root.emplace_add_child("scene1");
 	Inendi::PVSource& src2 =
 	    scene2.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	auto& plotted2 = src2.emplace_add_child().emplace_add_child();
@@ -78,15 +78,15 @@ int main(int argc, char** argv)
 	// Serialize the root object
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive(
 	    "/srv/tmp-inendi/test", PVCore::PVSerializeArchive::write, 1));
-	ar->get_root()->object("root", *root);
+	ar->get_root()->object("root", root);
 	ar->finish();
 
-	root.reset(new Inendi::PVRoot());
+	Inendi::PVRoot root_read;
 
 	// Get it back !
 	ar.reset(new PVCore::PVSerializeArchive("/srv/tmp-inendi/test",
 	                                        PVCore::PVSerializeArchive::read, 1));
-	ar->get_root()->object("root", *root);
+	ar->get_root()->object("root", root_read);
 	ar->finish();
 
 	return 0;

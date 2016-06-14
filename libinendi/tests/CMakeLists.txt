@@ -116,9 +116,6 @@ add_pv_compile_test(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_
 add_test(Tmapping_time_us_week Tmapping_time_us_week)
 add_bench(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_week.cpp)
 
-add_pv_compile_test(Tinendi_root LINKS ${LINK_LIBRARIES} FILES root.cpp)
-add_test(Tinendi_root Tinendi_root)
-
 add_pv_compile_test(Tinendi_investigation LINKS ${LINK_LIBRARIES} FILES investigation.cpp)
 add_test(Tinendi_investigation Tinendi_investigation)
 

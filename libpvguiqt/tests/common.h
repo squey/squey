@@ -8,11 +8,15 @@
 #ifndef PVGUIQT_TESTS_COMMON_H
 #define PVGUIQT_TESTS_COMMON_H
 
-#include <inendi/PVRoot_types.h>
 #include <inendi/PVScene_types.h>
 #include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 #include <QString>
+
+namespace Inendi
+{
+class PVRoot;
+}
 
 Inendi::PVSource&
 get_src_from_file(Inendi::PVScene& scene, QString const& file, QString const& format);

@@ -8,6 +8,8 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>
 
+#include <inendi/PVRoot.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
@@ -243,6 +245,5 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 
 	PVSourceWorkspace* workspace = qobject_cast<PVSourceWorkspace*>(widget(index));
 	assert(workspace);
-	Inendi::PVRoot_sp root_sp = get_scene().get_parent<Inendi::PVRoot>().shared_from_this();
-	PVHive::call<FUNC(Inendi::PVRoot::select_source)>(root_sp, *workspace->get_source());
+	get_scene().get_parent<Inendi::PVRoot>().select_source(*workspace->get_source());
 }

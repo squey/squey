@@ -7,6 +7,7 @@
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVLayer.h>
+
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVPlainTextType.h>
@@ -89,7 +90,7 @@ int main()
 	env.compute_mapping();
 	env.compute_plotting();
 	env.compute_views();
-	Inendi::PVView* view = env.root->current_view();
+	Inendi::PVView* view = env.root.current_view();
 
 	// Get plugin reference
 	constexpr char plugin_name[] = "search-multiple";

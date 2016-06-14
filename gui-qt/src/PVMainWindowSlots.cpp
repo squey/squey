@@ -269,7 +269,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 Inendi::PVScene& PVInspector::PVMainWindow::project_new_Slot()
 {
 	std::string scene_name = tr("Data collection %1").arg(sequence_n++).toStdString();
-	Inendi::PVScene& scene_p = get_root_sp()->emplace_add_child(scene_name);
+	Inendi::PVScene& scene_p = get_root().emplace_add_child(scene_name);
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -299,8 +299,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	} else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
 		scene_p = scenes.front();
-		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(root_sp, *scene_p);
+		get_root().select_scene(*scene_p);
 	} else {
 		// More than one project loaded: ask the user the project he wants to use to
 		// load the source
@@ -310,9 +309,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 			return false;
 		}
 
-		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(
-		    root_sp, *((Inendi::PVScene*)dlg->get_selected_scene()));
+		get_root().select_scene(*((Inendi::PVScene*)dlg->get_selected_scene()));
 		scene_p = current_scene();
 		dlg->deleteLater();
 	}
@@ -524,7 +521,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		source_loaded(*src);
 	}
 
-	_root->set_path(file);
+	_root.set_path(file);
 
 	set_window_title_with_filename();
 	if (solution_has_been_fixed) {
