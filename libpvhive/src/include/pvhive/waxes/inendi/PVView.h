@@ -37,12 +37,4 @@ DECLARE_WAX(Inendi::PVView::toggle_view_unselected_zombie_visibility)
 DECLARE_WAX(Inendi::PVView::hide_layers)
 DECLARE_WAX(Inendi::PVView::compute_layer_min_max)
 
-// Axes combination waxes
-//
-
-DECLARE_WAX(Inendi::PVView::set_axes_combination_list_id)
-DECLARE_WAX(Inendi::PVView::move_axis_to_new_position)
-DECLARE_WAX(Inendi::PVView::remove_column)
-DECLARE_WAX(Inendi::PVView::axis_append)
-
 #endif

@@ -19,6 +19,7 @@
 #include <QWidget>
 #include <QSplashScreen>
 #include <QShortcut>
+#include <QMessageBox>
 
 #include <PVMainWindow.h>
 

@@ -65,7 +65,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	inline PVSelection& get_volatile_selection() { return volatile_selection; }
 
 	// Proxy functions for PVHive
-	void remove_column(PVCol index) { _axes_combination.remove_axis(index); }
 	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest)
 	{
 		return _axes_combination.move_axis_to_new_position(index_source, index_dest);
@@ -379,6 +378,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 
 	sigc::signal<void, size_t, bool> _axis_hovered;
 	sigc::signal<void, size_t, size_t> _axis_clicked;
+	sigc::signal<void> _axis_combination_updated;
+	sigc::signal<void> _axis_combination_about_to_update;
 
   protected:
 	/*! \brief PVView's specific axes combination

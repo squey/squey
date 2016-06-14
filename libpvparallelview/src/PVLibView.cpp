@@ -46,15 +46,6 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
           [&](Inendi::PVView const*) {},
           [&](Inendi::PVView const*) {},
           [&](Inendi::PVView const*) { this->view_about_to_be_deleted(); }))
-    , _obs_axes_comb(
-          PVHive::create_observer_callback_heap<Inendi::PVAxesCombination::columns_indexes_t>(
-              [&](Inendi::PVAxesCombination::columns_indexes_t const*) {
-	              this->axes_comb_about_to_be_updated();
-	          },
-              [&](Inendi::PVAxesCombination::columns_indexes_t const*) {
-	              this->axes_comb_updated();
-	          },
-              [&](Inendi::PVAxesCombination::columns_indexes_t const*) {}))
     , _colors(view_sp->get_output_layer_color_buffer())
     , _processor_sel(PVZonesProcessor::declare_processor_zm_sel(
           common::pipeline(), _zones_manager, _colors, view_sp->get_real_output_selection()))
@@ -76,10 +67,12 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
 	PVHive::get().register_observer(
 	    view_sp, [=](Inendi::PVView& view) { return &view.get_layer_stack_output_layer(); },
 	    *_obs_layer_stack_output_layer);
-	PVHive::get().register_observer(
-	    view_sp,
-	    [=](Inendi::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); },
-	    *_obs_axes_comb);
+
+	view_sp->_axis_combination_updated.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_updated));
+	view_sp->_axis_combination_about_to_update.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_about_to_be_updated));
+
 	PVHive::get().register_observer(view_sp, *_obs_view);
 }
 

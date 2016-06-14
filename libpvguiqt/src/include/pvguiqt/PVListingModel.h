@@ -221,8 +221,6 @@ class PVListingModel : public PVAbstractTableModel
 
   private:
 	Inendi::PVView_sp _view; //!< Observed view
-	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>
-	    _obs_axes_comb; //!< Observe axs combination modifications
 	PVHive::PVObserverSignal<Inendi::PVSelection>
 	    _obs_sel; //!< Observe the seletion to update on selection modifications
 	PVHive::PVObserverSignal<Inendi::PVLayer>

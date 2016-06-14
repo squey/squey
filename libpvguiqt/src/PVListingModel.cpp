@@ -32,10 +32,8 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
     , _obs_zomb(this)
 {
 	// Update the full model if axis combination change
-	_obs_axes_comb.connect_refresh(this, SLOT(axes_comb_changed()));
-	PVHive::get().register_observer(
-	    view, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
-	    _obs_axes_comb);
+	view->_axis_combination_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::axes_comb_changed));
 
 	// Call update_filter on selection update
 	_obs_sel.connect_refresh(this, SLOT(update_filter()));

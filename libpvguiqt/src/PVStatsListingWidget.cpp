@@ -107,12 +107,8 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	obs_layer->connect_refresh(this, SLOT(selection_changed()));
 
 	// Observer axes combination changes
-	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>* obs_axes_comb =
-	    new PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>;
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
-	    *obs_axes_comb);
-	obs_axes_comb->connect_refresh(this, SLOT(axes_comb_changed()));
+	view_sp->_axis_combination_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::axes_comb_changed));
 
 	init_plugins();
 	create_vhead_ctxt_menu();

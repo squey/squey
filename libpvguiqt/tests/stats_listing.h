@@ -34,7 +34,6 @@ struct ViewSlots : public QObject {
 	void change_axes_combination()
 	{
 		std::cout << "change_axes_combination" << std::endl;
-		_view.remove_column(0);
 		_view.axis_append(Inendi::PVAxis());
 		_view.axis_append(Inendi::PVAxis());
 

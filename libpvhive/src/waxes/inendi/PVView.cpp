@@ -184,34 +184,4 @@ IMPL_WAX(Inendi::PVView::compute_layer_min_max, view, args)
 	refresh_observers(&view->get_layer_stack().get_selected_layer_index());
 }
 
-// Axes combination waxes
-//
-
-IMPL_WAX(Inendi::PVView::set_axes_combination_list_id, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::set_axes_combination_list_id)>(view,
-	                                                                                        args);
-	refresh_observers(&view->get_axes_combination().get_axes_index_list());
-}
-
-IMPL_WAX(Inendi::PVView::move_axis_to_new_position, view, args)
-{
-	auto ret = call_object_default<Inendi::PVView, FUNC(Inendi::PVView::move_axis_to_new_position)>(
-	    view, args);
-	refresh_observers(&view->get_axes_combination().get_axes_index_list());
-	return ret;
-}
-
-IMPL_WAX(Inendi::PVView::remove_column, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::remove_column)>(view, args);
-	refresh_observers(&view->get_axes_combination().get_axes_index_list());
-}
-
-IMPL_WAX(Inendi::PVView::axis_append, view, args)
-{
-	call_object_default<Inendi::PVView, FUNC(Inendi::PVView::axis_append)>(view, args);
-	refresh_observers(&view->get_axes_combination().get_axes_index_list());
-}
-
 PVHIVE_CALL_OBJECT_BLOCK_END()

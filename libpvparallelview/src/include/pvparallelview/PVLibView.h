@@ -22,10 +22,6 @@
 #include <pvparallelview/PVZonesProcessor.h>
 #include <pvparallelview/PVZonesManager.h>
 
-#include <QObject>
-
-#include <tbb/task.h>
-
 namespace PVParallelView
 {
 
@@ -83,7 +79,6 @@ class PVLibView : public sigc::trackable
 	PVHive::PVObserver_p<Inendi::PVLayer> _obs_layer_stack_output_layer;
 	PVHive::PVObserver_p<Inendi::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
-	PVHive::PVObserver_p<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 	scene_list_t _parallel_scenes;
 	zoomed_scene_list_t _zoomed_parallel_scenes;
 	hit_count_view_list_t _hit_count_views;

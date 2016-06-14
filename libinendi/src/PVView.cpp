@@ -858,7 +858,11 @@ void Inendi::PVView::finish_process_from_rush_pipeline()
 void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
                                                   PVAxesCombination::list_axes_t const& axes)
 {
+	_axis_combination_about_to_update.emit();
+
 	_axes_combination.set_axes_index_list(idxes, axes);
+
+	_axis_combination_updated.emit();
 }
 
 PVRow Inendi::PVView::get_plotted_col_min_row(PVCol const combined_col) const

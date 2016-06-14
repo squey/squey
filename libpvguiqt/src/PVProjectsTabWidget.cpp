@@ -9,6 +9,7 @@
 #include <pvguiqt/PVStartScreenWidget.h>
 
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QInputDialog>
 #include <QMenu>
 #include <QAction>
