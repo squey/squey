@@ -136,10 +136,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	void remove_workspace(PVSourceWorkspace* workspace);
 
 	bool save_modified_projects();
-	bool is_current_project_untitled()
-	{
-		return current_project() ? current_project()->is_project_untitled() : false;
-	}
+	bool is_current_project_untitled() { return current_project() != nullptr; }
 	void collapse_tabs(bool collapse = true);
 
 	inline Inendi::PVScene* current_scene() const { return _root->current_scene(); }
@@ -182,7 +179,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	}
 	bool tab_close_requested(int index);
 	void close_project();
-	void project_modified(bool, QString = QString());
+	void project_modified();
 	void select_tab_from_current_scene();
 
   Q_SIGNALS:

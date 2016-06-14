@@ -10,10 +10,6 @@
 
 #include <inendi/PVScene.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVObserverSignal.h>
-#include <pvhive/PVFuncObserver.h>
-
 #include <QPoint>
 #include <QTabBar>
 #include <QTabWidget>
@@ -67,7 +63,7 @@ class PVSceneTabBar : public QTabBar
  * ie: It is the tab widget with all sources of the scene and tab modification add/updage/change
  * sources.
  */
-class PVSceneWorkspacesTabWidget : public QTabWidget
+class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 {
 	Q_OBJECT
 	Q_PROPERTY(int tab_width READ get_tab_width WRITE set_tab_width);
@@ -86,12 +82,11 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 
   public:
 	bool is_project_modified() { return _project_modified; }
-	bool is_project_untitled() { return _project_untitled; }
 
-	Inendi::PVScene& get_scene() { return *_obs_scene.get_object(); }
+	Inendi::PVScene& get_scene() { return _scene; }
 
   public Q_SLOTS:
-	/*! \brief Call Inendi::PVRoot::select_source throught the Hive to keep track of current source.
+	/*! \brief Call Inendi::PVRoot::select_source to keep track of current source.
 	 */
 	void tab_changed(int index);
 
@@ -120,10 +115,10 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 
 	void animation_finished();
 
-	void set_project_modified(bool modified = true, QString path = QString());
+	void set_project_modified();
 
   Q_SIGNALS:
-	void project_modified(bool, QString = QString());
+	void project_modified();
 
 	/*! \brief Signal emitted when the last source is closed.
 	 */
@@ -134,10 +129,8 @@ class PVSceneWorkspacesTabWidget : public QTabWidget
 	void workspace_dragged_outside(QWidget*);
 
   private:
+	Inendi::PVScene& _scene;
 	bool _project_modified = false;
-	bool _project_untitled = true;
-
-	PVHive::PVObserverSignal<Inendi::PVScene> _obs_scene;
 };
 }
 

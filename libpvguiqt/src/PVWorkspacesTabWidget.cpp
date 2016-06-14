@@ -10,9 +10,7 @@
 
 #include <inendi/PVRoot.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVObserverSignal.h>
+#include <sigc++/sigc++.h>
 
 #include <QDrag>
 #include <QImage>
@@ -138,7 +136,7 @@ void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
  *****************************************************************************/
 PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene& scene,
                                                                 QWidget* parent /* = 0 */)
-    : QTabWidget(parent)
+    : QTabWidget(parent), _scene(scene)
 {
 	setObjectName("PVWorkspacesTabWidget");
 
@@ -147,10 +145,8 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene&
 	setMouseTracking(true);
 	tabBar()->setMouseTracking(true);
 
-	Inendi::PVScene_sp scene_p = scene.shared_from_this();
-	PVHive::get().register_observer(scene_p, _obs_scene);
-	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
-	_obs_scene.set_accept_recursive_refreshes(true);
+	scene._project_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified));
 
 	setTabBar(new PVSceneTabBar(this));
 }
@@ -225,16 +221,12 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::resizeEvent(QResizeEvent* event)
 	QTabWidget::resizeEvent(event);
 }
 
-void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified(bool modified /* = true */,
-                                                               QString path /*= QString()*/)
+void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified()
 {
-	if (!_project_modified && modified) {
-		Q_EMIT project_modified(true);
-	} else if (_project_modified && !modified) {
-		_project_untitled = false;
-		Q_EMIT project_modified(false, path);
+	if (!_project_modified) {
+		Q_EMIT project_modified();
 	}
-	_project_modified = modified;
+	_project_modified = true;
 }
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)

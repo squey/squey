@@ -19,7 +19,6 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <inendi/PVScene.h>
-#include <inendi/PVPtrObjects.h> // For PVScene_p
 #include <inendi/PVCorrelationEngine.h>
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"

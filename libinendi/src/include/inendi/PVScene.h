@@ -10,17 +10,17 @@
 
 #include <QString>
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
-#include <inendi/PVPtrObjects.h>
 #include <inendi/PVSource_types.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView_types.h>
-#include <inendi/PVScene_types.h>
 
 #define INENDI_SCENE_ARCHIVE_EXT "pv"
 #define INENDI_SCENE_ARCHIVE_FILTER "INENDI project files (*." INENDI_SCENE_ARCHIVE_EXT ")"
@@ -50,7 +50,20 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	~PVScene();
 
   public:
-	void set_name(std::string name) { _name = name; }
+	template <class... T>
+	PVSource& emplace_add_child(T&&... t)
+	{
+		auto& src =
+		    PVCore::PVDataTreeParent<PVSource, PVScene>::emplace_add_child(std::forward<T>(t)...);
+		_project_updated.emit();
+		return src;
+	}
+
+	void set_name(std::string name)
+	{
+		_name = name;
+		_project_updated.emit();
+	}
 	const std::string& get_name() const { return _name; }
 
 	PVSource* current_source();
@@ -84,13 +97,14 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	void serialize_write(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
+  public:
+	sigc::signal<void> _project_updated;
+
   private:
 	Inendi::PVSource* _last_active_src;
 
 	std::string _name;
 };
-
-using PVScene_p = PVCore::PVSharedPtr<PVScene>;
 }
 
 #endif /* INENDI_PVSCENE_H */

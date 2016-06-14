@@ -19,9 +19,6 @@ namespace Inendi
 class PVSource;
 // typedef std::shared_ptr<PVSource> PVSource_p;
 
-class PVScene;
-// typedef std::shared_ptr<PVScene> PVScene_p;
-
 class PVPlotting;
 // typedef std::shared_ptr<PVPlotting> PVPlotting_p;
 

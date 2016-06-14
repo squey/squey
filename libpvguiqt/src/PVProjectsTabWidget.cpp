@@ -8,9 +8,6 @@
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVStartScreenWidget.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QMenu>
@@ -80,8 +77,7 @@ void PVGuiQt::__impl::PVTabBar::rename_tab(int index)
 		setTabText(index, name + (add_star ? star : ""));
 		Inendi::PVScene* scene = _root.current_scene();
 		assert(scene);
-		Inendi::PVScene_p scene_p = scene->shared_from_this();
-		PVHive::call<FUNC(Inendi::PVScene::set_name)>(scene_p, name.toStdString());
+		scene->set_name(name.toStdString());
 	}
 }
 
@@ -172,8 +168,7 @@ PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene& scene_p)
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this,
 	        SLOT(emit_workspace_dragged_outside(QWidget*)));
 	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
-	connect(workspace_tab_widget, SIGNAL(project_modified(bool, QString)), this,
-	        SLOT(project_modified(bool, QString)));
+	connect(workspace_tab_widget, SIGNAL(project_modified()), this, SLOT(project_modified()));
 
 	int index = _tab_widget->count();
 	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p.get_name()));
@@ -184,23 +179,14 @@ PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene& scene_p)
 	return workspace_tab_widget;
 }
 
-void PVGuiQt::PVProjectsTabWidget::project_modified(bool modified, QString path /* = QString */)
+void PVGuiQt::PVProjectsTabWidget::project_modified()
 {
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = (PVSceneWorkspacesTabWidget*)sender();
 	assert(workspace_tab_widget);
 	int index = _stacked_widget->indexOf(workspace_tab_widget);
 	QString text = _tab_widget->tabText(index);
-	if (modified && !text.endsWith(star)) {
+	if (!text.endsWith(star)) {
 		_tab_widget->setTabText(index, text + "*");
-	} else if (!modified && text.endsWith(star)) {
-		if (path.isEmpty()) {
-			_tab_widget->setTabText(index, text.left(text.size()));
-		} else {
-			QFileInfo info(path);
-			QString basename = info.fileName();
-			_tab_widget->setTabToolTip(index, path);
-			_tab_widget->setTabText(index, basename);
-		}
 	}
 }
 

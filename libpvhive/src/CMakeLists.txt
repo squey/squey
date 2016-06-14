@@ -19,7 +19,6 @@ PVFuncObserver.cpp
 )
 
 set(PVHIVE_WAXES_FILES
-waxes/inendi/PVScene.cpp
 waxes/inendi/PVMapped.cpp
 waxes/inendi/PVSource.cpp
 waxes/inendi/PVView.cpp

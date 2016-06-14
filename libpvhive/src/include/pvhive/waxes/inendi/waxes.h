@@ -8,7 +8,6 @@
 #ifndef PVHIVE_WAXES_INENDI_INC
 #define PVHIVE_WAXES_INENDI_INC
 
-#include <pvhive/waxes/inendi/PVScene.h>
 #include <pvhive/waxes/inendi/PVMapped.h>
 #include <pvhive/waxes/inendi/PVPlotted.h>
 #include <pvhive/waxes/inendi/PVSource.h>
