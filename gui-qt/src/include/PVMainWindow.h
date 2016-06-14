@@ -25,7 +25,6 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
-#include <inendi/PVScene_types.h>
 #include <inendi/PVView_types.h>
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVSelection.h>
