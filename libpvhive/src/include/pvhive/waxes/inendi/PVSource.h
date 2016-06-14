@@ -11,9 +11,7 @@
 #include <pvhive/PVWax.h>
 #include <inendi/PVSource.h>
 
-DECLARE_WAX(Inendi::PVSource::set_axis_hovered)
 DECLARE_WAX(Inendi::PVSource::set_axis_clicked)
-DECLARE_WAX(Inendi::PVSource::set_section_hovered)
 DECLARE_WAX(Inendi::PVSource::set_section_clicked)
 
 #endif

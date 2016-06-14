@@ -168,7 +168,6 @@ class PVFullParallelScene : public QGraphicsScene
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 
-	void highlight_axis(PVHive::PVObserverBase*);
 	void highlight_axis(int col);
 	void sync_axis_with_section(PVHive::PVObserverBase* o);
 
@@ -237,7 +236,6 @@ class PVFullParallelScene : public QGraphicsScene
 	axes_list_t _axes;
 
 	PVHive::PVObserver_p<int> _obs_selected_layer;
-	PVHive::PVObserverSignal<int> _section_hover_obs;
 	typedef std::pair<size_t, size_t> section_pos_t;
 	PVHive::PVObserverSignal<section_pos_t> _section_click_obs;
 

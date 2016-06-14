@@ -63,11 +63,8 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
 	PVHive::get().register_observer(view, _obs);
 
 	/// Source events
-	Inendi::PVSource_sp src_sp = view->get_parent<Inendi::PVSource>().shared_from_this();
-	// Register source for axes hovering events
-	PVHive::get().register_observer(
-	    src_sp, [=](Inendi::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
-	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
+	view->get_parent<Inendi::PVSource>()._axis_hovered.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
 
 	// SIZE STUFF
 	setMinimumSize(60, 40);
@@ -774,9 +771,7 @@ PVGuiQt::PVListingModel* PVGuiQt::PVListingView::listing_model()
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 {
-	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>().shared_from_this();
-	PVHive::call<FUNC(Inendi::PVSource::set_section_hovered)>(src, col, entered);
-	highlight_column(entered ? col : -1);
+	lib_view().get_parent<Inendi::PVSource>().set_axis_hovered(col, entered);
 }
 
 /******************************************************************************
@@ -791,23 +786,6 @@ void PVGuiQt::PVListingView::section_clicked(int col)
 	int width = horizontalHeader()->sectionSize(col);
 	PVHive::call<FUNC(Inendi::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() +
 	                                                                        x + width / 2);
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::highlight_column
- *
- *****************************************************************************/
-
-void PVGuiQt::PVListingView::highlight_column(PVHive::PVObserverBase* o)
-{
-	// Extract column to highlight
-	PVHive::PVObserverSignal<int>* real_o = dynamic_cast<PVHive::PVObserverSignal<int>*>(o);
-	assert(real_o);
-	int* obj = real_o->get_object();
-	int col = *obj;
-
-	highlight_column(col);
 }
 
 /******************************************************************************

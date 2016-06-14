@@ -93,10 +93,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
 	// Register source for sections hover events
-	PVHive::get().register_observer(
-	    src_sp, [=](Inendi::PVSource& source) { return &source.section_hovered(); },
-	    _section_hover_obs);
-	_section_hover_obs.connect_refresh(this, SLOT(highlight_axis(PVHive::PVObserverBase*)));
+	view_sp->get_parent<Inendi::PVSource>()._axis_hovered.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::highlight_axis));
 
 	// Register source for sections click events
 	PVHive::get().register_observer(
@@ -197,9 +195,7 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 
 void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCol col, bool entered)
 {
-	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>().shared_from_this();
-	PVHive::call<FUNC(Inendi::PVSource::set_axis_hovered)>(src, col, entered);
-	highlight_axis(entered ? col : -1);
+	_lib_view.get_parent<Inendi::PVSource>().set_axis_hovered(col, entered);
 }
 
 void PVParallelView::PVFullParallelScene::axis_clicked(PVCol col)
@@ -1268,16 +1264,6 @@ size_t PVParallelView::PVFullParallelScene::qimage_height() const
 /******************************************************************************
  * PVParallelView::PVFullParallelScene::highlight_axis
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::highlight_axis(PVHive::PVObserverBase* o)
-{
-	PVHive::PVObserverSignal<int>* real_o = dynamic_cast<PVHive::PVObserverSignal<int>*>(o);
-	assert(real_o);
-	int* obj = real_o->get_object();
-	int col = *obj;
-
-	highlight_axis(col);
-}
-
 void PVParallelView::PVFullParallelScene::highlight_axis(int col)
 {
 	if (col == -1) {

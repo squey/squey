@@ -13,6 +13,8 @@
 #include <QStringList>
 #include <QVector>
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
@@ -170,13 +172,10 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
 	// axis <-> section synchronisation
-	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered_id = entered ? col : -1; }
-	int& axis_hovered() { return _axis_hovered_id; }
-	const int& axis_hovered() const { return _axis_hovered_id; }
+	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(entered ? col : -1); }
+
 	void set_axis_clicked(PVCol col) { _axis_clicked_id = col; }
 	const PVCol& axis_clicked() const { return _axis_clicked_id; }
-	void set_section_hovered(PVCol col, bool entered) { _section_hovered_id = entered ? col : -1; }
-	const int& section_hovered() const { return _section_hovered_id; }
 	void set_section_clicked(PVCol col, size_t pos)
 	{
 		_section_clicked.first = col;
@@ -204,6 +203,9 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	void files_append_noextract();
 	void extract_finished();
 
+  public:
+	sigc::signal<void, int> _axis_hovered;
+
   private:
 	PVView* _last_active_view = nullptr;
 
@@ -217,9 +219,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
 	PVAxesCombination _axes_combination;
 
-	int _axis_hovered_id = -1;
 	PVCol _axis_clicked_id;
-	int _section_hovered_id = -1;
 	std::pair<size_t, size_t> _section_clicked;
 
 	QString _nraw_folder;

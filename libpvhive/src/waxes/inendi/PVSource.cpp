@@ -12,20 +12,6 @@
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
-IMPL_WAX(Inendi::PVSource::set_axis_hovered, src, args)
-{
-	call_object_default<Inendi::PVSource, FUNC(Inendi::PVSource::set_axis_hovered)>(src, args);
-
-	refresh_observers(&src->axis_hovered());
-}
-
-IMPL_WAX(Inendi::PVSource::set_section_hovered, src, args)
-{
-	call_object_default<Inendi::PVSource, FUNC(Inendi::PVSource::set_section_hovered)>(src, args);
-
-	refresh_observers(&src->section_hovered());
-}
-
 IMPL_WAX(Inendi::PVSource::set_section_clicked, src, args)
 {
 	call_object_default<Inendi::PVSource, FUNC(Inendi::PVSource::set_section_clicked)>(src, args);

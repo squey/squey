@@ -208,13 +208,6 @@ class PVListingView : public PVAbstractTableView
 	void columnResized(int column, int oldWidth, int newWidth);
 
 	/**
-	 * Highlight the column specified from an external (Hive) source.
-	 *
-	 * @param[in] o : Observer signal containing column information.
-	 */
-	void highlight_column(PVHive::PVObserverBase* o);
-
-	/**
 	 * Highlight the specified column.
 	 *
 	 * @param[in] col : column to highlight
@@ -271,8 +264,6 @@ class PVListingView : public PVAbstractTableView
 	// Observers
 	PVHive::PVObserverSignal<Inendi::PVView>
 	    _obs; //!< Observer for current view to delete listing on view deletion
-	// FIXME : It should be a PVCol instead of int
-	PVHive::PVObserverSignal<int> _axis_hover_obs; //!< Observer for hovered column
 
 	// Actor
 	PVHive::PVActor<Inendi::PVView>
