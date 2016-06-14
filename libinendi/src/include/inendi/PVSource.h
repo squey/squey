@@ -13,8 +13,6 @@
 #include <QStringList>
 #include <QVector>
 
-#include <sigc++/sigc++.h>
-
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
@@ -170,10 +168,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
-	// axis <-> section synchronisation
-	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(col, entered); }
-	void set_axis_clicked(PVCol col, size_t pos) { _axis_clicked.emit(col, pos); }
-
 	void set_nraw_folder(QString const& nraw_folder) { _nraw_folder = nraw_folder; }
 
   protected:
@@ -194,10 +188,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	void files_append_noextract();
 	void extract_finished();
-
-  public:
-	sigc::signal<void, size_t, bool> _axis_hovered;
-	sigc::signal<void, size_t, size_t> _axis_clicked;
 
   private:
 	PVView* _last_active_view = nullptr;

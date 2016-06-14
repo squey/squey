@@ -81,11 +81,11 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
 
 	// Register source for sections hover events
-	view_sp->get_parent<Inendi::PVSource>()._axis_hovered.connect(
+	view_sp->_axis_hovered.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::highlight_axis));
 
 	// Register source for sections click events
-	view_sp->get_parent<Inendi::PVSource>()._axis_clicked.connect(
+	view_sp->_axis_clicked.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::sync_axis_with_section));
 
 	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
@@ -180,7 +180,7 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 
 void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCol col, bool entered)
 {
-	_lib_view.get_parent<Inendi::PVSource>().set_axis_hovered(col, entered);
+	_lib_view.set_axis_hovered(col, entered);
 }
 
 /******************************************************************************

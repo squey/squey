@@ -24,7 +24,6 @@
 #include <pvguiqt/PVStartScreenWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
-#include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
 #include <pvkernel/core/lambda_connect.h>

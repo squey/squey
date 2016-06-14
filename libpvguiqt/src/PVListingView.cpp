@@ -64,8 +64,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
 	PVHive::get().register_observer(view, _obs);
 
 	/// Source events
-	view->get_parent<Inendi::PVSource>()._axis_hovered.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
+	view->_axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
 
 	// SIZE STUFF
 	setMinimumSize(60, 40);
@@ -772,7 +771,7 @@ PVGuiQt::PVListingModel* PVGuiQt::PVListingView::listing_model()
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 {
-	lib_view().get_parent<Inendi::PVSource>().set_axis_hovered(col, entered);
+	lib_view().set_axis_hovered(col, entered);
 }
 
 /******************************************************************************
@@ -784,8 +783,7 @@ void PVGuiQt::PVListingView::section_clicked(int col)
 {
 	int x = horizontalHeader()->sectionViewportPosition(col);
 	int width = horizontalHeader()->sectionSize(col);
-	lib_view().get_parent<Inendi::PVSource>().set_axis_clicked(col, verticalHeader()->width() + x +
-	                                                                    width / 2);
+	lib_view().set_axis_clicked(col, verticalHeader()->width() + x + width / 2);
 }
 
 /******************************************************************************
@@ -992,8 +990,10 @@ PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientat
 bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 {
 	if (ev->type() == QEvent::HoverLeave || ev->type() == QEvent::Leave) {
-		Q_EMIT mouse_hovered_section(_index, false);
-		_index = -1;
+		if (_index != -1) {
+			Q_EMIT mouse_hovered_section(_index, false);
+			_index = -1;
+		}
 	} else if (ev->type() == QEvent::HoverMove) { // in eventFilter, this event
 		                                          // would have been
 		                                          // "QEvent::MouseMove"...

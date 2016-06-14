@@ -14,6 +14,8 @@
 #include <QVector>
 #include <QMutex>
 
+#include <sigc++/sigc++.h>
+
 #include <pvcop/db/array.h>
 
 #include <pvkernel/core/PVHSVColor.h>
@@ -369,6 +371,14 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 
   public:
 	PVSERIALIZEOBJECT_SPLIT
+
+  public:
+	// axis <-> section synchronisation
+	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(col, entered); }
+	void set_axis_clicked(PVCol col, size_t pos) { _axis_clicked.emit(col, pos); }
+
+	sigc::signal<void, size_t, bool> _axis_hovered;
+	sigc::signal<void, size_t, size_t> _axis_clicked;
 
   protected:
 	/*! \brief PVView's specific axes combination
