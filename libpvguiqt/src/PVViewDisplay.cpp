@@ -25,6 +25,7 @@
 
 #include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
+#include <inendi/PVPlotted.h>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
                                       QWidget* view_widget,
@@ -76,16 +77,9 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 void PVGuiQt::PVViewDisplay::register_view(Inendi::PVView* view)
 {
 	if (view) {
-		// Register for view name changes
-		if (_obs_plotting) {
-			delete _obs_plotting;
-		}
-		_obs_plotting = new PVHive::PVObserverSignal<Inendi::PVPlotting>(this);
-		Inendi::PVPlotted_sp plotted_sp = view->get_parent().shared_from_this();
-		PVHive::get().register_observer(
-		    plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); },
-		    *_obs_plotting);
-		_obs_plotting->connect_refresh(this, SLOT(plotting_updated()));
+
+		view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+		    sigc::mem_fun(this, &PVGuiQt::PVViewDisplay::plotting_updated));
 
 		// Register for view deletion
 		_obs_view = PVHive::create_observer_callback_heap<Inendi::PVView>(

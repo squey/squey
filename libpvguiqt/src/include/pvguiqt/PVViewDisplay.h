@@ -16,13 +16,14 @@
 #include <QFocusEvent>
 #include <QSignalMapper>
 
+#include <sigc++/sigc++.h>
+
 #include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVCallHelper.h>
 
 class QString;
 class QPoint;
 class QWidget;
-#include <QDockWidget>
 
 namespace Inendi
 {
@@ -40,7 +41,7 @@ class PVSourceWorkspace;
  *
  * \note This class is a dockable wrapper for graphical view representations.
  */
-class PVViewDisplay : public QDockWidget
+class PVViewDisplay : public QDockWidget, public sigc::trackable
 {
 	Q_OBJECT;
 
@@ -48,9 +49,6 @@ class PVViewDisplay : public QDockWidget
 	friend PVSourceWorkspace;
 
 	enum EState { HIDDEN, CAN_MAXIMIZE, CAN_RESTORE };
-
-  public:
-	~PVViewDisplay() { delete _obs_plotting; }
 
   public:
 	/*! \brief Call Inendi::PVRoot::select_view through the Hive.
@@ -126,7 +124,6 @@ class PVViewDisplay : public QDockWidget
 	std::function<QString()> _name;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
-	PVHive::PVObserverSignal<Inendi::PVPlotting>* _obs_plotting = nullptr;
 	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
 	bool _about_to_be_deleted = false;
 	bool _can_be_central_widget;

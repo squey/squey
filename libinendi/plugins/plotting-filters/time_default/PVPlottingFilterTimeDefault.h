@@ -16,7 +16,7 @@ namespace Inendi
 class PVPlottingFilterTimeDefault : public PVPlottingFilter
 {
   public:
-	uint32_t* operator()(mapped_decimal_storage_type const* value) override;
+	uint32_t* operator()(PVCore::PVDecimalStorage<32> const* value) override;
 	QString get_human_name() const override { return QString("Default (depends on mapping)"); }
 
 	CLASS_FILTER(PVPlottingFilterTimeDefault)

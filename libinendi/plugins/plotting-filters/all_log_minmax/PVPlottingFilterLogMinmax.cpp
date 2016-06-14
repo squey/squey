@@ -26,7 +26,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVPlottingFilterLogMinmax)
 	return args;
 }
 
-uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(mapped_decimal_storage_type const* values)
+uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(PVCore::PVDecimalStorage<32> const* values)
 {
 	assert(values);
 	assert(_dest);

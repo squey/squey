@@ -55,6 +55,7 @@ T& get_typed_arg(std::tuple<U...>& u)
 namespace Inendi
 {
 class PVView;
+class PVSource;
 }
 
 Q_DECLARE_METATYPE(Inendi::PVView*)
@@ -82,10 +83,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 
 	friend class PVViewDisplay;
 	friend class PVViewWidgets;
-
-  public:
-	typedef PVHive::PVObserverSignal<Inendi::PVMapped> mapped_obs_t;
-	typedef PVHive::PVObserverSignal<Inendi::PVPlotted> plotted_obs_t;
 
   private:
 	class PVViewWidgets

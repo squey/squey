@@ -10,6 +10,8 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
+#include <sigc++/sigc++.h>
+
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVView_types.h>
@@ -37,7 +39,7 @@ class PVHitCountView;
 class PVScatterView;
 class PVSlidersManager;
 
-class PVLibView
+class PVLibView : public sigc::trackable
 {
   private:
 	typedef std::list<PVFullParallelScene*> scene_list_t;
@@ -82,7 +84,6 @@ class PVLibView
 	PVHive::PVObserver_p<Inendi::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
 	PVHive::PVObserver_p<Inendi::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
-	PVHive::PVObserver_p<Inendi::PVPlotting> _obs_plotting;
 	scene_list_t _parallel_scenes;
 	zoomed_scene_list_t _zoomed_parallel_scenes;
 	hit_count_view_list_t _hit_count_views;

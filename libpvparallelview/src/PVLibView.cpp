@@ -55,10 +55,6 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
 	              this->axes_comb_updated();
 	          },
               [&](Inendi::PVAxesCombination::columns_indexes_t const*) {}))
-    , _obs_plotting(PVHive::create_observer_callback_heap<Inendi::PVPlotting>(
-          [&](Inendi::PVPlotting const*) {},
-          [&](Inendi::PVPlotting const*) { this->plotting_updated(); },
-          [&](Inendi::PVPlotting const*) {}))
     , _colors(view_sp->get_output_layer_color_buffer())
     , _processor_sel(PVZonesProcessor::declare_processor_zm_sel(
           common::pipeline(), _zones_manager, _colors, view_sp->get_real_output_selection()))
@@ -68,6 +64,9 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
           _colors,
           view_sp->get_layer_stack_output_layer().get_selection()))
 {
+	view_sp->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVLibView::plotting_updated));
+
 	PVHive::get().register_observer(
 	    view_sp, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); },
 	    *_obs_sel);
@@ -82,11 +81,6 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
 	    [=](Inendi::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); },
 	    *_obs_axes_comb);
 	PVHive::get().register_observer(view_sp, *_obs_view);
-
-	Inendi::PVPlotted_sp plotted_sp = view_sp->get_parent().shared_from_this();
-	PVHive::get().register_observer(
-	    plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); },
-	    *_obs_plotting);
 }
 
 PVParallelView::PVLibView::~PVLibView()

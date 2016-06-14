@@ -16,8 +16,6 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
-#include <inendi/PVPtrObjects.h>
-#include <inendi/PVMapped_types.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVMappingProperties.h>
 #include <inendi/PVPlotted.h>
@@ -27,7 +25,6 @@ namespace Inendi
 {
 
 class PVPlotted;
-class PVSelection;
 
 /**
  * \class PVMapped
@@ -47,20 +44,18 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	friend class PVCore::PVSerializeObject;
 
   public:
-	using decimal_storage_type = Inendi::mapped_decimal_storage_type;
+	using decimal_storage_type = PVCore::PVDecimalStorage<32>;
 	using mapped_row_t = PVCore::PVHugePODVector<decimal_storage_type, 16>;
 	using mapped_table_t = std::vector<mapped_row_t>;
 
   public:
 	PVMapped(PVSource& src);
 
-	~PVMapped(){};
-
   public:
 	/**
 	 * Compute mapping and chain to plottings.
 	 */
-	void mapping_updated();
+	void update_mapping();
 
 	inline bool is_uptodate() const { return _mapping.is_uptodate(); };
 
@@ -151,8 +146,6 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	// mapping of cell.
 	PVMapping _mapping; //!< Contains properties for every column.
 };
-
-using PVMapped_p = PVCore::PVSharedPtr<PVMapped>;
 }
 
 #endif /* INENDI_PVMAPPED_H */

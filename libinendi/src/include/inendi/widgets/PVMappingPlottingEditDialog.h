@@ -9,7 +9,6 @@
 #define PVMAPPINGPLOTTINGEDITDIALOG_H
 
 #include <pvkernel/rush/PVFormat_types.h>
-#include <inendi/PVPtrObjects.h>
 #include <inendi/PVAxesCombination.h>
 
 #include <QDialog>

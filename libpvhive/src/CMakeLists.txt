@@ -19,9 +19,7 @@ PVFuncObserver.cpp
 )
 
 set(PVHIVE_WAXES_FILES
-waxes/inendi/PVMapped.cpp
 waxes/inendi/PVView.cpp
-waxes/inendi/PVPlotted.cpp
 )
 
 SET(PVHIVE_MOC_HEADERS

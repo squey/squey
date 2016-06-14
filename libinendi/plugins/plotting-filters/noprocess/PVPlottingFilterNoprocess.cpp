@@ -7,7 +7,7 @@
 
 #include "PVPlottingFilterNoprocess.h"
 
-uint32_t* Inendi::PVPlottingFilterNoprocess::operator()(mapped_decimal_storage_type const* values)
+uint32_t* Inendi::PVPlottingFilterNoprocess::operator()(PVCore::PVDecimalStorage<32> const* values)
 {
 	assert(values);
 	assert(_dest);

@@ -18,7 +18,6 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVMappingProperties.h>
-#include <inendi/PVPtrObjects.h>
 #include <inendi/PVMappingFilter.h>
 #include <inendi/PVMandatoryMappingFilter.h>
 
@@ -28,6 +27,7 @@ namespace Inendi
 {
 
 class PVMapped;
+class PVSource;
 
 /**
  * \class PVMapping

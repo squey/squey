@@ -186,15 +186,15 @@ PVCol Inendi::PVMapped::get_column_count() const
 
 /******************************************************************************
  *
- * Inendi::PVMapped::mapping_updated
+ * Inendi::PVMapped::update_mapping
  *
  *****************************************************************************/
-void Inendi::PVMapped::mapping_updated()
+void Inendi::PVMapped::update_mapping()
 {
 	compute();
 	// Process plotting children
 	for (auto* plotted_p : get_children()) {
-		plotted_p->process_from_parent_mapped();
+		plotted_p->update_plotting();
 	}
 }
 

@@ -15,8 +15,6 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/rush/PVNraw.h>
 
-#include <inendi/PVMapped_types.h>
-
 #include <QString>
 #include <QStringList>
 #include <QVector>
@@ -34,12 +32,12 @@ class PVFormat;
 namespace Inendi
 {
 
-class PVMappingFilter : public PVFilter::PVFilterFunctionBase<Inendi::mapped_decimal_storage_type,
-                                                              PVCore::PVField const&>,
-                        public PVCore::PVRegistrableClass<PVMappingFilter>
+class PVMappingFilter
+    : public PVFilter::PVFilterFunctionBase<PVCore::PVDecimalStorage<32>, PVCore::PVField const&>,
+      public PVCore::PVRegistrableClass<PVMappingFilter>
 {
   public:
-	typedef Inendi::mapped_decimal_storage_type decimal_storage_type;
+	typedef PVCore::PVDecimalStorage<32> decimal_storage_type;
 	typedef std::shared_ptr<PVMappingFilter> p_type;
 	typedef PVMappingFilter FilterT;
 

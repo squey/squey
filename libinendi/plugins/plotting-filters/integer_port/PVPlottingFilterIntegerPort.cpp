@@ -7,7 +7,8 @@
 
 #include "PVPlottingFilterIntegerPort.h"
 
-uint32_t* Inendi::PVPlottingFilterIntegerPort::operator()(mapped_decimal_storage_type const* values)
+uint32_t* Inendi::PVPlottingFilterIntegerPort::
+operator()(PVCore::PVDecimalStorage<32> const* values)
 {
 	assert(values);
 	assert(_dest);

@@ -12,13 +12,12 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <inendi/PVMandatoryMappingFilter.h>
-#include <inendi/PVMapped_types.h>
 
 namespace Inendi
 {
 
 class PVPlottingFilter
-    : public PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>,
+    : public PVFilter::PVFilterFunctionBase<uint32_t*, PVCore::PVDecimalStorage<32> const*>,
       public PVCore::PVRegistrableClass<PVPlottingFilter>
 {
   public:
@@ -29,8 +28,8 @@ class PVPlottingFilter
 	PVPlottingFilter();
 
   public:
-	virtual uint32_t* operator()(mapped_decimal_storage_type const* value);
-	virtual uint32_t operator()(mapped_decimal_storage_type const value);
+	virtual uint32_t* operator()(PVCore::PVDecimalStorage<32> const* value);
+	virtual uint32_t operator()(PVCore::PVDecimalStorage<32> const value);
 
 	void set_decimal_type(PVCore::DecimalType decimal_type) { _decimal_type = decimal_type; }
 	void set_dest_array(PVRow size, uint32_t* arr);
@@ -50,7 +49,7 @@ class PVPlottingFilter
 	static QString mode_from_registered_name(QString const& rn);
 
   protected:
-	void copy_mapped_to_plotted(mapped_decimal_storage_type const* value);
+	void copy_mapped_to_plotted(PVCore::PVDecimalStorage<32> const* value);
 
   protected:
 	QString _mapping_mode;
