@@ -16,6 +16,8 @@
 
 #include <pvkernel/core/qobject_helpers.h>
 
+#include <inendi/PVSource.h>
+
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
 

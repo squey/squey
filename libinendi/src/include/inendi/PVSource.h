@@ -30,7 +30,6 @@
 #include <pvkernel/rush/PVSourceDescription.h>
 
 #include <inendi/PVMapped.h>
-#include <inendi/PVSource_types.h>
 
 namespace Inendi
 {
@@ -172,16 +171,9 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
 	// axis <-> section synchronisation
-	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(entered ? col : -1); }
+	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(col, entered); }
+	void set_axis_clicked(PVCol col, size_t pos) { _axis_clicked.emit(col, pos); }
 
-	void set_axis_clicked(PVCol col) { _axis_clicked_id = col; }
-	const PVCol& axis_clicked() const { return _axis_clicked_id; }
-	void set_section_clicked(PVCol col, size_t pos)
-	{
-		_section_clicked.first = col;
-		_section_clicked.second = pos;
-	}
-	const std::pair<size_t, size_t>& section_clicked() const { return _section_clicked; }
 	void set_nraw_folder(QString const& nraw_folder) { _nraw_folder = nraw_folder; }
 
   protected:
@@ -204,7 +196,8 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	void extract_finished();
 
   public:
-	sigc::signal<void, int> _axis_hovered;
+	sigc::signal<void, size_t, bool> _axis_hovered;
+	sigc::signal<void, size_t, size_t> _axis_clicked;
 
   private:
 	PVView* _last_active_view = nullptr;
@@ -218,9 +211,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;
-
-	PVCol _axis_clicked_id;
-	std::pair<size_t, size_t> _section_clicked;
 
 	QString _nraw_folder;
 };

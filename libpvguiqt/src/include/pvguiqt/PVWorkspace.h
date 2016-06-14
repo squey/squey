@@ -23,7 +23,6 @@ class QWidget;
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 
 /**

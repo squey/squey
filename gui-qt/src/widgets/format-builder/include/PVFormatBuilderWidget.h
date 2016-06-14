@@ -38,7 +38,6 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
-#include <inendi/PVSource_types.h>
 
 namespace PVGuiQt
 {

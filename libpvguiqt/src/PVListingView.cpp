@@ -14,6 +14,7 @@
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
+#include <inendi/PVSource.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
@@ -781,11 +782,10 @@ void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_clicked(int col)
 {
-	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>().shared_from_this();
 	int x = horizontalHeader()->sectionViewportPosition(col);
 	int width = horizontalHeader()->sectionSize(col);
-	PVHive::call<FUNC(Inendi::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() +
-	                                                                        x + width / 2);
+	lib_view().get_parent<Inendi::PVSource>().set_axis_clicked(col, verticalHeader()->width() + x +
+	                                                                    width / 2);
 }
 
 /******************************************************************************
@@ -793,10 +793,10 @@ void PVGuiQt::PVListingView::section_clicked(int col)
  * PVGuiQt::PVListingView::highlight_column
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::highlight_column(int col)
+void PVGuiQt::PVListingView::highlight_column(int col, bool entered)
 {
 	// Mark the column for future painting and force update
-	_hovered_axis = col;
+	_hovered_axis = entered ? col : -1;
 	viewport()->update();
 }
 

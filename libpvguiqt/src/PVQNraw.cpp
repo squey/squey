@@ -9,6 +9,8 @@
 
 #include <algorithm> // std::max_element
 
+#include <inendi/PVSource.h>
+
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVNraw.h>
 

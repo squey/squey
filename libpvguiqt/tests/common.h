@@ -9,7 +9,6 @@
 #define PVGUIQT_TESTS_COMMON_H
 
 #include <inendi/PVScene_types.h>
-#include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 #include <QString>
 

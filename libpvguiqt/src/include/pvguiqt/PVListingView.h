@@ -10,6 +10,8 @@
 
 #include <QMenu>
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
@@ -40,7 +42,7 @@ class PVListingModel;
 /**
  * \class PVListingView
  */
-class PVListingView : public PVAbstractTableView
+class PVListingView : public PVAbstractTableView, public sigc::trackable
 {
 	Q_OBJECT
 	friend class PVStatsListingWidget;
@@ -212,7 +214,7 @@ class PVListingView : public PVAbstractTableView
 	 *
 	 * @param[in] col : column to highlight
 	 */
-	void highlight_column(int col);
+	void highlight_column(int col, bool entered);
 
 	/**
 	 * Notify Hive views about hovered horizontal header column.

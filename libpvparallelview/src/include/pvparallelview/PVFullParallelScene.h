@@ -13,6 +13,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
+#include <sigc++/sigc++.h>
+
 #include <inendi/PVAxis.h>
 #include <inendi/PVView_types.h>
 
@@ -32,7 +34,7 @@
 namespace PVParallelView
 {
 
-class PVFullParallelScene : public QGraphicsScene
+class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 {
 	Q_OBJECT
 
@@ -111,8 +113,6 @@ class PVFullParallelScene : public QGraphicsScene
 	void update_number_of_zones();
 	void toggle_unselected_zombie_visibility();
 	void axis_hover_entered(PVCol col, bool entered);
-	void axis_clicked(PVCol col);
-	void disconnect_axes();
 
   private:
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -168,8 +168,8 @@ class PVFullParallelScene : public QGraphicsScene
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 
-	void highlight_axis(int col);
-	void sync_axis_with_section(PVHive::PVObserverBase* o);
+	void highlight_axis(int col, bool entered);
+	void sync_axis_with_section(size_t col, size_t pos);
 
 	void emit_new_zoomed_parallel_view(int axis_index)
 	{
@@ -236,8 +236,6 @@ class PVFullParallelScene : public QGraphicsScene
 	axes_list_t _axes;
 
 	PVHive::PVObserver_p<int> _obs_selected_layer;
-	typedef std::pair<size_t, size_t> section_pos_t;
-	PVHive::PVObserverSignal<section_pos_t> _section_click_obs;
 
 	Inendi::PVView& _lib_view;
 
@@ -257,8 +255,6 @@ class PVFullParallelScene : public QGraphicsScene
 	tbb::atomic<bool> _view_deleted;
 
 	bool _show_min_max_values;
-
-	int _hovered_axis_id = -1;
 };
 }
 

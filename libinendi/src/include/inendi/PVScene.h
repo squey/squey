@@ -18,7 +18,6 @@
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
-#include <inendi/PVSource_types.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView_types.h>
 

@@ -12,7 +12,6 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
-#include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 
 #include <QAction>
@@ -21,6 +20,11 @@
 #include <QWidget>
 
 #include <unordered_map>
+
+namespace Inendi
+{
+class PVSource;
+}
 
 namespace PVDisplays
 {

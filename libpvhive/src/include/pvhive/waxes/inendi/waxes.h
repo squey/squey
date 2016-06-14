@@ -10,7 +10,6 @@
 
 #include <pvhive/waxes/inendi/PVMapped.h>
 #include <pvhive/waxes/inendi/PVPlotted.h>
-#include <pvhive/waxes/inendi/PVSource.h>
 #include <pvhive/waxes/inendi/PVView.h>
 
 #endif
