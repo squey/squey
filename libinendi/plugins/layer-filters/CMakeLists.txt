@@ -18,10 +18,6 @@ layer_filter_heatline
 layer_filter_multiple_search
 )
 
-set(FILTERS_DIST_FILES
-create-layers/create-layers.conf
-)
-
 set(LINK_LIBRARIES inendi pvkernel)
 
 ###############################################################################
@@ -69,4 +65,3 @@ target_link_libraries(layer_filter_multiple_search ${LINK_LIBRARIES} ${PCRE_LIBR
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION ${INENDI_PLUGIN}/layer-filters
                                      RUNTIME DESTINATION ${INENDI_PLUGIN}/layer-filters)
-INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION ${SHARE_RESSOURCES})
