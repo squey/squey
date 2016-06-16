@@ -20,6 +20,8 @@ class QWidget;
 
 #include <pvdisplays/PVDisplaysContainer.h>
 
+#include <inendi/PVView.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
 

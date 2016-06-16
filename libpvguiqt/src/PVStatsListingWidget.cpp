@@ -97,11 +97,8 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observe layerstack to handle automatic refresh mode
-	PVHive::PVObserverSignal<Inendi::PVLayer>* obs_layer =
-	    new PVHive::PVObserverSignal<Inendi::PVLayer>();
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& v) { return &v.get_output_layer(); }, *obs_layer);
-	obs_layer->connect_refresh(this, SLOT(selection_changed()));
+	view_sp->_update_output_layer.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observer axes combination changes
 	view_sp->_axis_combination_updated.connect(

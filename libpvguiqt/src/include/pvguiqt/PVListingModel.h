@@ -16,7 +16,7 @@
 
 #include <pvguiqt/PVAbstractTableModel.h>
 #include <inendi/PVAxesCombination.h>
-#include <inendi/PVView_types.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVObserverSignal.h>
 

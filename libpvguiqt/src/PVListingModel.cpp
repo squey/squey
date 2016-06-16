@@ -40,9 +40,8 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update filter if we change layer content
-	_obs_output_layer.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(
-	    view, [=](Inendi::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
+	view->_update_output_layer.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of zombie lines on option toggling
 	// FIXME : Can't we work without these specific struct?

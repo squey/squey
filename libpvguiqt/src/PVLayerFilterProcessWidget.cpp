@@ -16,6 +16,7 @@
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/PVStateMachine.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVCallHelper.h>

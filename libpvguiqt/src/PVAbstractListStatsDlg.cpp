@@ -15,6 +15,8 @@
 
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
 
+#include <inendi/PVView.h>
+
 #include <pvguiqt/PVAbstractListStatsDlg.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 

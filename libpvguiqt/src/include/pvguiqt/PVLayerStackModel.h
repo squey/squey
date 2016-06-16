@@ -11,7 +11,7 @@
 #include <QAbstractTableModel>
 
 #include <inendi/PVLayerStack.h>
-#include <inendi/PVView_types.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>

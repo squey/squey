@@ -18,6 +18,7 @@ class QPropertyAnimation;
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <inendi/PVAxis.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVFuncObserver.h>

@@ -503,6 +503,8 @@ void Inendi::PVView::process_eventline()
 			out_lps.set_line_properties(i, _default_zombie_line_properties);
 		}
 	}
+
+	_update_output_layer.emit();
 }
 
 /******************************************************************************
@@ -529,9 +531,11 @@ Inendi::PVView* Inendi::PVView::process_from_eventline()
 
 	if (v) {
 		v->_update_output_selection.emit();
+		v->_update_output_layer.emit();
 	}
 
 	_update_output_selection.emit();
+	_update_output_layer.emit();
 
 	return v;
 }
@@ -551,7 +555,12 @@ Inendi::PVView* Inendi::PVView::process_from_layer_stack()
 
 	Inendi::PVView* v = process_correlation();
 
+	if (v) {
+		v->_update_output_layer.emit();
+	}
+
 	_update_layer_stack_output_layer.emit();
+	_update_output_layer.emit();
 
 	return v;
 }
@@ -568,6 +577,12 @@ Inendi::PVView* Inendi::PVView::process_from_selection()
 	process_eventline();
 	process_visibility();
 	Inendi::PVView* v = process_correlation();
+
+	if (v) {
+		v->_update_output_layer.emit();
+	}
+
+	_update_output_layer.emit();
 
 	return v;
 }
@@ -663,6 +678,8 @@ void Inendi::PVView::process_visibility()
 			output_layer.get_selection().or_not(layer_stack_output_layer.get_selection());
 		}
 	}
+
+	_update_output_layer.emit();
 }
 
 /******************************************************************************
