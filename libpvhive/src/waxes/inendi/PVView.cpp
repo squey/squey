@@ -95,14 +95,4 @@ IMPL_WAX(Inendi::PVView::process_real_output_selection, view, args)
 	return v;
 }
 
-// Layer stack waxes
-//
-
-IMPL_WAX(Inendi::PVView::toggle_view_unselected_zombie_visibility, view, args)
-{
-	call_object_default<Inendi::PVView,
-	                    FUNC(Inendi::PVView::toggle_view_unselected_zombie_visibility)>(view, args);
-	refresh_observers(&view->are_view_unselected_zombie_visible());
-}
-
 PVHIVE_CALL_OBJECT_BLOCK_END()

@@ -15,10 +15,6 @@
 
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVHive.h>
-#include <pvhive/PVObserverCallback.h>
-
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
@@ -74,11 +70,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 
 	// Register view for unselected & zombie events toggle
-	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); },
-	    *obs);
-	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+	_lib_view._toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
+	    this, &PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility));
 
 	// Register source for sections hover events
 	view_sp->_axis_hovered.connect(

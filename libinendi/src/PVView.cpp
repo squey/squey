@@ -857,6 +857,7 @@ void Inendi::PVView::toggle_listing_zombie_visibility()
 void Inendi::PVView::toggle_view_unselected_zombie_visibility()
 {
 	_state_machine.toggle_view_unselected_zombie_visibility();
+	_toggle_unselected_zombie_visibility.emit();
 }
 
 bool& Inendi::PVView::are_view_unselected_zombie_visible()

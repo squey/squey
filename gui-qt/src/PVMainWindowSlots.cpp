@@ -150,16 +150,12 @@ void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_unselected_zombies_parallelview_Slot()
 {
-	Inendi::PVView* current_lib_view;
-
 	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_view();
 
 	/* We refresh the listing */
-	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVView::toggle_view_unselected_zombie_visibility)>(view_sp);
+	current_view()->toggle_view_unselected_zombie_visibility();
 }
 
 /******************************************************************************

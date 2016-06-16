@@ -116,11 +116,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	configure_axis(true);
 
 	// Register view for unselected & zombie events toggle
-	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(
-	    pvview_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); },
-	    *obs);
-	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+	pvview_sp->_toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
+	    this, &PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility));
 
 	PVHive::PVHive::get().register_func_observer(sliders_manager_p, _zsu_obs);
 

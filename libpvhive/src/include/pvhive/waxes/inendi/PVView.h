@@ -22,9 +22,4 @@ DECLARE_WAX(Inendi::PVView::process_from_layer_stack)
 DECLARE_WAX(Inendi::PVView::process_from_eventline)
 DECLARE_WAX(Inendi::PVView::process_real_output_selection)
 
-// Layer stack waxes
-//
-
-DECLARE_WAX(Inendi::PVView::toggle_view_unselected_zombie_visibility)
-
 #endif
