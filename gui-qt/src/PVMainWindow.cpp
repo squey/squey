@@ -1360,7 +1360,7 @@ void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
 	PVHive::get().register_actor(view, actor);
 
 	actor.call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
-	actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+	view->process_real_output_selection();
 }
 
 /******************************************************************************

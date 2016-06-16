@@ -36,9 +36,8 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::axes_comb_changed));
 
 	// Call update_filter on selection update
-	_obs_sel.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(
-	    view, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
+	view->_update_output_selection.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update filter if we change layer content
 	_obs_output_layer.connect_refresh(this, SLOT(update_filter()));

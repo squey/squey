@@ -190,7 +190,7 @@ void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
 {
 	Inendi::PVLayer const& layer = get_layer_from_idx(model_idx);
 	ls_model()->view_actor().call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
-	ls_model()->view_actor().call<FUNC(Inendi::PVView::process_real_output_selection)>();
+	ls_model()->lib_view().process_real_output_selection();
 }
 
 void PVGuiQt::PVLayerStackView::export_layer_selection(int model_idx)

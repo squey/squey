@@ -527,6 +527,12 @@ Inendi::PVView* Inendi::PVView::process_from_eventline()
 	process_visibility();
 	Inendi::PVView* v = process_correlation();
 
+	if (v) {
+		v->_update_output_selection.emit();
+	}
+
+	_update_output_selection.emit();
+
 	return v;
 }
 
@@ -569,7 +575,11 @@ Inendi::PVView* Inendi::PVView::process_from_selection()
 Inendi::PVView* Inendi::PVView::process_real_output_selection()
 {
 	// AG: TODO: should be optimised to only create real_output_selection
-	return process_from_selection();
+	PVView* v = process_from_selection();
+
+	_update_output_selection.emit();
+
+	return v;
 }
 
 /******************************************************************************

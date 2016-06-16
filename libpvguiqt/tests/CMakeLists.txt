@@ -19,8 +19,6 @@ set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive inendi pvkernel ${TBB_LIBRARI
 
 add_pv_compile_test(Tqt_listing_model LINKS ${COMMON_LIBRARIES} FILES listing_model.cpp common.cpp)
 
-qt5_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT5_WRAP_OPTIONS})
-add_pv_compile_test(Tqt_stats_listing LINKS ${COMMON_LIBRARIES} FILES stats_listing.cpp common.cpp ${STATS_LISTING_MOC_SRC})
 add_pv_compile_test(Tqt_layerstack LINKS ${COMMON_LIBRARIES} FILES layerstack-model.cpp common.cpp)
 add_pv_compile_test(Tqt_layerstack_widget LINKS ${COMMON_LIBRARIES} FILES layerstack-widget.cpp common.cpp)
 add_pv_compile_test(Tqt_huge-model LINKS ${COMMON_LIBRARIES} FILES huge-model.cpp)

@@ -34,10 +34,6 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
           [&](Inendi::PVLayer const*) {},
           [&](Inendi::PVLayer const*) { this->output_layer_updated(); },
           [&](Inendi::PVLayer const*) {}))
-    , _obs_sel(PVHive::create_observer_callback_heap<Inendi::PVSelection>(
-          [&](Inendi::PVSelection const*) {},
-          [&](Inendi::PVSelection const*) { this->selection_updated(); },
-          [&](Inendi::PVSelection const*) {}))
     , _obs_view(PVHive::create_observer_callback_heap<Inendi::PVView>(
           [&](Inendi::PVView const*) {},
           [&](Inendi::PVView const*) {},
@@ -54,9 +50,8 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
 	view_sp->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::plotting_updated));
 
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); },
-	    *_obs_sel);
+	view_sp->_update_output_selection.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVLibView::selection_updated));
 	PVHive::get().register_observer(view_sp,
 	                                [=](Inendi::PVView& view) { return &view.get_output_layer(); },
 	                                *_obs_output_layer);

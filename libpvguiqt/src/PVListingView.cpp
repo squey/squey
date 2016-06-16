@@ -249,7 +249,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	extract_selection();
 
 	/* We reprocess the view from the selection */
-	_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+	lib_view().process_real_output_selection();
 }
 
 /******************************************************************************

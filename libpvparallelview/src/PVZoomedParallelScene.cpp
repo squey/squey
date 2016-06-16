@@ -904,7 +904,7 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 		_view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
 		    Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 		_pvview.commit_volatile_in_floating_selection();
-		_view_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+		_pvview.process_real_output_selection();
 	} else {
 		int64_t y_min = _sel_line->top() * BUCKET_ELT_COUNT;
 		int64_t y_max = _sel_line->bottom() * BUCKET_ELT_COUNT;

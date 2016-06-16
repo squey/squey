@@ -391,6 +391,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	sigc::signal<void> _layer_stack_refreshed;
 	sigc::signal<void> _toggle_unselected_zombie_visibility;
 	sigc::signal<void> _update_layer_stack_output_layer;
+	sigc::signal<void> _update_output_selection;
 
   protected:
 	/*! \brief PVView's specific axes combination

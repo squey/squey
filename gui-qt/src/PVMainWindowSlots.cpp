@@ -642,7 +642,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(lib_view);
+		lib_view->process_real_output_selection();
 	}
 }
 
@@ -661,7 +661,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_no_line();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(lib_view);
+		lib_view->process_real_output_selection();
 	}
 }
 
@@ -680,7 +680,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_inv_lines();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(lib_view);
+		lib_view->process_real_output_selection();
 	}
 }
 

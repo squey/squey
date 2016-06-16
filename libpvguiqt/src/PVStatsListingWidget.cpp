@@ -92,12 +92,9 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	        SLOT(update_scrollbar_position()));
 
 	// Observe selection to handle automatic refresh mode
-	PVHive::PVObserverSignal<Inendi::PVSelection>* obs_sel =
-	    new PVHive::PVObserverSignal<Inendi::PVSelection>(this);
 	Inendi::PVView_sp view_sp = _listing_view->lib_view().shared_from_this();
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, *obs_sel);
-	obs_sel->connect_refresh(this, SLOT(selection_changed()));
+	view_sp->_update_output_selection.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observe layerstack to handle automatic refresh mode
 	PVHive::PVObserverSignal<Inendi::PVLayer>* obs_layer =
