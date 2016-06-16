@@ -99,7 +99,9 @@ int main()
 	args["scale"].setValue(scale);
 	args["colors"].setValue(PVCore::PVPercentRangeType(0.6, 0.8));
 
-	Inendi::PVLayer out("Out", view->get_row_count());
+	Inendi::PVSelection sel(view->get_row_count());
+	sel.select_all();
+	Inendi::PVLayer out("Out", sel);
 	Inendi::PVLayer& in = view->get_layer_stack_output_layer();
 
 	fclone->set_view(view);
