@@ -28,8 +28,6 @@
 
 #include <future>
 
-#include <tbb/tick_count.h>
-
 PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLACK);
 
 /******************************************************************************
@@ -539,8 +537,6 @@ Inendi::PVView* Inendi::PVView::process_from_eventline()
  *****************************************************************************/
 Inendi::PVView* Inendi::PVView::process_from_layer_stack()
 {
-	tbb::tick_count start = tbb::tick_count::now();
-
 	/* We start by reprocessing the layer_stack */
 	process_layer_stack();
 	process_selection();
@@ -549,10 +545,8 @@ Inendi::PVView* Inendi::PVView::process_from_layer_stack()
 
 	Inendi::PVView* v = process_correlation();
 
-	tbb::tick_count end = tbb::tick_count::now();
-	PVLOG_INFO("(Inendi::PVView::process_from_layer_stack) function took %0.4f "
-	           "seconds.\n",
-	           (end - start).seconds());
+	_update_layer_stack_output_layer.emit();
+
 	return v;
 }
 

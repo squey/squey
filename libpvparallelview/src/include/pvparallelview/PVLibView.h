@@ -76,7 +76,6 @@ class PVLibView : public sigc::trackable
 	PVZonesManager _zones_manager;
 	PVCore::PVSharedPtr<PVSlidersManager> _sliders_manager_p;
 	PVHive::PVObserver_p<Inendi::PVLayer> _obs_output_layer;
-	PVHive::PVObserver_p<Inendi::PVLayer> _obs_layer_stack_output_layer;
 	PVHive::PVObserver_p<Inendi::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
 	scene_list_t _parallel_scenes;

@@ -34,10 +34,6 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
           [&](Inendi::PVLayer const*) {},
           [&](Inendi::PVLayer const*) { this->output_layer_updated(); },
           [&](Inendi::PVLayer const*) {}))
-    , _obs_layer_stack_output_layer(PVHive::create_observer_callback_heap<Inendi::PVLayer>(
-          [&](Inendi::PVLayer const*) {},
-          [&](Inendi::PVLayer const*) { this->layer_stack_output_layer_updated(); },
-          [&](Inendi::PVLayer const*) {}))
     , _obs_sel(PVHive::create_observer_callback_heap<Inendi::PVSelection>(
           [&](Inendi::PVSelection const*) {},
           [&](Inendi::PVSelection const*) { this->selection_updated(); },
@@ -64,9 +60,8 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
 	PVHive::get().register_observer(view_sp,
 	                                [=](Inendi::PVView& view) { return &view.get_output_layer(); },
 	                                *_obs_output_layer);
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& view) { return &view.get_layer_stack_output_layer(); },
-	    *_obs_layer_stack_output_layer);
+	view_sp->_update_layer_stack_output_layer.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVLibView::layer_stack_output_layer_updated));
 
 	view_sp->_axis_combination_updated.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_updated));
