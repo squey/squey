@@ -381,10 +381,10 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	PVHive::get().register_actor(view_sp, actor);
 
 	if (should_hide_layers) {
-		actor.call<FUNC(Inendi::PVView::hide_layers)>();
+		view_sp->hide_layers();
 	}
 
-	actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
+	view_sp->add_new_layer();
 	Inendi::PVLayer& layer = view_sp->get_current_layer();
 
 	// We need to configure the layer
@@ -415,10 +415,10 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 	if (!name.isEmpty()) {
 
 		if (should_hide_layers) {
-			actor.call<FUNC(Inendi::PVView::hide_layers)>();
+			view_sp->hide_layers();
 		}
 
-		actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
+		view_sp->add_new_layer();
 		Inendi::PVLayer& new_layer = inendi_view->get_current_layer();
 
 		/* We set it's selection to the final selection */

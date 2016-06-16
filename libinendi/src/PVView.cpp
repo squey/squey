@@ -92,6 +92,7 @@ Inendi::PVView::~PVView()
  *****************************************************************************/
 void Inendi::PVView::reset_layers()
 {
+	_layer_stack_about_to_refresh.emit();
 	PVRow row_count = get_row_count();
 
 	// This function remove all the layers and add the default one with all events
@@ -111,6 +112,7 @@ void Inendi::PVView::reset_layers()
 	post_filter_layer.reset_to_full_and_default_color(row_count);
 	layer_stack_output_layer.reset_to_full_and_default_color(row_count);
 	output_layer.reset_to_full_and_default_color(row_count);
+	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -120,32 +122,41 @@ void Inendi::PVView::reset_layers()
  *****************************************************************************/
 void Inendi::PVView::add_new_layer(QString name)
 {
-	Inendi::PVLayer* layer = layer_stack.append_new_layer(get_row_count(), name);
-	layer->compute_selectable_count(get_row_count());
+	_layer_stack_about_to_refresh.emit();
+	size_t row_count = get_row_count();
+	Inendi::PVLayer* layer = layer_stack.append_new_layer(row_count, name);
+	layer->compute_selectable_count(row_count);
 
+	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::delete_selected_layer()
 {
+	_layer_stack_about_to_refresh.emit();
 	layer_stack.delete_selected_layer();
 
+	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::delete_layer_n(int idx)
 {
+	_layer_stack_about_to_refresh.emit();
 	layer_stack.delete_by_index(idx);
 
+	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::duplicate_selected_layer(const QString& name)
 {
+	_layer_stack_about_to_refresh.emit();
 	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
 	compute_layer_min_max(*new_layer);
 	new_layer->compute_selectable_count(get_row_count());
 
+	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
 }
 
@@ -719,11 +730,12 @@ void Inendi::PVView::set_floating_selection(PVSelection& selection)
  * Inendi::PVView::set_layer_stack_layer_n_name
  *
  *****************************************************************************/
-int Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
+void Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 {
+	_layer_stack_about_to_refresh.emit();
 	PVLayer& layer = layer_stack.get_layer_n(n);
 	layer.set_name(name);
-	return 0;
+	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -733,8 +745,10 @@ int Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
  *****************************************************************************/
 void Inendi::PVView::set_layer_stack_selected_layer_index(int index)
 {
+	_layer_stack_about_to_refresh.emit();
 	layer_stack.set_selected_layer_index(index);
 
+	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
 }
 
@@ -764,8 +778,9 @@ void Inendi::PVView::set_selection_view(PVSelection const& sel)
  * Inendi::PVView::toggle_layer_stack_layer_n_visible_state
  *
  *****************************************************************************/
-int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
+void Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 {
+	_layer_stack_about_to_refresh.emit();
 	PVLayer& layer = layer_stack.get_layer_n(n);
 
 	if (layer.get_visible()) {
@@ -773,7 +788,7 @@ int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 	} else {
 		layer.set_visible(1);
 	}
-	return 0;
+	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -782,8 +797,10 @@ int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 
 void Inendi::PVView::move_selected_layer_to(int new_index)
 {
+	_layer_stack_about_to_refresh.emit();
 	get_layer_stack().move_selected_layer_to(new_index);
 
+	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
 }
 

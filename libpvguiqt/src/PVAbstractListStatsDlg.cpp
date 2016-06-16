@@ -766,10 +766,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
-	actor.call<FUNC(Inendi::PVView::add_new_layer)>(text);
+	view_sp->add_new_layer(text);
 	Inendi::PVLayer& layer = view_sp->get_layer_stack().get_selected_layer();
 	int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-	actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+	view_sp->toggle_layer_stack_layer_n_visible_state(ls_index);
 
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
@@ -787,7 +787,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 			insert_pos = old_selected_layer_index;
 			++old_selected_layer_index;
 		}
-		actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
+		view_sp->move_selected_layer_to(insert_pos);
 	}
 
 	ls.set_selected_layer_index(old_selected_layer_index);
@@ -878,10 +878,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		sl.append(s);
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
-		actor.call<FUNC(Inendi::PVView::add_new_layer)>(layer_name);
+		view_sp->add_new_layer(layer_name);
 		Inendi::PVLayer& layer = view_sp->get_layer_stack().get_selected_layer();
 		int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-		actor.call<FUNC(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)>(ls_index);
+		view_sp->toggle_layer_stack_layer_n_visible_state(ls_index);
 
 		// We need to configure the layer
 		view_sp->commit_selection_to_layer(layer);
@@ -897,7 +897,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 				insert_pos = old_selected_layer_index;
 				++old_selected_layer_index;
 			}
-			actor.call<FUNC(Inendi::PVView::move_selected_layer_to)>(insert_pos);
+			view_sp->move_selected_layer_to(insert_pos);
 		}
 
 		ls.set_selected_layer_index(old_selected_layer_index);

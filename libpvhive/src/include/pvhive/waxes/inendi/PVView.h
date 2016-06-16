@@ -25,16 +25,6 @@ DECLARE_WAX(Inendi::PVView::process_real_output_selection)
 // Layer stack waxes
 //
 
-DECLARE_WAX(Inendi::PVView::add_new_layer)
-DECLARE_WAX(Inendi::PVView::delete_layer_n)
-DECLARE_WAX(Inendi::PVView::delete_selected_layer)
-DECLARE_WAX(Inendi::PVView::move_selected_layer_to)
-DECLARE_WAX(Inendi::PVView::reset_layers)
-DECLARE_WAX(Inendi::PVView::set_layer_stack_selected_layer_index)
-DECLARE_WAX(Inendi::PVView::set_layer_stack_layer_n_name)
-DECLARE_WAX(Inendi::PVView::toggle_layer_stack_layer_n_visible_state)
 DECLARE_WAX(Inendi::PVView::toggle_view_unselected_zombie_visibility)
-DECLARE_WAX(Inendi::PVView::hide_layers)
-DECLARE_WAX(Inendi::PVView::compute_layer_min_max)
 
 #endif

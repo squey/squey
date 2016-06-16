@@ -55,8 +55,8 @@ class PVLayerStackModel : public QAbstractTableModel
 	void reset_layer_colors(const int idx);
 
   public:
-	Inendi::PVLayerStack const& lib_layer_stack() const { return *_obs.get_object(); }
-	Inendi::PVLayerStack& lib_layer_stack() { return *_obs.get_object(); }
+	Inendi::PVLayerStack const& lib_layer_stack() const { return _lib_view.get_layer_stack(); }
+	Inendi::PVLayerStack& lib_layer_stack() { return _lib_view.get_layer_stack(); }
 	PVHive::PVActor<Inendi::PVView>& view_actor() { return _actor; }
 	Inendi::PVView const& lib_view() const { return _lib_view; }
 	Inendi::PVView& lib_view() { return _lib_view; }
@@ -69,9 +69,8 @@ class PVLayerStackModel : public QAbstractTableModel
 	}
 
   private Q_SLOTS:
-	void layer_stack_about_to_be_deleted(PVHive::PVObserverBase* o);
-	void layer_stack_about_to_be_refreshed(PVHive::PVObserverBase* o);
-	void layer_stack_refreshed(PVHive::PVObserverBase* o);
+	void layer_stack_about_to_be_refreshed();
+	void layer_stack_refreshed();
 
   private:
 	Inendi::PVView& _lib_view;
@@ -81,9 +80,6 @@ class PVLayerStackModel : public QAbstractTableModel
 	QFont unselect_font;   //!<
 
 	PVHive::PVActor<Inendi::PVView> _actor;
-	PVHive::PVObserverSignal<Inendi::PVLayerStack> _obs;
-
-	bool _ls_valid;
 };
 }
 

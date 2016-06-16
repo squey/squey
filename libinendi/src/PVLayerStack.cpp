@@ -60,7 +60,7 @@ Inendi::PVLayer* Inendi::PVLayerStack::append_new_layer(PVRow row_count,
 	} else {
 		layer_name = name;
 	}
-	return append_layer(PVLayer(layer_name, row_count));
+	return append_layer(PVLayer(layer_name, &row_count));
 }
 
 /******************************************************************************

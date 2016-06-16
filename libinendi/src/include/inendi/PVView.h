@@ -116,7 +116,12 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	int get_layer_stack_layer_n_visible_state(int n) const;
 	PVLayer& get_layer_stack_output_layer();
 	PVLayer const& get_layer_stack_output_layer() const { return layer_stack_output_layer; }
-	void hide_layers() { layer_stack.hide_layers(); }
+	void hide_layers()
+	{
+		_layer_stack_about_to_refresh.emit();
+		layer_stack.hide_layers();
+		_layer_stack_refreshed.emit();
+	}
 
 	PVCol get_active_axis() const
 	{
@@ -182,7 +187,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 
 	void set_color_on_active_layer(const PVCore::PVHSVColor c);
 
-	int set_layer_stack_layer_n_name(int n, QString const& name);
+	void set_layer_stack_layer_n_name(int n, QString const& name);
 
 	void set_layer_stack_selected_layer_index(int index);
 
@@ -191,7 +196,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	void set_selection_from_layer(PVLayer const& layer);
 	void set_selection_view(PVSelection const& sel);
 
-	int toggle_layer_stack_layer_n_visible_state(int n);
+	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
 
 	void select_all_nonzb_lines();
@@ -382,6 +387,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	sigc::signal<void> _axis_combination_updated;
 	sigc::signal<void> _axis_combination_about_to_update;
 	sigc::signal<void> _update_current_min_max;
+	sigc::signal<void> _layer_stack_about_to_refresh;
+	sigc::signal<void> _layer_stack_refreshed;
 
   protected:
 	/*! \brief PVView's specific axes combination

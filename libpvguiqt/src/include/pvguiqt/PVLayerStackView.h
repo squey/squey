@@ -42,8 +42,6 @@ class PVLayerStackView : public QTableView
 
   private Q_SLOTS:
 	void show_ctxt_menu(QPoint const& pt);
-	void layer_clicked(QModelIndex const& idx);
-	void layer_double_clicked(QModelIndex const& idx);
 
   protected:
 	void enterEvent(QEvent* event) override;
