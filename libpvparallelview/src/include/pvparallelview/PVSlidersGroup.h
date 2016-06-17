@@ -8,9 +8,7 @@
 #ifndef PVPARALLELVIEW_PVSLIDERSGROUP_H
 #define PVPARALLELVIEW_PVSLIDERSGROUP_H
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVCallHelper.h>
+#include <sigc++/sigc++.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSlidersManager.h>
@@ -101,81 +99,19 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 	void del_zoomed_selection_sliders(id_t id);
 
   private:
-	class zoom_sliders_new_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager, FUNC(PVSlidersManager::new_zoom_sliders)>
-	{
-	  public:
-		zoom_sliders_new_obs(PVSlidersGroup* parent) : _parent(parent) {}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVSlidersGroup* _parent;
-	};
-
-	class selection_sliders_new_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager,
-	                                    FUNC(PVSlidersManager::new_selection_sliders)>
-	{
-	  public:
-		selection_sliders_new_obs(PVSlidersGroup* parent) : _parent(parent) {}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVSlidersGroup* _parent;
-	};
-
-	class zoomed_selection_sliders_new_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager,
-	                                    FUNC(PVSlidersManager::new_zoomed_selection_sliders)>
-	{
-	  public:
-		zoomed_selection_sliders_new_obs(PVSlidersGroup* parent) : _parent(parent) {}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVSlidersGroup* _parent;
-	};
-
-	class zoom_sliders_del_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager, FUNC(PVSlidersManager::del_zoom_sliders)>
-	{
-	  public:
-		zoom_sliders_del_obs(PVSlidersGroup* parent) : _parent(parent) {}
-
-		void about_to_be_updated(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVSlidersGroup* _parent;
-	};
-
-	class selection_sliders_del_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager,
-	                                    FUNC(PVSlidersManager::del_selection_sliders)>
-	{
-	  public:
-		selection_sliders_del_obs(PVSlidersGroup* parent) : _parent(parent) {}
-
-		void about_to_be_updated(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVSlidersGroup* _parent;
-	};
-
-	class zoomed_selection_sliders_del_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager,
-	                                    FUNC(PVSlidersManager::del_zoomed_selection_sliders)>
-	{
-	  public:
-		zoomed_selection_sliders_del_obs(PVSlidersGroup* parent) : _parent(parent) {}
-
-		void about_to_be_updated(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVSlidersGroup* _parent;
-	};
+	void
+	on_new_zoom_slider(axis_id_t axis_d, PVSlidersManager::id_t id, int64_t y_min, int64_t y_max);
+	void on_new_selection_sliders(axis_id_t axis_d,
+	                              PVSlidersManager::id_t id,
+	                              int64_t y_min,
+	                              int64_t y_max);
+	void on_new_zoomed_selection_sliders(axis_id_t axis_d,
+	                                     PVSlidersManager::id_t id,
+	                                     int64_t y_min,
+	                                     int64_t y_max);
+	void on_del_zoom_sliders(axis_id_t axis_d, PVSlidersManager::id_t id);
+	void on_del_selection_sliders(axis_id_t axis_d, PVSlidersManager::id_t id);
+	void on_del_zoomed_selection_sliders(axis_id_t axis_d, PVSlidersManager::id_t id);
 
   private:
 	typedef std::unordered_map<id_t, PVSelectionAxisSliders*> sas_set_t;
@@ -184,12 +120,6 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 
   private:
 	PVSlidersManager_p _sliders_manager_p;
-	zoom_sliders_new_obs _zsn_obs;
-	selection_sliders_new_obs _ssn_obs;
-	zoomed_selection_sliders_new_obs _zssn_obs;
-	zoom_sliders_del_obs _zsd_obs;
-	selection_sliders_del_obs _ssd_obs;
-	zoomed_selection_sliders_del_obs _zssd_obs;
 	axis_id_t _axis_id;
 	float _axis_scale;
 

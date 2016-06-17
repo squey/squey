@@ -23,16 +23,7 @@
 PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
                                                const axis_id_t& axis_id,
                                                QGraphicsItem* parent)
-    : QGraphicsItemGroup(parent)
-    , _sliders_manager_p(sm_p)
-    , _zsn_obs(this)
-    , _ssn_obs(this)
-    , _zssn_obs(this)
-    , _zsd_obs(this)
-    , _ssd_obs(this)
-    , _zssd_obs(this)
-    , _axis_id(axis_id)
-    , _axis_scale(1.0f)
+    : QGraphicsItemGroup(parent), _sliders_manager_p(sm_p), _axis_id(axis_id), _axis_scale(1.0f)
 {
 	// does not care about children events
 	// RH: this method is obsolete in Qt 4.8 and should be replaced with
@@ -58,13 +49,19 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 		    add_new_selection_sliders(nullptr, id, geom.y_min, geom.y_max);
 		});
 
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zsn_obs);
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _ssn_obs);
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zssn_obs);
+	_sliders_manager_p->_new_zoom_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_new_zoom_slider));
+	_sliders_manager_p->_new_selection_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_new_selection_sliders));
+	_sliders_manager_p->_new_zoomed_selection_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders));
 
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zsd_obs);
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _ssd_obs);
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zssd_obs);
+	_sliders_manager_p->_del_zoom_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_del_zoom_sliders));
+	_sliders_manager_p->_del_selection_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_del_selection_sliders));
+	_sliders_manager_p->_del_zoomed_selection_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders));
 }
 
 /*****************************************************************************
@@ -131,8 +128,7 @@ void PVParallelView::PVSlidersGroup::delete_own_selection_sliders()
 		if (it.first != it.second) {
 			continue;
 		}
-		PVHive::call<FUNC(PVSlidersManager::del_selection_sliders)>(_sliders_manager_p,
-		                                                            get_axis_id(), it.first);
+		_sliders_manager_p->del_selection_sliders(get_axis_id(), it.first);
 	}
 
 	zsas_set_t zssliders = _zoomed_selection_sliders;
@@ -141,8 +137,7 @@ void PVParallelView::PVSlidersGroup::delete_own_selection_sliders()
 		if (it.first != it.second) {
 			continue;
 		}
-		PVHive::call<FUNC(PVSlidersManager::del_zoomed_selection_sliders)>(_sliders_manager_p,
-		                                                                   get_axis_id(), it.first);
+		_sliders_manager_p->del_zoomed_selection_sliders(get_axis_id(), it.first);
 	}
 }
 
@@ -152,7 +147,7 @@ void PVParallelView::PVSlidersGroup::delete_own_selection_sliders()
 
 void PVParallelView::PVSlidersGroup::delete_own_zoom_slider()
 {
-	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p, get_axis_id(), this);
+	_sliders_manager_p->del_zoom_sliders(get_axis_id(), this);
 }
 
 /*****************************************************************************
@@ -202,9 +197,8 @@ PVParallelView::PVSlidersGroup::get_selection_ranges() const
 
 void PVParallelView::PVSlidersGroup::add_zoom_sliders(int64_t y_min, int64_t y_max)
 {
-	PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p, get_axis_id(), this,
-	                                                       y_min * BUCKET_ELT_COUNT,
-	                                                       y_max * BUCKET_ELT_COUNT);
+	_sliders_manager_p->new_zoom_sliders(get_axis_id(), this, y_min * BUCKET_ELT_COUNT,
+	                                     y_max * BUCKET_ELT_COUNT);
 }
 
 /*****************************************************************************
@@ -220,8 +214,7 @@ void PVParallelView::PVSlidersGroup::add_selection_sliders(int64_t y_min, int64_
 	    new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p, this);
 	add_new_selection_sliders(sliders, sliders, y_min, y_max);
 
-	PVHive::call<FUNC(PVSlidersManager::new_selection_sliders)>(_sliders_manager_p, get_axis_id(),
-	                                                            sliders, y_min, y_max);
+	_sliders_manager_p->new_selection_sliders(get_axis_id(), sliders, y_min, y_max);
 }
 
 /*****************************************************************************
@@ -235,8 +228,7 @@ PVParallelView::PVSlidersGroup::add_zoomed_selection_sliders(int64_t y_min, int6
 	    new PVZoomedSelectionAxisSliders(this, _sliders_manager_p, this);
 	add_new_zoomed_selection_sliders(sliders, sliders, y_min, y_max);
 
-	PVHive::call<FUNC(PVSlidersManager::new_zoomed_selection_sliders)>(
-	    _sliders_manager_p, get_axis_id(), sliders, y_min, y_max);
+	_sliders_manager_p->new_zoomed_selection_sliders(get_axis_id(), sliders, y_min, y_max);
 
 	return sliders;
 }
@@ -395,105 +387,86 @@ void PVParallelView::PVSlidersGroup::add_new_zoomed_selection_sliders(
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::zoom_sliders_new_obs::update
+ * PVParallelView::PVSlidersGroup::on_new_zoom_slider
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::zoom_sliders_new_obs::update(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::on_new_zoom_slider(axis_id_t axis_id,
+                                                        PVSlidersManager::id_t id,
+                                                        int64_t y_min,
+                                                        int64_t y_max)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-
-	if (axis_id == _parent->get_axis_id()) {
-		PVSlidersManager::id_t id = std::get<1>(args);
-
-		if (id != _parent) {
-			int64_t y_min = std::get<2>(args);
-			int64_t y_max = std::get<3>(args);
-			_parent->add_new_zoom_sliders(id, y_min, y_max);
+	if (axis_id == get_axis_id()) {
+		if (id != this) {
+			add_new_zoom_sliders(id, y_min, y_max);
 		}
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::selection_sliders_new_obs::update
+ * PVParallelView::PVSlidersGroup::on_new_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::selection_sliders_new_obs::update(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::on_new_selection_sliders(axis_id_t axis_id,
+                                                              PVSlidersManager::id_t id,
+                                                              int64_t y_min,
+                                                              int64_t y_max)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-
-	if (axis_id == _parent->get_axis_id()) {
-		PVSlidersManager::id_t id = std::get<1>(args);
-
-		if (_parent->_selection_sliders.find(id) == _parent->_selection_sliders.end()) {
-			int64_t y_min = std::get<2>(args);
-			int64_t y_max = std::get<3>(args);
-			_parent->add_new_selection_sliders(nullptr, id, y_min, y_max);
+	if (axis_id == get_axis_id()) {
+		if (_selection_sliders.find(id) == _selection_sliders.end()) {
+			add_new_selection_sliders(nullptr, id, y_min, y_max);
 		}
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::zoomed_selection_sliders_new_obs::update
+ * PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_new_obs::update(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders(axis_id_t axis_id,
+                                                                     PVSlidersManager::id_t id,
+                                                                     int64_t y_min,
+                                                                     int64_t y_max)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-
-	if (axis_id == _parent->get_axis_id()) {
-		PVSlidersManager::id_t id = std::get<1>(args);
-
-		if (_parent->_zoomed_selection_sliders.find(id) ==
-		    _parent->_zoomed_selection_sliders.end()) {
-			int64_t y_min = std::get<2>(args);
-			int64_t y_max = std::get<3>(args);
-			_parent->add_new_zoomed_selection_sliders(nullptr, id, y_min, y_max);
+	if (axis_id == get_axis_id()) {
+		if (_zoomed_selection_sliders.find(id) == _zoomed_selection_sliders.end()) {
+			add_new_zoomed_selection_sliders(nullptr, id, y_min, y_max);
 		}
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update
+ * PVParallelView::PVSlidersGroup::on_del_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::about_to_be_updated(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::on_del_zoom_sliders(axis_id_t axis_id,
+                                                         PVSlidersManager::id_t id)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-
-	if (axis_id == _parent->get_axis_id()) {
-		_parent->del_zoom_sliders(std::get<1>(args));
+	if (axis_id == get_axis_id()) {
+		del_zoom_sliders(id);
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update
+ * PVParallelView::PVSlidersGroup::on_del_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::about_to_be_updated(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::on_del_selection_sliders(axis_id_t axis_id,
+                                                              PVSlidersManager::id_t id)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-
-	if (axis_id == _parent->get_axis_id()) {
-		_parent->del_selection_sliders(std::get<1>(args));
+	if (axis_id == get_axis_id()) {
+		del_selection_sliders(id);
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::update
+ * PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::zoomed_selection_sliders_del_obs::about_to_be_updated(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders(axis_id_t axis_id,
+                                                                     PVSlidersManager::id_t id)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-
-	if (axis_id == _parent->get_axis_id()) {
-		_parent->del_zoomed_selection_sliders(std::get<1>(args));
+	if (axis_id == get_axis_id()) {
+		del_zoomed_selection_sliders(id);
 	}
 }
 

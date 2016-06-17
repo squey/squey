@@ -18,7 +18,7 @@
 PVParallelView::PVSelectionAxisSliders::PVSelectionAxisSliders(QGraphicsItem* parent,
                                                                PVSlidersManager_p sm_p,
                                                                PVSlidersGroup* group)
-    : PVAbstractRangeAxisSliders(parent, sm_p, group, "range selection"), _ssu_obs(this)
+    : PVAbstractRangeAxisSliders(parent, sm_p, group, "range selection")
 {
 }
 
@@ -50,7 +50,8 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id, int64_t y_min, 
 	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _ssu_obs);
+	_sliders_manager_p->_update_selection_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVSelectionAxisSliders::on_selection_sliders_update));
 }
 
 /*****************************************************************************
@@ -59,8 +60,7 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id, int64_t y_min, 
 
 void PVParallelView::PVSelectionAxisSliders::remove_from_axis()
 {
-	PVHive::call<FUNC(PVSlidersManager::del_selection_sliders)>(_sliders_manager_p,
-	                                                            _group->get_axis_id(), _id);
+	_sliders_manager_p->del_selection_sliders(_group->get_axis_id(), _id);
 }
 
 /*****************************************************************************
@@ -71,31 +71,26 @@ void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 {
 	Q_EMIT sliders_moved();
 
-	PVHive::call<FUNC(PVSlidersManager::update_selection_sliders)>(
-	    _sliders_manager_p, _group->get_axis_id(), _id, _sl_min->get_value(), _sl_max->get_value());
+	_sliders_manager_p->update_selection_sliders(_group->get_axis_id(), _id, _sl_min->get_value(),
+	                                             _sl_max->get_value());
 }
 
 /*****************************************************************************
  * PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::update
  *****************************************************************************/
 
-void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::update(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVSelectionAxisSliders::on_selection_sliders_update(axis_id_t axis_id,
+                                                                         id_t id,
+                                                                         int64_t y_min,
+                                                                         int64_t y_max)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-	PVSlidersManager::id_t id = std::get<1>(args);
-
-	if ((axis_id == _parent->_group->get_axis_id()) && (id == _parent->_id)) {
-		int64_t y_min = std::get<2>(args);
-		int64_t y_max = std::get<3>(args);
+	if ((axis_id == _group->get_axis_id()) and (id == _id)) {
 		if (y_max < y_min) {
-			int64_t tmp = y_max;
-			y_max = y_min;
-			y_min = tmp;
+			std::swap(y_max, y_min);
 		}
 
-		_parent->refresh_value(y_min, y_max);
+		refresh_value(y_min, y_max);
 
-		Q_EMIT _parent->sliders_moved();
+		Q_EMIT sliders_moved();
 	}
 }

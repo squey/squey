@@ -10,10 +10,6 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvparallelview/PVAbstractRangeAxisSliders.h>
 
 namespace PVParallelView
@@ -43,21 +39,9 @@ class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders
 	void do_sliders_moved();
 
   private:
-	class selection_sliders_update_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager,
-	                                    FUNC(PVSlidersManager::update_selection_sliders)>
-	{
-	  public:
-		selection_sliders_update_obs(PVSelectionAxisSliders* parent) : _parent(parent) {}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVSelectionAxisSliders* _parent;
-	};
+	void on_selection_sliders_update(axis_id_t axis_id, id_t id, int64_t y_min, int64_t y_max);
 
   private:
-	selection_sliders_update_obs _ssu_obs;
 	id_t _id;
 };
 }
