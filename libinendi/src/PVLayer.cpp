@@ -13,9 +13,10 @@
  * Inendi::PVLayer::PVLayer
  *
  *****************************************************************************/
-Inendi::PVLayer::PVLayer(const QString& name_)
-    : index(0), _locked(false), visible(true), name(name_)
+Inendi::PVLayer::PVLayer(const QString& name_, size_t size)
+    : index(0), _locked(false), visible(true), name(name_), selection(size), lines_properties(size)
 {
+	reset_to_full_and_default_color();
 }
 
 /******************************************************************************
@@ -28,7 +29,6 @@ Inendi::PVLayer::PVLayer(const QString& name_,
                          const PVLinesProperties& lp_)
     : index(0), _locked(false), visible(true), name(name_), selection(sel_), lines_properties(lp_)
 {
-	set_count(selection.count());
 	name.truncate(INENDI_LAYER_NAME_MAXLEN);
 }
 
@@ -42,7 +42,7 @@ void Inendi::PVLayer::A2B_copy_restricted_by_selection_and_nelts(PVLayer& b,
                                                                  PVRow nelts)
 {
 	get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(b.get_lines_properties(),
-	                                                                  selection, nelts);
+	                                                                  selection);
 	b.get_selection() &= get_selection();
 	b.compute_selectable_count(nelts);
 }
@@ -57,9 +57,9 @@ void Inendi::PVLayer::compute_selectable_count(PVRow const& nrows)
  * Inendi::PVLayer::reset_to_empty_and_default_color
  *
  *****************************************************************************/
-void Inendi::PVLayer::reset_to_empty_and_default_color(PVRow row_count)
+void Inendi::PVLayer::reset_to_empty_and_default_color()
 {
-	lines_properties.reset_to_default_color(row_count);
+	lines_properties.reset_to_default_color();
 	selection.select_none();
 }
 
@@ -68,9 +68,9 @@ void Inendi::PVLayer::reset_to_empty_and_default_color(PVRow row_count)
  * Inendi::PVLayer::reset_to_default_color
  *
  *****************************************************************************/
-void Inendi::PVLayer::reset_to_default_color(PVRow row_count)
+void Inendi::PVLayer::reset_to_default_color()
 {
-	lines_properties.reset_to_default_color(row_count);
+	lines_properties.reset_to_default_color();
 }
 
 /******************************************************************************
@@ -78,9 +78,9 @@ void Inendi::PVLayer::reset_to_default_color(PVRow row_count)
  * Inendi::PVLayer::reset_to_full_and_default_color
  *
  *****************************************************************************/
-void Inendi::PVLayer::reset_to_full_and_default_color(PVRow row_count)
+void Inendi::PVLayer::reset_to_full_and_default_color()
 {
-	lines_properties.reset_to_default_color(row_count);
+	lines_properties.reset_to_default_color();
 	selection.select_all();
 }
 

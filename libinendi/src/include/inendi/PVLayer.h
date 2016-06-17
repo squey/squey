@@ -50,10 +50,8 @@ class PVLayer
 	/**
 	 * Constructor
 	 */
-	PVLayer(const QString& name_);
-	PVLayer(const QString& name_,
-	        const PVSelection& sel_,
-	        const PVLinesProperties& lp_ = PVLinesProperties());
+	PVLayer(const QString& name_, size_t size);
+	PVLayer(const QString& name_, const PVSelection& sel_, const PVLinesProperties& lp_);
 
 	/**
 	 * Copy this layer properties as b properties for selected elements (from selection)
@@ -82,9 +80,9 @@ class PVLayer
 	inline list_row_indexes_t get_mins() const { return _row_mins; }
 	inline list_row_indexes_t const& get_maxs() const { return _row_maxs; }
 
-	void reset_to_empty_and_default_color(PVRow row_count);
-	void reset_to_full_and_default_color(PVRow row_count);
-	void reset_to_default_color(PVRow row_count);
+	void reset_to_empty_and_default_color();
+	void reset_to_full_and_default_color();
+	void reset_to_default_color();
 
 	void set_index(int index_) { index = index_; }
 
@@ -97,16 +95,6 @@ class PVLayer
 		name.truncate(INENDI_LAYER_NAME_MAXLEN);
 	}
 	void set_visible(bool visible_) { visible = visible_; }
-	void set_count(PVRow count)
-	{
-		selection.set_count(count);
-		lines_properties.set_row_count(count);
-	}
-
-  protected:
-	// Default constructor is needed when recreating the object
-	PVLayer() : PVLayer("") {}
-
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 };
 }

@@ -99,10 +99,8 @@ int main()
 	Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
 	PVCore::PVArgumentList& args = view->get_last_args_filter(plugin_name);
 
-	Inendi::PVSelection sel(view->get_row_count());
-	sel.select_all();
-	Inendi::PVLayer out("Out", sel);
-	out.reset_to_empty_and_default_color(view->get_row_count());
+	Inendi::PVLayer out("Out", view->get_row_count());
+	out.reset_to_empty_and_default_color();
 	Inendi::PVLayer& in = view->get_layer_stack_output_layer();
 	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(COLUMN_INDEX));
 

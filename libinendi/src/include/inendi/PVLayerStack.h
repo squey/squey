@@ -33,7 +33,7 @@ class PVLayerStack
 	/**
 	 * Constructor
 	 */
-	PVLayerStack();
+	PVLayerStack(size_t layer_size);
 
 	QString get_new_layer_name() const;
 	bool& should_hide_layers() { return _should_hide_layers; }
@@ -82,6 +82,7 @@ class PVLayerStack
 	int _selected_layer_index;
 	QList<PVLayer> _table;
 	bool _should_hide_layers = true;
+	size_t _layer_size; //!< Size for each of these layers.
 };
 }
 

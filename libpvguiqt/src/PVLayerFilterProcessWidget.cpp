@@ -205,8 +205,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	_view->get_post_filter_layer()
 	    .get_lines_properties()
 	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
-	                                                _view->get_post_filter_layer().get_selection(),
-	                                                _view->get_row_count());
+	                                                _view->get_post_filter_layer().get_selection());
 
 	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);

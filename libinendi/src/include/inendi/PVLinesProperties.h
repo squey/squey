@@ -29,8 +29,7 @@ class PVLinesProperties
 	typedef PVCore::PVHSVColor::h_type h_type;
 
   public:
-	void ensure_allocated(size_t row_count);
-	void ensure_initialized(size_t row_count);
+	explicit PVLinesProperties(size_t size) : _colors(size) {}
 
 	inline PVCore::PVHSVColor const* get_buffer() const { return _colors.data(); }
 
@@ -43,19 +42,10 @@ class PVLinesProperties
 	 */
 	inline const PVCore::PVHSVColor get_line_properties(const PVRow r) const { return _colors[r]; }
 
-	void set_row_count(int row_count)
-	{
-		assert(row_count < INENDI_LINES_MAX);
-		_colors.resize(row_count);
-	}
-
 	void A2B_copy_restricted_by_selection_and_nelts(PVLinesProperties& b,
-	                                                PVSelection const& selection,
-	                                                PVRow nelts) const;
-	void reset_to_default_color(PVRow row_count);
-	void selection_set_color(PVSelection const& selection,
-	                         const PVRow nelts,
-	                         const PVCore::PVHSVColor c);
+	                                                PVSelection const& selection) const;
+	void reset_to_default_color();
+	void selection_set_color(PVSelection const& selection, const PVCore::PVHSVColor c);
 
   protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
