@@ -18,8 +18,6 @@
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVView.h>
 
-#include <pvhive/PVObserverSignal.h>
-
 namespace tbb
 {
 class task_group_context;

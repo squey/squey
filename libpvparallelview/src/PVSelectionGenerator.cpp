@@ -575,9 +575,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView_sp view_sp,
                                                              bool use_modifiers /*= true*/)
 {
-	PVHive::PVActor<Inendi::PVView> view_actor;
-	PVHive::get().register_actor(view_sp, view_actor);
-
 	unsigned int modifiers = (unsigned int)QApplication::keyboardModifiers();
 	/* We don't care about a keypad button being pressed */
 	modifiers &= ~Qt::KeypadModifier;
@@ -586,23 +583,17 @@ void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView_sp v
 	 * aren't really
 	 * constants */
 	if (use_modifiers && modifiers == AND_MODIFIER) {
-		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	} else if (use_modifiers && modifiers == NAND_MODIFIER) {
-		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	} else if (use_modifiers && modifiers == OR_MODIFIER) {
-		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	} else {
-		view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	}
 
 	/* Commit the previous volatile selection */
 	view_sp->commit_volatile_in_floating_selection();
 
 	view_sp->process_real_output_selection();
-
-	PVHive::get().unregister_actor(view_actor);
 }

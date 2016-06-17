@@ -8,8 +8,6 @@
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVView.h>
 
-#include <pvhive/PVHive.h>
-
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
 
@@ -27,8 +25,6 @@ PVGuiQt::PVLayerStackModel::PVLayerStackModel(Inendi::PVView_sp& lib_view, QObje
 	PVLOG_DEBUG("PVGuiQt::PVLayerStackModel::%s : Creating object\n", __FUNCTION__);
 
 	select_font.setBold(true);
-
-	PVHive::get().register_actor(lib_view, _actor);
 
 	lib_view->_layer_stack_about_to_refresh.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed));
@@ -189,7 +185,7 @@ bool PVGuiQt::PVLayerStackModel::setData(const QModelIndex& index, const QVarian
 		switch (index.column()) {
 		case 0:
 			lib_view().toggle_layer_stack_layer_n_visible_state(lib_index);
-			_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+			lib_view().process_from_layer_stack();
 			return true;
 
 		case 1:
@@ -217,7 +213,7 @@ void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 	Inendi::PVLayerStack& layerstack = lib_layer_stack();
 	Inendi::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
 	layer.reset_to_default_color(layer.get_selection().count());
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	lib_view().process_from_layer_stack();
 }
 
 void PVGuiQt::PVLayerStackModel::layer_stack_refreshed()
@@ -230,22 +226,22 @@ void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 	_lib_view.add_new_layer(name);
 	Inendi::PVLayer& layer = lib_layer_stack().get_layer_n(rowCount() - 1);
 	layer.reset_to_full_and_default_color(layer.get_selection().count());
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	lib_view().process_from_layer_stack();
 }
 
 void PVGuiQt::PVLayerStackModel::move_selected_layer_up()
 {
 	beginResetModel();
-	_actor.call<FUNC(Inendi::PVView::move_selected_layer_up)>();
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	lib_view().move_selected_layer_up();
+	lib_view().process_from_layer_stack();
 	endResetModel();
 }
 
 void PVGuiQt::PVLayerStackModel::move_selected_layer_down()
 {
 	beginResetModel();
-	_actor.call<FUNC(Inendi::PVView::move_selected_layer_down)>();
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	lib_view().move_selected_layer_down();
+	lib_view().process_from_layer_stack();
 	endResetModel();
 }
 
@@ -256,14 +252,15 @@ void PVGuiQt::PVLayerStackModel::delete_selected_layer()
 	}
 
 	_lib_view.delete_selected_layer();
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+
+	lib_view().process_from_layer_stack();
 }
 
 void PVGuiQt::PVLayerStackModel::duplicate_selected_layer(const QString& name)
 {
 	beginResetModel();
-	_actor.call<FUNC(Inendi::PVView::duplicate_selected_layer)>(name);
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	lib_view().duplicate_selected_layer(name);
+	lib_view().process_from_layer_stack();
 	endResetModel();
 }
 
@@ -276,5 +273,5 @@ void PVGuiQt::PVLayerStackModel::delete_layer_n(const int idx)
 	}
 
 	_lib_view.delete_layer_n(idx);
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	lib_view().process_from_layer_stack();
 }

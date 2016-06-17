@@ -12,11 +12,6 @@
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVLinesView.h>
 
-#include <pvhive/PVActor.h>
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVObserverSignal.h>
-
 namespace Inendi
 {
 class PVSelection;

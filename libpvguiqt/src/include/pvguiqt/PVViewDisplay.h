@@ -18,8 +18,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <pvhive/PVObserverSignal.h>
-#include <pvhive/PVCallHelper.h>
+#include <functional>
 
 class QString;
 class QPoint;
@@ -60,7 +59,6 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
   public:
 	Inendi::PVView* get_view() { return _view; }
 	void set_view(Inendi::PVView* view) { _view = view; }
-	void about_to_be_deleted() { _about_to_be_deleted = true; }
 
   protected:
 	/*! \brief Filter events to allow a PVViewDisplay to be docked inside any other PVWorkspace.
@@ -124,8 +122,6 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	std::function<QString()> _name;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
-	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
-	bool _about_to_be_deleted = false;
 	bool _can_be_central_widget;
 
 	int _width;

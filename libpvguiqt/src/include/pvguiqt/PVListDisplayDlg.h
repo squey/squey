@@ -10,9 +10,6 @@
 
 #include <pvguiqt/ui_PVListDisplayDlg.h>
 
-#include <pvhive/PVActor.h>
-#include <pvhive/PVObserverSignal.h>
-
 #include <inendi/PVView_types.h>
 
 #include <pvkernel/core/PVArgument.h>

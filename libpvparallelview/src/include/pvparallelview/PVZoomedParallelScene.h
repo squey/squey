@@ -11,10 +11,6 @@
 #include <inendi/PVView_types.h>
 #include <inendi/PVAxesCombination.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVSlidersManager_types.h>
@@ -526,7 +522,6 @@ class PVZoomedParallelScene : public QGraphicsScene
 	// about selection in the zoom view
 	PVZoomedParallelViewSelectionLine* _sel_line;
 	PVZoomedSelectionAxisSliders* _selection_sliders;
-	PVHive::PVActor<Inendi::PVView> _view_actor;
 
 	// about rendering invalidation
 	render_t _render_type;

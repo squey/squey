@@ -209,8 +209,6 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::animation_finished()
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::tab_close_requested(int index)
 {
-	PVWorkspaceBase* workspace = qobject_cast<PVWorkspaceBase*>(widget(index));
-	workspace->displays_about_to_be_deleted();
 	remove_workspace(index);
 }
 

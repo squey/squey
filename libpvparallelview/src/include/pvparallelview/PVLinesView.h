@@ -18,10 +18,6 @@
 
 #include <inendi/PVSelection.h>
 
-#include <pvhive/PVCallHelper.h>
-
-#include <boost/integer/static_log2.hpp>
-
 namespace Inendi
 {
 class PVSelection;

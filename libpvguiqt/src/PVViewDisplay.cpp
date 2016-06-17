@@ -21,8 +21,6 @@
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 
-#include <pvhive/PVObserverCallback.h>
-
 #include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
 #include <inendi/PVPlotted.h>
@@ -80,13 +78,6 @@ void PVGuiQt::PVViewDisplay::register_view(Inendi::PVView* view)
 
 		view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
 		    sigc::mem_fun(this, &PVGuiQt::PVViewDisplay::plotting_updated));
-
-		// Register for view deletion
-		_obs_view = PVHive::create_observer_callback_heap<Inendi::PVView>(
-		    [&](Inendi::PVView const*) {}, [&](Inendi::PVView const*) {},
-		    [&](Inendi::PVView const*) { _about_to_be_deleted = true; });
-		Inendi::PVView_sp view_sp = view->shared_from_this();
-		PVHive::get().register_observer(view_sp, *_obs_view);
 	}
 }
 
@@ -304,7 +295,7 @@ void PVGuiQt::PVViewDisplay::restore()
 
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
-	if (_view && !_about_to_be_deleted) {
+	if (_view) {
 		_view->get_parent<Inendi::PVRoot>().select_view(*_view);
 	}
 }

@@ -95,14 +95,13 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	void show_hhead_ctxt_menu(const QPoint& pos);
 
   protected:
-	Inendi::PVView* lib_view() { return _obs.get_object(); }
+	Inendi::PVView* lib_view() { return _view; }
 	void multiple_search(QAction* act, const QStringList& sl, bool hide_dialog = true);
 	void resize_section();
 
   protected:
+	Inendi::PVView* _view;
 	PVCol _col;
-	PVHive::PVObserverSignal<Inendi::PVView> _obs;
-	PVHive::PVActor<Inendi::PVView> _actor;
 
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;

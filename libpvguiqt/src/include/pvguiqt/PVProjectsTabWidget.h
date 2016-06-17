@@ -14,9 +14,6 @@
 #include <inendi/PVScene.h>
 #include <inendi/PVRoot.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVObserverSignal.h>
-
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>
 

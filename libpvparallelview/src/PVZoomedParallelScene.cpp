@@ -126,8 +126,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);
 	connect(&_updateall_timer, SIGNAL(timeout()), this, SLOT(updateall_timeout_Slot()));
-
-	PVHive::get().register_actor(pvview_sp, _view_actor);
 }
 
 /*****************************************************************************
@@ -152,8 +150,7 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 
 	if (_pending_deletion == false) {
 		_pending_deletion = true;
-		PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p, _axis_id,
-		                                                       _sliders_group);
+		_sliders_manager_p->del_zoom_sliders(_axis_id, _sliders_group);
 	}
 
 	if (_sliders_group) {
@@ -560,9 +557,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	uint64_t y_max =
 	    PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height, 0ULL, y_lim);
 
-	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(
-	    _sliders_manager_p, _axis_id, _sliders_group, y_min, y_max,
-	    PVParallelView::PVSlidersManager::ZoomSliderNone);
+	_sliders_manager_p->update_zoom_sliders(_axis_id, _sliders_group, y_min, y_max,
+	                                        PVParallelView::PVSlidersManager::ZoomSliderNone);
 	_last_y_min = y_min;
 	_last_y_max = y_max;
 
@@ -900,8 +896,7 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 
 	if (_sel_line->is_null()) {
 		// force selection update
-		_view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		_pvview.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 		_pvview.commit_volatile_in_floating_selection();
 		_pvview.process_real_output_selection();
 	} else {

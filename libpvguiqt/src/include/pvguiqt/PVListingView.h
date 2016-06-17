@@ -15,9 +15,6 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <pvhive/PVActor.h>
-#include <pvhive/PVObserverSignal.h>
-
 #include <inendi/PVView_types.h>
 
 #include <pvguiqt/PVListingModel.h>
@@ -163,8 +160,8 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 
   private:
 	/// Getters
-	Inendi::PVView const& lib_view() const { return *_obs.get_object(); }
-	Inendi::PVView& lib_view() { return *_obs.get_object(); }
+	Inendi::PVView const& lib_view() const { return *_view; }
+	Inendi::PVView& lib_view() { return *_view; }
 	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
   private Q_SLOTS:
@@ -263,13 +260,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	PVCore::PVArgumentList _ctxt_args; //!< FIXME : awfull hidden global variable
 
   private:
-	// Observers
-	PVHive::PVObserverSignal<Inendi::PVView>
-	    _obs; //!< Observer for current view to delete listing on view deletion
-
-	// Actor
-	PVHive::PVActor<Inendi::PVView>
-	    _actor; //!< Actor to Q_EMIT notification about listing modification to the view
+	Inendi::PVView* _view;
 };
 
 class PVHorizontalHeaderView : public QHeaderView

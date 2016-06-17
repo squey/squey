@@ -395,6 +395,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	sigc::signal<void> _update_output_layer;
 	sigc::signal<void> _toggle_unselected;
 	sigc::signal<void> _toggle_zombie;
+	sigc::signal<void> _about_to_be_delete;
 
   protected:
 	/*! \brief PVView's specific axes combination
