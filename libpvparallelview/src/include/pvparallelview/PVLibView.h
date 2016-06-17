@@ -16,9 +16,6 @@
 #include <inendi/PVPlotting.h>
 #include <inendi/PVView_types.h>
 
-#include <pvhive/PVObserverSignal.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvparallelview/PVZonesProcessor.h>
 #include <pvparallelview/PVZonesManager.h>
 
@@ -56,7 +53,7 @@ class PVLibView : public sigc::trackable
 
 	void request_zoomed_zone_trees(const PVCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
-	Inendi::PVView* lib_view() { return _obs_view->get_object(); }
+	Inendi::PVView* lib_view() { return _view; }
 
 	void remove_view(PVFullParallelScene* scene);
 	void remove_zoomed_view(PVZoomedParallelScene* scene);
@@ -73,11 +70,9 @@ class PVLibView : public sigc::trackable
 	void plotting_updated();
 
   private:
+	Inendi::PVView* _view;
 	PVZonesManager _zones_manager;
 	PVCore::PVSharedPtr<PVSlidersManager> _sliders_manager_p;
-	PVHive::PVObserver_p<Inendi::PVLayer> _obs_output_layer;
-	PVHive::PVObserver_p<Inendi::PVSelection> _obs_sel;
-	PVHive::PVObserver_p<Inendi::PVView> _obs_view;
 	scene_list_t _parallel_scenes;
 	zoomed_scene_list_t _zoomed_parallel_scenes;
 	hit_count_view_list_t _hit_count_views;

@@ -16,9 +16,6 @@
 #include <inendi/PVRoot.h>
 #include <inendi/PVSource.h>
 
-#include <pvhive/PVActor.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVQNraw.h>
@@ -51,6 +48,7 @@
 
 PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
     : PVAbstractTableView(parent)
+    , _view(*view)
     , _ctxt_menu(this)
     , _hhead_ctxt_menu(this)
     , _vhead_ctxt_menu(this)
@@ -58,11 +56,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
     , _ctxt_process(nullptr)
     , _headers_width(view->get_original_axes_count(), horizontalHeader()->defaultSectionSize())
 {
-	PVHive::get().register_actor(view, _actor);
-
-	// When removing the observer, also remove the GUI
-	PVHive::get().register_observer(view, _obs);
-
 	/// Source events
 	view->_axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
 
@@ -232,17 +225,13 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	// Expand the selection on Shift
 	// Replace the old selection without modifiers
 	if (modifiers & (Qt::ShiftModifier | Qt::ControlModifier)) {
-		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	} else if (modifiers & Qt::ControlModifier) {
-		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	} else if (modifiers & Qt::ShiftModifier) {
-		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	} else {
-		_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
-		    Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	}
 
 	/* We define the volatile_selection using selection in the listing */
@@ -699,7 +688,7 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 		}
 	}
 
-	_actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	lib_view().process_from_layer_stack();
 }
 
 /******************************************************************************

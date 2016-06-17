@@ -68,6 +68,7 @@ Inendi::PVView::PVView(PVPlotted& plotted)
  *****************************************************************************/
 Inendi::PVView::~PVView()
 {
+	_about_to_be_delete.emit();
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
 
 	// remove correlation

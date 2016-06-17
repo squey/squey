@@ -8,6 +8,8 @@
 #ifndef PVSTARTSCREENWIDGET_H
 #define PVSTARTSCREENWIDGET_H
 
+#include <sigc++/sigc++.h>
+
 #include <tuple>
 
 #include <QDialog>
@@ -16,9 +18,6 @@
 #include <QCheckBox>
 #include <QTimer>
 class QLabel;
-
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVObserverSignal.h>
 
 #include <pvkernel/core/PVRecentItemsManager.h>
 
@@ -39,7 +38,7 @@ class PVStartScreenWidget;
  * \note This class is the start screen widget of the application.
  *       It displays the recent items accessed by the user/application and allow to load/edit them.
  */
-class PVStartScreenWidget : public QWidget
+class PVStartScreenWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 

@@ -8,6 +8,8 @@
 #ifndef __PVSCATTERVIEW_H__
 #define __PVSCATTERVIEW_H__
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <inendi/PVAxesCombination.h>
@@ -44,7 +46,7 @@ class PVScatterViewInteractor;
 class PVScatterViewSelectionRectangle;
 class PVSelectionRectangleInteractor;
 
-class PVScatterView : public PVZoomableDrawingAreaWithAxes
+class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackable
 {
 	Q_OBJECT;
 

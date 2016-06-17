@@ -26,7 +26,7 @@ class PVSelectionAxisSliders;
 class PVZoomedSelectionAxisSliders;
 class PVZoomAxisSliders;
 
-class PVSlidersGroup : public QObject, public QGraphicsItemGroup
+class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::trackable
 {
 	Q_OBJECT
 

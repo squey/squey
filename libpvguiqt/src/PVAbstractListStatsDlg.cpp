@@ -26,8 +26,6 @@
 
 #include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
 
-#include <pvhive/PVCallHelper.h>
-
 #include <pvcop/db/algo.h>
 #include <pvcop/db/types.h>
 
@@ -278,12 +276,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView_sp& view,
                                                         PVCol c,
                                                         PVStatsModel* model,
                                                         QWidget* parent /* = nullptr */)
-    : PVListDisplayDlg(model, parent), _col(c)
+    : PVListDisplayDlg(model, parent), _view(view.get()), _col(c)
 {
-	PVHive::get().register_observer(view, _obs);
-	PVHive::get().register_actor(view, _actor);
-	_obs.connect_about_to_be_deleted(this, SLOT(deleteLater()));
-
 	QString search_multiples = "search-multiple";
 	Inendi::PVLayerFilter::p_type search_multiple =
 	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(search_multiples);
@@ -726,8 +720,6 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
 
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
-	PVHive::PVActor<Inendi::PVView> actor;
-	PVHive::get().register_actor(view_sp, actor);
 	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
 	text.replace("%l", ls.get_selected_layer().get_name());
@@ -776,9 +768,9 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
 	view_sp->update_current_layer_min_max();
-	actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
+	view_sp->compute_selectable_count(layer);
 	// and to update the layer-stack
-	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	view_sp->process_from_layer_stack();
 
 	if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 		int insert_pos;
@@ -839,9 +831,6 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	text.replace("%l", ls.get_selected_layer().get_name());
 	text.replace("%a", lib_view()->get_axes_combination().get_axis(_col).get_name());
 
-	PVHive::PVActor<Inendi::PVView> actor;
-	PVHive::get().register_actor(view_sp, actor);
-
 	/*
 	 * The process is little bit heavy:
 	 * - backup the current layer's index
@@ -888,7 +877,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		// We need to configure the layer
 		view_sp->commit_selection_to_layer(layer);
 		view_sp->update_current_layer_min_max();
-		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
+		view_sp->compute_selectable_count(layer);
 
 		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 			int insert_pos;
@@ -910,7 +899,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	});
 
 	// we can update the layer-stack once all layers have been created
-	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	view_sp->process_from_layer_stack();
 }
 
 /******************************************************************************

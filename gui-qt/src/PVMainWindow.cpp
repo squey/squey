@@ -46,9 +46,6 @@
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVSource.h>
 
-#include <pvhive/PVActor.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <PVFormatBuilderWidget.h>
@@ -377,9 +374,6 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 		return;
 	}
 
-	PVHive::PVActor<Inendi::PVView> actor;
-	PVHive::get().register_actor(view_sp, actor);
-
 	if (should_hide_layers) {
 		view_sp->hide_layers();
 	}
@@ -390,9 +384,9 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
 	view_sp->update_current_layer_min_max();
-	actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
+	view_sp->compute_selectable_count(layer);
 	// and to update the layer-stack
-	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	view_sp->process_from_layer_stack();
 }
 
 /******************************************************************************
@@ -402,10 +396,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
  *****************************************************************************/
 void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inendi_view)
 {
-	// Register an actor to the hive
 	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
-	PVHive::PVActor<Inendi::PVView> actor;
-	PVHive::get().register_actor(view_sp, actor);
 
 	Inendi::PVLayer& current_layer = inendi_view->get_current_layer();
 
@@ -429,12 +420,12 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 
 		/* We need to reprocess the layer stack */
 		view_sp->update_current_layer_min_max();
-		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(new_layer);
+		view_sp->compute_selectable_count(new_layer);
 
 		// do not forget to update the current layer
-		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(current_layer);
+		view_sp->compute_selectable_count(current_layer);
 
-		actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+		view_sp->process_from_layer_stack();
 	}
 }
 
@@ -1276,14 +1267,12 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src)
 	}
 
 	// Add format as recent format
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
-	    PVCore::PVRecentItemsManager::get(), src.get_format().get_full_path(),
-	    PVCore::PVRecentItemsManager::Category::USED_FORMATS);
+	PVCore::PVRecentItemsManager::get()->add(src.get_format().get_full_path(),
+	                                         PVCore::PVRecentItemsManager::Category::USED_FORMATS);
 
 	// Add source as recent source
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(
-	    PVCore::PVRecentItemsManager::get(), src.get_source_creator(), src.get_inputs(),
-	    src.get_format());
+	PVCore::PVRecentItemsManager::get()->add_source(src.get_source_creator(), src.get_inputs(),
+	                                                src.get_format());
 }
 
 /******************************************************************************
@@ -1323,12 +1312,8 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 	}
 	PVCore::PVHSVColor color = pv_ColorDialog->color();
 
-	PVHive::PVActor<Inendi::PVView> actor;
-	Inendi::PVView_sp view_sp(inendi_view->shared_from_this());
-	PVHive::get().register_actor(view_sp, actor);
-
-	actor.call<FUNC(Inendi::PVView::set_color_on_active_layer)>(color);
-	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
+	inendi_view->set_color_on_active_layer(color);
+	inendi_view->process_from_layer_stack();
 }
 
 /******************************************************************************
@@ -1339,10 +1324,7 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
                                                          Inendi::PVLayer const& layer)
 {
-	PVHive::PVActor<Inendi::PVView> actor;
-	PVHive::get().register_actor(view, actor);
-
-	actor.call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
+	view->set_selection_from_layer(layer);
 	view->process_real_output_selection();
 }
 

@@ -13,8 +13,6 @@
 #include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
 
-#include <pvhive/PVObserverCallback.h>
-
 #include <pvguiqt/PVLayerStackDelegate.h>
 #include <pvguiqt/PVLayerStackModel.h>
 #include <pvguiqt/PVLayerStackView.h>
@@ -66,15 +64,6 @@ int main(int argc, char** argv)
 
 	mw->show();
 	mw2->show();
-
-	// Register callback event
-	auto observer = PVHive::create_observer_callback<Inendi::PVLayerStack>(
-	    [](Inendi::PVLayerStack const*) { std::cout << "about to be refreshed." << std::endl; },
-	    [](Inendi::PVLayerStack const*) { std::cout << "refreshed." << std::endl; },
-	    [](Inendi::PVLayerStack const*) { std::cout << "about to be deleted." << std::endl; });
-
-	PVHive::get().register_observer(
-	    view, [=](Inendi::PVView& view) { return &view.get_layer_stack(); }, observer);
 
 	int ret = app.exec();
 

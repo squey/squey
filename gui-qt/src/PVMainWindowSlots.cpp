@@ -27,9 +27,6 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
@@ -515,9 +512,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		setWindowModified(true);
 	}
 
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
-	    PVCore::PVRecentItemsManager::get(), file,
-	    PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVCore::PVRecentItemsManager::get()->add(file,
+	                                         PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	flag_investigation_as_cached(file);
 
@@ -544,9 +540,8 @@ void PVInspector::PVMainWindow::save_solution(QString const& file,
 		box->exec();
 	}
 
-	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
-	    PVCore::PVRecentItemsManager::get(), file,
-	    PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVCore::PVRecentItemsManager::get()->add(file,
+	                                         PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	flag_investigation_as_cached(file);
 
@@ -909,9 +904,8 @@ void PVInspector::PVMainWindow::open_format_Slot()
 
 	if (!url.isEmpty()) {
 		editorWidget->show();
-		PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
-		    PVCore::PVRecentItemsManager::get(), url,
-		    PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
+		PVCore::PVRecentItemsManager::get()->add(
+		    url, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 	}
 }
 

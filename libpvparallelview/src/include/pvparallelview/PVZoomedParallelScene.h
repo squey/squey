@@ -8,12 +8,10 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
+#include <sigc++/sigc++.h>
+
 #include <inendi/PVView_types.h>
 #include <inendi/PVAxesCombination.h>
-
-#include <pvhive/PVHive.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVCallHelper.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
@@ -50,7 +48,7 @@ class PVZoomedParallelViewSelectionLine;
  * A derived class of QGraphicsScene to use when displaying a zoom view of parallel coordinates
  * representation of events.
  */
-class PVZoomedParallelScene : public QGraphicsScene
+class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 {
 	Q_OBJECT
 
@@ -526,7 +524,6 @@ class PVZoomedParallelScene : public QGraphicsScene
 	// about selection in the zoom view
 	PVZoomedParallelViewSelectionLine* _sel_line;
 	PVZoomedSelectionAxisSliders* _selection_sliders;
-	PVHive::PVActor<Inendi::PVView> _view_actor;
 
 	// about rendering invalidation
 	render_t _render_type;

@@ -4,7 +4,6 @@
  * @copyright (C) Picviz Labs 2012-March 2015
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
-#include <pvhive/PVObserverCallback.h>
 #include <pvguiqt/PVHiveDataTreeModel.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVMapped.h>
@@ -49,18 +48,6 @@ namespace PVGuiQt
 PVHiveDataTreeModel::PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent)
     : QAbstractItemModel(parent), _root(root)
 {
-	register_all_observers();
-
-	register_obs(&root);
-
-	_root_recursive_observer = PVHive::create_observer_callback_heap<PVCore::PVDataTreeObject>(
-	    [](PVCore::PVDataTreeObject const*) {},
-	    [this](PVCore::PVDataTreeObject const*) { register_all_observers(); },
-	    [](PVCore::PVDataTreeObject const*) {});
-	_root_recursive_observer->set_accept_recursive_refreshes(true);
-
-	auto root_sp = root.shared_from_this();
-	PVHive::get().register_observer(root_sp, *_root_recursive_observer);
 }
 
 namespace
@@ -178,11 +165,8 @@ QVariant PVHiveDataTreeModel::data(const QModelIndex& index, int role) const
 	return {};
 }
 
-void PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
+void PVHiveDataTreeModel::update_obj(const PVCore::PVDataTreeObject* obj_base)
 {
-	datatree_obs_t* real_o = dynamic_cast<datatree_obs_t*>(o);
-	assert(real_o);
-	const PVCore::PVDataTreeObject* obj_base = real_o->get_object();
 	if (obj_base == &_root) {
 		beginResetModel();
 		endResetModel();

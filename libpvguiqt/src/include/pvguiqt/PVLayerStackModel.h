@@ -8,13 +8,12 @@
 #ifndef PVLAYERSTACKMODEL_H
 #define PVLAYERSTACKMODEL_H
 
+#include <sigc++/sigc++.h>
+
 #include <QAbstractTableModel>
 
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVView.h>
-
-#include <pvhive/PVActor.h>
-#include <pvhive/PVObserverSignal.h>
 
 #include <QBrush>
 #include <QFont>
@@ -30,7 +29,7 @@ namespace PVGuiQt
 /**
  * \class PVLayerStackModel
  */
-class PVLayerStackModel : public QAbstractTableModel
+class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 {
 	Q_OBJECT
 
@@ -57,7 +56,6 @@ class PVLayerStackModel : public QAbstractTableModel
   public:
 	Inendi::PVLayerStack const& lib_layer_stack() const { return _lib_view.get_layer_stack(); }
 	Inendi::PVLayerStack& lib_layer_stack() { return _lib_view.get_layer_stack(); }
-	PVHive::PVActor<Inendi::PVView>& view_actor() { return _actor; }
 	Inendi::PVView const& lib_view() const { return _lib_view; }
 	Inendi::PVView& lib_view() { return _lib_view; }
 
@@ -78,8 +76,6 @@ class PVLayerStackModel : public QAbstractTableModel
 	QFont select_font;     //!<
 	QBrush unselect_brush; //!<
 	QFont unselect_font;   //!<
-
-	PVHive::PVActor<Inendi::PVView> _actor;
 };
 }
 

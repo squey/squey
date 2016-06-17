@@ -67,11 +67,6 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWi
 
 	setLayout(main_layout);
 
-	PVHive::PVObserverSignal<Inendi::PVView*>* obs =
-	    new PVHive::PVObserverSignal<Inendi::PVView*>(this);
-	PVHive::get().register_observer(lib_view, *obs);
-	obs->connect_about_to_be_deleted(this, SLOT(deleteLater()));
-
 	/* as layers selectable event count are only needed in the
 	 * PVLayerStackWidget, it is a good place to be sure that
 	 * existing layers can be processed to compute their

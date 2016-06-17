@@ -12,9 +12,6 @@
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVObserverCallback.h>
-
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
@@ -28,12 +25,9 @@
 #include <iostream>
 
 PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
-    : _zones_manager(*view_sp)
+    : _view(view_sp.get())
+    , _zones_manager(*view_sp)
     , _sliders_manager_p(new PVSlidersManager)
-    , _obs_view(PVHive::create_observer_callback_heap<Inendi::PVView>(
-          [&](Inendi::PVView const*) {},
-          [&](Inendi::PVView const*) {},
-          [&](Inendi::PVView const*) { this->view_about_to_be_deleted(); }))
     , _colors(view_sp->get_output_layer_color_buffer())
     , _processor_sel(PVZonesProcessor::declare_processor_zm_sel(
           common::pipeline(), _zones_manager, _colors, view_sp->get_real_output_selection()))
@@ -60,7 +54,8 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
 	view_sp->_axis_combination_about_to_update.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_about_to_be_updated));
 
-	PVHive::get().register_observer(view_sp, *_obs_view);
+	view_sp->_about_to_be_delete.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVLibView::view_about_to_be_deleted));
 }
 
 PVParallelView::PVLibView::~PVLibView()

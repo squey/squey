@@ -13,7 +13,6 @@ add_pv_compile_test(Tcore_bench_stable_reverse LINKS pvkernel FILES bench_stable
 add_pv_compile_test(Tcore_transp LINKS pvkernel FILES transp.cpp)
 add_pv_compile_test(Tcore_shared_ptr LINKS pvkernel FILES shared_ptr.cpp)
 add_pv_compile_test(Tcore_weak_ptr LINKS pvkernel FILES weak_ptr.cpp)
-add_pv_compile_test(Tcore_function_traits LINKS pvkernel FILES function_traits.cpp)
 add_pv_compile_test(Tcore_const_fwd LINKS pvkernel FILES const_fwd.cpp)
 add_pv_compile_test(Tcore_hardware_concurrency LINKS pvkernel FILES hardware_concurrency.cpp)
 add_pv_compile_test(Tcore_shared_ptr_fwd LINKS pvkernel FILES shared_ptr_fwd.cpp)

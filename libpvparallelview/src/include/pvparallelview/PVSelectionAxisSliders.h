@@ -8,6 +8,8 @@
 #ifndef PVPARALLELVIEW_PVSELECTIONAXISSLIDERS_H
 #define PVPARALLELVIEW_PVSELECTIONAXISSLIDERS_H
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvparallelview/PVAbstractRangeAxisSliders.h>
@@ -17,7 +19,7 @@ namespace PVParallelView
 
 class PVSlidersGroup;
 
-class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders
+class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders, public sigc::trackable
 {
 	Q_OBJECT
 

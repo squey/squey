@@ -20,10 +20,6 @@ class QPropertyAnimation;
 #include <inendi/PVAxis.h>
 #include <inendi/PVView.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVSlidersGroup.h>

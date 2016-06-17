@@ -8,8 +8,6 @@
 #ifndef DATATREEMODEL_H
 #define DATATREEMODEL_H
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVObserverSignal.h>
 #include <inendi/PVSource.h>
 
 #include <QAbstractItemModel>
@@ -20,8 +18,6 @@ namespace PVGuiQt
 class PVHiveDataTreeModel : public QAbstractItemModel
 {
 	Q_OBJECT
-
-	using datatree_obs_t = PVHive::PVObserverSignal<PVCore::PVDataTreeObject>;
 
   public:
 	PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent = nullptr);
@@ -43,62 +39,10 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 	QModelIndex parent(const QModelIndex& index) const override;
 
   private Q_SLOTS:
-	void hive_refresh(PVHive::PVObserverBase* o);
-
-	void about_to_be_deleted(PVHive::PVObserverBase*)
-	{
-		beginResetModel();
-		endResetModel();
-	}
-
-  private:
-	template <class T>
-	void register_obs(T* o)
-	{
-		this->_obs.emplace_back(static_cast<QObject*>(this));
-		datatree_obs_t* obs = &_obs.back();
-		auto datatree_o = o->shared_from_this();
-		PVHive::get().register_observer(datatree_o, *obs);
-		obs->connect_refresh(this, SLOT(hive_refresh(PVHive::PVObserverBase*)));
-		obs->connect_about_to_be_deleted(this, SLOT(about_to_be_deleted(PVHive::PVObserverBase*)));
-	}
-
-	void register_all_observers()
-	{
-		for (auto* mapped : _root.get_children()) {
-			if (not is_object_observed(mapped)) {
-				register_obs(mapped);
-				beginResetModel();
-				endResetModel();
-			}
-			for (auto* plotted : mapped->get_children()) {
-				if (not is_object_observed(plotted)) {
-					register_obs(plotted);
-					beginResetModel();
-					endResetModel();
-				}
-				for (auto* view : plotted->get_children()) {
-					if (not is_object_observed(view)) {
-						register_obs(view);
-						beginResetModel();
-						endResetModel();
-					}
-				}
-			}
-		}
-	}
-
-	bool is_object_observed(PVCore::PVDataTreeObject* o) const
-	{
-		return std::find_if(_obs.begin(), _obs.end(), [o](datatree_obs_t const& obs) {
-			       return obs.get_object() == o;
-			   }) != _obs.end();
-	}
+	void update_obj(const PVCore::PVDataTreeObject* obj_base);
 
   private:
 	Inendi::PVSource& _root;
-	std::list<datatree_obs_t> _obs;
-	PVHive::PVObserver_p<PVCore::PVDataTreeObject> _root_recursive_observer;
 };
 }
 

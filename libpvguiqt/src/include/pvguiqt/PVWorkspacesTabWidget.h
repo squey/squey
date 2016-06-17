@@ -8,6 +8,8 @@
 #ifndef __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 #define __PVGUIQT_PVWORKSPACESTABWIDGET_H__
 
+#include <sigc++/sigc++.h>
+
 #include <inendi/PVScene.h>
 
 #include <QPoint>

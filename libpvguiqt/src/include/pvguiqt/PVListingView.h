@@ -15,9 +15,6 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <pvhive/PVActor.h>
-#include <pvhive/PVObserverSignal.h>
-
 #include <inendi/PVView_types.h>
 
 #include <pvguiqt/PVListingModel.h>
@@ -163,8 +160,8 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 
   private:
 	/// Getters
-	Inendi::PVView const& lib_view() const { return *_obs.get_object(); }
-	Inendi::PVView& lib_view() { return *_obs.get_object(); }
+	Inendi::PVView const& lib_view() const { return _view; }
+	Inendi::PVView& lib_view() { return _view; }
 	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
   private Q_SLOTS:
@@ -225,6 +222,8 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	void section_hovered_enter(int col, bool enter);
 
   private:
+	Inendi::PVView& _view;
+
 	// Context menu
 	QMenu _ctxt_menu;        //!< Context menu for right click on table cells
 	QAction* _act_copy;      //!< Copy cell content action for context menu
@@ -261,15 +260,6 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	// Plugins call capture local variable reference without copy making it
 	// invalide at the end of the scope...
 	PVCore::PVArgumentList _ctxt_args; //!< FIXME : awfull hidden global variable
-
-  private:
-	// Observers
-	PVHive::PVObserverSignal<Inendi::PVView>
-	    _obs; //!< Observer for current view to delete listing on view deletion
-
-	// Actor
-	PVHive::PVActor<Inendi::PVView>
-	    _actor; //!< Actor to Q_EMIT notification about listing modification to the view
 };
 
 class PVHorizontalHeaderView : public QHeaderView

@@ -22,9 +22,6 @@ class QWidget;
 
 #include <inendi/PVView.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVObserverSignal.h>
-
 #include <inendi/PVView_types.h>
 
 /**
@@ -155,7 +152,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
   public:
 	static bool drag_started() { return _drag_started; }
 	inline int z_order() { return _z_order_index; }
-	void displays_about_to_be_deleted();
 
   protected:
 	/*! \brief Keep track of the Z Order of the workspace.

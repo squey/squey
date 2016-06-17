@@ -18,9 +18,6 @@
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <inendi/PVView.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-
 PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* view,
                                                                 PVCore::PVArgumentList& args,
                                                                 Inendi::PVLayerFilter_p filter_p,
@@ -184,8 +181,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::reject()
 	*_args_widget->get_args() = _args_org;
 
 	// Update everything
-	Inendi::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_p);
+	_view->process_from_layer_stack();
 
 	QDialog::reject();
 }
@@ -215,8 +211,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
-	Inendi::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_layer_stack)>(view_p);
+	_view->process_from_layer_stack();
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
@@ -269,8 +264,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 
 	process();
 
-	Inendi::PVView_sp view_p(_view->shared_from_this());
-	PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_from_eventline)>(view_p);
+	_view->process_from_eventline();
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()

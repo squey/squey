@@ -66,37 +66,14 @@ struct pointer<std::shared_ptr<T>&> {
 	static inline type get(type obj) { return obj; }
 };
 
-namespace __impl
-{
-template <std::size_t mod>
-struct is_size_multiple_impl {
-	static const bool result = false;
-};
-
-template <>
-struct is_size_multiple_impl<0u> {
-	static const bool result = true;
-};
-}
-
 template <class T, class MultipleOf>
 struct is_size_multiple {
-	static const bool value = __impl::is_size_multiple_impl<sizeof(T) % sizeof(MultipleOf)>::result;
+	static const bool value = not(sizeof(T) % sizeof(MultipleOf));
 };
 
 template <class A, class B>
 struct bigger_than {
 	static const bool value = sizeof(A) > sizeof(B);
-};
-
-template <typename T>
-struct add_pointer_const {
-	typedef typename std::add_pointer<typename std::add_const<T>::type>::type type;
-};
-
-template <typename T>
-struct add_reference_const {
-	typedef typename std::add_lvalue_reference<typename std::add_const<T>::type>::type type;
 };
 
 // Const forwarder
