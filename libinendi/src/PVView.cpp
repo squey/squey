@@ -868,11 +868,13 @@ Inendi::PVSelection const& Inendi::PVView::get_selection_visible_listing() const
 void Inendi::PVView::toggle_listing_unselected_visibility()
 {
 	_state_machine.toggle_listing_unselected_visibility();
+	_toggle_unselected.emit();
 }
 
 void Inendi::PVView::toggle_listing_zombie_visibility()
 {
 	_state_machine.toggle_listing_zombie_visibility();
+	_toggle_zombie.emit();
 }
 
 void Inendi::PVView::toggle_view_unselected_zombie_visibility()

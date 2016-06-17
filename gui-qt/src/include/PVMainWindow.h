@@ -175,7 +175,6 @@ class PVMainWindow : public QMainWindow
 	void import_type_default_Slot();
 	void import_type_Slot();
 	void import_type_Slot(const QString& itype);
-	void events_display_unselected_Slot();
 	void events_display_unselected_listing_Slot();
 	void events_display_zombies_listing_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();

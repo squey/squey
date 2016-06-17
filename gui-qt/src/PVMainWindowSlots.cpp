@@ -24,11 +24,11 @@
 
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
+
+#include <pvhive/PVHive.h>
+#include <pvhive/PVCallHelper.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
@@ -113,16 +113,11 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 {
-	Inendi::PVView* current_lib_view;
-
 	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_view();
 
-	/* We refresh the listing */
-	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVView::toggle_listing_unselected_visibility)>(view_sp);
+	current_view()->toggle_listing_unselected_visibility();
 }
 
 /******************************************************************************
@@ -132,15 +127,11 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
 {
-	Inendi::PVView* current_lib_view;
-
 	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_view();
 
-	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVView::toggle_listing_zombie_visibility)>(view_sp);
+	current_view()->toggle_listing_zombie_visibility();
 }
 
 /******************************************************************************

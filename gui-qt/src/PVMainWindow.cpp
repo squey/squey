@@ -930,23 +930,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::events_display_unselected_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_unselected_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	Inendi::PVStateMachine& state_machine = current_view()->get_state_machine();
-
-	state_machine.toggle_gl_unselected_visibility();
-	state_machine.toggle_listing_unselected_visibility();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::load_files
  *
  *****************************************************************************/

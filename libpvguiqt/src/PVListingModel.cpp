@@ -13,9 +13,6 @@
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvguiqt/PVListingModel.h>
 
 /******************************************************************************
@@ -28,8 +25,6 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
     , _zombie_brush(QColor(0, 0, 0))
     , _vheader_font(":/Convergence-Regular")
     , _view(view)
-    , _obs_vis(this)
-    , _obs_zomb(this)
 {
 	// Update the full model if axis combination change
 	view->_axis_combination_updated.connect(
@@ -44,12 +39,10 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
 	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of zombie lines on option toggling
-	// FIXME : Can't we work without these specific struct?
-	PVHive::get().register_func_observer(view, _obs_zomb);
+	view->_toggle_zombie.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of unselected lines on option toogling
-	// FIXME : Can't we work without these specific struct?
-	PVHive::get().register_func_observer(view, _obs_vis);
+	view->_toggle_unselected.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Set listing view on visible_selection_listing selection.
 	update_filter();
@@ -278,27 +271,5 @@ void PVGuiQt::PVListingModel::update_filter()
 	_display.set_filter(sel);
 
 	// Inform view new_filter is set
-	// This is not done using Hive as _filter have to be set, PVSelection is not
-	// enough
 	Q_EMIT layoutChanged();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::__impl::PVListingVisibilityObserver::update
- *
- *****************************************************************************/
-void PVGuiQt::__impl::PVListingVisibilityObserver::update(arguments_type const&) const
-{
-	_parent->update_filter();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::__impl::PVListingVisibilityZombieObserver::update
- *
- *****************************************************************************/
-void PVGuiQt::__impl::PVListingVisibilityZombieObserver::update(arguments_type const&) const
-{
-	_parent->update_filter();
 }
