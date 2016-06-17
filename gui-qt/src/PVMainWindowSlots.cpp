@@ -268,8 +268,8 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  *****************************************************************************/
 Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
-	QString scene_name = tr("Data collection %1").arg(sequence_n++);
-	PVCore::PVSharedPtr<Inendi::PVScene> scene_p = get_root_sp()->emplace_add_child(scene_name);
+	PVCore::PVSharedPtr<Inendi::PVScene> scene_p =
+	    get_root().emplace_add_child(QString::fromStdString(get_next_scene_name()));
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -524,6 +524,11 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		            "solution...\n");
 		reset_root();
 		return false;
+	}
+
+	// Name all new scenes
+	for (auto scn : get_root().get_children()) {
+		scn->set_name(QString::fromStdString(get_next_scene_name()));
 	}
 
 	_root->set_path(file);
