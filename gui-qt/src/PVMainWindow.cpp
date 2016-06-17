@@ -1446,6 +1446,11 @@ void PVInspector::PVMainWindow::close_solution()
 	close_solution_Slot();
 }
 
+std::string PVInspector::PVMainWindow::get_next_scene_name()
+{
+	return tr("Data collection %1").arg(sequence_n++).toStdString();
+}
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::update_statemachine_label
