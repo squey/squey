@@ -8,6 +8,8 @@
 #ifndef PVPARALLELVIEW_PVHITCOUNTVIEW_H
 #define PVPARALLELVIEW_PVHITCOUNTVIEW_H
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <inendi/PVView.h>
@@ -43,7 +45,7 @@ class PVSelectionRectangleInteractor;
 
 class PVHitCountViewParamsWidget;
 
-class PVHitCountView : public PVZoomableDrawingAreaWithAxes
+class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::trackable
 {
 	Q_OBJECT
 

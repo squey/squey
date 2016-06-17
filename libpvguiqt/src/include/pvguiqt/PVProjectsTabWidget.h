@@ -9,6 +9,7 @@
 #define __PVGUIQT_PVPROJECTSTABWIDGET_H__
 
 #include <sigc++/sigc++.h>
+
 #include <cassert>
 
 #include <inendi/PVScene.h>

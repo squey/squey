@@ -8,6 +8,8 @@
 #ifndef PVLAYERSTACKMODEL_H
 #define PVLAYERSTACKMODEL_H
 
+#include <sigc++/sigc++.h>
+
 #include <QAbstractTableModel>
 
 #include <inendi/PVLayerStack.h>
@@ -27,7 +29,7 @@ namespace PVGuiQt
 /**
  * \class PVLayerStackModel
  */
-class PVLayerStackModel : public QAbstractTableModel
+class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 {
 	Q_OBJECT
 

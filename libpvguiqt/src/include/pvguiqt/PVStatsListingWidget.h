@@ -8,6 +8,8 @@
 #ifndef __PVSTATSLISTINGWIDGET_H__
 #define __PVSTATSLISTINGWIDGET_H__
 
+#include <sigc++/sigc++.h>
+
 #include <thread>
 
 #include <QApplication>
@@ -38,7 +40,7 @@ class PVUniqueValuesCellWidget;
 class PVSumCellWidget;
 }
 
-class PVStatsListingWidget : public QWidget
+class PVStatsListingWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 	friend class __impl::PVCellWidgetBase;

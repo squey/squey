@@ -8,6 +8,8 @@
 #ifndef PVPARALLELVIEW_PVZOOMAXISSLIDERS_H
 #define PVPARALLELVIEW_PVZOOMAXISSLIDERS_H
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvparallelview/PVAbstractRangeAxisSliders.h>
@@ -18,7 +20,7 @@ namespace PVParallelView
 
 class PVSlidersGroup;
 
-class PVZoomAxisSliders : public PVAbstractRangeAxisSliders
+class PVZoomAxisSliders : public PVAbstractRangeAxisSliders, public sigc::trackable
 {
 	Q_OBJECT
 

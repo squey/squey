@@ -8,6 +8,8 @@
 #ifndef PVGUIQT_PVLISTINGMODEL_H
 #define PVGUIQT_PVLISTINGMODEL_H
 
+#include <sigc++/sigc++.h>
+
 #include <vector>
 #include <utility>
 
@@ -36,7 +38,7 @@ class PVListingModel;
  * It supports Selected, Unselected and Zombie lines.
  */
 
-class PVListingModel : public PVAbstractTableModel
+class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 {
 	Q_OBJECT
 
