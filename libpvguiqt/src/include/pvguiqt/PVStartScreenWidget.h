@@ -33,34 +33,6 @@ class PVDeleteInvestigationDialog;
 
 class PVStartScreenWidget;
 
-class PVAddRecentItemFuncObserver
-    : public PVHive::PVFuncObserverSignal<PVCore::PVRecentItemsManager,
-                                          FUNC(PVCore::PVRecentItemsManager::add)>
-{
-  public:
-	PVAddRecentItemFuncObserver(PVStartScreenWidget* parent) : _parent(parent) {}
-
-  public:
-	void update(const arguments_deep_copy_type& args) const;
-
-  private:
-	PVStartScreenWidget* _parent;
-};
-
-class PVAddSourceRecentItemFuncObserver
-    : public PVHive::PVFuncObserverSignal<PVCore::PVRecentItemsManager,
-                                          FUNC(PVCore::PVRecentItemsManager::add_source)>
-{
-  public:
-	PVAddSourceRecentItemFuncObserver(PVStartScreenWidget* parent) : _parent(parent) {}
-
-  public:
-	void update(const arguments_deep_copy_type& args) const;
-
-  private:
-	PVStartScreenWidget* _parent;
-};
-
 /**
  * \class PVRecentItemsManager
  *
@@ -152,9 +124,6 @@ class PVStartScreenWidget : public QWidget
 
 	custom_listwidget_t* _recent_list_widgets[PVCore::PVRecentItemsManager::Category::LAST];
 	QPushButton* _recent_push_buttons[PVCore::PVRecentItemsManager::Category::LAST];
-
-	PVAddRecentItemFuncObserver _recent_items_add_obs;
-	PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;
 
 	static const QFont* _item_font;
 	static const uint64_t _item_width = 475;

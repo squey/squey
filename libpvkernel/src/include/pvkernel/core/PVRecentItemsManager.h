@@ -15,6 +15,8 @@
 #include <QList>
 #include <QVariant>
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
@@ -121,6 +123,9 @@ class PVRecentItemsManager
 	 * in the data segment to delete it (and to permit the hive to work on it).
 	 */
 	~PVRecentItemsManager();
+
+  public:
+	sigc::signal<void, Category> _add_item;
 
   private:
 	static PVRecentItemsManager_p _recent_items_manager_p;

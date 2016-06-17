@@ -32,16 +32,6 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/widgets/PVUtils.h>
 
-void PVGuiQt::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_type& args) const
-{
-	_parent->refresh_recent_items(std::get<1>(args));
-}
-
-void PVGuiQt::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_copy_type&) const
-{
-	_parent->refresh_recent_items(PVCore::PVRecentItemsManager::Category::SOURCES);
-}
-
 /******************************************************************************
  *
  * PVGuiQt::PVStartScreenWidget::PVStartScreenWidget
@@ -49,8 +39,7 @@ void PVGuiQt::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_cop
  *****************************************************************************/
 const QFont* PVGuiQt::PVStartScreenWidget::_item_font = nullptr;
 
-PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent)
-    : QWidget(parent), _recent_items_add_obs(this), _recent_items_add_source_obs(this)
+PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(parent)
 {
 	PVLOG_DEBUG("PVGuiQt::PVStartScreenWidget::%s\n", __FUNCTION__);
 
@@ -323,10 +312,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent)
 	connect(create_new_format_button, SIGNAL(clicked(bool)), this, SIGNAL(new_format()));
 	connect(edit_format_button, SIGNAL(clicked(bool)), this, SIGNAL(load_format()));
 
-	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(),
-	                                     _recent_items_add_obs);
-	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(),
-	                                     _recent_items_add_source_obs);
+	PVCore::PVRecentItemsManager::get()->_add_item.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStartScreenWidget::refresh_recent_items));
 
 	refresh_all_recent_items();
 }
