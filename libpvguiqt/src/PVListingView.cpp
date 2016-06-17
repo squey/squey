@@ -48,6 +48,7 @@
 
 PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
     : PVAbstractTableView(parent)
+    , _view(*view)
     , _ctxt_menu(this)
     , _hhead_ctxt_menu(this)
     , _vhead_ctxt_menu(this)
