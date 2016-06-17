@@ -10,6 +10,8 @@
 
 #include <QMenu>
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
@@ -40,7 +42,7 @@ class PVListingModel;
 /**
  * \class PVListingView
  */
-class PVListingView : public PVAbstractTableView
+class PVListingView : public PVAbstractTableView, public sigc::trackable
 {
 	Q_OBJECT
 	friend class PVStatsListingWidget;
@@ -70,7 +72,7 @@ class PVListingView : public PVAbstractTableView
 	 */
 	PVListingModel* listing_model();
 
-  public slots:
+  public Q_SLOTS:
 	/**
 	 * Inform other Hive view about column click
 	 */
@@ -105,7 +107,7 @@ class PVListingView : public PVAbstractTableView
 	 */
 	void paintEvent(QPaintEvent* event) override;
 
-  signals:
+  Q_SIGNALS:
 	/**
 	 * Signal emited to update the Stat view (lower part of listing)
 	 */
@@ -165,7 +167,7 @@ class PVListingView : public PVAbstractTableView
 	Inendi::PVView& lib_view() { return *_obs.get_object(); }
 	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * Selected the current selection (which is the current line after the
 	 * first click)
@@ -208,18 +210,11 @@ class PVListingView : public PVAbstractTableView
 	void columnResized(int column, int oldWidth, int newWidth);
 
 	/**
-	 * Highlight the column specified from an external (Hive) source.
-	 *
-	 * @param[in] o : Observer signal containing column information.
-	 */
-	void highlight_column(PVHive::PVObserverBase* o);
-
-	/**
 	 * Highlight the specified column.
 	 *
 	 * @param[in] col : column to highlight
 	 */
-	void highlight_column(int col);
+	void highlight_column(int col, bool entered);
 
 	/**
 	 * Notify Hive views about hovered horizontal header column.
@@ -271,12 +266,10 @@ class PVListingView : public PVAbstractTableView
 	// Observers
 	PVHive::PVObserverSignal<Inendi::PVView>
 	    _obs; //!< Observer for current view to delete listing on view deletion
-	// FIXME : It should be a PVCol instead of int
-	PVHive::PVObserverSignal<int> _axis_hover_obs; //!< Observer for hovered column
 
 	// Actor
 	PVHive::PVActor<Inendi::PVView>
-	    _actor; //!< Actor to emit notification about listing modification to the view
+	    _actor; //!< Actor to Q_EMIT notification about listing modification to the view
 };
 
 class PVHorizontalHeaderView : public QHeaderView
@@ -286,7 +279,7 @@ class PVHorizontalHeaderView : public QHeaderView
   public:
 	PVHorizontalHeaderView(Qt::Orientation orientation, PVListingView* parent);
 
-  signals:
+  Q_SIGNALS:
 	void mouse_hovered_section(int index, bool entered);
 
   protected:

@@ -16,6 +16,8 @@
 
 #include <pvkernel/core/qobject_helpers.h>
 
+#include <inendi/PVSource.h>
+
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
 
@@ -90,27 +92,17 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	        SLOT(update_scrollbar_position()));
 
 	// Observe selection to handle automatic refresh mode
-	PVHive::PVObserverSignal<Inendi::PVSelection>* obs_sel =
-	    new PVHive::PVObserverSignal<Inendi::PVSelection>(this);
 	Inendi::PVView_sp view_sp = _listing_view->lib_view().shared_from_this();
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, *obs_sel);
-	obs_sel->connect_refresh(this, SLOT(selection_changed()));
+	view_sp->_update_output_selection.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observe layerstack to handle automatic refresh mode
-	PVHive::PVObserverSignal<Inendi::PVLayer>* obs_layer =
-	    new PVHive::PVObserverSignal<Inendi::PVLayer>();
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& v) { return &v.get_output_layer(); }, *obs_layer);
-	obs_layer->connect_refresh(this, SLOT(selection_changed()));
+	view_sp->_update_output_layer.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observer axes combination changes
-	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>* obs_axes_comb =
-	    new PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>;
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
-	    *obs_axes_comb);
-	obs_axes_comb->connect_refresh(this, SLOT(axes_comb_changed()));
+	view_sp->_axis_combination_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::axes_comb_changed));
 
 	init_plugins();
 	create_vhead_ctxt_menu();
@@ -413,7 +405,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	setLayout(_main_layout);
 
 	QString column_type = _view.get_parent<Inendi::PVSource>()
-	                          ->get_extractor()
+	                          .get_extractor()
 	                          .get_format()
 	                          .get_axes()
 	                          .at(get_real_axis_col())
@@ -570,7 +562,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_valid(const QString& value, bool aut
 	_refresh_icon->setVisible(!auto_refresh);
 	_item->setBackground(QBrush(Qt::NoBrush));
 	_valid = true;
-	emit cell_refreshed(get_widget_cell_col());
+	Q_EMIT cell_refreshed(get_widget_cell_col());
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::vertical_header_clicked(int)
@@ -619,7 +611,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 
 	pvcop::db::algo::distinct(col_in, col1_out, col2_out, _view.get_selection_visible_listing());
 
-	emit refresh_impl_finished(
+	Q_EMIT refresh_impl_finished(
 	    QString("%L1").arg(col1_out.size())); // We must go back on the Qt thread to update the GUI
 }
 
@@ -657,7 +649,7 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 	bool integer = std::modf(sum, &intpart) == 0.0;
 	QString sum_str = integer ? QString("%L1").arg((int64_t)sum) : QString("%L1").arg(sum, 0, 'f');
 
-	emit refresh_impl_finished(sum_str); // We must go back on the Qt thread to update the GUI
+	Q_EMIT refresh_impl_finished(sum_str); // We must go back on the Qt thread to update the GUI
 }
 
 /******************************************************************************
@@ -675,7 +667,7 @@ void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
 
 	std::string min = min_array.size() == 1 ? min_array.at(0) : "";
 
-	emit refresh_impl_finished(
+	Q_EMIT refresh_impl_finished(
 	    QString(min.c_str())); // We must go back on the Qt thread to update the GUI
 }
 
@@ -694,7 +686,7 @@ void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
 
 	std::string max = max_array.size() == 1 ? max_array.at(0) : "";
 
-	emit refresh_impl_finished(
+	Q_EMIT refresh_impl_finished(
 	    QString(max.c_str())); // We must go back on the Qt thread to update the GUI
 }
 
@@ -714,5 +706,5 @@ void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 	bool integer = std::modf(avg, &intpart) == 0.0;
 	QString avg_str = integer ? QString("%L1").arg((int64_t)avg) : QString("%L1").arg(avg, 0, 'f');
 
-	emit refresh_impl_finished(avg_str); // We must go back on the Qt thread to update the GUI
+	Q_EMIT refresh_impl_finished(avg_str); // We must go back on the Qt thread to update the GUI
 }

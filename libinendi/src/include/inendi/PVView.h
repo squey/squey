@@ -14,6 +14,8 @@
 #include <QVector>
 #include <QMutex>
 
+#include <sigc++/sigc++.h>
+
 #include <pvcop/db/array.h>
 
 #include <pvkernel/core/PVHSVColor.h>
@@ -50,7 +52,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	typedef PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 
   public:
-	PVView(PVPlotted* plotted);
+	PVView(PVPlotted& plotted);
 	PVView(const PVView& org) = delete;
 	~PVView();
 
@@ -63,7 +65,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	inline PVSelection& get_volatile_selection() { return volatile_selection; }
 
 	// Proxy functions for PVHive
-	void remove_column(PVCol index) { _axes_combination.remove_axis(index); }
 	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest)
 	{
 		return _axes_combination.move_axis_to_new_position(index_source, index_dest);
@@ -115,7 +116,12 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	int get_layer_stack_layer_n_visible_state(int n) const;
 	PVLayer& get_layer_stack_output_layer();
 	PVLayer const& get_layer_stack_output_layer() const { return layer_stack_output_layer; }
-	void hide_layers() { layer_stack.hide_layers(); }
+	void hide_layers()
+	{
+		_layer_stack_about_to_refresh.emit();
+		layer_stack.hide_layers();
+		_layer_stack_refreshed.emit();
+	}
 
 	PVCol get_active_axis() const
 	{
@@ -181,7 +187,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 
 	void set_color_on_active_layer(const PVCore::PVHSVColor c);
 
-	int set_layer_stack_layer_n_name(int n, QString const& name);
+	void set_layer_stack_layer_n_name(int n, QString const& name);
 
 	void set_layer_stack_selected_layer_index(int index);
 
@@ -190,7 +196,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	void set_selection_from_layer(PVLayer const& layer);
 	void set_selection_view(PVSelection const& sel);
 
-	int toggle_layer_stack_layer_n_visible_state(int n);
+	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
 
 	void select_all_nonzb_lines();
@@ -203,6 +209,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	bool& are_view_unselected_zombie_visible();
 
 	void compute_layer_min_max(Inendi::PVLayer& layer);
+	void update_current_layer_min_max();
 	void compute_selectable_count(Inendi::PVLayer& layer);
 
 	void recompute_all_selectable_count();
@@ -269,8 +276,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	 * Compute selection of visible elements.
 	 */
 	void process_visibility();
-
-	void process_parent_plotted();
 
 	/******************************************************************************
 	******************************************************************************
@@ -371,6 +376,25 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 
   public:
 	PVSERIALIZEOBJECT_SPLIT
+
+  public:
+	// axis <-> section synchronisation
+	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(col, entered); }
+	void set_axis_clicked(PVCol col, size_t pos) { _axis_clicked.emit(col, pos); }
+
+	sigc::signal<void, size_t, bool> _axis_hovered;
+	sigc::signal<void, size_t, size_t> _axis_clicked;
+	sigc::signal<void> _axis_combination_updated;
+	sigc::signal<void> _axis_combination_about_to_update;
+	sigc::signal<void> _update_current_min_max;
+	sigc::signal<void> _layer_stack_about_to_refresh;
+	sigc::signal<void> _layer_stack_refreshed;
+	sigc::signal<void> _toggle_unselected_zombie_visibility;
+	sigc::signal<void> _update_layer_stack_output_layer;
+	sigc::signal<void> _update_output_selection;
+	sigc::signal<void> _update_output_layer;
+	sigc::signal<void> _toggle_unselected;
+	sigc::signal<void> _toggle_zombie;
 
   protected:
 	/*! \brief PVView's specific axes combination

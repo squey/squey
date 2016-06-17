@@ -12,18 +12,16 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/core/PVDecimalStorage.h>
 
-#include <inendi/PVMapped_types.h>
-
-//#include <tbb/concurrent_unordered_map.h>
 #include <map>
 #include <utility>
 
 namespace Inendi
 {
 
-typedef std::pair<PVCol, mapped_decimal_storage_type*> mandatory_param_list_values;
-typedef std::pair<std::string, mapped_decimal_storage_type> mandatory_param_value;
+typedef std::pair<PVCol, PVCore::PVDecimalStorage<32>*> mandatory_param_list_values;
+typedef std::pair<std::string, PVCore::PVDecimalStorage<32>> mandatory_param_value;
 
 class PVMapped;
 
@@ -42,7 +40,7 @@ class PVMandatoryMappingFilter
   public:
 	typedef std::shared_ptr<PVMandatoryMappingFilter> p_type;
 	typedef PVMandatoryMappingFilter FilterT;
-	typedef Inendi::mapped_decimal_storage_type decimal_storage_type;
+	typedef PVCore::PVDecimalStorage<32> decimal_storage_type;
 
   public:
 	PVMandatoryMappingFilter();

@@ -62,9 +62,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
     , _zpview(zpview)
     , _pvview(*pvview_sp)
     , _sliders_manager_p(sliders_manager_p)
-    , _zsu_obs(this)
-    , _zsd_obs(this)
-    , _zssd_obs(this)
     , _axis_index(axis_index)
     , _zm(zm)
     , _pending_deletion(false)
@@ -116,17 +113,16 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	configure_axis(true);
 
 	// Register view for unselected & zombie events toggle
-	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(
-	    pvview_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); },
-	    *obs);
-	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+	pvview_sp->_toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
+	    this, &PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility));
 
-	PVHive::PVHive::get().register_func_observer(sliders_manager_p, _zsu_obs);
+	sliders_manager_p->_update_zoom_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update));
+	sliders_manager_p->_del_zoom_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del));
+	sliders_manager_p->_del_zoomed_selection_sliders.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del));
 
-	PVHive::PVHive::get().register_func_observer(sliders_manager_p, _zsd_obs);
-
-	PVHive::PVHive::get().register_func_observer(sliders_manager_p, _zssd_obs);
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);
 	connect(&_updateall_timer, SIGNAL(timeout()), this, SLOT(updateall_timeout_Slot()));
@@ -907,7 +903,7 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 		_view_actor.call<FUNC(Inendi::PVView::set_square_area_mode)>(
 		    Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 		_pvview.commit_volatile_in_floating_selection();
-		_view_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+		_pvview.process_real_output_selection();
 	} else {
 		int64_t y_min = _sel_line->top() * BUCKET_ELT_COUNT;
 		int64_t y_max = _sel_line->bottom() * BUCKET_ELT_COUNT;
@@ -938,24 +934,21 @@ void PVParallelView::PVZoomedParallelScene::cancel_and_wait_all_rendering()
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update
+ * PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
+    axis_id_t axis_id,
+    PVSlidersManager::id_t id,
+    int64_t y_min,
+    int64_t y_max,
+    PVSlidersManager::ZoomSliderChange change)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-	PVSlidersManager::id_t id = std::get<1>(args);
-	PVParallelView::PVSlidersManager::ZoomSliderChange change = std::get<4>(args);
-
 	if (change == PVParallelView::PVSlidersManager::ZoomSliderNone) {
 		return;
 	}
 
-	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
-		int64_t y_min = std::get<2>(args);
-		int64_t y_max = std::get<3>(args);
-
+	if ((axis_id == _axis_id) && (id == _sliders_group)) {
 		if (y_max < y_min) {
 			std::swap(y_min, y_max);
 		}
@@ -965,65 +958,60 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(
 		double sld_dist = sld_max - sld_min;
 
 		// computing the nearest range matching the discrete zoom rules
-		double y_dist = round(pow(2.0, (round(zoom_steps * log2(sld_dist)) / (double)zoom_steps)));
+		double y_dist = std::round(
+		    std::pow(2.0, (std::round(zoom_steps * std::log2(sld_dist)) / (double)zoom_steps)));
 
 		if (y_dist != 0) {
-			double screen_height = _parent->_zpview->get_viewport()->rect().height();
+			double screen_height = _zpview->get_viewport()->rect().height();
 			double wanted_alpha = PVCore::clamp<double>(y_dist / screen_height, 0., 1.);
-			_parent->_wheel_value =
-			    (int)round(_parent->retrieve_wheel_value_from_alpha(wanted_alpha));
+			_wheel_value = (int)std::round(retrieve_wheel_value_from_alpha(wanted_alpha));
 		} else {
-			_parent->_wheel_value = max_wheel_value;
+			_wheel_value = max_wheel_value;
 		}
 
 		if (change == PVParallelView::PVSlidersManager::ZoomSliderMin) {
-			sld_max = round(PVCore::clamp<double>(sld_min + y_dist, 0., image_height));
+			sld_max = std::round(PVCore::clamp<double>(sld_min + y_dist, 0., image_height));
 		} else if (change == PVParallelView::PVSlidersManager::ZoomSliderMax) {
-			sld_min = round(PVCore::clamp<double>(sld_max - y_dist, 0., image_height));
+			sld_min = std::round(PVCore::clamp<double>(sld_max - y_dist, 0., image_height));
 		} else {
-			PVLOG_WARN("did you expect to move the 2 zoom sliders at the same time?\n");
-			return;
+			throw std::runtime_error(
+			    "did you expect to move the 2 zoom sliders at the same time?\n");
 		}
 
-		_parent->_zpview->center_on(0., 0.5 * (sld_min + sld_max));
+		_zpview->center_on(0., 0.5 * (sld_min + sld_max));
 
-		_parent->update_zoom();
+		update_zoom();
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update
+ * PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del(axis_id_t axis_id,
+                                                                PVSlidersManager::id_t id)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-	PVSlidersManager::id_t id = std::get<1>(args);
-
-	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
-		if (_parent->_pending_deletion == false) {
-			_parent->_pending_deletion = true;
-			if (_parent->_zpview != nullptr) {
-				_parent->_zpview->parentWidget()->close();
+	if ((axis_id == _axis_id) && (id == _sliders_group)) {
+		if (_pending_deletion == false) {
+			_pending_deletion = true;
+			if (_zpview != nullptr) {
+				_zpview->parentWidget()->close();
 			}
 		}
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update
+ * PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::zoomed_sel_sliders_del_obs::update(
-    arguments_deep_copy_type const& args) const
+void PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del(axis_id_t axis_id,
+                                                                      PVSlidersManager::id_t /*id*/)
 {
-	const axis_id_t& axis_id = std::get<0>(args);
-
-	if (axis_id == _parent->_axis_id) {
-		_parent->_selection_sliders = nullptr;
-		if (_parent->_zpview != nullptr) {
-			_parent->_zpview->get_viewport()->update();
+	if (axis_id == _axis_id) {
+		_selection_sliders = nullptr;
+		if (_zpview != nullptr) {
+			_zpview->get_viewport()->update();
 		}
 	}
 }

@@ -25,22 +25,13 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
-#include <inendi/PVRoot_types.h>
-#include <inendi/PVScene_types.h>
-#include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVSelection.h>
 
-#include <pvhive/PVObserverSignal.h>
-
 #include <pvguiqt/PVProjectsTabWidget.h>
 
 #include <PVFilesTypesSelWidget.h>
-
-//#include <>
-
-/* #include <logviewer/logviewerwidget.h> */
 
 #include <tbb/task_scheduler_init.h>
 
@@ -160,7 +151,7 @@ class PVMainWindow : public QMainWindow
   protected:
 	bool event(QEvent* event) override;
 
-  public slots:
+  public Q_SLOTS:
 	void about_Slot();
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();
@@ -184,12 +175,11 @@ class PVMainWindow : public QMainWindow
 	void import_type_default_Slot();
 	void import_type_Slot();
 	void import_type_Slot(const QString& itype);
-	void events_display_unselected_Slot();
 	void events_display_unselected_listing_Slot();
 	void events_display_zombies_listing_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
-	Inendi::PVScene_p project_new_Slot();
+	Inendi::PVScene& project_new_Slot();
 	void quit_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
@@ -230,7 +220,7 @@ class PVMainWindow : public QMainWindow
 
 	void save_screenshot(const QPixmap& pixmap, const QString& title, const QString& name);
 
-  private slots:
+  private Q_SLOTS:
 	void root_modified();
 	bool load_solution(QString const& file);
 	void load_solution_and_create_mw(QString const& file);
@@ -251,9 +241,8 @@ class PVMainWindow : public QMainWindow
 
   private:
 	bool is_project_untitled() { return _projects_tab_widget->is_current_project_untitled(); }
-	bool load_root();
-	bool load_scene(Inendi::PVScene* scene);
 	bool load_source(Inendi::PVSource* src);
+	void source_loaded(Inendi::PVSource& src);
 	bool fix_project_errors(std::shared_ptr<PVCore::PVSerializeArchive> ar);
 	void flag_investigation_as_cached(const QString& file);
 
@@ -318,7 +307,6 @@ class PVMainWindow : public QMainWindow
   private:
 	Inendi::PVRoot& get_root();
 	Inendi::PVRoot const& get_root() const;
-	Inendi::PVRoot_sp get_root_sp();
 
   private:
 	static PVMainWindow* find_main_window(const QString& path);
@@ -327,7 +315,7 @@ class PVMainWindow : public QMainWindow
 	void reset_root();
 	void close_solution();
 
-  signals:
+  Q_SIGNALS:
 	void change_of_current_view_Signal();
 	void filter_applied_Signal();
 	void zombie_mode_changed_Signal();
@@ -343,8 +331,7 @@ class PVMainWindow : public QMainWindow
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	static int sequence_n;
-	Inendi::PVRoot_sp _root;
-	PVHive::PVObserverSignal<Inendi::PVRoot> _obs_root;
+	Inendi::PVRoot _root;
 	bool _auto_detect_cancellation;
 
   private:

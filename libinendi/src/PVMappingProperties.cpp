@@ -8,7 +8,6 @@
 #include <inendi/PVMapping.h>
 #include <inendi/PVMappingProperties.h>
 #include <pvkernel/core/PVClassLibrary.h>
-#include <inendi/PVRoot.h>
 
 Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format, PVCol idx)
 {

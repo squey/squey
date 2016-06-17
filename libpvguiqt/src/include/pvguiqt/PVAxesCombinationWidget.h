@@ -47,12 +47,9 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	                        QWidget* parent = 0);
 
   public:
-	void save_current_combination();
-	void restore_saved_combination();
-
 	void reset_used_axes();
 
-  public slots:
+  public Q_SLOTS:
 	void update_orig_axes();
 	void update_used_axes();
 	void update_all();
@@ -66,7 +63,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	static QVector<PVCol> get_list_selection(QListWidget* widget);
 	void set_selection_from_cols(QList<PVCol> const& cols);
 
-  protected slots:
+  protected Q_SLOTS:
 	void axis_add_Slot();
 	void axis_up_Slot();
 	void axis_down_Slot();
@@ -74,16 +71,10 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	void axis_remove_Slot();
 	void reset_comb_Slot();
 	void sel_singleton_Slot();
-	void sel_range_Slot();
 	void sort_Slot();
-
-  signals:
-	void axes_combination_changed();
-	void axes_count_changed();
 
   protected:
 	Inendi::PVAxesCombination& _axes_combination;
-	Inendi::PVAxesCombination _saved_combination;
 	PVMoveToDlg* _move_dlg;
 	Inendi::PVView* _view;
 };

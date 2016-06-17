@@ -49,7 +49,7 @@ class PVDatabaseParamsWidget : public QDialog, private Ui::DbParams
 	void populate_presets();
 	PVDBPresets::id_t get_current_preset_id();
 
-  public slots:
+  public Q_SLOTS:
 	void preset_new_Slot(const QString& name);
 	void preset_load_Slot(const QString& name);
 	void preset_save_Slot(const QString& name);

@@ -5,15 +5,12 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
-#include <inendi/PVSource.h>
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
 #include <inendi/widgets/PVMappingPlottingEditDialog.h>
-
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVHive.h>
 
 #include <pvguiqt/PVQMapped.h>
 #include <pvguiqt/PVQPlotted.h>
@@ -67,12 +64,10 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 
 	// Double click on a view set this view as the current view of the parent
 	// source
-	Inendi::PVRoot_sp root_sp(view->get_parent<Inendi::PVRoot>()->shared_from_this());
 
-	// Call select_view throught the Hive :)
-	PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *view);
+	view->get_parent<Inendi::PVRoot>().select_view(*view);
 
-	// TODO : emit datachanged
+	// TODO : Q_EMIT datachanged
 
 	event->accept();
 }

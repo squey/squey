@@ -9,6 +9,8 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 
+#include <inendi/PVView.h>
+
 #include <pvcop/db/algo.h>
 
 #include <numeric>

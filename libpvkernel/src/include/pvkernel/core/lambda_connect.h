@@ -21,7 +21,7 @@ class connect_functor_helper : public QObject
 	{
 	}
 
-  public slots:
+  public Q_SLOTS:
 	void signaled() { _function(); }
 
   private:

@@ -13,6 +13,8 @@
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVView.h>
+#include <inendi/PVRoot.h>
+#include <inendi/PVSource.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
@@ -62,11 +64,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
 	PVHive::get().register_observer(view, _obs);
 
 	/// Source events
-	Inendi::PVSource_sp src_sp = view->get_parent<Inendi::PVSource>()->shared_from_this();
-	// Register source for axes hovering events
-	PVHive::get().register_observer(
-	    src_sp, [=](Inendi::PVSource& source) { return &source.axis_hovered(); }, _axis_hover_obs);
-	_axis_hover_obs.connect_refresh(this, SLOT(highlight_column(PVHive::PVObserverBase*)));
+	view->_axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
 
 	// SIZE STUFF
 	setMinimumSize(60, 40);
@@ -251,7 +249,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	extract_selection();
 
 	/* We reprocess the view from the selection */
-	_actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+	lib_view().process_real_output_selection();
 }
 
 /******************************************************************************
@@ -396,7 +394,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
 	_ctxt_col = idx_click.column(); // This is the *combined* axis index
-	_ctxt_v = QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_value(
+	_ctxt_v = QString::fromStdString(lib_view().get_parent<Inendi::PVSource>().get_value(
 	    _ctxt_row, lib_view().get_original_axis_index(_ctxt_col)));
 
 	// Show the menu at the given pos
@@ -551,16 +549,16 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 
 	_menu_add_correlation->clear();
 
-	Inendi::PVRoot* root = lib_view().get_parent<Inendi::PVRoot>();
+	Inendi::PVRoot& root = lib_view().get_parent<Inendi::PVRoot>();
 
 	size_t total_compatible_views_count = 0;
 
-	for (auto* source : root->get_children<Inendi::PVSource>()) {
+	for (auto* source : root.get_children<Inendi::PVSource>()) {
 
 		size_t compatible_views_count = 0;
 
 		// Don't allow correlation on same source
-		if (source == root->current_source()) {
+		if (source == root.current_source()) {
 			continue;
 		}
 
@@ -594,14 +592,14 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 				axis_action->setCheckable(true);
 
 				Inendi::PVCorrelation correlation{&lib_view(), col, view, i};
-				bool existing_correlation = root->correlations().exists(correlation);
+				bool existing_correlation = root.correlations().exists(correlation);
 				axis_action->setChecked(existing_correlation);
 
-				connect(axis_action, &QAction::triggered, [=]() {
+				connect(axis_action, &QAction::triggered, [=, &root]() {
 					if (not existing_correlation) {
-						root->correlations().add(correlation);
+						root.correlations().add(correlation);
 					} else {
-						root->correlations().remove(&lib_view());
+						root.correlations().remove(&lib_view());
 					}
 					// refresh headers to show correlation icon right now
 					horizontalHeader()->viewport()->update();
@@ -773,9 +771,7 @@ PVGuiQt::PVListingModel* PVGuiQt::PVListingView::listing_model()
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
 {
-	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>()->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVSource::set_section_hovered)>(src, col, entered);
-	highlight_column(entered ? col : -1);
+	lib_view().set_axis_hovered(col, entered);
 }
 
 /******************************************************************************
@@ -785,11 +781,9 @@ void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_clicked(int col)
 {
-	Inendi::PVSource_sp src = lib_view().get_parent<Inendi::PVSource>()->shared_from_this();
 	int x = horizontalHeader()->sectionViewportPosition(col);
 	int width = horizontalHeader()->sectionSize(col);
-	PVHive::call<FUNC(Inendi::PVSource::set_section_clicked)>(src, col, verticalHeader()->width() +
-	                                                                        x + width / 2);
+	lib_view().set_axis_clicked(col, verticalHeader()->width() + x + width / 2);
 }
 
 /******************************************************************************
@@ -797,27 +791,10 @@ void PVGuiQt::PVListingView::section_clicked(int col)
  * PVGuiQt::PVListingView::highlight_column
  *
  *****************************************************************************/
-
-void PVGuiQt::PVListingView::highlight_column(PVHive::PVObserverBase* o)
-{
-	// Extract column to highlight
-	PVHive::PVObserverSignal<int>* real_o = dynamic_cast<PVHive::PVObserverSignal<int>*>(o);
-	assert(real_o);
-	int* obj = real_o->get_object();
-	int col = *obj;
-
-	highlight_column(col);
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::highlight_column
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::highlight_column(int col)
+void PVGuiQt::PVListingView::highlight_column(int col, bool entered)
 {
 	// Mark the column for future painting and force update
-	_hovered_axis = col;
+	_hovered_axis = entered ? col : -1;
 	viewport()->update();
 }
 
@@ -1013,8 +990,10 @@ PVGuiQt::PVHorizontalHeaderView::PVHorizontalHeaderView(Qt::Orientation orientat
 bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 {
 	if (ev->type() == QEvent::HoverLeave || ev->type() == QEvent::Leave) {
-		emit mouse_hovered_section(_index, false);
-		_index = -1;
+		if (_index != -1) {
+			Q_EMIT mouse_hovered_section(_index, false);
+			_index = -1;
+		}
 	} else if (ev->type() == QEvent::HoverMove) { // in eventFilter, this event
 		                                          // would have been
 		                                          // "QEvent::MouseMove"...
@@ -1022,9 +1001,9 @@ bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 		int index = logicalIndexAt(mouse_event->pos());
 		if (index != _index) {
 			if (_index != -1) {
-				emit mouse_hovered_section(_index, false);
+				Q_EMIT mouse_hovered_section(_index, false);
 			}
-			emit mouse_hovered_section(index, true);
+			Q_EMIT mouse_hovered_section(index, true);
 		}
 		_index = index;
 	}
@@ -1040,9 +1019,9 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	painter->restore();
 
 	PVListingView* listing = (PVListingView*)parent();
-	Inendi::PVRoot* root = listing->lib_view().get_parent<Inendi::PVRoot>();
+	Inendi::PVRoot& root = listing->lib_view().get_parent<Inendi::PVRoot>();
 
-	bool existing_correlation = root->correlations().exists(&listing->lib_view(), logicalIndex);
+	bool existing_correlation = root.correlations().exists(&listing->lib_view(), logicalIndex);
 
 	if (existing_correlation) {
 		QPixmap p(":/bind");

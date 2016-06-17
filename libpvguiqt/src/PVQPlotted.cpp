@@ -9,9 +9,6 @@
 #include <inendi/widgets/PVMappingPlottingEditDialog.h>
 #include <pvguiqt/PVQPlotted.h>
 
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVHive.h>
-
 bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent)
 {
 	PVWidgets::PVMappingPlottingEditDialog* dlg =
@@ -21,8 +18,7 @@ bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* pare
 	}
 
 	if (plotted.is_current_plotted()) {
-		Inendi::PVPlotted_sp plotted_sp = plotted.shared_from_this();
-		PVHive::call<FUNC(Inendi::PVPlotted::process_parent_mapped)>(plotted_sp);
+		plotted.update_plotting();
 	}
 
 	return true;

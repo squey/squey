@@ -8,6 +8,8 @@
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVDisplayViewAxesCombination.h>
 
+#include <inendi/PVView.h>
+
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination() : PVDisplayViewIf()
 {
 }

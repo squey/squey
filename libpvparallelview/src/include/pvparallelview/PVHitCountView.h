@@ -136,7 +136,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 
 	void set_params_widget_position();
 
-  protected slots:
+  protected Q_SLOTS:
 	void toggle_auto_x_zoom_sel();
 	void toggle_log_color();
 
@@ -166,14 +166,14 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes
 	PVHitCountViewParamsWidget* params_widget() { return _params_widget; }
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
-  private slots:
+  private Q_SLOTS:
 	void do_zoom_change(int axes);
 	void do_pan_change();
 	void do_update_all();
 
 	void toggle_unselected_zombie_visibility();
 
-  private slots:
+  private Q_SLOTS:
 	void update_all();
 	void update_sel();
 

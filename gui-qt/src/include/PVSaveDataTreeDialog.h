@@ -26,7 +26,7 @@ class PVSaveDataTreeDialog : public QFileDialog
 	                     QString const& filter,
 	                     QWidget* parent);
 
-  protected slots:
+  protected Q_SLOTS:
 	void include_files_Slot(int state);
 	void tab_changed_Slot(int idx);
 

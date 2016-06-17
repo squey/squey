@@ -139,13 +139,13 @@ class PVAbstractTableView : public PVTableView
 	 */
 	virtual void show_ctxt_menu(QPoint const&) {}
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * Commit the selection before any right-click action.
 	 */
 	void show_rclick_menu(QPoint const& p);
 
-  signals:
+  Q_SIGNALS:
 	void validate_selection();
 };
 }

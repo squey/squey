@@ -462,7 +462,7 @@ void PVGuiQt::PVSourceWorkspace::fill_display()
 			p.first->menu()->addAction(act);
 
 			connect(act, &QAction::triggered,
-			        [this](bool checked) { create_view_dispatch(checked, Tag<T>{}); });
+			        [this, act]() { create_view_dispatch(act, Tag<T>{}); });
 		}
 	}
 }

@@ -45,7 +45,7 @@ class TestMdl : public QDialog
 		_obj_observer.connect_about_to_be_deleted(this, SLOT(entity_atbd(PVHive::PVObserverBase*)));
 	}
 
-  private slots:
+  private Q_SLOTS:
 	void entity_refresh(PVHive::PVObserverBase* o)
 	{
 		PVHive::PVObserverSignal<Entity>* os = dynamic_cast<PVHive::PVObserverSignal<Entity>*>(o);
@@ -88,7 +88,7 @@ class TestDlg : public TestMdl
 		connect(b, SIGNAL(clicked(bool)), this, SLOT(open_modal(bool)));
 	}
 
-  private slots:
+  private Q_SLOTS:
 	void open_modal(bool)
 	{
 		TestMdl* m = new TestMdl(this);

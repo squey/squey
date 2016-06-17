@@ -247,7 +247,7 @@ class PVZoomedParallelScene : public QGraphicsScene
 	 */
 	void configure_axis(bool reset_view_param = false);
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * Start an update of the selection images.
 	 */
@@ -376,7 +376,7 @@ class PVZoomedParallelScene : public QGraphicsScene
 	 */
 	void recreate_images();
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * The slot called when the vertical scrollbar's value has changed.
 	 *
@@ -416,61 +416,15 @@ class PVZoomedParallelScene : public QGraphicsScene
 	void toggle_unselected_zombie_visibility();
 
   private:
-	/**
-	 * @class zoom_sliders_update_obs
-	 *
-	 * PVHive observer when a zoom sliders has been updated.
-	 */
-	class zoom_sliders_update_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager,
-	                                    FUNC(PVSlidersManager::update_zoom_sliders)>
-	{
-	  public:
-		zoom_sliders_update_obs(PVZoomedParallelScene* parent = nullptr) : _parent(parent) {}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVZoomedParallelScene* _parent;
-	};
-
-	/**
-	 * @class zoom_sliders_del_obs
-	 *
-	 * PVHive observer when a zoom sliders is deleted.
-	 */
-	class zoom_sliders_del_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager, FUNC(PVSlidersManager::del_zoom_sliders)>
-	{
-	  public:
-		zoom_sliders_del_obs(PVZoomedParallelScene* parent = nullptr) : _parent(parent) {}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVZoomedParallelScene* _parent;
-	};
-
-	/**
-	 * @class zoomed_sel_sliders_del_obs
-	 *
-	 * PVHive observer when its zoomed selection sliders is deleted
-	 */
-	class zoomed_sel_sliders_del_obs
-	    : public PVHive::PVFuncObserver<PVSlidersManager,
-	                                    FUNC(PVSlidersManager::del_zoomed_selection_sliders)>
-	{
-	  public:
-		zoomed_sel_sliders_del_obs(PVZoomedParallelScene* parent = nullptr) : _parent(parent) {}
-
-		void update(arguments_deep_copy_type const& args) const;
-
-	  private:
-		PVZoomedParallelScene* _parent;
-	};
-
-  private:
 	typedef PVParallelView::PVSlidersManager::axis_id_t axis_id_t;
+
+	void on_zoom_sliders_update(axis_id_t axis_id,
+	                            PVSlidersManager::id_t id,
+	                            int64_t y_min,
+	                            int64_t y_max,
+	                            PVSlidersManager::ZoomSliderChange change);
+	void on_zoom_sliders_del(axis_id_t axis_id, PVSlidersManager::id_t id);
+	void on_zoomed_sel_sliders_del(axis_id_t axis_id, PVSlidersManager::id_t id);
 
   private:
 	/**
@@ -544,9 +498,6 @@ class PVZoomedParallelScene : public QGraphicsScene
 	Inendi::PVView& _pvview;
 	PVSlidersManager_p _sliders_manager_p;
 	PVSlidersGroup* _sliders_group;
-	zoom_sliders_update_obs _zsu_obs;
-	zoom_sliders_del_obs _zsd_obs;
-	zoomed_sel_sliders_del_obs _zssd_obs;
 	PVCol _axis_index;
 	axis_id_t _axis_id;
 	PVZonesManager const& _zm;

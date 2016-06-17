@@ -28,9 +28,10 @@
 
 #include <iostream>
 
-Inendi::PVPlotted::PVPlotted(PVMapped* mapped)
+Inendi::PVPlotted::PVPlotted(PVMapped& mapped)
     : PVCore::PVDataTreeChild<PVMapped, PVPlotted>(mapped), _plotting(this)
 {
+	create_table();
 }
 
 Inendi::PVPlotted::~PVPlotted()
@@ -78,14 +79,14 @@ int Inendi::PVPlotted::create_table()
 				continue;
 			}
 
-			plotting_filter->set_mapping_mode(get_parent()->get_mapping().get_mode_for_col(j));
+			plotting_filter->set_mapping_mode(get_parent().get_mapping().get_mode_for_col(j));
 			plotting_filter->set_mandatory_params(
-			    get_parent()->get_mapping().get_mandatory_params_for_col(j));
+			    get_parent().get_mapping().get_mandatory_params_for_col(j));
 			plotting_filter->set_dest_array(nrows, get_column_pointer(j));
-			plotting_filter->set_decimal_type(get_parent()->get_decimal_type_of_col(j));
+			plotting_filter->set_decimal_type(get_parent().get_decimal_type_of_col(j));
 			boost::this_thread::interruption_point();
 			tbb::tick_count plstart = tbb::tick_count::now();
-			plotting_filter->operator()(get_parent()->get_column_pointer(j));
+			plotting_filter->operator()(get_parent().get_column_pointer(j));
 			tbb::tick_count plend = tbb::tick_count::now();
 
 			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took "
@@ -328,12 +329,12 @@ bool Inendi::PVPlotted::load_buffer_from_file(plotted_table_t& buf,
 
 PVRow Inendi::PVPlotted::get_row_count() const
 {
-	return get_parent<PVSource>()->get_row_count();
+	return get_parent<PVSource>().get_row_count();
 }
 
 PVCol Inendi::PVPlotted::get_column_count() const
 {
-	return get_parent<PVMapped>()->get_column_count();
+	return get_parent<PVMapped>().get_column_count();
 }
 
 void Inendi::PVPlotted::to_csv()
@@ -540,33 +541,15 @@ PVRow Inendi::PVPlotted::get_col_max_row(PVCol const c) const
 	return _minmax_values[c].max;
 }
 
-void Inendi::PVPlotted::process_parent_mapped()
+void Inendi::PVPlotted::update_plotting()
 {
 	create_table();
-}
-
-void Inendi::PVPlotted::process_from_parent_mapped()
-{
-	// Check parent consistency
-	auto mapped = get_parent();
-
-	if (!mapped->is_uptodate()) {
-		mapped->compute();
-	}
-
-	process_parent_mapped();
-
-	if (get_children().empty()) {
-		emplace_add_child();
-	}
-	for (auto view : get_children()) {
-		view->process_parent_plotted();
-	}
+	_plotted_updated.emit();
 }
 
 bool Inendi::PVPlotted::is_uptodate() const
 {
-	if (!get_parent()->is_uptodate()) {
+	if (!get_parent().is_uptodate()) {
 		return false;
 	}
 
@@ -575,7 +558,7 @@ bool Inendi::PVPlotted::is_uptodate() const
 
 bool Inendi::PVPlotted::is_current_plotted() const
 {
-	Inendi::PVView const* cur_view = get_parent<PVSource>()->current_view();
+	Inendi::PVView const* cur_view = get_parent<PVSource>().current_view();
 	auto children = get_children();
 	return std::find(children.begin(), children.end(), cur_view) != children.end();
 }
@@ -629,9 +612,9 @@ void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so)
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVView_p view = emplace_add_child();
-			view->serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = view.get();
+			PVView& view = emplace_add_child();
+			view.serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = &view;
 			new_obj->_bound_obj_type = typeid(PVView);
 			idx++;
 		}

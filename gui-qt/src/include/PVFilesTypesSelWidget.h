@@ -69,7 +69,7 @@ class PVFilesTypesSelWidget : public QDialog
   public:
 	PVFilesTypesSelWidget(PVMainWindow* parent, map_files_types& files_types);
 
-  public slots:
+  public Q_SLOTS:
 	void apply_all();
 	void all_types_check_Slot(int state);
 

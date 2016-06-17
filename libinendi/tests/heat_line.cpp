@@ -8,6 +8,7 @@
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVLayer.h>
+
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -78,7 +79,9 @@ int main()
 #endif
 
 	env.compute_mapping();
-	Inendi::PVView* view = env.compute_plotting()->get_parent<Inendi::PVRoot>()->current_view();
+	env.compute_plotting();
+	env.compute_views();
+	Inendi::PVView* view = env.root.current_view();
 
 	// Load every layer filter.
 	Inendi::common::load_layer_filters();
@@ -96,7 +99,9 @@ int main()
 	args["scale"].setValue(scale);
 	args["colors"].setValue(PVCore::PVPercentRangeType(0.6, 0.8));
 
-	Inendi::PVLayer out("Out", view->get_row_count());
+	Inendi::PVSelection sel(view->get_row_count());
+	sel.select_all();
+	Inendi::PVLayer out("Out", sel);
 	Inendi::PVLayer& in = view->get_layer_stack_output_layer();
 
 	fclone->set_view(view);

@@ -300,7 +300,7 @@ void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
 	case Qt::Key_Enter:
 		if (table_model()->has_selection()) {
 			table_model()->commit_selection();
-			emit validate_selection();
+			Q_EMIT validate_selection();
 		}
 		break;
 
@@ -408,6 +408,6 @@ void PVAbstractTableView::setModel(QAbstractItemModel* model)
 	PVTableView::setModel(model);
 	connect(model, &QAbstractItemModel::layoutChanged, this,
 	        (void (PVAbstractTableView::*)()) & PVAbstractTableView::new_range);
-	emit table_model()->layoutChanged();
+	Q_EMIT table_model()->layoutChanged();
 }
 }

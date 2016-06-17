@@ -125,7 +125,7 @@ class PVXmlParamWidget : public QWidget
 	PVRush::PVXmlTreeNodeDom* nodeConfirmApply;
 	QModelIndex editingIndex;
 
-  public slots:
+  public Q_SLOTS:
 	/**
 	 * This slot is called when we select a tree item.<br>
 	 * He draw the parameter box.
@@ -160,7 +160,7 @@ class PVXmlParamWidget : public QWidget
 
 	void slotSelectNext();
 
-  signals:
+  Q_SIGNALS:
 	void signalNeedApply();
 	void signalNeedConfirmApply(QModelIndex&);
 	void signalForceApply(QModelIndex&);

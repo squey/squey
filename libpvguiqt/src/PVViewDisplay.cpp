@@ -24,6 +24,8 @@
 #include <pvhive/PVObserverCallback.h>
 
 #include <inendi/PVView.h>
+#include <inendi/PVRoot.h>
+#include <inendi/PVPlotted.h>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
                                       QWidget* view_widget,
@@ -75,16 +77,9 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 void PVGuiQt::PVViewDisplay::register_view(Inendi::PVView* view)
 {
 	if (view) {
-		// Register for view name changes
-		if (_obs_plotting) {
-			delete _obs_plotting;
-		}
-		_obs_plotting = new PVHive::PVObserverSignal<Inendi::PVPlotting>(this);
-		Inendi::PVPlotted_sp plotted_sp = view->get_parent()->shared_from_this();
-		PVHive::get().register_observer(
-		    plotted_sp, [=](Inendi::PVPlotted& plotted) { return &plotted.get_plotting(); },
-		    *_obs_plotting);
-		_obs_plotting->connect_refresh(this, SLOT(plotting_updated()));
+
+		view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+		    sigc::mem_fun(this, &PVGuiQt::PVViewDisplay::plotting_updated));
 
 		// Register for view deletion
 		_obs_view = PVHive::create_observer_callback_heap<Inendi::PVView>(
@@ -122,7 +117,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 	switch (event->type()) {
 	case QEvent::MouseMove: {
 		if (PVGuiQt::PVSourceWorkspace::_drag_started) {
-			emit try_automatic_tab_switch();
+			Q_EMIT try_automatic_tab_switch();
 
 			QMouseEvent* mouse_event = (QMouseEvent*)event;
 			PVWorkspaceBase* workspace = PVGuiQt::PVSourceWorkspace::workspace_under_mouse();
@@ -310,8 +305,7 @@ void PVGuiQt::PVViewDisplay::restore()
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view && !_about_to_be_deleted) {
-		Inendi::PVRoot_sp root_sp = _view->get_parent<Inendi::PVRoot>()->shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_view)>(root_sp, *_view);
+		_view->get_parent<Inendi::PVRoot>().select_view(*_view);
 	}
 }
 

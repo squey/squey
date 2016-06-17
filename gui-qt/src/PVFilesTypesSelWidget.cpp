@@ -84,7 +84,7 @@ bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index,
 
 	(*it).second = value.toStringList();
 
-	emit dataChanged(index, index);
+	Q_EMIT dataChanged(index, index);
 
 	return true;
 }
@@ -108,8 +108,8 @@ QVariant PVInspector::PVFilesTypesSelModel::headerData(int section,
 
 void PVInspector::PVFilesTypesSelModel::emitAllTypesChanged()
 {
-	emit dataChanged(QAbstractTableModel::index(1, 0),
-	                 QAbstractTableModel::index(1, _files_types.size() - 1));
+	Q_EMIT dataChanged(QAbstractTableModel::index(1, 0),
+	                   QAbstractTableModel::index(1, _files_types.size() - 1));
 }
 
 // Delegate

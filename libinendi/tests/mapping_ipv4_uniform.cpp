@@ -31,7 +31,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVMapped_p mapped = env.compute_mapping();
+	Inendi::PVMapped& mapped = env.compute_mapping();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -40,7 +40,7 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
-	PVRush::PVNraw const& nraw = env.root->get_children<Inendi::PVSource>().front()->get_rushnraw();
+	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.collection().column(0);
 	pvcop::db::array dist;
 	pvcop::db::algo::distinct(column, dist);
@@ -48,7 +48,7 @@ int main()
 	// compute distinct mapping values.
 	std::set<uint32_t> distinct_mapping;
 	for (size_t i = 0; i < column.size(); i++) {
-		distinct_mapping.insert(mapped->get_value(i, 0).storage_as_uint());
+		distinct_mapping.insert(mapped.get_value(i, 0).storage_as_uint());
 	}
 
 	// Check there is a much distinct mapping than distinct values.

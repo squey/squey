@@ -16,7 +16,7 @@ namespace Inendi
 class PVPlottingFilterIntegerPort : public PVPlottingFilter
 {
   public:
-	uint32_t* operator()(mapped_decimal_storage_type const* values) override;
+	uint32_t* operator()(PVCore::PVDecimalStorage<32> const* values) override;
 	QString get_human_name() const { return QString("TCP/UDP port"); }
 
 	CLASS_FILTER(PVPlottingFilterIntegerPort)

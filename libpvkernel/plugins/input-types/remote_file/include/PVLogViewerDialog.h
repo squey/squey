@@ -25,7 +25,7 @@ class PVLogViewerDialog : public QDialog
 	QHash<QString, QUrl> const& getDlFiles() { return _dl_files; }
 	QString getSelFormat();
 
-  public slots:
+  public Q_SLOTS:
 	void slotDownloadFiles();
 
   protected:

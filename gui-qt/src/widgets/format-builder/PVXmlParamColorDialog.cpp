@@ -48,7 +48,7 @@ void PVInspector::PVXmlParamColorDialog::chooseColor()
 	QColor colorChoosed = cd.getColor(initialColor, parent);
 	if (colorChoosed.isValid()) {
 		setColor(colorChoosed.name());
-		emit changed();
+		Q_EMIT changed();
 	}
 }
 

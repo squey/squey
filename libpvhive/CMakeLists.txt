@@ -28,6 +28,7 @@ include_directories(${Qt5Gui_INCLUDE_DIRS})
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
+include_directories(AFTER ${SIGCPP_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(tests)

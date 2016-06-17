@@ -381,7 +381,7 @@ bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
 		if (res) {
 			registered.localFile = temporaryFilePath;
 			// qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
-			emit newFile(machineConfig.name, registered.remoteFile, temporaryFilePath);
+			Q_EMIT newFile(machineConfig.name, registered.remoteFile, temporaryFilePath);
 			dl_files[temporaryFilePath] = url;
 			ret = true;
 		} else {

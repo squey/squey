@@ -32,6 +32,7 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 
 	virtual ~PVAbstractRangeAxisSliders();
 
+	// FIXME : This is an Ugly interface with a lot of bad use possibility.
 	virtual void initialize(id_t id, int64_t y_min, int64_t y_max) = 0;
 
 	virtual bool is_moving() const { return (_sl_min->is_moving() || _sl_max->is_moving()); }

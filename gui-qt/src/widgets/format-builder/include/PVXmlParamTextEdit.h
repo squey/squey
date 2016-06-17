@@ -53,7 +53,7 @@ class PVXmlParamTextEdit : public QTextEdit
 	PVXmlTimeValidatorHighLight* timeValid;
 	bool editing;
 
-  public slots:
+  public Q_SLOTS:
 	/**
 	 * Event when something modify the regular expression.
 	 * @param regStr

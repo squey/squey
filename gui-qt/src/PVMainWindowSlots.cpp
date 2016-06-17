@@ -24,11 +24,11 @@
 
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
+
+#include <pvhive/PVHive.h>
+#include <pvhive/PVCallHelper.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
@@ -113,16 +113,11 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 {
-	Inendi::PVView* current_lib_view;
-
 	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_view();
 
-	/* We refresh the listing */
-	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVView::toggle_listing_unselected_visibility)>(view_sp);
+	current_view()->toggle_listing_unselected_visibility();
 }
 
 /******************************************************************************
@@ -132,15 +127,11 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
 {
-	Inendi::PVView* current_lib_view;
-
 	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_view();
 
-	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVView::toggle_listing_zombie_visibility)>(view_sp);
+	current_view()->toggle_listing_zombie_visibility();
 }
 
 /******************************************************************************
@@ -150,16 +141,12 @@ void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_unselected_zombies_parallelview_Slot()
 {
-	Inendi::PVView* current_lib_view;
-
 	if (!current_view()) {
 		return;
 	}
-	current_lib_view = current_view();
 
 	/* We refresh the listing */
-	Inendi::PVView_sp view_sp = current_lib_view->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVView::toggle_view_unselected_zombie_visibility)>(view_sp);
+	current_view()->toggle_view_unselected_zombie_visibility();
 }
 
 /******************************************************************************
@@ -197,7 +184,7 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 			    current_view()->add_mineset_dataset(dataset_url);
 			    QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
 		    } catch (const Inendi::PVMineset::mineset_error& e) {
-			    emit mineset_error(QString(e.what()));
+			    Q_EMIT mineset_error(QString(e.what()));
 		    }
 		},
 	    &pbox);
@@ -266,10 +253,10 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  * PVInspector::PVMainWindow::project_new_Slot
  *
  *****************************************************************************/
-Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
+Inendi::PVScene& PVInspector::PVMainWindow::project_new_Slot()
 {
 	std::string scene_name = tr("Data collection %1").arg(sequence_n++).toStdString();
-	PVCore::PVSharedPtr<Inendi::PVScene> scene_p = get_root_sp()->emplace_add_child(scene_name);
+	Inendi::PVScene& scene_p = get_root().emplace_add_child(scene_name);
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -294,13 +281,12 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	bool new_scene = false;
 	if (scenes.size() == 0) {
 		// No loaded project: create a new one and load the source
-		scene_p = project_new_Slot().get();
+		scene_p = &project_new_Slot();
 		new_scene = true;
 	} else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
 		scene_p = scenes.front();
-		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(root_sp, *scene_p);
+		get_root().select_scene(*scene_p);
 	} else {
 		// More than one project loaded: ask the user the project he wants to use to
 		// load the source
@@ -310,16 +296,14 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 			return false;
 		}
 
-		Inendi::PVRoot_sp root_sp = get_root().shared_from_this();
-		PVHive::call<FUNC(Inendi::PVRoot::select_scene)>(
-		    root_sp, *((Inendi::PVScene*)dlg->get_selected_scene()));
+		get_root().select_scene(*((Inendi::PVScene*)dlg->get_selected_scene()));
 		scene_p = current_scene();
 		dlg->deleteLater();
 	}
 
-	Inendi::PVSource_sp src_p;
+	Inendi::PVSource* src_p = nullptr;
 	try {
-		src_p = scene_p->emplace_add_child(src_desc);
+		src_p = &scene_p->emplace_add_child(src_desc);
 	} catch (PVRush::PVFormatException const& e) {
 		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
 		has_error = true;
@@ -336,8 +320,8 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	}
 
 	try {
-		if (!load_source(src_p.get())) {
-			remove_source(src_p.get());
+		if (!load_source(src_p)) {
+			remove_source(src_p);
 			return false;
 		}
 	} catch (const PVRush::PVFormatNoTimeMapping& e) {
@@ -519,14 +503,12 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		break;
 	}
 
-	if (!load_root()) {
-		PVLOG_ERROR("(PVMainWindow::solution_load) error while processing the "
-		            "solution...\n");
-		reset_root();
-		return false;
+	// Update GUI on loaded sources.
+	for (Inendi::PVSource* src : get_root().get_children<Inendi::PVSource>()) {
+		source_loaded(*src);
 	}
 
-	_root->set_path(file);
+	_root.set_path(file);
 
 	set_window_title_with_filename();
 	if (solution_has_been_fixed) {
@@ -602,7 +584,7 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 	    ar->get_repairable_errors_of_type<PVCore::PVSerializeArchiveErrorFileNotReadable>();
 	// TODO: a nice widget were file paths can be modified by batch (for instance
 	// modify all the files' directory in one action)
-	foreach (PVCore::PVSerializeArchiveFixError_p err, errs_file) {
+	for (PVCore::PVSerializeArchiveFixError_p err : errs_file) {
 		QString const& old_path(
 		    err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
 		QMessageBox* box =
@@ -651,7 +633,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(lib_view);
+		lib_view->process_real_output_selection();
 	}
 }
 
@@ -670,7 +652,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_no_line();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(lib_view);
+		lib_view->process_real_output_selection();
 	}
 }
 
@@ -689,7 +671,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_inv_lines();
-		PVHive::PVCallHelper::call<FUNC(Inendi::PVView::process_real_output_selection)>(lib_view);
+		lib_view->process_real_output_selection();
 	}
 }
 
@@ -895,14 +877,13 @@ void PVInspector::PVMainWindow::new_format_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::cur_format_Slot()
 {
-	Inendi::PVSource* cur_src = nullptr;
-	if (current_view()) {
-		cur_src = current_view()->get_parent<Inendi::PVSource>();
-	}
-	if (!cur_src) {
+	if (not current_view()) {
+		// FIXME : This button should not be available in this case.
 		return;
 	}
-	PVRush::PVFormat const& format = cur_src->get_format();
+
+	Inendi::PVSource& cur_src = current_view()->get_parent<Inendi::PVSource>();
+	PVRush::PVFormat const& format = cur_src.get_format();
 	if (format.get_full_path().isEmpty()) {
 		return;
 	}

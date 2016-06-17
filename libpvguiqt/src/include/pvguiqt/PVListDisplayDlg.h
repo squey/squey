@@ -62,7 +62,7 @@ class PVListDisplayDlg : public QDialog, public Ui::PVListDisplayDlg
 	virtual void ask_for_copying_count() {}
 	virtual bool process_context_menu(QAction* act);
 
-  protected slots:
+  protected Q_SLOTS:
 	/** Handle click on horizontal headers
 	 *
 	 * It sorts columns based on the clicked column but keep the current

@@ -201,7 +201,7 @@ class ObjObserver : public QObject, public PVHive::PVObserver<Obj>
 		return ret;
 	}
 
-  private slots:
+  private Q_SLOTS:
 	void check_from_thread()
 	{
 		reaction_message_t r;
@@ -236,17 +236,17 @@ class ObjActor : public QObject, public PVHive::PVActor<Obj>
 		_timer->start(50);
 	}
 
-  signals:
+  Q_SIGNALS:
 	void finished();
 
-  private slots:
+  private Q_SLOTS:
 	void update()
 	{
 		PVACTOR_CALL(*this, &Obj::do_nothing);
 		--_count;
 		if (_count == 0) {
 			_timer->stop();
-			emit finished();
+			Q_EMIT finished();
 		}
 	}
 

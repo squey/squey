@@ -67,12 +67,12 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
 
-  signals:
+  Q_SIGNALS:
 	void mouse_hover_entered(PVCol col, bool entered);
 	void mouse_clicked(PVCol col);
 	void new_zoomed_parallel_view(int _axis_index);
 
-  private slots:
+  private Q_SLOTS:
 	void new_zoomed_parallel_view();
 	void new_selection_sliders();
 

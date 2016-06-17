@@ -29,8 +29,6 @@ class PVNraw;
 namespace Inendi
 {
 
-class PVAxesCombination;
-
 /**
 * \class PVSelection
 */
@@ -43,9 +41,10 @@ class PVSelection : public PVCore::PVSelBitField
 	};
 
   public:
-	PVSelection(PVRow row_count = INENDI_LINES_MAX) : PVCore::PVSelBitField(row_count) {}
+	explicit PVSelection(PVRow row_count = INENDI_LINES_MAX) : PVCore::PVSelBitField(row_count) {}
 
-	PVSelection(PVSelection const& o) : PVCore::PVSelBitField(o) {}
+	PVSelection(PVSelection const& o) = default;
+	// TODO : FIXME : We should not declare a move constructor that perform a copy.
 	PVSelection(PVSelection&& o) : PVCore::PVSelBitField(o) {}
 
   public:

@@ -37,10 +37,10 @@ class PVTimeFormatHelpDlg : public QDialog
   private:
 	void set_help(QTextEdit* txt);
 
-  public slots:
+  public Q_SLOTS:
 	void update_tf_from_editor();
 
-  private slots:
+  private Q_SLOTS:
 	void update_tf_to_editor();
 	void validate_time_strings();
 	void activate_auto_validation(int state);
@@ -70,7 +70,7 @@ class PVTimeValidatorHighLight : public QSyntaxHighlighter
 
 	inline PVCore::PVDateTimeParser* get_parser() const { return _cur_parser; };
 
-  public slots:
+  public Q_SLOTS:
 	void format_changed();
 
   private:

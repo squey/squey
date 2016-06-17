@@ -9,8 +9,6 @@
 
 #include <inendi/PVView.h>
 
-#include <pvhive/PVHive.h>
-
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVHitCountView.h>
@@ -206,12 +204,8 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp& pvview_sp,
 	_help_widget->finalizeText();
 
 	// Register view for unselected & zombie events toggle
-	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(
-	    pvview_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); },
-	    *obs);
-
-	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+	pvview_sp->_toggle_unselected_zombie_visibility.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility));
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);

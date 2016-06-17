@@ -29,9 +29,9 @@ class PVXmlParamColorDialog : public QPushButton
 	QString color;
 	QWidget* parent;
 
-  public slots:
+  public Q_SLOTS:
 	void chooseColor();
-  signals:
+  Q_SIGNALS:
 	void changed();
 };
 }

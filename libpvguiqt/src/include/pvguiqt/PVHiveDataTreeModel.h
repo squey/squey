@@ -42,7 +42,7 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 
 	QModelIndex parent(const QModelIndex& index) const override;
 
-  private slots:
+  private Q_SLOTS:
 	void hive_refresh(PVHive::PVObserverBase* o);
 
 	void about_to_be_deleted(PVHive::PVObserverBase*)

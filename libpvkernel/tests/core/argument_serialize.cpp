@@ -161,7 +161,7 @@ int main()
 
 	// Test serialization
 	QStringList serializedStrings;
-	foreach (QVariant v, vars) {
+	for (QVariant v : vars) {
 		serializedStrings.append(PVCore::PVArgument_to_QString(v));
 	}
 	bool serialization_passed = true;

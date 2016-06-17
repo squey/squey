@@ -10,7 +10,7 @@
 #include <inendi/PVPlottingFilter.h>
 
 Inendi::PVPlottingFilter::PVPlottingFilter()
-    : PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>()
+    : PVFilter::PVFilterFunctionBase<uint32_t*, PVCore::PVDecimalStorage<32> const*>()
     , PVCore::PVRegistrableClass<Inendi::PVPlottingFilter>()
     , _decimal_type(PVCore::FloatType)
 {
@@ -19,7 +19,7 @@ Inendi::PVPlottingFilter::PVPlottingFilter()
 	_mandatory_params = NULL;
 }
 
-uint32_t* Inendi::PVPlottingFilter::operator()(mapped_decimal_storage_type const* values)
+uint32_t* Inendi::PVPlottingFilter::operator()(PVCore::PVDecimalStorage<32> const* values)
 {
 	assert(values);
 	assert(_dest);
@@ -34,7 +34,7 @@ uint32_t* Inendi::PVPlottingFilter::operator()(mapped_decimal_storage_type const
 	return _dest;
 }
 
-uint32_t Inendi::PVPlottingFilter::operator()(mapped_decimal_storage_type const /*value*/)
+uint32_t Inendi::PVPlottingFilter::operator()(PVCore::PVDecimalStorage<32> const /*value*/)
 {
 	PVLOG_WARN("In default plotting filter: returns 0 !\n");
 	return 0;
@@ -108,7 +108,7 @@ QString Inendi::PVPlottingFilter::get_human_name() const
 	return mode_from_registered_name(registered_name());
 }
 
-void Inendi::PVPlottingFilter::copy_mapped_to_plotted(mapped_decimal_storage_type const* value)
+void Inendi::PVPlottingFilter::copy_mapped_to_plotted(PVCore::PVDecimalStorage<32> const* value)
 {
 	switch (_decimal_type) {
 	case PVCore::UnsignedIntegerType: {

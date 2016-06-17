@@ -8,11 +8,11 @@
 #ifndef __PVGUIQT_PVPROJECTSTABWIDGET_H__
 #define __PVGUIQT_PVPROJECTSTABWIDGET_H__
 
-#include <assert.h>
-#include <list>
+#include <sigc++/sigc++.h>
+#include <cassert>
 
 #include <inendi/PVScene.h>
-#include <inendi/PVRoot_types.h>
+#include <inendi/PVRoot.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
@@ -29,6 +29,11 @@
 #include <QSplitterHandle>
 #include <QSplitter>
 #include <QTabBar>
+
+namespace Inendi
+{
+class PVRoot;
+}
 
 namespace PVGuiQt
 {
@@ -51,7 +56,7 @@ class PVTabBar : public QTabBar
 	void mousePressEvent(QMouseEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-  private slots:
+  private Q_SLOTS:
 	void rename_tab();
 	void rename_tab(int index);
 
@@ -112,7 +117,7 @@ class PVSplitter : public QSplitter
  *
  * \note This class is representing a project tab widget.
  */
-class PVProjectsTabWidget : public QWidget
+class PVProjectsTabWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 
@@ -122,7 +127,7 @@ class PVProjectsTabWidget : public QWidget
   public:
 	PVProjectsTabWidget(Inendi::PVRoot* root, QWidget* parent = 0);
 
-	PVSceneWorkspacesTabWidget* add_project(Inendi::PVScene_p scene_p);
+	PVSceneWorkspacesTabWidget* add_project(Inendi::PVScene& scene_p);
 	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);
 
 	PVSourceWorkspace* add_source(Inendi::PVSource* source);
@@ -131,10 +136,7 @@ class PVProjectsTabWidget : public QWidget
 	void remove_workspace(PVSourceWorkspace* workspace);
 
 	bool save_modified_projects();
-	bool is_current_project_untitled()
-	{
-		return current_project() ? current_project()->is_project_untitled() : false;
-	}
+	bool is_current_project_untitled() { return current_project() != nullptr; }
 	void collapse_tabs(bool collapse = true);
 
 	inline Inendi::PVScene* current_scene() const { return _root->current_scene(); }
@@ -169,18 +171,18 @@ class PVProjectsTabWidget : public QWidget
 	Inendi::PVScene* get_scene_from_path(const QString& path);
 	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Inendi::PVScene* scene);
 
-  private slots:
+  private Q_SLOTS:
 	void current_tab_changed(int index);
 	void emit_workspace_dragged_outside(QWidget* workspace)
 	{
-		emit workspace_dragged_outside(workspace);
+		Q_EMIT workspace_dragged_outside(workspace);
 	}
 	bool tab_close_requested(int index);
 	void close_project();
-	void project_modified(bool, QString = QString());
+	void project_modified();
 	void select_tab_from_current_scene();
 
-  signals:
+  Q_SIGNALS:
 	void is_empty();
 	void workspace_dragged_outside(QWidget* workspace);
 	void new_project();

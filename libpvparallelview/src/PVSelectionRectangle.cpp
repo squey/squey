@@ -194,7 +194,7 @@ void PVParallelView::PVSelectionRectangle::timeout()
 
 	_timer->stop();
 
-	emit commit_volatile_selection(_use_selection_modifiers);
+	Q_EMIT commit_volatile_selection(_use_selection_modifiers);
 }
 
 /*****************************************************************************

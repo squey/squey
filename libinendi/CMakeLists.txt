@@ -34,6 +34,7 @@ add_definitions(-DINENDI_PLUGIN_PATH="${INENDI_PLUGIN}")
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
+include_directories(AFTER ${SIGCPP_INCLUDE_DIRS})
 
 ###############################################################################
 # Configure subdirectories

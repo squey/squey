@@ -28,7 +28,7 @@ class LOGVIEWER_EXPORT FileDownLoader : public QObject
 	              QUrl& url,
 	              bool& cancel);
 
-  signals:
+  Q_SIGNALS:
 	void downloadError(const QString&, int errorCode);
 
   private:

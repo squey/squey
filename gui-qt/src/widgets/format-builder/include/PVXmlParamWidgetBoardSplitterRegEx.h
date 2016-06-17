@@ -92,7 +92,7 @@ class PVXmlParamWidgetBoardSplitterRegEx : public QWidget
 	bool flagAskConfirmActivated;
 	bool flagSaveRegExpValidator;
 
-  public slots:
+  public Q_SLOTS:
 	void slotNoteConfirmationNeeded();
 	void slotOpenLogValid();
 	void slotSaveValidator(bool);
@@ -111,7 +111,7 @@ class PVXmlParamWidgetBoardSplitterRegEx : public QWidget
 	void regExCount(const QString& reg);
 	void exit();
 
-  signals:
+  Q_SIGNALS:
 	void signalRefreshView();
 	void signalNeedConfirmAndSave();
 

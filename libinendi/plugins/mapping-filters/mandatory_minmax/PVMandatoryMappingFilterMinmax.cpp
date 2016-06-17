@@ -36,10 +36,10 @@ struct min_max_holder {
 		Inendi::PVMandatoryMappingFilter::decimal_storage_type ds;
 		ds.storage_cast<T>() = mmar.get_min_value();
 		Inendi::mandatory_param_value ymin(
-		    mapped->get_parent()->get_value(mmar.get_min_index(), values.first), ds);
+		    mapped->get_parent().get_value(mmar.get_min_index(), values.first), ds);
 		ds.storage_cast<T>() = mmar.get_max_value();
 		Inendi::mandatory_param_value ymax(
-		    mapped->get_parent()->get_value(mmar.get_max_index(), values.first), ds);
+		    mapped->get_parent().get_value(mmar.get_max_index(), values.first), ds);
 
 		mandatory_params->insert(
 		    Inendi::mandatory_param_map::value_type(Inendi::mandatory_ymin, ymin));

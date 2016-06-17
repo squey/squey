@@ -76,37 +76,30 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene = root->emplace_add_child("scene");
-	Inendi::PVSource_sp src =
-	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	Inendi::PVMapped_p mapped = src->emplace_add_child();
+	Inendi::PVRoot root;
+	Inendi::PVScene& scene = root.emplace_add_child("scene");
+	Inendi::PVSource& src =
+	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job;
 
 	if (raw_dump) {
-		job = src->extract();
+		job = src.extract();
 	} else {
-		job = src->extract(0, 200000000);
+		job = src.extract(0, 200000000);
 	}
 
-	src->wait_extract_end(job);
-	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
+	src.wait_extract_end(job);
+	PVLOG_INFO("Extracted %u lines...\n", src.get_row_count());
 
 	// Map the nraw
-	mapped->process_from_parent_source();
+	Inendi::PVMapped& mapped = src.emplace_add_child();
 
 	// And plot the mapped values
-	Inendi::PVPlotted_p plotted = mapped->emplace_add_child();
-	plotted->process_from_parent_mapped();
+	Inendi::PVPlotted& plotted = mapped.emplace_add_child();
 
-	if (raw_dump) {
-		PVLOG_INFO("Writing output...\n");
-		plotted->dump_buffer_to_file(out_path, raw_dump_transp);
-		PVLOG_INFO("Done !\n");
-	} else {
-		// Dump the mapped table to stdout in a CSV format
-		// plotted->to_csv();
-	}
+	PVLOG_INFO("Writing output...\n");
+	plotted.dump_buffer_to_file(out_path, raw_dump_transp);
+	PVLOG_INFO("Done !\n");
 
 	return 0;
 }

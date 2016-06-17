@@ -95,5 +95,5 @@ void PVFilter::PVFieldConverterGUIDToIPParamWidget::update_params()
 	args["ipv6"] = _ipv6->isChecked();
 
 	get_filter()->set_args(args);
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }

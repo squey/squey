@@ -17,9 +17,9 @@
  *****************************************************************************/
 Inendi::PVMapping::PVMapping(PVMapped* mapped) : _name("default"), _mapped(mapped)
 {
-	PVSource* source = _mapped->get_parent();
+	PVSource& source = _mapped->get_parent();
 
-	PVCol naxes = source->get_column_count();
+	PVCol naxes = source.get_column_count();
 
 	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the "
@@ -31,7 +31,7 @@ Inendi::PVMapping::PVMapping(PVMapped* mapped) : _name("default"), _mapped(mappe
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	for (PVCol i = 0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(source->get_extractor().get_format(), i);
+		PVMappingProperties mapping_axis(source.get_extractor().get_format(), i);
 		add_column(mapping_axis);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -72,7 +72,7 @@ PVCore::DecimalType Inendi::PVMapping::get_decimal_type_of_col(PVCol const j) co
  *****************************************************************************/
 PVRush::PVFormat const& Inendi::PVMapping::get_format() const
 {
-	return _mapped->get_parent()->get_extractor().get_format();
+	return _mapped->get_parent().get_extractor().get_format();
 }
 
 /******************************************************************************

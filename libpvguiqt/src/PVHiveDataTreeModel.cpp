@@ -126,8 +126,8 @@ struct parent_pos {
 	template <class T>
 	std::tuple<int, PVCore::PVDataTreeObject*> call(T* v) const
 	{
-		return std::tuple<int, PVCore::PVDataTreeObject*>{_model->pos_from_obj(v->get_parent()),
-		                                                  v->get_parent()};
+		return std::tuple<int, PVCore::PVDataTreeObject*>{_model->pos_from_obj(&v->get_parent()),
+		                                                  &v->get_parent()};
 	}
 
 	PVHiveDataTreeModel const* _model;
@@ -150,7 +150,7 @@ QModelIndex PVHiveDataTreeModel::parent(const QModelIndex& index) const
 	int row = 0;
 
 	if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(id)) {
-		parent = v->get_parent();
+		parent = &v->get_parent();
 		row = 0;
 	} else {
 		std::tie(row, parent) =
@@ -194,7 +194,7 @@ void PVHiveDataTreeModel::hive_refresh(PVHive::PVObserverBase* o)
 	assert(idx.isValid());
 
 	// Emit the fact that data has changed !
-	emit dataChanged(idx, idx);
+	Q_EMIT dataChanged(idx, idx);
 }
 
 namespace
@@ -203,7 +203,7 @@ struct obj_pos {
 	template <class T>
 	int call(T* v) const
 	{
-		auto children = v->get_parent()->get_children();
+		auto children = v->get_parent().get_children();
 		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
 	}
 };

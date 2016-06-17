@@ -183,7 +183,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_params()
 	args["keys"] = QVariant(keys);
 
 	get_filter()->set_args(args);
-	emit args_changed_Signal();
+	Q_EMIT args_changed_Signal();
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_keys(QStringList& keys)
@@ -246,8 +246,8 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::update_children_count()
 
 	get_filter()->set_args(args);
 	set_child_count(keys.size());
-	emit args_changed_Signal();
-	emit nchilds_changed_Signal();
+	Q_EMIT args_changed_Signal();
+	Q_EMIT nchilds_changed_Signal();
 }
 
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()

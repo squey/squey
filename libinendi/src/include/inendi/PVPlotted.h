@@ -15,12 +15,13 @@
 #include <utility>
 #include <limits>
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVHugePODVector.h>
 #include <pvkernel/rush/PVNraw.h>
-#include <inendi/PVPtrObjects.h>
 #include <inendi/PVView.h>
 #include <inendi/PVView_types.h>
 #include <inendi/PVPlotting.h>
@@ -56,16 +57,12 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 
   public:
 	typedef std::vector<float> plotted_table_t;
-	// typedef std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> >
-	// uint_plotted_table_t;
-	// typedef std::vector<uint32_t, PVCore::PVNUMAHugePagedInterleavedAllocator<uint32_t> >
-	// uint_plotted_table_t;
 	typedef PVCore::PVHugePODVector<uint32_t, 16> uint_plotted_table_t;
 	typedef std::vector<std::pair<PVCol, uint32_t>> plotted_sub_col_t;
 	typedef std::vector<PVRow> rows_vector_t;
 
   public:
-	PVPlotted(PVMapped* mapped);
+	PVPlotted(PVMapped& mapped);
 
   public:
 	~PVPlotted();
@@ -80,8 +77,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
 
   public:
-	void process_parent_mapped();
-	void process_from_parent_mapped();
+	void update_plotting();
 
 	void set_name(std::string const& name) { _plotting.set_name(name); }
 	std::string const& get_name() const { return _plotting.get_name(); }
@@ -243,6 +239,9 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	{
 		return (size_t)get_aligned_row_count(nrows) * (size_t)col;
 	}
+
+  public:
+	sigc::signal<void> _plotted_updated;
 
   private:
 	PVPlotting _plotting;

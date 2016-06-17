@@ -24,7 +24,6 @@
 #include <pvguiqt/PVStartScreenWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
-#include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
 #include <pvkernel/core/lambda_connect.h>
@@ -33,16 +32,6 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/widgets/PVUtils.h>
 
-void PVGuiQt::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_type& args) const
-{
-	_parent->refresh_recent_items(std::get<1>(args));
-}
-
-void PVGuiQt::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_copy_type&) const
-{
-	_parent->refresh_recent_items(PVCore::PVRecentItemsManager::Category::SOURCES);
-}
-
 /******************************************************************************
  *
  * PVGuiQt::PVStartScreenWidget::PVStartScreenWidget
@@ -50,8 +39,7 @@ void PVGuiQt::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_cop
  *****************************************************************************/
 const QFont* PVGuiQt::PVStartScreenWidget::_item_font = nullptr;
 
-PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent)
-    : QWidget(parent), _recent_items_add_obs(this), _recent_items_add_source_obs(this)
+PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(parent)
 {
 	PVLOG_DEBUG("PVGuiQt::PVStartScreenWidget::%s\n", __FUNCTION__);
 
@@ -324,10 +312,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent)
 	connect(create_new_format_button, SIGNAL(clicked(bool)), this, SIGNAL(new_format()));
 	connect(edit_format_button, SIGNAL(clicked(bool)), this, SIGNAL(load_format()));
 
-	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(),
-	                                     _recent_items_add_obs);
-	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(),
-	                                     _recent_items_add_source_obs);
+	PVCore::PVRecentItemsManager::get()->_add_item.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVStartScreenWidget::refresh_recent_items));
 
 	refresh_all_recent_items();
 }
@@ -337,7 +323,7 @@ void PVGuiQt::PVStartScreenWidget::import_type()
 	QAction* action_src = (QAction*)sender();
 	assert(action_src);
 	QString const& itype = action_src->data().toString();
-	emit import_type(itype);
+	Q_EMIT import_type(itype);
 }
 
 void PVGuiQt::PVStartScreenWidget::refresh_all_recent_items()
@@ -461,22 +447,22 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 
 	switch (category) {
 	case PVCore::PVRecentItemsManager::Category::PROJECTS: {
-		emit load_project_from_path(var.toString());
+		Q_EMIT load_project_from_path(var.toString());
 		break;
 	}
 	case PVCore::PVRecentItemsManager::Category::SOURCES: {
 		PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
-		emit load_source_from_description(src_desc);
+		Q_EMIT load_source_from_description(src_desc);
 		break;
 	}
 	case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
 	case PVCore::PVRecentItemsManager::Category::USED_FORMATS: {
-		emit edit_format(var.toString());
+		Q_EMIT edit_format(var.toString());
 		break;
 	}
 	case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS: {
 		PVRush::PVFormat format = var.value<PVRush::PVFormat>();
-		emit edit_format(format.get_full_path());
+		Q_EMIT edit_format(format.get_full_path());
 		break;
 	}
 	default: {

@@ -31,7 +31,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVMapped_p mapped = env.compute_mapping();
+	Inendi::PVMapped& mapped = env.compute_mapping();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -40,7 +40,7 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
-	PVRush::PVNraw const& nraw = env.root->get_children<Inendi::PVSource>().front()->get_rushnraw();
+	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.collection().column(0);
 	auto& array = column.to_core_array<uint32_t>();
 
@@ -50,10 +50,10 @@ int main()
 	std::sort(order.begin(), order.end(),
 	          [&array](uint32_t a, uint32_t b) { return array[a] < array[b]; });
 
-	uint32_t prev = mapped->get_value(order[0], 0).storage_as_uint();
+	uint32_t prev = mapped.get_value(order[0], 0).storage_as_uint();
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= mapped->get_value(order[i], 0).storage_as_uint());
-		prev = mapped->get_value(order[i], 0).storage_as_uint();
+		PV_ASSERT_VALID(prev <= mapped.get_value(order[i], 0).storage_as_uint());
+		prev = mapped.get_value(order[i], 0).storage_as_uint();
 	}
 #endif
 

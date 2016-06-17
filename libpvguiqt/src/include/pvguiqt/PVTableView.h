@@ -23,7 +23,7 @@ class PVTableView : public QTableView
   public:
 	PVTableView(QWidget* parent) : QTableView(parent) {}
 
-  signals:
+  Q_SIGNALS:
 	/**
 	 * Emit it on resize event.
 	 */

@@ -70,7 +70,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
                          tr("Load an investigation..."),
                          QString(),
                          INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
-    , _root(new Inendi::PVRoot())
+    , _root()
 {
 	setAcceptDrops(true);
 
@@ -222,18 +222,14 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 // as this might change in the near future and save lots of compilation time.
 Inendi::PVRoot& PVInspector::PVMainWindow::get_root()
 {
-	return *_root;
+	return _root;
 }
 
 Inendi::PVRoot const& PVInspector::PVMainWindow::get_root() const
 {
-	return *_root;
-}
-
-Inendi::PVRoot_sp PVInspector::PVMainWindow::get_root_sp()
-{
 	return _root;
 }
+
 ///////////////////////////////////////////////////////////////////////////
 
 /******************************************************************************
@@ -358,7 +354,6 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
 	if (maybe_save_solution()) {
-		_root.reset();
 		event->accept();
 	} else {
 		event->ignore();
@@ -386,15 +381,15 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	PVHive::get().register_actor(view_sp, actor);
 
 	if (should_hide_layers) {
-		actor.call<FUNC(Inendi::PVView::hide_layers)>();
+		view_sp->hide_layers();
 	}
 
-	actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
+	view_sp->add_new_layer();
 	Inendi::PVLayer& layer = view_sp->get_current_layer();
 
 	// We need to configure the layer
 	view_sp->commit_selection_to_layer(layer);
-	actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(layer);
+	view_sp->update_current_layer_min_max();
 	actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(layer);
 	// and to update the layer-stack
 	actor.call<FUNC(Inendi::PVView::process_from_layer_stack)>();
@@ -420,10 +415,10 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 	if (!name.isEmpty()) {
 
 		if (should_hide_layers) {
-			actor.call<FUNC(Inendi::PVView::hide_layers)>();
+			view_sp->hide_layers();
 		}
 
-		actor.call<FUNC(Inendi::PVView::add_new_layer)>(name);
+		view_sp->add_new_layer();
 		Inendi::PVLayer& new_layer = inendi_view->get_current_layer();
 
 		/* We set it's selection to the final selection */
@@ -433,7 +428,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		current_layer.get_selection().and_not(new_layer.get_selection());
 
 		/* We need to reprocess the layer stack */
-		actor.call<FUNC(Inendi::PVView::compute_layer_min_max)>(new_layer);
+		view_sp->update_current_layer_min_max();
 		actor.call<FUNC(Inendi::PVView::compute_selectable_count)>(new_layer);
 
 		// do not forget to update the current layer
@@ -540,7 +535,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::display_icon_Slot
+ * PVInspector::PVMainWindow::close_solution_Slot
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::close_solution_Slot()
@@ -564,9 +559,9 @@ PVGuiQt::PVSourceWorkspace*
 PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView const& inendi_view)
 {
 	// This returns the tab associated to a inendi view
-	const Inendi::PVScene* scene = inendi_view.get_parent<Inendi::PVScene>();
+	const Inendi::PVScene& scene = inendi_view.get_parent<Inendi::PVScene>();
 	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget =
-	    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene);
+	    _projects_tab_widget->get_workspace_tab_widget_from_scene(&scene);
 	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count(); i++) {
 		PVGuiQt::PVSourceWorkspace* tab =
 		    dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspaces_tab_widget->widget(i));
@@ -935,23 +930,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::events_display_unselected_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::events_display_unselected_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	Inendi::PVStateMachine& state_machine = current_view()->get_state_machine();
-
-	state_machine.toggle_gl_unselected_visibility();
-	state_machine.toggle_listing_unselected_visibility();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::load_files
  *
  *****************************************************************************/
@@ -1006,40 +984,10 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 	import_type(in_file, files_in, formats, format_creator, format);
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::load_scene
- *
- *****************************************************************************/
-bool PVInspector::PVMainWindow::load_scene(Inendi::PVScene* scene)
-{
-	// Here, load the whole scene.
-	for (auto* source_p : scene->get_children()) {
-		if (!load_source(source_p)) {
-			remove_source(source_p);
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool PVInspector::PVMainWindow::load_root()
-{
-	// Here, load the whole root !
-	for (Inendi::PVScene* scene_p : get_root().get_children()) {
-		if (!load_scene(scene_p)) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
 void PVInspector::PVMainWindow::display_inv_elts()
 {
 	if (current_view()) {
-		if (current_view()->get_parent<Inendi::PVSource>()->get_invalid_evts().size() > 0) {
+		if (current_view()->get_parent<Inendi::PVSource>().get_invalid_evts().size() > 0) {
 			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
 			if (PVGuiQt::PVSourceWorkspace* source_workspace =
 			        dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
@@ -1294,43 +1242,48 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 #endif
 	}
 
-	// If no view is present, create a default one. Otherwise, process them by
-	// keeping the existing layers !
-	if (src->size<Inendi::PVView>() == 0) {
-		if (!PVCore::PVProgressBox::progress([&]() { src->create_default_view(); },
-		                                     tr("Processing..."), (QWidget*)this)) {
-			return false;
-		}
-
-		Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>()->current_view();
-		for (auto& inv_elts : src->get_invalid_evts()) {
-			first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
-		}
-		first_view_p->process_from_layer_stack();
-	} else {
-		// pvi loading case
-		if (!PVCore::PVProgressBox::progress(
-		        boost::bind(&Inendi::PVSource::process_from_source, src), tr("Processing..."),
-		        (QWidget*)this)) {
-			return false;
-		}
+	if (!PVCore::PVProgressBox::progress(
+	        [&]() {
+		        auto& mapped = src->emplace_add_child();
+		        auto& plotted = mapped.emplace_add_child();
+		        plotted.emplace_add_child();
+		    },
+	        tr("Processing..."), (QWidget*)this)) {
+		return false;
 	}
 
-	_projects_tab_widget->add_source(src);
+	// FIXME : We should create the view with this dummy selection.
+	// Finally, we will be able to create a layer with invalid elements.
+	Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>().current_view();
+	for (auto& inv_elts : src->get_invalid_evts()) {
+		first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
+	}
+	first_view_p->process_from_layer_stack();
 
-	if (src->get_invalid_evts().size() > 0) {
+	source_loaded(*src);
+
+	return true;
+}
+
+void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src)
+{
+	// Create workspace for this source.
+	_projects_tab_widget->add_source(&src);
+
+	// Show invalide elements.
+	if (src.get_invalid_evts().size() > 0) {
 		display_inv_elts();
 	}
 
+	// Add format as recent format
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(
-	    PVCore::PVRecentItemsManager::get(), src->get_format().get_full_path(),
+	    PVCore::PVRecentItemsManager::get(), src.get_format().get_full_path(),
 	    PVCore::PVRecentItemsManager::Category::USED_FORMATS);
 
+	// Add source as recent source
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(
-	    PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(),
-	    src->get_format());
-
-	return true;
+	    PVCore::PVRecentItemsManager::get(), src.get_source_creator(), src.get_inputs(),
+	    src.get_format());
 }
 
 /******************************************************************************
@@ -1340,17 +1293,17 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
  *****************************************************************************/
 void PVInspector::PVMainWindow::remove_source(Inendi::PVSource* src_p)
 {
-	Inendi::PVScene_sp scene_p = src_p->get_parent()->shared_from_this();
+	Inendi::PVScene& scene_p = src_p->get_parent();
 
-	scene_p->remove_child(*src_p);
-	if (scene_p->size() == 0) {
+	scene_p.remove_child(*src_p);
+	if (scene_p.size() == 0) {
 		PVGuiQt::PVSceneWorkspacesTabWidget* tab =
-		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p.get());
+		    _projects_tab_widget->get_workspace_tab_widget_from_scene(&scene_p);
 		if (tab != nullptr) {
 			_projects_tab_widget->remove_project(tab);
 			tab->deleteLater();
 		}
-		get_root().remove_child(*scene_p);
+		get_root().remove_child(scene_p);
 	}
 }
 
@@ -1390,7 +1343,7 @@ void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
 	PVHive::get().register_actor(view, actor);
 
 	actor.call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
-	actor.call<FUNC(Inendi::PVView::process_real_output_selection)>();
+	view->process_real_output_selection();
 }
 
 /******************************************************************************
@@ -1526,7 +1479,7 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(const QSt
 {
 	QString canonicalFilePath = QFileInfo(path).canonicalFilePath();
 
-	foreach (QWidget* widget, qApp->topLevelWidgets()) {
+	for (QWidget* widget : qApp->topLevelWidgets()) {
 		PVMainWindow* mw = qobject_cast<PVMainWindow*>(widget);
 		if (mw && QFileInfo(mw->get_solution_path()).canonicalFilePath() == canonicalFilePath)
 			return mw;

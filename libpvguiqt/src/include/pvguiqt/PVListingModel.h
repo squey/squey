@@ -16,11 +16,9 @@
 
 #include <pvguiqt/PVAbstractTableModel.h>
 #include <inendi/PVAxesCombination.h>
-#include <inendi/PVView_types.h>
+#include <inendi/PVView.h>
 
 #include <pvhive/PVObserverSignal.h>
-
-#include <pvhive/PVActor.h>
 
 namespace tbb
 {
@@ -31,71 +29,6 @@ namespace PVGuiQt
 {
 
 class PVListingModel;
-
-namespace __impl
-{
-/**
- * PVListingVisibilityObserver
- *
- * This dummy class is used to look at the toggle_listing_unselected_visibility
- * function call to update filter in the ListingModel
- *
- * @note Hive inside
- *
- */
-struct PVListingVisibilityObserver
-    : public PVHive::PVFuncObserver<Inendi::PVView,
-                                    FUNC(Inendi::PVView::toggle_listing_unselected_visibility)> {
-	/**
-	 * Save the ListingModel to be updated.
-	 *
-	 * @param parent : ListingModel to update.
-	 */
-	PVListingVisibilityObserver(PVGuiQt::PVListingModel* parent) : _parent(parent) {}
-
-  private:
-	/**
-	 * Update the ListingModel update.
-	 *
-	 * @param args : None
-	 */
-	void update(arguments_type const&) const override;
-
-  private:
-	PVGuiQt::PVListingModel* _parent; //!< ListingModel to update.
-};
-
-/**
- * PVListingVisibilityObserver
- *
- * This dummy class is used to look at the toggle_listing_zombie_visibility
- * function call to update filter in the ListingModel
- *
- * @note Hive inside
- *
- */
-struct PVListingVisibilityZombieObserver
-    : public PVHive::PVFuncObserver<Inendi::PVView,
-                                    FUNC(Inendi::PVView::toggle_listing_zombie_visibility)> {
-	/**
-	 * Save the ListingModel to be updated.
-	 *
-	 * @param parent : ListingModel to update.
-	 */
-	PVListingVisibilityZombieObserver(PVGuiQt::PVListingModel* parent) : _parent(parent) {}
-
-  private:
-	/**
-	 * Update the ListingModel update.
-	 *
-	 * @param args : None
-	 */
-	void update(arguments_type const& args) const override;
-
-  private:
-	PVGuiQt::PVListingModel* _parent; //!< ListingModel to update.
-};
-}
 
 /**
  * \class PVListingModel
@@ -197,15 +130,14 @@ class PVListingModel : public PVAbstractTableModel
 	 */
 	QString export_line(int row) const override;
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * With axes combination modifications, we have to update the model and
 	 * reorder/add/remove columns.
 	 */
 	void axes_comb_changed();
 
-  public slots:
-	// public slots call through Hive
+  public Q_SLOTS:
 	/**
 	 *  Update the current filter to show selected lines only.
 	 */
@@ -221,14 +153,6 @@ class PVListingModel : public PVAbstractTableModel
 
   private:
 	Inendi::PVView_sp _view; //!< Observed view
-	PVHive::PVObserverSignal<Inendi::PVAxesCombination::columns_indexes_t>
-	    _obs_axes_comb; //!< Observe axs combination modifications
-	PVHive::PVObserverSignal<Inendi::PVSelection>
-	    _obs_sel; //!< Observe the seletion to update on selection modifications
-	PVHive::PVObserverSignal<Inendi::PVLayer>
-	    _obs_output_layer;                               //!< Observe selected/unselected calques
-	__impl::PVListingVisibilityObserver _obs_vis;        //!< Observer for selected/unselected lines
-	__impl::PVListingVisibilityZombieObserver _obs_zomb; //! Observer for zombies lines
 };
 }
 

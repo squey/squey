@@ -32,6 +32,7 @@ void PVCore::PVRecentItemsManager::add(const QString& item_path, Category catego
 	}
 	_recents_settings->setValue(recent_items_key, files);
 	_recents_settings->sync();
+	_add_item.emit(category);
 }
 
 void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_creator_p,
@@ -65,6 +66,7 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 
 	_recents_settings->endGroup();
 	_recents_settings->sync();
+	_add_item.emit(Category::SOURCES);
 }
 
 void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)

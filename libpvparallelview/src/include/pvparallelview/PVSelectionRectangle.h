@@ -228,7 +228,7 @@ class PVSelectionRectangle : public QObject
 	 */
 	SelectionMode selection_mode() const { return _rect->selection_mode(); }
 
-  public slots:
+  public Q_SLOTS:
 	/**
 	 * set the selection mode to use.
 	 *
@@ -264,14 +264,14 @@ class PVSelectionRectangle : public QObject
 	 * @param mode the new selection mode
 	 */
 	static void update_selection_mode_selector(QToolButton* button, int mode);
-  signals:
+  Q_SIGNALS:
 	/**
 	 * the signal which is fired when the volatile selection must
 	 * be committed to the final selection
 	 */
 	void commit_volatile_selection(bool use_selection_modifiers);
 
-  protected slots:
+  protected Q_SLOTS:
 	/**
 	 * start the timer used to commit for selection.
 	 */
@@ -281,7 +281,7 @@ class PVSelectionRectangle : public QObject
 	 */
 	void timeout();
 
-  protected slots:
+  protected Q_SLOTS:
 	/**
 	 * method to override to implement selection commits
 	 */

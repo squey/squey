@@ -42,25 +42,12 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	verticalHeader()->hide();
 	horizontalHeader()->hide();
 
-// viewport()->setMouseTracking(true);
-// viewport()->setAttribute(Qt::WA_Hover, true);
-
-#if 0
-	// We use a delegate to render the Icons 
-	layer_stack_delegate = new PVLayerStackDelegate(mw, this);
-	setItemDelegate(layer_stack_delegate);
-
-	layer_stack_event_filter = new PVLayerStackEventFilter(mw, this);
-	viewport()->installEventFilter(layer_stack_event_filter);
-
-	mouse_hover_layer_index = -1;
-	last_mouse_hover_layer_index = -1;
-#endif
-
-	connect(this, SIGNAL(clicked(QModelIndex const&)), this,
-	        SLOT(layer_clicked(QModelIndex const&)));
-	connect(this, SIGNAL(doubleClicked(QModelIndex const&)), this,
-	        SLOT(layer_double_clicked(QModelIndex const&)));
+	connect(this, &QTableView::clicked, [this](QModelIndex const& idx) {
+		int layer_count = ls_model()->lib_view().get_layer_stack().get_layer_count();
+		/* We create and store the true index of the layer in the lib */
+		int lib_index = layer_count - 1 - idx.row();
+		ls_model()->lib_view().set_layer_stack_selected_layer_index(lib_index);
+	});
 
 	// Context menu
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this,
@@ -114,8 +101,6 @@ void PVGuiQt::PVLayerStackView::leaveEvent(QEvent* /*event*/)
 {
 	PVLOG_DEBUG("PVGuiQt::PVLayerStackView::%s\n", __FUNCTION__);
 
-	// mouse_hover_layer_index = -1;
-	// last_mouse_hover_layer_index = -1;
 	viewport()->update();
 	clearFocus();
 }
@@ -205,7 +190,7 @@ void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
 {
 	Inendi::PVLayer const& layer = get_layer_from_idx(model_idx);
 	ls_model()->view_actor().call<FUNC(Inendi::PVView::set_selection_from_layer)>(layer);
-	ls_model()->view_actor().call<FUNC(Inendi::PVView::process_real_output_selection)>();
+	ls_model()->lib_view().process_real_output_selection();
 }
 
 void PVGuiQt::PVLayerStackView::export_layer_selection(int model_idx)
@@ -221,18 +206,4 @@ void PVGuiQt::PVLayerStackView::export_layer_selection(int model_idx)
 void PVGuiQt::PVLayerStackView::reset_layer_colors(int layer_idx)
 {
 	ls_model()->reset_layer_colors(layer_idx);
-}
-
-void PVGuiQt::PVLayerStackView::layer_clicked(QModelIndex const& idx)
-{
-	if (!idx.isValid()) {
-		// Qt says it's only called when idx is valid, but still..
-		return;
-	}
-
-	ls_model()->setData(idx, QVariant(true), PVCustomQtRoles::RoleSetSelectedItem);
-}
-
-void PVGuiQt::PVLayerStackView::layer_double_clicked(QModelIndex const&)
-{
 }

@@ -17,13 +17,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
 set(COMMON_LIBRARIES pvparallelview pvguiqt pvhive inendi pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES} ${PVLICENSE_LIBRARIES})
 
-qt5_wrap_cpp(AXES_COMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT5_WRAP_OPTIONS})
-add_pv_compile_test(Tqt_axes_comb LINKS ${COMMON_LIBRARIES} FILES axes-comb.cpp ${AXES_COMB_MOC_SRC})
-add_pv_compile_test(Tqt_axes_comb_view LINKS ${COMMON_LIBRARIES} FILES axes-comb-view.cpp ${AXES_COMB_MOC_SRC})
 add_pv_compile_test(Tqt_listing_model LINKS ${COMMON_LIBRARIES} FILES listing_model.cpp common.cpp)
 
-qt5_wrap_cpp(STATS_LISTING_MOC_SRC stats_listing.h OPTIONS ${QT5_WRAP_OPTIONS})
-add_pv_compile_test(Tqt_stats_listing LINKS ${COMMON_LIBRARIES} FILES stats_listing.cpp common.cpp ${STATS_LISTING_MOC_SRC})
 add_pv_compile_test(Tqt_layerstack LINKS ${COMMON_LIBRARIES} FILES layerstack-model.cpp common.cpp)
 add_pv_compile_test(Tqt_layerstack_widget LINKS ${COMMON_LIBRARIES} FILES layerstack-widget.cpp common.cpp)
 add_pv_compile_test(Tqt_huge-model LINKS ${COMMON_LIBRARIES} FILES huge-model.cpp)

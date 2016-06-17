@@ -32,7 +32,7 @@ class PVFieldSplitterDuplicateParamWidget : public PVFieldsSplitterParamWidget
 
 	size_t force_number_children() { return 0; }
 
-  private slots:
+  private Q_SLOTS:
 	void updateNChilds(int n);
 
   private:

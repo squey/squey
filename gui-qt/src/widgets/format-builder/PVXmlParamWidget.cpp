@@ -55,7 +55,7 @@ void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex)
 	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForNo\n");
 	// confirmApply = false;
 	if (type != no) {
-		emit signalQuittingAParamBoard();
+		Q_EMIT signalQuittingAParamBoard();
 		removeListWidget();
 		type = no;
 	}
@@ -292,12 +292,6 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
 	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit\n");
 	drawForNo(index);
 	if (index.isValid()) {
-		// emit signalQuittingAParamBoard();
-		// if (confirmApply == true) {
-		//            //emit the signal to require confirmation.
-		//    emit signalNeedConfirmApply(editingIndex);
-		//}
-		// confirmApply = false;
 		editingIndex = index;
 		PVRush::PVXmlTreeNodeDom* nodeOnClick = (PVRush::PVXmlTreeNodeDom*)index.internalPointer();
 
@@ -332,7 +326,7 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::slotForceApply()
 {
-	emit signalForceApply(editingIndex);
+	Q_EMIT signalForceApply(editingIndex);
 }
 
 /******************************************************************************
@@ -420,7 +414,7 @@ void PVInspector::PVXmlParamWidget::slotConfirmRegExpInName(const QString& name)
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::slotEmitNeedApply()
 {
-	emit signalNeedApply();
+	Q_EMIT signalNeedApply();
 }
 
 /******************************************************************************
@@ -430,5 +424,5 @@ void PVInspector::PVXmlParamWidget::slotEmitNeedApply()
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::slotSelectNext()
 {
-	emit signalSelectNext();
+	Q_EMIT signalSelectNext();
 }

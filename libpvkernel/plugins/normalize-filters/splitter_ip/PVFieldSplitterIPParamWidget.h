@@ -34,7 +34,7 @@ class PVFieldSplitterIPParamWidget : public PVFieldsSplitterParamWidget
 	QAction* get_action_menu();
 	QWidget* get_param_widget();
 
-  private slots:
+  private Q_SLOTS:
 	void set_ip_type(bool reset_groups_check_state = true);
 	void update_child_count();
 

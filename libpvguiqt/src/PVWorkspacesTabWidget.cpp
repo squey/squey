@@ -8,9 +8,9 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVObserverSignal.h>
+#include <inendi/PVRoot.h>
+
+#include <sigc++/sigc++.h>
 
 #include <QDrag>
 #include <QImage>
@@ -46,7 +46,7 @@ void PVGuiQt::PVSceneTabBar::mouseReleaseEvent(QMouseEvent* event)
 	if (event->button() == Qt::MidButton) {
 		int tab_index = tabAt(event->pos());
 		if (tab_index < count()) {
-			emit tabCloseRequested(tab_index);
+			Q_EMIT tabCloseRequested(tab_index);
 		}
 	}
 	QTabBar::mouseReleaseEvent(event);
@@ -96,7 +96,7 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 	Qt::DropAction action =
 	    drag->exec(Qt::CopyAction | Qt::IgnoreAction | Qt::MoveAction | Qt::IgnoreAction);
 	if (action == Qt::IgnoreAction) {
-		emit _tab_widget->workspace_dragged_outside(workspace);
+		Q_EMIT _tab_widget->workspace_dragged_outside(workspace);
 	}
 	_drag_ongoing = false;
 }
@@ -136,7 +136,7 @@ void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
  *****************************************************************************/
 PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene& scene,
                                                                 QWidget* parent /* = 0 */)
-    : QTabWidget(parent)
+    : QTabWidget(parent), _scene(scene)
 {
 	setObjectName("PVWorkspacesTabWidget");
 
@@ -145,10 +145,8 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene&
 	setMouseTracking(true);
 	tabBar()->setMouseTracking(true);
 
-	Inendi::PVScene_sp scene_p = scene.shared_from_this();
-	PVHive::get().register_observer(scene_p, _obs_scene);
-	_obs_scene.connect_refresh(this, SLOT(set_project_modified()));
-	_obs_scene.set_accept_recursive_refreshes(true);
+	scene._project_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified));
 
 	setTabBar(new PVSceneTabBar(this));
 }
@@ -189,7 +187,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index)
 		removeTab(index);
 		if (count() == 0) {
 			delete w;
-			emit is_empty();
+			Q_EMIT is_empty();
 			hide();
 		} else {
 			get_scene().remove_child(*qobject_cast<PVGuiQt::PVSourceWorkspace*>(w)->get_source());
@@ -223,16 +221,12 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::resizeEvent(QResizeEvent* event)
 	QTabWidget::resizeEvent(event);
 }
 
-void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified(bool modified /* = true */,
-                                                               QString path /*= QString()*/)
+void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified()
 {
-	if (!_project_modified && modified) {
-		emit project_modified(true);
-	} else if (_project_modified && !modified) {
-		_project_untitled = false;
-		emit project_modified(false, path);
+	if (!_project_modified) {
+		Q_EMIT project_modified();
 	}
-	_project_modified = modified;
+	_project_modified = true;
 }
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
@@ -243,6 +237,5 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 
 	PVSourceWorkspace* workspace = qobject_cast<PVSourceWorkspace*>(widget(index));
 	assert(workspace);
-	Inendi::PVRoot_sp root_sp = get_scene().get_parent<Inendi::PVRoot>()->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVRoot::select_source)>(root_sp, *workspace->get_source());
+	get_scene().get_parent<Inendi::PVRoot>().select_source(*workspace->get_source());
 }

@@ -59,7 +59,7 @@ class PVStatsListingWidget : public QWidget
 	param_t& get_params() { return _params; }
 	void set_refresh_buttons_enabled(bool loading);
 
-  private slots:
+  private Q_SLOTS:
 	void plugin_visibility_toggled(bool checked);
 	void resize_listing_column_if_needed(int col);
 
@@ -101,7 +101,7 @@ class PVStatsListingWidget : public QWidget
   public:
 	void sync_vertical_headers();
 
-  private slots:
+  private Q_SLOTS:
 	void toggle_stats_panel_visibility();
 	void update_header_width(int column, int old_width, int new_width);
 	void update_scrollbar_position();
@@ -153,11 +153,11 @@ class PVLoadingLabel : public QLabel
 	virtual void mousePressEvent(QMouseEvent* ev) override
 	{
 		if (ev->button() == Qt::LeftButton) {
-			emit clicked();
+			Q_EMIT clicked();
 		}
 	}
 
-  signals:
+  Q_SIGNALS:
 	void clicked();
 };
 
@@ -186,21 +186,21 @@ class PVCellWidgetBase : public QWidget
 		       QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent);
 	}
 
-  public slots:
+  public Q_SLOTS:
 	void refresh(bool use_cache = false);
 	void auto_refresh();
 	static void cancel_thread();
 
-  protected slots:
+  protected Q_SLOTS:
 	void refreshed(QString value);
 	void context_menu_requested(const QPoint&);
 
-  private slots:
+  private Q_SLOTS:
 	virtual void vertical_header_clicked(int index);
 	void toggle_auto_refresh();
 	void copy_to_clipboard();
 
-  signals:
+  Q_SIGNALS:
 	void refresh_impl_finished(QString value);
 	void cell_refreshed(int col);
 
@@ -250,10 +250,10 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 	                         Inendi::PVView const& view,
 	                         QTableWidgetItem* item);
 
-  public slots:
+  public Q_SLOTS:
 	virtual void refresh_impl() override;
 
-  private slots:
+  private Q_SLOTS:
 	void show_unique_values_dlg();
 	void unique_values_dlg_closed();
 
@@ -272,7 +272,7 @@ class PVSumCellWidget : public PVCellWidgetBase
 		setEnabled(_is_summable);
 	}
 
-  public slots:
+  public Q_SLOTS:
 	virtual void refresh_impl() override;
 };
 
@@ -286,7 +286,7 @@ class PVMinCellWidget : public PVCellWidgetBase
 	{
 	}
 
-  public slots:
+  public Q_SLOTS:
 	virtual void refresh_impl() override;
 };
 
@@ -300,7 +300,7 @@ class PVMaxCellWidget : public PVCellWidgetBase
 	{
 	}
 
-  public slots:
+  public Q_SLOTS:
 	virtual void refresh_impl() override;
 };
 
@@ -315,7 +315,7 @@ class PVAverageCellWidget : public PVCellWidgetBase
 		setEnabled(_is_summable);
 	}
 
-  public slots:
+  public Q_SLOTS:
 	virtual void refresh_impl() override;
 };
 }

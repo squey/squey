@@ -34,7 +34,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVMapped_p mapped = env.compute_mapping();
+	Inendi::PVMapped& mapped = env.compute_mapping();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -43,14 +43,14 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
-	PVRush::PVNraw const& nraw = env.root->get_children<Inendi::PVSource>().front()->get_rushnraw();
+	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.collection().column(0);
 
 	std::string res_file = pvtest::get_tmp_filename();
 	std::ofstream ofs(res_file);
 
 	for (size_t i = 0; i < column.size(); i++) {
-		ofs << mapped->get_value(i, 0).storage_as_uint() << std::endl;
+		ofs << mapped.get_value(i, 0).storage_as_uint() << std::endl;
 	}
 
 	std::cout << res_file << "/" << ref_file << std::endl;

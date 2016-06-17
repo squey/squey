@@ -59,8 +59,9 @@ int main()
 
 	env.compute_mappings();
 	env.compute_plottings();
+	env.compute_views();
 
-	auto views = env.root->get_children<Inendi::PVView>();
+	auto views = env.root.get_children<Inendi::PVView>();
 	PV_VALID(views.size(), 2UL);
 
 	/**
@@ -70,15 +71,15 @@ int main()
 	Inendi::PVView* view2 = views.back();
 
 	Inendi::PVCorrelation correlation{view1, 2, view2, 2};
-	PV_ASSERT_VALID(not env.root->correlations().exists(view1, 2));
-	PV_ASSERT_VALID(not env.root->correlations().exists(correlation));
-	PV_ASSERT_VALID(env.root->correlations().correlation(view1) == nullptr);
+	PV_ASSERT_VALID(not env.root.correlations().exists(view1, 2));
+	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
+	PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
 
-	env.root->correlations().add(correlation);
+	env.root.correlations().add(correlation);
 
-	PV_ASSERT_VALID(env.root->correlations().exists(view1, 2));
-	PV_ASSERT_VALID(env.root->correlations().exists(Inendi::PVCorrelation{view1, 2, view2, 2}));
-	PV_ASSERT_VALID(env.root->correlations().correlation(view1) != nullptr);
+	PV_ASSERT_VALID(env.root.correlations().exists(view1, 2));
+	PV_ASSERT_VALID(env.root.correlations().exists(Inendi::PVCorrelation{view1, 2, view2, 2}));
+	PV_ASSERT_VALID(env.root.correlations().correlation(view1) != nullptr);
 
 	/**
 	 * Filter values using multiple-search plugin
@@ -111,19 +112,19 @@ int main()
 	/**
 	 * Remove correlation
 	 */
-	env.root->correlations().remove(correlation.view1);
-	PV_ASSERT_VALID(not env.root->correlations().exists(view1, 2));
-	PV_ASSERT_VALID(not env.root->correlations().exists(correlation));
-	PV_ASSERT_VALID(env.root->correlations().correlation(view1) == nullptr);
+	env.root.correlations().remove(correlation.view1);
+	PV_ASSERT_VALID(not env.root.correlations().exists(view1, 2));
+	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
+	PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
 
 	/**
 	 * Replace correlation
 	 */
 	Inendi::PVCorrelation new_correlation{view1, 13, view2, 13};
-	env.root->correlations().add(correlation);
-	env.root->correlations().add(new_correlation);
-	PV_ASSERT_VALID(not env.root->correlations().exists(correlation));
-	PV_ASSERT_VALID(env.root->correlations().exists(new_correlation));
+	env.root.correlations().add(correlation);
+	env.root.correlations().add(new_correlation);
+	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
+	PV_ASSERT_VALID(env.root.correlations().exists(new_correlation));
 
 #endif
 

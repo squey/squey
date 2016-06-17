@@ -53,13 +53,13 @@ class PVFieldSplitterCSVParamWidget : public PVFieldsSplitterParamWidget
 
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterCSVParamWidget)
 
-  public slots:
+  public Q_SLOTS:
 	// void updateSeparator(const QString &sep);
 	void updateSeparator(QKeySequence key);
 	void updateQuote(QKeySequence key);
 	void updateNChilds();
 
-  signals:
+  Q_SIGNALS:
 	void signalRefreshView();
 };
 }

@@ -9,7 +9,6 @@
 #define PVMAPPINGPLOTTINGEDITDIALOG_H
 
 #include <pvkernel/rush/PVFormat_types.h>
-#include <inendi/PVPtrObjects.h>
 #include <inendi/PVAxesCombination.h>
 
 #include <QDialog>
@@ -50,7 +49,7 @@ class PVMappingPlottingEditDialog : public QDialog
 
 	static QLabel* create_label(QString const& text, Qt::Alignment align = Qt::AlignCenter);
 
-  private slots:
+  private Q_SLOTS:
 	void type_changed(const QString& type);
 	void save_settings();
 

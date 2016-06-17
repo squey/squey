@@ -186,7 +186,7 @@ PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList con
                                                               PVArgumentList const& def_args)
 {
 	PVCore::PVArgumentList ret;
-	foreach (QString const& key, keys) {
+	for (QString const& key : keys) {
 		if (!def_args.contains(key)) {
 			continue;
 		}

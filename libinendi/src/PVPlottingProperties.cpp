@@ -6,7 +6,6 @@
  */
 
 #include <inendi/PVPlottingProperties.h>
-#include <inendi/PVRoot.h>
 #include <inendi/PVPlottingFilter.h>
 #include <inendi/PVMapping.h>
 

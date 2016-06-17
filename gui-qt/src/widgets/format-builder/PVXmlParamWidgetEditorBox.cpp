@@ -19,7 +19,7 @@ PVInspector::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox(QString pName,
 	variable = var;
 	setObjectName(pName);
 	setText(variable->toString());
-	emit textChanged(variable->toString());
+	Q_EMIT textChanged(variable->toString());
 }
 
 /******************************************************************************
@@ -50,5 +50,5 @@ void PVInspector::PVXmlParamWidgetEditorBox::setVal(const QVariant& val)
 {
 	variable = new QVariant(val);
 	setText(variable->toString());
-	emit textChanged(variable->toString());
+	Q_EMIT textChanged(variable->toString());
 }

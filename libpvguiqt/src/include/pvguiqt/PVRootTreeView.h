@@ -40,7 +40,7 @@ class PVRootTreeView : public QTreeView
 	void enterEvent(QEvent* event) override;
 	void leaveEvent(QEvent* event) override;
 
-  protected slots:
+  protected Q_SLOTS:
 	// Actions slots
 	void create_new_view();
 	void edit_mapping();

@@ -17,12 +17,12 @@ __impl::PVFuncObserverSignalBase::PVFuncObserverSignalBase(void* f) : PVHive::PV
 void __impl::PVFuncObserverSignalBase::do_about_to_be_updated_impl(const void* args) const
 {
 
-	emit about_to_be_refreshed_signal(args);
+	Q_EMIT about_to_be_refreshed_signal(args);
 }
 
 void __impl::PVFuncObserverSignalBase::do_update_impl(const void* args) const
 {
-	emit refresh_signal(args);
+	Q_EMIT refresh_signal(args);
 }
 
 void __impl::PVFuncObserverSignalBase::about_to_be_refreshed_slot(const void* args) const

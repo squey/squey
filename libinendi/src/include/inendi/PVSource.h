@@ -28,10 +28,11 @@
 #include <pvkernel/rush/PVSourceDescription.h>
 
 #include <inendi/PVMapped.h>
-#include <inendi/PVSource_types.h>
 
 namespace Inendi
 {
+
+class PVScene;
 
 /**
  * \class PVSource
@@ -47,23 +48,36 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	friend class PVPlotted;
 
   public:
-	PVSource(Inendi::PVScene* scene,
+	PVSource(Inendi::PVScene& scene,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format);
-	PVSource(Inendi::PVScene* scene,
+	PVSource(Inendi::PVScene& scene,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat format,
 	         size_t ext_start,
 	         size_t ext_end);
-	PVSource(PVScene* scene, const PVRush::PVSourceDescription& descr)
+	PVSource(PVScene& scene, const PVRush::PVSourceDescription& descr)
 	    : PVSource(scene, descr.get_inputs(), descr.get_source_creator(), descr.get_format())
 	{
 	}
 	~PVSource();
 
   public:
+	void load_data()
+	{
+		if (has_nraw_folder()) {
+			load_from_disk();
+		} else {
+			// Extract the source
+
+			PVRush::PVControllerJob_p job_import;
+			job_import = extract(get_format().get_first_line(), get_format().get_line_count());
+
+			wait_extract_end(job_import);
+		}
+	}
 	/* Functions */
 	PVCol get_column_count() const;
 
@@ -119,13 +133,9 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	inline PVAxesCombination& get_axes_combination() { return _axes_combination; }
 	inline PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 
-	void create_default_view();
-
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
-
-	void process_from_source();
 
 	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
 	std::string get_name() const
@@ -158,20 +168,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
-	// axis <-> section synchronisation
-	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered_id = entered ? col : -1; }
-	int& axis_hovered() { return _axis_hovered_id; }
-	const int& axis_hovered() const { return _axis_hovered_id; }
-	void set_axis_clicked(PVCol col) { _axis_clicked_id = col; }
-	const PVCol& axis_clicked() const { return _axis_clicked_id; }
-	void set_section_hovered(PVCol col, bool entered) { _section_hovered_id = entered ? col : -1; }
-	const int& section_hovered() const { return _section_hovered_id; }
-	void set_section_clicked(PVCol col, size_t pos)
-	{
-		_section_clicked.first = col;
-		_section_clicked.second = pos;
-	}
-	const std::pair<size_t, size_t>& section_clicked() const { return _section_clicked; }
 	void set_nraw_folder(QString const& nraw_folder) { _nraw_folder = nraw_folder; }
 
   protected:
@@ -205,11 +201,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;
-
-	int _axis_hovered_id = -1;
-	PVCol _axis_clicked_id;
-	int _section_hovered_id = -1;
-	std::pair<size_t, size_t> _section_clicked;
 
 	QString _nraw_folder;
 };

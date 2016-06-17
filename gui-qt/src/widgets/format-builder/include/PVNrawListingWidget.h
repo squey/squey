@@ -40,12 +40,12 @@ class PVNrawListingWidget : public QWidget
 	void unselect_column();
 	void select_column(PVCol col);
 
-  public slots:
+  public Q_SLOTS:
 	void nraw_custom_menu_Slot(const QPoint& pt);
 	void set_axes_name_selected_row_Slot();
 	void set_axes_type_selected_row_Slot();
 
-  signals:
+  Q_SIGNALS:
 	void set_axes_name_from_nraw(int row);
 	void set_axes_type_from_nraw(int row);
 

@@ -63,33 +63,39 @@ void Inendi::PVRoot::reset_colors()
 
 void Inendi::PVRoot::select_view(PVView& view)
 {
-	assert(view.get_parent<PVRoot>() == this);
+	assert(&view.get_parent<PVRoot>() == this);
 	_current_view = &view;
-	_current_scene = view.get_parent<PVScene>();
-	_current_source = view.get_parent<PVSource>();
+	_current_scene = &view.get_parent<PVScene>();
+	_current_source = &view.get_parent<PVSource>();
 
 	_current_scene->set_last_active_source(_current_source);
 	_current_source->set_last_active_view(&view);
+
+	_scene_updated.emit();
 }
 
 void Inendi::PVRoot::select_source(PVSource& src)
 {
-	assert(src.get_parent<PVRoot>() == this);
+	assert(&src.get_parent<PVRoot>() == this);
 	_current_source = &src;
 	_current_view = src.last_active_view();
-	_current_scene = src.get_parent<PVScene>();
+	_current_scene = &src.get_parent<PVScene>();
 
 	_current_scene->set_last_active_source(&src);
+
+	_scene_updated.emit();
 }
 
 void Inendi::PVRoot::select_scene(PVScene& scene)
 {
-	assert(scene.get_parent<PVRoot>() == this);
+	assert(&scene.get_parent<PVRoot>() == this);
 	_current_scene = &scene;
 	_current_source = scene.last_active_source();
 	if (_current_source) {
 		_current_view = _current_source->last_active_view();
 	}
+
+	_scene_updated.emit();
 }
 
 void Inendi::PVRoot::view_being_deleted(Inendi::PVView* view)
@@ -104,10 +110,10 @@ void Inendi::PVRoot::scene_being_deleted(Inendi::PVScene* scene)
 	if (_current_scene == scene) {
 		_current_scene = nullptr;
 	}
-	if (_current_source && _current_source->get_parent<PVScene>() == scene) {
+	if (_current_source && &_current_source->get_parent<PVScene>() == scene) {
 		_current_source = nullptr;
 	}
-	if (_current_view && _current_view->get_parent<PVScene>() == scene) {
+	if (_current_view && &_current_view->get_parent<PVScene>() == scene) {
 		_current_view = nullptr;
 	}
 }
@@ -117,7 +123,7 @@ void Inendi::PVRoot::source_being_deleted(Inendi::PVSource* src)
 	if (_current_source == src) {
 		_current_source = nullptr;
 	}
-	if (_current_view && _current_view->get_parent<PVSource>() == src) {
+	if (_current_view && &_current_view->get_parent<PVSource>() == src) {
 		_current_view = nullptr;
 	}
 }
@@ -223,9 +229,9 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
 			QString name;
 			new_obj->attribute("name", name);
-			PVScene_p scene = emplace_add_child(name.toStdString());
-			scene->serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = scene.get();
+			PVScene& scene = emplace_add_child(name.toStdString());
+			scene.serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = &scene;
 			new_obj->_bound_obj_type = typeid(PVScene);
 			idx++;
 		}

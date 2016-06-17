@@ -25,21 +25,22 @@ double save_investigation()
 	env.add_source(csv_file, csv_file_format, dupl, true);
 	env.add_source(csv_file, csv_file_format, dupl, false);
 
-	size_t source_size = env.root->size<Inendi::PVSource>();
+	size_t source_size = env.root.size<Inendi::PVSource>();
 	PV_VALID(source_size, 3UL);
 
 	env.compute_mappings();
 	env.compute_plottings();
+	env.compute_views();
 
-	size_t mapped_size = env.root->size<Inendi::PVMapped>();
+	size_t mapped_size = env.root.size<Inendi::PVMapped>();
 	PV_VALID(mapped_size, 3UL);
 
-	size_t plotted_size = env.root->size<Inendi::PVPlotted>();
+	size_t plotted_size = env.root.size<Inendi::PVPlotted>();
 	PV_VALID(plotted_size, 3UL);
 
-	size_t view_size = env.root->size<Inendi::PVView>();
+	size_t view_size = env.root.size<Inendi::PVView>();
 	PV_VALID(view_size, 3UL);
-	auto view = env.root->get_children<Inendi::PVView>().front();
+	auto view = env.root.get_children<Inendi::PVView>().front();
 
 	/**
 	 * Add layers
@@ -67,7 +68,7 @@ double save_investigation()
 
 	auto start = std::chrono::system_clock::now();
 
-	env.root->save_to_file(INVESTIGATION_PATH);
+	env.root.save_to_file(INVESTIGATION_PATH);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -77,13 +78,13 @@ double save_investigation()
 
 double load_investigation()
 {
-	Inendi::PVRoot_p root(new Inendi::PVRoot());
+	Inendi::PVRoot root;
 
 	auto start = std::chrono::system_clock::now();
 
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
 	    INVESTIGATION_PATH, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
-	root->load_from_archive(ar);
+	root.load_from_archive(ar);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -91,11 +92,9 @@ double load_investigation()
 	/**
 	 * Check sources
 	 */
-	auto sources = root->get_children<Inendi::PVSource>();
+	auto sources = root.get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 3UL);
-	auto source = *sources.begin();
-	source->load_from_disk();
-	source->process_from_source();
+	auto source = sources.front();
 
 	const PVRow row_count = source->get_row_count();
 	PV_VALID(row_count, ROW_COUNT * dupl);
@@ -103,19 +102,19 @@ double load_investigation()
 	/**
 	 * Check mappeds
 	 */
-	size_t mapped_size = root->size<Inendi::PVMapped>();
+	size_t mapped_size = root.size<Inendi::PVMapped>();
 	PV_VALID(mapped_size, 3UL);
 
 	/**
 	 * Check plotteds
 	 */
-	size_t plotted_size = root->size<Inendi::PVPlotted>();
+	size_t plotted_size = root.size<Inendi::PVPlotted>();
 	PV_VALID(plotted_size, 3UL);
 
 	/**
 	 * Check view
 	 */
-	auto views = root->get_children<Inendi::PVView>();
+	auto views = root.get_children<Inendi::PVView>();
 	PV_VALID(views.size(), 3UL);
 	auto view = views.front();
 	PV_VALID(view->get_row_count(), ROW_COUNT * dupl);
@@ -132,7 +131,7 @@ double load_investigation()
 	    //"total_bytes" (removed)
 	};
 	for (int i = 0; i < axes.size(); i++) {
-		PV_ASSERT_VALID(axes[i] == QString(expected_axes_name[i]));
+		PV_VALID(axes[i].toStdString(), std::string(expected_axes_name[i]));
 	}
 
 	/**

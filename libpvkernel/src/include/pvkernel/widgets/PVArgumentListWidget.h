@@ -44,7 +44,7 @@ class PVArgumentListWidget : public QWidget
 	inline void clear_args_state() { _args_has_changed = false; }
 	PVCore::PVArgumentList* get_args() { return _args; }
 
-  public slots:
+  public Q_SLOTS:
 	inline void force_submit() { _mapper->submit(); }
 
   public:
@@ -58,14 +58,14 @@ class PVArgumentListWidget : public QWidget
   private:
 	void init_widgets();
 
-  private slots:
+  private Q_SLOTS:
 	void args_changed_Slot(const QModelIndex& a = QModelIndex(),
 	                       const QModelIndex& b = QModelIndex());
 
-  signals:
+  Q_SIGNALS:
 	void args_changed_Signal();
 
-	/* public slots: */
+	/* public Q_SLOTS: */
 	/* 	void widget_clicked_Slot(); */
 
   protected:

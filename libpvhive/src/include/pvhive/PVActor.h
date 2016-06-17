@@ -56,6 +56,4 @@ class PVActor : public PVActorBase
 #define PVACTOR_CALL(Actor, Method, Param...) (Actor).call<decltype(Method), Method>(Param)
 }
 
-#include <pvhive/waxes/waxes.h>
-
 #endif // LIBPVHIVE_PVACTOR_H

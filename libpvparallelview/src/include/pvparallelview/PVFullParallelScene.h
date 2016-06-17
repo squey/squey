@@ -13,6 +13,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
+#include <sigc++/sigc++.h>
+
 #include <inendi/PVAxis.h>
 #include <inendi/PVView_types.h>
 
@@ -23,16 +25,12 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVSlidersManager.h>
 
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVFuncObserver.h>
-#include <pvhive/PVObserverSignal.h>
-
 #include <tbb/atomic.h>
 
 namespace PVParallelView
 {
 
-class PVFullParallelScene : public QGraphicsScene
+class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 {
 	Q_OBJECT
 
@@ -105,14 +103,12 @@ class PVFullParallelScene : public QGraphicsScene
 	 */
 	void update_selected_event_number();
 
-  private slots:
+  private Q_SLOTS:
 	void update_new_selection();
 	void update_all();
 	void update_number_of_zones();
 	void toggle_unselected_zombie_visibility();
 	void axis_hover_entered(PVCol col, bool entered);
-	void axis_clicked(PVCol col);
-	void disconnect_axes();
 
   private:
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -158,7 +154,7 @@ class PVFullParallelScene : public QGraphicsScene
 
 	size_t qimage_height() const;
 
-  private slots:
+  private Q_SLOTS:
 	void update_zone_pixmap_bg(int zone_id);
 	void update_zone_pixmap_sel(int zone_id);
 	void update_zone_pixmap_bgsel(int zone_id);
@@ -168,16 +164,15 @@ class PVFullParallelScene : public QGraphicsScene
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 
-	void highlight_axis(PVHive::PVObserverBase*);
-	void highlight_axis(int col);
-	void sync_axis_with_section(PVHive::PVObserverBase* o);
+	void highlight_axis(int col, bool entered);
+	void sync_axis_with_section(size_t col, size_t pos);
 
 	void emit_new_zoomed_parallel_view(int axis_index)
 	{
-		emit _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
+		Q_EMIT _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}
 
-  private slots:
+  private Q_SLOTS:
 	// Slots called from PVLinesView
 	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
 	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
@@ -236,11 +231,6 @@ class PVFullParallelScene : public QGraphicsScene
 	std::vector<SingleZoneImagesItems> _zones;
 	axes_list_t _axes;
 
-	PVHive::PVObserver_p<int> _obs_selected_layer;
-	PVHive::PVObserverSignal<int> _section_hover_obs;
-	typedef std::pair<size_t, size_t> section_pos_t;
-	PVHive::PVObserverSignal<section_pos_t> _section_click_obs;
-
 	Inendi::PVView& _lib_view;
 
 	PVFullParallelView* _full_parallel_view;
@@ -259,8 +249,6 @@ class PVFullParallelScene : public QGraphicsScene
 	tbb::atomic<bool> _view_deleted;
 
 	bool _show_min_max_values;
-
-	int _hovered_axis_id = -1;
 };
 }
 

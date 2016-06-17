@@ -8,11 +8,10 @@
 #include <QtCore>
 #include <QtWidgets>
 
+#include <inendi/PVCorrelationEngine.h>
+#include <inendi/PVRoot.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
-
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
 
 #include <pvguiqt/PVListingModel.h>
 
@@ -26,32 +25,24 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent
     , _zombie_brush(QColor(0, 0, 0))
     , _vheader_font(":/Convergence-Regular")
     , _view(view)
-    , _obs_vis(this)
-    , _obs_zomb(this)
 {
 	// Update the full model if axis combination change
-	_obs_axes_comb.connect_refresh(this, SLOT(axes_comb_changed()));
-	PVHive::get().register_observer(
-	    view, [=](Inendi::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); },
-	    _obs_axes_comb);
+	view->_axis_combination_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::axes_comb_changed));
 
 	// Call update_filter on selection update
-	_obs_sel.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(
-	    view, [=](Inendi::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
+	view->_update_output_selection.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update filter if we change layer content
-	_obs_output_layer.connect_refresh(this, SLOT(update_filter()));
-	PVHive::get().register_observer(
-	    view, [=](Inendi::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
+	view->_update_output_layer.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of zombie lines on option toggling
-	// FIXME : Can't we work without these specific struct?
-	PVHive::get().register_func_observer(view, _obs_zomb);
+	view->_toggle_zombie.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of unselected lines on option toogling
-	// FIXME : Can't we work without these specific struct?
-	PVHive::get().register_func_observer(view, _obs_vis);
+	view->_toggle_unselected.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Set listing view on visible_selection_listing selection.
 	update_filter();
@@ -82,9 +73,9 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	// Set content and tooltip
 	case Qt::DisplayRole:
 	case Qt::ToolTipRole: {
-		const Inendi::PVSource* src = lib_view().get_parent<Inendi::PVSource>();
+		const Inendi::PVSource& src = lib_view().get_parent<Inendi::PVSource>();
 
-		return QString::fromStdString(src->get_input_value(r, org_col));
+		return QString::fromStdString(src.get_input_value(r, org_col));
 	}
 
 	// Set alignment
@@ -127,9 +118,9 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	case (Qt::FontRole): {
 		QFont f;
 
-		const Inendi::PVSource* src = lib_view().get_parent<Inendi::PVSource>();
+		const Inendi::PVSource& src = lib_view().get_parent<Inendi::PVSource>();
 
-		if (src->has_conversion_failed(r, org_col)) {
+		if (src.has_conversion_failed(r, org_col)) {
 			f.setItalic(true);
 		}
 
@@ -181,15 +172,15 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 		break;
 	// Define tooltip text
 	case (Qt::ToolTipRole):
-		const Inendi::PVRoot* root = lib_view().get_parent<Inendi::PVRoot>();
-		const Inendi::PVCorrelation* correlation = root->correlations().correlation(&lib_view());
+		const Inendi::PVRoot& root = lib_view().get_parent<Inendi::PVRoot>();
+		const Inendi::PVCorrelation* correlation = root.correlations().correlation(&lib_view());
 
 		if (correlation and correlation->col1 == section) {
 			const QString orig_source =
-			    QString::fromStdString(lib_view().get_parent<Inendi::PVSource>()->get_name());
+			    QString::fromStdString(lib_view().get_parent<Inendi::PVSource>().get_name());
 			const QString& orig_axis = lib_view().get_axis_name(section);
 			const QString dest_source = QString::fromStdString(
-			    correlation->view2->get_parent<Inendi::PVSource>()->get_name());
+			    correlation->view2->get_parent<Inendi::PVSource>().get_name());
 			const QString& dest_axis = correlation->view2->get_axis_name(correlation->col2);
 
 			return "Active correlation :\n" + orig_source + /*" / " + orig_view +*/ " (" +
@@ -274,33 +265,11 @@ void PVGuiQt::PVListingModel::update_filter()
 	Inendi::PVSelection const& sel = lib_view().get_selection_visible_listing();
 
 	// Inform view about future update
-	emit layoutAboutToBeChanged();
+	Q_EMIT layoutAboutToBeChanged();
 
 	// Push selected lines
 	_display.set_filter(sel);
 
 	// Inform view new_filter is set
-	// This is not done using Hive as _filter have to be set, PVSelection is not
-	// enough
-	emit layoutChanged();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::__impl::PVListingVisibilityObserver::update
- *
- *****************************************************************************/
-void PVGuiQt::__impl::PVListingVisibilityObserver::update(arguments_type const&) const
-{
-	_parent->update_filter();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::__impl::PVListingVisibilityZombieObserver::update
- *
- *****************************************************************************/
-void PVGuiQt::__impl::PVListingVisibilityZombieObserver::update(arguments_type const&) const
-{
-	_parent->update_filter();
+	Q_EMIT layoutChanged();
 }

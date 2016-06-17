@@ -18,15 +18,6 @@ PVRefreshSignal.cpp
 PVFuncObserver.cpp
 )
 
-set(PVHIVE_WAXES_FILES
-waxes/inendi/PVScene.cpp
-waxes/inendi/PVMapped.cpp
-waxes/inendi/PVSource.cpp
-waxes/inendi/PVView.cpp
-waxes/inendi/PVRoot.cpp
-waxes/inendi/PVPlotted.cpp
-)
-
 SET(PVHIVE_MOC_HEADERS
 include/pvhive/PVRefreshSignal.h
 include/pvhive/PVQRefresh.h
@@ -37,7 +28,7 @@ include/pvhive/PVFuncObserver.h
 # Generate extra QT files (moc, uic, rcc)
 ################################################
 
-set(SRC_FILES ${PVHIVE_SRC_FILES} ${PVHIVE_WAXES_FILES})
+set(SRC_FILES ${PVHIVE_SRC_FILES})
 set(MOC_HEADERS ${PVHIVE_MOC_HEADERS})
 qt5_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 

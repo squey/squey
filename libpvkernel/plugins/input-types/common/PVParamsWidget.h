@@ -55,7 +55,7 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
   protected:
 	virtual QString get_export_filters();
 
-  protected slots:
+  protected Q_SLOTS:
 	virtual void export_slot() = 0;
 	virtual void query_type_changed_slot() = 0;
 
@@ -68,7 +68,7 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	void check_connection_slot();
 	void query_result_count_slot();
 
-  signals:
+  Q_SIGNALS:
 	// A bit hacky: this is to be able to call PVParamsWidget::set_info virtual pure function
 	// from PVParamsWidget constructor
 	void load_preset_deferred(unsigned int);
@@ -337,11 +337,11 @@ class PVParamsWidget : public PVParamsWidgetBase
 		_settings.beginGroup(QString(Presets::PV_SETTINGS_INPUT) + "ui");
 		if (_settings.contains("last_preset")) {
 			typename Presets::id_t id = _settings.value("last_preset").toUInt();
-			emit PVParamsWidgetBase::load_preset_deferred((unsigned int)id);
+			Q_EMIT PVParamsWidgetBase::load_preset_deferred((unsigned int)id);
 		} else {
 			// Load the first preset if any
 			if (_presets_widget->get_preset_count() > 0) {
-				emit PVParamsWidgetBase::load_preset_deferred(
+				Q_EMIT PVParamsWidgetBase::load_preset_deferred(
 				    (unsigned int)_presets_widget->get_preset_data(0).toUInt());
 			}
 		}

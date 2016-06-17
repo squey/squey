@@ -12,13 +12,13 @@
 #include <QList>
 #include <QStringList>
 
+#include <sigc++/sigc++.h>
+
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
-#include <inendi/PVRoot_types.h>
 #include <inendi/PVScene.h>
-#include <inendi/PVPtrObjects.h> // For PVScene_p
 #include <inendi/PVCorrelationEngine.h>
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"
@@ -68,10 +68,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>,
 	Inendi::PVSource* current_source() { return _current_source; }
 	Inendi::PVSource const* current_source() const { return _current_source; }
 
-	PVScene** get_current_scene_hive_property() { return &_current_scene; }
-	PVView** get_current_view_hive_property() { return &_current_view; }
-	PVSource** get_current_source_hive_property() { return &_current_source; }
-
   public:
 	void save_to_file(
 	    QString const& path,
@@ -115,6 +111,9 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>,
 	void serialize_read(PVCore::PVSerializeObject& so);
 	PVSERIALIZEOBJECT_SPLIT
 
+  public:
+	sigc::signal<void> _scene_updated;
+
   private:
 	PVScene* _current_scene;
 	PVSource* _current_source;
@@ -131,8 +130,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>,
 	QString _path;
 	bool _correlation_running = false;
 };
-
-using PVRoot_p = PVCore::PVSharedPtr<PVRoot>;
 }
 
 #endif /* INENDI_PVROOT_H */

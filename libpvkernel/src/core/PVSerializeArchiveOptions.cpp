@@ -36,7 +36,7 @@ void PVCore::PVSerializeArchiveOptions::include_all_files(bool inc)
 	// No recursive function here. We look for PVFileSerialize objects, and include/exclude them.
 
 	QList<PVSerializeObject_p> objs = _objects.values();
-	foreach (PVSerializeObject_p o, objs) {
+	for (PVSerializeObject_p o : objs) {
 		if (o->bound_obj_type() == typeid(PVFileSerialize)) {
 			o->set_write(inc);
 		}
@@ -50,7 +50,7 @@ int PVCore::PVSerializeArchiveOptions::does_include_all_files() const
 	int state = Qt::Unchecked;
 	bool all_write = true;
 	QList<PVSerializeObject_p> objs = _objects.values();
-	foreach (PVSerializeObject_p o, objs) {
+	for (PVSerializeObject_p o : objs) {
 		if (o->bound_obj_type() == typeid(PVFileSerialize)) {
 			if (o->must_write()) {
 				state = Qt::PartiallyChecked;

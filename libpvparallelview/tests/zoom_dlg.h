@@ -34,7 +34,7 @@ class ZoomDlg : public QDialog
 		setLayout(l);
 	}
 
-  protected slots:
+  protected Q_SLOTS:
 	void create_zv()
 	{
 		PVCol zone_id = _zedit->text().toInt();

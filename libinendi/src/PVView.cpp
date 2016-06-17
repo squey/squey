@@ -28,8 +28,6 @@
 
 #include <future>
 
-#include <tbb/tick_count.h>
-
 PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLACK);
 
 /******************************************************************************
@@ -37,17 +35,17 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  * Inendi::PVView::PVView
  *
  *****************************************************************************/
-Inendi::PVView::PVView(PVPlotted* plotted)
+Inendi::PVView::PVView(PVPlotted& plotted)
     : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
-    , _axes_combination(get_parent<PVSource>()->get_axes_combination())
+    , _axes_combination(get_parent<PVSource>().get_format())
     , post_filter_layer("post_filter_layer")
     , layer_stack_output_layer("view_layer_stack_output_layer")
     , output_layer("output_layer")
-    , _rushnraw_parent(&get_parent<PVSource>()->get_rushnraw())
+    , _rushnraw_parent(&get_parent<PVSource>().get_rushnraw())
     , _view_id(-1)
     , _active_axis(0)
 {
-	get_parent<PVSource>()->add_view(this);
+	get_parent<PVSource>().add_view(this);
 
 	// Create layer filter arguments for that view
 	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
@@ -57,20 +55,8 @@ Inendi::PVView::PVView(PVPlotted* plotted)
 		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 
-	PVRow row_count = get_row_count();
-	if (row_count) {
-		set_row_count(row_count);
-		reset_layers();
-	}
-}
-
-void Inendi::PVView::process_parent_plotted()
-{
-	// Init default axes combination from source
-	PVSource* source = get_parent<PVSource>();
-	_axes_combination.set_from_format(source->get_format());
-
 	set_row_count(get_row_count());
+	reset_layers();
 
 	process_from_layer_stack();
 }
@@ -85,7 +71,7 @@ Inendi::PVView::~PVView()
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
 
 	// remove correlation
-	get_parent<Inendi::PVRoot>()->correlations().remove(this);
+	get_parent<Inendi::PVRoot>().correlations().remove(this);
 
 #ifdef WITH_MINESET
 	for (const std::string& mineset_dataset : _mineset_datasets) {
@@ -94,7 +80,7 @@ Inendi::PVView::~PVView()
 	}
 #endif
 
-	get_parent<PVRoot>()->view_being_deleted(this);
+	get_parent<PVRoot>().view_being_deleted(this);
 }
 
 /******************************************************************************
@@ -104,6 +90,7 @@ Inendi::PVView::~PVView()
  *****************************************************************************/
 void Inendi::PVView::reset_layers()
 {
+	_layer_stack_about_to_refresh.emit();
 	PVRow row_count = get_row_count();
 
 	// This function remove all the layers and add the default one with all events
@@ -123,6 +110,7 @@ void Inendi::PVView::reset_layers()
 	post_filter_layer.reset_to_full_and_default_color(row_count);
 	layer_stack_output_layer.reset_to_full_and_default_color(row_count);
 	output_layer.reset_to_full_and_default_color(row_count);
+	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -132,25 +120,42 @@ void Inendi::PVView::reset_layers()
  *****************************************************************************/
 void Inendi::PVView::add_new_layer(QString name)
 {
-	Inendi::PVLayer* layer = layer_stack.append_new_layer(get_row_count(), name);
-	layer->compute_selectable_count(get_row_count());
+	_layer_stack_about_to_refresh.emit();
+	size_t row_count = get_row_count();
+	Inendi::PVLayer* layer = layer_stack.append_new_layer(row_count, name);
+	layer->compute_selectable_count(row_count);
+
+	_layer_stack_refreshed.emit();
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::delete_selected_layer()
 {
+	_layer_stack_about_to_refresh.emit();
 	layer_stack.delete_selected_layer();
+
+	_layer_stack_refreshed.emit();
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::delete_layer_n(int idx)
 {
+	_layer_stack_about_to_refresh.emit();
 	layer_stack.delete_by_index(idx);
+
+	_layer_stack_refreshed.emit();
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::duplicate_selected_layer(const QString& name)
 {
+	_layer_stack_about_to_refresh.emit();
 	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
 	compute_layer_min_max(*new_layer);
 	new_layer->compute_selectable_count(get_row_count());
+
+	_layer_stack_refreshed.emit();
+	_update_current_min_max.emit();
 }
 
 /******************************************************************************
@@ -415,7 +420,7 @@ Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
  *****************************************************************************/
 PVRow Inendi::PVView::get_row_count() const
 {
-	return get_parent<PVSource>()->get_row_count();
+	return get_parent<PVSource>().get_row_count();
 }
 
 /******************************************************************************
@@ -498,6 +503,8 @@ void Inendi::PVView::process_eventline()
 			out_lps.set_line_properties(i, _default_zombie_line_properties);
 		}
 	}
+
+	_update_output_layer.emit();
 }
 
 /******************************************************************************
@@ -507,8 +514,8 @@ void Inendi::PVView::process_eventline()
  *****************************************************************************/
 Inendi::PVView* Inendi::PVView::process_correlation()
 {
-	Inendi::PVRoot* root = get_parent<Inendi::PVRoot>();
-	return root->process_correlation(this);
+	Inendi::PVRoot& root = get_parent<Inendi::PVRoot>();
+	return root.process_correlation(this);
 }
 
 /******************************************************************************
@@ -522,6 +529,14 @@ Inendi::PVView* Inendi::PVView::process_from_eventline()
 	process_visibility();
 	Inendi::PVView* v = process_correlation();
 
+	if (v) {
+		v->_update_output_selection.emit();
+		v->_update_output_layer.emit();
+	}
+
+	_update_output_selection.emit();
+	_update_output_layer.emit();
+
 	return v;
 }
 
@@ -532,8 +547,6 @@ Inendi::PVView* Inendi::PVView::process_from_eventline()
  *****************************************************************************/
 Inendi::PVView* Inendi::PVView::process_from_layer_stack()
 {
-	tbb::tick_count start = tbb::tick_count::now();
-
 	/* We start by reprocessing the layer_stack */
 	process_layer_stack();
 	process_selection();
@@ -542,10 +555,13 @@ Inendi::PVView* Inendi::PVView::process_from_layer_stack()
 
 	Inendi::PVView* v = process_correlation();
 
-	tbb::tick_count end = tbb::tick_count::now();
-	PVLOG_INFO("(Inendi::PVView::process_from_layer_stack) function took %0.4f "
-	           "seconds.\n",
-	           (end - start).seconds());
+	if (v) {
+		v->_update_output_layer.emit();
+	}
+
+	_update_layer_stack_output_layer.emit();
+	_update_output_layer.emit();
+
 	return v;
 }
 
@@ -562,13 +578,23 @@ Inendi::PVView* Inendi::PVView::process_from_selection()
 	process_visibility();
 	Inendi::PVView* v = process_correlation();
 
+	if (v) {
+		v->_update_output_layer.emit();
+	}
+
+	_update_output_layer.emit();
+
 	return v;
 }
 
 Inendi::PVView* Inendi::PVView::process_real_output_selection()
 {
 	// AG: TODO: should be optimised to only create real_output_selection
-	return process_from_selection();
+	PVView* v = process_from_selection();
+
+	_update_output_selection.emit();
+
+	return v;
 }
 
 /******************************************************************************
@@ -652,6 +678,8 @@ void Inendi::PVView::process_visibility()
 			output_layer.get_selection().or_not(layer_stack_output_layer.get_selection());
 		}
 	}
+
+	_update_output_layer.emit();
 }
 
 /******************************************************************************
@@ -723,11 +751,12 @@ void Inendi::PVView::set_floating_selection(PVSelection& selection)
  * Inendi::PVView::set_layer_stack_layer_n_name
  *
  *****************************************************************************/
-int Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
+void Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 {
+	_layer_stack_about_to_refresh.emit();
 	PVLayer& layer = layer_stack.get_layer_n(n);
 	layer.set_name(name);
-	return 0;
+	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -737,7 +766,11 @@ int Inendi::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
  *****************************************************************************/
 void Inendi::PVView::set_layer_stack_selected_layer_index(int index)
 {
+	_layer_stack_about_to_refresh.emit();
 	layer_stack.set_selected_layer_index(index);
+
+	_layer_stack_refreshed.emit();
+	_update_current_min_max.emit();
 }
 
 /******************************************************************************
@@ -766,8 +799,9 @@ void Inendi::PVView::set_selection_view(PVSelection const& sel)
  * Inendi::PVView::toggle_layer_stack_layer_n_visible_state
  *
  *****************************************************************************/
-int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
+void Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 {
+	_layer_stack_about_to_refresh.emit();
 	PVLayer& layer = layer_stack.get_layer_n(n);
 
 	if (layer.get_visible()) {
@@ -775,7 +809,7 @@ int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 	} else {
 		layer.set_visible(1);
 	}
-	return 0;
+	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -784,7 +818,11 @@ int Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 
 void Inendi::PVView::move_selected_layer_to(int new_index)
 {
+	_layer_stack_about_to_refresh.emit();
 	get_layer_stack().move_selected_layer_to(new_index);
+
+	_layer_stack_refreshed.emit();
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::select_all_nonzb_lines()
@@ -811,13 +849,13 @@ void Inendi::PVView::select_inv_lines()
 
 std::string Inendi::PVView::get_name() const
 {
-	return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>()->get_name() + "/" +
-	       get_parent<PVPlotted>()->get_name() + ")";
+	return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>().get_name() + "/" +
+	       get_parent<PVPlotted>().get_name() + ")";
 }
 
 QString Inendi::PVView::get_window_name() const
 {
-	QString ret = get_parent<PVSource>()->get_window_name() + " | ";
+	QString ret = get_parent<PVSource>().get_window_name() + " | ";
 	ret += QString::fromStdString(get_name());
 	return ret;
 }
@@ -830,16 +868,19 @@ Inendi::PVSelection const& Inendi::PVView::get_selection_visible_listing() const
 void Inendi::PVView::toggle_listing_unselected_visibility()
 {
 	_state_machine.toggle_listing_unselected_visibility();
+	_toggle_unselected.emit();
 }
 
 void Inendi::PVView::toggle_listing_zombie_visibility()
 {
 	_state_machine.toggle_listing_zombie_visibility();
+	_toggle_zombie.emit();
 }
 
 void Inendi::PVView::toggle_view_unselected_zombie_visibility()
 {
 	_state_machine.toggle_view_unselected_zombie_visibility();
+	_toggle_unselected_zombie_visibility.emit();
 }
 
 bool& Inendi::PVView::are_view_unselected_zombie_visible()
@@ -849,7 +890,14 @@ bool& Inendi::PVView::are_view_unselected_zombie_visible()
 
 void Inendi::PVView::compute_layer_min_max(Inendi::PVLayer& layer)
 {
-	layer.compute_min_max(*get_parent<Inendi::PVPlotted>());
+	layer.compute_min_max(get_parent<Inendi::PVPlotted>());
+}
+
+void Inendi::PVView::update_current_layer_min_max()
+{
+	compute_layer_min_max(get_current_layer());
+
+	_update_current_min_max.emit();
 }
 
 void Inendi::PVView::compute_selectable_count(Inendi::PVLayer& layer)
@@ -870,19 +918,23 @@ void Inendi::PVView::finish_process_from_rush_pipeline()
 void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
                                                   PVAxesCombination::list_axes_t const& axes)
 {
+	_axis_combination_about_to_update.emit();
+
 	_axes_combination.set_axes_index_list(idxes, axes);
+
+	_axis_combination_updated.emit();
 }
 
 PVRow Inendi::PVView::get_plotted_col_min_row(PVCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
-	return get_parent<PVPlotted>()->get_col_min_row(col);
+	return get_parent<PVPlotted>().get_col_min_row(col);
 }
 
 PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
-	return get_parent<PVPlotted>()->get_col_max_row(col);
+	return get_parent<PVPlotted>().get_col_max_row(col);
 }
 
 void Inendi::PVView::sort_indexes(PVCol col,

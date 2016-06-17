@@ -47,7 +47,7 @@ class CustomMainWindow : public QMainWindow
   public:
 	void CreateDockWidgets();
 
-  public slots:
+  public Q_SLOTS:
 	void dragStarted(bool started);
 	void dragEnded();
 	void changeEvent(QEvent* event);

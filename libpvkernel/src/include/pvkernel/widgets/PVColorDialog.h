@@ -47,7 +47,7 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
 		picker()->set_x1(x1);
 	}
 
-  signals:
+  Q_SIGNALS:
 	void color_changed(int h);
 
   protected:
@@ -64,7 +64,7 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
 	void set_predefined_color_from_label(QLabel* label);
 	void unselect_all_preselected_colors();
 
-  private slots:
+  private Q_SLOTS:
 	void picker_color_changed(int h);
 	void set_predefined_color_from_action();
 	void reset_predefined_color_from_action();

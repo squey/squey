@@ -84,7 +84,7 @@ class MyPVGraphicsView : public PVWidgets::PVGraphicsView
 
 	virtual void drawForeground(QPainter*, const QRectF&) {}
 
-  public slots:
+  public Q_SLOTS:
 	void frame_has_changed(int /*frame*/)
 	{
 		if (get_scene() == nullptr) {
@@ -158,7 +158,7 @@ class MyQGraphicsView : public QGraphicsView
 		QGraphicsView::paintEvent(event);
 	}
 
-  public slots:
+  public Q_SLOTS:
 	void frame_has_changed(int /*frame*/)
 	{
 		if (scene() == nullptr) {

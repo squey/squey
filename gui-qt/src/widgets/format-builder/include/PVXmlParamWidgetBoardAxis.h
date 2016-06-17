@@ -129,7 +129,7 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
 	PVXmlParamWidget* _parent;
 
-  public slots:
+  public Q_SLOTS:
 	void slotGoNextAxis();
 	void slotSetValues();
 	void updatePlotMapping(const QString& t);
@@ -140,7 +140,7 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void slotSetParamsMapping();
 	void slotSetParamsPlotting();
 
-  signals:
+  Q_SIGNALS:
 	void signalRefreshView();
 	void signalSelectNext();
 };

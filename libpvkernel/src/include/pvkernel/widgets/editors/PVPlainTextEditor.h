@@ -36,7 +36,7 @@ class PVPlainTextEditor : public QWidget
 	virtual bool eventFilter(QObject* object, QEvent* event);
 	void save_to_file(bool append);
 
-  protected slots:
+  protected Q_SLOTS:
 	void slot_import_file();
 	void slot_export_file();
 	void slot_export_and_import_file();

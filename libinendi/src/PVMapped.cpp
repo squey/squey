@@ -15,8 +15,6 @@
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
-#include <inendi/PVRoot.h>
-
 #include <iostream>
 
 /******************************************************************************
@@ -24,10 +22,11 @@
  * Inendi::PVMapped::PVMapped
  *
  *****************************************************************************/
-Inendi::PVMapped::PVMapped(PVSource* src)
+Inendi::PVMapped::PVMapped(PVSource& src)
     : PVCore::PVDataTreeChild<PVSource, PVMapped>(src), _mapping(this)
 {
 	// FIXME Mapping should be merge in mapped as they are interdependant.
+	compute();
 }
 
 /******************************************************************************
@@ -73,7 +72,7 @@ void Inendi::PVMapped::compute()
 	allocate_table(nrows, ncols);
 
 	// finalize import's mapping filters
-	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
+	PVRush::PVNraw const& nraw = get_parent().get_rushnraw();
 
 /**
  * For now, the mapping parallelization is only done by column
@@ -172,7 +171,7 @@ void Inendi::PVMapped::to_csv() const
  *****************************************************************************/
 PVRow Inendi::PVMapped::get_row_count() const
 {
-	return get_parent<PVSource>()->get_row_count();
+	return get_parent<PVSource>().get_row_count();
 }
 
 /******************************************************************************
@@ -187,15 +186,15 @@ PVCol Inendi::PVMapped::get_column_count() const
 
 /******************************************************************************
  *
- * Inendi::PVMapped::process_from_parent_source
+ * Inendi::PVMapped::update_mapping
  *
  *****************************************************************************/
-void Inendi::PVMapped::process_from_parent_source()
+void Inendi::PVMapped::update_mapping()
 {
 	compute();
 	// Process plotting children
 	for (auto* plotted_p : get_children()) {
-		plotted_p->process_from_parent_mapped();
+		plotted_p->update_plotting();
 	}
 }
 
@@ -263,12 +262,12 @@ void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so)
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVPlotted_p plotted = emplace_add_child();
+			PVPlotted& plotted = emplace_add_child();
 			// FIXME : Plotting is created invalid then set
-			new_obj->object(QString("plotting"), plotted->get_plotting(), QString(), false, nullptr,
+			new_obj->object(QString("plotting"), plotted.get_plotting(), QString(), false, nullptr,
 			                false);
-			plotted->serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = plotted.get();
+			plotted.serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = &plotted;
 			new_obj->_bound_obj_type = typeid(PVPlotted);
 			idx++;
 		}

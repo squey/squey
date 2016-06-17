@@ -69,10 +69,10 @@ class PVCheckBoxAxisIndexEditor : public QWidget
 	PVCore::PVCheckBoxAxisIndexType get_values() const;
 	void set_values(PVCore::PVCheckBoxAxisIndexType v);
 
-  public slots:
+  public Q_SLOTS:
 	void toggle_visibility_Slot();
 
-  signals:
+  Q_SIGNALS:
 	void value_changed_Signal();
 
   protected:

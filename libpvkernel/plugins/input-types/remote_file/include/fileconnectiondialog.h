@@ -26,7 +26,7 @@ class FileNameSelectorWidget : public QWidget
 	QString text() const;
 	void setText(const QString&);
 
-  private slots:
+  private Q_SLOTS:
 	void slotPathChanged();
 
   private:
@@ -45,7 +45,7 @@ class LOGVIEWER_EXPORT FileConnectionDialog : public QDialog
 	RegisteredFile registeredFileSettings() const;
 
 	void initialize(const RegisteredFile& registered, const QString& hostname);
-  private slots:
+  private Q_SLOTS:
 	void slotTextChanged(const QString& text);
 	void slotProtocolChanged(int index);
 

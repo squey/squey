@@ -60,7 +60,7 @@ class PVSelBitField
 	/**
 	 * Constructor
 	 */
-	PVSelBitField(PVRow count);
+	explicit PVSelBitField(PVRow count);
 
 	/**
 	 * Create a PVSelBitField object from a row table until we reach '0' marking
@@ -68,7 +68,7 @@ class PVSelBitField
 	 *
 	 * The PVSelBitField is a binary '0100' if the second line is selected.
 	 */
-	PVSelBitField(std::vector<PVRow> const& rtable);
+	explicit PVSelBitField(std::vector<PVRow> const& rtable);
 
 	PVSelBitField(PVSelBitField const& o);
 

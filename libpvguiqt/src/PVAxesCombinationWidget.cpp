@@ -31,12 +31,9 @@ PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(
 	connect(_btn_reset, SIGNAL(clicked()), this, SLOT(reset_comb_Slot()));
 
 	_btn_sel_singleton->setEnabled(view != NULL);
-	_btn_sel_range->setEnabled(view != NULL);
 	if (view != NULL) {
 		connect(_btn_sel_singleton, SIGNAL(clicked()), this, SLOT(sel_singleton_Slot()));
-		connect(_btn_sel_range, SIGNAL(clicked()), this, SLOT(sel_range_Slot()));
 	}
-	_btn_sel_range->hide();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_add_Slot()
@@ -52,9 +49,6 @@ void PVGuiQt::PVAxesCombinationWidget::axis_add_Slot()
 	_axes_combination.axis_append(axis_id);
 
 	_list_used->setCurrentRow(_list_used->count() - 1);
-
-	emit axes_count_changed();
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
@@ -64,7 +58,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 	}
 
 	QVector<PVCol> axes_id(get_used_axes_selected());
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		if (c == 0) {
 			return;
 		}
@@ -73,13 +67,11 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 	_axes_combination.move_axes_left_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
 	QItemSelection new_sel;
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		QModelIndex midx = _list_used->model()->index(c - 1, 0);
 		new_sel.select(midx, midx);
 	}
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
-
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
@@ -89,7 +81,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 	}
 
 	QVector<PVCol> axes_id(get_used_axes_selected());
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		if (c == _list_used->count() - 1) {
 			return;
 		}
@@ -98,13 +90,11 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 	_axes_combination.move_axes_right_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
 	QItemSelection new_sel;
-	foreach (PVCol c, axes_id) {
+	for (PVCol c : axes_id) {
 		QModelIndex midx = _list_used->model()->index(c + 1, 0);
 		new_sel.select(midx, midx);
 	}
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
-
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_move_Slot()
@@ -126,7 +116,6 @@ void PVGuiQt::PVAxesCombinationWidget::axis_move_Slot()
 
 	update_used_axes();
 	_list_used->setCurrentRow(dest);
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
@@ -144,22 +133,13 @@ void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 	_axes_combination.remove_axes(axes_id);
 	update_used_axes();
 	_list_used->setCurrentRow(std::min(axes_id.at(0), _list_used->count() - 1));
-
-	emit axes_count_changed();
-	emit axes_combination_changed();
 }
 
 void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()
 {
-	PVCol nold_axes = _axes_combination.get_axes_count();
 	_axes_combination.reset_to_default();
 
 	update_used_axes();
-
-	if (nold_axes != _axes_combination.get_axes_count()) {
-		emit axes_count_changed();
-	}
-	emit axes_combination_changed();
 }
 
 PVCol PVGuiQt::PVAxesCombinationWidget::get_original_axis_selected()
@@ -177,7 +157,7 @@ QVector<PVCol> PVGuiQt::PVAxesCombinationWidget::get_list_selection(QListWidget*
 	QVector<PVCol> ret;
 	QModelIndexList list = widget->selectionModel()->selectedIndexes();
 	ret.reserve(list.size());
-	foreach (const QModelIndex& idx, list) {
+	for (const QModelIndex& idx : list) {
 		ret.push_back(idx.row());
 	}
 	return ret;
@@ -216,7 +196,6 @@ void PVGuiQt::PVAxesCombinationWidget::sort_Slot()
 {
 	_axes_combination.sort_by_name(true);
 	update_used_axes();
-	emit axes_combination_changed();
 }
 
 bool PVGuiQt::PVAxesCombinationWidget::is_used_axis_selected()
@@ -227,22 +206,6 @@ bool PVGuiQt::PVAxesCombinationWidget::is_used_axis_selected()
 bool PVGuiQt::PVAxesCombinationWidget::is_original_axis_selected()
 {
 	return _list_org->selectedItems().size() > 0;
-}
-
-void PVGuiQt::PVAxesCombinationWidget::save_current_combination()
-{
-	_saved_combination = _axes_combination;
-}
-
-void PVGuiQt::PVAxesCombinationWidget::restore_saved_combination()
-{
-	bool count_changed =
-	    (_axes_combination.get_axes_count() != _saved_combination.get_axes_count());
-	_axes_combination = _saved_combination;
-	if (count_changed) {
-		emit axes_count_changed();
-	}
-	emit axes_combination_changed();
 }
 
 // PVMoveToDlg implementation
@@ -302,9 +265,9 @@ void PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
 void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
 {
 	QItemSelection new_sel;
-	foreach (PVCol c, cols) {
+	for (PVCol c : cols) {
 		QList<PVCol> comb_cols = _axes_combination.get_combined_axes_columns_indexes(c);
-		foreach (PVCol comb_c, comb_cols) {
+		for (PVCol comb_c : comb_cols) {
 			QModelIndex midx = _list_used->model()->index(comb_c, 0);
 			new_sel.select(midx, midx);
 		}
@@ -315,48 +278,8 @@ void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> cons
 void PVGuiQt::PVAxesCombinationWidget::sel_singleton_Slot()
 {
 	assert(_view);
-	QList<PVCol> cols_rem = _view->get_parent<Inendi::PVPlotted>()->get_singleton_columns_indexes();
+	QList<PVCol> cols_rem = _view->get_parent<Inendi::PVPlotted>().get_singleton_columns_indexes();
 	set_selection_from_cols(cols_rem);
-}
-
-void PVGuiQt::PVAxesCombinationWidget::sel_range_Slot()
-{
-#if 0
-	assert(_view);
-	PVAxesCombinationWidgetSelRange* dlg = new PVAxesCombinationWidgetSelRange((QWidget*) this);
-	if (dlg->exec() != QDialog::Accepted) {
-		return;
-	}
-
-	float min,max;
-	if (!dlg->get_range(min, max)) {
-		return;
-	}
-
-	Inendi::PVPlotted* plotted = _view->get_parent<Inendi::PVPlotted>();
-	Inendi::PVMapped* mapped = _view->get_parent<Inendi::PVMapped>();
-
-	double rate = dlg->rate();
-	QList<PVCol> cols;
-	PVAxesCombinationWidgetSelRange::values_source_t src = dlg->get_source();
-	if (dlg->reversed()) {
-		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = plotted->get_columns_indexes_values_not_within_range(min, max, rate);
-		}
-		else {
-			cols = mapped->get_columns_indexes_values_not_within_range(min, max, rate);
-		}
-	}
-	else {
-		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = plotted->get_columns_indexes_values_within_range(min, max, rate);
-		}
-		else {
-			cols = mapped->get_columns_indexes_values_within_range(min, max, rate);
-		}
-	}
-	set_selection_from_cols(cols);
-#endif
 }
 
 // PVAxesCombinationWidgetSelRange implementation

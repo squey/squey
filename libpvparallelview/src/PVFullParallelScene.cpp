@@ -11,12 +11,9 @@
 
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVView.h>
+#include <inendi/PVSource.h>
 
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
-
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVHive.h>
-#include <pvhive/PVObserverCallback.h>
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
@@ -72,46 +69,20 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	setItemIndexMethod(QGraphicsScene::NoIndex);
 
-	/**
-	 * Register source for deletion in order to disconnect axes events and
-	 * therefore avoid crashes
-	 * when trying to access an already deleted source...
-	 * This indicate a design flaw because the scene should be deleted before the
-	 * source !
-	 */
-	Inendi::PVSource_sp src_sp = view_sp->get_parent<Inendi::PVSource>()->shared_from_this();
-	PVHive::PVObserverSignal<Inendi::PVSource*>* src_obs =
-	    new PVHive::PVObserverSignal<Inendi::PVSource*>(this);
-	PVHive::get().register_observer(src_sp, *src_obs);
-	src_obs->connect_about_to_be_deleted(this, SLOT(disconnect_axes()));
-
 	// Register view for unselected & zombie events toggle
-	PVHive::PVObserverSignal<bool>* obs = new PVHive::PVObserverSignal<bool>(this);
-	PVHive::get().register_observer(
-	    view_sp, [=](Inendi::PVView& view) { return &view.are_view_unselected_zombie_visible(); },
-	    *obs);
-	obs->connect_refresh(this, SLOT(toggle_unselected_zombie_visibility()));
+	_lib_view._toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
+	    this, &PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility));
 
 	// Register source for sections hover events
-	PVHive::get().register_observer(
-	    src_sp, [=](Inendi::PVSource& source) { return &source.section_hovered(); },
-	    _section_hover_obs);
-	_section_hover_obs.connect_refresh(this, SLOT(highlight_axis(PVHive::PVObserverBase*)));
+	view_sp->_axis_hovered.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::highlight_axis));
 
 	// Register source for sections click events
-	PVHive::get().register_observer(
-	    src_sp, [=](Inendi::PVSource& source) { return &source.section_clicked(); },
-	    _section_click_obs);
-	_section_click_obs.connect_refresh(this, SLOT(sync_axis_with_section(PVHive::PVObserverBase*)));
+	view_sp->_axis_clicked.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::sync_axis_with_section));
 
-	_obs_selected_layer = PVHive::create_observer_callback_heap<int>(
-	    [&](int const*) {}, [&](int const*) { this->update_axes_layer_min_max(); },
-	    [&](int const*) {});
-
-	PVHive::get().register_observer(
-	    view_sp,
-	    [=](Inendi::PVView& view) { return &view.get_layer_stack().get_selected_layer_index(); },
-	    *_obs_selected_layer);
+	view_sp->_update_current_min_max.connect(
+	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
 
@@ -130,7 +101,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	}
 
 	_full_parallel_view->set_total_events_number(
-	    _lib_view.get_parent<Inendi::PVSource>()->get_valid_row_count());
+	    _lib_view.get_parent<Inendi::PVSource>().get_valid_row_count());
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
@@ -183,7 +154,6 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 	        SLOT(emit_new_zoomed_parallel_view(int)));
 	connect(axisw, SIGNAL(mouse_hover_entered(PVCol, bool)), this,
 	        SLOT(axis_hover_entered(PVCol, bool)));
-	connect(axisw, SIGNAL(mouse_clicked(PVCol)), this, SLOT(axis_clicked(PVCol)));
 
 	addItem(axisw);
 
@@ -197,22 +167,7 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 
 void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCol col, bool entered)
 {
-	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>()->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVSource::set_axis_hovered)>(src, col, entered);
-	highlight_axis(entered ? col : -1);
-}
-
-void PVParallelView::PVFullParallelScene::axis_clicked(PVCol col)
-{
-	Inendi::PVSource_sp src = _lib_view.get_parent<Inendi::PVSource>()->shared_from_this();
-	PVHive::call<FUNC(Inendi::PVSource::set_axis_clicked)>(src, col);
-}
-
-void PVParallelView::PVFullParallelScene::disconnect_axes()
-{
-	for (PVAxisGraphicsItem* axis : _axes) {
-		axis->disconnect();
-	}
+	_lib_view.set_axis_hovered(col, entered);
 }
 
 /******************************************************************************
@@ -1268,37 +1223,13 @@ size_t PVParallelView::PVFullParallelScene::qimage_height() const
 /******************************************************************************
  * PVParallelView::PVFullParallelScene::highlight_axis
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::highlight_axis(PVHive::PVObserverBase* o)
+void PVParallelView::PVFullParallelScene::highlight_axis(int col, bool entered)
 {
-	PVHive::PVObserverSignal<int>* real_o = dynamic_cast<PVHive::PVObserverSignal<int>*>(o);
-	assert(real_o);
-	int* obj = real_o->get_object();
-	int col = *obj;
-
-	highlight_axis(col);
+	_axes[col]->highlight(entered);
 }
 
-void PVParallelView::PVFullParallelScene::highlight_axis(int col)
+void PVParallelView::PVFullParallelScene::sync_axis_with_section(size_t col, size_t pos)
 {
-	if (col == -1) {
-		if (_hovered_axis_id != -1) {
-			_axes[_hovered_axis_id]->highlight(false);
-		}
-	} else {
-		_axes[col]->highlight(true);
-	}
-	_hovered_axis_id = col;
-}
-
-void PVParallelView::PVFullParallelScene::sync_axis_with_section(PVHive::PVObserverBase* o)
-{
-	PVHive::PVObserverSignal<section_pos_t>* real_o =
-	    dynamic_cast<PVHive::PVObserverSignal<section_pos_t>*>(o);
-	assert(real_o);
-	section_pos_t col_pos = *real_o->get_object();
-	size_t col = col_pos.first;
-	size_t pos = col_pos.second;
-
 	qreal axis_x = _full_parallel_view->mapFromScene(QPointF(_axes[col]->x(), 0)).x();
 	int offset = axis_x - pos;
 

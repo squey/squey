@@ -334,7 +334,7 @@ void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect, bool
 	}
 
 	if (commit) {
-		emit geometry_has_changed(old_rect, _rect);
+		Q_EMIT geometry_has_changed(old_rect, _rect);
 	}
 
 	update();

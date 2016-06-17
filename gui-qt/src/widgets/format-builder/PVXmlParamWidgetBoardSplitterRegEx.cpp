@@ -358,7 +358,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues()
 	regExCount(exp->toPlainText());
 	node->setNbr(nbr); // set the fileds with expression rexexp selection count.
 	flagNeedConfirmAndSave = false;
-	emit signalRefreshView();
+	Q_EMIT signalRefreshView();
 }
 
 /******************************************************************************
@@ -375,7 +375,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetValues()
 		node->setAttribute(QString("saveValidator"), "false");
 	}
 
-	emit signalRefreshView();
+	Q_EMIT signalRefreshView();
 }
 
 /******************************************************************************

@@ -8,10 +8,8 @@
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVStartScreenWidget.h>
 
-#include <pvhive/PVHive.h>
-#include <pvhive/PVCallHelper.h>
-
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QInputDialog>
 #include <QMenu>
 #include <QAction>
@@ -80,8 +78,7 @@ void PVGuiQt::__impl::PVTabBar::rename_tab(int index)
 		setTabText(index, name + (add_star ? star : ""));
 		Inendi::PVScene* scene = _root.current_scene();
 		assert(scene);
-		Inendi::PVScene_p scene_p = scene->shared_from_this();
-		PVHive::call<FUNC(Inendi::PVScene::set_name)>(scene_p, name.toStdString());
+		scene->set_name(name.toStdString());
 	}
 }
 
@@ -125,15 +122,8 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Inendi::PVRoot* root, QWidget*
 	connect(_tab_widget->tabBar(), SIGNAL(tabCloseRequested(int)), this,
 	        SLOT(tab_close_requested(int)));
 
-	// Hive
-	// Register for current scene changing
-	Inendi::PVRoot_sp root_sp = root->shared_from_this();
-	PVHive::PVObserverSignal<Inendi::PVRoot>* obs =
-	    new PVHive::PVObserverSignal<Inendi::PVRoot>(this);
-	obs->connect_refresh(this, SLOT(select_tab_from_current_scene()));
-	PVHive::get().register_observer(
-	    root_sp, [=](Inendi::PVRoot& root) { return root.get_current_scene_hive_property(); },
-	    *obs);
+	root->_scene_updated.connect(
+	    sigc::mem_fun(this, &PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene));
 }
 
 void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
@@ -173,41 +163,31 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget*
-PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene_p scene_p)
+PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene& scene_p)
 {
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(*scene_p);
+	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
 	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this,
 	        SLOT(emit_workspace_dragged_outside(QWidget*)));
 	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
-	connect(workspace_tab_widget, SIGNAL(project_modified(bool, QString)), this,
-	        SLOT(project_modified(bool, QString)));
+	connect(workspace_tab_widget, SIGNAL(project_modified()), this, SLOT(project_modified()));
 
 	int index = _tab_widget->count();
-	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p->get_name()));
+	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p.get_name()));
 	_stacked_widget->insertWidget(index, workspace_tab_widget);
-	_tab_widget->setTabToolTip(index, QString::fromStdString(scene_p->get_name()));
+	_tab_widget->setTabToolTip(index, QString::fromStdString(scene_p.get_name()));
 	_tab_widget->setCurrentIndex(index);
 
 	return workspace_tab_widget;
 }
 
-void PVGuiQt::PVProjectsTabWidget::project_modified(bool modified, QString path /* = QString */)
+void PVGuiQt::PVProjectsTabWidget::project_modified()
 {
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = (PVSceneWorkspacesTabWidget*)sender();
 	assert(workspace_tab_widget);
 	int index = _stacked_widget->indexOf(workspace_tab_widget);
 	QString text = _tab_widget->tabText(index);
-	if (modified && !text.endsWith(star)) {
+	if (!text.endsWith(star)) {
 		_tab_widget->setTabText(index, text + "*");
-	} else if (!modified && text.endsWith(star)) {
-		if (path.isEmpty()) {
-			_tab_widget->setTabText(index, text.left(text.size()));
-		} else {
-			QFileInfo info(path);
-			QString basename = info.fileName();
-			_tab_widget->setTabToolTip(index, path);
-			_tab_widget->setTabText(index, basename);
-		}
 	}
 }
 
@@ -257,11 +237,11 @@ PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Inendi::PVS
 
 void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 {
-	Inendi::PVScene* scene = workspace->get_source()->get_parent<Inendi::PVScene>();
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
+	Inendi::PVScene& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
+	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
 
 	if (!workspace_tab_widget) {
-		workspace_tab_widget = add_project(scene->shared_from_this());
+		workspace_tab_widget = add_project(scene);
 	}
 
 	const Inendi::PVSource* src = workspace->get_source();
@@ -276,8 +256,8 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 
 void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace)
 {
-	Inendi::PVScene* scene = workspace->get_source()->get_parent<Inendi::PVScene>();
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(scene);
+	Inendi::PVScene& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
+	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
 	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace));
 }
 
@@ -299,7 +279,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 
 		if (_tab_widget->count() == FIRST_PROJECT_INDEX) {
 			_tab_widget->setCurrentIndex(0);
-			emit is_empty();
+			Q_EMIT is_empty();
 		}
 	}
 }
@@ -315,9 +295,9 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	QWidget* active_widget = _stacked_widget->currentWidget();
 	if ((active_widget == _start_screen_widget) ||
 	    (_stacked_widget->count() <= FIRST_PROJECT_INDEX)) {
-		emit active_project(false);
+		Q_EMIT active_project(false);
 	} else {
-		emit active_project(true);
+		Q_EMIT active_project(true);
 	}
 
 	if (index == 0) {
@@ -358,7 +338,7 @@ void PVGuiQt::PVProjectsTabWidget::select_tab_from_scene(Inendi::PVScene* scene)
 void PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene()
 {
 	Inendi::PVScene* cur_scene = _root->current_scene();
-	if (cur_scene->get_parent<Inendi::PVRoot>() != _root) {
+	if (&cur_scene->get_parent<Inendi::PVRoot>() != _root) {
 		return;
 	}
 

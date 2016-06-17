@@ -7,6 +7,7 @@
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVLayer.h>
+
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVPlainTextType.h>
@@ -87,7 +88,9 @@ int main()
 	// Init nraw
 	pvtest::TestEnv env(FILENAME, FORMAT, DUPL);
 	env.compute_mapping();
-	Inendi::PVView* view = env.compute_plotting()->get_parent<Inendi::PVRoot>()->current_view();
+	env.compute_plotting();
+	env.compute_views();
+	Inendi::PVView* view = env.root.current_view();
 
 	// Get plugin reference
 	constexpr char plugin_name[] = "search-multiple";
@@ -96,7 +99,9 @@ int main()
 	Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
 	PVCore::PVArgumentList& args = view->get_last_args_filter(plugin_name);
 
-	Inendi::PVLayer out("Out", view->get_row_count());
+	Inendi::PVSelection sel(view->get_row_count());
+	sel.select_all();
+	Inendi::PVLayer out("Out", sel);
 	out.reset_to_empty_and_default_color(view->get_row_count());
 	Inendi::PVLayer& in = view->get_layer_stack_output_layer();
 	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(COLUMN_INDEX));

@@ -15,9 +15,7 @@
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <inendi/PVSelection.h>
-#include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
-#include <inendi/PVSource.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotting.h>
@@ -45,7 +43,9 @@ int main(int argc, char** argv)
 	}
 
 	env.compute_mapping();
-	Inendi::PVView* view = env.compute_plotting()->get_parent<Inendi::PVRoot>()->current_view();
+	env.compute_plotting();
+	env.compute_views();
+	Inendi::PVView* view = env.root.current_view();
 
 	// Export selection to temporary file
 	Inendi::PVSelection sel(view->get_row_count());

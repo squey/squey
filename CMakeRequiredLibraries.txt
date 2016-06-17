@@ -8,6 +8,7 @@
 # Define the Qt Core package
 ###############################################################################
 ADD_DEFINITIONS(-DQT_SHARED)
+ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
 FIND_PACKAGE(Qt5Core REQUIRED)
 message(STATUS "QtCore include dirs: " ${Qt5Core_INCLUDE_DIR})
 include_directories(${Qt5Core_INCLUDE_DIRS})
@@ -264,6 +265,12 @@ if(EXISTS ${FURL_STATIC_LIB})
 else()
   message( FATAL_ERROR "FURL Can't be found" )
 endif ()
+
+###############################################################################
+# Check for PVCOP installation
+###############################################################################      
+
+pkg_check_modules(SIGCPP REQUIRED sigc++-2.0)
 
 ###############################################################################
 # Check for PVCOP installation

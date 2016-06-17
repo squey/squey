@@ -20,15 +20,15 @@ int main()
 {
 	pvtest::TestEnv env(log_file, log_format);
 
-	Inendi::PVSource* source = env.compute_mapping()->get_parent<Inendi::PVSource>();
+	Inendi::PVSource& source = env.compute_mapping().get_parent<Inendi::PVSource>();
 
 	for (size_t i = 0; i < ROW_COUNT; i++) {
 		if (i < ROW_COUNT / 2) {
-			PV_VALID(source->get_input_value(i, 0), std::string("test"));
+			PV_VALID(source.get_input_value(i, 0), std::string("test"));
 		} else {
-			PV_VALID(source->get_input_value(i, 0), std::string("0.0.0.0"));
+			PV_VALID(source.get_input_value(i, 0), std::string("0.0.0.0"));
 		}
-		PV_VALID(source->get_input_value(i, 1), std::string(""));
+		PV_VALID(source.get_input_value(i, 1), std::string(""));
 	};
 
 	return 0;

@@ -33,34 +33,6 @@ class PVDeleteInvestigationDialog;
 
 class PVStartScreenWidget;
 
-class PVAddRecentItemFuncObserver
-    : public PVHive::PVFuncObserverSignal<PVCore::PVRecentItemsManager,
-                                          FUNC(PVCore::PVRecentItemsManager::add)>
-{
-  public:
-	PVAddRecentItemFuncObserver(PVStartScreenWidget* parent) : _parent(parent) {}
-
-  public:
-	void update(const arguments_deep_copy_type& args) const;
-
-  private:
-	PVStartScreenWidget* _parent;
-};
-
-class PVAddSourceRecentItemFuncObserver
-    : public PVHive::PVFuncObserverSignal<PVCore::PVRecentItemsManager,
-                                          FUNC(PVCore::PVRecentItemsManager::add_source)>
-{
-  public:
-	PVAddSourceRecentItemFuncObserver(PVStartScreenWidget* parent) : _parent(parent) {}
-
-  public:
-	void update(const arguments_deep_copy_type& args) const;
-
-  private:
-	PVStartScreenWidget* _parent;
-};
-
 /**
  * \class PVRecentItemsManager
  *
@@ -96,7 +68,7 @@ class PVStartScreenWidget : public QWidget
 
 	QString format_selected_item_string(PVCore::PVRecentItemsManager::Category cat);
 
-  signals:
+  Q_SIGNALS:
 	// These signals are used by to the PVMainWindow.
 	void new_project();
 	void load_project();
@@ -107,7 +79,7 @@ class PVStartScreenWidget : public QWidget
 	void edit_format(const QString& project);
 	void import_type(const QString&);
 
-  public slots:
+  public Q_SLOTS:
 	/*! \brief Slot called when clicking on the hyperlink of a recent item and emitting the proper
 	 * signal.
 	 *  \param[in] id The item identifier under the following format: "category_index;item_index"
@@ -153,9 +125,6 @@ class PVStartScreenWidget : public QWidget
 	custom_listwidget_t* _recent_list_widgets[PVCore::PVRecentItemsManager::Category::LAST];
 	QPushButton* _recent_push_buttons[PVCore::PVRecentItemsManager::Category::LAST];
 
-	PVAddRecentItemFuncObserver _recent_items_add_obs;
-	PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;
-
 	static const QFont* _item_font;
 	static const uint64_t _item_width = 475;
 };
@@ -182,7 +151,7 @@ class PVListWidgetItem : public QObject, public QListWidgetItem
 	bool is_checked() { return _checkbox->isChecked(); }
 	void set_icon_visible(bool visible);
 
-  private slots:
+  private Q_SLOTS:
 	void timeout();
 
   private:
@@ -211,7 +180,7 @@ class PVDeleteInvestigationDialog : public QDialog
 		return static_cast<PVStartScreenWidget*>(parent());
 	}
 
-  private slots:
+  private Q_SLOTS:
 	void delete_investigation_checked(int state);
 
   private:

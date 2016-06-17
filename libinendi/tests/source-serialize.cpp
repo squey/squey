@@ -57,30 +57,29 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene = root->emplace_add_child("scene");
-	Inendi::PVSource_sp src =
-	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job = src->extract();
+	Inendi::PVRoot root;
+	Inendi::PVScene& scene = root.emplace_add_child("scene");
+	Inendi::PVSource& src =
+	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	PVRush::PVControllerJob_p job = src.extract();
 	job->wait_end();
 
 	// Dump the NRAW
-	src->get_rushnraw().dump_csv();
+	src.get_rushnraw().dump_csv();
 
 	// Serialize the scene
 	PVCore::PVSerializeArchive_p ar(
 	    new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
-	ar->get_root()->object("scene", *scene);
+	ar->get_root()->object("scene", scene);
 	ar->finish();
 
 	// Get it back !
-	src.reset();
-	Inendi::PVScene_p scene2 = root->emplace_add_child("scene");
+	Inendi::PVScene& scene2 = root.emplace_add_child("scene");
 	ar.reset(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
-	ar->get_root()->object("scene", *scene2);
+	ar->get_root()->object("scene", scene2);
 	ar->finish();
 
-	auto new_src = scene2->get_children().front();
+	auto new_src = scene2.get_children().front();
 
 	job = new_src->extract();
 	job->wait_end();

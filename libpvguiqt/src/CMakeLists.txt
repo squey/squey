@@ -11,7 +11,6 @@
 set(LIBGUIQT_SRC_FILES
 common.cpp
 PVAxesCombinationDialog.cpp
-PVAxesCombinationModel.cpp
 PVAxesCombinationWidget.cpp
 PVHiveDataTreeModel.cpp
 PVLayerFilterProcessWidget.cpp
@@ -54,7 +53,6 @@ PVDisplayViewListing.cpp
 
 SET(LIBGUIQT_MOC_HEADERS
 include/pvguiqt/PVAxesCombinationDialog.h
-include/pvguiqt/PVAxesCombinationModel.h
 include/pvguiqt/PVAxesCombinationWidget.h
 include/pvguiqt/PVLayerFilterProcessWidget.h
 include/pvguiqt/PVLayerStackDelegate.h

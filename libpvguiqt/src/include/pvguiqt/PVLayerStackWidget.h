@@ -37,7 +37,7 @@ class PVLayerStackWidget : public QWidget
 	void create_actions(QToolBar* toolbar);
 	PVLayerStackModel* ls_model();
 
-  private slots:
+  private Q_SLOTS:
 	void delete_layer();
 	void duplicate_layer();
 	void move_down();

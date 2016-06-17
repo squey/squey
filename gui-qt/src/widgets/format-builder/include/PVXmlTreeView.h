@@ -78,7 +78,6 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 	void expandRecursive(const QModelIndex& index);
 
 	virtual void mouseDoubleClickEvent(QMouseEvent* event);
-	virtual void mousePressEvent(QMouseEvent* event);
 
 	PVXmlDomModel* getModel();
 
@@ -107,10 +106,10 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
   private:
 	bool isDraging;
 	bool isEditing;
-  public slots:
+  public Q_SLOTS:
 	void slotDataHasChanged(const QModelIndex&, const QModelIndex&);
 	void slotSelectNext();
-  signals:
+  Q_SIGNALS:
 	void refresh();
 };
 }

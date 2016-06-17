@@ -43,7 +43,7 @@ class PVAbstractRangeRampCursor : public QWidget
 	 */
 	PVAbstractRangeRampCursor(cursor_type type, QWidget* parent = nullptr);
 
-  signals:
+  Q_SIGNALS:
 	/**
 	 * this signal is emitted each time the cursor is moved using the mouse
 	 */
@@ -171,7 +171,7 @@ class PVAbstractRangeRamp : public QWidget
 	 */
 	void update_gradient();
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * This slot is called each time the minimum cursor is moved
 	 *
@@ -186,7 +186,7 @@ class PVAbstractRangeRamp : public QWidget
 	 */
 	void max_cursor_moved(int value);
 
-  signals:
+  Q_SIGNALS:
 	/**
 	 * This signal is emitted each time the minimum value is changed
 	 *
@@ -442,7 +442,7 @@ class PVAbstractRangePicker : public QWidget
 	 */
 	virtual double map_from_spinbox(const double& value) const;
 
-  private slots:
+  private Q_SLOTS:
 	/**
 	 * This slot is called each time the minimum spinbox's value has changed
 	 *

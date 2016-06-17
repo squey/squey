@@ -57,36 +57,36 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Inendi::PVRoot_p root(new Inendi::PVRoot());
-	Inendi::PVScene_p scene = root->emplace_add_child("scene");
-	scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	Inendi::PVSource_sp src =
-	    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job = src->extract();
+	Inendi::PVRoot root;
+	Inendi::PVScene& scene = root.emplace_add_child("scene");
+	scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Inendi::PVSource& src =
+	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	PVRush::PVControllerJob_p job = src.extract();
 	job->wait_end();
-	src->create_default_view();
-	src->create_default_view();
+	auto& plotted = src.emplace_add_child().emplace_add_child();
+	plotted.emplace_add_child();
+	plotted.emplace_add_child();
 
-	Inendi::PVScene_p scene2 = root->emplace_add_child("scene1");
-	Inendi::PVSource_sp src2 =
-	    scene2->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	src2->create_default_view();
-	src2->create_default_view();
+	Inendi::PVScene& scene2 = root.emplace_add_child("scene1");
+	Inendi::PVSource& src2 =
+	    scene2.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	auto& plotted2 = src2.emplace_add_child().emplace_add_child();
+	plotted2.emplace_add_child();
+	plotted2.emplace_add_child();
 
 	// Serialize the root object
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive(
 	    "/srv/tmp-inendi/test", PVCore::PVSerializeArchive::write, 1));
-	ar->get_root()->object("root", *root);
+	ar->get_root()->object("root", root);
 	ar->finish();
 
-	src.reset();
-	scene.reset();
-	root.reset(new Inendi::PVRoot());
+	Inendi::PVRoot root_read;
 
 	// Get it back !
 	ar.reset(new PVCore::PVSerializeArchive("/srv/tmp-inendi/test",
 	                                        PVCore::PVSerializeArchive::read, 1));
-	ar->get_root()->object("root", *root);
+	ar->get_root()->object("root", root_read);
 	ar->finish();
 
 	return 0;

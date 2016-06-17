@@ -18,7 +18,6 @@
 #include <pvkernel/rush/PVFormat.h>
 
 #include <inendi/PVPlottingProperties.h>
-#include <inendi/PVPtrObjects.h>
 #include <inendi/PVPlottingFilter.h>
 
 #include <memory>
@@ -27,6 +26,7 @@ namespace Inendi
 {
 
 class PVMapped;
+class PVPlotted;
 
 /**
  * \class PVPlotting

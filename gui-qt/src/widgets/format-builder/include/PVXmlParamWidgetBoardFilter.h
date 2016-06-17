@@ -55,12 +55,12 @@ class PVXmlParamWidgetBoardFilter : public QWidget
 
 	PVXmlParamWidget* _parent;
 
-  public slots:
+  public Q_SLOTS:
 	void slotSetValues();
 	void slotVerifRegExpInName();
 	void slotEmitNext();
 
-  signals:
+  Q_SIGNALS:
 	void signalRefreshView();
 	void signalEmitNext();
 };

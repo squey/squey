@@ -20,10 +20,11 @@ class QWidget;
 
 #include <pvdisplays/PVDisplaysContainer.h>
 
+#include <inendi/PVView.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
 
-#include <inendi/PVSource_types.h>
 #include <inendi/PVView_types.h>
 
 /**
@@ -56,6 +57,7 @@ T& get_typed_arg(std::tuple<U...>& u)
 namespace Inendi
 {
 class PVView;
+class PVSource;
 }
 
 Q_DECLARE_METATYPE(Inendi::PVView*)
@@ -83,10 +85,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 
 	friend class PVViewDisplay;
 	friend class PVViewWidgets;
-
-  public:
-	typedef PVHive::PVObserverSignal<Inendi::PVMapped> mapped_obs_t;
-	typedef PVHive::PVObserverSignal<Inendi::PVPlotted> plotted_obs_t;
 
   private:
 	class PVViewWidgets
@@ -166,7 +164,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void changeEvent(QEvent* event) override;
 
-  public slots:
+  public Q_SLOTS:
 	/*! \brief Create the widget used by the view display.
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
@@ -179,22 +177,22 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	};
 
 	template <class T>
-	void create_view_dispatch(bool, Tag<T>);
+	void create_view_dispatch(QAction*, Tag<T>);
 
-	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewIf>)
+	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewIf>)
 	{
-		create_view_widget(nullptr);
+		create_view_widget(act);
 	}
-	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewAxisIf>)
+	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewAxisIf>)
 	{
-		create_view_axis_widget(nullptr);
+		create_view_axis_widget(act);
 	}
-	void create_view_dispatch(bool, Tag<PVDisplays::PVDisplayViewZoneIf>)
+	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewZoneIf>)
 	{
-		create_view_zone_widget(nullptr);
+		create_view_zone_widget(act);
 	}
 
-  private slots:
+  private Q_SLOTS:
 	/*! \brief Create the widget used by the view display with axis parameter.
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
@@ -231,7 +229,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void display_destroyed(QObject* object = 0);
 
-  signals:
+  Q_SIGNALS:
 	/*! \brief Signal forwarded when a display is moved in order to detected a potential tab change.
 	 */
 	void try_automatic_tab_switch();
