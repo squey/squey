@@ -301,7 +301,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		dlg->deleteLater();
 	}
 
-	Inendi::PVSource* src_p;
+	Inendi::PVSource* src_p = nullptr;
 	try {
 		src_p = &scene_p->emplace_add_child(src_desc);
 	} catch (PVRush::PVFormatException const& e) {
