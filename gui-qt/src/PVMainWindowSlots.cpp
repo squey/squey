@@ -252,8 +252,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  *****************************************************************************/
 Inendi::PVScene& PVInspector::PVMainWindow::project_new_Slot()
 {
-	std::string scene_name = tr("Data collection %1").arg(sequence_n++).toStdString();
-	Inendi::PVScene& scene_p = get_root().emplace_add_child(scene_name);
+	Inendi::PVScene& scene_p = get_root().emplace_add_child(get_next_scene_name());
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -498,6 +497,11 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 			}
 		}
 		break;
+	}
+
+	// Name all new scenes
+	for (auto* scn : get_root().get_children()) {
+		scn->set_name(get_next_scene_name());
 	}
 
 	// Update GUI on loaded sources.
