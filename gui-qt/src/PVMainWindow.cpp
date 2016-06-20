@@ -1084,7 +1084,7 @@ static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
 	pbox->launch_timer_status();
 
 	// Show the progressBox
-	if (pbox->exec() == QDialog::Accepted) {
+	if (job->done() or pbox->exec() == QDialog::Accepted) {
 		// Job finished, everything is fine.
 		return true;
 	}
