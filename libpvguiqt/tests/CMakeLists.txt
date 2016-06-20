@@ -9,7 +9,6 @@
 ###################################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
-include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIR})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
