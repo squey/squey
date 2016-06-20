@@ -30,7 +30,7 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
 	// FIXME : Should be done at compile time using tag dispatching.
 	if (sc == sc_n_elts) {
 		_max_n_elts = n_elts;
-		_idx_end = begin + n_elts;
+		_idx_end = begin + n_elts + 1;
 	} else {
 		_max_n_elts = end - begin;
 		_idx_end = end;
