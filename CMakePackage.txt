@@ -16,7 +16,7 @@ SET(CPACK_SOURCE_STRIP_FILES "TRUE")
 SET(CPACK_RESOURCE_FILE_LICENSE ${inendi-inspector_SOURCE_DIR}/COPYING.txt)
 SET(CPACK_SYSTEM_NAME "linux")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Inendi")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "inendi-utils-lib(>=1.0.0), libpvcop-lib(>=1.0.0), libqt5concurrent5, libqt5core5a, libqt5gui5, libqt5network5, libqt5opengl5, libqt5printsupport5, libqt5qml5, libqt5quick5, libqt5sql5, libqt5webkit5, libqt5widgets5, libqt5xml5, libqt5sql5-mysql, libqt5sql5-odbc, libqt5sql5-psql, libqt5sql5-sqlite, libboost-python1.55.0, libpython2.7, libarchive13, libhwloc5, libboost-date-time1.55.0, libboost-thread1.55.0, libboost-system1.55.0, libboost-program-options1.55.0, libglu1-mesa, libgoogle-perftools4, libpcrecpp0, libcurl3")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "inendi-utils-lib(>=1.0.0), libpvcop-lib(>=1.0.0), libqt5concurrent5, libqt5core5a, libqt5gui5, libqt5network5, libqt5opengl5, libqt5printsupport5, libqt5qml5, libqt5quick5, libqt5sql5, libqt5webkit5, libqt5widgets5, libqt5xml5, libqt5sql5-mysql, libqt5sql5-odbc, libqt5sql5-psql, libqt5sql5-sqlite, libboost-python1.55.0, libpython2.7, libarchive13, libhwloc5, libboost-date-time1.55.0, libboost-thread1.55.0, libboost-system1.55.0, libboost-program-options1.55.0, libglu1-mesa, libgoogle-perftools4, libpcrecpp0, libcurl3, libsigc++-2.0-0c2a")
 
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, ocl-icd-libopencl1, pocl-opencl-icd")
 SET(CPACK_DEBIAN_PACKAGE_RECOMMENDS "amd-opencl-icd, beignet-opencl-icd, mesa-opencl-icd, nvidia-opencl-icd")
