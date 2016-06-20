@@ -212,7 +212,7 @@ void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 {
 	Inendi::PVLayerStack& layerstack = lib_layer_stack();
 	Inendi::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
-	layer.reset_to_default_color(layer.get_selection().count());
+	layer.reset_to_default_color();
 	lib_view().process_from_layer_stack();
 }
 
@@ -225,7 +225,7 @@ void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 {
 	_lib_view.add_new_layer(name);
 	Inendi::PVLayer& layer = lib_layer_stack().get_layer_n(rowCount() - 1);
-	layer.reset_to_full_and_default_color(layer.get_selection().count());
+	layer.reset_to_full_and_default_color();
 	lib_view().process_from_layer_stack();
 }
 

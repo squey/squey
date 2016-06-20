@@ -35,7 +35,7 @@ void run_multiplesearch_filter(Inendi::PVView* view1)
 	PVCore::PVArgumentList& args = view1->get_last_args_filter(plugin_name);
 
 	Inendi::PVLayer& out = view1->get_post_filter_layer();
-	out.reset_to_empty_and_default_color(view1->get_row_count());
+	out.reset_to_empty_and_default_color();
 	Inendi::PVLayer& in = view1->get_layer_stack_output_layer();
 	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(4 /* HTTP status */));
 	args["exps"].setValue(PVCore::PVPlainTextType("503"));

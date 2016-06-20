@@ -38,9 +38,13 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
 Inendi::PVView::PVView(PVPlotted& plotted)
     : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
     , _axes_combination(get_parent<PVSource>().get_format())
-    , post_filter_layer("post_filter_layer")
-    , layer_stack_output_layer("view_layer_stack_output_layer")
-    , output_layer("output_layer")
+    , floating_selection(get_row_count())
+    , post_filter_layer("post_filter_layer", get_row_count())
+    , layer_stack_output_layer("view_layer_stack_output_layer", get_row_count())
+    , output_layer("output_layer", get_row_count())
+    , layer_stack(get_row_count())
+    , real_output_selection(get_row_count())
+    , volatile_selection(get_row_count())
     , _rushnraw_parent(&get_parent<PVSource>().get_rushnraw())
     , _view_id(-1)
     , _active_axis(0)
@@ -55,8 +59,17 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 
-	set_row_count(get_row_count());
-	reset_layers();
+	_layer_stack_about_to_refresh.emit();
+	PVRow row_count = get_row_count();
+
+	// This function remove all the layers and add the default one with all events
+	// selected
+	layer_stack.delete_all_layers();
+	layer_stack.append_new_layer(row_count, "All events");
+	layer_stack.get_layer_n(0).set_lock();
+	layer_stack.get_layer_n(0).compute_selectable_count(row_count);
+
+	_layer_stack_refreshed.emit();
 
 	process_from_layer_stack();
 }
@@ -82,36 +95,6 @@ Inendi::PVView::~PVView()
 #endif
 
 	get_parent<PVRoot>().view_being_deleted(this);
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::reset_layers
- *
- *****************************************************************************/
-void Inendi::PVView::reset_layers()
-{
-	_layer_stack_about_to_refresh.emit();
-	PVRow row_count = get_row_count();
-
-	// This function remove all the layers and add the default one with all events
-	// selected
-	layer_stack.delete_all_layers();
-	layer_stack.append_new_layer(row_count, "All events");
-	layer_stack.get_layer_n(0).reset_to_full_and_default_color(row_count);
-	layer_stack.get_layer_n(0).set_lock();
-
-	if (row_count != 0) {
-		/* when a .pvi is loaded, the mapped and the plotted are
-		 * uninitialized when the view is created (the rush pipeline
-		 * is runned later).
-		 */
-		layer_stack.get_layer_n(0).compute_selectable_count(row_count);
-	}
-	post_filter_layer.reset_to_full_and_default_color(row_count);
-	layer_stack_output_layer.reset_to_full_and_default_color(row_count);
-	output_layer.reset_to_full_and_default_color(row_count);
-	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -168,7 +151,7 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 	/* We set it's selection to the final selection */
 	new_layer.get_selection() = post_filter_layer.get_selection();
 	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(
-	    new_layer.get_lines_properties(), new_layer.get_selection(), get_row_count());
+	    new_layer.get_lines_properties(), new_layer.get_selection());
 }
 
 void Inendi::PVView::commit_volatile_in_floating_selection()
@@ -422,21 +405,6 @@ Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
 PVRow Inendi::PVView::get_row_count() const
 {
 	return get_parent<PVSource>().get_row_count();
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::set_row_count
- *
- *****************************************************************************/
-void Inendi::PVView::set_row_count(PVRow row_count)
-{
-	floating_selection.set_count(row_count);
-	post_filter_layer.set_count(row_count);
-	layer_stack_output_layer.set_count(row_count);
-	output_layer.set_count(row_count);
-	real_output_selection.set_count(row_count);
-	volatile_selection.set_count(row_count);
 }
 
 /******************************************************************************
@@ -733,8 +701,7 @@ void Inendi::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 	/* VARIABLES */
 	PVLayer& active_layer = layer_stack.get_selected_layer();
 
-	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(),
-	                                                        get_row_count(), c);
+	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(), c);
 }
 
 /******************************************************************************
@@ -957,10 +924,6 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 
 void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so)
 {
-	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
-		// If no layer stack, reset all layers so that we have one :)
-		reset_layers();
-	}
-	set_row_count(layer_stack.get_layer_n(0).get_selection().count()); // please kill me
+	so.object("layer-stack", layer_stack, "Layers", true);
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }

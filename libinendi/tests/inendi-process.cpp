@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	Inendi::PVScene& scene = root.emplace_add_child("scene");
 	Inendi::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job = src.extract();
+	PVRush::PVControllerJob_p job = src.extract(0, 1000000000);
 	job->wait_end();
 	PVLOG_INFO("Extracted %u lines...\n", src.get_row_count());
 

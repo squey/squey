@@ -499,10 +499,11 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		break;
 	}
 
-	// Name all new scenes
-	for (auto* scn : get_root().get_children()) {
-		scn->set_name(get_next_scene_name());
-	}
+	// Increase counter so that later imported source have a more "distinct" name.
+	// eg : We load "Data collection 1" and "Data collection 2", next imported scene
+	// will be "Data collection 3". We don't care about imported invevtigation then
+	// imported scene as the create a new MainWindows
+	sequence_n += get_root().size();
 
 	// Update GUI on loaded sources.
 	for (Inendi::PVSource* src : get_root().get_children<Inendi::PVSource>()) {

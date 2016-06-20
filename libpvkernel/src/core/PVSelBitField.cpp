@@ -67,7 +67,6 @@ void PVCore::PVSelBitField::ensure_allocated()
 void PVCore::PVSelBitField::allocate_table()
 {
 	assert(_count > 0);
-	assert(_count < INENDI_LINES_MAX);
 	_selection = new pvcop::core::memarray<bool>(_count);
 	_table = (pointer)_selection->data();
 }

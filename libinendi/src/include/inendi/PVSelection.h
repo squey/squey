@@ -41,7 +41,7 @@ class PVSelection : public PVCore::PVSelBitField
 	};
 
   public:
-	explicit PVSelection(PVRow row_count = INENDI_LINES_MAX) : PVCore::PVSelBitField(row_count) {}
+	explicit PVSelection(PVRow row_count) : PVCore::PVSelBitField(row_count) {}
 
 	PVSelection(PVSelection const& o) = default;
 	// TODO : FIXME : We should not declare a move constructor that perform a copy.

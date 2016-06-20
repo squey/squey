@@ -32,7 +32,7 @@
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " file format [raw_dump] [raw_dump_transpose] [output]"
+		std::cerr << "Usage: " << argv[0] << " file format [raw_dump_transpose] [output]"
 		          << std::endl;
 		return 1;
 	}
@@ -62,11 +62,9 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	bool raw_dump = false;
 	bool raw_dump_transp = false;
 	QString out_path("plotted.out");
 	if (argc >= 4) {
-		raw_dump = argv[3][0] == '1';
 		if (argc >= 5) {
 			raw_dump_transp = argv[4][0] == '1';
 			if (argc >= 6) {
@@ -80,13 +78,7 @@ int main(int argc, char** argv)
 	Inendi::PVScene& scene = root.emplace_add_child("scene");
 	Inendi::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job;
-
-	if (raw_dump) {
-		job = src.extract();
-	} else {
-		job = src.extract(0, 200000000);
-	}
+	PVRush::PVControllerJob_p job = src.extract(0, 200000000);
 
 	src.wait_extract_end(job);
 	PVLOG_INFO("Extracted %u lines...\n", src.get_row_count());

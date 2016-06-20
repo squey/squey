@@ -58,8 +58,6 @@ const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start,
                                                                        chunk_index nlines)
 {
-	nlines = std::min(nlines, (chunk_index)INENDI_LINES_MAX);
-
 	set_sources_number_fields();
 	get_nraw().prepare_load(nlines, _format.get_storage_format());
 
@@ -82,8 +80,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start,
                                                                       chunk_index end)
 {
-	end = std::min(end, start + ((chunk_index)INENDI_LINES_MAX) - 1);
-
 	set_sources_number_fields();
 	get_nraw().prepare_load(end - start, _format.get_storage_format());
 

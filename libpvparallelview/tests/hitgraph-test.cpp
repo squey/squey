@@ -39,7 +39,6 @@
 void count_y1_seq_v1(const PVRow row_count,
                      const uint32_t* col_y1,
                      const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -63,7 +62,6 @@ void count_y1_seq_v1(const PVRow row_count,
 void count_y1_seq_v2(const PVRow row_count,
                      const uint32_t* col_y1,
                      const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -89,7 +87,6 @@ void count_y1_seq_v2(const PVRow row_count,
 void count_y1_seq_v3(const PVRow row_count,
                      const uint32_t* col_y1,
                      const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -129,7 +126,6 @@ inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 void count_y1_avx_v3(const PVRow row_count,
                      const uint32_t* col_y1,
                      const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -196,7 +192,6 @@ void count_y1_avx_v3(const PVRow row_count,
 void count_y1_sse_v1(const PVRow row_count,
                      const uint32_t* col_y1,
                      const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -218,7 +213,6 @@ void count_y1_sse_v1(const PVRow row_count,
 void count_y1_sse_v3(const PVRow row_count,
                      const uint32_t* col_y1,
                      const uint32_t* col_y2,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -369,7 +363,6 @@ struct omp_sse_v3_ctx_t {
 void count_y1_omp_sse_v3(const PVRow row_count,
                          const uint32_t* col_y1,
                          const uint32_t* col_y2,
-                         const Inendi::PVSelection& selection,
                          const uint64_t y_min,
                          const uint64_t y_max,
                          const int zoom,
@@ -487,7 +480,6 @@ void count_y1_omp_sse_v3(const PVRow row_count,
 void count_y1_omp_sse_v3_2(const PVRow row_count,
                            const uint32_t* col_y1,
                            const uint32_t* col_y2,
-                           const Inendi::PVSelection& selection,
                            const uint64_t y_min,
                            const uint64_t y_max,
                            const int zoom,
@@ -619,8 +611,8 @@ void count_y1_omp_sse_v3_2(const PVRow row_count,
 	memset(buffer_##ALGO, 0, sizeof(uint32_t) * buffer_size);                                      \
 	{                                                                                              \
 		BENCH_START(ALGO);                                                                         \
-		count_y1_##ALGO(row_count, col_y1, col_y2, selection, y_min, y_max, zoom, alpha,           \
-		                buffer_##ALGO, buffer_size, ##__VA_ARGS__);                                \
+		count_y1_##ALGO(row_count, col_y1, col_y2, y_min, y_max, zoom, alpha, buffer_##ALGO,       \
+		                buffer_size, ##__VA_ARGS__);                                               \
 		BENCH_END(ALGO, #ALGO " count", row_count, sizeof(uint32_t), buffer_size,                  \
 		          sizeof(uint32_t));                                                               \
 	}
@@ -694,8 +686,6 @@ int main(int argc, char** argv)
 	const uint32_t* col_y2 = Inendi::PVPlotted::get_plotted_col_addr(plotted, row_count, col + 1);
 
 	int buffer_size = 1024;
-
-	Inendi::PVSelection selection;
 
 	std::cout << "start test" << std::endl;
 

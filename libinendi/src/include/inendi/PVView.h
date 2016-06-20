@@ -175,9 +175,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	PVSelection const& get_real_output_selection() const;
 
 	PVRow get_row_count() const;
-	void set_row_count(PVRow row_count);
-
-	void reset_layers();
 
 	int move_active_axis_closest_to_position(float x);
 	PVCol get_active_axis_closest_to_position(float x);
