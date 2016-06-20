@@ -215,7 +215,7 @@ int main(int argc, char** argv)
 		entries[i].idx = i;
 	}
 
-	selection = new Inendi::PVSelection();
+	selection = new Inendi::PVSelection(count);
 
 	sqt1 = new PVQuadTree<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
 	std::cout << "Filling quadtree, it can take a while..." << std::endl;

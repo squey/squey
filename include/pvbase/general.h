@@ -27,8 +27,6 @@ static constexpr const char* INENDI_FLEX_PREFIX = "II";
 static constexpr const char* INENDI_FLEX_FEATURE = "INSPECTOR";
 static constexpr const char* INENDI_FLEX_MAXMEM = "MAXMEM";
 
-static constexpr const int INENDI_LINES_MAX = std::numeric_limits<int>::max();
-
 static constexpr const int PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT = 1000000;
 static constexpr const int PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT = 1000000;
 

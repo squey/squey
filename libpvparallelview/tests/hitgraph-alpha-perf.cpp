@@ -47,7 +47,6 @@ static bool verbose = false;
 
 void count_y1_seq_v1(const PVRow row_count,
                      const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -70,7 +69,6 @@ void count_y1_seq_v1(const PVRow row_count,
  */
 void count_y1_seq_v2(const PVRow row_count,
                      const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -95,7 +93,6 @@ void count_y1_seq_v2(const PVRow row_count,
  */
 void count_y1_seq_v3(const PVRow row_count,
                      const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -123,7 +120,6 @@ void count_y1_seq_v3(const PVRow row_count,
  */
 void count_y1_seq_v4(const PVRow row_count,
                      const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -165,7 +161,6 @@ inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 
 void count_y1_avx_v3(const PVRow row_count,
                      const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -229,7 +224,6 @@ void count_y1_avx_v3(const PVRow row_count,
 
 void count_y1_sse_v3(const PVRow row_count,
                      const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -327,7 +321,6 @@ void count_y1_sse_v3(const PVRow row_count,
 
 void count_y1_sse_v4(const PVRow row_count,
                      const uint32_t* col_y1,
-                     const Inendi::PVSelection& selection,
                      const uint64_t y_min,
                      const uint64_t y_max,
                      const int zoom,
@@ -498,7 +491,6 @@ struct omp_sse_v3_ctx_t {
 
 void count_y1_omp_sse_v3(const PVRow row_count,
                          const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection,
                          const uint64_t y_min,
                          const uint64_t y_max,
                          const int zoom,
@@ -619,7 +611,6 @@ void count_y1_omp_sse_v3(const PVRow row_count,
  */
 void count_y1_omp_sse_v3_2(const PVRow row_count,
                            const uint32_t* col_y1,
-                           const Inendi::PVSelection& selection,
                            const uint64_t y_min,
                            const uint64_t y_max,
                            const int zoom,
@@ -739,7 +730,6 @@ void count_y1_omp_sse_v3_2(const PVRow row_count,
 
 void count_y1_omp_sse_v4(const PVRow row_count,
                          const uint32_t* col_y1,
-                         const Inendi::PVSelection& selection,
                          const uint64_t y_min,
                          const uint64_t y_max,
                          const int zoom,
@@ -861,7 +851,6 @@ void count_y1_omp_sse_v4(const PVRow row_count,
 
 void count_y1_lib(const PVRow row_count,
                   const uint32_t* col_y1,
-                  const Inendi::PVSelection& selection,
                   const uint64_t y_min,
                   const uint64_t y_max,
                   const int zoom,
@@ -931,8 +920,8 @@ inline void bench_median(const char* text,
 	memset(buffer_##ALGO, 0, buffer_size* V4_N * sizeof(uint32_t));                                \
 	bench_median(#ALGO,                                                                            \
 	             [&]() {                                                                           \
-		             count_y1_##ALGO(row_count, DATA, selection, y_min, y_max, zoom, alpha,        \
-		                             buffer_##ALGO, buffer_size, ##__VA_ARGS__);                   \
+		             count_y1_##ALGO(row_count, DATA, y_min, y_max, zoom, alpha, buffer_##ALGO,    \
+		                             buffer_size, ##__VA_ARGS__);                                  \
 		         },                                                                                \
 	             [&]() { memset(buffer_##ALGO, 0, sizeof(uint32_t) * V4_N * buffer_size); },       \
 	             row_count, sizeof(uint32_t));
@@ -944,8 +933,8 @@ inline void bench_median(const char* text,
 	omp_sse_v3_ctx_t ALGO##_ctx(buffer_size* V4_N);                                                \
 	bench_median(#ALGO,                                                                            \
 	             [&]() {                                                                           \
-		             count_y1_##ALGO(row_count, DATA, selection, y_min, y_max, zoom, alpha,        \
-		                             buffer_##ALGO, buffer_size, ALGO##_ctx, ##__VA_ARGS__);       \
+		             count_y1_##ALGO(row_count, DATA, y_min, y_max, zoom, alpha, buffer_##ALGO,    \
+		                             buffer_size, ALGO##_ctx, ##__VA_ARGS__);                      \
 		         },                                                                                \
 	             [&]() {                                                                           \
 		             memset(buffer_##ALGO, 0, sizeof(uint32_t) * V4_N * buffer_size);              \
@@ -995,7 +984,6 @@ void do_one_run(const std::string text,
 {
 	std::cout << text << std::endl;
 
-	Inendi::PVSelection selection;
 	int buffer_size = BUFFER_SIZE;
 	size_t real_count = get_aligned(row_count) * col_count;
 

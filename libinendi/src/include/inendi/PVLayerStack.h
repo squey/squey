@@ -44,7 +44,7 @@ class PVLayerStack
 	PVLayer& get_selected_layer() { return _table[get_selected_layer_index()]; }
 	PVLayer const& get_selected_layer() const { return _table[get_selected_layer_index()]; }
 
-	int const& get_selected_layer_index() const { return _selected_layer_index; }
+	int get_selected_layer_index() const { return _selected_layer_index; }
 
 	void set_selected_layer_index(int index) { _selected_layer_index = index; }
 	//

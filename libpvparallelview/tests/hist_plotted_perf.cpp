@@ -950,7 +950,7 @@ int main(int argc, char** argv)
 
 	test_no_sel(real_buffer_size, y_min, zoom, zt, col_a, row_count, block_count);
 
-	Inendi::PVSelection sel;
+	Inendi::PVSelection sel(col_count);
 
 	std::cout << "select_all()" << std::endl;
 	sel.select_all();

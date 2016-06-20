@@ -306,6 +306,8 @@ bool Inendi::PVLayerStack::contains_layer(PVLayer* layer) const
 void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so,
                                      PVCore::PVSerializeArchive::version_t /*v*/)
 {
+	so.attribute("selected_layer_index", _selected_layer_index);
+
 	PVCore::PVSerializeObject_p list_obj = so.create_object("layers", "", true, true);
 	int idx = 0;
 	if (so.is_writing()) {
@@ -318,6 +320,7 @@ void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so,
 		}
 	} else {
 		try {
+			_table.clear(); // Remove default layer created on view creation.
 			while (true) {
 				// FIXME It throws when there are no more data collections.
 				// It should not be an exception as it is a normal behavior.
@@ -325,18 +328,16 @@ void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so,
 				QString name;
 				new_obj->attribute("name", name);
 				PVLayer layer(name, _layer_size);
-				_table.append(layer);
-				_table.back().serialize(*new_obj, so.get_version());
+				layer.serialize(*new_obj, so.get_version());
 				new_obj->_bound_obj = &layer;
 				new_obj->_bound_obj_type = typeid(PVLayer);
+				_table.append(layer);
 				idx++;
 			}
 		} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
 			return;
 		}
 	}
-
-	so.attribute("selected_layer_index", _selected_layer_index);
 }
 
 void Inendi::PVLayerStack::copy_details_to_clipboard()

@@ -61,12 +61,7 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list 
 	_collector.reset(new pvcop::collector(collector_path.data(), format));
 	_collection.reset();
 
-	// Define maximum number of row;
-	if (nrows == 0) {
-		_max_nrows = INENDI_LINES_MAX;
-	} else {
-		_max_nrows = nrows;
-	}
+	_max_nrows = nrows;
 }
 
 /*****************************************************************************
@@ -145,7 +140,6 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 void PVRush::PVNraw::load_done()
 {
 	assert(_collector);
-	assert(_real_nrows <= INENDI_LINES_MAX);
 
 	// Close collector to be sure it is saved before we load it in the collection.
 	_collector->close();

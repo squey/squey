@@ -59,7 +59,17 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
 	}
 
-	reset_layers();
+	_layer_stack_about_to_refresh.emit();
+	PVRow row_count = get_row_count();
+
+	// This function remove all the layers and add the default one with all events
+	// selected
+	layer_stack.delete_all_layers();
+	layer_stack.append_new_layer(row_count, "All events");
+	layer_stack.get_layer_n(0).set_lock();
+	layer_stack.get_layer_n(0).compute_selectable_count(row_count);
+
+	_layer_stack_refreshed.emit();
 
 	process_from_layer_stack();
 }
@@ -85,36 +95,6 @@ Inendi::PVView::~PVView()
 #endif
 
 	get_parent<PVRoot>().view_being_deleted(this);
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::reset_layers
- *
- *****************************************************************************/
-void Inendi::PVView::reset_layers()
-{
-	_layer_stack_about_to_refresh.emit();
-	PVRow row_count = get_row_count();
-
-	// This function remove all the layers and add the default one with all events
-	// selected
-	layer_stack.delete_all_layers();
-	layer_stack.append_new_layer(row_count, "All events");
-	layer_stack.get_layer_n(0).reset_to_full_and_default_color();
-	layer_stack.get_layer_n(0).set_lock();
-
-	if (row_count != 0) {
-		/* when a .pvi is loaded, the mapped and the plotted are
-		 * uninitialized when the view is created (the rush pipeline
-		 * is runned later).
-		 */
-		layer_stack.get_layer_n(0).compute_selectable_count(row_count);
-	}
-	post_filter_layer.reset_to_full_and_default_color();
-	layer_stack_output_layer.reset_to_full_and_default_color();
-	output_layer.reset_to_full_and_default_color();
-	_layer_stack_refreshed.emit();
 }
 
 /******************************************************************************
@@ -944,9 +924,6 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 
 void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so)
 {
-	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
-		// If no layer stack, reset all layers so that we have one :)
-		reset_layers();
-	}
+	so.object("layer-stack", layer_stack, "Layers", true);
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }
