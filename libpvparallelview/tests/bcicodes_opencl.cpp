@@ -2,35 +2,26 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2016
  */
 
-#include <pvkernel/core/inendi_bench.h>
-#include <inendi/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
-#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
-#include <pvparallelview/PVTools.h>
-#include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
 
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <chrono>
 
 #include <QApplication>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QString>
 
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
+#include "bci_helpers.h"
 
-#include "helpers.h"
-
-#define WIDTH 1024
 #define BBITS 10
+#define WIDTH 1024
+#define HEIGHT (1 << BBITS)
 
 void show_qimage(QString const& title, QImage const& img)
 {
@@ -47,26 +38,38 @@ void show_qimage(QString const& title, QImage const& img)
 template <size_t Bbits>
 PVParallelView::PVBCIBackendImage_p do_test(size_t n, size_t width, int pattern)
 {
-	PVParallelView::PVBCIDrawingBackendCUDA& backend_cuda =
-	    PVParallelView::PVBCIDrawingBackendCUDA::get();
+	PVParallelView::PVBCIDrawingBackendOpenCL& backend =
+	    PVParallelView::PVBCIDrawingBackendOpenCL::get();
 
 	PVParallelView::PVBCICode<Bbits>* codes = PVParallelView::PVBCICode<Bbits>::allocate_codes(n);
 	PVParallelView::PVBCIPatterns<Bbits>::init_codes_pattern(codes, n, pattern);
 
-	PVParallelView::PVBCIBackendImage_p dst_img = backend_cuda.create_image(width, Bbits);
+	PVParallelView::PVBCIBackendImage_p dst_img = backend.create_image(width, Bbits);
 
-	backend_cuda(dst_img, 0, width, (PVParallelView::PVBCICodeBase*)codes, n);
-	BENCH_START(render);
-	backend_cuda.wait_all();
-	BENCH_END(render, "render", 1, 1, 1, 1);
-
-	// inendi_verify_cuda(cudaFreeHost(codes));
+	auto start = std::chrono::steady_clock::now();
+	backend(dst_img, 0, width, (PVParallelView::PVBCICodeBase*)codes, n);
+	backend.wait_all();
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> diff = end - start;
+	std::cout << diff.count();
 
 	return dst_img;
 }
 
 int main(int argc, char** argv)
 {
+	size_t width = WIDTH;
+	int pattern = 0;
+	int bbits = BBITS;
+
+#ifdef INSPECTOR_BENCH
+	// we just want the measured time, not the backend information
+	setenv("INENDI_DEBUG_LEVEL", "FATAL", 1);
+	(void)argc;
+	(void)argv;
+
+	size_t n = HEIGHT * HEIGHT;
+#else
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " nlines"
 		          << " [width] [pattern] [bbits]" << std::endl;
@@ -79,9 +82,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	size_t width = WIDTH;
-	int pattern = 0;
-	int bbits = BBITS;
 	if (argc >= 3) {
 		width = atoll(argv[2]);
 	}
@@ -97,6 +97,7 @@ int main(int argc, char** argv)
 	}
 
 	size_t n = atoll(argv[1]);
+#endif
 
 	PVParallelView::PVBCIBackendImage_p dst_img;
 	switch (bbits) {
@@ -108,12 +109,14 @@ int main(int argc, char** argv)
 		break;
 	}
 
+#ifndef INSPECTOR_BENCH
 	QImage img(dst_img->qimage());
 	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
 
 	QApplication app(argc, argv);
 	show_qimage("test", dst_img->qimage());
 	app.exec();
+#endif
 
 	return 0;
 }

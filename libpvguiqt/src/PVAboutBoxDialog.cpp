@@ -52,9 +52,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	               .arg(Inendi::Utils::License::get_remaining_days(INENDI_FLEX_PREFIX,
 	                                                               INENDI_FLEX_FEATURE));
 
-#ifdef CUDA
-	content += "<br/>With CUDA support";
-#endif
+	content += "<br/>With OpenCL support";
 	content += "<br/>QT version " + QString(QT_VERSION_STR);
 
 	_view3D_layout = new QHBoxLayout();

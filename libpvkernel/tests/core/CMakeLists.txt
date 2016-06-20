@@ -51,3 +51,4 @@ add_test(Tcore_logger  Tcore_logger)
 
 add_pv_compile_test(Tcore_timeformat LINKS pvkernel ${ICU_LIBRARY} FILES time-format.cpp)
 add_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
+

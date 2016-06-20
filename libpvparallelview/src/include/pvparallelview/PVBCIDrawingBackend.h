@@ -32,6 +32,9 @@ class PVBCIDrawingBackend
 	virtual ~PVBCIDrawingBackend() {}
 
   public:
+	virtual bool is_gpu_accelerated() const = 0;
+
+  public:
 	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) = 0;
 	// TODO : flags is only Serial.
 	virtual Flags flags() const = 0;

@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVParallelView::common::RAII_cuda_init cuda_resources;
+	PVParallelView::common::RAII_backend_init resources;
 
 	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
 	if (plib_view == NULL) {

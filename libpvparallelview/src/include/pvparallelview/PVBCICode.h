@@ -27,9 +27,7 @@ namespace PVParallelView
  */
 template <size_t Bbits = NBITS_INDEX>
 struct PVBCICode {
-#ifndef __CUDACC__
 	static_assert((Bbits >= 1) & (Bbits <= 11), "PVBCICode: Bbits must be between 1 and 11.");
-#endif
 
 	typedef tbb::cache_aligned_allocator<PVBCICode> allocator;
 	union {

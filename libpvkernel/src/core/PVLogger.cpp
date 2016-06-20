@@ -32,9 +32,6 @@ PVCore::PVLogger::PVLogger()
 		if (log_level == QString("ERROR")) {
 			level = PVLOG_ERROR;
 		}
-		if (log_level == QString("CUDA_ERROR")) {
-			level = PVLOG_CUDA_ERROR;
-		}
 		if (log_level == QString("WARN")) {
 			level = PVLOG_WARN;
 		}
@@ -162,26 +159,6 @@ void PVCore::PVLogger::error(const char* format, ...)
 		std::cerr << qPrintable(get_now_str()) << " *** ERROR *** " << qPrintable(res);
 	} else {
 		fprintf(fp, "%s *** ERROR *** %s", qPrintable(get_now_str()), qPrintable(res));
-	}
-
-	va_end(ap);
-}
-
-void PVCore::PVLogger::cudaError(const char* format, ...)
-{
-	QString res;
-	va_list ap;
-
-	if (level < PVLOG_ERROR)
-		return;
-
-	va_start(ap, format);
-	res.vsprintf(format, ap);
-
-	if (log_filename.isEmpty()) {
-		std::cerr << qPrintable(get_now_str()) << " *** CUDA ERROR *** " << qPrintable(res);
-	} else {
-		fprintf(fp, "%s *** CUDA ERROR *** %s", qPrintable(get_now_str()), qPrintable(res));
 	}
 
 	va_end(ap);

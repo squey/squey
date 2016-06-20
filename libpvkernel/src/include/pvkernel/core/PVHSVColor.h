@@ -10,7 +10,6 @@
 
 #include <pvbase/types.h>
 #include <stdint.h>
-#include <pvkernel/cuda/constexpr.h>
 
 #include <QColor>
 #include <QImage>
@@ -41,7 +40,7 @@ class PVHSVColor
 
   public:
 	typedef T h_type;
-	static CUDA_CONSTEXPR uint8_t color_max = (1 << HSV_COLOR_NBITS_ZONE) * 6;
+	static const constexpr uint8_t color_max = (1 << HSV_COLOR_NBITS_ZONE) * 6;
 
   public:
 	// Unitialized, and this is wanted !

@@ -9,9 +9,7 @@
 
 #include <inendi/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
-#ifdef CUDA
-#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
-#endif
+#include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVRenderingPipeline.h>
@@ -111,12 +109,12 @@ namespace common
 {
 /************************************************************
  *
- * RAII cuda resources implementation
+ * RAII backend resources implementation
  *
  ************************************************************/
-RAII_cuda_init::RAII_cuda_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
+RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	_instance->init_backends<PVBCIDrawingBackendCUDA>();
+	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 }
 }
 }

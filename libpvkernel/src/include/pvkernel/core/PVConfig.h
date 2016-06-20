@@ -39,7 +39,15 @@ class PVConfig
 	 */
 	QSettings& config() const;
 
+	/**
+	 * return the current user name
+	 */
 	static QString username();
+
+	/**
+	 * return the path to the user configuration file
+	 */
+	static QString user_path();
 
   private:
 	// private stuffs for a singleton declaration

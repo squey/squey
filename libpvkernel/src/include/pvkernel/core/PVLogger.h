@@ -25,7 +25,6 @@ class PVLogger
 	enum LogLevel {
 		PVLOG_FATAL,
 		PVLOG_ERROR,
-		PVLOG_CUDA_ERROR,
 		PVLOG_WARN,
 		PVLOG_INFO,
 		PVLOG_DEBUG,
@@ -49,7 +48,6 @@ class PVLogger
 	void info(const char*, ...);
 	void warn(const char*, ...);
 	void error(const char*, ...);
-	void cudaError(const char*, ...);
 	void fatal(const char*, ...);
 	void plain(const char*, ...);
 
@@ -75,11 +73,6 @@ template <class T, class... U>
 void PVLOG_ERROR(T&& fmt, U&&... u)
 {
 	PVCore::PVLogger::getInstance()->error(std::forward<T>(fmt), std::forward<U>(u)...);
-}
-template <class T, class... U>
-void PVLOG_CUDA_ERROR(T&& fmt, U&&... u)
-{
-	PVCore::PVLogger::getInstance()->cudaError(std::forward<T>(fmt), std::forward<U>(u)...);
 }
 template <class T, class... U>
 void PVLOG_WARN(T&& fmt, U&&... u)

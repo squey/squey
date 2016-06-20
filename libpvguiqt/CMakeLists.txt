@@ -31,7 +31,6 @@ include_directories(${Qt5OpenGL_INCLUDE_DIRS})
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${INENDI_INCLUDE_DIRS})
-include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
 include_directories(AFTER ${PVLICENSE_INCLUDE_DIR})
