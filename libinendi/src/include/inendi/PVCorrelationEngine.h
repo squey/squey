@@ -25,9 +25,9 @@ class PVView;
  */
 struct PVCorrelation {
 	const Inendi::PVView* view1; //!< the origin view
-	PVCol col1;                  //!< the origin column
+	PVCol col1;                  //!< the origin column (original axis index)
 	Inendi::PVView* view2;       //!< the destination view
-	PVCol col2;                  //!< the destination column
+	PVCol col2;                  //!< the destination column (original axis index)
 };
 
 /**
