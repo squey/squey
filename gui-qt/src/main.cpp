@@ -31,9 +31,11 @@
 #include <stdio.h>
 
 #include <time.h>
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/qobject_helpers.h>
+#include <pvkernel/opencl/common.h>
 #include <License.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
@@ -93,27 +95,9 @@ class DragNDropTransparencyHack : public QObject
 
 namespace bpo = boost::program_options;
 
-// #define NO_MAIN_WINDOW
-
-int main(int argc, char* argv[])
+int run_inspector(QApplication& app, int argc, char* argv[])
 {
-	setlocale(LC_ALL, "C");
-	setenv("LANG", "C", 1);
-	setenv("TZ", "GMT", 1);
-	tzset();
-
-	init_segfault_handler();
-
-	// Set the soft limit same as hard limit for number of possible files opened
-	rlimit ulimit_info;
-	getrlimit(RLIMIT_NOFILE, &ulimit_info);
-	ulimit_info.rlim_cur = ulimit_info.rlim_max;
-	setrlimit(RLIMIT_NOFILE, &ulimit_info);
-
 	QString license_file = "/etc/inendi/licenses/inendi-inspector.lic";
-
-#ifndef NO_MAIN_WINDOW
-	QApplication app(argc, argv);
 
 	if (not QFile(license_file).exists()) {
 		QMessageBox::critical(nullptr, QObject::tr("INENDI-inspector"),
@@ -125,7 +109,6 @@ int main(int argc, char* argv[])
 		                          .arg(email_address));
 		return 1;
 	}
-#endif
 
 	// Set location to check for license file.
 	setenv("LM_LICENSE_FILE", license_file.toUtf8().constData(), 1);
@@ -178,7 +161,6 @@ int main(int argc, char* argv[])
 
 	Inendi::Utils::License::check_ram(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE, INENDI_FLEX_MAXMEM);
 
-#ifndef NO_MAIN_WINDOW
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
 	QVBoxLayout* vl = new QVBoxLayout(&splash);
@@ -195,37 +177,26 @@ int main(int argc, char* argv[])
 
 	splash.show();
 	app.processEvents();
-#endif
 
-#ifndef NO_MAIN_WINDOW
 	task_label->setText(QObject::tr("Initializing backends..."));
 	splash.repaint();
 	app.processEvents();
 	PVParallelView::common::RAII_backend_init backend_resources;
-#endif
 
-#ifndef NO_MAIN_WINDOW
 	task_label->setText(QObject::tr("Loading plugins..."));
 	splash.repaint();
 	app.processEvents();
-#endif
 	Inendi::common::load_filters();
-#ifndef NO_MAIN_WINDOW
 	PVGuiQt::common::register_displays();
-#endif
 
-#ifndef NO_MAIN_WINDOW
 	task_label->setText(QObject::tr("Cleaning temporary files..."));
 	splash.repaint();
 	app.processEvents();
-#endif
 	PVRush::PVNrawCacheManager::get().delete_unused_cache();
 
-#ifndef NO_MAIN_WINDOW
 	task_label->setText(QObject::tr("Finishing initialization..."));
 	splash.repaint();
 	app.processEvents();
-#endif
 
 	QString locale = QLocale::system().name();
 	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
@@ -240,15 +211,12 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-#ifndef NO_MAIN_WINDOW
 	app.setOrganizationName("ESI Group");
 	app.setApplicationName("INENDI Inspector " INENDI_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/inendi"));
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
-#endif
 
-#ifndef NO_MAIN_WINDOW
 	PVInspector::PVMainWindow pv_mw;
 	pv_mw.show();
 	splash.finish(&pv_mw);
@@ -276,8 +244,33 @@ int main(int argc, char* argv[])
 	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_desktop()));
 
 	return app.exec();
-#else
-	return 0;
-#endif
+}
+
+int main(int argc, char* argv[])
+{
+	setlocale(LC_ALL, "C");
+	setenv("LANG", "C", 1);
+	setenv("TZ", "GMT", 1);
+	tzset();
+
+	init_segfault_handler();
+
+	// Set the soft limit same as hard limit for number of possible files opened
+	rlimit ulimit_info;
+	getrlimit(RLIMIT_NOFILE, &ulimit_info);
+	ulimit_info.rlim_cur = ulimit_info.rlim_max;
+	setrlimit(RLIMIT_NOFILE, &ulimit_info);
+
+	QApplication app(argc, argv);
+	try {
+		return run_inspector(app, argc, argv);
+	} catch (PVOpenCL::exception::no_backend_error const&) {
+		QString msg("No valid backend found. Please, check your system:<ul>");
+		msg += "<li>user configuration in " + PVCore::PVConfig::user_path() + "</li>";
+		msg += "<li>system configuration (missing driver, etc.)</li></ul>";
+
+		QMessageBox::critical(nullptr, "backend initialization", msg);
+		return 1;
+	}
 }
 //! [0]

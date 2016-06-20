@@ -39,8 +39,7 @@ PVCore::PVConfig::PVConfig()
 	dir.mkdir("whitelist");
 	dir.mkdir("greylist");
 
-	QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR +
-	             QDir::separator() + CONFIG_FILENAME);
+	QFileInfo fi(user_path());
 
 	if (fi.exists() == false) {
 		fi.dir().mkpath(fi.path());
@@ -102,7 +101,21 @@ QSettings& PVCore::PVConfig::config() const
 	return *_config;
 }
 
+/*****************************************************************************
+ * PVCore::PVConfig::username
+ *****************************************************************************/
+
 QString PVCore::PVConfig::username()
 {
 	return get()._username;
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::user_path
+ *****************************************************************************/
+
+QString PVCore::PVConfig::user_path()
+{
+	return QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator() +
+	       CONFIG_FILENAME;
 }

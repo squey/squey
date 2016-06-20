@@ -114,12 +114,7 @@ namespace common
  ************************************************************/
 RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	try {
-		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
-	} catch (PVOpenCL::exception::no_backend_error&) {
-		PVLOG_ERROR("No compatible OpenCL backend found, check your configuration.\n");
-		exit(1);
-	}
+	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 }
 }
 }
