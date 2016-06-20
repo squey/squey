@@ -21,6 +21,9 @@
 
 #ifndef INSPECTOR_BENCH
 constexpr size_t CHECK_COUNT = 10000;
+constexpr size_t ndup = 1;
+#else
+constexpr size_t ndup = 20;
 #endif
 
 const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
@@ -54,33 +57,9 @@ void check_line_validity(Inendi::PVLayer const& out, size_t line)
 
 int main()
 {
-// Init nraw
-#ifdef INSPECTOR_BENCH
-	std::string big_file_path;
-	big_file_path.resize(L_tmpnam);
-	// We assume that this name will not be use by another program before we
-	// create it.
-	tmpnam(&big_file_path.front());
+	// Init nraw
+	pvtest::TestEnv env(filename, fileformat, ndup, pvtest::ProcessUntil::View);
 
-	{
-		std::ifstream ifs(filename);
-		std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
-
-		std::ofstream big_file(big_file_path);
-		// Duplicate file to have one millions lines
-		for (int i = 0; i < 20; i++) {
-			big_file << content;
-		}
-	}
-	pvtest::TestEnv env(big_file_path, fileformat);
-	std::remove(big_file_path.c_str());
-#else
-	pvtest::TestEnv env(filename, fileformat);
-#endif
-
-	env.compute_mapping();
-	env.compute_plotting();
-	env.compute_views();
 	Inendi::PVView* view = env.root.current_view();
 
 	// Load every layer filter.

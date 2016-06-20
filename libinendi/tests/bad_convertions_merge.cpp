@@ -18,9 +18,9 @@ static constexpr const char* log_format =
 
 int main()
 {
-	pvtest::TestEnv env(log_file, log_format);
+	pvtest::TestEnv env(log_file, log_format, 1);
 
-	Inendi::PVSource& source = env.compute_mapping().get_parent<Inendi::PVSource>();
+	Inendi::PVSource& source = *env.root.get_children<Inendi::PVSource>().front();
 
 	for (size_t i = 0; i < ROW_COUNT; i++) {
 		if (i < ROW_COUNT / 2) {

@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	pvtest::TestEnv env(argv[1], argv[2]);
+	pvtest::TestEnv env(argv[1], argv[2], 1, pvtest::ProcessUntil::View);
 
 	bool delete_nraw_parent_dir = false;
 	QDir nraw_dir(QString::fromStdString(PVRush::PVNraw::default_tmp_path));
@@ -42,9 +42,6 @@ int main(int argc, char** argv)
 		delete_nraw_parent_dir = true;
 	}
 
-	env.compute_mapping();
-	env.compute_plotting();
-	env.compute_views();
 	Inendi::PVView* view = env.root.current_view();
 
 	// Export selection to temporary file

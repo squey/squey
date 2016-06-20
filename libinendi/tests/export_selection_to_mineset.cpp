@@ -15,10 +15,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	pvtest::TestEnv env(argv[1], argv[2]);
-	env.compute_mapping();
-	env.compute_plotting();
-	env.compute_views();
+	pvtest::TestEnv env(argv[1], argv[2], 1, pvtest::ProcessUntil::View);
 	Inendi::PVView* view = env.root.current_view();
 
 	std::string dataset_url = Inendi::PVMineset::import_dataset(*view);

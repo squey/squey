@@ -86,10 +86,7 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
 int main()
 {
 	// Init nraw
-	pvtest::TestEnv env(FILENAME, FORMAT, DUPL);
-	env.compute_mapping();
-	env.compute_plotting();
-	env.compute_views();
+	pvtest::TestEnv env(FILENAME, FORMAT, DUPL, pvtest::ProcessUntil::View);
 	Inendi::PVView* view = env.root.current_view();
 
 	// Get plugin reference
