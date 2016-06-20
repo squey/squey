@@ -24,10 +24,7 @@ constexpr const char* ref_out = TEST_FOLDER "/picviz/honeypot.csv.ref";
 int main()
 {
 	// Init nraw
-	pvtest::TestEnv env(filename, fileformat);
-	env.compute_mapping();
-	env.compute_plotting();
-	env.compute_views();
+	pvtest::TestEnv env(filename, fileformat, 1, pvtest::ProcessUntil::View);
 
 	Inendi::PVView* view = env.root.current_view();
 

@@ -240,12 +240,22 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	void duplicate_selected_layer(const QString& name);
 	void commit_selection_to_layer(PVLayer& layer);
 
-	Inendi::PVView* process_correlation();
+	void process_correlation();
 
-	Inendi::PVView* process_from_eventline();
-	Inendi::PVView* process_from_layer_stack();
-	Inendi::PVView* process_from_selection();
-	Inendi::PVView* process_real_output_selection();
+	/**
+	 * Update intermediate layer and output layer based on set selection.
+	 */
+	void process_from_selection();
+
+	/**
+	 * update the whole view from an update in the layer stack.
+	 */
+	void process_from_layer_stack();
+
+	/**
+	 * Alias for process_from_selection.
+	 */
+	void process_real_output_selection();
 
 	/**
 	 * Compute a merge of all visibles layer of the layer stack.
@@ -260,19 +270,12 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	 * * Copy color (FIXME : done every time, should be done only once).
 	 * * Merge selection with layer_stack selection.
 	 */
-	void process_selection();
+	void process_post_filter_layer();
 
 	/**
-	 * compute real selection (selected elements) and nu selection and copy lines properties.
-	 *
-	 * FIXME : Why not setting real selection without copy?
+	 * Compute output layer from post_filter_layer data.
 	 */
-	void process_eventline();
-
-	/**
-	 * Compute selection of visible elements.
-	 */
-	void process_visibility();
+	void process_output_layer();
 
 	/******************************************************************************
 	******************************************************************************
@@ -401,12 +404,12 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
 	 */
 	PVAxesCombination _axes_combination;
 
-	PVSelection floating_selection;   //!< This is the current selection
-	PVLayer post_filter_layer;        //!< This is the result of the filtering. TODO : FIXME
+	PVSelection floating_selection; //!< This is the current selection
+	PVLayer
+	    post_filter_layer; //!< Contains selection and color lines for in progress view computation.
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer;             //!< This is the shown layer.
 	PVLayerStack layer_stack;
-	PVSelection real_output_selection; //!< This is selected elements
 	PVStateMachine _state_machine;
 	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in
 	// floating_selection once it is completed.

@@ -82,16 +82,12 @@ int main(int argc, char** argv)
 	view->process_layer_stack();
 	BENCH_END(ls2, "layer-stack-10", 1, 1, 1, 1);
 
-	BENCH_START(sel);
-	view->process_selection();
-	BENCH_END(sel, "selection", 1, 1, 1, 1);
-
 	BENCH_START(el);
-	view->process_eventline();
+	view->process_post_filter_layer();
 	BENCH_END(el, "eventline", 1, 1, 1, 1);
 
 	BENCH_START(visibility);
-	view->process_visibility();
+	view->process_output_layer();
 	BENCH_END(visibility, "visibility", 1, 1, 1, 1);
 
 	return 0;

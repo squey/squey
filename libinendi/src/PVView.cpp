@@ -43,7 +43,6 @@ Inendi::PVView::PVView(PVPlotted& plotted)
     , layer_stack_output_layer("view_layer_stack_output_layer", get_row_count())
     , output_layer("output_layer", get_row_count())
     , layer_stack(get_row_count())
-    , real_output_selection(get_row_count())
     , volatile_selection(get_row_count())
     , _rushnraw_parent(&get_parent<PVSource>().get_rushnraw())
     , _view_id(-1)
@@ -364,7 +363,8 @@ bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
  *****************************************************************************/
 int Inendi::PVView::get_number_of_selected_lines() const
 {
-	return real_output_selection.get_number_of_selected_lines_in_range(0, get_row_count());
+	return post_filter_layer.get_selection().get_number_of_selected_lines_in_range(0,
+	                                                                               get_row_count());
 }
 
 /******************************************************************************
@@ -394,7 +394,7 @@ Inendi::PVLayer& Inendi::PVView::get_post_filter_layer()
  *****************************************************************************/
 Inendi::PVSelection const& Inendi::PVView::get_real_output_selection() const
 {
-	return real_output_selection;
+	return post_filter_layer.get_selection();
 }
 
 /******************************************************************************
@@ -450,63 +450,25 @@ PVCol Inendi::PVView::get_active_axis_closest_to_position(float x)
 
 /******************************************************************************
  *
- * Inendi::PVView::process_eventline
- *
- *****************************************************************************/
-void Inendi::PVView::process_eventline()
-{
-	/* We compute the real_output_selection */
-	real_output_selection = post_filter_layer.get_selection();
-
-	PVLinesProperties& out_lps = output_layer.get_lines_properties();
-	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();
-/* We are now able to process the lines_properties */
-#pragma omp parallel for schedule(dynamic, 2048)
-	for (PVRow i = 0; i < get_row_count(); i++) {
-		/* We check if the event is selected at the end of the process */
-		if (layer_stack_output_layer.get_selection().get_line(i)) {
-			/* It is selected, so we copy its line properties */
-			out_lps.set_line_properties(i, post_lps.get_line_properties(i));
-		} else {
-			/* The event is a zombie one */
-			out_lps.set_line_properties(i, _default_zombie_line_properties);
-		}
-	}
-
-	_update_output_layer.emit();
-}
-
-/******************************************************************************
- *
  * Inendi::PVView::process_correlation
  *
  *****************************************************************************/
-Inendi::PVView* Inendi::PVView::process_correlation()
+void Inendi::PVView::process_correlation()
 {
 	Inendi::PVRoot& root = get_parent<Inendi::PVRoot>();
-	return root.process_correlation(this);
+	root.process_correlation(this);
 }
 
 /******************************************************************************
  *
- * Inendi::PVView::process_from_eventline
+ * Inendi::PVView::process_from_post_filter_layer
  *
  *****************************************************************************/
-Inendi::PVView* Inendi::PVView::process_from_eventline()
+void Inendi::PVView::process_from_selection()
 {
-	process_eventline();
-	process_visibility();
-	Inendi::PVView* v = process_correlation();
-
-	if (v) {
-		v->_update_output_selection.emit();
-		v->_update_output_layer.emit();
-	}
-
-	_update_output_selection.emit();
-	_update_output_layer.emit();
-
-	return v;
+	process_post_filter_layer();
+	process_output_layer();
+	process_correlation();
 }
 
 /******************************************************************************
@@ -514,56 +476,19 @@ Inendi::PVView* Inendi::PVView::process_from_eventline()
  * Inendi::PVView::process_from_layer_stack
  *
  *****************************************************************************/
-Inendi::PVView* Inendi::PVView::process_from_layer_stack()
+void Inendi::PVView::process_from_layer_stack()
 {
 	/* We start by reprocessing the layer_stack */
 	process_layer_stack();
-	process_selection();
-	process_eventline();
-	process_visibility();
-
-	Inendi::PVView* v = process_correlation();
-
-	if (v) {
-		v->_update_output_layer.emit();
-	}
-
-	_update_layer_stack_output_layer.emit();
-	_update_output_layer.emit();
-
-	return v;
+	process_post_filter_layer();
+	process_output_layer();
+	process_correlation();
 }
 
-/******************************************************************************
- *
- * Inendi::PVView::process_from_selection
- *
- *****************************************************************************/
-Inendi::PVView* Inendi::PVView::process_from_selection()
-{
-	PVLOG_DEBUG("Inendi::PVView::%s\n", __FUNCTION__);
-	process_selection();
-	process_eventline();
-	process_visibility();
-	Inendi::PVView* v = process_correlation();
-
-	if (v) {
-		v->_update_output_layer.emit();
-	}
-
-	_update_output_layer.emit();
-
-	return v;
-}
-
-Inendi::PVView* Inendi::PVView::process_real_output_selection()
+void Inendi::PVView::process_real_output_selection()
 {
 	// AG: TODO: should be optimised to only create real_output_selection
-	PVView* v = process_from_selection();
-
-	_update_output_selection.emit();
-
-	return v;
+	process_from_selection();
 }
 
 /******************************************************************************
@@ -574,14 +499,15 @@ Inendi::PVView* Inendi::PVView::process_real_output_selection()
 void Inendi::PVView::process_layer_stack()
 {
 	layer_stack.process(layer_stack_output_layer, get_row_count());
+	_update_layer_stack_output_layer.emit();
 }
 
 /******************************************************************************
  *
- * Inendi::PVView::process_selection
+ * Inendi::PVView::process_post_filter_layer
  *
  *****************************************************************************/
-void Inendi::PVView::process_selection()
+void Inendi::PVView::process_post_filter_layer()
 {
 	/* We treat the selection according to specific SQUARE_AREA_SELECTION mode */
 	switch (_state_machine.get_square_area_mode()) {
@@ -613,20 +539,33 @@ void Inendi::PVView::process_selection()
 	/* We simply copy the lines_properties */
 	post_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
 
-	/* Now we MUST refresh the index_array associated to nznu */
-	/* WARNING ! nothing is done here because this function should be followed by
-	 * process_eventline which changes the selection and DO update the
-	 * nznu_index_array */
+	_update_output_selection.emit();
 }
 
 /******************************************************************************
  *
- * Inendi::PVView::process_visibility
+ * Inendi::PVView::process_output_layer
  *
  *****************************************************************************/
-void Inendi::PVView::process_visibility()
+void Inendi::PVView::process_output_layer()
 {
-	PVLOG_DEBUG("Inendi::PVView::process_visibility\n");
+	PVLOG_DEBUG("Inendi::PVView::process_output_layer\n");
+
+	PVLinesProperties& out_lps = output_layer.get_lines_properties();
+	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();
+/* We are now able to process the lines_properties */
+#pragma omp parallel for schedule(dynamic, 2048)
+	for (PVRow i = 0; i < get_row_count(); i++) {
+		/* We check if the event is selected at the end of the process */
+		if (layer_stack_output_layer.get_selection().get_line(i)) {
+			/* It is selected, so we copy its line properties */
+			out_lps.set_line_properties(i, post_lps.get_line_properties(i));
+		} else {
+			/* The event is a zombie one */
+			out_lps.set_line_properties(i, _default_zombie_line_properties);
+		}
+	}
+
 	/* We First need to check if the UNSELECTED lines are visible */
 	if (_state_machine.are_listing_unselected_visible()) {
 		/* The UNSELECTED are visible */
@@ -640,7 +579,7 @@ void Inendi::PVView::process_visibility()
 		}
 	} else {
 		/* UNSELECTED lines are invisible */
-		output_layer.get_selection() = real_output_selection;
+		output_layer.get_selection() = post_filter_layer.get_selection();
 		/* Now we need to know if the ZOMBIE are visible */
 		if (_state_machine.are_listing_zombie_visible()) {
 			/* ZOMBIE are visible */

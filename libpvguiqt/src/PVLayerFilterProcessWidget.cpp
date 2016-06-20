@@ -263,7 +263,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 
 	process();
 
-	_view->process_from_eventline();
+	_view->process_post_filter_layer();
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()

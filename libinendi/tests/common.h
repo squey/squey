@@ -37,6 +37,8 @@ std::string get_tmp_filename()
 	return out_path;
 }
 
+enum class ProcessUntil { Source, Mapped, Plotted, View };
+
 /**
  * Create and save context for a view creation.
  *
@@ -51,7 +53,10 @@ class TestEnv
 	 *
 	 * dup is the number of time we want to duplicate data.
 	 */
-	TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1)
+	TestEnv(std::string const& log_file,
+	        std::string const& format_file,
+	        size_t dup,
+	        ProcessUntil until = ProcessUntil::Source)
 	    : _big_file_path(get_tmp_filename())
 	{
 		// Need this core application to find plugins path.
@@ -67,6 +72,23 @@ class TestEnv
 		PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
 		import(log_file, format_file, dup);
+
+		switch (until) {
+		case ProcessUntil::Source:
+			return;
+		case ProcessUntil::Mapped:
+			compute_mappings();
+			return;
+		case ProcessUntil::Plotted:
+			compute_mappings();
+			compute_plottings();
+			return;
+		case ProcessUntil::View:
+			compute_mappings();
+			compute_plottings();
+			compute_views();
+			return;
+		}
 	}
 
 	Inendi::PVSource& add_source(std::string const& log_file,
