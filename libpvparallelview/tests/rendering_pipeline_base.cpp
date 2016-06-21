@@ -57,8 +57,6 @@ int main(int argc, char** argv)
 {
 #ifdef INSPECTOR_BENCH
 	setenv("INENDI_DEBUG_LEVEL", "FATAL", 1);
-	(void)argc;
-	(void)argv;
 
 	/* 1K take 2 seconds on proto-03 with the CPU backend while 1M take 2.2 seconds on the same
 	 * computer but using the GPU backend.
@@ -81,8 +79,8 @@ int main(int argc, char** argv)
 
 	PVParallelView::PVBCIDrawingBackendOpenCL& backend =
 	    PVParallelView::PVBCIDrawingBackendOpenCL::get();
-	PVParallelView::PVRenderingPipeline* pipeline =
-	    new PVParallelView::PVRenderingPipeline(backend);
+	std::unique_ptr<PVParallelView::PVRenderingPipeline> pipeline(
+	    new PVParallelView::PVRenderingPipeline(backend));
 
 	PVCore::PVHSVColor* colors = std::allocator<PVCore::PVHSVColor>().allocate(n);
 	for (size_t i = 0; i < n; i++) {
@@ -126,9 +124,6 @@ int main(int argc, char** argv)
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 #endif
-
-	// The pipeline must be deleted before the backend !
-	delete pipeline;
 
 	return 0;
 }
