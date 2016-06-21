@@ -9,14 +9,13 @@
 
 /******************************************************************************
  *
- * Inendi::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts
+ * Inendi::PVLinesProperties::A2B_copy_restricted_by_selection
  *
  *****************************************************************************/
-void Inendi::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(
-    Inendi::PVLinesProperties& b, PVSelection const& selection) const
+void Inendi::PVLinesProperties::A2B_copy_restricted_by_selection(Inendi::PVLinesProperties& b,
+                                                                 PVSelection const& selection) const
 {
-	selection.visit_selected_lines([&](const PVRow r) { b._colors[r] = this->_colors[r]; },
-	                               selection.count());
+	selection.visit_selected_lines([&](const PVRow r) { b._colors[r] = this->_colors[r]; });
 }
 
 /******************************************************************************

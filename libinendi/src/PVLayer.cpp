@@ -37,19 +37,17 @@ Inendi::PVLayer::PVLayer(const QString& name_,
  * Inendi::PVLayer::A2B_copy_restricted_by_selection_and_nelts
  *
  *****************************************************************************/
-void Inendi::PVLayer::A2B_copy_restricted_by_selection_and_nelts(PVLayer& b,
-                                                                 PVSelection const& selection,
-                                                                 PVRow nelts)
+void Inendi::PVLayer::A2B_copy_restricted_by_selection(PVLayer& b, PVSelection const& selection)
 {
-	get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(b.get_lines_properties(),
-	                                                                  selection);
+	get_lines_properties().A2B_copy_restricted_by_selection(b.get_lines_properties(), selection);
 	b.get_selection() &= get_selection();
-	b.compute_selectable_count(nelts);
+	b.compute_selectable_count();
 }
 
-void Inendi::PVLayer::compute_selectable_count(PVRow const& nrows)
+void Inendi::PVLayer::compute_selectable_count()
 {
-	selectable_count = selection.get_number_of_selected_lines_in_range(0U, nrows);
+	// FIXME : We should cache this value instead of computing it explicitly
+	selectable_count = selection.bit_count();
 }
 
 /******************************************************************************

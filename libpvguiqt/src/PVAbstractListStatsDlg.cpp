@@ -800,9 +800,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
 
-	int layer_num = model().current_selection().get_number_of_selected_lines_in_range(
-	    0, model().value_col().size());
-	;
+	int layer_num = model().current_selection().bit_count();
 	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",

@@ -44,8 +44,7 @@ class PVSelection : public PVCore::PVSelBitField
 	explicit PVSelection(PVRow row_count) : PVCore::PVSelBitField(row_count) {}
 
 	PVSelection(PVSelection const& o) = default;
-	// TODO : FIXME : We should not declare a move constructor that perform a copy.
-	PVSelection(PVSelection&& o) : PVCore::PVSelBitField(o) {}
+	PVSelection(PVSelection&& o) = default;
 
   public:
 	inline PVSelection& operator|=(const PVSelection& rhs)
@@ -78,10 +77,6 @@ class PVSelection : public PVCore::PVSelBitField
 		PVCore::PVSelBitField::operator^=(rhs);
 		return *this;
 	};
-	inline bool operator==(const PVSelection& rhs) const
-	{
-		return PVCore::PVSelBitField::operator==(rhs);
-	}
 
 	inline PVSelection operator&(const PVSelection& rhs) const
 	{
@@ -101,28 +96,11 @@ class PVSelection : public PVCore::PVSelBitField
 		ret ^= rhs;
 		return ret;
 	}
-	inline PVSelection operator~() const
-	{
-		PVSelection ret(count());
-		move_from_base(ret, PVCore::PVSelBitField::operator~());
-		return ret;
-	}
 	inline PVSelection operator|(const PVSelection& rhs) const
 	{
 		PVSelection ret(*this);
 		ret |= rhs;
 		return ret;
-	}
-
-  private:
-	static void move_from_base(PVSelection& ret, PVCore::PVSelBitField&& b)
-	{
-		assert(&ret != &b);
-		if (ret._table) {
-			ret.free_table();
-		}
-		ret._table = b._table;
-		b._table = nullptr;
 	}
 };
 }

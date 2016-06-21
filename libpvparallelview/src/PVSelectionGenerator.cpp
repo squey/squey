@@ -286,8 +286,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 		return 0;
 	}
 
-	sel.ensure_allocated();
-
 	const __m128i y_min_sse = _mm_set1_epi32(y_min);
 	const __m128i y_max_sse = _mm_set1_epi32(y_max);
 
@@ -358,8 +356,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
     Inendi::PVSelection& sel,
     bool use_selectable)
 {
-	sel.ensure_allocated();
-
 	// The interval described here is of the type [a,b] (that is the maximum is
 	// taken into account)
 	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
@@ -505,8 +501,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 	if (rect.isNull()) {
 		return 0;
 	}
-
-	sel.ensure_allocated();
 
 	const uint32_t y1_min = PVCore::clamp(floor(rect.left()), 0.0, (double)UINT32_MAX);
 	const uint32_t y1_max = PVCore::clamp(ceil(rect.right()), 0.0, (double)UINT32_MAX);

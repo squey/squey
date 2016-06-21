@@ -59,9 +59,7 @@ class PVLayer
 	 *
 	 * @param[in] : nelts is the number of elements in the selection.
 	 */
-	void A2B_copy_restricted_by_selection_and_nelts(PVLayer& b,
-	                                                PVSelection const& selection,
-	                                                PVRow nelts);
+	void A2B_copy_restricted_by_selection(PVLayer& b, PVSelection const& selection);
 
 	int get_index() const { return index; }
 	const PVLinesProperties& get_lines_properties() const { return lines_properties; }
@@ -71,7 +69,7 @@ class PVLayer
 	PVSelection& get_selection() { return selection; }
 	bool get_visible() const { return visible; }
 
-	void compute_selectable_count(PVRow const& nrows);
+	void compute_selectable_count();
 	PVRow get_selectable_count() const { return selectable_count; }
 
 	void compute_min_max(PVPlotted const& plotted);

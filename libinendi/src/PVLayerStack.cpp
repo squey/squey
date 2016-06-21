@@ -278,18 +278,17 @@ void Inendi::PVLayerStack::process(PVLayer& output_layer, PVRow row_count)
 
 				/* We copy in the output_layer the only new
 				*  lines properties */
-				layer_being_processed->get_lines_properties()
-				    .A2B_copy_restricted_by_selection_and_nelts(output_layer.get_lines_properties(),
-				                                                temp_selection);
+				layer_being_processed->get_lines_properties().A2B_copy_restricted_by_selection(
+				    output_layer.get_lines_properties(), temp_selection);
 			}
 		}
 	}
 }
 
-void Inendi::PVLayerStack::compute_selectable_count(PVRow row_count)
+void Inendi::PVLayerStack::compute_selectable_count()
 {
 	for (int i = 0; i < get_layer_count(); i++) {
-		_table[i].compute_selectable_count(row_count);
+		_table[i].compute_selectable_count();
 	}
 }
 

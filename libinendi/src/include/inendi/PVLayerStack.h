@@ -57,7 +57,7 @@ class PVLayerStack
 	                                                     PVLinesProperties const& lines_properties);
 	bool contains_layer(PVLayer* layer) const;
 
-	void compute_selectable_count(PVRow row_count);
+	void compute_selectable_count();
 
 	void delete_by_index(int index);
 	void delete_all_layers();
