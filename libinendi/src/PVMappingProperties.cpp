@@ -10,12 +10,12 @@
 #include <pvkernel/core/PVClassLibrary.h>
 
 Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format, PVCol idx)
+    : PVMappingProperties(format.get_axes().at(idx), idx)
 {
-	_index = idx;
-	set_from_axis(format.get_axes().at(idx));
 }
 
 Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axis, PVCol idx)
+    : _is_uptodate(false)
 {
 	_index = idx;
 	set_from_axis(axis);
