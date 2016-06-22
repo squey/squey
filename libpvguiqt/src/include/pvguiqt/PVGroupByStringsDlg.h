@@ -20,7 +20,7 @@ namespace PVGuiQt
 class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 {
   public:
-	PVGroupByStringsDlg(Inendi::PVView_sp& view,
+	PVGroupByStringsDlg(Inendi::PVView& view,
 	                    PVCol c1,
 	                    PVCol c2,
 	                    pvcop::db::array col1,
@@ -34,7 +34,7 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	          c1,
 	          new PVStatsModel(std::move(col1), std::move(col2), abs_max, rel_min, rel_max),
 	          parent)
-	    , _view(*view)
+	    , _view(view)
 	    , _col2(c2)
 	{
 		_ctxt_menu->addSeparator();

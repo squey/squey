@@ -23,7 +23,6 @@
 #include <pvkernel/core/PVHugePODVector.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <inendi/PVView.h>
-#include <inendi/PVView_types.h>
 #include <inendi/PVPlotting.h>
 #include <inendi/PVSelection.h>
 
@@ -38,8 +37,7 @@ class PVSource;
  * \class PVPlotted
  */
 class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
-                  public PVCore::PVDataTreeParent<PVView, PVPlotted>,
-                  public PVCore::PVEnableSharedFromThis<PVPlotted>
+                  public PVCore::PVDataTreeParent<PVView, PVPlotted>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
@@ -249,9 +247,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	QList<PVCol> _last_updated_cols;
 	std::vector<MinMax> _minmax_values;
 };
-
-using PVPlotted_sp = PVCore::PVSharedPtr<PVPlotted>;
-using PVPlotted_p = PVCore::PVSharedPtr<PVPlotted>;
 }
 
 #endif /* INENDI_PVPLOTTED_H */

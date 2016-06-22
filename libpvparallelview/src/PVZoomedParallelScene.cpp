@@ -52,15 +52,15 @@
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
     PVParallelView::PVZoomedParallelView* zpview,
-    Inendi::PVView_sp& pvview_sp,
-    PVParallelView::PVSlidersManager_p sliders_manager_p,
+    Inendi::PVView& pvview_sp,
+    PVParallelView::PVSlidersManager* sliders_manager_p,
     PVZonesProcessor& zp_sel,
     PVZonesProcessor& zp_bg,
     PVZonesManager const& zm,
     PVCol axis_index)
     : QGraphicsScene(zpview)
     , _zpview(zpview)
-    , _pvview(*pvview_sp)
+    , _pvview(pvview_sp)
     , _sliders_manager_p(sliders_manager_p)
     , _axis_index(axis_index)
     , _zm(zm)
@@ -113,7 +113,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	configure_axis(true);
 
 	// Register view for unselected & zombie events toggle
-	pvview_sp->_toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
+	pvview_sp._toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
 	    this, &PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility));
 
 	sliders_manager_p->_update_zoom_sliders.connect(

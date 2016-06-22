@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 PVParallelView::PVSelectionAxisSliders::PVSelectionAxisSliders(QGraphicsItem* parent,
-                                                               PVSlidersManager_p sm_p,
+                                                               PVSlidersManager* sm_p,
                                                                PVSlidersGroup* group)
     : PVAbstractRangeAxisSliders(parent, sm_p, group, "range selection")
 {

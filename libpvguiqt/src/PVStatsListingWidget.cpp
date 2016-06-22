@@ -92,16 +92,16 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	        SLOT(update_scrollbar_position()));
 
 	// Observe selection to handle automatic refresh mode
-	Inendi::PVView_sp view_sp = _listing_view->lib_view().shared_from_this();
-	view_sp->_update_output_selection.connect(
+	Inendi::PVView& view_sp = _listing_view->lib_view();
+	view_sp._update_output_selection.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observe layerstack to handle automatic refresh mode
-	view_sp->_update_output_layer.connect(
+	view_sp._update_output_layer.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observer axes combination changes
-	view_sp->_axis_combination_updated.connect(
+	view_sp._axis_combination_updated.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::axes_comb_changed));
 
 	init_plugins();
@@ -335,7 +335,7 @@ tbb::task_group_context* PVGuiQt::__impl::PVCellWidgetBase::_ctxt = new tbb::tas
 bool PVGuiQt::__impl::PVCellWidgetBase::_thread_running = false;
 
 PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
-                                                    Inendi::PVView const& view,
+                                                    Inendi::PVView& view,
                                                     QTableWidgetItem* item)
     : _table(table)
     , _view(view)
@@ -585,7 +585,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::toggle_auto_refresh()
  *
  *****************************************************************************/
 PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table,
-                                                                    Inendi::PVView const& view,
+                                                                    Inendi::PVView& view,
                                                                     QTableWidgetItem* item)
     : PVCellWidgetBase(table, view, item)
 {
@@ -618,8 +618,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 {
 	if (!_dialog) {
-		Inendi::PVView_sp view = (const_cast<Inendi::PVView&>(_view)).shared_from_this();
-		PVQNraw::show_unique_values(view, _view.get_rushnraw_parent(), get_real_axis_col(),
+		PVQNraw::show_unique_values(_view, _view.get_rushnraw_parent(), get_real_axis_col(),
 		                            _view.get_selection_visible_listing(), this, &_dialog);
 		connect(_dialog, SIGNAL(finished(int)), this, SLOT(unique_values_dlg_closed()));
 	} else {

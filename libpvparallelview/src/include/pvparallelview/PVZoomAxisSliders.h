@@ -29,7 +29,7 @@ class PVZoomAxisSliders : public PVAbstractRangeAxisSliders, public sigc::tracka
 	typedef PVSlidersManager::id_t id_t;
 
   public:
-	PVZoomAxisSliders(QGraphicsItem* parent, PVSlidersManager_p sm_p, PVSlidersGroup* group);
+	PVZoomAxisSliders(QGraphicsItem* parent, PVSlidersManager* sm_p, PVSlidersGroup* group);
 
 	void initialize(id_t id, int64_t y_min, int64_t y_max);
 

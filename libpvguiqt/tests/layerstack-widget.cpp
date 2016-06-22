@@ -42,22 +42,20 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	Inendi::PVView_sp view = src.current_view()->shared_from_this();
-	view->add_new_layer();
+	Inendi::PVView& view = *src.current_view();
+	view.add_new_layer();
 
 	PVGuiQt::PVLayerStackWidget* ls = new PVGuiQt::PVLayerStackWidget(view);
 	PVGuiQt::PVLayerStackWidget* ls2 = new PVGuiQt::PVLayerStackWidget(view);
 
-	QMainWindow* mw = new QMainWindow();
-	mw->setCentralWidget(ls);
+	QMainWindow mw;
+	mw.setCentralWidget(ls);
 
-	QMainWindow* mw2 = new QMainWindow();
-	mw2->setCentralWidget(ls2);
+	QMainWindow mw2;
+	mw2.setCentralWidget(ls2);
 
-	mw->show();
-	mw2->show();
+	mw.show();
+	mw2.show();
 
-	int ret = app.exec();
-
-	return ret;
+	return app.exec();
 }

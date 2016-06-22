@@ -312,7 +312,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	connect(create_new_format_button, SIGNAL(clicked(bool)), this, SIGNAL(new_format()));
 	connect(edit_format_button, SIGNAL(clicked(bool)), this, SIGNAL(load_format()));
 
-	PVCore::PVRecentItemsManager::get()->_add_item.connect(
+	PVCore::PVRecentItemsManager::get()._add_item.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVStartScreenWidget::refresh_recent_items));
 
 	refresh_all_recent_items();
@@ -348,7 +348,7 @@ void PVGuiQt::PVStartScreenWidget::refresh_recent_items(int cat)
 	list->clear();
 
 	uint64_t index = 0;
-	for (QVariant var : PVCore::PVRecentItemsManager::get()->get_list(category)) {
+	for (QVariant var : PVCore::PVRecentItemsManager::get().get_list(category)) {
 		// item + data
 		__impl::PVListWidgetItem* item_widget =
 		    new __impl::PVListWidgetItem(category, var, index, list, this);
@@ -490,7 +490,7 @@ void PVGuiQt::PVStartScreenWidget::clear_history(PVCore::PVRecentItemsManager::C
 	}
 
 	// Clear config file
-	PVCore::PVRecentItemsManager::get()->clear(category, indexes);
+	PVCore::PVRecentItemsManager::get().clear(category, indexes);
 
 	refresh_recent_items(category);
 }

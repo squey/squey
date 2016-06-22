@@ -62,16 +62,6 @@ void Inendi::PVLayerFilter::set_output(PVLayer* out)
 
 /******************************************************************************
  *
- * Inendi::PVLayerFilter::set_view
- *
- *****************************************************************************/
-void Inendi::PVLayerFilter::set_view(PVView_sp const& view)
-{
-	_view = view.get();
-}
-
-/******************************************************************************
- *
  * Inendi::PVLayerFilter::get_default_args_for_view
  *
  *****************************************************************************/

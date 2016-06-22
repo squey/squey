@@ -20,29 +20,28 @@
  * PVInspector::PVListingModel::PVListingModel
  *
  *****************************************************************************/
-PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView_sp& view, QObject* parent)
-    : PVAbstractTableModel(view->get_row_count(), parent)
+PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView& view, QObject* parent)
+    : PVAbstractTableModel(view.get_row_count(), parent)
     , _zombie_brush(QColor(0, 0, 0))
     , _vheader_font(":/Convergence-Regular")
     , _view(view)
 {
 	// Update the full model if axis combination change
-	view->_axis_combination_updated.connect(
+	view._axis_combination_updated.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::axes_comb_changed));
 
 	// Call update_filter on selection update
-	view->_update_output_selection.connect(
+	view._update_output_selection.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update filter if we change layer content
-	view->_update_output_layer.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
+	view._update_output_layer.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of zombie lines on option toggling
-	view->_toggle_zombie.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
+	view._toggle_zombie.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of unselected lines on option toogling
-	view->_toggle_unselected.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
+	view._toggle_unselected.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Set listing view on visible_selection_listing selection.
 	update_filter();
@@ -60,10 +59,10 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	}
 
 	// Axis may have been duplicated and moved, get the real one.
-	const PVCol org_col = lib_view().get_original_axis_index(index.column());
+	const PVCol org_col = _view.get_original_axis_index(index.column());
 	const PVRow r = rowIndex(index);
 
-	if (r >= lib_view().get_row_count()) {
+	if (r >= _view.get_row_count()) {
 		// Nothing for rows out of bound.
 		return {};
 	}
@@ -73,7 +72,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	// Set content and tooltip
 	case Qt::DisplayRole:
 	case Qt::ToolTipRole: {
-		const Inendi::PVSource& src = lib_view().get_parent<Inendi::PVSource>();
+		const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
 
 		return QString::fromStdString(src.get_input_value(r, org_col));
 	}
@@ -90,13 +89,13 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 			// Visual selected lines from current selection
 			// and "in progress" selection
 			return _selection_brush;
-		} else if (lib_view().get_real_output_selection().get_line(r)) {
+		} else if (_view.get_real_output_selection().get_line(r)) {
 			// Selected elements, use output layer color
-			const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
+			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
 			return QBrush(color.toQColor());
-		} else if (lib_view().get_line_state_in_layer_stack_output_layer(r)) {
+		} else if (_view.get_line_state_in_layer_stack_output_layer(r)) {
 			/* The event is unselected use darker output layer color */
-			const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
+			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
 			return QBrush(color.toQColor().darker(200));
 		} else {
 			/* The event is a ZOMBIE */
@@ -107,8 +106,8 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	// Set font color
 	case (Qt::ForegroundRole): {
 		// Show text in white if this is a zombie event
-		if (!lib_view().get_real_output_selection().get_line(r) &&
-		    !lib_view().get_line_state_in_layer_stack_output_layer(r)) {
+		if (!_view.get_real_output_selection().get_line(r) &&
+		    !_view.get_line_state_in_layer_stack_output_layer(r)) {
 			return QBrush(Qt::white);
 		}
 		return QVariant();
@@ -118,7 +117,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	case (Qt::FontRole): {
 		QFont f;
 
-		const Inendi::PVSource& src = lib_view().get_parent<Inendi::PVSource>();
+		const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
 
 		if (src.has_conversion_failed(r, org_col)) {
 			f.setItalic(true);
@@ -144,7 +143,7 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 	case (Qt::DisplayRole):
 		if (orientation == Qt::Horizontal) {
 			if (section >= 0) {
-				return lib_view().get_axis_name(section);
+				return _view.get_axis_name(section);
 			}
 		} else if (section >= 0) {
 			assert(orientation == Qt::Vertical && "No others possible orientations.");
@@ -154,7 +153,7 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 	// Selected lines are bold, others use class specific font
 	case (Qt::FontRole):
 		if (orientation == Qt::Vertical and section >= 0) {
-			if (lib_view().get_real_output_selection().get_line(section)) {
+			if (_view.get_real_output_selection().get_line(section)) {
 				QFont f(_vheader_font);
 				f.setBold(true);
 				return f;
@@ -172,15 +171,15 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 		break;
 	// Define tooltip text
 	case (Qt::ToolTipRole):
-		const Inendi::PVRoot& root = lib_view().get_parent<Inendi::PVRoot>();
-		const Inendi::PVCorrelation* correlation = root.correlations().correlation(&lib_view());
+		const Inendi::PVRoot& root = _view.get_parent<Inendi::PVRoot>();
+		const Inendi::PVCorrelation* correlation = root.correlations().correlation(&_view);
 
-		PVCol col1 = lib_view().get_original_axis_index(section);
+		PVCol col1 = _view.get_original_axis_index(section);
 
 		if (correlation and correlation->col1 == col1) {
 			const QString orig_source =
-			    QString::fromStdString(lib_view().get_parent<Inendi::PVSource>().get_name());
-			const QString& orig_axis = lib_view().get_axis_name(section);
+			    QString::fromStdString(_view.get_parent<Inendi::PVSource>().get_name());
+			const QString& orig_axis = _view.get_axis_name(section);
 			const QString dest_source = QString::fromStdString(
 			    correlation->view2->get_parent<Inendi::PVSource>().get_name());
 			const QString& dest_axis =
@@ -203,7 +202,7 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
  *****************************************************************************/
 int PVGuiQt::PVListingModel::columnCount(const QModelIndex&) const
 {
-	return lib_view().get_column_count();
+	return _view.get_column_count();
 }
 
 /******************************************************************************
@@ -237,8 +236,8 @@ void PVGuiQt::PVListingModel::sort_on_col(PVCol comb_col,
                                           Qt::SortOrder order,
                                           tbb::task_group_context& ctxt)
 {
-	PVCol orig_col = lib_view().get_original_axis_index(comb_col);
-	lib_view().sort_indexes(orig_col, _display.sorting(), &ctxt);
+	PVCol orig_col = _view.get_original_axis_index(comb_col);
+	_view.sort_indexes(orig_col, _display.sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(comb_col, order); // set Qt sort indicator
 		update_filter();
@@ -265,7 +264,7 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Reset the current selection as context change
 	reset_selection();
 
-	Inendi::PVSelection const& sel = lib_view().get_selection_visible_listing();
+	Inendi::PVSelection const& sel = _view.get_selection_visible_listing();
 
 	// Inform view about future update
 	Q_EMIT layoutAboutToBeChanged();

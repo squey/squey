@@ -22,7 +22,7 @@
  * PVGuiQt::PVLayerStackWidget::PVLayerStackWidget
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWidget* parent)
+PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView& lib_view, QWidget* parent)
     : QWidget(parent)
 {
 	QVBoxLayout* main_layout;
@@ -42,7 +42,7 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWi
 
 	// PVLAYERSTACKVIEW
 	PVLayerStackModel* model = new PVLayerStackModel(lib_view);
-	PVLayerStackDelegate* delegate = new PVLayerStackDelegate(*lib_view, this);
+	PVLayerStackDelegate* delegate = new PVLayerStackDelegate(lib_view, this);
 	_layer_stack_view = new PVLayerStackView();
 	_layer_stack_view->setItemDelegate(delegate);
 	_layer_stack_view->setModel(model);
@@ -72,7 +72,7 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView_sp& lib_view, QWi
 	 * existing layers can be processed to compute their
 	 * selectable events count.
 	 */
-	lib_view->recompute_all_selectable_count();
+	lib_view.recompute_all_selectable_count();
 }
 
 /******************************************************************************

@@ -44,7 +44,7 @@ void PVParallelView::PVHitCountViewSelectionRectangle::commit(bool use_selection
 	PVSelectionGenerator::compute_selection_from_hit_count_view_rect(
 	    _hcv->get_hit_graph_manager(), r, _hcv->get_max_count(), view.get_volatile_selection(),
 	    use_selectable);
-	PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
+	PVSelectionGenerator::process_selection(view, use_selection_modifiers);
 }
 
 /*****************************************************************************

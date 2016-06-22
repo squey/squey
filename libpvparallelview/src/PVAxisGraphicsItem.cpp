@@ -88,7 +88,7 @@ class PVToolTipEventFilter : public QObject
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem
  *****************************************************************************/
 
-PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
+PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager* sm_p,
                                                        Inendi::PVView const& view,
                                                        const axis_id_t& axis_id)
     : _sliders_manager_p(sm_p), _axis_id(axis_id), _lib_view(view), _axis_length(10)

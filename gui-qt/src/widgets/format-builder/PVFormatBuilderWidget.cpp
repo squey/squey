@@ -577,7 +577,7 @@ bool PVInspector::PVFormatBuilderWidget::save()
 
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {
-		PVCore::PVRecentItemsManager::get()->add(
+		PVCore::PVRecentItemsManager::get().add(
 		    _cur_file, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 		return true;
 	}
@@ -623,7 +623,7 @@ bool PVInspector::PVFormatBuilderWidget::saveAs()
 		if (myTreeModel->saveXml(urlFile)) {
 			_cur_file = urlFile;
 			setWindowTitleForFile(urlFile);
-			PVCore::PVRecentItemsManager::get()->add(
+			PVCore::PVRecentItemsManager::get().add(
 			    urlFile, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 			return true;
 		}

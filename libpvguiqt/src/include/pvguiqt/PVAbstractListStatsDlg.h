@@ -10,10 +10,8 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
-#include <inendi/PVView_types.h>
-
 #include <pvguiqt/PVListDisplayDlg.h>
-#include <pvguiqt/PVStatsModel.h> // TODO : remove it
+#include <pvguiqt/PVStatsModel.h>
 
 #include <QStyledItemDelegate>
 
@@ -21,10 +19,13 @@
 
 class QComboBox;
 
+namespace Inendi
+{
+class PVView;
+}
+
 namespace PVGuiQt
 {
-
-class PVStatsModel;
 
 namespace __impl
 {
@@ -42,12 +43,12 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	friend class __impl::PVListStringsDelegate;
 
   public:
-	PVAbstractListStatsDlg(Inendi::PVView_sp& view,
+	PVAbstractListStatsDlg(Inendi::PVView& view,
 	                       PVCol c,
 	                       PVStatsModel* model,
 	                       QWidget* parent = nullptr);
 
-	void init(Inendi::PVView_sp& view);
+	void init(Inendi::PVView& view);
 
   public:
 	/**

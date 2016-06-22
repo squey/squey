@@ -8,16 +8,14 @@
 #ifndef PVPARALLELVIEW_PVLIBVIEW_H
 #define PVPARALLELVIEW_PVLIBVIEW_H
 
-#include <pvkernel/core/PVSharedPointer.h>
-
 #include <sigc++/sigc++.h>
 
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVPlotting.h>
-#include <inendi/PVView_types.h>
 
 #include <pvparallelview/PVZonesProcessor.h>
 #include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVSlidersManager.h>
 
 namespace PVParallelView
 {
@@ -30,7 +28,6 @@ class PVZoomedParallelScene;
 class PVZoomedParallelView;
 class PVHitCountView;
 class PVScatterView;
-class PVSlidersManager;
 
 class PVLibView : public sigc::trackable
 {
@@ -42,7 +39,7 @@ class PVLibView : public sigc::trackable
 	friend class process_selection_Observer;
 
   public:
-	PVLibView(Inendi::PVView_sp& view_sp);
+	PVLibView(Inendi::PVView& view_sp);
 	~PVLibView();
 
   public:
@@ -72,7 +69,7 @@ class PVLibView : public sigc::trackable
   private:
 	Inendi::PVView* _view;
 	PVZonesManager _zones_manager;
-	PVCore::PVSharedPtr<PVSlidersManager> _sliders_manager_p;
+	PVSlidersManager _sliders_manager;
 	scene_list_t _parallel_scenes;
 	zoomed_scene_list_t _zoomed_parallel_scenes;
 	hit_count_view_list_t _hit_count_views;

@@ -8,8 +8,6 @@
 #ifndef PVSOURCEDESCRIPTION_H_
 #define PVSOURCEDESCRIPTION_H_
 
-#include <pvkernel/core/PVSharedPointer.h>
-
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
@@ -19,9 +17,6 @@ namespace PVRush
 
 class PVSourceDescription
 {
-  public:
-	typedef typename PVCore::PVSharedPtr<PVSourceDescription> shared_pointer;
-
   public:
 	PVSourceDescription() : _inputs(), _source_creator_p(), _format() {}
 

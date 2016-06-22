@@ -8,9 +8,6 @@
 #ifndef PVDATATREEOBJECT_H_
 #define PVDATATREEOBJECT_H_
 
-#include <pvkernel/core/PVSharedPointer.h>
-#include <pvkernel/core/PVEnableSharedFromThis.h>
-
 #include <algorithm>
 #include <list>
 
@@ -24,8 +21,7 @@ class PVDataTreeObject
 {
   public:
 	/**
-	 * This is a dummy function to create the VTable otherwise the compiler doesn't consided
-	 * PVDataTreeObject as a source class.
+	 * Human readable description of a node.
 	 */
 	virtual std::string get_serialize_description() const = 0;
 };
@@ -103,8 +99,8 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 	template <class... T>
 	Child& emplace_add_child(T&&... t)
 	{
-		_children.push_back(PVSharedPtr<Child>(new Child(static_cast<Derived&>(*this), t...)));
-		return *_children.back();
+		_children.emplace_back(static_cast<Derived&>(*this), std::forward<T>(t)...);
+		return _children.back();
 	}
 
 	template <class T = Child>
@@ -112,7 +108,7 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 	{
 		std::list<const Child*> tmp_list;
 		std::transform(_children.begin(), _children.end(), back_inserter(tmp_list),
-		               [](PVCore::PVSharedPtr<Child> const& p) { return p.get(); });
+		               [](Child const& p) { return &p; });
 		return __impl::ChildrenAccessor<const Child, const T>::children(std::move(tmp_list));
 	}
 
@@ -121,11 +117,14 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 	{
 		std::list<Child*> tmp_list;
 		std::transform(_children.begin(), _children.end(), back_inserter(tmp_list),
-		               [](PVCore::PVSharedPtr<Child> const& p) { return p.get(); });
+		               [](Child& p) { return &p; });
 		return __impl::ChildrenAccessor<Child, T>::children(std::move(tmp_list));
 	}
 
-	void remove_child(Child& child) { _children.remove(child.shared_from_this()); }
+	void remove_child(Child& child)
+	{
+		_children.remove_if([&](Child const& c) { return &c == &child; });
+	}
 
 	void remove_all_children() { _children.clear(); }
 
@@ -136,7 +135,7 @@ class PVDataTreeParent : virtual public PVDataTreeObject
 	}
 
   private:
-	std::list<PVSharedPtr<Child>> _children;
+	std::list<Child> _children;
 };
 
 namespace __impl

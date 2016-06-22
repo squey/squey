@@ -32,8 +32,7 @@ class PVView;
 /**
  * \class PVRoot
  */
-class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>,
-               public PVCore::PVEnableSharedFromThis<PVRoot>
+class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 {
   public:
 	friend class PVView;

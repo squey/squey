@@ -9,7 +9,6 @@
 #define PVPARALLELVIEW_PVPARALLELVIEW_H
 
 #include <inendi/PVPlotted.h>
-#include <inendi/PVView_types.h>
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 

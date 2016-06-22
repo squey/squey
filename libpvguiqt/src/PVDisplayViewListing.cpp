@@ -26,10 +26,8 @@ PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
 QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view,
                                                          QWidget* parent) const
 {
-	Inendi::PVView_sp view_sp = view->shared_from_this();
-
-	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view_sp);
-	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(view_sp, parent);
+	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(*view);
+	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(*view, parent);
 	listing_view->setModel(model);
 
 	PVGuiQt::PVHorizontalHeaderView* hheaderview =

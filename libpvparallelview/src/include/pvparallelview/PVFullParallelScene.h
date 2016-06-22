@@ -16,7 +16,6 @@
 #include <sigc++/sigc++.h>
 
 #include <inendi/PVAxis.h>
-#include <inendi/PVView_types.h>
 
 #include <pvparallelview/PVBCIBackendImage_types.h>
 #include <pvparallelview/PVFullParallelViewSelectionRectangle.h>
@@ -44,8 +43,8 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
   public:
 	PVFullParallelScene(PVFullParallelView* full_parallel_view,
-	                    Inendi::PVView_sp& view_sp,
-	                    PVParallelView::PVSlidersManager_p sm_p,
+	                    Inendi::PVView& view_sp,
+	                    PVParallelView::PVSlidersManager* sm_p,
 	                    PVBCIDrawingBackend& backend,
 	                    PVZonesManager const& zm,
 	                    PVZonesProcessor& zp_sel,
@@ -242,7 +241,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	float _zoom_y;
 	float _axis_length;
 
-	PVSlidersManager_p _sm_p;
+	PVSlidersManager* _sm_p;
 
 	QTimer* _timer_render;
 

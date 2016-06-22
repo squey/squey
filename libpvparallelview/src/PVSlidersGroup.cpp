@@ -20,7 +20,7 @@
  * PVParallelView::PVSlidersGroup::PVSlidersGroup
  *****************************************************************************/
 
-PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
+PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager* sm_p,
                                                const axis_id_t& axis_id,
                                                QGraphicsItem* parent)
     : QGraphicsItemGroup(parent), _sliders_manager_p(sm_p), _axis_id(axis_id), _axis_scale(1.0f)

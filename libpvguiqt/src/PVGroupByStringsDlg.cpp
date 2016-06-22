@@ -33,8 +33,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			pvcop::db::array col1_out;
 			pvcop::db::array col2_out;
 
-			Inendi::PVView_sp view_sp = _view.shared_from_this();
-			PVRush::PVNraw const& nraw = view_sp->get_rushnraw_parent();
+			PVRush::PVNraw const& nraw = lib_view()->get_rushnraw_parent();
 
 			// We did the col1_in by col2_in computation
 			const pvcop::db::array col1_in = nraw.collection().column(_col);
@@ -57,7 +56,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			    [&] {
 				    pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out,
 				                                   col2_out,
-				                                   view_sp->get_selection_visible_listing());
+				                                   lib_view()->get_selection_visible_listing());
 
 				    pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 
@@ -75,7 +74,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 
 			if (ret) {
 				PVListUniqStringsDlg* dlg =
-				    new PVListUniqStringsDlg(view_sp, _col2, std::move(col1_out),
+				    new PVListUniqStringsDlg(*lib_view(), _col2, std::move(col1_out),
 				                             std::move(col2_out), sum, min, max, parentWidget());
 				dlg->setWindowTitle("Details of value '" + value + "'");
 				dlg->move(x() + width() + 10, y());

@@ -10,8 +10,6 @@
 
 #include <sigc++/sigc++.h>
 
-#include <pvkernel/core/PVSharedPointer.h>
-
 #include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/PVScatterViewImagesManager.h>
@@ -31,7 +29,6 @@ namespace Inendi
 {
 
 class PVView;
-typedef PVCore::PVSharedPtr<PVView> PVView_sp;
 }
 
 namespace PVParallelView
@@ -83,7 +80,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	};
 
   public:
-	PVScatterView(Inendi::PVView_sp& pvview_sp,
+	PVScatterView(Inendi::PVView& pvview_sp,
 	              PVZonesManager const& zm,
 	              PVCol const axis_index,
 	              PVZonesProcessor& zp_bg,

@@ -87,7 +87,7 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
 		assert(false);
 	}
 
-	PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
+	PVSelectionGenerator::process_selection(view, use_selection_modifiers);
 }
 
 /*****************************************************************************

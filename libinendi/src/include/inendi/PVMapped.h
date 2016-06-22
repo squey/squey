@@ -36,8 +36,7 @@ class PVPlotted;
  * It contains only mapping values which certainly should be merged in PVMapping.
  */
 class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
-                 public PVCore::PVDataTreeChild<PVSource, PVMapped>,
-                 public PVCore::PVEnableSharedFromThis<PVMapped>
+                 public PVCore::PVDataTreeChild<PVSource, PVMapped>
 {
 	friend class PVPlotted;
 	friend class PVSource;

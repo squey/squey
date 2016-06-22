@@ -45,7 +45,7 @@ using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
-PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp,
+PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
                                              PVZonesManager const& zm,
                                              PVCol const zone_index,
                                              PVZonesProcessor& zp_bg,
@@ -53,13 +53,13 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp,
                                              QWidget* parent /*= nullptr*/
                                              )
     : PVZoomableDrawingAreaWithAxes(parent)
-    , _view(*pvview_sp)
+    , _view(pvview_sp)
     , _images_manager(zone_index,
                       zp_bg,
                       zp_sel,
                       zm,
-                      pvview_sp->get_output_layer_color_buffer(),
-                      pvview_sp->get_real_output_selection())
+                      pvview_sp.get_output_layer_color_buffer(),
+                      pvview_sp.get_real_output_selection())
     , _view_deleted(false)
     , _show_bg(true)
 {
@@ -154,7 +154,7 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView_sp& pvview_sp,
 	_help_widget->finalizeText();
 
 	// Register view for unselected & zombie events toggle
-	pvview_sp->_toggle_unselected_zombie_visibility.connect(
+	pvview_sp._toggle_unselected_zombie_visibility.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVScatterView::toggle_unselected_zombie_visibility));
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);

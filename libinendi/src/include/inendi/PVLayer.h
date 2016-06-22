@@ -14,7 +14,6 @@
 
 #include <inendi/PVLinesProperties.h>
 #include <inendi/PVSelection.h>
-#include <inendi/PVLayer_types.h>
 
 #include <vector>
 

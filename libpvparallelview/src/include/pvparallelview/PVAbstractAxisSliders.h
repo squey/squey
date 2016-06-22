@@ -26,7 +26,7 @@ class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 
   public:
 	PVAbstractAxisSliders(QGraphicsItem* parent,
-	                      PVSlidersManager_p sm_p,
+	                      PVSlidersManager* sm_p,
 	                      PVSlidersGroup* group,
 	                      const char* text);
 
@@ -47,7 +47,7 @@ class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 	void sliders_moved();
 
   protected:
-	PVSlidersManager_p _sliders_manager_p;
+	PVSlidersManager* _sliders_manager_p;
 	PVSlidersGroup* _group;
 	QGraphicsSimpleTextItem* _text;
 };

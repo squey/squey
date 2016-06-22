@@ -42,7 +42,6 @@ int extra_param_start_at();
 bool input_is_a_file();
 void set_extra_param(int num, const char* usage_text);
 void usage(const char* path);
-Inendi::PVView_sp& get_view_sp();
 
 /**
  * Get a tmp filename not already use.

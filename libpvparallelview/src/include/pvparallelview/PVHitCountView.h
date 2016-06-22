@@ -10,10 +10,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <pvkernel/core/PVSharedPointer.h>
-
 #include <inendi/PVView.h>
-#include <inendi/PVView_types.h>
 #include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
@@ -71,7 +68,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
 
   public:
-	PVHitCountView(Inendi::PVView_sp& pvview_sp,
+	PVHitCountView(Inendi::PVView& pvview_sp,
 	               const uint32_t* col_plotted,
 	               const PVRow nrows,
 	               const PVCol axis_index,

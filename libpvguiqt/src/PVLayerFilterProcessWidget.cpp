@@ -223,7 +223,7 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 	Inendi::PVLayerFilter_p filter_p = _filter_p->clone<Inendi::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
-	filter_p->set_view(_view->shared_from_this());
+	filter_p->set_view(_view);
 
 	QWidget* parent_widget = isVisible() ? this : parentWidget();
 

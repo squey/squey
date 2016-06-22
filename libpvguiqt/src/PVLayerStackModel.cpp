@@ -16,9 +16,9 @@
  * PVGuiQt::PVLayerStackModel::PVLayerStackModel
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackModel::PVLayerStackModel(Inendi::PVView_sp& lib_view, QObject* parent)
+PVGuiQt::PVLayerStackModel::PVLayerStackModel(Inendi::PVView& lib_view, QObject* parent)
     : QAbstractTableModel(parent)
-    , _lib_view(*lib_view)
+    , _lib_view(lib_view)
     , select_brush(QColor(255, 240, 200))
     , unselect_brush(QColor(180, 180, 180))
 {
@@ -26,9 +26,9 @@ PVGuiQt::PVLayerStackModel::PVLayerStackModel(Inendi::PVView_sp& lib_view, QObje
 
 	select_font.setBold(true);
 
-	lib_view->_layer_stack_about_to_refresh.connect(
+	lib_view._layer_stack_about_to_refresh.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed));
-	lib_view->_layer_stack_refreshed.connect(
+	lib_view._layer_stack_refreshed.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVLayerStackModel::layer_stack_refreshed));
 }
 

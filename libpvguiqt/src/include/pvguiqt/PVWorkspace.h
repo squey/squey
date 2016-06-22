@@ -22,8 +22,6 @@ class QWidget;
 
 #include <inendi/PVView.h>
 
-#include <inendi/PVView_types.h>
-
 /**
  * This helper function is std::get with type as parameter available only from C++14
  */
@@ -89,9 +87,8 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	  public:
 		PVGuiQt::PVAxesCombinationDialog* _axes_combination_editor;
 		PVViewWidgets(Inendi::PVView* view, PVWorkspaceBase* tab)
+		    : _axes_combination_editor(new PVAxesCombinationDialog(*view, tab))
 		{
-			Inendi::PVView_sp view_sp = view->shared_from_this();
-			_axes_combination_editor = new PVAxesCombinationDialog(view_sp, tab);
 		}
 		PVViewWidgets() { _axes_combination_editor = nullptr; }
 		~PVViewWidgets(){};

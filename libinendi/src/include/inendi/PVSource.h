@@ -38,8 +38,7 @@ class PVScene;
  * \class PVSource
  */
 class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
-                 public PVCore::PVDataTreeChild<PVScene, PVSource>,
-                 public PVCore::PVEnableSharedFromThis<PVSource>
+                 public PVCore::PVDataTreeChild<PVScene, PVSource>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
@@ -156,14 +155,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	void set_format(PVRush::PVFormat const& format);
 
 	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
-
-	PVRush::PVSourceDescription::shared_pointer create_description()
-	{
-		PVRush::PVSourceDescription::shared_pointer descr_p(
-		    new PVRush::PVSourceDescription(get_inputs(), get_source_creator(), get_format()));
-
-		return descr_p;
-	}
 
 	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }

@@ -12,13 +12,13 @@
 
 #include <QVBoxLayout>
 
-PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView_sp& view, QWidget* parent)
-    : QDialog(parent), _temp_axes_comb(view->get_axes_combination()), _lib_view(*view)
+PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent)
+    : QDialog(parent), _temp_axes_comb(view.get_axes_combination()), _lib_view(view)
 {
 	QVBoxLayout* main_layout = new QVBoxLayout(this);
 	_box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel |
 	                                    QDialogButtonBox::Apply);
-	_axes_widget = new PVAxesCombinationWidget(_temp_axes_comb, view.get());
+	_axes_widget = new PVAxesCombinationWidget(_temp_axes_comb, &view);
 	main_layout->addWidget(_axes_widget);
 	main_layout->addWidget(_box_buttons);
 	setLayout(main_layout);
@@ -30,7 +30,7 @@ PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView_sp& vie
 	        SLOT(box_btn_clicked(QAbstractButton*)));
 	connect(_box_buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
-	setWindowTitle("Edit axes combination... [" + QString::fromStdString(view->get_name()) + "]");
+	setWindowTitle("Edit axes combination... [" + QString::fromStdString(view.get_name()) + "]");
 }
 
 void PVGuiQt::PVAxesCombinationDialog::reset_used_axes()

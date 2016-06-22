@@ -15,7 +15,6 @@
 #include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVSlidersManager_types.h>
 
 #include <map>
 

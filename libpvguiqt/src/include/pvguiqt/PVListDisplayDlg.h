@@ -10,8 +10,6 @@
 
 #include <pvguiqt/ui_PVListDisplayDlg.h>
 
-#include <inendi/PVView_types.h>
-
 #include <pvkernel/core/PVArgument.h>
 #include <pvguiqt/PVAbstractTableModel.h>
 

@@ -11,10 +11,13 @@
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVSerializeObject.h>
-#include <memory>
-#include <vector>
+
 #include <QVariant>
 #include <QHash>
+
+#include <cassert>
+#include <memory>
+#include <vector>
 
 namespace PVCore
 {

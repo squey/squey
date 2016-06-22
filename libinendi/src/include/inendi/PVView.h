@@ -30,16 +30,13 @@
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVStateMachine.h>
 
-#include <inendi/PVView_types.h>
-
 namespace Inendi
 {
 
 /**
  * \class PVView
  */
-class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
-               public PVCore::PVEnableSharedFromThis<PVView>
+class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;
@@ -428,8 +425,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>,
   private:
 	static PVCore::PVHSVColor _default_zombie_line_properties; //!< Default color for Zombies lines.
 };
-
-using PVView_p = PVCore::PVSharedPtr<PVView>;
 }
 
 #endif /* INENDI_PVVIEW_H */

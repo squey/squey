@@ -22,7 +22,7 @@
 
 #include <pvkernel/core/inendi_bench.h>
 
-bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view,
+bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
                                           PVRush::PVNraw const& nraw,
                                           PVCol c,
                                           Inendi::PVSelection const& sel,
@@ -76,7 +76,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView_sp& view,
 	PVGuiQt::PVListUniqStringsDlg* dlg = new PVGuiQt::PVListUniqStringsDlg(
 	    view, c, std::move(col1_out), std::move(col2_out), count, min, max, parent);
 	dlg->setWindowTitle("Distinct values of axe '" +
-	                    view->get_parent<Inendi::PVSource>()
+	                    view.get_parent<Inendi::PVSource>()
 	                        .get_extractor()
 	                        .get_format()
 	                        .get_axes()
@@ -98,7 +98,7 @@ template <typename F>
 static bool show_stats_dialog(const QString& title,
                               const F& op,
                               ABS_MAX_OP abs_max_op,
-                              Inendi::PVView_sp& view,
+                              Inendi::PVView& view,
                               PVRush::PVNraw const& nraw,
                               PVCol col1,
                               PVCol col2,
@@ -164,14 +164,14 @@ static bool show_stats_dialog(const QString& title,
 	    new PVGuiQt::PVGroupByStringsDlg(view, col1, col2, std::move(col1_out), std::move(col2_out),
 	                                     abs_max, rel_min, rel_max, parent);
 	dlg->setWindowTitle(title + " of axes '" +
-	                    view->get_parent<Inendi::PVSource>()
+	                    view.get_parent<Inendi::PVSource>()
 	                        .get_extractor()
 	                        .get_format()
 	                        .get_axes()
 	                        .at(col1)
 	                        .get_name() +
 	                    "' and '" +
-	                    view->get_parent<Inendi::PVSource>()
+	                    view.get_parent<Inendi::PVSource>()
 	                        .get_extractor()
 	                        .get_format()
 	                        .get_axes()
@@ -183,7 +183,7 @@ static bool show_stats_dialog(const QString& title,
 	return true;
 }
 
-bool PVGuiQt::PVQNraw::show_count_by(Inendi::PVView_sp& view,
+bool PVGuiQt::PVQNraw::show_count_by(Inendi::PVView& view,
                                      PVRush::PVNraw const& nraw,
                                      PVCol col1,
                                      PVCol col2,
@@ -194,7 +194,7 @@ bool PVGuiQt::PVQNraw::show_count_by(Inendi::PVView_sp& view,
 	                         col1, col2, sel, parent);
 }
 
-bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView_sp& view,
+bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
                                    PVRush::PVNraw const& nraw,
                                    PVCol col1,
                                    PVCol col2,
@@ -205,7 +205,7 @@ bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView_sp& view,
 	                         col2, sel, parent);
 }
 
-bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView_sp& view,
+bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView& view,
                                    PVRush::PVNraw const& nraw,
                                    PVCol col1,
                                    PVCol col2,
@@ -216,7 +216,7 @@ bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView_sp& view,
 	                         col2, sel, parent);
 }
 
-bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView_sp& view,
+bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView& view,
                                    PVRush::PVNraw const& nraw,
                                    PVCol col1,
                                    PVCol col2,
@@ -227,7 +227,7 @@ bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView_sp& view,
 	                         col2, sel, parent);
 }
 
-bool PVGuiQt::PVQNraw::show_avg_by(Inendi::PVView_sp& view,
+bool PVGuiQt::PVQNraw::show_avg_by(Inendi::PVView& view,
                                    PVRush::PVNraw const& nraw,
                                    PVCol col1,
                                    PVCol col2,

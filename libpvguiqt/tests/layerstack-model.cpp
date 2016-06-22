@@ -44,8 +44,8 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	Inendi::PVView_sp view = src.current_view()->shared_from_this();
-	PVGuiQt::PVLayerStackDelegate* delegate = new PVGuiQt::PVLayerStackDelegate(*view);
+	Inendi::PVView& view = *src.current_view();
+	PVGuiQt::PVLayerStackDelegate* delegate = new PVGuiQt::PVLayerStackDelegate(view);
 	PVGuiQt::PVLayerStackModel* model = new PVGuiQt::PVLayerStackModel(view);
 	PVGuiQt::PVLayerStackModel* model2 = new PVGuiQt::PVLayerStackModel(view);
 

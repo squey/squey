@@ -10,13 +10,13 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
-#include <pvkernel/core/PVSharedPointer.h>
-#include <pvkernel/core/PVTypeTraits.h>
 #include <pvkernel/core/PVTypeInfo.h>
+#include <pvkernel/core/PVTypeTraits.h>
 
 #include <QDir>
 #include <QSettings>
 
+#include <cassert>
 #include <memory>
 #include <type_traits>
 #include <vector>
@@ -114,18 +114,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 			}
 		}
 		return QString();
-	}
-
-	template <class T>
-	QString get_child_path(std::shared_ptr<T> const& obj) const
-	{
-		return get_child_path(obj.get());
-	}
-
-	template <class T>
-	QString get_child_path(PVSharedPtr<T> const& obj) const
-	{
-		return get_child_path(obj.get());
 	}
 
 	bool object_exists_by_path(QString const& path) const;
@@ -360,14 +348,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 			}
 			obj.reset(new_p);
 		}
-		obj->serialize(*new_obj, get_version());
-		new_obj->_bound_obj = obj.get();
-		new_obj->_bound_obj_type = typeid(T);
-	}
-
-	template <typename T>
-	void call_serialize(PVSharedPtr<T>& obj, p_type new_obj, T const*)
-	{
 		obj->serialize(*new_obj, get_version());
 		new_obj->_bound_obj = obj.get();
 		new_obj->_bound_obj_type = typeid(T);
