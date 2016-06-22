@@ -26,7 +26,6 @@
 
 #include <inendi/PVView.h>
 
-#include <pvkernel/core/lambda_connect.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -181,8 +180,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	clear_used_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_used_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_used_format_history->setCursor(Qt::PointingHandCursor);
-	::connect(clear_used_format_history, SIGNAL(clicked()),
-	          [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::USED_FORMATS); });
+	connect(clear_used_format_history, &QPushButton::clicked,
+	        [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::USED_FORMATS); });
 	used_format_header_layout->addWidget(format_text_used_label);
 	used_format_header_layout->addStretch();
 	used_format_header_layout->addWidget(clear_used_format_history);
@@ -210,8 +209,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	clear_edited_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_edited_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_edited_format_history->setCursor(Qt::PointingHandCursor);
-	::connect(clear_edited_format_history, SIGNAL(clicked()),
-	          [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::EDITED_FORMATS); });
+	connect(clear_edited_format_history, &QPushButton::clicked,
+	        [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::EDITED_FORMATS); });
 	edited_format_header_layout->addWidget(format_text_edited_label);
 	edited_format_header_layout->addStretch();
 	edited_format_header_layout->addWidget(clear_edited_format_history);
@@ -258,7 +257,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	clear_project_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_project_history->setFocusPolicy(Qt::NoFocus);
 	clear_project_history->setCursor(Qt::PointingHandCursor);
-	::connect(clear_project_history, SIGNAL(clicked()), [&] { delete_investigation_dlg(); });
+	connect(clear_project_history, &QPushButton::clicked, [&] { delete_investigation_dlg(); });
 	project_widget_layout->addLayout(projects_header_layout);
 	projects_header_layout->addWidget(project_text_label);
 	projects_header_layout->addStretch();
@@ -280,8 +279,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	clear_source_history->setFocusPolicy(Qt::NoFocus);
 	clear_source_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_source_history->setCursor(Qt::PointingHandCursor);
-	::connect(clear_source_history, SIGNAL(clicked()),
-	          [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::SOURCES); });
+	connect(clear_source_history, &QPushButton::clicked,
+	        [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::SOURCES); });
 	import_text_label->setObjectName("PVStartScreenWidget_text");
 	import_widget_layout->addWidget(import_widget_line);
 	sources_header_layout->addWidget(import_text_label);

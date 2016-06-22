@@ -14,7 +14,6 @@ add_pv_compile_test(Tcore_transp LINKS pvkernel FILES transp.cpp)
 add_pv_compile_test(Tcore_const_fwd LINKS pvkernel FILES const_fwd.cpp)
 add_pv_compile_test(Tcore_hardware_concurrency LINKS pvkernel FILES hardware_concurrency.cpp)
 add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
-add_pv_compile_test(Tcore_lambda_connect LINKS pvkernel FILES lambda_connect.cpp)
 
 add_pv_compile_test(Tcore_file_helper LINKS pvkernel FILES file_helper.cpp)
 add_test(Tcore_file_helper Tcore_file_helper)

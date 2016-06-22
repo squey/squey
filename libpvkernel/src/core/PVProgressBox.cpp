@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/lambda_connect.h>
 #include <pvkernel/core/PVProgressBox.h>
 
 #include <QApplication>
@@ -72,11 +71,11 @@ PVCore::PVProgressBox::PVProgressBox(QString msg,
 
 	// layout->addItem(layoutCancel);
 	layout->addWidget(widgetCancel);
-	::connect(_btnCancel, SIGNAL(clicked()), [&] {
+	connect(_btnCancel, &QPushButton::clicked, [&] {
 		_cancel_state = CANCEL;
 		cancel();
 	});
-	::connect(_btnCancel2, SIGNAL(clicked()), [&] {
+	connect(_btnCancel2, &QPushButton::clicked, [&] {
 		_cancel_state = CANCEL2;
 		cancel();
 	});
