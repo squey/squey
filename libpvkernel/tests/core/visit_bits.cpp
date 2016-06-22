@@ -8,7 +8,6 @@
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/PVBitCount.h>
 #include <pvkernel/core/PVBitVisitor.h>
 #include <iostream>
 

@@ -24,9 +24,6 @@ add_test(Tcore_decimal_storage Tcore_decimal_storage 1000)
 add_pv_compile_test(Tcore_intrinsics LINKS pvkernel FILES intrinsics.cpp)
 add_test(Tcore_intrinsics Tcore_intrinsics)
 
-add_pv_compile_test(Tcore_bit_count LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_count.cpp)
-add_test(Tcore_bit_count Tcore_bit_count 65535)
-
 add_pv_compile_test(Tcore_visit_bits LINKS pvkernel ${OpenMP_LIBRARIES} FILES visit_bits.cpp)
 add_test(Tcore_visit_bits Tcore_visit_bits)
 

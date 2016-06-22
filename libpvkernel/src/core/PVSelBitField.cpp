@@ -8,7 +8,6 @@
 #include <pvbase/general.h>
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVSelBitField.h>
-#include <pvkernel/core/PVBitCount.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/rush/PVNraw.h>
 
