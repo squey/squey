@@ -25,10 +25,6 @@ PVCore::PVSelBitField::PVSelBitField(PVSelBitField const& o) : _selection(o._sel
 	_selection.copy_from(o._selection, 0, o._selection.size());
 }
 
-PVCore::PVSelBitField::PVSelBitField(PVSelBitField&& o) : _selection(std::move(o._selection))
-{
-}
-
 PVCore::PVSelBitField::operator pvcop_selection_t&()
 {
 	return _selection;
@@ -68,13 +64,6 @@ bool PVCore::PVSelBitField::is_empty() const
 PVCore::PVSelBitField& PVCore::PVSelBitField::operator=(const PVSelBitField& rhs)
 {
 	_selection.copy_from(rhs._selection, 0, rhs._selection.size());
-
-	return *this;
-}
-
-PVCore::PVSelBitField& PVCore::PVSelBitField::operator=(PVSelBitField&& rhs)
-{
-	std::swap(_selection, rhs._selection);
 
 	return *this;
 }
