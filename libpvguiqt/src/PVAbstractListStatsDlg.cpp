@@ -417,6 +417,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView_sp& view,
 	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
 	        SLOT(section_clicked(int)));
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	_values_view->resizeColumnToContents(0);
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::section_clicked(int col)
