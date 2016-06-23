@@ -21,8 +21,7 @@ PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
 QWidget* PVDisplays::PVDisplayViewLayerStack::create_widget(Inendi::PVView* view,
                                                             QWidget* parent) const
 {
-	Inendi::PVView_sp view_sp = view->shared_from_this();
-	PVGuiQt::PVLayerStackWidget* widget = new PVGuiQt::PVLayerStackWidget(view_sp, parent);
+	PVGuiQt::PVLayerStackWidget* widget = new PVGuiQt::PVLayerStackWidget(*view, parent);
 	return widget;
 }
 

@@ -24,37 +24,36 @@
 
 #include <iostream>
 
-PVParallelView::PVLibView::PVLibView(Inendi::PVView_sp& view_sp)
-    : _view(view_sp.get())
-    , _zones_manager(*view_sp)
-    , _sliders_manager_p(new PVSlidersManager)
-    , _colors(view_sp->get_output_layer_color_buffer())
+PVParallelView::PVLibView::PVLibView(Inendi::PVView& view_sp)
+    : _view(&view_sp)
+    , _zones_manager(view_sp)
+    , _colors(view_sp.get_output_layer_color_buffer())
     , _processor_sel(PVZonesProcessor::declare_processor_zm_sel(
-          common::pipeline(), _zones_manager, _colors, view_sp->get_real_output_selection()))
+          common::pipeline(), _zones_manager, _colors, view_sp.get_real_output_selection()))
     , _processor_bg(PVZonesProcessor::declare_background_processor_zm_sel(
           common::pipeline(),
           _zones_manager,
           _colors,
-          view_sp->get_layer_stack_output_layer().get_selection()))
+          view_sp.get_layer_stack_output_layer().get_selection()))
 {
-	view_sp->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	view_sp.get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::plotting_updated));
 
-	view_sp->_update_output_selection.connect(
+	view_sp._update_output_selection.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::selection_updated));
 
-	view_sp->_update_output_layer.connect(
+	view_sp._update_output_layer.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::output_layer_updated));
 
-	view_sp->_update_layer_stack_output_layer.connect(
+	view_sp._update_layer_stack_output_layer.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::layer_stack_output_layer_updated));
 
-	view_sp->_axis_combination_updated.connect(
+	view_sp._axis_combination_updated.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_updated));
-	view_sp->_axis_combination_about_to_update.connect(
+	view_sp._axis_combination_about_to_update.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_about_to_be_updated));
 
-	view_sp->_about_to_be_delete.connect(
+	view_sp._about_to_be_delete.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::view_about_to_be_deleted));
 }
 
@@ -66,11 +65,10 @@ PVParallelView::PVLibView::~PVLibView()
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
 {
 	PVParallelView::PVFullParallelView* view = new PVParallelView::PVFullParallelView(parent);
-	Inendi::PVView_sp vsp = lib_view()->shared_from_this();
 
-	PVParallelView::PVFullParallelScene* scene =
-	    new PVParallelView::PVFullParallelScene(view, vsp, _sliders_manager_p, common::backend(),
-	                                            _zones_manager, _processor_sel, _processor_bg);
+	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(
+	    view, *lib_view(), &_sliders_manager, common::backend(), _zones_manager, _processor_sel,
+	    _processor_bg);
 	_parallel_scenes.push_back(scene);
 	view->setScene(scene);
 	scene->first_render();
@@ -88,9 +86,8 @@ PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
 	PVCore::PVProgressBox::progress([&]() { request_zoomed_zone_trees(axis); }, &pbox);
 
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
-	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	PVParallelView::PVZoomedParallelScene* scene = new PVParallelView::PVZoomedParallelScene(
-	    view, view_sp, _sliders_manager_p, _processor_sel, _processor_bg, _zones_manager, axis);
+	    view, *lib_view(), &_sliders_manager, _processor_sel, _processor_bg, _zones_manager, axis);
 	_zoomed_parallel_scenes.push_back(scene);
 	view->set_scene(scene);
 
@@ -100,14 +97,12 @@ PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
 PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view(PVCol const axis,
                                                                                  QWidget* parent)
 {
-	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
-
 	const uint32_t* uint_plotted = Inendi::PVPlotted::get_plotted_col_addr(
 	    _zones_manager.get_uint_plotted(), _zones_manager.get_row_count(),
 	    lib_view()->get_original_axis_index(axis));
 
 	PVHitCountView* view =
-	    new PVHitCountView(view_sp, uint_plotted, _zones_manager.get_row_count(), axis, parent);
+	    new PVHitCountView(*lib_view(), uint_plotted, _zones_manager.get_row_count(), axis, parent);
 
 	_hit_count_views.push_back(view);
 
@@ -117,7 +112,6 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(const PVCol axis,
                                                                               QWidget* parent)
 {
-	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
 	PVCore::PVProgressBox pbox("Initializing scatter view");
 
 	pbox.set_enable_cancel(false);
@@ -125,7 +119,7 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(co
 	PVCore::PVProgressBox::progress([&]() { _zones_manager.request_zoomed_zone(axis); }, &pbox);
 
 	PVScatterView* view =
-	    new PVScatterView(view_sp, _zones_manager, axis, _processor_bg, _processor_sel, parent);
+	    new PVScatterView(*lib_view(), _zones_manager, axis, _processor_bg, _processor_sel, parent);
 
 	_scatter_views.push_back(view);
 

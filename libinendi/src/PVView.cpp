@@ -66,7 +66,7 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 	layer_stack.delete_all_layers();
 	layer_stack.append_new_layer(row_count, "All events");
 	layer_stack.get_layer_n(0).set_lock();
-	layer_stack.get_layer_n(0).compute_selectable_count(row_count);
+	layer_stack.get_layer_n(0).compute_selectable_count();
 
 	_layer_stack_refreshed.emit();
 
@@ -106,7 +106,7 @@ void Inendi::PVView::add_new_layer(QString name)
 	_layer_stack_about_to_refresh.emit();
 	size_t row_count = get_row_count();
 	Inendi::PVLayer* layer = layer_stack.append_new_layer(row_count, name);
-	layer->compute_selectable_count(row_count);
+	layer->compute_selectable_count();
 
 	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
@@ -135,7 +135,7 @@ void Inendi::PVView::duplicate_selected_layer(const QString& name)
 	_layer_stack_about_to_refresh.emit();
 	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
 	compute_layer_min_max(*new_layer);
-	new_layer->compute_selectable_count(get_row_count());
+	new_layer->compute_selectable_count();
 
 	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
@@ -149,7 +149,7 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 {
 	/* We set it's selection to the final selection */
 	new_layer.get_selection() = post_filter_layer.get_selection();
-	output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(
+	output_layer.get_lines_properties().A2B_copy_restricted_by_selection(
 	    new_layer.get_lines_properties(), new_layer.get_selection());
 }
 
@@ -363,8 +363,7 @@ bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
  *****************************************************************************/
 int Inendi::PVView::get_number_of_selected_lines() const
 {
-	return post_filter_layer.get_selection().get_number_of_selected_lines_in_range(0,
-	                                                                               get_row_count());
+	return post_filter_layer.get_selection().bit_count();
 }
 
 /******************************************************************************
@@ -751,7 +750,8 @@ void Inendi::PVView::select_inv_lines()
 	commit_volatile_in_floating_selection();
 	// Set square area mode w/ volatile
 	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-	volatile_selection = ~floating_selection;
+	floating_selection.select_inverse();
+	std::swap(volatile_selection, floating_selection);
 }
 
 std::string Inendi::PVView::get_name() const
@@ -809,17 +809,17 @@ void Inendi::PVView::update_current_layer_min_max()
 
 void Inendi::PVView::compute_selectable_count(Inendi::PVLayer& layer)
 {
-	layer.compute_selectable_count(get_row_count());
+	layer.compute_selectable_count();
 }
 
 void Inendi::PVView::recompute_all_selectable_count()
 {
-	layer_stack.compute_selectable_count(get_row_count());
+	layer_stack.compute_selectable_count();
 }
 
 void Inendi::PVView::finish_process_from_rush_pipeline()
 {
-	layer_stack.compute_selectable_count(get_row_count());
+	layer_stack.compute_selectable_count();
 }
 
 void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,

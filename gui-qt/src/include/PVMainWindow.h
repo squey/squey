@@ -11,11 +11,9 @@
 #include <QMainWindow>
 
 #include <QFile>
-#include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-#include <QSet>
 #include <QStackedWidget>
 
 #include <pvkernel/core/PVArgument.h>
@@ -25,7 +23,6 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
-#include <inendi/PVView_types.h>
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVSelection.h>
 
@@ -112,7 +109,6 @@ class PVMainWindow : public QMainWindow
 
 	QMenuBar* menubar;
 	QMenu* filter_Menu;
-	QLabel* statemachine_label;
 
 	char* last_sendername;
 	bool report_started;
@@ -137,7 +133,6 @@ class PVMainWindow : public QMainWindow
 	                 QString const& choosenFormat);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
-	void update_statemachine_label(Inendi::PVView_sp view);
 
 	QString get_solution_path() const { return get_root().get_path(); }
 
@@ -215,7 +210,7 @@ class PVMainWindow : public QMainWindow
 	void closeEvent(QCloseEvent* event);
 
   private:
-	void set_selection_from_layer(Inendi::PVView_sp view, Inendi::PVLayer const& layer);
+	void set_selection_from_layer(Inendi::PVView& view, Inendi::PVLayer const& layer);
 	void display_inv_elts();
 
 	void save_screenshot(const QPixmap& pixmap, const QString& title, const QString& name);

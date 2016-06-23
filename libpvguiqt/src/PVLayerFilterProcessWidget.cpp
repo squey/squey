@@ -202,10 +202,9 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 
 	// FIXME : This is a Hack to commit colors in layer but not the selection.
 	Inendi::PVLayer& current_selected_layer = _view->get_current_layer();
-	_view->get_post_filter_layer()
-	    .get_lines_properties()
-	    .A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(),
-	                                                _view->get_post_filter_layer().get_selection());
+	_view->get_post_filter_layer().get_lines_properties().A2B_copy_restricted_by_selection(
+	    current_selected_layer.get_lines_properties(),
+	    _view->get_post_filter_layer().get_selection());
 
 	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
 	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
@@ -224,7 +223,7 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 	Inendi::PVLayerFilter_p filter_p = _filter_p->clone<Inendi::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
-	filter_p->set_view(_view->shared_from_this());
+	filter_p->set_view(_view);
 
 	QWidget* parent_widget = isVisible() ? this : parentWidget();
 

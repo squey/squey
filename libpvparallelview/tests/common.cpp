@@ -21,7 +21,6 @@
 #include "common.h"
 #include "test-env.h"
 
-static Inendi::PVView_sp g_fake_view;
 static Inendi::PVPlotted::uint_plotted_table_t g_norm_plotted;
 static const char* extra_param_text = nullptr;
 static int extra_param_num = 0;
@@ -117,11 +116,6 @@ int extra_param_start_at()
 bool input_is_a_file()
 {
 	return input_is_file;
-}
-
-Inendi::PVView_sp& get_view_sp()
-{
-	return g_fake_view;
 }
 
 bool create_plotted_table_from_args(Inendi::PVPlotted::uint_plotted_table_t& norm_plotted,

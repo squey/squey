@@ -24,7 +24,6 @@ constexpr size_t DUPL = 1;
 
 constexpr char FORMAT[] = TEST_FOLDER "/picviz/multiple_search.csv.format";
 constexpr PVCol COLUMN_INDEX = 1;
-static constexpr size_t row_count = 5160 * DUPL;
 
 using options_t = std::pair<std::array<uint8_t, 4>, std::string>;
 using testcase_t = std::pair<options_t, size_t>;
@@ -78,8 +77,7 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
 		} else {
 			plugin->operator()(in);
 		}
-		PV_VALID(out.get_selection().get_number_of_selected_lines_in_range(0, row_count),
-		         test.second * DUPL);
+		PV_VALID(out.get_selection().bit_count(), test.second * DUPL);
 	}
 }
 

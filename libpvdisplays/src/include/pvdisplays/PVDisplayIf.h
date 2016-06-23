@@ -12,8 +12,6 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
-#include <inendi/PVView_types.h>
-
 #include <QAction>
 #include <QIcon>
 #include <QMetaType>
@@ -24,6 +22,7 @@
 namespace Inendi
 {
 class PVSource;
+class PVView;
 }
 
 namespace PVDisplays

@@ -45,13 +45,11 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	Inendi::PVView_sp view = src.current_view()->shared_from_this();
+	Inendi::PVView& view = *src.current_view();
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
 
 	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
 	qt_view->setModel(model);
-
-	view.reset();
 
 	QMainWindow* mw = new QMainWindow();
 	mw->setCentralWidget(qt_view);

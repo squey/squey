@@ -272,11 +272,11 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
  * PVGuiQt::PVAbstractListStatsDlg
  *
  *****************************************************************************/
-PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView_sp& view,
+PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
                                                         PVCol c,
                                                         PVStatsModel* model,
                                                         QWidget* parent /* = nullptr */)
-    : PVListDisplayDlg(model, parent), _view(view.get()), _col(c)
+    : PVListDisplayDlg(model, parent), _view(&view), _col(c)
 {
 	QString search_multiples = "search-multiple";
 	Inendi::PVLayerFilter::p_type search_multiple =
@@ -719,11 +719,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QString text = dlg.get_name_pattern();
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
 
-	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
-	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
+	Inendi::PVLayerStack& ls = lib_view()->get_layer_stack();
 
 	text.replace("%l", ls.get_selected_layer().get_name());
-	text.replace("%a", view_sp->get_axes_combination().get_axis(_col).get_name());
+	text.replace("%a", lib_view()->get_axes_combination().get_axis(_col).get_name());
 
 	QStringList sl;
 	QStringList value_names;
@@ -756,21 +755,21 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	 *   reprocessing...
 	 */
 	int old_selected_layer_index = ls.get_selected_layer_index();
-	Inendi::PVSelection old_sel(view_sp->get_output_layer().get_selection());
+	Inendi::PVSelection old_sel(lib_view()->get_output_layer().get_selection());
 
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
-	view_sp->add_new_layer(text);
-	Inendi::PVLayer& layer = view_sp->get_layer_stack().get_selected_layer();
-	int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-	view_sp->toggle_layer_stack_layer_n_visible_state(ls_index);
+	lib_view()->add_new_layer(text);
+	Inendi::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
+	int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
+	lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 
 	// We need to configure the layer
-	view_sp->commit_selection_to_layer(layer);
-	view_sp->update_current_layer_min_max();
-	view_sp->compute_selectable_count(layer);
+	lib_view()->commit_selection_to_layer(layer);
+	lib_view()->update_current_layer_min_max();
+	lib_view()->compute_selectable_count(layer);
 	// and to update the layer-stack
-	view_sp->process_from_layer_stack();
+	lib_view()->process_from_layer_stack();
 
 	if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 		int insert_pos;
@@ -781,14 +780,14 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 			insert_pos = old_selected_layer_index;
 			++old_selected_layer_index;
 		}
-		view_sp->move_selected_layer_to(insert_pos);
+		lib_view()->move_selected_layer_to(insert_pos);
 	}
 
 	ls.set_selected_layer_index(old_selected_layer_index);
 
-	view_sp->get_volatile_selection() = old_sel;
-	view_sp->commit_volatile_in_floating_selection();
-	view_sp->process_real_output_selection();
+	lib_view()->get_volatile_selection() = old_sel;
+	lib_view()->commit_volatile_in_floating_selection();
+	lib_view()->process_real_output_selection();
 }
 
 /******************************************************************************
@@ -797,12 +796,9 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 {
-	Inendi::PVView_sp view_sp = lib_view()->shared_from_this();
-	Inendi::PVLayerStack& ls = view_sp->get_layer_stack();
+	Inendi::PVLayerStack& ls = lib_view()->get_layer_stack();
 
-	int layer_num = model().current_selection().get_number_of_selected_lines_in_range(
-	    0, model().value_col().size());
-	;
+	int layer_num = model().current_selection().bit_count();
 	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
@@ -849,7 +845,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 *   reprocessing...
 	 */
 
-	Inendi::PVSelection old_sel(view_sp->get_output_layer().get_selection());
+	Inendi::PVSelection old_sel(lib_view()->get_output_layer().get_selection());
 	int old_selected_layer_index = ls.get_selected_layer_index();
 
 	/* layers creation
@@ -869,15 +865,15 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		sl.append(s);
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
-		view_sp->add_new_layer(layer_name);
-		Inendi::PVLayer& layer = view_sp->get_layer_stack().get_selected_layer();
-		int ls_index = view_sp->get_layer_stack().get_selected_layer_index();
-		view_sp->toggle_layer_stack_layer_n_visible_state(ls_index);
+		lib_view()->add_new_layer(layer_name);
+		Inendi::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
+		int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
+		lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 
 		// We need to configure the layer
-		view_sp->commit_selection_to_layer(layer);
-		view_sp->update_current_layer_min_max();
-		view_sp->compute_selectable_count(layer);
+		lib_view()->commit_selection_to_layer(layer);
+		lib_view()->update_current_layer_min_max();
+		lib_view()->compute_selectable_count(layer);
 
 		if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 			int insert_pos;
@@ -888,18 +884,18 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 				insert_pos = old_selected_layer_index;
 				++old_selected_layer_index;
 			}
-			view_sp->move_selected_layer_to(insert_pos);
+			lib_view()->move_selected_layer_to(insert_pos);
 		}
 
 		ls.set_selected_layer_index(old_selected_layer_index);
-		view_sp->get_volatile_selection() = old_sel;
-		view_sp->commit_volatile_in_floating_selection();
-		view_sp->process_real_output_selection();
+		lib_view()->get_volatile_selection() = old_sel;
+		lib_view()->commit_volatile_in_floating_selection();
+		lib_view()->process_real_output_selection();
 		++offset;
 	});
 
 	// we can update the layer-stack once all layers have been created
-	view_sp->process_from_layer_stack();
+	lib_view()->process_from_layer_stack();
 }
 
 /******************************************************************************
@@ -907,8 +903,6 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
  * PVGuiQt::__impl::PVListUniqStringsDelegate
  *
  *****************************************************************************/
-
-#define ALTERNATING_BG_COLOR 1
 
 void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
                                                    const QStyleOptionViewItem& option,

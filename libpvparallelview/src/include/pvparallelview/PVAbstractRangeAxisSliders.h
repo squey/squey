@@ -26,7 +26,7 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 
   public:
 	PVAbstractRangeAxisSliders(QGraphicsItem* parent,
-	                           PVSlidersManager_p sm_p,
+	                           PVSlidersManager* sm_p,
 	                           PVSlidersGroup* group,
 	                           const char* text);
 

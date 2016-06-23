@@ -11,8 +11,6 @@
 
 #include <algorithm>
 
-#include <pvkernel/core/dumbnet.h>
-
 #include <pvcop/db/read_dict.h>
 
 /**

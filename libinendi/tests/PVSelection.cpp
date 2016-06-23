@@ -25,8 +25,7 @@ int main(void)
 	Inendi::PVSelection a(SELECTION_COUNT);
 	Inendi::PVSelection b(SELECTION_COUNT);
 
-	PVRow last_index;
-	PVRow count;
+	size_t count;
 
 	/**********************************************************************
 	*
@@ -85,69 +84,22 @@ int main(void)
 	*
 	**********************************************************************/
 
-	std::cout << "we test get_number_of_selected_lines_in_range() and select_all()\n";
-	last_index = SELECTION_COUNT;
+	std::cout << "we test bit_count() and select_all()\n";
 
 	selection = new Inendi::PVSelection(SELECTION_COUNT);
 	selection->select_all();
-	count = selection->get_number_of_selected_lines_in_range(0, 1);
-	std::cout << "count should be 1: " << count << std::endl;
-	if (count != 1) {
-		return 1;
-	}
-	count = selection->get_number_of_selected_lines_in_range(0, 2);
-	std::cout << "count should be 2: " << count << std::endl;
-	if (count != 2) {
-		return 1;
-	}
-	count = selection->get_number_of_selected_lines_in_range(10, 15);
-	std::cout << "count should be 5: " << count << std::endl;
-	if (count != 5) {
-		return 1;
-	}
-	count = selection->get_number_of_selected_lines_in_range(0, 64);
-	std::cout << "count should be 64: " << count << std::endl;
-	if (count != 64) {
-		return 1;
-	}
-	count = selection->get_number_of_selected_lines_in_range(0, 65);
-	std::cout << "count should be 65: " << count << std::endl;
-	if (count != 65) {
-		return 1;
-	}
-	count = selection->get_number_of_selected_lines_in_range(5, 65);
-	std::cout << "count should be 60: " << count << std::endl;
-	if (count != 60) {
-		return 1;
-	}
-	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << SELECTION_COUNT << " = to " << count << " ?\n\n";
-	if (count != SELECTION_COUNT) {
-		return 1;
-	}
+	count = selection->bit_count();
+	PV_VALID(count, SELECTION_COUNT);
 
 	std::cout << "we test select_even()\n";
 	selection->select_even();
-	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << SELECTION_COUNT / 2 << " = to " << count << " ?\n\n";
-	if (count != SELECTION_COUNT / 2) {
-		return 1;
-	}
+	count = selection->bit_count();
+	PV_VALID(count, SELECTION_COUNT / 2);
 
 	std::cout << "we test select_odd()\n";
 	selection->select_odd();
-	count = selection->get_number_of_selected_lines_in_range(0, last_index);
-	std::cout << "is " << SELECTION_COUNT / 2 << " = to " << count << " ?\n\n";
-	if (count != SELECTION_COUNT / 2) {
-		return 1;
-	}
-
-	std::cout << "we test get_number_of_selected_lines_in_range(a,b)\n";
-	count = selection->get_number_of_selected_lines_in_range(0, 100);
-	std::cout << "is 50 = to " << count << " ?\n\n";
-	if (count != 50) {
-		return 1;
-	}
+	count = selection->bit_count();
+	PV_VALID(count, SELECTION_COUNT / 2);
 
 	// Test of is_empty
 	for (int i = 0; i < 256; i++) {
@@ -156,38 +108,12 @@ int main(void)
 		PV_ASSERT_VALID(not a.is_empty());
 	}
 
-	// Test of is_empty_between ([a,b[)
-	a.select_none();
-	a.set_bit_fast(6);
-	PV_ASSERT_VALID(a.is_empty_between(0, 6));
-	PV_ASSERT_VALID(a.is_empty_between(7, SELECTION_COUNT));
-	a.set_bit_fast(65);
-	PV_ASSERT_VALID(a.is_empty_between(66, SELECTION_COUNT));
-	a.set_bit_fast(88);
-	PV_ASSERT_VALID(a.is_empty_between(66, 88));
-	PV_ASSERT_VALID(a.is_empty_between(66, 89) == false);
-	PV_ASSERT_VALID(a.is_empty_between(65, 88) == false);
-	PV_ASSERT_VALID(a.is_empty_between(89, 10000));
-	PV_ASSERT_VALID(a.is_empty_between(88, 10000) == false);
-	a.set_bit_fast(1024);
-	PV_ASSERT_VALID(a.is_empty_between(100, 10000) == false);
-	a.set_bit_fast(5);
-	a.set_bit_fast(63);
-	a.set_bit_fast(64);
-	a.visit_selected_lines([&](const PVRow r) { std::cout << r << " "; });
-	std::cout << std::endl;
-
 	// Test of C++0x features
 	a.select_even();
 	b.select_odd();
 
 	Inendi::PVSelection c = a & b;
 	PVLOG_INFO("a: %p , b = %p , c = %p\n", &a, &b, &c);
-	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty()
-	          << std::endl;
-
-	c = a;
-	c.and_optimized(b);
 	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty()
 	          << std::endl;
 
@@ -200,7 +126,7 @@ int main(void)
 
 	c = a;
 	BENCH_START(opt_or);
-	c.or_optimized(b);
+	c |= b;
 	BENCH_END_TRANSFORM(opt_or, "Opt OR", sizeof(uint32_t), c.chunk_count());
 	std::cout << "Last chunk should be " << c.chunk_count() - 1 << " : "
 	          << c.get_last_nonzero_chunk_index() << std::endl;
@@ -215,7 +141,7 @@ int main(void)
 
 	c = a;
 	BENCH_START(opt_or2);
-	c.or_optimized(b);
+	c |= b;
 	BENCH_END_TRANSFORM(opt_or2, "Opt OR", sizeof(uint32_t), c.chunk_count());
 	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
 
@@ -315,13 +241,9 @@ int main(void)
 	BENCH_START(opnot);
 	b.select_inverse();
 	BENCH_END_TRANSFORM(opnot, "operator ~", sizeof(uint32_t), b.chunk_count());
-	a = ~b;
-
-	size_t i, good;
-	for (i = 0; i < SELECTION_COUNT; i++) {
-		good = (a.get_line(i));
-		if (not good) {
-			std::cout << " i = " << i << ", and state of line n is : " << good << "\n";
+	for (size_t i = 0; i < SELECTION_COUNT; i++) {
+		if (b.get_line(i)) {
+			std::cout << " i = " << i << "\n";
 			std::cout << "selection test : [" << __LINE__ << "] : operator~ : failed\n";
 			return 1;
 		}
@@ -332,11 +254,9 @@ int main(void)
 	* We delete remaining objects
 	*
 	**********************************************************************/
-	// delete(selection);
-	delete (selection2);
-	delete (selection3);
+	delete selection;
+	delete selection2;
+	delete selection3;
 
 	return 0;
-
-	std::cout << "#### MAPPED ####\n";
 }

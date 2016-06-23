@@ -8,6 +8,9 @@
 #ifndef PVRECENTITEMSMANAGER_H_
 #define PVRECENTITEMSMANAGER_H_
 
+#include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVSourceDescription.h>
+
 #include <QObject>
 #include <QSettings>
 #include <QStringList>
@@ -17,14 +20,8 @@
 
 #include <sigc++/sigc++.h>
 
-#include <pvkernel/core/PVSharedPointer.h>
-#include <pvkernel/rush/PVInputType.h>
-#include <pvkernel/rush/PVSourceDescription.h>
-
 namespace PVRush
 {
-class PVInputType;
-class PVSourceDescription;
 class PVFormat;
 }
 
@@ -42,7 +39,6 @@ namespace PVCore
 class PVRecentItemsManager
 {
   public:
-	typedef PVCore::PVSharedPtr<PVRecentItemsManager> PVRecentItemsManager_p;
 	typedef QList<QVariant> variant_list_t;
 
   public:
@@ -59,13 +55,10 @@ class PVRecentItemsManager
 		LAST
 	};
 
-	static PVRecentItemsManager_p& get()
+	static PVRecentItemsManager& get()
 	{
-		if (_recent_items_manager_p.get() == nullptr) {
-			_recent_items_manager_p = PVRecentItemsManager_p(new PVRecentItemsManager());
-			_recent_items_manager_p->clear_missing_files();
-		}
-		return _recent_items_manager_p;
+		static PVRecentItemsManager recent_items_manager;
+		return recent_items_manager;
 	}
 
 	/*! \brief Return the serializable name of a given category.
@@ -89,7 +82,7 @@ class PVRecentItemsManager
 	void clear(Category category, QList<int> indexes = QList<int>());
 
   private:
-	PVRush::PVSourceDescription deserialize_source_description() const;
+	PVRush::PVSourceDescription deserialize_source_description();
 
 	/*! \brief Get the best source timestamp to replace (oldest, matching the same source
 	 * description or 0).
@@ -103,11 +96,19 @@ class PVRecentItemsManager
   private:
 	/*! \brief Return a list of recent items of a given category as a list of QString QVariant.
 	 */
-	const variant_list_t items_list(Category category, bool update_removed_files = false) const;
+	const variant_list_t items_list(Category category) const;
+
+	/**
+	 * Remove value in recent file when pointed file is missing.
+	 */
+	void remove_missing_files(Category category);
 
 	/*! \brief Return the recent sources description as a list of QVariant.
 	 */
-	const variant_list_t sources_description_list() const;
+	// FIXME : This function is not const as it required group to list sources and Qt doesn't
+	// provide this interface
+	const variant_list_t sources_description_list();
+	void remove_invalid_source();
 
 	/*! \brief Return the supported formats as a list of QVariant.
 	 */
@@ -119,18 +120,10 @@ class PVRecentItemsManager
 	PVRecentItemsManager& operator=(const PVRecentItemsManager&);
 
   public:
-	/* this singleton requires a public destructor because it uses a PVSharedPtr
-	 * in the data segment to delete it (and to permit the hive to work on it).
-	 */
-	~PVRecentItemsManager();
-
-  public:
 	sigc::signal<void, Category> _add_item;
 
   private:
-	static PVRecentItemsManager_p _recent_items_manager_p;
-
-	mutable QSettings* _recents_settings;
+	QSettings _recents_settings;
 	const int64_t _max_recent_items = 30;
 	const QStringList _recents_items_keys = {"recent_projects", "recent_sources",
 	                                         "recent_used_formats", "recent_edited_formats",

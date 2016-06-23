@@ -11,8 +11,10 @@
 #include <QFileDialog>
 #include <QTableView>
 
-#include <inendi/PVLayer_types.h>
-#include <inendi/PVView_types.h>
+namespace Inendi
+{
+class PVLayer;
+}
 
 namespace PVGuiQt
 {

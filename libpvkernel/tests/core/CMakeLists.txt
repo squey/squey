@@ -11,13 +11,9 @@ add_pv_compile_test(Tcore_vbo LINKS pvkernel FILES vbo.cpp)
 add_pv_compile_test(Tcore_stable_reverse LINKS pvkernel FILES stable_reverse.cpp)
 add_pv_compile_test(Tcore_bench_stable_reverse LINKS pvkernel FILES bench_stable_reverse.cpp)
 add_pv_compile_test(Tcore_transp LINKS pvkernel FILES transp.cpp)
-add_pv_compile_test(Tcore_shared_ptr LINKS pvkernel FILES shared_ptr.cpp)
-add_pv_compile_test(Tcore_weak_ptr LINKS pvkernel FILES weak_ptr.cpp)
 add_pv_compile_test(Tcore_const_fwd LINKS pvkernel FILES const_fwd.cpp)
 add_pv_compile_test(Tcore_hardware_concurrency LINKS pvkernel FILES hardware_concurrency.cpp)
-add_pv_compile_test(Tcore_shared_ptr_fwd LINKS pvkernel FILES shared_ptr_fwd.cpp)
 add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
-add_pv_compile_test(Tcore_lambda_connect LINKS pvkernel FILES lambda_connect.cpp)
 
 add_pv_compile_test(Tcore_file_helper LINKS pvkernel FILES file_helper.cpp)
 add_test(Tcore_file_helper Tcore_file_helper)
@@ -27,9 +23,6 @@ add_test(Tcore_decimal_storage Tcore_decimal_storage 1000)
 
 add_pv_compile_test(Tcore_intrinsics LINKS pvkernel FILES intrinsics.cpp)
 add_test(Tcore_intrinsics Tcore_intrinsics)
-
-add_pv_compile_test(Tcore_bit_count LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_count.cpp)
-add_test(Tcore_bit_count Tcore_bit_count 65535)
 
 add_pv_compile_test(Tcore_visit_bits LINKS pvkernel ${OpenMP_LIBRARIES} FILES visit_bits.cpp)
 add_test(Tcore_visit_bits Tcore_visit_bits)

@@ -43,15 +43,15 @@
  *
  *****************************************************************************/
 PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* full_parallel_view,
-                                                         Inendi::PVView_sp& view_sp,
-                                                         PVParallelView::PVSlidersManager_p sm_p,
+                                                         Inendi::PVView& view_sp,
+                                                         PVParallelView::PVSlidersManager* sm_p,
                                                          PVBCIDrawingBackend& backend,
                                                          PVZonesManager const& zm,
                                                          PVZonesProcessor& zp_sel,
                                                          PVZonesProcessor& zp_bg)
     : QGraphicsScene()
     , _lines_view(backend, zm, zp_sel, zp_bg, this)
-    , _lib_view(*view_sp)
+    , _lib_view(view_sp)
     , _full_parallel_view(full_parallel_view)
     , _sel_rect(this)
     , _zoom_y(1.0)
@@ -74,14 +74,14 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	    this, &PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility));
 
 	// Register source for sections hover events
-	view_sp->_axis_hovered.connect(
+	view_sp._axis_hovered.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::highlight_axis));
 
 	// Register source for sections click events
-	view_sp->_axis_clicked.connect(
+	view_sp._axis_clicked.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::sync_axis_with_section));
 
-	view_sp->_update_current_min_max.connect(
+	view_sp._update_current_min_max.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
@@ -568,9 +568,7 @@ void PVParallelView::PVFullParallelScene::update_all_with_timer()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_selected_event_number()
 {
-	const PVRow nlines =
-	    lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(
-	        0, _lines_view.get_zones_manager().get_row_count());
+	const PVRow nlines = lib_view().get_real_output_selection().bit_count();
 	graphics_view()->set_selected_events_number(nlines);
 }
 
@@ -756,7 +754,7 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axi
 	    _lines_view, zone_id, _axes[zone_id]->get_selection_ranges(),
 	    lib_view().get_volatile_selection());
 
-	PVSelectionGenerator::process_selection(_lib_view.shared_from_this());
+	PVSelectionGenerator::process_selection(_lib_view);
 }
 
 /******************************************************************************

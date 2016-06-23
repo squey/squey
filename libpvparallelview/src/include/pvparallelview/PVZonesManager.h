@@ -13,7 +13,6 @@
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <inendi/PVPlotted.h>
-#include <inendi/PVView_types.h>
 
 #include <pvparallelview/PVZone.h>
 #include <pvparallelview/PVZoneTree.h>

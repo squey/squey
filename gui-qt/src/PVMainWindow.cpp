@@ -14,6 +14,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QLine>
+#include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
@@ -149,12 +150,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	create_menus();
 	connect_actions();
 	menu_activate_is_file_opened(false);
-
-	statusBar();
-	statemachine_label = new QLabel("");
-	statusBar()->insertPermanentWidget(0, statemachine_label);
-
-	// splash.finish(_start_screen_widget);
 
 	// Center the main window
 	QRect r = geometry();
@@ -367,29 +362,27 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* inendi_view)
 {
-	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
-
 	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
+	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers);
 
 	if (name.isEmpty()) {
 		return;
 	}
 
 	if (should_hide_layers) {
-		view_sp->hide_layers();
+		inendi_view->hide_layers();
 	}
 
-	view_sp->add_new_layer();
-	Inendi::PVLayer& layer = view_sp->get_current_layer();
+	inendi_view->add_new_layer();
+	Inendi::PVLayer& layer = inendi_view->get_current_layer();
 
 	// We need to configure the layer
-	view_sp->commit_selection_to_layer(layer);
-	view_sp->update_current_layer_min_max();
-	view_sp->compute_selectable_count(layer);
+	inendi_view->commit_selection_to_layer(layer);
+	inendi_view->update_current_layer_min_max();
+	inendi_view->compute_selectable_count(layer);
 	// and to update the layer-stack
-	view_sp->process_from_layer_stack();
+	inendi_view->process_from_layer_stack();
 }
 
 /******************************************************************************
@@ -399,36 +392,34 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
  *****************************************************************************/
 void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inendi_view)
 {
-	Inendi::PVView_sp view_sp = inendi_view->shared_from_this();
-
 	Inendi::PVLayer& current_layer = inendi_view->get_current_layer();
 
-	bool& should_hide_layers = view_sp->get_layer_stack().should_hide_layers();
+	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    view_sp->get_layer_stack().get_new_layer_name(), should_hide_layers);
+	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers);
 	if (!name.isEmpty()) {
 
 		if (should_hide_layers) {
-			view_sp->hide_layers();
+			inendi_view->hide_layers();
 		}
 
-		view_sp->add_new_layer();
+		inendi_view->add_new_layer();
 		Inendi::PVLayer& new_layer = inendi_view->get_current_layer();
 
 		/* We set it's selection to the final selection */
-		view_sp->commit_selection_to_layer(new_layer);
+		inendi_view->commit_selection_to_layer(new_layer);
 
 		// We remove that selection from the current layer
 		current_layer.get_selection().and_not(new_layer.get_selection());
 
 		/* We need to reprocess the layer stack */
-		view_sp->update_current_layer_min_max();
-		view_sp->compute_selectable_count(new_layer);
+		inendi_view->update_current_layer_min_max();
+		inendi_view->compute_selectable_count(new_layer);
 
 		// do not forget to update the current layer
-		view_sp->compute_selectable_count(current_layer);
+		inendi_view->compute_selectable_count(current_layer);
 
-		view_sp->process_from_layer_stack();
+		inendi_view->process_from_layer_stack();
 	}
 }
 
@@ -1270,12 +1261,12 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src)
 	}
 
 	// Add format as recent format
-	PVCore::PVRecentItemsManager::get()->add(src.get_format().get_full_path(),
-	                                         PVCore::PVRecentItemsManager::Category::USED_FORMATS);
+	PVCore::PVRecentItemsManager::get().add(src.get_format().get_full_path(),
+	                                        PVCore::PVRecentItemsManager::Category::USED_FORMATS);
 
 	// Add source as recent source
-	PVCore::PVRecentItemsManager::get()->add_source(src.get_source_creator(), src.get_inputs(),
-	                                                src.get_format());
+	PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),
+	                                               src.get_format());
 }
 
 /******************************************************************************
@@ -1321,11 +1312,11 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
  * PVInspector::PVMainWindow::set_selection_from_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView_sp view,
+void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView& view,
                                                          Inendi::PVLayer const& layer)
 {
-	view->set_selection_from_layer(layer);
-	view->process_real_output_selection();
+	view.set_selection_from_layer(layer);
+	view.process_real_output_selection();
 }
 
 /******************************************************************************
@@ -1449,16 +1440,6 @@ void PVInspector::PVMainWindow::close_solution()
 std::string PVInspector::PVMainWindow::get_next_scene_name()
 {
 	return tr("Data collection %1").arg(sequence_n++).toStdString();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::update_statemachine_label
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::update_statemachine_label(Inendi::PVView_sp view)
-{
-	statemachine_label->setText(view->get_state_machine().get_string());
 }
 
 // Mainly from Qt's SDI example

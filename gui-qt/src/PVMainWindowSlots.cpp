@@ -517,8 +517,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		setWindowModified(true);
 	}
 
-	PVCore::PVRecentItemsManager::get()->add(file,
-	                                         PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVCore::PVRecentItemsManager::get().add(file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	flag_investigation_as_cached(file);
 
@@ -545,8 +544,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file,
 		box->exec();
 	}
 
-	PVCore::PVRecentItemsManager::get()->add(file,
-	                                         PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVCore::PVRecentItemsManager::get().add(file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	flag_investigation_as_cached(file);
 
@@ -630,11 +628,8 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 		return;
 	}
 
-	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
-	if (lib_view) {
-		lib_view->select_all_nonzb_lines();
-		lib_view->process_real_output_selection();
-	}
+	current_view()->select_all_nonzb_lines();
+	current_view()->process_real_output_selection();
 }
 
 /******************************************************************************
@@ -649,11 +644,8 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		return;
 	}
 
-	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
-	if (lib_view) {
-		lib_view->select_no_line();
-		lib_view->process_real_output_selection();
-	}
+	current_view()->select_no_line();
+	current_view()->process_real_output_selection();
 }
 
 /******************************************************************************
@@ -668,11 +660,8 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
-	Inendi::PVView_sp lib_view(current_view()->shared_from_this());
-	if (lib_view) {
-		lib_view->select_inv_lines();
-		lib_view->process_real_output_selection();
-	}
+	current_view()->select_inv_lines();
+	current_view()->process_real_output_selection();
 }
 
 /******************************************************************************
@@ -909,7 +898,7 @@ void PVInspector::PVMainWindow::open_format_Slot()
 
 	if (!url.isEmpty()) {
 		editorWidget->show();
-		PVCore::PVRecentItemsManager::get()->add(
+		PVCore::PVRecentItemsManager::get().add(
 		    url, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 	}
 }
@@ -942,24 +931,22 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
 	if (current_view()) {
-		Inendi::PVView_sp view(current_view()->shared_from_this());
-		set_selection_from_layer(view, view->get_current_layer());
+		set_selection_from_layer(*current_view(), current_view()->get_current_layer());
 	}
 }
 
 void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 {
 	if (current_view()) {
-		Inendi::PVView_sp view(current_view()->shared_from_this());
-
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Inendi::PVLayer*>(
-		    &view->get_current_layer());
+		    &current_view()->get_current_layer());
 		bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
-		    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args, this);
+		    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*current_view()),
+		    args, this);
 		if (ret) {
 			Inendi::PVLayer* layer = args["sel-layer"].value<Inendi::PVLayer*>();
-			set_selection_from_layer(view, *layer);
+			set_selection_from_layer(*current_view(), *layer);
 		}
 	}
 }

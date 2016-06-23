@@ -40,7 +40,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	typedef std::vector<range_t> selection_ranges_t;
 
   public:
-	PVSlidersGroup(PVSlidersManager_p sm_p,
+	PVSlidersGroup(PVSlidersManager* sm_p,
 	               const axis_id_t& axis_id,
 	               QGraphicsItem* parent = nullptr);
 	~PVSlidersGroup();
@@ -119,7 +119,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	typedef std::unordered_map<id_t, PVZoomAxisSliders*> zas_set_t;
 
   private:
-	PVSlidersManager_p _sliders_manager_p;
+	PVSlidersManager* _sliders_manager_p;
 	axis_id_t _axis_id;
 	float _axis_scale;
 

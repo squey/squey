@@ -168,7 +168,7 @@ class PVCellWidgetBase : public QWidget
 	Q_OBJECT;
 
   public:
-	PVCellWidgetBase(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item);
+	PVCellWidgetBase(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item);
 	virtual ~PVCellWidgetBase() {}
 
   public:
@@ -215,7 +215,7 @@ class PVCellWidgetBase : public QWidget
 
   protected:
 	QTableWidget* _table;
-	Inendi::PVView const& _view;
+	Inendi::PVView& _view;
 	QTableWidgetItem* _item;
 
 	bool _valid = false;
@@ -248,9 +248,7 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
   public:
-	PVUniqueValuesCellWidget(QTableWidget* table,
-	                         Inendi::PVView const& view,
-	                         QTableWidgetItem* item);
+	PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item);
 
   public Q_SLOTS:
 	virtual void refresh_impl() override;
@@ -268,7 +266,7 @@ class PVSumCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
   public:
-	PVSumCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item)
+	PVSumCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item)
 	    : PVCellWidgetBase(table, view, item)
 	{
 		setEnabled(_is_summable);
@@ -283,7 +281,7 @@ class PVMinCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
   public:
-	PVMinCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item)
+	PVMinCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item)
 	    : PVCellWidgetBase(table, view, item)
 	{
 	}
@@ -297,7 +295,7 @@ class PVMaxCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
   public:
-	PVMaxCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item)
+	PVMaxCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item)
 	    : PVCellWidgetBase(table, view, item)
 	{
 	}
@@ -311,7 +309,7 @@ class PVAverageCellWidget : public PVCellWidgetBase
 	Q_OBJECT
 
   public:
-	PVAverageCellWidget(QTableWidget* table, Inendi::PVView const& view, QTableWidgetItem* item)
+	PVAverageCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item)
 	    : PVCellWidgetBase(table, view, item)
 	{
 		setEnabled(_is_summable);

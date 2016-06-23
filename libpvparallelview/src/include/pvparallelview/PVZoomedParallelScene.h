@@ -10,12 +10,10 @@
 
 #include <sigc++/sigc++.h>
 
-#include <inendi/PVView_types.h>
 #include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
-#include <pvparallelview/PVSlidersManager_types.h>
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -95,8 +93,8 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 
 	 */
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView* zpview,
-	                      Inendi::PVView_sp& pvview_sp,
-	                      PVSlidersManager_p sliders_manager_p,
+	                      Inendi::PVView& pvview_sp,
+	                      PVSlidersManager* sliders_manager_p,
 	                      PVZonesProcessor& zp_sel,
 	                      PVZonesProcessor& zp_bg,
 	                      PVZonesManager const& zm,
@@ -494,7 +492,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
   private:
 	PVZoomedParallelView* _zpview;
 	Inendi::PVView& _pvview;
-	PVSlidersManager_p _sliders_manager_p;
+	PVSlidersManager* _sliders_manager_p;
 	PVSlidersGroup* _sliders_group;
 	PVCol _axis_index;
 	axis_id_t _axis_id;

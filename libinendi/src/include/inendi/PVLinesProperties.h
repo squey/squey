@@ -42,8 +42,7 @@ class PVLinesProperties
 	 */
 	inline const PVCore::PVHSVColor get_line_properties(const PVRow r) const { return _colors[r]; }
 
-	void A2B_copy_restricted_by_selection_and_nelts(PVLinesProperties& b,
-	                                                PVSelection const& selection) const;
+	void A2B_copy_restricted_by_selection(PVLinesProperties& b, PVSelection const& selection) const;
 	void reset_to_default_color();
 	void selection_set_color(PVSelection const& selection, const PVCore::PVHSVColor c);
 

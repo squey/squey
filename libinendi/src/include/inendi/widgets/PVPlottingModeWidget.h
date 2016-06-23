@@ -11,8 +11,6 @@
 #include <pvbase/types.h>
 #include <pvkernel/widgets/PVComboBox.h>
 
-#include <inendi/PVView_types.h>
-
 #include <QPushButton>
 
 namespace Inendi

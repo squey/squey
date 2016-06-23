@@ -28,7 +28,7 @@ class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders, public sigc::t
 	typedef PVSlidersManager::id_t id_t;
 
   public:
-	PVSelectionAxisSliders(QGraphicsItem* parent, PVSlidersManager_p sm_p, PVSlidersGroup* group);
+	PVSelectionAxisSliders(QGraphicsItem* parent, PVSlidersManager* sm_p, PVSlidersGroup* group);
 
 	virtual void initialize(id_t id, int64_t y_min, int64_t y_max);
 

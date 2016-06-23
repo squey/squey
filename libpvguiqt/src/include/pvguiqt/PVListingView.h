@@ -15,8 +15,6 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <inendi/PVView_types.h>
-
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVAbstractTableView.h>
 
@@ -57,7 +55,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * @note It use a view as a parameter to register observer. Thanks to this
 	 * record, every view will be updated on listing model modification.
 	 */
-	PVListingView(Inendi::PVView_sp& view, QWidget* parent = nullptr);
+	PVListingView(Inendi::PVView& view, QWidget* parent = nullptr);
 
 	/**
 	 * Clean up plugin in progress

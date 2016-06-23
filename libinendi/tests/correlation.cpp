@@ -94,7 +94,7 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	const Inendi::PVSelection& sel = view2->get_post_filter_layer().get_selection();
-	size_t count = sel.get_number_of_selected_lines_in_range(0, sel.count());
+	size_t count = sel.bit_count();
 	PV_VALID(count, 82UL);
 
 	std::vector<size_t> v1({1332, 1485, 1540, 1875, 1877, 1966, 3156, 3159, 3199, 5689, 5762, 5764,

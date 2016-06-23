@@ -286,8 +286,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 		return 0;
 	}
 
-	sel.ensure_allocated();
-
 	const __m128i y_min_sse = _mm_set1_epi32(y_min);
 	const __m128i y_max_sse = _mm_set1_epi32(y_max);
 
@@ -358,8 +356,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
     Inendi::PVSelection& sel,
     bool use_selectable)
 {
-	sel.ensure_allocated();
-
 	// The interval described here is of the type [a,b] (that is the maximum is
 	// taken into account)
 	const uint32_t v_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
@@ -506,8 +502,6 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 		return 0;
 	}
 
-	sel.ensure_allocated();
-
 	const uint32_t y1_min = PVCore::clamp(floor(rect.left()), 0.0, (double)UINT32_MAX);
 	const uint32_t y1_max = PVCore::clamp(ceil(rect.right()), 0.0, (double)UINT32_MAX);
 
@@ -572,7 +566,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 /*****************************************************************************
  * PVParallelView::PVSelectionGenerator::process_selection
  *****************************************************************************/
-void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView_sp view_sp,
+void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView& view_sp,
                                                              bool use_modifiers /*= true*/)
 {
 	unsigned int modifiers = (unsigned int)QApplication::keyboardModifiers();
@@ -583,17 +577,17 @@ void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView_sp v
 	 * aren't really
 	 * constants */
 	if (use_modifiers && modifiers == AND_MODIFIER) {
-		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+		view_sp.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	} else if (use_modifiers && modifiers == NAND_MODIFIER) {
-		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+		view_sp.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	} else if (use_modifiers && modifiers == OR_MODIFIER) {
-		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+		view_sp.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	} else {
-		view_sp->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		view_sp.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	}
 
 	/* Commit the previous volatile selection */
-	view_sp->commit_volatile_in_floating_selection();
+	view_sp.commit_volatile_in_floating_selection();
 
-	view_sp->process_real_output_selection();
+	view_sp.process_real_output_selection();
 }

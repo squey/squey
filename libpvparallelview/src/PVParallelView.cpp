@@ -86,8 +86,7 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inen
 		return it->second;
 	}
 
-	Inendi::PVView_sp view_sp = view.shared_from_this();
-	PVLibView* new_view = new PVLibView(view_sp);
+	PVLibView* new_view = new PVLibView(view);
 	_lib_views.insert(std::make_pair(&view, new_view));
 	return new_view;
 }

@@ -6,10 +6,6 @@
  */
 
 #include <pvkernel/core/network.h>
-#include <stdio.h>
-#include <arpa/inet.h>
-
-#include <string>
 
 #include <pvkernel/core/inendi_assert.h>
 
@@ -33,12 +29,10 @@ int main(void)
 
 	for (size_t i = 0; i < ip_test_size; ++i) {
 		n = (uint32_t)-1;
-		PV_ASSERT_VALID(PVCore::Network::ipv4_aton(QString(ip_text[i]), n), "ip", ip_text[i]);
+		PV_ASSERT_VALID(PVCore::Network::ipv4_aton(ip_text[i], strlen(ip_text[i]), n), "ip",
+		                ip_text[i]);
 
 		PV_VALID(n, ip_num[i], "ip", ip_text[i]);
-
-		const std::string res = PVCore::Network::ipv4_ntoa(ntohl(n));
-		PV_VALID(res, std::string(ip_text[0]));
 	}
 
 	return 0;

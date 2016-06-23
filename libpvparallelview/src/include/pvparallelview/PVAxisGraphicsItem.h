@@ -59,7 +59,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	constexpr static int axis_extend = 8;
 
   public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p,
+	PVAxisGraphicsItem(PVSlidersManager* sm_p,
 	                   Inendi::PVView const& view,
 	                   const axis_id_t& axis_id);
 	~PVAxisGraphicsItem();
@@ -136,7 +136,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	void update_layer_min_max_position();
 
   private:
-	PVSlidersManager_p _sliders_manager_p;
+	PVSlidersManager* _sliders_manager_p;
 	axis_id_t _axis_id;
 	QRectF _bbox;
 	Inendi::PVView const& _lib_view;

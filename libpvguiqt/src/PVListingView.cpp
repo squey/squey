@@ -46,18 +46,18 @@
  *
  *****************************************************************************/
 
-PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
+PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
     : PVAbstractTableView(parent)
-    , _view(*view)
+    , _view(view)
     , _ctxt_menu(this)
     , _hhead_ctxt_menu(this)
     , _vhead_ctxt_menu(this)
     , _help_widget(this)
     , _ctxt_process(nullptr)
-    , _headers_width(view->get_original_axes_count(), horizontalHeader()->defaultSectionSize())
+    , _headers_width(view.get_original_axes_count(), horizontalHeader()->defaultSectionSize())
 {
 	/// Source events
-	view->_axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
+	view._axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
 
 	// SIZE STUFF
 	setMinimumSize(60, 40);
@@ -188,7 +188,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView_sp& view, QWidget* parent)
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
 	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(
-	    QString::number(view->get_rushnraw_parent().get_row_count()).size(), '9'));
+	    QString::number(view.get_rushnraw_parent().get_row_count()).size(), '9'));
 
 	// Handle selection modification signal.
 	connect(this, &PVAbstractTableView::validate_selection, this,
@@ -484,33 +484,31 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 	// Process actions
 	if (sel == _action_col_unique) {
-		Inendi::PVView_sp view = lib_view().shared_from_this();
-		PVQNraw::show_unique_values(view, lib_view().get_rushnraw_parent(), col,
+		PVQNraw::show_unique_values(lib_view(), lib_view().get_rushnraw_parent(), col,
 		                            lib_view().get_selection_visible_listing(), this);
 	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
 		sort(comb_col, order);
 	} else if (sel) {
-		Inendi::PVView_sp view = lib_view().shared_from_this();
 		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
 		if (sel->parent() == _menu_col_count_by) {
-			PVQNraw::show_count_by(view, lib_view().get_rushnraw_parent(), col, col2,
+			PVQNraw::show_count_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
 			                       lib_view().get_selection_visible_listing(),
 			                       this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_sum_by) {
-			PVQNraw::show_sum_by(view, lib_view().get_rushnraw_parent(), col, col2,
+			PVQNraw::show_sum_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
 			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_min_by) {
-			PVQNraw::show_min_by(view, lib_view().get_rushnraw_parent(), col, col2,
+			PVQNraw::show_min_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
 			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_max_by) {
-			PVQNraw::show_max_by(view, lib_view().get_rushnraw_parent(), col, col2,
+			PVQNraw::show_max_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
 			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		} else if (sel->parent() == _menu_col_avg_by) {
-			PVQNraw::show_avg_by(view, lib_view().get_rushnraw_parent(), col, col2,
+			PVQNraw::show_avg_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
 			                     lib_view().get_selection_visible_listing(),
 			                     this); // FIXME: AxesCombination
 		}

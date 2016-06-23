@@ -12,7 +12,6 @@
 #include <pvkernel/widgets/PVComboBox.h>
 
 #include <inendi/PVMapping.h>
-#include <inendi/PVView_types.h>
 
 #include <QWidget>
 

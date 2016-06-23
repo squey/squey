@@ -11,7 +11,6 @@
 
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/widgets/PVQueryBuilder.h>
-#include <pvkernel/core/lambda_connect.h>
 
 /******************************************************************************
  *
@@ -52,8 +51,8 @@ PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
 	        SLOT(preset_save_slot()));
 	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this,
 	        SLOT(preset_remove_slot()));
-	::connect(_auth_enabled_cb, SIGNAL(stateChanged(int)),
-	          [&] { _auth_grp->setEnabled(_auth_enabled_cb->isChecked()); });
+	connect(_auth_enabled_cb, &QCheckBox::stateChanged,
+	        [&] { _auth_grp->setEnabled(_auth_enabled_cb->isChecked()); });
 	connect(_count_btn, SIGNAL(clicked()), this, SLOT(query_result_count_slot()));
 	connect(_query_type_cb, SIGNAL(currentIndexChanged(const QString&)), this,
 	        SLOT(query_type_changed_slot()));

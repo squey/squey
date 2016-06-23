@@ -19,7 +19,6 @@
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <inendi/PVSource.h>
-#include <inendi/PVView_types.h>
 
 #define INENDI_SCENE_ARCHIVE_EXT "pv"
 #define INENDI_SCENE_ARCHIVE_FILTER "INENDI project files (*." INENDI_SCENE_ARCHIVE_EXT ")"
@@ -33,8 +32,7 @@ class PVRoot;
  * \class PVScene
  */
 class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
-                public PVCore::PVDataTreeChild<PVRoot, PVScene>,
-                public PVCore::PVEnableSharedFromThis<PVScene>
+                public PVCore::PVDataTreeChild<PVRoot, PVScene>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVRoot;

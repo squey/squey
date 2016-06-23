@@ -84,13 +84,13 @@ void __print_scalar(const char* text, const V& v)
  * PVParallelView::PVHitCountView::PVHitCountView
  *****************************************************************************/
 
-PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp& pvview_sp,
+PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
                                                const uint32_t* col_plotted,
                                                const PVRow nrows,
                                                const PVCol axis_index,
                                                QWidget* parent)
     : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
-    , _pvview(*pvview_sp)
+    , _pvview(pvview_sp)
     , _axis_index(axis_index)
     , _hit_graph_manager(col_plotted, nrows, 2, layer_stack_output_selection(), real_selection())
     , _view_deleted(false)
@@ -154,17 +154,10 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp& pvview_sp,
 
 	/* view configuration
 	 */
-	// setMaximumWidth(1024);
-	// setMaximumHeight(1024);
-
 	set_alignment(Qt::AlignLeft | Qt::AlignTop);
-#if 0
-	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOff);
-#else
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
-#endif
 	set_x_legend("Occurrence count");
-	set_y_legend(pvview_sp->get_axis_name(axis_index));
+	set_y_legend(pvview_sp.get_axis_name(axis_index));
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
 
@@ -204,7 +197,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView_sp& pvview_sp,
 	_help_widget->finalizeText();
 
 	// Register view for unselected & zombie events toggle
-	pvview_sp->_toggle_unselected_zombie_visibility.connect(
+	pvview_sp._toggle_unselected_zombie_visibility.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility));
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);

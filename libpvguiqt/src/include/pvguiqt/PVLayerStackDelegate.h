@@ -8,9 +8,12 @@
 #ifndef PVLAYERSTACKDELEGATE_H
 #define PVLAYERSTACKDELEGATE_H
 
-#include <inendi/PVView_types.h>
-
 #include <QStyledItemDelegate>
+
+namespace Inendi
+{
+class PVView;
+}
 
 namespace PVGuiQt
 {

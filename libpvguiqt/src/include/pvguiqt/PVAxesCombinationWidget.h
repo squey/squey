@@ -13,7 +13,6 @@
 #include <QList>
 
 #include <inendi/PVAxesCombination.h>
-#include <inendi/PVView_types.h>
 
 #include <pvguiqt/ui_PVAxesCombinationWidget.h>
 #include <pvguiqt/ui_PVAxesCombinationWidgetSelRange.h>

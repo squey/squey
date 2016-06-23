@@ -8,8 +8,6 @@
 #ifndef __PVCORE_PVNRAWCACHEMANAGER_H__
 #define __PVCORE_PVNRAWCACHEMANAGER_H__
 
-#include <pvkernel/core/PVSharedPointer.h>
-
 #include <memory>
 
 #include <QDirIterator>

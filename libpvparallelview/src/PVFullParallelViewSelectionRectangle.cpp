@@ -83,7 +83,6 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::update_position()
 
 void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selection_modifiers)
 {
-	Inendi::PVView& view = lib_view();
 	QRectF srect = get_rect();
 
 	// Too much on the left dude!
@@ -115,7 +114,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 
 	store();
 
-	PVSelectionGenerator::process_selection(view.shared_from_this(), use_selection_modifiers);
+	PVSelectionGenerator::process_selection(lib_view(), use_selection_modifiers);
 }
 
 /*****************************************************************************

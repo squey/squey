@@ -13,6 +13,7 @@
 #include <sstream>
 #include <thread>
 #include <unordered_map>
+#include <atomic>
 
 #include <curl/curl.h>
 
