@@ -62,9 +62,9 @@ class PVSelBitField
 	 */
 	explicit PVSelBitField(PVRow count);
 	PVSelBitField(PVSelBitField const& o);
-	PVSelBitField(PVSelBitField&& o);
+	PVSelBitField(PVSelBitField&& o) = default;
 	PVSelBitField& operator=(PVSelBitField const&);
-	PVSelBitField& operator=(PVSelBitField&&);
+	PVSelBitField& operator=(PVSelBitField&&) = default;
 
 	operator pvcop_selection_t&();
 	operator const pvcop_selection_t&() const;

@@ -52,16 +52,10 @@ class PVSelection : public PVCore::PVSelBitField
 		PVCore::PVSelBitField::operator|=(rhs);
 		return *this;
 	}
-	inline PVSelection& operator=(const PVSelection& rhs)
-	{
-		PVCore::PVSelBitField::operator=(rhs);
-		return *this;
-	}
-	inline PVSelection& operator=(PVSelection&& rhs)
-	{
-		PVCore::PVSelBitField::operator=(rhs);
-		return *this;
-	};
+
+	PVSelection& operator=(const PVSelection& rhs) = default;
+	PVSelection& operator=(PVSelection&& rhs) = default;
+
 	inline PVSelection& operator&=(const PVSelection& rhs)
 	{
 		PVCore::PVSelBitField::operator&=(rhs);
