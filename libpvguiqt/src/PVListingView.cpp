@@ -473,8 +473,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			action_col_max_by->setData(QVariant(i));
 			_menu_col_max_by->addAction(action_col_max_by);
 
-			const QString& axis_type =
-			    lib_view().get_axes_combination().get_original_axis(i).get_type();
+			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
 				action_col_sum_by->setData(QVariant(i));
@@ -492,7 +491,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	/**
 	 * Correlation menu
 	 */
-	show_hhead_ctxt_menu_correlation(col);
+	show_hhead_ctxt_menu_correlation(comb_col);
 
 	QAction* sel = _hhead_ctxt_menu.exec(QCursor::pos());
 
@@ -540,8 +539,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
  *****************************************************************************/
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 {
-	const QString& this_axis_type =
-	    lib_view().get_axes_combination().get_original_axis(col).get_type();
+	const QString& this_axis_type = lib_view().get_axes_combination().get_axis(col).get_type();
 	QStringList correlation_types = {"integer", "ipv4"};
 
 	// Don't show correlation menu for unsupported axes types
@@ -582,8 +580,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 
 			const Inendi::PVAxesCombination& ac = view->get_axes_combination();
 			for (PVCol i = 0; i < ac.get_axes_count(); i++) {
-				const QString& axis_name = ac.get_original_axis(i).get_name();
-				const QString& axis_type = ac.get_original_axis(i).get_type();
+				const QString& axis_name = ac.get_axis(i).get_name();
+				const QString& axis_type = ac.get_axis(i).get_type();
 
 				// Don't show incompatible axes
 				if (axis_type != this_axis_type) {
@@ -593,7 +591,11 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 				QAction* axis_action = new QAction(axis_name, this);
 				axis_action->setCheckable(true);
 
-				Inendi::PVCorrelation correlation{&lib_view(), col, view.get(), i};
+				PVCol original_col1 = view->get_original_axis_index(col);
+				PVCol original_col2 = view->get_original_axis_index(i);
+
+				Inendi::PVCorrelation correlation{&lib_view(), original_col1, view.get(),
+				                                  original_col2};
 				bool existing_correlation = root->correlations().exists(correlation);
 				axis_action->setChecked(existing_correlation);
 
@@ -1042,8 +1044,9 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	PVListingView* listing = (PVListingView*)parent();
 	Inendi::PVRoot* root = listing->lib_view().get_parent<Inendi::PVRoot>();
 
-	bool existing_correlation = root->correlations().exists(&listing->lib_view(), logicalIndex);
+	PVCol original_col1 = listing->lib_view().get_original_axis_index(logicalIndex);
 
+	bool existing_correlation = root->correlations().exists(&listing->lib_view(), original_col1);
 	if (existing_correlation) {
 		QPixmap p(":/bind");
 		p = p.scaledToWidth(rect.height(), Qt::SmoothTransformation);
