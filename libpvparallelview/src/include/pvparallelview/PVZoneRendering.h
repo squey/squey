@@ -124,9 +124,9 @@ class PVZoneRendering
 	const char* _qobject_slot;
 
 	// Synchronisation
-	mutable boost::mutex _wait_mut;
+	boost::mutex _wait_mut;
 	boost::condition_variable _wait_cond;
-	std::atomic<bool> _finished;
+	bool _finished;
 
 	// Next job when this one has been canceled
 	next_job _job_after_canceled;

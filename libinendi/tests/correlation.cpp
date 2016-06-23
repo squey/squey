@@ -90,7 +90,7 @@ int main()
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
-	return diff.count();
+	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
 	const Inendi::PVSelection& sel = view2->get_post_filter_layer().get_selection();
