@@ -176,7 +176,6 @@ class PVSelBitField
 	 * @return A reference to the resulting PVSelBitField
 	 */
 	PVSelBitField& operator|=(const PVSelBitField& rhs);
-	PVSelBitField& or_optimized(const PVSelBitField& rhs);
 
 	/**
 	 * This is the binary outplaced 'SUBSTRACTION' operation on two selections

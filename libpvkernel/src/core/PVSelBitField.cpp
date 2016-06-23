@@ -397,17 +397,6 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 #endif
 }
 
-PVCore::PVSelBitField& PVCore::PVSelBitField::or_optimized(const PVSelBitField& rhs)
-{
-	assert(count() == rhs.count());
-
-	for (PVRow i = 0; i < (PVRow)chunk_count(); i++) {
-		_selection.data()[i] |= rhs._selection.data()[i];
-	}
-
-	return *this;
-}
-
 PVRow PVCore::PVSelBitField::find_next_set_bit(const PVRow index, const PVRow size) const
 {
 	/**

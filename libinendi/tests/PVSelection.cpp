@@ -126,7 +126,7 @@ int main(void)
 
 	c = a;
 	BENCH_START(opt_or);
-	c.or_optimized(b);
+	c |= b;
 	BENCH_END_TRANSFORM(opt_or, "Opt OR", sizeof(uint32_t), c.chunk_count());
 	std::cout << "Last chunk should be " << c.chunk_count() - 1 << " : "
 	          << c.get_last_nonzero_chunk_index() << std::endl;
@@ -141,7 +141,7 @@ int main(void)
 
 	c = a;
 	BENCH_START(opt_or2);
-	c.or_optimized(b);
+	c |= b;
 	BENCH_END_TRANSFORM(opt_or2, "Opt OR", sizeof(uint32_t), c.chunk_count());
 	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
 

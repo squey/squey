@@ -272,7 +272,7 @@ void Inendi::PVLayerStack::process(PVLayer& output_layer, PVRow row_count)
 
 				/* and we already update the selection in
 				*  the output_layer */
-				output_layer.get_selection().or_optimized(layer_being_processed->get_selection());
+				output_layer.get_selection() |= layer_being_processed->get_selection();
 				// output_layer.get_selection() |=
 				// layer_being_processed->get_selection();
 
