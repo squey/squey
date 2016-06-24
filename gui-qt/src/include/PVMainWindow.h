@@ -327,6 +327,8 @@ class PVMainWindow : public QMainWindow
 	void reset_root();
 	void close_solution();
 
+	std::string get_next_scene_name();
+
   signals:
 	void change_of_current_view_Signal();
 	void filter_applied_Signal();

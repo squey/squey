@@ -268,8 +268,8 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
  *****************************************************************************/
 Inendi::PVScene_p PVInspector::PVMainWindow::project_new_Slot()
 {
-	QString scene_name = tr("Data collection %1").arg(sequence_n++);
-	PVCore::PVSharedPtr<Inendi::PVScene> scene_p = get_root_sp()->emplace_add_child(scene_name);
+	PVCore::PVSharedPtr<Inendi::PVScene> scene_p =
+	    get_root().emplace_add_child(QString::fromStdString(get_next_scene_name()));
 	_projects_tab_widget->add_project(scene_p);
 
 	return scene_p;
@@ -525,6 +525,12 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		reset_root();
 		return false;
 	}
+
+	// Increase counter so that later imported source have a more "distinct" name.
+	// eg : We load "Data collection 1" and "Data collection 2", next imported scene
+	// will be "Data collection 3". We don't care about imported invevtigation then
+	// imported scene as the create a new MainWindows
+	sequence_n += get_root().get_children().size();
 
 	_root->set_path(file);
 
