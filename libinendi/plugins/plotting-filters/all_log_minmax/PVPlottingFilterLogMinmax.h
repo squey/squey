@@ -20,7 +20,7 @@ class PVPlottingFilterLogMinmax : public PVPlottingFilter
 	    PVCore::PVArgumentList const& args = PVPlottingFilterLogMinmax::default_args());
 
   public:
-	uint32_t* operator()(PVCore::PVDecimalStorage<32> const* value) override;
+	uint32_t* operator()(pvcop::db::array const& mapped) override;
 	void init_expand(uint32_t min, uint32_t max) override;
 	uint32_t expand_plotted(uint32_t value) const override;
 	QString get_human_name() const override { return QString("Logarithmic min/max"); }

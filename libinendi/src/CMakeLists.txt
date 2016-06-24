@@ -21,7 +21,6 @@ PVLinesProperties.cpp
 PVMapped.cpp
 PVMapping.cpp 
 PVMappingFilter.cpp
-PVMandatoryMappingFilter.cpp
 PVMappingProperties.cpp 
 PVPlotted.cpp
 PVPlotting.cpp

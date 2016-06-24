@@ -32,8 +32,8 @@ static uint32_t compute_str_factor(const char* str, size_t len)
 	}
 }
 
-Inendi::PVMappingFilter::decimal_storage_type* Inendi::PVMappingFilterString4Bsort::
-operator()(PVCol const col, PVRush::PVNraw const& nraw)
+pvcop::db::array Inendi::PVMappingFilterString4Bsort::operator()(PVCol const col,
+                                                                 PVRush::PVNraw const& nraw)
 {
 	auto array = nraw.collection().column(col);
 	auto& core_array = array.to_core_array<uint32_t>();
@@ -45,11 +45,13 @@ operator()(PVCol const col, PVRush::PVNraw const& nraw)
 	               [&](const char* c) { return compute_str_factor(c, strlen(c)); });
 
 	// Copy mapping value based on computation from dict.
+	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+	auto& dest_array = dest.to_core_array<uint32_t>();
 	for (size_t row = 0; row < array.size(); row++) {
-		_dest[row].storage_as_uint() = ret[core_array[row]];
+		dest_array[row] = ret[core_array[row]];
 	}
 
-	return _dest;
+	return dest;
 }
 
 IMPL_FILTER_NOPARAM(Inendi::PVMappingFilterString4Bsort)

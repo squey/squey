@@ -24,10 +24,12 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 	PVMappingFilterTimeWeek();
 
   public:
-	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override
+	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
 	{
 		auto f = nraw.collection().formatter(col);
 		auto array = nraw.collection().column(col);
+		pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+		auto& dest_array = dest.to_core_array<uint32_t>();
 
 		if (std::string(f->name()) == "datetime") {
 			auto& core_array = array.to_core_array<uint32_t>();
@@ -36,7 +38,7 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 				const time_t t = static_cast<int64_t>(core_array[row]);
 				gmtime_r(&t, &local_tm);
 
-				_dest[row].storage_as_uint() =
+				dest_array[row] =
 				    local_tm.tm_sec +
 				    60 * (local_tm.tm_min + 60 * (local_tm.tm_hour + 24 * local_tm.tm_wday));
 			}
@@ -45,8 +47,8 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 			for (size_t row = 0; row < array.size(); row++) {
 				const boost::posix_time::ptime t =
 				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
-				_dest[row].storage_as_uint() = t.time_of_day().total_seconds() +
-				                               60 * 60 * 24 * t.date().day_of_week().as_number();
+				dest_array[row] = t.time_of_day().total_seconds() +
+				                  60 * 60 * 24 * t.date().day_of_week().as_number();
 			}
 		} else {
 			assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
@@ -77,15 +79,13 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 				if (not U_SUCCESS(err)) {
 					continue;
 				}
-				_dest[row].storage_as_uint() = sec + 60 * (min + 60 * (hour + 24 * wday));
+				dest_array[row] = sec + 60 * (min + 60 * (hour + 24 * wday));
 			}
 		}
-
-		return _dest;
+		return dest;
 	}
 
 	QString get_human_name() const override { return QString("Week"); }
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::IntegerType; }
 
 	CLASS_FILTER_NOPARAM(PVMappingFilterTimeWeek)
 };

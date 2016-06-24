@@ -11,14 +11,16 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/filter/PVFilterFunction.h>
-#include <inendi/PVMandatoryMappingFilter.h>
+
+#include <pvcop/db/array.h>
+
+#include <pvbase/types.h>
 
 namespace Inendi
 {
 
-class PVPlottingFilter
-    : public PVFilter::PVFilterFunctionBase<uint32_t*, PVCore::PVDecimalStorage<32> const*>,
-      public PVCore::PVRegistrableClass<PVPlottingFilter>
+class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop::db::array const&>,
+                         public PVCore::PVRegistrableClass<PVPlottingFilter>
 {
   public:
 	typedef std::shared_ptr<PVPlottingFilter> p_type;
@@ -28,13 +30,10 @@ class PVPlottingFilter
 	PVPlottingFilter();
 
   public:
-	virtual uint32_t* operator()(PVCore::PVDecimalStorage<32> const* value);
-	virtual uint32_t operator()(PVCore::PVDecimalStorage<32> const value);
+	virtual uint32_t* operator()(pvcop::db::array const& mapped) = 0;
 
-	void set_decimal_type(PVCore::DecimalType decimal_type) { _decimal_type = decimal_type; }
 	void set_dest_array(PVRow size, uint32_t* arr);
 	void set_mapping_mode(QString const& mapping_mode);
-	void set_mandatory_params(Inendi::mandatory_param_map const& params);
 
 	virtual void init_expand(uint32_t const /*min*/, uint32_t const /*max*/){};
 	virtual uint32_t expand_plotted(uint32_t const value) const { return value; }
@@ -49,14 +48,12 @@ class PVPlottingFilter
 	static QString mode_from_registered_name(QString const& rn);
 
   protected:
-	void copy_mapped_to_plotted(PVCore::PVDecimalStorage<32> const* value);
+	void copy_mapped_to_plotted(pvcop::db::array const& mapped);
 
   protected:
 	QString _mapping_mode;
 	PVRow _dest_size;
 	uint32_t* _dest;
-	Inendi::mandatory_param_map const* _mandatory_params;
-	PVCore::DecimalType _decimal_type;
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;

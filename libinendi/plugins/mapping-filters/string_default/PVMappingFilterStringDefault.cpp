@@ -115,8 +115,8 @@ void Inendi::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const
 	_case_sensitive = !args.at("convert-lowercase").toBool();
 }
 
-Inendi::PVMappingFilter::decimal_storage_type* Inendi::PVMappingFilterStringDefault::
-operator()(PVCol const col, PVRush::PVNraw const& nraw)
+pvcop::db::array Inendi::PVMappingFilterStringDefault::operator()(PVCol const col,
+                                                                  PVRush::PVNraw const& nraw)
 {
 	auto array = nraw.collection().column(col);
 	auto& core_array = array.to_core_array<uint32_t>();
@@ -127,11 +127,13 @@ operator()(PVCol const col, PVRush::PVNraw const& nraw)
 		return compute_str_factor(c, strlen(c), _case_sensitive);
 	});
 
+	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+	auto& dest_array = dest.to_core_array<uint32_t>();
 	for (size_t row = 0; row < array.size(); row++) {
-		_dest[row].storage_as_uint() = ret[core_array[row]];
+		dest_array[row] = ret[core_array[row]];
 	}
 
-	return _dest;
+	return dest;
 }
 
 IMPL_FILTER(Inendi::PVMappingFilterStringDefault)

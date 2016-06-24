@@ -8,23 +8,6 @@
 #include <inendi/PVMappingFilter.h>
 #include <pvkernel/rush/PVFormat.h>
 
-Inendi::PVMappingFilter::PVMappingFilter()
-{
-	_dest = NULL;
-}
-
-void Inendi::PVMappingFilter::init()
-{
-}
-
-void Inendi::PVMappingFilter::set_dest_array(PVRow size, decimal_storage_type* ptr)
-{
-	assert(ptr);
-	// This array is supposed to be as large as the values given to operator()
-	_dest = ptr;
-	_dest_size = size;
-}
-
 QStringList Inendi::PVMappingFilter::list_types()
 {
 	LIB_CLASS(PVMappingFilter)

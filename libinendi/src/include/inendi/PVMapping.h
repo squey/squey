@@ -19,7 +19,6 @@
 
 #include <inendi/PVMappingProperties.h>
 #include <inendi/PVMappingFilter.h>
-#include <inendi/PVMandatoryMappingFilter.h>
 
 #include <memory>
 
@@ -81,7 +80,6 @@ class PVMapping
 	}
 	bool is_col_uptodate(PVCol j) const;
 	PVCol get_number_cols() const { return columns.size(); }
-	PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const;
 
 	std::string const& get_name() const { return _name; }
 	void set_name(std::string const& name) { _name = name; }
@@ -89,13 +87,7 @@ class PVMapping
 	void reset_from_format(PVRush::PVFormat const& format);
 	void set_default_args(PVRush::PVFormat const& format);
 
-  public:
-	// Mandatory parameters
-	mandatory_param_map const& get_mandatory_params_for_col(PVCol col) const;
-	mandatory_param_map& get_mandatory_params_for_col(PVCol col);
-
   protected:
-	QVector<mandatory_param_map> _mandatory_filters_values;
 	QList<PVMappingProperties> columns;
 
 	std::string _name;

@@ -50,7 +50,7 @@ int main()
 	std::ofstream ofs(res_file);
 
 	for (size_t i = 0; i < column.size(); i++) {
-		ofs << mapped.get_value(i, 0).storage_as_uint() << std::endl;
+		ofs << mapped.get_column(0).to_core_array<uint32_t>()[i] << std::endl;
 	}
 
 	std::cout << res_file << "/" << ref_file << std::endl;

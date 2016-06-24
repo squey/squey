@@ -10,38 +10,28 @@
 
 #include <omp.h>
 
+#include <pvcop/db/algo.h>
+
 static constexpr int64_t INENDI_TIME_24H_MAX = 86399;
 static constexpr int64_t INENDI_TIME_WEEK_MAX =
     604793; /* 'Saturday 23:59:59'. Sun = 0, Sat = 6. (6 * 86399 = 518394) */
 static constexpr int64_t INENDI_TIME_MONTH_MAX = 2678369;
 
-uint32_t* Inendi::PVPlottingFilterTimeDefault::
-operator()(PVCore::PVDecimalStorage<32> const* values)
+uint32_t* Inendi::PVPlottingFilterTimeDefault::operator()(pvcop::db::array const& mapped)
 {
-	assert(values);
 	assert(_dest);
-	assert(_mandatory_params);
 
-	uint32_t const* vint = &values->storage_as_uint();
+	auto& vint = mapped.to_core_array<uint32_t>();
 
 	ssize_t size = _dest_size;
 	int64_t ymin, ymax;
 	ymin = INT_MIN;
 	ymax = INT_MAX;
 	if (_mapping_mode.compare("default") == 0) {
-		Inendi::mandatory_param_map::const_iterator it_min =
-		    _mandatory_params->find(Inendi::mandatory_ymin);
-		Inendi::mandatory_param_map::const_iterator it_max =
-		    _mandatory_params->find(Inendi::mandatory_ymax);
-		if (it_min == _mandatory_params->end() || it_max == _mandatory_params->end()) {
-			PVLOG_WARN("ymin and/or ymax don't exist for an axis. Maybe the mandatory minmax "
-			           "mapping hasn't be run ?\n");
-			memcpy(_dest, values, size * sizeof(uint32_t));
-			return _dest;
-		}
-
-		ymin = (*it_min).second.second.storage_as_int();
-		ymax = (*it_max).second.second.storage_as_int();
+		auto res = pvcop::db::algo::minmax(mapped);
+		auto& mm = res.to_core_array<int32_t>();
+		ymin = mm[0];
+		ymax = mm[1];
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {

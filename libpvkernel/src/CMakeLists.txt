@@ -37,7 +37,6 @@ core/PVHardwareConcurrency.cpp
 core/PVHSVColor.cpp
 core/PVPredefinedHSVColors.cpp
 core/PVLogger.cpp
-core/PVMatrix.cpp
 core/PVProgressBox.cpp
 core/PVPluginPresets.cpp
 core/PVSelBitField.cpp

@@ -26,23 +26,20 @@ class PVMappingFilterIntegerUnsigned : public PVMappingFilter
 	/**
 	 * Copy NRaw values (real integers value) as mapping value.
 	 */
-	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override
+	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
 	{
 		auto array = nraw.collection().column(col);
 		auto& core_array = array.to_core_array<uint32_t>();
+		pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+		dest.to_core_array<uint32_t>().copy_from(core_array, 0, array.size());
 
-		for (size_t row = 0; row < array.size(); row++) {
-			_dest[row].storage_as_uint() = core_array[row];
-		}
-
-		return _dest;
+		return dest;
 	}
 
 	/**
 	 * Metainformation for this plugin.
 	 */
 	QString get_human_name() const override { return QString("Unsigned decimal"); }
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
 	CLASS_FILTER_NOPARAM(PVMappingFilterIntegerUnsigned)
 };

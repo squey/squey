@@ -25,7 +25,6 @@ mapping_filter_string_4Bsort
 mapping_filter_time_24h
 mapping_filter_time_week
 mapping_filter_time_default
-mapping_filter_mandatory_minmax
 )
 
 # Linkage libs
@@ -174,18 +173,6 @@ time/default/register.cpp)
 #Create lib
 add_library(mapping_filter_time_default SHARED ${SRC_TIME})
 target_link_libraries(mapping_filter_time_default ${LINK_LIBRARIES} ${ICU_LIBRARY})
-
-###############################################################################
-# min max mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_MINMAX
-mandatory_minmax/PVMandatoryMappingFilterMinmax.cpp
-mandatory_minmax/register.cpp)
-
-#Create lib
-add_library(mapping_filter_mandatory_minmax SHARED ${SRC_MINMAX})
-target_link_libraries(mapping_filter_mandatory_minmax ${LINK_LIBRARIES})
 
 ###############################################################################
 # Define install directory

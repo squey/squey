@@ -48,7 +48,7 @@ int main()
 	// compute distinct mapping values.
 	std::set<uint32_t> distinct_mapping;
 	for (size_t i = 0; i < column.size(); i++) {
-		distinct_mapping.insert(mapped.get_value(i, 0).storage_as_uint());
+		distinct_mapping.insert(mapped.get_column(0).to_core_array<uint32_t>()[i]);
 	}
 
 	// Check there is a much distinct mapping than distinct values.

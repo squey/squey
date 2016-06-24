@@ -7,12 +7,11 @@
 
 #include "PVPlottingFilterNoprocess.h"
 
-uint32_t* Inendi::PVPlottingFilterNoprocess::operator()(PVCore::PVDecimalStorage<32> const* values)
+uint32_t* Inendi::PVPlottingFilterNoprocess::operator()(pvcop::db::array const& mapped)
 {
-	assert(values);
 	assert(_dest);
 
-	copy_mapped_to_plotted(values);
+	copy_mapped_to_plotted(mapped);
 	return _dest;
 }
 

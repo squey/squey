@@ -24,23 +24,25 @@ class PVMappingFilterFloatDefault : public PVMappingFilter
 	 *
 	 * @warning : storage type have to be float.
 	 */
-	decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) override
+	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
 	{
 		auto array = nraw.collection().column(col);
 		auto& core_array = array.to_core_array<float>();
 
+		pvcop::db::array dest(pvcop::db::type_float, array.size());
+		auto& dest_array = dest.to_core_array<float>();
+
 		for (size_t row = 0; row < array.size(); row++) {
-			_dest[row].storage_as_float() = core_array[row];
+			dest_array[row] = core_array[row];
 		}
 
-		return _dest;
+		return dest;
 	}
 
 	/**
 	 * MetaInformation of this plugins.
 	 */
 	QString get_human_name() const { return QString("Default"); }
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::FloatType; }
 
 	CLASS_FILTER_NOPARAM(PVMappingFilterFloatDefault)
 };

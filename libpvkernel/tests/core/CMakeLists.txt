@@ -6,20 +6,14 @@
 
 add_pv_compile_test(Tcore_timeformat_perf LINKS pvkernel ${ICU_LIBRARY} FILES time-format-perf.cpp)
 add_pv_compile_test(Tcore_serialize LINKS pvkernel FILES serialize.cpp)
-add_pv_compile_test(Tcore_matrix LINKS pvkernel FILES matrix.cpp)
-add_pv_compile_test(Tcore_vbo LINKS pvkernel FILES vbo.cpp)
 add_pv_compile_test(Tcore_stable_reverse LINKS pvkernel FILES stable_reverse.cpp)
 add_pv_compile_test(Tcore_bench_stable_reverse LINKS pvkernel FILES bench_stable_reverse.cpp)
-add_pv_compile_test(Tcore_transp LINKS pvkernel FILES transp.cpp)
 add_pv_compile_test(Tcore_const_fwd LINKS pvkernel FILES const_fwd.cpp)
 add_pv_compile_test(Tcore_hardware_concurrency LINKS pvkernel FILES hardware_concurrency.cpp)
 add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
 
 add_pv_compile_test(Tcore_file_helper LINKS pvkernel FILES file_helper.cpp)
 add_test(Tcore_file_helper Tcore_file_helper)
-
-add_pv_compile_test(Tcore_decimal_storage LINKS pvkernel FILES decimal_storage.cpp)
-add_test(Tcore_decimal_storage Tcore_decimal_storage 1000)
 
 add_pv_compile_test(Tcore_intrinsics LINKS pvkernel FILES intrinsics.cpp)
 add_test(Tcore_intrinsics Tcore_intrinsics)

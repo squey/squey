@@ -50,10 +50,10 @@ int main()
 	std::sort(order.begin(), order.end(),
 	          [&array](uint32_t a, uint32_t b) { return array[a] < array[b]; });
 
-	uint32_t prev = mapped.get_value(order[0], 0).storage_as_uint();
+	uint32_t prev = mapped.get_column(0).to_core_array<uint32_t>()[order[0]];
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= mapped.get_value(order[i], 0).storage_as_uint());
-		prev = mapped.get_value(order[i], 0).storage_as_uint();
+		PV_ASSERT_VALID(prev <= mapped.get_column(0).to_core_array<uint32_t>()[order[i]]);
+		prev = mapped.get_column(0).to_core_array<uint32_t>()[order[i]];
 	}
 #endif
 

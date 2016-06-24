@@ -10,34 +10,11 @@
 #include <inendi/PVPlottingFilter.h>
 
 Inendi::PVPlottingFilter::PVPlottingFilter()
-    : PVFilter::PVFilterFunctionBase<uint32_t*, PVCore::PVDecimalStorage<32> const*>()
+    : PVFilter::PVFilterFunctionBase<uint32_t*, pvcop::db::array const&>()
     , PVCore::PVRegistrableClass<Inendi::PVPlottingFilter>()
-    , _decimal_type(PVCore::FloatType)
 {
 	_dest = NULL;
 	_dest_size = 0;
-	_mandatory_params = NULL;
-}
-
-uint32_t* Inendi::PVPlottingFilter::operator()(PVCore::PVDecimalStorage<32> const* values)
-{
-	assert(values);
-	assert(_dest);
-	assert(_mandatory_params);
-
-	int64_t size = _dest_size;
-#pragma omp parallel for
-	for (int64_t i = 0; i < size; i++) {
-		_dest[i] = operator()(values[i]);
-	}
-
-	return _dest;
-}
-
-uint32_t Inendi::PVPlottingFilter::operator()(PVCore::PVDecimalStorage<32> const /*value*/)
-{
-	PVLOG_WARN("In default plotting filter: returns 0 !\n");
-	return 0;
 }
 
 void Inendi::PVPlottingFilter::set_mapping_mode(QString const& mode)
@@ -50,11 +27,6 @@ void Inendi::PVPlottingFilter::set_dest_array(PVRow size, uint32_t* array)
 	assert(array);
 	_dest_size = size;
 	_dest = array;
-}
-
-void Inendi::PVPlottingFilter::set_mandatory_params(Inendi::mandatory_param_map const& params)
-{
-	_mandatory_params = &params;
 }
 
 QStringList Inendi::PVPlottingFilter::list_modes(QString const& type, bool only_expandable)
@@ -108,33 +80,33 @@ QString Inendi::PVPlottingFilter::get_human_name() const
 	return mode_from_registered_name(registered_name());
 }
 
-void Inendi::PVPlottingFilter::copy_mapped_to_plotted(PVCore::PVDecimalStorage<32> const* value)
+void Inendi::PVPlottingFilter::copy_mapped_to_plotted(pvcop::db::array const& mapped)
 {
-	switch (_decimal_type) {
-	case PVCore::UnsignedIntegerType: {
+	switch (mapped.type()) {
+	case pvcop::db::type_uint32: {
+		auto& mapped_array = mapped.to_core_array<uint32_t>();
 		// Direct copy. Vectorized by GCC
-		uint32_t const* const vint = &value->storage_as_uint();
 		for (size_t i = 0; i < _dest_size; i++) {
-			_dest[i] = ~vint[i];
+			_dest[i] = ~mapped_array[i];
 		}
 		break;
 	}
-	case PVCore::IntegerType: {
+	case pvcop::db::type_int32: {
+		auto& mapped_array = mapped.to_core_array<int32_t>();
 		// Change signed integer so that -2**31 is zero.
 		// TODO: check that GCC vectorize this!
-		uint32_t const* const vint = &value->storage_as_uint();
 		for (size_t i = 0; i < _dest_size; i++) {
-			const uint32_t v = vint[i];
+			const uint32_t v = mapped_array[i];
 			_dest[i] = ~(((~v) & 0x80000000) | (v & 0x7FFFFFFF));
 		}
 		break;
 	}
-	case PVCore::FloatType: {
+	case pvcop::db::type_float: {
+		auto& mapped_array = mapped.to_core_array<float>();
 		// Pretty basic for now, and not really interesting..
-		float const* const vfloat = &value->storage_as_float();
 		// That should also be vectorized!
 		for (size_t i = 0; i < _dest_size; i++) {
-			_dest[i] = ~((uint32_t)vfloat[i]);
+			_dest[i] = ~((uint32_t)mapped_array[i]);
 		}
 		break;
 	}
