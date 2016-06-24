@@ -933,7 +933,7 @@ PVCol PVRush::PVXmlTreeNodeDom::updateFieldLinearId(PVCol id)
 {
 	size_t nchilds = getChildren().size();
 	if (getDom().tagName() == "field") {
-		if (nchilds == 0 || !hasSplitterAsChild()) {
+		if (hasAxisAsChild()) {
 			_field_linear_id = id;
 			id++;
 		} else {
@@ -949,14 +949,14 @@ PVCol PVRush::PVXmlTreeNodeDom::updateFieldLinearId(PVCol id)
 	return id;
 }
 
-bool PVRush::PVXmlTreeNodeDom::hasSplitterAsChild()
+bool PVRush::PVXmlTreeNodeDom::hasAxisAsChild()
 {
-	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
-		QString type = getChild(ichild)->typeToString();
-		if (type == "splitter" || type == "converter" || type == "url") {
+	for (const auto node : getChildren()) {
+		if (node->typeToString() == PVFORMAT_XML_TAG_AXIS_STR) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
