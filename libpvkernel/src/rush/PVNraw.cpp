@@ -21,7 +21,6 @@
 
 #include <pvcop/db/exceptions/invalid_collection.h>
 
-#include <iostream>
 #include <fstream>
 #include <omp.h>
 
@@ -48,7 +47,9 @@ PVRush::PVNraw::PVNraw() : _real_nrows(0)
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format)
+void PVRush::PVNraw::prepare_load(PVRow const nrows,
+                                  pvcop::formatter_desc_list const& format,
+                                  const fields_mask_t& fields_mask)
 {
 	// Generate random path
 	std::string collector_path =
@@ -62,6 +63,7 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list 
 	_collection.reset();
 
 	_max_nrows = nrows;
+	_fields_mask = fields_mask;
 }
 
 /*****************************************************************************
@@ -93,6 +95,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	// Count number of extracted line. It is not the same as the number of elements as some of them
 	// may be invalid or empty or we may skip the end when enough data is extracted.
 	PVRow local_row = elts.size();
+
 	for (PVCore::PVElement* elt : elts) {
 
 		PVCore::PVElement& e = *elt;
@@ -112,9 +115,14 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		}
 
 		assert(column_count == fields.size());
+		size_t field_index = 0;
+
 		for (PVCore::PVField const& field : fields) {
 			// Save the field
-			pvcop_fields.emplace_back(pvcop::sink::field_t(field.begin(), field.size()));
+			if (_fields_mask[field_index]) {
+				pvcop_fields.emplace_back(pvcop::sink::field_t(field.begin(), field.size()));
+			}
+			++field_index;
 		}
 	}
 
