@@ -429,7 +429,7 @@ PVRow PVCore::PVSelBitField::find_previous_set_bit(const PVRow index, const PVRo
 void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so,
                                       PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	size_t mem_size = pvcop::core::__impl::bit::to_mem_size(_selection.size());
+	size_t mem_size = pvcop::core::__impl::bit_manip::to_mem_size(_selection.size());
 	if (so.is_writing()) {
 		so.buffer("selection_data", _selection.data(), mem_size);
 	} else {

@@ -46,8 +46,8 @@ class PVSelBitField
 	friend class Inendi::PVSelection;
 
   public:
-	static constexpr auto CHUNK_SIZE = pvcop::core::__impl::bit::chunk_bit_size;
-	static constexpr auto CHUNK_SIZE_BYTE = pvcop::core::__impl::bit::chunk_byte_size;
+	static constexpr auto CHUNK_SIZE = pvcop::core::__impl::bit_manip::chunk_bit_size;
+	static constexpr auto CHUNK_SIZE_BYTE = pvcop::core::__impl::bit_manip::chunk_byte_size;
 
   public:
 	typedef uint64_t chunk_t;
