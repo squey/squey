@@ -100,9 +100,9 @@ void Inendi::PVSource::files_append_noextract()
 	}
 }
 
-PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count /*= 0*/,
-                                                    size_t line_count /*= 0*/)
+PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count, size_t line_count)
 {
+	line_count = line_count ? line_count : std::numeric_limits<uint32_t>::max();
 	PVRush::PVControllerJob_p job =
 	    _extractor.process_from_agg_nlines(skip_lines_count, line_count);
 
