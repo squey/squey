@@ -129,3 +129,6 @@ add_test(Tinendi_bad_convertions_merge Tinendi_bad_convertions_merge)
 add_pv_compile_test(Tinendi_correlation LINKS ${LINK_LIBRARIES} FILES correlation.cpp)
 add_test(Tinendi_correlation Tinendi_correlation)
 add_bench(Tinendi_correlation LINKS ${LINK_LIBRARIES} FILES correlation.cpp)
+
+add_pv_compile_test(Trush_multi_chunk LINKS ${LINK_LIBRARIES} FILES multi_chunk.cpp)
+add_test(Trush_multi_chunk Trush_multi_chunk)
