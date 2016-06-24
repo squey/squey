@@ -117,7 +117,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	/**
 	 * Start extraction of data for current source.
 	 *
-	 * @param line_count : Number of line to load
+	 * @param line_count : Number of line to load. 0 if we want to load all the file.
 	 * @param skip_lines_count : Number of line to skip at the beginning of the file.
 	 *
 	 * @return : Pointer to the started job.
