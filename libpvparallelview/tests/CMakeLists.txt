@@ -14,7 +14,7 @@ set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_
 
 QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h)
 
-add_pv_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp common.cpp)
+add_pv_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp)
 add_pv_compile_test(Pqt-extract-sse LINKS ${LINK_LIBRARIES} FILES qt-extract-sse.cpp)
 add_pv_compile_test(Eqt-tbb-tasks LINKS ${LINK_LIBRARIES} FILES qt-tbb-tasks.cpp)
 add_pv_compile_test(Eqt-tbb-traversal LINKS ${LINK_LIBRARIES} FILES qt-tbb-traversal.cpp)
@@ -23,21 +23,19 @@ add_pv_compile_test(extract_quadtree LINKS ${LINK_LIBRARIES} FILES extract_quadt
 add_pv_compile_test(Tquadtree_impl LINKS ${LINK_LIBRARIES} FILES quadtree_impl.cpp)
 add_pv_compile_test(Tmultigrid_impl LINKS ${LINK_LIBRARIES} FILES multigrid_impl.cpp)
 add_pv_compile_test(masks LINKS ${LINK_LIBRARIES} FILES masks.cpp)
-add_pv_compile_test(Ehitgraph-test LINKS ${LINK_LIBRARIES} FILES hitgraph-test.cpp common.cpp)
 add_pv_compile_test(Ehitgraph-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-perf.cpp)
 add_pv_compile_test(Ehitgraph-alpha-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-alpha-perf.cpp)
-add_pv_compile_test(Ehist_plotted_perf LINKS ${LINK_LIBRARIES} FILES hist_plotted_perf.cpp common.cpp)
 add_pv_compile_test(zoomable_drawing_area_test LINKS ${LINK_LIBRARIES} FILES zoomable_drawing_area_test.cpp)
 add_pv_compile_test(hitgraph-buffer LINKS ${LINK_LIBRARIES} FILES hitgraph-buffer.cpp)
 add_pv_compile_test(Tqt_random_points LINKS ${LINK_LIBRARIES} FILES random_points.cpp)
 
-add_pv_compile_test(Tpview_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zone_tree_dump_load.cpp common.cpp)
+add_pv_compile_test(Tpview_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zone_tree_dump_load.cpp)
 add_test(Tpview_zone_tree_dump_load Tpview_zone_tree_dump_load 0 50 2)
 
 add_pv_compile_test(Tpview_quadtree_dump_load LINKS ${LINK_LIBRARIES} FILES quadtree_dump_load.cpp)
 add_test(Tpview_quadtree_dump_load Tpview_quadtree_dump_load 1000000 42)
 
-add_pv_compile_test(Tpview_zoomed_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zoomed_zone_tree_dump_load.cpp common.cpp)
+add_pv_compile_test(Tpview_zoomed_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zoomed_zone_tree_dump_load.cpp)
 add_test(Tpview_zoomed_zone_tree_dump_load Tpview_zoomed_zone_tree_dump_load 0 100 2)
 
 add_pv_compile_test(Tpview_square_selection LINKS ${LINK_LIBRARIES} FILES square_selection.cpp)

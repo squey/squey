@@ -19,14 +19,12 @@ namespace Inendi
 class PVMappingFilterString4Bsort : public PVMappingFilter
 {
   public:
-	PVMappingFilter::decimal_storage_type* operator()(PVCol const col,
-	                                                  PVRush::PVNraw const& nraw) override;
+	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
 	/**
 	 * Meta information from this plugin.
 	 */
 	QString get_human_name() const { return QString("Pseudo-sort on the first 4 bytes"); }
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
   protected:
 	CLASS_FILTER_NOPARAM(PVMappingFilterString4Bsort)

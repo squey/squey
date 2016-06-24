@@ -11,6 +11,8 @@
 
 #include <omp.h>
 
+#include <pvcop/db/algo.h>
+
 Inendi::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax(PVCore::PVArgumentList const& args)
     : PVPlottingFilter()
 {
@@ -26,29 +28,17 @@ DEFAULT_ARGS_FILTER(Inendi::PVPlottingFilterLogMinmax)
 	return args;
 }
 
-uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(PVCore::PVDecimalStorage<32> const* values)
+uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped)
 {
-	assert(values);
 	assert(_dest);
-	assert(_mandatory_params);
 
 	const ssize_t size = _dest_size;
 
-	Inendi::mandatory_param_map::const_iterator it_min =
-	    _mandatory_params->find(Inendi::mandatory_ymin);
-	Inendi::mandatory_param_map::const_iterator it_max =
-	    _mandatory_params->find(Inendi::mandatory_ymax);
-	if (it_min == _mandatory_params->end() || it_max == _mandatory_params->end()) {
-		PVLOG_WARN("ymin and/or ymax don't exist for an axis. Maybe the mandatory minmax mapping "
-		           "hasn't be run ?\n");
-		copy_mapped_to_plotted(values);
-		return _dest;
-	}
-
-	if (_decimal_type == PVCore::IntegerType) {
-		int64_t ymin, ymax;
-		ymin = (*it_min).second.second.storage_as_int();
-		ymax = (*it_max).second.second.storage_as_int();
+	auto res = pvcop::db::algo::minmax(mapped);
+	if (mapped.type() == pvcop::db::type_int32) {
+		auto& mm = res.to_core_array<int32_t>();
+		int64_t ymin = mm[0];
+		int64_t ymax = mm[1];
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
@@ -66,16 +56,17 @@ uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(PVCore::PVDecimalStorage
 
 		const double log_ymin = log2(ymin);
 		const double div = log2(ymax) - log_ymin;
+		auto& values = mapped.to_core_array<int32_t>();
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = ~((uint32_t)(
-			    ((log2((int64_t)(values[i].storage_as_int()) + offset) - log_ymin) / div) *
-			    ((double)(UINT_MAX))));
+			_dest[i] = ~((uint32_t)(((log2((int64_t)(values[i]) + offset) - log_ymin) / div) *
+			                        ((double)(UINT_MAX))));
 		}
-	} else if (_decimal_type == PVCore::UnsignedIntegerType) {
-		int64_t ymin, ymax;
-		ymin = (*it_min).second.second.storage_as_uint();
-		ymax = (*it_max).second.second.storage_as_uint();
+	} else if (mapped.type() == pvcop::db::type_uint32) {
+		// FIXME : Typing is weird
+		auto& mm = res.to_core_array<uint32_t>();
+		int64_t ymin = mm[0];
+		int64_t ymax = mm[1];
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
@@ -93,16 +84,16 @@ uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(PVCore::PVDecimalStorage
 
 		const double log_ymin = log2(ymin);
 		const double div = log2(ymax) - log_ymin;
+		auto& values = mapped.to_core_array<uint32_t>();
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = ~((uint32_t)(
-			    ((log2((int64_t)(values[i].storage_as_uint()) + offset) - log_ymin) / div) *
-			    ((double)(UINT_MAX))));
+			_dest[i] = ~((uint32_t)(((log2((int64_t)(values[i]) + offset) - log_ymin) / div) *
+			                        ((double)(UINT_MAX))));
 		}
 	} else {
-		float ymin, ymax;
-		ymin = (*it_min).second.second.storage_as_float();
-		ymax = (*it_max).second.second.storage_as_float();
+		auto& mm = res.to_core_array<float>();
+		float ymin = mm[0];
+		float ymax = mm[1];
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
@@ -120,11 +111,11 @@ uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(PVCore::PVDecimalStorage
 
 		const double log_ymin = log2(ymin);
 		const double div = log2(ymax) - log_ymin;
+		auto& values = mapped.to_core_array<float>();
 #pragma omp parallel for
 		for (ssize_t i = 0; i < size; i++) {
 			_dest[i] =
-			    ~((uint32_t)(((log2(values[i].storage_as_float() + offset) - log_ymin) / div) *
-			                 ((double)(UINT_MAX))));
+			    ~((uint32_t)(((log2(values[i] + offset) - log_ymin) / div) * ((double)(UINT_MAX))));
 		}
 	}
 

@@ -46,11 +46,11 @@ int main()
 	for (size_t i = 0; i < column.size() / 2; i++) {
 
 		// Check IP are in 0 -> 2*31
-		uint32_t map_ip = mapped.get_value(i, 0).storage_as_uint();
+		uint32_t map_ip = mapped.get_column(0).to_core_array<uint32_t>()[i];
 		PV_ASSERT_VALID(map_ip < (1UL << 31));
 
 		// Check str are in 2*31 -> 2**32
-		uint32_t map_str = mapped.get_value(i, 1).storage_as_uint();
+		uint32_t map_str = mapped.get_column(1).to_core_array<uint32_t>()[i];
 		PV_ASSERT_VALID(map_str >= (1UL << 31));
 	}
 #endif

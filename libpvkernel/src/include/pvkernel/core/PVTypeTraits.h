@@ -66,16 +66,6 @@ struct pointer<std::shared_ptr<T>&> {
 	static inline type get(type obj) { return obj; }
 };
 
-template <class T, class MultipleOf>
-struct is_size_multiple {
-	static const bool value = not(sizeof(T) % sizeof(MultipleOf));
-};
-
-template <class A, class B>
-struct bigger_than {
-	static const bool value = sizeof(A) > sizeof(B);
-};
-
 // Const forwarder
 // Make a type const iif another type is const
 template <class T, class Tref>

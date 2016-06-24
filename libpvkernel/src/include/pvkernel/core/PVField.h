@@ -9,7 +9,6 @@
 #define PVFIELD_FILE_H
 
 #include <pvkernel/core/PVBufferSlice.h>
-#include <pvkernel/core/PVDecimalStorage.h>
 
 namespace PVCore
 {

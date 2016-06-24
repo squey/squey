@@ -7,20 +7,15 @@
 
 #include "PVPlottingFilterIntegerPort.h"
 
-uint32_t* Inendi::PVPlottingFilterIntegerPort::
-operator()(PVCore::PVDecimalStorage<32> const* values)
+uint32_t* Inendi::PVPlottingFilterIntegerPort::operator()(pvcop::db::array const& mapped)
 {
-	assert(values);
 	assert(_dest);
-	assert(_mandatory_params);
 
-	const ssize_t size = _dest_size;
-
-	uint32_t const* const vint = &values->storage_as_uint();
+	auto& values = mapped.to_core_array<uint32_t>();
 
 #pragma omp parallel for
-	for (ssize_t i = 0; i < size; i++) {
-		const uint32_t v = vint[i];
+	for (size_t i = 0; i < values.size(); i++) {
+		const uint32_t v = values[i];
 		if (v < 1024) {
 			_dest[i] = ~(v << 21);
 		} else {

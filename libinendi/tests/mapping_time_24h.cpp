@@ -51,10 +51,10 @@ int main()
 		return (array[a] % (24 * 3600)) < (array[b] % (24 * 3600));
 	});
 
-	uint32_t prev = mapped.get_value(order[0], 0).storage_as_uint();
+	uint32_t prev = mapped.get_column(0).to_core_array<uint32_t>()[order[0]];
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= mapped.get_value(order[i], 0).storage_as_uint());
-		prev = mapped.get_value(order[i], 0).storage_as_uint();
+		PV_ASSERT_VALID(prev <= mapped.get_column(0).to_core_array<uint32_t>()[order[i]]);
+		prev = mapped.get_column(0).to_core_array<uint32_t>()[order[i]];
 	}
 #endif
 

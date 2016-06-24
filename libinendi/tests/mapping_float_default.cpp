@@ -44,7 +44,7 @@ int main()
 	const pvcop::db::array& column = nraw.collection().column(0);
 
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_VALID(mapped.get_value(i, 0).storage_as_float(), column.to_core_array<float>()[i]);
+		PV_VALID(mapped.get_column(0).to_core_array<float>()[i], column.to_core_array<float>()[i]);
 	}
 #endif
 

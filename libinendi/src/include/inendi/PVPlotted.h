@@ -18,7 +18,6 @@
 #include <sigc++/sigc++.h>
 
 #include <pvkernel/core/PVAllocators.h>
-#include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVHugePODVector.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -79,9 +78,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 
 	void set_name(std::string const& name) { _plotting.set_name(name); }
 	std::string const& get_name() const { return _plotting.get_name(); }
-
-	static void
-	norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
 
 	std::string get_serialize_description() const override { return "Plotting: " + get_name(); }
 
@@ -198,26 +194,10 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
 
-	// Plotted dump/load
-	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;
-	static bool load_buffer_from_file(uint_plotted_table_t& buf,
-	                                  PVRow& nrows,
-	                                  PVCol& ncols,
-	                                  bool get_transposed_version,
-	                                  QString const& file);
-	static bool load_buffer_from_file(plotted_table_t& buf,
-	                                  PVCol& ncols,
-	                                  bool get_transposed_version,
-	                                  QString const& file);
-
 	inline QList<PVCol> const& last_updated_cols() const { return _last_updated_cols; }
 
 	PVRow get_col_min_row(PVCol const c) const;
 	PVRow get_col_max_row(PVCol const c) const;
-
-  public:
-	// Debug
-	void to_csv();
 
   protected:
 	virtual QString get_children_description() const { return "View(s)"; }

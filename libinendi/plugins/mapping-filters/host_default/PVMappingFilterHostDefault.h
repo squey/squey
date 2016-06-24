@@ -24,14 +24,12 @@ class PVMappingFilterHostDefault : public PVMappingFilter
 	PVMappingFilterHostDefault();
 
   public:
-	PVMappingFilter::decimal_storage_type* operator()(PVCol const col,
-	                                                  PVRush::PVNraw const& nraw) override;
+	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
 	/**
 	 * Meta information from this plugin.
 	 */
 	QString get_human_name() const override { return QString("Default"); }
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
 	CLASS_FILTER_NOPARAM(PVMappingFilterHostDefault)
 };

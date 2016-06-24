@@ -11,13 +11,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 set(LINK_LIBRARIES pvkernel inendi ${TBB_LIBRARIES} ${ICU_LIBRARY}
 				   ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES})
 
-# FIXME : This test can't work as it compare with references which doesn't
-# exists.
-add_pv_compile_test(Tinendi_process_file_mapping LINKS ${LINK_LIBRARIES} FILES process_file_mapping.cpp)
-
-# FIXME : The plotting folder doesn't exist
-add_pv_compile_test(Tinendi_process_file_plotting LINKS ${LINK_LIBRARIES} FILES process_file_plotting.cpp)
-
 add_pv_compile_test(Tinendi_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp)
 add_test(Tinendi_heat_line Tinendi_heat_line)
 add_bench(Tinendi_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp)

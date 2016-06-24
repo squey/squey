@@ -27,8 +27,6 @@ Inendi::PVMapping::PVMapping(PVMapped* mapped) : _name("default"), _mapped(mappe
 		assert(false);
 	}
 
-	_mandatory_filters_values.resize(naxes);
-
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	for (PVCol i = 0; i < naxes; i++) {
 		PVMappingProperties mapping_axis(source.get_extractor().get_format(), i);
@@ -46,7 +44,6 @@ void Inendi::PVMapping::add_column(PVMappingProperties const& props)
 {
 
 	columns.push_back(props);
-	_mandatory_filters_values.push_back(mandatory_param_map());
 }
 
 /******************************************************************************
@@ -59,12 +56,6 @@ Inendi::PVMappingFilter::p_type Inendi::PVMapping::get_filter_for_col(PVCol col)
 	return columns.at(col).get_mapping_filter();
 }
 
-PVCore::DecimalType Inendi::PVMapping::get_decimal_type_of_col(PVCol const j) const
-{
-	assert(j < columns.size());
-	return columns[j].get_mapping_filter()->get_decimal_type();
-}
-
 /******************************************************************************
  *
  * Inendi::PVMapping::get_format
@@ -73,28 +64,6 @@ PVCore::DecimalType Inendi::PVMapping::get_decimal_type_of_col(PVCol const j) co
 PVRush::PVFormat const& Inendi::PVMapping::get_format() const
 {
 	return _mapped->get_parent().get_extractor().get_format();
-}
-
-/******************************************************************************
- *
- * Inendi::PVMapping::get_mandatory_params_for_col
- *
- *****************************************************************************/
-Inendi::mandatory_param_map const& Inendi::PVMapping::get_mandatory_params_for_col(PVCol col) const
-{
-	assert(col < _mandatory_filters_values.size());
-	return _mandatory_filters_values[col];
-}
-
-/******************************************************************************
- *
- * Inendi::PVMapping::get_mandatory_params_for_col
- *
- *****************************************************************************/
-Inendi::mandatory_param_map& Inendi::PVMapping::get_mandatory_params_for_col(PVCol col)
-{
-	assert(col < _mandatory_filters_values.size());
-	return _mandatory_filters_values[col];
 }
 
 /******************************************************************************
@@ -169,10 +138,6 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
 	so.list("properties", columns);
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
-	if (!so.is_writing()) {
-		_mandatory_filters_values.clear();
-		_mandatory_filters_values.resize(columns.size());
-	}
 }
 
 /******************************************************************************
@@ -192,17 +157,6 @@ void Inendi::PVMapping::set_default_args(PVRush::PVFormat const& format)
 			break;
 		}
 	}
-}
-
-/******************************************************************************
- *
- * Inendi::PVMapping::set_source
- *
- *****************************************************************************/
-void Inendi::PVMapping::set_source(PVSource* src)
-{
-	PVCol naxes = src->get_column_count();
-	_mandatory_filters_values.resize(naxes);
 }
 
 /******************************************************************************

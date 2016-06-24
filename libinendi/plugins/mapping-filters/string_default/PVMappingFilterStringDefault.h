@@ -24,8 +24,7 @@ class PVMappingFilterStringDefault : public PVMappingFilter
 	PVMappingFilterStringDefault(
 	    PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
 
-	PVMappingFilter::decimal_storage_type* operator()(PVCol const col,
-	                                                  PVRush::PVNraw const& nraw) override;
+	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
   public:
 	/**
@@ -36,7 +35,6 @@ class PVMappingFilterStringDefault : public PVMappingFilter
 	/**
 	 * MetaInformation for this plugin.
 	 */
-	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 	QString get_human_name() const override { return "Default"; }
 
   private:
