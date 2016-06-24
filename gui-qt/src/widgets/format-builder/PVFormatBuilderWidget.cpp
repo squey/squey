@@ -479,25 +479,12 @@ void PVInspector::PVFormatBuilderWidget::slotApplyModification()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotDelete()
 {
-	QDialog confirm(this);
-	QVBoxLayout vb;
-	confirm.setLayout(&vb);
-	vb.addWidget(new QLabel("Do realy want to delete it ?"));
-	QHBoxLayout bas;
-	vb.addLayout(&bas);
-	QPushButton no("No");
-	bas.addWidget(&no);
-	QPushButton yes("Yes");
-	bas.addWidget(&yes);
+	QMessageBox msg(QMessageBox::Question, QString(), "Do you really want to delete it?",
+	                QMessageBox::Yes | QMessageBox::No, this);
 
-	connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
-	connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
-
-	// if confirmed then apply
-	if (confirm.exec()) {
+	if (msg.exec() == QMessageBox::Yes) {
 		myTreeView->deleteSelection();
-		QModelIndex ind;
-		myParamBord_old_model->drawForNo(ind);
+		myParamBord_old_model->drawForNo(QModelIndex());
 	}
 }
 
@@ -1009,22 +996,16 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 	// Then, update the linear fields id in PVXmlTreeNode's tree.
 	myTreeModel->updateFieldsLinearId();
 
-	// If this is not a field, get the parent field
-	if (node->typeToString() != "field" || node->getFieldLinearId() == -1) {
+	// If this is not an axis, no need to highlight a column in the preview listing
+	if (node->typeToString() != "axis") {
+		_nraw_widget->unselect_column();
+	} else {
 		node = node->getFirstFieldParent();
-		// If it can't find any field parent, just return.
-		// (but this is weird, that should not happen)
-		if (!node) {
-			_nraw_widget->unselect_column();
-			return;
+		if (node) {
+			PVCol field_id = node->getFieldLinearId();
+			_nraw_widget->select_column(field_id);
 		}
 	}
-
-	// Then get that field's linear id
-	PVCol field_id = node->getFieldLinearId();
-
-	// And tell that to the mini-extractor widget
-	_nraw_widget->select_column(field_id);
 }
 
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
