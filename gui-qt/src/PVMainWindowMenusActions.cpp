@@ -27,6 +27,7 @@ void PVInspector::PVMainWindow::create_actions()
 	solution_new_Action = new QAction(tr("&New investigation"), this);
 	solution_load_Action = new QAction(tr("&Load an investigation..."), this);
 	solution_save_Action = new QAction(tr("&Save investigation"), this);
+	solution_save_Action->setShortcut(QKeySequence::Save);
 	solution_saveas_Action = new QAction(tr("S&ave investigation as..."), this);
 
 	// The project actions
