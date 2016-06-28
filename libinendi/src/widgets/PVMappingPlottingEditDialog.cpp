@@ -233,7 +233,6 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 	PVCol axis_id = 0;
 	Inendi::PVAxesCombination::list_axes_t::const_iterator it_axes;
 	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
-		int col = 1;
 		if (has_mapping()) {
 			QString type = _mapping->get_mapped()
 			                   ->get_parent<Inendi::PVSource>()
@@ -246,7 +245,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			// Mapping mode
 			PVWidgets::PVMappingModeWidget* map_combo =
 			    dynamic_cast<PVWidgets::PVMappingModeWidget*>(
-			        _main_grid->itemAtPosition(row, col++)->widget());
+			        _main_grid->itemAtPosition(row, 2)->widget());
 			assert(map_combo);
 			QString mode = map_combo->get_mode();
 
@@ -255,7 +254,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 		}
 		if (has_plotting()) {
 			PVWidgets::PVPlottingModeWidget* combo = dynamic_cast<PVWidgets::PVPlottingModeWidget*>(
-			    _main_grid->itemAtPosition(row, col++)->widget());
+			    _main_grid->itemAtPosition(row, 1)->widget());
 			assert(combo);
 			QString mode = combo->get_mode();
 			_plotting->get_properties_for_col(axis_id).set_mode(mode);

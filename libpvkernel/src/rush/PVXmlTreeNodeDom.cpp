@@ -763,17 +763,6 @@ void PVRush::PVXmlTreeNodeDom::setFromArgumentList(PVCore::PVArgumentList const&
 	}
 }
 
-/*
-void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgumentList& args)
-{
-    QDomNamedNodeMap attrs = elt.attributes();
-    for (int i = 0; i < attrs.size(); i++) {
-        QDomAttr a = attrs.item(i).toAttr();
-        QString key(a.name());
-        args[key] = PVCore::QString_to_PVArgument(a.value());
-    }
-}*/
-
 void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt,
                                               PVCore::PVArgumentList const& def_args,
                                               PVCore::PVArgumentList& args)

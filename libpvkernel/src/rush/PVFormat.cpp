@@ -271,7 +271,6 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 	for (const PVAxisFormat& axe : _axes) {
 
 		std::string axe_type = axe.get_type().toStdString();
-		std::string axe_mapping = axe.get_mapping().toStdString();
 
 		if (axe_type == "time") {
 			std::string time_format = axe.get_type_format().toStdString();

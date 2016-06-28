@@ -28,8 +28,7 @@ Inendi::PVPlotting::PVPlotting(PVPlotted* plotted) : _plotted(plotted), _name("d
 	    _plotted->get_parent<Inendi::PVSource>().get_extractor().get_format();
 
 	for (int i = 0; i < format.get_axes().size(); i++) {
-		Inendi::PVMapping const& mapping = _plotted->get_parent().get_mapping();
-		PVPlottingProperties plotting_axis(mapping, format, i);
+		PVPlottingProperties plotting_axis(format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -120,13 +119,6 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
                                    PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", _columns);
-	if (not so.is_writing()) {
-		// Set new plotting properties from pvi
-		for (auto& prop : _columns) {
-			prop.set_mapping(_plotted->get_parent<PVMapped>().get_mapping());
-		}
-	}
-
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
 }

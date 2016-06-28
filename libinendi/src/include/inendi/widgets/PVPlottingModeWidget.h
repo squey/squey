@@ -16,7 +16,6 @@
 namespace Inendi
 {
 class PVPlotting;
-class PVPlottingProperties;
 }
 
 namespace PVWidgets
@@ -24,7 +23,6 @@ namespace PVWidgets
 
 class PVPlottingModeWidget : public QWidget
 {
-	Q_OBJECT
   public:
 	PVPlottingModeWidget(QWidget* parent = nullptr);
 	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting, QWidget* parent = nullptr);
@@ -44,12 +42,8 @@ class PVPlottingModeWidget : public QWidget
   public:
 	PVComboBox* get_combo_box() { return _combo; }
 
-  private Q_SLOTS:
-	void change_params();
-
   private:
 	PVComboBox* _combo;
-	Inendi::PVPlottingProperties* _props;
 };
 }
 

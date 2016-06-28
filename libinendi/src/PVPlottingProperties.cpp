@@ -7,7 +7,6 @@
 
 #include <inendi/PVPlottingProperties.h>
 #include <inendi/PVPlottingFilter.h>
-#include <inendi/PVMapping.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
 
@@ -16,41 +15,20 @@
  * Inendi::PVPlottingProperties::PVPlottingProperties
  *
  *****************************************************************************/
-Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
-                                                   PVRush::PVFormat const& format,
+Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVFormat const& format, PVCol idx)
+    : PVPlottingProperties(format.get_axes().at(idx), idx)
+{
+}
+
+Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVAxisFormat const& axis_format,
                                                    PVCol idx)
-    : _mapping(&mapping)
 {
 	_index = idx;
-	set_from_axis(format.get_axes().at(idx));
-}
+	Inendi::PVAxis axis(axis_format);
 
-Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
-                                                   PVRush::PVAxisFormat const& axis,
-                                                   PVCol idx)
-    : _mapping(&mapping)
-{
-	_index = idx;
-	set_from_axis(axis);
-}
-
-void Inendi::PVPlottingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
-{
-	set_from_axis(Inendi::PVAxis(axis));
-}
-
-void Inendi::PVPlottingProperties::set_from_axis(Inendi::PVAxis const& axis)
-{
 	QString mode = axis.get_plotting();
 	set_args(axis.get_args_plotting());
 	set_mode(mode);
-}
-
-void Inendi::PVPlottingProperties::set_mapping(const PVMapping& mapping)
-{
-	_mapping = &mapping;
-	_is_uptodate = false;
-	set_mode(_mode);
 }
 
 void Inendi::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
@@ -101,7 +79,4 @@ void Inendi::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so,
 	if (!so.is_writing()) {
 		_is_uptodate = false;
 	}
-	/*if (_plotting_filter) {
-	        so.arguments("properties", _args, _plotting_filter->default_args());
-	}*/
 }

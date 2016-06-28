@@ -139,17 +139,6 @@ class PVXmlParamWidget : public QWidget
 	 */
 	void regExCountSel(const QString& reg);
 
-	/**
-	 * For the axes parametter, this slot update the mapping and plotting choice.
-	 * @param type
-	 */
-	void updatePlotMapping(const QString&);
-
-	/**
-	 * Alert if we detecte a regexp in the name. <br> By star detection.
-	 */
-	void slotConfirmRegExpInName(const QString& s);
-
 	void slotEmitNeedApply();
 
 	/**

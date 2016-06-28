@@ -20,7 +20,6 @@ namespace Inendi
 {
 
 class PVPlotting;
-class PVMapping;
 
 /**
 * \class PVPlottingProperties
@@ -34,13 +33,12 @@ class PVPlottingProperties
 	friend class PVPlotted;
 
   public:
-	PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& fmt, PVCol idx);
-	PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx);
+	PVPlottingProperties(PVRush::PVFormat const& fmt, PVCol idx);
+	PVPlottingProperties(PVRush::PVAxisFormat const& axis, PVCol idx);
 
   protected:
 	// Serialization
-	PVPlottingProperties() { _mapping = NULL; }
-	void set_mapping(const PVMapping& mapping);
+	PVPlottingProperties() {}
 
 	// For PVPlotting
 	inline void set_uptodate() { _is_uptodate = true; }
@@ -48,8 +46,6 @@ class PVPlottingProperties
 
   public:
 	PVPlottingFilter::p_type get_plotting_filter();
-	void set_from_axis(PVRush::PVAxisFormat const& axis);
-	void set_from_axis(Inendi::PVAxis const& axis);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
 	inline PVCore::PVArgumentList const& get_args() const { return _args; }
@@ -68,7 +64,6 @@ class PVPlottingProperties
 	PVPlottingFilter::p_type _plotting_filter;
 	PVCore::PVArgumentList _args;
 	bool _is_uptodate = false;
-	const PVMapping* _mapping;
 };
 }
 

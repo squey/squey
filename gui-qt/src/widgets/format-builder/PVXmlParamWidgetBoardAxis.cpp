@@ -70,6 +70,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 
 	// type
 	mapPlotType = new PVWidgets::PVAxisTypeWidget(this);
+	// FIXME : We should populate *ModeWidget here.
 	comboMapping = new PVWidgets::PVMappingModeWidget(this);
 	comboPlotting = new PVWidgets::PVPlottingModeWidget(this);
 
@@ -316,6 +317,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	mapPlotType->sel_type(node_type);
 	updatePlotMapping(node_type);
 
+	// Select value from Xml. If Xml is invalid, it will keep default arguments
 	_args_mapping.clear();
 	Inendi::PVMappingFilter::p_type map_lib = get_mapping_lib_filter();
 	QString node_mapping = node->getMappingProperties(map_lib->get_default_args(), _args_mapping);
@@ -326,6 +328,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	_args_map_mode[*map_lib] = _args_mapping;
 	_params_mapping->set_args(_args_mapping);
 
+	// Select value from Xml. If Xml is invalid, it will keep default arguments
 	_args_plotting.clear();
 	Inendi::PVPlottingFilter::p_type plot_lib = get_plotting_lib_filter();
 	QString node_plotting =
@@ -404,9 +407,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsMapping()
 {
 	QString mode = comboMapping->get_mode();
 	Inendi::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
 	_args_map_mode[*lib_filter] = _args_mapping;
 	node->setMappingProperties(mode, lib_filter->get_default_args(), _args_mapping);
 }
@@ -415,9 +415,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
 {
 	QString mode = comboPlotting->get_mode();
 	Inendi::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
 	_args_plot_mode[*lib_filter] = _args_plotting;
 	node->setPlottingProperties(mode, lib_filter->get_default_args(), _args_plotting);
 }
@@ -430,6 +427,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
 void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 {
 	if (t.length() > 1) {
+		// Reset mapping/plotting (use on type change)
 		QString type = mapPlotType->get_sel_type();
 		comboMapping->clear();
 		comboMapping->populate_from_type(type);
@@ -443,37 +441,22 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 
 Inendi::PVMappingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_mapping_lib_filter()
 {
-	Inendi::PVMappingFilter::p_type lib_filter;
 	QString mode = comboMapping->get_mode();
-	if (!mode.isEmpty()) {
-		lib_filter = LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(
-		    mapPlotType->get_sel_type() + "_" + mode);
-	}
-
-	return lib_filter;
+	return LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(mode);
 }
 
 Inendi::PVPlottingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_plotting_lib_filter()
 {
-	Inendi::PVPlottingFilter::p_type lib_filter;
 	QString mode = comboPlotting->get_mode();
-	if (!mode.isEmpty()) {
-		lib_filter = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(
-		    mapPlotType->get_sel_type() + "_" + mode);
-	}
-
-	return lib_filter;
+	return LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(mode);
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
 {
 	_args_mapping.clear();
 	Inendi::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
-	std::map<Inendi::PVMappingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
-	if ((it = _args_map_mode.find(*lib_filter)) != _args_map_mode.end()) {
+	auto it = _args_map_mode.find(*lib_filter);
+	if (it != _args_map_mode.end()) {
 		_args_mapping = it->second;
 	} else {
 		_args_mapping = lib_filter->get_default_args();
@@ -487,11 +470,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams()
 {
 	_args_plotting.clear();
 	Inendi::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
-	std::map<Inendi::PVPlottingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
-	if ((it = _args_plot_mode.find(*lib_filter)) != _args_plot_mode.end()) {
+	auto it = _args_plot_mode.find(*lib_filter);
+	if (it != _args_plot_mode.end()) {
 		_args_plotting = it->second;
 	} else {
 		_args_plotting = lib_filter->get_default_args();

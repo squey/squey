@@ -41,10 +41,8 @@ set(SRC_FILES ${SRC_FILES} PVMineset.cpp)
 endif()
 
 set(WIDGETS_MOC_HEADERS
-include/inendi/widgets/PVMappingModeWidget.h
 include/inendi/widgets/PVMappingPlottingEditDialog.h
 include/inendi/widgets/PVNewLayerDialog.h
-include/inendi/widgets/PVPlottingModeWidget.h
 
 include/inendi/widgets/editors/PVAxisIndexCheckBoxEditor.h
 include/inendi/widgets/editors/PVAxisIndexEditor.h

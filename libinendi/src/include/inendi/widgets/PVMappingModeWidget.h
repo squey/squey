@@ -15,17 +15,11 @@
 
 #include <QWidget>
 
-namespace Inendi
-{
-class PVMappingProperties;
-}
-
 namespace PVWidgets
 {
 
 class PVMappingModeWidget : public QWidget
 {
-	Q_OBJECT
   public:
 	PVMappingModeWidget(QWidget* parent = nullptr);
 	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping, QWidget* parent = nullptr);
@@ -47,17 +41,8 @@ class PVMappingModeWidget : public QWidget
 	PVCore::PVArgumentList const& get_cur_filter_params() const { return _cur_filter_params; }
 
   private:
-	void set_filter_params_from_type_mode(QString const& type, QString const& mode);
-
-  private Q_SLOTS:
-	void change_params();
-
-  private:
 	PVComboBox* _combo;
-	Inendi::PVMappingProperties* _props;
-	QHash<QString, QHash<QString, PVCore::PVArgumentList>> _filter_params;
 	PVCore::PVArgumentList _cur_filter_params;
-	QString _cur_type;
 };
 }
 
