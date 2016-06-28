@@ -8,6 +8,7 @@
 #include <inendi/PVPlotting.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
+#include <inendi/PVSource.h>
 
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
@@ -65,7 +66,12 @@ void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
 {
 	Inendi::PVPlottingProperties& props = plotting.get_properties_for_col(axis_id);
 	_props = &props;
-	populate_from_type(props.get_type());
+	QString type =
+	    pvcop::db::type_traits(
+	        plotting.get_plotted()->get_parent<Inendi::PVSource>().get_rushnraw().collection().type(
+	            axis_id))
+	        .get_name();
+	populate_from_type(type);
 	set_mode(props.get_mode());
 }
 

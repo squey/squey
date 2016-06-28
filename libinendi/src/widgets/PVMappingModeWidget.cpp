@@ -7,6 +7,7 @@
 
 #include <inendi/PVMapping.h>
 #include <inendi/PVMapped.h>
+#include <inendi/PVSource.h>
 #include <inendi/PVMappingFilter.h>
 #include <inendi/PVView.h>
 
@@ -58,18 +59,12 @@ void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id,
 {
 	Inendi::PVMappingProperties& props = mapping.get_properties_for_col(axis_id);
 	_props = &props;
-	QString type = props.get_type();
+	QString type = pvcop::db::type_traits(
+	                   mapping.get_mapped()->get_parent().get_rushnraw().collection().type(axis_id))
+	                   .get_name();
 	QString mode = props.get_mode();
 	_filter_params[type][mode] = _props->get_args();
-	populate_from_type(props.get_type());
-
-	// FIXME : This is a hack as integer unsigned is a mapping while it should be a type.
-	// This should be fix when mapping/plotting and type will be more standard.
-	if (mode == "unsigned") {
-		_combo->removeItem(_combo->findText("Signed decimal"));
-	} else if (mode == "default" and type == "integer") {
-		_combo->removeItem(_combo->findText("Unsigned decimal"));
-	}
+	populate_from_type(type);
 
 	set_mode(mode);
 }

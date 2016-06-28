@@ -48,7 +48,6 @@ class PVMappingProperties
 		assert(_mapping_filter);
 		return _mapping_filter;
 	}
-	inline QString const& get_type() const { return _type; }
 	inline QString const& get_mode() const { return _mode; }
 	inline bool is_uptodate() const { return _is_uptodate; }
 
@@ -65,7 +64,6 @@ class PVMappingProperties
 	PVCol _index;
 	PVMappingFilter::p_type _mapping_filter;
 	PVCore::PVArgumentList _args;
-	QString _type;
 	QString _mode;
 	bool _is_uptodate;
 };

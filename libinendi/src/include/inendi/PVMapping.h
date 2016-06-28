@@ -66,7 +66,6 @@ class PVMapping
   public:
 	// Column properties
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
-	QString const& get_type_for_col(PVCol col) const;
 	QString const& get_mode_for_col(PVCol col) const;
 	PVMappingProperties const& get_properties_for_col(PVCol col) const
 	{

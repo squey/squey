@@ -79,17 +79,6 @@ QString const& Inendi::PVMapping::get_mode_for_col(PVCol col) const
 
 /******************************************************************************
  *
- * Inendi::PVMapping::get_type_for_col
- *
- *****************************************************************************/
-QString const& Inendi::PVMapping::get_type_for_col(PVCol col) const
-{
-	assert(col < columns.size());
-	return get_properties_for_col(col).get_type();
-}
-
-/******************************************************************************
- *
  * Inendi::PVMapping::is_col_uptodate
  *
  *****************************************************************************/

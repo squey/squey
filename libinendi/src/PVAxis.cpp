@@ -14,25 +14,8 @@
  * Inendi::PVAxis::PVAxis
  *
  *****************************************************************************/
-Inendi::PVAxis::PVAxis(QString type, QString mapping, QString plotting) : PVRush::PVAxisFormat()
-{
-	set_type(type);
-	set_mapping(mapping);
-	set_plotting(plotting);
-	init();
-}
-
 Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) : PVRush::PVAxisFormat(axis_format)
 {
-	init();
-}
-
-void Inendi::PVAxis::init()
-{
-	is_expandable = true;
-	is_expanded = false;
-	thickness = 1.0;
-
 	// Create mapping arguments
 
 	// Get the mapping filter from the library
@@ -45,7 +28,6 @@ void Inendi::PVAxis::init()
 
 	// Same for the plotting filter
 	{
-		QString type = (get_type() == "uint32" or get_type() == "int32") ? "integer" : get_type();
 		Inendi::PVPlottingFilter::p_type lib_filter =
 		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_plotting());
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();

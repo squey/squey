@@ -7,17 +7,11 @@
 
 #include <inendi/widgets/PVAxisTypeWidget.h>
 
-PVWidgets::PVAxisTypeWidget::PVAxisTypeWidget(QString const& current_type, QWidget* parent)
-    : PVComboBox(parent)
+PVWidgets::PVAxisTypeWidget::PVAxisTypeWidget(QWidget* parent) : PVComboBox(parent)
 {
-	if (current_type == "all") {
-		addItem("string");
-		addItem("float");
-		addItem("integer");
-		addItem("time");
-		addItem("ipv4");
-	} else {
-		addItem(current_type);
-		select(current_type);
-	}
+	addItem("string");
+	addItem("float");
+	addItem("integer");
+	addItem("time");
+	addItem("ipv4");
 }

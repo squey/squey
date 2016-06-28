@@ -49,15 +49,8 @@ void Inendi::PVPlottingProperties::set_from_axis(Inendi::PVAxis const& axis)
 void Inendi::PVPlottingProperties::set_mapping(const PVMapping& mapping)
 {
 	_mapping = &mapping;
-	_type = get_type();
 	_is_uptodate = false;
 	set_mode(_mode);
-}
-
-QString Inendi::PVPlottingProperties::get_type() const
-{
-	assert(_mapping);
-	return _mapping->get_type_for_col(_index);
 }
 
 void Inendi::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
@@ -87,17 +80,10 @@ void Inendi::PVPlottingProperties::set_mode(QString const& mode)
 
 	_plotting_filter = lib_filter->clone<PVPlottingFilter>();
 	set_args(_args);
-
-	_type = get_type();
 }
 
 Inendi::PVPlottingFilter::p_type Inendi::PVPlottingProperties::get_plotting_filter()
 {
-	// If type has changed, reload the good plugin
-	if (_type != get_type()) {
-		set_mode(_mode);
-		_is_uptodate = false;
-	}
 	return _plotting_filter;
 }
 

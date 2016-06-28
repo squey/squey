@@ -32,7 +32,6 @@ PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVRush::PVXmlT
 	allocBoardFields();
 	draw();
 	initValue();
-	// updatePlotMapping(mapPlotType->val().toString());
 
 	initConnexion();
 }
@@ -70,7 +69,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 	btnTypeFormatHelp = new QPushButton(QIcon(":/help"), "Help");
 
 	// type
-	mapPlotType = new PVWidgets::PVAxisTypeWidget("all", this);
+	mapPlotType = new PVWidgets::PVAxisTypeWidget(this);
 	comboMapping = new PVWidgets::PVMappingModeWidget(this);
 	comboPlotting = new PVWidgets::PVPlottingModeWidget(this);
 

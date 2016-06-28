@@ -25,9 +25,7 @@ Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axi
 	PVCore::PVArgumentList args = axis.get_args_mapping();
 
 	_mode = mode;
-	// FIXME : Remove this attr
-	_type = type = (type == "uint32" or type == "int32") ? "integer" : type;
-	;
+
 	PVMappingFilter::p_type lib_filter =
 	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(mode);
 
@@ -74,7 +72,6 @@ bool Inendi::PVMappingProperties::operator==(const PVMappingProperties& org)
 void Inendi::PVMappingProperties::serialize(PVCore::PVSerializeObject& so,
                                             PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.attribute("type", _type);
 	so.attribute("mode", _mode);
 	so.attribute("index", _index);
 

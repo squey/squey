@@ -25,15 +25,11 @@ class PVAxis : public PVRush::PVAxisFormat
 	friend class PVCore::PVSerializeObject;
 
   public:
-	bool is_expandable;
-	bool is_expanded;
-	float thickness;
-
 	/**
 	 * Constructor
 	 */
-	PVAxis(){};
-	PVAxis(QString type, QString mapping, QString plotting);
+	PVAxis(){}; // We have to keep this Ugly constructor as we use QVector which perform a lot of
+	            // default construction
 	PVAxis(PVRush::PVAxisFormat const& axis_format);
 
 	/**
@@ -50,7 +46,6 @@ class PVAxis : public PVRush::PVAxisFormat
 	               PVCore::PVSerializeArchive::version_t /*version*/);
 
   private:
-	void init();
 	static PVCore::PVArgumentList args_from_node(node_args_t const& args_str,
 	                                             PVCore::PVArgumentList const& def_args);
 

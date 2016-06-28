@@ -445,7 +445,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
 
 	const QStringList axes = lib_view().get_axes_names_list();
-	QStringList summable_types = {"integer", "float"};
+	QStringList summable_types = {"int32", "uint32", "float"};
 	for (int i = 0; i < axes.size(); i++) {
 		if (i != comb_col) {
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
@@ -525,7 +525,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 {
 	const QString& this_axis_type = lib_view().get_axes_combination().get_axis(col).get_type();
-	QStringList correlation_types = {"integer", "ipv4"};
+	QStringList correlation_types = {"int32", "uint32", "ipv4"};
 
 	// Don't show correlation menu for unsupported axes types
 	if (not correlation_types.contains(this_axis_type)) {

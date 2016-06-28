@@ -54,7 +54,6 @@ class PVPlottingProperties
 	void set_args(PVCore::PVArgumentList const& args);
 	inline PVCore::PVArgumentList const& get_args() const { return _args; }
 	inline QString const& get_mode() const { return _mode; }
-	QString get_type() const;
 	inline bool is_uptodate() const { return _is_uptodate; }
 
   public:
@@ -64,7 +63,6 @@ class PVPlottingProperties
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
   private:
-	QString _type;
 	QString _mode;
 	PVCol _index;
 	PVPlottingFilter::p_type _plotting_filter;

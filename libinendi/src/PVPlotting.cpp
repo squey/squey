@@ -55,18 +55,6 @@ Inendi::PVPlotting::~PVPlotting()
 
 /******************************************************************************
  *
- * Inendi::PVPlotting::get_column_type
- *
- *****************************************************************************/
-QString const& Inendi::PVPlotting::get_column_type(PVCol col) const
-{
-	PVMappingProperties const& prop(
-	    _plotted->get_parent().get_mapping().get_properties_for_col(col));
-	return prop.get_type();
-}
-
-/******************************************************************************
- *
  * Inendi::PVPlotting::get_filter_for_col
  *
  *****************************************************************************/
