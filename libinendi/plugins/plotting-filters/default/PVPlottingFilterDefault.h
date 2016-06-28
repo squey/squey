@@ -5,21 +5,22 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
-#define PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
+#ifndef PVFILTER_PVPLOTTINGFILTERDEFAULT_H
+#define PVFILTER_PVPLOTTINGFILTERDEFAULT_H
 
 #include <inendi/PVPlottingFilter.h>
 
 namespace Inendi
 {
 
-class PVPlottingFilterNoprocess : public PVPlottingFilter
+class PVPlottingFilterDefault : public PVPlottingFilter
 {
   public:
 	uint32_t* operator()(pvcop::db::array const& mapped) override;
+
 	QString get_human_name() const override { return QString("Default"); }
 
-	CLASS_FILTER(PVPlottingFilterNoprocess)
+	CLASS_FILTER(PVPlottingFilterDefault)
 };
 }
 

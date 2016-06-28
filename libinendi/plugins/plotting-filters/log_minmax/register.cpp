@@ -10,11 +10,12 @@
 
 #include <pvbase/export.h>
 #include <pvkernel/core/PVClassLibrary.h>
-#include "PVPlottingFilterTimeDefault.h"
+#include "PVPlottingFilterLogMinmax.h"
 
 // This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_CLASS("time_default", Inendi::PVPlottingFilterTimeDefault);
+	// All the plottign types that can plot vs. their min and max values are registered here
+	REGISTER_CLASS("log", Inendi::PVPlottingFilterLogMinmax);
 }

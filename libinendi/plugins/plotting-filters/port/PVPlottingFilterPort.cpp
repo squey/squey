@@ -5,9 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include "PVPlottingFilterIntegerPort.h"
+#include "PVPlottingFilterPort.h"
 
-uint32_t* Inendi::PVPlottingFilterIntegerPort::operator()(pvcop::db::array const& mapped)
+uint32_t* Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped)
 {
 	assert(_dest);
 
@@ -28,4 +28,4 @@ uint32_t* Inendi::PVPlottingFilterIntegerPort::operator()(pvcop::db::array const
 	return _dest;
 }
 
-IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterIntegerPort)
+IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterPort)

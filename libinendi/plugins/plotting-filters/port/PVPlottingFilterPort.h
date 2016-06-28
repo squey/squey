@@ -5,21 +5,21 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PVFILTER_PVPLOTTINGFILTERINTEGERPORT_H
-#define PVFILTER_PVPLOTTINGFILTERINTEGERPORT_H
+#ifndef PVFILTER_PVPLOTTINGFILTERPORT_H
+#define PVFILTER_PVPLOTTINGFILTERPORT_H
 
 #include <inendi/PVPlottingFilter.h>
 
 namespace Inendi
 {
 
-class PVPlottingFilterIntegerPort : public PVPlottingFilter
+class PVPlottingFilterPort : public PVPlottingFilter
 {
   public:
 	uint32_t* operator()(pvcop::db::array const& mapped) override;
 	QString get_human_name() const { return QString("TCP/UDP port"); }
 
-	CLASS_FILTER(PVPlottingFilterIntegerPort)
+	CLASS_FILTER(PVPlottingFilterPort)
 };
 }
 

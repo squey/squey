@@ -10,11 +10,11 @@
 
 #include <pvbase/export.h>
 #include <pvkernel/core/PVClassLibrary.h>
-#include "PVPlottingFilterIntegerPort.h"
+#include "PVPlottingFilterMinmax.h"
 
 // This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_CLASS("integer_port", Inendi::PVPlottingFilterIntegerPort);
+	REGISTER_CLASS("minmax", Inendi::PVPlottingFilterMinmax);
 }

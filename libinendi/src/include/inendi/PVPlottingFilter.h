@@ -35,20 +35,10 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop:
 	void set_dest_array(PVRow size, uint32_t* arr);
 	void set_mapping_mode(QString const& mapping_mode);
 
-	virtual void init_expand(uint32_t const /*min*/, uint32_t const /*max*/){};
-	virtual uint32_t expand_plotted(uint32_t const value) const { return value; }
-
 	virtual QString get_human_name() const;
 
-	virtual bool can_expand() const { return false; }
-
   public:
-	static QStringList list_modes(QString const& type, bool only_expandable = false);
-	static QList<p_type> list_modes_lib(QString const& type, bool only_expandable);
 	static QString mode_from_registered_name(QString const& rn);
-
-  protected:
-	void copy_mapped_to_plotted(pvcop::db::array const& mapped);
 
   protected:
 	QString _mapping_mode;

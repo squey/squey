@@ -122,24 +122,4 @@ uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& 
 	return _dest;
 }
 
-void Inendi::PVPlottingFilterLogMinmax::init_expand(uint32_t min, uint32_t max)
-{
-	if (min <= 0) {
-		_offset = -min + 1;
-		min += _offset;
-		max += _offset;
-	} else {
-		_offset = 0;
-	}
-	_expand_min = log2(min);
-	_expand_max = log2(max);
-	_expand_diff = _expand_max - _expand_min;
-}
-
-uint32_t Inendi::PVPlottingFilterLogMinmax::expand_plotted(uint32_t value) const
-{
-	return ~(
-	    (uint32_t)(((log2(value + _offset) - _expand_min) / _expand_diff) * (double)(UINT_MAX)));
-}
-
 IMPL_FILTER(Inendi::PVPlottingFilterLogMinmax)

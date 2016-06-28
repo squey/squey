@@ -28,10 +28,8 @@ Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axi
 	// FIXME : Remove this attr
 	_type = type = (type == "uint32" or type == "int32") ? "integer" : type;
 	;
-	std::cout << "Here? " << std::endl;
 	PVMappingFilter::p_type lib_filter =
 	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(mode);
-	std::cout << "Here? " << std::endl;
 
 	_mapping_filter = lib_filter->clone<PVMappingFilter>();
 	set_args(args);

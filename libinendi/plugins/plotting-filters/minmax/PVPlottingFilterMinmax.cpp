@@ -81,16 +81,4 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& map
 	return _dest;
 }
 
-void Inendi::PVPlottingFilterMinmax::init_expand(uint32_t min, uint32_t max)
-{
-	_expand_min = min;
-	_expand_max = max;
-	_expand_diff = max - min;
-}
-
-uint32_t Inendi::PVPlottingFilterMinmax::expand_plotted(uint32_t value) const
-{
-	return (value - _expand_min) / (_expand_diff);
-}
-
 IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterMinmax)
