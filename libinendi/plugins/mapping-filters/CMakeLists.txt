@@ -13,166 +13,88 @@
 ###############################################################################
 
 set(FILTERS_DIST_LIST
-mapping_filter_float_default
-mapping_filter_integer_default
-mapping_filter_integer_unsigned
-mapping_filter_ipv4_default
-mapping_filter_ipv4_uniform
-mapping_filter_enum_default
-mapping_filter_host_default
-mapping_filter_string_default
-mapping_filter_string_4Bsort
-mapping_filter_time_24h
-mapping_filter_time_week
-mapping_filter_time_default
+mapping_filter_default
+mapping_filter_4bsort
+mapping_filter_host
+mapping_filter_string
+mapping_filter_time24
+mapping_filter_timeweek
 )
 
 # Linkage libs
 set(LINK_LIBRARIES inendi pvkernel)
 
 ###############################################################################
-# Float mapping filters
+# Default mapping filters
 ###############################################################################
 #Define ressources
-SET(SRC_FLOAT
-float_default/PVMappingFilterFloatDefault.cpp
-float_default/register.cpp)
+SET(SRC_DEFAULT
+default/PVMappingFilterDefault.cpp
+default/register.cpp)
 
 #Create lib
-add_library(mapping_filter_float_default SHARED ${SRC_FLOAT})
-target_link_libraries(mapping_filter_float_default ${LINK_LIBRARIES})
+add_library(mapping_filter_default SHARED ${SRC_DEFAULT})
+target_link_libraries(mapping_filter_default ${LINK_LIBRARIES})
 
 ###############################################################################
-# Signed Integer mapping filters
+# 4BSort mapping filters
 ###############################################################################
 #Define ressources
-SET(SRC_INTEGER
-integer_default/PVMappingFilterIntegerDefault.cpp
-integer_default/register.cpp)
+SET(SRC_4BSORT
+4Bsort/PVMappingFilter4Bsort.cpp
+4Bsort/register.cpp)
 
 #Create lib
-add_library(mapping_filter_integer_default SHARED ${SRC_INTEGER})
-target_link_libraries(mapping_filter_integer_default ${LINK_LIBRARIES})
-
-###############################################################################
-# Unsigned Integer mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_INTEGER
-integer_unsigned/PVMappingFilterIntegerUnsigned.cpp
-integer_unsigned/register.cpp)
-
-#Create lib
-add_library(mapping_filter_integer_unsigned SHARED ${SRC_INTEGER})
-target_link_libraries(mapping_filter_integer_unsigned ${LINK_LIBRARIES})
-
-###############################################################################
-# IPV4 mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_IPV4
-ipv4_default/PVMappingFilterIPv4Default.cpp
-ipv4_default/register.cpp)
-
-#Create lib
-add_library(mapping_filter_ipv4_default SHARED ${SRC_IPV4})
-target_link_libraries(mapping_filter_ipv4_default ${LINK_LIBRARIES})
-
-###############################################################################
-# IPV4 uniform mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_IPV4_UNIFORM
-ipv4_uniform/PVMappingFilterIPv4Uniform.cpp
-ipv4_uniform/register.cpp)
-
-#Create lib
-add_library(mapping_filter_ipv4_uniform SHARED ${SRC_IPV4_UNIFORM})
-target_link_libraries(mapping_filter_ipv4_uniform ${LINK_LIBRARIES})
-
-###############################################################################
-# Enum mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_ENUM
-enum_default/PVMappingFilterEnumDefault.cpp
-enum_default/register.cpp)
-
-#Create lib
-add_library(mapping_filter_enum_default SHARED ${SRC_ENUM})
-target_link_libraries(mapping_filter_enum_default ${LINK_LIBRARIES})
+add_library(mapping_filter_4bsort SHARED ${SRC_4BSORT})
+target_link_libraries(mapping_filter_4bsort ${LINK_LIBRARIES})
 
 ###############################################################################
 # Host mapping filters
 ###############################################################################
 #Define ressources
 SET(SRC_HOST
-host_default/PVMappingFilterHostDefault.cpp
-host_default/register.cpp)
+host/PVMappingFilterHost.cpp
+host/register.cpp)
 
 #Create lib
-add_library(mapping_filter_host_default SHARED ${SRC_HOST})
-target_link_libraries(mapping_filter_host_default ${LINK_LIBRARIES})
+add_library(mapping_filter_host SHARED ${SRC_HOST})
+target_link_libraries(mapping_filter_host ${LINK_LIBRARIES})
 
 ###############################################################################
 # String mapping filters
 ###############################################################################
 #Define ressources
 SET(SRC_STRING
-string_default/PVMappingFilterStringDefault.cpp
-string_default/register.cpp)
+string/PVMappingFilterString.cpp
+string/register.cpp)
 
 #Create lib
-add_library(mapping_filter_string_default SHARED ${SRC_STRING})
-target_link_libraries(mapping_filter_string_default ${LINK_LIBRARIES} ${TBB_LIBRARIES})
-
-###############################################################################
-# String 4B mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_STRING4B
-string_4Bsort/PVMappingFilterString4Bsort.cpp
-string_4Bsort/register.cpp)
-
-#Create lib
-add_library(mapping_filter_string_4Bsort SHARED ${SRC_STRING4B})
-target_link_libraries(mapping_filter_string_4Bsort ${LINK_LIBRARIES} ${TBB_LIBRARIES})
+add_library(mapping_filter_string SHARED ${SRC_STRING})
+target_link_libraries(mapping_filter_string ${LINK_LIBRARIES})
 
 ###############################################################################
 # Time 24H mapping filters
 ###############################################################################
 #Define ressources
 SET(SRC_TIME24
-time/24h/PVMappingFilterTime24h.cpp
-time/default/PVMappingFilterTimeDefault.cpp time/24h/register.cpp)
+time24/PVMappingFilterTime24h.cpp
+time24/register.cpp)
 
 #Create lib
-add_library(mapping_filter_time_24h SHARED ${SRC_TIME24})
-target_link_libraries(mapping_filter_time_24h ${LINK_LIBRARIES} ${ICU_LIBRARY})
+add_library(mapping_filter_time24 SHARED ${SRC_TIME24})
+target_link_libraries(mapping_filter_time24 ${LINK_LIBRARIES})
 
 ###############################################################################
 # Time week mapping filters
 ###############################################################################
 #Define ressources
 SET(SRC_TIMEWEEK
-time/week/PVMappingFilterTimeWeek.cpp
-time/default/PVMappingFilterTimeDefault.cpp time/week/register.cpp)
+timeweek/PVMappingFilterTimeWeek.cpp
+timeweek/register.cpp)
 
 #Create lib
-add_library(mapping_filter_time_week SHARED ${SRC_TIMEWEEK})
-target_link_libraries(mapping_filter_time_week ${LINK_LIBRARIES} ${ICU_LIBRARY})
-
-###############################################################################
-# Time mapping filters
-###############################################################################
-#Define ressources
-SET(SRC_TIME
-time/default/PVMappingFilterTimeDefault.cpp
-time/default/register.cpp)
-
-#Create lib
-add_library(mapping_filter_time_default SHARED ${SRC_TIME})
-target_link_libraries(mapping_filter_time_default ${LINK_LIBRARIES} ${ICU_LIBRARY})
+add_library(mapping_filter_timeweek SHARED ${SRC_TIMEWEEK})
+target_link_libraries(mapping_filter_timeweek ${LINK_LIBRARIES})
 
 ###############################################################################
 # Define install directory

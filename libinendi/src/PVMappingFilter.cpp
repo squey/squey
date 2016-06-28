@@ -39,9 +39,3 @@ QStringList Inendi::PVMappingFilter::list_modes(QString const& type)
 	}
 	return ret;
 }
-
-QString Inendi::PVMappingFilter::get_human_name() const
-{
-	QStringList params = registered_name().split('_');
-	return params[1];
-}

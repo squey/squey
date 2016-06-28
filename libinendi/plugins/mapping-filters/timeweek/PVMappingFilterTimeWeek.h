@@ -16,12 +16,12 @@
 namespace Inendi
 {
 
-class PVMappingFilterTime24h : public PVMappingFilter
+class PVMappingFilterTimeWeek : public PVMappingFilter
 {
 	friend class time_mapping;
 
   public:
-	PVMappingFilterTime24h();
+	PVMappingFilterTimeWeek();
 
   public:
 	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
@@ -39,55 +39,60 @@ class PVMappingFilterTime24h : public PVMappingFilter
 				gmtime_r(&t, &local_tm);
 
 				dest_array[row] =
-				    ((local_tm.tm_hour * 60) + local_tm.tm_min) * 60 + local_tm.tm_sec;
+				    local_tm.tm_sec +
+				    60 * (local_tm.tm_min + 60 * (local_tm.tm_hour + 24 * local_tm.tm_wday));
 			}
 		} else if (std::string(f->name()) == "datetime_us") {
 			auto& core_array = array.to_core_array<uint64_t>();
 			for (size_t row = 0; row < array.size(); row++) {
 				const boost::posix_time::ptime t =
 				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
-				dest_array[row] = t.time_of_day().total_seconds();
+				dest_array[row] = t.time_of_day().total_seconds() +
+				                  60 * 60 * 24 * t.date().day_of_week().as_number();
 			}
 		} else {
 			assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
 			UErrorCode err = U_ZERO_ERROR;
 			std::unique_ptr<Calendar> cal(Calendar::createInstance(err));
 			if (not U_SUCCESS(err)) {
-				throw std::runtime_error("Can't create calendar to compute mapping");
+				throw std::runtime_error("Can't create calendar to compute mapping.");
 			}
 
-			auto& core_array = array.to_core_array<uint64_t>();
-
 			for (size_t row = 0; row < array.size(); row++) {
-
-				cal->setTime(core_array[row], err);
+				cal->setTime(array.to_core_array<uint64_t>()[row], err);
 				if (not U_SUCCESS(err)) {
 					continue;
 				}
-
 				int32_t sec = cal->get(UCAL_SECOND, err);
 				if (not U_SUCCESS(err)) {
 					continue;
 				}
-
 				int32_t min = cal->get(UCAL_MINUTE, err);
 				if (not U_SUCCESS(err)) {
 					continue;
 				}
-
 				int32_t hour = cal->get(UCAL_HOUR_OF_DAY, err);
 				if (not U_SUCCESS(err)) {
 					continue;
 				}
-				dest_array[row] = (sec + (min * 60) + (hour * 60 * 60));
+				int32_t wday = cal->get(UCAL_DAY_OF_WEEK, err);
+				if (not U_SUCCESS(err)) {
+					continue;
+				}
+				dest_array[row] = sec + 60 * (min + 60 * (hour + 24 * wday));
 			}
 		}
 		return dest;
 	}
 
-	QString get_human_name() const override { return QString("24h"); }
+	std::unordered_set<std::string> list_usable_type() const override
+	{
+		return {"datetime", "datetime_us", "datetime_ms"};
+	}
 
-	CLASS_FILTER_NOPARAM(PVMappingFilterTime24h)
+	QString get_human_name() const override { return QString("Week"); }
+
+	CLASS_FILTER_NOPARAM(PVMappingFilterTimeWeek)
 };
 }
 

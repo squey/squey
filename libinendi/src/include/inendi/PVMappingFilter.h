@@ -20,6 +20,8 @@
 #include <QStringList>
 #include <QVector>
 
+#include <unordered_set>
+
 namespace PVCore
 {
 class PVField;
@@ -44,8 +46,20 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 
 	virtual QString get_human_name() const = 0;
 
+	/**
+	 * List of all supported types for this mapping.
+	 */
+	virtual std::unordered_set<std::string> list_usable_type() const = 0;
+
   public:
+	/**
+	 * List all different type of mapping
+	 */
 	static QStringList list_types();
+
+	/**
+	 * List all different plotting
+	 */
 	static QStringList list_modes(QString const& type);
 };
 

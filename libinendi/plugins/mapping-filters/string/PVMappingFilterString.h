@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
-#ifndef PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
-#define PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
+#ifndef PVFILTER_PVMAPPINGFILTERSTRING_H
+#define PVFILTER_PVMAPPINGFILTERSTRING_H
 
 #include <inendi/PVMappingFilter.h>
 
@@ -18,11 +18,11 @@ namespace Inendi
  *
  * This mapping split first on string len, then sort them on value.
  */
-class PVMappingFilterStringDefault : public PVMappingFilter
+class PVMappingFilterString : public PVMappingFilter
 {
   public:
-	PVMappingFilterStringDefault(
-	    PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
+	PVMappingFilterString(
+	    PVCore::PVArgumentList const& args = PVMappingFilterString::default_args());
 
 	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
@@ -35,12 +35,18 @@ class PVMappingFilterStringDefault : public PVMappingFilter
 	/**
 	 * MetaInformation for this plugin.
 	 */
-	QString get_human_name() const override { return "Default"; }
+	QString get_human_name() const override { return "String"; }
+
+	std::unordered_set<std::string> list_usable_type() const override
+	{
+		return {"ipv4",  "datetime", "datetime_us", "datetime_ms",
+		        "float", "int32",    "uint32",      "string"};
+	}
 
   private:
 	bool _case_sensitive; //!< Whether we should care about case for mapping.
 
-	CLASS_FILTER(PVMappingFilterStringDefault)
+	CLASS_FILTER(PVMappingFilterString)
 };
 }
 

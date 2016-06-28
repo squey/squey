@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include "PVMappingFilterStringDefault.h"
+#include "PVMappingFilterString.h"
 
 #include <pvcop/db/read_dict.h>
 
@@ -94,14 +94,13 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 	return factor;
 }
 
-Inendi::PVMappingFilterStringDefault::PVMappingFilterStringDefault(
-    PVCore::PVArgumentList const& args)
+Inendi::PVMappingFilterString::PVMappingFilterString(PVCore::PVArgumentList const& args)
     : PVMappingFilter(), _case_sensitive(false)
 {
-	INIT_FILTER(PVMappingFilterStringDefault, args);
+	INIT_FILTER(PVMappingFilterString, args);
 }
 
-DEFAULT_ARGS_FILTER(Inendi::PVMappingFilterStringDefault)
+DEFAULT_ARGS_FILTER(Inendi::PVMappingFilterString)
 {
 	PVCore::PVArgumentList args;
 	args[PVCore::PVArgumentKey("convert-lowercase", "Convert strings to lower case")]
@@ -109,31 +108,40 @@ DEFAULT_ARGS_FILTER(Inendi::PVMappingFilterStringDefault)
 	return args;
 }
 
-void Inendi::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const& args)
+void Inendi::PVMappingFilterString::set_args(PVCore::PVArgumentList const& args)
 {
 	Inendi::PVMappingFilter::set_args(args);
 	_case_sensitive = !args.at("convert-lowercase").toBool();
 }
 
-pvcop::db::array Inendi::PVMappingFilterStringDefault::operator()(PVCol const col,
-                                                                  PVRush::PVNraw const& nraw)
+pvcop::db::array Inendi::PVMappingFilterString::operator()(PVCol const col,
+                                                           PVRush::PVNraw const& nraw)
 {
 	auto array = nraw.collection().column(col);
-	auto& core_array = array.to_core_array<uint32_t>();
-
-	auto& dict = *nraw.collection().dict(col);
-	std::vector<uint32_t> ret(dict.size());
-	std::transform(dict.begin(), dict.end(), ret.begin(), [&](const char* c) {
-		return compute_str_factor(c, strlen(c), _case_sensitive);
-	});
 
 	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
 	auto& dest_array = dest.to_core_array<uint32_t>();
-	for (size_t row = 0; row < array.size(); row++) {
-		dest_array[row] = ret[core_array[row]];
+
+	auto* string_dict = nraw.collection().dict(col);
+	if (string_dict) {
+		auto& dict = *string_dict;
+		std::vector<uint32_t> ret(dict.size());
+		std::transform(dict.begin(), dict.end(), ret.begin(), [&](const char* c) {
+			return compute_str_factor(c, strlen(c), _case_sensitive);
+		});
+
+		auto& core_array = array.to_core_array<uint32_t>();
+		for (size_t row = 0; row < array.size(); row++) {
+			dest_array[row] = ret[core_array[row]];
+		}
+	} else {
+		for (size_t row = 0; row < array.size(); row++) {
+			std::string str = array.at(row);
+			dest_array[row] = compute_str_factor(str.c_str(), str.size());
+		}
 	}
 
 	return dest;
 }
 
-IMPL_FILTER(Inendi::PVMappingFilterStringDefault)
+IMPL_FILTER(Inendi::PVMappingFilterString)

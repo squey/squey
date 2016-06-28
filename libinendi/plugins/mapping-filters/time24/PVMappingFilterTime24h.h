@@ -11,16 +11,15 @@
 #include <inendi/PVMappingFilter.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <unicode/calendar.h>
 
 namespace Inendi
 {
 
-class PVMappingFilterTimeDefault : public PVMappingFilter
+class PVMappingFilterTime24h : public PVMappingFilter
 {
-	friend class time_mapping;
-
   public:
-	PVMappingFilterTimeDefault();
+	PVMappingFilterTime24h();
 
   public:
 	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
@@ -33,29 +32,65 @@ class PVMappingFilterTimeDefault : public PVMappingFilter
 		if (std::string(f->name()) == "datetime") {
 			auto& core_array = array.to_core_array<uint32_t>();
 			for (size_t row = 0; row < array.size(); row++) {
-				dest_array[row] = core_array[row];
+				tm local_tm;
+				const time_t t = static_cast<int64_t>(core_array[row]);
+				gmtime_r(&t, &local_tm);
+
+				dest_array[row] =
+				    ((local_tm.tm_hour * 60) + local_tm.tm_min) * 60 + local_tm.tm_sec;
 			}
 		} else if (std::string(f->name()) == "datetime_us") {
 			auto& core_array = array.to_core_array<uint64_t>();
-			const boost::posix_time::ptime epoch = boost::posix_time::from_time_t(0);
 			for (size_t row = 0; row < array.size(); row++) {
 				const boost::posix_time::ptime t =
 				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
-				dest_array[row] = (t - epoch).total_seconds();
+				dest_array[row] = t.time_of_day().total_seconds();
 			}
 		} else {
 			assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
+			UErrorCode err = U_ZERO_ERROR;
+			std::unique_ptr<Calendar> cal(Calendar::createInstance(err));
+			if (not U_SUCCESS(err)) {
+				throw std::runtime_error("Can't create calendar to compute mapping");
+			}
+
 			auto& core_array = array.to_core_array<uint64_t>();
+
 			for (size_t row = 0; row < array.size(); row++) {
-				dest_array[row] = core_array[row] / 1000; // ms to s
+
+				cal->setTime(core_array[row], err);
+				if (not U_SUCCESS(err)) {
+					continue;
+				}
+
+				int32_t sec = cal->get(UCAL_SECOND, err);
+				if (not U_SUCCESS(err)) {
+					continue;
+				}
+
+				int32_t min = cal->get(UCAL_MINUTE, err);
+				if (not U_SUCCESS(err)) {
+					continue;
+				}
+
+				int32_t hour = cal->get(UCAL_HOUR_OF_DAY, err);
+				if (not U_SUCCESS(err)) {
+					continue;
+				}
+				dest_array[row] = (sec + (min * 60) + (hour * 60 * 60));
 			}
 		}
 		return dest;
 	}
 
-	QString get_human_name() const override { return QString("Default"); }
+	std::unordered_set<std::string> list_usable_type() const override
+	{
+		return {"datetime", "datetime_us", "datetime_ms"};
+	}
 
-	CLASS_FILTER_NOPARAM(PVMappingFilterTimeDefault)
+	QString get_human_name() const override { return QString("24h"); }
+
+	CLASS_FILTER_NOPARAM(PVMappingFilterTime24h)
 };
 }
 

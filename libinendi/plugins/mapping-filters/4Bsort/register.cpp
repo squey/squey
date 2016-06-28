@@ -10,11 +10,11 @@
 
 #include <pvbase/export.h>
 #include <pvkernel/core/PVClassLibrary.h>
-#include "PVMappingFilterString4Bsort.h"
+#include "PVMappingFilter4Bsort.h"
 
 // This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_CLASS("string_4Bsort", Inendi::PVMappingFilterString4Bsort);
+	REGISTER_CLASS("4Bsort", Inendi::PVMappingFilter4Bsort);
 }
