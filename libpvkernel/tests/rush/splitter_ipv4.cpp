@@ -116,7 +116,7 @@ int main()
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
 	args["ipv6"] = false;
-	args["params"] = "1,3,2";
+	args["params"] = "1,2";
 	sp_lib_p->set_args(args);
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
