@@ -248,7 +248,9 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			assert(map_combo);
 			QString mode = map_combo->get_mode();
 
-			prop.set_type(type, mode);
+			// TODO : We should cannot change type anymore.
+			//			prop.set_type(type, mode);
+			prop.set_mode(mode);
 			prop.set_args(map_combo->get_cur_filter_params());
 		}
 		if (has_plotting()) {

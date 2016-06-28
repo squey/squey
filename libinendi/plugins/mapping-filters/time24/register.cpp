@@ -16,5 +16,5 @@
 LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_CLASS("time_24h", Inendi::PVMappingFilterTime24h);
+	REGISTER_CLASS("24h", Inendi::PVMappingFilterTime24h);
 }

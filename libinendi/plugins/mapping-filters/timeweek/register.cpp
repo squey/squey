@@ -16,5 +16,5 @@
 LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_CLASS("time_week", Inendi::PVMappingFilterTimeWeek);
+	REGISTER_CLASS("week", Inendi::PVMappingFilterTimeWeek);
 }

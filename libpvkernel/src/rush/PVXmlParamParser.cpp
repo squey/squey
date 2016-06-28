@@ -17,6 +17,42 @@
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 
+static QString const get_type_from_format(QString const& type_attr, QString const& mapped_attr)
+{
+	if (type_attr == "integer" and mapped_attr == "unsigned")
+		return "uint32";
+	else if (type_attr == "integer" and mapped_attr == "hexadecimal")
+		return "uint32";
+	else if (type_attr == "integer" and mapped_attr == "octal")
+		return "uint32";
+	else if (type_attr == "integer" and mapped_attr == "default")
+		return "int32";
+	else if (type_attr == "host" and mapped_attr == "default")
+		return "string";
+	else if (type_attr == "enum" and mapped_attr == "default")
+		return "string";
+	return type_attr;
+}
+
+static QString const get_mapped_from_format(QString const& type_attr, QString const& mapped_attr)
+{
+	if (type_attr == "integer" and mapped_attr == "unsigned")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "hexadecimal")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "octal")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "default")
+		return "default";
+	else if (type_attr == "host" and mapped_attr == "default")
+		return "host";
+	else if (type_attr == "enum" and mapped_attr == "default")
+		return "default";
+	else if (type_attr == "string" and mapped_attr == "default")
+		return "string";
+	return mapped_attr;
+}
+
 // Exceptions
 
 PVRush::PVXmlParamParserExceptionPluginNotFound::PVXmlParamParserExceptionPluginNotFound(
@@ -237,7 +273,14 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 		if (getNodeType(child) == PVFORMAT_XML_TAG_AXIS_STR) {
 			PVAxisFormat axis;
 			axis.set_name(child.attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT));
-			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));
+			QString ty = child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT);
+
+			QString mode;
+			PVAxisFormat::node_args_t args =
+			    getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
+			// FIXME : Here we should check for mapping/type compatibility
+
+			axis.set_type(get_type_from_format(ty, mode));
 			axis.set_type_format(
 			    child.attribute(PVFORMAT_AXIS_TYPE_FORMAT_STR, PVFORMAT_AXIS_TYPE_FORMAT_DEFAULT));
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
@@ -253,10 +296,12 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			}
 
 			// Mapping and plotting parameters
-			QString mode;
-			PVAxisFormat::node_args_t args =
-			    getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
-			axis.set_mapping(mode);
+			axis.set_mapping(get_mapped_from_format(ty, mode));
+			if (mode == "hexadecimal") {
+				axis.set_str_format("%x");
+			} else if (mode == "octal") {
+				axis.set_str_format("%o");
+			}
 			axis.set_args_mapping(args);
 			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING, mode);
 			axis.set_plotting(mode);

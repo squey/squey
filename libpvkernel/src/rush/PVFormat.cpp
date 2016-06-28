@@ -287,14 +287,11 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 
 			if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
 				formatter = "string";
-			} else if (axe_type == "integer") {
-				if (axe_mapping == "default") {
-					formatter = "number_int32";
-				} else {
-					assert(axe_mapping == "unsigned");
-					formatter = "number_uint32";
-					formatter_params = axe.get_str_format().toStdString();
-				}
+			} else if (axe_type == "uint32") {
+				formatter = "number_uint32";
+				formatter_params = axe.get_str_format().toStdString();
+			} else if (axe_type == "int32") {
+				formatter = "number_int32";
 			} else if (axe_type == "float") {
 				formatter = "number_float";
 			} else if (axe_type == "ipv4") {

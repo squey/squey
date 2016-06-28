@@ -38,16 +38,16 @@ void Inendi::PVAxis::init()
 	// Get the mapping filter from the library
 	{
 		Inendi::PVMappingFilter::p_type lib_filter =
-		    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(get_type() + "_" +
-		                                                                get_mapping());
+		    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(get_mapping());
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_mapping = args_from_node(get_args_mapping_string(), def_args);
 	}
 
 	// Same for the plotting filter
 	{
+		QString type = (get_type() == "uint32" or get_type() == "int32") ? "integer" : get_type();
 		Inendi::PVPlottingFilter::p_type lib_filter =
-		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_type() + "_" +
+		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(type + "_" +
 		                                                                 get_plotting());
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_plotting = args_from_node(get_args_plotting_string(), def_args);

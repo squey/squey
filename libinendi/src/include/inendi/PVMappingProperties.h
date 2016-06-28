@@ -40,7 +40,6 @@ class PVMappingProperties
 	PVMappingProperties() { _index = 0; }
 
   public:
-	void set_type(QString const& type, QString const& mode);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
 	PVCore::PVArgumentList const& get_args() const { return _args; }
@@ -61,10 +60,6 @@ class PVMappingProperties
 	void set_uptodate() { _is_uptodate = true; }
 	inline void invalidate() { _is_uptodate = false; }
 	void set_default_args(PVRush::PVAxisFormat const& axis);
-
-  private:
-	void set_from_axis(PVRush::PVAxisFormat const& axis);
-	void set_from_axis(Inendi::PVAxis const& axis);
 
   private:
 	PVCol _index;

@@ -35,7 +35,7 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 
 // Axes properties' default value
 #define PVFORMAT_AXIS_NAME_DEFAULT ""
-#define PVFORMAT_AXIS_TYPE_DEFAULT "enum"
+#define PVFORMAT_AXIS_TYPE_DEFAULT "string"
 #define PVFORMAT_AXIS_MAPPING_DEFAULT "default"
 #define PVFORMAT_AXIS_PLOTTING_DEFAULT "default"
 #define PVFORMAT_AXIS_KEY_DEFAULT "false"

@@ -125,23 +125,6 @@ bool Inendi::PVPlotting::is_uptodate() const
 
 /******************************************************************************
  *
- * Inendi::PVPlotting::reset_from_format
- *
- *****************************************************************************/
-void Inendi::PVPlotting::reset_from_format(PVRush::PVFormat const& format)
-{
-	PVCol naxes = format.get_axes().size();
-	if (_columns.size() < naxes) {
-		return;
-	}
-
-	for (PVCol i = 0; i < naxes; i++) {
-		_columns[i].set_from_axis(format.get_axes().at(i));
-	}
-}
-
-/******************************************************************************
- *
  * Inendi::PVPlotting::serialize
  *
  *****************************************************************************/

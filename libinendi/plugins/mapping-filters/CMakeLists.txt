@@ -17,8 +17,8 @@ mapping_filter_default
 mapping_filter_4bsort
 mapping_filter_host
 mapping_filter_string
-mapping_filter_time24
-mapping_filter_timeweek
+mapping_filter_24h
+mapping_filter_week
 )
 
 # Linkage libs
@@ -81,8 +81,8 @@ time24/PVMappingFilterTime24h.cpp
 time24/register.cpp)
 
 #Create lib
-add_library(mapping_filter_time24 SHARED ${SRC_TIME24})
-target_link_libraries(mapping_filter_time24 ${LINK_LIBRARIES})
+add_library(mapping_filter_24h SHARED ${SRC_TIME24})
+target_link_libraries(mapping_filter_24h ${LINK_LIBRARIES})
 
 ###############################################################################
 # Time week mapping filters
@@ -93,8 +93,8 @@ timeweek/PVMappingFilterTimeWeek.cpp
 timeweek/register.cpp)
 
 #Create lib
-add_library(mapping_filter_timeweek SHARED ${SRC_TIMEWEEK})
-target_link_libraries(mapping_filter_timeweek ${LINK_LIBRARIES})
+add_library(mapping_filter_week SHARED ${SRC_TIMEWEEK})
+target_link_libraries(mapping_filter_week ${LINK_LIBRARIES})
 
 ###############################################################################
 # Define install directory

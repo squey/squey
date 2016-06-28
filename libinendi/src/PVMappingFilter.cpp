@@ -8,33 +8,16 @@
 #include <inendi/PVMappingFilter.h>
 #include <pvkernel/rush/PVFormat.h>
 
-QStringList Inendi::PVMappingFilter::list_types()
-{
-	LIB_CLASS(PVMappingFilter)
-	::list_classes const& map_filters = LIB_CLASS(PVMappingFilter)::get().get_list();
-	LIB_CLASS(PVMappingFilter)::list_classes::const_iterator it;
-	QStringList ret;
-	for (it = map_filters.begin(); it != map_filters.end(); it++) {
-		QString const& name = it->key();
-		QStringList params = name.split('_');
-		if (!ret.contains(params[0])) {
-			ret << params[0];
-		}
-	}
-	return ret;
-}
-
-QStringList Inendi::PVMappingFilter::list_modes(QString const& type)
+QStringList Inendi::PVMappingFilter::list_modes(std::string const& type)
 {
 	LIB_CLASS(Inendi::PVMappingFilter)
 	::list_classes const& map_filters = LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
-	LIB_CLASS(Inendi::PVMappingFilter)::list_classes::const_iterator it;
 	QStringList ret;
-	for (it = map_filters.begin(); it != map_filters.end(); it++) {
-		QString const& name = it->key();
-		QStringList params = name.split('_');
-		if (params[0].compare(type) == 0) {
-			ret << params[1];
+	for (auto it = map_filters.begin(); it != map_filters.end(); it++) {
+		auto const& filter = it->value();
+		auto usable_types = filter->list_usable_type();
+		if (usable_types.find(type) != usable_types.end()) {
+			ret << it->key();
 		}
 	}
 	return ret;

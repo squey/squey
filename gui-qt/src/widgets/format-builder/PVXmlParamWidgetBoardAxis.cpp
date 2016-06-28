@@ -368,36 +368,6 @@ QWidget* PVInspector::PVXmlParamWidgetBoardAxis::getWidgetToFocus()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardAxis::listType
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType() const
-{
-	return Inendi::PVMappingFilter::list_types();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping(const QString& mType)
-{
-	return Inendi::PVMappingFilter::list_modes(mType);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting(const QString& mType)
-{
-	return Inendi::PVPlottingFilter::list_modes(mType);
-}
-
-/******************************************************************************
- *
  * PVInspector::PVXmlParamWidgetBoardAxis::slotGoNextAxis
  *
  *****************************************************************************/

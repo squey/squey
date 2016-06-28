@@ -53,14 +53,9 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 
   public:
 	/**
-	 * List all different type of mapping
-	 */
-	static QStringList list_types();
-
-	/**
 	 * List all different plotting
 	 */
-	static QStringList list_modes(QString const& type);
+	static QStringList list_modes(std::string const& type);
 };
 
 typedef PVMappingFilter::func_type PVMappingFilter_f;

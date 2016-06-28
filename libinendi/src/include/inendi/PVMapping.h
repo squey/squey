@@ -84,7 +84,6 @@ class PVMapping
 	std::string const& get_name() const { return _name; }
 	void set_name(std::string const& name) { _name = name; }
 
-	void reset_from_format(PVRush::PVFormat const& format);
 	void set_default_args(PVRush::PVFormat const& format);
 
   protected:

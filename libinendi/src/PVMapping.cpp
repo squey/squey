@@ -112,23 +112,6 @@ bool Inendi::PVMapping::is_uptodate() const
 
 /******************************************************************************
  *
- * Inendi::PVMapping::reset_from_format
- *
- *****************************************************************************/
-void Inendi::PVMapping::reset_from_format(PVRush::PVFormat const& format)
-{
-	PVCol naxes = format.get_axes().size();
-	if (columns.size() < naxes) {
-		return;
-	}
-
-	for (PVCol i = 0; i < naxes; i++) {
-		columns[i].set_from_axis(format.get_axes().at(i));
-	}
-}
-
-/******************************************************************************
- *
  * Inendi::PVMapping::serialize
  *
  *****************************************************************************/

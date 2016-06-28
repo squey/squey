@@ -75,9 +75,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
 
-	QStringList listType() const;
-	QStringList getListTypeMapping(const QString& mType);
-	QStringList getListTypePlotting(const QString& mType);
 	QSet<QString> getListTags();
 	QSet<QString> getListParentSplitterTag();
 

@@ -14,36 +14,27 @@ Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format,
 {
 }
 
-Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axis, PVCol idx)
+Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axis_format, PVCol idx)
     : _is_uptodate(false)
 {
 	_index = idx;
-	set_from_axis(axis);
-}
 
-void Inendi::PVMappingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
-{
-	set_from_axis(Inendi::PVAxis(axis));
-}
-
-void Inendi::PVMappingProperties::set_from_axis(Inendi::PVAxis const& axis)
-{
+	Inendi::PVAxis axis(axis_format);
 	QString type = axis.get_type();
 	QString mode = axis.get_mapping();
 	PVCore::PVArgumentList args = axis.get_args_mapping();
 
-	set_args(args);
-	set_type(type, mode);
-}
+	_mode = mode;
+	// FIXME : Remove this attr
+	_type = type = (type == "uint32" or type == "int32") ? "integer" : type;
+	;
+	std::cout << "Here? " << std::endl;
+	PVMappingFilter::p_type lib_filter =
+	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(mode);
+	std::cout << "Here? " << std::endl;
 
-void Inendi::PVMappingProperties::set_type(QString const& type, QString const& mode)
-{
-	if (_is_uptodate && _type == type && _mode == mode) {
-		return;
-	}
-	_type = type;
-	_is_uptodate = false;
-	set_mode(mode);
+	_mapping_filter = lib_filter->clone<PVMappingFilter>();
+	set_args(args);
 }
 
 void Inendi::PVMappingProperties::set_args(PVCore::PVArgumentList const& args)
@@ -69,7 +60,7 @@ void Inendi::PVMappingProperties::set_mode(QString const& mode)
 	_is_uptodate = false;
 	_mode = mode;
 	PVMappingFilter::p_type lib_filter =
-	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
+	    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(mode);
 
 	_mapping_filter = lib_filter->clone<PVMappingFilter>();
 	set_args(_args);
@@ -91,7 +82,7 @@ void Inendi::PVMappingProperties::serialize(PVCore::PVSerializeObject& so,
 
 	if (!so.is_writing()) {
 		_is_uptodate = false;
-		set_type(_type, _mode);
+		set_mode(_mode);
 	}
 	if (_mapping_filter) {
 		so.arguments("properties", _args, _mapping_filter->get_default_args());
