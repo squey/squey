@@ -41,14 +41,11 @@ void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
 {
 	LIB_CLASS(Inendi::PVMappingFilter)
 	::list_classes const& map_filters = LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
-	LIB_CLASS(Inendi::PVMappingFilter)::list_classes::const_iterator it;
-	for (it = map_filters.begin(); it != map_filters.end(); it++) {
+	for (auto it = map_filters.begin(); it != map_filters.end(); it++) {
 		Inendi::PVMappingFilter::p_type filter = it->value();
-		QString const& name = it->key();
-		QString human_name = it->value()->get_human_name();
-		QStringList params = name.split('_');
-		if (params[0].compare(type) == 0) {
-			_combo->addItem(human_name, params[1]);
+		auto available_type = filter->list_usable_type();
+		if (available_type.find(type.toStdString()) != available_type.end()) {
+			_combo->addItem(filter->get_human_name(), it->key());
 		}
 	}
 	_cur_type = type;
@@ -59,9 +56,8 @@ void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id,
 {
 	Inendi::PVMappingProperties& props = mapping.get_properties_for_col(axis_id);
 	_props = &props;
-	QString type = pvcop::db::type_traits(
-	                   mapping.get_mapped()->get_parent().get_rushnraw().collection().type(axis_id))
-	                   .get_name();
+	QString type =
+	    mapping.get_mapped()->get_parent().get_rushnraw().collection().formatter(axis_id)->name();
 	QString mode = props.get_mode();
 	_filter_params[type][mode] = _props->get_args();
 	populate_from_type(type);

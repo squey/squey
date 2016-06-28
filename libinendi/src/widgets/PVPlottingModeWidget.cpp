@@ -66,11 +66,12 @@ void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
 {
 	Inendi::PVPlottingProperties& props = plotting.get_properties_for_col(axis_id);
 	_props = &props;
-	QString type =
-	    pvcop::db::type_traits(
-	        plotting.get_plotted()->get_parent<Inendi::PVSource>().get_rushnraw().collection().type(
-	            axis_id))
-	        .get_name();
+	QString type = plotting.get_plotted()
+	                   ->get_parent<Inendi::PVSource>()
+	                   .get_rushnraw()
+	                   .collection()
+	                   .formatter(axis_id)
+	                   ->name();
 	populate_from_type(type);
 	set_mode(props.get_mode());
 }

@@ -285,14 +285,14 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 			std::string formatter;
 			std::string formatter_params;
 
-			if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
+			if (axe_type == "string") {
 				formatter = "string";
-			} else if (axe_type == "uint32") {
+			} else if (axe_type == "number_uint32") {
 				formatter = "number_uint32";
 				formatter_params = axe.get_str_format().toStdString();
-			} else if (axe_type == "int32") {
+			} else if (axe_type == "number_int32") {
 				formatter = "number_int32";
-			} else if (axe_type == "float") {
+			} else if (axe_type == "number_float") {
 				formatter = "number_float";
 			} else if (axe_type == "ipv4") {
 				formatter = "ipv4";

@@ -20,17 +20,19 @@
 static QString const get_type_from_format(QString const& type_attr, QString const& mapped_attr)
 {
 	if (type_attr == "integer" and mapped_attr == "unsigned")
-		return "uint32";
+		return "number_uint32";
 	else if (type_attr == "integer" and mapped_attr == "hexadecimal")
-		return "uint32";
+		return "number_uint32";
 	else if (type_attr == "integer" and mapped_attr == "octal")
-		return "uint32";
+		return "number_uint32";
 	else if (type_attr == "integer" and mapped_attr == "default")
-		return "int32";
+		return "number_int32";
 	else if (type_attr == "host" and mapped_attr == "default")
 		return "string";
 	else if (type_attr == "enum" and mapped_attr == "default")
 		return "string";
+	else if (type_attr == "float")
+		return "number_float";
 	return type_attr;
 }
 

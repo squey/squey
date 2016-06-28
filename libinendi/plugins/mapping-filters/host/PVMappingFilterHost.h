@@ -28,8 +28,8 @@ class PVMappingFilterHost : public PVMappingFilter
 
 	std::unordered_set<std::string> list_usable_type() const override
 	{
-		return {"ipv4",  "datetime", "datetime_us", "datetime_ms",
-		        "float", "int32",    "uint32",      "string"};
+		return {"ipv4",         "datetime",     "datetime_us",   "datetime_ms",
+		        "number_float", "number_int32", "number_uint32", "string"};
 	}
 
 	/**

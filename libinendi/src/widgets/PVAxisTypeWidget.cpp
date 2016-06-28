@@ -10,8 +10,9 @@
 PVWidgets::PVAxisTypeWidget::PVAxisTypeWidget(QWidget* parent) : PVComboBox(parent)
 {
 	addItem("string");
-	addItem("float");
-	addItem("integer");
+	addItem("number_float");
+	addItem("number_int32");
+	addItem("number_uint32");
 	addItem("time");
 	addItem("ipv4");
 }

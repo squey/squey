@@ -145,10 +145,10 @@ static std::string schema(const Inendi::PVView& view)
 			column_type = "date";
 		} else if (axis_type == "string" || axis_type == "ipv4") {
 			column_type = "string";
-		} else if (axis_type == "int32" or axis_type == "uint32") {
+		} else if (axis_type == "number_int32" or axis_type == "number_uint32") {
 			column_type = "int";
 		} else {
-			assert(axis_type == "float" && "Unkown axis type");
+			assert(axis_type == "number_float" && "Unkown axis type");
 			column_type = "double";
 		}
 

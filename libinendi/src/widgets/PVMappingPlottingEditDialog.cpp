@@ -187,14 +187,13 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 		col = 0;
 		_main_grid->addWidget(new QLabel(axe.get_name(), this), row, col++);
 		if (has_mapping()) {
-			_main_grid->addWidget(
-			    new QLabel(pvcop::db::type_traits(_mapping->get_mapped()
-			                                          ->get_parent<Inendi::PVSource>()
-			                                          .get_rushnraw()
-			                                          .collection()
-			                                          .type(axis_id))
-			                   .get_name()),
-			    row, col++);
+			_main_grid->addWidget(new QLabel(_mapping->get_mapped()
+			                                     ->get_parent<Inendi::PVSource>()
+			                                     .get_rushnraw()
+			                                     .collection()
+			                                     .formatter(axis_id)
+			                                     ->name()),
+			                      row, col++);
 			_main_grid->addWidget(new PVWidgets::PVMappingModeWidget(axis_id, *_mapping, this), row,
 			                      col++);
 		}
@@ -236,12 +235,12 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
 		int col = 1;
 		if (has_mapping()) {
-			QString type = pvcop::db::type_traits(_mapping->get_mapped()
-			                                          ->get_parent<Inendi::PVSource>()
-			                                          .get_rushnraw()
-			                                          .collection()
-			                                          .type(axis_id))
-			                   .get_name();
+			QString type = _mapping->get_mapped()
+			                   ->get_parent<Inendi::PVSource>()
+			                   .get_rushnraw()
+			                   .collection()
+			                   .formatter(axis_id)
+			                   ->name();
 			Inendi::PVMappingProperties& prop = _mapping->get_properties_for_col(axis_id);
 
 			// Mapping mode
