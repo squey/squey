@@ -97,6 +97,8 @@ add_pv_compile_test(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_cs
 add_test(Trush_splitter_csv Trush_splitter_csv)
 add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp helpers.cpp)
 
+add_test(Trush_splitter_csv2 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv.out)
+
 add_pv_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)
 
