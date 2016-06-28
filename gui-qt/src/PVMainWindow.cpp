@@ -1157,9 +1157,9 @@ static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
 	return (pbox->get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
 }
 
-static QString
-bad_conversions_as_string(const PVRush::PVNrawBadConversions::bad_conversions_t& bad_conversions,
-                          const Inendi::PVSource* src)
+static QString bad_conversions_as_string(
+    const PVRush::PVNraw::unconvertable_values_t::bad_conversions_t& bad_conversions,
+    const Inendi::PVSource* src)
 {
 	QStringList l;
 
@@ -1272,19 +1272,20 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			}
 			QMessageBox::critical(this, "Cannot load sources", msg);
 			return false;
-		} else if (size_t bc_count = src->get_rushnraw().bad_conversions().count()) {
+		} else if (size_t bc_count =
+		               src->get_rushnraw().unconvertable_values().bad_conversions_count) {
 			// We can continue with it but user have to know that some values are
 			// incorrect.
 			QMessageBox warning_message(
-			    QMessageBox::Warning, "Failed conversions",
+			    QMessageBox::Warning, "Failed conversion(s)",
 			    "\n" + QString::number(bc_count) +
 			        " conversions from text to binary failed during import...",
 			    QMessageBox::Ok, this);
 			warning_message.setInformativeText("Such values are displayed in italic in the "
 			                                   "listing, but are treated as default values "
 			                                   "elsewhere.");
-			warning_message.setDetailedText(
-			    bad_conversions_as_string(src->get_rushnraw().bad_conversions().failures(), src));
+			warning_message.setDetailedText(bad_conversions_as_string(
+			    src->get_rushnraw().unconvertable_values().bad_conversions(), src));
 			warning_message.exec();
 		}
 

@@ -103,7 +103,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		PVCore::PVElement& e = *elt;
 		if (!e.valid()) {
 			for (size_t i = 0; i < column_count; i++) {
-				pvcop_fields.emplace_back(pvcop::sink::field_t{"", 0});
+				pvcop_fields.emplace_back(pvcop::sink::field_t());
 			}
 			continue;
 		}
@@ -111,7 +111,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		PVCore::list_fields const& fields = e.c_fields();
 		if (fields.size() == 0) {
 			for (size_t i = 0; i < column_count; i++) {
-				pvcop_fields.emplace_back(pvcop::sink::field_t{"", 0});
+				pvcop_fields.emplace_back(pvcop::sink::field_t());
 			}
 			continue;
 		}
@@ -119,7 +119,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		assert(column_count == fields.size());
 		for (PVCore::PVField const& field : fields) {
 			// Save the field
-			pvcop_fields.emplace_back(pvcop::sink::field_t{field.begin(), field.size()});
+			pvcop_fields.emplace_back(pvcop::sink::field_t(field.begin(), field.size()));
 		}
 	}
 
@@ -128,7 +128,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	} catch (const pvcop::types::exception::partially_converted_chunk_error& e) {
 
 #pragma omp critical
-		_bad_conversions.add(e.bad_conversions(), e.bad_conversions_count());
+		_unconvertable_values.merge(e);
 	}
 
 #pragma omp atomic

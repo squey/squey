@@ -30,56 +30,6 @@ class PVChunk;
 namespace PVRush
 {
 
-struct PVNrawBadConversions {
-	using bad_conversions_t =
-	    pvcop::types::exception::partially_converted_chunk_error::bad_conversions_t;
-
-  public:
-	void add(const bad_conversions_t& bad_conversions, size_t bad_conversions_count)
-	{
-		_bad_conversions.insert(bad_conversions.begin(), bad_conversions.end());
-
-		_bad_conversions_count += bad_conversions_count;
-	}
-
-	std::string get(PVRow row, PVCol col, bool* res = nullptr) const
-	{
-		const auto& r = _bad_conversions.find(row);
-
-		if (r != _bad_conversions.end()) {
-			const auto& f = r->second.find(col);
-
-			if (f != r->second.end()) {
-				if (res) {
-					*res = true;
-				}
-				return f->second;
-			}
-		}
-
-		if (res) {
-			*res = false;
-		}
-		return {};
-	}
-
-	bool has_failed(PVRow row, PVCol col) const
-	{
-		bool failed;
-
-		get(row, col, &failed);
-
-		return failed;
-	}
-
-	const bad_conversions_t& failures() const { return _bad_conversions; }
-	size_t count() const { return _bad_conversions_count; }
-
-  private:
-	bad_conversions_t _bad_conversions;
-	size_t _bad_conversions_count = 0;
-};
-
 /**
  * Contains all informations to access imported data.
  *
@@ -91,6 +41,9 @@ struct PVNrawBadConversions {
  */
 class PVNraw
 {
+  public:
+	using unconvertable_values_t = pvcop::types::exception::partially_converted_chunk_error;
+
   public:
 	static const std::string config_nraw_tmp;
 	static const std::string default_tmp_path;
@@ -198,7 +151,7 @@ class PVNraw
 		return *_collection;
 	}
 
-	const PVNrawBadConversions& bad_conversions() const { return _bad_conversions; }
+	const unconvertable_values_t& unconvertable_values() const { return _unconvertable_values; }
 
   public:
 	/**
@@ -217,8 +170,7 @@ class PVNraw
 	PVRow _max_nrows;                                       //!< Maximum number of lines required.
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
-	/// Variable usefull for both
-	PVNrawBadConversions _bad_conversions;
+	unconvertable_values_t _unconvertable_values;
 };
 }
 
