@@ -29,22 +29,48 @@ void PVFilter::PVFieldSplitterIP::set_args(PVCore::PVArgumentList const& args)
 	_ipv6 = args.at("ipv6").toBool();
 	QString params = args.at("params").toString();
 
+	// valid indexes are in range [0;2] for IPv4 and [0;6] for IPv6
+	const size_t max_valid_index_value = _ipv6 ? 6 : 2;
+
+	const int max_params_size = _ipv6 ? 7 : 3;
+
 	// Compute adjacente difference to have "number of elements to search" from current position.
 	_indexes.clear();
-	for (const QString& s : params.split(sep, QString::SkipEmptyParts)) {
-		_indexes.push_back(s.toUInt());
+
+	const auto param_list = params.split(sep, QString::SkipEmptyParts);
+
+	if (param_list.size() > max_params_size) {
+		throw PVFilter::PVFieldsFilterInvalidArguments(
+		    (std::string("Invalid IP splitter : '") + params.toStdString() + "'").c_str());
 	}
+
+	for (const QString& s : param_list) {
+		size_t i = s.toUInt();
+
+		if (i > max_valid_index_value) {
+			throw PVFilter::PVFieldsFilterInvalidArguments(
+			    (std::string("Invalid IP splitter : '") + params.toStdString() + "'").c_str());
+		}
+		_indexes.push_back(i + 1);
+	}
+
+	// add the past-the-end index to compute full indexes set
+	if (_ipv6) {
+		_indexes.push_back(8);
+	} else {
+		_indexes.push_back(4);
+	}
+
 	std::sort(_indexes.begin(), _indexes.end());
 	std::unique(_indexes.begin(), _indexes.end());
 	std::adjacent_difference(_indexes.begin(), _indexes.end(), _indexes.begin());
-	_indexes[0]++;
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterIP)
 {
 	PVCore::PVArgumentList args;
 	args["ipv6"] = false;
-	args["params"] = "0,1,2";
+	args["params"] = PVFieldSplitterIP::params_ipv4;
 	return args;
 }
 

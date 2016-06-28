@@ -120,6 +120,13 @@ void PVFilter::PVFieldSplitterIPParamWidget::set_ip_type(bool reset_groups_check
 	args["ipv6"] = _ipv6->isChecked();
 	_group_count = _ipv6->isChecked() ? group_ipv6_count : group_ipv4_count;
 
+	// resetting 'params'
+	if (_ipv6->isChecked()) {
+		args["params"] = PVFieldSplitterIP::params_ipv6;
+	} else {
+		args["params"] = PVFieldSplitterIP::params_ipv4;
+	}
+
 	get_filter()->set_args(args);
 	emit args_changed_Signal();
 
