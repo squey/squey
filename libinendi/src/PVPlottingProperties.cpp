@@ -83,7 +83,7 @@ void Inendi::PVPlottingProperties::set_mode(QString const& mode)
 
 	_mode = mode;
 	PVPlottingFilter::p_type lib_filter =
-	    LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + mode);
+	    LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(mode);
 
 	_plotting_filter = lib_filter->clone<PVPlottingFilter>();
 	set_args(_args);

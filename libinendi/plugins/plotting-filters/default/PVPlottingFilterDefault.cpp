@@ -22,12 +22,12 @@ uint32_t* Inendi::PVPlottingFilterDefault::operator()(pvcop::db::array const& ma
 	case pvcop::db::type_int32: {
 		auto& mapped_array = mapped.to_core_array<int32_t>();
 		for (size_t i = 0; i < _dest_size; i++) {
-			const uint32_t v = mapped_array[i];
+			const int32_t v = mapped_array[i];
 			// Increase value by 2**31 to have only positive values.
 			if (v >= 0) {
-				_dest[i] = (uint32_t)v + 1UL << 31;
+				_dest[i] = (uint32_t)v + (1UL << 31);
 			} else {
-				_dest[i] = v + 1UL << 31;
+				_dest[i] = v + (1UL << 31);
 			}
 		}
 		break;
