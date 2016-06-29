@@ -17,11 +17,6 @@ Inendi::PVPlottingFilter::PVPlottingFilter()
 	_dest_size = 0;
 }
 
-void Inendi::PVPlottingFilter::set_mapping_mode(QString const& mode)
-{
-	_mapping_mode = mode;
-}
-
 void Inendi::PVPlottingFilter::set_dest_array(PVRow size, uint32_t* array)
 {
 	assert(array);

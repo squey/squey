@@ -61,7 +61,6 @@ int Inendi::PVPlotted::create_table()
 		PVPlottingFilter::p_type mf = _plotting.get_filter_for_col(j);
 		PVPlottingFilter::p_type plotting_filter = mf->clone<PVPlottingFilter>();
 
-		plotting_filter->set_mapping_mode(get_parent().get_mapping().get_mode_for_col(j));
 		plotting_filter->set_dest_array(nrows, get_column_pointer(j));
 
 		boost::this_thread::interruption_point();

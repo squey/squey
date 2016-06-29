@@ -23,6 +23,8 @@ class PVPlottingFilterLogMinmax : public PVPlottingFilter
 	uint32_t* operator()(pvcop::db::array const& mapped) override;
 	QString get_human_name() const override { return QString("Logarithmic min/max"); }
 
+	std::set<std::pair<std::string, std::string>> list_usable_type() const override { return {}; }
+
   private:
 	CLASS_FILTER(PVPlottingFilterLogMinmax)
 };

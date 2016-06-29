@@ -19,6 +19,11 @@ class PVPlottingFilterPort : public PVPlottingFilter
 	uint32_t* operator()(pvcop::db::array const& mapped) override;
 	QString get_human_name() const { return QString("TCP/UDP port"); }
 
+	std::set<std::pair<std::string, std::string>> list_usable_type() const override
+	{
+		return {{"number_uint32", "default"}};
+	}
+
 	CLASS_FILTER(PVPlottingFilterPort)
 };
 }

@@ -16,6 +16,8 @@
 
 #include <pvbase/types.h>
 
+#include <set>
+
 namespace Inendi
 {
 
@@ -33,15 +35,14 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop:
 	virtual uint32_t* operator()(pvcop::db::array const& mapped) = 0;
 
 	void set_dest_array(PVRow size, uint32_t* arr);
-	void set_mapping_mode(QString const& mapping_mode);
 
 	virtual QString get_human_name() const;
+	virtual std::set<std::pair<std::string, std::string>> list_usable_type() const = 0;
 
   public:
 	static QString mode_from_registered_name(QString const& rn);
 
   protected:
-	QString _mapping_mode;
 	PVRow _dest_size;
 	uint32_t* _dest;
 };

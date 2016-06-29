@@ -28,7 +28,7 @@ class PVPlottingModeWidget : public QWidget
 	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting, QWidget* parent = nullptr);
 
   public:
-	void populate_from_type(QString const& type);
+	void populate_from_type(QString const& type, QString const& mapped);
 	void populate_from_plotting(PVCol axis_id, Inendi::PVPlotting& plotting);
 	inline void select_default() { set_mode("default"); }
 	inline void clear() { _combo->clear(); }

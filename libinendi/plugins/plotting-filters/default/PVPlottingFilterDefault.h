@@ -20,6 +20,8 @@ class PVPlottingFilterDefault : public PVPlottingFilter
 
 	QString get_human_name() const override { return QString("Default"); }
 
+	std::set<std::pair<std::string, std::string>> list_usable_type() const override { return {}; }
+
 	CLASS_FILTER(PVPlottingFilterDefault)
 };
 }

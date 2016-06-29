@@ -434,7 +434,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 		comboMapping->select_default();
 
 		comboPlotting->clear();
-		comboPlotting->populate_from_type(mapPlotType->get_sel_type());
+		comboPlotting->populate_from_type(mapPlotType->get_sel_type(), comboMapping->get_mode());
 		comboPlotting->select_default();
 	}
 }
