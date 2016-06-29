@@ -16,7 +16,7 @@ namespace Inendi
 class PVPlottingFilterMinmax : public PVPlottingFilter
 {
   public:
-	uint32_t* operator()(pvcop::db::array const& mapped) override;
+	uint32_t* operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax) override;
 	QString get_human_name() const override { return QString("Min/max"); }
 
 	std::set<std::pair<std::string, std::string>> list_usable_type() const override { return {}; }

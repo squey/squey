@@ -15,6 +15,7 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvcop/db/array.h>
+#include <pvcop/db/algo.h>
 
 #include <QString>
 #include <QStringList>
@@ -50,6 +51,11 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 	 * List of all supported types for this mapping.
 	 */
 	virtual std::unordered_set<std::string> list_usable_type() const = 0;
+
+	virtual pvcop::db::array get_minmax(pvcop::db::array const& mapped) const
+	{
+		return pvcop::db::algo::minmax(mapped);
+	}
 
   public:
 	/**

@@ -29,21 +29,9 @@ Inendi::PVMapping::PVMapping(PVMapped* mapped) : _name("default"), _mapped(mappe
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	for (PVCol i = 0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(source.get_extractor().get_format(), i);
-		add_column(mapping_axis);
+		columns.emplace_back(source.get_extractor().get_format(), i);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
-}
-
-/******************************************************************************
- *
- * Inendi::PVMapping::add_column
- *
- *****************************************************************************/
-void Inendi::PVMapping::add_column(PVMappingProperties const& props)
-{
-
-	columns.push_back(props);
 }
 
 /******************************************************************************
@@ -53,7 +41,7 @@ void Inendi::PVMapping::add_column(PVMappingProperties const& props)
  *****************************************************************************/
 Inendi::PVMappingFilter::p_type Inendi::PVMapping::get_filter_for_col(PVCol col)
 {
-	return columns.at(col).get_mapping_filter();
+	return get_properties_for_col(col).get_mapping_filter();
 }
 
 /******************************************************************************
@@ -73,7 +61,6 @@ PVRush::PVFormat const& Inendi::PVMapping::get_format() const
  *****************************************************************************/
 QString const& Inendi::PVMapping::get_mode_for_col(PVCol col) const
 {
-	assert(col < columns.size());
 	return get_properties_for_col(col).get_mode();
 }
 
@@ -84,7 +71,6 @@ QString const& Inendi::PVMapping::get_mode_for_col(PVCol col) const
  *****************************************************************************/
 bool Inendi::PVMapping::is_col_uptodate(PVCol j) const
 {
-	assert(j < columns.size());
 	return get_properties_for_col(j).is_uptodate();
 }
 
@@ -107,9 +93,36 @@ bool Inendi::PVMapping::is_uptodate() const
 void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
                                   PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.list("properties", columns);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("properties", "", true, true);
+
+	QString desc_;
+	if (so.is_writing()) {
+		int idx = 0;
+		for (PVMappingProperties& prop : columns) {
+			QString child_name = QString::number(idx++);
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, "", false);
+			prop.serialize(*new_obj, so.get_version());
+			new_obj->_bound_obj = &prop;
+			new_obj->_bound_obj_type = typeid(PVMappingProperties);
+		}
+	} else {
+		int idx = 0;
+		try {
+			while (true) {
+				PVMappingProperties prop;
+				PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+				prop.serialize(*new_obj, so.get_version());
+				columns.emplace_back(std::move(prop));
+				new_obj->_bound_obj = &prop;
+				new_obj->_bound_obj_type = typeid(PVMappingProperties);
+				idx++;
+			}
+		} catch (PVCore::PVSerializeArchiveErrorNoObject const& /*e*/) {
+		}
+	}
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
+	_name = name.toStdString();
 }
 
 /******************************************************************************
@@ -119,11 +132,10 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
  *****************************************************************************/
 void Inendi::PVMapping::set_default_args(PVRush::PVFormat const& format)
 {
-	QList<PVMappingProperties>::iterator it;
 	PVCol i = 0;
 	PVCol ncols = format.get_axes().size();
-	for (it = columns.begin(); it != columns.end(); it++) {
-		it->set_default_args(format.get_axes().at(i));
+	for (PVMappingProperties& prop : columns) {
+		prop.set_default_args(format.get_axes().at(i));
 		i++;
 		if (i >= ncols) {
 			break;
@@ -138,6 +150,5 @@ void Inendi::PVMapping::set_default_args(PVRush::PVFormat const& format)
  *****************************************************************************/
 void Inendi::PVMapping::set_uptodate_for_col(PVCol j)
 {
-	assert(j < columns.size());
 	get_properties_for_col(j).set_uptodate();
 }

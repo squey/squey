@@ -9,17 +9,15 @@
 #include "PVPlottingFilterMinmax.h"
 #include <omp.h>
 
-#include <pvcop/db/algo.h>
-
-uint32_t* Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped)
+uint32_t* Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped,
+                                                     pvcop::db::array const& minmax)
 {
 	assert(_dest);
 
 	const ssize_t size = _dest_size;
 
-	auto res = pvcop::db::algo::minmax(mapped);
 	if (mapped.type() == pvcop::db::type_uint32) {
-		auto& mm = res.to_core_array<uint32_t>();
+		auto& mm = minmax.to_core_array<uint32_t>();
 		uint32_t ymin = mm[0];
 		uint32_t ymax = mm[1];
 
@@ -39,7 +37,7 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& map
 			_dest[i] = ~((uint32_t)(v_tmp & 0x00000000FFFFFFFFULL));
 		}
 	} else if (mapped.type() == pvcop::db::type_int32) {
-		auto& mm = res.to_core_array<int32_t>();
+		auto& mm = minmax.to_core_array<int32_t>();
 		int32_t ymin = mm[0];
 		int32_t ymax = mm[1];
 
@@ -59,7 +57,7 @@ uint32_t* Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& map
 			_dest[i] = ~((uint32_t)(v_tmp & 0x00000000FFFFFFFFULL));
 		}
 	} else {
-		auto& mm = res.to_core_array<float>();
+		auto& mm = minmax.to_core_array<float>();
 		float ymin = mm[0];
 		float ymax = mm[1];
 

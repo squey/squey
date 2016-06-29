@@ -35,7 +35,6 @@ class PVMappingProperties
 	PVMappingProperties(PVRush::PVFormat const& fmt, PVCol idx);
 	PVMappingProperties(PVRush::PVAxisFormat const& axis, PVCol idx);
 
-  protected:
 	// For serialization
 	PVMappingProperties() { _index = 0; }
 
@@ -51,6 +50,9 @@ class PVMappingProperties
 	inline QString const& get_mode() const { return _mode; }
 	inline bool is_uptodate() const { return _is_uptodate; }
 
+	void set_minmax(pvcop::db::array&& minmax) { _minmax = std::move(minmax); }
+	pvcop::db::array const& get_minmax() const { return _minmax; }
+
   public:
 	bool operator==(const PVMappingProperties& org);
 
@@ -61,6 +63,7 @@ class PVMappingProperties
 	void set_default_args(PVRush::PVAxisFormat const& axis);
 
   private:
+	pvcop::db::array _minmax;
 	PVCol _index;
 	PVMappingFilter::p_type _mapping_filter;
 	PVCore::PVArgumentList _args;

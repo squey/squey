@@ -32,7 +32,8 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop:
 	PVPlottingFilter();
 
   public:
-	virtual uint32_t* operator()(pvcop::db::array const& mapped) = 0;
+	virtual uint32_t* operator()(pvcop::db::array const& mapped,
+	                             pvcop::db::array const& minmax) = 0;
 
 	void set_dest_array(PVRow size, uint32_t* arr);
 

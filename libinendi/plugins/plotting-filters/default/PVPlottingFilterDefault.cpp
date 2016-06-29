@@ -7,7 +7,8 @@
 
 #include "PVPlottingFilterDefault.h"
 
-uint32_t* Inendi::PVPlottingFilterDefault::operator()(pvcop::db::array const& mapped)
+uint32_t* Inendi::PVPlottingFilterDefault::operator()(pvcop::db::array const& mapped,
+                                                      pvcop::db::array const&)
 {
 	assert(_dest);
 

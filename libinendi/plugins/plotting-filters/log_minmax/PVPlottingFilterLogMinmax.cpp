@@ -11,8 +11,6 @@
 
 #include <omp.h>
 
-#include <pvcop/db/algo.h>
-
 Inendi::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax(PVCore::PVArgumentList const& args)
     : PVPlottingFilter()
 {
@@ -28,15 +26,15 @@ DEFAULT_ARGS_FILTER(Inendi::PVPlottingFilterLogMinmax)
 	return args;
 }
 
-uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped)
+uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
+                                                        pvcop::db::array const& minmax)
 {
 	assert(_dest);
 
 	const ssize_t size = _dest_size;
 
-	auto res = pvcop::db::algo::minmax(mapped);
 	if (mapped.type() == pvcop::db::type_int32) {
-		auto& mm = res.to_core_array<int32_t>();
+		auto& mm = minmax.to_core_array<int32_t>();
 		int64_t ymin = mm[0];
 		int64_t ymax = mm[1];
 
@@ -64,7 +62,7 @@ uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& 
 		}
 	} else if (mapped.type() == pvcop::db::type_uint32) {
 		// FIXME : Typing is weird
-		auto& mm = res.to_core_array<uint32_t>();
+		auto& mm = minmax.to_core_array<uint32_t>();
 		int64_t ymin = mm[0];
 		int64_t ymax = mm[1];
 
@@ -91,7 +89,7 @@ uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& 
 			                        ((double)(UINT_MAX))));
 		}
 	} else {
-		auto& mm = res.to_core_array<float>();
+		auto& mm = minmax.to_core_array<float>();
 		float ymin = mm[0];
 		float ymax = mm[1];
 

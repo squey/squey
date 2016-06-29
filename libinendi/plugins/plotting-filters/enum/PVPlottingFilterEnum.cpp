@@ -7,7 +7,8 @@
 
 #include "PVPlottingFilterEnum.h"
 
-uint32_t* Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped)
+uint32_t* Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped,
+                                                   pvcop::db::array const&)
 {
 	assert(_dest);
 

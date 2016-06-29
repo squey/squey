@@ -65,7 +65,9 @@ int Inendi::PVPlotted::create_table()
 
 		boost::this_thread::interruption_point();
 
-		plotting_filter->operator()(get_parent().get_column(j));
+		plotting_filter->operator()(
+		    get_parent().get_column(j),
+		    get_parent().get_mapping().get_properties_for_col(j).get_minmax());
 
 		boost::this_thread::interruption_point();
 		_plotting.set_uptodate_for_col(j);

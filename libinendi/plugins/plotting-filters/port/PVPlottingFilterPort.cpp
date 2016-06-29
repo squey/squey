@@ -7,8 +7,10 @@
 
 #include "PVPlottingFilterPort.h"
 
-uint32_t* Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped)
+uint32_t* Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped,
+                                                   pvcop::db::array const&)
 {
+	// FIXME : We may inform user if minmax is not in 65535 - 0
 	assert(_dest);
 
 	auto& values = mapped.to_core_array<uint32_t>();

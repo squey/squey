@@ -8,14 +8,9 @@
 #ifndef INENDI_PVMAPPING_H
 #define INENDI_PVMAPPING_H
 
-#include <QList>
-#include <QLibrary>
-#include <QVector>
-
 #include <pvkernel/core/PVDataTreeObject.h>
 
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVMappingProperties.h>
 #include <inendi/PVMappingFilter.h>
@@ -49,8 +44,6 @@ class PVMapping
 	void set_parent(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
 
-	void add_column(PVMappingProperties const& props);
-
   public:
 	float get_position(int column, QString const& value);
 	bool is_uptodate() const;
@@ -69,16 +62,20 @@ class PVMapping
 	QString const& get_mode_for_col(PVCol col) const;
 	PVMappingProperties const& get_properties_for_col(PVCol col) const
 	{
-		assert(col < columns.size());
-		return columns.at(col);
+		assert((size_t)col < columns.size());
+		auto it = columns.begin();
+		std::advance(it, col);
+		return *it;
 	}
 	PVMappingProperties& get_properties_for_col(PVCol col)
 	{
-		assert(col < columns.size());
-		return columns[col];
+		assert((size_t)col < columns.size());
+		auto it = columns.begin();
+		std::advance(it, col);
+		return *it;
 	}
 	bool is_col_uptodate(PVCol j) const;
-	PVCol get_number_cols() const { return columns.size(); }
+	size_t get_number_cols() const { return columns.size(); }
 
 	std::string const& get_name() const { return _name; }
 	void set_name(std::string const& name) { _name = name; }
@@ -86,7 +83,7 @@ class PVMapping
 	void set_default_args(PVRush::PVFormat const& format);
 
   protected:
-	QList<PVMappingProperties> columns;
+	std::list<PVMappingProperties> columns;
 
 	std::string _name;
 	PVMapped* _mapped;
