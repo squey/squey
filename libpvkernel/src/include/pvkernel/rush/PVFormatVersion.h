@@ -13,27 +13,27 @@
 namespace PVRush
 {
 
-class PVFormatVersion
+namespace PVFormatVersion
 {
-  public:
-	static bool to_current(QDomDocument& doc);
+void to_current(QDomDocument& doc);
 
-  private:
-	static bool from0to1(QDomDocument& doc);
-	static bool from1to2(QDomDocument& doc);
-	static bool from2to3(QDomDocument& doc);
-	static bool from3to4(QDomDocument& doc);
-	static bool from4to5(QDomDocument& doc);
-	static bool from5to6(QDomDocument& doc);
+namespace __impl
+{
+void from0to1(QDomDocument& doc);
+void from1to2(QDomDocument& doc);
+void from2to3(QDomDocument& doc);
+void from3to4(QDomDocument& doc);
+void from4to5(QDomDocument& doc);
+void from5to6(QDomDocument& doc);
 
-  private:
-	static bool _rec_0to1(QDomElement doc);
-	static bool _rec_1to2(QDomElement doc);
-	static bool _rec_2to3(QDomElement doc);
-	static bool _rec_3to4(QDomNode doc);
-	static bool _rec_4to5(QDomNode doc);
-	static bool _rec_5to6(QDomNode doc);
-	static QString get_version(QDomDocument const& doc);
+void _rec_0to1(QDomElement doc);
+void _rec_1to2(QDomElement doc);
+void _rec_2to3(QDomElement doc);
+void _rec_3to4(QDomNode doc);
+void _rec_4to5(QDomNode doc);
+void _rec_5to6(QDomNode doc);
+QString get_version(QDomDocument const& doc);
+}
 };
 }
 

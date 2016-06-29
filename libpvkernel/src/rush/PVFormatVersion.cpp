@@ -11,128 +11,77 @@
 #include <QDomNode>
 #include <QStringList>
 
-QString PVRush::PVFormatVersion::get_version(QDomDocument const& doc)
+QString PVRush::PVFormatVersion::__impl::get_version(QDomDocument const& doc)
 {
 	return doc.documentElement().attribute("version", "0");
 }
 
-bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
+void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 {
-	QString version = get_version(doc);
+	QString version = __impl::get_version(doc);
 	if (version == "0") {
-		if (!from0to1(doc)) {
-			return false;
-		}
-		if (!from1to2(doc)) {
-			return false;
-		}
-		if (!from2to3(doc)) {
-			return false;
-		}
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from0to1(doc);
+		version = "1";
 	}
 	if (version == "1") {
-		if (!from1to2(doc)) {
-			return false;
-		}
-		if (!from2to3(doc)) {
-			return false;
-		}
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from1to2(doc);
+		version = "2";
 	}
 	if (version == "2") {
-		if (!from2to3(doc)) {
-			return false;
-		}
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from2to3(doc);
+		version = "3";
 	}
 	if (version == "3") {
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from3to4(doc);
+		version = "4";
 	}
 	if (version == "4") {
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from4to5(doc);
+		version = "5";
 	}
 	if (version == "5") {
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from5to6(doc);
+		version = "6";
 	}
-	if (version == "6") {
-		return false;
-	}
-
-	doc.documentElement().setAttribute("version", PVFORMAT_CURRENT_VERSION);
-	return true;
 }
 
-bool PVRush::PVFormatVersion::from0to1(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from0to1(QDomDocument& doc)
 {
-	return _rec_0to1(doc.documentElement());
+	_rec_0to1(doc.documentElement());
+	doc.documentElement().setAttribute("version", "1");
 }
 
-bool PVRush::PVFormatVersion::from1to2(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from1to2(QDomDocument& doc)
 {
-	return _rec_1to2(doc.documentElement());
+	_rec_1to2(doc.documentElement());
+	doc.documentElement().setAttribute("version", "2");
 }
 
-bool PVRush::PVFormatVersion::from2to3(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from2to3(QDomDocument& doc)
 {
-	return _rec_2to3(doc.documentElement());
+	_rec_2to3(doc.documentElement());
+	doc.documentElement().setAttribute("version", "3");
 }
 
-bool PVRush::PVFormatVersion::from3to4(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from3to4(QDomDocument& doc)
 {
-	return _rec_3to4(doc.documentElement());
+	_rec_3to4(doc.documentElement());
+	doc.documentElement().setAttribute("version", "4");
 }
 
-bool PVRush::PVFormatVersion::from4to5(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from4to5(QDomDocument& doc)
 {
-	return _rec_4to5(doc.documentElement());
+	_rec_4to5(doc.documentElement());
+	doc.documentElement().setAttribute("version", "5");
 }
 
-bool PVRush::PVFormatVersion::from5to6(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from5to6(QDomDocument& doc)
 {
-	return _rec_5to6(doc.documentElement());
+	_rec_5to6(doc.documentElement());
+	doc.documentElement().setAttribute("version", "6");
 }
 
-bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
+void PVRush::PVFormatVersion::__impl::_rec_0to1(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	if (tag_name == "RegEx") {
@@ -162,14 +111,11 @@ bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_0to1(children.at(i).toElement())) {
-			return false;
-		}
+		_rec_0to1(children.at(i).toElement());
 	}
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
+void PVRush::PVFormatVersion::__impl::_rec_1to2(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	static QStringList tags = QStringList() << "protocol"
@@ -219,14 +165,11 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_1to2(children.at(i).toElement())) {
-			return false;
-		}
+		_rec_1to2(children.at(i).toElement());
 	}
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
+void PVRush::PVFormatVersion::__impl::_rec_2to3(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	if (tag_name == "axis") {
@@ -241,14 +184,11 @@ bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_2to3(children.at(i).toElement())) {
-			return false;
-		}
+		_rec_2to3(children.at(i).toElement());
 	}
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_3to4(QDomNode node)
+void PVRush::PVFormatVersion::__impl::_rec_3to4(QDomNode node)
 {
 	if (node.isElement()) {
 		QDomElement elt = node.toElement();
@@ -280,11 +220,9 @@ bool PVRush::PVFormatVersion::_rec_3to4(QDomNode node)
 		_rec_3to4(child);
 		child = child.nextSibling();
 	}
-
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_4to5(QDomNode node)
+void PVRush::PVFormatVersion::__impl::_rec_4to5(QDomNode node)
 {
 	if (node.isElement()) {
 		QDomElement elt = node.toElement();
@@ -315,10 +253,9 @@ bool PVRush::PVFormatVersion::_rec_4to5(QDomNode node)
 		_rec_4to5(child);
 		child = child.nextSibling();
 	}
-
-	return true;
 }
-bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
+
+void PVRush::PVFormatVersion::__impl::_rec_5to6(QDomNode node)
 {
 	if (node.isElement()) {
 		QDomElement elt = node.toElement();
@@ -359,6 +296,4 @@ bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
 		_rec_5to6(child);
 		child = child.nextSibling();
 	}
-
-	return true;
 }
