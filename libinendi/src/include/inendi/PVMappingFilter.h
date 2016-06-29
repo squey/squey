@@ -56,12 +56,6 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 	{
 		return pvcop::db::algo::minmax(mapped);
 	}
-
-  public:
-	/**
-	 * List all different plotting
-	 */
-	static QStringList list_modes(std::string const& type);
 };
 
 typedef PVMappingFilter::func_type PVMappingFilter_f;

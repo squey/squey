@@ -97,20 +97,6 @@ class PVXmlParamWidget : public QWidget
 	 */
 	QVariant getParam(int i);
 
-	/**
-	 * get the parameter, from his name.
-	 * @param nameParam
-	 * @return
-	 */
-	QVariant getParamVariantByName(QString nameParam);
-
-	/**
-	 * get a widget of parameter board, getting with his name.
-	 * @param nameParam
-	 * @return
-	 */
-	QWidget* getParamWidgetByName(QString nameParam);
-
 	PVFormatBuilderWidget* parent() { return _parent; }
 
   private:
@@ -132,12 +118,6 @@ class PVXmlParamWidget : public QWidget
 	 * @param index
 	 */
 	void edit(QModelIndex const& index);
-
-	/**
-	 * Update de selection number with the regexp.
-	 * @param reg
-	 */
-	void regExCountSel(const QString& reg);
 
 	void slotEmitNeedApply();
 
