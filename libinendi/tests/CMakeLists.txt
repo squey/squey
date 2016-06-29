@@ -36,9 +36,9 @@ if(MINESET)
 endif(MINESET)
 add_test(Tinendi_formatter_number Tinendi_export_selection ${TESTS_FILES_DIR}/picviz/formatter_number.csv ${TESTS_FILES_DIR}/picviz/formatter_number.csv.format)
 
-add_pv_compile_test(Tmapping_enum_default LINKS ${LINK_LIBRARIES} FILES mapping_enum_default.cpp)
-add_test(Tmapping_enum_default Tmapping_enum_default)
-add_bench(Tmapping_enum_default LINKS ${LINK_LIBRARIES} FILES mapping_enum_default.cpp)
+add_pv_compile_test(Tplotting_string_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_string_default_enum.cpp)
+add_test(Tplotting_string_default_enum Tplotting_string_default_enum)
+add_bench(Tplotting_string_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_string_default_enum.cpp)
 
 add_pv_compile_test(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_float_default.cpp)
 add_test(Tmapping_float_default Tmapping_float_default)
@@ -110,6 +110,18 @@ add_bench(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_we
 
 add_pv_compile_test(Tinendi_investigation LINKS ${LINK_LIBRARIES} FILES investigation.cpp)
 add_test(Tinendi_investigation Tinendi_investigation)
+
+add_pv_compile_test(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_default.cpp)
+add_test(Tplotting_integer_default_default Tplotting_integer_default_default)
+add_bench(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_default.cpp)
+
+add_pv_compile_test(Tplotting_integer_unsigned_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_default.cpp)
+add_test(Tplotting_integer_unsigned_default Tplotting_integer_unsigned_default)
+add_bench(Tplotting_integer_unsigned_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_default.cpp)
+
+add_pv_compile_test(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting_float_default_default.cpp)
+add_test(Tplotting_float_default_default Tplotting_float_default_default)
+add_bench(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting_float_default_default.cpp)
 
 # FIXME : This test is a bit slow but it test a lot of thing. We should split
 # it in multiple tests
