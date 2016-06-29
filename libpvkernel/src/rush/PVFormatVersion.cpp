@@ -11,6 +11,58 @@
 #include <QDomNode>
 #include <QStringList>
 
+// Utility function to convert pre 7 format to 7 format.for mapping/type/plotting
+static QString const get_type_from_format(QString const& type_attr, QString const& mapped_attr)
+{
+	if (type_attr == "integer" and mapped_attr == "unsigned")
+		return "number_uint32";
+	else if (type_attr == "integer" and mapped_attr == "hexadecimal")
+		return "number_uint32";
+	else if (type_attr == "integer" and mapped_attr == "octal")
+		return "number_uint32";
+	else if (type_attr == "integer" and mapped_attr == "default")
+		return "number_int32";
+	else if (type_attr == "host" and mapped_attr == "default")
+		return "string";
+	else if (type_attr == "enum" and mapped_attr == "default")
+		return "string";
+	else if (type_attr == "float")
+		return "number_float";
+	return type_attr;
+}
+
+static QString const get_mapped_from_format(QString const& type_attr, QString const& mapped_attr)
+{
+	if (type_attr == "integer" and mapped_attr == "unsigned")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "hexadecimal")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "octal")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "default")
+		return "default";
+	else if (type_attr == "host" and mapped_attr == "default")
+		return "host";
+	else if (type_attr == "enum" and mapped_attr == "default")
+		return "default";
+	else if (type_attr == "string" and mapped_attr == "default")
+		return "string";
+	else if (type_attr == "ipv4" and mapped_attr == "uniform")
+		return "default";
+	return mapped_attr;
+}
+
+static QString const get_plotted_from_format(QString const& type_attr,
+                                             QString const& mapped_attr,
+                                             QString const& plotted_attr)
+{
+	if (type_attr == "enum")
+		return "enum";
+	else if (type_attr == "ipv4" and mapped_attr == "uniform")
+		return "enum";
+	return plotted_attr;
+}
+
 QString PVRush::PVFormatVersion::__impl::get_version(QDomDocument const& doc)
 {
 	return doc.documentElement().attribute("version", "0");
@@ -42,6 +94,10 @@ void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 	if (version == "5") {
 		__impl::from5to6(doc);
 		version = "6";
+	}
+	if (version == "6") {
+		__impl::from6to7(doc);
+		version = "7";
 	}
 }
 
@@ -79,6 +135,37 @@ void PVRush::PVFormatVersion::__impl::from5to6(QDomDocument& doc)
 {
 	_rec_5to6(doc.documentElement());
 	doc.documentElement().setAttribute("version", "6");
+}
+
+void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
+{
+	QDomNodeList axis = doc.documentElement().elementsByTagName("axis");
+	for (int i = 0; i < axis.size(); i++) {
+		QDomElement ax = axis.at(i).toElement();
+		QString type = ax.attribute("type");
+		if (type.isNull()) {
+			type = "string";
+		}
+		QDomElement mapped = ax.namedItem("mapping").toElement();
+		QString mapping = mapped.attribute("mode");
+		if (mapping.isNull()) {
+			mapping = "default";
+		}
+		QDomElement plotted = ax.namedItem("plotting").toElement();
+		QString plotting = plotted.attribute("mode");
+		if (plotting.isNull()) {
+			plotting = "default";
+		}
+		plotted.toElement().setAttribute("mode", get_plotted_from_format(type, mapping, plotting));
+		mapped.toElement().setAttribute("mode", get_mapped_from_format(type, mapping));
+		ax.setAttribute("type", get_type_from_format(type, mapping));
+		if (mapping == "hexadecimal") {
+			ax.toElement().setAttribute("type_format", "%x");
+		} else if (mapping == "octal") {
+			ax.toElement().setAttribute("type_format", "%o");
+		}
+	}
+	doc.documentElement().setAttribute("version", "7");
 }
 
 void PVRush::PVFormatVersion::__impl::_rec_0to1(QDomElement elt)

@@ -71,7 +71,7 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_TAGS_SEP ':'
 
 // Format version
-#define PVFORMAT_CURRENT_VERSION "6"
+#define PVFORMAT_CURRENT_VERSION "7"
 
 #define PVFORMAT_NUMBER_FIELD_URL 6
 }

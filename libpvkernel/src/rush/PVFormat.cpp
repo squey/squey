@@ -288,7 +288,7 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 				formatter = "string";
 			} else if (axe_type == "number_uint32") {
 				formatter = "number_uint32";
-				formatter_params = axe.get_str_format().toStdString();
+				formatter_params = axe.get_type_format().toStdString();
 			} else if (axe_type == "number_int32") {
 				formatter = "number_int32";
 			} else if (axe_type == "number_float") {
