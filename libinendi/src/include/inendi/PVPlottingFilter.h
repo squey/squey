@@ -36,7 +36,7 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop:
 
 	void set_dest_array(PVRow size, uint32_t* arr);
 
-	virtual QString get_human_name() const;
+	virtual QString get_human_name() const = 0;
 	virtual std::set<std::pair<std::string, std::string>> list_usable_type() const = 0;
 
   public:
