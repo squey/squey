@@ -36,10 +36,6 @@ if(MINESET)
 endif(MINESET)
 add_test(Tinendi_formatter_number Tinendi_export_selection ${TESTS_FILES_DIR}/picviz/formatter_number.csv ${TESTS_FILES_DIR}/picviz/formatter_number.csv.format)
 
-add_pv_compile_test(Tplotting_string_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_string_default_enum.cpp)
-add_test(Tplotting_string_default_enum Tplotting_string_default_enum)
-add_bench(Tplotting_string_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_string_default_enum.cpp)
-
 add_pv_compile_test(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_float_default.cpp)
 add_test(Tmapping_float_default Tmapping_float_default)
 add_bench(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_float_default.cpp)
@@ -122,6 +118,18 @@ add_bench(Tplotting_integer_unsigned_default LINKS ${LINK_LIBRARIES} FILES plott
 add_pv_compile_test(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting_float_default_default.cpp)
 add_test(Tplotting_float_default_default Tplotting_float_default_default)
 add_bench(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting_float_default_default.cpp)
+
+add_pv_compile_test(Tplotting_string_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_string_default_enum.cpp)
+add_test(Tplotting_string_default_enum Tplotting_string_default_enum)
+add_bench(Tplotting_string_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_string_default_enum.cpp)
+
+add_pv_compile_test(Tplotting_time_24h_minmax LINKS ${LINK_LIBRARIES} FILES plotting_time_24h_minmax.cpp)
+add_test(Tplotting_time_24h_minmax Tplotting_time_24h_minmax)
+add_bench(Tplotting_time_24h_minmax LINKS ${LINK_LIBRARIES} FILES plotting_time_24h_minmax.cpp)
+
+add_pv_compile_test(Tplotting_time_week_minmax LINKS ${LINK_LIBRARIES} FILES plotting_time_week_minmax.cpp)
+add_test(Tplotting_time_week_minmax Tplotting_time_week_minmax)
+add_bench(Tplotting_time_week_minmax LINKS ${LINK_LIBRARIES} FILES plotting_time_week_minmax.cpp)
 
 # FIXME : This test is a bit slow but it test a lot of thing. We should split
 # it in multiple tests
