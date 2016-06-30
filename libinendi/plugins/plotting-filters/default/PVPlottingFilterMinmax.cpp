@@ -22,6 +22,7 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
 		for (size_t i = 0; i < mm.size(); i++) {
 			dest[i] = 0x80000000;
 		}
+		return;
 	}
 	assert(ymax > ymin);
 
