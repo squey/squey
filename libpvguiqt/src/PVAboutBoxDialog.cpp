@@ -23,6 +23,8 @@
 
 #include <pvguiqt/PVLogoScene.h>
 
+#include <cassert>
+
 PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(parent)
 {
 	setWindowTitle("About INENDI Inspector");
@@ -80,15 +82,14 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	QPushButton* ok = new QPushButton("OK");
 
+	assert(DOC_PATH && "The documentation path is not defined.");
+
 	QLabel* doc = new QLabel();
-	doc->setText("<br/>Reference Manual: <a "
-	             "href=\"file:///opt/inendi-inspector/docs/"
-	             "inendi_inspector_reference_manual/index.html\">HTML</a> | "
-	             "<a "
-	             "href=\"file:///opt/inendi-inspector/docs/"
-	             "inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>"
-	             "All documentations: <a "
-	             "href=\"file:///opt/inendi-inspector/docs/\">local files</a> | "
+	doc->setText("<br/>Reference Manual: <a href=\"file://" DOC_PATH
+	             "/inendi_inspector_reference_manual/index.html\">HTML</a> | "
+	             "<a href=\"file://" DOC_PATH
+	             "/inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>"
+	             "All documentations: <a href=\"file://" DOC_PATH "/\">local files</a> | "
 	             "<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>");
 	doc->setTextFormat(Qt::RichText);
 	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
