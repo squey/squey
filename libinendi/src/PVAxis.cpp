@@ -24,7 +24,8 @@ Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) : PVRush::PVAxis
 		    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(get_mapping());
 		auto usable_type = lib_filter->list_usable_type();
 		if (usable_type.find(get_type().toStdString()) == usable_type.end()) {
-			throw std::runtime_error("You can't use this mapping with this type");
+			throw std::runtime_error("You can't use mapping :" + get_mapping().toStdString() +
+			                         " with type :" + get_type().toStdString());
 		}
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_mapping = args_from_node(get_args_mapping_string(), def_args);
@@ -35,10 +36,13 @@ Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) : PVRush::PVAxis
 		Inendi::PVPlottingFilter::p_type lib_filter =
 		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_plotting());
 		auto usable_type = lib_filter->list_usable_type();
-		if (std::find(usable_type.begin(), usable_type.end(),
+		if (not usable_type.empty() and
+		    std::find(usable_type.begin(), usable_type.end(),
 		              std::make_pair(get_type().toStdString(), get_mapping().toStdString())) ==
-		    usable_type.end()) {
-			throw std::runtime_error("You can't use this type/mapping with this plotting");
+		        usable_type.end()) {
+			throw std::runtime_error("You can't use plotting :" + get_plotting().toStdString() +
+			                         " with mapping :" + get_mapping().toStdString() +
+			                         " and type :" + get_type().toStdString());
 		}
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_plotting = args_from_node(get_args_plotting_string(), def_args);

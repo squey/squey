@@ -85,10 +85,7 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 		return dest;
 	}
 
-	std::unordered_set<std::string> list_usable_type() const override
-	{
-		return {"datetime", "datetime_us", "datetime_ms"};
-	}
+	std::unordered_set<std::string> list_usable_type() const override { return {"time"}; }
 
 	QString get_human_name() const override { return QString("Week"); }
 
