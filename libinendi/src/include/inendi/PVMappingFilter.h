@@ -52,6 +52,12 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 	 */
 	virtual std::unordered_set<std::string> list_usable_type() const = 0;
 
+	/**
+	 * Define the valid range of values.
+	 *
+	 * It is usually the min/max value but it can be the full possible range like
+	 * for time 24H
+	 */
 	virtual pvcop::db::array get_minmax(pvcop::db::array const& mapped) const
 	{
 		return pvcop::db::algo::minmax(mapped);
