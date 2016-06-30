@@ -475,6 +475,10 @@ void PVInspector::PVFormatBuilderWidget::slotApplyModification()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotDelete()
 {
+	if (!myTreeView->currentIndex().isValid()) {
+		return;
+	}
+
 	QMessageBox msg(QMessageBox::Question, QString(), "Do you really want to delete it?",
 	                QMessageBox::Yes | QMessageBox::No, this);
 

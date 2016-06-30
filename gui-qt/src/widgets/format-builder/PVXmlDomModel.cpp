@@ -62,6 +62,29 @@ QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& p
 
 /******************************************************************************
  *
+ * PVInspector::PVXmlDomModel::indexOfChild
+ *
+ *****************************************************************************/
+
+QModelIndex PVInspector::PVXmlDomModel::indexOfChild(const QModelIndex& parent,
+                                                     const PVRush::PVXmlTreeNodeDom* node) const
+{
+	QModelIndex model_index = index(0, 0, parent);
+	int i = 0;
+
+	while (model_index.isValid()) {
+		if (nodeFromIndex(model_index) == node) {
+			return model_index;
+		}
+
+		model_index = index(i++, 0, parent);
+	}
+
+	return QModelIndex();
+}
+
+/******************************************************************************
+ *
  * PVInspector::PVXmlDomModel::parent
  *
  *****************************************************************************/
@@ -380,30 +403,31 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index)
  * PVInspector::PVXmlDomModel::addAxisIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex& index)
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex& index)
 {
+	PVRush::PVXmlTreeNodeDom* field = nullptr;
+
 	if (index.isValid()) { // if index valid, add axis in field...
-		PVRush::PVXmlTreeNodeDom* field = nodeFromIndex(index);
+		field = nodeFromIndex(index);
 
 		// make sure that there not already axis or regexp.
 		if (!trustConfictSplitAxes(index))
-			return;
+			return nullptr;
 
 		// axis adding
 		if (field->typeToString() != "field") {
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
-			return;
+			return nullptr;
 		}
-
-		addAxisIn(field);
-
-	} else { // else add on root node...
-		if (!trustConfictSplitAxes(index))
-			return;
-		addAxisIn(NULL);
+	} else if (!trustConfictSplitAxes(index)) {
+		return nullptr;
 	}
+
+	PVRush::PVXmlTreeNodeDom* child = addAxisIn(field);
 	Q_EMIT layoutChanged();
+
+	return child;
 }
 
 /******************************************************************************
@@ -436,11 +460,13 @@ PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
  * PVInspector::PVXmlDomModel::addFilterAfter
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
 {
-	PVRush::PVXmlTreeNodeDom* childPrecedent = nodeFromIndex(index); // node sélectionné
+	PVRush::PVXmlTreeNodeDom* childPrecedent = nodeFromIndex(index); // selected node
+	PVRush::PVXmlTreeNodeDom* child = nullptr;
+
 	if (childPrecedent->typeToString() != "field") {
-		QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+		QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 		                         tr("You must select a field first."));
 	} else if (childPrecedent->typeToString() == "field") {
 		// dom
@@ -449,12 +475,13 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
 		childPrecedent->getDom().appendChild(newDom);
 
 		// tree
-		PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+		child = new PVRush::PVXmlTreeNodeDom(newDom);
 		child->setParent(childPrecedent);
 		childPrecedent->addChild(child);
+		Q_EMIT layoutChanged(); // refresh
 	}
 
-	Q_EMIT layoutChanged(); // refresh
+	return child;
 }
 
 /******************************************************************************
@@ -475,15 +502,14 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 		field = nodeFromIndex(index);
 		if (field->typeToString() == "field") { // a splitter can be add only in field...
 			if (!trustConfictSplitAxes(index)) {
-				// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-				// tr("You must select a field with axis or splitter inside."));
+				QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
+				                         tr("A field can only have one axis or one splitter. "
+				                            "Delete the current node before adding a new one."));
 				return NULL; // we can't add more than one splitter in a field
 			}
 			PVLOG_DEBUG("     adding splitter in a field\n");
 		} else {
-			// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-			// tr(QString(field->getDom().tagName())));
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 			return NULL;
 		}
@@ -533,9 +559,7 @@ PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
 		if (field->typeToString() == "field") { // a converter can be add only in field...
 			PVLOG_DEBUG("     adding converter in a field\n");
 		} else {
-			// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-			// tr(QString(field->getDom().tagName())));
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 			return NULL;
 		}
@@ -621,9 +645,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 			child->setParent(field);
 			field->addChild(child);
 		} else {
-			// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-			// tr(QString(field->getDom().tagName())));
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 		}
 	} else {
@@ -748,7 +770,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url)
 		QString s;
 		s.push_back("File can't be open");
 		s.push_back(this->urlXml);
-		QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"), s);
+		QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"), s);
 		return false;
 	}
 	QTextStream tmpTextXml(&fichier);
@@ -823,7 +845,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 	if (index.isValid()) { // if a item is selected...
 		field = nodeFromIndex(index);
 		if (field->typeToString() != "field") { // and if it's not a field
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 			return;
 		}
@@ -983,9 +1005,9 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex& index)
 		QDomElement child = node->getChildren().at(i)->getDom();
 		if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" ||
 		    child.tagName() == "splitter") {
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
-			                         tr("There is just one axis or splitter in a field. Delete "
-			                            "this one to add a newer."));
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
+			                         tr("A field can only have one axis or one splitter. "
+			                            "Delete the current node before adding a new one."));
 			return false;
 		}
 	}

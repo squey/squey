@@ -39,13 +39,13 @@ class PVXmlDomModel : public QAbstractItemModel
 	/*
 	 * Toolbar methods
 	 */
-	void addFilterAfter(QModelIndex& index);
+	PVRush::PVXmlTreeNodeDom* addFilterAfter(QModelIndex& index);
 	void applyModification(QModelIndex& index, PVXmlParamWidget* paramBord);
 
 	/*
 	* Add items
 	*/
-	void addAxisIn(const QModelIndex& index);
+	PVRush::PVXmlTreeNodeDom* addAxisIn(const QModelIndex& index);
 	PVRush::PVXmlTreeNodeDom* addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode);
 
 	PVRush::PVXmlTreeNodeDom* addSplitter(const QModelIndex& index,
@@ -140,6 +140,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	int countParent(const QModelIndex& index);
 
 	PVRush::PVXmlTreeNodeDom* nodeFromIndex(const QModelIndex& index) const;
+	QModelIndex indexOfChild(const QModelIndex& parent, const PVRush::PVXmlTreeNodeDom* node) const;
 
 	QDomElement const& getRootDom() const { return xmlRootDom; }
 
