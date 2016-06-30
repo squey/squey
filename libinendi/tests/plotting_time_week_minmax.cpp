@@ -63,12 +63,21 @@ int main()
 	});
 
 	uint32_t prev = plotted.get_column_pointer(0)[order[0]];
-	PV_VALID(prev, 0U);
+	constexpr uint32_t sec_per_week = 7 * (3600 * 24 - 1);
+	constexpr uint32_t ratio = std::numeric_limits<uint32_t>::max() / sec_per_week;
+	PV_VALID(prev,
+	         (uint32_t)to_tm(*reinterpret_cast<const boost::posix_time::ptime*>(&array[order[0]]))
+	                 .tm_sec *
+	             ratio);
 	for (size_t i = 0; i < column.size(); i++) {
 		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(0)[order[i]]);
 		prev = plotted.get_column_pointer(0)[order[i]];
 	}
-	PV_VALID(prev, std::numeric_limits<uint32_t>::max());
+	tm tm_last =
+	    to_tm(*reinterpret_cast<const boost::posix_time::ptime*>(&array[order[column.size() - 1]]));
+	uint32_t last_time =
+	    ((tm_last.tm_wday * 24 + tm_last.tm_hour) * 60 + tm_last.tm_min) * 60 + tm_last.tm_sec;
+	PV_VALID(prev, last_time * ratio);
 #endif
 
 	return 0;

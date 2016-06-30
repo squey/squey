@@ -9,71 +9,43 @@
 #include "PVPlottingFilterMinmax.h"
 #include <omp.h>
 
+template <class T>
+static void compute_minmax_plotting(pvcop::db::array const& mapped,
+                                    pvcop::db::array const& minmax,
+                                    uint32_t* dest)
+{
+	auto& mm = minmax.to_core_array<T>();
+	T ymin = mm[0];
+	T ymax = mm[1];
+
+	if (ymin == ymax) {
+		for (size_t i = 0; i < mm.size(); i++) {
+			dest[i] = 0x80000000;
+		}
+	}
+	assert(ymax > ymin);
+
+	// Use int64 type to avoid overflow with ymax = int32_max and ymin = int32_min
+	const uint32_t ratio =
+	    std::numeric_limits<uint32_t>::max() / uint32_t((int64_t)ymax - (int64_t)ymin);
+	auto& values = mapped.to_core_array<T>();
+#pragma omp parallel for
+	for (size_t i = 0; i < values.size(); i++) {
+		dest[i] = uint32_t((int64_t)values[i] - (int64_t)ymin) * ratio;
+	}
+}
+
 uint32_t* Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped,
                                                      pvcop::db::array const& minmax)
 {
 	assert(_dest);
 
-	const ssize_t size = _dest_size;
-
 	if (mapped.type() == pvcop::db::type_uint32) {
-		auto& mm = minmax.to_core_array<uint32_t>();
-		uint32_t ymin = mm[0];
-		uint32_t ymax = mm[1];
-
-		if (ymin == ymax) {
-			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX >> 1);
-			}
-			return _dest;
-		}
-		assert(ymax > ymin);
-
-		const uint64_t diff = (uint64_t)ymax - (uint64_t)ymin;
-		auto& values = mapped.to_core_array<uint32_t>();
-#pragma omp parallel for
-		for (ssize_t i = 0; i < size; i++) {
-			const uint64_t v_tmp = (((int64_t)values[i] - ymin) * (int64_t)(UINT_MAX)) / diff;
-			_dest[i] = ~((uint32_t)(v_tmp & 0x00000000FFFFFFFFULL));
-		}
+		compute_minmax_plotting<uint32_t>(mapped, minmax, _dest);
 	} else if (mapped.type() == pvcop::db::type_int32) {
-		auto& mm = minmax.to_core_array<int32_t>();
-		int32_t ymin = mm[0];
-		int32_t ymax = mm[1];
-
-		if (ymin == ymax) {
-			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX >> 1);
-			}
-			return _dest;
-		}
-		assert(ymax > ymin);
-
-		const int64_t diff = (int64_t)ymax - (int64_t)ymin;
-		auto& values = mapped.to_core_array<int32_t>();
-#pragma omp parallel for
-		for (ssize_t i = 0; i < size; i++) {
-			const uint64_t v_tmp = (((int64_t)values[i] - ymin) * (int64_t)(UINT_MAX)) / diff;
-			_dest[i] = ~((uint32_t)(v_tmp & 0x00000000FFFFFFFFULL));
-		}
+		compute_minmax_plotting<int32_t>(mapped, minmax, _dest);
 	} else {
-		auto& mm = minmax.to_core_array<float>();
-		float ymin = mm[0];
-		float ymax = mm[1];
-
-		if (ymin == ymax) {
-			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX >> 1);
-			}
-			return _dest;
-		}
-
-		const float diff = ymax - ymin;
-		auto& values = mapped.to_core_array<float>();
-#pragma omp parallel for
-		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = ~((uint32_t)((double)((values[i] - ymin) / diff) * (double)UINT_MAX));
-		}
+		compute_minmax_plotting<float>(mapped, minmax, _dest);
 	}
 
 	return _dest;
