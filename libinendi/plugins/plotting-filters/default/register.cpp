@@ -10,12 +10,11 @@
 
 #include <pvbase/export.h>
 #include <pvkernel/core/PVClassLibrary.h>
-#include "PVPlottingFilterDefault.h"
+#include "PVPlottingFilterMinmax.h"
 
 // This method will be called by libinendi
 LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	// All the plotting types that do not process anyhting are registered here
-	REGISTER_CLASS("default", Inendi::PVPlottingFilterDefault);
+	REGISTER_CLASS("default", Inendi::PVPlottingFilterMinmax);
 }

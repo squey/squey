@@ -54,8 +54,7 @@ void PVWidgets::PVMappingModeWidget::populate_from_mapping(PVCol axis_id,
                                                            Inendi::PVMapping& mapping)
 {
 	Inendi::PVMappingProperties& props = mapping.get_properties_for_col(axis_id);
-	QString type =
-	    mapping.get_mapped()->get_parent().get_rushnraw().collection().formatter(axis_id)->name();
+	QString type = mapping.get_mapped()->get_parent().get_format().get_axes()[axis_id].get_type();
 	QString mode = props.get_mode();
 	populate_from_type(type);
 

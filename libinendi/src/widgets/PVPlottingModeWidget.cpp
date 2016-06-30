@@ -71,10 +71,9 @@ void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
 	                     .get_mode();
 	QString type = plotting.get_plotted()
 	                   ->get_parent<Inendi::PVSource>()
-	                   .get_rushnraw()
-	                   .collection()
-	                   .formatter(axis_id)
-	                   ->name();
+	                   .get_format()
+	                   .get_axes()[axis_id]
+	                   .get_type();
 	populate_from_type(type, mapped);
 	set_mode(props.get_mode());
 }

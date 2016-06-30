@@ -189,10 +189,9 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 		if (has_mapping()) {
 			_main_grid->addWidget(new QLabel(_mapping->get_mapped()
 			                                     ->get_parent<Inendi::PVSource>()
-			                                     .get_rushnraw()
-			                                     .collection()
-			                                     .formatter(axis_id)
-			                                     ->name()),
+			                                     .get_format()
+			                                     .get_axes()[axis_id]
+			                                     .get_type()),
 			                      row, col++);
 			_main_grid->addWidget(new PVWidgets::PVMappingModeWidget(axis_id, *_mapping, this), row,
 			                      col++);
@@ -236,10 +235,9 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 		if (has_mapping()) {
 			QString type = _mapping->get_mapped()
 			                   ->get_parent<Inendi::PVSource>()
-			                   .get_rushnraw()
-			                   .collection()
-			                   .formatter(axis_id)
-			                   ->name();
+			                   .get_format()
+			                   .get_axes()[axis_id]
+			                   .get_type();
 			Inendi::PVMappingProperties& prop = _mapping->get_properties_for_col(axis_id);
 
 			// Mapping mode

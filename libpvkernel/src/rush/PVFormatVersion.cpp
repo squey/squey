@@ -60,6 +60,8 @@ static QString const get_plotted_from_format(QString const& type_attr,
 		return "enum";
 	else if (type_attr == "ipv4" and mapped_attr == "uniform")
 		return "enum";
+	else if (plotted_attr == "minmax")
+		return "default";
 	return plotted_attr;
 }
 
