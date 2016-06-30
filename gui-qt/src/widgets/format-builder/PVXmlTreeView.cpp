@@ -57,7 +57,12 @@ PVInspector::PVXmlTreeView::~PVXmlTreeView()
  *****************************************************************************/
 void PVInspector::PVXmlTreeView::addAxisIn()
 {
-	addNode(addAxis);
+	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addAxisIn\n");
+
+	QModelIndex index = getInsertionIndex();
+	auto* node = getModel()->addAxisIn(index);
+
+	postInsertion(index, node);
 }
 
 /******************************************************************************
@@ -67,7 +72,12 @@ void PVInspector::PVXmlTreeView::addAxisIn()
  *****************************************************************************/
 void PVInspector::PVXmlTreeView::addFilterAfter()
 {
-	addNode(addFilter);
+	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addFilterAfter\n");
+
+	QModelIndex index = getInsertionIndex();
+	auto* node = getModel()->addFilterAfter(index);
+
+	postInsertion(index, node);
 }
 
 /******************************************************************************
@@ -78,9 +88,14 @@ void PVInspector::PVXmlTreeView::addFilterAfter()
 PVRush::PVXmlTreeNodeDom*
 PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addSplitter \n");
-	QModelIndex index = getSelectedIndex();
-	return getModel()->addSplitter(index, splitterPlugin);
+	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addSplitter\n");
+
+	QModelIndex index = getInsertionIndex();
+	auto* node = getModel()->addSplitter(index, splitterPlugin);
+
+	postInsertion(index, node);
+
+	return node;
 }
 
 /******************************************************************************
@@ -92,8 +107,13 @@ PVRush::PVXmlTreeNodeDom*
 PVInspector::PVXmlTreeView::addConverter(PVFilter::PVFieldsConverterParamWidget_p converterPlugin)
 {
 	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addConverter \n");
-	QModelIndex index = getSelectedIndex();
-	return getModel()->addConverter(index, converterPlugin);
+
+	QModelIndex index = getInsertionIndex();
+	auto* node = getModel()->addConverter(index, converterPlugin);
+
+	postInsertion(index, node);
+
+	return node;
 }
 
 /******************************************************************************
@@ -128,10 +148,8 @@ void PVInspector::PVXmlTreeView::addUrlIn()
 void PVInspector::PVXmlTreeView::addNode(AddType type)
 {
 
-	QModelIndex index = getSelectedIndex();
+	QModelIndex index = getInsertionIndex();
 	QModelIndex indexToSelect;
-
-	int numberOfSelectedIndexes = selectedIndexes().count();
 
 	switch (type) {
 	// if we want to add a regexp
@@ -139,21 +157,6 @@ void PVInspector::PVXmlTreeView::addNode(AddType type)
 		getModel()->addRegExIn(index);
 		indexToSelect = index.child(getModel()->nodeFromIndex(index)->countChildren() - 1,
 		                            0); // last child of the node.
-		break;
-
-	// if we want to add a filter
-	case addFilter:
-		getModel()->addFilterAfter(index);
-		indexToSelect = index.child(0, 0); // the first child
-		break;
-
-	// if we want to add an axis
-	case addAxis:
-		getModel()->addAxisIn(index); // add the element
-		if (numberOfSelectedIndexes > 0) {
-			indexToSelect =
-			    index.child(0, 0).child(0, 0); // set the index to select after the adding.
-		}
 		break;
 
 	// if we want to add a splitter url
@@ -221,6 +224,8 @@ void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget* paramBord, 
 void PVInspector::PVXmlTreeView::deleteSelection()
 {
 	QModelIndexList sels_idx = selectedIndexes();
+	QModelIndex parent;
+
 	foreach (QModelIndex const& index, sels_idx) {
 		if (index.column() != 0) {
 			continue;
@@ -234,7 +239,15 @@ void PVInspector::PVXmlTreeView::deleteSelection()
 			}
 		}
 		getModel()->deleteSelection(index);
+		parent = index.parent();
 	}
+
+	if (!parent.isValid()) {
+		// i there is no parent to select, we try a sibling
+		parent = model()->index(0, 0, parent);
+	}
+
+	setCurrentIndex(parent);
 }
 
 /******************************************************************************
@@ -291,52 +304,27 @@ void PVInspector::PVXmlTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::mousePressEvent
- *
- *****************************************************************************/
-void PVInspector::PVXmlTreeView::mousePressEvent(QMouseEvent* event)
-{
-	QTreeView::mousePressEvent(event);
-
-// AG: i just can't figure out the interest of this...
-// It seemed to be the cause of bug #119
-#if 0
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::mousePressEvent\n");
-	for (int i = 0; i < selectedIndexes().count(); i++) {
-		if (selectedIndexes().at(i).isValid()){
-			selectionModel()->select(selectedIndexes().at(i), QItemSelectionModel::Clear); //valid index...
-		}
-	}
-
-	QTreeView::mousePressEvent(event);
-	//QTreeView::
-	QModelIndex index;
-	if (index.isValid()) {
-		PVLOG_DEBUG("emit clicked() on an invalid index in PVInspector::PVXmlTreeView::mousePressEvent()\n");
-	}
-	emit clicked(index); //keep it anyway, if the index is not valid, it update toolsbar enabled tools.
-#endif
-}
-
-/******************************************************************************
- *
  * PVInspector::PVXmlTreeView::moveDown
  *
  *****************************************************************************/
 void PVInspector::PVXmlTreeView::moveDown()
 {
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::moveDown\n");
-	if (selectedIndexes().count() > 0) { // if an item is selected
-		QModelIndex index = selectedIndexes().at(0);
-		getModel()->moveDown(index);
-		if (index.row() < getModel()->nodeFromIndex(index)->getParent()->countChildren() -
-		                      1)                                      // if child isn't the last
-			if (index.parent().child(index.row() + 1, 0).isValid()) { // valid index...
-				selectionModel()->select(index.parent().child(index.row() + 1, 0),
-				                         QItemSelectionModel::ClearAndSelect);
-				emit clicked(index.parent().child(index.row() + 1, 0));
-			}
+	QModelIndex index = currentIndex();
+
+	if (!index.isValid()) {
+		return;
 	}
+
+	QModelIndex new_index = index.sibling(index.row() + 1, index.column());
+
+	if (!new_index.isValid()) {
+		return;
+	}
+
+	getModel()->moveDown(index);
+	setCurrentIndex(new_index);
+
+	Q_EMIT clicked(new_index);
 }
 
 /******************************************************************************
@@ -346,17 +334,22 @@ void PVInspector::PVXmlTreeView::moveDown()
  *****************************************************************************/
 void PVInspector::PVXmlTreeView::moveUp()
 {
-	if (selectedIndexes().count() > 0) { // if an item is selected
-		QModelIndex index = selectedIndexes().at(0);
-		getModel()->moveUp(index);
-		if (index.row() > 0) {                                        // if child isn't the first
-			if (index.parent().child(index.row() - 1, 0).isValid()) { // valid index...
-				selectionModel()->select(index.parent().child(index.row() - 1, 0),
-				                         QItemSelectionModel::ClearAndSelect);
-				emit clicked(index.parent().child(index.row() - 1, 0));
-			}
-		}
+	QModelIndex index = currentIndex();
+
+	if (!index.isValid()) {
+		return;
 	}
+
+	QModelIndex new_index = index.sibling(index.row() - 1, index.column());
+
+	if (!new_index.isValid()) {
+		return;
+	}
+
+	getModel()->moveUp(index);
+	setCurrentIndex(new_index);
+
+	Q_EMIT clicked(new_index);
 }
 
 /******************************************************************************
