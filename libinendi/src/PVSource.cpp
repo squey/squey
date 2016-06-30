@@ -169,10 +169,10 @@ std::string Inendi::PVSource::get_input_value(PVRow row, PVCol col, bool* res) c
 	assert(row < get_row_count());
 	assert(col < get_column_count());
 
-	const PVRush::PVNrawBadConversions& bad_conv = get_rushnraw().bad_conversions();
+	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
 
 	bool conversion_failed;
-	std::string str = bad_conv.get(row, col, &conversion_failed);
+	std::string str = unconv.get(row, col, &conversion_failed);
 
 	if (res) {
 		*res = conversion_failed;
@@ -190,9 +190,9 @@ bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
 	assert(row < get_row_count());
 	assert(col < get_column_count());
 
-	const PVRush::PVNrawBadConversions& bad_conv = get_rushnraw().bad_conversions();
+	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
 
-	return bad_conv.has_failed(row, col);
+	return unconv.has_failed(row, col);
 }
 
 PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
