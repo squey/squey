@@ -151,6 +151,10 @@ add_pv_compile_test(Tplotting_time_week_log LINKS ${LINK_LIBRARIES} FILES plotti
 add_test(Tplotting_time_week_log Tplotting_time_week_log)
 add_bench(Tplotting_time_week_log LINKS ${LINK_LIBRARIES} FILES plotting_time_week_log.cpp)
 
+add_pv_compile_test(Tplotting_port LINKS ${LINK_LIBRARIES} FILES plotting_port.cpp)
+add_test(Tplotting_port Tplotting_port)
+add_bench(Tplotting_port LINKS ${LINK_LIBRARIES} FILES plotting_port.cpp)
+
 # FIXME : This test is a bit slow but it test a lot of thing. We should split
 # it in multiple tests
 add_pv_compile_test(TPVSelection LINKS ${LINK_LIBRARIES} FILES PVSelection.cpp)
