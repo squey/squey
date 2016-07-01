@@ -212,7 +212,7 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex& index, int role) co
 void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom* node)
 {
 	beginResetModel();
-	this->rootNode = node;
+	rootNode.reset(node);
 	endResetModel();
 }
 
@@ -235,7 +235,7 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModel
 		// PVLOG_DEBUG("              ---      \n");
 		return static_cast<PVRush::PVXmlTreeNodeDom*>(index.internalPointer());
 	} else {
-		return rootNode;
+		return getRoot();
 	}
 }
 
@@ -390,7 +390,7 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index)
 {
 	if (index.isValid()) {
 		PVRush::PVXmlTreeNodeDom* nodeASupprimer = nodeFromIndex(index);
-		if (nodeASupprimer != rootNode) {
+		if (nodeASupprimer != rootNode.get()) {
 			nodeASupprimer->deleteFromTree();
 			emit layoutChanged();
 		}
@@ -446,7 +446,7 @@ PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
 		child->isOnRoot = false;
 	} else {
 		child->isOnRoot = true;
-		parentNode = rootNode;
+		parentNode = getRoot();
 	}
 	child->setParent(parentNode);
 	parentNode->addChild(child);
@@ -517,7 +517,7 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 
 		if (!trustConfictSplitAxes(index))
 			return NULL; // we can't add more than one splitter in a field
-		field = rootNode;
+		field = getRoot();
 	}
 	PVLOG_DEBUG("     adding splitter on root node\n");
 	// add node in dom
@@ -565,7 +565,7 @@ PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
 		}
 	} else { // add on the root
 
-		field = rootNode;
+		field = getRoot();
 	}
 	PVLOG_DEBUG("     adding converter on root node\n");
 	// add node in dom
@@ -659,7 +659,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 		//
 		//        //tree
 		PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
-		child->setParent(rootNode);
+		child->setParent(getRoot());
 		rootNode->addChild(child);
 	}
 	emit layoutChanged();
@@ -777,7 +777,9 @@ bool PVInspector::PVXmlDomModel::openXml(QString url)
 	tmpTextXml.setCodec("UTF-8"); // AG: as defined in the XML header (and saved, cf. saveXML)
 	QString err_msg;
 	int err_line, err_col;
-	if (!this->xmlFile.setContent(tmpTextXml.readAll(), false, &err_msg, &err_line, &err_col)) {
+	QDomDocument doc;
+
+	if (!doc.setContent(tmpTextXml.readAll(), false, &err_msg, &err_line, &err_col)) {
 		QMessageBox msg(QMessageBox::Critical, tr("Unable to open format"),
 		                tr("Unable to open format '%1'").arg(url), QMessageBox::Ok);
 		msg.setInformativeText(
@@ -787,7 +789,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url)
 		return false;
 	}
 
-	openXml(this->xmlFile);
+	openXml(doc);
 	return true;
 }
 
@@ -807,7 +809,9 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 		xmlRootDom.removeChild(axes_cb_elt);
 	}
 
-	rootNode->init(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
+	rootNode.reset(
+	    new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, xmlFile));
+
 	beginResetModel();
 	endResetModel();
 
@@ -850,8 +854,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 			                         tr("You must select a field first."));
 			return;
 		}
-	} else {              // if no item is selected...
-		field = rootNode; // current node is the root node
+	} else {               // if no item is selected...
+		field = getRoot(); // current node is the root node
 	}
 
 	// conflicts Splitter & url
@@ -999,7 +1003,7 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex& index)
 	if (index.isValid()) {
 		node = nodeFromIndex(index);
 	} else {
-		node = rootNode;
+		node = getRoot();
 	}
 
 	for (int i = 0; i < node->getChildren().count(); i++) {

@@ -1037,6 +1037,7 @@ bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 			                                 myTreeModel->get_line_count());
 			_cur_file = path;
 			setWindowTitleForFile(path);
+			myTreeView->expandAll();
 			return true;
 		}
 	}
