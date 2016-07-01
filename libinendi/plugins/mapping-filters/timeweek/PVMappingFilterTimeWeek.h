@@ -94,7 +94,7 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 		pvcop::db::array res(pvcop::db::type_uint32, 2);
 		auto res_array = res.to_core_array<uint32_t>();
 		res_array[0] = 0;
-		res_array[1] = 7 * (24 * 3600 - 1);
+		res_array[1] = 7 * 24 * 3600 - 1;
 		return res;
 	}
 

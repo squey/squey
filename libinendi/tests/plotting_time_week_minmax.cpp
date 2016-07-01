@@ -63,21 +63,19 @@ int main()
 	});
 
 	uint32_t prev = plotted.get_column_pointer(0)[order[0]];
-	constexpr uint32_t sec_per_week = 7 * (3600 * 24 - 1);
-	constexpr uint32_t ratio = std::numeric_limits<uint32_t>::max() / sec_per_week;
-	PV_VALID(prev,
-	         (uint32_t)to_tm(*reinterpret_cast<const boost::posix_time::ptime*>(&array[order[0]]))
-	                 .tm_sec *
-	             ratio);
+	constexpr double sec_per_week = 7 * 24 * 3600 - 1;
+	constexpr double ratio = std::numeric_limits<uint32_t>::max() / sec_per_week;
+	PV_VALID(
+	    prev,
+	    (uint32_t)(
+	        to_tm(*reinterpret_cast<const boost::posix_time::ptime*>(&array[order[0]])).tm_sec *
+	        ratio));
 	for (size_t i = 0; i < column.size(); i++) {
 		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(0)[order[i]]);
 		prev = plotted.get_column_pointer(0)[order[i]];
 	}
-	tm tm_last =
-	    to_tm(*reinterpret_cast<const boost::posix_time::ptime*>(&array[order[column.size() - 1]]));
-	uint32_t last_time =
-	    ((tm_last.tm_wday * 24 + tm_last.tm_hour) * 60 + tm_last.tm_min) * 60 + tm_last.tm_sec;
-	PV_VALID(prev, last_time * ratio);
+	// We don't have time less than 3 seconds before the end of the week end in the file.
+	PV_ASSERT_VALID(prev >= std::numeric_limits<uint32_t>::max() - (uint32_t)(ratio * 3) - 1);
 #endif
 
 	return 0;

@@ -42,9 +42,21 @@ int main()
 	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.collection().column(0);
+	auto& column_array = column.to_core_array<float>();
 
-	for (size_t i = 0; i < column.size(); i++) {
-		PV_VALID(plotted.get_column_pointer(0)[i], (uint32_t)column.to_core_array<float>()[i]);
+	std::vector<size_t> order(column.size());
+	std::iota(order.begin(), order.end(), 0);
+	std::sort(order.begin(), order.end(),
+	          [&](size_t a, size_t b) { return column_array[a] < column_array[b]; });
+
+	PV_VALID(plotted.get_column_pointer(0)[order[0]], (uint32_t)0);
+	PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[order.size() - 1]] >=
+	                std::numeric_limits<uint32_t>::max() - 1);
+
+	// Check we keep value ordering.
+	for (size_t i = 1; i < column.size(); i++) {
+		PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[i - 1]] <=
+		                plotted.get_column_pointer(0)[order[i]]);
 	}
 #endif
 

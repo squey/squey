@@ -15,8 +15,8 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
                                     uint32_t* dest)
 {
 	auto& mm = minmax.to_core_array<T>();
-	T ymin = mm[0];
-	T ymax = mm[1];
+	double ymin = mm[0];
+	double ymax = mm[1];
 
 	if (ymin == ymax) {
 		for (size_t i = 0; i < mm.size(); i++) {
@@ -26,13 +26,14 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
 	}
 	assert(ymax > ymin);
 
-	// Use int64 type to avoid overflow with ymax = int32_max and ymin = int32_min
-	const uint32_t ratio =
-	    std::numeric_limits<uint32_t>::max() / uint32_t((int64_t)ymax - (int64_t)ymin);
+	// Use double to compute value to avoid rounding issue.
+	// eg: if we use only uint32_t, with ymax - ymin > uint32_max / 2, ratio will be 1 and
+	// no scaling will be applied
+	const double ratio = std::numeric_limits<uint32_t>::max() / (ymax - ymin);
 	auto& values = mapped.to_core_array<T>();
 #pragma omp parallel for
 	for (size_t i = 0; i < values.size(); i++) {
-		dest[i] = uint32_t((int64_t)values[i] - (int64_t)ymin) * ratio;
+		dest[i] = ((double)values[i] - ymin) * ratio;
 	}
 }
 
