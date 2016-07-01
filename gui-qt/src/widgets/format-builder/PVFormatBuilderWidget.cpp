@@ -35,7 +35,8 @@ QList<QUrl> PVInspector::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl
  * PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent) : QMainWindow(parent)
+PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
+    : QMainWindow(parent), _file_dialog(this)
 {
 	init(parent);
 	setObjectName("PVFormatBuilderWidget");
