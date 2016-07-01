@@ -17,7 +17,7 @@ class PVPlottingFilterEnum : public PVPlottingFilter
 {
   public:
 	uint32_t* operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax) override;
-	QString get_human_name() const override { return QString("Enum"); }
+	QString get_human_name() const override { return QString("Uniform"); }
 
 	std::set<std::pair<std::string, std::string>> list_usable_type() const override { return {}; }
 
