@@ -23,7 +23,7 @@ uint32_t* Inendi::PVPlottingFilterIntegerPort::operator()(mapped_decimal_storage
 		if (v < 1024) {
 			_dest[i] = ~(v << 21);
 		} else {
-			_dest[i] = ~(((uint32_t)(((uint64_t)(v - 1024) * (uint64_t)(UINT_MAX)) /
+			_dest[i] = ~(((uint32_t)(((uint64_t)(v - 1024) * (uint64_t)(1UL << 31)) /
 			                         (uint64_t)(65535 - 1024))) |
 			             0x80000000UL);
 		}
