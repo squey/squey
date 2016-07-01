@@ -11,19 +11,38 @@
 
 #include <omp.h>
 
-Inendi::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax(PVCore::PVArgumentList const& args)
-    : PVPlottingFilter()
+Inendi::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax() : PVPlottingFilter()
 {
-	INIT_FILTER(PVPlottingFilterLogMinmax, args);
+	INIT_FILTER_NOPARAM(PVPlottingFilterLogMinmax);
 }
 
-DEFAULT_ARGS_FILTER(Inendi::PVPlottingFilterLogMinmax)
+template <class T>
+static void
+compute_log_plotting(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint32_t* dest)
 {
+	auto& mm = minmax.to_core_array<T>();
+	double ymin = mm[0];
+	double ymax = mm[1];
 
-	PVCore::PVArgumentList args;
-	/*args[PVCore::PVArgumentKey("range-min", "Minimal value (0=auto)")] = QString("0.0");
-	args[PVCore::PVArgumentKey("range-max", "Maximal value (0=auto)")] = QString("0.0");*/
-	return args;
+	if (ymin == ymax) {
+		std::fill_n(dest, mapped.size(), 1UL << 31);
+		return;
+	}
+
+	int64_t offset = 0;
+	if (ymin <= 0) {
+		// Ensure values are between 0 (exclude) and infinity (and beyond)
+		offset = -ymin + 1;
+		ymin += offset;
+		ymax += offset;
+	}
+
+	const double ratio = std::numeric_limits<uint32_t>::max() / (std::log2(ymax / ymin));
+	auto& values = mapped.to_core_array<T>();
+#pragma omp parallel for
+	for (size_t i = 0; i < mapped.size(); i++) {
+		dest[i] = ratio * (std::log2(((double)values[i] + offset) / ymin));
+	}
 }
 
 uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
@@ -31,90 +50,12 @@ uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& 
 {
 	assert(_dest);
 
-	const ssize_t size = _dest_size;
-
 	if (mapped.type() == pvcop::db::type_int32) {
-		auto& mm = minmax.to_core_array<int32_t>();
-		int64_t ymin = mm[0];
-		int64_t ymax = mm[1];
-
-		if (ymin == ymax) {
-			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX >> 1);
-			}
-			return _dest;
-		}
-
-		int64_t offset = 0;
-		if (ymin <= 0) {
-			offset = -ymin + 1;
-			ymin += offset;
-			ymax += offset;
-		}
-
-		const double log_ymin = log2(ymin);
-		const double div = log2(ymax) - log_ymin;
-		auto& values = mapped.to_core_array<int32_t>();
-#pragma omp parallel for
-		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = ~((uint32_t)(((log2((int64_t)(values[i]) + offset) - log_ymin) / div) *
-			                        ((double)(UINT_MAX))));
-		}
+		compute_log_plotting<int32_t>(mapped, minmax, _dest);
 	} else if (mapped.type() == pvcop::db::type_uint32) {
-		// FIXME : Typing is weird
-		auto& mm = minmax.to_core_array<uint32_t>();
-		int64_t ymin = mm[0];
-		int64_t ymax = mm[1];
-
-		if (ymin == ymax) {
-			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX >> 1);
-			}
-			return _dest;
-		}
-
-		int64_t offset = 0;
-		if (ymin <= 0) {
-			offset = -ymin + 1;
-			ymin += offset;
-			ymax += offset;
-		}
-
-		const double log_ymin = log2(ymin);
-		const double div = log2(ymax) - log_ymin;
-		auto& values = mapped.to_core_array<uint32_t>();
-#pragma omp parallel for
-		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] = ~((uint32_t)(((log2((int64_t)(values[i]) + offset) - log_ymin) / div) *
-			                        ((double)(UINT_MAX))));
-		}
+		compute_log_plotting<uint32_t>(mapped, minmax, _dest);
 	} else {
-		auto& mm = minmax.to_core_array<float>();
-		float ymin = mm[0];
-		float ymax = mm[1];
-
-		if (ymin == ymax) {
-			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = ~(UINT_MAX >> 1);
-			}
-			return _dest;
-		}
-
-		float offset = 0;
-		if (ymin <= 0) {
-			offset = -ymin + 1.0f;
-			ymin += offset;
-			ymax += offset;
-		}
-
-		const double log_ymin = log2(ymin);
-		const double div = log2(ymax) - log_ymin;
-		auto& values = mapped.to_core_array<float>();
-#pragma omp parallel for
-		for (ssize_t i = 0; i < size; i++) {
-			_dest[i] =
-			    ~((uint32_t)(((log2(values[i] + offset) - log_ymin) / div) * ((double)(UINT_MAX))));
-		}
+		compute_log_plotting<float>(mapped, minmax, _dest);
 	}
 
 	return _dest;

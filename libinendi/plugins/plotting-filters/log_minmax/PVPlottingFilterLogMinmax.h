@@ -16,8 +16,7 @@ namespace Inendi
 class PVPlottingFilterLogMinmax : public PVPlottingFilter
 {
   public:
-	PVPlottingFilterLogMinmax(
-	    PVCore::PVArgumentList const& args = PVPlottingFilterLogMinmax::default_args());
+	PVPlottingFilterLogMinmax();
 
   public:
 	uint32_t* operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax) override;
@@ -26,7 +25,7 @@ class PVPlottingFilterLogMinmax : public PVPlottingFilter
 	std::set<std::pair<std::string, std::string>> list_usable_type() const override { return {}; }
 
   private:
-	CLASS_FILTER(PVPlottingFilterLogMinmax)
+	CLASS_FILTER_NOPARAM(PVPlottingFilterLogMinmax)
 };
 }
 

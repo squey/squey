@@ -131,6 +131,26 @@ add_pv_compile_test(Tplotting_time_week_minmax LINKS ${LINK_LIBRARIES} FILES plo
 add_test(Tplotting_time_week_minmax Tplotting_time_week_minmax)
 add_bench(Tplotting_time_week_minmax LINKS ${LINK_LIBRARIES} FILES plotting_time_week_minmax.cpp)
 
+add_pv_compile_test(Tplotting_integer_default_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_log.cpp)
+add_test(Tplotting_integer_default_log Tplotting_integer_default_log)
+add_bench(Tplotting_integer_default_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_log.cpp)
+
+add_pv_compile_test(Tplotting_integer_unsigned_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_log.cpp)
+add_test(Tplotting_integer_unsigned_log Tplotting_integer_unsigned_log)
+add_bench(Tplotting_integer_unsigned_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_log.cpp)
+
+add_pv_compile_test(Tplotting_float_default_log LINKS ${LINK_LIBRARIES} FILES plotting_float_default_log.cpp)
+add_test(Tplotting_float_default_log Tplotting_float_default_log)
+add_bench(Tplotting_float_default_log LINKS ${LINK_LIBRARIES} FILES plotting_float_default_log.cpp)
+
+add_pv_compile_test(Tplotting_time_24h_log LINKS ${LINK_LIBRARIES} FILES plotting_time_24h_log.cpp)
+add_test(Tplotting_time_24h_log Tplotting_time_24h_log)
+add_bench(Tplotting_time_24h_log LINKS ${LINK_LIBRARIES} FILES plotting_time_24h_log.cpp)
+
+add_pv_compile_test(Tplotting_time_week_log LINKS ${LINK_LIBRARIES} FILES plotting_time_week_log.cpp)
+add_test(Tplotting_time_week_log Tplotting_time_week_log)
+add_bench(Tplotting_time_week_log LINKS ${LINK_LIBRARIES} FILES plotting_time_week_log.cpp)
+
 # FIXME : This test is a bit slow but it test a lot of thing. We should split
 # it in multiple tests
 add_pv_compile_test(TPVSelection LINKS ${LINK_LIBRARIES} FILES PVSelection.cpp)
