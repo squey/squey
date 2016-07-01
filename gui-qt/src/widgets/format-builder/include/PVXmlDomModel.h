@@ -25,6 +25,8 @@
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <inendi/PVAxesCombination.h>
 
+#include <memory>
+
 namespace PVInspector
 {
 class PVXmlDomModel : public QAbstractItemModel
@@ -144,7 +146,7 @@ class PVXmlDomModel : public QAbstractItemModel
 
 	QDomElement const& getRootDom() const { return xmlRootDom; }
 
-	PVRush::PVXmlTreeNodeDom* getRoot() { return rootNode; }
+	PVRush::PVXmlTreeNodeDom* getRoot() const { return rootNode.get(); }
 
 	void processChildrenWithField(PVCore::PVField const& field);
 	void clearFiltersData();
@@ -165,7 +167,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	                           QString const& mode_plotting);
 
   private:
-	PVRush::PVXmlTreeNodeDom* rootNode;
+	std::unique_ptr<PVRush::PVXmlTreeNodeDom> rootNode;
 
 	QString urlXml;
 	QDomDocument xmlFile;
