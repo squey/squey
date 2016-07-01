@@ -18,6 +18,13 @@ namespace Inendi
 {
 
 /**
+ * Exception raised when mapping/plotting combination is invalid.
+ */
+struct InvalidPlottingMapping : public std::runtime_error {
+	using std::runtime_error::runtime_error;
+};
+
+/**
  * \class PVAxis
  */
 class PVAxis : public PVRush::PVAxisFormat

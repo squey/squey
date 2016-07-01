@@ -824,6 +824,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	}
 
 	bool one_extraction_successful = false;
+	QStringList invalid_formats;
 	// Load a type of file per view
 
 	/* can not use a C++11 foreach because QHash<...>::const_iterator is not
@@ -841,9 +842,22 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 
 		PVRush::PVSourceDescription src_desc(inputs, fc.second, cur_format);
 
-		if (load_source_from_description_Slot(src_desc)) {
-			one_extraction_successful = true;
+		try {
+			if (load_source_from_description_Slot(src_desc)) {
+				one_extraction_successful = true;
+			}
+		} catch (Inendi::InvalidPlottingMapping const& e) {
+			invalid_formats.append(it.key() + ": " + e.what());
 		}
+	}
+
+	if (not invalid_formats.isEmpty()) {
+		QMessageBox error_message(
+		    QMessageBox::Warning, "Invalid format",
+		    "Some format can't be use as types, mapping and plotting are not compatible.",
+		    QMessageBox::Ok, this);
+		error_message.setDetailedText(invalid_formats.join("\n"));
+		error_message.exec();
 	}
 
 	if (!one_extraction_successful) {
