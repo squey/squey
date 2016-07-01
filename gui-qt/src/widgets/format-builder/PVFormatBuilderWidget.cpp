@@ -210,6 +210,8 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	lastSplitterPluginAdding = -1;
 	initConnexions();
 
+	slotUpdateToolsState();
+
 	// AG: here, that's a bit tricky. We want our widget to have a maximize button,
 	// but the only way to do that with Qt is to use setWindowFlag(Qt::Window).
 	// According to Qt's documentation (and source code), as we are originally a widget,
@@ -252,8 +254,7 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation()
 	actionAddFilterAfter->setIcon(QIcon(":/filter"));
 	actionAddRegExAfter = new QAction("add a RegEx", (QObject*)this);
 	actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
-	actionAddUrl = new QAction("add an URL", (QObject*)this);
-	actionAddUrl->setIcon(QIcon(":/add-url"));
+	actionAddUrl = new QAction("add URL splitter", (QObject*)this);
 
 	actionSave = new QAction("&Save format", (QObject*)this);
 	actionSave->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
@@ -290,7 +291,7 @@ void PVInspector::PVFormatBuilderWidget::initConnexions()
 	        SLOT(edit(const QModelIndex&)));
 	// connexion to endable/desable items in toolsbar menu.
 	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), this,
-	        SLOT(slotUpdateToolDesabled(const QModelIndex&)));
+	        SLOT(slotUpdateToolsState(const QModelIndex&)));
 
 	// data has changed from tree
 	connect(myTreeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), myTreeView,
@@ -489,6 +490,7 @@ void PVInspector::PVFormatBuilderWidget::slotDelete()
 	if (msg.exec() == QMessageBox::Yes) {
 		myTreeView->deleteSelection();
 		myParamBord_old_model->drawForNo(QModelIndex());
+		slotUpdateToolsState(myTreeView->currentIndex());
 	}
 }
 
@@ -648,59 +650,59 @@ void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& pa
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled
+ * PVInspector::PVFormatBuilderWidget::slotUpdateToolsState
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled(const QModelIndex& index)
+void PVInspector::PVFormatBuilderWidget::slotUpdateToolsState(const QModelIndex& index)
 {
 	PVRush::PVXmlTreeNodeDom* node = myTreeModel->nodeFromIndex(index);
 
-	// hideParamBoard();
+	bool force_root_action = not index.parent().isValid();
 
 	if (node->getDom().tagName() == "field") {
 		myTreeView->expandRecursive(index);
 		actionAddFilterAfter->setEnabled(true);
 		actionAddAxisIn->setEnabled(true);
-		actionAddRegExAfter->setEnabled(true);
-		actionAddUrl->setEnabled(true);
+		_splitters->setEnabled(true);
+		_converters->setEnabled(true);
 		actionDelete->setEnabled(false);
 	} else if (node->getDom().tagName() == "axis") {
-		actionAddFilterAfter->setEnabled(false);
+		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "filter" || node->getDom().tagName() == "converter") {
-		actionAddFilterAfter->setEnabled(false);
+		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(force_root_action);
+		_converters->setEnabled(force_root_action);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "splitter") {
 		myTreeView->expandRecursive(index);
-		actionAddFilterAfter->setEnabled(false);
+		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(force_root_action);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "RegEx") {
 		myTreeView->expandRecursive(index);
 		actionAddFilterAfter->setEnabled(false);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "url") {
 		actionAddFilterAfter->setEnabled(false);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else {
 		actionAddFilterAfter->setEnabled(true);
-		actionAddAxisIn->setEnabled(true);
-		actionAddRegExAfter->setEnabled(true);
-		actionAddUrl->setEnabled(true);
+		actionAddAxisIn->setEnabled(false);
+		_splitters->setEnabled(true);
+		_converters->setEnabled(true);
 		actionDelete->setEnabled(false);
 	}
 }
@@ -723,26 +725,25 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
 	file->addSeparator();
 
-	QMenu* splitter = menuBar->addMenu(tr("&Splitter"));
-	splitter->addAction(actionAddUrl);
-	splitter->addSeparator();
+	_splitters = menuBar->addMenu(tr("&Splitters"));
 	// add all plugins splitters
 	for (int i = 0; i < _list_splitters.size(); i++) {
 		QAction* action = _list_splitters.at(i)->get_action_menu();
 		assert(action);
 		if (action) {
-			splitter->addAction(action);
+			_splitters->addAction(action);
 		}
 	}
+	_splitters->addAction(actionAddUrl);
 
 	// add all plugins converters
-	QMenu* converter = menuBar->addMenu(tr("&Converter"));
+	_converters = menuBar->addMenu(tr("&Converters"));
 	// add all plugins converters
 	for (int i = 0; i < _list_converters.size(); i++) {
 		QAction* action = _list_converters.at(i)->get_action_menu();
 		assert(action);
 		if (action) {
-			converter->addAction(action);
+			_converters->addAction(action);
 		}
 	}
 

@@ -150,7 +150,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	void slotOpenLog();
 	void slotSave();
 	void slotSaveAs();
-	void slotUpdateToolDesabled(const QModelIndex&);
+	void slotUpdateToolsState(const QModelIndex& index = QModelIndex());
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex& index);
 	void slotMainTabChanged(int idx);
@@ -198,6 +198,9 @@ class PVFormatBuilderWidget : public QMainWindow
 
 	//
 	QFile logFile; ///!< file we open to edit the format
+
+	QMenu* _splitters;
+	QMenu* _converters;
 
 	QAction* actionAddAxisAfter;
 	QAction* actionAddAxisIn;
