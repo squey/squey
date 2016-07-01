@@ -45,7 +45,7 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats,
 	formats_name.prepend(QString(INENDI_LOCAL_FORMAT_STR));
 
 	// Get information from file dialog
-	PVImportFileDialog file_dlg(formats_name);
+	PVImportFileDialog file_dlg(formats_name, parent);
 	QStringList filenames = file_dlg.getFileNames(format);
 
 	return load_files(filenames, inputs, parent);
