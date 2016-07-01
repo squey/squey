@@ -135,6 +135,8 @@ class PVXmlDomModel : public QAbstractItemModel
 	bool openXml(QString file);
 	void openXml(QDomDocument& doc);
 
+	bool hasFormatChanged() const;
+
 	// identify multi axis or splitter in a field
 	bool trustConfictSplitAxes(const QModelIndex& index);
 
@@ -171,6 +173,7 @@ class PVXmlDomModel : public QAbstractItemModel
 
 	QString urlXml;
 	QDomDocument xmlFile;
+	QString _original_xml_content;
 	QDomElement xmlRootDom;
 
 	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
