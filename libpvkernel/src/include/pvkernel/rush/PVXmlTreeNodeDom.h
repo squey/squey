@@ -200,7 +200,12 @@ class PVXmlTreeNodeDom : public QObject
 		PVCore::PVArgumentList args, args_default;
 		args_default = getSplitterPlugin()->get_default_argument();
 		toArgumentList(args_default, args);
-		getSplitterPlugin()->get_filter()->set_args(args);
+		try {
+			getSplitterPlugin()->get_filter()->set_args(args);
+		} catch (PVFilter::PVFieldsFilterInvalidArguments const&) {
+			// Don't throw an exception for filters containing invalid
+			// arguments because the user is currently creating his format
+		}
 		return getSplitterPlugin()->get_param_widget();
 	}
 
@@ -209,7 +214,12 @@ class PVXmlTreeNodeDom : public QObject
 		PVCore::PVArgumentList args, args_default;
 		args_default = getConverterPlugin()->get_default_argument();
 		toArgumentList(args_default, args);
-		getConverterPlugin()->get_filter()->set_args(args);
+		try {
+			getConverterPlugin()->get_filter()->set_args(args);
+		} catch (PVFilter::PVFieldsFilterInvalidArguments const&) {
+			// Don't throw an exception for filters containing invalid
+			// arguments because the user is currently creating his format
+		}
 		return getConverterPlugin()->get_param_widget();
 	}
 

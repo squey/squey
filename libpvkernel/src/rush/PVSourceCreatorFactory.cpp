@@ -91,85 +91,94 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	           (end - start).seconds());
 	PVSourceCreator_p sc = format_.second;
 
-	PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters_autodetect(1.0, cancellation);
-	PVSourceCreator::source_p src = sc->create_source_from_input(input, format);
+	try {
+		PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters_autodetect(1.0, cancellation);
+		PVSourceCreator::source_p src = sc->create_source_from_input(input, format);
 
-	if (src.get() == nullptr) {
-		return 0.f;
-	}
-
-	src->set_number_cols_to_reserve(format.get_axes().size());
-
-	size_t nelts = 0;
-	size_t nelts_valid = 0;
-
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	static size_t nelts_max = pvconfig.value("pvkernel/auto_discovery_number_elts", 500).toInt();
-
-	for (int i = 0; i < INENDI_DISCOVERY_NCHUNKS; i++) {
-		// Create a chunk
-		PVCore::PVChunk* chunk = (*src)();
-		if (chunk == NULL) { // No more chunks !
-			break;
+		if (src.get() == nullptr) {
+			return 0.f;
 		}
 
-		// Limit the number of elements filtered
-		if (chunk->c_elements().size() + nelts > nelts_max) {
-			PVCore::list_elts& l = chunk->elements();
-			size_t new_size = nelts_max - nelts;
-			PVLOG_DEBUG("(PVSourceCreatorFactory::discover_input) new chunk size %d.\n", new_size);
-			// Free the elements that we are going to remove
-			PVCore::list_elts::iterator it_elt = l.begin();
-			std::advance(it_elt, new_size);
-			for (; it_elt != l.end(); it_elt++) {
-				PVCore::PVElement::free(*it_elt);
+		src->set_number_cols_to_reserve(format.get_axes().size());
+
+		size_t nelts = 0;
+		size_t nelts_valid = 0;
+
+		QSettings& pvconfig = PVCore::PVConfig::get().config();
+
+		static size_t nelts_max =
+		    pvconfig.value("pvkernel/auto_discovery_number_elts", 500).toInt();
+
+		for (int i = 0; i < INENDI_DISCOVERY_NCHUNKS; i++) {
+			// Create a chunk
+			PVCore::PVChunk* chunk = (*src)();
+			if (chunk == NULL) { // No more chunks !
+				break;
 			}
-			it_elt = l.begin();
-			std::advance(it_elt, new_size);
-			l.erase(it_elt, l.end());
+
+			// Limit the number of elements filtered
+			if (chunk->c_elements().size() + nelts > nelts_max) {
+				PVCore::list_elts& l = chunk->elements();
+				size_t new_size = nelts_max - nelts;
+				PVLOG_DEBUG("(PVSourceCreatorFactory::discover_input) new chunk size %d.\n",
+				            new_size);
+				// Free the elements that we are going to remove
+				PVCore::list_elts::iterator it_elt = l.begin();
+				std::advance(it_elt, new_size);
+				for (; it_elt != l.end(); it_elt++) {
+					PVCore::PVElement::free(*it_elt);
+				}
+				it_elt = l.begin();
+				std::advance(it_elt, new_size);
+				l.erase(it_elt, l.end());
+			}
+
+			// Apply the filter
+			chk_flt(chunk);
+			if (chunk->c_elements().size() == 0) {
+				chunk->free();
+				continue;
+			}
+
+			// Check the number of fields of the first element, and compare to the one
+			// of the given format
+			PVCol chunk_nfields = (*(chunk->c_elements().begin()))->c_fields().size();
+			PVCol format_nfields = format.get_axes().size();
+			if (chunk_nfields != format_nfields) {
+				PVLOG_DEBUG("For format %s, the number of fields after the normalization is %d, "
+				            "different of the number of axes of the format (%d).\n",
+				            qPrintable(format.get_format_name()), chunk_nfields, format_nfields);
+				chunk->free();
+				return 0;
+			}
+
+			// Count the number of valid elts
+			size_t chunk_nelts;
+			size_t chunk_nelts_valid;
+			chunk->get_elts_stat(chunk_nelts, chunk_nelts_valid);
+			nelts += chunk_nelts;
+			nelts_valid += chunk_nelts_valid;
+			chunk->free();
+			if (nelts >= nelts_max) {
+				break;
+			}
 		}
 
-		// Apply the filter
-		chk_flt(chunk);
-		if (chunk->c_elements().size() == 0) {
-			chunk->free();
-			continue;
-		}
-
-		// Check the number of fields of the first element, and compare to the one
-		// of the given format
-		PVCol chunk_nfields = (*(chunk->c_elements().begin()))->c_fields().size();
-		PVCol format_nfields = format.get_axes().size();
-		if (chunk_nfields != format_nfields) {
-			PVLOG_DEBUG("For format %s, the number of fields after the normalization is %d, "
-			            "different of the number of axes of the format (%d).\n",
-			            qPrintable(format.get_format_name()), chunk_nfields, format_nfields);
-			chunk->free();
+		if (nelts == 0) {
 			return 0;
 		}
 
-		// Count the number of valid elts
-		size_t chunk_nelts;
-		size_t chunk_nelts_valid;
-		chunk->get_elts_stat(chunk_nelts, chunk_nelts_valid);
-		nelts += chunk_nelts;
-		nelts_valid += chunk_nelts_valid;
-		chunk->free();
-		if (nelts >= nelts_max) {
-			break;
-		}
+		end = tbb::tick_count::now();
+		PVLOG_INFO("Discovery with format %s took %0.4f, %d/%d elements are valid.\n",
+		           qPrintable(format.get_format_name()), (end - start).seconds(), nelts_valid,
+		           nelts);
+
+		return (float)nelts_valid / (float)nelts;
+	} catch (PVFilter::PVFieldsFilterInvalidArguments const&) {
+
+		// Formats with filters containing invalid arguments are not candidates to auto discovery
+		return 0.0;
 	}
-
-	if (nelts == 0) {
-		return 0;
-	}
-
-	end = tbb::tick_count::now();
-	PVLOG_INFO("Discovery with format %s took %0.4f, %d/%d elements are valid.\n",
-	           qPrintable(format.get_format_name()), (end - start).seconds(), nelts_valid, nelts);
-
-	return (float)nelts_valid / (float)nelts;
 }
 
 std::multimap<float, PVRush::pair_format_creator>

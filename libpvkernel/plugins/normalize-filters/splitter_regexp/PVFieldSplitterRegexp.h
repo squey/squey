@@ -29,7 +29,7 @@ class PVFieldSplitterRegexp : public PVFieldsFilter<one_to_many>
 	                                           PVCore::PVField& field);
 
   public:
-	virtual void set_args(PVCore::PVArgumentList const& args);
+	void set_args(PVCore::PVArgumentList const& args) override;
 
   protected:
 	std::regex _regexp;
