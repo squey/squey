@@ -23,7 +23,6 @@ PVMapping.cpp
 PVMappingProperties.cpp 
 PVPlotted.cpp
 PVPlotting.cpp
-PVPlottingFilter.cpp
 PVPlottingProperties.cpp
 PVRoot.cpp
 PVScene.cpp

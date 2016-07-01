@@ -7,10 +7,10 @@
 
 #include "PVPlottingFilterEnum.h"
 
-uint32_t* Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped,
-                                                   pvcop::db::array const&)
+void Inendi::PVPlottingFilterEnum::
+operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* dest)
 {
-	assert(_dest);
+	assert(dest);
 
 	pvcop::db::groups group;
 	pvcop::db::extents extents;
@@ -22,10 +22,8 @@ uint32_t* Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mappe
 	// -1 as we count "number of space between values", not "values"
 	double extend_factor = std::numeric_limits<uint32_t>::max() / ((double)extents.size() - 1);
 	for (size_t row = 0; row < mapped.size(); row++) {
-		_dest[row] = extend_factor * core_group[row];
+		dest[row] = extend_factor * core_group[row];
 	}
-
-	return _dest;
 }
 
 IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterEnum)

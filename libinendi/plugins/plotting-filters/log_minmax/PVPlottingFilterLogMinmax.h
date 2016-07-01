@@ -16,10 +16,9 @@ namespace Inendi
 class PVPlottingFilterLogMinmax : public PVPlottingFilter
 {
   public:
-	PVPlottingFilterLogMinmax();
-
-  public:
-	uint32_t* operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax) override;
+	void operator()(pvcop::db::array const& mapped,
+	                pvcop::db::array const& minmax,
+	                uint32_t* dest) override;
 	QString get_human_name() const override { return QString("Logarithmic min/max"); }
 
 	std::set<std::pair<std::string, std::string>> list_usable_type() const override { return {}; }

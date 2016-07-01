@@ -30,20 +30,18 @@ static void compute_port_plotting(pvcop::db::array const& mapped, uint32_t* dest
 	}
 }
 
-uint32_t* Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped,
-                                                   pvcop::db::array const&)
+void Inendi::PVPlottingFilterPort::
+operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* dest)
 {
 	// FIXME : We may inform user if minmax is not in 65535 - 0
-	assert(_dest);
+	assert(dest);
 
 	if (mapped.type() == pvcop::db::type_uint32) {
-		compute_port_plotting<uint32_t>(mapped, _dest);
+		compute_port_plotting<uint32_t>(mapped, dest);
 	} else {
 		assert(mapped.type() == pvcop::db::type_int32);
-		compute_port_plotting<int32_t>(mapped, _dest);
+		compute_port_plotting<int32_t>(mapped, dest);
 	}
-
-	return _dest;
 }
 
 IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterPort)

@@ -29,23 +29,11 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop:
 	typedef PVPlottingFilter FilterT;
 
   public:
-	PVPlottingFilter();
-
-  public:
-	virtual uint32_t* operator()(pvcop::db::array const& mapped,
-	                             pvcop::db::array const& minmax) = 0;
-
-	void set_dest_array(PVRow size, uint32_t* arr);
+	virtual void
+	operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint32_t* dest) = 0;
 
 	virtual QString get_human_name() const = 0;
 	virtual std::set<std::pair<std::string, std::string>> list_usable_type() const = 0;
-
-  public:
-	static QString mode_from_registered_name(QString const& rn);
-
-  protected:
-	PVRow _dest_size;
-	uint32_t* _dest;
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;

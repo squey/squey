@@ -11,11 +11,6 @@
 
 #include <omp.h>
 
-Inendi::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax() : PVPlottingFilter()
-{
-	INIT_FILTER_NOPARAM(PVPlottingFilterLogMinmax);
-}
-
 template <class T>
 static void
 compute_log_plotting(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint32_t* dest)
@@ -45,20 +40,18 @@ compute_log_plotting(pvcop::db::array const& mapped, pvcop::db::array const& min
 	}
 }
 
-uint32_t* Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
-                                                        pvcop::db::array const& minmax)
+void Inendi::PVPlottingFilterLogMinmax::
+operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint32_t* dest)
 {
-	assert(_dest);
+	assert(dest);
 
 	if (mapped.type() == pvcop::db::type_int32) {
-		compute_log_plotting<int32_t>(mapped, minmax, _dest);
+		compute_log_plotting<int32_t>(mapped, minmax, dest);
 	} else if (mapped.type() == pvcop::db::type_uint32) {
-		compute_log_plotting<uint32_t>(mapped, minmax, _dest);
+		compute_log_plotting<uint32_t>(mapped, minmax, dest);
 	} else {
-		compute_log_plotting<float>(mapped, minmax, _dest);
+		compute_log_plotting<float>(mapped, minmax, dest);
 	}
-
-	return _dest;
 }
 
-IMPL_FILTER(Inendi::PVPlottingFilterLogMinmax)
+IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterLogMinmax)
