@@ -19,7 +19,8 @@ uint32_t* Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mappe
 
 	auto& core_group = group.to_core_array();
 
-	double extend_factor = std::numeric_limits<uint32_t>::max() / (double)extents.size();
+	// -1 as we count "number of space between values", not "values"
+	double extend_factor = std::numeric_limits<uint32_t>::max() / ((double)extents.size() - 1);
 	for (size_t row = 0; row < mapped.size(); row++) {
 		_dest[row] = extend_factor * core_group[row];
 	}

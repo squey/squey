@@ -50,6 +50,11 @@ int main()
 		distinct_plotting.insert(plotted.get_column_pointer(0)[i]);
 	}
 
+	auto minmax = std::minmax_element(distinct_plotting.begin(), distinct_plotting.end());
+
+	PV_VALID(*minmax.first, 0U);
+	PV_VALID(*minmax.second, std::numeric_limits<uint32_t>::max());
+
 	// Check there is a much distinct plotting than distinct values.
 	PV_VALID(dist.size(), distinct_plotting.size());
 
