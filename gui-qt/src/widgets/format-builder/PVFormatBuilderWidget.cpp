@@ -38,21 +38,11 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
 	setObjectName("PVFormatBuilderWidget");
 }
 
-bool PVInspector::PVFormatBuilderWidget::somethingChanged(void)
-{
-	// FIXME : It doesn't perform correct check. We can't save if we need a save after this.
-	if (myTreeView->model()->rowCount()) {
-		return true;
-	}
-
-	return false;
-}
-
 void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
 {
-	if (somethingChanged()) {
-		QMessageBox msgBox;
-		msgBox.setText("The document has been modified.");
+	if (myTreeView->getModel()->hasFormatChanged()) {
+		QMessageBox msgBox(this);
+		msgBox.setText("The format has been modified.");
 		msgBox.setInformativeText("Do you want to save your changes?");
 		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Save);

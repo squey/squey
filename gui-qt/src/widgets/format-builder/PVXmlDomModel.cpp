@@ -26,6 +26,8 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget* parent) : QAbstractItemModel(
 	xmlRootDom = xmlFile.documentElement();
 	setRoot(m_rootNode);
 	setObjectName("PVXmlDomModel");
+
+	_original_xml_content = xmlFile.toString();
 }
 
 /******************************************************************************
@@ -357,6 +359,8 @@ bool PVInspector::PVXmlDomModel::saveXml(QString xml_file)
 		xmlRootDom.removeChild(axes_cb_elt);
 	}
 
+	_original_xml_content = xmlFile.toString();
+
 	return true;
 }
 
@@ -504,7 +508,7 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 			if (!trustConfictSplitAxes(index)) {
 				QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 				                         tr("A field can only have one axis or one splitter. "
-				                            "Delete the current node before adding a new one."));
+				                            q"Delete the current node before adding a new one."));
 				return NULL; // we can't add more than one splitter in a field
 			}
 			PVLOG_DEBUG("     adding splitter in a field\n");
@@ -797,6 +801,7 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 {
 	PVRush::PVFormatVersion::to_current(doc);
 	xmlFile = doc;
+	_original_xml_content = xmlFile.toString();
 	xmlRootDom = doc.documentElement();
 
 	// Get axes combination and remove it from the DOM
@@ -818,6 +823,11 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	rootNode->getGroupsByType(_groups);
 
 	Q_EMIT layoutChanged(); // to resfresh screen
+}
+
+bool PVInspector::PVXmlDomModel::hasFormatChanged() const
+{
+	return xmlFile.toString() != _original_xml_content;
 }
 
 void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,

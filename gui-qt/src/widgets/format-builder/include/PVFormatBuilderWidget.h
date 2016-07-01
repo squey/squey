@@ -63,7 +63,6 @@ class PVFormatBuilderWidget : public QMainWindow
   private:
 	void closeEvent(QCloseEvent* event);
 	void init(QWidget* parent = 0);
-	bool somethingChanged(void);
 
   public:
 	bool openFormat(QString const& path);
