@@ -301,7 +301,10 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	try {
 		src_p = &scene_p->emplace_add_child(src_desc);
 	} catch (PVRush::PVFormatException const& e) {
-		PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
+		QMessageBox::critical(this, "Error with format...", e.what());
+		has_error = true;
+	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
+		QMessageBox::critical(this, "Error", e.what());
 		has_error = true;
 	} catch (PVRush::PVInputException const& e) {
 		QMessageBox::critical(this, tr("Fatal error while loading source..."),

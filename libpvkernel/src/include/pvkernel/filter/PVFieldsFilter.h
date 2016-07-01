@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFilterFunction.h>
+//#include <pvkernel/rush/PVFormat.h>
 #include <map>
 #include <list>
 #include <vector>
@@ -22,6 +23,12 @@
 
 namespace PVFilter
 {
+
+class PVFieldsFilterInvalidArguments : public std::runtime_error
+{
+  public:
+	using std::runtime_error::runtime_error;
+};
 
 enum fields_filter_type { one_to_one, one_to_many, many_to_many };
 
