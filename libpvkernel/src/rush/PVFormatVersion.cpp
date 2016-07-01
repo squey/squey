@@ -332,15 +332,15 @@ bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
 		} else if (elt.tagName() == "axis") {
 			// Move mapping from attribute to node
 			QString mapping = elt.attribute("mapping", QString());
-			QDomNode mapping_node;
-			mapping_node.setNodeValue(mapping);
+			QDomElement mapping_node = node.ownerDocument().createElement("mapping");
+			mapping_node.setAttribute("mode", mapping);
 			elt.appendChild(mapping_node);
 			elt.removeAttribute("mapping");
 
 			// Move plotting from attribute to node
 			QString plotting = elt.attribute("plotting", QString());
-			QDomNode plotting_node;
-			plotting_node.setNodeValue(plotting);
+			QDomElement plotting_node = node.ownerDocument().createElement("plotting");
+			plotting_node.setAttribute("mode", plotting);
 			elt.appendChild(plotting_node);
 			elt.removeAttribute("plotting");
 
