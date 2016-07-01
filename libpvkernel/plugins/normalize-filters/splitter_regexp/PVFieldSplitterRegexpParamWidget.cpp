@@ -114,7 +114,13 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotExpressionChanged()
 
 	PVCore::PVArgumentList l = get_filter()->get_args();
 	l["regexp"] = PVCore::PVArgument(expression_lineEdit->text());
-	get_filter()->set_args(l);
+
+	try {
+		get_filter()->set_args(l);
+	} catch (PVFilter::PVFieldsFilterInvalidArguments const&) {
+		// Don't throw an exception here because the user is currently
+		// typing the regex and it can therefore be temporarily malformed
+	}
 
 	emit args_changed_Signal();
 	emit nchilds_changed_Signal();

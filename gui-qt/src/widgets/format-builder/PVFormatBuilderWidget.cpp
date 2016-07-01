@@ -846,6 +846,9 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		                tr("Error while importing a source: %1").arg(QString(e.what().c_str())));
 		err.show();
 		return;
+	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
+		QMessageBox::critical(this, "Error", e.what());
+		return;
 	}
 
 	// Tell the NRAW widget that the input has changed
