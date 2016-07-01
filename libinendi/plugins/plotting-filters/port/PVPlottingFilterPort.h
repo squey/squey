@@ -21,7 +21,7 @@ class PVPlottingFilterPort : public PVPlottingFilter
 
 	std::set<std::pair<std::string, std::string>> list_usable_type() const override
 	{
-		return {{"number_uint32", "default"}};
+		return {{"number_uint32", "default"}, {"number_int32", "default"}};
 	}
 
 	CLASS_FILTER(PVPlottingFilterPort)
