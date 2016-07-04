@@ -196,3 +196,8 @@ add_test(Trush_datetime_support Trush_datetime_support)
 add_pv_compile_test(Trush_format_ignore_axes LINKS ${LINK_LIBRARIES} FILES format_ignore_axes.cpp)
 add_test(Trush_format_ignore_axes Trush_format_ignore_axes)
 add_bench(Trush_format_ignore_axes LINKS ${LINK_LIBRARIES} FILES format_ignore_axes.cpp)
+
+add_pv_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
+add_test(Trush_format_upgrade Trush_format_upgrade)
+# We need to set this env variable as we dump QDom which use a QHash. Without a seed, printing is random.
+set_tests_properties(Trush_format_upgrade PROPERTIES ENVIRONMENT "QT_HASH_SEED=0")

@@ -144,15 +144,18 @@ void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
 	QDomNodeList axis = doc.documentElement().elementsByTagName("axis");
 	for (int i = 0; i < axis.size(); i++) {
 		QDomElement ax = axis.at(i).toElement();
+		// Update type value
 		QString type = ax.attribute("type");
 		if (type.isNull()) {
 			type = "string";
 		}
+		// Update mapping value
 		QDomElement mapped = ax.namedItem("mapping").toElement();
 		QString mapping = mapped.attribute("mode");
 		if (mapping.isNull()) {
 			mapping = "default";
 		}
+		// Update plotting value
 		QDomElement plotted = ax.namedItem("plotting").toElement();
 		QString plotting = plotted.attribute("mode");
 		if (plotting.isNull()) {
@@ -161,11 +164,24 @@ void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
 		plotted.toElement().setAttribute("mode", get_plotted_from_format(type, mapping, plotting));
 		mapped.toElement().setAttribute("mode", get_mapped_from_format(type, mapping));
 		ax.setAttribute("type", get_type_from_format(type, mapping));
+		// Update type_format
 		if (mapping == "hexadecimal") {
 			ax.toElement().setAttribute("type_format", "%x");
 		} else if (mapping == "octal") {
 			ax.toElement().setAttribute("type_format", "%o");
 		}
+		// Remove extra mapped node
+		auto mappings = ax.elementsByTagName("mapping");
+		for (size_t j = 1; j < mappings.count(); j++) {
+			ax.removeChild(mappings.at(j));
+		}
+		// Remove extra plotted node
+		auto plottings = ax.elementsByTagName("plotting");
+		for (size_t j = 1; j < plottings.count(); j++) {
+			ax.removeChild(plottings.at(j));
+		}
+		// Remove time-sample attribute
+		ax.removeAttribute("time-sample");
 	}
 	doc.documentElement().setAttribute("version", "7");
 }
@@ -375,8 +391,8 @@ void PVRush::PVFormatVersion::__impl::_rec_5to6(QDomNode node)
 			if (tf.size() > 0) {
 				QDomElement axis_node = node.toElement();
 				axis_node.setAttribute("type_format", tf);
-				elt.removeAttribute("time-format");
 			}
+			elt.removeAttribute("time-format");
 		}
 	}
 
