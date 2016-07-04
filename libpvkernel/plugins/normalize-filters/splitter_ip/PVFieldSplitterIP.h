@@ -38,6 +38,9 @@ class PVFieldSplitterIP : public PVFieldsSplitter
 	// Separator between quad information for params.
 	static const QString sep;
 
+	static const constexpr char* params_ipv4 = "0,1,2";
+	static const constexpr char* params_ipv6 = "0,1,2,3,4,5,6";
+
   public:
 	PVFieldSplitterIP(PVCore::PVArgumentList const& args = PVFieldSplitterIP::default_args());
 

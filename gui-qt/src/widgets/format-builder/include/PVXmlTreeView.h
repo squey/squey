@@ -81,15 +81,26 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 
 	PVXmlDomModel* getModel();
 
-	QModelIndex getSelectedIndex()
+	QModelIndex getInsertionIndex()
 	{
 		QModelIndexList lsel = selectedIndexes();
-		int numberOfSelectedIndexes = lsel.count();
-		for (int i = 0; i < numberOfSelectedIndexes; i++) {
-			PVLOG_DEBUG("selected index: %d %d\n", lsel[i].row(), lsel[i].column());
-		}
 
-		return (numberOfSelectedIndexes > 0) ? lsel[0] : QModelIndex();
+		if (lsel.count() == 0) {
+			return QModelIndex();
+		} else if (!lsel[0].parent().isValid()) {
+			return QModelIndex();
+		} else {
+			return lsel[0];
+		}
+	}
+
+	void postInsertion(const QModelIndex& index, PVRush::PVXmlTreeNodeDom* node)
+	{
+		if (node) {
+			QModelIndex child = getModel()->indexOfChild(index, node);
+			setCurrentIndex(child);
+			Q_EMIT clicked(child);
+		}
 	}
 
 	/**

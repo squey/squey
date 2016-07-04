@@ -20,7 +20,6 @@
 PVFilter::PVFieldConverterStructParamWidget::PVFieldConverterStructParamWidget()
     : PVFieldsConverterParamWidget(PVFilter::PVFieldsConverter_p(new PVFieldConverterStruct()))
 {
-	_action_menu = new QAction(QString("add Struct"), this);
 }
 
 /******************************************************************************
@@ -28,11 +27,9 @@ PVFilter::PVFieldConverterStructParamWidget::PVFieldConverterStructParamWidget()
  * PVFilter::PVFieldConverterStructParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldConverterStructParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldConverterStructParamWidget::get_action_menu(QWidget* parent)
 {
-	PVLOG_DEBUG("get action PVFieldConverterStructParamWidget\n");
-	assert(_action_menu);
-	return _action_menu;
+	return new QAction(QString("add Struct Converter"), parent);
 }
 
 /******************************************************************************

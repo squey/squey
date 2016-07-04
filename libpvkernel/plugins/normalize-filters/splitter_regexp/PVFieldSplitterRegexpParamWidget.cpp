@@ -25,7 +25,6 @@ PVFilter::PVFieldSplitterRegexpParamWidget::PVFieldSplitterRegexpParamWidget()
 {
 	validator_textEdit = NULL;
 	PVLOG_DEBUG("constructor PVFieldSplitterRegexpParamWidget\n");
-	action_menu = new QAction(QString("add RegExp Splitter"), this);
 
 	expressionChanged = false;
 }
@@ -55,11 +54,9 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::initWidget()
  * PVFilter::PVFieldSplitterRegexpParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldSplitterRegexpParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterRegexpParamWidget::get_action_menu(QWidget* parent)
 {
-	PVLOG_DEBUG("get action PVFieldSplitterRegexpParamWidget\n");
-	assert(action_menu);
-	return action_menu;
+	return new QAction(QString("add RegExp Splitter"), parent);
 }
 
 /******************************************************************************

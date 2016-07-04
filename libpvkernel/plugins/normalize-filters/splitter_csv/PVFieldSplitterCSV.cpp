@@ -35,42 +35,89 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 	assert(elt.begin() == field.begin());
 	char* cstr = elt.begin();
 	size_t n = 0;
-	for (size_t i = 0; i < field.size(); i++) {
-		if (cstr[i] == _sep) {
-			/**
-			 * Don't allow the number of created fields to be greater than expected
-			 * In such a case, the last field can contain one or more separators
-			 */
-			if (n == (_fields_expected - 1)) {
-				break;
+
+	size_t i = 0;
+
+	while (i < field.size()) {
+		if (cstr[i] == _quote) {
+			++i;
+			// quoted value
+			elt.set_begin(cstr + i);
+
+			while (true) {
+				i = std::find(cstr + i, cstr + field.size(), _quote) - cstr;
+
+				if (i == field.size()) {
+					// we have found the end of line but not a quote
+					return 0;
+				}
+
+				if (cstr[i - 1] != '\\') {
+					break;
+				}
 			}
+
+			// a quote, adding the new element
 			elt.set_end(cstr + i);
 			elt.set_physical_end(cstr + i);
 			l.insert(it_ins, elt);
-			elt.set_begin(cstr + i + 1);
-			n++;
-		} else if (cstr[i] == _quote and (i == 0 or (i > 0 and cstr[i - 1] != '\\'))) {
-			elt.set_begin(cstr + i + 1);
-			do {
-				i = std::find(cstr + i + 1, cstr + field.size(), _quote) - cstr;
-			} while (cstr[i - 1] == '\\' and i != field.size());
+			++n;
+
+			// moving after the quote
+			++i;
+
 			if (i == field.size()) {
+				// all-right, we reach the end of line
+				return n;
+			}
+
+			if (cstr[i] != _sep) {
+				// not a value separator, should have one
 				return 0;
 			}
+
+			// skipping the separator
+			++i;
+		} else {
+			// non-quoted value
+			elt.set_begin(cstr + i);
+			++n;
+
+			i = std::find(cstr + i, cstr + field.size(), _sep) - cstr;
+
+			if (i == field.size()) {
+				// all-right, we reach the end of line
+				elt.set_end(cstr + i);
+				elt.set_physical_end(cstr + i);
+				l.insert(it_ins, elt);
+
+				return n;
+			} else if (n == _fields_expected) {
+				// enough elements have been extracted, the last one contain the rest of the field
+				elt.set_end(field.end());
+				elt.set_physical_end(field.end());
+				l.insert(it_ins, elt);
+
+				return n;
+			}
+
 			elt.set_end(cstr + i);
 			elt.set_physical_end(cstr + i);
 			l.insert(it_ins, elt);
-			i = std::find(cstr + i + 1, cstr + field.size(), _sep) - cstr;
-			n++;
-			if (i == field.size())
-				return n;
-			elt.set_begin(cstr + i + 1);
+
+			// skipping the separator
+			++i;
 		}
 	}
+
+	/* we reach the last but empty field
+	 */
+	elt.set_begin(cstr + i);
 	elt.set_end(field.end());
 	elt.set_physical_end(field.end());
 	l.insert(it_ins, elt);
 	n++;
+
 	return n;
 }
 

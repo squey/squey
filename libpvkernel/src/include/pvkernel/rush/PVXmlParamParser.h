@@ -57,6 +57,7 @@ class PVXmlParamParser
   public:
 	typedef QList<PVXmlParamParserData> list_params;
 	typedef std::vector<PVCol> axes_comb_t;
+	using fields_mask_t = std::vector<bool>;
 
   public:
 	PVXmlParamParser(QString const& nameFile);
@@ -68,6 +69,7 @@ class PVXmlParamParser
 	setDom(QDomElement const& node, int id = -1, QVector<uint32_t> tree_ids = QVector<uint32_t>());
 	list_axes_t const& getAxes() const;
 	QList<PVXmlParamParserData> const& getFields() const;
+	const fields_mask_t& getFieldsMask() const { return _fields_mask; }
 	unsigned int getVersion() { return format_version; }
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
@@ -92,6 +94,7 @@ class PVXmlParamParser
 	axes_comb_t _axes_combination;
 	size_t _first_line;
 	size_t _line_count;
+	fields_mask_t _fields_mask;
 
 	int countChild(QDomElement);
 	QString getNodeName(QDomElement);

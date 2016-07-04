@@ -31,27 +31,18 @@ QList<QUrl> PVInspector::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl
  * PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent) : QMainWindow(parent)
+PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
+    : QMainWindow(parent), _file_dialog(this)
 {
 	init(parent);
 	setObjectName("PVFormatBuilderWidget");
 }
 
-bool PVInspector::PVFormatBuilderWidget::somethingChanged(void)
-{
-	// FIXME : It doesn't perform correct check. We can't save if we need a save after this.
-	if (myTreeView->model()->rowCount()) {
-		return true;
-	}
-
-	return false;
-}
-
 void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
 {
-	if (somethingChanged()) {
-		QMessageBox msgBox;
-		msgBox.setText("The document has been modified.");
+	if (myTreeView->getModel()->hasFormatChanged()) {
+		QMessageBox msgBox(this);
+		msgBox.setText("The format has been modified.");
 		msgBox.setInformativeText("Do you want to save your changes?");
 		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Save);
@@ -99,12 +90,8 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	// initialisation of the toolbar.
 	actionAllocation();
 
-	// initialisation of the splitters list
-	initSplitters();
-
 	menuBar = new QMenuBar();
 	initMenuBar();
-	// layout()->setMenuBar(menuBar);
 
 	vb->addWidget(vertical_splitter);
 
@@ -206,6 +193,8 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	lastSplitterPluginAdding = -1;
 	initConnexions();
 
+	slotUpdateToolsState();
+
 	// AG: here, that's a bit tricky. We want our widget to have a maximize button,
 	// but the only way to do that with Qt is to use setWindowFlag(Qt::Window).
 	// According to Qt's documentation (and source code), as we are originally a widget,
@@ -248,8 +237,7 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation()
 	actionAddFilterAfter->setIcon(QIcon(":/filter"));
 	actionAddRegExAfter = new QAction("add a RegEx", (QObject*)this);
 	actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
-	actionAddUrl = new QAction("add an URL", (QObject*)this);
-	actionAddUrl->setIcon(QIcon(":/add-url"));
+	actionAddUrl = new QAction("add URL splitter", (QObject*)this);
 
 	actionSave = new QAction("&Save format", (QObject*)this);
 	actionSave->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
@@ -286,7 +274,7 @@ void PVInspector::PVFormatBuilderWidget::initConnexions()
 	        SLOT(edit(const QModelIndex&)));
 	// connexion to endable/desable items in toolsbar menu.
 	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), this,
-	        SLOT(slotUpdateToolDesabled(const QModelIndex&)));
+	        SLOT(slotUpdateToolsState(const QModelIndex&)));
 
 	// data has changed from tree
 	connect(myTreeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), myTreeView,
@@ -341,43 +329,6 @@ void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 	tools->addAction(actionSave);
 
 	vb->addWidget(tools);
-}
-/******************************************************************************
- *
- * PVInspector::PVFormatBuilderWidget::initSplitters
- *
- *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initSplitters()
-{
-	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)
-	::list_classes splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
-	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)
-	::list_classes converters = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
-
-	// _list_* is a QHash. Its keys are a QString with the registered name of the class (in our
-	// case, "csv", "regexp", etc...).
-	// Its values are a std::shared_ptr<PVFieldsSplitterParamWidget> or
-	// std::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
-	// For instance :
-	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
-	for (it = splitters.begin(); it != splitters.end(); it++) {
-		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it->value();
-		assert(pluginsSplitter);
-		_list_splitters.push_back(pluginsSplitter);
-		pluginsSplitter->get_action_menu()->setData(it->key());
-		connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this,
-		        SLOT(slotAddSplitter()));
-	}
-
-	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes::const_iterator itc;
-	for (itc = converters.begin(); itc != converters.end(); itc++) {
-		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = itc->value();
-		assert(pluginsConverter);
-		_list_converters.push_back(pluginsConverter);
-		pluginsConverter->get_action_menu()->setData(itc->key());
-		connect(pluginsConverter->get_action_menu(), SIGNAL(triggered()), this,
-		        SLOT(slotAddConverter()));
-	}
 }
 
 /******************************************************************************
@@ -475,25 +426,17 @@ void PVInspector::PVFormatBuilderWidget::slotApplyModification()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotDelete()
 {
-	QDialog confirm(this);
-	QVBoxLayout vb;
-	confirm.setLayout(&vb);
-	vb.addWidget(new QLabel("Do realy want to delete it ?"));
-	QHBoxLayout bas;
-	vb.addLayout(&bas);
-	QPushButton no("No");
-	bas.addWidget(&no);
-	QPushButton yes("Yes");
-	bas.addWidget(&yes);
+	if (!myTreeView->currentIndex().isValid()) {
+		return;
+	}
 
-	connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
-	connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
+	QMessageBox msg(QMessageBox::Question, QString(), "Do you really want to delete it?",
+	                QMessageBox::Yes | QMessageBox::No, this);
 
-	// if confirmed then apply
-	if (confirm.exec()) {
+	if (msg.exec() == QMessageBox::Yes) {
 		myTreeView->deleteSelection();
-		QModelIndex ind;
-		myParamBord_old_model->drawForNo(ind);
+		myParamBord_old_model->drawForNo(QModelIndex());
+		slotUpdateToolsState(myTreeView->currentIndex());
 	}
 }
 
@@ -651,59 +594,59 @@ void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& pa
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled
+ * PVInspector::PVFormatBuilderWidget::slotUpdateToolsState
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled(const QModelIndex& index)
+void PVInspector::PVFormatBuilderWidget::slotUpdateToolsState(const QModelIndex& index)
 {
 	PVRush::PVXmlTreeNodeDom* node = myTreeModel->nodeFromIndex(index);
 
-	// hideParamBoard();
+	bool force_root_action = not index.parent().isValid();
 
 	if (node->getDom().tagName() == "field") {
 		myTreeView->expandRecursive(index);
 		actionAddFilterAfter->setEnabled(true);
 		actionAddAxisIn->setEnabled(true);
-		actionAddRegExAfter->setEnabled(true);
-		actionAddUrl->setEnabled(true);
+		_splitters->setEnabled(true);
+		_converters->setEnabled(true);
 		actionDelete->setEnabled(false);
 	} else if (node->getDom().tagName() == "axis") {
-		actionAddFilterAfter->setEnabled(false);
+		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "filter" || node->getDom().tagName() == "converter") {
-		actionAddFilterAfter->setEnabled(false);
+		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(force_root_action);
+		_converters->setEnabled(force_root_action);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "splitter") {
 		myTreeView->expandRecursive(index);
-		actionAddFilterAfter->setEnabled(false);
+		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(force_root_action);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "RegEx") {
 		myTreeView->expandRecursive(index);
 		actionAddFilterAfter->setEnabled(false);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "url") {
 		actionAddFilterAfter->setEnabled(false);
 		actionAddAxisIn->setEnabled(false);
-		actionAddRegExAfter->setEnabled(false);
-		actionAddUrl->setEnabled(false);
+		_splitters->setEnabled(false);
+		_converters->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else {
 		actionAddFilterAfter->setEnabled(true);
-		actionAddAxisIn->setEnabled(true);
-		actionAddRegExAfter->setEnabled(true);
-		actionAddUrl->setEnabled(true);
+		actionAddAxisIn->setEnabled(false);
+		_splitters->setEnabled(true);
+		_converters->setEnabled(true);
 		actionDelete->setEnabled(false);
 	}
 }
@@ -725,32 +668,39 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	file->addSeparator();
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
 	file->addSeparator();
-
-	QMenu* splitter = menuBar->addMenu(tr("&Splitter"));
-	splitter->addAction(actionAddUrl);
-	splitter->addSeparator();
-	// add all plugins splitters
-	for (int i = 0; i < _list_splitters.size(); i++) {
-		QAction* action = _list_splitters.at(i)->get_action_menu();
-		assert(action);
-		if (action) {
-			splitter->addAction(action);
-		}
-	}
-
-	// add all plugins converters
-	QMenu* converter = menuBar->addMenu(tr("&Converter"));
-	// add all plugins converters
-	for (int i = 0; i < _list_converters.size(); i++) {
-		QAction* action = _list_converters.at(i)->get_action_menu();
-		assert(action);
-		if (action) {
-			converter->addAction(action);
-		}
-	}
-
-	file->addSeparator();
 	file->addAction(actionCloseWindow);
+
+	// add all splitting plugins
+	_splitters = menuBar->addMenu(tr("&Splitters"));
+
+	for (const auto it : LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list()) {
+		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
+		assert(pluginsSplitter);
+		QAction* action = pluginsSplitter->get_action_menu(this);
+
+		if (action) {
+			action->setData(it.key());
+			connect(action, SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
+			_splitters->addAction(action);
+		}
+	}
+
+	_splitters->addAction(actionAddUrl);
+
+	// add all conversion plugins
+	_converters = menuBar->addMenu(tr("&Converters"));
+
+	for (const auto it : LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list()) {
+		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = it.value();
+		assert(pluginsConverter);
+		QAction* action = pluginsConverter->get_action_menu(this);
+
+		if (action) {
+			action->setData(it.key());
+			connect(action, SIGNAL(triggered()), this, SLOT(slotAddConverter()));
+			_converters->addAction(action);
+		}
+	}
 }
 
 /******************************************************************************
@@ -1003,22 +953,16 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 	// Then, update the linear fields id in PVXmlTreeNode's tree.
 	myTreeModel->updateFieldsLinearId();
 
-	// If this is not a field, get the parent field
-	if (node->typeToString() != "field" || node->getFieldLinearId() == -1) {
+	// If this is not an axis, no need to highlight a column in the preview listing
+	if (node->typeToString() != "axis") {
+		_nraw_widget->unselect_column();
+	} else {
 		node = node->getFirstFieldParent();
-		// If it can't find any field parent, just return.
-		// (but this is weird, that should not happen)
-		if (!node) {
-			_nraw_widget->unselect_column();
-			return;
+		if (node) {
+			PVCol field_id = node->getFieldLinearId();
+			_nraw_widget->select_column(field_id);
 		}
 	}
-
-	// Then get that field's linear id
-	PVCol field_id = node->getFieldLinearId();
-
-	// And tell that to the mini-extractor widget
-	_nraw_widget->select_column(field_id);
 }
 
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
@@ -1044,6 +988,7 @@ bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 			                                 myTreeModel->get_line_count());
 			_cur_file = path;
 			setWindowTitleForFile(path);
+			myTreeView->expandAll();
 			return true;
 		}
 	}

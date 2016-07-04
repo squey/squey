@@ -27,6 +27,9 @@ static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/ip
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/ip/ipv6.out";
 #endif
 
+/* TODO: generate all valid 'params' combination to do checks like in ipv4 test program.
+ */
+
 int main()
 {
 	pvtest::TestSplitter ts(log_file, nb_dup);

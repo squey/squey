@@ -20,17 +20,15 @@
 PVFilter::PVFieldSplitterDnsFqdnParamWidget::PVFieldSplitterDnsFqdnParamWidget()
     : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterDnsFqdn()))
 {
-	_action_menu = new QAction(QString("add DNS FQDN Splitter"), this);
 }
 
 /******************************************************************************
  * PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_action_menu
  *****************************************************************************/
 
-QAction* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_action_menu(QWidget* parent)
 {
-	assert(_action_menu);
-	return _action_menu;
+	return new QAction(QString("add DNS FQDN Splitter"), parent);
 }
 
 /******************************************************************************

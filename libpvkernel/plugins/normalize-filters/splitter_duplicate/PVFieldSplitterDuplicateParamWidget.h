@@ -27,16 +27,15 @@ class PVFieldSplitterDuplicateParamWidget : public PVFieldsSplitterParamWidget
 	PVFieldSplitterDuplicateParamWidget();
 
   public:
-	QAction* get_action_menu();
-	QWidget* get_param_widget();
+	QAction* get_action_menu(QWidget* parent) override;
+	QWidget* get_param_widget() override;
 
-	size_t force_number_children() { return 0; }
+	size_t force_number_children() override { return 0; }
 
   private Q_SLOTS:
 	void updateNChilds(int n);
 
   private:
-	QAction* _action_menu;
 	QWidget* _param_widget;
 	QSpinBox* _duplications_spin_box;
 

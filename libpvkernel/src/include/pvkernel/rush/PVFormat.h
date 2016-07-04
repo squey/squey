@@ -79,6 +79,7 @@ class PVFormat
 
   public:
 	typedef PVFormat_p p_type;
+	using fields_mask_t = PVXmlParamParser::fields_mask_t;
 
   public:
 	class Comparaison
@@ -136,6 +137,7 @@ class PVFormat
 
 	list_axes_t const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
+	fields_mask_t const& get_fields_mask() const { return _fields_mask; }
 
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
@@ -151,6 +153,7 @@ class PVFormat
 
 	// List of filters to apply
 	PVRush::PVXmlParamParser::list_params filters_params;
+	fields_mask_t _fields_mask;
 
 	unsigned int axes_count; //!< It is equivalent to the number of axes except we add the decoded
 	// axes. This property must be used to know the number of axes, never

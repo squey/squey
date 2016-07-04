@@ -28,14 +28,13 @@ class PVFieldConverterGUIDToIPParamWidget : public PVFieldsConverterParamWidget
 	PVFieldConverterGUIDToIPParamWidget();
 
   public:
-	QAction* get_action_menu();
-	QWidget* get_param_widget();
+	QAction* get_action_menu(QWidget* parent) override;
+	QWidget* get_param_widget() override;
 
   private Q_SLOTS:
 	void update_params();
 
   private:
-	QAction* _action_menu;
 	QWidget* _param_widget;
 
 	QRadioButton* _ipv4;

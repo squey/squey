@@ -273,7 +273,7 @@ class PVXmlTreeNodeDom : public QObject
 
 	PVXmlTreeNodeDom* getFirstFieldParent();
 
-	bool hasSplitterAsChild();
+	bool hasAxisAsChild();
 
 	PVCol setAxesNames(QStringList const& names, PVCol id);
 
