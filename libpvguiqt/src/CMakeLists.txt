@@ -117,5 +117,5 @@ set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel pvhwloc ${OPENGL_LIBRARIES
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
-INSTALL(TARGETS pvguiqt LIBRARY DESTINATION lib
-                        RUNTIME DESTINATION lib)
+INSTALL(TARGETS pvguiqt LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+                        RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

@@ -96,5 +96,5 @@ target_link_libraries(inendi ${QT5_LIBS} ${TBB_LIBRARIES}
 # Install files
 ###############################################################################
 
-INSTALL(TARGETS inendi LIBRARY DESTINATION lib
-                       RUNTIME DESTINATION lib)
+INSTALL(TARGETS inendi LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+                       RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
