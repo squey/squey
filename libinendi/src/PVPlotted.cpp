@@ -199,8 +199,6 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min,
 		},
 	    get_row_count());
 
-	std::swap(local_min, local_max);
-
 	min = local_min;
 	max = local_max;
 }
@@ -254,9 +252,6 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 			}
 		}
 	}
-
-	// We need to swap as the plotted has been reversed
-	std::swap(min, max);
 }
 
 PVRow Inendi::PVPlotted::get_col_min_row(PVCol const c) const
