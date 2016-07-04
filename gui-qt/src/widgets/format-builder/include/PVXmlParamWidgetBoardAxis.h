@@ -59,15 +59,12 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	Q_OBJECT
   public:
 	PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom* pNode, PVXmlParamWidget* parent);
-	virtual ~PVXmlParamWidgetBoardAxis();
 	QWidget* getWidgetToFocus();
 	PVXmlParamWidget* parent() { return _parent; }
 
   private:
 	void allocBoardFields();
 	QVBoxLayout* createTab(const QString& title, QTabWidget* tab);
-	void disableConnexion();
-	void disAllocBoardFields();
 	void draw();
 	void initConnexion();
 	void initValue();
@@ -128,7 +125,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
   public Q_SLOTS:
 	void slotGoNextAxis();
-	void slotSetValues();
 	void updatePlotMapping(const QString& t);
 	void slotShowTagHelp();
 	void slotShowTypeFormatHelp();
