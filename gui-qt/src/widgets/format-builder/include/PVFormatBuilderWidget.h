@@ -50,9 +50,6 @@ namespace PVInspector
 
 class PVOptionsWidget;
 
-typedef QList<PVFilter::PVFieldsSplitterParamWidget_p> list_splitters_t;
-typedef QList<PVFilter::PVFieldsConverterParamWidget_p> list_converters_t;
-
 class PVFormatBuilderWidget : public QMainWindow
 {
 	Q_OBJECT
@@ -98,13 +95,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	 * @param vb
 	 */
 	void initToolBar(QVBoxLayout* vb);
-
-	/**
-	 * init the splitters list, by listing the plugins found
-	 */
-	void initSplitters();
-	list_splitters_t _list_splitters;   ///!<list of the plugins splitters
-	list_converters_t _list_converters; ///!<list of the plugins converters
 
   protected:
 	/**

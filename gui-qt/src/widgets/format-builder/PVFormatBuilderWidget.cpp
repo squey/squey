@@ -94,12 +94,8 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	// initialisation of the toolbar.
 	actionAllocation();
 
-	// initialisation of the splitters list
-	initSplitters();
-
 	menuBar = new QMenuBar();
 	initMenuBar();
-	// layout()->setMenuBar(menuBar);
 
 	vb->addWidget(vertical_splitter);
 
@@ -337,43 +333,6 @@ void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 	tools->addAction(actionSave);
 
 	vb->addWidget(tools);
-}
-/******************************************************************************
- *
- * PVInspector::PVFormatBuilderWidget::initSplitters
- *
- *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initSplitters()
-{
-	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)
-	::list_classes splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
-	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)
-	::list_classes converters = LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list();
-
-	// _list_* is a QHash. Its keys are a QString with the registered name of the class (in our
-	// case, "csv", "regexp", etc...).
-	// Its values are a std::shared_ptr<PVFieldsSplitterParamWidget> or
-	// std::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
-	// For instance :
-	LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
-	for (it = splitters.begin(); it != splitters.end(); it++) {
-		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it->value();
-		assert(pluginsSplitter);
-		_list_splitters.push_back(pluginsSplitter);
-		pluginsSplitter->get_action_menu()->setData(it->key());
-		connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this,
-		        SLOT(slotAddSplitter()));
-	}
-
-	LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::list_classes::const_iterator itc;
-	for (itc = converters.begin(); itc != converters.end(); itc++) {
-		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = itc->value();
-		assert(pluginsConverter);
-		_list_converters.push_back(pluginsConverter);
-		pluginsConverter->get_action_menu()->setData(itc->key());
-		connect(pluginsConverter->get_action_menu(), SIGNAL(triggered()), this,
-		        SLOT(slotAddConverter()));
-	}
 }
 
 /******************************************************************************
@@ -715,31 +674,39 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	file->addSeparator();
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
 	file->addSeparator();
+	file->addAction(actionCloseWindow);
 
+	// add all splitting plugins
 	_splitters = menuBar->addMenu(tr("&Splitters"));
-	// add all plugins splitters
-	for (int i = 0; i < _list_splitters.size(); i++) {
-		QAction* action = _list_splitters.at(i)->get_action_menu();
-		assert(action);
+
+	for (const auto it : LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list()) {
+		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
+		assert(pluginsSplitter);
+		QAction* action = pluginsSplitter->get_action_menu(this);
+
 		if (action) {
+			action->setData(it.key());
+			connect(action, SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
 			_splitters->addAction(action);
 		}
 	}
+
 	_splitters->addAction(actionAddUrl);
 
-	// add all plugins converters
+	// add all conversion plugins
 	_converters = menuBar->addMenu(tr("&Converters"));
-	// add all plugins converters
-	for (int i = 0; i < _list_converters.size(); i++) {
-		QAction* action = _list_converters.at(i)->get_action_menu();
-		assert(action);
+
+	for (const auto it : LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list()) {
+		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = it.value();
+		assert(pluginsConverter);
+		QAction* action = pluginsConverter->get_action_menu(this);
+
 		if (action) {
+			action->setData(it.key());
+			connect(action, SIGNAL(triggered()), this, SLOT(slotAddConverter()));
 			_converters->addAction(action);
 		}
 	}
-
-	file->addSeparator();
-	file->addAction(actionCloseWindow);
 }
 
 /******************************************************************************

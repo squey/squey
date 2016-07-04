@@ -22,7 +22,6 @@
 PVFilter::PVFieldSplitterDuplicateParamWidget::PVFieldSplitterDuplicateParamWidget()
     : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldDuplicate()))
 {
-	_action_menu = new QAction(QString("add Duplicate Splitter"), this);
 }
 
 /******************************************************************************
@@ -30,11 +29,9 @@ PVFilter::PVFieldSplitterDuplicateParamWidget::PVFieldSplitterDuplicateParamWidg
  * PVFilter::PVFieldSplitterDuplicateParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldSplitterDuplicateParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterDuplicateParamWidget::get_action_menu(QWidget* parent)
 {
-	PVLOG_DEBUG("get action PVFieldSplitterDuplicateParamWidget\n");
-	assert(_action_menu);
-	return _action_menu;
+	return new QAction(QString("add Duplicate Splitter"), parent);
 }
 
 /******************************************************************************

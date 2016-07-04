@@ -26,11 +26,11 @@ class PVFieldSplitterDnsFqdnParamWidget : public PVFieldsSplitterParamWidget
   public:
 	PVFieldSplitterDnsFqdnParamWidget();
 
-	size_t force_number_children() { return 0; }
+	size_t force_number_children() override { return 0; }
 
   public:
-	QAction* get_action_menu();
-	QWidget* get_param_widget();
+	QAction* get_action_menu(QWidget* parent) override;
+	QWidget* get_param_widget() override;
 
   private:
 	void update_args(PVCore::PVArgumentList& args);
@@ -40,7 +40,6 @@ class PVFieldSplitterDnsFqdnParamWidget : public PVFieldsSplitterParamWidget
 	void rev_cb_changed(int state);
 
   private:
-	QAction* _action_menu;
 	QWidget* _param_widget;
 	QCheckBox* _split_cb[6];
 	QCheckBox* _rev_cb[3];

@@ -31,8 +31,8 @@ class PVFieldSplitterIPParamWidget : public PVFieldsSplitterParamWidget
 	PVFieldSplitterIPParamWidget();
 
   public:
-	QAction* get_action_menu();
-	QWidget* get_param_widget();
+	QAction* get_action_menu(QWidget* parent) override;
+	QWidget* get_param_widget() override;
 
   private slots:
 	void set_ip_type(bool reset_groups_check_state = true);
@@ -42,8 +42,6 @@ class PVFieldSplitterIPParamWidget : public PVFieldsSplitterParamWidget
 	void set_groups_check_state(bool check_all = false);
 
   private:
-	QAction* _action_menu;
-
 	QRadioButton* _ipv4;
 	QRadioButton* _ipv6;
 

@@ -28,8 +28,8 @@ class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 	PVFieldSplitterKeyValueParamWidget();
 
   public:
-	QAction* get_action_menu();
-	QWidget* get_param_widget();
+	QAction* get_action_menu(QWidget* parent) override;
+	QWidget* get_param_widget() override;
 
   private slots:
 	void update_params();
@@ -45,7 +45,6 @@ class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 	void add_new_keys(QStringList& keys);
 
   private:
-	QAction* _action_menu;
 	QWidget* _param_widget;
 
 	PVWidgets::QKeySequenceWidget* _quote_char;
