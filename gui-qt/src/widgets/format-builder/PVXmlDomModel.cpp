@@ -506,9 +506,6 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 		field = nodeFromIndex(index);
 		if (field->typeToString() == "field") { // a splitter can be add only in field...
 			if (!trustConfictSplitAxes(index)) {
-				QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
-				                         tr("A field can only have one axis or one splitter. "
-				                            q"Delete the current node before adding a new one."));
 				return NULL; // we can't add more than one splitter in a field
 			}
 			PVLOG_DEBUG("     adding splitter in a field\n");

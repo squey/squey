@@ -37,7 +37,6 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
 {
 	PVLOG_DEBUG("init PVFieldSplitterCSVParamWidget\n");
 
-	action_menu = new QAction(QString("add CSV Splitter"), this);
 	_recommands_label = NULL;
 }
 
@@ -125,10 +124,9 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
  * PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu(QWidget* parent)
 {
-	assert(action_menu);
-	return action_menu;
+	return new QAction(QString("add CSV Splitter"), parent);
 }
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)

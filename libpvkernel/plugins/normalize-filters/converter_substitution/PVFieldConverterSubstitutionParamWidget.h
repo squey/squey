@@ -33,8 +33,8 @@ class PVFieldConverterSubstitutionParamWidget : public PVFieldsConverterParamWid
 	PVFieldConverterSubstitutionParamWidget();
 
   public:
-	QAction* get_action_menu();
-	QWidget* get_param_widget();
+	QAction* get_action_menu(QWidget* parent) override;
+	QWidget* get_param_widget() override;
 
   private Q_SLOTS:
 	void update_params();
@@ -42,7 +42,6 @@ class PVFieldConverterSubstitutionParamWidget : public PVFieldsConverterParamWid
 	void use_default_value_checkbox_changed(int state);
 
   private:
-	QAction* _action_menu;
 	QWidget* _param_widget;
 	QLineEdit* _file_path_line_edit;
 	QLineEdit* _default_value_line_edit;

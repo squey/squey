@@ -17,17 +17,15 @@
 PVFilter::PVFieldSplitterMacAddressParamWidget::PVFieldSplitterMacAddressParamWidget()
     : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterMacAddress()))
 {
-	_action_menu = new QAction(QString("add Mac Address Splitter"), this);
 }
 
 /******************************************************************************
  * PVFilter::PVFieldSplitterMacAddressParamWidget::get_action_menu
  *****************************************************************************/
 
-QAction* PVFilter::PVFieldSplitterMacAddressParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterMacAddressParamWidget::get_action_menu(QWidget* parent)
 {
-	assert(_action_menu);
-	return _action_menu;
+	return new QAction(QString("add Mac Address Splitter"), parent);
 }
 
 /******************************************************************************

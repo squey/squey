@@ -28,7 +28,6 @@ PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionP
     : PVFieldsConverterParamWidget(
           PVFilter::PVFieldsConverter_p(new PVFieldConverterSubstitution()))
 {
-	_action_menu = new QAction(QString("add Substitution"), this);
 }
 
 /******************************************************************************
@@ -36,11 +35,9 @@ PVFilter::PVFieldConverterSubstitutionParamWidget::PVFieldConverterSubstitutionP
  * PVFilter::PVFieldConverterSubstitutionParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldConverterSubstitutionParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldConverterSubstitutionParamWidget::get_action_menu(QWidget* parent)
 {
-	PVLOG_DEBUG("get action PVFieldSubstitutionParamWidget\n");
-	assert(_action_menu);
-	return _action_menu;
+	return new QAction(QString("add Substitution Converter"), parent);
 }
 
 /******************************************************************************

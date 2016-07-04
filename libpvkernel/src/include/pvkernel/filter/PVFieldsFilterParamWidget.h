@@ -36,7 +36,7 @@ class PVFieldsFilterParamWidgetBase
   public:
 	virtual PVFilter::PVFieldsBaseFilter_p get_filter() = 0;
 	virtual QWidget* get_param_widget() = 0;
-	virtual QAction* get_action_menu() = 0;
+	virtual QAction* get_action_menu(QWidget* parent) = 0;
 	virtual void set_id(int id) = 0;
 	virtual QString get_xml_tag() = 0;
 	virtual PVCore::PVArgumentList get_default_argument() = 0;
@@ -90,9 +90,9 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	 * @brief get the widget whiche is on the right of the GUI. It used to param the node.
 	 * @return widget ref
 	 */
-	QWidget* get_param_widget() { return NULL; }
+	QWidget* get_param_widget() override { return nullptr; }
 
-	void update_data_display() {}
+	void update_data_display() override {}
 
 	// Force the number of children. Returns 0 if no forcing is done.
 	// TODO: this should only exist when Ttype == one_to_many, and should not be in the base
@@ -104,7 +104,7 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	 * @brief get the action to push in menu
 	 * @return menu action
 	 */
-	QAction* get_action_menu() { return NULL; }
+	QAction* get_action_menu(QWidget*) override { return nullptr; }
 
 	QString get_xml_tag() { return type_name(); }
 
