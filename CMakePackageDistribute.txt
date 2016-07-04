@@ -100,8 +100,9 @@ install(FILES
 	${LINUX_TBB_PATH}/libtbbmalloc.so.${TBB_MAJOR}
 	DESTINATION ${CUSTOM_TBB_PATH})
 
-# doc
+# doc 
 if(DOC_ROOT_DIR)
 	message(STATUS "Documentation directory: " ${DOC_ROOT_DIR})
-	install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION share/doc/inendi-inspector)
+	install(DIRECTORY ${DOC_ROOT_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/inendi-inspector)
 endif(DOC_ROOT_DIR)
+add_definitions(-DDOC_PATH="${CMAKE_INSTALL_PREFIX}/share/doc/inendi-inspector")
