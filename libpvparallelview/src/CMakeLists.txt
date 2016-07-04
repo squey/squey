@@ -151,5 +151,5 @@ set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
 
 target_link_libraries(pvparallelview ${LINK_LIBRARIES})
 
-INSTALL(TARGETS pvparallelview LIBRARY DESTINATION lib
-                               RUNTIME DESTINATION lib)
+INSTALL(TARGETS pvparallelview LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+                               RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
