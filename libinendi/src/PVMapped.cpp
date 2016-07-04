@@ -130,19 +130,6 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 
 /******************************************************************************
  *
- * Inendi::PVMapped::is_current_mapped
- *
- *****************************************************************************/
-bool Inendi::PVMapped::is_current_mapped() const
-{
-	auto children = get_children();
-	return std::find_if(children.begin(), children.end(), [](const PVPlotted* plotted) {
-		       return plotted->is_current_plotted();
-		   }) != children.end();
-}
-
-/******************************************************************************
- *
  * Inendi::PVMapped::serialize_write
  *
  *****************************************************************************/

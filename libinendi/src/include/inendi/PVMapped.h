@@ -63,14 +63,6 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	std::string const& get_name() const { return _mapping.get_name(); }
 
 	/**
-	 * Whether it is the current display mapped information.
-	 *
-	 * @fixme : As we do nothing in this case, it should not be possible to trigger this function
-	 *with incorrect mapped.
-	 */
-	bool is_current_mapped() const;
-
-	/**
 	 * Ask to compute mapping based on Mapping filter for each column.
 	 *
 	 * Only "not up to date" mapping will be computer.

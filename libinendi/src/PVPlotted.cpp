@@ -286,13 +286,6 @@ bool Inendi::PVPlotted::is_uptodate() const
 	return _plotting.is_uptodate();
 }
 
-bool Inendi::PVPlotted::is_current_plotted() const
-{
-	Inendi::PVView const* cur_view = get_parent<PVSource>().current_view();
-	auto children = get_children();
-	return std::find(children.begin(), children.end(), cur_view) != children.end();
-}
-
 void Inendi::PVPlotted::finish_process_from_rush_pipeline()
 {
 	for (auto view : get_children()) {

@@ -81,8 +81,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 
 	std::string get_serialize_description() const override { return "Plotting: " + get_name(); }
 
-	bool is_current_plotted() const;
-
 	/**
 	 * do any process after a mapped load
 	 */
