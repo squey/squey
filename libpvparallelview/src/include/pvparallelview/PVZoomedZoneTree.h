@@ -193,21 +193,6 @@ class PVZoomedZoneTree
 
   public:
 	/**
-	 * Sequential processing of \zp to construct the internal data structures.
-	 *
-	 * @param zp the underlying PVZoneProcessing
-	 */
-	void process_seq(const PVZoneProcessing& zp);
-
-	/**
-	 * Sequential processing of \zt to construct the internal data structures.
-	 *
-	 * @param zp the underlying PVZoneProcessing
-	 * @param zt the twin PVZoneTree
-	 */
-	__attribute__((noinline)) void process_seq_from_zt(const PVZoneProcessing& zp, PVZoneTree& zt);
-
-	/**
 	 * Parallel processing of \zt to construct the internal data structures.
 	 *
 	 * @param zp the underlying PVZoneProcessing
