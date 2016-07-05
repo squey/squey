@@ -122,9 +122,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			continue;
 		}
 
-		assert(column_count == fields.size());
 		size_t field_index = 0;
-
 		for (PVCore::PVField const& field : fields) {
 			// Save the field
 			if (_fields_mask[field_index]) {
