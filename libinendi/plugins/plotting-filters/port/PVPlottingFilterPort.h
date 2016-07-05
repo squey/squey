@@ -21,7 +21,7 @@ class PVPlottingFilterPort : public PVPlottingFilter
 	                uint32_t* dest) override;
 	QString get_human_name() const { return QString("TCP/UDP port"); }
 
-	std::set<std::pair<std::string, std::string>> list_usable_type() const override
+	std::set<plotting_capability> list_usable_type() const override
 	{
 		return {{"number_uint32", "default"}, {"number_int32", "default"}};
 	}

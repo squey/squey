@@ -172,12 +172,12 @@ void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
 		}
 		// Remove extra mapped node
 		auto mappings = ax.elementsByTagName("mapping");
-		for (size_t j = 1; j < mappings.count(); j++) {
+		for (int j = 1; j < mappings.count(); j++) {
 			ax.removeChild(mappings.at(j));
 		}
 		// Remove extra plotted node
 		auto plottings = ax.elementsByTagName("plotting");
-		for (size_t j = 1; j < plottings.count(); j++) {
+		for (int j = 1; j < plottings.count(); j++) {
 			ax.removeChild(plottings.at(j));
 		}
 		// Remove time-sample attribute

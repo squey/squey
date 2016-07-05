@@ -19,9 +19,7 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
 	double ymax = mm[1];
 
 	if (ymin == ymax) {
-		for (size_t i = 0; i < mm.size(); i++) {
-			dest[i] = 0x80000000;
-		}
+		std::fill_n(dest, mm.size(), 0x80000000);
 		return;
 	}
 	assert(ymax > ymin);

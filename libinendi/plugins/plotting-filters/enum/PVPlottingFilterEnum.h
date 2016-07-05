@@ -21,7 +21,7 @@ class PVPlottingFilterEnum : public PVPlottingFilter
 	                uint32_t* dest) override;
 	QString get_human_name() const override { return QString("Uniform"); }
 
-	std::set<std::pair<std::string, std::string>> list_usable_type() const override { return {}; }
+	std::set<plotting_capability> list_usable_type() const override { return {}; }
 
 	CLASS_FILTER(PVPlottingFilterEnum)
 };

@@ -27,13 +27,15 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop:
   public:
 	typedef std::shared_ptr<PVPlottingFilter> p_type;
 	typedef PVPlottingFilter FilterT;
+	// (type, mapping) on which a plotting can be apply
+	using plotting_capability = std::pair<std::string, std::string>;
 
   public:
 	virtual void
 	operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint32_t* dest) = 0;
 
 	virtual QString get_human_name() const = 0;
-	virtual std::set<std::pair<std::string, std::string>> list_usable_type() const = 0;
+	virtual std::set<plotting_capability> list_usable_type() const = 0;
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;
