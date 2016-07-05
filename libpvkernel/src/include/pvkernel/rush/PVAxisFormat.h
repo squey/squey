@@ -59,6 +59,7 @@ class PVAxisFormat
 	void set_color(QString str);
 	void set_color(PVCore::PVColor color_);
 	void set_mapping(QString str);
+	void set_str_format(QString const& str_format) { _str_format = str_format; }
 	void set_name(const QString& str);
 	void set_plotting(QString str);
 	void set_titlecolor(QString str);

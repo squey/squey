@@ -71,8 +71,6 @@ class PVFormatBuilderWidget : public QMainWindow
 
 	void actionAllocation();
 
-	void hideParamBoard();
-
 	/**
 	 * initialise les connexions dont tout les emitter/reciever sont des attributs
 	 * de la classe

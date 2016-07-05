@@ -69,11 +69,7 @@ class PVPlotting
 
 	PVPlotted* get_plotted() { return _plotted; }
 
-	QString const& get_column_type(PVCol col) const;
-
 	bool is_uptodate() const;
-
-	void reset_from_format(PVRush::PVFormat const& format);
 
   public:
 	// Data access
@@ -89,7 +85,6 @@ class PVPlotting
 		return _columns[col];
 	}
 	bool is_col_uptodate(PVCol j) const;
-	void set_type_for_col(QString const& type, PVCol col);
 
 	std::string const& get_name() const { return _name; }
 	void set_name(std::string const& name) { _name = name; }

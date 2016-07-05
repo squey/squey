@@ -418,45 +418,6 @@ void PVParallelView::PVZoomedZoneTree::process(const PVZoneProcessing& zp, PVZon
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::process_seq
- *****************************************************************************/
-
-void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneProcessing& zp)
-{
-	init_structures();
-
-	const uint32_t* pcol_a = zp.plotted_a;
-	const uint32_t* pcol_b = zp.plotted_b;
-
-	for (PVRow r = 0; r < zp.size; ++r) {
-		PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
-		_trees[compute_index(e)].insert(e);
-	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::process_seq_from_zt
- *****************************************************************************/
-
-void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessing& zp,
-                                                           PVZoneTree& zt)
-{
-	init_structures();
-
-	const uint32_t* pcol_a = zp.plotted_a;
-	const uint32_t* pcol_b = zp.plotted_b;
-
-	for (unsigned i = 0; i < NBUCKETS; ++i) {
-		pvquadtree& tree_i = _trees[i];
-		for (unsigned j = 0; j < zt.get_branch_count(i); ++j) {
-			const PVRow r = zt.get_branch_element(i, j);
-			tree_i.insert(PVParallelView::PVQuadTreeEntry(pcol_a[r], pcol_b[r], r));
-		}
-		tree_i.compact();
-	}
-}
-
-/*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::process_omp_from_zt
  *****************************************************************************/
 

@@ -11,8 +11,6 @@
 #include <QSet>
 #include <QString>
 
-#include <pvkernel/core/PVCompList.h>
-
 /**
  * \class PVRush::Tag
  * \defgroup Define a list of tags
@@ -40,9 +38,6 @@ class PVTags
 	bool del_tag(QString tag);
 	bool has_tag(QString tag) const;
 	QSet<QString> const& list() const { return _tags; }
-
-	bool operator==(PVTags const& other) const { return PVCore::comp_list(_tags, other._tags); }
-	bool operator!=(PVTags const& other) const { return !(*this == other); }
 };
 }
 

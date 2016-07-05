@@ -14,32 +14,20 @@
  * Inendi::PVAxis::PVAxis
  *
  *****************************************************************************/
-Inendi::PVAxis::PVAxis(QString type, QString mapping, QString plotting) : PVRush::PVAxisFormat()
-{
-	set_type(type);
-	set_mapping(mapping);
-	set_plotting(plotting);
-	init();
-}
-
 Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) : PVRush::PVAxisFormat(axis_format)
 {
-	init();
-}
-
-void Inendi::PVAxis::init()
-{
-	is_expandable = true;
-	is_expanded = false;
-	thickness = 1.0;
-
 	// Create mapping arguments
 
 	// Get the mapping filter from the library
 	{
 		Inendi::PVMappingFilter::p_type lib_filter =
-		    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(get_type() + "_" +
-		                                                                get_mapping());
+		    LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(get_mapping());
+		auto usable_type = lib_filter->list_usable_type();
+		if (usable_type.find(get_type().toStdString()) == usable_type.end()) {
+			throw Inendi::InvalidPlottingMapping("You can't use mapping :" +
+			                                     get_mapping().toStdString() + " with type :" +
+			                                     get_type().toStdString());
+		}
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_mapping = args_from_node(get_args_mapping_string(), def_args);
 	}
@@ -47,8 +35,16 @@ void Inendi::PVAxis::init()
 	// Same for the plotting filter
 	{
 		Inendi::PVPlottingFilter::p_type lib_filter =
-		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_type() + "_" +
-		                                                                 get_plotting());
+		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_plotting());
+		auto usable_type = lib_filter->list_usable_type();
+		if (not usable_type.empty() and
+		    std::find(usable_type.begin(), usable_type.end(),
+		              std::make_pair(get_type().toStdString(), get_mapping().toStdString())) ==
+		        usable_type.end()) {
+			throw Inendi::InvalidPlottingMapping(
+			    "You can't use plotting :" + get_plotting().toStdString() + " with mapping :" +
+			    get_mapping().toStdString() + " and type :" + get_type().toStdString());
+		}
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 		_args_plotting = args_from_node(get_args_plotting_string(), def_args);
 	}

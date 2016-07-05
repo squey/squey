@@ -271,7 +271,6 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 	for (const PVAxisFormat& axe : _axes) {
 
 		std::string axe_type = axe.get_type().toStdString();
-		std::string axe_mapping = axe.get_mapping().toStdString();
 
 		if (axe_type == "time") {
 			std::string time_format = axe.get_type_format().toStdString();
@@ -285,17 +284,14 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 			std::string formatter;
 			std::string formatter_params;
 
-			if (axe_type == "string" || axe_type == "enum" || axe_type == "host") {
+			if (axe_type == "string") {
 				formatter = "string";
-			} else if (axe_type == "integer") {
-				if (axe_mapping == "default") {
-					formatter = "number_int32";
-				} else {
-					assert(axe_mapping == "unsigned");
-					formatter = "number_uint32";
-					formatter_params = axe.get_str_format().toStdString();
-				}
-			} else if (axe_type == "float") {
+			} else if (axe_type == "number_uint32") {
+				formatter = "number_uint32";
+				formatter_params = axe.get_type_format().toStdString();
+			} else if (axe_type == "number_int32") {
+				formatter = "number_int32";
+			} else if (axe_type == "number_float") {
 				formatter = "number_float";
 			} else if (axe_type == "ipv4") {
 				formatter = "ipv4";
@@ -606,48 +602,4 @@ void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
 		return;
 	}
 	populate();
-}
-
-PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) const
-{
-	Comparaison ret;
-	ret._need_extract = (_axes.size() != original._axes.size()) ||
-	                    (!PVCore::comp_list(filters_params, original.filters_params));
-	if (ret._need_extract) {
-		ret._mapping = true;
-		ret._plotting = true;
-		ret._other = true;
-	} else if (_axes.size() == original._axes.size()) {
-		list_axes_t::const_iterator it, it_org;
-		it = _axes.begin();
-		it_org = original._axes.begin();
-		ret._mapping = false;
-		ret._plotting = false;
-		ret._other = false;
-		for (; it != _axes.end(); it++) {
-			if (it->get_type() != it_org->get_type()) {
-				ret._mapping = true;
-				ret._plotting = true;
-				break;
-			}
-			if (it->get_mapping() != it_org->get_mapping() ||
-			    !PVCore::comp_hash(it->get_args_mapping_string(),
-			                       it_org->get_args_mapping_string())) {
-				ret._mapping = true;
-			}
-			if (it->get_plotting() != it_org->get_plotting() ||
-			    !PVCore::comp_hash(it->get_args_plotting_string(),
-			                       it_org->get_args_plotting_string())) {
-				ret._plotting = true;
-			}
-			if (it->get_tags() != it_org->get_tags() ||
-			    it->get_color_str() != it_org->get_color_str() ||
-			    it->get_titlecolor_str() != it_org->get_titlecolor_str() ||
-			    it->get_name() != it_org->get_name()) {
-				ret._other = true;
-			}
-			it_org++;
-		}
-	}
-	return ret;
 }

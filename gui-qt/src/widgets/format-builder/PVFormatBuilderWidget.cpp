@@ -878,16 +878,6 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 	node->setFromArgumentList(sp->get_args());
 }
 
-/******************************************************************************
- *
- * PVInspector::PVFormatBuilderWidget::hideParamBoard
- *
- *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::hideParamBoard()
-{
-	PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::hideParamBoard\n");
-}
-
 PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();

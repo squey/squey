@@ -42,7 +42,6 @@ Inendi::PVPlotted::~PVPlotted()
 int Inendi::PVPlotted::create_table()
 {
 	const PVCol mapped_col_count = get_column_count();
-	const PVRow nrows = get_row_count();
 
 	// Transposed normalized unisnged integer.
 	// Align the number of lines on a mulitple of 4, in order to have 16-byte
@@ -61,12 +60,12 @@ int Inendi::PVPlotted::create_table()
 		PVPlottingFilter::p_type mf = _plotting.get_filter_for_col(j);
 		PVPlottingFilter::p_type plotting_filter = mf->clone<PVPlottingFilter>();
 
-		plotting_filter->set_mapping_mode(get_parent().get_mapping().get_mode_for_col(j));
-		plotting_filter->set_dest_array(nrows, get_column_pointer(j));
-
 		boost::this_thread::interruption_point();
 
-		plotting_filter->operator()(get_parent().get_column(j));
+		plotting_filter->operator()(
+		    get_parent().get_column(j),
+		    get_parent().get_mapping().get_properties_for_col(j).get_minmax(),
+		    get_column_pointer(j));
 
 		boost::this_thread::interruption_point();
 		_plotting.set_uptodate_for_col(j);
@@ -200,9 +199,6 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min,
 		},
 	    get_row_count());
 
-	// We need to swap as the plotted has been reversed
-	std::swap(local_min, local_max);
-
 	min = local_min;
 	max = local_max;
 }
@@ -256,9 +252,6 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 			}
 		}
 	}
-
-	// We need to swap as the plotted has been reversed
-	std::swap(min, max);
 }
 
 PVRow Inendi::PVPlotted::get_col_min_row(PVCol const c) const
@@ -286,13 +279,6 @@ bool Inendi::PVPlotted::is_uptodate() const
 	}
 
 	return _plotting.is_uptodate();
-}
-
-bool Inendi::PVPlotted::is_current_plotted() const
-{
-	Inendi::PVView const* cur_view = get_parent<PVSource>().current_view();
-	auto children = get_children();
-	return std::find(children.begin(), children.end(), cur_view) != children.end();
 }
 
 void Inendi::PVPlotted::finish_process_from_rush_pipeline()

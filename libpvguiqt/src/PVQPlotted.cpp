@@ -17,9 +17,7 @@ bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* pare
 		return false;
 	}
 
-	if (plotted.is_current_plotted()) {
-		plotted.update_plotting();
-	}
+	plotted.update_plotting();
 
 	return true;
 }

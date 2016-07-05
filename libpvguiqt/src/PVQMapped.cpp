@@ -16,9 +16,7 @@ bool PVGuiQt::PVQMapped::edit_mapped(Inendi::PVMapped& mapped, QWidget* parent)
 		return false;
 	}
 
-	if (mapped.is_current_mapped()) {
-		mapped.update_mapping();
-	}
+	mapped.update_mapping();
 
 	return true;
 }

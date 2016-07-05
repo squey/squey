@@ -11,128 +11,182 @@
 #include <QDomNode>
 #include <QStringList>
 
-QString PVRush::PVFormatVersion::get_version(QDomDocument const& doc)
+// Utility function to convert pre 7 format to 7 format.for mapping/type/plotting
+static QString const get_type_from_format(QString const& type_attr, QString const& mapped_attr)
+{
+	if (type_attr == "integer" and mapped_attr == "unsigned")
+		return "number_uint32";
+	else if (type_attr == "integer" and mapped_attr == "hexadecimal")
+		return "number_uint32";
+	else if (type_attr == "integer" and mapped_attr == "octal")
+		return "number_uint32";
+	else if (type_attr == "integer" and mapped_attr == "default")
+		return "number_int32";
+	else if (type_attr == "host" and mapped_attr == "default")
+		return "string";
+	else if (type_attr == "enum" and mapped_attr == "default")
+		return "string";
+	else if (type_attr == "float")
+		return "number_float";
+	return type_attr;
+}
+
+static QString const get_mapped_from_format(QString const& type_attr, QString const& mapped_attr)
+{
+	if (type_attr == "integer" and mapped_attr == "unsigned")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "hexadecimal")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "octal")
+		return "default";
+	else if (type_attr == "integer" and mapped_attr == "default")
+		return "default";
+	else if (type_attr == "host" and mapped_attr == "default")
+		return "host";
+	else if (type_attr == "enum" and mapped_attr == "default")
+		return "default";
+	else if (type_attr == "string" and mapped_attr == "default")
+		return "string";
+	else if (type_attr == "ipv4" and mapped_attr == "uniform")
+		return "default";
+	return mapped_attr;
+}
+
+static QString const get_plotted_from_format(QString const& type_attr,
+                                             QString const& mapped_attr,
+                                             QString const& plotted_attr)
+{
+	if (type_attr == "enum")
+		return "enum";
+	else if (type_attr == "ipv4" and mapped_attr == "uniform")
+		return "enum";
+	else if (plotted_attr == "minmax")
+		return "default";
+	return plotted_attr;
+}
+
+QString PVRush::PVFormatVersion::__impl::get_version(QDomDocument const& doc)
 {
 	return doc.documentElement().attribute("version", "0");
 }
 
-bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
+void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 {
-	QString version = get_version(doc);
+	QString version = __impl::get_version(doc);
 	if (version == "0") {
-		if (!from0to1(doc)) {
-			return false;
-		}
-		if (!from1to2(doc)) {
-			return false;
-		}
-		if (!from2to3(doc)) {
-			return false;
-		}
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from0to1(doc);
+		version = "1";
 	}
 	if (version == "1") {
-		if (!from1to2(doc)) {
-			return false;
-		}
-		if (!from2to3(doc)) {
-			return false;
-		}
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from1to2(doc);
+		version = "2";
 	}
 	if (version == "2") {
-		if (!from2to3(doc)) {
-			return false;
-		}
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from2to3(doc);
+		version = "3";
 	}
 	if (version == "3") {
-		if (!from3to4(doc)) {
-			return false;
-		}
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from3to4(doc);
+		version = "4";
 	}
 	if (version == "4") {
-		if (!from4to5(doc)) {
-			return false;
-		}
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from4to5(doc);
+		version = "5";
 	}
 	if (version == "5") {
-		if (!from5to6(doc)) {
-			return false;
-		}
+		__impl::from5to6(doc);
+		version = "6";
 	}
 	if (version == "6") {
-		return false;
+		__impl::from6to7(doc);
+		version = "7";
 	}
-
-	doc.documentElement().setAttribute("version", PVFORMAT_CURRENT_VERSION);
-	return true;
 }
 
-bool PVRush::PVFormatVersion::from0to1(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from0to1(QDomDocument& doc)
 {
-	return _rec_0to1(doc.documentElement());
+	_rec_0to1(doc.documentElement());
+	doc.documentElement().setAttribute("version", "1");
 }
 
-bool PVRush::PVFormatVersion::from1to2(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from1to2(QDomDocument& doc)
 {
-	return _rec_1to2(doc.documentElement());
+	_rec_1to2(doc.documentElement());
+	doc.documentElement().setAttribute("version", "2");
 }
 
-bool PVRush::PVFormatVersion::from2to3(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from2to3(QDomDocument& doc)
 {
-	return _rec_2to3(doc.documentElement());
+	_rec_2to3(doc.documentElement());
+	doc.documentElement().setAttribute("version", "3");
 }
 
-bool PVRush::PVFormatVersion::from3to4(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from3to4(QDomDocument& doc)
 {
-	return _rec_3to4(doc.documentElement());
+	_rec_3to4(doc.documentElement());
+	doc.documentElement().setAttribute("version", "4");
 }
 
-bool PVRush::PVFormatVersion::from4to5(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from4to5(QDomDocument& doc)
 {
-	return _rec_4to5(doc.documentElement());
+	_rec_4to5(doc.documentElement());
+	doc.documentElement().setAttribute("version", "5");
 }
 
-bool PVRush::PVFormatVersion::from5to6(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from5to6(QDomDocument& doc)
 {
-	return _rec_5to6(doc.documentElement());
+	_rec_5to6(doc.documentElement());
+	doc.documentElement().setAttribute("version", "6");
 }
 
-bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
+void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
+{
+	QDomNodeList axis = doc.documentElement().elementsByTagName("axis");
+	for (int i = 0; i < axis.size(); i++) {
+		QDomElement ax = axis.at(i).toElement();
+		// Update type value
+		QString type = ax.attribute("type");
+		if (type.isNull()) {
+			type = "string";
+		}
+		// Update mapping value
+		QDomElement mapped = ax.namedItem("mapping").toElement();
+		QString mapping = mapped.attribute("mode");
+		if (mapping.isNull()) {
+			mapping = "default";
+		}
+		// Update plotting value
+		QDomElement plotted = ax.namedItem("plotting").toElement();
+		QString plotting = plotted.attribute("mode");
+		if (plotting.isNull()) {
+			plotting = "default";
+		}
+		plotted.toElement().setAttribute("mode", get_plotted_from_format(type, mapping, plotting));
+		mapped.toElement().setAttribute("mode", get_mapped_from_format(type, mapping));
+		ax.setAttribute("type", get_type_from_format(type, mapping));
+		// Update type_format
+		if (mapping == "hexadecimal") {
+			ax.toElement().setAttribute("type_format", "%x");
+		} else if (mapping == "octal") {
+			ax.toElement().setAttribute("type_format", "%o");
+		}
+		// Remove extra mapped node
+		auto mappings = ax.elementsByTagName("mapping");
+		for (int j = 1; j < mappings.count(); j++) {
+			ax.removeChild(mappings.at(j));
+		}
+		// Remove extra plotted node
+		auto plottings = ax.elementsByTagName("plotting");
+		for (int j = 1; j < plottings.count(); j++) {
+			ax.removeChild(plottings.at(j));
+		}
+		// Remove time-sample attribute
+		ax.removeAttribute("time-sample");
+	}
+	doc.documentElement().setAttribute("version", "7");
+}
+
+void PVRush::PVFormatVersion::__impl::_rec_0to1(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	if (tag_name == "RegEx") {
@@ -162,14 +216,11 @@ bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_0to1(children.at(i).toElement())) {
-			return false;
-		}
+		_rec_0to1(children.at(i).toElement());
 	}
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
+void PVRush::PVFormatVersion::__impl::_rec_1to2(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	static QStringList tags = QStringList() << "protocol"
@@ -219,14 +270,11 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_1to2(children.at(i).toElement())) {
-			return false;
-		}
+		_rec_1to2(children.at(i).toElement());
 	}
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
+void PVRush::PVFormatVersion::__impl::_rec_2to3(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	if (tag_name == "axis") {
@@ -241,14 +289,11 @@ bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_2to3(children.at(i).toElement())) {
-			return false;
-		}
+		_rec_2to3(children.at(i).toElement());
 	}
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_3to4(QDomNode node)
+void PVRush::PVFormatVersion::__impl::_rec_3to4(QDomNode node)
 {
 	if (node.isElement()) {
 		QDomElement elt = node.toElement();
@@ -280,11 +325,9 @@ bool PVRush::PVFormatVersion::_rec_3to4(QDomNode node)
 		_rec_3to4(child);
 		child = child.nextSibling();
 	}
-
-	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_4to5(QDomNode node)
+void PVRush::PVFormatVersion::__impl::_rec_4to5(QDomNode node)
 {
 	if (node.isElement()) {
 		QDomElement elt = node.toElement();
@@ -315,10 +358,9 @@ bool PVRush::PVFormatVersion::_rec_4to5(QDomNode node)
 		_rec_4to5(child);
 		child = child.nextSibling();
 	}
-
-	return true;
 }
-bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
+
+void PVRush::PVFormatVersion::__impl::_rec_5to6(QDomNode node)
 {
 	if (node.isElement()) {
 		QDomElement elt = node.toElement();
@@ -332,15 +374,15 @@ bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
 		} else if (elt.tagName() == "axis") {
 			// Move mapping from attribute to node
 			QString mapping = elt.attribute("mapping", QString());
-			QDomNode mapping_node;
-			mapping_node.setNodeValue(mapping);
+			QDomElement mapping_node = node.ownerDocument().createElement("mapping");
+			mapping_node.setAttribute("mode", mapping);
 			elt.appendChild(mapping_node);
 			elt.removeAttribute("mapping");
 
 			// Move plotting from attribute to node
 			QString plotting = elt.attribute("plotting", QString());
-			QDomNode plotting_node;
-			plotting_node.setNodeValue(plotting);
+			QDomElement plotting_node = node.ownerDocument().createElement("plotting");
+			plotting_node.setAttribute("mode", plotting);
 			elt.appendChild(plotting_node);
 			elt.removeAttribute("plotting");
 
@@ -349,8 +391,8 @@ bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
 			if (tf.size() > 0) {
 				QDomElement axis_node = node.toElement();
 				axis_node.setAttribute("type_format", tf);
-				elt.removeAttribute("time-format");
 			}
+			elt.removeAttribute("time-format");
 		}
 	}
 
@@ -359,6 +401,4 @@ bool PVRush::PVFormatVersion::_rec_5to6(QDomNode node)
 		_rec_5to6(child);
 		child = child.nextSibling();
 	}
-
-	return true;
 }

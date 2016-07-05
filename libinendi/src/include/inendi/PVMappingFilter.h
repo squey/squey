@@ -15,10 +15,13 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvcop/db/array.h>
+#include <pvcop/db/algo.h>
 
 #include <QString>
 #include <QStringList>
 #include <QVector>
+
+#include <unordered_set>
 
 namespace PVCore
 {
@@ -44,9 +47,21 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 
 	virtual QString get_human_name() const = 0;
 
-  public:
-	static QStringList list_types();
-	static QStringList list_modes(QString const& type);
+	/**
+	 * List of all supported types for this mapping.
+	 */
+	virtual std::unordered_set<std::string> list_usable_type() const = 0;
+
+	/**
+	 * Define the valid range of values.
+	 *
+	 * It is usually the min/max value but it can be the full possible range like
+	 * for time 24H
+	 */
+	virtual pvcop::db::array get_minmax(pvcop::db::array const& mapped) const
+	{
+		return pvcop::db::algo::minmax(mapped);
+	}
 };
 
 typedef PVMappingFilter::func_type PVMappingFilter_f;

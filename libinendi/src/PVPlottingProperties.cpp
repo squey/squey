@@ -7,7 +7,6 @@
 
 #include <inendi/PVPlottingProperties.h>
 #include <inendi/PVPlottingFilter.h>
-#include <inendi/PVMapping.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
 
@@ -16,48 +15,20 @@
  * Inendi::PVPlottingProperties::PVPlottingProperties
  *
  *****************************************************************************/
-Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
-                                                   PVRush::PVFormat const& format,
+Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVFormat const& format, PVCol idx)
+    : PVPlottingProperties(format.get_axes().at(idx), idx)
+{
+}
+
+Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVAxisFormat const& axis_format,
                                                    PVCol idx)
-    : _mapping(&mapping)
 {
 	_index = idx;
-	set_from_axis(format.get_axes().at(idx));
-}
+	Inendi::PVAxis axis(axis_format);
 
-Inendi::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping,
-                                                   PVRush::PVAxisFormat const& axis,
-                                                   PVCol idx)
-    : _mapping(&mapping)
-{
-	_index = idx;
-	set_from_axis(axis);
-}
-
-void Inendi::PVPlottingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
-{
-	set_from_axis(Inendi::PVAxis(axis));
-}
-
-void Inendi::PVPlottingProperties::set_from_axis(Inendi::PVAxis const& axis)
-{
 	QString mode = axis.get_plotting();
 	set_args(axis.get_args_plotting());
 	set_mode(mode);
-}
-
-void Inendi::PVPlottingProperties::set_mapping(const PVMapping& mapping)
-{
-	_mapping = &mapping;
-	_type = get_type();
-	_is_uptodate = false;
-	set_mode(_mode);
-}
-
-QString Inendi::PVPlottingProperties::get_type() const
-{
-	assert(_mapping);
-	return _mapping->get_type_for_col(_index);
 }
 
 void Inendi::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
@@ -83,21 +54,14 @@ void Inendi::PVPlottingProperties::set_mode(QString const& mode)
 
 	_mode = mode;
 	PVPlottingFilter::p_type lib_filter =
-	    LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + mode);
+	    LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(mode);
 
 	_plotting_filter = lib_filter->clone<PVPlottingFilter>();
 	set_args(_args);
-
-	_type = get_type();
 }
 
 Inendi::PVPlottingFilter::p_type Inendi::PVPlottingProperties::get_plotting_filter()
 {
-	// If type has changed, reload the good plugin
-	if (_type != get_type()) {
-		set_mode(_mode);
-		_is_uptodate = false;
-	}
 	return _plotting_filter;
 }
 
@@ -115,7 +79,4 @@ void Inendi::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so,
 	if (!so.is_writing()) {
 		_is_uptodate = false;
 	}
-	/*if (_plotting_filter) {
-	        so.arguments("properties", _args, _plotting_filter->default_args());
-	}*/
 }

@@ -70,7 +70,7 @@ void Inendi::PVMapped::compute()
 		// Set mapping for the full column
 		_trans_table[j] = mapping_filter->operator()(j, nraw);
 
-		// FIXME : We could cache min/max value for mapping here.
+		_mapping.get_properties_for_col(j).set_minmax(mapping_filter->get_minmax(_trans_table[j]));
 
 		_mapping.set_uptodate_for_col(j);
 		invalidate_plotted_children_column(j);
@@ -126,19 +126,6 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
 	for (auto* plotted_p : get_children()) {
 		plotted_p->invalidate_column(j);
 	}
-}
-
-/******************************************************************************
- *
- * Inendi::PVMapped::is_current_mapped
- *
- *****************************************************************************/
-bool Inendi::PVMapped::is_current_mapped() const
-{
-	auto children = get_children();
-	return std::find_if(children.begin(), children.end(), [](const PVPlotted* plotted) {
-		       return plotted->is_current_plotted();
-		   }) != children.end();
 }
 
 /******************************************************************************

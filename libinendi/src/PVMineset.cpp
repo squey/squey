@@ -143,13 +143,12 @@ static std::string schema(const Inendi::PVView& view)
 
 		if (axis_type == "time") {
 			column_type = "date";
-		} else if (axis_type == "string" || axis_type == "enum" || axis_type == "host" ||
-		           axis_type == "ipv4") {
+		} else if (axis_type == "string" || axis_type == "ipv4") {
 			column_type = "string";
-		} else if (axis_type == "integer") {
+		} else if (axis_type == "number_int32" or axis_type == "number_uint32") {
 			column_type = "int";
 		} else {
-			assert(axis_type == "float" && "Unkown axis type");
+			assert(axis_type == "number_float" && "Unkown axis type");
 			column_type = "double";
 		}
 

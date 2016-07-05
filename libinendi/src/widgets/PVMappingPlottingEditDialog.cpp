@@ -10,7 +10,6 @@
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
-#include <inendi/widgets/PVAxisTypeWidget.h>
 #include <inendi/widgets/PVMappingModeWidget.h>
 #include <inendi/widgets/PVPlottingModeWidget.h>
 #include <inendi/widgets/PVMappingPlottingEditDialog.h>
@@ -188,11 +187,12 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 		col = 0;
 		_main_grid->addWidget(new QLabel(axe.get_name(), this), row, col++);
 		if (has_mapping()) {
-			PVWidgets::PVAxisTypeWidget* type_combo =
-			    new PVWidgets::PVAxisTypeWidget(_mapping->get_type_for_col(axis_id), this);
-			_main_grid->addWidget(type_combo, row, col++);
-			connect(type_combo, SIGNAL(currentIndexChanged(const QString&)), this,
-			        SLOT(type_changed(const QString&)));
+			_main_grid->addWidget(new QLabel(_mapping->get_mapped()
+			                                     ->get_parent<Inendi::PVSource>()
+			                                     .get_format()
+			                                     .get_axes()[axis_id]
+			                                     .get_type()),
+			                      row, col++);
 			_main_grid->addWidget(new PVWidgets::PVMappingModeWidget(axis_id, *_mapping, this), row,
 			                      col++);
 		}
@@ -232,28 +232,27 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 	PVCol axis_id = 0;
 	Inendi::PVAxesCombination::list_axes_t::const_iterator it_axes;
 	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
-		int col = 1;
 		if (has_mapping()) {
+			QString type = _mapping->get_mapped()
+			                   ->get_parent<Inendi::PVSource>()
+			                   .get_format()
+			                   .get_axes()[axis_id]
+			                   .get_type();
 			Inendi::PVMappingProperties& prop = _mapping->get_properties_for_col(axis_id);
-			// Axis type
-			PVWidgets::PVAxisTypeWidget* combo = dynamic_cast<PVWidgets::PVAxisTypeWidget*>(
-			    _main_grid->itemAtPosition(row, col++)->widget());
-			assert(combo);
-			QString type = combo->get_sel_type();
 
 			// Mapping mode
 			PVWidgets::PVMappingModeWidget* map_combo =
 			    dynamic_cast<PVWidgets::PVMappingModeWidget*>(
-			        _main_grid->itemAtPosition(row, col++)->widget());
+			        _main_grid->itemAtPosition(row, 2)->widget());
 			assert(map_combo);
 			QString mode = map_combo->get_mode();
 
-			prop.set_type(type, mode);
+			prop.set_mode(mode);
 			prop.set_args(map_combo->get_cur_filter_params());
 		}
 		if (has_plotting()) {
 			PVWidgets::PVPlottingModeWidget* combo = dynamic_cast<PVWidgets::PVPlottingModeWidget*>(
-			    _main_grid->itemAtPosition(row, col++)->widget());
+			    _main_grid->itemAtPosition(row, 1)->widget());
 			assert(combo);
 			QString mode = combo->get_mode();
 			_plotting->get_properties_for_col(axis_id).set_mode(mode);
@@ -263,29 +262,4 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 	}
 
 	accept();
-}
-
-/******************************************************************************
- *
- * PVWidgets::PVMappingPlottingEditDialog::type_changed
- *
- *****************************************************************************/
-void PVWidgets::PVMappingPlottingEditDialog::type_changed(const QString& type)
-{
-	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
-
-	assert(has_mapping());
-	PVWidgets::PVAxisTypeWidget* combo_org = dynamic_cast<PVWidgets::PVAxisTypeWidget*>(sender());
-	assert(combo_org);
-	int index = _main_grid->indexOf(combo_org);
-	assert(index != -1);
-	int row, col;
-	int rspan, cspan;
-	_main_grid->getItemPosition(index, &row, &col, &rspan, &cspan);
-	// Mapping combo box is next to the type one
-	PVWidgets::PVMappingModeWidget* combo_mapped = dynamic_cast<PVWidgets::PVMappingModeWidget*>(
-	    _main_grid->itemAtPosition(row, col + 1)->widget());
-	combo_mapped->clear();
-	combo_mapped->populate_from_type(type);
-	combo_mapped->select_default();
 }

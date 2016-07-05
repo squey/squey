@@ -59,15 +59,12 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	Q_OBJECT
   public:
 	PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom* pNode, PVXmlParamWidget* parent);
-	virtual ~PVXmlParamWidgetBoardAxis();
 	QWidget* getWidgetToFocus();
 	PVXmlParamWidget* parent() { return _parent; }
 
   private:
 	void allocBoardFields();
 	QVBoxLayout* createTab(const QString& title, QTabWidget* tab);
-	void disableConnexion();
-	void disAllocBoardFields();
 	void draw();
 	void initConnexion();
 	void initValue();
@@ -75,9 +72,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
 
-	QStringList listType() const;
-	QStringList getListTypeMapping(const QString& mType);
-	QStringList getListTypePlotting(const QString& mType);
 	QSet<QString> getListTags();
 	QSet<QString> getListParentSplitterTag();
 
@@ -131,7 +125,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
   public Q_SLOTS:
 	void slotGoNextAxis();
-	void slotSetValues();
 	void updatePlotMapping(const QString& t);
 	void slotShowTagHelp();
 	void slotShowTypeFormatHelp();

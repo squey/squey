@@ -31,22 +31,8 @@ PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVRush::PVXmlT
 
 	allocBoardFields();
 	draw();
-	initValue();
-	// updatePlotMapping(mapPlotType->val().toString());
-
 	initConnexion();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::~PVXmlParamWidgetBoardAxis
- *
- *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardAxis::~PVXmlParamWidgetBoardAxis()
-{
-	disableConnexion();
-	hide();
-	disAllocBoardFields();
+	initValue();
 }
 
 /******************************************************************************
@@ -70,7 +56,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 	btnTypeFormatHelp = new QPushButton(QIcon(":/help"), "Help");
 
 	// type
-	mapPlotType = new PVWidgets::PVAxisTypeWidget("all", this);
+	mapPlotType = new PVWidgets::PVAxisTypeWidget(this);
+	// FIXME : We should populate *ModeWidget here.
 	comboMapping = new PVWidgets::PVMappingModeWidget(this);
 	comboPlotting = new PVWidgets::PVPlottingModeWidget(this);
 
@@ -82,7 +69,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 	buttonTitleColor =
 	    new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
 	titleColorLabel = new QLabel(tr("Color of the axis title :"));
-	// slotSetVisibleExtra(false);
 
 	_layout_params_mp = new QHBoxLayout();
 	_params_mapping = new PVWidgets::PVArgumentListWidget(
@@ -129,64 +115,6 @@ QVBoxLayout* PVInspector::PVXmlParamWidgetBoardAxis::createTab(const QString& ti
 
 	// return the layout to add items
 	return tabWidgetLayout;
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields
- *
- *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields()
-{
-	// tab widget
-	tabParam->hide();
-	tabParam->deleteLater();
-
-	// name
-	textName->hide();
-	textName->deleteLater();
-
-	// tab general
-	// type
-	mapPlotType->hide();
-	mapPlotType->deleteLater();
-	comboMapping->hide();
-	comboMapping->deleteLater();
-	comboPlotting->hide();
-	comboPlotting->deleteLater();
-	_type_format->hide();
-	_type_format->deleteLater();
-
-	// extra group
-	buttonColor->hide();
-	buttonColor->deleteLater();
-	buttonTitleColor->hide();
-	buttonTitleColor->deleteLater();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion
- *
- *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion()
-{
-	disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this,
-	           SLOT(updatePlotMapping(const QString&)));
-	disconnect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
-	disconnect(_type_format, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
-	disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this,
-	           SLOT(slotSetValues()));
-	disconnect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this,
-	           SLOT(slotSetValues()));
-	disconnect(comboPlotting->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this,
-	           SLOT(slotSetValues()));
-	disconnect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
-	disconnect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
-	disconnect(buttonTitleColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
-	disconnect(buttonNextAxis, SIGNAL(clicked()), this, SLOT(slotGoNextAxis()));
-	disconnect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
-	disconnect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
 }
 
 /******************************************************************************
@@ -276,28 +204,56 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw()
 void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion()
 {
 
-	connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this,
-	        SLOT(updatePlotMapping(const QString&)));
-	connect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
-	connect(_type_format, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
-	connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-	connect(comboMapping->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this,
-	        SLOT(slotSetValues()));
+	connect(mapPlotType,
+	        static_cast<void (QComboBox::*)(QString const&)>(&QComboBox::currentIndexChanged),
+	        [this](QString const& text) {
+		        updatePlotMapping(text);
+		        node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR), mapPlotType->get_sel_type());
+		        Q_EMIT signalRefreshView();
+		    });
+
+	connect(textName, &QLineEdit::textChanged, [this](QString const& text) {
+		node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR), text);
+		Q_EMIT signalRefreshView();
+	});
+
+	connect(_type_format, &QLineEdit::textChanged, [this](QString const& text) {
+		node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), text);
+		Q_EMIT signalRefreshView();
+	});
+
+	connect(comboMapping->get_combo_box(),
+	        static_cast<void (QComboBox::*)(QString const&)>(&QComboBox::currentIndexChanged), this,
+	        &PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams);
 	connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
-	connect(comboPlotting->get_combo_box(), SIGNAL(currentIndexChanged(const QString&)), this,
-	        SLOT(slotSetValues()));
+
+	connect(comboPlotting->get_combo_box(),
+	        static_cast<void (QComboBox::*)(QString const&)>(&QComboBox::currentIndexChanged), this,
+	        &PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams);
 	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
-	connect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
+
+	connect(listTags, &QListWidget::itemSelectionChanged, [this]() {
+		node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),
+		                   listTags->selectedList().join(QString(QChar(PVFORMAT_TAGS_SEP))));
+		Q_EMIT signalRefreshView();
+	});
+
 	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
 	connect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
 
 	// extra
-	connect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
-	connect(buttonTitleColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
+	connect(buttonColor, &PVXmlParamColorDialog::changed, [this]() {
+		node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR), buttonColor->getColor());
+		Q_EMIT signalRefreshView();
+	});
+
+	connect(buttonTitleColor, &PVXmlParamColorDialog::changed, [this]() {
+		node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR), buttonTitleColor->getColor());
+		Q_EMIT signalRefreshView();
+	});
 
 	// button next axis
 	connect(buttonNextAxis, SIGNAL(clicked()), this, SLOT(slotGoNextAxis()));
-	// buttonNextAxis->setShortCut();
 }
 
 /******************************************************************************
@@ -315,8 +271,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 		node_type = PVFORMAT_AXIS_TYPE_DEFAULT;
 	}
 	mapPlotType->sel_type(node_type);
-	updatePlotMapping(node_type);
 
+	// Select value from Xml. If Xml is invalid, it will keep default arguments
 	_args_mapping.clear();
 	Inendi::PVMappingFilter::p_type map_lib = get_mapping_lib_filter();
 	QString node_mapping = node->getMappingProperties(map_lib->get_default_args(), _args_mapping);
@@ -327,6 +283,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	_args_map_mode[*map_lib] = _args_mapping;
 	_params_mapping->set_args(_args_mapping);
 
+	// Select value from Xml. If Xml is invalid, it will keep default arguments
 	_args_plotting.clear();
 	Inendi::PVPlottingFilter::p_type plot_lib = get_plotting_lib_filter();
 	QString node_plotting =
@@ -352,8 +309,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	buttonTitleColor->setColor(node_tc);
 
 	setListTags();
-	// updateMappingParams();
-	// updatePlottingParams();
 }
 
 /******************************************************************************
@@ -368,36 +323,6 @@ QWidget* PVInspector::PVXmlParamWidgetBoardAxis::getWidgetToFocus()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardAxis::listType
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType() const
-{
-	return Inendi::PVMappingFilter::list_types();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping(const QString& mType)
-{
-	return Inendi::PVMappingFilter::list_modes(mType);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting
- *
- *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting(const QString& mType)
-{
-	return Inendi::PVPlottingFilter::list_modes(mType);
-}
-
-/******************************************************************************
- *
  * PVInspector::PVXmlParamWidgetBoardAxis::slotGoNextAxis
  *
  *****************************************************************************/
@@ -408,36 +333,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotGoNextAxis()
 	}
 }
 
-/******************************************************************************
- *
- * VInspector::PVXmlParamWidgetBoardAxis::slotSetValues
- *
- *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues()
-{
-
-	// apply modification
-	node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR), textName->text());
-	node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), _type_format->text());
-	node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR), mapPlotType->get_sel_type());
-	node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR), buttonColor->getColor());
-	node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR), buttonTitleColor->getColor());
-	node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),
-	                   listTags->selectedList().join(QString(QChar(PVFORMAT_TAGS_SEP))));
-
-	updateMappingParams();
-	updatePlottingParams();
-
-	Q_EMIT signalRefreshView();
-}
-
 void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsMapping()
 {
 	QString mode = comboMapping->get_mode();
 	Inendi::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
 	_args_map_mode[*lib_filter] = _args_mapping;
 	node->setMappingProperties(mode, lib_filter->get_default_args(), _args_mapping);
 }
@@ -446,9 +345,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
 {
 	QString mode = comboPlotting->get_mode();
 	Inendi::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
 	_args_plot_mode[*lib_filter] = _args_plotting;
 	node->setPlottingProperties(mode, lib_filter->get_default_args(), _args_plotting);
 }
@@ -461,50 +357,44 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
 void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 {
 	if (t.length() > 1) {
+		// Reset mapping/plotting (use on type change)
 		QString type = mapPlotType->get_sel_type();
 		comboMapping->clear();
 		comboMapping->populate_from_type(type);
 		comboMapping->select_default();
-
-		comboPlotting->clear();
-		comboPlotting->populate_from_type(mapPlotType->get_sel_type());
-		comboPlotting->select_default();
 	}
 }
 
 Inendi::PVMappingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_mapping_lib_filter()
 {
-	Inendi::PVMappingFilter::p_type lib_filter;
 	QString mode = comboMapping->get_mode();
-	if (!mode.isEmpty()) {
-		lib_filter = LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(
-		    mapPlotType->get_sel_type() + "_" + mode);
+	if (mode.isNull()) {
+		// We update mapping on mapping widget change but when we change type,
+		// mappingBox is cleared before we set new mapping possibilities and
+		// mode becore empty.
+		mode = PVFORMAT_AXIS_MAPPING_DEFAULT;
 	}
-
-	return lib_filter;
+	return LIB_CLASS(Inendi::PVMappingFilter)::get().get_class_by_name(mode);
 }
 
 Inendi::PVPlottingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_plotting_lib_filter()
 {
-	Inendi::PVPlottingFilter::p_type lib_filter;
 	QString mode = comboPlotting->get_mode();
-	if (!mode.isEmpty()) {
-		lib_filter = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(
-		    mapPlotType->get_sel_type() + "_" + mode);
+	if (mode.isNull()) {
+		// We update plotting on plotting widget change but when we change mapping,
+		// plottingBox is cleared before we set new mapping possibilities and
+		// mode becore empty.
+		mode = PVFORMAT_AXIS_PLOTTING_DEFAULT;
 	}
-
-	return lib_filter;
+	return LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(mode);
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
 {
 	_args_mapping.clear();
 	Inendi::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
-	std::map<Inendi::PVMappingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
-	if ((it = _args_map_mode.find(*lib_filter)) != _args_map_mode.end()) {
+	auto it = _args_map_mode.find(*lib_filter);
+	if (it != _args_map_mode.end()) {
 		_args_mapping = it->second;
 	} else {
 		_args_mapping = lib_filter->get_default_args();
@@ -512,17 +402,18 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
 	_params_mapping->set_args(_args_mapping);
 
 	slotSetParamsMapping();
+
+	comboPlotting->clear();
+	comboPlotting->populate_from_type(mapPlotType->get_sel_type(), comboMapping->get_mode());
+	comboPlotting->select_default();
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams()
 {
 	_args_plotting.clear();
 	Inendi::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
-	if (!lib_filter) {
-		return;
-	}
-	std::map<Inendi::PVPlottingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
-	if ((it = _args_plot_mode.find(*lib_filter)) != _args_plot_mode.end()) {
+	auto it = _args_plot_mode.find(*lib_filter);
+	if (it != _args_plot_mode.end()) {
 		_args_plotting = it->second;
 	} else {
 		_args_plotting = lib_filter->get_default_args();

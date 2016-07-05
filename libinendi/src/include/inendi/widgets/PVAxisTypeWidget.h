@@ -20,11 +20,9 @@ class PVAxisTypeWidget : public PVComboBox
 {
   public:
 	/**
-	 * Build the combo box with only type that have same storage as current_type.
-	 *
-	 * It current_type is "all", then all types can be use.
+	 * Build the combo box with types.
 	 */
-	PVAxisTypeWidget(QString const& current_type, QWidget* parent = nullptr);
+	PVAxisTypeWidget(QWidget* parent = nullptr);
 
   public:
 	inline QString get_sel_type() const { return currentText(); }

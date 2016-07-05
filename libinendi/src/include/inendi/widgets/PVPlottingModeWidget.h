@@ -16,7 +16,6 @@
 namespace Inendi
 {
 class PVPlotting;
-class PVPlottingProperties;
 }
 
 namespace PVWidgets
@@ -24,13 +23,12 @@ namespace PVWidgets
 
 class PVPlottingModeWidget : public QWidget
 {
-	Q_OBJECT
   public:
 	PVPlottingModeWidget(QWidget* parent = nullptr);
 	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting, QWidget* parent = nullptr);
 
   public:
-	void populate_from_type(QString const& type);
+	void populate_from_type(QString const& type, QString const& mapped);
 	void populate_from_plotting(PVCol axis_id, Inendi::PVPlotting& plotting);
 	inline void select_default() { set_mode("default"); }
 	inline void clear() { _combo->clear(); }
@@ -44,12 +42,8 @@ class PVPlottingModeWidget : public QWidget
   public:
 	PVComboBox* get_combo_box() { return _combo; }
 
-  private Q_SLOTS:
-	void change_params();
-
   private:
 	PVComboBox* _combo;
-	Inendi::PVPlottingProperties* _props;
 };
 }
 

@@ -13,80 +13,66 @@
 ###############################################################################
 
 set(FILTERS_DIST_LIST
-plotting_filter_noprocess
-plotting_filter_all_minmax
-plotting_filter_all_log_minmax
-plotting_filter_integer_port
-plotting_filter_time_default
+plotting_filter_default
+plotting_filter_log_minmax
+plotting_filter_port
+plotting_filter_enum
 )
 
 # Extra libs
 set(LINK_LIBRARIES inendi pvkernel)
 
 ###############################################################################
-# No process filter
+# Default filter
 ###############################################################################
 # Define ressources
-SET(SRC_NOPROCESS
-noprocess/PVPlottingFilterNoprocess.cpp
-noprocess/register.cpp
+SET(SRC_DEFAULT
+default/PVPlottingFilterMinmax.cpp
+default/register.cpp
 )
 
 #Create lib
-add_library(plotting_filter_noprocess SHARED ${SRC_NOPROCESS})
-target_link_libraries(plotting_filter_noprocess ${LINK_LIBRARIES})
-
-###############################################################################
-# Min max filter
-###############################################################################
-# Define ressources
-SET(SRC_MINMAX
-all_minmax/PVPlottingFilterMinmax.cpp
-all_minmax/register.cpp
-)
-
-#Create lib
-add_library(plotting_filter_all_minmax SHARED ${SRC_MINMAX})
-target_link_libraries(plotting_filter_all_minmax ${LINK_LIBRARIES})
+add_library(plotting_filter_default SHARED ${SRC_DEFAULT})
+target_link_libraries(plotting_filter_default ${LINK_LIBRARIES})
 
 ###############################################################################
 # Log min max filter
 ###############################################################################
 # Define ressources
 SET(SRC_LOGMINMAX
-all_log_minmax/PVPlottingFilterLogMinmax.cpp
-all_log_minmax/register.cpp
+log_minmax/PVPlottingFilterLogMinmax.cpp
+log_minmax/register.cpp
 )
 
 #Create lib
-add_library(plotting_filter_all_log_minmax SHARED ${SRC_LOGMINMAX})
-target_link_libraries(plotting_filter_all_log_minmax ${LINK_LIBRARIES})
+add_library(plotting_filter_log_minmax SHARED ${SRC_LOGMINMAX})
+target_link_libraries(plotting_filter_log_minmax ${LINK_LIBRARIES})
 
 ###############################################################################
 # Port filter
 ###############################################################################
 # Define ressources
 SET(SRC_PORT
-integer_port/PVPlottingFilterIntegerPort.cpp
-integer_port/register.cpp
+port/PVPlottingFilterPort.cpp
+port/register.cpp
 )
 
 #Create lib
-add_library(plotting_filter_integer_port SHARED ${SRC_PORT})
-target_link_libraries(plotting_filter_integer_port ${LINK_LIBRARIES})
+add_library(plotting_filter_port SHARED ${SRC_PORT})
+target_link_libraries(plotting_filter_port ${LINK_LIBRARIES})
 
 ###############################################################################
-# Time filter
+# Enum filter
 ###############################################################################
 # Define ressources
-SET(SRC_TIME
-time_default/PVPlottingFilterTimeDefault.cpp
-time_default/register.cpp
+SET(SRC_ENUM
+enum/PVPlottingFilterEnum.cpp
+enum/register.cpp
 )
 
 #Create lib
-add_library(plotting_filter_time_default SHARED ${SRC_TIME})
-target_link_libraries(plotting_filter_time_default ${LINK_LIBRARIES})
+add_library(plotting_filter_enum SHARED ${SRC_ENUM})
+target_link_libraries(plotting_filter_enum ${LINK_LIBRARIES})
 
 ###############################################################################
 # Install plugins and ressources

@@ -7,16 +7,14 @@
 
 #include <inendi/PVPlotting.h>
 #include <inendi/PVPlotted.h>
-#include <inendi/PVView.h>
+#include <inendi/PVSource.h>
 
-#include <pvkernel/widgets/PVArgumentListWidget.h>
-#include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <inendi/widgets/PVPlottingModeWidget.h>
 
 #include <QHBoxLayout>
 
 PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QWidget* parent)
-    : QWidget(parent), _combo(new PVComboBox(this)), _props(nullptr)
+    : QWidget(parent), _combo(new PVComboBox(this))
 {
 	QHBoxLayout* layout = new QHBoxLayout();
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -44,18 +42,20 @@ QSize PVWidgets::PVPlottingModeWidget::sizeHint() const
 	return QSize();
 }
 
-void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type)
+void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type, QString const& mapped)
 {
 	LIB_CLASS(Inendi::PVPlottingFilter)
 	::list_classes const& map_filters = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list();
-	LIB_CLASS(Inendi::PVPlottingFilter)::list_classes::const_iterator it;
-	for (it = map_filters.begin(); it != map_filters.end(); it++) {
+	for (auto it = map_filters.begin(); it != map_filters.end(); it++) {
 		Inendi::PVPlottingFilter::p_type filter = it->value();
-		QString const& name = it->key();
-		QString human_name = it->value()->get_human_name();
-		QStringList params = name.split('_');
-		if (params[0].compare(type) == 0) {
-			_combo->addItem(human_name, params[1]);
+		auto usable_type = filter->list_usable_type();
+		if (usable_type.empty() or
+		    std::find(usable_type.begin(), usable_type.end(),
+		              std::make_pair(type.toStdString(), mapped.toStdString())) !=
+		        usable_type.end()) {
+			QString const& name = it->key();
+			QString human_name = filter->get_human_name();
+			_combo->addItem(human_name, name);
 		}
 	}
 }
@@ -64,28 +64,16 @@ void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
                                                              Inendi::PVPlotting& plotting)
 {
 	Inendi::PVPlottingProperties& props = plotting.get_properties_for_col(axis_id);
-	_props = &props;
-	populate_from_type(props.get_type());
+	QString mapped = plotting.get_plotted()
+	                     ->get_parent()
+	                     .get_mapping()
+	                     .get_properties_for_col(axis_id)
+	                     .get_mode();
+	QString type = plotting.get_plotted()
+	                   ->get_parent<Inendi::PVSource>()
+	                   .get_format()
+	                   .get_axes()[axis_id]
+	                   .get_type();
+	populate_from_type(type, mapped);
 	set_mode(props.get_mode());
-}
-
-void PVWidgets::PVPlottingModeWidget::change_params()
-{
-	if (!_props) {
-		return;
-	}
-
-	// Get argument from the properties and modify them
-	PVCore::PVArgumentList args = _props->get_args();
-	if (args.size() == 0) {
-		return;
-	}
-	bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
-	    PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), args,
-	    this);
-	if (!ret) {
-		return;
-	}
-
-	_props->set_args(args);
 }

@@ -11,11 +11,6 @@
 
 #include <PVXmlParamTextEdit.h>
 
-#define dbg                                                                                        \
-	{                                                                                              \
-		qDebug() << __FILE__ << ":" << __LINE__;                                                   \
-	}
-
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::PVXmlParamWidget
@@ -186,8 +181,7 @@ void PVInspector::PVXmlParamWidget::addListWidget()
 			layout->addSpacerItem(
 			    new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 		}
-		if (lesWidgetDuLayout.at(i)->objectName() != "nbr")
-			layout->addWidget(lesWidgetDuLayout.at(i));
+		layout->addWidget(lesWidgetDuLayout.at(i));
 	}
 	layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
@@ -240,46 +234,6 @@ QVariant PVInspector::PVXmlParamWidget::getParam(int i)
 	return ((PVXmlParamWidgetEditorBox*)lesWidgetDuLayout.at(id))->val();
 }
 
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::getParamVariantByName
- *
- *****************************************************************************/
-QVariant PVInspector::PVXmlParamWidget::getParamVariantByName(QString nameParam)
-{
-	for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
-		QWidget* w = ((QWidget*)lesWidgetDuLayout.at(i));
-		if (w->objectName() == nameParam) {
-			if (nameParam == "validator" || nameParam == "time-format") {
-				return ((PVXmlParamTextEdit*)w)->getVal();
-			} else if (nameParam == "typeCombo" || nameParam == "mapping" ||
-			           nameParam == "plotting" || nameParam == "key") {
-				return ((PVXmlParamComboBox*)w)->val();
-			} else if (nameParam == "color" || nameParam == "titlecolor") {
-				return ((PVXmlParamColorDialog*)w)->getColor();
-			} else
-				return ((PVXmlParamWidgetEditorBox*)w)->val();
-		}
-	}
-	return QVariant();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::getParamWidgetByName
- *
- *****************************************************************************/
-QWidget* PVInspector::PVXmlParamWidget::getParamWidgetByName(QString nameParam)
-{
-	for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
-		QWidget* w = ((QWidget*)lesWidgetDuLayout.at(i));
-		if (w->objectName() == nameParam) {
-			return w;
-		}
-	}
-	return NULL;
-}
-
 /******************************** SLOTS ***************************************/
 
 /******************************************************************************
@@ -327,84 +281,6 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
 void PVInspector::PVXmlParamWidget::slotForceApply()
 {
 	Q_EMIT signalForceApply(editingIndex);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::regExCountSel
- *
- *****************************************************************************/
-void PVInspector::PVXmlParamWidget::regExCountSel(const QString& reg)
-{
-	QRegExp regExp = QRegExp(reg);
-	PVXmlParamWidgetEditorBox* widgetNumberOfSelect =
-	    (PVXmlParamWidgetEditorBox*)getParamWidgetByName("nbr");
-	// update number of selection count
-	widgetNumberOfSelect->setVal(QVariant(regExp.captureCount()));
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::updatePlotMapping
- *
- *****************************************************************************/
-void PVInspector::PVXmlParamWidget::updatePlotMapping(const QString& t)
-{
-	// qDebug() << "updatePlotMapping(" << t << ")";
-	if (t.length() > 1) {
-
-		PVXmlParamComboBox* myType = (PVXmlParamComboBox*)getParamWidgetByName("typeCombo");
-		PVXmlParamWidgetEditorBox* myName =
-		    (PVXmlParamWidgetEditorBox*)getParamWidgetByName("name");
-
-		if (myType->currentText() == "time") {
-			PVXmlParamTextEdit* timeFormat =
-			    (PVXmlParamTextEdit*)getParamWidgetByName("time-format");
-			timeFormat->setVisible(true);
-			myName->setText("Time");
-		} else {
-			PVXmlParamTextEdit* timeFormat =
-			    (PVXmlParamTextEdit*)getParamWidgetByName("time-format");
-			timeFormat->setVisible(false);
-		}
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidget::slotConfirmRegExpInName
- *
- *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotConfirmRegExpInName(const QString& name)
-{
-	// for all char
-	QRegExp reg(".*(\\*|\\[|\\{|\\]|\\}).*");
-	if (reg.exactMatch(name)) {
-		QDialog confirm(this);
-		QVBoxLayout vb;
-		confirm.setLayout(&vb);
-		vb.addWidget(new QLabel("Are you writing a regular expression into the wrong field ?"));
-		QHBoxLayout bas;
-		vb.addLayout(&bas);
-		QPushButton no("No");
-		bas.addWidget(&no);
-		QPushButton yes("Yes");
-		bas.addWidget(&yes);
-
-		// connect the response button
-		connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
-		connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
-
-		// if confirmed then apply
-		if (confirm.exec()) {
-			//            PVXmlParamTextEdit *name = (PVXmlParamTextEdit *)
-			//            getParamWidgetByName("name");
-			//            PVXmlParamTextEdit *exp = (PVXmlParamTextEdit *)
-			//            getParamWidgetByName("expression");
-			// exp->setVal(name->getVal().toString());
-			// name->setVal(QString(""));
-		}
-	}
 }
 
 /******************************************************************************

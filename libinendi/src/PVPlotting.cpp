@@ -28,8 +28,7 @@ Inendi::PVPlotting::PVPlotting(PVPlotted* plotted) : _plotted(plotted), _name("d
 	    _plotted->get_parent<Inendi::PVSource>().get_extractor().get_format();
 
 	for (int i = 0; i < format.get_axes().size(); i++) {
-		Inendi::PVMapping const& mapping = _plotted->get_parent().get_mapping();
-		PVPlottingProperties plotting_axis(mapping, format, i);
+		PVPlottingProperties plotting_axis(format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -51,18 +50,6 @@ Inendi::PVPlotting::PVPlotting()
  *****************************************************************************/
 Inendi::PVPlotting::~PVPlotting()
 {
-}
-
-/******************************************************************************
- *
- * Inendi::PVPlotting::get_column_type
- *
- *****************************************************************************/
-QString const& Inendi::PVPlotting::get_column_type(PVCol col) const
-{
-	PVMappingProperties const& prop(
-	    _plotted->get_parent().get_mapping().get_properties_for_col(col));
-	return prop.get_type();
 }
 
 /******************************************************************************
@@ -125,23 +112,6 @@ bool Inendi::PVPlotting::is_uptodate() const
 
 /******************************************************************************
  *
- * Inendi::PVPlotting::reset_from_format
- *
- *****************************************************************************/
-void Inendi::PVPlotting::reset_from_format(PVRush::PVFormat const& format)
-{
-	PVCol naxes = format.get_axes().size();
-	if (_columns.size() < naxes) {
-		return;
-	}
-
-	for (PVCol i = 0; i < naxes; i++) {
-		_columns[i].set_from_axis(format.get_axes().at(i));
-	}
-}
-
-/******************************************************************************
- *
  * Inendi::PVPlotting::serialize
  *
  *****************************************************************************/
@@ -149,13 +119,6 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
                                    PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", _columns);
-	if (not so.is_writing()) {
-		// Set new plotting properties from pvi
-		for (auto& prop : _columns) {
-			prop.set_mapping(_plotted->get_parent<PVMapped>().get_mapping());
-		}
-	}
-
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
 }
