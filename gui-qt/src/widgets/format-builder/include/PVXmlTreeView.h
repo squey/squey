@@ -78,7 +78,6 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 	void expandRecursive(const QModelIndex& index);
 
 	virtual void mouseDoubleClickEvent(QMouseEvent* event);
-	virtual void mousePressEvent(QMouseEvent* event);
 
 	PVXmlDomModel* getModel();
 
