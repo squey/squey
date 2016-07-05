@@ -44,11 +44,11 @@ int main()
 	auto& array = column.to_core_array<int32_t>();
 
 	for (size_t i = 1; i < array.size(); i++) {
-		PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] > plotted.get_column_pointer(0)[i - 1]);
+		PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] < plotted.get_column_pointer(0)[i - 1]);
 		if (i < 1024) {
-			PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] < (1UL << 31));
+			PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] > (1UL << 31));
 		} else {
-			PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] >= (1UL << 31));
+			PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] <= (1UL << 31));
 		}
 	}
 

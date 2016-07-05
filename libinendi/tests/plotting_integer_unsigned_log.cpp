@@ -47,11 +47,11 @@ int main()
 	std::vector<size_t> order(column.size());
 	std::iota(order.begin(), order.end(), 0);
 	std::sort(order.begin(), order.end(),
-	          [&](size_t a, size_t b) { return column_array[a] < column_array[b]; });
+	          [&](size_t a, size_t b) { return column_array[a] > column_array[b]; });
 
+	PV_VALID(plotted.get_column_pointer(0)[order[order.size() - 1]],
+	         std::numeric_limits<uint32_t>::max());
 	PV_VALID(plotted.get_column_pointer(0)[order[0]], (uint32_t)0);
-	PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[order.size() - 1]] >=
-	                std::numeric_limits<uint32_t>::max() - 1);
 
 	// Check we keep value ordering.
 	for (size_t i = 1; i < column.size(); i++) {

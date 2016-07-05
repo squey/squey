@@ -36,7 +36,7 @@ compute_log_plotting(pvcop::db::array const& mapped, pvcop::db::array const& min
 	auto& values = mapped.to_core_array<T>();
 #pragma omp parallel for
 	for (size_t i = 0; i < mapped.size(); i++) {
-		dest[i] = ratio * (std::log2(((double)values[i] + offset) / ymin));
+		dest[i] = ~uint32_t(ratio * (std::log2(((double)values[i] + offset) / ymin)));
 	}
 }
 
