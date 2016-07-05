@@ -25,7 +25,7 @@
 #include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
 #include <pvkernel/filter/PVChunkFilterByEltRestoreInvalid.h>
 #include <pvkernel/filter/PVChunkFilterByEltSaveInvalid.h>
-#include <pvkernel/filter/PVElementFilterByFields.h>
+#include <pvkernel/filter/PVElementFilterByAxes.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 
 #include <pvcop/types/impl/formatter_factory.h>
@@ -544,8 +544,8 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 	}
 
 	// Finalise the pipeline
-	PVFilter::PVElementFilterByFields* elt_f =
-	    new PVFilter::PVElementFilterByFields(final_filter_f);
+	auto* elt_f = new PVFilter::PVElementFilterByAxes(final_filter_f, _fields_mask);
+
 	return elt_f->f();
 }
 
