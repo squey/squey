@@ -426,6 +426,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 	filters_params = xml_parser.getFields();
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
+	_fields_mask = xml_parser.getFieldsMask();
 	_first_line = xml_parser.get_first_line();
 	_line_count = xml_parser.get_line_count();
 
@@ -440,6 +441,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 		fake_ax.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 		_axes.clear();
 		_axes.push_back(fake_ax);
+		_fields_mask.resize(1, true);
 	}
 
 	_already_pop = _axes.size() > 0;

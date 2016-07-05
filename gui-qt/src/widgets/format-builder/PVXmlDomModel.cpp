@@ -14,11 +14,6 @@
 
 #include <QString>
 
-#define dbg()                                                                                      \
-	{                                                                                              \
-		qDebug() << __FILE__ << __LINE__;                                                          \
-	}
-
 /******************************************************************************
  *
  * PVInspector::PVXmlDomModel::PVXmlDomModel
@@ -31,6 +26,8 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget* parent) : QAbstractItemModel(
 	xmlRootDom = xmlFile.documentElement();
 	setRoot(m_rootNode);
 	setObjectName("PVXmlDomModel");
+
+	_original_xml_content = xmlFile.toString();
 }
 
 /******************************************************************************
@@ -63,6 +60,29 @@ QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& p
 		return QModelIndex();
 
 	return createIndex(r, c, childNode);
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlDomModel::indexOfChild
+ *
+ *****************************************************************************/
+
+QModelIndex PVInspector::PVXmlDomModel::indexOfChild(const QModelIndex& parent,
+                                                     const PVRush::PVXmlTreeNodeDom* node) const
+{
+	QModelIndex model_index = index(0, 0, parent);
+	int i = 0;
+
+	while (model_index.isValid()) {
+		if (nodeFromIndex(model_index) == node) {
+			return model_index;
+		}
+
+		model_index = index(i++, 0, parent);
+	}
+
+	return QModelIndex();
 }
 
 /******************************************************************************
@@ -194,7 +214,7 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex& index, int role) co
 void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom* node)
 {
 	beginResetModel();
-	this->rootNode = node;
+	rootNode.reset(node);
 	endResetModel();
 }
 
@@ -217,7 +237,7 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModel
 		// PVLOG_DEBUG("              ---      \n");
 		return static_cast<PVRush::PVXmlTreeNodeDom*>(index.internalPointer());
 	} else {
-		return rootNode;
+		return getRoot();
 	}
 }
 
@@ -339,6 +359,8 @@ bool PVInspector::PVXmlDomModel::saveXml(QString xml_file)
 		xmlRootDom.removeChild(axes_cb_elt);
 	}
 
+	_original_xml_content = xmlFile.toString();
+
 	return true;
 }
 
@@ -372,7 +394,7 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index)
 {
 	if (index.isValid()) {
 		PVRush::PVXmlTreeNodeDom* nodeASupprimer = nodeFromIndex(index);
-		if (nodeASupprimer != rootNode) {
+		if (nodeASupprimer != rootNode.get()) {
 			nodeASupprimer->deleteFromTree();
 			emit layoutChanged();
 		}
@@ -385,30 +407,31 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index)
  * PVInspector::PVXmlDomModel::addAxisIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex& index)
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex& index)
 {
+	PVRush::PVXmlTreeNodeDom* field = nullptr;
+
 	if (index.isValid()) { // if index valid, add axis in field...
-		PVRush::PVXmlTreeNodeDom* field = nodeFromIndex(index);
+		field = nodeFromIndex(index);
 
 		// make sure that there not already axis or regexp.
 		if (!trustConfictSplitAxes(index))
-			return;
+			return nullptr;
 
 		// axis adding
 		if (field->typeToString() != "field") {
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
-			return;
+			return nullptr;
 		}
-
-		addAxisIn(field);
-
-	} else { // else add on root node...
-		if (!trustConfictSplitAxes(index))
-			return;
-		addAxisIn(NULL);
+	} else if (!trustConfictSplitAxes(index)) {
+		return nullptr;
 	}
+
+	PVRush::PVXmlTreeNodeDom* child = addAxisIn(field);
 	emit layoutChanged();
+
+	return child;
 }
 
 /******************************************************************************
@@ -427,7 +450,7 @@ PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
 		child->isOnRoot = false;
 	} else {
 		child->isOnRoot = true;
-		parentNode = rootNode;
+		parentNode = getRoot();
 	}
 	child->setParent(parentNode);
 	parentNode->addChild(child);
@@ -441,11 +464,13 @@ PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
  * PVInspector::PVXmlDomModel::addFilterAfter
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
 {
-	PVRush::PVXmlTreeNodeDom* childPrecedent = nodeFromIndex(index); // node sélectionné
+	PVRush::PVXmlTreeNodeDom* childPrecedent = nodeFromIndex(index); // selected node
+	PVRush::PVXmlTreeNodeDom* child = nullptr;
+
 	if (childPrecedent->typeToString() != "field") {
-		QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+		QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 		                         tr("You must select a field first."));
 	} else if (childPrecedent->typeToString() == "field") {
 		// dom
@@ -454,12 +479,13 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
 		childPrecedent->getDom().appendChild(newDom);
 
 		// tree
-		PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+		child = new PVRush::PVXmlTreeNodeDom(newDom);
 		child->setParent(childPrecedent);
 		childPrecedent->addChild(child);
+		emit layoutChanged(); // refresh
 	}
 
-	emit layoutChanged(); // refresh
+	return child;
 }
 
 /******************************************************************************
@@ -480,15 +506,11 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 		field = nodeFromIndex(index);
 		if (field->typeToString() == "field") { // a splitter can be add only in field...
 			if (!trustConfictSplitAxes(index)) {
-				// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-				// tr("You must select a field with axis or splitter inside."));
 				return NULL; // we can't add more than one splitter in a field
 			}
 			PVLOG_DEBUG("     adding splitter in a field\n");
 		} else {
-			// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-			// tr(QString(field->getDom().tagName())));
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 			return NULL;
 		}
@@ -496,7 +518,7 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 
 		if (!trustConfictSplitAxes(index))
 			return NULL; // we can't add more than one splitter in a field
-		field = rootNode;
+		field = getRoot();
 	}
 	PVLOG_DEBUG("     adding splitter on root node\n");
 	// add node in dom
@@ -538,15 +560,13 @@ PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
 		if (field->typeToString() == "field") { // a converter can be add only in field...
 			PVLOG_DEBUG("     adding converter in a field\n");
 		} else {
-			// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-			// tr(QString(field->getDom().tagName())));
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 			return NULL;
 		}
 	} else { // add on the root
 
-		field = rootNode;
+		field = getRoot();
 	}
 	PVLOG_DEBUG("     adding converter on root node\n");
 	// add node in dom
@@ -626,9 +646,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 			child->setParent(field);
 			field->addChild(child);
 		} else {
-			// QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"),
-			// tr(QString(field->getDom().tagName())));
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 		}
 	} else {
@@ -642,7 +660,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 		//
 		//        //tree
 		PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
-		child->setParent(rootNode);
+		child->setParent(getRoot());
 		rootNode->addChild(child);
 	}
 	emit layoutChanged();
@@ -753,14 +771,16 @@ bool PVInspector::PVXmlDomModel::openXml(QString url)
 		QString s;
 		s.push_back("File can't be open");
 		s.push_back(this->urlXml);
-		QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"), s);
+		QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"), s);
 		return false;
 	}
 	QTextStream tmpTextXml(&fichier);
 	tmpTextXml.setCodec("UTF-8"); // AG: as defined in the XML header (and saved, cf. saveXML)
 	QString err_msg;
 	int err_line, err_col;
-	if (!this->xmlFile.setContent(tmpTextXml.readAll(), false, &err_msg, &err_line, &err_col)) {
+	QDomDocument doc;
+
+	if (!doc.setContent(tmpTextXml.readAll(), false, &err_msg, &err_line, &err_col)) {
 		QMessageBox msg(QMessageBox::Critical, tr("Unable to open format"),
 		                tr("Unable to open format '%1'").arg(url), QMessageBox::Ok);
 		msg.setInformativeText(
@@ -770,7 +790,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url)
 		return false;
 	}
 
-	openXml(this->xmlFile);
+	openXml(doc);
 	return true;
 }
 
@@ -778,6 +798,7 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 {
 	PVRush::PVFormatVersion::to_current(doc);
 	xmlFile = doc;
+	_original_xml_content = xmlFile.toString();
 	xmlRootDom = doc.documentElement();
 
 	// Get axes combination and remove it from the DOM
@@ -790,7 +811,9 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 		xmlRootDom.removeChild(axes_cb_elt);
 	}
 
-	rootNode->init(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
+	rootNode.reset(
+	    new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, xmlFile));
+
 	beginResetModel();
 	endResetModel();
 
@@ -798,6 +821,11 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	rootNode->getGroupsByType(_groups);
 
 	emit layoutChanged(); // to resfresh screen
+}
+
+bool PVInspector::PVXmlDomModel::hasFormatChanged() const
+{
+	return xmlFile.toString() != _original_xml_content;
 }
 
 void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,
@@ -829,12 +857,12 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 	if (index.isValid()) { // if a item is selected...
 		field = nodeFromIndex(index);
 		if (field->typeToString() != "field") { // and if it's not a field
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
 			return;
 		}
-	} else {              // if no item is selected...
-		field = rootNode; // current node is the root node
+	} else {               // if no item is selected...
+		field = getRoot(); // current node is the root node
 	}
 
 	// conflicts Splitter & url
@@ -982,16 +1010,16 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex& index)
 	if (index.isValid()) {
 		node = nodeFromIndex(index);
 	} else {
-		node = rootNode;
+		node = getRoot();
 	}
 
 	for (int i = 0; i < node->getChildren().count(); i++) {
 		QDomElement child = node->getChildren().at(i)->getDom();
 		if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" ||
 		    child.tagName() == "splitter") {
-			QMessageBox::information((QWidget*)QObject::parent(), tr("Fromat builder"),
-			                         tr("There is just one axis or splitter in a field. Delete "
-			                            "this one to add a newer."));
+			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
+			                         tr("A field can only have one axis or one splitter. "
+			                            "Delete the current node before adding a new one."));
 			return false;
 		}
 	}

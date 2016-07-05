@@ -25,6 +25,8 @@
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <inendi/PVAxesCombination.h>
 
+#include <memory>
+
 namespace PVInspector
 {
 class PVXmlDomModel : public QAbstractItemModel
@@ -39,13 +41,13 @@ class PVXmlDomModel : public QAbstractItemModel
 	/*
 	 * Toolbar methods
 	 */
-	void addFilterAfter(QModelIndex& index);
+	PVRush::PVXmlTreeNodeDom* addFilterAfter(QModelIndex& index);
 	void applyModification(QModelIndex& index, PVXmlParamWidget* paramBord);
 
 	/*
 	* Add items
 	*/
-	void addAxisIn(const QModelIndex& index);
+	PVRush::PVXmlTreeNodeDom* addAxisIn(const QModelIndex& index);
 	PVRush::PVXmlTreeNodeDom* addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode);
 
 	PVRush::PVXmlTreeNodeDom* addSplitter(const QModelIndex& index,
@@ -133,6 +135,8 @@ class PVXmlDomModel : public QAbstractItemModel
 	bool openXml(QString file);
 	void openXml(QDomDocument& doc);
 
+	bool hasFormatChanged() const;
+
 	// identify multi axis or splitter in a field
 	bool trustConfictSplitAxes(const QModelIndex& index);
 
@@ -140,10 +144,11 @@ class PVXmlDomModel : public QAbstractItemModel
 	int countParent(const QModelIndex& index);
 
 	PVRush::PVXmlTreeNodeDom* nodeFromIndex(const QModelIndex& index) const;
+	QModelIndex indexOfChild(const QModelIndex& parent, const PVRush::PVXmlTreeNodeDom* node) const;
 
 	QDomElement const& getRootDom() const { return xmlRootDom; }
 
-	PVRush::PVXmlTreeNodeDom* getRoot() { return rootNode; }
+	PVRush::PVXmlTreeNodeDom* getRoot() const { return rootNode.get(); }
 
 	void processChildrenWithField(PVCore::PVField const& field);
 	void clearFiltersData();
@@ -164,10 +169,11 @@ class PVXmlDomModel : public QAbstractItemModel
 	                           QString const& mode_plotting);
 
   private:
-	PVRush::PVXmlTreeNodeDom* rootNode;
+	std::unique_ptr<PVRush::PVXmlTreeNodeDom> rootNode;
 
 	QString urlXml;
 	QDomDocument xmlFile;
+	QString _original_xml_content;
 	QDomElement xmlRootDom;
 
 	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h

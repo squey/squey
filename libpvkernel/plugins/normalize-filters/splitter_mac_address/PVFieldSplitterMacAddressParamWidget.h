@@ -23,13 +23,12 @@ class PVFieldSplitterMacAddressParamWidget : public PVFieldsSplitterParamWidget
 	PVFieldSplitterMacAddressParamWidget();
 
   public:
-	QAction* get_action_menu();
-	QWidget* get_param_widget();
+	QAction* get_action_menu(QWidget* parent) override;
+	QWidget* get_param_widget() override;
 
-	size_t force_number_children() { return 2; }
+	size_t force_number_children() override { return 2; }
 
   private:
-	QAction* _action_menu;
 	QWidget* _param_widget;
 
   private:

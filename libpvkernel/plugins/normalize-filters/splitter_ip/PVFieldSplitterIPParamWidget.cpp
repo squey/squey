@@ -29,7 +29,6 @@ constexpr size_t group_ipv6_count = 8;
 PVFilter::PVFieldSplitterIPParamWidget::PVFieldSplitterIPParamWidget()
     : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterIP()))
 {
-	_action_menu = new QAction(QString("add IP Splitter"), this);
 }
 
 /******************************************************************************
@@ -37,11 +36,9 @@ PVFilter::PVFieldSplitterIPParamWidget::PVFieldSplitterIPParamWidget()
  * PVFilter::PVFieldSplitterIPParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldSplitterIPParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterIPParamWidget::get_action_menu(QWidget* parent)
 {
-	PVLOG_DEBUG("get action PVFieldSplitterIPParamWidget\n");
-	assert(_action_menu);
-	return _action_menu;
+	return new QAction(QString("add IP Splitter"), parent);
 }
 
 /******************************************************************************
@@ -119,6 +116,13 @@ void PVFilter::PVFieldSplitterIPParamWidget::set_ip_type(bool reset_groups_check
 	PVCore::PVArgumentList args = get_filter()->get_args();
 	args["ipv6"] = _ipv6->isChecked();
 	_group_count = _ipv6->isChecked() ? group_ipv6_count : group_ipv4_count;
+
+	// resetting 'params'
+	if (_ipv6->isChecked()) {
+		args["params"] = PVFieldSplitterIP::params_ipv6;
+	} else {
+		args["params"] = PVFieldSplitterIP::params_ipv4;
+	}
 
 	get_filter()->set_args(args);
 	emit args_changed_Signal();

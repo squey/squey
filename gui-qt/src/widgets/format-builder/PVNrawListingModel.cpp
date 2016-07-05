@@ -45,7 +45,7 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 	case Qt::BackgroundRole: {
 		if (_show_sel && index.column() == _col_tosel) {
 			// TODO: put this color in something more global (taken from PVListingModel.cpp)
-			return QBrush(QColor(130, 100, 25));
+			return QColor(88, 172, 250);
 		}
 		break;
 	}

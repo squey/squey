@@ -22,14 +22,20 @@ constexpr static size_t nb_dup = 20;
 constexpr static size_t nb_dup = 1;
 #endif
 
-static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/csv/proxy_sample.csv";
+int main(int argc, char** argv)
+{
+	const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/csv/proxy_sample.csv";
 #ifndef INSPECTOR_BENCH
-static constexpr const char* ref_file =
-    TEST_FOLDER "/pvkernel/rush/splitters/csv/proxy_sample.csv.out";
+	const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/csv/proxy_sample.csv.out";
 #endif
 
-int main()
-{
+	if (argc == 3) {
+		log_file = argv[1];
+#ifndef INSPECTOR_BENCH
+		ref_file = argv[2];
+#endif
+	}
+
 	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	// Prepare splitter plugin
@@ -52,9 +58,11 @@ int main()
 	PV_VALID(nelts_valid, nelts_org);
 
 #ifndef INSPECTOR_BENCH
+	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	// Check output is the same as the reference
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
 #endif
 	std::remove(output_file.c_str());
+
 	return 0;
 }

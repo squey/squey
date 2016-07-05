@@ -37,7 +37,6 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
 {
 	PVLOG_DEBUG("init PVFieldSplitterCSVParamWidget\n");
 
-	action_menu = new QAction(QString("add CSV Splitter"), this);
 	_recommands_label = NULL;
 }
 
@@ -98,10 +97,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	_child_number_edit->setMaximum(10000);
 	_child_number_edit->setValue(get_child_count());
 	gridLayout->addWidget(_child_number_edit, 2, 1);
-
-	// "set number of children" button
-	QPushButton* set_nchilds_btn = new QPushButton(tr("Update format"));
-	gridLayout->addWidget(set_nchilds_btn, 2, 2);
+	connect(_child_number_edit, SIGNAL(valueChanged(int)), this, SLOT(updateNChilds()));
 
 	layout->addLayout(gridLayout);
 	_recommands_label = new QLabel();
@@ -115,7 +111,6 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	        SLOT(updateSeparator(QKeySequence)));
 	connect(quote_text, SIGNAL(keySequenceChanged(QKeySequence)), this,
 	        SLOT(updateQuote(QKeySequence)));
-	connect(set_nchilds_btn, SIGNAL(clicked()), this, SLOT(updateNChilds()));
 
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()     end\n");
 
@@ -129,10 +124,9 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
  * PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu(QWidget* parent)
 {
-	assert(action_menu);
-	return action_menu;
+	return new QAction(QString("add CSV Splitter"), parent);
 }
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)

@@ -208,6 +208,25 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			} else {
 				*new_tree_id = i;
 			}
+
+			if (child.hasChildNodes()) {
+				QDomNodeList nodes = child.childNodes();
+				bool has_axis = false;
+				for (int i = 0; i < nodes.size(); ++i) {
+					if (getNodeType(nodes.at(i).toElement()) == PVFORMAT_XML_TAG_AXIS_STR) {
+						has_axis = true;
+						break;
+					}
+				}
+
+				if (has_axis) {
+					_fields_mask.push_back(true);
+				}
+			} else {
+				_fields_mask.push_back(false);
+				++newId;
+			}
+
 			newId = setDom(child, newId, tree_ids);
 		}
 	}
@@ -215,7 +234,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 	for (int i = 0; i < nchilds; i++) {
 		QDomElement child = childs.at(i).toElement();
 
-		if (getNodeType(child) == "axis") {
+		if (getNodeType(child) == PVFORMAT_XML_TAG_AXIS_STR) {
 			PVAxisFormat axis;
 			axis.set_name(child.attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT));
 			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));

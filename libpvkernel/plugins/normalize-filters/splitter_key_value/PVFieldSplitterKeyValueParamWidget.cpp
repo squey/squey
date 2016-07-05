@@ -31,7 +31,6 @@
 PVFilter::PVFieldSplitterKeyValueParamWidget::PVFieldSplitterKeyValueParamWidget()
     : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterKeyValue()))
 {
-	_action_menu = new QAction(QString("add Key Value"), this);
 }
 
 /******************************************************************************
@@ -39,11 +38,9 @@ PVFilter::PVFieldSplitterKeyValueParamWidget::PVFieldSplitterKeyValueParamWidget
  * PVFilter::PVFieldSplitterKeyValueParamWidget::get_action_menu
  *
  *****************************************************************************/
-QAction* PVFilter::PVFieldSplitterKeyValueParamWidget::get_action_menu()
+QAction* PVFilter::PVFieldSplitterKeyValueParamWidget::get_action_menu(QWidget* parent)
 {
-	PVLOG_DEBUG("get action PVFieldSplitterKeyValueParamWidget\n");
-	assert(_action_menu);
-	return _action_menu;
+	return new QAction(QString("add Key-Value Splitter"), parent);
 }
 
 /******************************************************************************
