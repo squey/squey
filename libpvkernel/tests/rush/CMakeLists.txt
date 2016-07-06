@@ -192,9 +192,11 @@ add_pv_compile_test(Trush_datetime_support LINKS ${LINK_LIBRARIES} FILES datetim
 add_test(Trush_datetime_support Trush_datetime_support)
 
 # Format ignore axes
-add_pv_compile_test(Trush_format_ignore_axes LINKS ${LINK_LIBRARIES} FILES format_ignore_axes.cpp)
-add_test(Trush_format_ignore_axes Trush_format_ignore_axes)
-add_bench(Trush_format_ignore_axes LINKS ${LINK_LIBRARIES} FILES format_ignore_axes.cpp)
+add_pv_compile_test(Trush_format_import_export LINKS ${LINK_LIBRARIES} FILES format_import_export.cpp)
+add_test(Trush_format_ignore_axes Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.format)
+
+# Format ignore rows
+add_test(Trush_format_ignore_rows Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format)
 
 add_pv_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
 add_test(Trush_format_upgrade Trush_format_upgrade)
