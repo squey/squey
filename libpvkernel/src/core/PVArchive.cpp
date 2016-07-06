@@ -71,38 +71,10 @@ static int copy_data(struct archive* ar, struct archive* aw)
 
 bool PVCore::PVArchive::is_archive(QString const& path)
 {
-	bool ret;
-	struct archive* a;
-	struct archive_entry* entry;
+	static QStringList supported_archives{"gz", "bz2", "zip", "lzma", "xz", "z"};
 
-	QByteArray path_local = path.toLocal8Bit();
-	const char* filename = path_local.constData();
-
-	a = archive_read_new();
-	inendi_archive_read_support(a);
-	ret = archive_read_open_filename(a, filename, 1000) == ARCHIVE_OK;
-	if (!ret) {
-		archive_read_close(a);
-		return false;
-	}
-	ret = archive_read_next_header(a, &entry) == ARCHIVE_OK;
-	archive_read_close(a);
-
-	if (!ret) {
-		a = archive_read_new();
-		inendi_archive_read_support_noformat(a);
-		ret = archive_read_open_filename(a, filename, 1000) == ARCHIVE_OK;
-		if (ret) {
-			ret = archive_read_next_header(a, &entry) == ARCHIVE_OK;
-		}
-		archive_read_close(a);
-		int ac = archive_filter_code(a, 0);
-		if (ret && ac == 0) {
-			ret = false;
-		}
-	}
-
-	return ret;
+	// use only the file suffix (the "last" extension), not the complete one
+	return supported_archives.contains(QFileInfo(path).suffix());
 }
 
 bool PVCore::PVArchive::extract(QString const& path,
