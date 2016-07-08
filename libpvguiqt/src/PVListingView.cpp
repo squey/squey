@@ -891,8 +891,8 @@ void PVGuiQt::PVListingView::goto_line()
 	const Inendi::PVSelection& sel = lib_view().get_real_output_selection();
 
 	bool ok;
-	PVRow row =
-	    QInputDialog::getInt(this, "Go to line", "Select line index", 0, 0, nrows - 1, 1, &ok);
+	PVRow row = QInputDialog::getInt(this, "Go to line", "Select line index", 1, 1, nrows, 1, &ok);
+	row--; // Displayed rows start at index 1 but not internally
 
 	if (ok == false) {
 		return;
