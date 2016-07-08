@@ -377,10 +377,13 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
   public:
 	// axis <-> section synchronisation
 	void set_axis_hovered(PVCol col, bool entered) { _axis_hovered.emit(col, entered); }
-	void set_axis_clicked(PVCol col, size_t pos) { _axis_clicked.emit(col, pos); }
+	void set_axis_clicked(PVCol col) const { _axis_clicked.emit(col); }
+
+	void set_section_clicked(PVCol col, size_t pos) const { _section_clicked.emit(col, pos); }
 
 	sigc::signal<void, size_t, bool> _axis_hovered;
-	sigc::signal<void, size_t, size_t> _axis_clicked;
+	sigc::signal<void, size_t> _axis_clicked;
+	sigc::signal<void, size_t, size_t> _section_clicked;
 	sigc::signal<void> _axis_combination_updated;
 	sigc::signal<void> _axis_combination_about_to_update;
 	sigc::signal<void> _update_current_min_max;
