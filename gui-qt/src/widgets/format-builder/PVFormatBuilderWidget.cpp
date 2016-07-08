@@ -162,7 +162,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	setCentralWidget(central_widget);
 
 	_file_dialog.setOption(QFileDialog::DontUseNativeDialog, true);
-	_file_dialog.setNameFilter("Formats (*.format)");
+	_file_dialog.setNameFilters(QStringList{"Formats (*.format)", "All files (*.*)"});
 
 	QList<QUrl> favorites = _file_dialog.sidebarUrls();
 
