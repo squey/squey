@@ -127,7 +127,7 @@ class TestEnv
 		Inendi::PVScene& scene = root.emplace_add_child("scene");
 		Inendi::PVSource& src =
 		    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-		PVRush::PVControllerJob_p job = src.extract(0, 1000000000);
+		PVRush::PVControllerJob_p job = src.extract(0, 0, 1000000000);
 		job->wait_end();
 
 		Inendi::PVMapped& mapped = src.emplace_add_child();

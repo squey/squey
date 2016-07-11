@@ -201,7 +201,7 @@ class TestEnv
 
 	void load_data(size_t nb_lines)
 	{
-		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(0, nb_lines);
+		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(0, 0, nb_lines);
 		job->wait_end();
 	}
 

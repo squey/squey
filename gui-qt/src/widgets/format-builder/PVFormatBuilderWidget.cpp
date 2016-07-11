@@ -903,7 +903,8 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	// Create the nraw thanks to the extractor
 	_log_extract->reset_nraw();
 
-	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
+	PVRush::PVControllerJob_p job =
+	    _log_extract->process_from_agg_idxes(start, myTreeModel->get_first_line(), end);
 	job->wait_end();
 
 	_nraw_model->set_format(get_format_from_dom());

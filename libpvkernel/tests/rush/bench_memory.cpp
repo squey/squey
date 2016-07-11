@@ -122,7 +122,7 @@ class PVElementsSource : public PVRush::PVRawSourceBase
 
 void bench(PVRush::PVExtractor& ext, size_t nlines)
 {
-	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
+	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 0, nlines);
 	job->wait_end();
 }
 
