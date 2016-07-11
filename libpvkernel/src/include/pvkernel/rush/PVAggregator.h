@@ -66,11 +66,11 @@ class PVAggregator
 	 * responsability
 	 *        of the caller to free it using PVChunk::free.
 	 */
-	PVCore::PVChunk* operator()() const;
+	PVCore::PVChunk* operator()();
 
 	/*! \brief TBB-compatible pipeline input interface
 	 */
-	PVCore::PVChunk* operator()(tbb::flow_control& fc) const;
+	PVCore::PVChunk* operator()(tbb::flow_control& fc);
 
   public:
 	/*! \brief Tell the aggregator to return chunks whose global indexes are between a given range.
@@ -99,11 +99,6 @@ class PVAggregator
 	 */
 	void process_indexes(chunk_index nstart, chunk_index nend, chunk_index expected_nelts = 0);
 
-	/*! \brief Returns true if the end of param[in]s has been reached. It is set by operator().
-	 * Returns false otherwise.
-	 */
-	bool eoi() const;
-
 	/*! \brief Set a pointer to a stop condition.
 	 *  \param[in] cond Pointer to a bool variable to represent the stop condition.
 	 *
@@ -118,25 +113,25 @@ class PVAggregator
 	void set_sources_number_fields(PVCol nfields);
 
   protected:
-	PVCore::PVChunk* read_until_index(chunk_index idx) const;
-	PVCore::PVChunk* next_chunk() const;
+	PVCore::PVChunk* read_until_index(chunk_index idx);
+	PVCore::PVChunk* next_chunk();
 	list_inputs::iterator agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index);
 
   protected:
 	list_inputs _inputs;
-	mutable list_inputs::iterator _cur_input;
+	list_inputs::iterator _cur_input;
 	/*! \brief Indicates the end of param[in]s. Set by operator().
 	 */
-	mutable chunk_index _nstart;
+	chunk_index _nstart;
 
-	mutable bool _begin_of_input;
-	mutable bool _skip_lines_count;
+	bool _begin_of_input;
+	bool _skip_lines_count;
 
 	/*! \brief Stores the global index of the last element of the last read chunk
 	 */
-	mutable chunk_index _nlast;
-	mutable chunk_index _nend;
-	mutable chunk_index _cur_src_index;
+	chunk_index _nlast;
+	chunk_index _nend;
+	chunk_index _cur_src_index;
 	bool* _stop_cond;
 	bool __stop_cond_false;
 
@@ -154,7 +149,7 @@ class PVAggregator
 	 *
 	 * \note Global indexes start at 0.
 	 */
-	mutable map_source_offsets _src_offsets;
+	map_source_offsets _src_offsets;
 };
 
 typedef PVAggregator::p_type PVAggregator_p;

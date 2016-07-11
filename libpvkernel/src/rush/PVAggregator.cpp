@@ -95,7 +95,7 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart,
 	(*_cur_input)->prepare_for_nelts(expected_nelts);
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::read_until_index(chunk_index idx) const
+PVCore::PVChunk* PVRush::PVAggregator::read_until_index(chunk_index idx)
 {
 	PVCore::PVChunk* ret = NULL;
 	while (_nlast < idx) {
@@ -107,7 +107,7 @@ PVCore::PVChunk* PVRush::PVAggregator::read_until_index(chunk_index idx) const
 	return ret;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
+PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 {
 
 	// Get chunk from current input
@@ -144,7 +144,7 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 	return ret;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::operator()() const
+PVCore::PVChunk* PVRush::PVAggregator::operator()()
 {
 	if (*_stop_cond) {
 		PVLOG_DEBUG("(PVAggregator) aggregator stop because of stop condition\n");
@@ -158,7 +158,8 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 
 	PVCore::PVChunk* ret;
 	if (_nlast < _nstart) {
-		// We have to read until _nstart indexes
+		// We have to read until _nstart indexes to skip not required first
+		// line at the beginning fo the file.
 		ret = read_until_index(_nstart);
 		if (ret != NULL && ret->_agg_index < _nstart) {
 
@@ -211,7 +212,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 	return ret;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc) const
+PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc)
 {
 	PVCore::PVChunk* ret = this->operator()();
 	if (ret == NULL) {
