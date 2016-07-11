@@ -48,6 +48,10 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
     , _nraw(_extractor.get_nraw())
     , _axes_combination(format)
 {
+
+	if (inputs.empty()) {
+		throw std::runtime_error("We can't create a source without input");
+	}
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	// Set extractor default values

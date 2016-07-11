@@ -15,7 +15,6 @@
 
 #include <memory>
 #include <vector>
-#include <map>
 
 namespace PVRush
 {
@@ -38,8 +37,6 @@ class PVAggregator
 {
   public:
 	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
-	typedef std::shared_ptr<PVAggregator> p_type;
-	typedef std::map<chunk_index, list_inputs::iterator> map_source_offsets;
 
   public:
 	/*! \brief Create an aggregator with no source.
@@ -113,9 +110,8 @@ class PVAggregator
 	void set_sources_number_fields(PVCol nfields);
 
   protected:
-	PVCore::PVChunk* read_until_index(chunk_index idx);
+	PVCore::PVChunk* read_until_start_index();
 	PVCore::PVChunk* next_chunk();
-	list_inputs::iterator agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index);
 
   protected:
 	list_inputs _inputs;
@@ -123,36 +119,18 @@ class PVAggregator
 	/*! \brief Indicates the end of param[in]s. Set by operator().
 	 */
 	chunk_index _nstart;
+	chunk_index _nend;
 
 	bool _begin_of_input;
-	bool _skip_lines_count;
+	chunk_index _skip_lines_count;
 
 	/*! \brief Stores the global index of the last element of the last read chunk
 	 */
-	chunk_index _nlast;
-	chunk_index _nend;
+	chunk_index _nread_elements;
 	chunk_index _cur_src_index;
 	bool* _stop_cond;
 	bool __stop_cond_false;
-
-	/*! \brief Map global start indexes to source.
-	 * The key of this std::map object represent the global start index of the associated source.
-	 * For instance, if an aggregator contains 2 text files, this map object will contain the
-	 * following information:
-	 * <ul>
-	 * <li>[Global index 0] -> first source</li>
-	 * <li>[Number of elements of first source] -> second source</li>
-	 * </ul>
-	 *
-	 * These informations are not computed each time a source is added, and are stored as soon as
-	 * they are known by the aggregator.
-	 *
-	 * \note Global indexes start at 0.
-	 */
-	map_source_offsets _src_offsets;
 };
-
-typedef PVAggregator::p_type PVAggregator_p;
 }
 
 #endif
