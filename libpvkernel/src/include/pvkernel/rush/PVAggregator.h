@@ -127,7 +127,6 @@ class PVAggregator
 	mutable list_inputs::iterator _cur_input;
 	/*! \brief Indicates the end of param[in]s. Set by operator().
 	 */
-	mutable bool _eoi;
 	mutable chunk_index _nstart;
 
 	mutable bool _begin_of_input;

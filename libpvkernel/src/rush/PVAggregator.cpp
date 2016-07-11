@@ -13,7 +13,6 @@
 
 PVRush::PVAggregator::PVAggregator()
     : _cur_input(_inputs.begin())
-    , _eoi(false)
     , _nstart(0)
     , _begin_of_input(true)
     , _skip_lines_count(0)
@@ -46,7 +45,6 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart,
 {
 	_nstart = nstart;
 	_nend = nend;
-	_eoi = false;
 
 	// Find out the source that contains nstart
 
@@ -183,7 +181,6 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 	}
 
 	if (ret == NULL) {
-		_eoi = true;
 		PVLOG_DEBUG("Aggregator: end of inputs\n");
 		return NULL;
 	}
