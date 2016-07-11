@@ -539,8 +539,11 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
  *****************************************************************************/
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 {
-	const QString& this_axis_type = lib_view().get_axes_combination().get_axis(col).get_type();
-	QStringList correlation_types = {"integer", "ipv4"};
+	const pvcop::collection& collection = lib_view().get_rushnraw_parent().collection();
+
+	const QString& this_axis_type =
+	    collection.formatter(lib_view().get_original_axis_index(col))->name();
+	QStringList correlation_types = {"number_uint32", "number_int32", "ipv4"};
 
 	// Don't show correlation menu for unsupported axes types
 	if (not correlation_types.contains(this_axis_type)) {
@@ -581,7 +584,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 			const Inendi::PVAxesCombination& ac = view->get_axes_combination();
 			for (PVCol i = 0; i < ac.get_axes_count(); i++) {
 				const QString& axis_name = ac.get_axis(i).get_name();
-				const QString& axis_type = ac.get_axis(i).get_type();
+				const QString& axis_type =
+				    collection.formatter(lib_view().get_original_axis_index(i))->name();
 
 				// Don't show incompatible axes
 				if (axis_type != this_axis_type) {
