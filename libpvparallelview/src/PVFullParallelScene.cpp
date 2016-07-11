@@ -78,7 +78,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::highlight_axis));
 
 	// Register source for sections click events
-	view_sp._axis_clicked.connect(
+	view_sp._section_clicked.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::sync_axis_with_section));
 
 	view_sp._update_current_min_max.connect(

@@ -56,8 +56,9 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
     , _ctxt_process(nullptr)
     , _headers_width(view.get_original_axes_count(), horizontalHeader()->defaultSectionSize())
 {
-	/// Source events
+
 	view._axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
+	view._axis_clicked.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::set_section_visible));
 
 	// SIZE STUFF
 	setMinimumSize(60, 40);
@@ -771,7 +772,7 @@ void PVGuiQt::PVListingView::section_clicked(int col)
 {
 	int x = horizontalHeader()->sectionViewportPosition(col);
 	int width = horizontalHeader()->sectionSize(col);
-	lib_view().set_axis_clicked(col, verticalHeader()->width() + x + width / 2);
+	lib_view().set_section_clicked(col, verticalHeader()->width() + x + width / 2);
 }
 
 /******************************************************************************
@@ -935,6 +936,25 @@ void PVGuiQt::PVListingView::sort(int col, Qt::SortOrder order)
 		verticalHeader()->viewport()->update();
 	}
 	horizontalHeader()->setSortIndicatorShown(true);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::set_section_visible
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::set_section_visible(PVCol col)
+{
+	/* Temporarily setting selection behavior to 'SelectColumns' is needed
+	 * to make a column visible
+	 */
+	QAbstractItemView::SelectionBehavior old_sel_behavior = selectionBehavior();
+	setSelectionBehavior(QAbstractItemView::SelectColumns);
+
+	selectColumn(col);
+	clearSelection();
+
+	setSelectionBehavior(old_sel_behavior);
 }
 
 /******************************************************************************

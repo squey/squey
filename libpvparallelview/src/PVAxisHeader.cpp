@@ -129,7 +129,7 @@ void PVParallelView::PVAxisHeader::mouseReleaseEvent(QGraphicsSceneMouseEvent* e
 {
 	if ((event->button() == Qt::LeftButton) && _clicked) {
 		event->accept(); // Prevent the scene from handling this event
-		Q_EMIT mouse_clicked(get_axis_index());
+		_view.set_axis_clicked(get_axis_index());
 		_clicked = false;
 	} else {
 		event->ignore();

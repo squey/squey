@@ -156,6 +156,14 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 */
 	void sort(int col, Qt::SortOrder order);
 
+	/**
+	 * Set the given column visible in listing
+	 * Used when clicking on an axis to show the corresponding column in listing
+	 *
+	 * @param col the column to ensure is visible in listing
+	 */
+	void set_section_visible(PVCol col);
+
   private:
 	/// Getters
 	Inendi::PVView const& lib_view() const { return _view; }
