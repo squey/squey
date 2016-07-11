@@ -161,8 +161,8 @@ static bool show_stats_dialog(const QString& title,
 	}
 
 	PVGuiQt::PVGroupByStringsDlg* dlg =
-	    new PVGuiQt::PVGroupByStringsDlg(view, col1, col2, std::move(col1_out), std::move(col2_out),
-	                                     abs_max, rel_min, rel_max, parent);
+	    new PVGuiQt::PVGroupByStringsDlg(view, col1, col2, sel, std::move(col1_out),
+	                                     std::move(col2_out), abs_max, rel_min, rel_max, parent);
 	dlg->setWindowTitle(title + " of axes '" +
 	                    view.get_parent<Inendi::PVSource>()
 	                        .get_extractor()
