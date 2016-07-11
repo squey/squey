@@ -23,6 +23,7 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	PVGroupByStringsDlg(Inendi::PVView_sp& view,
 	                    PVCol c1,
 	                    PVCol c2,
+	                    const Inendi::PVSelection& sel,
 	                    pvcop::db::array col1,
 	                    pvcop::db::array col2,
 	                    double abs_max,
@@ -36,6 +37,7 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	          parent)
 	    , _view(*view)
 	    , _col2(c2)
+	    , _sel(sel)
 	{
 		_ctxt_menu->addSeparator();
 		_act_details = new QAction("Show details", _ctxt_menu);
@@ -47,7 +49,8 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
   private:
 	Inendi::PVView& _view;
 	PVCol _col2;
-	QAction* _act_details; //!< Action to show details
+	Inendi::PVSelection _sel; //!< Store selection to be able to compute 'details'
+	QAction* _act_details;    //!< Action to show details
 };
 }
 
