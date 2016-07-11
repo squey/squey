@@ -147,7 +147,7 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 			}
 		} else if (section >= 0) {
 			assert(orientation == Qt::Vertical && "No others possible orientations.");
-			return rowIndex(section);
+			return rowIndex(section) + 1; // Start counting rows from 1 for display
 		}
 		break;
 	// Selected lines are bold, others use class specific font
