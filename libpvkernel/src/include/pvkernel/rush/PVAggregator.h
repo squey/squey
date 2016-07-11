@@ -119,7 +119,6 @@ class PVAggregator
 
   protected:
 	PVCore::PVChunk* read_until_index(chunk_index idx) const;
-	bool read_until_source(list_inputs::iterator input_start);
 	PVCore::PVChunk* next_chunk() const;
 	list_inputs::iterator agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index);
 
@@ -141,7 +140,6 @@ class PVAggregator
 	mutable chunk_index _cur_src_index;
 	bool* _stop_cond;
 	bool __stop_cond_false;
-	mutable chunk_index _last_elt_agg_index;
 
 	/*! \brief Map global start indexes to source.
 	 * The key of this std::map object represent the global start index of the associated source.

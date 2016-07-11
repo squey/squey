@@ -25,7 +25,6 @@ PVRush::PVAggregator::PVAggregator()
     , _cur_src_index(0)
     , _stop_cond(&__stop_cond_false)
     , __stop_cond_false(false)
-    , _last_elt_agg_index(0)
 {
 }
 
@@ -48,11 +47,6 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart,
 	_nstart = nstart;
 	_nend = nend;
 	_eoi = false;
-	_last_elt_agg_index = 0;
-
-	if (expected_nelts == 0) {
-		expected_nelts = nend - nstart;
-	}
 
 	// Find out the source that contains nstart
 
@@ -103,17 +97,6 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart,
 	(*_cur_input)->prepare_for_nelts(expected_nelts);
 }
 
-bool PVRush::PVAggregator::read_until_source(list_inputs::iterator input_start)
-{
-	PVCore::PVChunk* c;
-	while (_cur_input != input_start) {
-		if ((c = next_chunk()) == NULL)
-			return false;
-		c->free();
-	}
-	return true;
-}
-
 PVCore::PVChunk* PVRush::PVAggregator::read_until_index(chunk_index idx) const
 {
 	PVCore::PVChunk* ret = NULL;
@@ -128,10 +111,6 @@ PVCore::PVChunk* PVRush::PVAggregator::read_until_index(chunk_index idx) const
 
 PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 {
-	if (*_stop_cond) {
-		PVLOG_DEBUG("(PVAggregator::next_chunk) aggregator stop because of stop condition\n");
-		return NULL;
-	}
 
 	// Get chunk from current input
 	PVCore::PVChunk* ret = (*_cur_input)->operator()();
@@ -150,28 +129,30 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 		_begin_of_input = true;
 	}
 
-	if (ret != NULL) {
-		ret->_agg_index = _cur_src_index + ret->_index;
-		if (_begin_of_input) {
-			PVCore::list_elts& elts = ret->elements();
-			for (size_t i = 0; i < _skip_lines_count; ++i) {
-				PVCore::list_elts::iterator it = elts.begin();
-				if (it != elts.end()) {
-					PVCore::PVElement::free(*it);
-					elts.erase(it);
-				}
+	ret->_agg_index = _cur_src_index + ret->_index;
+	if (_begin_of_input) {
+		PVCore::list_elts& elts = ret->elements();
+		for (size_t i = 0; i < _skip_lines_count; ++i) {
+			PVCore::list_elts::iterator it = elts.begin();
+			if (it != elts.end()) {
+				PVCore::PVElement::free(*it);
+				elts.erase(it);
 			}
-			_begin_of_input = false;
 		}
-		_nlast += ret->c_elements().size();
-		_last_elt_agg_index = _nlast + ret->_index - 1;
+		_begin_of_input = false;
 	}
+	_nlast += ret->c_elements().size();
 
 	return ret;
 }
 
 PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 {
+	if (*_stop_cond) {
+		PVLOG_DEBUG("(PVAggregator) aggregator stop because of stop condition\n");
+		return NULL;
+	}
+
 	if (_nlast >= _nend) {
 		// This is the end of this job
 		return NULL;
@@ -251,11 +232,6 @@ void PVRush::PVAggregator::add_input(PVRush::PVRawSourceBase_p in)
 	}
 }
 
-chunk_index PVRush::PVAggregator::last_elt_agg_index()
-{
-	return _last_elt_agg_index;
-}
-
 PVRush::PVAggregator::list_inputs::iterator
 PVRush::PVAggregator::agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index)
 {
@@ -272,8 +248,7 @@ PVRush::PVAggregator::agg_index_to_source_iterator(chunk_index idx, chunk_index*
 
 void PVRush::PVAggregator::set_sources_number_fields(PVCol ncols)
 {
-	list_inputs::iterator it;
-	for (it = _inputs.begin(); it != _inputs.end(); it++) {
-		(*it)->set_number_cols_to_reserve(ncols);
+	for (auto& raw_source : _inputs) {
+		raw_source->set_number_cols_to_reserve(ncols);
 	}
 }

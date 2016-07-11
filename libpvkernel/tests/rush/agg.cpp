@@ -12,7 +12,7 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
-#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <QString>
 #include <QDir>
