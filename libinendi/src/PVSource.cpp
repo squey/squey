@@ -123,7 +123,7 @@ bool Inendi::PVSource::load_from_disk()
 
 void Inendi::PVSource::extract_finished()
 {
-	_extractor.get_agg().release_inputs();
+	_extractor.release_inputs();
 }
 
 void Inendi::PVSource::set_format(PVRush::PVFormat const& format)

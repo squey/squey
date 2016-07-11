@@ -11,16 +11,23 @@
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-PVRush::PVAggregator::PVAggregator(list_inputs const& inputs)
-{
-	_inputs = inputs;
-	_src_offsets[0] = _inputs.begin();
-	init();
-}
-
 PVRush::PVAggregator::PVAggregator()
+    : _cur_input(_inputs.begin())
+    , _eoi(false)
+    , _nstart(0)
+    , _begin_of_input(true)
+    , _skip_lines_count(0)
+    , _nlast(0)
+    , _nend(PVCore::PVConfig::get()
+                .config()
+                .value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT)
+                .toInt())
+    , _cur_src_index(0)
+    , _stop_cond(&__stop_cond_false)
+    , __stop_cond_false(false)
+    , _last_elt_agg_index(0)
+    , _strict_mode(false)
 {
-	init();
 }
 
 void PVRush::PVAggregator::release_inputs()
@@ -28,24 +35,6 @@ void PVRush::PVAggregator::release_inputs()
 	for (PVRush::PVRawSourceBase_p raw_source : _inputs) {
 		raw_source->release_input();
 	}
-}
-
-void PVRush::PVAggregator::init()
-{
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	_eoi = false;
-	_nstart = 0;
-	_nlast = 0;
-	_nend = pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt();
-	__stop_cond_false = false;
-	_stop_cond = &__stop_cond_false;
-	_last_elt_agg_index = 0;
-	_cur_input = _inputs.begin();
-	_cur_src_index = 0;
-	_strict_mode = false;
-	_begin_of_input = true;
-	_skip_lines_count = 0;
 }
 
 void PVRush::PVAggregator::set_stop_condition(bool* cond)
@@ -258,15 +247,6 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc) const
 		fc.stop();
 	}
 	return ret;
-}
-
-// Helper function
-PVRush::PVAggregator_p PVRush::PVAggregator::from_unique_source(PVRush::PVRawSourceBase_p source)
-{
-	list_inputs inputs;
-	inputs.push_back(source);
-
-	return PVAggregator_p(new PVAggregator(inputs));
 }
 
 void PVRush::PVAggregator::add_input(PVRush::PVRawSourceBase_p in)

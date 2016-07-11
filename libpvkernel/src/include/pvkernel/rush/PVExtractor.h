@@ -69,10 +69,9 @@ class PVExtractor
 	 */
 	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
-	/*! \brief Get a reference to the internal aggregator
+	/*! \brief Release inputs used for load data.
 	 */
-	PVAggregator& get_agg() { return _agg; }
-	PVAggregator const& get_agg() const { return _agg; }
+	void release_inputs() { _agg.release_inputs(); }
 
 	/*! \brief Get a reference to the internal NRaw
 	 */

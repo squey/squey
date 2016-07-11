@@ -42,11 +42,6 @@ class PVAggregator
 	typedef std::map<chunk_index, list_inputs::iterator> map_source_offsets;
 
   public:
-	/*! \brief Create an aggregator from a list of PVRawSourceBase objects stored as shared
-	 * pointers.
-	 */
-	PVAggregator(list_inputs const& inputs);
-
 	/*! \brief Create an aggregator with no source.
 	 */
 	PVAggregator();
@@ -134,18 +129,11 @@ class PVAggregator
 
 	void set_sources_number_fields(PVCol nfields);
 
-  public:
-	/*! \brief Helper static function to create a PVAggregator object from a unique source.
-	 */
-	static p_type from_unique_source(PVRush::PVRawSourceBase_p source);
-
   protected:
 	PVCore::PVChunk* read_until_index(chunk_index idx) const;
 	bool read_until_source(list_inputs::iterator input_start);
 	PVCore::PVChunk* next_chunk() const;
 	list_inputs::iterator agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index);
-
-	void init();
 
   protected:
 	list_inputs _inputs;
