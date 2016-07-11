@@ -63,7 +63,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	get_nraw().prepare_load(nlines, _format.get_storage_format());
 
 	_agg.set_skip_lines_count(header_size);
-	_agg.set_strict_mode(start > 0);
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
 	// deletion of this

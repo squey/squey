@@ -37,11 +37,6 @@ add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
 add_test(TestAggregator1 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
 add_test(TestAggregator2 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
 
-# Test the aggregator in strict mode
-add_pv_compile_test(Trush_agg_strict LINKS ${LINK_LIBRARIES} FILES agg_strict.cpp helpers.cpp)
-add_test(TestAggregatorStrict1 Trush_agg_strict 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
-add_test(TestAggregatorStrict2 Trush_agg_strict 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
-
 # Test for filters
 add_pv_compile_test(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)
 add_test(Trush_filter_grep Trush_filter_grep)

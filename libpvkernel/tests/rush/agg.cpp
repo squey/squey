@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	PVCore::PVIntrinsics::init_cpuid();
 
 	QString dir_path = argv[2];
-	const std::string ref_file = std::string(argv[2]) + ".out";
+	const std::string ref_file = std::string(argv[2]) + ".strict.out";
 	QDir dir_files(dir_path);
 	dir_files.setFilter(QDir::Files | QDir::Readable);
 	QStringList files = dir_files.entryList(QStringList() << QString("*"));
@@ -56,16 +56,20 @@ int main(int argc, char** argv)
 	std::string output_file = pvtest::get_tmp_filename();
 	std::ofstream out(output_file);
 
-	out << "Process from 0 to 100..." << std::endl;
-	agg.process_indexes(0, 100);
+	out << "Process from 10 to 20..." << std::endl;
+	agg.process_indexes(10, 20);
 	dump_agg(agg, out);
 
-	out << "Process from 100 to 500..." << std::endl;
-	agg.process_indexes(100, 500);
+	out << "Process from 127 to 140..." << std::endl;
+	agg.process_indexes(127, 140);
 	dump_agg(agg, out);
 
-	out << "Show 1000000 lines..." << std::endl;
-	agg.process_indexes(0, 1000000);
+	out << "Process from 0 to 4..." << std::endl;
+	agg.process_indexes(0, 4);
+	dump_agg(agg, out);
+
+	out << "Process from 1 to 701..." << std::endl;
+	agg.process_indexes(1, 701);
 	dump_agg(agg, out);
 
 #ifndef INSPECTOR_BENCH
@@ -73,8 +77,6 @@ int main(int argc, char** argv)
 	std::cout << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
 #endif
-
-	std::remove(output_file.c_str());
 
 	return 0;
 }

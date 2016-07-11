@@ -26,7 +26,6 @@ PVRush::PVAggregator::PVAggregator()
     , _stop_cond(&__stop_cond_false)
     , __stop_cond_false(false)
     , _last_elt_agg_index(0)
-    , _strict_mode(false)
 {
 }
 
@@ -182,24 +181,21 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 	if (_nlast < _nstart) {
 		// We have to read until _nstart indexes
 		ret = read_until_index(_nstart);
-		if (_strict_mode) {
-			if (ret != NULL && ret->_agg_index < _nstart) {
-#ifndef NDEBUG
-				const chunk_index nelts = ret->c_elements().size();
-				assert(ret->_agg_index + nelts >= _nstart);
-#endif
-				chunk_index nelts_remove = _nstart - ret->_agg_index;
-				PVCore::list_elts& elts = ret->elements();
-				PVCore::list_elts::iterator it_elt = elts.begin();
-				for (chunk_index i = 0; i < nelts_remove; i++) {
-					PVCore::PVElement::free(*it_elt);
-					PVCore::list_elts::iterator it_er = it_elt;
-					it_elt++;
-					elts.erase(it_er);
-				}
-				ret->_agg_index += nelts_remove;
-				ret->_index += nelts_remove;
+		if (ret != NULL && ret->_agg_index < _nstart) {
+
+			assert(ret->_agg_index + ret->c_elements().size() >= _nstart);
+
+			chunk_index nelts_remove = _nstart - ret->_agg_index;
+			PVCore::list_elts& elts = ret->elements();
+			PVCore::list_elts::iterator it_elt = elts.begin();
+			for (chunk_index i = 0; i < nelts_remove; i++) {
+				PVCore::PVElement::free(*it_elt);
+				PVCore::list_elts::iterator it_er = it_elt;
+				it_elt++;
+				elts.erase(it_er);
 			}
+			ret->_agg_index += nelts_remove;
+			ret->_index += nelts_remove;
 		}
 	} else {
 		ret = next_chunk();
@@ -211,28 +207,26 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 		return NULL;
 	}
 
-	if (_strict_mode) {
-		chunk_index nelts = ret->c_elements().size();
-		if (ret->_agg_index + nelts > _nend) {
-			// We need to shrink that last chunk
-			// As we use std::list for elements, this will not be
-			// really efficient.
-			// TODO: profile this.
-			chunk_index nstart_rem = _nend + 1 - ret->_agg_index;
-			PVCore::list_elts& elts = ret->elements();
-			PVCore::list_elts::iterator it_elt = elts.begin();
-			// Go to the nstart_rem ith element
-			for (chunk_index i = 0; i < nstart_rem; i++) {
-				it_elt++;
-			}
+	chunk_index nelts = ret->c_elements().size();
+	if (ret->_agg_index + nelts > _nend) {
+		// We need to shrink that last chunk
+		// As we use std::list for elements, this will not be
+		// really efficient.
+		// TODO: profile this.
+		chunk_index nstart_rem = _nend + 1 - ret->_agg_index;
+		PVCore::list_elts& elts = ret->elements();
+		PVCore::list_elts::iterator it_elt = elts.begin();
+		// Go to the nstart_rem ith element
+		for (chunk_index i = 0; i < nstart_rem; i++) {
+			it_elt++;
+		}
 
-			// And remove them all till the end
-			while (it_elt != elts.end()) {
-				PVCore::PVElement::free(*it_elt);
-				PVCore::list_elts::iterator it_er = it_elt;
-				it_elt++;
-				elts.erase(it_er);
-			}
+		// And remove them all till the end
+		while (it_elt != elts.end()) {
+			PVCore::PVElement::free(*it_elt);
+			PVCore::list_elts::iterator it_er = it_elt;
+			it_elt++;
+			elts.erase(it_er);
 		}
 	}
 

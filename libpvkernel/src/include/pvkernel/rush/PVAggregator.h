@@ -113,18 +113,6 @@ class PVAggregator
 	 */
 	void set_stop_condition(bool* cond);
 
-	/*! \brief Returns the global index of the last element of the last read chunk.
-	 */
-	chunk_index last_elt_agg_index();
-
-	/*! \brief Set strict mode on or off.
-	 *  \param[in] sm Set to true to enable strict mode.
-	 *
-	 *  "Strict mode" tells the aggregator not to have elments whose global index
-	 *  is above what has been asked.
-	 */
-	void set_strict_mode(bool sm) { _strict_mode = sm; }
-
 	void set_skip_lines_count(size_t skip_lines_count) { _skip_lines_count = skip_lines_count; }
 
 	void set_sources_number_fields(PVCol nfields);
@@ -170,12 +158,6 @@ class PVAggregator
 	 * \note Global indexes start at 0.
 	 */
 	mutable map_source_offsets _src_offsets;
-
-	/*! \brief Strict mode
-	 * An aggregator in strict mode will strictely respect the start and end indexes that are
-	 * given to process_indexes. This is used for instance in the format builder.
-	 */
-	bool _strict_mode;
 };
 
 typedef PVAggregator::p_type PVAggregator_p;
