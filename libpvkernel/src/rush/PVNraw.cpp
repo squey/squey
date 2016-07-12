@@ -47,9 +47,7 @@ PVRush::PVNraw::PVNraw() : _real_nrows(0)
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::prepare_load(PVRow const nrows,
-                                  pvcop::formatter_desc_list const& format,
-                                  const fields_mask_t& fields_mask)
+void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
 	std::string collector_path =
@@ -63,7 +61,6 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows,
 	_collection.reset();
 
 	_max_nrows = nrows;
-	_fields_mask = fields_mask;
 }
 
 /*****************************************************************************
@@ -122,13 +119,9 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 			continue;
 		}
 
-		size_t field_index = 0;
 		for (PVCore::PVField const& field : fields) {
 			// Save the field
-			if (_fields_mask[field_index]) {
-				pvcop_fields.emplace_back(pvcop::sink::field_t(field.begin(), field.size()));
-			}
-			++field_index;
+			pvcop_fields.emplace_back(pvcop::sink::field_t(field.begin(), field.size()));
 		}
 	}
 

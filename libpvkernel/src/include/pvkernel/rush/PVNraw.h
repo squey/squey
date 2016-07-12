@@ -8,8 +8,6 @@
 #ifndef PVRUSH_NRAW_H
 #define PVRUSH_NRAW_H
 
-#include <pvkernel/rush/PVFormat.h>
-
 #include <fstream>
 
 #include <pvkernel/core/PVColumnIndexes.h>
@@ -53,9 +51,6 @@ class PVNraw
 	static const std::string nraw_tmp_name_regexp;
 	static const std::string default_sep_char;
 	static const std::string default_quote_char;
-
-  public:
-	using fields_mask_t = PVRush::PVFormat::fields_mask_t;
 
   public:
 	PVNraw();
@@ -108,9 +103,7 @@ class PVNraw
 	/**
 	 * Create collector and format to load content.
 	 */
-	void prepare_load(PVRow const nrows,
-	                  pvcop::formatter_desc_list const& format,
-	                  const fields_mask_t& fields_mask);
+	void prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format);
 
 	/**
 	 * Export asked line with a specific column ordering.
@@ -178,8 +171,6 @@ class PVNraw
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	unconvertable_values_t _unconvertable_values;
-
-	fields_mask_t _fields_mask;
 };
 }
 
