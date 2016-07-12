@@ -1051,6 +1051,8 @@ void PVInspector::PVXmlDomModel::updateFieldsLinearId()
 void PVInspector::PVXmlDomModel::setAxesNames(QStringList const& names)
 {
 	getRoot()->setAxesNames(names, 0);
+
+	Q_EMIT layoutChanged();
 }
 
 void PVInspector::PVXmlDomModel::updateAxesCombination()

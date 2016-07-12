@@ -7,6 +7,8 @@
 
 #include "PVFieldSplitterCSV.h"
 
+static const std::vector<char> common_separators{',', ' ', '\t', ';', '|'};
+
 PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterCSV, args);
@@ -119,6 +121,32 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 	n++;
 
 	return n;
+}
+
+bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField const& in_field)
+{
+	PVCore::PVArgumentList test_args = get_default_args();
+	bool ok = false;
+
+	_fields_expected = std::numeric_limits<size_t>::max();
+
+	for (const auto separator : common_separators) {
+		PVCore::PVField own_field(in_field);
+		PVCore::list_fields lf;
+
+		own_field.deep_copy();
+
+		test_args["sep"] = QVariant(QChar(separator));
+		set_args(test_args);
+
+		if (one_to_many(lf, lf.begin(), own_field) > 1) {
+			// We have a match
+			res.push_back(list_guess_result_t::value_type(test_args, lf));
+			ok = true;
+		}
+	}
+
+	return ok;
 }
 
 IMPL_FILTER(PVFilter::PVFieldSplitterCSV)
