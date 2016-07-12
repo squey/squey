@@ -5,7 +5,7 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 ###############################################################################
-# Normalize plugins 
+# Normalize plugins
 ###############################################################################
 
 set(NORMALIZE_FILTERS_DIST_FILES
@@ -225,7 +225,7 @@ target_link_libraries(normalize_filter_splitter_duplicate pvkernel)
 declare_library(normalize_filter_splitter_duplicate)
 
 ###############################################################################
-# MacAdresse Splitter
+# Mac Adresse Splitter
 ###############################################################################
 
 # Define ressources
@@ -248,7 +248,7 @@ target_link_libraries(normalize_filter_splitter_mac_address pvkernel)
 declare_library(normalize_filter_splitter_mac_address)
 
 ###############################################################################
-# DNSFQDN Splitter
+# DNS FQDN Splitter
 ###############################################################################
 
 # Define ressources
@@ -271,7 +271,30 @@ target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel)
 declare_library(normalize_filter_splitter_dns_fqdn)
 
 ###############################################################################
-# grep
+# DNS FQDN Splitter
+###############################################################################
+
+# Define ressources
+SET(LENGTH_MOC_HEADERS
+splitter_length/PVFieldSplitterLengthParamWidget.h
+)
+
+SET(LENGTH_SRC
+splitter_length/PVFieldSplitterLength.cpp
+splitter_length/PVFieldSplitterLengthParamWidget.cpp
+splitter_length/register.cpp
+)
+
+# Generate Qt files
+QT5_WRAP_CPP(LENGTH_MOC_SRCS ${LENGTH_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Create lib
+add_library(normalize_filter_splitter_length SHARED ${LENGTH_SRC} ${LENGTH_MOC_SRCS})
+target_link_libraries(normalize_filter_splitter_length pvkernel)
+declare_library(normalize_filter_splitter_length)
+
+###############################################################################
+# grep Filter
 ###############################################################################
 
 # Define ressources
