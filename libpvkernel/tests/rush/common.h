@@ -195,6 +195,7 @@ class TestEnv
 
 		// Create the extractor
 		_ext.add_source(src);
+		// TODO : We should handle line skipping from here
 		_ext.set_format(_format);
 		_ext.set_chunk_filter(_format.create_tbb_filters());
 	}

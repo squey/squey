@@ -46,23 +46,10 @@ class PVInputFile : public PVInput
 class PVInputFileOpenException : public PVInputException
 {
   public:
-	PVInputFileOpenException(const char* path, int err) : _path(path), _err(err)
+	PVInputFileOpenException(std::string const& path, int err)
+	    : PVInputException("Unable to open file " + path + ": " + strerror(err))
 	{
-		_what = "Unable to open file ";
-		_what += _path;
-		_what += ": ";
-		_what += strerror(err);
 	}
-
-  public:
-	inline int err() const { return _err; }
-	inline std::string const& path() const { return _path; }
-	std::string const& what() const { return _what; }
-
-  protected:
-	std::string _path;
-	int _err;
-	std::string _what;
 };
 }
 

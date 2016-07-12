@@ -787,7 +787,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	} catch (PVRush::PVInputException& e) {
 		_log_input = PVRush::PVInputDescription_p();
 		QMessageBox err(QMessageBox::Critical, tr("Error"),
-		                tr("Error while importing a source: %1").arg(QString(e.what().c_str())));
+		                tr("Error while importing a source: %1").arg(QString(e.what())));
 		err.show();
 		return;
 	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {

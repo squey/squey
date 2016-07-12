@@ -308,7 +308,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		has_error = true;
 	} catch (PVRush::PVInputException const& e) {
 		QMessageBox::critical(this, tr("Fatal error while loading source..."),
-		                      tr("Fatal error while loading source: %1").arg(e.what().c_str()));
+		                      tr("Fatal error while loading source: %1").arg(e.what()));
 		has_error = true;
 	}
 

@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVConfig.h>
 
 #include <pvkernel/rush/PVAggregator.h>
+#include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
 PVRush::PVAggregator::PVAggregator()
@@ -96,10 +97,10 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 		_begin_of_input = true;
 	}
 	if (ret == nullptr) {
-		throw std::runtime_error("One of the input is empty");
+		throw PVRush::PVInputException("One of the input is empty");
 	}
 	if (_begin_of_input and ret->c_elements().size() < _skip_lines_count) {
-		throw std::runtime_error("One of the input doesn't have header");
+		throw PVRush::PVInputException("One of the input doesn't have header");
 	}
 
 	_nread_elements += ret->c_elements().size();

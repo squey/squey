@@ -318,7 +318,7 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 #pragma omp critical
 				{
 					input_exception = true;
-					input_exception_str = e.what().c_str();
+					input_exception_str = e.what();
 				}
 			}
 		}
@@ -1176,7 +1176,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			                          src->get_format().get_line_count());
 		} catch (PVRush::PVInputException const& e) {
 			QMessageBox::critical(this, "Cannot create sources",
-			                      QString("Error with input: ") + e.what().c_str());
+			                      QString("Error with input: ") + e.what());
 			return false;
 		} catch (PVRush::PVNrawException const& e) {
 			QMessageBox::critical(this, "Cannot create sources",

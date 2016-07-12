@@ -45,10 +45,10 @@ class PVInput
 	virtual bool seek(input_offset off) = 0;
 };
 
-class PVInputException
+class PVInputException : public std::runtime_error
 {
   public:
-	virtual std::string const& what() const = 0;
+	using std::runtime_error::runtime_error;
 };
 }
 

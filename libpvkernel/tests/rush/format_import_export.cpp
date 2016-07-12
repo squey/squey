@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
 	static size_t row_count = PVCore::row_count(input_file);
 
-	pvtest::TestEnv env(input_file, format, row_count);
+	pvtest::TestEnv env(input_file, format, DUPL);
 
 	auto start = std::chrono::system_clock::now();
 
