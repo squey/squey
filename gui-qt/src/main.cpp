@@ -51,6 +51,8 @@
 
 #define JULY_5 1309856400
 
+constexpr const char* license_file = "/etc/inendi/licenses/inendi-inspector.lic";
+
 static QString email_address = EMAIL_ADDRESS_CONTACT;
 
 // #ifdef USE_UNIKEY
@@ -98,26 +100,9 @@ namespace bpo = boost::program_options;
 
 // #define NO_MAIN_WINDOW
 
-int main(int argc, char* argv[])
+int run_inspector(QApplication& app, int argc, char* argv[])
 {
-	setlocale(LC_ALL, "C");
-	setenv("LANG", "C", 1);
-	setenv("TZ", "GMT", 1);
-	tzset();
-
-	init_segfault_handler();
-
-	// Set the soft limit same as hard limit for number of possible files opened
-	rlimit ulimit_info;
-	getrlimit(RLIMIT_NOFILE, &ulimit_info);
-	ulimit_info.rlim_cur = ulimit_info.rlim_max;
-	setrlimit(RLIMIT_NOFILE, &ulimit_info);
-
-	QString license_file = "/etc/inendi/licenses/inendi-inspector.lic";
-
 #ifndef NO_MAIN_WINDOW
-	QApplication app(argc, argv);
-
 	if (not QFile(license_file).exists()) {
 		QMessageBox::critical(nullptr, QObject::tr("INENDI-inspector"),
 		                      QObject::tr("You don't have you license file : %1. If you have a "
@@ -131,7 +116,7 @@ int main(int argc, char* argv[])
 #endif
 
 	// Set location to check for license file.
-	setenv("LM_LICENSE_FILE", license_file.toUtf8().constData(), 1);
+	setenv("LM_LICENSE_FILE", license_file, 1);
 
 	Inendi::Utils::License::RAII_InitLicense license_manager;
 
@@ -279,8 +264,30 @@ int main(int argc, char* argv[])
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_desktop()));
 
+	return app.exec();
+#else
+	return 0;
+#endif
+}
+
+int main(int argc, char* argv[])
+{
+	setlocale(LC_ALL, "C");
+	setenv("LANG", "C", 1);
+	setenv("TZ", "GMT", 1);
+	tzset();
+
+	init_segfault_handler();
+
+	// Set the soft limit same as hard limit for number of possible files opened
+	rlimit ulimit_info;
+	getrlimit(RLIMIT_NOFILE, &ulimit_info);
+	ulimit_info.rlim_cur = ulimit_info.rlim_max;
+	setrlimit(RLIMIT_NOFILE, &ulimit_info);
+
+	QApplication app(argc, argv);
 	try {
-		return app.exec();
+		return run_inspector(app, argc, argv);
 	} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
 		if (e.status_code ==
 		    Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::LICENSE_EXPIRED) {
@@ -293,9 +300,5 @@ int main(int argc, char* argv[])
 		}
 		return 1;
 	}
-
-#else
-	return 0;
-#endif
 }
 //! [0]
