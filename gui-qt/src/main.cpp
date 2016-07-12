@@ -50,7 +50,9 @@
 
 #include <boost/program_options.hpp>
 
-static QString email_address = EMAIL_ADDRESS_CONTACT;
+constexpr const char* license_file = "/etc/inendi/licenses/inendi-inspector.lic";
+
+static constexpr const char* email_address = EMAIL_ADDRESS_CONTACT;
 
 // #ifdef USE_UNIKEY
 // #include <UniKeyFR.h>
@@ -97,8 +99,6 @@ namespace bpo = boost::program_options;
 
 int run_inspector(QApplication& app, int argc, char* argv[])
 {
-	QString license_file = "/etc/inendi/licenses/inendi-inspector.lic";
-
 	if (not QFile(license_file).exists()) {
 		QMessageBox::critical(nullptr, QObject::tr("INENDI-inspector"),
 		                      QObject::tr("You don't have you license file : %1. If you have a "
@@ -111,12 +111,12 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	}
 
 	// Set location to check for license file.
-	setenv("LM_LICENSE_FILE", license_file.toUtf8().constData(), 1);
+	setenv("LM_LICENSE_FILE", license_file, 1);
 
 	Inendi::Utils::License::RAII_InitLicense license_manager;
-
 	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_FLEX_PREFIX,
 	                                                                 INENDI_FLEX_FEATURE);
+
 	// Program options
 	bpo::options_description desc_opts("Options");
 	desc_opts.add_options()("help", "produce help message")(
@@ -264,6 +264,17 @@ int main(int argc, char* argv[])
 	QApplication app(argc, argv);
 	try {
 		return run_inspector(app, argc, argv);
+	} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
+		if (e.status_code ==
+		    Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::LICENSE_EXPIRED) {
+			QMessageBox::critical(
+			    nullptr, "License has expired",
+			    QObject::tr("Your license has expired.<br><br>"
+			                "Copy your new license file at the following location : <b>%1</b> "
+			                "or contact <a href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
+			        .arg(license_file, email_address));
+		}
+		return 1;
 	} catch (PVOpenCL::exception::no_backend_error const&) {
 		QString msg("No valid backend found. Please, check your system:<ul>");
 		msg += "<li>user configuration in " + PVCore::PVConfig::user_path() + "</li>";
