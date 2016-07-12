@@ -1,3 +1,19 @@
+4.1.3 (2016-07-12)
+------------------
+
+This minor release fixes:
+* fix 'show details' potential crash in statistic views
+* fix correlation axes compatibility check to avoid crashes
+* fix click on axis to show corresponding column in listing
+* fix format autodetection in format builder
+* fix regex splitter crash with empty regex
+* fix CSV splitter crash with wrong separator or number of fields
+* fix setting axes names from a row in format builder
+* display rows indexes from 1 instead of 0
+* add filter "All (*.*)" in save format dialog
+* show a message box when the license is expired
+* add length splitter
+
 4.1.2 (2016-07-06)
 ------------------
 
