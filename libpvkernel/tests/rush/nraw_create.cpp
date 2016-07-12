@@ -16,8 +16,6 @@ constexpr static size_t nb_dup = 20;
 constexpr static size_t nb_dup = 1;
 #endif
 
-constexpr static size_t nb_lines = 50000 * nb_dup;
-
 const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
 const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
@@ -30,7 +28,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	env.load_data(nb_lines);
+	env.load_data();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;

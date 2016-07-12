@@ -1172,8 +1172,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 		PVRush::PVControllerJob_p job_import;
 		try {
-			job_import = src->extract(0, src->get_format().get_first_line(),
-			                          src->get_format().get_line_count());
+			job_import = src->extract(0);
 		} catch (PVRush::PVInputException const& e) {
 			QMessageBox::critical(this, "Cannot create sources",
 			                      QString("Error with input: ") + e.what());

@@ -25,13 +25,11 @@ int main(int argc, char** argv)
 	const char* output_file = argv[2];
 	const char* format = argv[3];
 
-	static size_t row_count = PVCore::row_count(input_file);
-
 	pvtest::TestEnv env(input_file, format, DUPL);
 
 	auto start = std::chrono::system_clock::now();
 
-	env.load_data(row_count);
+	env.load_data();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;

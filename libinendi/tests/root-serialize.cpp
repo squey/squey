@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	Inendi::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job = src.extract(0, 0, 1000000000);
+	PVRush::PVControllerJob_p job = src.extract(0);
 	job->wait_end();
 	auto& plotted = src.emplace_add_child().emplace_add_child();
 	plotted.emplace_add_child();

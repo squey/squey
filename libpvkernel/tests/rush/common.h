@@ -200,9 +200,9 @@ class TestEnv
 		_ext.set_chunk_filter(_format.create_tbb_filters());
 	}
 
-	void load_data(size_t nb_lines)
+	void load_data()
 	{
-		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(0, 0, nb_lines);
+		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(0);
 		job->wait_end();
 	}
 

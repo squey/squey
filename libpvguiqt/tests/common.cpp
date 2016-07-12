@@ -39,7 +39,7 @@ get_src_from_file(Inendi::PVScene& scene, QString const& path_file, QString cons
 
 	Inendi::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
-	PVRush::PVControllerJob_p job = src.extract(0, 0, 200000);
+	PVRush::PVControllerJob_p job = src.extract(0);
 	src.wait_extract_end(job);
 
 	return src;

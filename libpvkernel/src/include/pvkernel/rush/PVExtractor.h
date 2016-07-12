@@ -57,8 +57,7 @@ class PVExtractor
 	 * PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p
-	process_from_agg_nlines(chunk_index start, chunk_index header_size, chunk_index nlines);
+	PVControllerJob_p process_from_agg_nlines(chunk_index start);
 
 	/*! \brief Process param[in]s between indexes "start" and "end"
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
@@ -68,8 +67,7 @@ class PVExtractor
 	 * PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p
-	process_from_agg_idxes(chunk_index start, chunk_index header_size, chunk_index end);
+	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
 	/*! \brief Release inputs used for load data.
 	 */
