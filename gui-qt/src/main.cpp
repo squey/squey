@@ -279,7 +279,21 @@ int main(int argc, char* argv[])
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_desktop()));
 
-	return app.exec();
+	try {
+		return app.exec();
+	} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
+		if (e.status_code ==
+		    Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::LICENSE_EXPIRED) {
+			QMessageBox::critical(
+			    nullptr, "License has expired",
+			    QObject::tr("Your license has expired.<br><br>"
+			                "Copy your new license file at the following location : <b>%1</b> "
+			                "or contact <a href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
+			        .arg(license_file, email_address));
+		}
+		return 1;
+	}
+
 #else
 	return 0;
 #endif
