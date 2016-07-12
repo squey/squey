@@ -110,6 +110,9 @@ add_pv_compile_test(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES split
 add_test(Trush_splitter_duplicate Trush_splitter_duplicate)
 add_bench(Trush_splitter_duplicate LINKS ${LINK_LIBRARIES} FILES splitter_duplicate.cpp helpers.cpp)
 
+add_pv_compile_test(Trush_splitter_length LINKS ${LINK_LIBRARIES} FILES splitter_length.cpp helpers.cpp)
+add_test(Trush_splitter_length Trush_splitter_length)
+
 add_pv_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 add_test(Trush_filter_composition Trush_filter_composition)
 add_bench(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
