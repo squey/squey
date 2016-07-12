@@ -54,8 +54,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			ret = PVCore::PVProgressBox::progress(
 			    [&] {
 				    pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out,
-				                                   col2_out,
-				                                   view_sp->get_selection_visible_listing());
+				                                   col2_out, _sel);
 
 				    pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 
