@@ -972,17 +972,23 @@ PVCol PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, PVCol id)
 		// Set its name
 		if (id < names.size()) {
 			setName(names[id]);
-			id++;
 		} else {
 			PVLOG_WARN("(PVXmlTreeNodeDom::setAxesNames) not enough names given (axis id = %d, "
 			           "size of list = %d).\n",
 			           id, names.size());
 			return id;
 		}
+	} else if (type == field) {
+		for (auto* child : getChildren()) {
+			id = child->setAxesNames(names, id);
+		}
+		++id;
+	} else if (type == splitter) {
+		for (auto* child : getChildren()) {
+			id = child->setAxesNames(names, id);
+		}
 	}
-	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
-		id = getChild(ichild)->setAxesNames(names, id);
-	}
+
 	return id;
 }
 

@@ -873,6 +873,8 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 		axes_name << QString("Axis %1").arg(i + 1);
 	}
 
+	sp_widget->set_child_count(naxes);
+
 	PVRush::PVXmlTreeNodeDom* node = myTreeModel->addSplitterWithAxes(
 	    myTreeModel->index(0, 0, QModelIndex()), sp_widget, axes_name);
 	node->setFromArgumentList(sp->get_args());
