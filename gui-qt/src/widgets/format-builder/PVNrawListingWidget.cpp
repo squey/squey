@@ -49,22 +49,16 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	QHBoxLayout* ext_layout = new QHBoxLayout();
 	ext_layout->addWidget(new QLabel("Preview from line "));
 
-	_ext_start = new QLineEdit();
-	QIntValidator* iv_start = new QIntValidator();
-	iv_start->setBottom(0);
-	iv_start->setTop(std::numeric_limits<int>::max());
-	_ext_start->setValidator(iv_start);
-	_ext_start->setText(QString::number(FORMATBUILDER_EXTRACT_START_DEFAULT));
+	_ext_start = new QSpinBox(this);
+	_ext_start->setRange(0, std::numeric_limits<int32_t>::max());
+	_ext_start->setValue(FORMATBUILDER_EXTRACT_START_DEFAULT);
 	ext_layout->addWidget(_ext_start);
 
 	ext_layout->addWidget(new QLabel(" to line "));
 
-	_ext_end = new QLineEdit();
-	QIntValidator* iv_end = new QIntValidator();
-	iv_end->setBottom(100);
-	iv_end->setTop(std::numeric_limits<int>::max());
-	_ext_end->setValidator(iv_start);
-	_ext_end->setText(QString::number(FORMATBUILDER_EXTRACT_END_DEFAULT));
+	_ext_end = new QSpinBox(this);
+	_ext_end->setRange(0, std::numeric_limits<int32_t>::max());
+	_ext_end->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT);
 	ext_layout->addWidget(_ext_end);
 
 	_btn_preview = new QPushButton("Preview");
@@ -97,14 +91,8 @@ void PVInspector::PVNrawListingWidget::connect_axes_type(QObject* receiver, cons
 
 void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 {
-	start = _ext_start->text().toULongLong();
-	end = _ext_end->text().toULongLong();
-	if (end < 10) {
-		end = 10;
-	}
-	if (end <= start) {
-		start = 0;
-	}
+	start = _ext_start->value();
+	end = _ext_end->value();
 }
 
 void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,
