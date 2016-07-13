@@ -312,9 +312,11 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		has_error = true;
 	}
 
-	if (has_error && new_scene) {
-		_projects_tab_widget->remove_project(
-		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p));
+	if (has_error) {
+		if (new_scene) {
+			_projects_tab_widget->remove_project(
+			    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p));
+		}
 		return false;
 	}
 
