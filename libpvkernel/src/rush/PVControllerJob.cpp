@@ -53,7 +53,14 @@ void PVRush::PVControllerJob::run_job()
 		_pipeline->set_tokens(_ntokens);
 
 		// Launch the pipeline
-		tbb::task::spawn_root_and_wait(*_pipeline);
+		try {
+			tbb::task::spawn_root_and_wait(*_pipeline);
+		} catch (...) {
+			// Concider the job done if an exception raise.
+			_job_done = true;
+			Q_EMIT job_done_signal();
+			throw;
+		}
 
 		/**
 		 * according to the TBB's documentation, the pipeline is implictly
@@ -86,7 +93,7 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 
 void PVRush::PVControllerJob::wait_end()
 {
-	_executor.wait();
+	_executor.get();
 }
 
 void PVRush::PVControllerJob::cancel()
