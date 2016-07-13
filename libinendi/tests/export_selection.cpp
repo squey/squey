@@ -14,6 +14,8 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/core/PVExporter.h>
+
 #include <inendi/PVSelection.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVMapping.h>
@@ -21,9 +23,12 @@
 #include <inendi/PVPlotting.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
+
 #include <cstdlib>
 #include <iostream>
+
 #include <QFile>
+
 #include "common.h"
 
 int main(int argc, char** argv)
@@ -54,8 +59,13 @@ int main(int argc, char** argv)
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
 	    view->get_axes_combination().get_original_axes_indexes();
-	nraw.export_lines(stream, sel, col_indexes, 0, nraw.get_row_count());
-	stream.flush();
+
+	PVCore::PVExporter::export_func export_func =
+	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
+
+	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.get_row_count(), export_func);
+	exp.export_rows(0);
 
 	// Compare files content
 	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], output_file);

@@ -197,6 +197,11 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	PVRow get_col_min_row(PVCol const c) const;
 	PVRow get_col_max_row(PVCol const c) const;
 
+	std::string export_line(PVRow idx,
+	                        const PVCore::PVColumnIndexes& col_indexes,
+	                        const std::string sep_char,
+	                        const std::string) const;
+
   protected:
 	virtual QString get_children_description() const { return "View(s)"; }
 	virtual QString get_children_serialize_name() const { return "views"; }

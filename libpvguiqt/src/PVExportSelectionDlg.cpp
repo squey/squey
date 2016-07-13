@@ -17,9 +17,13 @@
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVView.h>
+#include <inendi/PVPlotted.h>
 
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVExporter.h>
+
+static const PVRow STEP_COUNT = 20000;
 
 PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
     Inendi::PVAxesCombination& custom_axes_combination,
@@ -89,6 +93,9 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	char_layout->addRow(tr("Quote character:"), _quote_char);
 
 	left_layout->addLayout(char_layout);
+
+	_export_internal_values = new QCheckBox("Export internal values instead of displayed values");
+	left_layout->addWidget(_export_internal_values);
 
 	/// right_layout
 
@@ -224,13 +231,28 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	PVRow nrows = nraw.get_row_count();
 
 	PVRow start = 0;
-	PVRow step_count = 20000;
+	PVRow step_count = std::min(STEP_COUNT, nrows);
 
 	// Progress Bar for export advancement
 	PVCore::PVProgressBox pbox("Selection export");
 
+	bool export_internal_values = export_selection_dlg._export_internal_values->isChecked();
+
+	PVCore::PVExporter::export_func export_func =
+	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
+	if (export_internal_values) {
+		const Inendi::PVPlotted& plotted = view.get_parent<Inendi::PVPlotted>();
+		export_func = [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+		                  const std::string& quote) {
+
+			return plotted.export_line(row, cols, sep, quote);
+		};
+	}
+
 	// Export selected lines
 	// TODO : We know the number of line to set a progression
+	PVCore::PVExporter exp(ofs, sel, column_indexes, step_count, export_func, sep_char, quote_char);
 	PVCore::PVProgressBox::progress(
 	    [&]() {
 		    while (true) {
@@ -239,8 +261,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 				    break;
 			    }
 			    step_count = std::min(step_count, nrows - start);
-			    nraw.export_lines(ofs, sel, column_indexes, start, step_count, sep_char,
-			                      quote_char);
+			    exp.export_rows(start);
 			    start += step_count;
 			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
 				    return;
