@@ -50,8 +50,9 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
 {
 
 	if (inputs.empty()) {
-		throw std::runtime_error("We can't create a source without input");
+		throw PVRush::PVInputException("Source can't be created without input");
 	}
+
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	// Set extractor default values
