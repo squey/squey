@@ -28,8 +28,8 @@ PVRow PVRush::PVNrawOutput::get_rows_count()
 	}
 }
 
-void PVRush::PVNrawOutput::job_has_finished()
+void PVRush::PVNrawOutput::job_has_finished(const std::map<size_t, std::string>& inv_elts)
 {
 	// Tell the destination NRAW that clean up can be done, everything is imported
-	nraw_dest().load_done();
+	nraw_dest().load_done(inv_elts);
 }

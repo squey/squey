@@ -103,7 +103,7 @@ void PVRush::PVControllerJob::cancel()
 void PVRush::PVControllerJob::job_has_run()
 {
 	_job_done = true;
-	_out_filter.job_has_finished();
+	_out_filter.job_has_finished(_inv_elts);
 	Q_EMIT job_done_signal();
 }
 

@@ -9,6 +9,7 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <QBrush>
+#include <QFont>
 
 PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent)
     : QAbstractTableModel(parent), _nraw(nullptr), _col_tosel(0), _show_sel(false)
@@ -38,16 +39,30 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 		return {};
 	}
 
+	bool is_element_valid = _nraw->valid_rows_sel().get_line_fast(index.row());
+
 	switch (role) {
 	case Qt::DisplayRole:
-		return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
-
+		if (is_element_valid) {
+			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
+		} else {
+			return QString::fromStdString(_inv_elts.at(index.row()));
+		}
+		break;
 	case Qt::BackgroundRole: {
 		if (_show_sel && index.column() == _col_tosel) {
 			// TODO: put this color in something more global (taken from PVListingModel.cpp)
 			return QColor(88, 172, 250);
 		}
+		if (not is_element_valid) {
+			return QColor(250, 197, 205);
+		}
 		break;
+	}
+	case (Qt::FontRole): {
+		QFont f;
+		f.setItalic(not is_element_valid);
+		return f;
 	}
 	};
 

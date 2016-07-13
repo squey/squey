@@ -12,6 +12,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVOutput.h>
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/rush/PVControllerJob.h>
 
 namespace PVRush
 {
@@ -46,7 +47,7 @@ class PVNrawOutput : public PVRush::PVOutput
 	}
 
   protected:
-	void job_has_finished() override;
+	void job_has_finished(const PVControllerJob::invalid_elements_t& inv_elts) override;
 
   protected:
 	PVNraw* _nraw_dest;

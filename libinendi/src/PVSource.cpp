@@ -154,6 +154,11 @@ PVRow Inendi::PVSource::get_row_count() const
 	return _nraw.get_row_count();
 }
 
+PVRow Inendi::PVSource::get_valid_row_count() const
+{
+	return _nraw.get_valid_row_count();
+}
+
 PVCol Inendi::PVSource::get_column_count() const
 {
 	return get_format().get_axes().size();

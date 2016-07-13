@@ -11,6 +11,8 @@
 #include <fstream>
 
 #include <pvkernel/core/PVColumnIndexes.h>
+#include <pvkernel/core/PVSelBitField.h>
+#include <pvkernel/rush/PVControllerJob.h>
 
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
@@ -29,6 +31,8 @@ class PVChunk;
 
 namespace PVRush
 {
+
+class PVControllerJob;
 
 /**
  * Contains all informations to access imported data.
@@ -97,8 +101,9 @@ class PVNraw
 
 	/**
 	 * Close the collector and start the collection as import is done.
+	 * Also, compute a selection of valid elements.
 	 */
-	void load_done();
+	void load_done(const PVControllerJob::invalid_elements_t& inv_elts);
 
 	/**
 	 * Create collector and format to load content.
@@ -138,6 +143,9 @@ class PVNraw
 
 	const unconvertable_values_t& unconvertable_values() const { return _unconvertable_values; }
 
+	const PVCore::PVSelBitField& valid_rows_sel() const { return _valid_rows_sel; }
+	size_t get_valid_row_count() const { return _valid_elements_count; }
+
   public:
 	/**
 	 * Create a NRaw from and NRaw folder on HDD.
@@ -155,6 +163,8 @@ class PVNraw
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	unconvertable_values_t _unconvertable_values;
+	PVCore::PVSelBitField _valid_rows_sel;
+	size_t _valid_elements_count;
 };
 }
 

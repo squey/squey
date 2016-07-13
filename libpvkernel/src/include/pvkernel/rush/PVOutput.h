@@ -32,7 +32,7 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
   protected:
 	// This function is called by PVControllerJob
 	// when its job has finished.
-	virtual void job_has_finished() {}
+	virtual void job_has_finished(const std::map<size_t, std::string>&) {}
 
 	CLASS_FILTER_NONREG(PVOutput)
 };

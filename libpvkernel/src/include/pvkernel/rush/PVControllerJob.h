@@ -47,8 +47,8 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 
   public:
 	typedef enum _stop_cdtion { sc_n_elts, sc_idx_end } stop_cdtion;
-
 	typedef std::shared_ptr<PVControllerJob> p_type;
+	using invalid_elements_t = std::map<size_t, std::string>;
 
   public:
 	/*! \brief Create a PVControllerJob object.
@@ -95,7 +95,7 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 
   private:
 	// Lists
-	std::map<size_t, std::string> _inv_elts; //!< Store all invalid elements.
+	invalid_elements_t _inv_elts; //!< Store all invalid elements.
 
 	// Filters
 	PVFilter::PVChunkFilterDumpElts _elt_invalid_filter; //!< Filter that may dump every elements.

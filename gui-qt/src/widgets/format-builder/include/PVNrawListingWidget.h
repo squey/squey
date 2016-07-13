@@ -39,6 +39,7 @@ class PVNrawListingWidget : public QWidget
 	void resize_columns_content();
 	void unselect_column();
 	void select_column(PVCol col);
+	void mark_row_as_invalid(size_t row_index);
 
   public Q_SLOTS:
 	void nraw_custom_menu_Slot(const QPoint& pt);

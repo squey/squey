@@ -9,6 +9,7 @@
 #define PVNRAWLISTINGMODEL_H
 
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVControllerJob.h>
 
 #include <QAbstractTableModel>
 #include <QVariant>
@@ -43,28 +44,29 @@ class PVNrawListingModel : public QAbstractTableModel
 	/**
 	 * Define data to show in cells.
 	 */
-	QVariant data(const QModelIndex& index, int role) const;
+	QVariant data(const QModelIndex& index, int role) const override;
 
 	/**
 	 * Define header content for the listing
 	 */
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 	/**
 	 * Define number of line in the listing.
 	 */
-	int rowCount(const QModelIndex& index) const;
+	int rowCount(const QModelIndex& index) const override;
 
 	/**
 	 * Define number of column in the listing.
 	 */
-	int columnCount(const QModelIndex& index) const;
+	int columnCount(const QModelIndex& index) const override;
 
 	/**
 	 * define listing properties.
 	 */
-	Qt::ItemFlags flags(const QModelIndex& index) const;
+	Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+  public:
 	/**
 	 * Set if we want to show selection (column selection)
 	 */
@@ -75,7 +77,6 @@ class PVNrawListingModel : public QAbstractTableModel
 	 */
 	void set_selected_column(PVCol col);
 
-  public:
 	/**
 	 * Set data to display.
 	 */
@@ -86,11 +87,20 @@ class PVNrawListingModel : public QAbstractTableModel
 	 */
 	void set_format(PVRush::PVFormat const& format) { _format = format; }
 
+	/**
+	 * Set invalid elements
+	 */
+	void set_invalid_elements(const PVRush::PVControllerJob::invalid_elements_t& e)
+	{
+		_inv_elts = e;
+	}
+
   protected:
 	const PVRush::PVNraw* _nraw; //!< NRaw data to display
 	PVRush::PVFormat _format;    //!< Format use to extract the NRaw.
 	PVCol _col_tosel;            //!< Id of the selected column (for coloring)
 	bool _show_sel;              //!< Whether we show the selection or not.
+	PVRush::PVControllerJob::invalid_elements_t _inv_elts; //!< invalid elements (used for display)
 };
 }
 
