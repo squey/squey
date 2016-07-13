@@ -49,13 +49,6 @@ void PVRush::PVInputFile::seek_begin()
 	_file.seekg(0);
 }
 
-bool PVRush::PVInputFile::seek(input_offset off)
-{
-	_file.clear();
-	_file.seekg(off);
-	return _file.good();
-}
-
 QString PVRush::PVInputFile::human_name()
 {
 	return QString(_path.c_str());

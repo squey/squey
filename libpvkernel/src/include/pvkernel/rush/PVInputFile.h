@@ -29,7 +29,6 @@ class PVInputFile : public PVInput
 	size_t operator()(char* buffer, size_t n) override;
 	input_offset current_input_offset() override;
 	void seek_begin() override;
-	bool seek(input_offset off) override;
 	QString human_name() override;
 
   public:

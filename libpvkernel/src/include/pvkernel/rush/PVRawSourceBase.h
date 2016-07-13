@@ -44,7 +44,6 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	PVCol get_number_cols_to_reserve() const { return _ncols_to_reserve; }
 	virtual QString human_name() = 0;
 	virtual void seek_begin() = 0;
-	virtual bool seek(input_offset off) = 0;
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;
 	virtual PVCore::PVChunk* operator()() = 0;
 	virtual input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx) = 0;

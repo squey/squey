@@ -81,7 +81,6 @@ class PVElementsSource : public PVRush::PVRawSourceBase
   public:
 	virtual QString human_name() override { return "memory footprint source"; }
 	virtual void seek_begin() override {}
-	virtual bool seek(PVRush::input_offset /*off*/) override { return true; }
 	virtual void prepare_for_nelts(chunk_index /*nelts*/) override {}
 	virtual PVCore::PVChunk* operator()() override
 	{

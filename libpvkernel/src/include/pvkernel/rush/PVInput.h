@@ -42,7 +42,6 @@ class PVInput
 	// Seek to the beggining of the input
 	virtual void seek_begin() = 0;
 	virtual QString human_name() = 0;
-	virtual bool seek(input_offset off) = 0;
 };
 
 class PVInputException : public std::runtime_error

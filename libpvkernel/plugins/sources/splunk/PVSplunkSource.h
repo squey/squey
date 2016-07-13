@@ -36,7 +36,6 @@ class PVSplunkSource : public PVRawSourceBase
   public:
 	QString human_name() override;
 	void seek_begin() override;
-	bool seek(input_offset /*off*/) override;
 	void prepare_for_nelts(chunk_index nelts) override;
 	PVCore::PVChunk* operator()() override;
 

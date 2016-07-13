@@ -39,12 +39,6 @@ QString PVRush::PVElasticsearchSource::human_name()
 
 void PVRush::PVElasticsearchSource::seek_begin()
 {
-	seek(0);
-}
-
-bool PVRush::PVElasticsearchSource::seek(input_offset /*off*/)
-{
-	return false;
 }
 
 void PVRush::PVElasticsearchSource::prepare_for_nelts(chunk_index /*nelts*/)

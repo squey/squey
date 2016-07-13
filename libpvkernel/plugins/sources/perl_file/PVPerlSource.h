@@ -43,7 +43,6 @@ class PVPerlSource : public PVRawSourceBase
   public:
 	virtual QString human_name();
 	virtual void seek_begin();
-	virtual bool seek(input_offset /*off*/) { return false; }
 	virtual void prepare_for_nelts(chunk_index nelts);
 	virtual PVCore::PVChunk* operator()();
 	virtual input_offset get_input_offset_from_index(chunk_index /*idx*/,
