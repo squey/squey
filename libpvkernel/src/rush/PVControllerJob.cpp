@@ -57,8 +57,7 @@ void PVRush::PVControllerJob::run_job()
 			tbb::task::spawn_root_and_wait(*_pipeline);
 		} catch (...) {
 			// Concider the job done if an exception raise.
-			_job_done = true;
-			Q_EMIT job_done_signal();
+			job_has_run();
 			throw;
 		}
 
@@ -105,13 +104,19 @@ void PVRush::PVControllerJob::cancel()
 
 void PVRush::PVControllerJob::job_has_run()
 {
+	_job_done = true;
 	_out_filter.job_has_finished();
 	Q_EMIT job_done_signal();
 }
 
 bool PVRush::PVControllerJob::running() const
 {
-	return _executor.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
+	try {
+		return _executor.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
+	} catch (const std::future_error& e) {
+		// The executor is finish for so long that it have no state anymore.
+		return false;
+	}
 }
 
 bool PVRush::PVControllerJob::done() const

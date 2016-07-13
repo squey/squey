@@ -1188,7 +1188,13 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			// If job is canceled, stop here
 			return false;
 		}
-		src->wait_extract_end(job_import);
+		try {
+			src->wait_extract_end(job_import);
+		} catch (PVRush::PVInputException const& e) {
+			QMessageBox::critical(this, "Cannot create sources",
+			                      QString("Error with input: ") + e.what());
+			return false;
+		}
 
 		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format "
