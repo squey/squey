@@ -23,8 +23,6 @@ PVRush::PVAggregator::PVAggregator()
     , _skip_lines_count(0)
     , _nread_elements(0)
     , _cur_src_index(0)
-    , _stop_cond(&__stop_cond_false)
-    , __stop_cond_false(false)
 {
 }
 
@@ -33,11 +31,6 @@ void PVRush::PVAggregator::release_inputs()
 	for (PVRush::PVRawSourceBase_p raw_source : _inputs) {
 		raw_source->release_input();
 	}
-}
-
-void PVRush::PVAggregator::set_stop_condition(bool* cond)
-{
-	_stop_cond = cond;
 }
 
 void PVRush::PVAggregator::process_indexes(chunk_index nstart,
@@ -112,11 +105,6 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 
 PVCore::PVChunk* PVRush::PVAggregator::operator()()
 {
-	if (*_stop_cond) {
-		PVLOG_DEBUG("(PVAggregator) aggregator stop because of stop condition\n");
-		return NULL;
-	}
-
 	if (_nread_elements >= _nend) {
 		// This is the end of this job
 		return NULL;

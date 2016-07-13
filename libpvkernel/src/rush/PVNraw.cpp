@@ -47,7 +47,7 @@ PVRush::PVNraw::PVNraw() : _real_nrows(0)
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format)
+void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
 	std::string collector_path =
@@ -59,8 +59,6 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list 
 	// Create collector and format
 	_collector.reset(new pvcop::collector(collector_path.data(), format));
 	_collection.reset();
-
-	_max_nrows = nrows;
 }
 
 /*****************************************************************************
@@ -72,11 +70,6 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list 
 bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
 	assert(_collector && "We have to be in read state");
-
-	if (chunk.agg_index() > _max_nrows) {
-		// the whole chunk can be skipped as we extracted enough data.
-		return false;
-	}
 
 	const size_t column_count = _collector->column_count();
 

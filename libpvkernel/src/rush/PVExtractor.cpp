@@ -62,7 +62,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	chunk_index nlines = _format.get_line_count();
 	nlines = (nlines) ? nlines : std::numeric_limits<uint32_t>::max();
 
-	get_nraw().prepare_load(nlines, _format.get_storage_format());
+	get_nraw().prepare_load(_format.get_storage_format());
 
 	_agg.set_skip_lines_count(_format.get_first_line());
 
@@ -86,7 +86,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	if (_format.get_line_count() != 0) {
 		end = std::min<chunk_index>(end, _format.get_line_count());
 	}
-	get_nraw().prepare_load(end - start, _format.get_storage_format());
+	get_nraw().prepare_load(_format.get_storage_format());
 	_agg.set_skip_lines_count(_format.get_first_line());
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the

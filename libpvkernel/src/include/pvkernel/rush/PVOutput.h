@@ -29,16 +29,6 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
   public:
 	virtual PVRow get_rows_count() = 0;
 
-	/*! \brief Set a pointer to a stop condition.
-	 *  \param[in] cond Pointer to a bool variable to represent the stop condition.
-	 *
-	 * operator() will set it to TRUE if anough events have been saved.
-	 */
-	void set_stop_condition(bool* cond) { _stop_cond = cond; }
-
-  protected:
-	bool* _stop_cond;
-
   protected:
 	// This function is called by PVControllerJob
 	// when its job has finished.

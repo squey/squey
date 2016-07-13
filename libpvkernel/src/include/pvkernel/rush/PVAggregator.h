@@ -96,15 +96,6 @@ class PVAggregator
 	 */
 	void process_indexes(chunk_index nstart, chunk_index nend, chunk_index expected_nelts = 0);
 
-	/*! \brief Set a pointer to a stop condition.
-	 *  \param[in] cond Pointer to a bool variable to represent the stop condition.
-	 *
-	 * operator() will return NULL if *cond is TRUE.
-	 *
-	 * \sa PVRush::PVController::operator()
-	 */
-	void set_stop_condition(bool* cond);
-
 	void set_skip_lines_count(size_t skip_lines_count) { _skip_lines_count = skip_lines_count; }
 
 	void set_sources_number_fields(PVCol nfields);
@@ -128,8 +119,6 @@ class PVAggregator
 	 */
 	chunk_index _nread_elements;
 	chunk_index _cur_src_index;
-	bool* _stop_cond;
-	bool __stop_cond_false;
 };
 }
 

@@ -44,8 +44,6 @@ void PVRush::PVControllerJob::run_job()
 
 		// Configure the aggregator
 		_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
-		_agg.set_stop_condition(&(_job_done));
-		_out_filter.set_stop_condition(&(_job_done));
 
 		// And create the pipeline
 		_pipeline = new (tbb::task::allocate_root()) PVPipelineTask();
