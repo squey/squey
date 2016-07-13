@@ -61,6 +61,19 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	_ext_end->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT);
 	ext_layout->addWidget(_ext_end);
 
+	// Ensure begin and end are consistent
+	connect(_ext_start, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+	        [this](int v) {
+		        if (v > _ext_end->value()) {
+			        _ext_end->setValue(v);
+		        }
+		    });
+	connect(_ext_end, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int v) {
+		if (v < _ext_start->value()) {
+			_ext_start->setValue(v);
+		}
+	});
+
 	_btn_preview = new QPushButton("Preview");
 	ext_layout->addWidget(_btn_preview);
 	_btn_preview->setAutoDefault(false);
