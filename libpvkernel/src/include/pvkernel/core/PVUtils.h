@@ -26,11 +26,6 @@ namespace PVCore
 std::string& replace(std::string& init, std::string const& from, std::string const& to);
 
 /**
- * Return the number of rows of a file
- */
-size_t row_count(const std::string& file_path);
-
-/**
  * Return the content of a file path as string
  */
 std::string file_content(const std::string& file_path);
