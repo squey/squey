@@ -169,3 +169,7 @@ add_bench(Tinendi_correlation LINKS ${LINK_LIBRARIES} FILES correlation.cpp)
 
 add_pv_compile_test(Trush_multi_chunk LINKS ${LINK_LIBRARIES} FILES multi_chunk.cpp)
 add_test(Trush_multi_chunk Trush_multi_chunk)
+
+add_pv_compile_test(Tinendi_export_plotted LINKS ${LINK_LIBRARIES} FILES export_plotted.cpp)
+add_test(Tinendi_export_plotted Tinendi_export_plotted ${TESTS_FILES_DIR}/picviz/export_plotted.csv.in ${TESTS_FILES_DIR}/picviz/export_plotted.csv.out ${TESTS_FILES_DIR}/picviz/export_plotted.csv.format)
+add_bench(Tinendi_export_plotted LINKS ${LINK_LIBRARIES} FILES export_plotted.cpp)
