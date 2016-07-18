@@ -57,7 +57,6 @@ class PVElement : public PVBufferSlice
 	bool restore_elt_with_saved_buffer();
 	void clear_saved_buf();
 	PVChunk* chunk_parent();
-	chunk_index get_elt_index();
 	chunk_index get_elt_agg_index();
 	size_t get_chunk_index() const { return _chunk_index; }
 

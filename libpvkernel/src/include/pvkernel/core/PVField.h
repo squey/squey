@@ -26,8 +26,6 @@ class PVField : public PVBufferSlice
 	void set_invalid();
 	PVElement* elt_parent();
 	void set_parent(PVElement& parent);
-	void deep_copy();
-	size_t get_index_of_parent_element();
 	size_t get_agg_index_of_parent_element();
 
   private:

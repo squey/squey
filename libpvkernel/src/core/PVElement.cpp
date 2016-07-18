@@ -131,12 +131,6 @@ char* PVCore::PVElement::get_saved_elt_buffer(size_t& n)
 	return _org_buf;
 }
 
-chunk_index PVCore::PVElement::get_elt_index()
-{
-	PVChunk* parent = chunk_parent();
-	return parent->get_index_of_element(*this);
-}
-
 chunk_index PVCore::PVElement::get_elt_agg_index()
 {
 	PVChunk* parent = chunk_parent();

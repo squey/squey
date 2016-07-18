@@ -30,7 +30,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)
 }
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
-    PVCore::list_fields& l, PVCore::list_fields::iterator it_ins, PVCore::PVField& field)
+    PVCore::list_fields& l, PVCore::list_fields::iterator it_ins, PVCore::PVField const& field)
 {
 	// FIXME : We should handle double Quote as escaped quote
 	PVCore::list_fields::value_type elt(field);
@@ -131,15 +131,12 @@ bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVFie
 	_fields_expected = std::numeric_limits<size_t>::max();
 
 	for (const auto separator : common_separators) {
-		PVCore::PVField own_field(in_field);
 		PVCore::list_fields lf;
-
-		own_field.deep_copy();
 
 		test_args["sep"] = QVariant(QChar(separator));
 		set_args(test_args);
 
-		if (one_to_many(lf, lf.begin(), own_field) > 1) {
+		if (one_to_many(lf, lf.begin(), in_field) > 1) {
 			// We have a match
 			res.push_back(list_guess_result_t::value_type(test_args, lf));
 			ok = true;
