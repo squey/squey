@@ -45,6 +45,8 @@
 #include <QDockWidget>
 #include <QDesktopServices>
 #include <QDesktopWidget>
+#include <QWindow>
+#include <QScreen>
 
 /******************************************************************************
  *
@@ -826,9 +828,20 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 		}
 	}
 
-	QPixmap pixmap = QPixmap::grabWidget(p);
+	QPixmap pixmap = p->grab();
 
 	save_screenshot(pixmap, "Save view capture", name);
+}
+
+QScreen* PVInspector::PVMainWindow::get_screen() const
+{
+	QScreen* screen = QGuiApplication::primaryScreen();
+	if (const QWindow* window = QWidget::windowHandle()) {
+		screen = window->screen();
+	}
+	assert(screen);
+
+	return screen;
 }
 
 /******************************************************************************
@@ -837,7 +850,7 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 
 void PVInspector::PVMainWindow::get_screenshot_window()
 {
-	QPixmap pixmap = QPixmap::grabWindow(winId());
+	QPixmap pixmap = get_screen()->grabWindow(winId());
 
 	save_screenshot(pixmap, "Save window capture", "application");
 }
@@ -848,7 +861,7 @@ void PVInspector::PVMainWindow::get_screenshot_window()
 
 void PVInspector::PVMainWindow::get_screenshot_desktop()
 {
-	QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+	QPixmap pixmap = get_screen()->grabWindow(QApplication::desktop()->winId());
 
 	save_screenshot(pixmap, "Save desktop capture", "desktop");
 }

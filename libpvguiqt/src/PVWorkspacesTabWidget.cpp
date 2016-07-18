@@ -76,7 +76,7 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 	drag->setMimeData(mimeData);
 
 	// Set semi transparent thumbnail
-	QImage opaque = QPixmap::grabWidget(workspace, workspace->rect()).scaledToWidth(200).toImage();
+	QImage opaque = workspace->grab(workspace->rect()).scaledToWidth(200).toImage();
 	QPixmap transparent(opaque.size());
 	transparent.fill(Qt::transparent);
 	QPainter p;

@@ -183,6 +183,7 @@ class PVMainWindow : public QMainWindow
 	void set_color_Slot();
 	void view_display_inv_elts_Slot();
 	void get_screenshot_widget();
+	QScreen* get_screen() const;
 	void get_screenshot_window();
 	void get_screenshot_desktop();
 	void update_reply_finished_Slot(QNetworkReply* reply);
