@@ -7,7 +7,8 @@
 
 #include <pvkernel/core/PVUtils.h>
 
-#include <iostream>
+#include <fstream>
+#include <algorithm>
 
 std::string& PVCore::replace(std::string& str, const std::string& from, const std::string& to)
 {
@@ -24,4 +25,11 @@ std::string& PVCore::replace(std::string& str, const std::string& from, const st
 	}
 
 	return str;
+}
+
+std::string PVCore::file_content(const std::string& file_path)
+{
+	std::ifstream stream(file_path);
+
+	return {std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
 }

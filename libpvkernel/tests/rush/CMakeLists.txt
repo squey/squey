@@ -37,11 +37,6 @@ add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
 add_test(TestAggregator1 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
 add_test(TestAggregator2 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
 
-# Test the aggregator in strict mode
-add_pv_compile_test(Trush_agg_strict LINKS ${LINK_LIBRARIES} FILES agg_strict.cpp helpers.cpp)
-add_test(TestAggregatorStrict1 Trush_agg_strict 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
-add_test(TestAggregatorStrict2 Trush_agg_strict 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
-
 # Test for filters
 add_pv_compile_test(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)
 add_test(Trush_filter_grep Trush_filter_grep)
@@ -195,9 +190,19 @@ add_pv_compile_test(Trush_datetime_support LINKS ${LINK_LIBRARIES} FILES datetim
 add_test(Trush_datetime_support Trush_datetime_support)
 
 # Format ignore axes
-add_pv_compile_test(Trush_format_ignore_axes LINKS ${LINK_LIBRARIES} FILES format_ignore_axes.cpp)
-add_test(Trush_format_ignore_axes Trush_format_ignore_axes)
-add_bench(Trush_format_ignore_axes LINKS ${LINK_LIBRARIES} FILES format_ignore_axes.cpp)
+add_pv_compile_test(Trush_format_import_export LINKS ${LINK_LIBRARIES} FILES format_import_export.cpp)
+add_test(Trush_format_ignore_axes Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.format)
+
+# Format ignore rows
+add_test(Trush_format_ignore_header Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format)
+
+add_test(Trush_format_ignore_rows_big_header Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format 5)
+
+add_test(Trush_format_ignore_rows_small_header Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows_bigh.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format 15)
+
+add_test(Trush_format_ignore_end Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_end.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_end.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_end.csv.format)
+
+add_test(Trush_format_ignore_header_multifile Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows_multifile.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format 15 ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in)
 
 add_pv_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
 add_test(Trush_format_upgrade Trush_format_upgrade)

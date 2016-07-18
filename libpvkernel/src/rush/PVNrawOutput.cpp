@@ -13,12 +13,7 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	const bool ret_add = nraw_dest().add_chunk_utf16(*out);
-
-	if (not ret_add) {
-		// tell the pipeline it can stop
-		*_stop_cond = true;
-	}
+	nraw_dest().add_chunk_utf16(*out);
 
 	// Clear this chunk !
 	out->free();

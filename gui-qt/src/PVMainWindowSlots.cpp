@@ -45,6 +45,8 @@
 #include <QDockWidget>
 #include <QDesktopServices>
 #include <QDesktopWidget>
+#include <QWindow>
+#include <QScreen>
 
 /******************************************************************************
  *
@@ -308,13 +310,15 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 		has_error = true;
 	} catch (PVRush::PVInputException const& e) {
 		QMessageBox::critical(this, tr("Fatal error while loading source..."),
-		                      tr("Fatal error while loading source: %1").arg(e.what().c_str()));
+		                      tr("Fatal error while loading source: %1").arg(e.what()));
 		has_error = true;
 	}
 
-	if (has_error && new_scene) {
-		_projects_tab_widget->remove_project(
-		    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p));
+	if (has_error) {
+		if (new_scene) {
+			_projects_tab_widget->remove_project(
+			    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p));
+		}
 		return false;
 	}
 
@@ -824,9 +828,20 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 		}
 	}
 
-	QPixmap pixmap = QPixmap::grabWidget(p);
+	QPixmap pixmap = p->grab();
 
 	save_screenshot(pixmap, "Save view capture", name);
+}
+
+QScreen* PVInspector::PVMainWindow::get_screen() const
+{
+	QScreen* screen = QGuiApplication::primaryScreen();
+	if (const QWindow* window = QWidget::windowHandle()) {
+		screen = window->screen();
+	}
+	assert(screen);
+
+	return screen;
 }
 
 /******************************************************************************
@@ -835,7 +850,7 @@ void PVInspector::PVMainWindow::get_screenshot_widget()
 
 void PVInspector::PVMainWindow::get_screenshot_window()
 {
-	QPixmap pixmap = QPixmap::grabWindow(winId());
+	QPixmap pixmap = get_screen()->grabWindow(winId());
 
 	save_screenshot(pixmap, "Save window capture", "application");
 }
@@ -846,7 +861,7 @@ void PVInspector::PVMainWindow::get_screenshot_window()
 
 void PVInspector::PVMainWindow::get_screenshot_desktop()
 {
-	QPixmap pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+	QPixmap pixmap = get_screen()->grabWindow(QApplication::desktop()->winId());
 
 	save_screenshot(pixmap, "Save desktop capture", "desktop");
 }

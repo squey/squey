@@ -33,12 +33,6 @@ QString PVRush::PVSplunkSource::human_name()
 
 void PVRush::PVSplunkSource::seek_begin()
 {
-	seek(0);
-}
-
-bool PVRush::PVSplunkSource::seek(input_offset /*off*/)
-{
-	return false;
 }
 
 void PVRush::PVSplunkSource::prepare_for_nelts(chunk_index /*nelts*/)

@@ -318,7 +318,7 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 #pragma omp critical
 				{
 					input_exception = true;
-					input_exception_str = e.what().c_str();
+					input_exception_str = e.what();
 				}
 			}
 		}
@@ -1172,11 +1172,10 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 		PVRush::PVControllerJob_p job_import;
 		try {
-			job_import = src->extract(src->get_format().get_first_line(),
-			                          src->get_format().get_line_count());
+			job_import = src->extract(0);
 		} catch (PVRush::PVInputException const& e) {
 			QMessageBox::critical(this, "Cannot create sources",
-			                      QString("Error with input: ") + e.what().c_str());
+			                      QString("Error with input: ") + e.what());
 			return false;
 		} catch (PVRush::PVNrawException const& e) {
 			QMessageBox::critical(this, "Cannot create sources",
@@ -1189,7 +1188,13 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			// If job is canceled, stop here
 			return false;
 		}
-		src->wait_extract_end(job_import);
+		try {
+			src->wait_extract_end(job_import);
+		} catch (PVRush::PVInputException const& e) {
+			QMessageBox::critical(this, "Cannot create sources",
+			                      QString("Error with input: ") + e.what());
+			return false;
+		}
 
 		if (src->get_rushnraw().get_row_count() == 0) {
 			QString msg = QString("<p>The files <strong>%1</strong> using format "

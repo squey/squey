@@ -44,8 +44,6 @@ void PVRush::PVControllerJob::run_job()
 
 		// Configure the aggregator
 		_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
-		_agg.set_stop_condition(&(_job_done));
-		_out_filter.set_stop_condition(&(_job_done));
 
 		// And create the pipeline
 		_pipeline = new (tbb::task::allocate_root()) PVPipelineTask();
@@ -53,7 +51,13 @@ void PVRush::PVControllerJob::run_job()
 		_pipeline->set_tokens(_ntokens);
 
 		// Launch the pipeline
-		tbb::task::spawn_root_and_wait(*_pipeline);
+		try {
+			tbb::task::spawn_root_and_wait(*_pipeline);
+		} catch (...) {
+			// Concider the job done if an exception raise.
+			job_has_run();
+			throw;
+		}
 
 		/**
 		 * according to the TBB's documentation, the pipeline is implictly
@@ -86,7 +90,7 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 
 void PVRush::PVControllerJob::wait_end()
 {
-	_executor.wait();
+	_executor.get();
 }
 
 void PVRush::PVControllerJob::cancel()
@@ -98,13 +102,19 @@ void PVRush::PVControllerJob::cancel()
 
 void PVRush::PVControllerJob::job_has_run()
 {
+	_job_done = true;
 	_out_filter.job_has_finished();
 	Q_EMIT job_done_signal();
 }
 
 bool PVRush::PVControllerJob::running() const
 {
-	return _executor.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
+	try {
+		return _executor.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
+	} catch (const std::future_error& e) {
+		// The executor is finish for so long that it have no state anymore.
+		return false;
+	}
 }
 
 bool PVRush::PVControllerJob::done() const

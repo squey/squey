@@ -14,7 +14,7 @@ int main()
 	pvtest::TestEnv env(TEST_FOLDER "/pvkernel/rush/tickets/2/apache.access",
 	                    TEST_FOLDER "/pvkernel/rush/tickets/2/apache.access.format");
 
-	env.load_data(100000);
+	env.load_data();
 
 	PV_VALID(env.get_nraw_size(), 100000UL);
 

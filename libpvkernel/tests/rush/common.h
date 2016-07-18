@@ -168,40 +168,57 @@ class TestEnv
 	 *
 	 * NRaw is not loaded, it has to be done with the load_data methods.
 	 */
-	TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1)
+	TestEnv(std::string const& log_file,
+	        std::string const& format_file,
+	        size_t dup = 1,
+	        std::string const& extra_input = "")
 	    : _format("format", QString::fromStdString(format_file))
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
-		// Input file
-		QString path_file = QString::fromStdString(_big_file_path);
-		PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+
+		if (dup != 1 and extra_input != "") {
+			throw std::runtime_error("We don't handle mutliple input with duplication");
+		}
 
 		// Load the given format file
 		if (!_format.populate()) {
 			throw std::runtime_error("Can't read format file " + format_file);
 		}
 
-		// Get the source creator
-		PVRush::PVSourceCreator_p sc_file;
-		if (!PVRush::PVTests::get_file_sc(file, _format, sc_file)) {
-			throw std::runtime_error("Can't get sources.");
+		std::vector<std::string> filenames{log_file};
+		if (extra_input != "") {
+			filenames.push_back(extra_input);
 		}
 
-		// Process that file with the found source creator thanks to the extractor
-		PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, _format);
-		if (!src) {
-			throw std::runtime_error("Unable to create PVRush source from file " + log_file + "\n");
-		}
+		for (std::string const& filename : filenames) {
+			// Input file
+			QString path_file = QString::fromStdString(filename);
+			PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
-		// Create the extractor
-		_ext.add_source(src);
+			// Get the source creator
+			PVRush::PVSourceCreator_p sc_file;
+			if (!PVRush::PVTests::get_file_sc(file, _format, sc_file)) {
+				throw std::runtime_error("Can't get sources.");
+			}
+
+			// Process that file with the found source creator thanks to the extractor
+			PVRush::PVSourceCreator::source_p src =
+			    sc_file->create_source_from_input(file, _format);
+			if (!src) {
+				throw std::runtime_error("Unable to create PVRush source from file " + log_file +
+				                         "\n");
+			}
+
+			// Create the extractor
+			_ext.add_source(src);
+		}
 		_ext.set_format(_format);
 		_ext.set_chunk_filter(_format.create_tbb_filters());
 	}
 
-	void load_data(size_t nb_lines)
+	void load_data(size_t begin = 0)
 	{
-		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(0, nb_lines);
+		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(begin);
 		job->wait_end();
 	}
 

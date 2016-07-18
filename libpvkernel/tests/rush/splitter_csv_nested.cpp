@@ -16,8 +16,6 @@
 #include "helpers.h"
 #include "common.h"
 
-constexpr static size_t ROW_COUNT = 1;
-
 static constexpr const char* log_file =
     TEST_FOLDER "/pvkernel/rush/splitters/csv/splitter_csv_nested.csv";
 static constexpr const char* log_format =
@@ -27,9 +25,9 @@ static constexpr const char* ref_file =
 
 int main()
 {
-	pvtest::TestEnv env(log_file, log_format, ROW_COUNT);
+	pvtest::TestEnv env(log_file, log_format);
 
-	env.load_data(ROW_COUNT);
+	env.load_data();
 
 	std::string out_path = pvtest::get_tmp_filename();
 	env._ext.get_nraw().dump_csv(out_path);

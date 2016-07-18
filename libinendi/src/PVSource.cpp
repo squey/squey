@@ -48,6 +48,11 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
     , _nraw(_extractor.get_nraw())
     , _axes_combination(format)
 {
+
+	if (inputs.empty()) {
+		throw PVRush::PVInputException("Source can't be created without input");
+	}
+
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	// Set extractor default values
@@ -100,11 +105,9 @@ void Inendi::PVSource::files_append_noextract()
 	}
 }
 
-PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count, size_t line_count)
+PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count)
 {
-	line_count = line_count ? line_count : std::numeric_limits<uint32_t>::max();
-	PVRush::PVControllerJob_p job =
-	    _extractor.process_from_agg_nlines(skip_lines_count, line_count);
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(skip_lines_count);
 
 	return job;
 }
@@ -123,7 +126,7 @@ bool Inendi::PVSource::load_from_disk()
 
 void Inendi::PVSource::extract_finished()
 {
-	_extractor.get_agg().release_inputs();
+	_extractor.release_inputs();
 }
 
 void Inendi::PVSource::set_format(PVRush::PVFormat const& format)

@@ -103,7 +103,7 @@ class PVNraw
 	/**
 	 * Create collector and format to load content.
 	 */
-	void prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format);
+	void prepare_load(pvcop::formatter_desc_list const& format);
 
 	/**
 	 * Export asked line with a specific column ordering.
@@ -167,7 +167,6 @@ class PVNraw
 
 	/// Variable usefull for loading
 	PVRow _real_nrows;                                      //!< Current number of line in the NRaw.
-	PVRow _max_nrows;                                       //!< Maximum number of lines required.
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	unconvertable_values_t _unconvertable_values;

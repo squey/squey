@@ -314,20 +314,6 @@ class PVUnicodeSource : public PVRawSourceBase
 		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 	}
 
-	bool seek(input_offset off) override
-	{
-		if (!_input->seek(off)) {
-			return false;
-		}
-		if (_curc)
-			_curc->free();
-		if (_nextc && _nextc != _curc)
-			_nextc->free();
-		_curc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
-		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
-		return true;
-	}
-
 	QString human_name() override { return _input->human_name(); }
 
 	void release_input() override { _input->release(); }

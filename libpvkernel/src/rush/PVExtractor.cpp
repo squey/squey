@@ -55,14 +55,16 @@ const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 	return _format;
 }
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start,
-                                                                       chunk_index nlines)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start)
 {
 	set_sources_number_fields();
-	get_nraw().prepare_load(nlines, _format.get_storage_format());
 
-	_agg.set_skip_lines_count(start);
-	_agg.set_strict_mode(start > 0);
+	chunk_index nlines = _format.get_line_count();
+	nlines = (nlines) ? nlines : std::numeric_limits<uint32_t>::max();
+
+	get_nraw().prepare_load(_format.get_storage_format());
+
+	_agg.set_skip_lines_count(_format.get_first_line());
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
 	// deletion of this
@@ -81,7 +83,11 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
                                                                       chunk_index end)
 {
 	set_sources_number_fields();
-	get_nraw().prepare_load(end - start, _format.get_storage_format());
+	if (_format.get_line_count() != 0) {
+		end = std::min<chunk_index>(end, _format.get_line_count());
+	}
+	get_nraw().prepare_load(_format.get_storage_format());
+	_agg.set_skip_lines_count(_format.get_first_line());
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
 	// deletion of this

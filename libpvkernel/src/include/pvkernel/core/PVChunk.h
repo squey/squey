@@ -128,7 +128,6 @@ class PVChunk
 	chunk_index index() const { return _index; };
 	chunk_index agg_index() const { return _agg_index; };
 	chunk_index last_elt_index() const { return _index + _elts.size() - 1; };
-	chunk_index last_elt_agg_index() const { return _agg_index + _elts.size() - 1; };
 	inline void set_index(chunk_index i) { _index = i; };
 	inline void set_elts_stat(size_t nelts_org, size_t nelts_valid)
 	{

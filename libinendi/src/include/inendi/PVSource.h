@@ -72,7 +72,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 			// Extract the source
 
 			PVRush::PVControllerJob_p job_import;
-			job_import = extract(get_format().get_first_line(), get_format().get_line_count());
+			job_import = extract(0);
 
 			wait_extract_end(job_import);
 		}
@@ -117,12 +117,11 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	/**
 	 * Start extraction of data for current source.
 	 *
-	 * @param line_count : Number of line to load. 0 if we want to load all the file.
 	 * @param skip_lines_count : Number of line to skip at the beginning of the file.
 	 *
 	 * @return : Pointer to the started job.
 	 */
-	PVRush::PVControllerJob_p extract(size_t skip_lines_count, size_t line_count);
+	PVRush::PVControllerJob_p extract(size_t skip_lines_count);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
 
 	bool load_from_disk();

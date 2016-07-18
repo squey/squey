@@ -47,7 +47,7 @@ PVRush::PVNraw::PVNraw() : _real_nrows(0)
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list const& format)
+void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
 	std::string collector_path =
@@ -59,8 +59,6 @@ void PVRush::PVNraw::prepare_load(PVRow const nrows, pvcop::formatter_desc_list 
 	// Create collector and format
 	_collector.reset(new pvcop::collector(collector_path.data(), format));
 	_collection.reset();
-
-	_max_nrows = nrows;
 }
 
 /*****************************************************************************
@@ -73,11 +71,6 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 {
 	assert(_collector && "We have to be in read state");
 
-	if (chunk.agg_index() > _max_nrows) {
-		// the whole chunk can be skipped as we extracted enough data.
-		return false;
-	}
-
 	const size_t column_count = _collector->column_count();
 
 	// Write all elements of the chunk in the final nraw
@@ -89,19 +82,11 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	std::vector<pvcop::sink::field_t> pvcop_fields;
 	pvcop_fields.reserve(elts.size() * column_count);
 
-	/* We'll make sure that no more than _max_nrows will be extracted globally: we also have
-	 * to compute the number of remaining elements to get relatively to the chunk geometry.
-	 */
-	const size_t remainding_row_count =
-	    std::min<size_t>(_max_nrows - chunk.agg_index(), elts.size());
-	size_t chunk_row_count = 0;
+	// Count number of extracted line. It is not the same as the number of elements as some of them
+	// may be invalid or empty or we may skip the end when enough data is extracted.
+	PVRow local_row = elts.size();
 
 	for (PVCore::PVElement* elt : elts) {
-		if (chunk_row_count == remainding_row_count) {
-			break;
-		}
-
-		++chunk_row_count;
 
 		PVCore::PVElement& e = *elt;
 		if (!e.valid()) {
@@ -126,7 +111,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	}
 
 	try {
-		snk.write_chunk_by_row(chunk.agg_index(), chunk_row_count, pvcop_fields.data());
+		snk.write_chunk_by_row(chunk.agg_index(), local_row, pvcop_fields.data());
 	} catch (const pvcop::types::exception::partially_converted_chunk_error& e) {
 
 #pragma omp critical
@@ -134,7 +119,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	}
 
 #pragma omp atomic
-	_real_nrows += chunk_row_count;
+	_real_nrows += local_row;
 
 	return true;
 }

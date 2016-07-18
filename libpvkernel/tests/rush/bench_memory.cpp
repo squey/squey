@@ -81,7 +81,6 @@ class PVElementsSource : public PVRush::PVRawSourceBase
   public:
 	virtual QString human_name() override { return "memory footprint source"; }
 	virtual void seek_begin() override {}
-	virtual bool seek(PVRush::input_offset /*off*/) override { return true; }
 	virtual void prepare_for_nelts(chunk_index /*nelts*/) override {}
 	virtual PVCore::PVChunk* operator()() override
 	{
@@ -120,9 +119,9 @@ class PVElementsSource : public PVRush::PVRawSourceBase
 	size_t _cur_chunk;
 };
 
-void bench(PVRush::PVExtractor& ext, size_t nlines)
+void bench(PVRush::PVExtractor& ext)
 {
-	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
+	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0);
 	job->wait_end();
 }
 
@@ -140,7 +139,7 @@ void bench(size_t nchunks, size_t size_chunk, size_t neltsperc, size_t nfields)
 	ext.set_chunk_filter(&fchunk);
 	ext.force_number_axes(nfields);
 
-	bench(ext, nchunks * neltsperc);
+	bench(ext);
 
 	PVLOG_DEBUG("Extraction finshed. Press a key to delete the NRAW.\n");
 	getchar();

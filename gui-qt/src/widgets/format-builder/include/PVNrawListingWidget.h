@@ -12,7 +12,7 @@
 #include <pvkernel/rush/PVInputDescription.h>
 
 #include <QWidget>
-#include <QLineEdit>
+#include <QSpinBox>
 #include <QPushButton>
 #include <QLabel>
 #include <QTableView>
@@ -54,8 +54,8 @@ class PVNrawListingWidget : public QWidget
 
   protected:
 	PVNrawListingModel* _nraw_model;
-	QLineEdit* _ext_start;
-	QLineEdit* _ext_end;
+	QSpinBox* _ext_start;
+	QSpinBox* _ext_end;
 	QPushButton* _btn_preview;
 	QLabel* _src_label;
 	QTableView* _nraw_table;

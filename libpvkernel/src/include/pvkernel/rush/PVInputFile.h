@@ -29,7 +29,6 @@ class PVInputFile : public PVInput
 	size_t operator()(char* buffer, size_t n) override;
 	input_offset current_input_offset() override;
 	void seek_begin() override;
-	bool seek(input_offset off) override;
 	QString human_name() override;
 
   public:
@@ -46,23 +45,10 @@ class PVInputFile : public PVInput
 class PVInputFileOpenException : public PVInputException
 {
   public:
-	PVInputFileOpenException(const char* path, int err) : _path(path), _err(err)
+	PVInputFileOpenException(std::string const& path, int err)
+	    : PVInputException("Unable to open file " + path + ": " + strerror(err))
 	{
-		_what = "Unable to open file ";
-		_what += _path;
-		_what += ": ";
-		_what += strerror(err);
 	}
-
-  public:
-	inline int err() const { return _err; }
-	inline std::string const& path() const { return _path; }
-	std::string const& what() const { return _what; }
-
-  protected:
-	std::string _path;
-	int _err;
-	std::string _what;
 };
 }
 

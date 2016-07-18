@@ -20,7 +20,7 @@ typedef quint32 PVRow;
 	(128 / (sizeof(PVRow) * 8)) // Define necessary alignement of pointers of
                                 // PVRows for vectorisation usage
 
-typedef quint64 chunk_index;
+using chunk_index = quint64;
 
 #define DECLARE_ALIGN(n) __attribute__((aligned(n)))
 
