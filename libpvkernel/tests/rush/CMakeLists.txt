@@ -191,7 +191,15 @@ add_pv_compile_test(Trush_format_import_export LINKS ${LINK_LIBRARIES} FILES for
 add_test(Trush_format_ignore_axes Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_axes.csv.format)
 
 # Format ignore rows
-add_test(Trush_format_ignore_rows Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format)
+add_test(Trush_format_ignore_header Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format)
+
+add_test(Trush_format_ignore_rows_big_header Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format 5)
+
+add_test(Trush_format_ignore_rows_small_header Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows_bigh.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format 15)
+
+add_test(Trush_format_ignore_end Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_end.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_end.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_end.csv.format)
+
+add_test(Trush_format_ignore_header_multifile Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows_multifile.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format 15 ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in)
 
 add_pv_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
 add_test(Trush_format_upgrade Trush_format_upgrade)
