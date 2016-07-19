@@ -5,13 +5,16 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVLogger.h>
 
-#include <QLibrary>
+#include <pvbase/general.h>
+
 #include <QDir>
+#include <QLibrary>
+#include <QSettings>
+#include <QString>
 #include <QStringList>
 
 // Helper class to load external plugins
@@ -23,9 +26,8 @@ typedef void (*register_class_func)();
 bool PVCore::PVClassLibraryLibLoader::load_class(QString const& path)
 {
 	QLibrary lib(path);
-	register_class_func rf;
-	rf = (register_class_func)lib.resolve(register_class_func_string);
-	if (!rf) {
+	register_class_func rf = lib.resolve(register_class_func_string);
+	if (rf == nullptr) {
 		PVLOG_ERROR("Error while loading plugin %s: %s\n", qPrintable(path),
 		            qPrintable(lib.errorString()));
 		return false;
@@ -58,7 +60,7 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsd
 		QString curfile = filesIterator.next();
 		QString activated_token = curfile + QString("/activated");
 		int activated = pvconfig.value(activated_token, 1).toInt();
-		if (activated) {
+		if (activated != 0) {
 			if (load_class(dir.absoluteFilePath(curfile))) {
 				PVLOG_INFO("Successfully loaded plugin '%s'\n", qPrintable(curfile));
 				count++;
