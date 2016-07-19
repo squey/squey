@@ -90,7 +90,10 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 
 void PVRush::PVControllerJob::wait_end()
 {
-	_executor.get();
+	if (_executor.valid()) {
+		// If it is invalid, it is already ended.
+		_executor.get();
+	}
 }
 
 void PVRush::PVControllerJob::cancel()
@@ -109,9 +112,9 @@ void PVRush::PVControllerJob::job_has_run()
 
 bool PVRush::PVControllerJob::running() const
 {
-	try {
+	if (_executor.valid()) {
 		return _executor.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
-	} catch (const std::future_error& e) {
+	} else {
 		// The executor is finish for so long that it have no state anymore.
 		return false;
 	}
