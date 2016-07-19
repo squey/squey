@@ -66,6 +66,8 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 	layer_stack.delete_all_layers();
 	layer_stack.append_new_layer(row_count, "All events");
 	layer_stack.get_layer_n(0).set_lock();
+	layer_stack.get_layer_n(0).get_selection() =
+	    (const Inendi::PVSelection&)get_parent<PVSource>().get_rushnraw().valid_rows_sel();
 	layer_stack.get_layer_n(0).compute_selectable_count();
 
 	_layer_stack_refreshed.emit();
