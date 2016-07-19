@@ -19,7 +19,7 @@ namespace PVCore
 struct PVColor {
 
 	QColor toQColor() const;
-	void fromQColor(QColor const& qcolor);
+	void fromQColor(QColor const& color);
 
 	uint8_t r = 0;
 	uint8_t g = 0;
