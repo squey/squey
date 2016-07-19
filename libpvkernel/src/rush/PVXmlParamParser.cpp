@@ -188,13 +188,13 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 		}
 	}
 
-	uint32_t* new_tree_id = NULL;
+	uint32_t* new_tree_id = nullptr;
 	for (int i = 0; i < nchilds; i++) {
 		QDomElement child = childs.at(i).toElement();
 		QString node_type = getNodeType(child);
 		if (node_type == PVFORMAT_XML_TAG_SPLITTER_STR) {
 			pushFilter(child, newId);
-			if (new_tree_id == NULL) {
+			if (new_tree_id == nullptr) {
 				tree_ids.push_back(i);
 				new_tree_id = &tree_ids.back();
 			} else {
@@ -202,7 +202,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			}
 			newId = setDom(child, newId, tree_ids);
 		} else if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
-			if (new_tree_id == NULL) {
+			if (new_tree_id == nullptr) {
 				tree_ids.push_back(i);
 				new_tree_id = &tree_ids.back();
 			} else {

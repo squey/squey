@@ -77,7 +77,7 @@ QLabel* PVWidgets::PVMappingPlottingEditDialog::create_label(QString const& text
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
-	QLabel* ret = new QLabel(text, NULL);
+	QLabel* ret = new QLabel(text, nullptr);
 	ret->setAlignment(align);
 	QFont font(ret->font());
 	font.setBold(true);
@@ -113,7 +113,7 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 	_main_layout->setSpacing(29);
 
 	QHBoxLayout* name_layout = new QHBoxLayout();
-	name_layout->addWidget(new QLabel(tr("Name:"), NULL));
+	name_layout->addWidget(new QLabel(tr("Name:"), nullptr));
 	_edit_name = new QLineEdit();
 	name_layout->addWidget(_edit_name);
 	_main_layout->addLayout(name_layout);

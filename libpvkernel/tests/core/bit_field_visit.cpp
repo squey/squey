@@ -85,7 +85,7 @@ void do_tests_packet(PVCore::PVSelBitField& bits)
 
 int main()
 {
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	PVCore::PVSelBitField bits(SELECTION_COUNT);
 

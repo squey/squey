@@ -14,7 +14,7 @@
  *
  *****************************************************************************/
 PVWidgets::PVArgumentListModel::PVArgumentListModel(QObject* parent)
-    : QAbstractTableModel(parent), _args(NULL)
+    : QAbstractTableModel(parent), _args(nullptr)
 {
 }
 
@@ -36,7 +36,7 @@ PVWidgets::PVArgumentListModel::PVArgumentListModel(PVCore::PVArgumentList& args
 int PVWidgets::PVArgumentListModel::columnCount(const QModelIndex& parent) const
 {
 	// Same as above
-	if (_args == NULL || parent.isValid())
+	if (_args == nullptr || parent.isValid())
 		return 0;
 
 	return 1;
@@ -51,7 +51,7 @@ QVariant PVWidgets::PVArgumentListModel::data(const QModelIndex& index, int role
 {
 	// We check if we have no args, and then restrict to the cases of Qt::DisplayRole and
 	// Qt::EditRole
-	if (_args == NULL || (role != Qt::DisplayRole && role != Qt::EditRole))
+	if (_args == nullptr || (role != Qt::DisplayRole && role != Qt::EditRole))
 		return QVariant();
 
 	// We get an iterator for the Arguments
@@ -71,7 +71,7 @@ QVariant PVWidgets::PVArgumentListModel::data(const QModelIndex& index, int role
 Qt::ItemFlags PVWidgets::PVArgumentListModel::flags(const QModelIndex& index) const
 {
 	// nothing to say if we have no Arguments
-	if (_args == NULL) {
+	if (_args == nullptr) {
 		return QAbstractTableModel::flags(index);
 	}
 
@@ -105,7 +105,7 @@ PVWidgets::PVArgumentListModel::headerData(int section, Qt::Orientation orientat
 int PVWidgets::PVArgumentListModel::rowCount(const QModelIndex& parent) const
 {
 	// Cf. QAbstractTableModel's documentation. This is for a table view.
-	if (_args == NULL || parent.isValid())
+	if (_args == nullptr || parent.isValid())
 		return 0;
 
 	return _args->size();
@@ -132,7 +132,7 @@ bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index,
                                              const QVariant& value,
                                              int role)
 {
-	if (_args == NULL || index.column() != 0 || role != Qt::EditRole)
+	if (_args == nullptr || index.column() != 0 || role != Qt::EditRole)
 		return false;
 
 	PVCore::PVArgumentList::iterator it = _args->begin();

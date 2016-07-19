@@ -271,7 +271,7 @@ bool PVRush::PVSplunkAPI::poll()
 		ret = 0;
 	} else {
 		FD_SET(_socket, &_fdset);
-		ret = select(_socket + 1, &_fdset, NULL, NULL, &tv);
+		ret = select(_socket + 1, &_fdset, nullptr, nullptr, &tv);
 	}
 
 	if (ret == 0) {

@@ -137,20 +137,20 @@ class PVProgressBox : public QDialog
 	}
 
 	template <typename Tret, typename F>
-	static bool progress(F f, QString const& text, Tret& ret, QWidget* parent = NULL)
+	static bool progress(F f, QString const& text, Tret& ret, QWidget* parent = nullptr)
 	{
 		PVProgressBox* pbox = new PVProgressBox(text, parent);
 		return progress(f, pbox, ret);
 	}
 
 	template <typename F>
-	static bool progress(F f, QString const& text, QWidget* parent = NULL)
+	static bool progress(F f, QString const& text, QWidget* parent = nullptr)
 	{
 		PVProgressBox* pbox = new PVProgressBox(text, parent);
 		return progress(f, pbox);
 	}
 
-	static bool progress(tbb::task& root, QString const& text, QWidget* parent = NULL)
+	static bool progress(tbb::task& root, QString const& text, QWidget* parent = nullptr)
 	{
 		PVProgressBox* pbox = new PVProgressBox(text, parent);
 		return progress(root, pbox);

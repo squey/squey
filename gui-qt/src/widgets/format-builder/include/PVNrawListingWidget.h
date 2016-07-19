@@ -27,7 +27,7 @@ class PVNrawListingWidget : public QWidget
 {
 	Q_OBJECT
   public:
-	PVNrawListingWidget(PVNrawListingModel* nraw_model, QWidget* parent = NULL);
+	PVNrawListingWidget(PVNrawListingModel* nraw_model, QWidget* parent = nullptr);
 
   public:
 	void connect_preview(QObject* receiver, const char* slot);

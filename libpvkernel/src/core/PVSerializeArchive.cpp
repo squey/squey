@@ -71,7 +71,7 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString 
 
 void PVCore::PVSerializeArchive::init()
 {
-	_root_obj = allocate_object(_root_dir, NULL);
+	_root_obj = allocate_object(_root_dir, nullptr);
 	create_attributes(*_root_obj);
 	// Version special attribute
 	_root_obj->attribute(QString("version"), _version, (version_t)0);

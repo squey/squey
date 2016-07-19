@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 	}
 
 	tbb::tick_count start, end;
-	srand(time(NULL));
+	srand(time(nullptr));
 	size_t sb = atoll(argv[1]);
 	int nblocks = atoi(argv[2]);
 

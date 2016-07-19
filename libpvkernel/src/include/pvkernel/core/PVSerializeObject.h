@@ -61,7 +61,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
   protected:
 	PVSerializeObject(QString const& logical_path,
 	                  PVSerializeArchive* parent_ar,
-	                  PVSerializeObject* parent = NULL);
+	                  PVSerializeObject* parent = nullptr);
 
   public:
 	virtual ~PVSerializeObject() {}
@@ -123,7 +123,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	inline T* bound_obj_as() const
 	{
 		if (bound_obj_type() != typeid(T) || !_bound_obj) {
-			return NULL;
+			return nullptr;
 		}
 		return (T*)_bound_obj;
 	}
@@ -136,7 +136,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	 *  \param[in] desc Description of the object (for usage in a GUI for instance)
 	 *  \param[in] visible Whether or not this object will be exposed by
 	 *PVInspector::PVSerializeOptionsModel (for instance)
-	 *  \param[in] def_v If not NULL, pointer to a default value to use when creating the object
+	 *  \param[in] def_v If not nullptr, pointer to a default value to use when creating the object
 	 *(will call T's copy constructor, which must exists).
 	 *  \param[in] def_option If optional is equal to true, defines the default optional state of
 	 *this object (true = object will be included).
@@ -151,10 +151,10 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	            T& obj,
 	            QString const& desc = QString(),
 	            bool optional = false,
-	            typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = NULL,
+	            typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = nullptr,
 	            bool visible = true,
 	            bool def_option = true,
-	            p_type* used_so = NULL);
+	            p_type* used_so = nullptr);
 
 	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must
 	 * be serializable.
@@ -184,7 +184,8 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	list(QString const& name,
 	     T& obj,
 	     QString const& desc = QString(),
-	     typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v = NULL,
+	     typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v =
+	         nullptr,
 	     QStringList const& descriptions = QStringList(),
 	     bool visible = true,
 	     bool elts_optional = false);
@@ -195,7 +196,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	p_type list(QString const& name,
 	            T& obj,
 	            QString const& desc = QString(),
-	            typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL,
+	            typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = nullptr,
 	            QStringList const& descriptions = QStringList(),
 	            bool visible = true,
 	            bool elts_optional = false);

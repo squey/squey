@@ -104,7 +104,7 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 	virtual QString widget_title(value_type* /*obj*/) const { return QString(); }
 
   protected:
-	QWidget* get_unique_widget(value_type* obj, QWidget* parent = NULL)
+	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr)
 	{
 		QWidget* ret;
 		typename hash_widgets_t::const_iterator it = _widgets.find(obj);
@@ -124,7 +124,7 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 	}
 
 	QAction*
-	action_bound_to_params(value_type* obj, PVCol /*axis_comb*/, QObject* parent = NULL) const
+	action_bound_to_params(value_type* obj, PVCol /*axis_comb*/, QObject* parent = nullptr) const
 	{
 		QAction* action = new QAction(parent);
 
@@ -136,7 +136,7 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 	}
 
   protected:
-	virtual QWidget* create_widget(value_type* obj, QWidget* parent = NULL) const = 0;
+	virtual QWidget* create_widget(value_type* obj, QWidget* parent = nullptr) const = 0;
 
   private:
 	inline static value_type* get_value_from_action(QAction const& action)
@@ -222,7 +222,7 @@ class PVDisplayViewAxisIf : public PVDisplayIf
 	}
 
   protected:
-	QWidget* get_unique_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = NULL);
+	QWidget* get_unique_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = nullptr);
 
 	inline void
 	get_params_from_action(QAction const& action, Inendi::PVView*& view, PVCol& axis_comb)
@@ -233,11 +233,11 @@ class PVDisplayViewAxisIf : public PVDisplayIf
 	}
 
 	QAction*
-	action_bound_to_params(Inendi::PVView* view, PVCol axis_comb, QObject* parent = NULL) const;
+	action_bound_to_params(Inendi::PVView* view, PVCol axis_comb, QObject* parent = nullptr) const;
 
   protected:
 	virtual QWidget*
-	create_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = NULL) const = 0;
+	create_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = nullptr) const = 0;
 
   private:
 	inline static Params get_params_from_action(QAction const& action)

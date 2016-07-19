@@ -67,7 +67,7 @@ class PVAxesCombination
 		static inline axes_comb_id_t from_qvariant(QVariant const& v)
 		{
 			axes_comb_id_t ret;
-			ret.data.raw = (uint64_t)v.toULongLong(NULL);
+			ret.data.raw = (uint64_t)v.toULongLong(nullptr);
 			return ret;
 		}
 

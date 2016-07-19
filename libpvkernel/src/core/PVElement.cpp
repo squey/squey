@@ -27,7 +27,7 @@ PVCore::PVElement::PVElement(PVElement const& src) : PVBufferSlice(src)
 {
 	// No copy must occur !
 	assert(false);
-	_org_buf = NULL;
+	_org_buf = nullptr;
 }
 
 PVCore::PVElement::~PVElement()
@@ -49,7 +49,7 @@ void PVCore::PVElement::init(PVChunk* parent)
 	// In the beggining, it only has a big field
 	// PVField f(*this, begin(), end());
 	//_fields.push_back(f);
-	_org_buf = NULL;
+	_org_buf = nullptr;
 	_org_buf_size = 0;
 }
 
@@ -132,7 +132,7 @@ void PVCore::PVElement::clear_saved_buf()
 
 	static tbb::tbb_allocator<char> alloc;
 	alloc.deallocate(_org_buf, _org_buf_size);
-	_org_buf = NULL;
+	_org_buf = nullptr;
 	_org_buf_size = 0;
 }
 

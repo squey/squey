@@ -42,7 +42,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 
   public:
 	PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
-	                        Inendi::PVView* view = NULL,
+	                        Inendi::PVView* view = nullptr,
 	                        QWidget* parent = 0);
 
   public:
@@ -85,7 +85,7 @@ class PVAxesCombinationWidgetSelRange : public QDialog, Ui::PVAxesCombinationWid
 	enum values_source_t { mapped = 0, plotted };
 
   public:
-	PVAxesCombinationWidgetSelRange(QWidget* parent = NULL);
+	PVAxesCombinationWidgetSelRange(QWidget* parent = nullptr);
 
   public:
 	bool get_range(float& min, float& max);

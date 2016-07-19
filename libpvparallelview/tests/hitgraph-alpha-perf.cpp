@@ -433,7 +433,7 @@ struct omp_sse_v3_ctx_t {
 		// 	std::cout << "allocating " << core_num << " reduction buffers" <<
 		// std::endl;
 		// }
-		if (getenv("USE_NUMA") != NULL) {
+		if (getenv("USE_NUMA") != nullptr) {
 			use_numa = true;
 			// if (verbose) {
 			// 	std::cout << "using numa grouped reduction buffer" << std::endl;
@@ -1109,7 +1109,7 @@ void do_one_allocator(const std::string text,
 
 	do_one_run("mem=mmap"+text,
 	           [](size_t n) {
-		           intptr_t mem = (intptr_t) mmap(NULL, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
+		           intptr_t mem = (intptr_t) mmap(nullptr, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
 		                                          MAP_PRIVATE|MAP_ANONYMOUS,
 		                                          -1, 0);
 		           if (mem == (intptr_t)-1) {
@@ -1129,7 +1129,7 @@ void do_one_allocator(const std::string text,
 	// trop contraignant
 	do_one_run("mem=hugepages"+text,
 	           [](size_t n) {
-		           intptr_t mem = (intptr_t) mmap(NULL, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
+		           intptr_t mem = (intptr_t) mmap(nullptr, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
 		                                          MAP_PRIVATE|MAP_ANONYMOUS|MAP_HUGETLB,
 		                                          -1, 0);
 		           if (mem == (intptr_t)-1) {
@@ -1176,7 +1176,7 @@ void do_one_allocator(const std::string text,
 	// comme hugepages : trop contraignant
 	do_one_run("mem=numa_interleaved+hugepages"+text,
 	           [](size_t n) {
-		           intptr_t ret = (intptr_t) mmap(NULL, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
+		           intptr_t ret = (intptr_t) mmap(nullptr, sizeof(uint32_t)*n, PROT_WRITE|PROT_READ,
 		                                          MAP_PRIVATE|MAP_ANONYMOUS|MAP_HUGETLB,
 		                                          -1, 0);
 		           if (ret == (intptr_t)-1) {

@@ -91,7 +91,7 @@ class PVChunk
 	};
 
   public:
-	PVChunk() : _index(0), _p_chunk_fields(NULL){};
+	PVChunk() : _index(0), _p_chunk_fields(nullptr){};
 	virtual ~PVChunk() { free_structs(); }
 	void free_structs()
 	{
@@ -190,7 +190,7 @@ class PVChunk
 	{
 		//_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
 		const size_t fields_size = sizeof(__node_list_field) * nfields * nelts;
-		//_p_chunk_fields = mmap(NULL, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE |
+		//_p_chunk_fields = mmap(nullptr, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE |
 		// MAP_ANONYMOUS, -1, 0);
 		_p_chunk_fields = tbb::scalable_allocator<char>().allocate(fields_size);
 		// PVLOG_INFO("PVField %p allocate %u\n", _p_chunk_fields,
@@ -204,7 +204,7 @@ class PVChunk
 			// PVLOG_INFO("PVField %p deallocate %u\n", _p_chunk_fields, _fields_size);
 			// munmap(_p_chunk_fields, _fields_size);
 			tbb::scalable_allocator<char>().deallocate((char*)_p_chunk_fields, 0);
-			_p_chunk_fields = NULL;
+			_p_chunk_fields = nullptr;
 		}
 	}
 
@@ -250,9 +250,9 @@ class PVChunkMem : public PVChunk
 		size_t size_alloc = sizeof(PVChunkMem<Allocator>) + size + 1;
 		PVChunkMem<Allocator>* p = (PVChunkMem<Allocator>*)(a.allocate(size_alloc));
 		// PVLOG_INFO("PVChunk alloc %u bytes, %p.\n", size_alloc, p);
-		if (p == NULL) {
+		if (p == nullptr) {
 			PVLOG_ERROR("(PVChunkMem): unable to allocate a new chunk !\n");
-			return NULL;
+			return nullptr;
 		}
 		new ((void*)p) PVChunkMem<Allocator>(a);
 		p->_logical_end = p->begin();

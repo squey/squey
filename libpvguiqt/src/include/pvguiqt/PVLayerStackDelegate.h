@@ -32,7 +32,7 @@ class PVLayerStackDelegate : public QStyledItemDelegate
 	 *  @param mw
 	 *  @param parent
 	 */
-	PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent = NULL);
+	PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent = nullptr);
 
 	/**
 	 *  @param event

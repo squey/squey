@@ -712,7 +712,7 @@ class PVQuadTree
 	bool dump_to_file(const char* filename) const
 	{
 		FILE* fp = fopen(filename, "w");
-		if (fp == NULL) {
+		if (fp == nullptr) {
 			PVLOG_ERROR("Error while opening %s for writing: %s.\n", filename, strerror(errno));
 			return false;
 		}

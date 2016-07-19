@@ -28,7 +28,7 @@ struct random_point_t {
 
 int main()
 {
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	// Points generation
 	std::vector<random_point_t> vec;

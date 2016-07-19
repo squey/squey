@@ -30,11 +30,11 @@ class PVArgumentListWidget : public QWidget
 	Q_OBJECT
 
   public:
-	PVArgumentListWidget(QWidget* parent = NULL);
-	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent = NULL);
+	PVArgumentListWidget(QWidget* parent = nullptr);
+	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent = nullptr);
 	PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
 	                     PVCore::PVArgumentList& args,
-	                     QWidget* parent = NULL);
+	                     QWidget* parent = nullptr);
 	virtual ~PVArgumentListWidget();
 	// bool eventFilter(QObject *obj, QEvent *event);
 	void set_args(PVCore::PVArgumentList& args);
@@ -50,10 +50,10 @@ class PVArgumentListWidget : public QWidget
   public:
 	static QDialog* create_dialog_for_arguments(QItemEditorFactory* widget_factory,
 	                                            PVCore::PVArgumentList& args,
-	                                            QWidget* parent = NULL);
+	                                            QWidget* parent = nullptr);
 	static bool modify_arguments_dlg(QItemEditorFactory* widget_factory,
 	                                 PVCore::PVArgumentList& args,
-	                                 QWidget* parent = NULL);
+	                                 QWidget* parent = nullptr);
 
   private:
 	void init_widgets();

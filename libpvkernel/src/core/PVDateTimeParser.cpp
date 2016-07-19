@@ -50,7 +50,7 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format)
 	QString current_year = QDate::currentDate().toString("yyyy") + QString(" ");
 	_current_year = UnicodeString((UChar*)current_year.data(), current_year.size());
 
-	_last_match_time_format = NULL;
+	_last_match_time_format = nullptr;
 	_time_format.resize(time_format.size());
 	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
 	static tbb::scalable_allocator<TimeFormat> alloc_format;
@@ -110,7 +110,7 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 		// Use RTII to find out the real type of the TimeFormatInterface object.
 		TimeFormatInterface* tfi = *it;
 		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
-		if (tf == NULL) {
+		if (tf == nullptr) {
 			// TimeFormatEpoch_p ptfe(_alloc_tfe.construct(),
 			// boost::bind(&PVDateTimeParser::destroy_tfe, _1));
 			TimeFormatEpoch_p ptfe = alloc_epoch.allocate(1);
@@ -159,7 +159,7 @@ PVCore::PVDateTimeParser::TimeFormat::TimeFormat(QString const& time_format, boo
     , time_format_(time_format)
     , local_parser(icuFromQStringAlias(time_format), _err)
 {
-	_parsers = NULL;
+	_parsers = nullptr;
 	_nparsers = 0;
 	prepend_year_value = prepend_year;
 	create_parsers(time_format);

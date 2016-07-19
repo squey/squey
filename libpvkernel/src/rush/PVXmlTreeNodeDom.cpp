@@ -952,9 +952,9 @@ bool PVRush::PVXmlTreeNodeDom::hasAxisAsChild()
 PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
 {
 	PVXmlTreeNodeDom* parent = getParent();
-	if (parent == NULL) {
-		// No more parent, so we can't find any parent field. Returns NULL
-		return NULL;
+	if (parent == nullptr) {
+		// No more parent, so we can't find any parent field. Returns nullptr
+		return nullptr;
 	}
 
 	if (parent->typeToString() == "field" && parent->_field_linear_id != -1) {

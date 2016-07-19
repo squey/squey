@@ -86,7 +86,7 @@ class PVElementsSource : public PVRush::PVRawSourceBase
 	{
 		if (_cur_chunk >= _nchunks) {
 			_cur_chunk = 0;
-			return NULL;
+			return nullptr;
 		}
 		PVCore::PVChunk* chunk = PVChunkAlloc::allocate(_size_chunk, this, _alloc);
 		memset(chunk->begin(), 0, chunk->avail());

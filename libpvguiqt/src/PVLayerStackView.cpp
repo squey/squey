@@ -57,11 +57,11 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	_ctxt_menu = new QMenu(this);
 	_ctxt_menu->addSeparator();
 
-	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer content"), NULL);
+	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer content"), nullptr);
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
-	_ctxt_menu_export_layer_sel = new QAction(tr("Export this layer selection"), NULL);
+	_ctxt_menu_export_layer_sel = new QAction(tr("Export this layer selection"), nullptr);
 	_ctxt_menu->addAction(_ctxt_menu_export_layer_sel);
-	_ctxt_menu_reset_colors = new QAction(tr("Reset this layer colors to white"), NULL);
+	_ctxt_menu_reset_colors = new QAction(tr("Reset this layer colors to white"), nullptr);
 	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
 
 	_ctxt_menu->addSeparator();

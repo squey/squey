@@ -124,7 +124,7 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	virtual size_t get_child_count() { return _nchilds; }
 
   protected:
-	virtual base_registrable* _clone_me() const { return NULL; }
+	virtual base_registrable* _clone_me() const { return nullptr; }
 
   protected:
 	PVFilter::fields_filter_type _type;

@@ -32,7 +32,7 @@ class PVLayerFilterProcessWidget : public QDialog
 	PVLayerFilterProcessWidget(Inendi::PVView* view,
 	                           PVCore::PVArgumentList& args,
 	                           Inendi::PVLayerFilter_p filter_p,
-	                           QWidget* parent = NULL);
+	                           QWidget* parent = nullptr);
 	virtual ~PVLayerFilterProcessWidget();
 
 	void change_args(PVCore::PVArgumentList const& args);

@@ -326,8 +326,9 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 * It sorts idxes based on "col" values.
 	 * "col" is the column id without axis combination modification.
 	 */
-	void
-	sort_indexes(PVCol col, pvcop::db::indexes& idxes, tbb::task_group_context* ctxt = NULL) const;
+	void sort_indexes(PVCol col,
+	                  pvcop::db::indexes& idxes,
+	                  tbb::task_group_context* ctxt = nullptr) const;
 
 	/******************************************************************************
 	******************************************************************************

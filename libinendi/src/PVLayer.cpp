@@ -120,8 +120,8 @@ bool Inendi::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
 void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so,
                                 PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.object("selection", selection, "selection", true, (PVSelection*)NULL, false);
-	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)NULL, false);
+	so.object("selection", selection, "selection", true, (PVSelection*)nullptr, false);
+	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)nullptr, false);
 	so.attribute("name", name);
 	so.attribute("visible", visible);
 	so.attribute("index", index);

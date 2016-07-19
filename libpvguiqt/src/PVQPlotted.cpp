@@ -12,7 +12,7 @@
 bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent)
 {
 	PVWidgets::PVMappingPlottingEditDialog* dlg =
-	    new PVWidgets::PVMappingPlottingEditDialog(NULL, &plotted.get_plotting(), parent);
+	    new PVWidgets::PVMappingPlottingEditDialog(nullptr, &plotted.get_plotting(), parent);
 	if (dlg->exec() != QDialog::Accepted) {
 		return false;
 	}

@@ -58,15 +58,15 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart,
 
 PVCore::PVChunk* PVRush::PVAggregator::read_until_start_index()
 {
-	PVCore::PVChunk* ret = NULL;
+	PVCore::PVChunk* ret = nullptr;
 	bool first = true;
 	while (_nstart >= _nread_elements) {
 		if (not first)
 			_begin_of_input = false;
-		if (ret != NULL)
+		if (ret != nullptr)
 			ret->free();
-		if ((ret = next_chunk()) == NULL)
-			return NULL;
+		if ((ret = next_chunk()) == nullptr)
+			return nullptr;
 		first = false;
 	}
 	return ret;
@@ -77,12 +77,12 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 	// Get chunk from current input
 	PVCore::PVChunk* ret = (*_cur_input)->operator()();
 
-	if (ret == NULL) {
+	if (ret == nullptr) {
 		// No more chunks available from current input. Go on !
 		_cur_input++;
 		if (_cur_input == _inputs.end()) {
-			// No more data available. Return NULL
-			return NULL;
+			// No more data available. Return nullptr
+			return nullptr;
 		}
 		_cur_src_index = _nread_elements;
 		(*_cur_input)->prepare_for_nelts(_nend - _nread_elements);
@@ -107,7 +107,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 {
 	if (_nread_elements >= _nend) {
 		// This is the end of this job
-		return NULL;
+		return nullptr;
 	}
 
 	PVCore::PVChunk* ret;
@@ -187,7 +187,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc)
 {
 	PVCore::PVChunk* ret = this->operator()();
-	if (ret == NULL) {
+	if (ret == nullptr) {
 		PVLOG_DEBUG("(PVAggregator::next_chunk) aggregator stop because of no more input datas\n");
 		fc.stop();
 	}

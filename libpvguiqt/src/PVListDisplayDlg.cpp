@@ -256,7 +256,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)
 		options = QFileDialog::DontConfirmOverwrite;
 	}
 	QString path = QFileDialog::getSaveFileName(this, tr("Save to file..."), QString(), QString(),
-	                                            NULL, options);
+	                                            nullptr, options);
 	if (path.isEmpty()) {
 		return;
 	}

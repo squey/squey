@@ -243,7 +243,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 	backend_image_t* dst_img = static_cast<backend_image_t*>(backend_img.get());
 #else
 	backend_image_t* dst_img = dynamic_cast<backend_image_t*>(backend_img.get());
-	assert(dst_img != NULL);
+	assert(dst_img != nullptr);
 #endif
 	device_t& dev = _devices[dst_img->index()];
 

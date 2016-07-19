@@ -30,7 +30,7 @@ PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input,
 
 	char* args[2] = {(char*)"", perl_file_str.data()};
 
-	if (perl_parse(my_perl, NULL, 2, args, (char**)NULL) != 0) {
+	if (perl_parse(my_perl, nullptr, 2, args, (char**)nullptr) != 0) {
 		throw PVPerlFormatInvalid(perl_file);
 	}
 
@@ -143,12 +143,12 @@ PVCore::PVChunk* PVRush::PVPerlSource::operator()()
 		char* err_msg = SvPV_nolen(svp);
 		(void)POPs;
 		PVLOG_ERROR("Error in Perl file %s: %s\n", qPrintable(_perl_file), err_msg);
-		return NULL;
+		return nullptr;
 	}
 
 	if (nelts == 0) {
 		// That's the end
-		return NULL;
+		return nullptr;
 	}
 
 	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);

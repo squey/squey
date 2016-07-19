@@ -125,7 +125,7 @@ class PVClassLibrary
 		typename list_classes::iterator it_c;
 		PF pf;
 		for (it_c = _classes.begin(); it_c != _classes.end(); it_c++) {
-			if (dynamic_cast<T*>(it_c->value().get()) != NULL) {
+			if (dynamic_cast<T*>(it_c->value().get()) != nullptr) {
 				pf = it_c->value();
 				break;
 			}

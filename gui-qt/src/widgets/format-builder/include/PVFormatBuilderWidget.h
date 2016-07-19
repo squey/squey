@@ -53,7 +53,7 @@ class PVFormatBuilderWidget : public QMainWindow
 {
 	Q_OBJECT
   public:
-	PVFormatBuilderWidget(QWidget* parent = NULL);
+	PVFormatBuilderWidget(QWidget* parent = nullptr);
 
 	virtual ~PVFormatBuilderWidget();
 

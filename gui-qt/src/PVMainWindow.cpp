@@ -83,10 +83,10 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
 	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
 
-	// import_source = NULL;
+	// import_source = nullptr;
 	report_started = false;
 	report_image_index = 0;
-	report_filename = NULL;
+	report_filename = nullptr;
 
 	// We activate all available Windows
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
@@ -437,7 +437,7 @@ static QMenu* create_filters_menu_exists(QHash<QMenu*, int> actions_list, QStrin
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /******************************************************************************
@@ -1071,7 +1071,7 @@ static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJ
 static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
                                   QString const& desc,
                                   int /*nlines*/,
-                                  QWidget* parent = NULL)
+                                  QWidget* parent = nullptr)
 {
 	PVCore::PVProgressBox* pbox =
 	    new PVCore::PVProgressBox(QString("Extracting %1...").arg(desc), parent, 0,

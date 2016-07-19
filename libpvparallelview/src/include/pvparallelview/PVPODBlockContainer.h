@@ -58,7 +58,7 @@ class PVPODBlockContainer : protected Alloc
 		typedef typename type_select<is_const, list_blocks_const_iterator_t, list_blocks_iterator_t>::r it_block_t;
 		typedef PODBlockContainerIterator _it_type;
 	public:
-		PODBlockContainerIterator(): _p(NULL), _lb(NULL) {}
+		PODBlockContainerIterator(): _p(nullptr), _lb(nullptr) {}
 		PODBlockContainerIterator(ptr_t p, ptr_t end_p, it_block_t b, list_blocks_t const& lb): _p(p), _end_p(end_p), _block_it(b), _lb(&lb) {}
 	public:
 		bool operator==(const _it_type& other) { assert(_p); return _p == other._p; }
