@@ -41,7 +41,7 @@ PVCore::PVConfig::PVConfig()
 
 	QFileInfo fi(user_path());
 
-	if (fi.exists() == false) {
+	if (!fi.exists()) {
 		fi.dir().mkpath(fi.path());
 
 		QFileInfo sys_fi(GLOBAL_CONFIG_FILENAME);
@@ -65,7 +65,7 @@ PVCore::PVConfig::PVConfig()
 
 PVCore::PVConfig::~PVConfig()
 {
-	if (_config) {
+	if (_config != nullptr) {
 		delete _config;
 		_config = nullptr;
 	}
