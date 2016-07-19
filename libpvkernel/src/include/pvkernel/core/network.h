@@ -14,7 +14,7 @@ namespace PVCore
 {
 
 struct Network {
-	static bool ipv4_aton(const char* buffer, size_t n, uint32_t& ret);
+	static bool ipv4_aton(const char* str, size_t n, uint32_t& ret);
 };
 }
 
