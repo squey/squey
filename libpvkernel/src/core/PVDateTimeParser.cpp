@@ -21,7 +21,7 @@ boost::object_pool<SimpleDateFormat> PVCore::PVDateTimeParser::TimeFormat::_allo
 // No copy is made. The QString must remain valid as long as the UnicodeString object is !
 UnicodeString PVCore::PVDateTimeParser::icuFromQStringAlias(const QString& src)
 {
-	return UnicodeString(false, (const UChar*)(src.constData()), src.size());
+	return UnicodeString(0, reinterpret_cast<const UChar*>(src.constData()), src.size());
 }
 
 PVCore::PVDateTimeParser::PVDateTimeParser()
@@ -48,7 +48,8 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format)
 	// If we are very unlucky, the year can change between this constructor and the computation of
 	// the struct tm's... !
 	QString current_year = QDate::currentDate().toString("yyyy") + QString(" ");
-	_current_year = UnicodeString((UChar*)current_year.data(), current_year.size());
+	_current_year =
+	    UnicodeString(reinterpret_cast<UChar*>(current_year.data()), current_year.size());
 
 	_last_match_time_format = nullptr;
 	_time_format.resize(time_format.size());
@@ -90,11 +91,11 @@ PVCore::PVDateTimeParser::~PVDateTimeParser()
 	for (it = _time_format.begin(); it != _time_format.end(); it++) {
 		TimeFormatInterface* tfi = *it;
 		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
-		if (tf) {
+		if (tf != nullptr) {
 			tf->~TimeFormat();
 			alloc_format.deallocate(tf, 1);
 		} else {
-			TimeFormatEpoch* tfe = (TimeFormatEpoch*)tfi;
+			TimeFormatEpoch* tfe = dynamic_cast<TimeFormatEpoch*>(tfi);
 			tfe->~TimeFormatEpoch();
 			alloc_epoch.deallocate(tfe, 1);
 		}
@@ -132,9 +133,10 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 
 bool PVCore::PVDateTimeParser::mapping_time_to_cal(UnicodeString const& v, Calendar* cal)
 {
-	if (_last_match_time_format) {
-		if (_last_match_time_format->to_datetime(v, cal))
+	if (_last_match_time_format != nullptr) {
+		if (_last_match_time_format->to_datetime(v, cal)) {
 			return true;
+		}
 	}
 
 	PVLOG_DEBUG("(PVDateTimeParser::mapping_time_to_cal) last known time format didn't match. "
@@ -185,7 +187,7 @@ void PVCore::PVDateTimeParser::TimeFormat::create_parsers(QString const& time_fo
 		SimpleDateFormat* psdf = &_parsers[il];
 		new (psdf) SimpleDateFormat(pattern, Locale::createFromName(cur_loc.getName()), err);
 		// SimpleDateFormat_p sdf(psdf, boost::bind(&TimeFormat::destroy_sdf, _1));
-		if (!U_SUCCESS(err)) {
+		if (U_SUCCESS(err) == 0) {
 			PVLOG_WARN("Unable to create parser for locale %s.\n", cur_loc.getName());
 		}
 	}
@@ -200,7 +202,7 @@ PVCore::PVDateTimeParser::TimeFormat::TimeFormat(const TimeFormat& src)
 PVCore::PVDateTimeParser::TimeFormat::~TimeFormat()
 {
 	static tbb::scalable_allocator<SimpleDateFormat> alloc;
-	if (_parsers) {
+	if (_parsers != nullptr) {
 		for (size_t i = 0; i < _nparsers; i++) {
 			SimpleDateFormat* psdf = &_parsers[i];
 			psdf->~SimpleDateFormat();
@@ -254,7 +256,7 @@ bool PVCore::PVDateTimeParser::TimeFormat::to_datetime(UnicodeString const& valu
 
 	for (size_t i = 0; i < _nparsers; i++) {
 		SimpleDateFormat* cur_parser = &_parsers[i];
-		if (cur_parser->getSmpFmtLocale() == last_good_parser->getSmpFmtLocale()) {
+		if ((cur_parser->getSmpFmtLocale() == last_good_parser->getSmpFmtLocale()) != 0) {
 			continue;
 		}
 		ParsePosition pos_(0);
@@ -280,12 +282,12 @@ bool PVCore::PVDateTimeParser::TimeFormatEpoch::to_datetime(UnicodeString const&
 	QString tmp =
 	    QString::fromRawData(reinterpret_cast<const QChar*>(value.getBuffer()), value.length());
 	bool ok = false;
-	UDate date = (UDate)(tmp.toDouble(&ok) * 1000.0);
+	UDate date = tmp.toDouble(&ok) * 1000.0;
 	if (!ok) {
 		return false;
 	}
 	err = U_ZERO_ERROR;
 	cal->setTime(date, err);
 
-	return U_SUCCESS(err);
+	return U_SUCCESS(err) != 0;
 }
