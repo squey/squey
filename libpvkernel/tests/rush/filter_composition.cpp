@@ -63,25 +63,13 @@ int main()
 	// Mapping filters
 
 	// Mapping filter for the URL splitter
-	PVFilter::PVFieldsMappingFilter::list_indexes indx;
-	PVFilter::PVFieldsMappingFilter::map_filters mf;
-	indx.push_back(3);
-	mf[indx] = url_lib_p->f();
-	PVFilter::PVFieldsMappingFilter mapping_url(mf);
+	PVFilter::PVFieldsMappingFilter mapping_url(3, url_lib_p->f());
 
 	// Mapping filter for the grep filter
-	indx.clear();
-	mf.clear();
-	indx.push_back(4);
-	mf[indx] = grep_lib_p->f();
-	PVFilter::PVFieldsMappingFilter mapping_grep(mf);
+	PVFilter::PVFieldsMappingFilter mapping_grep(4, grep_lib_p->f());
 
 	// Mapping filter for the duplicate filter on the last axis after our regexp
-	indx.clear();
-	mf.clear();
-	indx.push_back(6);
-	mf[indx] = duplicate_lib_p->f();
-	PVFilter::PVFieldsMappingFilter mapping_duplicate(mf);
+	PVFilter::PVFieldsMappingFilter mapping_duplicate(6, duplicate_lib_p->f());
 
 	// Final composition
 	PVFilter::PVFieldsBaseFilter_f f_final =

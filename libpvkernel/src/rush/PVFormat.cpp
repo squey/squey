@@ -443,9 +443,6 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 PVFilter::PVFieldsBaseFilter_f
 PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 {
-	PVFilter::PVFieldsBaseFilter_f field_f;
-	PVCore::PVArgumentList args;
-
 	PVFilter::PVFieldsFilterReg_p filter_lib = fdata.filter_lib;
 	assert(filter_lib);
 
@@ -463,12 +460,11 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	filter_clone->set_children_axes_tag(fdata.children_axes_tag);
 	filter_clone->set_args(fdata.filter_args);
 	_filters_container.push_back(filter_clone);
-	field_f = filter_clone->f();
 
 	// initialize the filter
 	filter_clone->init();
 
-	return field_f;
+	return filter_clone->f();
 }
 
 PVFilter::PVChunkFilterByElt* PVRush::PVFormat::create_tbb_filters()
@@ -525,11 +521,8 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 			}
 
 			// Create the mapping (field_id)->field_filter
-			PVFilter::PVFieldsMappingFilter::list_indexes indx;
-			PVFilter::PVFieldsMappingFilter::map_filters mf;
-			indx.push_back(fdata.axis_id);
-			mf[indx] = field_f;
-			PVFilter::PVFieldsBaseFilter_p mapping(new PVFilter::PVFieldsMappingFilter(mf));
+			PVFilter::PVFieldsBaseFilter_p mapping(
+			    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f));
 			_filters_container.push_back(mapping);
 
 			// Compose the pipeline

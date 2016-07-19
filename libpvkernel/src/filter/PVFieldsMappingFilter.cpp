@@ -14,8 +14,8 @@
  * PVFilter::PVCore::PVFieldsMappingFilter::PVCore::PVFieldsMappingFilter
  *
  *****************************************************************************/
-PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(map_filters const& mfilters)
-    : _mfilters(mfilters)
+PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(size_t idx, PVFieldsBaseFilter_f func)
+    : _idx(idx), _func(func)
 {
 }
 
@@ -29,35 +29,23 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 	// TODO: this *can* be optimised !
 	if (fields.size() == 0)
 		return fields;
-	map_filters::const_iterator it, ite;
-	ite = _mfilters.end();
-	PVCore::list_fields tmp_fields;
-	for (it = _mfilters.begin(); it != ite; it++) {
-		list_indexes const& indx = (*it).first;
-		PVFieldsBaseFilter_f f = (*it).second;
-		tmp_fields.clear();
-		list_indexes::const_iterator it_ind;
-		for (it_ind = indx.begin(); it_ind != indx.end(); it_ind++) {
-			PVCore::list_fields::iterator it_curf = fields.begin();
-			chunk_index id_field = *it_ind;
-			if (id_field >= fields.size()) {
-				PVLOG_DEBUG("(PVFieldsMappingFilter) element hasn't enough field to apply mapping "
-				            "(index %d requested, %d fields available). Ignoring element...\n",
-				            *it_ind, fields.size());
-				continue;
-			}
-			std::advance(it_curf, id_field);
-			tmp_fields.push_back(*it_curf);
-			fields.erase(it_curf);
-		}
 
-		PVCore::list_fields& final_fields = f(tmp_fields);
-		chunk_index ins_index = *(std::min_element(indx.begin(), indx.end()));
-		PVCore::list_fields::iterator itins = fields.begin();
-		if (ins_index <= fields.size()) {
-			std::advance(itins, ins_index);
-			fields.splice(itins, final_fields);
-		}
-	}
+	assert(_idx < fields.size());
+
+	// Create list of input field for the filter
+	PVCore::list_fields tmp_fields;
+	PVCore::list_fields::iterator it_curf = fields.begin();
+	std::advance(it_curf, _idx);
+	tmp_fields.push_back(*it_curf);
+	fields.erase(it_curf);
+
+	// Apply the filter
+	PVCore::list_fields& final_fields = _func(tmp_fields);
+
+	// Move generated field in the list.
+	PVCore::list_fields::iterator itins = fields.begin();
+	std::advance(itins, _idx);
+	fields.splice(itins, final_fields);
+
 	return fields;
 }
