@@ -110,7 +110,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	/**
 	 * Return number of correctly splitted row in the datastorage.
 	 */
-	PVRow get_valid_row_count() const { return get_row_count() - _inv_elts.size(); }
+	PVRow get_valid_row_count() const;
 
 	PVRush::PVExtractor const& get_extractor() const { return _extractor; }
 

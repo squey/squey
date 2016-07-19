@@ -908,11 +908,13 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 	_nraw_model->set_format(get_format_from_dom());
 	_nraw_model->set_nraw(_log_extract->get_nraw());
+	_nraw_model->set_invalid_elements(job->get_invalid_evts());
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();
 	for (auto const& line : job->get_invalid_evts()) {
 		_inv_lines_widget->addItem(QString::fromStdString(line.second));
+		_nraw_widget->mark_row_as_invalid(line.first);
 	}
 }
 

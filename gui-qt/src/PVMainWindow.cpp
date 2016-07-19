@@ -1260,9 +1260,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	// FIXME : We should create the view with this dummy selection.
 	// Finally, we will be able to create a layer with invalid elements.
 	Inendi::PVView* first_view_p = src->get_parent<Inendi::PVRoot>().current_view();
-	for (auto& inv_elts : src->get_invalid_evts()) {
-		first_view_p->get_current_layer().get_selection().set_line(inv_elts.first, false);
-	}
+	first_view_p->get_current_layer().get_selection() =
+	    (const Inendi::PVSelection&)src->get_rushnraw().valid_rows_sel();
 	first_view_p->process_from_layer_stack();
 
 	source_loaded(*src);

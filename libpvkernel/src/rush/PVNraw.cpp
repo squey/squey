@@ -36,7 +36,7 @@ const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
  *
  ****************************************************************************/
 
-PVRush::PVNraw::PVNraw() : _real_nrows(0)
+PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0)
 {
 }
 
@@ -96,13 +96,6 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		}
 
 		PVCore::list_fields const& fields = e.c_fields();
-		if (fields.size() == 0) {
-			for (size_t i = 0; i < column_count; i++) {
-				pvcop_fields.emplace_back(pvcop::sink::field_t());
-			}
-			continue;
-		}
-
 		for (PVCore::PVField const& field : fields) {
 			// Save the field
 			pvcop_fields.emplace_back(pvcop::sink::field_t(field.begin(), field.size()));
@@ -128,7 +121,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
  * PVRush::PVNraw::load_done
  *
  ****************************************************************************/
-void PVRush::PVNraw::load_done()
+void PVRush::PVNraw::load_done(const PVControllerJob::invalid_elements_t& inv_elts)
 {
 	assert(_collector);
 
@@ -140,6 +133,14 @@ void PVRush::PVNraw::load_done()
 		_collection.reset(new pvcop::collection(_collector->rootdir()));
 	}
 	_collector.reset();
+
+	// Compute selection of valid elements
+	_valid_rows_sel = PVCore::PVSelBitField(_real_nrows);
+	_valid_rows_sel.select_all();
+	for (const auto& e : inv_elts) {
+		_valid_rows_sel.set_line(e.first, false);
+	}
+	_valid_elements_count = _valid_rows_sel.bit_count();
 }
 
 /*****************************************************************************

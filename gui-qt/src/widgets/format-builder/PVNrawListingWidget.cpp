@@ -171,3 +171,8 @@ void PVInspector::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint&)
 
 	_ctxt_menu->exec(QCursor::pos());
 }
+
+void PVInspector::PVNrawListingWidget::mark_row_as_invalid(size_t row_index)
+{
+	_nraw_table->setSpan(row_index, 0, 1, _nraw_table->model()->columnCount());
+}
