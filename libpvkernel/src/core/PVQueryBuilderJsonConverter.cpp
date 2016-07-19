@@ -160,4 +160,4 @@ void PVQueryBuilderJsonConverter::parse_node(rapidjson::Value const& obj)
 		break;
 	}
 }
-}
+} // namespace PVCore
