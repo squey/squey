@@ -301,6 +301,25 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 	return ret;
 }
 
+std::string Inendi::PVPlotted::export_line(PVRow idx,
+                                           const PVCore::PVColumnIndexes& col_indexes,
+                                           const std::string sep_char,
+                                           const std::string) const
+{
+	assert(col_indexes.size() != 0);
+
+	std::string line;
+
+	for (int c : col_indexes) {
+		line += std::to_string(get_value(idx, c)) + sep_char;
+	}
+
+	// Remove last sep_char
+	line.resize(line.size() - sep_char.size());
+
+	return line;
+}
+
 void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.object("plotting", _plotting, QString(), false, nullptr, false);

@@ -85,6 +85,7 @@ class PVExportSelectionDlg : public QFileDialog
 	PVWidgets::QKeySequenceWidget* _quote_char;     //!< Character to use to quote a field
 	PVWidgets::QKeySequenceWidget* _separator_char; //!< Character to use as a csv separator
 	QCheckBox* _columns_header;          //!< Box to say if we want to export header line or not
+	QCheckBox* _export_internal_values;  //!< Specify exporting plotted instead of nraw
 	QPushButton* _edit_axes_combination; //!< The edit button to select custom axis
 	QRadioButton* _all_axis;             //!< Buttom if all axis are exported
 	QRadioButton* _current_axis;         //!< Button to export only axis from current view

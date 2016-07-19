@@ -53,6 +53,7 @@ core/PVConfig.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp
 core/PVQueryBuilderJsonConverter.cpp
+core/PVExporter.cpp
 )
 
 if(PYTHONLIBS_FOUND)

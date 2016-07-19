@@ -10,6 +10,7 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVExporter.h>
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -28,8 +29,6 @@ const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
 const std::string PVRush::PVNraw::default_tmp_path = "/tmp/inendi";
 const std::string PVRush::PVNraw::nraw_tmp_pattern = "nraw-XXXXXX";
 const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
-const std::string PVRush::PVNraw::default_sep_char = ",";
-const std::string PVRush::PVNraw::default_quote_char = "\"";
 
 /*****************************************************************************
  *
@@ -186,7 +185,13 @@ void PVRush::PVNraw::dump_csv(std::ostream& os) const
 	std::iota(cols.begin(), cols.end(), 0);
 	PVCore::PVSelBitField sel(get_row_count());
 	sel.select_all();
-	export_lines(os, sel, cols, 0, get_row_count());
+
+	PVCore::PVExporter::export_func export_func =
+	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+	        const std::string& quote) { return export_line(row, cols, sep, quote); };
+
+	PVCore::PVExporter exp(os, sel, cols, get_row_count(), export_func);
+	exp.export_rows(0);
 }
 
 /*****************************************************************************
@@ -228,53 +233,4 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	line.resize(line.size() - sep_char.size());
 
 	return line;
-}
-
-/*****************************************************************************
- *
- * PVRush::PVNraw::export_lines
- *
- ****************************************************************************/
-
-void PVRush::PVNraw::export_lines(std::ostream& stream,
-                                  const PVCore::PVSelBitField& sel,
-                                  const PVCore::PVColumnIndexes& col_indexes,
-                                  size_t start_index,
-                                  size_t step_count,
-                                  const std::string& sep_char /* = default_sep_char */,
-                                  const std::string& quote_char /* = default_quote_char */
-                                  ) const
-{
-	assert(get_number_cols() > 0);
-	assert(col_indexes.size() != 0);
-	// volatile as it will be modify by another thread.
-	int volatile current_thread = 0;
-
-// Parallelize export algo:
-// Each thread have a local string. Thanks to static scheduling, first thread
-// will handle N first line, second one, N to 2N, ...
-// Finally, these string will be written in stream in thread order.
-#pragma omp parallel
-	{
-		std::string content;
-#pragma omp for schedule(static) nowait
-		for (PVRow line_index = start_index; line_index < start_index + step_count; line_index++) {
-
-			if (!sel.get_line_fast(line_index)) {
-				continue;
-			}
-
-			content += export_line(line_index, col_indexes, sep_char, quote_char) + "\n";
-		}
-
-		// Data is in content but we lock here to make sure it is written ordered.
-		// Ordered reduction may be available in OpenMP 4.0
-		while (omp_get_thread_num() != current_thread)
-			;
-
-		stream << content;
-		current_thread++; // The next thread can do it.
-	}
-
-	std::flush(stream); // explicitely flush the stream
 }
