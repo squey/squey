@@ -325,7 +325,7 @@ class PVReallocableCAllocator
 namespace PVMemory
 {
 
-void get_memory_usage(double& vm_usage, double& rss);
+void get_memory_usage(double& vm_usage, double& resident_set);
 }
 }
 
