@@ -9,12 +9,13 @@
 #define PVFILTER_PVFIELDFILTERREGEXPGREP_H
 
 #include <pvkernel/filter/PVFieldsFilter.h>
+#include <pvkernel/filter/PVFieldFilterGrep.h>
 #include <regex>
 
 namespace PVFilter
 {
 
-class PVFieldFilterRegexpGrep : public PVFieldsFilter<one_to_one>
+class PVFieldFilterRegexpGrep : public PVFieldFilterGrep
 {
   public:
 	PVFieldFilterRegexpGrep(

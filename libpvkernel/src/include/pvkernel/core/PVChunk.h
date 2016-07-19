@@ -128,6 +128,7 @@ class PVChunk
 	chunk_index index() const { return _index; };
 	chunk_index agg_index() const { return _agg_index; };
 	chunk_index last_elt_index() const { return _index + _elts.size() - 1; };
+	inline void set_agg_index(chunk_index v) { _agg_index = v; }
 	inline void set_index(chunk_index i) { _index = i; };
 	inline void set_elts_stat(size_t nelts_org, size_t nelts_valid)
 	{
@@ -169,64 +170,6 @@ class PVChunk
 	}
 
 	PVRush::PVRawSourceBase* source() const { return _source; };
-
-	// Only visit one column
-	template <typename F>
-	void visit_column(const PVCol c, F const& f) const
-	{
-		PVRow r = 0;
-		for (PVElement* elt : c_elements()) {
-			if (!elt->valid()) {
-				continue;
-			}
-			assert(c < elt->c_fields().size());
-			PVCol cur_c = 0;
-			for (PVField const& field : elt->fields()) {
-				if (cur_c == c) {
-					f(r, field);
-					break;
-				}
-				cur_c++;
-			}
-			r++;
-		}
-	}
-
-	// Column cache-aware visitor
-	// TODO: at most eight field stream per line!
-	template <typename F>
-	void visit_by_column(F const& f) const
-	{
-		PVRow r = 0;
-		for (PVElement* elt : c_elements()) {
-			if (!elt->valid()) {
-				continue;
-			}
-			PVCol c = 0;
-			for (PVField const& field : elt->fields()) {
-				f(r, c, field);
-				c++;
-			}
-			r++;
-		}
-	}
-
-	template <typename F>
-	void visit_by_column(F const& f)
-	{
-		PVRow r = 0;
-		for (PVElement* elt : elements()) {
-			if (!elt->valid()) {
-				continue;
-			}
-			PVCol c = 0;
-			for (PVField& field : elt->fields()) {
-				f(r, c, field);
-				c++;
-			}
-			r++;
-		}
-	}
 
   public:
 	void set_elements_index()

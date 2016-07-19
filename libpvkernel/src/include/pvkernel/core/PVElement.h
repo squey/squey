@@ -51,13 +51,14 @@ class PVElement : public PVBufferSlice
   public:
 	bool valid() const;
 	void set_invalid();
+	bool filtered() const;
+	void set_filtered();
 	void set_parent(PVChunk* parent);
 	void save_elt_buffer();
 	char* get_saved_elt_buffer(size_t& n);
 	bool restore_elt_with_saved_buffer();
 	void clear_saved_buf();
 	PVChunk* chunk_parent();
-	chunk_index get_elt_index();
 	chunk_index get_elt_agg_index();
 	size_t get_chunk_index() const { return _chunk_index; }
 
@@ -98,6 +99,7 @@ class PVElement : public PVBufferSlice
 
   protected:
 	bool _valid;
+	bool _filtered;
 	list_fields _fields;
 	PVChunk* _parent;
 	buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h

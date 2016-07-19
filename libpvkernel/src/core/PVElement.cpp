@@ -44,6 +44,7 @@ PVCore::PVElement::~PVElement()
 void PVCore::PVElement::init(PVChunk* parent)
 {
 	_valid = true;
+	_filtered = false;
 	_parent = parent;
 	// In the beggining, it only has a big field
 	// PVField f(*this, begin(), end());
@@ -66,6 +67,16 @@ bool PVCore::PVElement::valid() const
 void PVCore::PVElement::set_invalid()
 {
 	_valid = false;
+}
+
+bool PVCore::PVElement::filtered() const
+{
+	return _filtered;
+}
+
+void PVCore::PVElement::set_filtered()
+{
+	_filtered = true;
 }
 
 PVCore::list_fields& PVCore::PVElement::fields()
@@ -129,12 +140,6 @@ char* PVCore::PVElement::get_saved_elt_buffer(size_t& n)
 {
 	n = _org_buf_size;
 	return _org_buf;
-}
-
-chunk_index PVCore::PVElement::get_elt_index()
-{
-	PVChunk* parent = chunk_parent();
-	return parent->get_index_of_element(*this);
 }
 
 chunk_index PVCore::PVElement::get_elt_agg_index()

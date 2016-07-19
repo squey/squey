@@ -16,7 +16,7 @@ using PVCore::list_fields;
 void dump_chunk_csv(PVChunk& c, std::ostream& out)
 {
 	for (PVElement* elt : c.elements()) {
-		if (not elt->valid()) {
+		if (not elt->valid() or elt->filtered()) {
 			continue;
 		}
 		list_fields& l = elt->fields();

@@ -155,10 +155,6 @@ class PVBufferSlice
 	 */
 	inline void set_buflist(buf_list_t& buf_list) { _buf_list = buf_list; }
 
-  protected:
-	// Perform a deep copy of current data in a new buffer
-	void _realloc_data();
-
   private:
 	inline void copy_from(PVBufferSlice const& src)
 	{

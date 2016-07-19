@@ -54,8 +54,8 @@ PVCore::PVField& PVFilter::PVFieldFilterGrep::one_to_one(PVCore::PVField& obj)
 	QString str = QString::fromLatin1(obj.begin(), obj.size());
 	bool found = str.contains(_str);
 	if (!(found ^ _inverse)) {
-		obj.set_invalid();
-		obj.elt_parent()->set_invalid();
+		obj.set_filtered();
+		obj.elt_parent()->set_filtered();
 	}
 	return obj;
 }

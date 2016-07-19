@@ -22,6 +22,7 @@ PVCore::PVField::PVField(PVCore::PVElement& parent, char* begin, char* end)
 void PVCore::PVField::init(PVElement& parent)
 {
 	_valid = true;
+	_filtered = false;
 	_parent = &parent;
 }
 
@@ -35,6 +36,16 @@ void PVCore::PVField::set_invalid()
 	_valid = false;
 }
 
+bool PVCore::PVField::filtered() const
+{
+	return _filtered;
+}
+
+void PVCore::PVField::set_filtered()
+{
+	_filtered = true;
+}
+
 PVCore::PVElement* PVCore::PVField::elt_parent()
 {
 	return _parent;
@@ -44,16 +55,6 @@ void PVCore::PVField::set_parent(PVCore::PVElement& parent)
 {
 	_parent = &parent;
 	set_buflist(parent.realloc_bufs());
-}
-
-void PVCore::PVField::deep_copy()
-{
-	_realloc_data();
-}
-
-size_t PVCore::PVField::get_index_of_parent_element()
-{
-	return _parent->get_elt_index();
 }
 
 size_t PVCore::PVField::get_agg_index_of_parent_element()

@@ -69,8 +69,9 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
 	// deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
-	    start, 0, nlines, PVControllerJob::sc_n_elts, _agg, *_chk_flt, _out_nraw, _chunks));
+	PVControllerJob_p job = PVControllerJob_p(
+	    new PVControllerJob(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, *_chk_flt,
+	                        _out_nraw, _chunks, _format.have_grep_filter()));
 	job->run_job();
 
 	_last_start = start;
@@ -93,7 +94,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	// deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
-	    start, end, 0, PVControllerJob::sc_idx_end, _agg, *_chk_flt, _out_nraw, _chunks));
+	    start, end, 0, PVControllerJob::sc_idx_end, _agg, *_chk_flt, _out_nraw, _chunks, false));
 	job->run_job();
 
 	return job;

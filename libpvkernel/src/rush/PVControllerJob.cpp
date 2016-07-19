@@ -17,8 +17,10 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
                                          PVAggregator& agg,
                                          PVFilter::PVChunkFilterByElt& filter,
                                          PVOutput& out_filter,
-                                         size_t ntokens)
+                                         size_t ntokens,
+                                         bool compact_nraw)
     : _elt_invalid_filter(_inv_elts)
+    , _compact_nraw(compact_nraw)
     , _job_done(false)
     , _agg(agg)
     , _split_filter(filter)
@@ -85,12 +87,24 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::parallel,
 	                                                                       _elt_invalid_filter.f());
 
-	return input_filter & transform_filter & dump_inv_elts_filter & out_filter;
+	auto filter = input_filter & transform_filter & dump_inv_elts_filter;
+
+	if (_compact_nraw) {
+		// The next dump filter, that dumps all the invalid events
+		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> ignore_inv_elts_filter(
+		    tbb::filter::serial_in_order, _elt_invalid_remove.f());
+		filter = filter & ignore_inv_elts_filter;
+	}
+
+	return filter & out_filter;
 }
 
 void PVRush::PVControllerJob::wait_end()
 {
-	_executor.get();
+	if (_executor.valid()) {
+		// If it is invalid, it is already ended.
+		_executor.get();
+	}
 }
 
 void PVRush::PVControllerJob::cancel()
@@ -103,15 +117,15 @@ void PVRush::PVControllerJob::cancel()
 void PVRush::PVControllerJob::job_has_run()
 {
 	_job_done = true;
-	_out_filter.job_has_finished(_inv_elts);
+	_out_filter.job_has_finished((_compact_nraw) ? invalid_elements_t{} : _inv_elts);
 	Q_EMIT job_done_signal();
 }
 
 bool PVRush::PVControllerJob::running() const
 {
-	try {
+	if (_executor.valid()) {
 		return _executor.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
-	} catch (const std::future_error& e) {
+	} else {
 		// The executor is finish for so long that it have no state anymore.
 		return false;
 	}
