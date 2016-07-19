@@ -29,11 +29,11 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
                                                  QString const& path)
     : _fargs(fargs), _abs_reg_name(path + "/" + registered_name)
 {
-	if (g_presets_settings.get() == nullptr) {
+	if (g_presets_settings == nullptr) {
 		QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR +
 		             QDir::separator() + PRESETS_FILENAME);
 
-		if (fi.exists() == false) {
+		if (!fi.exists()) {
 			fi.dir().mkpath(fi.path());
 
 			QFileInfo sys_fi(PRESETS_FILENAME);
