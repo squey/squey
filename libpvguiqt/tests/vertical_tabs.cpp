@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 	    .emplace_add_child()  // Plotted
 	    .emplace_add_child(); // View
 
-	Inendi::PVView& view = src.current_view()->get_parent().emplace_add_child();
+	src.current_view()->get_parent().emplace_add_child();
 
 	// Qt app
 	QApplication app(argc, argv);

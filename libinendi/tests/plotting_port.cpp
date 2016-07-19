@@ -52,6 +52,8 @@ int main()
 		}
 	}
 
+#else
+	(void)plotted;
 #endif
 
 	return 0;

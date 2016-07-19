@@ -57,6 +57,8 @@ int main()
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(res_file, ref_file));
 
 	std::remove(res_file.c_str());
+#else
+	(void)mapped;
 #endif
 
 	return 0;

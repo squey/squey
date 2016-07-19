@@ -53,6 +53,8 @@ int main()
 		uint32_t map_str = mapped.get_column(1).to_core_array<uint32_t>()[i];
 		PV_ASSERT_VALID(map_str >= (1UL << 31));
 	}
+#else
+	(void)mapped;
 #endif
 
 	return 0;

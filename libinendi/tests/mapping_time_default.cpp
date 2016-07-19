@@ -55,6 +55,8 @@ int main()
 		PV_ASSERT_VALID(prev <= mapped.get_column(0).to_core_array<uint32_t>()[order[i]]);
 		prev = mapped.get_column(0).to_core_array<uint32_t>()[order[i]];
 	}
+#else
+	(void)mapped;
 #endif
 
 	return 0;

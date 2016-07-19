@@ -73,6 +73,8 @@ int main()
 	}
 	// We don't have time more than 1 seconds after the beginning of the week end in the file.
 	PV_VALID(prev, std::numeric_limits<uint32_t>::max() - (uint32_t)(ratio * 1));
+#else
+	(void)plotted;
 #endif
 
 	return 0;

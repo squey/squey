@@ -57,6 +57,8 @@ int main()
 		PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[i - 1]] <=
 		                plotted.get_column_pointer(0)[order[i]]);
 	}
+#else
+	(void)plotted;
 #endif
 
 	return 0;

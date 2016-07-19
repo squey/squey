@@ -71,6 +71,8 @@ int main()
 	// We only have a value one second after the beginning
 	PV_VALID(prev, (uint32_t)(std::numeric_limits<uint32_t>::max() - 1 * ratio + 1));
 
+#else
+	(void)plotted;
 #endif
 
 	return 0;
