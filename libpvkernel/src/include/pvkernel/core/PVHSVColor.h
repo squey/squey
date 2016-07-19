@@ -43,9 +43,8 @@ class PVHSVColor
 	static const constexpr uint8_t color_max = (1 << HSV_COLOR_NBITS_ZONE) * 6;
 
   public:
-	// Unitialized, and this is wanted !
-	PVHSVColor() {}
-	PVHSVColor(T h_) { _h = h_; }
+	PVHSVColor() : _h(0) {}
+	PVHSVColor(T h_) : _h(h_) {}
 
   public:
 	inline T& h() { return _h; };

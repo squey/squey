@@ -95,7 +95,7 @@ void PVCore::PVHSVColor::to_rgb(uint8_t* rgb) const
 		return;
 	}
 
-	unsigned char zone = (unsigned char)(_h >> HSV_COLOR_NBITS_ZONE);
+	unsigned char zone = _h >> HSV_COLOR_NBITS_ZONE;
 	unsigned char pos = zone2pos(zone);
 	unsigned char mask = (zone & 1) * 0xFF;
 
