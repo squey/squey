@@ -500,34 +500,23 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 		return efnull->f();
 	}
 
-	PVFilter::PVFieldsBaseFilter_f first_filter = xmldata_to_filter(filters_params[0]);
-	if (first_filter == NULL) {
-		PVLOG_ERROR("Unknown first filter. Ignoring it !\n");
-		PVFilter::PVElementFilter* efnull = new PVFilter::PVElementFilter();
-		return efnull->f();
-	}
-
 	// Here we create the pipeline according to the format
-	PVFilter::PVFieldsBaseFilter_f final_filter_f = first_filter;
-	PVRush::PVXmlParamParser::list_params::const_iterator it_filters;
-	if (filters_params.count() > 1) {
-		for (it_filters = filters_params.begin() + 1; it_filters != filters_params.end();
-		     it_filters++) {
-			PVRush::PVXmlParamParserData const& fdata = *it_filters;
-			PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
-			if (field_f == NULL) {
-				PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);
-				continue;
-			}
-
-			// Create the mapping (field_id)->field_filter
-			PVFilter::PVFieldsBaseFilter_p mapping(
-			    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f));
-			_filters_container.push_back(mapping);
-
-			// Compose the pipeline
-			final_filter_f = boost::bind(mapping->f(), boost::bind(final_filter_f, _1));
+	PVFilter::PVFieldsBaseFilter_f final_filter_f =
+	    [](PVCore::list_fields& fields) -> PVCore::list_fields& { return fields; };
+	for (PVRush::PVXmlParamParserData const& fdata : filters_params) {
+		PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
+		if (field_f == NULL) {
+			PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);
+			continue;
 		}
+
+		// Create the mapping (field_id)->field_filter
+		PVFilter::PVFieldsBaseFilter_p mapping(
+		    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f));
+		_filters_container.push_back(mapping);
+
+		// Compose the pipeline
+		final_filter_f = boost::bind(mapping->f(), boost::bind(final_filter_f, _1));
 	}
 
 	// Finalise the pipeline

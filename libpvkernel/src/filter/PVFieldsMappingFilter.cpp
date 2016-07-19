@@ -42,6 +42,13 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 	// Apply the filter
 	PVCore::list_fields& final_fields = _func(tmp_fields);
 
+	// If any fields is incorrect, abort the splitting on this element.
+	if (std::any_of(final_fields.begin(), final_fields.end(),
+	                [](PVCore::PVField& f) { return f.filtered() or not f.valid(); })) {
+		fields.clear();
+		return fields;
+	}
+
 	// Move generated field in the list.
 	PVCore::list_fields::iterator itins = fields.begin();
 	std::advance(itins, _idx);
