@@ -5,9 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
-#include <pvkernel/core/PVChunk.h>
 
 tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 // std::allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
@@ -115,7 +115,7 @@ void PVCore::PVElement::save_elt_buffer()
 
 bool PVCore::PVElement::restore_elt_with_saved_buffer()
 {
-	if (!_org_buf) {
+	if (_org_buf == nullptr) {
 		return false;
 	}
 	assert(_org_buf_size <= physical_size());
@@ -126,7 +126,7 @@ bool PVCore::PVElement::restore_elt_with_saved_buffer()
 
 void PVCore::PVElement::clear_saved_buf()
 {
-	if (!_org_buf) {
+	if (_org_buf == nullptr) {
 		return;
 	}
 
