@@ -82,6 +82,7 @@ filter/PVChunkFilterByEltCancellable.cpp
 filter/PVChunkFilterByEltRestoreInvalid.cpp
 filter/PVChunkFilterByEltSaveInvalid.cpp
 filter/PVChunkFilterDumpElts.cpp
+filter/PVChunkFilterRemoveInvalidElts.cpp
 filter/PVElementFilterByFields.cpp
 filter/PVElementFilterByAxes.cpp
 filter/PVFieldFilterGrep.cpp

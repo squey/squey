@@ -22,6 +22,7 @@ PVCore::PVField::PVField(PVCore::PVElement& parent, char* begin, char* end)
 void PVCore::PVField::init(PVElement& parent)
 {
 	_valid = true;
+	_filtered = false;
 	_parent = &parent;
 }
 
@@ -33,6 +34,16 @@ bool PVCore::PVField::valid() const
 void PVCore::PVField::set_invalid()
 {
 	_valid = false;
+}
+
+bool PVCore::PVField::filtered() const
+{
+	return _filtered;
+}
+
+void PVCore::PVField::set_filtered()
+{
+	_filtered = true;
 }
 
 PVCore::PVElement* PVCore::PVField::elt_parent()

@@ -12,6 +12,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
+#include <pvkernel/filter/PVChunkFilterRemoveInvalidElts.h>
 #include <pvkernel/rush/PVOutput.h>
 #include <pvkernel/rush/PVPipelineTask.h>
 
@@ -60,7 +61,8 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 	                PVAggregator& agg,
 	                PVFilter::PVChunkFilterByElt& filter,
 	                PVOutput& out_filter,
-	                size_t ntokens);
+	                size_t ntokens,
+	                bool compact_nraw);
 	PVControllerJob(PVControllerJob const&) = delete;
 	PVControllerJob(PVControllerJob&&) = delete;
 	PVControllerJob& operator=(PVControllerJob const&) = delete;
@@ -99,6 +101,9 @@ class PVControllerJob : public QObject, public std::enable_shared_from_this<PVCo
 
 	// Filters
 	PVFilter::PVChunkFilterDumpElts _elt_invalid_filter; //!< Filter that may dump every elements.
+	bool _compact_nraw;
+	PVFilter::PVChunkFilterRemoveInvalidElts
+	    _elt_invalid_remove; //!< Remove invalid elements from chunk to compact the NRaw
 
 	bool _job_done; //!< Wether the job is over or not. // FIXME : It should work but it doesn't for
 	// now

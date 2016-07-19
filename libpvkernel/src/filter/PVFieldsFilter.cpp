@@ -24,6 +24,10 @@ PVCore::list_fields& PVFieldsFilter<one_to_one>::operator()(PVCore::list_fields&
 			ret.elt_parent()->set_invalid();
 			break;
 		}
+		if (ret.filtered()) {
+			ret.elt_parent()->set_filtered();
+			break;
+		}
 		*it = ret;
 	}
 	return fields;

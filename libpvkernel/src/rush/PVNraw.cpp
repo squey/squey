@@ -88,6 +88,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	for (PVCore::PVElement* elt : elts) {
 
 		PVCore::PVElement& e = *elt;
+		assert(not e.filtered() and "We can't have filtered value in the Nraw");
 		if (!e.valid()) {
 			for (size_t i = 0; i < column_count; i++) {
 				pvcop_fields.emplace_back(pvcop::sink::field_t());

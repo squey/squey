@@ -121,6 +121,8 @@ class PVFormat
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
 
+	bool have_grep_filter() const { return _have_grep_filter; }
+
 	// Remove any fields from the IR of the format and only
 	// keeps fields.
 	void only_keep_axes();
@@ -155,6 +157,7 @@ class PVFormat
 
   private:
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
+	bool _have_grep_filter;
 	bool _dump_elts;
 	bool _already_pop;
 	bool _original_was_serialized;

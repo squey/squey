@@ -44,6 +44,7 @@ PVCore::PVElement::~PVElement()
 void PVCore::PVElement::init(PVChunk* parent)
 {
 	_valid = true;
+	_filtered = false;
 	_parent = parent;
 	// In the beggining, it only has a big field
 	// PVField f(*this, begin(), end());
@@ -66,6 +67,16 @@ bool PVCore::PVElement::valid() const
 void PVCore::PVElement::set_invalid()
 {
 	_valid = false;
+}
+
+bool PVCore::PVElement::filtered() const
+{
+	return _filtered;
+}
+
+void PVCore::PVElement::set_filtered()
+{
+	_filtered = true;
 }
 
 PVCore::list_fields& PVCore::PVElement::fields()

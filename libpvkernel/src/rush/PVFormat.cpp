@@ -27,12 +27,13 @@
 #include <pvkernel/filter/PVChunkFilterByEltSaveInvalid.h>
 #include <pvkernel/filter/PVElementFilterByAxes.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
+#include <pvkernel/filter/PVFieldFilterGrep.h>
 
 #include <pvcop/types/impl/formatter_factory.h>
 
 #include <pcrecpp.h>
 
-PVRush::PVFormat::PVFormat()
+PVRush::PVFormat::PVFormat() : _have_grep_filter(false)
 {
 	axes_count = 0;
 	_dump_elts = false;
@@ -41,15 +42,10 @@ PVRush::PVFormat::PVFormat()
 	_restore_inv_elts = false;
 }
 
-PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_)
+PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_) : PVFormat()
 {
 	full_path = full_path_;
 	format_name = format_name_;
-	axes_count = 0;
-	_dump_elts = false;
-	_already_pop = false;
-	_original_was_serialized = false;
-	_restore_inv_elts = false;
 
 	if (format_name.isEmpty() && !full_path.isEmpty()) {
 		QFileInfo info(full_path);
@@ -461,6 +457,8 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	    dynamic_cast<PVFilter::PVFieldsFilter<PVFilter::one_to_many>*>(filter_clone.get());
 	if (sp_p) {
 		sp_p->set_number_expected_fields(fdata.nchildren);
+	} else if (dynamic_cast<PVFilter::PVFieldFilterGrep*>(filter_clone.get())) {
+		_have_grep_filter = true;
 	}
 	filter_clone->set_children_axes_tag(fdata.children_axes_tag);
 	filter_clone->set_args(fdata.filter_args);

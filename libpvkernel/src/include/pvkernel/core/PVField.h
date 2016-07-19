@@ -24,6 +24,8 @@ class PVField : public PVBufferSlice
   public:
 	bool valid() const;
 	void set_invalid();
+	bool filtered() const;
+	void set_filtered();
 	PVElement* elt_parent();
 	void set_parent(PVElement& parent);
 	size_t get_agg_index_of_parent_element();
@@ -33,6 +35,7 @@ class PVField : public PVBufferSlice
 
   protected:
 	bool _valid;
+	bool _filtered;
 	PVElement* _parent;
 };
 }
