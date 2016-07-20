@@ -410,6 +410,9 @@ bool PVRush::PVFormat::populate_from_xml(QString filename, bool forceOneAxis)
 bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis)
 {
 	filters_params = xml_parser.getFields();
+	if (filters_params.empty()) {
+		throw std::runtime_error("Format with no axes does not make sens");
+	}
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
 	_fields_mask = xml_parser.getFieldsMask();
@@ -474,13 +477,7 @@ PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellatio
 
 PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 {
-	// We have to always return a valid filter function (even if this is
-	// for a null processing filter).
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
-	if (filters_params.size() == 0) { // No filters, set an empty filter
-		PVFilter::PVElementFilter* efnull = new PVFilter::PVElementFilter();
-		return efnull->f();
-	}
 
 	// Here we create the pipeline according to the format
 	PVFilter::PVFieldsBaseFilter_f final_filter_f =
