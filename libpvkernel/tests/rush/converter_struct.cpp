@@ -34,10 +34,9 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsConverter)::get().get_class_by_name("struct");
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
-	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
-	PVFilter::PVChunkFilter_f flt_f = chk_flt->f();
+	PVFilter::PVChunkFilterByElt chk_flt{elt_f->f()};
 
-	auto res = ts.run_normalization(flt_f);
+	auto res = ts.run_normalization(chk_flt);
 
 	std::string output_file = std::get<2>(res);
 

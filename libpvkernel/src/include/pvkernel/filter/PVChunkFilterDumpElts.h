@@ -8,6 +8,8 @@
 #ifndef PVFILTER_PVCHUNKFILTERDUMPELTS_H
 #define PVFILTER_PVCHUNKFILTERDUMPELTS_H
 
+#include <pvkernel/core/PVChunk.h>
+
 #include <pvkernel/filter/PVChunkFilter.h>
 
 #include <map>
@@ -28,9 +30,7 @@ class PVChunkFilterDumpElts : public PVChunkFilter
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
   protected:
-	std::map<size_t, std::string>& _l; //!< List with invlaid elements.
-
-	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterDumpElts)
+	std::map<size_t, std::string>& _l; //!< List with invalid elements.
 };
 }
 

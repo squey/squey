@@ -76,7 +76,6 @@ set(OPENCL_SRC_FILES
 #########################################################################
 
 SET(FILTER_SRC_FILES
-filter/PVChunkFilter.cpp
 filter/PVChunkFilterByElt.cpp
 filter/PVChunkFilterByEltCancellable.cpp
 filter/PVChunkFilterDumpElts.cpp

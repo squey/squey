@@ -41,7 +41,7 @@ namespace PVRush
  * Once a job is submitted to a controller, its end can be waited by any thread by calling wait().
  * It can also be canceled by any thread by calling cancel().
  */
-class PVControllerJob : public QObject, public std::enable_shared_from_this<PVControllerJob>
+class PVControllerJob : public QObject
 {
 	// This is defined as a QObject so that Qt objects can connect to the "job done" signal
 	Q_OBJECT

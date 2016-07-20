@@ -8,24 +8,12 @@
 #ifndef PVFILTER_PVCHUNKFILTER_H
 #define PVFILTER_PVCHUNKFILTER_H
 
-#include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVFilterFunction.h>
-
 namespace PVFilter
 {
 
-class PVChunkFilter : public PVFilterFunctionBase<PVCore::PVChunk*, PVCore::PVChunk*>
+class PVChunkFilter
 {
-  public:
-	PVChunkFilter();
-
-  public:
-	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
-
-	CLASS_FILTER_NONREG(PVChunkFilter)
 };
-
-typedef PVChunkFilter::func_type PVChunkFilter_f;
 }
 
 #endif

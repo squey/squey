@@ -4,14 +4,15 @@
 #include "test-env.h"
 #include "helpers.h"
 
+#include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVFileDescription.h>
+#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVFileDescription.h>
-#include <pvkernel/rush/PVSourceCreator.h>
-#include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 
 #include <QCoreApplication>
@@ -101,7 +102,7 @@ class TestSplitter
 	~TestSplitter() { std::remove(_big_file_path.c_str()); }
 
 	std::tuple<size_t, size_t, std::string>
-	run_normalization(std::function<PVCore::PVChunk*(PVCore::PVChunk*)> const& flt_f)
+	run_normalization(PVFilter::PVChunkFilterByElt const& flt_f)
 	{
 		std::string output_file = get_tmp_filename();
 		// Extract source and split fields.

@@ -467,13 +467,11 @@ PVFilter::PVChunkFilterByElt* PVRush::PVFormat::create_tbb_filters()
 	return new PVFilter::PVChunkFilterByElt(elt_f);
 }
 
-PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters_autodetect(float timeout,
-                                                                          bool* cancellation)
+PVFilter::PVChunkFilterByEltCancellable
+PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellation)
 {
 	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	PVFilter::PVChunkFilter* chk_flt =
-	    new PVFilter::PVChunkFilterByEltCancellable(elt_f, timeout, cancellation);
-	return chk_flt->f();
+	return {elt_f, timeout, cancellation};
 }
 
 PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()

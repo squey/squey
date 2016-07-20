@@ -21,6 +21,7 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
+#include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
@@ -98,8 +99,8 @@ class PVFormat
 	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
 	bool populate(bool forceOneAxis = false);
 
-	PVFilter::PVChunkFilter_f create_tbb_filters_autodetect(float timeout,
-	                                                        bool* cancellation = nullptr);
+	PVFilter::PVChunkFilterByEltCancellable
+	create_tbb_filters_autodetect(float timeout, bool* cancellation = nullptr);
 	PVFilter::PVChunkFilterByElt* create_tbb_filters();
 	PVFilter::PVElementFilter_f create_tbb_filters_elt();
 

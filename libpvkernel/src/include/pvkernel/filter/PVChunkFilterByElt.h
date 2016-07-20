@@ -28,12 +28,10 @@ class PVChunkFilterByElt : public PVChunkFilter
 	/**
 	 * Apply splitting to every elements from this chunk.
 	 */
-	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk) const;
 
   protected:
 	PVElementFilter_f _elt_filter; // filter to apply for splitting.
-
-	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByElt)
 };
 }
 

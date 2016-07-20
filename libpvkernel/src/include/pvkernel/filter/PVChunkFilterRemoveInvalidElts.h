@@ -8,6 +8,7 @@
 #ifndef PVFILTER_PVCHUNKFILTERREMOVEINVALIDELTS_H
 #define PVFILTER_PVCHUNKFILTERREMOVEINVALIDELTS_H
 
+#include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 
 namespace PVFilter
@@ -28,7 +29,6 @@ class PVChunkFilterRemoveInvalidElts : public PVChunkFilter
 
   protected:
 	size_t _current_agg_index;
-	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterRemoveInvalidElts)
 };
 }
 

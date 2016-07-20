@@ -79,10 +79,9 @@ int main()
 	                                                         boost::bind(regexp_lib_p->f(), _1)))));
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(f_final);
-	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
-	auto flt_f = chk_flt->f();
+	PVFilter::PVChunkFilterByElt chk_flt{elt_f->f()};
 
-	auto res = ts.run_normalization(flt_f);
+	auto res = ts.run_normalization(chk_flt);
 	std::string output_file = std::get<2>(res);
 	size_t nelts_org = std::get<0>(res);
 	size_t nelts_valid = std::get<1>(res);

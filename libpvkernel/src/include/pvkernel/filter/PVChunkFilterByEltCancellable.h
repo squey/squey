@@ -20,15 +20,11 @@ class PVChunkFilterByEltCancellable : public PVChunkFilter
 	PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter,
 	                              float timeout,
 	                              bool* cancellation = nullptr);
-	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
-
-  protected:
-	mutable PVElementFilter_f _elt_filter;
-	mutable PVRow _n_elts_invalid;
-
-	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByEltCancellable)
+	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk) const;
 
   private:
+	PVElementFilter_f _elt_filter;
+
 	float _timeout;
 	bool* _cancellation;
 };

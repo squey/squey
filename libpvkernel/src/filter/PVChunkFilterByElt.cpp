@@ -13,9 +13,9 @@
  * PVFilter::PVChunkFilterByElt::PVChunkFilterByElt
  *
  *****************************************************************************/
-PVFilter::PVChunkFilterByElt::PVChunkFilterByElt(PVElementFilter_f elt_filter) : PVChunkFilter()
+PVFilter::PVChunkFilterByElt::PVChunkFilterByElt(PVElementFilter_f elt_filter)
+    : PVChunkFilter(), _elt_filter(elt_filter)
 {
-	_elt_filter = elt_filter;
 }
 
 /******************************************************************************
@@ -23,7 +23,7 @@ PVFilter::PVChunkFilterByElt::PVChunkFilterByElt(PVElementFilter_f elt_filter) :
  * PVFilter::PVChunkFilterByElt::operator()
  *
  *****************************************************************************/
-PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk)
+PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk) const
 {
 	size_t nelts_valid = 0;
 

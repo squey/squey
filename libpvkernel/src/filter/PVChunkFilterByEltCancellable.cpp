@@ -18,10 +18,8 @@
 PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter,
                                                                        float timeout,
                                                                        bool* cancellation)
-    : PVChunkFilter(), _timeout(timeout), _cancellation(cancellation)
+    : PVChunkFilter(), _elt_filter(elt_filter), _timeout(timeout), _cancellation(cancellation)
 {
-	_elt_filter = elt_filter;
-	_n_elts_invalid = 0;
 }
 
 /******************************************************************************
@@ -29,7 +27,7 @@ PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(PVElement
  * PVFilter::PVChunkFilterByEltCancellable::operator()
  *
  *****************************************************************************/
-PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVChunk* chunk)
+PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVChunk* chunk) const
 {
 	PVCore::list_elts& elts = chunk->elements();
 	PVCore::list_elts::iterator it, ite;
