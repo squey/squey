@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef PVFIELDSUBSTITUTIONPARAMWIDGET_H
-#define PVFIELDSUBSTITUTIONPARAMWIDGET_H
+#ifndef PVFIELDSTRUCTPARAMWIDGET_H
+#define PVFIELDSTRUCTPARAMWIDGET_H
 
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
@@ -35,4 +35,4 @@ class PVFieldConverterStructParamWidget : public PVFieldsConverterParamWidget
 };
 }
 
-#endif // PVFIELDSUBSTITUTIONPARAMWIDGET_H
+#endif // PVFIELDSTRUCTPARAMWIDGET_H

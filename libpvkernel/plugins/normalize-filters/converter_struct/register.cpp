@@ -12,8 +12,6 @@
 #include "PVFieldConverterStruct.h"
 #include "PVFieldConverterStructParamWidget.h"
 
-#include <pvkernel/rush/PVAxisTagsDec.h>
-
 // This method will be called by libinendi
 LibCPPExport void register_class()
 {
