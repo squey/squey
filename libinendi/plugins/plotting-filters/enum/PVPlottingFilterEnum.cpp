@@ -25,5 +25,3 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* de
 		dest[row] = extend_factor * core_group[row];
 	}
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterEnum)

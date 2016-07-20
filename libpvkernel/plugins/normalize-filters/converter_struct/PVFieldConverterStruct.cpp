@@ -29,5 +29,3 @@ PVCore::PVField& PVFilter::PVFieldConverterStruct::one_to_one(PVCore::PVField& f
 
 	return field;
 }
-
-IMPL_FILTER_NOPARAM(PVFilter::PVFieldConverterStruct)

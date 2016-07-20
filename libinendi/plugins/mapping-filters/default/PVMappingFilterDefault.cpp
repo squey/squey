@@ -11,5 +11,3 @@ Inendi::PVMappingFilterDefault::PVMappingFilterDefault() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterDefault);
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVMappingFilterDefault)

@@ -145,5 +145,3 @@ bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVFie
 
 	return ok;
 }
-
-IMPL_FILTER(PVFilter::PVFieldSplitterCSV)

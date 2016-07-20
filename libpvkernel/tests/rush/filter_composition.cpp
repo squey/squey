@@ -42,9 +42,6 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsSplitter::p_type duplicate_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p =
-	    LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name(
-	        "regexp");
 
 	PVCore::PVArgumentList args;
 	args["regexp"] = QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/"
@@ -52,10 +49,6 @@ int main()
 	                         "\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)");
 	args["full-line"] = false;
 	regexp_lib_p->set_args(args);
-	args["regexp"] = QString("(yahoo|lnc)");
-	args["reverse"] = true;
-	grep_lib_p->set_args(args);
-
 	args.clear();
 	args["n"] = 4;
 	duplicate_lib_p->set_args(args);
@@ -72,11 +65,10 @@ int main()
 	PVFilter::PVFieldsMappingFilter mapping_duplicate(6, duplicate_lib_p->f());
 
 	// Final composition
-	PVFilter::PVFieldsBaseFilter_f f_final = boost::bind(
-	    mapping_grep.f(),
-	    boost::bind(mapping_url.f(), boost::bind(mapping_grep.f(),
-	                                             boost::bind(mapping_duplicate.f(),
-	                                                         boost::bind(regexp_lib_p->f(), _1)))));
+	PVFilter::PVFieldsBaseFilter_f f_final =
+	    [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
+		return (mapping_url)((mapping_grep)((mapping_duplicate)((*regexp_lib_p)(fields))));
+	};
 
 	PVFilter::PVChunkFilterByElt chk_flt{std::unique_ptr<PVFilter::PVElementFilterByFields>(
 	    new PVFilter::PVElementFilterByFields(f_final))};

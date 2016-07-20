@@ -143,5 +143,3 @@ pvcop::db::array Inendi::PVMappingFilterString::operator()(PVCol const col,
 
 	return dest;
 }
-
-IMPL_FILTER(Inendi::PVMappingFilterString)

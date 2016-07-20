@@ -124,5 +124,3 @@ PVCore::PVPluginPresets<Inendi::PVLayerFilter> Inendi::PVLayerFilter::get_preset
 {
 	return PVCore::PVPluginPresets<PVLayerFilter>(*this, "presets/layer_filters");
 }
-
-IMPL_FILTER(Inendi::PVLayerFilter)

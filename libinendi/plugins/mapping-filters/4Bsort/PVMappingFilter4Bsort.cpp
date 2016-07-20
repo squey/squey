@@ -62,5 +62,3 @@ pvcop::db::array Inendi::PVMappingFilter4Bsort::operator()(PVCol const col,
 
 	return dest;
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVMappingFilter4Bsort)

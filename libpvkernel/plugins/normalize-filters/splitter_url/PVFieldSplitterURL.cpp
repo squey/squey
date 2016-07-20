@@ -176,5 +176,3 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(
 
 	return ret;
 }
-
-IMPL_FILTER_NOPARAM(PVFilter::PVFieldSplitterURL)

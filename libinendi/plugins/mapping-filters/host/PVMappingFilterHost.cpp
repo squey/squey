@@ -86,5 +86,3 @@ pvcop::db::array Inendi::PVMappingFilterHost::operator()(PVCol const col,
 
 	return dest;
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVMappingFilterHost)

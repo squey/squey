@@ -76,5 +76,3 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 
 	return field;
 }
-
-IMPL_FILTER(PVFilter::PVFieldGUIDToIP)

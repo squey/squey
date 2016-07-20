@@ -170,5 +170,3 @@ void Inendi::PVLayerFilterHeatline::post(
 		out.get_selection().set_line(line_id, 0);
 	}
 }
-
-IMPL_FILTER(Inendi::PVLayerFilterHeatline)

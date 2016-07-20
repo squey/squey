@@ -370,9 +370,3 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterDnsFqdn::one_to_many(
 
 	return ret;
 }
-
-/******************************************************************************
- * IMPL_FILTER
- *****************************************************************************/
-
-IMPL_FILTER(PVFilter::PVFieldSplitterDnsFqdn)

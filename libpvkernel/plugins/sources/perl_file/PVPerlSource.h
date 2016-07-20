@@ -51,9 +51,6 @@ class PVPerlSource : public PVRawSourceBase
 		return 0;
 	}
 
-  public:
-	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVPerlSource::operator(), this); }
-
   protected:
 	QString _perl_file;
 	input_offset _start;

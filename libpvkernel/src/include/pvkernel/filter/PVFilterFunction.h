@@ -49,8 +49,7 @@ namespace PVFilter
 //! <li>in the case your filter needs arguments, you must define them using the
 // DEFAULT_ARGS_FILTER(NameOfYourClassWithNamespace) macro (see example below)</li>
 //! <li>you also need to insert a "CLASS_FILTER(NameOfYourClass)" macro inside your class
-// definition, and an "IMPL_FILTER(NameOfYourClassWithNamespace)" at the end of your implementation
-// file (.cpp) (see example below)</li>
+// definition</li>
 //! </ul>
 //!
 //! Here is an example of how to implement a filter that convert a QString to const char* using
@@ -81,8 +80,6 @@ namespace PVFilter
 //! 	PVCore::PVArgumentList args;
 //! 	args["arg1"] = true; // This is a QVariant !
 //! }
-//!
-//! IMPL_FILTER(Inendi::PVFilterQString)
 //! \endcode
 //
 //! As said above, a filter function takes two templates argument: Tin and Tout. It specifies that
@@ -130,33 +127,6 @@ class PVFilterFunctionBase : public PVCore::PVFunctionArgs<boost::function<Tout_
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 
   public:
-	QString const& get_name() { return _name; }
-
-  protected:
-	QString _name;
-};
-
-/*! \brief Special PVFilterFunctionBase function for Tin -> void
- */
-template <typename Tin_>
-class PVFilterFunctionBase<void, Tin_> : public PVCore::PVFunctionArgs<boost::function<void(Tin_)>>
-{
-  public:
-	typedef void Tout;
-	typedef Tin_ Tin;
-	typedef boost::function<void(Tin)> func_type;
-	typedef std::shared_ptr<PVFilterFunctionBase<void, Tin>> p_type;
-	typedef PVFilterFunctionBase<void, Tin> base;
-
-  public:
-	PVFilterFunctionBase(
-	    PVCore::PVArgumentList const& args = PVFilterFunctionBase<void, Tin>::default_args())
-	    : PVCore::PVFunctionArgs<func_type>(args)
-	{
-	}
-
-  public:
-	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 	QString const& get_name() { return _name; }
 
   protected:
@@ -240,23 +210,11 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
 
 #define CLASS_FILTER_NONREG(T)                                                                     \
   public:                                                                                          \
-	func_type f() override                                                                         \
-	{                                                                                              \
-		return boost::bind<Tout>((Tout (T::*)(Tin))(&T::operator()), this, _1);                    \
-	}                                                                                              \
 	CLASS_FUNC_ARGS_PARAM(T)
 
 #define CLASS_FILTER_NONREG_NOPARAM(T)                                                             \
   public:                                                                                          \
-	func_type f() override                                                                         \
-	{                                                                                              \
-		return boost::bind<Tout>((Tout (T::*)(Tin))(&T::operator()), this, _1);                    \
-	}                                                                                              \
 	CLASS_FUNC_ARGS_NOPARAM(T)
-
-#define IMPL_FILTER(T)
-
-#define IMPL_FILTER_NOPARAM(T)
 
 #define INIT_FILTER(T, aparams)                                                                    \
 	do {                                                                                           \

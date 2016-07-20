@@ -48,5 +48,3 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint3
 		compute_minmax_plotting<float>(mapped, minmax, dest);
 	}
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterMinmax)

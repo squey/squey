@@ -45,12 +45,6 @@ class PVSplunkSource : public PVRawSourceBase
 		return 0;
 	}
 
-  public:
-	func_type f() override
-	{
-		return boost::bind<PVCore::PVChunk*>(&PVSplunkSource::operator(), this);
-	}
-
   protected:
 	chunk_index _next_index;
 

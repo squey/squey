@@ -82,5 +82,3 @@ PVCore::PVField& PVFilter::PVFieldConverterSubstitution::one_to_one(PVCore::PVFi
 
 	return field;
 }
-
-IMPL_FILTER(PVFilter::PVFieldConverterSubstitution)

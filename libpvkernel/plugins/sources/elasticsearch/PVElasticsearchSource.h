@@ -40,12 +40,6 @@ class PVElasticsearchSource : public PVRawSourceBase
 		return 0;
 	}
 
-  public:
-	func_type f() override
-	{
-		return boost::bind<PVCore::PVChunk*>(&PVElasticsearchSource::operator(), this);
-	}
-
   protected:
 	chunk_index _next_index;
 

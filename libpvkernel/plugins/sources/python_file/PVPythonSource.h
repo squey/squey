@@ -40,12 +40,6 @@ class PVPythonSource : public PVRawSourceBase
 		return 0;
 	}
 
-  public:
-	virtual func_type f()
-	{
-		return boost::bind<PVCore::PVChunk*>(&PVPythonSource::operator(), this);
-	}
-
   protected:
 	QString _python_file;
 	input_offset _start;

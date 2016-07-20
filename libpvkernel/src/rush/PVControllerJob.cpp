@@ -96,7 +96,8 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 	}
 
 	// Final output filter
-	tbb::filter_t<PVCore::PVChunk*, void> out_filter(tbb::filter::parallel, _out_filter.f());
+	tbb::filter_t<PVCore::PVChunk*, void> out_filter(
+	    tbb::filter::parallel, [this](PVCore::PVChunk* chunk) { _out_filter(chunk); });
 
 	return filter & out_filter;
 }
