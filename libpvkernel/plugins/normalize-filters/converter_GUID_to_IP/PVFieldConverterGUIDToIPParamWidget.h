@@ -13,17 +13,12 @@
 class QWidget;
 class QAction;
 class QRadioButton;
-class QComboBox;
-
-#include <pvkernel/widgets/qkeysequencewidget.h>
 
 namespace PVFilter
 {
 
 class PVFieldConverterGUIDToIPParamWidget : public PVFieldsConverterParamWidget
 {
-	Q_OBJECT
-
   public:
 	PVFieldConverterGUIDToIPParamWidget();
 
@@ -31,7 +26,7 @@ class PVFieldConverterGUIDToIPParamWidget : public PVFieldsConverterParamWidget
 	QAction* get_action_menu(QWidget* parent) override;
 	QWidget* get_param_widget() override;
 
-  private Q_SLOTS:
+  private:
 	void update_params();
 
   private:
