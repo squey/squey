@@ -31,7 +31,7 @@ class PVChunkFilterByElt : public PVChunkFilter
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
   protected:
-	mutable PVElementFilter_f _elt_filter; // filter to apply for splitting.
+	PVElementFilter_f _elt_filter; // filter to apply for splitting.
 
 	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByElt)
 };
