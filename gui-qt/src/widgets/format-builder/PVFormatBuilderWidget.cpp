@@ -816,7 +816,8 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 
 void PVInspector::PVFormatBuilderWidget::create_extractor()
 {
-	_log_extract.reset(new PVRush::PVExtractor());
+	_log_extract.reset(new PVRush::PVExtractor(PVFilter::PVChunkFilterByElt(
+	    [](PVCore::PVElement& c) -> PVCore::PVElement& { return c; })));
 }
 
 /******************************************************************************

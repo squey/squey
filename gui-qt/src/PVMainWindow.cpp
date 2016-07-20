@@ -585,9 +585,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	// PVInputType::list_inputs is a QList<PVInputDescription_p>
 	PVRush::PVInputType::list_inputs inputs;
 
-	PVCore::PVArgumentList args_extract = PVRush::PVExtractor::default_args_extractor();
+	PVCore::PVArgumentList args;
 
-	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args_extract, this))
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args, this))
 		return; // This means that the user pressed the "cancel" button
 
 	// Add the new formats to the formats

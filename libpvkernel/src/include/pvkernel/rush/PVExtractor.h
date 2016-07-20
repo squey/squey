@@ -32,7 +32,7 @@ namespace PVRush
 class PVExtractor
 {
   public:
-	PVExtractor();
+	PVExtractor(PVFilter::PVChunkFilterByElt const& chk_flt);
 
   public:
 	/*! \brief Add a PVRawSourceBase to the internal aggregator
@@ -47,7 +47,7 @@ class PVExtractor
 	 * \note It is the responsability of the caller to have the pointer to the original
 	 *PVChunkFilter object valid.
 	 */
-	void set_chunk_filter(PVFilter::PVChunkFilterByElt* chk_flt);
+	void set_chunk_filter(PVFilter::PVChunkFilterByElt const& chk_flt);
 
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
@@ -112,8 +112,6 @@ class PVExtractor
 		}
 	}
 
-	static PVCore::PVArgumentList default_args_extractor();
-
   private:
 	void set_sources_number_fields();
 
@@ -122,7 +120,7 @@ class PVExtractor
 	PVFormat _format; //!< It is the format use for extraction.
 	std::unique_ptr<PVNraw> _nraw;
 	PVNrawOutput _out_nraw; // Linked to _nraw
-	PVFilter::PVChunkFilterByElt* _chk_flt;
+	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;
 	PVCol _force_naxes;
 

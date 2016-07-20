@@ -43,6 +43,8 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            size_t ext_start,
                            size_t ext_end)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
+    , _extractor(PVFilter::PVChunkFilterByElt(
+          [](PVCore::PVElement& c) -> PVCore::PVElement& { return c; }))
     , _inputs(inputs)
     , _src_plugin(sc)
     , _nraw(_extractor.get_nraw())
@@ -133,9 +135,7 @@ void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
 	_axes_combination.set_from_format(_extractor.get_format());
-
-	PVFilter::PVChunkFilterByElt* chk_flt = _extractor.get_format().create_tbb_filters();
-	_extractor.set_chunk_filter(chk_flt);
+	_extractor.set_chunk_filter(_extractor.get_format().create_tbb_filters());
 }
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()

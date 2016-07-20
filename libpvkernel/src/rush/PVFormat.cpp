@@ -461,17 +461,15 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	return filter_clone->f();
 }
 
-PVFilter::PVChunkFilterByElt* PVRush::PVFormat::create_tbb_filters()
+PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters()
 {
-	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	return new PVFilter::PVChunkFilterByElt(elt_f);
+	return {create_tbb_filters_elt()};
 }
 
 PVFilter::PVChunkFilterByEltCancellable
 PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellation)
 {
-	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	return {elt_f, timeout, cancellation};
+	return {create_tbb_filters_elt(), timeout, cancellation};
 }
 
 PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
