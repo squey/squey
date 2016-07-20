@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifndef INENDI_PVINPUTTYPEDATABASE_H
-#define INENDI_PVINPUTTYPEDATABASE_H
+#ifndef INENDI_PVINPUTTYPESPLUNK_H
+#define INENDI_PVINPUTTYPESPLUNK_H
 
 #include <pvkernel/rush/PVInputType.h>
 
