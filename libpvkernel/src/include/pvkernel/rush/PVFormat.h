@@ -111,9 +111,6 @@ class PVFormat
 
 	bool exists() const;
 
-	void dump_elts(bool dump) { _dump_elts = dump; }
-	void restore_invalid_evts(bool restore) { _restore_inv_elts = restore; }
-
 	list_axes_t const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 	fields_mask_t const& get_fields_mask() const { return _fields_mask; }
@@ -158,10 +155,8 @@ class PVFormat
   private:
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	bool _have_grep_filter;
-	bool _dump_elts;
 	bool _already_pop;
 	bool _original_was_serialized;
-	bool _restore_inv_elts;
 };
 };
 

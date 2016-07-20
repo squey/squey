@@ -23,23 +23,17 @@
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
-#include <pvkernel/filter/PVChunkFilterByEltRestoreInvalid.h>
-#include <pvkernel/filter/PVChunkFilterByEltSaveInvalid.h>
 #include <pvkernel/filter/PVElementFilterByAxes.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
 
 #include <pvcop/types/impl/formatter_factory.h>
 
-#include <pcrecpp.h>
-
 PVRush::PVFormat::PVFormat() : _have_grep_filter(false)
 {
 	axes_count = 0;
-	_dump_elts = false;
 	_already_pop = false;
 	_original_was_serialized = false;
-	_restore_inv_elts = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_) : PVFormat()
@@ -470,21 +464,13 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 PVFilter::PVChunkFilterByElt* PVRush::PVFormat::create_tbb_filters()
 {
 	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	assert(elt_f);
-	if (_dump_elts) {
-		return new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f);
-	} else if (_restore_inv_elts) {
-		return new PVFilter::PVChunkFilterByEltRestoreInvalid(elt_f);
-	} else {
-		return new PVFilter::PVChunkFilterByElt(elt_f);
-	}
+	return new PVFilter::PVChunkFilterByElt(elt_f);
 }
 
 PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters_autodetect(float timeout,
                                                                           bool* cancellation)
 {
 	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	assert(elt_f);
 	PVFilter::PVChunkFilter* chk_flt =
 	    new PVFilter::PVChunkFilterByEltCancellable(elt_f, timeout, cancellation);
 	return chk_flt->f();

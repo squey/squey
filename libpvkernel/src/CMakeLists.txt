@@ -79,8 +79,6 @@ SET(FILTER_SRC_FILES
 filter/PVChunkFilter.cpp
 filter/PVChunkFilterByElt.cpp
 filter/PVChunkFilterByEltCancellable.cpp
-filter/PVChunkFilterByEltRestoreInvalid.cpp
-filter/PVChunkFilterByEltSaveInvalid.cpp
 filter/PVChunkFilterDumpElts.cpp
 filter/PVChunkFilterRemoveInvalidElts.cpp
 filter/PVElementFilterByFields.cpp
