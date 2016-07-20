@@ -11,10 +11,10 @@
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt const& chk_flt)
+PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt)
     : _nraw(new PVRush::PVNraw())
     , _out_nraw(*_nraw)
-    , _chk_flt(chk_flt)
+    , _chk_flt(std::move(chk_flt))
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
     , _last_start(0)
@@ -41,9 +41,9 @@ void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
 	_agg.add_input(src);
 }
 
-void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilterByElt const& chk_flt)
+void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilterByElt&& chk_flt)
 {
-	_chk_flt = chk_flt;
+	_chk_flt = std::move(chk_flt);
 }
 
 PVRush::PVFormat& PVRush::PVExtractor::get_format()

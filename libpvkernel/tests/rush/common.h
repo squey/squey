@@ -6,6 +6,7 @@
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -173,7 +174,9 @@ class TestEnv
 	        std::string const& format_file,
 	        size_t dup = 1,
 	        std::string const& extra_input = "")
-	    : _format("format", QString::fromStdString(format_file))
+	    : _ext(PVFilter::PVChunkFilterByElt(
+	          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
+	    , _format("format", QString::fromStdString(format_file))
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 

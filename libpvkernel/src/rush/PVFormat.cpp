@@ -475,7 +475,7 @@ PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellatio
 	return {create_tbb_filters_elt(), timeout, cancellation};
 }
 
-PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
+std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_elt()
 {
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
 
@@ -499,9 +499,8 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 	}
 
 	// Finalise the pipeline
-	auto* elt_f = new PVFilter::PVElementFilterByAxes(final_filter_f, _fields_mask);
-
-	return elt_f->f();
+	return std::unique_ptr<PVFilter::PVElementFilter>(
+	    new PVFilter::PVElementFilterByAxes{final_filter_f, _fields_mask});
 }
 
 QHash<QString, PVRush::PVFormat>

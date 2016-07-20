@@ -43,7 +43,7 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            size_t ext_end)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
     , _extractor(PVFilter::PVChunkFilterByElt(
-          [](PVCore::PVElement& c) -> PVCore::PVElement& { return c; }))
+          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
     , _inputs(inputs)
     , _src_plugin(sc)
     , _nraw(_extractor.get_nraw())

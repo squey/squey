@@ -11,6 +11,8 @@
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVElementFilter.h>
 
+#include <memory>
+
 namespace PVFilter
 {
 
@@ -20,18 +22,17 @@ namespace PVFilter
 class PVChunkFilterByElt : public PVChunkFilter
 {
   public:
-	/**
-	 * Build filter from the splitting function : "elt_filter".
-	 */
-	PVChunkFilterByElt(PVElementFilter_f elt_filter);
-
+	PVChunkFilterByElt(std::unique_ptr<PVElementFilter> elt_filter)
+	    : _elt_filter(std::move(elt_filter))
+	{
+	}
 	/**
 	 * Apply splitting to every elements from this chunk.
 	 */
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk) const;
 
   protected:
-	PVElementFilter_f _elt_filter; // filter to apply for splitting.
+	std::unique_ptr<PVElementFilter> _elt_filter; // filter to apply for splitting.
 };
 }
 

@@ -77,8 +77,8 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 	    tbb::filter::serial_in_order, [this](tbb::flow_control& fc) { return _agg(fc); });
 
 	// The "job" filter
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel,
-	                                                                   _split_filter);
+	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(
+	    tbb::filter::parallel, [this](PVCore::PVChunk* chunk) { return _split_filter(chunk); });
 
 	// The next dump filter, that dumps all the invalid events
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(

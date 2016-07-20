@@ -78,8 +78,8 @@ int main()
 	                                             boost::bind(mapping_duplicate.f(),
 	                                                         boost::bind(regexp_lib_p->f(), _1)))));
 
-	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(f_final);
-	PVFilter::PVChunkFilterByElt chk_flt{elt_f->f()};
+	PVFilter::PVChunkFilterByElt chk_flt{std::unique_ptr<PVFilter::PVElementFilterByFields>(
+	    new PVFilter::PVElementFilterByFields(f_final))};
 
 	auto res = ts.run_normalization(chk_flt);
 	std::string output_file = std::get<2>(res);

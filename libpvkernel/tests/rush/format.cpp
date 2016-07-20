@@ -41,12 +41,7 @@ int main(int argc, char** argv)
 			return 1;
 		}
 
-		PVFilter::PVChunkFilterByElt* f = format.create_tbb_filters();
-		if (!f) {
-			std::cerr << "Unable to create filters for format from file " << qPrintable(fpath)
-			          << std::endl;
-			return 1;
-		}
+		format.create_tbb_filters();
 	}
 
 	return 0;

@@ -40,8 +40,8 @@ int main()
 	args["n"] = 7;
 	sp_lib_p->set_args(args);
 
-	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
-	PVFilter::PVChunkFilterByElt chk_flt{elt_f->f()};
+	PVFilter::PVChunkFilterByElt chk_flt{std::unique_ptr<PVFilter::PVElementFilterByFields>(
+	    new PVFilter::PVElementFilterByFields(sp_lib_p->f()))};
 
 	auto res = ts.run_normalization(chk_flt);
 

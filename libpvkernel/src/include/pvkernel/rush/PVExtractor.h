@@ -32,7 +32,7 @@ namespace PVRush
 class PVExtractor
 {
   public:
-	PVExtractor(PVFilter::PVChunkFilterByElt const& chk_flt);
+	PVExtractor(PVFilter::PVChunkFilterByElt chk_flt);
 
   public:
 	/*! \brief Add a PVRawSourceBase to the internal aggregator
@@ -47,7 +47,7 @@ class PVExtractor
 	 * \note It is the responsability of the caller to have the pointer to the original
 	 *PVChunkFilter object valid.
 	 */
-	void set_chunk_filter(PVFilter::PVChunkFilterByElt const& chk_flt);
+	void set_chunk_filter(PVFilter::PVChunkFilterByElt&& chk_flt);
 
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).

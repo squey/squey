@@ -15,10 +15,12 @@
  * PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable
  *
  *****************************************************************************/
-PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter,
-                                                                       float timeout,
-                                                                       bool* cancellation)
-    : PVChunkFilter(), _elt_filter(elt_filter), _timeout(timeout), _cancellation(cancellation)
+PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(
+    std::unique_ptr<PVElementFilter> elt_filter, float timeout, bool* cancellation)
+    : PVChunkFilter()
+    , _elt_filter(std::move(elt_filter))
+    , _timeout(timeout)
+    , _cancellation(cancellation)
 {
 }
 
@@ -41,7 +43,7 @@ PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVC
 	while (it != ite) {
 		tbb::tick_count ls, le;
 		ls = tbb::tick_count::now();
-		PVCore::PVElement& elt = _elt_filter(*(*it));
+		PVCore::PVElement& elt = (*_elt_filter)(*(*it));
 		le = tbb::tick_count::now();
 		if (!elt.valid()) {
 			PVCore::PVElement::free(*it);

@@ -102,7 +102,7 @@ class PVFormat
 	PVFilter::PVChunkFilterByEltCancellable
 	create_tbb_filters_autodetect(float timeout, bool* cancellation = nullptr);
 	PVFilter::PVChunkFilterByElt create_tbb_filters();
-	PVFilter::PVElementFilter_f create_tbb_filters_elt();
+	std::unique_ptr<PVFilter::PVElementFilter> create_tbb_filters_elt();
 
 	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix,
 	                                                            QString const& dir);

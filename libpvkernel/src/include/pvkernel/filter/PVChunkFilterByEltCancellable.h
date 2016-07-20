@@ -17,13 +17,13 @@ namespace PVFilter
 class PVChunkFilterByEltCancellable : public PVChunkFilter
 {
   public:
-	PVChunkFilterByEltCancellable(PVElementFilter_f elt_filter,
+	PVChunkFilterByEltCancellable(std::unique_ptr<PVElementFilter> elt_filter,
 	                              float timeout,
 	                              bool* cancellation = nullptr);
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk) const;
 
   private:
-	PVElementFilter_f _elt_filter;
+	std::unique_ptr<PVElementFilter> _elt_filter;
 
 	float _timeout;
 	bool* _cancellation;
