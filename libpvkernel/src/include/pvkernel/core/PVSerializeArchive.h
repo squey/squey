@@ -52,8 +52,6 @@ class PVSerializeArchive : public std::enable_shared_from_this<PVSerializeArchiv
 	version_t get_version() const;
 	void set_options(std::shared_ptr<PVSerializeArchiveOptions> options) { _options = options; };
 	void set_save_everything(bool save_everything) { _save_everything = save_everything; };
-	// Finish function
-	virtual void finish();
 
 	// Repairable errors
 	inline bool has_repairable_errors() const { return _repairable_errors.size() > 0; }

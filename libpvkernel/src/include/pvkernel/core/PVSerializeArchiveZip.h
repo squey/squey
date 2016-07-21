@@ -23,9 +23,6 @@ class PVSerializeArchiveZip : public PVSerializeArchive
   public:
 	void open_zip(QString const& zip_path, archive_mode mode);
 
-  public:
-	virtual void finish();
-
   protected:
 	QString _zip_path;
 	QString _tmp_path;

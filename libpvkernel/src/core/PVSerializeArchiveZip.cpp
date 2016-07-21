@@ -24,7 +24,20 @@ PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(QString const& zip_path,
 PVCore::PVSerializeArchiveZip::~PVSerializeArchiveZip()
 {
 	if (_is_opened) {
-		finish();
+		for (auto it = _objs_attributes.constBegin(); it != _objs_attributes.constEnd(); it++) {
+			it.value()->sync();
+		}
+		if (_zip_path.isEmpty()) {
+			return;
+		}
+
+		if (is_writing()) {
+			// Create the archive from _tmp_path
+			PVArchive::create_tarbz2(_zip_path, _tmp_path);
+		}
+
+		// Delete the temporary folder
+		PVDirectory::remove_rec(_tmp_path);
 	}
 }
 
@@ -47,20 +60,4 @@ void PVCore::PVSerializeArchiveZip::open_zip(QString const& zip_path, archive_mo
 
 	PVSerializeArchive::open(_tmp_path, mode);
 	_zip_path = zip_path;
-}
-
-void PVCore::PVSerializeArchiveZip::finish()
-{
-	PVSerializeArchive::finish();
-	if (_zip_path.isEmpty()) {
-		return;
-	}
-
-	if (is_writing()) {
-		// Create the archive from _tmp_path
-		PVArchive::create_tarbz2(_zip_path, _tmp_path);
-	}
-
-	// Delete the temporary folder
-	PVDirectory::remove_rec(_tmp_path);
 }

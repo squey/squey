@@ -256,14 +256,12 @@ int main(int argc, char** argv)
 	ar = PVCore::PVSerializeArchive_p(new PVCore::PVSerializeArchiveZip(
 	    "/tmp/testarch.pv", PVCore::PVSerializeArchive::write, 1));
 	ar->get_root()->object("obj", obj);
-	ar->finish();
 
 	// Get it back
 	ar = PVCore::PVSerializeArchive_p(
 	    new PVCore::PVSerializeArchiveZip("/tmp/testarch.pv", PVCore::PVSerializeArchive::read, 1));
 	PVTestObj obj_r2;
 	ar->get_root()->object("obj", obj_r2);
-	ar->finish();
 	obj_r2.dump();
 
 	PV_ASSERT_VALID(obj == obj_r2);

@@ -177,14 +177,13 @@ void Inendi::PVRoot::save_to_file(QString const& path,
                                   bool save_everything)
 {
 	set_path(path);
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(
-	    path, PVCore::PVSerializeArchive::write, INENDI_ARCHIVES_VERSION));
+	PVCore::PVSerializeArchiveZip ar(path, PVCore::PVSerializeArchive::write,
+	                                 INENDI_ARCHIVES_VERSION);
 	if (options) {
-		ar->set_options(options);
+		ar.set_options(options);
 	}
-	ar->set_save_everything(save_everything);
-	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
-	ar->finish();
+	ar.set_save_everything(save_everything);
+	ar.get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
 }
 
 void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
