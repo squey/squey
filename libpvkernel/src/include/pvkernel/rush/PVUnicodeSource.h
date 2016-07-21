@@ -316,7 +316,7 @@ class PVUnicodeSource : public PVRawSourceBase
 
 	QString human_name() override { return _input->human_name(); }
 
-	void release_input() override { _input->release(); }
+	void release_input() override { _input.reset(); }
 
 	func_type f() { return boost::bind<PVCore::PVChunk*>(&PVUnicodeSource::operator(), this); }
 
