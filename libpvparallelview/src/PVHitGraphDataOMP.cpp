@@ -35,8 +35,13 @@ PVParallelView::PVHitGraphDataOMP::omp_ctx_t::omp_ctx_t(uint32_t size)
 	_buffer_size = size;
 
 	for (uint32_t i = 0; i < _core_num; ++i) {
-		_buffers[i] =
-		    (uint32_t*)numa_alloc_onnode(_buffer_size * sizeof(uint32_t), numa_node_of_cpu(i));
+		_buffers[i] = new uint32_t[_buffer_size];
+		/**
+		 * NOTE: using NUMA allocator leads to a deadlock in the libc. A simple work-around
+		 * is to avoid using it.
+		 *
+		 * (uint32_t*)numa_alloc_onnode(_buffer_size * sizeof(uint32_t), numa_node_of_cpu(i));
+		 */
 		memset(_buffers[i], 0, size * sizeof(uint32_t));
 	}
 }
@@ -46,7 +51,13 @@ PVParallelView::PVHitGraphDataOMP::omp_ctx_t::~omp_ctx_t()
 	if (_buffers) {
 		for (uint32_t i = 0; i < _core_num; ++i) {
 			if (_buffers[i]) {
-				numa_free(_buffers[i], _buffer_size * sizeof(uint32_t));
+				delete[] _buffers[i];
+				/**
+				 * NOTE: using NUMA allocator leads to a deadlock in the libc. A
+				 * simple work-around is to avoid using it.
+				 *
+				 * numa_free(_buffers[i], _buffer_size * sizeof(uint32_t));
+				 */
 			}
 		}
 		delete[] _buffers;
