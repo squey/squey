@@ -9,14 +9,8 @@
 #include <pvkernel/core/PVLogger.h>
 #include <QDate>
 
-#include <boost/bind.hpp>
-
 #include <tbb/tick_count.h>
 #include <tbb/scalable_allocator.h>
-
-/*boost::object_pool<PVCore::PVDateTimeParser::TimeFormat> PVCore::PVDateTimeParser::_alloc_tf;
-boost::object_pool<PVCore::PVDateTimeParser::TimeFormatEpoch> PVCore::PVDateTimeParser::_alloc_tfe;
-boost::object_pool<SimpleDateFormat> PVCore::PVDateTimeParser::TimeFormat::_alloc_df;*/
 
 // No copy is made. The QString must remain valid as long as the UnicodeString object is !
 UnicodeString PVCore::PVDateTimeParser::icuFromQStringAlias(const QString& src)
@@ -59,9 +53,6 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format)
 		QString const& format_org = time_format.at(i);
 		bool is_epoch = (format_org.compare("epoch") == 0);
 		if (is_epoch) {
-			// TimeFormatEpoch_p tf(_alloc_tfe.construct(),
-			// boost::bind(&PVDateTimeParser::destroy_tfe, _1));
-			// TimeFormatEpoch* tf = _alloc_tfe.construct();
 			TimeFormatEpoch* tf = alloc_epoch.allocate(1);
 			new (tf) TimeFormatEpoch();
 			_time_format[i] = tf;
@@ -112,14 +103,10 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 		TimeFormatInterface* tfi = *it;
 		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
 		if (tf == nullptr) {
-			// TimeFormatEpoch_p ptfe(_alloc_tfe.construct(),
-			// boost::bind(&PVDateTimeParser::destroy_tfe, _1));
 			TimeFormatEpoch_p ptfe = alloc_epoch.allocate(1);
 			new (ptfe) TimeFormatEpoch();
 			_time_format.push_back(ptfe);
 		} else {
-			// TimeFormat_p ptf(_alloc_tf.construct(*tf), boost::bind(&PVDateTimeParser::destroy_tf,
-			// _1));
 			TimeFormat_p ptf = alloc_format.allocate(1);
 			new (ptf) TimeFormat(*tf);
 			_time_format.push_back(ptf);
@@ -186,7 +173,6 @@ void PVCore::PVDateTimeParser::TimeFormat::create_parsers(QString const& time_fo
 		// MSVC seems not to be able to take the good constructor for SimpleDateFormat...
 		SimpleDateFormat* psdf = &_parsers[il];
 		new (psdf) SimpleDateFormat(pattern, Locale::createFromName(cur_loc.getName()), err);
-		// SimpleDateFormat_p sdf(psdf, boost::bind(&TimeFormat::destroy_sdf, _1));
 		if (U_SUCCESS(err) == 0) {
 			PVLOG_WARN("Unable to create parser for locale %s.\n", cur_loc.getName());
 		}

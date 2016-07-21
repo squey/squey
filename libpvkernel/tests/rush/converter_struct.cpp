@@ -33,8 +33,11 @@ int main()
 	PVFilter::PVFieldsConverter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsConverter)::get().get_class_by_name("struct");
 
-	PVFilter::PVChunkFilterByElt chk_flt{std::unique_ptr<PVFilter::PVElementFilterByFields>(
-	    new PVFilter::PVElementFilterByFields(sp_lib_p->f()))};
+	PVFilter::PVChunkFilterByElt chk_flt{
+	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields(
+	        [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
+		        return (*sp_lib_p)(fields);
+		    }))};
 
 	auto res = ts.run_normalization(chk_flt);
 

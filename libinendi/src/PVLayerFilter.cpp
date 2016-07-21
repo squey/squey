@@ -8,7 +8,6 @@
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVLayer.h>
 
-#include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
 #include <assert.h>
@@ -98,11 +97,6 @@ Inendi::PVLayerFilter::hash_menu_function_t const& Inendi::PVLayerFilter::get_me
 void Inendi::PVLayerFilter::add_ctxt_menu_entry(QString menu_entry, ctxt_menu_f f)
 {
 	_menu_entries[menu_entry] = f;
-}
-
-boost::thread Inendi::PVLayerFilter::launch_in_thread(PVLayer& layer)
-{
-	return boost::thread(boost::bind(&PVLayerFilter::operator(), this, layer));
 }
 
 void Inendi::PVLayerFilter::cancel()

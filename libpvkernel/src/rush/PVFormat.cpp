@@ -461,7 +461,9 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	// initialize the filter
 	filter_clone->init();
 
-	return filter_clone->f();
+	return [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
+		return (*filter_clone)(fields);
+	};
 }
 
 PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters()
@@ -495,7 +497,9 @@ std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_
 		_filters_container.push_back(mapping);
 
 		// Compose the pipeline
-		final_filter_f = boost::bind(mapping->f(), boost::bind(final_filter_f, _1));
+		final_filter_f = [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
+			return (*mapping)(final_filter_f(fields));
+		};
 	}
 
 	// Finalise the pipeline

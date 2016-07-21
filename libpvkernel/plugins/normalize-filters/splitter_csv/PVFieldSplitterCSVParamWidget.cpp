@@ -163,7 +163,8 @@ static bool sort_freq(std::pair<PVCol, PVRow> const& first, std::pair<PVCol, PVR
 
 void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
 {
-	PVFilter::PVElementFilterByFields elt_f(_filter->f());
+	PVFilter::PVElementFilterByFields elt_f(
+	    [&](PVCore::list_fields& fields) -> PVCore::list_fields& { return (*_filter)(fields); });
 	QStringList const& data = get_data();
 
 	// Compute the frequency of the number of fields with this parameters

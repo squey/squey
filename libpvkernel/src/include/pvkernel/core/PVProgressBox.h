@@ -18,7 +18,6 @@
 #include <QMessageBox>
 
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
 
 #include <tbb/task.h>
 
@@ -93,8 +92,7 @@ class PVProgressBox : public QDialog
 		// PVThreadWatcher* watcher = new PVThreadWatcher();
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
 		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<Tret, F>, boost::ref(f),
-		                                 boost::ref(ret), end_s));
+		boost::thread worker([&]() { worker_thread<Tret, F>(f, ret, end_s); });
 		return process_worker_thread(end_s, worker, pbox);
 	}
 
@@ -104,7 +102,7 @@ class PVProgressBox : public QDialog
 		// PVThreadWatcher* watcher = new PVThreadWatcher();
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
 		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<F>, boost::ref(f), end_s));
+		boost::thread worker([&]() { worker_thread<F>(f, end_s); });
 		return process_worker_thread(end_s, worker, pbox);
 	}
 
@@ -114,7 +112,7 @@ class PVProgressBox : public QDialog
 		// PVThreadWatcher* watcher = new PVThreadWatcher();
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
 		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<F>, boost::ref(f), end_s));
+		boost::thread worker([&]() { worker_thread<F>(f, end_s); });
 		return process_worker_thread(end_s, worker, pbox, ctxt);
 	}
 
@@ -124,10 +122,8 @@ class PVProgressBox : public QDialog
 		typedef boost::function<void()> spawn_f;
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
 		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		spawn_f f = boost::bind(static_cast<void (*)(tbb::task&)>(&tbb::task::spawn_root_and_wait),
-		                        boost::ref(root_task));
-		boost::thread worker(
-		    boost::bind(&PVProgressBox::worker_thread<spawn_f>, boost::ref(f), end_s));
+		spawn_f f = [&]() { tbb::task::spawn_root_and_wait(root_task); };
+		boost::thread worker([&]() { worker_thread<spawn_f>(f, end_s); });
 		if (pbox->exec() != QDialog::Accepted) {
 			root_task.cancel_group_execution();
 			worker.join();

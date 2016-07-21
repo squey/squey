@@ -75,7 +75,6 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	virtual void show_error(QWidget* /*parent*/) const { assert(false); }
 
   public:
-	boost::thread launch_in_thread(PVLayer& layer);
 	void cancel();
 
   protected:

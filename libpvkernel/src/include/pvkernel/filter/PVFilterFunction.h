@@ -12,7 +12,6 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 #include <memory>
 
@@ -191,11 +190,6 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
 
   public:
 	T& operator()(T& obj) { return obj; }
-	virtual func_type f()
-	{
-		return boost::bind<T&>(&PVFilterFunction<T, FilterT_>::operator(),
-		                       (PVFilterFunction<T, FilterT_>*)this, _1);
-	}
 };
 }
 

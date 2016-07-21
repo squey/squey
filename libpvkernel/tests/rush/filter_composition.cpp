@@ -56,13 +56,18 @@ int main()
 	// Mapping filters
 
 	// Mapping filter for the URL splitter
-	PVFilter::PVFieldsMappingFilter mapping_url(3, url_lib_p->f());
+	PVFilter::PVFieldsMappingFilter mapping_url(
+	    3,
+	    [&](PVCore::list_fields& fields) -> PVCore::list_fields& { return (*url_lib_p)(fields); });
 
 	// Mapping filter for the grep filter
-	PVFilter::PVFieldsMappingFilter mapping_grep(3, grep_lib_p->f());
+	PVFilter::PVFieldsBaseFilter_p mapping_grep(new PVFilter::PVFieldsMappingFilter(3, grep_lib_p));
 
 	// Mapping filter for the duplicate filter on the last axis after our regexp
-	PVFilter::PVFieldsMappingFilter mapping_duplicate(6, duplicate_lib_p->f());
+	PVFilter::PVFieldsMappingFilter mapping_duplicate(
+	    6, [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
+		    return (*duplicate_lib_p)(fields);
+		});
 
 	// Final composition
 	PVFilter::PVFieldsBaseFilter_f f_final =

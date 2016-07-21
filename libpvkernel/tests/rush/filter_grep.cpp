@@ -41,8 +41,11 @@ int main()
 	args["reverse"] = true;
 	sp_lib_p->set_args(args);
 
-	PVFilter::PVChunkFilterByElt chk_flt{std::unique_ptr<PVFilter::PVElementFilterByFields>(
-	    new PVFilter::PVElementFilterByFields(sp_lib_p->f()))};
+	PVFilter::PVChunkFilterByElt chk_flt{
+	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields(
+	        [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
+		        return (*sp_lib_p)(fields);
+		    }))};
 
 	auto res = ts.run_normalization(chk_flt);
 	std::string output_file = std::get<2>(res);
