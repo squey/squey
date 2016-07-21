@@ -14,7 +14,8 @@
  * Inendi::PVAxis::PVAxis
  *
  *****************************************************************************/
-Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) : PVRush::PVAxisFormat(axis_format)
+Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat axis_format)
+    : PVRush::PVAxisFormat(std::move(axis_format))
 {
 	// Create mapping arguments
 
@@ -38,9 +39,8 @@ Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) : PVRush::PVAxis
 		    LIB_CLASS(Inendi::PVPlottingFilter)::get().get_class_by_name(get_plotting());
 		auto usable_type = lib_filter->list_usable_type();
 		if (not usable_type.empty() and
-		    std::find(usable_type.begin(), usable_type.end(),
-		              std::make_pair(get_type().toStdString(), get_mapping().toStdString())) ==
-		        usable_type.end()) {
+		    usable_type.find(std::make_pair(get_type().toStdString(),
+		                                    get_mapping().toStdString())) == usable_type.end()) {
 			throw Inendi::InvalidPlottingMapping(
 			    "You can't use plotting :" + get_plotting().toStdString() + " with mapping :" +
 			    get_mapping().toStdString() + " and type :" + get_type().toStdString());
@@ -68,9 +68,7 @@ void Inendi::PVAxis::serialize(PVCore::PVSerializeObject& so,
  * Inendi::PVAxis::~PVAxis
  *
  *****************************************************************************/
-Inendi::PVAxis::~PVAxis()
-{
-}
+Inendi::PVAxis::~PVAxis() = default;
 
 PVCore::PVArgumentList Inendi::PVAxis::args_from_node(node_args_t const& args_str,
                                                       PVCore::PVArgumentList const& def_args)

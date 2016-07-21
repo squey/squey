@@ -37,7 +37,7 @@ class PVAxis : public PVRush::PVAxisFormat
 	 */
 	PVAxis(){}; // We have to keep this Ugly constructor as we use QVector which perform a lot of
 	            // default construction
-	PVAxis(PVRush::PVAxisFormat const& axis_format);
+	PVAxis(PVRush::PVAxisFormat axis_format);
 
 	/**
 	 * Destructor
