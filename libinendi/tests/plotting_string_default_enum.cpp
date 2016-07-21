@@ -63,6 +63,8 @@ int main()
 	                                   [](uint32_t a, uint32_t b) {
 		                                   return b + 1 < a or a < b - 1;
 		                               }) != distinct_plotting.end());
+#else
+	(void)plotted;
 #endif
 
 	return 0;

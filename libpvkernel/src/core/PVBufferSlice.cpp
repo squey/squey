@@ -22,7 +22,7 @@ PVCore::PVBufferSlice::PVBufferSlice(buf_list_t& buf_list) : _buf_list(buf_list)
 	_begin = g_null_buf;
 	_end = g_null_buf_end;
 	_physical_end = g_null_buf_end;
-	_realloc_buf = NULL;
+	_realloc_buf = nullptr;
 }
 
 PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_list)
@@ -32,7 +32,7 @@ PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_lis
 	_begin = begin;
 	_end = end;
 	_physical_end = end;
-	_realloc_buf = NULL;
+	_realloc_buf = nullptr;
 }
 
 void PVCore::PVBufferSlice::set_begin(char* p)

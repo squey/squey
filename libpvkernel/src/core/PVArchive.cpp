@@ -113,7 +113,7 @@ bool PVCore::PVArchive::extract(QString const& path,
 	ext = archive_write_disk_new();
 	archive_write_disk_set_options(ext, flags);
 	archive_write_disk_set_standard_lookup(ext);
-	if ((r = archive_read_open_filename(a, filename, 10240))) {
+	if ((r = archive_read_open_filename(a, filename, 10240)) != 0) {
 		return false;
 	}
 	r = archive_read_next_header(a, &entry);
@@ -129,8 +129,9 @@ bool PVCore::PVArchive::extract(QString const& path,
 
 	try {
 		for (;;) {
-			if (r == ARCHIVE_EOF)
+			if (r == ARCHIVE_EOF) {
 				break;
+			}
 			if (r != ARCHIVE_OK) {
 				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename,
 				            archive_error_string(a));
@@ -201,7 +202,7 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 	struct archive* a;
 	struct archive_entry* entry;
 	struct stat st;
-	char buff[8192];
+	std::array<char, 8192> buff;
 	int len;
 
 	QDir dir(dir_path);
@@ -246,10 +247,10 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 			if (!f.open(QIODevice::ReadOnly)) {
 				return false;
 			}
-			len = f.read(buff, sizeof(buff));
+			len = f.read(buff.data(), buff.size());
 			while (len > 0) {
-				archive_write_data(a, buff, len);
-				len = f.read(buff, sizeof(buff));
+				archive_write_data(a, buff.data(), len);
+				len = f.read(buff.data(), buff.size());
 			}
 			f.close();
 			archive_entry_free(entry);

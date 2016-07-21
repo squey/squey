@@ -23,9 +23,6 @@ class PVInputFile : public PVInput
 	~PVInputFile();
 
   public:
-	void release() override;
-
-  public:
 	size_t operator()(char* buffer, size_t n) override;
 	input_offset current_input_offset() override;
 	void seek_begin() override;

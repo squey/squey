@@ -47,6 +47,8 @@ int main()
 		PV_VALID(mapped.get_column(0).to_core_array<uint32_t>()[i],
 		         column.to_core_array<uint32_t>()[i]);
 	}
+#else
+	(void)mapped;
 #endif
 
 	return 0;

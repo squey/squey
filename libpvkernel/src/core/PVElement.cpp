@@ -5,9 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
-#include <pvkernel/core/PVChunk.h>
 
 tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 // std::allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
@@ -27,7 +27,7 @@ PVCore::PVElement::PVElement(PVElement const& src) : PVBufferSlice(src)
 {
 	// No copy must occur !
 	assert(false);
-	_org_buf = NULL;
+	_org_buf = nullptr;
 }
 
 PVCore::PVElement::~PVElement()
@@ -49,7 +49,7 @@ void PVCore::PVElement::init(PVChunk* parent)
 	// In the beggining, it only has a big field
 	// PVField f(*this, begin(), end());
 	//_fields.push_back(f);
-	_org_buf = NULL;
+	_org_buf = nullptr;
 	_org_buf_size = 0;
 }
 
@@ -115,7 +115,7 @@ void PVCore::PVElement::save_elt_buffer()
 
 bool PVCore::PVElement::restore_elt_with_saved_buffer()
 {
-	if (!_org_buf) {
+	if (_org_buf == nullptr) {
 		return false;
 	}
 	assert(_org_buf_size <= physical_size());
@@ -126,13 +126,13 @@ bool PVCore::PVElement::restore_elt_with_saved_buffer()
 
 void PVCore::PVElement::clear_saved_buf()
 {
-	if (!_org_buf) {
+	if (_org_buf == nullptr) {
 		return;
 	}
 
 	static tbb::tbb_allocator<char> alloc;
 	alloc.deallocate(_org_buf, _org_buf_size);
-	_org_buf = NULL;
+	_org_buf = nullptr;
 	_org_buf_size = 0;
 }
 

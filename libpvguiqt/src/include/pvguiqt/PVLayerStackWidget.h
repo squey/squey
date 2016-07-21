@@ -31,7 +31,7 @@ class PVLayerStackWidget : public QWidget
 	Q_OBJECT
 
   public:
-	PVLayerStackWidget(Inendi::PVView& lib_view, QWidget* parent = NULL);
+	PVLayerStackWidget(Inendi::PVView& lib_view, QWidget* parent = nullptr);
 
   public:
 	PVLayerStackView* get_layer_stack_view() const { return _layer_stack_view; }

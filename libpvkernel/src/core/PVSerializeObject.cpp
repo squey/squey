@@ -8,12 +8,12 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-PVCore::PVSerializeObject::PVSerializeObject(QString const& path,
+PVCore::PVSerializeObject::PVSerializeObject(QString path,
                                              PVSerializeArchive* parent_ar,
                                              PVSerializeObject* parent)
     : _parent_ar(parent_ar)
     , _parent(parent)
-    , _logical_path(path)
+    , _logical_path(std::move(path))
     , _is_optional(false)
     , _must_write(true)
     , _bound_obj_type(typeid(void))

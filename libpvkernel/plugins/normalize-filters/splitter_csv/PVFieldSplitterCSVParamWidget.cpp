@@ -37,7 +37,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
 {
 	PVLOG_DEBUG("init PVFieldSplitterCSVParamWidget\n");
 
-	_recommands_label = NULL;
+	_recommands_label = nullptr;
 }
 
 /******************************************************************************
@@ -64,7 +64,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	param_widget->setObjectName("splitter");
 
 	// title
-	QLabel* label = new QLabel(tr("CSV"), NULL);
+	QLabel* label = new QLabel(tr("CSV"), nullptr);
 	label->setAlignment(Qt::AlignHCenter);
 	layout->addWidget(label);
 
@@ -172,7 +172,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
 		QString myLine = data[i];
 		const QChar* start = myLine.constData();
 		QString deep_copy(start, myLine.size());
-		PVCore::PVElement elt(NULL, (char*)deep_copy.constData(),
+		PVCore::PVElement elt(nullptr, (char*)deep_copy.constData(),
 		                      (char*)(deep_copy.constData() + myLine.size()));
 		// Filter this element
 		elt_f(elt);

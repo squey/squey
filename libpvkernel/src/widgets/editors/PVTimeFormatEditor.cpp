@@ -235,7 +235,7 @@ void PVWidgets::PVTimeFormatHelpDlg::validate_time_strings()
 //
 
 PVWidgets::PVTimeValidatorHighLight::PVTimeValidatorHighLight(QTextEdit* parent)
-    : QSyntaxHighlighter(parent), _cur_parser(NULL), _format_has_changed(true)
+    : QSyntaxHighlighter(parent), _cur_parser(nullptr), _format_has_changed(true)
 {
 	_format_match.setBackground(QColor("#00FF00"));
 	_format_no_match.setBackground(QColor("#FF0000"));
@@ -260,7 +260,7 @@ void PVWidgets::PVTimeValidatorHighLight::set_time_format(QString const& str)
 	const QStringList& tf =
 	    QString(str).replace("epoch.S", "epoch").replace("epochS", "epoch").split("\n");
 
-	if (_cur_parser != NULL) {
+	if (_cur_parser != nullptr) {
 		if (_cur_parser->original_time_formats() == tf) {
 			_format_has_changed = false;
 			return;

@@ -116,7 +116,7 @@ class PVQueryBuilderJsonConverter
 
 	/** Push id/value in the in_values dict for later processing.
 	 */
-	void in(rapidjson::Value const& id, rapidjson::Value const& values);
+	void in(rapidjson::Value const& id, rapidjson::Value const& value);
 
 	/** Generate in clause
 	 */
@@ -140,7 +140,7 @@ class PVQueryBuilderJsonConverter
 
 	/** Push id/value in the not_in_values dict for later processing.
 	 */
-	void not_in(rapidjson::Value const& id, rapidjson::Value const& values);
+	void not_in(rapidjson::Value const& id, rapidjson::Value const& value);
 
 	/** Generate begins_with clause
 	 */

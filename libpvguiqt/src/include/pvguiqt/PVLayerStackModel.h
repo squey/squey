@@ -34,7 +34,7 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	Q_OBJECT
 
   public:
-	PVLayerStackModel(Inendi::PVView& lib_view, QObject* parent = NULL);
+	PVLayerStackModel(Inendi::PVView& lib_view, QObject* parent = nullptr);
 
   public:
 	int columnCount(const QModelIndex& index) const override;

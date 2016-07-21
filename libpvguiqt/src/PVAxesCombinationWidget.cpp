@@ -30,8 +30,8 @@ PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort_Slot()));
 	connect(_btn_reset, SIGNAL(clicked()), this, SLOT(reset_comb_Slot()));
 
-	_btn_sel_singleton->setEnabled(view != NULL);
-	if (view != NULL) {
+	_btn_sel_singleton->setEnabled(view != nullptr);
+	if (view != nullptr) {
 		connect(_btn_sel_singleton, SIGNAL(clicked()), this, SLOT(sel_singleton_Slot()));
 	}
 }

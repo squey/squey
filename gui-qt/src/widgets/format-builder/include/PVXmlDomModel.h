@@ -35,7 +35,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	Q_OBJECT
 
   public:
-	PVXmlDomModel(QWidget* parent = NULL);
+	PVXmlDomModel(QWidget* parent = nullptr);
 	virtual ~PVXmlDomModel();
 
 	/*

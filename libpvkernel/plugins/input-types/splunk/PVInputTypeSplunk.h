@@ -31,7 +31,7 @@ class PVInputTypeSplunk : public PVInputTypeDesc<PVSplunkQuery>
 	                  list_inputs& inputs,
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,
-	                  QWidget* parent = NULL) const;
+	                  QWidget* parent = nullptr) const;
 	QString name() const;
 	QString human_name() const;
 	QString human_name_serialize() const;

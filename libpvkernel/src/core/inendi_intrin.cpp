@@ -8,7 +8,7 @@
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/sse4detector.h>
 
-#include <assert.h>
+#include <cassert>
 
 bool PVCore::PVIntrinsics::_has_sse41 = false;
 bool PVCore::PVIntrinsics::_has_sse42 = false;

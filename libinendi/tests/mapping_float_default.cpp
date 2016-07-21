@@ -46,6 +46,8 @@ int main()
 	for (size_t i = 0; i < column.size(); i++) {
 		PV_VALID(mapped.get_column(0).to_core_array<float>()[i], column.to_core_array<float>()[i]);
 	}
+#else
+	(void)mapped;
 #endif
 
 	return 0;

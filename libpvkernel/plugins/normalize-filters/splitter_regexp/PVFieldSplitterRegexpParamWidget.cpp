@@ -23,7 +23,7 @@
 PVFilter::PVFieldSplitterRegexpParamWidget::PVFieldSplitterRegexpParamWidget()
     : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterRegexp()))
 {
-	validator_textEdit = NULL;
+	validator_textEdit = nullptr;
 	PVLOG_DEBUG("constructor PVFieldSplitterRegexpParamWidget\n");
 
 	expressionChanged = false;
@@ -167,7 +167,7 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator()
 	for (PVRow line = 0; line < (PVRow)myText.count(); line++) { // for each line...
 		QString myLine = myText.at(line);
 		const QChar* start = myLine.constData();
-		PVCore::PVElement elt(NULL, (char*)start, (char*)(start + myLine.size()));
+		PVCore::PVElement elt(nullptr, (char*)start, (char*)(start + myLine.size()));
 		elt.fields().push_back(PVCore::PVField(elt, elt.begin(), elt.end()));
 		// Filter this element
 		elt_f(elt);

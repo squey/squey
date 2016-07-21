@@ -7,7 +7,6 @@
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVArgument.h>
-#include <pvkernel/core/PVTimeFormatType.h>
 #include <QStringList>
 #include <QRect>
 #include <QMetaType>
@@ -97,7 +96,7 @@ PVCore::QString_to_PVArgument(const QString& s, const QVariant& v, bool* res_ok 
 		var = v;
 	}
 
-	if (res_ok) {
+	if (res_ok != nullptr) {
 		*res_ok = ok;
 	}
 
@@ -127,7 +126,7 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings,
 		QString const& key = keys.at(i);
 		if (def_args.contains(key)) {
 			QString str;
-			if (settings.value(key).type() == (QVariant::Type)QMetaType::QStringList) {
+			if (settings.value(key).type() == static_cast<QVariant::Type>(QMetaType::QStringList)) {
 				// QSettings returns strings containing commas as QStringList
 				str = settings.value(key).toStringList().join(",");
 			} else {
@@ -157,7 +156,6 @@ void PVCore::PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomEleme
 PVCore::PVArgumentList PVCore::QDomElement_to_PVArgumentList(QDomElement const& elt,
                                                              const PVArgumentList& def_args)
 {
-	// TODO: refaire ça !
 	PVArgumentList args;
 	QDomElement child = elt.firstChildElement("argument");
 	for (; !child.isNull(); child = child.nextSiblingElement("argument")) {

@@ -255,7 +255,7 @@ bool PVRush::PVElasticsearchAPI::clear_scroll()
 	prepare_query(url, _scroll_id);
 	bool res = perform_query(result);
 
-	curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL);
+	curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, nullptr);
 
 	return res;
 }

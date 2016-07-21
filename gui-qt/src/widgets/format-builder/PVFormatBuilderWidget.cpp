@@ -939,7 +939,7 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 	PVRush::PVXmlTreeNodeDom* node = myTreeModel->nodeFromIndex(index);
 
 	// If this is the root item, do nothing.
-	if (!node || node->getParent() == NULL) {
+	if (!node || node->getParent() == nullptr) {
 		_nraw_widget->unselect_column();
 		return;
 	}

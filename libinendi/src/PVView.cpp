@@ -848,7 +848,7 @@ PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
 
 void Inendi::PVView::sort_indexes(PVCol col,
                                   pvcop::db::indexes& idxes,
-                                  tbb::task_group_context* /*ctxt = NULL*/) const
+                                  tbb::task_group_context* /*ctxt = nullptr*/) const
 {
 	BENCH_START(pvcop_sort);
 	pvcop::db::array column = get_rushnraw_parent().collection().column(col);

@@ -39,7 +39,7 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	                          list_inputs& inputs,
 	                          QString& format,
 	                          PVCore::PVArgumentList& args_ext,
-	                          QWidget* parent = NULL) const = 0;
+	                          QWidget* parent = nullptr) const = 0;
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	virtual QString human_name_serialize() const = 0;
@@ -107,8 +107,8 @@ class PVInputTypeDesc : public PVInputType
 		for (it = inputs.begin(); it != inputs.end(); it++) {
 			descs << human_name_of_input(*it);
 		}
-		return obj.list<list_inputs, std::shared_ptr<T>>(name, inputs, human_name_serialize(), NULL,
-		                                                 descs);
+		return obj.list<list_inputs, std::shared_ptr<T>>(name, inputs, human_name_serialize(),
+		                                                 nullptr, descs);
 	}
 
 	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings)

@@ -21,7 +21,7 @@
 Inendi::PVLayerFilter::PVLayerFilter(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(Inendi::PVLayerFilter, args);
-	set_output(NULL);
+	set_output(nullptr);
 	_should_cancel = false;
 }
 

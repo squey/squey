@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVTIMEFORMATTYPE_H
 #define PVCORE_PVTIMEFORMATTYPE_H
 
-#include <QMetaType>
 #include <QStringList>
 
 #include <pvkernel/core/PVArgument.h>

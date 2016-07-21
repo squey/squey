@@ -36,7 +36,7 @@ class PVSerializeArchiveFixError
 	template <class T>
 	bool exception_of_type()
 	{
-		return dynamic_cast<typename PVTypeTraits::pointer<T>::type>(_ar_err.get()) != NULL;
+		return dynamic_cast<typename PVTypeTraits::pointer<T>::type>(_ar_err.get()) != nullptr;
 	}
 
 	template <class T>

@@ -13,6 +13,7 @@
 #include <QByteArray>
 #include <QMutex>
 #include <QString>
+#include <tuple>
 
 #include <pvbase/export.h>
 

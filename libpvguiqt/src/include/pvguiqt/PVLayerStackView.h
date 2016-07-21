@@ -29,7 +29,7 @@ class PVLayerStackView : public QTableView
 	Q_OBJECT
 
   public:
-	PVLayerStackView(QWidget* parent = NULL);
+	PVLayerStackView(QWidget* parent = nullptr);
 
   public:
 	PVLayerStackModel* ls_model();

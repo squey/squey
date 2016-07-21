@@ -35,7 +35,6 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	          c1,
 	          new PVStatsModel(std::move(col1), std::move(col2), abs_max, rel_min, rel_max),
 	          parent)
-	    , _view(view)
 	    , _col2(c2)
 	    , _sel(sel)
 	{
@@ -47,7 +46,6 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	bool process_context_menu(QAction* act);
 
   private:
-	Inendi::PVView& _view;
 	PVCol _col2;
 	Inendi::PVSelection _sel; //!< Store selection to be able to compute 'details'
 	QAction* _act_details;    //!< Action to show details

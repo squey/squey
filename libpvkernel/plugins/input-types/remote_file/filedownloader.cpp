@@ -277,7 +277,7 @@ bool FileDownLoader::download(const QString& remoteFile,
 		d->initializeDownload(remoteFile, settings, hostName, url);
 
 		PVCore::PVProgressBox* progressDialog =
-		    new PVCore::PVProgressBox(tr("Downloading %1...").arg(url.toString()), NULL, 0);
+		    new PVCore::PVProgressBox(tr("Downloading %1...").arg(url.toString()), nullptr, 0);
 
 		CURLcode curlResult;
 		QFuture<void> worker =

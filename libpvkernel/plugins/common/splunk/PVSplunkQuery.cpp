@@ -16,7 +16,7 @@ PVRush::PVSplunkQuery::PVSplunkQuery(PVSplunkInfos const& infos,
     , _query(query)
     , _query_type(query_type)
     , _start_ms(0)
-    , _end_ms((int64_t)(time(NULL)) * 1000)
+    , _end_ms((int64_t)(time(nullptr)) * 1000)
 {
 }
 

@@ -191,12 +191,12 @@ void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget* paramBord, 
 {
 	// if(selectedIndexes())PVLOG_ERROR("selectedIndexes() is null in
 	// PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
-	if (paramBord == NULL) {
+	if (paramBord == nullptr) {
 		PVLOG_ERROR("paramBord is null in "
 		            "PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
 	}
 
-	if (getModel() == NULL) {
+	if (getModel() == nullptr) {
 		PVLOG_ERROR("getModel() is null in "
 		            "PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
 	}
@@ -284,9 +284,9 @@ void PVInspector::PVXmlTreeView::expandRecursive(const QModelIndex& index)
  *****************************************************************************/
 PVInspector::PVXmlDomModel* PVInspector::PVXmlTreeView::getModel()
 {
-	if (model() == NULL) {
+	if (model() == nullptr) {
 		PVLOG_ERROR("no model in PVInspector::PVXmlTreeView::getModel()\n");
-		return NULL;
+		return nullptr;
 	}
 	return ((PVXmlDomModel*)model());
 }

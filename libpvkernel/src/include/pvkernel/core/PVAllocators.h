@@ -54,7 +54,7 @@ class PVPreAllocatedListAllocator
 	};
 
   public:
-	PVPreAllocatedListAllocator() throw() : _p(NULL), _size(0), _scur(0) {}
+	PVPreAllocatedListAllocator() throw() : _p(nullptr), _size(0), _scur(0) {}
 
 	PVPreAllocatedListAllocator(void* buf, size_type n) throw() : _p(buf), _size(n), _scur(0) {}
 	PVPreAllocatedListAllocator(const PVPreAllocatedListAllocator& o) throw()
@@ -75,7 +75,7 @@ class PVPreAllocatedListAllocator
 	pointer allocate(size_type n)
 	{
 		size_t size_buf = sizeof(value_type) * n;
-		if ((_p != NULL) && (_scur + size_buf < _size)) {
+		if ((_p != nullptr) && (_scur + size_buf < _size)) {
 			void* p_ret = (void*)((uintptr_t)_p + _scur);
 			_scur += size_buf;
 			return (pointer)p_ret;
@@ -90,7 +90,7 @@ class PVPreAllocatedListAllocator
 
 	void deallocate(pointer p, size_type n)
 	{
-		if (_p != NULL && (void*)p >= _p && (uintptr_t)p < (uintptr_t)_p + _size) {
+		if (_p != nullptr && (void*)p >= _p && (uintptr_t)p < (uintptr_t)_p + _size) {
 			// The user is responsible for this buffer
 			return;
 		}
@@ -147,7 +147,7 @@ class PVMMapAllocator
 
 	pointer allocate(size_type n)
 	{
-		return (pointer)mmap(NULL, sizeof(value_type) * n, PROT_WRITE | PROT_READ,
+		return (pointer)mmap(nullptr, sizeof(value_type) * n, PROT_WRITE | PROT_READ,
 		                     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	}
 
@@ -293,7 +293,7 @@ class PVReallocableCAllocator
 	pointer allocate(size_type n)
 	{
 		pointer p = (pointer)malloc(n * sizeof(value_type));
-		if (p == NULL) {
+		if (p == nullptr) {
 			throw std::bad_alloc();
 		}
 		return p;
@@ -302,7 +302,7 @@ class PVReallocableCAllocator
 	pointer reallocate(pointer p, size_type /*on*/, size_type nn)
 	{
 		pointer np = (pointer)realloc(p, nn * sizeof(value_type));
-		if (np == NULL) {
+		if (np == nullptr) {
 			throw std::bad_alloc();
 		}
 		return np;
@@ -325,7 +325,7 @@ class PVReallocableCAllocator
 namespace PVMemory
 {
 
-void get_memory_usage(double& vm_usage, double& rss);
+void get_memory_usage(double& vm_usage, double& resident_set);
 }
 }
 

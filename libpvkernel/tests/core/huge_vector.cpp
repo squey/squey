@@ -40,7 +40,7 @@ int main()
 	std::cout << "Clear the buffer." << std::endl;
 	v.clear();
 	PV_VALID(v.size(), (size_t)0);
-	PV_VALID(v.begin(), (pod_vector::pointer)NULL);
+	PV_VALID(v.begin(), (pod_vector::pointer) nullptr);
 
 	return 0;
 }

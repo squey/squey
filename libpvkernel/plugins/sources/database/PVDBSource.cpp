@@ -61,7 +61,7 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 			PVLOG_WARN("(PVDBSource::operator()) unable to exec SQL query '%s': %s.\n",
 			           qPrintable(_sql_query.lastQuery()),
 			           qPrintable(_sql_query.lastError().text()));
-			return NULL;
+			return nullptr;
 		}
 
 		_sql_query.seek(_start);
@@ -78,7 +78,7 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 			//	//query_next_batch();
 			//	if (_sql_query.size() == 0) {
 			if (n == 0) {
-				return NULL;
+				return nullptr;
 			}
 			break;
 			//	}

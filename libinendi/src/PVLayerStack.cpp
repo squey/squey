@@ -78,7 +78,7 @@ Inendi::PVLayer* Inendi::PVLayerStack::append_layer(const PVLayer& layer)
 		return &_table.last();
 	}
 	// FIXME: should have an exception here, that will be treated by the GUI !
-	return NULL;
+	return nullptr;
 }
 
 /******************************************************************************

@@ -36,7 +36,7 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 
   public:
 	enum AddType { addRegEx, addFilter, addAxis, addUrl };
-	PVXmlTreeView(QWidget* parent = NULL);
+	PVXmlTreeView(QWidget* parent = nullptr);
 	virtual ~PVXmlTreeView();
 
 	void addAxisIn();

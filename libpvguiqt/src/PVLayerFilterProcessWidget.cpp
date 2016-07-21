@@ -25,9 +25,9 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* 
     : QDialog(parent)
     , _view(view)
     , _filter_p(filter_p)
-    , _presets_widget(NULL)
-    , _splitter(NULL)
-    , _help_btn(NULL)
+    , _presets_widget(nullptr)
+    , _splitter(nullptr)
+    , _help_btn(nullptr)
     , _args_org(args)
     , _has_apply(false)
 {

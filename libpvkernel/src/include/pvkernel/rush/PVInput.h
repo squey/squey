@@ -24,11 +24,7 @@ class PVInput
 	typedef PVInput_p p_type;
 
   public:
-	PVInput();
-	virtual ~PVInput();
-
-  public:
-	virtual void release(){};
+	virtual ~PVInput() = default;
 
   public:
 	// This method must read at most n bytes and put the result in buffer and returns the number of

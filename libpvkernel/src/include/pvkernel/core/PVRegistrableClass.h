@@ -151,7 +151,7 @@ class PVRegistrableClass
 		// declaration.
 		// See PVCore::PVRegistrableClass documentation for more information.
 		assert(false);
-		return NULL;
+		return nullptr;
 	}
 
   protected:

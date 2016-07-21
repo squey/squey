@@ -31,8 +31,8 @@ QItemEditorFactory*
 PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVView const& view)
 {
 	/* AG: try this later...
-	static QItemEditorFactory* args_widget_factory = NULL;
-	if (args_widget_factory != NULL) {
+	static QItemEditorFactory* args_widget_factory = nullptr;
+	if (args_widget_factory != nullptr) {
 	    return args_widget_factory;
 	}
 	*/
@@ -80,8 +80,8 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory()
 {
 	/* AG: try this later...
-	static QItemEditorFactory* args_widget_factory = NULL;
-	if (args_widget_factory != NULL) {
+	static QItemEditorFactory* args_widget_factory = nullptr;
+	if (args_widget_factory != nullptr) {
 	    return args_widget_factory;
 	}
 	*/

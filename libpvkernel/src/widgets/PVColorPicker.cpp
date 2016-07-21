@@ -24,9 +24,17 @@
  * PVWidgets::PVColorPicker::PVColorPicker
  *****************************************************************************/
 
-PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent) : QWidget(parent)
+PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent)
+    : QWidget(parent)
+    , _x0(0)
+    , _x1(PVCore::PVHSVColor::color_max - 1)
+    , _c(_x0)
+    , _c1(_x1)
+    , _mode(SelectionSingle)
 {
-	init();
+	setFocusPolicy(Qt::StrongFocus);
+
+	setContentsMargins(HORI_MARGIN, VERT_MARGIN, HORI_MARGIN, VERT_MARGIN);
 }
 
 /*****************************************************************************
@@ -34,28 +42,9 @@ PVWidgets::PVColorPicker::PVColorPicker(QWidget* parent) : QWidget(parent)
  *****************************************************************************/
 
 PVWidgets::PVColorPicker::PVColorPicker(PVCore::PVHSVColor const& c, QWidget* parent)
-    : QWidget(parent)
+    : PVColorPicker(parent)
 {
-	init();
 	set_color(c);
-}
-
-/*****************************************************************************
- * PVWidgets::PVColorPicker::init
- *****************************************************************************/
-
-void PVWidgets::PVColorPicker::init()
-{
-	setFocusPolicy(Qt::StrongFocus);
-
-	_x0 = 0;
-	_x1 = PVCore::PVHSVColor::color_max - 1;
-	_c.h() = _x0;
-	_c1.h() = _x1;
-	_mode = SelectionSingle;
-	setFocusPolicy(Qt::StrongFocus);
-
-	setContentsMargins(HORI_MARGIN, VERT_MARGIN, HORI_MARGIN, VERT_MARGIN);
 }
 
 /*****************************************************************************

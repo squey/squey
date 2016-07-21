@@ -65,7 +65,7 @@ class PVFileDescription : public PVInputDescription
 		so.attribute("file_path", _path);
 		PVCore::PVFileSerialize fs(_path);
 		if (so.object("original", fs, "Include original file", !_was_serialized,
-		              (PVCore::PVFileSerialize*)NULL, !_was_serialized, false)) {
+		              (PVCore::PVFileSerialize*)nullptr, !_was_serialized, false)) {
 			_path = fs.get_path();
 			if (!so.is_writing()) {
 				_was_serialized = true;

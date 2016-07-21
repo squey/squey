@@ -50,7 +50,10 @@ void PVCore::PVSerializeArchive::open(QString const& dir, archive_mode mode)
 PVCore::PVSerializeArchive::~PVSerializeArchive()
 {
 	if (_is_opened) {
-		finish();
+		for (auto it = _objs_attributes.constBegin(); it != _objs_attributes.constEnd(); it++) {
+			delete it.value();
+		}
+		_root_obj.reset();
 	}
 }
 
@@ -71,7 +74,7 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString 
 
 void PVCore::PVSerializeArchive::init()
 {
-	_root_obj = allocate_object(_root_dir, NULL);
+	_root_obj = allocate_object(_root_dir, nullptr);
 	create_attributes(*_root_obj);
 	// Version special attribute
 	_root_obj->attribute(QString("version"), _version, (version_t)0);
@@ -113,16 +116,6 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::get_root()
 PVCore::PVSerializeArchive::version_t PVCore::PVSerializeArchive::get_version() const
 {
 	return _version;
-}
-
-void PVCore::PVSerializeArchive::finish()
-{
-	QHash<QString, QSettings*>::const_iterator it;
-	for (it = _objs_attributes.constBegin(); it != _objs_attributes.constEnd(); it++) {
-		delete it.value();
-	}
-	_root_obj.reset();
-	_is_opened = false;
 }
 
 void PVCore::PVSerializeArchive::attribute_write(PVSerializeObject const& so,

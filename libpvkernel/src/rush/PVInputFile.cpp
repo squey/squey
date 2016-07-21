@@ -21,11 +21,6 @@ PVRush::PVInputFile::PVInputFile(const char* path) : _path(path)
 
 PVRush::PVInputFile::~PVInputFile()
 {
-	release();
-}
-
-void PVRush::PVInputFile::release()
-{
 	if (_file.is_open()) {
 		_file.close();
 	}

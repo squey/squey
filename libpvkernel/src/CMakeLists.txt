@@ -109,7 +109,6 @@ rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
 rush/PVFormatVersion.cpp
-rush/PVInput.cpp
 rush/PVInputFile.cpp
 rush/PVCharsetDetect.cpp
 rush/PVAggregator.cpp

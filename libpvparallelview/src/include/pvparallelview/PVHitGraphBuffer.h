@@ -27,7 +27,7 @@ class PVHitGraphBuffer : boost::noncopyable
 	PVHitGraphBuffer(PVHitGraphBuffer&& o)
 	{
 		_buf = o._buf;
-		o._buf = NULL;
+		o._buf = nullptr;
 
 		_nbits = o._nbits;
 		_nblocks = o._nblocks;
@@ -43,7 +43,7 @@ class PVHitGraphBuffer : boost::noncopyable
 	{
 		if (&o != this) {
 			_buf = o._buf;
-			o._buf = NULL;
+			o._buf = nullptr;
 
 			_nbits = o._nbits;
 			_nblocks = o._nblocks;

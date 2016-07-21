@@ -86,7 +86,7 @@ PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 		nelts = boost::python::len(elements);
 		if (nelts == 0) {
 			// That's the end
-			return NULL;
+			return nullptr;
 		}
 
 		chunk = PVCore::PVChunkMem<>::allocate(0, this);
@@ -112,7 +112,7 @@ PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 		}
 	} catch (boost::python::error_already_set const&) {
 		PyErr_Print();
-		return NULL;
+		return nullptr;
 	}
 
 	// Compute the next chunk's index

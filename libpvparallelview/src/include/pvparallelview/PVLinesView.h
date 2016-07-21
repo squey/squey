@@ -106,7 +106,7 @@ class PVLinesView
 	            PVZonesManager const& zm,
 	            PVZonesProcessor& zp_sel,
 	            PVZonesProcessor& zp_bg,
-	            QObject* img_update_receiver = NULL,
+	            QObject* img_update_receiver = nullptr,
 	            uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
   public:

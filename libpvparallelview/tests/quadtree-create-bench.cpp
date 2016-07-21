@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 
 	PVParallelView::common::RAII_backend_init resources;
 	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
-	if (plib_view == NULL) {
+	if (plib_view == nullptr) {
 		return 1;
 	}
 

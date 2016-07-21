@@ -17,21 +17,21 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 		return false;
 	}
 
-	for (PVCore::PVArgumentList::const_iterator it1 = h1.begin(); it1 != h1.end(); it1++) {
-		PVCore::PVArgumentList::const_iterator it2 = h2.find(it1->key());
+	for (const auto& it1 : h1) {
+		auto it2 = h2.find(it1.key());
 		if (it2 == h2.end()) {
 			return false;
 		}
-		if (it1->value().userType() >= QMetaType::User &&
-		    it1->value().userType() == it2->value().userType()) { // custom type
+		if (it1.value().userType() >= QMetaType::User &&
+		    it1.value().userType() == it2->value().userType()) { // custom type
 			const PVArgumentTypeBase* v1 =
-			    static_cast<const PVArgumentTypeBase*>(it1->value().constData());
+			    static_cast<const PVArgumentTypeBase*>(it1.value().constData());
 			const PVArgumentTypeBase* v2 =
 			    static_cast<const PVArgumentTypeBase*>(it2->value().constData());
 			if (!v1->is_equal(*v2)) {
 				return false;
 			}
-		} else if (it1->value() != it2->value()) {
+		} else if (it1.value() != it2->value()) {
 			return false;
 		}
 	}
@@ -65,4 +65,4 @@ bool comp_hash(PVCore::PVArgumentList const& h1,
 
 	return true;
 }
-}
+} // namespace PVCore

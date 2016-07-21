@@ -40,7 +40,7 @@ class PVFullParallelView : public QGraphicsView
 	friend class PVFullParallelScene;
 
   public:
-	PVFullParallelView(QWidget* parent = NULL);
+	PVFullParallelView(QWidget* parent = nullptr);
 	~PVFullParallelView();
 
   public:

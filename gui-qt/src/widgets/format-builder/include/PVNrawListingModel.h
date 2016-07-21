@@ -38,7 +38,7 @@ class PVNrawListingModel : public QAbstractTableModel
 	/**
 	 * Create a listing for NRaw without selection nor content.
 	 */
-	PVNrawListingModel(QObject* parent = NULL);
+	PVNrawListingModel(QObject* parent = nullptr);
 
   public:
 	/**

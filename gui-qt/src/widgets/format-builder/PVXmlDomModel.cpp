@@ -445,7 +445,7 @@ PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
 	PVRush::PVXmlTreeNodeDom* child;
 	QDomElement newAxis = xmlFile.createElement("axis");
 	child = new PVRush::PVXmlTreeNodeDom(newAxis);
-	if (parentNode != NULL) {
+	if (parentNode != nullptr) {
 		assert(parentNode->typeToString() == "field");
 		child->isOnRoot = false;
 	} else {
@@ -506,18 +506,18 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 		field = nodeFromIndex(index);
 		if (field->typeToString() == "field") { // a splitter can be add only in field...
 			if (!trustConfictSplitAxes(index)) {
-				return NULL; // we can't add more than one splitter in a field
+				return nullptr; // we can't add more than one splitter in a field
 			}
 			PVLOG_DEBUG("     adding splitter in a field\n");
 		} else {
 			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
-			return NULL;
+			return nullptr;
 		}
 	} else { // add on the root
 
 		if (!trustConfictSplitAxes(index))
-			return NULL; // we can't add more than one splitter in a field
+			return nullptr; // we can't add more than one splitter in a field
 		field = getRoot();
 	}
 	PVLOG_DEBUG("     adding splitter on root node\n");
@@ -562,7 +562,7 @@ PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
 		} else {
 			QMessageBox::information((QWidget*)QObject::parent(), tr("Format builder"),
 			                         tr("You must select a field first."));
-			return NULL;
+			return nullptr;
 		}
 	} else { // add on the root
 

@@ -45,7 +45,7 @@ static void clearLayout(QLayout* layout)
  *
  *****************************************************************************/
 PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent)
-    : QWidget(parent), _args_widget_factory(NULL), _args(NULL), _mapper(NULL)
+    : QWidget(parent), _args_widget_factory(nullptr), _args(nullptr), _mapper(nullptr)
 {
 	clear_args_state();
 }
@@ -57,7 +57,7 @@ PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent)
  *****************************************************************************/
 PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
                                                       QWidget* parent)
-    : QWidget(parent), _args_widget_factory(args_widget_factory), _args(NULL)
+    : QWidget(parent), _args_widget_factory(args_widget_factory), _args(nullptr)
 {
 	assert(_args_widget_factory);
 	init_widgets();

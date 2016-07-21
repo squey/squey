@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	if (n < 10)
 		n = 10;
 
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	// Generate a random list of IPs
 	list_strings_t ips;

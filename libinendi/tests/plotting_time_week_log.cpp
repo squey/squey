@@ -63,8 +63,8 @@ int main()
 	});
 
 	uint32_t prev = plotted.get_column_pointer(0)[order[0]];
-	constexpr double sec_per_week = std::log2(7 * 24 * 3600);
-	constexpr double ratio = std::numeric_limits<uint32_t>::max() / sec_per_week;
+	const double sec_per_week = std::log2(7 * 24 * 3600);
+	const double ratio = std::numeric_limits<uint32_t>::max() / sec_per_week;
 	PV_VALID(prev, ~(uint32_t)(std::log2(7 * 24 * 3600 -
 	                                     (60 -
 	                                      to_tm(*reinterpret_cast<const boost::posix_time::ptime*>(
@@ -78,6 +78,8 @@ int main()
 	}
 	// We don't have time less than 3 seconds before the end of the week end in the file.
 	PV_ASSERT_VALID(prev >= std::numeric_limits<uint32_t>::max() - (uint32_t)(ratio * 3) - 1);
+#else
+	(void)plotted;
 #endif
 
 	return 0;

@@ -202,8 +202,8 @@ class PVUnicodeSource : public PVRawSourceBase
 
 			UErrorCode status = U_ZERO_ERROR;
 			ucnv_convertEx(&_utf8_converter.get(), &_origin_converter->get(), &target,
-			               _curc->physical_end(), &dest, dest + _tmp_buf.size(), NULL, NULL, NULL,
-			               NULL, true, true, &status);
+			               _curc->physical_end(), &dest, dest + _tmp_buf.size(), nullptr, nullptr,
+			               nullptr, nullptr, true, true, &status);
 			if (U_FAILURE(status)) {
 				throw UnicodeSourceError("Fail conversion from ICU");
 			}
@@ -238,12 +238,12 @@ class PVUnicodeSource : public PVRawSourceBase
 				_curc->init_elements_fields();
 
 				PVCore::PVChunk* ret = _curc;
-				// _nextc is empty, so the next call to this function will return NULL
+				// _nextc is empty, so the next call to this function will return nullptr
 				_curc = _nextc;
 				return ret;
 			} else {
 				// No more data to read
-				return NULL;
+				return nullptr;
 			}
 		}
 
@@ -295,9 +295,9 @@ class PVUnicodeSource : public PVRawSourceBase
 		PVCore::PVChunk* ret = _curc;
 		_curc = _nextc;
 		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
-		if (_nextc == NULL) {
+		if (_nextc == nullptr) {
 			PVLOG_ERROR("(PVRawSource) unable to get a new chunk: end of input\n");
-			return NULL;
+			return nullptr;
 		}
 
 		return ret;
@@ -316,7 +316,7 @@ class PVUnicodeSource : public PVRawSourceBase
 
 	QString human_name() override { return _input->human_name(); }
 
-	void release_input() override { _input->release(); }
+	void release_input() override { _input.reset(); }
 
 	func_type f() { return boost::bind<PVCore::PVChunk*>(&PVUnicodeSource::operator(), this); }
 

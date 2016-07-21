@@ -8,7 +8,7 @@
 #include <pvkernel/core/network.h>
 
 #include <QString>
-#include <stdlib.h>
+#include <cctype>
 
 static uint32_t powui(uint32_t base, uint32_t n)
 {
@@ -25,12 +25,11 @@ bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
 		return false;
 	}
 
-	// TODO: vectorize this
 	uint32_t ndots = 0;
 	uint32_t nip = 0;
 	int32_t cur_d = 2;
 	size_t i = 0;
-	while ((i < n) && isspace(str[i])) {
+	while ((i < n) && (std::isspace(str[i]) != 0)) {
 		i++;
 	}
 	char prev_c = 0;
@@ -59,7 +58,7 @@ bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
 			if (cur_d < 0) {
 				return false;
 			}
-			nip += ((uint32_t)((c - '0'))) * powui(10, cur_d);
+			nip += (static_cast<uint32_t>((c - '0'))) * powui(10, cur_d);
 			cur_d--;
 		}
 		prev_c = c;
@@ -71,7 +70,7 @@ bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
 	ret |= nip;
 	// Check trailing characters
 	for (; i < n; i++) {
-		if (!isspace(str[i])) {
+		if (std::isspace(str[i]) == 0) {
 			return false;
 		}
 	}

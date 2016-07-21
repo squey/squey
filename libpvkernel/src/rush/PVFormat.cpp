@@ -505,7 +505,7 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 	    [](PVCore::list_fields& fields) -> PVCore::list_fields& { return fields; };
 	for (PVRush::PVXmlParamParserData const& fdata : filters_params) {
 		PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
-		if (field_f == NULL) {
+		if (field_f == nullptr) {
 			PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);
 			continue;
 		}
@@ -568,7 +568,7 @@ void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
 	so.attribute("path", full_path);
 	PVCore::PVFileSerialize format_file(full_path);
 	if (so.object("file", format_file, "Include original format file", !_original_was_serialized,
-	              (PVCore::PVFileSerialize*)NULL, !_original_was_serialized, false)) {
+	              (PVCore::PVFileSerialize*)nullptr, !_original_was_serialized, false)) {
 		full_path = format_file.get_path();
 		if (!so.is_writing()) {
 			_original_was_serialized = true;

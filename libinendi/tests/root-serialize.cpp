@@ -79,7 +79,6 @@ int main(int argc, char** argv)
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive(
 	    "/srv/tmp-inendi/test", PVCore::PVSerializeArchive::write, 1));
 	ar->get_root()->object("root", root);
-	ar->finish();
 
 	Inendi::PVRoot root_read;
 
@@ -87,7 +86,6 @@ int main(int argc, char** argv)
 	ar.reset(new PVCore::PVSerializeArchive("/srv/tmp-inendi/test",
 	                                        PVCore::PVSerializeArchive::read, 1));
 	ar->get_root()->object("root", root_read);
-	ar->finish();
 
 	return 0;
 }
