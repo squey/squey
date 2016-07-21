@@ -189,7 +189,7 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 
   public:
-	T& operator()(T& obj) { return obj; }
+	virtual T& operator()(T& obj) = 0;
 };
 }
 

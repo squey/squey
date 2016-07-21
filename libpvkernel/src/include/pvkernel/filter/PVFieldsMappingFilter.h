@@ -19,7 +19,7 @@ class PVFieldsMappingFilter : public PVFieldsFilter<many_to_many>
 	PVFieldsMappingFilter(size_t idx, PVFieldsBaseFilter_p func);
 
   public:
-	PVCore::list_fields& many_to_many(PVCore::list_fields& fields);
+	PVCore::list_fields& many_to_many(PVCore::list_fields& fields) override;
 
   protected:
 	size_t _idx;

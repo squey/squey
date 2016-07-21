@@ -93,7 +93,7 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 	}
 
 	// Filter interface (many-to-many)
-	PVCore::list_fields& operator()(PVCore::list_fields& fields);
+	PVCore::list_fields& operator()(PVCore::list_fields& fields) override;
 
 	void set_number_expected_fields(size_t n)
 	{

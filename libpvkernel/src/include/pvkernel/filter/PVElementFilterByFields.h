@@ -19,7 +19,7 @@ namespace PVFilter
 class PVElementFilterByFields : public PVElementFilter
 {
   public:
-	PVCore::PVElement& operator()(PVCore::PVElement& elt);
+	PVCore::PVElement& operator()(PVCore::PVElement& elt) override;
 	void add_filter(PVFieldsBaseFilter_p&& f) { _ff.push_back(f); }
 
   protected:
