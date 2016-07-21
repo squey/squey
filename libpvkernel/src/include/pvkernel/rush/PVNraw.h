@@ -72,7 +72,13 @@ class PVNraw
 	 */
 	inline PVRow get_row_count() const
 	{
-		return _collection ? _collection->row_count() : _real_nrows;
+		if (_collection) {
+			return _collection->row_count();
+		} else if (_collector) {
+			return _real_nrows;
+		} else {
+			return 0;
+		}
 	}
 	inline PVCol get_number_cols() const
 	{

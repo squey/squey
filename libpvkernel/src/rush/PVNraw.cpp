@@ -129,12 +129,6 @@ void PVRush::PVNraw::load_done(const PVControllerJob::invalid_elements_t& inv_el
 	// Close collector to be sure it is saved before we load it in the collection.
 	_collector->close();
 
-	if (_real_nrows != 0) {
-		// Create the collection only if there are imported lines.
-		_collection.reset(new pvcop::collection(_collector->rootdir()));
-	}
-	_collector.reset();
-
 	// Compute selection of valid elements
 	_valid_rows_sel = PVCore::PVSelBitField(_real_nrows);
 	_valid_rows_sel.select_all();
@@ -142,6 +136,12 @@ void PVRush::PVNraw::load_done(const PVControllerJob::invalid_elements_t& inv_el
 		_valid_rows_sel.set_line(e.first, false);
 	}
 	_valid_elements_count = _valid_rows_sel.bit_count();
+
+	if (_valid_elements_count != 0) {
+		// Create the collection only if there are imported lines.
+		_collection.reset(new pvcop::collection(_collector->rootdir()));
+	}
+	_collector.reset();
 }
 
 /*****************************************************************************
