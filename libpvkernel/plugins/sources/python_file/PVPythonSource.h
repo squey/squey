@@ -18,8 +18,6 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <boost/bind.hpp>
-
 namespace PVRush
 {
 

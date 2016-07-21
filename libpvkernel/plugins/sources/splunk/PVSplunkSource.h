@@ -15,8 +15,6 @@
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <boost/bind.hpp>
-
 #include <QString>
 
 #include "../../common/splunk/PVSplunkAPI.h"

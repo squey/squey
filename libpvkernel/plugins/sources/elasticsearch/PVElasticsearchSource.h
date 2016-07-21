@@ -16,8 +16,6 @@
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <boost/bind.hpp>
-
 #include "../../common/elasticsearch/PVElasticsearchAPI.h"
 
 namespace PVRush
