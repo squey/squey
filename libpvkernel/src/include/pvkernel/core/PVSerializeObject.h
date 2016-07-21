@@ -59,7 +59,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	typedef QHash<QString, p_type> list_childs_t;
 
   protected:
-	PVSerializeObject(QString const& logical_path,
+	PVSerializeObject(QString path,
 	                  PVSerializeArchive* parent_ar,
 	                  PVSerializeObject* parent = nullptr);
 
@@ -300,7 +300,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 
   protected:
 	void error_fixed(PVSerializeArchiveFixError* error);
-	void fix_attribute(QString const& name, QVariant const& v);
+	void fix_attribute(QString const& name, QVariant const& obj);
 	inline const void* bound_obj() const { return _bound_obj; }
 
   public:
