@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 	const char* input_file = argv[1];
 	const char* format = argv[3];
 
-	pvtest::TestEnv env(input_file, format, 1, pvtest::ProcessUntil::View);
+	pvtest::TestEnv env(input_file, format, DUPL, pvtest::ProcessUntil::View);
 
 	std::string output_tmp_file = pvtest::get_tmp_filename();
 
