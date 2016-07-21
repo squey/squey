@@ -10,9 +10,8 @@
  * PVFilter::PVElementFilterByAxes::PVElementFilterByAxes
  *****************************************************************************/
 
-PVFilter::PVElementFilterByAxes::PVElementFilterByAxes(PVFilter::PVFieldsBaseFilter_f fields_f,
-                                                       const fields_mask_t& fields_mask)
-    : PVFilter::PVElementFilterByFields(fields_f), _fields_mask(fields_mask)
+PVFilter::PVElementFilterByAxes::PVElementFilterByAxes(const fields_mask_t& fields_mask)
+    : PVFilter::PVElementFilterByFields(), _fields_mask(fields_mask)
 {
 	INIT_FILTER_NOPARAM(PVFilter::PVElementFilterByAxes);
 }

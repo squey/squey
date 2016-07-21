@@ -141,7 +141,7 @@ class PVFormat
 	int time_format_axis_id;
 
   protected:
-	PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
 	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
 
   protected:
@@ -154,7 +154,6 @@ class PVFormat
 	size_t _line_count;
 
   private:
-	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	bool _have_grep_filter;
 	bool _already_pop;
 	bool _original_was_serialized;

@@ -37,11 +37,10 @@ int main()
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("url");
 
-	PVFilter::PVChunkFilterByElt chk_flt{
-	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields(
-	        [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
-		        return (*sp_lib_p)(fields);
-		    }))};
+	auto ff =
+	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	ff->add_filter(sp_lib_p);
+	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 
 	auto res = ts.run_normalization(chk_flt);
 	std::string output_file = std::get<2>(res);

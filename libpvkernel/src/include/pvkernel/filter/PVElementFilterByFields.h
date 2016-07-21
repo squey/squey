@@ -19,13 +19,11 @@ namespace PVFilter
 class PVElementFilterByFields : public PVElementFilter
 {
   public:
-	PVElementFilterByFields(PVFieldsBaseFilter_f fields_f);
-
-  public:
 	PVCore::PVElement& operator()(PVCore::PVElement& elt);
+	void add_filter(PVFieldsBaseFilter_p&& f) { _ff.push_back(f); }
 
   protected:
-	PVFieldsBaseFilter_f _ff;
+	std::vector<PVFieldsBaseFilter_p> _ff;
 
 	CLASS_FILTER_NONREG_NOPARAM(PVElementFilterByFields)
 };

@@ -437,7 +437,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 	return _already_pop;
 }
 
-PVFilter::PVFieldsBaseFilter_f
+PVFilter::PVFieldsBaseFilter_p
 PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 {
 	PVFilter::PVFieldsFilterReg_p filter_lib = fdata.filter_lib;
@@ -456,14 +456,11 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	}
 	filter_clone->set_children_axes_tag(fdata.children_axes_tag);
 	filter_clone->set_args(fdata.filter_args);
-	_filters_container.push_back(filter_clone);
 
 	// initialize the filter
 	filter_clone->init();
 
-	return [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
-		return (*filter_clone)(fields);
-	};
+	return filter_clone;
 }
 
 PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters()
@@ -481,30 +478,22 @@ std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_
 {
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
 
+	auto filter_by_axes = std::unique_ptr<PVFilter::PVElementFilterByAxes>(
+	    new PVFilter::PVElementFilterByAxes(_fields_mask));
+
 	// Here we create the pipeline according to the format
-	PVFilter::PVFieldsBaseFilter_f final_filter_f =
-	    [](PVCore::list_fields& fields) -> PVCore::list_fields& { return fields; };
 	for (PVRush::PVXmlParamParserData const& fdata : filters_params) {
-		PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
-		if (field_f == nullptr) {
-			PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);
-			continue;
-		}
+		PVFilter::PVFieldsBaseFilter_p field_f = xmldata_to_filter(fdata);
 
 		// Create the mapping (field_id)->field_filter
 		PVFilter::PVFieldsBaseFilter_p mapping(
 		    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f));
-		_filters_container.push_back(mapping);
-
-		// Compose the pipeline
-		final_filter_f = [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
-			return (*mapping)(final_filter_f(fields));
-		};
+		filter_by_axes->add_filter(std::unique_ptr<PVFilter::PVFieldsBaseFilter>(
+		    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f)));
 	}
 
 	// Finalise the pipeline
-	return std::unique_ptr<PVFilter::PVElementFilter>(
-	    new PVFilter::PVElementFilterByAxes{final_filter_f, _fields_mask});
+	return std::unique_ptr<PVFilter::PVElementFilter>(filter_by_axes.release());
 }
 
 QHash<QString, PVRush::PVFormat>

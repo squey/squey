@@ -149,7 +149,6 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 	}
 };
 
-typedef PVFieldsBaseFilter::func_type PVFieldsBaseFilter_f;
 typedef PVFieldsBaseFilter::p_type PVFieldsBaseFilter_p;
 
 typedef PVFieldsBaseFilter PVFieldsFilterReg;

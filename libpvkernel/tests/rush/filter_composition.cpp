@@ -42,6 +42,9 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsSplitter::p_type duplicate_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("duplicate");
+	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p =
+	    LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name(
+	        "regexp");
 
 	PVCore::PVArgumentList args;
 	args["regexp"] = QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/"
@@ -49,6 +52,9 @@ int main()
 	                         "\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)");
 	args["full-line"] = false;
 	regexp_lib_p->set_args(args);
+	args["regexp"] = QString("(yahoo|lnc)");
+	args["reverse"] = true;
+	grep_lib_p->set_args(args);
 	args.clear();
 	args["n"] = 4;
 	duplicate_lib_p->set_args(args);
@@ -56,27 +62,24 @@ int main()
 	// Mapping filters
 
 	// Mapping filter for the URL splitter
-	PVFilter::PVFieldsMappingFilter mapping_url(
-	    3,
-	    [&](PVCore::list_fields& fields) -> PVCore::list_fields& { return (*url_lib_p)(fields); });
+	PVFilter::PVFieldsBaseFilter_p mapping_url(new PVFilter::PVFieldsMappingFilter(3, url_lib_p));
 
 	// Mapping filter for the grep filter
 	PVFilter::PVFieldsBaseFilter_p mapping_grep(new PVFilter::PVFieldsMappingFilter(3, grep_lib_p));
 
 	// Mapping filter for the duplicate filter on the last axis after our regexp
-	PVFilter::PVFieldsMappingFilter mapping_duplicate(
-	    6, [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
-		    return (*duplicate_lib_p)(fields);
-		});
+	PVFilter::PVFieldsBaseFilter_p mapping_duplicate(
+	    new PVFilter::PVFieldsMappingFilter(6, duplicate_lib_p));
 
 	// Final composition
-	PVFilter::PVFieldsBaseFilter_f f_final =
-	    [&](PVCore::list_fields& fields) -> PVCore::list_fields& {
-		return (mapping_url)((mapping_grep)((mapping_duplicate)((*regexp_lib_p)(fields))));
-	};
+	auto ff =
+	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	ff->add_filter(std::move(regexp_lib_p));
+	ff->add_filter(std::move(mapping_duplicate));
+	ff->add_filter(std::move(mapping_grep));
+	ff->add_filter(std::move(mapping_url));
 
-	PVFilter::PVChunkFilterByElt chk_flt{std::unique_ptr<PVFilter::PVElementFilterByFields>(
-	    new PVFilter::PVElementFilterByFields(f_final))};
+	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 
 	auto res = ts.run_normalization(chk_flt);
 	std::string output_file = std::get<2>(res);
