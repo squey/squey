@@ -66,16 +66,17 @@ int main()
 	PVFilter::PVFieldsMappingFilter mapping_url(3, url_lib_p->f());
 
 	// Mapping filter for the grep filter
-	PVFilter::PVFieldsMappingFilter mapping_grep(4, grep_lib_p->f());
+	PVFilter::PVFieldsMappingFilter mapping_grep(3, grep_lib_p->f());
 
 	// Mapping filter for the duplicate filter on the last axis after our regexp
 	PVFilter::PVFieldsMappingFilter mapping_duplicate(6, duplicate_lib_p->f());
 
 	// Final composition
-	PVFilter::PVFieldsBaseFilter_f f_final =
-	    boost::bind(mapping_grep.f(),
-	                boost::bind(mapping_url.f(), boost::bind(mapping_duplicate.f(),
-	                                                         boost::bind(regexp_lib_p->f(), _1))));
+	PVFilter::PVFieldsBaseFilter_f f_final = boost::bind(
+	    mapping_grep.f(),
+	    boost::bind(mapping_url.f(), boost::bind(mapping_grep.f(),
+	                                             boost::bind(mapping_duplicate.f(),
+	                                                         boost::bind(regexp_lib_p->f(), _1)))));
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(f_final);
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
@@ -86,7 +87,7 @@ int main()
 	size_t nelts_org = std::get<0>(res);
 	size_t nelts_valid = std::get<1>(res);
 
-	PV_VALID(nelts_valid, 761UL * nb_dup);
+	PV_VALID(nelts_valid, 760UL * nb_dup);
 	PV_VALID(nelts_org, 1000UL * nb_dup);
 
 #ifndef INSPECTOR_BENCH
