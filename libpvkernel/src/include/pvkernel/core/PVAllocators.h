@@ -100,7 +100,11 @@ class PVPreAllocatedListAllocator
 
 	size_type max_size() const throw() { return _fall_alloc.max_size(); }
 
-	void construct(pointer p, const_reference val) { ::new ((void*)p) value_type(val); }
+	template <class... U>
+	void construct(pointer p, U&&... val)
+	{
+		::new ((void*)p) value_type(std::forward<U>(val)...);
+	}
 
 	void destroy(pointer p) { p->~value_type(); }
 
@@ -165,7 +169,11 @@ class PVMMapAllocator
 		return (absolutemax > 0 ? absolutemax : 1);
 	}
 
-	void construct(pointer p, const_reference val) { ::new ((void*)p) value_type(val); }
+	template <class... U>
+	void construct(pointer p, U&&... val)
+	{
+		::new ((void*)p) value_type(std::forward<U>(val)...);
+	}
 
 	void destroy(pointer p) { p->~value_type(); }
 };
@@ -218,7 +226,11 @@ class PVNUMAHugePagedInterleavedAllocator
 		return (absolutemax > 0 ? absolutemax : 1);
 	}
 
-	void construct(pointer p, const_reference val) { ::new ((void*)p) value_type(val); }
+	template <class... U>
+	void construct(pointer p, U&&... val)
+	{
+		::new ((void*)p) value_type(std::forward<U>(val)...);
+	}
 
 	void destroy(pointer p) { p->~value_type(); }
 };
@@ -272,7 +284,11 @@ class PVAlignedAllocator
 		return (absolutemax > 0 ? absolutemax : 1);
 	}
 
-	void construct(pointer p, const_reference val) { ::new ((void*)p) value_type(val); }
+	template <class... U>
+	void construct(pointer p, U&&... val)
+	{
+		::new ((void*)p) value_type(std::forward<U>(val)...);
+	}
 
 	void destroy(pointer p) { p->~value_type(); }
 
@@ -317,7 +333,11 @@ class PVReallocableCAllocator
 		return (absolutemax > 0 ? absolutemax : 1);
 	}
 
-	void construct(pointer p, const_reference val) { ::new ((void*)p) value_type(val); }
+	template <class... U>
+	void construct(pointer p, U&&... val)
+	{
+		::new ((void*)p) value_type(std::forward<U>(val)...);
+	}
 
 	void destroy(pointer p) { p->~value_type(); }
 };
