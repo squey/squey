@@ -118,18 +118,17 @@ class TestSplitter
 			_chunks.push_back(pc);
 		}
 
-// TODO : Parallelism slow down splitting. It looks like it is a locally issue on
-// function splitter object with bad managed memory.
-#pragma omp parallel reduction(+ : nelts_org, nelts_valid, duration)
+#pragma omp parallel reduction(+ : nelts_org, nelts_valid) reduction(max : duration)
 		{
 			std::ostringstream oss;
+			double local_duration = 0.;
 #pragma omp for nowait
 			for (auto it = _chunks.begin(); it < _chunks.end(); ++it) {
 				PVCore::PVChunk* pc = *it;
 				auto start = std::chrono::steady_clock::now();
 				flt_f(pc);
 				std::chrono::duration<double> dur(std::chrono::steady_clock::now() - start);
-				duration += dur.count();
+				local_duration += dur.count();
 				size_t no = 0;
 				size_t nv = 0;
 				pc->get_elts_stat(no, nv);
@@ -138,6 +137,7 @@ class TestSplitter
 				dump_chunk_csv(*pc, oss);
 				pc->free();
 			}
+			duration = local_duration;
 
 #pragma omp for ordered
 			for (int i = 0; i < omp_get_num_threads(); i++) {
