@@ -158,12 +158,11 @@ void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
 	PVCore::list_fields lf_res;
 	PVCore::PVArgumentList args_match;
 
-	PVCore::list_elts const& le = chunk->c_elements();
-	PVCore::list_elts::const_iterator it_elt;
+	PVCore::list_elts& le = chunk->elements();
 	size_t count = 0;
 	BENCH_START(guessing);
-	for (it_elt = le.begin(); it_elt != le.end(); it_elt++) {
-		PVCore::PVField const& first_f = (*it_elt)->c_fields().front();
+	for (auto it_elt = le.begin(); it_elt != le.end(); it_elt++) {
+		PVCore::PVField& first_f = (*it_elt)->fields().front();
 		sp->guess(_guess_res, first_f);
 		++count;
 		if (count > GUESS_PVELEMENT_SAMPLE_NUMBER) {

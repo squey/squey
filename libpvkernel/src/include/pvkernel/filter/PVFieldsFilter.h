@@ -87,7 +87,7 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 
 	// Argument guessing interface. Used by the format builder in order
 	// to guess the first filter that could be applied to an input
-	virtual bool guess(list_guess_result_t& /*res*/, PVCore::PVField const& /*in_field*/)
+	virtual bool guess(list_guess_result_t& /*res*/, PVCore::PVField& /*in_field*/)
 	{
 		return false;
 	}
