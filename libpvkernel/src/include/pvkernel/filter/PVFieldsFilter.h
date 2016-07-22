@@ -47,13 +47,19 @@ class PVFieldsBaseFilter : public PVFilterFunction<PVCore::list_fields, PVFields
 
 	virtual void init() {}
 
-	virtual void set_children_axes_tag(filter_child_axes_tag_t const& axes)
+	virtual void set_children_axes_tag(filter_child_axes_tag_t const& axes, size_t fields_count)
 	{
+#if DEBUG
+		PVLOG_DEBUG("(PVFieldsFilter) %lu fields and %d tagged axes.\n", fields_count, axes.size());
 		filter_child_axes_tag_t::const_iterator it;
 		for (it = axes.begin(); it != axes.end(); it++) {
 			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set for col %d.\n", qPrintable(it.key()),
 			            it.value());
 		}
+#else
+		(void)axes;
+		(void)fields_count;
+#endif
 		_axes_tag = axes;
 	}
 

@@ -30,7 +30,7 @@ class PVFieldSplitterURL : public PVFieldsFilter<one_to_many>
 	                                           PVCore::PVField& field);
 
   protected:
-	void set_children_axes_tag(filter_child_axes_tag_t const& axes);
+	void set_children_axes_tag(filter_child_axes_tag_t const& axes, size_t fields_count) override;
 
   private:
 	int _col_proto;
