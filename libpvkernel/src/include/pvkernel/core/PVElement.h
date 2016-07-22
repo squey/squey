@@ -43,7 +43,7 @@ class PVElement : public PVBufferSlice
 	PVElement(PVChunk* parent);
 
   public:
-	PVElement(PVElement const& src);
+	PVElement(PVElement const& src) = delete;
 
   public:
 	virtual ~PVElement();

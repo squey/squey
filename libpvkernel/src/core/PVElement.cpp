@@ -23,12 +23,6 @@ PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end)
 	init(parent);
 }
 
-PVCore::PVElement::PVElement(PVElement const& src) : PVBufferSlice(src)
-{
-	// No copy must occur !
-	assert(false);
-}
-
 PVCore::PVElement::~PVElement()
 {
 	static tbb::tbb_allocator<char> alloc;
@@ -48,7 +42,7 @@ void PVCore::PVElement::init(PVChunk* parent)
 void PVCore::PVElement::init_fields(void* fields_buf, size_t size_buf)
 {
 	new (&_fields) list_fields(list_fields::allocator_type(fields_buf, size_buf));
-	_fields.push_back(PVField(*this, begin(), end()));
+	_fields.emplace_back(*this, begin(), end());
 }
 
 bool PVCore::PVElement::valid() const
