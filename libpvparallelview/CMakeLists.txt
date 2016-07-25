@@ -22,10 +22,6 @@ include_directories(${Qt5Widgets_INCLUDE_DIRS})
 find_package(Qt5Xml REQUIRED)
 include_directories(${Qt5Xml_INCLUDE_DIRS})
 
-# For QtConcurrentMap
-find_package(Qt5Concurrent REQUIRED)
-include_directories(${Qt5Concurrent_INCLUDE_DIRS})
-
 # For QGLWidget
 find_package(Qt5OpenGL REQUIRED)
 include_directories(${Qt5OpenGL_INCLUDE_DIRS})

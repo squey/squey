@@ -1072,7 +1072,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		    job_import->cancel();
 		    PVLOG_DEBUG("extractor: job canceled !\n");
 		    // Sucess if we ask to continue with loaded data.
-		    return (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
+		    return (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL2);
 
 		},
 	    QString("Extracting %1...").arg(src->get_format_name()), this);

@@ -232,8 +232,6 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	PVRow step_count = std::min(STEP_COUNT, nrows);
 
 	// Progress Bar for export advancement
-	PVCore::PVProgressBox pbox("Selection export");
-
 	bool export_internal_values = export_selection_dlg._export_internal_values->isChecked();
 
 	PVCore::PVExporter::export_func export_func =
@@ -262,7 +260,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 			    exp.set_step_count(step_count);
 			    exp.export_rows(start);
 			    start += step_count;
-			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
+			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
 				    return;
 			    }
 		    }

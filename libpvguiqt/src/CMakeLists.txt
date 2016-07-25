@@ -109,7 +109,7 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES}
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5Concurrent Qt5OpenGL)
+set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5OpenGL)
 
 set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel pvhwloc ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${OpenMP_LIBRARIES})

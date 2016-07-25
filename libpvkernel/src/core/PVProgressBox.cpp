@@ -22,11 +22,7 @@
  * PVCore::PVProgressBox::PVProgressBox
  *
  *****************************************************************************/
-PVCore::PVProgressBox::PVProgressBox(QString msg,
-                                     QWidget* parent,
-                                     Qt::WindowFlags flags,
-                                     QString const& format_detail)
-    : QDialog(parent, flags), _format_detail(format_detail)
+PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent) : QDialog(parent)
 {
 	hide();
 	QVBoxLayout* layout;
@@ -71,11 +67,11 @@ PVCore::PVProgressBox::PVProgressBox(QString msg,
 	// layout->addItem(layoutCancel);
 	layout->addWidget(widgetCancel);
 	connect(_btnCancel, &QPushButton::clicked, [&] {
-		_cancel_state = CANCEL;
+		_cancel_state = CancelState::CANCEL;
 		cancel();
 	});
 	connect(_btnCancel2, &QPushButton::clicked, [&] {
-		_cancel_state = CANCEL2;
+		_cancel_state = CancelState::CANCEL2;
 		cancel();
 	});
 

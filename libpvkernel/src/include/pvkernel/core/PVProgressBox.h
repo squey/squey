@@ -43,13 +43,12 @@ class PVProgressBox : public QDialog
 	Q_OBJECT
 
   public:
-	enum CancelState { CONTINUE, CANCEL, CANCEL2 };
+	enum class CancelState { CONTINUE, CANCEL, CANCEL2 };
+
+  private:
+	PVProgressBox(QString msg, QWidget* parent);
 
   public:
-	PVProgressBox(QString msg,
-	              QWidget* parent = 0,
-	              Qt::WindowFlags f = 0,
-	              QString const& format_detail = QString());
 	/**
 	* Return the progress bar. It possible to modify Min, Max and progress.
 	*/
@@ -146,7 +145,7 @@ class PVProgressBox : public QDialog
 	QLabel* _detail_label;
 	QLabel* _extended_detail_label;
 	QMutex _ext_str_mutex;
-	volatile CancelState _cancel_state = CONTINUE;
+	volatile CancelState _cancel_state = CancelState::CONTINUE;
 	bool _need_confirmation = false;
 	std::mutex _blocking_msg; //!< Mutex to have blocking message during thread execution.
 	std::condition_variable
