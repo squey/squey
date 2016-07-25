@@ -137,6 +137,10 @@ add_bench(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 add_pv_compile_test(Trush_parser LINKS ${LINK_LIBRARIES} FILES parser.cpp)
 add_pv_compile_test(Trush_format_conv LINKS ${LINK_LIBRARIES} FILES format_conv.cpp)
 
+add_pv_compile_test(Trush_nraw_filtered LINKS ${LINK_LIBRARIES} FILES nraw_filtered.cpp)
+add_test(Trush_nraw_filtered Trush_nraw_filtered)
+add_bench(Trush_nraw_filtered LINKS ${LINK_LIBRARIES} FILES nraw_filtered.cpp)
+
 # Check NRaw fill and dump
 add_pv_compile_test(Trush_bad_splitter LINKS ${LINK_LIBRARIES} FILES bad_splitter.cpp)
 add_test(Trush_bad_splitter Trush_bad_splitter)
