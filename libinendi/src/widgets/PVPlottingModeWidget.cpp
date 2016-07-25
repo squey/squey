@@ -75,5 +75,5 @@ void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
 	                   .get_axes()[axis_id]
 	                   .get_type();
 	populate_from_type(type, mapped);
-	set_mode(props.get_mode());
+	set_mode(QString::fromStdString(props.get_mode()));
 }

@@ -28,10 +28,10 @@ Inendi::PVMappingProperties::PVMappingProperties(std::string const& mode,
                                                  PVCore::PVArgumentList args,
                                                  PVCol idx)
     : _index(idx)
+    , _mode(mode)
     , _mapping_filter(LIB_CLASS(Inendi::PVMappingFilter)::get()
                           .get_class_by_name(QString::fromStdString(_mode))
                           ->clone<PVMappingFilter>())
-    , _mode(mode)
     , _is_uptodate(false)
 {
 	set_args(args);

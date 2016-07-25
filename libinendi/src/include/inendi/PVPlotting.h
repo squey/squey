@@ -8,11 +8,6 @@
 #ifndef INENDI_PVPLOTTING_H
 #define INENDI_PVPLOTTING_H
 
-#include <QList>
-#include <QStringList>
-#include <QLibrary>
-#include <QVector>
-
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -21,6 +16,7 @@
 #include <inendi/PVPlottingFilter.h>
 
 #include <memory>
+#include <list>
 
 namespace Inendi
 {
@@ -68,6 +64,7 @@ class PVPlotting
 	PVRush::PVFormat const& get_format() const;
 
 	PVPlotted* get_plotted() { return _plotted; }
+	PVPlotted const* get_plotted() const { return _plotted; }
 
 	bool is_uptodate() const;
 
@@ -76,13 +73,17 @@ class PVPlotting
 	Inendi::PVPlottingFilter::p_type get_filter_for_col(PVCol col);
 	PVPlottingProperties const& get_properties_for_col(PVCol col) const
 	{
-		assert(col < _columns.size());
-		return _columns.at(col);
+		assert((size_t)col < _columns.size());
+		auto begin = _columns.begin();
+		std::advance(begin, col);
+		return *begin;
 	}
 	PVPlottingProperties& get_properties_for_col(PVCol col)
 	{
-		assert(col < _columns.size());
-		return _columns[col];
+		assert((size_t)col < _columns.size());
+		auto begin = _columns.begin();
+		std::advance(begin, col);
+		return *begin;
 	}
 	bool is_col_uptodate(PVCol j) const;
 
@@ -90,7 +91,7 @@ class PVPlotting
 	void set_name(std::string const& name) { _name = name; }
 
   protected:
-	QList<PVPlottingProperties> _columns;
+	std::list<PVPlottingProperties> _columns;
 
 	PVPlotted* _plotted;
 	std::string _name;

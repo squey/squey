@@ -34,9 +34,6 @@ class PVMappingProperties
 	PVMappingProperties(PVRush::PVAxisFormat const& axis, PVCol idx);
 	PVMappingProperties(std::string const& mode, PVCore::PVArgumentList args, PVCol idx);
 
-	// For serialization
-	PVMappingProperties() { _index = 0; }
-
   public:
 	void set_mode(std::string const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
@@ -65,11 +62,11 @@ class PVMappingProperties
 
   private:
 	pvcop::db::array _minmax;
+	std::string _mode;
 	PVCol _index;
 	std::string _mode;
 	PVMappingFilter::p_type _mapping_filter;
 	PVCore::PVArgumentList _args;
-	std::string _mode;
 	bool _is_uptodate;
 };
 }

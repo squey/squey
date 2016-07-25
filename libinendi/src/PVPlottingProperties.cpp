@@ -5,10 +5,17 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVPlottingProperties.h>
+#include <inendi/PVMapped.h>
+#include <inendi/PVMapping.h>
+#include <inendi/PVPlotted.h>
+#include <inendi/PVPlotting.h>
 #include <inendi/PVPlottingFilter.h>
+#include <inendi/PVPlottingProperties.h>
+#include <inendi/PVSource.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
+
+#include <pvkernel/rush/PVFormatVersion.h>
 
 /******************************************************************************
  *
@@ -22,13 +29,23 @@ Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVFormat const& forma
 
 Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVAxisFormat const& axis_format,
                                                    PVCol idx)
+    : PVPlottingProperties(Inendi::PVAxis(axis_format).get_plotting().toStdString(),
+                           Inendi::PVAxis(axis_format).get_args_plotting(),
+                           idx)
 {
-	_index = idx;
-	Inendi::PVAxis axis(axis_format);
+}
 
-	QString mode = axis.get_plotting();
-	set_args(axis.get_args_plotting());
-	set_mode(mode);
+Inendi::PVPlottingProperties::PVPlottingProperties(std::string const& mode,
+                                                   PVCore::PVArgumentList args,
+                                                   PVCol idx)
+    : _mode(mode)
+    , _index(idx)
+    , _plotting_filter(LIB_CLASS(Inendi::PVPlottingFilter)::get()
+                           .get_class_by_name(QString::fromStdString(_mode))
+                           ->clone<PVPlottingFilter>())
+    , _is_uptodate(false)
+{
+	set_args(args);
 }
 
 void Inendi::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
@@ -46,7 +63,7 @@ void Inendi::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
 	}
 }
 
-void Inendi::PVPlottingProperties::set_mode(QString const& mode)
+void Inendi::PVPlottingProperties::set_mode(std::string const& mode)
 {
 	if (_is_uptodate) {
 		_is_uptodate = (_mode == mode);
@@ -54,7 +71,7 @@ void Inendi::PVPlottingProperties::set_mode(QString const& mode)
 
 	_mode = mode;
 	PVPlottingFilter::p_type lib_filter =
-	    LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(mode);
+	    LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(QString::fromStdString(mode));
 
 	_plotting_filter = lib_filter->clone<PVPlottingFilter>();
 	set_args(_args);
@@ -70,13 +87,37 @@ bool Inendi::PVPlottingProperties::operator==(PVPlottingProperties const& org)
 	return (_plotting_filter == org._plotting_filter) && (_index == org._index);
 }
 
-void Inendi::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so,
-                                             PVCore::PVSerializeArchive::version_t /*v*/)
+Inendi::PVPlottingProperties
+Inendi::PVPlottingProperties::serialize_read(PVCore::PVSerializeObject& so,
+                                             Inendi::PVPlotting const& parent)
+{
+	PVCol idx;
+	so.attribute("index", idx);
+
+	QString mode;
+	so.attribute("mode", mode);
+
+	if (so.get_version() <= 2) {
+		QString type = parent.get_plotted()
+		                   ->get_parent<Inendi::PVSource>()
+		                   .get_rushnraw()
+		                   .collection()
+		                   .formatter(idx)
+		                   ->name();
+		std::string mapped = parent.get_plotted()->get_parent().get_mapping().get_mode_for_col(idx);
+		mode = PVRush::PVFormatVersion::get_plotted_from_format(
+		    type, QString::fromStdString(mapped), mode);
+	}
+
+	PVCore::PVArgumentList args;
+	so.arguments("properties", args, args);
+	return {mode.toStdString(), args, idx};
+}
+
+void Inendi::PVPlottingProperties::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.attribute("index", _index);
-	so.attribute("mode", _mode);
-
-	if (!so.is_writing()) {
-		_is_uptodate = false;
-	}
+	QString mode = QString::fromStdString(_mode);
+	so.attribute("mode", mode);
+	so.arguments("properties", _args, _plotting_filter->get_default_args());
 }
