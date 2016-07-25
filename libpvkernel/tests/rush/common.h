@@ -189,7 +189,7 @@ class TestEnv
 			throw std::runtime_error("Can't read format file " + format_file);
 		}
 
-		std::vector<std::string> filenames{log_file};
+		std::vector<std::string> filenames{_big_file_path};
 		if (extra_input != "") {
 			filenames.push_back(extra_input);
 		}
