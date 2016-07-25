@@ -9,7 +9,6 @@
 
 #include <pvguiqt/PVAboutBoxDialog.h>
 
-#include <pvkernel/core/PVVersion.h>
 #include <License.h>
 
 #include <iostream>

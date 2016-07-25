@@ -46,7 +46,6 @@ core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
 core/PVUtils.cpp
-core/PVVersion.cpp
 core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp
 core/PVConfig.cpp

@@ -17,10 +17,6 @@ set(CTEST_PROJECT_NAME "GuiQt")
 find_package(Qt5Widgets REQUIRED)
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
-# For QNetworkAccessManager
-find_package(Qt5Network REQUIRED)
-include_directories(${Qt5Network_INCLUDE_DIRS})
-
 # For QDomElement
 find_package(Qt5Xml REQUIRED)
 include_directories(${Qt5Xml_INCLUDE_DIRS})

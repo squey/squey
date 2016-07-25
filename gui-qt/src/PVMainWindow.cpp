@@ -34,7 +34,6 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/core/PVVersion.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -155,16 +154,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	QRect r = geometry();
 	r.moveCenter(QApplication::desktop()->screenGeometry(this).center());
 	setGeometry(r);
-
-	// Load version informations
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	_last_known_cur_release =
-	    pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, INENDI_VERSION_INVALID).toUInt();
-	_last_known_maj_release =
-	    pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, INENDI_VERSION_INVALID).toUInt();
-
-	update_check();
 
 	// Set stylesheet
 	QFile css_file(":/gui.css");
@@ -1372,39 +1361,6 @@ void PVInspector::PVMainWindow::treat_invalid_formats(
 		formats_ignored.append(errors_.keys());
 		pvconfig.setValue(PVCONFIG_FORMATS_INVALID_IGNORED, formats_ignored);
 	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::update_check
- *
- *****************************************************************************/
-int PVInspector::PVMainWindow::update_check()
-{
-#ifdef CUSTOMER_RELEASE
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	// If the user does not want us to check for new versions, just don't do it.
-	if (!pvconfig.value("check_new_versions", true).toBool()) {
-		return 1;
-	}
-
-	QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-	QNetworkRequest request;
-
-	connect(manager, SIGNAL(finished(QNetworkReply*)), this,
-	        SLOT(update_reply_finished_Slot(QNetworkReply*)));
-
-	// request.setUrl(QUrl("http://www.picviz.com/update.html"));
-	request.setUrl(QUrl(PVCore::PVVersion::update_url()));
-	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 "
-	                                   "Firefox/5.0 PV/" INENDI_CURRENT_VERSION_STR);
-
-	manager->get(request);
-
-#endif
-
-	return 0;
 }
 
 void PVInspector::PVMainWindow::reset_root()

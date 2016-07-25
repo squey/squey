@@ -26,9 +26,6 @@ typedef unsigned int version_t;
 /*
  * Use it like this: if (INENDI_CURRENT_VERSION >= PVCORE_VERSION(1, 1, 2))
  */
-#define INENDI_MAJOR_VERSION(v) ((v & 0xFF0000)>>16)
-#define INENDI_MINOR_VERSION(v) ((v & 0x00FF00)>>8)
-#define INENDI_PATCH_VERSION(v) ((v & 0x0000FF))
 #define INENDI_VERSION(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 #define INENDI_VERSION_STR(major, minor, patch) _INENDI_VERSION_STR(major, minor, patch)
 
@@ -40,9 +37,5 @@ typedef unsigned int version_t;
 
 #define INENDI_CURRENT_VERSION INENDI_VERSION(INENDI_CURRENT_VERSION_MAJOR, INENDI_CURRENT_VERSION_MINOR, INENDI_CURRENT_VERSION_PATCH)
 #define INENDI_CURRENT_VERSION_STR INENDI_VERSION_STR(INENDI_CURRENT_VERSION_MAJOR, INENDI_CURRENT_VERSION_MINOR, INENDI_CURRENT_VERSION_PATCH)
-
-/* PVConfig settings name */
-#define PVCONFIG_LAST_KNOWN_CUR_RELEASE "version/last_known_cur_release"
-#define PVCONFIG_LAST_KNOWN_MAJ_RELEASE "version/last_known_maj_release"
 
 #endif
