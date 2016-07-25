@@ -897,7 +897,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 
 	// set all axis
 	protocol.setAttribute("name", "Protocol");
-	setEltMappingPlotting(protocol, "enum", "default", "default");
+	setEltMappingPlotting(protocol, "string", "default", "default");
 	protocol.setAttribute("key", "false");
 	protocol.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	protocol.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
@@ -918,21 +918,21 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 	host.setAttribute("tag", PVAXIS_TAG_HOST);
 
 	domain.setAttribute("name", "Domain");
-	setEltMappingPlotting(domain, "host", "default", "default");
+	setEltMappingPlotting(domain, "string", "default", "default");
 	domain.setAttribute("key", "true");
 	domain.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	domain.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 	domain.setAttribute("tag", PVAXIS_TAG_DOMAIN);
 
 	tld.setAttribute("name", "TLD");
-	setEltMappingPlotting(tld, "enum", "default", "default");
+	setEltMappingPlotting(tld, "string", "default", "default");
 	tld.setAttribute("key", "false");
 	tld.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	tld.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 	tld.setAttribute("tag", PVAXIS_TAG_TLD);
 
 	port.setAttribute("name", "Port");
-	setEltMappingPlotting(port, "integer", "default", "port");
+	setEltMappingPlotting(port, "number_int32", "default", "port");
 	port.setAttribute("key", "false");
 	port.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	port.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);

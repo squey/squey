@@ -454,7 +454,7 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	} else if (dynamic_cast<PVFilter::PVFieldFilterGrep*>(filter_clone.get())) {
 		_have_grep_filter = true;
 	}
-	filter_clone->set_children_axes_tag(fdata.children_axes_tag);
+	filter_clone->set_children_axes_tag(fdata.children_axes_tag, fdata.nchildren);
 	filter_clone->set_args(fdata.filter_args);
 
 	// initialize the filter
