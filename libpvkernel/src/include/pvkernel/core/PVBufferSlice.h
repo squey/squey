@@ -148,13 +148,6 @@ class PVBufferSlice
 	 */
 	void allocate_new(size_t n);
 
-  public:
-	/*! \brief Change the buffer list that save the allocated buffers.
-	 *  \param[in] buf_list Reference to the buffer list.
-	 *  \sa PVBufferSlice
-	 */
-	inline void set_buflist(buf_list_t& buf_list) { _buf_list = buf_list; }
-
   private:
 	inline void copy_from(PVBufferSlice const& src)
 	{

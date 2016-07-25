@@ -59,5 +59,3 @@ PVCore::PVField& PVFilter::PVFieldFilterGrep::one_to_one(PVCore::PVField& obj)
 	}
 	return obj;
 }
-
-IMPL_FILTER(PVFilter::PVFieldFilterGrep)

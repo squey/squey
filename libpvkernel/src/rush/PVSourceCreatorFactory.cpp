@@ -92,7 +92,8 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	PVSourceCreator_p sc = format_.second;
 
 	try {
-		PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters_autodetect(1.0, cancellation);
+		PVFilter::PVChunkFilterByEltCancellable chk_flt =
+		    format.create_tbb_filters_autodetect(1.0, cancellation);
 		PVSourceCreator::source_p src = sc->create_source_from_input(input, format);
 
 		if (src.get() == nullptr) {

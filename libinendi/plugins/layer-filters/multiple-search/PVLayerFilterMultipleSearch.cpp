@@ -298,5 +298,3 @@ void Inendi::PVLayerFilterMultipleSearch::show_error(QWidget* parent) const
 	error_message.setDetailedText(values.join("\n"));
 	error_message.exec();
 }
-
-IMPL_FILTER(Inendi::PVLayerFilterMultipleSearch)

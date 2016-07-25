@@ -98,5 +98,3 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterIP::one_to_many(
 
 	return _indexes.size();
 }
-
-IMPL_FILTER(PVFilter::PVFieldSplitterIP)

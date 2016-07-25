@@ -11,9 +11,10 @@
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor()
+PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt)
     : _nraw(new PVRush::PVNraw())
     , _out_nraw(*_nraw)
+    , _chk_flt(std::move(chk_flt))
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
     , _last_start(0)
@@ -40,9 +41,9 @@ void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
 	_agg.add_input(src);
 }
 
-void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilterByElt* chk_flt)
+void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilterByElt&& chk_flt)
 {
-	_chk_flt = chk_flt;
+	_chk_flt = std::move(chk_flt);
 }
 
 PVRush::PVFormat& PVRush::PVExtractor::get_format()
@@ -70,8 +71,8 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	// deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(
-	    new PVControllerJob(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, *_chk_flt,
-	                        _out_nraw, _chunks, _format.have_grep_filter()));
+	    new PVControllerJob(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw,
+	                        _chunks, _format.have_grep_filter()));
 	job->run_job();
 
 	_last_start = start;
@@ -94,7 +95,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	// deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
-	    start, end, 0, PVControllerJob::sc_idx_end, _agg, *_chk_flt, _out_nraw, _chunks, false));
+	    start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, false));
 	job->run_job();
 
 	return job;
@@ -119,11 +120,4 @@ void PVRush::PVExtractor::force_number_axes(PVCol naxes)
 void PVRush::PVExtractor::set_sources_number_fields()
 {
 	_agg.set_sources_number_fields(_format.get_axes().size());
-}
-
-PVCore::PVArgumentList PVRush::PVExtractor::default_args_extractor()
-{
-	PVCore::PVArgumentList args;
-	args["inv_elts"] = false;
-	return args;
 }

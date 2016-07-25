@@ -12,27 +12,9 @@
  * PVFilter::PVFieldConverterStruct::PVFieldConverterStruct
  *
  *****************************************************************************/
-PVFilter::PVFieldConverterStruct::PVFieldConverterStruct(PVCore::PVArgumentList const& args)
-    : PVFieldsConverter()
+PVFilter::PVFieldConverterStruct::PVFieldConverterStruct() : PVFieldsConverter()
 {
-	INIT_FILTER(PVFilter::PVFieldConverterStruct, args);
-}
-
-/******************************************************************************
- *
- * PVFilter::PVFieldConverterStruct::set_args
- *
- *****************************************************************************/
-void PVFilter::PVFieldConverterStruct::set_args(PVCore::PVArgumentList const& args)
-{
-	FilterT::set_args(args);
-}
-
-DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterStruct)
-{
-	PVCore::PVArgumentList args;
-
-	return args;
+	INIT_FILTER_NOPARAM(PVFilter::PVFieldConverterStruct);
 }
 
 /******************************************************************************
@@ -42,15 +24,8 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterStruct)
  *****************************************************************************/
 PVCore::PVField& PVFilter::PVFieldConverterStruct::one_to_one(PVCore::PVField& field)
 {
-
-	std::string str(field.begin(), field.size());
-	str.resize(std::distance(str.begin(), std::remove_if(str.begin(), str.end(),
-	                                                     [](char c) { return std::isalnum(c); })));
-
-	field.allocate_new(str.size());
-	field.set_end(std::copy(str.begin(), str.end(), field.begin()));
+	field.set_end(
+	    std::remove_if(field.begin(), field.end(), [](char c) { return std::isalnum(c); }));
 
 	return field;
 }
-
-IMPL_FILTER(PVFilter::PVFieldConverterStruct)

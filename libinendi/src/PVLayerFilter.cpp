@@ -8,7 +8,6 @@
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVLayer.h>
 
-#include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
 #include <assert.h>
@@ -100,11 +99,6 @@ void Inendi::PVLayerFilter::add_ctxt_menu_entry(QString menu_entry, ctxt_menu_f 
 	_menu_entries[menu_entry] = f;
 }
 
-boost::thread Inendi::PVLayerFilter::launch_in_thread(PVLayer& layer)
-{
-	return boost::thread(boost::bind(&PVLayerFilter::operator(), this, layer));
-}
-
 void Inendi::PVLayerFilter::cancel()
 {
 	_should_cancel = true;
@@ -124,5 +118,3 @@ PVCore::PVPluginPresets<Inendi::PVLayerFilter> Inendi::PVLayerFilter::get_preset
 {
 	return PVCore::PVPluginPresets<PVLayerFilter>(*this, "presets/layer_filters");
 }
-
-IMPL_FILTER(Inendi::PVLayerFilter)

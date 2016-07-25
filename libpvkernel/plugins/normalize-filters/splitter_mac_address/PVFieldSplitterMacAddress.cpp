@@ -73,9 +73,3 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterMacAddress::one_to_many(
 
 	return 6;
 }
-
-/******************************************************************************
- * IMPL_FILTER_NOPARAM
- *****************************************************************************/
-
-IMPL_FILTER_NOPARAM(PVFilter::PVFieldSplitterMacAddress)

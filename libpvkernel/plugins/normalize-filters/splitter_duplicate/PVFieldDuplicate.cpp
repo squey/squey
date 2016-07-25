@@ -51,5 +51,3 @@ PVCore::list_fields::size_type PVFilter::PVFieldDuplicate::one_to_many(
 
 	return ret;
 }
-
-IMPL_FILTER(PVFilter::PVFieldDuplicate)

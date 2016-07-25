@@ -11,5 +11,3 @@ Inendi::PVMappingFilterTime24h::PVMappingFilterTime24h() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterTime24h);
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVMappingFilterTime24h)

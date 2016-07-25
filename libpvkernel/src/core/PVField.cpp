@@ -51,12 +51,6 @@ PVCore::PVElement* PVCore::PVField::elt_parent()
 	return _parent;
 }
 
-void PVCore::PVField::set_parent(PVCore::PVElement& parent)
-{
-	_parent = &parent;
-	set_buflist(parent.realloc_bufs());
-}
-
 size_t PVCore::PVField::get_agg_index_of_parent_element()
 {
 	return _parent->get_elt_agg_index();

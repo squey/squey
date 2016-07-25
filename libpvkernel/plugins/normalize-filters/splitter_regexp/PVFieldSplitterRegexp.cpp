@@ -95,5 +95,3 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(
 
 	return 0;
 }
-
-IMPL_FILTER(PVFilter::PVFieldSplitterRegexp)

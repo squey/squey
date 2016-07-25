@@ -55,7 +55,6 @@ int main()
 	args["regexp"] = QString("(yahoo|lnc)");
 	args["reverse"] = true;
 	grep_lib_p->set_args(args);
-
 	args.clear();
 	args["n"] = 4;
 	duplicate_lib_p->set_args(args);
@@ -63,26 +62,26 @@ int main()
 	// Mapping filters
 
 	// Mapping filter for the URL splitter
-	PVFilter::PVFieldsMappingFilter mapping_url(3, url_lib_p->f());
+	PVFilter::PVFieldsBaseFilter_p mapping_url(new PVFilter::PVFieldsMappingFilter(3, url_lib_p));
 
 	// Mapping filter for the grep filter
-	PVFilter::PVFieldsMappingFilter mapping_grep(3, grep_lib_p->f());
+	PVFilter::PVFieldsBaseFilter_p mapping_grep(new PVFilter::PVFieldsMappingFilter(3, grep_lib_p));
 
 	// Mapping filter for the duplicate filter on the last axis after our regexp
-	PVFilter::PVFieldsMappingFilter mapping_duplicate(6, duplicate_lib_p->f());
+	PVFilter::PVFieldsBaseFilter_p mapping_duplicate(
+	    new PVFilter::PVFieldsMappingFilter(6, duplicate_lib_p));
 
 	// Final composition
-	PVFilter::PVFieldsBaseFilter_f f_final = boost::bind(
-	    mapping_grep.f(),
-	    boost::bind(mapping_url.f(), boost::bind(mapping_grep.f(),
-	                                             boost::bind(mapping_duplicate.f(),
-	                                                         boost::bind(regexp_lib_p->f(), _1)))));
+	auto ff =
+	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	ff->add_filter(std::move(regexp_lib_p));
+	ff->add_filter(std::move(mapping_duplicate));
+	ff->add_filter(std::move(mapping_grep));
+	ff->add_filter(std::move(mapping_url));
 
-	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(f_final);
-	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
-	auto flt_f = chk_flt->f();
+	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 
-	auto res = ts.run_normalization(flt_f);
+	auto res = ts.run_normalization(chk_flt);
 	std::string output_file = std::get<2>(res);
 	size_t nelts_org = std::get<0>(res);
 	size_t nelts_valid = std::get<1>(res);

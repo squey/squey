@@ -14,8 +14,8 @@
  * PVFilter::PVCore::PVFieldsMappingFilter::PVCore::PVFieldsMappingFilter
  *
  *****************************************************************************/
-PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(size_t idx, PVFieldsBaseFilter_f func)
-    : _idx(idx), _func(func)
+PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(size_t idx, PVFieldsBaseFilter_p func)
+    : _idx(idx), _func(std::move(func))
 {
 }
 
@@ -40,7 +40,7 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 	fields.erase(it_curf);
 
 	// Apply the filter
-	PVCore::list_fields& final_fields = _func(tmp_fields);
+	PVCore::list_fields& final_fields = (*_func)(tmp_fields);
 
 	// If any fields is incorrect, abort the splitting on this element.
 	if (std::any_of(final_fields.begin(), final_fields.end(),

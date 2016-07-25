@@ -102,5 +102,3 @@ PVCore::PVArgumentList Inendi::PVLayerFilterAxisGradient::gradient_menu(PVRow /*
 	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 	return args;
 }
-
-IMPL_FILTER(Inendi::PVLayerFilterAxisGradient)

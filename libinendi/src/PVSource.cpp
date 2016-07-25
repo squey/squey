@@ -8,7 +8,6 @@
 #include <pvkernel/core/PVConfig.h>
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
-#include <pvkernel/filter/PVElementFilterByFields.h>
 
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVNrawOutput.h>
@@ -43,6 +42,8 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            size_t ext_start,
                            size_t ext_end)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
+    , _extractor(PVFilter::PVChunkFilterByElt(
+          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
     , _inputs(inputs)
     , _src_plugin(sc)
     , _nraw(_extractor.get_nraw())
@@ -132,11 +133,8 @@ void Inendi::PVSource::extract_finished()
 void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
-	_extractor.get_format().restore_invalid_evts(true);
 	_axes_combination.set_from_format(_extractor.get_format());
-
-	PVFilter::PVChunkFilterByElt* chk_flt = _extractor.get_format().create_tbb_filters();
-	_extractor.set_chunk_filter(chk_flt);
+	_extractor.set_chunk_filter(_extractor.get_format().create_tbb_filters());
 }
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()

@@ -318,8 +318,6 @@ class PVUnicodeSource : public PVRawSourceBase
 
 	void release_input() override { _input.reset(); }
 
-	func_type f() { return boost::bind<PVCore::PVChunk*>(&PVUnicodeSource::operator(), this); }
-
 	void prepare_for_nelts(chunk_index /*nelts*/) override {}
 
 	input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx) override

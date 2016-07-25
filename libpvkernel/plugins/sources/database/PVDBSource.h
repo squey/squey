@@ -13,7 +13,6 @@
 #include "../../common/database/PVDBQuery.h"
 
 #include <pvkernel/core/PVChunk.h>
-#include <boost/bind.hpp>
 
 #include <QSqlDatabase>
 
@@ -34,9 +33,6 @@ class PVDBSource : public PVRawSourceBase
 	virtual PVCore::PVChunk* operator()();
 	virtual input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx);
 
-  public:
-	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVDBSource::operator(), this); }
-
   private:
 	void query_next_batch();
 
@@ -47,11 +43,6 @@ class PVDBSource : public PVRawSourceBase
 	chunk_index _nelts_chunk;
 	chunk_index _next_index;
 	QSqlQuery _sql_query;
-
-  private:
-	// typedef std::vector< PVCore::PVField, tbb::cache_aligned_allocator<PVCore::PVField> >
-	// vec_fields_t;
-	// vec_fields_t _vec_fields;
 };
 }
 

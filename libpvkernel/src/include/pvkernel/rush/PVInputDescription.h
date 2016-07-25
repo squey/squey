@@ -10,12 +10,10 @@
 
 #include <pvkernel/core/PVSerializeArchive.h>
 
-#include <memory>
-
 namespace PVRush
 {
 
-class PVInputDescription : public std::enable_shared_from_this<PVInputDescription>
+class PVInputDescription
 {
 	friend class PVCore::PVSerializeObject;
 

@@ -16,7 +16,6 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
-#include <boost/bind.hpp>
 
 #include <EXTERN.h>
 
@@ -50,9 +49,6 @@ class PVPerlSource : public PVRawSourceBase
 	{
 		return 0;
 	}
-
-  public:
-	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVPerlSource::operator(), this); }
 
   protected:
 	QString _perl_file;

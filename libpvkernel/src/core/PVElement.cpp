@@ -23,17 +23,8 @@ PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end)
 	init(parent);
 }
 
-PVCore::PVElement::PVElement(PVElement const& src) : PVBufferSlice(src)
-{
-	// No copy must occur !
-	assert(false);
-	_org_buf = nullptr;
-}
-
 PVCore::PVElement::~PVElement()
 {
-	clear_saved_buf();
-
 	static tbb::tbb_allocator<char> alloc;
 	buf_list_t::const_iterator it;
 	for (it = _reallocated_buffers.begin(); it != _reallocated_buffers.end(); it++) {
@@ -46,17 +37,12 @@ void PVCore::PVElement::init(PVChunk* parent)
 	_valid = true;
 	_filtered = false;
 	_parent = parent;
-	// In the beggining, it only has a big field
-	// PVField f(*this, begin(), end());
-	//_fields.push_back(f);
-	_org_buf = nullptr;
-	_org_buf_size = 0;
 }
 
 void PVCore::PVElement::init_fields(void* fields_buf, size_t size_buf)
 {
 	new (&_fields) list_fields(list_fields::allocator_type(fields_buf, size_buf));
-	_fields.push_back(PVField(*this, begin(), end()));
+	_fields.emplace_back(*this, begin(), end());
 }
 
 bool PVCore::PVElement::valid() const
@@ -102,44 +88,6 @@ PVCore::PVChunk* PVCore::PVElement::chunk_parent()
 PVCore::buf_list_t& PVCore::PVElement::realloc_bufs()
 {
 	return _reallocated_buffers;
-}
-
-void PVCore::PVElement::save_elt_buffer()
-{
-	clear_saved_buf();
-	static tbb::tbb_allocator<char> alloc;
-	_org_buf = alloc.allocate(size());
-	_org_buf_size = size();
-	memcpy(_org_buf, begin(), size());
-}
-
-bool PVCore::PVElement::restore_elt_with_saved_buffer()
-{
-	if (_org_buf == nullptr) {
-		return false;
-	}
-	assert(_org_buf_size <= physical_size());
-	memcpy(begin(), _org_buf, _org_buf_size);
-	clear_saved_buf();
-	return true;
-}
-
-void PVCore::PVElement::clear_saved_buf()
-{
-	if (_org_buf == nullptr) {
-		return;
-	}
-
-	static tbb::tbb_allocator<char> alloc;
-	alloc.deallocate(_org_buf, _org_buf_size);
-	_org_buf = nullptr;
-	_org_buf_size = 0;
-}
-
-char* PVCore::PVElement::get_saved_elt_buffer(size_t& n)
-{
-	n = _org_buf_size;
-	return _org_buf;
 }
 
 chunk_index PVCore::PVElement::get_elt_agg_index()

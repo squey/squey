@@ -103,13 +103,7 @@ template <class F>
 class PVFunctionArgs : public PVFunctionArgsBase
 {
   public:
-	typedef F func_type;
-
-  public:
 	PVFunctionArgs(PVArgumentList const& args = PVArgumentList()) : PVFunctionArgsBase(args) {}
-
-  public:
-	virtual func_type f() = 0;
 };
 }
 

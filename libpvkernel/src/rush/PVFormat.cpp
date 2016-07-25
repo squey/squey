@@ -23,23 +23,17 @@
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
-#include <pvkernel/filter/PVChunkFilterByEltRestoreInvalid.h>
-#include <pvkernel/filter/PVChunkFilterByEltSaveInvalid.h>
 #include <pvkernel/filter/PVElementFilterByAxes.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
 
 #include <pvcop/types/impl/formatter_factory.h>
 
-#include <pcrecpp.h>
-
 PVRush::PVFormat::PVFormat() : _have_grep_filter(false)
 {
 	axes_count = 0;
-	_dump_elts = false;
 	_already_pop = false;
 	_original_was_serialized = false;
-	_restore_inv_elts = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_) : PVFormat()
@@ -416,6 +410,9 @@ bool PVRush::PVFormat::populate_from_xml(QString filename, bool forceOneAxis)
 bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis)
 {
 	filters_params = xml_parser.getFields();
+	if (filters_params.empty()) {
+		throw std::runtime_error("Format with no axes does not make sens");
+	}
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
 	_fields_mask = xml_parser.getFieldsMask();
@@ -440,7 +437,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 	return _already_pop;
 }
 
-PVFilter::PVFieldsBaseFilter_f
+PVFilter::PVFieldsBaseFilter_p
 PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 {
 	PVFilter::PVFieldsFilterReg_p filter_lib = fdata.filter_lib;
@@ -459,70 +456,44 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	}
 	filter_clone->set_children_axes_tag(fdata.children_axes_tag);
 	filter_clone->set_args(fdata.filter_args);
-	_filters_container.push_back(filter_clone);
 
 	// initialize the filter
 	filter_clone->init();
 
-	return filter_clone->f();
+	return filter_clone;
 }
 
-PVFilter::PVChunkFilterByElt* PVRush::PVFormat::create_tbb_filters()
+PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters()
 {
-	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	assert(elt_f);
-	if (_dump_elts) {
-		return new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f);
-	} else if (_restore_inv_elts) {
-		return new PVFilter::PVChunkFilterByEltRestoreInvalid(elt_f);
-	} else {
-		return new PVFilter::PVChunkFilterByElt(elt_f);
-	}
+	return {create_tbb_filters_elt()};
 }
 
-PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters_autodetect(float timeout,
-                                                                          bool* cancellation)
+PVFilter::PVChunkFilterByEltCancellable
+PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellation)
 {
-	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	assert(elt_f);
-	PVFilter::PVChunkFilter* chk_flt =
-	    new PVFilter::PVChunkFilterByEltCancellable(elt_f, timeout, cancellation);
-	return chk_flt->f();
+	return {create_tbb_filters_elt(), timeout, cancellation};
 }
 
-PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
+std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_elt()
 {
-	// We have to always return a valid filter function (even if this is
-	// for a null processing filter).
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
-	if (filters_params.size() == 0) { // No filters, set an empty filter
-		PVFilter::PVElementFilter* efnull = new PVFilter::PVElementFilter();
-		return efnull->f();
-	}
+
+	auto filter_by_axes = std::unique_ptr<PVFilter::PVElementFilterByAxes>(
+	    new PVFilter::PVElementFilterByAxes(_fields_mask));
 
 	// Here we create the pipeline according to the format
-	PVFilter::PVFieldsBaseFilter_f final_filter_f =
-	    [](PVCore::list_fields& fields) -> PVCore::list_fields& { return fields; };
 	for (PVRush::PVXmlParamParserData const& fdata : filters_params) {
-		PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
-		if (field_f == nullptr) {
-			PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);
-			continue;
-		}
+		PVFilter::PVFieldsBaseFilter_p field_f = xmldata_to_filter(fdata);
 
 		// Create the mapping (field_id)->field_filter
 		PVFilter::PVFieldsBaseFilter_p mapping(
 		    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f));
-		_filters_container.push_back(mapping);
-
-		// Compose the pipeline
-		final_filter_f = boost::bind(mapping->f(), boost::bind(final_filter_f, _1));
+		filter_by_axes->add_filter(std::unique_ptr<PVFilter::PVFieldsBaseFilter>(
+		    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f)));
 	}
 
 	// Finalise the pipeline
-	auto* elt_f = new PVFilter::PVElementFilterByAxes(final_filter_f, _fields_mask);
-
-	return elt_f->f();
+	return std::unique_ptr<PVFilter::PVElementFilter>(filter_by_axes.release());
 }
 
 QHash<QString, PVRush::PVFormat>

@@ -18,8 +18,6 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <boost/bind.hpp>
-
 namespace PVRush
 {
 
@@ -38,12 +36,6 @@ class PVPythonSource : public PVRawSourceBase
 	                                                 chunk_index& /*known_idx*/)
 	{
 		return 0;
-	}
-
-  public:
-	virtual func_type f()
-	{
-		return boost::bind<PVCore::PVChunk*>(&PVPythonSource::operator(), this);
 	}
 
   protected:

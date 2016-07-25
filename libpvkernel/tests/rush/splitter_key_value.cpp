@@ -75,11 +75,12 @@ int main()
 
 	sp_lib_p->set_args(args);
 
-	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
-	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
-	PVFilter::PVChunkFilter_f flt_f = chk_flt->f();
+	auto ff =
+	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	ff->add_filter(sp_lib_p);
+	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 
-	auto res = ts.run_normalization(flt_f);
+	auto res = ts.run_normalization(chk_flt);
 	std::string output_file = std::get<2>(res);
 	size_t nelts_org = std::get<0>(res);
 	size_t nelts_valid = std::get<1>(res);

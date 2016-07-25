@@ -15,8 +15,6 @@
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <boost/bind.hpp>
-
 #include <QString>
 
 #include "../../common/splunk/PVSplunkAPI.h"
@@ -43,12 +41,6 @@ class PVSplunkSource : public PVRawSourceBase
 	                                         chunk_index& /*known_idx*/) override
 	{
 		return 0;
-	}
-
-  public:
-	func_type f() override
-	{
-		return boost::bind<PVCore::PVChunk*>(&PVSplunkSource::operator(), this);
 	}
 
   protected:

@@ -21,6 +21,7 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
+#include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
@@ -98,10 +99,10 @@ class PVFormat
 	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
 	bool populate(bool forceOneAxis = false);
 
-	PVFilter::PVChunkFilter_f create_tbb_filters_autodetect(float timeout,
-	                                                        bool* cancellation = nullptr);
-	PVFilter::PVChunkFilterByElt* create_tbb_filters();
-	PVFilter::PVElementFilter_f create_tbb_filters_elt();
+	PVFilter::PVChunkFilterByEltCancellable
+	create_tbb_filters_autodetect(float timeout, bool* cancellation = nullptr);
+	PVFilter::PVChunkFilterByElt create_tbb_filters();
+	std::unique_ptr<PVFilter::PVElementFilter> create_tbb_filters_elt();
 
 	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix,
 	                                                            QString const& dir);
@@ -110,9 +111,6 @@ class PVFormat
 	QString const& get_full_path() const;
 
 	bool exists() const;
-
-	void dump_elts(bool dump) { _dump_elts = dump; }
-	void restore_invalid_evts(bool restore) { _restore_inv_elts = restore; }
 
 	list_axes_t const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
@@ -143,7 +141,7 @@ class PVFormat
 	int time_format_axis_id;
 
   protected:
-	PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
 	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
 
   protected:
@@ -156,12 +154,9 @@ class PVFormat
 	size_t _line_count;
 
   private:
-	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	bool _have_grep_filter;
-	bool _dump_elts;
 	bool _already_pop;
 	bool _original_was_serialized;
-	bool _restore_inv_elts;
 };
 };
 

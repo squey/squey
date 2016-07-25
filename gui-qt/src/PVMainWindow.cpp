@@ -585,9 +585,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	// PVInputType::list_inputs is a QList<PVInputDescription_p>
 	PVRush::PVInputType::list_inputs inputs;
 
-	PVCore::PVArgumentList args_extract = PVRush::PVExtractor::default_args_extractor();
+	PVCore::PVArgumentList args;
 
-	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args_extract, this))
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args, this))
 		return; // This means that the user pressed the "cancel" button
 
 	// Add the new formats to the formats
@@ -643,10 +643,11 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		connect(pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
 
 		if (!PVCore::PVProgressBox::progress(
-		        boost::bind(&PVMainWindow::auto_detect_formats, this,
-		                    PVFormatDetectCtxt(inputs, hash_input_name, formats, format_creator,
-		                                       files_multi_formats, discovered, formats_error, lcr,
-		                                       in_t, discovered_types)),
+		        [&]() {
+			        auto_detect_formats(PVFormatDetectCtxt(
+			            inputs, hash_input_name, formats, format_creator, files_multi_formats,
+			            discovered, formats_error, lcr, in_t, discovered_types));
+			    },
 		        pbox)) {
 			return;
 		}
@@ -1088,7 +1089,7 @@ static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
 
 	QObject::connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
 	// launch a thread in order to update the status of the progress bar
-	boost::thread th_status(boost::bind(update_status_ext, pbox, job));
+	boost::thread th_status([&]() { update_status_ext(pbox, job); });
 	pbox->launch_timer_status();
 
 	// Show the progressBox
@@ -1146,9 +1147,9 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	if (src->has_nraw_folder()) {
 		BENCH_START(lfd);
 		try {
-			if (!PVCore::PVProgressBox::progress(
-			        boost::bind<bool>(&Inendi::PVSource::load_from_disk, src),
-			        tr("Loading sources from disk..."), loaded_from_disk, this)) {
+			if (!PVCore::PVProgressBox::progress([src]() { return src->load_from_disk(); },
+			                                     tr("Loading sources from disk..."),
+			                                     loaded_from_disk, this)) {
 				return false;
 			}
 		} catch (std::exception& e) {

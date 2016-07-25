@@ -11,5 +11,3 @@ Inendi::PVMappingFilterTimeWeek::PVMappingFilterTimeWeek() : PVMappingFilter()
 {
 	INIT_FILTER_NOPARAM(PVMappingFilterTimeWeek);
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVMappingFilterTimeWeek)

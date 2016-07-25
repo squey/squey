@@ -77,24 +77,27 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 	    tbb::filter::serial_in_order, [this](tbb::flow_control& fc) { return _agg(fc); });
 
 	// The "job" filter
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel,
-	                                                                   _split_filter.f());
-
-	// Final output filter
-	tbb::filter_t<PVCore::PVChunk*, void> out_filter(tbb::filter::parallel, _out_filter.f());
+	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(
+	    tbb::filter::parallel, [this](PVCore::PVChunk* chunk) { return _split_filter(chunk); });
 
 	// The next dump filter, that dumps all the invalid events
-	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::parallel,
-	                                                                       _elt_invalid_filter.f());
+	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(
+	    tbb::filter::serial_out_of_order,
+	    [this](PVCore::PVChunk* chunk) { return _elt_invalid_filter(chunk); });
 
 	auto filter = input_filter & transform_filter & dump_inv_elts_filter;
 
 	if (_compact_nraw) {
 		// The next dump filter, that dumps all the invalid events
 		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> ignore_inv_elts_filter(
-		    tbb::filter::serial_in_order, _elt_invalid_remove.f());
+		    tbb::filter::serial_in_order,
+		    [this](PVCore::PVChunk* chunk) { return _elt_invalid_remove(chunk); });
 		filter = filter & ignore_inv_elts_filter;
 	}
+
+	// Final output filter
+	tbb::filter_t<PVCore::PVChunk*, void> out_filter(
+	    tbb::filter::parallel, [this](PVCore::PVChunk* chunk) { _out_filter(chunk); });
 
 	return filter & out_filter;
 }

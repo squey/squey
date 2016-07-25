@@ -16,8 +16,6 @@
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <boost/bind.hpp>
-
 #include "../../common/elasticsearch/PVElasticsearchAPI.h"
 
 namespace PVRush
@@ -38,12 +36,6 @@ class PVElasticsearchSource : public PVRawSourceBase
 	                                         chunk_index& /*known_idx*/) override
 	{
 		return 0;
-	}
-
-  public:
-	func_type f() override
-	{
-		return boost::bind<PVCore::PVChunk*>(&PVElasticsearchSource::operator(), this);
 	}
 
   protected:

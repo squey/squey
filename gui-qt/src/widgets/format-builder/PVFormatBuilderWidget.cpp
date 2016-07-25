@@ -816,7 +816,8 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 
 void PVInspector::PVFormatBuilderWidget::create_extractor()
 {
-	_log_extract.reset(new PVRush::PVExtractor());
+	_log_extract.reset(new PVRush::PVExtractor(PVFilter::PVChunkFilterByElt(
+	    std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter()))));
 }
 
 /******************************************************************************
@@ -884,7 +885,6 @@ PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	PVRush::PVFormat format;
-	format.dump_elts(true);
 	format.populate_from_xml(rootDom, true);
 	return format;
 }

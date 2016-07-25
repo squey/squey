@@ -8,7 +8,6 @@
 #ifndef PVRUSH_PVTESTS_H
 #define PVRUSH_PVTESTS_H
 
-#include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 
 namespace PVRush

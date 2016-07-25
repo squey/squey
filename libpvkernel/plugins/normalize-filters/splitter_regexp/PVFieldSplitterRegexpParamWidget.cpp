@@ -156,7 +156,8 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator()
 	QStringList myText = validator_textEdit->toPlainText().split("\n");
 	table_validator_TableWidget->setRowCount(myText.count());
 
-	PVFilter::PVElementFilterByFields elt_f(_filter->f());
+	PVFilter::PVElementFilterByFields elt_f;
+	elt_f.add_filter(_filter);
 
 	// Text selections list
 	QList<QTextEdit::ExtraSelection> rx_sels;

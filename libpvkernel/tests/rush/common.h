@@ -4,14 +4,16 @@
 #include "test-env.h"
 #include "helpers.h"
 
+#include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/rush/PVFileDescription.h>
+#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include <pvkernel/rush/PVFileDescription.h>
-#include <pvkernel/rush/PVSourceCreator.h>
-#include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 
 #include <QCoreApplication>
@@ -101,7 +103,7 @@ class TestSplitter
 	~TestSplitter() { std::remove(_big_file_path.c_str()); }
 
 	std::tuple<size_t, size_t, std::string>
-	run_normalization(std::function<PVCore::PVChunk*(PVCore::PVChunk*)> const& flt_f)
+	run_normalization(PVFilter::PVChunkFilterByElt const& flt_f)
 	{
 		std::string output_file = get_tmp_filename();
 		// Extract source and split fields.
@@ -116,18 +118,17 @@ class TestSplitter
 			_chunks.push_back(pc);
 		}
 
-// TODO : Parallelism slow down splitting. It looks like it is a locally issue on
-// function splitter object with bad managed memory.
-#pragma omp parallel reduction(+ : nelts_org, nelts_valid, duration)
+#pragma omp parallel reduction(+ : nelts_org, nelts_valid) reduction(max : duration)
 		{
 			std::ostringstream oss;
+			double local_duration = 0.;
 #pragma omp for nowait
 			for (auto it = _chunks.begin(); it < _chunks.end(); ++it) {
 				PVCore::PVChunk* pc = *it;
 				auto start = std::chrono::steady_clock::now();
 				flt_f(pc);
 				std::chrono::duration<double> dur(std::chrono::steady_clock::now() - start);
-				duration += dur.count();
+				local_duration += dur.count();
 				size_t no = 0;
 				size_t nv = 0;
 				pc->get_elts_stat(no, nv);
@@ -136,6 +137,7 @@ class TestSplitter
 				dump_chunk_csv(*pc, oss);
 				pc->free();
 			}
+			duration = local_duration;
 
 #pragma omp for ordered
 			for (int i = 0; i < omp_get_num_threads(); i++) {
@@ -172,7 +174,9 @@ class TestEnv
 	        std::string const& format_file,
 	        size_t dup = 1,
 	        std::string const& extra_input = "")
-	    : _format("format", QString::fromStdString(format_file))
+	    : _ext(PVFilter::PVChunkFilterByElt(
+	          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
+	    , _format("format", QString::fromStdString(format_file))
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 

@@ -7,18 +7,16 @@
 
 #include "PVFieldConverterGUIDToIPParamWidget.h"
 #include "PVFieldGUIDToIP.h"
-#include <pvkernel/filter/PVFieldsFilter.h>
+
 #include <pvkernel/filter/PVElementFilterByFields.h>
+#include <pvkernel/filter/PVFieldsFilter.h>
+#include <pvkernel/widgets/qkeysequencewidget.h>
 
 #include <QAction>
 #include <QRadioButton>
-#include <QComboBox>
 #include <QGroupBox>
 #include <QLabel>
-#include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QSpacerItem>
-#include <QMessageBox>
 
 /******************************************************************************
  *
@@ -80,7 +78,7 @@ QWidget* PVFilter::PVFieldConverterGUIDToIPParamWidget::get_param_widget()
 	ips_layout->addWidget(_ipv6);
 	groupBox->setLayout(ips_layout);
 	layout->addWidget(groupBox);
-	connect(_ipv6, SIGNAL(toggled(bool)), this, SLOT(update_params()));
+	connect(_ipv6, &QRadioButton::toggled, [this](bool) { update_params(); });
 
 	return _param_widget;
 }

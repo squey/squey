@@ -60,7 +60,6 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 		} else {
 			// Invalid GUID Format
 			field.set_invalid();
-			field.elt_parent()->set_invalid();
 		}
 	} else { // ipv6
 		unsigned int a, b, c, d, e, f, g, h;
@@ -72,11 +71,8 @@ PVCore::PVField& PVFilter::PVFieldGUIDToIP::one_to_one(PVCore::PVField& field)
 			field.set_end(field.begin() + end);
 		} else {
 			field.set_invalid();
-			field.elt_parent()->set_invalid();
 		}
 	}
 
 	return field;
 }
-
-IMPL_FILTER(PVFilter::PVFieldGUIDToIP)

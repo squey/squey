@@ -17,16 +17,10 @@ namespace PVFilter
 class PVElementFilter : public PVFilterFunctionBase<PVCore::PVElement&, PVCore::PVElement&>
 {
   public:
-	typedef PVElementFilter FilterT;
-	typedef std::shared_ptr<PVElementFilter> p_type;
-
-  public:
-	PVCore::PVElement& operator()(PVCore::PVElement& in) { return in; }
+	virtual PVCore::PVElement& operator()(PVCore::PVElement& in) { return in; }
 
 	CLASS_FILTER_NONREG_NOPARAM(PVElementFilter)
 };
-
-typedef PVElementFilter::func_type PVElementFilter_f;
 }
 
 #endif

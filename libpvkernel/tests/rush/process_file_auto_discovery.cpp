@@ -71,10 +71,9 @@ int main(int argc, char** argv)
 	}
 	PVLOG_INFO("Source created.\n");
 
-	PVRush::PVExtractor ext;
+	PVRush::PVExtractor ext(used_format.create_tbb_filters());
 	ext.add_source(src);
 	ext.set_format(used_format);
-	ext.set_chunk_filter(used_format.create_tbb_filters());
 
 	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0);
 	job->wait_end();

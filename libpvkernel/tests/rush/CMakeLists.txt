@@ -134,7 +134,6 @@ add_bench(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 	../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp)
 
 # Plugin input tests
-add_pv_compile_test(Trush_mem LINKS ${LINK_LIBRARIES} FILES bench_memory.cpp)
 add_pv_compile_test(Trush_parser LINKS ${LINK_LIBRARIES} FILES parser.cpp)
 add_pv_compile_test(Trush_format_conv LINKS ${LINK_LIBRARIES} FILES format_conv.cpp)
 

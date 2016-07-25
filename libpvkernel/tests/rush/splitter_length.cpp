@@ -40,9 +40,10 @@ int main()
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("length");
 
-	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
-	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
-	PVFilter::PVChunkFilter_f flt_f = chk_flt->f();
+	auto ff =
+	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	ff->add_filter(sp_lib_p);
+	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 
 	std::ofstream of(log_file);
 	of << test_text << std::endl;
@@ -67,7 +68,7 @@ int main()
 
 		/* let's go
 		 */
-		auto res = ts.run_normalization(flt_f);
+		auto res = ts.run_normalization(chk_flt);
 		size_t nelts_org = std::get<0>(res);
 		size_t nelts_valid = std::get<1>(res);
 		std::string output_file = std::get<2>(res);

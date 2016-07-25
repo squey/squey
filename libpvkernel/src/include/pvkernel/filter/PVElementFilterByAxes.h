@@ -20,7 +20,7 @@ class PVElementFilterByAxes : public PVElementFilterByFields
 	using fields_mask_t = PVRush::PVFormat::fields_mask_t;
 
   public:
-	PVElementFilterByAxes(PVFieldsBaseFilter_f fields_f, const fields_mask_t& fields_mask);
+	PVElementFilterByAxes(const fields_mask_t& fields_mask);
 
   public:
 	PVCore::PVElement& operator()(PVCore::PVElement& elt);

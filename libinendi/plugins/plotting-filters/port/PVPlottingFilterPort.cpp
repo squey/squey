@@ -43,5 +43,3 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* de
 		compute_port_plotting<int32_t>(mapped, dest);
 	}
 }
-
-IMPL_FILTER_NOPARAM(Inendi::PVPlottingFilterPort)

@@ -58,9 +58,9 @@ class PVFieldsBaseFilter : public PVFilterFunction<PVCore::list_fields, PVFields
 	}
 
   protected:
-	bool is_tag_present(QString const& tag) { return _axes_tag.contains(tag); }
+	bool is_tag_present(QString const& tag) const { return _axes_tag.contains(tag); }
 
-	PVCol get_col_for_tag(QString const& tag)
+	PVCol get_col_for_tag(QString const& tag) const
 	{
 		assert(_axes_tag.contains(tag));
 		return _axes_tag[tag];
@@ -79,11 +79,7 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 	typedef PVFieldsFilter<Ttype> RegAs;
 
   public:
-	PVFieldsFilter() : PVFieldsBaseFilter()
-	{
-		_type = Ttype;
-		_fields_expected = 0;
-	}
+	PVFieldsFilter() : PVFieldsBaseFilter() { _fields_expected = 0; }
 
   public:
 	static fields_filter_type type() { return Ttype; };
@@ -91,13 +87,13 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 
 	// Argument guessing interface. Used by the format builder in order
 	// to guess the first filter that could be applied to an input
-	virtual bool guess(list_guess_result_t& /*res*/, PVCore::PVField const& /*in_field*/)
+	virtual bool guess(list_guess_result_t& /*res*/, PVCore::PVField& /*in_field*/)
 	{
 		return false;
 	}
 
 	// Filter interface (many-to-many)
-	PVCore::list_fields& operator()(PVCore::list_fields& fields);
+	PVCore::list_fields& operator()(PVCore::list_fields& fields) override;
 
 	void set_number_expected_fields(size_t n)
 	{
@@ -135,7 +131,6 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 	}
 
   protected:
-	fields_filter_type _type;
 	// Defines the number of expected children. 0 means that this information is unavailable.
 	size_t _fields_expected;
 
@@ -154,7 +149,6 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 	}
 };
 
-typedef PVFieldsBaseFilter::func_type PVFieldsBaseFilter_f;
 typedef PVFieldsBaseFilter::p_type PVFieldsBaseFilter_p;
 
 typedef PVFieldsBaseFilter PVFieldsFilterReg;

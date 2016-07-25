@@ -305,9 +305,10 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 			column_indexes.emplace_back(a.get_axis());
 		}
 
-		view.get_rushnraw_parent().export_lines(data_file, sel, column_indexes, 0,
-		                                        nraw.get_row_count(), "\t" /* = default_sep_char */
-		                                        );
+		// view.get_rushnraw_parent().export_lines(data_file, sel, column_indexes, 0,
+		//                                        nraw.get_row_count(), "\t" /* = default_sep_char
+		//                                        */
+		//                                        );
 	}
 
 	// Compress dataset
