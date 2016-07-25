@@ -66,7 +66,7 @@ void Inendi::PVMappingProperties::set_mode(std::string const& mode)
 	set_args(_args);
 }
 
-bool Inendi::PVMappingProperties::operator==(const PVMappingProperties& org)
+bool Inendi::PVMappingProperties::operator==(const PVMappingProperties& org) const
 {
 	// These properties are equal if and only if the same filter is used on the
 	// same index

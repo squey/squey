@@ -8,8 +8,6 @@
 #ifndef INENDI_PVPLOTTINGPROPERTIES_H
 #define INENDI_PVPLOTTINGPROPERTIES_H
 
-//#include <QList>
-
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
@@ -28,16 +26,12 @@ class PVPlotting;
 */
 class PVPlottingProperties
 {
-	friend class PVCore::PVSerializeObject;
-	friend class PVPlotting;
-	friend class PVPlotted;
-
   public:
 	PVPlottingProperties(PVRush::PVFormat const& fmt, PVCol idx);
 	PVPlottingProperties(PVRush::PVAxisFormat const& axis, PVCol idx);
 	PVPlottingProperties(std::string const& mode, PVCore::PVArgumentList args, PVCol idx);
 
-  protected:
+  public:
 	// For PVPlotting
 	inline void set_uptodate() { _is_uptodate = true; }
 	inline void invalidate() { _is_uptodate = false; }
@@ -51,9 +45,9 @@ class PVPlottingProperties
 	inline bool is_uptodate() const { return _is_uptodate; }
 
   public:
-	bool operator==(PVPlottingProperties const& org);
+	bool operator==(PVPlottingProperties const& org) const;
 
-  protected:
+  public:
 	void serialize_write(PVCore::PVSerializeObject& so);
 	static PVPlottingProperties serialize_read(PVCore::PVSerializeObject& so,
 	                                           PVPlotting const& parent);

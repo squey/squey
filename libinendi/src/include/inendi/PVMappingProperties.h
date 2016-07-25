@@ -26,9 +26,6 @@ class PVMapping;
 */
 class PVMappingProperties
 {
-	friend class PVCore::PVSerializeObject;
-	friend class PVMapping;
-
   public:
 	PVMappingProperties(PVRush::PVFormat const& fmt, PVCol idx);
 	PVMappingProperties(PVRush::PVAxisFormat const& axis, PVCol idx);
@@ -49,16 +46,17 @@ class PVMappingProperties
 	void set_minmax(pvcop::db::array&& minmax) { _minmax = std::move(minmax); }
 	pvcop::db::array const& get_minmax() const { return _minmax; }
 
-  public:
-	bool operator==(const PVMappingProperties& org);
-
-  protected:
-	void serialize_write(PVCore::PVSerializeObject& so);
-	static PVMappingProperties serialize_read(PVCore::PVSerializeObject& so,
-	                                          Inendi::PVMapping const& parent);
 	void set_uptodate() { _is_uptodate = true; }
 	inline void invalidate() { _is_uptodate = false; }
 	void set_default_args(PVRush::PVAxisFormat const& axis);
+
+  public:
+	bool operator==(const PVMappingProperties& org) const;
+
+  public:
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static PVMappingProperties serialize_read(PVCore::PVSerializeObject& so,
+	                                          Inendi::PVMapping const& parent);
 
   private:
 	pvcop::db::array _minmax;

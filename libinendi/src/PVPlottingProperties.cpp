@@ -82,7 +82,7 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlottingProperties::get_plotting_filt
 	return _plotting_filter;
 }
 
-bool Inendi::PVPlottingProperties::operator==(PVPlottingProperties const& org)
+bool Inendi::PVPlottingProperties::operator==(PVPlottingProperties const& org) const
 {
 	return (_plotting_filter == org._plotting_filter) && (_index == org._index);
 }
