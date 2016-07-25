@@ -226,10 +226,8 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 
 	QWidget* parent_widget = isVisible() ? this : parentWidget();
 
-	PVCore::PVProgressBox* pbox =
-	    new PVCore::PVProgressBox(tr("Previewing filter..."), parent_widget);
 	bool res = PVCore::PVProgressBox::progress(
-	    [&]() {
+	    [&](PVCore::PVProgressBox& /*pbox*/) {
 		    try {
 			    process_layer_filter(filter_p.get(), &_view->get_output_layer(),
 			                         &_view->get_post_filter_layer());
@@ -241,7 +239,7 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 			    _cv.wait(lk);
 		    }
 		},
-	    pbox);
+	    tr("Previewing filter..."), parent_widget);
 
 	if (not res) {
 		return false;

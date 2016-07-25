@@ -566,20 +566,17 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	bool file_type_found = false;
 
 	if (choosenFormat.compare(INENDI_AUTOMATIC_FORMAT_STR) == 0) {
-		PVCore::PVProgressBox* pbox =
-		    new PVCore::PVProgressBox(tr("Auto-detecting file format..."), (QWidget*)this);
-		pbox->set_enable_cancel(true);
 		set_auto_detect_cancellation(false);
-		// set_auto_detect_cancellation() implictly set to true
-		connect(pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
 
 		if (!PVCore::PVProgressBox::progress(
-		        [&]() {
+		        [&](PVCore::PVProgressBox& pbox) {
+			        pbox.set_enable_cancel(true);
+			        connect(&pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
 			        auto_detect_formats(PVFormatDetectCtxt(
 			            inputs, hash_input_name, formats, format_creator, files_multi_formats,
 			            discovered, formats_error, lcr, in_t, discovered_types));
 			    },
-		        pbox)) {
+		        tr("Auto-detecting file format..."), this)) {
 			return;
 		}
 		file_type_found = (discovered.size() > 0) | (files_multi_formats.size() > 0);
@@ -1147,7 +1144,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 #endif
 
 	if (!PVCore::PVProgressBox::progress(
-	        [&]() {
+	        [&](PVCore::PVProgressBox& /*pbox*/) {
 		        auto& mapped = src->emplace_add_child();
 		        auto& plotted = mapped.emplace_add_child();
 		        plotted.emplace_add_child();

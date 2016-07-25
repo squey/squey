@@ -9,13 +9,12 @@
 #define PVCORE_PVPROGRESSBOX_H
 
 #include <QDialog>
-#include <QString>
 #include <QLabel>
-#include <QProgressBar>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QObject>
 #include <QMessageBox>
+#include <QMutex>
+#include <QObject>
+#include <QProgressBar>
+#include <QString>
 
 #include <boost/thread.hpp>
 
@@ -66,91 +65,36 @@ class PVProgressBox : public QDialog
 
   private:
 	template <class F>
-	static void worker_thread(F f, __impl::ThreadEndSignal* s)
+	static void worker_thread(F f, __impl::ThreadEndSignal* s, PVProgressBox& pbox)
 	{
 		try {
-			f();
-		} catch (boost::thread_interrupted) {
-		}
-		s->emit_finished();
-	}
-
-	template <class Tret, class F>
-	static void worker_thread(F f, Tret& ret, __impl::ThreadEndSignal* s)
-	{
-		try {
-			ret = f();
+			f(pbox);
 		} catch (boost::thread_interrupted) {
 		}
 		s->emit_finished();
 	}
 
   public:
-	template <typename Tret, typename F>
-	static bool progress(F f, PVProgressBox* pbox, Tret& ret)
+	template <typename F>
+	static bool progress(F f, QString const& name, QWidget* parent)
 	{
-		// PVThreadWatcher* watcher = new PVThreadWatcher();
+		PVProgressBox pbox(name, parent);
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker([&]() { worker_thread<Tret, F>(f, ret, end_s); });
-		return process_worker_thread(end_s, worker, pbox);
+		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
+		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
+		return process_worker_thread(end_s, worker, &pbox);
 	}
 
 	template <typename F>
-	static bool progress(F f, PVProgressBox* pbox)
+	static bool progress(F f, tbb::task_group_context& ctxt, QString const& name, QWidget* parent)
 	{
-		// PVThreadWatcher* watcher = new PVThreadWatcher();
+		PVProgressBox pbox(name, parent);
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker([&]() { worker_thread<F>(f, end_s); });
-		return process_worker_thread(end_s, worker, pbox);
+		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
+		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
+		return process_worker_thread(end_s, worker, &pbox, ctxt);
 	}
 
-	template <typename F>
-	static bool progress(F f, tbb::task_group_context& ctxt, PVProgressBox* pbox)
-	{
-		// PVThreadWatcher* watcher = new PVThreadWatcher();
-		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker([&]() { worker_thread<F>(f, end_s); });
-		return process_worker_thread(end_s, worker, pbox, ctxt);
-	}
-
-	static bool progress(tbb::task& root_task, PVProgressBox* pbox)
-	{
-		// This will be the thread that executes the root task
-		typedef boost::function<void()> spawn_f;
-		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		spawn_f f = [&]() { tbb::task::spawn_root_and_wait(root_task); };
-		boost::thread worker([&]() { worker_thread<spawn_f>(f, end_s); });
-		if (pbox->exec() != QDialog::Accepted) {
-			root_task.cancel_group_execution();
-			worker.join();
-			return false;
-		}
-		return true;
-	}
-
-	template <typename Tret, typename F>
-	static bool progress(F f, QString const& text, Tret& ret, QWidget* parent = nullptr)
-	{
-		PVProgressBox* pbox = new PVProgressBox(text, parent);
-		return progress(f, pbox, ret);
-	}
-
-	template <typename F>
-	static bool progress(F f, QString const& text, QWidget* parent = nullptr)
-	{
-		PVProgressBox* pbox = new PVProgressBox(text, parent);
-		return progress(f, pbox);
-	}
-
-	static bool progress(tbb::task& root, QString const& text, QWidget* parent = nullptr)
-	{
-		PVProgressBox* pbox = new PVProgressBox(text, parent);
-		return progress(root, pbox);
-	}
   public Q_SLOTS:
 	void update_status_Slot();
 

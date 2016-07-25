@@ -563,15 +563,11 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 
 	int row_count = model().stat_col().size();
 
-	PVCore::PVProgressBox* pbox =
-	    new PVCore::PVProgressBox(QObject::tr("Computing selection..."), this);
-	pbox->set_enable_cancel(true);
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-
 	BENCH_START(select_values);
 
 	PVCore::PVProgressBox::progress(
-	    [this, row_count, vmax, vmin] {
+	    [this, row_count, vmax, vmin](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(true);
 		    const pvcop::db::array& col2_array = model().stat_col();
 		    std::string min_, max_;
 
@@ -611,11 +607,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		    pvcop::db::algo::range_select(col2_array, min_, max_, pvcop::db::selection(), sel);
 
 		},
-	    ctxt, pbox);
-
-	// FIXME : Qt selection is not rendered: PVGuiQt::PVListingModel::data (case
-	// Qt::BackgroundRole)
-	//         should be moved elsewhere in order to use it properly
+	    QObject::tr("Computing selection..."), this);
 
 	// Update the viewport to display selection.
 	_values_view->viewport()->update();

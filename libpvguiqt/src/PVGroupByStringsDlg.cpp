@@ -45,15 +45,9 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			// Get it from value_col which is col2_in but without duplication
 			const QString value = QString::fromStdString(model().value_col().at(row_id));
 
-			tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-			ctxt.reset();
-
-			PVCore::PVProgressBox* pbox =
-			    new PVCore::PVProgressBox(QObject::tr("Computing values..."), parentWidget());
-			pbox->set_enable_cancel(true);
-
 			ret = PVCore::PVProgressBox::progress(
-			    [&] {
+			    [&](PVCore::PVProgressBox& pbox) {
+				    pbox.set_enable_cancel(true);
 				    pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out,
 				                                   col2_out, _sel);
 
@@ -69,7 +63,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 
 				    sum = pvcop::db::algo::sum(col2_out);
 				},
-			    ctxt, pbox);
+			    QObject::tr("Computing values..."), parentWidget());
 
 			if (ret) {
 				PVListUniqStringsDlg* dlg =

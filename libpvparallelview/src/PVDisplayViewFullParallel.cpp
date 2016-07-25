@@ -26,18 +26,17 @@ PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
 QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Inendi::PVView* view,
                                                               QWidget* parent) const
 {
-	PVCore::PVProgressBox pbox("Initializing full parallel view", parent);
-
-	pbox.set_enable_cancel(false);
-
 	PVParallelView::PVLibView* lib_view;
 
 	PVCore::PVProgressBox::progress(
-	    [&]() { lib_view = PVParallelView::common::get_lib_view(*view); }, &pbox);
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(false);
+		    lib_view = PVParallelView::common::get_lib_view(*view);
+		},
+	    "Initializing full parallel view", parent);
 
-	QWidget* widget = lib_view->create_view(parent);
-
-	return widget;
+	return lib_view->create_view(parent);
+	;
 }
 
 QIcon PVDisplays::PVDisplayViewFullParallel::toolbar_icon() const

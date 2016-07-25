@@ -168,11 +168,9 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	PVCore::PVProgressBox pbox("Exporting data to Mineset...");
-	pbox.set_enable_cancel(false);
-
 	PVCore::PVProgressBox::progress(
-	    [&]() {
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(false);
 		    try {
 			    std::string dataset_url = Inendi::PVMineset::import_dataset(*current_view());
 			    current_view()->add_mineset_dataset(dataset_url);
@@ -181,7 +179,7 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 			    Q_EMIT mineset_error(QString(e.what()));
 		    }
 		},
-	    &pbox);
+	    "Exporting data to Mineset...", this);
 }
 
 /******************************************************************************
@@ -434,12 +432,10 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	setWindowModified(false);
 
 	PVCore::PVSerializeArchive_p ar;
-	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError("");
-	PVCore::PVProgressBox* pbox_solution =
-	    new PVCore::PVProgressBox("Loading investigation...", this);
-	pbox_solution->set_enable_cancel(true);
+	PVCore::PVSerializeArchiveError read_exception("");
 	bool ret = PVCore::PVProgressBox::progress(
-	    [&] {
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(true);
 		    try {
 			    ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read,
 			                                               INENDI_ARCHIVES_VERSION));
@@ -447,7 +443,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 			    read_exception = e;
 		    }
 		},
-	    pbox_solution);
+	    "Loading investigation...", this);
 	if (!ret) {
 		return false;
 	}
@@ -527,11 +523,12 @@ void PVInspector::PVMainWindow::save_solution(
     QString const& file, std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options)
 {
 	try {
-		PVCore::PVProgressBox* pbox_solution =
-		    new PVCore::PVProgressBox("Saving investigation...", this);
-		pbox_solution->set_enable_cancel(true);
-		bool ret = PVCore::PVProgressBox::progress([&] { get_root().save_to_file(file, options); },
-		                                           pbox_solution);
+		bool ret = PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(true);
+			    get_root().save_to_file(file, options);
+			},
+		    "Saving investigation...", this);
 		if (!ret) {
 			return;
 		}

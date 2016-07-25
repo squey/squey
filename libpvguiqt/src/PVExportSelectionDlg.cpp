@@ -252,7 +252,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	// TODO : We know the number of line to set a progression
 	PVCore::PVExporter exp(ofs, sel, column_indexes, step_count, export_func, sep_char, quote_char);
 	PVCore::PVProgressBox::progress(
-	    [&]() {
+	    [&](PVCore::PVProgressBox& pbox) {
 		    while (true) {
 			    start = sel.find_next_set_bit(start, nrows);
 			    if (start == PVROW_INVALID_VALUE) {
@@ -267,5 +267,5 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 			    }
 		    }
 		},
-	    &pbox);
+	    "Selection export", nullptr);
 }

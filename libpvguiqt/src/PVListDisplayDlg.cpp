@@ -130,17 +130,10 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 		sep = "\n";
 	}
 
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), this);
-
-	// Define parallel execution environment
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	tbb::task_scheduler_init init(nthreads);
-	tbb::task_group_context ctxt;
-
 	QString content;
 
 	PVCore::PVProgressBox::progress(
-	    [&]() {
+	    [&](PVCore::PVProgressBox& /*pbox*/) {
 		    /* the PVSelection can be safely traversed because the
 		     *range selection
 		     * has been committed earlier at right click.
@@ -151,18 +144,15 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 			    if (not _model->current_selection().get_line(row)) {
 				    continue;
 			    }
-			    if
-				    unlikely(ctxt.is_group_execution_cancelled()) { return false; }
+			    boost::this_thread::interruption_point();
 
 			    QString s = model().export_line(row);
 			    if (!s.isNull()) {
 				    content.append(s.append(sep));
 			    }
 		    }
-
-		    return true;
 		},
-	    ctxt, pbox);
+	    QObject::tr("Copying values..."), this);
 
 	QApplication::clipboard()->setText(content);
 
@@ -205,15 +195,13 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 		sep = "\n";
 	}
 
-	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(QObject::tr("Copying values..."), this);
-
 	// Define parallel execution environment
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
 	tbb::task_group_context ctxt;
 
 	bool success = PVCore::PVProgressBox::progress(
-	    [&, count]() {
+	    [&, count](PVCore::PVProgressBox& /*pbox*/) {
 
 		    BENCH_START(export_values);
 		    content = tbb::parallel_reduce(
@@ -240,7 +228,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 
 		    return !ctxt.is_group_execution_cancelled();
 		},
-	    ctxt, pbox);
+	    ctxt, QObject::tr("Copying values..."), this);
 
 	QApplication::restoreOverrideCursor();
 
