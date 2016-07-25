@@ -57,7 +57,6 @@ class TestEnv
 	        std::string const& format_file,
 	        size_t dup,
 	        ProcessUntil until = ProcessUntil::Source)
-	    : _big_file_path(get_tmp_filename())
 	{
 		// Need this core application to find plugins path.
 		std::string prog_name = "test_inendi";
@@ -102,7 +101,12 @@ class TestEnv
 	/**
 	 * Clean input duplicate file at the end.
 	 */
-	~TestEnv() { std::remove(_big_file_path.c_str()); }
+	~TestEnv()
+	{
+		for (auto const& path : _big_file_paths) {
+			std::remove(path.c_str());
+		}
+	}
 
 	/**
 	 * Compute mapping assuming PVSource is valid.
@@ -176,12 +180,15 @@ class TestEnv
 	                         bool new_scene = true)
 	{
 
-		{
+		std::string new_path = log_file;
+		if (dup > 1) {
+			new_path = get_tmp_filename();
+			_big_file_paths.push_back(new_path);
 			std::ifstream ifs(log_file);
 			std::string content{std::istreambuf_iterator<char>(ifs),
 			                    std::istreambuf_iterator<char>()};
 
-			std::ofstream big_file(_big_file_path);
+			std::ofstream big_file(new_path);
 			// Duplicate file to have one millions lines
 			for (size_t i = 0; i < dup; i++) {
 				big_file << content;
@@ -189,7 +196,7 @@ class TestEnv
 		}
 
 		// Input file
-		QString path_file = QString::fromStdString(_big_file_path);
+		QString path_file = QString::fromStdString(new_path);
 		PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
 		// Load the given format file
@@ -219,7 +226,7 @@ class TestEnv
 	Inendi::PVRoot root;
 
   private:
-	std::string _big_file_path;
+	std::vector<std::string> _big_file_paths;
 };
 }
 

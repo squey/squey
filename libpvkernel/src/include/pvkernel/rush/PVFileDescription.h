@@ -27,20 +27,12 @@ class PVFileDescription : public PVInputDescription
 	PVFileDescription() : _was_serialized(false){};
 
   public:
-	operator QString() const { return _path; }
-	operator QString&() { return _path; }
-	operator QString const&() const { return _path; }
-
-  public:
 	virtual bool operator==(const PVInputDescription& other) const
 	{
 		return _path == ((PVFileDescription&)other)._path;
 	}
 
   public:
-	// For historical reason
-	QString toString() const { return _path; }
-
 	QString human_name() const { return _path; }
 	QString path() const { return _path; }
 
