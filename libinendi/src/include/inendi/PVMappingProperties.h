@@ -62,7 +62,6 @@ class PVMappingProperties
 
   private:
 	pvcop::db::array _minmax;
-	std::string _mode;
 	PVCol _index;
 	std::string _mode;
 	PVMappingFilter::p_type _mapping_filter;
