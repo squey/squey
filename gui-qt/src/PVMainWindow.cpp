@@ -1141,112 +1141,82 @@ static QString bad_conversions_as_string(
 bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 {
 	// Load a created source
+	// Extract the source
+	BENCH_START(lff);
 
-	bool loaded_from_disk = false;
-
-	if (src->has_nraw_folder()) {
-		BENCH_START(lfd);
-		try {
-			if (!PVCore::PVProgressBox::progress([src]() { return src->load_from_disk(); },
-			                                     tr("Loading sources from disk..."),
-			                                     loaded_from_disk, this)) {
-				return false;
-			}
-		} catch (std::exception& e) {
-			PVLOG_ERROR("PVNraw error: %s\n", e.what());
-			QMessageBox::critical(this, "Cannot load sources",
-			                      QString("Error while opening nraw: ") + e.what());
-			return false;
-		}
-
-		BENCH_STOP(lfd);
-#ifdef INENDI_DEVELOPER_MODE
-		if (loaded_from_disk) {
-			PVLOG_INFO("nraw read from disk in %g sec\n", BENCH_END_TIME(lfd));
-		}
-#endif
+	PVRush::PVControllerJob_p job_import;
+	try {
+		job_import = src->extract(0);
+	} catch (PVRush::PVInputException const& e) {
+		QMessageBox::critical(this, "Cannot create sources",
+		                      QString("Error with input: ") + e.what());
+		return false;
+	} catch (PVRush::PVNrawException const& e) {
+		QMessageBox::critical(this, "Cannot create sources",
+		                      QString("Error with nraw: ") + e.what());
+		return false;
 	}
 
-	if (loaded_from_disk == false) {
-		// Extract the source
-		BENCH_START(lff);
-
-		PVRush::PVControllerJob_p job_import;
-		try {
-			job_import = src->extract(0);
-		} catch (PVRush::PVInputException const& e) {
-			QMessageBox::critical(this, "Cannot create sources",
-			                      QString("Error with input: ") + e.what());
-			return false;
-		} catch (PVRush::PVNrawException const& e) {
-			QMessageBox::critical(this, "Cannot create sources",
-			                      QString("Error with nraw: ") + e.what());
-			return false;
-		}
-
-		if (!show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(),
-		                           this)) {
-			// If job is canceled, stop here
-			return false;
-		}
-		try {
-			src->wait_extract_end(job_import);
-		} catch (PVRush::PVInputException const& e) {
-			QMessageBox::critical(this, "Cannot create sources",
-			                      QString("Error with input: ") + e.what());
-			return false;
-		}
-
-		if (src->get_rushnraw().get_row_count() == 0) {
-			QString msg = QString("<p>The files <strong>%1</strong> using format "
-			                      "<strong>%2</strong> cannot be opened. ")
-			                  .arg(QString::fromStdString(src->get_name()))
-			                  .arg(src->get_format_name());
-			PVRow nelts = job_import->rejected_elements();
-			if (nelts > 0) {
-				msg += QString("Indeed, <strong>%1 elements</strong> have been extracted "
-				               "but were <strong>all invalid</strong>.</p>")
-				           .arg(nelts);
-				msg += QString("<p>This is because one or more splitters and/or "
-				               "filters defined in format <strong>%1</strong> reported "
-				               "invalid events during the extraction.<br />")
-				           .arg(src->get_format_name());
-				msg += QString("You may have invalid regular expressions set in this "
-				               "format, or simply all the events have been invalidated "
-				               "by one or more filters thus no events matches your "
-				               "criterias.</p>");
-				msg += QString("<p>You might try to <strong>fix your format</strong> or "
-				               "try to load <strong>another set of data</strong>.</p>");
-			} else {
-				msg += QString("Indeed, the sources <strong>were empty</strong> (empty "
-				               "files, bad database query, etc...) because no elements "
-				               "have been extracted.</p><p>You should try to load "
-				               "another set of data.</p>");
-			}
-			QMessageBox::critical(this, "Cannot load sources", msg);
-			return false;
-		} else if (size_t bc_count =
-		               src->get_rushnraw().unconvertable_values().bad_conversions_count) {
-			// We can continue with it but user have to know that some values are
-			// incorrect.
-			QMessageBox warning_message(
-			    QMessageBox::Warning, "Failed conversion(s)",
-			    "\n" + QString::number(bc_count) +
-			        " conversions from text to binary failed during import...",
-			    QMessageBox::Ok, this);
-			warning_message.setInformativeText("Such values are displayed in italic in the "
-			                                   "listing, but are treated as default values "
-			                                   "elsewhere.");
-			warning_message.setDetailedText(bad_conversions_as_string(
-			    src->get_rushnraw().unconvertable_values().bad_conversions(), src));
-			warning_message.exec();
-		}
-
-		BENCH_STOP(lff);
-#ifdef INENDI_DEVELOPER_MODE
-		PVLOG_INFO("nraw created from data in %g sec\n", BENCH_END_TIME(lff));
-#endif
+	if (!show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(),
+	                           this)) {
+		// If job is canceled, stop here
+		return false;
 	}
+	try {
+		src->wait_extract_end(job_import);
+	} catch (PVRush::PVInputException const& e) {
+		QMessageBox::critical(this, "Cannot create sources",
+		                      QString("Error with input: ") + e.what());
+		return false;
+	}
+
+	if (src->get_rushnraw().get_row_count() == 0) {
+		QString msg = QString("<p>The files <strong>%1</strong> using format "
+		                      "<strong>%2</strong> cannot be opened. ")
+		                  .arg(QString::fromStdString(src->get_name()))
+		                  .arg(src->get_format_name());
+		PVRow nelts = job_import->rejected_elements();
+		if (nelts > 0) {
+			msg += QString("Indeed, <strong>%1 elements</strong> have been extracted "
+			               "but were <strong>all invalid</strong>.</p>")
+			           .arg(nelts);
+			msg += QString("<p>This is because one or more splitters and/or "
+			               "filters defined in format <strong>%1</strong> reported "
+			               "invalid events during the extraction.<br />")
+			           .arg(src->get_format_name());
+			msg += QString("You may have invalid regular expressions set in this "
+			               "format, or simply all the events have been invalidated "
+			               "by one or more filters thus no events matches your "
+			               "criterias.</p>");
+			msg += QString("<p>You might try to <strong>fix your format</strong> or "
+			               "try to load <strong>another set of data</strong>.</p>");
+		} else {
+			msg += QString("Indeed, the sources <strong>were empty</strong> (empty "
+			               "files, bad database query, etc...) because no elements "
+			               "have been extracted.</p><p>You should try to load "
+			               "another set of data.</p>");
+		}
+		QMessageBox::critical(this, "Cannot load sources", msg);
+		return false;
+	} else if (size_t bc_count = src->get_rushnraw().unconvertable_values().bad_conversions_count) {
+		// We can continue with it but user have to know that some values are
+		// incorrect.
+		QMessageBox warning_message(QMessageBox::Warning, "Failed conversion(s)",
+		                            "\n" + QString::number(bc_count) +
+		                                " conversions from text to binary failed during import...",
+		                            QMessageBox::Ok, this);
+		warning_message.setInformativeText("Such values are displayed in italic in the "
+		                                   "listing, but are treated as default values "
+		                                   "elsewhere.");
+		warning_message.setDetailedText(bad_conversions_as_string(
+		    src->get_rushnraw().unconvertable_values().bad_conversions(), src));
+		warning_message.exec();
+	}
+
+	BENCH_STOP(lff);
+#ifdef INENDI_DEVELOPER_MODE
+	PVLOG_INFO("nraw created from data in %g sec\n", BENCH_END_TIME(lff));
+#endif
 
 	if (!PVCore::PVProgressBox::progress(
 	        [&]() {

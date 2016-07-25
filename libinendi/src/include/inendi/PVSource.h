@@ -64,23 +64,31 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	~PVSource();
 
   public:
-	void load_data()
+	void load_data(std::string const& nraw_folder)
 	{
-		if (has_nraw_folder()) {
-			load_from_disk();
-		} else {
-			// Extract the source
-
-			PVRush::PVControllerJob_p job_import;
-			job_import = extract(0);
-
-			wait_extract_end(job_import);
+		// Try to load nraw from folder if folder looks to be a possible entry.
+		// If load can't be done, do an import from input file.
+		// If it is an other error, forward it, we will not handle it here.
+		if (nraw_folder != "") {
+			try {
+				load_from_disk(nraw_folder);
+				return;
+			} catch (PVRush::NrawLoadingFail const& e) {
+			} catch (...) {
+				throw;
+			}
 		}
+
+		// If the nraw can't be find, try an import from source file and format.
+		// Extract the source
+
+		PVRush::PVControllerJob_p job_import;
+		job_import = extract(0);
+
+		wait_extract_end(job_import);
 	}
 	/* Functions */
 	PVCol get_column_count() const;
-
-	bool has_nraw_folder() const { return _nraw_folder.isNull() == false; }
 
 	PVRush::PVNraw& get_rushnraw();
 	const PVRush::PVNraw& get_rushnraw() const;
@@ -124,7 +132,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVRush::PVControllerJob_p extract(size_t skip_lines_count);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
 
-	bool load_from_disk();
+	void load_from_disk(std::string const& nraw_folder);
 
 	PVRush::PVInputType_p get_input_type() const;
 
@@ -158,8 +166,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
-	void set_nraw_folder(QString const& nraw_folder) { _nraw_folder = nraw_folder; }
-
   protected:
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
@@ -191,8 +197,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 
 	PVAxesCombination _axes_combination;
-
-	QString _nraw_folder;
 };
 }
 

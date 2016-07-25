@@ -32,6 +32,11 @@ class PVChunk;
 namespace PVRush
 {
 
+class NrawLoadingFail : public std::runtime_error
+{
+	using std::runtime_error::runtime_error;
+};
+
 class PVControllerJob;
 
 /**
@@ -155,10 +160,8 @@ class PVNraw
   public:
 	/**
 	 * Create a NRaw from and NRaw folder on HDD.
-	 *
-	 * @return true in case of success; false otherwise.
 	 */
-	bool load_from_disk(const std::string& nraw_folder);
+	void load_from_disk(const std::string& nraw_folder);
 
   private:
 	/// Variable usefull for reading

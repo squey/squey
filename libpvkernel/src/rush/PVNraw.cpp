@@ -150,7 +150,7 @@ void PVRush::PVNraw::load_done(const PVControllerJob::invalid_elements_t& inv_el
  *
  ****************************************************************************/
 
-bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
+void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 {
 	_collector.reset();
 
@@ -167,12 +167,10 @@ bool PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 	try {
 		_collection.reset(new pvcop::collection(nraw_folder));
 	} catch (pvcop::db::exception::invalid_collection&) {
-		return false;
+		throw NrawLoadingFail("Can't creation a collection from disk");
 	}
 
 	_real_nrows = _collection->row_count();
-
-	return true;
 }
 
 /*****************************************************************************
