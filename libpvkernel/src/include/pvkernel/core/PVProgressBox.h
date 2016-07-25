@@ -60,6 +60,7 @@ class PVProgressBox : public QDialog
 	void set_extended_status(QString const& str);
 	void set_cancel_btn_text(QString const& str);
 	void set_cancel2_btn_text(QString const& str);
+	void set_detail_label(QString const& detail) { _format_detail = detail; }
 	CancelState get_cancel_state() { return _cancel_state; }
 	void set_confirmation(bool confirm) { _need_confirmation = confirm; }
 

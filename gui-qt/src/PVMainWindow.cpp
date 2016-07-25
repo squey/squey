@@ -974,50 +974,14 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 	}
 }
 
-static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job)
+static void update_status_ext(PVCore::PVProgressBox& pbox, PVRush::PVControllerJob_p job)
 {
 	while (job->running()) {
-		pbox->set_status(job->status());
-		pbox->set_extended_status(
+		pbox.set_status(job->status());
+		pbox.set_extended_status(
 		    QString("Number of rejected elements: %L1").arg(job->rejected_elements()));
 		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 	}
-}
-
-static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
-                                  QString const& desc,
-                                  int /*nlines*/,
-                                  QWidget* parent = nullptr)
-{
-	PVCore::PVProgressBox* pbox =
-	    new PVCore::PVProgressBox(QString("Extracting %1...").arg(desc), parent, 0,
-	                              QString("Number of elements extracted: %L1"));
-	pbox->set_cancel2_btn_text("Stop and process");
-	pbox->set_cancel_btn_text("Discard");
-	pbox->set_confirmation(true);
-	QProgressBar* pbar = pbox->getProgressBar();
-	pbar->setValue(0);
-	// set min and max to 0 to have an activity effect
-	// FIXME : We should be able to use nlines as max.
-	pbar->setMaximum(0);
-	pbar->setMinimum(0);
-
-	QObject::connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
-	// launch a thread in order to update the status of the progress bar
-	boost::thread th_status([&]() { update_status_ext(pbox, job); });
-	pbox->launch_timer_status();
-
-	// Show the progressBox
-	if (job->done() or pbox->exec() == QDialog::Accepted) {
-		// Job finished, everything is fine.
-		return true;
-	}
-
-	// Cancel this job and ask the user if he wants to keep the extracted data.
-	job->cancel();
-	PVLOG_DEBUG("extractor: job canceled !\n");
-	// Sucess if we ask to continue with loaded data.
-	return (pbox->get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
 }
 
 static QString bad_conversions_as_string(
@@ -1065,6 +1029,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	// Extract the source
 	BENCH_START(lff);
 
+	// PVCore::PVProgressBox::progress();
 	PVRush::PVControllerJob_p job_import;
 	try {
 		job_import = src->extract(0);
@@ -1078,8 +1043,41 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		return false;
 	}
 
-	if (!show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(),
-	                           this)) {
+	bool ret = PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& pbox) {
+
+		    pbox.set_detail_label(QString("Number of elements extracted: %L1"));
+		    pbox.set_cancel2_btn_text("Stop and process");
+		    pbox.set_cancel_btn_text("Discard");
+		    pbox.set_confirmation(true);
+		    QProgressBar* pbar = pbox.getProgressBar();
+		    pbar->setValue(0);
+		    // set min and max to 0 to have an activity effect
+		    // FIXME : We should be able to use nlines as max.
+		    pbar->setMaximum(job_import->nb_elts_max());
+		    pbar->setMinimum(0);
+
+		    QObject::connect(job_import.get(), SIGNAL(job_done_signal()), &pbox, SLOT(accept()));
+		    // launch a thread in order to update the status of the progress bar
+		    boost::thread th_status([&]() { update_status_ext(pbox, job_import); });
+		    pbox.launch_timer_status();
+
+		    // Show the progressBox
+		    if (job_import->done() or pbox.exec() == QDialog::Accepted) {
+			    // Job finished, everything is fine.
+			    return true;
+		    }
+
+		    // Cancel this job and ask the user if he wants to keep the extracted data.
+		    job_import->cancel();
+		    PVLOG_DEBUG("extractor: job canceled !\n");
+		    // Sucess if we ask to continue with loaded data.
+		    return (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
+
+		},
+	    QString("Extracting %1...").arg(src->get_format_name()), this);
+
+	if (not ret) {
 		// If job is canceled, stop here
 		return false;
 	}

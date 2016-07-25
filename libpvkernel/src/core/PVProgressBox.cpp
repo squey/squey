@@ -48,10 +48,9 @@ PVCore::PVProgressBox::PVProgressBox(QString msg,
 	progress_bar->setMaximum(0);
 	progress_bar->setMinimum(0);
 
-	if (!format_detail.isEmpty()) {
-		_detail_label = new QLabel();
-		layout->addWidget(_detail_label);
-	}
+	_detail_label = new QLabel();
+	layout->addWidget(_detail_label);
+
 	_extended_detail_label = new QLabel();
 	_extended_detail_label->setVisible(false);
 	layout->addWidget(_extended_detail_label);
