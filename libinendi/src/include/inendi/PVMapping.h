@@ -41,25 +41,22 @@ class PVMapping
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped
-	void set_parent(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
 
   public:
-	float get_position(int column, QString const& value);
 	bool is_uptodate() const;
 
   public:
 	void set_mapped(PVMapped* mapped) { _mapped = mapped; }
 	PVMapped* get_mapped() { return _mapped; }
-
-	void set_source(PVSource* src);
+	PVMapped const* get_mapped() const { return _mapped; }
 
 	PVRush::PVFormat const& get_format() const;
 
   public:
 	// Column properties
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
-	QString const& get_mode_for_col(PVCol col) const;
+	std::string const& get_mode_for_col(PVCol col) const;
 	PVMappingProperties const& get_properties_for_col(PVCol col) const
 	{
 		assert((size_t)col < columns.size());

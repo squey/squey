@@ -59,7 +59,7 @@ PVRush::PVFormat const& Inendi::PVMapping::get_format() const
  * Inendi::PVMapping::get_mode_for_col
  *
  *****************************************************************************/
-QString const& Inendi::PVMapping::get_mode_for_col(PVCol col) const
+std::string const& Inendi::PVMapping::get_mode_for_col(PVCol col) const
 {
 	return get_properties_for_col(col).get_mode();
 }
@@ -101,7 +101,7 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
 		for (PVMappingProperties& prop : columns) {
 			QString child_name = QString::number(idx++);
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, "", false);
-			prop.serialize(*new_obj, so.get_version());
+			prop.serialize_write(*new_obj);
 			new_obj->_bound_obj = &prop;
 			new_obj->_bound_obj_type = typeid(PVMappingProperties);
 		}
@@ -109,11 +109,9 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
 		int idx = 0;
 		try {
 			while (true) {
-				PVMappingProperties prop;
 				PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				prop.serialize(*new_obj, so.get_version());
-				columns.emplace_back(std::move(prop));
-				new_obj->_bound_obj = &prop;
+				columns.emplace_back(PVMappingProperties::serialize_read(*new_obj, *this));
+				new_obj->_bound_obj = &columns.back();
 				new_obj->_bound_obj_type = typeid(PVMappingProperties);
 				idx++;
 			}

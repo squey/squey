@@ -64,11 +64,11 @@ void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
                                                              Inendi::PVPlotting& plotting)
 {
 	Inendi::PVPlottingProperties& props = plotting.get_properties_for_col(axis_id);
-	QString mapped = plotting.get_plotted()
-	                     ->get_parent()
-	                     .get_mapping()
-	                     .get_properties_for_col(axis_id)
-	                     .get_mode();
+	QString mapped = QString::fromStdString(plotting.get_plotted()
+	                                            ->get_parent()
+	                                            .get_mapping()
+	                                            .get_properties_for_col(axis_id)
+	                                            .get_mode());
 	QString type = plotting.get_plotted()
 	                   ->get_parent<Inendi::PVSource>()
 	                   .get_format()

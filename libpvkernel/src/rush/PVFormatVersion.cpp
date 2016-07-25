@@ -12,7 +12,8 @@
 #include <QStringList>
 
 // Utility function to convert pre 7 format to 7 format.for mapping/type/plotting
-static QString const get_type_from_format(QString const& type_attr, QString const& mapped_attr)
+QString const PVRush::PVFormatVersion::get_type_from_format(QString const& type_attr,
+                                                            QString const& mapped_attr)
 {
 	if (type_attr == "integer" and mapped_attr == "unsigned")
 		return "number_uint32";
@@ -31,7 +32,8 @@ static QString const get_type_from_format(QString const& type_attr, QString cons
 	return type_attr;
 }
 
-static QString const get_mapped_from_format(QString const& type_attr, QString const& mapped_attr)
+QString const PVRush::PVFormatVersion::get_mapped_from_format(QString const& type_attr,
+                                                              QString const& mapped_attr)
 {
 	if (type_attr == "integer" and mapped_attr == "unsigned")
 		return "default";
@@ -52,9 +54,9 @@ static QString const get_mapped_from_format(QString const& type_attr, QString co
 	return mapped_attr;
 }
 
-static QString const get_plotted_from_format(QString const& type_attr,
-                                             QString const& mapped_attr,
-                                             QString const& plotted_attr)
+QString const PVRush::PVFormatVersion::get_plotted_from_format(QString const& type_attr,
+                                                               QString const& mapped_attr,
+                                                               QString const& plotted_attr)
 {
 	if (type_attr == "enum")
 		return "enum";
