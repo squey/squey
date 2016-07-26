@@ -176,7 +176,6 @@ class TestEnv
 	        std::string const& extra_input = "")
 	    : _ext(PVFilter::PVChunkFilterByElt(
 	          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
-	    , _format("format", QString::fromStdString(format_file))
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 
@@ -184,8 +183,10 @@ class TestEnv
 			throw std::runtime_error("We don't handle mutliple input with duplication");
 		}
 
+		PVRush::PVFormat format("format", QString::fromStdString(format_file));
+
 		// Load the given format file
-		if (!_format.populate()) {
+		if (!format.populate()) {
 			throw std::runtime_error("Can't read format file " + format_file);
 		}
 
@@ -201,13 +202,12 @@ class TestEnv
 
 			// Get the source creator
 			PVRush::PVSourceCreator_p sc_file;
-			if (!PVRush::PVTests::get_file_sc(file, _format, sc_file)) {
+			if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
 				throw std::runtime_error("Can't get sources.");
 			}
 
 			// Process that file with the found source creator thanks to the extractor
-			PVRush::PVSourceCreator::source_p src =
-			    sc_file->create_source_from_input(file, _format);
+			PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
 			if (!src) {
 				throw std::runtime_error("Unable to create PVRush source from file " + log_file +
 				                         "\n");
@@ -216,8 +216,7 @@ class TestEnv
 			// Create the extractor
 			_ext.add_source(src);
 		}
-		_ext.set_format(_format);
-		_ext.set_chunk_filter(_format.create_tbb_filters());
+		_ext.set_format(format);
 	}
 
 	void load_data(size_t begin = 0)
@@ -239,7 +238,6 @@ class TestEnv
 	PVRush::PVExtractor _ext;
 
   private:
-	PVRush::PVFormat _format;
 	std::string _big_file_path;
 };
 }

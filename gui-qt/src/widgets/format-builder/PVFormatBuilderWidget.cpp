@@ -780,7 +780,6 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		create_extractor();
 		_log_extract->add_source(_log_source);
 		_log_extract->set_format(format);
-		_log_extract->set_chunk_filter(format.create_tbb_filters());
 
 		update_table(rstart, rend);
 

@@ -41,11 +41,6 @@ void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
 	_agg.add_input(src);
 }
 
-void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilterByElt&& chk_flt)
-{
-	_chk_flt = std::move(chk_flt);
-}
-
 PVRush::PVFormat& PVRush::PVExtractor::get_format()
 {
 	return _format;
@@ -110,6 +105,7 @@ void PVRush::PVExtractor::reset_nraw()
 void PVRush::PVExtractor::set_format(PVFormat const& format)
 {
 	_format = format;
+	_chk_flt = _format.create_tbb_filters();
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)

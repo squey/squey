@@ -17,7 +17,7 @@ constexpr static size_t nb_dup = 1;
 #endif
 
 const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
-const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
+const std::string fileformat = TEST_FOLDER "/picviz/filtered.csv.format";
 
 /**
  * Load data in the NRaw.

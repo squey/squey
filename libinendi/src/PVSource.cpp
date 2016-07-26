@@ -134,7 +134,6 @@ void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
 	_axes_combination.set_from_format(_extractor.get_format());
-	_extractor.set_chunk_filter(_extractor.get_format().create_tbb_filters());
 }
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()

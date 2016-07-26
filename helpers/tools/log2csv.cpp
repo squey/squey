@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 	PVRush::PVExtractor ext;
 	ext.start_controller();
 	ext.add_source(src);
-	ext.set_chunk_filter(format.create_tbb_filters());
+	ext.set_format(format);
 
 	// Ask for 1 million lines
 	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 1000000);
