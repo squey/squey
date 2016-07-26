@@ -16,6 +16,7 @@
 
 #include <furl/decode.h>
 
+static char empty_str = 0;
 static constexpr const char* str_http = "http";
 static constexpr const char* str_https = "https";
 static constexpr const char* str_ftp = "ftp";
@@ -139,7 +140,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(
 
 	// Add the number of final fields and save their pointers
 	PVCore::PVField* pf[URL_NUMBER_FIELDS_CREATED];
-	const PVCore::PVField null_field(*field.elt_parent(), nullptr, nullptr);
+	const PVCore::PVField null_field(*field.elt_parent(), &empty_str, &empty_str);
 	for (PVCol i = 0; i < _ncols; i++) {
 		PVCore::list_fields::iterator it_new = l.insert(it_ins, null_field);
 		pf[i] = &(*it_new);
