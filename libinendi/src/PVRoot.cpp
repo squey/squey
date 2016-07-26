@@ -216,8 +216,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(scene->get_serialize_description()), false);
 		scene->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = scene;
-		new_obj->_bound_obj_type = typeid(PVScene);
+		new_obj->set_bound_obj(*scene);
 	}
 };
 
@@ -236,8 +235,6 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 			new_obj->attribute("name", name);
 			PVScene& scene = emplace_add_child(name.toStdString());
 			scene.serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = &scene;
-			new_obj->_bound_obj_type = typeid(PVScene);
 			idx++;
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {

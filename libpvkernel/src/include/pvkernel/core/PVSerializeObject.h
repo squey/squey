@@ -281,6 +281,13 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	inline const void* bound_obj() const { return _bound_obj; }
 
   public:
+	template <class T>
+	inline void set_bound_obj(T& t)
+	{
+		_bound_obj = &t;
+		_bound_obj_type = typeid(T);
+	}
+
 	p_type create_object(QString const& name,
 	                     QString const& desc = QString(),
 	                     bool optional = false,

@@ -118,16 +118,18 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	PVSource* _current_source;
 	PVView* _current_view;
 
+  private:
 	PVCorrelationEngine _correlations;
-
-	QList<QRgb> _available_colors;
-	QList<QRgb> _used_colors;
+	bool _correlation_running = false;
 
   private:
-	int _new_view_id = 0;
+	QString _path; //!< Path where this root is saved as an investigation.
 
-	QString _path;
-	bool _correlation_running = false;
+  private:
+	// View related data
+	QList<QRgb> _available_colors;
+	QList<QRgb> _used_colors;
+	int _new_view_id = 0;
 };
 }
 
