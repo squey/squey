@@ -170,8 +170,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 
-	void add_view(PVView* view);
-
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 
   protected:

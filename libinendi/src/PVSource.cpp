@@ -206,14 +206,6 @@ PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
 	return _src_plugin->supported_type_lib();
 }
 
-void Inendi::PVSource::add_view(PVView* view)
-{
-	PVRoot& root = get_parent<PVRoot>();
-	root.select_view(*view);
-	view->set_view_id(root.get_new_view_id());
-	view->set_color(root.get_new_view_color());
-}
-
 QString Inendi::PVSource::get_window_name() const
 {
 	const size_t line_start = get_extraction_last_start();
