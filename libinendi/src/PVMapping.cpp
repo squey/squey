@@ -110,7 +110,7 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
 		try {
 			while (true) {
 				PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				columns.emplace_back(PVMappingProperties::serialize_read(*new_obj, *this));
+				columns.emplace_back(PVMappingProperties::serialize_read(*new_obj));
 				new_obj->_bound_obj = &columns.back();
 				new_obj->_bound_obj_type = typeid(PVMappingProperties);
 				idx++;

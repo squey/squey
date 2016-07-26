@@ -17,8 +17,6 @@
 namespace Inendi
 {
 
-class PVPlotting;
-
 /**
 * \class PVPlottingProperties
 *
@@ -49,8 +47,7 @@ class PVPlottingProperties
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so);
-	static PVPlottingProperties serialize_read(PVCore::PVSerializeObject& so,
-	                                           PVPlotting const& parent);
+	static PVPlottingProperties serialize_read(PVCore::PVSerializeObject& so);
 
   private:
 	std::string _mode;

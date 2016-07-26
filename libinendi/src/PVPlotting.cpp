@@ -133,7 +133,7 @@ void Inendi::PVPlotting::serialize(PVCore::PVSerializeObject& so,
 		try {
 			while (true) {
 				PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				_columns.emplace_back(PVPlottingProperties::serialize_read(*new_obj, *this));
+				_columns.emplace_back(PVPlottingProperties::serialize_read(*new_obj));
 				new_obj->_bound_obj = &_columns.back();
 				new_obj->_bound_obj_type = typeid(PVPlottingProperties);
 				idx++;

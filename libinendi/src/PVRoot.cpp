@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVSerializeArchiveZip.h>
+#include <pvkernel/core/PVSerializeArchiveExceptions.h>
 
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
@@ -188,7 +189,12 @@ void Inendi::PVRoot::save_to_file(QString const& path,
 
 void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
 {
-	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
+	auto root_ar = ar->get_root();
+	if (ar->get_version() < 3) {
+		throw PVCore::PVSerializeArchiveError("To make archives more robuste, we can't load data "
+		                                      "from previous version of inspector.");
+	}
+	root_ar->object("root", *this, ARCHIVE_ROOT_DESC);
 }
 
 PVCore::PVSerializeArchiveOptions_p Inendi::PVRoot::get_default_serialize_options()

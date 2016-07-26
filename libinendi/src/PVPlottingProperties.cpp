@@ -5,13 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVMapped.h>
-#include <inendi/PVMapping.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVPlotting.h>
 #include <inendi/PVPlottingFilter.h>
 #include <inendi/PVPlottingProperties.h>
-#include <inendi/PVSource.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
 
@@ -88,26 +83,13 @@ bool Inendi::PVPlottingProperties::operator==(PVPlottingProperties const& org) c
 }
 
 Inendi::PVPlottingProperties
-Inendi::PVPlottingProperties::serialize_read(PVCore::PVSerializeObject& so,
-                                             Inendi::PVPlotting const& parent)
+Inendi::PVPlottingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
 	PVCol idx;
 	so.attribute("index", idx);
 
 	QString mode;
 	so.attribute("mode", mode);
-
-	if (so.get_version() <= 2) {
-		QString type = parent.get_plotted()
-		                   ->get_parent<Inendi::PVSource>()
-		                   .get_rushnraw()
-		                   .collection()
-		                   .formatter(idx)
-		                   ->name();
-		std::string mapped = parent.get_plotted()->get_parent().get_mapping().get_mode_for_col(idx);
-		mode = PVRush::PVFormatVersion::get_plotted_from_format(
-		    type, QString::fromStdString(mapped), mode);
-	}
 
 	PVCore::PVArgumentList args;
 	so.arguments("properties", args, args);

@@ -17,8 +17,6 @@
 namespace Inendi
 {
 
-class PVMapping;
-
 /**
 * \class PVMappingProperties
 *
@@ -55,8 +53,7 @@ class PVMappingProperties
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so);
-	static PVMappingProperties serialize_read(PVCore::PVSerializeObject& so,
-	                                          Inendi::PVMapping const& parent);
+	static PVMappingProperties serialize_read(PVCore::PVSerializeObject& so);
 
   private:
 	pvcop::db::array _minmax;

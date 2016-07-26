@@ -17,13 +17,6 @@ namespace PVFormatVersion
 {
 void to_current(QDomDocument& doc);
 
-// Migration of mapping/plotting/type
-QString const get_type_from_format(QString const& type_attr, QString const& mapped_attr);
-QString const get_mapped_from_format(QString const& type_attr, QString const& mapped_attr);
-QString const get_plotted_from_format(QString const& type_attr,
-                                      QString const& mapped_attr,
-                                      QString const& plotted_attr);
-
 namespace __impl
 {
 void from0to1(QDomDocument& doc);
