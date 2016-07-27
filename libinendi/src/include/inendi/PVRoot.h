@@ -35,12 +35,6 @@ class PVView;
 class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 {
   public:
-	friend class PVView;
-	friend class PVScene;
-	friend class PVSource;
-	friend class PVCore::PVSerializeObject;
-
-  public:
 	PVRoot();
 	~PVRoot();
 
@@ -89,12 +83,12 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	const PVCorrelationEngine& correlations() const { return _correlations; }
 	Inendi::PVView* process_correlation(Inendi::PVView* view);
 
-  protected:
+  public:
 	void view_being_deleted(Inendi::PVView* view);
 	void scene_being_deleted(Inendi::PVScene* view);
 	void source_being_deleted(Inendi::PVSource* view);
 
-  protected:
+  public:
 	// Serialization
 	void serialize_write(PVCore::PVSerializeObject& so);
 
