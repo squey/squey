@@ -22,7 +22,7 @@ Inendi::PVStateMachine::PVStateMachine()
 
 QString Inendi::PVStateMachine::get_string()
 {
-	QString str("");
+	QString str;
 
 	if (listing_unselected_visible) {
 		str.append("U");
@@ -30,17 +30,6 @@ QString Inendi::PVStateMachine::get_string()
 		str.append("NU");
 	}
 	if (listing_zombie_visible) {
-		str.append("Z");
-	} else {
-		str.append("NZ");
-	}
-	str.append("|");
-	if (gl_unselected_visible) {
-		str.append("U");
-	} else {
-		str.append("NU");
-	}
-	if (gl_zombie_visible) {
 		str.append("Z");
 	} else {
 		str.append("NZ");

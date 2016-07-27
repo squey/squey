@@ -84,10 +84,6 @@ class PVStateMachine
 
 	void toggle_listing_zombie_visibility() { listing_zombie_visible = !listing_zombie_visible; }
 
-	void toggle_gl_unselected_visibility() { gl_unselected_visible = !gl_unselected_visible; }
-
-	void toggle_gl_zombie_visibility() { gl_zombie_visible = !gl_zombie_visible; }
-
 	void toggle_view_unselected_zombie_visibility()
 	{
 		view_unselected_zombie_visible = !view_unselected_zombie_visible;
