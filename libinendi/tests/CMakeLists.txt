@@ -176,3 +176,7 @@ add_bench(Tinendi_export_plotted LINKS ${LINK_LIBRARIES} FILES export_plotted.cp
 
 add_pv_compile_test(Tinendi_plotting_one_value LINKS ${LINK_LIBRARIES} FILES plotting_one_value.cpp)
 add_test(Tinendi_plotting_one_value Tinendi_plotting_one_value ${TESTS_FILES_DIR}/picviz/plotting_one_value.csv ${TESTS_FILES_DIR}/picviz/plotting_one_value.csv.format)
+
+add_pv_compile_test(Tinendi_axis_gradient LINKS ${LINK_LIBRARIES} FILES axis_gradient.cpp)
+add_test(Tinendi_axis_gradient Tinendi_axis_gradient ${TESTS_FILES_DIR}/picviz/axis_gradient.csv ${TESTS_FILES_DIR}/picviz/axis_gradient.csv.format)
+add_bench(Tinendi_axis_gradient LINKS ${LINK_LIBRARIES} FILES axis_gradient.cpp)
