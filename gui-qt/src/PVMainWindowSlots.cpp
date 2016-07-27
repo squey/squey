@@ -12,8 +12,6 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
-#include <pvkernel/core/PVVersion.h>
-#include <pvkernel/core/PVConfig.h>
 
 #include <inendi/PVPlotting.h>
 #include <inendi/PVMapping.h>
@@ -684,81 +682,6 @@ void PVInspector::PVMainWindow::set_color_Slot()
 	if (!current_view())
 		return;
 	set_color(current_view());
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::update_reply_finished_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply* reply)
-{
-	if (reply->error() != QNetworkReply::NoError) {
-		// There was an error retrieving the current version.
-		// Maybe inendi has no internet access !
-		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) network error\n");
-		return;
-	}
-
-	QByteArray data = reply->readAll();
-	version_t current_v, last_v;
-	if (!PVCore::PVVersion::from_network_reply(data, current_v, last_v)) {
-		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server "
-		            "reply:\n%s\n",
-		            qPrintable(QString::fromUtf8(data.constData(), data.size())));
-		return;
-	}
-
-	if (INENDI_MAJOR_VERSION(current_v) != INENDI_CURRENT_VERSION_MAJOR ||
-	    INENDI_MINOR_VERSION(current_v) != INENDI_CURRENT_VERSION_MINOR ||
-	    last_v < INENDI_CURRENT_VERSION) {
-		// Invalid answer from the server
-		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server "
-		            "reply: version mismatch:\ncurrent version: %s / last current "
-		            "major/minor version: %s\nlast available version: %s.",
-		            INENDI_CURRENT_VERSION_STR, qPrintable(PVCore::PVVersion::to_str(current_v)),
-		            qPrintable(PVCore::PVVersion::to_str(last_v)));
-		return;
-	}
-
-	if (current_v == _last_known_cur_release && last_v == _last_known_maj_release) {
-		// We already informed the user once.
-		// Display version informations
-		return;
-	}
-
-	_last_known_cur_release = current_v;
-	_last_known_maj_release = last_v;
-
-	// Update PVCONFIG settings
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	pvconfig.setValue(PVCONFIG_LAST_KNOWN_CUR_RELEASE, current_v);
-	pvconfig.setValue(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, last_v);
-
-	QString desc = tr("Your current version is %1.\n").arg(INENDI_CURRENT_VERSION_STR);
-	bool show_msg = false;
-	if (current_v > INENDI_CURRENT_VERSION) {
-		// A patch is available
-		desc += tr("A new version (%1) is available for free for the %2.%3 branch.")
-		            .arg(PVCore::PVVersion::to_str(current_v))
-		            .arg(INENDI_CURRENT_VERSION_MAJOR)
-		            .arg(INENDI_CURRENT_VERSION_MINOR);
-		desc += "\n";
-		show_msg = true;
-	}
-	if (last_v != current_v && last_v > INENDI_CURRENT_VERSION) {
-		// A new major release is available
-		desc += tr("A new major release (%1) is available.").arg(PVCore::PVVersion::to_str(last_v));
-		show_msg = true;
-	}
-
-	if (show_msg) {
-		PVLOG_INFO(qPrintable(desc));
-		QMessageBox msgBox(QMessageBox::Information, tr("New version available"),
-		                   tr("A new version is available.\n\n") + desc, QMessageBox::Ok, this);
-		msgBox.exec();
-	}
 }
 
 /******************************************************************************

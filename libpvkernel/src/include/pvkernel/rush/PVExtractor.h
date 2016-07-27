@@ -40,15 +40,6 @@ class PVExtractor
 	 */
 	void add_source(PVRush::PVRawSourceBase_p src);
 
-	/*! \brief Set the chunk filter used during the extraction
-	 * \param[in] chk_flt A boost::function object of the corresponding PVChunkFilter (can be easily
-	 *obtained via the PVChunkFilter::f() method)
-	 *
-	 * \note It is the responsability of the caller to have the pointer to the original
-	 *PVChunkFilter object valid.
-	 */
-	void set_chunk_filter(PVFilter::PVChunkFilterByElt&& chk_flt);
-
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] nlines Number of lines to extract. It is

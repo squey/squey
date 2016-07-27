@@ -102,31 +102,8 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
 	bool has_repairable_errors() const;
 
-	template <class T>
-	QString get_child_path(T const* obj) const
-	{
-		list_childs_t const& cen = childs();
-		list_childs_t::const_iterator it;
-		for (it = cen.begin(); it != cen.end(); it++) {
-			p_type const& c = it.value();
-			if (c->bound_obj_as<T>() == obj) {
-				return c->get_logical_path();
-			}
-		}
-		return QString();
-	}
-
 	bool object_exists_by_path(QString const& path) const;
 	p_type get_object_by_path(QString const& path) const;
-
-	template <class T>
-	inline T* bound_obj_as() const
-	{
-		if (bound_obj_type() != typeid(T) || !_bound_obj) {
-			return nullptr;
-		}
-		return (T*)_bound_obj;
-	}
 
   public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.

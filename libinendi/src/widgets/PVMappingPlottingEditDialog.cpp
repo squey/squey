@@ -247,7 +247,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			assert(map_combo);
 			QString mode = map_combo->get_mode();
 
-			prop.set_mode(mode);
+			prop.set_mode(mode.toStdString());
 			prop.set_args(map_combo->get_cur_filter_params());
 		}
 		if (has_plotting()) {
@@ -255,7 +255,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			    _main_grid->itemAtPosition(row, 1)->widget());
 			assert(combo);
 			QString mode = combo->get_mode();
-			_plotting->get_properties_for_col(axis_id).set_mode(mode);
+			_plotting->get_properties_for_col(axis_id).set_mode(mode.toStdString());
 		}
 		axis_id++;
 		row++;

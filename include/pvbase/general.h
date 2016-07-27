@@ -45,7 +45,7 @@ static constexpr const char* PVCONFIG_FORMATS_SHOW_INVALID = "formats/invalid/wa
 
 #define ALL_FILES_FILTER "All files (*.*)"
 
-#define INENDI_ARCHIVES_VERSION 2
+static constexpr const uint32_t INENDI_ARCHIVES_VERSION = 3;
 
 #define INENDI_PATH_SEPARATOR "/"
 static constexpr const char INENDI_PATH_SEPARATOR_CHAR = '/';

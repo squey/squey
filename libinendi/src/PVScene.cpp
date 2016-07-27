@@ -173,14 +173,13 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 			QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() +
 			                              QDir::separator() + QDir(nraw_folder).dirName();
 			QFileInfo fi(user_based_nraw_dir);
-			if (fi.exists() == true && fi.isDir() == true) {
+			if (fi.exists() and fi.isDir()) {
 				nraw_folder = user_based_nraw_dir;
 			} else {
 				nraw_folder = QString();
 			}
 		}
-		source.set_nraw_folder(nraw_folder);
-		source.load_data();
+		source.load_data(nraw_folder.toStdString());
 		source.serialize(*new_obj, so.get_version());
 		new_obj->_bound_obj = &source;
 		new_obj->_bound_obj_type = typeid(PVSource);

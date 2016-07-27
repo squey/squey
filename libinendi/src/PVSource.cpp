@@ -120,9 +120,9 @@ void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	extract_finished();
 }
 
-bool Inendi::PVSource::load_from_disk()
+void Inendi::PVSource::load_from_disk(std::string const& nraw_folder)
 {
-	return _nraw.load_from_disk(_nraw_folder.toStdString());
+	_nraw.load_from_disk(nraw_folder);
 }
 
 void Inendi::PVSource::extract_finished()
@@ -134,7 +134,6 @@ void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
 	_axes_combination.set_from_format(_extractor.get_format());
-	_extractor.set_chunk_filter(_extractor.get_format().create_tbb_filters());
 }
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()

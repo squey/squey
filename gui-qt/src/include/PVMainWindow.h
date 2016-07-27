@@ -11,9 +11,6 @@
 #include <QMainWindow>
 
 #include <QFile>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QStackedWidget>
 
 #include <pvkernel/core/PVArgument.h>
@@ -186,7 +183,6 @@ class PVMainWindow : public QMainWindow
 	QScreen* get_screen() const;
 	void get_screenshot_window();
 	void get_screenshot_desktop();
-	void update_reply_finished_Slot(QNetworkReply* reply);
 	// Called by input_type plugins to edit a format.
 	// Not an elegant solution, must find better.
 	void edit_format_Slot(QString const& path, QWidget* parent);
@@ -295,7 +291,6 @@ class PVMainWindow : public QMainWindow
 
   protected:
 	void keyPressEvent(QKeyEvent* event);
-	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView* inendi_view);
 	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView const& inendi_view);
@@ -333,8 +328,6 @@ class PVMainWindow : public QMainWindow
 	bool _auto_detect_cancellation;
 
   private:
-	version_t _last_known_cur_release;
-	version_t _last_known_maj_release;
 	QString _screenshot_root_dir;
 };
 }

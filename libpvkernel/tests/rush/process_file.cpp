@@ -71,7 +71,6 @@ int main(int argc, char** argv)
 		ext.start_controller();
 		ext.add_source(src);
 		ext.set_format(format);
-		ext.set_chunk_filter(format.create_tbb_filters());
 
 		long nlines = 1000000;
 		PVLOG_INFO("Asking %ld lines...\n", nlines);
