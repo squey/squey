@@ -20,9 +20,6 @@
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <inendi/PVSource.h>
 
-#define INENDI_SCENE_ARCHIVE_EXT "pv"
-#define INENDI_SCENE_ARCHIVE_FILTER "INENDI project files (*." INENDI_SCENE_ARCHIVE_EXT ")"
-
 namespace Inendi
 {
 
