@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVSerializeArchiveZip.h>
+#include <pvkernel/core/PVSerializeArchiveExceptions.h>
 
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
@@ -188,7 +189,12 @@ void Inendi::PVRoot::save_to_file(QString const& path,
 
 void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
 {
-	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
+	auto root_ar = ar->get_root();
+	if (ar->get_version() < 3) {
+		throw PVCore::PVSerializeArchiveError("To make archives more robuste, we can't load data "
+		                                      "from previous version of inspector.");
+	}
+	root_ar->object("root", *this, ARCHIVE_ROOT_DESC);
 }
 
 PVCore::PVSerializeArchiveOptions_p Inendi::PVRoot::get_default_serialize_options()
@@ -209,9 +215,8 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(scene->get_serialize_description()), false);
-		scene->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = scene;
-		new_obj->_bound_obj_type = typeid(PVScene);
+		scene->serialize_write(*new_obj);
+		new_obj->set_bound_obj(*scene);
 	}
 };
 
@@ -226,12 +231,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			QString name;
-			new_obj->attribute("name", name);
-			PVScene& scene = emplace_add_child(name.toStdString());
-			scene.serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = &scene;
-			new_obj->_bound_obj_type = typeid(PVScene);
+			PVScene::serialize_read(*new_obj, *this);
 			idx++;
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {

@@ -13,9 +13,6 @@
 #include <inendi/PVLayer.h>
 
 #define INENDI_LAYER_STACK_MAX_DEPTH 256
-#define INENDI_LAYERSTACK_ARCHIVE_EXT "pvls"
-#define INENDI_LAYERSTACK_ARCHIVE_FILTER                                                           \
-	"INENDI layer-stack files (*." INENDI_LAYERSTACK_ARCHIVE_EXT ")"
 
 namespace Inendi
 {

@@ -27,20 +27,12 @@ class PVFileDescription : public PVInputDescription
 	PVFileDescription() : _was_serialized(false){};
 
   public:
-	operator QString() const { return _path; }
-	operator QString&() { return _path; }
-	operator QString const&() const { return _path; }
-
-  public:
 	virtual bool operator==(const PVInputDescription& other) const
 	{
 		return _path == ((PVFileDescription&)other)._path;
 	}
 
   public:
-	// For historical reason
-	QString toString() const { return _path; }
-
 	QString human_name() const { return _path; }
 	QString path() const { return _path; }
 
@@ -59,27 +51,35 @@ class PVFileDescription : public PVInputDescription
 		_path = dir.absoluteFilePath(path);
 	}
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+  public:
+	void serialize_write(PVCore::PVSerializeObject& so)
 	{
 		so.attribute("file_path", _path);
 		PVCore::PVFileSerialize fs(_path);
 		if (so.object("original", fs, "Include original file", !_was_serialized,
 		              (PVCore::PVFileSerialize*)nullptr, !_was_serialized, false)) {
 			_path = fs.get_path();
-			if (!so.is_writing()) {
-				_was_serialized = true;
-			}
-		} else if (!so.is_writing()) {
-			if (!QFileInfo(_path).isReadable()) {
-				std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-				    new PVCore::PVSerializeArchiveErrorFileNotReadable(_path));
-				std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
-				    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "file_path"));
-				so.repairable_error(error);
-			}
 		}
 	}
+
+	void serialize_read(PVCore::PVSerializeObject& so)
+	{
+		so.attribute("file_path", _path);
+		PVCore::PVFileSerialize fs(_path);
+		if (so.object("original", fs, "Include original file", !_was_serialized,
+		              (PVCore::PVFileSerialize*)nullptr, !_was_serialized, false)) {
+			_path = fs.get_path();
+			_was_serialized = true;
+		}
+		if (!QFileInfo(_path).isReadable()) {
+			std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
+			    new PVCore::PVSerializeArchiveErrorFileNotReadable(_path));
+			std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
+			    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "file_path"));
+			so.repairable_error(error);
+		}
+	}
+	PVSERIALIZEOBJECT_SPLIT
 
   protected:
 	QString _path;

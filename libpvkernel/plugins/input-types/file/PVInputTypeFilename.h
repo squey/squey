@@ -46,6 +46,15 @@ class PVInputTypeFilename : public PVInputTypeDesc<PVFileDescription>
 	QIcon icon() const { return QIcon(":/import-icon-white"); }
 	QCursor cursor() const { return QCursor(Qt::PointingHandCursor); }
 
+  public:
+	PVInputDescription_p serialize_read(PVCore::PVSerializeObject& so) override
+	{
+		// FIXME : Should be improve to not use default constructor.
+		auto query = new PVFileDescription();
+		query->serialize_read(so);
+		return PVInputDescription_p(query);
+	}
+
   protected:
 	/**
 	 * Push input corresponding to filenames in "inputs" performing uncompress if required.

@@ -102,17 +102,14 @@ void Inendi::PVMapping::serialize(PVCore::PVSerializeObject& so,
 			QString child_name = QString::number(idx++);
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, "", false);
 			prop.serialize_write(*new_obj);
-			new_obj->_bound_obj = &prop;
-			new_obj->_bound_obj_type = typeid(PVMappingProperties);
+			new_obj->set_bound_obj(prop);
 		}
 	} else {
 		int idx = 0;
 		try {
 			while (true) {
 				PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				columns.emplace_back(PVMappingProperties::serialize_read(*new_obj, *this));
-				new_obj->_bound_obj = &columns.back();
-				new_obj->_bound_obj_type = typeid(PVMappingProperties);
+				columns.emplace_back(PVMappingProperties::serialize_read(*new_obj));
 				idx++;
 			}
 		} catch (PVCore::PVSerializeArchiveErrorNoObject const& /*e*/) {

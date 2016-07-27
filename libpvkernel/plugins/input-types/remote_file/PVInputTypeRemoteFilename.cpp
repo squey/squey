@@ -93,7 +93,7 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 	for (int i = 0; i < in.size(); i++) {
 		PVFileDescription* f = dynamic_cast<PVFileDescription*>(in[i].get());
 		assert(f);
-		QString tmp_name = f->toString();
+		QString tmp_name = f->path();
 		if (_hash_real_filenames.contains(tmp_name)) {
 			found_url = true;
 			url = _hash_real_filenames[tmp_name];

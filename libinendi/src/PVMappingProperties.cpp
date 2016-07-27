@@ -6,8 +6,6 @@
  */
 
 #include <inendi/PVMapping.h>
-#include <inendi/PVMapped.h>
-#include <inendi/PVSource.h>
 #include <inendi/PVMappingProperties.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVFormatVersion.h>
@@ -74,20 +72,13 @@ bool Inendi::PVMappingProperties::operator==(const PVMappingProperties& org) con
 }
 
 Inendi::PVMappingProperties
-Inendi::PVMappingProperties::serialize_read(PVCore::PVSerializeObject& so,
-                                            Inendi::PVMapping const& parent)
+Inendi::PVMappingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
 	PVCol idx;
 	so.attribute("index", idx);
 
 	QString mode;
 	so.attribute("mode", mode);
-
-	if (so.get_version() <= 2) {
-		QString type =
-		    parent.get_mapped()->get_parent().get_rushnraw().collection().formatter(idx)->name();
-		mode = PVRush::PVFormatVersion::get_mapped_from_format(type, mode);
-	}
 
 	PVCore::PVArgumentList args;
 	so.arguments("properties", args, args);

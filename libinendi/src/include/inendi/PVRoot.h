@@ -35,12 +35,6 @@ class PVView;
 class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 {
   public:
-	friend class PVView;
-	friend class PVScene;
-	friend class PVSource;
-	friend class PVCore::PVSerializeObject;
-
-  public:
 	PVRoot();
 	~PVRoot();
 
@@ -89,12 +83,12 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	const PVCorrelationEngine& correlations() const { return _correlations; }
 	Inendi::PVView* process_correlation(Inendi::PVView* view);
 
-  protected:
+  public:
 	void view_being_deleted(Inendi::PVView* view);
 	void scene_being_deleted(Inendi::PVScene* view);
 	void source_being_deleted(Inendi::PVSource* view);
 
-  protected:
+  public:
 	// Serialization
 	void serialize_write(PVCore::PVSerializeObject& so);
 
@@ -118,16 +112,18 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	PVSource* _current_source;
 	PVView* _current_view;
 
+  private:
 	PVCorrelationEngine _correlations;
-
-	QList<QRgb> _available_colors;
-	QList<QRgb> _used_colors;
+	bool _correlation_running = false;
 
   private:
-	int _new_view_id = 0;
+	QString _path; //!< Path where this root is saved as an investigation.
 
-	QString _path;
-	bool _correlation_running = false;
+  private:
+	// View related data
+	QList<QRgb> _available_colors;
+	QList<QRgb> _used_colors;
+	int _new_view_id = 0;
 };
 }
 

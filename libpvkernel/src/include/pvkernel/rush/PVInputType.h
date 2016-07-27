@@ -50,9 +50,7 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	virtual QKeySequence menu_shortcut() const { return QKeySequence(); }
 	virtual QString tab_name_of_inputs(list_inputs const& in) const = 0;
 	virtual bool get_custom_formats(PVInputDescription_p in, hash_formats& formats) const = 0;
-	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj,
-	                                                     QString const& name,
-	                                                     list_inputs& inputs) const = 0;
+	virtual PVInputDescription_p serialize_read(PVCore::PVSerializeObject& so) = 0;
 	virtual QIcon icon() const { return QIcon(); }
 	virtual QCursor cursor() const { return QCursor(); }
 
@@ -97,20 +95,6 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 template <typename T>
 class PVInputTypeDesc : public PVInputType
 {
-  public:
-	virtual PVCore::PVSerializeObject_p
-	serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const
-	{
-		// Get name of inputs
-		QStringList descs;
-		list_inputs::const_iterator it;
-		for (it = inputs.begin(); it != inputs.end(); it++) {
-			descs << human_name_of_input(*it);
-		}
-		return obj.list<list_inputs, std::shared_ptr<T>>(name, inputs, human_name_serialize(),
-		                                                 nullptr, descs);
-	}
-
 	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings)
 	{
 		input_descr.save_to_qsettings(settings);

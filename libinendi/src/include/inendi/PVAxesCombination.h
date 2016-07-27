@@ -221,7 +221,6 @@ class PVAxesCombination
 	*axes).
 	*/
 	PVCol get_original_axes_count() const;
-	/** @} */
 
 	PVCore::PVColumnIndexes get_original_axes_indexes() const;
 

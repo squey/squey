@@ -10,6 +10,7 @@
 #include "common.h"
 
 static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy.log";
+static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
 static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
 static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation.pvi";
 static constexpr unsigned int ROW_COUNT = 100000;
@@ -23,10 +24,18 @@ double save_investigation()
 {
 	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
 	env.add_source(csv_file, csv_file_format, dupl, true);
-	env.add_source(csv_file, csv_file_format, dupl, false);
+	env.add_source(csv_file2, csv_file_format, dupl, false);
 
 	size_t source_size = env.root.size<Inendi::PVSource>();
 	PV_VALID(source_size, 3UL);
+
+	auto sources = env.root.get_children<Inendi::PVSource>();
+	auto it = sources.begin();
+	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	std::advance(it, 1);
+	PV_VALID((*it)->get_name(), std::string("proxy_mineset.log"));
+	std::advance(it, 1);
+	PV_VALID((*it)->get_name(), std::string("proxy.log"));
 
 	env.compute_mappings();
 	env.compute_plottings();
@@ -95,6 +104,13 @@ double load_investigation()
 	auto sources = root.get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 3UL);
 	auto source = sources.front();
+
+	auto it = sources.begin();
+	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	std::advance(it, 1);
+	PV_VALID((*it)->get_name(), std::string("proxy_mineset.log"));
+	std::advance(it, 1);
+	PV_VALID((*it)->get_name(), std::string("proxy.log"));
 
 	const PVRow row_count = source->get_row_count();
 	PV_VALID(row_count, ROW_COUNT * dupl);

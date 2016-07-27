@@ -34,9 +34,9 @@ class PVInputDescription
 	virtual void save_to_qsettings(QSettings& settings) const = 0;
 	virtual void load_from_qsettings(const QSettings& settings) = 0;
 
-  protected:
-	virtual void serialize(PVCore::PVSerializeObject& so,
-	                       PVCore::PVSerializeArchive::version_t v) = 0;
+  public:
+	virtual void serialize_read(PVCore::PVSerializeObject& so) = 0;
+	virtual void serialize_write(PVCore::PVSerializeObject& so) = 0;
 };
 
 typedef PVInputDescription::p_type PVInputDescription_p;

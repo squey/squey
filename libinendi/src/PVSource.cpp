@@ -67,7 +67,8 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
 
 	// Set format
 	format.populate();
-	set_format(format);
+	_extractor.set_format(format);
+	_axes_combination.set_from_format(_extractor.get_format());
 
 	// Set sources
 	files_append_noextract();
@@ -128,12 +129,6 @@ void Inendi::PVSource::load_from_disk(std::string const& nraw_folder)
 void Inendi::PVSource::extract_finished()
 {
 	_extractor.release_inputs();
-}
-
-void Inendi::PVSource::set_format(PVRush::PVFormat const& format)
-{
-	_extractor.set_format(format);
-	_axes_combination.set_from_format(_extractor.get_format());
 }
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()
@@ -200,20 +195,6 @@ bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
 	return unconv.has_failed(row, col);
 }
 
-PVRush::PVInputType_p Inendi::PVSource::get_input_type() const
-{
-	assert(_src_plugin);
-	return _src_plugin->supported_type_lib();
-}
-
-void Inendi::PVSource::add_view(PVView* view)
-{
-	PVRoot& root = get_parent<PVRoot>();
-	root.select_view(*view);
-	view->set_view_id(root.get_new_view_id());
-	view->set_color(root.get_new_view_color());
-}
-
 QString Inendi::PVSource::get_window_name() const
 {
 	const size_t line_start = get_extraction_last_start();
@@ -247,46 +228,110 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("nlines", nlines);
 
 	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
-	so.attribute("nraw_path", nraw_path, QString());
 
 	// Save the format
 	so.object("format", _extractor.get_format(), QObject::tr("Format"));
 
+	// Serialize Input description to reload data if required.
+	QString type_name = _src_plugin->supported_type();
+	so.attribute("source-type", type_name);
+
+	PVCore::PVSerializeObject_p list_inputs =
+	    so.create_object("inputs", "Description of inputs", true, true);
+	int idx = 0;
+	for (PVRush::PVInputDescription_p const& input : _inputs) {
+		QString child_name = QString::number(idx++);
+		PVCore::PVSerializeObject_p new_input = list_inputs->create_object(
+		    child_name, _src_plugin->supported_type_lib()->human_name_of_input(input), false);
+		input->serialize_write(*new_input);
+		new_input->set_bound_obj(*input);
+	}
+
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
-	int idx = 0;
+	idx = 0;
 	for (PVMapped* mapped : get_children()) {
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(mapped->get_serialize_description()), false);
-		mapped->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = mapped;
-		new_obj->_bound_obj_type = typeid(PVMapped);
+		mapped->serialize_write(*new_obj);
+		new_obj->set_bound_obj(*mapped);
 	}
 }
 
-void Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so)
+Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVScene& parent)
 {
-	// Create the list of mapped
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	// Reload input desription
+	QString type_name;
+	so.attribute("source-type", type_name);
+	// FIXME : We should check for type_name validity if archive was manually changed.
+	PVRush::PVInputType_p int_lib =
+	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(type_name);
+
+	// Get the inputs list object for that input type
+	PVRush::PVInputType::list_inputs_desc inputs_for_type;
+
+	// Create the list of input
+	PVCore::PVSerializeObject_p list_inputs =
+	    so.create_object("inputs", "Description of inputs", true, true);
 	int idx = 0;
 	try {
 		while (true) {
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVMapped& mapped = emplace_add_child();
-			// FIXME : Mapping is created invalid then set
-			new_obj->object(QString("mapping"), mapped.get_mapping(), QString(), false, nullptr,
-			                false);
-			mapped.serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = &mapped;
-			new_obj->_bound_obj_type = typeid(PVMapped);
-			idx++;
+			PVCore::PVSerializeObject_p new_obj =
+			    list_inputs->create_object(QString::number(idx++));
+			inputs_for_type.push_back(int_lib->serialize_read(*new_obj));
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
-		return;
 	}
+
+	QString src_name;
+	so.attribute("source-plugin", src_name);
+	// FIXME : Handle error when source name if not correct
+	PVRush::PVSourceCreator_p sc_lib =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
+
+	PVRush::PVFormat format;
+	so.object("format", format);
+
+	// Get the state of the extractor
+	chunk_index start, nlines;
+	so.attribute("index_start", start);
+	so.attribute("nlines", nlines);
+
+	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
+
+	QString nraw_folder;
+	so.attribute("nraw_path", nraw_folder, QString());
+
+	if (not nraw_folder.isEmpty()) {
+		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() +
+		                              QDir(nraw_folder).dirName();
+		QFileInfo fi(user_based_nraw_dir);
+		if (fi.exists() and fi.isDir()) {
+			nraw_folder = user_based_nraw_dir;
+		} else {
+			nraw_folder = QString();
+		}
+	}
+
+	source.load_data(nraw_folder.toStdString());
+
+	// Create the list of mapped
+	PVCore::PVSerializeObject_p list_obj = so.create_object(
+	    source.get_children_serialize_name(), source.get_children_description(), true, true);
+	idx = 0;
+	try {
+		while (true) {
+			// FIXME It throws when there are no more data collections.
+			// It should not be an exception as it is a normal behavior.
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
+			PVMapped::serialize_read(*new_obj, source);
+		}
+	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+	}
+
+	return source;
 }

@@ -332,30 +332,29 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(view->get_serialize_description()), false);
-		view->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = view;
-		new_obj->_bound_obj_type = typeid(PVView);
+		view->serialize_write(*new_obj);
+		new_obj->set_bound_obj(*view);
 	}
 }
 
-void Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so)
+Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
+                                                     Inendi::PVMapped& parent)
 {
+	PVPlotted& plotted = parent.emplace_add_child();
+	so.object(QString("plotting"), plotted.get_plotting(), QString(), false, nullptr, false);
+
 	// Create the list of view
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object(
+	    plotted.get_children_serialize_name(), plotted.get_children_description(), true, true);
 	int idx = 0;
 	try {
 		while (true) {
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVView& view = emplace_add_child();
-			view.serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = &view;
-			new_obj->_bound_obj_type = typeid(PVView);
-			idx++;
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
+			Inendi::PVView::serialize_read(*new_obj, plotted);
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
-		return;
 	}
+	return plotted;
 }

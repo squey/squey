@@ -27,19 +27,6 @@ struct remove_shared_ptr<std::shared_ptr<T>> {
 	typedef T type;
 };
 
-// Dynamic cast T* into Y*
-template <class Y, class T>
-struct dynamic_pointer_cast {
-	static Y cast(T p) { return dynamic_cast<T>(p); }
-};
-
-template <class Y, class T>
-struct dynamic_pointer_cast<std::shared_ptr<Y>, std::shared_ptr<T>> {
-	typedef typename std::shared_ptr<T> org_pointer;
-	typedef typename std::shared_ptr<Y> result_pointer;
-	static result_pointer cast(org_pointer const& p) { return std::dynamic_pointer_cast<Y>(p); }
-};
-
 // Get a pointer from whatever type
 template <class T>
 struct pointer {
@@ -65,47 +52,6 @@ struct pointer<std::shared_ptr<T>&> {
 	typedef std::shared_ptr<T>& type;
 	static inline type get(type obj) { return obj; }
 };
-
-// Const forwarder
-// Make a type const iif another type is const
-template <class T, class Tref>
-struct const_fwd {
-	typedef T type;
-};
-
-template <class T, class Tref>
-struct const_fwd<T, const Tref> {
-	typedef typename std::add_const<T>::type type;
-};
-
-template <class T, class Tref>
-struct const_fwd<T, const Tref&> {
-	typedef typename std::add_const<T>::type type;
-};
-
-template <class T, class Tref>
-struct const_fwd<T&, const Tref> {
-	typedef typename std::add_const<T>::type& type;
-};
-
-template <class T, class Tref>
-struct const_fwd<T&, const Tref&> {
-	typedef typename std::add_const<T>::type& type;
-};
-
-// Polymorhpic object helpers
-template <typename T, typename std::enable_if<std::is_polymorphic<T>::value == true, int>::type = 0>
-inline typename const_fwd<void, T>::type* get_starting_address(T* obj)
-{
-	return dynamic_cast<typename const_fwd<void, T>::type*>(obj);
-}
-
-template <typename T,
-          typename std::enable_if<std::is_polymorphic<T>::value == false, int>::type = 0>
-inline typename const_fwd<void, T>::type* get_starting_address(T* obj)
-{
-	return reinterpret_cast<typename const_fwd<void, T>::type*>(obj);
-}
 }
 }
 

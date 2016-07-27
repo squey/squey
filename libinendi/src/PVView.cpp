@@ -45,10 +45,11 @@ Inendi::PVView::PVView(PVPlotted& plotted)
     , layer_stack(get_row_count())
     , volatile_selection(get_row_count())
     , _rushnraw_parent(&get_parent<PVSource>().get_rushnraw())
-    , _view_id(-1)
+    , _view_id(get_parent<PVRoot>().get_new_view_id())
     , _active_axis(0)
+    , _color(get_parent<PVRoot>().get_new_view_color())
 {
-	get_parent<PVSource>().add_view(this);
+	get_parent<PVRoot>().select_view(*this);
 
 	// Create layer filter arguments for that view
 	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
@@ -863,8 +864,11 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }
 
-void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so)
+Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
+                                               Inendi::PVPlotted& parent)
 {
-	so.object("layer-stack", layer_stack, "Layers", true);
-	so.object("axes-combination", _axes_combination, "Axes combination", true);
+	Inendi::PVView& view = parent.emplace_add_child();
+	so.object("layer-stack", view.layer_stack, "Layers", true);
+	so.object("axes-combination", view._axes_combination, "Axes combination", true);
+	return view;
 }

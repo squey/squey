@@ -70,14 +70,14 @@ int main(int argc, char** argv)
 	// Serialize the scene
 	PVCore::PVSerializeArchive_p ar(
 	    new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
-	ar->get_root()->object("scene", scene);
+	ar->get_root()->object("root", root);
 
 	// Get it back !
-	Inendi::PVScene& scene2 = root.emplace_add_child("scene");
+	Inendi::PVRoot root2;
 	ar.reset(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
-	ar->get_root()->object("scene", scene2);
+	ar->get_root()->object("root", root2);
 
-	auto new_src = scene2.get_children().front();
+	auto new_src = root2.get_children<Inendi::PVSource>().front();
 
 	job = new_src->extract(0);
 	job->wait_end();
