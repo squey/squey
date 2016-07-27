@@ -90,9 +90,8 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 
   protected:
 	// Serialization
-	void serialize_read(PVCore::PVSerializeObject& so);
+	static Inendi::PVScene& serialize_read(PVCore::PVSerializeObject& so, Inendi::PVRoot& parent);
 	void serialize_write(PVCore::PVSerializeObject& so);
-	PVSERIALIZEOBJECT_SPLIT
 
   public:
 	sigc::signal<void> _project_updated;

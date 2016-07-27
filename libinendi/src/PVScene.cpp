@@ -117,8 +117,13 @@ QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
 	return ret;
 }
 
-void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
+Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
+                                                 Inendi::PVRoot& root)
 {
+	QString name;
+	so.attribute("name", name);
+	PVScene& scene = root.emplace_add_child(name.toStdString());
+
 	// Get the list of input types
 	QStringList input_types;
 	so.list_attributes("types", input_types);
@@ -126,12 +131,12 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 	// FIXME : Should check for 1 as there is a size attribute?
 	if (input_types.size() == 0) {
 		// No input types, thus no sources, thus nothing !
-		return;
+		return scene;
 	}
 
 	// Create a list of source
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object(
+	    scene.get_children_serialize_name(), scene.get_children_description(), true, true);
 
 	// Temporary list of input descriptions
 	for (int i = 0; i < input_types.size(); i++) {
@@ -164,7 +169,7 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 		new_obj->attribute("index_start", start);
 		new_obj->attribute("nlines", nlines);
 
-		PVSource& source = emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
+		PVSource& source = scene.emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
 
 		QString nraw_folder;
 		new_obj->attribute("nraw_path", nraw_folder, QString());
@@ -184,6 +189,8 @@ void Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so)
 		new_obj->_bound_obj = &source;
 		new_obj->_bound_obj_type = typeid(PVSource);
 	}
+
+	return scene;
 }
 
 void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)

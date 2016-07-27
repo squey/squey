@@ -215,7 +215,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(scene->get_serialize_description()), false);
-		scene->serialize(*new_obj, so.get_version());
+		scene->serialize_write(*new_obj);
 		new_obj->set_bound_obj(*scene);
 	}
 };
@@ -231,10 +231,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			QString name;
-			new_obj->attribute("name", name);
-			PVScene& scene = emplace_add_child(name.toStdString());
-			scene.serialize(*new_obj, so.get_version());
+			PVScene::serialize_read(*new_obj, *this);
 			idx++;
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
