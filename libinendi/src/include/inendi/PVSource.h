@@ -40,12 +40,6 @@ class PVScene;
 class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
                  public PVCore::PVDataTreeChild<PVScene, PVSource>
 {
-	friend class PVCore::PVSerializeObject;
-	friend class PVRoot;
-	friend class PVScene;
-	friend class PVView;
-	friend class PVPlotted;
-
   public:
 	PVSource(Inendi::PVScene& scene,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
@@ -163,13 +157,13 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
-  protected:
+  public:
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 
-  protected:
+  public:
 	static PVSource& serialize_read(PVCore::PVSerializeObject& so, PVScene& parent);
 	void serialize_write(PVCore::PVSerializeObject& so);
 
