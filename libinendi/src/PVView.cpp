@@ -864,8 +864,11 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }
 
-void Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so)
+Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
+                                               Inendi::PVPlotted& parent)
 {
-	so.object("layer-stack", layer_stack, "Layers", true);
-	so.object("axes-combination", _axes_combination, "Axes combination", true);
+	Inendi::PVView& view = parent.emplace_add_child();
+	so.object("layer-stack", view.layer_stack, "Layers", true);
+	so.object("axes-combination", view._axes_combination, "Axes combination", true);
+	return view;
 }

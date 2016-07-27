@@ -351,10 +351,8 @@ Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& 
 		while (true) {
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVView& view = plotted.emplace_add_child();
-			view.serialize(*new_obj, so.get_version());
-			idx++;
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
+			Inendi::PVView::serialize_read(*new_obj, plotted);
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
 	}

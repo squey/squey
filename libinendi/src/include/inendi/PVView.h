@@ -8,11 +8,8 @@
 #ifndef INENDI_PVVIEW_H
 #define INENDI_PVVIEW_H
 
-#include <QList>
 #include <QStringList>
 #include <QString>
-#include <QVector>
-#include <QMutex>
 
 #include <sigc++/sigc++.h>
 
@@ -38,11 +35,6 @@ namespace Inendi
  */
 class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 {
-	friend class PVCore::PVSerializeObject;
-	friend class PVRoot;
-	friend class PVScene;
-	friend class PVSource;
-
   public:
 	typedef QHash<QString, PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
@@ -52,10 +44,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVView(PVPlotted& plotted);
 	PVView(const PVView& org) = delete;
 	~PVView();
-
-  protected:
-	// For PVSource
-	inline void set_view_id(id_t id) { _view_id = id; }
 
   public:
 	inline PVSelection& get_floating_selection() { return floating_selection; }
@@ -164,7 +152,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	std::string get_name() const;
 	QString get_window_name() const;
 
-	void set_color(QColor color) { _color = color; }
 	QColor get_color() const { return _color; }
 
 	PVLayer& get_post_filter_layer();
@@ -362,18 +349,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	}
 
   public:
-	/******************************************************************************
-	******************************************************************************
-	*
-	* Serialization
-	*
-	******************************************************************************
-	*****************************************************************************/
-	void serialize_read(PVCore::PVSerializeObject& so);
 	void serialize_write(PVCore::PVSerializeObject& so);
-
-  public:
-	PVSERIALIZEOBJECT_SPLIT
+	static Inendi::PVView& serialize_read(PVCore::PVSerializeObject& so, Inendi::PVPlotted& parent);
 
   public:
 	// axis <-> section synchronisation
