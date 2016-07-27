@@ -61,7 +61,7 @@ class PVSplunkQuery : public PVInputDescription
 	virtual void save_to_qsettings(QSettings& settings) const;
 	virtual void load_from_qsettings(const QSettings& settings);
 
-  protected:
+  public:
 	void serialize_read(PVCore::PVSerializeObject& so);
 	void serialize_write(PVCore::PVSerializeObject& so);
 

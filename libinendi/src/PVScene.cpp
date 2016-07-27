@@ -39,17 +39,6 @@ Inendi::PVScene::~PVScene()
 	get_parent<PVRoot>().scene_being_deleted(this);
 }
 
-Inendi::PVScene::list_sources_t Inendi::PVScene::get_sources(PVRush::PVInputType const& type) const
-{
-	list_sources_t ret;
-	for (auto const* src : get_children()) {
-		if (*src->get_input_type() == type) {
-			ret.push_back(src);
-		}
-	}
-	return ret;
-}
-
 Inendi::PVSource* Inendi::PVScene::current_source()
 {
 	PVSource* cur_src = get_parent<PVRoot>().current_source();
@@ -86,37 +75,6 @@ Inendi::PVView const* Inendi::PVScene::current_view() const
 	return nullptr;
 }
 
-PVRush::PVInputType::list_inputs_desc
-Inendi::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
-{
-	QSet<PVRush::PVInputDescription_p> ret_set;
-	for (auto const* src : get_children()) {
-		if (*src->get_input_type() == type) {
-			ret_set.unite(src->get_inputs().toSet());
-		}
-	}
-	return ret_set.toList();
-}
-
-QList<PVRush::PVInputType_p> Inendi::PVScene::get_all_input_types() const
-{
-	QList<PVRush::PVInputType_p> ret;
-	for (auto const* src : get_children()) {
-		PVRush::PVInputType_p in_type = src->get_input_type();
-		bool found = false;
-		for (PVRush::PVInputType_p const& known_in_t : ret) {
-			if (known_in_t->registered_id() == in_type->registered_id()) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			ret.push_back(in_type);
-		}
-	}
-	return ret;
-}
-
 Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
                                                  Inendi::PVRoot& root)
 {
@@ -124,70 +82,19 @@ Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 	so.attribute("name", name);
 	PVScene& scene = root.emplace_add_child(name.toStdString());
 
-	// Get the list of input types
-	QStringList input_types;
-	so.list_attributes("types", input_types);
-
-	// FIXME : Should check for 1 as there is a size attribute?
-	if (input_types.size() == 0) {
-		// No input types, thus no sources, thus nothing !
-		return scene;
-	}
-
 	// Create a list of source
 	PVCore::PVSerializeObject_p list_obj = so.create_object(
 	    scene.get_children_serialize_name(), scene.get_children_description(), true, true);
 
-	// Temporary list of input descriptions
-	for (int i = 0; i < input_types.size(); i++) {
-		// Create an object for the source
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(i));
-
-		QString src_name;
-		new_obj->attribute("source-plugin", src_name);
-		// FIXME : Handle error when source name if not correct
-		PVRush::PVSourceCreator_p sc_lib =
-		    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
-
-		// Get the input type lib object
-		QString const& type_name = input_types.at(i);
-		// FIXME : We should check for type_name validity if archive was manually changed.
-		PVRush::PVInputType_p int_lib =
-		    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(type_name);
-
-		// Get the inputs list object for that input type
-		PVRush::PVInputType::list_inputs_desc inputs_for_type;
-
-		// Get back the inputs
-		int_lib->serialize_inputs(so, type_name, inputs_for_type);
-
-		PVRush::PVFormat format;
-		new_obj->object("format", format);
-
-		// Get the state of the extractor
-		chunk_index start, nlines;
-		new_obj->attribute("index_start", start);
-		new_obj->attribute("nlines", nlines);
-
-		PVSource& source = scene.emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
-
-		QString nraw_folder;
-		new_obj->attribute("nraw_path", nraw_folder, QString());
-
-		if (not nraw_folder.isEmpty()) {
-			QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() +
-			                              QDir::separator() + QDir(nraw_folder).dirName();
-			QFileInfo fi(user_based_nraw_dir);
-			if (fi.exists() and fi.isDir()) {
-				nraw_folder = user_based_nraw_dir;
-			} else {
-				nraw_folder = QString();
-			}
+	int idx = 0;
+	try {
+		while (true) {
+			// FIXME It throws when there are no more data collections.
+			// It should not be an exception as it is a normal behavior.
+			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
+			PVSource::serialize_read(*new_obj, scene);
 		}
-		source.load_data(nraw_folder.toStdString());
-		source.serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = &source;
-		new_obj->_bound_obj_type = typeid(PVSource);
+	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
 	}
 
 	return scene;
@@ -195,25 +102,9 @@ Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 
 void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 {
-	// First serialize the input descriptions.
-	QList<PVRush::PVInputType_p> in_types(get_all_input_types());
-	for (PVRush::PVInputType_p const& in_t : in_types) {
-		list_sources_t sources = get_sources(*in_t);
-
-		// Safety check
-		if (sources.size() == 0) {
-			continue;
-		}
-
-		// FIXME: Files are not saved in source while they certainly should.
-		PVRush::PVInputType::list_inputs_desc inputs = get_inputs_desc(*in_t);
-		in_t->serialize_inputs(so, in_t->registered_name(), inputs);
-	}
-
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
 
-	QStringList in_types_str;
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
@@ -222,13 +113,7 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(source->get_serialize_description()), false);
-		source->serialize(*new_obj, so.get_version());
-
-		PVRush::PVInputType_p const& in_t = source->get_input_type();
-		in_types_str.push_back(in_t->registered_name());
-
-		new_obj->_bound_obj = source;
-		new_obj->_bound_obj_type = typeid(PVSource);
+		source->serialize_write(*new_obj);
+		new_obj->set_bound_obj(*source);
 	}
-	so.list_attributes("types", in_types_str);
 }

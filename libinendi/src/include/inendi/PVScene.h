@@ -31,14 +31,6 @@ class PVRoot;
 class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
                 public PVCore::PVDataTreeChild<PVRoot, PVScene>
 {
-	friend class PVCore::PVSerializeObject;
-	friend class PVRoot;
-	friend class PVSource;
-	friend class PVView;
-
-  public:
-	typedef QList<PVSource const*> list_sources_t;
-
   public:
 	PVScene(PVRoot& root, std::string const& scene_name);
 	~PVScene();
@@ -70,22 +62,17 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	inline PVSource const* last_active_source() const { return _last_active_src; }
 
   public:
-	list_sources_t get_sources(PVRush::PVInputType const& type) const;
-	PVRush::PVInputType::list_inputs_desc get_inputs_desc(PVRush::PVInputType const& type) const;
-
 	inline bool is_empty() const { return size() == 0; }
 
 	virtual std::string get_serialize_description() const { return get_name(); }
 
-  protected:
+  public:
 	virtual QString get_children_description() const { return "Source(s)"; }
 	virtual QString get_children_serialize_name() const { return "sources"; }
 
-	QList<PVRush::PVInputType_p> get_all_input_types() const;
-
 	inline void set_last_active_source(PVSource* src) { _last_active_src = src; }
 
-  protected:
+  public:
 	// Serialization
 	static Inendi::PVScene& serialize_read(PVCore::PVSerializeObject& so, Inendi::PVRoot& parent);
 	void serialize_write(PVCore::PVSerializeObject& so);

@@ -133,51 +133,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	            bool def_option = true,
 	            p_type* used_so = nullptr);
 
-	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must
-	 * be serializable.
-	 *  \param[in] name Name of the list to serialize
-	 *  \param[in] obj List object to serialize
-	 *  \param[in] def_v Default value to use when an object has to be created (when using
-	 * shared_ptr for instance)
-	 *  \param[in] descriptions Description to use for the objects inside the list
-	 *  \param[in] visible Whether this list object will be visible or not
-	 *  \param[in] elts_optional Whether the lements of this list will be optional
-	 *  \param[in] desc Optional description of this list. If an empty QString is given, no
-	 * description will be associated.
-	 *  This method declare a list of object to serialize.
-	 *  This will be represented in this form:
-	 *    list_name
-	 *    |
-	 *    -- 0
-	 *       |
-	 *       -- serialization of first object
-	 *    -- 1
-	 *       |
-	 *       -- serialization of the second object
-	 *    ...
-	 */
-	template <typename T>
-	p_type
-	list(QString const& name,
-	     T& obj,
-	     QString const& desc = QString(),
-	     typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v =
-	         nullptr,
-	     QStringList const& descriptions = QStringList(),
-	     bool visible = true,
-	     bool elts_optional = false);
-
-	// C++ 0x is coming, but still too experimental and we may have trouble with MSVC...
-	// template <typename T, typename V = typename T::value_type>
-	template <typename T, typename V>
-	p_type list(QString const& name,
-	            T& obj,
-	            QString const& desc = QString(),
-	            typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = nullptr,
-	            QStringList const& descriptions = QStringList(),
-	            bool visible = true,
-	            bool elts_optional = false);
-
 	/*! \brief Declare a QHash to serialize. V must be serializable.
 	 *  \param[in]     name Name of the QHash to serialize.
 	 *  \param[in,out] obj  QHash input/output object to serialize.
@@ -310,32 +265,7 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	void call_serialize(T& obj, p_type new_obj, T const* /*def_v*/)
 	{
 		obj.serialize(*new_obj, get_version());
-		new_obj->_bound_obj = &obj;
-		new_obj->_bound_obj_type = typeid(T);
-	}
-
-	template <typename T>
-	void call_serialize(T* obj, p_type new_obj, T const* def_v)
-	{
-		call_serialize(*obj, new_obj, def_v);
-	}
-
-	template <typename T>
-	void call_serialize(std::shared_ptr<T>& obj, p_type new_obj, T const* def_v)
-	{
-		if (!obj) {
-			assert(!is_writing());
-			T* new_p;
-			if (def_v) {
-				new_p = new T(*def_v);
-			} else {
-				new_p = new T();
-			}
-			obj.reset(new_p);
-		}
-		obj->serialize(*new_obj, get_version());
-		new_obj->_bound_obj = obj.get();
-		new_obj->_bound_obj_type = typeid(T);
+		new_obj->set_bound_obj(obj);
 	}
 
 	template <typename T>
@@ -442,87 +372,6 @@ bool PVSerializeObject::object(QString const& name,
 	}
 	call_serialize(obj, new_obj, def_v);
 	return true;
-}
-
-template <typename T>
-PVSerializeObject::p_type PVSerializeObject::list(
-    QString const& name,
-    T& obj,
-    QString const& desc,
-    typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v,
-    QStringList const& descriptions,
-    bool visible,
-    bool elts_optional)
-{
-	return list<T, typename T::value_type>(name, obj, desc, def_v, descriptions, visible,
-	                                       elts_optional);
-}
-
-template <typename T, typename V>
-PVSerializeObject::p_type
-PVSerializeObject::list(QString const& name,
-                        T& obj,
-                        QString const& desc,
-                        typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v,
-                        QStringList const& descriptions,
-                        bool visible,
-                        bool elts_optional)
-{
-	if (elts_optional && is_writing() && !must_write_child(name)) {
-		return p_type();
-	}
-
-	typedef typename PVCore::PVTypeTraits::pointer<V>::type Vp;
-	typedef typename PVCore::PVTypeTraits::pointer<typename T::value_type>::type Lvp;
-	PVSerializeObject_p list_obj;
-	try {
-		list_obj = create_object(name, desc, elts_optional, visible);
-	} catch (PVSerializeArchiveErrorNoObject& e) {
-		if (!elts_optional && !is_writing()) {
-			throw e;
-		}
-		return p_type();
-	}
-#ifndef NDEBUG
-	if (descriptions.size() > 0) {
-		assert(descriptions.size() == (int)obj.size());
-	}
-#endif
-	QString desc_;
-	if (is_writing()) {
-		typename T::iterator it;
-		int idx = 0;
-		for (it = obj.begin(); it != obj.end(); it++) {
-			QString child_name = QString::number(idx);
-			if (!(elts_optional && !list_obj->must_write_child(child_name))) {
-				Vp v = PVCore::PVTypeTraits::dynamic_pointer_cast<Vp, Lvp>::cast(
-				    PVCore::PVTypeTraits::pointer<typename T::value_type&>::get((*it)));
-				assert(v);
-				if (descriptions.size() > 0) {
-					desc_ = descriptions.at(idx);
-				}
-				PVSerializeObject_p new_obj =
-				    list_obj->create_object(child_name, desc_, elts_optional);
-				call_serialize(v, new_obj, def_v);
-			}
-			idx++;
-		}
-	} else {
-		obj.clear();
-		int idx = 0;
-		try {
-			while (true) {
-				V v;
-				PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				call_serialize(v, new_obj, def_v);
-				obj.push_back(v);
-				idx++;
-			}
-		} catch (PVSerializeArchiveErrorNoObject const& /*e*/) {
-			return list_obj;
-		}
-	}
-	return list_obj;
 }
 
 template <typename K, typename V>

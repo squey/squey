@@ -5,10 +5,8 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 add_pv_compile_test(Tcore_timeformat_perf LINKS pvkernel ${ICU_LIBRARY} FILES time-format-perf.cpp)
-add_pv_compile_test(Tcore_serialize LINKS pvkernel FILES serialize.cpp)
 add_pv_compile_test(Tcore_stable_reverse LINKS pvkernel FILES stable_reverse.cpp)
 add_pv_compile_test(Tcore_bench_stable_reverse LINKS pvkernel FILES bench_stable_reverse.cpp)
-add_pv_compile_test(Tcore_const_fwd LINKS pvkernel FILES const_fwd.cpp)
 add_pv_compile_test(Tcore_hardware_concurrency LINKS pvkernel FILES hardware_concurrency.cpp)
 add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
 

@@ -134,8 +134,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
 	void load_from_disk(std::string const& nraw_folder);
 
-	PVRush::PVInputType_p get_input_type() const;
-
 	inline PVAxesCombination& get_axes_combination() { return _axes_combination; }
 	inline PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 
@@ -159,7 +157,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
-	void set_format(PVRush::PVFormat const& format);
 
 	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
 
@@ -173,13 +170,10 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 
   protected:
-	void serialize_read(PVCore::PVSerializeObject& so);
+	static PVSource& serialize_read(PVCore::PVSerializeObject& so, PVScene& parent);
 	void serialize_write(PVCore::PVSerializeObject& so);
-	PVSERIALIZEOBJECT_SPLIT
 
   private:
-	PVRush::PVRawSourceBase_p
-	create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	void files_append_noextract();
 	void extract_finished();
 
@@ -187,7 +181,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVView* _last_active_view = nullptr;
 
 	PVRush::PVExtractor _extractor; //!< Tool to extract data and generate NRaw.
-	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
