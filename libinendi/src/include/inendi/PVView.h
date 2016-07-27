@@ -361,7 +361,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 		_state_machine.set_square_area_mode(mode);
 	}
 
-  protected:
+  public:
 	/******************************************************************************
 	******************************************************************************
 	*

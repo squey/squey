@@ -67,8 +67,8 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
   protected:
 	// Serialization
 	void serialize_write(PVCore::PVSerializeObject& so);
-	void serialize_read(PVCore::PVSerializeObject& so);
-	PVSERIALIZEOBJECT_SPLIT
+	static Inendi::PVPlotted& serialize_read(PVCore::PVSerializeObject& so,
+	                                         Inendi::PVMapped& parent);
 
 	// For PVMapped
 	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
