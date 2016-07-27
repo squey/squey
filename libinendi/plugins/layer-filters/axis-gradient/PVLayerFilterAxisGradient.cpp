@@ -55,19 +55,18 @@ void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer& o
 
 	PVRow r_max, r_min;
 	plotted.get_col_minmax(r_min, r_max, in.get_selection(), axis_id);
-	const uint32_t min_plotted = ~(plotted.get_value(r_min, axis_id));
-	const uint32_t max_plotted = ~(plotted.get_value(r_max, axis_id));
+	const uint32_t min_plotted = (plotted.get_value(r_min, axis_id));
+	const uint32_t max_plotted = (plotted.get_value(r_max, axis_id));
 	PVLOG_INFO("PVLayerFilterAxisGradient: min/max = %u/%u\n", min_plotted, max_plotted);
 	const double diff = max_plotted - min_plotted;
 	in.get_selection().visit_selected_lines(
 	    [&](PVRow const r) {
-		    const uint32_t plotted_value = ~(plotted.get_value(r, axis_id));
+		    const uint32_t plotted_value = (plotted.get_value(r, axis_id));
 
 		    PVCore::PVHSVColor color;
 		    // From green to red.. !
-		    color = ((uint8_t)(((double)(plotted_value - min_plotted) / diff) *
-		                       (double)(HSV_COLOR_RED - HSV_COLOR_GREEN))) +
-		            HSV_COLOR_GREEN;
+		    color = HSV_COLOR_RED - ((uint8_t)(((double)(plotted_value - min_plotted) / diff) *
+		                                       (double)(HSV_COLOR_RED - HSV_COLOR_GREEN)));
 		    out.get_lines_properties().set_line_properties(r, color);
 		},
 	    _view->get_row_count());
