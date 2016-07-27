@@ -14,18 +14,10 @@
  *****************************************************************************/
 Inendi::PVStateMachine::PVStateMachine()
 {
-	antialiased = false;
-	sync_all_views = true;
-	grabbed = false;
-	edit_mode_all = true;
 	square_area_mode = AREA_MODE_OFF;
 
 	listing_unselected_visible = false;
 	listing_zombie_visible = false;
-	gl_unselected_visible = true;
-	gl_zombie_visible = true;
-
-	caps_lock_activated = false;
 }
 
 QString Inendi::PVStateMachine::get_string()
