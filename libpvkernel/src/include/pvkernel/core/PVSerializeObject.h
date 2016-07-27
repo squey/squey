@@ -48,7 +48,7 @@ class PVSerializeObjectFileError : public PVSerializeArchiveError
  *
  * This class is the main helper class used for object serialisation.
  */
-class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
+class PVSerializeObject
 {
 	friend class PVSerializeArchive;
 	friend class PVSerializeArchiveFixError;

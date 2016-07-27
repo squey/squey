@@ -24,7 +24,7 @@ namespace PVCore
 
 class PVSerializeArchiveOptions;
 
-class PVSerializeArchive : public std::enable_shared_from_this<PVSerializeArchive>
+class PVSerializeArchive
 {
 	friend class PVSerializeObject;
 
@@ -36,15 +36,9 @@ class PVSerializeArchive : public std::enable_shared_from_this<PVSerializeArchiv
   public:
 	PVSerializeArchive(version_t version);
 	PVSerializeArchive(QString const& dir, archive_mode mode, version_t version);
+	PVSerializeArchive(const PVSerializeArchive& obj) = delete;
 
 	virtual ~PVSerializeArchive();
-
-  protected:
-	PVSerializeArchive(const PVSerializeArchive& obj)
-	    : std::enable_shared_from_this<PVSerializeArchive>(obj)
-	{
-		assert(false);
-	}
 
   public:
 	void open(QString const& dir, archive_mode mode);

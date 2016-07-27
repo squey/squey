@@ -23,13 +23,8 @@ class PVSerializeArchiveOptions : public PVSerializeArchive
 
   public:
 	PVSerializeArchiveOptions(version_t version) : PVSerializeArchive(version) { _mode = write; }
+	PVSerializeArchiveOptions(const PVSerializeArchiveOptions& obj) = delete;
 	virtual ~PVSerializeArchiveOptions() {}
-
-  private:
-	PVSerializeArchiveOptions(const PVSerializeArchiveOptions& obj) : PVSerializeArchive(obj)
-	{
-		assert(false);
-	}
 
   public:
 	bool must_write(PVSerializeObject const& parent, QString const& name);
