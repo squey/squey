@@ -268,32 +268,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 		new_obj->set_bound_obj(obj);
 	}
 
-	template <typename T>
-	static void* obj_pointer(T& obj)
-	{
-		return &obj;
-	}
-
-	template <typename T>
-	static void* obj_pointer(std::shared_ptr<T>& obj)
-	{
-		return obj.get();
-	}
-
-	template <typename T>
-	void pointer_to_obj(void* p, T& obj)
-	{
-		T* dp = (T*)(p);
-		obj = *dp;
-	}
-
-	template <typename T>
-	void pointer_to_obj(void* p, std::shared_ptr<T>& obj)
-	{
-		T* dp = (T*)(p);
-		obj = dp->shared_from_this();
-	}
-
   private:
 	/*! \brief Parent archive pointer
 	 */
