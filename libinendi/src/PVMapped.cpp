@@ -146,8 +146,7 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(plotted->get_serialize_description()), false);
 		plotted->serialize(*new_obj, so.get_version());
-		new_obj->_bound_obj = plotted;
-		new_obj->_bound_obj_type = typeid(PVPlotted);
+		new_obj->set_bound_obj(*plotted);
 	}
 }
 
@@ -156,27 +155,29 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
  * Inendi::PVMapped::serialize_read
  *
  *****************************************************************************/
-void Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so)
+Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
+                                                   Inendi::PVSource& parent)
 {
+
+	PVMapped& mapped = parent.emplace_add_child();
+	so.object(QString("mapping"), mapped.get_mapping(), QString(), false, nullptr, false);
 	// Create the list of plotted
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object(
+	    mapped.get_children_serialize_name(), mapped.get_children_description(), true, true);
 	int idx = 0;
 	try {
 		while (true) {
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVPlotted& plotted = emplace_add_child();
+			PVPlotted& plotted = mapped.emplace_add_child();
 			// FIXME : Plotting is created invalid then set
 			new_obj->object(QString("plotting"), plotted.get_plotting(), QString(), false, nullptr,
 			                false);
 			plotted.serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = &plotted;
-			new_obj->_bound_obj_type = typeid(PVPlotted);
 			idx++;
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
-		return;
 	}
+	return mapped;
 }

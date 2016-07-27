@@ -255,7 +255,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
 		    child_name, QString::fromStdString(mapped->get_serialize_description()), false);
-		mapped->serialize(*new_obj, so.get_version());
+		mapped->serialize_write(*new_obj);
 		new_obj->set_bound_obj(*mapped);
 	}
 }
@@ -328,11 +328,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 			// FIXME It throws when there are no more data collections.
 			// It should not be an exception as it is a normal behavior.
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
-			PVMapped& mapped = source.emplace_add_child();
-			// FIXME : Mapping is created invalid then set
-			new_obj->object(QString("mapping"), mapped.get_mapping(), QString(), false, nullptr,
-			                false);
-			mapped.serialize(*new_obj, so.get_version());
+			PVMapped::serialize_read(*new_obj, source);
 		}
 	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
 	}

@@ -37,10 +37,6 @@ class PVPlotted;
 class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
                  public PVCore::PVDataTreeChild<PVSource, PVMapped>
 {
-	friend class PVPlotted;
-	friend class PVSource;
-	friend class PVCore::PVSerializeObject;
-
   public:
 	using mapped_table_t = std::vector<pvcop::db::array>;
 
@@ -79,7 +75,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	 */
 	inline pvcop::db::array const& get_column(PVCol col) const { return _trans_table[col]; }
 
-  protected:
+  public:
 	/**
 	 * Submode information.
 	 */
@@ -89,10 +85,10 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
   public:
 	virtual std::string get_serialize_description() const { return "Mapping: " + get_name(); }
 
-  protected:
+  public:
 	void serialize_write(PVCore::PVSerializeObject& so);
-	void serialize_read(PVCore::PVSerializeObject& so);
-	PVSERIALIZEOBJECT_SPLIT
+	static Inendi::PVMapped& serialize_read(PVCore::PVSerializeObject& so,
+	                                        Inendi::PVSource& parent);
 
   private:
 	/**
