@@ -28,19 +28,12 @@ class PVSource;
  */
 class PVMapping
 {
-	friend class PVMapped;
-	friend class PVCore::PVSerializeObject;
-
-  public:
-	typedef std::shared_ptr<PVMapping> p_type;
-
   public:
 	PVMapping(PVMapped* mapped);
 
-  protected:
+  public:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
-	// For PVMapped
 	void set_uptodate_for_col(PVCol j);
 
   public:
@@ -85,8 +78,6 @@ class PVMapping
 	std::string _name;
 	PVMapped* _mapped;
 };
-
-typedef PVMapping::p_type PVMapping_p;
 }
 
 #endif /* INENDI_PVMAPPING_H */
