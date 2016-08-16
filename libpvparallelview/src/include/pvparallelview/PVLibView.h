@@ -11,7 +11,6 @@
 #include <sigc++/sigc++.h>
 
 #include <inendi/PVAxesCombination.h>
-#include <inendi/PVPlotting.h>
 
 #include <pvparallelview/PVZonesProcessor.h>
 #include <pvparallelview/PVZonesManager.h>

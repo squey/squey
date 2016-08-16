@@ -22,8 +22,8 @@
 #include <pvkernel/core/PVHugePODVector.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <inendi/PVView.h>
-#include <inendi/PVPlotting.h>
 #include <inendi/PVSelection.h>
+#include <inendi/PVPlottingProperties.h>
 
 namespace Inendi
 {
@@ -59,7 +59,10 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	typedef std::vector<PVRow> rows_vector_t;
 
   public:
-	PVPlotted(PVMapped& mapped);
+	PVPlotted(PVMapped& mapped, std::string const& name = "default");
+	PVPlotted(PVMapped& mapped,
+	          std::list<Inendi::PVPlottingProperties>&& column,
+	          std::string const& name = "default");
 
   public:
 	~PVPlotted();
@@ -71,13 +74,14 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	                                         Inendi::PVMapped& parent);
 
 	// For PVMapped
-	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
+	inline void invalidate_column(PVCol j) { return get_properties_for_col(j).invalidate(); }
 
   public:
 	void update_plotting();
+	bool is_uptodate() const;
 
-	void set_name(std::string const& name) { _plotting.set_name(name); }
-	std::string const& get_name() const { return _plotting.get_name(); }
+	void set_name(std::string const& name) { _name = name; }
+	std::string const& get_name() const { return _name; }
 
 	std::string get_serialize_description() const override { return "Plotting: " + get_name(); }
 
@@ -93,16 +97,20 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
 	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
 
-	PVPlotting& get_plotting() { return _plotting; }
-	const PVPlotting& get_plotting() const { return _plotting; }
-
-	inline PVPlottingProperties const& get_plotting_properties(PVCol j)
+	PVPlottingProperties const& get_properties_for_col(PVCol col) const
 	{
-		assert(j < get_column_count());
-		return _plotting.get_properties_for_col(j);
+		assert((size_t)col < _columns.size());
+		auto begin = _columns.begin();
+		std::advance(begin, col);
+		return *begin;
 	}
-
-	bool is_uptodate() const;
+	PVPlottingProperties& get_properties_for_col(PVCol col)
+	{
+		assert((size_t)col < _columns.size());
+		auto begin = _columns.begin();
+		std::advance(begin, col);
+		return *begin;
+	}
 
 	QList<PVCol> get_singleton_columns_indexes();
 	QList<PVCol>
@@ -225,10 +233,11 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	sigc::signal<void> _plotted_updated;
 
   private:
-	PVPlotting _plotting;
 	uint_plotted_table_t _uint_table;
-	QList<PVCol> _last_updated_cols;
+	QList<PVCol> _last_updated_cols; //!< List of column to update for view on this plotted.
 	std::vector<MinMax> _minmax_values;
+	std::list<PVPlottingProperties> _columns;
+	std::string _name;
 };
 }
 

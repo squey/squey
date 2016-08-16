@@ -6,7 +6,7 @@
  */
 
 #include <inendi/PVMapping.h>
-#include <inendi/PVPlotting.h>
+#include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
@@ -26,7 +26,7 @@
  *
  *****************************************************************************/
 PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMapping* mapping,
-                                                                    Inendi::PVPlotting* plotting,
+                                                                    Inendi::PVPlotted* plotting,
                                                                     QWidget* parent)
     : QDialog(parent), _mapping(mapping), _plotting(plotting)
 {
@@ -35,7 +35,7 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 #ifndef NDEBUG
 	if (has_mapping() && has_plotting()) {
 		assert(&_mapping->get_mapped()->get_parent<Inendi::PVSource>() ==
-		       &_plotting->get_plotted()->get_parent<Inendi::PVSource>());
+		       &_plotting->get_parent<Inendi::PVSource>());
 	} else {
 		assert(has_mapping() || has_plotting());
 	}
@@ -47,8 +47,7 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 		              ->get_axes_combination()
 		              .get_original_axes_list());
 	} else {
-		_axes = &(_plotting->get_plotted()
-		              ->get_parent<Inendi::PVSource>()
+		_axes = &(_plotting->get_parent<Inendi::PVSource>()
 		              .current_view()
 		              ->get_axes_combination()
 		              .get_original_axes_list());

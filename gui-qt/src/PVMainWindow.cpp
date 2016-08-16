@@ -42,7 +42,6 @@
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVMapping.h>
-#include <inendi/PVPlotting.h>
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVSource.h>
 

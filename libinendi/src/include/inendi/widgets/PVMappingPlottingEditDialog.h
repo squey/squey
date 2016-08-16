@@ -24,7 +24,7 @@ class QGroupBox;
 namespace Inendi
 {
 class PVMapping;
-class PVPlotting;
+class PVPlotted;
 }
 
 namespace PVWidgets
@@ -35,7 +35,7 @@ class PVMappingPlottingEditDialog : public QDialog
 	Q_OBJECT
   public:
 	PVMappingPlottingEditDialog(Inendi::PVMapping* mapping,
-	                            Inendi::PVPlotting* plotting,
+	                            Inendi::PVPlotted* plotting,
 	                            QWidget* parent = nullptr);
 
   private:
@@ -59,7 +59,7 @@ class PVMappingPlottingEditDialog : public QDialog
 	QScrollArea* _main_scroll_area;
 	QGroupBox* _main_group_box;
 	Inendi::PVMapping* _mapping;
-	Inendi::PVPlotting* _plotting;
+	Inendi::PVPlotted* _plotting;
 	const Inendi::PVAxesCombination::list_axes_t* _axes;
 };
 }

@@ -15,7 +15,7 @@
 
 namespace Inendi
 {
-class PVPlotting;
+class PVPlotted;
 }
 
 namespace PVWidgets
@@ -25,11 +25,11 @@ class PVPlottingModeWidget : public QWidget
 {
   public:
 	PVPlottingModeWidget(QWidget* parent = nullptr);
-	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotting& plotting, QWidget* parent = nullptr);
+	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotted& plotting, QWidget* parent = nullptr);
 
   public:
 	void populate_from_type(QString const& type, QString const& mapped);
-	void populate_from_plotting(PVCol axis_id, Inendi::PVPlotting& plotting);
+	void populate_from_plotting(PVCol axis_id, Inendi::PVPlotted& plotting);
 	inline void select_default() { set_mode("default"); }
 	inline void clear() { _combo->clear(); }
 

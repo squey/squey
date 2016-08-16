@@ -20,7 +20,6 @@
 #include <inendi/PVMapped.h>
 #include <inendi/PVMapping.h>
 #include <inendi/PVPlotted.h>
-#include <inendi/PVPlotting.h>
 
 #ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
