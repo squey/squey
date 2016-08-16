@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVMapping.h>
 #include <inendi/PVMappingProperties.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVFormatVersion.h>
@@ -91,11 +90,4 @@ void Inendi::PVMappingProperties::serialize_write(PVCore::PVSerializeObject& so)
 	QString mode = QString::fromStdString(_mode);
 	so.attribute("mode", mode);
 	so.arguments("properties", _args, _mapping_filter->get_default_args());
-}
-
-void Inendi::PVMappingProperties::set_default_args(PVRush::PVAxisFormat const& axis)
-{
-	if (_args.size() == 0) {
-		set_args(Inendi::PVAxis(axis).get_args_mapping());
-	}
 }

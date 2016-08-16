@@ -16,7 +16,6 @@
 #include <limits>
 
 #include <inendi/PVMapped.h>
-#include <inendi/PVMapping.h>
 #include <inendi/PVPlottingFilter.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
@@ -74,10 +73,9 @@ int Inendi::PVPlotted::create_table()
 
 		boost::this_thread::interruption_point();
 
-		plotting_filter->operator()(
-		    get_parent().get_column(j),
-		    get_parent().get_mapping().get_properties_for_col(j).get_minmax(),
-		    get_column_pointer(j));
+		plotting_filter->operator()(get_parent().get_column(j),
+		                            get_parent().get_properties_for_col(j).get_minmax(),
+		                            get_column_pointer(j));
 
 		boost::this_thread::interruption_point();
 		get_properties_for_col(j).set_uptodate();

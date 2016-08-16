@@ -11,7 +11,6 @@
 
 #include <inendi/PVAxis.h>
 #include <inendi/PVView.h>
-#include <inendi/PVMapping.h>
 
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVAxisLabel.h>

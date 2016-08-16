@@ -19,7 +19,6 @@ PVLayerFilter.cpp
 PVLayerStack.cpp
 PVLinesProperties.cpp
 PVMapped.cpp
-PVMapping.cpp 
 PVMappingProperties.cpp 
 PVPlotted.cpp
 PVPlottingProperties.cpp

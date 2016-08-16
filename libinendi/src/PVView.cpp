@@ -18,7 +18,6 @@
 #include <inendi/PVView.h>
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVMapped.h>
-#include <inendi/PVMapping.h>
 #include <inendi/PVPlotted.h>
 
 #ifdef WITH_MINESET

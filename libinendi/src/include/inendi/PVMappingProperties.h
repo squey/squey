@@ -46,7 +46,6 @@ class PVMappingProperties
 
 	void set_uptodate() { _is_uptodate = true; }
 	inline void invalidate() { _is_uptodate = false; }
-	void set_default_args(PVRush::PVAxisFormat const& axis);
 
   public:
 	bool operator==(const PVMappingProperties& org) const;

@@ -11,7 +11,7 @@
 
 bool PVGuiQt::PVQMapped::edit_mapped(Inendi::PVMapped& mapped, QWidget* parent)
 {
-	PVWidgets::PVMappingPlottingEditDialog dlg(&mapped.get_mapping(), nullptr, parent);
+	PVWidgets::PVMappingPlottingEditDialog dlg(&mapped, nullptr, parent);
 	if (dlg.exec() != QDialog::Accepted) {
 		return false;
 	}

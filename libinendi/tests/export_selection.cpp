@@ -18,7 +18,6 @@
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVScene.h>
-#include <inendi/PVMapping.h>
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>

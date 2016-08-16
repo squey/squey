@@ -13,8 +13,6 @@
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 
-#include <inendi/PVMapping.h>
-
 #ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
 #endif

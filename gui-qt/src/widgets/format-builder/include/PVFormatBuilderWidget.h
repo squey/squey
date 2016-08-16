@@ -39,6 +39,11 @@
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
 
+namespace Inendi
+{
+class PVSource;
+}
+
 namespace PVGuiQt
 {
 class PVAxesCombinationWidget;
