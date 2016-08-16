@@ -49,8 +49,6 @@ class PVSerializeArchive
 
 	// Repairable errors
 	inline bool has_repairable_errors() const { return _repairable_errors.size() > 0; }
-	template <class T>
-	bool has_repairable_errors_of_type() const;
 	inline list_errors_t const& get_repairable_errors() const { return _repairable_errors; }
 	template <class T>
 	list_errors_t get_repairable_errors_of_type() const;
@@ -62,8 +60,6 @@ class PVSerializeArchive
 	bool must_write_object(PVSerializeObject const& parent, QString const& child);
 	const PVSerializeArchiveOptions* get_options() const { return _options.get(); }
 	QDir get_dir_for_object(PVSerializeObject const& so) const;
-	PVSerializeObject_p get_object_by_path(QString const& path) const;
-	bool object_exists_by_path(QString const& path) const;
 
   protected:
 	// If you want to create another way of storing archives, you must reimplement these functions
@@ -89,14 +85,11 @@ class PVSerializeArchive
 	                         PVArgumentList& obj,
 	                         PVArgumentList const& def_args);
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
-	virtual void buffer_path(PVSerializeObject const& so, QString const& name, QString& path);
 	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
 
 	// Called by PVSerializeObject
 	void repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error);
 	void error_fixed(PVSerializeArchiveFixError* error);
-
-	QString get_object_path_in_archive(const void* obj_ptr) const;
 
   private:
 	void init();
@@ -124,18 +117,6 @@ class PVSerializeArchive
 	 */
 	list_errors_t _repairable_errors;
 };
-
-template <class T>
-bool PVSerializeArchive::has_repairable_errors_of_type() const
-{
-	list_errors_t::const_iterator it;
-	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
-		if ((*it)->exception_of_type<T>()) {
-			return true;
-		}
-	}
-	return false;
-}
 
 template <class T>
 PVSerializeArchive::list_errors_t PVSerializeArchive::get_repairable_errors_of_type() const

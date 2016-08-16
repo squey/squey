@@ -16,7 +16,6 @@ SET(MOC_HEADERS
 include/PVFilesTypesSelWidget.h
 include/PVMainWindow.h
 include/PVSaveDataTreeDialog.h
-include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
 
 widgets/format-builder/include/PVAxisTagHelp.h

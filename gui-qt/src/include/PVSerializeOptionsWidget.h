@@ -29,8 +29,6 @@ class PVSerializeOptionsWidget : public QWidget
   protected:
 	QTreeView* _view;
 	PVSerializeOptionsModel* _model;
-
-	Q_OBJECT
 };
 }
 

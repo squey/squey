@@ -102,9 +102,6 @@ class PVSerializeObject
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
 	bool has_repairable_errors() const;
 
-	bool object_exists_by_path(QString const& path) const;
-	p_type get_object_by_path(QString const& path) const;
-
   public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
 	 *  \param[in] name Name of the object to serialize
@@ -203,21 +200,6 @@ class PVSerializeObject
 		return buffer(name, buf.data(), n * sizeof(T));
 	}
 
-	/*! \brief Read a buffer for this object, by just providing the path to its underlying filename.
-	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
-	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted
-	 * file path.
-	 *  \return false is the archive is being read, true otherwise.
-	 *  This method can only be used when the archive is being read !
-	 */
-	bool buffer_path(QString const& name, QString& path);
-
-	/*! \brief Checks whether a buffer exists or not when reading an archive
-	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
-	 *  \return true if the buffer exists, false otherwise (or if the archive is being written)
-	 */
-	bool buffer_exists(QString const& name);
-
 	/*! \brief Include an existing file, given its path.
 	 *  \param[in] name Name of this file. This will be used as the underlying destination filename.
 	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted
@@ -259,7 +241,6 @@ class PVSerializeObject
 	void
 	hash_arguments_read(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 	bool must_write_child(QString const& name);
-	p_type get_archive_object_from_path(QString const& path) const;
 
 	template <typename T>
 	void call_serialize(T& obj, p_type new_obj, T const* /*def_v*/)

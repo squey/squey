@@ -430,13 +430,5 @@ void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so,
                                       PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	size_t mem_size = pvcop::core::__impl::bit_manip::to_mem_size(_selection.size());
-	if (so.is_writing()) {
-		so.buffer("selection_data", _selection.data(), mem_size);
-	} else {
-		if (so.buffer_exists("selection_data")) {
-			so.buffer("selection_data", _selection.data(), mem_size);
-		} else {
-			select_none();
-		}
-	}
+	so.buffer("selection_data", _selection.data(), mem_size);
 }
