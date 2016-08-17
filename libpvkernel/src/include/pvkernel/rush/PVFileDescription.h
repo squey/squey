@@ -73,7 +73,7 @@ class PVFileDescription : public PVInputDescription
 		}
 		if (!QFileInfo(_path).isReadable()) {
 			std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-			    new PVCore::PVSerializeArchiveErrorFileNotReadable(_path));
+			    new PVCore::PVSerializeArchiveErrorFileNotReadable(_path.toStdString()));
 			std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
 			    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "file_path"));
 			so.repairable_error(error);

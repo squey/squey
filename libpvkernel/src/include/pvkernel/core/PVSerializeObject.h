@@ -39,7 +39,8 @@ class PVSerializeObjectFileError : public PVSerializeArchiveError
 	    : PVSerializeArchiveError(QString("Error with file '%1': %2 (%3)")
 	                                  .arg(file.fileName())
 	                                  .arg(file.errorString())
-	                                  .arg(file.error()))
+	                                  .arg(file.error())
+	                                  .toStdString())
 	{
 	}
 };

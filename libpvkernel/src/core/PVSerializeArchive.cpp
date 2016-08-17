@@ -32,15 +32,17 @@ void PVCore::PVSerializeArchive::open(QString const& dir, archive_mode mode)
 	if (mode == write) {
 		if (dir_.exists()) {
 			if (!PVDirectory::remove_rec(dir)) {
-				throw PVSerializeArchiveError(QString("Unable to remove directory '%1'.").arg(dir));
+				throw PVSerializeArchiveError("Unable to remove directory '" + dir.toStdString() +
+				                              "'.");
 			}
 		}
 		if (!QDir::root().mkdir(dir)) {
-			throw PVSerializeArchiveError(QString("Unable to create directory '%1'.").arg(dir));
+			throw PVSerializeArchiveError("Unable to create directory '" + dir.toStdString() +
+			                              "'.");
 		}
 	} else {
 		if (!dir_.exists()) {
-			throw PVSerializeArchiveError(QString("Unable to find directory '%1'.").arg(dir));
+			throw PVSerializeArchiveError("Unable to find directory '" + dir.toStdString() + "'.");
 		}
 	}
 
@@ -87,13 +89,13 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString co
 	QDir new_path = get_dir_for_object(*ret);
 	if (is_writing()) {
 		if (!QDir::root().mkdir(new_path.path())) {
-			throw PVSerializeArchiveError(
-			    QString("Unable to create directory '%1'.").arg(new_path.canonicalPath()));
+			throw PVSerializeArchiveError("Unable to create directory '" +
+			                              new_path.canonicalPath().toStdString() + "'.");
 		}
 	}
 	if (!new_path.exists()) {
-		throw PVSerializeArchiveErrorNoObject(
-		    name, QString("Unable to change into directory '%1'.").arg(new_path.canonicalPath()));
+		throw PVSerializeArchiveErrorNoObject("Unable to change into directory '" +
+		                                      new_path.canonicalPath().toStdString() + "'.");
 	}
 	create_attributes(*ret);
 	return ret;
@@ -256,9 +258,9 @@ void PVCore::PVSerializeArchive::file(PVSerializeObject const& so,
 		}
 	} else {
 		if (!dir.exists(name)) {
-			throw PVSerializeArchiveError(QString("File '%1' within '%2' does not exist.")
-			                                  .arg(name)
-			                                  .arg(so.get_logical_path()));
+			throw PVSerializeArchiveError("File '" + name.toStdString() + "' within '" +
+			                              so.get_logical_path().toStdString() +
+			                              "' does not exist.");
 		}
 		path = ar_file;
 	}

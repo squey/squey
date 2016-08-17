@@ -434,7 +434,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	setWindowModified(false);
 
 	PVCore::PVSerializeArchive_p ar;
-	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError(QString());
+	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError("");
 	PVCore::PVProgressBox* pbox_solution =
 	    new PVCore::PVProgressBox("Loading investigation...", this);
 	pbox_solution->set_enable_cancel(true);
@@ -452,11 +452,13 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		return false;
 	}
 
-	if (!read_exception.what().isEmpty()) {
-		QMessageBox* box = new QMessageBox(
-		    QMessageBox::Critical, tr("Fatal error while loading solution..."),
-		    tr("Fatal error while loading solution %1:\n%2").arg(file).arg(read_exception.what()),
-		    QMessageBox::Ok, this);
+	if (not std::string(read_exception.what()).empty()) {
+		QMessageBox* box =
+		    new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."),
+		                    tr("Fatal error while loading solution %1:\n%2")
+		                        .arg(file)
+		                        .arg(QString::fromStdString(read_exception.what())),
+		                    QMessageBox::Ok, this);
 		box->exec();
 		return false;
 	}
@@ -584,7 +586,7 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 	// TODO: a nice widget were file paths can be modified by batch (for instance
 	// modify all the files' directory in one action)
 	for (PVCore::PVSerializeArchiveFixError_p err : errs_file) {
-		QString const& old_path(
+		QString old_path = QString::fromStdString(
 		    err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
 		QMessageBox* box =
 		    new QMessageBox(QMessageBox::Warning, tr("Error while loading project..."),

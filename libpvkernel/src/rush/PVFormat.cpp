@@ -545,7 +545,7 @@ void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
 		}
 	} else if (!so.is_writing() && !QFileInfo(full_path).isReadable()) {
 		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path));
+		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path.toStdString()));
 		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
 		    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
 		so.repairable_error(error);
