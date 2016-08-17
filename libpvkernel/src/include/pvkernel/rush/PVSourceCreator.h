@@ -9,18 +9,15 @@
 #define INENDI_PVSOURCECREATOR_H
 
 #include <pvkernel/core/PVRegistrableClass.h>
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/core/PVArgument.h>
-#include <pvkernel/rush/PVRawSourceBase_types.h>
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
 
 #include <memory>
-#include <list>
 
 namespace PVRush
 {
+
+class PVRawSourceBase;
 
 class PVSourceCreator : public PVCore::PVRegistrableClass<PVSourceCreator>
 {
