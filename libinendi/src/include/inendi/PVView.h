@@ -18,7 +18,6 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/rush/PVNraw.h>
 

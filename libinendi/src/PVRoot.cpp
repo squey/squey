@@ -174,7 +174,7 @@ QColor Inendi::PVRoot::get_new_view_color()
 }
 
 void Inendi::PVRoot::save_to_file(QString const& path,
-                                  PVCore::PVSerializeArchiveOptions_p options,
+                                  std::shared_ptr<PVCore::PVSerializeArchiveOptions> options,
                                   bool save_everything)
 {
 	set_path(path);
@@ -197,9 +197,9 @@ void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
 	root_ar->object("root", *this, ARCHIVE_ROOT_DESC);
 }
 
-PVCore::PVSerializeArchiveOptions_p Inendi::PVRoot::get_default_serialize_options()
+std::shared_ptr<PVCore::PVSerializeArchiveOptions> Inendi::PVRoot::get_default_serialize_options()
 {
-	PVCore::PVSerializeArchiveOptions_p ar(
+	std::shared_ptr<PVCore::PVSerializeArchiveOptions> ar(
 	    new PVCore::PVSerializeArchiveOptions(INENDI_ARCHIVES_VERSION));
 	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
 	return ar;

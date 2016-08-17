@@ -9,7 +9,7 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 PVInspector::PVSerializeOptionsModel::PVSerializeOptionsModel(
-    PVCore::PVSerializeArchiveOptions_p options, QObject* parent)
+    std::shared_ptr<PVCore::PVSerializeArchiveOptions> options, QObject* parent)
     : QAbstractItemModel(parent), _options(options)
 {
 }

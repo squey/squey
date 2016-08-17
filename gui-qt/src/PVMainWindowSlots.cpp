@@ -380,8 +380,7 @@ void PVInspector::PVMainWindow::solution_save_Slot()
 	if (is_solution_untitled()) {
 		solution_saveas_Slot();
 	} else {
-		PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
-		save_solution(get_solution_path(), options);
+		save_solution(get_solution_path(), get_root().get_default_serialize_options());
 	}
 }
 
@@ -391,7 +390,8 @@ void PVInspector::PVMainWindow::solution_saveas_Slot()
 		return;
 	}
 
-	PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
+	std::shared_ptr<PVCore::PVSerializeArchiveOptions> options(
+	    get_root().get_default_serialize_options());
 	PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_ROOT_ARCHIVE_EXT,
 	                                                     INENDI_ROOT_ARCHIVE_FILTER, this);
 	if (!_current_save_root_folder.isEmpty()) {
@@ -526,8 +526,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	return true;
 }
 
-void PVInspector::PVMainWindow::save_solution(QString const& file,
-                                              PVCore::PVSerializeArchiveOptions_p const& options)
+void PVInspector::PVMainWindow::save_solution(
+    QString const& file, std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options)
 {
 	try {
 		PVCore::PVProgressBox* pbox_solution =

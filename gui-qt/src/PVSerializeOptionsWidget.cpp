@@ -9,7 +9,7 @@
 #include <QVBoxLayout>
 
 PVInspector::PVSerializeOptionsWidget::PVSerializeOptionsWidget(
-    PVCore::PVSerializeArchiveOptions_p options, QWidget* parent)
+    std::shared_ptr<PVCore::PVSerializeArchiveOptions> options, QWidget* parent)
     : QWidget(parent)
 {
 	_model = new PVSerializeOptionsModel(options, parent);

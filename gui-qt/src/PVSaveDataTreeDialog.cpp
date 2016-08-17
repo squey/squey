@@ -21,10 +21,11 @@
 #include <QTabWidget>
 #include <QLabel>
 
-PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options,
-                                                        QString const& suffix,
-                                                        QString const& filter,
-                                                        QWidget* parent)
+PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(
+    std::shared_ptr<PVCore::PVSerializeArchiveOptions> options,
+    QString const& suffix,
+    QString const& filter,
+    QWidget* parent)
     : QFileDialog(parent), _options(*options)
 {
 	// Do not use native dialog as we modify the layout

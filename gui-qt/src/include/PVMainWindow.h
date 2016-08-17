@@ -302,7 +302,8 @@ class PVMainWindow : public QMainWindow
   private:
 	static PVMainWindow* find_main_window(const QString& path);
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
-	void save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options);
+	void save_solution(QString const& file,
+	                   std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options);
 	void reset_root();
 	void close_solution();
 

@@ -8,7 +8,7 @@
 #ifndef PVSAVEDATATREEDIALOG_H
 #define PVSAVEDATATREEDIALOG_H
 
-#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
+#include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <QCheckBox>
 #include <QFileDialog>
@@ -21,7 +21,7 @@ class PVSaveDataTreeDialog : public QFileDialog
 {
 	Q_OBJECT
   public:
-	PVSaveDataTreeDialog(PVCore::PVSerializeArchiveOptions_p options,
+	PVSaveDataTreeDialog(std::shared_ptr<PVCore::PVSerializeArchiveOptions> options,
 	                     QString const& suffix,
 	                     QString const& filter,
 	                     QWidget* parent);
