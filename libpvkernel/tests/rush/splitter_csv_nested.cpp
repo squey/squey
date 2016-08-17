@@ -29,7 +29,7 @@ int main()
 	env.load_data();
 
 	std::string out_path = pvtest::get_tmp_filename();
-	env._ext.get_nraw().dump_csv(out_path);
+	env._nraw.dump_csv(out_path);
 
 	bool same_content = PVRush::PVUtils::files_have_same_content(out_path, ref_file);
 	if (not same_content) {

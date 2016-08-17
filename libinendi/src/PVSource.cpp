@@ -42,11 +42,12 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            size_t ext_start,
                            size_t ext_end)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
+    , _nraw()
     , _extractor(PVFilter::PVChunkFilterByElt(
-          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
+                     std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())),
+                 _nraw)
     , _inputs(inputs)
     , _src_plugin(sc)
-    , _nraw(_extractor.get_nraw())
     , _axes_combination(format)
 {
 

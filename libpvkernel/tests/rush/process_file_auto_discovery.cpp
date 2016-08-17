@@ -71,7 +71,8 @@ int main(int argc, char** argv)
 	}
 	PVLOG_INFO("Source created.\n");
 
-	PVRush::PVExtractor ext(used_format.create_tbb_filters());
+	PVRush::PVNraw nraw;
+	PVRush::PVExtractor ext(used_format.create_tbb_filters(), nraw);
 	ext.add_source(src);
 	ext.set_format(used_format);
 

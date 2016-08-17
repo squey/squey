@@ -175,7 +175,8 @@ class TestEnv
 	        size_t dup = 1,
 	        std::string const& extra_input = "")
 	    : _ext(PVFilter::PVChunkFilterByElt(
-	          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
+	               std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())),
+	           _nraw)
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 
@@ -233,8 +234,9 @@ class TestEnv
 	/**
 	 * Get number of row in the imported NRaw.
 	 */
-	size_t get_nraw_size() const { return _ext.get_nraw().get_row_count(); }
+	size_t get_nraw_size() const { return _nraw.get_row_count(); }
 
+	PVRush::PVNraw _nraw;
 	PVRush::PVExtractor _ext;
 
   private:

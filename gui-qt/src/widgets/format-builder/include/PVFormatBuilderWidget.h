@@ -154,6 +154,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	PVRush::PVInputType_p _log_input_type;   //!< InputType plugin to load data.
 	PVRush::PVSourceCreator_p _log_sc;       //!< The source from input file.
 	PVRush::PVRawSourceBase_p _log_source;
+	std::unique_ptr<PVRush::PVNraw> _nraw;
 	std::shared_ptr<PVRush::PVExtractor> _log_extract; //!< Extractor to load data.
 	PVOptionsWidget* _options_widget;
 	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;

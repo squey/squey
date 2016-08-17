@@ -11,9 +11,9 @@
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt)
-    : _nraw(new PVRush::PVNraw())
-    , _out_nraw(*_nraw)
+PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt, PVRush::PVNraw& nraw)
+    : _nraw(nraw)
+    , _out_nraw(_nraw)
     , _chk_flt(std::move(chk_flt))
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
@@ -58,7 +58,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	chunk_index nlines = _format.get_line_count();
 	nlines = (nlines) ? nlines : std::numeric_limits<uint32_t>::max();
 
-	get_nraw().prepare_load(_format.get_storage_format());
+	_nraw.prepare_load(_format.get_storage_format());
 
 	_agg.set_skip_lines_count(_format.get_first_line());
 
@@ -83,7 +83,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	if (_format.get_line_count() != 0) {
 		end = std::min<chunk_index>(end, _format.get_line_count());
 	}
-	get_nraw().prepare_load(_format.get_storage_format());
+	_nraw.prepare_load(_format.get_storage_format());
 	_agg.set_skip_lines_count(_format.get_first_line());
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
@@ -94,12 +94,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	job->run_job();
 
 	return job;
-}
-
-void PVRush::PVExtractor::reset_nraw()
-{
-	_nraw.reset(new PVNraw());
-	_out_nraw.set_nraw_dest(*_nraw);
 }
 
 void PVRush::PVExtractor::set_format(PVFormat const& format)

@@ -815,8 +815,11 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 
 void PVInspector::PVFormatBuilderWidget::create_extractor()
 {
-	_log_extract.reset(new PVRush::PVExtractor(PVFilter::PVChunkFilterByElt(
-	    std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter()))));
+	_nraw.reset(new PVRush::PVNraw());
+	_log_extract.reset(new PVRush::PVExtractor(
+	    PVFilter::PVChunkFilterByElt(
+	        std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())),
+	    *_nraw));
 }
 
 /******************************************************************************
@@ -899,14 +902,11 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	// Update the data displaying of the filter param widgers
 	myTreeModel->updateFiltersDataDisplay();
 
-	// Create the nraw thanks to the extractor
-	_log_extract->reset_nraw();
-
 	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
 	job->wait_end();
 
 	_nraw_model->set_format(get_format_from_dom());
-	_nraw_model->set_nraw(_log_extract->get_nraw());
+	_nraw_model->set_nraw(*_nraw);
 	_nraw_model->set_invalid_elements(job->get_invalid_evts());
 
 	// Set the invalid lines widget
@@ -960,14 +960,14 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
 {
-	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
-	if ((PVRow)row >= nraw.get_row_count()) {
+	assert(_nraw);
+	if ((PVRow)row >= _nraw->get_row_count()) {
 		return;
 	}
 	QStringList names;
-	for (PVCol j = 0; j < nraw.get_number_cols(); j++) {
+	for (PVCol j = 0; j < _nraw->get_number_cols(); j++) {
 		// We need to do a deep copy of this
-		names << QString::fromStdString(nraw.at_string(row, j));
+		names << QString::fromStdString(_nraw->at_string(row, j));
 	}
 	myTreeModel->setAxesNames(names);
 }
