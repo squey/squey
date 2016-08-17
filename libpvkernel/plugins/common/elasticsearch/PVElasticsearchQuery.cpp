@@ -7,20 +7,10 @@
 
 #include "PVElasticsearchQuery.h"
 
-#include <time.h>
-
 PVRush::PVElasticsearchQuery::PVElasticsearchQuery(PVElasticsearchInfos const& infos,
                                                    QString const& query,
                                                    QString const& query_type)
-    : _infos(infos)
-    , _query(query)
-    , _query_type(query_type)
-    , _start_ms(0)
-    , _end_ms((int64_t)(time(nullptr)) * 1000)
-{
-}
-
-PVRush::PVElasticsearchQuery::~PVElasticsearchQuery()
+    : _infos(infos), _query(query), _query_type(query_type)
 {
 }
 
@@ -46,11 +36,17 @@ void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so
 	so.object("server", _infos);
 }
 
-void PVRush::PVElasticsearchQuery::serialize_read(PVCore::PVSerializeObject& so)
+std::unique_ptr<PVRush::PVInputDescription>
+PVRush::PVElasticsearchQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
-	so.attribute("query", _query);
-	so.attribute("query_type", _query_type);
-	so.object("server", _infos);
+	QString query;
+	so.attribute("query", query);
+	QString query_type;
+	so.attribute("query_type", query_type);
+	PVElasticsearchInfos infos;
+	so.object("server", infos);
+	return std::unique_ptr<PVElasticsearchQuery>(
+	    new PVElasticsearchQuery(infos, query, query_type));
 }
 
 void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
@@ -62,11 +58,15 @@ void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
 	settings.setValue("query_type", _query_type);
 }
 
-void PVRush::PVElasticsearchQuery::load_from_qsettings(const QSettings& settings)
+std::unique_ptr<PVRush::PVInputDescription>
+PVRush::PVElasticsearchQuery::load_from_qsettings(const QSettings& settings)
 {
-	_infos.set_host(settings.value("host").toString());
-	_infos.set_port(settings.value("port").toInt());
-	_infos.set_index(settings.value("index").toString());
-	set_query(settings.value("query").toString());
-	set_query_type(settings.value("query_type").toString());
+	PVElasticsearchInfos infos;
+	infos.set_host(settings.value("host").toString());
+	infos.set_port(settings.value("port").toInt());
+	infos.set_index(settings.value("index").toString());
+	QString query(settings.value("query").toString());
+	QString query_type(settings.value("query_type").toString());
+	return std::unique_ptr<PVElasticsearchQuery>(
+	    new PVElasticsearchQuery(infos, query, query_type));
 }

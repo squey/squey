@@ -10,8 +10,7 @@
 
 #include "../../common/database/PVDBInfos.h"
 
-PVRush::PVInputTypeDatabase::PVInputTypeDatabase()
-    : PVInputTypeDesc<PVDBQuery>(), _is_custom_format(false)
+PVRush::PVInputTypeDatabase::PVInputTypeDatabase() : PVInputTypeDesc<PVDBQuery>()
 {
 }
 

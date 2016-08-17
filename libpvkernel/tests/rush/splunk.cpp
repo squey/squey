@@ -38,8 +38,7 @@ int main(int argc, char** argv)
 	/*
 	 * Set up a SplunkQuery to define data to extract
 	 */
-	PVRush::PVSplunkQuery query;
-	query.set_query("total_bytes > 5000");
+	PVRush::PVSplunkQuery query(infos, "total_bytes > 5000", "");
 
 	/*
 	 * Set up the API for communication with the server

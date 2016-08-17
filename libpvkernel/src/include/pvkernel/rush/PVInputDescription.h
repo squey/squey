@@ -32,10 +32,8 @@ class PVInputDescription
 
   public:
 	virtual void save_to_qsettings(QSettings& settings) const = 0;
-	virtual void load_from_qsettings(const QSettings& settings) = 0;
 
   public:
-	virtual void serialize_read(PVCore::PVSerializeObject& so) = 0;
 	virtual void serialize_write(PVCore::PVSerializeObject& so) = 0;
 };
 
