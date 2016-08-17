@@ -149,12 +149,10 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVView* current_view();
 	PVView const* current_view() const;
 
-	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 
 	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
 
-	size_t get_extraction_last_nlines() const { return _extractor.get_last_nlines(); }
 	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
   public:
