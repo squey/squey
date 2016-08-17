@@ -11,8 +11,6 @@
 #include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
-#include <pvkernel/core/PVRecentItemsManager.h>
-
 namespace PVRush
 {
 
