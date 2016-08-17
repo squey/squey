@@ -32,8 +32,6 @@ namespace PVInspector
  */
 class PVNrawListingModel : public QAbstractTableModel
 {
-	Q_OBJECT
-
   public:
 	/**
 	 * Create a listing for NRaw without selection nor content.

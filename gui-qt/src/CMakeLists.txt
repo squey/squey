@@ -20,7 +20,6 @@ include/PVStringListChooserWidget.h
 
 widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVFormatBuilderWidget.h
-widgets/format-builder/include/PVNrawListingModel.h
 widgets/format-builder/include/PVNrawListingWidget.h
 widgets/format-builder/include/PVXmlTreeView.h 
 widgets/format-builder/include/PVXmlDomModel.h
