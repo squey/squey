@@ -16,14 +16,10 @@
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-#include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVNraw.h>
-
-#include <inendi/PVAxesCombination.h>
-
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 
@@ -44,11 +40,11 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVSource(Inendi::PVScene& scene,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
-	         PVRush::PVFormat format);
+	         PVRush::PVFormat const& format);
 	PVSource(Inendi::PVScene& scene,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
-	         PVRush::PVFormat format,
+	         PVRush::PVFormat const& format,
 	         size_t ext_start,
 	         size_t ext_end);
 	PVSource(PVScene& scene, const PVRush::PVSourceDescription& descr)
@@ -128,9 +124,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
 	void load_from_disk(std::string const& nraw_folder);
 
-	inline PVAxesCombination& get_axes_combination() { return _axes_combination; }
-	inline PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
-
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
@@ -140,7 +133,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	{
 		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs).toStdString();
 	}
-	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
+	QString get_format_name() const { return _format.get_format_name(); }
 	QString get_window_name() const;
 	QString get_tooltip() const;
 
@@ -149,7 +142,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVView* current_view();
 	PVView const* current_view() const;
 
-	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
+	PVRush::PVFormat const& get_format() const { return _format; }
 
 	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
 
@@ -172,14 +165,14 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
   private:
 	PVView* _last_active_view = nullptr;
 
-	PVRush::PVNraw _nraw;           //!< Reference to Nraw data (owned by extractor)
+	PVRush::PVFormat
+	    _format;          //!< Format use to create the source (also contains metadata like colors)
+	PVRush::PVNraw _nraw; //!< Reference to Nraw data (owned by extractor)
 	PVRush::PVExtractor _extractor; //!< Tool to extract data and generate NRaw.
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
-
-	PVAxesCombination _axes_combination;
 };
 }
 

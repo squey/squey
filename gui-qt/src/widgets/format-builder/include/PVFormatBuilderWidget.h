@@ -112,7 +112,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	/**
 	 * Stop old extractor, create the new one with default argument and starts it.
 	 */
-	void create_extractor();
+	void create_extractor(PVRush::PVFormat& format);
 
 	/**
 	 * Try to find a matching splitter when we import a file without format.

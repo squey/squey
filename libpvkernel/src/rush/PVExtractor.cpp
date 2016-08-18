@@ -11,10 +11,11 @@
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt, PVRush::PVNraw& nraw)
+PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format, PVRush::PVNraw& nraw)
     : _nraw(nraw)
+    , _format(format)
     , _out_nraw(_nraw)
-    , _chk_flt(std::move(chk_flt))
+    , _chk_flt(_format.create_tbb_filters())
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
     , _last_start(0)
@@ -39,16 +40,6 @@ PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt, PVRush::P
 void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
 {
 	_agg.add_input(src);
-}
-
-PVRush::PVFormat& PVRush::PVExtractor::get_format()
-{
-	return _format;
-}
-
-const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
-{
-	return _format;
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start)
@@ -94,12 +85,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	job->run_job();
 
 	return job;
-}
-
-void PVRush::PVExtractor::set_format(PVFormat const& format)
-{
-	_format = format;
-	_chk_flt = _format.create_tbb_filters();
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)

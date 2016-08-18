@@ -33,7 +33,6 @@ PVRush::PVFormat::PVFormat() : _have_grep_filter(false)
 {
 	axes_count = 0;
 	_already_pop = false;
-	_original_was_serialized = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_) : PVFormat()
@@ -537,12 +536,9 @@ void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
 	so.attribute("name", format_name);
 	so.attribute("path", full_path);
 	PVCore::PVFileSerialize format_file(full_path);
-	if (so.object("file", format_file, "Include original format file", !_original_was_serialized,
-	              (PVCore::PVFileSerialize*)nullptr, !_original_was_serialized, false)) {
+	if (so.object("file", format_file, "Include original format file", true,
+	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
 		full_path = format_file.get_path();
-		if (!so.is_writing()) {
-			_original_was_serialized = true;
-		}
 	} else if (!so.is_writing() && !QFileInfo(full_path).isReadable()) {
 		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
 		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path.toStdString()));

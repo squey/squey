@@ -32,7 +32,7 @@ namespace PVRush
 class PVExtractor
 {
   public:
-	PVExtractor(PVFilter::PVChunkFilterByElt chk_flt, PVRush::PVNraw& nraw);
+	PVExtractor(PVRush::PVFormat& format, PVRush::PVNraw& nraw);
 
   public:
 	/*! \brief Add a PVRawSourceBase to the internal aggregator
@@ -64,15 +64,6 @@ class PVExtractor
 	 */
 	void release_inputs() { _agg.release_inputs(); }
 
-	/*! \brief Get a reference to the internal PVFormat of the internal NRaw
-	 */
-	PVFormat& get_format();
-	PVFormat const& get_format() const;
-
-	/*! \brief Set the format of the NRaw
-	 */
-	void set_format(PVFormat const& format);
-
 	void force_number_axes(PVCol naxes);
 
 	chunk_index get_last_start() const { return _last_start; }
@@ -91,8 +82,8 @@ class PVExtractor
 
   protected:
 	PVAggregator _agg;
-	PVFormat _format; //!< It is the format use for extraction.
 	PVNraw& _nraw;
+	PVFormat& _format;      //!< It is the format use for extraction.
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;

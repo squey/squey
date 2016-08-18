@@ -777,9 +777,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			guess_first_splitter();
 		}
 
-		create_extractor();
+		create_extractor(format);
 		_log_extract->add_source(_log_source);
-		_log_extract->set_format(format);
 
 		update_table(rstart, rend);
 
@@ -813,13 +812,10 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
 }
 
-void PVInspector::PVFormatBuilderWidget::create_extractor()
+void PVInspector::PVFormatBuilderWidget::create_extractor(PVRush::PVFormat& format)
 {
 	_nraw.reset(new PVRush::PVNraw());
-	_log_extract.reset(new PVRush::PVExtractor(
-	    PVFilter::PVChunkFilterByElt(
-	        std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())),
-	    *_nraw));
+	_log_extract.reset(new PVRush::PVExtractor(format, *_nraw));
 }
 
 /******************************************************************************

@@ -174,21 +174,18 @@ class TestEnv
 	        std::string const& format_file,
 	        size_t dup = 1,
 	        std::string const& extra_input = "")
-	    : _ext(PVFilter::PVChunkFilterByElt(
-	               std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())),
-	           _nraw)
+	    : _format("format", QString::fromStdString(format_file))
+	    , _ext(
+	          [this]() -> PVRush::PVFormat& {
+		          _format.populate();
+		          return _format;
+		      }(),
+	          _nraw)
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 
 		if (dup != 1 and extra_input != "") {
 			throw std::runtime_error("We don't handle mutliple input with duplication");
-		}
-
-		PVRush::PVFormat format("format", QString::fromStdString(format_file));
-
-		// Load the given format file
-		if (!format.populate()) {
-			throw std::runtime_error("Can't read format file " + format_file);
 		}
 
 		std::vector<std::string> filenames{_big_file_path};
@@ -203,12 +200,13 @@ class TestEnv
 
 			// Get the source creator
 			PVRush::PVSourceCreator_p sc_file;
-			if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
+			if (!PVRush::PVTests::get_file_sc(file, _format, sc_file)) {
 				throw std::runtime_error("Can't get sources.");
 			}
 
 			// Process that file with the found source creator thanks to the extractor
-			PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
+			PVRush::PVSourceCreator::source_p src =
+			    sc_file->create_source_from_input(file, _format);
 			if (!src) {
 				throw std::runtime_error("Unable to create PVRush source from file " + log_file +
 				                         "\n");
@@ -217,7 +215,6 @@ class TestEnv
 			// Create the extractor
 			_ext.add_source(src);
 		}
-		_ext.set_format(format);
 	}
 
 	void load_data(size_t begin = 0)
@@ -236,6 +233,7 @@ class TestEnv
 	 */
 	size_t get_nraw_size() const { return _nraw.get_row_count(); }
 
+	PVRush::PVFormat _format;
 	PVRush::PVNraw _nraw;
 	PVRush::PVExtractor _ext;
 

@@ -29,7 +29,7 @@
 Inendi::PVPlotted::PVPlotted(PVMapped& mapped, std::string const& name)
     : PVCore::PVDataTreeChild<PVMapped, PVPlotted>(mapped), _name(name)
 {
-	PVRush::PVFormat const& format = get_parent<Inendi::PVSource>().get_extractor().get_format();
+	PVRush::PVFormat const& format = get_parent<Inendi::PVSource>().get_format();
 
 	for (int i = 0; i < format.get_axes().size(); i++) {
 		_columns.emplace_back(format, i);

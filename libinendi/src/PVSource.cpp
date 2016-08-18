@@ -22,7 +22,7 @@
 Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
-                           PVRush::PVFormat format)
+                           PVRush::PVFormat const& format)
     : PVSource(scene,
                inputs,
                sc,
@@ -35,20 +35,24 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
 {
 }
 
+PVRush::PVFormat& populated_format(PVRush::PVFormat& format)
+{
+	format.populate();
+	return format;
+}
+
 Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
-                           PVRush::PVFormat format,
+                           PVRush::PVFormat const& format,
                            size_t ext_start,
                            size_t ext_end)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
+    , _format(format)
     , _nraw()
-    , _extractor(PVFilter::PVChunkFilterByElt(
-                     std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())),
-                 _nraw)
+    , _extractor(populated_format(_format), _nraw)
     , _inputs(inputs)
     , _src_plugin(sc)
-    , _axes_combination(format)
 {
 
 	if (inputs.empty()) {
@@ -65,11 +69,6 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
 	if (nchunks != 0) {
 		_extractor.set_number_living_chunks(nchunks);
 	}
-
-	// Set format
-	format.populate();
-	_extractor.set_format(format);
-	_axes_combination.set_from_format(_extractor.get_format());
 
 	// Set sources
 	files_append_noextract();
@@ -103,7 +102,7 @@ void Inendi::PVSource::files_append_noextract()
 {
 	for (int i = 0; i < _inputs.count(); i++) {
 		PVRush::PVSourceCreator::source_p src =
-		    _src_plugin->create_source_from_input(_inputs[i], _extractor.get_format());
+		    _src_plugin->create_source_from_input(_inputs[i], _format);
 		_extractor.add_source(src);
 	}
 }
@@ -154,7 +153,7 @@ PVRow Inendi::PVSource::get_valid_row_count() const
 
 PVCol Inendi::PVSource::get_column_count() const
 {
-	return get_format().get_axes().size();
+	return _format.get_axes().size();
 }
 
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
@@ -231,7 +230,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
 
 	// Save the format
-	so.object("format", _extractor.get_format(), QObject::tr("Format"));
+	so.object("format", _format, QObject::tr("Format"));
 
 	// Serialize Input description to reload data if required.
 	QString type_name = _src_plugin->supported_type();

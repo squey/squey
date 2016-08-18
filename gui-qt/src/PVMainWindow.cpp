@@ -1090,7 +1090,7 @@ static QString bad_conversions_as_string(
 {
 	QStringList l;
 
-	const Inendi::PVAxesCombination& ac = src->get_axes_combination();
+	auto const& ax = src->get_format().get_axes();
 
 	for (const auto& bad_conversion : bad_conversions) {
 
@@ -1099,8 +1099,8 @@ static QString bad_conversions_as_string(
 
 		for (const auto& bad_field : bad_conversion.second) {
 			const PVCol col = bad_field.first;
-			const QString& axis_name = ac.get_original_axis(col).get_name();
-			const QString& axis_type = ac.get_original_axis(col).get_type();
+			const QString& axis_name = ax[col].get_name();
+			const QString& axis_type = ax[col].get_type();
 
 			str += " " + axis_name + " (" + axis_type + ") : \"" +
 			       QString::fromStdString(bad_field.second) + "\"";

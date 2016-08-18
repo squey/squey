@@ -82,10 +82,6 @@ class PVFormat
 	typedef PVFormat_p p_type;
 	using fields_mask_t = PVXmlParamParser::fields_mask_t;
 
-  private:
-	QString format_name; // human readable name, displayed in a widget for instance
-	QString full_path;
-
   public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
@@ -127,8 +123,16 @@ class PVFormat
 
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
-  public:
-	/* Attributes */
+  protected:
+	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
+
+  protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
+  private:
+	QString format_name; // human readable name, displayed in a widget for instance
+	QString full_path;
 
 	// List of filters to apply
 	PVRush::PVXmlParamParser::list_params filters_params;
@@ -141,13 +145,6 @@ class PVFormat
 	int time_format_axis_id;
 
   protected:
-	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
-	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
-
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
-
-  protected:
 	QList<PVAxisFormat> _axes;
 	std::vector<PVCol> _axes_comb;
 	size_t _first_line;
@@ -156,7 +153,6 @@ class PVFormat
   private:
 	bool _have_grep_filter;
 	bool _already_pop;
-	bool _original_was_serialized;
 };
 };
 

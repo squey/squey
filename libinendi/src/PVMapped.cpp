@@ -36,7 +36,7 @@ Inendi::PVMapped::PVMapped(PVSource& src, std::string const& name)
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	for (PVCol i = 0; i < naxes; i++) {
-		columns.emplace_back(source.get_extractor().get_format(), i);
+		columns.emplace_back(source.get_format(), i);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
 
