@@ -248,16 +248,15 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 			// Save this custom format to the global formats object
 			ctxt.formats.insert(it_cus_f.key(), it_cus_f.value());
 
-			PVRush::list_creators::const_iterator it_lc;
-			for (it_lc = ctxt.lcr.begin(); it_lc != ctxt.lcr.end(); it_lc++) {
-				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
+			for (auto src_creator : ctxt.lcr) {
+				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), src_creator);
 				dis_format_creator[it_cus_f.key()] = v;
 
 				// Save this format/creator pair to the "format_creator" object
 				ctxt.format_creator[it_cus_f.key()] = v;
 
 				// We don't want to override text format type with Python or Perl
-				if ((*it_lc)->name() == "text")
+				if (src_creator->name() == "text")
 					break;
 			}
 		}
@@ -564,8 +563,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 	PVRush::hash_formats formats, new_formats;
 
-	PVRush::hash_format_creator::const_iterator itfc;
-	for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
+	for (auto itfc = format_creator.begin(); itfc != format_creator.end(); ++itfc) {
 		formats[itfc.key()] = itfc.value().first;
 	}
 
@@ -581,17 +579,15 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 	// Add the new formats to the formats
 	{
-		PVRush::hash_formats::iterator it;
-		for (it = new_formats.begin(); it != new_formats.end(); it++) {
+		for (auto it = new_formats.begin(); it != new_formats.end(); it++) {
 			formats[it.key()] = it.value();
-			PVRush::list_creators::const_iterator it_lc;
-			for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-				PVRush::hash_format_creator::mapped_type v(it.value(), *it_lc);
+			for (auto src_creator : lcr) {
+				PVRush::hash_format_creator::mapped_type v(it.value(), src_creator);
 				// Save this format/creator pair to the "format_creator" object
 				format_creator[it.key()] = v;
 
 				// We don't want to override text format type with Python or Perl
-				if ((*it_lc)->name() == "text")
+				if (src_creator->name() == "text")
 					break;
 			}
 		}
@@ -734,7 +730,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			       "and select this format by hand in the import sources dialog.</p>";
 		} else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
 			msg = "<p>No valid format file found.</p>";
-			msg = "<p>Check for file permission on the chosen format file.</p>";
+			msg += "<p>Check for file permission on the chosen format file.</p>";
 		} else if (choosenFormat.compare(INENDI_LOCAL_FORMAT_STR) == 0) {
 			// must never happens
 			msg = "<p>No valid local format file found.</p>";
@@ -754,9 +750,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		QStringList dis_types = discovered_types.keys();
 		QStringList dis_types_comment;
 		QList<PVCore::PVMeanValue<float>> rates = discovered_types.values();
-		QList<PVCore::PVMeanValue<float>>::const_iterator itf;
-		for (itf = rates.begin(); itf != rates.end(); itf++) {
-			dis_types_comment << QString("mean success rate = %1%").arg(itf->compute_mean() * 100);
+		for (PVCore::PVMeanValue<float> const& mean : rates) {
+			dis_types_comment << QString("mean success rate = %1%").arg(mean.compute_mean() * 100);
 		}
 
 		PVStringListChooserWidget* choosew = new PVStringListChooserWidget(
@@ -789,10 +784,10 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			if (types_.size() == 1) {
 				discovered[types_[0]] << hash_input_name[(*it).first];
 				map_files_types::iterator it_rem = it;
-				it++;
+				++it;
 				files_multi_formats.erase(it_rem);
 			} else {
-				it++;
+				++it;
 			}
 		}
 	}
@@ -803,10 +798,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		if (!files_types_sel->exec())
 			return;
 		// Add everything to the discovered table
-		map_files_types::const_iterator it;
-		for (it = files_multi_formats.begin(); it != files_multi_formats.end(); it++) {
-			QStringList const& types_l = (*it).second;
-			QString const& input_name = (*it).first;
+		for (auto const& file_types : files_multi_formats) {
+			QStringList const& types_l = file_types.second;
+			QString const& input_name = file_types.first;
 			for (int i = 0; i < types_l.size(); i++) {
 				discovered[types_l[i]] << hash_input_name[input_name];
 			}
@@ -935,8 +929,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 
 	PVRush::hash_formats formats;
 	{
-		PVRush::hash_format_creator::const_iterator itfc;
-		for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
+		for (auto itfc = format_creator.begin(); itfc != format_creator.end(); ++itfc) {
 			formats[itfc.key()] = itfc.value().first;
 		}
 	}
@@ -946,9 +939,9 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 
 	PVRush::PVInputType::list_inputs files_in;
 	{
-		std::vector<QString>::const_iterator it;
-		for (it = files.begin(); it != files.end(); it++) {
-			files_in.push_back(PVRush::PVInputDescription_p(new PVRush::PVFileDescription(*it)));
+		for (QString filename : files) {
+			files_in.push_back(
+			    PVRush::PVInputDescription_p(new PVRush::PVFileDescription(filename)));
 		}
 	}
 
@@ -956,13 +949,12 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 		PVRush::PVFormat new_format("custom:arg", format);
 		formats["custom:arg"] = new_format;
 
-		PVRush::list_creators::const_iterator it_lc;
-		for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-			PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
+		for (auto src_creator : lcr) {
+			PVRush::hash_format_creator::mapped_type v(new_format, src_creator);
 			// Save this format/creator pair to the "format_creator" object
 			format_creator["custom:arg"] = v;
 			// We don't want to override text format type with Python or Perl
-			if ((*it_lc)->name() == "text")
+			if (src_creator->name() == "text")
 				break;
 		}
 		format = "custom:arg";
@@ -1336,8 +1328,7 @@ void PVInspector::PVMainWindow::treat_invalid_formats(
 	    msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
 
 	QString detailed_txt;
-	QHash<QString, std::pair<QString, QString>>::const_iterator it;
-	for (it = errors_.begin(); it != errors_.end(); it++) {
+	for (auto it = errors_.begin(); it != errors_.end(); ++it) {
 		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") +
 		                it.value().second + QString("\n");
 	}
