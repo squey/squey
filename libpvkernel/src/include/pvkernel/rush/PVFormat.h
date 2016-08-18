@@ -110,7 +110,6 @@ class PVFormat
 
 	QList<PVAxisFormat> const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
-	fields_mask_t const& get_fields_mask() const { return _fields_mask; }
 
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
@@ -138,21 +137,13 @@ class PVFormat
 	PVRush::PVXmlParamParser::list_params filters_params;
 	fields_mask_t _fields_mask;
 
-	unsigned int axes_count; //!< It is equivalent to the number of axes except we add the decoded
-	// axes. This property must be used to know the number of axes, never
-	// count using axes.count()
-
-	int time_format_axis_id;
-
   protected:
 	QList<PVAxisFormat> _axes;
 	std::vector<PVCol> _axes_comb;
 	size_t _first_line;
 	size_t _line_count;
 
-  private:
 	bool _have_grep_filter;
-	bool _already_pop;
 };
 };
 

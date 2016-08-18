@@ -31,8 +31,6 @@
 
 PVRush::PVFormat::PVFormat() : _have_grep_filter(false)
 {
-	axes_count = 0;
-	_already_pop = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_) : PVFormat()
@@ -301,7 +299,7 @@ bool PVRush::PVFormat::populate(bool forceOneAxis)
 		return populate_from_xml(full_path, forceOneAxis);
 	}
 
-	return _already_pop;
+	throw std::runtime_error("We can't populate format withtout file");
 }
 
 QString const& PVRush::PVFormat::get_format_name() const
@@ -431,8 +429,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 		_fields_mask.resize(1, true);
 	}
 
-	_already_pop = _axes.size() > 0;
-	return _already_pop;
+	return true;
 }
 
 PVFilter::PVFieldsBaseFilter_p
