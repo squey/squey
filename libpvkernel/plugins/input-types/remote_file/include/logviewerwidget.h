@@ -60,11 +60,6 @@ class LOGVIEWER_EXPORT LogViewerWidget : public QWidget
 	void loadSettings();
 
 	/**
-	 * Remove Local File, this method remove local file.
-	 */
-	void removeLocalFile(const QString& localFile);
-
-	/**
 	 * Encrypt Password, this method encrypts password.
 	 */
 	QString encryptPassword(const QString& password);
@@ -90,13 +85,6 @@ class LOGVIEWER_EXPORT LogViewerWidget : public QWidget
 	 * Save certificate file, this method returns certificate file when we save it.
 	 */
 	QString saveCertificateFile(const QString& certificateFile);
-
-	/**
-	 * Return a QString for authentication
-	 * @params machineName
-	 * @params filename
-	 */
-	QString authentication(const QString& machineName, const QString& filename);
 
 	/**
 	 * Download the selected files and store their temporary location

@@ -320,18 +320,6 @@ class PVUnicodeSource : public PVRawSourceBase
 
 	void prepare_for_nelts(chunk_index /*nelts*/) override {}
 
-	input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx) override
-	{
-		auto it = std::find_if(
-		    _offsets.begin(), _offsets.end(),
-		    [idx](std::pair<chunk_index, input_offset> const& a) { return a.first <= idx; });
-		if (it == _offsets.end()) {
-			it = --_offsets.end();
-		}
-		known_idx = it->first;
-		return it->second; // We don't know that index yet, start from the last known input offset
-	}
-
   private:
 	size_t _chunk_size;                //!< Size of the chunk
 	PVInput_p _input;                  //!< Input source where we read data

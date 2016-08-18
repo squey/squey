@@ -169,9 +169,6 @@ add_test(Trush_ticket_2 Trush_ticket_2)
 add_pv_compile_test(Trush_ticket_28 LINKS ${LINK_LIBRARIES} FILES ticket_28.cpp)
 add_test(Trush_ticket_28 Trush_ticket_28 ${PVRUSH_TEST_FILES})
 
-add_pv_compile_test(Trush_nraw_unused_directories LINKS ${LINK_LIBRARIES} FILES nraw_unused_directories.cpp)
-add_test(Trush_nraw_unused_directories Trush_nraw_unused_directories ${PVKERNEL_RUSH_TEST_NRAW_TMP})
-
 # Elasticsearch plugin test
 set(ELASTICSEARCH_SRC_FILES
 ../../plugins/common/elasticsearch/PVElasticsearchAPI.cpp

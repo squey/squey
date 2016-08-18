@@ -36,13 +36,3 @@ void dump_chunk_csv(PVChunk& c, std::ostream& out)
 		out << std::endl;
 	}
 }
-
-void dump_chunk_raw(PVChunk const& c)
-{
-	for (PVElement const* elt : c.c_elements()) {
-		for (PVField const& f : elt->c_fields()) {
-			std::cout << std::string(f.begin(), f.size());
-		}
-		std::cout << std::endl;
-	}
-}

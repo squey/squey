@@ -31,10 +31,6 @@ class PVDBSource : public PVRawSourceBase
 	bool seek(input_offset off);
 	virtual void prepare_for_nelts(chunk_index nelts);
 	virtual PVCore::PVChunk* operator()();
-	virtual input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx);
-
-  private:
-	void query_next_batch();
 
   protected:
 	PVDBQuery _query;

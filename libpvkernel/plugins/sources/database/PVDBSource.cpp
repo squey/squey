@@ -74,14 +74,10 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 	PVLOG_INFO("_nelts_chunk=%d; _next_index=%d\n", _nelts_chunk, _next_index);
 	for (chunk_index n = 0; n < _nelts_chunk; n++) {
 		if (!_sql_query.next()) {
-			//	// Try to get the next batch, and if empty, well, that's the end.
-			//	//query_next_batch();
-			//	if (_sql_query.size() == 0) {
 			if (n == 0) {
 				return nullptr;
 			}
 			break;
-			//	}
 		}
 		QSqlRecord rec = _sql_query.record();
 		PVCore::PVElement* elt = chunk->add_element();
@@ -105,24 +101,4 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 	}
 
 	return chunk;
-}
-
-void PVRush::PVDBSource::query_next_batch()
-{
-	// Ask for the next batch.
-	// We ask lines for creating 'NCHUNKS' chunk of '_nelts_chunk' elements
-	seek(_start + _min_nelts + 1);
-	prepare_for_nelts(_nelts_chunk);
-	_sql_query.exec();
-	PVLOG_DEBUG("(PVDBSource::query_next_batch) executed query '%s'.\n",
-	            qPrintable(_sql_query.lastQuery()));
-}
-
-PVRush::input_offset PVRush::PVDBSource::get_input_offset_from_index(chunk_index idx,
-                                                                     chunk_index& known_idx)
-{
-	// This is an identity function, as elements' index, in the
-	// case of DB, are row indexes.
-	known_idx = idx;
-	return idx;
 }

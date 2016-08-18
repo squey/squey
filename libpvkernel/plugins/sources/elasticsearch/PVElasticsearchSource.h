@@ -32,11 +32,6 @@ class PVElasticsearchSource : public PVRawSourceBase
 	void seek_begin() override;
 	void prepare_for_nelts(chunk_index nelts) override;
 	PVCore::PVChunk* operator()() override;
-	input_offset get_input_offset_from_index(chunk_index /*idx*/,
-	                                         chunk_index& /*known_idx*/) override
-	{
-		return 0;
-	}
 
   protected:
 	chunk_index _next_index;
