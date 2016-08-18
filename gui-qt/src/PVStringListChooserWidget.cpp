@@ -58,9 +58,8 @@ void PVInspector::PVStringListChooserWidget::ok_Slot()
 		return;
 	}
 
-	QList<QListWidgetItem*>::iterator it;
-	for (it = items.begin(); it != items.end(); it++) {
-		_final_list << (*it)->data(Qt::UserRole).toString();
+	for (QListWidgetItem* item : items) {
+		_final_list << item->data(Qt::UserRole).toString();
 	}
 	accept();
 }

@@ -652,7 +652,6 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 	} else {
 		if (!trustConfictSplitAxes(index))
 			return;
-		// rootNode->addRegExRacine();
 		// dom
 		QDomElement newDom = xmlFile.createElement("splitter");
 		newDom.setAttribute("type", "regexp");
@@ -673,13 +672,10 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::moveDown(const QModelIndex& index)
 {
-	// qDebug() << "model MoveDown";
-
 	PVRush::PVXmlTreeNodeDom* child = nodeFromIndex(index);
 	PVRush::PVXmlTreeNodeDom* parent = child->getParent();
-	PVRush::PVXmlTreeNodeDom* fllower;
 	if (child->getRow() + 1 < parent->getChildren().count()) {
-		fllower = parent->getChild(index.row() + 1);
+		PVRush::PVXmlTreeNodeDom* fllower = parent->getChild(index.row() + 1);
 		// dom effect
 		parent->getDom().removeChild(child->getDom());
 		parent->getDom().insertAfter(child->getDom(), fllower->getDom());
@@ -701,9 +697,8 @@ void PVInspector::PVXmlDomModel::moveUp(const QModelIndex& index)
 
 	PVRush::PVXmlTreeNodeDom* follower = nodeFromIndex(index);
 	PVRush::PVXmlTreeNodeDom* parent = follower->getParent();
-	PVRush::PVXmlTreeNodeDom* child;
 	if (follower->getRow() > 0) {
-		child = parent->getChild(index.row() - 1);
+		PVRush::PVXmlTreeNodeDom* child = parent->getChild(index.row() - 1);
 		// node in dom
 		parent->getDom().removeChild(follower->getDom());
 		parent->getDom().insertBefore(follower->getDom(), child->getDom());

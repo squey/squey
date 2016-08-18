@@ -446,9 +446,7 @@ QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListTags()
 {
 	QSet<QString> ret;
 	Inendi::PVLayerFilterListTags const& lt = LIB_CLASS(Inendi::PVLayerFilter)::get().get_tags();
-	Inendi::PVLayerFilterListTags::const_iterator it;
-	for (it = lt.begin(); it != lt.end(); it++) {
-		Inendi::PVLayerFilterTag const& tag = *it;
+	for (Inendi::PVLayerFilterTag const& tag : lt) {
 		ret << (QString)tag;
 	}
 	return ret;

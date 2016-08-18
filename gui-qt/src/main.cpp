@@ -152,10 +152,9 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	if (vm.count("input-file")) {
 		std::vector<std::string> files_arg = vm["input-file"].as<std::vector<std::string>>();
 		files.reserve(files_arg.size());
-		std::vector<std::string>::const_iterator it;
 		// Convert file path to unicode
-		for (it = files_arg.begin(); it != files_arg.end(); it++) {
-			files.push_back(QString::fromLocal8Bit(it->c_str(), it->size()));
+		for (std::string const& arg : files_arg) {
+			files.push_back(QString::fromLocal8Bit(arg.c_str(), arg.size()));
 		}
 	}
 
