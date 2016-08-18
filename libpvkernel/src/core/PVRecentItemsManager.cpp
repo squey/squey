@@ -160,13 +160,17 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 	for (QString source : sources) {
 		_recents_settings.beginGroup(source);
 
-		PVRush::PVSourceDescription src_desc = deserialize_source_description();
+		try {
+			PVRush::PVSourceDescription src_desc = deserialize_source_description();
 
-		_recents_settings.endGroup();
-
-		if (not src_desc.is_valid()) {
+			if (not src_desc.is_valid()) {
+				_recents_settings.remove(source);
+			}
+		} catch (PVCore::InvalidPlugin const& e) {
 			_recents_settings.remove(source);
 		}
+
+		_recents_settings.endGroup();
 	}
 
 	_recents_settings.endGroup();
@@ -185,11 +189,15 @@ PVCore::PVRecentItemsManager::sources_description_list()
 		QString source = sources.at(i);
 		_recents_settings.beginGroup(source);
 
-		PVRush::PVSourceDescription src_desc = deserialize_source_description();
-		if (src_desc.is_valid()) {
-			QVariant var;
-			var.setValue(src_desc);
-			variant_list << var;
+		try {
+			PVRush::PVSourceDescription src_desc = deserialize_source_description();
+			if (src_desc.is_valid()) {
+				QVariant var;
+				var.setValue(src_desc);
+				variant_list << var;
+			}
+		} catch (PVCore::InvalidPlugin const& e) {
+			// If the plugin is incorrect, skip this file
 		}
 
 		_recents_settings.endGroup();
@@ -248,13 +256,16 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
 
 		_recents_settings.beginGroup(source_timestamp);
 
-		PVRush::PVSourceDescription src_desc = deserialize_source_description();
+		try {
+			PVRush::PVSourceDescription src_desc = deserialize_source_description();
+			if (source_description == src_desc) {
+				return source_timestamp.toULong();
+			}
+		} catch (PVCore::InvalidPlugin const& e) {
+			// If the plugin is invlaid, it can't be the searched one source.
+		}
 
 		_recents_settings.endGroup();
-
-		if (source_description == src_desc) {
-			return source_timestamp.toULong();
-		}
 	}
 
 	if (sources.size() < _max_recent_items)
@@ -268,14 +279,8 @@ PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_des
 	// source creator
 	QString source_creator_name =
 	    _recents_settings.value(ITEM_SUBKEY_SOURCE_CREATOR_NAME).toString();
-	PVRush::PVSourceCreator_p src_creator_p;
-	try {
-		src_creator_p =
-		    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(source_creator_name);
-	} catch (PVCore::InvalidPlugin const& e) {
-		// The plugin doesn't exists. It Should not be in recent file.
-		return {};
-	}
+	PVRush::PVSourceCreator_p src_creator_p =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(source_creator_name);
 	PVRush::PVInputType_p input_type_p = src_creator_p->supported_type_lib();
 
 	// inputs
@@ -293,10 +298,7 @@ PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_des
 
 	PVRush::PVFormat format(format_name, format_path);
 
-	// PVSourceDescription
-	PVRush::PVSourceDescription src_desc(inputs, src_creator_p, format);
-
-	return src_desc;
+	return {inputs, src_creator_p, format};
 }
 
 static QString get_recent_items_file()
