@@ -13,8 +13,6 @@
 namespace PVParallelView
 {
 
-// #define TLR_USE_C_BITFIELD
-
 template <size_t Bbits = PARALLELVIEW_ZZT_BBITS>
 class PVTLRBuffer
 {
@@ -25,17 +23,7 @@ class PVTLRBuffer
 	struct index_t {
 		index_t(uint32_t vv = 0U) { v = vv; }
 
-		index_t(uint32_t t, uint32_t l, uint32_t r)
-		{
-#ifdef TLR_USE_C_BITFIELD
-			v = 0U;
-			s.t = t;
-			s.l = l;
-			s.r = r;
-#else
-			v = (t << (2 * Bbits)) + (l << Bbits) + r;
-#endif
-		}
+		index_t(uint32_t t, uint32_t l, uint32_t r) { v = (t << (2 * Bbits)) + (l << Bbits) + r; }
 
 		union {
 			uint32_t v;

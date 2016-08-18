@@ -23,14 +23,7 @@
 class FileDownLoader::FileDownLoaderPrivate
 {
   public:
-	FileDownLoaderPrivate()
-	    : curl(0)
-	    , tempFile(0)
-#ifdef ADD_DEBUG_TO_FILE
-	    , debugTempFile(0)
-#endif
-	{
-	}
+	FileDownLoaderPrivate() : curl(0), tempFile(0) {}
 	void initialize();
 	void cleanup();
 	void initializeDownload(const QString& remoteFile,
@@ -40,15 +33,9 @@ class FileDownLoader::FileDownLoaderPrivate
 	void initializeEncrypted(const ConnectionSettings& settings);
 	void initializeSsl(const ConnectionSettings& settings);
 	static size_t writeData(void* buffer, size_t size, size_t nmemb, void* stream);
-#ifdef ADD_DEBUG_TO_FILE
-	static int writeDebugToFile(CURL*, curl_infotype, char*, size_t, void*);
-#endif
 	static void download_thread(FileDownLoaderPrivate* d, QString* tempFile, CURLcode* curlResult);
 	CURL* curl;
 	QTemporaryFile* tempFile;
-#ifdef ADD_DEBUG_TO_FILE
-	QTemporaryFile* debugTempFile;
-#endif
 	static bool _cancel_dl;
 };
 
@@ -66,13 +53,6 @@ void FileDownLoader::FileDownLoaderPrivate::cleanup()
 		tempFile->deleteLater();
 		tempFile = 0;
 	}
-#ifdef ADD_DEBUG_TO_FILE
-	if (debugTempFile) {
-		debugTempFile->close();
-		debugTempFile->deleteLater();
-		debugTempFile = 0;
-	}
-#endif
 	/* always cleanup */
 	if (curl)
 		curl_easy_cleanup(curl);
@@ -176,43 +156,6 @@ size_t FileDownLoader::FileDownLoaderPrivate::writeData(void* buffer,
 	return d;
 }
 
-#ifdef ADD_DEBUG_TO_FILE
-int FileDownLoader::FileDownLoaderPrivate::writeDebugToFile(
-    CURL*, curl_infotype type, char* data, size_t size, void* stream)
-{
-	QTemporaryFile* downloadFile = static_cast<QTemporaryFile*>(stream);
-	QString text;
-	switch (type) {
-	case CURLINFO_TEXT:
-		text = tr("== Info: \n");
-		break;
-	case CURLINFO_HEADER_OUT:
-		text = tr("=> Send header\n");
-		break;
-	case CURLINFO_DATA_OUT:
-		text = tr("=> Send data\n");
-		break;
-	case CURLINFO_SSL_DATA_OUT:
-		text = tr("=> Send SSL data\n");
-		break;
-	case CURLINFO_HEADER_IN:
-		text = tr("<= Recv header\n");
-		break;
-	case CURLINFO_DATA_IN:
-		text = tr("<= Recv data\n");
-		break;
-	case CURLINFO_SSL_DATA_IN:
-		text = tr("<= Recv SSL data\n");
-		break;
-	default:
-		return 0;
-	}
-	/*const qint64 d = */ downloadFile->write((const char*)data, size);
-	downloadFile->flush();
-	return 0;
-}
-#endif
-
 void FileDownLoader::FileDownLoaderPrivate::download_thread(FileDownLoaderPrivate* d,
                                                             QString* tempFile,
                                                             CURLcode* curlResult)
@@ -237,15 +180,6 @@ void FileDownLoader::FileDownLoaderPrivate::download_thread(FileDownLoaderPrivat
 #ifdef ADD_CURL_DEBUG
 	/* Switch on full protocol/debug output */
 	curl_easy_setopt(d->curl, CURLOPT_VERBOSE, 1L);
-#ifdef ADD_DEBUG_TO_FILE
-	d->debugTempFile = new QTemporaryFile();
-	d->debugTempFile->setAutoRemove(false);
-	d->debugTempFile->open();
-
-	curl_easy_setopt(d->curl, CURLOPT_DEBUGFUNCTION, d->writeDebugToFile);
-	curl_easy_setopt(d->curl, CURLOPT_DEBUGDATA, d->debugTempFile);
-#endif
-
 #endif
 	*curlResult = curl_easy_perform(d->curl);
 	*tempFile = tempFileName;

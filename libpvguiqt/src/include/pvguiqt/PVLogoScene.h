@@ -14,10 +14,6 @@
 #include <QLabel>
 #include <QTime>
 
-#ifndef QT_NO_CONCURRENT
-#include <QFutureWatcher>
-#endif
-
 namespace PVGuiQt
 {
 
@@ -37,7 +33,6 @@ class PVLogoScene : public QGraphicsScene
 	void enableNormals(bool enabled);
 	void setModelColor();
 	void loadModel(const QString& filePath);
-	void modelLoaded();
 
   protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent* event);
@@ -66,10 +61,6 @@ class PVLogoScene : public QGraphicsScene
 	PVPoint3D m_accumulatedMomentum;
 
 	PVPoint3D m_lightPosition;
-
-#ifndef QT_NO_CONCURRENT
-	QFutureWatcher<PVLogoModel*> m_modelLoader;
-#endif
 };
 }
 
