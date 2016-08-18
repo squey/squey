@@ -154,7 +154,6 @@ add_pv_compile_test(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
 add_test(Trush_nraw_dump Trush_nraw_dump)
 add_bench(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
 
-add_pv_compile_test(Trush_format_dump LINKS ${LINK_LIBRARIES} FILES format_dump.cpp helpers.cpp)
 add_pv_compile_test(Trush_process_file_auto_discovery LINKS ${LINK_LIBRARIES} FILES process_file_auto_discovery.cpp helpers.cpp)
 
 add_pv_compile_test(Trush_format LINKS ${LINK_LIBRARIES} FILES format.cpp helpers.cpp)

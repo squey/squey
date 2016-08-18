@@ -86,10 +86,6 @@ void PVRush::PVXmlParamParser::setLinesRangeFromRootNode(QDomElement const& root
 	_line_count = rootNode.attribute("line_count", "0").toULongLong();
 }
 
-void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& /*node*/)
-{
-}
-
 void PVRush::PVXmlParamParser::setAxesCombinationFromRootNode(QDomElement const& node)
 {
 	QDomNodeList childs = node.childNodes();
@@ -326,7 +322,7 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 	fields.push_back(data);
 }
 
-PVRush::list_axes_t const& PVRush::PVXmlParamParser::getAxes() const
+QList<PVRush::PVAxisFormat> const& PVRush::PVXmlParamParser::getAxes() const
 {
 	return _axes;
 }

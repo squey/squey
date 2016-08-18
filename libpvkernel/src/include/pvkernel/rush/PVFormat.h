@@ -112,7 +112,7 @@ class PVFormat
 
 	bool exists() const;
 
-	list_axes_t const& get_axes() const { return _axes; }
+	QList<PVAxisFormat> const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 	fields_mask_t const& get_fields_mask() const { return _fields_mask; }
 
@@ -148,7 +148,7 @@ class PVFormat
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
   protected:
-	list_axes_t _axes;
+	QList<PVAxisFormat> _axes;
 	std::vector<PVCol> _axes_comb;
 	size_t _first_line;
 	size_t _line_count;

@@ -18,7 +18,6 @@ namespace PVRush
 
 class PVFormat;
 typedef std::shared_ptr<PVFormat> PVFormat_p;
-typedef QList<PVAxisFormat> list_axes_t;
 typedef QHash<QString, PVRush::PVFormat> hash_formats;
 
 // Axes properties' name
