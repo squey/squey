@@ -777,8 +777,10 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			guess_first_splitter();
 		}
 
-		create_extractor(format);
-		_log_extract->add_source(_log_source);
+		_nraw.reset(new PVRush::PVNraw());
+		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
+		list_inputs << _log_input;
+		_log_extract.reset(new PVRush::PVExtractor(format, *_nraw, _log_sc, list_inputs));
 
 		update_table(rstart, rend);
 
@@ -810,12 +812,6 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 	_inputs.clear();
 
 	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
-}
-
-void PVInspector::PVFormatBuilderWidget::create_extractor(PVRush::PVFormat& format)
-{
-	_nraw.reset(new PVRush::PVNraw());
-	_log_extract.reset(new PVRush::PVExtractor(format, *_nraw));
 }
 
 /******************************************************************************

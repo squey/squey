@@ -104,8 +104,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	 */
 	PVRow get_valid_row_count() const;
 
-	PVRush::PVExtractor const& get_extractor() const { return _extractor; }
-
 	/**
 	 * Start extraction of data for current source.
 	 *
@@ -151,19 +149,17 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	void serialize_write(PVCore::PVSerializeObject& so);
 
   private:
-	void files_append_noextract();
-	void extract_finished();
-
-  private:
 	PVView* _last_active_view = nullptr;
 
 	PVRush::PVFormat
 	    _format;          //!< Format use to create the source (also contains metadata like colors)
-	PVRush::PVNraw _nraw; //!< Reference to Nraw data (owned by extractor)
-	PVRush::PVExtractor _extractor; //!< Tool to extract data and generate NRaw.
+	PVRush::PVNraw _nraw; //!< NRaw data
 	PVRush::PVInputType::list_inputs _inputs;
 
 	PVRush::PVSourceCreator_p _src_plugin;
+	// FIXME : The extracor is an attribute as we can't create an extractor from source (it would
+	// required a move constructor)
+	PVRush::PVExtractor _extractor;
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 };
 }

@@ -11,15 +11,17 @@
 #include <pvbase/general.h>
 
 #include <pvbase/types.h>
+#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush
 {
+class PVSourceCreator;
 
 // The famous and wanted PVExtractor !!!!
 /*! \brief Extract datas from an aggregator, process them through filters and write the result to an
@@ -32,14 +34,12 @@ namespace PVRush
 class PVExtractor
 {
   public:
-	PVExtractor(PVRush::PVFormat& format, PVRush::PVNraw& nraw);
+	PVExtractor(PVRush::PVFormat& format,
+	            PVRush::PVNraw& nraw,
+	            std::shared_ptr<PVRush::PVSourceCreator> src_plugin,
+	            PVRush::PVInputType::list_inputs const& inputs);
 
   public:
-	/*! \brief Add a PVRawSourceBase to the internal aggregator
-	 * This function adds a source to the internal aggregator.
-	 */
-	void add_source(PVRush::PVRawSourceBase_p src);
-
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] nlines Number of lines to extract. It is
@@ -60,18 +60,8 @@ class PVExtractor
 	 */
 	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
-	/*! \brief Release inputs used for load data.
-	 */
-	void release_inputs() { _agg.release_inputs(); }
-
 	void force_number_axes(PVCol naxes);
-
-	inline void set_number_living_chunks(unsigned int nchunks)
-	{
-		if (nchunks > 0) {
-			_chunks = nchunks;
-		}
-	}
+	void release_inputs() { _agg.release_inputs(); }
 
   private:
 	void set_sources_number_fields();

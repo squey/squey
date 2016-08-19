@@ -175,7 +175,6 @@ class TestEnv
 	        size_t dup = 1,
 	        std::string const& extra_input = "")
 	    : _format("format", QString::fromStdString(format_file))
-	    , _ext(_format, _nraw)
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 
@@ -191,30 +190,19 @@ class TestEnv
 		for (std::string const& filename : filenames) {
 			// Input file
 			QString path_file = QString::fromStdString(filename);
-			PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+			_list_inputs << PVRush::PVInputDescription_p(new PVRush::PVFileDescription(path_file));
+		}
 
-			// Get the source creator
-			PVRush::PVSourceCreator_p sc_file;
-			if (!PVRush::PVTests::get_file_sc(file, _format, sc_file)) {
-				throw std::runtime_error("Can't get sources.");
-			}
-
-			// Process that file with the found source creator thanks to the extractor
-			PVRush::PVSourceCreator::source_p src =
-			    sc_file->create_source_from_input(file, _format);
-			if (!src) {
-				throw std::runtime_error("Unable to create PVRush source from file " + log_file +
-				                         "\n");
-			}
-
-			// Create the extractor
-			_ext.add_source(src);
+		// Get the source creator
+		if (!PVRush::PVTests::get_file_sc(_list_inputs.front(), _format, _sc_file)) {
+			throw std::runtime_error("Can't get sources.");
 		}
 	}
 
 	void load_data(size_t begin = 0)
 	{
-		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(begin);
+		PVRush::PVExtractor ext(_format, _nraw, _sc_file, _list_inputs);
+		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(begin);
 		job->wait_end();
 	}
 
@@ -230,7 +218,8 @@ class TestEnv
 
 	PVRush::PVFormat _format;
 	PVRush::PVNraw _nraw;
-	PVRush::PVExtractor _ext;
+	QList<std::shared_ptr<PVRush::PVInputDescription>> _list_inputs;
+	PVRush::PVSourceCreator_p _sc_file;
 
   private:
 	std::string _big_file_path;

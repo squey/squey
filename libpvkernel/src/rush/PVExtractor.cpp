@@ -5,13 +5,18 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/rush/PVSourceCreator.h>
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format, PVRush::PVNraw& nraw)
+PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
+                                 PVRush::PVNraw& nraw,
+                                 PVRush::PVSourceCreator_p src_plugin,
+                                 PVRush::PVInputType::list_inputs const& inputs)
     : _nraw(nraw)
     , _format(format)
     , _out_nraw(_nraw)
@@ -19,6 +24,9 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format, PVRush::PVNraw& nraw)
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
 {
+	for (auto const& input : inputs) {
+		_agg.add_input(src_plugin->create_source_from_input(input, _format));
+	}
 	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
 	 * number of used cores (it was previously set to 5 * cores_number): That multiplier
 	 * does not have any impact on the import time but it increases the memory
@@ -33,11 +41,13 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format, PVRush::PVNraw& nraw)
 	 * An other example: a file with 2 columns of 0 makes swap proto-03 at 65 Me (63
 	 * Gio used).
 	 */
-}
 
-void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
-{
-	_agg.add_input(src);
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
+
+	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
+	if (nchunks != 0) {
+		_chunks = nchunks;
+	}
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start)

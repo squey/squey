@@ -26,24 +26,13 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
     , _format(format)
     , _nraw()
-    , _extractor(_format, _nraw)
     , _inputs(inputs)
     , _src_plugin(sc)
+    , _extractor(_format, _nraw, _src_plugin, _inputs)
 {
-
 	if (inputs.empty()) {
 		throw PVRush::PVInputException("Source can't be created without input");
 	}
-
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
-	if (nchunks != 0) {
-		_extractor.set_number_living_chunks(nchunks);
-	}
-
-	// Set sources
-	files_append_noextract();
 }
 
 Inendi::PVSource::~PVSource()
@@ -70,15 +59,6 @@ Inendi::PVView const* Inendi::PVSource::current_view() const
 	return nullptr;
 }
 
-void Inendi::PVSource::files_append_noextract()
-{
-	for (int i = 0; i < _inputs.count(); i++) {
-		PVRush::PVSourceCreator::source_p src =
-		    _src_plugin->create_source_from_input(_inputs[i], _format);
-		_extractor.add_source(src);
-	}
-}
-
 PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count)
 {
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(skip_lines_count);
@@ -90,17 +70,12 @@ void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 {
 	job->wait_end();
 	_inv_elts = job->get_invalid_evts();
-	extract_finished();
+	_extractor.release_inputs();
 }
 
 void Inendi::PVSource::load_from_disk(std::string const& nraw_folder)
 {
 	_nraw.load_from_disk(nraw_folder);
-}
-
-void Inendi::PVSource::extract_finished()
-{
-	_extractor.release_inputs();
 }
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()
