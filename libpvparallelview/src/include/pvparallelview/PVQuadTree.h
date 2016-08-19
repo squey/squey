@@ -67,7 +67,7 @@ struct PVQuadTreeEntry {
 	uint32_t y2;
 	PVRow idx;
 
-	PVQuadTreeEntry() {}
+	PVQuadTreeEntry() : y1(0), y2(0), idx(PVROW_INVALID_VALUE) {}
 
 	PVQuadTreeEntry(uint32_t y1_, uint32_t y2_, PVRow r)
 	{
