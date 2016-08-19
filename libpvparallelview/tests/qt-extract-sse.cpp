@@ -121,7 +121,7 @@ void extract_seq(const quadtree_entry_t* entries,
                  const uint32_t y2_count,
                  const Ftest& test_f,
                  const Finsert& insert_f,
-                 uint32_t* buffer,
+                 std::vector<uint32_t>& buffer,
                  tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
@@ -136,7 +136,7 @@ void extract_seq(const quadtree_entry_t* entries,
 	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
-	memset(buffer, 0, count_aligned * sizeof(uint32_t));
+	std::fill_n(buffer.begin(), count_aligned, 0);
 	uint32_t remaining = clipped_max_count * y2_count;
 
 	for (size_t i = 0; i < size; ++i) {
@@ -294,7 +294,7 @@ void extract_sse(const quadtree_entry_t* entries,
                  const uint32_t y2_count,
                  const Ftest& test_f,
                  const Finsert& insert_f,
-                 uint32_t* buffer,
+                 std::vector<uint32_t>& buffer,
                  tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
@@ -311,7 +311,7 @@ void extract_sse(const quadtree_entry_t* entries,
 	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
-	memset(buffer, 0, count_aligned * sizeof(uint32_t));
+	std::fill_n(buffer.begin(), count_aligned, 0);
 	uint32_t remaining = clipped_max_count * y2_count;
 
 	const __m128i sse_y1_min = _mm_set1_epi64x(y1_min);
@@ -458,7 +458,7 @@ int main(int argc, char** argv)
 	uint32_t zoom = (uint32_t)atol(argv[P_ZOOM]);
 
 	quadtree_entry_t* entries = init_entries(num);
-	uint32_t* buffer = new uint32_t[2048 * 4096];
+	std::vector<uint32_t> buffer(2048 * 4096);
 	tlr_buffer_t* tlr_seq = new tlr_buffer_t;
 	tlr_buffer_t* tlr_sse = new tlr_buffer_t;
 
