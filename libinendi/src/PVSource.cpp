@@ -23,24 +23,6 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
                            PVRush::PVFormat const& format)
-    : PVSource(scene,
-               inputs,
-               sc,
-               format,
-               0,
-               PVCore::PVConfig::get()
-                   .config()
-                   .value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT)
-                   .toInt())
-{
-}
-
-Inendi::PVSource::PVSource(Inendi::PVScene& scene,
-                           PVRush::PVInputType::list_inputs const& inputs,
-                           PVRush::PVSourceCreator_p sc,
-                           PVRush::PVFormat const& format,
-                           size_t ext_start,
-                           size_t ext_end)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
     , _format(format)
     , _nraw()
@@ -54,10 +36,6 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
 	}
 
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	// Set extractor default values
-	_extractor.set_last_start(ext_start);
-	_extractor.set_last_nlines(ext_end);
 
 	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
 	if (nchunks != 0) {
@@ -191,35 +169,21 @@ bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
 
 QString Inendi::PVSource::get_window_name() const
 {
-	const size_t line_start = get_extraction_last_start();
-	const size_t line_end = line_start + get_row_count() - 1;
-	return QString::fromStdString(get_name()) + QString(" / ") + get_format_name() +
-	       QString("\n(%L1 -> %L2)").arg(line_start).arg(line_end);
+	return QString::fromStdString(get_name()) + QString(" / ") + get_format_name();
 }
 
 QString Inendi::PVSource::get_tooltip() const
 {
-	const size_t line_start = get_extraction_last_start();
-	const size_t line_end = line_start + get_row_count() - 1;
-
 	QString source = QString("source: %1").arg(QString::fromStdString(get_name()));
 	QString format = QString("format: %1").arg(get_format_name());
-	QString range = QString("range: %L1 - %L2").arg(line_start).arg(line_end);
 
-	return source + "\n" + format + "\n" + range;
+	return source + "\n" + format;
 }
 
 void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
 	QString src_name = _src_plugin->registered_name();
 	so.attribute("source-plugin", src_name);
-
-	// Save the state of the extractor
-	chunk_index start, nlines;
-	start = _extractor.get_last_start();
-	nlines = _extractor.get_last_nlines();
-	so.attribute("index_start", start);
-	so.attribute("nlines", nlines);
 
 	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
 
@@ -292,12 +256,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
 	PVRush::PVFormat format = PVRush::PVFormat::serialize_read(*format_obj);
 
-	// Get the state of the extractor
-	chunk_index start, nlines;
-	so.attribute("index_start", start);
-	so.attribute("nlines", nlines);
-
-	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
+	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format);
 
 	QString nraw_folder;
 	so.attribute("nraw_path", nraw_folder, QString());

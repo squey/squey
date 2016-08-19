@@ -66,10 +66,6 @@ class PVExtractor
 
 	void force_number_axes(PVCol naxes);
 
-	chunk_index get_last_start() const { return _last_start; }
-	chunk_index get_last_nlines() const { return _last_nlines; }
-	void set_last_start(chunk_index start) { _last_start = start; }
-	void set_last_nlines(chunk_index nlines) { _last_nlines = nlines; }
 	inline void set_number_living_chunks(unsigned int nchunks)
 	{
 		if (nchunks > 0) {
@@ -88,10 +84,6 @@ class PVExtractor
 	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;
 	PVCol _force_naxes;
-
-  protected:
-	chunk_index _last_start;
-	chunk_index _last_nlines;
 };
 }
 

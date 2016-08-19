@@ -41,12 +41,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	         PVRush::PVInputType::list_inputs_desc const& inputs,
 	         PVRush::PVSourceCreator_p sc,
 	         PVRush::PVFormat const& format);
-	PVSource(Inendi::PVScene& scene,
-	         PVRush::PVInputType::list_inputs_desc const& inputs,
-	         PVRush::PVSourceCreator_p sc,
-	         PVRush::PVFormat const& format,
-	         size_t ext_start,
-	         size_t ext_end);
 	PVSource(PVScene& scene, const PVRush::PVSourceDescription& descr)
 	    : PVSource(scene, descr.get_inputs(), descr.get_source_creator(), descr.get_format())
 	{
@@ -145,8 +139,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVRush::PVFormat const& get_format() const { return _format; }
 
 	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
-
-	size_t get_extraction_last_start() const { return _extractor.get_last_start(); }
 
   public:
 	virtual QString get_children_description() const { return "Mapped(s)"; }

@@ -18,8 +18,6 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format, PVRush::PVNraw& nraw)
     , _chk_flt(_format.create_tbb_filters())
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
-    , _last_start(0)
-    , _last_nlines(1)
 {
 	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
 	 * number of used cores (it was previously set to 5 * cores_number): That multiplier
@@ -60,9 +58,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	    new PVControllerJob(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw,
 	                        _chunks, _format.have_grep_filter()));
 	job->run_job();
-
-	_last_start = start;
-	_last_nlines = nlines;
 
 	return job;
 }
