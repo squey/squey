@@ -33,7 +33,6 @@ int main(int argc, char** argv)
 	const QString format_path =
 	    QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/28/field_enum.format");
 	PVRush::PVFormat format("org", format_path);
-	format.populate();
 
 	int fd = open(qPrintable(format_path), O_RDWR);
 	if (fd == -1) {

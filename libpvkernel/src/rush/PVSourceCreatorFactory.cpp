@@ -81,15 +81,10 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
                                                      bool* cancellation)
 {
 	PVFormat format = format_.first;
+	PVSourceCreator_p sc = format_.second;
+
 	tbb::tick_count start, end;
 	start = tbb::tick_count::now();
-	if (!format.populate()) {
-		throw PVRush::PVFormatInvalid();
-	}
-	end = tbb::tick_count::now();
-	PVLOG_INFO("Format %s population took %0.4f.\n", qPrintable(format.get_format_name()),
-	           (end - start).seconds());
-	PVSourceCreator_p sc = format_.second;
 
 	try {
 		PVFilter::PVChunkFilterByEltCancellable chk_flt =

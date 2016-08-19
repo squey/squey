@@ -36,11 +36,6 @@ int main(int argc, char** argv)
 	for (int i = 0; i < files.size(); i++) {
 		QString fpath = dir_files.absoluteFilePath(files[i]);
 		PVRush::PVFormat format("format", fpath);
-		if (!format.populate()) {
-			std::cerr << "Unable to populate format from file " << qPrintable(fpath) << std::endl;
-			return 1;
-		}
-
 		format.create_tbb_filters();
 	}
 

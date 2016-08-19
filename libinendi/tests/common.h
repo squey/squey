@@ -202,9 +202,6 @@ class TestEnv
 		// Load the given format file
 		QString path_format = QString::fromStdString(format_file);
 		PVRush::PVFormat format("format", path_format);
-		if (!format.populate()) {
-			throw std::runtime_error("Can't read format file " + format_file);
-		}
 
 		// Get the source creator
 		PVRush::PVSourceCreator_p sc_file;

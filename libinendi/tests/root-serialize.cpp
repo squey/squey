@@ -43,10 +43,6 @@ int main(int argc, char** argv)
 	// Load the given format file
 	QString path_format(argv[2]);
 	PVRush::PVFormat format("format", path_format);
-	if (!format.populate()) {
-		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-		return false;
-	}
 
 	// Get the source creator
 	QString file_path(argv[1]);

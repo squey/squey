@@ -28,9 +28,6 @@ get_src_from_file(Inendi::PVScene& scene, QString const& path_file, QString cons
 
 	// Load the given format file
 	PVRush::PVFormat format("format", path_format);
-	if (!format.populate()) {
-		throw std::runtime_error("Can't read format file " + path_format.toStdString());
-	}
 
 	PVRush::PVSourceCreator_p sc_file;
 	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {

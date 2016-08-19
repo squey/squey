@@ -175,12 +175,7 @@ class TestEnv
 	        size_t dup = 1,
 	        std::string const& extra_input = "")
 	    : _format("format", QString::fromStdString(format_file))
-	    , _ext(
-	          [this]() -> PVRush::PVFormat& {
-		          _format.populate();
-		          return _format;
-		      }(),
-	          _nraw)
+	    , _ext(_format, _nraw)
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 

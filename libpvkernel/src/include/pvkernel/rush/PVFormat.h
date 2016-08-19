@@ -85,15 +85,12 @@ class PVFormat
   public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
-	~PVFormat();
+	PVFormat(QDomElement const& rootNode, bool forceOneAxis = false);
 
 	pvcop::formatter_desc_list get_storage_format() const;
 
 	/* Methods */
 	void debug() const;
-	bool populate_from_xml(QString filename, bool forceOneAxis = false);
-	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
-	bool populate(bool forceOneAxis = false);
 
 	PVFilter::PVChunkFilterByEltCancellable
 	create_tbb_filters_autodetect(float timeout, bool* cancellation = nullptr);
@@ -122,9 +119,13 @@ class PVFormat
 
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
-  protected:
+  private:
 	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+
+	bool populate(bool forceOneAxis = false);
 	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
+	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
+	bool populate_from_xml(QString filename, bool forceOneAxis = false);
 
   protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

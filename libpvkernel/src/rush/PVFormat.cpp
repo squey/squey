@@ -43,10 +43,13 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 		QString basename = info.baseName();
 		format_name = basename;
 	}
+	populate();
 }
 
-PVRush::PVFormat::~PVFormat()
+PVRush::PVFormat::PVFormat(QDomElement const& root_node, bool forceOneAxis)
+    : format_name(""), full_path("")
 {
+	populate_from_xml(root_node, forceOneAxis);
 }
 
 /**
@@ -299,7 +302,7 @@ bool PVRush::PVFormat::populate(bool forceOneAxis)
 		return populate_from_xml(full_path, forceOneAxis);
 	}
 
-	throw std::runtime_error("We can't populate format withtout file");
+	throw std::runtime_error("We can't populate format without file");
 }
 
 QString const& PVRush::PVFormat::get_format_name() const
@@ -407,7 +410,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 {
 	filters_params = xml_parser.getFields();
 	if (filters_params.empty()) {
-		throw std::runtime_error("Format with no axes does not make sens");
+		throw PVFormatInvalid();
 	}
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
@@ -511,8 +514,18 @@ PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString
 			QString filename = fileInfo.completeBaseName();
 			QString plugin_name = format_name_prefix + QString(":") + filename;
 			PVLOG_INFO("Adding format '%s'\n", qPrintable(plugin_name));
-			ret.insert(plugin_name,
-			           PVFormat(plugin_name, normalize_helpers_dir.absoluteFilePath(current_file)));
+			try {
+				ret.insert(
+				    plugin_name,
+				    PVFormat(plugin_name, normalize_helpers_dir.absoluteFilePath(current_file)));
+			} catch (PVRush::PVFormatInvalid const&) {
+				PVLOG_INFO(("Format :" +
+				            normalize_helpers_dir.absoluteFilePath(current_file).toStdString() +
+				            " is invalid and can't be use")
+				               .c_str());
+				// If the format is invalid skip it
+				continue;
+			}
 		}
 	}
 

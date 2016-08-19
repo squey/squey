@@ -797,8 +797,7 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	xmlRootDom = doc.documentElement();
 
 	// Get axes combination and remove it from the DOM
-	PVRush::PVFormat format;
-	format.populate_from_xml(xmlRootDom, false);
+	PVRush::PVFormat format(xmlRootDom);
 	_axes_combination = Inendi::PVAxesCombination(format);
 	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
 	if (!axes_cb_elt.isNull()) {
@@ -1054,8 +1053,8 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 	bool was_default = _axes_combination.is_default();
 	PVLOG_DEBUG("(PVInspector::PVXmlDomModel::updateAxesCombination) was_default: %d\n",
 	            was_default);
-	PVRush::PVFormat format;
-	format.populate_from_xml(getRootDom());
+	PVRush::PVFormat format(getRootDom());
+	;
 	_axes_combination.set_original_axes(format.get_axes());
 	if (was_default) {
 		_axes_combination.reset_to_default();

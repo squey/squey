@@ -35,12 +35,6 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
 {
 }
 
-PVRush::PVFormat& populated_format(PVRush::PVFormat& format)
-{
-	format.populate();
-	return format;
-}
-
 Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
@@ -50,7 +44,7 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
     , _format(format)
     , _nraw()
-    , _extractor(populated_format(_format), _nraw)
+    , _extractor(_format, _nraw)
     , _inputs(inputs)
     , _src_plugin(sc)
 {
