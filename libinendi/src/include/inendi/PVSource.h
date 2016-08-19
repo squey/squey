@@ -58,8 +58,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 				load_from_disk(nraw_folder);
 				return;
 			} catch (PVRush::NrawLoadingFail const& e) {
-			} catch (...) {
-				throw;
+				// Nraw folder is corrupted, keep going trying another import.
 			}
 		}
 

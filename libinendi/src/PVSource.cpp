@@ -182,6 +182,18 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 		new_input->set_bound_obj(*input);
 	}
 
+	// Serialize invalid elements.
+	int inv_elts_count = _inv_elts.size();
+	so.attribute("inv_elts_count", inv_elts_count);
+	idx = 0;
+	for (auto const& inv_elt : _inv_elts) {
+		int inv_line = inv_elt.first;
+		so.attribute(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
+		QString inv_content = QString::fromStdString(inv_elt.second);
+		so.attribute(QString::fromStdString("inv_elts_value/" + std::to_string(idx)), inv_content);
+		idx++;
+	}
+
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
@@ -249,6 +261,22 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	}
 
 	source.load_data(nraw_folder.toStdString());
+
+	// Serialize invalid elements.
+	if (source._inv_elts.empty()) { // Otherwise it is already known from loading.
+		int inv_elts_count;
+		so.attribute("inv_elts_count", inv_elts_count);
+		idx = 0;
+		for (int id = 0; id < inv_elts_count; id++) {
+			int inv_line;
+			so.attribute(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
+			QString inv_content;
+			so.attribute(QString::fromStdString("inv_elts_value/" + std::to_string(idx)),
+			             inv_content);
+			idx++;
+			source._inv_elts.emplace(inv_line, inv_content.toStdString());
+		}
+	}
 
 	// Create the list of mapped
 	PVCore::PVSerializeObject_p list_obj = so.create_object(
