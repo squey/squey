@@ -6,6 +6,7 @@
 
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include "common.h"
 
@@ -189,6 +190,11 @@ int main()
 #else
 	std::cout << saving_time + loading_time;
 #endif
+
+	PVRush::PVNrawCacheManager::get().remove_nraws_from_investigation(INVESTIGATION_PATH);
+
+	// Recheck loading without cache
+	load_investigation();
 
 	return 0;
 }
