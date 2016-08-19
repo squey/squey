@@ -224,7 +224,8 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
 
 	// Save the format
-	so.object("format", _format, QObject::tr("Format"));
+	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
+	_format.serialize_write(*format_obj);
 
 	// Serialize Input description to reload data if required.
 	QString type_name = _src_plugin->supported_type();
@@ -287,8 +288,9 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	PVRush::PVSourceCreator_p sc_lib =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
 
-	PVRush::PVFormat format;
-	so.object("format", format);
+	// read Format
+	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
+	PVRush::PVFormat format = PVRush::PVFormat::serialize_read(*format_obj);
 
 	// Get the state of the extractor
 	chunk_index start, nlines;

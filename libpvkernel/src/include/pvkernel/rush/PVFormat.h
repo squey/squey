@@ -76,8 +76,6 @@ class PVFormatNoTimeMapping : public PVFormatException
 */
 class PVFormat
 {
-	friend class PVCore::PVSerializeObject;
-
   public:
 	typedef PVFormat_p p_type;
 	using fields_mask_t = PVXmlParamParser::fields_mask_t;
@@ -127,8 +125,9 @@ class PVFormat
 	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
 	bool populate_from_xml(QString filename, bool forceOneAxis = false);
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+  public:
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static PVFormat serialize_read(PVCore::PVSerializeObject& so);
 
   private:
 	QString format_name; // human readable name, displayed in a widget for instance

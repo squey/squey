@@ -540,8 +540,31 @@ void PVRush::PVFormat::only_keep_axes()
 	PVLOG_DEBUG("(PVRush::PVFormat) removing filters, we have '%d' fields.\n", _axes.size());
 }
 
-void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
-                                 PVCore::PVSerializeArchive::version_t /*v*/)
+PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
+{
+	QString format_name;
+	so.attribute("name", format_name);
+	QString full_path;
+	so.attribute("path", full_path);
+	PVCore::PVFileSerialize format_file(full_path);
+	if (so.object("file", format_file, "Include original format file", true,
+	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
+		full_path = format_file.get_path();
+	}
+
+	if (not QFileInfo(full_path).isReadable()) {
+		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
+		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path.toStdString()));
+		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
+		    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
+		so.repairable_error(error);
+		return {};
+	}
+
+	return {format_name, full_path};
+}
+
+void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.attribute("name", format_name);
 	so.attribute("path", full_path);
@@ -549,13 +572,5 @@ void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
 	if (so.object("file", format_file, "Include original format file", true,
 	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
 		full_path = format_file.get_path();
-	} else if (!so.is_writing() && !QFileInfo(full_path).isReadable()) {
-		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path.toStdString()));
-		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
-		    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
-		so.repairable_error(error);
-		return;
 	}
-	populate();
 }
