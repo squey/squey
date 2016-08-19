@@ -126,7 +126,7 @@ class PVFilterFunctionBase : public PVCore::PVFunctionArgs<boost::function<Tout_
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 
   public:
-	QString const& get_name() { return _name; }
+	QString const& get_name() const { return _name; }
 
   protected:
 	QString _name;

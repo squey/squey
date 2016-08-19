@@ -70,7 +70,7 @@ class PVXmlParamParser
 	QList<PVAxisFormat> const& getAxes() const;
 	QList<PVXmlParamParserData> const& getFields() const;
 	const fields_mask_t& getFieldsMask() const { return _fields_mask; }
-	unsigned int getVersion() { return format_version; }
+	unsigned int getVersion() const { return format_version; }
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
 	void dump_filters();
