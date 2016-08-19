@@ -20,7 +20,7 @@ PVParallelView::PVAbstractRangeAxisSliders::PVAbstractRangeAxisSliders(
     PVSlidersManager* sm_p,
     PVParallelView::PVSlidersGroup* group,
     const char* text)
-    : PVAbstractAxisSliders(parent, sm_p, group, text)
+    : PVAbstractAxisSliders(parent, sm_p, group, text), _sl_min(nullptr), _sl_max(nullptr)
 {
 }
 
@@ -54,23 +54,25 @@ void PVParallelView::PVAbstractRangeAxisSliders::paint(QPainter* painter,
                                                        const QStyleOptionGraphicsItem* option,
                                                        QWidget* widget)
 {
-	qreal vmin = _sl_min->pos().y();
-	_text->setPos(0, vmin);
+	if (_sl_min and _sl_max) {
+		qreal vmin = _sl_min->pos().y();
+		_text->setPos(0, vmin);
 
-	if (is_moving()) {
-		painter->save();
+		if (is_moving()) {
+			painter->save();
 
-		painter->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
+			painter->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
 
-		painter->setPen(QPen(Qt::white, 0));
-		qreal vmax = _sl_max->pos().y();
-		painter->drawLine(QPointF(0., vmin), QPointF(0., vmax));
+			painter->setPen(QPen(Qt::white, 0));
+			qreal vmax = _sl_max->pos().y();
+			painter->drawLine(QPointF(0., vmin), QPointF(0., vmax));
 
-		_text->show();
+			_text->show();
 
-		painter->restore();
-	} else {
-		_text->hide();
+			painter->restore();
+		} else {
+			_text->hide();
+		}
 	}
 
 	PVAbstractAxisSliders::paint(painter, option, widget);
