@@ -111,10 +111,6 @@ class PVFormat
 
 	bool have_grep_filter() const { return _have_grep_filter; }
 
-	// Remove any fields from the IR of the format and only
-	// keeps fields.
-	void only_keep_axes();
-
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
   private:

@@ -532,14 +532,6 @@ PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString
 	return ret;
 }
 
-void PVRush::PVFormat::only_keep_axes()
-{
-	// Remove the list of filters to apply, and only
-	// keeps the fields !
-	filters_params.clear();
-	PVLOG_DEBUG("(PVRush::PVFormat) removing filters, we have '%d' fields.\n", _axes.size());
-}
-
 PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 {
 	QString format_name;
