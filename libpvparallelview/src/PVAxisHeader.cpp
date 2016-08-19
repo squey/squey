@@ -86,7 +86,6 @@ void PVParallelView::PVAxisHeader::start(bool start)
 
 void PVParallelView::PVAxisHeader::set_width(int width)
 {
-	_width = width;
 	setRect(0, -108, width, 100);
 }
 

@@ -82,7 +82,6 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
   private:
 	const Inendi::PVView& _view;
 	PVSlidersGroup* _sliders_group;
-	int _width;
 
 	__impl::PVAxisSelectedAnimation* _axis_selected_animation;
 	bool _started = false;
