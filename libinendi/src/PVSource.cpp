@@ -161,6 +161,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("source-plugin", src_name);
 
 	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
+	so.attribute("nraw_path", nraw_path);
 
 	// Save the format
 	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
