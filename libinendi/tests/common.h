@@ -93,9 +93,10 @@ class TestEnv
 	Inendi::PVSource& add_source(std::string const& log_file,
 	                             std::string const& format_file,
 	                             size_t dup = 1,
-	                             bool new_scene = true)
+	                             bool new_scene = true,
+	                             std::string const& extra_source = "")
 	{
-		return import(log_file, format_file, dup, new_scene);
+		return import(log_file, format_file, dup, new_scene, extra_source);
 	}
 
 	/**
@@ -177,7 +178,8 @@ class TestEnv
 	Inendi::PVSource& import(std::string const& log_file,
 	                         std::string const& format_file,
 	                         size_t dup,
-	                         bool new_scene = true)
+	                         bool new_scene = true,
+	                         std::string const& extra_source = "")
 	{
 
 		std::string new_path = log_file;
@@ -195,9 +197,17 @@ class TestEnv
 			}
 		}
 
+		PVRush::PVInputType::list_inputs inputs;
+
 		// Input file
 		QString path_file = QString::fromStdString(new_path);
 		PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+		inputs << file;
+
+		if (extra_source != "") {
+			path_file = QString::fromStdString(extra_source);
+			inputs << PVRush::PVInputDescription_p(new PVRush::PVFileDescription(path_file));
+		}
 
 		// Load the given format file
 		QString path_format = QString::fromStdString(format_file);
@@ -212,8 +222,7 @@ class TestEnv
 		// Create the PVSource object
 		Inendi::PVScene* scene =
 		    (new_scene) ? &root.emplace_add_child("scene") : root.get_children().front();
-		Inendi::PVSource& src =
-		    scene->emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+		Inendi::PVSource& src = scene->emplace_add_child(inputs, sc_file, format);
 		PVRush::PVControllerJob_p job = src.extract(0);
 		job->wait_end();
 		return src;

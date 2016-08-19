@@ -106,6 +106,9 @@ add_bench(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_we
 add_pv_compile_test(Tinendi_investigation LINKS ${LINK_LIBRARIES} FILES investigation.cpp)
 add_test(Tinendi_investigation Tinendi_investigation)
 
+add_pv_compile_test(Tinendi_investigation_multisource LINKS ${LINK_LIBRARIES} FILES investigation_multisource.cpp)
+add_test(Tinendi_investigation_multisource Tinendi_investigation_multisource)
+
 add_pv_compile_test(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_default.cpp)
 add_test(Tplotting_integer_default_default Tplotting_integer_default_default)
 add_bench(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_default.cpp)
