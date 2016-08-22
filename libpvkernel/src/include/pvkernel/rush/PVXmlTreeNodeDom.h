@@ -232,7 +232,6 @@ class PVXmlTreeNodeDom : public QObject
 	 */
 	void setParent(PVXmlTreeNodeDom* parent);
 
-	void addRegExRacine();
 	void addFilterRacine();
 
 	void deleteFromTree();

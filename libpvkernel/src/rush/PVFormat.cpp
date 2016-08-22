@@ -348,9 +348,8 @@ void PVRush::PVFormat::debug() const
 	PVLOG_PLAIN(
 	    "-------+----------------+------------------+------------------+---------+------...\n");
 
-	list_axes_t::const_iterator it;
 	unsigned int i = 0;
-	for (it = _axes.begin(); it != _axes.end(); it++) {
+	for (auto it = _axes.begin(); it != _axes.end(); it++) {
 		char* fill;
 		PVAxisFormat const& axis = *it;
 

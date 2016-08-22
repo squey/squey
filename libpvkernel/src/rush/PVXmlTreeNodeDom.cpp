@@ -591,19 +591,6 @@ void PVRush::PVXmlTreeNodeDom::delField(int n)
 
 /******************************************************************************
  *
- * PVRush::PVXmlTreeNodeDom::addRegExRacine
- *
- *****************************************************************************/
-void PVRush::PVXmlTreeNodeDom::addRegExRacine()
-{
-	QDomElement elt = this->xmlFile.createElement("RegEx"); // create the dom element
-	PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(elt);    // create the node
-	child->setParent(this);                                 // place the node
-	this->addChild(child);                                  //...
-}
-
-/******************************************************************************
- *
  * PVRush::PVXmlTreeNodeDom::addFilterRacine
  *
  *****************************************************************************/

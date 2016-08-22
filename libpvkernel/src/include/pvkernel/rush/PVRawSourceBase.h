@@ -46,7 +46,6 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	virtual void seek_begin() = 0;
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;
 	virtual PVCore::PVChunk* operator()() = 0;
-	virtual input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx) = 0;
 
   protected:
 	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can

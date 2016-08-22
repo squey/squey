@@ -220,8 +220,6 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
                                         const std::string quote_char /* = default_quote_char */
                                         ) const
 {
-	static std::string escaped_quote("\\" + quote_char);
-
 	assert(col_indexes.size() != 0);
 
 	// Displayed column, not NRaw column

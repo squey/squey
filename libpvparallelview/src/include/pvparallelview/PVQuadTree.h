@@ -67,7 +67,7 @@ struct PVQuadTreeEntry {
 	uint32_t y2;
 	PVRow idx;
 
-	PVQuadTreeEntry() {}
+	PVQuadTreeEntry() : y1(0), y2(0), idx(PVROW_INVALID_VALUE) {}
 
 	PVQuadTreeEntry(uint32_t y1_, uint32_t y2_, PVRow r)
 	{
@@ -86,11 +86,6 @@ struct PVQuadTreeEntry {
 #define QUADTREE_BUFFER_SIZE (__PV_IMPL_QUADTREE_BUFFER_ENTRY_COUNT >> 5)
 
 typedef uint32_t pv_quadtree_buffer_entry_t;
-
-/*****************************************************************************
- * About SSE use when extracting relevant entries from quadtrees
- */
-//#define QUADTREE_USE_SSE_EXTRACT
 
 static inline bool test_sse(const __m128i& sse_y1,
                             const __m128i& sse_y1_min,
@@ -1075,16 +1070,11 @@ class PVQuadTree
 					               insert_f, buffer, tlr);
 				}
 			} else if (obj._datas.size() != 0) {
-/* this is a unsplitted node with data and an array of nxm
- * entries is needed
- */
-#ifdef QUADTREE_USE_SSE_EXTRACT
-				ret +=
-				    extract_sse(obj, y1_min, y1_max, zoom, y2_count, test_f, insert_f, buffer, tlr);
-#else
+				/* this is a unsplitted node with data and an array of nxm
+				 * entries is needed
+				 */
 				ret +=
 				    extract_seq(obj, y1_min, y1_max, zoom, y2_count, test_f, insert_f, buffer, tlr);
-#endif
 			}
 			return ret;
 		}
@@ -1135,14 +1125,10 @@ class PVQuadTree
 					               buffer, tlr);
 				}
 			} else if (obj._datas.size() != 0) {
-/* this is a unsplitted node with data and an array of 1xm
- * entries is needed
- */
-#ifdef QUADTREE_USE_SSE_EXTRACT
-				ret += extract_sse(obj, y1_min, y1_max, 0, y2_count, test_f, insert_f, buffer, tlr);
-#else
+				/* this is a unsplitted node with data and an array of 1xm
+				 * entries is needed
+				 */
 				ret += extract_seq(obj, y1_min, y1_max, 0, y2_count, test_f, insert_f, buffer, tlr);
-#endif
 			}
 			return ret;
 		}
@@ -1193,14 +1179,10 @@ class PVQuadTree
 					               buffer, tlr);
 				}
 			} else if (obj._datas.size() != 0) {
-/* this is a unsplitted node with data and an array of nx1
- * entries is needed
- */
-#ifdef QUADTREE_USE_SSE_EXTRACT
-				ret += extract_sse(obj, y1_min, y1_max, zoom, 1, test_f, insert_f, buffer, tlr);
-#else
+				/* this is a unsplitted node with data and an array of nx1
+				 * entries is needed
+				 */
 				ret += extract_seq(obj, y1_min, y1_max, zoom, 1, test_f, insert_f, buffer, tlr);
-#endif
 			}
 			return ret;
 		}
@@ -1542,16 +1524,11 @@ class PVQuadTree
 					               insert_f, buffer, tlr);
 				}
 			} else if (obj._datas.size() != 0) {
-/* this is a unsplitted node with data and an array of nxm
- * entries is needed
- */
-#ifdef QUADTREE_USE_SSE_EXTRACT
-				ret +=
-				    extract_sse(obj, y2_min, y2_max, zoom, y1_count, test_f, insert_f, buffer, tlr);
-#else
+				/* this is a unsplitted node with data and an array of nxm
+				 * entries is needed
+				 */
 				ret +=
 				    extract_seq(obj, y2_min, y2_max, zoom, y1_count, test_f, insert_f, buffer, tlr);
-#endif
 			}
 			return ret;
 		}
@@ -1602,14 +1579,10 @@ class PVQuadTree
 					               buffer, tlr);
 				}
 			} else if (obj._datas.size() != 0) {
-/* this is a unsplitted node with data and an array of 1xm
- * entries is needed
- */
-#ifdef QUADTREE_USE_SSE_EXTRACT
-				ret += extract_sse(obj, y2_min, y2_max, 0, y1_count, test_f, insert_f, buffer, tlr);
-#else
+				/* this is a unsplitted node with data and an array of 1xm
+				 * entries is needed
+				 */
 				ret += extract_seq(obj, y2_min, y2_max, 0, y1_count, test_f, insert_f, buffer, tlr);
-#endif
 			}
 			return ret;
 		}
@@ -1660,14 +1633,10 @@ class PVQuadTree
 					               buffer, tlr);
 				}
 			} else if (obj._datas.size() != 0) {
-/* this is a unsplitted node with data and an array of nx1
- * entries is needed
- */
-#ifdef QUADTREE_USE_SSE_EXTRACT
-				ret += extract_sse(obj, y2_min, y2_max, zoom, 1, test_f, insert_f, buffer, tlr);
-#else
+				/* this is a unsplitted node with data and an array of nx1
+				 * entries is needed
+				 */
 				ret += extract_seq(obj, y2_min, y2_max, zoom, 1, test_f, insert_f, buffer, tlr);
-#endif
 			}
 			return ret;
 		}

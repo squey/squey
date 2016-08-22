@@ -25,7 +25,6 @@ int main(int argc, char** argv)
 	}
 
 	const char* input_file = argv[1];
-	const char* output_file = argv[2];
 	const char* format = argv[3];
 	size_t begin = 0;
 	if (argc > 4) {
@@ -51,6 +50,7 @@ int main(int argc, char** argv)
 	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
+	const char* output_file = argv[2];
 	std::string output_tmp_file = pvtest::get_tmp_filename();
 
 	// Dump the NRAW to file and check value is the same

@@ -418,7 +418,7 @@ void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat const& format)
 		return;
 	}
 
-	PVRush::list_axes_t const& axes = format.get_axes();
+	QList<PVRush::PVAxisFormat> const& axes = format.get_axes();
 
 	columns_indexes_t axes_comb;
 	if (columns_indexes_list.size() > 0) {
@@ -455,13 +455,11 @@ void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat const& format)
  * Inendi::PVAxesCombination::set_original_axes
  *
  *****************************************************************************/
-void Inendi::PVAxesCombination::set_original_axes(PVRush::list_axes_t const& axes)
+void Inendi::PVAxesCombination::set_original_axes(QList<PVRush::PVAxisFormat> const& axes)
 {
 	QVector<PVAxis> old_axes_list = axes_list;
 	clear();
-	PVRush::list_axes_t::const_iterator it;
-	for (it = axes.begin(); it != axes.end(); it++) {
-		PVRush::PVAxisFormat const& axis_format = *it;
+	for (PVRush::PVAxisFormat const& axis_format : axes) {
 		PVAxis axis(axis_format);
 		original_axes_list.push_back(axis);
 	}

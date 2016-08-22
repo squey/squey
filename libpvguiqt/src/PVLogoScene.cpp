@@ -50,11 +50,6 @@ PVGuiQt::PVLogoScene::PVLogoScene()
     , m_angularMomentum(0, 100, 0)
     , m_lightPosition(0, 0, 512)
 {
-
-#ifndef QT_NO_CONCURRENT
-	connect(&m_modelLoader, SIGNAL(finished()), this, SLOT(modelLoaded()));
-#endif
-
 	loadModel(QLatin1String(":/logo3d"));
 	m_time.start();
 }
@@ -125,12 +120,7 @@ void PVGuiQt::PVLogoScene::loadModel(const QString& filePath)
 
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 	setModel(new PVGuiQt::PVLogoModel(filePath)); //  setModel(::loadModel(filePath));
-	modelLoaded();
 	QApplication::restoreOverrideCursor();
-}
-
-void PVGuiQt::PVLogoScene::modelLoaded()
-{
 }
 
 void PVGuiQt::PVLogoScene::setModel(PVLogoModel* model)

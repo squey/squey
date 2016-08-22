@@ -35,17 +35,28 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	// FIXME : This is an Ugly interface with a lot of bad use possibility.
 	virtual void initialize(id_t id, int64_t y_min, int64_t y_max) = 0;
 
-	virtual bool is_moving() const { return (_sl_min->is_moving() || _sl_max->is_moving()); }
+	virtual bool is_moving() const
+	{
+		return (_sl_min and _sl_max) ? (_sl_min->is_moving() || _sl_max->is_moving()) : false;
+	}
 
 	range_t get_range() const
 	{
+		if (not _sl_min or not _sl_max) {
+			return range_t{0, 0};
+		}
 		int64_t v_min = _sl_min->get_value();
 		int64_t v_max = _sl_max->get_value();
 
 		return std::make_pair(PVCore::min(v_min, v_max), PVCore::max(v_min, v_max));
 	}
 
-	virtual void refresh() { refresh_value(_sl_min->get_value(), _sl_max->get_value()); }
+	void refresh() override
+	{
+		if (_sl_min and _sl_max) {
+			refresh_value(_sl_min->get_value(), _sl_max->get_value());
+		}
+	}
 
   protected:
 	void refresh_value(int64_t y_min, int64_t y_max)

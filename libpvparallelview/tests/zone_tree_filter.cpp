@@ -36,8 +36,6 @@ int main()
 	PVParallelView::PVZoneProcessing zp{SIZE * SIZE, plota.data(), plotb.data()};
 	zt->process(zp, pdata);
 
-	std::vector<PVRow> rows(NBUCKETS);
-
 	Inendi::PVSelection sel(SIZE * SIZE);
 	sel.select_odd(); // Start with 1 as first value thus we check for x % 2 == 0
 

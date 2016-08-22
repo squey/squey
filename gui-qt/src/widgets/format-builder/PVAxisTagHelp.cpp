@@ -31,16 +31,13 @@ PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* par
 
 	// Create a hash of {tag-name->tag-object} from the splitters tags
 	QHash<QString, PVFilter::PVFieldsSplitterTag const*> hash_sp_tags;
-	PVFilter::PVFieldsSplitterListTags::const_iterator it_sp;
-	for (it_sp = sp_tags.begin(); it_sp != sp_tags.end(); it_sp++) {
-		hash_sp_tags[it_sp->name()] = &(*it_sp);
+	for (auto const& tag : sp_tags) {
+		hash_sp_tags[tag.name()] = &tag;
 	}
 
 	_table_tags->setRowCount(tags.size());
-	Inendi::PVLayerFilterListTags::const_iterator it;
 	int row = 0;
-	for (it = tags.begin(); it != tags.end(); it++) {
-		Inendi::PVLayerFilterTag const& tag = *it;
+	for (auto const& tag : tags) {
 		QString const& tag_name = tag.name();
 		_table_tags->setItem(row, 0, new QTableWidgetItem(tag.name()));
 		_table_tags->setItem(row, 1, new QTableWidgetItem(tag.desc()));
@@ -58,9 +55,8 @@ PVInspector::PVAxisTagHelp::PVAxisTagHelp(QStringList /*sel_tags*/, QWidget* par
 
 	// Add the remaining splitters tags
 	_table_tags->setRowCount(row + hash_sp_tags.size() - 1);
-	QHash<QString, PVFilter::PVFieldsSplitterTag const*>::iterator it_hash_sp;
-	for (it_hash_sp = hash_sp_tags.begin(); it_hash_sp != hash_sp_tags.end(); it_hash_sp++) {
-		PVFilter::PVFieldsSplitterTag const& tag = *(it_hash_sp.value());
+	for (auto const& tag_sp : hash_sp_tags) {
+		PVFilter::PVFieldsSplitterTag const& tag = *tag_sp;
 		_table_tags->setItem(row, 0, new QTableWidgetItem(tag.name()));
 		_table_tags->setItem(row, 1, new QTableWidgetItem(tag.desc()));
 		_table_tags->setItem(row, 3, new QTableWidgetItem(tag_to_classes_name(tag)));

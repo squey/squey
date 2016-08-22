@@ -27,8 +27,6 @@ typedef PVParallelView::constants<PARALLELVIEW_ZZT_BBITS> constants;
 
 constexpr static uint32_t mask_int_ycoord = constants::mask_int_ycoord;
 
-// #define USE_SSE_BOOL_ACCESS
-
 uint32_t tested_count_seq = 0;
 uint32_t tested_count_sse = 0;
 uint32_t inserted_count_seq = 0;
@@ -123,7 +121,7 @@ void extract_seq(const quadtree_entry_t* entries,
                  const uint32_t y2_count,
                  const Ftest& test_f,
                  const Finsert& insert_f,
-                 uint32_t* buffer,
+                 std::vector<uint32_t>& buffer,
                  tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
@@ -138,7 +136,7 @@ void extract_seq(const quadtree_entry_t* entries,
 	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
-	memset(buffer, 0, count_aligned * sizeof(uint32_t));
+	std::fill_n(buffer.begin(), count_aligned, 0);
 	uint32_t remaining = clipped_max_count * y2_count;
 
 	for (size_t i = 0; i < size; ++i) {
@@ -161,27 +159,6 @@ void extract_seq(const quadtree_entry_t* entries,
 		}
 	}
 }
-
-void _sse_p32(const char* text, const __m128i& sse_reg)
-{
-	std::cout << text << ": [ " << _mm_extract_epi32(sse_reg, 3) << " | "
-	          << _mm_extract_epi32(sse_reg, 2) << " | " << _mm_extract_epi32(sse_reg, 1) << " | "
-	          << _mm_extract_epi32(sse_reg, 0) << " ]" << std::endl;
-}
-
-void _sse_p64(const char* text, const __m128i& sse_reg)
-{
-	std::cout << text << ": [ " << _mm_extract_epi64(sse_reg, 1) << " | "
-	          << _mm_extract_epi64(sse_reg, 0) << " ]" << std::endl;
-}
-
-#ifdef PRINT_SSE
-#define sse_p32(R) _sse_p32(#R, R)
-#define sse_p64(R) _sse_p64(#R, R)
-#else
-#define sse_p32(R)
-#define sse_p64(R)
-#endif
 
 #define NONE 0
 bool test_sse(const __m128i& sse_y1,
@@ -238,13 +215,8 @@ bool test_sse2(const __m128i& sse_y1,
 	static const __m128i sse_full_ones = _mm_set1_epi32(0xFFFFFFFF);
 	static const __m128i sse_full_zeros = _mm_set1_epi32(0);
 
-/* expand 4x32b register into 2 2x64b registers
- */
-
-#ifdef PRINT_SSE
-	std::cout << "#############################################################" << std::endl;
-#endif
-	sse_p32(sse_y1);
+	/* expand 4x32b register into 2 2x64b registers
+	 */
 
 	const __m128i sse_y1_0 = _mm_unpacklo_epi32(sse_y1, sse_full_zeros);
 	const __m128i sse_y1_1 = _mm_unpackhi_epi32(sse_y1, sse_full_zeros);
@@ -254,26 +226,10 @@ bool test_sse2(const __m128i& sse_y1,
 	__m128i sse_min0 = _mm_cmpgt_epi64(sse_y1_min, sse_y1_0);
 	__m128i sse_min1 = _mm_cmpgt_epi64(sse_y1_min, sse_y1_1);
 
-	sse_p64(sse_y1_min);
-	sse_p64(sse_y1_0);
-	sse_p64(sse_min0);
-
-	sse_p64(sse_y1_min);
-	sse_p64(sse_y1_1);
-	sse_p64(sse_min1);
-
 	/* doing registers test against max
 	 */
 	__m128i sse_max0 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_0);
 	__m128i sse_max1 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_1);
-
-	sse_p64(sse_y1_max);
-	sse_p64(sse_y1_0);
-	sse_p64(sse_max0);
-
-	sse_p64(sse_y1_max);
-	sse_p64(sse_y1_1);
-	sse_p64(sse_max1);
 
 	/*
 	 * fusion des resultats (en passant ces valeurs de 32 à 64 bits)
@@ -305,7 +261,6 @@ bool test_sse2(const __m128i& sse_y1,
 	 * dans un seul registre
 	 */
 	__m128i sse_tmin = _mm_unpacklo_epi64(sse_ms0, sse_ms1);
-	sse_p32(sse_tmin);
 
 	/* on fait de même pour les max
 	 */
@@ -313,15 +268,10 @@ bool test_sse2(const __m128i& sse_y1,
 	sse_ms1 = _mm_srli_si128(sse_max1, 4);
 
 	__m128i sse_tmax = _mm_unpacklo_epi64(sse_ms0, sse_ms1);
-	sse_p32(sse_tmax);
 
 	sse_res = _mm_andnot_si128(sse_tmin, sse_tmax);
 
 	int res = _mm_testz_si128(sse_res, sse_full_ones);
-#ifdef PRINT_SSE
-	std::cout << "res: " << res << std::endl;
-#endif
-	sse_p32(sse_res);
 
 	return res;
 }
@@ -344,7 +294,7 @@ void extract_sse(const quadtree_entry_t* entries,
                  const uint32_t y2_count,
                  const Ftest& test_f,
                  const Finsert& insert_f,
-                 uint32_t* buffer,
+                 std::vector<uint32_t>& buffer,
                  tlr_buffer_t& tlr)
 {
 	const uint64_t max_count = 1 << zoom;
@@ -361,7 +311,7 @@ void extract_sse(const quadtree_entry_t* entries,
 	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
-	memset(buffer, 0, count_aligned * sizeof(uint32_t));
+	std::fill_n(buffer.begin(), count_aligned, 0);
 	uint32_t remaining = clipped_max_count * y2_count;
 
 	const __m128i sse_y1_min = _mm_set1_epi64x(y1_min);
@@ -372,10 +322,6 @@ void extract_sse(const quadtree_entry_t* entries,
 	const __m128i sse_y2_orig = _mm_set1_epi32(y2_orig);
 	const __m128i sse_y2_shift = _mm_set1_epi32(y2_shift);
 	const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
-
-#ifdef USE_SSE_BOOL_ACCESS
-	static const __m128i sse_pos_mask = _mm_set1_epi32(31);
-#endif
 
 	size_t packed_size = size & ~3;
 	for (size_t i = 0; i < packed_size; i += 4) {
@@ -424,27 +370,12 @@ void extract_sse(const quadtree_entry_t* entries,
 
 		__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
 
-#ifdef USE_SSE_BOOL_ACCESS
-		__m128i sse_block = _mm_srli_epi32(sse_pos, 5);
-		__m128i sse_index = _mm_and_si128(sse_pos, sse_pos_mask);
-#endif
-
 		if (_mm_extract_epi32(sse_test, 0)) {
-#ifdef USE_SSE_BOOL_ACCESS
-			uint32_t b = _mm_extract_epi32(sse_block, 0);
-			uint32_t i = _mm_extract_epi32(sse_index, 0);
-			if (!(B_IS_SET(buffer[b], i))) {
-#else
 			uint32_t p = _mm_extract_epi32(sse_pos, 0);
 			if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-#endif
 				insert_f(e0, tlr);
 				++inserted_count_sse;
-#ifdef USE_SSE_BOOL_ACCESS
-				B_SET(buffer[b], i);
-#else
 				B_SET(buffer[p >> 5], p & 31);
-#endif
 				--remaining;
 				if (remaining == 0) {
 					break;
@@ -453,21 +384,11 @@ void extract_sse(const quadtree_entry_t* entries,
 		}
 
 		if (_mm_extract_epi32(sse_test, 1)) {
-#ifdef USE_SSE_BOOL_ACCESS
-			uint32_t b = _mm_extract_epi32(sse_block, 1);
-			uint32_t i = _mm_extract_epi32(sse_index, 1);
-			if (!(B_IS_SET(buffer[b], i))) {
-#else
 			uint32_t p = _mm_extract_epi32(sse_pos, 1);
 			if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-#endif
 				insert_f(e1, tlr);
 				++inserted_count_sse;
-#ifdef USE_SSE_BOOL_ACCESS
-				B_SET(buffer[b], i);
-#else
 				B_SET(buffer[p >> 5], p & 31);
-#endif
 				--remaining;
 				if (remaining == 0) {
 					break;
@@ -476,21 +397,11 @@ void extract_sse(const quadtree_entry_t* entries,
 		}
 
 		if (_mm_extract_epi32(sse_test, 2)) {
-#ifdef USE_SSE_BOOL_ACCESS
-			uint32_t b = _mm_extract_epi32(sse_block, 2);
-			uint32_t i = _mm_extract_epi32(sse_index, 2);
-			if (!(B_IS_SET(buffer[b], i))) {
-#else
 			uint32_t p = _mm_extract_epi32(sse_pos, 2);
 			if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-#endif
 				insert_f(e2, tlr);
 				++inserted_count_sse;
-#ifdef USE_SSE_BOOL_ACCESS
-				B_SET(buffer[b], i);
-#else
 				B_SET(buffer[p >> 5], p & 31);
-#endif
 				--remaining;
 				if (remaining == 0) {
 					break;
@@ -499,21 +410,11 @@ void extract_sse(const quadtree_entry_t* entries,
 		}
 
 		if (_mm_extract_epi32(sse_test, 3)) {
-#ifdef USE_SSE_BOOL_ACCESS
-			uint32_t b = _mm_extract_epi32(sse_block, 3);
-			uint32_t i = _mm_extract_epi32(sse_index, 3);
-			if (!(B_IS_SET(buffer[b], i))) {
-#else
 			uint32_t p = _mm_extract_epi32(sse_pos, 3);
 			if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
-#endif
 				insert_f(e3, tlr);
 				++inserted_count_sse;
-#ifdef USE_SSE_BOOL_ACCESS
-				B_SET(buffer[b], i);
-#else
 				B_SET(buffer[p >> 5], p & 31);
-#endif
 				--remaining;
 				if (remaining == 0) {
 					break;
@@ -557,7 +458,7 @@ int main(int argc, char** argv)
 	uint32_t zoom = (uint32_t)atol(argv[P_ZOOM]);
 
 	quadtree_entry_t* entries = init_entries(num);
-	uint32_t* buffer = new uint32_t[2048 * 4096];
+	std::vector<uint32_t> buffer(2048 * 4096);
 	tlr_buffer_t* tlr_seq = new tlr_buffer_t;
 	tlr_buffer_t* tlr_sse = new tlr_buffer_t;
 

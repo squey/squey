@@ -443,18 +443,6 @@ void LogViewerWidget::slotRemoveMachine()
 	slotUpdateButtons();
 }
 
-void LogViewerWidget::removeLocalFile(const QString& localFile)
-{
-	QFile file(localFile);
-	if (file.exists()) {
-		const bool res = file.remove();
-		if (!res) {
-			QMessageBox::critical(this, tr("Remove local file"),
-			                      tr("Can not remove \"%1\"").arg(localFile));
-		}
-	}
-}
-
 QString LogViewerWidget::encryptPassword(const QString& password)
 {
 	// TODO add method to encrypt password
@@ -485,26 +473,4 @@ QString LogViewerWidget::loadCertificateFile(const QString& certificateFile)
 QString LogViewerWidget::saveCertificateFile(const QString& certificateFile)
 {
 	return certificateFile;
-}
-
-QString LogViewerWidget::authentication(const QString& machineName, const QString& filename)
-{
-	const QList<MachineConfig> lst = d->listOfMachine.keys();
-	Q_FOREACH (const MachineConfig& machine, lst) {
-		if (machineName == machine.name) {
-			QList<RegisteredFile>& lstRegistered = d->listOfMachine[machine];
-			if (!lstRegistered.isEmpty()) {
-				Q_FOREACH (const RegisteredFile& registered, lstRegistered) {
-					if (registered.remoteFile == filename) {
-						if (!registered.settings.password.isEmpty()) {
-							return tr("Authentication by password");
-						} else if (!registered.settings.sshKeyFile.isEmpty()) {
-							return tr("Authentication by SSH key");
-						}
-					}
-				}
-			}
-		}
-	}
-	return QString();
 }

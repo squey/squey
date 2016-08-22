@@ -321,7 +321,7 @@ class PVAxesCombination
 	 * It will try to keep the existing combination if the axes contained in
 	 * `axes' are in `used_axes'.
 	 */
-	void set_original_axes(PVRush::list_axes_t const& axes);
+	void set_original_axes(QList<PVRush::PVAxisFormat> const& axes);
 
 	/**
 	 * @brief Find the first available child_id for an axis

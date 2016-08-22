@@ -41,7 +41,6 @@ int main(int argc, char** argv)
 	PVCore::PVIntrinsics::init_cpuid();
 
 	QString dir_path = argv[2];
-	const std::string ref_file = std::string(argv[2]) + ".strict.out";
 	QDir dir_files(dir_path);
 	dir_files.setFilter(QDir::Files | QDir::Readable);
 	QStringList files = dir_files.entryList(QStringList() << QString("*"));
@@ -73,6 +72,7 @@ int main(int argc, char** argv)
 	dump_agg(agg, out);
 
 #ifndef INSPECTOR_BENCH
+	const std::string ref_file = std::string(argv[2]) + ".strict.out";
 	// Check output is the same as the reference
 	std::cout << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));

@@ -56,7 +56,7 @@ add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
 # as we want to separate Boost's Python library path to others Boost libraries,
 # we do the detection in 2 steps : one for all needed modules except python, one other for python
-find_package(Boost 1.49 COMPONENTS date_time system thread program_options)
+find_package(Boost 1.49 REQUIRED COMPONENTS date_time system thread program_options)
 # a little backup of $Boost_LIBRARIES because the second detection will overwrite it
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
 

@@ -140,11 +140,10 @@ void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
 	listBox->clear();
 
 	// Insert items
-	QListWidgetItem* item;
 	for (int i = 0; i < org_list.size(); i++) {
 		QString const& f = org_list[i];
 		bool issel = sel_list.contains(f);
-		item = new QListWidgetItem(f);
+		auto item = new QListWidgetItem(f, listBox);
 		listBox->insertItem(-1, item);
 		item->setSelected(issel);
 	}
@@ -214,56 +213,26 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	_all_types_list->setMaximumHeight(100);
 
 	// Compute the union and intersection of types
-	QStringList types_union;
-	QStringList types_intersec = (*files_types.begin()).second;
+	QSet<QString> types_union;
+	QSet<QString> types_intersec = files_types.begin()->second.toSet();
 
-	map_files_types::iterator it;
-	for (it = files_types.begin(); it != files_types.end(); it++) {
-		QStringList& types = (*it).second;
-
-// Union
-#if (QT_VERSION >= 0x040700) // QList<T>::reserve has been introduced in QT 4.7
-		if (types_union.size() < types.size()) {
-			types_union.reserve(types.size());
-		}
-#endif
-		QStringList::iterator it_t = types.begin();
-		for (; it_t != types.end(); it_t++) {
-			if (!types_union.contains(*it_t)) {
-				types_union << *it_t;
-			}
-		}
-
-		// Intersec
-		it_t = types_intersec.begin();
-		while (it_t != types_intersec.end()) {
-			if (!types.contains(*it_t)) {
-				QStringList::iterator it_rem = it_t;
-				it_t++;
-				bool was_last = it_t == types_intersec.end();
-				types_intersec.erase(it_rem);
-				if (was_last) {
-					break;
-				}
-			} else {
-				it_t++;
-			}
-		}
+	for (auto const& file_types : files_types) {
+		QStringList const& types = file_types.second;
+		types_union += types.toSet();
+		types_intersec &= types.toSet();
 	}
 
 	// Set the intersection as the default selection
 	// and set a gray background for the union
 
-	QListWidgetItem* item;
-	QStringList::const_iterator it_sl;
-	for (it_sl = types_union.begin(); it_sl != types_union.end(); it_sl++) {
-		QString const& typen = *it_sl;
-		item = new QListWidgetItem(typen);
+	for (QString const& typen : types_union) {
+		auto item = new QListWidgetItem(typen, _all_types_list);
 		_all_types_list->insertItem(-1, item);
-		if (types_intersec.contains(typen))
+		if (types_intersec.contains(typen)) {
 			item->setSelected(true);
-		else
+		} else {
 			item->setBackgroundColor(Qt::lightGray);
+		}
 	}
 	_all_types_list->setEnabled(false);
 
@@ -299,17 +268,14 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 
 void PVInspector::PVFilesTypesSelWidget::apply_all()
 {
-	QList<QListWidgetItem*> selitems = _all_types_list->selectedItems();
-	QList<QListWidgetItem*>::const_iterator it;
 	QStringList types;
-	for (it = selitems.begin(); it != selitems.end(); it++) {
-		types << (*it)->text();
+	for (QListWidgetItem* elt : _all_types_list->selectedItems()) {
+		types << elt->text();
 	}
 
 	// Set data with model
-	map_files_types::iterator it_ft;
-	for (it_ft = _files_types.begin(); it_ft != _files_types.end(); it_ft++) {
-		(*it_ft).second = types;
+	for (auto& file_types : _files_types) {
+		file_types.second = types;
 	}
 	_files_types_model->emitAllTypesChanged();
 }

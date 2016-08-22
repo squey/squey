@@ -158,64 +158,6 @@ inline __m256i mm256_srli_epi32(const __m256i v, const int count)
 
 	return _mm256_insertf128_si256(_mm256_castsi128_si256(v0s), v1s, 1);
 }
-
-void count_y1_avx_v3(const PVRow row_count,
-                     const uint32_t* col_y1,
-                     const uint64_t y_min,
-                     const uint64_t y_max,
-                     const int zoom,
-                     double alpha,
-                     uint32_t* buffer,
-                     const size_t buffer_size)
-{
-	const int idx_shift = (32 - NBITS) - zoom;
-	const int zoom_shift = 32 - zoom;
-	constexpr uint32_t idx_mask = (1 << NBITS) - 1;
-	const uint32_t zoom_base = y_min >> zoom_shift;
-
-	const uint32_t row_count_avx = (row_count / 8) * 8;
-	const __m256i avx_idx_mask = _mm256_set1_epi32(idx_mask);
-	const __m256i avx_zoom_base = _mm256_set1_epi32(zoom_base);
-	const __m256i avx_ff = _mm256_set1_epi32(0xFFFFFFFF);
-
-	size_t i;
-	for (i = 0; i < row_count_avx; i += 8) {
-		const __m256i avx_y = _mm256_load_si256((__m256i const*)&col_y1[i]);
-		const __m256i avx_block_base = mm256_srli_epi32(avx_y, zoom_shift);
-		const __m256i avx_block_idx = reinterpret_cast<__m256i>(
-		    _mm256_and_ps(reinterpret_cast<__m256>(mm256_srli_epi32(avx_y, idx_shift)),
-		                  reinterpret_cast<__m256>(avx_idx_mask)));
-
-		const __m256i avx_cmp = reinterpret_cast<__m256i>(
-		    _mm256_cmp_ps(reinterpret_cast<__m256>(avx_block_base),
-		                  reinterpret_cast<__m256>(avx_zoom_base), _CMP_EQ_OQ));
-		if (_mm256_testz_si256(avx_cmp, avx_ff)) {
-			// They are all false
-			continue;
-		}
-
-		if (_mm256_extract_epi32(avx_cmp, 0)) {
-			buffer[_mm256_extract_epi32(avx_block_idx, 0)]++;
-		}
-		if (_mm256_extract_epi32(avx_cmp, 1)) {
-			buffer[_mm256_extract_epi32(avx_block_idx, 1)]++;
-		}
-		if (_mm256_extract_epi32(avx_cmp, 2)) {
-			buffer[_mm256_extract_epi32(avx_block_idx, 2)]++;
-		}
-		if (_mm256_extract_epi32(avx_cmp, 3)) {
-			buffer[_mm256_extract_epi32(avx_block_idx, 3)]++;
-		}
-	}
-	for (; i < row_count; i++) {
-		const uint32_t y = col_y1[i];
-		const uint32_t block_base = y >> zoom_shift;
-		if (block_base == zoom_base) {
-			const uint32_t block_idx = (y >> idx_shift) & idx_mask;
-			++buffer[block_idx];
-		}
-	}
-}
 #endif
 
 /*****************************************************************************

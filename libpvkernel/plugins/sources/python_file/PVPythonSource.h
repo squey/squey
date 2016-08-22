@@ -32,11 +32,6 @@ class PVPythonSource : public PVRawSourceBase
 	virtual void seek_begin();
 	virtual void prepare_for_nelts(chunk_index nelts);
 	virtual PVCore::PVChunk* operator()();
-	virtual input_offset get_input_offset_from_index(chunk_index /*idx*/,
-	                                                 chunk_index& /*known_idx*/)
-	{
-		return 0;
-	}
 
   protected:
 	QString _python_file;

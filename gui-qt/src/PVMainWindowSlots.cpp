@@ -567,10 +567,9 @@ void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& inve
 
 void PVInspector::PVMainWindow::set_window_title_with_filename()
 {
-	static int sequenceNumber = 1;
-
 	QString file;
 	if (is_solution_untitled()) {
+		static int sequenceNumber = 1;
 		file = tr("new-solution%1." INENDI_ROOT_ARCHIVE_EXT).arg(sequenceNumber++);
 	} else {
 		file = QFileInfo(get_solution_path()).canonicalFilePath();

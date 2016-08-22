@@ -37,8 +37,6 @@ int main()
 
 	Inendi::PVView* view = env.root.current_view();
 
-	Inendi::PVPlotted& plotted = *env.root.get_children<Inendi::PVPlotted>().front();
-
 	// Load every layer filter.
 	Inendi::common::load_layer_filters();
 

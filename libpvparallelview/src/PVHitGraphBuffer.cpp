@@ -12,12 +12,6 @@
 #include <string.h>
 #include <iostream>
 
-void dump_graph_buffer(uint32_t const* buf, const size_t n)
-{
-	for (size_t i = 0; i < n; i++) {
-		std::cerr << i << "\t" << buf[i] << std::endl;
-	}
-}
 //
 // PVHitGraphBuffer
 //

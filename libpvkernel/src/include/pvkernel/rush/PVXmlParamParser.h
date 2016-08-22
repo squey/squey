@@ -67,10 +67,10 @@ class PVXmlParamParser
   public:
 	int
 	setDom(QDomElement const& node, int id = -1, QVector<uint32_t> tree_ids = QVector<uint32_t>());
-	list_axes_t const& getAxes() const;
+	QList<PVAxisFormat> const& getAxes() const;
 	QList<PVXmlParamParserData> const& getFields() const;
 	const fields_mask_t& getFieldsMask() const { return _fields_mask; }
-	unsigned int getVersion() { return format_version; }
+	unsigned int getVersion() const { return format_version; }
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
 	void dump_filters();
@@ -78,7 +78,6 @@ class PVXmlParamParser
 	axes_comb_t const& getAxesCombination() const { return _axes_combination; }
 
   private:
-	void setVersionFromRootNode(QDomElement const& node);
 	void pushFilter(const QDomElement& elt, int newId);
 	void parseFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromRootNode(QDomElement const& node);
@@ -89,7 +88,7 @@ class PVXmlParamParser
 
   private:
 	QList<PVXmlParamParserData> fields;
-	list_axes_t _axes;
+	QList<PVAxisFormat> _axes;
 	unsigned int format_version;
 	axes_comb_t _axes_combination;
 	size_t _first_line;

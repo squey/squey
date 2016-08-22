@@ -11,13 +11,6 @@
 #include <iostream>
 #include <string.h>
 
-void print_buffer(PVParallelView::PVHitGraphBuffer const& b)
-{
-	for (size_t i = 0; i < b.size_int(); i++) {
-		std::cout << i << "\t = " << b.buffer()[i] << " / " << b.buffer()[i] << std::endl;
-	}
-}
-
 void test_left_shift(PVParallelView::PVHitGraphBuffer const& b, uint32_t n)
 {
 	PVParallelView::PVHitGraphBuffer bshift(b.nbits(), b.nblocks());
