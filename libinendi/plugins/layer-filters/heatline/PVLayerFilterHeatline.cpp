@@ -59,6 +59,11 @@ PVCore::PVArgumentList Inendi::PVLayerFilterHeatline::get_default_args_for_view(
  *****************************************************************************/
 void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 {
+	// Nothing to do if selection is empty
+	if (in.get_selection().bit_count() == 0) {
+		return;
+	}
+
 	// Extract Nraw data
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
