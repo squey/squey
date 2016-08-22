@@ -187,6 +187,10 @@ double load_investigation()
 		PV_VALID(ref, plotting_values[i]);
 	}
 
+	PV_VALID(plotted->get_properties_for_col(0).get_mode(), std::string("enum"));
+	PV_VALID(plotted->get_col_max_row(0), 99999U);
+	PV_ASSERT_VALID(plotted->get_col_min_row(0) == 84163U or plotted->get_col_min_row(0) == 0U);
+
 	/**
 	 * Check view
 	 */

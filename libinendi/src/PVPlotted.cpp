@@ -229,8 +229,8 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 #pragma omp parallel
 	{
 		// Define thread local variables for local minmax extraction
-		uint32_t local_min = 0;
-		uint32_t local_max = PVPlotted::MAX_VALUE;
+		uint32_t local_min = PVPlotted::MAX_VALUE;
+		uint32_t local_max = 0;
 		PVRow local_min_col = 0;
 		PVRow local_max_col = 0;
 
@@ -256,7 +256,8 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 			if (local_min < vmin) {
 				vmin = local_min;
 				min = local_min_col;
-			} else if (local_max > vmax) {
+			}
+			if (local_max > vmax) {
 				vmax = local_max;
 				max = local_max_col;
 			}
