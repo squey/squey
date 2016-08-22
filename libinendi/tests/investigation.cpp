@@ -165,6 +165,12 @@ double load_investigation()
 		PV_VALID(ref, v);
 	}
 
+	PV_VALID(mapped->get_properties_for_col(0).get_mode(), std::string("default"));
+	auto const& minmax = mapped->get_properties_for_col(0).get_minmax();
+	auto core_minmax = minmax.to_core_array<uint32_t>();
+	PV_VALID(core_minmax[0], 0U);
+	PV_VALID(core_minmax[1], 90037U);
+
 	/**
 	 * Check plotteds
 	 */
