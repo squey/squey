@@ -508,7 +508,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 {
 	const QString& this_axis_type = lib_view().get_axes_combination().get_axis(col).get_type();
-	QStringList correlation_types = {"number_int32", "number_uint32", "ipv4"};
+	QStringList correlation_types = {"number_int32", "number_uint32", "ipv4", "mac_address"};
 
 	// Don't show correlation menu for unsupported axes types
 	if (not correlation_types.contains(this_axis_type)) {

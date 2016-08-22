@@ -285,6 +285,8 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 				formatter = "number_float";
 			} else if (axe_type == "ipv4") {
 				formatter = "ipv4";
+			} else if (axe_type == "mac_address") {
+				formatter = "mac_address";
 			} else {
 				throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
 			}
