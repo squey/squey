@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy.log";
+static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy_1bad.log";
 static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
 static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
 static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation.pvi";
@@ -23,6 +23,7 @@ static constexpr unsigned int dupl = 1;
 
 double save_investigation()
 {
+	// Check multiple sources in multipls scene
 	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
 	env.add_source(csv_file, csv_file_format, dupl, true);
 	env.add_source(csv_file2, csv_file_format, dupl, false);
@@ -30,23 +31,37 @@ double save_investigation()
 	size_t source_size = env.root.size<Inendi::PVSource>();
 	PV_VALID(source_size, 3UL);
 
+	// Check scene name saving
+	auto scenes = env.root.get_children<Inendi::PVScene>();
+	auto it2 = scenes.begin();
+	PV_VALID((*it2)->get_name(), std::string("scene"));
+	std::advance(it2, 1);
+	(*it2)->set_name("my  super name");
+	PV_VALID((*it2)->get_name(), std::string("my  super name"));
+
 	auto sources = env.root.get_children<Inendi::PVSource>();
 	auto it = sources.begin();
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxy_1bad.log"));
 	std::advance(it, 1);
 	PV_VALID((*it)->get_name(), std::string("proxy_mineset.log"));
 	std::advance(it, 1);
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxy_1bad.log"));
 
 	env.compute_mappings();
 	env.compute_plottings();
 	env.compute_views();
 
-	size_t mapped_size = env.root.size<Inendi::PVMapped>();
-	PV_VALID(mapped_size, 3UL);
+	auto mappeds = env.root.get_children<Inendi::PVMapped>();
+	PV_VALID(mappeds.size(), 3UL);
+	auto* mapped = mappeds.front();
+	mapped->set_name("other");
+	PV_VALID(mapped->get_name(), std::string("other"));
 
-	size_t plotted_size = env.root.size<Inendi::PVPlotted>();
-	PV_VALID(plotted_size, 3UL);
+	auto plotteds = env.root.get_children<Inendi::PVPlotted>();
+	PV_VALID(plotteds.size(), 3UL);
+	auto* plotted = plotteds.front();
+	plotted->set_name("my plotting name");
+	PV_VALID(plotted->get_name(), std::string("my plotting name"));
 
 	size_t view_size = env.root.size<Inendi::PVView>();
 	PV_VALID(view_size, 3UL);
@@ -100,18 +115,32 @@ double load_investigation()
 	std::chrono::duration<double> diff = end - start;
 
 	/**
+	 * Check scenes
+	 */
+	auto scenes = root.get_children<Inendi::PVScene>();
+	auto it2 = scenes.begin();
+	PV_VALID((*it2)->get_name(), std::string("scene"));
+	std::advance(it2, 1);
+	PV_VALID((*it2)->get_name(), std::string("my  super name"));
+
+	/**
 	 * Check sources
 	 */
 	auto sources = root.get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 3UL);
 	auto source = sources.front();
+	PV_VALID(source->get_invalid_evts().size(), 1UL);
+	PV_VALID(source->get_invalid_evts().begin()->first, 0UL);
+	PV_VALID(source->get_invalid_evts().begin()->second,
+	         std::string("343,10.107.73.75,TCP_CLIENT_REFRESH_MISS,200,4420,GET,http,updates,"
+	                     "updates.copernic.com,copernic.com,com,80,5986,application/octet-stream"));
 
 	auto it = sources.begin();
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxy_1bad.log"));
 	std::advance(it, 1);
 	PV_VALID((*it)->get_name(), std::string("proxy_mineset.log"));
 	std::advance(it, 1);
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxy_1bad.log"));
 
 	const PVRow row_count = source->get_row_count();
 	PV_VALID(row_count, ROW_COUNT * dupl);
@@ -119,14 +148,19 @@ double load_investigation()
 	/**
 	 * Check mappeds
 	 */
-	size_t mapped_size = root.size<Inendi::PVMapped>();
-	PV_VALID(mapped_size, 3UL);
+	auto mappeds = root.get_children<Inendi::PVMapped>();
+	PV_VALID(mappeds.size(), 3UL);
+	auto* mapped = mappeds.front();
+
+	PV_VALID(mapped->get_name(), std::string("other"));
 
 	/**
 	 * Check plotteds
 	 */
-	size_t plotted_size = root.size<Inendi::PVPlotted>();
-	PV_VALID(plotted_size, 3UL);
+	auto plotteds = root.get_children<Inendi::PVPlotted>();
+	PV_VALID(plotteds.size(), 3UL);
+	auto* plotted = plotteds.front();
+	PV_VALID(plotted->get_name(), std::string("my plotting name"));
 
 	/**
 	 * Check view
@@ -194,7 +228,9 @@ int main()
 	PVRush::PVNrawCacheManager::get().remove_nraws_from_investigation(INVESTIGATION_PATH);
 
 	// Recheck loading without cache
-	load_investigation();
+	double loading_time_from_file = load_investigation();
+
+	PV_ASSERT_VALID(loading_time < loading_time_from_file);
 
 	return 0;
 }

@@ -224,7 +224,7 @@ class TestEnv
 		    (new_scene) ? &root.emplace_add_child("scene") : root.get_children().front();
 		Inendi::PVSource& src = scene->emplace_add_child(inputs, sc_file, format);
 		PVRush::PVControllerJob_p job = src.extract(0);
-		job->wait_end();
+		src.wait_extract_end(job);
 		return src;
 	}
 
