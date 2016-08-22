@@ -14,6 +14,8 @@ static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy_1bad.log";
 static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
 static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
 static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation.pvi";
+static constexpr const char* ref_mapped_file = TEST_FOLDER "/picviz/ref_mapped";
+static constexpr const char* ref_plotted_file = TEST_FOLDER "/picviz/ref_plotted";
 static constexpr unsigned int ROW_COUNT = 100000;
 #ifdef INSPECTOR_BENCH
 static constexpr unsigned int dupl = 200;
@@ -154,13 +156,30 @@ double load_investigation()
 
 	PV_VALID(mapped->get_name(), std::string("other"));
 
+	pvcop::db::array const& mapping_values = mapped->get_column(0);
+	auto mapping = mapping_values.to_core_array<uint32_t>();
+	std::ifstream ref_stream(ref_mapped_file);
+	for (uint32_t v : mapping) {
+		uint32_t ref;
+		ref_stream >> ref;
+		PV_VALID(ref, v);
+	}
+
 	/**
 	 * Check plotteds
 	 */
 	auto plotteds = root.get_children<Inendi::PVPlotted>();
 	PV_VALID(plotteds.size(), 3UL);
-	auto* plotted = plotteds.front();
+	auto const* plotted = plotteds.front();
 	PV_VALID(plotted->get_name(), std::string("my plotting name"));
+
+	uint32_t const* plotting_values = plotted->get_column_pointer(0);
+	std::ifstream ref_plotted_stream(ref_plotted_file);
+	for (size_t i = 0; i < plotted->get_row_count(); i++) {
+		uint32_t ref;
+		ref_plotted_stream >> ref;
+		PV_VALID(ref, plotting_values[i]);
+	}
 
 	/**
 	 * Check view

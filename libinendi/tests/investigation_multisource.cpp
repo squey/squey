@@ -102,7 +102,6 @@ double load_investigation()
 	 */
 	auto sources = root.get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 2UL);
-	auto source = sources.front();
 
 	auto it = sources.begin();
 	PV_VALID((*it)->get_name(), std::string("proxy.log"));
