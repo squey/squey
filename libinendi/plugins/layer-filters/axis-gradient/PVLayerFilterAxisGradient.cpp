@@ -49,7 +49,6 @@ void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer& o
 
 	PVCore::PVHSVColor color;
 
-	// const PVSource* source = _view.get_source_parent();
 	const PVPlotted& plotted = _view->get_parent<PVPlotted>();
 	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 

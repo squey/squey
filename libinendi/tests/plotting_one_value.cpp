@@ -23,7 +23,7 @@ int main()
 {
 	pvtest::TestEnv env(csv_file, csv_file_format, 1, pvtest::ProcessUntil::Mapped);
 
-	Inendi::PVPlotted::uint_plotted_table_t& plotted_table =
+	Inendi::PVPlotted::uint_plotted_table_t const& plotted_table =
 	    env.compute_plotting().get_uint_plotted();
 
 	// Check mapping is the same as NRaw value.

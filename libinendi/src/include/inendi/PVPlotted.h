@@ -38,10 +38,6 @@ class PVSource;
 class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
                   public PVCore::PVDataTreeParent<PVView, PVPlotted>
 {
-	friend class PVCore::PVSerializeObject;
-	friend class PVMapped;
-	friend class PVSource;
-
   public:
 	using value_type = uint32_t;
 	static constexpr value_type MAX_VALUE = std::numeric_limits<value_type>::max();
@@ -67,7 +63,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
   public:
 	~PVPlotted();
 
-  protected:
+  public:
 	// Serialization
 	void serialize_write(PVCore::PVSerializeObject& so);
 	static Inendi::PVPlotted& serialize_read(PVCore::PVSerializeObject& so,
@@ -94,7 +90,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;
 
-	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
 	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
 
 	PVPlottingProperties const& get_properties_for_col(PVCol col) const
@@ -144,12 +139,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	 */
 	inline PVRow get_aligned_row_count() const { return get_aligned_row_count(get_row_count()); }
 
-	PVSource* get_source_parent();
 	inline uint32_t const* get_column_pointer(PVCol const j) const
-	{
-		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
-	}
-	inline uint32_t* get_column_pointer(PVCol const j)
 	{
 		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
 	}
@@ -209,6 +199,12 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	                        const PVCore::PVColumnIndexes& col_indexes,
 	                        const std::string sep_char,
 	                        const std::string) const;
+
+  private:
+	inline uint32_t* get_column_pointer(PVCol const j)
+	{
+		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
+	}
 
   protected:
 	virtual QString get_children_description() const { return "View(s)"; }
