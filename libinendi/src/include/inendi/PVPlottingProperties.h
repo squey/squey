@@ -26,8 +26,8 @@ class PVPlottingProperties
 {
   public:
 	PVPlottingProperties(PVRush::PVFormat const& fmt, PVCol idx);
-	PVPlottingProperties(PVRush::PVAxisFormat const& axis, PVCol idx);
-	PVPlottingProperties(std::string const& mode, PVCore::PVArgumentList args, PVCol idx);
+	PVPlottingProperties(PVRush::PVAxisFormat const& axis);
+	PVPlottingProperties(std::string const& mode, PVCore::PVArgumentList args);
 
   public:
 	// For PVPlotting
@@ -51,7 +51,6 @@ class PVPlottingProperties
 
   private:
 	std::string _mode;
-	PVCol _index;
 	PVPlottingFilter::p_type _plotting_filter;
 	PVCore::PVArgumentList _args;
 	bool _is_uptodate = false;
