@@ -259,10 +259,11 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
 		try {
 			PVRush::PVSourceDescription src_desc = deserialize_source_description();
 			if (source_description == src_desc) {
+				_recents_settings.endGroup();
 				return source_timestamp.toULong();
 			}
 		} catch (PVCore::InvalidPlugin const& e) {
-			// If the plugin is invlaid, it can't be the searched one source.
+			// If the plugin is invalid, it can't be the searched as a source to replace.
 		}
 
 		_recents_settings.endGroup();
