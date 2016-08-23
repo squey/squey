@@ -12,17 +12,10 @@
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVConverter.h>
+#include <pvkernel/rush/PVUnicodeSourceError.h>
 
 namespace PVRush
 {
-
-/**
- * Exception throw from error with Unicode Source.
- */
-class UnicodeSourceError : public std::runtime_error
-{
-	using std::runtime_error::runtime_error;
-};
 
 /**
  * Exception thrown by Unicode Source when the conversion result

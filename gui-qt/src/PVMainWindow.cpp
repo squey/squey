@@ -31,6 +31,7 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
+#include <pvkernel/rush/PVUnicodeSourceError.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
 
@@ -1084,6 +1085,10 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	} catch (PVRush::PVInputException const& e) {
 		QMessageBox::critical(this, "Cannot create sources",
 		                      QString("Error with input: ") + e.what());
+		return false;
+	} catch (PVRush::UnicodeSourceError const&) {
+		QMessageBox::critical(this, "Cannot create sources",
+		                      "File encoding does permit Inspector to perform extraction.");
 		return false;
 	}
 
