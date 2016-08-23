@@ -53,18 +53,7 @@ set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
-
-# as we want to separate Boost's Python library path to others Boost libraries,
-# we do the detection in 2 steps : one for all needed modules except python, one other for python
 find_package(Boost 1.49 REQUIRED COMPONENTS date_time system thread program_options)
-# a little backup of $Boost_LIBRARIES because the second detection will overwrite it
-set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
-
-find_package(Boost 1.49 COMPONENTS python-py27)
-set(Boost_LIBRARIES_PYTHON ${Boost_LIBRARIES})
-
-# and a little restoration
-set(Boost_LIBRARIES ${Boost_LIBRARIES_SAVE})
 
 message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
 include_directories(AFTER ${BOOST_INCLUDEDIR})
@@ -151,25 +140,6 @@ endif(ICU_FOUND)
 # Check for CURL
 ###############################################################################
 find_package(CURL "7.38.0" REQUIRED)
-
-###############################################################################
-# Check for Perl support
-###############################################################################
-find_package(PerlLibs REQUIRED)
-
-###############################################################################
-# Check for Python support
-# TODO : Check if it is found?
-###############################################################################
-# TODO: check that the good python version is found (the 3.2)
-# We also need to check that these packages are installed:
-#  * python3.2-dev
-#  * libpython3.2
-set(Python_ADDITIONAL_VERSIONS 2.7)
-find_package(PythonLibs)
-if(PYTHONLIBS_FOUND)
-	add_definitions(-DENABLE_PYTHON_SUPPORT)
-endif(PYTHONLIBS_FOUND)
 
 ################################################################################
 ## Check for Hwloc installation

@@ -25,7 +25,7 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
     , _force_naxes(0)
 {
 	for (auto const& input : inputs) {
-		_agg.add_input(src_plugin->create_source_from_input(input, _format));
+		_agg.add_input(src_plugin->create_source_from_input(input));
 	}
 	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
 	 * number of used cores (it was previously set to 5 * cores_number): That multiplier

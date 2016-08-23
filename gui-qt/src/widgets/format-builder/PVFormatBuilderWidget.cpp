@@ -743,7 +743,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 					_log_sc = sc;
 					// The moni-extractor use the discovery source, as not that much processing is
 					// done (it can be handle locally for instance !)
-					_log_source = _log_sc->create_source_from_input(_log_input, format);
+					_log_source = _log_sc->create_source_from_input(_log_input);
 				} catch (PVRush::PVFormatInvalid& e) {
 					_log_sc.reset();
 					continue;

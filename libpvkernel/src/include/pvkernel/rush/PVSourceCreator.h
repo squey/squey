@@ -30,8 +30,7 @@ class PVSourceCreator : public PVCore::PVRegistrableClass<PVSourceCreator>
 	virtual ~PVSourceCreator() {}
 
   public:
-	virtual source_p create_source_from_input(PVInputDescription_p input,
-	                                          const PVFormat& format) const = 0;
+	virtual source_p create_source_from_input(PVInputDescription_p input) const = 0;
 	virtual QString supported_type() const = 0;
 	PVInputType_p supported_type_lib()
 	{

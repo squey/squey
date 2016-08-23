@@ -10,8 +10,7 @@
 #include "../../common/database/PVDBQuery.h"
 
 PVRush::PVSourceCreatorDatabase::source_p
-PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p input,
-                                                          const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p input) const
 {
 	PVDBQuery* query = dynamic_cast<PVDBQuery*>(input.get());
 	assert(query);

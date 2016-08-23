@@ -252,10 +252,6 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 
 				// Save this format/creator pair to the "format_creator" object
 				ctxt.format_creator[it_cus_f.key()] = v;
-
-				// We don't want to override text format type with Python or Perl
-				if (src_creator->name() == "text")
-					break;
 			}
 		}
 
@@ -583,10 +579,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 				PVRush::hash_format_creator::mapped_type v(it.value(), src_creator);
 				// Save this format/creator pair to the "format_creator" object
 				format_creator[it.key()] = v;
-
-				// We don't want to override text format type with Python or Perl
-				if (src_creator->name() == "text")
-					break;
 			}
 		}
 	}
@@ -657,9 +649,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
 					PVRush::hash_format_creator::mapped_type v(hf_it.value(), *src_cr_it);
 					format_creator[hf_it.key()] = v;
-					// We don't want to override text format type with Python or Perl
-					if ((*src_cr_it)->name() == "text")
-						break;
 				}
 			}
 		}
@@ -692,9 +681,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
 				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
 				format_creator[format_name] = v;
-				// We don't want to override text format type with Python or Perl
-				if ((*src_cr_it)->name() == "text")
-					break;
 			}
 
 			if (fi.isReadable()) {
@@ -951,9 +937,6 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 			PVRush::hash_format_creator::mapped_type v(new_format, src_creator);
 			// Save this format/creator pair to the "format_creator" object
 			format_creator["custom:arg"] = v;
-			// We don't want to override text format type with Python or Perl
-			if (src_creator->name() == "text")
-				break;
 		}
 		format = "custom:arg";
 	} else {

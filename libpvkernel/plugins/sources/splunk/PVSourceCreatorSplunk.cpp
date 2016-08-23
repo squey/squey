@@ -9,8 +9,7 @@
 #include "PVSplunkSource.h"
 
 PVRush::PVSourceCreatorSplunk::source_p
-PVRush::PVSourceCreatorSplunk::create_source_from_input(PVInputDescription_p input,
-                                                        const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorSplunk::create_source_from_input(PVInputDescription_p input) const
 {
 	source_p src(new PVRush::PVSplunkSource(input));
 
