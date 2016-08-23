@@ -112,6 +112,13 @@ int main()
 		uint8_t to_check = v[distribution(generator)];
 		check_line_validity(out, to_check);
 	}
+
+	// Check that we don't crash if the selection is empty
+	Inendi::PVLayer empty_layer("empty_layer", view->get_row_count());
+	Inendi::PVSelection empty_sel(view->get_row_count());
+	empty_sel.select_none();
+	empty_layer.get_selection() = empty_sel;
+	fclone->operator()(empty_layer);
 #endif
 
 	return 0;
