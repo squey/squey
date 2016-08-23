@@ -11,6 +11,7 @@
 #include <sigc++/sigc++.h>
 
 #include <thread>
+#include <unordered_map>
 
 #include <QApplication>
 #include <QClipboard>

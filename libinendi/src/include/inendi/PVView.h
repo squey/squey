@@ -19,7 +19,6 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVLinesProperties.h>
 #include <inendi/PVAxesCombination.h>
@@ -279,20 +278,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 */
 	std::string get_data(PVRow row, PVCol column) const;
 
-	/**
-	 * Gets the data directly from nraw, without #PVAxesCombination
-	 *
-	 * @param row The row number
-	 * @param column The column number
-	 *
-	 * @return a string containing wanted data
-	 *
-	 */
-	std::string get_data_raw(PVRow row, PVCol column) const
-	{
-		return get_rushnraw_parent().at_string(row, column);
-	}
-
 	void commit_volatile_in_floating_selection();
 
 	/***********
@@ -324,16 +309,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	******************************************************************************
 	*****************************************************************************/
 
-	PVRush::PVNraw& get_rushnraw_parent()
-	{
-		assert(_rushnraw_parent);
-		return *_rushnraw_parent;
-	};
-	PVRush::PVNraw const& get_rushnraw_parent() const
-	{
-		assert(_rushnraw_parent);
-		return *_rushnraw_parent;
-	};
+	PVRush::PVNraw& get_rushnraw_parent();
+	PVRush::PVNraw const& get_rushnraw_parent() const;
 
 	PVCol get_real_axis_index(PVCol col) const;
 
@@ -393,7 +370,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
-	PVRush::PVNraw* _rushnraw_parent = nullptr; //!< Pointer to the NRaw from source.
 	id_t _view_id;
 	PVCol _active_axis;
 	QColor _color;
