@@ -73,11 +73,6 @@ void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	_extractor.release_inputs();
 }
 
-void Inendi::PVSource::load_from_disk(std::string const& nraw_folder)
-{
-	_nraw.load_from_disk(nraw_folder);
-}
-
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()
 {
 	return _nraw;
@@ -160,8 +155,8 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	QString src_name = _src_plugin->registered_name();
 	so.attribute("source-plugin", src_name);
 
-	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
-	so.attribute("nraw_path", nraw_path);
+	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", true, true);
+	_nraw.serialize_write(*nraw_obj);
 
 	// Save the format
 	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
@@ -246,21 +241,12 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 
 	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format);
 
-	QString nraw_folder;
-	so.attribute("nraw_path", nraw_folder, QString());
-
-	if (not nraw_folder.isEmpty()) {
-		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() +
-		                              QDir(nraw_folder).dirName();
-		QFileInfo fi(user_based_nraw_dir);
-		if (fi.exists() and fi.isDir()) {
-			nraw_folder = user_based_nraw_dir;
-		} else {
-			nraw_folder = QString();
-		}
+	try {
+		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", true, true);
+		source._nraw = std::move(PVRush::PVNraw::serialize_read(*nraw_obj));
+	} catch (PVRush::NrawLoadingFail const& e) {
+		source.load_data();
 	}
-
-	source.load_data(nraw_folder.toStdString());
 
 	// Serialize invalid elements.
 	if (source._inv_elts.empty()) { // Otherwise it is already known from loading.

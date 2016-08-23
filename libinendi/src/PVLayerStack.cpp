@@ -313,9 +313,8 @@ void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so,
 		for (PVLayer& layer : _table) {
 			QString child_name = QString::number(idx++);
 			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name, "", false);
-			layer.serialize(*new_obj, so.get_version());
-			new_obj->_bound_obj = &layer;
-			new_obj->_bound_obj_type = typeid(Inendi::PVLayer);
+			layer.serialize_write(*new_obj);
+			new_obj->set_bound_obj(layer);
 		}
 	} else {
 		try {
@@ -323,15 +322,9 @@ void Inendi::PVLayerStack::serialize(PVCore::PVSerializeObject& so,
 			while (true) {
 				// FIXME It throws when there are no more data collections.
 				// It should not be an exception as it is a normal behavior.
-				PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				QString name;
-				new_obj->attribute("name", name);
-				PVLayer layer(name, _layer_size);
-				layer.serialize(*new_obj, so.get_version());
-				new_obj->_bound_obj = &layer;
-				new_obj->_bound_obj_type = typeid(PVLayer);
-				_table.append(layer);
-				idx++;
+				PVCore::PVSerializeObject_p new_obj =
+				    list_obj->create_object(QString::number(idx++));
+				_table.append(PVLayer::serialize_read(*new_obj));
 			}
 		} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
 			return;

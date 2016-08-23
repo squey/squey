@@ -92,7 +92,8 @@ class PVLayer
 		name.truncate(INENDI_LAYER_NAME_MAXLEN);
 	}
 	void set_visible(bool visible_) { visible = visible_; }
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static Inendi::PVLayer serialize_read(PVCore::PVSerializeObject& so);
 };
 }
 

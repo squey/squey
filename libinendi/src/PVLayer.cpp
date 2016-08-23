@@ -117,13 +117,41 @@ bool Inendi::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
 	return true;
 }
 
-void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so,
-                                PVCore::PVSerializeArchive::version_t /*v*/)
+void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so)
 {
-	so.object("selection", selection, "selection", true, (PVSelection*)nullptr, false);
+	auto sel_obj = so.create_object("selection", "selection", true, true);
+	selection.serialize_write(*sel_obj);
 	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)nullptr, false);
 	so.attribute("name", name);
 	so.attribute("visible", visible);
 	so.attribute("index", index);
 	so.attribute("locked", _locked);
+}
+
+Inendi::PVLayer Inendi::PVLayer::serialize_read(PVCore::PVSerializeObject& so)
+{
+	QString name;
+	so.attribute("name", name);
+
+	auto sel_obj = so.create_object("selection", "selection", true, true);
+	Inendi::PVSelection sel(Inendi::PVSelection::serialize_read(*sel_obj));
+
+	Inendi::PVLinesProperties lines_properties(sel.count());
+	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)nullptr, false);
+
+	Inendi::PVLayer layer(name, sel, lines_properties);
+	bool visible;
+	so.attribute("visible", visible);
+	layer.set_visible(visible);
+
+	int index;
+	so.attribute("index", index);
+	layer.set_index(index);
+
+	bool locked;
+	so.attribute("locked", locked);
+	if (locked) {
+		layer.set_lock();
+	}
+	return layer;
 }

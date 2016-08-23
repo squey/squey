@@ -460,8 +460,9 @@ class PVSelBitField
 		}
 	}
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
+  public:
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static PVCore::PVSelBitField serialize_read(PVCore::PVSerializeObject& so);
 
   protected:
 	pvcop::core::memarray<bool> _selection;

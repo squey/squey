@@ -234,3 +234,108 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 
 	return line;
 }
+
+void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
+{
+	QString nraw_path = QString::fromStdString(collection().rootdir());
+	so.attribute("nraw_path", nraw_path);
+
+	int vec = _valid_elements_count;
+	so.attribute("valid_count", vec);
+
+	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts", "valid_elts", true, true);
+	_valid_rows_sel.serialize_write(*sel_obj);
+
+	// Serialiaze invalide value
+	int idx = 0;
+	auto const& bad_values = _unconvertable_values.bad_conversions();
+	int bad_conv_row_count = bad_values.size();
+	so.attribute_write("bad_conv/row_count", bad_conv_row_count);
+	for (auto const& bad_value : bad_values) {
+		so.attribute_write("bad_conv/" + QString::number(idx) + "/row", bad_value.first);
+		auto const& bad_cols = bad_value.second;
+		int bad_conv_col_count = bad_cols.size();
+		so.attribute_write("bad_conv/" + QString::number(idx) + "/col_count", bad_conv_col_count);
+		int idx_col = 0;
+		for (auto const& bad_col : bad_cols) {
+			so.attribute_write("bad_conv/" + QString::number(idx) + "/" + QString::number(idx_col) +
+			                       "/col",
+			                   bad_col.first);
+			QString value = QString::fromStdString(bad_col.second);
+			so.attribute_write("bad_conv/" + QString::number(idx) + "/" + QString::number(idx_col) +
+			                       "/value",
+			                   value);
+			idx_col++;
+		}
+		idx++;
+	}
+
+	idx = 0;
+	auto const& empty_values = _unconvertable_values.empty_conversions();
+	int empty_conv_row_count = empty_values.size();
+	so.attribute_write("empty_conv/row_count", empty_conv_row_count);
+	for (auto const& empty_value : empty_values) {
+		so.attribute_write("empty_conv/" + QString::number(idx) + "/row", empty_value.first);
+		auto const& empty_cols = empty_value.second;
+		int empty_conv_col_count = empty_cols.size();
+		so.attribute_write("empty_conv/" + QString::number(idx) + "/col_count",
+		                   empty_conv_col_count);
+		int idx_col = 0;
+		for (auto const& empty_col : empty_cols) {
+			so.attribute_write("empty_conv/" + QString::number(idx) + "/" +
+			                       QString::number(idx_col++) + "/col",
+			                   empty_col);
+		}
+		idx++;
+	}
+}
+
+PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
+{
+	PVRush::PVNraw nraw;
+	QString nraw_folder;
+	so.attribute("nraw_path", nraw_folder, QString());
+	nraw_folder =
+	    PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QDir(nraw_folder).dirName();
+	nraw.load_from_disk(nraw_folder.toStdString());
+
+	int vec;
+	so.attribute("valid_count", vec);
+	nraw._valid_elements_count = vec;
+	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts", "valid_elts", true, true);
+	nraw._valid_rows_sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
+
+	// Serialiaze invalide value
+	int bad_conv_row_count;
+	so.attribute("bad_conv/row_count", bad_conv_row_count);
+	for (int i = 0; i < bad_conv_row_count; i++) {
+		int row;
+		so.attribute("bad_conv/" + QString::number(i) + "/row", row);
+		int bad_conv_col_count;
+		so.attribute("bad_conv/" + QString::number(i) + "/col_count", bad_conv_col_count);
+		for (int j = 0; j < bad_conv_col_count; j++) {
+			int col;
+			so.attribute("bad_conv/" + QString::number(i) + "/" + QString::number(j) + "/col", col);
+			QString value;
+			so.attribute("bad_conv/" + QString::number(i) + "/" + QString::number(j) + "/value",
+			             value);
+			nraw._unconvertable_values.add(row, col, value.toStdString());
+		}
+	}
+
+	int empty_conv_row_count;
+	so.attribute("empty_conv/row_count", empty_conv_row_count);
+	for (int i = 0; i < empty_conv_row_count; i++) {
+		int row;
+		so.attribute("empty_conv/" + QString::number(i) + "/row", row);
+		int empty_conv_col_count;
+		so.attribute("empty_conv/" + QString::number(i) + "/col_count", empty_conv_col_count);
+		for (int j = 0; j < empty_conv_col_count; j++) {
+			int col;
+			so.attribute("empty_conv/" + QString::number(i) + "/" + QString::number(j) + "/col",
+			             col);
+			nraw._unconvertable_values.add(row, col, "");
+		}
+	}
+	return nraw;
+}

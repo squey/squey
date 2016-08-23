@@ -233,8 +233,9 @@ class PVSerializeObject
 	                     bool def_option = true);
 	uint32_t get_version() const;
 
-  private:
 	void attribute_write(QString const& name, QVariant const& obj);
+
+  private:
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);

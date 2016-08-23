@@ -69,8 +69,26 @@ class PVNraw
 	 */
 	PVNraw& operator=(const PVNraw&) = delete;
 	PVNraw(const PVNraw&) = delete;
-	PVNraw& operator=(PVNraw&&) = delete;
-	PVNraw(PVNraw&&) = delete;
+	PVNraw(PVNraw&& other)
+	    : _collection(std::move(other._collection))
+	    , _unconvertable_values(std::move(other._unconvertable_values))
+	    , _valid_rows_sel(std::move(other._valid_rows_sel))
+	    , _valid_elements_count(other._valid_elements_count)
+	{
+		assert(not other._collector);
+	}
+
+	PVNraw& operator=(PVNraw&& other)
+	{
+		_collection = std::move(other._collection);
+		_unconvertable_values = std::move(other._unconvertable_values);
+		_valid_rows_sel = std::move(other._valid_rows_sel);
+		_valid_elements_count = other._valid_elements_count;
+
+		assert(not other._collector);
+		assert(not _collector);
+		return *this;
+	}
 
 	/**
 	 * Access layout of the NRaw.
@@ -162,6 +180,9 @@ class PVNraw
 	 * Create a NRaw from and NRaw folder on HDD.
 	 */
 	void load_from_disk(const std::string& nraw_folder);
+
+	static PVNraw serialize_read(PVCore::PVSerializeObject& obj);
+	void serialize_write(PVCore::PVSerializeObject& so);
 
   private:
 	/// Variable usefull for reading

@@ -148,6 +148,24 @@ double load_investigation()
 	PV_VALID(row_count, ROW_COUNT * dupl);
 
 	/**
+	 * Check Nraw
+	 */
+	PVRush::PVNraw const& nraw = source->get_rushnraw();
+	PV_VALID(nraw.valid_rows_sel().bit_count(), size_t(ROW_COUNT - 1));
+	PV_VALID(nraw.valid_rows_sel().count(), ROW_COUNT);
+	PV_VALID(nraw.valid_rows_sel().get_line(0), false);
+	PV_VALID(nraw.get_valid_row_count(), size_t(ROW_COUNT - 1));
+
+	PV_VALID(nraw.unconvertable_values().bad_conversions().size(), 1UL);
+	PV_VALID(nraw.unconvertable_values().bad_conversions().at(24).at(2), std::string("toto"));
+
+	PV_VALID(nraw.unconvertable_values().empty_conversions().size(), 2UL);
+	auto line12 = nraw.unconvertable_values().empty_conversions().at(12);
+	PV_ASSERT_VALID(line12.find(2) != line12.end());
+	auto line13 = nraw.unconvertable_values().empty_conversions().at(13);
+	PV_ASSERT_VALID(line13.find(2) != line13.end());
+
+	/**
 	 * Check mappeds
 	 */
 	auto mappeds = root.get_children<Inendi::PVMapped>();
@@ -257,9 +275,7 @@ int main()
 	PVRush::PVNrawCacheManager::get().remove_nraws_from_investigation(INVESTIGATION_PATH);
 
 	// Recheck loading without cache
-	double loading_time_from_file = load_investigation();
-
-	PV_ASSERT_VALID(loading_time < loading_time_from_file);
+	load_investigation();
 
 	return 0;
 }

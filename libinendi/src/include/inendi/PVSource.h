@@ -48,28 +48,8 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	~PVSource();
 
   public:
-	void load_data(std::string const& nraw_folder)
-	{
-		// Try to load nraw from folder if folder looks to be a possible entry.
-		// If load can't be done, do an import from input file.
-		// If it is an other error, forward it, we will not handle it here.
-		if (nraw_folder != "") {
-			try {
-				load_from_disk(nraw_folder);
-				return;
-			} catch (PVRush::NrawLoadingFail const& e) {
-				// Nraw folder is corrupted, keep going trying another import.
-			}
-		}
+	void load_data() { wait_extract_end(extract(0)); }
 
-		// If the nraw can't be find, try an import from source file and format.
-		// Extract the source
-
-		PVRush::PVControllerJob_p job_import;
-		job_import = extract(0);
-
-		wait_extract_end(job_import);
-	}
 	/* Functions */
 	PVCol get_column_count() const;
 
@@ -112,8 +92,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	 */
 	PVRush::PVControllerJob_p extract(size_t skip_lines_count);
 	void wait_extract_end(PVRush::PVControllerJob_p job);
-
-	void load_from_disk(std::string const& nraw_folder);
 
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
