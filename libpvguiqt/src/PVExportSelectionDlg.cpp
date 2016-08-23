@@ -261,6 +261,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 				    break;
 			    }
 			    step_count = std::min(step_count, nrows - start);
+			    exp.set_step_count(step_count);
 			    exp.export_rows(start);
 			    start += step_count;
 			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CONTINUE) {
