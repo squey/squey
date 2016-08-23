@@ -38,6 +38,8 @@ class PVExporter
 
 	void export_rows(size_t start_index);
 
+	void set_step_count(PVRow step) { _step_count = step; }
+
   private:
 	std::ostream& _os;
 	const PVCore::PVSelBitField& _sel;
