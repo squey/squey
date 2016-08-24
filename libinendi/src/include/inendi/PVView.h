@@ -158,12 +158,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	PVRow get_row_count() const;
 
-	int move_active_axis_closest_to_position(float x);
-	PVCol get_active_axis_closest_to_position(float x);
-
-	void set_active_axis_closest_to_position(float x);
-	void set_axis_name(PVCol index, const QString& name_);
-
 	void set_color_on_active_layer(const PVCore::PVHSVColor c);
 
 	void set_layer_stack_layer_n_name(int n, QString const& name);

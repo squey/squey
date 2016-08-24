@@ -159,7 +159,7 @@ class PVXmlDomModel : public QAbstractItemModel
 
 	PVRush::types_groups_t& getGroups() { return _groups; }
 
-	Inendi::PVAxesCombination& get_axes_combination() { return _axes_combination; }
+	Inendi::PVAxesCombination& get_axes_combination() { return *_axes_combination; }
 
   private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
@@ -179,7 +179,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
 	PVRush::types_groups_t _groups;
 
-	Inendi::PVAxesCombination _axes_combination;
+	std::unique_ptr<Inendi::PVAxesCombination> _axes_combination;
 
   public Q_SLOTS:
 	void saveDefault();

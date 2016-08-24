@@ -18,11 +18,6 @@
 #include <pvcop/collector.h>
 #include <pvcop/types/exception/partially_converted_chunk_error.h>
 
-namespace Inendi
-{
-class PVAxesCombination;
-}
-
 namespace PVCore
 {
 class PVSelBitField;
