@@ -364,7 +364,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	inendi_view->update_current_layer_min_max();
 	inendi_view->compute_selectable_count(layer);
 	// and to update the layer-stack
-	inendi_view->process_from_layer_stack();
+	inendi_view->process_layer_stack();
 }
 
 /******************************************************************************
@@ -401,7 +401,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		// do not forget to update the current layer
 		inendi_view->compute_selectable_count(current_layer);
 
-		inendi_view->process_from_layer_stack();
+		inendi_view->process_layer_stack();
 	}
 }
 
@@ -1242,14 +1242,14 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	/* We let the user select a color */
-	PVWidgets::PVColorDialog* pv_ColorDialog = new PVWidgets::PVColorDialog(this);
-	if (pv_ColorDialog->exec() != QDialog::Accepted) {
+	PVWidgets::PVColorDialog dial;
+	if (dial.exec() != QDialog::Accepted) {
 		return;
 	}
-	PVCore::PVHSVColor color = pv_ColorDialog->color();
+
+	PVCore::PVHSVColor color = dial.color();
 
 	inendi_view->set_color_on_active_layer(color);
-	inendi_view->process_from_layer_stack();
 }
 
 /******************************************************************************

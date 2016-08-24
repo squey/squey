@@ -98,11 +98,6 @@ void Inendi::PVMapped::compute()
 		get_properties_for_col(j).set_uptodate();
 		invalidate_plotted_children_column(j);
 	}
-
-	// force plotteds updates (in case of .pvi load)
-	for (auto* plotted : get_children()) {
-		plotted->finish_process_from_rush_pipeline();
-	}
 }
 
 /******************************************************************************

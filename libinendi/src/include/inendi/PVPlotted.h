@@ -81,11 +81,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 
 	std::string get_serialize_description() const override { return "Plotting: " + get_name(); }
 
-	/**
-	 * do any process after a mapped load
-	 */
-	void finish_process_from_rush_pipeline();
-
   public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;

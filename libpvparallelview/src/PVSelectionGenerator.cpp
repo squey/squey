@@ -589,5 +589,5 @@ void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView& vie
 	/* Commit the previous volatile selection */
 	view_sp.commit_volatile_in_floating_selection();
 
-	view_sp.process_real_output_selection();
+	view_sp.process_post_filter_layer();
 }

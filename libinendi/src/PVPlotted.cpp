@@ -283,13 +283,6 @@ void Inendi::PVPlotted::update_plotting()
 	_plotted_updated.emit();
 }
 
-void Inendi::PVPlotted::finish_process_from_rush_pipeline()
-{
-	for (auto view : get_children()) {
-		view->finish_process_from_rush_pipeline();
-	}
-}
-
 QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 {
 	QList<PVCol> ret;

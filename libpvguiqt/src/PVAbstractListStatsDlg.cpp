@@ -771,7 +771,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	lib_view()->update_current_layer_min_max();
 	lib_view()->compute_selectable_count(layer);
 	// and to update the layer-stack
-	lib_view()->process_from_layer_stack();
+	lib_view()->process_layer_stack();
 
 	if (mode != PVWidgets::PVLayerNamingPatternDialog::ON_TOP) {
 		int insert_pos;
@@ -789,7 +789,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 	lib_view()->get_volatile_selection() = old_sel;
 	lib_view()->commit_volatile_in_floating_selection();
-	lib_view()->process_real_output_selection();
+	lib_view()->process_post_filter_layer();
 }
 
 /******************************************************************************
@@ -892,12 +892,12 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		ls.set_selected_layer_index(old_selected_layer_index);
 		lib_view()->get_volatile_selection() = old_sel;
 		lib_view()->commit_volatile_in_floating_selection();
-		lib_view()->process_real_output_selection();
+		lib_view()->process_post_filter_layer();
 		++offset;
 	});
 
 	// we can update the layer-stack once all layers have been created
-	lib_view()->process_from_layer_stack();
+	lib_view()->process_layer_stack();
 }
 
 /******************************************************************************

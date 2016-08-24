@@ -81,7 +81,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 *
 	 */
 	const QString& get_axis_name(PVCol index) const;
-	QString get_axis_type(PVCol index) const;
 	PVAxis const& get_axis(PVCol const comb_index) const;
 	PVAxis const& get_axis_by_id(axes_comb_id_t const axes_comb_id) const;
 	bool is_last_axis(axes_comb_id_t const axes_comb_id) const
@@ -133,13 +132,10 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	bool get_line_state_in_output_layer(PVRow index) const;
 	PVSelection const& get_selection_visible_listing() const;
 
-	int get_number_of_selected_lines() const;
-
 	inline id_t get_display_view_id() const { return _view_id + 1; }
 
 	PVCol get_original_axes_count() const;
 	QString get_original_axis_name(PVCol axis_id) const;
-	QString get_original_axis_type(PVCol axis_id) const;
 	inline PVCol get_original_axis_index(PVCol view_idx) const
 	{
 		return _axes_combination.get_axis_column_index(view_idx);
@@ -164,8 +160,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	void set_layer_stack_selected_layer_index(int index);
 
-	void set_floating_selection(PVSelection& selection);
-
 	void set_selection_from_layer(PVLayer const& layer);
 	void set_selection_view(PVSelection const& sel);
 
@@ -174,7 +168,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	void select_all();
 	void select_none();
-	void select_inv_lines();
 
 	void toggle_listing_unselected_visibility();
 	void toggle_listing_zombie_visibility();
@@ -186,11 +179,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void compute_selectable_count(Inendi::PVLayer& layer);
 
 	void recompute_all_selectable_count();
-
-	/**
-	 * do any process after a mapped load
-	 */
-	void finish_process_from_rush_pipeline();
 
 #ifdef WITH_MINESET
 	/**
@@ -217,21 +205,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void commit_selection_to_layer(PVLayer& layer);
 
 	void process_correlation();
-
-	/**
-	 * Update intermediate layer and output layer based on set selection.
-	 */
-	void process_from_selection();
-
-	/**
-	 * update the whole view from an update in the layer stack.
-	 */
-	void process_from_layer_stack();
-
-	/**
-	 * Alias for process_from_selection.
-	 */
-	void process_real_output_selection();
 
 	/**
 	 * Compute a merge of all visibles layer of the layer stack.
@@ -346,12 +319,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	sigc::signal<void> _about_to_be_delete;
 
   protected:
-	/*! \brief PVView's specific axes combination
-	 *  It is originaly copied from the parent's PVSource, and then become specific
-	 *  to that view.
-	 */
-	PVAxesCombination _axes_combination;
-
 	PVSelection floating_selection; //!< This is the current selection
 	PVLayer
 	    post_filter_layer; //!< Contains selection and color lines for in progress view computation.
@@ -360,7 +327,13 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVLayerStack layer_stack;
 	PVStateMachine _state_machine;
 	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in
-	// floating_selection once it is completed.
+	                                // floating_selection once it is completed.
+
+	/*! \brief PVView's specific axes combination
+	 *  It is originaly copied from the parent's PVSource, and then become specific
+	 *  to that view.
+	 */
+	PVAxesCombination _axes_combination;
 
 	QString _last_filter_name;
 	map_filter_arguments filters_args;

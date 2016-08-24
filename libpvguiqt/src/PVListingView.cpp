@@ -239,7 +239,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	extract_selection();
 
 	/* We reprocess the view from the selection */
-	lib_view().process_real_output_selection();
+	lib_view().process_post_filter_layer();
 }
 
 /******************************************************************************
@@ -688,7 +688,7 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 		}
 	}
 
-	lib_view().process_from_layer_stack();
+	lib_view().process_layer_stack();
 }
 
 /******************************************************************************
