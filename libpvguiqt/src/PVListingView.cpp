@@ -215,9 +215,6 @@ PVGuiQt::PVListingView::~PVListingView()
  *****************************************************************************/
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
-	/* Commit the previous volatile selection */
-	lib_view().commit_volatile_in_floating_selection();
-
 	/* Modify the state of the state machine according to the modifiers */
 	Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
 
@@ -226,20 +223,19 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	// Expand the selection on Shift
 	// Replace the old selection without modifiers
 	if (modifiers & (Qt::ShiftModifier | Qt::ControlModifier)) {
-		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+		lib_view().process_post_filter_layer(lib_view().get_real_output_selection() &
+		                                     table_model()->current_selection());
 	} else if (modifiers & Qt::ControlModifier) {
-		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+		lib_view().process_post_filter_layer(lib_view().get_real_output_selection() -
+		                                     table_model()->current_selection());
 	} else if (modifiers & Qt::ShiftModifier) {
-		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+		lib_view().process_post_filter_layer(lib_view().get_real_output_selection() |
+		                                     table_model()->current_selection());
 	} else {
-		lib_view().set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		lib_view().process_post_filter_layer(table_model()->current_selection());
 	}
 
-	/* We define the volatile_selection using selection in the listing */
-	extract_selection();
-
-	/* We reprocess the view from the selection */
-	lib_view().process_post_filter_layer();
+	table_model()->reset_selection();
 }
 
 /******************************************************************************
@@ -260,19 +256,6 @@ void PVGuiQt::PVListingView::enterEvent(QEvent*)
 void PVGuiQt::PVListingView::leaveEvent(QEvent*)
 {
 	clearFocus();
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::extract_selection
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::extract_selection()
-{
-	// Validate the current selection and reset the local one
-	Inendi::PVSelection& sel = lib_view().get_volatile_selection();
-	std::swap(sel, table_model()->current_selection());
-	table_model()->reset_selection();
 }
 
 /******************************************************************************
@@ -688,7 +671,7 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 		}
 	}
 
-	lib_view().process_layer_stack();
+	lib_view().process_layer_stack(lib_view().get_real_output_selection());
 }
 
 /******************************************************************************

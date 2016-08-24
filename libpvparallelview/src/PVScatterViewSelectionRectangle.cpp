@@ -69,7 +69,8 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
 
 	Inendi::PVView& view = lib_view();
 
-	Inendi::PVSelection& sel = view.get_volatile_selection();
+	Inendi::PVSelection sel(view.get_row_count());
+	sel.select_none();
 	Inendi::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
 
 	if (selection_mode() == SelectionMode::VERTICAL) {
@@ -87,7 +88,7 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
 		assert(false);
 	}
 
-	PVSelectionGenerator::process_selection(view, use_selection_modifiers);
+	PVSelectionGenerator::process_selection(view, sel, use_selection_modifiers);
 }
 
 /*****************************************************************************

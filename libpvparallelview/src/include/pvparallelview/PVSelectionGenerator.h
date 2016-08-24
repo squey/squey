@@ -61,7 +61,9 @@ uint32_t compute_selection_from_plotteds_ranges(const uint32_t* y1_plotted,
                                                 Inendi::PVSelection& sel,
                                                 Inendi::PVSelection const& layers_sel);
 
-void process_selection(Inendi::PVView& view, bool use_modifiers = true);
+void process_selection(Inendi::PVView& view,
+                       Inendi::PVSelection const& sel,
+                       bool use_modifiers = true);
 };
 
 namespace __impl

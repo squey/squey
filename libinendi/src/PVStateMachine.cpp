@@ -14,8 +14,6 @@
  *****************************************************************************/
 Inendi::PVStateMachine::PVStateMachine()
 {
-	square_area_mode = AREA_MODE_OFF;
-
 	listing_unselected_visible = false;
 	listing_zombie_visible = false;
 }

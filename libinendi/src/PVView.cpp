@@ -35,12 +35,10 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  *****************************************************************************/
 Inendi::PVView::PVView(PVPlotted& plotted)
     : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
-    , floating_selection(get_row_count())
     , post_filter_layer("post_filter_layer", get_row_count())
     , layer_stack_output_layer("view_layer_stack_output_layer", get_row_count())
     , output_layer("output_layer", get_row_count())
     , layer_stack(get_row_count())
-    , volatile_selection(get_row_count())
     , _axes_combination(get_parent<PVSource>().get_format())
     , _view_id(get_parent<PVRoot>().get_new_view_id())
     , _active_axis(0)
@@ -70,7 +68,8 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 
 	_layer_stack_refreshed.emit();
 
-	process_layer_stack();
+	post_filter_layer.get_selection().select_all();
+	process_layer_stack(post_filter_layer.get_selection());
 }
 
 /******************************************************************************
@@ -151,29 +150,6 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 	new_layer.get_selection() = post_filter_layer.get_selection();
 	output_layer.get_lines_properties().A2B_copy_restricted_by_selection(
 	    new_layer.get_lines_properties(), new_layer.get_selection());
-}
-
-void Inendi::PVView::commit_volatile_in_floating_selection()
-{
-	switch (_state_machine.get_square_area_mode()) {
-	case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-		floating_selection |= volatile_selection;
-		break;
-
-	case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-		floating_selection &= volatile_selection;
-		break;
-
-	case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
-		floating_selection = volatile_selection;
-		break;
-
-	case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-		floating_selection -= volatile_selection;
-		break;
-
-	case Inendi::PVStateMachine::AREA_MODE_OFF:;
-	}
 }
 
 /******************************************************************************
@@ -409,12 +385,12 @@ void Inendi::PVView::process_correlation()
  * Inendi::PVView::process_layer_stack
  *
  *****************************************************************************/
-void Inendi::PVView::process_layer_stack()
+void Inendi::PVView::process_layer_stack(Inendi::PVSelection const& sel)
 {
 	layer_stack.process(layer_stack_output_layer, get_row_count());
 	_update_layer_stack_output_layer.emit();
 
-	process_post_filter_layer();
+	process_post_filter_layer(sel);
 }
 
 /******************************************************************************
@@ -422,34 +398,11 @@ void Inendi::PVView::process_layer_stack()
  * Inendi::PVView::process_post_filter_layer
  *
  *****************************************************************************/
-void Inendi::PVView::process_post_filter_layer()
+void Inendi::PVView::process_post_filter_layer(Inendi::PVSelection const& to_use)
 {
-	/* We treat the selection according to specific SQUARE_AREA_SELECTION mode */
-	switch (_state_machine.get_square_area_mode()) {
-	case Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
-		post_filter_layer.get_selection() = volatile_selection;
-		break;
-
-	case Inendi::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-		post_filter_layer.get_selection() = floating_selection | volatile_selection;
-		break;
-
-	case Inendi::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-		post_filter_layer.get_selection().AB_sub(floating_selection, volatile_selection);
-		break;
-
-	case Inendi::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-		post_filter_layer.get_selection() = floating_selection & volatile_selection;
-		break;
-
-	default:
-		post_filter_layer.get_selection() = layer_stack_output_layer.get_selection();
-		break;
-	}
-
 	/* We cut the resulting selection with what is available in the layer_stack */
 	/* We are in ALL edit_mode */
-	post_filter_layer.get_selection() &= layer_stack_output_layer.get_selection();
+	post_filter_layer.get_selection() = layer_stack_output_layer.get_selection() & to_use;
 
 	/* We simply copy the lines_properties */
 	post_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
@@ -520,7 +473,7 @@ void Inendi::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 	PVLayer& active_layer = layer_stack.get_selected_layer();
 
 	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(), c);
-	process_layer_stack();
+	process_layer_stack(get_real_output_selection());
 }
 
 /******************************************************************************
@@ -567,9 +520,7 @@ void Inendi::PVView::set_selection_from_layer(PVLayer const& layer)
  *****************************************************************************/
 void Inendi::PVView::set_selection_view(PVSelection const& sel)
 {
-	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-	volatile_selection = sel;
-	process_post_filter_layer();
+	process_post_filter_layer(sel);
 }
 
 /******************************************************************************
@@ -605,17 +556,16 @@ void Inendi::PVView::move_selected_layer_to(int new_index)
 
 void Inendi::PVView::select_all()
 {
-	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-	volatile_selection.select_all();
-	process_post_filter_layer();
+	Inendi::PVSelection sel(get_row_count());
+	sel.select_all();
+	process_post_filter_layer(sel);
 }
 
 void Inendi::PVView::select_none()
 {
-	// Set square area mode w/ volatile
-	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-	volatile_selection.select_none();
-	process_post_filter_layer();
+	Inendi::PVSelection sel(get_row_count());
+	sel.select_none();
+	process_post_filter_layer(sel);
 }
 
 std::string Inendi::PVView::get_name() const

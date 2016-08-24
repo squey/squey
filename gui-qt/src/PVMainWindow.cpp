@@ -363,8 +363,6 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	inendi_view->commit_selection_to_layer(layer);
 	inendi_view->update_current_layer_min_max();
 	inendi_view->compute_selectable_count(layer);
-	// and to update the layer-stack
-	inendi_view->process_layer_stack();
 }
 
 /******************************************************************************
@@ -401,7 +399,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		// do not forget to update the current layer
 		inendi_view->compute_selectable_count(current_layer);
 
-		inendi_view->process_layer_stack();
+		inendi_view->process_layer_stack(inendi_view->get_real_output_selection());
 	}
 }
 

@@ -750,11 +750,14 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axi
 {
 	PVZoneID zone_id = _lib_view.get_axes_combination().get_index_by_id(axis_id);
 	_sel_rect.clear();
-	PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
-	    _lines_view, zone_id, _axes[zone_id]->get_selection_ranges(),
-	    lib_view().get_volatile_selection());
 
-	PVSelectionGenerator::process_selection(_lib_view);
+	Inendi::PVSelection sel(_lib_view.get_row_count());
+	sel.select_none();
+
+	PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
+	    _lines_view, zone_id, _axes[zone_id]->get_selection_ranges(), sel);
+
+	PVSelectionGenerator::process_selection(_lib_view, sel);
 }
 
 /******************************************************************************

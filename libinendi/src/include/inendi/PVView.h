@@ -44,9 +44,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	~PVView();
 
   public:
-	inline PVSelection& get_floating_selection() { return floating_selection; }
-	inline PVSelection& get_volatile_selection() { return volatile_selection; }
-
 	// Proxy functions for PVHive
 	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest)
 	{
@@ -110,8 +107,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 		assert(_active_axis < get_column_count());
 		return _active_axis;
 	}
-	PVStateMachine& get_state_machine() { return _state_machine; }
-	PVStateMachine const& get_state_machine() const { return _state_machine; }
 
 	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 	void set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
@@ -211,7 +206,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 *
 	 * * Save data in layer_stack_output_layer.
 	 */
-	void process_layer_stack();
+	void process_layer_stack(Inendi::PVSelection const& sel);
 
 	/**
 	 * Set correct selection to post_filter_layer.
@@ -219,7 +214,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 * * Copy color (FIXME : done every time, should be done only once).
 	 * * Merge selection with layer_stack selection.
 	 */
-	void process_post_filter_layer();
+	void process_post_filter_layer(Inendi::PVSelection const& sel);
 
 	/**
 	 * Compute output layer from post_filter_layer data.
@@ -244,8 +239,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 *
 	 */
 	std::string get_data(PVRow row, PVCol column) const;
-
-	void commit_volatile_in_floating_selection();
 
 	/***********
 	 * FILTERS
@@ -285,13 +278,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVRow get_plotted_col_max_row(PVCol const combined_col) const;
 
   public:
-	// State machine
-	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode)
-	{
-		_state_machine.set_square_area_mode(mode);
-	}
-
-  public:
 	void serialize_write(PVCore::PVSerializeObject& so);
 	static Inendi::PVView& serialize_read(PVCore::PVSerializeObject& so, Inendi::PVPlotted& parent);
 
@@ -319,15 +305,12 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	sigc::signal<void> _about_to_be_delete;
 
   protected:
-	PVSelection floating_selection; //!< This is the current selection
 	PVLayer
 	    post_filter_layer; //!< Contains selection and color lines for in progress view computation.
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer;             //!< This is the shown layer.
 	PVLayerStack layer_stack;
 	PVStateMachine _state_machine;
-	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in
-	                                // floating_selection once it is completed.
 
 	/*! \brief PVView's specific axes combination
 	 *  It is originaly copied from the parent's PVSource, and then become specific
