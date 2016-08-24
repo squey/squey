@@ -628,6 +628,7 @@ void Inendi::PVView::set_selection_view(PVSelection const& sel)
 {
 	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = sel;
+	process_real_output_selection();
 }
 
 /******************************************************************************
@@ -661,17 +662,19 @@ void Inendi::PVView::move_selected_layer_to(int new_index)
 	_update_current_min_max.emit();
 }
 
-void Inendi::PVView::select_all_nonzb_lines()
+void Inendi::PVView::select_all()
 {
 	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_all();
+	process_real_output_selection();
 }
 
-void Inendi::PVView::select_no_line()
+void Inendi::PVView::select_none()
 {
 	// Set square area mode w/ volatile
 	_state_machine.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_none();
+	process_real_output_selection();
 }
 
 void Inendi::PVView::select_inv_lines()

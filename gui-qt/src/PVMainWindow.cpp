@@ -1254,18 +1254,6 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::set_selection_from_layer
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView& view,
-                                                         Inendi::PVLayer const& layer)
-{
-	view.set_selection_from_layer(layer);
-	view.process_real_output_selection();
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::treat_invalid_formats
  *
  *****************************************************************************/

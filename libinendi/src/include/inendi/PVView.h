@@ -172,8 +172,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
 
-	void select_all_nonzb_lines();
-	void select_no_line();
+	void select_all();
+	void select_none();
 	void select_inv_lines();
 
 	void toggle_listing_unselected_visibility();

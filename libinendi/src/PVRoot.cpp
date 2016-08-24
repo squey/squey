@@ -134,13 +134,7 @@ Inendi::PVView* Inendi::PVRoot::process_correlation(Inendi::PVView* view)
 	if (not _correlation_running) { // no indirect correlations to avoid potential infinite loops
 		_correlation_running = true;
 		Inendi::PVView* view2 = correlations().process(view);
-
-		if (view2) {
-			view2->process_from_selection();
-		}
-
 		_correlation_running = false;
-
 		return view2;
 	}
 

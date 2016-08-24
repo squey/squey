@@ -631,8 +631,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 		return;
 	}
 
-	current_view()->select_all_nonzb_lines();
-	current_view()->process_real_output_selection();
+	current_view()->select_all();
 }
 
 /******************************************************************************
@@ -647,8 +646,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		return;
 	}
 
-	current_view()->select_no_line();
-	current_view()->process_real_output_selection();
+	current_view()->select_none();
 }
 
 /******************************************************************************
@@ -663,8 +661,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
-	current_view()->select_inv_lines();
-	current_view()->process_real_output_selection();
+	current_view()->set_selection_view(~current_view()->get_real_output_selection());
 }
 
 /******************************************************************************
@@ -870,7 +867,7 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
 	if (current_view()) {
-		set_selection_from_layer(*current_view(), current_view()->get_current_layer());
+		current_view()->set_selection_from_layer(current_view()->get_current_layer());
 	}
 }
 
@@ -885,7 +882,7 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 		    args, this);
 		if (ret) {
 			Inendi::PVLayer* layer = args["sel-layer"].value<Inendi::PVLayer*>();
-			set_selection_from_layer(*current_view(), *layer);
+			current_view()->set_selection_from_layer(*layer);
 		}
 	}
 }

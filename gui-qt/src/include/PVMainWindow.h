@@ -207,7 +207,6 @@ class PVMainWindow : public QMainWindow
 	void closeEvent(QCloseEvent* event);
 
   private:
-	void set_selection_from_layer(Inendi::PVView& view, Inendi::PVLayer const& layer);
 	void display_inv_elts();
 
 	void save_screenshot(const QPixmap& pixmap, const QString& title, const QString& name);
