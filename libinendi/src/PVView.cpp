@@ -38,7 +38,7 @@ Inendi::PVView::PVView(PVPlotted& plotted)
     , post_filter_layer("post_filter_layer", get_row_count())
     , layer_stack_output_layer("view_layer_stack_output_layer", get_row_count())
     , output_layer("output_layer", get_row_count())
-    , layer_stack(get_row_count())
+    , layer_stack()
     , _axes_combination(get_parent<PVSource>().get_format())
     , _view_id(get_parent<PVRoot>().get_new_view_id())
     , _active_axis(0)
@@ -666,7 +666,9 @@ void Inendi::PVView::sort_indexes(PVCol col,
 // Load/save and serialization
 void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
-	so.object("layer-stack", layer_stack, "Layers", true);
+	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
+	layer_stack.serialize_write(*ls_obj);
+
 	so.object("axes-combination", _axes_combination, "Axes combination", true);
 }
 
@@ -674,8 +676,12 @@ Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
                                                Inendi::PVPlotted& parent)
 {
 	Inendi::PVView& view = parent.emplace_add_child();
-	so.object("layer-stack", view.layer_stack, "Layers", true);
+
+	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
+	view.layer_stack = Inendi::PVLayerStack::serialize_read(*ls_obj);
+
 	so.object("axes-combination", view._axes_combination, "Axes combination", true);
+
 	Inendi::PVSelection sel(view.get_row_count());
 	sel.select_all();
 	view.process_layer_stack(sel);
