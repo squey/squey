@@ -112,12 +112,13 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 	_axes_combination.clear();
 
 	QStringList axes_list = str.split(',');
+	PVCol naxes = _axes.size();
 
 	if (axes_list.size() < 2) {
+		_axes_combination.resize(naxes);
+		std::iota(_axes_combination.begin(), _axes_combination.end(), 0);
 		return; // The default combination will be used
 	}
-
-	PVCol naxes = _axes.size();
 
 	_axes_combination.reserve(axes_list.size());
 	for (int i = 0; i < axes_list.size(); i++) {
