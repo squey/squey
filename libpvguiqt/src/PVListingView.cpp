@@ -222,7 +222,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	// Substract new selection on Ctrl
 	// Expand the selection on Shift
 	// Replace the old selection without modifiers
-	if (modifiers & (Qt::ShiftModifier | Qt::ControlModifier)) {
+	if ((modifiers & Qt::ShiftModifier) and (modifiers & Qt::ControlModifier)) {
 		lib_view().process_post_filter_layer(lib_view().get_real_output_selection() &
 		                                     table_model()->current_selection());
 	} else if (modifiers & Qt::ControlModifier) {
