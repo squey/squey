@@ -676,5 +676,8 @@ Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
 	Inendi::PVView& view = parent.emplace_add_child();
 	so.object("layer-stack", view.layer_stack, "Layers", true);
 	so.object("axes-combination", view._axes_combination, "Axes combination", true);
+	Inendi::PVSelection sel(view.get_row_count());
+	sel.select_all();
+	view.process_layer_stack(sel);
 	return view;
 }
