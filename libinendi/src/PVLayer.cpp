@@ -97,31 +97,14 @@ void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 	}
 }
 
-bool Inendi::PVLayer::get_min_for_col(PVCol col, PVRow& row) const
-{
-	if (col >= (PVCol)_row_mins.size()) {
-		return false;
-	}
-
-	row = _row_mins[col];
-	return true;
-}
-
-bool Inendi::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
-{
-	if (col >= (PVCol)_row_maxs.size()) {
-		return false;
-	}
-
-	row = _row_maxs[col];
-	return true;
-}
-
 void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so)
 {
 	auto sel_obj = so.create_object("selection", "selection", true, true);
 	selection.serialize_write(*sel_obj);
-	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)nullptr, false);
+
+	auto lp_obj = so.create_object("lp", "Lines properties", true, true);
+	lines_properties.serialize_write(*lp_obj);
+
 	so.attribute("name", name);
 	so.attribute("visible", visible);
 	so.attribute("index", index);
@@ -136,8 +119,8 @@ Inendi::PVLayer Inendi::PVLayer::serialize_read(PVCore::PVSerializeObject& so)
 	auto sel_obj = so.create_object("selection", "selection", true, true);
 	Inendi::PVSelection sel(Inendi::PVSelection::serialize_read(*sel_obj));
 
-	Inendi::PVLinesProperties lines_properties(sel.count());
-	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)nullptr, false);
+	auto lp_obj = so.create_object("lp", "Lines properties", true, true);
+	Inendi::PVLinesProperties lines_properties = Inendi::PVLinesProperties::serialize_read(*lp_obj);
 
 	Inendi::PVLayer layer(name, sel, lines_properties);
 	bool visible;

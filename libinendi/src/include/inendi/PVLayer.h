@@ -17,7 +17,7 @@
 
 #include <vector>
 
-#define INENDI_LAYER_NAME_MAXLEN 1000
+constexpr size_t INENDI_LAYER_NAME_MAXLEN = 1000;
 
 namespace Inendi
 {
@@ -41,6 +41,8 @@ class PVLayer
 	QString name;
 	PVSelection selection;
 	PVLinesProperties lines_properties;
+
+	// Below values are cached values.
 	PVRow selectable_count;
 	list_row_indexes_t _row_mins;
 	list_row_indexes_t _row_maxs;
@@ -72,8 +74,6 @@ class PVLayer
 	PVRow get_selectable_count() const { return selectable_count; }
 
 	void compute_min_max(PVPlotted const& plotted);
-	bool get_min_for_col(PVCol col, PVRow& row) const;
-	bool get_max_for_col(PVCol col, PVRow& row) const;
 	inline list_row_indexes_t get_mins() const { return _row_mins; }
 	inline list_row_indexes_t const& get_maxs() const { return _row_maxs; }
 
@@ -92,6 +92,8 @@ class PVLayer
 		name.truncate(INENDI_LAYER_NAME_MAXLEN);
 	}
 	void set_visible(bool visible_) { visible = visible_; }
+
+  public:
 	void serialize_write(PVCore::PVSerializeObject& so);
 	static Inendi::PVLayer serialize_read(PVCore::PVSerializeObject& so);
 };

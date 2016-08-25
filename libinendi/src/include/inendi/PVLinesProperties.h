@@ -46,8 +46,9 @@ class PVLinesProperties
 	void reset_to_default_color();
 	void selection_set_color(PVSelection const& selection, const PVCore::PVHSVColor c);
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+  public:
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static PVLinesProperties serialize_read(PVCore::PVSerializeObject& so);
 
   private:
 	std::vector<PVCore::PVHSVColor> _colors;
