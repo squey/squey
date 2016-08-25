@@ -102,12 +102,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 		_layer_stack_refreshed.emit();
 	}
 
-	PVCol get_active_axis() const
-	{
-		assert(_active_axis < get_column_count());
-		return _active_axis;
-	}
-
 	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 	void set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
 	                                  PVAxesCombination::list_axes_t const& axes);
