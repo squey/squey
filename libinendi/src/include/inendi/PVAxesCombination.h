@@ -85,6 +85,7 @@ class PVAxesCombination
 	    original_axes_list; //!< All the axes, left as how they were upon loading the format.
   public:
 	PVAxesCombination(PVRush::PVFormat const&);
+	PVAxesCombination(){};
 
 	/**
 	* Add an axis to the list of used axes.
