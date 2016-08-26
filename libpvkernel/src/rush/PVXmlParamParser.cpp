@@ -232,7 +232,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 		QDomElement child = childs.at(i).toElement();
 
 		if (getNodeType(child) == PVFORMAT_XML_TAG_AXIS_STR) {
-			PVAxisFormat axis;
+			PVAxisFormat axis(_axes.size());
 			axis.set_name(child.attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT));
 			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));
 			axis.set_type_format(

@@ -20,7 +20,7 @@
  *
  *****************************************************************************/
 
-PVRush::PVAxisFormat::PVAxisFormat()
+PVRush::PVAxisFormat::PVAxisFormat(PVCol index) : index(index)
 {
 	unique_id_computed = false;
 }
