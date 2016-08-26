@@ -8,14 +8,8 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDialog>
-#include <QDialogButtonBox>
 #include <QFile>
-#include <QFrame>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QLine>
 #include <QLabel>
-#include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QVBoxLayout>
@@ -51,15 +45,11 @@
 
 #include <tbb/tick_count.h>
 
-QFile* report_file;
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::PVMainWindow
  *
  *****************************************************************************/
-Q_DECLARE_METATYPE(Inendi::PVSource*);
-
 PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
     : QMainWindow(parent)
     , _load_solution_dlg(this,

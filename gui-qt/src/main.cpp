@@ -10,11 +10,7 @@
 //! [0]
 #include <QApplication>
 #include <QFile>
-#include <QLocale>
-#include <QResource>
 #include <QString>
-#include <QTextStream>
-#include <QTextCodec>
 #include <QObject>
 #include <QWidget>
 #include <QSplashScreen>
@@ -28,9 +24,6 @@
 #include <iostream>
 #include <sys/resource.h>
 
-#include <stdio.h>
-
-#include <time.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
@@ -196,9 +189,6 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	task_label->setText(QObject::tr("Finishing initialization..."));
 	splash.repaint();
 	app.processEvents();
-
-	QString locale = QLocale::system().name();
-	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
 
 	PVCore::PVIntrinsics::init_cpuid();
 #ifdef __SSE4_1__
