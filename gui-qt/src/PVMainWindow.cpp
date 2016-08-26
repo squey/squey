@@ -501,39 +501,6 @@ void PVInspector::PVMainWindow::close_solution_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::get_tab_from_view
- *
- *****************************************************************************/
-PVGuiQt::PVSourceWorkspace*
-PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView* inendi_view)
-{
-	return get_tab_from_view(*inendi_view);
-}
-
-PVGuiQt::PVSourceWorkspace*
-PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView const& inendi_view)
-{
-	// This returns the tab associated to a inendi view
-	const Inendi::PVScene& scene = inendi_view.get_parent<Inendi::PVScene>();
-	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget =
-	    _projects_tab_widget->get_workspace_tab_widget_from_scene(&scene);
-	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count(); i++) {
-		PVGuiQt::PVSourceWorkspace* tab =
-		    dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspaces_tab_widget->widget(i));
-		if (!tab) {
-			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
-		} else {
-			if (get_root().current_view() == &inendi_view) {
-				return tab;
-				/* We refresh the listing */
-			}
-		}
-	}
-	return nullptr;
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::import_type
  *
  *****************************************************************************/
