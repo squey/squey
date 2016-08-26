@@ -205,7 +205,6 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_label_info()
 {
 	_label->set_text(lib_axis()->get_name());
 	_label->set_color(lib_axis()->get_titlecolor().toQColor());
-	_label->set_axis_index(_lib_view.get_axes_combination().get_index_by_id(_axis_id));
 
 	update_axis_min_max_info();
 	update_layer_min_max_info();
