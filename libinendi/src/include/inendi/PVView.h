@@ -36,7 +36,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
   public:
 	typedef QHash<QString, PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
-	typedef PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 
   public:
 	PVView(PVPlotted& plotted);
@@ -79,10 +78,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 */
 	const QString& get_axis_name(PVCol index) const;
 	PVAxis const& get_axis(PVCol const comb_index) const;
-	bool is_last_axis(axes_comb_id_t const axes_comb_id) const
-	{
-		return get_axes_combination().is_last_axis(axes_comb_id);
-	}
 	bool is_last_axis(PVCol const axis_comb) const { return axis_comb == get_column_count() - 1; }
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;

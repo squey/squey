@@ -364,7 +364,7 @@ void PVParallelView::PVAxisGraphicsItem::show_tooltip(QGraphicsTextItem* gti,
 
 bool PVParallelView::PVAxisGraphicsItem::is_last_axis() const
 {
-	return _lib_view.is_last_axis(_axis_id);
+	return _lib_view.get_axes_combination().is_last_axis(_axis_id);
 }
 
 void PVParallelView::PVAxisGraphicsItem::set_axis_length(int l)
