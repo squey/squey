@@ -135,6 +135,34 @@ class PVUnicodeSource : public PVRawSourceBase
 	}
 
 	/**
+	 * Return the endianness suffix of UTF charsets in order to avoid the
+	 * need to add a BOM in the begining of each chunk.
+	 * (uchardet doesn't specify it anymore since version 0.0.5 because
+	 * the standard explicitly warns against it)
+	 */
+	static const char* get_UTF_endianness_suffix_from_BOM(char* begin_read,
+	                                                      const std::string& charset)
+	{
+		if (charset == "UTF-32") {
+			uint32_t bom32 = *((uint32_t*)begin_read);
+			if (bom32 == 0xFFFE0000) {
+				return "BE";
+			} else if (bom32 == 0x0000FEFF) {
+				return "LE";
+			}
+		} else if (charset == "UTF-16") {
+			uint16_t& bom16 = *((uint16_t*)begin_read);
+			if (bom16 == 0xFFFE) {
+				return "BE";
+			} else if (bom16 == 0xFEFF) {
+				return "LE";
+			}
+		}
+
+		return "";
+	}
+
+	/**
 	 * Detect charset and remove BOM if required.
 	 */
 	char* get_begin_from_charset(char* begin, size_t len)
@@ -144,10 +172,15 @@ class PVUnicodeSource : public PVRawSourceBase
 				_cd.DataEnd();
 				if (_cd.found()) {
 					_charset = _cd.GetCharset();
+
 					PVLOG_DEBUG("Encoding found : %s\n", _charset.c_str());
 
-					bool remove_bom =
-					    (_charset.find("UTF") != _charset.npos); // Remove BOM only for UTF-X
+					bool remove_bom = false;
+					if (_charset.find("UTF") != _charset.npos) {
+						remove_bom = true;
+						_charset += get_UTF_endianness_suffix_from_BOM(begin, _charset);
+					}
+
 					if (remove_bom) {
 						return begining_with_bom(begin);
 					}
@@ -163,7 +196,7 @@ class PVUnicodeSource : public PVRawSourceBase
 	}
 
 	/**
-	 * Detect end and return nullptr if not new line can be found.
+	 * Detect end and return nullptr if no new line can be found.
 	 */
 	char* get_end_from_charset(char* begin, size_t len)
 	{
@@ -235,7 +268,6 @@ class PVUnicodeSource : public PVRawSourceBase
 			if (status == U_BUFFER_OVERFLOW_ERROR) {
 				// Copy the unconverted string back to the chunk to prevent side effects
 				std::copy(_tmp_buf.begin(), _tmp_buf.end(), begin);
-
 				throw UnicodeSourceBufferOverflowError();
 			} else if (U_FAILURE(status)) {
 				throw UnicodeSourceError(
