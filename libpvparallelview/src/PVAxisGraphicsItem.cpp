@@ -89,8 +89,13 @@ class PVToolTipEventFilter : public QObject
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager* sm_p,
                                                        Inendi::PVView const& view,
-                                                       const axis_id_t& axis_id)
-    : _sliders_manager_p(sm_p), _axis_id(axis_id), _lib_view(view), _axis_length(10)
+                                                       const axis_id_t& axis_id,
+                                                       PVRush::PVAxisFormat const& axis_fmt)
+    : _sliders_manager_p(sm_p)
+    , _axis_id(axis_id)
+    , _axis_fmt(axis_fmt)
+    , _lib_view(view)
+    , _axis_length(10)
 {
 	setAcceptHoverEvents(true);   // This is needed to enable hover events
 	setHandlesChildEvents(false); // This is needed to let the children of the
@@ -186,7 +191,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
                                                QWidget* widget)
 {
 	painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth, _axis_length + (2 * axis_extend),
-	                  lib_axis()->get_color().toQColor());
+	                  _axis_fmt.get_color().toQColor());
 
 #ifdef INENDI_DEVELOPER_MODE
 	if (common::show_bboxes()) {
@@ -203,8 +208,8 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 
 void PVParallelView::PVAxisGraphicsItem::update_axis_label_info()
 {
-	_label->set_text(lib_axis()->get_name());
-	_label->set_color(lib_axis()->get_titlecolor().toQColor());
+	_label->set_text(_axis_fmt.get_name());
+	_label->set_color(_axis_fmt.get_titlecolor().toQColor());
 
 	update_axis_min_max_info();
 	update_layer_min_max_info();
@@ -241,7 +246,7 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 void PVParallelView::PVAxisGraphicsItem::set_axis_text_value(QGraphicsTextItem* item, PVRow const r)
 {
 	const PVCol combined_col = get_combined_axis_column();
-	const QColor color = lib_axis()->get_titlecolor().toQColor();
+	const QColor color = _axis_fmt.get_titlecolor().toQColor();
 	const QString txt = QString::fromStdString(_lib_view.get_data(r, combined_col));
 
 	set_item_text_value(item, txt, color, _zone_width);
@@ -340,15 +345,6 @@ QRectF PVParallelView::PVAxisGraphicsItem::get_bottom_decoration_scene_bbox() co
 		ret = mapToScene(QRectF(0, axis_extend, 0.1, axis_extend)).boundingRect();
 	}
 	return ret;
-}
-
-/*****************************************************************************
- * PVParallelView::PVAxisGraphicsItem::lib_axis
- *****************************************************************************/
-
-Inendi::PVAxis const* PVParallelView::PVAxisGraphicsItem::lib_axis() const
-{
-	return &_lib_view.get_axis_by_id(_axis_id);
 }
 
 void PVParallelView::PVAxisGraphicsItem::show_tooltip(QGraphicsTextItem* gti,

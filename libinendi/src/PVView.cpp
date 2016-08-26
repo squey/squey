@@ -193,11 +193,6 @@ Inendi::PVAxis const& Inendi::PVView::get_axis(PVCol index) const
 	return _axes_combination.get_axis(index);
 }
 
-Inendi::PVAxis const& Inendi::PVView::get_axis_by_id(axes_comb_id_t const axes_comb_id) const
-{
-	return _axes_combination.get_axis(_axes_combination.get_index_by_id(axes_comb_id));
-}
-
 /******************************************************************************
  *
  * Inendi::PVView::get_axis_name

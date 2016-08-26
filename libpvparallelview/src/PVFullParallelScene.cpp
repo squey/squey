@@ -142,8 +142,10 @@ void PVParallelView::PVFullParallelScene::about_to_be_deleted()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int index)
 {
+	auto const& axis_id = _lib_view.get_axes_combination().get_axes_comb_id(zone_id);
 	PVAxisGraphicsItem* axisw = new PVAxisGraphicsItem(
-	    _sm_p, lib_view(), _lib_view.get_axes_combination().get_axes_comb_id(zone_id));
+	    _sm_p, lib_view(), axis_id,
+	    _lib_view.get_parent<Inendi::PVSource>().get_format().get_axes()[axis_id.get_axis()]);
 
 	axisw->get_sliders_group()->set_axis_scale(_zoom_y);
 	axisw->set_axis_length(_axis_length);
