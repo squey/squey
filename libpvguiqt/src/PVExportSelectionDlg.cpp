@@ -17,6 +17,7 @@
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVView.h>
+#include <inendi/PVSource.h>
 #include <inendi/PVPlotted.h>
 
 #include <pvkernel/rush/PVUtils.h>
@@ -214,7 +215,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 		str_list = axes_combination.get_axes_names_list();
 		break;
 	case AxisCombinationKind::ALL:
-		for (int a = 0; a < axes_combination.get_original_axes_count(); a++)
+		for (int a = 0; a < view.get_parent<Inendi::PVSource>().get_nraw_column_count(); a++)
 			column_indexes.push_back(a);
 		str_list = axes_combination.get_original_axes_names_list();
 		break;

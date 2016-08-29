@@ -54,7 +54,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
     , _vhead_ctxt_menu(this)
     , _help_widget(this)
     , _ctxt_process(nullptr)
-    , _headers_width(view.get_original_axes_count(), horizontalHeader()->defaultSectionSize())
+    , _headers_width(view.get_column_count(), horizontalHeader()->defaultSectionSize())
 {
 
 	view._axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
