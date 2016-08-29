@@ -9,10 +9,8 @@
 #define PVMAPPINGPLOTTINGEDITDIALOG_H
 
 #include <pvkernel/rush/PVFormat_types.h>
-#include <inendi/PVAxesCombination.h>
 
 #include <QDialog>
-#include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -60,7 +58,7 @@ class PVMappingPlottingEditDialog : public QDialog
 	QGroupBox* _main_group_box;
 	Inendi::PVMapped* _mapping;
 	Inendi::PVPlotted* _plotting;
-	const Inendi::PVAxesCombination::list_axes_t* _axes;
+	QList<PVRush::PVAxisFormat> const& _axes;
 };
 }
 

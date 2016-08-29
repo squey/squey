@@ -314,7 +314,7 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 		uint32_t width =
 		    std::max(columnWidth(colIndex) + d, horizontalHeader()->minimumSectionSize());
 		setColumnWidth(colIndex, width);
-		_headers_width[lib_view().get_real_axis_index(colIndex)] = width;
+		_headers_width[lib_view().get_nraw_axis_index(colIndex)] = width;
 		e->accept(); // I am the one who handle event
 	} else {
 		PVAbstractTableView::wheelEvent(e);
@@ -329,7 +329,7 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
 	PVTableView::columnResized(column, oldWidth, newWidth);
-	_headers_width[lib_view().get_real_axis_index(column)] = newWidth;
+	_headers_width[lib_view().get_nraw_axis_index(column)] = newWidth;
 }
 
 /******************************************************************************
@@ -343,7 +343,7 @@ void PVGuiQt::PVListingView::reset()
 	_headers_width.resize(horizontalHeader()->count(), horizontalHeader()->defaultSectionSize());
 
 	for (int i = 0; i < horizontalHeader()->count(); i++) {
-		uint32_t axis_index = lib_view().get_real_axis_index(i);
+		uint32_t axis_index = lib_view().get_nraw_axis_index(i);
 		setColumnWidth(i, _headers_width[axis_index]);
 	}
 

@@ -88,7 +88,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	PVCol get_original_axis_column() const
 	{
-		return _lib_view.get_axes_combination().get_axis_column_index(
+		return _lib_view.get_axes_combination().get_nraw_axis(
 		    _lib_view.get_axes_combination().get_index_by_id(_axis_id));
 	}
 

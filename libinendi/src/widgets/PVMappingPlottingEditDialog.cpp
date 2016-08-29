@@ -17,7 +17,17 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QScrollArea>
-#include <QScrollBar>
+
+static QList<PVRush::PVAxisFormat> const& init_axes(Inendi::PVMapped* mapping,
+                                                    Inendi::PVPlotted* plotting)
+{
+	if (mapping) {
+		return mapping->get_parent<Inendi::PVSource>().get_format().get_axes();
+	}
+
+	assert(plotting);
+	return plotting->get_parent<Inendi::PVSource>().get_format().get_axes();
+}
 
 /******************************************************************************
  *
@@ -27,7 +37,7 @@
 PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMapped* mapping,
                                                                     Inendi::PVPlotted* plotting,
                                                                     QWidget* parent)
-    : QDialog(parent), _mapping(mapping), _plotting(plotting)
+    : QDialog(parent), _mapping(mapping), _plotting(plotting), _axes(init_axes(_mapping, _plotting))
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
@@ -39,17 +49,6 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 		assert(has_mapping() || has_plotting());
 	}
 #endif
-	if (has_mapping()) {
-		_axes = &(_mapping->get_parent<Inendi::PVSource>()
-		              .current_view()
-		              ->get_axes_combination()
-		              .get_original_axes_list());
-	} else {
-		_axes = &(_plotting->get_parent<Inendi::PVSource>()
-		              .current_view()
-		              ->get_axes_combination()
-		              .get_original_axes_list());
-	}
 
 	setWindowTitle(tr("Edit properties..."));
 
@@ -179,24 +178,18 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 
 	// Add widgets
 
-	PVCol axis_id = 0;
-	for (auto& axe : *_axes) {
+	for (PVRush::PVAxisFormat const& axe : _axes) {
 		col = 0;
 		_main_grid->addWidget(new QLabel(axe.get_name(), this), row, col++);
 		if (has_mapping()) {
-			_main_grid->addWidget(new QLabel(_mapping->get_parent<Inendi::PVSource>()
-			                                     .get_format()
-			                                     .get_axes()[axis_id]
-			                                     .get_type()),
+			_main_grid->addWidget(new QLabel(axe.get_type()), row, col++);
+			_main_grid->addWidget(new PVWidgets::PVMappingModeWidget(axe.index, *_mapping, this),
 			                      row, col++);
-			_main_grid->addWidget(new PVWidgets::PVMappingModeWidget(axis_id, *_mapping, this), row,
-			                      col++);
 		}
 		if (has_plotting()) {
-			_main_grid->addWidget(new PVWidgets::PVPlottingModeWidget(axis_id, *_plotting, this),
+			_main_grid->addWidget(new PVWidgets::PVPlottingModeWidget(axe.index, *_plotting, this),
 			                      row, col++);
 		}
-		axis_id++;
 		row++;
 	}
 }
@@ -225,15 +218,10 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 	}
 
 	int row = 1;
-	PVCol axis_id = 0;
-	Inendi::PVAxesCombination::list_axes_t::const_iterator it_axes;
-	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
+	for (PVRush::PVAxisFormat const& axis : _axes) {
 		if (has_mapping()) {
-			QString type = _mapping->get_parent<Inendi::PVSource>()
-			                   .get_format()
-			                   .get_axes()[axis_id]
-			                   .get_type();
-			Inendi::PVMappingProperties& prop = _mapping->get_properties_for_col(axis_id);
+			QString type = axis.get_type();
+			Inendi::PVMappingProperties& prop = _mapping->get_properties_for_col(axis.index);
 
 			// Mapping mode
 			PVWidgets::PVMappingModeWidget* map_combo =
@@ -250,9 +238,8 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			    _main_grid->itemAtPosition(row, 1)->widget());
 			assert(combo);
 			QString mode = combo->get_mode();
-			_plotting->get_properties_for_col(axis_id).set_mode(mode.toStdString());
+			_plotting->get_properties_for_col(axis.index).set_mode(mode.toStdString());
 		}
-		axis_id++;
 		row++;
 	}
 

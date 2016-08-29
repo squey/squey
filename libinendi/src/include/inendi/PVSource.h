@@ -105,6 +105,14 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	QString get_format_name() const { return _format.get_format_name(); }
 	QString get_window_name() const;
 	QString get_tooltip() const;
+	QStringList get_nraw_axis_names() const
+	{
+		QStringList res;
+		for (PVRush::PVAxisFormat const& ax : get_format().get_axes()) {
+			res << ax.get_name();
+		}
+		return res;
+	}
 
 	PVView* last_active_view() const { return _last_active_view; }
 

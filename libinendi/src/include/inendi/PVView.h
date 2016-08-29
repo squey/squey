@@ -44,11 +44,11 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
   public:
 	// Proxy functions for PVHive
-	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest)
+	void move_axis_to_new_position(PVCol index_source, PVCol index_dest)
 	{
-		return _axes_combination.move_axis_to_new_position(index_source, index_dest);
+		_axes_combination.move_axis_to_new_position(index_source, index_dest);
 	}
-	void axis_append(const PVAxis& axis) { _axes_combination.axis_append(axis); }
+	// void axis_append(const PVAxis& axis) { _axes_combination.axis_append(axis); }
 
 	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
 
@@ -61,10 +61,10 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 */
 	QStringList get_axes_names_list() const;
 	QStringList get_zones_names_list() const;
-	inline QStringList get_original_axes_names_list() const
-	{
-		return get_axes_combination().get_original_axes_names_list();
-	}
+	// inline QStringList get_original_axes_names_list() const
+	//{
+	//	return get_axes_combination().get_original_axes_names_list();
+	//}
 
 	/**
 	 * Gets the name of the chosen axis according to the actual PVAxesCombination
@@ -75,7 +75,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 *
 	 */
 	const QString& get_axis_name(PVCol index) const;
-	PVAxis const& get_axis(PVCol const comb_index) const;
+	PVRush::PVAxisFormat const& get_axis(PVCol const comb_index) const;
 	bool is_last_axis(PVCol const axis_comb) const { return axis_comb == get_column_count() - 1; }
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
@@ -95,8 +95,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	}
 
 	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
-	void set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
-	                                  PVAxesCombination::list_axes_t const& axes);
+	void set_axes_combination(std::vector<PVCol> const& comb);
 
 	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
 	inline PVLayer& get_current_layer() { return layer_stack.get_selected_layer(); }
@@ -115,12 +114,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	inline id_t get_display_view_id() const { return _view_id + 1; }
 
-	PVCol get_original_axes_count() const;
-	QString get_original_axis_name(PVCol axis_id) const;
-	inline PVCol get_original_axis_index(PVCol view_idx) const
-	{
-		return _axes_combination.get_axis_column_index(view_idx);
-	}
+	QString get_nraw_axis_name(PVCol axis_id) const;
 
 	PVLayer const& get_output_layer() const { return output_layer; }
 
@@ -258,7 +252,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVRush::PVNraw& get_rushnraw_parent();
 	PVRush::PVNraw const& get_rushnraw_parent() const;
 
-	PVCol get_real_axis_index(PVCol col) const;
+	PVCol get_nraw_axis_index(PVCol col) const;
 
 	PVRow get_plotted_col_min_row(PVCol const combined_col) const;
 	PVRow get_plotted_col_max_row(PVCol const combined_col) const;
