@@ -12,6 +12,8 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/inendi_assert.h>
 
+#include "common.h"
+
 #include <fstream>
 
 int main(int argc, char** argv)
@@ -110,7 +112,7 @@ int main(int argc, char** argv)
 	 *
 	 * TODO : What happen with no result?
 	 *************************************************************************/
-	std::string output_file = "/tmp/Trush_elasticsearch.export";
+	std::string output_file = pvtest::get_tmp_filename();
 	std::string reference_file = argv[1];
 	std::string reference_sorted_file = output_file + "_sorted";
 	std::ofstream output_stream(output_file, std::ios::out | std::ios::trunc);

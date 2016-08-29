@@ -34,7 +34,7 @@ class PVConverter
 
   public:
 	/**
-	 * Create an ICU converter
+	 * Create an ICU converter from a string
 	 */
 	PVConverter(std::string const& converter_name)
 	{
@@ -45,6 +45,11 @@ class PVConverter
 			throw PVConverterCreationError("Fail to create ICU converter.");
 		}
 	}
+
+	/**
+	 * Wrap a converter RAII style to properly handle deallocation
+	 */
+	PVConverter(UConverter* converter) : _ucnv(converter) {}
 
 	/**
 	 * Realease ICU converter.

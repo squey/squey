@@ -7,7 +7,7 @@
 
 #include <pvkernel/rush/PVCharsetDetect.h>
 
-PVRush::PVCharsetDetect::PVCharsetDetect() : nsUniversalDetector(), _found(false)
+PVRush::PVCharsetDetect::PVCharsetDetect() : nsUniversalDetector(NS_FILTER_ALL), _found(false)
 {
 }
 

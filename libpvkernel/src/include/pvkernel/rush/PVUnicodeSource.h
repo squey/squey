@@ -25,6 +25,15 @@ class UnicodeSourceError : public std::runtime_error
 };
 
 /**
+ * Exception thrown by Unicode Source when the conversion result
+ * would not fit in the supplied buffer.
+ */
+class UnicodeSourceBufferOverflowError : public std::exception
+{
+	using std::exception::exception;
+};
+
+/**
  * Source to read file in unicode format.
  *
  * It creates Chunks/Elements/Fields without BOM and in UTF-8
@@ -126,6 +135,34 @@ class PVUnicodeSource : public PVRawSourceBase
 	}
 
 	/**
+	 * Return the endianness suffix of UTF charsets in order to avoid the
+	 * need to add a BOM in the begining of each chunk.
+	 * (uchardet doesn't specify it anymore since version 0.0.5 because
+	 * the standard explicitly warns against it)
+	 */
+	static const char* get_UTF_endianness_suffix_from_BOM(char* begin_read,
+	                                                      const std::string& charset)
+	{
+		if (charset == "UTF-32") {
+			uint32_t bom32 = *((uint32_t*)begin_read);
+			if (bom32 == 0xFFFE0000) {
+				return "BE";
+			} else if (bom32 == 0x0000FEFF) {
+				return "LE";
+			}
+		} else if (charset == "UTF-16") {
+			uint16_t& bom16 = *((uint16_t*)begin_read);
+			if (bom16 == 0xFFFE) {
+				return "BE";
+			} else if (bom16 == 0xFEFF) {
+				return "LE";
+			}
+		}
+
+		return "";
+	}
+
+	/**
 	 * Detect charset and remove BOM if required.
 	 */
 	char* get_begin_from_charset(char* begin, size_t len)
@@ -135,10 +172,15 @@ class PVUnicodeSource : public PVRawSourceBase
 				_cd.DataEnd();
 				if (_cd.found()) {
 					_charset = _cd.GetCharset();
+
 					PVLOG_DEBUG("Encoding found : %s\n", _charset.c_str());
 
-					bool remove_bom =
-					    (_charset.find("UTF") != _charset.npos); // Remove BOM only for UTF-X
+					bool remove_bom = false;
+					if (_charset.find("UTF") != _charset.npos) {
+						remove_bom = true;
+						_charset += get_UTF_endianness_suffix_from_BOM(begin, _charset);
+					}
+
 					if (remove_bom) {
 						return begining_with_bom(begin);
 					}
@@ -154,7 +196,7 @@ class PVUnicodeSource : public PVRawSourceBase
 	}
 
 	/**
-	 * Detect end and return nullptr if not new line can be found.
+	 * Detect end and return nullptr if no new line can be found.
 	 */
 	char* get_end_from_charset(char* begin, size_t len)
 	{
@@ -198,14 +240,39 @@ class PVUnicodeSource : public PVRawSourceBase
 			}
 
 			char* target = begin;
-			const char* dest = &_tmp_buf.front();
+			char* target_limit = _curc->physical_end();
+
+			const char* source = &_tmp_buf.front();
+			const char* source_limit = source + _tmp_buf.size();
 
 			UErrorCode status = U_ZERO_ERROR;
-			ucnv_convertEx(&_utf8_converter.get(), &_origin_converter->get(), &target,
-			               _curc->physical_end(), &dest, dest + _tmp_buf.size(), nullptr, nullptr,
-			               nullptr, nullptr, true, true, &status);
-			if (U_FAILURE(status)) {
-				throw UnicodeSourceError("Fail conversion from ICU");
+
+			PVConverter target_converter(
+			    ucnv_safeClone(&_utf8_converter.get(), nullptr, nullptr, &status));
+			PVConverter source_converter(
+			    ucnv_safeClone(&_origin_converter->get(), nullptr, nullptr, &status));
+
+			status = U_ZERO_ERROR;
+
+			// http://icu-project.org/apiref/icu4c/ucnv_8h.html#af4c967c5afa207d064c24e19256586b6
+			ucnv_convertEx(&target_converter.get(), &source_converter.get(), &target, target_limit,
+			               &source, source_limit,
+			               nullptr, // pivotStart
+			               nullptr, // pivotSource
+			               nullptr, // pivotTarget
+			               nullptr, // pivotLimit
+			               true,    // reset
+			               true,    // flush
+			               &status);
+
+			if (status == U_BUFFER_OVERFLOW_ERROR) {
+				// Copy the unconverted string back to the chunk to prevent side effects
+				std::copy(_tmp_buf.begin(), _tmp_buf.end(), begin);
+				throw UnicodeSourceBufferOverflowError();
+			} else if (U_FAILURE(status)) {
+				throw UnicodeSourceError(
+				    (std::string("ICU charset conversion failed : ") + u_errorName(status))
+				        .c_str());
 			}
 			return target;
 		}
@@ -261,7 +328,6 @@ class PVUnicodeSource : public PVRawSourceBase
 			_curc = _curc->realloc_grow(_chunk_size / 10);
 
 			b = start_offset + _curc->begin();
-			;
 			r = _input->operator()(_curc->end(), _curc->avail());
 			buffer_end = _curc->end() + r;
 
@@ -272,7 +338,20 @@ class PVUnicodeSource : public PVRawSourceBase
 		// Copy remaining chars in the next chunk
 		_nextc->set_end(std::copy(end, buffer_end, _nextc->begin()));
 
-		_curc->set_end(convert_buffer(b, end));
+		while (true) {
+			try {
+				_curc->set_end(convert_buffer(b, end));
+				break;
+			} catch (const UnicodeSourceBufferOverflowError& e) {
+				/**
+				 * Increase the size of the buffer and retry if a buffer
+				 * overflow occured during the conversion
+				 */
+				_curc = _curc->realloc_grow(_chunk_size);
+				b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
+				end = get_end_from_charset(_curc->begin(), _curc->size() + r);
+			}
+		}
 
 		// Create an element and align its end on Chunk's end
 		create_elements(b, _curc->end());
