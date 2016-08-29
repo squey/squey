@@ -25,23 +25,12 @@ class PVElasticsearchQuery : public PVInputDescription
 	friend class PVCore::PVSerializeObject;
 
   public:
-	typedef std::set<uint32_t> fields_indexes_t;
-
-  public:
-	PVElasticsearchQuery(){};
 	PVElasticsearchQuery(PVElasticsearchInfos const& infos,
 	                     QString const& query,
 	                     QString const& query_type);
-	~PVElasticsearchQuery();
 
   public:
 	virtual bool operator==(const PVInputDescription& other) const;
-
-	void set_start_ms(int64_t start_ms) { _start_ms = start_ms; }
-	int64_t get_start_ms() const { return _start_ms; }
-
-	void set_end_ms(int64_t end_ms) { _end_ms = end_ms; }
-	int64_t get_end_ms() const { return _end_ms; }
 
 	void set_query(QString const& query) { _query = query; }
 	QString const& get_query() const { return _query; }
@@ -54,28 +43,20 @@ class PVElasticsearchQuery : public PVInputDescription
 
 	QString human_name() const;
 
-	bool keep_all_fields() const { return _fields_kept.size() == 0; }
-
-	fields_indexes_t const& get_fields_kept() const { return _fields_kept; }
-	fields_indexes_t& get_fields_kept() { return _fields_kept; }
-
   public:
 	virtual void save_to_qsettings(QSettings& settings) const;
-	virtual void load_from_qsettings(const QSettings& settings);
+	static std::unique_ptr<PVRush::PVInputDescription>
+	load_from_qsettings(const QSettings& settings);
 
   public:
-	void serialize_read(PVCore::PVSerializeObject& so);
+	static std::unique_ptr<PVRush::PVInputDescription>
+	serialize_read(PVCore::PVSerializeObject& so);
 	void serialize_write(PVCore::PVSerializeObject& so);
-
-	PVSERIALIZEOBJECT_SPLIT
 
   protected:
 	PVElasticsearchInfos _infos;
 	QString _query;
 	QString _query_type;
-	int64_t _start_ms;
-	int64_t _end_ms;
-	fields_indexes_t _fields_kept;
 };
 }
 

@@ -165,7 +165,7 @@ add_pv_compile_test(Trush_ticket_1 LINKS ${LINK_LIBRARIES} FILES ticket_1.cpp)
 add_test(Trush_ticket_1 Trush_ticket_1 ${PVRUSH_TEST_FILES})
 
 add_pv_compile_test(Trush_ticket_2 LINKS ${LINK_LIBRARIES} FILES ticket_2.cpp)
-add_test(Trush_ticket_2 Trush_ticket_2)
+add_test(LONG_Trush_ticket_2 Trush_ticket_2)
 
 add_pv_compile_test(Trush_ticket_28 LINKS ${LINK_LIBRARIES} FILES ticket_28.cpp)
 add_test(Trush_ticket_28 Trush_ticket_28 ${PVRUSH_TEST_FILES})

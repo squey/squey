@@ -9,7 +9,6 @@
 #define PVCORE_PVSERIALIZEARCHIVEOPTIONS_H
 
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 
 namespace PVCore
 {
@@ -19,17 +18,9 @@ class PVSerializeArchiveOptions : public PVSerializeArchive
 	friend class PVSerializeObject;
 
   public:
-	typedef PVSerializeArchiveOptions_p p_type;
-
-  public:
 	PVSerializeArchiveOptions(version_t version) : PVSerializeArchive(version) { _mode = write; }
+	PVSerializeArchiveOptions(const PVSerializeArchiveOptions& obj) = delete;
 	virtual ~PVSerializeArchiveOptions() {}
-
-  private:
-	PVSerializeArchiveOptions(const PVSerializeArchiveOptions& obj) : PVSerializeArchive(obj)
-	{
-		assert(false);
-	}
 
   public:
 	bool must_write(PVSerializeObject const& parent, QString const& name);

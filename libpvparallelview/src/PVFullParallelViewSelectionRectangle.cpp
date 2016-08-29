@@ -100,7 +100,8 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 	const PVZoneID zone_id_end =
 	    get_lines_view().get_zone_from_scene_pos(srect.x() + srect.width());
 
-	lib_view().get_volatile_selection().select_none();
+	Inendi::PVSelection sel(lib_view().get_row_count());
+	sel.select_none();
 
 	for (PVZoneID z = zone_id_start; z <= zone_id_end; z++) {
 		QRect r = scene_parent()->map_to_axis(z, srect);
@@ -108,13 +109,12 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 		r.setRight(std::min(pos_end - 1, r.right()));
 		PVSelectionGenerator::compute_selection_from_parallel_view_rect(
 		    get_lines_view().get_zone_width(z),
-		    get_lines_view().get_zones_manager().get_zone_tree(z), r,
-		    lib_view().get_volatile_selection());
+		    get_lines_view().get_zones_manager().get_zone_tree(z), r, sel);
 	}
 
 	store();
 
-	PVSelectionGenerator::process_selection(lib_view(), use_selection_modifiers);
+	PVSelectionGenerator::process_selection(lib_view(), sel, use_selection_modifiers);
 }
 
 /*****************************************************************************

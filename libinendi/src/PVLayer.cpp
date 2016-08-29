@@ -84,7 +84,7 @@ void Inendi::PVLayer::reset_to_full_and_default_color()
 
 void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 {
-	PVCol col_count = plotted.get_column_count();
+	PVCol col_count = plotted.get_nraw_column_count();
 	_row_mins.resize(col_count);
 	_row_maxs.resize(col_count);
 
@@ -97,33 +97,44 @@ void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 	}
 }
 
-bool Inendi::PVLayer::get_min_for_col(PVCol col, PVRow& row) const
+void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so)
 {
-	if (col >= (PVCol)_row_mins.size()) {
-		return false;
-	}
+	auto sel_obj = so.create_object("selection", "selection", true, true);
+	selection.serialize_write(*sel_obj);
 
-	row = _row_mins[col];
-	return true;
-}
+	auto lp_obj = so.create_object("lp", "Lines properties", true, true);
+	lines_properties.serialize_write(*lp_obj);
 
-bool Inendi::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
-{
-	if (col >= (PVCol)_row_maxs.size()) {
-		return false;
-	}
-
-	row = _row_maxs[col];
-	return true;
-}
-
-void Inendi::PVLayer::serialize(PVCore::PVSerializeObject& so,
-                                PVCore::PVSerializeArchive::version_t /*v*/)
-{
-	so.object("selection", selection, "selection", true, (PVSelection*)nullptr, false);
-	so.object("lp", lines_properties, "lp", true, (PVLinesProperties*)nullptr, false);
 	so.attribute("name", name);
 	so.attribute("visible", visible);
 	so.attribute("index", index);
 	so.attribute("locked", _locked);
+}
+
+Inendi::PVLayer Inendi::PVLayer::serialize_read(PVCore::PVSerializeObject& so)
+{
+	QString name;
+	so.attribute("name", name);
+
+	auto sel_obj = so.create_object("selection", "selection", true, true);
+	Inendi::PVSelection sel(Inendi::PVSelection::serialize_read(*sel_obj));
+
+	auto lp_obj = so.create_object("lp", "Lines properties", true, true);
+	Inendi::PVLinesProperties lines_properties = Inendi::PVLinesProperties::serialize_read(*lp_obj);
+
+	Inendi::PVLayer layer(name, sel, lines_properties);
+	bool visible;
+	so.attribute("visible", visible);
+	layer.set_visible(visible);
+
+	int index;
+	so.attribute("index", index);
+	layer.set_index(index);
+
+	bool locked;
+	so.attribute("locked", locked);
+	if (locked) {
+		layer.set_lock();
+	}
+	return layer;
 }

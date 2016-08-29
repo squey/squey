@@ -8,8 +8,8 @@
 #ifndef PVSERIALIZEOPTIONSMODEL_H
 #define PVSERIALIZEOPTIONSMODEL_H
 
-#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/core/PVSerializeObject.h>
+#include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <QAbstractItemModel>
 
@@ -19,11 +19,11 @@ namespace PVInspector
 class PVSerializeOptionsModel : public QAbstractItemModel
 {
   public:
-	PVSerializeOptionsModel(PVCore::PVSerializeArchiveOptions_p options, QObject* parent = 0);
+	PVSerializeOptionsModel(std::shared_ptr<PVCore::PVSerializeArchiveOptions> options,
+	                        QObject* parent = 0);
 
   public:
 	QVariant data(const QModelIndex& index, int role) const;
-	// QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	int rowCount(const QModelIndex& index) const;
 	int columnCount(const QModelIndex& index) const;
 	QModelIndex parent(const QModelIndex& index) const;
@@ -38,7 +38,7 @@ class PVSerializeOptionsModel : public QAbstractItemModel
 	void emitDataChangedChildren(const QModelIndex& index);
 
   protected:
-	PVCore::PVSerializeArchiveOptions_p _options;
+	std::shared_ptr<PVCore::PVSerializeArchiveOptions> _options;
 };
 };
 

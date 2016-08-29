@@ -181,7 +181,9 @@ void PVGuiQt::PVLayerFilterProcessWidget::reject()
 	*_args_widget->get_args() = _args_org;
 
 	// Update everything
-	_view->process_from_layer_stack();
+	Inendi::PVSelection sel(_view->get_row_count());
+	sel.select_all();
+	_view->process_layer_stack(sel);
 
 	QDialog::reject();
 }
@@ -206,10 +208,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	    current_selected_layer.get_lines_properties(),
 	    _view->get_post_filter_layer().get_selection());
 
-	_view->get_volatile_selection() = _view->get_post_filter_layer().get_selection();
-	_view->set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-
-	_view->process_from_layer_stack();
+	_view->process_layer_stack(_view->get_post_filter_layer().get_selection());
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
@@ -262,7 +261,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 
 	process();
 
-	_view->process_post_filter_layer();
+	_view->process_output_layer();
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()

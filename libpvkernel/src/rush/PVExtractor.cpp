@@ -5,21 +5,28 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/rush/PVSourceCreator.h>
 
 #include <tbb/task_scheduler_init.h>
 
-PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt)
-    : _nraw(new PVRush::PVNraw())
-    , _out_nraw(*_nraw)
-    , _chk_flt(std::move(chk_flt))
+PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
+                                 PVRush::PVNraw& nraw,
+                                 PVRush::PVSourceCreator_p src_plugin,
+                                 PVRush::PVInputType::list_inputs const& inputs)
+    : _nraw(nraw)
+    , _format(format)
+    , _out_nraw(_nraw)
+    , _chk_flt(_format.create_tbb_filters())
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
-    , _last_start(0)
-    , _last_nlines(1)
 {
+	for (auto const& input : inputs) {
+		_agg.add_input(src_plugin->create_source_from_input(input));
+	}
 	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
 	 * number of used cores (it was previously set to 5 * cores_number): That multiplier
 	 * does not have any impact on the import time but it increases the memory
@@ -34,21 +41,13 @@ PVRush::PVExtractor::PVExtractor(PVFilter::PVChunkFilterByElt chk_flt)
 	 * An other example: a file with 2 columns of 0 makes swap proto-03 at 65 Me (63
 	 * Gio used).
 	 */
-}
 
-void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
-{
-	_agg.add_input(src);
-}
+	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
-PVRush::PVFormat& PVRush::PVExtractor::get_format()
-{
-	return _format;
-}
-
-const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
-{
-	return _format;
+	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
+	if (nchunks != 0) {
+		_chunks = nchunks;
+	}
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start)
@@ -58,7 +57,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	chunk_index nlines = _format.get_line_count();
 	nlines = (nlines) ? nlines : std::numeric_limits<uint32_t>::max();
 
-	get_nraw().prepare_load(_format.get_storage_format());
+	_nraw.prepare_load(_format.get_storage_format());
 
 	_agg.set_skip_lines_count(_format.get_first_line());
 
@@ -70,9 +69,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	                        _chunks, _format.have_grep_filter()));
 	job->run_job();
 
-	_last_start = start;
-	_last_nlines = nlines;
-
 	return job;
 }
 
@@ -83,7 +79,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	if (_format.get_line_count() != 0) {
 		end = std::min<chunk_index>(end, _format.get_line_count());
 	}
-	get_nraw().prepare_load(_format.get_storage_format());
+	_nraw.prepare_load(_format.get_storage_format());
 	_agg.set_skip_lines_count(_format.get_first_line());
 
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
@@ -94,18 +90,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	job->run_job();
 
 	return job;
-}
-
-void PVRush::PVExtractor::reset_nraw()
-{
-	_nraw.reset(new PVNraw());
-	_out_nraw.set_nraw_dest(*_nraw);
-}
-
-void PVRush::PVExtractor::set_format(PVFormat const& format)
-{
-	_format = format;
-	_chk_flt = _format.create_tbb_filters();
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)

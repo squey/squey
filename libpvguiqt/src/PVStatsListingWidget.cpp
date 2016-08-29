@@ -271,7 +271,7 @@ void PVGuiQt::PVStatsListingWidget::set_refresh_buttons_enabled(bool loading)
 void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 {
 	int old_count = _stats_panel->columnCount();
-	int new_count = _listing_view->lib_view().get_axes_count();
+	int new_count = _listing_view->lib_view().get_column_count();
 	int delta = new_count - old_count;
 	if (delta > 0) {
 		for (PVCol col = old_count - 1; col < new_count - 1; col++) {
@@ -284,7 +284,7 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 		}
 	} else {
 		_stats_panel->setColumnCount(
-		    _listing_view->lib_view().get_axes_count()); // Widgets gets deleted
+		    _listing_view->lib_view().get_column_count()); // Widgets gets deleted
 	}
 	resize_panel();
 	for (PVCol col = 0; col < _stats_panel->columnCount(); col++) {
@@ -405,7 +405,6 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	setLayout(_main_layout);
 
 	QString column_type = _view.get_parent<Inendi::PVSource>()
-	                          .get_extractor()
 	                          .get_format()
 	                          .get_axes()
 	                          .at(get_real_axis_col())

@@ -19,12 +19,6 @@
 #include <pvkernel/rush/PVFormat.h>
 
 #include <inendi/PVAxis.h>
-#include <inendi/PVAxesCombination_types.h>
-
-namespace PVRush
-{
-class PVNraw;
-}
 
 namespace Inendi
 {
@@ -114,15 +108,6 @@ class PVAxesCombination
 	void clear();
 
 	/**
-	* Decrement the column index of an axis.
-	*
-	* @param index The current index of the axis to change.
-	*
-	* @return true if an error occured (the index is out of range), false upon success.
-	*/
-	bool decrease_axis_column_index(PVCol index);
-
-	/**
 	* Get the current number of used axes.
 	*
 	* @return The current number of used axes.
@@ -165,16 +150,6 @@ class PVAxesCombination
 	PVCol get_axis_column_index(PVCol index) const;
 
 	/**
-	* Get the original axis index from its name.
-	*
-	* @param name The name of the axis
-	*
-	* @return The original axis index for this axis.
-	*
-	*/
-	PVCol get_original_axis_index_from_name(QString const& name) const;
-
-	/**
 	 * Gets the QStringList of all Axes names according to their original combination
 	 *
 	 * @return The list of all names of all current axes
@@ -197,17 +172,6 @@ class PVAxesCombination
 		return columns_indexes_list[index].get_axis();
 	}
 
-	/**
-	* Get the current column index of an original axis.
-	*
-	* @param index The index of the axis in the list of the currently used axes.
-	*
-	* @return The original column index for this axis.
-	*
-	* @note This function is the inverse of #get_axis_column_index.
-	*/
-	PVCol get_combined_axis_column_index(PVCol index) const;
-
 	QList<PVCol> get_combined_axes_columns_indexes(PVCol index) const;
 
 	/**
@@ -221,18 +185,6 @@ class PVAxesCombination
 	*axes).
 	*/
 	PVCol get_original_axes_count() const;
-
-	PVCore::PVColumnIndexes get_original_axes_indexes() const;
-
-	/**
-	* Increment the column index of an axis.
-	*
-	* @param index The current index of the axis to change.
-	*
-	* @return true if an error occured (the index is out of range), false upon success.
-	*
-	*/
-	bool increase_axis_column_index(PVCol index);
 
 	/**
 	 * Returns true if the current axes combination is the default one.
@@ -306,15 +258,6 @@ class PVAxesCombination
 	*
 	*/
 	void set_from_format(PVRush::PVFormat const& format);
-
-	/**
-	 * Sets the name of the given axis, according to the current positions of axes
-	 *
-	 * @param index The Index of the targeted PVAXis
-	 * @param name_ The new name_
-	 *
-	 */
-	void set_axis_name(PVCol index, const QString& name_);
 
 	/**
 	 * @brief Replace original axes.

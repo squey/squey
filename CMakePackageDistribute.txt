@@ -49,7 +49,6 @@ set(LINUX_TBB_PATH "/opt/tbb-latest/lib/intel64/gcc4.4/")
 set(TBB_MAJOR "2")
 
 set(LINUX_BOOST_PATH "/usr/lib/x86_64-linux-gnu")
-set(BOOST_PYTHON_VER "3.2mu")
 set(BOOST_VER "1.55.0")
 
 set(LINUX_MISCLIB_PATH_64 "/usr/lib/x86_64-linux-gnu")

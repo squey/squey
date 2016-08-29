@@ -25,9 +25,8 @@ PVFilter::PVFieldsSplitter_p pvtest::guess_filter(const char* filename, PVCol& a
 	PVRush::PVSourceCreator_p sc_file =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
 
-	PVRush::PVFormat format;
 	// Process that file with the found source creator thanks to the extractor
-	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
+	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file);
 	if (!src) {
 		return PVFilter::PVFieldsSplitter_p();
 	}

@@ -7,7 +7,6 @@
 
 #include <QString>
 
-#include <inendi/PVMapping.h>
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVSelection.h>
@@ -21,10 +20,34 @@
  * Inendi::PVMapped::PVMapped
  *
  *****************************************************************************/
-Inendi::PVMapped::PVMapped(PVSource& src)
-    : PVCore::PVDataTreeChild<PVSource, PVMapped>(src), _mapping(this)
+Inendi::PVMapped::PVMapped(PVSource& src, std::string const& name)
+    : PVCore::PVDataTreeChild<PVSource, PVMapped>(src), _name(name)
 {
-	// FIXME Mapping should be merge in mapped as they are interdependant.
+	// FIXME : Should be const
+	PVSource& source = get_parent();
+
+	PVCol naxes = source.get_nraw_column_count();
+
+	if (naxes == 0) {
+		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the "
+		            "format !!!!\n");
+		assert(false);
+	}
+
+	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
+	for (PVCol i = 0; i < naxes; i++) {
+		columns.emplace_back(source.get_format(), i);
+		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
+	}
+
+	compute();
+}
+
+Inendi::PVMapped::PVMapped(PVSource& src,
+                           std::string const& name,
+                           std::list<Inendi::PVMappingProperties>&& columns)
+    : PVCore::PVDataTreeChild<PVSource, PVMapped>(src), columns(std::move(columns)), _name(name)
+{
 	compute();
 }
 
@@ -40,7 +63,7 @@ void Inendi::PVMapped::compute()
 		return;
 	}
 
-	PVCol const ncols = _mapping.get_number_cols();
+	PVCol const ncols = columns.size();
 
 	// Prepare the mapping table.
 	_trans_table.resize(ncols);
@@ -59,26 +82,21 @@ void Inendi::PVMapped::compute()
 #pragma omp parallel for
 	for (PVCol j = 0; j < ncols; j++) {
 		// Check that an update is required
-		if (_mapping.get_properties_for_col(j).is_uptodate()) {
+		if (get_properties_for_col(j).is_uptodate()) {
 			continue;
 		}
 
 		// Create our own plugins from the library
-		PVMappingFilter::p_type mf = _mapping.get_filter_for_col(j);
+		PVMappingFilter::p_type mf = get_properties_for_col(j).get_mapping_filter();
 		PVMappingFilter::p_type mapping_filter = mf->clone<PVMappingFilter>();
 
 		// Set mapping for the full column
 		_trans_table[j] = mapping_filter->operator()(j, nraw);
 
-		_mapping.get_properties_for_col(j).set_minmax(mapping_filter->get_minmax(_trans_table[j]));
+		get_properties_for_col(j).set_minmax(mapping_filter->get_minmax(_trans_table[j]));
 
-		_mapping.set_uptodate_for_col(j);
+		get_properties_for_col(j).set_uptodate();
 		invalidate_plotted_children_column(j);
-	}
-
-	// force plotteds updates (in case of .pvi load)
-	for (auto* plotted : get_children()) {
-		plotted->finish_process_from_rush_pipeline();
 	}
 }
 
@@ -94,10 +112,10 @@ PVRow Inendi::PVMapped::get_row_count() const
 
 /******************************************************************************
  *
- * Inendi::PVMapped::get_column_count
+ * Inendi::PVMapped::get_nraw_column_count
  *
  *****************************************************************************/
-PVCol Inendi::PVMapped::get_column_count() const
+PVCol Inendi::PVMapped::get_nraw_column_count() const
 {
 	return _trans_table.size();
 }
@@ -135,12 +153,24 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
  *****************************************************************************/
 void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
-	so.object(QString("mapping"), _mapping, QString(), false, nullptr, false);
+
+	QString name = QString::fromStdString(_name);
+	so.attribute("name", name);
+
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
+
+	int idx = 0;
+	for (PVMappingProperties& prop : columns) {
+		QString child_name = QString::number(idx++);
+		PVCore::PVSerializeObject_p new_obj = list_prop->create_object(child_name, "", false);
+		prop.serialize_write(*new_obj);
+		new_obj->set_bound_obj(prop);
+	}
 
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
-	int idx = 0;
+	idx = 0;
 	for (PVPlotted* plotted : get_children()) {
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
@@ -158,13 +188,27 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
                                                    Inendi::PVSource& parent)
 {
+	QString name;
+	so.attribute("name", name);
 
-	PVMapped& mapped = parent.emplace_add_child();
-	so.object(QString("mapping"), mapped.get_mapping(), QString(), false, nullptr, false);
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
+
+	int idx = 0;
+	std::list<Inendi::PVMappingProperties> columns;
+	try {
+		while (true) {
+			PVCore::PVSerializeObject_p new_obj = list_prop->create_object(QString::number(idx++));
+			columns.emplace_back(PVMappingProperties::serialize_read(*new_obj));
+		}
+	} catch (PVCore::PVSerializeArchiveErrorNoObject const& /*e*/) {
+	}
+
+	PVMapped& mapped = parent.emplace_add_child(name.toStdString(), std::move(columns));
+
 	// Create the list of plotted
 	PVCore::PVSerializeObject_p list_obj = so.create_object(
 	    mapped.get_children_serialize_name(), mapped.get_children_description(), true, true);
-	int idx = 0;
+	idx = 0;
 	try {
 		while (true) {
 			// FIXME It throws when there are no more data collections.

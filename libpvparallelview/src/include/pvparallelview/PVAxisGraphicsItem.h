@@ -61,7 +61,8 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
   public:
 	PVAxisGraphicsItem(PVSlidersManager* sm_p,
 	                   Inendi::PVView const& view,
-	                   const axis_id_t& axis_id);
+	                   const axis_id_t& axis_id,
+	                   PVRush::PVAxisFormat const& axis_fmt);
 	~PVAxisGraphicsItem();
 
 	void
@@ -115,6 +116,8 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	PVAxisLabel* label() const { return _label; }
 
+	QColor get_title_color() const { return _axis_fmt.get_titlecolor().toQColor(); }
+
   public Q_SLOTS:
 	void emit_new_zoomed_parallel_view(int axis_id) { Q_EMIT new_zoomed_parallel_view(axis_id); }
 
@@ -127,7 +130,6 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	void mouse_clicked(PVCol axis);
 
   private:
-	Inendi::PVAxis const* lib_axis() const;
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
 	inline bool show_min_max_values() const { return _minmax_visible; }
 
@@ -138,6 +140,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
   private:
 	PVSlidersManager* _sliders_manager_p;
 	axis_id_t _axis_id;
+	PVRush::PVAxisFormat const& _axis_fmt;
 	QRectF _bbox;
 	Inendi::PVView const& _lib_view;
 	PVSlidersGroup* _sliders_group;

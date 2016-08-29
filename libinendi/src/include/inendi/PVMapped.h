@@ -15,7 +15,6 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
-#include <inendi/PVMapping.h>
 #include <inendi/PVMappingProperties.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
@@ -41,7 +40,10 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	using mapped_table_t = std::vector<pvcop::db::array>;
 
   public:
-	PVMapped(PVSource& src);
+	PVMapped(PVSource& src, std::string const& name = "default");
+	PVMapped(PVSource& src,
+	         std::string const& name,
+	         std::list<Inendi::PVMappingProperties>&& columns);
 
   public:
 	/**
@@ -49,14 +51,32 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	 */
 	void update_mapping();
 
-	inline bool is_uptodate() const { return _mapping.is_uptodate(); };
+	inline bool is_uptodate() const
+	{
+		return std::all_of(columns.begin(), columns.end(),
+		                   std::mem_fn(&PVMappingProperties::is_uptodate));
+	}
 
 	/**
 	 * Accessors and modifiers for Mapping.
 	 */
-	PVMapping& get_mapping() { return _mapping; }
-	const PVMapping& get_mapping() const { return _mapping; }
-	std::string const& get_name() const { return _mapping.get_name(); }
+	std::string const& get_name() const { return _name; }
+	void set_name(std::string const& name) { _name = name; }
+
+	PVMappingProperties const& get_properties_for_col(PVCol col) const
+	{
+		assert((size_t)col < columns.size());
+		auto it = columns.begin();
+		std::advance(it, col);
+		return *it;
+	}
+	PVMappingProperties& get_properties_for_col(PVCol col)
+	{
+		assert((size_t)col < columns.size());
+		auto it = columns.begin();
+		std::advance(it, col);
+		return *it;
+	}
 
 	/**
 	 * Ask to compute mapping based on Mapping filter for each column.
@@ -68,7 +88,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
   public:
 	// Data access
 	PVRow get_row_count() const;
-	PVCol get_column_count() const;
+	PVCol get_nraw_column_count() const;
 
 	/**
 	 * Access mapping value for given row/col.
@@ -98,8 +118,8 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 
   protected:
 	mapped_table_t _trans_table; //!< This is a vector of vector which contains "for each column"
-	// mapping of cell.
-	PVMapping _mapping; //!< Contains properties for every column.
+	std::list<PVMappingProperties> columns;
+	std::string _name;
 };
 }
 

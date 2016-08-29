@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 	std::string output_tmp_file = pvtest::get_tmp_filename();
 
 	// Dump the NRAW to file and check value is the same
-	env._ext.get_nraw().dump_csv(output_tmp_file);
+	env._nraw.dump_csv(output_tmp_file);
 
 	PV_VALID(PVCore::file_content(output_tmp_file), PVCore::file_content(output_file));
 

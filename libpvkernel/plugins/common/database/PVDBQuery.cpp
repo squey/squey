@@ -68,14 +68,15 @@ void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("server", *_infos, QString(), false, (PVDBServ*)nullptr, false);
 }
 
-void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
+std::unique_ptr<PVRush::PVInputDescription>
+PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	QString query;
 	so.attribute("query", query);
-	set_query(query);
 	PVDBInfos infos;
 	so.object("server", infos);
-	_infos.reset(new PVDBServ(infos));
+	return std::unique_ptr<PVDBQuery>(
+	    new PVDBQuery(std::shared_ptr<PVDBServ>(new PVDBServ(infos)), query));
 }
 
 void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
@@ -89,13 +90,17 @@ void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
 	settings.setValue("port", _infos->get_port());
 }
 
-void PVRush::PVDBQuery::load_from_qsettings(const QSettings& settings)
+std::unique_ptr<PVRush::PVInputDescription>
+PVRush::PVDBQuery::load_from_qsettings(const QSettings& settings)
 {
-	_infos->set_type(settings.value("type").toString());
-	_infos->set_host(settings.value("host").toString());
-	_infos->set_username(settings.value("username").toString());
-	_infos->set_password(settings.value("password").toString());
-	_infos->set_options(settings.value("options").toString());
-	_infos->set_dbname(settings.value("dbname").toString());
-	_infos->set_port(settings.value("port").toInt());
+	PVDBInfos infos;
+	infos.set_type(settings.value("type").toString());
+	infos.set_host(settings.value("host").toString());
+	infos.set_username(settings.value("username").toString());
+	infos.set_password(settings.value("password").toString());
+	infos.set_options(settings.value("options").toString());
+	infos.set_dbname(settings.value("dbname").toString());
+	infos.set_port(settings.value("port").toInt());
+	return std::unique_ptr<PVDBQuery>(
+	    new PVDBQuery(std::shared_ptr<PVDBServ>(new PVDBServ(infos)), ""));
 }

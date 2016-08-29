@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	Inendi::PVView* view = env.root.current_view();
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
-	    view->get_axes_combination().get_original_axes_indexes();
+	    view->get_parent<Inendi::PVSource>().get_format().get_axes_comb();
 
 	PVCore::PVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,

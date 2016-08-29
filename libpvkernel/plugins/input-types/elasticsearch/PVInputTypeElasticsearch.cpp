@@ -13,11 +13,6 @@
 
 #include "../../common/elasticsearch/PVElasticsearchInfos.h"
 
-PVRush::PVInputTypeElasticsearch::PVInputTypeElasticsearch()
-    : PVInputTypeDesc<PVElasticsearchQuery>(), _is_custom_format(false)
-{
-}
-
 bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
                                                     hash_formats& /*new_formats*/,
                                                     list_inputs& inputs,

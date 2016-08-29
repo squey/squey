@@ -51,8 +51,7 @@ int main()
 
 	PVRush::PVSourceCreator_p sc =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("elasticsearch");
-	PVRush::PVFormat format;
-	PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(ind, format);
+	PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(ind);
 	auto& source = *src;
 
 	std::string output_file = pvtest::get_tmp_filename();

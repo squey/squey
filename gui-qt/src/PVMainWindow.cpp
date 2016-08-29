@@ -8,14 +8,8 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDialog>
-#include <QDialogButtonBox>
 #include <QFile>
-#include <QFrame>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QLine>
 #include <QLabel>
-#include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QVBoxLayout>
@@ -37,12 +31,11 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
+#include <pvkernel/rush/PVUnicodeSourceError.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
 
 #include <inendi/PVSelection.h>
-#include <inendi/PVMapping.h>
-#include <inendi/PVPlotting.h>
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVSource.h>
 
@@ -53,15 +46,11 @@
 
 #include <tbb/tick_count.h>
 
-QFile* report_file;
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::PVMainWindow
  *
  *****************************************************************************/
-Q_DECLARE_METATYPE(Inendi::PVSource*);
-
 PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
     : QMainWindow(parent)
     , _load_solution_dlg(this,
@@ -254,10 +243,6 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 
 				// Save this format/creator pair to the "format_creator" object
 				ctxt.format_creator[it_cus_f.key()] = v;
-
-				// We don't want to override text format type with Python or Perl
-				if (src_creator->name() == "text")
-					break;
 			}
 		}
 
@@ -369,8 +354,6 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 	inendi_view->commit_selection_to_layer(layer);
 	inendi_view->update_current_layer_min_max();
 	inendi_view->compute_selectable_count(layer);
-	// and to update the layer-stack
-	inendi_view->process_from_layer_stack();
 }
 
 /******************************************************************************
@@ -407,7 +390,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		// do not forget to update the current layer
 		inendi_view->compute_selectable_count(current_layer);
 
-		inendi_view->process_from_layer_stack();
+		inendi_view->process_layer_stack(inendi_view->get_real_output_selection());
 	}
 }
 
@@ -519,39 +502,6 @@ void PVInspector::PVMainWindow::close_solution_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::get_tab_from_view
- *
- *****************************************************************************/
-PVGuiQt::PVSourceWorkspace*
-PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView* inendi_view)
-{
-	return get_tab_from_view(*inendi_view);
-}
-
-PVGuiQt::PVSourceWorkspace*
-PVInspector::PVMainWindow::get_tab_from_view(Inendi::PVView const& inendi_view)
-{
-	// This returns the tab associated to a inendi view
-	const Inendi::PVScene& scene = inendi_view.get_parent<Inendi::PVScene>();
-	PVGuiQt::PVSceneWorkspacesTabWidget* workspaces_tab_widget =
-	    _projects_tab_widget->get_workspace_tab_widget_from_scene(&scene);
-	for (int i = 0; workspaces_tab_widget && i < workspaces_tab_widget->count(); i++) {
-		PVGuiQt::PVSourceWorkspace* tab =
-		    dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspaces_tab_widget->widget(i));
-		if (!tab) {
-			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
-		} else {
-			if (get_root().current_view() == &inendi_view) {
-				return tab;
-				/* We refresh the listing */
-			}
-		}
-	}
-	return nullptr;
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::import_type
  *
  *****************************************************************************/
@@ -585,10 +535,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 				PVRush::hash_format_creator::mapped_type v(it.value(), src_creator);
 				// Save this format/creator pair to the "format_creator" object
 				format_creator[it.key()] = v;
-
-				// We don't want to override text format type with Python or Perl
-				if (src_creator->name() == "text")
-					break;
 			}
 		}
 	}
@@ -659,9 +605,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
 					PVRush::hash_format_creator::mapped_type v(hf_it.value(), *src_cr_it);
 					format_creator[hf_it.key()] = v;
-					// We don't want to override text format type with Python or Perl
-					if ((*src_cr_it)->name() == "text")
-						break;
 				}
 			}
 		}
@@ -694,9 +637,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
 				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
 				format_creator[format_name] = v;
-				// We don't want to override text format type with Python or Perl
-				if ((*src_cr_it)->name() == "text")
-					break;
 			}
 
 			if (fi.isReadable()) {
@@ -953,9 +893,6 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 			PVRush::hash_format_creator::mapped_type v(new_format, src_creator);
 			// Save this format/creator pair to the "format_creator" object
 			format_creator["custom:arg"] = v;
-			// We don't want to override text format type with Python or Perl
-			if (src_creator->name() == "text")
-				break;
 		}
 		format = "custom:arg";
 	} else {
@@ -1092,7 +1029,7 @@ static QString bad_conversions_as_string(
 {
 	QStringList l;
 
-	const Inendi::PVAxesCombination& ac = src->get_axes_combination();
+	auto const& ax = src->get_format().get_axes();
 
 	for (const auto& bad_conversion : bad_conversions) {
 
@@ -1101,8 +1038,8 @@ static QString bad_conversions_as_string(
 
 		for (const auto& bad_field : bad_conversion.second) {
 			const PVCol col = bad_field.first;
-			const QString& axis_name = ac.get_original_axis(col).get_name();
-			const QString& axis_type = ac.get_original_axis(col).get_type();
+			const QString& axis_name = ax[col].get_name();
+			const QString& axis_type = ax[col].get_type();
 
 			str += " " + axis_name + " (" + axis_type + ") : \"" +
 			       QString::fromStdString(bad_field.second) + "\"";
@@ -1148,6 +1085,10 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	} catch (PVRush::PVInputException const& e) {
 		QMessageBox::critical(this, "Cannot create sources",
 		                      QString("Error with input: ") + e.what());
+		return false;
+	} catch (PVRush::UnicodeSourceError const&) {
+		QMessageBox::critical(this, "Cannot create sources",
+		                      "File encoding does permit Inspector to perform extraction.");
 		return false;
 	}
 
@@ -1261,26 +1202,14 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	/* We let the user select a color */
-	PVWidgets::PVColorDialog* pv_ColorDialog = new PVWidgets::PVColorDialog(this);
-	if (pv_ColorDialog->exec() != QDialog::Accepted) {
+	PVWidgets::PVColorDialog dial;
+	if (dial.exec() != QDialog::Accepted) {
 		return;
 	}
-	PVCore::PVHSVColor color = pv_ColorDialog->color();
+
+	PVCore::PVHSVColor color = dial.color();
 
 	inendi_view->set_color_on_active_layer(color);
-	inendi_view->process_from_layer_stack();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::set_selection_from_layer
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::set_selection_from_layer(Inendi::PVView& view,
-                                                         Inendi::PVLayer const& layer)
-{
-	view.set_selection_from_layer(layer);
-	view.process_real_output_selection();
 }
 
 /******************************************************************************

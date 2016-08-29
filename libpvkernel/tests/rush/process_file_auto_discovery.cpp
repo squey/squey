@@ -61,20 +61,11 @@ int main(int argc, char** argv)
 	PVRush::pair_format_creator fc_first = discovery.rbegin()->second;
 	PVRush::PVFormat used_format = fc_first.first;
 	PVRush::PVSourceCreator_p sc_file = fc_first.second;
-	used_format.populate();
 
-	PVLOG_INFO("Creating source with format %s...\n", qPrintable(used_format.get_format_name()));
-	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, used_format);
-	if (!src) {
-		std::cerr << "Unable to create PVRush source from file " << argv[1] << std::endl;
-		return 1;
-	}
 	PVLOG_INFO("Source created.\n");
 
-	PVRush::PVExtractor ext(used_format.create_tbb_filters());
-	ext.add_source(src);
-	ext.set_format(used_format);
-
+	PVRush::PVNraw nraw;
+	PVRush::PVExtractor ext(used_format, nraw, sc_file, {file});
 	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0);
 	job->wait_end();
 

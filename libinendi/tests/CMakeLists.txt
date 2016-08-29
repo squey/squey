@@ -4,8 +4,6 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-configure_file(test_issues.sh.cmake test_issues.sh @ONLY)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
 set(LINK_LIBRARIES pvkernel inendi ${TBB_LIBRARIES} ${ICU_LIBRARY}
@@ -25,7 +23,6 @@ add_test(Tinendi_format Tinendi_format)
 add_pv_compile_test(Tinendi_source_serialize LINKS ${LINK_LIBRARIES} FILES source-serialize.cpp)
 add_pv_compile_test(Tinendi_root_serialize LINKS ${LINK_LIBRARIES} FILES root-serialize.cpp)
 add_pv_compile_test(sel_red LINKS ${LINK_LIBRARIES} FILES selection_red.cpp)
-add_pv_compile_test(Tinendi_process LINKS ${LINK_LIBRARIES} FILES inendi-process.cpp)
 add_pv_compile_test(Tqt_new_layer_dialog LINKS ${LINK_LIBRARIES} FILES new_layer_dialog.cpp)
 add_pv_compile_test(Tinendi_export_selection LINKS ${LINK_LIBRARIES} FILES export_selection.cpp)
 add_test(Tinendi_export_selection Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log ${TESTS_FILES_DIR}/formats/proxy.log.format)
@@ -105,6 +102,9 @@ add_bench(Tmapping_time_us_week LINKS ${LINK_LIBRARIES} FILES mapping_time_us_we
 
 add_pv_compile_test(Tinendi_investigation LINKS ${LINK_LIBRARIES} FILES investigation.cpp)
 add_test(Tinendi_investigation Tinendi_investigation)
+
+add_pv_compile_test(Tinendi_investigation_multisource LINKS ${LINK_LIBRARIES} FILES investigation_multisource.cpp)
+add_test(Tinendi_investigation_multisource Tinendi_investigation_multisource)
 
 add_pv_compile_test(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_default.cpp)
 add_test(Tplotting_integer_default_default Tplotting_integer_default_default)

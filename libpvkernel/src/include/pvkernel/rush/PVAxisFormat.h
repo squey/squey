@@ -24,6 +24,8 @@
 #include <pvkernel/core/PVListFastCmp.h>
 #include <pvkernel/rush/PVTags.h>
 
+#include <pvbase/types.h>
+
 namespace PVRush
 {
 
@@ -38,7 +40,7 @@ class PVAxisFormat
 	typedef QHash<QString, QString> node_args_t;
 
   public:
-	PVAxisFormat();
+	PVAxisFormat(PVCol index);
 
 	QString get_color_str() const { return color.toQColor().name(); }
 	PVCore::PVColor const& get_color() const { return color; }
@@ -91,6 +93,9 @@ class PVAxisFormat
 	PVTags tags;
 	id_t unique_id;
 	bool unique_id_computed;
+
+  public:
+	PVCol index;
 
   protected:
 	void compute_unique_id(QVector<uint32_t> const& tree_ids);

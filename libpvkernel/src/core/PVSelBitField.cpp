@@ -237,6 +237,13 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::and_not(const PVSelBitField& rhs)
 	return *this;
 }
 
+PVCore::PVSelBitField PVCore::PVSelBitField::operator~() const
+{
+	PVCore::PVSelBitField res = *this;
+	pvcop::core::algo::invert_selection(res);
+	return res;
+}
+
 /******************************************************************************
  *
  * PVCore::PVSelBitField::select_all
@@ -426,17 +433,19 @@ PVRow PVCore::PVSelBitField::find_previous_set_bit(const PVRow index, const PVRo
 	return PVROW_INVALID_VALUE;
 }
 
-void PVCore::PVSelBitField::serialize(PVCore::PVSerializeObject& so,
-                                      PVCore::PVSerializeArchive::version_t /*v*/)
+void PVCore::PVSelBitField::serialize_write(PVCore::PVSerializeObject& so)
 {
 	size_t mem_size = pvcop::core::__impl::bit_manip::to_mem_size(_selection.size());
-	if (so.is_writing()) {
-		so.buffer("selection_data", _selection.data(), mem_size);
-	} else {
-		if (so.buffer_exists("selection_data")) {
-			so.buffer("selection_data", _selection.data(), mem_size);
-		} else {
-			select_none();
-		}
-	}
+	so.buffer("selection_data", _selection.data(), mem_size);
+	int size = _selection.size();
+	so.attribute_write("selection_size", size);
+}
+
+PVCore::PVSelBitField PVCore::PVSelBitField::serialize_read(PVCore::PVSerializeObject& so)
+{
+	int size;
+	so.attribute("selection_size", size);
+	PVCore::PVSelBitField sel(size);
+	so.buffer("selection_data", sel._selection.data(), size);
+	return sel;
 }

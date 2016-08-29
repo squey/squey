@@ -18,9 +18,7 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVLinesProperties.h>
 #include <inendi/PVAxesCombination.h>
@@ -38,7 +36,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
   public:
 	typedef QHash<QString, PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
-	typedef PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 
   public:
 	PVView(PVPlotted& plotted);
@@ -46,9 +43,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	~PVView();
 
   public:
-	inline PVSelection& get_floating_selection() { return floating_selection; }
-	inline PVSelection& get_volatile_selection() { return volatile_selection; }
-
 	// Proxy functions for PVHive
 	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest)
 	{
@@ -59,8 +53,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
 
 	/* Functions */
-	PVCol get_axes_count() const;
-
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination
 	 *
@@ -83,13 +75,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 *
 	 */
 	const QString& get_axis_name(PVCol index) const;
-	QString get_axis_type(PVCol index) const;
 	PVAxis const& get_axis(PVCol const comb_index) const;
-	PVAxis const& get_axis_by_id(axes_comb_id_t const axes_comb_id) const;
-	bool is_last_axis(axes_comb_id_t const axes_comb_id) const
-	{
-		return get_axes_combination().is_last_axis(axes_comb_id);
-	}
 	bool is_last_axis(PVCol const axis_comb) const { return axis_comb == get_column_count() - 1; }
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
@@ -107,14 +93,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 		layer_stack.hide_layers();
 		_layer_stack_refreshed.emit();
 	}
-
-	PVCol get_active_axis() const
-	{
-		assert(_active_axis < get_column_count());
-		return _active_axis;
-	}
-	PVStateMachine& get_state_machine() { return _state_machine; }
-	PVStateMachine const& get_state_machine() const { return _state_machine; }
 
 	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 	void set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
@@ -135,13 +113,10 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	bool get_line_state_in_output_layer(PVRow index) const;
 	PVSelection const& get_selection_visible_listing() const;
 
-	int get_number_of_selected_lines() const;
-
 	inline id_t get_display_view_id() const { return _view_id + 1; }
 
 	PVCol get_original_axes_count() const;
 	QString get_original_axis_name(PVCol axis_id) const;
-	QString get_original_axis_type(PVCol axis_id) const;
 	inline PVCol get_original_axis_index(PVCol view_idx) const
 	{
 		return _axes_combination.get_axis_column_index(view_idx);
@@ -160,19 +135,11 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	PVRow get_row_count() const;
 
-	int move_active_axis_closest_to_position(float x);
-	PVCol get_active_axis_closest_to_position(float x);
-
-	void set_active_axis_closest_to_position(float x);
-	void set_axis_name(PVCol index, const QString& name_);
-
 	void set_color_on_active_layer(const PVCore::PVHSVColor c);
 
 	void set_layer_stack_layer_n_name(int n, QString const& name);
 
 	void set_layer_stack_selected_layer_index(int index);
-
-	void set_floating_selection(PVSelection& selection);
 
 	void set_selection_from_layer(PVLayer const& layer);
 	void set_selection_view(PVSelection const& sel);
@@ -180,9 +147,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
 
-	void select_all_nonzb_lines();
-	void select_no_line();
-	void select_inv_lines();
+	void select_all();
+	void select_none();
 
 	void toggle_listing_unselected_visibility();
 	void toggle_listing_zombie_visibility();
@@ -194,11 +160,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void compute_selectable_count(Inendi::PVLayer& layer);
 
 	void recompute_all_selectable_count();
-
-	/**
-	 * do any process after a mapped load
-	 */
-	void finish_process_from_rush_pipeline();
 
 #ifdef WITH_MINESET
 	/**
@@ -227,26 +188,11 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void process_correlation();
 
 	/**
-	 * Update intermediate layer and output layer based on set selection.
-	 */
-	void process_from_selection();
-
-	/**
-	 * update the whole view from an update in the layer stack.
-	 */
-	void process_from_layer_stack();
-
-	/**
-	 * Alias for process_from_selection.
-	 */
-	void process_real_output_selection();
-
-	/**
 	 * Compute a merge of all visibles layer of the layer stack.
 	 *
 	 * * Save data in layer_stack_output_layer.
 	 */
-	void process_layer_stack();
+	void process_layer_stack(Inendi::PVSelection const& sel);
 
 	/**
 	 * Set correct selection to post_filter_layer.
@@ -254,7 +200,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 * * Copy color (FIXME : done every time, should be done only once).
 	 * * Merge selection with layer_stack selection.
 	 */
-	void process_post_filter_layer();
+	void process_post_filter_layer(Inendi::PVSelection const& sel);
 
 	/**
 	 * Compute output layer from post_filter_layer data.
@@ -279,22 +225,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 *
 	 */
 	std::string get_data(PVRow row, PVCol column) const;
-
-	/**
-	 * Gets the data directly from nraw, without #PVAxesCombination
-	 *
-	 * @param row The row number
-	 * @param column The column number
-	 *
-	 * @return a string containing wanted data
-	 *
-	 */
-	std::string get_data_raw(PVRow row, PVCol column) const
-	{
-		return get_rushnraw_parent().at_string(row, column);
-	}
-
-	void commit_volatile_in_floating_selection();
 
 	/***********
 	 * FILTERS
@@ -325,28 +255,13 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	******************************************************************************
 	*****************************************************************************/
 
-	PVRush::PVNraw& get_rushnraw_parent()
-	{
-		assert(_rushnraw_parent);
-		return *_rushnraw_parent;
-	};
-	PVRush::PVNraw const& get_rushnraw_parent() const
-	{
-		assert(_rushnraw_parent);
-		return *_rushnraw_parent;
-	};
+	PVRush::PVNraw& get_rushnraw_parent();
+	PVRush::PVNraw const& get_rushnraw_parent() const;
 
 	PVCol get_real_axis_index(PVCol col) const;
 
 	PVRow get_plotted_col_min_row(PVCol const combined_col) const;
 	PVRow get_plotted_col_max_row(PVCol const combined_col) const;
-
-  public:
-	// State machine
-	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode)
-	{
-		_state_machine.set_square_area_mode(mode);
-	}
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -376,25 +291,21 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	sigc::signal<void> _about_to_be_delete;
 
   protected:
-	/*! \brief PVView's specific axes combination
-	 *  It is originaly copied from the parent's PVSource, and then become specific
-	 *  to that view.
-	 */
-	PVAxesCombination _axes_combination;
-
-	PVSelection floating_selection; //!< This is the current selection
 	PVLayer
 	    post_filter_layer; //!< Contains selection and color lines for in progress view computation.
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer;             //!< This is the shown layer.
 	PVLayerStack layer_stack;
 	PVStateMachine _state_machine;
-	PVSelection volatile_selection; //!< It is the selection currently computed. It will be flush in
-	// floating_selection once it is completed.
+
+	/*! \brief PVView's specific axes combination
+	 *  It is originaly copied from the parent's PVSource, and then become specific
+	 *  to that view.
+	 */
+	PVAxesCombination _axes_combination;
 
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
-	PVRush::PVNraw* _rushnraw_parent = nullptr; //!< Pointer to the NRaw from source.
 	id_t _view_id;
 	PVCol _active_axis;
 	QColor _color;

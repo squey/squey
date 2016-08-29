@@ -22,8 +22,8 @@
 #include <pvkernel/core/PVHugePODVector.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <inendi/PVView.h>
-#include <inendi/PVPlotting.h>
 #include <inendi/PVSelection.h>
+#include <inendi/PVPlottingProperties.h>
 
 namespace Inendi
 {
@@ -38,10 +38,6 @@ class PVSource;
 class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
                   public PVCore::PVDataTreeParent<PVView, PVPlotted>
 {
-	friend class PVCore::PVSerializeObject;
-	friend class PVMapped;
-	friend class PVSource;
-
   public:
 	using value_type = uint32_t;
 	static constexpr value_type MAX_VALUE = std::numeric_limits<value_type>::max();
@@ -59,50 +55,52 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	typedef std::vector<PVRow> rows_vector_t;
 
   public:
-	PVPlotted(PVMapped& mapped);
+	PVPlotted(PVMapped& mapped, std::string const& name = "default");
+	PVPlotted(PVMapped& mapped,
+	          std::list<Inendi::PVPlottingProperties>&& column,
+	          std::string const& name = "default");
 
   public:
 	~PVPlotted();
 
-  protected:
+  public:
 	// Serialization
 	void serialize_write(PVCore::PVSerializeObject& so);
 	static Inendi::PVPlotted& serialize_read(PVCore::PVSerializeObject& so,
 	                                         Inendi::PVMapped& parent);
 
 	// For PVMapped
-	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
+	inline void invalidate_column(PVCol j) { return get_properties_for_col(j).invalidate(); }
 
   public:
 	void update_plotting();
+	bool is_uptodate() const;
 
-	void set_name(std::string const& name) { _plotting.set_name(name); }
-	std::string const& get_name() const { return _plotting.get_name(); }
+	void set_name(std::string const& name) { _name = name; }
+	std::string const& get_name() const { return _name; }
 
 	std::string get_serialize_description() const override { return "Plotting: " + get_name(); }
-
-	/**
-	 * do any process after a mapped load
-	 */
-	void finish_process_from_rush_pipeline();
 
   public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;
 
-	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
 	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
 
-	PVPlotting& get_plotting() { return _plotting; }
-	const PVPlotting& get_plotting() const { return _plotting; }
-
-	inline PVPlottingProperties const& get_plotting_properties(PVCol j)
+	PVPlottingProperties const& get_properties_for_col(PVCol col) const
 	{
-		assert(j < get_column_count());
-		return _plotting.get_properties_for_col(j);
+		assert((size_t)col < _columns.size());
+		auto begin = _columns.begin();
+		std::advance(begin, col);
+		return *begin;
 	}
-
-	bool is_uptodate() const;
+	PVPlottingProperties& get_properties_for_col(PVCol col)
+	{
+		assert((size_t)col < _columns.size());
+		auto begin = _columns.begin();
+		std::advance(begin, col);
+		return *begin;
+	}
 
 	QList<PVCol> get_singleton_columns_indexes();
 	QList<PVCol>
@@ -114,7 +112,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
   public:
 	// Data access
 	PVRow get_row_count() const;
-	PVCol get_column_count() const;
+	PVCol get_nraw_column_count() const;
 
 	/**
 	 * Returns the aligned row count given a row count
@@ -136,12 +134,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	 */
 	inline PVRow get_aligned_row_count() const { return get_aligned_row_count(get_row_count()); }
 
-	PVSource* get_source_parent();
 	inline uint32_t const* get_column_pointer(PVCol const j) const
-	{
-		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
-	}
-	inline uint32_t* get_column_pointer(PVCol const j)
 	{
 		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
 	}
@@ -202,6 +195,12 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	                        const std::string sep_char,
 	                        const std::string) const;
 
+  private:
+	inline uint32_t* get_column_pointer(PVCol const j)
+	{
+		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
+	}
+
   protected:
 	virtual QString get_children_description() const { return "View(s)"; }
 	virtual QString get_children_serialize_name() const { return "views"; }
@@ -225,10 +224,11 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	sigc::signal<void> _plotted_updated;
 
   private:
-	PVPlotting _plotting;
 	uint_plotted_table_t _uint_table;
-	QList<PVCol> _last_updated_cols;
+	QList<PVCol> _last_updated_cols; //!< List of column to update for view on this plotted.
 	std::vector<MinMax> _minmax_values;
+	std::list<PVPlottingProperties> _columns;
+	std::string _name;
 };
 }
 

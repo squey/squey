@@ -47,8 +47,6 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 
 	void set_color(const QColor& color) { setBrush(color); }
 
-	void set_axis_index(const PVCol index) { _axis_index = index; }
-
 	QRectF get_scene_bbox() { return mapRectToScene(boundingRect()); }
 
 	void set_bounding_box_width(int width);
@@ -56,15 +54,12 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 	QPainterPath shape() const override;
 	QRectF boundingRect() const;
 
-	PVCol get_axis_index() const;
-
   private:
 	PVAxisGraphicsItem const* get_parent_axis() const;
 
   private:
 	const Inendi::PVView& _lib_view;
 	PVSlidersGroup* _sliders_group;
-	PVCol _axis_index;
 	int _bounding_box_width = 0;
 };
 }

@@ -95,6 +95,11 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 template <typename T>
 class PVInputTypeDesc : public PVInputType
 {
+	PVInputDescription_p serialize_read(PVCore::PVSerializeObject& so) override
+	{
+		return T::serialize_read(so);
+	}
+
 	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings)
 	{
 		input_descr.save_to_qsettings(settings);
@@ -102,10 +107,7 @@ class PVInputTypeDesc : public PVInputType
 
 	virtual PVInputDescription_p load_input_from_qsettings(const QSettings& settings)
 	{
-		PVInputDescription_p input_descr_p(new T());
-		input_descr_p->load_from_qsettings(settings);
-
-		return input_descr_p;
+		return T::load_from_qsettings(settings);
 	}
 };
 

@@ -356,15 +356,14 @@ bool PVParallelView::PVScatterView::update_zones()
 {
 	PVCol new_zone = lib_view().get_axes_combination().get_index_by_id(_axis_id);
 	if (new_zone == PVCOL_INVALID_VALUE) {
-		if (get_zone_index() > get_zones_manager().get_number_of_managed_zones()) {
-			// Just delete this view as it can't be replaced by anything...
-			return false;
-		}
-
-		new_zone = get_zone_index();
-	} else if (new_zone == lib_view().get_axes_count() - 1) {
+		// The left axis of the view have been remove, close the scatter view
+		return false;
+	} else if (new_zone == lib_view().get_column_count() - 1) {
+		// It is the right most axes, we can't create a scatter with another axes. Close the scatter
+		// view.
 		return false;
 	}
+	// TODO : We should also close if the right axes is removed.
 
 	set_scatter_view_zone(new_zone);
 

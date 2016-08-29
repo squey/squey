@@ -32,15 +32,17 @@ void PVCore::PVSerializeArchive::open(QString const& dir, archive_mode mode)
 	if (mode == write) {
 		if (dir_.exists()) {
 			if (!PVDirectory::remove_rec(dir)) {
-				throw PVSerializeArchiveError(QString("Unable to remove directory '%1'.").arg(dir));
+				throw PVSerializeArchiveError("Unable to remove directory '" + dir.toStdString() +
+				                              "'.");
 			}
 		}
 		if (!QDir::root().mkdir(dir)) {
-			throw PVSerializeArchiveError(QString("Unable to create directory '%1'.").arg(dir));
+			throw PVSerializeArchiveError("Unable to create directory '" + dir.toStdString() +
+			                              "'.");
 		}
 	} else {
 		if (!dir_.exists()) {
-			throw PVSerializeArchiveError(QString("Unable to find directory '%1'.").arg(dir));
+			throw PVSerializeArchiveError("Unable to find directory '" + dir.toStdString() + "'.");
 		}
 	}
 
@@ -87,13 +89,13 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString co
 	QDir new_path = get_dir_for_object(*ret);
 	if (is_writing()) {
 		if (!QDir::root().mkdir(new_path.path())) {
-			throw PVSerializeArchiveError(
-			    QString("Unable to create directory '%1'.").arg(new_path.canonicalPath()));
+			throw PVSerializeArchiveError("Unable to create directory '" +
+			                              new_path.canonicalPath().toStdString() + "'.");
 		}
 	}
 	if (!new_path.exists()) {
-		throw PVSerializeArchiveErrorNoObject(
-		    name, QString("Unable to change into directory '%1'.").arg(new_path.canonicalPath()));
+		throw PVSerializeArchiveErrorNoObject("Unable to change into directory '" +
+		                                      new_path.canonicalPath().toStdString() + "'.");
 	}
 	create_attributes(*ret);
 	return ret;
@@ -171,12 +173,6 @@ void PVCore::PVSerializeArchive::hash_arguments_write(PVSerializeObject const& s
                                                       PVArgumentList const& obj)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
-	//	PVArgumentList::const_iterator it;
-	//	settings->beginGroup(name);
-	//	for (it = obj.begin(); it != obj.end(); it++) {
-	//		   settings->setValue(it.key(), PVArgument_to_QString(it.value()));
-	//	}
-	//	settings->endGroup();
 	PVArgumentList_to_QSettings(obj, *settings, name);
 }
 
@@ -187,13 +183,6 @@ void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	obj.clear();
-	//	QStringList keys = settings->childKeys();
-	//	for (int i = 0; i < keys.size(); i++) {
-	//		QString const& key = keys.at(i);
-	//		if (def_args.contains(key)) {
-	//			obj[key] = QString_to_PVArgument(settings->value(key).toString(), def_args[key]);
-	//		}
-	//	}
 	obj = QSettings_to_PVArgumentList(*settings, def_args, name);
 }
 
@@ -229,14 +218,6 @@ size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so,
 		}
 		return ret;
 	}
-}
-
-void PVCore::PVSerializeArchive::buffer_path(PVSerializeObject const& so,
-                                             QString const& name,
-                                             QString& path)
-{
-	assert(!is_writing());
-	path = get_dir_for_object(so).absoluteFilePath(name);
 }
 
 bool PVCore::PVSerializeArchive::must_write_object(PVSerializeObject const& parent,
@@ -277,24 +258,12 @@ void PVCore::PVSerializeArchive::file(PVSerializeObject const& so,
 		}
 	} else {
 		if (!dir.exists(name)) {
-			throw PVSerializeArchiveError(QString("File '%1' within '%2' does not exist.")
-			                                  .arg(name)
-			                                  .arg(so.get_logical_path()));
+			throw PVSerializeArchiveError("File '" + name.toStdString() + "' within '" +
+			                              so.get_logical_path().toStdString() +
+			                              "' does not exist.");
 		}
 		path = ar_file;
 	}
-}
-
-PVCore::PVSerializeObject_p
-PVCore::PVSerializeArchive::get_object_by_path(QString const& path) const
-{
-	assert(_objects.contains(path));
-	return _objects[path];
-}
-
-bool PVCore::PVSerializeArchive::object_exists_by_path(QString const& path) const
-{
-	return _objects.contains(path);
 }
 
 void PVCore::PVSerializeArchive::repairable_error(
@@ -312,20 +281,4 @@ void PVCore::PVSerializeArchive::error_fixed(PVSerializeArchiveFixError* error)
 			return;
 		}
 	}
-}
-
-QString PVCore::PVSerializeArchive::get_object_path_in_archive(const void* obj_ptr) const
-{
-	if (!obj_ptr) {
-		return QString();
-	}
-
-	QHash<QString, PVSerializeObject_p>::const_iterator it;
-	for (it = _objects.begin(); it != _objects.end(); it++) {
-		if (it.value()->bound_obj() == obj_ptr) {
-			return it.key();
-		}
-	}
-
-	return QString();
 }

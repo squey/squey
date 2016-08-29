@@ -11,8 +11,6 @@
 #include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
-#include <pvkernel/core/PVRecentItemsManager.h>
-
 namespace PVRush
 {
 
@@ -21,10 +19,7 @@ class PVFileDescription : public PVInputDescription
 	friend class PVCore::PVSerializeObject;
 
   public:
-	PVFileDescription(QString const& path) : _path(path), _was_serialized(false) { set_path(path); }
-
-  public:
-	PVFileDescription() : _was_serialized(false){};
+	PVFileDescription(QString const& path) : _path(QDir().absoluteFilePath(path)) {}
 
   public:
 	virtual bool operator==(const PVInputDescription& other) const
@@ -39,16 +34,11 @@ class PVFileDescription : public PVInputDescription
   public:
 	virtual void save_to_qsettings(QSettings& settings) const { settings.setValue("path", path()); }
 
-	virtual void load_from_qsettings(const QSettings& settings)
+	static std::unique_ptr<PVRush::PVInputDescription>
+	load_from_qsettings(const QSettings& settings)
 	{
-		_path = settings.value("path").toString();
-	}
-
-  protected:
-	void set_path(QString const& path)
-	{
-		QDir dir;
-		_path = dir.absoluteFilePath(path);
+		return std::unique_ptr<PVFileDescription>(
+		    new PVFileDescription(settings.value("path").toString()));
 	}
 
   public:
@@ -56,34 +46,35 @@ class PVFileDescription : public PVInputDescription
 	{
 		so.attribute("file_path", _path);
 		PVCore::PVFileSerialize fs(_path);
-		if (so.object("original", fs, "Include original file", !_was_serialized,
-		              (PVCore::PVFileSerialize*)nullptr, !_was_serialized, false)) {
-			_path = fs.get_path();
-		}
+		so.object("original", fs, "Include original file", true, (PVCore::PVFileSerialize*)nullptr,
+		          true, false);
 	}
 
-	void serialize_read(PVCore::PVSerializeObject& so)
+	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
 	{
-		so.attribute("file_path", _path);
-		PVCore::PVFileSerialize fs(_path);
-		if (so.object("original", fs, "Include original file", !_was_serialized,
-		              (PVCore::PVFileSerialize*)nullptr, !_was_serialized, false)) {
-			_path = fs.get_path();
-			_was_serialized = true;
+		QString path;
+		so.attribute("file_path", path);
+
+		PVCore::PVFileSerialize fs(path);
+		if (so.object("original", fs, "Include original file", true,
+		              (PVCore::PVFileSerialize*)nullptr, true, false)) {
+			path = fs.get_path();
 		}
-		if (!QFileInfo(_path).isReadable()) {
+
+		if (not QFileInfo(path).isReadable()) {
 			std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-			    new PVCore::PVSerializeArchiveErrorFileNotReadable(_path));
+			    new PVCore::PVSerializeArchiveErrorFileNotReadable(path.toStdString()));
 			std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
 			    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "file_path"));
 			so.repairable_error(error);
+			return nullptr;
 		}
+
+		return std::unique_ptr<PVInputDescription>(new PVFileDescription(path));
 	}
-	PVSERIALIZEOBJECT_SPLIT
 
   protected:
 	QString _path;
-	bool _was_serialized;
 };
 }
 

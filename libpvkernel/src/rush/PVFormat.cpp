@@ -31,9 +31,6 @@
 
 PVRush::PVFormat::PVFormat() : _have_grep_filter(false)
 {
-	axes_count = 0;
-	_already_pop = false;
-	_original_was_serialized = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_) : PVFormat()
@@ -46,10 +43,13 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 		QString basename = info.baseName();
 		format_name = basename;
 	}
+	populate();
 }
 
-PVRush::PVFormat::~PVFormat()
+PVRush::PVFormat::PVFormat(QDomElement const& root_node, bool forceOneAxis)
+    : format_name(""), full_path("")
 {
+	populate_from_xml(root_node, forceOneAxis);
 }
 
 /**
@@ -302,7 +302,7 @@ bool PVRush::PVFormat::populate(bool forceOneAxis)
 		return populate_from_xml(full_path, forceOneAxis);
 	}
 
-	return _already_pop;
+	throw std::runtime_error("We can't populate format without file");
 }
 
 QString const& PVRush::PVFormat::get_format_name() const
@@ -410,7 +410,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 {
 	filters_params = xml_parser.getFields();
 	if (filters_params.empty()) {
-		throw std::runtime_error("Format with no axes does not make sens");
+		throw PVFormatInvalid();
 	}
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
@@ -420,7 +420,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 
 	if (_axes.size() == 0 && forceOneAxis) {
 		// Only have one axis, a fake one
-		PVAxisFormat fake_ax;
+		PVAxisFormat fake_ax(-1);
 		fake_ax.set_name("Line");
 		fake_ax.set_type("string");
 		fake_ax.set_mapping("default");
@@ -432,8 +432,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 		_fields_mask.resize(1, true);
 	}
 
-	_already_pop = _axes.size() > 0;
-	return _already_pop;
+	return true;
 }
 
 PVFilter::PVFieldsBaseFilter_p
@@ -515,41 +514,55 @@ PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString
 			QString filename = fileInfo.completeBaseName();
 			QString plugin_name = format_name_prefix + QString(":") + filename;
 			PVLOG_INFO("Adding format '%s'\n", qPrintable(plugin_name));
-			ret.insert(plugin_name,
-			           PVFormat(plugin_name, normalize_helpers_dir.absoluteFilePath(current_file)));
+			try {
+				ret.insert(
+				    plugin_name,
+				    PVFormat(plugin_name, normalize_helpers_dir.absoluteFilePath(current_file)));
+			} catch (PVRush::PVFormatInvalid const&) {
+				PVLOG_INFO(("Format :" +
+				            normalize_helpers_dir.absoluteFilePath(current_file).toStdString() +
+				            " is invalid and can't be use")
+				               .c_str());
+				// If the format is invalid skip it
+				continue;
+			}
 		}
 	}
 
 	return ret;
 }
 
-void PVRush::PVFormat::only_keep_axes()
+PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 {
-	// Remove the list of filters to apply, and only
-	// keeps the fields !
-	filters_params.clear();
-	PVLOG_DEBUG("(PVRush::PVFormat) removing filters, we have '%d' fields.\n", _axes.size());
+	QString format_name;
+	so.attribute("name", format_name);
+	QString full_path;
+	so.attribute("path", full_path);
+	PVCore::PVFileSerialize format_file(full_path);
+	if (so.object("file", format_file, "Include original format file", true,
+	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
+		full_path = format_file.get_path();
+	}
+
+	if (not QFileInfo(full_path).isReadable()) {
+		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
+		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path.toStdString()));
+		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
+		    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
+		so.repairable_error(error);
+		return {};
+	}
+
+	return {format_name, full_path};
 }
 
-void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so,
-                                 PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.attribute("name", format_name);
 	so.attribute("path", full_path);
 	PVCore::PVFileSerialize format_file(full_path);
-	if (so.object("file", format_file, "Include original format file", !_original_was_serialized,
-	              (PVCore::PVFileSerialize*)nullptr, !_original_was_serialized, false)) {
+	if (so.object("file", format_file, "Include original format file", true,
+	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
 		full_path = format_file.get_path();
-		if (!so.is_writing()) {
-			_original_was_serialized = true;
-		}
-	} else if (!so.is_writing() && !QFileInfo(full_path).isReadable()) {
-		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path));
-		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
-		    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
-		so.repairable_error(error);
-		return;
 	}
-	populate();
 }

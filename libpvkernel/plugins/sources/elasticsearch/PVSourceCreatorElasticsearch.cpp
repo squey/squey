@@ -10,8 +10,7 @@
 #include "PVElasticsearchSource.h"
 
 PVRush::PVSourceCreatorElasticsearch::source_p
-PVRush::PVSourceCreatorElasticsearch::create_source_from_input(PVInputDescription_p input,
-                                                               const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorElasticsearch::create_source_from_input(PVInputDescription_p input) const
 {
 	source_p src(new PVRush::PVElasticsearchSource(input));
 

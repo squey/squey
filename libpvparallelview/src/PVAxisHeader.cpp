@@ -258,7 +258,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	polygon.translate(0, y_trans);
 
 	_title_highlight->setPolygon(polygon);
-	_title_highlight->setBrush(header()->axis()->lib_axis()->get_titlecolor().toQColor());
+	_title_highlight->setBrush(header()->axis()->get_title_color());
 	_title_highlight->setPen(Qt::NoPen);
 	_title_highlight->setVisible(false);
 	QGraphicsOpacityEffect* opacity_effect2 = new QGraphicsOpacityEffect();

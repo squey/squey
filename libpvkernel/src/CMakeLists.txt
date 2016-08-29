@@ -55,13 +55,6 @@ core/PVQueryBuilderJsonConverter.cpp
 core/PVExporter.cpp
 )
 
-if(PYTHONLIBS_FOUND)
-	set(CORE_SRC_FILES
-	core/PVPython.cpp
-	${CORE_SRC_FILES}
-	)
-endif(PYTHONLIBS_FOUND)
-
 SET(CORE_MOC_HEADERS
 include/pvkernel/core/PVProgressBox.h
 )
@@ -226,10 +219,6 @@ widgets/PVQueryBuilder.cpp
 SET(UI_FILES
 widgets/PVColorDialog.ui
 )
-
-if(PYTHONLIBS_FOUND)
-	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
-endif(PYTHONLIBS_FOUND)
 
 ################################################
 # Generate extra QT files (moc, uic, rcc)

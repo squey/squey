@@ -18,9 +18,7 @@
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVScene.h>
-#include <inendi/PVMapping.h>
 #include <inendi/PVMapped.h>
-#include <inendi/PVPlotting.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
 
@@ -58,7 +56,7 @@ int main(int argc, char** argv)
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
-	    view->get_axes_combination().get_original_axes_indexes();
+	    view->get_parent<Inendi::PVSource>().get_format().get_axes_comb();
 
 	PVCore::PVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,

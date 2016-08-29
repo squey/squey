@@ -5,14 +5,16 @@
  */
 
 #include <inendi/PVMineset.h>
-
 #include <inendi/PVView.h>
-#include <pvkernel/rush/PVNrawCacheManager.h>
+
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVConfig.h>
 
 #include <pvcop/types/factory.h>
+#include <pvcop/collection.h>
 
 #include <fstream>
 #include <string>

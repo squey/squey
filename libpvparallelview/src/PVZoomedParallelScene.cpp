@@ -892,13 +892,9 @@ void PVParallelView::PVZoomedParallelScene::all_rendering_done()
 
 void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 {
-	_pvview.get_volatile_selection().select_none();
-
 	if (_sel_line->is_null()) {
 		// force selection update
-		_pvview.set_square_area_mode(Inendi::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		_pvview.commit_volatile_in_floating_selection();
-		_pvview.process_real_output_selection();
+		_pvview.select_none();
 	} else {
 		int64_t y_min = _sel_line->top() * BUCKET_ELT_COUNT;
 		int64_t y_max = _sel_line->bottom() * BUCKET_ELT_COUNT;

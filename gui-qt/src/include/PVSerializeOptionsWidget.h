@@ -8,8 +8,6 @@
 #ifndef PVSERIALIZEOPTIONSWIDGET_H
 #define PVSERIALIZEOPTIONSWIDGET_H
 
-#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
-
 #include "PVSerializeOptionsModel.h"
 
 #include <QWidget>
@@ -21,7 +19,8 @@ namespace PVInspector
 class PVSerializeOptionsWidget : public QWidget
 {
   public:
-	PVSerializeOptionsWidget(PVCore::PVSerializeArchiveOptions_p options, QWidget* parent = 0);
+	PVSerializeOptionsWidget(std::shared_ptr<PVCore::PVSerializeArchiveOptions> options,
+	                         QWidget* parent = 0);
 
   public:
 	QTreeView* get_view() { return _view; }
@@ -29,8 +28,6 @@ class PVSerializeOptionsWidget : public QWidget
   protected:
 	QTreeView* _view;
 	PVSerializeOptionsModel* _model;
-
-	Q_OBJECT
 };
 }
 

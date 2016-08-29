@@ -18,23 +18,19 @@
  *
  *****************************************************************************/
 Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVFormat const& format, PVCol idx)
-    : PVPlottingProperties(format.get_axes().at(idx), idx)
+    : PVPlottingProperties(format.get_axes().at(idx))
 {
 }
 
-Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVAxisFormat const& axis_format,
-                                                   PVCol idx)
+Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVAxisFormat const& axis_format)
     : PVPlottingProperties(Inendi::PVAxis(axis_format).get_plotting().toStdString(),
-                           Inendi::PVAxis(axis_format).get_args_plotting(),
-                           idx)
+                           Inendi::PVAxis(axis_format).get_args_plotting())
 {
 }
 
 Inendi::PVPlottingProperties::PVPlottingProperties(std::string const& mode,
-                                                   PVCore::PVArgumentList args,
-                                                   PVCol idx)
+                                                   PVCore::PVArgumentList args)
     : _mode(mode)
-    , _index(idx)
     , _plotting_filter(LIB_CLASS(Inendi::PVPlottingFilter)::get()
                            .get_class_by_name(QString::fromStdString(_mode))
                            ->clone<PVPlottingFilter>())
@@ -77,28 +73,19 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlottingProperties::get_plotting_filt
 	return _plotting_filter;
 }
 
-bool Inendi::PVPlottingProperties::operator==(PVPlottingProperties const& org) const
-{
-	return (_plotting_filter == org._plotting_filter) && (_index == org._index);
-}
-
 Inendi::PVPlottingProperties
 Inendi::PVPlottingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	PVCol idx;
-	so.attribute("index", idx);
-
 	QString mode;
 	so.attribute("mode", mode);
 
 	PVCore::PVArgumentList args;
 	so.arguments("properties", args, args);
-	return {mode.toStdString(), args, idx};
+	return {mode.toStdString(), args};
 }
 
 void Inendi::PVPlottingProperties::serialize_write(PVCore::PVSerializeObject& so)
 {
-	so.attribute("index", _index);
 	QString mode = QString::fromStdString(_mode);
 	so.attribute("mode", mode);
 	so.arguments("properties", _args, _plotting_filter->get_default_args());

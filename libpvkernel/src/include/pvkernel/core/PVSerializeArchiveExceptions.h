@@ -8,63 +8,36 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEEXCEPTIONS_H
 #define PVCORE_PVSERIALIZEARCHIVEEXCEPTIONS_H
 
-#include <QString>
+#include <string>
+#include <stdexcept>
 
 namespace PVCore
 {
 
-namespace priv
+class PVSerializeArchiveError : public std::runtime_error
 {
-
-class PVSerializeArchiveErrorBase
-{
-  public:
-	virtual ~PVSerializeArchiveErrorBase() {}
-	virtual QString const& what() const = 0;
-};
-}
-
-class PVSerializeArchiveError : public priv::PVSerializeArchiveErrorBase
-{
-  public:
-	PVSerializeArchiveError(QString const& msg) : _msg(msg) {}
-
-  public:
-	QString const& what() const { return _msg; }
-
-  protected:
-	QString _msg;
+	using std::runtime_error::runtime_error;
 };
 
 class PVSerializeArchiveErrorNoObject : public PVSerializeArchiveError
 {
-  public:
-	PVSerializeArchiveErrorNoObject(QString const& obj, QString const& msg)
-	    : PVSerializeArchiveError(msg), _obj(obj)
-	{
-	}
-
-  public:
-	QString const& obj() const { return _obj; }
-
-  protected:
-	QString _obj;
+	using PVSerializeArchiveError::PVSerializeArchiveError;
 };
 
 class PVSerializeArchiveErrorFileNotReadable : public PVSerializeArchiveError
 {
   public:
-	PVSerializeArchiveErrorFileNotReadable(QString const& path)
-	    : PVSerializeArchiveError(QString("File %1 does not exist or is not readable.").arg(path))
+	PVSerializeArchiveErrorFileNotReadable(std::string const& path)
+	    : PVSerializeArchiveError("File " + path + " does not exist or is not readable.")
 	    , _path(path)
 	{
 	}
 
   public:
-	QString const& get_path() const { return _path; }
+	std::string const& get_path() const { return _path; }
 
   protected:
-	QString _path;
+	std::string _path;
 };
 }
 

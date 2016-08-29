@@ -11,15 +11,17 @@
 #include <pvbase/general.h>
 
 #include <pvbase/types.h>
+#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush
 {
+class PVSourceCreator;
 
 // The famous and wanted PVExtractor !!!!
 /*! \brief Extract datas from an aggregator, process them through filters and write the result to an
@@ -32,14 +34,12 @@ namespace PVRush
 class PVExtractor
 {
   public:
-	PVExtractor(PVFilter::PVChunkFilterByElt chk_flt);
+	PVExtractor(PVRush::PVFormat& format,
+	            PVRush::PVNraw& nraw,
+	            std::shared_ptr<PVRush::PVSourceCreator> src_plugin,
+	            PVRush::PVInputType::list_inputs const& inputs);
 
   public:
-	/*! \brief Add a PVRawSourceBase to the internal aggregator
-	 * This function adds a source to the internal aggregator.
-	 */
-	void add_source(PVRush::PVRawSourceBase_p src);
-
 	/*! \brief Process a given number of lines from a given index
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] nlines Number of lines to extract. It is
@@ -60,64 +60,20 @@ class PVExtractor
 	 */
 	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
-	/*! \brief Release inputs used for load data.
-	 */
-	void release_inputs() { _agg.release_inputs(); }
-
-	/*! \brief Get a reference to the internal NRaw
-	 */
-	inline PVNraw& get_nraw()
-	{
-		assert(_nraw);
-		return *_nraw;
-	}
-	inline PVNraw const& get_nraw() const
-	{
-		assert(_nraw);
-		return *_nraw;
-	}
-
-	/*! \brief Get a reference to the internal PVFormat of the internal NRaw
-	 */
-	PVFormat& get_format();
-	PVFormat const& get_format() const;
-
-	/*! \brief Set the format of the NRaw
-	 */
-	void set_format(PVFormat const& format);
-
-	/*! \brief Clear the current nraw and saved nraw, and create a new empty one.
-	 */
-	void reset_nraw();
-
 	void force_number_axes(PVCol naxes);
-
-	chunk_index get_last_start() const { return _last_start; }
-	chunk_index get_last_nlines() const { return _last_nlines; }
-	void set_last_start(chunk_index start) { _last_start = start; }
-	void set_last_nlines(chunk_index nlines) { _last_nlines = nlines; }
-	inline void set_number_living_chunks(unsigned int nchunks)
-	{
-		if (nchunks > 0) {
-			_chunks = nchunks;
-		}
-	}
+	void release_inputs() { _agg.release_inputs(); }
 
   private:
 	void set_sources_number_fields();
 
   protected:
 	PVAggregator _agg;
-	PVFormat _format; //!< It is the format use for extraction.
-	std::unique_ptr<PVNraw> _nraw;
+	PVNraw& _nraw;
+	PVFormat& _format;      //!< It is the format use for extraction.
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;
 	PVCol _force_naxes;
-
-  protected:
-	chunk_index _last_start;
-	chunk_index _last_nlines;
 };
 }
 

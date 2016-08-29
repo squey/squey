@@ -87,7 +87,7 @@ add_custom_target(update_tests_files COMMAND "${CMAKE_SOURCE_DIR}/tests/update-t
 # `make testsuite` will compile tests
 # `make love` will compile, download ref files and then run tests
 add_custom_target(testsuite)
-add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} -E BENCH)
+add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} -E \"BENCH|LONG\")
 add_dependencies(love update_tests_files)
 add_dependencies(love testsuite)
 add_custom_target(bench COMMAND ${CMAKE_CTEST_COMMAND} -R BENCH)

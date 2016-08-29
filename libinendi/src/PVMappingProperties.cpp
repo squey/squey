@@ -5,28 +5,24 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVMapping.h>
 #include <inendi/PVMappingProperties.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVFormatVersion.h>
 
 Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format, PVCol idx)
-    : PVMappingProperties(format.get_axes().at(idx), idx)
+    : PVMappingProperties(format.get_axes().at(idx))
 {
 }
 
-Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axis_format, PVCol idx)
+Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axis_format)
     : PVMappingProperties(Inendi::PVAxis(axis_format).get_mapping().toStdString(),
-                          Inendi::PVAxis(axis_format).get_args_mapping(),
-                          idx)
+                          Inendi::PVAxis(axis_format).get_args_mapping())
 {
 }
 
 Inendi::PVMappingProperties::PVMappingProperties(std::string const& mode,
-                                                 PVCore::PVArgumentList args,
-                                                 PVCol idx)
-    : _index(idx)
-    , _mode(mode)
+                                                 PVCore::PVArgumentList args)
+    : _mode(mode)
     , _mapping_filter(LIB_CLASS(Inendi::PVMappingFilter)::get()
                           .get_class_by_name(QString::fromStdString(_mode))
                           ->clone<PVMappingFilter>())
@@ -64,38 +60,20 @@ void Inendi::PVMappingProperties::set_mode(std::string const& mode)
 	set_args(_args);
 }
 
-bool Inendi::PVMappingProperties::operator==(const PVMappingProperties& org) const
-{
-	// These properties are equal if and only if the same filter is used on the
-	// same index
-	return (_mapping_filter == org._mapping_filter) && (_index == org._index);
-}
-
 Inendi::PVMappingProperties
 Inendi::PVMappingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	PVCol idx;
-	so.attribute("index", idx);
-
 	QString mode;
 	so.attribute("mode", mode);
 
 	PVCore::PVArgumentList args;
 	so.arguments("properties", args, args);
-	return {mode.toStdString(), args, idx};
+	return {mode.toStdString(), args};
 }
 
 void Inendi::PVMappingProperties::serialize_write(PVCore::PVSerializeObject& so)
 {
-	so.attribute("index", _index);
 	QString mode = QString::fromStdString(_mode);
 	so.attribute("mode", mode);
 	so.arguments("properties", _args, _mapping_filter->get_default_args());
-}
-
-void Inendi::PVMappingProperties::set_default_args(PVRush::PVAxisFormat const& axis)
-{
-	if (_args.size() == 0) {
-		set_args(Inendi::PVAxis(axis).get_args_mapping());
-	}
 }

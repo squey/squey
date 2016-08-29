@@ -62,9 +62,6 @@ include_directories(AFTER ${Boost_INCLUDE_DIR})
 include_directories(AFTER ${HWLOC_INCLUDE_DIRS})
 include_directories(AFTER ${SIGCPP_INCLUDE_DIRS})
 include_directories(AFTER "src/third_party/uchardetect")
-if(PYTHONLIBS_FOUND)
-	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
-endif(PYTHONLIBS_FOUND)
 
 ###############################################################################
 # Configure subdirectories

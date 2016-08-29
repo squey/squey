@@ -25,22 +25,6 @@ class PVStateMachine
 	bool view_unselected_zombie_visible = true;
 
   public:
-	/** Square Area Modes
-	 * helps to identify the selection mode
-	 * that is done with the square area
-	 */
-	enum SquareAreaModes {
-		AREA_MODE_OFF, /**< No selection area */
-		AREA_MODE_SET_WITH_VOLATILE,
-		AREA_MODE_ADD_VOLATILE,
-		AREA_MODE_SUBSTRACT_VOLATILE,
-		AREA_MODE_INTERSECT_VOLATILE
-	};
-
-  private:
-	SquareAreaModes square_area_mode;
-
-  public:
 	PVStateMachine();
 
 	// listing state management
@@ -64,8 +48,6 @@ class PVStateMachine
 
 	QString get_string();
 
-	SquareAreaModes get_square_area_mode() const { return square_area_mode; }
-
 	void set_listing_unselected_visible(bool visible) { listing_unselected_visible = visible; }
 
 	void set_listing_zombie_visible(bool visible) { listing_zombie_visible = visible; }
@@ -74,8 +56,6 @@ class PVStateMachine
 	{
 		view_unselected_zombie_visible = visible;
 	}
-
-	void set_square_area_mode(SquareAreaModes mode) { square_area_mode = mode; }
 
 	void toggle_listing_unselected_visibility()
 	{

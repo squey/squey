@@ -5,8 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVMapping.h>
-#include <inendi/PVPlotting.h>
+#include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
@@ -25,8 +24,8 @@
  * Inendi::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog
  *
  *****************************************************************************/
-PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMapping* mapping,
-                                                                    Inendi::PVPlotting* plotting,
+PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMapped* mapping,
+                                                                    Inendi::PVPlotted* plotting,
                                                                     QWidget* parent)
     : QDialog(parent), _mapping(mapping), _plotting(plotting)
 {
@@ -34,21 +33,19 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Inendi::PVMa
 
 #ifndef NDEBUG
 	if (has_mapping() && has_plotting()) {
-		assert(&_mapping->get_mapped()->get_parent<Inendi::PVSource>() ==
-		       &_plotting->get_plotted()->get_parent<Inendi::PVSource>());
+		assert(&_mapping->get_parent<Inendi::PVSource>() ==
+		       &_plotting->get_parent<Inendi::PVSource>());
 	} else {
 		assert(has_mapping() || has_plotting());
 	}
 #endif
 	if (has_mapping()) {
-		_axes = &(_mapping->get_mapped()
-		              ->get_parent<Inendi::PVSource>()
+		_axes = &(_mapping->get_parent<Inendi::PVSource>()
 		              .current_view()
 		              ->get_axes_combination()
 		              .get_original_axes_list());
 	} else {
-		_axes = &(_plotting->get_plotted()
-		              ->get_parent<Inendi::PVSource>()
+		_axes = &(_plotting->get_parent<Inendi::PVSource>()
 		              .current_view()
 		              ->get_axes_combination()
 		              .get_original_axes_list());
@@ -187,8 +184,7 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 		col = 0;
 		_main_grid->addWidget(new QLabel(axe.get_name(), this), row, col++);
 		if (has_mapping()) {
-			_main_grid->addWidget(new QLabel(_mapping->get_mapped()
-			                                     ->get_parent<Inendi::PVSource>()
+			_main_grid->addWidget(new QLabel(_mapping->get_parent<Inendi::PVSource>()
 			                                     .get_format()
 			                                     .get_axes()[axis_id]
 			                                     .get_type()),
@@ -233,8 +229,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 	Inendi::PVAxesCombination::list_axes_t::const_iterator it_axes;
 	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
 		if (has_mapping()) {
-			QString type = _mapping->get_mapped()
-			                   ->get_parent<Inendi::PVSource>()
+			QString type = _mapping->get_parent<Inendi::PVSource>()
 			                   .get_format()
 			                   .get_axes()[axis_id]
 			                   .get_type();

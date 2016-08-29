@@ -743,7 +743,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 					_log_sc = sc;
 					// The moni-extractor use the discovery source, as not that much processing is
 					// done (it can be handle locally for instance !)
-					_log_source = _log_sc->create_source_from_input(_log_input, format);
+					_log_source = _log_sc->create_source_from_input(_log_input);
 				} catch (PVRush::PVFormatInvalid& e) {
 					_log_sc.reset();
 					continue;
@@ -777,9 +777,10 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			guess_first_splitter();
 		}
 
-		create_extractor();
-		_log_extract->add_source(_log_source);
-		_log_extract->set_format(format);
+		_nraw.reset(new PVRush::PVNraw());
+		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
+		list_inputs << _log_input;
+		_log_extract.reset(new PVRush::PVExtractor(format, *_nraw, _log_sc, list_inputs));
 
 		update_table(rstart, rend);
 
@@ -811,12 +812,6 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 	_inputs.clear();
 
 	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
-}
-
-void PVInspector::PVFormatBuilderWidget::create_extractor()
-{
-	_log_extract.reset(new PVRush::PVExtractor(PVFilter::PVChunkFilterByElt(
-	    std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter()))));
 }
 
 /******************************************************************************
@@ -883,9 +878,7 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
-	PVRush::PVFormat format;
-	format.populate_from_xml(rootDom, true);
-	return format;
+	return {rootDom, true};
 }
 
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
@@ -899,14 +892,11 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	// Update the data displaying of the filter param widgers
 	myTreeModel->updateFiltersDataDisplay();
 
-	// Create the nraw thanks to the extractor
-	_log_extract->reset_nraw();
-
 	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
 	job->wait_end();
 
 	_nraw_model->set_format(get_format_from_dom());
-	_nraw_model->set_nraw(_log_extract->get_nraw());
+	_nraw_model->set_nraw(*_nraw);
 	_nraw_model->set_invalid_elements(job->get_invalid_evts());
 
 	// Set the invalid lines widget
@@ -960,14 +950,14 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
 {
-	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
-	if ((PVRow)row >= nraw.get_row_count()) {
+	assert(_nraw);
+	if ((PVRow)row >= _nraw->get_row_count()) {
 		return;
 	}
 	QStringList names;
-	for (PVCol j = 0; j < nraw.get_number_cols(); j++) {
+	for (PVCol j = 0; j < _nraw->get_number_cols(); j++) {
 		// We need to do a deep copy of this
-		names << QString::fromStdString(nraw.at_string(row, j));
+		names << QString::fromStdString(_nraw->at_string(row, j));
 	}
 	myTreeModel->setAxesNames(names);
 }

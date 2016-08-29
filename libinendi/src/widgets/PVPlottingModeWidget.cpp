@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVPlotting.h>
+#include <inendi/PVPlotted.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
 
@@ -26,7 +26,7 @@ PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(QWidget* parent)
 }
 
 PVWidgets::PVPlottingModeWidget::PVPlottingModeWidget(PVCol axis_id,
-                                                      Inendi::PVPlotting& plotting,
+                                                      Inendi::PVPlotted& plotting,
                                                       QWidget* parent)
     : PVPlottingModeWidget(parent)
 {
@@ -61,19 +61,13 @@ void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type, QS
 }
 
 void PVWidgets::PVPlottingModeWidget::populate_from_plotting(PVCol axis_id,
-                                                             Inendi::PVPlotting& plotting)
+                                                             Inendi::PVPlotted& plotting)
 {
 	Inendi::PVPlottingProperties& props = plotting.get_properties_for_col(axis_id);
-	QString mapped = QString::fromStdString(plotting.get_plotted()
-	                                            ->get_parent()
-	                                            .get_mapping()
-	                                            .get_properties_for_col(axis_id)
-	                                            .get_mode());
-	QString type = plotting.get_plotted()
-	                   ->get_parent<Inendi::PVSource>()
-	                   .get_format()
-	                   .get_axes()[axis_id]
-	                   .get_type();
+	QString mapped =
+	    QString::fromStdString(plotting.get_parent().get_properties_for_col(axis_id).get_mode());
+	QString type =
+	    plotting.get_parent<Inendi::PVSource>().get_format().get_axes()[axis_id].get_type();
 	populate_from_type(type, mapped);
 	set_mode(QString::fromStdString(props.get_mode()));
 }

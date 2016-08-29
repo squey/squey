@@ -21,9 +21,6 @@ namespace PVRush
 class PVInputTypeElasticsearch : public PVInputTypeDesc<PVElasticsearchQuery>
 {
   public:
-	PVInputTypeElasticsearch();
-
-  public:
 	bool createWidget(hash_formats const& formats,
 	                  hash_formats& new_formats,
 	                  list_inputs& inputs,
@@ -41,19 +38,6 @@ class PVInputTypeElasticsearch : public PVInputTypeDesc<PVElasticsearchQuery>
 
 	QIcon icon() const { return QIcon(":/elasticsearch_icon"); }
 	QCursor cursor() const { return QCursor(Qt::PointingHandCursor); }
-
-  public:
-	PVInputDescription_p serialize_read(PVCore::PVSerializeObject& so) override
-	{
-		// FIXME : Should be improve to not use default constructor.
-		auto query = new PVElasticsearchQuery();
-		query->serialize_read(so);
-		return PVInputDescription_p(query);
-	}
-
-  protected:
-	mutable bool _is_custom_format;
-	mutable PVFormat _custom_format;
 
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeElasticsearch)
 };

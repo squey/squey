@@ -138,12 +138,7 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
 		QMessageBox err(QMessageBox::Warning, QObject::tr("Too many files selected"), msg,
 		                QMessageBox::Ok, parent);
 		err.exec();
-		list_inputs in_shrink;
-		list_inputs::iterator it;
-		for (it = inputs.begin(); it != inputs.begin() + nopen + 1; it++) {
-			in_shrink.push_back(*it);
-		}
-		inputs = in_shrink;
+		inputs.erase(inputs.begin() + nopen + 1, inputs.end());
 	}
 
 	return inputs.size() > 0;

@@ -16,8 +16,7 @@
 #include <QFileInfo>
 
 PVRush::PVSourceCreatorTextfile::source_p
-PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p input,
-                                                          const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p input) const
 {
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 

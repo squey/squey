@@ -34,14 +34,9 @@ namespace Inendi
 */
 class PVSelection : public PVCore::PVSelBitField
 {
-	friend class PVCore::PVSerializeObject;
-
-  public:
-	struct tag_allocate_empty {
-	};
-
   public:
 	explicit PVSelection(PVRow row_count) : PVCore::PVSelBitField(row_count) {}
+	explicit PVSelection(PVCore::PVSelBitField&& bf) : PVCore::PVSelBitField(std::move(bf)) {}
 
 	PVSelection(PVSelection const& o) = default;
 	PVSelection(PVSelection&& o) = default;
@@ -55,6 +50,8 @@ class PVSelection : public PVCore::PVSelBitField
 
 	PVSelection& operator=(const PVSelection& rhs) = default;
 	PVSelection& operator=(PVSelection&& rhs) = default;
+
+	PVSelection operator~() const { return PVSelection(PVCore::PVSelBitField::operator~()); }
 
 	inline PVSelection& operator&=(const PVSelection& rhs)
 	{

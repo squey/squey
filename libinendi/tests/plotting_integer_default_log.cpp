@@ -30,7 +30,7 @@ int main()
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVPlotted& plotted = env.compute_plotting();
+	Inendi::PVPlotted const& plotted = env.compute_plotting();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;

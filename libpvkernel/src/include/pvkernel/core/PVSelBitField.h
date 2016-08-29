@@ -28,11 +28,6 @@ class array;
 
 #include <vector>
 
-namespace Inendi
-{
-class PVSelection;
-}
-
 namespace PVCore
 {
 
@@ -43,7 +38,6 @@ namespace PVCore
 class PVSelBitField
 {
 	friend class PVCore::PVSerializeObject;
-	friend class Inendi::PVSelection;
 
   public:
 	static constexpr auto CHUNK_SIZE = pvcop::core::__impl::bit_manip::chunk_bit_size;
@@ -228,6 +222,8 @@ class PVSelBitField
 	 * @return A reference to the resulting PVSelBitField
 	 */
 	PVSelBitField& or_not(const PVSelBitField& rhs);
+
+	PVSelBitField operator~() const;
 
 	/**
 	 * This is the binary INPLACED 'AND NOT' operation on two selections
@@ -460,8 +456,9 @@ class PVSelBitField
 		}
 	}
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
+  public:
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static PVCore::PVSelBitField serialize_read(PVCore::PVSerializeObject& so);
 
   protected:
 	pvcop::core::memarray<bool> _selection;

@@ -48,12 +48,12 @@ class PVDBQuery : public PVInputDescription
 
   public:
 	virtual void save_to_qsettings(QSettings& settings) const;
-	virtual void load_from_qsettings(const QSettings& settings);
+	static std::unique_ptr<PVRush::PVInputDescription>
+	load_from_qsettings(const QSettings& settings);
 
   public:
-	void serialize_read(PVCore::PVSerializeObject& so);
+	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so);
 	void serialize_write(PVCore::PVSerializeObject& so);
-	PVSERIALIZEOBJECT_SPLIT
 
   protected:
 	PVDBServ_p _infos;

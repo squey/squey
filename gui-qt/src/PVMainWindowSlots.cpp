@@ -13,9 +13,6 @@
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 
-#include <inendi/PVPlotting.h>
-#include <inendi/PVMapping.h>
-
 #ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
 #endif
@@ -383,8 +380,7 @@ void PVInspector::PVMainWindow::solution_save_Slot()
 	if (is_solution_untitled()) {
 		solution_saveas_Slot();
 	} else {
-		PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
-		save_solution(get_solution_path(), options);
+		save_solution(get_solution_path(), get_root().get_default_serialize_options());
 	}
 }
 
@@ -394,7 +390,8 @@ void PVInspector::PVMainWindow::solution_saveas_Slot()
 		return;
 	}
 
-	PVCore::PVSerializeArchiveOptions_p options(get_root().get_default_serialize_options());
+	std::shared_ptr<PVCore::PVSerializeArchiveOptions> options(
+	    get_root().get_default_serialize_options());
 	PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_ROOT_ARCHIVE_EXT,
 	                                                     INENDI_ROOT_ARCHIVE_FILTER, this);
 	if (!_current_save_root_folder.isEmpty()) {
@@ -437,7 +434,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	setWindowModified(false);
 
 	PVCore::PVSerializeArchive_p ar;
-	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError(QString());
+	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError("");
 	PVCore::PVProgressBox* pbox_solution =
 	    new PVCore::PVProgressBox("Loading investigation...", this);
 	pbox_solution->set_enable_cancel(true);
@@ -455,11 +452,13 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		return false;
 	}
 
-	if (!read_exception.what().isEmpty()) {
-		QMessageBox* box = new QMessageBox(
-		    QMessageBox::Critical, tr("Fatal error while loading solution..."),
-		    tr("Fatal error while loading solution %1:\n%2").arg(file).arg(read_exception.what()),
-		    QMessageBox::Ok, this);
+	if (not std::string(read_exception.what()).empty()) {
+		QMessageBox* box =
+		    new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."),
+		                    tr("Fatal error while loading solution %1:\n%2")
+		                        .arg(file)
+		                        .arg(QString::fromStdString(read_exception.what())),
+		                    QMessageBox::Ok, this);
 		box->exec();
 		return false;
 	}
@@ -529,8 +528,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	return true;
 }
 
-void PVInspector::PVMainWindow::save_solution(QString const& file,
-                                              PVCore::PVSerializeArchiveOptions_p const& options)
+void PVInspector::PVMainWindow::save_solution(
+    QString const& file, std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options)
 {
 	try {
 		PVCore::PVProgressBox* pbox_solution =
@@ -587,7 +586,7 @@ bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p 
 	// TODO: a nice widget were file paths can be modified by batch (for instance
 	// modify all the files' directory in one action)
 	for (PVCore::PVSerializeArchiveFixError_p err : errs_file) {
-		QString const& old_path(
+		QString old_path = QString::fromStdString(
 		    err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
 		QMessageBox* box =
 		    new QMessageBox(QMessageBox::Warning, tr("Error while loading project..."),
@@ -632,8 +631,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 		return;
 	}
 
-	current_view()->select_all_nonzb_lines();
-	current_view()->process_real_output_selection();
+	current_view()->select_all();
 }
 
 /******************************************************************************
@@ -648,8 +646,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		return;
 	}
 
-	current_view()->select_no_line();
-	current_view()->process_real_output_selection();
+	current_view()->select_none();
 }
 
 /******************************************************************************
@@ -664,8 +661,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
-	current_view()->select_inv_lines();
-	current_view()->process_real_output_selection();
+	current_view()->set_selection_view(~current_view()->get_real_output_selection());
 }
 
 /******************************************************************************
@@ -871,7 +867,7 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
 	if (current_view()) {
-		set_selection_from_layer(*current_view(), current_view()->get_current_layer());
+		current_view()->set_selection_from_layer(current_view()->get_current_layer());
 	}
 }
 
@@ -886,7 +882,7 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 		    args, this);
 		if (ret) {
 			Inendi::PVLayer* layer = args["sel-layer"].value<Inendi::PVLayer*>();
-			set_selection_from_layer(*current_view(), *layer);
+			current_view()->set_selection_from_layer(*layer);
 		}
 	}
 }

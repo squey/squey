@@ -22,56 +22,17 @@
 Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
-                           PVRush::PVFormat format)
-    : PVSource(scene,
-               inputs,
-               sc,
-               format,
-               0,
-               PVCore::PVConfig::get()
-                   .config()
-                   .value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT)
-                   .toInt())
-{
-}
-
-Inendi::PVSource::PVSource(Inendi::PVScene& scene,
-                           PVRush::PVInputType::list_inputs const& inputs,
-                           PVRush::PVSourceCreator_p sc,
-                           PVRush::PVFormat format,
-                           size_t ext_start,
-                           size_t ext_end)
+                           PVRush::PVFormat const& format)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
-    , _extractor(PVFilter::PVChunkFilterByElt(
-          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
+    , _format(format)
+    , _nraw()
     , _inputs(inputs)
     , _src_plugin(sc)
-    , _nraw(_extractor.get_nraw())
-    , _axes_combination(format)
+    , _extractor(_format, _nraw, _src_plugin, _inputs)
 {
-
 	if (inputs.empty()) {
 		throw PVRush::PVInputException("Source can't be created without input");
 	}
-
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	// Set extractor default values
-	_extractor.set_last_start(ext_start);
-	_extractor.set_last_nlines(ext_end);
-
-	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
-	if (nchunks != 0) {
-		_extractor.set_number_living_chunks(nchunks);
-	}
-
-	// Set format
-	format.populate();
-	_extractor.set_format(format);
-	_axes_combination.set_from_format(_extractor.get_format());
-
-	// Set sources
-	files_append_noextract();
 }
 
 Inendi::PVSource::~PVSource()
@@ -98,15 +59,6 @@ Inendi::PVView const* Inendi::PVSource::current_view() const
 	return nullptr;
 }
 
-void Inendi::PVSource::files_append_noextract()
-{
-	for (int i = 0; i < _inputs.count(); i++) {
-		PVRush::PVSourceCreator::source_p src =
-		    _src_plugin->create_source_from_input(_inputs[i], _extractor.get_format());
-		_extractor.add_source(src);
-	}
-}
-
 PVRush::PVControllerJob_p Inendi::PVSource::extract(size_t skip_lines_count)
 {
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(skip_lines_count);
@@ -118,16 +70,6 @@ void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 {
 	job->wait_end();
 	_inv_elts = job->get_invalid_evts();
-	extract_finished();
-}
-
-void Inendi::PVSource::load_from_disk(std::string const& nraw_folder)
-{
-	_nraw.load_from_disk(nraw_folder);
-}
-
-void Inendi::PVSource::extract_finished()
-{
 	_extractor.release_inputs();
 }
 
@@ -151,15 +93,15 @@ PVRow Inendi::PVSource::get_valid_row_count() const
 	return _nraw.get_valid_row_count();
 }
 
-PVCol Inendi::PVSource::get_column_count() const
+PVCol Inendi::PVSource::get_nraw_column_count() const
 {
-	return get_format().get_axes().size();
+	return _format.get_axes().size();
 }
 
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 {
 	assert(row < get_row_count());
-	assert(col < get_column_count());
+	assert(col < get_nraw_column_count());
 
 	return _nraw.at_string(row, col);
 }
@@ -167,7 +109,7 @@ std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 std::string Inendi::PVSource::get_input_value(PVRow row, PVCol col, bool* res) const
 {
 	assert(row < get_row_count());
-	assert(col < get_column_count());
+	assert(col < get_nraw_column_count());
 
 	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
 
@@ -188,7 +130,7 @@ std::string Inendi::PVSource::get_input_value(PVRow row, PVCol col, bool* res) c
 bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
 {
 	assert(row < get_row_count());
-	assert(col < get_column_count());
+	assert(col < get_nraw_column_count());
 
 	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
 
@@ -197,22 +139,15 @@ bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
 
 QString Inendi::PVSource::get_window_name() const
 {
-	const size_t line_start = get_extraction_last_start();
-	const size_t line_end = line_start + get_row_count() - 1;
-	return QString::fromStdString(get_name()) + QString(" / ") + get_format_name() +
-	       QString("\n(%L1 -> %L2)").arg(line_start).arg(line_end);
+	return QString::fromStdString(get_name()) + QString(" / ") + get_format_name();
 }
 
 QString Inendi::PVSource::get_tooltip() const
 {
-	const size_t line_start = get_extraction_last_start();
-	const size_t line_end = line_start + get_row_count() - 1;
-
 	QString source = QString("source: %1").arg(QString::fromStdString(get_name()));
 	QString format = QString("format: %1").arg(get_format_name());
-	QString range = QString("range: %L1 - %L2").arg(line_start).arg(line_end);
 
-	return source + "\n" + format + "\n" + range;
+	return source + "\n" + format;
 }
 
 void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
@@ -220,17 +155,12 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	QString src_name = _src_plugin->registered_name();
 	so.attribute("source-plugin", src_name);
 
-	// Save the state of the extractor
-	chunk_index start, nlines;
-	start = _extractor.get_last_start();
-	nlines = _extractor.get_last_nlines();
-	so.attribute("index_start", start);
-	so.attribute("nlines", nlines);
-
-	QString nraw_path = QString::fromStdString(get_rushnraw().collection().rootdir());
+	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", true, true);
+	_nraw.serialize_write(*nraw_obj);
 
 	// Save the format
-	so.object("format", _extractor.get_format(), QObject::tr("Format"));
+	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
+	_format.serialize_write(*format_obj);
 
 	// Serialize Input description to reload data if required.
 	QString type_name = _src_plugin->supported_type();
@@ -245,6 +175,18 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 		    child_name, _src_plugin->supported_type_lib()->human_name_of_input(input), false);
 		input->serialize_write(*new_input);
 		new_input->set_bound_obj(*input);
+	}
+
+	// Serialize invalid elements.
+	int inv_elts_count = _inv_elts.size();
+	so.attribute("inv_elts_count", inv_elts_count);
+	idx = 0;
+	for (auto const& inv_elt : _inv_elts) {
+		int inv_line = inv_elt.first;
+		so.attribute(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
+		QString inv_content = QString::fromStdString(inv_elt.second);
+		so.attribute(QString::fromStdString("inv_elts_value/" + std::to_string(idx)), inv_content);
+		idx++;
 	}
 
 	// Read the data colletions
@@ -293,31 +235,34 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	PVRush::PVSourceCreator_p sc_lib =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
 
-	PVRush::PVFormat format;
-	so.object("format", format);
+	// read Format
+	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
+	PVRush::PVFormat format = PVRush::PVFormat::serialize_read(*format_obj);
 
-	// Get the state of the extractor
-	chunk_index start, nlines;
-	so.attribute("index_start", start);
-	so.attribute("nlines", nlines);
+	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format);
 
-	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format, start, nlines);
-
-	QString nraw_folder;
-	so.attribute("nraw_path", nraw_folder, QString());
-
-	if (not nraw_folder.isEmpty()) {
-		QString user_based_nraw_dir = PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() +
-		                              QDir(nraw_folder).dirName();
-		QFileInfo fi(user_based_nraw_dir);
-		if (fi.exists() and fi.isDir()) {
-			nraw_folder = user_based_nraw_dir;
-		} else {
-			nraw_folder = QString();
-		}
+	try {
+		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", true, true);
+		source._nraw = std::move(PVRush::PVNraw::serialize_read(*nraw_obj));
+	} catch (PVRush::NrawLoadingFail const& e) {
+		source.load_data();
 	}
 
-	source.load_data(nraw_folder.toStdString());
+	// Serialize invalid elements.
+	if (source._inv_elts.empty()) { // Otherwise it is already known from loading.
+		int inv_elts_count;
+		so.attribute("inv_elts_count", inv_elts_count);
+		idx = 0;
+		for (int id = 0; id < inv_elts_count; id++) {
+			int inv_line;
+			so.attribute(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
+			QString inv_content;
+			so.attribute(QString::fromStdString("inv_elts_value/" + std::to_string(idx)),
+			             inv_content);
+			idx++;
+			source._inv_elts.emplace(inv_line, inv_content.toStdString());
+		}
+	}
 
 	// Create the list of mapped
 	PVCore::PVSerializeObject_p list_obj = so.create_object(

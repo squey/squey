@@ -36,7 +36,7 @@ namespace PVRush
 class PVAggregator
 {
   public:
-	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
+	typedef std::list<PVRush::PVRawSourceBase_p> list_sources;
 
   public:
 	/*! \brief Create an aggregator with no source.
@@ -105,8 +105,8 @@ class PVAggregator
 	PVCore::PVChunk* next_chunk();
 
   protected:
-	list_inputs _inputs;
-	list_inputs::iterator _cur_input;
+	list_sources _inputs;
+	list_sources::iterator _cur_input;
 	/*! \brief Indicates the end of param[in]s. Set by operator().
 	 */
 	chunk_index _nstart;

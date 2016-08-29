@@ -39,6 +39,11 @@
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
 
+namespace Inendi
+{
+class PVSource;
+}
+
 namespace PVGuiQt
 {
 class PVAxesCombinationWidget;
@@ -105,11 +110,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	PVRush::PVFormat get_format_from_dom();
 
 	/**
-	 * Stop old extractor, create the new one with default argument and starts it.
-	 */
-	void create_extractor();
-
-	/**
 	 * Try to find a matching splitter when we import a file without format.
 	 */
 	void guess_first_splitter();
@@ -149,6 +149,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	PVRush::PVInputType_p _log_input_type;   //!< InputType plugin to load data.
 	PVRush::PVSourceCreator_p _log_sc;       //!< The source from input file.
 	PVRush::PVRawSourceBase_p _log_source;
+	std::unique_ptr<PVRush::PVNraw> _nraw;
 	std::shared_ptr<PVRush::PVExtractor> _log_extract; //!< Extractor to load data.
 	PVOptionsWidget* _options_widget;
 	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;

@@ -6,11 +6,15 @@
  */
 
 #include "PVLayerFilterMultipleSearch.h"
+
+#include <inendi/PVView.h>
+
+#include <pvkernel/rush/PVNraw.h>
+
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
-#include <inendi/PVView.h>
 
 #include <pvcop/db/algo.h>
 #include <pvcop/core/algo/selection.h>

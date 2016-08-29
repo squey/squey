@@ -76,28 +76,19 @@ class PVFormatNoTimeMapping : public PVFormatException
 */
 class PVFormat
 {
-	friend class PVCore::PVSerializeObject;
-
   public:
 	typedef PVFormat_p p_type;
 	using fields_mask_t = PVXmlParamParser::fields_mask_t;
 
-  private:
-	QString format_name; // human readable name, displayed in a widget for instance
-	QString full_path;
-
   public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
-	~PVFormat();
+	PVFormat(QDomElement const& rootNode, bool forceOneAxis = false);
 
 	pvcop::formatter_desc_list get_storage_format() const;
 
 	/* Methods */
 	void debug() const;
-	bool populate_from_xml(QString filename, bool forceOneAxis = false);
-	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
-	bool populate(bool forceOneAxis = false);
 
 	PVFilter::PVChunkFilterByEltCancellable
 	create_tbb_filters_autodetect(float timeout, bool* cancellation = nullptr);
@@ -114,38 +105,33 @@ class PVFormat
 
 	QList<PVAxisFormat> const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
-	fields_mask_t const& get_fields_mask() const { return _fields_mask; }
 
 	size_t get_first_line() const { return _first_line; }
 	size_t get_line_count() const { return _line_count; }
 
 	bool have_grep_filter() const { return _have_grep_filter; }
 
-	// Remove any fields from the IR of the format and only
-	// keeps fields.
-	void only_keep_axes();
-
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
+  private:
+	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+
+	bool populate(bool forceOneAxis = false);
+	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
+	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
+	bool populate_from_xml(QString filename, bool forceOneAxis = false);
+
   public:
-	/* Attributes */
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static PVFormat serialize_read(PVCore::PVSerializeObject& so);
+
+  private:
+	QString format_name; // human readable name, displayed in a widget for instance
+	QString full_path;
 
 	// List of filters to apply
 	PVRush::PVXmlParamParser::list_params filters_params;
 	fields_mask_t _fields_mask;
-
-	unsigned int axes_count; //!< It is equivalent to the number of axes except we add the decoded
-	// axes. This property must be used to know the number of axes, never
-	// count using axes.count()
-
-	int time_format_axis_id;
-
-  protected:
-	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
-	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
-
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
   protected:
 	QList<PVAxisFormat> _axes;
@@ -153,10 +139,7 @@ class PVFormat
 	size_t _first_line;
 	size_t _line_count;
 
-  private:
 	bool _have_grep_filter;
-	bool _already_pop;
-	bool _original_was_serialized;
 };
 };
 

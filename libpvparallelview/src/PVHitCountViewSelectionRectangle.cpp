@@ -41,10 +41,12 @@ void PVParallelView::PVHitCountViewSelectionRectangle::commit(bool use_selection
 		use_selectable = false;
 	}
 
+	Inendi::PVSelection sel(lib_view().get_row_count());
+	sel.select_none();
+
 	PVSelectionGenerator::compute_selection_from_hit_count_view_rect(
-	    _hcv->get_hit_graph_manager(), r, _hcv->get_max_count(), view.get_volatile_selection(),
-	    use_selectable);
-	PVSelectionGenerator::process_selection(view, use_selection_modifiers);
+	    _hcv->get_hit_graph_manager(), r, _hcv->get_max_count(), sel, use_selectable);
+	PVSelectionGenerator::process_selection(view, sel, use_selection_modifiers);
 }
 
 /*****************************************************************************

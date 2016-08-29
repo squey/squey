@@ -30,7 +30,7 @@ class PVLayerStack
 	/**
 	 * Constructor
 	 */
-	PVLayerStack(size_t layer_size);
+	PVLayerStack();
 
 	QString get_new_layer_name() const;
 	bool& should_hide_layers() { return _should_hide_layers; }
@@ -72,14 +72,14 @@ class PVLayerStack
   public:
 	void copy_details_to_clipboard();
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+  public:
+	void serialize_write(PVCore::PVSerializeObject& so);
+	static Inendi::PVLayerStack serialize_read(PVCore::PVSerializeObject& so);
 
   private:
 	int _selected_layer_index;
 	QList<PVLayer> _table;
 	bool _should_hide_layers = true;
-	size_t _layer_size; //!< Size for each of these layers.
 };
 }
 

@@ -35,22 +35,15 @@ class PVAxis : public PVRush::PVAxisFormat
 	/**
 	 * Constructor
 	 */
-	PVAxis(){}; // We have to keep this Ugly constructor as we use QVector which perform a lot of
-	            // default construction
+	PVAxis()
+	    : PVRush::PVAxisFormat(-1){}; // We have to keep this Ugly constructor as we use QVector
+	                                  // which perform a lot of
+	                                  // default construction
 	PVAxis(PVRush::PVAxisFormat axis_format);
-
-	/**
-	 * Destructor
-	 */
-	~PVAxis();
 
   public:
 	PVCore::PVArgumentList const& get_args_mapping() const { return _args_mapping; }
 	PVCore::PVArgumentList const& get_args_plotting() const { return _args_plotting; }
-
-  protected:
-	void serialize(PVCore::PVSerializeObject& so,
-	               PVCore::PVSerializeArchive::version_t /*version*/);
 
   private:
 	static PVCore::PVArgumentList args_from_node(node_args_t const& args_str,

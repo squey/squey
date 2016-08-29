@@ -35,7 +35,6 @@ PVSelectionAxisSliders.cpp
 PVSelectionGenerator.cpp
 PVSlidersGroup.cpp
 PVSlidersManager.cpp
-PVTools.cpp
 PVZoneRendering.cpp
 PVZoneTree.cpp
 PVZoneTreeBase.cpp

@@ -13,11 +13,6 @@
 
 #include "../../common/splunk/PVSplunkInfos.h"
 
-PVRush::PVInputTypeSplunk::PVInputTypeSplunk()
-    : PVInputTypeDesc<PVSplunkQuery>(), _is_custom_format(false)
-{
-}
-
 bool PVRush::PVInputTypeSplunk::createWidget(hash_formats const& formats,
                                              hash_formats& /*new_formats*/,
                                              list_inputs& inputs,
@@ -39,10 +34,6 @@ bool PVRush::PVInputTypeSplunk::createWidget(hash_formats const& formats,
 	format = INENDI_BROWSE_FORMAT_STR;
 
 	return true;
-}
-
-PVRush::PVInputTypeSplunk::~PVInputTypeSplunk()
-{
 }
 
 QString PVRush::PVInputTypeSplunk::name() const

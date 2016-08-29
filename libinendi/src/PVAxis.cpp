@@ -50,26 +50,6 @@ Inendi::PVAxis::PVAxis(PVRush::PVAxisFormat axis_format)
 	}
 }
 
-/******************************************************************************
- *
- * Inendi::PVAxis::serialize
- *
- *****************************************************************************/
-void Inendi::PVAxis::serialize(PVCore::PVSerializeObject& so,
-                               PVCore::PVSerializeArchive::version_t /*version*/)
-{
-	so.attribute("name", name);
-	// so.attribute("color", color);
-	// so.attribute("titlecolor", titlecolor);
-}
-
-/******************************************************************************
- *
- * Inendi::PVAxis::~PVAxis
- *
- *****************************************************************************/
-Inendi::PVAxis::~PVAxis() = default;
-
 PVCore::PVArgumentList Inendi::PVAxis::args_from_node(node_args_t const& args_str,
                                                       PVCore::PVArgumentList const& def_args)
 {

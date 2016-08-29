@@ -174,20 +174,12 @@ class TestEnv
 	        std::string const& format_file,
 	        size_t dup = 1,
 	        std::string const& extra_input = "")
-	    : _ext(PVFilter::PVChunkFilterByElt(
-	          std::unique_ptr<PVFilter::PVElementFilter>(new PVFilter::PVElementFilter())))
+	    : _format("format", QString::fromStdString(format_file))
 	    , _big_file_path(duplicate_log_file(log_file, dup))
 	{
 
 		if (dup != 1 and extra_input != "") {
 			throw std::runtime_error("We don't handle mutliple input with duplication");
-		}
-
-		PVRush::PVFormat format("format", QString::fromStdString(format_file));
-
-		// Load the given format file
-		if (!format.populate()) {
-			throw std::runtime_error("Can't read format file " + format_file);
 		}
 
 		std::vector<std::string> filenames{_big_file_path};
@@ -198,30 +190,19 @@ class TestEnv
 		for (std::string const& filename : filenames) {
 			// Input file
 			QString path_file = QString::fromStdString(filename);
-			PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
-
-			// Get the source creator
-			PVRush::PVSourceCreator_p sc_file;
-			if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-				throw std::runtime_error("Can't get sources.");
-			}
-
-			// Process that file with the found source creator thanks to the extractor
-			PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
-			if (!src) {
-				throw std::runtime_error("Unable to create PVRush source from file " + log_file +
-				                         "\n");
-			}
-
-			// Create the extractor
-			_ext.add_source(src);
+			_list_inputs << PVRush::PVInputDescription_p(new PVRush::PVFileDescription(path_file));
 		}
-		_ext.set_format(format);
+
+		// Get the source creator
+		if (!PVRush::PVTests::get_file_sc(_list_inputs.front(), _format, _sc_file)) {
+			throw std::runtime_error("Can't get sources.");
+		}
 	}
 
 	void load_data(size_t begin = 0)
 	{
-		PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(begin);
+		PVRush::PVExtractor ext(_format, _nraw, _sc_file, _list_inputs);
+		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(begin);
 		job->wait_end();
 	}
 
@@ -233,9 +214,12 @@ class TestEnv
 	/**
 	 * Get number of row in the imported NRaw.
 	 */
-	size_t get_nraw_size() const { return _ext.get_nraw().get_row_count(); }
+	size_t get_nraw_size() const { return _nraw.get_row_count(); }
 
-	PVRush::PVExtractor _ext;
+	PVRush::PVFormat _format;
+	PVRush::PVNraw _nraw;
+	QList<std::shared_ptr<PVRush::PVInputDescription>> _list_inputs;
+	PVRush::PVSourceCreator_p _sc_file;
 
   private:
 	std::string _big_file_path;

@@ -36,7 +36,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	friend class PVFullParallelViewSelectionRectangle;
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
-	friend class process_selection_Observer;
 
   public:
 	typedef PVSlidersManager::axis_id_t axis_id_t;

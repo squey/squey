@@ -45,9 +45,6 @@ void run_multiplesearch_filter(Inendi::PVView* view1)
 	plugin->operator()(in);
 
 	view1->set_selection_view(view1->get_post_filter_layer().get_selection());
-
-	// explicitely process view to trigger correlation (automatically done by the Hive in Inspector)
-	view1->process_from_selection();
 }
 
 int main()

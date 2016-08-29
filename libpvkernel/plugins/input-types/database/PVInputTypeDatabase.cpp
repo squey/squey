@@ -10,8 +10,7 @@
 
 #include "../../common/database/PVDBInfos.h"
 
-PVRush::PVInputTypeDatabase::PVInputTypeDatabase()
-    : PVInputTypeDesc<PVDBQuery>(), _is_custom_format(false)
+PVRush::PVInputTypeDatabase::PVInputTypeDatabase() : PVInputTypeDesc<PVDBQuery>()
 {
 }
 
@@ -36,8 +35,8 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
 	inputs.push_back(query);
 
 	if (params->is_format_custom()) {
-		PVRush::PVFormat custom_format;
-		custom_format.populate_from_xml(params->get_custom_format().documentElement());
+		PVRush::PVFormat custom_format(params->get_custom_format().documentElement());
+		;
 		new_formats["custom"] = custom_format;
 		format = "custom";
 	} else {

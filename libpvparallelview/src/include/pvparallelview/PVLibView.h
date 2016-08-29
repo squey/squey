@@ -11,7 +11,6 @@
 #include <sigc++/sigc++.h>
 
 #include <inendi/PVAxesCombination.h>
-#include <inendi/PVPlotting.h>
 
 #include <pvparallelview/PVZonesProcessor.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -36,7 +35,6 @@ class PVLibView : public sigc::trackable
 	typedef std::vector<PVZoomedParallelScene*> zoomed_scene_list_t;
 	typedef std::vector<PVHitCountView*> hit_count_view_list_t;
 	typedef std::vector<PVScatterView*> scatter_view_list_t;
-	friend class process_selection_Observer;
 
   public:
 	PVLibView(Inendi::PVView& view_sp);

@@ -207,7 +207,6 @@ class PVMainWindow : public QMainWindow
 	void closeEvent(QCloseEvent* event);
 
   private:
-	void set_selection_from_layer(Inendi::PVView& view, Inendi::PVLayer const& layer);
 	void display_inv_elts();
 
 	void save_screenshot(const QPixmap& pixmap, const QString& title, const QString& name);
@@ -292,8 +291,6 @@ class PVMainWindow : public QMainWindow
   protected:
 	void keyPressEvent(QKeyEvent* event);
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
-	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView* inendi_view);
-	PVGuiQt::PVSourceWorkspace* get_tab_from_view(Inendi::PVView const& inendi_view);
 
   private:
 	Inendi::PVRoot& get_root();
@@ -302,7 +299,8 @@ class PVMainWindow : public QMainWindow
   private:
 	static PVMainWindow* find_main_window(const QString& path);
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
-	void save_solution(QString const& file, PVCore::PVSerializeArchiveOptions_p const& options);
+	void save_solution(QString const& file,
+	                   std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options);
 	void reset_root();
 	void close_solution();
 

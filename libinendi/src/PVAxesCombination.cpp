@@ -131,31 +131,6 @@ PVCol Inendi::PVAxesCombination::get_axis_column_index(PVCol index) const
 
 /******************************************************************************
  *
- * Inendi::PVAxesCombination::get_combined_axis_column_index
- *
- *****************************************************************************/
-PVCol Inendi::PVAxesCombination::get_combined_axis_column_index(PVCol index) const
-{
-	assert(!axes_list.empty());
-
-	/* We check that the given axis' index is not out of range */
-	if (index >= original_axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index,
-		            original_axes_list.size());
-		return columns_indexes_list.last().get_axis();
-	}
-
-	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
-		if (columns_indexes_list[i].get_axis() == index) {
-			return i;
-		}
-	}
-	// Return the last used axis
-	return columns_indexes_list.size() - 1;
-}
-
-/******************************************************************************
- *
  * Inendi::PVAxesCombination::get_combined_axes_columns_indexes
  *
  *****************************************************************************/
@@ -205,45 +180,6 @@ QStringList Inendi::PVAxesCombination::get_original_axes_names_list() const
 	}
 
 	return output_list;
-}
-/******************************************************************************
- *
- * Inendi::PVAxesCombination::decrease_axis_column_index
- *
- *****************************************************************************/
-bool Inendi::PVAxesCombination::decrease_axis_column_index(PVCol index)
-{
-	/* We check that the given axis' index is not out of range */
-	assert(index < axes_list.size());
-
-	/* If the actual column_index of that axis is not too low, we decrease it */
-	if (columns_indexes_list[index].get_axis() > 0) {
-		PVCol axis_index = columns_indexes_list[index].get_axis() - 1;
-		columns_indexes_list[index].set_axis(axis_index);
-		columns_indexes_list[index].set_id(get_first_free_child_id(axis_index));
-		axes_list[index] = original_axes_list[axis_index];
-	}
-	return false;
-}
-
-/******************************************************************************
- *
- * Inendi::PVAxesCombination::increase_axis_column_index
- *
- *****************************************************************************/
-bool Inendi::PVAxesCombination::increase_axis_column_index(PVCol index)
-{
-	assert(index < axes_list.size());
-
-	/* If the actual column_index of that axis is not too high, we increase it */
-	if (columns_indexes_list[index].get_axis() < original_axes_list.size() - 1) {
-		PVCol axis_index = columns_indexes_list[index].get_axis() + 1;
-		columns_indexes_list[index].set_axis(axis_index);
-		columns_indexes_list[index].set_id(get_first_free_child_id(axis_index));
-		axes_list[index] = original_axes_list[axis_index];
-	}
-
-	return false;
 }
 
 /******************************************************************************
@@ -387,24 +323,6 @@ void Inendi::PVAxesCombination::reset_to_default()
 	for (PVCol i = 0; i < original_axes_list.size(); i++) {
 		axis_append(i);
 	}
-}
-
-/******************************************************************************
- *
- * Inendi::PVAxesCombination::set_axis_name
- *
- *****************************************************************************/
-void Inendi::PVAxesCombination::set_axis_name(PVCol index, const QString& name_)
-{
-	assert(!axes_list.empty());
-
-	/* We check that the given axis' index is not out of range */
-	if (index >= axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-		axes_list.last().set_name(name_);
-	}
-
-	axes_list[index].set_name(name_);
 }
 
 /******************************************************************************
@@ -582,18 +500,6 @@ void Inendi::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so)
 	// FIXME : Axis attributes are not saved.
 	std::transform(columns_indexes_list.begin(), columns_indexes_list.end(), axes_list.begin(),
 	               [this](axes_comb_id_t const& id) { return original_axes_list[id.get_axis()]; });
-}
-
-PVCore::PVColumnIndexes Inendi::PVAxesCombination::get_original_axes_indexes() const
-{
-	PVCore::PVColumnIndexes col_array;
-
-	const columns_indexes_t& axes_index_list = get_axes_index_list();
-	for (axes_comb_id_t i : axes_index_list) {
-		col_array.push_back(i.get_axis());
-	}
-
-	return col_array;
 }
 
 void Inendi::PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)

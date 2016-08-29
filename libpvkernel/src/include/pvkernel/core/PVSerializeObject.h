@@ -39,7 +39,8 @@ class PVSerializeObjectFileError : public PVSerializeArchiveError
 	    : PVSerializeArchiveError(QString("Error with file '%1': %2 (%3)")
 	                                  .arg(file.fileName())
 	                                  .arg(file.errorString())
-	                                  .arg(file.error()))
+	                                  .arg(file.error())
+	                                  .toStdString())
 	{
 	}
 };
@@ -48,7 +49,7 @@ class PVSerializeObjectFileError : public PVSerializeArchiveError
  *
  * This class is the main helper class used for object serialisation.
  */
-class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
+class PVSerializeObject
 {
 	friend class PVSerializeArchive;
 	friend class PVSerializeArchiveFixError;
@@ -101,9 +102,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	PVSerializeObject* parent();
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
 	bool has_repairable_errors() const;
-
-	bool object_exists_by_path(QString const& path) const;
-	p_type get_object_by_path(QString const& path) const;
 
   public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
@@ -203,21 +201,6 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 		return buffer(name, buf.data(), n * sizeof(T));
 	}
 
-	/*! \brief Read a buffer for this object, by just providing the path to its underlying filename.
-	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
-	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted
-	 * file path.
-	 *  \return false is the archive is being read, true otherwise.
-	 *  This method can only be used when the archive is being read !
-	 */
-	bool buffer_path(QString const& name, QString& path);
-
-	/*! \brief Checks whether a buffer exists or not when reading an archive
-	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
-	 *  \return true if the buffer exists, false otherwise (or if the archive is being written)
-	 */
-	bool buffer_exists(QString const& name);
-
 	/*! \brief Include an existing file, given its path.
 	 *  \param[in] name Name of this file. This will be used as the underlying destination filename.
 	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted
@@ -250,8 +233,9 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	                     bool def_option = true);
 	uint32_t get_version() const;
 
-  private:
 	void attribute_write(QString const& name, QVariant const& obj);
+
+  private:
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
@@ -259,39 +243,12 @@ class PVSerializeObject : public std::enable_shared_from_this<PVSerializeObject>
 	void
 	hash_arguments_read(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 	bool must_write_child(QString const& name);
-	p_type get_archive_object_from_path(QString const& path) const;
 
 	template <typename T>
 	void call_serialize(T& obj, p_type new_obj, T const* /*def_v*/)
 	{
 		obj.serialize(*new_obj, get_version());
 		new_obj->set_bound_obj(obj);
-	}
-
-	template <typename T>
-	static void* obj_pointer(T& obj)
-	{
-		return &obj;
-	}
-
-	template <typename T>
-	static void* obj_pointer(std::shared_ptr<T>& obj)
-	{
-		return obj.get();
-	}
-
-	template <typename T>
-	void pointer_to_obj(void* p, T& obj)
-	{
-		T* dp = (T*)(p);
-		obj = *dp;
-	}
-
-	template <typename T>
-	void pointer_to_obj(void* p, std::shared_ptr<T>& obj)
-	{
-		T* dp = (T*)(p);
-		obj = dp->shared_from_this();
 	}
 
   private:

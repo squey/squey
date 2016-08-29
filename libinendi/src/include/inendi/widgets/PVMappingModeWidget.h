@@ -11,9 +11,12 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVComboBox.h>
 
-#include <inendi/PVMapping.h>
-
 #include <QWidget>
+
+namespace Inendi
+{
+class PVMapped;
+}
 
 namespace PVWidgets
 {
@@ -22,11 +25,11 @@ class PVMappingModeWidget : public QWidget
 {
   public:
 	PVMappingModeWidget(QWidget* parent = nullptr);
-	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapping& mapping, QWidget* parent = nullptr);
+	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapped& mapping, QWidget* parent = nullptr);
 
   public:
 	void populate_from_type(QString const& type);
-	void populate_from_mapping(PVCol axis_id, Inendi::PVMapping& mapping);
+	void populate_from_mapping(PVCol axis_id, Inendi::PVMapped& mapping);
 	inline void select_default() { set_mode("default"); }
 	inline void clear() { _combo->clear(); }
 
