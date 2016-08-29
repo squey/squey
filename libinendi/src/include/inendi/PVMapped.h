@@ -88,7 +88,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
   public:
 	// Data access
 	PVRow get_row_count() const;
-	PVCol get_column_count() const;
+	PVCol get_nraw_column_count() const;
 
 	/**
 	 * Access mapping value for given row/col.

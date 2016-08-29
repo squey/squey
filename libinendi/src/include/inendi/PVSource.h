@@ -51,7 +51,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	void load_data() { wait_extract_end(extract(0)); }
 
 	/* Functions */
-	PVCol get_column_count() const;
+	PVCol get_nraw_column_count() const;
 
 	PVRush::PVNraw& get_rushnraw();
 	const PVRush::PVNraw& get_rushnraw() const;

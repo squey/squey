@@ -112,7 +112,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
   public:
 	// Data access
 	PVRow get_row_count() const;
-	PVCol get_column_count() const;
+	PVCol get_nraw_column_count() const;
 
 	/**
 	 * Returns the aligned row count given a row count

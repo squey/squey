@@ -26,7 +26,7 @@ Inendi::PVMapped::PVMapped(PVSource& src, std::string const& name)
 	// FIXME : Should be const
 	PVSource& source = get_parent();
 
-	PVCol naxes = source.get_column_count();
+	PVCol naxes = source.get_nraw_column_count();
 
 	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the "
@@ -112,10 +112,10 @@ PVRow Inendi::PVMapped::get_row_count() const
 
 /******************************************************************************
  *
- * Inendi::PVMapped::get_column_count
+ * Inendi::PVMapped::get_nraw_column_count
  *
  *****************************************************************************/
-PVCol Inendi::PVMapped::get_column_count() const
+PVCol Inendi::PVMapped::get_nraw_column_count() const
 {
 	return _trans_table.size();
 }

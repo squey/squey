@@ -52,7 +52,7 @@ Inendi::PVPlotted::~PVPlotted()
 
 int Inendi::PVPlotted::create_table()
 {
-	const PVCol mapped_col_count = get_column_count();
+	const PVCol mapped_col_count = get_nraw_column_count();
 
 	// Transposed normalized unisnged integer.
 	// Align the number of lines on a mulitple of 4, in order to have 16-byte
@@ -92,15 +92,15 @@ PVRow Inendi::PVPlotted::get_row_count() const
 	return get_parent<PVSource>().get_row_count();
 }
 
-PVCol Inendi::PVPlotted::get_column_count() const
+PVCol Inendi::PVPlotted::get_nraw_column_count() const
 {
-	return get_parent<PVMapped>().get_column_count();
+	return get_parent<PVMapped>().get_nraw_column_count();
 }
 
 QList<PVCol> Inendi::PVPlotted::get_singleton_columns_indexes()
 {
 	const PVRow nrows = get_row_count();
-	const PVCol ncols = get_column_count();
+	const PVCol ncols = get_nraw_column_count();
 	QList<PVCol> cols_ret;
 
 	if (nrows == 0) {
@@ -129,7 +129,7 @@ QList<PVCol>
 Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_t max, double rate)
 {
 	const PVRow nrows = get_row_count();
-	const PVCol ncols = get_column_count();
+	const PVCol ncols = get_nraw_column_count();
 	QList<PVCol> cols_ret;
 
 	if (min > max) {
@@ -159,7 +159,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
                                                                             double rate)
 {
 	const PVRow nrows = get_row_count();
-	const PVCol ncols = get_column_count();
+	const PVCol ncols = get_nraw_column_count();
 	QList<PVCol> cols_ret;
 
 	if (min > max) {
@@ -267,13 +267,13 @@ void Inendi::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) 
 
 PVRow Inendi::PVPlotted::get_col_min_row(PVCol const c) const
 {
-	assert(c < get_column_count());
+	assert(c < get_nraw_column_count());
 	return _minmax_values[c].min;
 }
 
 PVRow Inendi::PVPlotted::get_col_max_row(PVCol const c) const
 {
-	assert(c < get_column_count());
+	assert(c < get_nraw_column_count());
 	return _minmax_values[c].max;
 }
 
@@ -287,7 +287,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 {
 	QList<PVCol> ret;
 
-	for (PVCol j = 0; j < get_column_count(); j++) {
+	for (PVCol j = 0; j < get_nraw_column_count(); j++) {
 		if (!get_properties_for_col(j).is_uptodate()) {
 			ret << j;
 		}

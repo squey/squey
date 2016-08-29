@@ -84,7 +84,7 @@ void Inendi::PVLayer::reset_to_full_and_default_color()
 
 void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 {
-	PVCol col_count = plotted.get_column_count();
+	PVCol col_count = plotted.get_nraw_column_count();
 	_row_mins.resize(col_count);
 	_row_maxs.resize(col_count);
 

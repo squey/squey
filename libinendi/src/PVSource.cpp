@@ -93,7 +93,7 @@ PVRow Inendi::PVSource::get_valid_row_count() const
 	return _nraw.get_valid_row_count();
 }
 
-PVCol Inendi::PVSource::get_column_count() const
+PVCol Inendi::PVSource::get_nraw_column_count() const
 {
 	return _format.get_axes().size();
 }
@@ -101,7 +101,7 @@ PVCol Inendi::PVSource::get_column_count() const
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 {
 	assert(row < get_row_count());
-	assert(col < get_column_count());
+	assert(col < get_nraw_column_count());
 
 	return _nraw.at_string(row, col);
 }
@@ -109,7 +109,7 @@ std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 std::string Inendi::PVSource::get_input_value(PVRow row, PVCol col, bool* res) const
 {
 	assert(row < get_row_count());
-	assert(col < get_column_count());
+	assert(col < get_nraw_column_count());
 
 	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
 
@@ -130,7 +130,7 @@ std::string Inendi::PVSource::get_input_value(PVRow row, PVCol col, bool* res) c
 bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
 {
 	assert(row < get_row_count());
-	assert(col < get_column_count());
+	assert(col < get_nraw_column_count());
 
 	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
 
