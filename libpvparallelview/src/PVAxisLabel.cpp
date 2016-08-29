@@ -9,7 +9,6 @@
 
 #include <pvparallelview/PVAxisLabel.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
-#include <pvparallelview/PVSlidersGroup.h>
 
 #include <QDialog>
 #include <QLayout>
@@ -24,10 +23,8 @@
  * PVParallelView::PVAxisLabel::PVAxisLabel
  *****************************************************************************/
 
-PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView& view,
-                                         PVSlidersGroup* sg,
-                                         QGraphicsItem* parent)
-    : QGraphicsSimpleTextItem(parent), _lib_view(view), _sliders_group(sg)
+PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView& view, QGraphicsItem* parent)
+    : QGraphicsSimpleTextItem(parent), _lib_view(view)
 {
 	setFlag(QGraphicsItem::ItemClipsToShape, true);
 }

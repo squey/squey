@@ -111,7 +111,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	addToGroup(get_sliders_group());
 	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
 
-	_label = new PVAxisLabel(view, _sliders_group);
+	_label = new PVAxisLabel(view);
 	addToGroup(_label);
 	_label->setRotation(label_rotation);
 	_label->setPos(0, -6 * axis_extend);
