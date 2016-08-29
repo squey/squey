@@ -548,7 +548,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 			}
 
 			const Inendi::PVAxesCombination& ac = view->get_axes_combination();
-			for (PVCol i = 0; i < ac.get_axes_count(); i++) {
+			for (PVCol i = 0; i < view->get_column_count(); i++) {
 				const QString& axis_name = ac.get_axis(i).get_name();
 				const QString& axis_type = ac.get_axis(i).get_type();
 

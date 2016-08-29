@@ -154,16 +154,6 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 
 /******************************************************************************
  *
- * Inendi::PVView::get_axes_count
- *
- *****************************************************************************/
-PVCol Inendi::PVView::get_axes_count() const
-{
-	return _axes_combination.get_axes_count();
-}
-
-/******************************************************************************
- *
  * Inendi::PVView::get_axes_names_list
  *
  *****************************************************************************/

@@ -53,8 +53,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
 
 	/* Functions */
-	PVCol get_axes_count() const;
-
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination
 	 *
