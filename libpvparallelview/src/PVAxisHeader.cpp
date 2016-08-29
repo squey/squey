@@ -6,7 +6,6 @@
  */
 
 #include <pvparallelview/PVAxisHeader.h>
-#include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVAxisLabel.h>
 
@@ -36,11 +35,11 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view,
-                                           PVSlidersGroup* sg,
+                                           PVAxisHeader::axis_id_t const& axis_id,
                                            PVAxisGraphicsItem* parent)
     : QGraphicsRectItem(parent)
     , _view(view)
-    , _sliders_group(sg)
+    , _axis_id(axis_id)
     , _axis_selected_animation(new __impl::PVAxisSelectedAnimation(this))
     , _clicked(false)
     , _click_event(QEvent::GraphicsSceneMousePress)
@@ -71,7 +70,7 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 		menu.addSeparator();
 	}
 	QAction* ars = menu.addAction("New selection cursors");
-	connect(ars, SIGNAL(triggered()), this, SLOT(new_selection_sliders()));
+	connect(ars, SIGNAL(triggered()), this, SIGNAL(new_selection_slider()));
 
 	if (menu.exec(event->screenPos()) != nullptr) {
 		event->accept();
@@ -149,7 +148,7 @@ void PVParallelView::PVAxisHeader::mouseMoveEvent(QGraphicsSceneMouseEvent* even
 
 PVCol PVParallelView::PVAxisHeader::get_axis_index() const
 {
-	return _view.get_axes_combination().get_index_by_id(_sliders_group->get_axis_id());
+	return _view.get_axes_combination().get_index_by_id(_axis_id);
 }
 
 PVParallelView::PVAxisGraphicsItem* PVParallelView::PVAxisHeader::axis()
@@ -174,11 +173,6 @@ bool PVParallelView::PVAxisHeader::is_last_axis() const
 void PVParallelView::PVAxisHeader::new_zoomed_parallel_view()
 {
 	Q_EMIT new_zoomed_parallel_view(get_axis_index());
-}
-
-void PVParallelView::PVAxisHeader::new_selection_sliders()
-{
-	_sliders_group->add_selection_sliders(0, 1024);
 }
 
 /******************************************************************************

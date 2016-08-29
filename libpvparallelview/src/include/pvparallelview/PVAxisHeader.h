@@ -8,6 +8,8 @@
 #ifndef __PVPARALLELVIEW_PVAXISHEADER_H__
 #define __PVPARALLELVIEW_PVAXISHEADER_H__
 
+#include <inendi/PVAxesCombination.h>
+
 #include <pvbase/types.h>
 
 #include <QGraphicsRectItem>
@@ -27,8 +29,6 @@ namespace PVParallelView
 {
 
 class PVAxisGraphicsItem;
-class PVSlidersGroup;
-
 namespace __impl
 {
 class PVAxisSelectedAnimation;
@@ -47,9 +47,11 @@ class PVAxisSelectedAnimation;
 class PVAxisHeader : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT
+  public:
+	using axis_id_t = Inendi::PVAxesCombination::axes_comb_id_t;
 
   public:
-	PVAxisHeader(const Inendi::PVView& view, PVSlidersGroup* sg, PVAxisGraphicsItem* parent);
+	PVAxisHeader(const Inendi::PVView& view, axis_id_t const& axis_id, PVAxisGraphicsItem* parent);
 
   public:
 	void set_width(int width);
@@ -71,17 +73,17 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 	void mouse_hover_entered(PVCol col, bool entered);
 	void mouse_clicked(PVCol col);
 	void new_zoomed_parallel_view(int _axis_index);
+	void new_selection_slider();
 
   private Q_SLOTS:
 	void new_zoomed_parallel_view();
-	void new_selection_sliders();
 
   private:
 	PVCol get_axis_index() const;
 
   private:
 	const Inendi::PVView& _view;
-	PVSlidersGroup* _sliders_group;
+	axis_id_t _axis_id;
 
 	__impl::PVAxisSelectedAnimation* _axis_selected_animation;
 	bool _started = false;

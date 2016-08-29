@@ -144,8 +144,10 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	update_axis_min_max_position();
 	update_layer_min_max_position();
 
-	_header_zone = new PVAxisHeader(view, _sliders_group, this);
+	_header_zone = new PVAxisHeader(view, axis_id, this);
 	addToGroup(_header_zone);
+	connect(_header_zone, &PVAxisHeader::new_selection_slider,
+	        [this]() { _sliders_group->add_selection_sliders(0, 1024); });
 	connect(_header_zone, SIGNAL(mouse_hover_entered(PVCol, bool)), this,
 	        SIGNAL(mouse_hover_entered(PVCol, bool)));
 	connect(_header_zone, SIGNAL(mouse_clicked(PVCol)), this, SIGNAL(mouse_clicked(PVCol)));
