@@ -239,12 +239,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::and_not(const PVSelBitField& rhs)
 
 PVCore::PVSelBitField PVCore::PVSelBitField::operator~() const
 {
-	PVCore::PVSelBitField res(count());
-	const size_t chunks = chunk_count();
-	for (PVRow i = 0; i < chunks; i++) {
-		res._selection.data()[i] = ~_selection.data()[i];
-	}
-
+	PVCore::PVSelBitField res = *this;
+	pvcop::core::algo::invert_selection(res);
 	return res;
 }
 
