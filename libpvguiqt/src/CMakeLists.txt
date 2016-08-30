@@ -82,7 +82,6 @@ include/pvguiqt/PVExportSelectionDlg.h
 )
 
 SET(UI_FILES
-PVAxesCombinationWidgetSelRange.ui
 PVAxesCombinationWidget.ui
 PVListDisplayDlg.ui
 )

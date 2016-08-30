@@ -40,8 +40,7 @@ void PVGuiQt::PVAxesCombinationDialog::reset_used_axes()
 
 void PVGuiQt::PVAxesCombinationDialog::commit_axes_comb_to_view()
 {
-	lib_view().set_axes_combination_list_id(_temp_axes_comb.get_axes_index_list(),
-	                                        _temp_axes_comb.get_axes_list());
+	lib_view().set_axes_combination(_temp_axes_comb.get_combination());
 }
 
 void PVGuiQt::PVAxesCombinationDialog::box_btn_clicked(QAbstractButton* btn)

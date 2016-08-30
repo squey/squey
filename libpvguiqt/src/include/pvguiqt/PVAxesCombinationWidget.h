@@ -15,7 +15,6 @@
 #include <inendi/PVAxesCombination.h>
 
 #include <pvguiqt/ui_PVAxesCombinationWidget.h>
-#include <pvguiqt/ui_PVAxesCombinationWidgetSelRange.h>
 
 namespace PVGuiQt
 {
@@ -23,22 +22,6 @@ namespace PVGuiQt
 class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 {
 	Q_OBJECT
-
-  private:
-	class PVMoveToDlg : public QDialog
-	{
-	  public:
-		PVMoveToDlg(PVAxesCombinationWidget* parent);
-
-	  public:
-		PVCol get_dest_col(PVCol org);
-		void update_axes();
-
-	  private:
-		QComboBox* _after_combo;
-		QComboBox* _axes_combo;
-		PVAxesCombinationWidget* _parent;
-	};
 
   public:
 	PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
@@ -66,7 +49,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	void axis_add_Slot();
 	void axis_up_Slot();
 	void axis_down_Slot();
-	void axis_move_Slot();
 	void axis_remove_Slot();
 	void reset_comb_Slot();
 	void sel_singleton_Slot();
@@ -74,24 +56,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 
   protected:
 	Inendi::PVAxesCombination& _axes_combination;
-	PVMoveToDlg* _move_dlg;
 	Inendi::PVView* _view;
-};
-
-class PVAxesCombinationWidgetSelRange : public QDialog, Ui::PVAxesCombinationWidgetSelRange
-{
-	Q_OBJECT
-  public:
-	enum values_source_t { mapped = 0, plotted };
-
-  public:
-	PVAxesCombinationWidgetSelRange(QWidget* parent = nullptr);
-
-  public:
-	bool get_range(float& min, float& max);
-	bool reversed();
-	double rate();
-	values_source_t get_source();
 };
 }
 

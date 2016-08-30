@@ -221,17 +221,6 @@ namespace Inendi
 //	template <class Iterator>
 //	bool move_axes_right_one_position(Iterator begin, Iterator end);
 //
-//	/**
-//	* Move one of the used axes to a new position.
-//	*
-//	* @param index_source The current index of the axis to move.
-//	* @param index_dest   The index of the axis after the move.
-//	*
-//	* @return true if an error occured (the index is out of range), false upon success.
-//	*
-//	*/
-//	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest);
-//
 //	template <class Iterator>
 //	bool move_axes_to_new_position(Iterator begin, Iterator end, PVCol index_dest);
 //
@@ -334,22 +323,6 @@ namespace Inendi
 //	return ret;
 //}
 //
-// template <class Iterator>
-// bool PVAxesCombination::move_axes_to_new_position(Iterator begin, Iterator end, PVCol index_dest)
-//{
-//	bool ret = false;
-//	Iterator it;
-//	for (it = begin; it != end; it++) {
-//		ret |= move_axis_to_new_position(*it, index_dest);
-//		index_dest++;
-//		if (index_dest >= axes_list.size()) {
-//			index_dest = axes_list.size() - 1;
-//		}
-//	}
-//
-//	return ret;
-//}
-//
 // template <class L>
 // bool PVAxesCombination::remove_axes(L const& list_idx)
 //{
@@ -376,24 +349,32 @@ class PVAxesCombination
 	    : _format(format), _axes_comb(format.get_axes_comb())
 	{
 	}
+
+  public:
 	PVRush::PVAxisFormat const& get_axis(size_t col) const
 	{
 		return _format.get_axes()[_axes_comb[col]];
 	}
 	PVCol get_nraw_axis(size_t col) const { return _axes_comb[col]; }
 
-	void set_combination(std::vector<PVCol> const& comb) { _axes_comb = comb; }
 	std::vector<PVCol> get_combination() const { return _axes_comb; }
 
-	void move_axis_to_new_position(PVCol index_source, PVCol index_dest)
+	QStringList get_nraw_names() const
 	{
-		if (index_dest > index_source) {
-			std::rotate(_axes_comb.begin() + index_source, _axes_comb.begin() + index_source + 1,
-			            _axes_comb.begin() + index_dest + 1);
-		} else {
-			std::rotate(_axes_comb.begin() + index_dest, _axes_comb.begin() + index_source,
-			            _axes_comb.begin() + index_source + 1);
+		QStringList l;
+		for (PVRush::PVAxisFormat const& fmt : _format.get_axes()) {
+			l << fmt.get_name();
 		}
+		return l;
+	}
+
+	QStringList get_combined_names() const
+	{
+		QStringList l;
+		for (PVCol c : _axes_comb) {
+			l << get_axis(c).get_name();
+		}
+		return l;
 	}
 
 	size_t get_axes_count() const { return _axes_comb.size(); }
@@ -406,6 +387,48 @@ class PVAxesCombination
 		}
 
 		return std::distance(_axes_comb.begin(), it);
+	}
+
+  public:
+	void set_combination(std::vector<PVCol> const& comb) { _axes_comb = comb; }
+
+	void axis_append(PVCol comb_col) { _axes_comb.push_back(comb_col); }
+
+	template <class It>
+	void move_axes_left_one_position(It&& begin, It const& end)
+	{
+		for (auto it = begin; it != end; ++it) {
+			std::swap(_axes_comb[*it], _axes_comb[*(it - 1)]);
+		}
+	}
+
+	template <class It>
+	void move_axes_right_one_position(It const& begin, It&& end)
+	{
+		for (auto it = end; it != begin; --it) {
+			std::swap(_axes_comb[*it], _axes_comb[*(it - 1)]);
+		}
+	}
+
+	template <class It>
+	void remove_axes(It const& begin, It&& end)
+	{
+		for (auto it = end - 1; it != begin - 1; --it) {
+			_axes_comb.erase(_axes_comb.begin() + *it);
+		}
+	}
+
+	void reset_to_default()
+	{
+		_axes_comb.resize(get_axes_count());
+		std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
+	}
+
+	void sort_by_name()
+	{
+		std::sort(_axes_comb.begin(), _axes_comb.end(), [this](PVCol c1, PVCol c2) {
+			return _format.get_axes()[c1].get_name() < _format.get_axes()[c2].get_name();
+		});
 	}
 
   private:

@@ -43,11 +43,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	~PVView();
 
   public:
-	// Proxy functions for PVHive
-	void move_axis_to_new_position(PVCol index_source, PVCol index_dest)
-	{
-		_axes_combination.move_axis_to_new_position(index_source, index_dest);
-	}
 	// void axis_append(const PVAxis& axis) { _axes_combination.axis_append(axis); }
 
 	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
