@@ -89,10 +89,10 @@ class PVToolTipEventFilter : public QObject
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager* sm_p,
                                                        Inendi::PVView const& view,
-                                                       const axis_id_t& axis_id,
+                                                       PVCol comb_col,
                                                        PVRush::PVAxisFormat const& axis_fmt)
     : _sliders_manager_p(sm_p)
-    , _axis_id(axis_id)
+    , _comb_col(comb_col)
     , _axis_fmt(axis_fmt)
     , _lib_view(view)
     , _axis_length(10)
@@ -106,7 +106,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
 
-	_sliders_group = new PVSlidersGroup(sm_p, axis_id.get_axis(), this);
+	_sliders_group = new PVSlidersGroup(sm_p, _axis_fmt.index, this);
 
 	addToGroup(get_sliders_group());
 	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
@@ -144,7 +144,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	update_axis_min_max_position();
 	update_layer_min_max_position();
 
-	_header_zone = new PVAxisHeader(view, axis_id, this);
+	_header_zone = new PVAxisHeader(view, comb_col, this);
 	addToGroup(_header_zone);
 	connect(_header_zone, &PVAxisHeader::new_selection_slider,
 	        [this]() { _sliders_group->add_selection_sliders(0, 1024); });
@@ -366,7 +366,7 @@ void PVParallelView::PVAxisGraphicsItem::show_tooltip(QGraphicsTextItem* gti,
 
 bool PVParallelView::PVAxisGraphicsItem::is_last_axis() const
 {
-	return _lib_view.get_axes_combination().is_last_axis(_axis_id);
+	return _lib_view.get_axes_combination().get_axes_count() == (_comb_col + 1);
 }
 
 void PVParallelView::PVAxisGraphicsItem::set_axis_length(int l)

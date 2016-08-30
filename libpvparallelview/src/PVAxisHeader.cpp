@@ -35,11 +35,11 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view,
-                                           PVAxisHeader::axis_id_t const& axis_id,
+                                           PVCol comb_col,
                                            PVAxisGraphicsItem* parent)
     : QGraphicsRectItem(parent)
     , _view(view)
-    , _axis_id(axis_id)
+    , _comb_col(comb_col)
     , _axis_selected_animation(new __impl::PVAxisSelectedAnimation(this))
     , _clicked(false)
     , _click_event(QEvent::GraphicsSceneMousePress)
@@ -59,13 +59,12 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 	QMenu menu;
 
 	if (container) {
-		PVDisplays::get().add_displays_view_axis_menu(menu, container,
-		                                              SLOT(create_view_axis_widget()),
-		                                              (Inendi::PVView*)&_view, get_axis_index());
+		PVDisplays::get().add_displays_view_axis_menu(
+		    menu, container, SLOT(create_view_axis_widget()), (Inendi::PVView*)&_view, _comb_col);
 		if (!is_last_axis()) {
-			PVDisplays::get().add_displays_view_zone_menu(
-			    menu, container, SLOT(create_view_zone_widget()), (Inendi::PVView*)&_view,
-			    get_axis_index());
+			PVDisplays::get().add_displays_view_zone_menu(menu, container,
+			                                              SLOT(create_view_zone_widget()),
+			                                              (Inendi::PVView*)&_view, _comb_col);
 		}
 		menu.addSeparator();
 	}
@@ -90,12 +89,12 @@ void PVParallelView::PVAxisHeader::set_width(int width)
 
 void PVParallelView::PVAxisHeader::hoverEnterEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	Q_EMIT mouse_hover_entered(get_axis_index(), true);
+	Q_EMIT mouse_hover_entered(_comb_col, true);
 }
 
 void PVParallelView::PVAxisHeader::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
-	Q_EMIT mouse_hover_entered(get_axis_index(), false);
+	Q_EMIT mouse_hover_entered(_comb_col, false);
 }
 
 void PVParallelView::PVAxisHeader::mousePressEvent(QGraphicsSceneMouseEvent* event)
@@ -127,7 +126,7 @@ void PVParallelView::PVAxisHeader::mouseReleaseEvent(QGraphicsSceneMouseEvent* e
 {
 	if ((event->button() == Qt::LeftButton) && _clicked) {
 		event->accept(); // Prevent the scene from handling this event
-		_view.set_axis_clicked(get_axis_index());
+		_view.set_axis_clicked(_comb_col);
 		_clicked = false;
 	} else {
 		event->ignore();
@@ -144,12 +143,6 @@ void PVParallelView::PVAxisHeader::mouseMoveEvent(QGraphicsSceneMouseEvent* even
 		setAcceptedMouseButtons(b);
 	}
 	QGraphicsRectItem::mouseMoveEvent(event);
-}
-
-PVCol PVParallelView::PVAxisHeader::get_axis_index() const
-{
-	// TODO : Remove this object when Ax comb change and this value should be axis_comb column
-	return _view.get_axes_combination().get_index_by_id(_axis_id);
 }
 
 PVParallelView::PVAxisGraphicsItem* PVParallelView::PVAxisHeader::axis()
@@ -173,7 +166,7 @@ bool PVParallelView::PVAxisHeader::is_last_axis() const
 
 void PVParallelView::PVAxisHeader::new_zoomed_parallel_view()
 {
-	Q_EMIT new_zoomed_parallel_view(get_axis_index());
+	Q_EMIT new_zoomed_parallel_view(_comb_col);
 }
 
 /******************************************************************************

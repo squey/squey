@@ -8,8 +8,6 @@
 #ifndef __PVPARALLELVIEW_PVAXISHEADER_H__
 #define __PVPARALLELVIEW_PVAXISHEADER_H__
 
-#include <inendi/PVAxesCombination.h>
-
 #include <pvbase/types.h>
 
 #include <QGraphicsRectItem>
@@ -48,10 +46,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT
   public:
-	using axis_id_t = Inendi::PVAxesCombination::axes_comb_id_t;
-
-  public:
-	PVAxisHeader(const Inendi::PVView& view, axis_id_t const& axis_id, PVAxisGraphicsItem* parent);
+	PVAxisHeader(const Inendi::PVView& view, PVCol comb_col, PVAxisGraphicsItem* parent);
 
   public:
 	void set_width(int width);
@@ -83,7 +78,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 
   private:
 	const Inendi::PVView& _view;
-	axis_id_t _axis_id;
+	PVCol _comb_col;
 
 	__impl::PVAxisSelectedAnimation* _axis_selected_animation;
 	bool _started = false;
