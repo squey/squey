@@ -163,7 +163,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	QRectF _last_image_margined_viewport;
 	QTransform _last_image_mv2s;
 
-	Inendi::PVAxesCombination::axes_comb_id_t _axis_id;
+	PVCol _nraw_col;
 
 	PVScatterViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget* _help_widget;
