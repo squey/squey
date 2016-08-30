@@ -398,6 +398,16 @@ class PVAxesCombination
 
 	size_t get_axes_count() const { return _axes_comb.size(); }
 
+	PVCol get_first_comb_col(PVCol nraw_col) const
+	{
+		auto it = std::find(_axes_comb.begin(), _axes_comb.end(), nraw_col);
+		if (it == _axes_comb.end()) {
+			return PVCOL_INVALID_VALUE;
+		}
+
+		return std::distance(_axes_comb.begin(), it);
+	}
+
   private:
 	PVRush::PVFormat const& _format;
 	std::vector<PVCol> _axes_comb;
@@ -405,8 +415,8 @@ class PVAxesCombination
   protected:
 	// TODO : Implement this
 	friend class PVCore::PVSerializeObject;
-	void serialize_read(PVCore::PVSerializeObject&) {};
-	void serialize_write(PVCore::PVSerializeObject&) {};
+	void serialize_read(PVCore::PVSerializeObject&){};
+	void serialize_write(PVCore::PVSerializeObject&){};
 
 	PVSERIALIZEOBJECT_SPLIT
 };
