@@ -5,12 +5,13 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QFormLayout>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
-#include <QSpacerItem>
 #include <QMessageBox>
+#include <QSpacerItem>
+#include <QVBoxLayout>
 
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
@@ -203,21 +204,17 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	QStringList str_list;
 	switch (export_selection_dlg.combination_kind()) {
 	case AxisCombinationKind::CUSTOM:
-		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
-		     custom_axes_combination.get_axes_index_list())
-			column_indexes.push_back(a.get_axis());
-		str_list = custom_axes_combination.get_axes_names_list();
+		column_indexes = custom_axes_combination.get_combination();
+		str_list = custom_axes_combination.get_combined_names();
 		break;
 	case AxisCombinationKind::CURRENT:
-		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
-		     axes_combination.get_axes_index_list())
-			column_indexes.push_back(a.get_axis());
-		str_list = axes_combination.get_axes_names_list();
+		column_indexes = axes_combination.get_combination();
+		str_list = axes_combination.get_combined_names();
 		break;
 	case AxisCombinationKind::ALL:
 		for (int a = 0; a < view.get_parent<Inendi::PVSource>().get_nraw_column_count(); a++)
 			column_indexes.push_back(a);
-		str_list = axes_combination.get_original_axes_names_list();
+		str_list = axes_combination.get_nraw_names();
 		break;
 	}
 
