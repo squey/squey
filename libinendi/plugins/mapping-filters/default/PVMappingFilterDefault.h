@@ -54,6 +54,16 @@ class PVMappingFilterDefault : public PVMappingFilter
 				dest_array[row] = core_array[row] / 1000; // ms to s;
 			}
 			return dest;
+		} else if (std::string(f->name()) == "string") {
+			/**
+			 * string arrays need an explicit copy because underlying type is
+			 * 'string_index_t' but we want to expose it as 'uint32_t' for inspector
+			 */
+			pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+			auto& dest_array = dest.to_core_array<uint32_t>();
+			auto& core_array = array.to_core_array<string_index_t>();
+			std::copy(core_array.begin(), core_array.end(), dest_array.begin());
+			return dest;
 		}
 
 		return array.copy();
