@@ -73,7 +73,7 @@ pvcop::db::array Inendi::PVMappingFilterHost::operator()(PVCol const col,
 		}
 
 		// Copy mapping value based on computation from dict.
-		auto& core_array = array.to_core_array<uint32_t>();
+		auto& core_array = array.to_core_array<string_index_t>();
 		for (size_t row = 0; row < array.size(); row++) {
 			dest_array[row] = ret[core_array[row]];
 		}

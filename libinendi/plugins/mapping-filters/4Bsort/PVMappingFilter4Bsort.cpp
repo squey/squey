@@ -49,7 +49,7 @@ pvcop::db::array Inendi::PVMappingFilter4Bsort::operator()(PVCol const col,
 		               [&](const char* c) { return compute_str_factor(c, strlen(c)); });
 
 		// Copy mapping value based on computation from dict.
-		auto& core_array = array.to_core_array<uint32_t>();
+		auto& core_array = array.to_core_array<string_index_t>();
 		for (size_t row = 0; row < array.size(); row++) {
 			dest_array[row] = ret[core_array[row]];
 		}
