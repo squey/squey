@@ -26,6 +26,11 @@ class PVSelectionAxisSliders;
 class PVZoomedSelectionAxisSliders;
 class PVZoomAxisSliders;
 
+/**
+ * A SlidersGroup is a view of the SliderManager for a given axis.
+ *
+ * It should be use in a QGraphicsView
+ */
 class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::trackable
 {
 	Q_OBJECT
@@ -35,25 +40,24 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	typedef PVSlidersManager::range_geometry_t range_geometry_t;
 
   public:
-	typedef PVSlidersManager::axis_id_t axis_id_t;
 	typedef PVAbstractRangeAxisSliders::range_t range_t;
 	typedef std::vector<range_t> selection_ranges_t;
 
   public:
-	PVSlidersGroup(PVSlidersManager* sm_p,
-	               const axis_id_t& axis_id,
-	               QGraphicsItem* parent = nullptr);
+	PVSlidersGroup(PVSlidersManager* sm_p, PVCol nraw_col, QGraphicsItem* parent = nullptr);
+	/**
+	 * Disable copy/move constructor as many operations are based on its address
+	 */
+	PVSlidersGroup(PVSlidersGroup const&) = delete;
+	PVSlidersGroup(PVSlidersGroup&&) = delete;
 	~PVSlidersGroup();
+
+	PVCol get_nraw_col() const { return _nraw_col; }
 
 	void remove_selection_sliders();
 	void remove_zoom_slider();
 
-	void delete_own_selection_sliders();
 	void delete_own_zoom_slider();
-
-	void set_axis_id(const axis_id_t& axis_id) { _axis_id = axis_id; }
-
-	const axis_id_t& get_axis_id() const { return _axis_id; }
 
 	void set_axis_scale(float s);
 
@@ -72,10 +76,10 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	selection_ranges_t get_selection_ranges() const;
 
   Q_SIGNALS:
-	void selection_sliders_moved(const axis_id_t axis_id);
+	void selection_sliders_moved(PVCol nraw_col);
 
   protected Q_SLOTS:
-	void selection_slider_moved() { Q_EMIT selection_sliders_moved(get_axis_id()); }
+	void selection_slider_moved() { Q_EMIT selection_sliders_moved(_nraw_col); }
 
   private:
 	/**
@@ -100,18 +104,18 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 
   private:
 	void
-	on_new_zoom_slider(axis_id_t axis_d, PVSlidersManager::id_t id, int64_t y_min, int64_t y_max);
-	void on_new_selection_sliders(axis_id_t axis_d,
+	on_new_zoom_slider(PVCol nraw_col, PVSlidersManager::id_t id, int64_t y_min, int64_t y_max);
+	void on_new_selection_sliders(PVCol nraw_col,
 	                              PVSlidersManager::id_t id,
 	                              int64_t y_min,
 	                              int64_t y_max);
-	void on_new_zoomed_selection_sliders(axis_id_t axis_d,
+	void on_new_zoomed_selection_sliders(PVCol nraw_col,
 	                                     PVSlidersManager::id_t id,
 	                                     int64_t y_min,
 	                                     int64_t y_max);
-	void on_del_zoom_sliders(axis_id_t axis_d, PVSlidersManager::id_t id);
-	void on_del_selection_sliders(axis_id_t axis_d, PVSlidersManager::id_t id);
-	void on_del_zoomed_selection_sliders(axis_id_t axis_d, PVSlidersManager::id_t id);
+	void on_del_zoom_sliders(PVCol nraw_col, PVSlidersManager::id_t id);
+	void on_del_selection_sliders(PVCol nraw_col, PVSlidersManager::id_t id);
+	void on_del_zoomed_selection_sliders(PVCol nraw_col, PVSlidersManager::id_t id);
 
   private:
 	typedef std::unordered_map<id_t, PVSelectionAxisSliders*> sas_set_t;
@@ -120,7 +124,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 
   private:
 	PVSlidersManager* _sliders_manager_p;
-	axis_id_t _axis_id;
+	PVCol _nraw_col;
 	float _axis_scale;
 
 	sas_set_t _selection_sliders;

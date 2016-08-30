@@ -38,9 +38,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	friend class draw_zone_sel_Observer;
 
   public:
-	typedef PVSlidersManager::axis_id_t axis_id_t;
-
-  public:
 	PVFullParallelScene(PVFullParallelView* full_parallel_view,
 	                    Inendi::PVView& view_sp,
 	                    PVParallelView::PVSlidersManager* sm_p,
@@ -158,7 +155,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void update_zone_pixmap_bgsel(int zone_id);
 	void scale_zone_images(PVZoneID zone_id);
 
-	void update_selection_from_sliders_Slot(axis_id_t axis_id);
+	void update_selection_from_sliders_Slot(PVCol nraw_col);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 

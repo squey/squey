@@ -148,6 +148,7 @@ void PVParallelView::PVAxisHeader::mouseMoveEvent(QGraphicsSceneMouseEvent* even
 
 PVCol PVParallelView::PVAxisHeader::get_axis_index() const
 {
+	// TODO : Remove this object when Ax comb change and this value should be axis_comb column
 	return _view.get_axes_combination().get_index_by_id(_axis_id);
 }
 

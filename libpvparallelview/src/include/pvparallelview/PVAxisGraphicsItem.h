@@ -53,7 +53,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
   public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
-	typedef PVSlidersManager::axis_id_t axis_id_t;
+	typedef Inendi::PVAxesCombination::axes_comb_id_t axis_id_t;
 
 	// Used to draw the axis out of the image zone
 	constexpr static int axis_extend = 8;

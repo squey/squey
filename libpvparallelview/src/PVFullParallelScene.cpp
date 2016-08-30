@@ -150,8 +150,8 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 	axisw->get_sliders_group()->set_axis_scale(_zoom_y);
 	axisw->set_axis_length(_axis_length);
 
-	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axis_id_t)), this,
-	        SLOT(update_selection_from_sliders_Slot(axis_id_t)));
+	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(PVCol)), this,
+	        SLOT(update_selection_from_sliders_Slot(PVCol)));
 	connect(axisw, SIGNAL(new_zoomed_parallel_view(int)), this,
 	        SLOT(emit_new_zoomed_parallel_view(int)));
 	connect(axisw, SIGNAL(mouse_hover_entered(PVCol, bool)), this,
@@ -628,63 +628,22 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 		}
 	}
 
-	axes_list_t new_axes;
-
-	// there are nb_zones+1 axes
-	new_axes.resize(nb_zones + 1, nullptr);
-
-	const PVLinesView::list_zone_width_with_zoom_level_t& old_wz_list =
-	    _lines_view.get_list_of_zone_width_with_zoom_level();
-
-	PVLinesView::list_zone_width_with_zoom_level_t new_wz_list;
-	// use of a negative width to indicate an uninitialized entry
-	new_wz_list.resize(nb_zones + 1, PVLinesView::ZoneWidthWithZoomLevel(-1, 0));
-
-	/* to create the new axes list, already used axes are got back and
-	 * moved to their new position in an array initialized to nullptr.
-	 * Missing axes are deleted. Remainding nullptr entries in the new axes
-	 * list are for new axes which are created.
-	 *
-	 * the same is done for PVLinesView::_list_zone_width_with_zoom_level
-	 * to preserve kept zones widths.
-	 */
 	for (size_t i = 0; i < _axes.size(); ++i) {
-		PVCol index = _lib_view.get_axes_combination().get_index_by_id(_axes[i]->get_axis_id());
-		if (index == PVCOL_INVALID_VALUE) {
-			// AG: this is really important to do this to force the
-			// deletion of this PVAxisGraphicsItem object. Indeed,
-			// removeItem will remove this object from the list of children
-			// of the scene, and gives us the ownship of the object. Thus,
-			// we are free to delete it afterwards.
-			_axes[i]->get_sliders_group()->delete_own_selection_sliders();
-			removeItem(_axes[i]);
-			delete _axes[i];
-		} else {
-			new_axes[index] = _axes[i];
-			new_axes[index]->update_axis_label_info();
-			if (i < (size_t)nb_zones) {
-				new_wz_list[index] = old_wz_list[i];
-			}
-		}
 
-		_axes[i] = nullptr;
+		removeItem(_axes[i]);
+		delete _axes[i];
 	}
 
-	_axes = new_axes;
+	_axes.resize(nb_zones + 1, nullptr);
 
 	for (size_t i = 0; i < _axes.size(); ++i) {
-		if (_axes[i] == nullptr) {
-			add_axis(i, i);
-		}
-
-		if (new_wz_list[i].get_base_width() < 0) {
-			// initialization of newly created zones widths
-			new_wz_list[i] =
-			    PVLinesView::ZoneWidthWithZoomLevel(PVParallelView::ZoneDefaultWidth, 0);
-		}
+		add_axis(i, i);
 	}
 
+	PVLinesView::list_zone_width_with_zoom_level_t new_wz_list(
+	    nb_zones + 1, PVLinesView::ZoneWidthWithZoomLevel(PVParallelView::ZoneDefaultWidth, 0));
 	_lines_view.set_list_of_zone_width_with_zoom_level(new_wz_list);
+
 	update_zones_position(true, false);
 
 	set_enabled(true);
@@ -748,9 +707,9 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
  * PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axis_id_t axis_id)
+void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVCol nraw_col)
 {
-	PVZoneID zone_id = _lib_view.get_axes_combination().get_index_by_id(axis_id);
+	PVZoneID zone_id = nraw_col;
 	_sel_rect.clear();
 
 	Inendi::PVSelection sel(_lib_view.get_row_count());

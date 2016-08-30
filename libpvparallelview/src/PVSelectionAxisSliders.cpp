@@ -60,7 +60,7 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id, int64_t y_min, 
 
 void PVParallelView::PVSelectionAxisSliders::remove_from_axis()
 {
-	_sliders_manager_p->del_selection_sliders(_group->get_axis_id(), _id);
+	_sliders_manager_p->del_selection_sliders(_group->get_nraw_col(), _id);
 }
 
 /*****************************************************************************
@@ -71,7 +71,7 @@ void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 {
 	Q_EMIT sliders_moved();
 
-	_sliders_manager_p->update_selection_sliders(_group->get_axis_id(), _id, _sl_min->get_value(),
+	_sliders_manager_p->update_selection_sliders(_group->get_nraw_col(), _id, _sl_min->get_value(),
 	                                             _sl_max->get_value());
 }
 
@@ -79,12 +79,12 @@ void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
  * PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::update
  *****************************************************************************/
 
-void PVParallelView::PVSelectionAxisSliders::on_selection_sliders_update(axis_id_t axis_id,
+void PVParallelView::PVSelectionAxisSliders::on_selection_sliders_update(PVCol nraw_col,
                                                                          id_t id,
                                                                          int64_t y_min,
                                                                          int64_t y_max)
 {
-	if ((axis_id == _group->get_axis_id()) and (id == _id)) {
+	if ((nraw_col == _group->get_nraw_col()) and (id == _id)) {
 		if (y_max < y_min) {
 			std::swap(y_max, y_min);
 		}
