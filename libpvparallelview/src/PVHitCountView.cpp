@@ -101,8 +101,6 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 {
 	set_gl_viewport();
 
-	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
-
 	/* computing the highest scene width to setup it... and do the first
 	 * run to initialize the manager's buffers :-)
 	 */
