@@ -367,8 +367,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
 	_ctxt_col = idx_click.column(); // This is the *combined* axis index
-	_ctxt_v = QString::fromStdString(lib_view().get_parent<Inendi::PVSource>().get_value(
-	    _ctxt_row, lib_view().get_original_axis_index(_ctxt_col)));
+	_ctxt_v = listing_model()->data(idx_click, Qt::DisplayRole).toString();
 
 	// Show the menu at the given pos
 	QAction* act_sel = _ctxt_menu.exec(QCursor::pos());
@@ -391,7 +390,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
 	PVCol comb_col = horizontalHeader()->logicalIndexAt(pos);
-	PVCol col = lib_view().get_original_axis_index(comb_col);
+	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 
 	// Disable hover picture
 	section_hovered_enter(col, false);
@@ -474,7 +473,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		Qt::SortOrder order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
 		sort(comb_col, order);
 	} else if (sel) {
-		PVCol col2 = lib_view().get_original_axis_index(sel->data().toUInt());
+		PVCol col2 = _view.get_axes_combination().get_nraw_axis(sel->data().toUInt());
 		if (sel->parent() == _menu_col_count_by) {
 			PVQNraw::show_count_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
 			                       lib_view().get_selection_visible_listing(),
@@ -560,8 +559,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 				QAction* axis_action = new QAction(axis_name, this);
 				axis_action->setCheckable(true);
 
-				PVCol original_col1 = view->get_original_axis_index(col);
-				PVCol original_col2 = view->get_original_axis_index(i);
+				PVCol original_col1 = _view.get_axes_combination().get_nraw_axis(col);
+				PVCol original_col2 = _view.get_axes_combination().get_nraw_axis(i);
 
 				Inendi::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2};
 				bool existing_correlation = root.correlations().exists(correlation);
@@ -703,8 +702,8 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 
 	// Get the arguments
 	_ctxt_args = lib_view().get_last_args_filter(filter_name);
-	PVCore::PVArgumentList custom_args =
-	    args_f(_ctxt_row, _ctxt_col, lib_view().get_original_axis_index(_ctxt_col), _ctxt_v);
+	PVCore::PVArgumentList custom_args = args_f(
+	    _ctxt_row, _ctxt_col, _view.get_axes_combination().get_nraw_axis(_ctxt_col), _ctxt_v);
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
@@ -1012,7 +1011,7 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	PVListingView* listing = (PVListingView*)parent();
 	Inendi::PVRoot& root = listing->lib_view().get_parent<Inendi::PVRoot>();
 
-	PVCol original_col1 = listing->lib_view().get_original_axis_index(logicalIndex);
+	PVCol original_col1 = listing->lib_view().get_axes_combination().get_nraw_axis(logicalIndex);
 
 	bool existing_correlation = root.correlations().exists(&listing->lib_view(), original_col1);
 
