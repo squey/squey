@@ -16,6 +16,11 @@
 
 #include <pvguiqt/ui_PVAxesCombinationWidget.h>
 
+namespace Inendi
+{
+class PVView;
+}
+
 namespace PVGuiQt
 {
 

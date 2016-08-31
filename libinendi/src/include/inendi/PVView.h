@@ -43,8 +43,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	~PVView();
 
   public:
-	// void axis_append(const PVAxis& axis) { _axes_combination.axis_append(axis); }
-
 	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
 
 	/* Functions */
@@ -56,10 +54,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 */
 	QStringList get_axes_names_list() const;
 	QStringList get_zones_names_list() const;
-	// inline QStringList get_original_axes_names_list() const
-	//{
-	//	return get_axes_combination().get_original_axes_names_list();
-	//}
 
 	/**
 	 * Gets the name of the chosen axis according to the actual PVAxesCombination

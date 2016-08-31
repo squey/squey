@@ -1,508 +1,110 @@
-///**
-// * @file
-// *
-// * @copyright (C) Picviz Labs 2009-March 2015
-// * @copyright (C) ESI Group INENDI April 2015-2015
-// */
-//
-//#include <assert.h>
-//
-//#include <pvkernel/rush/PVFormat.h>
-//
-//#include <inendi/PVAxesCombination.h>
-//#include <inendi/PVAxis.h>
-//#include <pvkernel/rush/PVNraw.h>
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::PVAxesCombination
-// *
-// *****************************************************************************/
-//
-// Inendi::PVAxesCombination::PVAxesCombination(PVRush::PVFormat const& format)
-//{
-//	set_from_format(format);
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::axis_append
-// *
-// *****************************************************************************/
-// void Inendi::PVAxesCombination::axis_append(const PVAxis& axis)
-//{
-//	original_axes_list.push_back(axis);
-//	axis_append(original_axes_list.size() - 1);
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::axis_append
-// *
-// *****************************************************************************/
-// void Inendi::PVAxesCombination::axis_append(PVCol org_axis_id)
-//{
-//	assert(org_axis_id < original_axes_list.size());
-//	columns_indexes_list.push_back(
-//	    axes_comb_id_t(org_axis_id, get_first_free_child_id(org_axis_id)));
-//	axes_list.push_back(original_axes_list.at(org_axis_id));
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::clear
-// *
-// *****************************************************************************/
-// void Inendi::PVAxesCombination::clear()
-//{
-//	axes_list.clear();
-//	columns_indexes_list.clear();
-//	original_axes_list.clear();
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_axes_count
-// *
-// *****************************************************************************/
-// PVCol Inendi::PVAxesCombination::get_axes_count() const
-//{
-//	return axes_list.size();
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_axes_names_list
-// *
-// *****************************************************************************/
-// QStringList Inendi::PVAxesCombination::get_axes_names_list() const
-//{
-//	int i;
-//	QStringList output_list;
-//
-//	for (i = 0; i < axes_list.size(); i++) {
-//		output_list << axes_list[i].get_name();
-//	}
-//
-//	return output_list;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_axis
-// *
-// *****************************************************************************/
-// const Inendi::PVAxis& Inendi::PVAxesCombination::get_axis(PVCol index) const
-//{
-//	assert(!axes_list.empty());
-//
-//	/* We check that the given axis' index is not out of range */
-//	if (index >= axes_list.size()) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-//		return axes_list.last();
-//	}
-//
-//	return axes_list[index];
-//}
-//
-// const Inendi::PVAxis& Inendi::PVAxesCombination::get_original_axis(PVCol index) const
-//{
-//	assert(index < original_axes_list.size());
-//	return original_axes_list.at(index);
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_axis_column_index
-// *
-// *****************************************************************************/
-// PVCol Inendi::PVAxesCombination::get_axis_column_index(PVCol index) const
-//{
-//	assert(!axes_list.empty());
-//
-//	/* We check that the given axis' index is not out of range */
-//	if (index >= columns_indexes_list.size()) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-//		return columns_indexes_list.last().get_axis();
-//	}
-//
-//	return columns_indexes_list[index].get_axis();
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_combined_axes_columns_indexes
-// *
-// *****************************************************************************/
-// QList<PVCol> Inendi::PVAxesCombination::get_combined_axes_columns_indexes(PVCol index) const
-//{
-//	assert(!axes_list.empty());
-//	QList<PVCol> cols_ret;
-//
-//	/* We check that the given axis' index is not out of range */
-//	if (index >= original_axes_list.size()) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index,
-//		            original_axes_list.size());
-//		return cols_ret;
-//	}
-//
-//	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
-//		if (columns_indexes_list[i].get_axis() == index) {
-//			cols_ret << i;
-//		}
-//	}
-//
-//	return cols_ret;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_original_axes_count
-// *
-// *****************************************************************************/
-// PVCol Inendi::PVAxesCombination::get_original_axes_count() const
-//{
-//	return original_axes_list.size();
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_original_axes_names_list
-// *
-// *****************************************************************************/
-// QStringList Inendi::PVAxesCombination::get_original_axes_names_list() const
-//{
-//	int i;
-//	QStringList output_list;
-//
-//	for (i = 0; i < original_axes_list.size(); i++) {
-//		output_list << original_axes_list[i].get_name();
-//	}
-//
-//	return output_list;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::is_default
-// *
-// *****************************************************************************/
-// bool Inendi::PVAxesCombination::is_default() const
-//{
-//	if (columns_indexes_list.size() != original_axes_list.size()) {
-//		return false;
-//	}
-//
-//	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
-//		if (columns_indexes_list[i].get_axis() != i) {
-//			return false;
-//		}
-//	}
-//
-//	return true;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::is_empty
-// *
-// *****************************************************************************/
-// bool Inendi::PVAxesCombination::is_empty() const
-//{
-//	return axes_list.size() == 0;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::move_axis_left_one_position
-// *
-// *****************************************************************************/
-// bool Inendi::PVAxesCombination::move_axis_left_one_position(PVCol index)
-//{
-//	if (index >= axes_list.size()) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-//		return false;
-//	}
-//
-//	if (index == 0) {
-//		return false;
-//	}
-//
-//	std::swap(axes_list[index], axes_list[index - 1]);
-//	std::swap(columns_indexes_list[index], columns_indexes_list[index - 1]);
-//
-//	return true;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::move_axis_right_one_position
-// *
-// *****************************************************************************/
-// bool Inendi::PVAxesCombination::move_axis_right_one_position(PVCol index)
-//{
-//	if (index >= axes_list.size()) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-//		return false;
-//	}
-//
-//	if (index == axes_list.count() - 1) {
-//		return false;
-//	}
-//
-//	std::swap(axes_list[index], axes_list[index + 1]);
-//	std::swap(columns_indexes_list[index], columns_indexes_list[index + 1]);
-//
-//	return true;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::move_axis_to_new_position
-// *
-// *****************************************************************************/
-// bool Inendi::PVAxesCombination::move_axis_to_new_position(PVCol index_source, PVCol index_dest)
-//{
-//	if (index_dest == index_source) {
-//		return false;
-//	}
-//	if (index_source >= axes_list.size()) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_source,
-//		            axes_list.size());
-//		return false;
-//	}
-//	if (index_dest >= axes_list.size()) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_dest,
-//		            axes_list.size());
-//		return false;
-//	}
-//
-//	if (index_dest > index_source) {
-//		axes_list.insert(index_dest + 1, axes_list[index_source]);
-//		columns_indexes_list.insert(index_dest + 1, columns_indexes_list[index_source]);
-//		axes_list.remove(index_source);
-//		columns_indexes_list.remove(index_source);
-//	} else {
-//		axes_list.insert(index_dest, axes_list[index_source]);
-//		columns_indexes_list.insert(index_dest, columns_indexes_list[index_source]);
-//		axes_list.remove(index_source + 1);
-//		columns_indexes_list.remove(index_source + 1);
-//	}
-//
-//	return true;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::remove_axis
-// *
-// *****************************************************************************/
-// bool Inendi::PVAxesCombination::remove_axis(PVCol index)
-//{
-//	if (axes_list.size() <= index) {
-//		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-//		return false;
-//	}
-//
-//	axes_list.remove(index);
-//	columns_indexes_list.remove(index);
-//
-//	return true;
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::reset_to_default
-// *
-// *****************************************************************************/
-// void Inendi::PVAxesCombination::reset_to_default()
-//{
-//	columns_indexes_list.clear();
-//	axes_list.clear();
-//
-//	for (PVCol i = 0; i < original_axes_list.size(); i++) {
-//		axis_append(i);
-//	}
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::set_from_format
-// *
-// *****************************************************************************/
-// void Inendi::PVAxesCombination::set_from_format(PVRush::PVFormat const& format)
-//{
-//	if (original_axes_list.size() != 0) {
-//		return;
-//	}
-//
-//	QList<PVRush::PVAxisFormat> const& axes = format.get_axes();
-//
-//	columns_indexes_t axes_comb;
-//	if (columns_indexes_list.size() > 0) {
-//		if (axes_comb.size() == 0) {
-//			axes_comb = columns_indexes_list;
-//		}
-//	} else {
-//		for (PVCol index : format.get_axes_comb()) {
-//			axes_comb.push_back(axes_comb_id_t(index, get_first_free_child_id(index)));
-//		}
-//		if (axes_comb.size() == 0) {
-//			axes_comb.reserve(axes.size());
-//			for (PVCol i = 0; i < axes.size(); i++) {
-//				axes_comb.push_back(axes_comb_id_t(i, 0));
-//			}
-//		}
-//	}
-//
-//	for (PVRush::PVAxisFormat const& axis_format : axes) {
-//		original_axes_list.push_back(PVAxis(axis_format));
-//	}
-//
-//	columns_indexes_list.clear();
-//	for (auto it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
-//		PVCol col = it_comb->get_axis();
-//		if (col < original_axes_list.size()) {
-//			axis_append(col);
-//		}
-//	}
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::set_original_axes
-// *
-// *****************************************************************************/
-// void Inendi::PVAxesCombination::set_original_axes(QList<PVRush::PVAxisFormat> const& axes)
-//{
-//	QVector<PVAxis> old_axes_list = axes_list;
-//	clear();
-//	for (PVRush::PVAxisFormat const& axis_format : axes) {
-//		PVAxis axis(axis_format);
-//		original_axes_list.push_back(axis);
-//	}
-//
-//	for (int id = 0; id < old_axes_list.size(); id++) {
-//		PVAxis const& axis = old_axes_list.at(id);
-//		PVLOG_DEBUG("(Inendi::PVAxesCombination::set_original_axes) axis '%s' has "
-//		            "unique id '%d'\n",
-//		            qPrintable(axis.get_name()), axis.get_unique_id());
-//		int id_org = original_axes_list.indexOf(axis);
-//		if (id_org != -1) {
-//			PVLOG_DEBUG("(Inendi::PVAxesCombination::set_original_axes) id_org: %d, "
-//			            "axis '%s', unique id: %d \n",
-//			            id_org, qPrintable(original_axes_list.at(id_org).get_name()),
-//			            original_axes_list.at(id_org).get_unique_id());
-//			// We found it. Set the new id.
-//			axis_append(id_org);
-//		}
-//	}
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_first_child_id
-// *
-// *****************************************************************************/
-// uint32_t Inendi::PVAxesCombination::get_first_free_child_id(PVCol index)
-//{
-//	uint32_t id = 0;
-//	size_t i, size = columns_indexes_list.size();
-//
-//	while (true) {
-//		axes_comb_id_t ci(index, id);
-//
-//		for (i = 0; i < size; ++i) {
-//			if (columns_indexes_list[i] == ci) {
-//				break;
-//			}
-//		}
-//		if (i == size) {
-//			return id;
-//		}
-//		++id;
-//	}
-//}
-//
-///******************************************************************************
-// *
-// * Inendi::PVAxesCombination::get_index_by_id
-// *
-// *****************************************************************************/
-// PVCol Inendi::PVAxesCombination::get_index_by_id(const axes_comb_id_t& e) const
-//{
-//	for (int i = 0; i < columns_indexes_list.size(); ++i) {
-//		if (columns_indexes_list[i] == e) {
-//			return i;
-//		}
-//	}
-//
-//	return PVCOL_INVALID_VALUE;
-//}
-//
-// static bool comp_sort(std::pair<QStringRef, PVCol> const& o1,
-//                      std::pair<QStringRef, PVCol> const& o2)
-//{
-//	return o1.first < o2.first;
-//}
-// static bool comp_inv_sort(std::pair<QStringRef, PVCol> const& o1,
-//                          std::pair<QStringRef, PVCol> const& o2)
-//{
-//	return o1.first > o2.first;
-//}
-//
-// void Inendi::PVAxesCombination::sort_by_name(bool order)
-//{
-//	QStringList names = get_original_axes_names_list();
-//	std::vector<std::pair<QStringRef, PVCol>> vec_tosort;
-//	vec_tosort.reserve(names.size());
-//	for (int i = 0; i < names.size(); i++) {
-//		vec_tosort.push_back(std::pair<QStringRef, PVCol>(QStringRef(&names.at(i)), i));
-//	}
-//
-//	if (order) {
-//		std::stable_sort(vec_tosort.begin(), vec_tosort.end(), comp_sort);
-//	} else {
-//		std::stable_sort(vec_tosort.begin(), vec_tosort.end(), comp_inv_sort);
-//	}
-//
-//	columns_indexes_list.clear();
-//	axes_list.clear();
-//
-//	std::vector<std::pair<QStringRef, PVCol>>::const_iterator it;
-//	for (it = vec_tosort.begin(); it != vec_tosort.end(); it++) {
-//		axis_append(it->second);
-//	}
-//}
-//
-// QString Inendi::PVAxesCombination::to_string() const
-//{
-//	if (columns_indexes_list.size() == 0) {
-//		return QString();
-//	}
-//
-//	QString ret;
-//	for (int i = 0; i < columns_indexes_list.size() - 1; i++) {
-//		ret += QString::number(columns_indexes_list[i].get_axis()) + ",";
-//	}
-//	ret += QString::number(columns_indexes_list[columns_indexes_list.size() - 1].get_axis());
-//	PVLOG_DEBUG("(Inendi::PVAxesCombination::to_string) string: %s\n", qPrintable(ret));
-//	return ret;
-//}
-//
-// void Inendi::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so)
-//{
-//	columns_indexes_list.clear();
-//	so.list_attributes("columns_indexes_list", columns_indexes_list,
-//	                   [=](QVariant const& v) { return axes_comb_id_t::from_qvariant(v); });
-//
-//	axes_list.resize(columns_indexes_list.size());
-//	// FIXME : Axis attributes are not saved.
-//	std::transform(columns_indexes_list.begin(), columns_indexes_list.end(), axes_list.begin(),
-//	               [this](axes_comb_id_t const& id) { return original_axes_list[id.get_axis()]; });
-//}
-//
-// void Inendi::PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)
-//{
-//	so.list_attributes("columns_indexes_list", columns_indexes_list);
-//}
+/**
+ * @file
+ *
+ * @copyright (C) ESI Group INENDI 2016
+ */
+
+#include <inendi/PVAxesCombination.h>
+
+namespace Inendi
+{
+
+PVAxesCombination::PVAxesCombination(PVRush::PVFormat const& format)
+    : _axes(format.get_axes()), _axes_comb(format.get_axes_comb())
+{
+}
+
+PVAxesCombination::PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes)
+    : _axes(axes), _axes_comb(axes.size())
+{
+	std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
+}
+
+PVRush::PVAxisFormat const& PVAxesCombination::get_axis(size_t col) const
+{
+	return _axes[_axes_comb[col]];
+}
+PVCol PVAxesCombination::get_nraw_axis(size_t col) const
+{
+	return _axes_comb[col];
+}
+
+std::vector<PVCol> const& PVAxesCombination::get_combination() const
+{
+	return _axes_comb;
+}
+
+QStringList PVAxesCombination::get_nraw_names() const
+{
+	QStringList l;
+	for (PVRush::PVAxisFormat const& fmt : _axes) {
+		l << fmt.get_name();
+	}
+	return l;
+}
+
+QStringList PVAxesCombination::get_combined_names() const
+{
+	QStringList l;
+	for (PVCol c : _axes_comb) {
+		l << get_axis(c).get_name();
+	}
+	return l;
+}
+
+size_t PVAxesCombination::get_axes_count() const
+{
+	return _axes_comb.size();
+}
+
+PVCol PVAxesCombination::get_first_comb_col(PVCol nraw_col) const
+{
+	auto it = std::find(_axes_comb.begin(), _axes_comb.end(), nraw_col);
+	if (it == _axes_comb.end()) {
+		return PVCOL_INVALID_VALUE;
+	}
+
+	return std::distance(_axes_comb.begin(), it);
+}
+
+void PVAxesCombination::set_combination(std::vector<PVCol> const& comb)
+{
+	_axes_comb = comb;
+}
+
+void PVAxesCombination::axis_append(PVCol comb_col)
+{
+	_axes_comb.push_back(comb_col);
+}
+
+void PVAxesCombination::reset_to_default()
+{
+	_axes_comb.resize(get_axes_count());
+	std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
+}
+
+bool PVAxesCombination::is_default()
+{
+	std::vector<PVCol> to_cmp(_axes.size());
+	std::iota(to_cmp.begin(), to_cmp.end(), 0);
+	return to_cmp == _axes_comb;
+}
+
+void PVAxesCombination::sort_by_name()
+{
+	std::sort(_axes_comb.begin(), _axes_comb.end(),
+	          [this](PVCol c1, PVCol c2) { return _axes[c1].get_name() < _axes[c2].get_name(); });
+}
+
+QString PVAxesCombination::to_string() const
+{
+	QStringList res;
+	for (PVCol c : _axes_comb) {
+		res << QString::number(c);
+	}
+	return res.join(",");
+}
+
+void PVAxesCombination::serialize_read(PVCore::PVSerializeObject&){};
+void PVAxesCombination::serialize_write(PVCore::PVSerializeObject&){};
+}
