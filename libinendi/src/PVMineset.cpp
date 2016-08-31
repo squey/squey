@@ -213,7 +213,6 @@ class LocalMinesetFormat
 	{
 		PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 
-		const Inendi::PVAxesCombination& axis_combination = view.get_axes_combination();
 		for (PVRush::PVAxisFormat const& axis :
 		     view.get_parent<Inendi::PVSource>().get_format().get_axes()) {
 			/**

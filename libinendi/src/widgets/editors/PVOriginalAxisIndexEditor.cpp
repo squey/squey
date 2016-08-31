@@ -32,7 +32,7 @@ void PVWidgets::PVOriginalAxisIndexEditor::set_axis_index(
     PVCore::PVOriginalAxisIndexType axis_index)
 {
 	clear();
-	addItems(_view.get_parent<Inendi::PVSource>().get_nraw_axis_names());
+	addItems(_view.get_axes_combination().get_nraw_names());
 	setCurrentIndex(axis_index.get_original_index());
 }
 

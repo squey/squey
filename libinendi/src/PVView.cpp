@@ -159,11 +159,7 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
  *****************************************************************************/
 QStringList Inendi::PVView::get_axes_names_list() const
 {
-	QStringList res;
-	for (PVCol c : _axes_combination.get_combination()) {
-		res << _axes_combination.get_axis(c).get_name();
-	}
-	return res;
+	return _axes_combination.get_combined_names();
 }
 
 QStringList Inendi::PVView::get_zones_names_list() const
