@@ -65,16 +65,13 @@ class PVAxesCombination
 		}
 	}
 
+  public:
+	static PVAxesCombination serialize_read(PVCore::PVSerializeObject&, PVRush::PVFormat const&);
+	void serialize_write(PVCore::PVSerializeObject&);
+
   private:
 	QList<PVRush::PVAxisFormat> const& _axes; //!< View from the PVFormat
 	std::vector<PVCol> _axes_comb;
-
-  protected:
-	friend PVCore::PVSerializeObject;
-	void serialize_read(PVCore::PVSerializeObject&);
-	void serialize_write(PVCore::PVSerializeObject&);
-
-	PVSERIALIZEOBJECT_SPLIT
 };
 }
 

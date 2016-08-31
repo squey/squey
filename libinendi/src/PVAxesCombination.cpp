@@ -105,6 +105,26 @@ QString PVAxesCombination::to_string() const
 	return res.join(",");
 }
 
-void PVAxesCombination::serialize_read(PVCore::PVSerializeObject&){};
-void PVAxesCombination::serialize_write(PVCore::PVSerializeObject&){};
+PVAxesCombination PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so,
+                                                    PVRush::PVFormat const& f)
+{
+	PVAxesCombination comb(f);
+	int size;
+	so.attribute("size", size);
+	std::vector<PVCol> new_comb(size);
+	for (int i = 0; i < size; i++) {
+		so.attribute(QString::number(i), new_comb[i]);
+	}
+	comb.set_combination(new_comb);
+	return comb;
+}
+
+void PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)
+{
+	int size = _axes_comb.size();
+	so.attribute_write("size", size);
+	for (size_t i = 0; i < _axes_comb.size(); i++) {
+		so.attribute_write(QString::number(i), _axes_comb[i]);
+	}
+}
 }

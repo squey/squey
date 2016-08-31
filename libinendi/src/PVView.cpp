@@ -643,18 +643,24 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
 	layer_stack.serialize_write(*ls_obj);
 
-	so.object("axes-combination", _axes_combination, "Axes combination", true);
+	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
+	_axes_combination.serialize_write(*ax_comb_obj);
 }
 
 Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
                                                Inendi::PVPlotted& parent)
 {
+
 	Inendi::PVView& view = parent.emplace_add_child();
+
+	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
+	view._axes_combination.set_combination(
+	    Inendi::PVAxesCombination::serialize_read(
+	        *ax_comb_obj, parent.get_parent<Inendi::PVSource>().get_format())
+	        .get_combination());
 
 	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
 	view.layer_stack = Inendi::PVLayerStack::serialize_read(*ls_obj);
-
-	so.object("axes-combination", view._axes_combination, "Axes combination", true);
 
 	Inendi::PVSelection sel(view.get_row_count());
 	sel.select_all();
