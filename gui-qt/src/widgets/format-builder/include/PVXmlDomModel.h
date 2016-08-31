@@ -179,6 +179,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
 	PVRush::types_groups_t _groups;
 
+	QList<PVRush::PVAxisFormat> _axes;
 	Inendi::PVAxesCombination _axes_combination;
 
   public Q_SLOTS:

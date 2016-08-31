@@ -986,7 +986,7 @@ void PVInspector::PVFormatBuilderWidget::openFormat(QDomDocument& doc)
 
 void PVInspector::PVFormatBuilderWidget::slotMainTabChanged(int idx)
 {
-	if (idx == 1) {
+	if (idx == 2) {
 		// This is the axes combination editor.
 
 		// Get the list of axes and update the axis combination

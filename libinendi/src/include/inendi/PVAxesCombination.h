@@ -346,23 +346,25 @@ class PVAxesCombination
 {
   public:
 	PVAxesCombination(PVRush::PVFormat const& format)
-	    : _format(format), _axes_comb(format.get_axes_comb())
+	    : _axes(format.get_axes()), _axes_comb(format.get_axes_comb())
 	{
+	}
+	PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes)
+	    : _axes(axes), _axes_comb(axes.size())
+	{
+		std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
 	}
 
   public:
-	PVRush::PVAxisFormat const& get_axis(size_t col) const
-	{
-		return _format.get_axes()[_axes_comb[col]];
-	}
+	PVRush::PVAxisFormat const& get_axis(size_t col) const { return _axes[_axes_comb[col]]; }
 	PVCol get_nraw_axis(size_t col) const { return _axes_comb[col]; }
 
-	std::vector<PVCol> get_combination() const { return _axes_comb; }
+	std::vector<PVCol> const& get_combination() const { return _axes_comb; }
 
 	QStringList get_nraw_names() const
 	{
 		QStringList l;
-		for (PVRush::PVAxisFormat const& fmt : _format.get_axes()) {
+		for (PVRush::PVAxisFormat const& fmt : _axes) {
 			l << fmt.get_name();
 		}
 		return l;
@@ -424,15 +426,31 @@ class PVAxesCombination
 		std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
 	}
 
+	bool is_default()
+	{
+		std::vector<PVCol> to_cmp(_axes.size());
+		std::iota(to_cmp.begin(), to_cmp.end(), 0);
+		return to_cmp == _axes_comb;
+	}
+
 	void sort_by_name()
 	{
 		std::sort(_axes_comb.begin(), _axes_comb.end(), [this](PVCol c1, PVCol c2) {
-			return _format.get_axes()[c1].get_name() < _format.get_axes()[c2].get_name();
+			return _axes[c1].get_name() < _axes[c2].get_name();
 		});
 	}
 
+	QString to_string() const
+	{
+		QStringList res;
+		for (PVCol c : _axes_comb) {
+			res << QString::number(c);
+		}
+		return res.join(",");
+	}
+
   private:
-	PVRush::PVFormat const& _format;
+	QList<PVRush::PVAxisFormat> const& _axes; //!< View from the PVFormat
 	std::vector<PVCol> _axes_comb;
 
   protected:

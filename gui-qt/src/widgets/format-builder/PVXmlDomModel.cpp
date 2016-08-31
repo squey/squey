@@ -19,7 +19,8 @@
  * PVInspector::PVXmlDomModel::PVXmlDomModel
  *
  *****************************************************************************/
-PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget* parent) : QAbstractItemModel(parent)
+PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget* parent)
+    : QAbstractItemModel(parent), _axes_combination(_axes)
 {
 
 	PVRush::PVXmlTreeNodeDom* m_rootNode = PVRush::PVXmlTreeNodeDom::new_format(xmlFile);
@@ -334,7 +335,7 @@ bool PVInspector::PVXmlDomModel::saveXml(QString xml_file)
 	xmlRootDom.setAttribute("version", version);
 
 	// Add the axes-combination
-	if (!_axes_combination.is_empty() && !_axes_combination.is_default()) {
+	if (not _axes_combination.get_combination().empty()) {
 		QDomElement axis_comb_elt = xmlFile.createElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
 		QDomText axis_comb_txt = xmlFile.createTextNode(_axes_combination.to_string());
 		axis_comb_elt.appendChild(axis_comb_txt);
@@ -797,8 +798,8 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	xmlRootDom = doc.documentElement();
 
 	// Get axes combination and remove it from the DOM
-	PVRush::PVFormat format(xmlRootDom);
-	_axes_combination = Inendi::PVAxesCombination(format);
+	updateAxesCombination();
+
 	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
 	if (!axes_cb_elt.isNull()) {
 		xmlRootDom.removeChild(axes_cb_elt);
@@ -1051,12 +1052,15 @@ void PVInspector::PVXmlDomModel::setAxesNames(QStringList const& names)
 void PVInspector::PVXmlDomModel::updateAxesCombination()
 {
 	bool was_default = _axes_combination.is_default();
-	PVLOG_DEBUG("(PVInspector::PVXmlDomModel::updateAxesCombination) was_default: %d\n",
-	            was_default);
+
 	PVRush::PVFormat format(getRootDom());
-	;
-	_axes_combination.set_original_axes(format.get_axes());
+	_axes = format.get_axes();
+
 	if (was_default) {
 		_axes_combination.reset_to_default();
+	} else {
+		auto comb = _axes_combination.get_combination();
+		std::remove_if(comb.begin(), comb.end(), [this](PVCol c) { return c >= _axes.size(); });
+		_axes_combination.set_combination(comb);
 	}
 }
