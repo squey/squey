@@ -47,7 +47,7 @@ QStringList PVAxesCombination::get_combined_names() const
 {
 	QStringList l;
 	for (PVCol c : _axes_comb) {
-		l << get_axis(c).get_name();
+		l << _axes[c].get_name();
 	}
 	return l;
 }
