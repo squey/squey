@@ -65,8 +65,7 @@ class PVXmlParamParser
 	virtual ~PVXmlParamParser();
 
   public:
-	int
-	setDom(QDomElement const& node, int id = -1, QVector<uint32_t> tree_ids = QVector<uint32_t>());
+	int setDom(QDomElement const& node, int id = -1);
 	QList<PVAxisFormat> const& getAxes() const;
 	QList<PVXmlParamParserData> const& getFields() const;
 	const fields_mask_t& getFieldsMask() const { return _fields_mask; }

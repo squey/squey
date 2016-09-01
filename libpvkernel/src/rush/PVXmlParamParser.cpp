@@ -160,11 +160,11 @@ PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& 
 	return args;
 }
 
-int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<uint32_t> tree_ids)
+int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 {
 	int newId = id;
 	if (id == -1) {
-		return setDom(node, 0, tree_ids);
+		return setDom(node, 0);
 	}
 
 	QDomNodeList childs = node.childNodes();
@@ -185,27 +185,13 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 		}
 	}
 
-	uint32_t* new_tree_id = nullptr;
 	for (int i = 0; i < nchilds; i++) {
 		QDomElement child = childs.at(i).toElement();
 		QString node_type = getNodeType(child);
 		if (node_type == PVFORMAT_XML_TAG_SPLITTER_STR) {
 			pushFilter(child, newId);
-			if (new_tree_id == nullptr) {
-				tree_ids.push_back(i);
-				new_tree_id = &tree_ids.back();
-			} else {
-				*new_tree_id = i;
-			}
-			newId = setDom(child, newId, tree_ids);
+			newId = setDom(child, newId);
 		} else if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
-			if (new_tree_id == nullptr) {
-				tree_ids.push_back(i);
-				new_tree_id = &tree_ids.back();
-			} else {
-				*new_tree_id = i;
-			}
-
 			if (child.hasChildNodes()) {
 				QDomNodeList nodes = child.childNodes();
 				bool has_axis = false;
@@ -224,7 +210,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 				++newId;
 			}
 
-			newId = setDom(child, newId, tree_ids);
+			newId = setDom(child, newId);
 		}
 	}
 
@@ -240,7 +226,6 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
 			axis.set_titlecolor(
 			    child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
-			axis.compute_unique_id(tree_ids);
 			QString tag = child.attribute(PVFORMAT_AXIS_TAG_STR, QString());
 			if (!tag.isEmpty()) {
 				QStringList tags = tag.split(PVFORMAT_TAGS_SEP);
