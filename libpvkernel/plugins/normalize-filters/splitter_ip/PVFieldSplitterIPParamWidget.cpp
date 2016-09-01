@@ -8,7 +8,6 @@
 #include "PVFieldSplitterIPParamWidget.h"
 #include "PVFieldSplitterIP.h"
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <pvkernel/filter/PVElementFilterByFields.h>
 
 #include <QAction>
 #include <QRadioButton>

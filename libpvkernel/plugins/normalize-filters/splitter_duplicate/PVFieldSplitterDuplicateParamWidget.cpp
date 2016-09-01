@@ -8,7 +8,6 @@
 #include "PVFieldSplitterDuplicateParamWidget.h"
 #include "PVFieldDuplicate.h"
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <pvkernel/filter/PVElementFilterByFields.h>
 
 #include <QLabel>
 #include <QHBoxLayout>

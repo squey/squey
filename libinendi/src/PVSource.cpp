@@ -7,8 +7,6 @@
 
 #include <pvkernel/core/PVConfig.h>
 
-#include <pvkernel/filter/PVChunkFilterByElt.h>
-
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVControllerJob.h>

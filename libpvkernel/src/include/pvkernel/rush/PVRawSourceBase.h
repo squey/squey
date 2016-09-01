@@ -9,7 +9,6 @@
 #define PVRAWSOURCEBASE_FILE_H
 
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVInput_types.h>
 #include <QString>

@@ -8,7 +8,6 @@
 #include "PVFieldConverterGUIDToIPParamWidget.h"
 #include "PVFieldGUIDToIP.h"
 
-#include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
