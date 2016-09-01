@@ -802,9 +802,6 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	beginResetModel();
 	endResetModel();
 
-	// Go through the DOM to get all the different groups
-	rootNode->getGroupsByType(_groups);
-
 	Q_EMIT layoutChanged(); // to resfresh screen
 }
 

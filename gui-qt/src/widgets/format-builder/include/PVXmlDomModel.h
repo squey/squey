@@ -155,8 +155,6 @@ class PVXmlDomModel : public QAbstractItemModel
 	void setAxesNames(QStringList const& names);
 	void updateAxesCombination();
 
-	PVRush::types_groups_t& getGroups() { return _groups; }
-
 	Inendi::PVAxesCombination& get_axes_combination() { return _axes_combination; }
 
   private:
@@ -173,9 +171,6 @@ class PVXmlDomModel : public QAbstractItemModel
 	QDomDocument xmlFile;
 	QString _original_xml_content;
 	QDomElement xmlRootDom;
-
-	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
-	PVRush::types_groups_t _groups;
 
 	QList<PVRush::PVAxisFormat> _axes;
 	Inendi::PVAxesCombination _axes_combination;
