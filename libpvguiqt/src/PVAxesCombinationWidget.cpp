@@ -187,7 +187,7 @@ bool PVGuiQt::PVAxesCombinationWidget::is_original_axis_selected()
 void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
 {
 	QItemSelection new_sel;
-	for (PVCol comb_col = 0; comb_col < _axes_combination.get_axes_count(); comb_col++) {
+	for (size_t comb_col = 0; comb_col < _axes_combination.get_axes_count(); comb_col++) {
 		if (cols.contains(_axes_combination.get_combination()[comb_col])) {
 			QModelIndex midx = _list_used->model()->index(comb_col, 0);
 			new_sel.select(midx, midx);
