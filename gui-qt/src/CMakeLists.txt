@@ -22,7 +22,6 @@ widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVFormatBuilderWidget.h
 widgets/format-builder/include/PVNrawListingWidget.h
 widgets/format-builder/include/PVXmlTreeView.h 
-widgets/format-builder/include/PVXmlDomModel.h
 widgets/format-builder/include/PVXmlParamColorDialog.h
 widgets/format-builder/include/PVXmlParamComboBox.h
 widgets/format-builder/include/PVXmlParamList.h

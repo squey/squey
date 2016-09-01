@@ -377,17 +377,6 @@ void PVInspector::PVXmlDomModel::applyModification(QModelIndex&, PVXmlParamWidge
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::saveDefault
- *
- *****************************************************************************/
-void PVInspector::PVXmlDomModel::saveDefault()
-{
-	std::cout << "saveDefault()" << std::endl;
-	saveXml("tmp.xml");
-}
-
-/******************************************************************************
- *
  * PVInspector::PVXmlDomModel::deleteSelectio
  *
  *****************************************************************************/

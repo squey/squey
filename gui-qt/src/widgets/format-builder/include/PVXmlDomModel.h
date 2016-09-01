@@ -32,8 +32,6 @@ namespace PVInspector
 class PVXmlDomModel : public QAbstractItemModel
 {
 
-	Q_OBJECT
-
   public:
 	PVXmlDomModel(QWidget* parent = nullptr);
 	virtual ~PVXmlDomModel();
@@ -181,9 +179,6 @@ class PVXmlDomModel : public QAbstractItemModel
 
 	QList<PVRush::PVAxisFormat> _axes;
 	Inendi::PVAxesCombination _axes_combination;
-
-  public Q_SLOTS:
-	void saveDefault();
 };
 }
 #endif /* MONMODELE_H */
