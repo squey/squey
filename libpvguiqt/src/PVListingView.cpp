@@ -393,7 +393,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 
 	// Disable hover picture
-	section_hovered_enter(col, false);
+	section_hovered_enter(comb_col, false);
 
 	// Create a new horizontal header context as it depend on the clicked column
 	_hhead_ctxt_menu.clear();
