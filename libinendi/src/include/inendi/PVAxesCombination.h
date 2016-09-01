@@ -9,7 +9,6 @@
 
 #include <QStringList>
 
-#include <functional>
 #include <vector>
 
 #include <pvkernel/core/PVSerializeArchive.h>
@@ -42,23 +41,23 @@ class PVAxesCombination
 	void sort_by_name();
 
 	template <class It>
-	void move_axes_left_one_position(It&& begin, It const& end)
+	void move_axes_left_one_position(It const& begin, It const& end)
 	{
 		for (auto it = begin; it != end; ++it) {
-			std::swap(_axes_comb[*it], _axes_comb[*(it - 1)]);
+			std::swap(_axes_comb[*it], _axes_comb[*it - 1]);
 		}
 	}
 
 	template <class It>
-	void move_axes_right_one_position(It const& begin, It&& end)
+	void move_axes_right_one_position(It const& begin, It const& end)
 	{
 		for (auto it = end; it != begin; --it) {
-			std::swap(_axes_comb[*it], _axes_comb[*(it - 1)]);
+			std::swap(_axes_comb[*(it - 1)], _axes_comb[*(it - 1) + 1]);
 		}
 	}
 
 	template <class It>
-	void remove_axes(It const& begin, It&& end)
+	void remove_axes(It const& begin, It const& end)
 	{
 		for (auto it = end - 1; it != begin - 1; --it) {
 			_axes_comb.erase(_axes_comb.begin() + *it);

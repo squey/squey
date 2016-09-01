@@ -179,3 +179,6 @@ add_test(Tinendi_plotting_one_value Tinendi_plotting_one_value ${TESTS_FILES_DIR
 add_pv_compile_test(Tinendi_axis_gradient LINKS ${LINK_LIBRARIES} FILES axis_gradient.cpp)
 add_test(Tinendi_axis_gradient Tinendi_axis_gradient ${TESTS_FILES_DIR}/picviz/axis_gradient.csv ${TESTS_FILES_DIR}/picviz/axis_gradient.csv.format)
 add_bench(Tinendi_axis_gradient LINKS ${LINK_LIBRARIES} FILES axis_gradient.cpp)
+
+add_pv_compile_test(Tinendi_axes_combination LINKS ${LINK_LIBRARIES} FILES axes_combination.cpp)
+add_test(Tinendi_axes_combination Tinendi_axes_combination)

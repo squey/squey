@@ -79,7 +79,7 @@ void PVAxesCombination::axis_append(PVCol comb_col)
 
 void PVAxesCombination::reset_to_default()
 {
-	_axes_comb.resize(get_axes_count());
+	_axes_comb.resize(_axes.size());
 	std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
 }
 

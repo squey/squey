@@ -787,6 +787,8 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	xmlRootDom = doc.documentElement();
 
 	// Get axes combination and remove it from the DOM
+	PVRush::PVFormat format(getRootDom());
+	_axes_combination.set_combination(format.get_axes_comb());
 	updateAxesCombination();
 
 	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
@@ -1050,6 +1052,10 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 	} else {
 		auto comb = _axes_combination.get_combination();
 		std::remove_if(comb.begin(), comb.end(), [this](PVCol c) { return c >= _axes.size(); });
+		if (comb.empty()) {
+			comb.resize(_axes.size());
+			std::iota(comb.begin(), comb.end(), 0);
+		}
 		_axes_combination.set_combination(comb);
 	}
 }
