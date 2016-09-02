@@ -61,7 +61,7 @@ PVParallelView::PVFullParallelView::~PVFullParallelView()
 {
 	PVLOG_DEBUG("In PVFullParallelView destructor\n");
 	if (scene()) {
-		scene()->deleteLater();
+		delete scene();
 	}
 }
 
