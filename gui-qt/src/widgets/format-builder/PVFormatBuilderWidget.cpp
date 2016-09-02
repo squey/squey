@@ -793,6 +793,11 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
 		QMessageBox::critical(this, "Error", e.what());
 		return;
+	} catch (PVRush::PVFormatInvalid const& e) {
+		QMessageBox::critical(this, "Error",
+		                      "The current format is not valid. We can't perform an import : " +
+		                          QString(e.what()));
+		return;
 	}
 
 	// Tell the NRAW widget that the input has changed
