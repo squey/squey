@@ -729,7 +729,6 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	try {
 		// Get the first input selected
 		_log_input = _inputs.front();
-		PVRush::PVFormat format = get_format_from_dom();
 		PVLOG_DEBUG("Input: %s\n", qPrintable(_log_input_type->human_name_of_input(_log_input)));
 
 		// Pre discover the input w/ the source creators
@@ -776,6 +775,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			// Try to fill the dom with data if non exists.
 			guess_first_splitter();
 		}
+
+		PVRush::PVFormat format = get_format_from_dom();
 
 		_nraw.reset(new PVRush::PVNraw());
 		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;

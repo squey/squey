@@ -5,13 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-/*
- * File:   PVXmlParamParserData.h
- * Author: rpernaudat
- *
- * Created on 12 mai 2011, 11:29
- */
-
 #ifndef PVXMLPARAMPARSERDATA_H
 #define PVXMLPARAMPARSERDATA_H
 #include <QString>
