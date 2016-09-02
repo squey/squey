@@ -210,6 +210,9 @@ add_test(Trush_format_ignore_end Trush_format_import_export ${TESTS_FILES_DIR}/p
 
 add_test(Trush_format_ignore_header_multifile Trush_format_import_export ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in ${TESTS_FILES_DIR}/picviz/format_ignore_rows_multifile.csv.out ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.format 15 ${TESTS_FILES_DIR}/picviz/format_ignore_rows.csv.in)
 
+# Check a csv without enough fields
+add_test(Trush_not_enough_column Trush_format_import_export ${TESTS_FILES_DIR}/picviz/test_petit.log null ${TESTS_FILES_DIR}/picviz/apartments.csv.format)
+
 add_pv_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
 add_test(Trush_format_upgrade Trush_format_upgrade)
 # We need to set this env variable as we dump QDom which use a QHash. Without a seed, printing is random.
