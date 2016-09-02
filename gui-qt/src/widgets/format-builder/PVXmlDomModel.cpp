@@ -1041,8 +1041,15 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 {
 	bool was_default = _axes_combination.is_default();
 
-	PVRush::PVFormat format(getRootDom());
-	_axes = format.get_axes();
+	try {
+		PVRush::PVFormat format(getRootDom());
+		_axes = format.get_axes();
+	} catch (PVRush::PVFormatInvalid const&) {
+		// The format is empty, keep axes combination empty too.
+		_axes.clear();
+		_axes_combination.reset_to_default();
+		return;
+	}
 
 	if (was_default) {
 		_axes_combination.reset_to_default();
