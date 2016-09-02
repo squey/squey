@@ -547,9 +547,12 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 			}
 
 			const Inendi::PVAxesCombination& ac = view->get_axes_combination();
-			for (PVCol i = 0; i < view->get_column_count(); i++) {
-				const QString& axis_name = ac.get_axis(i).get_name();
-				const QString& axis_type = ac.get_axis(i).get_type();
+			std::set<PVCol> unique_comb_cols(ac.get_combination().begin(),
+			                                 ac.get_combination().end());
+			auto const& axes = view->get_parent<Inendi::PVSource>().get_format().get_axes();
+			for (PVCol original_col2 : unique_comb_cols) {
+				const QString& axis_name = axes[original_col2].get_name();
+				const QString& axis_type = axes[original_col2].get_type();
 
 				// Don't show incompatible axes
 				if (axis_type != this_axis_type) {
@@ -560,7 +563,6 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
 				axis_action->setCheckable(true);
 
 				PVCol original_col1 = _view.get_axes_combination().get_nraw_axis(col);
-				PVCol original_col2 = _view.get_axes_combination().get_nraw_axis(i);
 
 				Inendi::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2};
 				bool existing_correlation = root.correlations().exists(correlation);
