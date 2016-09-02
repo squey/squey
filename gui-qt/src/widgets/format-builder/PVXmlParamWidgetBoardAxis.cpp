@@ -31,8 +31,8 @@ PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVRush::PVXmlT
 
 	allocBoardFields();
 	draw();
-	initConnexion();
 	initValue();
+	initConnexion();
 }
 
 /******************************************************************************
@@ -204,10 +204,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw()
 void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion()
 {
 
-	connect(mapPlotType,
-	        static_cast<void (QComboBox::*)(QString const&)>(&QComboBox::currentIndexChanged),
-	        [this](QString const& text) {
-		        updatePlotMapping(text);
+	connect(mapPlotType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+	        [this](int) {
+		        updatePlotMapping();
 		        node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR), mapPlotType->get_sel_type());
 		        Q_EMIT signalRefreshView();
 		    });
@@ -223,12 +222,12 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion()
 	});
 
 	connect(comboMapping->get_combo_box(),
-	        static_cast<void (QComboBox::*)(QString const&)>(&QComboBox::currentIndexChanged), this,
+	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 	        &PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams);
 	connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
 
 	connect(comboPlotting->get_combo_box(),
-	        static_cast<void (QComboBox::*)(QString const&)>(&QComboBox::currentIndexChanged), this,
+	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 	        &PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams);
 	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
 
@@ -271,17 +270,22 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 		node_type = PVFORMAT_AXIS_TYPE_DEFAULT;
 	}
 	mapPlotType->sel_type(node_type);
+	updatePlotMapping();
 
 	// Select value from Xml. If Xml is invalid, it will keep default arguments
 	_args_mapping.clear();
 	Inendi::PVMappingFilter::p_type map_lib = get_mapping_lib_filter();
 	QString node_mapping = node->getMappingProperties(map_lib->get_default_args(), _args_mapping);
 	if (node_mapping.isEmpty()) {
-		node_mapping = PVFORMAT_AXIS_MAPPING_DEFAULT;
+		comboMapping->select_default();
+	} else {
+		comboMapping->set_mode(node_mapping);
 	}
-	comboMapping->set_mode(node_mapping);
+
 	_args_map_mode[*map_lib] = _args_mapping;
 	_params_mapping->set_args(_args_mapping);
+
+	updateMappingParams();
 
 	// Select value from Xml. If Xml is invalid, it will keep default arguments
 	_args_plotting.clear();
@@ -289,11 +293,13 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	QString node_plotting =
 	    node->getPlottingProperties(plot_lib->get_default_args(), _args_plotting);
 	if (node_plotting.isEmpty()) {
-		node_plotting = PVFORMAT_AXIS_PLOTTING_DEFAULT;
+		comboPlotting->select_default();
+	} else {
+		comboPlotting->set_mode(node_plotting);
 	}
-	comboPlotting->set_mode(node_plotting);
 	_args_plot_mode[*plot_lib] = _args_plotting;
 	_params_plotting->set_args(_args_plotting);
+	updatePlottingParams();
 
 	// extra
 	QString node_color = node->attribute(PVFORMAT_AXIS_COLOR_STR);
@@ -354,15 +360,13 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
  * PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
+void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping()
 {
-	if (t.length() > 1) {
-		// Reset mapping/plotting (use on type change)
-		QString type = mapPlotType->get_sel_type();
-		comboMapping->clear();
-		comboMapping->populate_from_type(type);
-		comboMapping->select_default();
-	}
+	// Reset mapping/plotting (use on type change)
+	QString type = mapPlotType->get_sel_type();
+	comboMapping->clear();
+	comboMapping->populate_from_type(type);
+	comboMapping->select_default();
 }
 
 Inendi::PVMappingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_mapping_lib_filter()

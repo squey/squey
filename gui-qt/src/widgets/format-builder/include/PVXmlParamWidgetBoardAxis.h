@@ -125,7 +125,7 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
   public Q_SLOTS:
 	void slotGoNextAxis();
-	void updatePlotMapping(const QString& t);
+	void updatePlotMapping();
 	void slotShowTagHelp();
 	void slotShowTypeFormatHelp();
 	void updateMappingParams();
