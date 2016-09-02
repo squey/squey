@@ -126,10 +126,6 @@ class PVQueryBuilderJsonConverter
 	 */
 	virtual void is_empty(rapidjson::Value const& id) = 0;
 
-	/** Generate is_null clause
-	 */
-	virtual void is_null(rapidjson::Value const& id) = 0;
-
 	/** Generate less clause
 	 */
 	virtual void less(rapidjson::Value const& id, rapidjson::Value const& end) = 0;

@@ -355,8 +355,6 @@ QueryBuilder.DEFAULTS = {
         {type: 'not_ends_with',    nb_inputs: 1, multiple: false, apply_to: ['string']},
         {type: 'is_empty',         nb_inputs: 0, multiple: false, apply_to: ['string']},
         {type: 'is_not_empty',     nb_inputs: 0, multiple: false, apply_to: ['string']},
-        {type: 'is_null',          nb_inputs: 0, multiple: false, apply_to: ['string', 'number', 'datetime', 'boolean']},
-        {type: 'is_not_null',      nb_inputs: 0, multiple: false, apply_to: ['string', 'number', 'datetime', 'boolean']}
     ],
 
     icons: {
@@ -2677,8 +2675,6 @@ QueryBuilder.defaults({
         not_ends_with:    function(v){ return {'$regex': '(?<!' + escapeRegExp(v[0]) + ')$'}; },
         is_empty:         function(v){ return ''; },
         is_not_empty:     function(v){ return {'$ne': ''}; },
-        is_null:          function(v){ return null; },
-        is_not_null:      function(v){ return {'$ne': null}; }
     },
 
     mongoRuleOperators: {
@@ -2686,13 +2682,13 @@ QueryBuilder.defaults({
             v = v.$ne;
             return {
                 'val': v,
-                'op': v === null ? 'is_not_null' : (v === '' ? 'is_not_empty' : 'not_equal')
+                'op': v === '' ? 'is_not_empty' : 'not_equal'
             };
         },
         eq: function(v) {
             return {
                 'val': v,
-                'op': v === null ? 'is_null' : (v === '' ? 'is_empty' : 'equal')
+                'op': v === '' ? 'is_empty' : 'equal'
             };
         },
         $regex: function(v) {
@@ -3077,8 +3073,6 @@ QueryBuilder.defaults({
         not_ends_with:    { op: 'NOT LIKE(?)', fn: function(v){ return '%'+v; } },
         is_empty:         { op: '= \'\'' },
         is_not_empty:     { op: '!= \'\'' },
-        is_null:          { op: 'IS NULL' },
-        is_not_null:      { op: 'IS NOT NULL' }
     },
 
     /* operators for SQL -> internal conversion */
@@ -3126,16 +3120,10 @@ QueryBuilder.defaults({
         '>=':       function(v) { return { val: v, op: 'greater_or_equal' }; },
         'BETWEEN':  function(v) { return { val: v, op: 'between' }; },
         'IS':       function(v) {
-            if (v !== null) {
                 error('Invalid value for IS operator');
-            }
-            return { val: null, op: 'is_null' };
         },
         'IS NOT':   function(v) {
-            if (v !== null) {
                 error('Invalid value for IS operator');
-            }
-            return { val: null, op: 'is_not_null' };
         }
     },
 
@@ -3579,8 +3567,6 @@ QueryBuilder.regional['en'] = {
     "not_ends_with": "doesn't end with",
     "is_empty": "is empty",
     "is_not_empty": "is not empty",
-    "is_null": "is null",
-    "is_not_null": "is not null"
   },
   "errors": {
     "no_filter": "No filter selected",
