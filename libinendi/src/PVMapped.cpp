@@ -166,6 +166,7 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 		prop.serialize_write(*new_obj);
 		new_obj->set_bound_obj(prop);
 	}
+	so.attribute("prop_count", idx);
 
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
@@ -178,6 +179,7 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 		plotted->serialize_write(*new_obj);
 		new_obj->set_bound_obj(*plotted);
 	}
+	so.attribute("plotted_count", idx);
 }
 
 /******************************************************************************
@@ -193,14 +195,12 @@ Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so
 
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
 
-	int idx = 0;
 	std::list<Inendi::PVMappingProperties> columns;
-	try {
-		while (true) {
-			PVCore::PVSerializeObject_p new_obj = list_prop->create_object(QString::number(idx++));
-			columns.emplace_back(PVMappingProperties::serialize_read(*new_obj));
-		}
-	} catch (PVCore::PVSerializeArchiveErrorNoObject const& /*e*/) {
+	int prop_count;
+	so.attribute("prop_count", prop_count);
+	for (int idx = 0; idx < prop_count; idx++) {
+		PVCore::PVSerializeObject_p new_obj = list_prop->create_object(QString::number(idx));
+		columns.emplace_back(PVMappingProperties::serialize_read(*new_obj));
 	}
 
 	PVMapped& mapped = parent.emplace_add_child(name.toStdString(), std::move(columns));
@@ -208,15 +208,12 @@ Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so
 	// Create the list of plotted
 	PVCore::PVSerializeObject_p list_obj = so.create_object(
 	    mapped.get_children_serialize_name(), mapped.get_children_description(), true, true);
-	idx = 0;
-	try {
-		while (true) {
-			// FIXME It throws when there are no more data collections.
-			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
-			PVPlotted::serialize_read(*new_obj, mapped);
-		}
-	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+	int plotted_count;
+	so.attribute("plotted_count", plotted_count);
+	for (int idx = 0; idx < plotted_count; idx++) {
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+		PVPlotted::serialize_read(*new_obj, mapped);
 	}
+
 	return mapped;
 }

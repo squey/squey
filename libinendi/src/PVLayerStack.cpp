@@ -314,6 +314,7 @@ void Inendi::PVLayerStack::serialize_write(PVCore::PVSerializeObject& so)
 		layer.serialize_write(*new_obj);
 		new_obj->set_bound_obj(layer);
 	}
+	so.attribute("layer_count", idx);
 }
 
 Inendi::PVLayerStack Inendi::PVLayerStack::serialize_read(PVCore::PVSerializeObject& so)
@@ -323,17 +324,14 @@ Inendi::PVLayerStack Inendi::PVLayerStack::serialize_read(PVCore::PVSerializeObj
 
 	so.attribute("selected_layer_index", ls._selected_layer_index);
 
+	ls._table.clear(); // Remove default layer created on view creation.
+
 	PVCore::PVSerializeObject_p list_obj = so.create_object("layers", "", true, true);
-	int idx = 0;
-	try {
-		ls._table.clear(); // Remove default layer created on view creation.
-		while (true) {
-			// FIXME It throws when there are no more data collections.
-			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
-			ls._table.append(PVLayer::serialize_read(*new_obj));
-		}
-	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+	int layer_count;
+	so.attribute("layer_count", layer_count);
+	for (int idx = 0; idx < layer_count; idx++) {
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+		ls._table.append(PVLayer::serialize_read(*new_obj));
 	}
 
 	return ls;
