@@ -618,7 +618,7 @@ void PVGuiQt::PVListingView::show_vhead_ctxt_menu(const QPoint& pos)
 	if (sel == _action_copy_row_value) {
 		int idx = verticalHeader()->logicalIndexAt(pos);
 		// FIXME : We should return the full line content
-		QApplication::clipboard()->setText(QString::number(listing_model()->rowIndex(idx)));
+		QApplication::clipboard()->setText(QString::number(listing_model()->rowIndex(idx) + 1));
 	} else {
 		assert(sel == nullptr && "No other possible vertical menu action");
 	}
