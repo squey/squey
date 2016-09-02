@@ -36,6 +36,7 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
 {
 	init(parent);
 	setObjectName("PVFormatBuilderWidget");
+	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
