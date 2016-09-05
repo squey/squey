@@ -196,13 +196,6 @@ class PVMainWindow : public QMainWindow
 
 	void close_solution_Slot();
 
-#ifdef WITH_MINESET
-	/**
-	 * Show error message for mineset export.
-	 */
-	void mineset_error_slot(QString error_msg);
-#endif
-
   protected:
 	void closeEvent(QCloseEvent* event);
 
@@ -309,13 +302,6 @@ class PVMainWindow : public QMainWindow
 	void change_of_current_view_Signal();
 	void filter_applied_Signal();
 	void zombie_mode_changed_Signal();
-
-#ifdef WITH_MINESET
-	/**
-	 * Signal to show a mineset error from a thread.
-	 */
-	void mineset_error(QString error_msg);
-#endif
 
   private:
 	QString _cur_project_file;

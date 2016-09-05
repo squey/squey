@@ -251,11 +251,15 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	PVCore::PVExporter exp(ofs, sel, column_indexes, step_count, export_func, sep_char, quote_char);
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.getProgressBar()->setMaximum(nrows);
 		    while (true) {
 			    start = sel.find_next_set_bit(start, nrows);
 			    if (start == PVROW_INVALID_VALUE) {
 				    break;
 			    }
+
+			    pbox.getProgressBar()->setValue(start);
+
 			    step_count = std::min(step_count, nrows - start);
 			    exp.set_step_count(step_count);
 			    exp.export_rows(start);

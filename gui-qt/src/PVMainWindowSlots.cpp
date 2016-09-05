@@ -176,21 +176,10 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 			    current_view()->add_mineset_dataset(dataset_url);
 			    QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
 		    } catch (const Inendi::PVMineset::mineset_error& e) {
-			    Q_EMIT mineset_error(QString(e.what()));
+			    pbox.critical("Error when exporting current selection to Mineset", e.what());
 		    }
 		},
 	    "Exporting data to Mineset...", this);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::mineset_error_slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::mineset_error_slot(QString error_msg)
-{
-	QMessageBox::critical(this, "Error when exporting current selection to Mineset", error_msg,
-	                      QMessageBox::Ok);
 }
 #endif
 

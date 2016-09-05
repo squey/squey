@@ -43,9 +43,6 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent) : QDialog(par
 	progress_bar->setMaximum(0);
 	progress_bar->setMinimum(0);
 
-	_detail_label = new QLabel();
-	layout->addWidget(_detail_label);
-
 	_extended_detail_label = new QLabel();
 	_extended_detail_label->setVisible(false);
 	layout->addWidget(_extended_detail_label);
@@ -78,8 +75,6 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent) : QDialog(par
 	        SLOT(critical_slot(QString const&, QString const&)));
 
 	setWindowTitle(msg);
-
-	_status = 0;
 }
 
 void PVCore::PVProgressBox::cancel()
@@ -95,36 +90,10 @@ void PVCore::PVProgressBox::cancel()
 	reject();
 }
 
-void PVCore::PVProgressBox::set_status(int status)
-{
-	_status = status;
-}
-
 void PVCore::PVProgressBox::set_extended_status(QString const& str)
 {
-	_ext_str_mutex.lock();
-	_extended_status = str;
-	_ext_str_mutex.unlock();
-}
-
-void PVCore::PVProgressBox::update_status_Slot()
-{
-	progress_bar->setValue(_status);
-	if (!_format_detail.isEmpty()) {
-		int arg_count = _format_detail.count(QRegExp("%L?\\d{1,2}"));
-		if (arg_count == 1) {
-			_detail_label->setText(_format_detail.arg(_status));
-		} else {
-			// necessarily 2
-			_detail_label->setText(_format_detail.arg(_status).arg(progress_bar->maximum()));
-		}
-	}
-	_ext_str_mutex.lock();
-	if (!_extended_status.isEmpty()) {
-		_extended_detail_label->setVisible(true);
-		_extended_detail_label->setText(_extended_status);
-	}
-	_ext_str_mutex.unlock();
+	_extended_detail_label->setVisible(true);
+	_extended_detail_label->setText(str);
 }
 
 void PVCore::PVProgressBox::set_cancel_btn_text(QString const& str)

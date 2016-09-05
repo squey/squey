@@ -11,7 +11,6 @@
 #include <QDialog>
 #include <QLabel>
 #include <QMessageBox>
-#include <QMutex>
 #include <QObject>
 #include <QProgressBar>
 #include <QString>
@@ -53,12 +52,15 @@ class PVProgressBox : public QDialog
 	* Return the progress bar. It possible to modify Min, Max and progress.
 	*/
 	QProgressBar* getProgressBar();
-	void set_status(int status);
 	void set_enable_cancel(bool cancel);
 	void set_extended_status(QString const& str);
+	void set_extended_status(std::string const& str)
+	{
+		set_extended_status(QString::fromStdString(str));
+	}
+	void set_extended_status(const char* str) { set_extended_status(std::string(str)); }
 	void set_cancel_btn_text(QString const& str);
 	void set_cancel2_btn_text(QString const& str);
-	void set_detail_label(QString const& detail) { _format_detail = detail; }
 	CancelState get_cancel_state() { return _cancel_state; }
 	void set_confirmation(bool confirm) { _need_confirmation = confirm; }
 
@@ -97,13 +99,10 @@ class PVProgressBox : public QDialog
 		return pbox.get_cancel_state();
 	}
 
-  public Q_SLOTS:
-	void update_status_Slot();
-
+  public:
 	/**
 	 * These function are use to have blocking message in threads.
 	 */
-  public:
 	void critical(QString const& title, QString const& msg)
 	{
 		std::unique_lock<std::mutex> lk(_blocking_msg);
@@ -139,14 +138,9 @@ class PVProgressBox : public QDialog
   private:
 	QLabel* message;
 	QProgressBar* progress_bar;
-	int _status;
 	QPushButton* _btnCancel;
 	QPushButton* _btnCancel2;
-	QString _format_detail;
-	QString _extended_status;
-	QLabel* _detail_label;
 	QLabel* _extended_detail_label;
-	QMutex _ext_str_mutex;
 	volatile CancelState _cancel_state = CancelState::CONTINUE;
 	bool _need_confirmation = false;
 	std::mutex _blocking_msg; //!< Mutex to have blocking message during thread execution.
