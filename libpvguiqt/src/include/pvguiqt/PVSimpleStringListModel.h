@@ -32,7 +32,7 @@ class PVSimpleStringListModel : public PVAbstractTableModel
 	{
 		auto it = _values.begin();
 		std::advance(it, rowIndex(row));
-		return QString::fromStdString(it->second);
+		return QString::number(it->first) + " : " + QString::fromStdString(it->second);
 	}
 
   public:
