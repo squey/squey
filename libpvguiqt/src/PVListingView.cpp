@@ -911,13 +911,13 @@ void PVGuiQt::PVListingView::sort(int col, Qt::SortOrder order)
 {
 	assert(col >= 0 && col < listing_model()->columnCount());
 	tbb::task_group_context ctxt;
-	bool changed = PVCore::PVProgressBox::progress(
+	auto changed = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 		    listing_model()->sort_on_col(col, order, ctxt);
 		},
 	    ctxt, tr("Sorting..."), this);
-	if (changed) {
+	if (changed != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		horizontalHeader()->setSortIndicator(col, order);
 		verticalHeader()->viewport()->update();
 	}

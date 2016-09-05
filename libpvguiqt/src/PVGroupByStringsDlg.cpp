@@ -23,7 +23,6 @@
 bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 {
 	if (act && act == _act_details) {
-		bool ret = false;
 		Inendi::PVSelection const& indexes = model().current_selection();
 
 		if (not indexes.is_empty()) {
@@ -45,7 +44,7 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			// Get it from value_col which is col2_in but without duplication
 			const QString value = QString::fromStdString(model().value_col().at(row_id));
 
-			ret = PVCore::PVProgressBox::progress(
+			auto ret = PVCore::PVProgressBox::progress(
 			    [&](PVCore::PVProgressBox& pbox) {
 				    pbox.set_enable_cancel(true);
 				    pvcop::db::algo::op_by_details(col1_in, col2_in, value.toStdString(), col1_out,
@@ -65,17 +64,18 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 				},
 			    QObject::tr("Computing values..."), parentWidget());
 
-			if (ret) {
+			if (ret == PVCore::PVProgressBox::CancelState::CONTINUE) {
 				PVListUniqStringsDlg* dlg =
 				    new PVListUniqStringsDlg(*lib_view(), _col2, std::move(col1_out),
 				                             std::move(col2_out), sum, min, max, parentWidget());
 				dlg->setWindowTitle("Details of value '" + value + "'");
 				dlg->move(x() + width() + 10, y());
 				dlg->show();
+				return true;
 			}
 		}
 
-		return ret;
+		return false;
 	}
 
 	return PVAbstractListStatsDlg::process_context_menu(act);

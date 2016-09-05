@@ -14,7 +14,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QWidget>
-#include <QTimer>
 #include <QMessageBox>
 
 /******************************************************************************
@@ -96,13 +95,6 @@ void PVCore::PVProgressBox::cancel()
 	reject();
 }
 
-void PVCore::PVProgressBox::launch_timer_status()
-{
-	QTimer* timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(update_status_Slot()));
-	timer->start(10);
-}
-
 void PVCore::PVProgressBox::set_status(int status)
 {
 	_status = status;
@@ -177,7 +169,6 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 		disconnect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 	}
 	watcher->deleteLater();
-	pbox->deleteLater();
 	return true;
 }
 
@@ -198,6 +189,5 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 		disconnect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 	}
 	watcher->deleteLater();
-	pbox->deleteLater();
 	return true;
 }

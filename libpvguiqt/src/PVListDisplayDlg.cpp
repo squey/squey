@@ -200,7 +200,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 	tbb::task_scheduler_init init(nthreads);
 	tbb::task_group_context ctxt;
 
-	bool success = PVCore::PVProgressBox::progress(
+	auto res = PVCore::PVProgressBox::progress(
 	    [&, count](PVCore::PVProgressBox& /*pbox*/) {
 
 		    BENCH_START(export_values);
@@ -232,7 +232,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 
 	QApplication::restoreOverrideCursor();
 
-	return success;
+	return res == PVCore::PVProgressBox::CancelState::CONTINUE;
 }
 
 void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)

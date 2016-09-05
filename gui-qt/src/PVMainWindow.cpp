@@ -568,7 +568,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	if (choosenFormat.compare(INENDI_AUTOMATIC_FORMAT_STR) == 0) {
 		set_auto_detect_cancellation(false);
 
-		if (!PVCore::PVProgressBox::progress(
+		if (PVCore::PVProgressBox::progress(
 		        [&](PVCore::PVProgressBox& pbox) {
 			        pbox.set_enable_cancel(true);
 			        connect(&pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
@@ -576,7 +576,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			            inputs, hash_input_name, formats, format_creator, files_multi_formats,
 			            discovered, formats_error, lcr, in_t, discovered_types));
 			    },
-		        tr("Auto-detecting file format..."), this)) {
+		        tr("Auto-detecting file format..."),
+		        this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 			return;
 		}
 		file_type_found = (discovered.size() > 0) | (files_multi_formats.size() > 0);
@@ -974,16 +975,6 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 	}
 }
 
-static void update_status_ext(PVCore::PVProgressBox& pbox, PVRush::PVControllerJob_p job)
-{
-	while (job->running()) {
-		pbox.set_status(job->status());
-		pbox.set_extended_status(
-		    QString("Number of rejected elements: %L1").arg(job->rejected_elements()));
-		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-	}
-}
-
 static QString bad_conversions_as_string(
     const PVRush::PVNraw::unconvertable_values_t::bad_conversions_t& bad_conversions,
     const Inendi::PVSource* src)
@@ -1043,7 +1034,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		return false;
 	}
 
-	bool ret = PVCore::PVProgressBox::progress(
+	auto ret = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 
 		    pbox.set_detail_label(QString("Number of elements extracted: %L1"));
@@ -1059,25 +1050,19 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 		    QObject::connect(job_import.get(), SIGNAL(job_done_signal()), &pbox, SLOT(accept()));
 		    // launch a thread in order to update the status of the progress bar
-		    boost::thread th_status([&]() { update_status_ext(pbox, job_import); });
-		    pbox.launch_timer_status();
-
-		    // Show the progressBox
-		    if (job_import->done() or pbox.exec() == QDialog::Accepted) {
-			    // Job finished, everything is fine.
-			    return true;
+		    while (job_import->running()) {
+			    pbox.set_status(job_import->status());
+			    pbox.set_extended_status(QString("Number of rejected elements: %L1")
+			                                 .arg(job_import->rejected_elements()));
+			    boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+			    pbox.update_status_Slot();
 		    }
-
-		    // Cancel this job and ask the user if he wants to keep the extracted data.
-		    job_import->cancel();
-		    PVLOG_DEBUG("extractor: job canceled !\n");
-		    // Sucess if we ask to continue with loaded data.
-		    return (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL2);
-
 		},
 	    QString("Extracting %1...").arg(src->get_format_name()), this);
+	if (ret != PVCore::PVProgressBox::CancelState::CONTINUE)
+		job_import->cancel();
 
-	if (not ret) {
+	if (ret == PVCore::PVProgressBox::CancelState::CANCEL) {
 		// If job is canceled, stop here
 		return false;
 	}
@@ -1141,13 +1126,13 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	PVLOG_INFO("nraw created from data in %g sec\n", BENCH_END_TIME(lff));
 #endif
 
-	if (!PVCore::PVProgressBox::progress(
+	if (PVCore::PVProgressBox::progress(
 	        [&](PVCore::PVProgressBox& /*pbox*/) {
 		        auto& mapped = src->emplace_add_child();
 		        auto& plotted = mapped.emplace_add_child();
 		        plotted.emplace_add_child();
 		    },
-	        tr("Processing..."), (QWidget*)this)) {
+	        tr("Processing..."), (QWidget*)this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		return false;
 	}
 

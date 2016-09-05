@@ -433,18 +433,17 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	PVCore::PVSerializeArchive_p ar;
 	PVCore::PVSerializeArchiveError read_exception("");
-	bool ret = PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_enable_cancel(true);
-		    try {
-			    ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read,
-			                                               INENDI_ARCHIVES_VERSION));
-		    } catch (const PVCore::PVSerializeArchiveError& e) {
-			    read_exception = e;
-		    }
-		},
-	    "Loading investigation...", this);
-	if (!ret) {
+	if (PVCore::PVProgressBox::progress(
+	        [&](PVCore::PVProgressBox& pbox) {
+		        pbox.set_enable_cancel(true);
+		        try {
+			        ar.reset(new PVCore::PVSerializeArchiveZip(
+			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
+		        } catch (const PVCore::PVSerializeArchiveError& e) {
+			        read_exception = e;
+		        }
+		    },
+	        "Loading investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		return false;
 	}
 
@@ -523,13 +522,12 @@ void PVInspector::PVMainWindow::save_solution(
     QString const& file, std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options)
 {
 	try {
-		bool ret = PVCore::PVProgressBox::progress(
-		    [&](PVCore::PVProgressBox& pbox) {
-			    pbox.set_enable_cancel(true);
-			    get_root().save_to_file(file, options);
-			},
-		    "Saving investigation...", this);
-		if (!ret) {
+		if (PVCore::PVProgressBox::progress(
+		        [&](PVCore::PVProgressBox& pbox) {
+			        pbox.set_enable_cancel(true);
+			        get_root().save_to_file(file, options);
+			    },
+		        "Saving investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 			return;
 		}
 	} catch (PVCore::PVSerializeArchiveError const& e) {

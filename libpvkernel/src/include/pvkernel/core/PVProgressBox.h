@@ -53,7 +53,6 @@ class PVProgressBox : public QDialog
 	* Return the progress bar. It possible to modify Min, Max and progress.
 	*/
 	QProgressBar* getProgressBar();
-	void launch_timer_status();
 	void set_status(int status);
 	void set_enable_cancel(bool cancel);
 	void set_extended_status(QString const& str);
@@ -76,23 +75,26 @@ class PVProgressBox : public QDialog
 
   public:
 	template <typename F>
-	static bool progress(F f, QString const& name, QWidget* parent)
+	static CancelState progress(F f, QString const& name, QWidget* parent)
 	{
 		PVProgressBox pbox(name, parent);
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
 		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
 		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
-		return process_worker_thread(end_s, worker, &pbox);
+		process_worker_thread(end_s, worker, &pbox);
+		return pbox.get_cancel_state();
 	}
 
 	template <typename F>
-	static bool progress(F f, tbb::task_group_context& ctxt, QString const& name, QWidget* parent)
+	static CancelState
+	progress(F f, tbb::task_group_context& ctxt, QString const& name, QWidget* parent)
 	{
 		PVProgressBox pbox(name, parent);
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
 		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
 		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
-		return process_worker_thread(end_s, worker, &pbox, ctxt);
+		process_worker_thread(end_s, worker, &pbox, ctxt);
+		return pbox.get_cancel_state();
 	}
 
   public Q_SLOTS:

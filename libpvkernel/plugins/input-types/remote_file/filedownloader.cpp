@@ -205,13 +205,13 @@ bool FileDownLoader::download(const QString& remoteFile,
 
 		CURLcode curlResult;
 
-		bool canceled = PVCore::PVProgressBox::progress(
+		auto canceled = PVCore::PVProgressBox::progress(
 		    [&](PVCore::PVProgressBox& /*pbox*/) {
 			    FileDownLoaderPrivate::download_thread(d, &tempFile, &curlResult);
 			},
 		    tr("Downloading %1...").arg(url.toString()), nullptr);
 
-		if (canceled) {
+		if (canceled != PVCore::PVProgressBox::CancelState::CONTINUE) {
 			cancel = true;
 			FileDownLoaderPrivate::_cancel_dl = true;
 			return false;
