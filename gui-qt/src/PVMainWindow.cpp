@@ -1031,6 +1031,8 @@ static QString bad_conversions_as_string(
 
 	auto const& ax = src->get_format().get_axes();
 
+	size_t max_values = 1000;
+
 	for (const auto& bad_conversion : bad_conversions) {
 
 		const PVRow row = bad_conversion.first;
@@ -1046,6 +1048,10 @@ static QString bad_conversions_as_string(
 		}
 
 		l << str;
+		if (max_values-- == 0) {
+			l << "There are more errors but we only show first 1000 errors. Fix you format type!";
+			break;
+		}
 	}
 
 	return l.join("\n");
