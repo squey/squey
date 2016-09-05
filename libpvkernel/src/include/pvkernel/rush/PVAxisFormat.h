@@ -21,7 +21,6 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVColor.h>
-#include <pvkernel/core/PVListFastCmp.h>
 #include <pvkernel/rush/PVTags.h>
 
 #include <pvbase/types.h>
@@ -36,7 +35,6 @@ class PVAxisFormat
 	friend class PVXmlParamParser;
 
   public:
-	typedef PVCore::PVListFastCmp<uint32_t, 2> id_t;
 	typedef QHash<QString, QString> node_args_t;
 
   public:
@@ -54,7 +52,6 @@ class PVAxisFormat
 	QString get_str_format() const { return _str_format; }
 	node_args_t const& get_args_mapping_string() const { return args_mapping; }
 	node_args_t const& get_args_plotting_string() const { return args_plotting; }
-	id_t const& get_unique_id() const { return unique_id; }
 	PVTags const& get_tags() const { return tags; }
 	bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
 
@@ -72,13 +69,6 @@ class PVAxisFormat
 	void set_args_plotting(node_args_t const& args) { args_plotting = args; }
 	void add_tag(QString const& tag) { tags.add_tag(tag); }
 
-  public:
-	inline bool operator==(const PVAxisFormat& other)
-	{
-		assert(unique_id_computed);
-		return unique_id == other.unique_id;
-	}
-
   protected:
 	PVCore::PVColor titlecolor; //!< Color of the title for this axis
 	PVCore::PVColor color;      //!< Color for this axis
@@ -91,14 +81,9 @@ class PVAxisFormat
 	node_args_t args_mapping;   //!< Arguments to compute Mapping.
 	node_args_t args_plotting;  //!< Arguments to compute plotting.
 	PVTags tags;
-	id_t unique_id;
-	bool unique_id_computed;
 
   public:
 	PVCol index;
-
-  protected:
-	void compute_unique_id(QVector<uint32_t> const& tree_ids);
 };
 }
 

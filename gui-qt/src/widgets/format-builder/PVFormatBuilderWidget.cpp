@@ -36,6 +36,7 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
 {
 	init(parent);
 	setObjectName("PVFormatBuilderWidget");
+	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
@@ -729,7 +730,6 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	try {
 		// Get the first input selected
 		_log_input = _inputs.front();
-		PVRush::PVFormat format = get_format_from_dom();
 		PVLOG_DEBUG("Input: %s\n", qPrintable(_log_input_type->human_name_of_input(_log_input)));
 
 		// Pre discover the input w/ the source creators
@@ -777,6 +777,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			guess_first_splitter();
 		}
 
+		PVRush::PVFormat format = get_format_from_dom();
+
 		_nraw.reset(new PVRush::PVNraw());
 		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
 		list_inputs << _log_input;
@@ -792,6 +794,11 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		return;
 	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
 		QMessageBox::critical(this, "Error", e.what());
+		return;
+	} catch (PVRush::PVFormatInvalid const& e) {
+		QMessageBox::critical(this, "Error",
+		                      "The current format is not valid. We can't perform an import : " +
+		                          QString(e.what()));
 		return;
 	}
 
@@ -986,7 +993,7 @@ void PVInspector::PVFormatBuilderWidget::openFormat(QDomDocument& doc)
 
 void PVInspector::PVFormatBuilderWidget::slotMainTabChanged(int idx)
 {
-	if (idx == 1) {
+	if (idx == 2) {
 		// This is the axes combination editor.
 
 		// Get the list of axes and update the axis combination

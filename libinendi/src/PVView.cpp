@@ -159,7 +159,7 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
  *****************************************************************************/
 QStringList Inendi::PVView::get_axes_names_list() const
 {
-	return _axes_combination.get_axes_names_list();
+	return _axes_combination.get_combined_names();
 }
 
 QStringList Inendi::PVView::get_zones_names_list() const
@@ -178,8 +178,9 @@ QStringList Inendi::PVView::get_zones_names_list() const
 	return ret;
 }
 
-Inendi::PVAxis const& Inendi::PVView::get_axis(PVCol index) const
+PVRush::PVAxisFormat const& Inendi::PVView::get_axis(PVCombCol index) const
 {
+	// INFO : It is only to get colors (PVAxisFormat) with index a "combined index"
 	return _axes_combination.get_axis(index);
 }
 
@@ -188,16 +189,15 @@ Inendi::PVAxis const& Inendi::PVView::get_axis(PVCol index) const
  * Inendi::PVView::get_axis_name
  *
  *****************************************************************************/
-const QString& Inendi::PVView::get_axis_name(PVCol index) const
+const QString& Inendi::PVView::get_axis_name(PVCombCol index) const
 {
 	PVAxis const& axis = _axes_combination.get_axis(index);
 	return axis.get_name();
 }
 
-QString Inendi::PVView::get_original_axis_name(PVCol axis_id) const
+QString Inendi::PVView::get_nraw_axis_name(PVCol axis_id) const
 {
-	PVAxis const& axis = _axes_combination.get_original_axis(axis_id);
-	return axis.get_name();
+	return get_parent<Inendi::PVSource>().get_format().get_axes()[axis_id].get_name();
 }
 
 // FIXME: This function should be removed
@@ -226,21 +226,21 @@ PVCol Inendi::PVView::get_column_count() const
  * Inendi::PVView::get_data
  *
  *****************************************************************************/
-std::string Inendi::PVView::get_data(PVRow row, PVCol column) const
+std::string Inendi::PVView::get_data(PVRow row, PVCombCol column) const
 {
-	PVCol real_index = _axes_combination.get_axis_column_index_fast(column);
+	PVCol real_index = _axes_combination.get_nraw_axis(column);
 
 	return get_rushnraw_parent().at_string(row, real_index);
 }
 
 /******************************************************************************
  *
- * Inendi::PVView::get_real_axis_index
+ * Inendi::PVView::get_nraw_axis_index
  *
  *****************************************************************************/
-PVCol Inendi::PVView::get_real_axis_index(PVCol col) const
+PVCol Inendi::PVView::get_nraw_axis_index(PVCombCol col) const
 {
-	return _axes_combination.get_axis_column_index(col);
+	return _axes_combination.get_nraw_axis(col);
 }
 
 /******************************************************************************
@@ -303,16 +303,6 @@ bool Inendi::PVView::get_line_state_in_layer_stack_output_layer(PVRow index) con
 bool Inendi::PVView::get_line_state_in_output_layer(PVRow index) const
 {
 	return output_layer.get_selection().get_line(index);
-}
-
-/******************************************************************************
- *
- * Inendi::PVView::get_original_axes_count
- *
- *****************************************************************************/
-PVCol Inendi::PVView::get_original_axes_count() const
-{
-	return _axes_combination.get_original_axes_count();
 }
 
 /******************************************************************************
@@ -574,18 +564,21 @@ Inendi::PVSelection const& Inendi::PVView::get_selection_visible_listing() const
 void Inendi::PVView::toggle_listing_unselected_visibility()
 {
 	_state_machine.toggle_listing_unselected_visibility();
+	process_output_layer();
 	_toggle_unselected.emit();
 }
 
 void Inendi::PVView::toggle_listing_zombie_visibility()
 {
 	_state_machine.toggle_listing_zombie_visibility();
+	process_output_layer();
 	_toggle_zombie.emit();
 }
 
 void Inendi::PVView::toggle_view_unselected_zombie_visibility()
 {
 	_state_machine.toggle_view_unselected_zombie_visibility();
+	process_output_layer();
 	_toggle_unselected_zombie_visibility.emit();
 }
 
@@ -616,25 +609,24 @@ void Inendi::PVView::recompute_all_selectable_count()
 	layer_stack.compute_selectable_count();
 }
 
-void Inendi::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes,
-                                                  PVAxesCombination::list_axes_t const& axes)
+void Inendi::PVView::set_axes_combination(std::vector<PVCol> const& comb)
 {
 	_axis_combination_about_to_update.emit();
 
-	_axes_combination.set_axes_index_list(idxes, axes);
+	_axes_combination.set_combination(comb);
 
 	_axis_combination_updated.emit();
 }
 
-PVRow Inendi::PVView::get_plotted_col_min_row(PVCol const combined_col) const
+PVRow Inendi::PVView::get_plotted_col_min_row(PVCombCol const combined_col) const
 {
-	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
+	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
 	return get_parent<PVPlotted>().get_col_min_row(col);
 }
 
-PVRow Inendi::PVView::get_plotted_col_max_row(PVCol const combined_col) const
+PVRow Inendi::PVView::get_plotted_col_max_row(PVCombCol const combined_col) const
 {
-	PVCol const col = _axes_combination.get_axis_column_index(combined_col);
+	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
 	return get_parent<PVPlotted>().get_col_max_row(col);
 }
 
@@ -654,18 +646,24 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
 	layer_stack.serialize_write(*ls_obj);
 
-	so.object("axes-combination", _axes_combination, "Axes combination", true);
+	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
+	_axes_combination.serialize_write(*ax_comb_obj);
 }
 
 Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
                                                Inendi::PVPlotted& parent)
 {
+
 	Inendi::PVView& view = parent.emplace_add_child();
+
+	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
+	view._axes_combination.set_combination(
+	    Inendi::PVAxesCombination::serialize_read(
+	        *ax_comb_obj, parent.get_parent<Inendi::PVSource>().get_format())
+	        .get_combination());
 
 	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
 	view.layer_stack = Inendi::PVLayerStack::serialize_read(*ls_obj);
-
-	so.object("axes-combination", view._axes_combination, "Axes combination", true);
 
 	Inendi::PVSelection sel(view.get_row_count());
 	sel.select_all();

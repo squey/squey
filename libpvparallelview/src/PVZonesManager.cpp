@@ -49,7 +49,7 @@ PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view)
     : _uint_plotted(&view.get_parent<Inendi::PVPlotted>().get_uint_plotted())
     , _nrows(view.get_row_count())
     , _ncols(view.get_column_count())
-    , _axes_comb(view.get_axes_combination().get_axes_index_list())
+    , _axes_comb(view.get_axes_combination().get_combination())
 {
 	update_all();
 }
@@ -102,7 +102,7 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
  *
  *****************************************************************************/
 std::vector<PVZoneID>
-PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
+PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& ac)
 {
 	typedef std::pair<PVCol, PVCol> axes_pair_t;
 	typedef std::vector<axes_pair_t> axes_pair_list_t;
@@ -120,7 +120,7 @@ PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& a
 	old_pairs.reserve(old_nb_pairs);
 
 	for (PVCol i = 0; i < old_nb_pairs; ++i) {
-		old_pairs.push_back(std::make_pair(_axes_comb[i].get_axis(), _axes_comb[i + 1].get_axis()));
+		old_pairs.push_back(std::make_pair(_axes_comb[i], _axes_comb[i + 1]));
 	}
 
 	std::vector<PVZoneID> zoneids;
@@ -129,7 +129,7 @@ PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& a
 
 	// iterate on the new axes combination to find reusable zones
 	for (PVCol i = 0; i < new_nb_pairs; i++) {
-		axes_pair_t axes_pair = std::make_pair(ac[i].get_axis(), ac[i + 1].get_axis());
+		axes_pair_t axes_pair = std::make_pair(ac[i], ac[i + 1]);
 		axes_pair_list_t::iterator it = std::find(old_pairs.begin(), old_pairs.end(), axes_pair);
 
 		if (it == old_pairs.end()) {
@@ -146,7 +146,6 @@ PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& a
 
 	// finally, the new zones are updated
 	for (PVZoneID zone_id : zoneids) {
-		std::cout << "UPDATE ZONE " << zone_id << std::endl;
 		update_zone(zone_id);
 	}
 
@@ -161,7 +160,7 @@ PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& a
 std::vector<PVZoneID>
 PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const& view)
 {
-	return update_from_axes_comb(view.get_axes_combination().get_axes_index_list());
+	return update_from_axes_comb(view.get_axes_combination().get_combination());
 }
 
 /******************************************************************************

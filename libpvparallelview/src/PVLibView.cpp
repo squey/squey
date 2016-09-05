@@ -99,7 +99,7 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 {
 	const uint32_t* uint_plotted = Inendi::PVPlotted::get_plotted_col_addr(
 	    _zones_manager.get_uint_plotted(), _zones_manager.get_row_count(),
-	    lib_view()->get_original_axis_index(axis));
+	    lib_view()->get_axes_combination().get_nraw_axis(axis));
 
 	PVHitCountView* view =
 	    new PVHitCountView(*lib_view(), uint_plotted, _zones_manager.get_row_count(), axis, parent);
@@ -222,9 +222,10 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	// Get list of combined columns
 	QSet<PVCol> combined_cols;
-	for (PVCol c : cols_updated) {
-		combined_cols.unite(
-		    lib_view()->get_axes_combination().get_combined_axes_columns_indexes(c).toSet());
+	for (PVCol c : lib_view()->get_axes_combination().get_combination()) {
+		if (cols_updated.contains(c)) {
+			combined_cols.insert(c);
+		}
 	}
 
 	// Get zones from that list of columns

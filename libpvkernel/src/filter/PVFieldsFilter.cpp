@@ -46,9 +46,23 @@ PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields
 		// FIXME : _fields_expected is amnost not use. It should always be set for better invalid
 		// element detection.
 		if ((_fields_expected != 0 and field_count != _fields_expected) or field_count == 0) {
-			it_cur->set_invalid();
-			(*it_cur).elt_parent()->set_invalid();
-			fields.erase(it_cur);
+			// The splitting didn't work
+			// Invalidate the parent
+			it_cur->elt_parent()->set_invalid();
+
+			// Get the iterator range over all created but invalid elements
+			size_t pos = std::distance(fields.begin(), it_cur);
+			std::advance(it_cur, 1);
+			auto begin_it = fields.begin();
+			std::advance(begin_it, pos - field_count);
+
+			// Mark all these fields as invalid
+			for (auto it = begin_it; it != it_cur; it++) {
+				it->set_invalid();
+			}
+
+			// And remove them
+			fields.erase(begin_it, it_cur);
 			break;
 		}
 		fields.erase(it_cur);

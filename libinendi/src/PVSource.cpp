@@ -7,8 +7,6 @@
 
 #include <pvkernel/core/PVConfig.h>
 
-#include <pvkernel/filter/PVChunkFilterByElt.h>
-
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVControllerJob.h>
@@ -176,6 +174,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 		input->serialize_write(*new_input);
 		new_input->set_bound_obj(*input);
 	}
+	so.attribute("input_count", idx);
 
 	// Serialize invalid elements.
 	int inv_elts_count = _inv_elts.size();
@@ -200,6 +199,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 		mapped->serialize_write(*new_obj);
 		new_obj->set_bound_obj(*mapped);
 	}
+	so.attribute("mapped_count", idx);
 }
 
 Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVScene& parent)
@@ -217,16 +217,11 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	// Create the list of input
 	PVCore::PVSerializeObject_p list_inputs =
 	    so.create_object("inputs", "Description of inputs", true, true);
-	int idx = 0;
-	try {
-		while (true) {
-			// FIXME It throws when there are no more data collections.
-			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj =
-			    list_inputs->create_object(QString::number(idx++));
-			inputs_for_type.push_back(int_lib->serialize_read(*new_obj));
-		}
-	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+	int input_count;
+	so.attribute("input_count", input_count);
+	for (int idx = 0; idx < input_count; idx++) {
+		PVCore::PVSerializeObject_p new_obj = list_inputs->create_object(QString::number(idx));
+		inputs_for_type.push_back(int_lib->serialize_read(*new_obj));
 	}
 
 	QString src_name;
@@ -244,38 +239,30 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	try {
 		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", true, true);
 		source._nraw = std::move(PVRush::PVNraw::serialize_read(*nraw_obj));
-	} catch (PVRush::NrawLoadingFail const& e) {
-		source.load_data();
-	}
 
-	// Serialize invalid elements.
-	if (source._inv_elts.empty()) { // Otherwise it is already known from loading.
+		// Serialize invalid elements.
 		int inv_elts_count;
 		so.attribute("inv_elts_count", inv_elts_count);
-		idx = 0;
-		for (int id = 0; id < inv_elts_count; id++) {
+		for (int idx = 0; idx < inv_elts_count; idx++) {
 			int inv_line;
 			so.attribute(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
 			QString inv_content;
 			so.attribute(QString::fromStdString("inv_elts_value/" + std::to_string(idx)),
 			             inv_content);
-			idx++;
 			source._inv_elts.emplace(inv_line, inv_content.toStdString());
 		}
+	} catch (PVRush::NrawLoadingFail const& e) {
+		source.load_data();
 	}
 
 	// Create the list of mapped
 	PVCore::PVSerializeObject_p list_obj = so.create_object(
 	    source.get_children_serialize_name(), source.get_children_description(), true, true);
-	idx = 0;
-	try {
-		while (true) {
-			// FIXME It throws when there are no more data collections.
-			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
-			PVMapped::serialize_read(*new_obj, source);
-		}
-	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
+	int mapped_count;
+	so.attribute("mapped_count", mapped_count);
+	for (int idx = 0; idx < mapped_count; idx++) {
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+		PVMapped::serialize_read(*new_obj, source);
 	}
 
 	return source;

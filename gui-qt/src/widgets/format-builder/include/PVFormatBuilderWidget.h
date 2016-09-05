@@ -69,7 +69,6 @@ class PVFormatBuilderWidget : public QMainWindow
   public:
 	bool openFormat(QString const& path);
 	void openFormat(QDomDocument& doc);
-	PVRush::types_groups_t& getGroups() { return myTreeModel->getGroups(); }
 
   private:
 	int lastSplitterPluginAdding;

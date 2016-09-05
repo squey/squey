@@ -91,7 +91,8 @@ double save_investigation()
 	Inendi::PVAxesCombination& axes_comb =
 	    const_cast<Inendi::PVAxesCombination&>(view->get_axes_combination());
 	axes_comb.sort_by_name();
-	axes_comb.remove_axis(14);
+	std::vector<PVCol> to_remove = {14};
+	axes_comb.remove_axes(to_remove.begin(), to_remove.end());
 
 	auto start = std::chrono::system_clock::now();
 
@@ -220,7 +221,7 @@ double load_investigation()
 	/**
 	 * Check axes
 	 */
-	PV_VALID(view->get_original_axes_names_list().size(), 15);
+	PV_VALID(view->get_axes_combination().get_nraw_names().size(), 15);
 	auto axes = view->get_axes_names_list();
 	PV_VALID(axes.size(), 14);
 	constexpr const char* expected_axes_name[] = {

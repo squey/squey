@@ -13,6 +13,8 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVConfig.h>
 
+#include <inendi/PVSource.h>
+
 #include <pvcop/types/factory.h>
 #include <pvcop/collection.h>
 
@@ -132,7 +134,8 @@ static std::string schema(const Inendi::PVView& view)
 	rapidjson::Value json_axes(rapidjson::kArrayType);
 
 	const Inendi::PVAxesCombination& axis_combination = view.get_axes_combination();
-	for (const Inendi::PVAxis& axis : axis_combination.get_axes_list()) {
+	for (PVCol i : axis_combination.get_combination()) {
+		const PVRush::PVAxisFormat axis = axis_combination.get_axis(i);
 		rapidjson::Value val;
 		rapidjson::Value obj;
 		obj.SetObject();
@@ -210,13 +213,13 @@ class LocalMinesetFormat
 	{
 		PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 
-		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
-		     view.get_axes_combination().get_axes_index_list()) {
+		for (PVRush::PVAxisFormat const& axis :
+		     view.get_parent<Inendi::PVSource>().get_format().get_axes()) {
 			/**
 			 * Convert time to ISO 8601 standard
 			 */
-			if (view.get_axes_combination().get_original_axis(a.get_axis()).get_type() == "time") {
-				auto f = nraw.collection().formatter(a.get_axis());
+			if (axis.get_type() == "time") {
+				auto f = nraw.collection().formatter(axis.index);
 
 				pvcop::collection::formatter_sp formatter_datetime;
 				if (std::string(f->name()) == "datetime") {
@@ -231,8 +234,8 @@ class LocalMinesetFormat
 					    pvcop::types::factory::create("datetime_ms", "yyyy-MM-dd'T'HH:mm:ss.S'Z'"));
 				}
 
-				_datetime_formatters[a.get_axis()] = f;
-				nraw.collection().set_formatter(a.get_axis(), formatter_datetime);
+				_datetime_formatters[axis.index] = f;
+				nraw.collection().set_formatter(axis.index, formatter_datetime);
 			}
 		}
 	}
@@ -301,11 +304,7 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 
 		std::ofstream data_file(dataset_base_path + ".data");
 
-		PVCore::PVColumnIndexes column_indexes;
-		for (const Inendi::PVAxesCombination::axes_comb_id_t& a :
-		     view.get_axes_combination().get_axes_index_list()) {
-			column_indexes.emplace_back(a.get_axis());
-		}
+		PVCore::PVColumnIndexes column_indexes = view.get_axes_combination().get_combination();
 
 		// view.get_rushnraw_parent().export_lines(data_file, sel, column_indexes, 0,
 		//                                        nraw.get_row_count(), "\t" /* = default_sep_char

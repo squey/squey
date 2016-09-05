@@ -20,54 +20,23 @@ namespace PVCore
 class PVSerializeObject;
 class PVSerializeArchiveError;
 
-class PVSerializeArchiveFixError
+class PVSerializeReparaibleError : public std::runtime_error
 {
   public:
-	PVSerializeArchiveFixError(PVSerializeObject& so,
-	                           std::shared_ptr<PVSerializeArchiveError> const& ar_err)
-	    : _so(so), _ar_err(ar_err)
+	PVSerializeReparaibleError(std::string const& what,
+	                           std::string const& path,
+	                           std::string const& value)
+	    : std::runtime_error(what), _path(path), _value(value)
 	{
 	}
 
-  public:
-	void error_fixed();
-	PVSerializeArchiveError const& exception() const { return *_ar_err; }
-
-	template <class T>
-	bool exception_of_type()
-	{
-		return dynamic_cast<typename PVTypeTraits::pointer<T>::type>(_ar_err.get()) != nullptr;
-	}
-
-	template <class T>
-	T* exception_as()
-	{
-		return dynamic_cast<typename PVTypeTraits::pointer<T>::type>(_ar_err.get());
-	}
-
-  protected:
-	PVSerializeObject& _so;
-	std::shared_ptr<PVSerializeArchiveError> _ar_err;
-};
-
-class PVSerializeArchiveFixAttribute : public PVSerializeArchiveFixError
-{
-  public:
-	PVSerializeArchiveFixAttribute(PVSerializeObject& so,
-	                               std::shared_ptr<PVSerializeArchiveError> const& ar_err,
-	                               QString const& attribute)
-	    : PVSerializeArchiveFixError(so, ar_err), _attribute(attribute)
-	{
-	}
-
-  public:
-	void fix(QVariant const& v);
+	std::string const& old_value() const { return _value; }
+	std::string const& logical_path() const { return _path; }
 
   private:
-	QString _attribute;
+	std::string _path;
+	std::string _value;
 };
-
-typedef std::shared_ptr<PVSerializeArchiveFixError> PVSerializeArchiveFixError_p;
 }
 
 #endif

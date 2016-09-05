@@ -25,7 +25,7 @@ PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
  *****************************************************************************/
 
 QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view,
-                                                         PVCol axis_comb,
+                                                         Inendi::PVCombCol axis_comb,
                                                          QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
@@ -47,7 +47,8 @@ QIcon PVDisplays::PVDisplayViewScatter::toolbar_icon() const
  * PVDisplays::PVDisplayViewScatter::widget_title
  *****************************************************************************/
 
-QString PVDisplays::PVDisplayViewScatter::widget_title(Inendi::PVView* view, PVCol axis_comb) const
+QString PVDisplays::PVDisplayViewScatter::widget_title(Inendi::PVView* view,
+                                                       Inendi::PVCombCol axis_comb) const
 {
 	return QString("Scatter view on axes '" + view->get_axis_name(axis_comb) + "' and '" +
 	               view->get_axis_name(axis_comb + 1) + "'");
@@ -58,7 +59,7 @@ QString PVDisplays::PVDisplayViewScatter::widget_title(Inendi::PVView* view, PVC
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewScatter::axis_menu_name(Inendi::PVView const* /*view*/,
-                                                         PVCol /*axis_comb*/
+                                                         Inendi::PVCombCol /*axis_comb*/
                                                          ) const
 {
 	return QString("New scatter view with axis...");

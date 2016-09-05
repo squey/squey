@@ -8,9 +8,12 @@
 #ifndef PVDISPLAYS_PVDISPLAYIF_H
 #define PVDISPLAYS_PVDISPLAYIF_H
 
-#include <pvbase/types.h>
+#include <inendi/PVCombCol.h>
+
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
+
+#include <pvbase/types.h>
 
 #include <QAction>
 #include <QIcon>
@@ -123,8 +126,9 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 		ret = get_value_from_action(action);
 	}
 
-	QAction*
-	action_bound_to_params(value_type* obj, PVCol /*axis_comb*/, QObject* parent = nullptr) const
+	QAction* action_bound_to_params(value_type* obj,
+	                                Inendi::PVCombCol /*axis_comb*/,
+	                                QObject* parent = nullptr) const
 	{
 		QAction* action = new QAction(parent);
 
@@ -189,10 +193,13 @@ class PVDisplayViewAxisIf : public PVDisplayIf
 	struct Params {
 		Params() : view(nullptr), axis_comb(0) {}
 		Params(const Params& o) : view(o.view), axis_comb(o.axis_comb) {}
-		Params(Inendi::PVView* view_, PVCol axis_comb_) : view(view_), axis_comb(axis_comb_) {}
+		Params(Inendi::PVView* view_, Inendi::PVCombCol axis_comb_)
+		    : view(view_), axis_comb(axis_comb_)
+		{
+		}
 
 		Inendi::PVView* view;
-		PVCol axis_comb;
+		Inendi::PVCombCol axis_comb;
 
 		inline bool operator<(Params const& p) const
 		{
@@ -212,32 +219,37 @@ class PVDisplayViewAxisIf : public PVDisplayIf
 	}
 
   public:
-	virtual QString widget_title(Inendi::PVView* /*obj*/, PVCol /*axis_comb*/) const
+	virtual QString widget_title(Inendi::PVView* /*obj*/, Inendi::PVCombCol /*axis_comb*/) const
 	{
 		return QString();
 	}
-	virtual QString axis_menu_name(Inendi::PVView const* /*obj*/, PVCol /*axis_comb*/) const
+	virtual QString axis_menu_name(Inendi::PVView const* /*obj*/,
+	                               Inendi::PVCombCol /*axis_comb*/) const
 	{
 		return QString();
 	}
 
   protected:
-	QWidget* get_unique_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = nullptr);
+	QWidget*
+	get_unique_widget(Inendi::PVView* view, Inendi::PVCombCol axis_comb, QWidget* parent = nullptr);
 
-	inline void
-	get_params_from_action(QAction const& action, Inendi::PVView*& view, PVCol& axis_comb)
+	inline void get_params_from_action(QAction const& action,
+	                                   Inendi::PVView*& view,
+	                                   Inendi::PVCombCol& axis_comb)
 	{
 		Params p = get_params_from_action(action);
 		view = p.view;
 		axis_comb = p.axis_comb;
 	}
 
-	QAction*
-	action_bound_to_params(Inendi::PVView* view, PVCol axis_comb, QObject* parent = nullptr) const;
+	QAction* action_bound_to_params(Inendi::PVView* view,
+	                                Inendi::PVCombCol axis_comb,
+	                                QObject* parent = nullptr) const;
 
   protected:
-	virtual QWidget*
-	create_widget(Inendi::PVView* view, PVCol axis_comb, QWidget* parent = nullptr) const = 0;
+	virtual QWidget* create_widget(Inendi::PVView* view,
+	                               Inendi::PVCombCol axis_comb,
+	                               QWidget* parent = nullptr) const = 0;
 
   private:
 	inline static Params get_params_from_action(QAction const& action)

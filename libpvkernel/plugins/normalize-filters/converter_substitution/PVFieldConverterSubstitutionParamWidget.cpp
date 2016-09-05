@@ -9,7 +9,6 @@
 #include "PVFieldConverterSubstitution.h"
 
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <pvkernel/filter/PVElementFilterByFields.h>
 
 #include <QAction>
 #include <QFileDialog>

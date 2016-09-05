@@ -1076,20 +1076,3 @@ void PVRush::PVXmlTreeNodeDom::setPlottingProperties(QString const& mode,
 	setFromArgumentList(elt_plotting, def_args, args);
 	elt_plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mode);
 }
-
-void PVRush::PVXmlTreeNodeDom::getGroupsByType(types_groups_t& grps)
-{
-	if (type == axis) {
-		QString grp = attribute("group", true);
-		if (grp == "none") {
-			setAttribute("group", "");
-		} else if (!grp.isEmpty()) {
-			QString axis_type = attribute("type", true);
-			grps[axis_type] << grp;
-		}
-	}
-
-	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
-		getChild(ichild)->getGroupsByType(grps);
-	}
-}

@@ -12,11 +12,10 @@
 
 #include <sigc++/sigc++.h>
 
-#include <inendi/PVAxesCombination.h>
-
 #include <pvparallelview/common.h>
 
 #include <map>
+#include <functional>
 
 /* TODO: test if FuncObserver work with inline functions
  *
@@ -38,7 +37,6 @@ class PVSlidersManager
 		ZoomSliderBoth = 3 // 1 + 2
 	} ZoomSliderChange;
 
-	typedef Inendi::PVAxesCombination::axes_comb_id_t axis_id_t;
 	typedef void* id_t;
 
 	struct range_geometry_t {
@@ -46,8 +44,7 @@ class PVSlidersManager
 		int64_t y_max;
 	};
 
-	typedef std::function<void(const axis_id_t, const id_t, const range_geometry_t&)>
-	    range_functor_t;
+	typedef std::function<void(const PVCol, const id_t, const range_geometry_t&)> range_functor_t;
 
   public:
 	/**
@@ -59,15 +56,10 @@ class PVSlidersManager
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void new_selection_sliders(const axis_id_t& axis_id,
-	                           const id_t id,
-	                           const int64_t y_min,
-	                           const int64_t y_max);
-	void new_zoom_sliders(const axis_id_t& axis_id,
-	                      const id_t id,
-	                      const int64_t y_min,
-	                      const int64_t y_max);
-	void new_zoomed_selection_sliders(const axis_id_t& axis_id,
+	void
+	new_selection_sliders(PVCol nraw_col, const id_t id, const int64_t y_min, const int64_t y_max);
+	void new_zoom_sliders(PVCol nraw_col, const id_t id, const int64_t y_min, const int64_t y_max);
+	void new_zoomed_selection_sliders(PVCol nraw_col,
 	                                  const id_t id,
 	                                  const int64_t y_min,
 	                                  const int64_t y_max);
@@ -79,9 +71,9 @@ class PVSlidersManager
 	 * @param axis the axis the slider is associated with
 	 * @param id the id the slider is associated with
 	 */
-	void del_selection_sliders(const axis_id_t& axis_id, const id_t id);
-	void del_zoom_sliders(const axis_id_t& axis_id, const id_t id);
-	void del_zoomed_selection_sliders(const axis_id_t& axis_id, const id_t id);
+	void del_selection_sliders(PVCol nraw_col, const id_t id);
+	void del_zoom_sliders(PVCol nraw_col, const id_t id);
+	void del_zoomed_selection_sliders(PVCol nraw_col, const id_t id);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a
@@ -92,16 +84,16 @@ class PVSlidersManager
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void update_selection_sliders(const axis_id_t& axis_id,
+	void update_selection_sliders(PVCol nraw_col,
 	                              const id_t id,
 	                              const int64_t y_min,
 	                              const int64_t y_max);
-	void update_zoom_sliders(const axis_id_t& axis_id,
+	void update_zoom_sliders(PVCol nraw_col,
 	                         const id_t id,
 	                         const int64_t y_min,
 	                         const int64_t y_max,
 	                         const ZoomSliderChange change);
-	void update_zoomed_selection_sliders(const axis_id_t& axis_id,
+	void update_zoomed_selection_sliders(PVCol nraw_col,
 	                                     const id_t id,
 	                                     const int64_t y_min,
 	                                     const int64_t y_max);
@@ -120,19 +112,19 @@ class PVSlidersManager
 
   private:
 	typedef std::map<id_t, range_geometry_t> range_geometry_list_t;
-	typedef std::map<axis_id_t, range_geometry_list_t> range_geometry_set_t;
+	typedef std::map<PVCol, range_geometry_list_t> range_geometry_set_t;
 
   private:
 	void new_range_sliders(range_geometry_set_t& range,
-	                       const axis_id_t& axis_id,
+	                       PVCol nraw_col,
 	                       const id_t id,
 	                       const int64_t y_min,
 	                       const int64_t y_max);
 
-	void del_range_sliders(range_geometry_set_t& range, const axis_id_t& axis_id, const id_t id);
+	void del_range_sliders(range_geometry_set_t& range, PVCol nraw_col, const id_t id);
 
 	void update_range_sliders(range_geometry_set_t& range,
-	                          const axis_id_t& axis_id,
+	                          PVCol nraw_col,
 	                          const id_t id,
 	                          const int64_t y_min,
 	                          const int64_t y_max);
@@ -141,15 +133,15 @@ class PVSlidersManager
 	                           const range_functor_t& functor) const;
 
   public:
-	sigc::signal<void, axis_id_t, id_t, int64_t, int64_t> _new_zoom_sliders;
-	sigc::signal<void, axis_id_t, id_t, int64_t, int64_t> _new_selection_sliders;
-	sigc::signal<void, axis_id_t, id_t, int64_t, int64_t> _new_zoomed_selection_sliders;
-	sigc::signal<void, axis_id_t, id_t> _del_zoom_sliders;
-	sigc::signal<void, axis_id_t, id_t> _del_selection_sliders;
-	sigc::signal<void, axis_id_t, id_t> _del_zoomed_selection_sliders;
-	sigc::signal<void, axis_id_t, id_t, int64_t, int64_t, ZoomSliderChange> _update_zoom_sliders;
-	sigc::signal<void, axis_id_t, id_t, int64_t, int64_t> _update_selection_sliders;
-	sigc::signal<void, axis_id_t, id_t, int64_t, int64_t> _update_zoomed_selection_sliders;
+	sigc::signal<void, PVCol, id_t, int64_t, int64_t> _new_zoom_sliders;
+	sigc::signal<void, PVCol, id_t, int64_t, int64_t> _new_selection_sliders;
+	sigc::signal<void, PVCol, id_t, int64_t, int64_t> _new_zoomed_selection_sliders;
+	sigc::signal<void, PVCol, id_t> _del_zoom_sliders;
+	sigc::signal<void, PVCol, id_t> _del_selection_sliders;
+	sigc::signal<void, PVCol, id_t> _del_zoomed_selection_sliders;
+	sigc::signal<void, PVCol, id_t, int64_t, int64_t, ZoomSliderChange> _update_zoom_sliders;
+	sigc::signal<void, PVCol, id_t, int64_t, int64_t> _update_selection_sliders;
+	sigc::signal<void, PVCol, id_t, int64_t, int64_t> _update_zoomed_selection_sliders;
 
   private:
 	range_geometry_set_t _zoom_geometries;

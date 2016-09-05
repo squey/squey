@@ -8,6 +8,7 @@
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 
 #include <inendi/PVView.h>
+#include <inendi/PVSource.h>
 
 #include <inendi/widgets/editors/PVOriginalAxisIndexEditor.h>
 
@@ -24,15 +25,6 @@ PVWidgets::PVOriginalAxisIndexEditor::PVOriginalAxisIndexEditor(Inendi::PVView c
 
 /******************************************************************************
  *
- * PVWidgets::PVOriginalAxisIndexEditor::~PVOriginalAxisIndexEditor
- *
- *****************************************************************************/
-PVWidgets::PVOriginalAxisIndexEditor::~PVOriginalAxisIndexEditor()
-{
-}
-
-/******************************************************************************
- *
  * PVWidgets::PVOriginalAxisIndexEditor::set_axis_index
  *
  *****************************************************************************/
@@ -40,7 +32,7 @@ void PVWidgets::PVOriginalAxisIndexEditor::set_axis_index(
     PVCore::PVOriginalAxisIndexType axis_index)
 {
 	clear();
-	addItems(_view.get_original_axes_names_list());
+	addItems(_view.get_axes_combination().get_nraw_names());
 	setCurrentIndex(axis_index.get_original_index());
 }
 

@@ -11,7 +11,6 @@
 #include <sigc++/sigc++.h>
 
 #include <inendi/PVView.h>
-#include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
@@ -179,7 +178,6 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
   private:
 	Inendi::PVView& _pvview;
 	PVCol _axis_index;
-	Inendi::PVAxesCombination::axes_comb_id_t _axis_id;
 	QTimer _update_all_timer;
 
 	PVHitGraphBlocksManager _hit_graph_manager;

@@ -13,6 +13,11 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 
+namespace Inendi
+{
+class PVView;
+}
+
 namespace PVGuiQt
 {
 

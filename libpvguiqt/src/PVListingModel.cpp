@@ -59,7 +59,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	}
 
 	// Axis may have been duplicated and moved, get the real one.
-	const PVCol org_col = _view.get_original_axis_index(index.column());
+	const PVCol org_col = _view.get_axes_combination().get_nraw_axis(index.column());
 	const PVRow r = rowIndex(index);
 
 	if (r >= _view.get_row_count()) {
@@ -174,7 +174,7 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 		const Inendi::PVRoot& root = _view.get_parent<Inendi::PVRoot>();
 		const Inendi::PVCorrelation* correlation = root.correlations().correlation(&_view);
 
-		PVCol col1 = _view.get_original_axis_index(section);
+		PVCol col1 = _view.get_axes_combination().get_nraw_axis(section);
 
 		if (correlation and correlation->col1 == col1) {
 			const QString orig_source =
@@ -182,8 +182,7 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 			const QString& orig_axis = _view.get_axis_name(section);
 			const QString dest_source = QString::fromStdString(
 			    correlation->view2->get_parent<Inendi::PVSource>().get_name());
-			const QString& dest_axis =
-			    correlation->view2->get_original_axis_name(correlation->col2);
+			const QString& dest_axis = correlation->view2->get_nraw_axis_name(correlation->col2);
 
 			return "Active correlation :\n" + orig_source + /*" / " + orig_view +*/ " (" +
 			       orig_axis + ")" + " -> " + dest_source + /*" / " + dest_view +*/ " (" +
@@ -236,7 +235,7 @@ void PVGuiQt::PVListingModel::sort_on_col(PVCol comb_col,
                                           Qt::SortOrder order,
                                           tbb::task_group_context& ctxt)
 {
-	PVCol orig_col = _view.get_original_axis_index(comb_col);
+	PVCol orig_col = _view.get_axes_combination().get_nraw_axis(comb_col);
 	_view.sort_indexes(orig_col, _display.sorting(), &ctxt);
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(comb_col, order); // set Qt sort indicator

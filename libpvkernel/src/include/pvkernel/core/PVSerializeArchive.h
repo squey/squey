@@ -31,7 +31,6 @@ class PVSerializeArchive
   public:
 	enum archive_mode { read = 0, write };
 	typedef uint32_t version_t;
-	typedef QList<std::shared_ptr<PVSerializeArchiveFixError>> list_errors_t;
 
   public:
 	PVSerializeArchive(version_t version);
@@ -48,10 +47,12 @@ class PVSerializeArchive
 	void set_save_everything(bool save_everything) { _save_everything = save_everything; };
 
 	// Repairable errors
-	inline bool has_repairable_errors() const { return _repairable_errors.size() > 0; }
-	inline list_errors_t const& get_repairable_errors() const { return _repairable_errors; }
-	template <class T>
-	list_errors_t get_repairable_errors_of_type() const;
+	void set_repaired_value(std::string const& path, std::string const& value)
+	{
+		_repaired = std::make_pair(path, value);
+	}
+	std::string const& get_repaired_path() const { return _repaired.first; }
+	std::string const& get_repaired_value() const { return _repaired.second; }
 
   protected:
 	bool is_writing() const { return _mode == write; }
@@ -87,10 +88,6 @@ class PVSerializeArchive
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
 	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
 
-	// Called by PVSerializeObject
-	void repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error);
-	void error_fixed(PVSerializeArchiveFixError* error);
-
   private:
 	void init();
 	void create_attributes(PVSerializeObject const& so);
@@ -109,27 +106,11 @@ class PVSerializeArchive
 	QHash<QString, PVSerializeObject_p> _objects;
 
   private:
+	std::pair<std::string, std::string> _repaired; //!< Saved repaired value (path, value)
+
 	std::shared_ptr<PVSerializeArchiveOptions> _options;
 	bool _save_everything;
-
-	/*! \brief List of the declared repairable errors.
-	 *  \sa repairable_error
-	 */
-	list_errors_t _repairable_errors;
 };
-
-template <class T>
-PVSerializeArchive::list_errors_t PVSerializeArchive::get_repairable_errors_of_type() const
-{
-	list_errors_t ret;
-	list_errors_t::const_iterator it;
-	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
-		if ((*it)->exception_of_type<T>()) {
-			ret.push_back(*it);
-		}
-	}
-	return ret;
-}
 }
 
 #endif

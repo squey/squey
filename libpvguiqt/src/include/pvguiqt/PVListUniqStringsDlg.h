@@ -12,6 +12,8 @@
 
 #include <pvguiqt/PVStatsModel.h>
 
+#include <inendi/PVCombCol.h>
+
 #include <pvcop/db/array.h>
 
 namespace PVGuiQt
@@ -21,7 +23,7 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 {
   public:
 	PVListUniqStringsDlg(Inendi::PVView& view,
-	                     PVCol c,
+	                     Inendi::PVCombCol c,
 	                     pvcop::db::array col1,
 	                     pvcop::db::array col2,
 	                     double abs_max,

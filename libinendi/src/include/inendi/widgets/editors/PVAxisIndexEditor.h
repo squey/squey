@@ -30,7 +30,6 @@ class PVAxisIndexEditor : public QComboBox
 
   public:
 	PVAxisIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
-	virtual ~PVAxisIndexEditor();
 
   public:
 	PVCore::PVAxisIndexType get_axis_index() const;

@@ -38,9 +38,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	friend class draw_zone_sel_Observer;
 
   public:
-	typedef PVSlidersManager::axis_id_t axis_id_t;
-
-  public:
 	PVFullParallelScene(PVFullParallelView* full_parallel_view,
 	                    Inendi::PVView& view_sp,
 	                    PVParallelView::PVSlidersManager* sm_p,
@@ -106,7 +103,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void update_all();
 	void update_number_of_zones();
 	void toggle_unselected_zombie_visibility();
-	void axis_hover_entered(PVCol col, bool entered);
+	void axis_hover_entered(Inendi::PVCombCol col, bool entered);
 
   private:
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -158,14 +155,14 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void update_zone_pixmap_bgsel(int zone_id);
 	void scale_zone_images(PVZoneID zone_id);
 
-	void update_selection_from_sliders_Slot(axis_id_t axis_id);
+	void update_selection_from_sliders_Slot(PVCol nraw_col);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 
 	void highlight_axis(int col, bool entered);
 	void sync_axis_with_section(size_t col, size_t pos);
 
-	void emit_new_zoomed_parallel_view(int axis_index)
+	void emit_new_zoomed_parallel_view(Inendi::PVCombCol axis_index)
 	{
 		Q_EMIT _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}

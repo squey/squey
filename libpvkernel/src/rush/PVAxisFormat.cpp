@@ -22,7 +22,6 @@
 
 PVRush::PVAxisFormat::PVAxisFormat(PVCol index) : index(index)
 {
-	unique_id_computed = false;
 }
 
 void PVRush::PVAxisFormat::set_color(QString str)
@@ -68,14 +67,4 @@ void PVRush::PVAxisFormat::set_type(QString str)
 void PVRush::PVAxisFormat::set_type_format(QString str)
 {
 	type_format = str;
-}
-
-void PVRush::PVAxisFormat::compute_unique_id(QVector<uint32_t> const& tree_ids)
-{
-	unique_id.clear();
-	QVector<uint32_t>::const_iterator it;
-	for (it = tree_ids.begin(); it != tree_ids.end(); it++) {
-		unique_id.push(*it);
-	}
-	unique_id_computed = true;
 }

@@ -212,6 +212,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 		scene->serialize_write(*new_obj);
 		new_obj->set_bound_obj(*scene);
 	}
+	so.attribute("scene_count", idx);
 };
 
 void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
@@ -219,16 +220,10 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
-	int idx = 0;
-	try {
-		while (true) {
-			// FIXME It throws when there are no more data collections.
-			// It should not be an exception as it is a normal behavior.
-			PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			PVScene::serialize_read(*new_obj, *this);
-			idx++;
-		}
-	} catch (PVCore::PVSerializeArchiveErrorNoObject const&) {
-		return;
+	int scene_count;
+	so.attribute("scene_count", scene_count);
+	for (int idx = 0; idx < scene_count; idx++) {
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+		PVScene::serialize_read(*new_obj, *this);
 	}
 }

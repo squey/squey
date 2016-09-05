@@ -87,8 +87,6 @@ void PVQueryBuilderJsonConverter::parse_node(rapidjson::Value const& obj)
 	    {"contains", CONTAINS},
 	    {"not_ends_with", NOT_ENDS_WITH},
 	    {"ends_with", ENDS_WITH},
-	    {"is_null", IS_NULL},
-	    {"is_not_null", IS_NOT_NULL},
 	    {"is_empty", IS_EMPTY},
 	    {"is_not_empty", IS_NOT_EMPTY},
 	    {"less", LESS},
@@ -133,12 +131,6 @@ void PVQueryBuilderJsonConverter::parse_node(rapidjson::Value const& obj)
 		break;
 	case ENDS_WITH:
 		suffix(obj["id"], obj["value"]);
-		break;
-	case IS_NULL:
-		is_null(obj["id"]);
-		break;
-	case IS_NOT_NULL:
-		not_<PVQueryBuilderJsonConverter>(&PVQueryBuilderJsonConverter::is_null, obj["id"]);
 		break;
 	case IS_EMPTY:
 		is_empty(obj["id"]);

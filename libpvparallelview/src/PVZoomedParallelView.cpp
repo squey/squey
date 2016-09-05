@@ -51,7 +51,7 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
 PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
 {
 	if (get_scene()) {
-		get_scene()->deleteLater();
+		delete get_scene();
 	}
 }
 

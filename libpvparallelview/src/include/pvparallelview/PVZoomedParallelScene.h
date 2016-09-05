@@ -412,15 +412,13 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	void toggle_unselected_zombie_visibility();
 
   private:
-	typedef PVParallelView::PVSlidersManager::axis_id_t axis_id_t;
-
-	void on_zoom_sliders_update(axis_id_t axis_id,
+	void on_zoom_sliders_update(PVCol nraw_col,
 	                            PVSlidersManager::id_t id,
 	                            int64_t y_min,
 	                            int64_t y_max,
 	                            PVSlidersManager::ZoomSliderChange change);
-	void on_zoom_sliders_del(axis_id_t axis_id, PVSlidersManager::id_t id);
-	void on_zoomed_sel_sliders_del(axis_id_t axis_id, PVSlidersManager::id_t id);
+	void on_zoom_sliders_del(PVCol nraw_col, PVSlidersManager::id_t id);
+	void on_zoomed_sel_sliders_del(PVCol nraw_col, PVSlidersManager::id_t id);
 
   private:
 	/**
@@ -494,8 +492,8 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	Inendi::PVView& _pvview;
 	PVSlidersManager* _sliders_manager_p;
 	PVSlidersGroup* _sliders_group;
-	PVCol _axis_index;
-	axis_id_t _axis_id;
+	PVCol _axis_index; // This is comb_col
+	PVCol _nraw_col;
 	PVZonesManager const& _zm;
 
 	// this flag helps not killing twice through the hive and the destructor

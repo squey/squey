@@ -320,14 +320,6 @@ void PVParallelView::PVScatterView::do_update_all()
 	_sel_rect->set_handles_scale(1. / get_transform().m11(), 1. / get_transform().m22());
 
 	if (get_y_axis_zoom().get_clamped_value() < zoom_min) {
-		/*y1_min = 0;
-		y1_max = 0xFFFFFFFF;
-		y2_min = 0;
-		y2_max = 0xFFFFFFFF;
-		zoom = 1;
-		alpha = 0.5;
-		_last_image_margined_viewport = QRectF(0.0, 0.0,
-		1<<(PARALLELVIEW_ZZT_BBITS-1), 1<<(PARALLELVIEW_ZZT_BBITS-1));*/
 		get_viewport()->update();
 		return;
 	}
@@ -354,7 +346,7 @@ void PVParallelView::PVScatterView::do_update_all()
 
 bool PVParallelView::PVScatterView::update_zones()
 {
-	PVCol new_zone = lib_view().get_axes_combination().get_index_by_id(_axis_id);
+	PVCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
 	if (new_zone == PVCOL_INVALID_VALUE) {
 		// The left axis of the view have been remove, close the scatter view
 		return false;
@@ -372,7 +364,7 @@ bool PVParallelView::PVScatterView::update_zones()
 
 void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
-	_axis_id = lib_view().get_axes_combination().get_axes_comb_id(zid);
+	_nraw_col = lib_view().get_axes_combination().get_nraw_axis(zid);
 	get_images_manager().set_zone(zid);
 	PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
 	_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);

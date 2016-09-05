@@ -53,7 +53,6 @@ class PVSerializeObject
 {
 	friend class PVSerializeArchive;
 	friend class PVSerializeArchiveFixError;
-	friend class PVSerializeArchiveFixAttribute;
 
   public:
 	typedef std::shared_ptr<PVSerializeObject> p_type;
@@ -101,7 +100,6 @@ class PVSerializeObject
 	QString const& get_logical_path() const;
 	PVSerializeObject* parent();
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
-	bool has_repairable_errors() const;
 
   public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
@@ -208,14 +206,7 @@ class PVSerializeObject
 	 */
 	void file(QString const& name, QString& path);
 
-	/*! \brief Declare an error in the archive (while reading it) that can be repaired by further
-	 * user actions.
-	 */
-	void repairable_error(std::shared_ptr<PVSerializeArchiveFixError> const& error);
-
   protected:
-	void error_fixed(PVSerializeArchiveFixError* error);
-	void fix_attribute(QString const& name, QVariant const& obj);
 	inline const void* bound_obj() const { return _bound_obj; }
 
   public:
@@ -234,6 +225,9 @@ class PVSerializeObject
 	uint32_t get_version() const;
 
 	void attribute_write(QString const& name, QVariant const& obj);
+
+	bool is_repaired_error() const;
+	std::string const& get_repaired_value() const;
 
   private:
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);

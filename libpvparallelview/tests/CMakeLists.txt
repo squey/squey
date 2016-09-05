@@ -12,8 +12,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
 set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
-QT5_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h)
-
 add_pv_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp)
 add_pv_compile_test(Pqt-extract-sse LINKS ${LINK_LIBRARIES} FILES qt-extract-sse.cpp)
 add_pv_compile_test(Tquadtree_impl LINKS ${LINK_LIBRARIES} FILES quadtree_impl.cpp)

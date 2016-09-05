@@ -105,12 +105,6 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 */
 	void is_empty(rapidjson::Value const& id);
 
-	/** Generate is_null json
-	 *
-	 * @todo : not implemented
-	 */
-	void is_null(rapidjson::Value const& id);
-
 	/** Generate less json
 	 *
 	 * {"range": {"id": {"lt" : "value"}}}

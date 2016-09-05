@@ -10,6 +10,8 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
+#include <inendi/PVCombCol.h>
+
 #include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVStatsModel.h>
 
@@ -44,7 +46,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
   public:
 	PVAbstractListStatsDlg(Inendi::PVView& view,
-	                       PVCol c,
+	                       Inendi::PVCombCol c,
 	                       PVStatsModel* model,
 	                       QWidget* parent = nullptr);
 
@@ -102,7 +104,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
   protected:
 	Inendi::PVView* _view;
-	PVCol _col;
+	Inendi::PVCombCol _col;
 
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;

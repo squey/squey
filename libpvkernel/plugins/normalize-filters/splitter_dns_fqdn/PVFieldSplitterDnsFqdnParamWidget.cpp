@@ -8,7 +8,6 @@
 #include "PVFieldSplitterDnsFqdnParamWidget.h"
 #include "PVFieldSplitterDnsFqdn.h"
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <pvkernel/filter/PVElementFilterByFields.h>
 
 #include <QLabel>
 #include <QGridLayout>

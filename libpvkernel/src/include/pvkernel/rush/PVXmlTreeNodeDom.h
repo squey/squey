@@ -34,8 +34,6 @@
 namespace PVRush
 {
 
-typedef QHash<QString, QSet<QString>> types_groups_t;
-
 class PVXmlTreeNodeDom : public QObject
 {
 	Q_OBJECT
@@ -275,8 +273,6 @@ class PVXmlTreeNodeDom : public QObject
 	bool hasAxisAsChild();
 
 	PVCol setAxesNames(QStringList const& names, PVCol id);
-
-	void getGroupsByType(types_groups_t& grps);
 
 	void setMappingProperties(QString const& mode,
 	                          PVCore::PVArgumentList const& def_args,

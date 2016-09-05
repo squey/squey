@@ -27,8 +27,6 @@ namespace PVParallelView
 
 class PVAxisGraphicsItem;
 
-class PVSlidersGroup;
-
 class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 {
 	Q_OBJECT
@@ -38,7 +36,7 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 	           depend of the client's windows settings. */
 
   public:
-	PVAxisLabel(const Inendi::PVView& view, PVSlidersGroup* sg, QGraphicsItem* parent = nullptr);
+	PVAxisLabel(const Inendi::PVView& view, QGraphicsItem* parent = nullptr);
 
 	virtual ~PVAxisLabel();
 
@@ -59,7 +57,6 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 
   private:
 	const Inendi::PVView& _lib_view;
-	PVSlidersGroup* _sliders_group;
 	int _bounding_box_width = 0;
 };
 }

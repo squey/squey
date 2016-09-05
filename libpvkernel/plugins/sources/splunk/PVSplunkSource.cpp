@@ -14,6 +14,8 @@
 #include "PVSplunkSource.h"
 #include "../../common/splunk/PVSplunkQuery.h"
 
+#include <sstream>
+
 PVRush::PVSplunkSource::PVSplunkSource(PVInputDescription_p input)
     : PVRawSourceBase()
     , _next_index(0)

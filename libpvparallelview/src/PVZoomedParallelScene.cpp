@@ -63,6 +63,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
     , _pvview(pvview_sp)
     , _sliders_manager_p(sliders_manager_p)
     , _axis_index(axis_index)
+    , _nraw_col(_pvview.get_axes_combination().get_nraw_axis(_axis_index))
     , _zm(zm)
     , _pending_deletion(false)
     , _left_zone(nullptr)
@@ -99,9 +100,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 
 	connect(_zpview->params_widget(), SIGNAL(change_to_col(int)), this, SLOT(change_to_col(int)));
 
-	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
-
-	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
+	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _nraw_col);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 
@@ -150,7 +149,7 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 
 	if (_pending_deletion == false) {
 		_pending_deletion = true;
-		_sliders_manager_p->del_zoom_sliders(_axis_id, _sliders_group);
+		_sliders_manager_p->del_zoom_sliders(_nraw_col, _sliders_group);
 	}
 
 	if (_sliders_group) {
@@ -350,39 +349,18 @@ void PVParallelView::PVZoomedParallelScene::update(const QRectF& rect)
 
 bool PVParallelView::PVZoomedParallelScene::update_zones()
 {
-	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axis_id);
+	PVCol axis = _pvview.get_axes_combination().get_first_comb_col(_nraw_col);
 
 	if (axis == PVCOL_INVALID_VALUE) {
-		if (_axis_index > get_zones_manager().get_number_of_managed_zones()) {
-			/* a candidate can not be found to replace the old
-			 * axis; the zoom view must be closed.
-			 */
-			return false;
-		}
-
-		/* the axis does not exist anymore, the one with the
-		 * same index is used instead
+		/* a candidate can not be found to replace the old
+		 * axis; the zoom view must be closed.
 		 */
-		_axis_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
-
-		// it's more simple to delete and recreate the sliders group
-		removeItem(_sliders_group);
-		_sliders_group->delete_own_zoom_slider();
-		delete _sliders_group;
-
-		_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
-		_sliders_group->setPos(0., 0.);
-		_sliders_group->add_zoom_sliders(0, 1024);
-
-		// the sliders must be over all other QGraphicsItems
-		_sliders_group->setZValue(1.e42);
-
-		addItem(_sliders_group);
-	} else {
-		/* the axes has only been moved, nothing special to do.
-		*/
-		_axis_index = axis;
+		return false;
 	}
+
+	/* the axes has only been moved, nothing special to do.
+	*/
+	_axis_index = axis;
 
 	configure_axis();
 
@@ -396,13 +374,13 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 void PVParallelView::PVZoomedParallelScene::change_to_col(int index)
 {
 	_axis_index = index;
-	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(index);
+	_nraw_col = _pvview.get_axes_combination().get_nraw_axis(index);
 
 	removeItem(_sliders_group);
 	_sliders_group->delete_own_zoom_slider();
 	delete _sliders_group;
 
-	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_id);
+	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _nraw_col);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 
@@ -447,8 +425,7 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 
 	/* have a coherent param widget
 	 */
-	_zpview->params_widget()->build_axis_menu(_axis_index,
-	                                          _pvview.get_axes_combination().get_axes_names_list());
+	_zpview->params_widget()->build_axis_menu(_axis_index, _pvview.get_axes_names_list());
 
 	/* the zones
 	 */
@@ -557,7 +534,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	uint64_t y_max =
 	    PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height, 0ULL, y_lim);
 
-	_sliders_manager_p->update_zoom_sliders(_axis_id, _sliders_group, y_min, y_max,
+	_sliders_manager_p->update_zoom_sliders(_nraw_col, _sliders_group, y_min, y_max,
 	                                        PVParallelView::PVSlidersManager::ZoomSliderNone);
 	_last_y_min = y_min;
 	_last_y_max = y_max;
@@ -929,7 +906,7 @@ void PVParallelView::PVZoomedParallelScene::cancel_and_wait_all_rendering()
  *****************************************************************************/
 
 void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
-    axis_id_t axis_id,
+    PVCol nraw_col,
     PVSlidersManager::id_t id,
     int64_t y_min,
     int64_t y_max,
@@ -939,7 +916,7 @@ void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
 		return;
 	}
 
-	if ((axis_id == _axis_id) && (id == _sliders_group)) {
+	if ((nraw_col == _nraw_col) && (id == _sliders_group)) {
 		if (y_max < y_min) {
 			std::swap(y_min, y_max);
 		}
@@ -979,10 +956,10 @@ void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
  * PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del(axis_id_t axis_id,
+void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del(PVCol nraw_col,
                                                                 PVSlidersManager::id_t id)
 {
-	if ((axis_id == _axis_id) && (id == _sliders_group)) {
+	if ((nraw_col == _nraw_col) && (id == _sliders_group)) {
 		if (_pending_deletion == false) {
 			_pending_deletion = true;
 			if (_zpview != nullptr) {
@@ -996,10 +973,10 @@ void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del(axis_id_t axis_i
  * PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del(axis_id_t axis_id,
+void PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del(PVCol nraw_col,
                                                                       PVSlidersManager::id_t /*id*/)
 {
-	if (axis_id == _axis_id) {
+	if (nraw_col == _nraw_col) {
 		_selection_sliders = nullptr;
 		if (_zpview != nullptr) {
 			_zpview->get_viewport()->update();

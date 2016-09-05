@@ -18,8 +18,6 @@
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVRenderingJob.h>
 
-#include <boost/utility.hpp>
-
 // Forward declarations
 namespace Inendi
 {
@@ -35,20 +33,18 @@ namespace __impl
 class ZoneCreation;
 }
 
-class PVZonesManager : public QObject, boost::noncopyable
+class PVZonesManager : public QObject
 {
 	friend class PVParallelView::__impl::ZoneCreation;
 
   public:
 	explicit PVZonesManager(Inendi::PVView const& view);
+	PVZonesManager(PVZonesManager const&) = delete;
 
   public:
-	typedef Inendi::PVAxesCombination::axes_comb_id_t axes_comb_id_t;
-	typedef Inendi::PVAxesCombination::columns_indexes_t columns_indexes_t;
-
 	void update_all();
 	void reset_axes_comb();
-	std::vector<PVZoneID> update_from_axes_comb(columns_indexes_t const& ac);
+	std::vector<PVZoneID> update_from_axes_comb(std::vector<PVCol> const& ac);
 	std::vector<PVZoneID> update_from_axes_comb(Inendi::PVView const& view);
 	void update_zone(PVZoneID zone);
 	void reverse_zone(PVZoneID zone);
@@ -101,17 +97,18 @@ class PVZonesManager : public QObject, boost::noncopyable
 	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
 		return {get_row_count(), Inendi::PVPlotted::get_plotted_col_addr(
-		                             *_uint_plotted, get_row_count(), _axes_comb[z].get_axis()),
+		                             *_uint_plotted, get_row_count(), _axes_comb[z]),
 		        Inendi::PVPlotted::get_plotted_col_addr(*_uint_plotted, get_row_count(),
-		                                                _axes_comb[z + 1].get_axis())};
+		                                                _axes_comb[z + 1])};
 	}
 
   protected:
 	Inendi::PVPlotted::uint_plotted_table_t const* _uint_plotted =
-	    nullptr;                  // FIXME : This is a duplication, it should get it from view
-	PVRow _nrows = 0;             // FIXME : This is a duplication, it should get it from view
-	PVCol _ncols = 0;             // FIXME : This is a duplication, it should get it from view
-	columns_indexes_t _axes_comb; // FIXME : This is a duplication, it should get it from view
+	    nullptr;                   // FIXME : This is a duplication, it should get it from view
+	PVRow _nrows = 0;              // FIXME : This is a duplication, it should get it from view
+	PVCol _ncols = 0;              // FIXME : This is a duplication, it should get it from view
+	std::vector<PVCol> _axes_comb; // FIXME : This is a duplication, it should get it from view
+	// _axes_comb is copied to handle update once the axes_combination have been update in the view.
 	std::vector<PVZone> _zones;
 };
 }

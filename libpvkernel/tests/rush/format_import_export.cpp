@@ -51,6 +51,12 @@ int main(int argc, char** argv)
 
 #ifndef INSPECTOR_BENCH
 	const char* output_file = argv[2];
+
+	if (env._nraw.get_valid_row_count() == 0) {
+		PV_VALID(std::string(output_file), std::string("null"));
+		return 0;
+	}
+
 	std::string output_tmp_file = pvtest::get_tmp_filename();
 
 	// Dump the NRAW to file and check value is the same

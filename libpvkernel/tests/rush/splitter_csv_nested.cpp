@@ -8,7 +8,6 @@
 #include <chrono>
 
 #include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/inendi_assert.h>
 

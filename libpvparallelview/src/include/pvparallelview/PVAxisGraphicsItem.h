@@ -53,7 +53,6 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
   public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
-	typedef PVSlidersManager::axis_id_t axis_id_t;
 
 	// Used to draw the axis out of the image zone
 	constexpr static int axis_extend = 8;
@@ -61,7 +60,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
   public:
 	PVAxisGraphicsItem(PVSlidersManager* sm_p,
 	                   Inendi::PVView const& view,
-	                   const axis_id_t& axis_id,
+	                   Inendi::PVCombCol comb_col,
 	                   PVRush::PVAxisFormat const& axis_fmt);
 	~PVAxisGraphicsItem();
 
@@ -79,18 +78,15 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	const PVSlidersGroup* get_sliders_group() const { return _sliders_group; }
 
-	const axis_id_t get_axis_id() const { return _axis_id; }
-
-	PVCol get_combined_axis_column() const
+	Inendi::PVCombCol get_combined_axis_column() const
 	{
-		return _lib_view.get_axes_combination().get_index_by_id(_axis_id);
+		// FIXME (pbrunet) : _comb_col is use only here to get data from PVView
+		// but all PVView call convert back comb_col to nraw_col so we should only
+		// need nraw_col stored in _axis_fmt.index
+		return _comb_col;
 	}
 
-	PVCol get_original_axis_column() const
-	{
-		return _lib_view.get_axes_combination().get_axis_column_index(
-		    _lib_view.get_axes_combination().get_index_by_id(_axis_id));
-	}
+	PVCol get_original_axis_column() const { return _axis_fmt.index; }
 
 	QRectF get_top_decoration_scene_bbox() const;
 	QRectF get_bottom_decoration_scene_bbox() const;
@@ -119,15 +115,18 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	QColor get_title_color() const { return _axis_fmt.get_titlecolor().toQColor(); }
 
   public Q_SLOTS:
-	void emit_new_zoomed_parallel_view(int axis_id) { Q_EMIT new_zoomed_parallel_view(axis_id); }
+	void emit_new_zoomed_parallel_view(Inendi::PVCombCol comb_col)
+	{
+		Q_EMIT new_zoomed_parallel_view(comb_col);
+	}
 
   protected:
 	void show_tooltip(QGraphicsTextItem* gti, QGraphicsSceneHelpEvent* event) const;
 
   Q_SIGNALS:
-	void new_zoomed_parallel_view(int axis_id);
-	void mouse_hover_entered(PVCol axis, bool entered);
-	void mouse_clicked(PVCol axis);
+	void new_zoomed_parallel_view(Inendi::PVCombCol comb_col);
+	void mouse_hover_entered(Inendi::PVCombCol axis, bool entered);
+	void mouse_clicked(Inendi::PVCombCol axis);
 
   private:
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
@@ -139,7 +138,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
   private:
 	PVSlidersManager* _sliders_manager_p;
-	axis_id_t _axis_id;
+	Inendi::PVCombCol _comb_col;
 	PVRush::PVAxisFormat const& _axis_fmt;
 	QRectF _bbox;
 	Inendi::PVView const& _lib_view;
