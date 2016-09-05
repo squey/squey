@@ -69,6 +69,7 @@ include_directories(AFTER "src/third_party/uchardetect")
 
 add_subdirectory(src)
 add_subdirectory(plugins)
+add_subdirectory(tools)
 
 set(PVKERNEL_PLUGINS_LIST ${PLUGINS_LIST})
 

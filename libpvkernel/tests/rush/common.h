@@ -74,6 +74,10 @@ __attribute__((constructor)) void init_ctxt()
  */
 std::string duplicate_log_file(std::string const& log_file, size_t dup)
 {
+	if (dup == 1) {
+		return log_file;
+	}
+
 	std::ifstream ifs(log_file);
 	std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
@@ -97,10 +101,15 @@ class TestSplitter
 	TestSplitter(std::string const& log_file, size_t dup = 1)
 	    : _big_file_path(duplicate_log_file(log_file, dup))
 	    , _source(std::make_shared<PVRush::PVInputFile>(_big_file_path.c_str()), chunk_size)
+	    , _need_cleanup(dup > 1)
 	{
 	}
 
-	~TestSplitter() { std::remove(_big_file_path.c_str()); }
+	~TestSplitter()
+	{
+		if (_need_cleanup)
+			std::remove(_big_file_path.c_str());
+	}
 
 	std::tuple<size_t, size_t, std::string>
 	run_normalization(PVFilter::PVChunkFilterByElt const& flt_f)
@@ -154,6 +163,7 @@ class TestSplitter
 
 	std::string _big_file_path;
 	PVRush::PVUnicodeSource<> _source;
+	bool _need_cleanup;
 };
 
 /**
@@ -176,6 +186,7 @@ class TestEnv
 	        std::string const& extra_input = "")
 	    : _format("format", QString::fromStdString(format_file))
 	    , _big_file_path(duplicate_log_file(log_file, dup))
+	    , _need_cleanup(dup > 1)
 	{
 
 		if (dup != 1 and extra_input != "") {
@@ -209,7 +220,11 @@ class TestEnv
 	/**
 	 * Clean up duplicated file when it is over.
 	 */
-	~TestEnv() { std::remove(_big_file_path.c_str()); }
+	~TestEnv()
+	{
+		if (_need_cleanup)
+			std::remove(_big_file_path.c_str());
+	}
 
 	/**
 	 * Get number of row in the imported NRaw.
@@ -223,6 +238,7 @@ class TestEnv
 
   private:
 	std::string _big_file_path;
+	bool _need_cleanup;
 };
 }
 
