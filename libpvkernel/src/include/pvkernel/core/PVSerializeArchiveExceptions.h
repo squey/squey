@@ -23,22 +23,6 @@ class PVSerializeArchiveErrorNoObject : public PVSerializeArchiveError
 {
 	using PVSerializeArchiveError::PVSerializeArchiveError;
 };
-
-class PVSerializeArchiveErrorFileNotReadable : public PVSerializeArchiveError
-{
-  public:
-	PVSerializeArchiveErrorFileNotReadable(std::string const& path)
-	    : PVSerializeArchiveError("File " + path + " does not exist or is not readable.")
-	    , _path(path)
-	{
-	}
-
-  public:
-	std::string const& get_path() const { return _path; }
-
-  protected:
-	std::string _path;
-};
 }
 
 #endif

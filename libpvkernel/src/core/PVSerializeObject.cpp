@@ -46,6 +46,16 @@ PVCore::PVSerializeArchive::version_t PVCore::PVSerializeObject::get_version() c
 	return _parent_ar->get_version();
 }
 
+bool PVCore::PVSerializeObject::is_repaired_error() const
+{
+	return get_logical_path().toStdString() == _parent_ar->get_repaired_path();
+}
+
+std::string const& PVCore::PVSerializeObject::get_repaired_value() const
+{
+	return _parent_ar->get_repaired_value();
+}
+
 size_t PVCore::PVSerializeObject::buffer(QString const& name, void* buf, size_t n)
 {
 	return _parent_ar->buffer(*this, name, buf, n);
@@ -54,13 +64,6 @@ size_t PVCore::PVSerializeObject::buffer(QString const& name, void* buf, size_t 
 void PVCore::PVSerializeObject::file(QString const& name, QString& path)
 {
 	_parent_ar->file(*this, name, path);
-}
-
-void PVCore::PVSerializeObject::fix_attribute(QString const& name, QVariant const& obj)
-{
-	if (!is_writing()) {
-		attribute_write(name, obj);
-	}
 }
 
 void PVCore::PVSerializeObject::attribute_write(QString const& name, QVariant const& obj)
@@ -172,20 +175,4 @@ void PVCore::PVSerializeObject::arguments(QString const& name,
 	} else {
 		hash_arguments_read(name, obj, def_args);
 	}
-}
-
-void PVCore::PVSerializeObject::repairable_error(
-    std::shared_ptr<PVSerializeArchiveFixError> const& error)
-{
-	_parent_ar->repairable_error(error);
-}
-
-void PVCore::PVSerializeObject::error_fixed(PVSerializeArchiveFixError* error)
-{
-	_parent_ar->error_fixed(error);
-}
-
-bool PVCore::PVSerializeObject::has_repairable_errors() const
-{
-	return _parent_ar->has_repairable_errors();
 }

@@ -474,6 +474,17 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 			err_msg = tr("Error while loading solution %1:\n%2")
 			              .arg(file)
 			              .arg(QString::fromStdString(e.what()));
+		} catch (PVCore::PVSerializeReparaibleError const& e) {
+			QMessageBox::warning(this, tr("Error while loading project %1:\n").arg(file), e.what());
+			QString old_path = QString::fromStdString(e.old_value());
+			QString new_file =
+			    QFileDialog::getOpenFileName(this, tr("Select new file path..."), old_path);
+			if (new_file.isEmpty()) {
+				return false;
+			}
+			ar->set_repaired_value(e.logical_path(), new_file.toStdString());
+			reset_root();
+			continue;
 		} catch (...) {
 			err_msg = tr("Fatal error while loading solution %1:\n unhandled error(s).").arg(file);
 		}
@@ -483,22 +494,6 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 			                    err_msg, QMessageBox::Ok, this);
 			box->exec();
 			return false;
-		}
-		if (ar->has_repairable_errors()) {
-			if (fix_project_errors(ar)) {
-				solution_has_been_fixed = true;
-				reset_root();
-				continue;
-			} else {
-				if (!err_msg.isEmpty()) {
-					QMessageBox* box = new QMessageBox(QMessageBox::Critical,
-					                                   tr("Error while loading solution..."),
-					                                   err_msg, QMessageBox::Ok, this);
-					box->exec();
-				}
-				reset_root();
-				return false;
-			}
 		}
 		break;
 	}
@@ -576,37 +571,6 @@ void PVInspector::PVMainWindow::set_window_title_with_filename()
 
 	setWindowModified(false);
 	setWindowFilePath(file);
-}
-
-bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
-{
-	// Fix errors due to invalid file paths
-	PVCore::PVSerializeArchive::list_errors_t errs_file =
-	    ar->get_repairable_errors_of_type<PVCore::PVSerializeArchiveErrorFileNotReadable>();
-	// TODO: a nice widget were file paths can be modified by batch (for instance
-	// modify all the files' directory in one action)
-	for (PVCore::PVSerializeArchiveFixError_p err : errs_file) {
-		QString old_path = QString::fromStdString(
-		    err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
-		QMessageBox* box =
-		    new QMessageBox(QMessageBox::Warning, tr("Error while loading project..."),
-		                    tr("File '%1' cannot be found or isn't readable by the process. Please "
-		                       "select its new path.")
-		                        .arg(old_path),
-		                    QMessageBox::Ok, this);
-		box->exec();
-		QString new_file =
-		    QFileDialog::getOpenFileName(this, tr("Select new file path..."), old_path);
-		if (new_file.isEmpty()) {
-			return false;
-		}
-		PVCore::PVSerializeArchiveFixAttribute* fix_a =
-		    (PVCore::PVSerializeArchiveFixAttribute*)err.get();
-		fix_a->fix(new_file);
-	}
-
-	// Return true if and only if all the errors have been fixed.
-	return !ar->has_repairable_errors();
 }
 
 /******************************************************************************

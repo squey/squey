@@ -59,15 +59,14 @@ class PVFileDescription : public PVInputDescription
 		if (so.object("original", fs, "Include original file", true,
 		              (PVCore::PVFileSerialize*)nullptr, true, false)) {
 			path = fs.get_path();
-		}
-
-		if (not QFileInfo(path).isReadable()) {
-			std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-			    new PVCore::PVSerializeArchiveErrorFileNotReadable(path.toStdString()));
-			std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
-			    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "file_path"));
-			so.repairable_error(error);
-			return nullptr;
+		} else if (not QFileInfo(path).isReadable()) {
+			if (so.is_repaired_error()) {
+				path = QString::fromStdString(so.get_repaired_value());
+			} else {
+				throw PVCore::PVSerializeReparaibleError("Can't find source file",
+				                                         so.get_logical_path().toStdString(),
+				                                         path.toStdString());
+			}
 		}
 
 		return std::unique_ptr<PVInputDescription>(new PVFileDescription(path));

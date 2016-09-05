@@ -265,20 +265,3 @@ void PVCore::PVSerializeArchive::file(PVSerializeObject const& so,
 		path = ar_file;
 	}
 }
-
-void PVCore::PVSerializeArchive::repairable_error(
-    std::shared_ptr<PVSerializeArchiveFixError> const& error)
-{
-	_repairable_errors.push_back(error);
-}
-
-void PVCore::PVSerializeArchive::error_fixed(PVSerializeArchiveFixError* error)
-{
-	list_errors_t::iterator it;
-	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
-		if (it->get() == error) {
-			_repairable_errors.erase(it);
-			return;
-		}
-	}
-}

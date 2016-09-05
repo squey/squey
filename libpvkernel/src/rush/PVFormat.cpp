@@ -542,15 +542,14 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 	if (so.object("file", format_file, "Include original format file", true,
 	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
 		full_path = format_file.get_path();
-	}
-
-	if (not QFileInfo(full_path).isReadable()) {
-		std::shared_ptr<PVCore::PVSerializeArchiveError> exc(
-		    new PVCore::PVSerializeArchiveErrorFileNotReadable(full_path.toStdString()));
-		std::shared_ptr<PVCore::PVSerializeArchiveFixAttribute> error(
-		    new PVCore::PVSerializeArchiveFixAttribute(so, exc, "path"));
-		so.repairable_error(error);
-		return {};
+	} else if (not QFileInfo(full_path).isReadable()) {
+		if (so.is_repaired_error()) {
+			full_path = QString::fromStdString(so.get_repaired_value());
+		} else {
+			throw PVCore::PVSerializeReparaibleError("Can't find format file",
+			                                         so.get_logical_path().toStdString(),
+			                                         full_path.toStdString());
+		}
 	}
 
 	return {format_name, full_path};
