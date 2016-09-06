@@ -137,6 +137,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 		_nread_elements = elts.size();
 		ret->_agg_index = 0;
 		_cur_src_index = -ret->_index - nelts_remove;
+		_begin_of_input = false;
 	} else {
 		ret = next_chunk();
 
