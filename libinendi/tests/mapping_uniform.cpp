@@ -21,12 +21,16 @@ static constexpr int dupl = 200;
 static constexpr int dupl = 1;
 #endif
 
-static constexpr const char* csv_file = TEST_FOLDER "/picviz/ipv4_default_mapping.csv";
-static constexpr const char* csv_file_format =
-    TEST_FOLDER "/picviz/ipv4_default_mapping.csv.format";
-
-int main()
+int main(int argc, char** argv)
 {
+	if (argc < 3) {
+		std::cerr << "Usage: " << argv[0] << " input_csv_file format" << std::endl;
+		return 1;
+	}
+
+	const char* csv_file = argv[1];
+	const char* csv_file_format = argv[2];
+
 	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
 
 	auto start = std::chrono::system_clock::now();
