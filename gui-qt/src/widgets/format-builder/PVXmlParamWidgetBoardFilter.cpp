@@ -64,9 +64,8 @@ void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields()
 void PVInspector::PVXmlParamWidgetBoardFilter::disableConnexion()
 {
 	disconnect(name, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
-	disconnect(exp, SIGNAL(textChanged(const QString&)), validWidget,
-	           SLOT(setRegEx(const QString&)));
-	disconnect(exp, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+	disconnect(exp, SIGNAL(textChanged()), validWidget, SLOT(setRegEx(const QString&)));
+	disconnect(exp, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
 	disconnect(validWidget, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
 }
 
