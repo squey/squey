@@ -180,6 +180,8 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 			elts.erase(it_er);
 		}
 	}
+	// Define elements index once elements to remove are removed.
+	ret->set_elements_index();
 
 	return ret;
 }

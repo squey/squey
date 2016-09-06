@@ -294,7 +294,6 @@ class PVUnicodeSource : public PVRawSourceBase
 			if (_curc->size() > 0) {
 				create_elements(_curc->begin(), _curc->end());
 
-				_curc->set_elements_index();
 				_curc->init_elements_fields();
 
 				PVCore::PVChunk* ret = _curc;
@@ -348,9 +347,6 @@ class PVUnicodeSource : public PVRawSourceBase
 
 		// Create an element and align its end on Chunk's end
 		create_elements(b, _curc->end());
-
-		// Set the index of the elements inside the chunk
-		_curc->set_elements_index();
 
 		// Allocate memory for the fields
 		_curc->init_elements_fields();
