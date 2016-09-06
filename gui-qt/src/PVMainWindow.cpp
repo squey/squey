@@ -347,7 +347,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 		inendi_view->hide_layers();
 	}
 
-	inendi_view->add_new_layer();
+	inendi_view->add_new_layer(name);
 	Inendi::PVLayer& layer = inendi_view->get_current_layer();
 
 	// We need to configure the layer
