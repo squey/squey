@@ -39,7 +39,7 @@ class PVMappingFilterString : public PVMappingFilter
 
 	std::unordered_set<std::string> list_usable_type() const override
 	{
-		return {"ipv4", "time", "number_float", "number_int32", "number_uint32", "string"};
+		return {"ipv4", "ipv6", "time", "number_float", "number_int32", "number_uint32", "string"};
 	}
 
   private:

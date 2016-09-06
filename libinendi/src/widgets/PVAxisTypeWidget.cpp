@@ -15,5 +15,6 @@ PVWidgets::PVAxisTypeWidget::PVAxisTypeWidget(QWidget* parent) : PVComboBox(pare
 	addItem("number_uint32");
 	addItem("time");
 	addItem("ipv4");
+	addItem("ipv6");
 	addItem("mac_address");
 }
