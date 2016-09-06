@@ -46,9 +46,10 @@ int main()
 	pvcop::db::algo::distinct(column, dist);
 
 	// compute distinct mapping values.
+	const auto& mapping = mapped.get_column(0).to_core_array<uint32_t>();
 	std::set<uint32_t> distinct_mapping;
 	for (size_t i = 0; i < column.size(); i++) {
-		distinct_mapping.insert(mapped.get_column(0).to_core_array<uint32_t>()[i]);
+		distinct_mapping.insert(mapping[i]);
 	}
 
 	// Check there is a much distinct mapping than distinct values.
@@ -59,6 +60,7 @@ int main()
 	                                   [](uint32_t a, uint32_t b) {
 		                                   return b + 1 < a or a < b - 1;
 		                               }) != distinct_mapping.end());
+
 #else
 	(void)mapped;
 #endif

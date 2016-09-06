@@ -25,6 +25,19 @@ mapping_filter_mac_address
 # Linkage libs
 set(LINK_LIBRARIES inendi pvkernel)
 
+
+###############################################################################
+# Uniform mapping filters
+###############################################################################
+#Define ressources
+SET(SRC_UNIFORM
+uniform/PVMappingFilterUniform.cpp
+uniform/register.cpp)
+
+#Create lib
+add_library(mapping_filter_uniform SHARED ${SRC_UNIFORM})
+target_link_libraries(mapping_filter_uniform ${LINK_LIBRARIES})
+
 ###############################################################################
 # Default mapping filters
 ###############################################################################
