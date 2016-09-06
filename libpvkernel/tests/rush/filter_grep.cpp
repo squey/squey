@@ -37,7 +37,7 @@ int main()
 	        "regexp");
 
 	PVCore::PVArgumentList args;
-	args["regexp"] = QString("(yahoo|lnc)");
+	args["regexp"] = QString("yahoo\nlnc");
 	args["reverse"] = true;
 	sp_lib_p->set_args(args);
 

@@ -39,8 +39,12 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	std::string s = args.at("regexp").toString().toStdString();
-	_rx.assign(s);
+	QStringList rxs = args.at("regexp").toString().split("\n", QString::SkipEmptyParts);
+	_rxs.resize(rxs.size());
+	for (int i = 0; i < rxs.size(); i++) {
+		_rxs[i].assign(rxs[i].toStdString());
+	}
+
 	_inverse = args.at("reverse").toBool();
 }
 
@@ -52,8 +56,11 @@ void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& a
 PVCore::PVField& PVFilter::PVFieldFilterRegexpGrep::one_to_one(PVCore::PVField& field)
 {
 	std::cmatch base_match;
-	bool found = std::regex_search<const char*>(field.begin(), field.end(), base_match, _rx);
-	found |= base_match.size() > 1;
+
+	bool found = std::any_of(_rxs.begin(), _rxs.end(), [&](const std::regex& rx) {
+		return std::regex_search<const char*>(field.begin(), field.end(), base_match, rx);
+	});
+
 	if (not(found ^ _inverse)) {
 		field.set_filtered();
 	}

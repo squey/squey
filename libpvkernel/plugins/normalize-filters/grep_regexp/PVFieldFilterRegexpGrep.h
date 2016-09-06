@@ -26,7 +26,7 @@ class PVFieldFilterRegexpGrep : public PVFieldFilterGrep
 	PVCore::PVField& one_to_one(PVCore::PVField& obj) override;
 
   private:
-	std::regex _rx;
+	std::vector<std::regex> _rxs;
 	bool _inverse;
 
 	CLASS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
