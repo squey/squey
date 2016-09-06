@@ -23,6 +23,7 @@
 #include <pvcop/db/exceptions/invalid_collection.h>
 
 #include <fstream>
+#include <iterator>
 #include <omp.h>
 
 const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
@@ -246,7 +247,7 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts", "valid_elts", true, true);
 	_valid_rows_sel.serialize_write(*sel_obj);
 
-	// Serialiaze invalide value
+	// Serialize invalid value
 	int idx = 0;
 	auto const& bad_values = _unconvertable_values.bad_conversions();
 	int bad_conv_row_count = bad_values.size();
@@ -270,23 +271,36 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
 		idx++;
 	}
 
-	idx = 0;
 	auto const& empty_values = _unconvertable_values.empty_conversions();
-	int empty_conv_row_count = empty_values.size();
-	so.attribute_write("empty_conv/row_count", empty_conv_row_count);
+
+	std::vector<PVCore::PVSelBitField> sels(get_number_cols(),
+	                                        PVCore::PVSelBitField(get_row_count()));
+	for (size_t col = 0; col < sels.size(); col++) {
+		sels[col].select_none();
+	}
+
+	std::unordered_set<size_t> empty_cols_indexes;
+
 	for (auto const& empty_value : empty_values) {
-		so.attribute_write("empty_conv/" + QString::number(idx) + "/row", empty_value.first);
+		PVRow row = empty_value.first;
 		auto const& empty_cols = empty_value.second;
-		int empty_conv_col_count = empty_cols.size();
-		so.attribute_write("empty_conv/" + QString::number(idx) + "/col_count",
-		                   empty_conv_col_count);
-		int idx_col = 0;
 		for (auto const& empty_col : empty_cols) {
-			so.attribute_write("empty_conv/" + QString::number(idx) + "/" +
-			                       QString::number(idx_col++) + "/col",
-			                   empty_col);
+			sels[empty_col].set_bit_fast(row);
+			empty_cols_indexes.insert(empty_col);
 		}
-		idx++;
+	}
+
+	std::stringstream str_col_indexes;
+	std::copy(empty_cols_indexes.begin(), empty_cols_indexes.end(),
+	          std::ostream_iterator<size_t>(str_col_indexes, ","));
+
+	so.attribute_write("empty_conv/columns", QString::fromStdString(str_col_indexes.str()));
+
+	for (PVCol col : empty_cols_indexes) {
+		PVCore::PVSerializeObject_p sel_obj =
+		    so.create_object("empty_conv_col_" + QString::number(col),
+		                     "empty_conv_col_" + QString::number(col), true, true);
+		sels[col].serialize_write(*sel_obj);
 	}
 }
 
@@ -305,7 +319,7 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts", "valid_elts", true, true);
 	nraw._valid_rows_sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
 
-	// Serialiaze invalide value
+	// Serialize invalid values
 	int bad_conv_row_count;
 	so.attribute("bad_conv/row_count", bad_conv_row_count);
 	for (int i = 0; i < bad_conv_row_count; i++) {
@@ -323,19 +337,27 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 		}
 	}
 
-	int empty_conv_row_count;
-	so.attribute("empty_conv/row_count", empty_conv_row_count);
-	for (int i = 0; i < empty_conv_row_count; i++) {
-		int row;
-		so.attribute("empty_conv/" + QString::number(i) + "/row", row);
-		int empty_conv_col_count;
-		so.attribute("empty_conv/" + QString::number(i) + "/col_count", empty_conv_col_count);
-		for (int j = 0; j < empty_conv_col_count; j++) {
-			int col;
-			so.attribute("empty_conv/" + QString::number(i) + "/" + QString::number(j) + "/col",
-			             col);
-			nraw._unconvertable_values.add(row, col, "");
+	QString str_col_indexes;
+	so.attribute("empty_conv/columns", str_col_indexes, QString());
+	QStringList list_col_indexes = str_col_indexes.split(",", QString::SkipEmptyParts);
+	std::vector<size_t> empty_cols_indexes;
+	for (const QString& str_idx : list_col_indexes) {
+		empty_cols_indexes.emplace_back(str_idx.toUInt());
+	}
+
+	for (size_t col = 0; col < empty_cols_indexes.size(); col++) {
+
+		PVCore::PVSerializeObject_p sel_obj = so.create_object(
+		    "empty_conv_col_" + QString::number(empty_cols_indexes[col]),
+		    "empty_conv_col_" + QString::number(empty_cols_indexes[col]), true, true);
+		PVCore::PVSelBitField sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
+
+		for (size_t row = 0; row < sel.count(); row++) {
+			if (sel.get_line_fast(row)) {
+				nraw._unconvertable_values.add(row, empty_cols_indexes[col], "");
+			}
 		}
 	}
+
 	return nraw;
 }
