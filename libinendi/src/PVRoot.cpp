@@ -218,6 +218,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 
 void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Loading root");
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);

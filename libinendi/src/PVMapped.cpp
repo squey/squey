@@ -190,11 +190,13 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
                                                    Inendi::PVSource& parent)
 {
+	so.set_current_status("Loading Mapping");
 	QString name;
 	so.attribute("name", name);
 
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
 
+	so.set_current_status("Loading Mapping properties");
 	std::list<Inendi::PVMappingProperties> columns;
 	int prop_count;
 	so.attribute("prop_count", prop_count);

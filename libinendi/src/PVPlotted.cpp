@@ -358,11 +358,13 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
                                                      Inendi::PVMapped& parent)
 {
+	so.set_current_status("Load plotting");
 	QString name;
 	so.attribute("name", name);
 
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
 
+	so.set_current_status("Load plotting properties");
 	std::list<Inendi::PVPlottingProperties> columns;
 	int prop_count;
 	so.attribute("prop_count", prop_count);

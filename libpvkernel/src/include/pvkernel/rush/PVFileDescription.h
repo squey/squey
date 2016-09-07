@@ -52,6 +52,7 @@ class PVFileDescription : public PVInputDescription
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
 	{
+		so.set_current_status("Searching for source file.");
 		QString path;
 		so.attribute("file_path", path);
 

@@ -654,17 +654,21 @@ Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
                                                Inendi::PVPlotted& parent)
 {
 
+	so.set_current_status("Loading view");
 	Inendi::PVView& view = parent.emplace_add_child();
 
+	so.set_current_status("Loading axes combination");
 	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
 	view._axes_combination.set_combination(
 	    Inendi::PVAxesCombination::serialize_read(
 	        *ax_comb_obj, parent.get_parent<Inendi::PVSource>().get_format())
 	        .get_combination());
 
+	so.set_current_status("Loading layer stack");
 	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
 	view.layer_stack = Inendi::PVLayerStack::serialize_read(*ls_obj);
 
+	so.set_current_status("Process layer stack");
 	Inendi::PVSelection sel(view.get_row_count());
 	sel.select_all();
 	view.process_layer_stack(sel);

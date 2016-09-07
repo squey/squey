@@ -71,6 +71,7 @@ void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Searching for Database informations.");
 	QString query;
 	so.attribute("query", query);
 	PVDBInfos infos;

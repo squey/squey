@@ -39,6 +39,7 @@ void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVElasticsearchQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Searching for ElasticSearch informations.");
 	QString query;
 	so.attribute("query", query);
 	QString query_type;
