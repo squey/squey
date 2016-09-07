@@ -100,12 +100,13 @@ class PVInputTypeDesc : public PVInputType
 		return T::serialize_read(so);
 	}
 
-	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings)
+	void save_input_to_qsettings(const PVInputDescription& input_descr,
+	                             QSettings& settings) override
 	{
 		input_descr.save_to_qsettings(settings);
 	}
 
-	virtual PVInputDescription_p load_input_from_qsettings(const QSettings& settings)
+	PVInputDescription_p load_input_from_qsettings(const QSettings& settings) override
 	{
 		return T::load_from_qsettings(settings);
 	}

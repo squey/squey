@@ -238,7 +238,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 
 	try {
 		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", true, true);
-		source._nraw = std::move(PVRush::PVNraw::serialize_read(*nraw_obj));
+		source._nraw = PVRush::PVNraw::serialize_read(*nraw_obj);
 
 		// Serialize invalid elements.
 		int inv_elts_count;

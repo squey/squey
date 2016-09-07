@@ -36,7 +36,7 @@ class PVSimpleStringListModel : public PVAbstractTableModel
 	}
 
   public:
-	QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const
+	QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const override
 	{
 		switch (role) {
 		case Qt::DisplayRole: {
@@ -53,7 +53,7 @@ class PVSimpleStringListModel : public PVAbstractTableModel
 		return {};
 	}
 
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const override
 	{
 		if (role == Qt::DisplayRole) {
 			if (orientation == Qt::Horizontal) {

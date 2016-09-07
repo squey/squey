@@ -225,7 +225,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 
 	void set_other(QDoubleSpinBox* other) { _other = other; }
 
-	QSize sizeHint() const
+	QSize sizeHint() const override
 	{
 		QSize lsize = QDoubleSpinBox::sizeHint();
 
@@ -238,7 +238,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 		return QSize(qMax(lsize.width(), fsize.width()), qMax(lsize.height(), fsize.height()));
 	}
 
-	QSize minimumSizeHint() const
+	QSize minimumSizeHint() const override
 	{
 		QSize lsize = QDoubleSpinBox::minimumSizeHint();
 

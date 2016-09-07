@@ -27,7 +27,7 @@ class PVFieldSplitterURL : public PVFieldsFilter<one_to_many>
   protected:
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
 	                                           PVCore::list_fields::iterator it_ins,
-	                                           PVCore::PVField& field);
+	                                           PVCore::PVField& field) override;
 
   protected:
 	void set_children_axes_tag(filter_child_axes_tag_t const& axes, size_t fields_count) override;

@@ -24,7 +24,7 @@ class PVMappingFilter4Bsort : public PVMappingFilter
 	/**
 	 * Meta information from this plugin.
 	 */
-	QString get_human_name() const { return "Pseudo-sort on the first 4 bytes"; }
+	QString get_human_name() const override { return "Pseudo-sort on the first 4 bytes"; }
 
 	std::unordered_set<std::string> list_usable_type() const override
 	{

@@ -22,12 +22,12 @@ class PVFieldSplitterLength : public PVFieldsFilter<one_to_many>
 	PVFieldSplitterLength(PVCore::PVArgumentList const& args = default_args());
 
   public:
-	void set_args(PVCore::PVArgumentList const& args);
+	void set_args(PVCore::PVArgumentList const& args) override;
 
   public:
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
 	                                           PVCore::list_fields::iterator it_ins,
-	                                           PVCore::PVField& field);
+	                                           PVCore::PVField& field) override;
 
   protected:
 	CLASS_FILTER(PVFilter::PVFieldSplitterLength)

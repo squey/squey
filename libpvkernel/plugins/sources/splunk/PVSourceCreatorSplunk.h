@@ -17,11 +17,11 @@ namespace PVRush
 class PVSourceCreatorSplunk : public PVSourceCreator
 {
   public:
-	source_p create_source_from_input(PVInputDescription_p input) const;
-	QString supported_type() const;
-	hash_formats get_supported_formats() const;
-	bool pre_discovery(PVInputDescription_p input) const;
-	QString name() const;
+	source_p create_source_from_input(PVInputDescription_p input) const override;
+	QString supported_type() const override;
+	hash_formats get_supported_formats() const override;
+	bool pre_discovery(PVInputDescription_p input) const override;
+	QString name() const override;
 
 	CLASS_REGISTRABLE(PVSourceCreatorSplunk)
 };

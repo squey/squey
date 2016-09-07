@@ -50,7 +50,7 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 	void set_bounding_box_width(int width);
 	bool contains(const QPointF& point) const override;
 	QPainterPath shape() const override;
-	QRectF boundingRect() const;
+	QRectF boundingRect() const override;
 
   private:
 	PVAxisGraphicsItem const* get_parent_axis() const;

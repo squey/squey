@@ -10,7 +10,7 @@
 
 # For QSQLQuery
 find_package(Qt5Sql REQUIRED)
-include_directories(${Qt5Sql_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
 
 ################################################
 # Ressource declaration

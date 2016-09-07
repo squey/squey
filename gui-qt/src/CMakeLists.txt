@@ -4,7 +4,7 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-include_directories(AFTER ${ICU_INCLUDE})
+include_directories(SYSTEM AFTER ${ICU_INCLUDE})
 
 ################################################
 # Ressource declaration

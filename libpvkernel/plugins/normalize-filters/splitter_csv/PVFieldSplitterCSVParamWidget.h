@@ -43,7 +43,7 @@ class PVFieldSplitterCSVParamWidget : public PVFieldsSplitterParamWidget
 	QWidget* get_param_widget() override;
 	QAction* get_action_menu(QWidget* parent) override;
 
-	void set_id(int id_param) { id = id_param; }
+	void set_id(int id_param) override { id = id_param; }
 	void update_data_display() override;
 
   private:

@@ -12,15 +12,15 @@ project(libinendi)
 
 # For QDomElement
 find_package(Qt5Xml REQUIRED)
-include_directories(${Qt5Xml_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Xml_INCLUDE_DIRS})
 
 # For QColor
 find_package(Qt5Gui REQUIRED)
-include_directories(${Qt5Gui_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Gui_INCLUDE_DIRS})
 
 # For QApplication
 find_package(Qt5Widgets REQUIRED)
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Widgets_INCLUDE_DIRS})
 
 ###################################################################
 # Set plugins install path.
@@ -33,8 +33,8 @@ add_definitions(-DINENDI_PLUGIN_PATH="${INENDI_PLUGIN}")
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${INENDI_INCLUDE_DIRS})
-include_directories(AFTER ${ICU_INCLUDE})
-include_directories(AFTER ${SIGCPP_INCLUDE_DIRS})
+include_directories(SYSTEM AFTER ${ICU_INCLUDE})
+include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
 
 ###############################################################################
 # Configure subdirectories

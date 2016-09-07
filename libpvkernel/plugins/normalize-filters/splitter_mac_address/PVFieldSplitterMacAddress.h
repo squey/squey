@@ -24,7 +24,7 @@ class PVFieldSplitterMacAddress : public PVFieldsFilter<one_to_many>
 	PVFieldSplitterMacAddress();
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
 	                                           PVCore::list_fields::iterator it_ins,
-	                                           PVCore::PVField& field);
+	                                           PVCore::PVField& field) override;
 
 	CLASS_FILTER_NOPARAM(PVFilter::PVFieldSplitterMacAddress)
 };

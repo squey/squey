@@ -26,7 +26,7 @@ class PVFieldSplitterRegexp : public PVFieldsFilter<one_to_many>
   protected:
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields& l,
 	                                           PVCore::list_fields::iterator it_ins,
-	                                           PVCore::PVField& field);
+	                                           PVCore::PVField& field) override;
 
   public:
 	void set_args(PVCore::PVArgumentList const& args) override;
