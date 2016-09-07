@@ -197,64 +197,6 @@ pvcop::db::array Inendi::PVMappingFilterMacAddressL::operator()(PVCol const col,
 
 /*****************************************************************************
  *
- * Inendi::PVMappingFilterMacAddressU::operator()
- *
- *****************************************************************************/
-
-pvcop::db::array Inendi::PVMappingFilterMacAddressU::operator()(PVCol const col,
-                                                                PVRush::PVNraw const& nraw)
-{
-	const auto data_array = nraw.collection().column(col);
-	const auto& data = data_array.to_core_array<uint64_t>();
-
-	pvcop::db::array mapping_array(pvcop::db::type_uint32, data_array.size());
-	auto& mapping = mapping_array.to_core_array<uint32_t>();
-
-	BENCH_START(whole);
-
-	pvcop::db::array uniq_array;
-
-	/* as MAC addresses must be distribued uniformly, we can avoid duplicated
-	 * computations by working on distinct values
-	 */
-	pvcop::db::algo::distinct(data_array, uniq_array);
-
-	const size_t mac_count = uniq_array.size();
-	auto& uniq = uniq_array.to_core_array<uint64_t>();
-
-	/* traversing sorted value makes things more simple
-	 */
-	tbb::parallel_sort(uniq.begin(), uniq.end());
-
-	/* absolute_indices will contain the absolute index of each unique MAC address
-	 */
-	std::unordered_map<size_t, size_t> absolute_indices(mac_count);
-
-	if (mac_count == 1) {
-		// case with only one mac address (which is mapped to "0.5")
-		absolute_indices.insert({uniq[0], std::numeric_limits<uint32_t>::max() / 2});
-	} else {
-		for (size_t i = 0; i < uniq.size(); ++i) {
-			const size_t index = (i * std::numeric_limits<uint32_t>::max()) / (mac_count - 1);
-			absolute_indices.insert({uniq[i], index});
-		}
-	}
-
-/* now, we can compute the mapping
- */
-#pragma omp parallel for
-	for (size_t i = 0; i < data.size(); ++i) {
-		mapping[i] = absolute_indices.find(data[i])->second;
-	}
-
-	BENCH_END(whole, "PVMappingFilterMacAddressU::operator()", data_array.size(), sizeof(uint64_t),
-	          data_array.size(), sizeof(uint32_t));
-
-	return mapping_array;
-}
-
-/*****************************************************************************
- *
  * Inendi::PVMappingFilterMacAddressLU::operator()
  *
  *****************************************************************************/

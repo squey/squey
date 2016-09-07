@@ -44,21 +44,6 @@ class PVMappingFilterMacAddressL : public PVMappingFilterMacAddressBase
 };
 
 /**
- * Distribute MAC addresses uniformly in [0;2^32)
- */
-class PVMappingFilterMacAddressU : public PVMappingFilterMacAddressBase
-{
-  public:
-	PVMappingFilterMacAddressU() { INIT_FILTER_NOPARAM(PVMappingFilterMacAddressU); }
-
-	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
-
-	QString get_human_name() const override { return QString("Uniform MAC"); }
-
-	CLASS_FILTER_NOPARAM(PVMappingFilterMacAddressU)
-};
-
-/**
  * Distribute MAC addresses linearly according to their vendor part and uniformly according
  * to the NIC part.
  */
