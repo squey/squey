@@ -422,64 +422,81 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	PVCore::PVSerializeArchive_p ar;
 	PVCore::PVSerializeArchiveError read_exception("");
+	bool solution_has_been_fixed = false;
 	if (PVCore::PVProgressBox::progress(
 	        [&](PVCore::PVProgressBox& pbox) {
 		        pbox.set_enable_cancel(true);
+		        pbox.set_extended_status("Unzip archive file");
 		        try {
 			        ar.reset(new PVCore::PVSerializeArchiveZip(
 			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
 		        } catch (const PVCore::PVSerializeArchiveError& e) {
 			        read_exception = e;
+			        return;
+		        }
+
+		        while (true) {
+			        QString err_msg;
+			        try {
+				        pbox.set_extended_status("Loading investigation from archive");
+				        get_root().load_from_archive(ar);
+			        } catch (PVCore::PVSerializeArchiveError& e) {
+				        read_exception = PVCore::PVSerializeArchiveError(
+				            tr("Error while loading solution %1:\n%2")
+				                .arg(file)
+				                .arg(e.what())
+				                .toStdString());
+				        return;
+			        } catch (PVRush::PVInputException const& e) {
+				        read_exception = PVCore::PVSerializeArchiveError(
+				            tr("Error while loading solution %1:\n%2")
+				                .arg(file)
+				                .arg(e.what())
+				                .toStdString());
+				        return;
+			        } catch (PVCore::PVSerializeReparaibleError const& e) {
+				        pbox.warning(tr("Error while loading project %1:\n").arg(file), e.what());
+				        QString old_path = QString::fromStdString(e.old_value());
+				        QString new_file;
+
+				        pbox.exec_gui([&]() {
+					        new_file = QFileDialog::getOpenFileName(
+					            this, tr("Select new file path..."), old_path);
+					    });
+
+				        if (new_file.isEmpty()) {
+					        read_exception = PVCore::PVSerializeArchiveError(
+					            tr("Error while loading solution %1:\n files can't be found")
+					                .arg(file)
+					                .toStdString());
+					        return;
+				        }
+				        ar->set_repaired_value(e.logical_path(), new_file.toStdString());
+				        solution_has_been_fixed = true;
+				        reset_root();
+				        continue;
+			        } catch (...) {
+				        read_exception = PVCore::PVSerializeArchiveError(
+				            tr("Error while loading solution %1:\n unhandled error(s).")
+				                .arg(file)
+				                .toStdString());
+				        return;
+			        }
+			        break;
 		        }
 		    },
 	        "Loading investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
+		reset_root();
 		return false;
 	}
 
 	if (not std::string(read_exception.what()).empty()) {
-		QMessageBox* box =
-		    new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."),
-		                    tr("Fatal error while loading solution %1:\n%2")
-		                        .arg(file)
-		                        .arg(QString::fromStdString(read_exception.what())),
-		                    QMessageBox::Ok, this);
-		box->exec();
+		QMessageBox::critical(this, tr("Fatal error while loading solution..."),
+		                      tr("Fatal error while loading solution %1:\n%2")
+		                          .arg(file)
+		                          .arg(QString::fromStdString(read_exception.what())));
+		reset_root();
 		return false;
-	}
-
-	bool solution_has_been_fixed = false;
-	while (true) {
-		QString err_msg;
-		try {
-			get_root().load_from_archive(ar);
-		} catch (PVCore::PVSerializeArchiveError& e) {
-			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(e.what());
-		} catch (PVRush::PVInputException const& e) {
-			err_msg = tr("Error while loading solution %1:\n%2")
-			              .arg(file)
-			              .arg(QString::fromStdString(e.what()));
-		} catch (PVCore::PVSerializeReparaibleError const& e) {
-			QMessageBox::warning(this, tr("Error while loading project %1:\n").arg(file), e.what());
-			QString old_path = QString::fromStdString(e.old_value());
-			QString new_file =
-			    QFileDialog::getOpenFileName(this, tr("Select new file path..."), old_path);
-			if (new_file.isEmpty()) {
-				return false;
-			}
-			ar->set_repaired_value(e.logical_path(), new_file.toStdString());
-			reset_root();
-			continue;
-		} catch (...) {
-			err_msg = tr("Fatal error while loading solution %1:\n unhandled error(s).").arg(file);
-		}
-		if (!err_msg.isEmpty()) {
-			QMessageBox* box =
-			    new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."),
-			                    err_msg, QMessageBox::Ok, this);
-			box->exec();
-			return false;
-		}
-		break;
 	}
 
 	// Increase counter so that later imported source have a more "distinct" name.

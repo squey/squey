@@ -100,28 +100,34 @@ class PVProgressBox : public QDialog
 	}
 
   public:
-	/**
-	 * These function are use to have blocking message in threads.
-	 */
-	void critical(QString const& title, QString const& msg)
+	void exec_gui(std::function<void()> const& f)
 	{
 		std::unique_lock<std::mutex> lk(_blocking_msg);
-		Q_EMIT sig_critical(title, msg);
+		Q_EMIT sig_exec_gui(f);
 		_cv.wait(lk);
 	}
 
+	void critical(QString const& title, QString const& msg)
+	{
+		exec_gui([&]() { QMessageBox::critical(this, title, msg); });
+	}
+	void warning(QString const& title, QString const& msg)
+	{
+		exec_gui([&]() { QMessageBox::warning(this, title, msg); });
+	}
+
   public Q_SLOTS:
-	void critical_slot(QString const& title, QString const& msg)
+	void exec_gui_slot(std::function<void()> f)
 	{
 		{
 			std::lock_guard<std::mutex> lk(_blocking_msg);
-			QMessageBox::critical(this, title, msg);
+			f();
 		}
 		_cv.notify_one();
 	}
 
   Q_SIGNALS:
-	void sig_critical(QString const& title, QString const& msg);
+	void sig_exec_gui(std::function<void()> f);
 
   private:
 	static bool process_worker_thread(__impl::ThreadEndSignal* watcher,
@@ -148,5 +154,7 @@ class PVProgressBox : public QDialog
 	    _cv; //!< Condition variable to sync thread and message during thread execution.
 };
 }
+
+Q_DECLARE_METATYPE(std::function<void()>);
 
 #endif

@@ -71,8 +71,9 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent) : QDialog(par
 		cancel();
 	});
 
-	connect(this, SIGNAL(sig_critical(QString const&, QString const&)), this,
-	        SLOT(critical_slot(QString const&, QString const&)));
+	qRegisterMetaType<std::function<void()>>();
+	connect(this, SIGNAL(sig_exec_gui(std::function<void()>)), this,
+	        SLOT(exec_gui_slot(std::function<void()>)));
 
 	setWindowTitle(msg);
 }
