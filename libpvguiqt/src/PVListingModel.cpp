@@ -177,16 +177,19 @@ PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, in
 		PVCol col1 = _view.get_axes_combination().get_nraw_axis(section);
 
 		if (correlation and correlation->col1 == col1) {
-			const QString orig_source =
+
+			const QString& orig_source =
 			    QString::fromStdString(_view.get_parent<Inendi::PVSource>().get_name());
 			const QString& orig_axis = _view.get_axis_name(section);
-			const QString dest_source = QString::fromStdString(
+			const QString& dest_source = QString::fromStdString(
 			    correlation->view2->get_parent<Inendi::PVSource>().get_name());
 			const QString& dest_axis = correlation->view2->get_nraw_axis_name(correlation->col2);
 
-			return "Active correlation :\n" + orig_source + /*" / " + orig_view +*/ " (" +
-			       orig_axis + ")" + " -> " + dest_source + /*" / " + dest_view +*/ " (" +
-			       dest_axis + ")";
+			return QString("Active correlation :\n%1 (%2) -> %3 (%4)")
+			    .arg(orig_source)
+			    .arg(orig_axis)
+			    .arg(dest_source)
+			    .arg(dest_axis);
 		}
 		break;
 	}
