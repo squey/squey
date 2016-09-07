@@ -541,7 +541,27 @@ void PVInspector::PVMainWindow::save_solution(
 		if (PVCore::PVProgressBox::progress(
 		        [&](PVCore::PVProgressBox& pbox) {
 			        pbox.set_enable_cancel(true);
-			        get_root().save_to_file(file, options);
+			        pbox.set_extended_status("Create archive");
+			        PVCore::PVSerializeArchiveZip ar(file, PVCore::PVSerializeArchive::write,
+			                                         INENDI_ARCHIVES_VERSION);
+			        // FIXME : We should inform we are creating the zip file using RAII like scoped
+			        // thread and Zip archive.
+
+			        // Use a scoped thread as it will continue forever so we want to interrupt is
+			        // and
+			        // abort at then end.
+			        // This thread update the progressBox status every 100 ms
+			        boost::strict_scoped_thread<boost::interrupt_and_join_if_joinable> t1(
+			            (boost::thread([&ar, &pbox]() {
+				            while (true) {
+					            pbox.set_extended_status(ar.get_current_status());
+					            boost::this_thread::interruption_point();
+					            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				            }
+				        })));
+
+			        get_root().set_path(file);
+			        get_root().save_to_file(ar, options);
 			    },
 		        "Saving investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 			return;

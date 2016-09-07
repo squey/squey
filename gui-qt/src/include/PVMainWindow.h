@@ -305,7 +305,6 @@ class PVMainWindow : public QMainWindow
 
   private:
 	QString _cur_project_file;
-	bool _cur_project_save_everything;
 	static int sequence_n;
 	Inendi::PVRoot _root;
 	bool _auto_detect_cancellation;

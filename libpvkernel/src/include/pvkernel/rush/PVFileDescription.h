@@ -44,6 +44,7 @@ class PVFileDescription : public PVInputDescription
   public:
 	void serialize_write(PVCore::PVSerializeObject& so)
 	{
+		so.set_current_status("Serialize file");
 		so.attribute("file_path", _path);
 		PVCore::PVFileSerialize fs(_path);
 		so.object("original", fs, "Include original file", true, (PVCore::PVFileSerialize*)nullptr,

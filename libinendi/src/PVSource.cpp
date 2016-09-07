@@ -150,6 +150,7 @@ QString Inendi::PVSource::get_tooltip() const
 
 void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize source.");
 	QString src_name = _src_plugin->registered_name();
 	so.attribute("source-plugin", src_name);
 
@@ -157,6 +158,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	_nraw.serialize_write(*nraw_obj);
 
 	// Save the format
+	so.set_current_status("Serialize Format.");
 	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", true, true);
 	_format.serialize_write(*format_obj);
 
@@ -164,6 +166,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	QString type_name = _src_plugin->supported_type();
 	so.attribute("source-type", type_name);
 
+	so.set_current_status("Serialize Inputs.");
 	PVCore::PVSerializeObject_p list_inputs =
 	    so.create_object("inputs", "Description of inputs", true, true);
 	int idx = 0;
@@ -176,6 +179,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	}
 	so.attribute("input_count", idx);
 
+	so.set_current_status("Serialize invalid elements.");
 	// Serialize invalid elements.
 	int inv_elts_count = _inv_elts.size();
 	so.attribute("inv_elts_count", inv_elts_count);

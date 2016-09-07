@@ -25,6 +25,7 @@ void PVCore::PVFileSerialize::serialize_read(PVCore::PVSerializeObject& so)
 
 void PVCore::PVFileSerialize::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize file metadata");
 	// Get the file's name
 	QFileInfo fi(_path);
 	QString fname = fi.fileName();

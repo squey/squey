@@ -326,9 +326,11 @@ std::string Inendi::PVPlotted::export_line(PVRow idx,
 
 void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize Plotting.");
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
 
+	so.set_current_status("Serialize Plotting properties.");
 	PVCore::PVSerializeObject_p list_prop =
 	    so.create_object("properties", "plotting properties", true, true);
 

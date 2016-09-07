@@ -643,9 +643,12 @@ void Inendi::PVView::sort_indexes(PVCol col,
 // Load/save and serialization
 void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize View.");
+	so.set_current_status("Serialize Layer stack.");
 	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
 	layer_stack.serialize_write(*ls_obj);
 
+	so.set_current_status("Serialize Axes combination.");
 	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
 	_axes_combination.serialize_write(*ax_comb_obj);
 }

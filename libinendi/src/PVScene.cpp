@@ -99,6 +99,7 @@ Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 
 void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize Scene.");
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
 

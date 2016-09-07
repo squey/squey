@@ -558,6 +558,7 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 
 void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize format");
 	so.attribute("name", format_name);
 	so.attribute("path", full_path);
 	PVCore::PVFileSerialize format_file(full_path);

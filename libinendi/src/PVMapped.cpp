@@ -153,10 +153,12 @@ void Inendi::PVMapped::invalidate_plotted_children_column(PVCol j)
  *****************************************************************************/
 void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize Mapping.");
 
 	QString name = QString::fromStdString(_name);
 	so.attribute("name", name);
 
+	so.set_current_status("Serialize Mapping properties.");
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
 
 	int idx = 0;

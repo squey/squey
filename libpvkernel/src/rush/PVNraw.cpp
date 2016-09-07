@@ -238,16 +238,19 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 
 void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize Nraw");
 	QString nraw_path = QString::fromStdString(collection().rootdir());
 	so.attribute("nraw_path", nraw_path);
 
 	int vec = _valid_elements_count;
 	so.attribute("valid_count", vec);
 
+	so.set_current_status("Serialize valid elements selection");
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts", "valid_elts", true, true);
 	_valid_rows_sel.serialize_write(*sel_obj);
 
 	// Serialize invalid value
+	so.set_current_status("Serialize uncorrectly converted elements");
 	int idx = 0;
 	auto const& bad_values = _unconvertable_values.bad_conversions();
 	int bad_conv_row_count = bad_values.size();
@@ -271,6 +274,7 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
 		idx++;
 	}
 
+	so.set_current_status("Serialize empty fields");
 	auto const& empty_values = _unconvertable_values.empty_conversions();
 
 	std::vector<PVCore::PVSelBitField> sels(get_number_cols(),

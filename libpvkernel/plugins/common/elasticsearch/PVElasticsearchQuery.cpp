@@ -31,6 +31,7 @@ QString PVRush::PVElasticsearchQuery::human_name() const
 
 void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize ElasticSearch information.");
 	so.attribute("query", _query);
 	so.attribute("query_type", _query_type);
 	so.object("server", _infos);
