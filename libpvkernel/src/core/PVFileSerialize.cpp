@@ -6,6 +6,9 @@
  */
 
 #include <pvkernel/core/PVFileSerialize.h>
+#include <pvkernel/core/PVSerializeObject.h>
+
+#include <QFileInfo>
 
 PVCore::PVFileSerialize::PVFileSerialize(QString const& path) : _path(path)
 {

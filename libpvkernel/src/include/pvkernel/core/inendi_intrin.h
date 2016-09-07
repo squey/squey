@@ -8,8 +8,8 @@
 #ifndef PVKERNEL_CORE_INENDI_INTRIN_H
 #define PVKERNEL_CORE_INENDI_INTRIN_H
 
-#include <immintrin.h>
 #include <cstdint>
+#include <immintrin.h>
 
 namespace PVCore
 {

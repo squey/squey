@@ -5,8 +5,10 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVSerializeObject.h>
+
+#include <algorithm> // for move
 
 PVCore::PVSerializeObject::PVSerializeObject(QString path,
                                              PVSerializeArchive* parent_ar,

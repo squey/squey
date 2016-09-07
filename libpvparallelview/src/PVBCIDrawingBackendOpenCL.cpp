@@ -21,6 +21,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <QSettings>
+
 /* minimal required for OpenCL 1.0 devices
  */
 #define LOCAL_MEMORY_SIZE (16 * 1024)

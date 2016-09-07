@@ -9,7 +9,6 @@
 #define PVCORE_PVCONFIG_H
 
 #include <QString>
-#include <QSettings>
 
 #include <memory>
 

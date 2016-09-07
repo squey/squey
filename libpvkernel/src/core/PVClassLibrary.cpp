@@ -6,10 +6,10 @@
  */
 
 #include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/PVLogger.h>
+#include <pvkernel/core/PVConfig.h> // for PVConfig
+#include <pvkernel/core/PVLogger.h> // for PVLOG_INFO, PVLOG_ERROR
 
-#include <pvbase/general.h>
+#include <pvbase/general.h> // for PVCORE_DIRECTORY_SEP
 
 #include <QDir>
 #include <QLibrary>

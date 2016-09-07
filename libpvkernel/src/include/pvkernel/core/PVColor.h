@@ -8,6 +8,8 @@
 #ifndef PVCORE_PVCOLOR_H
 #define PVCORE_PVCOLOR_H
 
+#include <cstdint>
+
 #include <QColor>
 
 namespace PVCore

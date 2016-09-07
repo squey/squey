@@ -166,7 +166,7 @@ class PVTextPopupWidget : public PVPopupWidget
 	 * to reconfigure the popup it when its alignment widget's
 	 * geometry has changed.
 	 */
-	bool eventFilter(QObject* obj, QEvent* event);
+	bool eventFilter(QObject* obj, QEvent* event) override;
 
   private:
 #ifdef QT_WEBKIT

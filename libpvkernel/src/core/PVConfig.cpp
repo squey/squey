@@ -5,18 +5,22 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
+#include <pvkernel/core/PVConfig.h> // for PVConfig, etc
+#include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR
 
-#include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/PVLogger.h>
+#include <pvbase/general.h> // for INENDI_CONFDIR, etc
 
+#include <memory>    // for operator==, __shared_ptr, etc
+#include <stdexcept> // for runtime_error
+
+#include <QString>
 #include <QDir>
-#include <QDirIterator>
+#include <QFile>
 #include <QSettings>
-#include <iostream>
+#include <QFileInfo>
 
-#define GLOBAL_CONFIG_FILENAME INENDI_CONFIG "/pvconfig.ini"
-#define CONFIG_FILENAME "config.ini"
+constexpr const char* GLOBAL_CONFIG_FILENAME = INENDI_CONFIG "/pvconfig.ini";
+constexpr const char* CONFIG_FILENAME = "config.ini";
 
 PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 
@@ -50,7 +54,7 @@ PVCore::PVConfig::PVConfig()
 			QFile::copy(sys_fi.filePath(), fi.filePath());
 		} else {
 			PVLOG_ERROR("%s file doesn't exists\n", fi.filePath().toLatin1().data());
-			exit(1);
+			throw std::runtime_error("No config file found");
 		}
 	}
 

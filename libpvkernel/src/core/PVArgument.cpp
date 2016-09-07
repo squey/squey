@@ -5,11 +5,22 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/PVArgument.h>
-#include <QStringList>
-#include <QRect>
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList, PVArgument, etc
+#include <pvkernel/core/PVLogger.h>   // for PVLOG_INFO, PVLOG_WARN
+#include <pvkernel/core/PVOrderedMap.h>
+
+#include <QChar>
+#include <QDomElement>
+#include <QHash>
 #include <QMetaType>
+#include <QSettings>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
+
+#include <vector> // for vector
+
+class QDataStream;
 
 QHash<QString, QString> PVCore::PVArgumentKey::_key_desc;
 

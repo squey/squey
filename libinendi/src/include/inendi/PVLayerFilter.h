@@ -81,7 +81,7 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	bool should_cancel();
 
   public:
-	PVLayer const& operator()(PVLayer const& layer);
+	PVLayer const& operator()(PVLayer const& layer) override;
 
   public:
 	static PVCore::PVTag<PVLayerFilter> get_tag(QString const& name);

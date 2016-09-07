@@ -8,11 +8,12 @@
 #ifndef PVCORE_PVBITFIELD_H
 #define PVCORE_PVBITFIELD_H
 
-#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
-#include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVBitVisitor.h>
-#include <pvkernel/core/PVSerializeArchive.h>
+
+#ifndef NDEBUG
+#include <pvkernel/core/PVAlgorithms.h>
+#endif
 
 #include <pvcop/core/memarray.h>
 
@@ -31,14 +32,14 @@ class array;
 namespace PVCore
 {
 
+class PVSerializeObject;
+
 /**
 * \class PVSelBitField
 */
 
 class PVSelBitField
 {
-	friend class PVCore::PVSerializeObject;
-
   public:
 	static constexpr auto CHUNK_SIZE = pvcop::core::__impl::bit_manip::chunk_bit_size;
 	static constexpr auto CHUNK_SIZE_BYTE = pvcop::core::__impl::bit_manip::chunk_byte_size;

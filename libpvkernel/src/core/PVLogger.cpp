@@ -5,11 +5,14 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVLogger.h> // for PVLogger, etc
+
 #include <QDateTime>
 #include <QString>
+#include <QByteArray>
 
-#include <pvkernel/core/PVLogger.h>
-
+#include <cstdarg> // for va_end, va_list, va_start
+#include <cstdio>  // for fprintf, fclose, fopen
 #include <iostream>
 
 PVCore::PVLogger::PVLogger()

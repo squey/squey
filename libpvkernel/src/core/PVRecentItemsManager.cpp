@@ -5,10 +5,35 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
+#include <pvkernel/rush/PVFormat.h>           // for PVFormat
+#include <pvkernel/rush/PVInputDescription.h> // for PVInputDescription
+#include <pvkernel/rush/PVInputType.h>        // for PVInputType, etc
+#include <pvkernel/rush/PVSourceCreator.h>    // for PVSourceCreator, etc
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
+#include <pvkernel/rush/PVSourceDescription.h> // for PVSourceDescription
 
 #include <pvkernel/core/PVRecentItemsManager.h>
-#include <pvkernel/rush/PVFormat.h>
+#include "pvkernel/core/PVClassLibrary.h" // for LIB_CLASS, etc
+#include "pvkernel/core/PVOrderedMap.h"
+#include "pvkernel/core/PVRegistrableClass.h"
+
+#include <pvbase/general.h>
+
+#include <cassert>   // for assert
+#include <cstdint>   // for uint64_t
+#include <algorithm> // for min
+#include <memory>    // for __shared_ptr, shared_ptr
+#include <utility>   // for pair
+
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QList>
+#include <QSettings>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
 
 #define RECENTS_FILENAME "recents.ini"
 
@@ -224,17 +249,14 @@ PVCore::PVRecentItemsManager::supported_format_list() const
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
 
-	LIB_CLASS(PVRush::PVInputType)::list_classes::const_iterator it;
-
-	for (it = lf.begin(); it != lf.end(); it++) {
+	for (auto it = lf.begin(); it != lf.end(); it++) {
 		PVRush::PVInputType_p in = it->value();
 
 		PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in);
 		PVRush::hash_format_creator format_creator =
 		    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
-		PVRush::hash_format_creator::const_iterator itfc;
-		for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
+		for (auto itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
 			QVariant var;
 			var.setValue(itfc.value().first);
 			variant_list << var;

@@ -8,7 +8,8 @@
 #ifndef PVCORE_NETWORK_H
 #define PVCORE_NETWORK_H
 
-#include <QString>
+#include <cstddef>
+#include <cstdint>
 
 namespace PVCore
 {

@@ -5,8 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVBufferSlice.h> // for PVBufferSlice
 #include <pvkernel/core/PVElement.h>
+#include <pvkernel/core/PVField.h>
 
 PVCore::PVField::PVField(PVCore::PVElement& parent) : PVBufferSlice(parent.realloc_bufs())
 {

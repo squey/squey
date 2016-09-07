@@ -9,6 +9,8 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
+#include <cstring>
+
 // TODO: add more tests, surely performance stats
 const char* ip_text[] = {
     "192.168.23.4", "192.168.23.04",

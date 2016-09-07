@@ -42,7 +42,7 @@ class TBBComputeAllocSizeAndFirstElts;
 class TBBSelFilterMaxCount;
 }
 
-class PVZoneProcessing;
+struct PVZoneProcessing;
 
 class PVZoneTree : public PVZoneTreeBase
 {

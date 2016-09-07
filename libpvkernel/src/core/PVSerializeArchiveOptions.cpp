@@ -6,9 +6,15 @@
  */
 
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
-#include <pvkernel/core/PVFileSerialize.h>
+#include <pvkernel/core/PVFileSerialize.h>   // for PVFileSerialize
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject_p, etc
 
 #include <typeinfo>
+#include <cassert> // for assert
+#include <memory>  // for __shared_ptr
+
+#include <QList>
+#include <QString>
 
 PVCore::PVSerializeObject_p
 PVCore::PVSerializeArchiveOptions::create_object(QString const& name, PVSerializeObject* parent)

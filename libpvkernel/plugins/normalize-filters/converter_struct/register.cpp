@@ -12,6 +12,8 @@
 #include "PVFieldConverterStruct.h"
 #include "PVFieldConverterStructParamWidget.h"
 
+#include <pvbase/export.h>
+
 // This method will be called by libinendi
 LibCPPExport void register_class()
 {

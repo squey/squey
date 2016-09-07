@@ -5,16 +5,21 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
-#include <pvkernel/core/PVPluginPresets.h>
+#include <pvbase/general.h>                // for INENDI_INSPECTOR_CONFDIR
+#include <pvkernel/core/PVPluginPresets.h> // for PVPluginPresets
+#include <memory>                          // for __shared_ptr, operator==, etc
 
-#include <QStringList>
-#include <QFileInfo>
+#include <pvkernel/core/PVArgument.h>     // for PVArgumentList_to_QSettings, etc
+#include <pvkernel/core/PVFunctionArgs.h> // for PVFunctionArgsBase
+
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QSettings>
+#include <QString>
+#include <QStringList>
 
-#include <memory>
-
-#define PRESETS_FILENAME "presets.ini"
+constexpr const char* PRESETS_FILENAME = "presets.ini";
 
 typedef std::shared_ptr<QSettings> QSettings_p;
 

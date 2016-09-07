@@ -55,7 +55,7 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	 *
 	 * @param event then resize event
 	 */
-	void resizeEvent(QResizeEvent* event);
+	void resizeEvent(QResizeEvent* event) override;
 
 	void set_displayed_axis_name(const QString& s) { _display_axis_name = s; }
 

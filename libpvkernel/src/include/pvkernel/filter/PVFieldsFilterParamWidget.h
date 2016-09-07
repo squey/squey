@@ -82,9 +82,9 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 		_nchilds = 0;
 	}
 
-	PVCore::PVArgumentList get_default_argument() { return _filter->get_default_args(); }
+	PVCore::PVArgumentList get_default_argument() override { return _filter->get_default_args(); }
 
-	PVFieldsBaseFilter_p get_filter() { return _filter; }
+	PVFieldsBaseFilter_p get_filter() override { return _filter; }
 
 	/**
 	 * @brief get the widget whiche is on the right of the GUI. It used to param the node.
@@ -98,7 +98,7 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	// TODO: this should only exist when Ttype == one_to_many, and should not be in the base
 	// interface
 	// (but that's for the "purity" of C++, and, well, don't have the time for this right now)
-	size_t force_number_children() { return 0; }
+	size_t force_number_children() override { return 0; }
 
 	/**
 	 * @brief get the action to push in menu
@@ -106,25 +106,25 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	 */
 	QAction* get_action_menu(QWidget*) override { return nullptr; }
 
-	QString get_xml_tag() { return type_name(); }
+	QString get_xml_tag() override { return type_name(); }
 
-	void set_id(int /*id*/) {}
+	void set_id(int /*id*/) override {}
 
-	virtual void clear_filter_data() { _filter_data.clear(); }
-	virtual void push_data(QString const& data) { _filter_data << data; }
+	void clear_filter_data() override { _filter_data.clear(); }
+	void push_data(QString const& data) override { _filter_data << data; }
 
-	virtual QStringList const& get_data() const { return _filter_data; }
+	QStringList const& get_data() const override { return _filter_data; }
 
 	fields_filter_type type() { return _filter->type(); }
 
 	QString type_name() { return _filter->type_name(); }
 
-	virtual void set_child_count(size_t count) { _nchilds = count; }
+	void set_child_count(size_t count) override { _nchilds = count; }
 	// That should be "type-specific" and returns 0 for a field filter !
-	virtual size_t get_child_count() { return _nchilds; }
+	size_t get_child_count() override { return _nchilds; }
 
   protected:
-	virtual base_registrable* _clone_me() const { return nullptr; }
+	base_registrable* _clone_me() const override { return nullptr; }
 
   protected:
 	PVFilter::fields_filter_type _type;

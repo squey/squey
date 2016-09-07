@@ -31,7 +31,6 @@
 
 #include <pvkernel/core/sse4detector.h>
 #include <cpuid.h>
-#include <stdio.h>
 #include <cstdint>
 
 #define SSE4_1_FLAG 0x080000

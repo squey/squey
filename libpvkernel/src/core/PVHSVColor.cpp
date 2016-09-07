@@ -7,9 +7,10 @@
 
 #include <pvkernel/core/PVHSVColor.h>
 
-#include <assert.h>
+#include <cassert>
 
 #include <QColor>
+#include <QImage>
 #include <QRgb>
 
 void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image,

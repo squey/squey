@@ -9,7 +9,8 @@
 #define PVCOMPLIST_H
 
 #include <pvkernel/core/PVArgument.h>
-#include <QList>
+template <class Key, class T>
+class QHash;
 
 namespace PVCore
 {
@@ -17,14 +18,12 @@ namespace PVCore
 template <class K, class V>
 bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
 {
-	typedef typename QHash<K, V>::const_iterator Tit;
-
 	if (h1.count() != h2.count()) {
 		return false;
 	}
 
-	for (Tit it1 = h1.constBegin(); it1 != h1.constEnd(); it1++) {
-		Tit it2 = h2.find(it1.key());
+	for (auto it1 = h1.constBegin(); it1 != h1.constEnd(); it1++) {
+		auto it2 = h2.find(it1.key());
 		if (it1.value() != it2.value()) {
 			return false;
 		}

@@ -21,7 +21,7 @@ namespace PVParallelView
 {
 
 template <size_t Bbits>
-class PVBCICode;
+struct PVBCICode;
 
 class PVZoneTreeBase
 {

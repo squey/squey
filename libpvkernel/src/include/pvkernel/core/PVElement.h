@@ -16,22 +16,13 @@
 
 #include <tbb/scalable_allocator.h>
 
-#include <QList>
-
-namespace PVRush
-{
-class PVNraw;
-}
-
 namespace PVCore
 {
 
 class PVChunk;
 
-typedef std::list<PVField, PVPreAllocatedListAllocator<PVField, tbb::scalable_allocator<PVField>>>
-    list_fields;
-// typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
-// typedef std::list<PVField> list_fields;
+using list_fields =
+    std::list<PVField, PVPreAllocatedListAllocator<PVField, tbb::scalable_allocator<PVField>>>;
 
 class PVElement : public PVBufferSlice
 {
@@ -103,7 +94,6 @@ class PVElement : public PVBufferSlice
 
   private:
 	static tbb::scalable_allocator<PVElement> _alloc;
-	// static std::allocator<PVElement> _alloc;
 };
 }
 

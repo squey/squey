@@ -8,18 +8,17 @@
 #ifndef PVCORE_PVDIRECTORY_H
 #define PVCORE_PVDIRECTORY_H
 
-#include <QString>
 #include <QDir>
+#include <QString>
 
 namespace PVCore
 {
 
-class PVDirectory
+namespace PVDirectory
 {
-  public:
-	static bool remove_rec(QString const& dirName);
-	static QString temp_dir(QString const& pattern);
-	static QString temp_dir(QDir const& directory, QString const& pattern);
+bool remove_rec(QString const& dirName);
+QString temp_dir(QString const& pattern);
+QString temp_dir(QDir const& directory, QString const& pattern);
 };
 }
 

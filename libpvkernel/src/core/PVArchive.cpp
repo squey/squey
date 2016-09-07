@@ -5,18 +5,33 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <archive.h>
-#include <archive_entry.h>
+#include <pvkernel/core/PVArchive.h>   // for PVArchive
+#include <pvkernel/core/PVDirectory.h> // for PVDirectory
+#include <pvkernel/core/PVLogger.h>    // for PVLOG_ERROR, PVLOG_INFO, etc
 
-#include <boost/thread.hpp>
+#include <pvbase/general.h> // for INENDI_PATH_SEPARATOR_CHAR
 
-#include <pvbase/general.h>
-#include <pvkernel/core/PVArchive.h>
-#include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/PVDirectory.h>
+#include <archive.h>       // for archive_error_string, etc
+#include <archive_entry.h> // for archive_entry_set_pathname, etc
 
+#include <boost/thread/condition_variable.hpp>
+
+#include <array>      // for array
+#include <cstddef>    // for size_t
+#include <sys/stat.h> // for stat, off_t, st_atime, etc
+
+#include <QChar>
 #include <QDir>
 #include <QDirIterator>
+#include <QFile>
+#include <QFileInfo>
+#include <QString>
+#include <QStringList>
+
+namespace boost
+{
+class thread_interrupted;
+}
 
 static void inendi_archive_read_support(struct archive* a)
 {

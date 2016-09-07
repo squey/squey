@@ -11,6 +11,7 @@
 #include <pvkernel/core/PVArgument.h>
 
 #include <QMetaType>
+#include <QString>
 #include <QStringList>
 
 namespace PVCore

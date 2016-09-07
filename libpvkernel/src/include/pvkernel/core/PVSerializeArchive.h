@@ -14,6 +14,8 @@
 
 #include <QVariant>
 #include <QHash>
+#include <QDir>
+#include <QSettings>
 
 #include <cassert>
 #include <memory>

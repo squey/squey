@@ -6,11 +6,13 @@
  */
 
 #include <pvkernel/core/PVBufferSlice.h>
-#include <cassert>
 
 #include <tbb/tbb_allocator.h>
 
-#define REALLOC_GROWBY_ADD 20
+#include <cassert>
+#include <cstring>
+
+constexpr size_t REALLOC_GROWBY_ADD = 20;
 
 // No buffer simulation
 static uint32_t g_null_buf_data = 0;

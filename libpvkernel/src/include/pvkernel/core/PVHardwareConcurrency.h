@@ -9,6 +9,7 @@
 #define PVHARDWARECONCURRENCY_H_
 
 #include <vector>
+#include <cstdint>
 
 #include <hwloc.h>
 
