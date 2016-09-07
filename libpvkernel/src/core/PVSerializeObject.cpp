@@ -166,6 +166,11 @@ bool PVCore::PVSerializeObject::visible() const
 	return _visible;
 }
 
+void PVCore::PVSerializeObject::set_current_status(std::string const& s)
+{
+	_parent_ar->set_current_status(s);
+}
+
 void PVCore::PVSerializeObject::arguments(QString const& name,
                                           PVArgumentList& obj,
                                           PVArgumentList const& def_args)

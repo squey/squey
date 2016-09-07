@@ -53,6 +53,8 @@ class PVSerializeArchive
 	}
 	std::string const& get_repaired_path() const { return _repaired.first; }
 	std::string const& get_repaired_value() const { return _repaired.second; }
+	void set_current_status(std::string const& s) { _current_status = s; }
+	std::string const& get_current_status() const { return _current_status; }
 
   protected:
 	bool is_writing() const { return _mode == write; }
@@ -110,6 +112,7 @@ class PVSerializeArchive
 
 	std::shared_ptr<PVSerializeArchiveOptions> _options;
 	bool _save_everything;
+	std::string _current_status; //!< Description about where we are in the serialization process.
 };
 }
 

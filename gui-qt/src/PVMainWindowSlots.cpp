@@ -43,6 +43,8 @@
 #include <QWindow>
 #include <QScreen>
 
+#include <boost/thread/scoped_thread.hpp>
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::about_Slot()
@@ -420,13 +422,13 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 {
 	setWindowModified(false);
 
-	PVCore::PVSerializeArchive_p ar;
 	PVCore::PVSerializeArchiveError read_exception("");
 	bool solution_has_been_fixed = false;
 	if (PVCore::PVProgressBox::progress(
 	        [&](PVCore::PVProgressBox& pbox) {
 		        pbox.set_enable_cancel(true);
 		        pbox.set_extended_status("Unzip archive file");
+		        std::unique_ptr<PVCore::PVSerializeArchive> ar;
 		        try {
 			        ar.reset(new PVCore::PVSerializeArchiveZip(
 			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
@@ -435,17 +437,25 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 			        return;
 		        }
 
+		        // Use a scoped thread as it will continue forever so we want to interrupt is and
+		        // abort at then end.
+		        // This thread update the progressBox status every 100 ms
+		        boost::strict_scoped_thread<boost::interrupt_and_join_if_joinable> t1(
+		            (boost::thread([&ar, &pbox]() {
+			            while (true) {
+				            pbox.set_extended_status(ar->get_current_status());
+				            boost::this_thread::interruption_point();
+				            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			            }
+			        })));
+
 		        while (true) {
 			        QString err_msg;
 			        try {
 				        pbox.set_extended_status("Loading investigation from archive");
-				        get_root().load_from_archive(ar);
+				        get_root().load_from_archive(*ar);
 			        } catch (PVCore::PVSerializeArchiveError& e) {
-				        read_exception = PVCore::PVSerializeArchiveError(
-				            tr("Error while loading solution %1:\n%2")
-				                .arg(file)
-				                .arg(e.what())
-				                .toStdString());
+				        read_exception = e;
 				        return;
 			        } catch (PVRush::PVInputException const& e) {
 				        read_exception = PVCore::PVSerializeArchiveError(

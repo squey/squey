@@ -100,6 +100,7 @@ class PVSerializeObject
 	QString const& get_logical_path() const;
 	PVSerializeObject* parent();
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
+	void set_current_status(std::string const& s);
 
   public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.

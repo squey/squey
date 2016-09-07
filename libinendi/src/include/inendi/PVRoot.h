@@ -65,7 +65,7 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	void save_to_file(QString const& path,
 	                  std::shared_ptr<PVCore::PVSerializeArchiveOptions> options = nullptr,
 	                  bool save_everything = false);
-	void load_from_archive(PVCore::PVSerializeArchive_p ar);
+	void load_from_archive(PVCore::PVSerializeArchive& ar);
 	std::shared_ptr<PVCore::PVSerializeArchiveOptions> get_default_serialize_options();
 
 	void set_path(QString path) { _path = path; }
