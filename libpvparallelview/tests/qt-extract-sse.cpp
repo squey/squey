@@ -134,7 +134,7 @@ void extract_seq(const quadtree_entry_t* entries,
 	    (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t ly1_max =
 	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
-	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
+	const uint64_t clipped_max_count = std::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 	std::fill_n(buffer.begin(), count_aligned, 0);
 	uint32_t remaining = clipped_max_count * y2_count;
@@ -309,7 +309,7 @@ void extract_sse(const quadtree_entry_t* entries,
 	    (PVCore::clamp(y1_min, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
 	const uint64_t ly1_max =
 	    (PVCore::clamp(y1_max, y1_orig, y1_orig + y1_len) - y1_orig) / y1_scale;
-	const uint64_t clipped_max_count = PVCore::max(1UL, ly1_max - ly1_min);
+	const uint64_t clipped_max_count = std::max(1UL, ly1_max - ly1_min);
 	const size_t count_aligned = ((clipped_max_count * y2_count) + 31) / 32;
 	std::fill_n(buffer.begin(), count_aligned, 0);
 	uint32_t remaining = clipped_max_count * y2_count;

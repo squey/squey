@@ -137,7 +137,7 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
 		y2_count = PVCore::upper_power_of_2(y2_count);
 	}
 
-	return PVCore::max(1U, y2_count);
+	return std::max(1U, y2_count);
 }
 
 /*****************************************************************************

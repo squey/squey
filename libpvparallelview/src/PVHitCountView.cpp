@@ -419,7 +419,7 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter* painter,
 			continue;
 		}
 
-		vx = PVCore::min(x_max, vx);
+		vx = std::min(x_max, vx);
 
 		double ratio = count - min_value;
 

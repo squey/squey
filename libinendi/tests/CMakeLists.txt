@@ -20,8 +20,6 @@ add_bench(Tinendi_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.
 add_pv_compile_test(Tinendi_format LINKS ${LINK_LIBRARIES} FILES format.cpp)
 add_test(Tinendi_format Tinendi_format)
 
-add_pv_compile_test(Tinendi_source_serialize LINKS ${LINK_LIBRARIES} FILES source-serialize.cpp)
-add_pv_compile_test(Tinendi_root_serialize LINKS ${LINK_LIBRARIES} FILES root-serialize.cpp)
 add_pv_compile_test(sel_red LINKS ${LINK_LIBRARIES} FILES selection_red.cpp)
 add_pv_compile_test(Tqt_new_layer_dialog LINKS ${LINK_LIBRARIES} FILES new_layer_dialog.cpp)
 add_pv_compile_test(Tinendi_export_selection LINKS ${LINK_LIBRARIES} FILES export_selection.cpp)

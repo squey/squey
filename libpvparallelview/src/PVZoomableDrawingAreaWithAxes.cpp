@@ -163,11 +163,11 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 	QRectF view_in_scene = get_visible_scene_rect();
 	QRectF scene_in_screen = map_from_scene(get_scene_rect());
 
-	_x_axis_length = PVCore::min(scene_in_screen.width(), right - margin_left - 1.);
-	_y_axis_length = PVCore::min(scene_in_screen.height(), bottom - DEFAULT_HMARGIN);
+	_x_axis_length = std::min(scene_in_screen.width(), right - margin_left - 1.);
+	_y_axis_length = std::min(scene_in_screen.height(), bottom - DEFAULT_HMARGIN);
 	int t = bottom - _y_axis_length;
 
-	int l = PVCore::max(
+	int l = std::max(
 	    fm.boundingRect(get_y_value_at(-view_in_scene.y())).width(),
 	    fm.boundingRect(get_y_value_at(-(view_in_scene.y() + view_in_scene.height()))).width());
 	int r = fm.boundingRect(get_y_value_at(-(view_in_scene.x() + view_in_scene.width()))).width();
