@@ -31,11 +31,11 @@ int main(int argc, char** argv)
 	const char* csv_file = argv[1];
 	const char* csv_file_format = argv[2];
 
-	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
+	pvtest::TestEnv env(csv_file, csv_file_format, dupl, pvtest::ProcessUntil::Plotted);
 
 	auto start = std::chrono::system_clock::now();
 
-	Inendi::PVMapped& mapped = env.compute_mapping();
+	const Inendi::PVPlotted& plotted = env.compute_plotting();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -50,23 +50,23 @@ int main(int argc, char** argv)
 	pvcop::db::algo::distinct(column, dist);
 
 	// compute distinct mapping values.
-	const auto& mapping = mapped.get_column(0).to_core_array<uint32_t>();
-	std::set<uint32_t> distinct_mapping;
+	const uint32_t* plotting = plotted.get_column_pointer(0);
+	std::set<uint32_t> distinct_plotting;
 	for (size_t i = 0; i < column.size(); i++) {
-		distinct_mapping.insert(mapping[i]);
+		distinct_plotting.insert(plotting[i]);
 	}
 
 	// Check there is a much distinct mapping than distinct values.
-	PV_VALID(dist.size(), distinct_mapping.size());
+	PV_VALID(dist.size(), distinct_plotting.size());
 
 	// Check it is equi-reparteed
-	PV_ASSERT_VALID(std::adjacent_find(distinct_mapping.begin(), distinct_mapping.end(),
+	PV_ASSERT_VALID(std::adjacent_find(distinct_plotting.begin(), distinct_plotting.end(),
 	                                   [](uint32_t a, uint32_t b) {
 		                                   return b + 1 < a or a < b - 1;
-		                               }) != distinct_mapping.end());
+		                               }) != distinct_plotting.end());
 
 #else
-	(void)mapped;
+	(void)plotted;
 #endif
 
 	return 0;

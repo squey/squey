@@ -50,13 +50,13 @@ add_pv_compile_test(Tmapping_ipv4_default LINKS ${LINK_LIBRARIES} FILES mapping_
 add_test(Tmapping_ipv4_default Tmapping_ipv4_default)
 add_bench(Tmapping_ipv4_default LINKS ${LINK_LIBRARIES} FILES mapping_ipv4_default.cpp)
 
-add_pv_compile_test(Tmapping_ipv4_uniform LINKS ${LINK_LIBRARIES} FILES mapping_uniform.cpp)
-add_test(Tmapping_ipv4_uniform Tmapping_ipv4_uniform ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv.format)
-add_bench(Tmapping_ipv4_uniform LINKS ${LINK_LIBRARIES} FILES mapping_uniform.cpp)
+add_pv_compile_test(Tplotting_ipv4_uniform LINKS ${LINK_LIBRARIES} FILES plotting_uniform.cpp)
+add_test(Tplotting_ipv4_uniform Tplotting_ipv4_uniform ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv.format)
+add_bench(Tplotting_ipv4_uniform LINKS ${LINK_LIBRARIES} FILES plotting_uniform.cpp)
 
-add_pv_compile_test(Tmapping_ipv6_uniform LINKS ${LINK_LIBRARIES} FILES mapping_uniform.cpp)
-add_test(Tmapping_ipv6_uniform Tmapping_ipv6_uniform ${TESTS_FILES_DIR}/picviz/ipv6.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format)
-add_bench(Tmapping_ipv6_uniform LINKS ${LINK_LIBRARIES} FILES mapping_uniform.cpp)
+add_pv_compile_test(Tplotting_ipv6_uniform LINKS ${LINK_LIBRARIES} FILES plotting_uniform.cpp)
+add_test(Tplotting_ipv6_uniform Tplotting_ipv6_uniform ${TESTS_FILES_DIR}/picviz/ipv6.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format)
+add_bench(Tplotting_ipv6_uniform LINKS ${LINK_LIBRARIES} FILES plotting_uniform.cpp)
 
 add_pv_compile_test(Tmapping_string_4bsort LINKS ${LINK_LIBRARIES} FILES mapping_string_4bsort.cpp)
 add_test(Tmapping_string_4bsort Tmapping_string_4bsort)
