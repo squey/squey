@@ -8,10 +8,16 @@
 #ifndef PVFILTER_PVCHUNKFILTERBYELT_H
 #define PVFILTER_PVCHUNKFILTERBYELT_H
 
-#include <pvkernel/filter/PVChunkFilter.h>
-#include <pvkernel/filter/PVElementFilter.h>
+#include <pvkernel/filter/PVChunkFilter.h>   // for PVChunkFilter
+#include <pvkernel/filter/PVElementFilter.h> // for PVElementFilter
 
-#include <memory>
+#include <algorithm> // for move
+#include <memory>    // for unique_ptr
+
+namespace PVCore
+{
+class PVChunk;
+}
 
 namespace PVFilter
 {

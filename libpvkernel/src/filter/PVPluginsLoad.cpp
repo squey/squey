@@ -5,12 +5,15 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/core/PVLogger.h>
-#include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/filter/PVPluginsLoad.h> // for NORMALIZE_FILTER_PREFIX
+
+#include <pvkernel/core/PVClassLibrary.h> // for PVClassLibraryLibLoader
+#include <pvkernel/core/PVLogger.h>       // for PVLOG_INFO, PVLOG_WARN
 
 #include <QString>
-#include <iostream>
+
+#include <cstdlib> // for getenv
+#include <string>  // for allocator, operator+, etc
 
 int PVFilter::PVPluginsLoad::load_all_plugins()
 {

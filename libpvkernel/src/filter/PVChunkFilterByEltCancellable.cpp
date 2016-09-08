@@ -6,9 +6,20 @@
  */
 
 #include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVChunk.h>         // for list_elts, PVChunk
+#include <pvkernel/core/PVElement.h>       // for PVElement
+#include <pvkernel/filter/PVChunkFilter.h> // for PVChunkFilter
 
-#include <tbb/tick_count.h>
+#include <tbb/tick_count.h> // for tick_count, operator-, etc
+
+#include <algorithm> // for move
+#include <list>
+#include <cstddef> // for size_t
+
+namespace PVFilter
+{
+class PVElementFilter;
+}
 
 /******************************************************************************
  *
@@ -32,9 +43,8 @@ PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(
 PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVChunk* chunk) const
 {
 	PVCore::list_elts& elts = chunk->elements();
-	PVCore::list_elts::iterator it, ite;
-	it = elts.begin();
-	ite = elts.end();
+	auto it = elts.begin();
+	auto ite = elts.end();
 	size_t nelts = elts.size();
 	size_t nelts_valid = 0;
 	tbb::tick_count start = tbb::tick_count::now();
@@ -47,7 +57,7 @@ PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVC
 		le = tbb::tick_count::now();
 		if (!elt.valid()) {
 			PVCore::PVElement::free(*it);
-			PVCore::list_elts::iterator it_rem = it;
+			auto it_rem = it;
 			it++;
 			elts.erase(it_rem);
 		} else {

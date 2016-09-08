@@ -5,6 +5,12 @@
  */
 
 #include <pvkernel/filter/PVElementFilterByAxes.h>
+#include <pvkernel/filter/PVElementFilterByFields.h>
+
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList
+
+#include <cstddef> // for size_t
+#include <list>    // for _List_iterator, list
 
 /******************************************************************************
  * PVFilter::PVElementFilterByAxes::PVElementFilterByAxes

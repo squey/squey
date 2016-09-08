@@ -5,8 +5,9 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
+
+#include <pvkernel/core/PVElement.h> // for PVElement
 
 /******************************************************************************
  *

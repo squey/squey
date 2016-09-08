@@ -9,6 +9,7 @@
 #define PVFILTER_PVFIELDFILTERGREP_H
 
 #include <pvkernel/filter/PVFieldsFilter.h>
+
 #include <QString>
 
 namespace PVFilter

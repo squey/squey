@@ -9,9 +9,14 @@
 #define PVFILTER_PVELEMENTFILTERBYFIELDS_H
 
 #include <pvkernel/filter/PVElementFilter.h>
-#include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <pvkernel/core/PVElement.h>
+
+#include <vector>
+
+namespace PVCore
+{
+class PVElement;
+}
 
 namespace PVFilter
 {

@@ -5,8 +5,16 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVField.h>
-#include <pvkernel/filter/PVFieldsFilter.h>
+#include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsFilter, etc
+
+#include <pvkernel/core/PVField.h>   // for PVField
+#include <pvkernel/core/PVElement.h> // for list_fields, PVElement
+
+#include <QString> // for QString
+
+#include <cstddef>  // for size_t
+#include <iterator> // for advance, distance
+#include <list>     // for _List_iterator, etc
 
 // The namespace has to be specified for template function specialisation
 namespace PVFilter
