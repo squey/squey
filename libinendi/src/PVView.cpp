@@ -189,10 +189,9 @@ PVRush::PVAxisFormat const& Inendi::PVView::get_axis(PVCombCol index) const
  * Inendi::PVView::get_axis_name
  *
  *****************************************************************************/
-QString Inendi::PVView::get_axis_name(PVCombCol index) const
+const QString& Inendi::PVView::get_axis_name(PVCombCol index) const
 {
-	PVAxis const& axis = _axes_combination.get_axis(index);
-	return axis.get_name();
+	return _axes_combination.get_axis(index).get_name();
 }
 
 QString Inendi::PVView::get_nraw_axis_name(PVCol axis_id) const
