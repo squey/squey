@@ -8,15 +8,17 @@
 #ifndef PVCORE_PVCLASSLIBRARY_H
 #define PVCORE_PVCLASSLIBRARY_H
 
-#include <pvkernel/core/PVTag.h>
+#include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMap
+#include <pvkernel/core/PVTag.h>        // for PVTagUndefinedException, etc
 
-#include <pvkernel/core/PVOrderedMap.h>
+#include <cassert>   // for assert
+#include <stdexcept> // for runtime_error
+#include <string>    // for operator+, basic_string
+#include <typeinfo>  // for type_info
+
 #include <QString>
-
-#include <cassert>
-#include <algorithm>
-#include <typeinfo>
-#include <stdexcept>
+#include <QStringList>
+#include <QList>
 
 namespace PVCore
 {

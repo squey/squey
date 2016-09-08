@@ -7,8 +7,13 @@
 
 #include <pvkernel/core/PVPredefinedHSVColors.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVHSVColor.h> // for PVHSVColor, HSV_COLOR_BLACK, etc
 
-#define COLORS_SETTINGS_ARRAY "predefined_colors"
+#include <QSettings>
+#include <QString>
+#include <QVariant>
+
+constexpr const char* COLORS_SETTINGS_ARRAY = "predefined_colors";
 
 std::vector<PVCore::PVHSVColor> PVCore::PVPredefinedHSVColors::get_predefined_colors()
 {

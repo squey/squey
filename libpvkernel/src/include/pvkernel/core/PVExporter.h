@@ -7,11 +7,14 @@
 #ifndef __PVCORE_PVEXPORTER_H__
 #define __PVCORE_PVEXPORTER_H__
 
-#include <pvkernel/core/PVColumnIndexes.h>
+#include <pvkernel/core/PVColumnIndexes.h> // for PVColumnIndexes
 
-#include <fstream>
-#include <functional>
-#include <string>
+#include "pvbase/types.h" // for PVRow
+
+#include <cstddef>    // for size_t
+#include <fstream>    // for ostream
+#include <functional> // for function
+#include <string>     // for string
 
 namespace PVCore
 {

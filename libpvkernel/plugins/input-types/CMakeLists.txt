@@ -10,7 +10,7 @@
 
 # For QSQLDatabase
 find_package(Qt5Sql REQUIRED)
-include_directories(${Qt5Sql_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -93,7 +93,7 @@ file/PVImportFileDialog.cpp
 QT5_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 # Generate linkage configuration
-include_directories(AFTER ${CURL_INCLUDE_DIR})
+include_directories(SYSTEM AFTER ${CURL_INCLUDE_DIR})
 add_library(input_type_remotefile SHARED ${REMOTEFILE_SRC} ${REMOTEFILE_MOC_SRCS})
 target_link_libraries(input_type_remotefile pvkernel ${ARCHIVE_LIBRARY} ${CURL_LIBRARIES})
 

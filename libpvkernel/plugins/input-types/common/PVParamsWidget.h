@@ -44,8 +44,22 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	                   QWidget* parent);
 	virtual ~PVParamsWidgetBase(){};
 
-  protected:
+  public:
+	/** Check if the connection to the server is successful
+	 *
+	 * @param error Store any occured error if provided
+	 *
+	 * @return true if successfully connected to the server, false otherwise.
+	 */
 	virtual bool check_connection(std::string* error = nullptr) = 0;
+
+	/** Get the query result count
+	 *
+	 * @param error Store any occured error if provided
+	 *
+	 * @return the result count returned by the query.
+	 *         0 if an error occured
+	 */
 	virtual size_t query_result_count(std::string* error = nullptr) = 0;
 
   protected:
@@ -101,14 +115,6 @@ class PVParamsWidget : public PVParamsWidgetBase
 	}
 
   public:
-	/** Check if the connection to the server is successful
-	 *
-	 * @param error Store any occured error if provided
-	 *
-	 * @return true if successfully connected to the server, false otherwise.
-	 */
-	virtual bool check_connection(std::string* error = nullptr) = 0;
-
 	/** Fetch the needed data from server in order to initalize the widget
 	 *  For eg, retrieving the list of databases to fill a combo box.
 	 *
@@ -117,15 +123,6 @@ class PVParamsWidget : public PVParamsWidgetBase
 	 * @return true on success, false otherwise
 	 */
 	virtual bool fetch_server_data(const Infos& infos) = 0;
-
-	/** Get the query result count
-	 *
-	 * @param error Store any occured error if provided
-	 *
-	 * @return the result count returned by the query.
-	 *         0 if an error occured
-	 */
-	virtual size_t query_result_count(std::string* error = nullptr) = 0;
 
 	/** Export the query result
 	 *
@@ -216,7 +213,7 @@ class PVParamsWidget : public PVParamsWidgetBase
 	}
 
   protected:
-	void export_slot()
+	void export_slot() override
 	{
 		std::string error;
 		get_query(&error);

@@ -8,8 +8,9 @@
 #ifndef __PVCORE_PVMEMORY2D_H_
 #define __PVCORE_PVMEMORY2D_H_
 
-#include <stdlib.h>
-#include <QRect>
+#include <cstddef>
+#include <sys/types.h>
+class QRect;
 
 namespace PVCore
 {

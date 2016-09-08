@@ -8,10 +8,17 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEOPTIONS_H
 #define PVCORE_PVSERIALIZEARCHIVEOPTIONS_H
 
-#include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVSerializeArchive.h> // for PVSerializeArchive, etc
+#include <cstddef>                            // for size_t
+#include <vector>                             // for vector
+#include <pvkernel/core/PVSerializeObject.h>
+#include <QString>
+#include <QVariant>
 
 namespace PVCore
 {
+
+class PVArgumentList;
 
 class PVSerializeArchiveOptions : public PVSerializeArchive
 {

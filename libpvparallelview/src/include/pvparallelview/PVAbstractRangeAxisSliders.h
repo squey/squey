@@ -35,7 +35,7 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	// FIXME : This is an Ugly interface with a lot of bad use possibility.
 	virtual void initialize(id_t id, int64_t y_min, int64_t y_max) = 0;
 
-	virtual bool is_moving() const
+	bool is_moving() const override
 	{
 		return (_sl_min and _sl_max) ? (_sl_min->is_moving() || _sl_max->is_moving()) : false;
 	}
@@ -66,8 +66,8 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	}
 
   protected:
-	virtual void
-	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
+	void
+	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
 
   protected:
 	PVAbstractAxisSlider* _sl_min;

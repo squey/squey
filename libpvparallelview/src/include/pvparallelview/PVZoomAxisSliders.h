@@ -30,7 +30,7 @@ class PVZoomAxisSliders : public PVAbstractRangeAxisSliders, public sigc::tracka
   public:
 	PVZoomAxisSliders(QGraphicsItem* parent, PVSlidersManager* sm_p, PVSlidersGroup* group);
 
-	void initialize(id_t id, int64_t y_min, int64_t y_max);
+	void initialize(id_t id, int64_t y_min, int64_t y_max) override;
 
   public Q_SLOTS:
 	void remove_from_axis() override;

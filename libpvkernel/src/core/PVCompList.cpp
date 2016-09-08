@@ -6,7 +6,13 @@
  */
 
 #include <pvkernel/core/PVCompList.h>
-#include <pvkernel/core/PVTimeFormatType.h>
+#include <pvkernel/core/PVArgument.h>   // for PVArgumentList, PVArgument, etc
+#include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMapNode
+
+#include <vector> // for vector
+
+#include <QMetaType>
+#include <QVariant>
 
 namespace PVCore
 {

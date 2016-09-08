@@ -12,6 +12,8 @@
 #include <memory>
 #include <iostream>
 
+#include <QSettings>
+
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 /*****************************************************************************

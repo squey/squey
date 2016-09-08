@@ -6,10 +6,13 @@
  */
 
 #include <pvkernel/core/PVDirectory.h>
-#include <QDir>
-#include <QByteArray>
 
-#include <stdlib.h>
+#include <cstdlib> // for mkdtemp
+
+#include <QByteArray>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 // Taken from http://john.nachtimwald.com/2010/06/08/qt-remove-directory-and-its-contents/
 bool PVCore::PVDirectory::remove_rec(QString const& dirName)
@@ -18,9 +21,9 @@ bool PVCore::PVDirectory::remove_rec(QString const& dirName)
 	QDir dir(dirName);
 
 	if (dir.exists(dirName)) {
-		Q_FOREACH (QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System |
-		                                                 QDir::Hidden | QDir::AllDirs | QDir::Files,
-		                                             QDir::DirsFirst)) {
+		for (QFileInfo info : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden |
+		                                            QDir::AllDirs | QDir::Files,
+		                                        QDir::DirsFirst)) {
 			if (info.isDir()) {
 				result = remove_rec(info.absoluteFilePath());
 			} else {

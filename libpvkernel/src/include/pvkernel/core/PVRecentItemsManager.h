@@ -11,10 +11,8 @@
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 
-#include <QObject>
 #include <QSettings>
 #include <QStringList>
-#include <QDateTime>
 #include <QList>
 #include <QVariant>
 

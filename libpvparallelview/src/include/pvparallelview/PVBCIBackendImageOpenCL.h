@@ -59,7 +59,7 @@ class PVBCIBackendImageOpenCL : public PVParallelView::PVBCIBackendImage
   public:
 	QImage qimage(size_t crop_height) const override;
 
-	virtual bool set_width(uint32_t width)
+	bool set_width(uint32_t width) override
 	{
 		if (width > _width) {
 			return false;

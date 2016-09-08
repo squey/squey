@@ -6,11 +6,11 @@
  */
 
 #include <pvkernel/core/PVFileHelper.h>
-
 #include <pvkernel/core/PVLogger.h>
 
-#include <unistd.h>
+#include <cerrno> // for EAGAIN, errno
 #include <fcntl.h>
+#include <unistd.h>
 
 bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 {

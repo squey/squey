@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QMetaType>
 #include <QStringList>
+#include <QSettings>
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVArgument.h>

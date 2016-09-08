@@ -11,7 +11,7 @@ ADD_DEFINITIONS(-DQT_SHARED)
 ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
 FIND_PACKAGE(Qt5Core REQUIRED)
 message(STATUS "QtCore include dirs: " ${Qt5Core_INCLUDE_DIR})
-include_directories(${Qt5Core_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Core_INCLUDE_DIRS})
 
 ###############################################################################
 # Define the Intel TBB Library
@@ -21,7 +21,7 @@ set(TBB_ROOT_DIR /opt/tbb-latest)
 find_package(TBB 4.4 REQUIRED)
 
 message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
-include_directories(AFTER ${TBB_INCLUDE_DIRS})
+include_directories(SYSTEM AFTER ${TBB_INCLUDE_DIRS})
 
 if(CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
 	set(TBB_USE_DEBUG "1")
@@ -56,7 +56,7 @@ add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 find_package(Boost 1.49 REQUIRED COMPONENTS date_time system thread program_options)
 
 message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
-include_directories(AFTER ${BOOST_INCLUDEDIR})
+include_directories(SYSTEM AFTER ${BOOST_INCLUDEDIR})
 
 ###############################################################################
 # Check for OpenMP

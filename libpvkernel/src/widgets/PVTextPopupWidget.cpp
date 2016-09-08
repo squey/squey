@@ -23,6 +23,7 @@
 #include <QFile>
 #include <QResizeEvent>
 #include <QKeyEvent>
+#include <QSettings>
 
 /**
  * RH: the code snipset from http://jsfiddle.net/r9yrM/1/ has been used as a template for the

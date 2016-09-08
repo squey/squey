@@ -57,24 +57,22 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	bool is_moving() const { return _moving; }
 
   public:
-	virtual QRectF boundingRect() const = 0;
-
-	virtual void
+	void
 	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
 
   Q_SIGNALS:
 	void slider_moved();
 
   protected:
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
-	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent* event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+	void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
+	void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
+	void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
 
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
-	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* event);
+	void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
 
 	bool mouse_is_hover() const { return _is_hover; }
 

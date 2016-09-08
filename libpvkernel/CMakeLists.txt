@@ -14,15 +14,15 @@ set(CTEST_PROJECT_NAME "PVKernel")
 
 # For QDomElement
 find_package(Qt5Xml REQUIRED)
-include_directories(${Qt5Xml_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Xml_INCLUDE_DIRS})
 
 # For colors
 find_package(Qt5Gui REQUIRED)
-include_directories(${Qt5Gui_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Gui_INCLUDE_DIRS})
 
 # For Dialog
 find_package(Qt5Widgets REQUIRED)
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5Widgets_INCLUDE_DIRS})
 
 # FIXME : This is a hack waiting for Qt 5.4 and QOpenGLWidgets
 set(QT_NO_OPENGL 1)
@@ -31,16 +31,16 @@ if(${QT_NO_OPENGL})
 else(${QT_NO_OPENGL})
 # For QGLWidget
 find_package(Qt5OpenGL REQUIRED)
-include_directories(${Qt5OpenGL_INCLUDE_DIRS})
+include_directories(SYSTEM ${Qt5OpenGL_INCLUDE_DIRS})
 endif(${QT_NO_OPENGL})
 
 # For QtWebKit or QtWebEngine
 if(${QT_WEBKIT})
 	find_package(Qt5WebKitWidgets REQUIRED)
-	include_directories(${Qt5WebKitWidgets_INCLUDE_DIRS})
+	include_directories(SYSTEM ${Qt5WebKitWidgets_INCLUDE_DIRS})
 else(${QT_WEBKIT})
 	find_package(Qt5WebEngineWidgets REQUIRED)
-	include_directories(${Qt5WebEngineWidgets_INCLUDE_DIRS})
+	include_directories(SYSTEM ${Qt5WebEngineWidgets_INCLUDE_DIRS})
 endif(${QT_WEBKIT})
 
 ##################################################################
@@ -55,12 +55,12 @@ add_definitions(-DPVKERNEL_PLUGIN_PATH="${PVKERNEL_PLUGIN}")
 ###################################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
-include_directories(AFTER ${ICU_INCLUDE})
-include_directories(AFTER ${ARCHIVE_INCLUDE_DIRS})
-include_directories(AFTER ${BREAKPAD_INCLUDE_DIRS})
-include_directories(AFTER ${Boost_INCLUDE_DIR})
-include_directories(AFTER ${HWLOC_INCLUDE_DIRS})
-include_directories(AFTER ${SIGCPP_INCLUDE_DIRS})
+include_directories(SYSTEM AFTER ${ICU_INCLUDE})
+include_directories(SYSTEM AFTER ${ARCHIVE_INCLUDE_DIRS})
+include_directories(SYSTEM AFTER ${BREAKPAD_INCLUDE_DIRS})
+include_directories(SYSTEM AFTER ${Boost_INCLUDE_DIR})
+include_directories(SYSTEM AFTER ${HWLOC_INCLUDE_DIRS})
+include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
 include_directories(AFTER "src/third_party/uchardetect")
 
 ###############################################################################

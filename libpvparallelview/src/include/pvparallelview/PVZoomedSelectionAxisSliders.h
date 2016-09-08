@@ -31,7 +31,7 @@ class PVZoomedSelectionAxisSliders : public PVAbstractRangeAxisSliders, public s
 	                             PVSlidersManager* sm_p,
 	                             PVSlidersGroup* group);
 
-	virtual void initialize(id_t id, int64_t y_min, int64_t y_max);
+	void initialize(id_t id, int64_t y_min, int64_t y_max) override;
 
 	id_t get_id() const { return _id; }
 

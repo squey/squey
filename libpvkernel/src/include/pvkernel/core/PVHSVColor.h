@@ -8,14 +8,12 @@
 #ifndef PVCORE_HSVCOLOR_H
 #define PVCORE_HSVCOLOR_H
 
-#include <pvbase/types.h>
-#include <stdint.h>
+#include <cstdint>
 
 #include <QColor>
-#include <QImage>
+#include <QRect> // for QRect
 
-//#define HSV_COLOR_NBITS_ZONE 6
-//#define HSV_COLOR_MASK_ZONE 63
+class QImage;
 
 #define HSV_COLOR_NBITS_ZONE 5
 #define HSV_COLOR_MASK_ZONE 31

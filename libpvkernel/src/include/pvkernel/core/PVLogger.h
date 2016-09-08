@@ -8,14 +8,15 @@
 #ifndef PVKERNEL_CORE_PVLOGGER_H
 #define PVKERNEL_CORE_PVLOGGER_H
 
-#include <cstdio>
+#include <algorithm> // for forward
+#include <cstdio>    // for FILE
+#ifndef NDEBUG
+#include <tuple>
+#endif
 
 #include <QByteArray>
 #include <QMutex>
 #include <QString>
-#include <tuple>
-
-#include <pvbase/export.h>
 
 namespace PVCore
 {

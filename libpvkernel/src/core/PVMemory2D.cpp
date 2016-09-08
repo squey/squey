@@ -6,14 +6,19 @@
  */
 
 #include <pvkernel/core/PVMemory2D.h>
+#include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
 
-#include <cstdint>
-#include <memory.h>
+#include <pvbase/general.h> // for PV_UNUSED
 
-#include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/core/PVLogger.h>
-#include <pvbase/general.h>
-#include <pvkernel/core/inendi_bench.h>
+#include <tbb/tick_count.h> // for tick_count
+
+#include <QRect> // for QRect
+
+#include <algorithm> // for max, min
+#include <cassert>   // for assert
+#include <cstdint>   // for uint32_t
+#include <cstdlib>   // for abs
+#include <cstring>   // for memcpy, memset
 
 void PVCore::memcpy2d(void* dst,
                       const void* source,

@@ -7,8 +7,7 @@
 
 #include <pvkernel/core/network.h>
 
-#include <QString>
-#include <cctype>
+#include <cctype> // for isspace
 
 static uint32_t powui(uint32_t base, uint32_t n)
 {

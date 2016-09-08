@@ -27,7 +27,7 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 
 	bool guess(list_guess_result_t& res, PVCore::PVField& in_field) override;
 
-	void set_args(PVCore::PVArgumentList const& args);
+	void set_args(PVCore::PVArgumentList const& args) override;
 
   private:
 	char _sep;

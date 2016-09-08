@@ -5,11 +5,31 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
-#include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/core/PVSelBitField.h> // for PVSelBitField, etc
+#include <pvkernel/core/PVSerializeObject.h>
+
+#include "pvbase/types.h" // for PVRow, PVROW_INVALID_VALUE, etc
+
+#include <pvcop/core/algo/selection.h> // for bit_count, invert_selection
+#include <pvcop/core/array.h>          // for array<>::data_type, array, etc
+#include <pvcop/core/impl/bit.h>       // for to_mem_size
+#include <pvcop/core/memarray.h>       // for memarray
+
+#include <cstdbool>    // for bool
+#include <cstddef>     // for size_t
+#include <cstdint>     // for uint64_t, uint8_t
+#include <cstdlib>     // for rand
+#include <cstring>     // for memset
+#include <sys/types.h> // for ssize_t
+#include <algorithm>   // for find_if
+#include <cassert>     // for assert
+#include <xmmintrin.h> // for __m128i, _mm_load_si128, etc
+
+namespace PVCore
+{
+class PVSerializeObject;
+}
 
 /******************************************************************************
  *

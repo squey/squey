@@ -8,19 +8,20 @@
 #ifndef PVCORE_PVALLOCATORS_H
 #define PVCORE_PVALLOCATORS_H
 
-#include <cstddef>
-#include <typeinfo>
-#include <memory>
+#include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR, PVLOG_WARN
 
-#include <stdint.h>
-#include <malloc.h>
-#include <sys/mman.h>
+#include <pvbase/types.h> // for DECLARE_ALIGN
 
-#include <numa.h>     // for numa_*
-#include <sys/mman.h> // for madvise
+#include <cstddef>     // for size_t, ptrdiff_t
+#include <cstdint>     // for uintptr_t
+#include <cstdlib>     // for free, malloc, realloc
+#include <mm_malloc.h> // for posix_memalign
+#include <numa.h>      // for numa_alloc_interleaved, etc
+#include <sys/mman.h>  // for mmap, madvise, munmap
 
-#include <pvbase/types.h>
-#include <pvkernel/core/PVLogger.h>
+#include <algorithm> // for forward
+#include <memory>    // for allocator
+#include <new>       // for operator new, bad_alloc
 
 namespace PVCore
 {

@@ -5,9 +5,16 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVArchive.h>
-#include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/core/PVArchive.h>   // for PVArchive
+#include <pvkernel/core/PVDirectory.h> // for remove_rec, temp_dir
 #include <pvkernel/core/PVSerializeArchiveZip.h>
+#include <pvkernel/core/PVSerializeArchive.h> // for PVSerializeArchive, etc
+#include <pvkernel/core/PVSerializeArchiveExceptions.h>
+
+#include <string> // for allocator, operator+, etc
+
+#include <QString>
+#include <QStringList>
 
 PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v) : PVSerializeArchive(v)
 {

@@ -8,7 +8,9 @@
 #ifndef PVRUSH_PVFILESERIALIZE_H
 #define PVRUSH_PVFILESERIALIZE_H
 
+#include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
+
 #include <QString>
 
 namespace PVCore

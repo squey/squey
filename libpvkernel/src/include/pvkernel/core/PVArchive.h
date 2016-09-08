@@ -8,8 +8,8 @@
 #ifndef PVCORE_PVARCHIVE_H
 #define PVCORE_PVARCHIVE_H
 
-#include <QStringList>
-#include <QString>
+class QStringList;
+class QString;
 
 namespace PVCore
 {

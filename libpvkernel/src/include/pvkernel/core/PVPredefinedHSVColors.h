@@ -11,6 +11,7 @@
 #include <pvkernel/core/PVHSVColor.h>
 
 #include <vector>
+#include <cstddef>
 
 namespace PVCore
 {

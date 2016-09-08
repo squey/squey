@@ -244,7 +244,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	try {
 		so.set_current_status("Load NRaw");
 		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", true, true);
-		source._nraw = std::move(PVRush::PVNraw::serialize_read(*nraw_obj));
+		source._nraw = PVRush::PVNraw::serialize_read(*nraw_obj);
 
 		// Serialize invalid elements.
 		so.set_current_status("Load invalid events");

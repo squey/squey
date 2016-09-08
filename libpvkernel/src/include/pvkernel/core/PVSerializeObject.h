@@ -8,22 +8,25 @@
 #ifndef PVCORE_PVSERIALIZEOBJECT_H
 #define PVCORE_PVSERIALIZEOBJECT_H
 
-#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
-#include <pvkernel/core/PVTypeInfo.h>
-#include <pvkernel/core/PVTypeTraits.h>
+#include <pvkernel/core/PVTypeInfo.h>   // for PVTypeInfo
+#include <pvkernel/core/PVTypeTraits.h> // for remove_shared_ptr
 
-#include <QDir>
-#include <QSettings>
+#include <cstddef> // for size_t
+#include <cstdint> // for uint32_t
+#include <memory>  // for __shared_ptr, shared_ptr
+#include <string>  // for string
+#include <vector>  // for vector, vector<>::iterator
 
-#include <cassert>
-#include <memory>
-#include <type_traits>
-#include <vector>
+#include <QFile>
+#include <QHash>
+#include <QString>
+#include <QVariant>
 
 namespace PVCore
 {
 
+class PVArgumentList;
 class PVSerializeArchive;
 class PVSerializeArchiveFixError;
 

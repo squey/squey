@@ -16,7 +16,7 @@ namespace PVRush
 class PVSourceCreatorRemoteTextfile : public PVSourceCreatorTextfile
 {
   public:
-	QString supported_type() const;
+	QString supported_type() const override;
 
 	CLASS_REGISTRABLE(PVSourceCreatorRemoteTextfile)
 };

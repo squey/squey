@@ -38,7 +38,7 @@ namespace PVParallelView
 
 // forward declaration
 template <size_t Bbits>
-class PVBCICode;
+struct PVBCICode;
 
 /**
  * @class PVZoomedZoneTree

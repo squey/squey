@@ -197,7 +197,7 @@ class PVMainWindow : public QMainWindow
 	void close_solution_Slot();
 
   protected:
-	void closeEvent(QCloseEvent* event);
+	void closeEvent(QCloseEvent* event) override;
 
   private:
 	void display_inv_elts();
@@ -281,7 +281,7 @@ class PVMainWindow : public QMainWindow
 	QString _current_save_root_folder;
 
   protected:
-	void keyPressEvent(QKeyEvent* event);
+	void keyPressEvent(QKeyEvent* event) override;
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 
   private:

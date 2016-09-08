@@ -36,7 +36,7 @@ class PVStatsModel : public PVAbstractTableModel
 	{
 	}
 
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const override
 	{
 		switch (role) {
 		case (Qt::DisplayRole): {
@@ -97,7 +97,7 @@ class PVStatsModel : public PVAbstractTableModel
 	}
 
   public:
-	QVariant data(QModelIndex const& index, int role) const
+	QVariant data(QModelIndex const& index, int role) const override
 	{
 		if (not index.isValid()) {
 			return {};
@@ -151,7 +151,7 @@ class PVStatsModel : public PVAbstractTableModel
 		Q_EMIT layoutChanged();
 	}
 
-	int columnCount(const QModelIndex& /*index*/) const { return 2; }
+	int columnCount(const QModelIndex& /*index*/) const override { return 2; }
 
 	void use_logarithmic_scale(bool log_scale) { _use_logarithmic_scale = log_scale; }
 

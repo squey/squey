@@ -803,7 +803,7 @@ class PVGraphicsView : public QWidget
 	/**
 	 * \reimpl
 	 */
-	QSize sizeHint() const;
+	QSize sizeHint() const override;
 
   protected:
 	/**

@@ -8,9 +8,12 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvkernel/core/PVClassLibrary.h>
 #include "PVFieldConverterSubstitution.h"
 #include "PVFieldConverterSubstitutionParamWidget.h"
+
+#include <pvkernel/core/PVClassLibrary.h>
+
+#include <pvbase/export.h>
 
 // This method will be called by libinendi
 LibCPPExport void register_class()

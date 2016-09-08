@@ -6,33 +6,29 @@
  */
 
 #include <pvkernel/core/PVAllocators.h>
-#include <unistd.h>
-#include <ios>
-#include <iostream>
+
 #include <fstream>
-#include <string>
+#include <iostream> // for basic_istream, ifstream, etc
+#include <string>   // for operator>>, string
+#include <unistd.h> // for sysconf, _SC_PAGE_SIZE
 
 // Taken from http://stackoverflow.com/questions/669438/how-to-get-memory-usage-at-run-time-in-c
 // vm_usage and resident_set are in KB.
 void PVCore::PVMemory::get_memory_usage(double& vm_usage, double& resident_set)
 {
-	using std::ios_base;
-	using std::ifstream;
-	using std::string;
-
 	vm_usage = 0.0;
 	resident_set = 0.0;
 
 	// 'file' stat seems to give the most reliable results
 	//
-	ifstream stat_stream("/proc/self/stat", ios_base::in);
+	std::ifstream stat_stream("/proc/self/stat", std::ios_base::in);
 
 	// dummy vars for leading entries in stat that we don't care about
 	//
-	string pid, comm, state, ppid, pgrp, session, tty_nr;
-	string tpgid, flags, minflt, cminflt, majflt, cmajflt;
-	string utime, stime, cutime, cstime, priority, nice;
-	string O, itrealvalue, starttime;
+	std::string pid, comm, state, ppid, pgrp, session, tty_nr;
+	std::string tpgid, flags, minflt, cminflt, majflt, cmajflt;
+	std::string utime, stime, cutime, cstime, priority, nice;
+	std::string O, itrealvalue, starttime;
 
 	// the two fields we want
 	//

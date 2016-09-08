@@ -5,12 +5,20 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVChunk.h>
-#include <pvkernel/core/PVElement.h>
-#include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVBufferSlice.h> // for buf_list_t, PVBufferSlice
+#include <pvkernel/core/PVChunk.h>       // for PVChunk
+#include <pvkernel/core/PVElement.h>     // for PVElement, list_fields
+
+#include <pvbase/types.h> // for chunk_index
+
+#include <cstddef> // for size_t
+#include <new>     // for operator new
+#include <utility> // for pair
+
+#include <tbb/scalable_allocator.h> // for scalable_allocator
+#include <tbb/tbb_allocator.h>      // for tbb_allocator
 
 tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
-// std::allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 
 PVCore::PVElement::PVElement(PVChunk* parent) : PVBufferSlice(_reallocated_buffers)
 {
@@ -26,9 +34,8 @@ PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end)
 PVCore::PVElement::~PVElement()
 {
 	static tbb::tbb_allocator<char> alloc;
-	buf_list_t::const_iterator it;
-	for (it = _reallocated_buffers.begin(); it != _reallocated_buffers.end(); it++) {
-		alloc.deallocate(it->first, it->second);
+	for (auto v : _reallocated_buffers) {
+		alloc.deallocate(v.first, v.second);
 	}
 }
 

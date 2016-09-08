@@ -46,7 +46,7 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	static PVBCIDrawingBackendOpenCL& get();
 
   public:
-	Flags flags() const { return Serial; }
+	Flags flags() const override { return Serial; }
 
 	PVBCIBackendImage_p create_image(size_t img_width, uint8_t height_bits) override;
 

@@ -12,6 +12,8 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
+#include <QSettings>
+
 PVRush::PVAggregator::PVAggregator()
     : _cur_input(_inputs.begin())
     , _nstart(0)

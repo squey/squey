@@ -8,24 +8,25 @@
 #ifndef PVCHUNK_FILE_H
 #define PVCHUNK_FILE_H
 
-#include <pvkernel/core/PVAllocators.h>
-#include <pvkernel/core/PVElement.h>
-#include <pvkernel/core/PVField.h>
-#include <pvkernel/rush/PVRawSourceBase_types.h>
+#include <pvkernel/core/PVElement.h> // for PVElement
+#include <pvkernel/core/PVField.h>   // for PVField
+#include <pvkernel/core/PVLogger.h>  // for PVLOG_ERROR
 
-#include <tbb/tbb_allocator.h>
-#include <tbb/scalable_allocator.h>
+#include "pvbase/types.h" // for chunk_index, PVCol, PVRow
 
-#include <memory>
-#include <cassert>
-#include <list>
+#include <tbb/scalable_allocator.h> // for scalable_allocator
 
-#include <sys/mman.h>
+#include <cassert> // for assert
+#include <cstddef> // for size_t
+#include <cstdint> // for uintptr_t
+#include <cstring> // for memcpy
+#include <list>    // for _List_iterator, etc
+#include <new>     // for operator new
 
 namespace PVRush
 {
 class PVAggregator;
-class PVNraw;
+class PVRawSourceBase;
 };
 
 namespace PVCore

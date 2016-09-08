@@ -21,7 +21,7 @@ class PVFieldGUIDToIP : public PVFieldsConverter
 	PVFieldGUIDToIP(PVCore::PVArgumentList const& args = PVFieldGUIDToIP::default_args());
 
   public:
-	void set_args(PVCore::PVArgumentList const& args);
+	void set_args(PVCore::PVArgumentList const& args) override;
 	PVCore::PVField& one_to_one(PVCore::PVField& field) override;
 
   private:

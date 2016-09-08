@@ -4,11 +4,18 @@
  * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
+#include <pvkernel/core/PVColumnIndexes.h> // for PVColumnIndexes
 #include <pvkernel/core/PVExporter.h>
+#include <pvkernel/core/PVSelBitField.h> // for PVSelBitField
 
-#include <pvkernel/core/PVSelBitField.h>
+#include <pvbase/types.h> // for PVRow
 
-#include <omp.h>
+#include <cassert>    // for assert
+#include <cstddef>    // for size_t
+#include <functional> // for function
+#include <omp.h>      // for omp_get_thread_num
+#include <ostream>    // for flush, ostream
+#include <string>     // for allocator, string, etc
 
 const std::string PVCore::PVExporter::default_sep_char = ",";
 const std::string PVCore::PVExporter::default_quote_char = "\"";

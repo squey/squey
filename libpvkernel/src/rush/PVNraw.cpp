@@ -7,6 +7,7 @@
 
 #include <pvbase/general.h>
 #include <pvkernel/core/PVSelBitField.h>
+#include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>

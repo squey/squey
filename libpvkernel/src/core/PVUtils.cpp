@@ -7,8 +7,8 @@
 
 #include <pvkernel/core/PVUtils.h>
 
+#include <cstddef>
 #include <fstream>
-#include <algorithm>
 
 std::string& PVCore::replace(std::string& str, const std::string& from, const std::string& to)
 {

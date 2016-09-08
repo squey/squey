@@ -152,7 +152,7 @@ class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 	virtual void draw_decorations(QPainter* painter, const QRectF& rect);
 
   protected:
-	virtual void drawBackground(QPainter* painter, const QRectF& rect);
+	void drawBackground(QPainter* painter, const QRectF& rect) override;
 
   private:
 	void draw_deco_v1(QPainter* painter, const QRectF& rect);

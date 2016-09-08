@@ -37,7 +37,7 @@ class PVRenderingPipeline;
 class PVZonesProcessor;
 
 template <size_t Bbits>
-class PVBCICode;
+struct PVBCICode;
 
 /**
  * It looks like this class is a job scheduler for multiple zone rendering on the same ZoneId
