@@ -20,8 +20,9 @@
  *****************************************************************************/
 
 static constexpr const size_t vendor_max_count = 1 << 24;
+static constexpr const size_t nic_max_count = 1 << 24;
+
 static constexpr const size_t invalid_vendor = 1 << 24;
-static constexpr const size_t invalid_mac = 1UL << 48;
 
 static constexpr const size_t mapping_range = 1UL << 32;
 
@@ -36,7 +37,7 @@ inline vendor_t mac_to_vendor(const mac_t mac)
 
 inline nic_t mac_to_nic(const mac_t mac)
 {
-	return mac & (vendor_max_count - 1);
+	return mac % nic_max_count;
 }
 
 /*****************************************************************************
@@ -84,7 +85,7 @@ static size_t compute_uniform_vendor_bases(const pvcop::db::array& data_array,
 		bases[i] = (bases[i] * mapping_range) / vendor_count;
 	}
 
-	vendor_bases = bases;
+	vendor_bases = std::move(bases);
 
 	return vendor_count;
 }
@@ -112,19 +113,17 @@ static void compute_mac_distribution(const pvcop::db::array& data_array,
 	 * - the vendor relative MAC index is deduced from the sorted distinct MAC list.
 	 */
 	pvcop::db::array uniq_array;
-	pvcop::db::array histo_array;
 
 	/* fistst, the distinct.
 	 */
-	pvcop::db::algo::distinct(data_array, uniq_array, histo_array);
+	pvcop::db::algo::distinct(data_array, uniq_array);
 
 	auto& uniq = uniq_array.to_core_array<uint64_t>();
-	auto& histo = histo_array.to_core_array<uint64_t>();
 
-	/* we compute per-vendor count by accumulating the MAC histogram
+	/* we compute per-vendor unique MAC count
 	 */
 	for (size_t i = 0; i < uniq.size(); ++i) {
-		counts[mac_to_vendor(uniq[i])] += histo[i];
+		++counts[mac_to_vendor(uniq[i])];
 	}
 
 	/* now, we'll continue using the sorted distinct MAC list
@@ -134,37 +133,34 @@ static void compute_mac_distribution(const pvcop::db::array& data_array,
 	/* we compute the MAC address index relatively to its vendor
 	 */
 	size_t count = 0;
-	mac_t prev_mac = invalid_mac;
 	vendor_t prev_vendor = invalid_vendor;
 
 	std::unordered_map<size_t, size_t> relative_indices(uniq.size());
 
-	for (size_t i = 0; i < uniq.size(); ++i) {
-		const mac_t mac = uniq[i];
+	for (const auto mac : uniq) {
 		const vendor_t vendor = mac_to_vendor(mac);
 
 		if (vendor != prev_vendor) {
 			// new vendor (and implictly new MAC), we restart the counter.
 			prev_vendor = vendor;
-			prev_mac = mac;
 			count = 0;
-		} else if (mac != prev_mac) {
+		} else {
 			// new MAC (but same vendor)
 			++count;
 		}
 
-		relative_indices.insert({mac, count});
+		relative_indices.emplace(mac, count);
 	}
 
 /* finally, we can set the vendor-relative index for each MAC address
  */
 #pragma omp parallel for
 	for (size_t i = 0; i < data.size(); ++i) {
-		indexes[i] = relative_indices.find(data[i])->second;
+		indexes[i] = relative_indices.at(data[i]);
 	}
 
-	vendor_counts = counts;
-	mac_indexes = indexes;
+	vendor_counts = std::move(counts);
+	mac_indexes = std::move(indexes);
 }
 
 /*****************************************************************************
@@ -266,7 +262,7 @@ pvcop::db::array Inendi::PVMappingFilterMacAddressUL::operator()(PVCol const col
 	for (size_t i = 0; i < data.size(); ++i) {
 		const size_t vendor_base = vendor_bases[mac_to_vendor(data[i])];
 		const size_t nic_offset =
-		    (mac_to_nic(data[i]) * mapping_range) / (vendor_count * vendor_max_count);
+		    (mac_to_nic(data[i]) * mapping_range) / (vendor_count * nic_max_count);
 
 		mapping[i] = vendor_base + nic_offset;
 	}
