@@ -101,8 +101,9 @@ void PVRush::PVParamsWidgetBase::query_result_count_slot()
 	std::string error;
 
 	size_t count = 0;
-	PVCore::PVProgressBox pbox("Executing count request...", this);
-	PVCore::PVProgressBox::progress([&]() { count = query_result_count(&error); }, &pbox);
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& /*pbox*/) { count = query_result_count(&error); },
+	    "Executing count request...", this);
 
 	if (error.empty()) {
 		QMessageBox::information(this, tr("Request count"),

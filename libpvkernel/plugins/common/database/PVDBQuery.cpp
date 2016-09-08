@@ -64,6 +64,7 @@ QString PVRush::PVDBQuery::human_name() const
 
 void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize DB information.");
 	so.attribute("query", _query);
 	so.object("server", *_infos, QString(), false, (PVDBServ*)nullptr, false);
 }
@@ -71,6 +72,7 @@ void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Searching for Database informations.");
 	QString query;
 	so.attribute("query", query);
 	PVDBInfos infos;

@@ -48,7 +48,7 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 		int64_t v_min = _sl_min->get_value();
 		int64_t v_max = _sl_max->get_value();
 
-		return std::make_pair(PVCore::min(v_min, v_max), PVCore::max(v_min, v_max));
+		return std::make_pair(std::min(v_min, v_max), std::max(v_min, v_max));
 	}
 
 	void refresh() override

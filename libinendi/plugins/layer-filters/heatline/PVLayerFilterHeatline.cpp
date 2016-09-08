@@ -130,7 +130,7 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 			// Computation ratio to havec 1 for freq = max_n and 0 for freq = min_n
 			double ratio;
 			if (bLog) {
-				ratio = PVCore::log_scale(cum, min_n, max_n);
+				ratio = PVCore::log_scale<double>(cum, min_n, max_n);
 			} else {
 				ratio = (cum - min_n) / (max_n - min_n);
 			}

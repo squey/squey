@@ -20,8 +20,6 @@ add_bench(Tinendi_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.
 add_pv_compile_test(Tinendi_format LINKS ${LINK_LIBRARIES} FILES format.cpp)
 add_test(Tinendi_format Tinendi_format)
 
-add_pv_compile_test(Tinendi_source_serialize LINKS ${LINK_LIBRARIES} FILES source-serialize.cpp)
-add_pv_compile_test(Tinendi_root_serialize LINKS ${LINK_LIBRARIES} FILES root-serialize.cpp)
 add_pv_compile_test(sel_red LINKS ${LINK_LIBRARIES} FILES selection_red.cpp)
 add_pv_compile_test(Tqt_new_layer_dialog LINKS ${LINK_LIBRARIES} FILES new_layer_dialog.cpp)
 add_pv_compile_test(Tinendi_export_selection LINKS ${LINK_LIBRARIES} FILES export_selection.cpp)
@@ -168,6 +166,9 @@ add_bench(Tinendi_correlation LINKS ${LINK_LIBRARIES} FILES correlation.cpp)
 
 add_pv_compile_test(Trush_multi_chunk LINKS ${LINK_LIBRARIES} FILES multi_chunk.cpp)
 add_test(Trush_multi_chunk Trush_multi_chunk)
+
+add_pv_compile_test(Trush_multi_chunk_header LINKS ${LINK_LIBRARIES} FILES multi_chunk_header.cpp)
+add_test(Trush_multi_chunk_header Trush_multi_chunk_header)
 
 add_pv_compile_test(Tinendi_export_plotted LINKS ${LINK_LIBRARIES} FILES export_plotted.cpp)
 add_test(Tinendi_export_plotted Tinendi_export_plotted ${TESTS_FILES_DIR}/picviz/export_plotted.csv.in ${TESTS_FILES_DIR}/picviz/export_plotted.csv.out ${TESTS_FILES_DIR}/picviz/export_plotted.csv.format)

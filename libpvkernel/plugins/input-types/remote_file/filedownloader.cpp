@@ -12,11 +12,6 @@
 #include <QTemporaryFile>
 #include <QDir>
 #include <QUrl>
-#include <QDebug>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QtCore>
-#include <QtConcurrent/QtConcurrent>
 
 #include <pvkernel/core/PVProgressBox.h>
 
@@ -87,7 +82,6 @@ void FileDownLoader::FileDownLoaderPrivate::initializeDownload(const QString& re
 			initializeEncrypted(settings);
 		}
 	}
-	// qDebug()<<" url :"<<url;
 	curl_easy_setopt(curl, CURLOPT_URL, url.toEncoded().constData());
 }
 
@@ -173,7 +167,6 @@ void FileDownLoader::FileDownLoaderPrivate::download_thread(FileDownLoaderPrivat
 		return;
 	}
 	const QString tempFileName = d->tempFile->fileName();
-	qDebug() << " d->tempFile->filename();" << d->tempFile->fileName();
 
 	curl_easy_setopt(d->curl, CURLOPT_WRITEDATA, d->tempFile);
 
@@ -210,18 +203,15 @@ bool FileDownLoader::download(const QString& remoteFile,
 	if (d->curl) {
 		d->initializeDownload(remoteFile, settings, hostName, url);
 
-		PVCore::PVProgressBox* progressDialog =
-		    new PVCore::PVProgressBox(tr("Downloading %1...").arg(url.toString()), nullptr, 0);
-
 		CURLcode curlResult;
-		QFuture<void> worker =
-		    QtConcurrent::run<>(&FileDownLoaderPrivate::download_thread, d, &tempFile, &curlResult);
-		QFutureWatcher<void> watcher;
-		watcher.setFuture(worker);
-		QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()),
-		                 Qt::QueuedConnection);
 
-		if (!progressDialog->exec()) {
+		auto canceled = PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& /*pbox*/) {
+			    FileDownLoaderPrivate::download_thread(d, &tempFile, &curlResult);
+			},
+		    tr("Downloading %1...").arg(url.toString()), nullptr);
+
+		if (canceled != PVCore::PVProgressBox::CancelState::CONTINUE) {
 			cancel = true;
 			FileDownLoaderPrivate::_cancel_dl = true;
 			return false;

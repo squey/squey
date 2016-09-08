@@ -148,10 +148,9 @@ class PVChunk
 	virtual void free() = 0;
 	virtual PVChunk* realloc_grow(size_t n) = 0;
 
-	chunk_index get_index_of_element(PVElement const& elt) { return _get_idx_elt(elt) + _index; }
 	chunk_index get_agg_index_of_element(PVElement const& elt)
 	{
-		return _get_idx_elt(elt) + _agg_index;
+		return elt.get_chunk_index() + _agg_index;
 	}
 
 	list_elts& elements() { return _elts; };
@@ -175,10 +174,8 @@ class PVChunk
 	void set_elements_index()
 	{
 		size_t i = 0;
-		list_elts::iterator it;
-		for (it = _elts.begin(); it != _elts.end(); it++) {
-			(*it)->set_chunk_index(i);
-			i++;
+		for (auto& elt : _elts) {
+			elt->set_chunk_index(i++);
 		}
 	}
 
@@ -209,8 +206,6 @@ class PVChunk
 	}
 
   private:
-	chunk_index _get_idx_elt(PVElement const& elt) { return elt.get_chunk_index(); }
-
 	PVCol get_source_number_fields() const;
 
   protected:
@@ -237,6 +232,7 @@ class PVChunkMem : public PVChunk
 {
   public:
 	typedef Allocator<char> alloc_chunk;
+	static_assert(sizeof(alloc_chunk) == 1, "Bad begin accessor");
 
   private:
 	PVChunkMem(alloc_chunk const& a) : PVChunk(), _alloc(a) {}

@@ -136,7 +136,6 @@ add_bench(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 	../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp)
 
 # Plugin input tests
-add_pv_compile_test(Trush_parser LINKS ${LINK_LIBRARIES} FILES parser.cpp)
 add_pv_compile_test(Trush_format_conv LINKS ${LINK_LIBRARIES} FILES format_conv.cpp)
 
 add_pv_compile_test(Trush_nraw_filtered LINKS ${LINK_LIBRARIES} FILES nraw_filtered.cpp)
@@ -212,6 +211,9 @@ add_test(Trush_format_ignore_header_multifile Trush_format_import_export ${TESTS
 
 # Check a csv without enough fields
 add_test(Trush_not_enough_column Trush_format_import_export ${TESTS_FILES_DIR}/picviz/test_petit.log null ${TESTS_FILES_DIR}/picviz/apartments.csv.format)
+
+# Check a filtered file with headers
+add_test(Trush_filtered_with_header Trush_format_import_export ${TESTS_FILES_DIR}/pvkernel/rush/filter_grep_big ${TESTS_FILES_DIR}/pvkernel/rush/filtered_with_header ${TESTS_FILES_DIR}/pvkernel/rush/filter_grep.format)
 
 add_pv_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
 add_test(Trush_format_upgrade Trush_format_upgrade)

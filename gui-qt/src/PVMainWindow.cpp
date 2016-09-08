@@ -152,11 +152,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	css_file.close();
 	setStyleSheet(css_string);
 
-#ifdef WITH_MINESET
-	connect(this, &PVInspector::PVMainWindow::mineset_error, this,
-	        &PVInspector::PVMainWindow::mineset_error_slot);
-#endif
-
 	showMaximized();
 }
 
@@ -566,20 +561,18 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	bool file_type_found = false;
 
 	if (choosenFormat.compare(INENDI_AUTOMATIC_FORMAT_STR) == 0) {
-		PVCore::PVProgressBox* pbox =
-		    new PVCore::PVProgressBox(tr("Auto-detecting file format..."), (QWidget*)this);
-		pbox->set_enable_cancel(true);
 		set_auto_detect_cancellation(false);
-		// set_auto_detect_cancellation() implictly set to true
-		connect(pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
 
-		if (!PVCore::PVProgressBox::progress(
-		        [&]() {
+		if (PVCore::PVProgressBox::progress(
+		        [&](PVCore::PVProgressBox& pbox) {
+			        pbox.set_enable_cancel(true);
+			        connect(&pbox, SIGNAL(rejected()), this, SLOT(set_auto_detect_cancellation()));
 			        auto_detect_formats(PVFormatDetectCtxt(
 			            inputs, hash_input_name, formats, format_creator, files_multi_formats,
 			            discovered, formats_error, lcr, in_t, discovered_types));
 			    },
-		        pbox)) {
+		        tr("Auto-detecting file format..."),
+		        this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 			return;
 		}
 		file_type_found = (discovered.size() > 0) | (files_multi_formats.size() > 0);
@@ -977,52 +970,6 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 	}
 }
 
-static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job)
-{
-	while (job->running()) {
-		pbox->set_status(job->status());
-		pbox->set_extended_status(
-		    QString("Number of rejected elements: %L1").arg(job->rejected_elements()));
-		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-	}
-}
-
-static bool show_job_progress_bar(PVRush::PVControllerJob_p job,
-                                  QString const& desc,
-                                  int /*nlines*/,
-                                  QWidget* parent = nullptr)
-{
-	PVCore::PVProgressBox* pbox =
-	    new PVCore::PVProgressBox(QString("Extracting %1...").arg(desc), parent, 0,
-	                              QString("Number of elements extracted: %L1"));
-	pbox->set_cancel2_btn_text("Stop and process");
-	pbox->set_cancel_btn_text("Discard");
-	pbox->set_confirmation(true);
-	QProgressBar* pbar = pbox->getProgressBar();
-	pbar->setValue(0);
-	// set min and max to 0 to have an activity effect
-	// FIXME : We should be able to use nlines as max.
-	pbar->setMaximum(0);
-	pbar->setMinimum(0);
-
-	QObject::connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
-	// launch a thread in order to update the status of the progress bar
-	boost::thread th_status([&]() { update_status_ext(pbox, job); });
-	pbox->launch_timer_status();
-
-	// Show the progressBox
-	if (job->done() or pbox->exec() == QDialog::Accepted) {
-		// Job finished, everything is fine.
-		return true;
-	}
-
-	// Cancel this job and ask the user if he wants to keep the extracted data.
-	job->cancel();
-	PVLOG_DEBUG("extractor: job canceled !\n");
-	// Sucess if we ask to continue with loaded data.
-	return (pbox->get_cancel_state() == PVCore::PVProgressBox::CANCEL2);
-}
-
 static QString bad_conversions_as_string(
     const PVRush::PVNraw::unconvertable_values_t::bad_conversions_t& bad_conversions,
     const Inendi::PVSource* src)
@@ -1068,6 +1015,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	// Extract the source
 	BENCH_START(lff);
 
+	// PVCore::PVProgressBox::progress();
 	PVRush::PVControllerJob_p job_import;
 	try {
 		job_import = src->extract(0);
@@ -1081,8 +1029,34 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		return false;
 	}
 
-	if (!show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(),
-	                           this)) {
+	auto ret = PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& pbox) {
+
+		    pbox.set_cancel2_btn_text("Stop and process");
+		    pbox.set_cancel_btn_text("Discard");
+		    pbox.set_confirmation(true);
+		    QProgressBar* pbar = pbox.getProgressBar();
+		    pbar->setValue(0);
+		    // set min and max to 0 to have an activity effect
+		    // FIXME : We should be able to use nlines as max.
+		    pbar->setMaximum(job_import->nb_elts_max());
+		    pbar->setMinimum(0);
+
+		    QObject::connect(job_import.get(), SIGNAL(job_done_signal()), &pbox, SLOT(accept()));
+		    // launch a thread in order to update the status of the progress bar
+		    while (job_import->running()) {
+			    pbox.set_extended_status(
+			        QString("Number of elements extracted: %L1\nNumber of rejected elements: %L2")
+			            .arg(job_import->status())
+			            .arg(job_import->rejected_elements()));
+			    boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+		    }
+		},
+	    QString("Extracting %1...").arg(src->get_format_name()), this);
+	if (ret != PVCore::PVProgressBox::CancelState::CONTINUE)
+		job_import->cancel();
+
+	if (ret == PVCore::PVProgressBox::CancelState::CANCEL) {
 		// If job is canceled, stop here
 		return false;
 	}
@@ -1146,13 +1120,27 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	PVLOG_INFO("nraw created from data in %g sec\n", BENCH_END_TIME(lff));
 #endif
 
-	if (!PVCore::PVProgressBox::progress(
-	        [&]() {
+	if (PVCore::PVProgressBox::progress(
+	        [&](PVCore::PVProgressBox& pbox) {
+		        QProgressBar* pbar = pbox.getProgressBar();
+		        pbar->setMaximum(3);
+		        pbar->setMinimum(0);
+
+		        pbar->setValue(0);
+		        pbox.set_extended_status("Compute mapping");
 		        auto& mapped = src->emplace_add_child();
+
+		        pbar->setValue(1);
+		        pbox.set_extended_status("Compute plotting");
 		        auto& plotted = mapped.emplace_add_child();
+
+		        pbar->setValue(2);
+		        pbox.set_extended_status("Compute view");
 		        plotted.emplace_add_child();
+
+		        pbar->setValue(3);
 		    },
-	        tr("Processing..."), (QWidget*)this)) {
+	        tr("Processing..."), (QWidget*)this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		return false;
 	}
 

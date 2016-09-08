@@ -15,7 +15,6 @@ set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_
 add_pv_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp)
 add_pv_compile_test(Pqt-extract-sse LINKS ${LINK_LIBRARIES} FILES qt-extract-sse.cpp)
 add_pv_compile_test(Tquadtree_impl LINKS ${LINK_LIBRARIES} FILES quadtree_impl.cpp)
-add_pv_compile_test(Tmultigrid_impl LINKS ${LINK_LIBRARIES} FILES multigrid_impl.cpp)
 add_pv_compile_test(masks LINKS ${LINK_LIBRARIES} FILES masks.cpp)
 add_pv_compile_test(Ehitgraph-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-perf.cpp)
 add_pv_compile_test(Ehitgraph-alpha-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-alpha-perf.cpp)

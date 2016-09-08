@@ -179,18 +179,18 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 	const PVElasticsearchQuery& query = get_query(error);
 	PVElasticsearchAPI::rows_chunk_t rows_array;
 
-	size_t max_count = es.scroll_count();
-	pbox.getProgressBar()->setMaximum(max_count);
-
 	do {
 		query_end = es.extract(query, rows_array, error);
+
+		// First extract have to be done to ge the scroll_count value.
+		pbox.getProgressBar()->setMaximum(es.scroll_count());
 
 		if (error && error->empty() == false) {
 			return;
 		}
 
-		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
-		    pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
+		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL ||
+		    pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL2) {
 			break;
 		}
 
@@ -207,7 +207,8 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 			}
 		}
 
-		pbox.set_status(count);
+		pbox.getProgressBar()->setValue(count);
+		pbox.set_extended_status(std::to_string(count) + " lines already exported");
 	} while (query_end == false);
 }
 

@@ -29,10 +29,6 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
                                           QWidget* parent,
                                           QDialog** dialog /*= nullptr*/)
 {
-	PVCore::PVProgressBox* pbox =
-	    new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
-	pbox->set_enable_cancel(true);
-
 	const pvcop::db::array col_in = nraw.collection().column(c);
 
 	pvcop::db::array col1_out;
@@ -42,13 +38,12 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 	double max;
 	double count;
 
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-	ctxt.reset();
-
 	BENCH_START(distinct_values);
 
-	bool ret_pbox = PVCore::PVProgressBox::progress(
-	    [&, c] {
+	auto ret_pbox = PVCore::PVProgressBox::progress(
+	    [&, c](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(true);
+
 		    pvcop::db::selection s = ((pvcop::db::selection)sel).slice(0, col_in.size());
 
 		    pvcop::db::algo::distinct(col_in, col1_out, col2_out, s);
@@ -64,11 +59,11 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 
 		    count = pvcop::core::algo::bit_count(s);
 		},
-	    ctxt, pbox);
+	    QObject::tr("Computing values..."), parent);
 
 	BENCH_END(distinct_values, "distinct values", col_in.size(), 4, col1_out.size(), 4);
 
-	if (!ret_pbox ||
+	if (ret_pbox != PVCore::PVProgressBox::CancelState::CONTINUE ||
 	    col2_out.size() == 0) { // FIXME : col1_out.size() == 0 should not happen anymore
 		return false;
 	}
@@ -100,10 +95,6 @@ static bool show_stats_dialog(const QString& title,
                               Inendi::PVSelection const& sel,
                               QWidget* parent)
 {
-	PVCore::PVProgressBox* pbox =
-	    new PVCore::PVProgressBox(QObject::tr("Computing values..."), parent);
-	pbox->set_enable_cancel(true);
-
 	const pvcop::db::array col1_in = nraw.collection().column(col1);
 	const pvcop::db::array col2_in = nraw.collection().column(col2);
 
@@ -119,8 +110,9 @@ static bool show_stats_dialog(const QString& title,
 
 	BENCH_START(operation);
 
-	bool ret_pbox = PVCore::PVProgressBox::progress(
-	    [&, col1, col2] {
+	auto ret_pbox = PVCore::PVProgressBox::progress(
+	    [&, col1, col2](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(true);
 		    pvcop::db::selection s = ((pvcop::db::selection)sel).slice(0, col1_in.size());
 
 		    op(col1_in, col2_in, col1_out, col2_out, s);
@@ -146,11 +138,11 @@ static bool show_stats_dialog(const QString& title,
 			    break;
 		    }
 		},
-	    ctxt, pbox);
+	    QObject::tr("Computing values..."), parent);
 
 	BENCH_END(operation, title.toStdString().c_str(), col1_in.size(), 4, col2_in.size(), 4);
 
-	if (!ret_pbox ||
+	if (ret_pbox != PVCore::PVProgressBox::CancelState::CONTINUE ||
 	    col1_out.size() == 0) { // FIXME : col1_out.size() == 0 should not happen anymore
 		return false;
 	}

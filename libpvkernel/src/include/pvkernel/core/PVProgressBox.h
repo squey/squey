@@ -9,13 +9,11 @@
 #define PVCORE_PVPROGRESSBOX_H
 
 #include <QDialog>
-#include <QString>
 #include <QLabel>
-#include <QProgressBar>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QObject>
 #include <QMessageBox>
+#include <QObject>
+#include <QProgressBar>
+#include <QString>
 
 #include <boost/thread.hpp>
 
@@ -44,21 +42,23 @@ class PVProgressBox : public QDialog
 	Q_OBJECT
 
   public:
-	enum CancelState { CONTINUE, CANCEL, CANCEL2 };
+	enum class CancelState { CONTINUE, CANCEL, CANCEL2 };
+
+  private:
+	PVProgressBox(QString msg, QWidget* parent);
 
   public:
-	PVProgressBox(QString msg,
-	              QWidget* parent = 0,
-	              Qt::WindowFlags f = 0,
-	              QString const& format_detail = QString());
 	/**
 	* Return the progress bar. It possible to modify Min, Max and progress.
 	*/
 	QProgressBar* getProgressBar();
-	void launch_timer_status();
-	void set_status(int status);
 	void set_enable_cancel(bool cancel);
 	void set_extended_status(QString const& str);
+	void set_extended_status(std::string const& str)
+	{
+		set_extended_status(QString::fromStdString(str));
+	}
+	void set_extended_status(const char* str) { set_extended_status(std::string(str)); }
 	void set_cancel_btn_text(QString const& str);
 	void set_cancel2_btn_text(QString const& str);
 	CancelState get_cancel_state() { return _cancel_state; }
@@ -66,117 +66,68 @@ class PVProgressBox : public QDialog
 
   private:
 	template <class F>
-	static void worker_thread(F f, __impl::ThreadEndSignal* s)
+	static void worker_thread(F f, __impl::ThreadEndSignal* s, PVProgressBox& pbox)
 	{
 		try {
-			f();
-		} catch (boost::thread_interrupted) {
-		}
-		s->emit_finished();
-	}
-
-	template <class Tret, class F>
-	static void worker_thread(F f, Tret& ret, __impl::ThreadEndSignal* s)
-	{
-		try {
-			ret = f();
+			f(pbox);
 		} catch (boost::thread_interrupted) {
 		}
 		s->emit_finished();
 	}
 
   public:
-	template <typename Tret, typename F>
-	static bool progress(F f, PVProgressBox* pbox, Tret& ret)
+	template <typename F>
+	static CancelState progress(F f, QString const& name, QWidget* parent)
 	{
-		// PVThreadWatcher* watcher = new PVThreadWatcher();
+		PVProgressBox pbox(name, parent);
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker([&]() { worker_thread<Tret, F>(f, ret, end_s); });
-		return process_worker_thread(end_s, worker, pbox);
+		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
+		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
+		process_worker_thread(end_s, worker, &pbox);
+		return pbox.get_cancel_state();
 	}
 
 	template <typename F>
-	static bool progress(F f, PVProgressBox* pbox)
+	static CancelState
+	progress(F f, tbb::task_group_context& ctxt, QString const& name, QWidget* parent)
 	{
-		// PVThreadWatcher* watcher = new PVThreadWatcher();
+		PVProgressBox pbox(name, parent);
 		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker([&]() { worker_thread<F>(f, end_s); });
-		return process_worker_thread(end_s, worker, pbox);
+		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
+		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
+		process_worker_thread(end_s, worker, &pbox, ctxt);
+		return pbox.get_cancel_state();
 	}
 
-	template <typename F>
-	static bool progress(F f, tbb::task_group_context& ctxt, PVProgressBox* pbox)
-	{
-		// PVThreadWatcher* watcher = new PVThreadWatcher();
-		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker([&]() { worker_thread<F>(f, end_s); });
-		return process_worker_thread(end_s, worker, pbox, ctxt);
-	}
-
-	static bool progress(tbb::task& root_task, PVProgressBox* pbox)
-	{
-		// This will be the thread that executes the root task
-		typedef boost::function<void()> spawn_f;
-		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
-		spawn_f f = [&]() { tbb::task::spawn_root_and_wait(root_task); };
-		boost::thread worker([&]() { worker_thread<spawn_f>(f, end_s); });
-		if (pbox->exec() != QDialog::Accepted) {
-			root_task.cancel_group_execution();
-			worker.join();
-			return false;
-		}
-		return true;
-	}
-
-	template <typename Tret, typename F>
-	static bool progress(F f, QString const& text, Tret& ret, QWidget* parent = nullptr)
-	{
-		PVProgressBox* pbox = new PVProgressBox(text, parent);
-		return progress(f, pbox, ret);
-	}
-
-	template <typename F>
-	static bool progress(F f, QString const& text, QWidget* parent = nullptr)
-	{
-		PVProgressBox* pbox = new PVProgressBox(text, parent);
-		return progress(f, pbox);
-	}
-
-	static bool progress(tbb::task& root, QString const& text, QWidget* parent = nullptr)
-	{
-		PVProgressBox* pbox = new PVProgressBox(text, parent);
-		return progress(root, pbox);
-	}
-  public Q_SLOTS:
-	void update_status_Slot();
-
-	/**
-	 * These function are use to have blocking message in threads.
-	 */
   public:
-	void critical(QString const& title, QString const& msg)
+	void exec_gui(std::function<void()> const& f)
 	{
 		std::unique_lock<std::mutex> lk(_blocking_msg);
-		Q_EMIT sig_critical(title, msg);
+		Q_EMIT sig_exec_gui(f);
 		_cv.wait(lk);
 	}
 
+	void critical(QString const& title, QString const& msg)
+	{
+		exec_gui([&]() { QMessageBox::critical(this, title, msg); });
+	}
+	void warning(QString const& title, QString const& msg)
+	{
+		exec_gui([&]() { QMessageBox::warning(this, title, msg); });
+	}
+
   public Q_SLOTS:
-	void critical_slot(QString const& title, QString const& msg)
+	void exec_gui_slot(std::function<void()> f)
 	{
 		{
 			std::lock_guard<std::mutex> lk(_blocking_msg);
-			QMessageBox::critical(this, title, msg);
+			f();
 		}
 		_cv.notify_one();
 	}
 
   Q_SIGNALS:
-	void sig_critical(QString const& title, QString const& msg);
+	void sig_exec_gui(std::function<void()> f);
 
   private:
 	static bool process_worker_thread(__impl::ThreadEndSignal* watcher,
@@ -193,20 +144,17 @@ class PVProgressBox : public QDialog
   private:
 	QLabel* message;
 	QProgressBar* progress_bar;
-	int _status;
 	QPushButton* _btnCancel;
 	QPushButton* _btnCancel2;
-	QString _format_detail;
-	QString _extended_status;
-	QLabel* _detail_label;
 	QLabel* _extended_detail_label;
-	QMutex _ext_str_mutex;
-	volatile CancelState _cancel_state = CONTINUE;
+	volatile CancelState _cancel_state = CancelState::CONTINUE;
 	bool _need_confirmation = false;
 	std::mutex _blocking_msg; //!< Mutex to have blocking message during thread execution.
 	std::condition_variable
 	    _cv; //!< Condition variable to sync thread and message during thread execution.
 };
 }
+
+Q_DECLARE_METATYPE(std::function<void()>);
 
 #endif

@@ -534,6 +534,7 @@ PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString
 
 PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Format loading");
 	QString format_name;
 	so.attribute("name", format_name);
 	QString full_path;
@@ -557,6 +558,7 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 
 void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize format");
 	so.attribute("name", format_name);
 	so.attribute("path", full_path);
 	PVCore::PVFileSerialize format_file(full_path);

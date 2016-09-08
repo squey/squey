@@ -14,7 +14,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QWidget>
-#include <QTimer>
 #include <QMessageBox>
 
 /******************************************************************************
@@ -22,11 +21,7 @@
  * PVCore::PVProgressBox::PVProgressBox
  *
  *****************************************************************************/
-PVCore::PVProgressBox::PVProgressBox(QString msg,
-                                     QWidget* parent,
-                                     Qt::WindowFlags flags,
-                                     QString const& format_detail)
-    : QDialog(parent, flags), _format_detail(format_detail)
+PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent) : QDialog(parent)
 {
 	hide();
 	QVBoxLayout* layout;
@@ -48,10 +43,6 @@ PVCore::PVProgressBox::PVProgressBox(QString msg,
 	progress_bar->setMaximum(0);
 	progress_bar->setMinimum(0);
 
-	if (!format_detail.isEmpty()) {
-		_detail_label = new QLabel();
-		layout->addWidget(_detail_label);
-	}
 	_extended_detail_label = new QLabel();
 	_extended_detail_label->setVisible(false);
 	layout->addWidget(_extended_detail_label);
@@ -72,20 +63,19 @@ PVCore::PVProgressBox::PVProgressBox(QString msg,
 	// layout->addItem(layoutCancel);
 	layout->addWidget(widgetCancel);
 	connect(_btnCancel, &QPushButton::clicked, [&] {
-		_cancel_state = CANCEL;
+		_cancel_state = CancelState::CANCEL;
 		cancel();
 	});
 	connect(_btnCancel2, &QPushButton::clicked, [&] {
-		_cancel_state = CANCEL2;
+		_cancel_state = CancelState::CANCEL2;
 		cancel();
 	});
 
-	connect(this, SIGNAL(sig_critical(QString const&, QString const&)), this,
-	        SLOT(critical_slot(QString const&, QString const&)));
+	qRegisterMetaType<std::function<void()>>();
+	connect(this, SIGNAL(sig_exec_gui(std::function<void()>)), this,
+	        SLOT(exec_gui_slot(std::function<void()>)));
 
 	setWindowTitle(msg);
-
-	_status = 0;
 }
 
 void PVCore::PVProgressBox::cancel()
@@ -101,43 +91,10 @@ void PVCore::PVProgressBox::cancel()
 	reject();
 }
 
-void PVCore::PVProgressBox::launch_timer_status()
-{
-	QTimer* timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(update_status_Slot()));
-	timer->start(10);
-}
-
-void PVCore::PVProgressBox::set_status(int status)
-{
-	_status = status;
-}
-
 void PVCore::PVProgressBox::set_extended_status(QString const& str)
 {
-	_ext_str_mutex.lock();
-	_extended_status = str;
-	_ext_str_mutex.unlock();
-}
-
-void PVCore::PVProgressBox::update_status_Slot()
-{
-	progress_bar->setValue(_status);
-	if (!_format_detail.isEmpty()) {
-		int arg_count = _format_detail.count(QRegExp("%L?\\d{1,2}"));
-		if (arg_count == 1) {
-			_detail_label->setText(_format_detail.arg(_status));
-		} else {
-			// necessarily 2
-			_detail_label->setText(_format_detail.arg(_status).arg(progress_bar->maximum()));
-		}
-	}
-	_ext_str_mutex.lock();
-	if (!_extended_status.isEmpty()) {
-		_extended_detail_label->setVisible(true);
-		_extended_detail_label->setText(_extended_status);
-	}
-	_ext_str_mutex.unlock();
+	_extended_detail_label->setVisible(true);
+	_extended_detail_label->setText(str);
 }
 
 void PVCore::PVProgressBox::set_cancel_btn_text(QString const& str)
@@ -182,7 +139,6 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 		disconnect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 	}
 	watcher->deleteLater();
-	pbox->deleteLater();
 	return true;
 }
 
@@ -203,6 +159,5 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 		disconnect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 	}
 	watcher->deleteLater();
-	pbox->deleteLater();
 	return true;
 }

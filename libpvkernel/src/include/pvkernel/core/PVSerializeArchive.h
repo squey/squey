@@ -44,7 +44,6 @@ class PVSerializeArchive
 	PVSerializeObject_p get_root();
 	version_t get_version() const;
 	void set_options(std::shared_ptr<PVSerializeArchiveOptions> options) { _options = options; };
-	void set_save_everything(bool save_everything) { _save_everything = save_everything; };
 
 	// Repairable errors
 	void set_repaired_value(std::string const& path, std::string const& value)
@@ -53,6 +52,8 @@ class PVSerializeArchive
 	}
 	std::string const& get_repaired_path() const { return _repaired.first; }
 	std::string const& get_repaired_value() const { return _repaired.second; }
+	void set_current_status(std::string const& s) { _current_status = s; }
+	std::string const& get_current_status() const { return _current_status; }
 
   protected:
 	bool is_writing() const { return _mode == write; }
@@ -109,7 +110,7 @@ class PVSerializeArchive
 	std::pair<std::string, std::string> _repaired; //!< Saved repaired value (path, value)
 
 	std::shared_ptr<PVSerializeArchiveOptions> _options;
-	bool _save_everything;
+	std::string _current_status; //!< Description about where we are in the serialization process.
 };
 }
 

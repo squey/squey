@@ -43,6 +43,8 @@
 #include <QWindow>
 #include <QScreen>
 
+#include <boost/thread/scoped_thread.hpp>
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::about_Slot()
@@ -168,31 +170,18 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	PVCore::PVProgressBox pbox("Exporting data to Mineset...");
-	pbox.set_enable_cancel(false);
-
 	PVCore::PVProgressBox::progress(
-	    [&]() {
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(false);
 		    try {
 			    std::string dataset_url = Inendi::PVMineset::import_dataset(*current_view());
 			    current_view()->add_mineset_dataset(dataset_url);
 			    QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
 		    } catch (const Inendi::PVMineset::mineset_error& e) {
-			    Q_EMIT mineset_error(QString(e.what()));
+			    pbox.critical("Error when exporting current selection to Mineset", e.what());
 		    }
 		},
-	    &pbox);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::mineset_error_slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::mineset_error_slot(QString error_msg)
-{
-	QMessageBox::critical(this, "Error when exporting current selection to Mineset", error_msg,
-	                      QMessageBox::Ok);
+	    "Exporting data to Mineset...", this);
 }
 #endif
 
@@ -433,69 +422,91 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 {
 	setWindowModified(false);
 
-	PVCore::PVSerializeArchive_p ar;
-	PVCore::PVSerializeArchiveError read_exception = PVCore::PVSerializeArchiveError("");
-	PVCore::PVProgressBox* pbox_solution =
-	    new PVCore::PVProgressBox("Loading investigation...", this);
-	pbox_solution->set_enable_cancel(true);
-	bool ret = PVCore::PVProgressBox::progress(
-	    [&] {
-		    try {
-			    ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read,
-			                                               INENDI_ARCHIVES_VERSION));
-		    } catch (const PVCore::PVSerializeArchiveError& e) {
-			    read_exception = e;
-		    }
-		},
-	    pbox_solution);
-	if (!ret) {
+	PVCore::PVSerializeArchiveError read_exception("");
+	bool solution_has_been_fixed = false;
+	if (PVCore::PVProgressBox::progress(
+	        [&](PVCore::PVProgressBox& pbox) {
+		        pbox.set_enable_cancel(true);
+		        pbox.set_extended_status("Unzip archive file");
+		        std::unique_ptr<PVCore::PVSerializeArchive> ar;
+		        try {
+			        ar.reset(new PVCore::PVSerializeArchiveZip(
+			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
+		        } catch (const PVCore::PVSerializeArchiveError& e) {
+			        read_exception = e;
+			        return;
+		        }
+
+		        // Use a scoped thread as it will continue forever so we want to interrupt is and
+		        // abort at then end.
+		        // This thread update the progressBox status every 100 ms
+		        boost::strict_scoped_thread<boost::interrupt_and_join_if_joinable> t1(
+		            (boost::thread([&ar, &pbox]() {
+			            while (true) {
+				            pbox.set_extended_status(ar->get_current_status());
+				            boost::this_thread::interruption_point();
+				            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			            }
+			        })));
+
+		        while (true) {
+			        QString err_msg;
+			        try {
+				        pbox.set_extended_status("Loading investigation from archive");
+				        get_root().load_from_archive(*ar);
+			        } catch (PVCore::PVSerializeArchiveError& e) {
+				        read_exception = e;
+				        return;
+			        } catch (PVRush::PVInputException const& e) {
+				        read_exception = PVCore::PVSerializeArchiveError(
+				            tr("Error while loading solution %1:\n%2")
+				                .arg(file)
+				                .arg(e.what())
+				                .toStdString());
+				        return;
+			        } catch (PVCore::PVSerializeReparaibleError const& e) {
+				        pbox.warning(tr("Error while loading project %1:\n").arg(file), e.what());
+				        QString old_path = QString::fromStdString(e.old_value());
+				        QString new_file;
+
+				        pbox.exec_gui([&]() {
+					        new_file = QFileDialog::getOpenFileName(
+					            this, tr("Select new file path..."), old_path);
+					    });
+
+				        if (new_file.isEmpty()) {
+					        read_exception = PVCore::PVSerializeArchiveError(
+					            tr("Error while loading solution %1:\n files can't be found")
+					                .arg(file)
+					                .toStdString());
+					        return;
+				        }
+				        ar->set_repaired_value(e.logical_path(), new_file.toStdString());
+				        solution_has_been_fixed = true;
+				        reset_root();
+				        continue;
+			        } catch (...) {
+				        read_exception = PVCore::PVSerializeArchiveError(
+				            tr("Error while loading solution %1:\n unhandled error(s).")
+				                .arg(file)
+				                .toStdString());
+				        return;
+			        }
+			        break;
+		        }
+		    },
+	        "Loading investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
+		reset_root();
 		return false;
 	}
 
 	if (not std::string(read_exception.what()).empty()) {
-		QMessageBox* box =
-		    new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."),
-		                    tr("Fatal error while loading solution %1:\n%2")
-		                        .arg(file)
-		                        .arg(QString::fromStdString(read_exception.what())),
-		                    QMessageBox::Ok, this);
-		box->exec();
+		QMessageBox::critical(this, tr("Fatal error while loading solution..."),
+		                      tr("Fatal error while loading solution %1:\n%2")
+		                          .arg(file)
+		                          .arg(QString::fromStdString(read_exception.what())));
+		reset_root();
 		return false;
-	}
-
-	bool solution_has_been_fixed = false;
-	while (true) {
-		QString err_msg;
-		try {
-			get_root().load_from_archive(ar);
-		} catch (PVCore::PVSerializeArchiveError& e) {
-			err_msg = tr("Error while loading solution %1:\n%2").arg(file).arg(e.what());
-		} catch (PVRush::PVInputException const& e) {
-			err_msg = tr("Error while loading solution %1:\n%2")
-			              .arg(file)
-			              .arg(QString::fromStdString(e.what()));
-		} catch (PVCore::PVSerializeReparaibleError const& e) {
-			QMessageBox::warning(this, tr("Error while loading project %1:\n").arg(file), e.what());
-			QString old_path = QString::fromStdString(e.old_value());
-			QString new_file =
-			    QFileDialog::getOpenFileName(this, tr("Select new file path..."), old_path);
-			if (new_file.isEmpty()) {
-				return false;
-			}
-			ar->set_repaired_value(e.logical_path(), new_file.toStdString());
-			reset_root();
-			continue;
-		} catch (...) {
-			err_msg = tr("Fatal error while loading solution %1:\n unhandled error(s).").arg(file);
-		}
-		if (!err_msg.isEmpty()) {
-			QMessageBox* box =
-			    new QMessageBox(QMessageBox::Critical, tr("Fatal error while loading solution..."),
-			                    err_msg, QMessageBox::Ok, this);
-			box->exec();
-			return false;
-		}
-		break;
 	}
 
 	// Increase counter so that later imported source have a more "distinct" name.
@@ -527,12 +538,32 @@ void PVInspector::PVMainWindow::save_solution(
     QString const& file, std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options)
 {
 	try {
-		PVCore::PVProgressBox* pbox_solution =
-		    new PVCore::PVProgressBox("Saving investigation...", this);
-		pbox_solution->set_enable_cancel(true);
-		bool ret = PVCore::PVProgressBox::progress([&] { get_root().save_to_file(file, options); },
-		                                           pbox_solution);
-		if (!ret) {
+		if (PVCore::PVProgressBox::progress(
+		        [&](PVCore::PVProgressBox& pbox) {
+			        pbox.set_enable_cancel(true);
+			        pbox.set_extended_status("Create archive");
+			        PVCore::PVSerializeArchiveZip ar(file, PVCore::PVSerializeArchive::write,
+			                                         INENDI_ARCHIVES_VERSION);
+			        // FIXME : We should inform we are creating the zip file using RAII like scoped
+			        // thread and Zip archive.
+
+			        // Use a scoped thread as it will continue forever so we want to interrupt is
+			        // and
+			        // abort at then end.
+			        // This thread update the progressBox status every 100 ms
+			        boost::strict_scoped_thread<boost::interrupt_and_join_if_joinable> t1(
+			            (boost::thread([&ar, &pbox]() {
+				            while (true) {
+					            pbox.set_extended_status(ar.get_current_status());
+					            boost::this_thread::interruption_point();
+					            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				            }
+				        })));
+
+			        get_root().set_path(file);
+			        get_root().save_to_file(ar, options);
+			    },
+		        "Saving investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 			return;
 		}
 	} catch (PVCore::PVSerializeArchiveError const& e) {

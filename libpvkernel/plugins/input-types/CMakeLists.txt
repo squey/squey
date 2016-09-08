@@ -12,10 +12,6 @@
 find_package(Qt5Sql REQUIRED)
 include_directories(${Qt5Sql_INCLUDE_DIRS})
 
-# For QConcurrent
-find_package(Qt5Concurrent REQUIRED)
-include_directories(${Qt5Concurrent_INCLUDE_DIRS})
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 ################################################

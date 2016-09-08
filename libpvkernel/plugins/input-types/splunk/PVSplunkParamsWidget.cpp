@@ -114,8 +114,8 @@ void PVRush::PVSplunkParamsWidget::export_query_result(QTextStream& output_strea
 			return;
 		}
 
-		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL ||
-		    pbox.get_cancel_state() == PVCore::PVProgressBox::CANCEL2) {
+		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL ||
+		    pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL2) {
 			break;
 		}
 

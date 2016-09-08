@@ -416,12 +416,12 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 
 	/* get the needed zones
 	 */
-	PVCore::PVProgressBox pbox("Initializing zoomed parallel view");
-
-	pbox.set_enable_cancel(false);
-
 	PVCore::PVProgressBox::progress(
-	    [&]() { common::get_lib_view(_pvview)->request_zoomed_zone_trees(_axis_index); }, &pbox);
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(false);
+		    common::get_lib_view(_pvview)->request_zoomed_zone_trees(_axis_index);
+		},
+	    "Initializing zoomed parallel view", nullptr);
 
 	/* have a coherent param widget
 	 */

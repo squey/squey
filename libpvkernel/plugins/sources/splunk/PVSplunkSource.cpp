@@ -69,9 +69,6 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 		elt->fields().push_back(f);
 	}
 
-	// Set the index of the elements inside the chunk
-	chunk->set_elements_index();
-
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();
 	if (_next_index - 1 > _last_elt_index) {

@@ -167,28 +167,25 @@ QColor Inendi::PVRoot::get_new_view_color()
 	return color;
 }
 
-void Inendi::PVRoot::save_to_file(QString const& path,
-                                  std::shared_ptr<PVCore::PVSerializeArchiveOptions> options,
-                                  bool save_everything)
+void Inendi::PVRoot::save_to_file(PVCore::PVSerializeArchive& ar,
+                                  std::shared_ptr<PVCore::PVSerializeArchiveOptions> options)
 {
-	set_path(path);
-	PVCore::PVSerializeArchiveZip ar(path, PVCore::PVSerializeArchive::write,
-	                                 INENDI_ARCHIVES_VERSION);
 	if (options) {
 		ar.set_options(options);
 	}
-	ar.set_save_everything(save_everything);
-	ar.get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
+	auto root_obj = ar.get_root()->create_object("root", ARCHIVE_ROOT_DESC, true, true);
+	serialize_write(*root_obj);
 }
 
-void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive_p ar)
+void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive& ar)
 {
-	auto root_ar = ar->get_root();
-	if (ar->get_version() < 3) {
+	auto root_ar = ar.get_root();
+	if (ar.get_version() < 3) {
 		throw PVCore::PVSerializeArchiveError("To make archives more robuste, we can't load data "
 		                                      "from previous version of inspector.");
 	}
-	root_ar->object("root", *this, ARCHIVE_ROOT_DESC);
+	auto root_obj = root_ar->create_object("root", ARCHIVE_ROOT_DESC, true, true);
+	serialize_read(*root_obj);
 }
 
 std::shared_ptr<PVCore::PVSerializeArchiveOptions> Inendi::PVRoot::get_default_serialize_options()
@@ -201,6 +198,7 @@ std::shared_ptr<PVCore::PVSerializeArchiveOptions> Inendi::PVRoot::get_default_s
 
 void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Serialize Root.");
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
@@ -217,6 +215,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 
 void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 {
+	so.set_current_status("Loading root");
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj =
 	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
