@@ -369,7 +369,7 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 			inendi_view->hide_layers();
 		}
 
-		inendi_view->add_new_layer();
+		inendi_view->add_new_layer(name);
 		Inendi::PVLayer& new_layer = inendi_view->get_current_layer();
 
 		/* We set it's selection to the final selection */
