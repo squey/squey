@@ -9,6 +9,8 @@
 #include "PVPlottingFilterMinmax.h"
 #include <omp.h>
 
+#include <boost/multiprecision/cpp_int.hpp>
+
 template <class T>
 static void compute_minmax_plotting(pvcop::db::array const& mapped,
                                     pvcop::db::array const& minmax,
@@ -40,11 +42,17 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint3
 {
 	assert(dest);
 
-	if (mapped.type() == pvcop::db::type_uint32) {
-		compute_minmax_plotting<uint32_t>(mapped, minmax, dest);
+	if (mapped.type() == pvcop::db::type_string) {
+		compute_minmax_plotting<string_index_t>(mapped, minmax, dest);
 	} else if (mapped.type() == pvcop::db::type_int32) {
 		compute_minmax_plotting<int32_t>(mapped, minmax, dest);
-	} else {
+	} else if (mapped.type() == pvcop::db::type_uint32) {
+		compute_minmax_plotting<uint32_t>(mapped, minmax, dest);
+	} else if (mapped.type() == pvcop::db::type_uint64) {
+		compute_minmax_plotting<uint64_t>(mapped, minmax, dest);
+	} else if (mapped.type() == pvcop::db::type_uint128) {
+		compute_minmax_plotting<pvcop::db::uint128_t>(mapped, minmax, dest);
+	} else if (mapped.type() == pvcop::db::type_float) {
 		compute_minmax_plotting<float>(mapped, minmax, dest);
 	}
 }
