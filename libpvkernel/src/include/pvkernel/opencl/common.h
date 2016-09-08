@@ -7,11 +7,13 @@
 #ifndef PVKERNEL_OPENCL_COMMON_H
 #define PVKERNEL_OPENCL_COMMON_H
 
-#include <CL/cl.hpp>
+#include <CL/cl.hpp> // for Buffer (ptr only), etc
 
-#include <vector>
-#include <functional>
-#include <stdexcept>
+#include <cstddef>    // for size_t
+#include <cstdio>     // for fprintf, stderr
+#include <cstdlib>    // for abort
+#include <functional> // for function
+#include <stdexcept>  // for runtime_error
 
 #define __inendi_verify_opencl(E, F, L)                                                            \
 	{                                                                                              \

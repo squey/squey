@@ -4,15 +4,19 @@
  * @copyright (C) ESI Group INENDI 2016
  */
 
-#include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/PVLogger.h>
+#include <pvkernel/opencl/common.h> // for inendi_verify_opencl_var, etc
 
-#include <pvkernel/opencl/common.h>
+#include <pvkernel/core/PVConfig.h> // for PVConfig
+#include <pvkernel/core/PVLogger.h> // for PVLOG_INFO
 
-#include <memory>
-#include <iostream>
+#include <CL/cl.hpp> // for cl_context_properties, etc
+
+#include <cstddef> // for size_t
+#include <string>  // for string
+#include <vector>  // for vector
 
 #include <QSettings>
+#include <QVariant>
 
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
