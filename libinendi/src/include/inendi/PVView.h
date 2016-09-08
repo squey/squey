@@ -63,7 +63,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 * @return The name of that axis
 	 *
 	 */
-	QString get_axis_name(PVCombCol index) const;
+	const QString& get_axis_name(PVCombCol index) const;
 	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const;
 	bool is_last_axis(PVCol const axis_comb) const { return axis_comb == get_column_count() - 1; }
 
