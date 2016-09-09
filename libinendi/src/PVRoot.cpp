@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
+#include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>

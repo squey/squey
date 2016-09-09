@@ -8,16 +8,32 @@
 #ifndef INENDI_PVLAYERSTACK_H
 #define INENDI_PVLAYERSTACK_H
 
-#include <pvkernel/core/PVSerializeArchive.h>
+#include <pvbase/types.h> // for PVRow
 
-#include <inendi/PVLayer.h>
+#include <QList>   // for QList
+#include <QString> // for QString
+
+namespace Inendi
+{
+class PVLayer;
+}
+namespace Inendi
+{
+class PVLinesProperties;
+}
+namespace Inendi
+{
+class PVSelection;
+}
+namespace PVCore
+{
+class PVSerializeObject;
+}
 
 #define INENDI_LAYER_STACK_MAX_DEPTH 256
 
 namespace Inendi
 {
-
-class PVPlotted;
 
 /**
  * \class PVLayerStack

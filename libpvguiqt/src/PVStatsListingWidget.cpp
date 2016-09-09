@@ -5,23 +5,24 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <QApplication>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QScrollBar>
-#include <QMenu>
-#include <QCursor>
-#include <QPushButton>
-#include <QDialog>
-
-#include <pvkernel/core/qobject_helpers.h>
-
-#include <inendi/PVSource.h>
-
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
 
+#include <inendi/PVSource.h>
+
+#include <pvkernel/core/qobject_helpers.h>
+
 #include <pvcop/db/algo.h>
+
+#include <QApplication>
+#include <QCursor>
+#include <QDialog>
+#include <QMenu>
+#include <QMimeData>
+#include <QPushButton>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QVBoxLayout>
 
 constexpr int QTABLEWIDGET_OFFSET = 4;
 

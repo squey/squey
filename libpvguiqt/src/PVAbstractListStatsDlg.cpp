@@ -5,26 +5,25 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/PVPlainTextType.h>
-#include <pvkernel/core/PVOriginalAxisIndexType.h>
-#include <pvkernel/core/PVEnumType.h>
-#include <pvkernel/core/PVProgressBox.h>
-
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/rush/PVAxisFormat.h>
 
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
+#include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
 
 #include <inendi/PVView.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVStatsModel.h>
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/inendi_bench.h>
-#include <pvguiqt/PVStatsModel.h>
-
-#include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
+#include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/core/PVPlainTextType.h>
+#include <pvkernel/core/PVOriginalAxisIndexType.h>
+#include <pvkernel/core/PVEnumType.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <pvcop/db/algo.h>
 #include <pvcop/db/types.h>

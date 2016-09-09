@@ -8,22 +8,39 @@
 #ifndef INENDI_PVSOURCE_H
 #define INENDI_PVSOURCE_H
 
+#include <inendi/PVMapped.h> // for PVMapped
+
+#include <pvkernel/rush/PVExtractor.h>         // for PVExtractor
+#include <pvkernel/rush/PVFormat.h>            // for PVFormat
+#include <pvkernel/rush/PVInputType.h>         // for PVInputType, etc
+#include <pvkernel/rush/PVNraw.h>              // for PVNraw
+#include <pvkernel/rush/PVSourceCreator.h>     // for PVSourceCreator_p, etc
+#include <pvkernel/rush/PVSourceDescription.h> // for PVSourceDescription
+#include <pvkernel/rush/PVControllerJob.h>     // for PVControllerJob_p
+
+#include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeChild, etc
+
+#include <pvbase/types.h> // for PVRow, PVCol
+
 #include <QString>
-#include <QList>
-#include <QStringList>
-#include <QVector>
 
-#include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/core/PVSerializeArchive.h>
+#include <cstddef> // for size_t
+#include <map>     // for map
+#include <memory>  // for allocator, __shared_ptr
+#include <string>  // for string, operator+, etc
 
-#include <pvkernel/rush/PVExtractor.h>
-#include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVInputType.h>
-#include <pvkernel/rush/PVNraw.h>
-#include <pvkernel/rush/PVSourceCreator.h>
-#include <pvkernel/rush/PVSourceDescription.h>
-
-#include <inendi/PVMapped.h>
+namespace Inendi
+{
+class PVScene;
+} // lines 31-31
+namespace Inendi
+{
+class PVView;
+}
+namespace PVCore
+{
+class PVSerializeObject;
+}
 
 namespace Inendi
 {

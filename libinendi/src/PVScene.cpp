@@ -5,17 +5,19 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/hash_sharedptr.h>
-#include <pvkernel/core/PVSerializeArchiveOptions.h>
+#include <inendi/PVRoot.h>   // for PVRoot
+#include <inendi/PVScene.h>  // for PVScene
+#include <inendi/PVSource.h> // for PVSource
+#include <inendi/PVView.h>   // for PVView
 
-#include <pvkernel/rush/PVNrawCacheManager.h>
+#include <pvkernel/core/PVDataTreeObject.h>  // for PVDataTreeChild
+#include <pvkernel/core/PVLogger.h>          // for PVLOG_DEBUG
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject, etc
 
-#include <inendi/PVRoot.h>
-#include <inendi/PVScene.h>
-#include <inendi/PVSource.h>
-#include <inendi/PVView.h>
+#include <QString> // for QString
 
-#include <QFileInfo>
+#include <memory> // for __shared_ptr
+#include <string> // for string
 
 #define ARCHIVE_SCENE_DESC (QObject::tr("Workspace"))
 /******************************************************************************

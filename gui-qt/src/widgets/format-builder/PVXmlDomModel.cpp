@@ -8,6 +8,7 @@
 #include <PVXmlDomModel.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <pvkernel/rush/PVAxisTagsDec.h>
+#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>

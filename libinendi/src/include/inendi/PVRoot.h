@@ -8,27 +8,40 @@
 #ifndef INENDI_PVROOT_H
 #define INENDI_PVROOT_H
 
-#include <QColor>
-#include <QList>
-#include <QStringList>
+#include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
+#include <inendi/PVScene.h>             // for PVScene
+
+#include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeParent
+#include <pvkernel/core/PVSerializeObject.h>
 
 #include <sigc++/sigc++.h>
 
-#include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/core/PVSerializeObject.h>
-#include <pvkernel/core/PVSerializeArchiveOptions.h>
+#include <QColor>
+#include <QList>
+#include <QString>
 
-#include <inendi/PVScene.h>
-#include <inendi/PVCorrelationEngine.h>
+#include <cstdint> // for int32_t
+#include <memory>  // for shared_ptr
+#include <string>  // for string
+
+namespace Inendi
+{
+class PVSource;
+}
+namespace Inendi
+{
+class PVView;
+} // lines 30-30
+namespace PVCore
+{
+class PVSerializeArchiveOptions;
+}
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"
 #define INENDI_ROOT_ARCHIVE_FILTER "INENDI investigation files (*." INENDI_ROOT_ARCHIVE_EXT ")"
 
 namespace Inendi
 {
-
-class PVView;
-
 /**
  * \class PVRoot
  */

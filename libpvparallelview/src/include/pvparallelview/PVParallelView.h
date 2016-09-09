@@ -20,12 +20,13 @@ namespace PVParallelView
 class PVLibView;
 class PVRenderingPipeline;
 
-class PVParallelViewImpl : boost::noncopyable
+class PVParallelViewImpl
 {
 	typedef std::map<Inendi::PVView*, PVLibView*> map_lib_views;
 
   private:
 	PVParallelViewImpl();
+	PVParallelViewImpl(const PVParallelViewImpl&) = delete;
 
   public:
 	~PVParallelViewImpl();

@@ -9,6 +9,8 @@
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVSelection.h>
 
+#include <pvkernel/core/PVSerializeObject.h>
+
 #include <QApplication>
 #include <QClipboard>
 

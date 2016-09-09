@@ -8,20 +8,24 @@
 #ifndef PVFILTER_PVMAPPINGFILTER_H
 #define PVFILTER_PVMAPPINGFILTER_H
 
-#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/filter/PVFilterFunction.h>
-#include <pvkernel/core/PVClassLibrary.h>
+
 #include <pvkernel/core/PVRegistrableClass.h>
-#include <pvkernel/rush/PVNraw.h>
+
+#include <pvbase/types.h> // for PVCol
 
 #include <pvcop/db/array.h>
 #include <pvcop/db/algo.h>
 
 #include <QString>
-#include <QStringList>
-#include <QVector>
 
-#include <unordered_set>
+#include <memory>        // for shared_ptr
+#include <string>        // for string
+#include <unordered_set> // for unordered_set
+namespace PVRush
+{
+class PVNraw;
+}
 
 namespace PVCore
 {

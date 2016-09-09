@@ -8,11 +8,28 @@
 #ifndef INENDI_PVMAPPINGPROPERTIES_H
 #define INENDI_PVMAPPINGPROPERTIES_H
 
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/rush/PVFormat.h>
+#include <inendi/PVMappingFilter.h> // for PVMappingFilter, etc
 
-#include <inendi/PVAxis.h>
-#include <inendi/PVMappingFilter.h>
+#include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat
+
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList
+
+#include <pvbase/types.h> // for PVCol
+
+#include <pvcop/db/array.h> // for array
+
+#include <cassert>   // for assert
+#include <algorithm> // for move
+#include <string>    // for string
+
+namespace PVCore
+{
+class PVSerializeObject;
+}
+namespace PVRush
+{
+class PVFormat;
+}
 
 namespace Inendi
 {

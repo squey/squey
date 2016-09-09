@@ -8,11 +8,21 @@
 #ifndef INENDI_PVLINESPROPERTIES_H
 #define INENDI_PVLINESPROPERTIES_H
 
-#include <QVector>
+#include <pvkernel/core/PVHSVColor.h> // for PVHSVColor, etc
 
-#include <pvkernel/core/PVHSVColor.h>
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <inendi/PVSelection.h>
+#include <pvbase/types.h> // for PVRow
+
+#include <cstddef> // for size_t
+#include <vector>  // for vector, allocator
+
+namespace Inendi
+{
+class PVSelection;
+}
+namespace PVCore
+{
+class PVSerializeObject;
+}
 
 namespace Inendi
 {
@@ -22,8 +32,6 @@ namespace Inendi
  */
 class PVLinesProperties
 {
-	friend class PVCore::PVSerializeObject;
-
   public:
 	typedef std::allocator<PVCore::PVHSVColor> color_allocator_type;
 	typedef PVCore::PVHSVColor::h_type h_type;

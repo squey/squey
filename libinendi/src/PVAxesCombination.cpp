@@ -6,6 +6,8 @@
 
 #include <inendi/PVAxesCombination.h>
 
+#include <pvkernel/rush/PVFormat.h>
+
 namespace Inendi
 {
 

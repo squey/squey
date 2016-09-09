@@ -5,15 +5,30 @@
  * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
-#include <QString>
+#include <inendi/PVMapped.h>            // for PVMapped, etc
+#include <inendi/PVMappingFilter.h>     // for PVMappingFilter, etc
+#include <inendi/PVMappingProperties.h> // for PVMappingProperties
+#include <inendi/PVPlotted.h>           // for PVPlotted
+#include <inendi/PVSource.h>            // for PVSource
 
-#include <inendi/PVMapped.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVSelection.h>
-#include <inendi/PVSource.h>
-#include <inendi/PVView.h>
+#include <pvkernel/core/PVDataTreeObject.h>  // for PVDataTreeChild
+#include <pvkernel/core/PVLogger.h>          // for PVLOG_DEBUG, PVLOG_ERROR, etc
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject_p, etc
 
-#include <iostream>
+#include <pvbase/types.h> // for PVCol, PVRow
+
+#include <QString> // for QString
+
+#include <algorithm> // for move
+#include <cassert>   // for assert
+#include <list>      // for list
+#include <memory>    // for __shared_ptr
+#include <string>    // for string
+
+namespace PVRush
+{
+class PVNraw;
+}
 
 /******************************************************************************
  *

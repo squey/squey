@@ -8,18 +8,26 @@
 #ifndef INENDI_PVLAYERFILTER_H
 #define INENDI_PVLAYERFILTER_H
 
-#include <pvbase/types.h>
+#include <pvkernel/filter/PVFilterFunction.h> // for CLASS_FILTER
 
-#include <pvkernel/core/PVArgument.h>
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/core/PVTag.h>
-#include <pvkernel/filter/PVFilterFunction.h>
-#include <pvkernel/core/PVPluginPresets.h>
+#include <pvkernel/core/PVArgument.h>     // for PVArgumentList
+#include <pvkernel/core/PVClassLibrary.h> // for PVClassLibrary, etc
+#include <pvkernel/core/PVFunctionArgs.h>
+#include <pvkernel/core/PVOrderedMap.h>    // for PVOrderedMap
+#include <pvkernel/core/PVPluginPresets.h> // for PVPluginPresets
+#include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/core/PVTag.h> // for PVTag
 
-#include <boost/function.hpp>
-#include <boost/thread.hpp>
+#include <pvbase/types.h> // for PVCol, PVRow
 
-#include <pvkernel/core/PVOrderedMap.h>
+#include <boost/function.hpp> // for function
+
+#include <QString> // for QString
+
+#include <cassert>   // for assert
+#include <exception> // for exception
+
+class QWidget;
 
 namespace Inendi
 {

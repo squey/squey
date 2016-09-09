@@ -15,6 +15,7 @@
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
 #include <pvkernel/rush/PVNormalizer.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVInput.h>

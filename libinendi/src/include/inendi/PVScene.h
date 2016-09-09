@@ -8,22 +8,32 @@
 #ifndef INENDI_PVSCENE_H
 #define INENDI_PVSCENE_H
 
+#include <inendi/PVSource.h> // for PVSource
+
+#include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeParent, etc
+
 #include <QString>
 
 #include <sigc++/sigc++.h>
 
-#include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/rush/PVInputDescription.h>
-#include <pvkernel/rush/PVInputType.h>
-#include <pvkernel/rush/PVSourceDescription.h>
-#include <inendi/PVSource.h>
+#include <algorithm> // for forward
+#include <string>    // for string
 
 namespace Inendi
 {
-
 class PVRoot;
+} // lines 25-25
+namespace Inendi
+{
+class PVView;
+}
+namespace PVCore
+{
+class PVSerializeObject;
+}
 
+namespace Inendi
+{
 /**
  * \class PVScene
  */

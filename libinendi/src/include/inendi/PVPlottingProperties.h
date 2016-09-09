@@ -8,11 +8,24 @@
 #ifndef INENDI_PVPLOTTINGPROPERTIES_H
 #define INENDI_PVPLOTTINGPROPERTIES_H
 
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/rush/PVFormat.h>
+#include <inendi/PVPlottingFilter.h> // for PVPlottingFilter, etc
 
-#include <inendi/PVAxis.h>
-#include <inendi/PVPlottingFilter.h>
+#include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat
+
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList
+
+#include <pvbase/types.h> // for PVCol
+
+#include <string> // for string
+
+namespace PVCore
+{
+class PVSerializeObject;
+}
+namespace PVRush
+{
+class PVFormat;
+}
 
 namespace Inendi
 {

@@ -6,8 +6,25 @@
  */
 
 #include <inendi/PVAxis.h>
-#include <inendi/PVMappingFilter.h>
-#include <inendi/PVPlottingFilter.h>
+#include <inendi/PVMappingFilter.h>  // for PVMappingFilter, etc
+#include <inendi/PVPlottingFilter.h> // for PVPlottingFilter, etc
+
+#include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat::node_args_t, etc
+
+#include <pvkernel/core/PVArgument.h>     // for PVArgumentList, etc
+#include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS, etc
+#include <pvkernel/core/PVOrderedMap.h>   // for PVOrderedMap
+#include <pvkernel/core/PVRegistrableClass.h>
+
+#include <QHash>    // for QHash<>::const_iterator
+#include <QString>  // for QString
+#include <QVariant> // for QVariant
+
+#include <memory>        // for allocator, __shared_ptr
+#include <set>           // for set, etc
+#include <string>        // for basic_string, operator+, etc
+#include <unordered_set> // for operator==, unordered_set, etc
+#include <utility>       // for make_pair, move
 
 /******************************************************************************
  *

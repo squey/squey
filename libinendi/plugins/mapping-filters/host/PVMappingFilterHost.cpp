@@ -7,7 +7,10 @@
 
 #include "PVMappingFilterHost.h"
 
+#include <pvkernel/rush/PVNraw.h>
+
 #include <pvkernel/core/network.h>
+
 #include <pvcop/db/read_dict.h>
 
 /**

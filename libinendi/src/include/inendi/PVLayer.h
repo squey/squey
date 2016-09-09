@@ -8,14 +8,21 @@
 #ifndef INENDI_PVLAYER_H
 #define INENDI_PVLAYER_H
 
-#include <QtCore>
+#include <inendi/PVLinesProperties.h> // for PVLinesProperties
+#include <inendi/PVSelection.h>       // for PVSelection
 
-#include <pvkernel/core/PVSerializeArchive.h>
+#include <pvbase/types.h> // for PVRow
 
-#include <inendi/PVLinesProperties.h>
-#include <inendi/PVSelection.h>
+#include <QMetaType> // for Q_DECLARE_METATYPE
+#include <QString>   // for QString
 
-#include <vector>
+#include <cstddef> // for size_t
+#include <vector>  // for vector
+
+namespace PVCore
+{
+class PVSerializeObject;
+}
 
 constexpr size_t INENDI_LAYER_NAME_MAXLEN = 1000;
 
@@ -29,8 +36,6 @@ class PVPlotted;
  */
 class PVLayer
 {
-	friend class PVCore::PVSerializeObject;
-
   public:
 	typedef std::vector<PVRow> list_row_indexes_t;
 

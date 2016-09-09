@@ -16,6 +16,7 @@
 
 #include <QObject>
 #include <QMetaMethod>
+#include <QThread>
 
 constexpr static int zoom_divisor = 5;
 constexpr static double zoom_root_value =
