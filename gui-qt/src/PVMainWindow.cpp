@@ -268,13 +268,6 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 						ctxt.discovered_types[str_format].push(success_rate);
 					}
 				}
-			} catch (PVRush::PVXmlParamParserException& e) {
-#pragma omp critical
-				{
-					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString, QString>(
-					    pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
-				}
-				continue;
 			} catch (PVRush::PVFormatInvalid& e) {
 #pragma omp critical
 				{

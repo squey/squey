@@ -17,33 +17,15 @@
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 
-// Exceptions
-
-PVRush::PVXmlParamParserExceptionPluginNotFound::PVXmlParamParserExceptionPluginNotFound(
-    QString type, QString plugin_name)
-{
-	_what = QString("Plugin '") + plugin_name + QString("' of type '") + type +
-	        QString("' isn't available.");
-}
-
-QString PVRush::PVXmlParamParserExceptionPluginNotFound::what()
-{
-	return _what;
-}
-
 // PVXmlParamParser class
 
 PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 {
 	QFile xmlfile(nameFile);
 
-	if (!xmlfile.exists()) {
+	if (!xmlfile.exists() or !xmlfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) file to parse not found!\n");
-		throw std::runtime_error("Can't create the xml parameter parser");
-	}
-	if (!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) can't open file to parse.\n");
-		return;
+		throw PVInvalidFile("Can't open file to parse : " + nameFile.toStdString());
 	}
 	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
@@ -266,9 +248,6 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 	PVRush::PVXmlParamParserData data;
 	data.axis_id = newId;
 	data.filter_lib = filters_lib.get_class_by_name(node_type + QString("_") + filter_plugin_name);
-	if (!data.filter_lib) {
-		throw PVXmlParamParserExceptionPluginNotFound(node_type, filter_plugin_name);
-	}
 	// Get the list of the filter axes' tags and pass this to the filter
 	QDomNodeList children = elt.childNodes();
 	PVFilter::filter_child_axes_tag_t& axes(data.children_axes_tag);

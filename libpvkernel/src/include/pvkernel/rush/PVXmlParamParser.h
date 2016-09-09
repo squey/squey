@@ -36,20 +36,10 @@
 namespace PVRush
 {
 
-class PVXmlParamParserException
+class PVInvalidFile : public std::runtime_error
 {
   public:
-	virtual QString what() = 0;
-};
-
-class PVXmlParamParserExceptionPluginNotFound : public PVXmlParamParserException
-{
-  public:
-	PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name);
-	QString what();
-
-  protected:
-	QString _what;
+	using std::runtime_error::runtime_error;
 };
 
 class PVXmlParamParser
