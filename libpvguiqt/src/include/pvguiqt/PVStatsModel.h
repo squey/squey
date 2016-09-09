@@ -139,7 +139,7 @@ class PVStatsModel : public PVAbstractTableModel
 			const pvcop::db::array& column = (col_idx == 0) ? _col1 : _col2;
 
 			BENCH_START(sort);
-			_display.sorting().parallel_sort_on(column);
+			_display.sorting() = pvcop::db::indexes::parallel_sort(column);
 			BENCH_END(sort, "sort", column.size(), /*column.mem_size() / column.size()*/ 1,
 			          column.size(), /*column.mem_size() / column.size()*/ 1);
 		}
