@@ -8,13 +8,19 @@
 #ifndef PVRUSHAGGREGATOR_FILE_H
 #define PVRUSHAGGREGATOR_FILE_H
 
-#include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
+
+#include <pvbase/types.h>
 
 #include <tbb/pipeline.h>
 
-#include <memory>
-#include <vector>
+#include <cstddef> // for size_t
+#include <list>
+
+namespace PVCore
+{
+class PVChunk;
+}
 
 namespace PVRush
 {

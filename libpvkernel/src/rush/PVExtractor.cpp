@@ -5,13 +5,27 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVConfig.h>
-#include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/rush/PVExtractor.h>
-#include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVAggregator.h>    // for PVAggregator
+#include <pvkernel/rush/PVControllerJob.h> // for PVControllerJob, etc
+#include <pvkernel/rush/PVExtractor.h>     // for PVExtractor
+#include <pvkernel/rush/PVFormat.h>        // for PVFormat
+#include <pvkernel/rush/PVInputType.h>     // for PVInputType, etc
+#include <pvkernel/rush/PVNraw.h>          // for PVNraw
+#include <pvkernel/rush/PVNrawOutput.h>    // for PVNrawOutput
+#include <pvkernel/rush/PVSourceCreator.h> // for PVSourceCreator_p, etc
 
-#include <tbb/task_scheduler_init.h>
+#include <pvkernel/core/PVConfig.h> // for PVConfig
+
+#include <pvbase/types.h> // for chunk_index, PVCol
+
+#include <tbb/task_scheduler_init.h> // for task_scheduler_init
+
+#include <QSettings> // for QSettings
+
+#include <algorithm> // for min
+#include <cstdint>   // for uint32_t
+#include <limits>    // for numeric_limits
+#include <memory>    // for __shared_ptr
 
 PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
                                  PVRush::PVNraw& nraw,

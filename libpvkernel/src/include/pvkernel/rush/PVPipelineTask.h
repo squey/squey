@@ -11,6 +11,8 @@
 #include <tbb/task.h>
 #include <tbb/pipeline.h>
 
+#include <cstddef>
+
 namespace PVRush
 {
 

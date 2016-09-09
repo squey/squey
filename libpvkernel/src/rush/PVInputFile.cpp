@@ -5,9 +5,13 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/rush/PVInput.h> // for IMPL_INPUT
 #include <pvkernel/rush/PVInputFile.h>
+
+#include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR
+
+#include <cerrno>
 #include <fstream>
-#include <errno.h>
 
 PVRush::PVInputFile::PVInputFile(const char* path) : _path(path)
 {

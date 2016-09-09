@@ -8,11 +8,12 @@
 #ifndef PVDBSOURCE_FILE_H
 #define PVDBSOURCE_FILE_H
 
-#include <pvbase/general.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include "../../common/database/PVDBQuery.h"
+#include <pvkernel/rush/PVInput_types.h>
 
 #include <pvkernel/core/PVChunk.h>
+
+#include "../../common/database/PVDBQuery.h"
 
 #include <QSqlDatabase>
 

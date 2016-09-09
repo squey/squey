@@ -5,11 +5,19 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/rush/PVInputDescription.h> // for PVInputDescription_p, etc
+#include <pvkernel/rush/PVInputType.h>        // for PVInputType::list_inputs
 #include <pvkernel/rush/PVSourceDescription.h>
 
-#include <boost/iterator/indirect_iterator.hpp>
+#include <boost/iterator/indirect_iterator.hpp> // for indirect_iterator, etc
+#include <boost/iterator/iterator_facade.hpp>   // for operator!=
 
 #include <QFile>
+#include <QList>
+#include <QString>
+
+#include <algorithm> // for equal
+#include <memory>    // for __shared_ptr
 
 bool PVRush::PVSourceDescription::operator==(const PVSourceDescription& other) const
 {

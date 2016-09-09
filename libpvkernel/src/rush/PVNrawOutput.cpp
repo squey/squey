@@ -5,7 +5,16 @@
  * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
+#include <pvkernel/rush/PVNraw.h> // for PVNraw
 #include <pvkernel/rush/PVNrawOutput.h>
+
+#include <pvkernel/core/PVChunk.h> // for PVChunk
+
+#include <pvbase/types.h> // for PVRow
+
+#include <cstddef> // for size_t
+#include <map>     // for map
+#include <string>  // for string
 
 PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
 {

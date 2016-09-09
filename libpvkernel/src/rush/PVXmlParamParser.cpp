@@ -12,10 +12,33 @@
  * Created on 12 mai 2011, 11:27
  */
 
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/rush/PVFormatVersion.h>
-#include <pvkernel/rush/PVXmlTreeNodeDom.h>
-#include <pvkernel/rush/PVXmlParamParser.h>
+#include <pvkernel/rush/PVAxisFormat.h>    // for PVAxisFormat, etc
+#include <pvkernel/rush/PVFormatVersion.h> // for to_current
+#include <pvkernel/rush/PVFormat_types.h>
+#include <pvkernel/rush/PVXmlParamParser.h> // for PVXmlParamParser, etc
+#include <pvkernel/rush/PVXmlParamParserData.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h> // for PVXmlTreeNodeDom
+
+#include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsFilterReg_p, etc
+
+#include <pvkernel/core/PVArgument.h>     // for PVArgumentList
+#include <pvkernel/core/PVClassLibrary.h> // for PVClassLibrary
+#include <pvkernel/core/PVLogger.h>       // for PVLOG_DEBUG, PVLOG_ERROR
+
+#include <pvbase/types.h> // for PVCol
+
+#include <QDomElement>
+#include <QFile> // for QFile
+#include <QIODevice>
+#include <QList>       // for QList, QList<>::iterator
+#include <QString>     // for QString, operator+, etc
+#include <QStringList> // for QStringList
+#include <QTextStream>
+
+#include <memory>    // for __shared_ptr
+#include <numeric>   // for iota
+#include <stdexcept> // for runtime_error
+#include <vector>    // for vector
 
 // PVXmlParamParser class
 

@@ -8,7 +8,7 @@
 #ifndef PVKERNEL_RUSH_PVINPUT_TYPES_H
 #define PVKERNEL_RUSH_PVINPUT_TYPES_H
 
-#include <pvbase/export.h>
+#include <memory>
 
 namespace PVRush
 {

@@ -4,8 +4,6 @@
 #include "test-env.h"
 #include "helpers.h"
 
-#include <pvkernel/filter/PVChunkFilterByElt.h>
-#include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -14,12 +12,17 @@
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVTests.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
+
+#include <pvkernel/filter/PVChunkFilterByElt.h>
+#include <pvkernel/filter/PVPluginsLoad.h>
 
 #include <QCoreApplication>
 
 #include <functional>
 #include <omp.h>
+#include <sstream>
 
 namespace pvtest
 {

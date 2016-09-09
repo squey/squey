@@ -8,7 +8,13 @@
 #ifndef PVRUSH_PVTESTS_H
 #define PVRUSH_PVTESTS_H
 
-#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVSourceCreator.h>    // for PVSourceCreator_p
+#include <pvkernel/rush/PVInputDescription.h> // for PVInputDescription_p
+
+namespace PVRush
+{
+class PVFormat;
+}
 
 namespace PVRush
 {

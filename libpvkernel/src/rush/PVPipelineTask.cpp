@@ -5,10 +5,15 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVLogger.h>
-#include <pvkernel/rush/PVPipelineTask.h>
-#include <tbb/pipeline.h>
-#include <cassert>
+#include <pvkernel/rush/PVPipelineTask.h> // for PVPipelineTask
+
+#include <pvkernel/core/PVLogger.h> // for PVLOG_DEBUG
+
+#include <tbb/pipeline.h> // for filter_t, parallel_pipeline
+#include <tbb/task.h>     // for task
+
+#include <cassert> // for assert
+#include <cstddef> // for size_t
 
 PVRush::PVPipelineTask::PVPipelineTask() : tbb::task(), _ntokens(240)
 {

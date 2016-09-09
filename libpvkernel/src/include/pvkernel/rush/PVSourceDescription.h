@@ -8,9 +8,9 @@
 #ifndef PVSOURCEDESCRIPTION_H_
 #define PVSOURCEDESCRIPTION_H_
 
-#include <pvkernel/rush/PVInputType.h>
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/rush/PVSourceCreatorFactory.h>
+#include <pvkernel/rush/PVFormat.h>        // for PVFormat
+#include <pvkernel/rush/PVSourceCreator.h> // for PVSourceCreator_p
+#include <pvkernel/rush/PVInputType.h>     // for PVInputType::list_inputs, etc
 
 namespace PVRush
 {
