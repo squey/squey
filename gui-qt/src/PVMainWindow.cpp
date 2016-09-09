@@ -1052,9 +1052,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			    pbar->setValue(job_import->get_value() / mega);
 		    }
 		},
-	    QString("Extracting %1...").arg(src->get_format_name()), this);
-	if (ret != PVCore::PVProgressBox::CancelState::CONTINUE)
-		job_import->cancel();
+	    job_import->get_ctxt(), QString("Extracting %1...").arg(src->get_format_name()), this);
 
 	if (ret == PVCore::PVProgressBox::CancelState::CANCEL) {
 		// If job is canceled, stop here

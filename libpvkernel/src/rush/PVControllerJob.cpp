@@ -48,7 +48,7 @@ void PVRush::PVControllerJob::run_job()
 		_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
 
 		// And create the pipeline
-		_pipeline = new (tbb::task::allocate_root()) PVPipelineTask();
+		_pipeline = new (tbb::task::allocate_root(_ctxt)) PVPipelineTask();
 		_pipeline->set_filter(create_tbb_filter());
 		_pipeline->set_tokens(_ntokens);
 
