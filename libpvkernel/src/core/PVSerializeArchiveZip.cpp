@@ -7,9 +7,10 @@
 
 #include <pvkernel/core/PVArchive.h>   // for PVArchive
 #include <pvkernel/core/PVDirectory.h> // for remove_rec, temp_dir
-#include <pvkernel/core/PVSerializeArchiveZip.h>
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVSerializeArchive.h> // for PVSerializeArchive, etc
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
+#include <pvkernel/core/PVSerializeArchiveZip.h>
 
 #include <string> // for allocator, operator+, etc
 
@@ -30,6 +31,15 @@ PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(QString const& zip_path,
 
 PVCore::PVSerializeArchiveZip::~PVSerializeArchiveZip()
 {
+	try {
+		close_zip();
+	} catch (PVCore::ArchiveCreationFail const& e) {
+		PVLOG_ERROR("Zip file not saved");
+	}
+}
+
+void PVCore::PVSerializeArchiveZip::close_zip()
+{
 	if (_is_opened) {
 		for (auto it = _objs_attributes.constBegin(); it != _objs_attributes.constEnd(); it++) {
 			it.value()->sync();
@@ -45,6 +55,7 @@ PVCore::PVSerializeArchiveZip::~PVSerializeArchiveZip()
 
 		// Delete the temporary folder
 		PVDirectory::remove_rec(_tmp_path);
+		_is_opened = false;
 	}
 }
 
@@ -60,7 +71,9 @@ void PVCore::PVSerializeArchiveZip::open_zip(QString const& zip_path, archive_mo
 		// If we are reading an archive, then we need to extract it
 		// to a temporary place, and use this for PVSerializeArchive !
 		QStringList files;
-		if (!PVArchive::extract(zip_path, _tmp_path, files)) {
+		try {
+			PVArchive::extract(zip_path, _tmp_path, files);
+		} catch (PVCore::ArchiveUncompressFail const& e) {
 			throw PVSerializeArchiveError("Unable to extract archive '" + zip_path.toStdString() +
 			                              "'.");
 		}

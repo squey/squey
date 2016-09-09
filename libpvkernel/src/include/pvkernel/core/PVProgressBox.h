@@ -14,6 +14,7 @@
 #include <QObject>
 #include <QProgressBar>
 #include <QString>
+#include <QPushButton>
 
 #include <boost/thread.hpp>
 
@@ -115,6 +116,8 @@ class PVProgressBox : public QDialog
 	{
 		exec_gui([&]() { QMessageBox::warning(this, title, msg); });
 	}
+
+	void set_canceled() { _cancel_state = CancelState::CANCEL; }
 
   public Q_SLOTS:
 	void exec_gui_slot(std::function<void()> f)

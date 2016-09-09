@@ -5,7 +5,6 @@
  */
 
 #include <pvkernel/core/inendi_assert.h>
-#include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include "common.h"
