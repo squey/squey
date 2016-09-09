@@ -635,7 +635,7 @@ void Inendi::PVView::sort_indexes(PVCol col,
 {
 	BENCH_START(pvcop_sort);
 	pvcop::db::array column = get_rushnraw_parent().collection().column(col);
-	idxes.parallel_sort_on(column);
+	idxes = pvcop::db::indexes::parallel_sort(column);
 	BENCH_END(pvcop_sort, "pvcop_sort", 0, 0, 1, idxes.size());
 }
 

@@ -140,10 +140,9 @@ void run_stats(cmd_options opts)
 				std::cout << '\t' << stream.str() << std::endl;
 
 				if (opts.extended_stats) {
-					pvcop::db::indexes indexes(distinct_values_count.size());
+					pvcop::db::indexes indexes =
+					    pvcop::db::indexes::parallel_sort(distinct_values_count);
 					const auto& sorted = indexes.to_core_array();
-
-					indexes.parallel_sort_on(distinct_values_count);
 
 					const auto& counts = distinct_values_count.to_core_array<uint64_t>();
 
