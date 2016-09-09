@@ -84,7 +84,7 @@ Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 	PVScene& scene = root.emplace_add_child(name.toStdString());
 
 	// Create a list of source
-	PVCore::PVSerializeObject_p list_obj = so.create_object("source", "Sources", true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("source", "Sources", false, true);
 
 	int source_count;
 	so.attribute("source_count", source_count);
@@ -103,12 +103,12 @@ void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("name", name);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object("source", "Sources", true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("source", "Sources", false, true);
 	int idx = 0;
 	for (PVSource* source : get_children()) {
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
-		    child_name, QString::fromStdString(source->get_serialize_description()), false);
+		    child_name, QString::fromStdString(source->get_serialize_description()), false, true);
 		source->serialize_write(*new_obj);
 		new_obj->set_bound_obj(*source);
 	}

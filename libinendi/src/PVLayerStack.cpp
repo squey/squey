@@ -306,7 +306,7 @@ void Inendi::PVLayerStack::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.attribute("selected_layer_index", _selected_layer_index);
 
-	PVCore::PVSerializeObject_p list_obj = so.create_object("layers", "", true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("layers", "", false, false);
 	int idx = 0;
 	for (PVLayer& layer : _table) {
 		QString child_name = QString::number(idx++);
@@ -326,7 +326,7 @@ Inendi::PVLayerStack Inendi::PVLayerStack::serialize_read(PVCore::PVSerializeObj
 
 	ls._table.clear(); // Remove default layer created on view creation.
 
-	PVCore::PVSerializeObject_p list_obj = so.create_object("layers", "", true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("layers", "", false, false);
 	int layer_count;
 	so.attribute("layer_count", layer_count);
 	for (int idx = 0; idx < layer_count; idx++) {

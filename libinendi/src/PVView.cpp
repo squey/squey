@@ -644,11 +644,11 @@ void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Serialize View.");
 	so.set_current_status("Serialize Layer stack.");
-	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
+	auto ls_obj = so.create_object("layer-stack", "Layers", false, false);
 	layer_stack.serialize_write(*ls_obj);
 
 	so.set_current_status("Serialize Axes combination.");
-	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
+	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", false, false);
 	_axes_combination.serialize_write(*ax_comb_obj);
 }
 
@@ -660,14 +660,14 @@ Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
 	Inendi::PVView& view = parent.emplace_add_child();
 
 	so.set_current_status("Loading axes combination");
-	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", true, true);
+	auto ax_comb_obj = so.create_object("axes-combination", "Axes combination", false, false);
 	view._axes_combination.set_combination(
 	    Inendi::PVAxesCombination::serialize_read(
 	        *ax_comb_obj, parent.get_parent<Inendi::PVSource>().get_format())
 	        .get_combination());
 
 	so.set_current_status("Loading layer stack");
-	auto ls_obj = so.create_object("layer-stack", "Layers", true, true);
+	auto ls_obj = so.create_object("layer-stack", "Layers", false, false);
 	view.layer_stack = Inendi::PVLayerStack::serialize_read(*ls_obj);
 
 	so.set_current_status("Process layer stack");
