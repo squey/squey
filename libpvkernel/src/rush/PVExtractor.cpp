@@ -13,6 +13,7 @@
 #include <pvkernel/rush/PVNraw.h>          // for PVNraw
 #include <pvkernel/rush/PVNrawOutput.h>    // for PVNrawOutput
 #include <pvkernel/rush/PVSourceCreator.h> // for PVSourceCreator_p, etc
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <pvkernel/core/PVConfig.h> // for PVConfig
 

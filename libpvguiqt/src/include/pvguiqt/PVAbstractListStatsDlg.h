@@ -8,34 +8,49 @@
 #ifndef __PVGUIQT_PVABSTRACTLISTSTATSDLG_H__
 #define __PVGUIQT_PVABSTRACTLISTSTATSDLG_H__
 
-#include <pvkernel/rush/PVNraw.h>
+#include <pvguiqt/PVListDisplayDlg.h> // for PVListDisplayDlg
+#include <pvguiqt/PVStatsModel.h>     // for PVStatsModel
 
-#include <inendi/PVCombCol.h>
+#include <inendi/PVCombCol.h> // for PVCombCol
 
-#include <pvguiqt/PVListDisplayDlg.h>
-#include <pvguiqt/PVStatsModel.h>
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList
 
+#include <QStringList>
 #include <QStyledItemDelegate>
+#include <QStyleOptionViewItem>
 
-#include <QResizeEvent>
-
-class QComboBox;
+class QAction;
+class QMenu;
+class QModelIndex;
+class QPainter;
+class QPoint;
+class QWidget;
 
 namespace Inendi
 {
 class PVView;
-}
-
+} // lines 26-26
 namespace PVGuiQt
 {
-
+class PVLayerFilterProcessWidget;
+}
+namespace PVGuiQt
+{
+namespace __impl
+{
+class PVAbstractListStatsRangePicker;
+}
+} // lines 35-35
+namespace PVGuiQt
+{
 namespace __impl
 {
 class PVListStringsDelegate;
-class PVAbstractListStatsRangePicker;
 }
+} // lines 34-34
 
-class PVStatsSortProxyModel;
+namespace PVGuiQt
+{
 
 class PVAbstractListStatsDlg : public PVListDisplayDlg
 {
@@ -147,10 +162,9 @@ namespace __impl
 
 class PVListStringsDelegate : public QStyledItemDelegate
 {
-	Q_OBJECT
 
   public:
-	PVListStringsDelegate(PVAbstractListStatsDlg* parent) : QStyledItemDelegate(parent) {}
+	using QStyledItemDelegate::QStyledItemDelegate;
 
   protected:
 	void paint(QPainter* painter,

@@ -37,14 +37,8 @@ QString PVRush::PVDBSource::human_name()
 
 void PVRush::PVDBSource::seek_begin()
 {
-	seek(0);
-}
-
-bool PVRush::PVDBSource::seek(input_offset off)
-{
-	_start = off;
-	_next_index = off;
-	return true;
+	_start = 0;
+	_next_index = 0;
 }
 
 void PVRush::PVDBSource::prepare_for_nelts(chunk_index nelts)

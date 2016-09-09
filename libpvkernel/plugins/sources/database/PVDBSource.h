@@ -27,12 +27,11 @@ class PVDBSource : public PVRawSourceBase
 	virtual ~PVDBSource();
 
   public:
-	virtual QString human_name();
-	virtual void seek_begin();
-	bool seek(input_offset off);
-	virtual void prepare_for_nelts(chunk_index nelts);
+	QString human_name() override;
+	void seek_begin() override;
+	void prepare_for_nelts(chunk_index nelts) override;
 	size_t get_size() const override { return 0; }
-	virtual PVCore::PVChunk* operator()();
+	PVCore::PVChunk* operator()() override;
 
   protected:
 	PVDBQuery _query;

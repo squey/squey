@@ -25,7 +25,6 @@ class GraphicsView;
 
 class PVAboutBoxDialog : public QDialog
 {
-	Q_OBJECT;
 	friend class __impl::GraphicsView;
 
   public:

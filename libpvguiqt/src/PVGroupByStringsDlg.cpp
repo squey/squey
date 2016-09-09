@@ -7,9 +7,11 @@
 
 #include <pvguiqt/PVGroupByStringsDlg.h>
 
-#include <pvkernel/core/PVProgressBox.h>
-
 #include <inendi/PVView.h>
+
+#include <pvkernel/rush/PVNraw.h>
+
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <pvcop/db/algo.h>
 

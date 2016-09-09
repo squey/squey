@@ -10,11 +10,14 @@
 
 #include <ui_widget_params.h>
 
-#include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
+#include <pvkernel/rush/PVFormat.h>
+
+#include <pvkernel/core/PVProgressBox.h>
+
 #include <QFileDialog>
+#include <QTextStream>
 
 namespace PVWidgets
 {
