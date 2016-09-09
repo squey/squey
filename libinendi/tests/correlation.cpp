@@ -4,6 +4,8 @@
  * @copyright (C) ESI Group INENDI 2016
  */
 
+#include <inendi/PVLayerFilter.h>
+
 #include <pvkernel/core/inendi_assert.h>
 
 #include <pvkernel/core/PVEnumType.h>

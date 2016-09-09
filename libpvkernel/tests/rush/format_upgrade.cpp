@@ -5,8 +5,9 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
-#include <QDomElement>
 #include <QDomDocument>
+#include <QDomElement>
+#include <QTextStream>
 
 static constexpr const char* xml_origin = TEST_FOLDER "/pvkernel/rush/formats/apache.access.format";
 static constexpr const char* xml_ref =

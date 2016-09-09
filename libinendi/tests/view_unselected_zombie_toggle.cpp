@@ -11,7 +11,6 @@
 
 static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy_1bad.log";
 static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
-static constexpr unsigned int ROW_COUNT = 100000;
 #ifdef INSPECTOR_BENCH
 static constexpr unsigned int dupl = 200;
 #else
