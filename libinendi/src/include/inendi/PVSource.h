@@ -124,9 +124,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	size_t max_size() const { return _extractor.max_size(); }
 
   public:
-	virtual QString get_children_description() const { return "Mapped(s)"; }
-	virtual QString get_children_serialize_name() const { return "mapped"; }
-
 	inline void set_last_active_view(Inendi::PVView* view) { _last_active_view = view; }
 
   public:

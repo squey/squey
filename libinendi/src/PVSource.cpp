@@ -193,8 +193,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	}
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped", "Mappeds", true, true);
 	idx = 0;
 	for (PVMapped* mapped : get_children()) {
 		QString child_name = QString::number(idx++);
@@ -264,8 +263,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	}
 
 	// Create the list of mapped
-	PVCore::PVSerializeObject_p list_obj = so.create_object(
-	    source.get_children_serialize_name(), source.get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped", "Mappeds", true, true);
 	int mapped_count;
 	so.attribute("mapped_count", mapped_count);
 	for (int idx = 0; idx < mapped_count; idx++) {

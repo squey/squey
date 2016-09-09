@@ -73,9 +73,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
   public:
 	std::string get_serialize_description() const override { return "Investigation"; }
 
-	virtual QString get_children_description() const { return "Data collection(s)"; }
-	virtual QString get_children_serialize_name() const { return "data-collections"; }
-
   public:
 	PVCorrelationEngine& correlations() { return _correlations; }
 	const PVCorrelationEngine& correlations() const { return _correlations; }

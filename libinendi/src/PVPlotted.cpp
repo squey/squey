@@ -344,8 +344,7 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("prop_count", idx);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("view", "Views", true, true);
 	idx = 0;
 	for (PVView* view : get_children()) {
 		QString child_name = QString::number(idx++);
@@ -378,8 +377,7 @@ Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& 
 	PVPlotted& plotted = parent.emplace_add_child(std::move(columns), name.toStdString());
 
 	// Create the list of view
-	PVCore::PVSerializeObject_p list_obj = so.create_object(
-	    plotted.get_children_serialize_name(), plotted.get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("view", "Views", true, true);
 
 	int view_count;
 	so.attribute("view_count", view_count);

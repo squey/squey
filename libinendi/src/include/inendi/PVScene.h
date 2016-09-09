@@ -66,9 +66,6 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	virtual std::string get_serialize_description() const { return get_name(); }
 
   public:
-	virtual QString get_children_description() const { return "Source(s)"; }
-	virtual QString get_children_serialize_name() const { return "sources"; }
-
 	inline void set_last_active_source(PVSource* src) { _last_active_src = src; }
 
   public:

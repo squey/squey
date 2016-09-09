@@ -9,7 +9,6 @@
 #define INENDI_PVPLOTTED_H
 
 #include <QList>
-#include <QStringList>
 #include <QVector>
 #include <vector>
 #include <utility>
@@ -202,9 +201,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	}
 
   protected:
-	virtual QString get_children_description() const { return "View(s)"; }
-	virtual QString get_children_serialize_name() const { return "views"; }
-
 	int create_table();
 
 	/**

@@ -200,8 +200,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Serialize Root.");
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scene", "Scenes", true, true);
 	int idx = 0;
 	for (PVScene* scene : get_children()) {
 		QString child_name = QString::number(idx++);
@@ -217,8 +216,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading root");
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scene", "Scenes", true, true);
 	int scene_count;
 	so.attribute("scene_count", scene_count);
 	for (int idx = 0; idx < scene_count; idx++) {
