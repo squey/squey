@@ -45,6 +45,11 @@ void PVRush::PVElasticsearchSource::prepare_for_nelts(chunk_index /*nelts*/)
 {
 }
 
+size_t PVRush::PVElasticsearchSource::get_size() const
+{
+	return _elasticsearch.count(_query);
+}
+
 PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 {
 	if (_query_end) {
@@ -59,7 +64,7 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 	_query_end = _elasticsearch.extract(_query, rows_array);
 
 	PVCore::PVChunk* chunk;
-
+	size_t chunk_size = 0;
 	chunk = PVCore::PVChunkMem<>::allocate(0, this);
 	chunk->set_index(_next_index);
 
@@ -73,7 +78,9 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 			memcpy(f.begin(), row.c_str(), row.size());
 			elt->fields().push_back(f);
 		}
+		chunk_size += rows.size();
 	}
+	chunk->set_init_size(chunk_size);
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();

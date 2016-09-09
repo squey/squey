@@ -63,10 +63,12 @@ class PVExtractor
 	void force_number_axes(PVCol naxes);
 	void release_inputs() { _agg.release_inputs(); }
 
+	size_t max_size() const { return _max_value; }
+
   private:
 	void set_sources_number_fields();
 
-  protected:
+  private:
 	PVAggregator _agg;
 	PVNraw& _nraw;
 	PVFormat& _format;      //!< It is the format use for extraction.
@@ -74,6 +76,9 @@ class PVExtractor
 	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;
 	PVCol _force_naxes;
+
+	size_t _max_value; //!< Total size for every input handled by this extractor (metrics depend on
+	                   //! inputs)
 };
 }
 

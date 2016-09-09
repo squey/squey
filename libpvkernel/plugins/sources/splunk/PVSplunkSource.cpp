@@ -55,6 +55,7 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 
 	PVCore::PVChunk* chunk;
 
+	size_t chunk_size = 0;
 	chunk = PVCore::PVChunkMem<>::allocate(0, this);
 	chunk->set_index(_next_index);
 
@@ -65,9 +66,11 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 
 		PVCore::PVField f(*elt);
 		f.allocate_new(row.size());
+		chunk_size += row.size();
 		memcpy(f.begin(), row.c_str(), row.size());
 		elt->fields().push_back(f);
 	}
+	chunk->set_init_size(chunk_size);
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();

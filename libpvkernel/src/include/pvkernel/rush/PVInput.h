@@ -31,10 +31,6 @@ class PVInput
 	// bytes actually read.
 	// It returns 0 if no more data is available
 	virtual size_t operator()(char* buffer, size_t n) = 0;
-	// This method must return the current input offset of the object. For instance, for a file, it
-	// would be
-	// the current offset of the file opened.
-	virtual input_offset current_input_offset() = 0;
 	// Seek to the beggining of the input
 	virtual void seek_begin() = 0;
 	virtual QString human_name() = 0;

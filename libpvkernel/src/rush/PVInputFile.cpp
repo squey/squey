@@ -33,11 +33,6 @@ size_t PVRush::PVInputFile::operator()(char* buffer, size_t n)
 	return ret;
 }
 
-PVRush::input_offset PVRush::PVInputFile::current_input_offset()
-{
-	return _file.tellg();
-}
-
 void PVRush::PVInputFile::seek_begin()
 {
 	_file.clear();

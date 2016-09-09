@@ -85,6 +85,8 @@ class PVControllerJob : public QObject
 	 */
 	void run_job();
 
+	size_t get_value() const { return _out_filter.get_out_size(); }
+
   public:
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 

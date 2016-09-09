@@ -31,6 +31,13 @@ class PVElasticsearchSource : public PVRawSourceBase
 	QString human_name() override;
 	void seek_begin() override;
 	void prepare_for_nelts(chunk_index nelts) override;
+
+	/**
+	 * Return the total size of this source.
+	 *
+	 * It use line count for ES.
+	 */
+	size_t get_size() const override;
 	PVCore::PVChunk* operator()() override;
 
   protected:

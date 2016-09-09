@@ -1037,10 +1037,9 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		    pbox.set_confirmation(true);
 		    QProgressBar* pbar = pbox.getProgressBar();
 		    pbar->setValue(0);
+		    constexpr size_t mega = 1024 * 1024;
 		    // set min and max to 0 to have an activity effect
-		    // FIXME : We should be able to use nlines as max.
-		    pbar->setMaximum(job_import->nb_elts_max());
-		    pbar->setMinimum(0);
+		    pbar->setMaximum(src->max_size() / mega);
 
 		    QObject::connect(job_import.get(), SIGNAL(job_done_signal()), &pbox, SLOT(accept()));
 		    // launch a thread in order to update the status of the progress bar
@@ -1049,7 +1048,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			        QString("Number of elements extracted: %L1\nNumber of rejected elements: %L2")
 			            .arg(job_import->status())
 			            .arg(job_import->rejected_elements()));
-			    boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+			    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			    pbar->setValue(job_import->get_value() / mega);
 		    }
 		},
 	    QString("Extracting %1...").arg(src->get_format_name()), this);

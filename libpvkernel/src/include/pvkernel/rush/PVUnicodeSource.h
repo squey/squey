@@ -9,9 +9,10 @@
 #define PVRUSH_PVUNICODESOURCE_FILE_H
 
 #include <pvkernel/rush/PVCharsetDetect.h>
-#include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVConverter.h>
+#include <pvkernel/rush/PVInput.h>
+#include <pvkernel/rush/PVInputFile.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
 
 namespace PVRush
@@ -37,7 +38,6 @@ class PVUnicodeSource : public PVRawSourceBase
   public:
 	using alloc_chunk = Allocator<char>;
 	using PVChunkAlloc = PVCore::PVChunkMem<Allocator>;
-	using map_offsets = std::map<chunk_index, input_offset>;
 
   public:
 	PVUnicodeSource(PVInput_p input, size_t chunk_size, const alloc_chunk& alloc = alloc_chunk())
@@ -49,7 +49,6 @@ class PVUnicodeSource : public PVRawSourceBase
 	{
 		assert(chunk_size > 10);
 		assert(input);
-		_offsets[0] = 0;
 		seek_begin();
 	}
 
@@ -72,6 +71,14 @@ class PVUnicodeSource : public PVRawSourceBase
 		if (_nextc && _nextc != _curc) {
 			_nextc->free();
 		}
+	}
+
+	/**
+	 * Size in Mo of the file handled by this source.
+	 */
+	size_t get_size() const override
+	{
+		return dynamic_cast<PVRush::PVInputFile*>(_input.get())->file_size();
 	}
 
 	/**
@@ -289,6 +296,7 @@ class PVUnicodeSource : public PVRawSourceBase
 		// Read data from input
 		char* begin_read = _curc->end();
 		size_t r = _input->operator()(begin_read, _curc->avail());
+		size_t chunk_size = r;
 
 		if (r == 0) { // No more data to read.
 			if (_curc->size() > 0) {
@@ -321,6 +329,7 @@ class PVUnicodeSource : public PVRawSourceBase
 
 			b = start_offset + _curc->begin();
 			r = _input->operator()(_curc->end(), _curc->avail());
+			chunk_size += r;
 			buffer_end = _curc->end() + r;
 
 			end = get_end_from_charset(_curc->end(), r);
@@ -329,6 +338,8 @@ class PVUnicodeSource : public PVRawSourceBase
 		// Process the read data
 		// Copy remaining chars in the next chunk
 		_nextc->set_end(std::copy(end, buffer_end, _nextc->begin()));
+		chunk_size -= (buffer_end - end);
+		_curc->set_init_size(chunk_size);
 
 		while (true) {
 			try {
@@ -353,7 +364,6 @@ class PVUnicodeSource : public PVRawSourceBase
 
 		// Compute the chunk indexes, based on the number of elements found
 		chunk_index next_index = _curc->index() + _curc->c_elements().size();
-		_offsets[next_index] = _input->current_input_offset();
 		_nextc->set_index(next_index);
 		if (next_index - 1 > _last_elt_index) {
 			_last_elt_index = next_index - 1;
@@ -391,7 +401,6 @@ class PVUnicodeSource : public PVRawSourceBase
   private:
 	size_t _chunk_size;                //!< Size of the chunk
 	PVInput_p _input;                  //!< Input source where we read data
-	map_offsets _offsets;              //!< Map indexes to input offsets
 	PVCore::PVChunk* _curc = nullptr;  //!< Pointer to current chunk.
 	PVCore::PVChunk* _nextc = nullptr; //!< Pointer to next chunk.
 	alloc_chunk _alloc;                //!< Allocator to create chunks
