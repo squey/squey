@@ -47,7 +47,6 @@ class PVControllerJob : public QObject
 	Q_OBJECT
 
   public:
-	typedef enum _stop_cdtion { sc_n_elts, sc_idx_end } stop_cdtion;
 	typedef std::shared_ptr<PVControllerJob> p_type;
 	using invalid_elements_t = std::map<size_t, std::string>;
 
@@ -56,8 +55,6 @@ class PVControllerJob : public QObject
 	 */
 	PVControllerJob(chunk_index begin,
 	                chunk_index end,
-	                chunk_index n_elts,
-	                stop_cdtion sc,
 	                PVAggregator& agg,
 	                PVFilter::PVChunkFilterByElt& filter,
 	                PVOutput& out_filter,
