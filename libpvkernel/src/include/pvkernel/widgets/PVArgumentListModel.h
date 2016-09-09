@@ -8,12 +8,17 @@
 #ifndef PVARGUMENTLISTMODEL_H
 #define PVARGUMENTLISTMODEL_H
 
-#include <QtCore>
+#include <pvkernel/core/PVArgument.h>
 
 #include <QAbstractTableModel>
 #include <QVariant>
 
-#include <pvkernel/core/PVArgument.h>
+class QObject;
+
+namespace PVCore
+{
+class PVArgumentList;
+}
 
 namespace PVWidgets
 {

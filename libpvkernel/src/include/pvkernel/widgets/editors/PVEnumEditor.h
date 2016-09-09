@@ -8,11 +8,11 @@
 #ifndef PVCORE_PVENUMEDITOR_H
 #define PVCORE_PVENUMEDITOR_H
 
-#include <QComboBox>
-#include <QString>
-#include <QWidget>
-
 #include <pvkernel/core/PVEnumType.h>
+
+#include <QComboBox>
+
+class QWidget;
 
 namespace PVWidgets
 {
@@ -26,8 +26,7 @@ class PVEnumEditor : public QComboBox
 	Q_PROPERTY(PVCore::PVEnumType _enum READ get_enum WRITE set_enum USER true)
 
   public:
-	PVEnumEditor(QWidget* parent = 0);
-	virtual ~PVEnumEditor();
+	using QComboBox::QComboBox;
 
   public:
 	PVCore::PVEnumType get_enum() const;

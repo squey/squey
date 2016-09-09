@@ -5,14 +5,20 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
 
-#include <QPainter>
-#include <QResizeEvent>
+#include <cmath> // for round
+
+#include <QBrush>   // for QLinearGradient, QBrush
+#include <QColor>   // for QColor
+#include <QEvent>   // for QMouseEvent, QPaintEvent, etc
+#include <QPainter> // for QPainter
+#include <QPoint>   // for QPoint, QPointF
+#include <QPolygon> // for QPolygon, QPolygonF
+#include <QRect>    // for QRect
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
+#include <QWidget> // for QWidget
+#include <QMouseEvent>
 
 /**
  * TODO: to make thinks really really really cleaner/simpler:
@@ -218,7 +224,8 @@ void PVWidgets::__impl::PVAbstractRangeRamp::set_gradient(const QLinearGradient&
 void PVWidgets::__impl::PVAbstractRangeRamp::set_min_cursor(double value)
 {
 	// range ramp's denormalization to pass it to the cursor
-	_min_cursor->move(round(MINIMUM_CURSOR_OFFSET + (value * get_real_width())), CURSOR_VOFFSET);
+	_min_cursor->move(std::round(MINIMUM_CURSOR_OFFSET + (value * get_real_width())),
+	                  CURSOR_VOFFSET);
 }
 
 /*****************************************************************************
@@ -228,7 +235,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::set_min_cursor(double value)
 void PVWidgets::__impl::PVAbstractRangeRamp::set_max_cursor(double value)
 {
 	// range ramp's denormalization to pass it to the cursor
-	_max_cursor->move(round(RAMP_MARGIN + (value * get_real_width())), CURSOR_VOFFSET);
+	_max_cursor->move(std::round(RAMP_MARGIN + (value * get_real_width())), CURSOR_VOFFSET);
 }
 
 /*****************************************************************************

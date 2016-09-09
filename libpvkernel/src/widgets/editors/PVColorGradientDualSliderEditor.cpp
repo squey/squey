@@ -5,12 +5,15 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <cmath>
-
-#include <QtCore>
-#include <QtWidgets>
-
+#include <pvkernel/widgets/PVColorPicker.h> // for PVColorPicker, etc
 #include <pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h>
+
+#include <pvkernel/core/PVColorGradientDualSliderType.h>
+#include <pvkernel/core/PVHSVColor.h> // for PVHSVColor, HSV_COLOR_GREEN, etc
+
+#include <cstdint> // for uint8_t
+
+class QWidget;
 
 /******************************************************************************
  *

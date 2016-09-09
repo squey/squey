@@ -5,22 +5,35 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVEnumType.h>
-#include <pvkernel/core/PVColorGradientDualSliderType.h>
-#include <pvkernel/core/PVTimeFormatType.h>
-#include <pvkernel/core/PVPlainTextType.h>
-#include <pvkernel/core/PVSpinBoxType.h>
-#include <pvkernel/core/PVPercentRangeType.h>
-
-#include <pvkernel/widgets/editors/PVRegexpEditor.h>
-#include <pvkernel/widgets/editors/PVEnumEditor.h>
-#include <pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h>
-#include <pvkernel/widgets/editors/PVPlainTextEditor.h>
 #include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
+#include <pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h>
+#include <pvkernel/widgets/editors/PVEnumEditor.h> // for PVEnumEditor
 #include <pvkernel/widgets/editors/PVPercentRangeEditor.h>
+#include <pvkernel/widgets/editors/PVPlainTextEditor.h>
+#include <pvkernel/widgets/editors/PVRegexpEditor.h>
 
-#include <QCheckBox>
-#include <QLineEdit>
+#include <QCheckBox> // for QCheckBox
+#include <QItemEditorFactory>
+#include <QLineEdit> // for QLineEdit
+#include <QMetaType> // for qMetaTypeId
+#include <QVariant>  // for QVariant, QVariant::Type, etc
+
+namespace PVCore
+{
+class PVColorGradientDualSliderType;
+}
+namespace PVCore
+{
+class PVEnumType;
+}
+namespace PVCore
+{
+class PVPercentRangeType;
+}
+namespace PVCore
+{
+class PVPlainTextType;
+}
 
 QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory()
 {

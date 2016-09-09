@@ -5,25 +5,25 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
+#include "pvkernel/widgets/PVPopupWidget.h"     // for PVPopupWidget
+#include "pvkernel/widgets/PVTextPopupWidget.h" // for PVTextPopupWidget, etc
 
-#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVConfig.h> // for PVConfig
+#include <pvkernel/core/PVLogger.h> // for PVLOG_WARN
 
-#include <pvkernel/core/PVLogger.h>
-
-#include <pvkernel/widgets/PVHelpWidget.h>
+#include <QVBoxLayout>
+#include <QByteArray>
+#include <QKeyEvent>
+#include <QFile>
+#include <QResizeEvent>
+#include <QSettings>
+#include <QString>
 
 #ifdef QT_WEBKIT
 #include <QtWebKitWidgets/QWebView>
 #else
 #include <QWebEngineView>
 #endif
-
-#include <QVBoxLayout>
-#include <QFile>
-#include <QResizeEvent>
-#include <QKeyEvent>
-#include <QSettings>
 
 /**
  * RH: the code snipset from http://jsfiddle.net/r9yrM/1/ has been used as a template for the

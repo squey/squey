@@ -8,15 +8,14 @@
 #ifndef PVWIDGETS_PVPERCENTRANGEEDITOR_H
 #define PVWIDGETS_PVPERCENTRANGEEDITOR_H
 
-#include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
+
+#include <pvkernel/core/PVPercentRangeType.h>
 
 class QWidget;
 
 namespace PVWidgets
 {
-
-class PVMainWindow;
 
 /**
  * @class PVPercentRangeEditor
