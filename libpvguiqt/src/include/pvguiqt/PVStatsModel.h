@@ -30,6 +30,7 @@ class PVStatsModel : public PVAbstractTableModel
 	    : PVAbstractTableModel(col1.size(), parent)
 	    , _col1(std::move(col1))
 	    , _col2(std::move(col2))
+	    , _format(ValueFormat::Count)
 	    , _absolute_max_count(absolute_max)
 	    , _relative_min_count(relative_min)
 	    , _relative_max_count(relative_max)
