@@ -10,6 +10,8 @@
 
 #include <inendi/PVRoot.h>
 
+#include <pvkernel/core/PVProgressBox.h>
+
 #include <sigc++/sigc++.h>
 
 #include <QDrag>
@@ -185,7 +187,12 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index)
 		tabBar()->setStyleSheet("");
 		QWidget* w = widget(index);
 		removeTab(index);
-		get_scene().remove_child(*qobject_cast<PVGuiQt::PVSourceWorkspace*>(w)->get_source());
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& /*pbox*/) {
+			    get_scene().remove_child(
+			        *qobject_cast<PVGuiQt::PVSourceWorkspace*>(w)->get_source());
+			},
+		    QObject::tr("Closing source"), this);
 		delete w;
 		if (count() == 0) {
 			Q_EMIT is_empty();
