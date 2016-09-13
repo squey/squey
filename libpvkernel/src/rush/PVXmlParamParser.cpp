@@ -29,7 +29,13 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 	}
 	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
-	docXml.setContent(tmpTextXml.readAll());
+	QString error;
+	int line, col;
+	if (!docXml.setContent(tmpTextXml.readAll(), &error, &line, &col)) {
+		throw PVInvalidFile((error + " at line : " + QString::number(line) + " col:" +
+		                     QString::number(col) + " in file : " + nameFile)
+		                        .toStdString());
+	}
 	PVRush::PVFormatVersion::to_current(docXml);
 	parseFromRootNode(docXml.documentElement());
 
