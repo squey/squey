@@ -27,7 +27,7 @@ static constexpr const char* csv_file_format =
 
 int main()
 {
-	pvtest::TestEnv env(csv_file, csv_file_format, dupl, pvtest::ProcessUntil::Plotted);
+	pvtest::TestEnv env(csv_file, csv_file_format, dupl, pvtest::ProcessUntil::Mapped);
 
 	auto start = std::chrono::system_clock::now();
 
