@@ -183,7 +183,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 		query_end = es.extract(query, rows_array, error);
 
 		// First extract have to be done to ge the scroll_count value.
-		pbox.getProgressBar()->setMaximum(es.scroll_count());
+		pbox.set_maximum(es.scroll_count());
 
 		if (error && error->empty() == false) {
 			return;
@@ -207,7 +207,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 			}
 		}
 
-		pbox.getProgressBar()->setValue(count);
+		pbox.set_value(count);
 		pbox.set_extended_status(std::to_string(count) + " lines already exported");
 	} while (query_end == false);
 }

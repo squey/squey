@@ -1032,11 +1032,9 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		    pbox.set_cancel2_btn_text("Stop and process");
 		    pbox.set_cancel_btn_text("Discard");
 		    pbox.set_confirmation(true);
-		    QProgressBar* pbar = pbox.getProgressBar();
-		    pbar->setValue(0);
 		    constexpr size_t mega = 1024 * 1024;
 		    // set min and max to 0 to have an activity effect
-		    pbar->setMaximum(src->max_size() / mega);
+		    pbox.set_maximum(src->max_size() / mega);
 
 		    QObject::connect(job_import.get(), SIGNAL(job_done_signal()), &pbox, SLOT(accept()));
 		    // launch a thread in order to update the status of the progress bar
@@ -1045,8 +1043,8 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 			        QString("Number of elements extracted: %L1\nNumber of rejected elements: %L2")
 			            .arg(job_import->status())
 			            .arg(job_import->rejected_elements()));
+			    pbox.set_value(job_import->get_value() / mega);
 			    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-			    pbar->setValue(job_import->get_value() / mega);
 		    }
 		},
 	    job_import->get_ctxt(), QString("Extracting %1...").arg(src->get_format_name()), this);
@@ -1117,23 +1115,21 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 
 	if (PVCore::PVProgressBox::progress(
 	        [&](PVCore::PVProgressBox& pbox) {
-		        QProgressBar* pbar = pbox.getProgressBar();
-		        pbar->setMaximum(3);
-		        pbar->setMinimum(0);
+		        pbox.set_maximum(3);
 
-		        pbar->setValue(0);
+		        pbox.set_value(0);
 		        pbox.set_extended_status("Compute mapping");
 		        auto& mapped = src->emplace_add_child();
 
-		        pbar->setValue(1);
+		        pbox.set_value(1);
 		        pbox.set_extended_status("Compute plotting");
 		        auto& plotted = mapped.emplace_add_child();
 
-		        pbar->setValue(2);
+		        pbox.set_value(2);
 		        pbox.set_extended_status("Compute view");
 		        plotted.emplace_add_child();
 
-		        pbar->setValue(3);
+		        pbox.set_value(3);
 		    },
 	        tr("Processing..."), (QWidget*)this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		return false;

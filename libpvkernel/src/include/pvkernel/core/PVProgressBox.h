@@ -52,7 +52,6 @@ class PVProgressBox : public QDialog
 	/**
 	* Return the progress bar. It possible to modify Min, Max and progress.
 	*/
-	QProgressBar* getProgressBar();
 	void set_enable_cancel(bool cancel);
 	void set_extended_status(QString const& str);
 	void set_extended_status(std::string const& str)
@@ -64,6 +63,14 @@ class PVProgressBox : public QDialog
 	void set_cancel2_btn_text(QString const& str);
 	CancelState get_cancel_state() { return _cancel_state; }
 	void set_confirmation(bool confirm) { _need_confirmation = confirm; }
+	void set_value(int v)
+	{
+		exec_gui([&]() { progress_bar->setValue(v); });
+	}
+	void set_maximum(int v)
+	{
+		exec_gui([&]() { progress_bar->setMaximum(v); });
+	}
 
   private:
 	template <class F>
