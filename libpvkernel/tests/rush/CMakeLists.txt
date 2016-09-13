@@ -169,6 +169,9 @@ add_test(LONG_Trush_ticket_2 Trush_ticket_2)
 add_pv_compile_test(Trush_ticket_28 LINKS ${LINK_LIBRARIES} FILES ticket_28.cpp)
 add_test(Trush_ticket_28 Trush_ticket_28 ${PVRUSH_TEST_FILES})
 
+add_pv_compile_test(Trush_agg_index_with_grow LINKS ${LINK_LIBRARIES} FILES agg_index_grow.cpp)
+add_test(Trush_agg_index_with_grow Trush_agg_index_with_grow)
+
 # Elasticsearch plugin test
 set(ELASTICSEARCH_SRC_FILES
 ../../plugins/common/elasticsearch/PVElasticsearchAPI.cpp
