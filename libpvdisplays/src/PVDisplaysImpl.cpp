@@ -43,16 +43,6 @@ void PVDisplays::PVDisplaysImpl::load_plugins()
 	}
 }
 
-void PVDisplays::PVDisplaysImpl::static_init()
-{
-	visit_all_displays([](PVDisplayIf& obj) { obj.static_init(); });
-}
-
-void PVDisplays::PVDisplaysImpl::static_release()
-{
-	visit_all_displays([](PVDisplayIf& obj) { obj.static_release(); });
-}
-
 void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu,
                                                              QObject* receiver,
                                                              const char* slot,
