@@ -142,22 +142,22 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 {
 	for (PVFullParallelScene* view : _parallel_scenes) {
 		view->about_to_be_deleted();
-		view->graphics_view()->deleteLater();
+		delete view->graphics_view();
 	}
 
 	for (PVZoomedParallelScene* view : _zoomed_parallel_scenes) {
 		view->about_to_be_deleted();
-		view->deleteLater();
+		delete view;
 	}
 
 	for (PVHitCountView* view : _hit_count_views) {
 		view->about_to_be_deleted();
-		view->deleteLater();
+		delete view;
 	}
 
 	for (PVScatterView* view : _scatter_views) {
 		view->about_to_be_deleted();
-		view->deleteLater();
+		delete view;
 	}
 
 	PVParallelView::common::remove_lib_view(*lib_view());
