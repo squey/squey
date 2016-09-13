@@ -5,6 +5,7 @@
 # @copyright (C) ESI Group INENDI April 2015-2015
 
 add_pv_compile_test(Tcore_huge_vector LINKS pvkernel FILES huge_vector.cpp)
+add_test(LONG_Thuge_vector Tcore_huge_vector)
 
 add_pv_compile_test(Tcore_file_helper LINKS pvkernel FILES file_helper.cpp)
 add_test(Tcore_file_helper Tcore_file_helper)

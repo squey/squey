@@ -13,14 +13,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${ICU_LIBRARY} pvparallelview ${OpenMP_LIBRARIES} numa)
 
 add_pv_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp)
-add_pv_compile_test(Pqt-extract-sse LINKS ${LINK_LIBRARIES} FILES qt-extract-sse.cpp)
-add_pv_compile_test(Tquadtree_impl LINKS ${LINK_LIBRARIES} FILES quadtree_impl.cpp)
-add_pv_compile_test(masks LINKS ${LINK_LIBRARIES} FILES masks.cpp)
-add_pv_compile_test(Ehitgraph-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-perf.cpp)
-add_pv_compile_test(Ehitgraph-alpha-perf LINKS ${LINK_LIBRARIES} FILES hitgraph-alpha-perf.cpp)
 add_pv_compile_test(zoomable_drawing_area_test LINKS ${LINK_LIBRARIES} FILES zoomable_drawing_area_test.cpp)
-add_pv_compile_test(hitgraph-buffer LINKS ${LINK_LIBRARIES} FILES hitgraph-buffer.cpp)
-add_pv_compile_test(Tqt_random_points LINKS ${LINK_LIBRARIES} FILES random_points.cpp)
+
+add_pv_compile_test(Tquadtree_impl LINKS ${LINK_LIBRARIES} FILES quadtree_impl.cpp)
+add_test(Tquadtree_impl Tquadtree_impl 10 10)
+
+add_pv_compile_test(Thitgraph-buffer LINKS ${LINK_LIBRARIES} FILES hitgraph-buffer.cpp)
+add_test(Thitgraph-buffer Thitgraph-buffer)
 
 add_pv_compile_test(Tpview_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zone_tree_dump_load.cpp)
 add_test(Tpview_zone_tree_dump_load Tpview_zone_tree_dump_load 0 50 2)
