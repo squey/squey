@@ -162,6 +162,10 @@ add_pv_compile_test(Tplotting_port LINKS ${LINK_LIBRARIES} FILES plotting_port.c
 add_test(Tplotting_port Tplotting_port)
 add_bench(Tplotting_port LINKS ${LINK_LIBRARIES} FILES plotting_port.cpp)
 
+add_pv_compile_test(Tplotting_integer_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_enum.cpp)
+add_test(Tplotting_integer_default_enum Tplotting_integer_default_enum)
+add_bench(Tplotting_integer_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_enum.cpp)
+
 # FIXME : This test is a bit slow but it test a lot of thing. We should split
 # it in multiple tests
 add_pv_compile_test(TPVSelection LINKS ${LINK_LIBRARIES} FILES PVSelection.cpp)
