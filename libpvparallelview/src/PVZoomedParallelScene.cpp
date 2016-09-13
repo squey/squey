@@ -153,7 +153,6 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	}
 
 	if (_sliders_group) {
-		_sliders_group->delete_own_zoom_slider();
 		delete _sliders_group;
 		_sliders_group = nullptr;
 	}
