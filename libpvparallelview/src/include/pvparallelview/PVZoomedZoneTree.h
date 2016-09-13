@@ -221,24 +221,6 @@ class PVZoomedZoneTree
 	}
 
 	/**
-	 * Save the zoomed zone tree into a file.
-	 *
-	 * @param filename the output filename
-	 *
-	 * @return true on success; false otherwise and an error is printed.
-	 */
-	bool dump_to_file(const char* filename) const;
-
-	/**
-	 * Create and load a zoomed zone tree from a file.
-	 *
-	 * @param filename the input filename
-	 *
-	 * @return a zoomed zone tree on success; nullptr otherwise and an error is printed.
-	 */
-	static PVZoomedZoneTree* load_from_file(const char* filename);
-
-	/**
 	 * Search for all events whose primary coordinates are in in the range [y1_min,y1_max) and
 	 * mark them as selected in \selection.
 	 *
