@@ -368,8 +368,10 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		/* We set it's selection to the final selection */
 		inendi_view->commit_selection_to_layer(new_layer);
 
-		// We remove that selection from the current layer
-		current_layer.get_selection().and_not(new_layer.get_selection());
+		// We remove that selection from the current layer if it is not locked.
+		if (not current_layer.is_locked()) {
+			current_layer.get_selection().and_not(new_layer.get_selection());
+		}
 
 		/* We need to reprocess the layer stack */
 		inendi_view->update_current_layer_min_max();
