@@ -37,6 +37,7 @@ class PVSelection : public PVCore::PVSelBitField
   public:
 	explicit PVSelection(PVRow row_count) : PVCore::PVSelBitField(row_count) {}
 	explicit PVSelection(PVCore::PVSelBitField&& bf) : PVCore::PVSelBitField(std::move(bf)) {}
+	explicit PVSelection(PVCore::PVSelBitField const& bf) : PVCore::PVSelBitField(bf) {}
 
 	PVSelection(PVSelection const& o) = default;
 	PVSelection(PVSelection&& o) = default;

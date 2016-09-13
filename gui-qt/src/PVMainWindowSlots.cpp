@@ -119,7 +119,7 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::events_display_zombies_listing_Sloupdate_recent_projectst()
+ * PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()

@@ -416,7 +416,7 @@ void Inendi::PVView::process_output_layer()
 		/* Now we need to know if the ZOMBIE are visible */
 		if (_state_machine.are_listing_zombie_visible()) {
 			/* ZOMBIE are visible */
-			output_layer.get_selection().select_all();
+			output_layer.get_selection() = PVSelection(get_rushnraw_parent().valid_rows_sel());
 		} else {
 			/* Zombie are not visible */
 			output_layer.get_selection() = layer_stack_output_layer.get_selection();
@@ -428,6 +428,7 @@ void Inendi::PVView::process_output_layer()
 		if (_state_machine.are_listing_zombie_visible()) {
 			/* ZOMBIE are visible */
 			output_layer.get_selection().or_not(layer_stack_output_layer.get_selection());
+			output_layer.get_selection() &= PVSelection(get_rushnraw_parent().valid_rows_sel());
 		}
 	}
 
