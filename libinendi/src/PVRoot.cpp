@@ -5,7 +5,6 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 
 #include <inendi/PVRoot.h>
@@ -173,7 +172,7 @@ void Inendi::PVRoot::save_to_file(PVCore::PVSerializeArchive& ar,
 	if (options) {
 		ar.set_options(options);
 	}
-	auto root_obj = ar.get_root()->create_object("root", ARCHIVE_ROOT_DESC, true, true);
+	auto root_obj = ar.get_root()->create_object("root", ARCHIVE_ROOT_DESC, false, true);
 	serialize_write(*root_obj);
 }
 
@@ -184,7 +183,7 @@ void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive& ar)
 		throw PVCore::PVSerializeArchiveError("To make archives more robuste, we can't load data "
 		                                      "from previous version of inspector.");
 	}
-	auto root_obj = root_ar->create_object("root", ARCHIVE_ROOT_DESC, true, true);
+	auto root_obj = root_ar->create_object("root", ARCHIVE_ROOT_DESC, false, true);
 	serialize_read(*root_obj);
 }
 
@@ -200,8 +199,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Serialize Root.");
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scene", "Scenes", false, true);
 	int idx = 0;
 	for (PVScene* scene : get_children()) {
 		QString child_name = QString::number(idx++);
@@ -217,8 +215,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading root");
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scene", "Scenes", true, true);
 	int scene_count;
 	so.attribute("scene_count", scene_count);
 	for (int idx = 0; idx < scene_count; idx++) {

@@ -58,13 +58,6 @@ class PVDisplayIf
 	virtual ~PVDisplayIf() {}
 
   public:
-	// This function will be called once at the initialisation of the application.
-	virtual void static_init() const {}
-
-	// This function will be called once before the end of the application
-	virtual void static_release() const {}
-
-  public:
 	inline int flags() const { return _flags; }
 	inline bool match_flags(int f) const { return (flags() & f) == f; }
 

@@ -22,6 +22,7 @@ class PVSerializeArchiveZip : public PVSerializeArchive
 
   public:
 	void open_zip(QString const& zip_path, archive_mode mode);
+	void close_zip();
 
   protected:
 	QString _zip_path;

@@ -92,12 +92,13 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
 				}
 				_tmp_dir_to_delete.push_back(tmp_dir);
 				PVLOG_INFO("Extract archive %s to %s...\n", qPrintable(path), qPrintable(tmp_dir));
-				if (PVCore::PVArchive::extract(filenames[i], tmp_dir, extracted)) {
+				try {
+					PVCore::PVArchive::extract(filenames[i], tmp_dir, extracted);
 					add_original = false;
 					for (int j = 0; j < extracted.count(); j++) {
 						inputs.push_back(PVInputDescription_p(new PVFileDescription(extracted[j])));
 					}
-				} else {
+				} catch (PVCore::ArchiveUncompressFail const& e) {
 					PVLOG_WARN("Failed to extract archive %s. Loading as a regular file...\n",
 					           qPrintable(path));
 				}

@@ -5,11 +5,12 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/qobject_helpers.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
+#include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
-#include <pvkernel/rush/PVNrawCacheManager.h>
+#include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 
@@ -118,7 +119,7 @@ void PVInspector::PVMainWindow::events_display_unselected_listing_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::events_display_zombies_listing_Sloupdate_recent_projectst()
+ * PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::events_display_zombies_listing_Slot()
@@ -537,41 +538,46 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 void PVInspector::PVMainWindow::save_solution(
     QString const& file, std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options)
 {
-	try {
-		if (PVCore::PVProgressBox::progress(
-		        [&](PVCore::PVProgressBox& pbox) {
-			        pbox.set_enable_cancel(true);
-			        pbox.set_extended_status("Create archive");
-			        PVCore::PVSerializeArchiveZip ar(file, PVCore::PVSerializeArchive::write,
-			                                         INENDI_ARCHIVES_VERSION);
-			        // FIXME : We should inform we are creating the zip file using RAII like scoped
-			        // thread and Zip archive.
+	if (PVCore::PVProgressBox::progress(
+	        [&](PVCore::PVProgressBox& pbox) {
+		        pbox.set_enable_cancel(true);
+		        pbox.set_extended_status("Create archive");
+		        PVCore::PVSerializeArchiveZip ar(file, PVCore::PVSerializeArchive::write,
+		                                         INENDI_ARCHIVES_VERSION);
+		        // FIXME : We should inform we are creating the zip file using RAII like scoped
+		        // thread and Zip archive.
 
-			        // Use a scoped thread as it will continue forever so we want to interrupt is
-			        // and
-			        // abort at then end.
-			        // This thread update the progressBox status every 100 ms
-			        boost::strict_scoped_thread<boost::interrupt_and_join_if_joinable> t1(
-			            (boost::thread([&ar, &pbox]() {
-				            while (true) {
-					            pbox.set_extended_status(ar.get_current_status());
-					            boost::this_thread::interruption_point();
-					            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				            }
-				        })));
+		        // Use a scoped thread as it will continue forever so we want to interrupt is
+		        // and
+		        // abort at then end.
+		        // This thread update the progressBox status every 100 ms
+		        boost::strict_scoped_thread<boost::interrupt_and_join_if_joinable> t1(
+		            (boost::thread([&ar, &pbox]() {
+			            while (true) {
+				            pbox.set_extended_status(ar.get_current_status());
+				            boost::this_thread::interruption_point();
+				            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			            }
+			        })));
 
-			        get_root().set_path(file);
-			        get_root().save_to_file(ar, options);
-			    },
-		        "Saving investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
-			return;
-		}
-	} catch (PVCore::PVSerializeArchiveError const& e) {
-		QMessageBox* box =
-		    new QMessageBox(QMessageBox::Critical, tr("Error while saving solution..."),
-		                    tr("Error while saving solution %1:\n%2").arg(file).arg(e.what()),
-		                    QMessageBox::Ok, this);
-		box->exec();
+		        get_root().set_path(file);
+		        get_root().save_to_file(ar, options);
+		        try {
+			        ar.close_zip();
+		        } catch (PVCore::ArchiveCreationFail const& e) {
+			        pbox.critical("Error while saving solution...",
+			                      "Error while saving solution" + file + ":\n" +
+			                          QString::fromStdString(e.what()));
+			        pbox.set_canceled();
+		        } catch (PVCore::PVSerializeArchiveError const& e) {
+			        pbox.critical("Error while saving solution...",
+			                      "Error while saving solution" + file + ":\n" +
+			                          QString::fromStdString(e.what()));
+			        pbox.set_canceled();
+		        }
+		    },
+	        "Saving investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
+		return;
 	}
 
 	PVCore::PVRecentItemsManager::get().add(file, PVCore::PVRecentItemsManager::Category::PROJECTS);

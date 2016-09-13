@@ -43,6 +43,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	_values_view->setGridStyle(Qt::NoPen);
 
 	_values_view->horizontalHeader()->setStretchLastSection(true);
+	_values_view->horizontalHeader()->setMinimumSectionSize(50);
 
 	_values_view->verticalHeader()->setDefaultSectionSize(
 	    _values_view->verticalHeader()->minimumSectionSize());

@@ -159,7 +159,7 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("name", name);
 
 	so.set_current_status("Serialize Mapping properties.");
-	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", false, false);
 
 	int idx = 0;
 	for (PVMappingProperties& prop : columns) {
@@ -171,8 +171,7 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("prop_count", idx);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj =
-	    so.create_object(get_children_serialize_name(), get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted", "Plotteds", false, false);
 	idx = 0;
 	for (PVPlotted* plotted : get_children()) {
 		QString child_name = QString::number(idx++);
@@ -196,7 +195,7 @@ Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so
 	QString name;
 	so.attribute("name", name);
 
-	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", true, true);
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", false, false);
 
 	so.set_current_status("Loading Mapping properties");
 	std::list<Inendi::PVMappingProperties> columns;
@@ -210,8 +209,7 @@ Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so
 	PVMapped& mapped = parent.emplace_add_child(name.toStdString(), std::move(columns));
 
 	// Create the list of plotted
-	PVCore::PVSerializeObject_p list_obj = so.create_object(
-	    mapped.get_children_serialize_name(), mapped.get_children_description(), true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted", "Plotteds", false, false);
 	int plotted_count;
 	so.attribute("plotted_count", plotted_count);
 	for (int idx = 0; idx < plotted_count; idx++) {

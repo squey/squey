@@ -191,11 +191,14 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 			if (not src_desc.is_valid()) {
 				_recents_settings.remove(source);
 			}
+			_recents_settings.endGroup();
 		} catch (PVCore::InvalidPlugin const& e) {
+			_recents_settings.endGroup();
+			_recents_settings.remove(source);
+		} catch (PVRush::PVInvalidFile const& e) {
+			_recents_settings.endGroup();
 			_recents_settings.remove(source);
 		}
-
-		_recents_settings.endGroup();
 	}
 
 	_recents_settings.endGroup();
@@ -223,6 +226,8 @@ PVCore::PVRecentItemsManager::sources_description_list()
 			}
 		} catch (PVCore::InvalidPlugin const& e) {
 			// If the plugin is incorrect, skip this file
+		} catch (PVRush::PVInvalidFile const& e) {
+			// If a file can't be found, skip this source.
 		}
 
 		_recents_settings.endGroup();

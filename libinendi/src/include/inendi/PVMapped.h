@@ -8,8 +8,6 @@
 #ifndef INENDI_PVMAPPED_H
 #define INENDI_PVMAPPED_H
 
-#include <QString>
-
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVHugePODVector.h>
 
@@ -94,13 +92,6 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	 * Access mapping value for given row/col.
 	 */
 	inline pvcop::db::array const& get_column(PVCol col) const { return _trans_table[col]; }
-
-  public:
-	/**
-	 * Submode information.
-	 */
-	virtual QString get_children_description() const { return "Plotted(s)"; }
-	virtual QString get_children_serialize_name() const { return "plotted"; }
 
   public:
 	virtual std::string get_serialize_description() const { return "Mapping: " + get_name(); }

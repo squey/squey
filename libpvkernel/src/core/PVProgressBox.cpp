@@ -42,6 +42,7 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent) : QDialog(par
 	// by default we don't know the progress
 	progress_bar->setMaximum(0);
 	progress_bar->setMinimum(0);
+	progress_bar->setValue(0);
 
 	_extended_detail_label = new QLabel();
 	_extended_detail_label->setVisible(false);

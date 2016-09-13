@@ -12,8 +12,6 @@
 
 PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
                                          chunk_index end,
-                                         chunk_index n_elts,
-                                         stop_cdtion sc,
                                          PVAggregator& agg,
                                          PVFilter::PVChunkFilterByElt& filter,
                                          PVOutput& out_filter,
@@ -29,14 +27,8 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
     , _ntokens(ntokens)
 {
 
-	// FIXME : Should be done at compile time using tag dispatching.
-	if (sc == sc_n_elts) {
-		_max_n_elts = n_elts;
-		_idx_end = begin + n_elts;
-	} else {
-		_max_n_elts = end - begin;
-		_idx_end = end;
-	}
+	_max_n_elts = end - begin;
+	_idx_end = end;
 }
 
 void PVRush::PVControllerJob::run_job()

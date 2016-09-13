@@ -32,26 +32,12 @@ class PVDisplaysImpl : public QObject
 	{
 		// Load all plugins
 		load_plugins();
-
-		// Static initialisation of everyone!
-		static_init();
 	}
-
-	~PVDisplaysImpl() { static_release(); }
 
   public:
 	static PVDisplaysImpl& get();
 
   public:
-	template <typename F>
-	void visit_all_displays(F const& f, int flags = 0) const
-	{
-		visit_displays_by_if<PVDisplayViewIf>(f, flags);
-		visit_displays_by_if<PVDisplaySourceIf>(f, flags);
-		visit_displays_by_if<PVDisplayViewAxisIf>(f, flags);
-		visit_displays_by_if<PVDisplayViewZoneIf>(f, flags);
-	}
-
 	template <typename If, typename F>
 	void visit_displays_by_if(F const& f, int flags = 0) const
 	{
@@ -123,8 +109,6 @@ class PVDisplaysImpl : public QObject
 	PVDisplaysContainer* get_parent_container(QWidget* self) const;
 
   private:
-	void static_init();
-	void static_release();
 	void load_plugins();
 
   private:

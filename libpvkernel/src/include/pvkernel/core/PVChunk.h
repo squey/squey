@@ -280,6 +280,9 @@ class PVChunkMem : public PVChunk
 		PVChunkMem<Allocator>* ret = allocate(new_size, _source, _alloc);
 		memcpy(ret->begin(), begin(), cur_size);
 		ret->_logical_end = ret->begin() + cur_size;
+		ret->_index = _index;
+		ret->_agg_index = _agg_index;
+		ret->_init_size = _init_size;
 		free();
 		return ret;
 	}
