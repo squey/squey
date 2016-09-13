@@ -88,7 +88,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	_stats_panel->setVerticalHeader(new __impl::PVVerticalHeaderView(this));
 	_stats_panel->verticalHeader()->viewport()->installEventFilter(this);
 	connect(_listing_view, SIGNAL(resized()), this, SLOT(resize_panel()));
-	connect(_listing_view->horizontalScrollBar(), SIGNAL(actionTriggered(int)), this,
+	connect(_listing_view->horizontalScrollBar(), SIGNAL(valueChanged(int)), this,
 	        SLOT(update_scrollbar_position()));
 
 	// Observe selection to handle automatic refresh mode

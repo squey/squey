@@ -70,6 +70,7 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 	}
 	// Create a chunk w/ no memory for its internal buffer
 	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
+	size_t chunk_size = 0;
 	chunk->set_index(_next_index);
 	PVLOG_INFO("_nelts_chunk=%d; _next_index=%d\n", _nelts_chunk, _next_index);
 	for (chunk_index n = 0; n < _nelts_chunk; n++) {
@@ -86,10 +87,12 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 			std::string value = rec.value(i).toString().toStdString();
 			PVCore::PVField f(*elt);
 			f.allocate_new(value.size());
+			chunk_size += value.size();
 			memcpy(f.begin(), value.c_str(), value.size());
 			elt->fields().push_back(f);
 		}
 	}
+	chunk->set_init_size(chunk_size);
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();

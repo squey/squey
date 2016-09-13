@@ -44,6 +44,7 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	virtual QString human_name() = 0;
 	virtual void seek_begin() = 0;
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;
+	virtual size_t get_size() const = 0;
 	virtual PVCore::PVChunk* operator()() = 0;
 
   protected:

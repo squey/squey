@@ -23,9 +23,12 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
     , _chk_flt(_format.create_tbb_filters())
     , _chunks(tbb::task_scheduler_init::default_num_threads())
     , _force_naxes(0)
+    , _max_value(0)
 {
 	for (auto const& input : inputs) {
-		_agg.add_input(src_plugin->create_source_from_input(input));
+		auto src = src_plugin->create_source_from_input(input);
+		_max_value += src->get_size();
+		_agg.add_input(src);
 	}
 	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
 	 * number of used cores (it was previously set to 5 * cores_number): That multiplier

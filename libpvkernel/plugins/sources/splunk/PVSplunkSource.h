@@ -35,6 +35,13 @@ class PVSplunkSource : public PVRawSourceBase
 	QString human_name() override;
 	void seek_begin() override;
 	void prepare_for_nelts(chunk_index nelts) override;
+
+	/**
+	 * It should be the size of the Splunk source.
+	 *
+	 * As we don't have "free" metric, we return 0 for "unknown"
+	 */
+	size_t get_size() const override { return 0; }
 	PVCore::PVChunk* operator()() override;
 
   protected:

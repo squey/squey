@@ -30,6 +30,7 @@ class PVDBSource : public PVRawSourceBase
 	virtual void seek_begin();
 	bool seek(input_offset off);
 	virtual void prepare_for_nelts(chunk_index nelts);
+	size_t get_size() const override { return 0; }
 	virtual PVCore::PVChunk* operator()();
 
   protected:

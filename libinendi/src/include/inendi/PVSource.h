@@ -115,6 +115,14 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
 	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
 
+	/**
+	 * Return the cumulate total size of all inputs.
+	 *
+	 * Unity is input defined. eg: octet for file, line for ElasticSearch, ...
+	 * 0 means unknonwn.
+	 */
+	size_t max_size() const { return _extractor.max_size(); }
+
   public:
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }

@@ -92,7 +92,7 @@ class PVChunk
 	};
 
   public:
-	PVChunk() : _index(0), _p_chunk_fields(nullptr){};
+	PVChunk() : _index(0), _init_size(0), _p_chunk_fields(nullptr){};
 	virtual ~PVChunk() { free_structs(); }
 	void free_structs()
 	{
@@ -183,6 +183,12 @@ class PVChunk
 	// This should be called when a chunk has been created to reserve its futur fields
 	void init_elements_fields();
 
+	/**
+	 * Set size from input stored in this chunk
+	 */
+	void set_init_size(size_t size) { _init_size = size; }
+	size_t get_init_size() const { return _init_size; }
+
   protected:
 	void allocate_fields_buffer(PVRow nelts, PVCol nfields)
 	{
@@ -219,6 +225,7 @@ class PVChunk
 	PVRush::PVRawSourceBase* _source;
 	size_t _nelts_org;
 	size_t _nelts_valid;
+	size_t _init_size; //!< Data quantity loaded from the input. (metrics depend on source kind)
 
 	// Buffer containing the fields for this chunk
 	void* _p_chunk_fields;

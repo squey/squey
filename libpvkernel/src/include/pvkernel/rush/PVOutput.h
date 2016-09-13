@@ -28,6 +28,7 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
 
   public:
 	virtual PVRow get_rows_count() = 0;
+	size_t get_out_size() const { return _out_size; }
 
   protected:
 	// This function is called by PVControllerJob
@@ -35,6 +36,9 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
 	virtual void job_has_finished(const std::map<size_t, std::string>&) {}
 
 	CLASS_FILTER_NONREG(PVOutput)
+
+  protected:
+	size_t _out_size; //!< Total size handled by the pipeline. (metrics depend on inputs)
 };
 }
 

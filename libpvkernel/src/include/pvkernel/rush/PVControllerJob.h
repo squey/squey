@@ -85,8 +85,11 @@ class PVControllerJob : public QObject
 	 */
 	void run_job();
 
+	size_t get_value() const { return _out_filter.get_out_size(); }
+
   public:
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
+	tbb::task_group_context& get_ctxt() { return _ctxt; }
 
   private:
 	tbb::filter_t<void, void> create_tbb_filter();
@@ -122,7 +125,8 @@ class PVControllerJob : public QObject
 	// TBB doesn't provide a way to get state of the task (wether it is over or not)
 	std::future<void>
 	    _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
-	PVPipelineTask* _pipeline; //!< The TBB pipeline performing data import.
+	PVPipelineTask* _pipeline;     //!< The TBB pipeline performing data import.
+	tbb::task_group_context _ctxt; //!< Execution context of the pipeline
 };
 
 typedef PVControllerJob::p_type PVControllerJob_p;

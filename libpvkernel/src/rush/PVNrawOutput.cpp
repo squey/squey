@@ -14,6 +14,7 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
 	nraw_dest().add_chunk_utf16(*out);
+	_out_size += out->get_init_size();
 
 	// Clear this chunk !
 	out->free();
