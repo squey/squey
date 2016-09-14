@@ -24,8 +24,6 @@
 #include <pvguiqt/PVStartScreenWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
-#include <inendi/PVView.h>
-
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>

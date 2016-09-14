@@ -7,7 +7,6 @@
 
 #include "PVLayerFilterAxisGradient.h"
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
-#include <inendi/PVView.h>
 #include <inendi/PVPlotted.h>
 
 #define ARG_NAME_AXIS "axis"

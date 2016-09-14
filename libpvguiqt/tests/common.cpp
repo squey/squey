@@ -16,7 +16,6 @@
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVSource.h>
-#include <inendi/PVView.h>
 
 #include "common.h"
 

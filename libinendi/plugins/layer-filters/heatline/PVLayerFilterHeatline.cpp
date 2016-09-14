@@ -7,14 +7,14 @@
 
 #include "PVLayerFilterHeatline.h"
 
+#include <inendi/PVView.h>
+
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/PVAlgorithms.h>
-
-#include <inendi/PVView.h>
 
 #include <pvcop/db/algo.h>
 

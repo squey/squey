@@ -21,7 +21,6 @@
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
-#include <inendi/PVView.h>
 
 #include "common.h"
 #include "test-env.h"

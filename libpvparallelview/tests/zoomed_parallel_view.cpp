@@ -11,7 +11,6 @@
 
 #include <inendi/PVAxis.h>
 #include <inendi/PVPlotted.h>
-#include <inendi/PVView.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
