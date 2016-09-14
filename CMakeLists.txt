@@ -99,12 +99,6 @@ add_dependencies(bench testsuite)
 ###############################################################################
 
 declare_internal_library(pvkernel)
-
-# Helpers means various stuff we can use
-# such as binaries or libraries, that depends
-# on PVKernel
-add_subdirectory(helpers)
-
 declare_internal_library(inendi)
 declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)

@@ -17,7 +17,6 @@ core/inendi_intrin.cpp
 core/sse4detector.cpp
 core/segfault_handler.cpp
 
-core/PVAllocators.cpp
 core/PVArchive.cpp
 core/PVArgument.cpp
 core/PVOriginalAxisIndexType.cpp
