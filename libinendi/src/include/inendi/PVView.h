@@ -21,8 +21,6 @@
 
 #include <pvbase/types.h> // for PVCol, PVRow
 
-#include <pvcop/db/array.h>
-
 #include <sigc++/sigc++.h>
 
 #include <QStringList>
