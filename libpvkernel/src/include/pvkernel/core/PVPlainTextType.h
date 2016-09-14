@@ -8,7 +8,6 @@
 #ifndef PVCORE_PVPLAINTEXTTYPE_H
 #define PVCORE_PVPLAINTEXTTYPE_H
 
-#include <pvbase/types.h>
 #include <pvkernel/core/PVArgument.h>
 
 #include <QString>

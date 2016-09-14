@@ -13,8 +13,6 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
-#include <pvbase/types.h>
-
 #include <QAction>
 #include <QIcon>
 #include <QMetaType>

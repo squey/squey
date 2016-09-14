@@ -8,8 +8,6 @@
 #ifndef PVPARALLELVIEW_PVAXISLABEL_H
 #define PVPARALLELVIEW_PVAXISLABEL_H
 
-#include <pvbase/types.h>
-
 #include <QObject>
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsSceneContextMenuEvent>
