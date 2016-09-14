@@ -25,7 +25,7 @@ class PVChunkFilterDumpElts : public PVChunkFilter
 {
 
   public:
-	PVChunkFilterDumpElts(std::map<size_t, std::string>& l);
+	explicit PVChunkFilterDumpElts(std::map<size_t, std::string>& l);
 
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 

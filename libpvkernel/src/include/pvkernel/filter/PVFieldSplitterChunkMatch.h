@@ -20,7 +20,7 @@ namespace PVFilter
 class PVFieldSplitterChunkMatch
 {
   public:
-	PVFieldSplitterChunkMatch(PVFilter::PVFieldsSplitter_p filter) : _filter(filter) {}
+	explicit PVFieldSplitterChunkMatch(PVFilter::PVFieldsSplitter_p filter) : _filter(filter) {}
 
 	void push_chunk(PVCore::PVChunk* chunk);
 	bool get_match(PVCore::PVArgumentList& args, size_t& nfields);
