@@ -143,13 +143,11 @@ void PVCore::PVSerializeArchive::list_attributes_write(PVSerializeObject const& 
                                                        std::vector<QVariant> const& obj)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
-	std::vector<QVariant>::const_iterator it;
 	settings->beginWriteArray(name);
 	int idx = 0;
-	for (it = obj.begin(); it != obj.end(); it++) {
-		settings->setArrayIndex(idx);
-		settings->setValue("value", *it);
-		idx++;
+	for (QVariant const& v : obj) {
+		settings->setArrayIndex(idx++);
+		settings->setValue("value", v);
 	}
 	settings->endArray();
 }
