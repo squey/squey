@@ -244,7 +244,7 @@ class PVChunkMem : public PVChunk
 	static_assert(sizeof(alloc_chunk) == 1, "Bad begin accessor");
 
   private:
-	PVChunkMem(alloc_chunk const& a) : PVChunk(), _alloc(a) {}
+	explicit PVChunkMem(alloc_chunk const& a) : PVChunk(), _alloc(a) {}
 	~PVChunkMem() override {}
 
   public:

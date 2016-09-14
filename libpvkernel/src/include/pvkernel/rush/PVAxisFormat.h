@@ -27,7 +27,7 @@ class PVAxisFormat
 	typedef QHash<QString, QString> node_args_t;
 
   public:
-	PVAxisFormat(PVCol index);
+	explicit PVAxisFormat(PVCol index);
 
 	QString get_color_str() const { return color.toQColor().name(); }
 	PVCore::PVColor const& get_color() const { return color; }

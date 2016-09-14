@@ -82,7 +82,7 @@ double save_investigation()
 	Inendi::PVSelection sel(row_count);
 	sel.select_all();
 	view->get_layer_stack().get_layer_n(2).get_lines_properties().selection_set_color(
-	    sel, HSV_COLOR_GREEN);
+	    sel, PVCore::PVHSVColor(HSV_COLOR_GREEN));
 
 	/**
 	 *  Sort axes and remove last one

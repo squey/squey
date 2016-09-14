@@ -27,8 +27,8 @@ class PVOriginalAxisIndexType : public PVArgumentType<PVOriginalAxisIndexType>
 	/**
 	 * Constructor
 	 */
-	PVOriginalAxisIndexType(bool append_none_axis = false);
-	PVOriginalAxisIndexType(int origin_axis_index, bool append_none_axis = false);
+	explicit PVOriginalAxisIndexType(bool append_none_axis = false);
+	explicit PVOriginalAxisIndexType(int origin_axis_index, bool append_none_axis = false);
 
 	int get_original_index() const;
 	bool get_append_none_axis() const;

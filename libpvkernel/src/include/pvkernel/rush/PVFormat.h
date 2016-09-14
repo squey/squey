@@ -83,7 +83,7 @@ class PVFormat
   public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
-	PVFormat(QDomElement const& rootNode, bool forceOneAxis = false);
+	explicit PVFormat(QDomElement const& rootNode, bool forceOneAxis = false);
 
 	pvcop::formatter_desc_list get_storage_format() const;
 

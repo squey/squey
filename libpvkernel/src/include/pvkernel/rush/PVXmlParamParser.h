@@ -40,8 +40,8 @@ class PVXmlParamParser
 	using fields_mask_t = std::vector<bool>;
 
   public:
-	PVXmlParamParser(QString const& nameFile);
-	PVXmlParamParser(QDomElement const& rootNode);
+	explicit PVXmlParamParser(QString const& nameFile);
+	explicit PVXmlParamParser(QDomElement const& rootNode);
 	virtual ~PVXmlParamParser();
 
   public:

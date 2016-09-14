@@ -35,7 +35,7 @@ class PVSerializeArchive
 	typedef uint32_t version_t;
 
   public:
-	PVSerializeArchive(version_t version);
+	explicit PVSerializeArchive(version_t version);
 	PVSerializeArchive(QString const& dir, archive_mode mode, version_t version);
 	PVSerializeArchive(const PVSerializeArchive& obj) = delete;
 

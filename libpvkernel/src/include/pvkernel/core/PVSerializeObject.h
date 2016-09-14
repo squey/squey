@@ -38,7 +38,7 @@ typedef std::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 class PVSerializeObjectFileError : public PVSerializeArchiveError
 {
   public:
-	PVSerializeObjectFileError(QFile const& file)
+	explicit PVSerializeObjectFileError(QFile const& file)
 	    : PVSerializeArchiveError(QString("Error with file '%1': %2 (%3)")
 	                                  .arg(file.fileName())
 	                                  .arg(file.errorString())

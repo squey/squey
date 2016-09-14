@@ -55,7 +55,6 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
 	void label_button_released(QLabel* label, QMouseEvent* event);
 
   private:
-	void init();
 	void show_color(PVCore::PVHSVColor const& c);
 
 	inline PVColorPicker* picker() { return _picker; }

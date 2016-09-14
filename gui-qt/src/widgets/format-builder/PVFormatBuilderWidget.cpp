@@ -886,7 +886,7 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
-	return {rootDom, true};
+	return PVRush::PVFormat{rootDom, true};
 }
 
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)

@@ -28,7 +28,7 @@ namespace PVFilter
 class PVChunkFilterByElt : public PVChunkFilter
 {
   public:
-	PVChunkFilterByElt(std::unique_ptr<PVElementFilter> elt_filter)
+	explicit PVChunkFilterByElt(std::unique_ptr<PVElementFilter> elt_filter)
 	    : _elt_filter(std::move(elt_filter))
 	{
 	}

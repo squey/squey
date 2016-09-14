@@ -25,7 +25,10 @@ class PVSerializeArchiveOptions : public PVSerializeArchive
 	friend class PVSerializeObject;
 
   public:
-	PVSerializeArchiveOptions(version_t version) : PVSerializeArchive(version) { _mode = write; }
+	explicit PVSerializeArchiveOptions(version_t version) : PVSerializeArchive(version)
+	{
+		_mode = write;
+	}
 	PVSerializeArchiveOptions(const PVSerializeArchiveOptions& obj) = delete;
 	~PVSerializeArchiveOptions() override {}
 

@@ -22,7 +22,7 @@ namespace PVCore
 class PVFunctionArgumentMissing : public std::exception
 {
   public:
-	PVFunctionArgumentMissing(QString const& arg) throw() : std::exception()
+	explicit PVFunctionArgumentMissing(QString const& arg) throw() : std::exception()
 	{
 		_what = QString("Argument %1 missing").arg(arg);
 	}
@@ -37,7 +37,8 @@ class PVFunctionArgsBase
 {
 
   public:
-	PVFunctionArgsBase(PVArgumentList const& args = PVArgumentList()) : _args(args), _def_args(args)
+	explicit PVFunctionArgsBase(PVArgumentList const& args = PVArgumentList())
+	    : _args(args), _def_args(args)
 	{
 	}
 
@@ -103,7 +104,10 @@ template <class F>
 class PVFunctionArgs : public PVFunctionArgsBase
 {
   public:
-	PVFunctionArgs(PVArgumentList const& args = PVArgumentList()) : PVFunctionArgsBase(args) {}
+	explicit PVFunctionArgs(PVArgumentList const& args = PVArgumentList())
+	    : PVFunctionArgsBase(args)
+	{
+	}
 };
 } // namespace PVCore
 

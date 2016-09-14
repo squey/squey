@@ -50,5 +50,6 @@ PVCore::PVColorGradientDualSliderType PVWidgets::PVColorGradientDualSliderEditor
 void PVWidgets::PVColorGradientDualSliderEditor::set_values(PVCore::PVColorGradientDualSliderType v)
 {
 	const double* pos = v.get_positions();
-	set_interval((uint8_t)(pos[0] * x_interval() + x0()), (uint8_t)(pos[1] * x_interval() + x0()));
+	set_interval((PVCore::PVHSVColor)(pos[0] * x_interval() + x0()),
+	             (PVCore::PVHSVColor)(pos[1] * x_interval() + x0()));
 }

@@ -43,18 +43,15 @@ class PVArgumentKey : public QString
 	PVArgumentKey(QString const& key, QString const& desc = QString()) : QString(key), _desc(desc)
 	{
 		if (desc.isNull()) {
-			set_desc_from_key();
+			_desc = _key_desc.value(*this, *this);
 		} else {
 			_key_desc[key] = desc;
 		}
 	}
-	PVArgumentKey(const char* key) : QString(key) { set_desc_from_key(); }
+	PVArgumentKey(const char* key) : PVArgumentKey(QString(key)) {}
 
-	inline QString const& key() const { return *((QString*)this); }
+	inline QString const& key() const { return *this; }
 	inline QString const& desc() const { return _desc; }
-
-  private:
-	void set_desc_from_key() { _desc = _key_desc.value(*this, *this); }
 
   private:
 	QString _desc;

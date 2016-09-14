@@ -54,7 +54,7 @@ class PVBufferSlice
 	/*! \brief Construct an undefined slice.
 	 *  \param[in] buf_list Reference to an external buffer list used to keep track of reallocations
 	 */
-	PVBufferSlice(buf_list_t& buf_list);
+	explicit PVBufferSlice(buf_list_t& buf_list);
 
 	/*! \brief Copy-constructor
 	 *  \param[in] src Original buffer slice

@@ -21,7 +21,7 @@ class PVClassLibrary;
 class PVTagUndefinedException
 {
   public:
-	PVTagUndefinedException(QString const& tag_name) : _tag_name(tag_name) {}
+	explicit PVTagUndefinedException(QString const& tag_name) : _tag_name(tag_name) {}
 
   public:
 	QString what() { return QString("Tag %1 undefined").arg(_tag_name); }

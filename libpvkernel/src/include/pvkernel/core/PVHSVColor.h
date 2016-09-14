@@ -42,7 +42,7 @@ class PVHSVColor
 
   public:
 	PVHSVColor() : _h(0) {}
-	PVHSVColor(T h_) : _h(h_) {}
+	explicit PVHSVColor(T h_) : _h(h_) {}
 
   public:
 	inline T& h() { return _h; };

@@ -27,8 +27,10 @@ class PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
 	/**
 	 * Constructor
 	 */
-	PVAxisIndexType(bool append_none_axis = false);
-	PVAxisIndexType(int origin_axis_index, bool append_none_axis = false, int axis_index = 0);
+	explicit PVAxisIndexType(bool append_none_axis = false);
+	explicit PVAxisIndexType(int origin_axis_index,
+	                         bool append_none_axis = false,
+	                         int axis_index = 0);
 
 	int get_original_index();
 	int get_axis_index();

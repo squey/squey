@@ -31,7 +31,7 @@ class PVElement : public PVBufferSlice
 
   public:
 	PVElement(PVChunk* parent, char* begin, char* end);
-	PVElement(PVChunk* parent);
+	explicit PVElement(PVChunk* parent);
 
   public:
 	PVElement(PVElement const& src) = delete;

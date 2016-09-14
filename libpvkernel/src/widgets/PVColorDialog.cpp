@@ -96,20 +96,13 @@ class PVLabelEventFilter : public QObject
 }
 }
 
-PVWidgets::PVColorDialog::PVColorDialog(QWidget* parent) : QDialog(parent)
+PVWidgets::PVColorDialog::PVColorDialog(QWidget* parent)
+    : PVColorDialog(PVCore::PVHSVColor(0), parent)
 {
-	init();
-	set_color(0);
 }
 
 PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* parent)
     : QDialog(parent)
-{
-	init();
-	set_color(c);
-}
-
-void PVWidgets::PVColorDialog::init()
 {
 	_label_event_filter = new __impl::PVLabelEventFilter(this);
 
@@ -160,6 +153,8 @@ void PVWidgets::PVColorDialog::init()
 	}
 
 	connect(picker(), SIGNAL(color_changed_left(int)), this, SLOT(picker_color_changed(int)));
+
+	set_color(c);
 }
 
 void PVWidgets::PVColorDialog::picker_color_changed(int h)
@@ -220,7 +215,7 @@ void PVWidgets::PVColorDialog::reset_predefined_color_from_action()
 	QLabel* label = label_from_sender(sender());
 	if (label) {
 		label->setProperty(HSV_COLOR_PROPERTY, HSV_COLOR_WHITE);
-		fill_label_with_color(label, HSV_COLOR_WHITE);
+		fill_label_with_color(label, PVCore::PVHSVColor(HSV_COLOR_WHITE));
 	}
 }
 
