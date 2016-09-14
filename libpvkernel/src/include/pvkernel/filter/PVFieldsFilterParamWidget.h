@@ -81,7 +81,7 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	typedef typename PVFilter::PVFieldsFilter<Ttype>::p_type filter_p;
 
   public:
-	PVFieldsFilterParamWidget(filter_p filter)
+	explicit PVFieldsFilterParamWidget(filter_p filter)
 	{
 		assert(filter);
 		_filter = filter->template clone<PVFieldsFilter<Ttype>>();

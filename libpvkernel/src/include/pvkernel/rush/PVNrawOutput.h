@@ -32,7 +32,7 @@ namespace PVRush
 class PVNrawOutput : public PVRush::PVOutput
 {
   public:
-	PVNrawOutput(PVNraw& nraw);
+	explicit PVNrawOutput(PVNraw& nraw);
 	PVNrawOutput() = delete;
 
   public:

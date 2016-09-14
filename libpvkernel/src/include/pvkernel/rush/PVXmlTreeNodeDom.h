@@ -42,7 +42,7 @@ class PVXmlTreeNodeDom : public QObject
 	enum Type { Root, field, RegEx, filter, axis, url, splitter, converter };
 
 	PVXmlTreeNodeDom();
-	PVXmlTreeNodeDom(QDomElement const& dom);
+	explicit PVXmlTreeNodeDom(QDomElement const& dom);
 
 	/**
 	 * Constructor defining the name for le node.

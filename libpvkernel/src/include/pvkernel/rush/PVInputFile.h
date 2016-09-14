@@ -24,7 +24,7 @@ namespace PVRush
 class PVInputFile : public PVInput
 {
   public:
-	PVInputFile(const char* path);
+	explicit PVInputFile(const char* path);
 	PVInputFile(const PVInputFile& /*org*/) = delete;
 	~PVInputFile() override;
 
