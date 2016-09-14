@@ -78,6 +78,6 @@ class PVExtractor
 	size_t _max_value; //!< Total size for every input handled by this extractor (metrics depend on
 	                   //! inputs)
 };
-}
+} // namespace PVRush
 
 #endif

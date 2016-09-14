@@ -22,7 +22,7 @@ namespace PVCore
 {
 class PVSelBitField;
 class PVChunk;
-}
+} // namespace PVCore
 
 namespace PVRush
 {
@@ -191,6 +191,6 @@ class PVNraw
 	PVCore::PVSelBitField _valid_rows_sel;
 	size_t _valid_elements_count;
 };
-}
+} // namespace PVRush
 
 #endif /* PVRUSH_NRAW_H */

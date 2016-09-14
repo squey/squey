@@ -40,6 +40,6 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
   protected:
 	size_t _out_size; //!< Total size handled by the pipeline. (metrics depend on inputs)
 };
-}
+} // namespace PVRush
 
 #endif

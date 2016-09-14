@@ -20,7 +20,7 @@
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 bool PVRush::PVTests::get_file_sc(PVInputDescription_p file,
                                   PVRush::PVFormat const& format,

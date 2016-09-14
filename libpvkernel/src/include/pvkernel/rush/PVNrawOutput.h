@@ -20,11 +20,11 @@
 namespace PVCore
 {
 class PVChunk;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVNraw;
-}
+} // namespace PVRush
 
 namespace PVRush
 {
@@ -66,6 +66,6 @@ class PVNrawOutput : public PVRush::PVOutput
 
 	CLASS_FILTER_NONREG(PVNrawOutput)
 };
-}
+} // namespace PVRush
 
 #endif

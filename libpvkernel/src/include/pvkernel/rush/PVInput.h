@@ -41,7 +41,7 @@ class PVInputException : public std::runtime_error
   public:
 	using std::runtime_error::runtime_error;
 };
-}
+} // namespace PVRush
 
 #define IMPL_INPUT(T)
 #define CLASS_INPUT(T)

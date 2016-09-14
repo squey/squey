@@ -20,7 +20,7 @@ class PVPipelineTask : public tbb::task
 {
   public:
 	PVPipelineTask();
-	task* execute();
+	task* execute() override;
 	void cancel();
 	void set_filter(tbb::filter_t<void, void> f);
 	void set_tokens(size_t tokens);
@@ -29,6 +29,6 @@ class PVPipelineTask : public tbb::task
 	tbb::filter_t<void, void> _f;
 	size_t _ntokens; //!< Number of tokens use in the TBB Pipeline
 };
-}
+} // namespace PVRush
 
 #endif

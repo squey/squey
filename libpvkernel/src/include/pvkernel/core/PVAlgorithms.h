@@ -128,6 +128,6 @@ inline uint32_t invert_plotting_value(qreal value)
 {
 	return ~((uint32_t)clamp(value, 0., (qreal)std::numeric_limits<uint32_t>::max()));
 }
-}
+} // namespace PVCore
 
 #endif

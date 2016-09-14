@@ -14,7 +14,7 @@
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 namespace PVRush
 {
@@ -25,6 +25,6 @@ struct PVTests {
 	static bool
 	get_file_sc(PVInputDescription_p file, PVRush::PVFormat const& format, PVSourceCreator_p& sc);
 };
-}
+} // namespace PVRush
 
 #endif

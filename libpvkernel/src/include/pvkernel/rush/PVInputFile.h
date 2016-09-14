@@ -26,7 +26,7 @@ class PVInputFile : public PVInput
   public:
 	PVInputFile(const char* path);
 	PVInputFile(const PVInputFile& /*org*/) = delete;
-	~PVInputFile();
+	~PVInputFile() override;
 
   public:
 	size_t operator()(char* buffer, size_t n) override;
@@ -52,6 +52,6 @@ class PVInputFileOpenException : public PVInputException
 	{
 	}
 };
-}
+} // namespace PVRush
 
 #endif

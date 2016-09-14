@@ -15,6 +15,7 @@ namespace PVRush
 {
 
 QStringList normalize_get_helpers_plugins_dirs(QString helper);
-};
+} // namespace PVRush
+;
 
 #endif /* PVRUSH_PVNORMALIZER_H */

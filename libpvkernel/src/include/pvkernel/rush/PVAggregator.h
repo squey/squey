@@ -20,7 +20,7 @@
 namespace PVCore
 {
 class PVChunk;
-}
+} // namespace PVCore
 
 namespace PVRush
 {
@@ -126,6 +126,6 @@ class PVAggregator
 	chunk_index _nread_elements;
 	chunk_index _cur_src_index;
 };
-}
+} // namespace PVRush
 
 #endif

@@ -23,7 +23,8 @@ int load_input_type_plugins();
 int load_source_plugins();
 QString get_input_type_dir();
 QString get_source_dir();
-};
-}
+} // namespace PVPluginsLoad
+;
+} // namespace PVRush
 
 #endif

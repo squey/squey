@@ -35,8 +35,9 @@ void _rec_3to4(QDomNode doc);
 void _rec_4to5(QDomNode doc);
 void _rec_5to6(QDomNode doc);
 QString get_version(QDomDocument const& doc);
-}
-};
-}
+} // namespace __impl
+} // namespace PVFormatVersion
+;
+} // namespace PVRush
 
 #endif

@@ -37,7 +37,7 @@ class PVFieldsFilterParamWidgetBase
 	typedef std::shared_ptr<PVFieldsFilterParamWidgetBase> p_type;
 
   public:
-	virtual ~PVFieldsFilterParamWidgetBase() {}
+	~PVFieldsFilterParamWidgetBase() override {}
 
   public:
 	virtual PVFilter::PVFieldsBaseFilter_p get_filter() = 0;
@@ -144,6 +144,6 @@ typedef PVFieldsSplitterParamWidget::p_type PVFieldsSplitterParamWidget_p;
 
 typedef PVFieldsFilterParamWidget<PVFilter::one_to_one> PVFieldsConverterParamWidget;
 typedef PVFieldsConverterParamWidget::p_type PVFieldsConverterParamWidget_p;
-}
+} // namespace PVFilter
 
 #endif

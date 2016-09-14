@@ -51,7 +51,7 @@ class PVXmlTreeNodeDom : public QObject
 	 */
 	PVXmlTreeNodeDom(Type _type, const QString& _str, QDomElement& dom, QDomDocument& file);
 	void init(Type _type, const QString& _str, QDomElement& dom, QDomDocument& xmlFile_);
-	virtual ~PVXmlTreeNodeDom();
+	~PVXmlTreeNodeDom() override;
 
 	static PVRush::PVXmlTreeNodeDom* new_format(QDomDocument& file);
 
@@ -366,5 +366,5 @@ class PVXmlTreeNodeDom : public QObject
 	// TODO: list the ids of the children, so that they will be selected !
 	ssize_t _field_linear_id;
 };
-}
+} // namespace PVRush
 #endif /* NODEDOM_H */
