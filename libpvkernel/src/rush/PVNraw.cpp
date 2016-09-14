@@ -87,6 +87,9 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	// may be invalid or empty or we may skip the end when enough data is extracted.
 	PVRow local_row = elts.size();
 
+	// TODO : We should check that EXTRACTED_ROW_COUNT_LIMIT is not reach.
+	//        This is not trivial because chunks are written in parallel...
+
 	for (PVCore::PVElement* elt : elts) {
 
 		PVCore::PVElement& e = *elt;

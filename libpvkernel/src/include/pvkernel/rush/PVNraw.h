@@ -184,7 +184,7 @@ class PVNraw
 	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
 
 	/// Variable usefull for loading
-	PVRow _real_nrows;                                      //!< Current number of line in the NRaw.
+	size_t _real_nrows;                                     //!< Current number of line in the NRaw.
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	unconvertable_values_t _unconvertable_values;
