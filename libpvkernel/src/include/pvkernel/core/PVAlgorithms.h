@@ -12,7 +12,6 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
-#include <pvkernel/core/PVFunctions.h>
 #include <pvkernel/core/inendi_intrin.h>
 
 #include <QtCore/qglobal.h>
