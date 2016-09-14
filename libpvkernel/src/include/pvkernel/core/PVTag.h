@@ -73,6 +73,6 @@ class PVTag
 	list_classes _associated_classes;
 	bool _valid;
 };
-}
+} // namespace PVCore
 
 #endif

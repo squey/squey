@@ -141,7 +141,8 @@ class PVFormat
 
 	bool _have_grep_filter;
 };
-};
+} // namespace PVRush
+;
 
 /*@}*/
 

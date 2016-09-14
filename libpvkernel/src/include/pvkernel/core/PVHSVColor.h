@@ -68,6 +68,6 @@ class PVHSVColor
   private:
 	T _h;
 };
-}
+} // namespace PVCore
 
 #endif

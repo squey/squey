@@ -33,12 +33,12 @@ class PVOriginalAxisIndexType : public PVArgumentType<PVOriginalAxisIndexType>
 	int get_original_index() const;
 	bool get_append_none_axis() const;
 
-	QString to_string() const
+	QString to_string() const override
 	{
 		return QString::number(_origin_axis_index) + ":" +
 		       QString(_append_none_axis ? "true" : "false");
 	}
-	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{
 		bool res_ok = false;
 
@@ -70,7 +70,7 @@ class PVOriginalAxisIndexType : public PVArgumentType<PVOriginalAxisIndexType>
 	int _origin_axis_index;
 	bool _append_none_axis;
 };
-}
+} // namespace PVCore
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVOriginalAxisIndexType)

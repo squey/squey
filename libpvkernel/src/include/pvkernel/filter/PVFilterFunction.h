@@ -191,7 +191,7 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
   public:
 	virtual T& operator()(T& obj) = 0;
 };
-}
+} // namespace PVFilter
 
 // Macros for filter class construction help
 #define CLASS_FILTER(T)                                                                            \

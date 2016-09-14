@@ -16,7 +16,7 @@
 namespace PVCore
 {
 class PVChunk;
-}
+} // namespace PVCore
 
 namespace PVFilter
 {
@@ -35,6 +35,6 @@ class PVChunkFilterByEltCancellable : public PVChunkFilter
 	float _timeout;
 	bool* _cancellation;
 };
-}
+} // namespace PVFilter
 
 #endif

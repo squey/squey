@@ -28,6 +28,6 @@ struct PVColor {
 	uint8_t b = 0;
 	uint8_t a = 255;
 };
-}
+} // namespace PVCore
 
 #endif /* INENDI_PVCOLOR_H */

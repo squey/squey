@@ -47,6 +47,6 @@ class PVSourceDescription
 	PVRush::PVSourceCreator_p _source_creator_p;
 	PVRush::PVFormat _format;
 };
-}
+} // namespace PVRush
 
 #endif /* PVSOURCEDESCRIPTION_H_ */

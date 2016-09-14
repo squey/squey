@@ -74,6 +74,6 @@ class PVAxisFormat
   public:
 	PVCol index;
 };
-}
+} // namespace PVRush
 
 #endif /* PVCORE_PVAXISFORMAT_H */

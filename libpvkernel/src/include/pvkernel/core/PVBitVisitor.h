@@ -132,7 +132,7 @@ struct visit_bits<__m128i, F> {
 	}
 };
 #endif
-}
+} // namespace __impl
 
 template <typename T, typename F>
 inline void visit_bits(const T chunk, F const& f, const size_t offset = 0)
@@ -140,7 +140,7 @@ inline void visit_bits(const T chunk, F const& f, const size_t offset = 0)
 	// FIXME: size_t should be determined from f
 	__impl::visit_bits<T, F>::f(chunk, f, offset);
 }
-}
-}
+} // namespace PVBitVisitor
+} // namespace PVCore
 
 #endif

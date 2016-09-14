@@ -36,6 +36,6 @@ class PVFileSerialize
   protected:
 	QString _path;
 };
-}
+} // namespace PVCore
 
 #endif

@@ -60,7 +60,7 @@ class PVArgumentKey : public QString
 	QString _desc;
 	static QHash<QString, QString> _key_desc;
 };
-}
+} // namespace PVCore
 
 extern unsigned int qHash(PVCore::PVArgumentKey const& key);
 
@@ -106,7 +106,7 @@ class PVArgumentTypeBase
 template <class T>
 class PVArgumentType : public PVArgumentTypeBase
 {
-	virtual bool is_equal(const PVArgumentTypeBase& other) const
+	bool is_equal(const PVArgumentTypeBase& other) const override
 	{
 		const T* pother = dynamic_cast<const T*>(&other);
 		if (!pother) {
@@ -143,6 +143,6 @@ void PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret,
                                          PVCore::PVArgumentList const& ref);
 void PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret,
                                      PVCore::PVArgumentList const& def_args);
-}
+} // namespace PVCore
 
 #endif

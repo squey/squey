@@ -58,6 +58,6 @@ class PVTypeInfo
 		return !!other.pStdInfo_->before(*pStdInfo_); // "!!" for MSVC non-std ops.
 	}
 };
-}
+} // namespace PVCore
 
 #endif

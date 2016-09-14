@@ -15,6 +15,6 @@
 namespace PVCore
 {
 using PVColumnIndexes = std::vector<PVCol>;
-}
+} // namespace PVCore
 
 #endif // __PVCORE_PVCOLUMNINDEXES_H__

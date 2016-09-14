@@ -36,6 +36,6 @@ class PVField : public PVBufferSlice
 	bool _filtered;
 	PVElement* _parent;
 };
-}
+} // namespace PVCore
 
 #endif

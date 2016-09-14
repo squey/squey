@@ -29,7 +29,7 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 /******************************************************************************
  *

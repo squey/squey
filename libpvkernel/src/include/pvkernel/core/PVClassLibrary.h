@@ -232,6 +232,6 @@ class PVClassLibraryLibLoader
 #define DECLARE_TAG(name, desc, T) DECLARE_TAG_AS(name, desc, T, T::RegAs)
 
 #define LIB_CLASS(T) PVCore::PVClassLibrary<T::RegAs>
-}
+} // namespace PVCore
 
 #endif

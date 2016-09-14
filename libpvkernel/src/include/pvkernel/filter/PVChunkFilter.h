@@ -14,6 +14,6 @@ namespace PVFilter
 class PVChunkFilter
 {
 };
-}
+} // namespace PVFilter
 
 #endif

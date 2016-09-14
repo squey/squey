@@ -35,11 +35,11 @@ class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
 	inline bool get_checked() { return _is_checked; }
 	inline void set_checked(const bool checked) { _is_checked = checked; }
 
-	QString to_string() const
+	QString to_string() const override
 	{
 		return QString::number(_origin_axis_index) + ":" + QString(_is_checked ? "true" : "false");
 	}
-	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{
 		PVArgument arg;
 		bool res_ok = false;
@@ -70,7 +70,7 @@ class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
 	int _origin_axis_index;
 	bool _is_checked;
 };
-}
+} // namespace PVCore
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVAxisIndexCheckBoxType)

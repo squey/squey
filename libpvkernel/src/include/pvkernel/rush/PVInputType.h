@@ -113,6 +113,6 @@ class PVInputTypeDesc : public PVInputType
 };
 
 typedef PVInputType::p_type PVInputType_p;
-}
+} // namespace PVRush
 
 #endif

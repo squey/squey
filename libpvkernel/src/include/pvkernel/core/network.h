@@ -17,6 +17,6 @@ namespace PVCore
 struct Network {
 	static bool ipv4_aton(const char* str, size_t n, uint32_t& ret);
 };
-}
+} // namespace PVCore
 
 #endif /* PVCORE_NETWORK_H */

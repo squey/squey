@@ -52,7 +52,7 @@ struct pointer<std::shared_ptr<T>&> {
 	typedef std::shared_ptr<T>& type;
 	static inline type get(type obj) { return obj; }
 };
-}
-}
+} // namespace PVTypeTraits
+} // namespace PVCore
 
 #endif

@@ -36,7 +36,7 @@ class PVPluginPresets
 	PVFunctionArgsBase* _fargs;
 	QString _abs_reg_name;
 };
-}
+} // namespace __impl
 
 template <class T>
 class PVPluginPresets : public __impl::PVPluginPresets
@@ -47,6 +47,6 @@ class PVPluginPresets : public __impl::PVPluginPresets
 	{
 	}
 };
-}
+} // namespace PVCore
 
 #endif // PVCORE_PVPLUGIN_PRESETS_H

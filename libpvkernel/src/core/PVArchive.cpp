@@ -31,7 +31,7 @@
 namespace boost
 {
 class thread_interrupted;
-}
+} // namespace boost
 
 static void inendi_archive_read_support(struct archive* a)
 {

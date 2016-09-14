@@ -18,7 +18,7 @@ class PVSerializeArchiveZip : public PVSerializeArchive
   public:
 	PVSerializeArchiveZip(version_t v);
 	PVSerializeArchiveZip(QString const& zip_path, archive_mode mode, version_t v);
-	~PVSerializeArchiveZip();
+	~PVSerializeArchiveZip() override;
 
   public:
 	void open_zip(QString const& zip_path, archive_mode mode);
@@ -28,6 +28,6 @@ class PVSerializeArchiveZip : public PVSerializeArchive
 	QString _zip_path;
 	QString _tmp_path;
 };
-}
+} // namespace PVCore
 
 #endif

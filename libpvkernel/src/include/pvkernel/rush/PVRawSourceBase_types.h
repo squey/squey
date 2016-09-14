@@ -15,6 +15,6 @@ namespace PVRush
 
 class PVRawSourceBase;
 typedef std::shared_ptr<PVRawSourceBase> PVRawSourceBase_p;
-}
+} // namespace PVRush
 
 #endif

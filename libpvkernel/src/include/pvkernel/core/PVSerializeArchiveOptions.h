@@ -27,7 +27,7 @@ class PVSerializeArchiveOptions : public PVSerializeArchive
   public:
 	PVSerializeArchiveOptions(version_t version) : PVSerializeArchive(version) { _mode = write; }
 	PVSerializeArchiveOptions(const PVSerializeArchiveOptions& obj) = delete;
-	virtual ~PVSerializeArchiveOptions() {}
+	~PVSerializeArchiveOptions() override {}
 
   public:
 	bool must_write(PVSerializeObject const& parent, QString const& name);
@@ -36,19 +36,22 @@ class PVSerializeArchiveOptions : public PVSerializeArchive
 
   protected:
 	// Object create function
-	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject* parent);
+	PVSerializeObject_p create_object(QString const& name, PVSerializeObject* parent) override;
 	// Attribute access functions, here empty
-	virtual void attribute_write(PVSerializeObject const&, QString const&, QVariant const&){};
-	virtual void attribute_read(PVSerializeObject&, QString const&, QVariant&, QVariant const&){};
-	virtual void
-	list_attributes_write(PVSerializeObject const&, QString const&, std::vector<QVariant> const&){};
-	virtual void
-	list_attributes_read(PVSerializeObject const&, QString const&, std::vector<QVariant>&){};
-	virtual void
-	hash_arguments_write(PVSerializeObject const&, QString const&, PVArgumentList const&){};
-	virtual size_t buffer(PVSerializeObject const&, QString const&, void*, size_t n) { return n; };
-	virtual void file(PVSerializeObject const&, QString const&, QString&){};
+	void attribute_write(PVSerializeObject const&, QString const&, QVariant const&) override{};
+	void attribute_read(PVSerializeObject&, QString const&, QVariant&, QVariant const&) override{};
+	void list_attributes_write(PVSerializeObject const&,
+	                           QString const&,
+	                           std::vector<QVariant> const&) override{};
+	void list_attributes_read(PVSerializeObject const&,
+	                          QString const&,
+	                          std::vector<QVariant>&) override{};
+	void hash_arguments_write(PVSerializeObject const&,
+	                          QString const&,
+	                          PVArgumentList const&) override{};
+	size_t buffer(PVSerializeObject const&, QString const&, void*, size_t n) override { return n; };
+	void file(PVSerializeObject const&, QString const&, QString&) override{};
 };
-}
+} // namespace PVCore
 
 #endif

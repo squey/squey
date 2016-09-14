@@ -80,6 +80,6 @@ class PVXmlParamParser
 	QString getNodeType(QDomElement);
 	QString getNodeTypeGrep(QDomElement node);
 };
-}
+} // namespace PVRush
 
 #endif /* PVXMLPARAMPARSER_H */

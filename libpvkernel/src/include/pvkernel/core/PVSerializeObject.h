@@ -380,7 +380,7 @@ void PVSerializeObject::list_attributes(QString const& name, T& obj, F const& va
 		}
 	}
 }
-}
+} // namespace PVCore
 
 // Conveniance macros
 #define PVSERIALIZEOBJECT_SPLIT                                                                    \

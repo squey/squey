@@ -29,6 +29,6 @@ std::string& replace(std::string& init, std::string const& from, std::string con
  * Return the content of a file path as string
  */
 std::string file_content(const std::string& file_path);
-}
+} // namespace PVCore
 
 #endif /* PVCORE_PVUTILS_H */

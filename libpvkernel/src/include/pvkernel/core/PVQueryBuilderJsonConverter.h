@@ -173,6 +173,6 @@ class PVQueryBuilderJsonConverter
 	 */
 	static bool is_condition(rapidjson::Value const& obj);
 };
-}
+} // namespace PVCore
 
 #endif

@@ -21,6 +21,6 @@ class PVElementFilter : public PVFilterFunctionBase<PVCore::PVElement&, PVCore::
 
 	CLASS_FILTER_NONREG_NOPARAM(PVElementFilter)
 };
-}
+} // namespace PVFilter
 
 #endif

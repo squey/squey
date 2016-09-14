@@ -26,8 +26,8 @@ class PVFunctionArgumentMissing : public std::exception
 	{
 		_what = QString("Argument %1 missing").arg(arg);
 	}
-	~PVFunctionArgumentMissing() throw(){};
-	virtual const char* what() const throw() { return qPrintable(_what); };
+	~PVFunctionArgumentMissing() throw() override{};
+	const char* what() const throw() override { return qPrintable(_what); };
 
   protected:
 	QString _what;
@@ -105,7 +105,7 @@ class PVFunctionArgs : public PVFunctionArgsBase
   public:
 	PVFunctionArgs(PVArgumentList const& args = PVArgumentList()) : PVFunctionArgsBase(args) {}
 };
-}
+} // namespace PVCore
 
 #define DEFAULT_ARGS_FUNC(T) PVCore::PVArgumentList T::default_args()
 

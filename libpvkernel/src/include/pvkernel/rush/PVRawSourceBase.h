@@ -19,7 +19,7 @@
 namespace PVCore
 {
 class PVChunk;
-}
+} // namespace PVCore
 
 namespace PVRush
 {
@@ -31,7 +31,7 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 
   public:
 	PVRawSourceBase();
-	virtual ~PVRawSourceBase(){};
+	~PVRawSourceBase() override{};
 	PVRawSourceBase(const PVRawSourceBase& src) = delete;
 
   public:
@@ -58,6 +58,6 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	                                     // correspond to a number of lines
 	PVCol _ncols_to_reserve;
 };
-}
+} // namespace PVRush
 
 #endif

@@ -397,6 +397,6 @@ const Value& PVOrderedMap<Key, Value>::at(const Key& key) const
 	throw std::out_of_range("This key doesn't exist in this PVOrderedMap");
 }
 
-} // PVCore
+} // namespace PVCore
 
 #endif // PVCORE_PVORDEREDMAP_H

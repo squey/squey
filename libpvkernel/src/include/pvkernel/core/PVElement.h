@@ -37,7 +37,7 @@ class PVElement : public PVBufferSlice
 	PVElement(PVElement const& src) = delete;
 
   public:
-	virtual ~PVElement();
+	~PVElement() override;
 
   public:
 	bool valid() const;
@@ -95,6 +95,6 @@ class PVElement : public PVBufferSlice
   private:
 	static tbb::scalable_allocator<PVElement> _alloc;
 };
-}
+} // namespace PVCore
 
 #endif

@@ -31,5 +31,5 @@ class PVXmlParamParserData
 	size_t nchildren;
 	PVFilter::filter_child_axes_tag_t children_axes_tag;
 };
-}
+} // namespace PVRush
 #endif /* PVXMLPARAMPARSERDATA_H */

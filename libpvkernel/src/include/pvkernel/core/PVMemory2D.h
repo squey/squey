@@ -32,6 +32,6 @@ void memset2d(void* source,
               size_t rect_height);
 
 void memset2d(void* source, char value, size_t image_width, size_t image_height, const QRect& r);
-}
+} // namespace PVCore
 
 #endif // __PVCORE_PVMEMORY2D_H_

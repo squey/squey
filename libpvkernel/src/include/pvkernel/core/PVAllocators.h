@@ -347,7 +347,7 @@ namespace PVMemory
 {
 
 void get_memory_usage(double& vm_usage, double& resident_set);
-}
-}
+} // namespace PVMemory
+} // namespace PVCore
 
 #endif

@@ -21,7 +21,7 @@
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 Q_DECLARE_METATYPE(PVRush::PVSourceDescription)
 Q_DECLARE_METATYPE(PVRush::PVFormat)
@@ -127,6 +127,6 @@ class PVRecentItemsManager
 	                                         "recent_used_formats", "recent_edited_formats",
 	                                         "supported_formats"};
 };
-}
+} // namespace PVCore
 
 #endif /* PVRECENTITEMSMANAGER_H_ */

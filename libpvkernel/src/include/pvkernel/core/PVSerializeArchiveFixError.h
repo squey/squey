@@ -37,6 +37,6 @@ class PVSerializeReparaibleError : public std::runtime_error
 	std::string _path;
 	std::string _value;
 };
-}
+} // namespace PVCore
 
 #endif

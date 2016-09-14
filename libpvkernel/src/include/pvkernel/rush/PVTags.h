@@ -39,7 +39,7 @@ class PVTags
 	bool has_tag(QString tag) const;
 	QSet<QString> const& list() const { return _tags; }
 };
-}
+} // namespace PVRush
 
 /*@}*/
 

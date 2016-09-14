@@ -24,6 +24,6 @@ class PVPredefinedHSVColors
 	static std::vector<PVCore::PVHSVColor> get_predefined_colors();
 	static bool set_predefined_color(size_t i, PVCore::PVHSVColor c);
 };
-}
+} // namespace PVCore
 
 #endif

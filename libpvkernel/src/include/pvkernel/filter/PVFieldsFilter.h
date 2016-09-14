@@ -166,6 +166,6 @@ typedef PVFieldsConverter::p_type PVFieldsConverter_p;
 
 typedef PVCore::PVClassLibrary<PVFieldsSplitter>::tag PVFieldsSplitterTag;
 typedef PVCore::PVClassLibrary<PVFieldsSplitter>::list_tags PVFieldsSplitterListTags;
-}
+} // namespace PVFilter
 
 #endif

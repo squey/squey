@@ -165,6 +165,6 @@ class PVBufferSlice
 
 	buf_list_t& _buf_list;
 };
-}
+} // namespace PVCore
 
 #endif

@@ -17,7 +17,7 @@
 namespace PVCore
 {
 class PVChunk;
-}
+} // namespace PVCore
 
 namespace PVFilter
 {
@@ -40,6 +40,6 @@ class PVChunkFilterByElt : public PVChunkFilter
   protected:
 	std::unique_ptr<PVElementFilter> _elt_filter; // filter to apply for splitting.
 };
-}
+} // namespace PVFilter
 
 #endif

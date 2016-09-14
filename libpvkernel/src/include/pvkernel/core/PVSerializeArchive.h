@@ -114,6 +114,6 @@ class PVSerializeArchive
 	std::shared_ptr<PVSerializeArchiveOptions> _options;
 	std::string _current_status; //!< Description about where we are in the serialization process.
 };
-}
+} // namespace PVCore
 
 #endif
