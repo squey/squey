@@ -10,15 +10,8 @@
 
 #include <algorithm> // for move
 
-PVCore::PVSerializeObject::PVSerializeObject(QString path,
-                                             PVSerializeArchive* parent_ar,
-                                             PVSerializeObject* parent)
-    : _parent_ar(parent_ar)
-    , _parent(parent)
-    , _logical_path(std::move(path))
-    , _is_optional(false)
-    , _must_write(true)
-    , _bound_obj_type(typeid(void))
+PVCore::PVSerializeObject::PVSerializeObject(QString path, PVSerializeArchive* parent_ar)
+    : _parent_ar(parent_ar), _logical_path(path)
 {
 }
 
@@ -27,19 +20,9 @@ bool PVCore::PVSerializeObject::is_writing() const
 	return _parent_ar->is_writing();
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(
-    QString const& name, QString const& desc, bool optional, bool visible, bool def_option)
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name)
 {
 	p_type child = _parent_ar->create_object(name, this);
-	child->_visible = visible;
-	child->_is_optional = optional;
-	child->_desc = (desc.isNull()) ? name : desc;
-	child->_must_write = def_option;
-	_childs.insert(name, child);
-
-	if (visible) {
-		_visible_childs.insert(name, child);
-	}
 	return child;
 }
 
@@ -51,6 +34,11 @@ PVCore::PVSerializeArchive::version_t PVCore::PVSerializeObject::get_version() c
 bool PVCore::PVSerializeObject::is_repaired_error() const
 {
 	return get_logical_path().toStdString() == _parent_ar->get_repaired_path();
+}
+
+bool PVCore::PVSerializeObject::save_log_file() const
+{
+	return _parent_ar->save_log_file();
 }
 
 std::string const& PVCore::PVSerializeObject::get_repaired_value() const
@@ -104,67 +92,9 @@ void PVCore::PVSerializeObject::hash_arguments_read(QString const& name,
 	_parent_ar->hash_arguments_read(*this, name, obj, def_args);
 }
 
-bool PVCore::PVSerializeObject::is_optional() const
-{
-	return _is_optional;
-}
-
-QString const& PVCore::PVSerializeObject::description() const
-{
-	return _desc;
-}
-
-PVCore::PVSerializeObject::list_childs_t const& PVCore::PVSerializeObject::childs() const
-{
-	return _childs;
-}
-
-PVCore::PVSerializeObject::list_childs_t const& PVCore::PVSerializeObject::visible_childs() const
-{
-	return _visible_childs;
-}
-
-bool PVCore::PVSerializeObject::must_write() const
-{
-	return _must_write;
-}
-
-void PVCore::PVSerializeObject::set_write(bool write)
-{
-	if (is_optional()) {
-		_must_write = write;
-	}
-
-	// Set `set_write' to all children
-	for (auto& child : _childs) {
-		child->set_write(write);
-	}
-}
-
-const PVCore::PVSerializeObject::p_type
-PVCore::PVSerializeObject::get_child_by_name(QString const& name) const
-{
-	return _childs.value(name, p_type());
-}
-
-bool PVCore::PVSerializeObject::must_write_child(QString const& name)
-{
-	return _parent_ar->must_write_object(*this, name);
-}
-
 QString const& PVCore::PVSerializeObject::get_logical_path() const
 {
 	return _logical_path;
-}
-
-PVCore::PVSerializeObject* PVCore::PVSerializeObject::parent()
-{
-	return _parent;
-}
-
-bool PVCore::PVSerializeObject::visible() const
-{
-	return _visible;
 }
 
 void PVCore::PVSerializeObject::set_current_status(std::string const& s)

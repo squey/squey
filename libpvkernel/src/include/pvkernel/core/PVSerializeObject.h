@@ -9,8 +9,6 @@
 #define PVCORE_PVSERIALIZEOBJECT_H
 
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
-#include <pvkernel/core/PVTypeInfo.h>   // for PVTypeInfo
-#include <pvkernel/core/PVTypeTraits.h> // for remove_shared_ptr
 
 #include <cstddef> // for size_t
 #include <cstdint> // for uint32_t
@@ -19,7 +17,6 @@
 #include <vector>  // for vector, vector<>::iterator
 
 #include <QFile>
-#include <QHash>
 #include <QString>
 #include <QVariant>
 
@@ -59,12 +56,9 @@ class PVSerializeObject
 
   public:
 	typedef std::shared_ptr<PVSerializeObject> p_type;
-	typedef QHash<QString, p_type> list_childs_t;
 
   protected:
-	PVSerializeObject(QString path,
-	                  PVSerializeArchive* parent_ar,
-	                  PVSerializeObject* parent = nullptr);
+	PVSerializeObject(QString path, PVSerializeArchive* parent_ar);
 
   public:
 	virtual ~PVSerializeObject() {}
@@ -91,66 +85,23 @@ class PVSerializeObject
 		}
 	}
 
-	bool is_writing() const;
-	bool is_optional() const;
-	bool must_write() const;
-	bool visible() const;
-	void set_write(bool write);
-	QString const& description() const;
-	list_childs_t const& childs() const;
-	list_childs_t const& visible_childs() const;
-	const p_type get_child_by_name(QString const& name) const;
 	QString const& get_logical_path() const;
-	PVSerializeObject* parent();
-	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
 	void set_current_status(std::string const& s);
 
   public:
+	bool is_writing() const;
+
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
 	 *  \param[in] name Name of the object to serialize
 	 *  \param[in,out] obj Object to load/save
-	 *  \param[in] optional Can this object be optionally saved
-	 *  \param[in] desc Description of the object (for usage in a GUI for instance)
-	 *  \param[in] visible Whether or not this object will be exposed by
-	 *PVInspector::PVSerializeOptionsModel (for instance)
-	 *  \param[in] def_v If not nullptr, pointer to a default value to use when creating the object
-	 *(will call T's copy constructor, which must exists).
-	 *  \param[in] def_option If optional is equal to true, defines the default optional state of
-	 *this object (true = object will be included).
-	 *  \return If this object can be optionaly saved and an archive is being read, it returns true
-	 *if the object exists in this archive and was successfully read.
 	 *
 	 *  This method will create a new PVSerializeObject and call the
 	 *  serialize_(read/write) method of obj with this new PVSerializeObject.
 	 */
 	template <typename T>
-	bool object(QString const& name,
-	            T& obj,
-	            QString const& desc = QString(),
-	            bool optional = false,
-	            typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = nullptr,
-	            bool visible = true,
-	            bool def_option = true,
-	            p_type* used_so = nullptr);
+	void object(QString const& name, T& obj);
 
-	/*! \brief Declare a QHash to serialize. V must be serializable.
-	 *  \param[in]     name Name of the QHash to serialize.
-	 *  \param[in,out] obj  QHash input/output object to serialize.
-	 *  This method declare a QHash of object to serialize.
-	 *  K has to be convertible to a QVariant.
-	 *  This will be represented in this form:
-	 *    hash_name
-	 *    |
-	 *    -- key of first object
-	 *       |
-	 *       -- serialization of first object
-	 *    -- key of second object
-	 *       |
-	 *       -- serialization of the second object
-	 *    ...
-	 */
-	template <typename K, typename V>
-	void hash(QHash<K, V> const& obj);
+	bool save_log_file() const;
 
 	void arguments(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 
@@ -210,43 +161,26 @@ class PVSerializeObject
 	 */
 	void file(QString const& name, QString& path);
 
-  protected:
-	inline const void* bound_obj() const { return _bound_obj; }
-
-  public:
-	template <class T>
-	inline void set_bound_obj(T& t)
-	{
-		_bound_obj = &t;
-		_bound_obj_type = typeid(T);
-	}
-
-	p_type create_object(QString const& name,
-	                     QString const& desc = QString(),
-	                     bool optional = false,
-	                     bool visible = true,
-	                     bool def_option = true);
+	p_type create_object(QString const& name);
 	uint32_t get_version() const;
 
 	void attribute_write(QString const& name, QVariant const& obj);
+	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 
 	bool is_repaired_error() const;
 	std::string const& get_repaired_value() const;
 
   private:
-	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
 	void hash_arguments_write(QString const& name, PVArgumentList const& obj);
 	void
 	hash_arguments_read(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
-	bool must_write_child(QString const& name);
 
 	template <typename T>
-	void call_serialize(T& obj, p_type new_obj, T const* /*def_v*/)
+	void call_serialize(T& obj, p_type new_obj)
 	{
 		obj.serialize(*new_obj, get_version());
-		new_obj->set_bound_obj(obj);
 	}
 
   private:
@@ -254,90 +188,21 @@ class PVSerializeObject
 	 */
 	PVSerializeArchive* _parent_ar;
 
-	/*! \brief Parent serialization object
-	 */
-	PVSerializeObject* _parent;
-
 	/*! \brief Logicial path within the archive
 	 *  This path is set by PVSerializeArchive::create_object and is independent of the
 	 *  final root directory and any operating system rules.
 	 *  This can be used to uniquely identify an object.
 	 */
 	QString _logical_path;
-
-	/*! \brief Specifies whether this object is optional or not. Set by create_object.
-	 */
-	bool _is_optional;
-
-	/*! \brief Specifies a description of this object.
-	 */
-	QString _desc;
-
-	/*! \brief If this object is optional, specifies whether this object must be written or not.
-	 */
-	bool _must_write;
-
-	/*! \brief Hash of the children of this object. The key is their name.
-	 */
-	list_childs_t _childs;
-
-	/*! \brief Hash of the visible children of this object. The key is their name.
-	 */
-	list_childs_t _visible_childs;
-
-	/*! \brief Whether or not this object is exposed to the user (for options)
-	 */
-	bool _visible;
-
-  public:
-	/*! \brief If relevant, represents a pointer to the object that has been serialized
-	 */
-	void* _bound_obj;
-	PVTypeInfo _bound_obj_type;
 };
 
 typedef PVSerializeObject::p_type PVSerializeObject_p;
 
 template <typename T>
-bool PVSerializeObject::object(QString const& name,
-                               T& obj,
-                               QString const& desc,
-                               bool optional,
-                               typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v,
-                               bool visible,
-                               bool def_option,
-                               p_type* used_so)
+void PVSerializeObject::object(QString const& name, T& obj)
 {
-	if (optional && is_writing()) {
-		if (!must_write_child(name)) {
-			return false;
-		}
-	}
-	p_type new_obj;
-	try {
-		new_obj = create_object(name, desc, optional, visible, def_option);
-	} catch (PVSerializeArchiveErrorNoObject& e) {
-		if (!optional && !is_writing()) {
-			throw e;
-		}
-		return false;
-	}
-	if (used_so) {
-		*used_so = new_obj;
-	}
-	call_serialize(obj, new_obj, def_v);
-	return true;
-}
-
-template <typename K, typename V>
-void PVSerializeObject::hash(QHash<K, V> const& obj)
-{
-	if (is_writing()) {
-		for (auto it = obj.begin(); it != obj.end(); it++) {
-			PVSerializeObject_p new_obj = create_object(it.key());
-			it.value().serialize(*new_obj);
-		}
-	}
+	p_type new_obj = create_object(name);
+	call_serialize(obj, new_obj);
 }
 
 template <class T>

@@ -8,18 +8,18 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeObject.h>
 
-PVCore::PVSerializeArchive::PVSerializeArchive(version_t version)
-    : _version(version), _is_opened(false)
+PVCore::PVSerializeArchive::PVSerializeArchive(version_t version, bool save_log_file)
+    : _version(version), _is_opened(false), _save_log_files(save_log_file)
 {
 }
 
 PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir,
                                                archive_mode mode,
-                                               version_t version)
-    : _version(version), _is_opened(false)
+                                               version_t version,
+                                               bool save_log_file)
+    : _version(version), _is_opened(false), _save_log_files(save_log_file)
 {
 	open(dir, mode);
 }
@@ -70,8 +70,8 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString 
 		new_path = "";
 	}
 
-	PVSerializeObject_p ret(new PVSerializeObject(new_path, this, parent));
-	_objects.insert(get_object_logical_path(*ret), ret);
+	PVSerializeObject_p ret(new PVSerializeObject(new_path, this));
+	_objects.insert(ret->get_logical_path(), ret);
 	return ret;
 }
 
@@ -217,16 +217,6 @@ size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so,
 		}
 		return ret;
 	}
-}
-
-bool PVCore::PVSerializeArchive::must_write_object(PVSerializeObject const& parent,
-                                                   QString const& child)
-{
-	assert(_options.get() != this);
-	if (!_options) {
-		return true;
-	}
-	return _options->must_write(parent, child);
 }
 
 QDir PVCore::PVSerializeArchive::get_dir_for_object(PVSerializeObject const& so) const

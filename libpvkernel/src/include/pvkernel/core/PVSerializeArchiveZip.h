@@ -16,8 +16,11 @@ namespace PVCore
 class PVSerializeArchiveZip : public PVSerializeArchive
 {
   public:
-	explicit PVSerializeArchiveZip(version_t v);
-	PVSerializeArchiveZip(QString const& zip_path, archive_mode mode, version_t v);
+	PVSerializeArchiveZip(version_t v, bool save_log_file = false);
+	PVSerializeArchiveZip(QString const& zip_path,
+	                      archive_mode mode,
+	                      version_t v,
+	                      bool save_log_file = false);
 	~PVSerializeArchiveZip() override;
 
   public:

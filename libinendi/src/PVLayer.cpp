@@ -107,10 +107,10 @@ void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 
 void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so)
 {
-	auto sel_obj = so.create_object("selection", "selection", false, false);
+	auto sel_obj = so.create_object("selection");
 	selection.serialize_write(*sel_obj);
 
-	auto lp_obj = so.create_object("lp", "Lines properties", false, false);
+	auto lp_obj = so.create_object("lp");
 	lines_properties.serialize_write(*lp_obj);
 
 	so.attribute("name", name);
@@ -124,10 +124,10 @@ Inendi::PVLayer Inendi::PVLayer::serialize_read(PVCore::PVSerializeObject& so)
 	QString name;
 	so.attribute("name", name);
 
-	auto sel_obj = so.create_object("selection", "selection", false, false);
+	auto sel_obj = so.create_object("selection");
 	Inendi::PVSelection sel(Inendi::PVSelection::serialize_read(*sel_obj));
 
-	auto lp_obj = so.create_object("lp", "Lines properties", false, false);
+	auto lp_obj = so.create_object("lp");
 	Inendi::PVLinesProperties lines_properties = Inendi::PVLinesProperties::serialize_read(*lp_obj);
 
 	Inendi::PVLayer layer(name, sel, lines_properties);

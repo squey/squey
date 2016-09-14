@@ -24,8 +24,6 @@
 namespace PVCore
 {
 
-class PVSerializeArchiveOptions;
-
 class PVSerializeArchive
 {
 	friend class PVSerializeObject;
@@ -35,8 +33,11 @@ class PVSerializeArchive
 	typedef uint32_t version_t;
 
   public:
-	explicit PVSerializeArchive(version_t version);
-	PVSerializeArchive(QString const& dir, archive_mode mode, version_t version);
+	PVSerializeArchive(version_t version, bool save_log_file = false);
+	PVSerializeArchive(QString const& dir,
+	                   archive_mode mode,
+	                   version_t version,
+	                   bool save_log_file);
 	PVSerializeArchive(const PVSerializeArchive& obj) = delete;
 
 	virtual ~PVSerializeArchive();
@@ -45,7 +46,6 @@ class PVSerializeArchive
 	void open(QString const& dir, archive_mode mode);
 	PVSerializeObject_p get_root();
 	version_t get_version() const;
-	void set_options(std::shared_ptr<PVSerializeArchiveOptions> options) { _options = options; };
 
 	// Repairable errors
 	void set_repaired_value(std::string const& path, std::string const& value)
@@ -59,10 +59,7 @@ class PVSerializeArchive
 
   protected:
 	bool is_writing() const { return _mode == write; }
-	QString get_object_logical_path(PVSerializeObject const& so) { return so.get_logical_path(); };
 	PVSerializeObject_p allocate_object(QString const& name, PVSerializeObject* parent);
-	bool must_write_object(PVSerializeObject const& parent, QString const& child);
-	const PVSerializeArchiveOptions* get_options() const { return _options.get(); }
 	QDir get_dir_for_object(PVSerializeObject const& so) const;
 
   protected:
@@ -91,6 +88,8 @@ class PVSerializeArchive
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
 	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
 
+	bool save_log_file() const { return _save_log_files; }
+
   private:
 	void init();
 	void create_attributes(PVSerializeObject const& so);
@@ -111,7 +110,7 @@ class PVSerializeArchive
   private:
 	std::pair<std::string, std::string> _repaired; //!< Saved repaired value (path, value)
 
-	std::shared_ptr<PVSerializeArchiveOptions> _options;
+	bool _save_log_files;
 	std::string _current_status; //!< Description about where we are in the serialization process.
 };
 } // namespace PVCore

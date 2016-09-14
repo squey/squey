@@ -31,7 +31,6 @@ core/PVDateTimeParser.cpp
 core/PVDirectory.cpp
 core/PVElement.cpp
 core/PVField.cpp
-core/PVFileSerialize.cpp
 core/PVHardwareConcurrency.cpp
 core/PVHSVColor.cpp
 core/PVPredefinedHSVColors.cpp
@@ -40,7 +39,6 @@ core/PVProgressBox.cpp
 core/PVPluginPresets.cpp
 core/PVSelBitField.cpp
 core/PVSerializeArchive.cpp
-core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
 core/PVUtils.cpp

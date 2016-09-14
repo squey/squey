@@ -12,7 +12,6 @@
 #include <QDateTime>
 #include <QFileInfo>
 
-#include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/core/PVCompList.h>
 #include <pvkernel/core/PVUtils.h>
 
@@ -537,21 +536,10 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 	so.set_current_status("Format loading");
 	QString format_name;
 	so.attribute("name", format_name);
-	QString full_path;
-	so.attribute("path", full_path);
-	PVCore::PVFileSerialize format_file(full_path);
-	if (so.object("file", format_file, "Include original format file", true,
-	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
-		full_path = format_file.get_path();
-	} else if (not QFileInfo(full_path).isReadable()) {
-		if (so.is_repaired_error()) {
-			full_path = QString::fromStdString(so.get_repaired_value());
-		} else {
-			throw PVCore::PVSerializeReparaibleError("Can't find format file",
-			                                         so.get_logical_path().toStdString(),
-			                                         full_path.toStdString());
-		}
-	}
+
+	QString full_path, fname;
+	so.attribute("filename", fname);
+	so.file(fname, full_path);
 
 	return {format_name, full_path};
 }
@@ -560,10 +548,9 @@ void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Serialize format");
 	so.attribute("name", format_name);
-	so.attribute("path", full_path);
-	PVCore::PVFileSerialize format_file(full_path);
-	if (so.object("file", format_file, "Include original format file", true,
-	              (PVCore::PVFileSerialize*)nullptr, true, false)) {
-		full_path = format_file.get_path();
-	}
+
+	QFileInfo fi(full_path);
+	QString fname = fi.fileName();
+	so.file(fname, full_path);
+	so.attribute("filename", fname);
 }

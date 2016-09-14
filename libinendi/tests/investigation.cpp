@@ -97,7 +97,7 @@ double save_investigation()
 	auto start = std::chrono::system_clock::now();
 
 	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::write,
-	                                 INENDI_ARCHIVES_VERSION);
+	                                 INENDI_ARCHIVES_VERSION, true);
 	env.root.save_to_file(ar);
 
 	auto end = std::chrono::system_clock::now();
@@ -113,7 +113,7 @@ double load_investigation()
 	auto start = std::chrono::system_clock::now();
 
 	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::read,
-	                                 INENDI_ARCHIVES_VERSION);
+	                                 INENDI_ARCHIVES_VERSION, true);
 	root.load_from_archive(ar);
 
 	auto end = std::chrono::system_clock::now();

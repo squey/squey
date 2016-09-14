@@ -370,7 +370,8 @@ void PVInspector::PVMainWindow::solution_save_Slot()
 	if (is_solution_untitled()) {
 		solution_saveas_Slot();
 	} else {
-		save_solution(get_solution_path(), get_root().get_default_serialize_options());
+		// FIXME : We should remember if log_file have to be saved
+		save_solution(get_solution_path());
 	}
 }
 
@@ -380,20 +381,16 @@ void PVInspector::PVMainWindow::solution_saveas_Slot()
 		return;
 	}
 
-	std::shared_ptr<PVCore::PVSerializeArchiveOptions> options(
-	    get_root().get_default_serialize_options());
-	PVSaveDataTreeDialog* dlg = new PVSaveDataTreeDialog(options, INENDI_ROOT_ARCHIVE_EXT,
-	                                                     INENDI_ROOT_ARCHIVE_FILTER, this);
+	PVSaveDataTreeDialog dlg(INENDI_ROOT_ARCHIVE_EXT, INENDI_ROOT_ARCHIVE_FILTER, this);
 	if (!_current_save_root_folder.isEmpty()) {
-		dlg->setDirectory(_current_save_root_folder);
+		dlg.setDirectory(_current_save_root_folder);
 	}
-	dlg->selectFile(get_solution_path());
-	if (dlg->exec() == QDialog::Accepted) {
-		QString file = dlg->selectedFiles().at(0);
-		save_solution(file, options);
+	dlg.selectFile(get_solution_path());
+	if (dlg.exec() == QDialog::Accepted) {
+		QString file = dlg.selectedFiles().at(0);
+		save_solution(file, dlg.save_log_file());
 	}
-	_current_save_root_folder = dlg->directory().absolutePath();
-	dlg->deleteLater();
+	_current_save_root_folder = dlg.directory().absolutePath();
 }
 
 bool PVInspector::PVMainWindow::maybe_save_solution()
@@ -535,15 +532,14 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	return true;
 }
 
-void PVInspector::PVMainWindow::save_solution(
-    QString const& file, std::shared_ptr<PVCore::PVSerializeArchiveOptions> const& options)
+void PVInspector::PVMainWindow::save_solution(QString const& file, bool save_log_file)
 {
 	if (PVCore::PVProgressBox::progress(
 	        [&](PVCore::PVProgressBox& pbox) {
 		        pbox.set_enable_cancel(true);
 		        pbox.set_extended_status("Create archive");
 		        PVCore::PVSerializeArchiveZip ar(file, PVCore::PVSerializeArchive::write,
-		                                         INENDI_ARCHIVES_VERSION);
+		                                         INENDI_ARCHIVES_VERSION, save_log_file);
 		        // FIXME : We should inform we are creating the zip file using RAII like scoped
 		        // thread and Zip archive.
 
@@ -561,7 +557,7 @@ void PVInspector::PVMainWindow::save_solution(
 			        })));
 
 		        get_root().set_path(file);
-		        get_root().save_to_file(ar, options);
+		        get_root().save_to_file(ar);
 		        try {
 			        ar.close_zip();
 		        } catch (PVCore::ArchiveCreationFail const& e) {

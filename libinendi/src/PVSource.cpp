@@ -154,12 +154,12 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	QString src_name = _src_plugin->registered_name();
 	so.attribute("source-plugin", src_name);
 
-	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", false, false);
+	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw");
 	_nraw.serialize_write(*nraw_obj);
 
 	// Save the format
 	so.set_current_status("Serialize Format.");
-	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", false, true);
+	PVCore::PVSerializeObject_p format_obj = so.create_object("format");
 	_format.serialize_write(*format_obj);
 
 	// Serialize Input description to reload data if required.
@@ -167,15 +167,11 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("source-type", type_name);
 
 	so.set_current_status("Serialize Inputs.");
-	PVCore::PVSerializeObject_p list_inputs =
-	    so.create_object("inputs", "Description of inputs", false, true);
+	PVCore::PVSerializeObject_p list_inputs = so.create_object("inputs");
 	int idx = 0;
 	for (PVRush::PVInputDescription_p const& input : _inputs) {
-		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_input = list_inputs->create_object(
-		    child_name, _src_plugin->supported_type_lib()->human_name_of_input(input), false, true);
+		PVCore::PVSerializeObject_p new_input = list_inputs->create_object(QString::number(idx++));
 		input->serialize_write(*new_input);
-		new_input->set_bound_obj(*input);
 	}
 	so.attribute("input_count", idx);
 
@@ -193,14 +189,11 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	}
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped", "Mappeds", false, false);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped");
 	idx = 0;
 	for (PVMapped* mapped : get_children()) {
-		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
-		    child_name, QString::fromStdString(mapped->get_serialize_description()), false, false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
 		mapped->serialize_write(*new_obj);
-		new_obj->set_bound_obj(*mapped);
 	}
 	so.attribute("mapped_count", idx);
 }
@@ -219,8 +212,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	PVRush::PVInputType::list_inputs_desc inputs_for_type;
 
 	// Create the list of input
-	PVCore::PVSerializeObject_p list_inputs =
-	    so.create_object("inputs", "Description of inputs", false, false);
+	PVCore::PVSerializeObject_p list_inputs = so.create_object("inputs");
 	int input_count;
 	so.attribute("input_count", input_count);
 	for (int idx = 0; idx < input_count; idx++) {
@@ -235,14 +227,14 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
 
 	// read Format
-	PVCore::PVSerializeObject_p format_obj = so.create_object("format", "Format", false, false);
+	PVCore::PVSerializeObject_p format_obj = so.create_object("format");
 	PVRush::PVFormat format = PVRush::PVFormat::serialize_read(*format_obj);
 
 	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format);
 
 	try {
 		so.set_current_status("Load NRaw");
-		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw", "NRaw", false, false);
+		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw");
 		source._nraw = PVRush::PVNraw::serialize_read(*nraw_obj);
 
 		// Serialize invalid elements.
@@ -263,7 +255,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	}
 
 	// Create the list of mapped
-	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped", "Mappeds", false, false);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped");
 	int mapped_count;
 	so.attribute("mapped_count", mapped_count);
 	for (int idx = 0; idx < mapped_count; idx++) {

@@ -66,7 +66,7 @@ void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Serialize DB information.");
 	so.attribute("query", _query);
-	so.object("server", *_infos, QString(), false, (PVDBServ*)nullptr, false);
+	so.object("server", *_infos);
 }
 
 std::unique_ptr<PVRush::PVInputDescription>

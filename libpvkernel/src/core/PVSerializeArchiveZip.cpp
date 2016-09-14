@@ -17,14 +17,16 @@
 #include <QString>
 #include <QStringList>
 
-PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v) : PVSerializeArchive(v)
+PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v, bool save_log_file)
+    : PVSerializeArchive(v, save_log_file)
 {
 }
 
 PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(QString const& zip_path,
                                                      archive_mode mode,
-                                                     version_t v)
-    : PVSerializeArchive(v)
+                                                     version_t v,
+                                                     bool save_log_file)
+    : PVSerializeArchive(v, save_log_file)
 {
 	open_zip(zip_path, mode);
 }

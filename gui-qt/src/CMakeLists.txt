@@ -15,7 +15,6 @@ set(INSPECTOR_ICON "resources////inspector.ico")
 SET(MOC_HEADERS
 include/PVFilesTypesSelWidget.h
 include/PVMainWindow.h
-include/PVSaveDataTreeDialog.h
 include/PVStringListChooserWidget.h
 
 widgets/format-builder/include/PVAxisTagHelp.h
@@ -42,8 +41,6 @@ PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVSaveDataTreeDialog.cpp
-PVSerializeOptionsModel.cpp
-PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
 
 widgets/format-builder/PVAxisTagHelp.cpp

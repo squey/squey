@@ -8,9 +8,9 @@
 #ifndef PVCORE_PVSERIALIZEARCHIVEFIXERROR
 #define PVCORE_PVSERIALIZEARCHIVEFIXERROR
 
-#include <pvkernel/core/PVTypeTraits.h>
-
 #include <memory>
+#include <stdexcept>
+#include <string>
 
 #include <QVariant>
 
