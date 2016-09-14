@@ -32,6 +32,6 @@ class PVFieldFilterGrep : public PVFieldsFilter<one_to_one>
 
 	CLASS_FILTER(PVFilter::PVFieldFilterGrep)
 };
-}
+} // namespace PVFilter
 
 #endif

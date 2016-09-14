@@ -20,7 +20,8 @@ namespace PVPluginsLoad
 int load_all_plugins();
 int load_normalize_plugins();
 std::string get_normalize_dir();
-};
-}
+} // namespace PVPluginsLoad
+;
+} // namespace PVFilter
 
 #endif

@@ -26,7 +26,7 @@ class PVElementFilterByAxes : public PVElementFilterByFields
 	PVElementFilterByAxes(const fields_mask_t& fields_mask);
 
   public:
-	PVCore::PVElement& operator()(PVCore::PVElement& elt);
+	PVCore::PVElement& operator()(PVCore::PVElement& elt) override;
 
   protected:
 	CLASS_FILTER_NONREG_NOPARAM(PVElementFilterByAxes)

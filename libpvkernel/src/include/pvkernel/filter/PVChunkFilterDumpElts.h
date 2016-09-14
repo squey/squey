@@ -32,6 +32,6 @@ class PVChunkFilterDumpElts : public PVChunkFilter
   protected:
 	std::map<size_t, std::string>& _l; //!< List with invalid elements.
 };
-}
+} // namespace PVFilter
 
 #endif

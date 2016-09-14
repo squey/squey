@@ -36,7 +36,7 @@
 namespace PVCore
 {
 class PVField;
-}
+} // namespace PVCore
 
 constexpr size_t GUESS_PVELEMENT_SAMPLE_NUMBER = 20000;
 
@@ -174,7 +174,7 @@ class PVGuessReducingTree
   private:
 	data_map_t _data_map;
 };
-}
+} // namespace PVFilter
 
 void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
 {

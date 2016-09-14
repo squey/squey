@@ -32,6 +32,6 @@ class PVFieldSplitterChunkMatch
 	PVFilter::list_guess_result_t _guess_res;
 	PVFilter::PVFieldsSplitter_p _filter;
 };
-}
+} // namespace PVFilter
 
 #endif

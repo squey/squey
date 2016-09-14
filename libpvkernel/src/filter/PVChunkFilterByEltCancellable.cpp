@@ -19,7 +19,7 @@
 namespace PVFilter
 {
 class PVElementFilter;
-}
+} // namespace PVFilter
 
 /******************************************************************************
  *

@@ -25,6 +25,6 @@ class PVFieldsMappingFilter : public PVFieldsFilter<many_to_many>
 	size_t _idx;
 	PVFieldsBaseFilter_p _func;
 };
-}
+} // namespace PVFilter
 
 #endif
