@@ -183,27 +183,28 @@ class TestEnv
 	 *
 	 * NRaw is not loaded, it has to be done with the load_data methods.
 	 */
-	TestEnv(std::string const& log_file,
+	TestEnv(std::string const& log_file, std::string const& format_file, size_t dup = 1)
+	    : TestEnv(std::vector<std::string>(1, log_file), format_file, dup)
+	{
+	}
+
+	TestEnv(std::vector<std::string> const& log_files,
 	        std::string const& format_file,
-	        size_t dup = 1,
-	        std::string const& extra_input = "")
+	        size_t dup = 1)
 	    : _format("format", QString::fromStdString(format_file))
-	    , _big_file_path(duplicate_log_file(log_file, dup))
+	    , _big_file_path(duplicate_log_file(log_files[0], dup))
 	    , _need_cleanup(dup > 1)
 	{
 
-		if (dup != 1 and extra_input != "") {
+		if (dup != 1 and log_files.size() > 1) {
 			throw std::runtime_error("We don't handle mutliple input with duplication");
 		}
 
-		std::vector<std::string> filenames{_big_file_path};
-		if (extra_input != "") {
-			filenames.push_back(extra_input);
-		}
-
-		for (std::string const& filename : filenames) {
+		_list_inputs << PVRush::PVInputDescription_p(
+		    new PVRush::PVFileDescription(QString::fromStdString(_big_file_path)));
+		for (size_t i = 1; i < log_files.size(); i++) {
 			// Input file
-			QString path_file = QString::fromStdString(filename);
+			QString path_file = QString::fromStdString(log_files[i]);
 			_list_inputs << PVRush::PVInputDescription_p(new PVRush::PVFileDescription(path_file));
 		}
 
