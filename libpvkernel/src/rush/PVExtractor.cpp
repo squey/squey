@@ -71,7 +71,7 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start)
 {
 	chunk_index nlines = _format.get_line_count();
-	nlines = (nlines) ? nlines : (std::numeric_limits<uint32_t>::max() - start);
+	nlines = (nlines) ? nlines : (IMPORT_PIPELINE_ROW_COUNT_LIMIT - start);
 
 	return process_from_agg_idxes(start, start + nlines);
 }

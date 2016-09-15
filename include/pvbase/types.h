@@ -10,17 +10,22 @@
 
 #include <QtGlobal>
 
-typedef qint32 PVCol;
-typedef quint32 PVRow;
-
-#define PVROW_INVALID_VALUE 0xFFFFFFFF
-#define PVCOL_INVALID_VALUE ((PVCol)-1)
-
-#define PVROW_VECTOR_ALIGNEMENT                                                                    \
-	(128 / (sizeof(PVRow) * 8)) // Define necessary alignement of pointers of
-                                // PVRows for vectorisation usage
-
+using PVCol = qint32;
+using PVRow = quint32;
 using chunk_index = quint64;
+
+static constexpr const PVRow PVROW_INVALID_VALUE = std::numeric_limits<PVRow>::max();
+static constexpr const PVCol PVCOL_INVALID_VALUE = std::numeric_limits<PVCol>::max();
+
+// Maximum row count that can be read from inputs by the import pipeline
+static constexpr const uint64_t IMPORT_PIPELINE_ROW_COUNT_LIMIT =
+    std::numeric_limits<uint64_t>::max();
+
+// Maximum row count that can be loaded by the application (ie. neither invalid nor filtered)
+static constexpr const uint64_t EXTRACTED_ROW_COUNT_LIMIT = std::numeric_limits<int32_t>::max();
+
+// Define necessary alignement of pointers of PVRows for vectorisation usage
+static constexpr const PVRow PVROW_VECTOR_ALIGNEMENT = (128 / (sizeof(PVRow) * 8));
 
 #define DECLARE_ALIGN(n) __attribute__((aligned(n)))
 

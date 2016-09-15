@@ -14,48 +14,43 @@
 #include <QMetaType>
 #include <boost/integer/static_log2.hpp>
 
-#define NBITS_INDEX 10
-#define NBUCKETS ((1UL << (2 * NBITS_INDEX)))
+static constexpr const int NBITS_INDEX = 10;
+static constexpr const int NBUCKETS = ((1UL << (2 * NBITS_INDEX)));
 
 // the cardinal of buckets ranges
-#define BUCKET_ELT_COUNT (1 << (32 - NBITS_INDEX))
+static constexpr const int BUCKET_ELT_COUNT = (1 << (32 - NBITS_INDEX));
 
-#define PARALLELVIEW_ZT_BBITS 10
-#define PARALLELVIEW_ZZT_BBITS 11
+static constexpr const int PARALLELVIEW_ZT_BBITS = 10;
+static constexpr const int PARALLELVIEW_ZZT_BBITS = 11;
 
-#define PARALLELVIEW_ZOOM_WIDTH 512
+static constexpr const int PARALLELVIEW_ZOOM_WIDTH = 512;
 
-#define PARALLELVIEW_MAX_BCI_CODES                                                                 \
-	((1UL << (2 * PARALLELVIEW_ZZT_BBITS)) +                                                       \
-	 2 * (1UL << (PARALLELVIEW_ZZT_BBITS)) * (PARALLELVIEW_ZOOM_WIDTH))
+static constexpr const int PARALLELVIEW_MAX_BCI_CODES =
+    ((1UL << (2 * PARALLELVIEW_ZZT_BBITS)) +
+     2 * (1UL << (PARALLELVIEW_ZZT_BBITS)) * (PARALLELVIEW_ZOOM_WIDTH));
 
-#if (NBUCKETS % 2 != 0)
-#error NBUCKETS must be a multiple of 2
-#endif
+static_assert(NBUCKETS % 2 == 0, "NBUCKETS must be a multiple of 2");
 
-#define MASK_INT_YCOORD (((1UL) << NBITS_INDEX) - 1)
+static constexpr const int MASK_INT_YCOORD = (((1UL) << NBITS_INDEX) - 1);
 
-#define IMAGE_HEIGHT (1024)
-#define IMAGE_WIDTH (2048)
-#define PARALLELVIEW_IMAGE_HEIGHT IMAGE_HEIGHT
-#define PARALLELVIEW_IMAGE_WIDTH IMAGE_WIDTH
+static constexpr const int IMAGE_HEIGHT = 1024;
+static constexpr const int IMAGE_WIDTH = 2048;
+static constexpr const int PARALLELVIEW_IMAGE_HEIGHT = IMAGE_HEIGHT;
+static constexpr const int PARALLELVIEW_IMAGE_WIDTH = IMAGE_WIDTH;
 
-#define PARALLELVIEW_AXIS_WIDTH 3
+static constexpr const int PARALLELVIEW_AXIS_WIDTH = 3;
 
-#if (PARALLELVIEW_AXIS_WIDTH == 1)
-#error PARALLELVIEW_AXIS_WIDTH must be strictly greater than 1
-#endif
+static_assert(PARALLELVIEW_AXIS_WIDTH != 1,
+              "PARALLELVIEW_AXIS_WIDTH must be strictly greater than 1");
 
-#if (PARALLELVIEW_AXIS_WIDTH % 2 != 1)
-#error PARALLELVIEW_AXIS_WIDTH must be odd
-#endif
+static_assert(PARALLELVIEW_AXIS_WIDTH % 2 == 1, "PARALLELVIEW_AXIS_WIDTH must be odd");
 
 // psaade : next value should be 128 according to aguinet, for the moment
-#define PARALLELVIEW_ZONE_MIN_WIDTH 16
-#define PARALLELVIEW_ZONE_BASE_WIDTH 64
-#define PARALLELVIEW_ZONE_DEFAULT_WIDTH 256
-#define PARALLELVIEW_ZONE_MAX_WIDTH 1024
-#define PARALLELVIEW_MAX_DRAWN_ZONES 30
+static constexpr const int PARALLELVIEW_ZONE_MIN_WIDTH = 16;
+static constexpr const int PARALLELVIEW_ZONE_BASE_WIDTH = 64;
+static constexpr const int PARALLELVIEW_ZONE_DEFAULT_WIDTH = 256;
+static constexpr const int PARALLELVIEW_ZONE_MAX_WIDTH = 1024;
+static constexpr const int PARALLELVIEW_MAX_DRAWN_ZONES = 30;
 
 static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) ==
                PARALLELVIEW_ZONE_MIN_WIDTH),
@@ -66,8 +61,6 @@ static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_BASE_WIDTH>::value) ==
 static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MAX_WIDTH>::value) ==
                PARALLELVIEW_ZONE_MAX_WIDTH),
               "Must be a power of two");
-
-#define MASK_INT_PLOTTED (~(1UL << (32 - NBITS_INDEX)) - 1)
 
 namespace PVParallelView
 {
@@ -86,18 +79,18 @@ enum {
 
 template <size_t Bbits>
 struct constants {
-	static const constexpr uint32_t image_height = ((uint32_t)1) << Bbits;
-	static const constexpr uint32_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
+	static const constexpr size_t image_height = ((uint32_t)1) << Bbits;
+	static const constexpr size_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
 };
 }
 
 //#include <pvkernel/core/PVAllocators.h>
 
-typedef PVCol PVZoneID;
-#define PVZONEID_INVALID (-1)
+using PVZoneID = PVCol;
+static constexpr const PVCol PVZONEID_INVALID = std::numeric_limits<PVZoneID>::max();
 
 Q_DECLARE_METATYPE(PVZoneID);
 
-#define BCI_BUFFERS_COUNT 10
+static constexpr const int BCI_BUFFERS_COUNT = 10;
 
 #endif

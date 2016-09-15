@@ -56,22 +56,22 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	friend class zoomed_sel_sliders_del_obs;
 
   private:
-	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
-	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
+	constexpr static const size_t bbits = PARALLELVIEW_ZZT_BBITS;
+	constexpr static const double bbits_alpha_scale = 1. / (1. + (bbits - 10));
 
-	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
-	constexpr static uint32_t image_width = 512;
-	constexpr static uint32_t image_height = 1024;
+	constexpr static const int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
+	constexpr static const uint32_t image_width = 512;
+	constexpr static const uint32_t image_height = 1024;
 
-	constexpr static int zoom_steps = 5;
-	constexpr static double root_step =
+	constexpr static const int zoom_steps = 5;
+	constexpr static const double root_step =
 	    1.148698354997035; // std::pow(2.0, 1.0 / zoom_steps) with zoom_step = 5
 
 	// to make 2 consecutive values be separated by 1 pixel
-	constexpr static int max_zoom_value = (32 - bbits);
+	constexpr static const int max_zoom_value = (32 - bbits);
 	// to permit 2 consecutive values to be separated by 2^N pixels
-	constexpr static int extra_zoom = 4; // actually inactive
-	constexpr static int max_wheel_value = (max_zoom_value + extra_zoom) * zoom_steps;
+	constexpr static const int extra_zoom = 4; // actually inactive
+	constexpr static const int max_wheel_value = (max_zoom_value + extra_zoom) * zoom_steps;
 
   private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
