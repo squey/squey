@@ -214,8 +214,8 @@ void PVWidgets::PVColorDialog::reset_predefined_color_from_action()
 {
 	QLabel* label = label_from_sender(sender());
 	if (label) {
-		label->setProperty(HSV_COLOR_PROPERTY, HSV_COLOR_WHITE);
-		fill_label_with_color(label, PVCore::PVHSVColor(HSV_COLOR_WHITE));
+		label->setProperty(HSV_COLOR_PROPERTY, HSV_COLOR_WHITE.h());
+		fill_label_with_color(label, HSV_COLOR_WHITE);
 	}
 }
 

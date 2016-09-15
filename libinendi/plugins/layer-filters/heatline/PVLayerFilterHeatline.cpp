@@ -166,8 +166,8 @@ void Inendi::PVLayerFilterHeatline::post(
     PVLayer& out, const double ratio, const double fmin, const double fmax, const PVRow line_id)
 {
 	// Colorize line dpeending on ratio value. (High ratio -> red, low ratio -> green)
-	const PVCore::PVHSVColor color(
-	    (uint8_t)((double)(HSV_COLOR_RED - HSV_COLOR_GREEN) * ratio + (double)HSV_COLOR_GREEN));
+	const PVCore::PVHSVColor color((uint8_t)(
+	    (double)(HSV_COLOR_RED.h() - HSV_COLOR_GREEN.h()) * ratio + (double)HSV_COLOR_GREEN.h()));
 	out.get_lines_properties().set_line_properties(line_id, color);
 
 	// UnSelect line out of min/max choosen frequency.

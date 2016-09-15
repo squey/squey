@@ -84,7 +84,8 @@ int main(int argc, char** argv)
 
 	PVCore::PVHSVColor* colors = std::allocator<PVCore::PVHSVColor>().allocate(n);
 	for (size_t i = 0; i < n; i++) {
-		colors[i] = PVCore::PVHSVColor((i % (HSV_COLOR_RED - HSV_COLOR_GREEN)) + HSV_COLOR_GREEN);
+		colors[i] = PVCore::PVHSVColor((i % (HSV_COLOR_RED.h() - HSV_COLOR_GREEN.h())) +
+		                               HSV_COLOR_GREEN.h());
 	}
 
 	PVParallelView::PVZonesProcessor p = pipeline->declare_processor(

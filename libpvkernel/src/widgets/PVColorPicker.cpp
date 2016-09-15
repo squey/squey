@@ -54,7 +54,7 @@ PVWidgets::PVColorPicker::PVColorPicker(PVCore::PVHSVColor const& c, QWidget* pa
 void PVWidgets::PVColorPicker::set_color(PVCore::PVHSVColor const& c)
 {
 	if (!is_interval_mode()) {
-		if (c.h() == HSV_COLOR_WHITE) {
+		if (c == HSV_COLOR_WHITE) {
 			// Special case for white color
 			_c = c;
 		} else {
@@ -112,7 +112,7 @@ int PVWidgets::PVColorPicker::h_to_screen_x(uint8_t h) const
 
 QSize PVWidgets::PVColorPicker::sizeHint() const
 {
-	return QSize(HSV_COLOR_COUNT, 10);
+	return QSize(PVCore::PVHSVColor::color_max, 10);
 }
 
 /*****************************************************************************
@@ -192,7 +192,7 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 	}
 
 	// For the white color, do not draw anything
-	if (_c.h() != HSV_COLOR_WHITE || is_interval_mode()) {
+	if (_c != HSV_COLOR_WHITE || is_interval_mode()) {
 		draw_up_triangle(c0_x, painter);
 		draw_down_triangle(c0_x, painter);
 		if (is_interval_mode()) {

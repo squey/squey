@@ -708,7 +708,7 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 		    assert(r < image_width);
 		    assert(l < image_width);
 
-		    if (image[r * image_width + l].h() == HSV_COLOR_TRANSPARENT) {
+		    if (image[r * image_width + l] == HSV_COLOR_TRANSPARENT) {
 			    image[r * image_width + l] = colors[e.idx];
 			    return 1;
 		    }

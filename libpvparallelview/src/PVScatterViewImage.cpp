@@ -33,10 +33,10 @@ PVParallelView::PVScatterViewImage::~PVScatterViewImage()
 void PVParallelView::PVScatterViewImage::clear(const QRect& rect /* = QRect() */)
 {
 	if (rect.isNull()) {
-		memset(_hsv_image, HSV_COLOR_TRANSPARENT,
+		memset(_hsv_image, HSV_COLOR_TRANSPARENT.h(),
 		       image_width * image_height * sizeof(PVCore::PVHSVColor));
 	} else {
-		PVCore::memset2d(_hsv_image, HSV_COLOR_TRANSPARENT, image_width, image_height, rect);
+		PVCore::memset2d(_hsv_image, HSV_COLOR_TRANSPARENT.h(), image_width, image_height, rect);
 	}
 }
 

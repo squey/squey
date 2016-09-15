@@ -18,7 +18,7 @@ constexpr const char* COLORS_SETTINGS_ARRAY = "predefined_colors";
 std::vector<PVCore::PVHSVColor> PVCore::PVPredefinedHSVColors::get_predefined_colors()
 {
 	std::vector<PVCore::PVHSVColor> ret;
-	ret.resize(get_predefined_colors_count(), PVCore::PVHSVColor(HSV_COLOR_WHITE));
+	ret.resize(get_predefined_colors_count(), HSV_COLOR_WHITE);
 
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
@@ -27,8 +27,8 @@ std::vector<PVCore::PVHSVColor> PVCore::PVPredefinedHSVColors::get_predefined_co
 		QString istr = QString::number(i);
 		if (pvconfig.contains(istr)) {
 			PVCore::PVHSVColor c(pvconfig.value(istr).toInt());
-			if (!c.is_valid() || c.h() == HSV_COLOR_BLACK) {
-				c.h() = HSV_COLOR_WHITE;
+			if (!c.is_valid() || c == HSV_COLOR_BLACK) {
+				c = HSV_COLOR_WHITE;
 			}
 			ret[i] = c;
 		}
@@ -40,7 +40,7 @@ std::vector<PVCore::PVHSVColor> PVCore::PVPredefinedHSVColors::get_predefined_co
 
 bool PVCore::PVPredefinedHSVColors::set_predefined_color(size_t i, PVCore::PVHSVColor c)
 {
-	if (!c.is_valid() || c.h() == HSV_COLOR_BLACK) {
+	if (!c.is_valid() || c == HSV_COLOR_BLACK) {
 		return false;
 	}
 

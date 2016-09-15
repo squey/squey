@@ -25,16 +25,8 @@ PVWidgets::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor(QWid
 {
 	set_selection_mode(PVColorPicker::SelectionInterval);
 	set_allow_empty_interval(false);
-	set_x0(HSV_COLOR_GREEN);
-	set_x1(HSV_COLOR_RED);
-
-	// AG: that's the one million dollars line that allows the widget to keep the focus when it is
-	// clicked
-	// and to not give the focus to the underlying item (in the table view) ; because in such a
-	// case, it is
-	// then hidden !!!!!!
-	// (historical now... kept for the time it took to figure this out)
-	// setFocusPolicy(Qt::StrongFocus);
+	set_x0(HSV_COLOR_GREEN.h());
+	set_x1(HSV_COLOR_RED.h());
 }
 
 PVCore::PVColorGradientDualSliderType PVWidgets::PVColorGradientDualSliderEditor::get_values() const

@@ -63,7 +63,7 @@ double save_investigation()
 	Inendi::PVSelection sel(row_count);
 	sel.select_all();
 	view->get_layer_stack().get_layer_n(2).get_lines_properties().selection_set_color(
-	    sel, PVCore::PVHSVColor(HSV_COLOR_GREEN));
+	    sel, HSV_COLOR_GREEN);
 
 	/**
 	 *  Sort axes and remove last one
@@ -168,7 +168,7 @@ double load_investigation()
 	    view->get_layer_stack().get_layer_n(2).get_lines_properties().get_buffer();
 	bool colors_ok = true;
 	for (size_t i = 0; i < ROW_COUNT * dupl; i++) {
-		colors_ok &= colors[i] == PVCore::PVHSVColor(HSV_COLOR_GREEN);
+		colors_ok &= colors[i] == HSV_COLOR_GREEN;
 	}
 	PV_ASSERT_VALID(colors_ok);
 
