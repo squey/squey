@@ -148,13 +148,12 @@ static std::string schema(const Inendi::PVView& view)
 
 		if (axis_type == "time") {
 			column_type = "date";
-		} else if (axis_type == "string" || axis_type == "ipv4") {
-			column_type = "string";
 		} else if (axis_type == "number_int32" or axis_type == "number_uint32") {
 			column_type = "int";
-		} else {
-			assert(axis_type == "number_float" && "Unkown axis type");
+		} else if (axis_type == "number_float") {
 			column_type = "double";
+		} else {
+			column_type = "string"; // fallback on string type for other types
 		}
 
 		val.SetString(column_type.c_str(), alloc);
