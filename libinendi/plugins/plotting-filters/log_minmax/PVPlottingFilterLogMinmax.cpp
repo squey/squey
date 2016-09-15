@@ -45,11 +45,17 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint3
 {
 	assert(dest);
 
-	if (mapped.type() == pvcop::db::type_int32) {
+	if (mapped.type() == pvcop::db::type_string) {
+		compute_log_plotting<string_index_t>(mapped, minmax, dest);
+	} else if (mapped.type() == pvcop::db::type_int32) {
 		compute_log_plotting<int32_t>(mapped, minmax, dest);
 	} else if (mapped.type() == pvcop::db::type_uint32) {
 		compute_log_plotting<uint32_t>(mapped, minmax, dest);
-	} else {
+	} else if (mapped.type() == pvcop::db::type_uint64) {
+		compute_log_plotting<uint64_t>(mapped, minmax, dest);
+	} else if (mapped.type() == pvcop::db::type_uint128) {
+		compute_log_plotting<pvcop::db::uint128_t>(mapped, minmax, dest);
+	} else if (mapped.type() == pvcop::db::type_float) {
 		compute_log_plotting<float>(mapped, minmax, dest);
 	}
 }

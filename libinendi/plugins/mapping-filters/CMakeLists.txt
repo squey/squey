@@ -19,6 +19,7 @@ mapping_filter_host
 mapping_filter_string
 mapping_filter_24h
 mapping_filter_week
+mapping_filter_mac_address
 )
 
 # Linkage libs
@@ -95,6 +96,18 @@ timeweek/register.cpp)
 #Create lib
 add_library(mapping_filter_week SHARED ${SRC_TIMEWEEK})
 target_link_libraries(mapping_filter_week ${LINK_LIBRARIES})
+
+###############################################################################
+# MAC address mapping filters
+###############################################################################
+#Define ressources
+SET(SRC_MACADDRESS
+mac_address/PVMappingFilterMacAddress.cpp
+mac_address/register.cpp)
+
+#Create lib
+add_library(mapping_filter_mac_address SHARED ${SRC_MACADDRESS})
+target_link_libraries(mapping_filter_mac_address ${LINK_LIBRARIES})
 
 ###############################################################################
 # Define install directory
