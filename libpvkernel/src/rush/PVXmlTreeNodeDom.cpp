@@ -62,8 +62,8 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::new_format(QDomDocument& fil
 	xmlRootDom.setAttribute("version", PVFORMAT_CURRENT_VERSION);
 
 	// creating the root node.
-	PVRush::PVXmlTreeNodeDom* rootNode =
-	    new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, file);
+	PVRush::PVXmlTreeNodeDom* rootNode = new PVRush::PVXmlTreeNodeDom(
+	    PVRush::PVXmlTreeNodeDom::Type::field, "root", xmlRootDom, file);
 	return rootNode;
 }
 
@@ -223,14 +223,13 @@ QString PVRush::PVXmlTreeNodeDom::getName()
 {
 	// if(this->type==Root)return "root";
 	switch (this->type) {
-	case RegEx:;
-	case axis:;
-	case url:;
-	case filter:
+	case Type::RegEx:
+	case Type::axis:
+	case Type::url:
+	case Type::filter:
 		return this->xmlDomElement.attribute(PVFORMAT_FILTER_NAME_STR,
 		                                     PVFORMAT_FILTER_NAME_DEFAULT);
-		break; // get the attribute name in the DOM
-	case field:
+	case Type::field:
 		if (isFieldOfUrl()) {   // if node is an url...
 			switch (getRow()) { //...return name as following
 			case 0:
@@ -252,10 +251,9 @@ QString PVRush::PVXmlTreeNodeDom::getName()
 			QString selectionRegExp = getParent()->attribute(selectionRegExpName, "");
 			return selectionRegExp;
 		}
-	case splitter:
+	case Type::splitter:
 		return this->xmlDomElement.attribute(PVFORMAT_FILTER_NAME_STR,
 		                                     PVFORMAT_FILTER_NAME_DEFAULT);
-		break;
 	default:
 		return this->str;
 	}
@@ -270,15 +268,13 @@ QString PVRush::PVXmlTreeNodeDom::getName()
 void PVRush::PVXmlTreeNodeDom::setName(QString nom)
 {
 	switch (this->type) {
-	case RegEx:; // // set the attribute name
-	case axis:;  // // set the attribute name
-	case filter:
-		this->xmlDomElement.setAttribute(PVFORMAT_FILTER_NAME_STR, nom);
-		break; // set the attribute name
-	case splitter:
+	case Type::RegEx: // // set the attribute name
+	case Type::axis:  // // set the attribute name
+	case Type::filter:
+	case Type::splitter:
 		this->xmlDomElement.setAttribute(PVFORMAT_FILTER_NAME_STR, nom);
 		break;
-	case field:;
+	case Type::field:
 	default:
 		this->str = nom;
 	}
@@ -315,21 +311,19 @@ void PVRush::PVXmlTreeNodeDom::explore()
 void PVRush::PVXmlTreeNodeDom::setTypeFromString(const QString& nom)
 {
 	if (nom == QString("RegEx"))
-		type = RegEx;
+		type = Type::RegEx;
 	else if (nom == QString("filter"))
-		type = filter;
+		type = Type::filter;
 	else if (nom == QString("field"))
-		type = field;
+		type = Type::field;
 	else if (nom == QString("axis"))
-		type = axis;
+		type = Type::axis;
 	else if (nom == QString("url"))
-		type = url;
+		type = Type::url;
 	else if (nom == QString("splitter"))
-		type = splitter;
+		type = Type::splitter;
 	else if (nom == QString("converter"))
-		type = converter;
-
-	// else if(nom==QString("root"))type = Root;
+		type = Type::converter;
 	else
 		PVLOG_ERROR("in PVRush::PVXmlTreeNodeDom::setTypeFromString : type unknow\n");
 }
@@ -388,10 +382,9 @@ void PVRush::PVXmlTreeNodeDom::setDoc(QDomDocument& file)
 QString PVRush::PVXmlTreeNodeDom::getExpression()
 {
 	switch (this->type) {
-	case RegEx:;
-	case filter:
+	case Type::RegEx:;
+	case Type::filter:
 		return this->xmlDomElement.attribute("expression", ".*");
-		break;
 	default:
 		break;
 	}
@@ -406,14 +399,11 @@ QString PVRush::PVXmlTreeNodeDom::getExpression()
 void PVRush::PVXmlTreeNodeDom::setExpression(QString exp)
 {
 	switch (this->type) {
-	case RegEx:
+	case Type::RegEx:
+	case Type::filter:
 		this->xmlDomElement.setAttribute("expression", exp);
 		break;
-	case filter:
-		this->xmlDomElement.setAttribute("expression", exp);
-		break;
-	case field:
-		break;
+	case Type::field:
 	default:
 		break;
 	}
@@ -427,13 +417,11 @@ void PVRush::PVXmlTreeNodeDom::setExpression(QString exp)
 int PVRush::PVXmlTreeNodeDom::getNbr()
 {
 	switch (this->type) {
-	case RegEx:
+	case Type::RegEx:
 		return this->xmlDomElement.childNodes().count();
-		break;
-	case splitter:
+	case Type::splitter:
 		return this->xmlDomElement.childNodes().count();
-		break;
-	case converter:
+	case Type::converter:
 		return this->xmlDomElement.childNodes().count();
 	default:
 		break;
@@ -449,7 +437,7 @@ int PVRush::PVXmlTreeNodeDom::getNbr()
 QString PVRush::PVXmlTreeNodeDom::getOutName()
 {
 	QString l;
-	if (this->type == field) { // its a field whiche is selected...
+	if (this->type == Type::field) { // its a field whiche is selected...
 		for (int i = 0; i < children.count(); i++) {
 			if (children.at(i)->getDom().tagName() == PVFORMAT_XML_TAG_AXIS_STR)
 				return children.at(i)->getDom().attribute(
@@ -472,7 +460,7 @@ QString PVRush::PVXmlTreeNodeDom::getOutName()
 PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getOutWidget()
 {
 	PVXmlTreeNodeDom* l = nullptr;
-	if (this->type == field) { // its a field whiche is selected...
+	if (this->type == Type::field) { // its a field whiche is selected...
 		for (int i = 0; i < children.count(); i++) {
 			if ((children.at(i)->getDom().tagName() ==
 			     PVFORMAT_XML_TAG_AXIS_STR) ||                     // if it's an axis
@@ -494,8 +482,8 @@ void PVRush::PVXmlTreeNodeDom::setNbr(int nbr)
 {
 	// this function update the number of field in the regexp
 	switch (this->type) {
-	case RegEx:
-	case splitter:
+	case Type::RegEx:
+	case Type::splitter:
 		PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::setNbr(%d)\n", nbr);
 		if (nbr > this->getNbr()) {
 			addField(nbr - this->getNbr()); // add some fields
@@ -503,7 +491,7 @@ void PVRush::PVXmlTreeNodeDom::setNbr(int nbr)
 			delField(this->getNbr() - nbr); // delete some fiels
 		}
 		break;
-	case converter:
+	case Type::converter:
 		PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::setNbr(%d)\n", nbr);
 		if (this->getNbr() == 0) {
 			addField(1);
@@ -532,7 +520,9 @@ QDomElement PVRush::PVXmlTreeNodeDom::getDom()
 void PVRush::PVXmlTreeNodeDom::addField(int nbr)
 {
 	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addField(%d)\n", nbr);
-	if ((this->type == RegEx || this->type == splitter || this->type == converter) && nbr > 0) {
+	if ((this->type == Type::RegEx || this->type == Type::splitter ||
+	     this->type == Type::converter) &&
+	    nbr > 0) {
 		for (int i = 0; i < nbr; i++) {
 			addOneField("");
 		}
@@ -611,21 +601,21 @@ void PVRush::PVXmlTreeNodeDom::addFilterRacine()
 QString PVRush::PVXmlTreeNodeDom::typeToString()
 {
 	// return the type as a QString
-	if (type == RegEx)
+	if (type == Type::RegEx)
 		return "RegEx";
-	if (type == filter)
+	if (type == Type::filter)
 		return "filter";
-	if (type == field)
+	if (type == Type::field)
 		return "field";
-	if (type == axis)
+	if (type == Type::axis)
 		return "axis";
-	if (type == Root)
+	if (type == Type::Root)
 		return "Root";
-	if (type == url)
+	if (type == Type::url)
 		return "url";
-	if (type == splitter)
+	if (type == Type::splitter)
 		return "splitter";
-	if (type == converter)
+	if (type == Type::converter)
 		return "converter";
 	return "";
 }
@@ -680,17 +670,17 @@ void PVRush::PVXmlTreeNodeDom::version0to1()
 	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version-1to1():      %s\n",
 	            qPrintable(getDom().tagName()));
 	if (getDom().tagName() == "RegEx") {
-		type = splitter;
+		type = Type::splitter;
 		getDom().setTagName("splitter");
 		setAttribute("type", "regexp");
 		setAttribute("regexp", attribute("expression"));
 		// getDom().removeAttribute("expression");
 	} else if (getDom().tagName() == "url") {
-		type = splitter;
+		type = Type::splitter;
 		getDom().setTagName("splitter");
 		setAttribute("type", "url");
 	} else if (getDom().tagName() == "csv") {
-		type = splitter;
+		type = Type::splitter;
 		getDom().setTagName("splitter");
 		setAttribute("type", "csv");
 		setAttribute("sep", attribute("delimiter"));
@@ -722,9 +712,7 @@ void PVRush::PVXmlTreeNodeDom::version0to1()
  *****************************************************************************/
 bool PVRush::PVXmlTreeNodeDom::isFieldOfUrl()
 {
-	if (getParent()->xmlDomElement.tagName() == "url")
-		return true;
-	return false;
+	return (getParent()->xmlDomElement.tagName() == "url");
 }
 
 void PVRush::PVXmlTreeNodeDom::setFromArgumentList(QDomElement& elt,
@@ -955,7 +943,7 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
 
 PVCol PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, PVCol id)
 {
-	if (type == axis) {
+	if (type == Type::axis) {
 		// Set its name
 		if (id < names.size()) {
 			setName(names[id]);
@@ -965,12 +953,12 @@ PVCol PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, PVCol id)
 			           id, names.size());
 			return id;
 		}
-	} else if (type == field) {
+	} else if (type == Type::field) {
 		for (auto* child : getChildren()) {
 			id = child->setAxesNames(names, id);
 		}
 		++id;
-	} else if (type == splitter) {
+	} else if (type == Type::splitter) {
 		for (auto* child : getChildren()) {
 			id = child->setAxesNames(names, id);
 		}
@@ -981,7 +969,7 @@ PVCol PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, PVCol id)
 
 QDomElement PVRush::PVXmlTreeNodeDom::getMappingElement()
 {
-	if (type != axis) {
+	if (type != Type::axis) {
 		return QDomElement();
 	}
 
@@ -997,7 +985,7 @@ QDomElement PVRush::PVXmlTreeNodeDom::getMappingElement()
 
 QDomElement PVRush::PVXmlTreeNodeDom::getPlottingElement()
 {
-	if (type != axis) {
+	if (type != Type::axis) {
 		return QDomElement();
 	}
 
@@ -1049,7 +1037,7 @@ void PVRush::PVXmlTreeNodeDom::setMappingProperties(QString const& mode,
                                                     PVCore::PVArgumentList const& def_args,
                                                     PVCore::PVArgumentList const& args)
 {
-	if (type != axis) {
+	if (type != Type::axis) {
 		return;
 	}
 	QDomElement elt_mapping = getMappingElement();
@@ -1065,7 +1053,7 @@ void PVRush::PVXmlTreeNodeDom::setPlottingProperties(QString const& mode,
                                                      PVCore::PVArgumentList const& def_args,
                                                      PVCore::PVArgumentList const& args)
 {
-	if (type != axis) {
+	if (type != Type::axis) {
 		return;
 	}
 	QDomElement elt_plotting = getPlottingElement();

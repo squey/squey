@@ -39,7 +39,7 @@ class PVXmlTreeNodeDom : public QObject
 {
 	Q_OBJECT
   public:
-	enum Type { Root, field, RegEx, filter, axis, url, splitter, converter };
+	enum class Type { Root, field, RegEx, filter, axis, url, splitter, converter };
 
 	PVXmlTreeNodeDom();
 	explicit PVXmlTreeNodeDom(QDomElement const& dom);
@@ -117,8 +117,8 @@ class PVXmlTreeNodeDom : public QObject
 
 	bool isEditable()
 	{
-		if (type == splitter || type == converter || type == filter || type == url ||
-		    type == axis || type == RegEx) {
+		if (type == Type::splitter || type == Type::converter || type == Type::filter ||
+		    type == Type::url || type == Type::axis || type == Type::RegEx) {
 			return true;
 		} else {
 			return false;

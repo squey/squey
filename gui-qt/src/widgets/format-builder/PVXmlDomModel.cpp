@@ -797,8 +797,8 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 		xmlRootDom.removeChild(axes_cb_elt);
 	}
 
-	rootNode.reset(
-	    new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, xmlFile));
+	rootNode.reset(new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::Type::field, "root",
+	                                            xmlRootDom, xmlFile));
 
 	beginResetModel();
 	endResetModel();
