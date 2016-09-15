@@ -7,6 +7,7 @@
 #include "PVMappingFilterMacAddress.h"
 
 #include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <inendi/PVSelection.h>
 
