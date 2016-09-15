@@ -48,7 +48,7 @@ void validate(boost::any& v, std::vector<std::string> const& options, integers_l
 namespace po = boost::program_options;
 
 struct cmd_options {
-	std::string log_file;
+	std::vector<std::string> log_files;
 	std::string format_file;
 	integers_list columns_index;
 	bool extended_stats;
@@ -61,9 +61,10 @@ cmd_options parse_options(int argc, char** argv)
 
 	po::options_description desc("Get basic statistics from log files.\n\n"
 	                             "Options");
-	desc.add_options()("log_file", po::value<std::string>(&opts.log_file)->required(), "log file")(
-	    "format_file", po::value<std::string>(&opts.format_file)->required(), "format file")(
-	    "columns,c", po::value<integers_list>(&opts.columns_index), "column indexes")(
+	desc.add_options()("format_file", po::value<std::string>(&opts.format_file)->required(),
+	                   "format file")(
+	    "log_files", po::value<std::vector<std::string>>(&opts.log_files)->multitoken()->required(),
+	    "log files")("columns,c", po::value<integers_list>(&opts.columns_index), "column indexes")(
 	    "extended-stats,x", po::bool_switch(&opts.extended_stats)->default_value(false),
 	    "extended statistics")("max-stat-rows,m",
 	                           po::value<size_t>(&opts.max_stats_rows)->default_value(10),
@@ -71,8 +72,8 @@ cmd_options parse_options(int argc, char** argv)
 	    "help,h", "Show help message");
 
 	po::positional_options_description pos_opts;
-	pos_opts.add("log_file", 1);
 	pos_opts.add("format_file", 1);
+	pos_opts.add("log_files", 2);
 
 	po::variables_map vm;
 	bool cmdline_error = false;
@@ -92,7 +93,7 @@ cmd_options parse_options(int argc, char** argv)
 	}
 
 	if (vm.count("help") || cmdline_error) {
-		std::cout << "Usage: " << basename(argv[0]) << " <log_file> <format_file> "
+		std::cout << "Usage: " << basename(argv[0]) << " <format_file> <log_files...> "
 		                                               "[--columns=0,1,2,3,...] [--extended-stats] "
 		                                               "[--max-stat-rows=10] \n";
 		std::cout << desc;
@@ -108,7 +109,7 @@ void run_stats(cmd_options opts)
 	std::string tmp_collector_path;
 
 	{
-		pvtest::TestEnv env(opts.log_file, opts.format_file);
+		pvtest::TestEnv env(opts.log_files, opts.format_file);
 		env.load_data();
 
 		const PVRush::PVFormat format = env._format;
@@ -116,8 +117,7 @@ void run_stats(cmd_options opts)
 		tmp_collector_path = collection.rootdir();
 		size_t row_count = pvcop::core::algo::bit_count(env._nraw.valid_rows_sel());
 
-		pvlogger::info() << opts.log_file << " : " << row_count << " rows / "
-		                 << collection.row_count() << std::endl;
+		pvlogger::info() << row_count << " rows / " << collection.row_count() << std::endl;
 
 		pvcop::db::array distinct_values;
 		pvcop::db::array distinct_values_count;

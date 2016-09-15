@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	const char* input_file = argv[1];
+	std::vector<std::string> input_files(1, argv[1]);
 	const char* format = argv[3];
 	size_t begin = 0;
 	if (argc > 4) {
@@ -34,12 +34,11 @@ int main(int argc, char** argv)
 			throw std::runtime_error("Invalid input for begin value");
 		}
 	}
-	std::string extra_input;
 	if (argc > 5) {
-		extra_input = argv[5];
+		input_files.emplace_back(argv[5]); // extra input
 	}
 
-	pvtest::TestEnv env(input_file, format, DUPL, extra_input);
+	pvtest::TestEnv env(input_files, format, DUPL);
 
 	auto start = std::chrono::system_clock::now();
 
