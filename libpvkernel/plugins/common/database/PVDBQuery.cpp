@@ -92,17 +92,7 @@ void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
 	settings.setValue("port", _infos->get_port());
 }
 
-std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVDBQuery::load_from_qsettings(const QSettings& settings)
+std::unique_ptr<PVRush::PVInputDescription> PVRush::PVDBQuery::load_from_qsettings(const QSettings&)
 {
-	PVDBInfos infos;
-	infos.set_type(settings.value("type").toString());
-	infos.set_host(settings.value("host").toString());
-	infos.set_username(settings.value("username").toString());
-	infos.set_password(settings.value("password").toString());
-	infos.set_options(settings.value("options").toString());
-	infos.set_dbname(settings.value("dbname").toString());
-	infos.set_port(settings.value("port").toInt());
-	return std::unique_ptr<PVDBQuery>(
-	    new PVDBQuery(std::shared_ptr<PVDBServ>(new PVDBServ(infos)), ""));
+	throw PVRush::BadInputDescription("Incomplete input for DBQuery");
 }

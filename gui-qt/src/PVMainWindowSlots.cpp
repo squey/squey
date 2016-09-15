@@ -525,7 +525,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		setWindowModified(true);
 	}
 
-	PVCore::PVRecentItemsManager::get().add(file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVCore::PVRecentItemsManager::get().add<PVCore::Category::PROJECTS>(file);
 
 	flag_investigation_as_cached(file);
 
@@ -576,7 +576,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, bool save_log
 		return;
 	}
 
-	PVCore::PVRecentItemsManager::get().add(file, PVCore::PVRecentItemsManager::Category::PROJECTS);
+	PVCore::PVRecentItemsManager::get().add<PVCore::Category::PROJECTS>(file);
 
 	flag_investigation_as_cached(file);
 
@@ -831,8 +831,7 @@ void PVInspector::PVMainWindow::open_format_Slot()
 
 	if (!url.isEmpty()) {
 		editorWidget->show();
-		PVCore::PVRecentItemsManager::get().add(
-		    url, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
+		PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(url);
 	}
 }
 

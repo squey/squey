@@ -33,29 +33,13 @@
 #include <QSettings>
 #include <QString>
 #include <QStringList>
-#include <QVariant>
 
 #define RECENTS_FILENAME "recents.ini"
 
-#define ITEM_SUBKEY_SOURCE_CREATOR_NAME "__sc_name"
-#define ITEM_SUBKEY_FORMAT_NAME "__format_name"
-#define ITEM_SUBKEY_FORMAT_PATH "__format_path"
-#define ITEM_SUBKEY_INPUTS "inputs"
-
-void PVCore::PVRecentItemsManager::add(const QString& item_path, Category category)
-{
-	QString recent_items_key = _recents_items_keys[category];
-	QStringList files = _recents_settings.value(recent_items_key).toStringList();
-	files.removeAll(item_path);
-	files.prepend(item_path);
-	if (category != Category::PROJECTS) {
-		for (; files.size() > _max_recent_items; files.removeLast()) {
-		}
-	}
-	_recents_settings.setValue(recent_items_key, files);
-	_recents_settings.sync();
-	_add_item.emit(category);
-}
+constexpr const char* ITEM_SUBKEY_SOURCE_CREATOR_NAME = "__sc_name";
+constexpr const char* ITEM_SUBKEY_FORMAT_NAME = "__format_name";
+constexpr const char* ITEM_SUBKEY_FORMAT_PATH = "__format_path";
+constexpr const char* ITEM_SUBKEY_INPUTS = "inputs";
 
 void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_creator_p,
                                               const PVRush::PVInputType::list_inputs& inputs,
@@ -63,12 +47,14 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 {
 	_recents_settings.beginGroup(_recents_items_keys[SOURCES]);
 
+	// Look for the timestamp to replace
 	uint64_t source_timestamp = get_source_timestamp_to_replace(
 	    PVRush::PVSourceDescription(inputs, source_creator_p, format));
 	if (source_timestamp) {
 		_recents_settings.remove(QString::number(source_timestamp));
 	}
 
+	// Set source description information in it.
 	_recents_settings.beginGroup(QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
 
 	_recents_settings.setValue(ITEM_SUBKEY_SOURCE_CREATOR_NAME,
@@ -121,47 +107,10 @@ void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)
 	_recents_settings.sync();
 }
 
-const PVCore::PVRecentItemsManager::variant_list_t
-PVCore::PVRecentItemsManager::get_list(Category category)
-{
-	PVCore::PVRecentItemsManager::variant_list_t result;
-
-	switch (category) {
-	case Category::SUPPORTED_FORMATS: {
-		result = supported_format_list();
-		break;
-	}
-	case Category::SOURCES: {
-		result = sources_description_list();
-		break;
-	}
-	case Category::PROJECTS:
-	case Category::USED_FORMATS:
-	case Category::EDITED_FORMATS: {
-		result = items_list(category);
-		break;
-	}
-	default: {
-		assert(false); // Unknown category
-		break;
-	}
-	}
-
-	return result;
-}
-
-const PVCore::PVRecentItemsManager::variant_list_t
-PVCore::PVRecentItemsManager::items_list(Category category) const
+QStringList PVCore::PVRecentItemsManager::items_list(Category category) const
 {
 
-	QStringList string_list = _recents_settings.value(_recents_items_keys[category]).toStringList();
-
-	variant_list_t variant_list;
-	for (QString s : string_list) {
-		variant_list << QVariant(s);
-	}
-
-	return variant_list;
+	return _recents_settings.value(_recents_items_keys[category]).toStringList();
 }
 
 void PVCore::PVRecentItemsManager::remove_missing_files(Category category)
@@ -187,11 +136,10 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 
 		try {
 			PVRush::PVSourceDescription src_desc = deserialize_source_description();
-
-			if (not src_desc.is_valid()) {
-				_recents_settings.remove(source);
-			}
 			_recents_settings.endGroup();
+		} catch (PVRush::BadInputDescription const& e) {
+			_recents_settings.endGroup();
+			_recents_settings.remove(source);
 		} catch (PVCore::InvalidPlugin const& e) {
 			_recents_settings.endGroup();
 			_recents_settings.remove(source);
@@ -205,10 +153,9 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 	_recents_settings.sync();
 }
 
-const PVCore::PVRecentItemsManager::variant_list_t
-PVCore::PVRecentItemsManager::sources_description_list()
+QList<PVRush::PVSourceDescription> PVCore::PVRecentItemsManager::sources_description_list()
 {
-	variant_list_t variant_list;
+	QList<PVRush::PVSourceDescription> res;
 
 	_recents_settings.beginGroup(_recents_items_keys[SOURCES]);
 
@@ -218,16 +165,13 @@ PVCore::PVRecentItemsManager::sources_description_list()
 		_recents_settings.beginGroup(source);
 
 		try {
-			PVRush::PVSourceDescription src_desc = deserialize_source_description();
-			if (src_desc.is_valid()) {
-				QVariant var;
-				var.setValue(src_desc);
-				variant_list << var;
-			}
+			res << deserialize_source_description();
+		} catch (PVRush::BadInputDescription const& e) {
+			// Input description is invalid
 		} catch (PVCore::InvalidPlugin const& e) {
 			// If the plugin is incorrect, skip this file
 		} catch (PVRush::PVInvalidFile const& e) {
-			// If a file can't be found, skip this source.
+			// If a format can't be found, skip this source.
 		}
 
 		_recents_settings.endGroup();
@@ -235,7 +179,7 @@ PVCore::PVRecentItemsManager::sources_description_list()
 
 	_recents_settings.endGroup();
 
-	return variant_list;
+	return res;
 }
 
 void PVCore::PVRecentItemsManager::clear_missing_files()
@@ -246,10 +190,9 @@ void PVCore::PVRecentItemsManager::clear_missing_files()
 	remove_missing_files(Category::EDITED_FORMATS);
 }
 
-const PVCore::PVRecentItemsManager::variant_list_t
-PVCore::PVRecentItemsManager::supported_format_list() const
+QList<PVRush::PVFormat> PVCore::PVRecentItemsManager::supported_format_list() const
 {
-	variant_list_t variant_list;
+	QList<PVRush::PVFormat> res;
 
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
@@ -262,13 +205,11 @@ PVCore::PVRecentItemsManager::supported_format_list() const
 		    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
 		for (auto itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
-			QVariant var;
-			var.setValue(itfc.value().first);
-			variant_list << var;
+			res << itfc.value().first;
 		}
 	}
 
-	return variant_list;
+	return res;
 }
 
 uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
@@ -289,15 +230,20 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
 				_recents_settings.endGroup();
 				return source_timestamp.toULong();
 			}
+		} catch (PVRush::BadInputDescription const& e) {
+			// If any input is invalid, it can't be the searched as a source to replace.
 		} catch (PVCore::InvalidPlugin const& e) {
 			// If the plugin is invalid, it can't be the searched as a source to replace.
+		} catch (PVRush::PVInvalidFile const& e) {
+			// If the format is invalid, it can't be the searched as a source to replace.
 		}
 
 		_recents_settings.endGroup();
 	}
 
-	if (sources.size() < _max_recent_items)
+	if (sources.size() < _max_recent_items) {
 		return 0;
+	}
 
 	return older_timestamp;
 }
@@ -314,11 +260,16 @@ PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_des
 	// inputs
 	PVRush::PVInputType::list_inputs inputs;
 	uint64_t nb_inputs = _recents_settings.beginReadArray(ITEM_SUBKEY_INPUTS);
-	for (uint64_t j = 0; j < nb_inputs; ++j) {
-		_recents_settings.setArrayIndex(j);
-		inputs << input_type_p->load_input_from_qsettings(_recents_settings);
+	try {
+		for (uint64_t j = 0; j < nb_inputs; ++j) {
+			_recents_settings.setArrayIndex(j);
+			inputs << input_type_p->load_input_from_qsettings(_recents_settings);
+		}
+		_recents_settings.endArray();
+	} catch (...) {
+		_recents_settings.endArray();
+		throw;
 	}
-	_recents_settings.endArray();
 
 	// format
 	QString format_name = _recents_settings.value(ITEM_SUBKEY_FORMAT_NAME).toString();
@@ -352,3 +303,77 @@ PVCore::PVRecentItemsManager::PVRecentItemsManager()
 {
 	clear_missing_files();
 }
+
+std::tuple<QString, QStringList>
+PVCore::PVRecentItemsManager::get_string_from_entry(QString const& string) const
+{
+	return std::make_tuple(string, QStringList() << string);
+}
+
+std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_entry(
+    PVRush::PVSourceDescription const& src_desc) const
+{
+	QString long_string;
+	QStringList filenames;
+
+	if (src_desc.get_inputs().size() == 1) {
+		QString source_path = src_desc.get_inputs()[0]->human_name();
+		long_string = source_path + " [" + src_desc.get_format().get_format_name() + "]";
+		filenames << source_path;
+	} else {
+		for (auto input : src_desc.get_inputs()) {
+			QFileInfo info(input->human_name());
+			filenames << input->human_name();
+		}
+		long_string = "[" + src_desc.get_format().get_format_name() + "]\n" + filenames.join("\n");
+	}
+
+	return std::make_tuple(long_string, filenames);
+}
+
+std::tuple<QString, QStringList>
+PVCore::PVRecentItemsManager::get_string_from_entry(PVRush::PVFormat const& format) const
+{
+	QString long_string =
+	    QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
+	QStringList filenames;
+	filenames << format.get_full_path();
+
+	return std::make_tuple(long_string, filenames);
+}
+
+namespace PVCore
+{
+
+template <>
+QStringList PVRecentItemsManager::get_list<Category::PROJECTS>()
+{
+	return items_list(Category::PROJECTS);
+}
+
+template <>
+QStringList PVRecentItemsManager::get_list<Category::USED_FORMATS>()
+{
+	return items_list(Category::USED_FORMATS);
+}
+
+template <>
+QStringList PVRecentItemsManager::get_list<Category::EDITED_FORMATS>()
+{
+	return items_list(Category::EDITED_FORMATS);
+}
+
+template <>
+typename list_type<Category::SUPPORTED_FORMATS>::type
+PVRecentItemsManager::get_list<Category::SUPPORTED_FORMATS>()
+{
+	return supported_format_list();
+}
+
+template <>
+typename list_type<Category::SOURCES>::type PVRecentItemsManager::get_list<Category::SOURCES>()
+{
+	return sources_description_list();
+}
+
+} // namespace PVCore

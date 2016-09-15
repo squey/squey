@@ -1151,8 +1151,8 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src)
 	}
 
 	// Add format as recent format
-	PVCore::PVRecentItemsManager::get().add(src.get_format().get_full_path(),
-	                                        PVCore::PVRecentItemsManager::Category::USED_FORMATS);
+	PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(
+	    src.get_format().get_full_path());
 
 	// Add source as recent source
 	PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),

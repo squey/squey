@@ -31,13 +31,3 @@ bool PVRush::PVSourceDescription::operator==(const PVSourceDescription& other) c
 	       _source_creator_p->registered_name() == other._source_creator_p->registered_name() &&
 	       _format.get_full_path() == other._format.get_full_path();
 }
-
-bool PVRush::PVSourceDescription::is_valid()
-{
-	bool is_valid = true;
-	for (const PVInputDescription_p& input_desc : _inputs) {
-		is_valid &= QFile::exists(input_desc->human_name());
-	}
-	is_valid &= QFile::exists(_format.get_full_path());
-	return is_valid;
-}

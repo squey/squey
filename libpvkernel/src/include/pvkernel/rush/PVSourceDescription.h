@@ -36,7 +36,6 @@ class PVSourceDescription
 		_source_creator_p = source_creator_p;
 	}
 	void set_format(PVRush::PVFormat format) { _format = format; }
-	bool is_valid();
 
 	const PVRush::PVInputType::list_inputs& get_inputs() const { return _inputs; }
 	PVRush::PVSourceCreator_p get_source_creator() const { return _source_creator_p; }
