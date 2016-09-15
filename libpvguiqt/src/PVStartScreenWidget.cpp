@@ -31,6 +31,8 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/widgets/PVUtils.h>
 
+#include INENDI_VERSION_FILE_PATH
+
 /******************************************************************************
  *
  * PVGuiQt::PVStartScreenWidget::PVStartScreenWidget

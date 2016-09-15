@@ -7,9 +7,12 @@
 #ifndef PVFILTER_PVELEMENTFILTERBYAXES_H
 #define PVFILTER_PVELEMENTFILTERBYAXES_H
 
+#include <pvkernel/rush/PVFormat.h> // for PVFormat, etc
+
+#include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 
-#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/core/PVElement.h> // for PVElement
 
 namespace PVFilter
 {

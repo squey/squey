@@ -6,13 +6,15 @@
  */
 
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
-#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+
+#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVConfig.h>
 
 #include <tbb/tick_count.h>
 
-#define INENDI_DISCOVERY_NCHUNKS 1
+static constexpr int INENDI_DISCOVERY_NCHUNKS = 1;
 
 PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
 {

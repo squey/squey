@@ -8,11 +8,23 @@
 #ifndef PVNRAWOUTPUT_FILE_H
 #define PVNRAWOUTPUT_FILE_H
 
-#include <pvbase/types.h>
-#include <pvkernel/core/PVChunk.h>
-#include <pvkernel/rush/PVOutput.h>
-#include <pvkernel/rush/PVNraw.h>
-#include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVControllerJob.h> // for PVControllerJob, etc
+#include <pvkernel/rush/PVOutput.h>        // for PVOutput
+
+#include <pvkernel/filter/PVFilterFunction.h> // for CLASS_FILTER_NONREG
+
+#include <pvbase/types.h> // for PVRow
+
+#include <cassert> // for assert
+
+namespace PVCore
+{
+class PVChunk;
+}
+namespace PVRush
+{
+class PVNraw;
+}
 
 namespace PVRush
 {

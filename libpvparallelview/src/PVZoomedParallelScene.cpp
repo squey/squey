@@ -22,6 +22,7 @@
 #include <pvparallelview/PVZoomedParallelViewSelectionLine.h>
 
 #include <QMetaObject>
+#include <QThread>
 #include <QScrollBar64>
 #include <QPainter>
 

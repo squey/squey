@@ -12,6 +12,7 @@
 
 #include <QDirIterator>
 #include <QSettings>
+
 class QString;
 class QStringList;
 

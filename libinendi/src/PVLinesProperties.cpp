@@ -6,6 +6,14 @@
  */
 
 #include <inendi/PVLinesProperties.h>
+#include <inendi/PVSelection.h>
+
+#include <pvkernel/core/PVHSVColor.h> // for PVHSVColor
+#include <pvkernel/core/PVSerializeObject.h>
+
+#include <pvbase/types.h> // for PVRow
+
+#include <algorithm> // for fill
 
 /******************************************************************************
  *

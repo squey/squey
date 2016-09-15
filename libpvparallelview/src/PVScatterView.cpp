@@ -5,36 +5,36 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvparallelview/PVBCode.h>
+#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVScatterView.h>
+#include <pvparallelview/PVScatterViewInteractor.h>
+#include <pvparallelview/PVScatterViewParamsWidget.h>
+#include <pvparallelview/PVScatterViewSelectionRectangle.h>
+#include <pvparallelview/PVSelectionRectangleInteractor.h>
+#include <pvparallelview/PVZoneRenderingScatter.h>
+#include <pvparallelview/PVZoneTree.h>
+#include <pvparallelview/PVZoomConverterPowerOfTwo.h>
+#include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
+#include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
+#include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 
-#include <QApplication>
-#include <QGraphicsScene>
-#include <QPainter>
-#include <QScrollBar64>
-#include <QToolBar>
-#include <QToolButton>
-#include <QButtonGroup>
-#include <QActionGroup>
-#include <QAction>
+#include <inendi/PVView.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
-#include <inendi/PVView.h>
-
-#include <pvparallelview/PVZoneTree.h>
-#include <pvparallelview/PVBCode.h>
-#include <pvparallelview/PVParallelView.h>
-#include <pvparallelview/PVLibView.h>
-#include <pvparallelview/PVScatterViewSelectionRectangle.h>
-#include <pvparallelview/PVScatterViewParamsWidget.h>
-#include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
-#include <pvparallelview/PVZoomableDrawingAreaConstraintsHomothetic.h>
-#include <pvparallelview/PVZoomConverterPowerOfTwo.h>
-#include <pvparallelview/PVZoneRenderingScatter.h>
-#include <pvparallelview/PVScatterViewInteractor.h>
-#include <pvparallelview/PVSelectionRectangleInteractor.h>
-#include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
+#include <QAction>
+#include <QActionGroup>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QGraphicsScene>
+#include <QPainter>
+#include <QScrollBar64>
+#include <QThread>
+#include <QToolBar>
+#include <QToolButton>
 
 namespace PVParallelView
 {

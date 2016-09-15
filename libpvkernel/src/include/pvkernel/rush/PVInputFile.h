@@ -8,9 +8,15 @@
 #ifndef PVINPUTFILE_FILE_H
 #define PVINPUTFILE_FILE_H
 
-#include <pvkernel/rush/PVInput.h>
-#include <fstream>
-#include <string>
+#include <pvkernel/rush/PVInput.h> // for PVInputException, etc
+
+#include <cstddef> // for size_t
+#include <cstdint> // for uint64_t
+#include <cstring> // for strerror
+#include <fstream> // for ifstream
+#include <string>  // for allocator, operator+, etc
+
+#include <QString>
 
 namespace PVRush
 {

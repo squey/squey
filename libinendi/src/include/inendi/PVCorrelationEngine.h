@@ -10,10 +10,7 @@
 
 #include <pvbase/types.h>
 
-#include <tuple>
 #include <unordered_map>
-
-#include <pvlogger.h>
 
 namespace Inendi
 {

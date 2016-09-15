@@ -8,18 +8,11 @@
 #ifndef INENDI_PVSELECTION_H
 #define INENDI_PVSELECTION_H
 
-#include <pvbase/general.h>
-#include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/PVAllocators.h>
-#include <pvkernel/core/PVBitVisitor.h>
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVSelBitField.h>
+#include <pvkernel/core/PVSelBitField.h> // for PVSelBitField
 
-#include <tbb/parallel_for.h>
+#include <pvbase/types.h> // for PVRow
 
-#include <QTextStream>
-
-#include <vector>
+#include <algorithm> // for move
 
 namespace PVRush
 {

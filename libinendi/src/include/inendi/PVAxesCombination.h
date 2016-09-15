@@ -7,14 +7,30 @@
 #ifndef INENDI_PVAXESCOMBINATION_H
 #define INENDI_PVAXESCOMBINATION_H
 
-#include <QStringList>
+#include <inendi/PVCombCol.h> // for PVCombCol
 
-#include <vector>
+#include <pvbase/types.h> // for PVCol
 
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/rush/PVFormat.h>
+#include <QString>     // for QString
+#include <QStringList> // for QStringList
 
-#include <inendi/PVCombCol.h>
+#include <cstddef> // for size_t
+
+namespace PVCore
+{
+class PVSerializeObject;
+}
+namespace PVRush
+{
+class PVAxisFormat;
+}
+namespace PVRush
+{
+class PVFormat;
+}
+
+template <typename T>
+class QList;
 
 namespace Inendi
 {

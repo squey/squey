@@ -8,28 +8,50 @@
 #ifndef INENDI_PVPLOTTED_H
 #define INENDI_PVPLOTTED_H
 
+#include <inendi/PVPlottingProperties.h>
+#include <inendi/PVView.h>
+
+#include <pvkernel/core/PVColumnIndexes.h>
+#include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeChild, etc
+#include <pvkernel/core/PVHugePODVector.h>
+
+#include <pvbase/types.h> // for PVRow, PVCol, etc
+
 #include <QList>
-#include <QVector>
+#include <QString>
+
 #include <vector>
 #include <utility>
 #include <limits>
 
 #include <sigc++/sigc++.h>
 
-#include <pvkernel/core/PVAllocators.h>
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVHugePODVector.h>
-#include <pvkernel/rush/PVNraw.h>
-#include <inendi/PVView.h>
-#include <inendi/PVSelection.h>
-#include <inendi/PVPlottingProperties.h>
+#include <cassert>  // for assert
+#include <cstddef>  // for size_t
+#include <cstdint>  // for uint32_t
+#include <iterator> // for advance
+#include <list>     // for _List_const_iterator, list, etc
+#include <string>   // for string, operator+
 
 namespace Inendi
 {
-
-// Forward declaration
 class PVMapped;
-class PVSource;
+} // lines 40-40
+namespace Inendi
+{
+class PVSelection;
+} // lines 33-33
+namespace PVCore
+{
+class PVSerializeObject;
+}
+namespace PVRush
+{
+class PVNraw;
+} // lines 29-29
+
+namespace Inendi
+{
 
 /**
  * \class PVPlotted

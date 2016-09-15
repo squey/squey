@@ -5,8 +5,18 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVField.h>
-#include <pvkernel/filter/PVFieldFilterGrep.h>
+#include <pvkernel/filter/PVFieldFilterGrep.h> // for PVFieldFilterGrep
+#include <pvkernel/filter/PVFieldsFilter.h>    // for PVFieldsFilter, etc
+#include <pvkernel/filter/PVFilterFunction.h>  // for DEFAULT_ARGS_FILTER, etc
+
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList
+#include <pvkernel/core/PVElement.h>  // for list_fields, PVElement
+#include <pvkernel/core/PVField.h>    // for PVField
+#include <pvkernel/core/PVFunctionArgs.h>
+#include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMap
+
+#include <QString>  // for QString
+#include <QVariant> // for QVariant
 
 /******************************************************************************
  *

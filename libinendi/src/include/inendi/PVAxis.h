@@ -8,11 +8,16 @@
 #ifndef INENDI_PVAXIS_H
 #define INENDI_PVAXIS_H
 
-#include <pvkernel/core/PVArgument.h>
-#include <pvkernel/core/PVSerializeObject.h>
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/rush/PVAxisFormat.h>
-#include <inendi/PVLayerFilter.h>
+#include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat, etc
+
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList
+
+#include <stdexcept> // for runtime_error
+
+namespace PVCore
+{
+class PVSerializeObject;
+}
 
 namespace Inendi
 {

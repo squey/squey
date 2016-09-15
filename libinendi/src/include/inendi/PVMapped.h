@@ -8,19 +8,37 @@
 #ifndef INENDI_PVMAPPED_H
 #define INENDI_PVMAPPED_H
 
-#include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/core/PVHugePODVector.h>
+#include <inendi/PVMappingProperties.h> // for PVMappingProperties
+#include <inendi/PVPlotted.h>           // for PVPlotted
 
-#include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeChild, etc
 
-#include <inendi/PVMappingProperties.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVView.h>
+#include <pvbase/types.h> // for PVCol, PVRow
+
+#include <pvcop/db/array.h> // for array
+
+#include <QString> // for QString
+
+#include <algorithm>  // for all_of
+#include <cassert>    // for assert
+#include <cstddef>    // for size_t
+#include <functional> // for _Mem_fn, mem_fn
+#include <iterator>   // for advance
+#include <list>       // for _List_const_iterator, list, etc
+#include <string>     // for string, operator+
+#include <vector>     // for vector
 
 namespace Inendi
 {
+class PVSource;
+} // lines 22-22
+namespace PVCore
+{
+class PVSerializeObject;
+} // lines 23-23
 
-class PVPlotted;
+namespace Inendi
+{
 
 /**
  * \class PVMapped

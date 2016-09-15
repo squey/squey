@@ -38,6 +38,7 @@
 #include <inendi/PVSelection.h>
 #include <inendi/PVStateMachine.h>
 #include <inendi/PVSource.h>
+#include <inendi/PVAxis.h>
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>

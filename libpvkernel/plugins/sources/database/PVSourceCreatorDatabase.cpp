@@ -5,9 +5,12 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/rush/PVInput_types.h>
+
+#include "../../common/database/PVDBQuery.h"
+
 #include "PVSourceCreatorDatabase.h"
 #include "PVDBSource.h"
-#include "../../common/database/PVDBQuery.h"
 
 PVRush::PVSourceCreatorDatabase::source_p
 PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p input) const

@@ -6,7 +6,15 @@
  */
 
 #include <inendi/PVLayer.h>
-#include <inendi/PVPlotted.h>
+#include <inendi/PVLinesProperties.h> // for PVLinesProperties
+#include <inendi/PVPlotted.h>         // for PVPlotted
+#include <inendi/PVSelection.h>       // for PVSelection
+
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject
+
+#include <pvbase/types.h> // for PVCol, PVRow
+
+#include <memory> // for __shared_ptr, shared_ptr
 
 /******************************************************************************
  *

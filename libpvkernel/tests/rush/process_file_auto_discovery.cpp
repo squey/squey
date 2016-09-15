@@ -11,6 +11,7 @@
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVTests.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <cstdlib>

@@ -8,10 +8,16 @@
 #ifndef PVWIDGETS_PVABSTRACTRANGEPICKER_H
 #define PVWIDGETS_PVABSTRACTRANGEPICKER_H
 
-#include <QWidget>
-#include <QDoubleSpinBox>
+#include <QBrush>   // for QLinearGradient
+#include <QLocale>  // for QLocale
+#include <QSize>    // for QSize
+#include <QSpinBox> // for QDoubleSpinBox
+#include <QString>  // for QString
+#include <QWidget>  // for QWidget
 
-class QLinearGradient;
+class QMouseEvent;
+class QPaintEvent;
+class QResizeEvent;
 
 namespace PVWidgets
 {

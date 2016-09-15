@@ -9,6 +9,7 @@
 #define PVFORMAT_VERSION_H
 
 #include <QDomDocument>
+#include <QString>
 
 namespace PVRush
 {

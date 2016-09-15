@@ -5,12 +5,26 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <inendi/PVPlottingFilter.h>
-#include <inendi/PVPlottingProperties.h>
+#include <inendi/PVAxis.h>               // for PVAxis
+#include <inendi/PVPlottingFilter.h>     // for PVPlottingFilter, etc
+#include <inendi/PVPlottingProperties.h> // for PVPlottingProperties
 
-#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat
+#include <pvkernel/rush/PVFormat.h>     // for PVFormat
 
-#include <pvkernel/rush/PVFormatVersion.h>
+#include <pvkernel/core/PVArgument.h>     // for PVArgumentList, etc
+#include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS, etc
+#include <pvkernel/core/PVCompList.h>     // for comp_hash
+#include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject
+
+#include "pvbase/types.h" // for PVCol
+
+#include <QList>   // for QList
+#include <QString> // for QString
+
+#include <memory> // for __shared_ptr
+#include <string> // for string, operator==, etc
 
 /******************************************************************************
  *

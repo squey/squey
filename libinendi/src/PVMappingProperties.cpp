@@ -5,9 +5,21 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <inendi/PVAxis.h>          // for PVAxis
+#include <inendi/PVMappingFilter.h> // for PVMappingFilter, etc
 #include <inendi/PVMappingProperties.h>
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/rush/PVFormatVersion.h>
+
+#include <pvkernel/rush/PVFormat.h> // for PVFormat
+
+#include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS, etc
+#include <pvkernel/core/PVCompList.h>     // for comp_hash
+#include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject
+
+#include <QList>   // for QList
+#include <QString> // for QString
+
+#include <memory> // for __shared_ptr
 
 Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format, PVCol idx)
     : PVMappingProperties(format.get_axes().at(idx))

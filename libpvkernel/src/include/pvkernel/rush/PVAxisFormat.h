@@ -8,32 +8,21 @@
 #ifndef PVCORE_PVAXISFORMAT_H
 #define PVCORE_PVAXISFORMAT_H
 
-#include <QDateTime>
-#include <QString>
-#include <QStringList>
-#include <QByteArray>
-#include <QVector>
-#include <QMap>
-#include <QHash>
-#include <QSet>
-
-#include <cassert>
-
-#include <pvkernel/core/PVArgument.h>
-#include <pvkernel/core/PVColor.h>
 #include <pvkernel/rush/PVTags.h>
 
+#include <pvkernel/core/PVColor.h>
+
 #include <pvbase/types.h>
+
+#include <QString>
+#include <QHash>
+#include <QColor>
 
 namespace PVRush
 {
 
-class PVXmlParamParser;
-
 class PVAxisFormat
 {
-	friend class PVXmlParamParser;
-
   public:
 	typedef QHash<QString, QString> node_args_t;
 

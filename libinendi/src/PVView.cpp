@@ -5,26 +5,62 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <math.h>
-
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/core/PVSerializeArchiveOptions.h>
-#include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/inendi_bench.h>
-
-#include <inendi/PVPlotted.h>
-#include <inendi/PVRoot.h>
-#include <inendi/PVSource.h>
-#include <inendi/PVView.h>
-#include <inendi/PVLayerFilter.h>
-#include <inendi/PVMapped.h>
-#include <inendi/PVPlotted.h>
-
 #ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
 #endif
 
-#include <future>
+#include <inendi/PVAxesCombination.h>   // for PVAxesCombination
+#include <inendi/PVAxis.h>              // for PVAxis
+#include <inendi/PVCombCol.h>           // for PVCombCol
+#include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
+#include <inendi/PVLayer.h>             // for PVLayer
+#include <inendi/PVLayerFilter.h>       // for PVLayerFilter
+#include <inendi/PVLayerStack.h>        // for PVLayerStack
+#include <inendi/PVLinesProperties.h>   // for PVLinesProperties
+#include <inendi/PVMapped.h>            // for PVMapped
+#include <inendi/PVPlotted.h>           // for PVPlotted
+#include <inendi/PVRoot.h>              // for PVRoot
+#include <inendi/PVSelection.h>         // for PVSelection
+#include <inendi/PVSource.h>            // for PVSource
+#include <inendi/PVStateMachine.h>      // for PVStateMachine
+#include <inendi/PVView.h>              // for PVView, etc
+
+#include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat
+#include <pvkernel/rush/PVFormat.h>     // for PVFormat
+#include <pvkernel/rush/PVNraw.h>       // for PVNraw
+
+#include <pvkernel/filter/PVFilterFunction.h>
+
+#include <pvkernel/core/PVArgument.h>        // for PVArgumentList
+#include <pvkernel/core/PVClassLibrary.h>    // for LIB_CLASS, etc
+#include <pvkernel/core/PVDataTreeObject.h>  // for PVDataTreeChild
+#include <pvkernel/core/PVHSVColor.h>        // for PVHSVColor, HSV_COLOR_BLACK
+#include <pvkernel/core/PVLogger.h>          // for PVLOG_DEBUG
+#include <pvkernel/core/PVOrderedMap.h>      // for PVOrderedMapNode
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject
+#include <pvkernel/core/inendi_bench.h>      // for BENCH_END, BENCH_START
+
+#include <pvbase/types.h> // for PVRow, PVCol
+
+#include <pvcop/collection.h> // for collection
+#include <pvcop/db/array.h>   // for indexes, array
+
+#include <QList>       // for QList
+#include <QString>     // for QString, operator+
+#include <QStringList> // for QStringList
+
+#include <sigc++/signal.h>  // for signal
+#include <tbb/tick_count.h> // for tick_count
+
+#include <cstddef> // for size_t
+#include <memory>  // for allocator, __shared_ptr, etc
+#include <string>  // for operator+, basic_string, etc
+#include <vector>  // for vector
+
+namespace tbb
+{
+class task_group_context;
+}
 
 PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLACK);
 

@@ -6,7 +6,6 @@
  */
 
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/rush/PVInput.h>
 
 PVRush::PVRawSourceBase::PVRawSourceBase() : _ncols_to_reserve(1)
 {

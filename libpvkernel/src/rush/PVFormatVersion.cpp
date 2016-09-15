@@ -8,7 +8,9 @@
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
+#include <QChar>
 #include <QDomNode>
+#include <QString>
 #include <QStringList>
 
 // Utility function to convert pre 7 format to 7 format.for mapping/type/plotting

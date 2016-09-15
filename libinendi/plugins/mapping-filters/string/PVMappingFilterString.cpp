@@ -7,6 +7,10 @@
 
 #include "PVMappingFilterString.h"
 
+#include <pvkernel/rush/PVNraw.h>
+
+#include <pvkernel/core/PVSerializeObject.h>
+
 #include <pvcop/db/read_dict.h>
 
 /**

@@ -8,15 +8,21 @@
 #ifndef PVFILTER_PVFIELDSFILTERPARAMWIDGET_H
 #define PVFILTER_PVFIELDSFILTERPARAMWIDGET_H
 
-#include <pvkernel/core/PVRegistrableClass.h>
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/filter/PVFieldsFilter.h>
+#include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsBaseFilter_p, etc
 
-#include <QWidget>
-#include <QObject>
+#include <pvkernel/core/PVArgument.h>         // for PVArgumentList
+#include <pvkernel/core/PVRegistrableClass.h> // for PVRegistrableClass, etc
+
+#include <cassert> // for assert
+#include <cstddef> // for size_t
+#include <memory>  // for shared_ptr
+
 #include <QString>
 #include <QStringList>
 #include <QObject>
+
+class QAction;
+class QWidget;
 
 namespace PVFilter
 {

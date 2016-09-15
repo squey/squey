@@ -8,25 +8,26 @@
 #ifndef NODEDOM_H
 #define NODEDOM_H
 
-#include <QObject>
-#include <QString>
-#include <QStringList>
-#include <QList>
-#include <QDomElement>
-#include <QDomDocument>
-#include <QDebug>
-#include <QSet>
-#include <QHash>
-
-#include <iostream>
-
-#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVArgument.h> // for PVArgumentList
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
+#include <pvkernel/core/PVField.h>          // for PVField
+#include <pvkernel/core/PVLogger.h>         // for PVLOG_DEBUG
+#include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsBaseFilter, etc
 
-#define trace_2(texte, texte2)                                                                     \
-	{                                                                                              \
-		std::cout << texte << " " << texte2 << std::endl;                                          \
-	}
+#include <pvbase/types.h> // for PVCol
+
+#include <cassert>     // for assert
+#include <memory>      // for __shared_ptr
+#include <sys/types.h> // for ssize_t
+
+#include <QDomElement> // for QDomElement, QDomDocument
+#include <QHash>       // for QHash
+#include <QList>       // for QList
+#include <QObject>     // for QObject
+#include <QString>     // for QString
+#include <QStringList> // for QStringList
+
+class QWidget;
 
 #define PVXmlTreeNodeDom_initXml                                                                   \
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"

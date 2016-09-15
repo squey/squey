@@ -73,7 +73,6 @@ include/pvguiqt/PVLogoScene.h
 include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h
 include/pvguiqt/PVViewDisplay.h
-include/pvguiqt/PVAboutBoxDialog.h
 include/pvguiqt/PVProjectsTabWidget.h
 include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVImportSourceToProjectDlg.h

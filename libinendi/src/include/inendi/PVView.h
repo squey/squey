@@ -8,26 +8,67 @@
 #ifndef INENDI_PVVIEW_H
 #define INENDI_PVVIEW_H
 
-#include <QStringList>
-#include <QString>
-
-#include <sigc++/sigc++.h>
-
-#include <pvcop/db/array.h>
+#include <inendi/PVAxesCombination.h>
+#include <inendi/PVLayer.h>
+#include <inendi/PVLayerStack.h>
+#include <inendi/PVLinesProperties.h>
+#include <inendi/PVStateMachine.h>
+#include <inendi/PVCombCol.h> // for PVCombCol
 
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
-#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 
-#include <inendi/PVLinesProperties.h>
-#include <inendi/PVAxesCombination.h>
-#include <inendi/PVLayerStack.h>
-#include <inendi/PVStateMachine.h>
+#include <pvbase/types.h> // for PVCol, PVRow
+
+#include <pvcop/db/array.h>
+
+#include <sigc++/sigc++.h>
+
+#include <QStringList>
+#include <QString>
+#include <QColor>
+#include <QHash>
+
+#include <cstddef> // for size_t
+#include <cstdint> // for int32_t
+#include <string>  // for allocator, string, etc
+#include <vector>  // for vector
 
 namespace Inendi
 {
+class PVPlotted;
+} // lines 32-32
+namespace Inendi
+{
+class PVSelection;
+}
+namespace PVCore
+{
+class PVSerializeObject;
+}
+namespace PVRush
+{
+class PVAxisFormat;
+}
+namespace PVRush
+{
+class PVNraw;
+}
+namespace pvcop
+{
+namespace db
+{
+class indexes;
+}
+}
+namespace tbb
+{
+class task_group_context;
+}
 
+namespace Inendi
+{
 /**
  * \class PVView
  */

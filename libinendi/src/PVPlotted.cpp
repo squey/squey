@@ -5,26 +5,38 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvcop/db/types.h>
+#include <inendi/PVMapped.h>             // for PVMapped
+#include <inendi/PVMappingProperties.h>  // for PVMappingProperties
+#include <inendi/PVPlotted.h>            // for PVPlotted, etc
+#include <inendi/PVPlottingFilter.h>     // for PVPlottingFilter, etc
+#include <inendi/PVPlottingProperties.h> // for PVPlottingProperties
+#include <inendi/PVSelection.h>          // for PVSelection
+#include <inendi/PVSource.h>             // for PVSource
+#include <inendi/PVView.h>               // for PVView
 
-#include <QList>
-#include <QStringList>
-#include <QString>
-#include <QVector>
+#include <pvkernel/rush/PVFormat.h> // for PVFormat
 
-#include <stdlib.h>
-#include <limits>
+#include <pvkernel/core/PVColumnIndexes.h>   // for PVColumnIndexes
+#include <pvkernel/core/PVDataTreeObject.h>  // for PVDataTreeChild
+#include <pvkernel/core/PVLogger.h>          // for PVLOG_DEBUG
+#include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject_p, etc
 
-#include <inendi/PVMapped.h>
-#include <inendi/PVPlottingFilter.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVSource.h>
-#include <inendi/PVSelection.h>
-#include <inendi/PVView.h>
+#include <pvbase/types.h> // for PVCol, PVRow
 
-#include <tbb/tick_count.h>
+#include <boost/thread/thread.hpp>
 
-#include <iostream>
+#include <QList>   // for QList
+#include <QString> // for QString
+
+#include <algorithm>  // for move, all_of
+#include <cassert>    // for assert
+#include <cstddef>    // for size_t
+#include <cstdint>    // for uint32_t
+#include <functional> // for _Mem_fn, mem_fn
+#include <list>       // for _List_const_iterator, list
+#include <memory>     // for allocator, __shared_ptr
+#include <string>     // for string, operator+, etc
+#include <vector>     // for vector
 
 Inendi::PVPlotted::PVPlotted(PVMapped& mapped, std::string const& name)
     : PVCore::PVDataTreeChild<PVMapped, PVPlotted>(mapped), _name(name)

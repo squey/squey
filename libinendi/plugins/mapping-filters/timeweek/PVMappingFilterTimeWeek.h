@@ -10,6 +10,8 @@
 
 #include <inendi/PVMappingFilter.h>
 
+#include <pvkernel/rush/PVNraw.h>
+
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <unicode/calendar.h>
 

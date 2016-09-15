@@ -21,6 +21,8 @@
 #include <pvparallelview/PVDisplayViewHitCount.h>
 #include <pvparallelview/PVDisplayViewScatter.h>
 
+#include <QSettings>
+
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
 
 PVParallelView::PVParallelViewImpl::PVParallelViewImpl()

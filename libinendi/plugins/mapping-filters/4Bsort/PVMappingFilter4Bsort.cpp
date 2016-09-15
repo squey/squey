@@ -7,6 +7,8 @@
 
 #include "PVMappingFilter4Bsort.h"
 
+#include <pvkernel/rush/PVNraw.h>
+
 #include <pvcop/db/read_dict.h>
 
 #include <algorithm>

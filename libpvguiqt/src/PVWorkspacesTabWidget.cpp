@@ -16,6 +16,7 @@
 
 #include <QDrag>
 #include <QImage>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>

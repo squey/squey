@@ -17,18 +17,8 @@
 
 #include <QList>
 #include <QDomElement>
-#include <QDomNodeList>
-#include <QDomDocument>
-#include <QDebug>
 #include <QString>
-#include <QStringList>
-#include <QFile>
-#include <QMap>
-#include <QTextStream>
-#include <QHash>
-#include <QVector>
 
-#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVXmlParamParserData.h>
 #include <pvkernel/rush/PVFormat_types.h>

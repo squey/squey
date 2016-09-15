@@ -5,27 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVEnumType.h>
-
-#include <pvkernel/widgets/editors/PVEnumEditor.h>
-
-/******************************************************************************
- *
- * PVCore::PVEnumEditor::PVEnumEditor
- *
- *****************************************************************************/
-PVWidgets::PVEnumEditor::PVEnumEditor(QWidget* parent) : QComboBox(parent)
-{
-}
-
-/******************************************************************************
- *
- * PVWidgets::PVEnumEditor::~PVEnumEditor
- *
- *****************************************************************************/
-PVWidgets::PVEnumEditor::~PVEnumEditor()
-{
-}
+#include <pvkernel/core/PVEnumType.h>              // for PVEnumType
+#include <pvkernel/widgets/editors/PVEnumEditor.h> // for PVEnumEditor
 
 /******************************************************************************
  *

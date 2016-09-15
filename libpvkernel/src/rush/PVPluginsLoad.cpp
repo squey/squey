@@ -5,13 +5,15 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/rush/PVPluginsLoad.h>
+
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVLogger.h>
-#include <pvkernel/rush/PVPluginsLoad.h>
-#include <QCoreApplication>
+
+#include <QString>
 #include <QDir>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 int PVRush::PVPluginsLoad::load_all_plugins()
 {

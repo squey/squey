@@ -5,16 +5,40 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/core/inendi_bench.h>
 
-#include <QHash>
+#include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
+#include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsSplitter_p
 
-#include <iostream>
+#include <pvkernel/core/PVArgument.h>     // for PVArgumentList
+#include <pvkernel/core/PVChunk.h>        // for list_elts, PVChunk
+#include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS
+#include <pvkernel/core/PVElement.h>      // for list_fields, PVElement
+#include <pvkernel/core/PVLogger.h>       // for PVLOG_INFO
+#include <pvkernel/core/PVOrderedMap.h>
+#include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
 
-#define GUESS_PVELEMENT_SAMPLE_NUMBER 20000
+#include "pvbase/types.h" // for PVCol
+
+#include <tbb/tick_count.h> // for tick_count
+
+#include <cstddef>  // for size_t
+#include <iostream> // for operator<<, basic_ostream, etc
+#include <list>     // for _List_iterator
+#include <memory>   // for __shared_ptr, shared_ptr
+#include <utility>  // for pair
+#include <vector>   // for vector
+
+#include <QHash>    // for QHash<>::const_iterator, etc
+#include <QString>  // for QString, operator==, etc
+#include <QVariant> // for QVariant
+
+namespace PVCore
+{
+class PVField;
+}
+
+constexpr size_t GUESS_PVELEMENT_SAMPLE_NUMBER = 20000;
 
 namespace PVFilter
 {

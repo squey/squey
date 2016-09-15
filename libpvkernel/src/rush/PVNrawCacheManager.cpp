@@ -5,17 +5,26 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
-#include <pvkernel/rush/PVNrawCacheManager.h>
-#include <pvkernel/rush/PVNraw.h>
-#include <pvkernel/core/PVFileHelper.h>
-#include <pvkernel/core/PVDirectory.h>
-#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/rush/PVNraw.h>             // for PVNraw, etc
+#include <pvkernel/rush/PVNrawCacheManager.h> // for PVNrawCacheManager
 
-#include <QFileInfo>
+#include <pvkernel/core/PVConfig.h>     // for PVConfig
+#include <pvkernel/core/PVDirectory.h>  // for remove_rec
+#include <pvkernel/core/PVFileHelper.h> // for PVFileHelper
+
+#include <pvbase/general.h> // for INENDI_PATH_SEPARATOR_CHAR
+
+#include <QByteArray> // for QByteArray
+#include <QDir>       // for QDir, etc
 #include <QDirIterator>
+#include <QFile> // for QFile
+#include <QFileInfo>
+#include <QSettings> // for QSettings, etc
 #include <QString>
 #include <QStringList>
+
+#include <functional> // for function
+#include <memory>     // for unique_ptr
 
 PVRush::PVNrawCacheManager::PVNrawCacheManager()
     : _cache_file(std::unique_ptr<QSettings>(

@@ -5,9 +5,12 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvkernel/core/PVField.h>
+#include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsBaseFilter_p
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
-#include <list>
+
+#include <algorithm> // for move
+#include <cassert>   // for assert
+#include <cstddef>   // for size_t
 
 /******************************************************************************
  *

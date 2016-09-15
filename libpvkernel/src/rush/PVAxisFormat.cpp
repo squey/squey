@@ -5,14 +5,11 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <QXmlStreamReader>
-#include <QFile>
-#include <QHashIterator>
-#include <QDateTime>
+#include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat
 
-#include <pvkernel/rush/PVAxisFormat.h>
+#include <pvkernel/core/PVColor.h> // for PVColor
 
-#include <boost/functional/hash.hpp>
+#include <pvbase/types.h> // for PVCol
 
 /******************************************************************************
  *

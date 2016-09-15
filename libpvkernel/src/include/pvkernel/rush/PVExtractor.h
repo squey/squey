@@ -8,16 +8,14 @@
 #ifndef PVRUSH_PVEXTRACTOR_FILE_H
 #define PVRUSH_PVEXTRACTOR_FILE_H
 
-#include <pvbase/general.h>
-
-#include <pvbase/types.h>
-#include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVAggregator.h>
-#include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVNrawOutput.h>
-#include <pvkernel/rush/PVRawSourceBase_types.h>
+
+#include <pvkernel/filter/PVChunkFilter.h>
+
+#include <pvbase/general.h>
+#include <pvbase/types.h>
 
 namespace PVRush
 {

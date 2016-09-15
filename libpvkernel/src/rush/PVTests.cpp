@@ -5,11 +5,22 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/rush/PVInputType.h>            // for PVInputType_p, PVInputType
+#include <pvkernel/rush/PVSourceCreator.h>        // for PVSourceCreator_p, etc
+#include <pvkernel/rush/PVSourceCreatorFactory.h> // for list_creators, etc
 #include <pvkernel/rush/PVTests.h>
-#include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/rush/PVSourceCreator.h>
-#include <pvkernel/rush/PVSourceCreatorFactory.h>
-#include <iostream>
+
+#include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS, etc
+#include <pvkernel/core/PVRegistrableClass.h>
+
+#include <iostream> // for operator<<, basic_ostream, etc
+#include <list>     // for _List_const_iterator, etc
+#include <memory>   // for __shared_ptr
+
+namespace PVRush
+{
+class PVFormat;
+}
 
 bool PVRush::PVTests::get_file_sc(PVInputDescription_p file,
                                   PVRush::PVFormat const& format,

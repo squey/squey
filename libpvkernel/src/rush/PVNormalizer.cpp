@@ -5,20 +5,15 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <QLibrary>
-#include <QList>
+#include <pvkernel/rush/PVNormalizer.h>
+
+#include <pvbase/general.h> // for PVCORE_DIRECTORY_SEP
+
+#include <cstdlib> // for getenv
+
+#include <QDir>
 #include <QString>
 #include <QStringList>
-#include <QRegExp>
-#include <QHashIterator>
-#include <QHash>
-#include <QDir>
-#include <QCoreApplication>
-
-#include <stdlib.h>
-
-#include <pvbase/general.h>
-#include <pvkernel/rush/PVNormalizer.h>
 
 /******************************************************************************
  *

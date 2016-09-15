@@ -77,7 +77,6 @@ filter/PVFieldFilterGrep.cpp
 filter/PVFieldsFilter.cpp
 filter/PVFieldsMappingFilter.cpp
 filter/PVFieldSplitterChunkMatch.cpp
-filter/PVFieldsFilterParamWidget.cpp
 filter/PVPluginsLoad.cpp
 )
 

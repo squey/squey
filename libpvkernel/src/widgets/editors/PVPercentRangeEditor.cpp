@@ -5,12 +5,15 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <cmath>
-
-#include <QtCore>
-#include <QtWidgets>
-
 #include <pvkernel/widgets/editors/PVPercentRangeEditor.h>
+#include <pvkernel/widgets/PVAbstractRangePicker.h>
+
+#include <pvkernel/core/PVPercentRangeType.h> // for PVPercentRangeType
+
+#include <QBrush>   // for QLinearGradient
+#include <QSpinBox> // for QDoubleSpinBox
+
+class QWidget;
 
 /******************************************************************************
  * PVWidgets::PVPercentRangeEditor::PVPercentRangeEditor

@@ -8,15 +8,19 @@
 #ifndef PVFILTER_PVPLOTTINGFILTER_H
 #define PVFILTER_PVPLOTTINGFILTER_H
 
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvkernel/core/PVRegistrableClass.h>
-#include <pvkernel/filter/PVFilterFunction.h>
+#include <pvkernel/filter/PVFilterFunction.h> // for PVFilterFunctionBase, etc
 
-#include <pvcop/db/array.h>
+#include <pvkernel/core/PVRegistrableClass.h> // for PVRegistrableClass
 
-#include <pvbase/types.h>
+#include <pvcop/db/array.h> // for array
 
-#include <set>
+#include <QString> // for QString
+
+#include <cstdint> // for uint32_t
+#include <memory>  // for shared_ptr
+#include <set>     // for set
+#include <string>  // for string
+#include <utility> // for pair
 
 namespace Inendi
 {

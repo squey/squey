@@ -5,12 +5,27 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#include <pvbase/general.h>
-#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/rush/PVAggregator.h>          // for PVAggregator, etc
+#include <pvkernel/rush/PVInput.h>               // for PVInputException
+#include <pvkernel/rush/PVRawSourceBase.h>       // for PVRawSourceBase
+#include <pvkernel/rush/PVRawSourceBase_types.h> // for PVRawSourceBase_p
 
-#include <pvkernel/rush/PVAggregator.h>
-#include <pvkernel/rush/PVInput.h>
-#include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/core/PVChunk.h>   // for list_elts, PVChunk
+#include <pvkernel/core/PVConfig.h>  // for PVConfig
+#include <pvkernel/core/PVElement.h> // for PVElement
+#include <pvkernel/core/PVLogger.h>  // for PVLOG_DEBUG
+
+#include <pvbase/general.h>
+#include <pvbase/types.h> // for chunk_index, PVCol
+
+#include <tbb/pipeline.h> // for flow_control
+
+#include <cstddef>   // for size_t
+#include <algorithm> // for max
+#include <cassert>   // for assert
+#include <list>      // for _List_iterator, etc
+#include <memory>    // for allocator, __shared_ptr, etc
+#include <string>    // for operator+, basic_string, etc
 
 #include <QSettings>
 

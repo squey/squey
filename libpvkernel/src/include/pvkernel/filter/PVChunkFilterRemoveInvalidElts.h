@@ -8,8 +8,14 @@
 #ifndef PVFILTER_PVCHUNKFILTERREMOVEINVALIDELTS_H
 #define PVFILTER_PVCHUNKFILTERREMOVEINVALIDELTS_H
 
-#include <pvkernel/core/PVChunk.h>
-#include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/filter/PVChunkFilter.h> // for PVChunkFilter
+
+#include <cstddef> // for size_t
+
+namespace PVCore
+{
+class PVChunk;
+}
 
 namespace PVFilter
 {
