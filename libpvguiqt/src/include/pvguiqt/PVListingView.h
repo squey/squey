@@ -242,6 +242,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	QMenu* _menu_col_min_by;      //!< Min by action for horizontal context menu
 	QMenu* _menu_col_max_by;      //!< Max by action for horizontal context menu
 	QMenu* _menu_col_avg_by;      //!< Average by action for horizontal context menu
+	QAction* _action_col_copy;    //!< Copy column name to clipboard
 	QAction* _action_col_sort;    //!< Sort a column action for horizontal context menu
 	QAction* _action_col_unique;  //!< Count distinct values action for horizontal context menu
 	QMenu* _menu_add_correlation; //!< Correlation : bind this axis with the axis of another source

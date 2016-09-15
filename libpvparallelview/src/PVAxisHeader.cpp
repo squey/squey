@@ -18,6 +18,7 @@
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <QApplication>
+#include <QClipboard>
 #include <QMenu>
 #include <QGraphicsView>
 #include <QPainter>
@@ -70,6 +71,11 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 	}
 	QAction* ars = menu.addAction("New selection cursors");
 	connect(ars, SIGNAL(triggered()), this, SIGNAL(new_selection_slider()));
+
+	QAction* copy = menu.addAction("Copy axis name to clipboad");
+	copy->setIcon(QIcon(":/edit-paste.png"));
+	connect(copy, &QAction::triggered, this,
+	        [&]() { QApplication::clipboard()->setText(_view.get_axis_name(_comb_col)); });
 
 	if (menu.exec(event->screenPos()) != nullptr) {
 		event->accept();

@@ -140,6 +140,10 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	_menu_col_avg_by->setIcon(QIcon(":/avg_by"));
 	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
 
+	_action_col_copy = new QAction(tr("Copy column name to clipboad"), this);
+	_action_col_copy->setIcon(QIcon(":/edit-paste.png"));
+	_hhead_ctxt_menu.addAction(_action_col_copy);
+
 	_action_col_sort = new QAction(tr("Sort this axis"), this);
 	_action_col_sort->setIcon(QIcon(":/sort_desc"));
 	_hhead_ctxt_menu.addAction(_action_col_sort);
@@ -456,6 +460,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		}
 	}
 
+	_hhead_ctxt_menu.addSeparator();
+	_hhead_ctxt_menu.addAction(_action_col_copy);
 	_hhead_ctxt_menu.addAction(_action_col_sort);
 
 	/**
@@ -472,6 +478,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
 		sort(comb_col, order);
+	} else if (sel == _action_col_copy) {
+		QApplication::clipboard()->setText(_view.get_axis_name(comb_col));
 	} else if (sel) {
 		PVCol col2 = _view.get_axes_combination().get_nraw_axis(sel->data().toUInt());
 		if (sel->parent() == _menu_col_count_by) {
