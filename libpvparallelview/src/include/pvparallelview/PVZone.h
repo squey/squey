@@ -8,8 +8,6 @@
 #ifndef PVPARALLELVIEW_PVZONE_H
 #define PVPARALLELVIEW_PVZONE_H
 
-#include <pvkernel/core/PVTypeTraits.h>
-
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
 #include <pvparallelview/common.h>

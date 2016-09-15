@@ -343,28 +343,21 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("name", name);
 
 	so.set_current_status("Serialize Plotting properties.");
-	PVCore::PVSerializeObject_p list_prop =
-	    so.create_object("properties", "plotting properties", false, false);
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
 	int idx = 0;
 	for (PVPlottingProperties& prop : _columns) {
-		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj =
-		    list_prop->create_object(child_name, "", false, false);
+		PVCore::PVSerializeObject_p new_obj = list_prop->create_object(QString::number(idx++));
 		prop.serialize_write(*new_obj);
-		new_obj->set_bound_obj(prop);
 	}
 	so.attribute("prop_count", idx);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object("view", "Views", false, false);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("view");
 	idx = 0;
 	for (PVView* view : get_children()) {
-		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
-		    child_name, QString::fromStdString(view->get_serialize_description()), false, false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
 		view->serialize_write(*new_obj);
-		new_obj->set_bound_obj(*view);
 	}
 	so.attribute("view_count", idx);
 }
@@ -376,7 +369,7 @@ Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& 
 	QString name;
 	so.attribute("name", name);
 
-	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", false, false);
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
 	so.set_current_status("Load plotting properties");
 	std::list<Inendi::PVPlottingProperties> columns;
@@ -390,7 +383,7 @@ Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& 
 	PVPlotted& plotted = parent.emplace_add_child(std::move(columns), name.toStdString());
 
 	// Create the list of view
-	PVCore::PVSerializeObject_p list_obj = so.create_object("view", "Views", false, false);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("view");
 
 	int view_count;
 	so.attribute("view_count", view_count);

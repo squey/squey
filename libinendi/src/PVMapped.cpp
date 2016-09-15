@@ -174,26 +174,21 @@ void Inendi::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("name", name);
 
 	so.set_current_status("Serialize Mapping properties.");
-	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", false, false);
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
 	int idx = 0;
 	for (PVMappingProperties& prop : columns) {
-		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj = list_prop->create_object(child_name, "", false);
+		PVCore::PVSerializeObject_p new_obj = list_prop->create_object(QString::number(idx++));
 		prop.serialize_write(*new_obj);
-		new_obj->set_bound_obj(prop);
 	}
 	so.attribute("prop_count", idx);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted", "Plotteds", false, false);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted");
 	idx = 0;
 	for (PVPlotted* plotted : get_children()) {
-		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
-		    child_name, QString::fromStdString(plotted->get_serialize_description()), false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
 		plotted->serialize_write(*new_obj);
-		new_obj->set_bound_obj(*plotted);
 	}
 	so.attribute("plotted_count", idx);
 }
@@ -210,7 +205,7 @@ Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so
 	QString name;
 	so.attribute("name", name);
 
-	PVCore::PVSerializeObject_p list_prop = so.create_object("properties", "", false, false);
+	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
 	so.set_current_status("Loading Mapping properties");
 	std::list<Inendi::PVMappingProperties> columns;
@@ -224,7 +219,7 @@ Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so
 	PVMapped& mapped = parent.emplace_add_child(name.toStdString(), std::move(columns));
 
 	// Create the list of plotted
-	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted", "Plotteds", false, false);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted");
 	int plotted_count;
 	so.attribute("plotted_count", plotted_count);
 	for (int idx = 0; idx < plotted_count; idx++) {

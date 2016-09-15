@@ -250,8 +250,7 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("valid_count", vec);
 
 	so.set_current_status("Serialize valid elements selection");
-	PVCore::PVSerializeObject_p sel_obj =
-	    so.create_object("valid_elts", "valid_elts", false, false);
+	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
 	_valid_rows_sel.serialize_write(*sel_obj);
 
 	// Serialize invalid value
@@ -307,8 +306,7 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
 
 	for (PVCol col : empty_cols_indexes) {
 		PVCore::PVSerializeObject_p sel_obj =
-		    so.create_object("empty_conv_col_" + QString::number(col),
-		                     "empty_conv_col_" + QString::number(col), false, false);
+		    so.create_object("empty_conv_col_" + QString::number(col));
 		sels[col].serialize_write(*sel_obj);
 	}
 }
@@ -327,8 +325,7 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 	int vec;
 	so.attribute("valid_count", vec);
 	nraw._valid_elements_count = vec;
-	PVCore::PVSerializeObject_p sel_obj =
-	    so.create_object("valid_elts", "valid_elts", false, false);
+	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
 	nraw._valid_rows_sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
 
 	// Serialize invalid values
@@ -361,9 +358,8 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 
 	for (size_t col = 0; col < empty_cols_indexes.size(); col++) {
 
-		PVCore::PVSerializeObject_p sel_obj = so.create_object(
-		    "empty_conv_col_" + QString::number(empty_cols_indexes[col]),
-		    "empty_conv_col_" + QString::number(empty_cols_indexes[col]), false, false);
+		PVCore::PVSerializeObject_p sel_obj =
+		    so.create_object("empty_conv_col_" + QString::number(empty_cols_indexes[col]));
 		PVCore::PVSelBitField sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
 
 		for (size_t row = 0; row < sel.count(); row++) {

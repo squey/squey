@@ -109,16 +109,6 @@ void PVCore::PVProgressBox::set_cancel2_btn_text(QString const& str)
 	_btnCancel2->setText(str);
 }
 
-/******************************************************************************
- *
- * PVCore::PVProgressBox::getProgressBar
- *
- *****************************************************************************/
-QProgressBar* PVCore::PVProgressBox::getProgressBar()
-{
-	return progress_bar;
-}
-
 void PVCore::PVProgressBox::set_enable_cancel(bool enable)
 {
 	_btnCancel->setEnabled(enable);
@@ -140,6 +130,7 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 		disconnect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 	}
 	watcher->deleteLater();
+	worker.join();
 	return true;
 }
 
@@ -160,5 +151,6 @@ bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watch
 		disconnect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 	}
 	watcher->deleteLater();
+	worker.join();
 	return true;
 }

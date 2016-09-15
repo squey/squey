@@ -8,30 +8,23 @@
 #ifndef PVSAVEDATATREEDIALOG_H
 #define PVSAVEDATATREEDIALOG_H
 
-#include <pvkernel/core/PVSerializeArchiveOptions.h>
-
-#include <QCheckBox>
 #include <QFileDialog>
-#include <QWidget>
+
+class QString;
+class QCheckBox;
+class QWidget;
 
 namespace PVInspector
 {
 
 class PVSaveDataTreeDialog : public QFileDialog
 {
-	Q_OBJECT
   public:
-	PVSaveDataTreeDialog(std::shared_ptr<PVCore::PVSerializeArchiveOptions> options,
-	                     QString const& suffix,
-	                     QString const& filter,
-	                     QWidget* parent);
+	PVSaveDataTreeDialog(QString const& suffix, QString const& filter, QWidget* parent);
 
-  protected Q_SLOTS:
-	void include_files_Slot(int state);
-	void tab_changed_Slot(int idx);
+	bool save_log_file() const;
 
   protected:
-	PVCore::PVSerializeArchiveOptions& _options;
 	QCheckBox* _save_everything_checkbox;
 };
 }

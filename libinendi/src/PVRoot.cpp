@@ -6,14 +6,11 @@
  */
 
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
-#include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVView.h>
 #include <inendi/plugins.h>
-
-#define ARCHIVE_ROOT_DESC (QObject::tr("Solution"))
 
 /******************************************************************************
  *
@@ -167,13 +164,9 @@ QColor Inendi::PVRoot::get_new_view_color()
 	return color;
 }
 
-void Inendi::PVRoot::save_to_file(PVCore::PVSerializeArchive& ar,
-                                  std::shared_ptr<PVCore::PVSerializeArchiveOptions> options)
+void Inendi::PVRoot::save_to_file(PVCore::PVSerializeArchive& ar)
 {
-	if (options) {
-		ar.set_options(options);
-	}
-	auto root_obj = ar.get_root()->create_object("root", ARCHIVE_ROOT_DESC, false, true);
+	auto root_obj = ar.get_root()->create_object("root");
 	serialize_write(*root_obj);
 }
 
@@ -184,30 +177,19 @@ void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive& ar)
 		throw PVCore::PVSerializeArchiveError("To make archives more robuste, we can't load data "
 		                                      "from previous version of inspector.");
 	}
-	auto root_obj = root_ar->create_object("root", ARCHIVE_ROOT_DESC, false, true);
+	auto root_obj = root_ar->create_object("root");
 	serialize_read(*root_obj);
-}
-
-std::shared_ptr<PVCore::PVSerializeArchiveOptions> Inendi::PVRoot::get_default_serialize_options()
-{
-	std::shared_ptr<PVCore::PVSerializeArchiveOptions> ar(
-	    new PVCore::PVSerializeArchiveOptions(INENDI_ARCHIVES_VERSION));
-	ar->get_root()->object("root", *this, ARCHIVE_ROOT_DESC);
-	return ar;
 }
 
 void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Serialize Root.");
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object("scene", "Scenes", false, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scene");
 	int idx = 0;
 	for (PVScene* scene : get_children()) {
-		QString child_name = QString::number(idx++);
-		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(
-		    child_name, QString::fromStdString(scene->get_serialize_description()), false);
+		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
 		scene->serialize_write(*new_obj);
-		new_obj->set_bound_obj(*scene);
 	}
 	so.attribute("scene_count", idx);
 };
@@ -216,7 +198,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading root");
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object("scene", "Scenes", true, true);
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scene");
 	int scene_count;
 	so.attribute("scene_count", scene_count);
 	for (int idx = 0; idx < scene_count; idx++) {

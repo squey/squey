@@ -75,10 +75,8 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	Inendi::PVSource const* current_source() const { return _current_source; }
 
   public:
-	void save_to_file(PVCore::PVSerializeArchive& ar,
-	                  std::shared_ptr<PVCore::PVSerializeArchiveOptions> options = nullptr);
+	void save_to_file(PVCore::PVSerializeArchive& ar);
 	void load_from_archive(PVCore::PVSerializeArchive& ar);
-	std::shared_ptr<PVCore::PVSerializeArchiveOptions> get_default_serialize_options();
 
 	void set_path(QString path) { _path = path; }
 	const QString& get_path() const { return _path; }

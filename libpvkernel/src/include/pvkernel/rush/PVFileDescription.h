@@ -8,7 +8,6 @@
 #ifndef PVRUSH_PVFILEDESCRIPTION_H
 #define PVRUSH_PVFILEDESCRIPTION_H
 
-#include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
 namespace PVRush
@@ -45,10 +44,14 @@ class PVFileDescription : public PVInputDescription
 	void serialize_write(PVCore::PVSerializeObject& so)
 	{
 		so.set_current_status("Serialize file");
+
+		if (so.save_log_file()) {
+			QFileInfo fi(_path);
+			QString fname = fi.fileName();
+			so.file(fname, _path);
+		}
+
 		so.attribute("file_path", _path);
-		PVCore::PVFileSerialize fs(_path);
-		so.object("original", fs, "Include original file", true, (PVCore::PVFileSerialize*)nullptr,
-		          true, false);
 	}
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
@@ -57,11 +60,7 @@ class PVFileDescription : public PVInputDescription
 		QString path;
 		so.attribute("file_path", path);
 
-		PVCore::PVFileSerialize fs(path);
-		if (so.object("original", fs, "Include original file", true,
-		              (PVCore::PVFileSerialize*)nullptr, true, false)) {
-			path = fs.get_path();
-		} else if (not QFileInfo(path).isReadable()) {
+		if (not QFileInfo(path).isReadable()) {
 			if (so.is_repaired_error()) {
 				path = QString::fromStdString(so.get_repaired_value());
 			} else {
