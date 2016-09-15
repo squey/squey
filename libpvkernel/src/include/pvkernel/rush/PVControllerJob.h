@@ -127,6 +127,6 @@ class PVControllerJob : public QObject
 };
 
 typedef PVControllerJob::p_type PVControllerJob_p;
-}
+} // namespace PVRush
 
 #endif

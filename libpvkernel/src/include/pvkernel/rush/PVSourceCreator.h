@@ -49,6 +49,6 @@ class PVSourceCreator : public PVCore::PVRegistrableClass<PVSourceCreator>
 };
 
 typedef PVSourceCreator::p_type PVSourceCreator_p;
-}
+} // namespace PVRush
 
 #endif

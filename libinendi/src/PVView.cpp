@@ -10,7 +10,6 @@
 #endif
 
 #include <inendi/PVAxesCombination.h>   // for PVAxesCombination
-#include <inendi/PVAxis.h>              // for PVAxis
 #include <inendi/PVCombCol.h>           // for PVCombCol
 #include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
 #include <inendi/PVLayer.h>             // for PVLayer

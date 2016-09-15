@@ -72,6 +72,6 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_CURRENT_VERSION "7"
 
 #define PVFORMAT_NUMBER_FIELD_URL 6
-}
+} // namespace PVRush
 
 #endif

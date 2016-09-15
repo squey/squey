@@ -24,8 +24,8 @@ namespace core
 
 template <typename T>
 class array;
-}
-}
+} // namespace core
+} // namespace pvcop
 
 #include <vector>
 
@@ -464,6 +464,6 @@ class PVSelBitField
   protected:
 	pvcop::core::memarray<bool> _selection;
 };
-}
+} // namespace PVCore
 
 #endif

@@ -22,7 +22,7 @@ class PVFileSerialize
 	friend class PVCore::PVSerializeObject;
 
   public:
-	PVFileSerialize(QString const& path);
+	explicit PVFileSerialize(QString const& path);
 
   public:
 	QString const& get_path() const;
@@ -36,6 +36,6 @@ class PVFileSerialize
   protected:
 	QString _path;
 };
-}
+} // namespace PVCore
 
 #endif

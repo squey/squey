@@ -13,7 +13,6 @@
 #include "test-env.h"
 
 #include <inendi/common.h>
-#include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
 #include <inendi/PVScene.h>
 #include <inendi/PVSource.h>
@@ -27,6 +26,11 @@
 #include <pvparallelview/PVParallelView.h>
 
 #include <QCoreApplication>
+
+namespace Inendi
+{
+class PVView;
+}
 
 namespace PVParallelView
 {

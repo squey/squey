@@ -166,7 +166,7 @@ unsigned int qHash(PVRegistrableClass<T> const& rc)
 {
 	return rc.registered_id();
 }
-}
+} // namespace PVCore
 
 #define CLASS_REGISTRABLE(T)                                                                       \
   public:                                                                                          \

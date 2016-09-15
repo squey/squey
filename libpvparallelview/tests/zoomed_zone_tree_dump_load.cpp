@@ -17,19 +17,11 @@
 
 using zzt_t = PVParallelView::PVZoomedZoneTree;
 
-const std::string dump_file = "/tmp/zoomed_zone_tree.dump";
 const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
 const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
-void clean()
-{
-	remove(dump_file.c_str());
-}
-
 int main()
 {
-	atexit(clean);
-
 	PVParallelView::common::RAII_backend_init resources;
 
 	TestEnv env(filename, fileformat);
@@ -46,21 +38,7 @@ int main()
 		zzt_t& zzt = zm.get_zoom_zone_tree(zid);
 		std::cout << "  done" << std::endl;
 
-		std::cout << "  dumping" << std::endl;
-		bool ret = zzt.dump_to_file(dump_file.c_str());
-		PV_VALID(ret, true);
-		std::cout << "  done" << std::endl;
-
-		std::cout << "  exhuming" << std::endl;
-		zzt_t* zzt2 = zzt_t::load_from_file(dump_file.c_str());
-		PV_ASSERT_VALID(zzt2 != nullptr);
-		std::cout << "  done" << std::endl;
-
-		ret = (zzt == *zzt2);
-		PV_VALID(ret, true);
-
 		zzt.reset();
-		delete zzt2;
 	}
 
 	return 0;

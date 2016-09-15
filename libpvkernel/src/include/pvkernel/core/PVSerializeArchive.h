@@ -35,7 +35,7 @@ class PVSerializeArchive
 	typedef uint32_t version_t;
 
   public:
-	PVSerializeArchive(version_t version);
+	explicit PVSerializeArchive(version_t version);
 	PVSerializeArchive(QString const& dir, archive_mode mode, version_t version);
 	PVSerializeArchive(const PVSerializeArchive& obj) = delete;
 
@@ -114,6 +114,6 @@ class PVSerializeArchive
 	std::shared_ptr<PVSerializeArchiveOptions> _options;
 	std::string _current_status; //!< Description about where we are in the serialization process.
 };
-}
+} // namespace PVCore
 
 #endif

@@ -18,7 +18,8 @@ namespace PVFilter
 class PVFieldFilterGrep : public PVFieldsFilter<one_to_one>
 {
   public:
-	PVFieldFilterGrep(PVCore::PVArgumentList const& args = PVFieldFilterGrep::default_args());
+	explicit PVFieldFilterGrep(
+	    PVCore::PVArgumentList const& args = PVFieldFilterGrep::default_args());
 
   public:
 	void set_args(PVCore::PVArgumentList const& args) override;
@@ -32,6 +33,6 @@ class PVFieldFilterGrep : public PVFieldsFilter<one_to_one>
 
 	CLASS_FILTER(PVFilter::PVFieldFilterGrep)
 };
-}
+} // namespace PVFilter
 
 #endif

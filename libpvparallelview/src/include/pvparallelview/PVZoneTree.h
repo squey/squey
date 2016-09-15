@@ -199,24 +199,6 @@ class PVZoneTree : public PVZoneTreeBase
 	 */
 	bool operator==(PVZoneTree& zt) const;
 
-	/**
-	 * Save the zone tree into a file.
-	 *
-	 * @param filename the output filename
-	 *
-	 * @return true on success; false otherwise and an error is printed.
-	 */
-	bool dump_to_file(const char* filename) const;
-
-	/**
-	 * Create and load a zone tree from a file.
-	 *
-	 * @param filename the input filename
-	 *
-	 * @return a zone tree on success; nullptr otherwise and an error is printed.
-	 */
-	static PVZoneTree* load_from_file(const char* filename);
-
   private:
 	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp)
 	{

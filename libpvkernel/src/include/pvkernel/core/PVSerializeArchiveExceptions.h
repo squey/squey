@@ -23,6 +23,6 @@ class PVSerializeArchiveErrorNoObject : public PVSerializeArchiveError
 {
 	using PVSerializeArchiveError::PVSerializeArchiveError;
 };
-}
+} // namespace PVCore
 
 #endif

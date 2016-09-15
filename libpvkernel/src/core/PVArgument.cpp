@@ -118,9 +118,8 @@ void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args,
                                          QSettings& settings,
                                          const QString& group_name)
 {
-	PVArgumentList::const_iterator it;
 	settings.beginGroup(group_name);
-	for (it = args.begin(); it != args.end(); it++) {
+	for (auto it = args.begin(); it != args.end(); it++) {
 		settings.setValue(it->key(), PVArgument_to_QString(it->value()));
 	}
 	settings.endGroup();
@@ -155,8 +154,7 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings,
 
 void PVCore::PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomElement& elt)
 {
-	PVArgumentList::const_iterator it;
-	for (it = args.begin(); it != args.end(); it++) {
+	for (auto it = args.begin(); it != args.end(); it++) {
 		QDomElement arg_elt = elt.ownerDocument().createElement("argument");
 		arg_elt.setAttribute("name", it->key());
 		arg_elt.setAttribute("value", PVArgument_to_QString(it->value()));
@@ -182,8 +180,7 @@ PVCore::PVArgumentList PVCore::QDomElement_to_PVArgumentList(QDomElement const& 
 
 void PVCore::dump_argument_list(PVArgumentList const& l)
 {
-	PVCore::PVArgumentList::const_iterator it;
-	for (it = l.begin(); it != l.end(); it++) {
+	for (auto it = l.begin(); it != l.end(); it++) {
 		PVLOG_INFO("%s = %s (%s)\n", qPrintable(it->key().key()),
 		           qPrintable(it->value().toString()),
 		           qPrintable(PVArgument_to_QString(it->value())));
@@ -213,8 +210,7 @@ PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList con
 void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret,
                                                  PVCore::PVArgumentList const& ref)
 {
-	PVCore::PVArgumentList::iterator it;
-	for (it = ret.begin(); it != ret.end(); it++) {
+	for (auto it = ret.begin(); it != ret.end(); it++) {
 		QString const& key(it->key());
 		if (ref.contains(key)) {
 			it->value() = ref.at(key);
@@ -225,8 +221,7 @@ void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret,
 void PVCore::PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret,
                                              PVCore::PVArgumentList const& def_args)
 {
-	PVCore::PVArgumentList::const_iterator it;
-	for (it = def_args.begin(); it != def_args.end(); it++) {
+	for (auto it = def_args.begin(); it != def_args.end(); it++) {
 		QString const& key(it->key());
 		if (!ret.contains(key)) {
 			ret[key] = it->value();

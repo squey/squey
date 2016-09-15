@@ -56,7 +56,7 @@ static bool _isSSE4Supported(const unsigned int CHECKBITS)
 	// If both bits are 1 (indicating both SSE 4.1 and SSE 4.2 exist) then
 	// the function returns 1
 
-	if (isGenuineIntel() >= 1) {
+	if (isGenuineIntel()) {
 		// execute CPUID with eax (leaf) = 1 to get feature bits,
 		// subleaf doesn't matter so set it to zero
 		get_cpuid_infos(&Info, 0x1);

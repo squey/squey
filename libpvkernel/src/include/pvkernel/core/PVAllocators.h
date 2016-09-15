@@ -64,7 +64,7 @@ class PVPreAllocatedListAllocator
 	}
 
 	template <class U, class FA>
-	PVPreAllocatedListAllocator(const PVPreAllocatedListAllocator<U, FA>& o) throw()
+	explicit PVPreAllocatedListAllocator(const PVPreAllocatedListAllocator<U, FA>& o) throw()
 	    : _p(o._p), _size(o._size), _scur(o._scur)
 	{
 	}
@@ -347,7 +347,7 @@ namespace PVMemory
 {
 
 void get_memory_usage(double& vm_usage, double& resident_set);
-}
-}
+} // namespace PVMemory
+} // namespace PVCore
 
 #endif

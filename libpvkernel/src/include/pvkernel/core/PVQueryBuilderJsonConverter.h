@@ -35,7 +35,7 @@ class PVQueryBuilderJsonConverter
 	 *
 	 * @param qb_rule : json input
 	 */
-	PVQueryBuilderJsonConverter(std::string const& qb_rule);
+	explicit PVQueryBuilderJsonConverter(std::string const& qb_rule);
 
 	/**
 	 * Virtual destructor
@@ -173,6 +173,6 @@ class PVQueryBuilderJsonConverter
 	 */
 	static bool is_condition(rapidjson::Value const& obj);
 };
-}
+} // namespace PVCore
 
 #endif

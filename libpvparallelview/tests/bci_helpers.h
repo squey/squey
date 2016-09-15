@@ -56,11 +56,11 @@ struct PVBCIPatterns {
 			if (i < 1024) {
 				c.s.l = constants<Bbits>::mask_int_ycoord / 2;
 				c.s.type = PVBCICode<Bbits>::UP;
-				c.s.color = HSV_COLOR_WHITE;
+				c.s.color = HSV_COLOR_WHITE.h();
 			} else if (i < 3072) {
 				c.s.l = constants<Bbits>::mask_int_ycoord / 2;
 				c.s.type = PVBCICode<Bbits>::DOWN;
-				c.s.color = HSV_COLOR_BLACK;
+				c.s.color = HSV_COLOR_BLACK.h();
 			} else {
 				c.s.l = constants<Bbits>::mask_int_ycoord / 5;
 				c.s.color = i % ((1 << HSV_COLOR_NBITS_ZONE) * 6);

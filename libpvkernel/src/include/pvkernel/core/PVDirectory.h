@@ -19,7 +19,8 @@ namespace PVDirectory
 bool remove_rec(QString const& dirName);
 QString temp_dir(QString const& pattern);
 QString temp_dir(QDir const& directory, QString const& pattern);
-};
-}
+} // namespace PVDirectory
+;
+} // namespace PVCore
 
 #endif

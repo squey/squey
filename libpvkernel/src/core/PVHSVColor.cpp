@@ -67,7 +67,7 @@ static unsigned char plus1mod3(unsigned char i)
 
 void PVCore::PVHSVColor::to_rgba(uint8_t* rgb) const
 {
-	if (_h == HSV_COLOR_TRANSPARENT) {
+	if (*this == HSV_COLOR_TRANSPARENT) {
 		*((uint32_t*)rgb) = 0;
 	} else {
 		to_rgb(rgb);
@@ -77,19 +77,14 @@ void PVCore::PVHSVColor::to_rgba(uint8_t* rgb) const
 
 void PVCore::PVHSVColor::to_rgb(uint8_t* rgb) const
 {
-	/*uint8_t zone = _h>>HSV_COLOR_NBITS_ZONE;
-	uint8_t pos = (zone%3);
-	pos = pos ^ !(pos&2);
-	uint8_t mask = (zone & 1)*0xFF;*/
-
-	if (_h == HSV_COLOR_WHITE) {
+	if (*this == HSV_COLOR_WHITE) {
 		rgb[0] = 0xFF;
 		rgb[1] = 0xFF;
 		rgb[2] = 0xFF;
 		return;
 	}
 
-	if (_h == HSV_COLOR_BLACK) {
+	if (*this == HSV_COLOR_BLACK) {
 		rgb[0] = 0;
 		rgb[1] = 0;
 		rgb[2] = 0;
@@ -137,6 +132,6 @@ QColor PVCore::PVHSVColor::toQColorA() const
 bool PVCore::PVHSVColor::is_valid() const
 {
 	// Checks that the value stored is valid
-	return (_h < HSV_COLOR_COUNT) || (_h == HSV_COLOR_BLACK) || (_h == HSV_COLOR_WHITE) ||
-	       (_h == HSV_COLOR_TRANSPARENT);
+	return (_h < PVCore::PVHSVColor::color_max) || (*this == HSV_COLOR_BLACK) ||
+	       (*this == HSV_COLOR_WHITE) || (*this == HSV_COLOR_TRANSPARENT);
 }

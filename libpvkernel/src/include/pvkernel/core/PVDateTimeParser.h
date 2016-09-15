@@ -26,7 +26,7 @@ class PVDateTimeParser
 {
   public:
 	PVDateTimeParser();
-	PVDateTimeParser(QStringList const& time_format);
+	explicit PVDateTimeParser(QStringList const& time_format);
 	PVDateTimeParser(const PVDateTimeParser& src);
 	~PVDateTimeParser();
 
@@ -62,9 +62,9 @@ class PVDateTimeParser
 	  public:
 		TimeFormat(QString const& time_format, bool prepend_year);
 		TimeFormat(const TimeFormat&);
-		~TimeFormat();
+		~TimeFormat() override;
 		TimeFormat& operator=(const TimeFormat& src);
-		bool to_datetime(UnicodeString const& value, Calendar* cal);
+		bool to_datetime(UnicodeString const& value, Calendar* cal) override;
 
 		bool prepend_year_value;
 		// One object per locale
@@ -82,7 +82,7 @@ class PVDateTimeParser
 	};
 
 	struct TimeFormatEpoch : public TimeFormatInterface {
-		bool to_datetime(UnicodeString const& value, Calendar* cal);
+		bool to_datetime(UnicodeString const& value, Calendar* cal) override;
 	};
 
 	//	typedef std::shared_ptr<TimeFormat> TimeFormat_p;
@@ -107,6 +107,6 @@ class PVDateTimeParser
 
 	QStringList _org_time_format;
 };
-}
+} // namespace PVCore
 
 #endif

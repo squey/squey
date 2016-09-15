@@ -16,7 +16,7 @@
 namespace PVCore
 {
 class PVElement;
-}
+} // namespace PVCore
 
 namespace PVFilter
 {
@@ -32,6 +32,6 @@ class PVElementFilterByFields : public PVElementFilter
 
 	CLASS_FILTER_NONREG_NOPARAM(PVElementFilterByFields)
 };
-}
+} // namespace PVFilter
 
 #endif

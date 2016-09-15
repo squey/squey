@@ -251,8 +251,8 @@ double load_investigation()
 	PVCore::PVHSVColor const* colors =
 	    view->get_layer_stack().get_layer_n(2).get_lines_properties().get_buffer();
 	for (size_t i = 0; i < row_count; i++) {
-		PV_VALID(colors[i].h(), (uint8_t)HSV_COLOR_GREEN);
-		PV_VALID(view->get_color_in_output_layer(i).h(), (uint8_t)HSV_COLOR_GREEN);
+		PV_VALID(colors[i].h(), (uint8_t)HSV_COLOR_GREEN.h());
+		PV_VALID(view->get_color_in_output_layer(i).h(), (uint8_t)HSV_COLOR_GREEN.h());
 	}
 
 	return diff.count();

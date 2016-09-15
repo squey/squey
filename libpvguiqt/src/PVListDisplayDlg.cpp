@@ -11,8 +11,6 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
-#include <inendi/PVView.h>
-
 #include <pvguiqt/PVListDisplayDlg.h>
 
 #include <QClipboard>

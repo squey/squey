@@ -116,7 +116,7 @@ class PVFilterFunctionBase : public PVCore::PVFunctionArgs<boost::function<Tout_
 	typedef PVFilterFunctionBase<Tout, Tin> base;
 
   public:
-	PVFilterFunctionBase(
+	explicit PVFilterFunctionBase(
 	    PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout, Tin>::default_args())
 	    : PVCore::PVFunctionArgs<func_type>(args)
 	{
@@ -145,7 +145,7 @@ class PVFilterFunctionBase<Tout_, void> : public PVCore::PVFunctionArgs<boost::f
 	typedef PVFilterFunctionBase<Tout, void> base;
 
   public:
-	PVFilterFunctionBase(
+	explicit PVFilterFunctionBase(
 	    PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout, void>::default_args())
 	    : PVCore::PVFunctionArgs<func_type>(args)
 	{
@@ -180,7 +180,7 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
 	typedef typename PVFilterFunctionBase<T&, T&>::func_type func_type;
 
   public:
-	PVFilterFunction(PVCore::PVArgumentList const& args = PVFilterFunction::default_args())
+	explicit PVFilterFunction(PVCore::PVArgumentList const& args = PVFilterFunction::default_args())
 	    : PVFilterFunctionBase<T&, T&>(args), PVCore::PVRegistrableClass<RegAs>()
 	{
 	}
@@ -191,7 +191,7 @@ class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,
   public:
 	virtual T& operator()(T& obj) = 0;
 };
-}
+} // namespace PVFilter
 
 // Macros for filter class construction help
 #define CLASS_FILTER(T)                                                                            \

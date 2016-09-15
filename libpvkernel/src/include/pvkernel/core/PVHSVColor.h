@@ -15,38 +15,25 @@
 
 class QImage;
 
-#define HSV_COLOR_NBITS_ZONE 5
-#define HSV_COLOR_MASK_ZONE 31
-#define HSV_COLOR_COUNT 192 // = (2**5)*6, without black & white
-
-// Special colors
-#define HSV_COLOR_WHITE 255
-#define HSV_COLOR_BLACK 254
-#define HSV_COLOR_TRANSPARENT 253
-
-// Some colors that can be useful
-#define HSV_COLOR_BLUE 10
-#define HSV_COLOR_GREEN 59
-#define HSV_COLOR_RED 126
+constexpr const uint8_t HSV_COLOR_NBITS_ZONE = 5;
+constexpr const uint8_t HSV_COLOR_MASK_ZONE = 0b00011111;
 
 namespace PVCore
 {
 
 class PVHSVColor
 {
-	typedef uint8_t T;
-
   public:
-	typedef T h_type;
+	using h_type = uint8_t;
 	static const constexpr uint8_t color_max = (1 << HSV_COLOR_NBITS_ZONE) * 6;
 
   public:
 	PVHSVColor() : _h(0) {}
-	PVHSVColor(T h_) : _h(h_) {}
+	explicit PVHSVColor(uint8_t h_) : _h(h_) {}
 
   public:
-	inline T& h() { return _h; };
-	inline T h() const { return _h; };
+	inline uint8_t& h() { return _h; };
+	inline uint8_t h() const { return _h; };
 	static void
 	to_rgba(const PVHSVColor* hsv_image, QImage& rbg_image, QRect const& img_rect = QRect());
 	bool is_valid() const;
@@ -55,9 +42,9 @@ class PVHSVColor
 	bool operator!=(PVHSVColor const& c) const { return not(c == *this); }
 
   public:
-	void to_rgb(T* rgb) const;
+	void to_rgb(uint8_t* rgb) const;
 
-	void to_rgba(T* rgb) const;
+	void to_rgba(uint8_t* rgb) const;
 
 	void toQColor(QColor& qc) const;
 	QColor toQColor() const;
@@ -66,8 +53,16 @@ class PVHSVColor
 	QColor toQColorA() const;
 
   private:
-	T _h;
+	uint8_t _h;
 };
-}
+} // namespace PVCore
+
+const PVCore::PVHSVColor HSV_COLOR_WHITE(255);
+const PVCore::PVHSVColor HSV_COLOR_BLACK(254);
+const PVCore::PVHSVColor HSV_COLOR_TRANSPARENT(253);
+
+const PVCore::PVHSVColor HSV_COLOR_BLUE(10);
+const PVCore::PVHSVColor HSV_COLOR_GREEN(59);
+const PVCore::PVHSVColor HSV_COLOR_RED(126);
 
 #endif

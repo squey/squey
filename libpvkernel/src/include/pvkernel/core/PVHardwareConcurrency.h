@@ -120,6 +120,6 @@ class PVHardwareConcurrency
 	uint32_t _nb_threads;
 	std::vector<size_t> _cache_level_sizes;
 };
-}
+} // namespace PVCore
 
 #endif /* PVHARDWARECONCURRENCY_H_ */

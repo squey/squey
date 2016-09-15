@@ -27,7 +27,8 @@ namespace PVRush
 {
 class PVAggregator;
 class PVRawSourceBase;
-};
+} // namespace PVRush
+;
 
 namespace PVCore
 {
@@ -243,11 +244,11 @@ class PVChunkMem : public PVChunk
 	static_assert(sizeof(alloc_chunk) == 1, "Bad begin accessor");
 
   private:
-	PVChunkMem(alloc_chunk const& a) : PVChunk(), _alloc(a) {}
-	virtual ~PVChunkMem() {}
+	explicit PVChunkMem(alloc_chunk const& a) : PVChunk(), _alloc(a) {}
+	~PVChunkMem() override {}
 
   public:
-	char* begin() const { return (char*)(this + 1); };
+	char* begin() const override { return (char*)(this + 1); };
 	static PVChunkMem*
 	allocate(size_t size, PVRush::PVRawSourceBase* parent, alloc_chunk a = alloc_chunk())
 	{
@@ -264,7 +265,7 @@ class PVChunkMem : public PVChunk
 		p->_source = parent;
 		return p;
 	}
-	void free()
+	void free() override
 	{
 		alloc_chunk ap = _alloc;
 		char* pbegin = begin();
@@ -273,7 +274,7 @@ class PVChunkMem : public PVChunk
 		// PVLOG_INFO("PVChunk dealloc %u bytes, %p.\n", dealloc, this);
 		ap.deallocate((char*)(this), dealloc);
 	}
-	PVChunk* realloc_grow(size_t n)
+	PVChunk* realloc_grow(size_t n) override
 	{
 		size_t cur_size = (size_t)((uintptr_t)_physical_end - (uintptr_t)begin());
 		size_t new_size = cur_size + n;
@@ -290,6 +291,6 @@ class PVChunkMem : public PVChunk
   private:
 	alloc_chunk _alloc;
 };
-}
+} // namespace PVCore
 
 #endif

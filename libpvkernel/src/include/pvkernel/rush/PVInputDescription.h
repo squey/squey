@@ -38,6 +38,6 @@ class PVInputDescription
 };
 
 typedef PVInputDescription::p_type PVInputDescription_p;
-}
+} // namespace PVRush
 
 #endif

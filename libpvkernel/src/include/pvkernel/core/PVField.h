@@ -19,7 +19,7 @@ class PVField : public PVBufferSlice
 {
   public:
 	PVField(PVElement& parent, char* begin, char* end);
-	PVField(PVElement& parent);
+	explicit PVField(PVElement& parent);
 
   public:
 	bool valid() const;
@@ -36,6 +36,6 @@ class PVField : public PVBufferSlice
 	bool _filtered;
 	PVElement* _parent;
 };
-}
+} // namespace PVCore
 
 #endif

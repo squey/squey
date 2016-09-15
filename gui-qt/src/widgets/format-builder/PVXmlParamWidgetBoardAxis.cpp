@@ -464,7 +464,7 @@ QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListParentSplitterTag()
 		return ret;
 	}
 	parent = parent->getParent();
-	if (!parent || parent->type != PVRush::PVXmlTreeNodeDom::splitter) {
+	if (!parent || parent->type != PVRush::PVXmlTreeNodeDom::Type::splitter) {
 		return ret;
 	}
 

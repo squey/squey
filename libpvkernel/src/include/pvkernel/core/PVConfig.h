@@ -63,6 +63,6 @@ class PVConfig
 	QSettings* _config;
 	QString _username;
 };
-}
+} // namespace PVCore
 
 #endif /* PVCORE_PVCONFIG_H */

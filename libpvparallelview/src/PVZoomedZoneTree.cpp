@@ -452,63 +452,6 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::dump_to_file
- *****************************************************************************/
-
-bool PVParallelView::PVZoomedZoneTree::dump_to_file(const char* filename) const
-{
-	FILE* fp = fopen(filename, "w");
-	if (fp == nullptr) {
-		PVLOG_ERROR("Error while opening %s for writing: %s.\n", filename, strerror(errno));
-		return false;
-	}
-
-	for (size_t i = 0; i < NBUCKETS; ++i) {
-		if (_trees[i].dump_to_file(filename, fp) == false) {
-			return false;
-		}
-	}
-
-	fclose(fp);
-	return true;
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1
- *****************************************************************************/
-
-PVParallelView::PVZoomedZoneTree*
-PVParallelView::PVZoomedZoneTree::load_from_file(const char* filename)
-{
-	FILE* fp = fopen(filename, "r");
-	if (fp == nullptr) {
-		PVLOG_ERROR("Error while opening %s for reading: %s.\n", filename, strerror(errno));
-		return nullptr;
-	}
-
-	PVZoomedZoneTree* zzt = new PVZoomedZoneTree(nullptr, nullptr, 8);
-
-	zzt->_trees = new pvquadtree[NBUCKETS];
-
-	bool err = false;
-	for (size_t i = 0; i < NBUCKETS; ++i) {
-		if (zzt->_trees[i].load_from_file(filename, fp) == false) {
-			err = true;
-			break;
-		}
-	}
-
-	fclose(fp);
-
-	if (err) {
-		delete zzt;
-		zzt = nullptr;
-	}
-
-	return zzt;
-}
-
-/*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1
  *****************************************************************************/
 
@@ -765,7 +708,7 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 		    assert(r < image_width);
 		    assert(l < image_width);
 
-		    if (image[r * image_width + l].h() == HSV_COLOR_TRANSPARENT) {
+		    if (image[r * image_width + l] == HSV_COLOR_TRANSPARENT) {
 			    image[r * image_width + l] = colors[e.idx];
 			    return 1;
 		    }

@@ -136,9 +136,8 @@ void PVCore::PVSerializeObject::set_write(bool write)
 	}
 
 	// Set `set_write' to all children
-	list_childs_t::iterator it;
-	for (it = _childs.begin(); it != _childs.end(); it++) {
-		(*it)->set_write(write);
+	for (auto& child : _childs) {
+		child->set_write(write);
 	}
 }
 

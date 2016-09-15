@@ -101,4 +101,4 @@ QString PVFieldsFilter<many_to_many>::type_name()
 {
 	return QString("generic");
 }
-}
+} // namespace PVFilter

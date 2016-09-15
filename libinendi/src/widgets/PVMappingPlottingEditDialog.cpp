@@ -7,7 +7,6 @@
 
 #include <inendi/PVPlotted.h>
 #include <inendi/PVSource.h>
-#include <inendi/PVView.h>
 
 #include <inendi/widgets/PVMappingModeWidget.h>
 #include <inendi/widgets/PVPlottingModeWidget.h>

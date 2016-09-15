@@ -10,8 +10,8 @@
 
 #include <iostream>
 
-#define N (4 * 1024UL * 1024 * 1024)
-#define N2 (N / 4)
+#define N (512UL * 1024 * 1024)
+#define N2 (N / 2)
 
 int main()
 {
@@ -21,11 +21,11 @@ int main()
 	v.resize(N);
 	PV_ASSERT_VALID((uintptr_t)(v.begin()) % 16 == 0);
 	PV_VALID(v.size(), N);
-	std::cout << "mmap done for 16GB." << std::endl;
+	std::cout << "mmap done for 2GB." << std::endl;
 
 	std::cout << "Write them." << std::endl;
 	memset(v.begin(), 0x0A, N * sizeof(uint32_t));
-	std::cout << "4 Gio written." << std::endl;
+	std::cout << "500 Mio written." << std::endl;
 
 	std::cout << "Shrinking to 1GB." << std::endl;
 	v.resize(N2);
@@ -33,7 +33,7 @@ int main()
 	std::cout << "Shrink done" << std::endl;
 
 	std::cout << "Checking that values are correct." << std::endl;
-	for (size_t i = 0; i < N / 4; i++) {
+	for (size_t i = 0; i < N2; i++) {
 		PV_ASSERT_VALID(v.at(i) == 0x0A0A0A0AU, "i", i);
 	}
 	std::cout << "All valid" << std::endl;

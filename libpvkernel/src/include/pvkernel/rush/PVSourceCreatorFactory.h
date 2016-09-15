@@ -36,6 +36,6 @@ class PVSourceCreatorFactory
 	static list_creators filter_creators_pre_discovery(PVRush::list_creators const& lcr,
 	                                                   PVInputDescription_p input);
 };
-}
+} // namespace PVRush
 
 #endif

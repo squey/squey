@@ -33,7 +33,8 @@ void Inendi::PVLinesProperties::A2B_copy_restricted_by_selection(Inendi::PVLines
  *****************************************************************************/
 void Inendi::PVLinesProperties::reset_to_default_color()
 {
-	std::fill(_colors.begin(), _colors.end(), 0xFF); // FIXME : should use PVCore::PVHSVColor::WHITE
+	std::fill(_colors.begin(), _colors.end(),
+	          PVCore::PVHSVColor(0xFF)); // FIXME : should use PVCore::PVHSVColor::WHITE
 }
 
 /******************************************************************************

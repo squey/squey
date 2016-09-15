@@ -36,7 +36,7 @@ class ThreadEndSignal : public QObject
   Q_SIGNALS:
 	void finished();
 };
-}
+} // namespace __impl
 
 class PVProgressBox : public QDialog
 {
@@ -156,7 +156,7 @@ class PVProgressBox : public QDialog
 	std::condition_variable
 	    _cv; //!< Condition variable to sync thread and message during thread execution.
 };
-}
+} // namespace PVCore
 
 Q_DECLARE_METATYPE(std::function<void()>);
 

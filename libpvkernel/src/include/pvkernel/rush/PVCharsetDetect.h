@@ -22,8 +22,8 @@ class PVCharsetDetect : public nsUniversalDetector
 	PVCharsetDetect();
 
   protected:
-	virtual void Report(const char* charset);
-	virtual void Reset();
+	void Report(const char* charset) override;
+	void Reset() override;
 
   public:
 	std::string const& GetCharset() const;
@@ -33,6 +33,6 @@ class PVCharsetDetect : public nsUniversalDetector
 	std::string _charset;
 	bool _found;
 };
-}
+} // namespace PVRush
 
 #endif

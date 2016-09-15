@@ -39,10 +39,10 @@ class PVXmlTreeNodeDom : public QObject
 {
 	Q_OBJECT
   public:
-	enum Type { Root, field, RegEx, filter, axis, url, splitter, converter };
+	enum class Type { Root, field, RegEx, filter, axis, url, splitter, converter };
 
 	PVXmlTreeNodeDom();
-	PVXmlTreeNodeDom(QDomElement const& dom);
+	explicit PVXmlTreeNodeDom(QDomElement const& dom);
 
 	/**
 	 * Constructor defining the name for le node.
@@ -51,7 +51,7 @@ class PVXmlTreeNodeDom : public QObject
 	 */
 	PVXmlTreeNodeDom(Type _type, const QString& _str, QDomElement& dom, QDomDocument& file);
 	void init(Type _type, const QString& _str, QDomElement& dom, QDomDocument& xmlFile_);
-	virtual ~PVXmlTreeNodeDom();
+	~PVXmlTreeNodeDom() override;
 
 	static PVRush::PVXmlTreeNodeDom* new_format(QDomDocument& file);
 
@@ -117,8 +117,8 @@ class PVXmlTreeNodeDom : public QObject
 
 	bool isEditable()
 	{
-		if (type == splitter || type == converter || type == filter || type == url ||
-		    type == axis || type == RegEx) {
+		if (type == Type::splitter || type == Type::converter || type == Type::filter ||
+		    type == Type::url || type == Type::axis || type == Type::RegEx) {
 			return true;
 		} else {
 			return false;
@@ -366,5 +366,5 @@ class PVXmlTreeNodeDom : public QObject
 	// TODO: list the ids of the children, so that they will be selected !
 	ssize_t _field_linear_id;
 };
-}
+} // namespace PVRush
 #endif /* NODEDOM_H */

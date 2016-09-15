@@ -78,9 +78,7 @@ PVCore::PVDateTimeParser::~PVDateTimeParser()
 {
 	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
 	static tbb::scalable_allocator<TimeFormat> alloc_format;
-	list_time_format::const_iterator it;
-	for (it = _time_format.begin(); it != _time_format.end(); it++) {
-		TimeFormatInterface* tfi = *it;
+	for (TimeFormatInterface* tfi : _time_format) {
 		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
 		if (tf != nullptr) {
 			tf->~TimeFormat();
@@ -97,10 +95,7 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 {
 	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
 	static tbb::scalable_allocator<TimeFormat> alloc_format;
-	list_time_format::const_iterator it;
-	for (it = src._time_format.begin(); it != src._time_format.end(); it++) {
-		// Use RTII to find out the real type of the TimeFormatInterface object.
-		TimeFormatInterface* tfi = *it;
+	for (TimeFormatInterface* tfi : src._time_format) {
 		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
 		if (tf == nullptr) {
 			TimeFormatEpoch_p ptfe = alloc_epoch.allocate(1);
@@ -128,9 +123,7 @@ bool PVCore::PVDateTimeParser::mapping_time_to_cal(UnicodeString const& v, Calen
 
 	PVLOG_DEBUG("(PVDateTimeParser::mapping_time_to_cal) last known time format didn't match. "
 	            "Trying the other ones...\n");
-	list_time_format::iterator it;
-	for (it = _time_format.begin(); it != _time_format.end(); it++) {
-		TimeFormatInterface_p cur_tf = *it;
+	for (TimeFormatInterface_p cur_tf : _time_format) {
 		if (cur_tf == _last_match_time_format) {
 			continue;
 		}

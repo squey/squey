@@ -44,7 +44,7 @@ class no_backend_error : public std::runtime_error
   public:
 	no_backend_error() : std::runtime_error::runtime_error("No OpenCL backend found") {}
 };
-}
+} // namespace exception
 
 /**
  * the function type used as find_first_usable_context(...) parameter
@@ -99,6 +99,6 @@ T* host_allocate(const cl::Context& ctx,
 {
 	return static_cast<T*>(host_alloc(ctx, queue, mem_flags, map_flags, size, buffer, err));
 }
-}
+} // namespace PVOpenCL
 
 #endif // PVKERNEL_OPENCL_COMMON_H

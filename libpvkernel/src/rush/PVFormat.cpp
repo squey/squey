@@ -467,13 +467,13 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 
 PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters()
 {
-	return {create_tbb_filters_elt()};
+	return PVFilter::PVChunkFilterByElt{create_tbb_filters_elt()};
 }
 
 PVFilter::PVChunkFilterByEltCancellable
 PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellation)
 {
-	return {create_tbb_filters_elt(), timeout, cancellation};
+	return PVFilter::PVChunkFilterByEltCancellable{create_tbb_filters_elt(), timeout, cancellation};
 }
 
 std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_elt()

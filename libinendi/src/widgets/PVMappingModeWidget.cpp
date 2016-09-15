@@ -8,7 +8,6 @@
 #include <inendi/PVMapped.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVMappingFilter.h>
-#include <inendi/PVView.h>
 
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>

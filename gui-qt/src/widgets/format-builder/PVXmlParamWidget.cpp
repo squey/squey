@@ -249,24 +249,24 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
 		editingIndex = index;
 		PVRush::PVXmlTreeNodeDom* nodeOnClick = (PVRush::PVXmlTreeNodeDom*)index.internalPointer();
 
-		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
+		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::filter) {
 			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
 			drawForFilter(nodeOnClick);
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx) { //|| (splitter &&
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::RegEx) { //|| (splitter &&
 			//(nodeOnClick->attribute("type","") ==
 			//"regexp"))
 			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> regex\n");
 			drawForRegEx(nodeOnClick);
 			// confirmApply = false;
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis) {
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::axis) {
 			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> axis\n");
 			drawForAxis(nodeOnClick);
 		} else if (nodeOnClick->attribute("type", "") == "url") {
 			return;
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter) {
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::splitter) {
 			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> splitter\n");
 			drawForSplitter(nodeOnClick);
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::converter) {
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::converter) {
 			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> converter\n");
 			drawForConverter(nodeOnClick);
 		}

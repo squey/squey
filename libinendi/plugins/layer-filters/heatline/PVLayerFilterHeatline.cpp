@@ -7,14 +7,14 @@
 
 #include "PVLayerFilterHeatline.h"
 
+#include <inendi/PVView.h>
+
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/PVAlgorithms.h>
-
-#include <inendi/PVView.h>
 
 #include <pvcop/db/algo.h>
 
@@ -166,8 +166,8 @@ void Inendi::PVLayerFilterHeatline::post(
     PVLayer& out, const double ratio, const double fmin, const double fmax, const PVRow line_id)
 {
 	// Colorize line dpeending on ratio value. (High ratio -> red, low ratio -> green)
-	const PVCore::PVHSVColor color(
-	    (uint8_t)((double)(HSV_COLOR_RED - HSV_COLOR_GREEN) * ratio + (double)HSV_COLOR_GREEN));
+	const PVCore::PVHSVColor color((uint8_t)(
+	    (double)(HSV_COLOR_RED.h() - HSV_COLOR_GREEN.h()) * ratio + (double)HSV_COLOR_GREEN.h()));
 	out.get_lines_properties().set_line_properties(line_id, color);
 
 	// UnSelect line out of min/max choosen frequency.

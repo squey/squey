@@ -11,8 +11,6 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSelectionRectangle.h>
 
-#include <pvbase/types.h>
-
 namespace PVParallelView
 {
 

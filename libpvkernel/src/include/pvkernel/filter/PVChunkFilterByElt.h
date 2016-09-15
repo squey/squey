@@ -17,7 +17,7 @@
 namespace PVCore
 {
 class PVChunk;
-}
+} // namespace PVCore
 
 namespace PVFilter
 {
@@ -28,7 +28,7 @@ namespace PVFilter
 class PVChunkFilterByElt : public PVChunkFilter
 {
   public:
-	PVChunkFilterByElt(std::unique_ptr<PVElementFilter> elt_filter)
+	explicit PVChunkFilterByElt(std::unique_ptr<PVElementFilter> elt_filter)
 	    : _elt_filter(std::move(elt_filter))
 	{
 	}
@@ -40,6 +40,6 @@ class PVChunkFilterByElt : public PVChunkFilter
   protected:
 	std::unique_ptr<PVElementFilter> _elt_filter; // filter to apply for splitting.
 };
-}
+} // namespace PVFilter
 
 #endif

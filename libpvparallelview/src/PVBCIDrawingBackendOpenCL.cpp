@@ -135,10 +135,10 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	 */
 	std::stringstream build_options;
 	build_options << "-DLOCAL_MEMORY_SIZE=" << LOCAL_MEMORY_SIZE;
-	build_options << " -DHSV_COLOR_COUNT=" << HSV_COLOR_COUNT;
-	build_options << " -DHSV_COLOR_WHITE=" << HSV_COLOR_WHITE;
-	build_options << " -DHSV_COLOR_BLACK=" << HSV_COLOR_BLACK;
-	build_options << " -DHSV_COLOR_RED=" << HSV_COLOR_RED;
+	build_options << " -DHSV_COLOR_COUNT=" << (int)PVCore::PVHSVColor::color_max;
+	build_options << " -DHSV_COLOR_WHITE=" << (int)HSV_COLOR_WHITE.h();
+	build_options << " -DHSV_COLOR_BLACK=" << (int)HSV_COLOR_BLACK.h();
+	build_options << " -DHSV_COLOR_RED=" << (int)HSV_COLOR_RED.h();
 
 	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>(&err);
 	inendi_verify_opencl_var(err);

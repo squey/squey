@@ -72,6 +72,6 @@ class PVNrawCacheManager
   private:
 	mutable std::unique_ptr<QSettings> _cache_file;
 };
-}
+} // namespace PVRush
 
 #endif // __PVCORE_PVNRAWCACHEMANAGER_H__

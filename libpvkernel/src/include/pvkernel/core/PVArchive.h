@@ -62,7 +62,8 @@ void extract(QString const& path, QString const& dir_dest, QStringList& extracte
  * \note This is mainly used by PVCore::PVSerializeArchiveZip
  */
 void create_tarbz2(QString const& ar_path, QString const& dir_path);
-};
-}
+} // namespace PVArchive
+;
+} // namespace PVCore
 
 #endif

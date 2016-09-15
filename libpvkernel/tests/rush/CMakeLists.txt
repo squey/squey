@@ -136,8 +136,6 @@ add_bench(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 	../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp)
 
 # Plugin input tests
-add_pv_compile_test(Trush_format_conv LINKS ${LINK_LIBRARIES} FILES format_conv.cpp)
-
 add_pv_compile_test(Trush_nraw_filtered LINKS ${LINK_LIBRARIES} FILES nraw_filtered.cpp)
 add_test(Trush_nraw_filtered Trush_nraw_filtered)
 add_bench(Trush_nraw_filtered LINKS ${LINK_LIBRARIES} FILES nraw_filtered.cpp)
@@ -154,8 +152,6 @@ add_bench(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_create.cpp)
 add_pv_compile_test(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
 add_test(Trush_nraw_dump Trush_nraw_dump)
 add_bench(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
-
-add_pv_compile_test(Trush_process_file_auto_discovery LINKS ${LINK_LIBRARIES} FILES process_file_auto_discovery.cpp helpers.cpp)
 
 add_pv_compile_test(Trush_format LINKS ${LINK_LIBRARIES} FILES format.cpp helpers.cpp)
 add_test(Trush_format Trush_format ${PVRUSH_TEST_FILES}/formats)

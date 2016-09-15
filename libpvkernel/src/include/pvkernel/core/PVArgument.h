@@ -43,24 +43,21 @@ class PVArgumentKey : public QString
 	PVArgumentKey(QString const& key, QString const& desc = QString()) : QString(key), _desc(desc)
 	{
 		if (desc.isNull()) {
-			set_desc_from_key();
+			_desc = _key_desc.value(*this, *this);
 		} else {
 			_key_desc[key] = desc;
 		}
 	}
-	PVArgumentKey(const char* key) : QString(key) { set_desc_from_key(); }
+	PVArgumentKey(const char* key) : PVArgumentKey(QString(key)) {}
 
-	inline QString const& key() const { return *((QString*)this); }
+	inline QString const& key() const { return *this; }
 	inline QString const& desc() const { return _desc; }
-
-  private:
-	void set_desc_from_key() { _desc = _key_desc.value(*this, *this); }
 
   private:
 	QString _desc;
 	static QHash<QString, QString> _key_desc;
 };
-}
+} // namespace PVCore
 
 extern unsigned int qHash(PVCore::PVArgumentKey const& key);
 
@@ -106,7 +103,7 @@ class PVArgumentTypeBase
 template <class T>
 class PVArgumentType : public PVArgumentTypeBase
 {
-	virtual bool is_equal(const PVArgumentTypeBase& other) const
+	bool is_equal(const PVArgumentTypeBase& other) const override
 	{
 		const T* pother = dynamic_cast<const T*>(&other);
 		if (!pother) {
@@ -143,6 +140,6 @@ void PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret,
                                          PVCore::PVArgumentList const& ref);
 void PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret,
                                      PVCore::PVArgumentList const& def_args);
-}
+} // namespace PVCore
 
 #endif

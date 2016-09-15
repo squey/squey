@@ -37,6 +37,6 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 bool comp_hash(PVCore::PVArgumentList const& h1,
                PVCore::PVArgumentList const& h2,
                const PVCore::PVArgumentKeyList& keys);
-}
+} // namespace PVCore
 
 #endif

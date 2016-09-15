@@ -15,7 +15,7 @@
 namespace PVCore
 {
 class PVChunk;
-}
+} // namespace PVCore
 
 namespace PVFilter
 {
@@ -36,6 +36,6 @@ class PVChunkFilterRemoveInvalidElts : public PVChunkFilter
   protected:
 	size_t _current_agg_index;
 };
-}
+} // namespace PVFilter
 
 #endif
