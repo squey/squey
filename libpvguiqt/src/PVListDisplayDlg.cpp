@@ -197,37 +197,40 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 	// Define parallel execution environment
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
-	tbb::task_group_context ctxt;
 
 	auto res = PVCore::PVProgressBox::progress(
 	    [&, count](PVCore::PVProgressBox& /*pbox*/) {
+		    tbb::task_group_context ctxt;
+		    try {
 
-		    BENCH_START(export_values);
-		    content = tbb::parallel_reduce(
-		        tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)), content,
-		        [&](const tbb::blocked_range<int>& range, QString l) -> QString {
-			        for (int i = range.begin(); i != range.end(); ++i) {
-				        if
-					        unlikely(ctxt.is_group_execution_cancelled()) { return QString(); }
-				        QString s = _model->export_line(model().row_pos_to_index(i));
-				        if (!s.isNull()) {
-					        l.append(s.append(sep));
+			    BENCH_START(export_values);
+			    content = tbb::parallel_reduce(
+			        tbb::blocked_range<int>(0, count, std::max(nthreads, count / nthreads)),
+			        content,
+			        [&](const tbb::blocked_range<int>& range, QString l) -> QString {
+				        for (int i = range.begin(); i != range.end(); ++i) {
+					        boost::this_thread::interruption_point();
+					        QString s = _model->export_line(model().row_pos_to_index(i));
+					        if (!s.isNull()) {
+						        l.append(s.append(sep));
+					        }
 				        }
-			        }
-			        return l;
-			    },
-		        // Get ordered result
-		        [](const QString& left, const QString& right) -> QString {
-			        const_cast<QString&>(left).append(
-			            right); // const_cast needed to use optimized append method
-			        return left;
-			    },
-		        tbb::simple_partitioner());
-		    BENCH_END(export_values, "export_values", 0, 0, 1, content.size());
-
-		    return !ctxt.is_group_execution_cancelled();
+				        return l;
+				    },
+			        // Get ordered result
+			        [](const QString& left, const QString& right) -> QString {
+				        const_cast<QString&>(left).append(
+				            right); // const_cast needed to use optimized append method
+				        return left;
+				    },
+			        tbb::simple_partitioner(), ctxt);
+			    BENCH_END(export_values, "export_values", 0, 0, 1, content.size());
+		    } catch (boost::thread_interrupted) {
+			    ctxt.cancel_group_execution();
+			    throw;
+		    }
 		},
-	    ctxt, QObject::tr("Copying values..."), this);
+	    QObject::tr("Copying values..."), this);
 
 	QApplication::restoreOverrideCursor();
 

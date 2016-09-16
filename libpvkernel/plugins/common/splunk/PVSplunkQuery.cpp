@@ -59,12 +59,12 @@ void PVRush::PVSplunkQuery::save_to_qsettings(QSettings& settings) const
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVSplunkQuery::load_from_qsettings(const QSettings& settings)
+PVRush::PVSplunkQuery::load_from_string(std::string const&)
 {
-	PVSplunkInfos infos;
-	infos.set_host(settings.value("host").toString());
-	infos.set_port(settings.value("port").toInt());
-	QString query(settings.value("query").toString());
-	QString query_type(settings.value("query_type").toString());
-	return std::unique_ptr<PVSplunkQuery>(new PVSplunkQuery(infos, query, query_type));
+	throw PVRush::BadInputDescription("Incomplete input for SplunkQuery");
+}
+
+std::string PVRush::PVSplunkQuery::desc_from_qsetting(QSettings const&)
+{
+	throw PVRush::BadInputDescription("Incomplete input for SplunkQuery");
 }

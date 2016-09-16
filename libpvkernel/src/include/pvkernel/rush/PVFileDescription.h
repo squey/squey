@@ -10,6 +10,8 @@
 
 #include <pvkernel/rush/PVInputDescription.h>
 
+#include <QFile>
+
 namespace PVRush
 {
 
@@ -18,7 +20,12 @@ class PVFileDescription : public PVInputDescription
 	friend class PVCore::PVSerializeObject;
 
   public:
-	PVFileDescription(QString const& path) : _path(QDir().absoluteFilePath(path)) {}
+	PVFileDescription(QString const& path) : _path(QDir().absoluteFilePath(path))
+	{
+		if (not QFile::exists(_path)) {
+			throw PVRush::BadInputDescription("Input file doesn't exists");
+		}
+	}
 
   public:
 	virtual bool operator==(const PVInputDescription& other) const
@@ -33,11 +40,15 @@ class PVFileDescription : public PVInputDescription
   public:
 	virtual void save_to_qsettings(QSettings& settings) const { settings.setValue("path", path()); }
 
-	static std::unique_ptr<PVRush::PVInputDescription>
-	load_from_qsettings(const QSettings& settings)
+	static std::unique_ptr<PVRush::PVInputDescription> load_from_string(std::string const& path)
 	{
 		return std::unique_ptr<PVFileDescription>(
-		    new PVFileDescription(settings.value("path").toString()));
+		    new PVFileDescription(QString::fromStdString(path)));
+	}
+
+	static std::string desc_from_qsetting(QSettings const& s)
+	{
+		return s.value("path").toString().toStdString();
 	}
 
   public:

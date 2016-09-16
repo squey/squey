@@ -38,6 +38,20 @@
  *****************************************************************************/
 const QFont* PVGuiQt::PVStartScreenWidget::_item_font = nullptr;
 
+namespace
+{
+struct connecter {
+	template <PVCore::Category c>
+	void call() const
+	{
+		PVCore::PVRecentItemsManager::get()._add_item[c].connect(
+		    sigc::mem_fun(&sc, &PVGuiQt::PVStartScreenWidget::refresh_recent_items<c>));
+	}
+
+	PVGuiQt::PVStartScreenWidget& sc;
+};
+}
+
 PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(parent)
 {
 	PVLOG_DEBUG("PVGuiQt::PVStartScreenWidget::%s\n", __FUNCTION__);
@@ -181,7 +195,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	clear_used_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_used_format_history->setCursor(Qt::PointingHandCursor);
 	connect(clear_used_format_history, &QPushButton::clicked,
-	        [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::USED_FORMATS); });
+	        [&] { clear_history_dlg<PVCore::Category::USED_FORMATS>(); });
 	used_format_header_layout->addWidget(format_text_used_label);
 	used_format_header_layout->addStretch();
 	used_format_header_layout->addWidget(clear_used_format_history);
@@ -193,10 +207,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	recent_used_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_used_formats_list->verticalScrollBar()->setObjectName(
 	    "verticalScrollBar_of_PVListingView");
-	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::USED_FORMATS] =
-	    recent_used_formats_list;
-	_recent_push_buttons[PVCore::PVRecentItemsManager::Category::USED_FORMATS] =
-	    clear_used_format_history;
+	_recent_list_widgets[PVCore::Category::USED_FORMATS] = recent_used_formats_list;
+	_recent_push_buttons[PVCore::Category::USED_FORMATS] = clear_used_format_history;
 
 	// edited
 	QFrame* format_edited_widget_line = new QFrame(format_widget);
@@ -210,7 +222,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	clear_edited_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_edited_format_history->setCursor(Qt::PointingHandCursor);
 	connect(clear_edited_format_history, &QPushButton::clicked,
-	        [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::EDITED_FORMATS); });
+	        [&] { clear_history_dlg<PVCore::Category::EDITED_FORMATS>(); });
 	edited_format_header_layout->addWidget(format_text_edited_label);
 	edited_format_header_layout->addStretch();
 	edited_format_header_layout->addWidget(clear_edited_format_history);
@@ -222,10 +234,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	recent_edited_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_edited_formats_list->verticalScrollBar()->setObjectName(
 	    "verticalScrollBar_of_PVListingView");
-	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::EDITED_FORMATS] =
-	    recent_edited_formats_list;
-	_recent_push_buttons[PVCore::PVRecentItemsManager::Category::EDITED_FORMATS] =
-	    clear_edited_format_history;
+	_recent_list_widgets[PVCore::Category::EDITED_FORMATS] = recent_edited_formats_list;
+	_recent_push_buttons[PVCore::Category::EDITED_FORMATS] = clear_edited_format_history;
 
 	// supported
 	QFrame* format_supported_widget_line = new QFrame(format_widget);
@@ -242,9 +252,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	supported_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	supported_formats_list->verticalScrollBar()->setObjectName(
 	    "verticalScrollBar_of_PVListingView");
-	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS] =
-	    supported_formats_list;
-	_recent_push_buttons[PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS] = nullptr;
+	_recent_list_widgets[PVCore::Category::SUPPORTED_FORMATS] = supported_formats_list;
+	_recent_push_buttons[PVCore::Category::SUPPORTED_FORMATS] = nullptr;
 
 	// projects (text and line)
 	QFrame* project_widget_line = new QFrame(import_widget);
@@ -266,8 +275,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	project_widget_layout->addWidget(recent_projects_list);
 	recent_projects_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_projects_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::PROJECTS] = recent_projects_list;
-	_recent_push_buttons[PVCore::PVRecentItemsManager::Category::PROJECTS] = clear_project_history;
+	_recent_list_widgets[PVCore::Category::PROJECTS] = recent_projects_list;
+	_recent_push_buttons[PVCore::Category::PROJECTS] = clear_project_history;
 
 	// Imports (text and line)
 	QFrame* import_widget_line = new QFrame(project_widget);
@@ -280,7 +289,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	clear_source_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_source_history->setCursor(Qt::PointingHandCursor);
 	connect(clear_source_history, &QPushButton::clicked,
-	        [&] { clear_history_dlg(PVCore::PVRecentItemsManager::Category::SOURCES); });
+	        [&] { clear_history_dlg<PVCore::Category::SOURCES>(); });
 	import_text_label->setObjectName("PVStartScreenWidget_text");
 	import_widget_layout->addWidget(import_widget_line);
 	sources_header_layout->addWidget(import_text_label);
@@ -295,8 +304,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	recent_sources_layout->addWidget(import_list);
 	import_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	import_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::SOURCES] = import_list;
-	_recent_push_buttons[PVCore::PVRecentItemsManager::Category::SOURCES] = clear_source_history;
+	_recent_list_widgets[PVCore::Category::SOURCES] = import_list;
+	_recent_push_buttons[PVCore::Category::SOURCES] = clear_source_history;
 
 	_item_font = &import_list->font();
 
@@ -311,8 +320,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	connect(create_new_format_button, SIGNAL(clicked(bool)), this, SIGNAL(new_format()));
 	connect(edit_format_button, SIGNAL(clicked(bool)), this, SIGNAL(load_format()));
 
-	PVCore::PVRecentItemsManager::get()._add_item.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVStartScreenWidget::refresh_recent_items));
+	PVCore::PVRecentItemsManager::apply_on_category(connecter{*this});
 
 	refresh_all_recent_items();
 }
@@ -325,111 +333,22 @@ void PVGuiQt::PVStartScreenWidget::import_type()
 	Q_EMIT import_type(itype);
 }
 
+namespace
+{
+struct refresher {
+	template <PVCore::Category c>
+	void call() const
+	{
+		sc.refresh_recent_items<c>();
+	}
+
+	PVGuiQt::PVStartScreenWidget& sc;
+};
+}
+
 void PVGuiQt::PVStartScreenWidget::refresh_all_recent_items()
 {
-	for (int category = (int)PVCore::PVRecentItemsManager::Category::FIRST;
-	     category < (int)PVCore::PVRecentItemsManager::Category::LAST; category++) {
-		refresh_recent_items(category);
-	}
-}
-
-void PVGuiQt::PVStartScreenWidget::refresh_recent_items(int cat)
-{
-	// Qt doesn't like custom types, here's why we are using an int for this
-	// slot...
-	PVCore::PVRecentItemsManager::Category category = (PVCore::PVRecentItemsManager::Category)cat;
-
-	custom_listwidget_t* list = _recent_list_widgets[category];
-	QPushButton* clear_button = _recent_push_buttons[category];
-	list->setObjectName("RecentProjectItem");
-	// list->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
-	// QSizePolicy::Maximum));
-	list->clear();
-
-	uint64_t index = 0;
-	for (QVariant var : PVCore::PVRecentItemsManager::get().get_list(category)) {
-		// item + data
-		__impl::PVListWidgetItem* item_widget =
-		    new __impl::PVListWidgetItem(category, var, index, list, this);
-		list->setItemWidget(item_widget, item_widget->widget());
-
-		index++;
-	}
-
-	if (clear_button) {
-		clear_button->setEnabled(index > 0);
-	}
-}
-
-PVGuiQt::PVStartScreenWidget::descr_strings_t
-PVGuiQt::PVStartScreenWidget::get_strings_from_variant(
-    PVCore::PVRecentItemsManager::Category category, const QVariant& var)
-{
-	switch (category) {
-	case PVCore::PVRecentItemsManager::Category::PROJECTS:
-	case PVCore::PVRecentItemsManager::Category::USED_FORMATS:
-	case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS: {
-		QString long_string = var.toString();
-		QString short_string =
-		    PVWidgets::PVUtils::shorten_path(long_string, *_item_font, _item_width);
-		QStringList filenames;
-		filenames << long_string;
-		return std::make_tuple(short_string, long_string, filenames);
-	}
-	case PVCore::PVRecentItemsManager::Category::SOURCES: {
-		return get_strings_from_source_description(var);
-	}
-	case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS: {
-		return get_strings_from_format(var);
-	}
-	default: {
-		assert(false);
-		return descr_strings_t();
-	}
-	}
-}
-
-PVGuiQt::PVStartScreenWidget::descr_strings_t
-PVGuiQt::PVStartScreenWidget::get_strings_from_format(const QVariant& var)
-{
-	PVRush::PVFormat format = var.value<PVRush::PVFormat>();
-
-	QString long_string =
-	    QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
-	QString short_string = PVWidgets::PVUtils::shorten_path(long_string, *_item_font, _item_width);
-	QStringList filenames;
-	filenames << format.get_full_path();
-
-	return std::make_tuple(short_string, long_string, filenames);
-}
-
-PVGuiQt::PVStartScreenWidget::descr_strings_t
-PVGuiQt::PVStartScreenWidget::get_strings_from_source_description(const QVariant& var)
-{
-	PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
-
-	QString long_string;
-	QString short_string;
-	QStringList filenames;
-
-	QStringList short_strings;
-	if (src_desc.get_inputs().size() == 1) {
-		QString source_path = src_desc.get_inputs()[0]->human_name();
-		short_string = PVWidgets::PVUtils::shorten_path(source_path, *_item_font, _item_width) +
-		               " [" + src_desc.get_format().get_format_name() + "]";
-		long_string = source_path + " [" + src_desc.get_format().get_format_name() + "]";
-		filenames << source_path;
-	} else {
-		for (auto input : src_desc.get_inputs()) {
-			QFileInfo info(input->human_name());
-			short_strings << info.fileName();
-			filenames << input->human_name();
-		}
-		short_string = "Aggregation [" + src_desc.get_format().get_format_name() + "]";
-		long_string = "[" + src_desc.get_format().get_format_name() + "]\n" + filenames.join("\n");
-	}
-
-	return std::make_tuple(short_string, long_string, filenames);
+	PVCore::PVRecentItemsManager::apply_on_category(refresher{*this});
 }
 
 void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
@@ -437,31 +356,29 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 	// This is kind of a hack but it saves the use of a
 	// QAbstractListModel/QListView...
 	QStringList ids = id.split(";");
-	PVCore::PVRecentItemsManager::Category category =
-	    (PVCore::PVRecentItemsManager::Category)ids[0].toUInt();
+	PVCore::Category category = (PVCore::Category)ids[0].toUInt();
 	uint64_t item_index = ids[1].toUInt();
 	QListWidgetItem* item = _recent_list_widgets[category]->item(item_index);
 
 	QVariant var = item->data(Qt::UserRole);
 
 	switch (category) {
-	case PVCore::PVRecentItemsManager::Category::PROJECTS: {
+	case PVCore::Category::PROJECTS: {
 		Q_EMIT load_project_from_path(var.toString());
 		break;
 	}
-	case PVCore::PVRecentItemsManager::Category::SOURCES: {
-		PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
-		Q_EMIT load_source_from_description(src_desc);
+	case PVCore::Category::SOURCES: {
+		Q_EMIT load_source_from_description(
+		    PVRush::PVSourceDescription(var.value<PVCore::PVSerializedSource>()));
 		break;
 	}
-	case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
-	case PVCore::PVRecentItemsManager::Category::USED_FORMATS: {
+	case PVCore::Category::EDITED_FORMATS:
+	case PVCore::Category::USED_FORMATS: {
 		Q_EMIT edit_format(var.toString());
 		break;
 	}
-	case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS: {
-		PVRush::PVFormat format = var.value<PVRush::PVFormat>();
-		Q_EMIT edit_format(format.get_full_path());
+	case PVCore::Category::SUPPORTED_FORMATS: {
+		Q_EMIT edit_format(var.toString());
 		break;
 	}
 	default: {
@@ -470,44 +387,7 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 	}
 }
 
-void PVGuiQt::PVStartScreenWidget::clear_history(PVCore::PVRecentItemsManager::Category category)
-{
-	custom_listwidget_t* list = _recent_list_widgets[category];
-	QList<int> indexes;
-
-	for (int i = list->count(); i-- > 0;) {
-		__impl::PVListWidgetItem* item = (__impl::PVListWidgetItem*)list->item(i);
-		assert(item);
-		if (item->is_checked()) {
-			indexes << i;
-		}
-	}
-
-	// Clear list widget
-	if (indexes.isEmpty()) {
-		list->clear();
-	}
-
-	// Clear config file
-	PVCore::PVRecentItemsManager::get().clear(category, indexes);
-
-	refresh_recent_items(category);
-}
-
-void PVGuiQt::PVStartScreenWidget::clear_history_dlg(
-    PVCore::PVRecentItemsManager::Category category)
-{
-	QString c = format_selected_item_string(category);
-	QMessageBox confirm(QMessageBox::Question, tr("Please confirm"),
-	                    "Clear history for the " + c + "?", QMessageBox::Yes | QMessageBox::No,
-	                    this);
-	if (confirm.exec() == QMessageBox::Yes) {
-		clear_history(category);
-	} else {
-	}
-}
-
-size_t PVGuiQt::PVStartScreenWidget::selected_count(PVCore::PVRecentItemsManager::Category cat)
+size_t PVGuiQt::PVStartScreenWidget::selected_count(PVCore::Category cat)
 {
 	custom_listwidget_t* list = _recent_list_widgets[cat];
 
@@ -521,7 +401,7 @@ size_t PVGuiQt::PVStartScreenWidget::selected_count(PVCore::PVRecentItemsManager
 	return selected_cout;
 }
 
-size_t PVGuiQt::PVStartScreenWidget::total_count(PVCore::PVRecentItemsManager::Category cat)
+size_t PVGuiQt::PVStartScreenWidget::total_count(PVCore::Category cat)
 {
 	custom_listwidget_t* list = _recent_list_widgets[cat];
 	return list->count();
@@ -531,7 +411,7 @@ void PVGuiQt::PVStartScreenWidget::delete_investigation_dlg()
 {
 	__impl::PVDeleteInvestigationDialog* dlg = new __impl::PVDeleteInvestigationDialog(this);
 
-	PVCore::PVRecentItemsManager::Category cat = PVCore::PVRecentItemsManager::Category::PROJECTS;
+	constexpr PVCore::Category cat = PVCore::Category::PROJECTS;
 
 	custom_listwidget_t* list = _recent_list_widgets[cat];
 
@@ -541,34 +421,23 @@ void PVGuiQt::PVStartScreenWidget::delete_investigation_dlg()
 			assert(item);
 
 			QVariant var = item->data(Qt::UserRole);
-			QStringList filenames;
-			std::tie(std::ignore, std::ignore, filenames) =
-			    PVGuiQt::PVStartScreenWidget::get_strings_from_variant(cat, var);
+			QString filename = var.toString();
 
 			if (item->is_checked()) {
 				if (dlg->remove_cache() || dlg->delete_investigation()) {
 					PVRush::PVNrawCacheManager::get().remove_investigation(
-					    filenames[0], dlg->delete_investigation());
+					    filename, dlg->delete_investigation());
 				}
 			}
 		}
 
 		if (dlg->clear_history() || dlg->delete_investigation()) {
-			clear_history(cat);
+			clear_history<cat>();
 		}
-
-		// Reset checkboxes
-		/*for (int i = 0; i < list->count(); i++) {
-		        __impl::PVListWidgetItem* item = (__impl::PVListWidgetItem*)
-		list->item(i);
-		        assert(item);
-		        item->set_icon_visible(true);
-		}*/
 	}
 }
 
-QString PVGuiQt::PVStartScreenWidget::format_selected_item_string(
-    PVCore::PVRecentItemsManager::Category cat)
+QString PVGuiQt::PVStartScreenWidget::format_selected_item_string(PVCore::Category cat)
 {
 	size_t sel_count = selected_count(cat);
 	size_t tot_count = total_count(cat);
@@ -591,7 +460,9 @@ QString PVGuiQt::PVStartScreenWidget::format_selected_item_string(
  *
  *****************************************************************************/
 PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
-    PVCore::PVRecentItemsManager::Category cat,
+    PVCore::Category cat,
+    QString long_string,
+    QStringList filenames,
     QVariant var,
     int index,
     PVGuiQt::PVStartScreenWidget::custom_listwidget_t* parent,
@@ -601,10 +472,28 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	setData(Qt::UserRole, var);
 	setData(Qt::UserRole + 1, cat);
 	QString short_string;
-	QString long_string;
-	QStringList filenames;
-	std::tie(short_string, long_string, filenames) =
-	    PVGuiQt::PVStartScreenWidget::get_strings_from_variant(cat, var);
+	switch (cat) {
+	case PVCore::Category::SOURCES: {
+		size_t brac_open_pos = long_string.indexOf("[");
+		size_t brac_close_pos = long_string.indexOf("]");
+		QString format_name = long_string.mid(brac_open_pos, brac_close_pos);
+		if (filenames.size() == 1) {
+			short_string =
+			    PVWidgets::PVUtils::shorten_path(long_string.left(brac_open_pos),
+			                                     *PVGuiQt::PVStartScreenWidget::_item_font,
+			                                     PVGuiQt::PVStartScreenWidget::_item_width) +
+			    format_name;
+		} else {
+			short_string = "Aggregation " + format_name;
+		}
+		break;
+	}
+	default:
+		short_string =
+		    PVWidgets::PVUtils::shorten_path(long_string, *PVGuiQt::PVStartScreenWidget::_item_font,
+		                                     PVGuiQt::PVStartScreenWidget::_item_width);
+		break;
+	}
 
 	QHBoxLayout* layout = new QHBoxLayout();
 	layout->setAlignment(Qt::AlignLeft);
@@ -660,7 +549,7 @@ void PVGuiQt::__impl::PVListWidgetItem::timeout()
 
 bool PVGuiQt::__impl::PVListWidgetItem::eventFilter(QObject* obj, QEvent* event)
 {
-	if (_cat == PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS) {
+	if (_cat == PVCore::Category::SUPPORTED_FORMATS) {
 		return false;
 	}
 
@@ -711,8 +600,7 @@ PVGuiQt::__impl::PVDeleteInvestigationDialog::PVDeleteInvestigationDialog(
 	connect(button_box, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(button_box, SIGNAL(rejected()), this, SLOT(reject()));
 
-	QString c = start_screen_widget()->format_selected_item_string(
-	    PVCore::PVRecentItemsManager::Category::PROJECTS);
+	QString c = start_screen_widget()->format_selected_item_string(PVCore::Category::PROJECTS);
 
 	vbox->addWidget(new QLabel("Choose the action to perform on the " + c + ":\n"));
 	vbox->addWidget(_clear_history_cb);
@@ -739,3 +627,39 @@ void PVGuiQt::__impl::PVDeleteInvestigationDialog::delete_investigation_checked(
 		_remove_cache_cb->setEnabled(true);
 	}
 }
+
+namespace PVGuiQt
+{
+
+template <>
+void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
+{
+	custom_listwidget_t* list = _recent_list_widgets[PVCore::Category::SOURCES];
+	QPushButton* clear_button = _recent_push_buttons[PVCore::Category::SOURCES];
+	list->setObjectName("RecentProjectItem");
+	list->clear();
+
+	uint64_t index = 0;
+	for (auto const& sd :
+	     PVCore::PVRecentItemsManager::get().get_list<PVCore::Category::SOURCES>()) {
+		// item + data
+		QString long_string;
+		QStringList filenames;
+		std::tie(long_string, filenames) =
+		    PVCore::PVRecentItemsManager::get().get_string_from_entry(sd);
+
+		QVariant var;
+		var.setValue<PVCore::PVSerializedSource>(sd);
+		__impl::PVListWidgetItem* item_widget = new __impl::PVListWidgetItem(
+		    PVCore::Category::SOURCES, long_string, filenames, var, index, list, this);
+		list->setItemWidget(item_widget, item_widget->widget());
+
+		index++;
+	}
+
+	if (clear_button) {
+		clear_button->setEnabled(index > 0);
+	}
+}
+
+} // namespace PVGuiQt

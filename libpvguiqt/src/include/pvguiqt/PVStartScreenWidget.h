@@ -17,6 +17,8 @@
 #include <QListWidget>
 #include <QCheckBox>
 #include <QTimer>
+#include <QPushButton>
+#include <QMessageBox>
 class QLabel;
 
 #include <pvkernel/core/PVRecentItemsManager.h>
@@ -63,9 +65,10 @@ class PVStartScreenWidget : public QWidget, public sigc::trackable
 
 	/*! \brief Refresh the recent items of a given category.
 	*/
-	void refresh_recent_items(int category);
+	template <PVCore::Category category>
+	void refresh_recent_items();
 
-	QString format_selected_item_string(PVCore::PVRecentItemsManager::Category cat);
+	QString format_selected_item_string(PVCore::Category cat);
 
   Q_SIGNALS:
 	// These signals are used by to the PVMainWindow.
@@ -91,38 +94,24 @@ class PVStartScreenWidget : public QWidget, public sigc::trackable
 	void import_type();
 
   private:
-	/*! \brief Extract a descr_strings_t from a QVariant of a given category.
-	 *  \param[in] category The given category.
-	 *  \param[in] var      The QVariant to convert to descr_strings_t.
-	 */
-	static descr_strings_t get_strings_from_variant(PVCore::PVRecentItemsManager::Category category,
-	                                                const QVariant& var);
+	template <PVCore::Category cat>
+	void clear_history();
 
-	/*! \brief Extract a descr_strings_t from a Inendi::PVFormat QVariant.
-	 *  \param[in] var The Inendi::PVFormat QVariant to convert to descr_strings_t.
-	 */
-	static descr_strings_t get_strings_from_format(const QVariant& var);
+	template <PVCore::Category cat>
+	void clear_history_dlg();
 
-	/*! \brief Extract a descr_strings_t from a PVRush::PVSourceDescription QVariant.
-	 *  \param[in] var The PVRush::PVSourceDescription QVariant to convert to descr_strings_t.
-	 */
-	static descr_strings_t get_strings_from_source_description(const QVariant& var);
-
-	void clear_history(PVCore::PVRecentItemsManager::Category cat);
-
-	void clear_history_dlg(PVCore::PVRecentItemsManager::Category cat);
 	void delete_investigation_dlg();
 
-	size_t selected_count(PVCore::PVRecentItemsManager::Category cat);
-	size_t total_count(PVCore::PVRecentItemsManager::Category cat);
+	size_t selected_count(PVCore::Category cat);
+	size_t total_count(PVCore::Category cat);
 
   private:
 	QWidget* format_widget;
 	QWidget* import_widget;
 	QWidget* project_widget;
 
-	custom_listwidget_t* _recent_list_widgets[PVCore::PVRecentItemsManager::Category::LAST];
-	QPushButton* _recent_push_buttons[PVCore::PVRecentItemsManager::Category::LAST];
+	custom_listwidget_t* _recent_list_widgets[PVCore::Category::LAST];
+	QPushButton* _recent_push_buttons[PVCore::Category::LAST];
 
 	static const QFont* _item_font;
 	static const uint64_t _item_width = 475;
@@ -136,7 +125,9 @@ class PVListWidgetItem : public QObject, public QListWidgetItem
 	Q_OBJECT
 
   public:
-	PVListWidgetItem(PVCore::PVRecentItemsManager::Category cat,
+	PVListWidgetItem(PVCore::Category cat,
+	                 QString long_string,
+	                 QStringList filenames,
 	                 QVariant var,
 	                 int index,
 	                 PVGuiQt::PVStartScreenWidget::custom_listwidget_t* parent,
@@ -157,7 +148,7 @@ class PVListWidgetItem : public QObject, public QListWidgetItem
 	QCheckBox* _checkbox;
 	QLabel* _icon_label;
 	QWidget* _widget;
-	PVCore::PVRecentItemsManager::Category _cat;
+	PVCore::Category _cat;
 	QTimer _timer;
 };
 
@@ -189,6 +180,71 @@ class PVDeleteInvestigationDialog : public QDialog
 	bool _old_clear_history_state;
 	bool _old_remove_cache_state;
 };
+}
+
+template <PVCore::Category category>
+void PVStartScreenWidget::refresh_recent_items()
+{
+	custom_listwidget_t* list = _recent_list_widgets[category];
+	QPushButton* clear_button = _recent_push_buttons[category];
+	list->setObjectName("RecentProjectItem");
+	list->clear();
+
+	uint64_t index = 0;
+	for (std::string value : PVCore::PVRecentItemsManager::get().get_list<category>()) {
+		QString var = QString::fromStdString(value);
+		// item + data
+		QString long_string;
+		QStringList filenames;
+		std::tie(long_string, filenames) =
+		    PVCore::PVRecentItemsManager::get().get_string_from_entry(var);
+		__impl::PVListWidgetItem* item_widget =
+		    new __impl::PVListWidgetItem(category, long_string, filenames, var, index, list, this);
+		list->setItemWidget(item_widget, item_widget->widget());
+
+		index++;
+	}
+
+	if (clear_button) {
+		clear_button->setEnabled(index > 0);
+	}
+}
+
+template <PVCore::Category category>
+void PVStartScreenWidget::clear_history()
+{
+	custom_listwidget_t* list = _recent_list_widgets[category];
+	QList<int> indexes;
+
+	for (int i = list->count(); i-- > 0;) {
+		__impl::PVListWidgetItem* item = (__impl::PVListWidgetItem*)list->item(i);
+		assert(item);
+		if (item->is_checked()) {
+			indexes << i;
+		}
+	}
+
+	// Clear list widget
+	if (indexes.isEmpty()) {
+		list->clear();
+	}
+
+	// Clear config file
+	PVCore::PVRecentItemsManager::get().clear(category, indexes);
+
+	refresh_recent_items<category>();
+}
+
+template <PVCore::Category category>
+void PVStartScreenWidget::clear_history_dlg()
+{
+	QString c = format_selected_item_string(category);
+	QMessageBox confirm(QMessageBox::Question, tr("Please confirm"),
+	                    "Clear history for the " + c + "?", QMessageBox::Yes | QMessageBox::No,
+	                    this);
+	if (confirm.exec() == QMessageBox::Yes) {
+		clear_history<category>();
+	}
 }
 }
 

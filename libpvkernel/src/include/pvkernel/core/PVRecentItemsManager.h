@@ -14,7 +14,6 @@
 #include <QSettings>
 #include <QStringList>
 #include <QList>
-#include <QVariant>
 
 #include <sigc++/sigc++.h>
 
@@ -23,11 +22,34 @@ namespace PVRush
 class PVFormat;
 } // namespace PVRush
 
+Q_DECLARE_METATYPE(PVCore::PVSerializedSource)
 Q_DECLARE_METATYPE(PVRush::PVSourceDescription)
-Q_DECLARE_METATYPE(PVRush::PVFormat)
 
 namespace PVCore
 {
+
+// List of all available categories of recent items
+enum Category {
+	FIRST = 0,
+
+	PROJECTS = FIRST,
+	SOURCES,
+	USED_FORMATS,
+	EDITED_FORMATS,
+	SUPPORTED_FORMATS,
+
+	LAST
+};
+
+template <Category c>
+struct list_type {
+	using type = std::vector<std::string>;
+};
+
+template <>
+struct list_type<SOURCES> {
+	using type = std::vector<PVCore::PVSerializedSource>;
+};
 
 /**
  * \class PVRecentItemsManager
@@ -37,22 +59,6 @@ namespace PVCore
 class PVRecentItemsManager
 {
   public:
-	typedef QList<QVariant> variant_list_t;
-
-  public:
-	// List of all available categories of recent items
-	enum Category {
-		FIRST = 0,
-
-		PROJECTS = FIRST,
-		SOURCES,
-		USED_FORMATS,
-		EDITED_FORMATS,
-		SUPPORTED_FORMATS,
-
-		LAST
-	};
-
 	static PVRecentItemsManager& get()
 	{
 		static PVRecentItemsManager recent_items_manager;
@@ -65,7 +71,22 @@ class PVRecentItemsManager
 
 	/*! \brief Add an item (path) for a given category.
 	 */
-	void add(const QString& item_path, Category category);
+	template <Category category>
+	void add(const QString& item_path)
+	{
+		QString recent_items_key = _recents_items_keys[category];
+		QStringList files = _recents_settings.value(recent_items_key).toStringList();
+		files.removeAll(item_path);
+		files.prepend(item_path);
+		if (category != Category::PROJECTS) {
+			while (files.size() > _max_recent_items) {
+				files.removeLast();
+			}
+		}
+		_recents_settings.setValue(recent_items_key, files);
+		_recents_settings.sync();
+		_add_item[category].emit();
+	}
 
 	/*! \brief Add a source item for a given category.
 	 */
@@ -73,14 +94,36 @@ class PVRecentItemsManager
 	                const PVRush::PVInputType::list_inputs& inputs,
 	                const PVRush::PVFormat& format);
 
+	template <class F, Category... c>
+	static void apply_on_category(F&& f)
+	{
+		__apply_on_category<F, PROJECTS, SOURCES, USED_FORMATS, EDITED_FORMATS, SUPPORTED_FORMATS>(
+		    std::forward<F>(f));
+	}
+
 	/*! \brief Return a source description from the settings current group.
 	 */
-	const variant_list_t get_list(Category category);
+	template <Category category>
+	typename list_type<category>::type get_list();
 
 	void clear(Category category, QList<int> indexes = QList<int>());
 
+	std::tuple<QString, QStringList> get_string_from_entry(QString const& string) const;
+	std::tuple<QString, QStringList>
+	get_string_from_entry(PVCore::PVSerializedSource const& sd) const;
+	std::tuple<QString, QStringList> get_string_from_entry(PVRush::PVFormat const& f) const;
+
   private:
-	PVRush::PVSourceDescription deserialize_source_description();
+	// Helper function to call a generic lambda on every category at compile time.
+	// Could be improve with generic lambda (cxx14) for now, we use only functors ...
+
+	template <class F, Category... c>
+	static void __apply_on_category(F&& f)
+	{
+		int _[] __attribute__((unused)) = {(f.template call<c>(), 1)...};
+	}
+
+	PVCore::PVSerializedSource deserialize_source_description();
 
 	/*! \brief Get the best source timestamp to replace (oldest, matching the same source
 	 * description or 0).
@@ -92,25 +135,26 @@ class PVRecentItemsManager
 	void clear_missing_files();
 
   private:
-	/*! \brief Return a list of recent items of a given category as a list of QString QVariant.
+	/*! \brief Return a list of recent items of a given category as a list of QString.
 	 */
-	const variant_list_t items_list(Category category) const;
+	template <Category category>
+	typename list_type<category>::type items_list() const;
 
 	/**
 	 * Remove value in recent file when pointed file is missing.
 	 */
 	void remove_missing_files(Category category);
 
-	/*! \brief Return the recent sources description as a list of QVariant.
+	/*! \brief Return the recent sources description as a list
 	 */
 	// FIXME : This function is not const as it required group to list sources and Qt doesn't
 	// provide this interface
-	const variant_list_t sources_description_list();
+	std::vector<PVCore::PVSerializedSource> sources_description_list();
 	void remove_invalid_source();
 
-	/*! \brief Return the supported formats as a list of QVariant.
+	/*! \brief Return the supported formats as a list
 	 */
-	const variant_list_t supported_format_list() const;
+	std::vector<std::string> supported_format_list() const;
 
   private:
 	PVRecentItemsManager();
@@ -118,7 +162,7 @@ class PVRecentItemsManager
 	PVRecentItemsManager& operator=(const PVRecentItemsManager&);
 
   public:
-	sigc::signal<void, Category> _add_item;
+	std::array<sigc::signal<void>, LAST> _add_item;
 
   private:
 	QSettings _recents_settings;
