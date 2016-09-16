@@ -61,7 +61,12 @@ void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVElasticsearchQuery::load_from_qsettings(const QSettings&)
+PVRush::PVElasticsearchQuery::load_from_string(std::string const&)
+{
+	throw PVRush::BadInputDescription("Incomplete input for ESQuery");
+}
+
+std::string PVRush::PVElasticsearchQuery::desc_from_qsetting(QSettings const&)
 {
 	throw PVRush::BadInputDescription("Incomplete input for ESQuery");
 }

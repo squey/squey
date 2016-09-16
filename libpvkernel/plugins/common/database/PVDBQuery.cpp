@@ -92,7 +92,12 @@ void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
 	settings.setValue("port", _infos->get_port());
 }
 
-std::unique_ptr<PVRush::PVInputDescription> PVRush::PVDBQuery::load_from_qsettings(const QSettings&)
+std::unique_ptr<PVRush::PVInputDescription> PVRush::PVDBQuery::load_from_string(std::string const&)
+{
+	throw PVRush::BadInputDescription("Incomplete input for DBQuery");
+}
+
+std::string PVRush::PVDBQuery::desc_from_qsetting(QSettings const&)
 {
 	throw PVRush::BadInputDescription("Incomplete input for DBQuery");
 }

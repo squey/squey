@@ -22,8 +22,8 @@ namespace PVRush
 class PVFormat;
 } // namespace PVRush
 
+Q_DECLARE_METATYPE(PVCore::PVSerializedSource)
 Q_DECLARE_METATYPE(PVRush::PVSourceDescription)
-Q_DECLARE_METATYPE(PVRush::PVFormat)
 
 namespace PVCore
 {
@@ -59,7 +59,7 @@ struct list_type<PROJECTS> {
 };
 template <>
 struct list_type<SOURCES> {
-	using type = QList<PVRush::PVSourceDescription>;
+	using type = QList<PVCore::PVSerializedSource>;
 };
 template <>
 struct list_type<SUPPORTED_FORMATS> {
@@ -109,15 +109,6 @@ class PVRecentItemsManager
 	                const PVRush::PVInputType::list_inputs& inputs,
 	                const PVRush::PVFormat& format);
 
-	// Helper function to call a generic lambda on every category at compile time.
-	// Could be improve with generic lambda (cxx14) for now, we use only functors ...
-
-	template <class F, Category... c>
-	static void __apply_on_category(F&& f)
-	{
-		int _[] __attribute__((unused)) = {(f.template call<c>(), 1)...};
-	}
-
 	template <class F, Category... c>
 	static void apply_on_category(F&& f)
 	{
@@ -134,11 +125,20 @@ class PVRecentItemsManager
 
 	std::tuple<QString, QStringList> get_string_from_entry(QString const& string) const;
 	std::tuple<QString, QStringList>
-	get_string_from_entry(PVRush::PVSourceDescription const& sd) const;
+	get_string_from_entry(PVCore::PVSerializedSource const& sd) const;
 	std::tuple<QString, QStringList> get_string_from_entry(PVRush::PVFormat const& f) const;
 
   private:
-	PVRush::PVSourceDescription deserialize_source_description();
+	// Helper function to call a generic lambda on every category at compile time.
+	// Could be improve with generic lambda (cxx14) for now, we use only functors ...
+
+	template <class F, Category... c>
+	static void __apply_on_category(F&& f)
+	{
+		int _[] __attribute__((unused)) = {(f.template call<c>(), 1)...};
+	}
+
+	PVCore::PVSerializedSource deserialize_source_description();
 
 	/*! \brief Get the best source timestamp to replace (oldest, matching the same source
 	 * description or 0).
@@ -163,7 +163,7 @@ class PVRecentItemsManager
 	 */
 	// FIXME : This function is not const as it required group to list sources and Qt doesn't
 	// provide this interface
-	QList<PVRush::PVSourceDescription> sources_description_list();
+	QList<PVCore::PVSerializedSource> sources_description_list();
 	void remove_invalid_source();
 
 	/*! \brief Return the supported formats as a list

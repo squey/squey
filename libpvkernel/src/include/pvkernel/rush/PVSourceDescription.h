@@ -12,6 +12,8 @@
 #include <pvkernel/rush/PVSourceCreator.h> // for PVSourceCreator_p
 #include <pvkernel/rush/PVInputType.h>     // for PVInputType::list_inputs, etc
 
+#include <pvkernel/core/PVSerializedSource.h>
+
 namespace PVRush
 {
 
@@ -25,6 +27,17 @@ class PVSourceDescription
 	                    const PVRush::PVFormat& format)
 	    : _inputs(inputs), _source_creator_p(source_creator_p), _format(format)
 	{
+	}
+
+	PVSourceDescription(PVCore::PVSerializedSource const& s)
+	    : _source_creator_p(LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(
+	          QString::fromStdString(s.sc_name)))
+	    , _format(QString::fromStdString(s.format_name), QString::fromStdString(s.format_path))
+	{
+		PVRush::PVInputType_p input_type_p = _source_creator_p->supported_type_lib();
+		for (std::string const& p : s.input_desc) {
+			_inputs << input_type_p->load_input_from_string(p);
+		}
 	}
 
 	bool operator==(const PVSourceDescription& other) const;

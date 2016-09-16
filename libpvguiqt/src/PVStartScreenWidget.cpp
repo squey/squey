@@ -320,7 +320,9 @@ void PVGuiQt::PVStartScreenWidget::import_type()
 	Q_EMIT import_type(itype);
 }
 
-struct __refresher {
+namespace
+{
+struct refresher {
 	template <PVCore::Category c>
 	void call() const
 	{
@@ -329,10 +331,11 @@ struct __refresher {
 
 	PVGuiQt::PVStartScreenWidget& sc;
 };
+}
 
 void PVGuiQt::PVStartScreenWidget::refresh_all_recent_items()
 {
-	PVCore::PVRecentItemsManager::apply_on_category(__refresher{*this});
+	PVCore::PVRecentItemsManager::apply_on_category(refresher{*this});
 }
 
 void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
@@ -352,8 +355,8 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 		break;
 	}
 	case PVCore::Category::SOURCES: {
-		PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
-		Q_EMIT load_source_from_description(src_desc);
+		Q_EMIT load_source_from_description(
+		    PVRush::PVSourceDescription(var.value<PVCore::PVSerializedSource>()));
 		break;
 	}
 	case PVCore::Category::EDITED_FORMATS:
@@ -362,8 +365,7 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 		break;
 	}
 	case PVCore::Category::SUPPORTED_FORMATS: {
-		PVRush::PVFormat format = var.value<PVRush::PVFormat>();
-		Q_EMIT edit_format(format.get_full_path());
+		Q_EMIT edit_format(var.toString());
 		break;
 	}
 	default: {
@@ -597,27 +599,6 @@ namespace PVGuiQt
 {
 
 template <>
-void PVStartScreenWidget::refresh_recent_items<PVCore::Category::PROJECTS>()
-{
-	refresh_recent_string_items<PVCore::Category::PROJECTS>();
-}
-template <>
-void PVStartScreenWidget::refresh_recent_items<PVCore::Category::USED_FORMATS>()
-{
-	refresh_recent_string_items<PVCore::Category::USED_FORMATS>();
-}
-template <>
-void PVStartScreenWidget::refresh_recent_items<PVCore::Category::EDITED_FORMATS>()
-{
-	refresh_recent_string_items<PVCore::Category::EDITED_FORMATS>();
-}
-
-template <>
-void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SUPPORTED_FORMATS>()
-{
-	refresh_recent_string_items<PVCore::Category::SUPPORTED_FORMATS>();
-}
-template <>
 void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 {
 	custom_listwidget_t* list = _recent_list_widgets[PVCore::Category::SOURCES];
@@ -626,7 +607,7 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 	list->clear();
 
 	uint64_t index = 0;
-	for (PVRush::PVSourceDescription& sd :
+	for (auto const& sd :
 	     PVCore::PVRecentItemsManager::get().get_list<PVCore::Category::SOURCES>()) {
 		// item + data
 		QString long_string;
@@ -635,7 +616,7 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 		    PVCore::PVRecentItemsManager::get().get_string_from_entry(sd);
 
 		QVariant var;
-		var.setValue<PVRush::PVSourceDescription>(sd);
+		var.setValue<PVCore::PVSerializedSource>(sd);
 		__impl::PVListWidgetItem* item_widget = new __impl::PVListWidgetItem(
 		    PVCore::Category::SOURCES, long_string, filenames, var, index, list, this);
 		list->setItemWidget(item_widget, item_widget->widget());

@@ -135,7 +135,7 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 		_recents_settings.beginGroup(source);
 
 		try {
-			PVRush::PVSourceDescription src_desc = deserialize_source_description();
+			PVRush::PVSourceDescription src_desc(deserialize_source_description());
 			_recents_settings.endGroup();
 		} catch (PVRush::BadInputDescription const& e) {
 			_recents_settings.endGroup();
@@ -153,9 +153,9 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 	_recents_settings.sync();
 }
 
-QList<PVRush::PVSourceDescription> PVCore::PVRecentItemsManager::sources_description_list()
+QList<PVCore::PVSerializedSource> PVCore::PVRecentItemsManager::sources_description_list()
 {
-	QList<PVRush::PVSourceDescription> res;
+	QList<PVCore::PVSerializedSource> res;
 
 	_recents_settings.beginGroup(_recents_items_keys[SOURCES]);
 
@@ -225,7 +225,7 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
 		_recents_settings.beginGroup(source_timestamp);
 
 		try {
-			PVRush::PVSourceDescription src_desc = deserialize_source_description();
+			PVRush::PVSourceDescription src_desc(deserialize_source_description());
 			if (source_description == src_desc) {
 				_recents_settings.endGroup();
 				return source_timestamp.toULong();
@@ -248,22 +248,26 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
 	return older_timestamp;
 }
 
-PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_description()
+PVCore::PVSerializedSource PVCore::PVRecentItemsManager::deserialize_source_description()
 {
 	// source creator
-	QString source_creator_name =
-	    _recents_settings.value(ITEM_SUBKEY_SOURCE_CREATOR_NAME).toString();
-	PVRush::PVSourceCreator_p src_creator_p =
-	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(source_creator_name);
-	PVRush::PVInputType_p input_type_p = src_creator_p->supported_type_lib();
+	PVCore::PVSerializedSource seri_src{
+	    {},
+	    _recents_settings.value(ITEM_SUBKEY_SOURCE_CREATOR_NAME).toString().toStdString(),
+	    _recents_settings.value(ITEM_SUBKEY_FORMAT_NAME).toString().toStdString(),
+	    _recents_settings.value(ITEM_SUBKEY_FORMAT_PATH).toString().toStdString()};
 
-	// inputs
-	PVRush::PVInputType::list_inputs inputs;
+	// get inputs data
+	PVRush::PVSourceCreator_p src_creator_p =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(
+	        QString::fromStdString(seri_src.sc_name));
+	PVRush::PVInputType_p input_type_p = src_creator_p->supported_type_lib();
 	uint64_t nb_inputs = _recents_settings.beginReadArray(ITEM_SUBKEY_INPUTS);
 	try {
 		for (uint64_t j = 0; j < nb_inputs; ++j) {
 			_recents_settings.setArrayIndex(j);
-			inputs << input_type_p->load_input_from_qsettings(_recents_settings);
+			seri_src.input_desc.emplace_back(
+			    input_type_p->load_input_descr_from_qsettings(_recents_settings));
 		}
 		_recents_settings.endArray();
 	} catch (...) {
@@ -271,13 +275,7 @@ PVRush::PVSourceDescription PVCore::PVRecentItemsManager::deserialize_source_des
 		throw;
 	}
 
-	// format
-	QString format_name = _recents_settings.value(ITEM_SUBKEY_FORMAT_NAME).toString();
-	QString format_path = _recents_settings.value(ITEM_SUBKEY_FORMAT_PATH).toString();
-
-	PVRush::PVFormat format(format_name, format_path);
-
-	return {inputs, src_creator_p, format};
+	return seri_src;
 }
 
 static QString get_recent_items_file()
@@ -311,21 +309,23 @@ PVCore::PVRecentItemsManager::get_string_from_entry(QString const& string) const
 }
 
 std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_entry(
-    PVRush::PVSourceDescription const& src_desc) const
+    PVCore::PVSerializedSource const& src_desc) const
 {
 	QString long_string;
 	QStringList filenames;
 
-	if (src_desc.get_inputs().size() == 1) {
-		QString source_path = src_desc.get_inputs()[0]->human_name();
-		long_string = source_path + " [" + src_desc.get_format().get_format_name() + "]";
+	if (src_desc.input_desc.size() == 1) {
+		PVRush::PVSourceDescription input(src_desc);
+		QString source_path = input.get_inputs()[0]->human_name();
+		long_string = source_path + " [" + QString::fromStdString(src_desc.format_name) + "]";
 		filenames << source_path;
 	} else {
-		for (auto input : src_desc.get_inputs()) {
-			QFileInfo info(input->human_name());
+		PVRush::PVSourceDescription desc(src_desc);
+		for (auto const& input : desc.get_inputs()) {
 			filenames << input->human_name();
 		}
-		long_string = "[" + src_desc.get_format().get_format_name() + "]\n" + filenames.join("\n");
+		long_string =
+		    "[" + QString::fromStdString(src_desc.format_name) + "]\n" + filenames.join("\n");
 	}
 
 	return std::make_tuple(long_string, filenames);

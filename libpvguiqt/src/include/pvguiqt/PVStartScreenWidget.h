@@ -105,9 +105,6 @@ class PVStartScreenWidget : public QWidget, public sigc::trackable
 	size_t selected_count(PVCore::Category cat);
 	size_t total_count(PVCore::Category cat);
 
-	template <PVCore::Category category>
-	void refresh_recent_string_items();
-
   private:
 	QWidget* format_widget;
 	QWidget* import_widget;
@@ -186,7 +183,7 @@ class PVDeleteInvestigationDialog : public QDialog
 }
 
 template <PVCore::Category category>
-void PVStartScreenWidget::refresh_recent_string_items()
+void PVStartScreenWidget::refresh_recent_items()
 {
 	custom_listwidget_t* list = _recent_list_widgets[category];
 	QPushButton* clear_button = _recent_push_buttons[category];
