@@ -107,10 +107,13 @@ void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)
 	_recents_settings.sync();
 }
 
-QStringList PVCore::PVRecentItemsManager::items_list(Category category) const
+template <PVCore::Category category>
+typename PVCore::list_type<category>::type PVCore::PVRecentItemsManager::items_list() const
 {
-
-	return _recents_settings.value(_recents_items_keys[category]).toStringList();
+	QStringList v = _recents_settings.value(_recents_items_keys[category]).toStringList();
+	std::vector<std::string> res(v.size());
+	std::transform(v.begin(), v.end(), res.begin(), std::mem_fun_ref(&QString::toStdString));
+	return res;
 }
 
 void PVCore::PVRecentItemsManager::remove_missing_files(Category category)
@@ -153,9 +156,9 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 	_recents_settings.sync();
 }
 
-QList<PVCore::PVSerializedSource> PVCore::PVRecentItemsManager::sources_description_list()
+std::vector<PVCore::PVSerializedSource> PVCore::PVRecentItemsManager::sources_description_list()
 {
-	QList<PVCore::PVSerializedSource> res;
+	std::vector<PVCore::PVSerializedSource> res;
 
 	_recents_settings.beginGroup(_recents_items_keys[SOURCES]);
 
@@ -165,7 +168,7 @@ QList<PVCore::PVSerializedSource> PVCore::PVRecentItemsManager::sources_descript
 		_recents_settings.beginGroup(source);
 
 		try {
-			res << deserialize_source_description();
+			res.emplace_back(deserialize_source_description());
 		} catch (PVRush::BadInputDescription const& e) {
 			// Input description is invalid
 		} catch (PVCore::InvalidPlugin const& e) {
@@ -190,9 +193,9 @@ void PVCore::PVRecentItemsManager::clear_missing_files()
 	remove_missing_files(Category::EDITED_FORMATS);
 }
 
-QStringList PVCore::PVRecentItemsManager::supported_format_list() const
+std::vector<std::string> PVCore::PVRecentItemsManager::supported_format_list() const
 {
-	QStringList res;
+	std::vector<std::string> res;
 
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
@@ -205,7 +208,7 @@ QStringList PVCore::PVRecentItemsManager::supported_format_list() const
 		    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
 		for (auto itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
-			res << itfc.value().first.get_full_path();
+			res.emplace_back(itfc.value().first.get_full_path().toStdString());
 		}
 	}
 
@@ -346,21 +349,23 @@ namespace PVCore
 {
 
 template <>
-QStringList PVRecentItemsManager::get_list<Category::PROJECTS>()
+typename list_type<Category::PROJECTS>::type PVRecentItemsManager::get_list<Category::PROJECTS>()
 {
-	return items_list(Category::PROJECTS);
+	return items_list<Category::PROJECTS>();
 }
 
 template <>
-QStringList PVRecentItemsManager::get_list<Category::USED_FORMATS>()
+typename list_type<Category::USED_FORMATS>::type
+PVRecentItemsManager::get_list<Category::USED_FORMATS>()
 {
-	return items_list(Category::USED_FORMATS);
+	return items_list<Category::USED_FORMATS>();
 }
 
 template <>
-QStringList PVRecentItemsManager::get_list<Category::EDITED_FORMATS>()
+typename list_type<Category::EDITED_FORMATS>::type
+PVRecentItemsManager::get_list<Category::EDITED_FORMATS>()
 {
-	return items_list(Category::EDITED_FORMATS);
+	return items_list<Category::EDITED_FORMATS>();
 }
 
 template <>

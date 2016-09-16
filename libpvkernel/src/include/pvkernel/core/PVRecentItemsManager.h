@@ -43,27 +43,12 @@ enum Category {
 
 template <Category c>
 struct list_type {
+	using type = std::vector<std::string>;
 };
 
 template <>
-struct list_type<USED_FORMATS> {
-	using type = QStringList;
-};
-template <>
-struct list_type<EDITED_FORMATS> {
-	using type = QStringList;
-};
-template <>
-struct list_type<PROJECTS> {
-	using type = QStringList;
-};
-template <>
 struct list_type<SOURCES> {
-	using type = QList<PVCore::PVSerializedSource>;
-};
-template <>
-struct list_type<SUPPORTED_FORMATS> {
-	using type = QStringList;
+	using type = std::vector<PVCore::PVSerializedSource>;
 };
 
 /**
@@ -152,7 +137,8 @@ class PVRecentItemsManager
   private:
 	/*! \brief Return a list of recent items of a given category as a list of QString.
 	 */
-	QStringList items_list(Category category) const;
+	template <Category category>
+	typename list_type<category>::type items_list() const;
 
 	/**
 	 * Remove value in recent file when pointed file is missing.
@@ -163,12 +149,12 @@ class PVRecentItemsManager
 	 */
 	// FIXME : This function is not const as it required group to list sources and Qt doesn't
 	// provide this interface
-	QList<PVCore::PVSerializedSource> sources_description_list();
+	std::vector<PVCore::PVSerializedSource> sources_description_list();
 	void remove_invalid_source();
 
 	/*! \brief Return the supported formats as a list
 	 */
-	QStringList supported_format_list() const;
+	std::vector<std::string> supported_format_list() const;
 
   private:
 	PVRecentItemsManager();

@@ -191,7 +191,8 @@ void PVStartScreenWidget::refresh_recent_items()
 	list->clear();
 
 	uint64_t index = 0;
-	for (QString var : PVCore::PVRecentItemsManager::get().get_list<category>()) {
+	for (std::string value : PVCore::PVRecentItemsManager::get().get_list<category>()) {
+		QString var = QString::fromStdString(value);
 		// item + data
 		QString long_string;
 		QStringList filenames;
