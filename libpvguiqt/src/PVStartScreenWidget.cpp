@@ -471,9 +471,29 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 {
 	setData(Qt::UserRole, var);
 	setData(Qt::UserRole + 1, cat);
-	QString short_string =
-	    PVWidgets::PVUtils::shorten_path(long_string, *PVGuiQt::PVStartScreenWidget::_item_font,
-	                                     PVGuiQt::PVStartScreenWidget::_item_width);
+	QString short_string;
+	switch (cat) {
+	case PVCore::Category::SOURCES: {
+		size_t brac_open_pos = long_string.indexOf("[");
+		size_t brac_close_pos = long_string.indexOf("]");
+		QString format_name = long_string.mid(brac_open_pos, brac_close_pos);
+		if (filenames.size() == 1) {
+			short_string =
+			    PVWidgets::PVUtils::shorten_path(long_string.left(brac_open_pos),
+			                                     *PVGuiQt::PVStartScreenWidget::_item_font,
+			                                     PVGuiQt::PVStartScreenWidget::_item_width) +
+			    format_name;
+		} else {
+			short_string = "Aggregation " + format_name;
+		}
+		break;
+	}
+	default:
+		short_string =
+		    PVWidgets::PVUtils::shorten_path(long_string, *PVGuiQt::PVStartScreenWidget::_item_font,
+		                                     PVGuiQt::PVStartScreenWidget::_item_width);
+		break;
+	}
 
 	QHBoxLayout* layout = new QHBoxLayout();
 	layout->setAlignment(Qt::AlignLeft);
