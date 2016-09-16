@@ -38,6 +38,20 @@
  *****************************************************************************/
 const QFont* PVGuiQt::PVStartScreenWidget::_item_font = nullptr;
 
+namespace
+{
+struct connecter {
+	template <PVCore::Category c>
+	void call() const
+	{
+		PVCore::PVRecentItemsManager::get()._add_item[c].connect(
+		    sigc::mem_fun(&sc, &PVGuiQt::PVStartScreenWidget::refresh_recent_items<c>));
+	}
+
+	PVGuiQt::PVStartScreenWidget& sc;
+};
+}
+
 PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(parent)
 {
 	PVLOG_DEBUG("PVGuiQt::PVStartScreenWidget::%s\n", __FUNCTION__);
@@ -306,8 +320,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	connect(create_new_format_button, SIGNAL(clicked(bool)), this, SIGNAL(new_format()));
 	connect(edit_format_button, SIGNAL(clicked(bool)), this, SIGNAL(load_format()));
 
-	//	PVCore::PVRecentItemsManager::get()._add_item.connect(
-	//	    sigc::mem_fun(this, &PVGuiQt::PVStartScreenWidget::refresh_recent_items));
+	PVCore::PVRecentItemsManager::apply_on_category(connecter{*this});
 
 	refresh_all_recent_items();
 }

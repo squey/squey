@@ -85,7 +85,7 @@ class PVRecentItemsManager
 		}
 		_recents_settings.setValue(recent_items_key, files);
 		_recents_settings.sync();
-		_add_item.emit(category);
+		_add_item[category].emit();
 	}
 
 	/*! \brief Add a source item for a given category.
@@ -162,7 +162,7 @@ class PVRecentItemsManager
 	PVRecentItemsManager& operator=(const PVRecentItemsManager&);
 
   public:
-	sigc::signal<void, Category> _add_item;
+	std::array<sigc::signal<void>, LAST> _add_item;
 
   private:
 	QSettings _recents_settings;

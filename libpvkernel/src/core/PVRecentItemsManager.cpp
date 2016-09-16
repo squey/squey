@@ -73,7 +73,7 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 
 	_recents_settings.endGroup();
 	_recents_settings.sync();
-	_add_item.emit(Category::SOURCES);
+	_add_item[Category::SOURCES].emit();
 }
 
 void PVCore::PVRecentItemsManager::clear(Category category, QList<int> indexes)
