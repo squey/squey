@@ -1012,20 +1012,6 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 	// Extract the source
 	BENCH_START(lff);
 
-	// PVCore::PVProgressBox::progress();
-	PVRush::PVControllerJob_p job_import;
-	try {
-		job_import = src->extract(0);
-	} catch (PVRush::PVInputException const& e) {
-		QMessageBox::critical(this, "Cannot create sources",
-		                      QString("Error with input: ") + e.what());
-		return false;
-	} catch (PVRush::PVNrawException const& e) {
-		QMessageBox::critical(this, "Cannot create sources",
-		                      QString("Error with nraw: ") + e.what());
-		return false;
-	}
-
 	auto ret = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 
@@ -1036,32 +1022,58 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		    // set min and max to 0 to have an activity effect
 		    pbox.set_maximum(src->max_size() / mega);
 
-		    QObject::connect(job_import.get(), SIGNAL(job_done_signal()), &pbox, SLOT(accept()));
-		    // launch a thread in order to update the status of the progress bar
-		    while (job_import->running()) {
-			    pbox.set_extended_status(
-			        QString("Number of elements extracted: %L1\nNumber of rejected elements: %L2")
-			            .arg(job_import->status())
-			            .arg(job_import->rejected_elements()));
-			    pbox.set_value(job_import->get_value() / mega);
-			    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		    // PVCore::PVProgressBox::progress();
+		    PVRush::PVControllerJob_p job_import;
+		    try {
+			    job_import = src->extract(0);
+		    } catch (PVRush::PVInputException const& e) {
+			    // If input file can't be opened
+			    pbox.critical("Cannot create sources", QString("Error with input: ") + e.what());
+			    pbox.set_canceled();
+			    return;
+		    } catch (PVRush::PVNrawException const& e) {
+			    // If we can't create the NRaw folder for example
+			    pbox.critical("Cannot create sources", QString("Error with nraw: ") + e.what());
+			    pbox.set_canceled();
+			    return;
+		    }
+
+		    try {
+			    // launch a thread in order to update the status of the progress bar
+			    while (job_import->running()) {
+				    pbox.set_extended_status(
+				        QString(
+				            "Number of elements extracted: %L1\nNumber of rejected elements: %L2")
+				            .arg(job_import->status())
+				            .arg(job_import->rejected_elements()));
+				    pbox.set_value(job_import->get_value() / mega);
+				    boost::this_thread::interruption_point();
+				    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			    }
+		    } catch (boost::thread_interrupted) {
+			    job_import->cancel();
+		    }
+		    if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL) {
+			    return;
+		    }
+
+		    try {
+			    src->wait_extract_end(job_import);
+		    } catch (PVRush::PVInputException const& e) {
+			    pbox.critical("Cannot create sources", QString("Error with input: ") + e.what());
+			    pbox.set_canceled();
+			    return;
+		    } catch (PVRush::UnicodeSourceError const&) {
+			    pbox.critical("Cannot create sources",
+			                  "File encoding does permit Inspector to perform extraction.");
+			    pbox.set_canceled();
+			    return;
 		    }
 		},
-	    job_import->get_ctxt(), QString("Extracting %1...").arg(src->get_format_name()), this);
+	    QString("Extracting %1...").arg(src->get_format_name()), this);
 
 	if (ret == PVCore::PVProgressBox::CancelState::CANCEL) {
 		// If job is canceled, stop here
-		return false;
-	}
-	try {
-		src->wait_extract_end(job_import);
-	} catch (PVRush::PVInputException const& e) {
-		QMessageBox::critical(this, "Cannot create sources",
-		                      QString("Error with input: ") + e.what());
-		return false;
-	} catch (PVRush::UnicodeSourceError const&) {
-		QMessageBox::critical(this, "Cannot create sources",
-		                      "File encoding does permit Inspector to perform extraction.");
 		return false;
 	}
 
@@ -1070,7 +1082,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		                      "<strong>%2</strong> cannot be opened. ")
 		                  .arg(QString::fromStdString(src->get_name()))
 		                  .arg(src->get_format_name());
-		PVRow nelts = job_import->rejected_elements();
+		PVRow nelts = src->get_invalid_evts().size();
 		if (nelts > 0) {
 			msg += QString("Indeed, <strong>%1 elements</strong> have been extracted "
 			               "but were <strong>all invalid</strong>.</p>")

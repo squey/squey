@@ -18,8 +18,6 @@
 
 #include <boost/thread.hpp>
 
-#include <tbb/task.h>
-
 #include <condition_variable>
 
 namespace PVCore
@@ -95,18 +93,6 @@ class PVProgressBox : public QDialog
 		return pbox.get_cancel_state();
 	}
 
-	template <typename F>
-	static CancelState
-	progress(F f, tbb::task_group_context& ctxt, QString const& name, QWidget* parent)
-	{
-		PVProgressBox pbox(name, parent);
-		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
-		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
-		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
-		process_worker_thread(end_s, worker, &pbox, ctxt);
-		return pbox.get_cancel_state();
-	}
-
   public:
 	void exec_gui(std::function<void()> const& f)
 	{
@@ -143,10 +129,6 @@ class PVProgressBox : public QDialog
 	static bool process_worker_thread(__impl::ThreadEndSignal* watcher,
 	                                  boost::thread& worker,
 	                                  PVProgressBox* pbox);
-	static bool process_worker_thread(__impl::ThreadEndSignal* watcher,
-	                                  boost::thread& worker,
-	                                  PVProgressBox* pbox,
-	                                  tbb::task_group_context& ctxt);
 
   private:
 	void cancel();
