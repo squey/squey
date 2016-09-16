@@ -222,3 +222,7 @@ set_tests_properties(Trush_format_upgrade PROPERTIES ENVIRONMENT "QT_HASH_SEED=0
 add_pv_compile_test(Trush_filter_guess_csv LINKS ${LINK_LIBRARIES} FILES filter_guess_csv.cpp common_guess.cpp)
 add_test(Trush_filter_guess_csv_correct Trush_filter_guess_csv 4 "," "\"" ${PVRUSH_TEST_FILES}/csv/tiny.csv)
 add_test(Trush_filter_guess_csv_incorrect Trush_filter_guess_csv 0 "," "\"" ${PVRUSH_TEST_FILES}/csv/irregular.csv)
+
+# inendi-logstats
+add_pv_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
+add_test(Trush_logstats Trush_logstats)
