@@ -63,7 +63,7 @@ struct list_type<SOURCES> {
 };
 template <>
 struct list_type<SUPPORTED_FORMATS> {
-	using type = QList<PVRush::PVFormat>;
+	using type = QStringList;
 };
 
 /**
@@ -168,7 +168,7 @@ class PVRecentItemsManager
 
 	/*! \brief Return the supported formats as a list
 	 */
-	QList<PVRush::PVFormat> supported_format_list() const;
+	QStringList supported_format_list() const;
 
   private:
 	PVRecentItemsManager();

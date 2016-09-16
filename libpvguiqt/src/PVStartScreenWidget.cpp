@@ -611,6 +611,12 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::EDITED_FORMATS>
 {
 	refresh_recent_string_items<PVCore::Category::EDITED_FORMATS>();
 }
+
+template <>
+void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SUPPORTED_FORMATS>()
+{
+	refresh_recent_string_items<PVCore::Category::SUPPORTED_FORMATS>();
+}
 template <>
 void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 {
@@ -632,37 +638,6 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 		var.setValue<PVRush::PVSourceDescription>(sd);
 		__impl::PVListWidgetItem* item_widget = new __impl::PVListWidgetItem(
 		    PVCore::Category::SOURCES, long_string, filenames, var, index, list, this);
-		list->setItemWidget(item_widget, item_widget->widget());
-
-		index++;
-	}
-
-	if (clear_button) {
-		clear_button->setEnabled(index > 0);
-	}
-}
-
-template <>
-void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SUPPORTED_FORMATS>()
-{
-	custom_listwidget_t* list = _recent_list_widgets[PVCore::Category::SUPPORTED_FORMATS];
-	QPushButton* clear_button = _recent_push_buttons[PVCore::Category::SUPPORTED_FORMATS];
-	list->setObjectName("RecentProjectItem");
-	list->clear();
-
-	uint64_t index = 0;
-	for (PVRush::PVFormat& sd :
-	     PVCore::PVRecentItemsManager::get().get_list<PVCore::Category::SUPPORTED_FORMATS>()) {
-		// item + data
-		QString long_string;
-		QStringList filenames;
-		std::tie(long_string, filenames) =
-		    PVCore::PVRecentItemsManager::get().get_string_from_entry(sd);
-
-		QVariant var;
-		var.setValue<PVRush::PVFormat>(sd);
-		__impl::PVListWidgetItem* item_widget = new __impl::PVListWidgetItem(
-		    PVCore::Category::SUPPORTED_FORMATS, long_string, filenames, var, index, list, this);
 		list->setItemWidget(item_widget, item_widget->widget());
 
 		index++;

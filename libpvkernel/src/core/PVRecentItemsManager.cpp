@@ -190,9 +190,9 @@ void PVCore::PVRecentItemsManager::clear_missing_files()
 	remove_missing_files(Category::EDITED_FORMATS);
 }
 
-QList<PVRush::PVFormat> PVCore::PVRecentItemsManager::supported_format_list() const
+QStringList PVCore::PVRecentItemsManager::supported_format_list() const
 {
-	QList<PVRush::PVFormat> res;
+	QStringList res;
 
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
@@ -205,7 +205,7 @@ QList<PVRush::PVFormat> PVCore::PVRecentItemsManager::supported_format_list() co
 		    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
 		for (auto itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
-			res << itfc.value().first;
+			res << itfc.value().first.get_full_path();
 		}
 	}
 
