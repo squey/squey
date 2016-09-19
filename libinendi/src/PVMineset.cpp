@@ -12,6 +12,7 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVExporter.h>
 
 #include <inendi/PVSource.h>
 
@@ -305,10 +306,12 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 
 		PVCore::PVColumnIndexes column_indexes = view.get_axes_combination().get_combination();
 
-		// view.get_rushnraw_parent().export_lines(data_file, sel, column_indexes, 0,
-		//                                        nraw.get_row_count(), "\t" /* = default_sep_char
-		//                                        */
-		//                                        );
+		PVCore::PVExporter::export_func export_func =
+		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+		        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
+		PVCore::PVExporter exp(data_file, sel, column_indexes, nraw.get_row_count(), export_func,
+		                       "\t" /* = default_sep_char */);
+		exp.export_rows(0);
 	}
 
 	// Compress dataset
