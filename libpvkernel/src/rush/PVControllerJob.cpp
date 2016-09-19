@@ -19,7 +19,6 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
                                          bool compact_nraw)
     : _elt_invalid_filter(_inv_elts)
     , _compact_nraw(compact_nraw)
-    , _job_done(false)
     , _agg(agg)
     , _split_filter(filter)
     , _out_filter(out_filter)
@@ -34,13 +33,13 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
 void PVRush::PVControllerJob::run_job()
 {
 	_executor = std::async(std::launch::async, [&]() {
-		_job_done = false;
 
 		// Configure the aggregator
 		_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
 
 		// And create the pipeline
-		_pipeline = new (tbb::task::allocate_root(_ctxt)) PVPipelineTask();
+		tbb::task_group_context ctxt; //!< Execution context of the pipeline
+		_pipeline = new (tbb::task::allocate_root(ctxt)) PVPipelineTask();
 		_pipeline->set_filter(create_tbb_filter());
 		_pipeline->set_tokens(_ntokens);
 
@@ -111,7 +110,6 @@ void PVRush::PVControllerJob::cancel()
 
 void PVRush::PVControllerJob::job_has_run()
 {
-	_job_done = true;
 	_out_filter.job_has_finished((_compact_nraw) ? invalid_elements_t{} : _inv_elts);
 	Q_EMIT job_done_signal();
 }
@@ -124,11 +122,6 @@ bool PVRush::PVControllerJob::running() const
 		// The executor is finish for so long that it have no state anymore.
 		return false;
 	}
-}
-
-bool PVRush::PVControllerJob::done() const
-{
-	return _job_done;
 }
 
 chunk_index PVRush::PVControllerJob::status() const
