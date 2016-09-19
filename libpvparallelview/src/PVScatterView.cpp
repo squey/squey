@@ -23,6 +23,7 @@
 #include <inendi/PVView.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
 #include <QAction>
@@ -436,6 +437,54 @@ void PVParallelView::PVScatterView::set_enabled(bool en)
 	if (!en) {
 		get_images_manager().cancel_all_and_wait();
 	}
+}
+
+QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value) const
+{
+	PVParallelView::PVZoneTree const& zt = get_zone_tree();
+
+	PVParallelView::PVBCode x_b_code;
+	x_b_code.int_v = 0;
+	// Look for all "upper" left value
+	qint64 uvalue = std::numeric_limits<uint32_t>::max() - value;
+	for (uint32_t v = (uvalue >> (32 - PARALLELVIEW_ZT_BBITS)); v < ((1 << PARALLELVIEW_ZT_BBITS));
+	     v++) {
+		x_b_code.s.l = v;
+		for (uint32_t r_v = 0; r_v < ((1 << PARALLELVIEW_ZT_BBITS)); r_v++) {
+			x_b_code.s.r = r_v;
+			if (not zt.branch_valid(x_b_code.int_v)) {
+				continue;
+			}
+
+			const PVRow row = zt.get_branch_element(x_b_code.int_v, 0);
+			return QString::fromStdString(_view.get_rushnraw_parent().at_string(row, _nraw_col));
+		}
+	}
+	return "None";
+}
+
+QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value) const
+{
+	PVParallelView::PVZoneTree const& zt = get_zone_tree();
+
+	PVParallelView::PVBCode y_b_code;
+	y_b_code.int_v = 0;
+	// Look for all "upper" left value
+	for (uint32_t v = (value >> (32 - PARALLELVIEW_ZT_BBITS)); v < ((1 << PARALLELVIEW_ZT_BBITS));
+	     v++) {
+		y_b_code.s.r = v;
+		for (uint32_t r_v = 0; r_v < ((1 << PARALLELVIEW_ZT_BBITS)); r_v++) {
+			y_b_code.s.l = r_v;
+			if (not zt.branch_valid(y_b_code.int_v)) {
+				continue;
+			}
+
+			const PVRow row = zt.get_branch_element(y_b_code.int_v, 0);
+			return QString::fromStdString(
+			    _view.get_rushnraw_parent().at_string(row, _nraw_col + 1));
+		}
+	}
+	return "None";
 }
 
 ////
