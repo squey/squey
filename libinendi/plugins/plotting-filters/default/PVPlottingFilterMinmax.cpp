@@ -33,7 +33,7 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
 	auto& values = mapped.to_core_array<T>();
 #pragma omp parallel for
 	for (size_t i = 0; i < values.size(); i++) {
-		dest[i] = ~uint32_t(((double)values[i] - ymin) * ratio);
+		dest[i] = ~uint32_t((std::max<double>((double)values[i], ymin) - ymin) * ratio);
 	}
 }
 

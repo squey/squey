@@ -91,7 +91,7 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 
 	QString get_human_name() const override { return QString("Week"); }
 
-	pvcop::db::array get_minmax(pvcop::db::array const&) const override
+	pvcop::db::array get_minmax(pvcop::db::array const&, pvcop::db::selection const&) const override
 	{
 		pvcop::db::array res(pvcop::db::type_uint32, 2);
 		auto res_array = res.to_core_array<uint32_t>();
