@@ -86,7 +86,6 @@ class PVControllerJob : public QObject
 
   public:
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
-	tbb::task_group_context& get_ctxt() { return _ctxt; }
 
   private:
 	tbb::filter_t<void, void> create_tbb_filter();
@@ -105,8 +104,6 @@ class PVControllerJob : public QObject
 	PVFilter::PVChunkFilterRemoveInvalidElts
 	    _elt_invalid_remove; //!< Remove invalid elements from chunk to compact the NRaw
 
-	bool _job_done; //!< Wether the job is over or not. // FIXME : It should work but it doesn't for
-	// now
 	PVAggregator& _agg;                          //!< Aggregator use to generate chunks.
 	PVFilter::PVChunkFilterByElt& _split_filter; //!< Filter to split a line in multiple elements.
 	PVOutput& _out_filter;                       //!< Filter Saving chunk in the NRaw.
@@ -122,8 +119,7 @@ class PVControllerJob : public QObject
 	// TBB doesn't provide a way to get state of the task (wether it is over or not)
 	std::future<void>
 	    _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
-	PVPipelineTask* _pipeline;     //!< The TBB pipeline performing data import.
-	tbb::task_group_context _ctxt; //!< Execution context of the pipeline
+	PVPipelineTask* _pipeline; //!< The TBB pipeline performing data import.
 };
 
 typedef PVControllerJob::p_type PVControllerJob_p;

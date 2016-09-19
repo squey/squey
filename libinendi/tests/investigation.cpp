@@ -112,9 +112,11 @@ double load_investigation()
 
 	auto start = std::chrono::system_clock::now();
 
-	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::read,
-	                                 INENDI_ARCHIVES_VERSION, true);
-	root.load_from_archive(ar);
+	{
+		PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::read,
+		                                 INENDI_ARCHIVES_VERSION, true);
+		root.load_from_archive(ar);
+	}
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -134,6 +136,7 @@ double load_investigation()
 	auto sources = root.get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 3UL);
 	auto source = sources.front();
+	PV_VALID(source->get_format().exists(), true);
 	PV_VALID(source->get_invalid_evts().size(), 1UL);
 	PV_VALID(source->get_invalid_evts().begin()->first, 0UL);
 	PV_VALID(source->get_invalid_evts().begin()->second,

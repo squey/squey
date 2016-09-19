@@ -106,6 +106,8 @@ class PVAggregator
 
 	void set_sources_number_fields(PVCol nfields);
 
+	bool& job_done() { return _job_done; }
+
   protected:
 	PVCore::PVChunk* read_until_start_index();
 	PVCore::PVChunk* next_chunk();
@@ -125,6 +127,8 @@ class PVAggregator
 	 */
 	chunk_index _nread_elements;
 	chunk_index _cur_src_index;
+
+	bool _job_done;
 };
 } // namespace PVRush
 

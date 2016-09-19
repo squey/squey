@@ -40,6 +40,7 @@ PVRush::PVAggregator::PVAggregator()
     , _skip_lines_count(0)
     , _nread_elements(0)
     , _cur_src_index(0)
+    , _job_done(false)
 {
 }
 
@@ -206,6 +207,10 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 
 PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc)
 {
+	if (_job_done) {
+		fc.stop();
+		return nullptr;
+	}
 	PVCore::PVChunk* ret = this->operator()();
 	if (ret == nullptr) {
 		PVLOG_DEBUG("(PVAggregator::next_chunk) aggregator stop because of no more input datas\n");
