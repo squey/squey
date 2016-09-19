@@ -19,6 +19,7 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
                                          bool compact_nraw)
     : _elt_invalid_filter(_inv_elts)
     , _compact_nraw(compact_nraw)
+    , _elt_invalid_remove(agg.job_done())
     , _agg(agg)
     , _split_filter(filter)
     , _out_filter(out_filter)

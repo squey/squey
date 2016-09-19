@@ -71,7 +71,14 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start)
 {
 	chunk_index nlines = _format.get_line_count();
-	nlines = (nlines) ? nlines : (IMPORT_PIPELINE_ROW_COUNT_LIMIT - start);
+	if (nlines) {
+		// Keep user choice.
+	} else if (_format.have_grep_filter()) {
+		nlines = IMPORT_PIPELINE_ROW_COUNT_LIMIT - start;
+	} else {
+		// If the NRaw is not compacted, keep uint32_t as a max limite for the number of lines
+		nlines = EXTRACTED_ROW_COUNT_LIMIT;
+	}
 
 	return process_from_agg_idxes(start, start + nlines);
 }

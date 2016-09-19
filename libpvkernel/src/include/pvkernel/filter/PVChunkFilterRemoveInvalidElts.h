@@ -29,12 +29,13 @@ class PVChunkFilterRemoveInvalidElts : public PVChunkFilter
 {
 
   public:
-	PVChunkFilterRemoveInvalidElts();
+	PVChunkFilterRemoveInvalidElts(bool& job_done);
 
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
   protected:
 	size_t _current_agg_index;
+	bool& _job_done;
 };
 } // namespace PVFilter
 
