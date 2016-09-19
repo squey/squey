@@ -544,8 +544,12 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 	QString full_path, fname;
 	so.attribute("filename", fname);
 	so.file(fname, full_path);
+	char pattern[] = "/tmp/investigation_tmp_XXXXXX";
+	char* tmp_dir = mkdtemp(pattern);
+	std::string new_full_path = tmp_dir + ("/" + fname.toStdString());
+	std::rename(full_path.toStdString().c_str(), new_full_path.c_str());
 
-	return {format_name, full_path};
+	return {format_name, QString::fromStdString(new_full_path)};
 }
 
 void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
@@ -553,8 +557,9 @@ void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
 	so.set_current_status("Serialize format");
 	so.attribute("name", format_name);
 
+	QString init_full_name = full_path;
 	QFileInfo fi(full_path);
 	QString fname = fi.fileName();
-	so.file(fname, full_path);
+	so.file(fname, init_full_name);
 	so.attribute("filename", fname);
 }
