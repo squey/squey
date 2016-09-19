@@ -167,6 +167,9 @@ class PVNraw
 
 	const unconvertable_values_t& unconvertable_values() const { return _unconvertable_values; }
 
+	const PVCore::PVSelBitField unconvertable_values_selection(PVCol col) const;
+	const PVCore::PVSelBitField empty_values_selection(PVCol col) const;
+
 	const PVCore::PVSelBitField& valid_rows_sel() const { return _valid_rows_sel; }
 	size_t get_valid_row_count() const { return _valid_elements_count; }
 

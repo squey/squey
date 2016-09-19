@@ -60,6 +60,19 @@ add_library(layer_filter_multiple_search SHARED ${MULTISEARCH_SRC})
 target_link_libraries(layer_filter_multiple_search ${LINK_LIBRARIES} ${PCRE_LIBRARIES})
 
 ###############################################################################
+# Errors Search layer filter
+###############################################################################
+# Define ressources
+SET(ERRORS_SRC
+errors-search/PVLayerFilterErrorsSearch.cpp
+errors-search/register.cpp
+)
+
+# Create lib
+add_library(layer_filter_errors_search SHARED ${ERRORS_SRC})
+target_link_libraries(layer_filter_errors_search ${LINK_LIBRARIES})
+
+###############################################################################
 # Install plugins and ressources
 ###############################################################################
 
