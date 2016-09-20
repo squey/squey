@@ -62,9 +62,10 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 	 * It is usually the min/max value but it can be the full possible range like
 	 * for time 24H
 	 */
-	virtual pvcop::db::array get_minmax(pvcop::db::array const& mapped) const
+	virtual pvcop::db::array get_minmax(pvcop::db::array const& mapped,
+	                                    pvcop::db::selection const& valid_elts) const
 	{
-		return pvcop::db::algo::minmax(mapped);
+		return pvcop::db::algo::minmax(mapped, valid_elts);
 	}
 };
 

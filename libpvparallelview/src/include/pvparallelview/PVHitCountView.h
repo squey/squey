@@ -128,11 +128,11 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
 	inline bool use_log_color() const { return _use_log_color; }
 
-	QString get_y_value_at(const qint64 pos) const override;
-
 	bool show_bg() const { return _show_bg; }
 
 	void set_params_widget_position();
+	QString get_x_value_at(const qint64 value) const override;
+	QString get_y_value_at(const qint64 value) const override;
 
   protected Q_SLOTS:
 	void toggle_auto_x_zoom_sel();

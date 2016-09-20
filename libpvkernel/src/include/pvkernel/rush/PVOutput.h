@@ -38,7 +38,7 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
 	CLASS_FILTER_NONREG(PVOutput)
 
   protected:
-	size_t _out_size; //!< Total size handled by the pipeline. (metrics depend on inputs)
+	size_t _out_size = 0; //!< Total size handled by the pipeline. (metrics depend on inputs)
 };
 } // namespace PVRush
 

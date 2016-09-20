@@ -23,6 +23,8 @@
 #include <pvparallelview/PVHitCountViewInteractor.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 
+#include <pvkernel/rush/PVNraw.h>
+
 #include <QCheckBox>
 #include <QGraphicsScene>
 #include <QLabel>
@@ -329,6 +331,9 @@ void PVParallelView::PVHitCountView::request_auto_scale()
 
 void PVParallelView::PVHitCountView::drawBackground(QPainter* painter, const QRectF& margined_rect)
 {
+	painter->save();
+	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length() + 4, get_y_axis_length() + 2);
+	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
 	// int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
 	int img_top = map_margined_from_scene(QPointF(0, get_hit_graph_manager().last_y_min())).y();
 
@@ -363,6 +368,7 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter* painter, const QRe
 	           get_hit_graph_manager().buffer_selected(), 255);
 	// BENCH_STOP(hcv_draw_selected);
 	// BENCH_STAT_TIME(hcv_draw_selected);
+	painter->restore();
 
 	draw_decorations(painter, margined_rect);
 }
@@ -578,11 +584,6 @@ void PVParallelView::PVHitCountView::toggle_log_color()
 	get_viewport()->update();
 }
 
-QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 /*pos*/) const
-{
-	return QString();
-}
-
 /*****************************************************************************
  * PVParallelView::PVHitCountView::set_params_widget_position
  *****************************************************************************/
@@ -593,4 +594,34 @@ void PVParallelView::PVHitCountView::set_params_widget_position()
 	pos -= QPoint(_params_widget->width(), 0);
 	_params_widget->move(pos);
 	_params_widget->raise();
+}
+
+QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value) const
+{
+	// Number of Occurrence
+	return QString::number(value);
+}
+
+QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
+{
+	const uint32_t* plotted = get_hit_graph_manager().get_plotted();
+	const uint32_t nrows = get_hit_graph_manager().get_nrows();
+	const uint32_t nbits = get_hit_graph_manager().nbits();
+
+	const uint32_t init_value = (value >> uint32_t(32 - nbits));
+	const uint32_t range = (1UL << uint32_t(32 - nbits));
+	// Search for plotted value (on significant bits) for every rows of the NRaw.
+	// We add a threshold on search for "nearest value"
+	for (uint32_t searched_value = init_value;
+	     searched_value < std::min(range, init_value + (range >> 4)); searched_value++) {
+		for (size_t i = 0; i < nrows; i++) {
+			const uint32_t v = (plotted[i] >> uint32_t(32 - nbits));
+			if (v == searched_value) {
+				return QString::fromStdString(
+				    _pvview.get_rushnraw_parent().at_string(i, _axis_index));
+			}
+		}
+	}
+
+	return "None"; // QString::number(value >> uint32_t(32 - std::log2(buffer_size)));
 }
