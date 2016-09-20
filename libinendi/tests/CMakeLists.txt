@@ -17,6 +17,10 @@ add_pv_compile_test(Tinendi_multiple_search LINKS ${LINK_LIBRARIES} FILES multip
 add_test(Tinendi_multiple_search Tinendi_multiple_search)
 add_bench(Tinendi_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.cpp)
 
+add_pv_compile_test(Tinendi_errors_search LINKS ${LINK_LIBRARIES} FILES errors_search.cpp)
+add_test(Tinendi_errors_search Tinendi_errors_search)
+add_bench(Tinendi_errors_search LINKS ${LINK_LIBRARIES} FILES errors_search.cpp)
+
 add_pv_compile_test(Tinendi_format LINKS ${LINK_LIBRARIES} FILES format.cpp)
 add_test(Tinendi_format Tinendi_format)
 
