@@ -30,10 +30,6 @@ class PVLayerFilterAxisGradient : public PVLayerFilter
 	QString detailed_description() override;
 	QString menu_name() const override { return "Axis gradient"; }
 
-  public:
-	static PVCore::PVArgumentList
-	gradient_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
-
 	CLASS_FILTER(Inendi::PVLayerFilterAxisGradient)
 };
 }
