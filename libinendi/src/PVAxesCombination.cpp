@@ -109,7 +109,7 @@ QString PVAxesCombination::to_string() const
 
 bool PVAxesCombination::is_last_axis(PVCombCol c) const
 {
-	return (c.value + 1) == _axes_comb.size();
+	return size_t(c.value + 1) == _axes_comb.size();
 }
 
 PVAxesCombination PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so,
