@@ -240,6 +240,46 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	return line;
 }
 
+const PVCore::PVSelBitField PVRush::PVNraw::unconvertable_values_selection(PVCol col) const
+{
+	// FIXME : this computation could be cached to be done only once
+
+	PVCore::PVSelBitField sel(_real_nrows);
+	sel.select_none();
+
+	auto const& bad_values = _unconvertable_values.bad_conversions();
+
+	for (auto const& bad_value : bad_values) {
+		PVRow row = bad_value.first;
+		auto const& bad_cols = bad_value.second;
+		if (bad_cols.find(col) != bad_cols.end()) {
+			sel.set_bit_fast(row);
+		}
+	}
+
+	return sel;
+}
+
+const PVCore::PVSelBitField PVRush::PVNraw::empty_values_selection(PVCol col) const
+{
+	// FIXME : this computation could be cached to be done only once
+
+	PVCore::PVSelBitField sel(_real_nrows);
+	sel.select_none();
+
+	auto const& empty_values = _unconvertable_values.empty_conversions();
+
+	for (auto const& empty_value : empty_values) {
+		PVRow row = empty_value.first;
+		auto const& empty_cols = empty_value.second;
+		if (empty_cols.find(col) != empty_cols.end()) {
+			sel.set_bit_fast(row);
+		}
+	}
+
+	return sel;
+}
+
 void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Serialize Nraw");
