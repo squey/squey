@@ -108,7 +108,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	 *       |-> ...
 	 */
 	void serialize_read(PVCore::PVSerializeObject& so);
-	PVSERIALIZEOBJECT_SPLIT
 
   public:
 	sigc::signal<void> _scene_updated;
