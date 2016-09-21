@@ -43,8 +43,8 @@ class PVComboBox : public QComboBox
 	{
 	  public:
 		PVComboBoxModel(QStringList& dis_elt, QObject* parent = 0);
-		virtual Qt::ItemFlags flags(const QModelIndex& index) const;
-		QVariant data(const QModelIndex& index, int role) const;
+		Qt::ItemFlags flags(const QModelIndex& index) const override;
+		QVariant data(const QModelIndex& index, int role) const override;
 
 	  protected:
 		bool is_disabled(const QModelIndex& index) const;
@@ -53,6 +53,6 @@ class PVComboBox : public QComboBox
 		QStringList& _dis_elt;
 	};
 };
-}
+} // namespace PVWidgets
 
 #endif

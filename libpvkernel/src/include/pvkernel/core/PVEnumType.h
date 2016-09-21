@@ -59,8 +59,8 @@ class PVEnumType : public PVArgumentType<PVEnumType>
 		return true;
 	}
 
-	QString to_string() const { return QString::number(_sel); }
-	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
+	QString to_string() const override { return QString::number(_sel); }
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{
 		bool res_ok = false;
 
@@ -82,7 +82,7 @@ class PVEnumType : public PVArgumentType<PVEnumType>
 	QStringList _list;
 	int _sel;
 };
-}
+} // namespace PVCore
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVEnumType)

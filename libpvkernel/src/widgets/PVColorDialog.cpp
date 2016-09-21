@@ -93,8 +93,8 @@ class PVLabelEventFilter : public QObject
 		return static_cast<PVWidgets::PVColorDialog*>(parent());
 	}
 };
-}
-}
+} // namespace __impl
+} // namespace PVWidgets
 
 PVWidgets::PVColorDialog::PVColorDialog(QWidget* parent)
     : PVColorDialog(PVCore::PVHSVColor(0), parent)

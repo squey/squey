@@ -33,7 +33,7 @@ class PVPlainTextEditor : public QWidget
 	void set_text(PVCore::PVPlainTextType const& text);
 
   protected:
-	virtual bool eventFilter(QObject* object, QEvent* event);
+	bool eventFilter(QObject* object, QEvent* event) override;
 	void save_to_file(bool append);
 
   protected Q_SLOTS:
@@ -47,6 +47,6 @@ class PVPlainTextEditor : public QWidget
   private:
 	QFileDialog _file_dlg;
 };
-}
+} // namespace PVWidgets
 
 #endif

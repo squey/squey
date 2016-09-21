@@ -18,7 +18,7 @@ namespace PVArgumentListWidgetFactory
 {
 
 QItemEditorFactory* create_core_widgets_factory();
-}
-}
+} // namespace PVArgumentListWidgetFactory
+} // namespace PVWidgets
 
 #endif

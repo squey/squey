@@ -79,6 +79,6 @@ class PVPopupWidget : public QWidget
 	 */
 	void mouseMoveEvent(QMouseEvent* event) override;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVPOPUPWIDGET_H

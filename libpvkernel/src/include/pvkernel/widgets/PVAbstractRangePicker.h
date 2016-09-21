@@ -260,7 +260,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 	void use_floating_point(bool floating_point) { _use_floating_point = floating_point; }
 
   protected:
-	virtual QString textFromValue(double value) const override
+	QString textFromValue(double value) const override
 	{
 		// Using QLocale::toString(double) with high values returns QString as scientific notation,
 		// (hence the cast to qulonglong).
@@ -276,7 +276,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 	QDoubleSpinBox* _other;
 	bool _use_floating_point;
 };
-}
+} // namespace __impl
 
 /**
  * @class PVAbstractRangePicker
@@ -488,6 +488,6 @@ class PVAbstractRangePicker : public QWidget
 	double _limit_range;
 	double _epsilon;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVABSTRACTRANGEPICKER_H

@@ -104,8 +104,8 @@ class PVViewportEventFilter : public QObject
   private:
 	PVWidgets::PVGraphicsView* _view;
 };
-}
-}
+} // namespace __impl
+} // namespace PVWidgets
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::_usable_events

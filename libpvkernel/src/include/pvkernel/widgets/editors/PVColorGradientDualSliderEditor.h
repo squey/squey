@@ -36,6 +36,6 @@ class PVColorGradientDualSliderEditor : public PVColorPicker
 	PVCore::PVColorGradientDualSliderType get_values() const;
 	void set_values(PVCore::PVColorGradientDualSliderType v);
 };
-}
+} // namespace PVWidgets
 
 #endif // PVColorGradientDualSliderEditor_H

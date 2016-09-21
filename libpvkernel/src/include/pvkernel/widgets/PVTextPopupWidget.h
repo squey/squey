@@ -180,6 +180,6 @@ class PVTextPopupWidget : public PVPopupWidget
 	int _last_expand;
 	int _last_border;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVTEXTPOPUPWIDGET_H

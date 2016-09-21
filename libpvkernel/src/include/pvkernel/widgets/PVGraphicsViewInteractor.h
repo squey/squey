@@ -55,7 +55,7 @@ class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
   protected:
 	PVGraphicsViewInteractor(PVGraphicsView* parent) : PVGraphicsViewInteractorBase(parent) {}
 
-	virtual ~PVGraphicsViewInteractor() {}
+	~PVGraphicsViewInteractor() override {}
 
   protected:
 	/*! \brief Called when a cotnext menu event has occured.
@@ -179,6 +179,6 @@ class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
 		return false;
 	}
 };
-}
+} // namespace PVWidgets
 
 #endif

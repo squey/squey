@@ -14,7 +14,7 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace PVWidgets
 {
@@ -22,7 +22,7 @@ namespace PVWidgets
 namespace __impl
 {
 class PVLabelEventFilter;
-}
+} // namespace __impl
 
 class PVColorPicker;
 
@@ -71,6 +71,6 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
   private:
 	__impl::PVLabelEventFilter* _label_event_filter;
 };
-}
+} // namespace PVWidgets
 
 #endif

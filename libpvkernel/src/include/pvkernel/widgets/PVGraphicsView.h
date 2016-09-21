@@ -36,7 +36,7 @@ class PVGraphicsViewInteractorScene;
 namespace __impl
 {
 class PVViewportEventFilter;
-}
+} // namespace __impl
 
 /**
  * @class PVGraphicsView
@@ -92,7 +92,7 @@ class PVGraphicsView : public QWidget
 
 	PVGraphicsView(QGraphicsScene* scene = nullptr, QWidget* parent = nullptr);
 
-	~PVGraphicsView();
+	~PVGraphicsView() override;
 
   public:
 	/**
@@ -732,7 +732,7 @@ class PVGraphicsView : public QWidget
 	 *
 	 * @param event the corresponding resize event
 	 */
-	virtual void resizeEvent(QResizeEvent* event) override;
+	void resizeEvent(QResizeEvent* event) override;
 
 	/**
 	 * reimplements QWidget::enterEvent
@@ -936,6 +936,6 @@ class PVGraphicsView : public QWidget
 	static QEvent::Type _usable_events[];
 	static QEvent::Type* _usable_events_end;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVGRAPHICSVIEW_H

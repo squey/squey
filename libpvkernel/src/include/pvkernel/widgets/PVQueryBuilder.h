@@ -77,7 +77,7 @@ class PVQueryBuilder : public QWidget
 	void reset_rules();
 
   public:
-	void setVisible(bool v);
+	void setVisible(bool v) override;
 
   private:
 	/** Execute javascript statement in a synchroneous way in the main Qt thread

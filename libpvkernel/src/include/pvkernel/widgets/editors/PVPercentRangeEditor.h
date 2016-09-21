@@ -48,6 +48,6 @@ class PVPercentRangeEditor : public PVAbstractRangePicker
 	 */
 	void set_values(const PVCore::PVPercentRangeType& r);
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVPERCENTRANGEEDITOR_H

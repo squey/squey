@@ -38,12 +38,12 @@ class PVPercentRangeType : public PVArgumentType<PVPercentRangeType>
 		_values[1] = values[1];
 	}
 
-	QString to_string() const
+	QString to_string() const override
 	{
 		return QString::number(_values[0]) + "," + QString::number(_values[1]);
 	}
 
-	PVArgument from_string(QString const& str, bool* ok) const
+	PVArgument from_string(QString const& str, bool* ok) const override
 	{
 		PVArgument arg;
 		bool ok1 = false;
@@ -70,7 +70,7 @@ class PVPercentRangeType : public PVArgumentType<PVPercentRangeType>
   private:
 	std::array<double, 2> _values;
 };
-}
+} // namespace PVCore
 
 Q_DECLARE_METATYPE(PVCore::PVPercentRangeType)
 

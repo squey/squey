@@ -39,6 +39,6 @@ class PVHelpWidget : public PVTextPopupWidget
 	 */
 	static bool is_help_key(int key);
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVHELPWIDGET_H

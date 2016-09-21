@@ -94,6 +94,6 @@ class PVColorPicker : public QWidget
 	SelectionMode _mode;
 	bool _allow_empty_interval;
 };
-}
+} // namespace PVWidgets
 
 #endif

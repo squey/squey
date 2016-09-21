@@ -24,12 +24,12 @@ class PVRegexpEditor : public QLineEdit
 
   public:
 	PVRegexpEditor(QWidget* parent = 0);
-	virtual ~PVRegexpEditor();
+	~PVRegexpEditor() override;
 
   public:
 	QRegExp get_rx() const;
 	void set_rx(QRegExp rx);
 };
-}
+} // namespace PVWidgets
 
 #endif
