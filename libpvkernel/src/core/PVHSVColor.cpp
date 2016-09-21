@@ -94,7 +94,7 @@ QRgb PVCore::PVHSVColor::to_rgb() const
 	rgb[pos2] = mask;
 	rgb[plus1mod3(pos2)] = 0xFF ^ mask;
 
-	return qRgba(rgb[0], rgb[1], rgb[2], 0xFF);
+	return qRgba(rgb[2], rgb[1], rgb[0], 0xFF);
 }
 
 QColor PVCore::PVHSVColor::toQColor() const
