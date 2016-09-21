@@ -29,7 +29,7 @@ class PVSourceDescription
 	{
 	}
 
-	PVSourceDescription(PVCore::PVSerializedSource const& s)
+	explicit PVSourceDescription(PVCore::PVSerializedSource const& s)
 	    : _source_creator_p(LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(
 	          QString::fromStdString(s.sc_name)))
 	    , _format(QString::fromStdString(s.format_name), QString::fromStdString(s.format_path))

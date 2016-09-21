@@ -29,7 +29,7 @@ class PVChunkFilterRemoveInvalidElts : public PVChunkFilter
 {
 
   public:
-	PVChunkFilterRemoveInvalidElts(bool& job_done);
+	explicit PVChunkFilterRemoveInvalidElts(bool& job_done);
 
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 

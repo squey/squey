@@ -33,7 +33,7 @@ class PVSerializeArchive
 	typedef uint32_t version_t;
 
   public:
-	PVSerializeArchive(version_t version, bool save_log_file = false);
+	explicit PVSerializeArchive(version_t version, bool save_log_file = false);
 	PVSerializeArchive(QString const& dir,
 	                   archive_mode mode,
 	                   version_t version,
