@@ -24,7 +24,7 @@ class PVColorGradientDualSliderType : public PVArgumentType<PVColorGradientDualS
 		_sliders_positions[0] = 0;
 		_sliders_positions[1] = 1;
 	};
-	PVColorGradientDualSliderType(const double positions[2]) { set_positions(positions); }
+	explicit PVColorGradientDualSliderType(const double positions[2]) { set_positions(positions); }
 
 	inline const double* get_positions() const { return _sliders_positions; }
 	inline void set_positions(const double pos[2])

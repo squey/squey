@@ -45,7 +45,7 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 	{
 	}
 
-	PVZoneRenderingBCIBase(bool reversed = false)
+	explicit PVZoneRenderingBCIBase(bool reversed = false)
 	    : PVZoneRendering(), _dst_img(nullptr), _width(0), _x_start(0), _reversed(reversed)
 	{
 	}

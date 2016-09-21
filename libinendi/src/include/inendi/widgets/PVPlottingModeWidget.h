@@ -24,7 +24,7 @@ namespace PVWidgets
 class PVPlottingModeWidget : public QWidget
 {
   public:
-	PVPlottingModeWidget(QWidget* parent = nullptr);
+	explicit PVPlottingModeWidget(QWidget* parent = nullptr);
 	PVPlottingModeWidget(PVCol axis_id, Inendi::PVPlotted& plotting, QWidget* parent = nullptr);
 
   public:

@@ -18,7 +18,7 @@ class PVScatterView;
 class PVScatterViewInteractor : public PVZoomableDrawingAreaInteractor
 {
   public:
-	PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr);
+	explicit PVScatterViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr);
 
   public:
 	bool keyPressEvent(PVZoomableDrawingArea* zda, QKeyEvent* event) override;

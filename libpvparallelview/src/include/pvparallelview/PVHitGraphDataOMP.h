@@ -27,7 +27,7 @@ class PVHitGraphDataOMP : public PVHitGraphDataInterface
 
   public:
 	struct omp_ctx_t {
-		omp_ctx_t(uint32_t size); // size is number of integers
+		explicit omp_ctx_t(uint32_t size); // size is number of integers
 		~omp_ctx_t();
 
 		void clear();

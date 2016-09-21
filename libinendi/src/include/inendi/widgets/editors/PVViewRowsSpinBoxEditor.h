@@ -28,7 +28,7 @@ class PVViewRowsSpinBoxEditor : public QSpinBox
 	Q_PROPERTY(PVCore::PVSpinBoxType _s READ get_spin WRITE set_spin USER true)
 
   public:
-	PVViewRowsSpinBoxEditor(Inendi::PVView const& view, QWidget* parent = 0);
+	explicit PVViewRowsSpinBoxEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVViewRowsSpinBoxEditor();
 
   public:

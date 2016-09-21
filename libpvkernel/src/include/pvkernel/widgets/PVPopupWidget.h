@@ -40,7 +40,7 @@ class PVPopupWidget : public QWidget
 	 *
 	 * @param parent the parent QWidget
 	 */
-	PVPopupWidget(QWidget* parent);
+	explicit PVPopupWidget(QWidget* parent);
 
   public:
 	/**

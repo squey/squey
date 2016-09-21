@@ -39,7 +39,7 @@ class PVQueryBuilder : public QWidget
 	using columns_t = std::vector<std::pair<std::string, std::string>>;
 
   public:
-	PVQueryBuilder(QWidget* parent = nullptr);
+	explicit PVQueryBuilder(QWidget* parent = nullptr);
 
   public:
 	/** Set the widget filters

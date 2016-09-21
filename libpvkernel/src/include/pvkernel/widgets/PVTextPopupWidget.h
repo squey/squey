@@ -80,7 +80,7 @@ class PVTextPopupWidget : public PVPopupWidget
 	 *
 	 * @param parent the parent QWidget
 	 */
-	PVTextPopupWidget(QWidget* parent);
+	explicit PVTextPopupWidget(QWidget* parent);
 
 	/**
 	 * set the content (which is HTML text)

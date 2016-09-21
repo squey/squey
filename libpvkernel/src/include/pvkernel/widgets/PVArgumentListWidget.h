@@ -30,8 +30,9 @@ class PVArgumentListWidget : public QWidget
 	Q_OBJECT
 
   public:
-	PVArgumentListWidget(QWidget* parent = nullptr);
-	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent = nullptr);
+	explicit PVArgumentListWidget(QWidget* parent = nullptr);
+	explicit PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
+	                              QWidget* parent = nullptr);
 	PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
 	                     PVCore::PVArgumentList& args,
 	                     QWidget* parent = nullptr);

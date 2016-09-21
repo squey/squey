@@ -88,9 +88,9 @@ class PVGraphicsView : public QWidget
 	typedef enum { NoAnchor, AnchorViewCenter, AnchorUnderMouse } ViewportAnchor;
 
   public:
-	PVGraphicsView(QWidget* parent = nullptr);
+	explicit PVGraphicsView(QWidget* parent = nullptr);
 
-	PVGraphicsView(QGraphicsScene* scene = nullptr, QWidget* parent = nullptr);
+	explicit PVGraphicsView(QGraphicsScene* scene = nullptr, QWidget* parent = nullptr);
 
 	~PVGraphicsView() override;
 

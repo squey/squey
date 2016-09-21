@@ -63,7 +63,7 @@ class PVZoneRendering
 	};
 
   public:
-	PVZoneRendering(PVZoneID zone_id)
+	explicit PVZoneRendering(PVZoneID zone_id)
 	    : _zone_id(zone_id)
 	    , _should_cancel(false)
 	    , _qobject_finished_success(nullptr)

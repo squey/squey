@@ -54,7 +54,7 @@ class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 	/**
 	 * The Constructor
 	 */
-	PVZoomableDrawingArea(QWidget* parent = nullptr);
+	explicit PVZoomableDrawingArea(QWidget* parent = nullptr);
 
 	/**
 	 * The Destructor :-)

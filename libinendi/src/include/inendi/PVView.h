@@ -77,8 +77,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	typedef int32_t id_t;
 
   public:
-	PVView(PVPlotted& plotted);
-	PVView(const PVView& org) = delete;
+	explicit PVView(PVPlotted& plotted);
 	~PVView();
 
   public:

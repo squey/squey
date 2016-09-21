@@ -38,8 +38,8 @@ namespace Inendi
 class PVAxesCombination
 {
   public:
-	PVAxesCombination(PVRush::PVFormat const& format);
-	PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes);
+	explicit PVAxesCombination(PVRush::PVFormat const& format);
+	explicit PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes);
 
   public:
 	PVRush::PVAxisFormat const& get_axis(PVCombCol col) const;

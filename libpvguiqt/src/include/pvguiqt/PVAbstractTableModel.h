@@ -44,7 +44,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/**
 	 * Create a TableModel with a given number of row (default value)
 	 */
-	PVAbstractTableModel(int row_count, QObject* parent = nullptr);
+	explicit PVAbstractTableModel(int row_count, QObject* parent = nullptr);
 
 	/**
 	 * Function to export asked line;

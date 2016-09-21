@@ -23,7 +23,7 @@ class PVRegexpEditor : public QLineEdit
 	Q_PROPERTY(QRegExp _rx READ get_rx WRITE set_rx USER true)
 
   public:
-	PVRegexpEditor(QWidget* parent = 0);
+	explicit PVRegexpEditor(QWidget* parent = 0);
 	~PVRegexpEditor() override;
 
   public:

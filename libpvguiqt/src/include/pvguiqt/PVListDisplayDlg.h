@@ -39,7 +39,7 @@ class PVListDisplayDlg : public QDialog, public Ui::PVListDisplayDlg
 	Q_OBJECT
 
   public:
-	PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent = nullptr);
+	explicit PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent = nullptr);
 
 	/**
 	 * Destructor to delete the underliying model.

@@ -19,7 +19,7 @@ class PVDisplaysContainer : public QMainWindow
 	Q_OBJECT
 
   public:
-	PVDisplaysContainer(QWidget* w) : QMainWindow(w) {}
+	explicit PVDisplaysContainer(QWidget* w) : QMainWindow(w) {}
 
   public Q_SLOTS:
 	virtual void create_view_widget(QAction* act = nullptr) = 0;

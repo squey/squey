@@ -76,7 +76,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	typedef std::vector<PVRow> rows_vector_t;
 
   public:
-	PVPlotted(PVMapped& mapped, std::string const& name = "default");
+	explicit PVPlotted(PVMapped& mapped, std::string const& name = "default");
 	PVPlotted(PVMapped& mapped,
 	          std::list<Inendi::PVPlottingProperties>&& column,
 	          std::string const& name = "default");

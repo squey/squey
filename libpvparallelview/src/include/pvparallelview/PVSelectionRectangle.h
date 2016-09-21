@@ -54,8 +54,8 @@ class PVSelectionRectangle : public QObject
 	static const int delay_msec;
 
   public:
-	PVSelectionRectangle(QGraphicsScene* scene);
-	virtual ~PVSelectionRectangle(){};
+	explicit PVSelectionRectangle(QGraphicsScene* scene);
+	~PVSelectionRectangle() override{};
 
   public:
 	/**

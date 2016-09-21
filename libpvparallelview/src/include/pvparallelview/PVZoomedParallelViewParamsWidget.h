@@ -25,7 +25,7 @@ class PVZoomedParallelViewParamsWidget : public QToolBar
 	Q_OBJECT
 
   public:
-	PVZoomedParallelViewParamsWidget(PVZoomedParallelView* parent);
+	explicit PVZoomedParallelViewParamsWidget(PVZoomedParallelView* parent);
 
   public:
 	void build_axis_menu(int active_axis, const QStringList& sl);

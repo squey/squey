@@ -63,7 +63,7 @@ class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 	/**
 	 * CTOR
 	 */
-	PVZoomableDrawingAreaWithAxes(QWidget* parent = nullptr);
+	explicit PVZoomableDrawingAreaWithAxes(QWidget* parent = nullptr);
 
 	/**
 	 * DTOR

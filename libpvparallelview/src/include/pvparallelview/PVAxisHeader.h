@@ -108,8 +108,8 @@ class PVAxisSelectedAnimation : QObject
 	static constexpr QEasingCurve::Type opacity_animation_easing = QEasingCurve::Linear;
 
   public:
-	PVAxisSelectedAnimation(PVAxisHeader* parent);
-	~PVAxisSelectedAnimation();
+	explicit PVAxisSelectedAnimation(PVAxisHeader* parent);
+	~PVAxisSelectedAnimation() override;
 
   public:
 	void start(bool start);

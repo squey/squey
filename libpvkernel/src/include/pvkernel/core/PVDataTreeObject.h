@@ -157,7 +157,7 @@ template <class Parent, class Derived>
 class PVDataTreeChild : virtual public PVDataTreeObject
 {
   public:
-	PVDataTreeChild(Parent& parent) : _parent(parent) {}
+	explicit PVDataTreeChild(Parent& parent) : _parent(parent) {}
 	// No copy/move as it should also be added to parent
 	PVDataTreeChild(PVDataTreeChild const&) = delete;
 	PVDataTreeChild(PVDataTreeChild&&) = delete;

@@ -44,7 +44,7 @@ class PVAxis : public PVRush::PVAxisFormat
 	    : PVRush::PVAxisFormat(-1){}; // We have to keep this Ugly constructor as we use QVector
 	                                  // which perform a lot of
 	                                  // default construction
-	PVAxis(PVRush::PVAxisFormat axis_format);
+	explicit PVAxis(PVRush::PVAxisFormat axis_format);
 
   public:
 	PVCore::PVArgumentList const& get_args_mapping() const { return _args_mapping; }

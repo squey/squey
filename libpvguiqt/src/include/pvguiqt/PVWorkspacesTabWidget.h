@@ -35,7 +35,7 @@ class PVSceneTabBar : public QTabBar
 	Q_OBJECT
 
   public:
-	PVSceneTabBar(PVSceneWorkspacesTabWidget* tab_widget);
+	explicit PVSceneTabBar(PVSceneWorkspacesTabWidget* tab_widget);
 
   public:
 	/*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
@@ -71,7 +71,7 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 	Q_PROPERTY(int tab_width READ get_tab_width WRITE set_tab_width);
 
   public:
-	PVSceneWorkspacesTabWidget(Inendi::PVScene& scene, QWidget* parent = 0);
+	explicit PVSceneWorkspacesTabWidget(Inendi::PVScene& scene, QWidget* parent = 0);
 
   public:
 	/*! \brief Add a workspace with or without animation.

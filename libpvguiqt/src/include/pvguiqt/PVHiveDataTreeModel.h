@@ -20,7 +20,7 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 	Q_OBJECT
 
   public:
-	PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent = nullptr);
+	explicit PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent = nullptr);
 	QModelIndex index(int row, int column, const QModelIndex& parent) const override;
 
 	int pos_from_obj(PVCore::PVDataTreeObject const* o) const;

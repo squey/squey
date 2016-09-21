@@ -18,7 +18,7 @@ class PVHitCountView;
 class PVHitCountViewInteractor : public PVZoomableDrawingAreaInteractor
 {
   public:
-	PVHitCountViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr);
+	explicit PVHitCountViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr);
 
 	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*) override;
 

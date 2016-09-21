@@ -18,7 +18,7 @@ namespace PVWidgets
 class PVComboBox : public QComboBox
 {
   public:
-	PVComboBox(QWidget* parent);
+	explicit PVComboBox(QWidget* parent);
 
   public:
 	QString get_selected() const;
@@ -42,7 +42,7 @@ class PVComboBox : public QComboBox
 	class PVComboBoxModel : public QStandardItemModel
 	{
 	  public:
-		PVComboBoxModel(QStringList& dis_elt, QObject* parent = 0);
+		explicit PVComboBoxModel(QStringList& dis_elt, QObject* parent = 0);
 		Qt::ItemFlags flags(const QModelIndex& index) const override;
 		QVariant data(const QModelIndex& index, int role) const override;
 

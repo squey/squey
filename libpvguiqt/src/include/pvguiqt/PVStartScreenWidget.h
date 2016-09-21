@@ -52,7 +52,7 @@ class PVStartScreenWidget : public QWidget, public sigc::trackable
 	typedef QListWidget custom_listwidget_t;
 
   public:
-	PVStartScreenWidget(QWidget* parent = 0);
+	explicit PVStartScreenWidget(QWidget* parent = 0);
 
   public:
 	/*! \brief Refresh the recent items of all categories.
@@ -157,7 +157,7 @@ class PVDeleteInvestigationDialog : public QDialog
 	Q_OBJECT
 
   public:
-	PVDeleteInvestigationDialog(PVStartScreenWidget* parent);
+	explicit PVDeleteInvestigationDialog(PVStartScreenWidget* parent);
 
   public:
 	bool clear_history() { return _clear_history_cb->isChecked(); }

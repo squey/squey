@@ -51,7 +51,7 @@ namespace __impl
 class PVToolTipEventFilter : public QObject
 {
   public:
-	PVToolTipEventFilter(PVAxisGraphicsItem* parent) : QObject(parent) {}
+	explicit PVToolTipEventFilter(PVAxisGraphicsItem* parent) : QObject(parent) {}
 
   protected:
 	bool eventFilter(QObject* obj, QEvent* ev) override

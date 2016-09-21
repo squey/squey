@@ -22,7 +22,7 @@ class PVZoomableDrawingAreaInteractor
     : public PVWidgets::PVGraphicsViewInteractor<PVZoomableDrawingArea>
 {
   public:
-	PVZoomableDrawingAreaInteractor(PVWidgets::PVGraphicsView* parent = nullptr)
+	explicit PVZoomableDrawingAreaInteractor(PVWidgets::PVGraphicsView* parent = nullptr)
 	    : PVWidgets::PVGraphicsViewInteractor<PVZoomableDrawingArea>(parent)
 	{
 	}

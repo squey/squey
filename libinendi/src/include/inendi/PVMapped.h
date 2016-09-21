@@ -56,7 +56,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	using mapped_table_t = std::vector<pvcop::db::array>;
 
   public:
-	PVMapped(PVSource& src, std::string const& name = "default");
+	explicit PVMapped(PVSource& src, std::string const& name = "default");
 	PVMapped(PVSource& src,
 	         std::string const& name,
 	         std::list<Inendi::PVMappingProperties>&& columns);

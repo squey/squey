@@ -31,7 +31,7 @@ class PVPercentRangeEditor : public PVAbstractRangePicker
 	/**
 	 * Constructor
 	 */
-	PVPercentRangeEditor(QWidget* parent = 0);
+	explicit PVPercentRangeEditor(QWidget* parent = 0);
 
   public:
 	/**

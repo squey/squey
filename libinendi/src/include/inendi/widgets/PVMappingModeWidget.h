@@ -24,7 +24,7 @@ namespace PVWidgets
 class PVMappingModeWidget : public QWidget
 {
   public:
-	PVMappingModeWidget(QWidget* parent = nullptr);
+	explicit PVMappingModeWidget(QWidget* parent = nullptr);
 	PVMappingModeWidget(PVCol axis_id, Inendi::PVMapped& mapping, QWidget* parent = nullptr);
 
   public:

@@ -106,8 +106,8 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	}
 
   public:
-	PVWorkspaceBase(QWidget* parent) : PVDisplays::PVDisplaysContainer(parent) {}
-	virtual ~PVWorkspaceBase();
+	explicit PVWorkspaceBase(QWidget* parent) : PVDisplays::PVDisplaysContainer(parent) {}
+	~PVWorkspaceBase() override;
 
   public:
 	/*! \brief Create a view display from a widget and add it to the workspace.
@@ -249,7 +249,7 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	using list_display = QList<std::pair<QToolButton*, T*>>;
 
   public:
-	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = nullptr);
+	explicit PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = nullptr);
 
   public:
 	inline Inendi::PVSource* get_source() const { return _source; }

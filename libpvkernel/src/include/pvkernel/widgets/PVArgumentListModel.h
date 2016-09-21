@@ -26,8 +26,8 @@ namespace PVWidgets
 class PVArgumentListModel : public QAbstractTableModel
 {
   public:
-	PVArgumentListModel(QObject* parent = 0);
-	PVArgumentListModel(PVCore::PVArgumentList& args, QObject* parent = 0);
+	explicit PVArgumentListModel(QObject* parent = 0);
+	explicit PVArgumentListModel(PVCore::PVArgumentList& args, QObject* parent = 0);
 
   public:
 	void set_args(PVCore::PVArgumentList& args);

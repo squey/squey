@@ -47,7 +47,7 @@ class PVBCIBuffers : private PVBCIBuffersAlloc
 	static_assert(N >= 2, "The number of BCI buffers must be >= 2.");
 
   public:
-	PVBCIBuffers(PVBCIDrawingBackend& backend) : _backend(&backend)
+	explicit PVBCIBuffers(PVBCIDrawingBackend& backend) : _backend(&backend)
 	{
 		// "+2" as sizeof(bci) == 8 and we need 15 more bytes for potential alignment issues
 		_org_codes = allocate(PARALLELVIEW_MAX_BCI_CODES * N + 2, backend);

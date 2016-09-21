@@ -33,7 +33,7 @@ class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 	 *
 	 * @param hcv the "parent" hit-count view
 	 */
-	PVZoomedParallelViewSelectionLine(PVZoomedParallelView* zpv);
+	explicit PVZoomedParallelViewSelectionLine(PVZoomedParallelView* zpv);
 
 	/**
 	 * DTOR!

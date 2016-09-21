@@ -23,7 +23,7 @@ template <class T>
 class PVViewArgumentEditorCreator : public QItemEditorCreatorBase
 {
   public:
-	inline PVViewArgumentEditorCreator(Inendi::PVView const& view)
+	explicit inline PVViewArgumentEditorCreator(Inendi::PVView const& view)
 	    : propertyName(T::staticMetaObject.userProperty().name()), _view(view)
 	{
 	}

@@ -25,7 +25,7 @@ class PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
 	/**
 	 * Constructor
 	 */
-	PVZoneIndexType(int zone_index = 0) : _zone_index(zone_index) {}
+	explicit PVZoneIndexType(int zone_index = 0) : _zone_index(zone_index) {}
 
 	int get_zone_index() const { return _zone_index; }
 

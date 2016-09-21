@@ -21,7 +21,7 @@ class PVTableView : public QTableView
 	Q_OBJECT;
 
   public:
-	PVTableView(QWidget* parent) : QTableView(parent) {}
+	explicit PVTableView(QWidget* parent) : QTableView(parent) {}
 
   Q_SIGNALS:
 	/**

@@ -21,7 +21,7 @@ class PVLayerEnumEditor : public QComboBox
 	Q_PROPERTY(Inendi::PVLayer* _layer READ get_layer WRITE set_layer USER true)
 
   public:
-	PVLayerEnumEditor(Inendi::PVView const& view, QWidget* parent = 0);
+	explicit PVLayerEnumEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVLayerEnumEditor();
 
   public:

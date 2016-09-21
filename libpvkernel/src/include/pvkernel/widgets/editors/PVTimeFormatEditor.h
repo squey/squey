@@ -62,7 +62,7 @@ class PVTimeValidatorHighLight : public QSyntaxHighlighter
 	Q_OBJECT
 
   public:
-	PVTimeValidatorHighLight(QTextEdit* parent);
+	explicit PVTimeValidatorHighLight(QTextEdit* parent);
 	virtual ~PVTimeValidatorHighLight();
 
 	void set_time_format(QString const& str);

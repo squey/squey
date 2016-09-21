@@ -56,7 +56,7 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 	typedef std::unordered_map<uint32_t, std::unordered_map<uint32_t, PVParams>> param_t;
 
   public:
-	PVStatsListingWidget(PVListingView* listing_view);
+	explicit PVStatsListingWidget(PVListingView* listing_view);
 
   private:
 	param_t& get_params() { return _params; }
@@ -142,7 +142,7 @@ class PVVerticalHeaderView : public QHeaderView
 	Q_OBJECT
 
   public:
-	PVVerticalHeaderView(PVStatsListingWidget* parent);
+	explicit PVVerticalHeaderView(PVStatsListingWidget* parent);
 };
 
 class PVLoadingLabel : public QLabel
@@ -150,7 +150,7 @@ class PVLoadingLabel : public QLabel
 	Q_OBJECT
 
   public:
-	PVLoadingLabel(QWidget* parent) : QLabel(parent) {}
+	explicit PVLoadingLabel(QWidget* parent) : QLabel(parent) {}
 
   protected:
 	virtual void mousePressEvent(QMouseEvent* ev) override

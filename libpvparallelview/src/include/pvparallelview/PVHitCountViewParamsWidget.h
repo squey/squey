@@ -25,7 +25,7 @@ class PVHitCountViewParamsWidget : public QToolBar
 	Q_OBJECT
 
   public:
-	PVHitCountViewParamsWidget(PVHitCountView* parent);
+	explicit PVHitCountViewParamsWidget(PVHitCountView* parent);
 
   public:
 	void update_widgets();

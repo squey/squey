@@ -62,7 +62,7 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	/**
 	 * Constructor
 	 */
-	PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());
+	explicit PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());
 
   public:
 	void set_output(PVLayer* out);

@@ -65,7 +65,7 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	 * record, every view will be updated on listing model modification.
 	 *
 	 */
-	PVListingModel(Inendi::PVView& view, QObject* parent = nullptr);
+	explicit PVListingModel(Inendi::PVView& view, QObject* parent = nullptr);
 
 	/**
 	 * Return data requested by the View

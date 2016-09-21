@@ -40,8 +40,8 @@ class PVFullParallelView : public QGraphicsView
 	friend class PVFullParallelScene;
 
   public:
-	PVFullParallelView(QWidget* parent = nullptr);
-	~PVFullParallelView();
+	explicit PVFullParallelView(QWidget* parent = nullptr);
+	~PVFullParallelView() override;
 
   public:
 	void set_total_events_number(uint32_t total_events_number)

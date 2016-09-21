@@ -33,8 +33,8 @@ class PVColorDialog : public QDialog, Ui::PVColorDialog
 	friend class __impl::PVLabelEventFilter;
 
   public:
-	PVColorDialog(QWidget* parent = nullptr);
-	PVColorDialog(PVCore::PVHSVColor const& c, QWidget* parent = nullptr);
+	explicit PVColorDialog(QWidget* parent = nullptr);
+	explicit PVColorDialog(PVCore::PVHSVColor const& c, QWidget* parent = nullptr);
 
   public:
 	void set_color(PVCore::PVHSVColor const& c);

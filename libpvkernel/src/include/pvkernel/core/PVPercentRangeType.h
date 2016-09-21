@@ -28,7 +28,7 @@ class PVPercentRangeType : public PVArgumentType<PVPercentRangeType>
 
 	PVPercentRangeType(double min, double max) : _values{{min, max}} {}
 
-	PVPercentRangeType(const double values[2]) { set_values(values); }
+	explicit PVPercentRangeType(const double values[2]) { set_values(values); }
 
 	inline const double* get_values() const { return _values.data(); }
 

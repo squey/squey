@@ -29,7 +29,7 @@ class PVZoneIndexEditor : public QComboBox
 	    PVCore::PVZoneIndexType _zone_index READ get_zone_index WRITE set_zone_index USER true)
 
   public:
-	PVZoneIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
+	explicit PVZoneIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
 	virtual ~PVZoneIndexEditor();
 
   public:

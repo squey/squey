@@ -34,7 +34,7 @@ class PVHitCountViewSelectionRectangle : public PVParallelView::PVSelectionRecta
 	 *
 	 * @param hcv the "parent" hit-count view
 	 */
-	PVHitCountViewSelectionRectangle(PVHitCountView* hcv);
+	explicit PVHitCountViewSelectionRectangle(PVHitCountView* hcv);
 
   protected:
 	/**

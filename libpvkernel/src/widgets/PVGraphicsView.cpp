@@ -80,7 +80,7 @@ namespace __impl
 class PVViewportEventFilter : public QObject
 {
   public:
-	PVViewportEventFilter(PVWidgets::PVGraphicsView* view) : _view(view) {}
+	explicit PVViewportEventFilter(PVWidgets::PVGraphicsView* view) : _view(view) {}
 
   protected:
 	bool eventFilter(QObject* obj, QEvent* event) override

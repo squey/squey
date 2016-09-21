@@ -28,7 +28,7 @@ class PVAxesCombinationDialog : public QDialog
 	Q_OBJECT
 
   public:
-	PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent = nullptr);
+	explicit PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent = nullptr);
 
   public:
 	void reset_used_axes();

@@ -43,7 +43,7 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	 *
 	 * @param parent parent widget
 	 */
-	PVZoomedParallelView(QWidget* parent = nullptr);
+	explicit PVZoomedParallelView(QWidget* parent = nullptr);
 
 	/**
 	 * Destructor

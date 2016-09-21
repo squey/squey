@@ -55,7 +55,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * @note It use a view as a parameter to register observer. Thanks to this
 	 * record, every view will be updated on listing model modification.
 	 */
-	PVListingView(Inendi::PVView& view, QWidget* parent = nullptr);
+	explicit PVListingView(Inendi::PVView& view, QWidget* parent = nullptr);
 
 	/**
 	 * Clean up plugin in progress

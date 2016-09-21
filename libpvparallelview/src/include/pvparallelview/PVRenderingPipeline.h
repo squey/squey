@@ -127,7 +127,7 @@ class PVRenderingPipeline : boost::noncopyable
 	    workflow_router_type;
 
   public:
-	PVRenderingPipeline(PVBCIDrawingBackend& bci_backend);
+	explicit PVRenderingPipeline(PVBCIDrawingBackend& bci_backend);
 	~PVRenderingPipeline();
 
   public:

@@ -37,7 +37,7 @@ class PVLibView : public sigc::trackable
 	typedef std::vector<PVScatterView*> scatter_view_list_t;
 
   public:
-	PVLibView(Inendi::PVView& view_sp);
+	explicit PVLibView(Inendi::PVView& view_sp);
 	~PVLibView();
 
   public:

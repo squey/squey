@@ -21,7 +21,7 @@ class PVTLRBuffer
 
   public:
 	struct index_t {
-		index_t(uint32_t vv = 0U) { v = vv; }
+		explicit index_t(uint32_t vv = 0U) { v = vv; }
 
 		index_t(uint32_t t, uint32_t l, uint32_t r) { v = (t << (2 * Bbits)) + (l << Bbits) + r; }
 

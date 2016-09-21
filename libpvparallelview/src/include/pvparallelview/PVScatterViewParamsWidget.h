@@ -23,7 +23,7 @@ class PVScatterViewParamsWidget : public QToolBar
 	Q_OBJECT
 
   public:
-	PVScatterViewParamsWidget(PVScatterView* parent);
+	explicit PVScatterViewParamsWidget(PVScatterView* parent);
 
   private Q_SLOTS:
 	void set_selection_mode(int mode);

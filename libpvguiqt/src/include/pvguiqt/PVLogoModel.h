@@ -22,7 +22,7 @@ class PVLogoModel
 {
   public:
 	PVLogoModel() {}
-	PVLogoModel(const QString& filePath);
+	explicit PVLogoModel(const QString& filePath);
 
 	void render(bool wireframe = false, bool normals = false) const;
 

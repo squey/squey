@@ -34,7 +34,7 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 	           depend of the client's windows settings. */
 
   public:
-	PVAxisLabel(const Inendi::PVView& view, QGraphicsItem* parent = nullptr);
+	explicit PVAxisLabel(const Inendi::PVView& view, QGraphicsItem* parent = nullptr);
 
 	virtual ~PVAxisLabel();
 

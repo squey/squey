@@ -47,7 +47,7 @@ class PVTabBar : public QTabBar
 	Q_OBJECT
 
   public:
-	PVTabBar(Inendi::PVRoot& root, QWidget* parent = 0) : QTabBar(parent), _root(root) {}
+	explicit PVTabBar(Inendi::PVRoot& root, QWidget* parent = 0) : QTabBar(parent), _root(root) {}
 
   protected:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
@@ -65,7 +65,7 @@ class PVTabBar : public QTabBar
 class PVTabWidget : public QTabWidget
 {
   public:
-	PVTabWidget(Inendi::PVRoot& root, QWidget* parent = 0) : QTabWidget(parent)
+	explicit PVTabWidget(Inendi::PVRoot& root, QWidget* parent = 0) : QTabWidget(parent)
 	{
 		setTabBar(new PVTabBar(root, this));
 	}
@@ -77,7 +77,7 @@ class PVTabWidget : public QTabWidget
 class PVSplitterHandle : public QSplitterHandle
 {
   public:
-	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0)
+	explicit PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0)
 	    : QSplitterHandle(orientation, parent)
 	{
 	}
@@ -103,7 +103,10 @@ class PVSplitterHandle : public QSplitterHandle
 class PVSplitter : public QSplitter
 {
   public:
-	PVSplitter(Qt::Orientation orientation, QWidget* parent = 0) : QSplitter(orientation, parent) {}
+	explicit PVSplitter(Qt::Orientation orientation, QWidget* parent = 0)
+	    : QSplitter(orientation, parent)
+	{
+	}
 
   protected:
 	QSplitterHandle* createHandle() { return new PVSplitterHandle(orientation(), this); }
@@ -123,7 +126,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	static constexpr int FIRST_PROJECT_INDEX = 1;
 
   public:
-	PVProjectsTabWidget(Inendi::PVRoot* root, QWidget* parent = 0);
+	explicit PVProjectsTabWidget(Inendi::PVRoot* root, QWidget* parent = 0);
 
 	PVSceneWorkspacesTabWidget* add_project(Inendi::PVScene& scene_p);
 	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);

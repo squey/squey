@@ -32,7 +32,7 @@ class PVRootTreeView : public QTreeView
 	Q_OBJECT
 
   public:
-	PVRootTreeView(QAbstractItemModel* model, QWidget* parent = 0);
+	explicit PVRootTreeView(QAbstractItemModel* model, QWidget* parent = 0);
 
   protected:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;

@@ -47,7 +47,7 @@ class PVAbstractRangeRampCursor : public QWidget
 	 * @param type the cursor type (MINIMUM or MAXIMUM)
 	 * @param parent the parent widget
 	 */
-	PVAbstractRangeRampCursor(cursor_type type, QWidget* parent = nullptr);
+	explicit PVAbstractRangeRampCursor(cursor_type type, QWidget* parent = nullptr);
 
   Q_SIGNALS:
 	/**
@@ -108,7 +108,7 @@ class PVAbstractRangeRamp : public QWidget
 	 *
 	 * @param parent the parent widget
 	 */
-	PVAbstractRangeRamp(QWidget* parent = nullptr);
+	explicit PVAbstractRangeRamp(QWidget* parent = nullptr);
 
 	/**
 	 * Set the color gradient used for the color ramp
@@ -227,7 +227,7 @@ class PVAbstractRangeRamp : public QWidget
 class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 {
   public:
-	PVMimeticDoubleSpinBox(QDoubleSpinBox* other = nullptr) : _other(other) {}
+	explicit PVMimeticDoubleSpinBox(QDoubleSpinBox* other = nullptr) : _other(other) {}
 
 	void set_other(QDoubleSpinBox* other) { _other = other; }
 

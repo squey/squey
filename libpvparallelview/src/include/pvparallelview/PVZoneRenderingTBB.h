@@ -18,7 +18,7 @@ namespace PVParallelView
 class PVZoneRenderingTBB : public PVZoneRendering
 {
   public:
-	PVZoneRenderingTBB(PVZoneID zone_id) : PVZoneRendering(zone_id) {}
+	explicit PVZoneRenderingTBB(PVZoneID zone_id) : PVZoneRendering(zone_id) {}
 
 	PVZoneRenderingTBB() : PVZoneRendering() {}
 

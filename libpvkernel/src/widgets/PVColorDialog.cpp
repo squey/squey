@@ -65,7 +65,7 @@ namespace __impl
 class PVLabelEventFilter : public QObject
 {
   public:
-	PVLabelEventFilter(PVWidgets::PVColorDialog* parent) : QObject(parent) {}
+	explicit PVLabelEventFilter(PVWidgets::PVColorDialog* parent) : QObject(parent) {}
 
   protected:
 	bool eventFilter(QObject* obj, QEvent* ev) override

@@ -43,7 +43,7 @@ class PVMappingProperties
 {
   public:
 	PVMappingProperties(PVRush::PVFormat const& fmt, PVCol idx);
-	PVMappingProperties(PVRush::PVAxisFormat const& axis);
+	explicit PVMappingProperties(PVRush::PVAxisFormat const& axis);
 	PVMappingProperties(std::string const& mode, PVCore::PVArgumentList args);
 
   public:
