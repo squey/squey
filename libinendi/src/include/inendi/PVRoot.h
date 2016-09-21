@@ -96,7 +96,7 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 
   public:
 	// Serialization
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
 	/**
 	 * Read Childs from pvi

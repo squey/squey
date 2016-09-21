@@ -81,7 +81,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
   public:
 	// Serialization
 	static Inendi::PVScene& serialize_read(PVCore::PVSerializeObject& so, Inendi::PVRoot& parent);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   public:
 	sigc::signal<void> _project_updated;

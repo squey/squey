@@ -55,7 +55,7 @@ class PVLinesProperties
 	void selection_set_color(PVSelection const& selection, const PVCore::PVHSVColor c);
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static PVLinesProperties serialize_read(PVCore::PVSerializeObject& so);
 
   private:

@@ -105,7 +105,7 @@ void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 	}
 }
 
-void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so)
+void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	auto sel_obj = so.create_object("selection");
 	selection.serialize_write(*sel_obj);
@@ -113,16 +113,15 @@ void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so)
 	auto lp_obj = so.create_object("lp");
 	lines_properties.serialize_write(*lp_obj);
 
-	so.attribute("name", name);
-	so.attribute("visible", visible);
-	so.attribute("index", index);
-	so.attribute("locked", _locked);
+	so.attribute_write("name", name);
+	so.attribute_write("visible", visible);
+	so.attribute_write("index", index);
+	so.attribute_write("locked", _locked);
 }
 
 Inendi::PVLayer Inendi::PVLayer::serialize_read(PVCore::PVSerializeObject& so)
 {
-	QString name;
-	so.attribute("name", name);
+	QString name = so.attribute_read<QString>("name");
 
 	auto sel_obj = so.create_object("selection");
 	Inendi::PVSelection sel(Inendi::PVSelection::serialize_read(*sel_obj));
@@ -131,17 +130,10 @@ Inendi::PVLayer Inendi::PVLayer::serialize_read(PVCore::PVSerializeObject& so)
 	Inendi::PVLinesProperties lines_properties = Inendi::PVLinesProperties::serialize_read(*lp_obj);
 
 	Inendi::PVLayer layer(name, sel, lines_properties);
-	bool visible;
-	so.attribute("visible", visible);
-	layer.set_visible(visible);
+	layer.set_visible(so.attribute_read<bool>("visible"));
+	layer.set_index(so.attribute_read<int>("index"));
 
-	int index;
-	so.attribute("index", index);
-	layer.set_index(index);
-
-	bool locked;
-	so.attribute("locked", locked);
-	if (locked) {
+	if (so.attribute_read<bool>("locked")) {
 		layer.set_lock();
 	}
 	return layer;

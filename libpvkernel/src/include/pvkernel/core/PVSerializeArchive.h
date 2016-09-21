@@ -68,10 +68,9 @@ class PVSerializeArchive
 	// Object create function
 	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject* parent);
 	// Attribute access functions
-	virtual void
-	attribute_write(PVSerializeObject const& so, QString const& name, QVariant const& obj);
-	virtual void
-	attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj, QVariant const& def);
+	void attribute_write(PVSerializeObject const& so, QString const& name, QVariant const& obj);
+	QVariant attribute_read(PVSerializeObject& so, QString const& name);
+
 	virtual void list_attributes_write(PVSerializeObject const& so,
 	                                   QString const& name,
 	                                   std::vector<QVariant> const& obj);
@@ -85,8 +84,11 @@ class PVSerializeArchive
 	                         QString const& name,
 	                         PVArgumentList& obj,
 	                         PVArgumentList const& def_args);
-	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
-	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
+	size_t buffer_read(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
+	size_t
+	buffer_write(PVSerializeObject const& so, QString const& name, void const* buf, size_t n);
+	QString file_read(PVSerializeObject const& so, QString const& name);
+	void file_write(PVSerializeObject const& so, QString const& name, QString const& path);
 
 	bool save_log_file() const { return _save_log_files; }
 

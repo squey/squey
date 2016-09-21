@@ -80,7 +80,11 @@ void PVCore::PVSerializeArchive::init()
 	_root_obj = allocate_object(_root_dir, nullptr);
 	create_attributes(*_root_obj);
 	// Version special attribute
-	_root_obj->attribute(QString("version"), _version, (version_t)0);
+	if (is_writing()) {
+		_root_obj->attribute_write("version", _version);
+	} else {
+		_version = _root_obj->attribute_read<version_t>("version");
+	}
 }
 
 PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString const& name,
@@ -129,13 +133,10 @@ void PVCore::PVSerializeArchive::attribute_write(PVSerializeObject const& so,
 	settings->setValue(name, obj);
 }
 
-void PVCore::PVSerializeArchive::attribute_read(PVSerializeObject& so,
-                                                QString const& name,
-                                                QVariant& obj,
-                                                QVariant const& def)
+QVariant PVCore::PVSerializeArchive::attribute_read(PVSerializeObject& so, QString const& name)
 {
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
-	obj = settings->value(name, def);
+	return settings->value(name);
 }
 
 void PVCore::PVSerializeArchive::list_attributes_write(PVSerializeObject const& so,
@@ -185,38 +186,44 @@ void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so
 	obj = QSettings_to_PVArgumentList(*settings, def_args, name);
 }
 
-size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so,
-                                          QString const& name,
-                                          void* buf,
-                                          size_t n)
+size_t PVCore::PVSerializeArchive::buffer_read(PVSerializeObject const& so,
+                                               QString const& name,
+                                               void* buf,
+                                               size_t n)
 {
 	QFile buf_file(get_dir_for_object(so).absoluteFilePath(name));
-	if (is_writing()) {
-		if (!buf_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-			throw PVSerializeObjectFileError(buf_file);
-		}
-		qint64 ret = buf_file.write((const char*)buf, n);
-		if (ret == -1) {
-			throw PVSerializeObjectFileError(buf_file);
-		}
-		// Flush the internal buffers and check that it works.
-		// If we don' t do that, we may have an empty file even if
-		// QFile::write reports that everything was written !
-		if (!buf_file.flush()) {
-			throw PVSerializeObjectFileError(buf_file);
-		}
-
-		return ret;
-	} else {
-		if (!buf_file.open(QIODevice::ReadOnly)) {
-			throw PVSerializeObjectFileError(buf_file);
-		}
-		qint64 ret = buf_file.read((char*)buf, n);
-		if (ret == -1) {
-			throw PVSerializeObjectFileError(buf_file);
-		}
-		return ret;
+	if (!buf_file.open(QIODevice::ReadOnly)) {
+		throw PVSerializeObjectFileError(buf_file);
 	}
+	qint64 ret = buf_file.read((char*)buf, n);
+	if (ret == -1) {
+		throw PVSerializeObjectFileError(buf_file);
+	}
+	return ret;
+}
+
+size_t PVCore::PVSerializeArchive::buffer_write(PVSerializeObject const& so,
+                                                QString const& name,
+                                                void const* buf,
+                                                size_t n)
+{
+	QFile buf_file(get_dir_for_object(so).absoluteFilePath(name));
+
+	if (!buf_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+		throw PVSerializeObjectFileError(buf_file);
+	}
+	qint64 ret = buf_file.write((const char*)buf, n);
+	if (ret == -1) {
+		throw PVSerializeObjectFileError(buf_file);
+	}
+	// Flush the internal buffers and check that it works.
+	// If we don' t do that, we may have an empty file even if
+	// QFile::write reports that everything was written !
+	if (!buf_file.flush()) {
+		throw PVSerializeObjectFileError(buf_file);
+	}
+
+	return ret;
 }
 
 QDir PVCore::PVSerializeArchive::get_dir_for_object(PVSerializeObject const& so) const
@@ -234,23 +241,25 @@ QString PVCore::PVSerializeArchive::get_object_config_path(PVSerializeObject con
 	return dir.absoluteFilePath("config.ini");
 }
 
-void PVCore::PVSerializeArchive::file(PVSerializeObject const& so,
-                                      QString const& name,
-                                      QString& path)
+QString PVCore::PVSerializeArchive::file_read(PVSerializeObject const& so, QString const& name)
 {
 	QDir dir = get_dir_for_object(so);
 	QString ar_file(dir.absoluteFilePath(name));
-	if (is_writing()) {
-		QFile org_file(path);
-		if (!org_file.copy(ar_file)) {
-			throw PVSerializeObjectFileError(org_file);
-		}
-	} else {
-		if (!dir.exists(name)) {
-			throw PVSerializeArchiveError("File '" + name.toStdString() + "' within '" +
-			                              so.get_logical_path().toStdString() +
-			                              "' does not exist.");
-		}
-		path = ar_file;
+	if (!dir.exists(name)) {
+		throw PVSerializeArchiveError("File '" + name.toStdString() + "' within '" +
+		                              so.get_logical_path().toStdString() + "' does not exist.");
+	}
+	return ar_file;
+}
+
+void PVCore::PVSerializeArchive::file_write(PVSerializeObject const& so,
+                                            QString const& name,
+                                            QString const& path)
+{
+	QDir dir = get_dir_for_object(so);
+	QString ar_file(dir.absoluteFilePath(name));
+	QFile org_file(path);
+	if (!org_file.copy(ar_file)) {
+		throw PVSerializeObjectFileError(org_file);
 	}
 }

@@ -90,14 +90,26 @@ QSqlDatabase PVRush::PVDBServ::to_database()
 	return _db;
 }
 
-void PVRush::PVDBInfos::serialize(PVCore::PVSerializeObject& so,
-                                  PVCore::PVSerializeArchive::version_t /*v*/)
+void PVRush::PVDBInfos::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.attribute("host", _host);
-	so.attribute("username", _username);
-	so.attribute("password", _password);
-	so.attribute("options", _options);
-	so.attribute("type", _type);
-	so.attribute("dbname", _dbname);
-	so.attribute("port", _port);
+	so.attribute_write("host", _host);
+	so.attribute_write("username", _username);
+	so.attribute_write("password", _password);
+	so.attribute_write("options", _options);
+	so.attribute_write("type", _type);
+	so.attribute_write("dbname", _dbname);
+	so.attribute_write("port", _port);
+}
+
+PVRush::PVDBInfos PVRush::PVDBInfos::serialize_read(PVCore::PVSerializeObject& so)
+{
+	PVRush::PVDBInfos infos;
+	infos._host = so.attribute_read<QString>("host");
+	infos._username = so.attribute_read<QString>("username");
+	infos._password = so.attribute_read<QString>("password");
+	infos._options = so.attribute_read<QString>("options");
+	infos._type = so.attribute_read<QString>("type");
+	infos._dbname = so.attribute_read<QString>("dbname");
+	infos._port = so.attribute_read<uint16_t>("port");
+	return infos;
 }

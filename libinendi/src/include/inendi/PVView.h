@@ -285,7 +285,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVRow get_plotted_col_max_row(PVCombCol const combined_col) const;
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Inendi::PVView& serialize_read(PVCore::PVSerializeObject& so, Inendi::PVPlotted& parent);
 
   public:

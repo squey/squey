@@ -90,17 +90,16 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlottingProperties::get_plotting_filt
 Inendi::PVPlottingProperties
 Inendi::PVPlottingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	QString mode;
-	so.attribute("mode", mode);
+	QString mode = so.attribute_read<QString>("mode");
 
 	PVCore::PVArgumentList args;
-	so.arguments("properties", args, args);
+	so.arguments_read("properties", args, args);
 	return {mode.toStdString(), args};
 }
 
-void Inendi::PVPlottingProperties::serialize_write(PVCore::PVSerializeObject& so)
+void Inendi::PVPlottingProperties::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	QString mode = QString::fromStdString(_mode);
-	so.attribute("mode", mode);
-	so.arguments("properties", _args, _plotting_filter->get_default_args());
+	so.attribute_write("mode", mode);
+	so.arguments_write("properties", _args);
 }

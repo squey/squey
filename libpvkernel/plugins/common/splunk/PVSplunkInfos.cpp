@@ -7,31 +7,26 @@
 
 #include "PVSplunkInfos.h"
 
-#include <pvbase/general.h>
-
-PVRush::PVSplunkInfos::PVSplunkInfos()
+void PVRush::PVSplunkInfos::serialize_write(PVCore::PVSerializeObject& so) const
 {
+	so.attribute_write("host", _host);
+	so.attribute_write("port", _port);
+	so.attribute_write("login", _login);
+	so.attribute_write("password", _password);
+	so.attribute_write("splunk_index", _splunk_index);
+	so.attribute_write("splunk_host", _splunk_host);
+	so.attribute_write("splunk_sourcetype", _splunk_sourcetype);
 }
 
-PVRush::PVSplunkInfos::PVSplunkInfos(PVSplunkInfos const& infos)
+PVRush::PVSplunkInfos PVRush::PVSplunkInfos::serialize_read(PVCore::PVSerializeObject& so)
 {
-	_host = infos._host;
-	_port = infos._port;
-	_login = infos._login;
-	_password = infos._password;
-	_splunk_index = infos._splunk_index;
-	_splunk_host = infos._splunk_host;
-	_splunk_sourcetype = infos._splunk_sourcetype;
-}
-
-void PVRush::PVSplunkInfos::serialize(PVCore::PVSerializeObject& so,
-                                      PVCore::PVSerializeArchive::version_t /*v*/)
-{
-	so.attribute("host", _host);
-	so.attribute("port", _port);
-	so.attribute("login", _login);
-	so.attribute("password", _password);
-	so.attribute("splunk_index", _splunk_index);
-	so.attribute("splunk_host", _splunk_host);
-	so.attribute("splunk_sourcetype", _splunk_sourcetype);
+	PVRush::PVSplunkInfos infos;
+	infos._host = so.attribute_read<QString>("host");
+	infos._port = so.attribute_read<uint16_t>("port");
+	infos._login = so.attribute_read<QString>("login");
+	infos._password = so.attribute_read<QString>("password");
+	infos._splunk_index = so.attribute_read<QString>("splunk_index");
+	infos._splunk_host = so.attribute_read<QString>("splunk_host");
+	infos._splunk_sourcetype = so.attribute_read<QString>("splunk_sourcetype");
+	return infos;
 }

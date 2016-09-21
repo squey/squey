@@ -180,7 +180,7 @@ class PVNraw
 	void load_from_disk(const std::string& nraw_folder);
 
 	static PVNraw serialize_read(PVCore::PVSerializeObject& obj);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   private:
 	/// Variable usefull for reading

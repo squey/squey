@@ -65,7 +65,7 @@ class PVMappingProperties
 	inline void invalidate() { _is_uptodate = false; }
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static PVMappingProperties serialize_read(PVCore::PVSerializeObject& so);
 
   private:

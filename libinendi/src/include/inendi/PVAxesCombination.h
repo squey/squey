@@ -85,7 +85,7 @@ class PVAxesCombination
 
   public:
 	static PVAxesCombination serialize_read(PVCore::PVSerializeObject&, PVRush::PVFormat const&);
-	void serialize_write(PVCore::PVSerializeObject&);
+	void serialize_write(PVCore::PVSerializeObject&) const;
 
   private:
 	QList<PVRush::PVAxisFormat> const& _axes; //!< View from the PVFormat

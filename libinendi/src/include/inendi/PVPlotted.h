@@ -86,7 +86,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 
   public:
 	// Serialization
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Inendi::PVPlotted& serialize_read(PVCore::PVSerializeObject& so,
 	                                         Inendi::PVMapped& parent);
 

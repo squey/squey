@@ -89,7 +89,7 @@ class PVLayerStack
 	void copy_details_to_clipboard();
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Inendi::PVLayerStack serialize_read(PVCore::PVSerializeObject& so);
 
   private:

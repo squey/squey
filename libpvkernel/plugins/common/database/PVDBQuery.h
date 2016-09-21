@@ -53,7 +53,7 @@ class PVDBQuery : public PVInputDescription
 
   public:
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   protected:
 	PVDBServ_p _infos;

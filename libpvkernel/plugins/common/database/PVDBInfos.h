@@ -56,8 +56,8 @@ class PVDBInfos
 	// That name *must* be unique accross different databases
 	QString database_name() const;
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
+	static PVDBInfos serialize_read(PVCore::PVSerializeObject& so);
 
   protected:
 	QString _host;

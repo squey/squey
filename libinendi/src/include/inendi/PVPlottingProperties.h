@@ -59,7 +59,7 @@ class PVPlottingProperties
 	bool operator==(PVPlottingProperties const& org) const;
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static PVPlottingProperties serialize_read(PVCore::PVSerializeObject& so);
 
   private:

@@ -99,7 +99,7 @@ class PVLayer
 	void set_visible(bool visible_) { visible = visible_; }
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Inendi::PVLayer serialize_read(PVCore::PVSerializeObject& so);
 };
 } // namespace Inendi

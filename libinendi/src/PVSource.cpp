@@ -148,11 +148,11 @@ QString Inendi::PVSource::get_tooltip() const
 	return source + "\n" + format;
 }
 
-void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
+void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize source.");
 	QString src_name = _src_plugin->registered_name();
-	so.attribute("source-plugin", src_name);
+	so.attribute_write("source-plugin", src_name);
 
 	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw");
 	_nraw.serialize_write(*nraw_obj);
@@ -164,7 +164,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 
 	// Serialize Input description to reload data if required.
 	QString type_name = _src_plugin->supported_type();
-	so.attribute("source-type", type_name);
+	so.attribute_write("source-type", type_name);
 
 	so.set_current_status("Serialize Inputs.");
 	PVCore::PVSerializeObject_p list_inputs = so.create_object("inputs");
@@ -173,37 +173,37 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 		PVCore::PVSerializeObject_p new_input = list_inputs->create_object(QString::number(idx++));
 		input->serialize_write(*new_input);
 	}
-	so.attribute("input_count", idx);
+	so.attribute_write("input_count", idx);
 
 	so.set_current_status("Serialize invalid elements.");
 	// Serialize invalid elements.
 	int inv_elts_count = _inv_elts.size();
-	so.attribute("inv_elts_count", inv_elts_count);
+	so.attribute_write("inv_elts_count", inv_elts_count);
 	idx = 0;
 	for (auto const& inv_elt : _inv_elts) {
 		int inv_line = inv_elt.first;
-		so.attribute(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
+		so.attribute_write(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
 		QString inv_content = QString::fromStdString(inv_elt.second);
-		so.attribute(QString::fromStdString("inv_elts_value/" + std::to_string(idx)), inv_content);
+		so.attribute_write(QString::fromStdString("inv_elts_value/" + std::to_string(idx)),
+		                   inv_content);
 		idx++;
 	}
 
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped");
 	idx = 0;
-	for (PVMapped* mapped : get_children()) {
+	for (PVMapped const* mapped : get_children()) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
 		mapped->serialize_write(*new_obj);
 	}
-	so.attribute("mapped_count", idx);
+	so.attribute_write("mapped_count", idx);
 }
 
 Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVScene& parent)
 {
 	so.set_current_status("Loading Source");
 	// Reload input desription
-	QString type_name;
-	so.attribute("source-type", type_name);
+	QString type_name = so.attribute_read<QString>("source-type");
 	// FIXME : We should check for type_name validity if archive was manually changed.
 	PVRush::PVInputType_p int_lib =
 	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(type_name);
@@ -213,15 +213,13 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 
 	// Create the list of input
 	PVCore::PVSerializeObject_p list_inputs = so.create_object("inputs");
-	int input_count;
-	so.attribute("input_count", input_count);
+	int input_count = so.attribute_read<int>("input_count");
 	for (int idx = 0; idx < input_count; idx++) {
 		PVCore::PVSerializeObject_p new_obj = list_inputs->create_object(QString::number(idx));
 		inputs_for_type.push_back(int_lib->serialize_read(*new_obj));
 	}
 
-	QString src_name;
-	so.attribute("source-plugin", src_name);
+	QString src_name = so.attribute_read<QString>("source-plugin");
 	// FIXME : Handle error when source name if not correct
 	PVRush::PVSourceCreator_p sc_lib =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
@@ -239,14 +237,12 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 
 		// Serialize invalid elements.
 		so.set_current_status("Load invalid events");
-		int inv_elts_count;
-		so.attribute("inv_elts_count", inv_elts_count);
+		int inv_elts_count = so.attribute_read<int>("inv_elts_count");
 		for (int idx = 0; idx < inv_elts_count; idx++) {
-			int inv_line;
-			so.attribute(QString::fromStdString("inv_elts_id/" + std::to_string(idx)), inv_line);
-			QString inv_content;
-			so.attribute(QString::fromStdString("inv_elts_value/" + std::to_string(idx)),
-			             inv_content);
+			int inv_line = so.attribute_read<int>(
+			    QString::fromStdString("inv_elts_id/" + std::to_string(idx)));
+			QString inv_content = so.attribute_read<QString>(
+			    QString::fromStdString("inv_elts_value/" + std::to_string(idx)));
 			source._inv_elts.emplace(inv_line, inv_content.toStdString());
 		}
 	} catch (PVRush::NrawLoadingFail const& e) {
@@ -256,8 +252,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 
 	// Create the list of mapped
 	PVCore::PVSerializeObject_p list_obj = so.create_object("mapped");
-	int mapped_count;
-	so.attribute("mapped_count", mapped_count);
+	int mapped_count = so.attribute_read<int>("mapped_count");
 	for (int idx = 0; idx < mapped_count; idx++) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
 		PVMapped::serialize_read(*new_obj, source);

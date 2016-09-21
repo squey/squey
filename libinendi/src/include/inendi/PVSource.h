@@ -145,7 +145,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
   public:
 	static PVSource& serialize_read(PVCore::PVSerializeObject& so, PVScene& parent);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   private:
 	PVView* _last_active_view = nullptr;

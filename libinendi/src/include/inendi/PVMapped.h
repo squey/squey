@@ -115,7 +115,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	std::string get_serialize_description() const override { return "Mapping: " + get_name(); }
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Inendi::PVMapped& serialize_read(PVCore::PVSerializeObject& so,
 	                                        Inendi::PVSource& parent);
 
