@@ -17,8 +17,8 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
                                     uint32_t* dest)
 {
 	auto& mm = minmax.to_core_array<T>();
-	double ymin = mm[0];
-	double ymax = mm[1];
+	double ymin = (double)mm[0];
+	double ymax = (double)mm[1];
 
 	if (ymin == ymax) {
 		std::fill_n(dest, mapped.size(), 0x80000000);

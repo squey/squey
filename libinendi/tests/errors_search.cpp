@@ -48,13 +48,18 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
                const Inendi::PVLayer& in,
                Inendi::PVLayer& out)
 {
-	std::vector<testcase_t> tests{
-	    {{0 /*axis*/, 0 /*type*/, 0 /*include*/}, 3}, {{0 /*axis*/, 0 /*type*/, 1 /*include*/}, 7},
-	    {{0 /*axis*/, 1 /*type*/, 0 /*include*/}, 4}, {{0 /*axis*/, 1 /*type*/, 1 /*include*/}, 4},
-	    {{0 /*axis*/, 2 /*type*/, 0 /*include*/}, 7}, {{0 /*axis*/, 2 /*type*/, 1 /*include*/}, 4},
-	    {{1 /*axis*/, 0 /*type*/, 0 /*include*/}, 0}, {{1 /*axis*/, 0 /*type*/, 1 /*include*/}, 7},
-	    {{1 /*axis*/, 1 /*type*/, 0 /*include*/}, 0}, {{1 /*axis*/, 1 /*type*/, 1 /*include*/}, 7},
-	    {{1 /*axis*/, 2 /*type*/, 0 /*include*/}, 0}, {{1 /*axis*/, 2 /*type*/, 1 /*include*/}, 7}};
+	std::vector<testcase_t> tests{{{{0 /*axis*/, 0 /*type*/, 0 /*include*/}}, 3},
+	                              {{{0 /*axis*/, 0 /*type*/, 1 /*include*/}}, 7},
+	                              {{{0 /*axis*/, 1 /*type*/, 0 /*include*/}}, 4},
+	                              {{{0 /*axis*/, 1 /*type*/, 1 /*include*/}}, 4},
+	                              {{{0 /*axis*/, 2 /*type*/, 0 /*include*/}}, 7},
+	                              {{{0 /*axis*/, 2 /*type*/, 1 /*include*/}}, 4},
+	                              {{{1 /*axis*/, 0 /*type*/, 0 /*include*/}}, 0},
+	                              {{{1 /*axis*/, 0 /*type*/, 1 /*include*/}}, 7},
+	                              {{{1 /*axis*/, 1 /*type*/, 0 /*include*/}}, 0},
+	                              {{{1 /*axis*/, 1 /*type*/, 1 /*include*/}}, 7},
+	                              {{{1 /*axis*/, 2 /*type*/, 0 /*include*/}}, 0},
+	                              {{{1 /*axis*/, 2 /*type*/, 1 /*include*/}}, 7}};
 
 	for (const testcase_t& test : tests) {
 		set_args(args, test.first);

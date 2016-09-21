@@ -21,7 +21,6 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* de
 	pvcop::db::groups groups;
 	pvcop::db::extents extents;
 	mapped.group(groups, extents);
-	auto& core_extents = extents.to_core_array();
 
 	// Sort extents
 	mapped.parallel_sort(extents);
