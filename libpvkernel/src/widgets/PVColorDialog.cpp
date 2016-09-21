@@ -19,8 +19,7 @@
 
 static void fill_label_with_color(QLabel* l, PVCore::PVHSVColor c)
 {
-	QColor qc;
-	c.toQColor(qc);
+	QColor qc = c.toQColor();
 
 	QPixmap px(l->contentsRect().size());
 	px.fill(qc);

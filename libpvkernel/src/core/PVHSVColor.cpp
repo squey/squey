@@ -42,7 +42,7 @@ void PVCore::PVHSVColor::to_rgba(const PVHSVColor* hsv_image,
 #pragma omp parallel for schedule(static, 16) collapse(2)
 	for (int j = rect_y; j < rect_height + rect_y; j++) {
 		for (int i = rect_x; i < rect_width + rect_x; i++) {
-			hsv_image[i + j * rect_width].to_rgba((uint8_t*)&rgb[j * rgb_width + i]);
+			rgb[j * rgb_width + i] = hsv_image[i + j * rect_width].to_rgba();
 		}
 	}
 }
@@ -65,68 +65,41 @@ static unsigned char plus1mod3(unsigned char i)
 	return (!i) | (((!a1) & a0) << 1);
 }
 
-void PVCore::PVHSVColor::to_rgba(uint8_t* rgb) const
+QRgb PVCore::PVHSVColor::to_rgba() const
 {
 	if (*this == HSV_COLOR_TRANSPARENT) {
-		*((uint32_t*)rgb) = 0;
+		return qRgba(0, 0, 0, 0);
 	} else {
-		to_rgb(rgb);
-		rgb[3] = 0xFF;
+		return to_rgb();
 	}
 }
 
-void PVCore::PVHSVColor::to_rgb(uint8_t* rgb) const
+QRgb PVCore::PVHSVColor::to_rgb() const
 {
 	if (*this == HSV_COLOR_WHITE) {
-		rgb[0] = 0xFF;
-		rgb[1] = 0xFF;
-		rgb[2] = 0xFF;
-		return;
+		return qRgba(0xFF, 0xFF, 0xFF, 0xFF);
 	}
 
 	if (*this == HSV_COLOR_BLACK) {
-		rgb[0] = 0;
-		rgb[1] = 0;
-		rgb[2] = 0;
-		return;
+		return qRgba(0, 0, 0, 0xFF);
 	}
 
 	unsigned char zone = _h >> HSV_COLOR_NBITS_ZONE;
 	unsigned char pos = zone2pos(zone);
 	unsigned char mask = (zone & 1) * 0xFF;
 
+	uint8_t rgb[3];
 	unsigned char pos2 = plus1mod3(pos);
 	rgb[pos] = (uint8_t)(((_h & HSV_COLOR_MASK_ZONE) * 255) >> HSV_COLOR_NBITS_ZONE) ^ mask;
 	rgb[pos2] = mask;
 	rgb[plus1mod3(pos2)] = 0xFF ^ mask;
-}
 
-void PVCore::PVHSVColor::toQColor(QColor& qc) const
-{
-	QRgb rgb;
-	to_rgb((uint8_t*)&rgb);
-	qc.setRgb(rgb);
+	return qRgba(rgb[0], rgb[1], rgb[2], 0xFF);
 }
 
 QColor PVCore::PVHSVColor::toQColor() const
 {
-	QColor ret;
-	toQColor(ret);
-	return ret;
-}
-
-void PVCore::PVHSVColor::toQColorA(QColor& qc) const
-{
-	QRgb rgb;
-	to_rgba((uint8_t*)&rgb);
-	qc.setRgba(rgb);
-}
-
-QColor PVCore::PVHSVColor::toQColorA() const
-{
-	QColor ret;
-	toQColorA(ret);
-	return ret;
+	return QColor(to_rgb());
 }
 
 bool PVCore::PVHSVColor::is_valid() const

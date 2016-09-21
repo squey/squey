@@ -179,10 +179,9 @@ void PVWidgets::PVColorPicker::paintEvent(QPaintEvent* /*event*/)
 	const int height = size().height();
 	QRect const& draw_rect = contentsRect();
 
-	QColor color;
 	for (int x = draw_rect.left(); x <= draw_rect.right(); ++x) {
 		const uint8_t h = screen_x_to_h(x);
-		PVCore::PVHSVColor(h).toQColor(color);
+		QColor color = PVCore::PVHSVColor(h).toQColor();
 		if (is_interval_mode()) {
 			if ((x < c0_x) || (x > c1_x)) {
 				color = color.darker(200);
