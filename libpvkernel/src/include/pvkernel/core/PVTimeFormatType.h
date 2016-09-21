@@ -19,9 +19,9 @@ struct PVTimeFormatType : public QStringList, public PVArgumentType<PVTimeFormat
 	PVTimeFormatType() : QStringList() {}
 	PVTimeFormatType(QStringList const& list) : QStringList(list) {}
 
-	QString to_string() const { return join("\n"); }
+	QString to_string() const override { return join("\n"); }
 
-	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{
 		PVArgument arg;
 		arg.setValue(PVTimeFormatType(str.split('\n')));
@@ -33,7 +33,7 @@ struct PVTimeFormatType : public QStringList, public PVArgumentType<PVTimeFormat
 		return arg;
 	}
 };
-}
+} // namespace PVCore
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVTimeFormatType)
 

@@ -63,7 +63,7 @@ class PVUnicodeSource : public PVRawSourceBase
 	/**
 	 * Clean up in progress chunks.
 	 */
-	~PVUnicodeSource()
+	~PVUnicodeSource() override
 	{
 		if (_curc) {
 			_curc->free();
@@ -412,6 +412,6 @@ class PVUnicodeSource : public PVRawSourceBase
 	std::unique_ptr<PVConverter> _origin_converter; //!< ICU converter from origin charset
 	std::string _tmp_buf;                           //!< Temporary buffer use for charset conversion
 };
-}
+} // namespace PVRush
 
 #endif

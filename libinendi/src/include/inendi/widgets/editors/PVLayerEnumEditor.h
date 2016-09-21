@@ -22,7 +22,7 @@ class PVLayerEnumEditor : public QComboBox
 
   public:
 	explicit PVLayerEnumEditor(Inendi::PVView const& view, QWidget* parent = 0);
-	virtual ~PVLayerEnumEditor();
+	~PVLayerEnumEditor() override;
 
   public:
 	Inendi::PVLayer* get_layer() const;
@@ -31,6 +31,6 @@ class PVLayerEnumEditor : public QComboBox
   protected:
 	Inendi::PVView const& _view;
 };
-}
+} // namespace PVWidgets
 
 #endif

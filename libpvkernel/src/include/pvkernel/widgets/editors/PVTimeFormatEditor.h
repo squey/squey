@@ -20,7 +20,7 @@
 namespace PVCore
 {
 class PVDateTimeParser;
-}
+} // namespace PVCore
 
 namespace PVWidgets
 {
@@ -63,10 +63,10 @@ class PVTimeValidatorHighLight : public QSyntaxHighlighter
 
   public:
 	explicit PVTimeValidatorHighLight(QTextEdit* parent);
-	virtual ~PVTimeValidatorHighLight();
+	~PVTimeValidatorHighLight() override;
 
 	void set_time_format(QString const& str);
-	virtual void highlightBlock(QString const& text);
+	void highlightBlock(QString const& text) override;
 
 	inline PVCore::PVDateTimeParser* get_parser() const { return _cur_parser; };
 
@@ -80,6 +80,6 @@ class PVTimeValidatorHighLight : public QSyntaxHighlighter
 	PVCore::PVDateTimeParser* _cur_parser;
 	bool _format_has_changed;
 };
-}
+} // namespace PVWidgets
 
 #endif

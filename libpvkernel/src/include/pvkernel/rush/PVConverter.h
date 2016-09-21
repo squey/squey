@@ -68,6 +68,6 @@ class PVConverter
   private:
 	UConverter* _ucnv; //!< The real ICU converter.
 };
-}
+} // namespace PVRush
 
 #endif

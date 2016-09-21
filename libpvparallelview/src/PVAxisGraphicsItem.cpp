@@ -81,7 +81,7 @@ class PVToolTipEventFilter : public QObject
 	}
 };
 } // namespace __impl
-} // namespace PVParallelView // PVParallelView::__impl
+} // namespace PVParallelView
 
 /*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem

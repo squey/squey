@@ -38,6 +38,6 @@ class PVOriginalAxisIndexEditor : public QComboBox
   protected:
 	Inendi::PVView const& _view;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVCORE_PVAXISINDEXEDITOR_H
