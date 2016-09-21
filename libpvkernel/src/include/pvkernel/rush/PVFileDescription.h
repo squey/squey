@@ -89,7 +89,7 @@ class PVFileDescription : public PVInputDescription
 			if (so.is_repaired_error()) {
 				path = QString::fromStdString(so.get_repaired_value());
 			} else {
-				throw PVCore::PVSerializeReparaibleError(
+				throw PVCore::PVSerializeReparaibleFileError(
 				    "Source file: '" + path.toStdString() + "' can't be found",
 				    so.get_logical_path().toStdString(), path.toStdString());
 			}

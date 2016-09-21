@@ -12,6 +12,7 @@ set(LIBGUIQT_SRC_FILES
 common.cpp
 PVAxesCombinationDialog.cpp
 PVAxesCombinationWidget.cpp
+PVCredentialDialog.cpp
 PVHiveDataTreeModel.cpp
 PVLayerFilterProcessWidget.cpp
 PVLayerStackDelegate.cpp
