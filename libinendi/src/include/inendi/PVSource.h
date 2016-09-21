@@ -148,6 +148,9 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   private:
+	std::string hash() const;
+
+  private:
 	PVView* _last_active_view = nullptr;
 
 	PVRush::PVFormat
