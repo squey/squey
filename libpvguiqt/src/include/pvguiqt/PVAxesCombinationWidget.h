@@ -19,7 +19,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -63,6 +63,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	Inendi::PVAxesCombination& _axes_combination;
 	Inendi::PVView* _view;
 };
-}
+} // namespace PVGuiQt
 
 #endif

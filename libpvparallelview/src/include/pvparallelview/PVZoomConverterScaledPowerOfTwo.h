@@ -46,13 +46,13 @@ class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
 	 */
 	constexpr static int zoom_steps = STEPS;
 
-	virtual int scale_to_zoom(const qreal value) const override
+	int scale_to_zoom(const qreal value) const override
 	{
 		// non simplified formula is: log2(1/value) / log2(root_steps)
 		return floor(zoom_steps * log2(value));
 	}
 
-	virtual qreal zoom_to_scale(const int value) const override
+	qreal zoom_to_scale(const int value) const override
 	{
 		return zoom_to_scale_integer(value) * zoom_to_scale_decimal(value);
 	}
@@ -74,6 +74,6 @@ class PVZoomConverterScaledPowerOfTwo : public PVZoomConverter
 		return pow(pow(2.0, 1.0 / zoom_steps), value % zoom_steps);
 	}
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMCONVERTERSCALEDPOWEROFTWO_H

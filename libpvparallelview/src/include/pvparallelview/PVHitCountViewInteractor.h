@@ -29,6 +29,6 @@ class PVHitCountViewInteractor : public PVZoomableDrawingAreaInteractor
   protected:
 	static PVHitCountView* get_hit_count_view(PVZoomableDrawingArea* zda);
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEWINTERACTOR_H

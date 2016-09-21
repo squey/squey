@@ -26,7 +26,7 @@ class PVLogoScene : public QGraphicsScene
   public:
 	PVLogoScene();
 
-	void drawBackground(QPainter* painter, const QRectF& rect);
+	void drawBackground(QPainter* painter, const QRectF& rect) override;
 
   public Q_SLOTS:
 	void enableWireframe(bool enabled);
@@ -35,9 +35,9 @@ class PVLogoScene : public QGraphicsScene
 	void loadModel(const QString& filePath);
 
   protected:
-	void mousePressEvent(QGraphicsSceneMouseEvent* event);
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
   private:
 	QDialog* createDialog(const QString& windowTitle) const;
@@ -62,6 +62,6 @@ class PVLogoScene : public QGraphicsScene
 
 	PVPoint3D m_lightPosition;
 };
-}
+} // namespace PVGuiQt
 
 #endif

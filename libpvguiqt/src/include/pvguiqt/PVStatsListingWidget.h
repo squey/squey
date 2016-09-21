@@ -39,7 +39,7 @@ namespace __impl
 class PVCellWidgetBase;
 class PVUniqueValuesCellWidget;
 class PVSumCellWidget;
-}
+} // namespace __impl
 
 class PVStatsListingWidget : public QWidget, public sigc::trackable
 {
@@ -153,7 +153,7 @@ class PVLoadingLabel : public QLabel
 	explicit PVLoadingLabel(QWidget* parent) : QLabel(parent) {}
 
   protected:
-	virtual void mousePressEvent(QMouseEvent* ev) override
+	void mousePressEvent(QMouseEvent* ev) override
 	{
 		if (ev->button() == Qt::LeftButton) {
 			Q_EMIT clicked();
@@ -170,7 +170,7 @@ class PVCellWidgetBase : public QWidget
 
   public:
 	PVCellWidgetBase(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item);
-	virtual ~PVCellWidgetBase() {}
+	~PVCellWidgetBase() override {}
 
   public:
 	inline int get_widget_cell_row() { return _table->row(_item); }
@@ -252,7 +252,7 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 	PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item);
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 
   private Q_SLOTS:
 	void show_unique_values_dlg();
@@ -274,7 +274,7 @@ class PVSumCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
 
 class PVMinCellWidget : public PVCellWidgetBase
@@ -288,7 +288,7 @@ class PVMinCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
 
 class PVMaxCellWidget : public PVCellWidgetBase
@@ -302,7 +302,7 @@ class PVMaxCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
 
 class PVAverageCellWidget : public PVCellWidgetBase
@@ -317,9 +317,9 @@ class PVAverageCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
-}
-}
+} // namespace __impl
+} // namespace PVGuiQt
 
 #endif // __PVSTATSLISTINGWIDGET_H__

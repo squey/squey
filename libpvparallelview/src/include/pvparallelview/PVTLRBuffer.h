@@ -49,6 +49,6 @@ class PVTLRBuffer
   private:
 	uint32_t _data[length];
 };
-}
+} // namespace PVParallelView
 
 #endif // PARALLELVIEW_PVTLRBUFFER_H

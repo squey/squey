@@ -21,7 +21,7 @@ class PVXmlParamColorDialog : public QPushButton
 	Q_OBJECT
   public:
 	PVXmlParamColorDialog(QString name, QString color, QWidget* parent = 0);
-	virtual ~PVXmlParamColorDialog();
+	~PVXmlParamColorDialog() override;
 	void setColor(QString);
 	QString getColor();
 
@@ -34,5 +34,5 @@ class PVXmlParamColorDialog : public QPushButton
   Q_SIGNALS:
 	void changed();
 };
-}
+} // namespace PVInspector
 #endif /* PVXMLPARAMCOLORDIALOG_H */

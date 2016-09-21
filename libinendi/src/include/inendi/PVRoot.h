@@ -27,15 +27,15 @@
 namespace Inendi
 {
 class PVSource;
-}
+} // namespace Inendi
 namespace Inendi
 {
 class PVView;
-} // lines 30-30
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeArchiveOptions;
-}
+} // namespace PVCore
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"
 #define INENDI_ROOT_ARCHIVE_FILTER "INENDI investigation files (*." INENDI_ROOT_ARCHIVE_EXT ")"
@@ -131,6 +131,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	QList<QRgb> _used_colors;
 	int _new_view_id = 0;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVROOT_H */

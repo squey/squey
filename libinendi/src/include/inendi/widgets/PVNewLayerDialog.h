@@ -34,6 +34,6 @@ class PVNewLayerDialog : public QDialog
 	QLineEdit* _text;
 	QCheckBox* _checkbox;
 };
-}
+} // namespace PVWidgets
 
 #endif // __PVGUIQT_PVNEWLAYERDIALOG_H__

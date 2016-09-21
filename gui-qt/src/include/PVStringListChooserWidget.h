@@ -32,4 +32,4 @@ class PVStringListChooserWidget : public QDialog
 	QListWidget* _list_w;
 	QStringList _final_list;
 };
-}
+} // namespace PVInspector

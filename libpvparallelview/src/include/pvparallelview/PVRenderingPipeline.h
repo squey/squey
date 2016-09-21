@@ -23,12 +23,12 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -163,6 +163,6 @@ class PVRenderingPipeline : boost::noncopyable
 	tbb::flow::limiter_node<ZoneRenderingWithColors> _node_limiter;
 	tbb::flow::buffer_node<ZoneRenderingWithColors> _node_buffer;
 };
-}
+} // namespace PVParallelView
 
 #endif

@@ -79,7 +79,7 @@ struct ChildrenAccessor<T, T> {
 	 */
 	static std::list<T*> children(std::list<T*>&& c) { return c; }
 };
-}
+} // namespace __impl
 
 /**
  * DataTree node as parent (containing children)
@@ -151,7 +151,7 @@ struct ParentAccessor<T, T> {
 	static T const& access(T const& c) { return c; }
 	static T& access(T& c) { return c; }
 };
-}
+} // namespace __impl
 
 template <class Parent, class Derived>
 class PVDataTreeChild : virtual public PVDataTreeObject
@@ -186,6 +186,6 @@ class PVDataTreeChild : virtual public PVDataTreeObject
   private:
 	Parent& _parent;
 };
-}
+} // namespace PVCore
 
 #endif /* PVDATATREEOBJECT_H_ */

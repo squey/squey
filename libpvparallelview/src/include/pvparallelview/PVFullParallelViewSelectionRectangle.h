@@ -63,6 +63,6 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 	PVFullParallelScene* _fps;
 	barycenter _barycenter;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVFULLPARALLELVIEWSELECTIONSQUARE_H

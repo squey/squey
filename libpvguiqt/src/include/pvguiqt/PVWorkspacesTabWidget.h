@@ -134,6 +134,6 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 	Inendi::PVScene& _scene;
 	bool _project_modified = false;
 };
-}
+} // namespace PVGuiQt
 
 #endif // __PVGUIQT_PVWORKSPACESTABWIDGET_H__

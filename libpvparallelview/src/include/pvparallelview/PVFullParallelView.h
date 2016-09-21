@@ -26,7 +26,7 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-}
+} // namespace PVWidgets
 
 namespace PVParallelView
 {
@@ -77,6 +77,6 @@ class PVFullParallelView : public QGraphicsView
 	uint32_t _selected_events_number = 0;
 	bool _first_resize;
 };
-}
+} // namespace PVParallelView
 
 #endif // __PVFULLPARALLELVIEW_H__

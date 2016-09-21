@@ -21,8 +21,8 @@ class PVRootTreeModel : public PVHiveDataTreeModel
 	explicit PVRootTreeModel(Inendi::PVSource& root, QObject* parent = 0);
 
   public:
-	QVariant data(const QModelIndex& index, int role) const;
+	QVariant data(const QModelIndex& index, int role) const override;
 };
-}
+} // namespace PVGuiQt
 
 #endif

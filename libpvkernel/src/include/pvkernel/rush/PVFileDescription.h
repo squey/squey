@@ -28,17 +28,20 @@ class PVFileDescription : public PVInputDescription
 	}
 
   public:
-	virtual bool operator==(const PVInputDescription& other) const
+	bool operator==(const PVInputDescription& other) const override
 	{
 		return _path == ((PVFileDescription&)other)._path;
 	}
 
   public:
-	QString human_name() const { return _path; }
+	QString human_name() const override { return _path; }
 	QString path() const { return _path; }
 
   public:
-	virtual void save_to_qsettings(QSettings& settings) const { settings.setValue("path", path()); }
+	void save_to_qsettings(QSettings& settings) const override
+	{
+		settings.setValue("path", path());
+	}
 
 	static std::unique_ptr<PVRush::PVInputDescription> load_from_string(std::string const& path)
 	{
@@ -52,7 +55,7 @@ class PVFileDescription : public PVInputDescription
 	}
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so)
+	void serialize_write(PVCore::PVSerializeObject& so) override
 	{
 		so.set_current_status("Serialize file");
 
@@ -87,6 +90,6 @@ class PVFileDescription : public PVInputDescription
   protected:
 	QString _path;
 };
-}
+} // namespace PVRush
 
 #endif

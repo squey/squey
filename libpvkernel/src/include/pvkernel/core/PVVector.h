@@ -119,6 +119,6 @@ class PVVector
 	unsigned _size;
 	unsigned _index;
 };
-}
+} // namespace PVCore
 
 #endif // PVCORE_PVVECTOR_H

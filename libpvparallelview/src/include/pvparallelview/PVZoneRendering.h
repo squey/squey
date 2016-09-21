@@ -28,7 +28,7 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace PVParallelView
 {
@@ -131,7 +131,7 @@ class PVZoneRendering
 	// Next job when this one has been canceled
 	next_job _job_after_canceled;
 };
-}
+} // namespace PVParallelView
 
 Q_DECLARE_METATYPE(PVParallelView::PVZoneRendering_p)
 

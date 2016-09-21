@@ -90,6 +90,6 @@ class PVScatterViewImagesManager : boost::noncopyable
 
 	QObject* _img_update_receiver;
 };
-}
+} // namespace PVParallelView
 
 #endif // __PVSCATTERVIEWIMAGESMANAGER_H__

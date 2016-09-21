@@ -18,11 +18,11 @@
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
@@ -61,6 +61,6 @@ class PVLinesProperties
   private:
 	std::vector<PVCore::PVHSVColor> _colors;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVLINESPROPERTIES_H */

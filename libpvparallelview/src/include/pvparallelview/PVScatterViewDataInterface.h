@@ -17,12 +17,12 @@
 namespace tbb
 {
 class task_group_context;
-}
+} // namespace tbb
 
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -212,6 +212,6 @@ class PVScatterViewDataInterface : boost::noncopyable
 	ProcessImage _image_bg;
 	ProcessImage _image_sel;
 };
-}
+} // namespace PVParallelView
 
 #endif // __PVSCATTERVIEWDATAINTERFACE_H__

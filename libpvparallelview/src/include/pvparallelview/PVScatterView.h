@@ -23,13 +23,13 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-}
+} // namespace PVWidgets
 
 namespace Inendi
 {
 
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -86,7 +86,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	              PVZonesProcessor& zp_bg,
 	              PVZonesProcessor& zp_sel,
 	              QWidget* parent = nullptr);
-	~PVScatterView();
+	~PVScatterView() override;
 
   public:
 	void about_to_be_deleted();
@@ -172,6 +172,6 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
 	bool _show_bg;
 };
-}
+} // namespace PVParallelView
 
 #endif // __PVSCATTERVIEW_H__

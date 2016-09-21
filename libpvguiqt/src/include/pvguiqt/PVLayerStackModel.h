@@ -21,7 +21,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -77,6 +77,6 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	QBrush unselect_brush; //!<
 	QFont unselect_font;   //!<
 };
-}
+} // namespace PVGuiQt
 
 #endif

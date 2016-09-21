@@ -27,6 +27,6 @@ class PVDisplaySourceDataTree : public PVDisplaySourceIf
 
 	CLASS_REGISTRABLE(PVDisplaySourceDataTree)
 };
-}
+} // namespace PVDisplays
 
 #endif

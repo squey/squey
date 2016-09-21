@@ -21,7 +21,7 @@
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -276,6 +276,6 @@ class PVLinesView
 
 	std::vector<uint32_t> _zones_width;
 };
-}
+} // namespace PVParallelView
 
 #endif

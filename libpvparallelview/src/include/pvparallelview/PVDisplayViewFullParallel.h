@@ -26,6 +26,6 @@ class PVDisplayViewFullParallel : public PVDisplayViewIf
 
 	CLASS_REGISTRABLE(PVDisplayViewFullParallel)
 };
-}
+} // namespace PVDisplays
 
 #endif

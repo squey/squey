@@ -318,6 +318,6 @@ class PVSelectionRectangleItem : public QGraphicsObject
 	qreal _y_max_value;
 	SelectionMode _sel_mode;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVWIDGETS_PVSELECTIONRECTANGLEITEM_H

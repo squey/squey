@@ -148,6 +148,6 @@ class PVAbstractTableView : public PVTableView
   Q_SIGNALS:
 	void validate_selection();
 };
-}
+} // namespace PVGuiQt
 
 #endif

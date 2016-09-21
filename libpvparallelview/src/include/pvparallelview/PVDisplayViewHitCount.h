@@ -29,6 +29,6 @@ class PVDisplayViewHitCount : public PVDisplayViewAxisIf
 
 	CLASS_REGISTRABLE(PVDisplayViewHitCount)
 };
-}
+} // namespace PVDisplays
 
 #endif // PVDISPLAYS_PVDISPLAYVIEWHITCOUNT_H

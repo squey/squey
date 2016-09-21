@@ -48,6 +48,6 @@ class PVBCIBackendImage
 	uint32_t _width;
 	uint8_t _height_bits;
 };
-}
+} // namespace PVParallelView
 
 #endif

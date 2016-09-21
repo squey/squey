@@ -101,6 +101,6 @@ class PVBCIBuffers : private PVBCIBuffersAlloc
 	PVBCIDrawingBackend* _backend;
 	tbb::concurrent_queue<bci_base_type*> _free_bufs;
 };
-}
+} // namespace PVParallelView
 
 #endif

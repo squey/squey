@@ -38,6 +38,6 @@ class PVLogoModel
 	QVector<int> m_edgeIndices;
 	QVector<int> m_pointIndices;
 };
-}
+} // namespace PVGuiQt
 
 #endif

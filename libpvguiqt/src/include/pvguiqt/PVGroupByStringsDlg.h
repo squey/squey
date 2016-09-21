@@ -43,13 +43,13 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 		_ctxt_menu->addAction(_act_details);
 	}
 
-	bool process_context_menu(QAction* act);
+	bool process_context_menu(QAction* act) override;
 
   private:
 	PVCol _col2;
 	Inendi::PVSelection _sel; //!< Store selection to be able to compute 'details'
 	QAction* _act_details;    //!< Action to show details
 };
-}
+} // namespace PVGuiQt
 
 #endif // __PVGUIQT_PVCOUNTBYSTRINGSDLG_H__

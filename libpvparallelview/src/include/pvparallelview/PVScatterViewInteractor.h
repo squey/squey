@@ -28,6 +28,6 @@ class PVScatterViewInteractor : public PVZoomableDrawingAreaInteractor
   protected:
 	static PVScatterView* get_scatter_view(PVZoomableDrawingArea* zda);
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSCATTERVIEWINTERACTOR_H

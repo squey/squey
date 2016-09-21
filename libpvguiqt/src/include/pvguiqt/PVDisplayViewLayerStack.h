@@ -26,6 +26,6 @@ class PVDisplayViewLayerStack : public PVDisplayViewIf
 
 	CLASS_REGISTRABLE(PVDisplayViewLayerStack)
 };
-}
+} // namespace PVDisplays
 
 #endif

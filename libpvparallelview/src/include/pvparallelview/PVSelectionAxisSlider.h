@@ -24,11 +24,11 @@ class PVSelectionAxisSlider : public PVAbstractAxisSlider
 	{
 	}
 
-	virtual QRectF boundingRect() const;
+	QRectF boundingRect() const override;
 
-	virtual void
-	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
+	void
+	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSELECTIONAXISSLIDER_H

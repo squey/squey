@@ -27,7 +27,7 @@ class PVXmlParamTextEdit : public QTextEdit
 	enum TypeOfTextEdit { text, regexpValid, dateValid };
 
 	PVXmlParamTextEdit(QString pName, QVariant var);
-	virtual ~PVXmlParamTextEdit();
+	~PVXmlParamTextEdit() override;
 
 	/**
 	 * Get the new textContent.
@@ -62,5 +62,5 @@ class PVXmlParamTextEdit : public QTextEdit
 	void setRegEx(const QString& regEx);
 	void slotHighLight();
 };
-}
+} // namespace PVInspector
 #endif /* PVXMLPARAMTEXTEDIT_H */

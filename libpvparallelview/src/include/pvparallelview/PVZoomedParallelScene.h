@@ -103,7 +103,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	/**
 	 * Destructor
 	 */
-	~PVZoomedParallelScene();
+	~PVZoomedParallelScene() override;
 
 	PVZoomedParallelView* get_view() { return _zpview; }
 
@@ -114,7 +114,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 *
 	 * @param event the pressed button event
 	 */
-	void mousePressEvent(QGraphicsSceneMouseEvent* event);
+	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
 	/**
 	 * Overloaded methods when a mouse button is released.
@@ -123,7 +123,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 *
 	 * @param event the released button event
 	 */
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
 	/**
 	 * Overloaded methods when the mouse cursor moves.
@@ -132,14 +132,14 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 *
 	 * @param event the movement event
 	 */
-	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
 	/**
 	 * Overloaded method for zooming and panning.
 	 *
 	 * @param event the wheel event
 	 */
-	void wheelEvent(QGraphicsSceneWheelEvent* event);
+	void wheelEvent(QGraphicsSceneWheelEvent* event) override;
 
 	/**
 	 * Overloaded method when a key is pressed.
@@ -148,7 +148,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 *
 	 * @param event the key pressed event
 	 */
-	void keyPressEvent(QKeyEvent* event);
+	void keyPressEvent(QKeyEvent* event) override;
 
 	void update(const QRectF& rect = QRectF());
 
@@ -196,7 +196,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 * @param painter the used QPainter
 	 * @param rect the (unused) area to redraw
 	 */
-	virtual void drawBackground(QPainter* painter, const QRectF& rect);
+	void drawBackground(QPainter* painter, const QRectF& rect) override;
 
 	/**
 	 * Function to call when the view is resized.
@@ -527,6 +527,6 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 
 	std::atomic_bool _view_deleted;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H

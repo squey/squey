@@ -36,6 +36,6 @@ class PVScatterViewSelectionRectangle : public PVSelectionRectangle
 	PVRow _nrows;
 	PVScatterView* _sv;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSCATTERVIEWSELECTIONSQUARE_H

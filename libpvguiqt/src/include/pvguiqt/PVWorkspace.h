@@ -53,7 +53,7 @@ namespace Inendi
 {
 class PVView;
 class PVSource;
-}
+} // namespace Inendi
 
 Q_DECLARE_METATYPE(Inendi::PVView*)
 
@@ -62,7 +62,7 @@ namespace PVDisplays
 class PVDisplayViewIf;
 class PVDisplayViewAxisIf;
 class PVDisplayViewZoneIf;
-}
+} // namespace PVDisplays
 
 namespace PVGuiQt
 {
@@ -276,6 +276,6 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	           typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewZoneIf>>
 	    _tool_buttons;
 };
-}
+} // namespace PVGuiQt
 
 #endif /* __PVGUIQT_PVWORKSPACE_H__ */

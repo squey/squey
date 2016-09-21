@@ -17,7 +17,7 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
@@ -58,6 +58,6 @@ class PVAxis : public PVRush::PVAxisFormat
 	PVCore::PVArgumentList _args_mapping;
 	PVCore::PVArgumentList _args_plotting;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVAXIS_H */

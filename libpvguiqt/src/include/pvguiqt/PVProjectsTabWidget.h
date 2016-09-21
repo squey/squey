@@ -31,7 +31,7 @@
 namespace Inendi
 {
 class PVRoot;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -109,9 +109,9 @@ class PVSplitter : public QSplitter
 	}
 
   protected:
-	QSplitterHandle* createHandle() { return new PVSplitterHandle(orientation(), this); }
+	QSplitterHandle* createHandle() override { return new PVSplitterHandle(orientation(), this); }
 };
-}
+} // namespace __impl
 
 /**
  * \class PVProjectsTabWidget
@@ -213,6 +213,6 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	int _current_workspace_tab_widget_index;
 	Inendi::PVRoot* _root;
 };
-}
+} // namespace PVGuiQt
 
 #endif /* __PVGUIQT_PVPROJECTSTABWIDGET_H__ */

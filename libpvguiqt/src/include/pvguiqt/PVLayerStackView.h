@@ -14,7 +14,7 @@
 namespace Inendi
 {
 class PVLayer;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -62,6 +62,6 @@ class PVLayerStackView : public QTableView
 	QFileDialog _layer_dialog;
 	QFileDialog _layerstack_dialog;
 };
-}
+} // namespace PVGuiQt
 
 #endif // PVLAYERSTACKVIEW_H

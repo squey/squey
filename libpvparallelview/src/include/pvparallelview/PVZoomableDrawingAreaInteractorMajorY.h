@@ -29,6 +29,6 @@ class PVZoomableDrawingAreaInteractorMajorY : public PVParallelView::PVZoomableD
   private:
 	QPoint _pan_reference;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAINTERACTORMAJORY_H

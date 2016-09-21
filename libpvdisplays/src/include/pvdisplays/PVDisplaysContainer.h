@@ -27,6 +27,6 @@ class PVDisplaysContainer : public QMainWindow
 	virtual void create_view_zone_widget(QAction* act = nullptr) = 0;
 	virtual void toggle_unique_source_widget(QAction* act = nullptr) = 0;
 };
-}
+} // namespace PVDisplays
 
 #endif

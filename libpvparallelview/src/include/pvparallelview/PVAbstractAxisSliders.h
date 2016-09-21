@@ -51,6 +51,6 @@ class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 	PVSlidersGroup* _group;
 	QGraphicsSimpleTextItem* _text;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVABSTRACTAXISSLIDERS_H

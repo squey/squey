@@ -29,25 +29,25 @@ class QWidget;
 namespace Inendi
 {
 class PVView;
-} // lines 26-26
+} // namespace Inendi
 namespace PVGuiQt
 {
 class PVLayerFilterProcessWidget;
-}
+} // namespace PVGuiQt
 namespace PVGuiQt
 {
 namespace __impl
 {
 class PVAbstractListStatsRangePicker;
-}
-} // lines 35-35
+} // namespace __impl
+} // namespace PVGuiQt
 namespace PVGuiQt
 {
 namespace __impl
 {
 class PVListStringsDelegate;
-}
-} // lines 34-34
+} // namespace __impl
+} // namespace PVGuiQt
 
 namespace PVGuiQt
 {
@@ -173,7 +173,7 @@ class PVListStringsDelegate : public QStyledItemDelegate
 
 	PVGuiQt::PVAbstractListStatsDlg* d() const;
 };
-}
-}
+} // namespace __impl
+} // namespace PVGuiQt
 
 #endif // __PVGUIQT_PVABSTRACTLISTSTATSDLG_H__

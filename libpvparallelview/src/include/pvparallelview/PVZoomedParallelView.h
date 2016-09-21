@@ -18,7 +18,7 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-}
+} // namespace PVWidgets
 
 namespace PVParallelView
 {
@@ -48,7 +48,7 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	/**
 	 * Destructor
 	 */
-	~PVZoomedParallelView();
+	~PVZoomedParallelView() override;
 
 	/**
 	 * Overload method when a resize event occurs.
@@ -73,6 +73,6 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	PVWidgets::PVHelpWidget* _help_widget;
 	PVZoomedParallelViewParamsWidget* _params_widget;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMEDPARALLELVIEW_H

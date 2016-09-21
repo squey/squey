@@ -47,6 +47,6 @@ class PVRenderingJob : public QObject
   protected:
 	tbb::atomic<bool> _should_cancel;
 };
-}
+} // namespace PVParallelView
 
 #endif

@@ -30,6 +30,6 @@ class PVXmlParamList : public QListWidget
   protected:
 	QString _name;
 };
-}
+} // namespace PVInspector
 
 #endif

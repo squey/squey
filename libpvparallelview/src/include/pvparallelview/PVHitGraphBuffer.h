@@ -101,6 +101,6 @@ class PVHitGraphBuffer : boost::noncopyable
 	uint32_t _nblocks;
 	uint32_t _size_block;
 };
-}
+} // namespace PVParallelView
 
 #endif

@@ -31,6 +31,6 @@ struct PVCombCol {
 };
 
 constexpr static PVCombCol INVALID_COMB_COL(std::numeric_limits<int32_t>::max());
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVAXESCOMBINATION_H */

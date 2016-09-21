@@ -32,6 +32,6 @@ class PVScatterViewDataImpl : public PVScatterViewDataInterface
 	                          Inendi::PVSelection const* sel = nullptr,
 	                          tbb::task_group_context* ctxt = nullptr);
 };
-}
+} // namespace PVParallelView
 
 #endif // PVSCATTERVIEWDATAIMPL_H_

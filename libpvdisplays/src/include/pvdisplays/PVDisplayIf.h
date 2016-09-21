@@ -24,7 +24,7 @@ namespace Inendi
 {
 class PVSource;
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVDisplays
 {
@@ -251,7 +251,7 @@ class PVDisplayViewAxisIf : public PVDisplayIf
   private:
 	map_widgets_t _widgets;
 };
-}
+} // namespace __impl
 
 class PVDisplayViewAxisIf : public __impl::PVDisplayViewAxisIf,
                             public PVCore::PVRegistrableClass<PVDisplayViewAxisIf>
@@ -288,7 +288,7 @@ class PVDisplayViewZoneIf : public __impl::PVDisplayViewAxisIf,
 	typedef PVDisplayViewZoneIf RegAs;
 	typedef std::shared_ptr<RegAs> p_type;
 };
-}
+} // namespace PVDisplays
 
 Q_DECLARE_METATYPE(PVDisplays::PVDisplayViewAxisIf::Params)
 

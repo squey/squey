@@ -21,7 +21,7 @@ namespace PVGuiQt
 namespace __impl
 {
 class GraphicsView;
-}
+} // namespace __impl
 
 class PVAboutBoxDialog : public QDialog
 {
@@ -44,9 +44,9 @@ class GraphicsView : public QGraphicsView
 	explicit GraphicsView(PVAboutBoxDialog* parent) : QGraphicsView(parent) {}
 
   protected:
-	void resizeEvent(QResizeEvent* event);
+	void resizeEvent(QResizeEvent* event) override;
 };
-}
-}
+} // namespace __impl
+} // namespace PVGuiQt
 
 #endif /* __PVGUIQT_PVABOUTBOXDIALOG_H__ */

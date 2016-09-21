@@ -56,6 +56,6 @@ typedef union {
 	PVBCICode<10> as_10;
 	PVBCICode<11> as_11;
 } PVBCICodeBase;
-}
+} // namespace PVParallelView
 
 #endif

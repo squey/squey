@@ -13,7 +13,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -45,7 +45,7 @@ class PVLayerStackDelegate : public QStyledItemDelegate
 	bool editorEvent(QEvent* event,
 	                 QAbstractItemModel* model,
 	                 const QStyleOptionViewItem& option,
-	                 const QModelIndex& index);
+	                 const QModelIndex& index) override;
 
   private:
 	Inendi::PVView const& lib_view() const { return _view; }
@@ -53,6 +53,6 @@ class PVLayerStackDelegate : public QStyledItemDelegate
   private:
 	Inendi::PVView const& _view;
 };
-}
+} // namespace PVGuiQt
 
 #endif // PVLAYERSTACKDELEGATE_H

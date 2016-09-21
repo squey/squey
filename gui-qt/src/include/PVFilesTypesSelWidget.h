@@ -31,12 +31,12 @@ class PVFilesTypesSelModel : public QAbstractTableModel
 	PVFilesTypesSelModel(map_files_types& files_types, QObject* parent = 0);
 
   public:
-	int rowCount(const QModelIndex& parent) const;
-	int columnCount(const QModelIndex& parent) const;
-	QVariant data(const QModelIndex& index, int role) const;
-	bool setData(const QModelIndex& index, const QVariant& value, int role);
-	Qt::ItemFlags flags(const QModelIndex& index) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+	int rowCount(const QModelIndex& parent) const override;
+	int columnCount(const QModelIndex& parent) const override;
+	QVariant data(const QModelIndex& index, int role) const override;
+	bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+	Qt::ItemFlags flags(const QModelIndex& index) const override;
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 	void emitAllTypesChanged();
 
   protected:
@@ -53,13 +53,15 @@ class PVFilesTypesSelDelegate : public QStyledItemDelegate
   public:
 	QWidget* createEditor(QWidget* parent,
 	                      const QStyleOptionViewItem& option,
-	                      const QModelIndex& index) const;
-	void setEditorData(QWidget* editor, const QModelIndex& index) const;
-	void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const;
+	                      const QModelIndex& index) const override;
+	void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+	void setModelData(QWidget* editor,
+	                  QAbstractItemModel* model,
+	                  const QModelIndex& index) const override;
 	void updateEditorGeometry(QWidget* editor,
 	                          const QStyleOptionViewItem& option,
-	                          const QModelIndex& index) const;
-	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
+	                          const QModelIndex& index) const override;
+	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 };
 
 class PVFilesTypesSelWidget : public QDialog
@@ -82,6 +84,6 @@ class PVFilesTypesSelWidget : public QDialog
 	QCheckBox* _all_types_check;
 	map_files_types& _files_types;
 };
-}
+} // namespace PVInspector
 
 #endif // PVFILTERSEARCHWIDGET_H

@@ -82,6 +82,6 @@ class PVBCIDrawingBackendAsync : public PVBCIDrawingBackend
 	// TODO : Remove this unused method.
 	virtual void wait_all() const = 0;
 };
-}
+} // namespace PVParallelView
 
 #endif

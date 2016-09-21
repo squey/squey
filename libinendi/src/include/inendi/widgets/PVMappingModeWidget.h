@@ -16,7 +16,7 @@
 namespace Inendi
 {
 class PVMapped;
-}
+} // namespace Inendi
 
 namespace PVWidgets
 {
@@ -33,7 +33,7 @@ class PVMappingModeWidget : public QWidget
 	inline void select_default() { set_mode("default"); }
 	inline void clear() { _combo->clear(); }
 
-	virtual QSize sizeHint() const;
+	QSize sizeHint() const override;
 
   public:
 	bool set_mode(QString const& mode);
@@ -47,6 +47,6 @@ class PVMappingModeWidget : public QWidget
 	PVComboBox* _combo;
 	PVCore::PVArgumentList _cur_filter_params;
 };
-}
+} // namespace PVWidgets
 
 #endif

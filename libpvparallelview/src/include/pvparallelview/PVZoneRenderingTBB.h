@@ -37,6 +37,6 @@ class PVZoneRenderingTBB : public PVZoneRendering
   private:
 	tbb::task_group_context _grp_ctxt;
 };
-}
+} // namespace PVParallelView
 
 #endif

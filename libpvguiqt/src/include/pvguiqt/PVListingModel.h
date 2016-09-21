@@ -23,7 +23,7 @@
 namespace tbb
 {
 class task_group_context;
-}
+} // namespace tbb
 
 namespace PVGuiQt
 {
@@ -146,6 +146,6 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
   private:
 	Inendi::PVView const& _view; //!< Observed view
 };
-}
+} // namespace PVGuiQt
 
 #endif

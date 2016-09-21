@@ -30,6 +30,6 @@ class PVZoomableDrawingAreaInteractorHomothetic : public PVZoomableDrawingAreaIn
   private:
 	QPoint _pan_reference;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAINTERACTORHOMOTHETIC_H

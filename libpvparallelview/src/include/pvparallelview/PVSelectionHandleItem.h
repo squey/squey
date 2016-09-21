@@ -260,6 +260,6 @@ class PVSelectionHandleItem : public QGraphicsItem
 	bool _is_visible;
 	bool _always_hidden;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVWIDGETS_PVSELECTIONHANDLEITEM_H

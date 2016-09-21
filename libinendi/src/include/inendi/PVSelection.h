@@ -17,7 +17,7 @@
 namespace PVRush
 {
 class PVNraw;
-}
+} // namespace PVRush
 
 namespace Inendi
 {
@@ -88,6 +88,6 @@ class PVSelection : public PVCore::PVSelBitField
 		return ret;
 	}
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVSELECTION_H */

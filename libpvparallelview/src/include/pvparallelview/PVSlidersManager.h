@@ -148,6 +148,6 @@ class PVSlidersManager
 	range_geometry_set_t _selection_geometries;
 	range_geometry_set_t _zoomed_selection_geometries;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSLIDERSMANAGER_H

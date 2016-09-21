@@ -16,12 +16,12 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -87,6 +87,6 @@ class PVZonesProcessor
 	receiver_type& _in_port;
 	PVRenderingPipelinePreprocessRouter& _preprocess;
 };
-}
+} // namespace PVParallelView
 
 #endif

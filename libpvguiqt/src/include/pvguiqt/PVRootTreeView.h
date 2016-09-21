@@ -13,14 +13,14 @@
 namespace PVCore
 {
 class PVDataTreeObject;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
 class PVPlotted;
 class PVMapped;
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -66,6 +66,6 @@ class PVRootTreeView : public QTreeView
 	QAction* _act_edit_mapping;
 	QAction* _act_edit_plotting;
 };
-}
+} // namespace PVGuiQt
 
 #endif // PVROOTTREEVIEW_H

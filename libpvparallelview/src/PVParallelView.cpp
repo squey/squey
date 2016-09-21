@@ -117,5 +117,5 @@ RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelVi
 {
 	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 }
-}
-}
+} // namespace common
+} // namespace PVParallelView

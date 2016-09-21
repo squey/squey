@@ -16,7 +16,7 @@ namespace Inendi
 {
 
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -38,7 +38,7 @@ class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 	/**
 	 * DTOR!
 	 */
-	~PVZoomedParallelViewSelectionLine();
+	~PVZoomedParallelViewSelectionLine() override;
 
 	/**
 	 * return the bounding rectangle of the item
@@ -152,6 +152,6 @@ class PVZoomedParallelViewSelectionLine : public QGraphicsObject
 	qreal _x_scale;
 	qreal _y_scale;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVZOOMEDPARALLELVIEWSELECTIONLINE_H

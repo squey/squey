@@ -28,7 +28,7 @@ namespace Inendi
 {
 
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -301,6 +301,6 @@ class PVSelectionRectangle : public QObject
 	QTimer* _timer;
 	bool _use_selection_modifiers;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVWIDGETS_PVSELECTIONRECTANGLE_H

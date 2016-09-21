@@ -22,7 +22,7 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 constexpr size_t INENDI_LAYER_NAME_MAXLEN = 1000;
 
@@ -102,7 +102,7 @@ class PVLayer
 	void serialize_write(PVCore::PVSerializeObject& so);
 	static Inendi::PVLayer serialize_read(PVCore::PVSerializeObject& so);
 };
-}
+} // namespace Inendi
 
 // This must be done outside of any namespace
 // This metatype is used for PVLayer widget selection.

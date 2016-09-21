@@ -15,7 +15,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -50,6 +50,6 @@ class PVLayerStackWidget : public QWidget
   private:
 	PVLayerStackView* _layer_stack_view;
 };
-}
+} // namespace PVGuiQt
 
 #endif // PVLAYERSTACKWIDGET_H

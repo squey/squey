@@ -45,6 +45,6 @@ class PVHitGraphDataOMP : public PVHitGraphDataInterface
   private:
 	mutable omp_ctx_t _omp_ctx;
 };
-}
+} // namespace PVParallelView
 
 #endif

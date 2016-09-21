@@ -134,4 +134,4 @@ void PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)
 		so.attribute_write(QString::number(i), _axes_comb[i]);
 	}
 }
-}
+} // namespace Inendi

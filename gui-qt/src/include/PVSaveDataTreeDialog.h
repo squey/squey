@@ -27,6 +27,6 @@ class PVSaveDataTreeDialog : public QFileDialog
   protected:
 	QCheckBox* _save_everything_checkbox;
 };
-}
+} // namespace PVInspector
 
 #endif

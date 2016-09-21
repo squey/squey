@@ -51,6 +51,6 @@ class PVZone
 	PVZoneTree_p _ztree;
 	PVZoomedZoneTree_p _zoomed_ztree;
 };
-}
+} // namespace PVParallelView
 
 #endif

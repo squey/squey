@@ -44,6 +44,6 @@ class PVHiveDataTreeModel : public QAbstractItemModel
   private:
 	Inendi::PVSource& _root;
 };
-}
+} // namespace PVGuiQt
 
 #endif

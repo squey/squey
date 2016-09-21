@@ -50,7 +50,7 @@ struct connecter {
 
 	PVGuiQt::PVStartScreenWidget& sc;
 };
-}
+} // namespace
 
 PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(parent)
 {
@@ -344,7 +344,7 @@ struct refresher {
 
 	PVGuiQt::PVStartScreenWidget& sc;
 };
-}
+} // namespace
 
 void PVGuiQt::PVStartScreenWidget::refresh_all_recent_items()
 {

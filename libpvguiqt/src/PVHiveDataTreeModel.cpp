@@ -34,7 +34,7 @@ typename std::enable_if<I != sizeof...(T), R>::type apply_on(In* in, F const& f)
 	}
 	return apply_on<R, F, In, I + 1, T...>(in, f);
 }
-}
+} // namespace __impl
 
 template <class R, class... T, class In, class F>
 R apply_on(In* p, F&& f)
@@ -64,7 +64,7 @@ struct ith_child {
 
 	int row;
 };
-}
+} // namespace
 
 QModelIndex PVHiveDataTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
@@ -90,7 +90,7 @@ struct get_size {
 		return v->size();
 	}
 };
-}
+} // namespace
 
 int PVHiveDataTreeModel::rowCount(const QModelIndex& parent) const
 {
@@ -119,7 +119,7 @@ struct parent_pos {
 
 	PVHiveDataTreeModel const* _model;
 };
-}
+} // namespace
 
 QModelIndex PVHiveDataTreeModel::parent(const QModelIndex& index) const
 {
@@ -191,7 +191,7 @@ struct obj_pos {
 		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));
 	}
 };
-}
+} // namespace
 
 int PVHiveDataTreeModel::pos_from_obj(PVCore::PVDataTreeObject const* id) const
 {
@@ -202,4 +202,4 @@ int PVHiveDataTreeModel::pos_from_obj(PVCore::PVDataTreeObject const* id) const
 		    id, obj_pos{});
 	}
 }
-}
+} // namespace PVGuiQt

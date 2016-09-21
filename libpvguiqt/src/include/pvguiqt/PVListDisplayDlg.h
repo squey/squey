@@ -44,7 +44,7 @@ class PVListDisplayDlg : public QDialog, public Ui::PVListDisplayDlg
 	/**
 	 * Destructor to delete the underliying model.
 	 */
-	~PVListDisplayDlg();
+	~PVListDisplayDlg() override;
 
   public:
 	void set_description(QString const& desc);
@@ -94,6 +94,6 @@ class PVListDisplayDlg : public QDialog, public Ui::PVListDisplayDlg
 	QAction* _copy_values_act;
 	QMenu* _ctxt_menu;
 };
-}
+} // namespace PVGuiQt
 
 #endif

@@ -19,15 +19,15 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVAxisFormat;
-}
+} // namespace PVRush
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 template <typename T>
 class QList;
@@ -91,6 +91,6 @@ class PVAxesCombination
 	QList<PVRush::PVAxisFormat> const& _axes; //!< View from the PVFormat
 	std::vector<PVCol> _axes_comb;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVAXESCOMBINATION_H */

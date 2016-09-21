@@ -40,7 +40,7 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	                     PVAxisSliderOrientation orientation = Min,
 	                     QGraphicsItem* parent_item = nullptr);
 
-	~PVAbstractAxisSlider();
+	~PVAbstractAxisSlider() override;
 
 	void set_value(int64_t v);
 
@@ -87,6 +87,6 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	PVAbstractAxisSliders* _owner;
 	bool _removable;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVABSTRACTAXISSLIDER_H

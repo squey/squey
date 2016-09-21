@@ -18,7 +18,7 @@ namespace Inendi
 {
 
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -36,7 +36,7 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
   public:
 	explicit PVAxisLabel(const Inendi::PVView& view, QGraphicsItem* parent = nullptr);
 
-	virtual ~PVAxisLabel();
+	~PVAxisLabel() override;
 
 	/** Elide the text if it is longer than MAX_WIDTH.*/
 	void set_text(const QString& text);
@@ -57,6 +57,6 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 	const Inendi::PVView& _lib_view;
 	int _bounding_box_width = 0;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVAXISLABEL_H

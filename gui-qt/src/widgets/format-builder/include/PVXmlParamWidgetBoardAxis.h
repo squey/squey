@@ -47,7 +47,7 @@
 namespace PVWidgets
 {
 class PVArgumentListWidget;
-}
+} // namespace PVWidgets
 
 namespace PVInspector
 {
@@ -137,5 +137,5 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void signalRefreshView();
 	void signalSelectNext();
 };
-}
+} // namespace PVInspector
 #endif /* PVXMLPARAMWIDGETBOARDAXIS_H */

@@ -35,7 +35,7 @@ namespace __impl
 {
 class PVToolTipEventFilter;
 class PVAxisSelectedAnimation;
-}
+} // namespace __impl
 
 class PVAxisLabel;
 class PVFullParallelScene;
@@ -62,7 +62,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	                   Inendi::PVView const& view,
 	                   Inendi::PVCombCol comb_col,
 	                   PVRush::PVAxisFormat const& axis_fmt);
-	~PVAxisGraphicsItem();
+	~PVAxisGraphicsItem() override;
 
 	void
 	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
@@ -154,6 +154,6 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	__impl::PVToolTipEventFilter* _event_filter;
 	bool _minmax_visible;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVAXISGRAPHICSITEM_H

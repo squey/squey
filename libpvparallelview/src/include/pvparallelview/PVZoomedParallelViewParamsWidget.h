@@ -42,6 +42,6 @@ class PVZoomedParallelViewParamsWidget : public QToolBar
 	QAction* _active_axis_action;
 	PVCol _active_axis;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_ZOOMEDPARALLELVIEWPARAMSWIDGET_H

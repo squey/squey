@@ -40,7 +40,7 @@ class PVXmlParamWidgetBoardSplitterRegEx : public QWidget
 	Q_OBJECT
   public:
 	PVXmlParamWidgetBoardSplitterRegEx(PVRush::PVXmlTreeNodeDom* pNode, PVXmlParamWidget* parent);
-	virtual ~PVXmlParamWidgetBoardSplitterRegEx();
+	~PVXmlParamWidgetBoardSplitterRegEx() override;
 
 	bool confirmAndSave();
 	QWidget* getWidgetToFocus();
@@ -118,5 +118,5 @@ class PVXmlParamWidgetBoardSplitterRegEx : public QWidget
   protected:
 	QStringList _data;
 };
-}
+} // namespace PVInspector
 #endif /* PVXMLPARAMWIDGETBOARDSPLITTERREGEX_H */

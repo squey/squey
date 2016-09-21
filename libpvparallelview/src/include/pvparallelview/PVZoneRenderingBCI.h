@@ -66,7 +66,7 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 
 	inline bool valid() const
 	{
-		return PVZoneRendering::valid() && _width != 0 && _dst_img.get() != nullptr;
+		return PVZoneRendering::valid() && _width != 0 && _dst_img != nullptr;
 	}
 
   protected:
@@ -127,6 +127,6 @@ class PVZoneRenderingBCI : public PVZoneRenderingBCIBase
 	{
 	}
 };
-}
+} // namespace PVParallelView
 
 #endif

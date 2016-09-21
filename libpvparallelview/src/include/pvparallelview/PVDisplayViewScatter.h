@@ -29,6 +29,6 @@ class PVDisplayViewScatter : public PVDisplayViewZoneIf
 
 	CLASS_REGISTRABLE(PVDisplayViewScatter)
 };
-}
+} // namespace PVDisplays
 
 #endif // __PVDISPLAYVIEWSCATTER_H__

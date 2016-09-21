@@ -16,7 +16,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -48,6 +48,6 @@ class PVAxesCombinationDialog : public QDialog
   private:
 	QDialogButtonBox* _box_buttons;
 };
-}
+} // namespace PVGuiQt
 
 #endif

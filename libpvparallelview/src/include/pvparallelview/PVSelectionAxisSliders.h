@@ -45,6 +45,6 @@ class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders, public sigc::t
   private:
 	id_t _id;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSELECTIONAXISSLIDERS_H

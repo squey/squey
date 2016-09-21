@@ -123,6 +123,6 @@ typedef PVLayerFilter::func_type PVLayerFilter_f;
 
 typedef PVCore::PVClassLibrary<Inendi::PVLayerFilter>::tag PVLayerFilterTag;
 typedef PVCore::PVClassLibrary<Inendi::PVLayerFilter>::list_tags PVLayerFilterListTags;
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVLAYERFILTER_H */

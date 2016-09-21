@@ -45,7 +45,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	                    PVZonesManager const& zm,
 	                    PVZonesProcessor& zp_sel,
 	                    PVZonesProcessor& zp_bg);
-	virtual ~PVFullParallelScene();
+	~PVFullParallelScene() override;
 
 	void first_render();
 	void update_all_with_timer();
@@ -245,6 +245,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	bool _show_min_max_values;
 };
-}
+} // namespace PVParallelView
 
 #endif // __PVFULLPARALLELSCENE_h__

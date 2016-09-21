@@ -25,12 +25,12 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-}
+} // namespace PVWidgets
 
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -73,7 +73,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	               const PVCol axis_index,
 	               QWidget* parent = nullptr);
 
-	~PVHitCountView();
+	~PVHitCountView() override;
 
 	QSize sizeHint() const override { return QSize(800, 200); }
 
@@ -200,6 +200,6 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	PVHitCountViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget* _help_widget;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEW_H

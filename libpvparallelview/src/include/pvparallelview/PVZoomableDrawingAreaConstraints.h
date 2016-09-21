@@ -115,6 +115,6 @@ class PVZoomableDrawingAreaConstraints
 		az.set_clamped_value(value);
 	}
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREACONSTRAINTS_H

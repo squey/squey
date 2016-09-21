@@ -131,7 +131,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 *
 	 * @warning : It is not the number of rows in the listing.
 	 */
-	int rowCount(const QModelIndex& index = QModelIndex()) const override final;
+	int rowCount(const QModelIndex& index = QModelIndex()) const final;
 
 	/**
 	 * Get real number of elements in the Table.
@@ -263,5 +263,5 @@ class PVAbstractTableModel : public QAbstractTableModel
 	// selection to current selection.
 	selection_mode_t _selection_mode; //!< the selection mode
 };
-}
+} // namespace PVGuiQt
 #endif

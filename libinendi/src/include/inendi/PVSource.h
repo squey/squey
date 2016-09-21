@@ -32,15 +32,15 @@
 namespace Inendi
 {
 class PVScene;
-} // lines 31-31
+} // namespace Inendi
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
@@ -130,7 +130,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 
 	PVRush::PVFormat const& get_format() const { return _format; }
 
-	virtual std::string get_serialize_description() const { return "Source: " + get_name(); }
+	std::string get_serialize_description() const override { return "Source: " + get_name(); }
 
 	/**
 	 * Return the cumulate total size of all inputs.
@@ -161,6 +161,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVRush::PVExtractor _extractor;
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVSOURCE_H */

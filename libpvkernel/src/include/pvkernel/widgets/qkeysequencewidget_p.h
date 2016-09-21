@@ -105,19 +105,19 @@ class QShortcutButton : public QPushButton
 		QPushButton::setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	}
 
-	virtual ~QShortcutButton() {}
+	~QShortcutButton() override {}
 
-	virtual QSize sizeHint() const;
+	QSize sizeHint() const override;
 
   protected:
 	// Reimplemented for internal reasons.
-	virtual bool event(QEvent* e);
-	virtual void keyPressEvent(QKeyEvent* keyEvent);
-	virtual void keyReleaseEvent(QKeyEvent* keyEvent);
+	bool event(QEvent* e) override;
+	void keyPressEvent(QKeyEvent* keyEvent) override;
+	void keyReleaseEvent(QKeyEvent* keyEvent) override;
 
   private:
 	QKeySequenceWidgetPrivate* const d;
 };
-}
+} // namespace PVWidgets
 
 #endif // QKEYSEQUENCEWIDGET_P_H

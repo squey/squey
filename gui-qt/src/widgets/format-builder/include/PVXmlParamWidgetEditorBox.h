@@ -22,12 +22,12 @@ class PVXmlParamWidgetEditorBox : public QLineEdit
   public:
 	PVXmlParamWidgetEditorBox();
 	PVXmlParamWidgetEditorBox(QString name, QVariant* var);
-	virtual ~PVXmlParamWidgetEditorBox();
+	~PVXmlParamWidgetEditorBox() override;
 	QVariant val();
 	void setVal(const QVariant& val);
 
   private:
 	QVariant* variable;
 };
-}
+} // namespace PVInspector
 #endif /* PVXMLPARAMWIDGETEDITORBOX_H */

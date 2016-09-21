@@ -28,7 +28,7 @@ namespace PVWidgets
 namespace __impl
 {
 class PVPresetsListWidget;
-}
+} // namespace __impl
 
 class PVPresetsWidget : public QWidget
 {
@@ -89,7 +89,7 @@ class PVPresetsListWidget : public QListWidget
 	{
 		_parent = parent;
 	}
-	void keyPressEvent(QKeyEvent* event)
+	void keyPressEvent(QKeyEvent* event) override
 	{
 		if (event->key() == Qt::Key_F2) {
 			_parent->rename_Slot();
@@ -98,12 +98,12 @@ class PVPresetsListWidget : public QListWidget
 		}
 	}
 
-	QSize sizeHint() const { return QSize(0, 42); }
+	QSize sizeHint() const override { return QSize(0, 42); }
 
   private:
 	PVWidgets::PVPresetsWidget* _parent;
 };
-}
+} // namespace __impl
 
 class PVSavePresetAsDialog : public QDialog
 {
@@ -124,6 +124,6 @@ class PVSavePresetAsDialog : public QDialog
 	PVPresetsWidget* _parent;
 	QPushButton* _btn_save;
 };
-}
+} // namespace PVWidgets
 
 #endif /* PVPRESETSWIDGET_H_ */

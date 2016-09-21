@@ -41,6 +41,6 @@ class PVTableView : public QTableView
 	 */
 	void resizeEvent(QResizeEvent* event) override;
 };
-}
+} // namespace PVGuiQt
 
 #endif

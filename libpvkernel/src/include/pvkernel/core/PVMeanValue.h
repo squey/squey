@@ -51,6 +51,6 @@ class PVMeanValue
 	Tsum _cur_sum;
 	size_t _n_values;
 };
-}
+} // namespace PVCore
 
 #endif

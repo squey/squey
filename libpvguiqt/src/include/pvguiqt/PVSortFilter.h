@@ -104,6 +104,6 @@ class PVSortFilter
 	PVCol _sorted_column;      //!< The current sorted column
 	Qt::SortOrder _sort_order; //!< The sort order of the current sorted column
 };
-}
+} // namespace PVGuiQt
 
 #endif

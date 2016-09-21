@@ -89,8 +89,8 @@ class QKeySequenceWidget : public QWidget
 	explicit QKeySequenceWidget(QKeySequence seq, QWidget* parent = 0);
 	explicit QKeySequenceWidget(QString noneString, QWidget* parent = 0);
 	explicit QKeySequenceWidget(QKeySequence seq, QString noneString, QWidget* parent = 0);
-	virtual ~QKeySequenceWidget();
-	QSize sizeHint() const;
+	~QKeySequenceWidget() override;
+	QSize sizeHint() const override;
 	void setToolTip(const QString& tip);
 	QKeySequence keySequence() const;
 	QString noneText() const;
@@ -126,6 +126,6 @@ class QKeySequenceWidget : public QWidget
 
   private:
 };
-}
+} // namespace PVWidgets
 
 #endif // QKEYSEQUENCEWIDGET_H

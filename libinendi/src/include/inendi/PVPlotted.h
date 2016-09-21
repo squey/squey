@@ -36,19 +36,19 @@
 namespace Inendi
 {
 class PVMapped;
-} // lines 40-40
+} // namespace Inendi
 namespace Inendi
 {
 class PVSelection;
-} // lines 33-33
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVNraw;
-} // lines 29-29
+} // namespace PVRush
 
 namespace Inendi
 {
@@ -248,6 +248,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	std::list<PVPlottingProperties> _columns;
 	std::string _name;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVPLOTTED_H */

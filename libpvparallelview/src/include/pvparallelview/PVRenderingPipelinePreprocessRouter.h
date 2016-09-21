@@ -156,6 +156,6 @@ class PVRenderingPipelinePreprocessRouter
 	// from user events.
 	std::shared_ptr<RouterData> _d;
 };
-}
+} // namespace PVParallelView
 
 #endif

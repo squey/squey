@@ -80,8 +80,8 @@ class PVToolTipEventFilter : public QObject
 		return static_cast<PVAxisGraphicsItem*>(parent());
 	}
 };
-}
-} // PVParallelView::__impl
+} // namespace __impl
+} // namespace PVParallelView // PVParallelView::__impl
 
 /*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem

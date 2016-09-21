@@ -36,34 +36,34 @@
 namespace Inendi
 {
 class PVPlotted;
-} // lines 32-32
+} // namespace Inendi
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVAxisFormat;
-}
+} // namespace PVRush
 namespace PVRush
 {
 class PVNraw;
-}
+} // namespace PVRush
 namespace pvcop
 {
 namespace db
 {
 class indexes;
-}
-}
+} // namespace db
+} // namespace pvcop
 namespace tbb
 {
 class task_group_context;
-}
+} // namespace tbb
 
 namespace Inendi
 {
@@ -81,7 +81,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	~PVView();
 
   public:
-	virtual std::string get_serialize_description() const { return "View: " + get_name(); }
+	std::string get_serialize_description() const override { return "View: " + get_name(); }
 
 	/* Functions */
 	/**
@@ -338,6 +338,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
   private:
 	static PVCore::PVHSVColor _default_zombie_line_properties; //!< Default color for Zombies lines.
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVVIEW_H */

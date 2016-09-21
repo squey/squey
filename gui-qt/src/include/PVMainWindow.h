@@ -38,14 +38,14 @@ QT_END_NAMESPACE
 namespace PVCore
 {
 class PVSerializeArchive;
-}
+} // namespace PVCore
 
 namespace PVGuiQt
 {
 class PVSourceWorkspace;
 class PVAboutBoxDialog;
 class PVExportSelectionDlg;
-}
+} // namespace PVGuiQt
 
 namespace PVInspector
 {
@@ -311,6 +311,6 @@ class PVMainWindow : public QMainWindow
   private:
 	QString _screenshot_root_dir;
 };
-}
+} // namespace PVInspector
 
 #endif // PVMAINWINDOW_H

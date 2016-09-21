@@ -28,8 +28,7 @@ class PVZoomableDrawingAreaInteractor
 	}
 
   protected:
-	virtual bool resizeEvent(PVParallelView::PVZoomableDrawingArea* zda,
-	                         QResizeEvent* /*event*/) override
+	bool resizeEvent(PVParallelView::PVZoomableDrawingArea* zda, QResizeEvent* /*event*/) override
 	{
 		zda->reconfigure_view();
 		pan_has_changed(zda);
@@ -90,6 +89,6 @@ class PVZoomableDrawingAreaInteractor
 		Q_EMIT zda->pan_has_changed();
 	}
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAINTERACTOR_H

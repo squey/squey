@@ -16,7 +16,7 @@
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -89,6 +89,6 @@ class PVHitGraphBlocksManager : boost::noncopyable
 
 	DataProcessParams _data_params;
 };
-}
+} // namespace PVParallelView
 
 #endif

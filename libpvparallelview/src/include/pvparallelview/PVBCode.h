@@ -25,6 +25,6 @@ struct PVBCode {
 };
 
 static_assert(sizeof(PVBCode) == 4, "BCode should be a packed struct.");
-}
+} // namespace PVParallelView
 
 #endif

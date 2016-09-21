@@ -16,19 +16,19 @@
 namespace Inendi
 {
 class PVLayer;
-}
+} // namespace Inendi
 namespace Inendi
 {
 class PVLinesProperties;
-}
+} // namespace Inendi
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 #define INENDI_LAYER_STACK_MAX_DEPTH 256
 
@@ -97,6 +97,6 @@ class PVLayerStack
 	QList<PVLayer> _table;
 	bool _should_hide_layers = true;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVLAYERSTACK_H */

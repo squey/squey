@@ -35,6 +35,6 @@ class PVScatterViewParamsWidget : public QToolBar
 	QSignalMapper* _sel_mode_signal_mapper;
 	QToolButton* _sel_mode_button;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSCATTERVIEWPARAMSWIDGET_H

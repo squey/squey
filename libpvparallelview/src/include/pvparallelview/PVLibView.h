@@ -77,6 +77,6 @@ class PVLibView : public sigc::trackable
 	PVZonesProcessor _processor_sel;
 	PVZonesProcessor _processor_bg;
 };
-}
+} // namespace PVParallelView
 
 #endif /* PVPARALLELVIEW_PVLIBVIEW_H */

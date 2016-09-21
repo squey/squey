@@ -42,6 +42,6 @@ class PVHitCountViewParamsWidget : public QToolBar
 	QSignalMapper* _signal_mapper;
 	QToolButton* _sel_mode_button;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEWPARAMSWIDGET_H

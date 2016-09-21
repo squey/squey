@@ -26,7 +26,7 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-}
+} // namespace PVWidgets
 
 namespace PVGuiQt
 {
@@ -60,7 +60,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	/**
 	 * Clean up plugin in progress
 	 */
-	~PVListingView();
+	~PVListingView() override;
 
 	/**
 	 * Get associate model
@@ -289,6 +289,6 @@ class PVHorizontalHeaderView : public QHeaderView
   private:
 	int _index = -1;
 };
-}
+} // namespace PVGuiQt
 
 #endif // PVLISTINGVIEW_H

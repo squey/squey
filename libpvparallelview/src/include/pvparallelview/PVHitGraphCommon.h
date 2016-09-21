@@ -18,7 +18,7 @@ namespace PVHitGraphCommon
     NBITS = 10,
     NBLOCKS = 2
 };*/
-}
-}
+} // namespace PVHitGraphCommon
+} // namespace PVParallelView
 
 #endif

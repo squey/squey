@@ -73,6 +73,6 @@ class PVSimpleStringListModel : public PVAbstractTableModel
   private:
 	container_type const& _values;
 };
-}
+} // namespace PVGuiQt
 
 #endif // __PVQUIQT_PVSIMPLELISTSTRINGMODEL_H__

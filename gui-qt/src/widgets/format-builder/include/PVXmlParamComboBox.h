@@ -21,7 +21,7 @@ class PVXmlParamComboBox : public QComboBox
 	Q_OBJECT
   public:
 	PVXmlParamComboBox(QString name);
-	virtual ~PVXmlParamComboBox();
+	~PVXmlParamComboBox() override;
 	QVariant val();
 	void select(QString const& title);
 	void add_disabled_string(QString const& str);
@@ -39,8 +39,8 @@ class PVXmlParamComboBox : public QComboBox
 	{
 	  public:
 		PVComboBoxModel(QStringList& dis_elt, QObject* parent = 0);
-		virtual Qt::ItemFlags flags(const QModelIndex& index) const;
-		QVariant data(const QModelIndex& index, int role) const;
+		Qt::ItemFlags flags(const QModelIndex& index) const override;
+		QVariant data(const QModelIndex& index, int role) const override;
 
 	  protected:
 		bool is_disabled(const QModelIndex& index) const;
@@ -49,6 +49,6 @@ class PVXmlParamComboBox : public QComboBox
 		QStringList& _dis_elt;
 	};
 };
-}
+} // namespace PVInspector
 
 #endif /* PVXMLPARAMCOMBOBOX_H */

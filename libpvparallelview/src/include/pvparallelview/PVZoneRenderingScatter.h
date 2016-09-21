@@ -79,6 +79,6 @@ class PVZoneRenderingScatter : public PVZoneRenderingTBB
 
 	process_function_type _process;
 };
-}
+} // namespace PVParallelView
 
 #endif

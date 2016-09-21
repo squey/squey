@@ -25,11 +25,11 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 namespace Inendi
 {
@@ -75,6 +75,6 @@ class PVMappingProperties
 	PVCore::PVArgumentList _args;
 	bool _is_uptodate;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVMAPPINGPROPERTIES_H */

@@ -42,12 +42,12 @@
 namespace Inendi
 {
 class PVSource;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
 class PVAxesCombinationWidget;
-}
+} // namespace PVGuiQt
 
 namespace PVInspector
 {
@@ -60,10 +60,10 @@ class PVFormatBuilderWidget : public QMainWindow
   public:
 	PVFormatBuilderWidget(QWidget* parent = nullptr);
 
-	virtual ~PVFormatBuilderWidget();
+	~PVFormatBuilderWidget() override;
 
   private:
-	void closeEvent(QCloseEvent* event);
+	void closeEvent(QCloseEvent* event) override;
 	void init(QWidget* parent = 0);
 
   public:
@@ -205,5 +205,5 @@ class PVFormatBuilderWidget : public QMainWindow
 	QAction* actionSave;
 	QAction* actionSaveAs;
 };
-}
+} // namespace PVInspector
 #endif /* PVFORMATBUILDER_H */

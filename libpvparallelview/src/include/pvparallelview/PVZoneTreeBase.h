@@ -15,7 +15,7 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace PVParallelView
 {
@@ -58,6 +58,6 @@ class PVZoneTreeBase
 	PVRow DECLARE_ALIGN(16) _sel_elts[NBUCKETS];
 	PVRow DECLARE_ALIGN(16) _bg_elts[NBUCKETS];
 };
-}
+} // namespace PVParallelView
 
 #endif

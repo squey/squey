@@ -263,8 +263,8 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 	bool _use_absolute_max_count = true;
 	bool _use_percent_mode = false;
 };
-}
-}
+} // namespace __impl
+} // namespace PVGuiQt
 
 /******************************************************************************
  *

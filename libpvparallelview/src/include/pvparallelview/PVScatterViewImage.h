@@ -21,7 +21,7 @@ class QPainter;
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace PVParallelView
 {
@@ -77,6 +77,6 @@ class PVScatterViewImage : boost::noncopyable
 	PVCore::PVHSVColor* _hsv_image;
 	QImage _rgb_image;
 };
-}
+} // namespace PVParallelView
 
 #endif // __PVSCATTERVIEWIMAGE_H__

@@ -69,6 +69,6 @@ class PVStateMachine
 		view_unselected_zombie_visible = !view_unselected_zombie_visible;
 	}
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVSTATEMACHINE_H */

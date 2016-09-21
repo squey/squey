@@ -48,6 +48,6 @@ class PVZoomAxisSliders : public PVAbstractRangeAxisSliders, public sigc::tracka
   private:
 	id_t _id;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMAXISSLIDERS_H

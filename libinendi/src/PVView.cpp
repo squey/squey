@@ -59,7 +59,7 @@
 namespace tbb
 {
 class task_group_context;
-}
+} // namespace tbb
 
 PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLACK);
 

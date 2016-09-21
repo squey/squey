@@ -15,6 +15,6 @@ namespace PVParallelView
 
 // Choose which implementation must be used.
 typedef PVScatterViewDataImpl PVScatterViewData;
-}
+} // namespace PVParallelView
 
 #endif //__PVSCATTERVIEWDATA_H__

@@ -49,6 +49,6 @@ class PVZoomConverter
 	 */
 	virtual qreal zoom_to_scale(const int value) const = 0;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMCONVERTER_H
