@@ -21,7 +21,6 @@ namespace Inendi
  */
 class PVLayerFilterMultipleSearch : public PVLayerFilter
 {
-
   public:
 	PVLayerFilterMultipleSearch(
 	    PVCore::PVArgumentList const& l = PVLayerFilterMultipleSearch::default_args());
@@ -40,6 +39,14 @@ class PVLayerFilterMultipleSearch : public PVLayerFilter
 	search_menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
 
 	void show_error(QWidget* parent) const override;
+
+  private:
+	void search_values(PVCol col,
+	                   const std::vector<std::string>& exps,
+	                   size_t type,
+	                   const PVSelection& in_sel,
+	                   Inendi::PVSelection& out_sel,
+	                   std::function<bool(const std::string&, const std::string&)> predicate) const;
 
   private:
 	using strings_t = std::remove_reference<decltype(

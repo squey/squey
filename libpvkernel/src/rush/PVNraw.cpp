@@ -25,6 +25,7 @@
 
 #include <fstream>
 #include <iterator>
+#include <unordered_set>
 #include <omp.h>
 
 const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
@@ -240,44 +241,93 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	return line;
 }
 
-const PVCore::PVSelBitField PVRush::PVNraw::unconvertable_values_selection(PVCol col) const
+void PVRush::PVNraw::unconvertable_values_search(PVCol col,
+                                                 const PVCore::PVSelBitField& in_sel,
+                                                 PVCore::PVSelBitField& out_sel) const
 {
-	// FIXME : this computation could be cached to be done only once
+	auto const& bad_values = _unconvertable_values.bad_conversions();
 
-	PVCore::PVSelBitField sel(_real_nrows);
-	sel.select_none();
+	for (auto const& bad_value : bad_values) {
+
+		PVRow row = bad_value.first;
+		if (in_sel.get_line(row)) {
+
+			auto const& bad_cols = bad_value.second;
+			if (bad_cols.find(col) != bad_cols.end()) {
+				out_sel.set_bit_fast(row);
+			}
+		}
+	}
+}
+
+void PVRush::PVNraw::unconvertable_values_search(PVCol col,
+                                                 const std::vector<std::string>& exps,
+                                                 const PVCore::PVSelBitField& in_sel,
+                                                 PVCore::PVSelBitField& out_sel) const
+{
+	std::unordered_set<std::string> e(exps.begin(), exps.end());
 
 	auto const& bad_values = _unconvertable_values.bad_conversions();
 
 	for (auto const& bad_value : bad_values) {
+
 		PVRow row = bad_value.first;
-		auto const& bad_cols = bad_value.second;
-		if (bad_cols.find(col) != bad_cols.end()) {
-			sel.set_bit_fast(row);
+		if (in_sel.get_line(row)) {
+
+			auto const& bad_cols = bad_value.second;
+			auto it = bad_cols.find(col);
+			if (it != bad_cols.end() && e.find(it->second) != e.end()) {
+				out_sel.set_bit_fast(row);
+			}
 		}
 	}
-
-	return sel;
 }
 
-const PVCore::PVSelBitField PVRush::PVNraw::empty_values_selection(PVCol col) const
+void PVRush::PVNraw::unconvertable_values_search(
+    PVCol col,
+    const std::vector<std::string>& exps,
+    const PVCore::PVSelBitField& in_sel,
+    PVCore::PVSelBitField& out_sel,
+    std::function<bool(const std::string&, const std::string&)> predicate) const
 {
-	// FIXME : this computation could be cached to be done only once
+	auto const& bad_values = _unconvertable_values.bad_conversions();
 
-	PVCore::PVSelBitField sel(_real_nrows);
-	sel.select_none();
+	for (auto const& bad_value : bad_values) {
 
+		PVRow row = bad_value.first;
+		if (in_sel.get_line(row)) {
+
+			auto const& bad_cols = bad_value.second;
+			auto it = bad_cols.find(col);
+
+			if (it != bad_cols.end()) {
+				const std::string& invalid_value = it->second;
+				bool match = std::any_of(exps.begin(), exps.end(), [&](const std::string& exp) {
+					return predicate(invalid_value, exp);
+				});
+				if (match) {
+					out_sel.set_bit_fast(row);
+				}
+			}
+		}
+	}
+}
+
+void PVRush::PVNraw::empty_values_search(PVCol col,
+                                         const PVCore::PVSelBitField& in_sel,
+                                         PVCore::PVSelBitField& out_sel) const
+{
 	auto const& empty_values = _unconvertable_values.empty_conversions();
 
 	for (auto const& empty_value : empty_values) {
 		PVRow row = empty_value.first;
-		auto const& empty_cols = empty_value.second;
-		if (empty_cols.find(col) != empty_cols.end()) {
-			sel.set_bit_fast(row);
+		if (in_sel.get_line(row)) {
+			auto const& empty_cols = empty_value.second;
+			if (empty_cols.find(col) != empty_cols.end()) {
+				out_sel.set_bit_fast(row);
+			}
 		}
 	}
-
-	return sel;
 }
 
 void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
