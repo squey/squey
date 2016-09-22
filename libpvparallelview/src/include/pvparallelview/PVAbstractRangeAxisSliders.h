@@ -30,7 +30,7 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	                           PVSlidersGroup* group,
 	                           const char* text);
 
-	virtual ~PVAbstractRangeAxisSliders();
+	~PVAbstractRangeAxisSliders() override;
 
 	// FIXME : This is an Ugly interface with a lot of bad use possibility.
 	virtual void initialize(id_t id, int64_t y_min, int64_t y_max) = 0;
@@ -66,13 +66,14 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	}
 
   protected:
-	void
-	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
+	void paint(QPainter* painter,
+	           const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = nullptr) override;
 
   protected:
 	PVAbstractAxisSlider* _sl_min;
 	PVAbstractAxisSlider* _sl_max;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVABSTRACTRANGEAXISSLIDERS_H

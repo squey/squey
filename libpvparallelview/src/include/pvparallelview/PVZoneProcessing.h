@@ -19,6 +19,6 @@ struct PVZoneProcessing {
 	uint32_t const* const plotted_a;
 	uint32_t const* const plotted_b;
 };
-}
+} // namespace PVParallelView
 
 #endif

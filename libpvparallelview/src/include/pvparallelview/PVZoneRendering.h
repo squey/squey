@@ -28,7 +28,7 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace PVParallelView
 {
@@ -63,7 +63,7 @@ class PVZoneRendering
 	};
 
   public:
-	PVZoneRendering(PVZoneID zone_id)
+	explicit PVZoneRendering(PVZoneID zone_id)
 	    : _zone_id(zone_id)
 	    , _should_cancel(false)
 	    , _qobject_finished_success(nullptr)
@@ -131,7 +131,7 @@ class PVZoneRendering
 	// Next job when this one has been canceled
 	next_job _job_after_canceled;
 };
-}
+} // namespace PVParallelView
 
 Q_DECLARE_METATYPE(PVParallelView::PVZoneRendering_p)
 

@@ -27,6 +27,6 @@ struct PVHitGraphSSEHelpers {
 	                                        uint32_t zoom_shift,
 	                                        size_t nbits);
 };
-}
+} // namespace PVParallelView
 
 #endif

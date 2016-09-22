@@ -45,7 +45,7 @@ void PVRush::PVXmlTreeNodeDom::init(Type _type,
 	this->str = _str;
 	this->xmlDomElement = dom;
 	this->xmlFile = xmlFile_;
-	parent = 0;
+	parent = nullptr;
 	isAlreadyExplored = false;
 	isOnRoot = false;
 	_field_linear_id = -1;
@@ -76,7 +76,7 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(QDomElement const& dom)
 {
 	setTypeFromString(dom.tagName());
 	this->xmlDomElement = dom;
-	parent = 0;
+	parent = nullptr;
 	isAlreadyExplored = false;
 	isOnRoot = false;
 }
@@ -539,10 +539,10 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::addOneField(QString const& n
 	newField.appendChild(newAxisDom); // set its parent as the field
 
 	// node field
-	PVXmlTreeNodeDom* newNodeField = new PVXmlTreeNodeDom(newField); // création
-	newNodeField->setParent(this);                                   // modif du parent
+	auto newNodeField = new PVXmlTreeNodeDom(newField); // création
+	newNodeField->setParent(this);                      // modif du parent
 	// node axis (we add an axis in each field)
-	PVXmlTreeNodeDom* newAxis = new PVXmlTreeNodeDom(newAxisDom);
+	auto newAxis = new PVXmlTreeNodeDom(newAxisDom);
 	newAxis->setParent(newNodeField);
 	newAxis->setName(name);
 
@@ -587,7 +587,7 @@ void PVRush::PVXmlTreeNodeDom::delField(int n)
 void PVRush::PVXmlTreeNodeDom::addFilterRacine()
 {
 	QDomElement elt = this->xmlFile.createElement("filter"); // create the dom element
-	PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(elt);     // create the node
+	auto child = new PVXmlTreeNodeDom(elt);                  // create the node
 	child->isOnRoot = true;
 	child->setParent(this); // place the node
 	this->addChild(child);  //...
@@ -857,7 +857,7 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 
 	// Pass the resulting fields to the children
 	// TODO: AG: ugly, I know that
-	PVCore::list_fields::iterator it_f = lf_res.begin();
+	auto it_f = lf_res.begin();
 	for (size_t ichild = 0; ichild < lf_res.size(); ichild++) {
 		getChild(ichild)->getChildrenFromField(*it_f);
 		it_f++;

@@ -21,7 +21,7 @@
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -118,6 +118,6 @@ class PVHitGraphDataInterface : boost::noncopyable
 	PVHitGraphBuffer _buf_selected;
 	PVHitGraphBuffer _buf_selectable;
 };
-}
+} // namespace PVParallelView
 
 #endif

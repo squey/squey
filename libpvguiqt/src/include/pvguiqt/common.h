@@ -14,7 +14,7 @@ namespace common
 {
 
 void register_displays();
-}
-}
+} // namespace common
+} // namespace PVGuiQt
 
 #endif

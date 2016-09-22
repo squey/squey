@@ -21,7 +21,7 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title,
 	_toolbar->setObjectName("QToolBar_of_PVPresetsWidget");
 	_toolbar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	_toolbar->setIconSize(QSize(22, 22));
-	QHBoxLayout* toolbar_layout = new QHBoxLayout();
+	auto toolbar_layout = new QHBoxLayout();
 	toolbar_layout->addStretch(1);
 	toolbar_layout->addWidget(_toolbar);
 	toolbar_layout->addStretch(1);
@@ -54,9 +54,9 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title,
 	        SLOT(item_changed_Slot(QListWidgetItem*)));
 
 	// Layout
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 	main_layout->setContentsMargins(0, 0, 0, 0);
-	QVBoxLayout* group_box_layout = new QVBoxLayout();
+	auto group_box_layout = new QVBoxLayout();
 	group_box_layout->addLayout(toolbar_layout);
 	group_box_layout->addWidget(_list);
 	_group_box->setLayout(group_box_layout);
@@ -107,7 +107,7 @@ void PVWidgets::PVPresetsWidget::add_presets(const QStringList& presets)
 
 void PVWidgets::PVPresetsWidget::add_preset(const QString& preset, const QVariant& userData)
 {
-	QListWidgetItem* item = new QListWidgetItem(preset);
+	auto item = new QListWidgetItem(preset);
 	item->setData(Qt::UserRole, userData);
 	_list->addItem(item);
 	update_actions_availability();
@@ -137,7 +137,7 @@ void PVWidgets::PVPresetsWidget::save_Slot()
 	if (saveDlg.exec() == QDialog::Accepted) {
 		QString preset = saveDlg._comboBox->currentText();
 		if (is_preset_txt_new(preset)) {
-			QListWidgetItem* item = new QListWidgetItem(preset);
+			auto item = new QListWidgetItem(preset);
 			_list->addItem(item);
 			_list->sortItems();
 			_list->setCurrentItem(item);
@@ -285,13 +285,13 @@ PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*
 	}
 
 	// Layouts
-	QHBoxLayout* h_layout1 = new QHBoxLayout();
+	auto h_layout1 = new QHBoxLayout();
 	h_layout1->addWidget(label);
 	h_layout1->addWidget(_comboBox, 1);
-	QHBoxLayout* h_layout2 = new QHBoxLayout();
+	auto h_layout2 = new QHBoxLayout();
 	h_layout2->addWidget(_btn_save);
 	h_layout2->addWidget(btn_cancel);
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 	main_layout->addLayout(h_layout1);
 	main_layout->addLayout(h_layout2);
 	setLayout(main_layout);

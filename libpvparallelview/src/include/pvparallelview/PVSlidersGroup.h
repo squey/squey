@@ -50,7 +50,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	 */
 	PVSlidersGroup(PVSlidersGroup const&) = delete;
 	PVSlidersGroup(PVSlidersGroup&&) = delete;
-	~PVSlidersGroup();
+	~PVSlidersGroup() override;
 
 	PVCol get_nraw_col() const { return _nraw_col; }
 
@@ -131,6 +131,6 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	zsas_set_t _zoomed_selection_sliders;
 	zas_set_t _zoom_sliders;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSLIDERSGROUP_H

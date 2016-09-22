@@ -39,7 +39,7 @@ class PVQueryBuilder : public QWidget
 	using columns_t = std::vector<std::pair<std::string, std::string>>;
 
   public:
-	PVQueryBuilder(QWidget* parent = nullptr);
+	explicit PVQueryBuilder(QWidget* parent = nullptr);
 
   public:
 	/** Set the widget filters
@@ -77,7 +77,7 @@ class PVQueryBuilder : public QWidget
 	void reset_rules();
 
   public:
-	void setVisible(bool v);
+	void setVisible(bool v) override;
 
   private:
 	/** Execute javascript statement in a synchroneous way in the main Qt thread

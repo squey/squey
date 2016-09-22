@@ -32,7 +32,7 @@ class PVXmlParamWidgetBoardFilter : public QWidget
 	Q_OBJECT
   public:
 	PVXmlParamWidgetBoardFilter(PVRush::PVXmlTreeNodeDom* node, PVXmlParamWidget* parent);
-	virtual ~PVXmlParamWidgetBoardFilter();
+	~PVXmlParamWidgetBoardFilter() override;
 	QWidget* getWidgetToFocus();
 
   private:
@@ -64,5 +64,5 @@ class PVXmlParamWidgetBoardFilter : public QWidget
 	void signalRefreshView();
 	void signalEmitNext();
 };
-}
+} // namespace PVInspector
 #endif /* PVXMLPARAMWIDGETBOARDFILTER_H */

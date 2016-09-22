@@ -186,6 +186,6 @@ class PVHugePODVector
 	pointer _aligned_buf;
 	size_t _size;
 };
-}
+} // namespace PVCore
 
 #endif

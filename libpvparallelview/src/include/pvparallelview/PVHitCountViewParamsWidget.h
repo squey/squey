@@ -25,7 +25,7 @@ class PVHitCountViewParamsWidget : public QToolBar
 	Q_OBJECT
 
   public:
-	PVHitCountViewParamsWidget(PVHitCountView* parent);
+	explicit PVHitCountViewParamsWidget(PVHitCountView* parent);
 
   public:
 	void update_widgets();
@@ -42,6 +42,6 @@ class PVHitCountViewParamsWidget : public QToolBar
 	QSignalMapper* _signal_mapper;
 	QToolButton* _sel_mode_button;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEWPARAMSWIDGET_H

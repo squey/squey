@@ -30,12 +30,13 @@ class PVArgumentListWidget : public QWidget
 	Q_OBJECT
 
   public:
-	PVArgumentListWidget(QWidget* parent = nullptr);
-	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent = nullptr);
+	explicit PVArgumentListWidget(QWidget* parent = nullptr);
+	explicit PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
+	                              QWidget* parent = nullptr);
 	PVArgumentListWidget(QItemEditorFactory* args_widget_factory,
 	                     PVCore::PVArgumentList& args,
 	                     QWidget* parent = nullptr);
-	virtual ~PVArgumentListWidget();
+	~PVArgumentListWidget() override;
 	// bool eventFilter(QObject *obj, QEvent *event);
 	void set_args(PVCore::PVArgumentList& args);
 	void set_args_values(PVCore::PVArgumentList const& args);
@@ -84,6 +85,6 @@ class PVArgumentListWidget : public QWidget
   private:
 	bool _args_has_changed;
 };
-}
+} // namespace PVWidgets
 
 #endif

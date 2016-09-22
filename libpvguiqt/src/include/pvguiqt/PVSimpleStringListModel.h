@@ -23,7 +23,7 @@ class PVSimpleStringListModel : public PVAbstractTableModel
 	using container_type = std::map<size_t, std::string>;
 
   public:
-	PVSimpleStringListModel(container_type const& values, QObject* parent = nullptr)
+	explicit PVSimpleStringListModel(container_type const& values, QObject* parent = nullptr)
 	    : PVAbstractTableModel(values.size(), parent), _values(values)
 	{
 	}
@@ -73,6 +73,6 @@ class PVSimpleStringListModel : public PVAbstractTableModel
   private:
 	container_type const& _values;
 };
-}
+} // namespace PVGuiQt
 
 #endif // __PVQUIQT_PVSIMPLELISTSTRINGMODEL_H__

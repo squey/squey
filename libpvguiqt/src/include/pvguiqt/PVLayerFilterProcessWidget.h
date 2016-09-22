@@ -19,7 +19,7 @@
 namespace PVWidgets
 {
 class PVArgumentListWidget;
-}
+} // namespace PVWidgets
 
 namespace PVGuiQt
 {
@@ -33,7 +33,7 @@ class PVLayerFilterProcessWidget : public QDialog
 	                           PVCore::PVArgumentList& args,
 	                           Inendi::PVLayerFilter_p filter_p,
 	                           QWidget* parent = nullptr);
-	virtual ~PVLayerFilterProcessWidget();
+	~PVLayerFilterProcessWidget() override;
 
 	void change_args(PVCore::PVArgumentList const& args);
 
@@ -92,6 +92,6 @@ class PVLayerFilterProcessWidget : public QDialog
 	std::condition_variable
 	    _cv; //!< Condition variable to sync thread and message during thread execution.
 };
-}
+} // namespace PVGuiQt
 
 #endif

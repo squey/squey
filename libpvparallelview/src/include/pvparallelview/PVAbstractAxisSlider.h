@@ -40,7 +40,7 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	                     PVAxisSliderOrientation orientation = Min,
 	                     QGraphicsItem* parent_item = nullptr);
 
-	~PVAbstractAxisSlider();
+	~PVAbstractAxisSlider() override;
 
 	void set_value(int64_t v);
 
@@ -57,8 +57,9 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	bool is_moving() const { return _moving; }
 
   public:
-	void
-	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
+	void paint(QPainter* painter,
+	           const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = nullptr) override;
 
   Q_SIGNALS:
 	void slider_moved();
@@ -87,6 +88,6 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	PVAbstractAxisSliders* _owner;
 	bool _removable;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVABSTRACTAXISSLIDER_H

@@ -46,9 +46,7 @@ PVInspector::PVXmlTreeView::PVXmlTreeView(QWidget* parent) : QTreeView(parent) /
  * PVInspector::PVXmlTreeView::~PVXmlTreeView
  *
  *****************************************************************************/
-PVInspector::PVXmlTreeView::~PVXmlTreeView()
-{
-}
+PVInspector::PVXmlTreeView::~PVXmlTreeView() = default;
 
 /******************************************************************************
  *

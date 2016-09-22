@@ -31,7 +31,7 @@ void gluPerspective(double fovy, double aspect, double zNear, double zFar)
 
 QDialog* PVGuiQt::PVLogoScene::createDialog(const QString& windowTitle) const
 {
-	QDialog* dialog = new QDialog(0, Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+	auto dialog = new QDialog(nullptr, Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
 	dialog->setWindowOpacity(0.8);
 	dialog->setWindowTitle(windowTitle);
@@ -44,7 +44,7 @@ PVGuiQt::PVLogoScene::PVLogoScene()
     : m_wireframeEnabled(false)
     , m_normalsEnabled(false)
     , m_modelColor(0x78, 0x1b, 0x7d)
-    , m_model(0)
+    , m_model(nullptr)
     , m_lastTime(0)
     , m_distance(1.15f)
     , m_angularMomentum(0, 100, 0)

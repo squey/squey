@@ -83,7 +83,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 	_params_mapping->setSizePolicy(grp_params_policy);
 	_params_mapping->setSizePolicy(grp_params_policy);
 	_params_plotting->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-	QVBoxLayout* tmp_layout = new QVBoxLayout();
+	auto tmp_layout = new QVBoxLayout();
 	tmp_layout->addWidget(_params_mapping);
 	_grp_mapping->setLayout(tmp_layout);
 	tmp_layout = new QVBoxLayout();
@@ -102,9 +102,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 QVBoxLayout* PVInspector::PVXmlParamWidgetBoardAxis::createTab(const QString& title,
                                                                QTabWidget* tab)
 {
-	QWidget* tabWidget = new QWidget(tab);
+	auto tabWidget = new QWidget(tab);
 	// create the layout
-	QVBoxLayout* tabWidgetLayout = new QVBoxLayout(tabWidget);
+	auto tabWidgetLayout = new QVBoxLayout(tabWidget);
 
 	// creation of the tab
 	tabWidgetLayout->setContentsMargins(0, 0, 0, 0);
@@ -126,11 +126,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw()
 {
 
 	// alloc
-	QVBoxLayout* layoutParam = new QVBoxLayout();
+	auto layoutParam = new QVBoxLayout();
 	QVBoxLayout* tabGeneral = createTab("General", tabParam);
 	QVBoxLayout* tabParameter = createTab("Parameter", tabParam);
-	QWidget* widgetTabAndNext = new QWidget(this);
-	QHBoxLayout* layoutRoot = new QHBoxLayout(this);
+	auto widgetTabAndNext = new QWidget(this);
+	auto layoutRoot = new QHBoxLayout(this);
 
 	// general layout
 	setLayout(layoutRoot);
@@ -143,7 +143,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw()
 	layoutParam->addWidget(tabParam);
 
 	//***** tab general *****
-	QGridLayout* gridLayout = new QGridLayout();
+	auto gridLayout = new QGridLayout();
 	int i = 0;
 	// name
 	gridLayout->addWidget(new QLabel(tr("Axis name :")), i, 0);
@@ -476,8 +476,7 @@ QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListParentSplitterTag()
 	// Ok, get the tags !
 	PVFilter::PVFieldsSplitterListTags const& tags =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_tags_for_class(*filter_p);
-	for (int i = 0; i < tags.size(); i++) {
-		PVFilter::PVFieldsSplitterTag const& tag = tags.at(i);
+	for (const auto& tag : tags) {
 		ret << (QString)tag;
 	}
 
@@ -497,7 +496,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTagHelp()
 
 void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp()
 {
-	PVWidgets::PVTimeFormatHelpDlg* dlg =
-	    new PVWidgets::PVTimeFormatHelpDlg(_type_format, parentWidget());
+	auto dlg = new PVWidgets::PVTimeFormatHelpDlg(_type_format, parentWidget());
 	dlg->exec();
 }

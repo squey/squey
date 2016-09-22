@@ -63,12 +63,12 @@ class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 	/**
 	 * CTOR
 	 */
-	PVZoomableDrawingAreaWithAxes(QWidget* parent = nullptr);
+	explicit PVZoomableDrawingAreaWithAxes(QWidget* parent = nullptr);
 
 	/**
 	 * DTOR
 	 */
-	~PVZoomableDrawingAreaWithAxes();
+	~PVZoomableDrawingAreaWithAxes() override;
 
 	/**
 	 * Set the color to use when drawing scales & legends
@@ -167,6 +167,6 @@ class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 	int _x_axis_length;
 	int _y_axis_length;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAWITHAXES_H

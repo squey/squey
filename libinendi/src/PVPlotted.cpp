@@ -336,45 +336,43 @@ std::string Inendi::PVPlotted::export_line(PVRow idx,
 	return line;
 }
 
-void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
+void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize Plotting.");
 	QString name = QString::fromStdString(_name);
-	so.attribute("name", name);
+	so.attribute_write("name", name);
 
 	so.set_current_status("Serialize Plotting properties.");
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
 	int idx = 0;
-	for (PVPlottingProperties& prop : _columns) {
+	for (PVPlottingProperties const& prop : _columns) {
 		PVCore::PVSerializeObject_p new_obj = list_prop->create_object(QString::number(idx++));
 		prop.serialize_write(*new_obj);
 	}
-	so.attribute("prop_count", idx);
+	so.attribute_write("prop_count", idx);
 
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj = so.create_object("view");
 	idx = 0;
-	for (PVView* view : get_children()) {
+	for (PVView const* view : get_children()) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
 		view->serialize_write(*new_obj);
 	}
-	so.attribute("view_count", idx);
+	so.attribute_write("view_count", idx);
 }
 
 Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
                                                      Inendi::PVMapped& parent)
 {
 	so.set_current_status("Load plotting");
-	QString name;
-	so.attribute("name", name);
+	QString name = so.attribute_read<QString>("name");
 
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
 	so.set_current_status("Load plotting properties");
 	std::list<Inendi::PVPlottingProperties> columns;
-	int prop_count;
-	so.attribute("prop_count", prop_count);
+	int prop_count = so.attribute_read<int>("prop_count");
 	for (int idx = 0; idx < prop_count; idx++) {
 		PVCore::PVSerializeObject_p new_obj = list_prop->create_object(QString::number(idx));
 		columns.emplace_back(PVPlottingProperties::serialize_read(*new_obj));
@@ -385,8 +383,7 @@ Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& 
 	// Create the list of view
 	PVCore::PVSerializeObject_p list_obj = so.create_object("view");
 
-	int view_count;
-	so.attribute("view_count", view_count);
+	int view_count = so.attribute_read<int>("view_count");
 	for (int idx = 0; idx < view_count; idx++) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
 		Inendi::PVView::serialize_read(*new_obj, plotted);

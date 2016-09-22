@@ -80,7 +80,7 @@ class PVTextPopupWidget : public PVPopupWidget
 	 *
 	 * @param parent the parent QWidget
 	 */
-	PVTextPopupWidget(QWidget* parent);
+	explicit PVTextPopupWidget(QWidget* parent);
 
 	/**
 	 * set the content (which is HTML text)
@@ -180,6 +180,6 @@ class PVTextPopupWidget : public PVPopupWidget
 	int _last_expand;
 	int _last_border;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVTEXTPOPUPWIDGET_H

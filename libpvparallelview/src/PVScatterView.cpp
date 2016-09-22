@@ -42,7 +42,7 @@ namespace PVParallelView
 
 template <int STEPS>
 using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
-}
+} // namespace PVParallelView
 
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 

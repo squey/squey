@@ -245,7 +245,7 @@ class PVChunkMem : public PVChunk
 
   private:
 	explicit PVChunkMem(alloc_chunk const& a) : PVChunk(), _alloc(a) {}
-	~PVChunkMem() override {}
+	~PVChunkMem() override = default;
 
   public:
 	char* begin() const override { return (char*)(this + 1); };

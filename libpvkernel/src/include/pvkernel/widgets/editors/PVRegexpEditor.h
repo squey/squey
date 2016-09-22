@@ -23,13 +23,13 @@ class PVRegexpEditor : public QLineEdit
 	Q_PROPERTY(QRegExp _rx READ get_rx WRITE set_rx USER true)
 
   public:
-	PVRegexpEditor(QWidget* parent = 0);
-	virtual ~PVRegexpEditor();
+	explicit PVRegexpEditor(QWidget* parent = nullptr);
+	~PVRegexpEditor() override;
 
   public:
 	QRegExp get_rx() const;
 	void set_rx(QRegExp rx);
 };
-}
+} // namespace PVWidgets
 
 #endif

@@ -53,20 +53,19 @@ void Inendi::PVLinesProperties::selection_set_color(PVSelection const& selection
  * Inendi::PVLinesProperties::serialize
  *
  *****************************************************************************/
-void Inendi::PVLinesProperties::serialize_write(PVCore::PVSerializeObject& so)
+void Inendi::PVLinesProperties::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	PVRow row_count = _colors.size();
-	so.attribute("row_count", row_count);
-	so.buffer("lp_data", _colors, row_count);
+	so.attribute_write("row_count", row_count);
+	so.buffer_write("lp_data", _colors);
 }
 
 Inendi::PVLinesProperties Inendi::PVLinesProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	PVRow row_count;
-	so.attribute("row_count", row_count);
+	PVRow row_count = so.attribute_read<PVRow>("row_count");
 
 	Inendi::PVLinesProperties lp(row_count);
-	so.buffer("lp_data", lp._colors, row_count);
+	so.buffer_read("lp_data", lp._colors, row_count);
 
 	return lp;
 }

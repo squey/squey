@@ -25,16 +25,16 @@ PVCore::PVExporter::PVExporter(std::ostream& os,
                                const PVCore::PVColumnIndexes& column_indexes,
                                PVRow step_count,
                                export_func f,
-                               const std::string& sep_char /* = default_sep_char */,
-                               const std::string& quote_char /* = default_quote_char */
+                               std::string sep_char /* = default_sep_char */,
+                               std::string quote_char /* = default_quote_char */
                                )
     : _os(os)
     , _sel(sel)
     , _column_indexes(column_indexes)
     , _step_count(step_count)
-    , _sep_char(sep_char)
-    , _quote_char(quote_char)
-    , _f(f)
+    , _sep_char(std::move(sep_char))
+    , _quote_char(std::move(quote_char))
+    , _f(std::move(f))
 {
 	assert(_column_indexes.size() != 0);
 }

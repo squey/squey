@@ -37,9 +37,7 @@ PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName, QVariant var)
  * PVInspector::PVXmlParamTextEdit::~PVXmlParamTextEdit
  *
  *****************************************************************************/
-PVInspector::PVXmlParamTextEdit::~PVXmlParamTextEdit()
-{
-}
+PVInspector::PVXmlParamTextEdit::~PVXmlParamTextEdit() = default;
 
 /******************************************************************************
  *

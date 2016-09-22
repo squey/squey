@@ -19,7 +19,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -29,9 +29,9 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	Q_OBJECT
 
   public:
-	PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
-	                        Inendi::PVView* view = nullptr,
-	                        QWidget* parent = 0);
+	explicit PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
+	                                 Inendi::PVView* view = nullptr,
+	                                 QWidget* parent = nullptr);
 
   public:
 	void reset_used_axes();
@@ -63,6 +63,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	Inendi::PVAxesCombination& _axes_combination;
 	Inendi::PVView* _view;
 };
-}
+} // namespace PVGuiQt
 
 #endif

@@ -29,7 +29,7 @@ class PVAxisIndexEditor : public QComboBox
 	    PVCore::PVAxisIndexType _axis_index READ get_axis_index WRITE set_axis_index USER true)
 
   public:
-	PVAxisIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
+	explicit PVAxisIndexEditor(Inendi::PVView const& view, QWidget* parent = 0);
 
   public:
 	PVCore::PVAxisIndexType get_axis_index() const;
@@ -38,6 +38,6 @@ class PVAxisIndexEditor : public QComboBox
   protected:
 	Inendi::PVView const& _view;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVCORE_PVAXISINDEXEDITOR_H

@@ -46,7 +46,7 @@ class PVXmlParamWidget : public QWidget
 
 	PVXmlParamWidget(PVFormatBuilderWidget* parent);
 
-	virtual ~PVXmlParamWidget();
+	~PVXmlParamWidget() override;
 
 	/**
 	 * draw the filter parameter box.
@@ -136,6 +136,6 @@ class PVXmlParamWidget : public QWidget
 	void signalSelectNext();
 	void signalQuittingAParamBoard();
 };
-}
+} // namespace PVInspector
 
 #endif /* PVXMLPARAMWIDGET_H */

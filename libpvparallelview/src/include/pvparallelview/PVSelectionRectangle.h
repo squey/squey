@@ -28,7 +28,7 @@ namespace Inendi
 {
 
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -54,8 +54,9 @@ class PVSelectionRectangle : public QObject
 	static const int delay_msec;
 
   public:
-	PVSelectionRectangle(QGraphicsScene* scene);
-	virtual ~PVSelectionRectangle(){};
+	explicit PVSelectionRectangle(QGraphicsScene* scene);
+	~PVSelectionRectangle() override = default;
+	;
 
   public:
 	/**
@@ -301,6 +302,6 @@ class PVSelectionRectangle : public QObject
 	QTimer* _timer;
 	bool _use_selection_modifiers;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVWIDGETS_PVSELECTIONRECTANGLE_H

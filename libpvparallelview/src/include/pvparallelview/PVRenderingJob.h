@@ -31,7 +31,7 @@ class PVRenderingJob : public QObject
 	Q_OBJECT
 
   public:
-	PVRenderingJob(QObject* parent = nullptr) : QObject(parent) { _should_cancel = false; }
+	explicit PVRenderingJob(QObject* parent = nullptr) : QObject(parent) { _should_cancel = false; }
 
   public:
 	void cancel() { _should_cancel = true; }
@@ -47,6 +47,6 @@ class PVRenderingJob : public QObject
   protected:
 	tbb::atomic<bool> _should_cancel;
 };
-}
+} // namespace PVParallelView
 
 #endif

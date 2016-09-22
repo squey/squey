@@ -70,7 +70,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 	loop.exec();
 
 	if (layout() == nullptr) {
-		QHBoxLayout* layout = new QHBoxLayout;
+		auto layout = new QHBoxLayout;
 		setLayout(layout);
 	}
 	layout()->addWidget(_view);

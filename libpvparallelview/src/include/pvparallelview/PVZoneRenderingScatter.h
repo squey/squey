@@ -49,9 +49,12 @@ class PVZoneRenderingScatter : public PVZoneRenderingTBB
 
 	PVZoneRenderingScatter(PVZoneID zid,
 	                       PVScatterViewDataInterface& data_interface,
-	                       DataProcessParams const& params,
-	                       process_function_type const& f)
-	    : PVZoneRenderingTBB(zid), _data_interface(&data_interface), _params(params), _process(f)
+	                       DataProcessParams params,
+	                       process_function_type f)
+	    : PVZoneRenderingTBB(zid)
+	    , _data_interface(&data_interface)
+	    , _params(std::move(params))
+	    , _process(std::move(f))
 	{
 	}
 
@@ -79,6 +82,6 @@ class PVZoneRenderingScatter : public PVZoneRenderingTBB
 
 	process_function_type _process;
 };
-}
+} // namespace PVParallelView
 
 #endif

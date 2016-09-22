@@ -27,15 +27,15 @@
 namespace Inendi
 {
 class PVSource;
-}
+} // namespace Inendi
 namespace Inendi
 {
 class PVView;
-} // lines 30-30
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeArchiveOptions;
-}
+} // namespace PVCore
 
 #define INENDI_ROOT_ARCHIVE_EXT "pvi"
 #define INENDI_ROOT_ARCHIVE_FILTER "INENDI investigation files (*." INENDI_ROOT_ARCHIVE_EXT ")"
@@ -96,7 +96,7 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 
   public:
 	// Serialization
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
 	/**
 	 * Read Childs from pvi
@@ -108,7 +108,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	 *       |-> ...
 	 */
 	void serialize_read(PVCore::PVSerializeObject& so);
-	PVSERIALIZEOBJECT_SPLIT
 
   public:
 	sigc::signal<void> _scene_updated;
@@ -131,6 +130,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	QList<QRgb> _used_colors;
 	int _new_view_id = 0;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVROOT_H */

@@ -37,7 +37,7 @@ class PVZoomableDrawingAreaConstraints
 	/**
 	 * Needed virtual DTOR to compile
 	 */
-	virtual ~PVZoomableDrawingAreaConstraints() {}
+	virtual ~PVZoomableDrawingAreaConstraints() = default;
 
   public:
 	/**
@@ -115,6 +115,6 @@ class PVZoomableDrawingAreaConstraints
 		az.set_clamped_value(value);
 	}
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREACONSTRAINTS_H

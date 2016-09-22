@@ -18,7 +18,7 @@ class PVHitCountView;
 class PVHitCountViewInteractor : public PVZoomableDrawingAreaInteractor
 {
   public:
-	PVHitCountViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr);
+	explicit PVHitCountViewInteractor(PVWidgets::PVGraphicsView* parent = nullptr);
 
 	bool resizeEvent(PVZoomableDrawingArea* zda, QResizeEvent*) override;
 
@@ -29,6 +29,6 @@ class PVHitCountViewInteractor : public PVZoomableDrawingAreaInteractor
   protected:
 	static PVHitCountView* get_hit_count_view(PVZoomableDrawingArea* zda);
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEWINTERACTOR_H

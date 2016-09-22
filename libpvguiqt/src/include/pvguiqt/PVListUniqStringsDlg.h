@@ -38,6 +38,6 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 	{
 	}
 };
-}
+} // namespace PVGuiQt
 
 #endif // __PVGUIQT_PVLISTUNIQSTRINGSDLG_H__

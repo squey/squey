@@ -38,7 +38,7 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 	};
 
   public:
-	PVFullParallelViewSelectionRectangle(PVFullParallelScene* fps);
+	explicit PVFullParallelViewSelectionRectangle(PVFullParallelScene* fps);
 
   public:
 	void clear() override;
@@ -63,6 +63,6 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 	PVFullParallelScene* _fps;
 	barycenter _barycenter;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVFULLPARALLELVIEWSELECTIONSQUARE_H

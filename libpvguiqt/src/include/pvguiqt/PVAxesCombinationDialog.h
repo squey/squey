@@ -16,7 +16,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -28,7 +28,7 @@ class PVAxesCombinationDialog : public QDialog
 	Q_OBJECT
 
   public:
-	PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent = nullptr);
+	explicit PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent = nullptr);
 
   public:
 	void reset_used_axes();
@@ -48,6 +48,6 @@ class PVAxesCombinationDialog : public QDialog
   private:
 	QDialogButtonBox* _box_buttons;
 };
-}
+} // namespace PVGuiQt
 
 #endif

@@ -61,7 +61,7 @@ class PVSerializeObject
 	PVSerializeObject(QString path, PVSerializeArchive* parent_ar);
 
   public:
-	virtual ~PVSerializeObject() {}
+	virtual ~PVSerializeObject() = default;
 
   private:
 	/*! \brief Private copy-constructor
@@ -103,18 +103,6 @@ class PVSerializeObject
 
 	bool save_log_file() const;
 
-	void arguments(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
-
-	/*! \brief Declare an attribute to load/save in the 'configuration' of the object. T must be
-	 * convertible to and from a QVariant
-	 *  \param[in]     name Name of the attribute
-	 *  \param[in,out] obj  Attribute to save
-	 *  \param[in]     def  When reading, default value for obj
-	 *  This attribute will be read/saved in the 'config.ini' file associated with the object.
-	 */
-	template <class T>
-	void attribute(QString const& name, T& obj, T const& def = T());
-
 	/*! \brief Declare a list of attributes to load/save in the 'configuration' of the object. T
 	 * must be a STL-compliant container. T::value_type must be convertible to and from a QVariant.
 	 *  \param[in] name Name of the list of attributes
@@ -142,16 +130,20 @@ class PVSerializeObject
 	 *  \return The number of bytes read/written
 	 *  This will read/save the buffer pointed by buf. name is used as the underlying filename.
 	 */
-	size_t buffer(QString const& name, void* buf, size_t n);
+	size_t buffer_read(QString const& name, void* buf, size_t n);
+	size_t buffer_write(QString const& name, void const* buf, size_t n);
 
 	template <typename T>
-	size_t buffer(QString const& name, std::vector<T>& buf, size_t n)
+	size_t buffer_read(QString const& name, std::vector<T>& buf, size_t n)
 	{
-		if (not is_writing()) {
-			buf.resize(n);
-		}
+		buf.resize(n);
+		return buffer_read(name, buf.data(), n * sizeof(T));
+	}
 
-		return buffer(name, buf.data(), n * sizeof(T));
+	template <typename T>
+	size_t buffer_write(QString const& name, std::vector<T> const& buf)
+	{
+		return buffer_write(name, buf.data(), buf.size() * sizeof(T));
 	}
 
 	/*! \brief Include an existing file, given its path.
@@ -159,23 +151,29 @@ class PVSerializeObject
 	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted
 	 * file path.
 	 */
-	void file(QString const& name, QString& path);
+	QString file_read(QString const& name);
+	void file_write(QString const& name, QString const& path);
 
 	p_type create_object(QString const& name);
 	uint32_t get_version() const;
 
 	void attribute_write(QString const& name, QVariant const& obj);
-	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
+	template <class T>
+	T attribute_read(QString const& name)
+	{
+		return attribute_reader(name).value<T>();
+	}
 
 	bool is_repaired_error() const;
 	std::string const& get_repaired_value() const;
 
+	void arguments_write(QString const& name, PVArgumentList const& obj);
+	void arguments_read(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
+
   private:
+	QVariant attribute_reader(QString const& name);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
-	void hash_arguments_write(QString const& name, PVArgumentList const& obj);
-	void
-	hash_arguments_read(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 
 	template <typename T>
 	void call_serialize(T& obj, p_type new_obj)
@@ -203,18 +201,6 @@ void PVSerializeObject::object(QString const& name, T& obj)
 {
 	p_type new_obj = create_object(name);
 	call_serialize(obj, new_obj);
-}
-
-template <class T>
-void PVSerializeObject::attribute(QString const& name, T& obj, T const& def)
-{
-	if (is_writing()) {
-		attribute_write(name, QVariant(obj));
-	} else {
-		QVariant v;
-		attribute_read(name, v, QVariant(def));
-		obj = v.value<T>();
-	}
 }
 
 template <class T>
@@ -246,12 +232,5 @@ void PVSerializeObject::list_attributes(QString const& name, T& obj, F const& va
 	}
 }
 } // namespace PVCore
-
-// Conveniance macros
-#define PVSERIALIZEOBJECT_SPLIT                                                                    \
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)     \
-	{                                                                                              \
-		so.split(*this);                                                                           \
-	}
 
 #endif

@@ -35,12 +35,12 @@ class PVXmlTimeValidatorHighLight : public QSyntaxHighlighter
 	 * @param pRegStr
 	 */
 	void setDateFormat(const QStringList& pFormatStr);
-	virtual ~PVXmlTimeValidatorHighLight();
+	~PVXmlTimeValidatorHighLight() override;
 	/**
 	 * Function subclass to define highlighting rules.
 	 * @param
 	 */
-	virtual void highlightBlock(const QString&);
+	void highlightBlock(const QString&) override;
 
   private:
 	PVXmlParamTextEdit* aParent;

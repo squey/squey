@@ -37,9 +37,7 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget* parent)
  * PVInspector::PVXmlDomModel::~PVXmlDomModel
  *
  *****************************************************************************/
-PVInspector::PVXmlDomModel::~PVXmlDomModel()
-{
-}
+PVInspector::PVXmlDomModel::~PVXmlDomModel() = default;
 
 /******************************************************************************
  *
@@ -632,7 +630,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 			field->getDom().appendChild(newDom);
 
 			// tree
-			PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+			auto child = new PVRush::PVXmlTreeNodeDom(newDom);
 
 			child->setParent(field);
 			field->addChild(child);
@@ -649,7 +647,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 		rootNode->getDom().appendChild(newDom);
 		//
 		//        //tree
-		PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+		auto child = new PVRush::PVXmlTreeNodeDom(newDom);
 		child->setParent(getRoot());
 		rootNode->addChild(child);
 	}

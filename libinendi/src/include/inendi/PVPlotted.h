@@ -36,19 +36,19 @@
 namespace Inendi
 {
 class PVMapped;
-} // lines 40-40
+} // namespace Inendi
 namespace Inendi
 {
 class PVSelection;
-} // lines 33-33
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVNraw;
-} // lines 29-29
+} // namespace PVRush
 
 namespace Inendi
 {
@@ -76,7 +76,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	typedef std::vector<PVRow> rows_vector_t;
 
   public:
-	PVPlotted(PVMapped& mapped, std::string const& name = "default");
+	explicit PVPlotted(PVMapped& mapped, std::string const& name = "default");
 	PVPlotted(PVMapped& mapped,
 	          std::list<Inendi::PVPlottingProperties>&& column,
 	          std::string const& name = "default");
@@ -86,7 +86,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 
   public:
 	// Serialization
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Inendi::PVPlotted& serialize_read(PVCore::PVSerializeObject& so,
 	                                         Inendi::PVMapped& parent);
 
@@ -248,6 +248,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	std::list<PVPlottingProperties> _columns;
 	std::string _name;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVPLOTTED_H */

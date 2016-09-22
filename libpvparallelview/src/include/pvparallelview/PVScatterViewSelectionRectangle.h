@@ -20,7 +20,7 @@ class PVScatterView;
 class PVScatterViewSelectionRectangle : public PVSelectionRectangle
 {
   public:
-	PVScatterViewSelectionRectangle(PVScatterView* sv);
+	explicit PVScatterViewSelectionRectangle(PVScatterView* sv);
 
   public:
 	void set_plotteds(const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows);
@@ -36,6 +36,6 @@ class PVScatterViewSelectionRectangle : public PVSelectionRectangle
 	PVRow _nrows;
 	PVScatterView* _sv;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSCATTERVIEWSELECTIONSQUARE_H

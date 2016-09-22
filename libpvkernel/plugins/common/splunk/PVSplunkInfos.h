@@ -17,12 +17,6 @@ namespace PVRush
 
 class PVSplunkInfos
 {
-	friend class PVCore::PVSerializeObject;
-
-  public:
-	PVSplunkInfos();
-	PVSplunkInfos(PVSplunkInfos const& infos);
-
   public:
 	void set_host(QString const& host) { _host = host; }
 	void set_port(uint16_t port) { _port = port; }
@@ -49,10 +43,10 @@ class PVSplunkInfos
 		       _splunk_host == o._splunk_host && _splunk_sourcetype == o._splunk_sourcetype;
 	}
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
+	static PVSplunkInfos serialize_read(PVCore::PVSerializeObject& so);
 
-  protected:
+  private:
 	QString _host;
 	uint16_t _port;
 	QString _login;

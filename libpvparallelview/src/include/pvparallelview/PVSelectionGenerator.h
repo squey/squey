@@ -16,7 +16,7 @@ namespace Inendi
 {
 class PVSelection;
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -64,7 +64,8 @@ uint32_t compute_selection_from_plotteds_ranges(const uint32_t* y1_plotted,
 void process_selection(Inendi::PVView& view,
                        Inendi::PVSelection const& sel,
                        bool use_modifiers = true);
-};
+} // namespace PVSelectionGenerator
+;
 
 namespace __impl
 {
@@ -88,7 +89,7 @@ compute_selection_from_hit_count_view_rect_sse_invariant_omp(const PVHitGraphBlo
                                                              const uint32_t max_count,
                                                              Inendi::PVSelection& sel,
                                                              bool use_selectable);
-}
-}
+} // namespace __impl
+} // namespace PVParallelView
 
 #endif /* PVSELECTIONGENERATOR_H_ */

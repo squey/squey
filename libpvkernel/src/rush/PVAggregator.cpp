@@ -144,10 +144,10 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 		}
 
 		PVCore::list_elts& elts = ret->elements();
-		PVCore::list_elts::iterator it_elt = elts.begin();
+		auto it_elt = elts.begin();
 		for (chunk_index i = 0; i < nelts_remove; i++) {
 			PVCore::PVElement::free(*it_elt);
-			PVCore::list_elts::iterator it_er = it_elt;
+			auto it_er = it_elt;
 			it_elt++;
 			elts.erase(it_er);
 		}
@@ -167,7 +167,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 		if (_begin_of_input) {
 			PVCore::list_elts& elts = ret->elements();
 			for (size_t i = 0; i < _skip_lines_count; ++i) {
-				PVCore::list_elts::iterator it = elts.begin();
+				auto it = elts.begin();
 				PVCore::PVElement::free(*it);
 				elts.erase(it);
 			}
@@ -185,7 +185,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 		// TODO: profile this.
 		chunk_index nstart_rem = _nend + 1 - ret->_agg_index;
 		PVCore::list_elts& elts = ret->elements();
-		PVCore::list_elts::iterator it_elt = elts.begin();
+		auto it_elt = elts.begin();
 		// Go to the nstart_rem ith element
 		for (chunk_index i = 0; i < nstart_rem; i++) {
 			it_elt++;
@@ -194,7 +194,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 		// And remove them all till the end
 		while (it_elt != elts.end()) {
 			PVCore::PVElement::free(*it_elt);
-			PVCore::list_elts::iterator it_er = it_elt;
+			auto it_er = it_elt;
 			it_elt++;
 			elts.erase(it_er);
 		}

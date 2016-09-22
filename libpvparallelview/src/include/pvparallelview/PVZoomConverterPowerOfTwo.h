@@ -27,6 +27,6 @@ class PVZoomConverterPowerOfTwo : public PVZoomConverter
 
 	qreal zoom_to_scale(const int value) const override { return pow(2.0, value); }
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMCONVERTERPOWEROFTWO_H

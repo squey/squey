@@ -23,7 +23,7 @@ namespace Inendi
 {
 class PVMapped;
 class PVPlotted;
-}
+} // namespace Inendi
 
 namespace PVWidgets
 {
@@ -60,6 +60,6 @@ class PVMappingPlottingEditDialog : public QDialog
 	Inendi::PVPlotted* _plotting;
 	QList<PVRush::PVAxisFormat> const& _axes;
 };
-}
+} // namespace PVWidgets
 
 #endif

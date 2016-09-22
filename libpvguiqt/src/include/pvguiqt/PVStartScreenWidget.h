@@ -30,7 +30,7 @@ namespace __impl
 {
 class PVListWidgetItem;
 class PVDeleteInvestigationDialog;
-}
+} // namespace __impl
 
 class PVStartScreenWidget;
 
@@ -52,7 +52,7 @@ class PVStartScreenWidget : public QWidget, public sigc::trackable
 	typedef QListWidget custom_listwidget_t;
 
   public:
-	PVStartScreenWidget(QWidget* parent = 0);
+	explicit PVStartScreenWidget(QWidget* parent = nullptr);
 
   public:
 	/*! \brief Refresh the recent items of all categories.
@@ -157,7 +157,7 @@ class PVDeleteInvestigationDialog : public QDialog
 	Q_OBJECT
 
   public:
-	PVDeleteInvestigationDialog(PVStartScreenWidget* parent);
+	explicit PVDeleteInvestigationDialog(PVStartScreenWidget* parent);
 
   public:
 	bool clear_history() { return _clear_history_cb->isChecked(); }
@@ -180,7 +180,7 @@ class PVDeleteInvestigationDialog : public QDialog
 	bool _old_clear_history_state;
 	bool _old_remove_cache_state;
 };
-}
+} // namespace __impl
 
 template <PVCore::Category category>
 void PVStartScreenWidget::refresh_recent_items()
@@ -246,6 +246,6 @@ void PVStartScreenWidget::clear_history_dlg()
 		clear_history<category>();
 	}
 }
-}
+} // namespace PVGuiQt
 
 #endif // PVSTARTSCREENWIDGET_H

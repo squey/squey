@@ -31,7 +31,8 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 
   public:
 	PVRawSourceBase();
-	~PVRawSourceBase() override{};
+	~PVRawSourceBase() override = default;
+	;
 	PVRawSourceBase(const PVRawSourceBase& src) = delete;
 
   public:

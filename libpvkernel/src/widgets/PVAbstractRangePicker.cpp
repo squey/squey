@@ -371,7 +371,7 @@ PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(const double& min_limit,
 {
 	setContentsMargins(2, 2, 2, 2);
 
-	QVBoxLayout* vl = new QVBoxLayout;
+	auto vl = new QVBoxLayout;
 	vl->setContentsMargins(0, 0, 0, 0);
 	vl->setSpacing(0);
 	setLayout(vl);
@@ -381,7 +381,7 @@ PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(const double& min_limit,
 
 	connect_ranges_to_spinboxes();
 
-	QHBoxLayout* hl = new QHBoxLayout;
+	auto hl = new QHBoxLayout;
 	hl->setContentsMargins(RAMP_MARGIN, SPINBOX_TOP_MARGIN, RAMP_MARGIN, 0);
 	hl->setSpacing(0);
 	vl->addLayout(hl);

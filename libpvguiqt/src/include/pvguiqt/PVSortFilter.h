@@ -17,7 +17,7 @@ namespace PVGuiQt
 class PVSortFilter
 {
   public:
-	PVSortFilter(size_t row_count)
+	explicit PVSortFilter(size_t row_count)
 	    : _filter(row_count)
 	    , _sort(row_count)
 	    , _sorted_column(PVCOL_INVALID_VALUE)
@@ -104,6 +104,6 @@ class PVSortFilter
 	PVCol _sorted_column;      //!< The current sorted column
 	Qt::SortOrder _sort_order; //!< The sort order of the current sorted column
 };
-}
+} // namespace PVGuiQt
 
 #endif

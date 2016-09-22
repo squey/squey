@@ -15,6 +15,6 @@ namespace PVParallelView
 
 class PVZoneRenderingScatter;
 typedef std::shared_ptr<PVZoneRenderingScatter> PVZoneRenderingScatter_p;
-}
+} // namespace PVParallelView
 
 #endif

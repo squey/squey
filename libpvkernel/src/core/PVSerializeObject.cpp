@@ -11,7 +11,7 @@
 #include <algorithm> // for move
 
 PVCore::PVSerializeObject::PVSerializeObject(QString path, PVSerializeArchive* parent_ar)
-    : _parent_ar(parent_ar), _logical_path(path)
+    : _parent_ar(parent_ar), _logical_path(std::move(path))
 {
 }
 
@@ -46,14 +46,24 @@ std::string const& PVCore::PVSerializeObject::get_repaired_value() const
 	return _parent_ar->get_repaired_value();
 }
 
-size_t PVCore::PVSerializeObject::buffer(QString const& name, void* buf, size_t n)
+size_t PVCore::PVSerializeObject::buffer_read(QString const& name, void* buf, size_t n)
 {
-	return _parent_ar->buffer(*this, name, buf, n);
+	return _parent_ar->buffer_read(*this, name, buf, n);
 }
 
-void PVCore::PVSerializeObject::file(QString const& name, QString& path)
+size_t PVCore::PVSerializeObject::buffer_write(QString const& name, void const* buf, size_t n)
 {
-	_parent_ar->file(*this, name, path);
+	return _parent_ar->buffer_write(*this, name, buf, n);
+}
+
+QString PVCore::PVSerializeObject::file_read(QString const& name)
+{
+	return _parent_ar->file_read(*this, name);
+}
+
+void PVCore::PVSerializeObject::file_write(QString const& name, QString const& path)
+{
+	_parent_ar->file_write(*this, name, path);
 }
 
 void PVCore::PVSerializeObject::attribute_write(QString const& name, QVariant const& obj)
@@ -61,11 +71,9 @@ void PVCore::PVSerializeObject::attribute_write(QString const& name, QVariant co
 	_parent_ar->attribute_write(*this, name, obj);
 }
 
-void PVCore::PVSerializeObject::attribute_read(QString const& name,
-                                               QVariant& obj,
-                                               QVariant const& def)
+QVariant PVCore::PVSerializeObject::attribute_reader(QString const& name)
 {
-	_parent_ar->attribute_read(*this, name, obj, def);
+	return _parent_ar->attribute_read(*this, name);
 }
 
 void PVCore::PVSerializeObject::list_attributes_write(QString const& name,
@@ -80,14 +88,14 @@ void PVCore::PVSerializeObject::list_attributes_read(QString const& name,
 	_parent_ar->list_attributes_read(*this, name, list);
 }
 
-void PVCore::PVSerializeObject::hash_arguments_write(QString const& name, PVArgumentList const& obj)
+void PVCore::PVSerializeObject::arguments_write(QString const& name, PVArgumentList const& obj)
 {
 	_parent_ar->hash_arguments_write(*this, name, obj);
 }
 
-void PVCore::PVSerializeObject::hash_arguments_read(QString const& name,
-                                                    PVArgumentList& obj,
-                                                    PVArgumentList const& def_args)
+void PVCore::PVSerializeObject::arguments_read(QString const& name,
+                                               PVArgumentList& obj,
+                                               PVArgumentList const& def_args)
 {
 	_parent_ar->hash_arguments_read(*this, name, obj, def_args);
 }
@@ -100,15 +108,4 @@ QString const& PVCore::PVSerializeObject::get_logical_path() const
 void PVCore::PVSerializeObject::set_current_status(std::string const& s)
 {
 	_parent_ar->set_current_status(s);
-}
-
-void PVCore::PVSerializeObject::arguments(QString const& name,
-                                          PVArgumentList& obj,
-                                          PVArgumentList const& def_args)
-{
-	if (is_writing()) {
-		hash_arguments_write(name, obj);
-	} else {
-		hash_arguments_read(name, obj, def_args);
-	}
 }

@@ -40,7 +40,7 @@ class PVPopupWidget : public QWidget
 	 *
 	 * @param parent the parent QWidget
 	 */
-	PVPopupWidget(QWidget* parent);
+	explicit PVPopupWidget(QWidget* parent);
 
   public:
 	/**
@@ -79,6 +79,6 @@ class PVPopupWidget : public QWidget
 	 */
 	void mouseMoveEvent(QMouseEvent* event) override;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVPOPUPWIDGET_H

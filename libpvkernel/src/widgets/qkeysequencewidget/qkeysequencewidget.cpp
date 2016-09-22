@@ -269,9 +269,7 @@ PVWidgets::QKeySequenceWidgetPrivate::QKeySequenceWidgetPrivate()
 	Q_UNUSED(q);
 }
 
-PVWidgets::QKeySequenceWidgetPrivate::~QKeySequenceWidgetPrivate()
-{
-}
+PVWidgets::QKeySequenceWidgetPrivate::~QKeySequenceWidgetPrivate() = default;
 
 void PVWidgets::QKeySequenceWidgetPrivate::init(const QKeySequence keySeq, const QString noneStr)
 {

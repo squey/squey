@@ -27,7 +27,7 @@ PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString&
 {
 	setWindowTitle(title);
 
-	QVBoxLayout* vlayout = new QVBoxLayout();
+	auto vlayout = new QVBoxLayout();
 	setLayout(vlayout);
 
 	// the explaination text
@@ -40,7 +40,7 @@ PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString&
 	vlayout->addWidget(_line_edit);
 
 	// the placement choice
-	QHBoxLayout* hlayout = new QHBoxLayout();
+	auto hlayout = new QHBoxLayout();
 	vlayout->addLayout(hlayout);
 
 	label = new QLabel("placement:");
@@ -54,8 +54,7 @@ PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString&
 	hlayout->addWidget(_combo_box);
 
 	// the button box
-	QDialogButtonBox* button_box =
-	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(button_box, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(button_box, SIGNAL(rejected()), this, SLOT(reject()));
 

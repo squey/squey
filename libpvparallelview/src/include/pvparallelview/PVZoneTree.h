@@ -40,7 +40,7 @@ class TBBMergeTreesTask;
 class TBBCreateTreeTask;
 class TBBComputeAllocSizeAndFirstElts;
 class TBBSelFilterMaxCount;
-}
+} // namespace __impl
 
 struct PVZoneProcessing;
 
@@ -69,7 +69,7 @@ class PVZoneTree : public PVZoneTreeBase
 		friend class __impl::TBBMergeTreesTask;
 		friend class __impl::TBBComputeAllocSizeAndFirstElts;
 
-		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number())
+		explicit ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number())
 		    : ntasks(n)
 		{
 			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t) * ntasks +
@@ -153,7 +153,7 @@ class PVZoneTree : public PVZoneTreeBase
 
   public:
 	PVZoneTree();
-	virtual ~PVZoneTree()
+	~PVZoneTree() override
 	{
 		if (_tree_data) {
 			PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, 0);
@@ -216,6 +216,6 @@ class PVZoneTree : public PVZoneTreeBase
 };
 
 typedef PVZoneTree::p_type PVZoneTree_p;
-}
+} // namespace PVParallelView
 
 #endif

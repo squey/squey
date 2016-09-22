@@ -19,9 +19,7 @@ PVParallelView::PVHitGraphDataInterface::PVHitGraphDataInterface(uint32_t nbits,
 	buffer_selectable().set_zero();
 }
 
-PVParallelView::PVHitGraphDataInterface::~PVHitGraphDataInterface()
-{
-}
+PVParallelView::PVHitGraphDataInterface::~PVHitGraphDataInterface() = default;
 
 void PVParallelView::PVHitGraphDataInterface::shift_left(const uint32_t n, const double alpha)
 {

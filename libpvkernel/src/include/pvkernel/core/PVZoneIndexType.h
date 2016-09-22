@@ -25,13 +25,13 @@ class PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
 	/**
 	 * Constructor
 	 */
-	PVZoneIndexType(int zone_index = 0) : _zone_index(zone_index) {}
+	explicit PVZoneIndexType(int zone_index = 0) : _zone_index(zone_index) {}
 
 	int get_zone_index() const { return _zone_index; }
 
-	QString to_string() const { return QString::number(get_zone_index()); }
+	QString to_string() const override { return QString::number(get_zone_index()); }
 
-	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{
 		PVArgument arg;
 		bool res_ok;
@@ -57,7 +57,7 @@ class PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
   protected:
 	int _zone_index;
 };
-}
+} // namespace PVCore
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVZoneIndexType)

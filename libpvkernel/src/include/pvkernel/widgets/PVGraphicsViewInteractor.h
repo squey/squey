@@ -28,7 +28,7 @@ class PVGraphicsViewInteractorBase : public QObject
 	virtual bool call(QObject* obj, QEvent* event) = 0;
 
   protected:
-	PVGraphicsViewInteractorBase(PVGraphicsView* parent);
+	explicit PVGraphicsViewInteractorBase(PVGraphicsView* parent);
 };
 
 /*! \brief Template class that defines an interactor for a PVGraphicsView-based class.
@@ -53,9 +53,11 @@ class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
 	friend class PVGraphicsView;
 
   protected:
-	PVGraphicsViewInteractor(PVGraphicsView* parent) : PVGraphicsViewInteractorBase(parent) {}
+	explicit PVGraphicsViewInteractor(PVGraphicsView* parent) : PVGraphicsViewInteractorBase(parent)
+	{
+	}
 
-	virtual ~PVGraphicsViewInteractor() {}
+	~PVGraphicsViewInteractor() override = default;
 
   protected:
 	/*! \brief Called when a cotnext menu event has occured.
@@ -179,6 +181,6 @@ class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
 		return false;
 	}
 };
-}
+} // namespace PVWidgets
 
 #endif

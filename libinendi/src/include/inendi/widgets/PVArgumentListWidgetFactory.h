@@ -13,7 +13,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVWidgets
 {
@@ -23,7 +23,7 @@ namespace PVArgumentListWidgetFactory
 
 QItemEditorFactory* create_layer_widget_factory(Inendi::PVView const& view);
 QItemEditorFactory* create_mapping_plotting_widget_factory();
-}
-}
+} // namespace PVArgumentListWidgetFactory
+} // namespace PVWidgets
 
 #endif

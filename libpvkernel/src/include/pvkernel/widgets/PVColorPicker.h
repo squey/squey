@@ -26,8 +26,8 @@ class PVColorPicker : public QWidget
 	typedef enum { SelectionSingle, SelectionInterval } SelectionMode;
 
   public:
-	PVColorPicker(QWidget* parent = nullptr);
-	PVColorPicker(PVCore::PVHSVColor const& c, QWidget* parent = nullptr);
+	explicit PVColorPicker(QWidget* parent = nullptr);
+	explicit PVColorPicker(PVCore::PVHSVColor const& c, QWidget* parent = nullptr);
 
   public:
 	inline uint8_t x0() const { return _x0; }
@@ -94,6 +94,6 @@ class PVColorPicker : public QWidget
 	SelectionMode _mode;
 	bool _allow_empty_interval;
 };
-}
+} // namespace PVWidgets
 
 #endif

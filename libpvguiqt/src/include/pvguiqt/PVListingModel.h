@@ -23,7 +23,7 @@
 namespace tbb
 {
 class task_group_context;
-}
+} // namespace tbb
 
 namespace PVGuiQt
 {
@@ -65,7 +65,7 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	 * record, every view will be updated on listing model modification.
 	 *
 	 */
-	PVListingModel(Inendi::PVView& view, QObject* parent = nullptr);
+	explicit PVListingModel(Inendi::PVView& view, QObject* parent = nullptr);
 
 	/**
 	 * Return data requested by the View
@@ -146,6 +146,6 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
   private:
 	Inendi::PVView const& _view; //!< Observed view
 };
-}
+} // namespace PVGuiQt
 
 #endif

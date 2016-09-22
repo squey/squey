@@ -29,24 +29,23 @@ QString PVRush::PVSplunkQuery::human_name() const
 	return QString("Splunk");
 }
 
-void PVRush::PVSplunkQuery::serialize_write(PVCore::PVSerializeObject& so)
+void PVRush::PVSplunkQuery::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize Splunk information.");
-	so.attribute("query", _query);
-	so.attribute("query_type", _query_type);
-	so.object("server", _infos);
+	so.attribute_write("query", _query);
+	so.attribute_write("query_type", _query_type);
+	_infos.serialize_write(*so.create_object("server"));
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Searching for Splunk informations.");
-	QString query;
-	so.attribute("query", query);
-	QString query_type;
-	so.attribute("query_type", query_type);
-	PVSplunkInfos infos;
-	so.object("server", infos);
+
+	QString query = so.attribute_read<QString>("query");
+	QString query_type = so.attribute_read<QString>("query_type");
+	PVSplunkInfos infos = PVSplunkInfos::serialize_read(*so.create_object("server"));
+
 	return std::unique_ptr<PVSplunkQuery>(new PVSplunkQuery(infos, query, query_type));
 }
 

@@ -45,7 +45,7 @@ class PVSelectionRectangleItem : public QGraphicsObject
 	static constexpr qreal GROW_STEP_RATIO = 1.2;
 
   public:
-	PVSelectionRectangleItem(const QRectF& rect = QRectF(), QGraphicsItem* parent = nullptr);
+	explicit PVSelectionRectangleItem(QRectF rect = QRectF(), QGraphicsItem* parent = nullptr);
 
   public:
 	/**
@@ -317,6 +317,6 @@ class PVSelectionRectangleItem : public QGraphicsObject
 	qreal _y_max_value;
 	SelectionMode _sel_mode;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVWIDGETS_PVSELECTIONRECTANGLEITEM_H

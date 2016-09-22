@@ -40,7 +40,7 @@ class PVBCIBackendImageOpenCL : public PVParallelView::PVBCIBackendImage
 	PVBCIBackendImageOpenCL(const PVBCIBackendImageOpenCL&) = delete;
 	PVBCIBackendImageOpenCL(PVBCIBackendImageOpenCL&&) = delete;
 
-	~PVBCIBackendImageOpenCL();
+	~PVBCIBackendImageOpenCL() override;
 
   public:
 	inline int index() const { return _index; }

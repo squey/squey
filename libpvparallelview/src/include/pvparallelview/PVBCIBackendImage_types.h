@@ -18,6 +18,6 @@ typedef std::shared_ptr<PVBCIBackendImage> PVBCIBackendImage_p;
 
 // template <size_t Bbits>
 // using PVBCIBackendImage_p = std::shared_ptr<PVBCIBackendImage<Bbits> >;
-}
+} // namespace PVParallelView
 
 #endif

@@ -15,7 +15,7 @@ namespace Inendi
 {
 class PVScene;
 class PVRoot;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -35,6 +35,6 @@ class PVImportSourceToProjectDlg : public QDialog
   private:
 	QComboBox* _combo_box;
 };
-}
+} // namespace PVGuiQt
 
 #endif /* __PVGUIQT_PVIMPORTSOURCETOPROJECTDLG_H__ */

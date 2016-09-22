@@ -54,12 +54,12 @@ class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 	/**
 	 * The Constructor
 	 */
-	PVZoomableDrawingArea(QWidget* parent = nullptr);
+	explicit PVZoomableDrawingArea(QWidget* parent = nullptr);
 
 	/**
 	 * The Destructor :-)
 	 */
-	~PVZoomableDrawingArea();
+	~PVZoomableDrawingArea() override;
 
   protected:
 	bool set_zoom_value(int axes, int value)
@@ -174,6 +174,6 @@ class PVZoomableDrawingArea : public PVWidgets::PVGraphicsView
 
 	PVZoomableDrawingAreaConstraints* _constraints;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREA_H

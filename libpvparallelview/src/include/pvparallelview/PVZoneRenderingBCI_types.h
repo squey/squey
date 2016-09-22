@@ -23,6 +23,6 @@ class PVZoneRenderingBCI;
 
 template <size_t Bbits>
 using PVZoneRenderingBCI_p = std::shared_ptr<PVZoneRenderingBCI<Bbits>>;
-}
+} // namespace PVParallelView
 
 #endif

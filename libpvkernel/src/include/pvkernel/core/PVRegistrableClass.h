@@ -175,7 +175,7 @@ unsigned int qHash(PVRegistrableClass<T> const& rc)
   protected:                                                                                       \
 	T::base_registrable* _clone_me() const override                                                \
 	{                                                                                              \
-		T* ret = new T(*this);                                                                     \
+		auto ret = new T(*this);                                                                   \
 		return ret;                                                                                \
 	}
 
@@ -186,7 +186,7 @@ unsigned int qHash(PVRegistrableClass<T> const& rc)
   protected:                                                                                       \
 	T::base_registrable* _clone_me() const override                                                \
 	{                                                                                              \
-		T* ret = new T();                                                                          \
+		auto ret = new T();                                                                        \
 		ret->__registered_class_name = __registered_class_name;                                    \
 		ret->__registered_class_id = __registered_class_id;                                        \
 		return ret;                                                                                \

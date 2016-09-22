@@ -34,6 +34,6 @@ class PVSelectionRectangleInteractor
   private:
 	PVParallelView::PVSelectionRectangle* _selection_rectangle;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVSELECTIONRECTANGLEINTERACTOR_H

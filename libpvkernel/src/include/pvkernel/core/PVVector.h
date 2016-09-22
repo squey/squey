@@ -25,7 +25,7 @@ class PVVector
 
 	PVVector() : _array(0), _size(0), _index(0) {}
 
-	PVVector(const unsigned size) : _array(0), _index(0)
+	explicit PVVector(const unsigned size) : _array(0), _index(0)
 	{
 		if (size != 0) {
 			reallocate(size);
@@ -119,6 +119,6 @@ class PVVector
 	unsigned _size;
 	unsigned _index;
 };
-}
+} // namespace PVCore
 
 #endif // PVCORE_PVVECTOR_H

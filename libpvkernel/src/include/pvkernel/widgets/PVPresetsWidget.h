@@ -28,7 +28,7 @@ namespace PVWidgets
 namespace __impl
 {
 class PVPresetsListWidget;
-}
+} // namespace __impl
 
 class PVPresetsWidget : public QWidget
 {
@@ -37,7 +37,9 @@ class PVPresetsWidget : public QWidget
 	friend class PVSavePresetAsDialog;
 
   public:
-	PVPresetsWidget(const QString& title, QWidget* parent = 0, Qt::WindowFlags f = 0);
+	explicit PVPresetsWidget(const QString& title,
+	                         QWidget* parent = nullptr,
+	                         Qt::WindowFlags f = nullptr);
 
   public Q_SLOTS:
 	void load_Slot();
@@ -85,11 +87,11 @@ namespace __impl
 class PVPresetsListWidget : public QListWidget
 {
   public:
-	PVPresetsListWidget(PVWidgets::PVPresetsWidget* parent) : QListWidget((QWidget*)parent)
+	explicit PVPresetsListWidget(PVWidgets::PVPresetsWidget* parent) : QListWidget((QWidget*)parent)
 	{
 		_parent = parent;
 	}
-	void keyPressEvent(QKeyEvent* event)
+	void keyPressEvent(QKeyEvent* event) override
 	{
 		if (event->key() == Qt::Key_F2) {
 			_parent->rename_Slot();
@@ -98,12 +100,12 @@ class PVPresetsListWidget : public QListWidget
 		}
 	}
 
-	QSize sizeHint() const { return QSize(0, 42); }
+	QSize sizeHint() const override { return QSize(0, 42); }
 
   private:
 	PVWidgets::PVPresetsWidget* _parent;
 };
-}
+} // namespace __impl
 
 class PVSavePresetAsDialog : public QDialog
 {
@@ -113,7 +115,7 @@ class PVSavePresetAsDialog : public QDialog
 	friend class PVPresetsWidget;
 
   public:
-	PVSavePresetAsDialog(PVPresetsWidget* parent = 0, Qt::WindowFlags f = 0);
+	explicit PVSavePresetAsDialog(PVPresetsWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
 
   public Q_SLOTS:
 	void save_Slot();
@@ -124,6 +126,6 @@ class PVSavePresetAsDialog : public QDialog
 	PVPresetsWidget* _parent;
 	QPushButton* _btn_save;
 };
-}
+} // namespace PVWidgets
 
 #endif /* PVPRESETSWIDGET_H_ */

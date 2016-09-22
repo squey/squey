@@ -28,7 +28,7 @@ class PVBCIBackendImage
 	PVBCIBackendImage(PVBCIBackendImage&&) = delete;
 	PVBCIBackendImage& operator=(PVBCIBackendImage&&) = delete;
 	PVBCIBackendImage& operator=(PVBCIBackendImage const&) = delete;
-	virtual ~PVBCIBackendImage() {}
+	virtual ~PVBCIBackendImage() = default;
 
   public:
 	inline QImage qimage() const { return qimage(height()); }
@@ -48,6 +48,6 @@ class PVBCIBackendImage
 	uint32_t _width;
 	uint8_t _height_bits;
 };
-}
+} // namespace PVParallelView
 
 #endif

@@ -82,7 +82,7 @@ struct constants {
 	static const constexpr size_t image_height = ((uint32_t)1) << Bbits;
 	static const constexpr size_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
 };
-}
+} // namespace PVParallelView
 
 //#include <pvkernel/core/PVAllocators.h>
 

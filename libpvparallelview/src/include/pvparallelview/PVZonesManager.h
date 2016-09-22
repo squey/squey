@@ -23,7 +23,7 @@ namespace Inendi
 {
 class PVView;
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -31,7 +31,7 @@ namespace PVParallelView
 namespace __impl
 {
 class ZoneCreation;
-}
+} // namespace __impl
 
 class PVZonesManager : public QObject
 {
@@ -111,6 +111,6 @@ class PVZonesManager : public QObject
 	// _axes_comb is copied to handle update once the axes_combination have been update in the view.
 	std::vector<PVZone> _zones;
 };
-}
+} // namespace PVParallelView
 
 #endif

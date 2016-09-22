@@ -158,7 +158,7 @@ inline void toggle_show_bboxes()
 }
 
 #endif
-}
-}
+} // namespace common
+} // namespace PVParallelView
 
 #endif

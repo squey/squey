@@ -24,7 +24,7 @@ PVParallelView::PVZoomableDrawingArea::PVZoomableDrawingArea(QWidget* parent)
 	set_transformation_anchor(AnchorUnderMouse);
 	set_resize_anchor(AnchorViewCenter);
 
-	QGraphicsScene* scene = new QGraphicsScene();
+	auto scene = new QGraphicsScene();
 	set_scene(scene);
 }
 

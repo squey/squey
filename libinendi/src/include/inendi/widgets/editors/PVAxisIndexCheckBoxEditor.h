@@ -33,8 +33,8 @@ class PVAxisIndexCheckBoxEditor : public QWidget
 	int _current_index;
 
   public:
-	PVAxisIndexCheckBoxEditor(Inendi::PVView const& view, QWidget* parent = 0);
-	virtual ~PVAxisIndexCheckBoxEditor();
+	explicit PVAxisIndexCheckBoxEditor(Inendi::PVView const& view, QWidget* parent = nullptr);
+	~PVAxisIndexCheckBoxEditor() override;
 
 	PVCore::PVAxisIndexCheckBoxType get_axis_index() const;
 	void set_axis_index(PVCore::PVAxisIndexCheckBoxType axis_index);
@@ -42,6 +42,6 @@ class PVAxisIndexCheckBoxEditor : public QWidget
   protected:
 	Inendi::PVView const& _view;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVCORE_PVAXISINDEXCHECKBOXEDITOR_H

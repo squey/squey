@@ -43,6 +43,6 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<uint32_t*, pvcop:
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;
-}
+} // namespace Inendi
 
 #endif

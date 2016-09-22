@@ -30,12 +30,12 @@ class PVColorGradientDualSliderEditor : public PVColorPicker
 	/**
 	 * Constructor
 	 */
-	PVColorGradientDualSliderEditor(QWidget* parent = 0);
+	explicit PVColorGradientDualSliderEditor(QWidget* parent = nullptr);
 
   public:
 	PVCore::PVColorGradientDualSliderType get_values() const;
 	void set_values(PVCore::PVColorGradientDualSliderType v);
 };
-}
+} // namespace PVWidgets
 
 #endif // PVColorGradientDualSliderEditor_H

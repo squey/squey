@@ -22,12 +22,12 @@ class PVAxisTypeWidget : public PVComboBox
 	/**
 	 * Build the combo box with types.
 	 */
-	PVAxisTypeWidget(QWidget* parent = nullptr);
+	explicit PVAxisTypeWidget(QWidget* parent = nullptr);
 
   public:
 	inline QString get_sel_type() const { return currentText(); }
 	inline bool sel_type(QString const& type) { return select(type); }
 };
-}
+} // namespace PVWidgets
 
 #endif

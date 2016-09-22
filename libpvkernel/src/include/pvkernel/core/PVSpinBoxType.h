@@ -30,8 +30,8 @@ class PVSpinBoxType : public PVArgumentType<PVSpinBoxType>
 	inline PVCol get_value() const { return _value; }
 	inline void set_value(const PVCol value) { _value = value; }
 
-	QString to_string() const { return QString::number(_value); }
-	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
+	QString to_string() const override { return QString::number(_value); }
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{
 		bool res_ok = false;
 
@@ -49,7 +49,7 @@ class PVSpinBoxType : public PVArgumentType<PVSpinBoxType>
   protected:
 	PVCol _value;
 };
-}
+} // namespace PVCore
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVSpinBoxType)

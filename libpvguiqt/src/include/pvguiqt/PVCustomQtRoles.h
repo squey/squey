@@ -18,7 +18,7 @@ namespace PVCustomQtRoles
 {
 
 enum { Sort = Qt::UserRole, RoleSetSelectedItem, UnderlyingObject };
-}
-}
+} // namespace PVCustomQtRoles
+} // namespace PVGuiQt
 
 #endif

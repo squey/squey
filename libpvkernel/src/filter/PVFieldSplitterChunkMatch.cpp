@@ -75,9 +75,9 @@ class PVGuessReducingTree
 
 		QString str;
 
-		for (PVCore::PVArgumentList::const_iterator it = al.begin(); it != al.end(); ++it) {
+		for (const auto& it : al) {
 			// use of a non-printable character as arguments values separator
-			str.append("\01" + it->value().toString());
+			str.append("\01" + it.value().toString());
 		}
 
 		data_map_t::iterator it = _data_map.find(str);
@@ -101,8 +101,7 @@ class PVGuessReducingTree
 		     ++dm_it) {
 			std::cout << "key: " << qPrintable(dm_it.key()) << std::endl << "  al :";
 
-			for (PVCore::PVArgumentList::const_iterator al_it = dm_it->first.begin();
-			     al_it != dm_it->first.end(); ++al_it) {
+			for (auto al_it = dm_it->first.begin(); al_it != dm_it->first.end(); ++al_it) {
 				std::cout << " (" << qPrintable(al_it->value().toString()) << ")";
 			}
 			std::cout << std::endl << "  cnt:";
@@ -144,13 +143,12 @@ class PVGuessReducingTree
 		bool ret = false;
 		int highest = -1;
 
-		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end();
-		     ++dm_it) {
-			for (size_map_t::const_iterator sm_it = dm_it->second.begin();
-			     sm_it != dm_it->second.end(); ++sm_it) {
+		for (const auto& dm_it : _data_map) {
+			for (size_map_t::const_iterator sm_it = dm_it.second.begin();
+			     sm_it != dm_it.second.end(); ++sm_it) {
 				if (highest < *sm_it) {
 					ret = true;
-					al = dm_it->first;
+					al = dm_it.first;
 					nfields = sm_it.key();
 					highest = *sm_it;
 				}
@@ -163,9 +161,8 @@ class PVGuessReducingTree
 	size_t size() const
 	{
 		size_t s = 0;
-		for (data_map_t::const_iterator dm_it = _data_map.begin(); dm_it != _data_map.end();
-		     ++dm_it) {
-			s += dm_it->second.size();
+		for (const auto& dm_it : _data_map) {
+			s += dm_it.second.size();
 		}
 
 		return s;
@@ -185,8 +182,8 @@ void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
 	PVCore::list_elts& le = chunk->elements();
 	size_t count = 0;
 	BENCH_START(guessing);
-	for (auto it_elt = le.begin(); it_elt != le.end(); it_elt++) {
-		PVCore::PVField& first_f = (*it_elt)->fields().front();
+	for (auto& it_elt : le) {
+		PVCore::PVField& first_f = it_elt->fields().front();
 		sp->guess(_guess_res, first_f);
 		++count;
 		if (count > GUESS_PVELEMENT_SAMPLE_NUMBER) {

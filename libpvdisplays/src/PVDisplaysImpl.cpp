@@ -16,7 +16,7 @@
 
 PVDisplays::PVDisplaysImpl* PVDisplays::PVDisplaysImpl::_instance = nullptr;
 
-static const char* plugins_get_displays_dir(void)
+static const char* plugins_get_displays_dir()
 {
 	const char* pluginsdir;
 

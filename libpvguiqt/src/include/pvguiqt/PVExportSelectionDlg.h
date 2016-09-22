@@ -17,14 +17,14 @@
 namespace PVWidgets
 {
 class QKeySequenceWidget;
-}
+} // namespace PVWidgets
 
 namespace Inendi
 {
 class PVAxesCombination;
 class PVView;
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -91,6 +91,6 @@ class PVExportSelectionDlg : public QFileDialog
 	QRadioButton* _current_axis;         //!< Button to export only axis from current view
 	QRadioButton* _custom_axis;          //!< Button if custom selected axis are exported
 };
-}
+} // namespace PVGuiQt
 
 #endif // __PVGUIQT_PVEXPORTSELECTIONDLG_H__

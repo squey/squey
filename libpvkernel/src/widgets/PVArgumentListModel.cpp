@@ -55,7 +55,7 @@ QVariant PVWidgets::PVArgumentListModel::data(const QModelIndex& index, int role
 		return QVariant();
 
 	// We get an iterator for the Arguments
-	PVCore::PVArgumentList::iterator it = _args->begin();
+	auto it = _args->begin();
 	// We jump to the row given by the Index
 	std::advance(it, index.row());
 
@@ -135,7 +135,7 @@ bool PVWidgets::PVArgumentListModel::setData(const QModelIndex& index,
 	if (_args == nullptr || index.column() != 0 || role != Qt::EditRole)
 		return false;
 
-	PVCore::PVArgumentList::iterator it = _args->begin();
+	auto it = _args->begin();
 	std::advance(it, index.row());
 	if (it == _args->end())
 		return false; // Should never happen !

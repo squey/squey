@@ -62,6 +62,6 @@ class PVNrawListingWidget : public QWidget
 	QTableView* _nraw_table;
 	QMenu* _ctxt_menu;
 };
-}
+} // namespace PVInspector
 
 #endif

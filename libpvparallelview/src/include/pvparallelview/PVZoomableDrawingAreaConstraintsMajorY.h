@@ -31,6 +31,6 @@ class PVZoomableDrawingAreaConstraintsMajorY : public PVZoomableDrawingAreaConst
 
 	void adjust_pan(QScrollBar64* xsb, QScrollBar64* ysb) override;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMABLEDRAWINGAREACONSTRAINTSMAJORY_H

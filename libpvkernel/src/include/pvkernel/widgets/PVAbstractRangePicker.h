@@ -47,7 +47,7 @@ class PVAbstractRangeRampCursor : public QWidget
 	 * @param type the cursor type (MINIMUM or MAXIMUM)
 	 * @param parent the parent widget
 	 */
-	PVAbstractRangeRampCursor(cursor_type type, QWidget* parent = nullptr);
+	explicit PVAbstractRangeRampCursor(cursor_type type, QWidget* parent = nullptr);
 
   Q_SIGNALS:
 	/**
@@ -108,7 +108,7 @@ class PVAbstractRangeRamp : public QWidget
 	 *
 	 * @param parent the parent widget
 	 */
-	PVAbstractRangeRamp(QWidget* parent = nullptr);
+	explicit PVAbstractRangeRamp(QWidget* parent = nullptr);
 
 	/**
 	 * Set the color gradient used for the color ramp
@@ -227,7 +227,7 @@ class PVAbstractRangeRamp : public QWidget
 class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 {
   public:
-	PVMimeticDoubleSpinBox(QDoubleSpinBox* other = nullptr) : _other(other) {}
+	explicit PVMimeticDoubleSpinBox(QDoubleSpinBox* other = nullptr) : _other(other) {}
 
 	void set_other(QDoubleSpinBox* other) { _other = other; }
 
@@ -260,7 +260,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 	void use_floating_point(bool floating_point) { _use_floating_point = floating_point; }
 
   protected:
-	virtual QString textFromValue(double value) const override
+	QString textFromValue(double value) const override
 	{
 		// Using QLocale::toString(double) with high values returns QString as scientific notation,
 		// (hence the cast to qulonglong).
@@ -276,7 +276,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 	QDoubleSpinBox* _other;
 	bool _use_floating_point;
 };
-}
+} // namespace __impl
 
 /**
  * @class PVAbstractRangePicker
@@ -488,6 +488,6 @@ class PVAbstractRangePicker : public QWidget
 	double _limit_range;
 	double _epsilon;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVABSTRACTRANGEPICKER_H

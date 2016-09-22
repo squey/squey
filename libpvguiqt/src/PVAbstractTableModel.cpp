@@ -403,4 +403,4 @@ bool PVAbstractTableModel::apply_selection_mode(bool value) const
 		return not value;
 	}
 }
-}
+} // namespace PVGuiQt

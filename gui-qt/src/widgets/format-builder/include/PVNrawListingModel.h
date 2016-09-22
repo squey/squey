@@ -18,7 +18,7 @@
 namespace PVRush
 {
 class PVNraw;
-}
+} // namespace PVRush
 
 namespace PVInspector
 {
@@ -100,6 +100,6 @@ class PVNrawListingModel : public QAbstractTableModel
 	bool _show_sel;              //!< Whether we show the selection or not.
 	PVRush::PVControllerJob::invalid_elements_t _inv_elts; //!< invalid elements (used for display)
 };
-}
+} // namespace PVInspector
 
 #endif

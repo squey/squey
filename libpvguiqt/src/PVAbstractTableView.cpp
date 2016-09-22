@@ -419,4 +419,4 @@ void PVAbstractTableView::setModel(QAbstractItemModel* model)
 	        (void (PVAbstractTableView::*)()) & PVAbstractTableView::new_range);
 	Q_EMIT table_model()->layoutChanged();
 }
-}
+} // namespace PVGuiQt

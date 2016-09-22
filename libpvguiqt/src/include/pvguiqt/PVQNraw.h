@@ -11,12 +11,12 @@
 namespace PVRush
 {
 class PVNraw;
-}
+} // namespace PVRush
 
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -61,6 +61,6 @@ struct PVQNraw {
 	                        Inendi::PVSelection const& sel,
 	                        QWidget* parent = nullptr);
 };
-}
+} // namespace PVGuiQt
 
 #endif

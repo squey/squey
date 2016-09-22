@@ -37,7 +37,7 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 
 	// Create list of input field for the filter
 	PVCore::list_fields tmp_fields;
-	PVCore::list_fields::iterator it_curf = fields.begin();
+	auto it_curf = fields.begin();
 	std::advance(it_curf, _idx);
 	tmp_fields.push_back(*it_curf);
 	fields.erase(it_curf);
@@ -53,7 +53,7 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 	}
 
 	// Move generated field in the list.
-	PVCore::list_fields::iterator itins = fields.begin();
+	auto itins = fields.begin();
 	std::advance(itins, _idx);
 	fields.splice(itins, final_fields);
 

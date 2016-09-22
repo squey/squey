@@ -1980,6 +1980,6 @@ class PVQuadTree
 #undef SE
 #undef NW
 #undef NE
-}
+} // namespace PVParallelView
 
 #endif // PARALLELVIEW_PVQUADTREE_H

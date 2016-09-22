@@ -24,7 +24,7 @@ class PVColorGradientDualSliderType : public PVArgumentType<PVColorGradientDualS
 		_sliders_positions[0] = 0;
 		_sliders_positions[1] = 1;
 	};
-	PVColorGradientDualSliderType(const double positions[2]) { set_positions(positions); }
+	explicit PVColorGradientDualSliderType(const double positions[2]) { set_positions(positions); }
 
 	inline const double* get_positions() const { return _sliders_positions; }
 	inline void set_positions(const double pos[2])
@@ -33,12 +33,12 @@ class PVColorGradientDualSliderType : public PVArgumentType<PVColorGradientDualS
 		_sliders_positions[1] = pos[1];
 	}
 
-	QString to_string() const
+	QString to_string() const override
 	{
 		return QString::number(_sliders_positions[0]) + "," +
 		       QString::number(_sliders_positions[1]);
 	}
-	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{
 		PVArgument arg;
 		bool ok1 = false;
@@ -65,7 +65,7 @@ class PVColorGradientDualSliderType : public PVArgumentType<PVColorGradientDualS
   protected:
 	double _sliders_positions[2];
 };
-}
+} // namespace PVCore
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(PVCore::PVColorGradientDualSliderType)

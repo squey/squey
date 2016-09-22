@@ -26,14 +26,14 @@ class PVPlainTextEditor : public QWidget
 	Q_PROPERTY(PVCore::PVPlainTextType _text READ get_text WRITE set_text USER true)
 
   public:
-	PVPlainTextEditor(QWidget* parent = 0);
+	explicit PVPlainTextEditor(QWidget* parent = nullptr);
 
   public:
 	PVCore::PVPlainTextType get_text() const;
 	void set_text(PVCore::PVPlainTextType const& text);
 
   protected:
-	virtual bool eventFilter(QObject* object, QEvent* event);
+	bool eventFilter(QObject* object, QEvent* event) override;
 	void save_to_file(bool append);
 
   protected Q_SLOTS:
@@ -47,6 +47,6 @@ class PVPlainTextEditor : public QWidget
   private:
 	QFileDialog _file_dlg;
 };
-}
+} // namespace PVWidgets
 
 #endif

@@ -21,11 +21,11 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 namespace Inendi
 {
@@ -39,8 +39,8 @@ class PVPlottingProperties
 {
   public:
 	PVPlottingProperties(PVRush::PVFormat const& fmt, PVCol idx);
-	PVPlottingProperties(PVRush::PVAxisFormat const& axis);
-	PVPlottingProperties(std::string const& mode, PVCore::PVArgumentList args);
+	explicit PVPlottingProperties(PVRush::PVAxisFormat const& axis);
+	PVPlottingProperties(std::string mode, PVCore::PVArgumentList args);
 
   public:
 	// For PVPlotting
@@ -59,7 +59,7 @@ class PVPlottingProperties
 	bool operator==(PVPlottingProperties const& org) const;
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static PVPlottingProperties serialize_read(PVCore::PVSerializeObject& so);
 
   private:
@@ -68,6 +68,6 @@ class PVPlottingProperties
 	PVCore::PVArgumentList _args;
 	bool _is_uptodate = false;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVPLOTTINGPROPERTIES_H */

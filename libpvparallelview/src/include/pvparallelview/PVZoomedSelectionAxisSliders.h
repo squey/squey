@@ -52,6 +52,6 @@ class PVZoomedSelectionAxisSliders : public PVAbstractRangeAxisSliders, public s
   private:
 	id_t _id;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVZOOMEDSELECTIONAXISSLIDERS_H

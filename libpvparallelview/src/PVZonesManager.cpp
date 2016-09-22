@@ -37,8 +37,8 @@ class ZoneCreation
   public:
 	PVParallelView::PVZonesManager* _zm;
 };
-}
-}
+} // namespace __impl
+} // namespace PVParallelView
 
 /******************************************************************************
  *

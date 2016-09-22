@@ -61,6 +61,6 @@ class PVLayerNamingPatternDialog : public QDialog
 	QLineEdit* _line_edit;
 	QComboBox* _combo_box;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVLAYERNAMINGPATTERNDIALOG_H

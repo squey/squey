@@ -39,7 +39,7 @@ namespace __impl
 class PVCellWidgetBase;
 class PVUniqueValuesCellWidget;
 class PVSumCellWidget;
-}
+} // namespace __impl
 
 class PVStatsListingWidget : public QWidget, public sigc::trackable
 {
@@ -56,7 +56,7 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 	typedef std::unordered_map<uint32_t, std::unordered_map<uint32_t, PVParams>> param_t;
 
   public:
-	PVStatsListingWidget(PVListingView* listing_view);
+	explicit PVStatsListingWidget(PVListingView* listing_view);
 
   private:
 	param_t& get_params() { return _params; }
@@ -142,7 +142,7 @@ class PVVerticalHeaderView : public QHeaderView
 	Q_OBJECT
 
   public:
-	PVVerticalHeaderView(PVStatsListingWidget* parent);
+	explicit PVVerticalHeaderView(PVStatsListingWidget* parent);
 };
 
 class PVLoadingLabel : public QLabel
@@ -150,10 +150,10 @@ class PVLoadingLabel : public QLabel
 	Q_OBJECT
 
   public:
-	PVLoadingLabel(QWidget* parent) : QLabel(parent) {}
+	explicit PVLoadingLabel(QWidget* parent) : QLabel(parent) {}
 
   protected:
-	virtual void mousePressEvent(QMouseEvent* ev) override
+	void mousePressEvent(QMouseEvent* ev) override
 	{
 		if (ev->button() == Qt::LeftButton) {
 			Q_EMIT clicked();
@@ -170,7 +170,7 @@ class PVCellWidgetBase : public QWidget
 
   public:
 	PVCellWidgetBase(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item);
-	virtual ~PVCellWidgetBase() {}
+	~PVCellWidgetBase() override {}
 
   public:
 	inline int get_widget_cell_row() { return _table->row(_item); }
@@ -252,7 +252,7 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 	PVUniqueValuesCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item);
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 
   private Q_SLOTS:
 	void show_unique_values_dlg();
@@ -274,7 +274,7 @@ class PVSumCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
 
 class PVMinCellWidget : public PVCellWidgetBase
@@ -288,7 +288,7 @@ class PVMinCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
 
 class PVMaxCellWidget : public PVCellWidgetBase
@@ -302,7 +302,7 @@ class PVMaxCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
 
 class PVAverageCellWidget : public PVCellWidgetBase
@@ -317,9 +317,9 @@ class PVAverageCellWidget : public PVCellWidgetBase
 	}
 
   public Q_SLOTS:
-	virtual void refresh_impl() override;
+	void refresh_impl() override;
 };
-}
-}
+} // namespace __impl
+} // namespace PVGuiQt
 
 #endif // __PVSTATSLISTINGWIDGET_H__

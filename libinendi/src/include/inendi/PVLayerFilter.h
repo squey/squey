@@ -62,7 +62,7 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	/**
 	 * Constructor
 	 */
-	PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());
+	explicit PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());
 
   public:
 	void set_output(PVLayer* out);
@@ -123,6 +123,6 @@ typedef PVLayerFilter::func_type PVLayerFilter_f;
 
 typedef PVCore::PVClassLibrary<Inendi::PVLayerFilter>::tag PVLayerFilterTag;
 typedef PVCore::PVClassLibrary<Inendi::PVLayerFilter>::list_tags PVLayerFilterListTags;
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVLAYERFILTER_H */

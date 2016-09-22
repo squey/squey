@@ -35,6 +35,6 @@ class PVEnumEditor : public QComboBox
   protected:
 	PVCore::PVEnumType _e;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVCORE_PVEnumEDITOR_H

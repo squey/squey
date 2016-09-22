@@ -50,6 +50,6 @@ typename std::remove_pointer<T>::type* get_qobject_parent_of_type(QObject* self)
 {
 	return get_qobject_hierarchy_of_type<T>(self, false);
 }
-}
+} // namespace PVCore
 
 #endif

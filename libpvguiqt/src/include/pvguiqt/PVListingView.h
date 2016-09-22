@@ -26,7 +26,7 @@ namespace PVWidgets
 {
 
 class PVHelpWidget;
-}
+} // namespace PVWidgets
 
 namespace PVGuiQt
 {
@@ -55,12 +55,12 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * @note It use a view as a parameter to register observer. Thanks to this
 	 * record, every view will be updated on listing model modification.
 	 */
-	PVListingView(Inendi::PVView& view, QWidget* parent = nullptr);
+	explicit PVListingView(Inendi::PVView& view, QWidget* parent = nullptr);
 
 	/**
 	 * Clean up plugin in progress
 	 */
-	~PVListingView();
+	~PVListingView() override;
 
 	/**
 	 * Get associate model
@@ -289,6 +289,6 @@ class PVHorizontalHeaderView : public QHeaderView
   private:
 	int _index = -1;
 };
-}
+} // namespace PVGuiQt
 
 #endif // PVLISTINGVIEW_H

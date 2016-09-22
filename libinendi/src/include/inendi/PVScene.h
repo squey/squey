@@ -22,15 +22,15 @@
 namespace Inendi
 {
 class PVRoot;
-} // lines 25-25
+} // namespace Inendi
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
@@ -73,7 +73,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
   public:
 	inline bool is_empty() const { return size() == 0; }
 
-	virtual std::string get_serialize_description() const { return get_name(); }
+	std::string get_serialize_description() const override { return get_name(); }
 
   public:
 	inline void set_last_active_source(PVSource* src) { _last_active_src = src; }
@@ -81,7 +81,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
   public:
 	// Serialization
 	static Inendi::PVScene& serialize_read(PVCore::PVSerializeObject& so, Inendi::PVRoot& parent);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   public:
 	sigc::signal<void> _project_updated;
@@ -91,6 +91,6 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 
 	std::string _name;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVSCENE_H */

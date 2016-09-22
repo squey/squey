@@ -31,11 +31,11 @@
 namespace Inendi
 {
 class PVSource;
-} // lines 22-22
+} // namespace Inendi
 namespace PVCore
 {
 class PVSerializeObject;
-} // lines 23-23
+} // namespace PVCore
 
 namespace Inendi
 {
@@ -56,7 +56,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	using mapped_table_t = std::vector<pvcop::db::array>;
 
   public:
-	PVMapped(PVSource& src, std::string const& name = "default");
+	explicit PVMapped(PVSource& src, std::string const& name = "default");
 	PVMapped(PVSource& src,
 	         std::string const& name,
 	         std::list<Inendi::PVMappingProperties>&& columns);
@@ -112,10 +112,10 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	inline pvcop::db::array const& get_column(PVCol col) const { return _trans_table[col]; }
 
   public:
-	virtual std::string get_serialize_description() const { return "Mapping: " + get_name(); }
+	std::string get_serialize_description() const override { return "Mapping: " + get_name(); }
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Inendi::PVMapped& serialize_read(PVCore::PVSerializeObject& so,
 	                                        Inendi::PVSource& parent);
 
@@ -130,6 +130,6 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	std::list<PVMappingProperties> columns;
 	std::string _name;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVMAPPED_H */

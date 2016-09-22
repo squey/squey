@@ -26,7 +26,7 @@ class PVAbstractTableView : public PVTableView
 	Q_OBJECT;
 
   public:
-	PVAbstractTableView(QWidget* parent = nullptr);
+	explicit PVAbstractTableView(QWidget* parent = nullptr);
 
 	/**
 	 * Define the current model and update pagination information depending
@@ -148,6 +148,6 @@ class PVAbstractTableView : public PVTableView
   Q_SIGNALS:
 	void validate_selection();
 };
-}
+} // namespace PVGuiQt
 
 #endif

@@ -27,7 +27,7 @@ class QWidget;
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -132,6 +132,6 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 
 	QSignalMapper* _screenSignalMapper;
 };
-}
+} // namespace PVGuiQt
 
 #endif // #ifndef __PVGUIQT_PVVIEWDISPLAY_H__

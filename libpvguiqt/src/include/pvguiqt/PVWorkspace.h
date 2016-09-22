@@ -53,7 +53,7 @@ namespace Inendi
 {
 class PVView;
 class PVSource;
-}
+} // namespace Inendi
 
 Q_DECLARE_METATYPE(Inendi::PVView*)
 
@@ -62,7 +62,7 @@ namespace PVDisplays
 class PVDisplayViewIf;
 class PVDisplayViewAxisIf;
 class PVDisplayViewZoneIf;
-}
+} // namespace PVDisplays
 
 namespace PVGuiQt
 {
@@ -106,8 +106,8 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	}
 
   public:
-	PVWorkspaceBase(QWidget* parent) : PVDisplays::PVDisplaysContainer(parent) {}
-	virtual ~PVWorkspaceBase();
+	explicit PVWorkspaceBase(QWidget* parent) : PVDisplays::PVDisplaysContainer(parent) {}
+	~PVWorkspaceBase() override;
 
   public:
 	/*! \brief Create a view display from a widget and add it to the workspace.
@@ -249,7 +249,7 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	using list_display = QList<std::pair<QToolButton*, T*>>;
 
   public:
-	PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = nullptr);
+	explicit PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = nullptr);
 
   public:
 	inline Inendi::PVSource* get_source() const { return _source; }
@@ -276,6 +276,6 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	           typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewZoneIf>>
 	    _tool_buttons;
 };
-}
+} // namespace PVGuiQt
 
 #endif /* __PVGUIQT_PVWORKSPACE_H__ */

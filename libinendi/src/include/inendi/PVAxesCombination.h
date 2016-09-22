@@ -19,15 +19,15 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 namespace PVRush
 {
 class PVAxisFormat;
-}
+} // namespace PVRush
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 template <typename T>
 class QList;
@@ -38,8 +38,8 @@ namespace Inendi
 class PVAxesCombination
 {
   public:
-	PVAxesCombination(PVRush::PVFormat const& format);
-	PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes);
+	explicit PVAxesCombination(PVRush::PVFormat const& format);
+	explicit PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes);
 
   public:
 	PVRush::PVAxisFormat const& get_axis(PVCombCol col) const;
@@ -85,12 +85,12 @@ class PVAxesCombination
 
   public:
 	static PVAxesCombination serialize_read(PVCore::PVSerializeObject&, PVRush::PVFormat const&);
-	void serialize_write(PVCore::PVSerializeObject&);
+	void serialize_write(PVCore::PVSerializeObject&) const;
 
   private:
 	QList<PVRush::PVAxisFormat> const& _axes; //!< View from the PVFormat
 	std::vector<PVCol> _axes_comb;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVAXESCOMBINATION_H */

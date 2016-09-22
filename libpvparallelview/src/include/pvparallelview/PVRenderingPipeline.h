@@ -23,12 +23,12 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
 class PVSelection;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -47,7 +47,7 @@ class PVRenderingPipeline : boost::noncopyable
 		ZoneRenderingWithBCI() {}
 
 		ZoneRenderingWithBCI(PVZoneRenderingBCIBase_p zr_, PVBCICodeBase* codes_, size_t ncodes_)
-		    : zr(zr_), codes(codes_), ncodes(ncodes_)
+		    : zr(std::move(zr_)), codes(codes_), ncodes(ncodes_)
 		{
 		}
 
@@ -127,7 +127,7 @@ class PVRenderingPipeline : boost::noncopyable
 	    workflow_router_type;
 
   public:
-	PVRenderingPipeline(PVBCIDrawingBackend& bci_backend);
+	explicit PVRenderingPipeline(PVBCIDrawingBackend& bci_backend);
 	~PVRenderingPipeline();
 
   public:
@@ -163,6 +163,6 @@ class PVRenderingPipeline : boost::noncopyable
 	tbb::flow::limiter_node<ZoneRenderingWithColors> _node_limiter;
 	tbb::flow::buffer_node<ZoneRenderingWithColors> _node_buffer;
 };
-}
+} // namespace PVParallelView
 
 #endif

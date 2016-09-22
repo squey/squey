@@ -21,14 +21,14 @@ namespace PVGuiQt
 namespace __impl
 {
 class GraphicsView;
-}
+} // namespace __impl
 
 class PVAboutBoxDialog : public QDialog
 {
 	friend class __impl::GraphicsView;
 
   public:
-	PVAboutBoxDialog(QWidget* parent = 0);
+	explicit PVAboutBoxDialog(QWidget* parent = nullptr);
 
   private:
 	__impl::GraphicsView* _view3D;
@@ -41,12 +41,12 @@ namespace __impl
 class GraphicsView : public QGraphicsView
 {
   public:
-	GraphicsView(PVAboutBoxDialog* parent) : QGraphicsView(parent) {}
+	explicit GraphicsView(PVAboutBoxDialog* parent) : QGraphicsView(parent) {}
 
   protected:
-	void resizeEvent(QResizeEvent* event);
+	void resizeEvent(QResizeEvent* event) override;
 };
-}
-}
+} // namespace __impl
+} // namespace PVGuiQt
 
 #endif /* __PVGUIQT_PVABOUTBOXDIALOG_H__ */

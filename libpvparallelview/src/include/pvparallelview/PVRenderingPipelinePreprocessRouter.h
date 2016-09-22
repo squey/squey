@@ -45,7 +45,7 @@ class PVRenderingPipelinePreprocessRouter
 		ZoneRenderingWithColors() {}
 
 		ZoneRenderingWithColors(PVZoneRendering_p zr_, PVCore::PVHSVColor const* colors_)
-		    : zr(zr_), colors(colors_)
+		    : zr(std::move(zr_)), colors(colors_)
 		{
 		}
 
@@ -156,6 +156,6 @@ class PVRenderingPipelinePreprocessRouter
 	// from user events.
 	std::shared_ptr<RouterData> _d;
 };
-}
+} // namespace PVParallelView
 
 #endif

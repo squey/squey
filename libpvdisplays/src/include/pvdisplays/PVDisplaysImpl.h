@@ -119,7 +119,7 @@ inline PVDisplaysImpl& get()
 {
 	return PVDisplaysImpl::get();
 }
-}
+} // namespace PVDisplays
 
 Q_DECLARE_METATYPE(PVDisplays::PVDisplaysImpl::ActionParams)
 

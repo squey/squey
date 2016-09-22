@@ -16,9 +16,7 @@ PVRush::PVTags::PVTags()
 {
 }
 
-PVRush::PVTags::~PVTags()
-{
-}
+PVRush::PVTags::~PVTags() = default;
 
 void PVRush::PVTags::add_tag(QString tag)
 {

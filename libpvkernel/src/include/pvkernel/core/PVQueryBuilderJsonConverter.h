@@ -40,7 +40,8 @@ class PVQueryBuilderJsonConverter
 	/**
 	 * Virtual destructor
 	 */
-	virtual ~PVQueryBuilderJsonConverter(){};
+	virtual ~PVQueryBuilderJsonConverter() = default;
+	;
 
 	/** Translate querybuilder json to database-like input.
 	 *

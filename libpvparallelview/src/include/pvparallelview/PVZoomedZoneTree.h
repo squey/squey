@@ -31,7 +31,7 @@
 namespace PVCore
 {
 class PVHSVColor;
-}
+} // namespace PVCore
 
 namespace PVParallelView
 {
@@ -798,6 +798,6 @@ class PVZoomedZoneTree
 };
 
 typedef std::shared_ptr<PVZoomedZoneTree> PVZoomedZoneTree_p;
-}
+} // namespace PVParallelView
 
 #endif //  PARALLELVIEW_PVZOOMEDZONETREE_H

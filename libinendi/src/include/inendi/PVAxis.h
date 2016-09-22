@@ -17,7 +17,7 @@
 namespace PVCore
 {
 class PVSerializeObject;
-}
+} // namespace PVCore
 
 namespace Inendi
 {
@@ -44,7 +44,7 @@ class PVAxis : public PVRush::PVAxisFormat
 	    : PVRush::PVAxisFormat(-1){}; // We have to keep this Ugly constructor as we use QVector
 	                                  // which perform a lot of
 	                                  // default construction
-	PVAxis(PVRush::PVAxisFormat axis_format);
+	explicit PVAxis(PVRush::PVAxisFormat axis_format);
 
   public:
 	PVCore::PVArgumentList const& get_args_mapping() const { return _args_mapping; }
@@ -58,6 +58,6 @@ class PVAxis : public PVRush::PVAxisFormat
 	PVCore::PVArgumentList _args_mapping;
 	PVCore::PVArgumentList _args_plotting;
 };
-}
+} // namespace Inendi
 
 #endif /* INENDI_PVAXIS_H */

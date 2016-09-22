@@ -24,7 +24,8 @@ void html_word_wrap_text(QString& string, const QFont& font, uint64_t nb_px);
 /*! \brief Returns the maximum tooltip width related to a widget
  */
 uint32_t tooltip_max_width(QWidget* w);
-};
-}
+} // namespace PVUtils
+;
+} // namespace PVWidgets
 
 #endif // __PVWIDGETS_PVUTILS_H__

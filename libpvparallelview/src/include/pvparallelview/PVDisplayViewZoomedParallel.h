@@ -29,6 +29,6 @@ class PVDisplayViewZoomedParallel : public PVDisplayViewAxisIf
 
 	CLASS_REGISTRABLE(PVDisplayViewZoomedParallel)
 };
-}
+} // namespace PVDisplays
 
 #endif // PVDISPLAYS_PVDISPLAYVIEWZOOMEDPARALLEL_H

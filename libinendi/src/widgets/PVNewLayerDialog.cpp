@@ -16,7 +16,7 @@ PVWidgets::PVNewLayerDialog::PVNewLayerDialog(const QString& layer_name,
                                               QWidget* parent /*= 0*/)
     : QDialog(parent)
 {
-	QVBoxLayout* layout = new QVBoxLayout();
+	auto layout = new QVBoxLayout();
 	QLabel* label = new QLabel("Layer name:");
 	_text = new QLineEdit(layer_name);
 	_text->setSelection(0, layer_name.length());
@@ -24,8 +24,7 @@ PVWidgets::PVNewLayerDialog::PVNewLayerDialog(const QString& layer_name,
 	_checkbox = new QCheckBox("Hide all other layers");
 	_checkbox->setChecked(hide_layers);
 
-	QDialogButtonBox* button_box =
-	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
 	connect(button_box, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(button_box, SIGNAL(rejected()), this, SLOT(reject()));
@@ -51,7 +50,7 @@ QString PVWidgets::PVNewLayerDialog::get_layer_name() const
 QString PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(const QString& layer_name,
                                                                     bool& hide_layers)
 {
-	PVNewLayerDialog* dialog = new PVNewLayerDialog(layer_name, hide_layers);
+	auto dialog = new PVNewLayerDialog(layer_name, hide_layers);
 	int res = dialog->exec();
 
 	dialog->deleteLater();

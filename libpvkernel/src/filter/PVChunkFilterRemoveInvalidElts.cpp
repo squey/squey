@@ -37,7 +37,7 @@ PVCore::PVChunk* PVFilter::PVChunkFilterRemoveInvalidElts::operator()(PVCore::PV
 		PVCore::PVElement* elt = *it;
 		if (not elt->valid() or elt->filtered()) {
 			PVCore::PVElement::free(*it);
-			PVCore::list_elts::iterator it_er = it;
+			auto it_er = it;
 			++it;
 			elts.erase(it_er);
 		} else {
@@ -53,13 +53,13 @@ PVCore::PVChunk* PVFilter::PVChunkFilterRemoveInvalidElts::operator()(PVCore::PV
 
 		// Remove "extra" elements
 		PVCore::list_elts& elts = chunk->elements();
-		PVCore::list_elts::iterator it_elt = elts.begin();
+		auto it_elt = elts.begin();
 		std::advance(it_elt, EXTRACTED_ROW_COUNT_LIMIT - (_current_agg_index - elts.size()));
 
 		// And remove them all till the end
 		while (it_elt != elts.end()) {
 			PVCore::PVElement::free(*it_elt);
-			PVCore::list_elts::iterator it_er = it_elt;
+			auto it_er = it_elt;
 			it_elt++;
 			elts.erase(it_er);
 		}

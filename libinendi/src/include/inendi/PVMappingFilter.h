@@ -25,17 +25,17 @@
 namespace PVRush
 {
 class PVNraw;
-}
+} // namespace PVRush
 
 namespace PVCore
 {
 class PVField;
-}
+} // namespace PVCore
 
 namespace PVRush
 {
 class PVFormat;
-}
+} // namespace PVRush
 
 namespace Inendi
 {
@@ -70,6 +70,6 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 };
 
 typedef PVMappingFilter::func_type PVMappingFilter_f;
-}
+} // namespace Inendi
 
 #endif

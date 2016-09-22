@@ -71,13 +71,11 @@ int main()
 	int last_red = 0;
 	std::ifstream plotted_values(outputvalues);
 
-	QColor qcolor;
-	out.get_lines_properties().get_line_properties(0).toQColor(qcolor);
+	QColor qcolor = out.get_lines_properties().get_line_properties(0).toQColor();
 	PV_VALID(qcolor.green(), last_green);
 	PV_VALID(qcolor.red(), last_red);
-	out.get_lines_properties()
-	    .get_line_properties(out.get_selection().count() - 1)
-	    .toQColor(qcolor);
+	qcolor =
+	    out.get_lines_properties().get_line_properties(out.get_selection().count() - 1).toQColor();
 	PV_VALID(qcolor.green(), 16);
 	PV_VALID(qcolor.red(), 255);
 
@@ -89,7 +87,7 @@ int main()
 		plotted_values >> wanted_color;
 		uint8_t actual_color = color.h();
 
-		color.toQColor(qcolor);
+		qcolor = color.toQColor();
 		int green = qcolor.green();
 		int red = qcolor.red();
 

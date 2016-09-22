@@ -17,12 +17,8 @@ namespace PVRush
 
 class PVElasticsearchInfos
 {
-	friend class PVCore::PVSerializeObject;
-
   public:
-	PVElasticsearchInfos();
-
-  public:
+	PVElasticsearchInfos() : _port(0) {}
 	void set_host(QString const& host) { _host = host; }
 	void set_port(uint16_t port) { _port = port; }
 	void set_index(QString const& index) { _index = index; }
@@ -43,10 +39,10 @@ class PVElasticsearchInfos
 		       _importer == o._importer && _password == o._password;
 	}
 
-  protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
+	static PVElasticsearchInfos serialize_read(PVCore::PVSerializeObject& so);
 
-  protected:
+  private:
 	QString _host;
 	uint16_t _port;
 	QString _index;

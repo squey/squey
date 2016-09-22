@@ -27,7 +27,7 @@ class PVInputDescription
 	typedef std::shared_ptr<PVInputDescription> p_type;
 
   public:
-	virtual ~PVInputDescription() {}
+	virtual ~PVInputDescription() = default;
 
   public:
 	virtual bool operator==(const PVInputDescription& other) const = 0;
@@ -40,7 +40,7 @@ class PVInputDescription
 	virtual void save_to_qsettings(QSettings& settings) const = 0;
 
   public:
-	virtual void serialize_write(PVCore::PVSerializeObject& so) = 0;
+	virtual void serialize_write(PVCore::PVSerializeObject& so) const = 0;
 };
 
 typedef PVInputDescription::p_type PVInputDescription_p;

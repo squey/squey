@@ -200,8 +200,8 @@ std::vector<std::string> PVCore::PVRecentItemsManager::supported_format_list() c
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
 
-	for (auto it = lf.begin(); it != lf.end(); it++) {
-		PVRush::PVInputType_p in = it->value();
+	for (const auto& it : lf) {
+		PVRush::PVInputType_p in = it.value();
 
 		PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in);
 		PVRush::hash_format_creator format_creator =

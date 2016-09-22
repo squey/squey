@@ -25,7 +25,7 @@ const int ExtraHeight = 3;
 namespace PVRush
 {
 class PVXmlTreeNodeDom;
-}
+} // namespace PVRush
 
 namespace PVInspector
 {
@@ -37,7 +37,7 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
   public:
 	enum AddType { addRegEx, addFilter, addAxis, addUrl };
 	PVXmlTreeView(QWidget* parent = nullptr);
-	virtual ~PVXmlTreeView();
+	~PVXmlTreeView() override;
 
 	void addAxisIn();
 
@@ -77,7 +77,7 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 	 */
 	void expandRecursive(const QModelIndex& index);
 
-	virtual void mouseDoubleClickEvent(QMouseEvent* event);
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 	PVXmlDomModel* getModel();
 
@@ -123,5 +123,5 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
   Q_SIGNALS:
 	void refresh();
 };
-}
+} // namespace PVInspector
 #endif /* MYTREEVIEW_H */

@@ -21,23 +21,23 @@
 namespace PVCore
 {
 class PVColorGradientDualSliderType;
-}
+} // namespace PVCore
 namespace PVCore
 {
 class PVEnumType;
-}
+} // namespace PVCore
 namespace PVCore
 {
 class PVPercentRangeType;
-}
+} // namespace PVCore
 namespace PVCore
 {
 class PVPlainTextType;
-}
+} // namespace PVCore
 
 QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory()
 {
-	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
+	auto args_widget_factory = new QItemEditorFactory();
 	QItemEditorCreatorBase* pv_enum_creator =
 	    new QStandardItemEditorCreator<PVWidgets::PVEnumEditor>();
 	QItemEditorCreatorBase* regexp_creator =

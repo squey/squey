@@ -458,7 +458,7 @@ class PVSelBitField
 	}
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static PVCore::PVSelBitField serialize_read(PVCore::PVSerializeObject& so);
 
   protected:

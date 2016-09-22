@@ -34,7 +34,7 @@ class PVXmlDomModel : public QAbstractItemModel
 
   public:
 	PVXmlDomModel(QWidget* parent = nullptr);
-	virtual ~PVXmlDomModel();
+	~PVXmlDomModel() override;
 
 	/*
 	 * Toolbar methods
@@ -64,20 +64,20 @@ class PVXmlDomModel : public QAbstractItemModel
 	/*
 	 * virtual method from QAbstractItemModel
 	 */
-	virtual QModelIndex index(int, int, const QModelIndex&) const;
-	virtual QModelIndex parent(const QModelIndex&) const;
-	virtual int rowCount(const QModelIndex&) const;
-	virtual int columnCount(const QModelIndex&) const;
-	virtual QVariant data(const QModelIndex&, int) const;
+	QModelIndex index(int, int, const QModelIndex&) const override;
+	QModelIndex parent(const QModelIndex&) const override;
+	int rowCount(const QModelIndex&) const override;
+	int columnCount(const QModelIndex&) const override;
+	QVariant data(const QModelIndex&, int) const override;
 
 	// return selectable
-	Qt::ItemFlags flags(const QModelIndex& index) const;
+	Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 	// drag&drop
-	Qt::DropActions supportedDropActions() const;
+	Qt::DropActions supportedDropActions() const override;
 
 	// respond to the View
-	bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+	bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
 	/**
 	 * initialisation of the root.
@@ -118,8 +118,8 @@ class PVXmlDomModel : public QAbstractItemModel
 	 * @param role : what we are doing
 	 * @return something to write on tree header
 	 */
-	virtual QVariant
-	headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+	QVariant
+	headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 	bool saveXml(QString xml_file);
 
@@ -175,5 +175,5 @@ class PVXmlDomModel : public QAbstractItemModel
 	QList<PVRush::PVAxisFormat> _axes;
 	Inendi::PVAxesCombination _axes_combination;
 };
-}
+} // namespace PVInspector
 #endif /* MONMODELE_H */

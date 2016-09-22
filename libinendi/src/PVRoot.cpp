@@ -181,17 +181,17 @@ void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive& ar)
 	serialize_read(*root_obj);
 }
 
-void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so)
+void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize Root.");
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj = so.create_object("scene");
 	int idx = 0;
-	for (PVScene* scene : get_children()) {
+	for (PVScene const* scene : get_children()) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
 		scene->serialize_write(*new_obj);
 	}
-	so.attribute("scene_count", idx);
+	so.attribute_write("scene_count", idx);
 };
 
 void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
@@ -199,8 +199,7 @@ void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 	so.set_current_status("Loading root");
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj = so.create_object("scene");
-	int scene_count;
-	so.attribute("scene_count", scene_count);
+	int scene_count = so.attribute_read<int>("scene_count");
 	for (int idx = 0; idx < scene_count; idx++) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
 		PVScene::serialize_read(*new_obj, *this);

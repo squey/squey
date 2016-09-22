@@ -14,7 +14,7 @@ namespace Inendi
 {
 
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -34,7 +34,7 @@ class PVHitCountViewSelectionRectangle : public PVParallelView::PVSelectionRecta
 	 *
 	 * @param hcv the "parent" hit-count view
 	 */
-	PVHitCountViewSelectionRectangle(PVHitCountView* hcv);
+	explicit PVHitCountViewSelectionRectangle(PVHitCountView* hcv);
 
   protected:
 	/**
@@ -54,6 +54,6 @@ class PVHitCountViewSelectionRectangle : public PVParallelView::PVSelectionRecta
   private:
 	PVHitCountView* _hcv;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVHITCOUNTVIEWSELECTIONRECTANGLE_H

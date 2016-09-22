@@ -18,7 +18,7 @@ namespace PVParallelView
 class PVZoneRenderingTBB : public PVZoneRendering
 {
   public:
-	PVZoneRenderingTBB(PVZoneID zone_id) : PVZoneRendering(zone_id) {}
+	explicit PVZoneRenderingTBB(PVZoneID zone_id) : PVZoneRendering(zone_id) {}
 
 	PVZoneRenderingTBB() : PVZoneRendering() {}
 
@@ -37,6 +37,6 @@ class PVZoneRenderingTBB : public PVZoneRendering
   private:
 	tbb::task_group_context _grp_ctxt;
 };
-}
+} // namespace PVParallelView
 
 #endif

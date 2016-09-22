@@ -22,14 +22,16 @@ class PVSourceDescription
   public:
 	PVSourceDescription() : _inputs(), _source_creator_p(), _format() {}
 
-	PVSourceDescription(const PVRush::PVInputType::list_inputs& inputs,
+	PVSourceDescription(PVRush::PVInputType::list_inputs inputs,
 	                    PVRush::PVSourceCreator_p source_creator_p,
-	                    const PVRush::PVFormat& format)
-	    : _inputs(inputs), _source_creator_p(source_creator_p), _format(format)
+	                    PVRush::PVFormat format)
+	    : _inputs(std::move(inputs))
+	    , _source_creator_p(std::move(source_creator_p))
+	    , _format(std::move(format))
 	{
 	}
 
-	PVSourceDescription(PVCore::PVSerializedSource const& s)
+	explicit PVSourceDescription(PVCore::PVSerializedSource const& s)
 	    : _source_creator_p(LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(
 	          QString::fromStdString(s.sc_name)))
 	    , _format(QString::fromStdString(s.format_name), QString::fromStdString(s.format_path))

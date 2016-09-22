@@ -59,7 +59,7 @@
 namespace tbb
 {
 class task_group_context;
-}
+} // namespace tbb
 
 PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLACK);
 
@@ -676,7 +676,7 @@ void Inendi::PVView::sort_indexes(PVCol col,
 }
 
 // Load/save and serialization
-void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so)
+void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize View.");
 	so.set_current_status("Serialize Layer stack.");

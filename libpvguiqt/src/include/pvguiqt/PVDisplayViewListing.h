@@ -26,6 +26,6 @@ class PVDisplayViewListing : public PVDisplayViewIf
 
 	CLASS_REGISTRABLE(PVDisplayViewListing)
 };
-}
+} // namespace PVDisplays
 
 #endif

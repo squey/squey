@@ -51,7 +51,7 @@ namespace __impl
 class PVToolTipEventFilter : public QObject
 {
   public:
-	PVToolTipEventFilter(PVAxisGraphicsItem* parent) : QObject(parent) {}
+	explicit PVToolTipEventFilter(PVAxisGraphicsItem* parent) : QObject(parent) {}
 
   protected:
 	bool eventFilter(QObject* obj, QEvent* ev) override
@@ -80,8 +80,8 @@ class PVToolTipEventFilter : public QObject
 		return static_cast<PVAxisGraphicsItem*>(parent());
 	}
 };
-}
-} // PVParallelView::__impl
+} // namespace __impl
+} // namespace PVParallelView
 
 /*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem

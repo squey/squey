@@ -23,10 +23,8 @@ class PVSerializeArchiveError;
 class PVSerializeReparaibleError : public std::runtime_error
 {
   public:
-	PVSerializeReparaibleError(std::string const& what,
-	                           std::string const& path,
-	                           std::string const& value)
-	    : std::runtime_error(what), _path(path), _value(value)
+	PVSerializeReparaibleError(std::string const& what, std::string path, std::string value)
+	    : std::runtime_error(what), _path(std::move(path)), _value(std::move(value))
 	{
 	}
 

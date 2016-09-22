@@ -17,7 +17,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVWidgets
 {
@@ -28,8 +28,8 @@ class PVViewRowsSpinBoxEditor : public QSpinBox
 	Q_PROPERTY(PVCore::PVSpinBoxType _s READ get_spin WRITE set_spin USER true)
 
   public:
-	PVViewRowsSpinBoxEditor(Inendi::PVView const& view, QWidget* parent = 0);
-	virtual ~PVViewRowsSpinBoxEditor();
+	explicit PVViewRowsSpinBoxEditor(Inendi::PVView const& view, QWidget* parent = 0);
+	~PVViewRowsSpinBoxEditor() override;
 
   public:
 	PVCore::PVSpinBoxType get_spin() const;
@@ -39,6 +39,6 @@ class PVViewRowsSpinBoxEditor : public QSpinBox
 	PVCore::PVSpinBoxType _s;
 	Inendi::PVView const& _view;
 };
-}
+} // namespace PVWidgets
 
 #endif // PVCORE_PVSPINBOXEDITOR_H

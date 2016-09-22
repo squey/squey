@@ -15,7 +15,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -31,7 +31,7 @@ class PVLayerStackWidget : public QWidget
 	Q_OBJECT
 
   public:
-	PVLayerStackWidget(Inendi::PVView& lib_view, QWidget* parent = nullptr);
+	explicit PVLayerStackWidget(Inendi::PVView& lib_view, QWidget* parent = nullptr);
 
   public:
 	PVLayerStackView* get_layer_stack_view() const { return _layer_stack_view; }
@@ -50,6 +50,6 @@ class PVLayerStackWidget : public QWidget
   private:
 	PVLayerStackView* _layer_stack_view;
 };
-}
+} // namespace PVGuiQt
 
 #endif // PVLAYERSTACKWIDGET_H

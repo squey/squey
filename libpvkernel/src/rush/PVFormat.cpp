@@ -352,10 +352,8 @@ void PVRush::PVFormat::debug() const
 	    "-------+----------------+------------------+------------------+---------+------...\n");
 
 	unsigned int i = 0;
-	for (auto it = _axes.begin(); it != _axes.end(); it++) {
+	for (const auto& axis : _axes) {
 		char* fill;
-		PVAxisFormat const& axis = *it;
-
 		fill = fill_spaces(QString::number(i + 1, 10), 7);
 		PVLOG_PLAIN("%d%s", i, fill);
 		free(fill);
@@ -479,7 +477,7 @@ std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_
 {
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
 
-	auto filter_by_axes = std::unique_ptr<PVFilter::PVElementFilterByAxes>(
+	std::unique_ptr<PVFilter::PVElementFilterByAxes> filter_by_axes(
 	    new PVFilter::PVElementFilterByAxes(_fields_mask));
 
 	// Here we create the pipeline according to the format
@@ -538,12 +536,10 @@ PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString
 PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Format loading");
-	QString format_name;
-	so.attribute("name", format_name);
+	QString format_name = so.attribute_read<QString>("name");
 
-	QString full_path, fname;
-	so.attribute("filename", fname);
-	so.file(fname, full_path);
+	QString fname = so.attribute_read<QString>("filename");
+	QString full_path = so.file_read(fname);
 	char pattern[] = "/tmp/investigation_tmp_XXXXXX";
 	char* tmp_dir = mkdtemp(pattern);
 	std::string new_full_path = tmp_dir + ("/" + fname.toStdString());
@@ -552,14 +548,13 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 	return {format_name, QString::fromStdString(new_full_path)};
 }
 
-void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so)
+void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize format");
-	so.attribute("name", format_name);
+	so.attribute_write("name", format_name);
 
-	QString init_full_name = full_path;
 	QFileInfo fi(full_path);
 	QString fname = fi.fileName();
-	so.file(fname, init_full_name);
-	so.attribute("filename", fname);
+	so.file_write(fname, full_path);
+	so.attribute_write("filename", fname);
 }

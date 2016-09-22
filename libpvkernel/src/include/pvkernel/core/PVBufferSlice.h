@@ -64,7 +64,7 @@ class PVBufferSlice
 	PVBufferSlice(PVBufferSlice const& src) : _buf_list(src._buf_list) { copy_from(src); };
 
 	// Destructor "inline" for performance reasons
-	virtual ~PVBufferSlice() {}
+	virtual ~PVBufferSlice() = default;
 
   public:
 	/*! \brief Copy operator

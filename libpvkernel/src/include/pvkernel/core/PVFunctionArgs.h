@@ -26,7 +26,8 @@ class PVFunctionArgumentMissing : public std::exception
 	{
 		_what = QString("Argument %1 missing").arg(arg);
 	}
-	~PVFunctionArgumentMissing() throw() override{};
+	~PVFunctionArgumentMissing() throw() override = default;
+	;
 	const char* what() const throw() override { return qPrintable(_what); };
 
   protected:
@@ -42,7 +43,7 @@ class PVFunctionArgsBase
 	{
 	}
 
-	virtual ~PVFunctionArgsBase() {}
+	virtual ~PVFunctionArgsBase() = default;
 
   public:
 	virtual const PVArgumentList& get_args() const { return _args; }

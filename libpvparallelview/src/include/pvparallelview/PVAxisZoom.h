@@ -179,6 +179,6 @@ class PVAxisZoom
 	bool _inverted;
 	const PVZoomConverter* _zoom_converter;
 };
-}
+} // namespace PVParallelView
 
 #endif // PVPARALLELVIEW_PVAXISZOOM_H

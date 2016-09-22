@@ -280,14 +280,14 @@ const PVCore::PVSelBitField PVRush::PVNraw::empty_values_selection(PVCol col) co
 	return sel;
 }
 
-void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so)
+void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize Nraw");
 	QString nraw_path = QString::fromStdString(collection().rootdir());
-	so.attribute("nraw_path", nraw_path);
+	so.attribute_write("nraw_path", nraw_path);
 
 	int vec = _valid_elements_count;
-	so.attribute("valid_count", vec);
+	so.attribute_write("valid_count", vec);
 
 	so.set_current_status("Serialize valid elements selection");
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
@@ -355,41 +355,35 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("NRaw loading");
 	PVRush::PVNraw nraw;
-	QString nraw_folder;
-	so.attribute("nraw_path", nraw_folder, QString());
+	QString nraw_folder = so.attribute_read<QString>("nraw_path");
 	nraw_folder =
 	    PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QDir(nraw_folder).dirName();
 	nraw.load_from_disk(nraw_folder.toStdString());
 
 	so.set_current_status("Invalid events selection loading");
-	int vec;
-	so.attribute("valid_count", vec);
+	int vec = so.attribute_read<int>("valid_count");
 	nraw._valid_elements_count = vec;
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
 	nraw._valid_rows_sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
 
 	// Serialize invalid values
 	so.set_current_status("Uncorrectly converted elements loading");
-	int bad_conv_row_count;
-	so.attribute("bad_conv/row_count", bad_conv_row_count);
+	int bad_conv_row_count = so.attribute_read<int>("bad_conv/row_count");
 	for (int i = 0; i < bad_conv_row_count; i++) {
-		int row;
-		so.attribute("bad_conv/" + QString::number(i) + "/row", row);
-		int bad_conv_col_count;
-		so.attribute("bad_conv/" + QString::number(i) + "/col_count", bad_conv_col_count);
+		int row = so.attribute_read<int>("bad_conv/" + QString::number(i) + "/row");
+		int bad_conv_col_count =
+		    so.attribute_read<int>("bad_conv/" + QString::number(i) + "/col_count");
 		for (int j = 0; j < bad_conv_col_count; j++) {
-			int col;
-			so.attribute("bad_conv/" + QString::number(i) + "/" + QString::number(j) + "/col", col);
-			QString value;
-			so.attribute("bad_conv/" + QString::number(i) + "/" + QString::number(j) + "/value",
-			             value);
+			int col = so.attribute_read<int>("bad_conv/" + QString::number(i) + "/" +
+			                                 QString::number(j) + "/col");
+			QString value = so.attribute_read<QString>("bad_conv/" + QString::number(i) + "/" +
+			                                           QString::number(j) + "/value");
 			nraw._unconvertable_values.add(row, col, value.toStdString());
 		}
 	}
 
 	so.set_current_status("Empty elements loading");
-	QString str_col_indexes;
-	so.attribute("empty_conv/columns", str_col_indexes, QString());
+	QString str_col_indexes = so.attribute_read<QString>("empty_conv/columns");
 	QStringList list_col_indexes = str_col_indexes.split(",", QString::SkipEmptyParts);
 	std::vector<size_t> empty_cols_indexes;
 	for (const QString& str_idx : list_col_indexes) {

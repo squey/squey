@@ -15,6 +15,6 @@ namespace PVParallelView
 
 // Choose which implementation must be used.
 typedef PVHitGraphDataOMP PVHitGraphData;
-}
+} // namespace PVParallelView
 
 #endif

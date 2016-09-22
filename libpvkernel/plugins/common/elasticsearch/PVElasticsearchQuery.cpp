@@ -29,24 +29,21 @@ QString PVRush::PVElasticsearchQuery::human_name() const
 	return QString("elasticsearch");
 }
 
-void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so)
+void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize ElasticSearch information.");
-	so.attribute("query", _query);
-	so.attribute("query_type", _query_type);
-	so.object("server", _infos);
+	so.attribute_write("query", _query);
+	so.attribute_write("query_type", _query_type);
+	_infos.serialize_write(*so.create_object("server"));
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVElasticsearchQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Searching for ElasticSearch informations.");
-	QString query;
-	so.attribute("query", query);
-	QString query_type;
-	so.attribute("query_type", query_type);
-	PVElasticsearchInfos infos;
-	so.object("server", infos);
+	QString query = so.attribute_read<QString>("query");
+	QString query_type = so.attribute_read<QString>("query_type");
+	PVElasticsearchInfos infos = PVElasticsearchInfos::serialize_read(*so.create_object("server"));
 	return std::unique_ptr<PVElasticsearchQuery>(
 	    new PVElasticsearchQuery(infos, query, query_type));
 }

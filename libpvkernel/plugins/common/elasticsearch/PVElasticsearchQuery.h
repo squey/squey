@@ -51,7 +51,7 @@ class PVElasticsearchQuery : public PVInputDescription
   public:
 	static std::unique_ptr<PVRush::PVInputDescription>
 	serialize_read(PVCore::PVSerializeObject& so);
-	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   protected:
 	PVElasticsearchInfos _infos;

@@ -27,14 +27,14 @@
 #include <memory>     // for unique_ptr
 
 PVRush::PVNrawCacheManager::PVNrawCacheManager()
-    : _cache_file(std::unique_ptr<QSettings>(
+    : _cache_file(
           new QSettings(QString(PVCore::PVConfig::get()
                                     .config()
                                     .value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp),
                                            QString::fromStdString(PVRush::PVNraw::default_tmp_path))
                                     .toString()) +
                             INENDI_PATH_SEPARATOR_CHAR + ".cache",
-                        QSettings::IniFormat)))
+                        QSettings::IniFormat))
 {
 	_cache_file->beginGroup("cache");
 

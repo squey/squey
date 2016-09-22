@@ -21,7 +21,7 @@
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -34,7 +34,7 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	Q_OBJECT
 
   public:
-	PVLayerStackModel(Inendi::PVView& lib_view, QObject* parent = nullptr);
+	explicit PVLayerStackModel(Inendi::PVView& lib_view, QObject* parent = nullptr);
 
   public:
 	int columnCount(const QModelIndex& index) const override;
@@ -77,6 +77,6 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	QBrush unselect_brush; //!<
 	QFont unselect_font;   //!<
 };
-}
+} // namespace PVGuiQt
 
 #endif

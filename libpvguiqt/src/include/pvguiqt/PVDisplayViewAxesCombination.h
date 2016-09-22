@@ -24,6 +24,6 @@ class PVDisplayViewAxesCombination : public PVDisplayViewIf
 
 	CLASS_REGISTRABLE(PVDisplayViewAxesCombination)
 };
-}
+} // namespace PVDisplays
 
 #endif

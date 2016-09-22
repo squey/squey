@@ -28,17 +28,20 @@ class PVFileDescription : public PVInputDescription
 	}
 
   public:
-	virtual bool operator==(const PVInputDescription& other) const
+	bool operator==(const PVInputDescription& other) const override
 	{
 		return _path == ((PVFileDescription&)other)._path;
 	}
 
   public:
-	QString human_name() const { return _path; }
+	QString human_name() const override { return _path; }
 	QString path() const { return _path; }
 
   public:
-	virtual void save_to_qsettings(QSettings& settings) const { settings.setValue("path", path()); }
+	void save_to_qsettings(QSettings& settings) const override
+	{
+		settings.setValue("path", path());
+	}
 
 	static std::unique_ptr<PVRush::PVInputDescription> load_from_string(std::string const& path)
 	{
@@ -52,26 +55,37 @@ class PVFileDescription : public PVInputDescription
 	}
 
   public:
-	void serialize_write(PVCore::PVSerializeObject& so)
+	void serialize_write(PVCore::PVSerializeObject& so) const override
 	{
 		so.set_current_status("Serialize file");
 
 		if (so.save_log_file()) {
 			QFileInfo fi(_path);
 			QString fname = fi.fileName();
-			so.file(fname, _path);
+			so.file_write(fname, _path);
+			// FIXME : Before, we still reload data from original file, never from packed file.
+			so.attribute_write("file_path", fname);
+		} else {
+			so.attribute_write("file_path", _path);
 		}
-
-		so.attribute("file_path", _path);
 	}
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
 	{
 		so.set_current_status("Searching for source file.");
-		QString path;
-		so.attribute("file_path", path);
+		QString path = so.attribute_read<QString>("file_path");
 
-		if (not QFileInfo(path).isReadable()) {
+		// File exists, continue with it
+		if (QFileInfo(path).isReadable()) {
+			return std::unique_ptr<PVInputDescription>(new PVFileDescription(path));
+		}
+
+		// File doesn't exists. Look for packed file
+		try {
+			path = so.file_read(path);
+		} catch (PVCore::PVSerializeArchiveError const&) {
+
+			// Otherwise, ask where it is.
 			if (so.is_repaired_error()) {
 				path = QString::fromStdString(so.get_repaired_value());
 			} else {
@@ -87,6 +101,6 @@ class PVFileDescription : public PVInputDescription
   protected:
 	QString _path;
 };
-}
+} // namespace PVRush
 
 #endif

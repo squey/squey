@@ -11,7 +11,7 @@
 namespace Inendi
 {
 class PVPlotted;
-}
+} // namespace Inendi
 
 namespace PVGuiQt
 {
@@ -19,6 +19,6 @@ namespace PVGuiQt
 struct PVQPlotted {
 	static bool edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent = nullptr);
 };
-}
+} // namespace PVGuiQt
 
 #endif

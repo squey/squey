@@ -116,17 +116,16 @@ PVAxesCombination PVAxesCombination::serialize_read(PVCore::PVSerializeObject& s
                                                     PVRush::PVFormat const& f)
 {
 	PVAxesCombination comb(f);
-	int size;
-	so.attribute("size", size);
+	int size = so.attribute_read<int>("size");
 	std::vector<PVCol> new_comb(size);
 	for (int i = 0; i < size; i++) {
-		so.attribute(QString::number(i), new_comb[i]);
+		new_comb[i] = so.attribute_read<int>(QString::number(i));
 	}
 	comb.set_combination(new_comb);
 	return comb;
 }
 
-void PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)
+void PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	int size = _axes_comb.size();
 	so.attribute_write("size", size);
@@ -134,4 +133,4 @@ void PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)
 		so.attribute_write(QString::number(i), _axes_comb[i]);
 	}
 }
-}
+} // namespace Inendi

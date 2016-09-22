@@ -23,7 +23,7 @@ class QGraphicsSceneMouseEvent;
 namespace Inendi
 {
 class PVView;
-}
+} // namespace Inendi
 
 namespace PVParallelView
 {
@@ -32,7 +32,7 @@ class PVAxisGraphicsItem;
 namespace __impl
 {
 class PVAxisSelectedAnimation;
-}
+} // namespace __impl
 
 /**
  * Axis label highlight decoration
@@ -108,8 +108,8 @@ class PVAxisSelectedAnimation : QObject
 	static constexpr QEasingCurve::Type opacity_animation_easing = QEasingCurve::Linear;
 
   public:
-	PVAxisSelectedAnimation(PVAxisHeader* parent);
-	~PVAxisSelectedAnimation();
+	explicit PVAxisSelectedAnimation(PVAxisHeader* parent);
+	~PVAxisSelectedAnimation() override;
 
   public:
 	void start(bool start);
@@ -134,7 +134,7 @@ class PVGraphicsPolygonItem : public QGraphicsPolygonItem
 	           const QStyleOptionGraphicsItem* option,
 	           QWidget* widget = nullptr) override;
 };
-}
-}
+} // namespace __impl
+} // namespace PVParallelView
 
 #endif // __PVPARALLELVIEW_PVAXISHEADER_H__

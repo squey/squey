@@ -16,7 +16,7 @@ namespace PVWidgets
 class PVHelpWidget : public PVTextPopupWidget
 {
   public:
-	PVHelpWidget(QWidget* parent);
+	explicit PVHelpWidget(QWidget* parent);
 
 	/**
 	 * test if key is one of the close keys
@@ -39,6 +39,6 @@ class PVHelpWidget : public PVTextPopupWidget
 	 */
 	static bool is_help_key(int key);
 };
-}
+} // namespace PVWidgets
 
 #endif // PVWIDGETS_PVHELPWIDGET_H

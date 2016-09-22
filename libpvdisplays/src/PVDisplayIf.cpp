@@ -29,7 +29,7 @@ QWidget* PVDisplays::__impl::PVDisplayViewAxisIf::get_unique_widget(Inendi::PVVi
 QAction* PVDisplays::__impl::PVDisplayViewAxisIf::action_bound_to_params(
     Inendi::PVView* view, Inendi::PVCombCol axis_comb, QObject* parent) const
 {
-	QAction* action = new QAction(parent);
+	auto action = new QAction(parent);
 
 	Params p(view, axis_comb);
 	QVariant var;

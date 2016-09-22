@@ -18,7 +18,7 @@ class PVXmlTreeItemDelegate : public QAbstractItemDelegate
 {
   public:
 	PVXmlTreeItemDelegate();
-	virtual ~PVXmlTreeItemDelegate();
+	~PVXmlTreeItemDelegate() override;
 
 	//
 	// virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,const QModelIndex
@@ -30,7 +30,7 @@ class PVXmlTreeItemDelegate : public QAbstractItemDelegate
 	 * @param index
 	 * @return
 	 */
-	virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;
+	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
   private:
 };
