@@ -34,26 +34,26 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget* parent) : QWidget(paren
 	_text_edit->installEventFilter(this);
 	_text_edit->setSizePolicy(
 	    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-	QPushButton* import_file = new QPushButton();
+	auto import_file = new QPushButton();
 	import_file->setIcon(QIcon(":/import_file"));
 	import_file->setIconSize(QSize(24, 24));
 	import_file->setToolTip(tr("Import from file..."));
 	import_file->setFlat(true);
-	QPushButton* export_file = new QPushButton();
+	auto export_file = new QPushButton();
 	export_file->setIcon(QIcon(":/export_file"));
 	export_file->setIconSize(QSize(24, 24));
 	export_file->setToolTip(tr("Export to file..."));
 	export_file->setFlat(true);
-	QPushButton* export_and_append_file = new QPushButton();
+	auto export_and_append_file = new QPushButton();
 	export_and_append_file->setIcon(QIcon(":/append_file"));
 	export_and_append_file->setIconSize(QSize(24, 24));
 	export_and_append_file->setToolTip(tr("Export and append to file..."));
 	export_and_append_file->setFlat(true);
 
-	QHBoxLayout* layout = new QHBoxLayout();
+	auto layout = new QHBoxLayout();
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(_text_edit);
-	QVBoxLayout* files_layer = new QVBoxLayout();
+	auto files_layer = new QVBoxLayout();
 	layout->addLayout(files_layer);
 	files_layer->addWidget(import_file);
 	files_layer->addWidget(export_file);

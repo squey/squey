@@ -27,7 +27,7 @@ class PVInputDescription
 	typedef std::shared_ptr<PVInputDescription> p_type;
 
   public:
-	virtual ~PVInputDescription() {}
+	virtual ~PVInputDescription() = default;
 
   public:
 	virtual bool operator==(const PVInputDescription& other) const = 0;

@@ -352,10 +352,8 @@ void PVRush::PVFormat::debug() const
 	    "-------+----------------+------------------+------------------+---------+------...\n");
 
 	unsigned int i = 0;
-	for (auto it = _axes.begin(); it != _axes.end(); it++) {
+	for (const auto& axis : _axes) {
 		char* fill;
-		PVAxisFormat const& axis = *it;
-
 		fill = fill_spaces(QString::number(i + 1, 10), 7);
 		PVLOG_PLAIN("%d%s", i, fill);
 		free(fill);
@@ -479,7 +477,7 @@ std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_
 {
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
 
-	auto filter_by_axes = std::unique_ptr<PVFilter::PVElementFilterByAxes>(
+	std::unique_ptr<PVFilter::PVElementFilterByAxes> filter_by_axes(
 	    new PVFilter::PVElementFilterByAxes(_fields_mask));
 
 	// Here we create the pipeline according to the format

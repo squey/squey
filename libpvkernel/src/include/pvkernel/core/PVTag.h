@@ -21,7 +21,7 @@ class PVClassLibrary;
 class PVTagUndefinedException
 {
   public:
-	explicit PVTagUndefinedException(QString const& tag_name) : _tag_name(tag_name) {}
+	explicit PVTagUndefinedException(QString tag_name) : _tag_name(std::move(tag_name)) {}
 
   public:
 	QString what() { return QString("Tag %1 undefined").arg(_tag_name); }
@@ -46,7 +46,10 @@ class PVTag
 
   protected:
 	// Only PVClassLibrary can create tags, that are thus always valid
-	PVTag(QString const& name, QString const& desc) : _name(name), _desc(desc) { _valid = true; }
+	PVTag(QString name, QString desc) : _name(std::move(name)), _desc(std::move(desc))
+	{
+		_valid = true;
+	}
 
   public:
 	QString const& name() const { return _name; }

@@ -70,9 +70,7 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QDomElement const& rootNode)
 	parseFromRootNode(rootNode);
 }
 
-PVRush::PVXmlParamParser::~PVXmlParamParser()
-{
-}
+PVRush::PVXmlParamParser::~PVXmlParamParser() = default;
 
 void PVRush::PVXmlParamParser::dump_filters()
 {

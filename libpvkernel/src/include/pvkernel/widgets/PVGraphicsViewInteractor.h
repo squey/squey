@@ -57,7 +57,7 @@ class PVGraphicsViewInteractor : public PVGraphicsViewInteractorBase
 	{
 	}
 
-	~PVGraphicsViewInteractor() override {}
+	~PVGraphicsViewInteractor() override = default;
 
   protected:
 	/*! \brief Called when a cotnext menu event has occured.

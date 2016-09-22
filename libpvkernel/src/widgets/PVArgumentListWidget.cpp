@@ -115,16 +115,16 @@ QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(
 	// For this purpose, see also modify_arguments_dlg.
 
 	// Widgets
-	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	PVArgumentListWidget* args_widget = new PVArgumentListWidget(widget_factory, args);
+	auto btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto args_widget = new PVArgumentListWidget(widget_factory, args);
 
 	// Layout
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 	main_layout->addWidget(args_widget);
 	main_layout->addWidget(btns);
 
 	// Dialog box
-	QDialog* dlg = new QDialog(parent);
+	auto dlg = new QDialog(parent);
 	dlg->setLayout(main_layout);
 
 	// Connections
@@ -142,14 +142,14 @@ QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(
  *****************************************************************************/
 void PVWidgets::PVArgumentListWidget::init_widgets()
 {
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 	_btn_layout = new QHBoxLayout();
 
 	_args_model = new PVArgumentListModel();
 
 	_args_layout = new QGridLayout();
 	_mapper = new QDataWidgetMapper();
-	QItemDelegate* delegate = new QItemDelegate();
+	auto delegate = new QItemDelegate();
 	delegate->setItemEditorFactory(_args_widget_factory);
 	_mapper->setItemDelegate(delegate);
 	_mapper->setOrientation(Qt::Vertical);
@@ -243,7 +243,7 @@ void PVWidgets::PVArgumentListWidget::set_widget_factory(QItemEditorFactory* fac
 		if (!_mapper) {
 			init_widgets();
 		} else {
-			QItemDelegate* delegate = new QItemDelegate();
+			auto delegate = new QItemDelegate();
 			delegate->setItemEditorFactory(_args_widget_factory);
 			_mapper->setItemDelegate(delegate);
 			if (_args) {

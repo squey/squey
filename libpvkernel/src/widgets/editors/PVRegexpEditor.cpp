@@ -21,9 +21,7 @@ PVWidgets::PVRegexpEditor::PVRegexpEditor(QWidget* parent) : QLineEdit(parent)
  * PVWidgets::PVRegexpEditor::~PVRegexpEditor
  *
  *****************************************************************************/
-PVWidgets::PVRegexpEditor::~PVRegexpEditor()
-{
-}
+PVWidgets::PVRegexpEditor::~PVRegexpEditor() = default;
 
 void PVWidgets::PVRegexpEditor::set_rx(QRegExp rx)
 {

@@ -11,7 +11,7 @@
 #include <algorithm> // for move
 
 PVCore::PVSerializeObject::PVSerializeObject(QString path, PVSerializeArchive* parent_ar)
-    : _parent_ar(parent_ar), _logical_path(path)
+    : _parent_ar(parent_ar), _logical_path(std::move(path))
 {
 }
 

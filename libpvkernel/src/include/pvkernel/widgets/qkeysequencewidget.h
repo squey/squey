@@ -85,10 +85,10 @@ class QKeySequenceWidget : public QWidget
 	void captureKeySequence();
 
   public:
-	explicit QKeySequenceWidget(QWidget* parent = 0);
-	explicit QKeySequenceWidget(QKeySequence seq, QWidget* parent = 0);
-	explicit QKeySequenceWidget(QString noneString, QWidget* parent = 0);
-	explicit QKeySequenceWidget(QKeySequence seq, QString noneString, QWidget* parent = 0);
+	explicit QKeySequenceWidget(QWidget* parent = nullptr);
+	explicit QKeySequenceWidget(QKeySequence seq, QWidget* parent = nullptr);
+	explicit QKeySequenceWidget(QString noneString, QWidget* parent = nullptr);
+	explicit QKeySequenceWidget(QKeySequence seq, QString noneString, QWidget* parent = nullptr);
 	~QKeySequenceWidget() override;
 	QSize sizeHint() const override;
 	void setToolTip(const QString& tip);

@@ -22,10 +22,12 @@ class PVSourceDescription
   public:
 	PVSourceDescription() : _inputs(), _source_creator_p(), _format() {}
 
-	PVSourceDescription(const PVRush::PVInputType::list_inputs& inputs,
+	PVSourceDescription(PVRush::PVInputType::list_inputs inputs,
 	                    PVRush::PVSourceCreator_p source_creator_p,
-	                    const PVRush::PVFormat& format)
-	    : _inputs(inputs), _source_creator_p(source_creator_p), _format(format)
+	                    PVRush::PVFormat format)
+	    : _inputs(std::move(inputs))
+	    , _source_creator_p(std::move(source_creator_p))
+	    , _format(std::move(format))
 	{
 	}
 

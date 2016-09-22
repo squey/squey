@@ -36,8 +36,8 @@ class PVExporter
 	           const PVCore::PVColumnIndexes& column_indexes,
 	           PVRow step_count,
 	           export_func f,
-	           const std::string& sep_char = default_sep_char,
-	           const std::string& quote_char = default_quote_char);
+	           std::string sep_char = default_sep_char,
+	           std::string quote_char = default_quote_char);
 
 	void export_rows(size_t start_index);
 

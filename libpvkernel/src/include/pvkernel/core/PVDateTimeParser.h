@@ -45,7 +45,7 @@ class PVDateTimeParser
 
   protected:
 	struct TimeFormatInterface {
-		virtual ~TimeFormatInterface() {}
+		virtual ~TimeFormatInterface() = default;
 		virtual bool to_datetime(UnicodeString const& value, Calendar* cal) = 0;
 	};
 

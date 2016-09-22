@@ -86,7 +86,7 @@ class PVProgressBox : public QDialog
 	static CancelState progress(F f, QString const& name, QWidget* parent)
 	{
 		PVProgressBox pbox(name, parent);
-		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
+		auto end_s = new __impl::ThreadEndSignal();
 		connect(end_s, SIGNAL(finished()), &pbox, SLOT(accept()));
 		boost::thread worker([&]() { worker_thread<F>(f, end_s, pbox); });
 		process_worker_thread(end_s, worker, &pbox);

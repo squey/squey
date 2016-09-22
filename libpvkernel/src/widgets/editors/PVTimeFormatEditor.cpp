@@ -26,7 +26,7 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 {
 	setWindowTitle(tr("Time format help"));
 
-	QTextEdit* help_tf = new QTextEdit();
+	auto help_tf = new QTextEdit();
 	set_help(help_tf);
 
 	_ts_interpreted = new QTextEdit();
@@ -54,11 +54,11 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	connect(_ts_validate, SIGNAL(textChanged()), this, SLOT(time_strings_changed()));
 
 	QGroupBox* grp_help = new QGroupBox(tr("Time format description"));
-	QVBoxLayout* help_layout = new QVBoxLayout();
+	auto help_layout = new QVBoxLayout();
 	help_layout->addWidget(help_tf);
 	grp_help->setLayout(help_layout);
 
-	QGridLayout* bottom_layout = new QGridLayout();
+	auto bottom_layout = new QGridLayout();
 	bottom_layout->addWidget(new QLabel(tr("Time format:\n(enter one per line)"), this), 0, 0);
 	bottom_layout->addWidget(_tfs_edit, 1, 0);
 	bottom_layout->addWidget(
@@ -70,13 +70,12 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	bottom_layout->addWidget(auto_validate_chkbox, 4, 1);
 	bottom_layout->addWidget(_validate_btn, 5, 1);
 
-	QDialogButtonBox* dlg_btns =
-	    new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+	auto dlg_btns = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
 	connect(dlg_btns, SIGNAL(accepted()), this, SLOT(update_tf_to_editor()));
 	connect(dlg_btns, SIGNAL(accepted()), this, SLOT(hide()));
 	connect(dlg_btns, SIGNAL(rejected()), this, SLOT(hide()));
 
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 	main_layout->addWidget(grp_help);
 	main_layout->addLayout(bottom_layout);
 	main_layout->addWidget(dlg_btns);

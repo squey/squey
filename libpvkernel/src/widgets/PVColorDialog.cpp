@@ -112,7 +112,7 @@ PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* pa
 	for (size_t i = 0; i < colors.size(); i++) {
 		const PVCore::PVHSVColor c = colors[i];
 
-		QLabel* color_label = new QLabel();
+		auto color_label = new QLabel();
 		const QSize label_fixed_size(26, 26);
 		color_label->setFrameShape(QFrame::Box);
 		color_label->setFrameShadow(QFrame::Sunken);

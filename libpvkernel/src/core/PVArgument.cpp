@@ -119,8 +119,8 @@ void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args,
                                          const QString& group_name)
 {
 	settings.beginGroup(group_name);
-	for (auto it = args.begin(); it != args.end(); it++) {
-		settings.setValue(it->key(), PVArgument_to_QString(it->value()));
+	for (const auto& arg : args) {
+		settings.setValue(arg.key(), PVArgument_to_QString(arg.value()));
 	}
 	settings.endGroup();
 }
@@ -154,10 +154,10 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings,
 
 void PVCore::PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomElement& elt)
 {
-	for (auto it = args.begin(); it != args.end(); it++) {
+	for (const auto& arg : args) {
 		QDomElement arg_elt = elt.ownerDocument().createElement("argument");
-		arg_elt.setAttribute("name", it->key());
-		arg_elt.setAttribute("value", PVArgument_to_QString(it->value()));
+		arg_elt.setAttribute("name", arg.key());
+		arg_elt.setAttribute("value", PVArgument_to_QString(arg.value()));
 		elt.appendChild(arg_elt);
 	}
 }
@@ -210,10 +210,10 @@ PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList con
 void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret,
                                                  PVCore::PVArgumentList const& ref)
 {
-	for (auto it = ret.begin(); it != ret.end(); it++) {
-		QString const& key(it->key());
+	for (auto& it : ret) {
+		QString const& key(it.key());
 		if (ref.contains(key)) {
-			it->value() = ref.at(key);
+			it.value() = ref.at(key);
 		}
 	}
 }
@@ -221,10 +221,10 @@ void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret,
 void PVCore::PVArgumentList_set_missing_args(PVCore::PVArgumentList& ret,
                                              PVCore::PVArgumentList const& def_args)
 {
-	for (auto it = def_args.begin(); it != def_args.end(); it++) {
-		QString const& key(it->key());
+	for (const auto& def_arg : def_args) {
+		QString const& key(def_arg.key());
 		if (!ret.contains(key)) {
-			ret[key] = it->value();
+			ret[key] = def_arg.value();
 		}
 	}
 }

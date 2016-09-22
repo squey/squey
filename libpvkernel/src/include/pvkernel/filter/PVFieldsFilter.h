@@ -148,7 +148,7 @@ class PVFieldsFilter : public PVFieldsBaseFilter
   protected:
 	base_registrable* _clone_me() const override
 	{
-		FilterT* ret = new FilterT(*this);
+		auto ret = new FilterT(*this);
 		return ret;
 	}
 };

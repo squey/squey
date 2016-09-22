@@ -114,13 +114,13 @@ static void write_close_table(QString& text)
  *****************************************************************************/
 
 PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent)
-    : PVWidgets::PVPopupWidget::PVPopupWidget(parent), _last_widget(0)
+    : PVWidgets::PVPopupWidget::PVPopupWidget(parent), _last_widget(nullptr)
 {
 	setWindowFlags(Qt::FramelessWindowHint);
 
 	setFocusPolicy(Qt::NoFocus);
 
-	QVBoxLayout* l = new QVBoxLayout();
+	auto l = new QVBoxLayout();
 	l->setContentsMargins(0, 0, 0, 0);
 	setLayout(l);
 

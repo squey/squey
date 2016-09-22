@@ -631,7 +631,7 @@ class PVGraphicsView : public QWidget
 	template <typename T, typename... P>
 	T* declare_interactor(P&&... params)
 	{
-		T* new_interactor = new T(this, std::forward<P>(params)...);
+		auto new_interactor = new T(this, std::forward<P>(params)...);
 		_interactor_enum.push_back(new_interactor);
 		return new_interactor;
 	}

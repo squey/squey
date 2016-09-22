@@ -145,9 +145,7 @@ PVWidgets::PVGraphicsView::PVGraphicsView(QGraphicsScene* scene, QWidget* parent
  * PVWidgets::PVGraphicsView::~PVGraphicsView
  *****************************************************************************/
 
-PVWidgets::PVGraphicsView::~PVGraphicsView()
-{
-}
+PVWidgets::PVGraphicsView::~PVGraphicsView() = default;
 
 /*****************************************************************************
  * PVWidgets::PVGraphicsView::get_viewport
@@ -1132,8 +1130,7 @@ void PVWidgets::PVGraphicsView::undeclare_interactor(PVGraphicsViewInteractorBas
 
 	unregister_all(interactor);
 
-	interactor_enum_t::iterator it =
-	    std::find(_interactor_enum.begin(), _interactor_enum.end(), interactor);
+	auto it = std::find(_interactor_enum.begin(), _interactor_enum.end(), interactor);
 
 	if (it != _interactor_enum.end()) {
 		_interactor_enum.erase(it);
@@ -1208,7 +1205,7 @@ void PVWidgets::PVGraphicsView::unregister_one(QEvent::Type type,
 	assert(interactor);
 
 	interactor_list_t& ilist = _interactor_map[type];
-	interactor_list_t::iterator it = std::find(ilist.begin(), ilist.end(), interactor);
+	auto it = std::find(ilist.begin(), ilist.end(), interactor);
 
 	if (it != ilist.end()) {
 		ilist.erase(it);

@@ -61,7 +61,7 @@ class PVSerializeObject
 	PVSerializeObject(QString path, PVSerializeArchive* parent_ar);
 
   public:
-	virtual ~PVSerializeObject() {}
+	virtual ~PVSerializeObject() = default;
 
   private:
 	/*! \brief Private copy-constructor

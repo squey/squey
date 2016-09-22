@@ -84,13 +84,15 @@ using PVArgumentKeyList = std::vector<PVArgumentList::key_type>;
 class PVArgumentTypeBase
 {
   public:
-	PVArgumentTypeBase(){};
-	virtual ~PVArgumentTypeBase(){};
+	PVArgumentTypeBase() = default;
+	;
+	virtual ~PVArgumentTypeBase() = default;
+	;
 
   public:
 	virtual bool is_equal(const PVArgumentTypeBase& other) const = 0;
 	virtual QString to_string() const = 0;
-	virtual PVArgument from_string(QString const& str, bool* ok = 0) const = 0;
+	virtual PVArgument from_string(QString const& str, bool* ok = nullptr) const = 0;
 	virtual void serialize(QDataStream& out) const { out << to_string(); }
 	virtual PVArgument unserialize(QDataStream& in) const
 	{
@@ -117,7 +119,7 @@ QDataStream& operator<<(QDataStream& out, const PVArgumentTypeBase& obj);
 QDataStream& operator>>(QDataStream& in, const PVArgumentTypeBase& obj);
 
 QString PVArgument_to_QString(PVArgument const& v);
-PVArgument QString_to_PVArgument(const QString& s, const QVariant& v, bool* res_ok = 0);
+PVArgument QString_to_PVArgument(const QString& s, const QVariant& v, bool* res_ok = nullptr);
 
 void PVArgumentList_to_QSettings(const PVArgumentList& args,
                                  QSettings& settings,

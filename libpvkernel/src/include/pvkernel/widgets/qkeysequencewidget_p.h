@@ -94,7 +94,7 @@ class QShortcutButton : public QPushButton
 	Q_OBJECT
 
   public:
-	explicit QShortcutButton(QKeySequenceWidgetPrivate* p, QWidget* parent = 0)
+	explicit QShortcutButton(QKeySequenceWidgetPrivate* p, QWidget* parent = nullptr)
 	    : QPushButton(parent), d(p)
 	{
 		/* qDebug() << "qShortcut button Create"; */
@@ -105,7 +105,7 @@ class QShortcutButton : public QPushButton
 		QPushButton::setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	}
 
-	~QShortcutButton() override {}
+	~QShortcutButton() override = default;
 
 	QSize sizeHint() const override;
 

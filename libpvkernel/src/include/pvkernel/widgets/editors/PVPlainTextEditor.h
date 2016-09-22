@@ -26,7 +26,7 @@ class PVPlainTextEditor : public QWidget
 	Q_PROPERTY(PVCore::PVPlainTextType _text READ get_text WRITE set_text USER true)
 
   public:
-	explicit PVPlainTextEditor(QWidget* parent = 0);
+	explicit PVPlainTextEditor(QWidget* parent = nullptr);
 
   public:
 	PVCore::PVPlainTextType get_text() const;

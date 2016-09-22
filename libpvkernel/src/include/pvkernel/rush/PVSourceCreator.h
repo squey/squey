@@ -27,7 +27,7 @@ class PVSourceCreator : public PVCore::PVRegistrableClass<PVSourceCreator>
 	typedef std::shared_ptr<PVSourceCreator> p_type;
 
   public:
-	virtual ~PVSourceCreator() {}
+	virtual ~PVSourceCreator() = default;
 
   public:
 	virtual source_p create_source_from_input(PVInputDescription_p input) const = 0;

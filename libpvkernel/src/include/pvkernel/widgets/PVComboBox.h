@@ -42,7 +42,7 @@ class PVComboBox : public QComboBox
 	class PVComboBoxModel : public QStandardItemModel
 	{
 	  public:
-		explicit PVComboBoxModel(QStringList& dis_elt, QObject* parent = 0);
+		explicit PVComboBoxModel(QStringList& dis_elt, QObject* parent = nullptr);
 		Qt::ItemFlags flags(const QModelIndex& index) const override;
 		QVariant data(const QModelIndex& index, int role) const override;
 

@@ -32,7 +32,7 @@ class PVOrderedMapNode
 	 *
 	 * Create and initialize the ordered map node's object with the given parameters.
 	 */
-	PVOrderedMapNode(const Key& key, const Value& value) : _key(key), _value(value) {}
+	PVOrderedMapNode(Key key, Value value) : _key(std::move(key)), _value(std::move(value)) {}
 
 	/**
 	 * \brief return the map node's key .
@@ -80,7 +80,7 @@ class PVOrderedMap
 	 *
 	 * Creates and initialized the ordered map object.
 	 */
-	PVOrderedMap() {}
+	PVOrderedMap() = default;
 
 	/**
 	 * \brief Removes all elements from the container.
@@ -351,7 +351,7 @@ template <class Key, class Value>
 Value& PVOrderedMap<Key, Value>::operator[](const Key& key)
 {
 	// test if key exist, only return its value
-	iterator it = find(key);
+	auto it = find(key);
 	if (it != _nodes.end()) {
 		return it->value();
 	}
@@ -370,7 +370,7 @@ template <class Key, class Value>
 Value& PVOrderedMap<Key, Value>::at(const Key& key)
 {
 	// test if key exist, only return its value
-	iterator it = find(key);
+	auto it = find(key);
 	if (it != _nodes.end()) {
 		return it->value();
 	}
@@ -388,7 +388,7 @@ template <class Key, class Value>
 const Value& PVOrderedMap<Key, Value>::at(const Key& key) const
 {
 	// test if key exist, only return its value
-	const_iterator it = find(key);
+	auto it = find(key);
 	if (it != _nodes.end()) {
 		return it->value();
 	}
