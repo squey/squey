@@ -44,9 +44,7 @@ void PVInspector::PVXmlTimeValidatorHighLight::setDateFormat(const QStringList& 
  * PVInspector::PVXmlTimeValidatorHighLight::~PVXmlTimeValidatorHighLight
  *
  *****************************************************************************/
-PVInspector::PVXmlTimeValidatorHighLight::~PVXmlTimeValidatorHighLight()
-{
-}
+PVInspector::PVXmlTimeValidatorHighLight::~PVXmlTimeValidatorHighLight() = default;
 
 /******************************************************************************
  *

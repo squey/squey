@@ -29,14 +29,14 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 
   public:
 	PVZoneRenderingBCIBase(PVZoneID zone_id,
-	                       bci_func_type const& f_bci,
+	                       bci_func_type f_bci,
 	                       PVBCIBackendImage_p& dst_img,
 	                       uint32_t x_start,
 	                       size_t width,
 	                       float zoom_y = 1.0f,
 	                       bool reversed = false)
 	    : PVZoneRendering(zone_id)
-	    , _f_bci(f_bci)
+	    , _f_bci(std::move(f_bci))
 	    , _dst_img(dst_img)
 	    , _width(width)
 	    , _x_start(x_start)

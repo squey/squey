@@ -33,7 +33,7 @@ class PVAxisIndexCheckBoxEditor : public QWidget
 	int _current_index;
 
   public:
-	explicit PVAxisIndexCheckBoxEditor(Inendi::PVView const& view, QWidget* parent = 0);
+	explicit PVAxisIndexCheckBoxEditor(Inendi::PVView const& view, QWidget* parent = nullptr);
 	~PVAxisIndexCheckBoxEditor() override;
 
 	PVCore::PVAxisIndexCheckBoxType get_axis_index() const;

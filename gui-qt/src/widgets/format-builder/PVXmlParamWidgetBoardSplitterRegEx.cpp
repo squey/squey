@@ -38,9 +38,7 @@ PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRe
  * PVInspector::PVXmlParamWidgetBoardSplitterRegEx::~PVXmlParamWidgetBoardSplitterRegEx
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardSplitterRegEx::~PVXmlParamWidgetBoardSplitterRegEx()
-{
-}
+PVInspector::PVXmlParamWidgetBoardSplitterRegEx::~PVXmlParamWidgetBoardSplitterRegEx() = default;
 
 /******************************************************************************
  *
@@ -107,9 +105,9 @@ bool PVInspector::PVXmlParamWidgetBoardSplitterRegEx::confirmAndSave()
 QVBoxLayout* PVInspector::PVXmlParamWidgetBoardSplitterRegEx::createTab(const QString& title,
                                                                         QTabWidget* tab)
 {
-	QWidget* tabWidget = new QWidget(tab);
+	auto tabWidget = new QWidget(tab);
 	// create the layout
-	QVBoxLayout* tabWidgetLayout = new QVBoxLayout(tabWidget);
+	auto tabWidgetLayout = new QVBoxLayout(tabWidget);
 
 	// creation of the tab
 	tabWidgetLayout->setContentsMargins(0, 0, 0, 0);
@@ -156,7 +154,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::disAllocBoardFields()
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::draw()
 {
 	// init layout
-	QVBoxLayout* qv = new QVBoxLayout();
+	auto qv = new QVBoxLayout();
 	QVBoxLayout* tabReg = createTab("regexp", tabParam);
 	QVBoxLayout* tabGeneral = createTab("general", tabParam);
 
@@ -320,7 +318,8 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotOpenLogValid()
 {
 	QFileDialog fd;
-	QString urlFile = fd.getOpenFileName(0, QString("Select the file."), "."); // open file chooser
+	QString urlFile =
+	    fd.getOpenFileName(nullptr, QString("Select the file."), "."); // open file chooser
 	QFile f(urlFile);
 	if (f.exists()) { // if the file is valid
 		if (!f.open(QIODevice::ReadOnly | QIODevice::Text))

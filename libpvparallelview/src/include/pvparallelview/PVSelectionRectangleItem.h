@@ -45,8 +45,7 @@ class PVSelectionRectangleItem : public QGraphicsObject
 	static constexpr qreal GROW_STEP_RATIO = 1.2;
 
   public:
-	explicit PVSelectionRectangleItem(const QRectF& rect = QRectF(),
-	                                  QGraphicsItem* parent = nullptr);
+	explicit PVSelectionRectangleItem(QRectF rect = QRectF(), QGraphicsItem* parent = nullptr);
 
   public:
 	/**

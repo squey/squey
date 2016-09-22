@@ -70,8 +70,8 @@ PVGuiQt::PVLogoModel::PVLogoModel(const QString& filePath)
 
 	const PVPoint3D bounds = boundsMax - boundsMin;
 	const qreal scale = 1 / qMax(bounds.x, qMax(bounds.y, bounds.z));
-	for (int i = 0; i < m_points.size(); ++i)
-		m_points[i] = (m_points[i] - (boundsMin + bounds * 0.5)) * scale;
+	for (auto& m_point : m_points)
+		m_point = (m_point - (boundsMin + bounds * 0.5)) * scale;
 
 	m_normals.resize(m_points.size());
 	for (int i = 0; i < m_pointIndices.size(); i += 3) {
@@ -85,8 +85,8 @@ PVGuiQt::PVLogoModel::PVLogoModel(const QString& filePath)
 			m_normals[m_pointIndices.at(i + j)] += normal;
 	}
 
-	for (int i = 0; i < m_normals.size(); ++i)
-		m_normals[i] = m_normals[i].normalize();
+	for (auto& m_normal : m_normals)
+		m_normal = m_normal.normalize();
 }
 
 void PVGuiQt::PVLogoModel::render(bool wireframe, bool normals) const

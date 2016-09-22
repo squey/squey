@@ -47,7 +47,7 @@ class PVRenderingPipeline : boost::noncopyable
 		ZoneRenderingWithBCI() {}
 
 		ZoneRenderingWithBCI(PVZoneRenderingBCIBase_p zr_, PVBCICodeBase* codes_, size_t ncodes_)
-		    : zr(zr_), codes(codes_), ncodes(ncodes_)
+		    : zr(std::move(zr_)), codes(codes_), ncodes(ncodes_)
 		{
 		}
 

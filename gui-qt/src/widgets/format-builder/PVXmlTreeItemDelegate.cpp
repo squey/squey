@@ -22,9 +22,7 @@ PVInspector::PVXmlTreeItemDelegate::PVXmlTreeItemDelegate() : QAbstractItemDeleg
  * PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate
  *
  *****************************************************************************/
-PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate()
-{
-}
+PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate() = default;
 
 // void MyItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const
 // QModelIndex &index) const {

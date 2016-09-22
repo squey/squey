@@ -85,7 +85,7 @@ void PVInspector::PVXmlParamWidgetBoardFilter::disAllocBoardFields()
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardFilter::draw()
 {
-	QVBoxLayout* qv = new QVBoxLayout();
+	auto qv = new QVBoxLayout();
 
 	qv->addWidget(new QLabel("Filter name"));
 	qv->addWidget(name);

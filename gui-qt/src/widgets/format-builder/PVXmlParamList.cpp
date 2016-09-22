@@ -7,7 +7,7 @@
 
 #include "include/PVXmlParamList.h"
 
-PVInspector::PVXmlParamList::PVXmlParamList(QString const& name) : QListWidget(), _name(name)
+PVInspector::PVXmlParamList::PVXmlParamList(QString name) : QListWidget(), _name(std::move(name))
 {
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -27,8 +27,8 @@ QStringList PVInspector::PVXmlParamList::selectedList()
 {
 	QStringList ret;
 	QList<QListWidgetItem*> sel = selectedItems();
-	for (int i = 0; i < sel.size(); i++) {
-		ret << sel[i]->text();
+	for (auto& i : sel) {
+		ret << i->text();
 	}
 	return ret;
 }

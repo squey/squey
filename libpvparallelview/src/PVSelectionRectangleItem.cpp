@@ -30,10 +30,10 @@ void __print_rect(const char* text, const R& r)
  * PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem
  *****************************************************************************/
 
-PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem(const QRectF& rect,
+PVParallelView::PVSelectionRectangleItem::PVSelectionRectangleItem(QRectF rect,
                                                                    QGraphicsItem* parent)
     : QGraphicsObject(parent)
-    , _rect(rect)
+    , _rect(std::move(rect))
     , _x_min_value(0.)
     , _x_max_value(0.)
     , _y_min_value(0.)

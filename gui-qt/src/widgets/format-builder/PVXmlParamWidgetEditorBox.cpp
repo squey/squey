@@ -27,9 +27,7 @@ PVInspector::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox(QString pName,
  * PVInspector::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox()
-{
-}
+PVInspector::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox() = default;
 
 /******************************************************************************
  *

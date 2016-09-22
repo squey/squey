@@ -19,7 +19,7 @@ class PVXmlParamList : public QListWidget
 {
 	Q_OBJECT
   public:
-	PVXmlParamList(QString const& name);
+	PVXmlParamList(QString name);
 
   public:
 	void setItems(QStringList const& l);

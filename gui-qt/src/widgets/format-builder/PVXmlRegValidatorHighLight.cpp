@@ -37,9 +37,7 @@ void PVInspector::PVXmlRegValidatorHighLight::setRegExp(const QString& pRegStr)
  * PVInspector::PVXmlRegValidatorHighLight::~PVXmlRegValidatorHighLight
  *
  *****************************************************************************/
-PVInspector::PVXmlRegValidatorHighLight::~PVXmlRegValidatorHighLight()
-{
-}
+PVInspector::PVXmlRegValidatorHighLight::~PVXmlRegValidatorHighLight() = default;
 
 /******************************************************************************
  *

@@ -47,13 +47,13 @@ class PVDisplayIf
 
   protected:
 	explicit PVDisplayIf(int flags = 0,
-	                     QString const& tooltip_str = QString(),
+	                     QString tooltip_str = QString(),
 	                     Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
-	    : _flags(flags), _tooltip_str(tooltip_str), _default_pos(def_pos)
+	    : _flags(flags), _tooltip_str(std::move(tooltip_str)), _default_pos(def_pos)
 	{
 	}
 
-	virtual ~PVDisplayIf() {}
+	virtual ~PVDisplayIf() = default;
 
   public:
 	inline int flags() const { return _flags; }
@@ -121,7 +121,7 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 	                                Inendi::PVCombCol /*axis_comb*/,
 	                                QObject* parent = nullptr) const
 	{
-		QAction* action = new QAction(parent);
+		auto action = new QAction(parent);
 
 		QVariant var;
 		var.setValue<void*>(reinterpret_cast<void*>(obj));
@@ -183,9 +183,9 @@ class PVDisplayViewAxisIf : public PVDisplayIf
   public:
 	struct Params {
 		Params() : view(nullptr), axis_comb(0) {}
-		Params(const Params& o) : view(o.view), axis_comb(o.axis_comb) {}
+		Params(const Params& o) = default;
 		Params(Inendi::PVView* view_, Inendi::PVCombCol axis_comb_)
-		    : view(view_), axis_comb(axis_comb_)
+		    : view(view_), axis_comb(std::move(axis_comb_))
 		{
 		}
 

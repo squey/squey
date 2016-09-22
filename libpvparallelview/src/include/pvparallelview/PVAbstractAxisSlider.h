@@ -57,8 +57,9 @@ class PVAbstractAxisSlider : public QGraphicsObject
 	bool is_moving() const { return _moving; }
 
   public:
-	void
-	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
+	void paint(QPainter* painter,
+	           const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = nullptr) override;
 
   Q_SIGNALS:
 	void slider_moved();

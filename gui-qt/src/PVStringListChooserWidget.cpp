@@ -16,8 +16,8 @@ PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* paren
                                                                   QStringList comments)
     : QDialog(parent_)
 {
-	QVBoxLayout* main_layout = new QVBoxLayout;
-	QHBoxLayout* buttons_layout = new QHBoxLayout;
+	auto main_layout = new QVBoxLayout;
+	auto buttons_layout = new QHBoxLayout;
 	QPushButton* cancel = new QPushButton("Cancel");
 	QPushButton* ok = new QPushButton("OK");
 	_list_w = new QListWidget();
@@ -31,7 +31,7 @@ PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* paren
 		if (add_comments) {
 			display += QString(" (") + comments[i] + QString(")");
 		}
-		QListWidgetItem* item = new QListWidgetItem(display);
+		auto item = new QListWidgetItem(display);
 		item->setData(Qt::UserRole, str);
 		_list_w->addItem(item);
 		item->setSelected(true);

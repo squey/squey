@@ -44,7 +44,7 @@ class PVMappingProperties
   public:
 	PVMappingProperties(PVRush::PVFormat const& fmt, PVCol idx);
 	explicit PVMappingProperties(PVRush::PVAxisFormat const& axis);
-	PVMappingProperties(std::string const& mode, PVCore::PVArgumentList args);
+	PVMappingProperties(std::string mode, PVCore::PVArgumentList args);
 
   public:
 	void set_mode(std::string const& mode);

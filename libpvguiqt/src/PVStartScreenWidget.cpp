@@ -59,28 +59,28 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// SIZE STUFF
 	setMinimumSize(500, 600);
 
-	QHBoxLayout* main_layout = new QHBoxLayout();
+	auto main_layout = new QHBoxLayout();
 
 	QPixmap pv_welcomeIcon(":/start-logo");
 
-	QLabel* pv_labelWelcomeIcon = new QLabel();
+	auto pv_labelWelcomeIcon = new QLabel();
 	pv_labelWelcomeIcon->setPixmap(pv_welcomeIcon);
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon.width(), pv_welcomeIcon.height());
 
-	QVBoxLayout* pv_startLayout = new QVBoxLayout(this);
+	auto pv_startLayout = new QVBoxLayout(this);
 	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
-	QVBoxLayout* centerLayout = new QVBoxLayout();
+	auto centerLayout = new QVBoxLayout();
 	centerLayout->setAlignment(Qt::AlignHCenter);
 	centerLayout->addWidget(pv_labelWelcomeIcon);
 	pv_startLayout->addLayout(centerLayout);
 	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
-	QWidget* start_widget = new QWidget();
+	auto start_widget = new QWidget();
 	start_widget->setObjectName("PVStartScreenWidget");
 	start_widget->setLayout(main_layout);
 	pv_startLayout->addWidget(start_widget);
 
-	QGridLayout* versionLayout = new QGridLayout();
+	auto versionLayout = new QGridLayout();
 	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 0);
@@ -88,7 +88,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 2);
 
-	QHBoxLayout* hboxVersionLayout = new QHBoxLayout();
+	auto hboxVersionLayout = new QHBoxLayout();
 	hboxVersionLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
 	hboxVersionLayout->addLayout(versionLayout);
 
@@ -105,9 +105,9 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	main_layout->setContentsMargins(0, 0, 0, 0);
 
 	// We also need two Layout for the left and right parts
-	QVBoxLayout* left_layout = new QVBoxLayout();
+	auto left_layout = new QVBoxLayout();
 	left_layout->setContentsMargins(0, 0, 0, 0);
-	QVBoxLayout* right_layout = new QVBoxLayout();
+	auto right_layout = new QVBoxLayout();
 	right_layout->setContentsMargins(0, 0, 0, 0);
 
 	// We add these two layouts to the main_layout
@@ -130,9 +130,9 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	right_layout->addWidget(format_widget);
 
 	// Each of these three Widget needs a Layout
-	QVBoxLayout* format_widget_layout = new QVBoxLayout();
-	QVBoxLayout* import_widget_layout = new QVBoxLayout();
-	QVBoxLayout* project_widget_layout = new QVBoxLayout();
+	auto format_widget_layout = new QVBoxLayout();
+	auto import_widget_layout = new QVBoxLayout();
+	auto project_widget_layout = new QVBoxLayout();
 
 	// We attach these Layouts to there respective Widgets
 	format_widget->setLayout(format_widget_layout);
@@ -174,7 +174,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	format_widget_layout->addWidget(edit_format_button);
 
 	// Import buttons
-	QHBoxLayout* hl = new QHBoxLayout();
+	auto hl = new QHBoxLayout();
 	import_widget_layout->addLayout(hl);
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(hl, this, SLOT(import_type()));
 
@@ -183,13 +183,13 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 
 	// Formats (texts and lines)
 	// used
-	QFrame* format_used_widget_line = new QFrame(format_widget);
+	auto format_used_widget_line = new QFrame(format_widget);
 	format_used_widget_line->setFrameShape(QFrame::HLine);
 	QLabel* format_text_used_label = new QLabel("Recent used formats:", format_widget);
 	format_text_used_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_used_widget_line);
 	format_widget_layout->addWidget(format_text_used_label);
-	QHBoxLayout* used_format_header_layout = new QHBoxLayout();
+	auto used_format_header_layout = new QHBoxLayout();
 	QPushButton* clear_used_format_history = new QPushButton("Clear");
 	clear_used_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_used_format_history->setFocusPolicy(Qt::NoFocus);
@@ -199,10 +199,10 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	used_format_header_layout->addWidget(format_text_used_label);
 	used_format_header_layout->addStretch();
 	used_format_header_layout->addWidget(clear_used_format_history);
-	QVBoxLayout* recent_used_formats_layout = new QVBoxLayout();
+	auto recent_used_formats_layout = new QVBoxLayout();
 	format_widget_layout->addLayout(used_format_header_layout);
 	format_widget_layout->addLayout(recent_used_formats_layout);
-	custom_listwidget_t* recent_used_formats_list = new custom_listwidget_t();
+	auto recent_used_formats_list = new custom_listwidget_t();
 	recent_used_formats_layout->addWidget(recent_used_formats_list);
 	recent_used_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_used_formats_list->verticalScrollBar()->setObjectName(
@@ -211,12 +211,12 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	_recent_push_buttons[PVCore::Category::USED_FORMATS] = clear_used_format_history;
 
 	// edited
-	QFrame* format_edited_widget_line = new QFrame(format_widget);
+	auto format_edited_widget_line = new QFrame(format_widget);
 	format_edited_widget_line->setFrameShape(QFrame::HLine);
 	QLabel* format_text_edited_label = new QLabel("Recent edited formats:", format_widget);
 	format_text_edited_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_edited_widget_line);
-	QHBoxLayout* edited_format_header_layout = new QHBoxLayout();
+	auto edited_format_header_layout = new QHBoxLayout();
 	QPushButton* clear_edited_format_history = new QPushButton("Clear");
 	clear_edited_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_edited_format_history->setFocusPolicy(Qt::NoFocus);
@@ -227,9 +227,9 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	edited_format_header_layout->addStretch();
 	edited_format_header_layout->addWidget(clear_edited_format_history);
 	format_widget_layout->addLayout(edited_format_header_layout);
-	QVBoxLayout* recent_edited_formats_layout = new QVBoxLayout();
+	auto recent_edited_formats_layout = new QVBoxLayout();
 	format_widget_layout->addLayout(recent_edited_formats_layout);
-	custom_listwidget_t* recent_edited_formats_list = new custom_listwidget_t();
+	auto recent_edited_formats_list = new custom_listwidget_t();
 	recent_edited_formats_layout->addWidget(recent_edited_formats_list);
 	recent_edited_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_edited_formats_list->verticalScrollBar()->setObjectName(
@@ -238,16 +238,16 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	_recent_push_buttons[PVCore::Category::EDITED_FORMATS] = clear_edited_format_history;
 
 	// supported
-	QFrame* format_supported_widget_line = new QFrame(format_widget);
+	auto format_supported_widget_line = new QFrame(format_widget);
 	format_supported_widget_line->setFrameShape(QFrame::HLine);
 	QLabel* format_text_supported_label = new QLabel("Supported formats:", format_widget);
 	format_text_supported_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_supported_widget_line);
 	format_widget_layout->addWidget(format_text_supported_label);
 
-	QVBoxLayout* supported_formats_layout = new QVBoxLayout();
+	auto supported_formats_layout = new QVBoxLayout();
 	format_widget_layout->addLayout(supported_formats_layout);
-	custom_listwidget_t* supported_formats_list = new custom_listwidget_t();
+	auto supported_formats_list = new custom_listwidget_t();
 	supported_formats_layout->addWidget(supported_formats_list);
 	supported_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	supported_formats_list->verticalScrollBar()->setObjectName(
@@ -256,12 +256,12 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	_recent_push_buttons[PVCore::Category::SUPPORTED_FORMATS] = nullptr;
 
 	// projects (text and line)
-	QFrame* project_widget_line = new QFrame(import_widget);
+	auto project_widget_line = new QFrame(import_widget);
 	project_widget_line->setFrameShape(QFrame::HLine);
 	project_widget_layout->addWidget(project_widget_line);
 	QLabel* project_text_label = new QLabel("Recent investigations:", project_widget);
 	project_text_label->setObjectName("PVStartScreenWidget_text");
-	QHBoxLayout* projects_header_layout = new QHBoxLayout();
+	auto projects_header_layout = new QHBoxLayout();
 	QPushButton* clear_project_history = new QPushButton("Delete");
 	clear_project_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_project_history->setFocusPolicy(Qt::NoFocus);
@@ -271,7 +271,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	projects_header_layout->addWidget(project_text_label);
 	projects_header_layout->addStretch();
 	projects_header_layout->addWidget(clear_project_history);
-	custom_listwidget_t* recent_projects_list = new custom_listwidget_t();
+	auto recent_projects_list = new custom_listwidget_t();
 	project_widget_layout->addWidget(recent_projects_list);
 	recent_projects_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_projects_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -279,10 +279,10 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	_recent_push_buttons[PVCore::Category::PROJECTS] = clear_project_history;
 
 	// Imports (text and line)
-	QFrame* import_widget_line = new QFrame(project_widget);
+	auto import_widget_line = new QFrame(project_widget);
 	import_widget_line->setFrameShape(QFrame::HLine);
 	QLabel* import_text_label = new QLabel("Recent sources:", import_widget);
-	QHBoxLayout* sources_header_layout = new QHBoxLayout();
+	auto sources_header_layout = new QHBoxLayout();
 	import_text_label->setCursor(Qt::PointingHandCursor);
 	QPushButton* clear_source_history = new QPushButton("Clear");
 	clear_source_history->setFocusPolicy(Qt::NoFocus);
@@ -296,11 +296,11 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	sources_header_layout->addStretch();
 	sources_header_layout->addWidget(clear_source_history);
 	import_widget_layout->addLayout(sources_header_layout);
-	QVBoxLayout* recent_imports_layout = new QVBoxLayout();
+	auto recent_imports_layout = new QVBoxLayout();
 	import_widget_layout->addLayout(recent_imports_layout);
-	QVBoxLayout* recent_sources_layout = new QVBoxLayout();
+	auto recent_sources_layout = new QVBoxLayout();
 	import_widget_layout->addLayout(recent_sources_layout);
-	custom_listwidget_t* import_list = new custom_listwidget_t();
+	auto import_list = new custom_listwidget_t();
 	recent_sources_layout->addWidget(import_list);
 	import_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	import_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
@@ -409,7 +409,7 @@ size_t PVGuiQt::PVStartScreenWidget::total_count(PVCore::Category cat)
 
 void PVGuiQt::PVStartScreenWidget::delete_investigation_dlg()
 {
-	__impl::PVDeleteInvestigationDialog* dlg = new __impl::PVDeleteInvestigationDialog(this);
+	auto dlg = new __impl::PVDeleteInvestigationDialog(this);
 
 	constexpr PVCore::Category cat = PVCore::Category::PROJECTS;
 
@@ -495,7 +495,7 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 		break;
 	}
 
-	QHBoxLayout* layout = new QHBoxLayout();
+	auto layout = new QHBoxLayout();
 	layout->setAlignment(Qt::AlignLeft);
 	_widget = new QWidget();
 	_widget->setLayout(layout);
@@ -521,7 +521,7 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	layout->addWidget(_icon_label);
 
 	// Text
-	QLabel* text_label = new QLabel();
+	auto text_label = new QLabel();
 	text_label->setTextFormat(Qt::RichText);
 	text_label->setText(QString("<a href=\"%1;%2\">" + short_string + "</a>").arg(cat).arg(index));
 	text_label->setToolTip(long_string);
@@ -588,15 +588,14 @@ PVGuiQt::__impl::PVDeleteInvestigationDialog::PVDeleteInvestigationDialog(
     PVStartScreenWidget* parent)
     : QDialog(parent)
 {
-	QVBoxLayout* vbox = new QVBoxLayout();
+	auto vbox = new QVBoxLayout();
 	_clear_history_cb = new QCheckBox("Clear from history");
 	_remove_cache_cb = new QCheckBox("Clear import cache");
 	_delete_investigation_cb = new QCheckBox("Delete investigation");
 	connect(_delete_investigation_cb, SIGNAL(stateChanged(int)), this,
 	        SLOT(delete_investigation_checked(int)));
 
-	QDialogButtonBox* button_box =
-	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(button_box, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(button_box, SIGNAL(rejected()), this, SLOT(reject()));
 

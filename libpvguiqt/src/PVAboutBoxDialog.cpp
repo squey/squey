@@ -28,7 +28,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 {
 	setWindowTitle("About INENDI Inspector");
 
-	QGridLayout* main_layout = new QGridLayout;
+	auto main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 	main_layout->setSizeConstraint(QLayout::SetFixedSize);
 
@@ -67,11 +67,11 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	_view3D->setScene(new PVGuiQt::PVLogoScene());
 	_view3D->setCursor(Qt::OpenHandCursor);
 	_view3D_layout->addWidget(_view3D);
-	QLabel* logo = new QLabel;
+	auto logo = new QLabel;
 	logo->setPixmap(QPixmap(":/logo_text.png"));
 	_view3D_layout->addWidget(logo);
 
-	QLabel* text = new QLabel(content);
+	auto text = new QLabel(content);
 	text->setAlignment(Qt::AlignCenter);
 	text->setTextFormat(Qt::RichText);
 	text->setTextInteractionFlags(Qt::TextBrowserInteraction);
@@ -81,7 +81,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	assert(DOC_PATH && "The documentation path is not defined.");
 
-	QLabel* doc = new QLabel();
+	auto doc = new QLabel();
 	doc->setText("<br/>Reference Manual: <a href=\"file://" DOC_PATH
 	             "/inendi_inspector_reference_manual/index.html\">HTML</a> | "
 	             "<a href=\"file://" DOC_PATH

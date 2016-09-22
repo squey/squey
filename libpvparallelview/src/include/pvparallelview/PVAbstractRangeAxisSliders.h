@@ -66,8 +66,9 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	}
 
   protected:
-	void
-	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
+	void paint(QPainter* painter,
+	           const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = nullptr) override;
 
   protected:
 	PVAbstractAxisSlider* _sl_min;

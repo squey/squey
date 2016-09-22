@@ -30,7 +30,7 @@ class PVZoomConverter
 	/**
 	 * Needed virtual DTOR to compile
 	 */
-	virtual ~PVZoomConverter() {}
+	virtual ~PVZoomConverter() = default;
 
   public:
 	/**

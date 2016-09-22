@@ -40,7 +40,7 @@ class PVPlottingProperties
   public:
 	PVPlottingProperties(PVRush::PVFormat const& fmt, PVCol idx);
 	explicit PVPlottingProperties(PVRush::PVAxisFormat const& axis);
-	PVPlottingProperties(std::string const& mode, PVCore::PVArgumentList args);
+	PVPlottingProperties(std::string mode, PVCore::PVArgumentList args);
 
   public:
 	// For PVPlotting

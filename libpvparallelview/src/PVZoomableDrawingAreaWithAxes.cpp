@@ -69,9 +69,7 @@ PVParallelView::PVZoomableDrawingAreaWithAxes::PVZoomableDrawingAreaWithAxes(QWi
  * PVParallelView::PVZoomableDrawingAreaWithAxes::~PVZoomableDrawingAreaWithAxes
  *****************************************************************************/
 
-PVParallelView::PVZoomableDrawingAreaWithAxes::~PVZoomableDrawingAreaWithAxes()
-{
-}
+PVParallelView::PVZoomableDrawingAreaWithAxes::~PVZoomableDrawingAreaWithAxes() = default;
 
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingAreaWithAxes::set_decoration_color

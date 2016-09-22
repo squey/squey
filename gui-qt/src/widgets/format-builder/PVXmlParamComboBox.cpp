@@ -24,9 +24,7 @@ PVInspector::PVXmlParamComboBox::PVXmlParamComboBox(QString name) : QComboBox()
  * PVInspector::PVXmlParamComboBox::~PVXmlParamComboBox
  *
  *****************************************************************************/
-PVInspector::PVXmlParamComboBox::~PVXmlParamComboBox()
-{
-}
+PVInspector::PVXmlParamComboBox::~PVXmlParamComboBox() = default;
 
 /******************************************************************************
  *

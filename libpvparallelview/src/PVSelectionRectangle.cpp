@@ -114,7 +114,7 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
 {
 	toolbar->setIconSize(QSize(17, 17));
 
-	QToolButton* selection_mode = new QToolButton(toolbar);
+	auto selection_mode = new QToolButton(toolbar);
 	selection_mode->setPopupMode(QToolButton::InstantPopup);
 	selection_mode->setIcon(QIcon(":/selection-rectangle"));
 	selection_mode->setToolTip(tr("Selection mode"));

@@ -52,7 +52,7 @@ class PVStartScreenWidget : public QWidget, public sigc::trackable
 	typedef QListWidget custom_listwidget_t;
 
   public:
-	explicit PVStartScreenWidget(QWidget* parent = 0);
+	explicit PVStartScreenWidget(QWidget* parent = nullptr);
 
   public:
 	/*! \brief Refresh the recent items of all categories.

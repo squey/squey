@@ -77,15 +77,15 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 {
 	setWindowTitle(FORMAT_BUILDER_TITLE);
 
-	QSplitter* main_splitter = new QSplitter(Qt::Vertical);
+	auto main_splitter = new QSplitter(Qt::Vertical);
 	/*
 	 * ****************************************************************************
 	 * Création of graphics elements.
 	 * ****************************************************************************
 	 */
-	QVBoxLayout* vb = new QVBoxLayout();
+	auto vb = new QVBoxLayout();
 	vb->setMargin(0);
-	QSplitter* vertical_splitter = new QSplitter(Qt::Horizontal);
+	auto vertical_splitter = new QSplitter(Qt::Horizontal);
 	vbParam = new QVBoxLayout();
 	vbParam->setSizeConstraint(QLayout::SetMinimumSize);
 
@@ -105,7 +105,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	myTreeModel = new PVXmlDomModel(this);
 	myTreeView->setModel(myTreeModel);
 
-	QWidget* vbParamWidget = new QWidget();
+	auto vbParamWidget = new QWidget();
 	vbParamWidget->setLayout(vbParam);
 	vertical_splitter->addWidget(vbParamWidget);
 	QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -128,7 +128,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 
 	// Put the vb layout into a widget and add it to the splitter
 	_main_tab = new QTabWidget();
-	QWidget* vb_widget = new QWidget();
+	auto vb_widget = new QWidget();
 	vb_widget->setLayout(vb);
 	_main_tab->addTab(vb_widget, tr("Format"));
 
@@ -142,19 +142,19 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	main_splitter->addWidget(_main_tab);
 
 	// Tab widget for the NRAW
-	QTabWidget* nraw_tab = new QTabWidget();
+	auto nraw_tab = new QTabWidget();
 	nraw_tab->addTab(_nraw_widget, tr("Format preview"));
 	main_splitter->addWidget(nraw_tab);
 
 	_inv_lines_widget = new QListWidget();
 	nraw_tab->addTab(_inv_lines_widget, tr("Unmatched events"));
 
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 	initToolBar(main_layout);
 	main_layout->addWidget(main_splitter);
 	main_layout->setMenuBar(menuBar);
 
-	QWidget* central_widget = new QWidget();
+	auto central_widget = new QWidget();
 	central_widget->setLayout(main_layout);
 
 	setCentralWidget(central_widget);
@@ -316,7 +316,7 @@ void PVInspector::PVFormatBuilderWidget::initConnexions()
 void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 {
 
-	QToolBar* tools = new QToolBar();
+	auto tools = new QToolBar();
 
 	tools->addAction(actionAddFilterAfter);
 	tools->addAction(actionAddAxisIn);
@@ -480,7 +480,7 @@ void PVInspector::PVFormatBuilderWidget::slotNeedApply()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotNewWindow()
 {
-	PVFormatBuilderWidget* other = new PVFormatBuilderWidget;
+	auto other = new PVFormatBuilderWidget;
 	other->move(x() + 40, y() + 40);
 	other->show();
 }

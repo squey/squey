@@ -33,7 +33,8 @@ class PVScatterViewDataInterface : boost::noncopyable
 {
   public:
 	PVScatterViewDataInterface(){};
-	virtual ~PVScatterViewDataInterface(){};
+	virtual ~PVScatterViewDataInterface() = default;
+	;
 
   public:
 	struct ProcessParams {

@@ -274,7 +274,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& 
 	}
 	inendi_verify_opencl_var(err);
 
-	opencl_job_data_t* data = new opencl_job_data_t;
+	auto data = new opencl_job_data_t;
 	data->done_function = render_done;
 
 	dst_img->copy_device_to_host_async(&data->event);

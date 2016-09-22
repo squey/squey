@@ -25,7 +25,7 @@ PVWidgets::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor(Inendi::PVView c
 	// _checked = true;	// Default is checked
 	// _current_index = 0;
 
-	QHBoxLayout* layout = new QHBoxLayout;
+	auto layout = new QHBoxLayout;
 	checkbox = new QCheckBox;
 	checkbox->setCheckState(Qt::Checked);
 	layout->addWidget(checkbox);
@@ -44,9 +44,7 @@ PVWidgets::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor(Inendi::PVView c
  * PVWidgets::PVAxisIndexCheckBoxEditor::~PVAxisIndexCheckBoxEditor
  *
  *****************************************************************************/
-PVWidgets::PVAxisIndexCheckBoxEditor::~PVAxisIndexCheckBoxEditor()
-{
-}
+PVWidgets::PVAxisIndexCheckBoxEditor::~PVAxisIndexCheckBoxEditor() = default;
 
 /******************************************************************************
  *

@@ -32,9 +32,8 @@ Inendi::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axi
 {
 }
 
-Inendi::PVMappingProperties::PVMappingProperties(std::string const& mode,
-                                                 PVCore::PVArgumentList args)
-    : _mode(mode)
+Inendi::PVMappingProperties::PVMappingProperties(std::string mode, PVCore::PVArgumentList args)
+    : _mode(std::move(mode))
     , _mapping_filter(LIB_CLASS(Inendi::PVMappingFilter)::get()
                           .get_class_by_name(QString::fromStdString(_mode))
                           ->clone<PVMappingFilter>())

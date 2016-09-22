@@ -20,10 +20,10 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
                                                       QWidget* parent)
     : QWidget(parent), _nraw_model(nraw_model)
 {
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 
 	// Current source display
-	QHBoxLayout* src_layout = new QHBoxLayout();
+	auto src_layout = new QHBoxLayout();
 	_src_label = new QLabel();
 	src_layout->addWidget(_src_label);
 
@@ -46,7 +46,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	_nraw_table->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// "Mini-extractor" for this NRAW
-	QHBoxLayout* ext_layout = new QHBoxLayout();
+	auto ext_layout = new QHBoxLayout();
 	ext_layout->addWidget(new QLabel("Preview from line "));
 
 	_ext_start = new QSpinBox(this);

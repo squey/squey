@@ -26,7 +26,9 @@ class PVNewLayerDialog : public QDialog
 	static QString get_new_layer_name_from_dialog(const QString& layer_name, bool& hide_layers);
 
   private:
-	explicit PVNewLayerDialog(const QString& layer_name, bool hide_layers, QWidget* parent = 0);
+	explicit PVNewLayerDialog(const QString& layer_name,
+	                          bool hide_layers,
+	                          QWidget* parent = nullptr);
 	QString get_layer_name() const;
 	bool should_hide_layers() const;
 

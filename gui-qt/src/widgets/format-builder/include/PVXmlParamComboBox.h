@@ -38,7 +38,7 @@ class PVXmlParamComboBox : public QComboBox
 	class PVComboBoxModel : public QStandardItemModel
 	{
 	  public:
-		PVComboBoxModel(QStringList& dis_elt, QObject* parent = 0);
+		PVComboBoxModel(QStringList& dis_elt, QObject* parent = nullptr);
 		Qt::ItemFlags flags(const QModelIndex& index) const override;
 		QVariant data(const QModelIndex& index, int role) const override;
 

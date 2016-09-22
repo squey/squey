@@ -42,9 +42,8 @@ Inendi::PVPlottingProperties::PVPlottingProperties(PVRush::PVAxisFormat const& a
 {
 }
 
-Inendi::PVPlottingProperties::PVPlottingProperties(std::string const& mode,
-                                                   PVCore::PVArgumentList args)
-    : _mode(mode)
+Inendi::PVPlottingProperties::PVPlottingProperties(std::string mode, PVCore::PVArgumentList args)
+    : _mode(std::move(mode))
     , _plotting_filter(LIB_CLASS(Inendi::PVPlottingFilter)::get()
                            .get_class_by_name(QString::fromStdString(_mode))
                            ->clone<PVPlottingFilter>())

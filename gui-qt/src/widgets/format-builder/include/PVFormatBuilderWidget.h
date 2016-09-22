@@ -64,7 +64,7 @@ class PVFormatBuilderWidget : public QMainWindow
 
   private:
 	void closeEvent(QCloseEvent* event) override;
-	void init(QWidget* parent = 0);
+	void init(QWidget* parent = nullptr);
 
   public:
 	bool openFormat(QString const& path);

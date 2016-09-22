@@ -37,8 +37,9 @@ class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 	virtual void refresh() = 0;
 
 	QRectF boundingRect() const override;
-	void
-	paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0) override;
+	void paint(QPainter* painter,
+	           const QStyleOptionGraphicsItem* option,
+	           QWidget* widget = nullptr) override;
 
   public Q_SLOTS:
 	virtual void remove_from_axis() = 0;

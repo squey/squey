@@ -28,7 +28,7 @@ class PVAboutBoxDialog : public QDialog
 	friend class __impl::GraphicsView;
 
   public:
-	explicit PVAboutBoxDialog(QWidget* parent = 0);
+	explicit PVAboutBoxDialog(QWidget* parent = nullptr);
 
   private:
 	__impl::GraphicsView* _view3D;

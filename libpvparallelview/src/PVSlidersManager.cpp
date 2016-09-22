@@ -166,7 +166,7 @@ void PVParallelView::PVSlidersManager::del_range_sliders(range_geometry_set_t& r
                                                          PVCol nraw_col,
                                                          const id_t id)
 {
-	range_geometry_set_t::iterator ai = range.find(nraw_col);
+	auto ai = range.find(nraw_col);
 	if (ai != range.end()) {
 		range_geometry_list_t::const_iterator ii = ai->second.find(id);
 		if (ii != ai->second.end()) {
@@ -200,10 +200,9 @@ void PVParallelView::PVSlidersManager::update_range_sliders(range_geometry_set_t
 void PVParallelView::PVSlidersManager::iterate_range_sliders(const range_geometry_set_t& range,
                                                              const range_functor_t& functor) const
 {
-	for (range_geometry_set_t::const_iterator it = range.begin(); it != range.end(); ++it) {
-		for (range_geometry_list_t::const_iterator ait = it->second.begin();
-		     ait != it->second.end(); ++ait) {
-			functor(it->first, ait->first, ait->second);
+	for (const auto& it : range) {
+		for (auto ait = it.second.begin(); ait != it.second.end(); ++ait) {
+			functor(it.first, ait->first, ait->second);
 		}
 	}
 }

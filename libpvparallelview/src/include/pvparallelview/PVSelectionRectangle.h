@@ -55,7 +55,8 @@ class PVSelectionRectangle : public QObject
 
   public:
 	explicit PVSelectionRectangle(QGraphicsScene* scene);
-	~PVSelectionRectangle() override{};
+	~PVSelectionRectangle() override = default;
+	;
 
   public:
 	/**

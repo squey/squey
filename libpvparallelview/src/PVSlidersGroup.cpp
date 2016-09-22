@@ -196,8 +196,7 @@ void PVParallelView::PVSlidersGroup::add_selection_sliders(int64_t y_min, int64_
 	y_min *= BUCKET_ELT_COUNT;
 	y_max *= BUCKET_ELT_COUNT;
 
-	PVParallelView::PVSelectionAxisSliders* sliders =
-	    new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p, this);
+	auto sliders = new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p, this);
 	add_new_selection_sliders(sliders, sliders, y_min, y_max);
 
 	_sliders_manager_p->new_selection_sliders(_nraw_col, sliders, y_min, y_max);
@@ -210,8 +209,7 @@ void PVParallelView::PVSlidersGroup::add_selection_sliders(int64_t y_min, int64_
 PVParallelView::PVZoomedSelectionAxisSliders*
 PVParallelView::PVSlidersGroup::add_zoomed_selection_sliders(int64_t y_min, int64_t y_max)
 {
-	PVZoomedSelectionAxisSliders* sliders =
-	    new PVZoomedSelectionAxisSliders(this, _sliders_manager_p, this);
+	auto sliders = new PVZoomedSelectionAxisSliders(this, _sliders_manager_p, this);
 	add_new_zoomed_selection_sliders(sliders, sliders, y_min, y_max);
 
 	_sliders_manager_p->new_zoomed_selection_sliders(_nraw_col, sliders, y_min, y_max);
@@ -304,8 +302,7 @@ bool PVParallelView::PVSlidersGroup::sliders_moving() const
 
 void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(id_t id, int64_t y_min, int64_t y_max)
 {
-	PVParallelView::PVZoomAxisSliders* sliders =
-	    new PVParallelView::PVZoomAxisSliders(this, _sliders_manager_p, this);
+	auto sliders = new PVParallelView::PVZoomAxisSliders(this, _sliders_manager_p, this);
 
 	if (id == nullptr) {
 		id = this;

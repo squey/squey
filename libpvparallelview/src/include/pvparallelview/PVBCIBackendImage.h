@@ -28,7 +28,7 @@ class PVBCIBackendImage
 	PVBCIBackendImage(PVBCIBackendImage&&) = delete;
 	PVBCIBackendImage& operator=(PVBCIBackendImage&&) = delete;
 	PVBCIBackendImage& operator=(PVBCIBackendImage const&) = delete;
-	virtual ~PVBCIBackendImage() {}
+	virtual ~PVBCIBackendImage() = default;
 
   public:
 	inline QImage qimage() const { return qimage(height()); }

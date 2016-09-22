@@ -32,12 +32,12 @@ class PVXmlRegValidatorHighLight : public QSyntaxHighlighter
 	 * @param pRegStr
 	 */
 	void setRegExp(const QString& pRegStr);
-	virtual ~PVXmlRegValidatorHighLight();
+	~PVXmlRegValidatorHighLight() override;
 	/**
 	 * Function subclass to define highlighting rules.
 	 * @param
 	 */
-	virtual void highlightBlock(const QString&);
+	void highlightBlock(const QString&) override;
 
   private:
 	PVXmlParamTextEdit* aParent;

@@ -37,7 +37,7 @@ class PVZoomableDrawingAreaConstraints
 	/**
 	 * Needed virtual DTOR to compile
 	 */
-	virtual ~PVZoomableDrawingAreaConstraints() {}
+	virtual ~PVZoomableDrawingAreaConstraints() = default;
 
   public:
 	/**

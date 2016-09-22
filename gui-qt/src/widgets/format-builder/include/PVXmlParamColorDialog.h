@@ -20,7 +20,7 @@ class PVXmlParamColorDialog : public QPushButton
 {
 	Q_OBJECT
   public:
-	PVXmlParamColorDialog(QString name, QString color, QWidget* parent = 0);
+	PVXmlParamColorDialog(QString name, QString color, QWidget* parent = nullptr);
 	~PVXmlParamColorDialog() override;
 	void setColor(QString);
 	QString getColor();

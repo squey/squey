@@ -31,7 +31,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
   public:
 	explicit PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
 	                                 Inendi::PVView* view = nullptr,
-	                                 QWidget* parent = 0);
+	                                 QWidget* parent = nullptr);
 
   public:
 	void reset_used_axes();

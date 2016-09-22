@@ -29,7 +29,7 @@ class PVBCIDrawingBackend
 	typedef enum { Serial = 1, Parallel = 2 } Flags;
 
   public:
-	virtual ~PVBCIDrawingBackend() {}
+	virtual ~PVBCIDrawingBackend() = default;
 
   public:
 	virtual bool is_gpu_accelerated() const = 0;

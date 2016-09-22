@@ -19,12 +19,12 @@
 
 PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) : QWidget(parent)
 {
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto main_layout = new QVBoxLayout();
 	QGroupBox* group_box = new QGroupBox(tr("Import lines range"));
 
-	QVBoxLayout* group_box_layout = new QVBoxLayout(group_box);
+	auto group_box_layout = new QVBoxLayout(group_box);
 
-	QHBoxLayout* ignore_first_lines_layout = new QHBoxLayout();
+	auto ignore_first_lines_layout = new QHBoxLayout();
 
 	QLabel* ignore_label = new QLabel("Ignore");
 	_ignore_first_lines_spinbox = new PVGuiQt::PVLocalizedSpinBox();
@@ -37,7 +37,7 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	ignore_first_lines_layout->addItem(
 	    new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
-	QHBoxLayout* line_count_layout = new QHBoxLayout();
+	auto line_count_layout = new QHBoxLayout();
 	_line_count_checkbox = new QCheckBox();
 	_line_count_label = new QLabel("Stop at line count");
 	_line_count_spinbox = new PVGuiQt::PVLocalizedSpinBox();
