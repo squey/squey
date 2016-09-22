@@ -138,7 +138,8 @@ void PVCore::PVRecentItemsManager::remove_invalid_source()
 		_recents_settings.beginGroup(source);
 
 		try {
-			PVRush::PVSourceDescription src_desc(deserialize_source_description());
+			PVCore::PVSerializedSource ss(deserialize_source_description());
+			PVRush::PVSourceDescription src_desc(ss);
 			_recents_settings.endGroup();
 		} catch (PVRush::BadInputDescription const& e) {
 			_recents_settings.endGroup();
