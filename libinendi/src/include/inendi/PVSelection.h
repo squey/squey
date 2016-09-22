@@ -28,9 +28,10 @@ namespace Inendi
 class PVSelection : public PVCore::PVSelBitField
 {
   public:
-	explicit PVSelection(PVRow row_count) : PVCore::PVSelBitField(row_count) {}
-	explicit PVSelection(PVCore::PVSelBitField&& bf) : PVCore::PVSelBitField(std::move(bf)) {}
-	explicit PVSelection(PVCore::PVSelBitField bf) : PVCore::PVSelBitField(std::move(bf)) {}
+	template <class T>
+	explicit PVSelection(T&& t) : PVCore::PVSelBitField(std::forward<T>(t))
+	{
+	}
 
 	PVSelection(PVSelection const& o) = default;
 	PVSelection(PVSelection&& o) = default;
@@ -45,7 +46,7 @@ class PVSelection : public PVCore::PVSelBitField
 	PVSelection& operator=(const PVSelection& rhs) = default;
 	PVSelection& operator=(PVSelection&& rhs) = default;
 
-	PVSelection operator~() const { return PVSelection(PVCore::PVSelBitField::operator~()); }
+	PVSelection operator~() const { return PVSelection{PVCore::PVSelBitField::operator~()}; }
 
 	inline PVSelection& operator&=(const PVSelection& rhs)
 	{
