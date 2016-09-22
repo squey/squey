@@ -59,6 +59,4 @@ static constexpr const char* ESCAPE_PERCENT = "\%";
 #define INENDI_CONFDIR ".inendi"
 #define INENDI_INSPECTOR_CONFDIR INENDI_CONFDIR INENDI_PATH_SEPARATOR "inspector"
 
-#define PV_UNUSED(v) ((void)v)
-
 #endif /* PVBASE_GENERAL_H */

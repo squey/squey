@@ -8,8 +8,6 @@
 #include <pvkernel/core/PVMemory2D.h>
 #include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
 
-#include <pvbase/general.h> // for PV_UNUSED
-
 #include <tbb/tick_count.h> // for tick_count
 
 #include <QRect> // for QRect
@@ -64,7 +62,7 @@ void PVCore::memset2d(void* source,
 	assert(rect_x + rect_width < image_width);
 	assert(rect_y + rect_height < image_height);
 
-	PV_UNUSED(image_height);
+	(void)(image_height);
 
 	char* s = (char*)source;
 
