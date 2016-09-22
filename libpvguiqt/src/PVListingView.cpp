@@ -411,6 +411,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	// Create a new horizontal header context as it depend on the clicked column
 	_hhead_ctxt_menu.clear();
 
+	bool empty_sel = lib_view().get_output_layer().get_selection().is_empty();
+
 	// Add view creation based on an axis.
 	PVDisplays::PVDisplaysContainer* container = PVDisplays::get().get_parent_container(this);
 	if (container) {
@@ -428,17 +430,23 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		}
 		_hhead_ctxt_menu.addSeparator();
 	}
+	_action_col_unique->setEnabled(not empty_sel);
 	_hhead_ctxt_menu.addAction(_action_col_unique);
 	_menu_col_count_by->clear();
 	_hhead_ctxt_menu.addMenu(_menu_col_count_by);
+	_menu_col_count_by->setEnabled(not empty_sel);
 	_menu_col_sum_by->clear();
 	_hhead_ctxt_menu.addMenu(_menu_col_sum_by);
+	_menu_col_sum_by->setEnabled(not empty_sel);
 	_menu_col_min_by->clear();
 	_hhead_ctxt_menu.addMenu(_menu_col_min_by);
+	_menu_col_min_by->setEnabled(not empty_sel);
 	_menu_col_max_by->clear();
 	_hhead_ctxt_menu.addMenu(_menu_col_max_by);
+	_menu_col_max_by->setEnabled(not empty_sel);
 	_menu_col_avg_by->clear();
 	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
+	_menu_col_avg_by->setEnabled(not empty_sel);
 
 	const QStringList axes = lib_view().get_axes_names_list();
 	QStringList summable_types = {"number_int32", "number_uint32", "number_float"};
@@ -472,6 +480,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	_hhead_ctxt_menu.addSeparator();
 	_hhead_ctxt_menu.addAction(_action_col_copy);
 	_hhead_ctxt_menu.addAction(_action_col_sort);
+	_action_col_sort->setEnabled(not empty_sel);
 
 	/**
 	 * Correlation menu
