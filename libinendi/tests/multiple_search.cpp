@@ -23,19 +23,23 @@ constexpr size_t DUPL = 1;
 #endif
 
 constexpr char FORMAT[] = TEST_FOLDER "/picviz/multiple_search.csv.format";
-constexpr PVCol COLUMN_INDEX = 1;
 
-using options_t = std::pair<std::array<uint8_t, 4>, std::string>;
+using options_t = std::pair<std::array<int, 6>, std::string>;
 using testcase_t = std::pair<options_t, size_t>;
 
 void set_args(PVCore::PVArgumentList& args, const options_t& values)
 {
-	static constexpr const char* params[] = {"include", "case", "entire", "interpret"};
+	static constexpr const char* params[] = {"axis",   "include",   "case",
+	                                         "entire", "interpret", "type"};
 
 	for (size_t i = 0; i < values.first.size(); i++) {
-		PVCore::PVEnumType e = args[params[i]].value<PVCore::PVEnumType>();
-		e.set_sel(values.first[i]);
-		args[params[i]].setValue(e);
+		if (i == 0) {
+			args[params[i]].setValue(PVCore::PVOriginalAxisIndexType(values.first[i]));
+		} else {
+			PVCore::PVEnumType e = args[params[i]].value<PVCore::PVEnumType>();
+			e.set_sel(values.first[i]);
+			args[params[i]].setValue(e);
+		}
 	}
 
 	args["exps"].setValue(PVCore::PVPlainTextType(values.second.c_str()));
@@ -47,29 +51,36 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
                Inendi::PVLayer& out)
 {
 	std::vector<testcase_t> tests{
-	    {{{{0, 1, 1, 0}},
+	    {{{{1, 0, 1, 1, 0, 0}},
 	      "Tue Jan 06 01:23:28 2004\n"
 	      "Mon Dec 12 23:56:00 2005"},
-	     100},                                              // EXACT_MATCH
-	    {{{{0, 0, 1, 0}}, "MoN dEc 12 23:56:00 2005"}, 50}, // EXACT_MATCH + CASE_INSENSITIVE
-	    {{{{0, 1, 1, 1}}, ".*01.*"}, 700},                  // EXACT_MATCH + REGULAR_EXPRESSION
-	    {{{{0, 0, 1, 1}}, ".*w\\D{2}.*"},
+	     100},                                                    // EXACT_MATCH
+	    {{{{1, 0, 0, 1, 0, 0}}, "MoN dEc 12 23:56:00 2005"}, 50}, // EXACT_MATCH + CASE_INSENSITIVE
+	    {{{{1, 0, 1, 1, 1, 0}}, ".*01.*"}, 700}, // EXACT_MATCH + REGULAR_EXPRESSION
+	    {{{{1, 0, 0, 1, 1, 0}}, ".*w\\D{2}.*"},
 	     700}, // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
-	    {{{{0, 1, 0, 1}}, "\\d{2}\\:\\d{2}\\:00"}, 200}, // REGULAR_EXPRESSION
-	    {{{{0, 0, 0, 1}}, "j\\D{2}"}, 950},              // REGULAR_EXPRESSION + CASE_INSENSITIVE
-	    {{{{1, 0, 0, 0}}, "jan"}, 2355},                 // CASE_INSENSITIVE + EXCLUDE
-	    {{{{0, 1, 0, 0}}, "Oct\nDec"}, 750},             // NONE
+	    {{{{1, 0, 1, 0, 1, 0}}, "\\d{2}\\:\\d{2}\\:00"}, 200}, // REGULAR_EXPRESSION
+	    {{{{1, 0, 0, 0, 1, 0}}, "j\\D{2}"}, 950},  // REGULAR_EXPRESSION + CASE_INSENSITIVE
+	    {{{{1, 1, 0, 0, 0, 0}}, "jan"}, 2355},     // CASE_INSENSITIVE + EXCLUDE
+	    {{{{1, 0, 1, 0, 0, 0}}, "Oct\nDec"}, 750}, // NONE
 
 	    // test blank rows
-	    {{{{0, 1, 1, 0}}, ""}, 10},
-	    {{{{0, 1, 1, 0}}, "Tue Jan 06 01:23:28 2004\n"}, 50},
-	    {{{{0, 1, 1, 0}}, "Tue Jan 06 01:23:28 2004\n\n"}, 60},
+	    {{{{1, 0, 1, 1, 0, 0}}, ""}, 10},
+	    {{{{1, 0, 1, 1, 0, 0}}, "Tue Jan 06 01:23:28 2004\n"}, 50},
+	    {{{{1, 0, 1, 1, 0, 0}}, "Tue Jan 06 01:23:28 2004\n\n"}, 60},
+
+	    // test invalid and empty values
+	    {{{{0, 0, 1, 1, 0, 1}}, ""}, 10},
+	    {{{{0, 0, 1, 1, 0, 2}}, "test1\n\ntest2"}, 12},
+	    {{{{0, 0, 1, 1, 0, 2}}, "test1\n\ntest2\n1073348608"}, 62},
+	    {{{{0, 0, 1, 1, 0, 1}}, "test1\n\ntest2\n1073348608"}, 12},
+	    {{{{0, 0, 1, 1, 1, 2}}, "test.*"}, 5},
 	};
 
 	for (const testcase_t& test : tests) {
 		set_args(args, test.first);
 		plugin->set_args(args);
-		if (test.first.first[0]) { // exclude
+		if (test.first.first[1]) { // exclude
 			Inendi::PVLayer in_l = in;
 			Inendi::PVSelection& s = in_l.get_selection();
 			s.select_odd();
@@ -97,7 +108,6 @@ int main()
 	Inendi::PVLayer out("Out", view->get_row_count());
 	out.reset_to_empty_and_default_color();
 	Inendi::PVLayer& in = view->get_layer_stack_output_layer();
-	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(COLUMN_INDEX));
 
 	fclone->set_view(view);
 	fclone->set_output(&out);

@@ -39,6 +39,8 @@
 #define ARG_DESC_ENTIRE "Match on"
 #define ARG_NAME_INTERPRET "interpret"
 #define ARG_DESC_INTERPRET "Interpret expressions as"
+#define ARG_NAME_TYPE "type"
+#define ARG_DESC_TYPE "Search in"
 
 /******************************************************************************
  *
@@ -71,27 +73,35 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterMultipleSearch)
 	    PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
 	args[PVCore::PVArgumentKey(ARG_NAME_CASE, QObject::tr(ARG_DESC_CASE))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("Does not match case") << QString("Match case"),
-	                       0));
+	                       1));
 	args[PVCore::PVArgumentKey(ARG_NAME_ENTIRE, QObject::tr(ARG_DESC_ENTIRE))].setValue(
 	    PVCore::PVEnumType(
-	        QStringList() << QString("Part of the field") << QString("The entire field"), 0));
+	        QStringList() << QString("Part of the field") << QString("The entire field"), 1));
 	args[PVCore::PVArgumentKey(ARG_NAME_INTERPRET, QObject::tr(ARG_DESC_INTERPRET))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("Plain text") << QString("Regular expressions"),
 	                       0));
+	args[PVCore::PVArgumentKey(ARG_NAME_TYPE, QObject::tr(ARG_DESC_TYPE))].setValue(
+	    PVCore::PVEnumType(QStringList() << QString("Valid values") << QString("Invalid values")
+	                                     << QString("All values"),
+	                       0));
+
 	return args;
 }
 
-/******************************************************************************
- *
- * Inendi::PVLayerFilterMultipleSearch::operator()
- *
- *****************************************************************************/
 enum ESearchOptions {
 	NONE = 0,
 	REGULAR_EXPRESSION = 1 << 0,
 	EXACT_MATCH = 1 << 1,
 	CASE_INSENSITIVE = 1 << 2
 };
+
+enum EType { VALID = 1 << 0, INVALID = 1 << 1, EMPTY = 1 << 2 };
+
+/******************************************************************************
+ *
+ * Inendi::PVLayerFilterMultipleSearch::operator()
+ *
+ *****************************************************************************/
 
 void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer& out)
 {
@@ -102,7 +112,10 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	bool case_match = _args[ARG_NAME_CASE].value<PVCore::PVEnumType>().get_sel_index() == 1;
 	bool exact_match = _args[ARG_NAME_ENTIRE].value<PVCore::PVEnumType>().get_sel_index() == 1;
 	bool is_rx = interpret >= 1;
-	// bool is_wildcard = interpret == 2;
+
+	int t = _args[ARG_NAME_TYPE].value<PVCore::PVEnumType>().get_sel_index();
+
+	size_t type = (t + 1);
 
 	size_t opts = ((REGULAR_EXPRESSION * is_rx) | (EXACT_MATCH * exact_match) |
 	               (CASE_INSENSITIVE * (not case_match)));
@@ -115,13 +128,18 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	std::vector<std::string> exps_utf8;
 	exps_utf8.resize(exps.size());
 
+	bool search_empty_values = false;
 #pragma omp parallel for
 	for (int i = 0; i < exps.size(); i++) {
 		QString const& str = exps[i];
 		if (!str.isEmpty()) {
 			exps_utf8[i] = str.toUtf8().constData();
+		} else {
+			search_empty_values = true;
 		}
 	}
+
+	type |= (EMPTY * search_empty_values);
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	PVSelection& out_sel = out.get_selection();
@@ -130,12 +148,30 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 
 	BENCH_START(subselect);
 
+	out_sel.select_none();
+
 	switch (opts) {
 	case (EXACT_MATCH): {
 		try {
-			pvcop::db::algo::subselect(column, exps_utf8, in.get_selection(), out_sel);
+			pvcop::db::array converted_array = pvcop::db::algo::to_array(column, exps_utf8);
+			if (type & VALID) {
+				pvcop::db::algo::subselect(column, converted_array, in.get_selection(), out_sel);
+			}
 		} catch (pvcop::db::exception::partially_converted_error& e) {
-			if (std::string(nraw.collection().formatter(axis_id)->name()) != "string") {
+			if ((type & VALID) && e.incomplete_array().size() > 0) {
+				pvcop::db::algo::subselect(column, e.incomplete_array(), in.get_selection(),
+				                           out_sel);
+			}
+			if (type & INVALID) {
+				// Search for invalid values
+				const auto& inv = e.bad_values();
+				nraw.unconvertable_values_search(axis_id, inv, in.get_selection(), out_sel);
+
+				// Search for empty values as well
+				if (type & EMPTY) {
+					nraw.empty_values_search(axis_id, in.get_selection(), out_sel);
+				}
+			} else if (std::string(nraw.collection().formatter(axis_id)->name()) != "string") {
 				if (e.incomplete_array().size() == 0) {
 					// If every conversions failed, don't make the selection empty
 					out_sel = in.get_selection();
@@ -147,66 +183,50 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 		}
 	} break;
 	case (EXACT_MATCH | CASE_INSENSITIVE): {
-		pvcop::db::algo::subselect_if(
-		    column, exps_utf8,
-		    [](const std::string& array_value, const std::string& exp_value) {
-			    return strcasecmp(array_value.c_str(), exp_value.c_str()) == 0;
-			},
-		    in.get_selection(), out_sel);
+		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
+			return strcasecmp(array_value.c_str(), exp_value.c_str()) == 0;
+		};
+		search_values(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION): {
-		pvcop::db::algo::subselect_if(
-		    column, exps_utf8,
-		    [](const std::string& array_value, const std::string& exp_value) {
-			    pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
-			    return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
-			},
-		    in.get_selection(), out_sel);
+		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
+			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
+			return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+		};
+		search_values(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION | CASE_INSENSITIVE): {
-		pvcop::db::algo::subselect_if(
-		    column, exps_utf8,
-		    [](const std::string& array_value, const std::string& exp_value) {
-			    pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
-			    return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
-			},
-		    in.get_selection(), out_sel);
+		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
+			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
+			return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+		};
+		search_values(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
 	} break;
 	case (REGULAR_EXPRESSION): {
-		pvcop::db::algo::subselect_if(
-		    column, exps_utf8,
-		    [](const std::string& array_value, const std::string& exp_value) {
-			    pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
-			    return re.PartialMatch(
-			        pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
-			},
-		    in.get_selection(), out_sel);
+		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
+			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
+			return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+		};
+		search_values(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
 	} break;
 	case (REGULAR_EXPRESSION | CASE_INSENSITIVE): {
-		pvcop::db::algo::subselect_if(
-		    column, exps_utf8,
-		    [](const std::string& array_value, const std::string& exp_value) {
-			    pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
-			    return re.PartialMatch(
-			        pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
-			},
-		    in.get_selection(), out_sel);
+		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
+			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
+			return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+		};
+		search_values(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
 	} break;
 	case (CASE_INSENSITIVE): {
-		pvcop::db::algo::subselect_if(
-		    column, exps_utf8,
-		    [](const std::string& array_value, const std::string& exp_value) {
-			    return strcasestr(array_value.c_str(), exp_value.c_str()) != nullptr;
-			},
-		    in.get_selection(), out_sel);
+		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
+			return strcasestr(array_value.c_str(), exp_value.c_str()) != nullptr;
+		};
+		search_values(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
 	} break;
 	case (NONE): {
-		pvcop::db::algo::subselect_if(
-		    column, exps_utf8,
-		    [](const std::string& array_value, const std::string& exp_value) {
-			    return strstr(array_value.c_str(), exp_value.c_str()) != nullptr;
-			},
-		    in.get_selection(), out_sel);
+		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
+			return strstr(array_value.c_str(), exp_value.c_str()) != nullptr;
+		};
+		search_values(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
 	} break;
 	default: {
 		assert(false);
@@ -221,6 +241,28 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 		pvcop::core::algo::invert_selection(out_sel);
 		out_sel &= in.get_selection();
 		BENCH_END(invert_selection, "invert_selection", 1, 1, 1, 1);
+	}
+}
+
+void Inendi::PVLayerFilterMultipleSearch::search_values(
+    PVCol col,
+    const std::vector<std::string>& exps,
+    size_t type,
+    const PVSelection& in_sel,
+    Inendi::PVSelection& out_sel,
+    std::function<bool(const std::string&, const std::string&)> predicate) const
+{
+	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
+
+	if (type & VALID) {
+		const pvcop::db::array& column = nraw.collection().column(col);
+		pvcop::db::algo::subselect_if(column, exps, predicate, in_sel, out_sel);
+	}
+	if (type & INVALID) {
+		nraw.unconvertable_values_search(col, exps, in_sel, out_sel, predicate);
+	}
+	if (type & EMPTY) {
+		nraw.empty_values_search(col, in_sel, out_sel);
 	}
 }
 
@@ -244,14 +286,9 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PV
 
 	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 
-	PVCore::PVEnumType e;
-	e = args[ARG_NAME_CASE].value<PVCore::PVEnumType>();
-	e.set_sel(1);
-	args[ARG_NAME_CASE].setValue(e);
-
-	e = args[ARG_NAME_ENTIRE].value<PVCore::PVEnumType>();
-	e.set_sel(1);
-	args[ARG_NAME_ENTIRE].setValue(e);
+	PVCore::PVEnumType e = args[ARG_NAME_TYPE].value<PVCore::PVEnumType>();
+	e.set_sel(2);
+	args[ARG_NAME_TYPE].setValue(e);
 
 	args.set_edition_flag(false);
 
@@ -262,6 +299,11 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_m
     PVRow row, PVCol col, PVCol org_col, QString const& v)
 {
 	PVCore::PVArgumentList args = search_value_menu(row, col, org_col, v);
+
+	// Only search on valid values by default (allows better input checking)
+	PVCore::PVEnumType e = args[ARG_NAME_TYPE].value<PVCore::PVEnumType>();
+	e.set_sel(0);
+	args[ARG_NAME_TYPE].setValue(e);
 
 	args.set_edition_flag(true);
 
@@ -276,14 +318,6 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_menu(PVRow /*
 	PVCore::PVArgumentList args = default_args();
 
 	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
-
-	PVCore::PVEnumType e = args[ARG_NAME_CASE].value<PVCore::PVEnumType>();
-	e.set_sel(1);
-	args[ARG_NAME_CASE].setValue(e);
-
-	e = args[ARG_NAME_ENTIRE].value<PVCore::PVEnumType>();
-	e.set_sel(1);
-	args[ARG_NAME_ENTIRE].setValue(e);
 
 	return args;
 }

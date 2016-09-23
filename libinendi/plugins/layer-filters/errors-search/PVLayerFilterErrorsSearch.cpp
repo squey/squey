@@ -55,7 +55,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterErrorsSearch)
 	return args;
 }
 
-enum ESearchOptions { EMPTY = 1, INVALID = 2, EMPTY_AND_INVALID = 3 };
+enum ESearchOptions { EMPTY = 1, INVALID = 2 };
 
 /******************************************************************************
  *
@@ -69,24 +69,19 @@ void Inendi::PVLayerFilterErrorsSearch::operator()(PVLayer const& in, PVLayer& o
 
 	int col = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 	bool include = _args[ARG_NAME_INCLUDE].value<PVCore::PVEnumType>().get_sel_index() == 0;
-	int type = _args[ARG_NAME_TYPE].value<PVCore::PVEnumType>().get_sel_index();
-	ESearchOptions opts = static_cast<ESearchOptions>(type + 1);
+	size_t type = _args[ARG_NAME_TYPE].value<PVCore::PVEnumType>().get_sel_index() + 1;
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
 	PVSelection& out_sel = out.get_selection();
 
-	switch (opts) {
-	case (EMPTY): {
-		out_sel = in.get_selection() & PVSelection(nraw.empty_values_selection(col));
-	} break;
-	case (INVALID): {
-		out_sel = in.get_selection() & PVSelection(nraw.unconvertable_values_selection(col));
-	} break;
-	case (EMPTY_AND_INVALID): {
-		out_sel = in.get_selection() & (PVSelection(nraw.empty_values_selection(col)) |
-		                                PVSelection(nraw.unconvertable_values_selection(col)));
-	} break;
+	out_sel.select_none();
+
+	if (type & EMPTY) {
+		nraw.empty_values_search(col, in.get_selection(), out_sel);
+	}
+	if (type & INVALID) {
+		nraw.unconvertable_values_search(col, in.get_selection(), out_sel);
 	}
 
 	if (not include) {
