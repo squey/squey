@@ -67,6 +67,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	_view3D->setScene(new PVGuiQt::PVLogoScene());
 	_view3D->setCursor(Qt::OpenHandCursor);
 	_view3D_layout->addWidget(_view3D);
+	_view3D->setVisible(not getenv("SSH_CLIENT"));
 	auto logo = new QLabel;
 	logo->setPixmap(QPixmap(":/logo_text.png"));
 	_view3D_layout->addWidget(logo);
