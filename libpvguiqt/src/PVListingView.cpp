@@ -949,11 +949,10 @@ void PVGuiQt::PVListingView::sort(int col, Qt::SortOrder order)
 		    }
 		},
 	    tr("Sorting..."), this);
-	if (changed != PVCore::PVProgressBox::CancelState::CONTINUE) {
+	if (changed == PVCore::PVProgressBox::CancelState::CONTINUE) {
 		horizontalHeader()->setSortIndicator(col, order);
 		verticalHeader()->viewport()->update();
 	}
-	horizontalHeader()->setSortIndicatorShown(true);
 }
 
 /******************************************************************************
