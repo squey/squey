@@ -43,15 +43,16 @@ class PVFileDescription : public PVInputDescription
 		settings.setValue("path", path());
 	}
 
-	static std::unique_ptr<PVRush::PVInputDescription> load_from_string(std::string const& path)
+	static std::unique_ptr<PVRush::PVInputDescription>
+	load_from_string(std::vector<std::string> const& path)
 	{
 		return std::unique_ptr<PVFileDescription>(
-		    new PVFileDescription(QString::fromStdString(path)));
+		    new PVFileDescription(QString::fromStdString(path[0])));
 	}
 
-	static std::string desc_from_qsetting(QSettings const& s)
+	static std::vector<std::string> desc_from_qsetting(QSettings const& s)
 	{
-		return s.value("path").toString().toStdString();
+		return {1, s.value("path").toString().toStdString()};
 	}
 
   public:

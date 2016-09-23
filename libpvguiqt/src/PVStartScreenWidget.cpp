@@ -375,9 +375,9 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 			if (dial.exec() != QDialog::Accepted) {
 				break;
 			}
-			for (std::string& p : ss.input_desc) {
-				p += ";" + dial.get_login().toStdString();
-				p += ";" + dial.get_password().toStdString();
+			for (std::vector<std::string>& p : ss.input_desc) {
+				p.push_back(dial.get_login().toStdString());
+				p.push_back(dial.get_password().toStdString());
 			}
 		}
 		Q_EMIT load_source_from_description(PVRush::PVSourceDescription(ss));

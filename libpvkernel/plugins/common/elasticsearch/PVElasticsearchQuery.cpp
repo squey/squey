@@ -60,36 +60,31 @@ void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVElasticsearchQuery::load_from_string(std::string const& v)
+PVRush::PVElasticsearchQuery::load_from_string(std::vector<std::string> const& vl)
 {
-	QStringList vl = QString::fromStdString(v).split(";");
-
-	QString query = vl[0];
-	QString query_type = vl[1];
+	QString query = QString::fromStdString(vl[0]);
+	QString query_type = QString::fromStdString(vl[1]);
 
 	PVElasticsearchInfos infos;
-	infos.set_host(vl[2]);
-	infos.set_port(vl[3].toInt());
-	infos.set_index(vl[4]);
-	infos.set_importer(vl[5]);
+	infos.set_host(QString::fromStdString(vl[2]));
+	infos.set_port(std::stoi(vl[3]));
+	infos.set_index(QString::fromStdString(vl[4]));
+	infos.set_importer(QString::fromStdString(vl[5]));
 
 	if (vl.size() == 8) {
-		infos.set_login(vl[6]);
-		infos.set_password(vl[7]);
+		infos.set_login(QString::fromStdString(vl[6]));
+		infos.set_password(QString::fromStdString(vl[7]));
 	}
 
 	return std::unique_ptr<PVElasticsearchQuery>(
 	    new PVElasticsearchQuery(infos, query, query_type));
 }
 
-std::string PVRush::PVElasticsearchQuery::desc_from_qsetting(QSettings const& s)
+std::vector<std::string> PVRush::PVElasticsearchQuery::desc_from_qsetting(QSettings const& s)
 {
-	std::string res;
-	res += s.value("query").toString().toStdString();
-	res += ";" + s.value("query_type").toString().toStdString();
-	res += ";" + s.value("host").toString().toStdString();
-	res += ";" + s.value("port").toString().toStdString();
-	res += ";" + s.value("index").toString().toStdString();
-	res += ";" + s.value("importer").toString().toStdString();
+	std::vector<std::string> res = {
+	    s.value("query").toString().toStdString(), s.value("query_type").toString().toStdString(),
+	    s.value("host").toString().toStdString(),  s.value("port").toString().toStdString(),
+	    s.value("index").toString().toStdString(), s.value("importer").toString().toStdString()};
 	return res;
 }

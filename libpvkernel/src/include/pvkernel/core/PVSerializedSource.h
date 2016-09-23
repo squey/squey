@@ -11,7 +11,7 @@
 namespace PVCore
 {
 struct PVSerializedSource {
-	std::vector<std::string> input_desc;
+	std::vector<std::vector<std::string>> input_desc;
 	std::string sc_name;
 	std::string format_name;
 	std::string format_path;

@@ -57,8 +57,8 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 
 	virtual void save_input_to_qsettings(const PVInputDescription& input_descr,
 	                                     QSettings& settings) = 0;
-	virtual PVInputDescription_p load_input_from_string(std::string const&) = 0;
-	virtual std::string load_input_descr_from_qsettings(QSettings const& v) = 0;
+	virtual PVInputDescription_p load_input_from_string(std::vector<std::string> const&) = 0;
+	virtual std::vector<std::string> load_input_descr_from_qsettings(QSettings const& v) = 0;
 
   public:
 	QStringList human_name_of_inputs(list_inputs const& in) const
@@ -108,12 +108,12 @@ class PVInputTypeDesc : public PVInputType
 		input_descr.save_to_qsettings(settings);
 	}
 
-	PVInputDescription_p load_input_from_string(std::string const& v) override
+	PVInputDescription_p load_input_from_string(std::vector<std::string> const& v) override
 	{
 		return T::load_from_string(v);
 	}
 
-	std::string load_input_descr_from_qsettings(QSettings const& v) override
+	std::vector<std::string> load_input_descr_from_qsettings(QSettings const& v) override
 	{
 		return T::desc_from_qsetting(v);
 	}
