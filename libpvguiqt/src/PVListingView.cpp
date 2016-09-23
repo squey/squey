@@ -317,7 +317,7 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 		int d = e->delta() / 12;
 		uint32_t width =
 		    std::max(columnWidth(colIndex) + d, horizontalHeader()->minimumSectionSize());
-		setColumnWidth(colIndex, width);
+		horizontalHeader()->resizeSection(colIndex, width);
 		_headers_width[lib_view().get_nraw_axis_index(colIndex)] = width;
 		e->accept(); // I am the one who handle event
 	} else {
@@ -348,7 +348,7 @@ void PVGuiQt::PVListingView::reset()
 
 	for (int i = 0; i < horizontalHeader()->count(); i++) {
 		uint32_t axis_index = lib_view().get_nraw_axis_index(i);
-		setColumnWidth(i, _headers_width[axis_index]);
+		horizontalHeader()->resizeSection(i, _headers_width[axis_index]);
 	}
 
 	verticalHeader()->setFixedWidth(_vhead_max_width);
