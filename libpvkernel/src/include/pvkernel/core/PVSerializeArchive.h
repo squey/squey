@@ -50,10 +50,9 @@ class PVSerializeArchive
 	// Repairable errors
 	void set_repaired_value(std::string const& path, std::string const& value)
 	{
-		_repaired = std::make_pair(path, value);
+		_repaired[path] = value;
 	}
-	std::string const& get_repaired_path() const { return _repaired.first; }
-	std::string const& get_repaired_value() const { return _repaired.second; }
+	std::map<std::string, std::string> const& get_repaired_value() const { return _repaired; }
 	void set_current_status(std::string const& s) { _current_status = s; }
 	std::string const& get_current_status() const { return _current_status; }
 
@@ -110,7 +109,7 @@ class PVSerializeArchive
 	QHash<QString, PVSerializeObject_p> _objects;
 
   private:
-	std::pair<std::string, std::string> _repaired; //!< Saved repaired value (path, value)
+	std::map<std::string, std::string> _repaired; //!< Saved repaired value (path, value)
 
 	bool _save_log_files;
 	std::string _current_status; //!< Description about where we are in the serialization process.

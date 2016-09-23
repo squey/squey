@@ -33,7 +33,8 @@ PVCore::PVSerializeArchive::version_t PVCore::PVSerializeObject::get_version() c
 
 bool PVCore::PVSerializeObject::is_repaired_error() const
 {
-	return get_logical_path().toStdString() == _parent_ar->get_repaired_path();
+	return _parent_ar->get_repaired_value().find(get_logical_path().toStdString()) !=
+	       _parent_ar->get_repaired_value().end();
 }
 
 bool PVCore::PVSerializeObject::save_log_file() const
@@ -43,7 +44,7 @@ bool PVCore::PVSerializeObject::save_log_file() const
 
 std::string const& PVCore::PVSerializeObject::get_repaired_value() const
 {
-	return _parent_ar->get_repaired_value();
+	return _parent_ar->get_repaired_value().at(get_logical_path().toStdString());
 }
 
 size_t PVCore::PVSerializeObject::buffer_read(QString const& name, void* buf, size_t n)
