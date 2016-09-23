@@ -298,7 +298,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	}
 
 	_values_view->horizontalHeader()->setSortIndicator(_sort_section,
-	                                                   Qt::SortOrder::AscendingOrder);
+	                                                   Qt::SortOrder::DescendingOrder);
 	sort_by_column(_sort_section);
 
 	_values_view->horizontalHeader()->show();
@@ -622,8 +622,8 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
 
 	Qt::SortOrder old_order = _values_view->horizontalHeader()->sortIndicatorOrder();
 	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not(bool) old_order
-	                                               : col == 0 ? Qt::SortOrder::AscendingOrder
-	                                                          : Qt::SortOrder::DescendingOrder;
+	                                               : col == 0 ? Qt::SortOrder::DescendingOrder
+	                                                          : Qt::SortOrder::AscendingOrder;
 
 	model().sort(col, new_order);
 
