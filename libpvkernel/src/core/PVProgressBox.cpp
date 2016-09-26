@@ -94,8 +94,10 @@ void PVCore::PVProgressBox::cancel()
 
 void PVCore::PVProgressBox::set_extended_status(QString const& str)
 {
-	_extended_detail_label->setVisible(true);
-	_extended_detail_label->setText(str);
+	exec_gui([&]() {
+		_extended_detail_label->setVisible(true);
+		_extended_detail_label->setText(str);
+	});
 }
 
 void PVCore::PVProgressBox::set_cancel_btn_text(QString const& str)
