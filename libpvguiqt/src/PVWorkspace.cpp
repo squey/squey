@@ -393,8 +393,9 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 	fill_display<PVDisplays::PVDisplayViewAxisIf>();
 	fill_display<PVDisplays::PVDisplayViewIf>();
 
+	bool already_center = false;
+	// Only one central widget is possible for QDockWidget.
 	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
-		bool already_center = false;
 		// Create default widgets
 		PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 		    [&](PVDisplays::PVDisplayViewIf& obj) {
@@ -406,6 +407,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 			    const bool delete_on_close =
 			        !obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
 			    if (as_central && !already_center) {
+				    already_center = true;
 				    set_central_display(view, w, name, delete_on_close);
 			    } else {
 				    Qt::DockWidgetArea pos = obj.default_position_hint();
