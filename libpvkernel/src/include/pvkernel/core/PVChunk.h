@@ -213,9 +213,6 @@ class PVChunk
 		}
 	}
 
-  private:
-	PVCol get_source_number_fields() const;
-
   protected:
 	// Useful datas
 	char* _logical_end;

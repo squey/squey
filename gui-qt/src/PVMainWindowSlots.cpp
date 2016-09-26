@@ -30,6 +30,7 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
+#include <pvguiqt/PVCredentialDialog.h>
 
 #include <PVMainWindow.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
@@ -462,7 +463,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				                .arg(e.what())
 				                .toStdString());
 				        return;
-			        } catch (PVCore::PVSerializeReparaibleError const& e) {
+			        } catch (PVCore::PVSerializeReparaibleFileError const& e) {
 				        pbox.warning(tr("Error while loading project %1:\n").arg(file), e.what());
 				        QString old_path = QString::fromStdString(e.old_value());
 				        QString new_file;
@@ -479,7 +480,29 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 					                .toStdString());
 					        return;
 				        }
+				        // FIXME : We should be able to handle more than one error
 				        ar->set_repaired_value(e.logical_path(), new_file.toStdString());
+				        solution_has_been_fixed = true;
+				        reset_root();
+				        continue;
+			        } catch (PVCore::PVSerializeReparaibleCredentialError const& e) {
+				        QString login, password;
+				        bool ok;
+				        pbox.exec_gui([&]() {
+					        PVGuiQt::CredentialDialog dial;
+					        ok = (dial.exec() == QDialog::Accepted);
+					        login = dial.get_login();
+					        password = dial.get_password();
+					    });
+
+				        if (not ok) {
+					        read_exception = PVCore::PVSerializeArchiveError(
+					            "No credential provided to open this investigation");
+					        return;
+				        }
+
+				        ar->set_repaired_value(e.logical_path(),
+				                               (login + ";" + password).toStdString());
 				        solution_has_been_fixed = true;
 				        reset_root();
 				        continue;

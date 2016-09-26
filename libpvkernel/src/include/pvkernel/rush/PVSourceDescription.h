@@ -37,7 +37,7 @@ class PVSourceDescription
 	    , _format(QString::fromStdString(s.format_name), QString::fromStdString(s.format_path))
 	{
 		PVRush::PVInputType_p input_type_p = _source_creator_p->supported_type_lib();
-		for (std::string const& p : s.input_desc) {
+		for (auto const& p : s.input_desc) {
 			_inputs << input_type_p->load_input_from_string(p);
 		}
 	}

@@ -12,8 +12,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <QVariant>
-
 namespace PVCore
 {
 
@@ -23,17 +21,37 @@ class PVSerializeArchiveError;
 class PVSerializeReparaibleError : public std::runtime_error
 {
   public:
-	PVSerializeReparaibleError(std::string const& what, std::string path, std::string value)
-	    : std::runtime_error(what), _path(std::move(path)), _value(std::move(value))
+	PVSerializeReparaibleError(std::string const& what, std::string path)
+	    : std::runtime_error(what), _path(std::move(path))
 	{
 	}
 
-	std::string const& old_value() const { return _value; }
 	std::string const& logical_path() const { return _path; }
 
   private:
 	std::string _path;
+};
+
+class PVSerializeReparaibleFileError : public PVSerializeReparaibleError
+{
+  public:
+	PVSerializeReparaibleFileError(std::string const& what,
+	                               std::string const& path,
+	                               std::string value)
+	    : PVSerializeReparaibleError(what, path), _value(std::move(value))
+	{
+	}
+
+	std::string const& old_value() const { return _value; }
+
+  private:
 	std::string _value;
+};
+
+class PVSerializeReparaibleCredentialError : public PVSerializeReparaibleError
+{
+  public:
+	using PVSerializeReparaibleError::PVSerializeReparaibleError;
 };
 } // namespace PVCore
 

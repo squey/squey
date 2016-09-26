@@ -23,6 +23,7 @@
 
 #include <pvguiqt/PVStartScreenWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
+#include <pvguiqt/PVCredentialDialog.h>
 
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -368,8 +369,18 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 		break;
 	}
 	case PVCore::Category::SOURCES: {
-		Q_EMIT load_source_from_description(
-		    PVRush::PVSourceDescription(var.value<PVCore::PVSerializedSource>()));
+		PVCore::PVSerializedSource ss = var.value<PVCore::PVSerializedSource>();
+		if (ss.need_credential()) {
+			PVGuiQt::CredentialDialog dial;
+			if (dial.exec() != QDialog::Accepted) {
+				break;
+			}
+			for (std::vector<std::string>& p : ss.input_desc) {
+				p.push_back(dial.get_login().toStdString());
+				p.push_back(dial.get_password().toStdString());
+			}
+		}
+		Q_EMIT load_source_from_description(PVRush::PVSourceDescription(ss));
 		break;
 	}
 	case PVCore::Category::EDITED_FORMATS:

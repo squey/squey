@@ -17,6 +17,8 @@
 #include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
 
+#include <QCryptographicHash>
+
 Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVSourceCreator_p sc,
@@ -148,6 +150,20 @@ QString Inendi::PVSource::get_tooltip() const
 	return source + "\n" + format;
 }
 
+std::string Inendi::PVSource::hash() const
+{
+	QCryptographicHash hasher(QCryptographicHash::Md5);
+	constexpr size_t max_line_hash =
+	    500000UL; // Just use a subset. It is not optimal but it have to be "fast enough"
+	for (size_t j = 0; j < std::min<size_t>(_nraw.get_row_count(), max_line_hash); j++) {
+		std::string r = get_value(j, 0);
+		hasher.addData(r.c_str(), r.size());
+	}
+	std::string size = std::to_string(_nraw.get_row_count());
+	hasher.addData(size.c_str(), size.size());
+	return hasher.result().data();
+}
+
 void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Serialize source.");
@@ -156,6 +172,10 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 
 	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw");
 	_nraw.serialize_write(*nraw_obj);
+
+	so.set_current_status("Computing hash value");
+	std::string h = hash();
+	so.buffer_write("src_hash", (char*)h.data(), 16);
 
 	// Save the format
 	so.set_current_status("Serialize Format.");
@@ -248,6 +268,13 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	} catch (PVRush::NrawLoadingFail const& e) {
 		so.set_current_status("Fail to load NRaw from cache, reload it from source file");
 		source.load_data();
+
+		std::string hash_value(16, ' ');
+		so.buffer_read("src_hash", (char*)hash_value.data(), 16);
+		so.set_current_status("Computing hash value");
+		if (source.hash() != hash_value) {
+			throw PVCore::PVSerializeArchiveError("Source mismatch with the saved one.");
+		}
 	}
 
 	// Create the list of mapped
