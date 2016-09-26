@@ -37,7 +37,6 @@ PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
     , _out_nraw(_nraw)
     , _chk_flt(_format.create_tbb_filters())
     , _chunks(tbb::task_scheduler_init::default_num_threads())
-    , _force_naxes(0)
     , _max_value(0)
 {
 	for (auto const& input : inputs) {
@@ -101,11 +100,6 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	job->run_job();
 
 	return job;
-}
-
-void PVRush::PVExtractor::force_number_axes(PVCol naxes)
-{
-	_force_naxes = naxes;
 }
 
 void PVRush::PVExtractor::set_sources_number_fields()

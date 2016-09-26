@@ -27,8 +27,3 @@ void PVCore::PVChunk::init_elements_fields()
 		chunk_fields = (void*)((uintptr_t)chunk_fields + buffer_size_for_elt);
 	}
 }
-
-PVCol PVCore::PVChunk::get_source_number_fields() const
-{
-	return _source->get_number_cols_to_reserve();
-}

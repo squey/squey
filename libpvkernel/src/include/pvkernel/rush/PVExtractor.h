@@ -58,7 +58,6 @@ class PVExtractor
 	 */
 	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
-	void force_number_axes(PVCol naxes);
 	void release_inputs() { _agg.release_inputs(); }
 
 	size_t max_size() const { return _max_value; }
@@ -73,7 +72,6 @@ class PVExtractor
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;
-	PVCol _force_naxes;
 
 	size_t _max_value; //!< Total size for every input handled by this extractor (metrics depend on
 	                   //! inputs)
