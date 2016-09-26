@@ -194,7 +194,7 @@ void PVAbstractTableView::new_range(int min, int max)
 		// without
 		// scroll. The page size must be big enought to get them all.
 		// Save previously selected nraw line
-		size_t nraw_pos = table_model()->row_pos(table_model()->current_page());
+		size_t nraw_pos = table_model()->current_nraw_line();
 		size_t step = verticalScrollBar()->pageStep();
 		table_model()->update_pages(max - min + 1, step);
 		auto const& shown_lines = table_model()->shown_lines();

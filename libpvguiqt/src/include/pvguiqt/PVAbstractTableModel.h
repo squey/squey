@@ -223,6 +223,11 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 */
 	void set_filter(Inendi::PVSelection const& sel);
 
+	size_t current_nraw_line() const
+	{
+		return _display.row_pos_to_index(_current_page * _page_size + _pos_in_page);
+	}
+
   protected:
 	/**
 	 * Set sorting contextual informations.
