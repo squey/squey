@@ -37,7 +37,7 @@ class PVInputTypeSplunk : public PVInputTypeDesc<PVSplunkQuery>
 	QKeySequence menu_shortcut() const override;
 	bool get_custom_formats(PVInputDescription_p in, hash_formats& formats) const override;
 
-	QIcon icon() const override { return QIcon(":/splunk_icon"); }
+	QIcon icon() const override { return QIcon(":/import-icon-white"); }
 	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeSplunk)
