@@ -65,9 +65,9 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
 	    {{{{1, 0, 1, 0, 0, 0}}, "Oct\nDec"}, 750}, // NONE
 
 	    // test blank rows
-	    {{{{1, 0, 1, 1, 0, 0}}, ""}, 10},
+	    {{{{1, 0, 1, 1, 0, 2}}, ""}, 10},
 	    {{{{1, 0, 1, 1, 0, 0}}, "Tue Jan 06 01:23:28 2004\n"}, 50},
-	    {{{{1, 0, 1, 1, 0, 0}}, "Tue Jan 06 01:23:28 2004\n\n"}, 60},
+	    {{{{1, 0, 1, 1, 0, 2}}, "Tue Jan 06 01:23:28 2004\n\n"}, 60},
 
 	    // test invalid and empty values
 	    {{{{0, 0, 1, 1, 0, 1}}, ""}, 10},
@@ -75,6 +75,7 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
 	    {{{{0, 0, 1, 1, 0, 2}}, "test1\n\ntest2\n1073348608"}, 62},
 	    {{{{0, 0, 1, 1, 0, 1}}, "test1\n\ntest2\n1073348608"}, 12},
 	    {{{{0, 0, 1, 1, 1, 2}}, "test.*"}, 5},
+	    {{{{0, 0, 1, 1, 0, 0}}, "0"}, 0},
 	};
 
 	for (const testcase_t& test : tests) {

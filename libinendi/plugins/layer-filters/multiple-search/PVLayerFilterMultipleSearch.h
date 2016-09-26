@@ -41,12 +41,20 @@ class PVLayerFilterMultipleSearch : public PVLayerFilter
 	void show_error(QWidget* parent) const override;
 
   private:
-	void search_values(PVCol col,
-	                   const std::vector<std::string>& exps,
-	                   size_t type,
+	void search_values(PVCol col_idx,
+	                   const pvcop::db::array& search_array,
 	                   const PVSelection& in_sel,
-	                   Inendi::PVSelection& out_sel,
-	                   std::function<bool(const std::string&, const std::string&)> predicate) const;
+	                   Inendi::PVSelection& out_sel) const;
+	void
+	search_values_if(PVCol col,
+	                 const std::vector<std::string>& exps,
+	                 size_t type,
+	                 const PVSelection& in_sel,
+	                 Inendi::PVSelection& out_sel,
+	                 std::function<bool(const std::string&, const std::string&)> predicate) const;
+	void remove_default_invalid_values(PVCol col_idx,
+	                                   const Inendi::PVSelection& in_sel,
+	                                   Inendi::PVSelection& out_sel) const;
 
   private:
 	using strings_t = std::remove_reference<decltype(
