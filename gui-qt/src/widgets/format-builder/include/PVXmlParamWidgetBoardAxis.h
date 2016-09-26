@@ -68,14 +68,9 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void draw();
 	void initConnexion();
 	void initValue();
-	void setListTags();
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
 
-	QSet<QString> getListTags();
-	QSet<QString> getListParentSplitterTag();
-
-	QStringList get_current_tags();
 	/***************************  board items **********************/
 	//***** tab general *****
 	QTabWidget* tabParam;
@@ -87,12 +82,10 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	PVWidgets::PVAxisTypeWidget* mapPlotType;
 	PVWidgets::PVMappingModeWidget* comboMapping;
 	PVWidgets::PVPlottingModeWidget* comboPlotting;
-	PVXmlParamList* listTags;
 
 	//***** tab time format *****
 	QLabel* timeFormatLabel;
 	QCheckBox* useParentRegExpValue;
-	QPushButton* btnTagHelp;
 
 	//***** tab param *****
 	PVXmlParamColorDialog* buttonColor;
@@ -126,7 +119,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
   public Q_SLOTS:
 	void slotGoNextAxis();
 	void updatePlotMapping();
-	void slotShowTagHelp();
 	void slotShowTypeFormatHelp();
 	void updateMappingParams();
 	void updatePlottingParams();

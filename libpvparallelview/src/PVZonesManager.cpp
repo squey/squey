@@ -15,6 +15,8 @@
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/task_scheduler_init.h>
 
+#include <QSet>
+
 namespace PVParallelView
 {
 namespace __impl

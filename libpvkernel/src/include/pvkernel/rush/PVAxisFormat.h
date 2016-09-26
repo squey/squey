@@ -8,8 +8,6 @@
 #ifndef PVCORE_PVAXISFORMAT_H
 #define PVCORE_PVAXISFORMAT_H
 
-#include <pvkernel/rush/PVTags.h>
-
 #include <pvkernel/core/PVColor.h>
 
 #include <pvbase/types.h>
@@ -41,8 +39,6 @@ class PVAxisFormat
 	QString get_str_format() const { return _str_format; }
 	node_args_t const& get_args_mapping_string() const { return args_mapping; }
 	node_args_t const& get_args_plotting_string() const { return args_plotting; }
-	PVTags const& get_tags() const { return tags; }
-	bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
 
 	void set_color(QString str);
 	void set_color(PVCore::PVColor color_);
@@ -56,7 +52,6 @@ class PVAxisFormat
 	void set_type_format(QString str);
 	void set_args_mapping(node_args_t const& args) { args_mapping = args; }
 	void set_args_plotting(node_args_t const& args) { args_plotting = args; }
-	void add_tag(QString const& tag) { tags.add_tag(tag); }
 
   protected:
 	PVCore::PVColor titlecolor; //!< Color of the title for this axis
@@ -69,7 +64,6 @@ class PVAxisFormat
 	QString _str_format;        //!< Parameter of string representation for this axis.
 	node_args_t args_mapping;   //!< Arguments to compute Mapping.
 	node_args_t args_plotting;  //!< Arguments to compute plotting.
-	PVTags tags;
 
   public:
 	PVCol index;

@@ -29,7 +29,6 @@ class PVXmlParamParserData
 	PVFilter::PVFieldsFilterReg_p filter_lib;
 	PVCore::PVArgumentList filter_args;
 	size_t nchildren;
-	PVFilter::filter_child_axes_tag_t children_axes_tag;
 };
 } // namespace PVRush
 #endif /* PVXMLPARAMPARSERDATA_H */

@@ -31,8 +31,6 @@ class PVFieldsFilterInvalidArguments : public std::runtime_error
 enum fields_filter_type { one_to_one, one_to_many, many_to_many };
 
 typedef std::list<std::pair<PVCore::PVArgumentList, PVCore::list_fields>> list_guess_result_t;
-// Associate the tags to their columns
-typedef QHash<QString, PVCol> filter_child_axes_tag_t;
 
 class PVFieldsBaseFilter : public PVFilterFunction<PVCore::list_fields, PVFieldsBaseFilter>
 {
@@ -42,36 +40,6 @@ class PVFieldsBaseFilter : public PVFilterFunction<PVCore::list_fields, PVFields
 
   public:
 	PVFieldsBaseFilter() : PVFilterFunction<PVCore::list_fields, PVFieldsBaseFilter>() {}
-
-	virtual void init() {}
-
-	virtual void set_children_axes_tag(filter_child_axes_tag_t const& axes, size_t fields_count)
-	{
-#if NDEBUG
-		(void)axes;
-		(void)fields_count;
-#else
-		PVLOG_DEBUG("(PVFieldsFilter) %lu fields and %d tagged axes.\n", fields_count, axes.size());
-		filter_child_axes_tag_t::const_iterator it;
-		for (it = axes.begin(); it != axes.end(); it++) {
-			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set for col %d.\n", qPrintable(it.key()),
-			            it.value());
-		}
-#endif
-		_axes_tag = axes;
-	}
-
-  protected:
-	bool is_tag_present(QString const& tag) const { return _axes_tag.contains(tag); }
-
-	PVCol get_col_for_tag(QString const& tag) const
-	{
-		assert(_axes_tag.contains(tag));
-		return _axes_tag[tag];
-	}
-
-  protected:
-	filter_child_axes_tag_t _axes_tag;
 };
 
 template <fields_filter_type Ttype = many_to_many>
@@ -163,9 +131,6 @@ typedef PVFieldsSplitter::p_type PVFieldsSplitter_p;
 
 typedef PVFilter::PVFieldsFilter<PVFilter::one_to_one> PVFieldsConverter;
 typedef PVFieldsConverter::p_type PVFieldsConverter_p;
-
-typedef PVCore::PVClassLibrary<PVFieldsSplitter>::tag PVFieldsSplitterTag;
-typedef PVCore::PVClassLibrary<PVFieldsSplitter>::list_tags PVFieldsSplitterListTags;
 } // namespace PVFilter
 
 #endif

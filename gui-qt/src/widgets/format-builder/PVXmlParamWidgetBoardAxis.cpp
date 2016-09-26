@@ -10,7 +10,6 @@
 
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <PVFormatBuilderWidget.h>
-#include <PVAxisTagHelp.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <pvkernel/widgets/editors/PVTimeFormatEditor.h>
@@ -62,8 +61,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 	comboPlotting = new PVWidgets::PVPlottingModeWidget(this);
 
 	// tab parameter
-	listTags = new PVXmlParamList("tag");
-	btnTagHelp = new QPushButton(QIcon(":/help"), "Help");
 	buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
 	colorLabel = new QLabel(tr("Color of the axis line :"));
 	buttonTitleColor =
@@ -149,11 +146,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw()
 	gridLayout->addWidget(new QLabel(tr("Axis name :")), i, 0);
 	gridLayout->addWidget(textName, i, 2, 1, -1);
 	i += 2;
-	// tag
-	gridLayout->addWidget(new QLabel(tr("Tag :")), i, 0);
-	gridLayout->addWidget(listTags, i, 2);
-	gridLayout->addWidget(btnTagHelp, i, 4);
-	i += 2;
 	// type
 	gridLayout->addWidget(new QLabel(tr("Type :")), i, 0);
 	gridLayout->addWidget(mapPlotType, i, 2, 1, -1);
@@ -231,13 +223,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion()
 	        &PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams);
 	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
 
-	connect(listTags, &QListWidget::itemSelectionChanged, [this]() {
-		node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),
-		                   listTags->selectedList().join(QString(QChar(PVFORMAT_TAGS_SEP))));
-		Q_EMIT signalRefreshView();
-	});
-
-	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
 	connect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
 
 	// extra
@@ -313,8 +298,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 		node_tc = PVFORMAT_AXIS_TITLECOLOR_DEFAULT;
 	}
 	buttonTitleColor->setColor(node_tc);
-
-	setListTags();
 }
 
 /******************************************************************************
@@ -425,73 +408,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams()
 	_params_plotting->set_args(_args_plotting);
 
 	slotSetParamsPlotting();
-}
-
-void PVInspector::PVXmlParamWidgetBoardAxis::setListTags()
-{
-	listTags->clear();
-	listTags->addItem(PVFORMAT_AXIS_TAG_DEFAULT);
-
-	QSet<QString> list_tags = getListTags();
-	QSet<QString> list_splitter_tags = getListParentSplitterTag();
-
-	listTags->setItems(list_tags.unite(list_splitter_tags).toList());
-
-	listTags->sortItems();
-
-	QString node_tag = node->attribute(PVFORMAT_AXIS_TAG_STR);
-	if (node_tag.isEmpty()) {
-		node_tag = PVFORMAT_AXIS_TAG_DEFAULT;
-	}
-	listTags->select(node_tag.split(PVFORMAT_TAGS_SEP));
-}
-
-QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListTags()
-{
-	QSet<QString> ret;
-	Inendi::PVLayerFilterListTags const& lt = LIB_CLASS(Inendi::PVLayerFilter)::get().get_tags();
-	for (Inendi::PVLayerFilterTag const& tag : lt) {
-		ret << (QString)tag;
-	}
-	return ret;
-}
-
-QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListParentSplitterTag()
-{
-	QSet<QString> ret;
-	PVRush::PVXmlTreeNodeDom* parent = node->getParent();
-	if (!parent) {
-		return ret;
-	}
-	parent = parent->getParent();
-	if (!parent || parent->type != PVRush::PVXmlTreeNodeDom::Type::splitter) {
-		return ret;
-	}
-
-	// Ok, we have a splitter has parent. Let's get its provided tags.
-	PVFilter::PVFieldsSplitter_p filter_p =
-	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name(
-	        parent->attribute("type", ""));
-
-	// Ok, get the tags !
-	PVFilter::PVFieldsSplitterListTags const& tags =
-	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_tags_for_class(*filter_p);
-	for (const auto& tag : tags) {
-		ret << (QString)tag;
-	}
-
-	return ret;
-}
-
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::get_current_tags()
-{
-	return listTags->selectedList();
-}
-
-void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTagHelp()
-{
-	PVAxisTagHelp* dlg = new PVAxisTagHelp(get_current_tags(), parent()->parent());
-	dlg->exec();
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp()

@@ -662,51 +662,6 @@ QString PVRush::PVXmlTreeNodeDom::attribute(QString name, bool flagReadInXml)
 
 /******************************************************************************
  *
- * PVRush::PVXmlTreeNodeDom::version0to1
- *
- *****************************************************************************/
-void PVRush::PVXmlTreeNodeDom::version0to1()
-{
-	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version-1to1():      %s\n",
-	            qPrintable(getDom().tagName()));
-	if (getDom().tagName() == "RegEx") {
-		type = Type::splitter;
-		getDom().setTagName("splitter");
-		setAttribute("type", "regexp");
-		setAttribute("regexp", attribute("expression"));
-		// getDom().removeAttribute("expression");
-	} else if (getDom().tagName() == "url") {
-		type = Type::splitter;
-		getDom().setTagName("splitter");
-		setAttribute("type", "url");
-	} else if (getDom().tagName() == "csv") {
-		type = Type::splitter;
-		getDom().setTagName("splitter");
-		setAttribute("type", "csv");
-		setAttribute("sep", attribute("delimiter"));
-	}
-	if (getDom().tagName() == "filter") {
-		if (attribute("type") == "include") {
-			setAttribute("reverse", "0");
-		} else {
-			setAttribute("reverse", "1");
-		}
-		setAttribute("type", "regexp");
-		setAttribute("regexp", attribute("expression"));
-		getDom().removeAttribute("expression");
-
-	} else
-
-		// recurcive loop
-		for (int i = 0; i < getChildren().size(); i++) {
-			getChild(i)->version0to1();
-		}
-	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version0to1(): end  %s\n",
-	            qPrintable(getDom().tagName()));
-}
-
-/******************************************************************************
- *
  * PVRush::PVXmlTreeNodeDom::isFieldOfUrl
  *
  *****************************************************************************/
@@ -804,9 +759,6 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	PVCore::PVArgumentList args;
 	toArgumentList(filter_lib->get_default_args(), args);
 	filter_clone->set_args(args);
-
-	// initialize the filter
-	filter_clone->init();
 
 	// Set the number of expected children
 	filter_clone->set_number_expected_fields(countChildren());

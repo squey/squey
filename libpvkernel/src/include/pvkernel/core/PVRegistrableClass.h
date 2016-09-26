@@ -86,15 +86,6 @@ class PVClassLibrary;
  *classes with the same registered type (\c MyPluginInterface in our example).
  * This identifier can be used to compare the type of two objects, or to use
  * \section stdmap-keys Use plugins as keys of an std::map object
- * \section tags Tags
- * Tags can be associated to registrable classes implementations.
- * For instance, to associate the tag "MyNewTag" with the description "This is a new tag" to \c
- *MyPluginImplementation, the DECLARE_TAG macro is used:
- * \code
- * DECLARE_TAG("MyNewTag", "This is a new tag", MyPluginImplementation);
- * \endcode
- *
- * For more informations, see \ref PVTag.
  */
 template <typename RegAs_>
 class PVRegistrableClass

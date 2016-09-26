@@ -47,7 +47,6 @@ Inendi::PVLayerFilterHeatline::PVLayerFilterHeatline(PVCore::PVArgumentList cons
 PVCore::PVArgumentList Inendi::PVLayerFilterHeatline::get_default_args_for_view(PVView const&)
 {
 	PVCore::PVArgumentList args = get_default_args();
-	// Default args with the "key" tag
 	args[ARG_NAME_AXES].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
