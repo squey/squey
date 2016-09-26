@@ -13,15 +13,12 @@
 #include <QRegExp>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QVariant>
 #include <QDebug>
-#include <QTableWidget>
 #include <QTextEdit>
 #include <QDateTime>
 #include <QPushButton>
 #include <QGroupBox>
-#include <QTabWidget>
 #include <QCheckBox>
 
 #include <map>
@@ -64,7 +61,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
   private:
 	void allocBoardFields();
-	QVBoxLayout* createTab(const QString& title, QTabWidget* tab);
 	void draw();
 	void initConnexion();
 	void initValue();
@@ -73,7 +69,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
 	/***************************  board items **********************/
 	//***** tab general *****
-	QTabWidget* tabParam;
 	PVXmlParamWidgetEditorBox* textName; // name
 	// type
 	PVXmlParamWidgetEditorBox* _type_format; //!< Format to parse data (use for time)
@@ -84,14 +79,11 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	PVWidgets::PVPlottingModeWidget* comboPlotting;
 
 	//***** tab time format *****
-	QLabel* timeFormatLabel;
 	QCheckBox* useParentRegExpValue;
 
 	//***** tab param *****
 	PVXmlParamColorDialog* buttonColor;
-	QLabel* colorLabel;
 	PVXmlParamColorDialog* buttonTitleColor;
-	QLabel* titleColorLabel;
 
 	//***** view values from parent regexp *****
 	QTextEdit* tableValueFromParentRegExp;

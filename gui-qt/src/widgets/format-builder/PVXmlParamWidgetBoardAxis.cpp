@@ -15,6 +15,7 @@
 #include <pvkernel/widgets/editors/PVTimeFormatEditor.h>
 
 #include <QDialogButtonBox>
+#include <QFormLayout>
 
 /******************************************************************************
  *
@@ -41,9 +42,6 @@ PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVRush::PVXmlT
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 {
-	// tablWidget
-	tabParam = new QTabWidget(this);
-
 	// tab general
 	// name
 	textName =
@@ -62,10 +60,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 
 	// tab parameter
 	buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
-	colorLabel = new QLabel(tr("Color of the axis line :"));
 	buttonTitleColor =
 	    new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
-	titleColorLabel = new QLabel(tr("Color of the axis title :"));
 
 	_layout_params_mp = new QHBoxLayout();
 	_params_mapping = new PVWidgets::PVArgumentListWidget(
@@ -93,98 +89,50 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardAxis::createTab
- *
- *****************************************************************************/
-QVBoxLayout* PVInspector::PVXmlParamWidgetBoardAxis::createTab(const QString& title,
-                                                               QTabWidget* tab)
-{
-	auto tabWidget = new QWidget(tab);
-	// create the layout
-	auto tabWidgetLayout = new QVBoxLayout(tabWidget);
-
-	// creation of the tab
-	tabWidgetLayout->setContentsMargins(0, 0, 0, 0);
-	tabWidget->setLayout(tabWidgetLayout);
-
-	// add the tab
-	tab->addTab(tabWidget, title);
-
-	// return the layout to add items
-	return tabWidgetLayout;
-}
-
-/******************************************************************************
- *
  * PVInspector::PVXmlParamWidgetBoardAxis::draw
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardAxis::draw()
 {
+	auto layoutRoot = new QVBoxLayout(this);
 
-	// alloc
-	auto layoutParam = new QVBoxLayout();
-	QVBoxLayout* tabGeneral = createTab("General", tabParam);
-	QVBoxLayout* tabParameter = createTab("Parameter", tabParam);
-	auto widgetTabAndNext = new QWidget(this);
-	auto layoutRoot = new QHBoxLayout(this);
-
-	// general layout
 	setLayout(layoutRoot);
-	layoutRoot->setContentsMargins(0, 0, 0, 0);
-	// tab widget
-	layoutRoot->addWidget(widgetTabAndNext);
-	layoutParam->setContentsMargins(0, 0, 0, 0);
-	widgetTabAndNext->setLayout(layoutParam);
 
-	layoutParam->addWidget(tabParam);
+	auto general = new QWidget(this);
+	auto form_layout = new QFormLayout();
 
-	//***** tab general *****
-	auto gridLayout = new QGridLayout();
-	int i = 0;
-	// name
-	gridLayout->addWidget(new QLabel(tr("Axis name :")), i, 0);
-	gridLayout->addWidget(textName, i, 2, 1, -1);
-	i += 2;
-	// type
-	gridLayout->addWidget(new QLabel(tr("Type :")), i, 0);
-	gridLayout->addWidget(mapPlotType, i, 2, 1, -1);
-	i += 2;
-	// type format
-	gridLayout->addWidget(new QLabel(tr("Type Format:")), i, 0);
-	gridLayout->addWidget(_type_format, i, 2);
-	gridLayout->addWidget(btnTypeFormatHelp, i, 4);
-	i += 2;
-	// Mapping/Plotting
-	gridLayout->addWidget(new QLabel(tr("Mapping :")), i, 0);
-	gridLayout->addWidget(comboMapping, i, 2, 1, -1);
-	i += 2;
-	gridLayout->addWidget(new QLabel(tr("Plotting :")), i, 0);
-	gridLayout->addWidget(comboPlotting, i, 2, 1, -1);
-	tabGeneral->addLayout(gridLayout);
+	form_layout->addRow(tr("Axis name :"), textName);
+	form_layout->addRow(tr("Type :"), mapPlotType);
+
+	auto tf_widget = new QWidget();
+	auto tf_layout = new QHBoxLayout();
+	tf_layout->setContentsMargins(0, 0, 0, 0);
+	tf_layout->addWidget(_type_format);
+	tf_layout->addWidget(btnTypeFormatHelp);
+	tf_widget->setLayout(tf_layout);
+
+	form_layout->addRow(tr("Type Format:"), tf_widget);
+	form_layout->addRow(tr("Mapping :"), comboMapping);
+	form_layout->addRow(tr("Plotting :"), comboPlotting);
+
+	form_layout->addRow(tr("Color of the axis line :"), buttonColor);
+	form_layout->addRow(tr("Color of the axis title :"), buttonTitleColor);
+
+	general->setLayout(form_layout);
+	layoutRoot->addWidget(general);
 
 	// Mapping/plotting properties
+	auto prop_widget = new QWidget();
 	_layout_params_mp->addWidget(_grp_mapping);
 	_layout_params_mp->addWidget(_grp_plotting);
-	tabGeneral->addLayout(_layout_params_mp);
+	prop_widget->setLayout(_layout_params_mp);
+	layoutRoot->addWidget(prop_widget);
 
-	tabGeneral->addSpacerItem(
-	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-	//***** tab parameter *****
-	gridLayout = new QGridLayout();
-	i = 0;
-	gridLayout->addWidget(colorLabel, i, 0);
-	gridLayout->addWidget(buttonColor, i, 1);
-	i += 2;
-	gridLayout->addWidget(titleColorLabel, i, 0);
-	gridLayout->addWidget(buttonTitleColor, i, 1);
-	tabParameter->addLayout(gridLayout);
-	tabParameter->addSpacerItem(
+	layoutRoot->addSpacerItem(
 	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	// button next
-	layoutParam->addWidget(buttonNextAxis);
+	layoutRoot->addWidget(buttonNextAxis);
 	buttonNextAxis->setShortcut(QKeySequence(Qt::Key_Return));
 }
 
