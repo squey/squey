@@ -25,7 +25,6 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_AXIS_TYPE_STR "type"
 #define PVFORMAT_AXIS_MAPPING_STR "mapping"
 #define PVFORMAT_AXIS_PLOTTING_STR "plotting"
-#define PVFORMAT_AXIS_KEY_STR "key"
 #define PVFORMAT_AXIS_COLOR_STR "color"
 #define PVFORMAT_AXIS_TITLECOLOR_STR "titlecolor"
 #define PVFORMAT_AXIS_TYPE_FORMAT_STR "type_format"

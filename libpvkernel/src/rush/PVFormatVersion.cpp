@@ -212,6 +212,7 @@ void PVRush::PVFormatVersion::__impl::from7to8(QDomDocument& doc)
 	for (int i = 0; i < axis.size(); i++) {
 		QDomElement ax = axis.at(i).toElement();
 		ax.removeAttribute("tag");
+		ax.removeAttribute("key");
 	}
 
 	doc.documentElement().setAttribute("version", "8");
