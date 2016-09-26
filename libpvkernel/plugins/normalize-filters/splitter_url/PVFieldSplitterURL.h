@@ -29,21 +29,19 @@ class PVFieldSplitterURL : public PVFieldsFilter<one_to_many>
 	                                           PVCore::list_fields::iterator it_ins,
 	                                           PVCore::PVField& field) override;
 
-  protected:
-	void set_children_axes_tag(filter_child_axes_tag_t const& axes, size_t fields_count) override;
-
   private:
-	int _col_proto;
-	int _col_subdomain;
-	int _col_host;
-	int _col_domain;
-	int _col_tld;
-	int _col_port;
-	int _col_url;
-	int _col_variable;
-	int _col_fragment;
-	int _col_credentials;
-	PVCol _ncols;
+	enum ColKind {
+		_col_proto = 0,
+		_col_subdomain = 1,
+		_col_host = 2,
+		_col_domain = 3,
+		_col_tld = 4,
+		_col_port = 5,
+		_col_url = 6,
+		_col_variable = 7,
+		_col_fragment = 8,
+		_col_credentials = 9
+	};
 
 	tbb::combinable<furl_handler_t> _furl_handler;
 

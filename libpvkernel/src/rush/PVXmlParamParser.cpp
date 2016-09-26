@@ -235,13 +235,6 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
 			axis.set_titlecolor(
 			    child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
-			QString tag = child.attribute(PVFORMAT_AXIS_TAG_STR, QString());
-			if (!tag.isEmpty()) {
-				QStringList tags = tag.split(PVFORMAT_TAGS_SEP);
-				for (int j = 0; j < tags.size(); j++) {
-					axis.add_tag(tags[j]);
-				}
-			}
 
 			// Mapping and plotting parameters
 			QString mode;
@@ -275,39 +268,6 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 	PVRush::PVXmlParamParserData data;
 	data.axis_id = newId;
 	data.filter_lib = filters_lib.get_class_by_name(node_type + QString("_") + filter_plugin_name);
-	// Get the list of the filter axes' tags and pass this to the filter
-	QDomNodeList children = elt.childNodes();
-	PVFilter::filter_child_axes_tag_t& axes(data.children_axes_tag);
-	axes.reserve(children.size());
-	PVCol axis_id = 0;
-	for (int i = 0; i < children.size(); i++) {
-		QDomElement elt_child = children.at(i).toElement();
-		if (elt_child.tagName() != PVFORMAT_XML_TAG_FIELD_STR) {
-			continue;
-		}
-
-		// The axis is one of its children
-		QDomNodeList field_children = elt_child.childNodes();
-		QDomElement axis_child;
-		bool found = false;
-		for (int i = 0; i < field_children.size(); i++) {
-			axis_child = field_children.at(i).toElement();
-			if (axis_child.tagName() == PVFORMAT_XML_TAG_AXIS_STR) {
-				found = true;
-				break;
-			}
-		}
-		if (found) {
-			QString tag = axis_child.attribute(PVFORMAT_AXIS_TAG_STR, PVFORMAT_AXIS_TAG_DEFAULT);
-			if (!tag.isEmpty()) {
-				QStringList tags = tag.split(PVFORMAT_TAGS_SEP);
-				for (int i = 0; i < tags.size(); i++) {
-					axes[tags[i]] = axis_id;
-				}
-			}
-		}
-		axis_id++;
-	}
 	data.nchildren = elt.childNodes().size();
 	PVRush::PVXmlTreeNodeDom tnd(elt);
 	tnd.toArgumentList(data.filter_lib->get_default_args(), data.filter_args);

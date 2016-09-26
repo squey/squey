@@ -17,7 +17,6 @@ include/PVFilesTypesSelWidget.h
 include/PVMainWindow.h
 include/PVStringListChooserWidget.h
 
-widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVFormatBuilderWidget.h
 widgets/format-builder/include/PVNrawListingWidget.h
 widgets/format-builder/include/PVXmlTreeView.h 
@@ -43,7 +42,6 @@ PVMainWindowSlots.cpp
 PVSaveDataTreeDialog.cpp
 PVStringListChooserWidget.cpp
 
-widgets/format-builder/PVAxisTagHelp.cpp
 widgets/format-builder/PVFormatBuilderWidget.cpp
 widgets/format-builder/PVNrawListingModel.cpp
 widgets/format-builder/PVNrawListingWidget.cpp
@@ -68,23 +66,18 @@ SET(QRC_FILES
 inendi-inspector_resource.qrc
 )
 
-SET(UI_FILES
-widgets/format-builder/PVAxisTagHelp.ui
-)
-
 ################################################
 # Generate extra QT files (moc, uic, rcc)
 ################################################
 
 QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
-QT5_WRAP_UI(UI_SRC ${UI_FILES})
 
 ################################################
 # Handle licences for inendi-inspector
 ################################################
 
-add_executable(inendi-inspector ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
+add_executable(inendi-inspector ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 
 set_property(TARGET inendi-inspector APPEND PROPERTY LINK_FLAGS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")

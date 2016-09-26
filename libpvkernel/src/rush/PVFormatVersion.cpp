@@ -8,6 +8,8 @@
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
+#include <cassert>
+
 #include <QChar>
 #include <QDomNode>
 #include <QString>
@@ -103,6 +105,10 @@ void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		__impl::from6to7(doc);
 		version = "7";
 	}
+	if (version == "7") {
+		__impl::from7to8(doc);
+		version = "8";
+	}
 }
 
 void PVRush::PVFormatVersion::__impl::from0to1(QDomDocument& doc)
@@ -139,6 +145,78 @@ void PVRush::PVFormatVersion::__impl::from5to6(QDomDocument& doc)
 {
 	_rec_5to6(doc.documentElement());
 	doc.documentElement().setAttribute("version", "6");
+}
+
+void PVRush::PVFormatVersion::__impl::from7to8(QDomDocument& doc)
+{
+	QDomNodeList splitter = doc.documentElement().elementsByTagName("splitter");
+	for (int i = 0; i < splitter.size(); i++) {
+		QDomElement ax = splitter.at(i).toElement();
+		// Update type value
+		QString type = ax.attribute("type");
+		if (type != "url") {
+			continue;
+		}
+
+		std::vector<int> pos(10, -1);
+
+		auto fields = ax.childNodes();
+		for (int j = 0; j < fields.size(); j++) {
+			QDomElement axis = fields.at(j).namedItem("axis").toElement();
+			if (axis.isNull()) {
+				// Field without axis is like "no field" in url splitter
+				continue;
+			}
+			QString tag = axis.attribute("tag");
+			if (tag.contains("protocol")) {
+				pos[j] = 0;
+			} else if (tag.contains("subdomain")) {
+				pos[j] = 1;
+			} else if (tag.contains("host")) {
+				pos[j] = 2;
+			} else if (tag.contains("domain")) {
+				pos[j] = 3;
+			} else if (tag.contains("tld")) {
+				pos[j] = 4;
+			} else if (tag.contains("port")) {
+				pos[j] = 5;
+			} else if (tag.contains("url-variables")) {
+				pos[j] = 7;
+			} else if (tag.contains("url-credentials")) {
+				pos[j] = 9;
+			} else if (tag.contains("url-anchor")) {
+				pos[j] = 8;
+			} else {
+				assert(tag == "url");
+				// CHeck it at the end to avoid mismatch with variables, cred...
+				pos[j] = 6;
+			}
+		}
+
+		QDomElement new_splitter = ax.ownerDocument().createElement("splitter");
+		new_splitter.setAttribute("type", "url");
+
+		for (int p : pos) {
+			if (p == -1) {
+				QDomElement new_field = ax.ownerDocument().createElement("field");
+				new_splitter.appendChild(new_field);
+			} else {
+				new_splitter.appendChild(fields.at(p).cloneNode());
+			}
+		}
+
+		splitter.at(i).parentNode().replaceChild(new_splitter, splitter.at(i));
+	}
+
+	QDomNodeList axis = doc.documentElement().elementsByTagName("axis");
+	for (int i = 0; i < axis.size(); i++) {
+		QDomElement ax = axis.at(i).toElement();
+		ax.removeAttribute("tag");
+		ax.removeAttribute("key");
+		ax.removeAttribute("group");
+	}
+
+	doc.documentElement().setAttribute("version", "8");
 }
 
 void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)

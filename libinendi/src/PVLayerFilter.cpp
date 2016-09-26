@@ -109,11 +109,6 @@ bool Inendi::PVLayerFilter::should_cancel()
 	return _should_cancel;
 }
 
-PVCore::PVTag<Inendi::PVLayerFilter> Inendi::PVLayerFilter::get_tag(QString const& name)
-{
-	return LIB_CLASS(PVLayerFilter)::get().get_tag(name);
-}
-
 PVCore::PVPluginPresets<Inendi::PVLayerFilter> Inendi::PVLayerFilter::get_presets()
 {
 	return PVCore::PVPluginPresets<PVLayerFilter>(*this, "presets/layer_filters");

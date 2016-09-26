@@ -259,8 +259,6 @@ class PVXmlTreeNodeDom : public QObject
 	 */
 	PVXmlTreeNodeDom* getOutWidget();
 
-	void version0to1();
-
 	bool isOnRoot;
 
 	QStringList getDataForRegexp() { return _data_for_regexp; }

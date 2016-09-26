@@ -101,7 +101,6 @@ rush/PVControllerJob.cpp
 rush/PVExtractor.cpp
 rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp
-rush/PVTags.cpp
 rush/PVTests.cpp
 rush/PVUtils.cpp
 rush/PVXmlTreeNodeDom.cpp

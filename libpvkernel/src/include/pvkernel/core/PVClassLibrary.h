@@ -9,7 +9,6 @@
 #define PVCORE_PVCLASSLIBRARY_H
 
 #include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMap
-#include <pvkernel/core/PVTag.h>        // for PVTagUndefinedException, etc
 
 #include <cassert>   // for assert
 #include <stdexcept> // for runtime_error
@@ -28,8 +27,7 @@ class InvalidPlugin : public std::runtime_error
 	using std::runtime_error::runtime_error;
 };
 
-/*! \brief Template class library used to register relevant classes, with associated tags if
- *necessary. used by the plugin system.
+/*! \brief Template class library used to register relevant classes.
  *  \tparam RegAs Kind of class library. Must be a base class of T (see \ref register_class). This
  *is generally the interface of a plugin type.
  *
@@ -96,8 +94,6 @@ class PVClassLibrary
 	typedef typename RegAs::p_type PF;
 	typedef PVCore::PVOrderedMap<QString, PF> list_classes;
 	typedef PVClassLibrary<RegAs> C;
-	typedef PVTag<RegAs> tag;
-	typedef QList<tag> list_tags;
 
   private:
 	PVClassLibrary() { _last_registered_id = 0; }
@@ -120,70 +116,7 @@ class PVClassLibrary
 		_classes[name] = pf;
 	}
 
-	template <class T>
-	void declare_tag(QString const& name, QString const& desc)
-	{
-		// Looks for a registered version of 'T', and take it if it exists
-		typename list_classes::iterator it_c;
-		PF pf;
-		for (it_c = _classes.begin(); it_c != _classes.end(); it_c++) {
-			if (dynamic_cast<T*>(it_c->value().get()) != nullptr) {
-				pf = it_c->value();
-				break;
-			}
-		}
-		// If this assert fails, it means that 'T' hasn't been previously registered as 'RegAs' (see
-		// REGISTER_CLASS)
-		assert(pf);
-		typename list_tags::iterator it = std::find(_tags.begin(), _tags.end(), tag(name, ""));
-		if (it == _tags.end()) {
-			tag new_tag(name, desc);
-			new_tag.add_class(pf);
-			_tags.push_back(new_tag);
-		} else {
-			tag& cur_tag = *it;
-			cur_tag.add_class(pf);
-		}
-	}
-
 	list_classes const& get_list() const { return _classes; }
-
-	list_tags const& get_tags() const { return _tags; }
-
-	template <class T>
-	list_tags get_tags_for_class(T const& f) const
-	{
-		list_tags ret;
-		typename list_tags::const_iterator it;
-		for (it = _tags.begin(); it != _tags.end(); it++) {
-			tag const& t = *it;
-			typename tag::list_classes const& lc = t.associated_classes();
-			typename tag::list_classes::const_iterator it_c;
-			bool found = false;
-			for (it_c = lc.begin(); it_c != lc.end(); it_c++) {
-				if (typeid(*(*it_c)) == typeid(f)) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				continue;
-			}
-			ret.push_back(t);
-		}
-		return ret;
-	}
-
-	tag const& get_tag(QString name)
-	{
-		typename list_tags::const_iterator it =
-		    std::find(_tags.begin(), _tags.end(), tag(name, ""));
-		if (it == _tags.end()) {
-			throw PVTagUndefinedException(name);
-		}
-
-		return *it;
-	}
 
 	// A shared pointer is returned, which means that parameters can be saved accross this
 	// saved pointer. If this is not wanted, a clone can be made thanks to the clone() method
@@ -197,7 +130,6 @@ class PVClassLibrary
 
   private:
 	list_classes _classes;
-	list_tags _tags;
 	int _last_registered_id;
 };
 
@@ -226,10 +158,6 @@ class PVClassLibraryLibLoader
 	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(__VA_ARGS__));
 #define REGISTER_CLASS_WITH_ARGS(name, T, ...)                                                     \
 	REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, __VA_ARGS__)
-
-#define DECLARE_TAG_AS(name, desc, T, RegAs)                                                       \
-	PVCore::PVClassLibrary<RegAs>::get().declare_tag<T>(name, desc);
-#define DECLARE_TAG(name, desc, T) DECLARE_TAG_AS(name, desc, T, T::RegAs)
 
 #define LIB_CLASS(T) PVCore::PVClassLibrary<T::RegAs>
 } // namespace PVCore

@@ -852,6 +852,9 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 		QStringList sl;
 		sl.append(s);
+		// The old selection need to be reset between each value as a LayerFilter may update the
+		// selection (and this one do);
+		lib_view()->set_selection_view(old_sel);
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 		lib_view()->add_new_layer(layer_name);

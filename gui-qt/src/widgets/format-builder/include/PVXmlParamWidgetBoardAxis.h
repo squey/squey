@@ -13,15 +13,12 @@
 #include <QRegExp>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QVariant>
 #include <QDebug>
-#include <QTableWidget>
 #include <QTextEdit>
 #include <QDateTime>
 #include <QPushButton>
 #include <QGroupBox>
-#include <QTabWidget>
 #include <QCheckBox>
 
 #include <map>
@@ -64,21 +61,14 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
   private:
 	void allocBoardFields();
-	QVBoxLayout* createTab(const QString& title, QTabWidget* tab);
 	void draw();
 	void initConnexion();
 	void initValue();
-	void setListTags();
 	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
 	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
 
-	QSet<QString> getListTags();
-	QSet<QString> getListParentSplitterTag();
-
-	QStringList get_current_tags();
 	/***************************  board items **********************/
 	//***** tab general *****
-	QTabWidget* tabParam;
 	PVXmlParamWidgetEditorBox* textName; // name
 	// type
 	PVXmlParamWidgetEditorBox* _type_format; //!< Format to parse data (use for time)
@@ -87,18 +77,13 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	PVWidgets::PVAxisTypeWidget* mapPlotType;
 	PVWidgets::PVMappingModeWidget* comboMapping;
 	PVWidgets::PVPlottingModeWidget* comboPlotting;
-	PVXmlParamList* listTags;
 
 	//***** tab time format *****
-	QLabel* timeFormatLabel;
 	QCheckBox* useParentRegExpValue;
-	QPushButton* btnTagHelp;
 
 	//***** tab param *****
 	PVXmlParamColorDialog* buttonColor;
-	QLabel* colorLabel;
 	PVXmlParamColorDialog* buttonTitleColor;
-	QLabel* titleColorLabel;
 
 	//***** view values from parent regexp *****
 	QTextEdit* tableValueFromParentRegExp;
@@ -126,7 +111,6 @@ class PVXmlParamWidgetBoardAxis : public QWidget
   public Q_SLOTS:
 	void slotGoNextAxis();
 	void updatePlotMapping();
-	void slotShowTagHelp();
 	void slotShowTypeFormatHelp();
 	void updateMappingParams();
 	void updatePlottingParams();

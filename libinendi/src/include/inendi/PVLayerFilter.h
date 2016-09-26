@@ -16,7 +16,6 @@
 #include <pvkernel/core/PVOrderedMap.h>    // for PVOrderedMap
 #include <pvkernel/core/PVPluginPresets.h> // for PVPluginPresets
 #include <pvkernel/core/PVRegistrableClass.h>
-#include <pvkernel/core/PVTag.h> // for PVTag
 
 #include <pvbase/types.h> // for PVCol, PVRow
 
@@ -92,9 +91,6 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	PVLayer const& operator()(PVLayer const& layer) override;
 
   public:
-	static PVCore::PVTag<PVLayerFilter> get_tag(QString const& name);
-
-  public:
 	PVCore::PVPluginPresets<PVLayerFilter> get_presets();
 
   protected:
@@ -120,9 +116,6 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 
 typedef PVLayerFilter::p_type PVLayerFilter_p;
 typedef PVLayerFilter::func_type PVLayerFilter_f;
-
-typedef PVCore::PVClassLibrary<Inendi::PVLayerFilter>::tag PVLayerFilterTag;
-typedef PVCore::PVClassLibrary<Inendi::PVLayerFilter>::list_tags PVLayerFilterListTags;
 } // namespace Inendi
 
 #endif /* INENDI_PVLAYERFILTER_H */

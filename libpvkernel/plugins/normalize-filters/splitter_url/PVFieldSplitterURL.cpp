@@ -12,7 +12,6 @@
 #include "PVFieldSplitterURL.h"
 #include <pvkernel/core/PVBufferSlice.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/rush/PVAxisTagsDec.h>
 
 #include <furl/decode.h>
 
@@ -24,7 +23,7 @@ static constexpr const char* str_port_80 = "80";
 static constexpr const char* str_port_443 = "443";
 static constexpr const char* str_port_21 = "21";
 
-#define URL_NUMBER_FIELDS_CREATED 10
+static constexpr size_t URL_NUMBER_FIELDS_CREATED = 10;
 
 /******************************************************************************
  *
@@ -34,45 +33,10 @@ static constexpr const char* str_port_21 = "21";
 PVFilter::PVFieldSplitterURL::PVFieldSplitterURL() : PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER_NOPARAM(PVFilter::PVFieldSplitterURL);
-
-	// Default tags position values (if the splitter is used outside a format)
-	_col_proto = 0;
-	_col_subdomain = 1;
-	_col_host = 2;
-	_col_domain = 3;
-	_col_tld = 4;
-	_col_port = 5;
-	_col_url = 6;
-	_col_variable = 7;
-	_col_fragment = 8;
-	_col_credentials = 9;
-	_ncols = 10;
-}
-
-void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t const& axes,
-                                                         size_t fields_count)
-{
-	PVFieldsBaseFilter::set_children_axes_tag(axes, fields_count);
-	_col_proto = axes.value(PVAXIS_TAG_PROTOCOL, -1);
-	_col_subdomain = axes.value(PVAXIS_TAG_SUBDOMAIN, -1);
-	_col_host = axes.value(PVAXIS_TAG_HOST, -1);
-	_col_domain = axes.value(PVAXIS_TAG_DOMAIN, -1);
-	_col_tld = axes.value(PVAXIS_TAG_TLD, -1);
-	_col_port = axes.value(PVAXIS_TAG_PORT, -1);
-	_col_url = axes.value(PVAXIS_TAG_URL, -1);
-	_col_variable = axes.value(PVAXIS_TAG_URL_VARIABLES, -1);
-	_col_fragment = axes.value(PVAXIS_TAG_URL_FRAGMENT, -1);
-	_col_credentials = axes.value(PVAXIS_TAG_URL_CREDENTIALS, -1);
-
-	_ncols = fields_count;
 }
 
 static void set_field(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff)
 {
-	if (pos == -1) {
-		return;
-	}
-
 	PVCore::PVField* new_f = fields[pos];
 	if (furl_features_exist(ff)) {
 		char* field_str = str + ff.pos;
@@ -88,10 +52,6 @@ static void set_field(int pos, PVCore::PVField** fields, char* str, furl_feature
 static void
 add_port(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff, furl_feature_t ff_proto)
 {
-	if (pos == -1) {
-		return;
-	}
-
 	PVCore::PVField* new_f = fields[pos];
 	if (furl_features_exist(ff)) {
 		char* field_str = str + ff.pos;
@@ -141,7 +101,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(
 	// Add the number of final fields and save their pointers
 	PVCore::PVField* pf[URL_NUMBER_FIELDS_CREATED];
 	const PVCore::PVField null_field(*field.elt_parent(), &empty_str, &empty_str);
-	for (PVCol i = 0; i < _ncols; i++) {
+	for (size_t i = 0; i < URL_NUMBER_FIELDS_CREATED; i++) {
 		PVCore::list_fields::iterator it_new = l.insert(it_ins, null_field);
 		pf[i] = &(*it_new);
 	}
@@ -157,5 +117,5 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(
 	set_field(_col_credentials, pf, str_url, fh->furl.features.credential);
 	add_port(_col_port, pf, str_url, fh->furl.features.port, fh->furl.features.scheme);
 
-	return _ncols;
+	return URL_NUMBER_FIELDS_CREATED;
 }
