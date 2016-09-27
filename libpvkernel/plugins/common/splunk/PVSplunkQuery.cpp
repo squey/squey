@@ -58,12 +58,29 @@ void PVRush::PVSplunkQuery::save_to_qsettings(QSettings& settings) const
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVSplunkQuery::load_from_string(std::vector<std::string> const&)
+PVRush::PVSplunkQuery::load_from_string(std::vector<std::string> const& vl)
 {
-	throw PVRush::BadInputDescription("Incomplete input for SplunkQuery");
+	assert(vl.size() >= 4);
+
+	QString query = QString::fromStdString(vl[0]);
+	QString query_type = QString::fromStdString(vl[1]);
+
+	PVSplunkInfos infos;
+	infos.set_host(QString::fromStdString(vl[2]));
+	infos.set_port(std::stoi(vl[3]));
+
+	if (vl.size() == 6) {
+		infos.set_login(QString::fromStdString(vl[4]));
+		infos.set_password(QString::fromStdString(vl[5]));
+	}
+
+	return std::unique_ptr<PVSplunkQuery>(new PVSplunkQuery(infos, query, query_type));
 }
 
-std::vector<std::string> PVRush::PVSplunkQuery::desc_from_qsetting(QSettings const&)
+std::vector<std::string> PVRush::PVSplunkQuery::desc_from_qsetting(QSettings const& s)
 {
-	throw PVRush::BadInputDescription("Incomplete input for SplunkQuery");
+	std::vector<std::string> res = {
+	    s.value("query").toString().toStdString(), s.value("query_type").toString().toStdString(),
+	    s.value("host").toString().toStdString(), s.value("port").toString().toStdString()};
+	return res;
 }
