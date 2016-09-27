@@ -460,12 +460,15 @@ QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value) const
 			return QString::fromStdString(_view.get_rushnraw_parent().at_string(row, _nraw_col));
 		}
 	}
+
 	return "None";
 }
 
 QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value) const
 {
 	PVParallelView::PVZoneTree const& zt = get_zone_tree();
+
+	const PVCol nraw_col = lib_view().get_axes_combination().get_nraw_axis(get_zone_index() + 1);
 
 	PVParallelView::PVBCode y_b_code;
 	y_b_code.int_v = 0;
@@ -480,8 +483,7 @@ QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value) const
 			}
 
 			const PVRow row = zt.get_branch_element(y_b_code.int_v, 0);
-			return QString::fromStdString(
-			    _view.get_rushnraw_parent().at_string(row, _nraw_col + 1));
+			return QString::fromStdString(_view.get_rushnraw_parent().at_string(row, nraw_col));
 		}
 	}
 	return "None";
