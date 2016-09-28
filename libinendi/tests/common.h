@@ -52,7 +52,7 @@ class TestEnv
 	 *
 	 * dup is the number of time we want to duplicate data.
 	 */
-	TestEnv(std::string const& log_file,
+	TestEnv(std::vector<std::string> const& log_files,
 	        std::string const& format_file,
 	        size_t dup,
 	        ProcessUntil until = ProcessUntil::Source)
@@ -69,7 +69,7 @@ class TestEnv
 		PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
 		PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
-		import(log_file, format_file, dup);
+		import(log_files, format_file, dup);
 
 		switch (until) {
 		case ProcessUntil::Source:
@@ -89,13 +89,28 @@ class TestEnv
 		}
 	}
 
+	TestEnv(std::string const& log_file,
+	        std::string const& format_file,
+	        size_t dup,
+	        ProcessUntil until = ProcessUntil::Source)
+	    : TestEnv(std::vector<std::string>{log_file}, format_file, dup, until)
+	{
+	}
+
+	Inendi::PVSource& add_source(std::vector<std::string> const& log_files,
+	                             std::string const& format_file,
+	                             size_t dup = 1,
+	                             bool new_scene = true)
+	{
+		return import(log_files, format_file, dup, new_scene);
+	}
+
 	Inendi::PVSource& add_source(std::string const& log_file,
 	                             std::string const& format_file,
 	                             size_t dup = 1,
-	                             bool new_scene = true,
-	                             std::string const& extra_source = "")
+	                             bool new_scene = true)
 	{
-		return import(log_file, format_file, dup, new_scene, extra_source);
+		return import(std::vector<std::string>{log_file}, format_file, dup, new_scene);
 	}
 
 	/**
@@ -174,18 +189,21 @@ class TestEnv
 	}
 
   private:
-	Inendi::PVSource& import(std::string const& log_file,
+	Inendi::PVSource& import(std::vector<std::string> const& log_files,
 	                         std::string const& format_file,
 	                         size_t dup,
-	                         bool new_scene = true,
-	                         std::string const& extra_source = "")
+	                         bool new_scene = true)
 	{
 
-		std::string new_path = log_file;
+		if (dup != 1 and log_files.size() > 1) {
+			throw std::runtime_error("We don't handle multiple input with duplication");
+		}
+
+		std::string new_path = log_files[0];
 		if (dup > 1) {
 			new_path = get_tmp_filename();
 			_big_file_paths.push_back(new_path);
-			std::ifstream ifs(log_file);
+			std::ifstream ifs(log_files[0]);
 			std::string content{std::istreambuf_iterator<char>(ifs),
 			                    std::istreambuf_iterator<char>()};
 
@@ -203,9 +221,9 @@ class TestEnv
 		PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 		inputs << file;
 
-		if (extra_source != "") {
-			path_file = QString::fromStdString(extra_source);
-			inputs << PVRush::PVInputDescription_p(new PVRush::PVFileDescription(path_file));
+		for (size_t i = 1; i < log_files.size(); i++) {
+			inputs << PVRush::PVInputDescription_p(
+			    new PVRush::PVFileDescription(QString::fromStdString(log_files[i])));
 		}
 
 		// Load the given format file

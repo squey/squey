@@ -174,6 +174,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 			_begin_of_input = false;
 			_nread_elements -= _skip_lines_count;
 			_nend -= _skip_lines_count;
+			_cur_src_index -= _skip_lines_count;
 		}
 	}
 

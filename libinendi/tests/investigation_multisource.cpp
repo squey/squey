@@ -25,7 +25,7 @@ static constexpr unsigned int dupl = 1;
 double save_investigation()
 {
 	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
-	env.add_source(csv_file2, csv_file_format, dupl, false, csv_file);
+	env.add_source(std::vector<std::string>{csv_file2, csv_file}, csv_file_format, dupl, false);
 
 	size_t source_size = env.root.size<Inendi::PVSource>();
 	PV_VALID(source_size, 2UL);
