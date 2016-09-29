@@ -95,6 +95,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::operator=(const PVSelBitField& rhs
  *****************************************************************************/
 PVCore::PVSelBitField PVCore::PVSelBitField::operator&(const PVSelBitField& rhs) const
 {
+	assert(chunk_count() == rhs.chunk_count());
+
 	PVCore::PVSelBitField result(*this);
 	result &= rhs;
 	return result;
@@ -156,6 +158,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::operator|=(const PVSelBitField& rh
  *****************************************************************************/
 PVCore::PVSelBitField PVCore::PVSelBitField::operator-(const PVSelBitField& rhs) const
 {
+	assert(chunk_count() == rhs.chunk_count());
+
 	PVSelBitField result = *this;
 	result -= rhs;
 
@@ -218,6 +222,8 @@ PVCore::PVSelBitField PVCore::PVSelBitField::operator^(const PVSelBitField& rhs)
  *****************************************************************************/
 PVCore::PVSelBitField& PVCore::PVSelBitField::operator^=(const PVSelBitField& rhs)
 {
+	assert(chunk_count() == rhs.chunk_count());
+
 	const size_t chunks = chunk_count();
 	for (PVRow i = 0; i < chunks; i++) {
 		_selection.data()[i] ^= rhs._selection.data()[i];
@@ -233,6 +239,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::operator^=(const PVSelBitField& rh
  *****************************************************************************/
 PVCore::PVSelBitField& PVCore::PVSelBitField::or_not(const PVSelBitField& rhs)
 {
+	assert(chunk_count() == rhs.chunk_count());
+
 	const size_t chunks = chunk_count();
 
 	for (PVRow i = 0; i < chunks; i++) {
@@ -249,6 +257,8 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::or_not(const PVSelBitField& rhs)
  *****************************************************************************/
 PVCore::PVSelBitField& PVCore::PVSelBitField::and_not(const PVSelBitField& rhs)
 {
+	assert(chunk_count() == rhs.chunk_count());
+
 	const size_t chunks = chunk_count();
 	for (PVRow i = 0; i < chunks; i++) {
 		_selection.data()[i] &= ~(rhs._selection.data()[i]);
