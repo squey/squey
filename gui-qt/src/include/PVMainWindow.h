@@ -225,8 +225,8 @@ class PVMainWindow : public QMainWindow
 
   private:
 	bool is_project_untitled() { return _projects_tab_widget->is_current_project_untitled(); }
-	bool load_source(Inendi::PVSource* src);
-	void source_loaded(Inendi::PVSource& src);
+	bool load_source(Inendi::PVSource* src, bool update_recent_items = true);
+	void source_loaded(Inendi::PVSource& src, bool update_recent_items);
 	void flag_investigation_as_cached(const QString& file);
 
   private:

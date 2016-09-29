@@ -309,7 +309,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	}
 
 	try {
-		if (!load_source(src_p)) {
+		if (not load_source(src_p, src_desc.get_inputs().front()->human_name() == "file")) {
 			remove_source(src_p);
 			return false;
 		}
@@ -538,7 +538,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 	// Update GUI on loaded sources.
 	for (Inendi::PVSource* src : get_root().get_children<Inendi::PVSource>()) {
-		source_loaded(*src);
+		source_loaded(*src, false /* update_recent_items */);
 	}
 
 	_root.set_path(file);

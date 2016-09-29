@@ -1006,7 +1006,8 @@ static QString bad_conversions_as_string(
  * PVInspector::PVMainWindow::load_source
  *
  *****************************************************************************/
-bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
+bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
+                                            bool update_recent_items /*= true*/)
 {
 	// Load a created source
 	// Extract the source
@@ -1147,12 +1148,12 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src)
 		return false;
 	}
 
-	source_loaded(*src);
+	source_loaded(*src, update_recent_items);
 
 	return true;
 }
 
-void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src)
+void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update_recent_items)
 {
 	// Create workspace for this source.
 	_projects_tab_widget->add_source(&src);
@@ -1162,13 +1163,15 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src)
 		display_inv_elts();
 	}
 
-	// Add format as recent format
-	PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(
-	    src.get_format().get_full_path());
+	if (update_recent_items) {
+		// Add format as recent format
+		PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(
+		    src.get_format().get_full_path());
 
-	// Add source as recent source
-	PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),
-	                                               src.get_format());
+		// Add source as recent source
+		PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),
+		                                               src.get_format());
+	}
 }
 
 /******************************************************************************
