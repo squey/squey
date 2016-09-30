@@ -17,6 +17,7 @@ SET(CUSTOM_QT_PATH "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/qt")
 SET(CUSTOM_TBB_PATH "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/tbb")
 SET(PVKERNEL_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/plugins")
 SET(INENDI_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/plugins")
+add_definitions(-DPLUGINS_DISTRIB_DIR="${INENDI_PLUGIN}")
 
 # Set rpath for custom Qt and TBB
 set(CMAKE_INSTALL_RPATH "${CUSTOM_QT_PATH}:${CUSTOM_TBB_PATH}")
