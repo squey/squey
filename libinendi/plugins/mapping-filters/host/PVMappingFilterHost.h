@@ -26,10 +26,7 @@ class PVMappingFilterHost : public PVMappingFilter
 	 */
 	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override;
 
-	std::unordered_set<std::string> list_usable_type() const override
-	{
-		return {"ipv4", "time", "number_float", "number_int32", "number_uint32", "string"};
-	}
+	std::unordered_set<std::string> list_usable_type() const override { return {"string"}; }
 
 	/**
 	 * Metainformation for this plugin.
