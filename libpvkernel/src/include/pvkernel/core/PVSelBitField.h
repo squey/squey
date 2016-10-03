@@ -45,11 +45,11 @@ class PVSelBitField
 	static constexpr auto CHUNK_SIZE_BYTE = pvcop::core::__impl::bit_manip::chunk_byte_size;
 
   public:
-	typedef uint64_t chunk_t;
+	typedef pvcop::core::memarray<bool> pvcop_selection_t;
+	typedef pvcop_selection_t::data_type chunk_t;
 	typedef chunk_t DECLARE_ALIGN(16) * pointer;
 	typedef chunk_t DECLARE_ALIGN(16) const* const_pointer;
 	typedef PVCore::PVAlignedAllocator<chunk_t, 16> allocator;
-	typedef pvcop::core::memarray<bool> pvcop_selection_t;
 
   public:
 	/**
