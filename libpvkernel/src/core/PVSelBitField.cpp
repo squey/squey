@@ -197,6 +197,11 @@ void PVCore::PVSelBitField::AB_sub(PVSelBitField const& a, PVSelBitField const& 
 	}
 }
 
+void PVCore::PVSelBitField::inplace_and(PVSelBitField const& a, PVSelBitField const& b)
+{
+	inplace_map(a, b, [](const chunk_t va, const chunk_t vb) { return va & vb; });
+}
+
 size_t PVCore::PVSelBitField::chunk_count() const
 {
 	return _selection.mem_size() / (CHUNK_SIZE / CHUNK_SIZE_BYTE);

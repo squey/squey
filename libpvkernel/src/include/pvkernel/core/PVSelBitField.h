@@ -195,6 +195,15 @@ class PVSelBitField
 	void AB_sub(PVSelBitField const& a, PVSelBitField const& b);
 
 	/**
+	 * This is the binary inplace AND operation on two selections. I.e.
+	 * *this = A & B
+	 *
+	 * @param a the first operand
+	 * @param b the second operand
+	 */
+	void inplace_and(PVSelBitField const& a, PVSelBitField const& b);
+
+	/**
 	 * This is the binary outplaced 'XOR' operation on two selections
 	 * C = A ^ B
 	 *
@@ -454,6 +463,25 @@ class PVSelBitField
 			if ((cv & (1ULL << b)) != 0) {
 				f(b + offset);
 			}
+		}
+	}
+
+  public:
+	/**
+	 * This method helps writing chunks based inplace binary operations of the form *this = f(a, b)
+	 *
+	 * @param a the first operand
+	 * @param b the second operand
+	 */
+	template <typename F>
+	void inplace_map(PVSelBitField const& a, PVSelBitField const& b, const F&& f)
+	{
+		assert((chunk_count() == a.chunk_count()) && (chunk_count() == b.chunk_count()));
+
+		const size_t chunks = chunk_count();
+
+		for (PVRow i = 0; i < chunks; i++) {
+			_selection.data()[i] = f(a._selection.data()[i], b._selection.data()[i]);
 		}
 	}
 
