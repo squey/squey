@@ -411,7 +411,7 @@ void Inendi::PVView::process_post_filter_layer(Inendi::PVSelection const& to_use
 {
 	/* We cut the resulting selection with what is available in the layer_stack */
 	/* We are in ALL edit_mode */
-	post_filter_layer.get_selection() = layer_stack_output_layer.get_selection() & to_use;
+	post_filter_layer.get_selection().inplace_and(layer_stack_output_layer.get_selection(), to_use);
 
 	/* We simply copy the lines_properties */
 	post_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
