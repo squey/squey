@@ -72,7 +72,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields()
 	QSizePolicy grp_params_policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	grp_params_policy.setHorizontalStretch(1);
 	_grp_mapping = new QGroupBox(tr("Mapping properties"));
+	_grp_mapping->setVisible(false);
 	_grp_plotting = new QGroupBox(tr("Plotting properties"));
+	_grp_plotting->setVisible(false);
 	_params_mapping->setSizePolicy(grp_params_policy);
 	_params_mapping->setSizePolicy(grp_params_policy);
 	_params_plotting->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
