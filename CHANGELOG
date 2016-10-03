@@ -1,3 +1,23 @@
+4.2.0 (2016-09-??)
+------------------
+
+This major release adds the following features:
+* support for 'mac_address' and 'ipv6' types (can also be used in correlations)
+* axes can be ignored directly during import to improve speed and memory consumption
+* new length splitter
+
+This major release fixes or improves:
+* improved row filtering during import (excluded values are no longer consuming memory)
+* unlimited amount of rows can now be read from inputs (imported rows is still limited to 2 billions though)
+* improved search feature (support of invalid values + multiple selections from the listing)
+* meaningful labels on scatter and hit count view axes
+* loading history is now supported for all input types (including elasticsearch and splunk)
+* determined progress bar status on loading/saving/exporting operations
+* axes name can now be copied to clipboard
+* improved encoding autodetection
+* reworked investigations, mappings and plottings (warning : investigations retro compatibility is broken)
+* improved overall stability due to a lots of bug/crash fix
+
 4.1.3 (2016-07-12)
 ------------------
 
@@ -12,7 +32,6 @@ This minor release fixes:
 * display rows indexes from 1 instead of 0
 * add filter "All (*.*)" in save format dialog
 * show a message box when the license is expired
-* add length splitter
 
 4.1.2 (2016-07-06)
 ------------------
