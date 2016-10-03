@@ -38,8 +38,7 @@ class PVSplunkInfos
 
 	inline bool operator==(PVSplunkInfos const& o) const
 	{
-		return _host == o._host && _port == o._port && _login == o._login &&
-		       _password == o._password && _splunk_index == o._splunk_index &&
+		return _host == o._host && _port == o._port && _splunk_index == o._splunk_index &&
 		       _splunk_host == o._splunk_host && _splunk_sourcetype == o._splunk_sourcetype;
 	}
 

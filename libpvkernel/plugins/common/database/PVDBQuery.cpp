@@ -32,8 +32,6 @@ bool PVRush::PVDBQuery::operator==(const PVInputDescription& other) const
 	PVDBQuery& other_query = (PVDBQuery&)other;
 	return _infos->get_type() == other_query._infos->get_type() &&
 	       _infos->get_host() == other_query._infos->get_host() &&
-	       _infos->get_username() == other_query._infos->get_username() &&
-	       _infos->get_password() == other_query._infos->get_password() &&
 	       _infos->get_options() == other_query._infos->get_options() &&
 	       _infos->get_dbname() == other_query._infos->get_dbname() &&
 	       _infos->get_port() == other_query._infos->get_port();
@@ -83,8 +81,6 @@ void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
 {
 	settings.setValue("type", _infos->get_type());
 	settings.setValue("host", _infos->get_host());
-	settings.setValue("username", _infos->get_username());
-	settings.setValue("password", _infos->get_password());
 	settings.setValue("options", _infos->get_options());
 	settings.setValue("dbname", _infos->get_dbname());
 	settings.setValue("port", _infos->get_port());
