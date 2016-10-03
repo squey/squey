@@ -192,7 +192,14 @@ class PVSelBitField
 	 */
 	PVSelBitField& operator-=(const PVSelBitField& rhs);
 
-	void AB_sub(PVSelBitField const& a, PVSelBitField const& b);
+	/**
+	 * This is the binary inplace SUB operation on two selections. I.e.
+	 * *this = A - B
+	 *
+	 * @param a the first operand
+	 * @param b the second operand
+	 */
+	void inplace_sub(PVSelBitField const& a, PVSelBitField const& b);
 
 	/**
 	 * This is the binary inplace AND operation on two selections. I.e.

@@ -183,18 +183,9 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::operator-=(const PVSelBitField& rh
 	return *this;
 }
 
-void PVCore::PVSelBitField::AB_sub(PVSelBitField const& a, PVSelBitField const& b)
+void PVCore::PVSelBitField::inplace_sub(PVSelBitField const& a, PVSelBitField const& b)
 {
-	static size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-
-	assert(chunk_count() == a.chunk_count() && chunk_count() == b.chunk_count());
-
-	const size_t chunks = chunk_count();
-
-#pragma omp parallel for num_threads(nthreads)
-	for (PVRow i = 0; i < chunks; i++) {
-		_selection.data()[i] = a._selection.data()[i] & (~b._selection.data()[i]);
-	}
+	inplace_map(a, b, [](const chunk_t va, const chunk_t vb) { return va & (~vb); });
 }
 
 void PVCore::PVSelBitField::inplace_and(PVSelBitField const& a, PVSelBitField const& b)
