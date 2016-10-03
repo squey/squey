@@ -58,7 +58,7 @@ class PVFileDescription : public PVInputDescription
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const override
 	{
-		so.set_current_status("Serialize file");
+		so.set_current_status("Saving source file information...");
 
 		if (so.save_log_file()) {
 			QFileInfo fi(_path);
@@ -73,7 +73,7 @@ class PVFileDescription : public PVInputDescription
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
 	{
-		so.set_current_status("Searching for source file.");
+		so.set_current_status("Loading source file information...");
 		QString path = so.attribute_read<QString>("file_path");
 
 		// File exists, continue with it
@@ -88,6 +88,7 @@ class PVFileDescription : public PVInputDescription
 
 			// Otherwise, ask where it is.
 			if (so.is_repaired_error()) {
+				so.set_current_status("Original source file not found, asking for its location...");
 				path = QString::fromStdString(so.get_repaired_value());
 			} else {
 				throw PVCore::PVSerializeReparaibleFileError(

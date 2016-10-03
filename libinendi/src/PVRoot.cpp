@@ -183,7 +183,7 @@ void Inendi::PVRoot::load_from_archive(PVCore::PVSerializeArchive& ar)
 
 void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize Root.");
+	so.set_current_status("Saving root...");
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj = so.create_object("scene");
 	int idx = 0;
@@ -196,7 +196,7 @@ void Inendi::PVRoot::serialize_write(PVCore::PVSerializeObject& so) const
 
 void Inendi::PVRoot::serialize_read(PVCore::PVSerializeObject& so)
 {
-	so.set_current_status("Loading root");
+	so.set_current_status("Loading root...");
 	// Read the data colletions
 	PVCore::PVSerializeObject_p list_obj = so.create_object("scene");
 	int scene_count = so.attribute_read<int>("scene_count");

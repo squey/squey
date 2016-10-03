@@ -80,7 +80,7 @@ Inendi::PVView const* Inendi::PVScene::current_view() const
 Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
                                                  Inendi::PVRoot& root)
 {
-	so.set_current_status("Loading scene");
+	so.set_current_status("Loading scene...");
 	QString name = so.attribute_read<QString>("name");
 	PVScene& scene = root.emplace_add_child(name.toStdString());
 
@@ -98,7 +98,7 @@ Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
 
 void Inendi::PVScene::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize Scene.");
+	so.set_current_status("Saving scene...");
 	QString name = QString::fromStdString(_name);
 	so.attribute_write("name", name);
 

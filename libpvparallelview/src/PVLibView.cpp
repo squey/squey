@@ -84,7 +84,7 @@ PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
 		    pbox.set_enable_cancel(false);
 		    request_zoomed_zone_trees(axis);
 		},
-	    "Initializing zoomed parallel view", parent);
+	    "Initializing zoomed parallel view...", parent);
 
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
 	PVParallelView::PVZoomedParallelScene* scene = new PVParallelView::PVZoomedParallelScene(
@@ -118,7 +118,7 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(co
 		    pbox.set_enable_cancel(false);
 		    _zones_manager.request_zoomed_zone(axis);
 		},
-	    "Initializing scatter view", parent);
+	    "Initializing scatter view...", parent);
 
 	PVScatterView* view =
 	    new PVScatterView(*lib_view(), _zones_manager, axis, _processor_bg, _processor_sel, parent);
