@@ -125,17 +125,21 @@ add_test(Tinendi_investigation Tinendi_investigation)
 add_pv_compile_test(Tinendi_investigation_multisource LINKS ${LINK_LIBRARIES} FILES investigation_multisource.cpp)
 add_test(Tinendi_investigation_multisource Tinendi_investigation_multisource)
 
-add_pv_compile_test(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_default.cpp)
-add_test(Tplotting_integer_default_default Tplotting_integer_default_default)
-add_bench(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_default.cpp)
+add_pv_compile_test(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_integer_default_default Tplotting_integer_default_default ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv.format)
+add_bench(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 
-add_pv_compile_test(Tplotting_integer_unsigned_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_default.cpp)
-add_test(Tplotting_integer_unsigned_default Tplotting_integer_unsigned_default)
-add_bench(Tplotting_integer_unsigned_default LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_default.cpp)
+add_pv_compile_test(Tplotting_integer_unsigned_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_integer_unsigned_default Tplotting_integer_unsigned_default ${TESTS_FILES_DIR}/picviz/integer_unsigned_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_unsigned_mapping.csv.format)
+add_bench(Tplotting_integer_unsigned_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 
-add_pv_compile_test(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting_float_default_default.cpp)
-add_test(Tplotting_float_default_default Tplotting_float_default_default)
-add_bench(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting_float_default_default.cpp)
+add_pv_compile_test(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_float_default_default Tplotting_float_default_default ${TESTS_FILES_DIR}/picviz/float_default_mapping.csv ${TESTS_FILES_DIR}/picviz/float_default_mapping.csv.format)
+add_bench(Tplotting_float_default_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+
+add_pv_compile_test(Tplotting_double_default_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_double_default_default Tplotting_double_default_default ${TESTS_FILES_DIR}/picviz/double_default_mapping.csv ${TESTS_FILES_DIR}/picviz/double_default_mapping.csv.format)
+add_bench(Tplotting_double_default_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 
 add_pv_compile_test(Tplotting_string_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_string_default_enum.cpp)
 add_test(Tplotting_string_default_enum Tplotting_string_default_enum)
@@ -149,17 +153,17 @@ add_pv_compile_test(Tplotting_time_week_minmax LINKS ${LINK_LIBRARIES} FILES plo
 add_test(Tplotting_time_week_minmax Tplotting_time_week_minmax)
 add_bench(Tplotting_time_week_minmax LINKS ${LINK_LIBRARIES} FILES plotting_time_week_minmax.cpp)
 
-add_pv_compile_test(Tplotting_integer_default_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_log.cpp)
-add_test(Tplotting_integer_default_log Tplotting_integer_default_log)
-add_bench(Tplotting_integer_default_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_log.cpp)
+add_pv_compile_test(Tplotting_integer_default_log LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_integer_default_log Tplotting_integer_default_log ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv.format)
+add_bench(Tplotting_integer_default_log LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 
-add_pv_compile_test(Tplotting_integer_unsigned_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_log.cpp)
-add_test(Tplotting_integer_unsigned_log Tplotting_integer_unsigned_log)
-add_bench(Tplotting_integer_unsigned_log LINKS ${LINK_LIBRARIES} FILES plotting_integer_unsigned_log.cpp)
+add_pv_compile_test(Tplotting_integer_unsigned_log LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_integer_unsigned_log Tplotting_integer_unsigned_log ${TESTS_FILES_DIR}/picviz/integer_unsigned_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_unsigned_mapping.csv.format)
+add_bench(Tplotting_integer_unsigned_log LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 
-add_pv_compile_test(Tplotting_float_default_log LINKS ${LINK_LIBRARIES} FILES plotting_float_default_log.cpp)
-add_test(Tplotting_float_default_log Tplotting_float_default_log)
-add_bench(Tplotting_float_default_log LINKS ${LINK_LIBRARIES} FILES plotting_float_default_log.cpp)
+add_pv_compile_test(Tplotting_float_default_log LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_float_default_log Tplotting_float_default_log ${TESTS_FILES_DIR}/picviz/float_default_mapping.csv ${TESTS_FILES_DIR}/picviz/float_default_mapping.csv.format)
+add_bench(Tplotting_float_default_log LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 
 add_pv_compile_test(Tplotting_time_24h_log LINKS ${LINK_LIBRARIES} FILES plotting_time_24h_log.cpp)
 add_test(Tplotting_time_24h_log Tplotting_time_24h_log)
@@ -173,9 +177,9 @@ add_pv_compile_test(Tplotting_port LINKS ${LINK_LIBRARIES} FILES plotting_port.c
 add_test(Tplotting_port Tplotting_port)
 add_bench(Tplotting_port LINKS ${LINK_LIBRARIES} FILES plotting_port.cpp)
 
-add_pv_compile_test(Tplotting_integer_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_enum.cpp)
-add_test(Tplotting_integer_default_enum Tplotting_integer_default_enum)
-add_bench(Tplotting_integer_default_enum LINKS ${LINK_LIBRARIES} FILES plotting_integer_default_enum.cpp)
+add_pv_compile_test(Tplotting_integer_default_enum LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
+add_test(Tplotting_integer_default_enum Tplotting_integer_default_enum ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_default_enum.csv.format)
+add_bench(Tplotting_integer_default_enum LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 
 # FIXME : This test is a bit slow but it test a lot of thing. We should split
 # it in multiple tests
