@@ -93,8 +93,6 @@ QSqlDatabase PVRush::PVDBServ::to_database()
 void PVRush::PVDBInfos::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.attribute_write("host", _host);
-	so.attribute_write("username", _username);
-	so.attribute_write("password", _password);
 	so.attribute_write("options", _options);
 	so.attribute_write("type", _type);
 	so.attribute_write("dbname", _dbname);
@@ -105,8 +103,6 @@ PVRush::PVDBInfos PVRush::PVDBInfos::serialize_read(PVCore::PVSerializeObject& s
 {
 	PVRush::PVDBInfos infos;
 	infos._host = so.attribute_read<QString>("host");
-	infos._username = so.attribute_read<QString>("username");
-	infos._password = so.attribute_read<QString>("password");
 	infos._options = so.attribute_read<QString>("options");
 	infos._type = so.attribute_read<QString>("type");
 	infos._dbname = so.attribute_read<QString>("dbname");

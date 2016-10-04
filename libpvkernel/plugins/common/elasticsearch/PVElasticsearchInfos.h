@@ -35,8 +35,8 @@ class PVElasticsearchInfos
 
 	inline bool operator==(PVElasticsearchInfos const& o) const
 	{
-		return _host == o._host && _port == o._port && _index == o._index && _login == o._login &&
-		       _importer == o._importer && _password == o._password;
+		return _host == o._host && _port == o._port && _index == o._index &&
+		       _importer == o._importer;
 	}
 
 	void serialize_write(PVCore::PVSerializeObject& so) const;

@@ -309,7 +309,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	}
 
 	try {
-		if (not load_source(src_p, src_desc.get_inputs().front()->human_name() == "file")) {
+		if (not load_source(src_p)) {
 			remove_source(src_p);
 			return false;
 		}
