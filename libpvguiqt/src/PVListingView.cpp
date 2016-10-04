@@ -449,7 +449,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	_menu_col_avg_by->setEnabled(not empty_sel);
 
 	const QStringList axes = lib_view().get_axes_names_list();
-	QStringList summable_types = {"number_int32", "number_uint32", "number_float"};
+	QStringList summable_types = {"number_int32", "number_uint32", "number_float", "number_double"};
 	for (int i = 0; i < axes.size(); i++) {
 		if (i != comb_col) {
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);

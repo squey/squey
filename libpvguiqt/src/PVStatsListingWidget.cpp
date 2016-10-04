@@ -411,7 +411,8 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	                          .at(get_real_axis_col())
 	                          .get_type();
 	_is_summable =
-	    (column_type == "number_float" || column_type == "number_uint32" ||
+	    (column_type == "number_float" || column_type == "number_double" ||
+	     column_type == "number_uint32" ||
 	     column_type == "number_int32"); // FIXME : this should be capabilities, not types names !
 }
 

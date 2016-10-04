@@ -54,5 +54,7 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint3
 		compute_minmax_plotting<pvcop::db::uint128_t>(mapped, minmax, dest);
 	} else if (mapped.type() == pvcop::db::type_float) {
 		compute_minmax_plotting<float>(mapped, minmax, dest);
+	} else if (mapped.type() == pvcop::db::type_double) {
+		compute_minmax_plotting<double>(mapped, minmax, dest);
 	}
 }
