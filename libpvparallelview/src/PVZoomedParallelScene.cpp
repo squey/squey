@@ -421,7 +421,7 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 		    pbox.set_enable_cancel(false);
 		    common::get_lib_view(_pvview)->request_zoomed_zone_trees(_axis_index);
 		},
-	    "Initializing zoomed parallel view", nullptr);
+	    "Initializing zoomed parallel view...", nullptr);
 
 	/* have a coherent param widget
 	 */

@@ -1043,8 +1043,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 			    // launch a thread in order to update the status of the progress bar
 			    while (job_import->running()) {
 				    pbox.set_extended_status(
-				        QString(
-				            "Number of elements extracted: %L1\nNumber of rejected elements: %L2")
+				        QString("Number of extracted events: %L1\nNumber of rejected events: %L2")
 				            .arg(job_import->status())
 				            .arg(job_import->rejected_elements()));
 				    pbox.set_value(job_import->get_value() / mega);
@@ -1131,15 +1130,15 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 		        pbox.set_maximum(3);
 
 		        pbox.set_value(0);
-		        pbox.set_extended_status("Compute mapping");
+		        pbox.set_extended_status("Computing mapping...");
 		        auto& mapped = src->emplace_add_child();
 
 		        pbox.set_value(1);
-		        pbox.set_extended_status("Compute plotting");
+		        pbox.set_extended_status("Computing plotting...");
 		        auto& plotted = mapped.emplace_add_child();
 
 		        pbox.set_value(2);
-		        pbox.set_extended_status("Compute view");
+		        pbox.set_extended_status("Creating views...");
 		        plotted.emplace_add_child();
 
 		        pbox.set_value(3);

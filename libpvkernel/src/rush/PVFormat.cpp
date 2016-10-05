@@ -531,7 +531,7 @@ PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString
 
 PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 {
-	so.set_current_status("Format loading");
+	so.set_current_status("Loading format...");
 	QString format_name = so.attribute_read<QString>("name");
 
 	QString fname = so.attribute_read<QString>("filename");
@@ -546,7 +546,7 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 
 void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize format");
+	so.set_current_status("Saving format...");
 	so.attribute_write("name", format_name);
 
 	QFileInfo fi(full_path);

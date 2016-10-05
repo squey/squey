@@ -332,19 +332,19 @@ void PVRush::PVNraw::empty_values_search(PVCol col,
 
 void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize Nraw");
+	so.set_current_status("Saving raw data...");
 	QString nraw_path = QString::fromStdString(collection().rootdir());
 	so.attribute_write("nraw_path", nraw_path);
 
 	int vec = _valid_elements_count;
 	so.attribute_write("valid_count", vec);
 
-	so.set_current_status("Serialize valid elements selection");
+	so.set_current_status("Saving valid elements information...");
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
 	_valid_rows_sel.serialize_write(*sel_obj);
 
 	// Serialize invalid value
-	so.set_current_status("Serialize uncorrectly converted elements");
+	so.set_current_status("Saving uncorrectly converted elements information...");
 	int idx = 0;
 	auto const& bad_values = _unconvertable_values.bad_conversions();
 	int bad_conv_row_count = bad_values.size();
@@ -368,7 +368,7 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 		idx++;
 	}
 
-	so.set_current_status("Serialize empty fields");
+	so.set_current_status("Saving empty fields information...");
 	auto const& empty_values = _unconvertable_values.empty_conversions();
 
 	std::vector<PVCore::PVSelBitField> sels(get_number_cols(),
@@ -403,21 +403,21 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 
 PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 {
-	so.set_current_status("NRaw loading");
+	so.set_current_status("Loading raw data...");
 	PVRush::PVNraw nraw;
 	QString nraw_folder = so.attribute_read<QString>("nraw_path");
 	nraw_folder =
 	    PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QDir(nraw_folder).dirName();
 	nraw.load_from_disk(nraw_folder.toStdString());
 
-	so.set_current_status("Invalid events selection loading");
+	so.set_current_status("Loading invalid events information...");
 	int vec = so.attribute_read<int>("valid_count");
 	nraw._valid_elements_count = vec;
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
 	nraw._valid_rows_sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
 
 	// Serialize invalid values
-	so.set_current_status("Uncorrectly converted elements loading");
+	so.set_current_status("Loading uncorrectly converted elements information...");
 	int bad_conv_row_count = so.attribute_read<int>("bad_conv/row_count");
 	for (int i = 0; i < bad_conv_row_count; i++) {
 		int row = so.attribute_read<int>("bad_conv/" + QString::number(i) + "/row");
@@ -432,7 +432,7 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 		}
 	}
 
-	so.set_current_status("Empty elements loading");
+	so.set_current_status("Loading empty elements information...");
 	QString str_col_indexes = so.attribute_read<QString>("empty_conv/columns");
 	QStringList list_col_indexes = str_col_indexes.split(",", QString::SkipEmptyParts);
 	std::vector<size_t> empty_cols_indexes;

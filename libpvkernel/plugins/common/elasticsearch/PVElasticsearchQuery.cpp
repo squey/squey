@@ -31,7 +31,7 @@ QString PVRush::PVElasticsearchQuery::human_name() const
 
 void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize ElasticSearch information.");
+	so.set_current_status("Saving Elasticsearch information...");
 	so.attribute_write("query", _query);
 	so.attribute_write("query_type", _query_type);
 	_infos.serialize_write(*so.create_object("server"));
@@ -40,7 +40,7 @@ void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVElasticsearchQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
-	so.set_current_status("Searching for ElasticSearch informations.");
+	so.set_current_status("Loading Elasticsearch information...");
 	QString query = so.attribute_read<QString>("query");
 	QString query_type = so.attribute_read<QString>("query_type");
 	PVElasticsearchInfos infos = PVElasticsearchInfos::serialize_read(*so.create_object("server"));

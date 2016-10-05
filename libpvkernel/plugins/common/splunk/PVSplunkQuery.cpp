@@ -31,7 +31,7 @@ QString PVRush::PVSplunkQuery::human_name() const
 
 void PVRush::PVSplunkQuery::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize Splunk information.");
+	so.set_current_status("Saving Splunk information...");
 	so.attribute_write("query", _query);
 	so.attribute_write("query_type", _query_type);
 	_infos.serialize_write(*so.create_object("server"));
@@ -40,7 +40,7 @@ void PVRush::PVSplunkQuery::serialize_write(PVCore::PVSerializeObject& so) const
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
-	so.set_current_status("Searching for Splunk informations.");
+	so.set_current_status("Loading Splunk information...");
 
 	QString query = so.attribute_read<QString>("query");
 	QString query_type = so.attribute_read<QString>("query_type");

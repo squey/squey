@@ -166,19 +166,19 @@ std::string Inendi::PVSource::hash() const
 
 void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize source.");
+	so.set_current_status("Saving source...");
 	QString src_name = _src_plugin->registered_name();
 	so.attribute_write("source-plugin", src_name);
 
 	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw");
 	_nraw.serialize_write(*nraw_obj);
 
-	so.set_current_status("Computing hash value");
+	so.set_current_status("Computing raw data integrity...");
 	std::string h = hash();
 	so.buffer_write("src_hash", (char*)h.data(), 16);
 
 	// Save the format
-	so.set_current_status("Serialize Format.");
+	so.set_current_status("Saving format...");
 	PVCore::PVSerializeObject_p format_obj = so.create_object("format");
 	_format.serialize_write(*format_obj);
 
@@ -186,7 +186,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 	QString type_name = _src_plugin->supported_type();
 	so.attribute_write("source-type", type_name);
 
-	so.set_current_status("Serialize Inputs.");
+	so.set_current_status("Saving inputs...");
 	PVCore::PVSerializeObject_p list_inputs = so.create_object("inputs");
 	int idx = 0;
 	for (PVRush::PVInputDescription_p const& input : _inputs) {
@@ -195,7 +195,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 	}
 	so.attribute_write("input_count", idx);
 
-	so.set_current_status("Serialize invalid elements.");
+	so.set_current_status("Saving invalid elements information...");
 	// Serialize invalid elements.
 	int inv_elts_count = _inv_elts.size();
 	so.attribute_write("inv_elts_count", inv_elts_count);
@@ -221,7 +221,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 
 Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVScene& parent)
 {
-	so.set_current_status("Loading Source");
+	so.set_current_status("Loading source...");
 	// Reload input desription
 	QString type_name = so.attribute_read<QString>("source-type");
 	// FIXME : We should check for type_name validity if archive was manually changed.
@@ -251,12 +251,12 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format);
 
 	try {
-		so.set_current_status("Load NRaw");
+		so.set_current_status("Loading raw data...");
 		PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw");
 		source._nraw = PVRush::PVNraw::serialize_read(*nraw_obj);
 
 		// Serialize invalid elements.
-		so.set_current_status("Load invalid events");
+		so.set_current_status("Loading invalid events information...");
 		int inv_elts_count = so.attribute_read<int>("inv_elts_count");
 		for (int idx = 0; idx < inv_elts_count; idx++) {
 			int inv_line = so.attribute_read<int>(
@@ -266,12 +266,12 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 			source._inv_elts.emplace(inv_line, inv_content.toStdString());
 		}
 	} catch (PVRush::NrawLoadingFail const& e) {
-		so.set_current_status("Fail to load NRaw from cache, reload it from source file");
+		so.set_current_status("No raw data in cache, reloading it from original source file...");
 		source.load_data();
 
 		std::string hash_value(16, ' ');
 		so.buffer_read("src_hash", (char*)hash_value.data(), 16);
-		so.set_current_status("Computing hash value");
+		so.set_current_status("Checking raw data integrity...");
 		if (source.hash() != hash_value) {
 			throw PVCore::PVSerializeArchiveError("Source mismatch with the saved one.");
 		}

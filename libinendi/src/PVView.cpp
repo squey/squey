@@ -678,12 +678,12 @@ void Inendi::PVView::sort_indexes(PVCol col,
 // Load/save and serialization
 void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize View.");
-	so.set_current_status("Serialize Layer stack.");
+	so.set_current_status("Saving view...");
+	so.set_current_status("Saving layer stack...");
 	auto ls_obj = so.create_object("layer-stack");
 	layer_stack.serialize_write(*ls_obj);
 
-	so.set_current_status("Serialize Axes combination.");
+	so.set_current_status("Saving axes combination...");
 	auto ax_comb_obj = so.create_object("axes-combination");
 	_axes_combination.serialize_write(*ax_comb_obj);
 }
@@ -692,21 +692,21 @@ Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
                                                Inendi::PVPlotted& parent)
 {
 
-	so.set_current_status("Loading view");
+	so.set_current_status("Loading view...");
 	Inendi::PVView& view = parent.emplace_add_child();
 
-	so.set_current_status("Loading axes combination");
+	so.set_current_status("Loading axes combination...");
 	auto ax_comb_obj = so.create_object("axes-combination");
 	view._axes_combination.set_combination(
 	    Inendi::PVAxesCombination::serialize_read(
 	        *ax_comb_obj, parent.get_parent<Inendi::PVSource>().get_format())
 	        .get_combination());
 
-	so.set_current_status("Loading layer stack");
+	so.set_current_status("Loading layer stack...");
 	auto ls_obj = so.create_object("layer-stack");
 	view.layer_stack = Inendi::PVLayerStack::serialize_read(*ls_obj);
 
-	so.set_current_status("Process layer stack");
+	so.set_current_status("Processing layer stack...");
 	Inendi::PVSelection sel(view.get_row_count());
 	sel.select_all();
 	view.process_layer_stack(sel);

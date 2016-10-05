@@ -426,7 +426,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	if (PVCore::PVProgressBox::progress(
 	        [&](PVCore::PVProgressBox& pbox) {
 		        pbox.set_enable_cancel(true);
-		        pbox.set_extended_status("Unzip archive file");
+		        pbox.set_extended_status("Opening investigation for loading...");
 		        std::unique_ptr<PVCore::PVSerializeArchive> ar;
 		        try {
 			        ar.reset(new PVCore::PVSerializeArchiveZip(
@@ -451,7 +451,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		        while (true) {
 			        QString err_msg;
 			        try {
-				        pbox.set_extended_status("Loading investigation from archive");
+				        pbox.set_extended_status("Loading investigation...");
 				        get_root().load_from_archive(*ar);
 			        } catch (PVCore::PVSerializeArchiveError& e) {
 				        read_exception = e;
@@ -560,7 +560,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, bool save_log
 	if (PVCore::PVProgressBox::progress(
 	        [&](PVCore::PVProgressBox& pbox) {
 		        pbox.set_enable_cancel(true);
-		        pbox.set_extended_status("Create archive");
+		        pbox.set_extended_status("Opening investigation for saving...");
 		        PVCore::PVSerializeArchiveZip ar(file, PVCore::PVSerializeArchive::write,
 		                                         INENDI_ARCHIVES_VERSION, save_log_file);
 		        // FIXME : We should inform we are creating the zip file using RAII like scoped

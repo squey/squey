@@ -338,11 +338,11 @@ std::string Inendi::PVPlotted::export_line(PVRow idx,
 
 void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	so.set_current_status("Serialize Plotting.");
+	so.set_current_status("Saving plotting...");
 	QString name = QString::fromStdString(_name);
 	so.attribute_write("name", name);
 
-	so.set_current_status("Serialize Plotting properties.");
+	so.set_current_status("Saving plotting properties...");
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
 	int idx = 0;
@@ -365,12 +365,12 @@ void Inendi::PVPlotted::serialize_write(PVCore::PVSerializeObject& so) const
 Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& so,
                                                      Inendi::PVMapped& parent)
 {
-	so.set_current_status("Load plotting");
+	so.set_current_status("Loading plotting...");
 	QString name = so.attribute_read<QString>("name");
 
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 
-	so.set_current_status("Load plotting properties");
+	so.set_current_status("Loading plotting properties...");
 	std::list<Inendi::PVPlottingProperties> columns;
 	int prop_count = so.attribute_read<int>("prop_count");
 	for (int idx = 0; idx < prop_count; idx++) {

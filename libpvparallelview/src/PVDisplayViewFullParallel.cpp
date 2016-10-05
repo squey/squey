@@ -33,7 +33,7 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Inendi::PVView* vi
 		    pbox.set_enable_cancel(false);
 		    lib_view = PVParallelView::common::get_lib_view(*view);
 		},
-	    "Initializing full parallel view", parent);
+	    "Initializing full parallel view...", parent);
 
 	return lib_view->create_view(parent);
 	;
