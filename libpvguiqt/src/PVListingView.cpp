@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2009-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include <pvkernel/core/PVClassLibrary.h>
@@ -39,6 +39,8 @@
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/task_scheduler_init.h>
+
+#include <boost/thread.hpp>
 
 /******************************************************************************
  *
