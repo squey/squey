@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2010-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include <pvkernel/core/PVProgressBox.h>
@@ -24,6 +24,8 @@
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_reduce.h>
+
+#include <boost/thread.hpp>
 
 PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget* parent)
     : QDialog(parent), _model(model)
