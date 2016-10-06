@@ -167,8 +167,8 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator()
 	uint64_t line_index = 0;
 	for (PVRow line = 0; line < (PVRow)myText.count(); line++) { // for each line...
 		QString myLine = myText.at(line);
-		const QChar* start = myLine.constData();
-		PVCore::PVElement elt(nullptr, (char*)start, (char*)(start + myLine.size()));
+		std::string start = myLine.toStdString(); // Convert from UTF-16 to UTF-8
+		PVCore::PVElement elt(nullptr, (char*)start.c_str(), (char*)start.c_str() + start.size());
 		elt.fields().push_back(PVCore::PVField(elt, elt.begin(), elt.end()));
 		// Filter this element
 		elt_f(elt);
@@ -178,16 +178,16 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator()
 			PVCol col = 0;
 			for (it = lf.begin(); it != lf.end(); it++) {
 				PVCore::PVField& out_f = *it;
-				// Create a deep copy of that field
-				QString deep_copy((const QChar*)out_f.begin(), out_f.size() / sizeof(QChar));
-
 				// Compute indexes for text selection
 				uintptr_t index_start =
-				    ((uintptr_t)out_f.begin() - (uintptr_t)start) / sizeof(QChar);
-				uintptr_t index_end = ((uintptr_t)out_f.end() - (uintptr_t)start) / sizeof(QChar);
+				    ((uintptr_t)out_f.begin() - (uintptr_t)start.c_str()) / sizeof(char);
+				uintptr_t index_end =
+				    ((uintptr_t)out_f.end() - (uintptr_t)start.c_str()) / sizeof(char);
 
 				// Set the item in the "validation table"
-				table_validator_TableWidget->setItem(line, col, new QTableWidgetItem(deep_copy));
+				table_validator_TableWidget->setItem(line, col,
+				                                     new QTableWidgetItem(QString::fromStdString(
+				                                         std::string(out_f.begin(), out_f.end()))));
 
 				// Colorize the field in the original text
 				txt_sel.cursor.setPosition(line_index + index_start);
