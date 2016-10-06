@@ -803,7 +803,6 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 	// Tell the NRAW widget that the input has changed
 	_nraw_widget->set_last_input(_log_input_type, _log_input);
-	_nraw_widget->resize_columns_content();
 }
 
 /******************************************************************************
@@ -903,6 +902,7 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 	_nraw_model->set_format(get_format_from_dom());
 	_nraw_model->set_nraw(*_nraw);
+	_nraw_widget->resize_columns_content();
 	_nraw_model->set_invalid_elements(job->get_invalid_evts());
 
 	// Set the invalid lines widget

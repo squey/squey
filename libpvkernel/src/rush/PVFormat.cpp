@@ -28,7 +28,7 @@
 
 #include <pvcop/types/impl/formatter_factory.h>
 
-PVRush::PVFormat::PVFormat() : _have_grep_filter(false)
+PVRush::PVFormat::PVFormat() : format_name(""), full_path(""), _have_grep_filter(false)
 {
 }
 
@@ -45,8 +45,7 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	populate();
 }
 
-PVRush::PVFormat::PVFormat(QDomElement const& root_node, bool forceOneAxis)
-    : format_name(""), full_path("")
+PVRush::PVFormat::PVFormat(QDomElement const& root_node, bool forceOneAxis) : PVFormat()
 {
 	populate_from_xml(root_node, forceOneAxis);
 }
