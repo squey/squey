@@ -46,7 +46,10 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 		if (is_element_valid) {
 			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
 		} else {
-			return QString::fromStdString(_inv_elts.at(index.row()));
+			auto it = _inv_elts.find(index.row());
+			if (it != _inv_elts.end()) {
+				return QString::fromStdString(_inv_elts.at(index.row()));
+			}
 		}
 		break;
 	case Qt::BackgroundRole: {

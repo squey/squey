@@ -125,7 +125,9 @@ void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t
 
 void PVInspector::PVNrawListingWidget::resize_columns_content()
 {
-	_nraw_table->resizeColumnsToContents();
+	for (int col = 1; col < _nraw_table->model()->columnCount(); col++) {
+		_nraw_table->resizeColumnToContents(col);
+	}
 }
 
 void PVInspector::PVNrawListingWidget::select_column(PVCol col)
