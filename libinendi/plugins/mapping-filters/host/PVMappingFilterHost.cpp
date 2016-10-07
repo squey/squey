@@ -70,6 +70,7 @@ pvcop::db::array Inendi::PVMappingFilterHost::operator()(PVCol const col,
 	if (string_dict) {
 		auto& dict = *string_dict;
 		std::vector<uint32_t> ret(dict.size());
+#pragma omp parallel for
 		for (size_t i = 0; i < dict.size(); i++) {
 			const char* c = dict.key(i);
 			ret[i] = compute_mapping(c, strlen(c));
@@ -77,10 +78,12 @@ pvcop::db::array Inendi::PVMappingFilterHost::operator()(PVCol const col,
 
 		// Copy mapping value based on computation from dict.
 		auto& core_array = array.to_core_array<string_index_t>();
+#pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			dest_array[row] = ret[core_array[row]];
 		}
 	} else {
+#pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			std::string str_repr = array.at(row);
 			dest_array[row] = compute_mapping(str_repr.c_str(), str_repr.size());
