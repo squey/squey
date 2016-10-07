@@ -8,6 +8,7 @@
 #include <inendi/PVPlotted.h>
 #include <inendi/widgets/PVMappingPlottingEditDialog.h>
 #include <pvguiqt/PVQPlotted.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent)
 {
@@ -17,7 +18,9 @@ bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* pare
 		return false;
 	}
 
-	plotted.update_plotting();
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& /*pbox*/) { plotted.update_plotting(); },
+	    QObject::tr("Updating plotting(s)..."), nullptr);
 
 	return true;
 }
