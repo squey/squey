@@ -127,12 +127,15 @@ void PVWidgets::PVPlainTextEditor::slot_import_file()
 		std::string txt;
 		while (chunk) {
 			for (auto const* elt : chunk->c_elements()) {
-				txt += std::string(elt->begin(), elt->size());
+				txt += std::string(elt->begin(), elt->size()) + "\n";
 			}
 			chunk->free();
 			chunk = txt_src();
 		}
+		// Remove last carriage return if otherwise we would search for empty strings as well
+		txt.pop_back();
 		_text_edit->setPlainText(QString::fromStdString(txt));
+
 	} catch (PVRush::PVInputException const& ex) {
 		QMessageBox* box =
 		    new QMessageBox(QMessageBox::Critical, tr("Error while opening file..."),
