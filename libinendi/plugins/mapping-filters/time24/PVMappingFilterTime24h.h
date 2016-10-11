@@ -17,6 +17,8 @@
 
 #include <pvcop/types/datetime.h>
 
+#include <omp.h>
+
 namespace Inendi
 {
 
@@ -56,19 +58,22 @@ class PVMappingFilterTime24h : public PVMappingFilter
 			assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
 
 			auto& core_array = array.to_core_array<uint64_t>();
-#pragma omp parallel
-			{
+
+			std::vector<std::unique_ptr<Calendar>> calendars;
+			for (size_t i = 0; i < (size_t)omp_get_max_threads(); i++) {
 				UErrorCode err = U_ZERO_ERROR;
-				std::unique_ptr<Calendar> cal(Calendar::createInstance(err));
+				calendars.emplace_back(Calendar::createInstance(err));
 				if (not U_SUCCESS(err)) {
 					throw std::runtime_error("Can't create calendar to compute mapping");
 				}
+			}
 
+#pragma omp parallel
+			{
+				std::unique_ptr<Calendar>& cal = calendars[omp_get_thread_num()];
+				UErrorCode err = U_ZERO_ERROR;
 #pragma omp for
 				for (size_t row = 0; row < array.size(); row++) {
-					thread_local static std::unique_ptr<Calendar> calendar(
-					    Calendar::createInstance(err));
-
 					cal->setTime(core_array[row], err);
 					if (not U_SUCCESS(err)) {
 						continue;
