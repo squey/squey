@@ -400,7 +400,7 @@ bool PVInspector::PVMainWindow::maybe_save_solution()
 		QMessageBox::StandardButton ret;
 		QString solution_name = QFileInfo(windowFilePath()).fileName();
 		ret = QMessageBox::warning(this, tr("%1").arg(solution_name),
-		                           tr("The solution \"%1\"has been modified.\n"
+		                           tr("The investigation \"%1\"has been modified.\n"
 		                              "Do you want to save your changes?")
 		                               .arg(solution_name),
 		                           QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -458,7 +458,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				        return;
 			        } catch (PVRush::PVInputException const& e) {
 				        read_exception = PVCore::PVSerializeArchiveError(
-				            tr("Error while loading solution %1:\n%2")
+				            tr("Error while loading investigation \"%1\":\n%2")
 				                .arg(file)
 				                .arg(e.what())
 				                .toStdString());
@@ -475,7 +475,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 
 				        if (new_file.isEmpty()) {
 					        read_exception = PVCore::PVSerializeArchiveError(
-					            tr("Error while loading solution %1:\n files can't be found")
+					            tr("Error while loading investigation \"%1\":\n files can't be "
+					               "found")
 					                .arg(file)
 					                .toStdString());
 					        return;
@@ -508,7 +509,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				        continue;
 			        } catch (...) {
 				        read_exception = PVCore::PVSerializeArchiveError(
-				            tr("Error while loading solution %1:\n unhandled error(s).")
+				            tr("Error while loading investigation \"%1\":\n unhandled error(s).")
 				                .arg(file)
 				                .toStdString());
 				        return;
@@ -522,8 +523,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 	}
 
 	if (not std::string(read_exception.what()).empty()) {
-		QMessageBox::critical(this, tr("Fatal error while loading solution..."),
-		                      tr("Fatal error while loading solution %1:\n%2")
+		QMessageBox::critical(this, tr("Fatal error while loading investigation..."),
+		                      tr("Fatal error while loading investigation \"%1\":\n%2")
 		                          .arg(file)
 		                          .arg(QString::fromStdString(read_exception.what())));
 		reset_root();
@@ -584,13 +585,13 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, bool save_log
 		        try {
 			        ar.close_zip();
 		        } catch (PVCore::ArchiveCreationFail const& e) {
-			        pbox.critical("Error while saving solution...",
-			                      "Error while saving solution" + file + ":\n" +
+			        pbox.critical("Error while saving investigation...",
+			                      "Error while saving investigation \"" + file + "\":\n" +
 			                          QString::fromStdString(e.what()));
 			        pbox.set_canceled();
 		        } catch (PVCore::PVSerializeArchiveError const& e) {
-			        pbox.critical("Error while saving solution...",
-			                      "Error while saving solution" + file + ":\n" +
+			        pbox.critical("Error while saving investigation...",
+			                      "Error while saving investigation \"" + file + "\":\n" +
 			                          QString::fromStdString(e.what()));
 			        pbox.set_canceled();
 		        }
@@ -623,6 +624,7 @@ void PVInspector::PVMainWindow::set_window_title_with_filename()
 		file = tr("new-solution%1." INENDI_ROOT_ARCHIVE_EXT).arg(sequenceNumber++);
 	} else {
 		file = QFileInfo(get_solution_path()).canonicalFilePath();
+		tools_cur_format_Action->setEnabled(false);
 	}
 
 	setWindowModified(false);
