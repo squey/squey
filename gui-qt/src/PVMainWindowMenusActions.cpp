@@ -80,6 +80,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "Tools" menu entry
 	 ************************/
 	tools_new_format_Action = new QAction(tr("&New format..."), this);
+	tools_open_format_Action = new QAction(tr("&Open format..."), this);
 	tools_cur_format_Action = new QAction(tr("&Edit current format..."), this);
 
 	/************************
@@ -185,6 +186,7 @@ void PVInspector::PVMainWindow::create_menus()
 
 	tools_Menu = menubar->addMenu(tr("F&ormat"));
 	tools_Menu->addAction(tools_new_format_Action);
+	tools_Menu->addAction(tools_open_format_Action);
 	tools_Menu->addAction(tools_cur_format_Action);
 
 	help_Menu = menubar->addMenu(tr("&Help"));
@@ -276,6 +278,7 @@ void PVInspector::PVMainWindow::connect_actions()
 	        SLOT(events_display_unselected_zombies_parallelview_Slot()));
 
 	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
+	connect(tools_open_format_Action, SIGNAL(triggered()), this, SLOT(open_format_Slot()));
 	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
 
 	connect(about_Action, SIGNAL(triggered()), this, SLOT(about_Slot()));

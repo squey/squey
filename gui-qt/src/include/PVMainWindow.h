@@ -266,6 +266,7 @@ class PVMainWindow : public QMainWindow
 	QAction* selection_from_layer_Action;
 	QAction* set_color_Action;
 	QAction* tools_new_format_Action;
+	QAction* tools_open_format_Action;
 	QAction* tools_cur_format_Action;
 	QAction* view_Action;
 	QAction* view_display_inv_elts_Action;
