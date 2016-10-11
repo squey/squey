@@ -47,15 +47,20 @@ pvcop::db::array Inendi::PVMappingFilter4Bsort::operator()(PVCol const col,
 		auto& dict = *string_dict;
 		std::vector<uint32_t> ret(dict.size());
 
-		std::transform(dict.begin(), dict.end(), ret.begin(),
-		               [&](const char* c) { return compute_str_factor(c, strlen(c)); });
+#pragma omp parallel for
+		for (size_t dict_idx = 0; dict_idx < dict.size(); dict_idx++) {
+			const char* c = dict.key(dict_idx);
+			ret[dict_idx] = compute_str_factor(c, strlen(c));
+		}
 
 		// Copy mapping value based on computation from dict.
 		auto& core_array = array.to_core_array<string_index_t>();
+#pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			dest_array[row] = ret[core_array[row]];
 		}
 	} else {
+#pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			std::string str = array.at(row);
 			dest_array[row] = compute_str_factor(str.c_str(), str.size());

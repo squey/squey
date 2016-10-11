@@ -8,6 +8,7 @@
 #include <inendi/PVMapped.h>
 #include <inendi/widgets/PVMappingPlottingEditDialog.h>
 #include <pvguiqt/PVQMapped.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 bool PVGuiQt::PVQMapped::edit_mapped(Inendi::PVMapped& mapped, QWidget* parent)
 {
@@ -16,7 +17,9 @@ bool PVGuiQt::PVQMapped::edit_mapped(Inendi::PVMapped& mapped, QWidget* parent)
 		return false;
 	}
 
-	mapped.update_mapping();
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
+	    QObject::tr("Updating mapping(s)..."), nullptr);
 
 	return true;
 }

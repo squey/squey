@@ -17,6 +17,8 @@
 
 #include <pvbase/types.h> // for PVCol, PVRow
 
+#include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
+
 #include <QString> // for QString
 
 #include <algorithm> // for move
@@ -86,15 +88,14 @@ void Inendi::PVMapped::compute()
 	// finalize import's mapping filters
 	PVRush::PVNraw const& nraw = get_parent().get_rushnraw();
 
-/**
- * For now, the mapping parallelization is only done by column
- * but when we will want to parallelise the computation of the mapping also by
- * rows
- * (to speed up the recomputation of one specific mapping) we should
- * carrefelluly
- * handle this nested parallelization, using tasks for example.
- */
-#pragma omp parallel for
+	/**
+	 * For now, the mapping parallelization is only done by rows
+	 * but when we will want to parallelise the computation of the mapping also by
+	 * column
+	 * (to speed up the recomputation all the mappings at once) we should
+	 * carrefelluly
+	 * handle this nested parallelization, using tasks for example.
+	 */
 	for (PVCol j = 0; j < ncols; j++) {
 		// Check that an update is required
 		if (get_properties_for_col(j).is_uptodate()) {

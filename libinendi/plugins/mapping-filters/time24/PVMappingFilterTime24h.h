@@ -15,6 +15,10 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <unicode/calendar.h>
 
+#include <pvcop/types/datetime.h>
+
+#include <omp.h>
+
 namespace Inendi
 {
 
@@ -33,16 +37,18 @@ class PVMappingFilterTime24h : public PVMappingFilter
 
 		if (std::string(f->name()) == "datetime") {
 			auto& core_array = array.to_core_array<uint32_t>();
+#pragma omp parallel for
 			for (size_t row = 0; row < array.size(); row++) {
 				tm local_tm;
 				const time_t t = static_cast<int64_t>(core_array[row]);
-				gmtime_r(&t, &local_tm);
+				pvcop::types::formatter_datetime::gmtime_r(&t, &local_tm);
 
 				dest_array[row] =
 				    ((local_tm.tm_hour * 60) + local_tm.tm_min) * 60 + local_tm.tm_sec;
 			}
 		} else if (std::string(f->name()) == "datetime_us") {
 			auto& core_array = array.to_core_array<uint64_t>();
+#pragma omp parallel for
 			for (size_t row = 0; row < array.size(); row++) {
 				const boost::posix_time::ptime t =
 				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
@@ -50,36 +56,45 @@ class PVMappingFilterTime24h : public PVMappingFilter
 			}
 		} else {
 			assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
-			UErrorCode err = U_ZERO_ERROR;
-			std::unique_ptr<Calendar> cal(Calendar::createInstance(err));
-			if (not U_SUCCESS(err)) {
-				throw std::runtime_error("Can't create calendar to compute mapping");
-			}
 
 			auto& core_array = array.to_core_array<uint64_t>();
 
-			for (size_t row = 0; row < array.size(); row++) {
-
-				cal->setTime(core_array[row], err);
+			std::vector<std::unique_ptr<Calendar>> calendars;
+			for (size_t i = 0; i < (size_t)omp_get_max_threads(); i++) {
+				UErrorCode err = U_ZERO_ERROR;
+				calendars.emplace_back(Calendar::createInstance(err));
 				if (not U_SUCCESS(err)) {
-					continue;
+					throw std::runtime_error("Can't create calendar to compute mapping");
 				}
+			}
 
-				int32_t sec = cal->get(UCAL_SECOND, err);
-				if (not U_SUCCESS(err)) {
-					continue;
-				}
+#pragma omp parallel
+			{
+				std::unique_ptr<Calendar>& cal = calendars[omp_get_thread_num()];
+				UErrorCode err = U_ZERO_ERROR;
+#pragma omp for
+				for (size_t row = 0; row < array.size(); row++) {
+					cal->setTime(core_array[row], err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
 
-				int32_t min = cal->get(UCAL_MINUTE, err);
-				if (not U_SUCCESS(err)) {
-					continue;
-				}
+					int32_t sec = cal->get(UCAL_SECOND, err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
 
-				int32_t hour = cal->get(UCAL_HOUR_OF_DAY, err);
-				if (not U_SUCCESS(err)) {
-					continue;
+					int32_t min = cal->get(UCAL_MINUTE, err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
+
+					int32_t hour = cal->get(UCAL_HOUR_OF_DAY, err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
+					dest_array[row] = (sec + (min * 60) + (hour * 60 * 60));
 				}
-				dest_array[row] = (sec + (min * 60) + (hour * 60 * 60));
 			}
 		}
 		return dest;
