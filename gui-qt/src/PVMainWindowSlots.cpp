@@ -624,6 +624,7 @@ void PVInspector::PVMainWindow::set_window_title_with_filename()
 		file = tr("new-solution%1." INENDI_ROOT_ARCHIVE_EXT).arg(sequenceNumber++);
 	} else {
 		file = QFileInfo(get_solution_path()).canonicalFilePath();
+		tools_cur_format_Action->setEnabled(false);
 	}
 
 	setWindowModified(false);

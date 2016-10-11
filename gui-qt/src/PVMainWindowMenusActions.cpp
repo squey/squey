@@ -216,7 +216,7 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	filter_Menu->setEnabled(cond);
 	events_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
-	tools_cur_format_Action->setEnabled(cond);
+	tools_cur_format_Action->setEnabled(cond && is_solution_untitled());
 	source_Menu->setEnabled(cond);
 	view_Menu->setEnabled(cond);
 	solution_save_Action->setEnabled(cond);
