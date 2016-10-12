@@ -151,7 +151,7 @@ static std::string schema(const Inendi::PVView& view)
 			column_type = "date";
 		} else if (axis_type == "number_int32" or axis_type == "number_uint32") {
 			column_type = "int";
-		} else if (axis_type == "number_float") {
+		} else if (axis_type == "number_float" or axis_type == "number_double") {
 			column_type = "double";
 		} else {
 			column_type = "string"; // fallback on string type for other types

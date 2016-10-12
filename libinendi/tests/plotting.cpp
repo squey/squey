@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2011-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include <inendi/PVPlotted.h>
@@ -21,13 +21,17 @@ static constexpr int dupl = 200;
 static constexpr int dupl = 1;
 #endif
 
-static constexpr const char* csv_file = TEST_FOLDER "/picviz/integer_default_mapping.csv";
-static constexpr const char* csv_file_format =
-    TEST_FOLDER "/picviz/integer_default_enum.csv.format";
-
-int main()
+int main(int argc, char** argv)
 {
-	pvtest::TestEnv env(csv_file, csv_file_format, dupl, pvtest::ProcessUntil::Mapped);
+	if (argc < 3) {
+		std::cerr << "Usage: " << argv[0] << " input_file format" << std::endl;
+		return 1;
+	}
+
+	const char* input_file = argv[1];
+	const char* format = argv[2];
+
+	pvtest::TestEnv env(input_file, format, dupl, pvtest::ProcessUntil::Mapped);
 
 	auto start = std::chrono::system_clock::now();
 
@@ -42,22 +46,21 @@ int main()
 	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.collection().column(0);
-	auto& column_array = column.to_core_array<int32_t>();
 
-	std::vector<size_t> order(column.size());
-	std::iota(order.begin(), order.end(), 0);
-	std::sort(order.begin(), order.end(),
-	          [&](size_t a, size_t b) { return column_array[a] > column_array[b]; });
+	pvcop::db::indexes indexes = pvcop::db::indexes::parallel_sort(column);
+	auto& order = indexes.to_core_array();
+	std::reverse(order.begin(), order.end()); // plotteds are still inverted...
 
 	PV_VALID(plotted.get_column_pointer(0)[order[order.size() - 1]],
 	         std::numeric_limits<uint32_t>::max());
-	PV_VALID(plotted.get_column_pointer(0)[order[0]], (uint32_t)1);
+	PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[0]] <= (uint32_t)1);
 
 	// Check we keep value ordering.
 	for (size_t i = 1; i < column.size(); i++) {
 		PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[i - 1]] <=
 		                plotted.get_column_pointer(0)[order[i]]);
 	}
+
 #else
 	(void)plotted;
 #endif

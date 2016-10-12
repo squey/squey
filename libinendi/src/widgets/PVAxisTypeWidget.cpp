@@ -11,6 +11,7 @@ PVWidgets::PVAxisTypeWidget::PVAxisTypeWidget(QWidget* parent) : PVComboBox(pare
 {
 	addItem("string");
 	addItem("number_float");
+	addItem("number_double");
 	addItem("number_int32");
 	addItem("number_uint32");
 	addItem("time");

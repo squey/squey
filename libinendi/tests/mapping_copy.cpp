@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2011-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
 #include <inendi/PVMapped.h>
@@ -21,13 +21,17 @@ static constexpr int dupl = 200;
 static constexpr int dupl = 1;
 #endif
 
-static constexpr const char* csv_file = TEST_FOLDER "/picviz/integer_default_mapping.csv";
-static constexpr const char* csv_file_format =
-    TEST_FOLDER "/picviz/integer_default_mapping.csv.format";
-
-int main()
+int main(int argc, char** argv)
 {
-	pvtest::TestEnv env(csv_file, csv_file_format, dupl);
+	if (argc < 3) {
+		std::cerr << "Usage: " << argv[0] << " input_file format" << std::endl;
+		return 1;
+	}
+
+	const char* input_file = argv[1];
+	const char* format = argv[2];
+
+	pvtest::TestEnv env(input_file, format, dupl);
 
 	auto start = std::chrono::system_clock::now();
 
@@ -39,14 +43,10 @@ int main()
 	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
-	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
 
-	for (size_t i = 0; i < column.size(); i++) {
-		PV_VALID(mapped.get_column(0).to_core_array<int32_t>()[i],
-		         column.to_core_array<int32_t>()[i]);
-	}
+	// Check mapping is the same as NRaw values
+	PV_ASSERT_VALID(mapped.get_column(0) == nraw.collection().column(0));
 #else
 	(void)mapped;
 #endif
