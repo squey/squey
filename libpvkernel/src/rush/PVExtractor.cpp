@@ -28,7 +28,7 @@
 #include <limits>    // for numeric_limits
 #include <memory>    // for __shared_ptr
 
-PVRush::PVExtractor::PVExtractor(PVRush::PVFormat& format,
+PVRush::PVExtractor::PVExtractor(const PVRush::PVFormat& format,
                                  PVRush::PVOutput& output,
                                  PVRush::PVSourceCreator_p src_plugin,
                                  PVRush::PVInputType::list_inputs const& inputs)

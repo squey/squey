@@ -92,8 +92,8 @@ class PVFormat
 
 	PVFilter::PVChunkFilterByEltCancellable
 	create_tbb_filters_autodetect(float timeout, bool* cancellation = nullptr);
-	PVFilter::PVChunkFilterByElt create_tbb_filters();
-	std::unique_ptr<PVFilter::PVElementFilter> create_tbb_filters_elt();
+	PVFilter::PVChunkFilterByElt create_tbb_filters() const;
+	std::unique_ptr<PVFilter::PVElementFilter> create_tbb_filters_elt() const;
 
 	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix,
 	                                                            QString const& dir);
@@ -114,7 +114,8 @@ class PVFormat
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
   private:
-	PVFilter::PVFieldsBaseFilter_p xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+	PVFilter::PVFieldsBaseFilter_p
+	xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata) const;
 
 	bool populate(bool forceOneAxis = false);
 	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
@@ -139,7 +140,7 @@ class PVFormat
 	size_t _first_line;
 	size_t _line_count;
 
-	bool _have_grep_filter;
+	mutable bool _have_grep_filter;
 };
 } // namespace PVRush
 ;

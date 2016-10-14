@@ -438,7 +438,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 }
 
 PVFilter::PVFieldsBaseFilter_p
-PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
+PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata) const
 {
 	PVFilter::PVFieldsFilterReg_p filter_lib = fdata.filter_lib;
 	assert(filter_lib);
@@ -459,7 +459,7 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 	return filter_clone;
 }
 
-PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters()
+PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters() const
 {
 	return PVFilter::PVChunkFilterByElt{create_tbb_filters_elt()};
 }
@@ -470,7 +470,7 @@ PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellatio
 	return PVFilter::PVChunkFilterByEltCancellable{create_tbb_filters_elt(), timeout, cancellation};
 }
 
-std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_elt()
+std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_elt() const
 {
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
 
