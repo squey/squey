@@ -120,6 +120,17 @@ class PVFormatBuilderWidget : public QMainWindow
 	void load_log(PVRow rstart, PVRow rend);
 	void update_types_autodetection_count(const PVRush::PVFormat& format);
 
+	void get_source_creator_from_inputs(const PVRush::PVInputDescription_p input,
+	                                    const PVRush::PVInputType_p& input_type,
+	                                    PVRush::PVSourceCreator_p& source_creator,
+	                                    PVRush::PVRawSourceBase_p& raw_source_base) const;
+
+	PVRush::PVFormat guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
+	                              PVXmlDomModel& tree_model) const;
+
+	PVRush::PVFormat guess_format(const PVRush::PVInputDescription_p input,
+	                              const PVRush::PVInputType_p& input_type) const;
+
   public Q_SLOTS:
 	// Tree slots
 	void slotAddAxisIn();
