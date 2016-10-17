@@ -11,6 +11,8 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
+#include <atomic>
+
 namespace PVRush
 {
 
@@ -42,7 +44,8 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
 	CLASS_FILTER_NONREG(PVOutput)
 
   protected:
-	size_t _out_size = 0; //!< Total size handled by the pipeline. (metrics depend on inputs)
+	std::atomic<size_t> _out_size{
+	    0}; //!< Total size handled by the pipeline. (metrics depend on inputs)
 };
 } // namespace PVRush
 
