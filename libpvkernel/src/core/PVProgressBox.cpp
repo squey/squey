@@ -133,7 +133,7 @@ void PVCore::PVProgressBox::set_value(int v)
 
 void PVCore::PVProgressBox::set_maximum(int v)
 {
-	Q_EMIT set_value_sig(v);
+	Q_EMIT set_maximum_sig(v);
 }
 
 void PVCore::PVProgressBox::set_extended_status(QString const& str)
