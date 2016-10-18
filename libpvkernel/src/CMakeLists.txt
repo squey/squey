@@ -90,6 +90,7 @@ rush/PVAxisFormat.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
 rush/PVNrawOutput.cpp
+rush/PVTypesDiscoveryOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
 rush/PVFormatVersion.cpp
