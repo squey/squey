@@ -56,6 +56,9 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 				if (cstr[i - 1] != '\\') {
 					break;
 				}
+
+				// need to search further (and *after* the found quote)
+				++i;
 			}
 
 			// a quote, adding the new element
