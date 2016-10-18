@@ -20,9 +20,12 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <pvguiqt/PVAxesCombinationWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
+
+#include <boost/thread.hpp>
 
 QList<QUrl> PVInspector::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl>();
 
@@ -124,6 +127,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	_nraw_model = new PVNrawListingModel();
 	_nraw_widget = new PVNrawListingWidget(_nraw_model);
 	_nraw_widget->connect_preview(this, SLOT(slotExtractorPreview()));
+	_nraw_widget->connect_autodetect(this, SLOT(slotAutoDetectAxesTypes()));
 	_nraw_widget->connect_axes_name(this, SLOT(set_axes_name_selected_row_Slot(int)));
 
 	// Put the vb layout into a widget and add it to the splitter
@@ -585,6 +589,80 @@ void PVInspector::PVFormatBuilderWidget::slotSaveAs()
 	saveAs();
 }
 
+void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
+{
+	static constexpr const size_t mega = 1024 * 1024;
+
+	PVRow start, end;
+	_nraw_widget->get_autodet_args(start, end);
+
+	bool is_row_count_known = end != 0;
+	if (not is_row_count_known) {
+		end = EXTRACTED_ROW_COUNT_LIMIT;
+	}
+
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& pbox) {
+		    PVRush::PVTypesDiscoveryOutput type_discovery_output;
+		    PVRush::PVFormat format = get_format_from_dom();
+		    QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
+		    list_inputs << _log_input;
+
+		    PVRush::PVExtractor extractor(format, type_discovery_output, _log_sc, list_inputs);
+
+		    pbox.set_cancel2_btn_text("Stop");
+		    pbox.set_cancel_btn_text("Cancel");
+
+		    if (is_row_count_known) {
+			    pbox.set_maximum(end - start);
+		    } else {
+			    pbox.set_maximum(extractor.max_size() / mega);
+		    }
+		    pbox.set_enable_cancel(true);
+
+		    PVRush::PVControllerJob_p job = extractor.process_from_agg_idxes(start, end);
+
+		    try {
+			    // update the status of the progress bar
+			    while (job->running()) {
+				    if (is_row_count_known) {
+					    pbox.set_value(job->status());
+				    } else {
+					    pbox.set_value(job->get_value() / mega);
+				    }
+				    pbox.set_extended_status(QString("Processed rows: %L1").arg(job->status()));
+				    boost::this_thread::interruption_point();
+				    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			    }
+		    } catch (boost::thread_interrupted) {
+			    job->cancel();
+		    }
+
+		    job->wait_end();
+
+		    if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL) {
+			    return;
+		    }
+
+		    // TODO : it would be nice to ignore axes set by user...
+
+		    // Update format with discovered axes types
+		    QDomElement& dom = myTreeModel->getRootDom();
+		    QDomNodeList axes = dom.elementsByTagName("axis");
+		    for (int i = 0; i < axes.size(); i++) {
+			    QDomElement ax = axes.at(i).toElement();
+			    std::string type;
+			    std::string type_format;
+			    std::tie(type, type_format) = type_discovery_output.type_desc(i);
+			    ax.setAttribute("type", type.c_str());
+			    ax.setAttribute("type_format", type_format.c_str());
+		    }
+
+		    slotExtractorPreview();
+		},
+	    QObject::tr("Autodetecting axes types..."), nullptr);
+}
+
 void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
 {
 	// Change the window title with the filename of the format
@@ -665,6 +743,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	file->addAction(actionOpen);
 	file->addAction(actionSave);
 	file->addAction(actionSaveAs);
+	file->addSeparator();
 	file->addSeparator();
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
 	file->addSeparator();
@@ -772,16 +851,43 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 		// First extraction
 		if (is_dom_empty()) {
-			// Try to fill the dom with data if non exists.
-			guess_first_splitter();
+			format = guess_format(_log_source, *myTreeModel);
+
+			PVCol naxes;
+			PVFilter::PVFieldsSplitter_p sp =
+			    PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source, naxes);
+			if (sp) {
+				// Ok, we got a match, add it to the dom.
+				QString first_input_name = _log_input_type->human_name_of_input(_inputs.front());
+				PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d "
+				           "axes. Arguments:\n",
+				           qPrintable(first_input_name), naxes);
+				PVCore::dump_argument_list(sp->get_args());
+
+				QString msg =
+				    tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n")
+				        .arg(sp->registered_name())
+				        .arg(first_input_name)
+				        .arg(naxes);
+				msg += tr("Do you want to automatically add that splitter to the format ?");
+				QMessageBox ask_auto(QMessageBox::Question, tr("Filter automatically found"), msg,
+				                     QMessageBox::Yes | QMessageBox::No, this);
+				if (ask_auto.exec() == QMessageBox::No) {
+					return;
+				}
+			}
+			slotAutoDetectAxesTypes();
+		} else {
+			format = get_format_from_dom();
 		}
 
 		PVRush::PVFormat format = get_format_from_dom();
 
 		_nraw.reset(new PVRush::PVNraw());
+		_nraw_output.reset(new PVRush::PVNrawOutput(*_nraw));
 		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
 		list_inputs << _log_input;
-		_log_extract.reset(new PVRush::PVExtractor(format, *_nraw, _log_sc, list_inputs));
+		_log_extract.reset(new PVRush::PVExtractor(format, *_nraw_output, _log_sc, list_inputs));
 
 		update_table(rstart, rend);
 
@@ -880,7 +986,7 @@ void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 	node->setFromArgumentList(sp->get_args());
 }
 
-PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom()
+PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom() const
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	return PVRush::PVFormat{rootDom, true};
@@ -902,6 +1008,7 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 	_nraw_model->set_format(get_format_from_dom());
 	_nraw_model->set_nraw(*_nraw);
+	_nraw_model->set_starting_row(start);
 	_nraw_widget->resize_columns_content();
 	_nraw_model->set_invalid_elements(job->get_invalid_evts());
 

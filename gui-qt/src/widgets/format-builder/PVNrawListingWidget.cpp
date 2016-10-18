@@ -16,6 +16,8 @@
 #include <QMenu>
 #include <QAction>
 
+#include <pvlogger.h>
+
 PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_model,
                                                       QWidget* parent)
     : QWidget(parent), _nraw_model(nraw_model)
@@ -47,41 +49,47 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 
 	// "Mini-extractor" for this NRAW
 	auto ext_layout = new QHBoxLayout();
-	ext_layout->addWidget(new QLabel("Preview from line "));
+	ext_layout->addWidget(new QLabel("Preview"));
 
-	_ext_start = new QSpinBox(this);
-	_ext_start->setRange(0, std::numeric_limits<int32_t>::max());
+	_ext_count = new PVGuiQt::PVLocalizedSpinBox(this);
+	_ext_count->setRange(0, std::numeric_limits<int32_t>::max());
+	_ext_count->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT);
+	ext_layout->addWidget(_ext_count);
+
+	ext_layout->addWidget(new QLabel(" row(s), starting from row #"));
+
+	_ext_start = new PVGuiQt::PVLocalizedSpinBox(this);
+	_ext_start->setRange(1, std::numeric_limits<int32_t>::max());
 	_ext_start->setValue(FORMATBUILDER_EXTRACT_START_DEFAULT);
 	ext_layout->addWidget(_ext_start);
-
-	ext_layout->addWidget(new QLabel(" to line "));
-
-	_ext_end = new QSpinBox(this);
-	_ext_end->setRange(0, std::numeric_limits<int32_t>::max());
-	_ext_end->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT);
-	ext_layout->addWidget(_ext_end);
-
-	// Ensure begin and end are consistent
-	connect(_ext_start, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-	        [this](int v) {
-		        if (v > _ext_end->value()) {
-			        _ext_end->setValue(v);
-		        }
-		    });
-	connect(_ext_end, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int v) {
-		if (v < _ext_start->value()) {
-			_ext_start->setValue(v);
-		}
-	});
 
 	_btn_preview = new QPushButton("Preview");
 	ext_layout->addWidget(_btn_preview);
 	_btn_preview->setAutoDefault(false);
 
+	auto autodet_layout = new QHBoxLayout();
+	autodet_layout->addWidget(new QLabel("Autodetect "));
+
+	_autodet_count = new PVGuiQt::PVLocalizedSpinBox(this);
+	_autodet_count->setRange(0, std::numeric_limits<int32_t>::max());
+	_autodet_count->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT * 100);
+	autodet_layout->addWidget(_autodet_count);
+
+	autodet_layout->addWidget(new QLabel(" row(s), starting from row # "));
+
+	_autodet_start = new PVGuiQt::PVLocalizedSpinBox(this);
+	_autodet_start->setRange(1, std::numeric_limits<int32_t>::max());
+	_autodet_start->setValue(FORMATBUILDER_EXTRACT_START_DEFAULT);
+	autodet_layout->addWidget(_autodet_start);
+
+	_btn_autodetect = new QPushButton("Autodetect axes types");
+	autodet_layout->addWidget(_btn_autodetect);
+	_btn_autodetect->setAutoDefault(false);
+
 	main_layout->addItem(src_layout);
 	main_layout->addWidget(_nraw_table);
+	main_layout->addItem(autodet_layout);
 	main_layout->addItem(ext_layout);
-
 	set_last_input();
 
 	setLayout(main_layout);
@@ -90,6 +98,11 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 void PVInspector::PVNrawListingWidget::connect_preview(QObject* receiver, const char* slot)
 {
 	connect(_btn_preview, SIGNAL(clicked()), receiver, slot);
+}
+
+void PVInspector::PVNrawListingWidget::connect_autodetect(QObject* receiver, const char* slot)
+{
+	connect(_btn_autodetect, SIGNAL(clicked()), receiver, slot);
 }
 
 void PVInspector::PVNrawListingWidget::connect_axes_name(QObject* receiver, const char* slot)
@@ -104,8 +117,14 @@ void PVInspector::PVNrawListingWidget::connect_axes_type(QObject* receiver, cons
 
 void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 {
-	start = _ext_start->value();
-	end = _ext_end->value();
+	start = _ext_start->value() - 1;
+	end = start + _ext_count->value() - 1;
+}
+
+void PVInspector::PVNrawListingWidget::get_autodet_args(PVRow& start, PVRow& end)
+{
+	start = _autodet_start->value() - 1;
+	end = start + _autodet_count->value() - 1;
 }
 
 void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,
@@ -114,6 +133,7 @@ void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t
 	if (!in_t) {
 		_src_label->hide();
 		_btn_preview->setEnabled(false);
+		_btn_autodetect->setEnabled(false);
 		return;
 	}
 	QString txt = tr("This is a preview of the normalisation process for the input ");
@@ -121,6 +141,7 @@ void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t
 	_src_label->setText(txt);
 	_src_label->show();
 	_btn_preview->setEnabled(true);
+	_btn_autodetect->setEnabled(true);
 }
 
 void PVInspector::PVNrawListingWidget::resize_columns_content()
