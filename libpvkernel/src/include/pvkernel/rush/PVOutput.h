@@ -14,6 +14,7 @@
 namespace PVRush
 {
 
+class PVFormat;
 class PVControllerJob;
 
 class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
@@ -29,6 +30,9 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
   public:
 	virtual PVRow get_rows_count() = 0;
 	size_t get_out_size() const { return _out_size; }
+
+  public:
+	virtual void prepare_load(const PVRush::PVFormat&){};
 
   protected:
 	// This function is called by PVControllerJob

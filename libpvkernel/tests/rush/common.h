@@ -192,6 +192,7 @@ class TestEnv
 	        std::string const& format_file,
 	        size_t dup = 1)
 	    : _format("format", QString::fromStdString(format_file))
+	    , _nraw_output(_nraw)
 	    , _big_file_path(duplicate_log_file(log_files[0], dup))
 	    , _need_cleanup(dup > 1)
 	{
@@ -216,7 +217,7 @@ class TestEnv
 
 	void load_data(size_t begin = 0)
 	{
-		PVRush::PVExtractor ext(_format, _nraw, _sc_file, _list_inputs);
+		PVRush::PVExtractor ext(_format, _nraw_output, _sc_file, _list_inputs);
 		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(begin);
 		job->wait_end();
 	}
@@ -237,6 +238,7 @@ class TestEnv
 
 	PVRush::PVFormat _format;
 	PVRush::PVNraw _nraw;
+	PVRush::PVNrawOutput _nraw_output;
 	QList<std::shared_ptr<PVRush::PVInputDescription>> _list_inputs;
 	PVRush::PVSourceCreator_p _sc_file;
 

@@ -23,6 +23,7 @@ class PVChunk;
 } // namespace PVCore
 namespace PVRush
 {
+class PVFormat;
 class PVNraw;
 } // namespace PVRush
 
@@ -59,6 +60,7 @@ class PVNrawOutput : public PVRush::PVOutput
 	}
 
   protected:
+	void prepare_load(const PVRush::PVFormat& format) override;
 	void job_has_finished(const PVControllerJob::invalid_elements_t& inv_elts) override;
 
   protected:

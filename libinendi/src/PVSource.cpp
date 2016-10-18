@@ -27,8 +27,9 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
     , _format(format)
     , _nraw()
     , _inputs(inputs)
+    , _output(_nraw)
     , _src_plugin(sc)
-    , _extractor(_format, _nraw, _src_plugin, _inputs)
+    , _extractor(_format, _output, _src_plugin, _inputs)
 {
 	if (inputs.empty()) {
 		throw PVRush::PVInputException("Source can't be created without input");
