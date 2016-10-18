@@ -224,6 +224,10 @@ add_pv_compile_test(Trush_filter_guess_csv LINKS ${LINK_LIBRARIES} FILES filter_
 add_test(Trush_filter_guess_csv_correct Trush_filter_guess_csv 4 "," "\"" ${PVRUSH_TEST_FILES}/csv/tiny.csv)
 add_test(Trush_filter_guess_csv_incorrect Trush_filter_guess_csv 0 "," "\"" ${PVRUSH_TEST_FILES}/csv/irregular.csv)
 
+add_pv_compile_test(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_discovery.cpp)
+add_test(Trush_axes_types_discovery Trush_axes_types_discovery)
+add_bench(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_discovery.cpp)
+
 # inendi-logstats
 add_pv_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
 add_test(Trush_logstats Trush_logstats)
