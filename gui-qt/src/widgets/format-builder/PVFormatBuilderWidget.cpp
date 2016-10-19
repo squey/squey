@@ -527,6 +527,9 @@ bool PVInspector::PVFormatBuilderWidget::save()
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {
 		PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(_cur_file);
+
+		check_for_new_time_formats();
+
 		return true;
 	}
 
@@ -540,6 +543,42 @@ bool PVInspector::PVFormatBuilderWidget::save()
 	}
 
 	return saveAs();
+}
+
+void PVInspector::PVFormatBuilderWidget::check_for_new_time_formats()
+{
+	const std::unordered_set<std::string> time_formats = get_format_from_dom().get_time_formats();
+	std::unordered_set<std::string> supported_time_formats =
+	    PVRush::PVTypesDiscoveryOutput::supported_time_formats();
+	std::unordered_set<std::string> new_time_formats;
+
+	for (const std::string& time_format : time_formats) {
+		auto it = supported_time_formats.find(time_format);
+		if (it == supported_time_formats.end()) {
+			new_time_formats.emplace(time_format);
+		}
+	}
+
+	if (not new_time_formats.empty()) {
+		QStringList time_formats_list;
+		for (const std::string& time_format : new_time_formats) {
+			time_formats_list << QString::fromStdString(time_format);
+		}
+
+		bool multi = new_time_formats.size() > 1;
+		bool add_time_formats =
+		    QMessageBox::question(
+		        this, QString("New time format") + (multi ? "s" : "") + " detected",
+		        QString("The following time format") + (multi ? "s are" : " is") +
+		            " not currently enabled in axes type autodetection :" + "<br><br><i>" +
+		            time_formats_list.join("<br>") + "<br><br></i>Do you want to enable " +
+		            (multi ? "them" : "it") + " in future autodetections ?",
+		        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes;
+
+		if (add_time_formats) {
+			PVRush::PVTypesDiscoveryOutput::append_time_formats(new_time_formats);
+		}
+	}
 }
 
 /******************************************************************************
@@ -565,6 +604,8 @@ bool PVInspector::PVFormatBuilderWidget::saveAs()
 	if (!_file_dialog.exec()) {
 		return false;
 	}
+
+	check_for_new_time_formats();
 
 	const QString urlFile = _file_dialog.selectedFiles().at(0);
 	if (!urlFile.isEmpty()) {

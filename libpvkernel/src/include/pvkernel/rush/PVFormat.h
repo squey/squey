@@ -29,6 +29,8 @@
 
 #include <pvcop/formatter_desc_list.h>
 
+#include <unordered_set>
+
 /**
  * \class PVRush::Format
  * \defgroup Format Input Formating
@@ -86,6 +88,7 @@ class PVFormat
 	explicit PVFormat(QDomElement const& rootNode, bool forceOneAxis = false);
 
 	pvcop::formatter_desc_list get_storage_format() const;
+	std::unordered_set<std::string> get_time_formats() const;
 
 	/* Methods */
 	void debug() const;

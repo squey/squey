@@ -91,6 +91,7 @@ class PVFormatBuilderWidget : public QMainWindow
 
 	bool save();
 	bool saveAs();
+	void check_for_new_time_formats();
 
 	/**
 	 * init the toolsbar

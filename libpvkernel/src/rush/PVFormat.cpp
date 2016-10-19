@@ -252,6 +252,19 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	return {formatter, time_format};
 }
 
+std::unordered_set<std::string> PVRush::PVFormat::get_time_formats() const
+{
+	std::unordered_set<std::string> time_formats;
+
+	for (const PVAxisFormat& axe : _axes) {
+		if (axe.get_type() == "time") {
+			time_formats.emplace(axe.get_type_format().toStdString());
+		}
+	}
+
+	return time_formats;
+}
+
 pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 {
 	pvcop::formatter_desc_list formatters;
