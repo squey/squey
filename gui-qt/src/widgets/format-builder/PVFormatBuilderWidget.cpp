@@ -704,6 +704,20 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 	    QObject::tr("Autodetecting axes types..."), nullptr);
 }
 
+void PVInspector::PVFormatBuilderWidget::update_types_autodetection_count(
+    const PVRush::PVFormat& format)
+{
+	static constexpr const size_t total_fields = 100000;
+	static constexpr const size_t multiple_to_round = 100;
+
+	PVCol column_count = format.get_axes().size();
+	size_t row_count =
+	    (((total_fields / column_count) + multiple_to_round - 1) / multiple_to_round) *
+	    multiple_to_round;
+
+	_nraw_widget->set_autodet_count(row_count);
+}
+
 void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
 {
 	// Change the window title with the filename of the format
@@ -917,9 +931,11 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 					return;
 				}
 			}
+			update_types_autodetection_count(format);
 			slotAutoDetectAxesTypes();
 		} else {
 			format = get_format_from_dom();
+			update_types_autodetection_count(format);
 		}
 
 		PVRush::PVFormat format = get_format_from_dom();

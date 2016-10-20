@@ -118,6 +118,7 @@ class PVFormatBuilderWidget : public QMainWindow
 
   private:
 	void load_log(PVRow rstart, PVRow rend);
+	void update_types_autodetection_count(const PVRush::PVFormat& format);
 
   public Q_SLOTS:
 	// Tree slots

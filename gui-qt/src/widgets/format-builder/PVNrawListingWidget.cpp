@@ -72,7 +72,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 
 	_autodet_count = new PVGuiQt::PVLocalizedSpinBox(this);
 	_autodet_count->setRange(0, std::numeric_limits<int32_t>::max());
-	_autodet_count->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT * 100);
+	_autodet_count->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT);
 	autodet_layout->addWidget(_autodet_count);
 
 	autodet_layout->addWidget(new QLabel(" row(s), starting from row # "));
@@ -125,6 +125,11 @@ void PVInspector::PVNrawListingWidget::get_autodet_args(PVRow& start, PVRow& end
 {
 	start = _autodet_start->value() - 1;
 	end = start + _autodet_count->value() - 1;
+}
+
+void PVInspector::PVNrawListingWidget::set_autodet_count(PVRow count)
+{
+	_autodet_count->setValue(count);
 }
 
 void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,
