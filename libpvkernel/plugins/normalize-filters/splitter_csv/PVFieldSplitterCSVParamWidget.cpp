@@ -25,19 +25,6 @@
 PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget()
     : PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterCSV()))
 {
-	init();
-}
-
-/******************************************************************************
- *
- * PVFilter::PVFieldSplitterCSVParamWidget::init
- *
- *****************************************************************************/
-void PVFilter::PVFieldSplitterCSVParamWidget::init()
-{
-	PVLOG_DEBUG("init PVFieldSplitterCSVParamWidget\n");
-
-	_recommands_label = nullptr;
 }
 
 /******************************************************************************
@@ -114,8 +101,6 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()     end\n");
 
-	update_data_display();
-
 	return param_widget;
 }
 
@@ -135,7 +120,6 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 	args["sep"] = QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
-	update_recommanded_nfields();
 	Q_EMIT args_changed_Signal();
 }
 
@@ -145,7 +129,6 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateQuote(QKeySequence key)
 	args["quote"] = QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
-	update_recommanded_nfields();
 	Q_EMIT args_changed_Signal();
 }
 
@@ -153,65 +136,4 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateNChilds()
 {
 	set_child_count(_child_number_edit->value());
 	Q_EMIT nchilds_changed_Signal();
-}
-
-// Used below
-static bool sort_freq(std::pair<PVCol, PVRow> const& first, std::pair<PVCol, PVRow> const& second)
-{
-	return first.second > second.second;
-}
-
-void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
-{
-	PVFilter::PVElementFilterByFields elt_f;
-	elt_f.add_filter(_filter);
-	QStringList const& data = get_data();
-
-	// Compute the frequency of the number of fields with this parameters
-	QHash<PVCol, PVRow> freq_fields;
-	for (int i = 0; i < data.size(); i++) {
-		QString myLine = data[i];
-		const QChar* start = myLine.constData();
-		QString deep_copy(start, myLine.size());
-		PVCore::PVElement elt(nullptr, (char*)deep_copy.constData(),
-		                      (char*)(deep_copy.constData() + myLine.size()));
-		// Filter this element
-		elt_f(elt);
-		if (!elt.valid()) {
-			continue;
-		}
-		PVCol nfields_elt = elt.c_fields().size();
-		if (freq_fields.contains(nfields_elt)) {
-			freq_fields[nfields_elt]++;
-		} else {
-			freq_fields[nfields_elt] = 1;
-		}
-	}
-
-	// Sort this
-	std::vector<std::pair<PVCol, PVRow>> sorted_freq;
-	sorted_freq.reserve(freq_fields.size());
-	QHash<PVCol, PVRow>::const_iterator it;
-	for (it = freq_fields.begin(); it != freq_fields.end(); it++) {
-		sorted_freq.push_back(std::pair<PVCol, PVRow>(it.key(), it.value()));
-	}
-	std::sort(sorted_freq.begin(), sorted_freq.end(), sort_freq);
-
-	QString txt_info = tr("Recommanded number of fields") + QString(":\n");
-	std::vector<std::pair<PVCol, PVRow>>::const_iterator it_fr;
-	for (it_fr = sorted_freq.begin(); it_fr != sorted_freq.end(); it_fr++) {
-		txt_info += tr("\t%1\t (matches %2% of the elements)")
-		                .arg(it_fr->first)
-		                .arg(((double)(it_fr->second) / (double)(data.size())) * 100.0);
-		txt_info += QString("\n");
-	}
-
-	if (_recommands_label) {
-		_recommands_label->setText(txt_info);
-	}
-}
-
-void PVFilter::PVFieldSplitterCSVParamWidget::update_data_display()
-{
-	update_recommanded_nfields();
 }
