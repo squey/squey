@@ -49,6 +49,7 @@ class PVProgressBox : public QDialog
 
 	void critical(QString const& title, QString const& msg);
 	void warning(QString const& title, QString const& msg);
+	void information(QString const& title, QString const& msg);
 
 	void exec_gui(std::function<void(void)> f);
 
@@ -70,6 +71,7 @@ class PVProgressBox : public QDialog
 
 	void critical_sig(QString const& title, QString const& msg);
 	void warning_sig(QString const& title, QString const& msg);
+	void information_sig(QString const& title, QString const& msg);
 
 	void exec_gui_sig(std::function<void(void)> f);
 
@@ -88,6 +90,7 @@ class PVProgressBox : public QDialog
 
 	void critical_slot(QString const& title, QString const& msg);
 	void warning_slot(QString const& title, QString const& msg);
+	void information_slot(QString const& title, QString const& msg);
 
 	void exec_gui_slot(std::function<void(void)> f);
 

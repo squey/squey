@@ -100,6 +100,8 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	        Qt::QueuedConnection);
 	connect(this, &PVProgressBox::warning_sig, this, &PVProgressBox::warning_slot,
 	        Qt::QueuedConnection);
+	connect(this, &PVProgressBox::information_sig, this, &PVProgressBox::information_slot,
+	        Qt::BlockingQueuedConnection);
 	connect(this, &PVProgressBox::finished_sig, this, &PVProgressBox::accept, Qt::QueuedConnection);
 
 	/* this one must be in blocking mode because the sender must wait for an user interaction
@@ -171,6 +173,11 @@ void PVCore::PVProgressBox::warning(QString const& title, QString const& msg)
 	Q_EMIT warning_sig(title, msg);
 }
 
+void PVCore::PVProgressBox::information(QString const& title, QString const& msg)
+{
+	Q_EMIT information_sig(title, msg);
+}
+
 void PVCore::PVProgressBox::exec_gui(PVCore::PVProgressBox::func_t f)
 {
 	Q_EMIT exec_gui_sig(f);
@@ -211,6 +218,11 @@ void PVCore::PVProgressBox::critical_slot(QString const& title, QString const& m
 void PVCore::PVProgressBox::warning_slot(QString const& title, QString const& msg)
 {
 	QMessageBox::warning(this, title, msg);
+}
+
+void PVCore::PVProgressBox::information_slot(QString const& title, QString const& msg)
+{
+	QMessageBox::information(this, title, msg);
 }
 
 void PVCore::PVProgressBox::set_enable_cancel_slot(bool enable)
