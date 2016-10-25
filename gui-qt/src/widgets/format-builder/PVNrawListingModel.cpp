@@ -10,6 +10,7 @@
 
 #include <QBrush>
 #include <QFont>
+#include <QFontMetrics>
 
 PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent)
     : QAbstractTableModel(parent), _nraw(nullptr), _col_tosel(0), _show_sel(false)
@@ -81,13 +82,14 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section,
                                                      Qt::Orientation orientation,
                                                      int role) const
 {
-	if (not _nraw) {
-		return {};
+	if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
+		return QAbstractTableModel::headerData(section + _starting_row, orientation, role);
+	}
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+		return _format.get_axes().at(section).get_name();
 	}
 
-	if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
-		return QAbstractTableModel::headerData(section, orientation, role);
-	return _format.get_axes().at(section).get_name();
+	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)

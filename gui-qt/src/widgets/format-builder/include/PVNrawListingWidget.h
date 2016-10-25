@@ -11,6 +11,8 @@
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
+#include <pvguiqt/PVLocalizedSpinBox.h>
+
 #include <QWidget>
 #include <QSpinBox>
 #include <QPushButton>
@@ -31,9 +33,12 @@ class PVNrawListingWidget : public QWidget
 
   public:
 	void connect_preview(QObject* receiver, const char* slot);
+	void connect_autodetect(QObject* receiver, const char* slot);
 	void connect_axes_name(QObject* receiver, const char* slot);
 	void connect_axes_type(QObject* receiver, const char* slot);
 	void get_ext_args(PVRow& start, PVRow& end);
+	void get_autodetect_args(PVRow& start, PVRow& end);
+	void set_autodetect_count(PVRow count);
 	void set_last_input(PVRush::PVInputType_p in_t = PVRush::PVInputType_p(),
 	                    PVRush::PVInputDescription_p input = PVRush::PVInputDescription_p());
 	void resize_columns_content();
@@ -55,9 +60,12 @@ class PVNrawListingWidget : public QWidget
 
   protected:
 	PVNrawListingModel* _nraw_model;
-	QSpinBox* _ext_start;
-	QSpinBox* _ext_end;
+	PVGuiQt::PVLocalizedSpinBox* _ext_start;
+	PVGuiQt::PVLocalizedSpinBox* _ext_count;
 	QPushButton* _btn_preview;
+	PVGuiQt::PVLocalizedSpinBox* _autodetect_start;
+	PVGuiQt::PVLocalizedSpinBox* _autodetect_count;
+	QPushButton* _btn_autodetect;
 	QLabel* _src_label;
 	QTableView* _nraw_table;
 	QMenu* _ctxt_menu;

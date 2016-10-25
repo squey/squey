@@ -7,6 +7,7 @@
 
 #include <pvkernel/rush/PVNraw.h> // for PVNraw
 #include <pvkernel/rush/PVNrawOutput.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <pvkernel/core/PVChunk.h> // for PVChunk
 
@@ -23,6 +24,7 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
 	nraw_dest().add_chunk_utf16(*out);
+
 	_out_size += out->get_init_size();
 
 	// Clear this chunk !
@@ -36,6 +38,11 @@ PVRow PVRush::PVNrawOutput::get_rows_count()
 	} else {
 		return 0;
 	}
+}
+
+void PVRush::PVNrawOutput::prepare_load(const PVRush::PVFormat& format)
+{
+	_nraw_dest->prepare_load(format.get_storage_format());
 }
 
 void PVRush::PVNrawOutput::job_has_finished(const std::map<size_t, std::string>& inv_elts)

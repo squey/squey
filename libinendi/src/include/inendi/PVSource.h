@@ -157,6 +157,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	    _format;          //!< Format use to create the source (also contains metadata like colors)
 	PVRush::PVNraw _nraw; //!< NRaw data
 	PVRush::PVInputType::list_inputs _inputs;
+	PVRush::PVNrawOutput _output;
 
 	PVRush::PVSourceCreator_p _src_plugin;
 	// FIXME : The extracor is an attribute as we can't create an extractor from source (it would

@@ -38,6 +38,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
+#include "pvkernel/rush/PVTypesDiscoveryOutput.h"
 
 namespace Inendi
 {
@@ -90,6 +91,7 @@ class PVFormatBuilderWidget : public QMainWindow
 
 	bool save();
 	bool saveAs();
+	void check_for_new_time_formats();
 
 	/**
 	 * init the toolsbar
@@ -106,7 +108,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	/**
 	 * Get the PVFormat from its dom representation.
 	 */
-	PVRush::PVFormat get_format_from_dom();
+	PVRush::PVFormat get_format_from_dom() const;
 
 	/**
 	 * Try to find a matching splitter when we import a file without format.
@@ -116,6 +118,18 @@ class PVFormatBuilderWidget : public QMainWindow
 
   private:
 	void load_log(PVRow rstart, PVRow rend);
+	void update_types_autodetection_count(const PVRush::PVFormat& format);
+
+	void get_source_creator_from_inputs(const PVRush::PVInputDescription_p input,
+	                                    const PVRush::PVInputType_p& input_type,
+	                                    PVRush::PVSourceCreator_p& source_creator,
+	                                    PVRush::PVRawSourceBase_p& raw_source_base) const;
+
+	PVRush::PVFormat guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
+	                              PVXmlDomModel& tree_model) const;
+
+	PVRush::PVFormat guess_format(const PVRush::PVInputDescription_p input,
+	                              const PVRush::PVInputType_p& input_type) const;
 
   public Q_SLOTS:
 	// Tree slots
@@ -135,6 +149,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	void slotOpenLog();
 	void slotSave();
 	void slotSaveAs();
+	void slotAutoDetectAxesTypes();
 	void slotUpdateToolsState(const QModelIndex& index = QModelIndex());
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex& index);
@@ -149,6 +164,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	PVRush::PVSourceCreator_p _log_sc;       //!< The source from input file.
 	PVRush::PVRawSourceBase_p _log_source;
 	std::unique_ptr<PVRush::PVNraw> _nraw;
+	std::unique_ptr<PVRush::PVNrawOutput> _nraw_output;
 	std::shared_ptr<PVRush::PVExtractor> _log_extract; //!< Extractor to load data.
 	PVOptionsWidget* _options_widget;
 	PVGuiQt::PVAxesCombinationWidget* _axes_comb_widget;

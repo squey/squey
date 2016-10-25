@@ -81,6 +81,11 @@ class PVNrawListingModel : public QAbstractTableModel
 	void set_nraw(PVRush::PVNraw const& nraw);
 
 	/**
+	 * Set starting row
+	 */
+	void set_starting_row(PVCol starting_row) { _starting_row = starting_row; }
+
+	/**
 	 * Set format to display.
 	 */
 	void set_format(PVRush::PVFormat const& format) { _format = format; }
@@ -98,6 +103,7 @@ class PVNrawListingModel : public QAbstractTableModel
 	PVRush::PVFormat _format;    //!< Format use to extract the NRaw.
 	PVCol _col_tosel;            //!< Id of the selected column (for coloring)
 	bool _show_sel;              //!< Whether we show the selection or not.
+	PVCol _starting_row;
 	PVRush::PVControllerJob::invalid_elements_t _inv_elts; //!< invalid elements (used for display)
 };
 } // namespace PVInspector

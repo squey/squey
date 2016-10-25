@@ -32,8 +32,8 @@ class PVSourceCreator;
 class PVExtractor
 {
   public:
-	PVExtractor(PVRush::PVFormat& format,
-	            PVRush::PVNraw& nraw,
+	PVExtractor(const PVRush::PVFormat& format,
+	            PVRush::PVOutput& output,
 	            std::shared_ptr<PVRush::PVSourceCreator> src_plugin,
 	            PVRush::PVInputType::list_inputs const& inputs);
 
@@ -67,9 +67,8 @@ class PVExtractor
 
   private:
 	PVAggregator _agg;
-	PVNraw& _nraw;
-	PVFormat& _format;      //!< It is the format use for extraction.
-	PVNrawOutput _out_nraw; // Linked to _nraw
+	PVOutput& _output;       // Linked to _nraw
+	const PVFormat& _format; //!< It is the format use for extraction.
 	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;
 

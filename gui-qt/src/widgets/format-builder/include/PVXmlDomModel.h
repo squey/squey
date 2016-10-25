@@ -145,6 +145,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	QModelIndex indexOfChild(const QModelIndex& parent, const PVRush::PVXmlTreeNodeDom* node) const;
 
 	QDomElement const& getRootDom() const { return xmlRootDom; }
+	QDomElement& getRootDom() { return xmlRootDom; }
 
 	PVRush::PVXmlTreeNodeDom* getRoot() const { return rootNode.get(); }
 

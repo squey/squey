@@ -246,9 +246,9 @@ void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
 		ax.setAttribute("type", get_type_from_format(type, mapping));
 		// Update type_format
 		if (mapping == "hexadecimal") {
-			ax.toElement().setAttribute("type_format", "%x");
+			ax.toElement().setAttribute("type_format", "%#x");
 		} else if (mapping == "octal") {
-			ax.toElement().setAttribute("type_format", "%o");
+			ax.toElement().setAttribute("type_format", "%#o");
 		}
 		// Remove extra mapped node
 		auto mappings = ax.elementsByTagName("mapping");

@@ -11,9 +11,12 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
+#include <atomic>
+
 namespace PVRush
 {
 
+class PVFormat;
 class PVControllerJob;
 
 class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
@@ -30,6 +33,9 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
 	virtual PVRow get_rows_count() = 0;
 	size_t get_out_size() const { return _out_size; }
 
+  public:
+	virtual void prepare_load(const PVRush::PVFormat&){};
+
   protected:
 	// This function is called by PVControllerJob
 	// when its job has finished.
@@ -38,7 +44,8 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
 	CLASS_FILTER_NONREG(PVOutput)
 
   protected:
-	size_t _out_size = 0; //!< Total size handled by the pipeline. (metrics depend on inputs)
+	std::atomic<size_t> _out_size{
+	    0}; //!< Total size handled by the pipeline. (metrics depend on inputs)
 };
 } // namespace PVRush
 
