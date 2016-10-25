@@ -11,11 +11,13 @@
 #include <pvkernel/rush/PVFormat.h>
 
 #include <pvkernel/core/PVChunk.h> // for PVChunk
+#include <pvkernel/core/PVConfig.h>
 
 #include <pvbase/types.h> // for PVRow
 
 #include <pvcop/types/factory.h>
-#include <boost/utility/string_ref.hpp>
+
+#include <cassert> // for assert
 
 static constexpr const char* USER_TIME_FORMATS_FILENAME = "user_time_formats.ini";
 
@@ -59,8 +61,7 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 
 static std::string get_user_time_formats_path()
 {
-	return std::string(getenv("HOME")) + "/" + INENDI_INSPECTOR_CONFDIR + "/" +
-	       USER_TIME_FORMATS_FILENAME;
+	return PVCore::PVConfig::user_dir() + USER_TIME_FORMATS_FILENAME;
 }
 
 static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()

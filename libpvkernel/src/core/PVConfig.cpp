@@ -120,6 +120,15 @@ QString PVCore::PVConfig::username()
 
 QString PVCore::PVConfig::user_path()
 {
-	return QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator() +
-	       CONFIG_FILENAME;
+	return QString::fromStdString(user_dir()) + CONFIG_FILENAME;
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::user_dir
+ *****************************************************************************/
+
+std::string PVCore::PVConfig::user_dir()
+{
+	return (QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator())
+	    .toStdString();
 }

@@ -48,6 +48,11 @@ class PVConfig
 	 */
 	static QString user_path();
 
+	/**
+	 * return the path to the user configuration directory
+	 */
+	static std::string user_dir();
+
   private:
 	// private stuffs for a singleton declaration
 	PVConfig();

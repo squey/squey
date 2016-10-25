@@ -575,7 +575,7 @@ void PVInspector::PVFormatBuilderWidget::check_for_new_time_formats()
 		        QString("The following time format") + (multi ? "s are" : " is") +
 		            " not currently enabled in axes type autodetection :" + "<br><br><i>" +
 		            time_formats_list.join("<br>") + "<br><br></i>Do you want to enable " +
-		            (multi ? "them" : "it") + " in future autodetections ?",
+		            (multi ? "them" : "it") + " in future autodetections?",
 		        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes;
 
 		if (add_time_formats) {
@@ -638,7 +638,7 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 	static constexpr const size_t mega = 1024 * 1024;
 
 	PVRow start, end;
-	_nraw_widget->get_autodet_args(start, end);
+	_nraw_widget->get_autodetect_args(start, end);
 
 	bool is_row_count_known = end != 0;
 	if (not is_row_count_known) {
@@ -702,7 +702,7 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 			    ax.setAttribute("type_format", type_format.c_str());
 		    }
 
-		    slotExtractorPreview();
+		    QMetaObject::invokeMethod(this, "slotExtractorPreview");
 		},
 	    QObject::tr("Autodetecting axes types..."), nullptr);
 }
@@ -718,7 +718,7 @@ void PVInspector::PVFormatBuilderWidget::update_types_autodetection_count(
 	    (((total_fields / column_count) + multiple_to_round - 1) / multiple_to_round) *
 	    multiple_to_round;
 
-	_nraw_widget->set_autodet_count(row_count);
+	_nraw_widget->set_autodetect_count(row_count);
 }
 
 void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
@@ -801,7 +801,6 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	file->addAction(actionOpen);
 	file->addAction(actionSave);
 	file->addAction(actionSaveAs);
-	file->addSeparator();
 	file->addSeparator();
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
 	file->addSeparator();

@@ -67,28 +67,28 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	ext_layout->addWidget(_btn_preview);
 	_btn_preview->setAutoDefault(false);
 
-	auto autodet_layout = new QHBoxLayout();
-	autodet_layout->addWidget(new QLabel("Autodetect "));
+	auto autodetect_layout = new QHBoxLayout();
+	autodetect_layout->addWidget(new QLabel("autodetect "));
 
-	_autodet_count = new PVGuiQt::PVLocalizedSpinBox(this);
-	_autodet_count->setRange(0, std::numeric_limits<int32_t>::max());
-	_autodet_count->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT);
-	autodet_layout->addWidget(_autodet_count);
+	_autodetect_count = new PVGuiQt::PVLocalizedSpinBox(this);
+	_autodetect_count->setRange(0, std::numeric_limits<int32_t>::max());
+	_autodetect_count->setValue(FORMATBUILDER_EXTRACT_END_DEFAULT);
+	autodetect_layout->addWidget(_autodetect_count);
 
-	autodet_layout->addWidget(new QLabel(" row(s), starting from row # "));
+	autodetect_layout->addWidget(new QLabel(" row(s), starting from row # "));
 
-	_autodet_start = new PVGuiQt::PVLocalizedSpinBox(this);
-	_autodet_start->setRange(1, std::numeric_limits<int32_t>::max());
-	_autodet_start->setValue(FORMATBUILDER_EXTRACT_START_DEFAULT);
-	autodet_layout->addWidget(_autodet_start);
+	_autodetect_start = new PVGuiQt::PVLocalizedSpinBox(this);
+	_autodetect_start->setRange(1, std::numeric_limits<int32_t>::max());
+	_autodetect_start->setValue(FORMATBUILDER_EXTRACT_START_DEFAULT);
+	autodetect_layout->addWidget(_autodetect_start);
 
-	_btn_autodetect = new QPushButton("Autodetect axes types");
-	autodet_layout->addWidget(_btn_autodetect);
+	_btn_autodetect = new QPushButton("autodetect axes types");
+	autodetect_layout->addWidget(_btn_autodetect);
 	_btn_autodetect->setAutoDefault(false);
 
 	main_layout->addItem(src_layout);
 	main_layout->addWidget(_nraw_table);
-	main_layout->addItem(autodet_layout);
+	main_layout->addItem(autodetect_layout);
 	main_layout->addItem(ext_layout);
 	set_last_input();
 
@@ -121,15 +121,15 @@ void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 	end = start + _ext_count->value() - 1;
 }
 
-void PVInspector::PVNrawListingWidget::get_autodet_args(PVRow& start, PVRow& end)
+void PVInspector::PVNrawListingWidget::get_autodetect_args(PVRow& start, PVRow& end)
 {
-	start = _autodet_start->value() - 1;
-	end = start + _autodet_count->value() - 1;
+	start = _autodetect_start->value() - 1;
+	end = start + _autodetect_count->value() - 1;
 }
 
-void PVInspector::PVNrawListingWidget::set_autodet_count(PVRow count)
+void PVInspector::PVNrawListingWidget::set_autodetect_count(PVRow count)
 {
-	_autodet_count->setValue(count);
+	_autodetect_count->setValue(count);
 }
 
 void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,

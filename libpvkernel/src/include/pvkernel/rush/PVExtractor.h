@@ -67,7 +67,7 @@ class PVExtractor
 
   private:
 	PVAggregator _agg;
-	PVOutput* _output;       // Linked to _nraw
+	PVOutput& _output;       // Linked to _nraw
 	const PVFormat& _format; //!< It is the format use for extraction.
 	PVFilter::PVChunkFilterByElt _chk_flt;
 	unsigned int _chunks;

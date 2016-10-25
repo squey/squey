@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2016
  */
 
-#ifndef __PVTYPESDISCOVERYOUTPUT_H__
-#define __PVTYPESDISCOVERYOUTPUT_H__
+#ifndef __PVRUSH_PVTYPESDISCOVERYOUTPUT_H__
+#define __PVRUSH_PVTYPESDISCOVERYOUTPUT_H__
 
 #include <pvkernel/rush/PVControllerJob.h> // for PVControllerJob, etc
 #include <pvkernel/rush/PVOutput.h>        // for PVOutput
@@ -16,10 +16,7 @@
 #include <pvbase/types.h> // for PVRow
 #include <pvbase/general.h>
 
-#include <cassert> // for assert
 #include <unordered_set>
-
-#include <pvcop/formatter_desc_list.h>
 
 namespace pvcop
 {
@@ -70,4 +67,4 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 };
 } // namespace PVRush
 
-#endif // __PVTYPESDISCOVERYOUTPUT_H__
+#endif // __PVRUSH_PVTYPESDISCOVERYOUTPUT_H__

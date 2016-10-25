@@ -37,8 +37,8 @@ class PVNrawListingWidget : public QWidget
 	void connect_axes_name(QObject* receiver, const char* slot);
 	void connect_axes_type(QObject* receiver, const char* slot);
 	void get_ext_args(PVRow& start, PVRow& end);
-	void get_autodet_args(PVRow& start, PVRow& end);
-	void set_autodet_count(PVRow count);
+	void get_autodetect_args(PVRow& start, PVRow& end);
+	void set_autodetect_count(PVRow count);
 	void set_last_input(PVRush::PVInputType_p in_t = PVRush::PVInputType_p(),
 	                    PVRush::PVInputDescription_p input = PVRush::PVInputDescription_p());
 	void resize_columns_content();
@@ -63,8 +63,8 @@ class PVNrawListingWidget : public QWidget
 	PVGuiQt::PVLocalizedSpinBox* _ext_start;
 	PVGuiQt::PVLocalizedSpinBox* _ext_count;
 	QPushButton* _btn_preview;
-	PVGuiQt::PVLocalizedSpinBox* _autodet_start;
-	PVGuiQt::PVLocalizedSpinBox* _autodet_count;
+	PVGuiQt::PVLocalizedSpinBox* _autodetect_start;
+	PVGuiQt::PVLocalizedSpinBox* _autodetect_count;
 	QPushButton* _btn_autodetect;
 	QLabel* _src_label;
 	QTableView* _nraw_table;
