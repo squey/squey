@@ -39,6 +39,7 @@ class PVLayerStackView : public QTableView
 	void set_current_selection_from_layer(int model_idx);
 	void export_layer_selection(int model_idx);
 	void reset_layer_colors(int layer_idx);
+	void show_this_layer_only(int layer_idx);
 
 	Inendi::PVLayer& get_layer_from_idx(int model_idx);
 
@@ -58,6 +59,7 @@ class PVLayerStackView : public QTableView
 	QAction* _ctxt_menu_set_sel_layer;
 	QAction* _ctxt_menu_export_layer_sel;
 	QAction* _ctxt_menu_reset_colors;
+	QAction* _ctxt_menu_show_this_layer_only;
 
 	QFileDialog _layer_dialog;
 	QFileDialog _layerstack_dialog;

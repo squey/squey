@@ -52,6 +52,7 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	void move_selected_layer_up();
 	void move_selected_layer_down();
 	void reset_layer_colors(const int idx);
+	void show_this_layer_only(const int idx);
 
   public:
 	Inendi::PVLayerStack const& lib_layer_stack() const { return _lib_view.get_layer_stack(); }
