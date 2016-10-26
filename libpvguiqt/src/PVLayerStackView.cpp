@@ -65,6 +65,10 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
 
 	_ctxt_menu->addSeparator();
+
+	_ctxt_menu_show_this_layer_only = new QAction(tr("Show this layer only"), nullptr);
+	_ctxt_menu->addAction(_ctxt_menu_show_this_layer_only);
+
 	_ctxt_menu->addSeparator();
 
 	_ctxt_menu_copy_to_clipboard_act =
@@ -181,6 +185,9 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 	if (act == _ctxt_menu_reset_colors) {
 		reset_layer_colors(idx_click.row());
 	}
+	if (act == _ctxt_menu_show_this_layer_only) {
+		show_this_layer_only(idx_click.row());
+	}
 	if (act == _ctxt_menu_copy_to_clipboard_act) {
 		copy_to_clipboard();
 	}
@@ -205,4 +212,9 @@ void PVGuiQt::PVLayerStackView::export_layer_selection(int model_idx)
 void PVGuiQt::PVLayerStackView::reset_layer_colors(int layer_idx)
 {
 	ls_model()->reset_layer_colors(layer_idx);
+}
+
+void PVGuiQt::PVLayerStackView::show_this_layer_only(int layer_idx)
+{
+	ls_model()->show_this_layer_only(layer_idx);
 }

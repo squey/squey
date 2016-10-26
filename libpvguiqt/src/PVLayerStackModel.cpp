@@ -216,6 +216,21 @@ void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 	lib_view().process_layer_stack(lib_view().get_real_output_selection());
 }
 
+void PVGuiQt::PVLayerStackModel::show_this_layer_only(const int idx)
+{
+	Inendi::PVLayerStack& layerstack = lib_layer_stack();
+	int layer_idx = lib_index_from_model_index(idx);
+	Inendi::PVLayer& layer = layerstack.get_layer_n(layer_idx);
+	layer.set_visible(true); // in case, it isn't visible
+	for (int i = 0; i < layerstack.get_layer_count(); i++) {
+		if (i != layer_idx) {
+			Inendi::PVLayer& layer = layerstack.get_layer_n(i);
+			layer.set_visible(false);
+		}
+	}
+	lib_view().process_layer_stack(lib_view().get_real_output_selection());
+}
+
 void PVGuiQt::PVLayerStackModel::layer_stack_refreshed()
 {
 	endResetModel();
