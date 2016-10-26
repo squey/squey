@@ -97,9 +97,9 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	connect(this, &PVProgressBox::set_cancel2_btn_text_sig, this,
 	        &PVProgressBox::set_cancel2_btn_text_slot, Qt::QueuedConnection);
 	connect(this, &PVProgressBox::critical_sig, this, &PVProgressBox::critical_slot,
-	        Qt::QueuedConnection);
+	        Qt::BlockingQueuedConnection);
 	connect(this, &PVProgressBox::warning_sig, this, &PVProgressBox::warning_slot,
-	        Qt::QueuedConnection);
+	        Qt::BlockingQueuedConnection);
 	connect(this, &PVProgressBox::information_sig, this, &PVProgressBox::information_slot,
 	        Qt::BlockingQueuedConnection);
 	connect(this, &PVProgressBox::finished_sig, this, &PVProgressBox::accept, Qt::QueuedConnection);
