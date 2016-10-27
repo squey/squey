@@ -11,6 +11,7 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/rush/PVUtils.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/inendi_assert.h>
 
 #include "helpers.h"
@@ -38,6 +39,8 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsConverter)::get().get_class_by_name("substitution");
 
 	PVCore::PVArgumentList args;
+	args["modes"] = 3;
+	args["substrings_map"] = PVCore::serialize_base64(QStringList{",", "+", "   ", "", "+", "-"});
 	args["path"] = TEST_FOLDER "/pvkernel/rush/converter/substitution/apply";
 	args["default_value"] = 0;
 	args["use_default_value"] = true;
