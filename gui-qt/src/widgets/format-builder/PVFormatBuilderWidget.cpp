@@ -557,7 +557,7 @@ void PVInspector::PVFormatBuilderWidget::check_for_new_time_formats()
 
 	for (const std::string& time_format : time_formats) {
 		auto it = supported_time_formats.find(time_format);
-		if (it == supported_time_formats.end()) {
+		if (it == supported_time_formats.end() && time_format.find("epoch") == std::string::npos) {
 			new_time_formats.emplace(time_format);
 		}
 	}
