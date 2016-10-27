@@ -109,6 +109,10 @@ void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		__impl::from7to8(doc);
 		version = "8";
 	}
+	if (version == "8") {
+		__impl::from8to9(doc);
+		version = "9";
+	}
 }
 
 void PVRush::PVFormatVersion::__impl::from0to1(QDomDocument& doc)
@@ -217,6 +221,23 @@ void PVRush::PVFormatVersion::__impl::from7to8(QDomDocument& doc)
 	}
 
 	doc.documentElement().setAttribute("version", "8");
+}
+
+void PVRush::PVFormatVersion::__impl::from8to9(QDomDocument& doc)
+{
+	QDomNodeList converters = doc.documentElement().elementsByTagName("converter");
+	for (int i = 0; i < converters.size(); i++) {
+		QDomElement converter = converters.at(i).toElement();
+
+		if (converter.attribute("type") != "substitution") {
+			continue;
+		}
+
+		converter.setAttribute("modes", 1);
+		converter.setAttribute("substrings_map", "");
+	}
+
+	doc.documentElement().setAttribute("version", "9");
 }
 
 void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
