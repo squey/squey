@@ -18,6 +18,8 @@ namespace PVFilter
 
 class PVFieldConverterSubstitution : public PVFieldsConverter
 {
+  public:
+	enum ESubstitutionModes { NONE = 0, WHOLE_FIELD = 1 << 0, SUBSTRINGS = 1 << 1 };
 
   public:
 	PVFieldConverterSubstitution(
@@ -28,11 +30,17 @@ class PVFieldConverterSubstitution : public PVFieldsConverter
 	PVCore::PVField& one_to_one(PVCore::PVField& field) override;
 
   private:
+	size_t _modes;
+
+	// whole fields mode
 	std::string _default_value;
 	bool _use_default_value;
 	char _sep_char;
 	char _quote_char;
 	std::unordered_map<std::string, std::string> _key;
+
+	// substrings mode
+	std::vector<std::pair<std::string, std::string>> _substrings_map;
 
 	CLASS_FILTER(PVFilter::PVFieldConverterSubstitution)
 };
