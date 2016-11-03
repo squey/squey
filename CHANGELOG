@@ -1,3 +1,14 @@
+4.2.1 (2016-11-03)
+------------------
+
+This minor release fixes:
+* overflow detection in number_uint32/number_int32 types
+* crash in format builder (splitter CSV)
+* better handling of escaped quotes in splitter CSV
+* progress bars determined state was disabled
+* invalid values were sometimes not internally treated as zero
+* message box when filesystem permissions are insufficient to import data
+
 4.2.0 (2016-10-11)
 ------------------
 
