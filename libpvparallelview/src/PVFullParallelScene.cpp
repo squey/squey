@@ -638,9 +638,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 		add_axis(i, i);
 	}
 
-	PVLinesView::list_zone_width_with_zoom_level_t new_wz_list(
-	    nb_zones + 1, PVLinesView::ZoneWidthWithZoomLevel(PVParallelView::ZoneDefaultWidth, 0));
-	_lines_view.set_list_of_zone_width_with_zoom_level(new_wz_list);
+	_lines_view.reset_zones_width(PVParallelView::ZoneDefaultWidth);
 
 	update_zones_position(true, false);
 
