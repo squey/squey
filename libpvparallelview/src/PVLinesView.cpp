@@ -30,6 +30,18 @@ constexpr static int32_t max_zoom_level =
      boost::static_log2<PVParallelView::ZoneBaseWidth>::value) *
     zoom_divisor;
 
+static int zoom_level_to_width(int32_t zoom_level, int base_width = PVParallelView::ZoneBaseWidth)
+{
+	zoom_level = PVCore::clamp<int32_t>(zoom_level, min_zoom_level, max_zoom_level);
+
+	int32_t primary_zoom_level = zoom_level / zoom_divisor;
+	int32_t secondary_zoom_level = zoom_level % zoom_divisor;
+
+	uint32_t width = base_width * pow(2.0, primary_zoom_level) * pow(zoom_root_value, secondary_zoom_level);
+
+	return PVCore::clamp<uint32_t>(width, PVParallelView::ZoneMinWidth, PVParallelView::ZoneMaxWidth);
+}
+
 /******************************************************************************
  *
  * PVParallelView::PVLinesView::PVLinesView
@@ -847,23 +859,7 @@ int16_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_base_width()
  *****************************************************************************/
 uint32_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width() const
 {
-	// We compute the current real zoom level
-	int32_t zoom_level = PVCore::clamp((int32_t)_base_zoom_level, min_zoom_level, max_zoom_level);
-
-	// We compute the quotient and remainder modulo 5
-	int32_t primary_zoom_level = zoom_level / zoom_divisor; // this one for the powers of 2
-	int32_t secondary_zoom_level =
-	    zoom_level % zoom_divisor; // this one is for the powers of the 5th root of 2.
-
-	// We compute the width without Min or Max constraints
-	uint32_t brut_width =
-	    _base_width * pow(2.0, primary_zoom_level) * pow(zoom_root_value, secondary_zoom_level);
-
-	// We clamp the value before returning anything...
-	uint32_t clamped_width = PVCore::clamp(brut_width, (uint32_t)PVParallelView::ZoneMinWidth,
-	                                       (uint32_t)PVParallelView::ZoneMaxWidth);
-
-	return clamped_width;
+	return zoom_level_to_width(_base_zoom_level, _base_width);
 }
 
 /******************************************************************************
