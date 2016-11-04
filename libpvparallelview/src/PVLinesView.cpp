@@ -32,16 +32,12 @@ constexpr static int32_t max_zoom_level =
 
 static int zoom_level_to_width(int32_t zoom_level, int base_width = PVParallelView::ZoneBaseWidth)
 {
-	zoom_level = PVCore::clamp<int32_t>(zoom_level, min_zoom_level, max_zoom_level);
+	assert((zoom_level >= min_zoom_level) && (zoom_level <= max_zoom_level));
 
 	int32_t primary_zoom_level = zoom_level / zoom_divisor;
 	int32_t secondary_zoom_level = zoom_level % zoom_divisor;
 
-	uint32_t width =
-	    base_width * pow(2.0, primary_zoom_level) * pow(zoom_root_value, secondary_zoom_level);
-
-	return PVCore::clamp<uint32_t>(width, PVParallelView::ZoneMinWidth,
-	                               PVParallelView::ZoneMaxWidth);
+	return base_width * pow(2.0, primary_zoom_level) * pow(zoom_root_value, secondary_zoom_level);
 }
 
 /******************************************************************************
@@ -383,8 +379,10 @@ bool PVParallelView::PVLinesView::initialize_zones_width(int view_width)
 
 	if ((zones_number * zone_width) < view_width) {
 		// there is still empty space, growing zones width to fit in
-		zone_width = view_width / zones_number;
-		fit_in_view = true;
+		zone_width = PVCore::clamp<int>(view_width / zones_number, ZoneMinWidth, ZoneMaxWidth);
+
+		// as the new zone width is clamped, it can be greater than the computed one
+		fit_in_view = (zone_width * zones_number) < view_width;
 	}
 
 	reset_zones_width(zone_width);
@@ -671,7 +669,7 @@ int PVParallelView::PVLinesView::get_average_zones_width() const
  *****************************************************************************/
 void PVParallelView::PVLinesView::reset_zones_width(int wanted_zone_width)
 {
-	wanted_zone_width = PVCore::clamp<int>(wanted_zone_width, ZoneMinWidth, ZoneMaxWidth);
+	assert((wanted_zone_width >= ZoneMinWidth) && (wanted_zone_width <= ZoneMaxWidth));
 
 	const uint32_t lowest_zoom_level = log2(wanted_zone_width / ZoneBaseWidth) * zoom_divisor;
 	const uint32_t upper_zoom_level =
