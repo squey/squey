@@ -608,6 +608,10 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	assert(QThread::currentThread() == this->thread());
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
+
+	// get the average zones width while the linesview is in its old state
+	uint32_t avg_zones_width = _lines_view.get_average_zones_width();
+
 	_lines_view.update_number_of_zones(view_x, view_width);
 	PVZoneID const nb_zones = _lines_view.get_number_of_managed_zones();
 	PVZoneID nb_zones_drawable = _lines_view.get_number_of_visible_zones();
@@ -638,7 +642,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 		add_axis(i, i);
 	}
 
-	_lines_view.reset_zones_width(PVParallelView::ZoneDefaultWidth);
+	_lines_view.reset_zones_width(avg_zones_width);
 
 	update_zones_position(true, false);
 

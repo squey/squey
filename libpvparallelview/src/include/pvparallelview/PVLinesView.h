@@ -195,6 +195,13 @@ class PVLinesView
 	int update_number_of_zones(int view_x, uint32_t view_width);
 
 	/**
+	 * Get the average zones width
+	 *
+	 * @return the average zones width
+	 */
+	int get_average_zones_width() const;
+
+	/**
 	 * Reset the zones width to the given value
 	 *
 	 * As the width are discrete, the nearest valid value is used.=

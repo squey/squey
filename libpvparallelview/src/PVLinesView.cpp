@@ -37,9 +37,11 @@ static int zoom_level_to_width(int32_t zoom_level, int base_width = PVParallelVi
 	int32_t primary_zoom_level = zoom_level / zoom_divisor;
 	int32_t secondary_zoom_level = zoom_level % zoom_divisor;
 
-	uint32_t width = base_width * pow(2.0, primary_zoom_level) * pow(zoom_root_value, secondary_zoom_level);
+	uint32_t width =
+	    base_width * pow(2.0, primary_zoom_level) * pow(zoom_root_value, secondary_zoom_level);
 
-	return PVCore::clamp<uint32_t>(width, PVParallelView::ZoneMinWidth, PVParallelView::ZoneMaxWidth);
+	return PVCore::clamp<uint32_t>(width, PVParallelView::ZoneMinWidth,
+	                               PVParallelView::ZoneMaxWidth);
 }
 
 /******************************************************************************
@@ -648,13 +650,42 @@ int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t vie
 
 /******************************************************************************
  *
+ * PVParallelView::PVLinesView::get_average_zones_width
+ *
+ *****************************************************************************/
+int PVParallelView::PVLinesView::get_average_zones_width() const
+{
+	uint32_t sum = 0;
+
+	for (const auto& v : _list_of_zone_width_with_zoom_level) {
+		sum += v.get_width();
+	}
+
+	return sum / _list_of_zone_width_with_zoom_level.size();
+}
+
+/******************************************************************************
+ *
  * PVParallelView::PVLinesView::reset_zones_width
  *
  *****************************************************************************/
 void PVParallelView::PVLinesView::reset_zones_width(int wanted_zone_width)
 {
-	int32_t new_zoom_level = log2(wanted_zone_width / PVParallelView::ZoneBaseWidth) * zoom_divisor;
-	uint32_t zoom_level = PVCore::clamp(new_zoom_level, min_zoom_level, max_zoom_level);
+	wanted_zone_width = PVCore::clamp<int>(wanted_zone_width, ZoneMinWidth, ZoneMaxWidth);
+
+	const uint32_t lowest_zoom_level = log2(wanted_zone_width / ZoneBaseWidth) * zoom_divisor;
+	const uint32_t upper_zoom_level =
+	    log2((wanted_zone_width + ZoneBaseWidth) / ZoneBaseWidth) * zoom_divisor;
+
+	const int lowest_width = zoom_level_to_width(lowest_zoom_level);
+	const int upper_width = zoom_level_to_width(upper_zoom_level);
+	uint32_t zoom_level;
+
+	if (std::abs(wanted_zone_width - lowest_width) < std::abs(upper_width - wanted_zone_width)) {
+		zoom_level = lowest_zoom_level;
+	} else {
+		zoom_level = upper_zoom_level;
+	}
 
 	for (ZoneWidthWithZoomLevel& z : _list_of_zone_width_with_zoom_level) {
 		z.set_base_zoom_level(zoom_level);
