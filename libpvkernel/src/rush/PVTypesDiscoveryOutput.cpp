@@ -40,22 +40,32 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"yyyy.MMMM.dd H:mm",
 	"yyyy-M-d h:mm",
 	"yyyy-M-d H:m:s",
-	"yyyy-M-d H:m:ss.S",
 	"yyyy/MM/dd HH:mm:ss Z",
-	"yyyy/M/d",
 	"MMM d H:m:s",
 	"MMM d yyyy H:m:s",
 	"eee MMM d H:m:ss yyyy",
 	"dMMMyyyy H:m:s",
 	"dMMMyyyy",
+	"d-M-yyyy",
+	"d-M-yy",
+	"d-M-yy H:m:s",
+	"d-M-yyyy H:m:s",
+	"d/M/yyyy",
+	"d/M/yy",
 	"d/M/yy H:m:s",
+	"d/M/yyyy H:m:s",
+	"yyyy/M/d",
 	"H:m:s",
 	"H%m%s",
+	"d/M/yy H:m:s.S",
 	"d/M/yyyy H:m:s.S",
+	"d-M-yy H:m:s.S",
+	"d-M-yyyy H:m:s.S",
 	"yy H:m:s.S",
 	"yy H%m%s.S",
+	"yyyy-M-d H:m:ss.S",
 	"yy-M-d H:mm:ss.SSS",
-	"yy-M-d H:mm:ss.SSS V",
+	"yy-M-d H:mm:ss.SSS V"
 }};
 // clang-format on
 
@@ -64,14 +74,38 @@ static std::string get_user_time_formats_path()
 	return PVCore::PVConfig::user_dir() + USER_TIME_FORMATS_FILENAME;
 }
 
+static std::vector<std::string> sort_time_formats_to_reduce_false_detection_rate(
+    const std::vector<std::string>& supplied_time_formats)
+{
+	std::vector<std::string> time_formats = supplied_time_formats;
+
+	/* Put times formats containing 4 year digits ('yyyy') at the top of the list
+	 *
+	 * Indeed, when a 2 digit year is specified in the time format but 4
+	 * digits are actually provided in the time string, libc and boost are
+	 * silently interpreting the first 2 digits as the year.
+	 *
+	 * eg : "d/M/yy" "04/11/2016", year is interpreted as "20" meaning 1900 + 20 = 1920.
+	 *
+	 * As this problem doesn't occur the other way around (specifing 4 year digits in the
+	 * format but only providing 2), according a greater priority to the 4 year digits solves
+	 * this problem for the types autodetection.
+	 */
+	std::sort(time_formats.begin(), time_formats.end(), [](const auto& p1, const auto& p2) {
+		bool p1_4_years_digit = p1.find("yyyy") != std::string::npos;
+		bool p2_4_years_digit = p2.find("yyyy") != std::string::npos;
+
+		return p1_4_years_digit and not p2_4_years_digit;
+	});
+
+	return time_formats;
+}
+
 static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()
 {
 	PVRush::PVTypesDiscoveryOutput::autodet_type_t types = TYPES;
-
-	// supplied time formats
-	for (const std::string& suplied_time_format : SUPPLIED_TIMES_FORMATS) {
-		types.push_back({{"time", suplied_time_format}, {}});
-	}
+	PVRush::PVTypesDiscoveryOutput::autodet_type_t time_types;
+	std::vector<std::string> time_formats = SUPPLIED_TIMES_FORMATS;
 
 	// user time formats (update file if needed to remove potential duplications)
 	std::string updated_user_time_formats;
@@ -84,7 +118,7 @@ static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()
 		bool duplicated_time_format = it != supplied_times_formats.end();
 		user_time_formats_file_needs_update |= duplicated_time_format;
 		if (not duplicated_time_format) {
-			types.push_back({{"time", user_time_format}, {}});
+			time_formats.push_back(user_time_format);
 			updated_user_time_formats += user_time_format + "\n";
 		}
 	}
@@ -92,6 +126,11 @@ static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()
 		in_f.close();
 		std::ofstream out_f(get_user_time_formats_path());
 		out_f << updated_user_time_formats;
+	}
+
+	time_formats = sort_time_formats_to_reduce_false_detection_rate(time_formats);
+	for (const std::string& time_format : time_formats) {
+		types.push_back({{"time", time_format}, {}});
 	}
 
 	return types;
@@ -173,22 +212,24 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 		PVCol col = 0;
 		for (PVCore::PVField const& field : fields) {
 			for (size_t idx = 0; idx < _formatters.size(); idx++) {
-				if (matching_formatters[col][idx]) {
-					pvcop::db::uint128_t t;
-					std::string f(field.begin(), field.end());
-					bool res = f.empty() or _formatters[idx]->from_string(f.c_str(), &t, 0);
-					matching_formatters[col][idx] = matching_formatters[col][idx] & res;
+				if (not matching_formatters[col][idx]) {
+					continue;
+				}
+				pvcop::db::uint128_t t;
+				std::string f(field.begin(), field.end());
+				bool res = f.empty() or _formatters[idx]->from_string(f.c_str(), &t, 0);
+				matching_formatters[col][idx] = matching_formatters[col][idx] & res;
 
-					/**
-					 * Disable mutually exclusive formatters to speed-up autodetection
-					 */
-					if (local_row == 0 && matching_formatters[col][idx]) {
-						for (size_t i = 0; i < _formatters.size(); i++) {
-							for (const std::string& excl_fmt : _types[idx].second) {
-								if (strcmp(_formatters[i]->name(), excl_fmt.c_str()) == 0) {
-									matching_formatters[col][i] = false;
-								}
-							}
+				/**
+				 * Disable mutually exclusive formatters to speed-up autodetection
+				 */
+				if (not(local_row == 0 && matching_formatters[col][idx])) {
+					continue;
+				}
+				for (size_t i = 0; i < _formatters.size(); i++) {
+					for (const std::string& excl_fmt : _types[idx].second) {
+						if (strcmp(_formatters[i]->name(), excl_fmt.c_str()) == 0) {
+							matching_formatters[col][i] = false;
 						}
 					}
 				}
