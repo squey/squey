@@ -714,6 +714,8 @@ void PVInspector::PVFormatBuilderWidget::update_types_autodetection_count(
 	static constexpr const size_t multiple_to_round = 100;
 
 	PVCol column_count = format.get_axes().size();
+	assert(column_count != 0);
+
 	size_t row_count =
 	    (((total_fields / column_count) + multiple_to_round - 1) / multiple_to_round) *
 	    multiple_to_round;
@@ -1007,8 +1009,15 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 					return;
 				}
 			}
-			update_types_autodetection_count(format);
-			slotAutoDetectAxesTypes();
+			if (not is_dom_empty()) {
+				update_types_autodetection_count(format);
+				slotAutoDetectAxesTypes();
+			} else {
+				QMessageBox::information(this, "Splitter not automatically detected",
+				                         "The splitter was not automatically detected.\nYou have "
+				                         "to manually define a splitter.");
+				return;
+			}
 		} else {
 			format = get_format_from_dom();
 			update_types_autodetection_count(format);
