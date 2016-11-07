@@ -310,6 +310,10 @@ void PVInspector::PVFormatBuilderWidget::initConnexions()
 	connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
 	connect(myParamBord_old_model, SIGNAL(signalNeedApply()), this, SLOT(slotNeedApply()));
 	connect(myParamBord_old_model, SIGNAL(signalSelectNext()), myTreeView, SLOT(slotSelectNext()));
+	connect(_options_widget, &PVOptionsWidget::first_line_changed, this,
+	        [&](int first_line) { myTreeModel->set_first_line(first_line); });
+	connect(_options_widget, &PVOptionsWidget::line_count_changed, this,
+	        [&](int line_count) { myTreeModel->set_line_count(line_count); });
 
 	// Connections for the axes combination editor
 	connect(_main_tab, SIGNAL(currentChanged(int)), this, SLOT(slotMainTabChanged(int)));
@@ -523,9 +527,6 @@ bool PVInspector::PVFormatBuilderWidget::save()
 	if (_cur_file.isEmpty()) {
 		return saveAs();
 	}
-
-	myTreeModel->set_first_line(_options_widget->first_line());
-	myTreeModel->set_line_count(_options_widget->line_count());
 
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {

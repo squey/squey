@@ -34,6 +34,10 @@ class PVOptionsWidget : public QWidget
 
 	void set_lines_range(int first_line, int line_count);
 
+  Q_SIGNALS:
+	void first_line_changed(int);
+	void line_count_changed(int);
+
   private Q_SLOTS:
 	void disable_specify_line_count(int checkstate);
 
