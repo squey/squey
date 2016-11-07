@@ -35,6 +35,7 @@ void PVFilter::PVFieldConverterSubstitution::set_args(PVCore::PVArgumentList con
 	FilterT::set_args(args);
 
 	_modes = args.at("modes").toUInt();
+	_invert_order = args.at("invert_order").toBool();
 
 	// whole field mode
 	_default_value = args.at("default_value").toString().toStdString();
@@ -67,6 +68,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterSubstitution)
 	PVCore::PVArgumentList args;
 
 	args["modes"] = 0;
+	args["invert_order"] = false;
 
 	args["path"] = QString();
 	args["default_value"] = QString();
@@ -86,38 +88,47 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldConverterSubstitution)
  *****************************************************************************/
 PVCore::PVField& PVFilter::PVFieldConverterSubstitution::one_to_one(PVCore::PVField& field)
 {
-	if (_modes & ESubstitutionModes::WHOLE_FIELD) {
-		auto it = _key.find(std::string(field.begin(), field.size()));
 
-		if (it == _key.end()) {
-			if (_use_default_value) {
-				field.allocate_new(_default_value.size());
-				field.set_end(
-				    std::copy(_default_value.begin(), _default_value.end(), field.begin()));
-			}
-		} else {
-			std::string const& s = it->second;
-			field.allocate_new(s.size());
-			field.set_end(std::copy(s.begin(), s.end(), field.begin()));
-		}
-	}
+	auto whole_field_f = [&]() {
+		if (_modes & ESubstitutionModes::WHOLE_FIELD) {
 
-	if (_modes & ESubstitutionModes::SUBSTRINGS) {
-		for (const std::pair<std::string, std::string>& sub : _substrings_map) {
-			boost::string_ref field_ref(field.begin(), field.size());
-			const std::string& from = sub.first;
-			const std::string& to = sub.second;
+			auto it = _key.find(std::string(field.begin(), field.size()));
 
-			size_t pos = field_ref.find(from);
-			if (pos != std::string::npos) {
-				std::string field_copy = field_ref.to_string();
-				PVCore::replace(field_copy, from, to, pos);
+			if (it == _key.end()) {
+				if (_use_default_value) {
+					field.allocate_new(_default_value.size());
+					field.set_end(
+					    std::copy(_default_value.begin(), _default_value.end(), field.begin()));
+				}
+			} else {
+				std::string const& s = it->second;
 
-				field.allocate_new(field_copy.size());
-				field.set_end(std::copy(field_copy.begin(), field_copy.end(), field.begin()));
+				field.allocate_new(s.size());
+				field.set_end(std::copy(s.begin(), s.end(), field.begin()));
 			}
 		}
-	}
+	};
+
+	auto substrings_f = [&]() {
+		if (_modes & ESubstitutionModes::SUBSTRINGS) {
+			for (const std::pair<std::string, std::string>& sub : _substrings_map) {
+				boost::string_ref field_ref(field.begin(), field.size());
+				const std::string& from = sub.first;
+				const std::string& to = sub.second;
+
+				size_t pos = field_ref.find(from);
+				if (pos != std::string::npos) {
+					std::string field_copy = field_ref.to_string();
+					PVCore::replace(field_copy, from, to, pos);
+
+					field.allocate_new(field_copy.size());
+					field.set_end(std::copy(field_copy.begin(), field_copy.end(), field.begin()));
+				}
+			}
+		}
+	};
+
+	_invert_order ? substrings_f(), whole_field_f() : whole_field_f(), substrings_f();
 
 	return field;
 }

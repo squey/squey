@@ -203,6 +203,13 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 
 	_substrings_group_box->setLayout(substrings_layout);
 
+	QHBoxLayout* invert_layout = new QHBoxLayout();
+	_invert_button = new QPushButton("Invert order");
+	_invert_button->setCheckable(true);
+	invert_layout->addWidget(_invert_button);
+	invert_layout->addStretch();
+
+	layout->addLayout(invert_layout);
 	layout->addWidget(_whole_field_group_box);
 	layout->addWidget(_substrings_group_box);
 
@@ -218,8 +225,23 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	        &PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_down);
 	connect(_replace_line_edit, &QLineEdit::textChanged,
 	        [=]() { add_button->setEnabled(not _replace_line_edit->text().isEmpty()); });
+	connect(_invert_button, &QPushButton::toggled, this,
+	        &PVFieldConverterSubstitutionParamWidget::invert_layouts);
+
+	_invert_button->setChecked(args["invert_order"].toBool());
 
 	return _param_widget;
+}
+
+void PVFilter::PVFieldConverterSubstitutionParamWidget::invert_layouts()
+{
+	QVBoxLayout* layout = (QVBoxLayout*)_param_widget->layout();
+
+	QWidget* widget = layout->itemAt(1)->widget();
+	layout->removeWidget(widget);
+	layout->addWidget(widget);
+
+	update_params();
 }
 
 void PVFilter::PVFieldConverterSubstitutionParamWidget::populate_substrings_table(
@@ -373,6 +395,7 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::update_params()
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
 	args["modes"] = get_modes();
+	args["invert_order"] = _invert_button->isChecked();
 
 	// whole fields mode
 	args["path"] = _file_path_line_edit->text();

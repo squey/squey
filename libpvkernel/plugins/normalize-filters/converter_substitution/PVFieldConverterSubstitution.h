@@ -31,6 +31,7 @@ class PVFieldConverterSubstitution : public PVFieldsConverter
 
   private:
 	size_t _modes;
+	bool _invert_order;
 
 	// whole fields mode
 	std::string _default_value;

@@ -47,6 +47,7 @@ class PVFieldConverterSubstitutionParamWidget : public PVFieldsConverterParamWid
 	void update_params();
 	void browse_conversion_file();
 	void use_default_value_checkbox_changed(int state);
+	void invert_layouts();
 
   private:
 	void add_new_row();
@@ -55,6 +56,7 @@ class PVFieldConverterSubstitutionParamWidget : public PVFieldsConverterParamWid
 	void move_rows_down();
 
   private:
+	QPushButton* _invert_button;
 	QGroupBox* _whole_field_group_box;
 	QWidget* _param_widget;
 	QLineEdit* _file_path_line_edit;

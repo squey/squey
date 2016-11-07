@@ -235,6 +235,7 @@ void PVRush::PVFormatVersion::__impl::from8to9(QDomDocument& doc)
 
 		converter.setAttribute("modes", 1);
 		converter.setAttribute("substrings_map", "");
+		converter.setAttribute("invert_order", false);
 	}
 
 	doc.documentElement().setAttribute("version", "9");
