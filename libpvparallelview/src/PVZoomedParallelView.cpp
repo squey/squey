@@ -87,7 +87,29 @@ void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter, con
 {
 	PVGraphicsView::drawForeground(painter, rect);
 
-	painter->setPen(QPen(QColor(0x16, 0xe8, 0x2a), 0));
+	painter->save();
 
-	painter->drawText(8, 16, _display_axis_name);
+	QFont f(painter->font());
+	f.setWeight(QFont::Bold);
+	painter->setFont(f);
+
+	QFontMetrics fm = painter->fontMetrics();
+	const QSize text_size = fm.size(Qt::TextSingleLine, _display_axis_name);
+	const QRect frame(0, 0,
+	                  text_size.width() + frame_margins.left() + frame_margins.right(),
+	                  text_size.height() + frame_margins.top() + frame_margins.bottom());
+
+	painter->setPen(Qt::NoPen);
+	painter->setBrush(frame_bg_color);
+	painter->drawRect(frame);
+
+	painter->setPen(QPen(frame_text_color, 0));
+	painter->setBrush(Qt::NoBrush);
+
+	const QPoint text_pos(frame.left() + frame_margins.left(),
+	                      frame.top() + frame_margins.top() + fm.ascent());
+
+	painter->drawText(text_pos, _display_axis_name);
+
+	painter->restore();
 }
