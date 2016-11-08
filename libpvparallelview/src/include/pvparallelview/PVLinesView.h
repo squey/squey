@@ -99,7 +99,6 @@ class PVLinesView
 
   public:
 	using list_zone_images_t = std::vector<SingleZoneImages>;
-	using list_zone_width_with_zoom_level_t = std::vector<ZoneWidthWithZoomLevel>;
 
   public:
 	PVLinesView(PVBCIDrawingBackend& backend,
@@ -195,15 +194,21 @@ class PVLinesView
 
 	int update_number_of_zones(int view_x, uint32_t view_width);
 
-	const list_zone_width_with_zoom_level_t& get_list_of_zone_width_with_zoom_level() const
-	{
-		return _list_of_zone_width_with_zoom_level;
-	}
+	/**
+	 * Get the average zones width
+	 *
+	 * @return the average zones width
+	 */
+	int get_average_zones_width() const;
 
-	void set_list_of_zone_width_with_zoom_level(list_zone_width_with_zoom_level_t& list)
-	{
-		_list_of_zone_width_with_zoom_level = list;
-	}
+	/**
+	 * Reset the zones width to the given value
+	 *
+	 * As the width are discrete, the nearest valid value is used.=
+	 *
+	 * @param wanted_zone_width the wanted value
+	 */
+	void reset_zones_width(int wanted_zone_width);
 
   public:
 	template <class F>
@@ -264,7 +269,7 @@ class PVLinesView
 	QObject* _img_update_receiver;
 
 	list_zone_images_t _list_of_single_zone_images;
-	list_zone_width_with_zoom_level_t _list_of_zone_width_with_zoom_level;
+	std::vector<ZoneWidthWithZoomLevel> _list_of_zone_width_with_zoom_level;
 
 	PVZonesProcessor& _processor_sel;
 	PVZonesProcessor& _processor_bg;
