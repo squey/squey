@@ -335,7 +335,8 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 		const QSize text_size = fm.size(Qt::TextSingleLine, _x_legend);
 		const int frame_width = text_size.width() + frame_margins.left() + frame_margins.right();
 		const int frame_height = text_size.height() + frame_margins.top() + frame_margins.bottom();
-		const QRect frame(viewport_rect.width() - frame_width, viewport_rect.height() - frame_height,
+		const QRect frame(viewport_rect.width() - frame_width - frame_offsets.right(),
+		                  viewport_rect.height() - frame_height - frame_offsets.bottom(),
 		                  frame_width, frame_height);
 
 		painter->setPen(Qt::NoPen);
@@ -346,13 +347,13 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 		painter->setBrush(Qt::NoBrush);
 
 		painter->drawText(frame.left() + frame_margins.left(),
-		                  frame.top() + frame_margins.top() + fm.ascent(),
-		                  _x_legend);
+		                  frame.top() + frame_margins.top() + fm.ascent(), _x_legend);
 	}
 
 	if (!_y_legend.isNull()) {
 		const QSize text_size = fm.size(Qt::TextSingleLine, _y_legend);
-		const QRect frame(0, 0, text_size.width() + frame_margins.left() + frame_margins.right(),
+		const QRect frame(frame_offsets.left(), frame_offsets.top(),
+		                  text_size.width() + frame_margins.left() + frame_margins.right(),
 		                  text_size.height() + frame_margins.top() + frame_margins.bottom());
 
 		painter->setPen(Qt::NoPen);
@@ -363,8 +364,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 		painter->setBrush(Qt::NoBrush);
 
 		painter->drawText(frame.left() + frame_margins.left(),
-		                  frame.top() + frame_margins.top() + fm.ascent(),
-		                  _y_legend);
+		                  frame.top() + frame_margins.top() + fm.ascent(), _y_legend);
 	}
 
 	painter->restore();

@@ -204,7 +204,8 @@ void PVParallelView::PVScatterView::about_to_be_deleted()
  *****************************************************************************/
 void PVParallelView::PVScatterView::set_params_widget_position()
 {
-	QPoint pos = QPoint(get_viewport()->width() - 4, 4);
+	QPoint pos(get_viewport()->width() - frame_offsets.right(), frame_offsets.top());
+
 	pos -= QPoint(_params_widget->width(), 0);
 	_params_widget->move(pos);
 	_params_widget->raise();

@@ -91,6 +91,7 @@ struct constants {
 static const QColor frame_bg_color(0xff, 0xff, 0xff, 0xdc);
 static const QColor frame_text_color(0x40, 0x40, 0x40);
 static const QMargins frame_margins(14, 6, 14, 7);
+static const QMargins frame_offsets(3, 2, 3, 2);
 
 } // namespace PVParallelView
 

@@ -26,6 +26,7 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent)
 	viewport()->setCursor(Qt::CrossCursor);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	setMinimumHeight(300);
+	setFrameShape(QFrame::NoFrame);
 
 	((QScrollBar64*)verticalScrollBar())->setObjectName("verticalScrollBar_of_PVListingView");
 	((QScrollBar64*)horizontalScrollBar())->setObjectName("horizontalScrollBar_of_PVListingView");
@@ -104,8 +105,8 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	                                 std::max(total_size.height(), percent_size.height()));
 
 	const int frame_width = text_width + frame_margins.left() + frame_margins.right();
-	const QRect frame(width() - frame_width, 0, frame_width,
-	                  text_height + frame_margins.top() + frame_margins.bottom());
+	const QRect frame(width() - frame_width - frame_offsets.left(), frame_offsets.top(),
+	                  frame_width, text_height + frame_margins.top() + frame_margins.bottom());
 
 	const QSize text_size(text_width, text_height);
 
@@ -117,7 +118,8 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 	/* The "stats" strings are drawn only if necessary
 	 */
-	QPoint text_pos(frame.left() + frame_margins.left(), frame_margins.top() + fm.ascent());
+	QPoint text_pos(frame.left() + frame_margins.left(),
+	                frame.top() + frame_margins.top() + fm.ascent());
 
 	if (QRectF(text_pos, text_size).intersects(rect_view)) {
 		painter->setPen(sel_col);

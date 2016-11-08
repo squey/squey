@@ -71,7 +71,8 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent* event)
 
 	bool need_recomputation = event->oldSize().height() != event->size().height();
 
-	QPoint pos = QPoint(get_viewport()->size().width() - 4, 4);
+	QPoint pos(get_viewport()->width() - frame_offsets.right(), frame_offsets.top());
+
 	pos -= QPoint(_params_widget->width(), 0);
 	_params_widget->move(pos);
 	_params_widget->raise();
@@ -95,7 +96,7 @@ void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter, con
 
 	QFontMetrics fm = painter->fontMetrics();
 	const QSize text_size = fm.size(Qt::TextSingleLine, _display_axis_name);
-	const QRect frame(0, 0,
+	const QRect frame(frame_offsets.left(), frame_offsets.top(),
 	                  text_size.width() + frame_margins.left() + frame_margins.right(),
 	                  text_size.height() + frame_margins.top() + frame_margins.bottom());
 
