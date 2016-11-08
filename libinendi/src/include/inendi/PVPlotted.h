@@ -61,6 +61,10 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 {
   public:
 	using value_type = uint32_t;
+	using plotted_t = pvcop::db::array;
+	using uint_plotted_t = pvcop::core::array<value_type>;
+	using plotteds_t = std::vector<plotted_t>;
+
 	static constexpr value_type MAX_VALUE = std::numeric_limits<value_type>::max();
 
   private:
@@ -68,12 +72,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 		PVRow min;
 		PVRow max;
 	};
-
-  public:
-	typedef std::vector<float> plotted_table_t;
-	typedef PVCore::PVHugePODVector<uint32_t, 16> uint_plotted_table_t;
-	typedef std::vector<std::pair<PVCol, uint32_t>> plotted_sub_col_t;
-	typedef std::vector<PVRow> rows_vector_t;
 
   public:
 	explicit PVPlotted(PVMapped& mapped, std::string const& name = "default");
@@ -106,7 +104,11 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;
 
-	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
+	plotteds_t const& get_plotteds() const { return _plotteds; }
+	uint_plotted_t const& get_plotted(PVCol col) const
+	{
+		return _plotteds[col].to_core_array<value_type>();
+	}
 
 	PVPlottingProperties const& get_properties_for_col(PVCol col) const
 	{
@@ -157,41 +159,11 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 
 	inline uint32_t const* get_column_pointer(PVCol const j) const
 	{
-		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
+		return &_plotteds[j].to_core_array<value_type>()[0];
 	}
 	inline uint32_t get_value(PVRow const i, PVCol const j) const
 	{
 		return get_column_pointer(j)[i];
-	}
-
-	/**
-	 * Returns the base address of a column in a plotted's buffer
-	 *
-	 * @param plotted the plotted's base address
-	 * @param nrows the plotted's rows number
-	 * @param col the wanted column number
-	 *
-	 * @return the base address of the column
-	 */
-	static const uint32_t*
-	get_plotted_col_addr(const uint32_t* plotted, const PVRow nrows, const PVCol col)
-	{
-		return plotted + get_plotted_col_offset(nrows, col);
-	}
-
-	/**
-	 * Returns the base address of a column in a plotted
-	 *
-	 * @param plotted the plotted's base address
-	 * @param nrows the plotted's rows number
-	 * @param col the wanted column number
-	 *
-	 * @return the base address of the column
-	 */
-	static const uint32_t*
-	get_plotted_col_addr(const uint_plotted_table_t& plotted, const PVRow nrows, const PVCol col)
-	{
-		return get_plotted_col_addr(&plotted.at(0), nrows, col);
 	}
 
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
@@ -219,7 +191,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
   private:
 	inline uint32_t* get_column_pointer(PVCol const j)
 	{
-		return &_uint_table[get_plotted_col_offset(get_row_count(), j)];
+		return &_plotteds[j].to_core_array<value_type>()[0];
 	}
 
   protected:
@@ -242,7 +214,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	sigc::signal<void> _plotted_updated;
 
   private:
-	uint_plotted_table_t _uint_table;
+	plotteds_t _plotteds;
 	QList<PVCol> _last_updated_cols; //!< List of column to update for view on this plotted.
 	std::vector<MinMax> _minmax_values;
 	std::list<PVPlottingProperties> _columns;

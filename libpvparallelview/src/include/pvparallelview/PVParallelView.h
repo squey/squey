@@ -45,7 +45,7 @@ class PVParallelViewImpl
 
 	PVLibView* get_lib_view(Inendi::PVView& view);
 	PVLibView* get_lib_view(Inendi::PVView& view,
-	                        Inendi::PVPlotted::uint_plotted_table_t const& plotted,
+	                        Inendi::PVPlotted::plotteds_t const& plotteds,
 	                        PVRow nrows,
 	                        PVCol ncols);
 
@@ -123,11 +123,11 @@ inline PVLibView* get_lib_view(Inendi::PVView& view)
 	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view);
 }
 inline PVLibView* get_lib_view(Inendi::PVView& view,
-                               Inendi::PVPlotted::uint_plotted_table_t const& plotted,
+                               Inendi::PVPlotted::plotteds_t const& plotteds,
                                PVRow nrows,
                                PVCol ncols)
 {
-	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, plotted, nrows, ncols);
+	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, plotteds, nrows, ncols);
 }
 inline PVBCIDrawingBackend& backend()
 {

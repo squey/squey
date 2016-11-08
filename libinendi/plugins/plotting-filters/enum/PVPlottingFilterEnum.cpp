@@ -15,8 +15,9 @@
 
 using plotting_t = uint32_t;
 
-void Inendi::PVPlottingFilterEnum::
-operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* dest)
+void Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped,
+                                              pvcop::db::array const&,
+                                              pvcop::core::array<uint32_t>& dest)
 {
 	pvcop::db::groups groups;
 	pvcop::db::extents extents;
@@ -31,7 +32,7 @@ operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* de
 
 	if (extents.size() == 1) {
 		const plotting_t default_value = std::numeric_limits<plotting_t>::max() / 2;
-		std::fill_n(dest, mapped.size(), default_value);
+		std::fill_n(dest.begin(), mapped.size(), default_value);
 	} else {
 		// -1 as we count "number of space between values", not "values"
 		const double extend_factor =
