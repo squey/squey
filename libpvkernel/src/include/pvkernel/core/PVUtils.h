@@ -10,6 +10,10 @@
 
 #include <string>
 
+#include <QByteArray>
+#include <QDataStream>
+#include <QString>
+
 #ifdef __GCC__
 #define likely(x) __builtin_expect((x), 1)
 #define unlikely(x) __builtin_expect((x), 0)
@@ -23,12 +27,35 @@ namespace PVCore
 /**
  * Replace `from` with `to` in `init`.
  */
-std::string& replace(std::string& init, std::string const& from, std::string const& to);
+std::string&
+replace(std::string& init, std::string const& from, std::string const& to, size_t pos = 0);
 
 /**
  * Return the content of a file path as string
  */
 std::string file_content(const std::string& file_path);
+
+template <typename T>
+QString serialize_base64(const T& container)
+{
+	QByteArray byteArray;
+	QDataStream out(&byteArray, QIODevice::WriteOnly);
+	out << container;
+
+	return QString(byteArray.toBase64());
+}
+
+template <typename T>
+T deserialize_base64(const QString& str)
+{
+	T result;
+	QByteArray byteArray = QByteArray::fromBase64(str.toUtf8());
+	QDataStream in(&byteArray, QIODevice::ReadOnly);
+	in >> result;
+
+	return result;
+}
+
 } // namespace PVCore
 
 #endif /* PVCORE_PVUTILS_H */

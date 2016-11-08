@@ -10,14 +10,16 @@
 #include <cstddef>
 #include <fstream>
 
-std::string& PVCore::replace(std::string& str, const std::string& from, const std::string& to)
+std::string& PVCore::replace(std::string& str,
+                             const std::string& from,
+                             const std::string& to,
+                             size_t pos /*= 0*/)
 {
 	// avoid an infinite loop if "from" is an empty string
 	if (from.empty()) {
 		return str;
 	}
 
-	size_t pos = 0;
 	while ((pos = str.find(from, pos)) != std::string::npos) {
 		str.replace(pos, from.size(), to);
 		// Advance to avoid replacing the same substring again
