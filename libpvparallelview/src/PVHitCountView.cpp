@@ -162,6 +162,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 	set_ticks_per_level(8);
 
 	_params_widget = new PVHitCountViewParamsWidget(this);
+	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 	set_params_widget_position();

@@ -40,6 +40,7 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
 	_help_widget->finalizeText();
 
 	_params_widget = new PVZoomedParallelViewParamsWidget(this);
+	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 }
