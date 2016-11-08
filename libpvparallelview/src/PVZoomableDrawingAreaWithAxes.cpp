@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
+#include <pvparallelview/common.h>
 
 #include <QString>
 #include <QPainter>
@@ -22,7 +23,7 @@
 #define SUBTICK_RATIO 0.45
 
 #define DEFAULT_HMARGIN 50
-#define DEFAULT_VMARGIN 40
+#define DEFAULT_VMARGIN 50
 
 #define AXIS_MARGIN 0
 
@@ -222,10 +223,12 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 	int left = get_scene_left_margin();
 	int right = left + get_x_axis_length();
 	int top = get_scene_top_margin();
-	int margin_bottom = get_scene_bottom_margin();
 	int bottom = top + get_y_axis_length();
+	QRect viewport_rect = get_viewport()->rect();
 
 	QRectF rect_in_scene = map_to_scene(QRect(0, 0, 1024, 1024)).intersected(get_scene_rect());
+
+	QFontMetrics fm = painter->fontMetrics();
 
 	painter->save();
 	painter->resetTransform();
@@ -236,19 +239,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 	                  bottom + AXIS_MARGIN);
 	painter->drawLine(left - AXIS_MARGIN, bottom + AXIS_MARGIN, right, bottom + AXIS_MARGIN);
 
-	// legends
-	if (!_x_legend.isNull()) {
-		painter->drawText(left - AXIS_MARGIN, bottom + AXIS_MARGIN, _x_axis_length, margin_bottom,
-		                  Qt::AlignRight | Qt::AlignBottom, _x_legend);
-	}
-
-	if (!_y_legend.isNull()) {
-		painter->drawText(left - AXIS_MARGIN, 0, _x_axis_length, top - AXIS_MARGIN,
-		                  Qt::AlignLeft | Qt::AlignTop, _y_legend);
-	}
-
 	// ticks
-	QFontMetrics fm = painter->fontMetrics();
 	int fm_ascent = fm.ascent();
 
 	qreal x_scale = x_zoom_to_scale(get_x_axis_zoom().get_clamped_value());
@@ -330,6 +321,50 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 		screen_pos += screen_subtick_height;
 		scene_pos += scene_subtick_height;
 		++y_subtick_index;
+	}
+
+	// legends
+
+	QFont f(painter->font());
+	f.setWeight(QFont::Bold);
+	painter->setFont(f);
+
+	fm = painter->fontMetrics();
+
+	if (!_x_legend.isNull()) {
+		const QSize text_size = fm.size(Qt::TextSingleLine, _x_legend);
+		const int frame_width = text_size.width() + frame_margins.left() + frame_margins.right();
+		const int frame_height = text_size.height() + frame_margins.top() + frame_margins.bottom();
+		const QRect frame(viewport_rect.width() - frame_width, viewport_rect.height() - frame_height,
+		                  frame_width, frame_height);
+
+		painter->setPen(Qt::NoPen);
+		painter->setBrush(frame_bg_color);
+		painter->drawRect(frame);
+
+		painter->setPen(QPen(frame_text_color, 0));
+		painter->setBrush(Qt::NoBrush);
+
+		painter->drawText(frame.left() + frame_margins.left(),
+		                  frame.top() + frame_margins.top() + fm.ascent(),
+		                  _x_legend);
+	}
+
+	if (!_y_legend.isNull()) {
+		const QSize text_size = fm.size(Qt::TextSingleLine, _y_legend);
+		const QRect frame(0, 0, text_size.width() + frame_margins.left() + frame_margins.right(),
+		                  text_size.height() + frame_margins.top() + frame_margins.bottom());
+
+		painter->setPen(Qt::NoPen);
+		painter->setBrush(frame_bg_color);
+		painter->drawRect(frame);
+
+		painter->setPen(QPen(frame_text_color, 0));
+		painter->setBrush(Qt::NoBrush);
+
+		painter->drawText(frame.left() + frame_margins.left(),
+		                  frame.top() + frame_margins.top() + fm.ascent(),
+		                  _y_legend);
 	}
 
 	painter->restore();
