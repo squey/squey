@@ -58,8 +58,13 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 
 	setLayout(main_layout);
 
-	connect(_line_count_checkbox, SIGNAL(stateChanged(int)), this,
-	        SLOT(disable_specify_line_count(int)));
+	connect(_line_count_spinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+	        this, [&]() { Q_EMIT line_count_changed(line_count()); });
+	connect(_ignore_first_lines_spinbox,
+	        static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
+	        &PVOptionsWidget::first_line_changed);
+	connect(_line_count_checkbox, &QCheckBox::stateChanged, this,
+	        &PVOptionsWidget::disable_specify_line_count);
 }
 
 void PVInspector::PVOptionsWidget::set_lines_range(int first_line, int line_count)
@@ -75,4 +80,6 @@ void PVInspector::PVOptionsWidget::disable_specify_line_count(int checkstate)
 	_line_count_label->setEnabled(checkstate == Qt::Checked);
 	_line_count_spinbox->setEnabled(checkstate == Qt::Checked);
 	_line_count_checkbox->setCheckState((Qt::CheckState)checkstate);
+
+	Q_EMIT line_count_changed(line_count());
 }
