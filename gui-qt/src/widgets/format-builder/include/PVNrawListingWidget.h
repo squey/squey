@@ -36,6 +36,7 @@ class PVNrawListingWidget : public QWidget
 	void connect_autodetect(QObject* receiver, const char* slot);
 	void connect_axes_name(QObject* receiver, const char* slot);
 	void connect_axes_type(QObject* receiver, const char* slot);
+	void connect_table_header(QObject* receiver, const char* slot);
 	void get_ext_args(PVRow& start, PVRow& end);
 	void get_autodetect_args(PVRow& start, PVRow& end);
 	void set_autodetect_count(PVRow count);
@@ -45,6 +46,7 @@ class PVNrawListingWidget : public QWidget
 	void unselect_column();
 	void select_column(PVCol col);
 	void mark_row_as_invalid(size_t row_index);
+	void select_header(int column);
 
   public Q_SLOTS:
 	void nraw_custom_menu_Slot(const QPoint& pt);

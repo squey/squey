@@ -130,6 +130,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	_nraw_widget->connect_preview(this, SLOT(slotExtractorPreview()));
 	_nraw_widget->connect_autodetect(this, SLOT(slotAutoDetectAxesTypes()));
 	_nraw_widget->connect_axes_name(this, SLOT(set_axes_name_selected_row_Slot(int)));
+	_nraw_widget->connect_table_header(this, SLOT(slotItemClickedInMiniExtractor(int)));
 
 	// Put the vb layout into a widget and add it to the splitter
 	_main_tab = new QTabWidget();
@@ -1140,6 +1141,45 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 			_nraw_widget->select_column(field_id);
 		}
 	}
+}
+
+void PVInspector::PVFormatBuilderWidget::slotItemClickedInMiniExtractor(int column)
+{
+	/* Automatically selection the good axis in the tree view */
+
+	// Update the linear fields id in PVXmlTreeNode's tree.
+	myTreeModel->updateFieldsLinearId();
+
+	QModelIndex index = get_field_node_index(column, myTreeModel->index(0, 0));
+
+	if (index.isValid()) {
+		myTreeView->setCurrentIndex(index);
+		myParamBord_old_model->edit(index);
+		_nraw_widget->select_header(column);
+	}
+}
+
+QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol field_id,
+                                                                     const QModelIndex& parent)
+{
+	QModelIndex index = QModelIndex();
+
+	if (!parent.isValid())
+		return QModelIndex();
+
+	int sibling = 0;
+	do {
+		index = parent.sibling(sibling, 0);
+		PVRush::PVXmlTreeNodeDom* node = myTreeModel->nodeFromIndex(index);
+
+		if (node->typeToString() == "axis" &&
+		    node->getFirstFieldParent()->getFieldLinearId() == field_id)
+			return index;
+
+		index = get_field_node_index(field_id, index.child(0, 0));
+	} while (parent.sibling(sibling++, 0).isValid() && !index.isValid());
+
+	return index;
 }
 
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)

@@ -15,6 +15,7 @@
 #include <QPoint>
 #include <QMenu>
 #include <QAction>
+#include <QHeaderView>
 
 #include <pvlogger.h>
 
@@ -32,6 +33,8 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	// NRAW table view
 	_nraw_table = new QTableView();
 	_nraw_table->setModel(_nraw_model);
+	_nraw_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+	_nraw_table->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	// Context menu for the NRAW table
 	_ctxt_menu = new QMenu(this);
@@ -115,6 +118,11 @@ void PVInspector::PVNrawListingWidget::connect_axes_type(QObject* receiver, cons
 	connect(this, SIGNAL(set_axes_type_from_nraw(int)), receiver, slot);
 }
 
+void PVInspector::PVNrawListingWidget::connect_table_header(QObject* receiver, const char* slot)
+{
+	connect(_nraw_table->horizontalHeader(), SIGNAL(sectionClicked(int)), receiver, slot);
+}
+
 void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 {
 	start = _ext_start->value() - 1;
@@ -154,6 +162,12 @@ void PVInspector::PVNrawListingWidget::resize_columns_content()
 	for (int col = 1; col < _nraw_table->model()->columnCount(); col++) {
 		_nraw_table->resizeColumnToContents(col);
 	}
+}
+
+void PVInspector::PVNrawListingWidget::select_header(int column)
+{
+	_nraw_model->set_selected_column(column);
+	_nraw_model->sel_visible(true);
 }
 
 void PVInspector::PVNrawListingWidget::select_column(PVCol col)
