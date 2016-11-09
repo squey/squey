@@ -112,7 +112,7 @@ class PVNraw
 		assert(_collection && "We have to be in read state");
 		assert(row < get_row_count());
 		assert(col < get_number_cols());
-		return _collection->column(col).at(row);
+		return _columns[col].at(row);
 	}
 
 	/**
@@ -200,8 +200,12 @@ class PVNraw
 	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   private:
+	void init_collection(const std::string& path);
+
+  private:
 	/// Variable usefull for reading
 	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
+	std::vector<pvcop::db::array> _columns;
 
 	/// Variable usefull for loading
 	size_t _real_nrows;                                     //!< Current number of line in the NRaw.
