@@ -13,7 +13,6 @@
 
 #include <pvkernel/core/PVColumnIndexes.h>
 #include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeChild, etc
-#include <pvkernel/core/PVHugePODVector.h>
 
 #include <pvbase/types.h> // for PVRow, PVCol, etc
 
