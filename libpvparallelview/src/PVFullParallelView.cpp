@@ -82,8 +82,10 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	const QString sel_text = QString("%L1").arg(_selected_events_number);
 	const QString sep_text = QString(" /");
 	const QString total_text = QString(" %L1").arg(_total_events_number);
-	const QString percent_text = QString(" (%1 %)").arg(
-	    (uint32_t)(100.0 * (double)_selected_events_number / (double)_total_events_number));
+	const QString percent_prefix_text(" (");
+	const QString percent_suffix_text(" %)");
+	const QString percent_text = QString("%1").arg(
+	    (uint32_t)(100.0 * (double)_selected_events_number / (double)_total_events_number), 3);
 
 	const QColor sel_col(0xd9, 0x28, 0x28);
 	const QColor percent_col(0xc9, 0x5d, 0x1e);
@@ -97,12 +99,18 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	const QSize sel_size = fm.size(Qt::TextSingleLine, sel_text);
 	const QSize sep_size = fm.size(Qt::TextSingleLine, sep_text);
 	const QSize total_size = fm.size(Qt::TextSingleLine, total_text);
+	const QSize percent_prefix_size = fm.size(Qt::TextSingleLine, percent_prefix_text);
+	const QSize percent_suffix_size = fm.size(Qt::TextSingleLine, percent_suffix_text);
 	const QSize percent_size = fm.size(Qt::TextSingleLine, percent_text);
+	const QSize percent_spacing_size = fm.size(Qt::TextSingleLine, "000");
 
-	const int text_width =
-	    sel_size.width() + sep_size.width() + total_size.width() + percent_size.width();
-	const int text_height = std::max(std::max(sel_size.height(), sep_size.height()),
-	                                 std::max(total_size.height(), percent_size.height()));
+	const int text_width = sel_size.width() + sep_size.width() + total_size.width() +
+	                       percent_prefix_size.width() + percent_suffix_size.width() +
+	                       percent_spacing_size.width();
+	const int text_height =
+	    std::max(std::max(std::max(sel_size.height(), sep_size.height()),
+	                      std::max(total_size.height(), percent_spacing_size.height())),
+	             std::max(percent_prefix_size.height(), percent_suffix_size.height()));
 
 	const int frame_width = text_width + frame_margins.left() + frame_margins.right();
 	const QRect frame(width() - frame_width - frame_offsets.left(), frame_offsets.top(),
@@ -134,7 +142,17 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 		text_pos.rx() += total_size.width();
 
 		painter->setPen(percent_col);
+
+		painter->drawText(text_pos, percent_prefix_text);
+		text_pos.rx() += percent_prefix_size.width();
+
+		// a right alignment
+		text_pos.rx() += percent_spacing_size.width() - percent_size.width();
+
 		painter->drawText(text_pos, percent_text);
+		text_pos.rx() += percent_size.width();
+
+		painter->drawText(text_pos, percent_suffix_text);
 	}
 
 #ifdef INENDI_DEVELOPER_MODE
