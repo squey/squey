@@ -99,6 +99,14 @@ class PVFormatBuilderWidget : public QMainWindow
 	 */
 	void initToolBar(QVBoxLayout* vb);
 
+	/**
+	 * Get the node's index at the given field_id
+	 * @param field_id
+	 * @param parent
+	 * @return index
+	 */
+	QModelIndex get_field_node_index(const PVCol field_id, const QModelIndex& parent);
+
   protected:
 	/**
 	 * Clear filter data and run extraction filling NRaw and invalid elements.
@@ -153,6 +161,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	void slotUpdateToolsState(const QModelIndex& index = QModelIndex());
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex& index);
+	void slotItemClickedInMiniExtractor(int column);
 	void slotMainTabChanged(int idx);
 
 	// Slot for the NRAW listing
