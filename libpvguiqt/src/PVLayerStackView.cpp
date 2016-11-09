@@ -12,6 +12,8 @@
 #include <QMenu>
 #include <QInputDialog>
 
+#include <inendi/PVSelection.h>
+
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
 #include <pvguiqt/PVLayerStackView.h>
@@ -55,6 +57,7 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_ctxt_menu = new QMenu(this);
+	_ctxt_menu->setToolTipsVisible(true);
 	_ctxt_menu->addSeparator();
 
 	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer content"), nullptr);
@@ -68,6 +71,54 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 
 	_ctxt_menu_show_this_layer_only = new QAction(tr("Show this layer only"), nullptr);
 	_ctxt_menu->addAction(_ctxt_menu_show_this_layer_only);
+
+	_ctxt_menu->addSeparator();
+
+	_ctxt_menu_union = new QAction(QIcon(":/union"), tr("Union"), nullptr);
+	_ctxt_menu_union->setToolTip(
+	    "Union of the current selection and this layer content (restricted to visible layer)");
+	_ctxt_menu->addAction(_ctxt_menu_union);
+
+	_ctxt_menu_intersection = new QAction(QIcon(":/intersection"), tr("Intersection"), nullptr);
+	_ctxt_menu_intersection->setToolTip("Intersection of the current selection and this layer "
+	                                    "content (restricted to visible layer)");
+	_ctxt_menu->addAction(_ctxt_menu_intersection);
+
+	_ctxt_menu_difference = new QAction(QIcon(":/difference"), tr("Difference"), nullptr);
+	_ctxt_menu_difference->setToolTip(
+	    "Difference of the current selection and this layer content (restricted to visible layer)");
+	_ctxt_menu->addAction(_ctxt_menu_difference);
+
+	_ctxt_menu_symmetric_differrence =
+	    new QAction(QIcon(":/symmetric"), tr("Symmetric difference"), nullptr);
+	_ctxt_menu_symmetric_differrence->setToolTip("Symmetric difference of the current selection "
+	                                             "and this layer content (restricted to visible "
+	                                             "layer)");
+	_ctxt_menu->addAction(_ctxt_menu_symmetric_differrence);
+
+	_ctxt_menu_activate_union =
+	    new QAction(QIcon(":/union_activate"), tr("Activate and Union"), nullptr);
+	_ctxt_menu_activate_union->setToolTip(
+	    "Activate this layer and Union of the current selection and its content");
+	_ctxt_menu->addAction(_ctxt_menu_activate_union);
+
+	_ctxt_menu_activate_intersection =
+	    new QAction(QIcon(":/intersection_activate"), tr("Activate and Intersection"), nullptr);
+	_ctxt_menu_activate_intersection->setToolTip(
+	    "Activate this layer and Intersection of the current selection and its content");
+	_ctxt_menu->addAction(_ctxt_menu_activate_intersection);
+
+	_ctxt_menu_activate_difference =
+	    new QAction(QIcon(":/difference_activate"), tr("Activate and Difference"), nullptr);
+	_ctxt_menu_activate_difference->setToolTip(
+	    "Activate this layer and Difference of the current selection and its content");
+	_ctxt_menu->addAction(_ctxt_menu_activate_difference);
+
+	_ctxt_menu_activate_symmetric_differrence = new QAction(
+	    QIcon(":/symmetric_activate"), tr("Activate and Symmetric difference"), nullptr);
+	_ctxt_menu_activate_symmetric_differrence->setToolTip(
+	    "Activate this layer and Symmetric difference of the current selection and its content");
+	_ctxt_menu->addAction(_ctxt_menu_activate_symmetric_differrence);
 
 	_ctxt_menu->addSeparator();
 
@@ -188,9 +239,57 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 	if (act == _ctxt_menu_show_this_layer_only) {
 		show_this_layer_only(idx_click.row());
 	}
+	if (act == _ctxt_menu_union) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator|,
+		                                        false);
+	}
+	if (act == _ctxt_menu_difference) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator-,
+		                                        false);
+	}
+	if (act == _ctxt_menu_intersection) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator&,
+		                                        false);
+	}
+	if (act == _ctxt_menu_symmetric_differrence) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator^,
+		                                        false);
+	}
+	if (act == _ctxt_menu_activate_union) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator|,
+		                                        true);
+	}
+	if (act == _ctxt_menu_activate_difference) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator-,
+		                                        true);
+	}
+	if (act == _ctxt_menu_activate_intersection) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator&,
+		                                        true);
+	}
+	if (act == _ctxt_menu_activate_symmetric_differrence) {
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator^,
+		                                        true);
+	}
 	if (act == _ctxt_menu_copy_to_clipboard_act) {
 		copy_to_clipboard();
 	}
+}
+
+void PVGuiQt::PVLayerStackView::boolean_op_on_selection_with_this_layer(int layer_idx,
+                                                                        const operation_f& f,
+                                                                        bool activate)
+{
+	Inendi::PVLayer& layer = get_layer_from_idx(layer_idx);
+	Inendi::PVView& view = ls_model()->lib_view();
+
+	if (activate)
+		layer.set_visible(true);
+
+	Inendi::PVSelection selection = (view.get_real_output_selection().*f)(layer.get_selection());
+
+	view.set_selection_view(selection);
+	view.process_layer_stack(selection);
 }
 
 void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
