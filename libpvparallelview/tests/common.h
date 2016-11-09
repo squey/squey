@@ -37,11 +37,8 @@ namespace PVParallelView
 class PVLibView;
 }
 
-bool create_plotted_table_from_args(Inendi::PVPlotted::uint_plotted_table_t& norm_plotted,
-                                    PVRow& nrows,
-                                    PVCol& ncols,
-                                    int argc,
-                                    char** argv);
+bool create_plotted_table_from_args(
+    Inendi::PVPlotted::plotteds_t& norm_plotted, PVRow& nrows, PVCol& ncols, int argc, char** argv);
 int extra_param_start_at();
 bool input_is_a_file();
 void set_extra_param(int num, const char* usage_text);

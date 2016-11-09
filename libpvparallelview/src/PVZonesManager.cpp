@@ -48,7 +48,7 @@ class ZoneCreation
  *
  *****************************************************************************/
 PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view)
-    : _uint_plotted(&view.get_parent<Inendi::PVPlotted>().get_uint_plotted())
+    : _plotted(view.get_parent<Inendi::PVPlotted>())
     , _nrows(view.get_row_count())
     , _ncols(view.get_column_count())
     , _axes_comb(view.get_axes_combination().get_combination())

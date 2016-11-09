@@ -98,8 +98,7 @@ PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
 PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view(PVCol const axis,
                                                                                  QWidget* parent)
 {
-	const uint32_t* uint_plotted = Inendi::PVPlotted::get_plotted_col_addr(
-	    _zones_manager.get_uint_plotted(), _zones_manager.get_row_count(),
+	const uint32_t* uint_plotted = _zones_manager.get_plotted().get_column_pointer(
 	    lib_view()->get_axes_combination().get_nraw_axis(axis));
 
 	PVHitCountView* view =

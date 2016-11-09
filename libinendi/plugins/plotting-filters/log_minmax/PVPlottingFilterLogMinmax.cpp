@@ -12,15 +12,16 @@
 #include <omp.h>
 
 template <class T>
-static void
-compute_log_plotting(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint32_t* dest)
+static void compute_log_plotting(pvcop::db::array const& mapped,
+                                 pvcop::db::array const& minmax,
+                                 pvcop::core::array<uint32_t>& dest)
 {
 	auto& mm = minmax.to_core_array<T>();
 	double ymin = (double)mm[0];
 	double ymax = (double)mm[1];
 
 	if (ymin == ymax) {
-		std::fill_n(dest, mapped.size(), 1UL << 31);
+		std::fill_n(dest.begin(), mapped.size(), 1UL << 31);
 		return;
 	}
 
@@ -41,8 +42,9 @@ compute_log_plotting(pvcop::db::array const& mapped, pvcop::db::array const& min
 	}
 }
 
-void Inendi::PVPlottingFilterLogMinmax::
-operator()(pvcop::db::array const& mapped, pvcop::db::array const& minmax, uint32_t* dest)
+void Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
+                                                   pvcop::db::array const& minmax,
+                                                   pvcop::core::array<uint32_t>& dest)
 {
 	assert(dest);
 

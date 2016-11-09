@@ -66,12 +66,10 @@ int Inendi::PVPlotted::create_table()
 {
 	const PVCol mapped_col_count = get_nraw_column_count();
 
-	// Transposed normalized unisnged integer.
-	// Align the number of lines on a mulitple of 4, in order to have 16-byte
-	// aligned starting adresses for each axis
-
-	const PVRow nrows_aligned = get_aligned_row_count();
-	_uint_table.resize((size_t)mapped_col_count * (size_t)nrows_aligned);
+	for (size_t i = 0; i < _columns.size(); i++) {
+		_plotteds.emplace_back(pvcop::db::type_traits::type<value_type>::get_type_id(),
+		                       get_row_count());
+	}
 
 	_last_updated_cols.clear();
 	_minmax_values.resize(mapped_col_count);
@@ -87,7 +85,7 @@ int Inendi::PVPlotted::create_table()
 
 		plotting_filter->operator()(get_parent().get_column(j),
 		                            get_parent().get_properties_for_col(j).get_minmax(),
-		                            get_column_pointer(j));
+		                            _plotteds[j].to_core_array<value_type>());
 
 		boost::this_thread::interruption_point();
 		get_properties_for_col(j).set_uptodate();

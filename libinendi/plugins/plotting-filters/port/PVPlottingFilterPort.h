@@ -18,7 +18,7 @@ class PVPlottingFilterPort : public PVPlottingFilter
   public:
 	void operator()(pvcop::db::array const& mapped,
 	                pvcop::db::array const& minmax,
-	                uint32_t* dest) override;
+	                pvcop::core::array<uint32_t>& dest) override;
 	QString get_human_name() const override { return QString("TCP/UDP port"); }
 
 	std::set<plotting_capability> list_usable_type() const override

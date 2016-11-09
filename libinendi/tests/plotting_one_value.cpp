@@ -23,8 +23,7 @@ int main()
 {
 	pvtest::TestEnv env(csv_file, csv_file_format, 1, pvtest::ProcessUntil::Mapped);
 
-	Inendi::PVPlotted::uint_plotted_table_t const& plotted_table =
-	    env.compute_plotting().get_uint_plotted();
+	auto const& plotted = env.compute_plotting().get_plotted(0);
 
 	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
@@ -39,9 +38,8 @@ int main()
 
 	PV_ASSERT_VALID(col1_out.size() == 1 && col2_out.size() == 1);
 
-	bool all_same_values =
-	    std::all_of(plotted_table.begin() + 1, plotted_table.end(),
-	                [&](const uint32_t& v) { return v == *plotted_table.begin(); });
+	bool all_same_values = std::all_of(plotted.begin() + 1, plotted.end(),
+	                                   [&](const uint32_t& v) { return v == *plotted.begin(); });
 
 	PV_ASSERT_VALID(all_same_values);
 

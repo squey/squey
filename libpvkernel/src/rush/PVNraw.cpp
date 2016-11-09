@@ -65,6 +65,25 @@ void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 
 /*****************************************************************************
  *
+ * PVRush::PVNraw::init_collection
+ *
+ ****************************************************************************/
+
+void PVRush::PVNraw::init_collection(const std::string& path)
+{
+	_collection.reset(new pvcop::collection(path));
+
+	/*
+	 * map columns once and for all
+	 */
+	_columns.clear();
+	for (size_t col = 0; col < _collection->column_count(); col++) {
+		_columns.emplace_back(_collection->column(col));
+	}
+}
+
+/*****************************************************************************
+ *
  * PVRush::PVNraw::add_chunk_utf16
  *
  ****************************************************************************/
@@ -146,7 +165,7 @@ void PVRush::PVNraw::load_done(const PVControllerJob::invalid_elements_t& inv_el
 
 		if (_valid_elements_count != 0) {
 			// Create the collection only if there are imported lines.
-			_collection.reset(new pvcop::collection(_collector->rootdir()));
+			init_collection(_collector->rootdir());
 		}
 	}
 	_collector.reset();
@@ -173,7 +192,7 @@ void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 	 * a boolean.
 	 */
 	try {
-		_collection.reset(new pvcop::collection(nraw_folder));
+		init_collection(nraw_folder);
 	} catch (pvcop::db::exception::invalid_collection&) {
 		throw NrawLoadingFail("Can't creation a collection from disk");
 	}

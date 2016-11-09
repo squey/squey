@@ -8,7 +8,8 @@
 #include "PVPlottingFilterPort.h"
 
 template <class T>
-static void compute_port_plotting(pvcop::db::array const& mapped, uint32_t* dest)
+static void compute_port_plotting(pvcop::db::array const& mapped,
+                                  pvcop::core::array<uint32_t>& dest)
 {
 	auto& values = mapped.to_core_array<T>();
 
@@ -30,8 +31,9 @@ static void compute_port_plotting(pvcop::db::array const& mapped, uint32_t* dest
 	}
 }
 
-void Inendi::PVPlottingFilterPort::
-operator()(pvcop::db::array const& mapped, pvcop::db::array const&, uint32_t* dest)
+void Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped,
+                                              pvcop::db::array const&,
+                                              pvcop::core::array<uint32_t>& dest)
 {
 	// FIXME : We may inform user if minmax is not in 65535 - 0
 	assert(dest);
