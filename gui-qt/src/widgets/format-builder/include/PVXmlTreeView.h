@@ -118,7 +118,7 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 	bool isDraging;
 	bool isEditing;
   public Q_SLOTS:
-	void slotDataHasChanged(const QModelIndex&, const QModelIndex&);
+	void slotDataHasChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&);
 	void slotSelectNext();
   Q_SIGNALS:
 	void refresh();

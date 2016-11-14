@@ -39,15 +39,17 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	// Context menu for the NRAW table
 	_ctxt_menu = new QMenu(this);
 	QAction* act_set_axis_name = new QAction(tr("Set axes' name based on this row"), _ctxt_menu);
-	connect(act_set_axis_name, SIGNAL(triggered()), this, SLOT(set_axes_name_selected_row_Slot()));
+	connect(act_set_axis_name, &QAction::triggered, this,
+	        &PVNrawListingWidget::set_axes_name_selected_row_Slot);
 	_ctxt_menu->addAction(act_set_axis_name);
 	QAction* act_detect_type =
 	    new QAction(tr("Automatically detect axes' type based on this row"), _ctxt_menu);
-	connect(act_detect_type, SIGNAL(triggered()), this, SLOT(set_axes_type_selected_row_Slot()));
+	connect(act_detect_type, &QAction::triggered, this,
+	        &PVNrawListingWidget::set_axes_type_selected_row_Slot);
 	//_ctxt_menu->addAction(act_detect_type);
 
-	connect(_nraw_table, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-	        SLOT(nraw_custom_menu_Slot(const QPoint&)));
+	connect(_nraw_table, &QTableView::customContextMenuRequested, this,
+	        &PVNrawListingWidget::nraw_custom_menu_Slot);
 	_nraw_table->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// "Mini-extractor" for this NRAW
@@ -96,31 +98,6 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	set_last_input();
 
 	setLayout(main_layout);
-}
-
-void PVInspector::PVNrawListingWidget::connect_preview(QObject* receiver, const char* slot)
-{
-	connect(_btn_preview, SIGNAL(clicked()), receiver, slot);
-}
-
-void PVInspector::PVNrawListingWidget::connect_autodetect(QObject* receiver, const char* slot)
-{
-	connect(_btn_autodetect, SIGNAL(clicked()), receiver, slot);
-}
-
-void PVInspector::PVNrawListingWidget::connect_axes_name(QObject* receiver, const char* slot)
-{
-	connect(this, SIGNAL(set_axes_name_from_nraw(int)), receiver, slot);
-}
-
-void PVInspector::PVNrawListingWidget::connect_axes_type(QObject* receiver, const char* slot)
-{
-	connect(this, SIGNAL(set_axes_type_from_nraw(int)), receiver, slot);
-}
-
-void PVInspector::PVNrawListingWidget::connect_table_header(QObject* receiver, const char* slot)
-{
-	connect(_nraw_table->horizontalHeader(), SIGNAL(sectionClicked(int)), receiver, slot);
 }
 
 void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)

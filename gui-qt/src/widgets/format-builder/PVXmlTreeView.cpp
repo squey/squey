@@ -355,7 +355,9 @@ void PVInspector::PVXmlTreeView::moveUp()
  * PVInspector::PVXmlTreeView::slotDataHasChanged
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::slotDataHasChanged(const QModelIndex& index, const QModelIndex&)
+void PVInspector::PVXmlTreeView::slotDataHasChanged(const QModelIndex& index,
+                                                    const QModelIndex&,
+                                                    const QVector<int>&)
 {
 	PVLOG_DEBUG("PVInspector::PVXmlTreeView::slotDataHasChanged\n");
 	Q_EMIT clicked(index);
