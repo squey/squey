@@ -373,14 +373,13 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
 	_ctxt_col = idx_click.column(); // This is the *combined* axis index
-	PVCol col = _view.get_axes_combination().get_nraw_axis(_ctxt_col);
 
 	const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
 
 	QStringList l;
 	for (PVRow line : listing_model()->shown_lines()) {
 		if (listing_model()->current_selection().get_line_fast(line)) {
-			l << QString::fromStdString(src.get_input_value(line, col));
+			l << QString::fromStdString(src.get_input_value(line, _ctxt_col));
 		}
 	}
 	_ctxt_v = l.join("\n");
