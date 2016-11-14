@@ -66,16 +66,6 @@
 	<file alias="gmaps.html">resources/gmaps.html</file>
     <file alias="log-icon">resources/log-icon.png</file>
 
-	<!-- Boolean operator -->
-	<file alias="union">resources/22x22/union.png</file>
-	<file alias="intersection">resources/22x22/intersection.png</file>
-	<file alias="difference">resources/22x22/difference.png</file>
-	<file alias="symmetric">resources/22x22/symmetric_difference.png</file>
-	<file alias="union_activate">resources/22x22/union_activate.png</file>
-	<file alias="intersection_activate">resources/22x22/intersection_activate.png</file>
-	<file alias="difference_activate">resources/22x22/difference_activate.png</file>
-	<file alias="symmetric_activate">resources/22x22/symmetric_difference_activate.png</file>
-
 	<!-- AXIS SELECTED ICONS -->
 	<file alias="location">resources/location.png</file>
 	<file alias="location_hole">resources/location_hole.png</file>
