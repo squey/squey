@@ -11,9 +11,12 @@
 #include <QFileDialog>
 #include <QTableView>
 
+#include <functional>
+
 namespace Inendi
 {
 class PVLayer;
+class PVSelection;
 } // namespace Inendi
 
 namespace PVGuiQt
@@ -35,11 +38,17 @@ class PVLayerStackView : public QTableView
 	PVLayerStackModel* ls_model();
 
   private:
+	using operation_f =
+	    Inendi::PVSelection (Inendi::PVSelection::*)(const Inendi::PVSelection&) const;
+
+  private:
 	void copy_to_clipboard();
 	void set_current_selection_from_layer(int model_idx);
 	void export_layer_selection(int model_idx);
 	void reset_layer_colors(int layer_idx);
 	void show_this_layer_only(int layer_idx);
+	void
+	boolean_op_on_selection_with_this_layer(int layer_idx, const operation_f& f, bool activate);
 
 	Inendi::PVLayer& get_layer_from_idx(int model_idx);
 
@@ -60,6 +69,16 @@ class PVLayerStackView : public QTableView
 	QAction* _ctxt_menu_export_layer_sel;
 	QAction* _ctxt_menu_reset_colors;
 	QAction* _ctxt_menu_show_this_layer_only;
+
+	QAction* _ctxt_menu_union;
+	QAction* _ctxt_menu_intersection;
+	QAction* _ctxt_menu_difference;
+	QAction* _ctxt_menu_symmetric_differrence;
+
+	QAction* _ctxt_menu_activate_union;
+	QAction* _ctxt_menu_activate_difference;
+	QAction* _ctxt_menu_activate_intersection;
+	QAction* _ctxt_menu_activate_symmetric_differrence;
 
 	QFileDialog _layer_dialog;
 	QFileDialog _layerstack_dialog;
