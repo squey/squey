@@ -8,6 +8,8 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
+#include <pvkernel/rush/PVUtils.h>
+
 #include "common.h"
 
 #ifdef INSPECTOR_BENCH
@@ -40,15 +42,7 @@ int main()
 	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
-	std::ifstream ifs_res(out_path);
-	std::string content_res{std::istreambuf_iterator<char>(ifs_res),
-	                        std::istreambuf_iterator<char>()};
-
-	std::ifstream ifs_ref(filename);
-	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref),
-	                        std::istreambuf_iterator<char>()};
-
-	PV_VALID(content_ref, content_res);
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(filename, out_path));
 #endif
 
 	std::remove(out_path.c_str());
