@@ -17,6 +17,7 @@
 #include <QSpinBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QHeaderView>
 #include <QTableView>
 
 namespace PVInspector
@@ -32,11 +33,36 @@ class PVNrawListingWidget : public QWidget
 	PVNrawListingWidget(PVNrawListingModel* nraw_model, QWidget* parent = nullptr);
 
   public:
-	void connect_preview(QObject* receiver, const char* slot);
-	void connect_autodetect(QObject* receiver, const char* slot);
-	void connect_axes_name(QObject* receiver, const char* slot);
-	void connect_axes_type(QObject* receiver, const char* slot);
-	void connect_table_header(QObject* receiver, const char* slot);
+	template <typename T, typename F>
+	void connect_preview(T* receiver, const F& slot)
+	{
+		connect(_btn_preview, &QPushButton::clicked, receiver, slot);
+	}
+
+	template <typename T, typename F>
+	void connect_autodetect(T* receiver, const F& slot)
+	{
+		connect(_btn_autodetect, &QPushButton::clicked, receiver, slot);
+	}
+
+	template <typename T, typename F>
+	void connect_axes_name(T* receiver, const F& slot)
+	{
+		connect(this, &PVNrawListingWidget::set_axes_name_from_nraw, receiver, slot);
+	}
+
+	template <typename T, typename F>
+	void connect_axes_type(T* receiver, const F& slot)
+	{
+		connect(this, &PVNrawListingWidget::set_axes_type_from_nraw, receiver, slot);
+	}
+
+	template <typename T, typename F>
+	void connect_table_header(T* receiver, const F& slot)
+	{
+		connect(_nraw_table->horizontalHeader(), &QHeaderView::sectionClicked, receiver, slot);
+	}
+
 	void get_ext_args(PVRow& start, PVRow& end);
 	void get_autodetect_args(PVRow& start, PVRow& end);
 	void set_autodetect_count(PVRow count);
@@ -46,12 +72,12 @@ class PVNrawListingWidget : public QWidget
 	void unselect_column();
 	void select_column(PVCol col);
 	void mark_row_as_invalid(size_t row_index);
+	void select_header(int column);
 
   public Q_SLOTS:
 	void nraw_custom_menu_Slot(const QPoint& pt);
 	void set_axes_name_selected_row_Slot();
 	void set_axes_type_selected_row_Slot();
-	void select_header(int column);
 
   Q_SIGNALS:
 	void set_axes_name_from_nraw(int row);

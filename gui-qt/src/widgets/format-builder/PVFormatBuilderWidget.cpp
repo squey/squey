@@ -127,10 +127,11 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	// Create a table for the preview of the NRAW
 	_nraw_model = new PVNrawListingModel();
 	_nraw_widget = new PVNrawListingWidget(_nraw_model);
-	_nraw_widget->connect_preview(this, SLOT(slotExtractorPreview()));
-	_nraw_widget->connect_autodetect(this, SLOT(slotAutoDetectAxesTypes()));
-	_nraw_widget->connect_axes_name(this, SLOT(set_axes_name_selected_row_Slot(int)));
-	_nraw_widget->connect_table_header(this, SLOT(slotItemClickedInMiniExtractor(int)));
+	_nraw_widget->connect_preview(this, &PVFormatBuilderWidget::slotExtractorPreview);
+	_nraw_widget->connect_autodetect(this, &PVFormatBuilderWidget::slotAutoDetectAxesTypes);
+	_nraw_widget->connect_axes_name(this, &PVFormatBuilderWidget::set_axes_name_selected_row_Slot);
+	_nraw_widget->connect_table_header(this,
+	                                   &PVFormatBuilderWidget::slotItemClickedInMiniExtractor);
 
 	// Put the vb layout into a widget and add it to the splitter
 	_main_tab = new QTabWidget();
@@ -280,44 +281,48 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation()
 void PVInspector::PVFormatBuilderWidget::initConnexions()
 {
 	// connexion to update the parameter board
-	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), myParamBord_old_model,
-	        SLOT(edit(const QModelIndex&)));
+	connect(myTreeView, &PVXmlTreeView::clicked, myParamBord_old_model, &PVXmlParamWidget::edit);
 	// connexion to endable/desable items in toolsbar menu.
-	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), this,
-	        SLOT(slotUpdateToolsState(const QModelIndex&)));
+	connect(myTreeView, &PVXmlTreeView::clicked, this,
+	        &PVFormatBuilderWidget::slotUpdateToolsState);
 
 	// data has changed from tree
-	connect(myTreeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), myTreeView,
-	        SLOT(slotDataHasChanged(const QModelIndex&, const QModelIndex&)));
+	connect(myTreeModel, &PVXmlDomModel::dataChanged, myTreeView,
+	        &PVXmlTreeView::slotDataHasChanged);
 
 	// When an item is clicked in the tree view, auto-select the good axis in the mini-extractor
-	connect(myTreeView, SIGNAL(clicked(const QModelIndex&)), this,
-	        SLOT(slotItemClickedInView(const QModelIndex&)));
+	connect(myTreeView, &PVXmlTreeView::clicked, this,
+	        &PVFormatBuilderWidget::slotItemClickedInView);
 
 	/*
 	 * Connexions for both menu and toolbar.
 	 */
-	connect(actionAddAxisIn, SIGNAL(triggered()), this, SLOT(slotAddAxisIn()));
-	connect(actionAddFilterAfter, SIGNAL(triggered()), this, SLOT(slotAddFilterAfter()));
-	connect(actionAddRegExAfter, SIGNAL(triggered()), this, SLOT(slotAddRegExAfter()));
-	connect(actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
-	connect(actionMoveDown, SIGNAL(triggered()), this, SLOT(slotMoveDown()));
-	connect(actionMoveUp, SIGNAL(triggered()), this, SLOT(slotMoveUp()));
-	connect(actionNewWindow, SIGNAL(triggered()), this, SLOT(slotNewWindow()));
-	connect(actionCloseWindow, SIGNAL(triggered()), this, SLOT(close()));
-	connect(actionOpen, SIGNAL(triggered()), this, SLOT(slotOpen()));
-	connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
-	connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(slotSaveAs()));
-	connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
-	connect(myParamBord_old_model, SIGNAL(signalNeedApply()), this, SLOT(slotNeedApply()));
-	connect(myParamBord_old_model, SIGNAL(signalSelectNext()), myTreeView, SLOT(slotSelectNext()));
+	connect(actionAddAxisIn, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddAxisIn);
+	connect(actionAddFilterAfter, &QAction::triggered, this,
+	        &PVFormatBuilderWidget::slotAddFilterAfter);
+	connect(actionAddRegExAfter, &QAction::triggered, this,
+	        &PVFormatBuilderWidget::slotAddRegExAfter);
+	connect(actionDelete, &QAction::triggered, this, &PVFormatBuilderWidget::slotDelete);
+	connect(actionMoveDown, &QAction::triggered, this, &PVFormatBuilderWidget::slotMoveDown);
+	connect(actionMoveUp, &QAction::triggered, this, &PVFormatBuilderWidget::slotMoveUp);
+	connect(actionNewWindow, &QAction::triggered, this, &PVFormatBuilderWidget::slotNewWindow);
+	connect(actionCloseWindow, &QAction::triggered, this, &PVFormatBuilderWidget::close);
+	connect(actionOpen, &QAction::triggered, this, &PVFormatBuilderWidget::slotOpen);
+	connect(actionSave, &QAction::triggered, this, &PVFormatBuilderWidget::slotSave);
+	connect(actionSaveAs, &QAction::triggered, this, &PVFormatBuilderWidget::slotSaveAs);
+	connect(actionAddUrl, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddUrl);
+	connect(myParamBord_old_model, &PVXmlParamWidget::signalNeedApply, this,
+	        &PVFormatBuilderWidget::slotNeedApply);
+	connect(myParamBord_old_model, &PVXmlParamWidget::signalSelectNext, myTreeView,
+	        &PVXmlTreeView::slotSelectNext);
 	connect(_options_widget, &PVOptionsWidget::first_line_changed, this,
 	        [&](int first_line) { myTreeModel->set_first_line(first_line); });
 	connect(_options_widget, &PVOptionsWidget::line_count_changed, this,
 	        [&](int line_count) { myTreeModel->set_line_count(line_count); });
 
 	// Connections for the axes combination editor
-	connect(_main_tab, SIGNAL(currentChanged(int)), this, SLOT(slotMainTabChanged(int)));
+	connect(_main_tab, &QTabWidget::currentChanged, this,
+	        &PVFormatBuilderWidget::slotMainTabChanged);
 }
 
 /******************************************************************************
@@ -820,7 +825,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 
 		if (action) {
 			action->setData(it.key());
-			connect(action, SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
+			connect(action, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddSplitter);
 			_splitters->addAction(action);
 		}
 	}
@@ -837,7 +842,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 
 		if (action) {
 			action->setData(it.key());
-			connect(action, SIGNAL(triggered()), this, SLOT(slotAddConverter()));
+			connect(action, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddConverter);
 			_converters->addAction(action);
 		}
 	}
@@ -1155,6 +1160,7 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInMiniExtractor(int colu
 	if (index.isValid()) {
 		myTreeView->setCurrentIndex(index);
 		myParamBord_old_model->edit(index);
+		_nraw_widget->select_header(column);
 	}
 }
 
