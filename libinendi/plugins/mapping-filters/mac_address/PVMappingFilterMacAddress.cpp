@@ -173,7 +173,7 @@ static void compute_mac_distribution(const pvcop::db::array& data_array,
 pvcop::db::array Inendi::PVMappingFilterMacAddressL::operator()(PVCol const col,
                                                                 PVRush::PVNraw const& nraw)
 {
-	const auto data_array = nraw.collection().column(col);
+	const pvcop::db::array& data_array = nraw.column(col);
 	const auto& data = data_array.to_core_array<uint64_t>();
 
 	pvcop::db::array mapping_array(pvcop::db::type_uint32, data_array.size());
@@ -201,7 +201,7 @@ pvcop::db::array Inendi::PVMappingFilterMacAddressL::operator()(PVCol const col,
 pvcop::db::array Inendi::PVMappingFilterMacAddressLU::operator()(PVCol const col,
                                                                  PVRush::PVNraw const& nraw)
 {
-	const auto data_array = nraw.collection().column(col);
+	const pvcop::db::array& data_array = nraw.column(col);
 	const auto& data = data_array.to_core_array<uint64_t>();
 
 	pvcop::db::array mapping_array(pvcop::db::type_uint32, data_array.size());
@@ -243,7 +243,7 @@ pvcop::db::array Inendi::PVMappingFilterMacAddressLU::operator()(PVCol const col
 pvcop::db::array Inendi::PVMappingFilterMacAddressUL::operator()(PVCol const col,
                                                                  PVRush::PVNraw const& nraw)
 {
-	const auto data_array = nraw.collection().column(col);
+	const pvcop::db::array& data_array = nraw.column(col);
 	const auto& data = data_array.to_core_array<uint64_t>();
 
 	pvcop::db::array mapping_array(pvcop::db::type_uint32, data_array.size());
@@ -283,7 +283,7 @@ pvcop::db::array Inendi::PVMappingFilterMacAddressUL::operator()(PVCol const col
 pvcop::db::array Inendi::PVMappingFilterMacAddressUU::operator()(PVCol const col,
                                                                  PVRush::PVNraw const& nraw)
 {
-	const auto data_array = nraw.collection().column(col);
+	const pvcop::db::array& data_array = nraw.column(col);
 	const auto& data = data_array.to_core_array<uint64_t>();
 
 	pvcop::db::array mapping_array(pvcop::db::type_uint32, data_array.size());

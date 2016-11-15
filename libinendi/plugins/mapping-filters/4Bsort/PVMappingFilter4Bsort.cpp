@@ -37,12 +37,12 @@ static uint32_t compute_str_factor(const char* str, size_t len)
 pvcop::db::array Inendi::PVMappingFilter4Bsort::operator()(PVCol const col,
                                                            PVRush::PVNraw const& nraw)
 {
-	auto array = nraw.collection().column(col);
+	const pvcop::db::array& array = nraw.column(col);
 
 	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
 	auto& dest_array = dest.to_core_array<uint32_t>();
 
-	auto* string_dict = nraw.collection().dict(col);
+	auto* string_dict = nraw.column_dict(col);
 	if (string_dict) {
 		auto& dict = *string_dict;
 		std::vector<uint32_t> ret(dict.size());

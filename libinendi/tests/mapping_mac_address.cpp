@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 
 	// Check computed mapping is equal to the reference value
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const auto ref_array = nraw.collection().column(ref_col);
+	const pvcop::db::array& ref_array = nraw.column(ref_col);
 	const auto& ref_values = ref_array.to_core_array<uint32_t>();
 	const auto& mapping = mapped.get_column(1).to_core_array<uint32_t>();
 

@@ -27,7 +27,7 @@ int main()
 
 	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(0);
 
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;

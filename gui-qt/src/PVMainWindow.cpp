@@ -1079,7 +1079,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 		return false;
 	}
 
-	if (src->get_rushnraw().get_row_count() == 0) {
+	if (src->get_rushnraw().row_count() == 0) {
 		QString msg = QString("<p>The files <strong>%1</strong> using format "
 		                      "<strong>%2</strong> cannot be opened. ")
 		                  .arg(QString::fromStdString(src->get_name()))

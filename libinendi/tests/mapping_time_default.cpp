@@ -41,7 +41,7 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(0);
 	auto& array = column.to_core_array<uint32_t>();
 
 	std::vector<uint32_t> order(column.size());

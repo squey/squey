@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
 
-	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.get_row_count(), export_func);
+	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.row_count(), export_func);
 	exp.export_rows(0);
 
 	// Compare files content
@@ -70,9 +70,8 @@ int main(int argc, char** argv)
 	std::remove(output_file.c_str());
 
 	// Remove nraw folder
-	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir
-	                                    ? nraw_dir.path()
-	                                    : QString::fromStdString(nraw.collection().rootdir()));
+	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path()
+	                                                       : QString::fromStdString(nraw.dir()));
 
 	return (!same_content) * 5;
 }

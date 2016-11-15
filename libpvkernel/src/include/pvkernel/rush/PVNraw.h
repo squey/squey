@@ -74,7 +74,7 @@ class PVNraw
 	/**
 	 * Access layout of the NRaw.
 	 */
-	inline PVRow get_row_count() const
+	inline PVRow row_count() const
 	{
 		if (_collection) {
 			return _collection->row_count();
@@ -84,7 +84,7 @@ class PVNraw
 			return 0;
 		}
 	}
-	inline PVCol get_number_cols() const
+	inline PVCol column_count() const
 	{
 		assert(_collection && "We should be in read state");
 		return _collection->column_count();
@@ -96,10 +96,27 @@ class PVNraw
 	inline std::string at_string(PVRow row, PVCol col) const
 	{
 		assert(_collection && "We have to be in read state");
-		assert(row < get_row_count());
-		assert(col < get_number_cols());
+		assert(row < row_count());
+		assert(col < column_count());
 		return _columns[col].at(row);
 	}
+
+	const pvcop::db::array& column(PVCol col) const
+	{
+		assert(_collection && "we have to be in read state");
+		assert(col < _columns.size());
+
+		return _columns[col];
+	}
+
+	const pvcop::db::read_dict* column_dict(PVCol col) const { return _collection->dict(col); }
+
+	pvcop::collection::formatter_sp column_formatter(PVCol col) const
+	{
+		return _collection->formatter(col);
+	}
+
+	std::string dir() const { return _collection->rootdir(); }
 
 	/**
 	 * Insert data in the NRaw.
@@ -135,21 +152,6 @@ class PVNraw
 	 */
 	void dump_csv(std::ostream& os = std::cout) const;
 	void dump_csv(const std::string& file_path) const;
-
-	/**
-	 * Accessors
-	 */
-	pvcop::collection& collection()
-	{
-		assert(_collection && "we have to be in read state");
-		return *_collection;
-	}
-
-	pvcop::collection const& collection() const
-	{
-		assert(_collection && "we have to be in read state");
-		return *_collection;
-	}
 
 	const unconvertable_values_t& unconvertable_values() const { return _unconvertable_values; }
 

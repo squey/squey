@@ -34,7 +34,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 PVRow PVRush::PVNrawOutput::get_rows_count()
 {
 	if (_nraw_dest != nullptr) {
-		return _nraw_dest->get_row_count();
+		return _nraw_dest->row_count();
 	} else {
 		return 0;
 	}

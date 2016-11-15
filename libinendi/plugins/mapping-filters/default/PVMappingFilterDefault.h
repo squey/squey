@@ -32,9 +32,9 @@ class PVMappingFilterDefault : public PVMappingFilter
 	 */
 	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
 	{
-		auto array = nraw.collection().column(col);
+		const pvcop::db::array& array = nraw.column(col);
 
-		auto f = nraw.collection().formatter(col);
+		auto f = nraw.column_formatter(col);
 		if (std::string(f->name()) == "datetime_us") {
 			pvcop::db::array dest(pvcop::db::type_uint32, array.size());
 			auto& dest_array = dest.to_core_array<uint32_t>();

@@ -85,8 +85,8 @@ Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1
 	Inendi::PVSource& src2 = view2->get_parent<Inendi::PVSource>();
 	PVCol col2 = correlation->second.col2;
 
-	const pvcop::db::array col1_in = src1.get_rushnraw().collection().column(col1);
-	const pvcop::db::array col2_in = src2.get_rushnraw().collection().column(col2);
+	const pvcop::db::array& col1_in = src1.get_rushnraw().column(col1);
+	const pvcop::db::array& col2_in = src2.get_rushnraw().column(col2);
 
 	pvcop::db::array col1_out1;
 	pvcop::db::array col1_out2;

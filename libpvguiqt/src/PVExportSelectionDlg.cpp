@@ -226,7 +226,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 
 	// Rows to export
 	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
-	PVRow nrows = nraw.get_row_count();
+	PVRow nrows = nraw.row_count();
 
 	PVRow start = 0;
 	PVRow step_count = std::min(STEP_COUNT, nrows);

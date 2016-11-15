@@ -208,16 +208,16 @@ void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 
 void PVRush::PVNraw::dump_csv(std::ostream& os) const
 {
-	PVCore::PVColumnIndexes cols(get_number_cols());
+	PVCore::PVColumnIndexes cols(column_count());
 	std::iota(cols.begin(), cols.end(), 0);
-	PVCore::PVSelBitField sel(get_row_count());
+	PVCore::PVSelBitField sel(row_count());
 	sel.select_all();
 
 	PVCore::PVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return export_line(row, cols, sep, quote); };
 
-	PVCore::PVExporter exp(os, sel, cols, get_row_count(), export_func);
+	PVCore::PVExporter exp(os, sel, cols, row_count(), export_func);
 	exp.export_rows(0);
 }
 
@@ -352,7 +352,7 @@ void PVRush::PVNraw::empty_values_search(PVCol col,
 void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Saving raw data...");
-	QString nraw_path = QString::fromStdString(collection().rootdir());
+	QString nraw_path = QString::fromStdString(_collection->rootdir());
 	so.attribute_write("nraw_path", nraw_path);
 
 	int vec = _valid_elements_count;
@@ -390,8 +390,7 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 	so.set_current_status("Saving empty fields information...");
 	auto const& empty_values = _unconvertable_values.empty_conversions();
 
-	std::vector<PVCore::PVSelBitField> sels(get_number_cols(),
-	                                        PVCore::PVSelBitField(get_row_count()));
+	std::vector<PVCore::PVSelBitField> sels(column_count(), PVCore::PVSelBitField(row_count()));
 	for (size_t col = 0; col < sels.size(); col++) {
 		sels[col].select_none();
 	}

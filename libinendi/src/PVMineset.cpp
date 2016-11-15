@@ -219,7 +219,7 @@ class LocalMinesetFormat
 			 * Convert time to ISO 8601 standard
 			 */
 			if (axis.get_type() == "time") {
-				auto f = nraw.collection().formatter(axis.index);
+				auto f = nraw.column_formatter(axis.index);
 
 				pvcop::collection::formatter_sp formatter_datetime;
 				if (std::string(f->name()) == "datetime") {
@@ -309,7 +309,7 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 		PVCore::PVExporter::export_func export_func =
 		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 		        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
-		PVCore::PVExporter exp(data_file, sel, column_indexes, nraw.get_row_count(), export_func,
+		PVCore::PVExporter exp(data_file, sel, column_indexes, nraw.row_count(), export_func,
 		                       "\t" /* = default_sep_char */);
 		exp.export_rows(0);
 	}

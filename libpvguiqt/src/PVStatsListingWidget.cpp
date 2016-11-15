@@ -605,8 +605,7 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 {
-	const pvcop::db::array col_in =
-	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
+	const pvcop::db::array& col_in = _view.get_rushnraw_parent().column(get_real_axis_col());
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;
 
@@ -643,8 +642,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::unique_values_dlg_closed()
  *****************************************************************************/
 void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 {
-	const pvcop::db::array column =
-	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
+	const pvcop::db::array& column = _view.get_rushnraw_parent().column(get_real_axis_col());
 
 	double sum = pvcop::db::algo::sum(column, _view.get_selection_visible_listing());
 
@@ -662,8 +660,7 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
  *****************************************************************************/
 void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
 {
-	const pvcop::db::array column =
-	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
+	const pvcop::db::array& column = _view.get_rushnraw_parent().column(get_real_axis_col());
 
 	const pvcop::db::array& min_array =
 	    pvcop::db::algo::min(column, _view.get_selection_visible_listing());
@@ -681,8 +678,7 @@ void PVGuiQt::__impl::PVMinCellWidget::refresh_impl()
  *****************************************************************************/
 void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
 {
-	const pvcop::db::array column =
-	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
+	const pvcop::db::array& column = _view.get_rushnraw_parent().column(get_real_axis_col());
 
 	const pvcop::db::array& max_array =
 	    pvcop::db::algo::max(column, _view.get_selection_visible_listing());
@@ -700,8 +696,7 @@ void PVGuiQt::__impl::PVMaxCellWidget::refresh_impl()
  *****************************************************************************/
 void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 {
-	const pvcop::db::array column =
-	    _view.get_rushnraw_parent().collection().column(get_real_axis_col());
+	const pvcop::db::array& column = _view.get_rushnraw_parent().column(get_real_axis_col());
 
 	double avg = pvcop::db::algo::average(column, _view.get_selection_visible_listing());
 

@@ -144,7 +144,7 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	PVSelection& out_sel = out.get_selection();
 
-	const pvcop::db::array& column = nraw.collection().column(axis_id);
+	const pvcop::db::array& column = nraw.column(axis_id);
 
 	BENCH_START(subselect);
 
@@ -174,7 +174,7 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 
 			// Propagate exception if needed
 			if (not((type & INVALID) || (type & EMPTY)) &&
-			    std::string(nraw.collection().formatter(axis_id)->name()) != "string") {
+			    std::string(nraw.column_formatter(axis_id)->name()) != "string") {
 				_unconverted_values = e.bad_values();
 				throw PVLayerFilter::error(); // we should maybe not throw through plugin API and
 				                              // set a flag instead...
@@ -247,7 +247,7 @@ void Inendi::PVLayerFilterMultipleSearch::remove_default_invalid_values(
     PVCol col_idx, const Inendi::PVSelection& in_sel, Inendi::PVSelection& out_sel) const
 {
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-	const pvcop::db::array& column = nraw.collection().column(col_idx);
+	const pvcop::db::array& column = nraw.column(col_idx);
 
 	pvcop::db::array empty_array(column.type(), 1, true);
 
@@ -273,7 +273,7 @@ void Inendi::PVLayerFilterMultipleSearch::search_values(PVCol col_idx,
                                                         Inendi::PVSelection& out_sel) const
 {
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-	const pvcop::db::array& column = nraw.collection().column(col_idx);
+	const pvcop::db::array& column = nraw.column(col_idx);
 
 	pvcop::db::algo::subselect(column, search_array, in_sel, out_sel);
 
@@ -308,7 +308,7 @@ void Inendi::PVLayerFilterMultipleSearch::search_values_if(
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
 	if (type & VALID) {
-		const pvcop::db::array& column = nraw.collection().column(col);
+		const pvcop::db::array& column = nraw.column(col);
 		pvcop::db::algo::subselect_if(column, exps, predicate, in_sel, out_sel);
 		remove_default_invalid_values(col, out_sel, out_sel);
 	}

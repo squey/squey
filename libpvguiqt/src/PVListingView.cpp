@@ -195,7 +195,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
 	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(
-	    QString::number(view.get_rushnraw_parent().get_row_count() + 1).size(), '9'));
+	    QString::number(view.get_rushnraw_parent().row_count() + 1).size(), '9'));
 
 	// Handle selection modification signal.
 	connect(this, &PVAbstractTableView::validate_selection, this,
@@ -902,7 +902,7 @@ void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 
 void PVGuiQt::PVListingView::goto_line()
 {
-	PVRow nrows = lib_view().get_rushnraw_parent().get_row_count();
+	PVRow nrows = lib_view().get_rushnraw_parent().row_count();
 	const Inendi::PVSelection& sel = lib_view().get_real_output_selection();
 
 	bool ok;

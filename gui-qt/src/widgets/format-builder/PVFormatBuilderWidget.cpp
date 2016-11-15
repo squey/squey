@@ -1190,11 +1190,11 @@ QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol
 void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
 {
 	assert(_nraw);
-	if ((PVRow)row >= _nraw->get_row_count()) {
+	if ((PVRow)row >= _nraw->row_count()) {
 		return;
 	}
 	QStringList names;
-	for (PVCol j = 0; j < _nraw->get_number_cols(); j++) {
+	for (PVCol j = 0; j < _nraw->column_count(); j++) {
 		// We need to do a deep copy of this
 		names << QString::fromStdString(_nraw->at_string(row, j));
 	}

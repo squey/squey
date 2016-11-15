@@ -97,7 +97,7 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Check result
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
-	pvcop::db::array const& col = nraw.collection().column(1);
+	pvcop::db::array const& col = nraw.column(1);
 
 	check_line_validity(out, 0);
 	check_line_validity(out, 1);

@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 #ifndef INSPECTOR_BENCH
 	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(0);
 
 	pvcop::db::indexes indexes = pvcop::db::indexes::parallel_sort(column);
 	auto& order = indexes.to_core_array();

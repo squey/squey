@@ -82,17 +82,17 @@ void run_stats(cmd_options opts)
 		env.load_data();
 
 		const PVRush::PVFormat format = env._format;
-		const pvcop::collection& collection = env._nraw.collection();
-		tmp_collector_path = collection.rootdir();
+		const PVRush::PVNraw& nraw = env._nraw;
+		tmp_collector_path = nraw.dir();
 		size_t row_count = pvcop::core::algo::bit_count(env._nraw.valid_rows_sel());
 
-		pvlogger::info() << row_count << " rows / " << collection.row_count() << std::endl;
+		pvlogger::info() << row_count << " rows / " << nraw.row_count() << std::endl;
 
 		pvcop::db::array distinct_values;
 		pvcop::db::array distinct_values_count;
 
-		for (size_t col = 0; col < collection.column_count(); col++) {
-			const pvcop::db::array& column = collection.column(col);
+		for (PVCol col = 0; col < nraw.column_count(); col++) {
+			const pvcop::db::array& column = nraw.column(col);
 			pvcop::db::algo::distinct(column, distinct_values, distinct_values_count,
 			                          env._nraw.valid_rows_sel());
 
