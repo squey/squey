@@ -8,6 +8,8 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
+#include <pvkernel/rush/PVUtils.h>
+
 #include "common.h"
 
 #ifdef INSPECTOR_BENCH
@@ -37,17 +39,10 @@ int main()
 #ifndef INSPECTOR_BENCH
 	std::string out_path = pvtest::get_tmp_filename();
 	// Dump the NRAW to file and check value is the same
-	env._nraw.dump_csv(out_path);
+	PVRush::PVNraw nraw = std::move(env._nraw);
+	nraw.dump_csv(out_path);
 
-	std::ifstream ifs_res(out_path);
-	std::string content_res{std::istreambuf_iterator<char>(ifs_res),
-	                        std::istreambuf_iterator<char>()};
-
-	std::ifstream ifs_ref(filename);
-	std::string content_ref{std::istreambuf_iterator<char>(ifs_ref),
-	                        std::istreambuf_iterator<char>()};
-
-	PV_VALID(content_ref, content_res);
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(filename, out_path));
 
 	std::remove(out_path.c_str());
 #endif

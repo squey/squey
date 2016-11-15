@@ -60,30 +60,16 @@ class PVNraw
 	PVNraw();
 
 	/**
-	 * Disable copy/move constructors.
+	 * Disable copy constructor/assignment.
 	 */
 	PVNraw& operator=(const PVNraw&) = delete;
 	PVNraw(const PVNraw&) = delete;
-	PVNraw(PVNraw&& other)
-	    : _collection(std::move(other._collection))
-	    , _unconvertable_values(std::move(other._unconvertable_values))
-	    , _valid_rows_sel(std::move(other._valid_rows_sel))
-	    , _valid_elements_count(other._valid_elements_count)
-	{
-		assert(not other._collector);
-	}
 
-	PVNraw& operator=(PVNraw&& other)
-	{
-		_collection = std::move(other._collection);
-		_unconvertable_values = std::move(other._unconvertable_values);
-		_valid_rows_sel = std::move(other._valid_rows_sel);
-		_valid_elements_count = other._valid_elements_count;
-
-		assert(not other._collector);
-		assert(not _collector);
-		return *this;
-	}
+	/**
+	 * But not move constructor/assignment.
+	 */
+	PVNraw(PVNraw&& other) = default;
+	PVNraw& operator=(PVNraw&& other) = default;
 
 	/**
 	 * Access layout of the NRaw.
