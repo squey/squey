@@ -19,8 +19,6 @@
 
 #include <pvbase/types.h> // for PVCol, PVRow
 
-#include <boost/function.hpp> // for function
-
 #include <QString> // for QString
 
 #include <cassert>   // for assert
@@ -51,7 +49,7 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 
   public:
 	// This is used for context menu integration (in the NRAW listing)
-	typedef boost::function<PVCore::PVArgumentList(PVRow, PVCol, PVCol, QString const&)>
+	typedef std::function<PVCore::PVArgumentList(PVRow, PVCombCol, PVCol, QString const&)>
 	    ctxt_menu_f;
 	// This QHash will be used for specifying a list of couple (name, function) that will be used in
 	// the context menu

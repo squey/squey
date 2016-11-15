@@ -328,7 +328,7 @@ PVCore::PVArgumentKeyList Inendi::PVLayerFilterMultipleSearch::get_args_keys_for
 }
 
 PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PVRow /*row*/,
-                                                                              PVCol /*col*/,
+                                                                              PVCombCol /*col*/,
                                                                               PVCol org_col,
                                                                               QString const& v)
 {
@@ -350,7 +350,7 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PV
 }
 
 PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_menu(
-    PVRow row, PVCol col, PVCol org_col, QString const& v)
+    PVRow row, PVCombCol col, PVCol org_col, QString const& v)
 {
 	PVCore::PVArgumentList args = search_value_menu(row, col, org_col, v);
 
@@ -365,7 +365,7 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_m
 }
 
 PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_menu(PVRow /*row*/,
-                                                                        PVCol /*col*/,
+                                                                        PVCombCol /*col*/,
                                                                         PVCol org_col,
                                                                         QString const& /*v*/)
 {

@@ -372,7 +372,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// slot connected
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
-	_ctxt_col = idx_click.column(); // This is the *combined* axis index
+	_ctxt_col = idx_click.column();
 	PVCol col = _view.get_axes_combination().get_nraw_axis(_ctxt_col);
 
 	const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
@@ -405,7 +405,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
  *****************************************************************************/
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
-	PVCol comb_col = horizontalHeader()->logicalIndexAt(pos);
+	PVCombCol comb_col = horizontalHeader()->logicalIndexAt(pos);
 	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 
 	// Disable hover picture
@@ -453,7 +453,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 	const QStringList axes = lib_view().get_axes_names_list();
 	QStringList summable_types = {"number_int32", "number_uint32", "number_float", "number_double"};
-	for (int i = 0; i < axes.size(); i++) {
+	for (PVCombCol i = 0; i < axes.size(); i++) {
 		if (i != comb_col) {
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
 			action_col_count_by->setData(QVariant(i));
@@ -534,7 +534,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
  * PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCol col)
+void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 {
 	const QString& this_axis_type = lib_view().get_axes_combination().get_axis(col).get_type();
 	QStringList correlation_types = {"number_int32", "number_uint32", "ipv4", "ipv6",

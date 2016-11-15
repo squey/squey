@@ -18,8 +18,8 @@ int main()
 
 	Inendi::PVAxesCombination axe_comb(format);
 
-	PV_VALID(axe_comb.get_axis(0).index, 3);
-	PV_VALID(axe_comb.get_nraw_axis(0), 3);
+	PV_VALID(axe_comb.get_axis(PVCombCol(0)).index.value(), 3);
+	PV_VALID(axe_comb.get_nraw_axis(0).value(), 3);
 
 	std::vector<PVCol> to_compare = {3, 0, 11, 5, 6, 7, 8, 9};
 	for (size_t i = 0; i < 8; i++) {
@@ -42,7 +42,7 @@ int main()
 	}
 
 	PV_VALID(axe_comb.get_axes_count(), 8UL);
-	PV_ASSERT_VALID(axe_comb.get_first_comb_col(5) == Inendi::PVCombCol(3));
+	PV_ASSERT_VALID(axe_comb.get_first_comb_col(5) == 3);
 	PV_VALID(axe_comb.to_string().toStdString(), std::string("3,0,11,5,6,7,8,9"));
 
 	axe_comb.axis_append(5);

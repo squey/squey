@@ -99,8 +99,8 @@ static const QMargins frame_offsets(3, 2, 3, 2);
 
 //#include <pvkernel/core/PVAllocators.h>
 
-using PVZoneID = PVCol;
-static constexpr const PVCol PVZONEID_INVALID = std::numeric_limits<PVZoneID>::max();
+using PVZoneID = PVCol::value_type;
+static const PVZoneID PVZONEID_INVALID = PVCol::INVALID_VALUE;
 
 Q_DECLARE_METATYPE(PVZoneID);
 

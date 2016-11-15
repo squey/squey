@@ -47,7 +47,7 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu,
                                                              QObject* receiver,
                                                              const char* slot,
                                                              Inendi::PVView* view,
-                                                             Inendi::PVCombCol axis_comb) const
+                                                             PVCombCol axis_comb) const
 {
 	visit_displays_by_if<PVDisplayViewAxisIf>(
 	    [&](PVDisplayViewAxisIf& interface) {
@@ -65,7 +65,7 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu,
                                                              QObject* receiver,
                                                              const char* slot,
                                                              Inendi::PVView* view,
-                                                             Inendi::PVCombCol axis_comb) const
+                                                             PVCombCol axis_comb) const
 {
 	visit_displays_by_if<PVDisplayViewZoneIf>(
 	    [&](PVDisplayViewZoneIf& interface) {

@@ -18,7 +18,7 @@ PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
 }
 
 QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* view,
-                                                                Inendi::PVCombCol axis_comb,
+                                                                PVCombCol axis_comb,
                                                                 QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
@@ -34,14 +34,13 @@ QIcon PVDisplays::PVDisplayViewZoomedParallel::toolbar_icon() const
 
 // FIXME : Hidden argument reflect bad design properties, inheritance should certainly be improved.
 QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view,
-                                                              Inendi::PVCombCol /*axis_comb*/) const
+                                                              PVCombCol /*axis_comb*/) const
 {
 	return "Zoomed view [" + QString::fromStdString(view->get_name()) + "]";
 }
 
-QString
-PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView const* /*view*/,
-                                                        Inendi::PVCombCol /*axis_comb*/) const
+QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView const* /*view*/,
+                                                                PVCombCol /*axis_comb*/) const
 {
 	return QString("New zoomed parallel view");
 }

@@ -77,7 +77,7 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 }
 
 PVParallelView::PVZoomedParallelView*
-PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
+PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* parent)
 {
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
@@ -95,8 +95,8 @@ PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
 	return view;
 }
 
-PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view(PVCol const axis,
-                                                                                 QWidget* parent)
+PVParallelView::PVHitCountView*
+PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* parent)
 {
 	const uint32_t* uint_plotted = _zones_manager.get_plotted().get_column_pointer(
 	    lib_view()->get_axes_combination().get_nraw_axis(axis));
@@ -109,7 +109,7 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 	return view;
 }
 
-PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(const PVCol axis,
+PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(const PVCombCol axis,
                                                                               QWidget* parent)
 {
 	PVCore::PVProgressBox::progress(
@@ -127,7 +127,7 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(co
 	return view;
 }
 
-void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCol axis)
+void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCombCol axis)
 {
 	if (axis > 0) {
 		_zones_manager.request_zoomed_zone(axis - 1);

@@ -89,7 +89,7 @@ void __print_scalar(const char* text, const V& v)
 PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
                                                const uint32_t* col_plotted,
                                                const PVRow nrows,
-                                               const PVCol axis_index,
+                                               const PVCombCol axis_index,
                                                QWidget* parent)
     : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
     , _pvview(pvview_sp)
@@ -606,6 +606,8 @@ QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value) const
 
 QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
 {
+	const PVCol nraw_col = lib_view().get_axes_combination().get_nraw_axis(_axis_index);
+
 	const uint32_t* plotted = get_hit_graph_manager().get_plotted();
 	const uint32_t nrows = get_hit_graph_manager().get_nrows();
 	const uint32_t nbits = get_hit_graph_manager().nbits();
@@ -619,8 +621,7 @@ QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
 		for (size_t i = 0; i < nrows; i++) {
 			const uint32_t v = (plotted[i] >> uint32_t(32 - nbits));
 			if (v == searched_value) {
-				return QString::fromStdString(
-				    _pvview.get_rushnraw_parent().at_string(i, _axis_index));
+				return QString::fromStdString(_pvview.get_rushnraw_parent().at_string(i, nraw_col));
 			}
 		}
 	}

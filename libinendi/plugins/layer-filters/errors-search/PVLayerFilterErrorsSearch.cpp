@@ -100,7 +100,7 @@ PVCore::PVArgumentKeyList Inendi::PVLayerFilterErrorsSearch::get_args_keys_for_p
 }
 
 PVCore::PVArgumentList Inendi::PVLayerFilterErrorsSearch::menu(PVRow /*row*/,
-                                                               PVCol /*col*/,
+                                                               PVCombCol /*col*/,
                                                                PVCol org_col,
                                                                QString const& /*v*/)
 {

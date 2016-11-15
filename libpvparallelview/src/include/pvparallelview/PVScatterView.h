@@ -82,7 +82,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
   public:
 	PVScatterView(Inendi::PVView& pvview_sp,
 	              PVZonesManager const& zm,
-	              PVCol const axis_index,
+	              PVCombCol const axis_index,
 	              PVZonesProcessor& zp_bg,
 	              PVZonesProcessor& zp_sel,
 	              QWidget* parent = nullptr);

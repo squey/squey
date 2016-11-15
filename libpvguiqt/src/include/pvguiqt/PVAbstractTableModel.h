@@ -232,7 +232,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/**
 	 * Set sorting contextual informations.
 	 */
-	void sorted(int col, Qt::SortOrder order);
+	void sorted(PVCombCol col, Qt::SortOrder order);
 
   protected:
 	/**

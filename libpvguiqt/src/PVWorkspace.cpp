@@ -272,7 +272,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 	}
 
 	Inendi::PVView* view = nullptr;
-	Inendi::PVCombCol axis_comb(Inendi::INVALID_COMB_COL);
+	PVCombCol axis_comb(PVCombCol::INVALID_VALUE);
 	PVDisplays::PVDisplayViewAxisIf& display_if =
 	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewAxisIf>(*act, view,
 	                                                                              axis_comb);
@@ -281,7 +281,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 		return;
 	}
 
-	if (axis_comb == Inendi::INVALID_COMB_COL) {
+	if (axis_comb == PVCombCol::INVALID_VALUE) {
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(
 		    PVCore::PVAxisIndexType(0));
@@ -311,7 +311,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 	}
 
 	Inendi::PVView* view = nullptr;
-	Inendi::PVCombCol zone_idx(Inendi::INVALID_COMB_COL);
+	PVCombCol zone_idx(PVCombCol::INVALID_VALUE);
 	PVDisplays::PVDisplayViewZoneIf& display_if =
 	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewZoneIf>(*act, view,
 	                                                                              zone_idx);
@@ -320,7 +320,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 		return;
 	}
 
-	if (zone_idx == Inendi::INVALID_COMB_COL) {
+	if (zone_idx == PVCombCol::INVALID_VALUE) {
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(
 		    PVCore::PVZoneIndexType(0));
@@ -365,7 +365,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
 		    QAction* act =
-		        PVDisplays::get().action_bound_to_params(obj, source, PVCOL_INVALID_VALUE);
+		        PVDisplays::get().action_bound_to_params(obj, source, PVCol::INVALID_VALUE);
 		    act->setCheckable(true);
 		    act->setIcon(obj.toolbar_icon());
 		    act->setToolTip(obj.tooltip_str());
@@ -452,7 +452,7 @@ void PVGuiQt::PVSourceWorkspace::fill_display()
 		for (typename list_display<T>::value_type const& p :
 		     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
 			QAction* act =
-			    PVDisplays::get().action_bound_to_params(*p.second, view, PVCOL_INVALID_VALUE);
+			    PVDisplays::get().action_bound_to_params(*p.second, view, PVCol::INVALID_VALUE);
 			act->setText(action_name + "...");
 			p.first->menu()->addAction(act);
 

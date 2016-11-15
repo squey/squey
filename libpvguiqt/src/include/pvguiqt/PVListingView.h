@@ -188,7 +188,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 */
 	void show_hhead_ctxt_menu(const QPoint& pos);
 
-	void show_hhead_ctxt_menu_correlation(PVCol col);
+	void show_hhead_ctxt_menu_correlation(PVCombCol col);
 
 	/**
 	 * Show vertical header context menu and process its actions
@@ -256,7 +256,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 
 	// FIXME : This should be in a "context menu" context
 	PVRow _ctxt_row;                                    //!< Clicked row for context menu actions
-	PVCol _ctxt_col;                                    //!< Clicked col for context menu actions
+	PVCombCol _ctxt_col;                                //!< Clicked col for context menu actions
 	QString _ctxt_v;                                    //!< Clicked value for context menu actions
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process; //!< Current open LayerFilter plugins widget
 	std::vector<uint32_t> _headers_width;               //!< Width for each header

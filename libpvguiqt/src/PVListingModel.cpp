@@ -234,7 +234,7 @@ void PVGuiQt::PVListingModel::axes_comb_changed()
  * PVGuiQt::PVListingModel::sort
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::sort_on_col(PVCol comb_col,
+void PVGuiQt::PVListingModel::sort_on_col(PVCombCol comb_col,
                                           Qt::SortOrder order,
                                           tbb::task_group_context& ctxt)
 {

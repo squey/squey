@@ -272,7 +272,7 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
  *
  *****************************************************************************/
 PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
-                                                        Inendi::PVCombCol c,
+                                                        PVCol c,
                                                         PVStatsModel* model,
                                                         QWidget* parent /* = nullptr */)
     : PVListDisplayDlg(model, parent), _view(&view), _col(c)
@@ -413,14 +413,14 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
 
 	// Bind the click on header to sort the clicked column
-	connect(_values_view->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
-	        SLOT(section_clicked(int)));
+	connect(_values_view->horizontalHeader(), &QHeaderView::sectionClicked,
+	        [&](int col) { section_clicked(PVCol(col)); });
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_values_view->resizeColumnToContents(0);
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::section_clicked(int col)
+void PVGuiQt::PVAbstractListStatsDlg::section_clicked(PVCol col)
 {
 	// Sort
 	sort_by_column(col);
@@ -614,7 +614,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(int col)
+void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(PVCol col)
 {
 	_values_view->horizontalHeader()->setSortIndicatorShown(true);
 

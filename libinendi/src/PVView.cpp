@@ -10,7 +10,6 @@
 #endif
 
 #include <inendi/PVAxesCombination.h>   // for PVAxesCombination
-#include <inendi/PVCombCol.h>           // for PVCombCol
 #include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
 #include <inendi/PVLayer.h>             // for PVLayer
 #include <inendi/PVLayerFilter.h>       // for PVLayerFilter
@@ -250,7 +249,7 @@ const PVCore::PVHSVColor Inendi::PVView::get_color_in_output_layer(PVRow index) 
  * Inendi::PVView::get_column_count
  *
  *****************************************************************************/
-PVCol Inendi::PVView::get_column_count() const
+PVCombCol Inendi::PVView::get_column_count() const
 {
 	return get_axes_combination().get_axes_count();
 }

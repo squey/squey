@@ -8,14 +8,27 @@
 #ifndef PVBASE_TYPES_H
 #define PVBASE_TYPES_H
 
-#include <QtGlobal>
+#include <limits>
 
-using PVCol = qint32;
+#include "typed_builtin.h"
+#include <pvlogger.h>
+
+class PVCol : public __impl::PVTypedBuiltin<PVCol>
+{
+  public:
+	using __impl::PVTypedBuiltin<PVCol>::PVTypedBuiltin;
+};
+
+class PVCombCol : public __impl::PVTypedBuiltin<PVCombCol>
+{
+  public:
+	using __impl::PVTypedBuiltin<PVCombCol>::PVTypedBuiltin;
+};
+
 using PVRow = quint32;
 using chunk_index = quint64;
 
 static constexpr const PVRow PVROW_INVALID_VALUE = std::numeric_limits<PVRow>::max();
-static constexpr const PVCol PVCOL_INVALID_VALUE = std::numeric_limits<PVCol>::max();
 
 // Maximum row count that can be read from inputs by the import pipeline
 static constexpr const uint64_t IMPORT_PIPELINE_ROW_COUNT_LIMIT =

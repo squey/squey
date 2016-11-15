@@ -48,7 +48,7 @@ bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
                                              PVZonesManager const& zm,
-                                             PVCol const zone_index,
+                                             PVCombCol const zone_index,
                                              PVZonesProcessor& zp_bg,
                                              PVZonesProcessor& zp_sel,
                                              QWidget* parent /*= nullptr*/
@@ -349,8 +349,8 @@ void PVParallelView::PVScatterView::do_update_all()
 
 bool PVParallelView::PVScatterView::update_zones()
 {
-	PVCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
-	if (new_zone == PVCOL_INVALID_VALUE) {
+	PVCombCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
+	if (new_zone == PVCol::INVALID_VALUE) {
 		// The left axis of the view have been remove, close the scatter view
 		return false;
 	} else if (new_zone == lib_view().get_column_count() - 1) {
@@ -360,7 +360,7 @@ bool PVParallelView::PVScatterView::update_zones()
 	}
 	// TODO : We should also close if the right axes is removed.
 
-	set_scatter_view_zone(new_zone);
+	set_scatter_view_zone((PVZoneID)new_zone);
 
 	return true;
 }

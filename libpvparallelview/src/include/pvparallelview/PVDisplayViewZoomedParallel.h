@@ -20,12 +20,11 @@ class PVDisplayViewZoomedParallel : public PVDisplayViewAxisIf
 	PVDisplayViewZoomedParallel();
 
   public:
-	QWidget* create_widget(Inendi::PVView* view,
-	                       Inendi::PVCombCol axis_comb,
-	                       QWidget* parent) const override;
+	QWidget*
+	create_widget(Inendi::PVView* view, PVCombCol axis_comb, QWidget* parent) const override;
 	QIcon toolbar_icon() const override;
-	QString widget_title(Inendi::PVView* view, Inendi::PVCombCol axis_comb) const override;
-	QString axis_menu_name(Inendi::PVView const* view, Inendi::PVCombCol axis_comb) const override;
+	QString widget_title(Inendi::PVView* view, PVCombCol axis_comb) const override;
+	QString axis_menu_name(Inendi::PVView const* view, PVCombCol axis_comb) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewZoomedParallel)
 };

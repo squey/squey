@@ -20,7 +20,7 @@ class PVSortFilter
 	explicit PVSortFilter(size_t row_count)
 	    : _filter(row_count)
 	    , _sort(row_count)
-	    , _sorted_column(PVCOL_INVALID_VALUE)
+	    , _sorted_column()
 	    , _sort_order(Qt::SortOrder::AscendingOrder)
 	{
 		auto& sort = _sort.to_core_array();
@@ -80,7 +80,7 @@ class PVSortFilter
 
 	pvcop::db::indexes& sorting() { return _sort; }
 
-	PVCol sorted_column() const { return _sorted_column; }
+	PVCombCol sorted_column() const { return _sorted_column; }
 
 	void set_filter_as_sort()
 	{
@@ -92,7 +92,7 @@ class PVSortFilter
 		}
 	}
 
-	void set_sorted_meta(PVCol col, Qt::SortOrder order)
+	void set_sorted_meta(PVCombCol col, Qt::SortOrder order)
 	{
 		_sorted_column = col;
 		_sort_order = order;
@@ -101,7 +101,7 @@ class PVSortFilter
   private:
 	std::vector<PVRow> _filter; //!< Lines to use, map listing_row_id to nraw_row_id unsorted
 	pvcop::db::indexes _sort;  //!< Sorted lines, map listing not filtered position to nraw position
-	PVCol _sorted_column;      //!< The current sorted column
+	PVCombCol _sorted_column;  //!< The current sorted column
 	Qt::SortOrder _sort_order; //!< The sort order of the current sorted column
 };
 } // namespace PVGuiQt

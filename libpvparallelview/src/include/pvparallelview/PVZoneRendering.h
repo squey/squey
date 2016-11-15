@@ -63,7 +63,7 @@ class PVZoneRendering
 	};
 
   public:
-	explicit PVZoneRendering(PVZoneID zone_id)
+	explicit PVZoneRendering(PVZoneID zone_id = PVZONEID_INVALID)
 	    : _zone_id(zone_id)
 	    , _should_cancel(false)
 	    , _qobject_finished_success(nullptr)
@@ -75,8 +75,6 @@ class PVZoneRendering
 	PVZoneRendering(PVZoneRendering&&) = delete;
 	PVZoneRendering& operator=(PVZoneRendering const&) = delete;
 	PVZoneRendering& operator=(PVZoneRendering&&) = delete;
-
-	PVZoneRendering() : PVZoneRendering(PVZONEID_INVALID) {}
 
 	virtual ~PVZoneRendering() { assert(_job_after_canceled.zp == nullptr); }
 

@@ -32,7 +32,7 @@ class PVLayerFilterErrorsSearch : public PVLayerFilter
 	QString menu_name() const override { return "Text Search/Empty and invalid values"; }
 
   public:
-	static PVCore::PVArgumentList menu(PVRow row, PVCol col, PVCol org_col, QString const& v);
+	static PVCore::PVArgumentList menu(PVRow row, PVCombCol col, PVCol org_col, QString const& v);
 
 	CLASS_FILTER(Inendi::PVLayerFilterErrorsSearch)
 };

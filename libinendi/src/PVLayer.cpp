@@ -97,9 +97,9 @@ void Inendi::PVLayer::compute_min_max(PVPlotted const& plotted)
 	_row_maxs.resize(col_count);
 
 #pragma omp parallel for
-	for (PVCol j = 0; j < col_count; j++) {
+	for (PVCol::value_type j = 0; j < col_count; j++) {
 		PVRow min, max;
-		plotted.get_col_minmax(min, max, selection, j);
+		plotted.get_col_minmax(min, max, selection, PVCol(j));
 		_row_mins[j] = min;
 		_row_maxs[j] = max;
 	}

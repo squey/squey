@@ -58,7 +58,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
     PVZonesProcessor& zp_sel,
     PVZonesProcessor& zp_bg,
     PVZonesManager const& zm,
-    PVCol axis_index)
+    PVCombCol axis_index)
     : QGraphicsScene(zpview)
     , _zpview(zpview)
     , _pvview(pvview_sp)
@@ -349,9 +349,9 @@ void PVParallelView::PVZoomedParallelScene::update(const QRectF& rect)
 
 bool PVParallelView::PVZoomedParallelScene::update_zones()
 {
-	PVCol axis = _pvview.get_axes_combination().get_first_comb_col(_nraw_col);
+	PVCombCol axis = _pvview.get_axes_combination().get_first_comb_col(_nraw_col);
 
-	if (axis == PVCOL_INVALID_VALUE) {
+	if (axis == PVCombCol::INVALID_VALUE) {
 		/* a candidate can not be found to replace the old
 		 * axis; the zoom view must be closed.
 		 */

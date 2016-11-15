@@ -103,7 +103,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void update_all();
 	void update_number_of_zones();
 	void toggle_unselected_zombie_visibility();
-	void axis_hover_entered(Inendi::PVCombCol col, bool entered);
+	void axis_hover_entered(PVCombCol col, bool entered);
 
   private:
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -162,7 +162,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void highlight_axis(int col, bool entered);
 	void sync_axis_with_section(size_t col, size_t pos);
 
-	void emit_new_zoomed_parallel_view(Inendi::PVCombCol axis_index)
+	void emit_new_zoomed_parallel_view(PVCombCol axis_index)
 	{
 		Q_EMIT _full_parallel_view->new_zoomed_parallel_view(&_lib_view, axis_index);
 	}
