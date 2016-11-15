@@ -75,7 +75,7 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 
 Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*/) const
 {
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	return Qt::ItemIsEnabled;
 }
 
 QVariant PVInspector::PVNrawListingModel::headerData(int section,

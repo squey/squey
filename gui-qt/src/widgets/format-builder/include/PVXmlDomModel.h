@@ -64,7 +64,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	/*
 	 * virtual method from QAbstractItemModel
 	 */
-	QModelIndex index(int, int, const QModelIndex& = QModelIndex()) const override;
+	QModelIndex index(int, int, const QModelIndex&) const override;
 	QModelIndex parent(const QModelIndex&) const override;
 	int rowCount(const QModelIndex&) const override;
 	int columnCount(const QModelIndex&) const override;
