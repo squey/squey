@@ -16,6 +16,7 @@ set(FILTERS_DIST_LIST
 layer_filter_axis_gradient
 layer_filter_heatline
 layer_filter_multiple_search
+layer_filter_errors_search
 )
 
 set(LINK_LIBRARIES inendi pvkernel)
