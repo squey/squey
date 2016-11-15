@@ -87,6 +87,11 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	const QString percent_text = QString("%1").arg(
 	    (uint32_t)(100.0 * (double)_selected_events_number / (double)_total_events_number), 3);
 
+	/* to have a fixed sized frame, the selection count size is deduced from the total count
+	 * value (without the extra space)
+	 */
+	const QString max_sel_text = QString("%L1").arg(_total_events_number);
+
 	const QColor sel_col(0xd9, 0x28, 0x28);
 	const QColor percent_col(0xc9, 0x5d, 0x1e);
 
@@ -97,6 +102,7 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	QFontMetrics fm(painter->font());
 
 	const QSize sel_size = fm.size(Qt::TextSingleLine, sel_text);
+	const QSize max_sel_size = fm.size(Qt::TextSingleLine, max_sel_text);
 	const QSize sep_size = fm.size(Qt::TextSingleLine, sep_text);
 	const QSize total_size = fm.size(Qt::TextSingleLine, total_text);
 	const QSize percent_prefix_size = fm.size(Qt::TextSingleLine, percent_prefix_text);
@@ -104,11 +110,11 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	const QSize percent_size = fm.size(Qt::TextSingleLine, percent_text);
 	const QSize percent_spacing_size = fm.size(Qt::TextSingleLine, "000");
 
-	const int text_width = sel_size.width() + sep_size.width() + total_size.width() +
+	const int text_width = max_sel_size.width() + sep_size.width() + total_size.width() +
 	                       percent_prefix_size.width() + percent_suffix_size.width() +
 	                       percent_spacing_size.width();
 	const int text_height =
-	    std::max(std::max(std::max(sel_size.height(), sep_size.height()),
+	    std::max(std::max(std::max(max_sel_size.height(), sep_size.height()),
 	                      std::max(total_size.height(), percent_spacing_size.height())),
 	             std::max(percent_prefix_size.height(), percent_suffix_size.height()));
 
@@ -126,7 +132,7 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 	/* The "stats" strings are drawn only if necessary
 	 */
-	QPoint text_pos(frame.left() + frame_margins.left(),
+	QPoint text_pos(frame.left() + frame_margins.left() + max_sel_size.width() - sel_size.width(),
 	                frame.top() + frame_margins.top() + fm.ascent());
 
 	if (QRectF(text_pos, text_size).intersects(rect_view)) {
