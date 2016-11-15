@@ -74,7 +74,7 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 	{
 		int row = _stats_panel->rowCount();
 		_stats_panel->insertRow(row);
-		for (PVCol col = 0; col < _listing_view->horizontalHeader()->count(); col++) {
+		for (PVCombCol col(0); col < _listing_view->horizontalHeader()->count(); col++) {
 			create_item<T>(row, col);
 		}
 
@@ -174,10 +174,10 @@ class PVCellWidgetBase : public QWidget
 
   public:
 	inline int get_widget_cell_row() { return _table->row(_item); }
-	inline int get_widget_cell_col() { return _table->column(_item); }
+	inline PVCombCol get_widget_cell_col() { return PVCombCol(_table->column(_item)); }
 
 	inline int get_real_axis_row() { return _table->row(_item); }
-	inline PVCol get_real_axis_col() { return _view.get_nraw_axis_index(_table->column(_item)); }
+	inline PVCol get_real_axis_col() { return _view.get_nraw_axis_index(get_widget_cell_col()); }
 
 	static QMovie* get_movie(); // Singleton to share the animation among all the widgets in order
 	                            // to keep them synchronized

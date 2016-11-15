@@ -144,13 +144,11 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotFullineChanged(int state)
 void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator()
 {
 	PVLOG_DEBUG("slotUpdateTableValidator() : PVFieldSplitterRegexpParamWidget\n");
-	PVCol nfields;
-	{
-		QRegExp reg(expression_lineEdit->text());
-		nfields = reg.captureCount();
-		// update the number of column
-		table_validator_TableWidget->setColumnCount(nfields);
-	}
+
+	QRegExp reg(expression_lineEdit->text());
+	PVCol nfields(reg.captureCount());
+	// update the number of column
+	table_validator_TableWidget->setColumnCount(nfields);
 
 	// feed each line with the matching in text zone.
 	QStringList myText = validator_textEdit->toPlainText().split("\n");
@@ -175,7 +173,7 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator()
 		if (elt.valid()) {
 			PVCore::list_fields& lf = elt.fields();
 			PVCore::list_fields::iterator it;
-			PVCol col = 0;
+			PVCol col(0);
 			for (it = lf.begin(); it != lf.end(); it++) {
 				PVCore::PVField& out_f = *it;
 				// Compute indexes for text selection

@@ -103,5 +103,5 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 
 void PVRush::PVExtractor::set_sources_number_fields()
 {
-	_agg.set_sources_number_fields(_format.get_axes().size());
+	_agg.set_sources_number_fields(PVCol(_format.get_axes().size()));
 }

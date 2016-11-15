@@ -36,6 +36,6 @@ void PVWidgets::PVAxisIndexEditor::set_axis_index(PVCore::PVAxisIndexType axis_i
 PVCore::PVAxisIndexType PVWidgets::PVAxisIndexEditor::get_axis_index() const
 {
 	PVCombCol comb_col(currentIndex());
-	int index = _view.get_axes_combination().get_nraw_axis(comb_col);
+	PVCol index = _view.get_axes_combination().get_nraw_axis(comb_col);
 	return PVCore::PVAxisIndexType(index, false, comb_col);
 }

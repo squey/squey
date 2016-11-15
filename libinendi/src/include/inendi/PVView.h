@@ -297,9 +297,9 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	void set_section_clicked(PVCombCol col, size_t pos) const { _section_clicked.emit(col, pos); }
 
-	sigc::signal<void, size_t, bool> _axis_hovered;
-	sigc::signal<void, size_t> _axis_clicked;
-	sigc::signal<void, size_t, size_t> _section_clicked;
+	sigc::signal<void, PVCombCol, bool> _axis_hovered;
+	sigc::signal<void, PVCombCol> _axis_clicked;
+	sigc::signal<void, PVCombCol, size_t> _section_clicked;
 	sigc::signal<void> _axis_combination_updated;
 	sigc::signal<void> _axis_combination_about_to_update;
 	sigc::signal<void> _update_current_min_max;

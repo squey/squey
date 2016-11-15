@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewAxisIf>(
 	    [&](PVDisplays::PVDisplayViewAxisIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, view, 1);
+		    QWidget* w = PVDisplays::get().get_widget(obj, view, PVCombCol(1));
 		    w->show();
 		});
 

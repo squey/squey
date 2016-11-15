@@ -38,6 +38,5 @@ void PVWidgets::PVOriginalAxisIndexEditor::set_axis_index(
 
 PVCore::PVOriginalAxisIndexType PVWidgets::PVOriginalAxisIndexEditor::get_axis_index() const
 {
-	int index = currentIndex();
-	return PVCore::PVOriginalAxisIndexType(index, false);
+	return PVCore::PVOriginalAxisIndexType(PVCol(currentIndex()), false);
 }

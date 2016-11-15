@@ -87,7 +87,7 @@ class PVNraw
 	inline PVCol column_count() const
 	{
 		assert(_collection && "We should be in read state");
-		return _collection->column_count();
+		return PVCol(_collection->column_count());
 	}
 
 	/**
@@ -104,7 +104,7 @@ class PVNraw
 	const pvcop::db::array& column(PVCol col) const
 	{
 		assert(_collection && "we have to be in read state");
-		assert(col < _columns.size());
+		assert(col < (PVCol)_columns.size());
 
 		return _columns[col];
 	}

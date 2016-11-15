@@ -1004,12 +1004,12 @@ void PVInspector::PVXmlDomModel::updateFiltersDataDisplay()
 
 void PVInspector::PVXmlDomModel::updateFieldsLinearId()
 {
-	getRoot()->updateFieldLinearId(0);
+	getRoot()->updateFieldLinearId((PVCol)0);
 }
 
 void PVInspector::PVXmlDomModel::setAxesNames(QStringList const& names)
 {
-	getRoot()->setAxesNames(names, 0);
+	getRoot()->setAxesNames(names, (PVCol)0);
 
 	Q_EMIT layoutChanged();
 }
@@ -1035,7 +1035,7 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 		std::remove_if(comb.begin(), comb.end(), [this](PVCol c) { return c >= _axes.size(); });
 		if (comb.empty()) {
 			comb.resize(_axes.size());
-			std::iota(comb.begin(), comb.end(), 0);
+			std::iota(comb.begin(), comb.end(), PVCol(0));
 		}
 		_axes_combination.set_combination(comb);
 	}

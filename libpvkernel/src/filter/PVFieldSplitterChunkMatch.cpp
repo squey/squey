@@ -138,7 +138,7 @@ class PVGuessReducingTree
 	 *
 	 * @return true if an entry has been found; false otherwise.
 	 */
-	bool get_highest_entry(PVCore::PVArgumentList& al, size_t& nfields) const
+	bool get_highest_entry(PVCore::PVArgumentList& al, PVCol& nfields) const
 	{
 		bool ret = false;
 		int highest = -1;
@@ -149,7 +149,7 @@ class PVGuessReducingTree
 				if (highest < *sm_it) {
 					ret = true;
 					al = dm_it.first;
-					nfields = sm_it.key();
+					nfields = PVCol(sm_it.key());
 					highest = *sm_it;
 				}
 			}
@@ -193,7 +193,7 @@ void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
 	BENCH_END(guessing, "processing chunk's elements", le.size(), 1, _guess_res.size(), 1);
 }
 
-bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args, size_t& nfields)
+bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args, PVCol& nfields)
 {
 	// Reduce _guess_res and check which args always returns the same number of fields
 	PVGuessReducingTree red;
@@ -237,7 +237,7 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 		match.push_chunk(chunk);
 
 		PVCore::PVArgumentList args;
-		size_t nfields;
+		PVCol nfields;
 
 		if (match.get_match(args, nfields)) {
 			PVLOG_DEBUG(

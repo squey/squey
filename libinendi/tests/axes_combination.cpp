@@ -19,11 +19,11 @@ int main()
 	Inendi::PVAxesCombination axe_comb(format);
 
 	PV_VALID(axe_comb.get_axis(PVCombCol(0)).index.value(), 3);
-	PV_VALID(axe_comb.get_nraw_axis(0).value(), 3);
+	PV_VALID(axe_comb.get_nraw_axis(PVCombCol(0)).value(), 3);
 
-	std::vector<PVCol> to_compare = {3, 0, 11, 5, 6, 7, 8, 9};
+	std::vector<size_t> to_compare = {3, 0, 11, 5, 6, 7, 8, 9};
 	for (size_t i = 0; i < 8; i++) {
-		PV_VALID(axe_comb.get_combination()[i], to_compare[i]);
+		PV_VALID(axe_comb.get_combination()[i], (PVCol)to_compare[i]);
 	}
 
 	QStringList nraw_names = axe_comb.get_nraw_names();
@@ -41,18 +41,18 @@ int main()
 		PV_VALID(comb_names[i].toStdString(), ref_comb_names[i].toStdString());
 	}
 
-	PV_VALID(axe_comb.get_axes_count(), 8UL);
-	PV_ASSERT_VALID(axe_comb.get_first_comb_col(5) == 3);
+	PV_VALID(axe_comb.get_axes_count(), PVCombCol(8));
+	PV_ASSERT_VALID(axe_comb.get_first_comb_col(PVCol(5)) == PVCombCol(3));
 	PV_VALID(axe_comb.to_string().toStdString(), std::string("3,0,11,5,6,7,8,9"));
 
-	axe_comb.axis_append(5);
+	axe_comb.axis_append(PVCol(5));
 	PV_VALID(axe_comb.to_string().toStdString(), std::string("3,0,11,5,6,7,8,9,5"));
 
-	std::vector<PVCol> to_move = {1, 2, 4};
+	std::vector<size_t> to_move = {1, 2, 4};
 	axe_comb.move_axes_left_one_position(to_move.begin(), to_move.end());
 	PV_VALID(axe_comb.to_string().toStdString(), std::string("0,11,3,6,5,7,8,9,5"));
 
-	std::vector<PVCol> to_right_move = {0, 1, 3};
+	std::vector<size_t> to_right_move = {0, 1, 3};
 	axe_comb.move_axes_right_one_position(to_right_move.begin(), to_right_move.end());
 	PV_VALID(axe_comb.to_string().toStdString(), std::string("3,0,11,5,6,7,8,9,5"));
 

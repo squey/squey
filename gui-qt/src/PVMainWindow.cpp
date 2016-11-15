@@ -985,7 +985,7 @@ static QString bad_conversions_as_string(
 		QString str("row #" + QString::number(row + 1) + " :");
 
 		for (const auto& bad_field : bad_conversion.second) {
-			const PVCol col = bad_field.first;
+			const PVCol col = (PVCol)bad_field.first;
 			const QString& axis_name = ax[col].get_name();
 			const QString& axis_type = ax[col].get_type();
 

@@ -435,7 +435,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 
 	if (_axes.size() == 0 && forceOneAxis) {
 		// Only have one axis, a fake one
-		PVAxisFormat fake_ax(-1);
+		PVAxisFormat fake_ax(PVCol(-1));
 		fake_ax.set_name("Line");
 		fake_ax.set_type("string");
 		fake_ax.set_mapping("default");

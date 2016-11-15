@@ -13,8 +13,8 @@ int main(int argc, char** argv)
 
 	init_env();
 
-	PVCol found_fields_count = 0;
-	PVCol expected_fields_count = atoi(argv[1]);
+	PVCol found_fields_count(0);
+	PVCol expected_fields_count = (PVCol)atoi(argv[1]);
 	QString expected_sep(argv[2]);
 	QString expected_quote(argv[3]);
 

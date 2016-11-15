@@ -92,14 +92,14 @@ class PVZonesManager : public QObject
   public:
 	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
-		return {get_row_count(), _plotted.get_column_pointer(z),
-		        _plotted.get_column_pointer(z + 1)};
+		return {get_row_count(), _plotted.get_column_pointer(PVCol(z)),
+		        _plotted.get_column_pointer(PVCol(z + 1))};
 	}
 
   protected:
 	const Inendi::PVPlotted& _plotted; // FIXME : This is a duplication, it should get it from view
 	PVRow _nrows = 0;                  // FIXME : This is a duplication, it should get it from view
-	PVCol _ncols = 0;                  // FIXME : This is a duplication, it should get it from view
+	PVCol _ncols = PVCol(0);           // FIXME : This is a duplication, it should get it from view
 	std::vector<PVCol> _axes_comb;     // FIXME : This is a duplication, it should get it from view
 	// _axes_comb is copied to handle update once the axes_combination have been update in the view.
 	std::vector<PVZone> _zones;

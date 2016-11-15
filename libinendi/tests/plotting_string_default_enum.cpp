@@ -40,14 +40,14 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 	pvcop::db::array dist;
 	pvcop::db::algo::distinct(column, dist);
 
 	// compute distinct plotting values.
 	std::set<uint32_t> distinct_plotting;
 	for (size_t i = 0; i < column.size(); i++) {
-		distinct_plotting.insert(plotted.get_column_pointer(0)[i]);
+		distinct_plotting.insert(plotted.get_column_pointer(PVCol(0))[i]);
 	}
 
 	auto minmax = std::minmax_element(distinct_plotting.begin(), distinct_plotting.end());

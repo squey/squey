@@ -287,7 +287,7 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	for (PVScatterView* view : concerned_scatter) {
 		view->set_enabled(true);
-		request_zoomed_zone_trees(view->get_zone_index());
+		request_zoomed_zone_trees((PVCombCol)view->get_zone_index());
 		view->update_zones();
 		view->update_all_async();
 	}
@@ -402,7 +402,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	    [&](PVCore::PVProgressBox& /*pbox*/) {
 		    for (PVScatterView* view : _scatter_views) {
 			    view->set_enabled(true);
-			    request_zoomed_zone_trees(view->get_zone_index());
+			    request_zoomed_zone_trees((PVCombCol)view->get_zone_index());
 			    view->update_all_async();
 		    }
 		},

@@ -284,13 +284,13 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 	if (axis_comb == PVCombCol::INVALID_VALUE) {
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(
-		    PVCore::PVAxisIndexType(0));
+		    PVCore::PVAxisIndexType(PVCol(0)));
 		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
 		        PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args,
 		        this)) {
 			return;
 		}
-		axis_comb = args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();
+		axis_comb = (PVCombCol)args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();
 	}
 
 	QWidget* w = PVDisplays::get().get_widget(display_if, view, axis_comb);
@@ -329,7 +329,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 		        this)) {
 			return;
 		}
-		zone_idx = args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index();
+		zone_idx = (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index();
 	}
 
 	QWidget* w = PVDisplays::get().get_widget(display_if, view, zone_idx);
@@ -364,8 +364,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
-		    QAction* act =
-		        PVDisplays::get().action_bound_to_params(obj, source, PVCol::INVALID_VALUE);
+		    QAction* act = PVDisplays::get().action_bound_to_params(obj, source, PVCombCol());
 		    act->setCheckable(true);
 		    act->setIcon(obj.toolbar_icon());
 		    act->setToolTip(obj.tooltip_str());
@@ -451,8 +450,7 @@ void PVGuiQt::PVSourceWorkspace::fill_display()
 		// PVCore::PVArgumentList object with one axis !
 		for (typename list_display<T>::value_type const& p :
 		     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
-			QAction* act =
-			    PVDisplays::get().action_bound_to_params(*p.second, view, PVCol::INVALID_VALUE);
+			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view, PVCombCol());
 			act->setText(action_name + "...");
 			p.first->menu()->addAction(act);
 

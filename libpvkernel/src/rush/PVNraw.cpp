@@ -209,7 +209,7 @@ void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 void PVRush::PVNraw::dump_csv(std::ostream& os) const
 {
 	PVCore::PVColumnIndexes cols(column_count());
-	std::iota(cols.begin(), cols.end(), 0);
+	std::iota(cols.begin(), cols.end(), PVCol(0));
 	PVCore::PVSelBitField sel(row_count());
 	sel.select_all();
 
@@ -250,7 +250,7 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	// Displayed column, not NRaw column
 	std::string line;
 
-	for (int c : col_indexes) {
+	for (PVCol c : col_indexes) {
 		line += PVRush::PVUtils::safe_export(at_string(idx, c), sep_char, quote_char) + sep_char;
 	}
 
@@ -395,20 +395,20 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 		sels[col].select_none();
 	}
 
-	std::unordered_set<size_t> empty_cols_indexes;
+	std::unordered_set<PVCol> empty_cols_indexes;
 
 	for (auto const& empty_value : empty_values) {
 		PVRow row = empty_value.first;
 		auto const& empty_cols = empty_value.second;
 		for (auto const& empty_col : empty_cols) {
 			sels[empty_col].set_bit_fast(row);
-			empty_cols_indexes.insert(empty_col);
+			empty_cols_indexes.insert(PVCol(empty_col));
 		}
 	}
 
 	std::stringstream str_col_indexes;
 	std::copy(empty_cols_indexes.begin(), empty_cols_indexes.end(),
-	          std::ostream_iterator<size_t>(str_col_indexes, ","));
+	          std::ostream_iterator<PVCol>(str_col_indexes, ","));
 
 	so.attribute_write("empty_conv/columns", QString::fromStdString(str_col_indexes.str()));
 

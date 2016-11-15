@@ -48,7 +48,7 @@ void PVRush::PVXmlTreeNodeDom::init(Type _type,
 	parent = nullptr;
 	isAlreadyExplored = false;
 	isOnRoot = false;
-	_field_linear_id = -1;
+	_field_linear_id = PVCol(-1);
 }
 
 PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::new_format(QDomDocument& file)
@@ -853,7 +853,7 @@ PVCol PVRush::PVXmlTreeNodeDom::updateFieldLinearId(PVCol id)
 			_field_linear_id = id;
 			id++;
 		} else {
-			_field_linear_id = -1;
+			_field_linear_id = PVCol(-1);
 		}
 	}
 

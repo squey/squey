@@ -8,7 +8,10 @@
 #ifndef __PVBASE_TYPED_BUILTIN_H__
 #define __PVBASE_TYPED_BUILTIN_H__
 
+#include <QMetaType>
 #include <QtGlobal>
+
+#include <typeinfo>
 #include <limits>
 
 namespace __impl
@@ -28,15 +31,24 @@ class PVTypedBuiltin
 	static const value_type INVALID_VALUE;
 
   public:
-	PVTypedBuiltin(value_type v = INVALID_VALUE) : _value(v) {}
+	explicit PVTypedBuiltin(value_type v) : _value(v)
+	{
+		static bool registered = [&]() {
+			qRegisterMetaType<PVTypedBuiltin<T>>(
+			    (std::string("PVTypedBuiltin_") + typeid(T()).name()).c_str());
+			return true;
+		}();
+		(void)registered;
+	}
+	explicit PVTypedBuiltin() : PVTypedBuiltin(INVALID_VALUE) {}
 
   public:
 	operator value_type() const { return value(); }
 	value_type value() const { return _value; }
 
   public:
-	T operator+(const T& col) { return _value + col._value; }
-	T operator+(value_type col) { return _value + col; }
+	PVTypedBuiltin<T> operator+(const T& col) { return PVTypedBuiltin<T>(_value + col._value); }
+	T operator+(value_type col) { return T(_value + col); }
 
 	T& operator+=(const T& col)
 	{
@@ -61,8 +73,8 @@ class PVTypedBuiltin
 		return (T&)*this;
 	}
 
-	T operator-(const T& col) { return _value - col._value; }
-	T operator-(value_type col) { return _value - col; }
+	T operator-(const T& col) { return T(_value - col._value); }
+	T operator-(value_type col) { return T(_value - col); }
 
 	T& operator-=(const T& col)
 	{

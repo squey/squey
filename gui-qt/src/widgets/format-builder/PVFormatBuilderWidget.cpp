@@ -700,7 +700,7 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 		    // Update format with discovered axes types
 		    QDomElement& dom = myTreeModel->getRootDom();
 		    QDomNodeList axes = dom.elementsByTagName("axis");
-		    for (int i = 0; i < axes.size(); i++) {
+		    for (PVCol i(0); i < axes.size(); i++) {
 			    QDomElement ax = axes.at(i).toElement();
 			    std::string type;
 			    std::string type_format;
@@ -720,7 +720,7 @@ void PVInspector::PVFormatBuilderWidget::update_types_autodetection_count(
 	static constexpr const size_t total_fields = 100000;
 	static constexpr const size_t multiple_to_round = 100;
 
-	PVCol column_count = format.get_axes().size();
+	PVCol column_count = (PVCol)format.get_axes().size();
 	assert(column_count != 0);
 
 	size_t row_count =
@@ -918,7 +918,7 @@ PVInspector::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p
 
 	// Then we need to create 'naxes' children
 	QStringList axes_name;
-	for (PVCol i = 0; i < naxes; i++) {
+	for (PVCol i(0); i < naxes; i++) {
 		axes_name << QString("Axis %1").arg(i + 1);
 	}
 
@@ -1148,7 +1148,7 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 	}
 }
 
-void PVInspector::PVFormatBuilderWidget::slotItemClickedInMiniExtractor(int column)
+void PVInspector::PVFormatBuilderWidget::slotItemClickedInMiniExtractor(PVCol column)
 {
 	/* Automatically selection the good axis in the tree view */
 
@@ -1194,7 +1194,7 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 		return;
 	}
 	QStringList names;
-	for (PVCol j = 0; j < _nraw->column_count(); j++) {
+	for (PVCol j(0); j < _nraw->column_count(); j++) {
 		// We need to do a deep copy of this
 		names << QString::fromStdString(_nraw->at_string(row, j));
 	}

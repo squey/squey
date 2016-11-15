@@ -7,19 +7,18 @@
 
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 
-PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(bool /*append_none_axis*/)
+PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType()
+    : _origin_axis_index(-1), _append_none_axis(false)
 {
-	_origin_axis_index = -1;
 }
 
-PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(int origin_axis_index,
+PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType(PVCol origin_axis_index,
                                                          bool append_none_axis)
+    : _origin_axis_index(origin_axis_index), _append_none_axis(append_none_axis)
 {
-	_origin_axis_index = origin_axis_index;
-	_append_none_axis = append_none_axis;
 }
 
-int PVCore::PVOriginalAxisIndexType::get_original_index() const
+PVCol PVCore::PVOriginalAxisIndexType::get_original_index() const
 {
 	return _origin_axis_index;
 }

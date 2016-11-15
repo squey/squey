@@ -40,15 +40,16 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 	auto& array = column.to_core_array<int32_t>();
 
 	for (size_t i = 1; i < array.size(); i++) {
-		PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] < plotted.get_column_pointer(0)[i - 1]);
+		PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[i] <
+		                plotted.get_column_pointer(PVCol(0))[i - 1]);
 		if (i < 1024) {
-			PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] > (1UL << 31));
+			PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[i] > (1UL << 31));
 		} else {
-			PV_ASSERT_VALID(plotted.get_column_pointer(0)[i] <= (1UL << 31));
+			PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[i] <= (1UL << 31));
 		}
 	}
 

@@ -8,6 +8,8 @@
 #ifndef PVCORE_PVAXISINDEXCHECKBOXTYPE_H
 #define PVCORE_PVAXISINDEXCHECKBOXTYPE_H
 
+#include <pvbase/types.h>
+
 #include <pvkernel/core/PVArgument.h>
 
 #include <QMetaType>
@@ -28,9 +30,9 @@ class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
 	 * Constructor
 	 */
 	PVAxisIndexCheckBoxType();
-	PVAxisIndexCheckBoxType(int origin_axis_index, bool is_checked);
+	PVAxisIndexCheckBoxType(PVCol origin_axis_index, bool is_checked);
 
-	inline int get_original_index() { return _origin_axis_index; }
+	inline PVCol get_original_index() { return _origin_axis_index; }
 
 	inline bool get_checked() { return _is_checked; }
 	inline void set_checked(const bool checked) { _is_checked = checked; }
@@ -46,10 +48,8 @@ class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
 
 		QStringList parts = str.split(":");
 		if (parts.count() == 2) {
-			int origin_axis_index;
-			bool is_checked;
-			origin_axis_index = parts[0].toInt(&res_ok);
-			is_checked = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+			PVCol origin_axis_index = (PVCol)parts[0].toInt(&res_ok);
+			bool is_checked = parts[1].compare("true", Qt::CaseInsensitive) == 0;
 			arg.setValue(PVAxisIndexCheckBoxType(origin_axis_index, is_checked));
 		}
 
@@ -67,7 +67,7 @@ class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
   protected:
 	// The original axis index will never change. PVAxisCombination takes care of any
 	// axis addition/order modification, but will never change the original axis index.
-	int _origin_axis_index;
+	PVCol _origin_axis_index;
 	bool _is_checked;
 };
 } // namespace PVCore

@@ -59,7 +59,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	}
 
 	// Axis may have been duplicated and moved, get the real one.
-	const PVCol org_col = _view.get_axes_combination().get_nraw_axis(index.column());
+	const PVCol org_col = _view.get_axes_combination().get_nraw_axis((PVCombCol)index.column());
 	const PVRow r = rowIndex(index);
 
 	if (r >= _view.get_row_count()) {
@@ -135,9 +135,10 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
  * PVGuiQt::PVListingModel::headerData
  *
  *****************************************************************************/
-QVariant
-PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant PVGuiQt::PVListingModel::headerData(int s, Qt::Orientation orientation, int role) const
 {
+	PVCombCol section(s);
+
 	switch (role) {
 	// Horizontal header contains axis labels and Vertical is line number
 	case (Qt::DisplayRole):

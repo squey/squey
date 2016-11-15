@@ -121,18 +121,18 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 	_axes_combination.clear();
 
 	QStringList axes_list = str.split(',');
-	PVCol naxes = _axes.size();
+	PVCol naxes = PVCol(_axes.size());
 
 	if (axes_list.size() < 2) {
 		_axes_combination.resize(naxes);
-		std::iota(_axes_combination.begin(), _axes_combination.end(), 0);
+		std::iota(_axes_combination.begin(), _axes_combination.end(), PVCol(0));
 		return; // The default combination will be used
 	}
 
 	_axes_combination.reserve(axes_list.size());
 	for (int i = 0; i < axes_list.size(); i++) {
 		bool ok = false;
-		PVCol ax_id = axes_list[i].toLongLong(&ok);
+		PVCol ax_id = PVCol(axes_list[i].toLongLong(&ok));
 		if (!ok || ax_id >= naxes) {
 			continue;
 		}
@@ -227,7 +227,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 		QDomElement child = childs.at(i).toElement();
 
 		if (getNodeType(child) == PVFORMAT_XML_TAG_AXIS_STR) {
-			PVAxisFormat axis(_axes.size());
+			PVAxisFormat axis(PVCol(_axes.size()));
 			axis.set_name(child.attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT));
 			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));
 			axis.set_type_format(

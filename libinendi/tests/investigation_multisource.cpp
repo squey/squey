@@ -72,7 +72,7 @@ double save_investigation()
 	Inendi::PVAxesCombination& axes_comb =
 	    const_cast<Inendi::PVAxesCombination&>(view->get_axes_combination());
 	axes_comb.sort_by_name();
-	std::vector<PVCol> to_remove = {14};
+	std::vector<PVCol> to_remove = {PVCol(14)};
 	axes_comb.remove_axes(to_remove.begin(), to_remove.end());
 
 	auto start = std::chrono::system_clock::now();

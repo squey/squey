@@ -19,11 +19,30 @@ class PVCol : public __impl::PVTypedBuiltin<PVCol>
 	using __impl::PVTypedBuiltin<PVCol>::PVTypedBuiltin;
 };
 
+namespace std
+{
+template <>
+struct hash<PVCol> {
+	size_t operator()(const PVCol& c) const { return std::hash<typename PVCol::value_type>()(c); }
+};
+}
+
 class PVCombCol : public __impl::PVTypedBuiltin<PVCombCol>
 {
   public:
 	using __impl::PVTypedBuiltin<PVCombCol>::PVTypedBuiltin;
 };
+
+namespace std
+{
+template <>
+struct hash<PVCombCol> {
+	size_t operator()(const PVCombCol& c) const
+	{
+		return std::hash<typename PVCombCol::value_type>()(c);
+	}
+};
+}
 
 using PVRow = quint32;
 using chunk_index = quint64;

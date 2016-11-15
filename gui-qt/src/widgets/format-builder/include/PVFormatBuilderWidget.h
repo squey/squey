@@ -161,7 +161,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	void slotUpdateToolsState(const QModelIndex& index = QModelIndex());
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex& index);
-	void slotItemClickedInMiniExtractor(int column);
+	void slotItemClickedInMiniExtractor(PVCol column);
 	void slotMainTabChanged(int idx);
 
 	// Slot for the NRAW listing

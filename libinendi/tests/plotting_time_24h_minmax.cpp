@@ -43,7 +43,7 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 	auto& array = column.to_core_array<uint64_t>();
 
 	std::vector<uint32_t> order(column.size());
@@ -62,13 +62,13 @@ int main()
 		        tm_a.tm_sec > tm_b.tm_sec);
 	});
 
-	uint32_t prev = plotted.get_column_pointer(0)[order[0]];
+	uint32_t prev = plotted.get_column_pointer(PVCol(0))[order[0]];
 	constexpr double sec_per_24h = 3600 * 24 - 1;
 	constexpr double ratio = std::numeric_limits<uint32_t>::max() / sec_per_24h;
 	PV_VALID(prev, 0U);
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(0)[order[i]]);
-		prev = plotted.get_column_pointer(0)[order[i]];
+		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(PVCol(0))[order[i]]);
+		prev = plotted.get_column_pointer(PVCol(0))[order[i]];
 	}
 	// We only have a value one second after the beginning
 	PV_VALID(prev, (uint32_t)(std::numeric_limits<uint32_t>::max() - 1 * ratio + 1));

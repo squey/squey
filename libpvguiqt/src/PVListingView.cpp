@@ -315,7 +315,7 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier) {
-		int colIndex = columnAt(e->pos().x());
+		PVCombCol colIndex(columnAt(e->pos().x()));
 		int d = e->delta() / 12;
 		uint32_t width =
 		    std::max(columnWidth(colIndex) + d, horizontalHeader()->minimumSectionSize());
@@ -335,7 +335,7 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 void PVGuiQt::PVListingView::columnResized(int column, int oldWidth, int newWidth)
 {
 	PVTableView::columnResized(column, oldWidth, newWidth);
-	_headers_width[lib_view().get_nraw_axis_index(column)] = newWidth;
+	_headers_width[lib_view().get_nraw_axis_index((PVCombCol)column)] = newWidth;
 }
 
 /******************************************************************************
@@ -348,8 +348,8 @@ void PVGuiQt::PVListingView::reset()
 	// Resize header_width with default value if it is greater
 	_headers_width.resize(horizontalHeader()->count(), horizontalHeader()->defaultSectionSize());
 
-	for (int i = 0; i < horizontalHeader()->count(); i++) {
-		uint32_t axis_index = lib_view().get_nraw_axis_index(i);
+	for (PVCombCol i(0); i < horizontalHeader()->count(); i++) {
+		PVCol axis_index = lib_view().get_nraw_axis_index(i);
 		horizontalHeader()->resizeSection(i, _headers_width[axis_index]);
 	}
 
@@ -372,7 +372,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// slot connected
 	// to the menu's actions.
 	_ctxt_row = listing_model()->rowIndex(idx_click);
-	_ctxt_col = idx_click.column();
+	_ctxt_col = (PVCombCol)idx_click.column();
 	PVCol col = _view.get_axes_combination().get_nraw_axis(_ctxt_col);
 
 	const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
@@ -405,7 +405,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
  *****************************************************************************/
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
-	PVCombCol comb_col = horizontalHeader()->logicalIndexAt(pos);
+	PVCombCol comb_col = (PVCombCol)horizontalHeader()->logicalIndexAt(pos);
 	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 
 	// Disable hover picture
@@ -453,7 +453,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 	const QStringList axes = lib_view().get_axes_names_list();
 	QStringList summable_types = {"number_int32", "number_uint32", "number_float", "number_double"};
-	for (PVCombCol i = 0; i < axes.size(); i++) {
+	for (PVCombCol i(0); i < axes.size(); i++) {
 		if (i != comb_col) {
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
 			action_col_count_by->setData(QVariant(i));
@@ -502,7 +502,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	} else if (sel == _action_col_copy) {
 		QApplication::clipboard()->setText(_view.get_axis_name(comb_col));
 	} else if (sel) {
-		PVCol col2 = _view.get_axes_combination().get_nraw_axis(sel->data().toUInt());
+		PVCol col2 = _view.get_axes_combination().get_nraw_axis((PVCombCol)sel->data().toUInt());
 		if (sel->parent() == _menu_col_count_by) {
 			PVQNraw::show_count_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
 			                       lib_view().get_selection_visible_listing(),
@@ -772,7 +772,7 @@ PVGuiQt::PVListingModel* PVGuiQt::PVListingView::listing_model()
  * PVGuiQt::PVListingView::section_hovered_enter
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::section_hovered_enter(int col, bool entered)
+void PVGuiQt::PVListingView::section_hovered_enter(PVCombCol col, bool entered)
 {
 	lib_view().set_axis_hovered(col, entered);
 }
@@ -786,7 +786,7 @@ void PVGuiQt::PVListingView::section_clicked(int col)
 {
 	int x = horizontalHeader()->sectionViewportPosition(col);
 	int width = horizontalHeader()->sectionSize(col);
-	lib_view().set_section_clicked(col, verticalHeader()->width() + x + width / 2);
+	lib_view().set_section_clicked((PVCombCol)col, verticalHeader()->width() + x + width / 2);
 }
 
 /******************************************************************************
@@ -797,7 +797,7 @@ void PVGuiQt::PVListingView::section_clicked(int col)
 void PVGuiQt::PVListingView::highlight_column(int col, bool entered)
 {
 	// Mark the column for future painting and force update
-	_hovered_axis = entered ? col : -1;
+	_hovered_axis = PVCombCol(entered ? col : -1);
 	viewport()->update();
 }
 
@@ -937,8 +937,10 @@ void PVGuiQt::PVListingView::goto_line()
  * PVGuiQt::PVListingView::sort
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::sort(int col, Qt::SortOrder order)
+void PVGuiQt::PVListingView::sort(int column, Qt::SortOrder order)
 {
+	PVCombCol col(column);
+
 	assert(col >= 0 && col < listing_model()->columnCount());
 	auto changed = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
@@ -963,7 +965,7 @@ void PVGuiQt::PVListingView::sort(int col, Qt::SortOrder order)
  * PVGuiQt::PVListingView::set_section_visible
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::set_section_visible(PVCol col)
+void PVGuiQt::PVListingView::set_section_visible(PVCombCol col)
 {
 	/* Temporarily setting selection behavior to 'SelectColumns' is needed
 	 * to make a column visible
@@ -1020,13 +1022,13 @@ bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 	if (ev->type() == QEvent::HoverLeave || ev->type() == QEvent::Leave) {
 		if (_index != -1) {
 			Q_EMIT mouse_hovered_section(_index, false);
-			_index = -1;
+			_index = PVCombCol(-1);
 		}
 	} else if (ev->type() == QEvent::HoverMove) { // in eventFilter, this event
 		                                          // would have been
 		                                          // "QEvent::MouseMove"...
 		QHoverEvent* mouse_event = dynamic_cast<QHoverEvent*>(ev);
-		int index = logicalIndexAt(mouse_event->pos());
+		PVCombCol index = (PVCombCol)logicalIndexAt(mouse_event->pos());
 		if (index != _index) {
 			if (_index != -1) {
 				Q_EMIT mouse_hovered_section(_index, false);
@@ -1049,7 +1051,8 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	PVListingView* listing = (PVListingView*)parent();
 	Inendi::PVRoot& root = listing->lib_view().get_parent<Inendi::PVRoot>();
 
-	PVCol original_col1 = listing->lib_view().get_axes_combination().get_nraw_axis(logicalIndex);
+	PVCol original_col1 =
+	    listing->lib_view().get_axes_combination().get_nraw_axis((PVCombCol)logicalIndex);
 
 	bool existing_correlation = root.correlations().exists(&listing->lib_view(), original_col1);
 

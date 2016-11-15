@@ -45,7 +45,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterErrorsSearch)
 {
 	PVCore::PVArgumentList args;
 	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(
-	    PVCore::PVOriginalAxisIndexType(0));
+	    PVCore::PVOriginalAxisIndexType(PVCol(0)));
 	args[PVCore::PVArgumentKey(ARG_NAME_TYPE, QObject::tr(ARG_DESC_TYPE))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("Empty values") << QString("Invalid values")
 	                                     << QString("Empty and invalid values"),
@@ -67,7 +67,7 @@ void Inendi::PVLayerFilterErrorsSearch::operator()(PVLayer const& in, PVLayer& o
 {
 	BENCH_START(errors_search);
 
-	int col = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
+	PVCol col(_args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index());
 	bool include = _args[ARG_NAME_INCLUDE].value<PVCore::PVEnumType>().get_sel_index() == 0;
 	size_t type = _args[ARG_NAME_TYPE].value<PVCore::PVEnumType>().get_sel_index() + 1;
 

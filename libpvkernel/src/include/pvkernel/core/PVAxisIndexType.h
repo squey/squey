@@ -8,6 +8,8 @@
 #ifndef PVCORE_PVAXISINDEXTYPE_H
 #define PVCORE_PVAXISINDEXTYPE_H
 
+#include <pvbase/types.h>
+
 #include <pvkernel/core/PVArgument.h>
 
 #include <QMetaType>
@@ -27,13 +29,13 @@ class PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
 	/**
 	 * Constructor
 	 */
-	explicit PVAxisIndexType(bool append_none_axis = false);
-	explicit PVAxisIndexType(int origin_axis_index,
+	explicit PVAxisIndexType();
+	explicit PVAxisIndexType(PVCol origin_axis_index,
 	                         bool append_none_axis = false,
-	                         int axis_index = 0);
+	                         PVCombCol axis_index = PVCombCol(0));
 
-	int get_original_index();
-	int get_axis_index();
+	PVCol get_original_index();
+	PVCombCol get_axis_index();
 	bool get_append_none_axis();
 
 	QString to_string() const override
@@ -49,10 +51,8 @@ class PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
 
 		QStringList parts = str.split(":");
 		if (parts.count() == 2) {
-			int origin_axis_index;
-			bool append_none_axis;
-			origin_axis_index = parts[0].toInt(&res_ok);
-			append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+			PVCol origin_axis_index(parts[0].toInt(&res_ok));
+			bool append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
 			arg.setValue(PVAxisIndexType(origin_axis_index, append_none_axis));
 		}
 
@@ -71,8 +71,8 @@ class PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
   protected:
 	// The original axis index will never change. PVAxisCombination takes care of any
 	// axis addition/order modification, but will never change the original axis index.
-	int _origin_axis_index;
-	int _axis_index;
+	PVCol _origin_axis_index;
+	PVCombCol _axis_index;
 	bool _append_none_axis;
 };
 } // namespace PVCore

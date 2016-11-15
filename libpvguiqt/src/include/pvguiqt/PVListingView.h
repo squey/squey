@@ -162,7 +162,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 *
 	 * @param col the column to ensure is visible in listing
 	 */
-	void set_section_visible(PVCol col);
+	void set_section_visible(PVCombCol col);
 
   private:
 	/// Getters
@@ -225,7 +225,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * @param[in] col : Hovered column.
 	 * @param[in] enter : Whether the hover begin or end.
 	 */
-	void section_hovered_enter(int col, bool enter);
+	void section_hovered_enter(PVCombCol col, bool enter);
 
   private:
 	Inendi::PVView& _view;
@@ -261,8 +261,8 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process; //!< Current open LayerFilter plugins widget
 	std::vector<uint32_t> _headers_width;               //!< Width for each header
 
-	int _hovered_axis = -1; //!< Hovered axis flags for paintEvent
-	int _vhead_max_width;   //!< Max width for the vertical header
+	PVCombCol _hovered_axis = PVCombCol(-1); //!< Hovered axis flags for paintEvent
+	int _vhead_max_width;                    //!< Max width for the vertical header
 
 	// Plugins call capture local variable reference without copy making it
 	// invalide at the end of the scope...
@@ -277,7 +277,7 @@ class PVHorizontalHeaderView : public QHeaderView
 	PVHorizontalHeaderView(Qt::Orientation orientation, PVListingView* parent);
 
   Q_SIGNALS:
-	void mouse_hovered_section(int index, bool entered);
+	void mouse_hovered_section(PVCombCol index, bool entered);
 
   protected:
 	bool event(QEvent* ev) override;
@@ -287,7 +287,7 @@ class PVHorizontalHeaderView : public QHeaderView
 	PVGuiQt::PVListingView* listing_view() const { return (PVGuiQt::PVListingView*)parent(); }
 
   private:
-	int _index = -1;
+	PVCombCol _index = PVCombCol(-1);
 };
 } // namespace PVGuiQt
 

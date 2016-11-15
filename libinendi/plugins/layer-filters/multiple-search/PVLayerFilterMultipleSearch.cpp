@@ -68,7 +68,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterMultipleSearch)
 	args[PVCore::PVArgumentKey(ARG_NAME_EXPS, QObject::tr(ARG_DESC_EXPS))].setValue(
 	    PVCore::PVPlainTextType());
 	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(
-	    PVCore::PVOriginalAxisIndexType(0));
+	    PVCore::PVOriginalAxisIndexType(PVCol(0)));
 	args[PVCore::PVArgumentKey(ARG_NAME_INCLUDE, QObject::tr(ARG_DESC_INCLUDE))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
 	args[PVCore::PVArgumentKey(ARG_NAME_CASE, QObject::tr(ARG_DESC_CASE))].setValue(
@@ -105,8 +105,8 @@ enum EType { VALID = 1 << 0, INVALID = 1 << 1, EMPTY = 1 << 2 };
 
 void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer& out)
 {
-	int axis_id =
-	    _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
+	PVCol axis_id =
+	    (_args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index());
 	int interpret = _args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>().get_sel_index();
 	bool include = _args[ARG_NAME_INCLUDE].value<PVCore::PVEnumType>().get_sel_index() == 0;
 	bool case_match = _args[ARG_NAME_CASE].value<PVCore::PVEnumType>().get_sel_index() == 1;

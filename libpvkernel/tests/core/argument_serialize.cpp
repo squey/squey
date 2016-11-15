@@ -118,12 +118,12 @@ int main()
 	mustFail.append(false);
 
 	// PVAxisIndexType
-	vars.append(QVariant::fromValue(PVCore::PVAxisIndexType(8, true)));
+	vars.append(QVariant::fromValue(PVCore::PVAxisIndexType(PVCol(8), true)));
 	expectedStrings.append("8:true");
 	mustFail.append(true);
 
 	// PVAxisIndexCheckBoxTypes
-	vars.append(QVariant::fromValue(PVCore::PVAxisIndexCheckBoxType(9, false)));
+	vars.append(QVariant::fromValue(PVCore::PVAxisIndexCheckBoxType(PVCol(9), false)));
 	expectedStrings.append("9:false");
 	mustFail.append(true);
 
@@ -149,7 +149,7 @@ int main()
 	mustFail.append(false);
 
 	// PVSpinBoxType
-	vars.append(QVariant::fromValue(PVCore::PVSpinBoxType(666)));
+	vars.append(QVariant::fromValue(PVCore::PVSpinBoxType(PVCol(666))));
 	expectedStrings.append("666");
 	mustFail.append(true);
 

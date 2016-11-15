@@ -36,7 +36,7 @@ void run_multiplesearch_filter(Inendi::PVView* view1)
 	Inendi::PVLayer& out = view1->get_post_filter_layer();
 	out.reset_to_empty_and_default_color();
 	Inendi::PVLayer& in = view1->get_layer_stack_output_layer();
-	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(4 /* HTTP status */));
+	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(PVCol(4) /* HTTP status */));
 	args["exps"].setValue(PVCore::PVPlainTextType("503"));
 
 	plugin->set_view(view1);
@@ -66,15 +66,16 @@ int main()
 	Inendi::PVView* view1 = views.front();
 	Inendi::PVView* view2 = views.back();
 
-	Inendi::PVCorrelation correlation{view1, 2, view2, 2};
-	PV_ASSERT_VALID(not env.root.correlations().exists(view1, 2));
+	Inendi::PVCorrelation correlation{view1, PVCol(2), view2, PVCol(2)};
+	PV_ASSERT_VALID(not env.root.correlations().exists(view1, PVCol(2)));
 	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
 	PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
 
 	env.root.correlations().add(correlation);
 
-	PV_ASSERT_VALID(env.root.correlations().exists(view1, 2));
-	PV_ASSERT_VALID(env.root.correlations().exists(Inendi::PVCorrelation{view1, 2, view2, 2}));
+	PV_ASSERT_VALID(env.root.correlations().exists(view1, PVCol(2)));
+	PV_ASSERT_VALID(
+	    env.root.correlations().exists(Inendi::PVCorrelation{view1, PVCol(2), view2, PVCol(2)}));
 	PV_ASSERT_VALID(env.root.correlations().correlation(view1) != nullptr);
 
 	/**
@@ -109,14 +110,14 @@ int main()
 	 * Remove correlation
 	 */
 	env.root.correlations().remove(correlation.view1);
-	PV_ASSERT_VALID(not env.root.correlations().exists(view1, 2));
+	PV_ASSERT_VALID(not env.root.correlations().exists(view1, PVCol(2)));
 	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
 	PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
 
 	/**
 	 * Replace correlation
 	 */
-	Inendi::PVCorrelation new_correlation{view1, 13, view2, 13};
+	Inendi::PVCorrelation new_correlation{view1, PVCol(13), view2, PVCol(13)};
 	env.root.correlations().add(correlation);
 	env.root.correlations().add(new_correlation);
 	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));

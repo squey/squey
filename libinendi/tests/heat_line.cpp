@@ -72,7 +72,7 @@ int main()
 	PVCore::PVArgumentList& args = view->get_last_args_filter("frequency-gradient");
 
 	// Setup parameters.
-	args["axes"].setValue(PVCore::PVAxisIndexType(1));
+	args["axes"].setValue(PVCore::PVAxisIndexType(PVCol(1)));
 	auto scale = args["scale"].value<PVCore::PVEnumType>();
 	scale.set_sel(1);
 	args["scale"].setValue(scale);
@@ -97,7 +97,7 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Check result
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
-	pvcop::db::array const& col = nraw.column(1);
+	pvcop::db::array const& col = nraw.column(PVCol(1));
 
 	check_line_validity(out, 0);
 	check_line_validity(out, 1);

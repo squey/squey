@@ -282,7 +282,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	/**
 	 * update the scene to display the column \a index
 	 */
-	void change_to_col(int index);
+	void change_to_col(PVCombCol index);
 
   private:
 	/**

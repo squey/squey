@@ -51,7 +51,7 @@ void PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu(int activ
 
 	// resetting active stuff
 	_active_axis_action = nullptr;
-	_active_axis = -1;
+	_active_axis = PVCombCol(-1);
 
 	set_active_axis_action(current_axis_action);
 }
@@ -75,7 +75,7 @@ void PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action(QA
 	_menu_toolbutton->setToolTip(QString("Select displayed axis\ncurrent axis is \"") +
 	                             act->text() + "\"");
 
-	PVCol axis = act->data().toInt();
+	PVCombCol axis(act->data().toInt());
 	if (_active_axis >= 0) {
 		/* only if _active_axis has been initialized (after the first
 		 * call done by ::build_axis_menu(...))

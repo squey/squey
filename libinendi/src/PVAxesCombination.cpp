@@ -19,7 +19,7 @@ PVAxesCombination::PVAxesCombination(PVRush::PVFormat const& format)
 PVAxesCombination::PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes)
     : _axes(axes), _axes_comb(axes.size())
 {
-	std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
+	std::iota(_axes_comb.begin(), _axes_comb.end(), PVCol(0));
 }
 
 PVRush::PVAxisFormat const& PVAxesCombination::get_axis(PVCombCol col) const
@@ -60,9 +60,9 @@ QStringList PVAxesCombination::get_combined_names() const
 	return l;
 }
 
-size_t PVAxesCombination::get_axes_count() const
+PVCombCol PVAxesCombination::get_axes_count() const
 {
-	return _axes_comb.size();
+	return PVCombCol(_axes_comb.size());
 }
 
 PVCombCol PVAxesCombination::get_first_comb_col(PVCol nraw_col) const
@@ -72,7 +72,7 @@ PVCombCol PVAxesCombination::get_first_comb_col(PVCol nraw_col) const
 		return {};
 	}
 
-	return std::distance(_axes_comb.begin(), it);
+	return PVCombCol(std::distance(_axes_comb.begin(), it));
 }
 
 void PVAxesCombination::set_combination(std::vector<PVCol> const& comb)
@@ -88,13 +88,13 @@ void PVAxesCombination::axis_append(PVCol comb_col)
 void PVAxesCombination::reset_to_default()
 {
 	_axes_comb.resize(_axes.size());
-	std::iota(_axes_comb.begin(), _axes_comb.end(), 0);
+	std::iota(_axes_comb.begin(), _axes_comb.end(), PVCol(0));
 }
 
 bool PVAxesCombination::is_default()
 {
 	std::vector<PVCol> to_cmp(_axes.size());
-	std::iota(to_cmp.begin(), to_cmp.end(), 0);
+	std::iota(to_cmp.begin(), to_cmp.end(), PVCol(0));
 	return to_cmp == _axes_comb;
 }
 
@@ -125,7 +125,7 @@ PVAxesCombination PVAxesCombination::serialize_read(PVCore::PVSerializeObject& s
 	int size = so.attribute_read<int>("size");
 	std::vector<PVCol> new_comb(size);
 	for (int i = 0; i < size; i++) {
-		new_comb[i] = so.attribute_read<int>(QString::number(i));
+		new_comb[i] = PVCol(so.attribute_read<PVCol::value_type>(QString::number(i)));
 	}
 	comb.set_combination(new_comb);
 	return comb;

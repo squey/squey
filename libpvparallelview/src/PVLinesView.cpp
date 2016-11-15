@@ -638,7 +638,7 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t view_width)
 {
 	PVCol old_zones_count = (PVCol)_zones_width.size();
-	PVCol new_zones_count = get_number_of_managed_zones();
+	PVCol new_zones_count = (PVCol)get_number_of_managed_zones();
 	set_nb_drawable_zones(new_zones_count);
 	_zones_width.resize(new_zones_count, PVParallelView::ZoneDefaultWidth);
 	// Update first zone

@@ -91,7 +91,7 @@ void run_stats(cmd_options opts)
 		pvcop::db::array distinct_values;
 		pvcop::db::array distinct_values_count;
 
-		for (PVCol col = 0; col < nraw.column_count(); col++) {
+		for (PVCol col(0); col < nraw.column_count(); col++) {
 			const pvcop::db::array& column = nraw.column(col);
 			pvcop::db::algo::distinct(column, distinct_values, distinct_values_count,
 			                          env._nraw.valid_rows_sel());

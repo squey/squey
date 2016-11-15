@@ -99,7 +99,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	connect(_zpview->get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this,
 	        SLOT(scrollbar_changed_Slot(qint64)));
 
-	connect(_zpview->params_widget(), SIGNAL(change_to_col(int)), this, SLOT(change_to_col(int)));
+	connect(_zpview->params_widget(), &PVZoomedParallelViewParamsWidget::change_to_col, this,
+	        &PVZoomedParallelScene::change_to_col);
 
 	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _nraw_col);
 	_sliders_group->setPos(0., 0.);
@@ -371,7 +372,7 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
  * PVParallelView::PVZoomedParallelScene::change_to_col
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::change_to_col(int index)
+void PVParallelView::PVZoomedParallelScene::change_to_col(PVCombCol index)
 {
 	_axis_index = index;
 	_nraw_col = _pvview.get_axes_combination().get_nraw_axis(index);

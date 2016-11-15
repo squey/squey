@@ -52,7 +52,7 @@ Inendi::PVMapped::PVMapped(PVSource& src, std::string const& name)
 	}
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
-	for (PVCol i = 0; i < naxes; i++) {
+	for (PVCol i(0); i < naxes; i++) {
 		columns.emplace_back(source.get_format(), i);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -80,7 +80,7 @@ void Inendi::PVMapped::compute()
 		return;
 	}
 
-	PVCol const ncols = columns.size();
+	PVCol const ncols(columns.size());
 
 	// Prepare the mapping table.
 	_trans_table.resize(ncols);
@@ -96,7 +96,7 @@ void Inendi::PVMapped::compute()
 	 * carrefelluly
 	 * handle this nested parallelization, using tasks for example.
 	 */
-	for (PVCol j = 0; j < ncols; j++) {
+	for (PVCol j(0); j < ncols; j++) {
 		// Check that an update is required
 		if (get_properties_for_col(j).is_uptodate()) {
 			continue;
@@ -134,7 +134,7 @@ PVRow Inendi::PVMapped::get_row_count() const
  *****************************************************************************/
 PVCol Inendi::PVMapped::get_nraw_column_count() const
 {
-	return _trans_table.size();
+	return PVCol(_trans_table.size());
 }
 
 /******************************************************************************

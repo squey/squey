@@ -618,7 +618,7 @@ void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(PVCol col)
 {
 	_values_view->horizontalHeader()->setSortIndicatorShown(true);
 
-	int section = _values_view->horizontalHeader()->sortIndicatorSection();
+	PVCol section = (PVCol)_values_view->horizontalHeader()->sortIndicatorSection();
 
 	Qt::SortOrder old_order = _values_view->horizontalHeader()->sortIndicatorOrder();
 	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not(bool) old_order
@@ -657,7 +657,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	// Set the arguments
 	_ctxt_args = lib_view()->get_last_args_filter(filter_name);
 
-	PVCore::PVArgumentList custom_args = args_f(0U, 0, _col, sl.join("\n"));
+	PVCore::PVArgumentList custom_args = args_f(0U, (PVCombCol)0, _col, sl.join("\n"));
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget

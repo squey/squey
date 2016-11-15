@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	int ref_col = atoi(argv[1]);
+	PVCol ref_col = (PVCol)atoi(argv[1]);
 	const char* format_file = argv[2];
 
 	pvtest::TestEnv env(csv_file, format_file, 1);
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& ref_array = nraw.column(ref_col);
 	const auto& ref_values = ref_array.to_core_array<uint32_t>();
-	const auto& mapping = mapped.get_column(1).to_core_array<uint32_t>();
+	const auto& mapping = mapped.get_column(PVCol(1)).to_core_array<uint32_t>();
 
 	PV_VALID(mapping.size(), ref_values.size());
 

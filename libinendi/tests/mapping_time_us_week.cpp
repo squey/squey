@@ -43,7 +43,7 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 	auto& array = column.to_core_array<uint64_t>();
 
 	std::vector<uint32_t> order(column.size());
@@ -64,10 +64,10 @@ int main()
 		        tm_a.tm_min == tm_b.tm_min and tm_a.tm_sec < tm_b.tm_sec);
 	});
 
-	uint32_t prev = mapped.get_column(0).to_core_array<uint32_t>()[order[0]];
+	uint32_t prev = mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[order[0]];
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= mapped.get_column(0).to_core_array<uint32_t>()[order[i]]);
-		prev = mapped.get_column(0).to_core_array<uint32_t>()[order[i]];
+		PV_ASSERT_VALID(prev <= mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[order[i]]);
+		prev = mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[order[i]];
 	}
 #else
 	(void)mapped;

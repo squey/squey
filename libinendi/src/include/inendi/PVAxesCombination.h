@@ -47,7 +47,7 @@ class PVAxesCombination
 	std::vector<PVCol> const& get_combination() const;
 	QStringList get_nraw_names() const;
 	QStringList get_combined_names() const;
-	size_t get_axes_count() const;
+	PVCombCol get_axes_count() const;
 	PVCombCol get_first_comb_col(PVCol nraw_col) const;
 	QString to_string() const;
 	bool is_last_axis(PVCombCol) const;

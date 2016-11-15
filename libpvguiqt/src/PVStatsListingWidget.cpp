@@ -60,7 +60,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	_stats_panel->viewport()->setFocusPolicy(Qt::NoFocus);
 	//_stats_panel->hide();
 	QStringList horizontal_header_labels;
-	for (PVCol col = 0; col < _listing_view->horizontalHeader()->count(); col++) {
+	for (PVCol col(0); col < _listing_view->horizontalHeader()->count(); col++) {
 		horizontal_header_labels
 		    << _listing_view->model()->headerData(col, Qt::Horizontal).toString();
 	}
@@ -160,7 +160,7 @@ void PVGuiQt::PVStatsListingWidget::resize_listing_column_if_needed(int col)
 
 void PVGuiQt::PVStatsListingWidget::init_plugins()
 {
-	for (PVCol col = 0; col < _listing_view->horizontalHeader()->count(); col++) {
+	for (PVCombCol col(0); col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->insertColumn(col);
 	}
 
@@ -171,7 +171,7 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 	_row_max = init_plugin<__impl::PVMaxCellWidget>("max", /* visible = */ false);
 	_row_avg = init_plugin<__impl::PVAverageCellWidget>("avg", /* visible = */ false);
 
-	for (PVCol col = 0; col < _listing_view->horizontalHeader()->count(); col++) {
+	for (PVCombCol col(0); col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
 	}
 }
@@ -180,7 +180,7 @@ void PVGuiQt::PVStatsListingWidget::refresh()
 {
 	sync_vertical_headers();
 
-	for (PVCol col = 0; col < _stats_panel->columnCount(); col++) {
+	for (PVCombCol col(0); col < _stats_panel->columnCount(); col++) {
 		for (int row = 0; row < _stats_panel->rowCount(); row++) {
 			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->auto_refresh();
 		}
@@ -217,7 +217,7 @@ void PVGuiQt::PVStatsListingWidget::update_header_width(int column,
 void PVGuiQt::PVStatsListingWidget::resize_panel()
 {
 	_stats_panel->setMaximumHeight(compute_qtablewidget_height(_stats_panel));
-	for (PVCol col = 0; col < _stats_panel->columnCount(); col++) {
+	for (PVCombCol col(0); col < _stats_panel->columnCount(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->columnWidth(col));
 	}
 }
@@ -261,7 +261,7 @@ void PVGuiQt::PVStatsListingWidget::selection_changed()
 
 void PVGuiQt::PVStatsListingWidget::set_refresh_buttons_enabled(bool loading)
 {
-	for (PVCol col = 0; col < _stats_panel->columnCount(); col++) {
+	for (PVCombCol col(0); col < _stats_panel->columnCount(); col++) {
 		for (int row = 0; row < _stats_panel->rowCount(); row++) {
 			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))
 			    ->set_refresh_button_enabled(loading);
@@ -275,7 +275,7 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 	int new_count = _listing_view->lib_view().get_column_count();
 	int delta = new_count - old_count;
 	if (delta > 0) {
-		for (PVCol col = old_count - 1; col < new_count - 1; col++) {
+		for (PVCombCol col(old_count - 1); col < new_count - 1; col++) {
 			_stats_panel->insertColumn(col);
 			create_item<__impl::PVUniqueValuesCellWidget>(_row_distinct, col);
 			create_item<__impl::PVSumCellWidget>(_row_sum, col);
@@ -288,7 +288,7 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 		    _listing_view->lib_view().get_column_count()); // Widgets gets deleted
 	}
 	resize_panel();
-	for (PVCol col = 0; col < _stats_panel->columnCount(); col++) {
+	for (PVCombCol col(0); col < _stats_panel->columnCount(); col++) {
 		for (int row = 0; row < _stats_panel->rowCount(); row++) {
 			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->refresh(true);
 		}

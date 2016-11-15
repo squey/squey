@@ -251,7 +251,7 @@ const PVCore::PVHSVColor Inendi::PVView::get_color_in_output_layer(PVRow index) 
  *****************************************************************************/
 PVCombCol Inendi::PVView::get_column_count() const
 {
-	return get_axes_combination().get_axes_count();
+	return PVCombCol(get_axes_combination().get_axes_count());
 }
 
 /******************************************************************************
