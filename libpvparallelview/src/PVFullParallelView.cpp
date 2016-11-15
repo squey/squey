@@ -26,6 +26,7 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent)
 	viewport()->setCursor(Qt::CrossCursor);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	setMinimumHeight(300);
+	setFrameShape(QFrame::NoFrame);
 
 	((QScrollBar64*)verticalScrollBar())->setObjectName("verticalScrollBar_of_PVListingView");
 	((QScrollBar64*)horizontalScrollBar())->setObjectName("horizontalScrollBar_of_PVListingView");
@@ -78,20 +79,86 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 	QRectF rect_view = mapFromScene(rect).boundingRect();
 
-	painter->setPen(QPen(QColor(0x16, 0xe8, 0x2a), 0));
+	const QString sel_text = QString("%L1").arg(_selected_events_number);
+	const QString sep_text = QString(" /");
+	const QString total_text = QString(" %L1").arg(_total_events_number);
+	const QString percent_prefix_text(" (");
+	const QString percent_suffix_text(" %)");
+	const QString percent_text = QString("%1").arg(
+	    (uint32_t)(100.0 * (double)_selected_events_number / (double)_total_events_number), 3);
 
-	QString count =
-	    QString("%L1 (%2 %) / %L3")
-	        .arg(_selected_events_number)
-	        .arg((uint32_t)(100.0 * (double)_selected_events_number / (double)_total_events_number))
-	        .arg(_total_events_number);
+	/* to have a fixed sized frame, the selection count size is deduced from the total count
+	 * value (without the extra space)
+	 */
+	const QString max_sel_text = QString("%L1").arg(_total_events_number);
 
-	// The "count" string is drawn only if necessary
+	const QColor sel_col(0xd9, 0x28, 0x28);
+	const QColor percent_col(0xc9, 0x5d, 0x1e);
+
+	QFont f(painter->font());
+	f.setWeight(QFont::Bold);
+	painter->setFont(f);
+
 	QFontMetrics fm(painter->font());
-	QSize text_size = fm.size(Qt::TextSingleLine, count);
-	QPoint text_pos(width() - text_size.width() - 20, 20);
+
+	const QSize sel_size = fm.size(Qt::TextSingleLine, sel_text);
+	const QSize max_sel_size = fm.size(Qt::TextSingleLine, max_sel_text);
+	const QSize sep_size = fm.size(Qt::TextSingleLine, sep_text);
+	const QSize total_size = fm.size(Qt::TextSingleLine, total_text);
+	const QSize percent_prefix_size = fm.size(Qt::TextSingleLine, percent_prefix_text);
+	const QSize percent_suffix_size = fm.size(Qt::TextSingleLine, percent_suffix_text);
+	const QSize percent_size = fm.size(Qt::TextSingleLine, percent_text);
+	const QSize percent_spacing_size = fm.size(Qt::TextSingleLine, "000");
+
+	const int text_width = max_sel_size.width() + sep_size.width() + total_size.width() +
+	                       percent_prefix_size.width() + percent_suffix_size.width() +
+	                       percent_spacing_size.width();
+	const int text_height =
+	    std::max(std::max(std::max(max_sel_size.height(), sep_size.height()),
+	                      std::max(total_size.height(), percent_spacing_size.height())),
+	             std::max(percent_prefix_size.height(), percent_suffix_size.height()));
+
+	const int frame_width = text_width + frame_margins.left() + frame_margins.right();
+	const QRect frame(width() - frame_width - frame_offsets.left(), frame_offsets.top(),
+	                  frame_width, text_height + frame_margins.top() + frame_margins.bottom());
+
+	const QSize text_size(text_width, text_height);
+
+	/* the "stats" frame
+	 */
+	painter->setPen(Qt::NoPen);
+	painter->setBrush(frame_bg_color);
+	painter->drawRect(frame);
+
+	/* The "stats" strings are drawn only if necessary
+	 */
+	QPoint text_pos(frame.left() + frame_margins.left() + max_sel_size.width() - sel_size.width(),
+	                frame.top() + frame_margins.top() + fm.ascent());
+
 	if (QRectF(text_pos, text_size).intersects(rect_view)) {
-		painter->drawText(text_pos, count);
+		painter->setPen(sel_col);
+		painter->drawText(text_pos, sel_text);
+		text_pos.rx() += sel_size.width();
+
+		painter->setPen(frame_text_color);
+		painter->drawText(text_pos, sep_text);
+		text_pos.rx() += sep_size.width();
+
+		painter->drawText(text_pos, total_text);
+		text_pos.rx() += total_size.width();
+
+		painter->setPen(percent_col);
+
+		painter->drawText(text_pos, percent_prefix_text);
+		text_pos.rx() += percent_prefix_size.width();
+
+		// a right alignment
+		text_pos.rx() += percent_spacing_size.width() - percent_size.width();
+
+		painter->drawText(text_pos, percent_text);
+		text_pos.rx() += percent_size.width();
+
+		painter->drawText(text_pos, percent_suffix_text);
 	}
 
 #ifdef INENDI_DEVELOPER_MODE

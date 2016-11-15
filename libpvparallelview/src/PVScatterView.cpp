@@ -129,6 +129,7 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 	connect(get_horizontal_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
 
 	_params_widget = new PVScatterViewParamsWidget(this);
+	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 	set_params_widget_position();
@@ -204,7 +205,8 @@ void PVParallelView::PVScatterView::about_to_be_deleted()
  *****************************************************************************/
 void PVParallelView::PVScatterView::set_params_widget_position()
 {
-	QPoint pos = QPoint(get_viewport()->width() - 4, 4);
+	QPoint pos(get_viewport()->width() - frame_offsets.right(), frame_offsets.top());
+
 	pos -= QPoint(_params_widget->width(), 0);
 	_params_widget->move(pos);
 	_params_widget->raise();

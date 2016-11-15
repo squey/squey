@@ -40,6 +40,7 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
 	_help_widget->finalizeText();
 
 	_params_widget = new PVZoomedParallelViewParamsWidget(this);
+	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 }
@@ -71,7 +72,8 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent* event)
 
 	bool need_recomputation = event->oldSize().height() != event->size().height();
 
-	QPoint pos = QPoint(get_viewport()->size().width() - 4, 4);
+	QPoint pos(get_viewport()->width() - frame_offsets.right(), frame_offsets.top());
+
 	pos -= QPoint(_params_widget->width(), 0);
 	_params_widget->move(pos);
 	_params_widget->raise();
@@ -87,7 +89,29 @@ void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter, con
 {
 	PVGraphicsView::drawForeground(painter, rect);
 
-	painter->setPen(QPen(QColor(0x16, 0xe8, 0x2a), 0));
+	painter->save();
 
-	painter->drawText(8, 16, _display_axis_name);
+	QFont f(painter->font());
+	f.setWeight(QFont::Bold);
+	painter->setFont(f);
+
+	QFontMetrics fm = painter->fontMetrics();
+	const QSize text_size = fm.size(Qt::TextSingleLine, _display_axis_name);
+	const QRect frame(frame_offsets.left(), frame_offsets.top(),
+	                  text_size.width() + frame_margins.left() + frame_margins.right(),
+	                  text_size.height() + frame_margins.top() + frame_margins.bottom());
+
+	painter->setPen(Qt::NoPen);
+	painter->setBrush(frame_bg_color);
+	painter->drawRect(frame);
+
+	painter->setPen(QPen(frame_text_color, 0));
+	painter->setBrush(Qt::NoBrush);
+
+	const QPoint text_pos(frame.left() + frame_margins.left(),
+	                      frame.top() + frame_margins.top() + fm.ascent());
+
+	painter->drawText(text_pos, _display_axis_name);
+
+	painter->restore();
 }

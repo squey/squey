@@ -12,6 +12,9 @@
 #include <pvbase/types.h>
 
 #include <QMetaType>
+#include <QColor>
+#include <QMargins>
+
 #include <boost/integer/static_log2.hpp>
 
 static constexpr const int NBITS_INDEX = 10;
@@ -82,6 +85,16 @@ struct constants {
 	static const constexpr size_t image_height = ((uint32_t)1) << Bbits;
 	static const constexpr size_t mask_int_ycoord = (((uint32_t)1) << Bbits) - 1;
 };
+
+/* common views information/stats constants
+ */
+static const QColor frame_bg_color(0xff, 0xfe, 0xee, 0xdc);
+static const QString frame_qss_bg_color("background-color: " +
+                                        frame_bg_color.name(QColor::HexArgb) + ";");
+static const QColor frame_text_color(0x40, 0x40, 0x40);
+static const QMargins frame_margins(14, 6, 14, 7);
+static const QMargins frame_offsets(3, 2, 3, 2);
+
 } // namespace PVParallelView
 
 //#include <pvkernel/core/PVAllocators.h>
