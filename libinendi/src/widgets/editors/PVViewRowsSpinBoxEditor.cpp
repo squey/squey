@@ -48,6 +48,6 @@ void PVWidgets::PVViewRowsSpinBoxEditor::set_spin(PVCore::PVSpinBoxType s)
  *****************************************************************************/
 PVCore::PVSpinBoxType PVWidgets::PVViewRowsSpinBoxEditor::get_spin() const
 {
-	PVCore::PVSpinBoxType ret(value());
+	PVCore::PVSpinBoxType ret(PVCol((PVCol::value_type)value()));
 	return ret;
 }

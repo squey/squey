@@ -146,7 +146,7 @@ class PVStatsModel : public PVAbstractTableModel
 		}
 
 		// FIXME(pbrunet) : What if we cancel it?
-		sorted(col_idx, order);
+		sorted(PVCombCol(col_idx), order);
 		_display.set_filter_as_sort();
 
 		Q_EMIT layoutChanged();

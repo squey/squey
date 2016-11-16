@@ -60,7 +60,8 @@ class PVNrawListingWidget : public QWidget
 	template <typename T, typename F>
 	void connect_table_header(T* receiver, const F& slot)
 	{
-		connect(_nraw_table->horizontalHeader(), &QHeaderView::sectionClicked, receiver, slot);
+		connect(_nraw_table->horizontalHeader(), &QHeaderView::sectionClicked,
+		        [&](int c) { (receiver->*slot)(PVCol(c)); });
 	}
 
 	void get_ext_args(PVRow& start, PVRow& end);
@@ -72,7 +73,7 @@ class PVNrawListingWidget : public QWidget
 	void unselect_column();
 	void select_column(PVCol col);
 	void mark_row_as_invalid(size_t row_index);
-	void select_header(int column);
+	void select_header(PVCol column);
 
   public Q_SLOTS:
 	void nraw_custom_menu_Slot(const QPoint& pt);

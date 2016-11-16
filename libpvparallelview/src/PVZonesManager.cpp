@@ -118,19 +118,19 @@ PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& 
 	 * to identify them.
 	 */
 	axes_pair_list_t old_pairs;
-	PVCol old_nb_pairs = _axes_comb.size() - 1;
+	PVCol old_nb_pairs(_axes_comb.size() - 1);
 	old_pairs.reserve(old_nb_pairs);
 
-	for (PVCol i = 0; i < old_nb_pairs; ++i) {
+	for (PVCol i(0); i < old_nb_pairs; ++i) {
 		old_pairs.push_back(std::make_pair(_axes_comb[i], _axes_comb[i + 1]));
 	}
 
 	std::vector<PVZoneID> zoneids;
-	PVCol new_nb_pairs = ac.size() - 1;
+	PVCol new_nb_pairs(ac.size() - 1);
 	std::vector<PVZone> new_zones(new_nb_pairs);
 
 	// iterate on the new axes combination to find reusable zones
-	for (PVCol i = 0; i < new_nb_pairs; i++) {
+	for (PVCol i(0); i < new_nb_pairs; i++) {
 		axes_pair_t axes_pair = std::make_pair(ac[i], ac[i + 1]);
 		axes_pair_list_t::iterator it = std::find(old_pairs.begin(), old_pairs.end(), axes_pair);
 

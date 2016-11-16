@@ -60,7 +60,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
   public:
 	PVAxisGraphicsItem(PVSlidersManager* sm_p,
 	                   Inendi::PVView const& view,
-	                   Inendi::PVCombCol comb_col,
+	                   PVCombCol comb_col,
 	                   PVRush::PVAxisFormat const& axis_fmt);
 	~PVAxisGraphicsItem() override;
 
@@ -78,7 +78,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	const PVSlidersGroup* get_sliders_group() const { return _sliders_group; }
 
-	Inendi::PVCombCol get_combined_axis_column() const
+	PVCombCol get_combined_axis_column() const
 	{
 		// FIXME (pbrunet) : _comb_col is use only here to get data from PVView
 		// but all PVView call convert back comb_col to nraw_col so we should only
@@ -115,7 +115,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	QColor get_title_color() const { return _axis_fmt.get_titlecolor().toQColor(); }
 
   public Q_SLOTS:
-	void emit_new_zoomed_parallel_view(Inendi::PVCombCol comb_col)
+	void emit_new_zoomed_parallel_view(PVCombCol comb_col)
 	{
 		Q_EMIT new_zoomed_parallel_view(comb_col);
 	}
@@ -124,9 +124,9 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	void show_tooltip(QGraphicsTextItem* gti, QGraphicsSceneHelpEvent* event) const;
 
   Q_SIGNALS:
-	void new_zoomed_parallel_view(Inendi::PVCombCol comb_col);
-	void mouse_hover_entered(Inendi::PVCombCol axis, bool entered);
-	void mouse_clicked(Inendi::PVCombCol axis);
+	void new_zoomed_parallel_view(PVCombCol comb_col);
+	void mouse_hover_entered(PVCombCol axis, bool entered);
+	void mouse_clicked(PVCombCol axis);
 
   private:
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
@@ -138,7 +138,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
   private:
 	PVSlidersManager* _sliders_manager_p;
-	Inendi::PVCombCol _comb_col;
+	PVCombCol _comb_col;
 	PVRush::PVAxisFormat const& _axis_fmt;
 	QRectF _bbox;
 	Inendi::PVView const& _lib_view;

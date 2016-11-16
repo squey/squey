@@ -43,7 +43,7 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	void set_number_cols_to_reserve(PVCol col)
 	{
 		if (col == 0) {
-			col = 1;
+			col = PVCol(1);
 		}
 		_ncols_to_reserve = col;
 	}

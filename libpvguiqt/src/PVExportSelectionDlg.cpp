@@ -212,7 +212,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 		str_list = axes_combination.get_combined_names();
 		break;
 	case AxisCombinationKind::ALL:
-		for (int a = 0; a < view.get_parent<Inendi::PVSource>().get_nraw_column_count(); a++)
+		for (PVCol a(0); a < view.get_parent<Inendi::PVSource>().get_nraw_column_count(); a++)
 			column_indexes.push_back(a);
 		str_list = axes_combination.get_nraw_names();
 		break;
@@ -226,7 +226,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 
 	// Rows to export
 	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
-	PVRow nrows = nraw.get_row_count();
+	PVRow nrows = nraw.row_count();
 
 	PVRow start = 0;
 	PVRow step_count = std::min(STEP_COUNT, nrows);

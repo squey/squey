@@ -7,8 +7,6 @@
 #ifndef INENDI_PVAXESCOMBINATION_H
 #define INENDI_PVAXESCOMBINATION_H
 
-#include <inendi/PVCombCol.h> // for PVCombCol
-
 #include <pvbase/types.h> // for PVCol
 
 #include <QString>     // for QString
@@ -43,11 +41,13 @@ class PVAxesCombination
 
   public:
 	PVRush::PVAxisFormat const& get_axis(PVCombCol col) const;
+	PVRush::PVAxisFormat const& get_axis(PVCol col) const;
+
 	PVCol get_nraw_axis(PVCombCol col) const;
 	std::vector<PVCol> const& get_combination() const;
 	QStringList get_nraw_names() const;
 	QStringList get_combined_names() const;
-	size_t get_axes_count() const;
+	PVCombCol get_axes_count() const;
 	PVCombCol get_first_comb_col(PVCol nraw_col) const;
 	QString to_string() const;
 	bool is_last_axis(PVCombCol) const;
@@ -89,7 +89,7 @@ class PVAxesCombination
 
   private:
 	QList<PVRush::PVAxisFormat> const& _axes; //!< View from the PVFormat
-	std::vector<PVCol> _axes_comb;
+	std::vector<PVCol> _axes_comb;            // FIXME : don't hardcode and duplicate this type !!
 };
 } // namespace Inendi
 

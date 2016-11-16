@@ -121,12 +121,12 @@ void Inendi::PVMappingFilterString::set_args(PVCore::PVArgumentList const& args)
 pvcop::db::array Inendi::PVMappingFilterString::operator()(PVCol const col,
                                                            PVRush::PVNraw const& nraw)
 {
-	auto array = nraw.collection().column(col);
+	const pvcop::db::array& array = nraw.column(col);
 
 	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
 	auto& dest_array = dest.to_core_array<uint32_t>();
 
-	auto* string_dict = nraw.collection().dict(col);
+	auto* string_dict = nraw.column_dict(col);
 	if (string_dict) {
 		auto& dict = *string_dict;
 		std::vector<uint32_t> ret(dict.size());

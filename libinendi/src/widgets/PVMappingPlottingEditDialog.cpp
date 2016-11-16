@@ -163,9 +163,6 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
-	int row = 1;
-	PVCol col = 0;
-
 	// We must get the official name of the
 	QString name;
 	if (has_mapping()) {
@@ -177,8 +174,9 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 
 	// Add widgets
 
+	int row = 1;
 	for (PVRush::PVAxisFormat const& axe : _axes) {
-		col = 0;
+		int col = 0;
 		_main_grid->addWidget(new QLabel(axe.get_name(), this), row, col++);
 		if (has_mapping()) {
 			_main_grid->addWidget(new QLabel(axe.get_type()), row, col++);

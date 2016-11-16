@@ -98,7 +98,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	                      PVZonesProcessor& zp_sel,
 	                      PVZonesProcessor& zp_bg,
 	                      PVZonesManager const& zm,
-	                      PVCol axis_index);
+	                      PVCombCol axis_index);
 
 	/**
 	 * Destructor
@@ -169,7 +169,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	/**
 	 * Getter of the axis index used by this view.
 	 */
-	PVCol get_axis_index() const { return _axis_index; }
+	PVCombCol get_axis_index() const { return _axis_index; }
 
 	/**
 	 * Enable/disable the scene.
@@ -282,7 +282,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	/**
 	 * update the scene to display the column \a index
 	 */
-	void change_to_col(int index);
+	void change_to_col(PVCombCol index);
 
   private:
 	/**
@@ -328,7 +328,10 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	/**
 	 * Get the right zone's identifier.
 	 */
-	inline PVZoneID right_zone_id() const { return (_right_zone) ? _axis_index : PVZONEID_INVALID; }
+	inline PVZoneID right_zone_id() const
+	{
+		return (_right_zone) ? _axis_index.value() : PVZONEID_INVALID;
+	}
 
 	/**
 	 * Getter of the underlying VPZonesManager.
@@ -492,7 +495,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	Inendi::PVView& _pvview;
 	PVSlidersManager* _sliders_manager_p;
 	PVSlidersGroup* _sliders_group;
-	PVCol _axis_index; // This is comb_col
+	PVCombCol _axis_index;
 	PVCol _nraw_col;
 	PVZonesManager const& _zm;
 

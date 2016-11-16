@@ -10,8 +10,6 @@
 
 #include <pvbase/types.h>
 
-#include <inendi/PVCombCol.h>
-
 #include <QGraphicsRectItem>
 #include <QEasingCurve>
 #include <QGraphicsSceneMouseEvent>
@@ -48,9 +46,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT
   public:
-	PVAxisHeader(const Inendi::PVView& view,
-	             Inendi::PVCombCol comb_col,
-	             PVAxisGraphicsItem* parent);
+	PVAxisHeader(const Inendi::PVView& view, PVCombCol comb_col, PVAxisGraphicsItem* parent);
 
   public:
 	void set_width(int width);
@@ -69,9 +65,9 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
 
   Q_SIGNALS:
-	void mouse_hover_entered(Inendi::PVCombCol col, bool entered);
-	void mouse_clicked(Inendi::PVCombCol col);
-	void new_zoomed_parallel_view(Inendi::PVCombCol _axis_index);
+	void mouse_hover_entered(PVCombCol col, bool entered);
+	void mouse_clicked(PVCombCol col);
+	void new_zoomed_parallel_view(PVCombCol _axis_index);
 	void new_selection_slider();
 
   private Q_SLOTS:
@@ -82,7 +78,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 
   private:
 	const Inendi::PVView& _view;
-	Inendi::PVCombCol _comb_col;
+	PVCombCol _comb_col;
 
 	__impl::PVAxisSelectedAnimation* _axis_selected_animation;
 	bool _started = false;

@@ -60,12 +60,12 @@ Inendi::PVMappingFilterHost::PVMappingFilterHost() : PVMappingFilter()
 pvcop::db::array Inendi::PVMappingFilterHost::operator()(PVCol const col,
                                                          PVRush::PVNraw const& nraw)
 {
-	auto array = nraw.collection().column(col);
+	const pvcop::db::array& array = nraw.column(col);
 	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
 	auto& dest_array = dest.to_core_array<uint32_t>();
 
 	// Store mapping for each dict value.
-	auto* string_dict = nraw.collection().dict(col);
+	auto* string_dict = nraw.column_dict(col);
 
 	if (string_dict) {
 		auto& dict = *string_dict;

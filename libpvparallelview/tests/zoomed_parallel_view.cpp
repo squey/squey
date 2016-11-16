@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 	TestEnv env(filename, fileformat);
 
 	PVParallelView::PVLibView* plib_view = env.get_lib_view();
-	PVParallelView::PVZoomedParallelView* zpview = plib_view->create_zoomed_view(1);
+	PVParallelView::PVZoomedParallelView* zpview = plib_view->create_zoomed_view(PVCombCol(1));
 	zpview->resize(1024, 1024);
 	zpview->show();
 

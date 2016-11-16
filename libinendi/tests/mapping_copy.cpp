@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 
 	// Check mapping is the same as NRaw values
-	PV_ASSERT_VALID(mapped.get_column(0) == nraw.collection().column(0));
+	PV_ASSERT_VALID(mapped.get_column(PVCol(0)) == nraw.column(PVCol(0)));
 #else
 	(void)mapped;
 #endif

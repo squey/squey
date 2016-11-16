@@ -42,11 +42,11 @@ class PVLibView : public sigc::trackable
 
   public:
 	PVFullParallelView* create_view(QWidget* parent = nullptr);
-	PVZoomedParallelView* create_zoomed_view(PVCol const axis, QWidget* parent = nullptr);
-	PVHitCountView* create_hit_count_view(PVCol const axis, QWidget* parent = nullptr);
-	PVScatterView* create_scatter_view(PVCol const axis, QWidget* parent = nullptr);
+	PVZoomedParallelView* create_zoomed_view(PVCombCol const axis, QWidget* parent = nullptr);
+	PVHitCountView* create_hit_count_view(PVCombCol const axis, QWidget* parent = nullptr);
+	PVScatterView* create_scatter_view(PVCombCol const axis, QWidget* parent = nullptr);
 
-	void request_zoomed_zone_trees(const PVCol axis);
+	void request_zoomed_zone_trees(const PVCombCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
 	Inendi::PVView* lib_view() { return _view; }
 

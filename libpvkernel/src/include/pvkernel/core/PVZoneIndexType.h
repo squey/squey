@@ -8,6 +8,7 @@
 #ifndef PVCORE_PVZONEINDEXTYPE_H
 #define PVCORE_PVZONEINDEXTYPE_H
 
+#include <pvbase/types.h>
 #include <pvkernel/core/PVArgument.h>
 
 #include <QMetaType>
@@ -27,7 +28,7 @@ class PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
 	 */
 	explicit PVZoneIndexType(int zone_index = 0) : _zone_index(zone_index) {}
 
-	int get_zone_index() const { return _zone_index; }
+	PVCol get_zone_index() const { return _zone_index; }
 
 	QString to_string() const override { return QString::number(get_zone_index()); }
 
@@ -55,7 +56,7 @@ class PVZoneIndexType : public PVArgumentType<PVZoneIndexType>
 	bool operator==(const PVZoneIndexType& other) const { return _zone_index == other._zone_index; }
 
   protected:
-	int _zone_index;
+	PVCol _zone_index;
 };
 } // namespace PVCore
 

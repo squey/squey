@@ -43,7 +43,7 @@ Inendi::PVPlotted::PVPlotted(PVMapped& mapped, std::string const& name)
 {
 	PVRush::PVFormat const& format = get_parent<Inendi::PVSource>().get_format();
 
-	for (int i = 0; i < format.get_axes().size(); i++) {
+	for (PVCol i(0); i < format.get_axes().size(); i++) {
 		_columns.emplace_back(format, i);
 	}
 	create_table();
@@ -74,7 +74,7 @@ int Inendi::PVPlotted::create_table()
 	_last_updated_cols.clear();
 	_minmax_values.resize(mapped_col_count);
 
-	for (PVCol j = 0; j < mapped_col_count; j++) {
+	for (PVCol j(0); j < mapped_col_count; j++) {
 		if (get_properties_for_col(j).is_uptodate()) {
 			continue;
 		}
@@ -117,7 +117,7 @@ QList<PVCol> Inendi::PVPlotted::get_singleton_columns_indexes()
 		return cols_ret;
 	}
 
-	for (PVCol j = 0; j < ncols; j++) {
+	for (PVCol j(0); j < ncols; j++) {
 		const uint32_t* cplotted = get_column_pointer(j);
 		const uint32_t ref_v = cplotted[0];
 		bool all_same = true;
@@ -147,7 +147,7 @@ Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_
 	}
 
 	double nrows_d = (double)nrows;
-	for (PVCol j = 0; j < ncols; j++) {
+	for (PVCol j(0); j < ncols; j++) {
 		PVRow nmatch = 0;
 		const uint32_t* cplotted = get_column_pointer(j);
 		for (PVRow i = 0; i < nrows; i++) {
@@ -177,7 +177,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 	}
 
 	double nrows_d = (double)nrows;
-	for (PVCol j = 0; j < ncols; j++) {
+	for (PVCol j(0); j < ncols; j++) {
 		PVRow nmatch = 0;
 		const uint32_t* cplotted = get_column_pointer(j);
 		for (PVRow i = 0; i < nrows; i++) {
@@ -297,7 +297,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const
 {
 	QList<PVCol> ret;
 
-	for (PVCol j = 0; j < get_nraw_column_count(); j++) {
+	for (PVCol j(0); j < get_nraw_column_count(); j++) {
 		if (!get_properties_for_col(j).is_uptodate()) {
 			ret << j;
 		}
@@ -324,7 +324,7 @@ std::string Inendi::PVPlotted::export_line(PVRow idx,
 
 	std::string line;
 
-	for (int c : col_indexes) {
+	for (PVCol c : col_indexes) {
 		line += std::to_string(get_value(idx, c)) + sep_char;
 	}
 

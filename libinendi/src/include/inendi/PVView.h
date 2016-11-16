@@ -13,7 +13,6 @@
 #include <inendi/PVLayerStack.h>
 #include <inendi/PVLinesProperties.h>
 #include <inendi/PVStateMachine.h>
-#include <inendi/PVCombCol.h> // for PVCombCol
 
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
@@ -103,10 +102,13 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 */
 	const QString& get_axis_name(PVCombCol index) const;
 	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const;
-	bool is_last_axis(PVCol const axis_comb) const { return axis_comb == get_column_count() - 1; }
+	bool is_last_axis(PVCombCol const axis_comb) const
+	{
+		return axis_comb == get_column_count() - 1;
+	}
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
-	PVCol get_column_count() const;
+	PVCombCol get_column_count() const;
 	PVLayerStack& get_layer_stack();
 	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
 
@@ -295,9 +297,9 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	void set_section_clicked(PVCombCol col, size_t pos) const { _section_clicked.emit(col, pos); }
 
-	sigc::signal<void, size_t, bool> _axis_hovered;
-	sigc::signal<void, size_t> _axis_clicked;
-	sigc::signal<void, size_t, size_t> _section_clicked;
+	sigc::signal<void, PVCombCol, bool> _axis_hovered;
+	sigc::signal<void, PVCombCol> _axis_clicked;
+	sigc::signal<void, PVCombCol, size_t> _section_clicked;
 	sigc::signal<void> _axis_combination_updated;
 	sigc::signal<void> _axis_combination_about_to_update;
 	sigc::signal<void> _update_current_min_max;

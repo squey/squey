@@ -9,6 +9,7 @@
 #define PVCORE_PVORIGINALAXISINDEXTYPE_H
 
 #include <pvkernel/core/PVArgument.h>
+#include <pvbase/types.h>
 
 #include <QMetaType>
 #include <QString>
@@ -27,10 +28,10 @@ class PVOriginalAxisIndexType : public PVArgumentType<PVOriginalAxisIndexType>
 	/**
 	 * Constructor
 	 */
-	explicit PVOriginalAxisIndexType(bool append_none_axis = false);
-	explicit PVOriginalAxisIndexType(int origin_axis_index, bool append_none_axis = false);
+	explicit PVOriginalAxisIndexType();
+	explicit PVOriginalAxisIndexType(PVCol origin_axis_index, bool append_none_axis = false);
 
-	int get_original_index() const;
+	PVCol get_original_index() const;
 	bool get_append_none_axis() const;
 
 	QString to_string() const override
@@ -46,10 +47,8 @@ class PVOriginalAxisIndexType : public PVArgumentType<PVOriginalAxisIndexType>
 
 		QStringList parts = str.split(":");
 		if (parts.count() == 2) {
-			int origin_axis_index;
-			bool append_none_axis;
-			origin_axis_index = parts[0].toInt(&res_ok);
-			append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+			PVCol origin_axis_index(parts[0].toInt(&res_ok));
+			bool append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
 			arg.setValue(PVOriginalAxisIndexType(origin_axis_index, append_none_axis));
 		}
 
@@ -67,7 +66,7 @@ class PVOriginalAxisIndexType : public PVArgumentType<PVOriginalAxisIndexType>
 	}
 
   protected:
-	int _origin_axis_index;
+	PVCol _origin_axis_index;
 	bool _append_none_axis;
 };
 } // namespace PVCore

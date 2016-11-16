@@ -10,8 +10,6 @@
 
 #include <pvdisplays/PVDisplayIf.h>
 
-#include <inendi/PVCombCol.h>
-
 #include <QMetaType>
 
 namespace PVDisplays
@@ -99,12 +97,12 @@ class PVDisplaysImpl : public QObject
 	                                 QObject* receiver,
 	                                 const char* slot,
 	                                 Inendi::PVView* view,
-	                                 Inendi::PVCombCol axis_comb) const;
+	                                 PVCombCol axis_comb) const;
 	void add_displays_view_zone_menu(QMenu& menu,
 	                                 QObject* receiver,
 	                                 const char* slot,
 	                                 Inendi::PVView* view,
-	                                 Inendi::PVCombCol axis_comb) const;
+	                                 PVCombCol axis_comb) const;
 
 	PVDisplaysContainer* get_parent_container(QWidget* self) const;
 

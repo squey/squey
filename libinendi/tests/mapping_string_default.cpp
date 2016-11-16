@@ -44,13 +44,13 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 
 	std::string res_file = pvtest::get_tmp_filename();
 	std::ofstream ofs(res_file);
 
 	for (size_t i = 0; i < column.size(); i++) {
-		ofs << mapped.get_column(0).to_core_array<uint32_t>()[i] << std::endl;
+		ofs << mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[i] << std::endl;
 	}
 
 	std::cout << res_file << "/" << ref_file << std::endl;

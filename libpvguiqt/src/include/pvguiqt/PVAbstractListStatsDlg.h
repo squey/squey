@@ -11,8 +11,6 @@
 #include <pvguiqt/PVListDisplayDlg.h> // for PVListDisplayDlg
 #include <pvguiqt/PVStatsModel.h>     // for PVStatsModel
 
-#include <inendi/PVCombCol.h> // for PVCombCol
-
 #include <pvkernel/core/PVArgument.h> // for PVArgumentList
 
 #include <QStringList>
@@ -61,7 +59,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
   public:
 	PVAbstractListStatsDlg(Inendi::PVView& view,
-	                       Inendi::PVCombCol c,
+	                       PVCol c,
 	                       PVStatsModel* model,
 	                       QWidget* parent = nullptr);
 
@@ -82,7 +80,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	inline bool use_logarithmic_scale() { return model().use_log_scale(); }
 
   protected:
-	void sort_by_column(int col);
+	void sort_by_column(PVCol col);
 	bool process_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
 
@@ -99,7 +97,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
   protected Q_SLOTS:
 	void scale_changed(QAction* act);
 	void max_changed(QAction* act);
-	void section_clicked(int col);
+	void section_clicked(PVCol col);
 	void sort();
 
   protected Q_SLOTS:
@@ -119,7 +117,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
   protected:
 	Inendi::PVView* _view;
-	Inendi::PVCombCol _col;
+	PVCol _col;
 
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;
@@ -154,7 +152,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	 * while filing the context menu.
 	 */
 	QAction* _msearch_action_for_layer_creation;
-	int _sort_section = 1;
+	PVCol _sort_section = PVCol(1);
 };
 
 namespace __impl

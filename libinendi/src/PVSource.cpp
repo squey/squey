@@ -86,7 +86,7 @@ const PVRush::PVNraw& Inendi::PVSource::get_rushnraw() const
 
 PVRow Inendi::PVSource::get_row_count() const
 {
-	return _nraw.get_row_count();
+	return _nraw.row_count();
 }
 
 PVRow Inendi::PVSource::get_valid_row_count() const
@@ -96,7 +96,7 @@ PVRow Inendi::PVSource::get_valid_row_count() const
 
 PVCol Inendi::PVSource::get_nraw_column_count() const
 {
-	return _format.get_axes().size();
+	return PVCol(_format.get_axes().size());
 }
 
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
@@ -156,11 +156,11 @@ std::string Inendi::PVSource::hash() const
 	QCryptographicHash hasher(QCryptographicHash::Md5);
 	constexpr size_t max_line_hash =
 	    500000UL; // Just use a subset. It is not optimal but it have to be "fast enough"
-	for (size_t j = 0; j < std::min<size_t>(_nraw.get_row_count(), max_line_hash); j++) {
-		std::string r = get_value(j, 0);
+	for (size_t j = 0; j < std::min<size_t>(_nraw.row_count(), max_line_hash); j++) {
+		std::string r = get_value(j, PVCol(0));
 		hasher.addData(r.c_str(), r.size());
 	}
-	std::string size = std::to_string(_nraw.get_row_count());
+	std::string size = std::to_string(_nraw.row_count());
 	hasher.addData(size.c_str(), size.size());
 	return hasher.result().data();
 }

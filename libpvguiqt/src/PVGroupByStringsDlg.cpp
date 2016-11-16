@@ -37,8 +37,8 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 			PVRush::PVNraw const& nraw = lib_view()->get_rushnraw_parent();
 
 			// We did the col1_in by col2_in computation
-			const pvcop::db::array col1_in = nraw.collection().column(_col);
-			const pvcop::db::array col2_in = nraw.collection().column(_col2);
+			const pvcop::db::array& col1_in = nraw.column(_col);
+			const pvcop::db::array& col2_in = nraw.column(_col2);
 
 			int row_id = indexes.find_next_set_bit(0, col1_in.size()); // We can only get the
 			                                                           // details of the first

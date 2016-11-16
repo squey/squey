@@ -45,20 +45,20 @@ int main(int argc, char** argv)
 #ifndef INSPECTOR_BENCH
 	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 
 	pvcop::db::indexes indexes = pvcop::db::indexes::parallel_sort(column);
 	auto& order = indexes.to_core_array();
 	std::reverse(order.begin(), order.end()); // plotteds are still inverted...
 
-	PV_VALID(plotted.get_column_pointer(0)[order[order.size() - 1]],
+	PV_VALID(plotted.get_column_pointer(PVCol(0))[order[order.size() - 1]],
 	         std::numeric_limits<uint32_t>::max());
-	PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[0]] <= (uint32_t)1);
+	PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[order[0]] <= (uint32_t)1);
 
 	// Check we keep value ordering.
 	for (size_t i = 1; i < column.size(); i++) {
-		PV_ASSERT_VALID(plotted.get_column_pointer(0)[order[i - 1]] <=
-		                plotted.get_column_pointer(0)[order[i]]);
+		PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[order[i - 1]] <=
+		                plotted.get_column_pointer(PVCol(0))[order[i]]);
 	}
 
 #else

@@ -234,7 +234,7 @@ class TestEnv
 	/**
 	 * Get number of row in the imported NRaw.
 	 */
-	size_t get_nraw_size() const { return _nraw.get_row_count(); }
+	size_t get_nraw_size() const { return _nraw.row_count(); }
 
 	PVRush::PVFormat _format;
 	PVRush::PVNraw _nraw;

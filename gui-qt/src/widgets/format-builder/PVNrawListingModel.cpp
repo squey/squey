@@ -23,7 +23,7 @@ int PVInspector::PVNrawListingModel::rowCount(const QModelIndex&) const
 		return 0;
 	}
 
-	return _nraw->get_row_count();
+	return _nraw->row_count();
 }
 
 int PVInspector::PVNrawListingModel::columnCount(const QModelIndex&) const
@@ -31,7 +31,7 @@ int PVInspector::PVNrawListingModel::columnCount(const QModelIndex&) const
 	if (not _nraw) {
 		return 0;
 	}
-	return _nraw->get_number_cols();
+	return _nraw->column_count();
 }
 
 QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int role) const
@@ -45,7 +45,7 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 	switch (role) {
 	case Qt::DisplayRole:
 		if (is_element_valid) {
-			return QString::fromStdString(_nraw->at_string(index.row(), index.column()));
+			return QString::fromStdString(_nraw->at_string(index.row(), (PVCol)index.column()));
 		} else {
 			auto it = _inv_elts.find(index.row());
 			if (it != _inv_elts.end()) {
@@ -94,7 +94,7 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section,
 
 void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 {
-	if (nraw.get_row_count() == 0) {
+	if (nraw.row_count() == 0) {
 		_nraw = nullptr;
 	} else {
 		_nraw = &nraw;

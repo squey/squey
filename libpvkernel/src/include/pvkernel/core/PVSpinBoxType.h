@@ -24,8 +24,8 @@ namespace PVCore
 class PVSpinBoxType : public PVArgumentType<PVSpinBoxType>
 {
   public:
-	PVSpinBoxType() { _value = 0; };
-	PVSpinBoxType(const PVCol value) { set_value(value); }
+	PVSpinBoxType() : _value(0){};
+	PVSpinBoxType(PVCol value) { set_value(value); }
 
 	inline PVCol get_value() const { return _value; }
 	inline void set_value(const PVCol value) { _value = value; }
@@ -36,7 +36,7 @@ class PVSpinBoxType : public PVArgumentType<PVSpinBoxType>
 		bool res_ok = false;
 
 		PVArgument arg;
-		arg.setValue(PVSpinBoxType(str.toInt(&res_ok)));
+		arg.setValue(PVSpinBoxType(PVCol(str.toInt(&res_ok))));
 
 		if (ok) {
 			*ok = res_ok;

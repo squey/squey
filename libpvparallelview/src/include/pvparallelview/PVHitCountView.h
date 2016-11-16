@@ -70,7 +70,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	PVHitCountView(Inendi::PVView& pvview_sp,
 	               const uint32_t* col_plotted,
 	               const PVRow nrows,
-	               const PVCol axis_index,
+	               const PVCombCol axis_index,
 	               QWidget* parent = nullptr);
 
 	~PVHitCountView() override;
@@ -87,6 +87,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	inline uint32_t get_max_count() const { return _max_count; }
 
 	inline Inendi::PVView& lib_view() { return _pvview; }
+	inline Inendi::PVView const& lib_view() const { return _pvview; }
 
 	inline const PVHitGraphBlocksManager& get_hit_graph_manager() const
 	{
@@ -177,7 +178,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
   private:
 	Inendi::PVView& _pvview;
-	PVCol _axis_index;
+	PVCombCol _axis_index;
 	QTimer _update_all_timer;
 
 	PVHitGraphBlocksManager _hit_graph_manager;

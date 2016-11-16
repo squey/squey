@@ -91,7 +91,7 @@ double save_investigation()
 	Inendi::PVAxesCombination& axes_comb =
 	    const_cast<Inendi::PVAxesCombination&>(view->get_axes_combination());
 	axes_comb.sort_by_name();
-	std::vector<PVCol> to_remove = {14};
+	std::vector<PVCol> to_remove = {PVCol(14)};
 	axes_comb.remove_axes(to_remove.begin(), to_remove.end());
 
 	auto start = std::chrono::system_clock::now();
@@ -180,7 +180,7 @@ double load_investigation()
 
 	PV_VALID(mapped->get_name(), std::string("other"));
 
-	pvcop::db::array const& mapping_values = mapped->get_column(0);
+	pvcop::db::array const& mapping_values = mapped->get_column(PVCol(0));
 	auto mapping = mapping_values.to_core_array<uint32_t>();
 	std::ifstream ref_stream(ref_mapped_file);
 	for (uint32_t v : mapping) {
@@ -189,8 +189,8 @@ double load_investigation()
 		PV_VALID(ref, v);
 	}
 
-	PV_VALID(mapped->get_properties_for_col(0).get_mode(), std::string("default"));
-	auto const& minmax = mapped->get_properties_for_col(0).get_minmax();
+	PV_VALID(mapped->get_properties_for_col(PVCol(0)).get_mode(), std::string("default"));
+	auto const& minmax = mapped->get_properties_for_col(PVCol(0)).get_minmax();
 	auto core_minmax = minmax.to_core_array<uint32_t>();
 	PV_VALID(core_minmax[0], 0U);
 	PV_VALID(core_minmax[1], 90037U);
@@ -203,7 +203,7 @@ double load_investigation()
 	auto const* plotted = plotteds.front();
 	PV_VALID(plotted->get_name(), std::string("my plotting name"));
 
-	uint32_t const* plotting_values = plotted->get_column_pointer(0);
+	uint32_t const* plotting_values = plotted->get_column_pointer(PVCol(0));
 	std::ifstream ref_plotted_stream(ref_plotted_file);
 	for (size_t i = 0; i < plotted->get_row_count(); i++) {
 		uint32_t ref;
@@ -211,9 +211,9 @@ double load_investigation()
 		PV_VALID(ref, plotting_values[i]);
 	}
 
-	PV_VALID(plotted->get_properties_for_col(2).get_mode(), std::string("default"));
-	PV_VALID(plotted->get_col_min_row(2), 75173U);
-	PV_VALID(plotted->get_col_max_row(2), 0U);
+	PV_VALID(plotted->get_properties_for_col(PVCol(2)).get_mode(), std::string("default"));
+	PV_VALID(plotted->get_col_min_row(PVCol(2)), 75173U);
+	PV_VALID(plotted->get_col_max_row(PVCol(2)), 0U);
 
 	/**
 	 * Check view

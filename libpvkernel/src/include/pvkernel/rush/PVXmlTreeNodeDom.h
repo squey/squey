@@ -362,7 +362,7 @@ class PVXmlTreeNodeDom : public QObject
 	// Id of a field, when the pipeline of filter is linearised. If this id equals to -1
 	// it means that it has children !
 	// TODO: list the ids of the children, so that they will be selected !
-	ssize_t _field_linear_id;
+	PVCol _field_linear_id;
 };
 } // namespace PVRush
 #endif /* NODEDOM_H */

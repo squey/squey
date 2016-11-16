@@ -62,7 +62,7 @@ int main()
 	    discover_types(types_filename, PVRush::PVFormat("", types_format), types_discovery_output);
 
 #ifndef INSPECTOR_BENCH
-	PVCol col = 0;
+	PVCol col(0);
 	for (const auto& formatter : AXES_TYPES) {
 		const std::string formatter_name = formatter.first;
 		for (const auto& formatter_params : formatter.second) {
@@ -80,7 +80,7 @@ int main()
 	time += discover_types(time_filename, format, time_discovery_output);
 
 #ifndef INSPECTOR_BENCH
-	for (PVCol col = 0; col < (PVCol)format.get_storage_format().size(); col++) {
+	for (PVCol col(0); col < (PVCol)format.get_storage_format().size(); col++) {
 		PV_VALID(time_discovery_output.type_desc(col).first, std::string("time"));
 	}
 #endif // INSPECTOR_BENCH

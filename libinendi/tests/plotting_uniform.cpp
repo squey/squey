@@ -45,12 +45,12 @@ int main(int argc, char** argv)
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 	pvcop::db::array dist;
 	pvcop::db::algo::distinct(column, dist);
 
 	// compute distinct mapping values.
-	const uint32_t* plotting = plotted.get_column_pointer(0);
+	const uint32_t* plotting = plotted.get_column_pointer(PVCol(0));
 	std::set<uint32_t> distinct_plotting;
 	for (size_t i = 0; i < column.size(); i++) {
 		distinct_plotting.insert(plotting[i]);

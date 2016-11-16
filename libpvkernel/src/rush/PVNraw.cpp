@@ -208,16 +208,16 @@ void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 
 void PVRush::PVNraw::dump_csv(std::ostream& os) const
 {
-	PVCore::PVColumnIndexes cols(get_number_cols());
-	std::iota(cols.begin(), cols.end(), 0);
-	PVCore::PVSelBitField sel(get_row_count());
+	PVCore::PVColumnIndexes cols(column_count());
+	std::iota(cols.begin(), cols.end(), PVCol(0));
+	PVCore::PVSelBitField sel(row_count());
 	sel.select_all();
 
 	PVCore::PVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return export_line(row, cols, sep, quote); };
 
-	PVCore::PVExporter exp(os, sel, cols, get_row_count(), export_func);
+	PVCore::PVExporter exp(os, sel, cols, row_count(), export_func);
 	exp.export_rows(0);
 }
 
@@ -250,7 +250,7 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	// Displayed column, not NRaw column
 	std::string line;
 
-	for (int c : col_indexes) {
+	for (PVCol c : col_indexes) {
 		line += PVRush::PVUtils::safe_export(at_string(idx, c), sep_char, quote_char) + sep_char;
 	}
 
@@ -352,7 +352,7 @@ void PVRush::PVNraw::empty_values_search(PVCol col,
 void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Saving raw data...");
-	QString nraw_path = QString::fromStdString(collection().rootdir());
+	QString nraw_path = QString::fromStdString(_collection->rootdir());
 	so.attribute_write("nraw_path", nraw_path);
 
 	int vec = _valid_elements_count;
@@ -390,26 +390,25 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 	so.set_current_status("Saving empty fields information...");
 	auto const& empty_values = _unconvertable_values.empty_conversions();
 
-	std::vector<PVCore::PVSelBitField> sels(get_number_cols(),
-	                                        PVCore::PVSelBitField(get_row_count()));
+	std::vector<PVCore::PVSelBitField> sels(column_count(), PVCore::PVSelBitField(row_count()));
 	for (size_t col = 0; col < sels.size(); col++) {
 		sels[col].select_none();
 	}
 
-	std::unordered_set<size_t> empty_cols_indexes;
+	std::unordered_set<PVCol> empty_cols_indexes;
 
 	for (auto const& empty_value : empty_values) {
 		PVRow row = empty_value.first;
 		auto const& empty_cols = empty_value.second;
 		for (auto const& empty_col : empty_cols) {
 			sels[empty_col].set_bit_fast(row);
-			empty_cols_indexes.insert(empty_col);
+			empty_cols_indexes.insert(PVCol(empty_col));
 		}
 	}
 
 	std::stringstream str_col_indexes;
 	std::copy(empty_cols_indexes.begin(), empty_cols_indexes.end(),
-	          std::ostream_iterator<size_t>(str_col_indexes, ","));
+	          std::ostream_iterator<PVCol>(str_col_indexes, ","));
 
 	so.attribute_write("empty_conv/columns", QString::fromStdString(str_col_indexes.str()));
 

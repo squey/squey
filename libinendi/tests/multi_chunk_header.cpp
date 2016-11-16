@@ -20,7 +20,7 @@ int main()
 	const Inendi::PVSource* src = env.root.get_children<Inendi::PVSource>().front();
 	PV_VALID(src->get_row_count(), 1999986U);
 
-	size_t sum = (size_t)pvcop::db::algo::sum(src->get_rushnraw().collection().column(0));
+	size_t sum = (size_t)pvcop::db::algo::sum(src->get_rushnraw().column(PVCol(0)));
 	PV_VALID(sum, 1000000999944U);
 
 	return 0;

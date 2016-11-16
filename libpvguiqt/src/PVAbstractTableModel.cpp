@@ -378,7 +378,7 @@ bool PVAbstractTableModel::is_selected(QModelIndex const& index) const
 * PVAbstractTableModel::sorted
 *
 *****************************************************************************/
-void PVAbstractTableModel::sorted(PVCol col, Qt::SortOrder order)
+void PVAbstractTableModel::sorted(PVCombCol col, Qt::SortOrder order)
 {
 	_display.set_sorted_meta(col, order);
 	// Commit the range selection to make the selected rows persistent

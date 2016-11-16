@@ -120,7 +120,7 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	 * @param[in,out] ctxt : Information about sorting processing to enable cancel.
 	 *
 	 */
-	void sort_on_col(PVCol col, Qt::SortOrder order, tbb::task_group_context& ctxt);
+	void sort_on_col(PVCombCol col, Qt::SortOrder order, tbb::task_group_context& ctxt);
 
 	/**
 	 * Export row-th line in a QString.

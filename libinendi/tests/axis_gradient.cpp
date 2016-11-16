@@ -47,7 +47,7 @@ int main()
 	PVCore::PVArgumentList& args = view->get_last_args_filter(PLUGIN_NAME);
 
 	// Setup parameters.
-	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(AXIS_INDEX));
+	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(PVCol(AXIS_INDEX)));
 
 	Inendi::PVLayer out("Out", view->get_row_count());
 	Inendi::PVLayer& in = view->get_layer_stack_output_layer();

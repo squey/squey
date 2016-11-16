@@ -97,7 +97,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 			return 0.f;
 		}
 
-		src->set_number_cols_to_reserve(format.get_axes().size());
+		src->set_number_cols_to_reserve(PVCol(format.get_axes().size()));
 
 		size_t nelts = 0;
 		size_t nelts_valid = 0;
@@ -140,8 +140,8 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 			// Check the number of fields of the first element, and compare to the one
 			// of the given format
-			PVCol chunk_nfields = (*(chunk->c_elements().begin()))->c_fields().size();
-			PVCol format_nfields = format.get_axes().size();
+			PVCol chunk_nfields((*(chunk->c_elements().begin()))->c_fields().size());
+			PVCol format_nfields(format.get_axes().size());
 			if (chunk_nfields != format_nfields) {
 				PVLOG_DEBUG("For format %s, the number of fields after the normalization is %d, "
 				            "different of the number of axes of the format (%d).\n",

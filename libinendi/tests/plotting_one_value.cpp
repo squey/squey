@@ -23,11 +23,11 @@ int main()
 {
 	pvtest::TestEnv env(csv_file, csv_file_format, 1, pvtest::ProcessUntil::Mapped);
 
-	auto const& plotted = env.compute_plotting().get_plotted(0);
+	auto const& plotted = env.compute_plotting().get_plotted(PVCol(0));
 
 	// Check mapping is the same as NRaw value.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;

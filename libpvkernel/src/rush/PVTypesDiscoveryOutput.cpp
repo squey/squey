@@ -209,7 +209,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 		}
 
 		PVCore::list_fields const& fields = e.c_fields();
-		PVCol col = 0;
+		PVCol col(0);
 		for (PVCore::PVField const& field : fields) {
 			for (size_t idx = 0; idx < _formatters.size(); idx++) {
 				if (not matching_formatters[col][idx]) {

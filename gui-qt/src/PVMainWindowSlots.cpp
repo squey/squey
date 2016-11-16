@@ -611,7 +611,7 @@ void PVInspector::PVMainWindow::flag_investigation_as_cached(const QString& inve
 {
 	QStringList nraws;
 	for (Inendi::PVSource* source : get_root().get_children<Inendi::PVSource>()) {
-		nraws << QString::fromStdString(source->get_rushnraw().collection().rootdir());
+		nraws << QString::fromStdString(source->get_rushnraw().dir());
 	}
 	PVRush::PVNrawCacheManager::get().add_investigation(investigation, nraws);
 }

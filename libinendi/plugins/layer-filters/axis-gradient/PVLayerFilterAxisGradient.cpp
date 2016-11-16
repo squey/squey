@@ -32,7 +32,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterAxisGradient)
 {
 	PVCore::PVArgumentList args;
 	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(
-	    PVCore::PVOriginalAxisIndexType(0));
+	    PVCore::PVOriginalAxisIndexType(PVCol(0)));
 	return args;
 }
 
@@ -43,7 +43,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterAxisGradient)
  *****************************************************************************/
 void Inendi::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer& out)
 {
-	int axis_id;
+	PVCol axis_id;
 
 	PVCore::PVHSVColor color;
 

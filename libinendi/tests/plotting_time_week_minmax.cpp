@@ -43,7 +43,7 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
-	const pvcop::db::array& column = nraw.collection().column(0);
+	const pvcop::db::array& column = nraw.column(PVCol(0));
 	auto& array = column.to_core_array<uint64_t>();
 
 	std::vector<uint32_t> order(column.size());
@@ -64,14 +64,14 @@ int main()
 		        tm_a.tm_min == tm_b.tm_min and tm_a.tm_sec > tm_b.tm_sec);
 	});
 
-	uint32_t prev = plotted.get_column_pointer(0)[order[0]];
+	uint32_t prev = plotted.get_column_pointer(PVCol(0))[order[0]];
 	constexpr double sec_per_week = 7 * 24 * 3600 - 1;
 	constexpr double ratio = std::numeric_limits<uint32_t>::max() / sec_per_week;
 	// We don't have time less than 3 seconds before the end of the week end in the file.
 	PV_VALID(prev, (uint32_t)(3 * ratio) + 1);
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(0)[order[i]]);
-		prev = plotted.get_column_pointer(0)[order[i]];
+		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(PVCol(0))[order[i]]);
+		prev = plotted.get_column_pointer(PVCol(0))[order[i]];
 	}
 	// We don't have time more than 1 seconds after the beginning of the week end in the file.
 	PV_VALID(prev, std::numeric_limits<uint32_t>::max() - (uint32_t)(ratio * 1));

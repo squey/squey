@@ -141,7 +141,7 @@ void PVInspector::PVNrawListingWidget::resize_columns_content()
 	}
 }
 
-void PVInspector::PVNrawListingWidget::select_header(int column)
+void PVInspector::PVNrawListingWidget::select_header(PVCol column)
 {
 	_nraw_model->set_selected_column(column);
 	_nraw_model->sel_visible(true);

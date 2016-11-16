@@ -108,7 +108,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 	QVector<PVCol> axes_id = get_used_axes_selected();
 	_axes_combination.remove_axes(axes_id.begin(), axes_id.end());
 	update_used_axes();
-	_list_used->setCurrentRow(std::min(axes_id.at(0), _list_used->count() - 1));
+	_list_used->setCurrentRow(std::min((int)axes_id.at(0), _list_used->count() - 1));
 }
 
 void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()
@@ -120,7 +120,7 @@ void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()
 
 PVCol PVGuiQt::PVAxesCombinationWidget::get_original_axis_selected()
 {
-	return _list_org->currentRow();
+	return PVCol(_list_org->currentRow());
 }
 
 QString PVGuiQt::PVAxesCombinationWidget::get_original_axis_selected_name()
@@ -134,7 +134,7 @@ QVector<PVCol> PVGuiQt::PVAxesCombinationWidget::get_list_selection(QListWidget*
 	QModelIndexList list = widget->selectionModel()->selectedIndexes();
 	ret.reserve(list.size());
 	for (const QModelIndex& idx : list) {
-		ret.push_back(idx.row());
+		ret.push_back(PVCol(idx.row()));
 	}
 	return ret;
 }
@@ -187,7 +187,7 @@ bool PVGuiQt::PVAxesCombinationWidget::is_original_axis_selected()
 void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
 {
 	QItemSelection new_sel;
-	for (size_t comb_col = 0; comb_col < _axes_combination.get_axes_count(); comb_col++) {
+	for (PVCombCol comb_col(0); comb_col < _axes_combination.get_axes_count(); comb_col++) {
 		if (cols.contains(_axes_combination.get_combination()[comb_col])) {
 			QModelIndex midx = _list_used->model()->index(comb_col, 0);
 			new_sel.select(midx, midx);

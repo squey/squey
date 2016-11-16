@@ -29,7 +29,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
                                           QWidget* parent,
                                           QDialog** dialog /*= nullptr*/)
 {
-	const pvcop::db::array col_in = nraw.collection().column(c);
+	const pvcop::db::array& col_in = nraw.column(c);
 
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;
@@ -95,8 +95,8 @@ static bool show_stats_dialog(const QString& title,
                               Inendi::PVSelection const& sel,
                               QWidget* parent)
 {
-	const pvcop::db::array col1_in = nraw.collection().column(col1);
-	const pvcop::db::array col2_in = nraw.collection().column(col2);
+	const pvcop::db::array& col1_in = nraw.column(col1);
+	const pvcop::db::array& col2_in = nraw.column(col2);
 
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;

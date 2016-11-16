@@ -48,7 +48,7 @@ bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
                                              PVZonesManager const& zm,
-                                             PVCol const zone_index,
+                                             PVCombCol const zone_index,
                                              PVZonesProcessor& zp_bg,
                                              PVZonesProcessor& zp_sel,
                                              QWidget* parent /*= nullptr*/
@@ -349,8 +349,8 @@ void PVParallelView::PVScatterView::do_update_all()
 
 bool PVParallelView::PVScatterView::update_zones()
 {
-	PVCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
-	if (new_zone == PVCOL_INVALID_VALUE) {
+	PVCombCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
+	if (new_zone == PVCol::INVALID_VALUE) {
 		// The left axis of the view have been remove, close the scatter view
 		return false;
 	} else if (new_zone == lib_view().get_column_count() - 1) {
@@ -360,21 +360,21 @@ bool PVParallelView::PVScatterView::update_zones()
 	}
 	// TODO : We should also close if the right axes is removed.
 
-	set_scatter_view_zone(new_zone);
+	set_scatter_view_zone((PVZoneID)new_zone);
 
 	return true;
 }
 
 void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
-	_nraw_col = lib_view().get_axes_combination().get_nraw_axis(zid);
+	_nraw_col = lib_view().get_axes_combination().get_nraw_axis((PVCombCol)zid);
 	get_images_manager().set_zone(zid);
 	PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
 	_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
 
 	// TODO: register axis name change through the hive
-	set_x_legend(lib_view().get_axis_name(zid));
-	set_y_legend(lib_view().get_axis_name(zid + 1));
+	set_x_legend(lib_view().get_axis_name((PVCombCol)zid));
+	set_y_legend(lib_view().get_axis_name(PVCombCol(zid + 1)));
 }
 
 /*****************************************************************************
@@ -470,7 +470,8 @@ QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value) const
 {
 	PVParallelView::PVZoneTree const& zt = get_zone_tree();
 
-	const PVCol nraw_col = lib_view().get_axes_combination().get_nraw_axis(get_zone_index() + 1);
+	const PVCol nraw_col(
+	    lib_view().get_axes_combination().get_nraw_axis(PVCombCol(get_zone_index() + 1)));
 
 	PVParallelView::PVBCode y_b_code;
 	y_b_code.int_v = 0;

@@ -47,7 +47,7 @@ Inendi::PVLayerFilterHeatline::PVLayerFilterHeatline(PVCore::PVArgumentList cons
 PVCore::PVArgumentList Inendi::PVLayerFilterHeatline::get_default_args_for_view(PVView const&)
 {
 	PVCore::PVArgumentList args = get_default_args();
-	args[ARG_NAME_AXES].setValue(PVCore::PVAxisIndexType(0));
+	args[ARG_NAME_AXES].setValue(PVCore::PVAxisIndexType(PVCol(0)));
 	return args;
 }
 
@@ -85,7 +85,7 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 	out.get_selection() = in.get_selection();
 
 	// Count number of occurance for each value in choosen axis.
-	pvcop::db::array const& col = nraw.collection().column(axis_id);
+	pvcop::db::array const& col = nraw.column(axis_id);
 
 	pvcop::db::groups group;
 	pvcop::db::extents extents;

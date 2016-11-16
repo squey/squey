@@ -44,9 +44,9 @@ int main(int argc, char** argv)
 		    return view->get_parent<Inendi::PVPlotted>().export_line(row, cols, sep, quote);
 		};
 
-	Inendi::PVSelection sel(nraw.get_row_count());
+	Inendi::PVSelection sel(nraw.row_count());
 	sel.select_all();
-	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.get_row_count(), export_func);
+	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.row_count(), export_func);
 
 	auto start = std::chrono::system_clock::now();
 
