@@ -174,9 +174,9 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 
 	// Add widgets
 
+	int row = 1;
 	for (PVRush::PVAxisFormat const& axe : _axes) {
-		int row = 1;
-		PVCol col(0);
+		int col = 0;
 		_main_grid->addWidget(new QLabel(axe.get_name(), this), row, col++);
 		if (has_mapping()) {
 			_main_grid->addWidget(new QLabel(axe.get_type()), row, col++);
