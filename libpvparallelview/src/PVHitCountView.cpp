@@ -601,7 +601,7 @@ void PVParallelView::PVHitCountView::set_params_widget_position()
 QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value) const
 {
 	// Number of Occurrence
-	return QString::number(value);
+	return get_elided_text(QString::number(value));
 }
 
 QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
@@ -621,10 +621,12 @@ QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
 		for (size_t i = 0; i < nrows; i++) {
 			const uint32_t v = (plotted[i] >> uint32_t(32 - nbits));
 			if (v == searched_value) {
-				return QString::fromStdString(_pvview.get_rushnraw_parent().at_string(i, nraw_col));
+				return get_elided_text(
+				    QString::fromStdString(_pvview.get_rushnraw_parent().at_string(i, nraw_col)));
 			}
 		}
 	}
 
-	return "None"; // QString::number(value >> uint32_t(32 - std::log2(buffer_size)));
+	return get_elided_text(
+	    "None"); // QString::number(value >> uint32_t(32 - std::log2(buffer_size)));
 }
