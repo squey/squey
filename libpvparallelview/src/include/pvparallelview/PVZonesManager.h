@@ -92,8 +92,8 @@ class PVZonesManager : public QObject
   public:
 	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
-		return {get_row_count(), _plotted.get_column_pointer(PVCol(z)),
-		        _plotted.get_column_pointer(PVCol(z + 1))};
+		return {get_row_count(), _plotted.get_column_pointer(_axes_comb[PVCol(z)]),
+		        _plotted.get_column_pointer(_axes_comb[PVCol(z + 1)])};
 	}
 
   protected:
