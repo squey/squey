@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <inendi/PVPlotted.h>
+#include <inendi/PVView.h>
 
 #include <pvparallelview/PVZone.h>
 #include <pvparallelview/PVZoneTree.h>
@@ -21,7 +22,6 @@
 // Forward declarations
 namespace Inendi
 {
-class PVView;
 class PVSelection;
 } // namespace Inendi
 
@@ -83,25 +83,25 @@ class PVZonesManager : public QObject
 	void filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel);
 
   public:
-	inline PVZoneID get_number_of_managed_zones() const { return _axes_comb.size() - 1; }
-	inline PVCol get_number_cols() const { return _ncols; }
-	inline PVRow get_row_count() const { return _nrows; }
-
-	inline Inendi::PVPlotted const& get_plotted() const { return _plotted; }
+	inline PVZoneID get_number_of_managed_zones() const
+	{
+		return _view.get_axes_combination().get_combination().size() - 1;
+	}
 
   public:
 	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
-		return {get_row_count(), _plotted.get_column_pointer(PVCol(z)),
-		        _plotted.get_column_pointer(PVCol(z + 1))};
+		const auto& plotted = _view.get_parent<Inendi::PVPlotted>();
+		const auto& ac = _view.get_axes_combination();
+
+		return {_view.get_row_count(), plotted.get_column_pointer(ac.get_nraw_axis(PVCombCol(z))),
+		        plotted.get_column_pointer(ac.get_nraw_axis(PVCombCol(z + 1)))};
 	}
 
   protected:
-	const Inendi::PVPlotted& _plotted; // FIXME : This is a duplication, it should get it from view
-	PVRow _nrows = 0;                  // FIXME : This is a duplication, it should get it from view
-	PVCol _ncols = PVCol(0);           // FIXME : This is a duplication, it should get it from view
-	std::vector<PVCol> _axes_comb;     // FIXME : This is a duplication, it should get it from view
+	const Inendi::PVView& _view;
 	// _axes_comb is copied to handle update once the axes_combination have been update in the view.
+	std::vector<PVCol> _axes_comb;
 	std::vector<PVZone> _zones;
 };
 } // namespace PVParallelView
