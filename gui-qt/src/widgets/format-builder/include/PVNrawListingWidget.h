@@ -61,7 +61,7 @@ class PVNrawListingWidget : public QWidget
 	void connect_table_header(T* receiver, const F& slot)
 	{
 		connect(_nraw_table->horizontalHeader(), &QHeaderView::sectionClicked,
-		        [&](int c) { (receiver->*slot)(PVCol(c)); });
+		        [=](int c) { (receiver->*slot)(PVCol(c)); });
 	}
 
 	void get_ext_args(PVRow& start, PVRow& end);
