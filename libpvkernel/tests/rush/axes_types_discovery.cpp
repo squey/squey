@@ -57,6 +57,8 @@ static double discover_types(const std::string& filename,
 
 int main()
 {
+	pvtest::init_ctxt();
+
 	PVRush::PVTypesDiscoveryOutput types_discovery_output;
 	double time =
 	    discover_types(types_filename, PVRush::PVFormat("", types_format), types_discovery_output);

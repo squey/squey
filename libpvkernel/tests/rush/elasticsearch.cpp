@@ -23,6 +23,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	pvtest::init_ctxt();
+
 	/*
 	 * Set Up an ElasticSearchInfo.
 	 * It contains all information required to connect with the server

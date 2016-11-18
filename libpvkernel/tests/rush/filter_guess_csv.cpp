@@ -1,7 +1,7 @@
 
 #include <pvkernel/core/inendi_assert.h>
 
-#include "test-env.h"
+#include "common.h"
 #include "common_guess.h"
 
 int main(int argc, char** argv)
@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	init_env();
+	pvtest::init_ctxt();
 
 	PVCol found_fields_count(0);
 	PVCol expected_fields_count = (PVCol)atoi(argv[1]);

@@ -50,11 +50,8 @@ std::string get_tmp_filename()
  * * Prepare QCoreApplication
  * * Load plugins
  * * Init cpu features
- *
- * @note : we use constructor attribute to make sure every test which include this
- * file have correctly initialized environment.
  */
-__attribute__((constructor)) void init_ctxt()
+void init_ctxt()
 {
 	// Need this core application to find plugins path.
 	std::string prog_name = "test_pvkernel_rush";
@@ -67,9 +64,6 @@ __attribute__((constructor)) void init_ctxt()
 	// Load plugins to fill the nraw
 	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
 	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
-
-	// Initialize sse4 detection
-	PVCore::PVIntrinsics::init_cpuid();
 }
 
 /**
@@ -101,11 +95,13 @@ std::string duplicate_log_file(std::string const& log_file, size_t dup)
 class TestSplitter
 {
   public:
-	TestSplitter(std::string const& log_file, size_t dup = 1)
-	    : _big_file_path(duplicate_log_file(log_file, dup))
-	    , _source(std::make_shared<PVRush::PVInputFile>(_big_file_path.c_str()), chunk_size)
-	    , _need_cleanup(dup > 1)
+	TestSplitter(std::string const& log_file = "", size_t dup = 1)
 	{
+		init_ctxt();
+
+		if (log_file.size() != 0) {
+			reset(log_file, dup);
+		}
 	}
 
 	~TestSplitter()
@@ -117,6 +113,10 @@ class TestSplitter
 	std::tuple<size_t, size_t, std::string>
 	run_normalization(PVFilter::PVChunkFilterByElt const& flt_f)
 	{
+		if (_source.get() == nullptr) {
+			throw std::runtime_error("source not created");
+		}
+
 		std::string output_file = get_tmp_filename();
 		// Extract source and split fields.
 		std::ofstream ofs(output_file);
@@ -126,7 +126,7 @@ class TestSplitter
 		double duration = 0.;
 
 		std::vector<PVCore::PVChunk*> _chunks;
-		while (PVCore::PVChunk* pc = _source()) {
+		while (PVCore::PVChunk* pc = (*_source.get())()) {
 			_chunks.push_back(pc);
 		}
 
@@ -161,11 +161,19 @@ class TestSplitter
 		return std::make_tuple(nelts_org, nelts_valid, output_file);
 	}
 
+	void reset(std::string const& log_file, size_t dup = 1)
+	{
+		_big_file_path = duplicate_log_file(log_file, dup);
+		_source.reset(new PVRush::PVUnicodeSource<>(
+		    std::make_shared<PVRush::PVInputFile>(_big_file_path.c_str()), chunk_size));
+		_need_cleanup = dup > 1;
+	}
+
   private:
 	static constexpr size_t chunk_size = 6000;
 
 	std::string _big_file_path;
-	PVRush::PVUnicodeSource<> _source;
+	std::unique_ptr<PVRush::PVUnicodeSource<>> _source;
 	bool _need_cleanup;
 };
 
@@ -191,11 +199,34 @@ class TestEnv
 	TestEnv(std::vector<std::string> const& log_files,
 	        std::string const& format_file,
 	        size_t dup = 1)
-	    : _format("format", QString::fromStdString(format_file))
-	    , _nraw_output(_nraw)
-	    , _big_file_path(duplicate_log_file(log_files[0], dup))
-	    , _need_cleanup(dup > 1)
 	{
+		init_ctxt();
+		reset(log_files, format_file, dup);
+	}
+
+	void load_data(size_t begin = 0)
+	{
+		PVRush::PVExtractor ext(_format, *_nraw_output.get(), _sc_file, _list_inputs);
+		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(begin);
+		job->wait_end();
+	}
+
+	/**
+	 * Clean up duplicated file when it is over.
+	 */
+	~TestEnv()
+	{
+		if (_need_cleanup)
+			std::remove(_big_file_path.c_str());
+	}
+
+	void
+	reset(std::vector<std::string> const& log_files, std::string const& format_file, size_t dup = 1)
+	{
+		_format = PVRush::PVFormat("format", QString::fromStdString(format_file));
+		_nraw_output.reset(new PVRush::PVNrawOutput(_nraw));
+		_big_file_path = duplicate_log_file(log_files[0], dup);
+		_need_cleanup = (dup > 1);
 
 		if (dup != 1 and log_files.size() > 1) {
 			throw std::runtime_error("We don't handle mutliple input with duplication");
@@ -215,22 +246,6 @@ class TestEnv
 		}
 	}
 
-	void load_data(size_t begin = 0)
-	{
-		PVRush::PVExtractor ext(_format, _nraw_output, _sc_file, _list_inputs);
-		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(begin);
-		job->wait_end();
-	}
-
-	/**
-	 * Clean up duplicated file when it is over.
-	 */
-	~TestEnv()
-	{
-		if (_need_cleanup)
-			std::remove(_big_file_path.c_str());
-	}
-
 	/**
 	 * Get number of row in the imported NRaw.
 	 */
@@ -238,7 +253,7 @@ class TestEnv
 
 	PVRush::PVFormat _format;
 	PVRush::PVNraw _nraw;
-	PVRush::PVNrawOutput _nraw_output;
+	std::unique_ptr<PVRush::PVNrawOutput> _nraw_output;
 	QList<std::shared_ptr<PVRush::PVInputDescription>> _list_inputs;
 	PVRush::PVSourceCreator_p _sc_file;
 

@@ -88,7 +88,6 @@ cmd_options parse_options(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-
 /*
  * Override environment variables when deploying the tool to bypass the fact
  * that we are in fact using the internal test API.
@@ -99,5 +98,9 @@ int main(int argc, char** argv)
 	setenv("PVKERNEL_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
 #endif
 
+	pvtest::init_ctxt();
+
 	run_stats(parse_options(argc, argv));
+
+	return 0;
 }

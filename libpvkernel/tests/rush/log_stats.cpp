@@ -15,6 +15,8 @@ static constexpr const char* ref_output = TEST_FOLDER "/picviz/log_stats_ref_out
 
 int main()
 {
+	pvtest::init_ctxt();
+
 	std::string tmp_output = pvtest::get_tmp_filename();
 	std::ofstream out(tmp_output);
 	std::streambuf* coutbuf = std::cout.rdbuf();

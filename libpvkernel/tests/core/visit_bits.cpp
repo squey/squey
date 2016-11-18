@@ -9,7 +9,10 @@
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/PVBitVisitor.h>
+
 #include <iostream>
+#include <vector>
+#include <numeric>
 
 void check_bit_visitor(int* bits_ref, size_t size)
 {

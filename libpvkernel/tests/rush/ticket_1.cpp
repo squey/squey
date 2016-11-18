@@ -30,7 +30,7 @@
 #include <iostream>
 
 #include "helpers.h"
-#include "test-env.h"
+#include "common.h"
 
 int main(int argc, char** argv)
 {
@@ -40,9 +40,7 @@ int main(int argc, char** argv)
 	}
 
 	// Initialisation
-	init_env();
-	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVRush::PVPluginsLoad::load_all_plugins();
+	pvtest::init_ctxt();
 
 	// Format reading
 	QDir dir_files(QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/1/"));
