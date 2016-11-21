@@ -187,10 +187,6 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 		                      tr("Can not create the file \"%1\"").arg(filename));
 	}
 
-	// TODO: put an option in the widget for the file locale
-	// Open a text stream with the current locale (by default in QTextStream)
-	std::ofstream ofs(file.fileName().toStdString());
-
 	// Get export characters parameters
 	const std::string sep_char = export_selection_dlg.separator_char().toStdString();
 	const std::string quote_char = export_selection_dlg.quote_char().toStdString();
@@ -219,9 +215,10 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	}
 
 	// Export header
+	std::string header;
 	if (export_selection_dlg.export_columns_header()) {
 		PVRush::PVUtils::safe_export(str_list, sep_char, quote_char);
-		ofs << "#" << str_list.join(export_selection_dlg.separator_char()).toStdString() << "\n";
+		header = "#" + str_list.join(export_selection_dlg.separator_char()).toStdString() + "\n";
 	}
 
 	// Rows to export
@@ -248,7 +245,9 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 
 	// Export selected lines
 	// TODO : We know the number of line to set a progression
-	PVCore::PVExporter exp(ofs, sel, column_indexes, step_count, export_func, sep_char, quote_char);
+	PVCore::PVExporter exp(file.fileName().toStdString(), sel, column_indexes, step_count,
+	                       export_func, PVCore::PVExporter::CompressionType::GZ, sep_char,
+	                       quote_char, header);
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_maximum(nrows);
@@ -268,6 +267,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 				    return;
 			    }
 		    }
+		    exp.wait_finished();
 		},
 	    "Selection export", nullptr);
 }

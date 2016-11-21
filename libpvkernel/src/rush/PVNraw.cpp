@@ -206,7 +206,7 @@ void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
  *
  ****************************************************************************/
 
-void PVRush::PVNraw::dump_csv(std::ostream& os) const
+void PVRush::PVNraw::dump_csv(std::string const& file_path /* = "" */) const
 {
 	PVCore::PVColumnIndexes cols(column_count());
 	std::iota(cols.begin(), cols.end(), PVCol(0));
@@ -217,20 +217,9 @@ void PVRush::PVNraw::dump_csv(std::ostream& os) const
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return export_line(row, cols, sep, quote); };
 
-	PVCore::PVExporter exp(os, sel, cols, row_count(), export_func);
+	PVCore::PVExporter exp(file_path, sel, cols, row_count(), export_func);
 	exp.export_rows(0);
-}
-
-/*****************************************************************************
- *
- * PVRush::PVNraw::dump_csv
- *
- ****************************************************************************/
-
-void PVRush::PVNraw::dump_csv(std::string const& file_path) const
-{
-	std::ofstream ofs(file_path);
-	dump_csv(ofs);
+	exp.wait_finished();
 }
 
 /*****************************************************************************

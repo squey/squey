@@ -31,8 +31,6 @@ int main(int argc, char** argv)
 
 	std::string output_tmp_file = pvtest::get_tmp_filename();
 
-	std::ofstream stream(output_tmp_file);
-
 	Inendi::PVView* view = env.root.current_view();
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
@@ -46,11 +44,12 @@ int main(int argc, char** argv)
 
 	Inendi::PVSelection sel(nraw.row_count());
 	sel.select_all();
-	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.row_count(), export_func);
 
 	auto start = std::chrono::system_clock::now();
 
+	PVCore::PVExporter exp(output_tmp_file, sel, col_indexes, nraw.row_count(), export_func);
 	exp.export_rows(0);
+	exp.wait_finished();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;

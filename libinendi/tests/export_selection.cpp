@@ -15,6 +15,7 @@
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVExporter.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVScene.h>
@@ -52,7 +53,6 @@ int main(int argc, char** argv)
 	sel.select_all();
 
 	std::string output_file = pvtest::get_tmp_filename();
-	std::ofstream stream(output_file);
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
@@ -62,16 +62,28 @@ int main(int argc, char** argv)
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
 
-	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.row_count(), export_func);
-	exp.export_rows(0);
+	auto start = std::chrono::system_clock::now();
 
-	// Compare files content
+	PVCore::PVExporter exp(output_file, sel, col_indexes, nraw.row_count(), export_func,
+	                       compression_type);
+	exp.export_rows(0);
+	exp.wait_finished();
+
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> diff = end - start;
+
+	std::cout << diff.count();
+
+#ifndef INSPECTOR_BENCH
 	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], output_file);
+	std::cout << std::endl << argv[1] << " - " << output_file << std::endl;
+	PV_VALID(same_content, true);
+	exit(-1);
+#endif // INSPECTOR_BENCH
+
 	std::remove(output_file.c_str());
 
 	// Remove nraw folder
 	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path()
 	                                                       : QString::fromStdString(nraw.dir()));
-
-	return (!same_content) * 5;
 }

@@ -150,8 +150,7 @@ class PVNraw
 	/**
 	 * Export the PVNraw with initial ordering.
 	 */
-	void dump_csv(std::ostream& os = std::cout) const;
-	void dump_csv(const std::string& file_path) const;
+	void dump_csv(const std::string& file_path = "") const;
 
 	const unconvertable_values_t& unconvertable_values() const { return _unconvertable_values; }
 
