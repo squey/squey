@@ -30,6 +30,9 @@
 
 #include "common.h"
 
+static constexpr const PVCore::PVExporter::CompressionType compression_type =
+    PVCore::PVExporter::CompressionType::GZ;
+
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
@@ -52,7 +55,11 @@ int main(int argc, char** argv)
 	Inendi::PVSelection sel(view->get_row_count());
 	sel.select_all();
 
-	std::string output_file = pvtest::get_tmp_filename();
+	char temp_pattern[] = "/tmp/fileXXXXXX";
+	close(mkstemp(temp_pattern));
+	std::remove(temp_pattern);
+	std::string output_file =
+	    std::string(temp_pattern) + PVCore::PVExporter::extension(compression_type);
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
@@ -75,10 +82,14 @@ int main(int argc, char** argv)
 	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
-	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], output_file);
-	std::cout << std::endl << argv[1] << " - " << output_file << std::endl;
-	PV_VALID(same_content, true);
-	exit(-1);
+	std::string cmd = "gunzip " + output_file;
+	int result = system(cmd.c_str());
+	PV_VALID(result, 0);
+	std::string uncompressed_file = output_file.substr(0, output_file.find_last_of("."));
+	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], uncompressed_file);
+	std::cout << std::endl << argv[1] << " - " << uncompressed_file << std::endl;
+	PV_ASSERT_VALID(same_content);
+	std::remove(uncompressed_file.c_str());
 #endif // INSPECTOR_BENCH
 
 	std::remove(output_file.c_str());
