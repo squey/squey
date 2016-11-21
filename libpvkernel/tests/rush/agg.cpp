@@ -38,7 +38,8 @@ int main(int argc, char** argv)
 		std::cerr << "Uses files in 'directory'" << std::endl;
 		return 1;
 	}
-	PVCore::PVIntrinsics::init_cpuid();
+
+	pvtest::init_ctxt();
 
 	QString dir_path = argv[2];
 	QDir dir_files(dir_path);

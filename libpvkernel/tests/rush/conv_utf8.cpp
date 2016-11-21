@@ -31,7 +31,8 @@ int main(int argc, char** argv)
 #endif
 	const size_t chunk_size = (argc < 4) ? 20000 : atoi(argv[3]);
 
-	PVCore::PVIntrinsics::init_cpuid();
+	pvtest::init_ctxt();
+
 	PVInput_p ifile(new PVInputFile(input));
 	PVUnicodeSource<> source(ifile, chunk_size);
 

@@ -15,7 +15,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "test-env.h"
+#include "common.h"
 
 #define FILES_DIR "../../tests/files/pvkernel/run/tickets/28/"
 
@@ -26,9 +26,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	init_env();
-	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVRush::PVPluginsLoad::load_all_plugins();
+	pvtest::init_ctxt();
 
 	const QString format_path =
 	    QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/28/field_enum.format");
