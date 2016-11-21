@@ -36,6 +36,8 @@ static const testcase_t testcases[] = {{-42, true, {"", "abcdefghijklmnopqrstuvw
 
 int main()
 {
+	pvtest::TestSplitter ts;
+
 	// Prepare splitter plugin
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("length");
@@ -50,7 +52,7 @@ int main()
 	of.close();
 
 	for (const auto& testcase : testcases) {
-		pvtest::TestSplitter ts(log_file);
+		ts.reset(log_file);
 
 		/* initializing the splitter
 		 */

@@ -79,6 +79,8 @@ static const std::vector<test_t> testsuite = {
 
 int main()
 {
+	pvtest::TestSplitter ts;
+
 	// Prepare splitter plugin
 	PVFilter::PVFieldsConverter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsConverter)::get().get_class_by_name("substitution");
@@ -87,7 +89,7 @@ int main()
 		const std::string& input_file = test.first.first;
 		const std::string& ref_file = test.first.second;
 
-		pvtest::TestSplitter ts(input_file, nb_dup);
+		ts.reset(input_file, nb_dup);
 
 		const params_t& params = test.second;
 

@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "helpers.h"
-#include "test-env.h"
+#include "common.h"
 
 int main(int argc, char** argv)
 {
@@ -25,8 +25,9 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " format_dir" << std::endl;
 	}
 
-	// Initialisation
-	init_env();
+	// Initialization
+	pvtest::init_ctxt();
+
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	// Format reading
 	QDir dir_files(argv[1]);

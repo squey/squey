@@ -23,6 +23,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	pvtest::init_ctxt();
+
 	/*
 	 * Set up a SplunkInfo to connect with the server
 	 */
