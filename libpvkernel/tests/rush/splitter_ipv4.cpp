@@ -98,6 +98,8 @@ void check_invalid_params(PVFilter::PVFieldsSplitter::p_type& splitter, const st
 
 int main()
 {
+	pvtest::TestSplitter ts(log_file, nb_dup);
+
 	// Prepare splitter plugin
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("ip");
@@ -111,8 +113,6 @@ int main()
 		check_invalid_params(sp_lib_p, invalid_params_list[i]);
 	}
 #endif
-
-	pvtest::TestSplitter ts(log_file, nb_dup);
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
 	args["ipv6"] = false;

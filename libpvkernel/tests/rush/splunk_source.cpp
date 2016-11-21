@@ -27,6 +27,7 @@ static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/sources/splu
 int main()
 {
 	// FIXME it is a manual creation for InputType as API is not provided by input_type plugin.
+	pvtest::init_ctxt();
 
 	/*
 	 * Set up a SplunkInfo to connect with the server
