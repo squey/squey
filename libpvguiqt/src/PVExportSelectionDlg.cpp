@@ -33,6 +33,9 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
     QWidget* parent /* = 0 */)
     : QFileDialog(parent)
 {
+	// Set this flags to make sure we can access the layout.
+	setOption(QFileDialog::DontUseNativeDialog);
+
 	setWindowTitle(tr("Export selection"));
 	setAcceptMode(QFileDialog::AcceptSave);
 
@@ -75,6 +78,50 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	_columns_header = new QCheckBox("Export column names as header");
 	_columns_header->setCheckState(Qt::CheckState::Checked);
 	left_layout->addWidget(_columns_header);
+
+	// Compression
+	const QString default_name_filter = QFileDialog::selectedNameFilter();
+	QCheckBox* compression = new QCheckBox("On-the-fly compression");
+	compression->setEnabled(false);
+	QComboBox* compression_type = new QComboBox;
+	auto update_name_filter = [&, default_name_filter](const QString& filter = QString()) {
+		QStringList name_filters = {default_name_filter};
+		if (not filter.isNull()) {
+			const QString& name_filter = filter + " Files (*" + filter + ")";
+			name_filters << name_filter;
+		}
+		setNameFilters(name_filters);
+		if (not filter.isNull()) {
+			selectNameFilter(name_filters.at(1));
+		}
+		setDefaultSuffix(filter);
+	};
+	connect(compression_type,
+	        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
+	        [=](const QString& filter) { update_name_filter(filter); });
+	compression_type->addItems([&]() {
+		QStringList l;
+		for (size_t c = 1; c < (size_t)PVCore::PVExporter::CompressionType::COUNT; c++) {
+			PVCore::PVExporter::CompressionType comp = (PVCore::PVExporter::CompressionType)c;
+			if (std::ifstream(PVCore::PVExporter::executable(comp)).good()) {
+				l << QString::fromStdString(PVCore::PVExporter::extension(comp));
+				compression->setChecked(true);
+				compression->setEnabled(true);
+			}
+		}
+		return l;
+	}());
+	connect(compression, &QCheckBox::stateChanged,
+	        [&, default_name_filter, update_name_filter, compression_type](int state) {
+		        bool enabled = (Qt::CheckState)state == Qt::CheckState::Checked;
+		        update_name_filter(enabled ? compression_type->currentText() : QString());
+		        compression_type->setEnabled(enabled);
+		    });
+	QHBoxLayout* compression_layout = new QHBoxLayout();
+	compression_layout->addWidget(compression);
+	compression_layout->addWidget(compression_type);
+	compression_layout->addStretch();
+	left_layout->addLayout(compression_layout);
 
 	// Define csv specific character
 	QFormLayout* char_layout = new QFormLayout();
@@ -120,9 +167,12 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	custom_axes_combination_layout->addWidget(_custom_axis);
 	custom_axes_combination_layout->addWidget(_edit_axes_combination);
 	right_layout->addLayout(custom_axes_combination_layout);
+	right_layout->addStretch();
 
-	connect(_custom_axis, SIGNAL(toggled(bool)), this, SLOT(show_edit_axes_widget(bool)));
-	connect(_edit_axes_combination, SIGNAL(clicked()), this, SLOT(show_axes_combination_widget()));
+	connect(_custom_axis, &QRadioButton::toggled, this,
+	        &PVGuiQt::PVExportSelectionDlg::show_edit_axes_widget);
+	connect(_edit_axes_combination, &QPushButton::clicked, this,
+	        &PVGuiQt::PVExportSelectionDlg::show_axes_combination_widget);
 
 	// TODO : add an OK button
 	_axes_combination_widget = new PVAxesCombinationWidget(custom_axes_combination, &view);
@@ -187,10 +237,6 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 		                      tr("Can not create the file \"%1\"").arg(filename));
 	}
 
-	// TODO: put an option in the widget for the file locale
-	// Open a text stream with the current locale (by default in QTextStream)
-	std::ofstream ofs(file.fileName().toStdString());
-
 	// Get export characters parameters
 	const std::string sep_char = export_selection_dlg.separator_char().toStdString();
 	const std::string quote_char = export_selection_dlg.quote_char().toStdString();
@@ -219,9 +265,10 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	}
 
 	// Export header
+	std::string header;
 	if (export_selection_dlg.export_columns_header()) {
 		PVRush::PVUtils::safe_export(str_list, sep_char, quote_char);
-		ofs << "#" << str_list.join(export_selection_dlg.separator_char()).toStdString() << "\n";
+		header = "#" + str_list.join(export_selection_dlg.separator_char()).toStdString() + "\n";
 	}
 
 	// Rows to export
@@ -248,25 +295,33 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 
 	// Export selected lines
 	// TODO : We know the number of line to set a progression
-	PVCore::PVExporter exp(ofs, sel, column_indexes, step_count, export_func, sep_char, quote_char);
+	PVCore::PVExporter exp(file.fileName().toStdString(), sel, column_indexes, step_count,
+	                       export_func, PVCore::PVExporter::CompressionType::GZ, sep_char,
+	                       quote_char, header);
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_maximum(nrows);
-		    while (true) {
-			    start = sel.find_next_set_bit(start, nrows);
-			    if (start == PVROW_INVALID_VALUE) {
-				    break;
-			    }
+		    try {
+			    while (true) {
+				    start = sel.find_next_set_bit(start, nrows);
+				    if (start == PVROW_INVALID_VALUE) {
+					    break;
+				    }
 
-			    pbox.set_value(start);
+				    pbox.set_value(start);
 
-			    step_count = std::min(step_count, nrows - start);
-			    exp.set_step_count(step_count);
-			    exp.export_rows(start);
-			    start += step_count;
-			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
-				    return;
+				    step_count = std::min(step_count, nrows - start);
+				    exp.set_step_count(step_count);
+				    exp.export_rows(start);
+				    start += step_count;
+				    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
+					    return;
+				    }
 			    }
+			    exp.wait_finished();
+		    } catch (const PVCore::PVExportError& e) {
+			    pbox.critical("Error when exporting data", e.what());
+			    std::remove(file.fileName().toStdString().c_str());
 		    }
 		},
 	    "Selection export", nullptr);

@@ -15,6 +15,7 @@
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVExporter.h>
+#include <pvkernel/core/inendi_assert.h>
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVScene.h>
@@ -28,6 +29,9 @@
 #include <QFile>
 
 #include "common.h"
+
+static constexpr const PVCore::PVExporter::CompressionType compression_type =
+    PVCore::PVExporter::CompressionType::GZ;
 
 int main(int argc, char** argv)
 {
@@ -51,8 +55,11 @@ int main(int argc, char** argv)
 	Inendi::PVSelection sel(view->get_row_count());
 	sel.select_all();
 
-	std::string output_file = pvtest::get_tmp_filename();
-	std::ofstream stream(output_file);
+	char temp_pattern[] = "/tmp/fileXXXXXX";
+	close(mkstemp(temp_pattern));
+	std::remove(temp_pattern);
+	std::string output_file =
+	    std::string(temp_pattern) + PVCore::PVExporter::extension(compression_type);
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
@@ -62,16 +69,32 @@ int main(int argc, char** argv)
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
 
-	PVCore::PVExporter exp(stream, sel, col_indexes, nraw.row_count(), export_func);
-	exp.export_rows(0);
+	auto start = std::chrono::system_clock::now();
 
-	// Compare files content
-	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], output_file);
+	PVCore::PVExporter exp(output_file, sel, col_indexes, nraw.row_count(), export_func,
+	                       compression_type);
+	exp.export_rows(0);
+	exp.wait_finished();
+
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> diff = end - start;
+
+	std::cout << diff.count();
+
+#ifndef INSPECTOR_BENCH
+	std::string cmd = "gunzip " + output_file;
+	int result = system(cmd.c_str());
+	PV_VALID(result, 0);
+	std::string uncompressed_file = output_file.substr(0, output_file.find_last_of("."));
+	bool same_content = PVRush::PVUtils::files_have_same_content(argv[1], uncompressed_file);
+	std::cout << std::endl << argv[1] << " - " << uncompressed_file << std::endl;
+	PV_ASSERT_VALID(same_content);
+	std::remove(uncompressed_file.c_str());
+#endif // INSPECTOR_BENCH
+
 	std::remove(output_file.c_str());
 
 	// Remove nraw folder
 	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path()
 	                                                       : QString::fromStdString(nraw.dir()));
-
-	return (!same_content) * 5;
 }
