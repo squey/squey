@@ -307,6 +307,9 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_values_view->setAlternatingRowColors(true);
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
+	QString biggest_str = QString().fill('0', QString::number(model->size()).size() + 1);
+	_values_view->verticalHeader()->setFixedWidth(QFontMetrics(font()).width(biggest_str));
+
 	// Add content for right click menu on vertical headers
 	_hhead_ctxt_menu = new QMenu(this);
 	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
