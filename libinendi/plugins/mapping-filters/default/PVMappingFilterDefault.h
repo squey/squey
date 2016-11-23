@@ -28,47 +28,11 @@ class PVMappingFilterDefault : public PVMappingFilter
 	PVMappingFilterDefault();
 
 	/**
-	 * Copy NRaw values (real integers value) as mapping value.
+	 * Point mapping values directly to nraw values without any copy
 	 */
-	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
+	pvcop::db::array operator()(PVCol const /*col*/, PVRush::PVNraw const& /*nraw*/) override
 	{
-		const pvcop::db::array& array = nraw.column(col);
-
-		auto f = nraw.column_formatter(col);
-		if (std::string(f->name()) == "datetime_us") {
-			pvcop::db::array dest(pvcop::db::type_uint32, array.size());
-			auto& dest_array = dest.to_core_array<uint32_t>();
-			auto& core_array = array.to_core_array<uint64_t>();
-			const boost::posix_time::ptime epoch = boost::posix_time::from_time_t(0);
-			for (size_t row = 0; row < array.size(); row++) {
-				const boost::posix_time::ptime t =
-				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
-				dest_array[row] = (t - epoch).total_seconds();
-			}
-			return dest;
-		} else if (std::string(f->name()) == "datetime_ms") {
-			pvcop::db::array dest(pvcop::db::type_uint32, array.size());
-			auto& dest_array = dest.to_core_array<uint32_t>();
-			auto& core_array = array.to_core_array<uint64_t>();
-			for (size_t row = 0; row < array.size(); row++) {
-				// FIXME : We could keep more ms information for mapping values.
-				// FIXME : We can keep original data if we accept uint64_t as mapping value.
-				dest_array[row] = core_array[row] / 1000; // ms to s;
-			}
-			return dest;
-		} else if (std::string(f->name()) == "string") {
-			/**
-			 * string arrays need an explicit copy because underlying type is
-			 * 'string_index_t' but we want to expose it as 'uint32_t' for inspector
-			 */
-			pvcop::db::array dest(pvcop::db::type_uint32, array.size());
-			auto& dest_array = dest.to_core_array<uint32_t>();
-			auto& core_array = array.to_core_array<string_index_t>();
-			std::copy(core_array.begin(), core_array.end(), dest_array.begin());
-			return dest;
-		}
-
-		return array.copy();
+		return {};
 	}
 
 	std::unordered_set<std::string> list_usable_type() const override

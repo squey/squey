@@ -109,7 +109,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	/**
 	 * Access mapping value for given row/col.
 	 */
-	inline pvcop::db::array const& get_column(PVCol col) const { return _trans_table[col]; }
+	pvcop::db::array const& get_column(PVCol col) const;
 
   public:
 	std::string get_serialize_description() const override { return "Mapping: " + get_name(); }
