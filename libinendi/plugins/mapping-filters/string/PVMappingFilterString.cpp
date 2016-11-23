@@ -7,6 +7,7 @@
 
 #include "PVMappingFilterString.h"
 
+#include <inendi/PVPlottingFilter.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvkernel/core/PVSerializeObject.h>
@@ -123,8 +124,9 @@ pvcop::db::array Inendi::PVMappingFilterString::operator()(PVCol const col,
 {
 	const pvcop::db::array& array = nraw.column(col);
 
-	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
-	auto& dest_array = dest.to_core_array<uint32_t>();
+	using plotting_t = Inendi::PVPlottingFilter::value_type;
+	pvcop::db::array dest(pvcop::db::type_traits::type<plotting_t>::get_type_id(), array.size());
+	auto& dest_array = dest.to_core_array<plotting_t>();
 
 	auto* string_dict = nraw.column_dict(col);
 	if (string_dict) {

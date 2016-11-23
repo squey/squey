@@ -14,7 +14,7 @@
 template <class T>
 static void compute_log_plotting(pvcop::db::array const& mapped,
                                  pvcop::db::array const& minmax,
-                                 pvcop::core::array<uint32_t>& dest)
+                                 pvcop::core::array<Inendi::PVPlottingFilter::value_type>& dest)
 {
 	auto& mm = minmax.to_core_array<T>();
 	double ymin = (double)mm[0];
@@ -33,18 +33,19 @@ static void compute_log_plotting(pvcop::db::array const& mapped,
 		ymax += offset;
 	}
 
-	const double ratio = std::numeric_limits<uint32_t>::max() / (std::log2(ymax / ymin));
+	const double ratio =
+	    std::numeric_limits<Inendi::PVPlottingFilter::value_type>::max() / (std::log2(ymax / ymin));
 	auto& values = mapped.to_core_array<T>();
 #pragma omp parallel for
 	for (size_t i = 0; i < mapped.size(); i++) {
-		dest[i] = ~uint32_t(
+		dest[i] = ~Inendi::PVPlottingFilter::value_type(
 		    ratio * (std::log2((std::max<double>(ymin, (double)values[i] + offset)) / ymin)));
 	}
 }
 
 void Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
                                                    pvcop::db::array const& minmax,
-                                                   pvcop::core::array<uint32_t>& dest)
+                                                   pvcop::core::array<value_type>& dest)
 {
 	assert(dest);
 

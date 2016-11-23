@@ -13,11 +13,9 @@
 
 #include <pvkernel/core/inendi_bench.h>
 
-using plotting_t = uint32_t;
-
 void Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped,
                                               pvcop::db::array const&,
-                                              pvcop::core::array<uint32_t>& dest)
+                                              pvcop::core::array<value_type>& dest)
 {
 	pvcop::db::groups groups;
 	pvcop::db::extents extents;
@@ -31,15 +29,15 @@ void Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped,
 	auto& core_groups = groups.to_core_array();
 
 	if (extents.size() == 1) {
-		const plotting_t default_value = std::numeric_limits<plotting_t>::max() / 2;
+		const value_type default_value = std::numeric_limits<value_type>::max() / 2;
 		std::fill_n(dest.begin(), mapped.size(), default_value);
 	} else {
 		// -1 as we count "number of space between values", not "values"
 		const double extend_factor =
-		    std::numeric_limits<plotting_t>::max() / ((double)extents.size() - 1);
+		    std::numeric_limits<value_type>::max() / ((double)extents.size() - 1);
 #pragma omp parallel for
 		for (size_t row = 0; row < mapped.size(); row++) {
-			dest[row] = ~uint32_t(extend_factor * sorted_extents[core_groups[row]]);
+			dest[row] = ~value_type(extend_factor * sorted_extents[core_groups[row]]);
 		}
 	}
 }
