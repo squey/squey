@@ -25,10 +25,15 @@
 namespace Inendi
 {
 
-class PVPlottingFilter
-    : public PVFilter::PVFilterFunctionBase<pvcop::core::array<uint32_t>&, pvcop::db::array const&>,
-      public PVCore::PVRegistrableClass<PVPlottingFilter>
+using plotting_t = uint32_t;
+
+class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::array<plotting_t>&,
+                                                               pvcop::db::array const&>,
+                         public PVCore::PVRegistrableClass<PVPlottingFilter>
 {
+  public:
+	using value_type = plotting_t;
+
   public:
 	typedef std::shared_ptr<PVPlottingFilter> p_type;
 	typedef PVPlottingFilter FilterT;
@@ -38,7 +43,7 @@ class PVPlottingFilter
   public:
 	virtual void operator()(pvcop::db::array const& mapped,
 	                        pvcop::db::array const& minmax,
-	                        pvcop::core::array<uint32_t>& dest) = 0;
+	                        pvcop::core::array<value_type>& dest) = 0;
 
 	virtual QString get_human_name() const = 0;
 	virtual std::set<plotting_capability> list_usable_type() const = 0;

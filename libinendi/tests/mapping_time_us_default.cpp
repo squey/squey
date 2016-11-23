@@ -44,16 +44,16 @@ int main()
 	const pvcop::db::array& column = nraw.column(PVCol(0));
 	auto& array = column.to_core_array<uint64_t>();
 
-	std::vector<uint32_t> order(column.size());
+	std::vector<uint64_t> order(column.size());
 	std::iota(order.begin(), order.end(), 0);
 
 	std::sort(order.begin(), order.end(),
-	          [&array](uint32_t a, uint32_t b) { return array[a] < array[b]; });
+	          [&array](uint64_t a, uint64_t b) { return array[a] < array[b]; });
 
-	uint32_t prev = mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[order[0]];
+	uint64_t prev = mapped.get_column(PVCol(0)).to_core_array<uint64_t>()[order[0]];
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[order[i]]);
-		prev = mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[order[i]];
+		PV_ASSERT_VALID(prev <= mapped.get_column(PVCol(0)).to_core_array<uint64_t>()[order[i]]);
+		prev = mapped.get_column(PVCol(0)).to_core_array<uint64_t>()[order[i]];
 	}
 #else
 	(void)mapped;

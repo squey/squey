@@ -181,7 +181,7 @@ double load_investigation()
 	PV_VALID(mapped->get_name(), std::string("other"));
 
 	pvcop::db::array const& mapping_values = mapped->get_column(PVCol(0));
-	auto mapping = mapping_values.to_core_array<uint32_t>();
+	auto mapping = mapping_values.to_core_array<string_index_t>();
 	std::ifstream ref_stream(ref_mapped_file);
 	for (uint32_t v : mapping) {
 		uint32_t ref;
@@ -191,9 +191,9 @@ double load_investigation()
 
 	PV_VALID(mapped->get_properties_for_col(PVCol(0)).get_mode(), std::string("default"));
 	auto const& minmax = mapped->get_properties_for_col(PVCol(0)).get_minmax();
-	auto core_minmax = minmax.to_core_array<uint32_t>();
-	PV_VALID(core_minmax[0], 0U);
-	PV_VALID(core_minmax[1], 90037U);
+	auto core_minmax = minmax.to_core_array<string_index_t>();
+	PV_VALID(core_minmax[0], (string_index_t)0U);
+	PV_VALID(core_minmax[1], (string_index_t)90037U);
 
 	/**
 	 * Check plotteds

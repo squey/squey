@@ -7,9 +7,11 @@
 
 #include "PVPlottingFilterPort.h"
 
+using plotting_t = Inendi::PVPlottingFilter::value_type;
+
 template <class T>
 static void compute_port_plotting(pvcop::db::array const& mapped,
-                                  pvcop::core::array<uint32_t>& dest)
+                                  pvcop::core::array<plotting_t>& dest)
 {
 	auto& values = mapped.to_core_array<T>();
 
@@ -19,21 +21,21 @@ static void compute_port_plotting(pvcop::db::array const& mapped,
 		if (v < 1024) {
 			// Save value on : 0b0xxxxxxxxx0000000000000000000000
 			// Move "upper" (31 - sizeof(1024 - 1)) minus 1 to give the first bit for upper port
-			dest[i] = ~uint32_t(v << (31 - 9 - 1));
+			dest[i] = ~plotting_t(v << (31 - 9 - 1));
 		} else {
 			// Save value on : 0b1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 			// Reparted upper port in "minmax" on 31 bits and set the 32th to mark distinguish upper
 			// port from lower port
-			dest[i] = ~uint32_t(((uint32_t)(((uint64_t)(v - 1024) * (uint64_t)(1UL << 31)) /
-			                                (uint64_t)(65535 - 1024))) |
-			                    0x80000000UL);
+			dest[i] = ~plotting_t(((plotting_t)(((uint64_t)(v - 1024) * (uint64_t)(1UL << 31)) /
+			                                    (uint64_t)(65535 - 1024))) |
+			                      0x80000000UL);
 		}
 	}
 }
 
 void Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped,
                                               pvcop::db::array const&,
-                                              pvcop::core::array<uint32_t>& dest)
+                                              pvcop::core::array<plotting_t>& dest)
 {
 	// FIXME : We may inform user if minmax is not in 65535 - 0
 	assert(dest);

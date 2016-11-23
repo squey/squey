@@ -14,7 +14,7 @@
 template <class T>
 static void compute_minmax_plotting(pvcop::db::array const& mapped,
                                     pvcop::db::array const& minmax,
-                                    pvcop::core::array<uint32_t>& dest)
+                                    pvcop::core::array<Inendi::PVPlottingFilter::value_type>& dest)
 {
 	auto& mm = minmax.to_core_array<T>();
 	double ymin = (double)mm[0];
@@ -39,7 +39,7 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
 
 void Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped,
                                                 pvcop::db::array const& minmax,
-                                                pvcop::core::array<uint32_t>& dest)
+                                                pvcop::core::array<value_type>& dest)
 {
 	assert(dest);
 
