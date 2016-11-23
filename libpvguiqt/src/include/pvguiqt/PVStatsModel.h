@@ -47,8 +47,8 @@ class PVStatsModel : public PVAbstractTableModel
 				}
 				return "Value";
 			}
-			return QVariant(
-			    QString().setNum(section + 1)); // Start counting rows from 1 for display
+
+			return row_pos(section) + 1; // Start counting rows from 1 for display
 		} break;
 		case (Qt::TextAlignmentRole):
 			if (orientation == Qt::Horizontal) {
