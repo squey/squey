@@ -59,6 +59,10 @@ class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 	// minimum gap (in pixel) between 2 subticks to make them visible of not.
 	constexpr static int subtick_min_gap = 32;
 
+	static constexpr int MAX_TEXT_LABEL_WIDTH =
+	    120; /*!< The maximum width of a text label in pixel. This value should be calculated later,
+depend of the client's windows settings. */
+
   public:
 	/**
 	 * CTOR
@@ -145,6 +149,8 @@ class PVZoomableDrawingAreaWithAxes : public PVZoomableDrawingArea
 	int get_x_axis_length() const { return _x_axis_length; }
 
 	int get_y_axis_length() const { return _y_axis_length; }
+
+	QString get_elided_text(const QString& text) const;
 
   protected:
 	void recompute_margins() override;
