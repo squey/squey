@@ -439,7 +439,7 @@ void PVParallelView::PVScatterView::set_enabled(bool en)
 	}
 }
 
-QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value) const
+QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
 	PVParallelView::PVZoneTree const& zt = get_zone_tree();
 
@@ -465,7 +465,7 @@ QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value) const
 	return get_elided_text("None");
 }
 
-QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value) const
+QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value)
 {
 	PVParallelView::PVZoneTree const& zt = get_zone_tree();
 

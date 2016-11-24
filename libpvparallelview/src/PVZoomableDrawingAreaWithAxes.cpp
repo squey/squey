@@ -123,7 +123,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_ticks_per_level(int n)
  * PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at
  *****************************************************************************/
 
-QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint64 pos) const
+QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint64 pos)
 {
 	return get_elided_text(QString::number(pos));
 }
@@ -132,7 +132,7 @@ QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint
  * PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at
  *****************************************************************************/
 
-QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at(const qint64 pos) const
+QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at(const qint64 pos)
 {
 	return get_elided_text(QString::number(pos));
 }

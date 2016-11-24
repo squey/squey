@@ -111,8 +111,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
   protected:
 	void drawBackground(QPainter* painter, const QRectF& rect) override;
 	void keyPressEvent(QKeyEvent* event) override;
-	QString get_x_value_at(const qint64 value) const override;
-	QString get_y_value_at(const qint64 value) const override;
+	QString get_x_value_at(const qint64 value) override;
+	QString get_y_value_at(const qint64 value) override;
 
   protected:
 	void set_params_widget_position();

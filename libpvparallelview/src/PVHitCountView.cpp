@@ -596,13 +596,13 @@ void PVParallelView::PVHitCountView::set_params_widget_position()
 	_params_widget->raise();
 }
 
-QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value) const
+QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value)
 {
 	// Number of Occurrence
 	return get_elided_text(QString::number(value));
 }
 
-QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
+QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value)
 {
 	const uint32_t* plotted = get_hit_graph_manager().get_plotted();
 	const uint32_t nrows = get_hit_graph_manager().get_nrows();
