@@ -598,13 +598,13 @@ void PVParallelView::PVHitCountView::set_params_widget_position()
 	_params_widget->raise();
 }
 
-QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value) const
+QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value)
 {
 	// Number of Occurrence
 	return get_elided_text(QString::number(value));
 }
 
-QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
+QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value)
 {
 	const PVCol nraw_col = lib_view().get_axes_combination().get_nraw_axis(_axis_index);
 
