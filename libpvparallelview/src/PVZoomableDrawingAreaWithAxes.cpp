@@ -125,7 +125,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_ticks_per_level(int n)
 
 QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint64 pos) const
 {
-	return QString::number(pos);
+	return get_elided_text(QString::number(pos));
 }
 
 /*****************************************************************************
@@ -134,7 +134,7 @@ QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint
 
 QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at(const qint64 pos) const
 {
-	return QString::number(pos);
+	return get_elided_text(QString::number(pos));
 }
 
 void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_margins()
@@ -168,6 +168,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 	int l = std::max(
 	    fm.boundingRect(get_y_value_at(-view_in_scene.y())).width(),
 	    fm.boundingRect(get_y_value_at(-(view_in_scene.y() + view_in_scene.height()))).width());
+
 	int r = fm.boundingRect(get_y_value_at(-(view_in_scene.x() + view_in_scene.width()))).width();
 
 	l += 2 * SCALE_VALUE_OFFSET;
@@ -333,4 +334,18 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 	}
 
 	painter->restore();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomableDrawingAreaWithAxes::get_elided_text
+ *****************************************************************************/
+QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_elided_text(const QString& text) const
+{
+	QFontMetrics fm(get_viewport()->font());
+
+	// MAX_TEXT_LABEL_WIDTH value should be calculated, depend of the client's windows settings.
+	if (fm.width(text) > MAX_TEXT_LABEL_WIDTH) {
+		return fm.elidedText(text, Qt::ElideMiddle, MAX_TEXT_LABEL_WIDTH);
+	}
+	return text;
 }
