@@ -30,7 +30,7 @@ class PVHitGraphBlocksManager : boost::noncopyable
 	PVHitGraphBlocksManager(const uint32_t* col_plotted,
 	                        const PVRow nrows,
 	                        uint32_t nblocks,
-	                        Inendi::PVSelection& layer_sel,
+	                        Inendi::PVSelection const& layer_sel,
 	                        Inendi::PVSelection const& sel);
 
   public:
@@ -38,9 +38,6 @@ class PVHitGraphBlocksManager : boost::noncopyable
 	void process_buffer_all();
 	void process_buffer_selected();
 	void process_all_buffers();
-
-  public:
-	void set_layer_sel(const Inendi::PVSelection& sel);
 
   public:
 	uint32_t const* buffer_all() const;
@@ -84,7 +81,7 @@ class PVHitGraphBlocksManager : boost::noncopyable
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVHitGraphData _data;
 
-	Inendi::PVSelection& _layer_sel;
+	Inendi::PVSelection const& _layer_sel;
 	Inendi::PVSelection const& _sel;
 
 	DataProcessParams _data_params;

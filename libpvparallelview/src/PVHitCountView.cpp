@@ -476,7 +476,6 @@ void PVParallelView::PVHitCountView::do_update_all()
 	int zoom_value, zoom_level;
 	double alpha;
 
-	get_hit_graph_manager().set_layer_sel(layer_stack_output_selection());
 	zoom_value = get_y_axis_zoom().get_clamped_value();
 
 	if (zoom_value < 0) {
