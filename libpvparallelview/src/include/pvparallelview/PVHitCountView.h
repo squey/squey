@@ -15,9 +15,12 @@
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
+#include <pvparallelview/PVHitCountViewBackend.h>
 
 #include <QTimer>
 #include <QSize>
+
+#include <memory>
 
 class QWidget;
 
@@ -68,8 +71,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
   public:
 	PVHitCountView(Inendi::PVView& pvview_sp,
-	               const uint32_t* col_plotted,
-	               const PVRow nrows,
+	               PVHitCountViewBackend* backend,
 	               const PVCombCol axis_index,
 	               QWidget* parent = nullptr);
 
@@ -91,10 +93,18 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
 	inline const PVHitGraphBlocksManager& get_hit_graph_manager() const
 	{
-		return _hit_graph_manager;
+		return _backend->get_hit_graph_manager();
 	}
 
-	inline PVHitGraphBlocksManager& get_hit_graph_manager() { return _hit_graph_manager; }
+	inline PVHitGraphBlocksManager& get_hit_graph_manager()
+	{
+		return _backend->get_hit_graph_manager();
+	}
+
+	inline Inendi::PVPlottedNrawCache& get_y_labels_cache()
+	{
+		return _backend->get_y_labels_cache();
+	}
 
   public:
 	PVHitCountViewSelectionRectangle* get_selection_rect() const { return _sel_rect; }
@@ -178,10 +188,9 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
   private:
 	Inendi::PVView& _pvview;
-	PVCombCol _axis_index;
 	QTimer _update_all_timer;
 
-	PVHitGraphBlocksManager _hit_graph_manager;
+	std::unique_ptr<PVHitCountViewBackend> _backend;
 	bool _view_deleted;
 	uint64_t _max_count;
 	int _block_zoom_value;
