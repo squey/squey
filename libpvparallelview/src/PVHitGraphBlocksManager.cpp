@@ -32,11 +32,12 @@ y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom, const double alpha
 	return ((double)y_to_idx_in_buffer(y, zoom)) * alpha;
 }
 
-PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(const uint32_t* col_plotted,
-                                                                 const PVRow nrows,
-                                                                 uint32_t nblocks,
-                                                                 Inendi::PVSelection const& layer_sel,
-                                                                 Inendi::PVSelection const& sel)
+PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(
+    const uint32_t* col_plotted,
+    const PVRow nrows,
+    uint32_t nblocks,
+    Inendi::PVSelection const& layer_sel,
+    Inendi::PVSelection const& sel)
     : _data_z0(PARALLELVIEW_ZT_BBITS, 1)
     , _data(PARALLELVIEW_ZZT_BBITS, nblocks)
     , _layer_sel(layer_sel)
