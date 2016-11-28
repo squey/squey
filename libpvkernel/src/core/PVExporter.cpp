@@ -87,12 +87,14 @@ void PVCore::PVExporter::export_rows(size_t start_index)
 	        [&](tbb::flow_control& fc) -> std::pair<size_t, size_t> {
 		        if ((size_t)++thread_index == thread_count) {
 			        fc.stop();
+			        return {};
 		        }
 
 		        const size_t range = _step_count / thread_count;
 		        const size_t begin_index = start_index + (thread_index * range);
-		        const size_t len =
-		            (size_t)thread_index == (thread_count - 1) ? _step_count - begin_index : range;
+		        const size_t len = (size_t)thread_index == (thread_count - 1)
+		                               ? _step_count - ((thread_count - 1) * range)
+		                               : range;
 		        const size_t end_index = begin_index + len;
 
 		        return std::make_pair(begin_index, end_index);
