@@ -30,6 +30,8 @@
 
 #include "common.h"
 
+static constexpr const PVRow STEP_COUNT = 1000;
+
 static constexpr const PVCore::PVExporter::CompressionType compression_type =
     PVCore::PVExporter::CompressionType::GZ;
 
@@ -73,7 +75,22 @@ int main(int argc, char** argv)
 
 	PVCore::PVExporter exp(output_file, sel, col_indexes, nraw.row_count(), export_func,
 	                       compression_type);
-	exp.export_rows(0);
+
+	PVRow starting_row = 0;
+	const PVRow nrows = nraw.row_count();
+	PVRow step_count = std::min(STEP_COUNT, nrows);
+
+	while (true) {
+		starting_row = sel.find_next_set_bit(starting_row, nrows);
+		if (starting_row == PVROW_INVALID_VALUE) {
+			break;
+		}
+
+		step_count = std::min(step_count, nrows - starting_row);
+		exp.set_step_count(step_count);
+		exp.export_rows(starting_row);
+		starting_row += step_count;
+	}
 	exp.wait_finished();
 
 	auto end = std::chrono::system_clock::now();
