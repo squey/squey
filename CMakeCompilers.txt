@@ -17,6 +17,10 @@ endif(CCACHE_FOUND)
 MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_CXX_COMMON_FLAGS "-std=c++1y -Wall -Wextra ${CMAKE_CXX_COMMON_FLAGS}")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	set(CMAKE_CXX_COMMON_FLAGS "-Qunused-arguments ${CMAKE_CXX_COMMON_FLAGS}")
+endif()
+                             
 set(LD_IS_GOLD_USED FALSE)
 
 if (USE_LTO)
