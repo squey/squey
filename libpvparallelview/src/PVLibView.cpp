@@ -118,15 +118,18 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(const PVCol axis,
                                                                               QWidget* parent)
 {
+	PVScatterViewBackend* backend;
+
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(false);
 		    _zones_manager.request_zoomed_zone(axis);
+		    backend = new PVScatterViewBackend(*lib_view(), _zones_manager, axis, _processor_bg,
+		                                       _processor_sel);
 		},
 	    "Initializing scatter view...", parent);
 
-	PVScatterView* view =
-	    new PVScatterView(*lib_view(), _zones_manager, axis, _processor_bg, _processor_sel, parent);
+	PVScatterView* view = new PVScatterView(*lib_view(), backend, axis, parent);
 
 	_scatter_views.push_back(view);
 

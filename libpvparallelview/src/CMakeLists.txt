@@ -81,6 +81,7 @@ PVHitCountViewParamsWidget.cpp
 PVHitCountViewSelectionRectangle.cpp
 
 PVScatterView.cpp
+PVScatterViewBackend.cpp
 PVScatterViewInteractor.cpp
 PVScatterViewImage.cpp
 PVScatterViewImagesManager.cpp

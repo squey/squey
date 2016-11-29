@@ -12,6 +12,7 @@
 #include <pvparallelview/PVScatterViewInteractor.h>
 #include <pvparallelview/PVScatterViewParamsWidget.h>
 #include <pvparallelview/PVScatterViewSelectionRectangle.h>
+#include <pvparallelview/PVScatterViewBackend.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 #include <pvparallelview/PVZoneRenderingScatter.h>
 #include <pvparallelview/PVZoneTree.h>
@@ -47,20 +48,13 @@ using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
-                                             PVZonesManager const& zm,
+                                             PVScatterViewBackend* backend,
                                              PVCol const zone_index,
-                                             PVZonesProcessor& zp_bg,
-                                             PVZonesProcessor& zp_sel,
                                              QWidget* parent /*= nullptr*/
                                              )
     : PVZoomableDrawingAreaWithAxes(parent)
     , _view(pvview_sp)
-    , _images_manager(zone_index,
-                      zp_bg,
-                      zp_sel,
-                      zm,
-                      pvview_sp.get_output_layer_color_buffer(),
-                      pvview_sp.get_real_output_selection())
+    , _backend(backend)
     , _view_deleted(false)
     , _show_bg(true)
 {
@@ -245,6 +239,8 @@ void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 void PVParallelView::PVScatterView::do_zoom_change(int /*axes*/)
 {
+	get_x_labels_cache().invalidate();
+	get_y_labels_cache().invalidate();
 	do_update_all();
 }
 
@@ -441,54 +437,12 @@ void PVParallelView::PVScatterView::set_enabled(bool en)
 
 QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
-	PVParallelView::PVZoneTree const& zt = get_zone_tree();
-
-	PVParallelView::PVBCode x_b_code;
-	x_b_code.int_v = 0;
-	// Look for all "upper" left value
-	qint64 uvalue = std::numeric_limits<uint32_t>::max() - value;
-	for (uint32_t v = (uvalue >> (32 - PARALLELVIEW_ZT_BBITS)); v < ((1 << PARALLELVIEW_ZT_BBITS));
-	     v++) {
-		x_b_code.s.l = v;
-		for (uint32_t r_v = 0; r_v < ((1 << PARALLELVIEW_ZT_BBITS)); r_v++) {
-			x_b_code.s.r = r_v;
-			if (not zt.branch_valid(x_b_code.int_v)) {
-				continue;
-			}
-
-			const PVRow row = zt.get_branch_element(x_b_code.int_v, 0);
-			return get_elided_text(
-			    QString::fromStdString(_view.get_rushnraw_parent().at_string(row, _nraw_col)));
-		}
-	}
-
-	return get_elided_text("None");
+	return get_elided_text(get_x_labels_cache().get(value));
 }
 
 QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value)
 {
-	PVParallelView::PVZoneTree const& zt = get_zone_tree();
-
-	const PVCol nraw_col = lib_view().get_axes_combination().get_nraw_axis(get_zone_index() + 1);
-
-	PVParallelView::PVBCode y_b_code;
-	y_b_code.int_v = 0;
-	// Look for all "upper" left value
-	for (uint32_t v = (value >> (32 - PARALLELVIEW_ZT_BBITS)); v < ((1 << PARALLELVIEW_ZT_BBITS));
-	     v++) {
-		y_b_code.s.r = v;
-		for (uint32_t r_v = 0; r_v < ((1 << PARALLELVIEW_ZT_BBITS)); r_v++) {
-			y_b_code.s.l = r_v;
-			if (not zt.branch_valid(y_b_code.int_v)) {
-				continue;
-			}
-
-			const PVRow row = zt.get_branch_element(y_b_code.int_v, 0);
-			return get_elided_text(
-			    QString::fromStdString(_view.get_rushnraw_parent().at_string(row, nraw_col)));
-		}
-	}
-	return get_elided_text("None");
+	return get_elided_text(get_y_labels_cache().get(value));
 }
 
 ////
