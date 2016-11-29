@@ -8,14 +8,19 @@
 #ifndef __PVSCATTERVIEW_H__
 #define __PVSCATTERVIEW_H__
 
-#include <sigc++/sigc++.h>
-
 #include <inendi/PVAxesCombination.h>
 
-#include <pvparallelview/PVScatterViewImagesManager.h>
+#include <pvparallelview/common.h>
+#include <pvparallelview/PVScatterViewBackend.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoneRendering_types.h>
+
+#include <boost/noncopyable.hpp>
+
+#include <sigc++/sigc++.h>
+
+#include <memory>
 
 class QPainter;
 
@@ -81,10 +86,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   public:
 	PVScatterView(Inendi::PVView& pvview_sp,
-	              PVZonesManager const& zm,
+	              PVScatterViewBackend* backend,
 	              PVCombCol const axis_index,
-	              PVZonesProcessor& zp_bg,
-	              PVZonesProcessor& zp_sel,
 	              QWidget* parent = nullptr);
 	~PVScatterView() override;
 
@@ -136,8 +139,27 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	{
 		return get_images_manager().get_zones_manager();
 	}
-	inline PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
-	inline PVScatterViewImagesManager const& get_images_manager() const { return _images_manager; }
+
+	inline PVScatterViewImagesManager& get_images_manager()
+	{
+		return _backend->get_images_manager();
+	}
+
+	inline PVScatterViewImagesManager const& get_images_manager() const
+	{
+		return _backend->get_images_manager();
+	}
+
+	inline Inendi::PVPlottedNrawCache& get_x_labels_cache()
+	{
+		return _backend->get_x_labels_cache();
+	}
+
+	inline Inendi::PVPlottedNrawCache& get_y_labels_cache()
+	{
+		return _backend->get_y_labels_cache();
+	}
+
 	PVZoneTree const& get_zone_tree() const;
 	void set_scatter_view_zone(PVZoneID const zid);
 
@@ -147,7 +169,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   private:
 	Inendi::PVView& _view;
-	PVScatterViewImagesManager _images_manager;
+	std::unique_ptr<PVScatterViewBackend> _backend;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>* _zoom_converter;
 
