@@ -115,6 +115,11 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	void multiple_search(QAction* act, const QStringList& sl, bool hide_dialog = true);
 	void resize_section();
 
+	/**
+	 * Handle keyboard shortcut for copy
+	 */
+	void keyPressEvent(QKeyEvent* event) override;
+
   protected:
 	Inendi::PVView* _view;
 	PVCol _col;
