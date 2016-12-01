@@ -123,6 +123,7 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
 	QAction* r_sel = new QAction("Rectangle", toolbar);
 	r_sel->setIcon(QIcon(":/selection-rectangle"));
 	r_sel->setShortcut(Qt::Key_R);
+	r_sel->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	selection_mode->addAction(r_sel);
 	view->addAction(r_sel);
 	signal_mapper->setMapping(r_sel, SelectionMode::RECTANGLE);
@@ -132,6 +133,7 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
 	QAction* h_sel = new QAction("Horizontal", toolbar);
 	h_sel->setIcon(QIcon(":/selection-horizontal"));
 	h_sel->setShortcut(Qt::Key_H);
+	h_sel->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	selection_mode->addAction(h_sel);
 	view->addAction(h_sel);
 	signal_mapper->setMapping(h_sel, SelectionMode::HORIZONTAL);
@@ -141,6 +143,7 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
 	QAction* v_sel = new QAction("Vertical", toolbar);
 	v_sel->setIcon(QIcon(":/selection-vertical"));
 	v_sel->setShortcut(Qt::Key_V);
+	v_sel->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	selection_mode->addAction(v_sel);
 	view->addAction(v_sel);
 	signal_mapper->setMapping(v_sel, SelectionMode::VERTICAL);
