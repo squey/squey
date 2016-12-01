@@ -49,6 +49,7 @@ core/PVFileHelper.cpp
 core/PVMemory2D.cpp
 core/PVQueryBuilderJsonConverter.cpp
 core/PVExporter.cpp
+core/PVStreamingCompressor.cpp
 )
 
 SET(CORE_MOC_HEADERS
