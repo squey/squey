@@ -12,6 +12,7 @@
 #include <QSignalMapper>
 #include <QToolBar>
 #include <QToolButton>
+#include <QAction>
 
 /*****************************************************************************
  * PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget
@@ -20,13 +21,37 @@
 PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterView* parent)
     : QToolBar(parent)
 {
-
 	_sel_mode_signal_mapper = new QSignalMapper(this);
 	QObject::connect(_sel_mode_signal_mapper, SIGNAL(mapped(int)), this,
 	                 SLOT(set_selection_mode(int)));
 
 	_sel_mode_button =
 	    PVSelectionRectangle::add_selection_mode_selector(parent, this, _sel_mode_signal_mapper);
+
+	_show_labels = new QAction(this);
+	_show_labels->setIcon(QIcon(":/labeled-axis"));
+	_show_labels->setCheckable(true);
+	_show_labels->setChecked(false);
+	_show_labels->setShortcut(Qt::Key_T);
+	_show_labels->setText("Toggle labels visibility");
+	_show_labels->setToolTip("Activate/deactivate labels display on axes (" +
+	                         _show_labels->shortcut().toString() + ")");
+	addAction(_show_labels);
+	parent->addAction(_show_labels);
+	connect(_show_labels, SIGNAL(toggled(bool)), parent_sv(), SLOT(toggle_show_labels()));
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterViewParamsWidget::update_widgets
+ *****************************************************************************/
+
+void PVParallelView::PVScatterViewParamsWidget::update_widgets()
+{
+	_show_labels->blockSignals(true);
+
+	_show_labels->setChecked(parent_sv()->show_labels());
+
+	_show_labels->blockSignals(false);
 }
 
 /*****************************************************************************

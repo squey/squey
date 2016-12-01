@@ -167,11 +167,14 @@
 	<file alias="help-mouse-hit-count-view">resources/help/view-mouse-hit-count.html</file>
 	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
 	<file alias="help-mouse-scatter-view">resources/help/view-mouse-scatter.html</file>
+	<file alias="help-shortcuts-scatter-view">resources/help/view-shortcuts-scatter.html</file>
 
         <!-- VIEW ICONS -->
         <file alias="selection-rectangle">resources/selection-rectangle.png</file>
         <file alias="selection-horizontal">resources/selection-horizontal.png</file>
         <file alias="selection-vertical">resources/selection-vertical.png</file>
+
+        <file alias="labeled-axis">resources/labeled-axis.png</file>
 
         <file alias="select-axis">resources/select-axis.png</file>
 

@@ -16,12 +16,26 @@
 Inendi::PVPlottedNrawCache::PVPlottedNrawCache(const PVView& view,
                                                const PVCol col,
                                                const size_t size)
-    : _cache(size), _nraw(view.get_rushnraw_parent()), _col(col)
+    : _cache(size), _view(view), _nraw(view.get_rushnraw_parent()), _col(col)
 {
+}
+
+/*****************************************************************************
+ * Inendi::PVPlottedNrawCache::initialize
+ *****************************************************************************/
+
+void Inendi::PVPlottedNrawCache::initialize()
+{
+	if (_entries.size() != 0) {
+		return;
+	}
+
+	_cache.invalidate();
+
 	using range_t = tbb::blocked_range<size_t>;
 
-	const uint32_t* plotted = view.get_parent<PVPlotted>().get_column_pointer(col);
-	size_t nrows = view.get_parent<PVPlotted>().get_row_count();
+	const uint32_t* plotted = _view.get_parent<PVPlotted>().get_column_pointer(_col);
+	const size_t nrows = _view.get_parent<PVPlotted>().get_row_count();
 
 	tbb::concurrent_unordered_map<value_type, PVRow> dict;
 
@@ -63,6 +77,10 @@ void Inendi::PVPlottedNrawCache::invalidate()
 
 const QString Inendi::PVPlottedNrawCache::get(const int64_t v)
 {
+	if (_entries.size() == 0) {
+		return {};
+	}
+
 	if (_cache.exist(v)) {
 		return _cache.get(v);
 	}

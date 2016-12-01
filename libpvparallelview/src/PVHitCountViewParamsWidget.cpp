@@ -54,6 +54,18 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	addAction(_use_log_color);
 	parent->addAction(_use_log_color);
 	connect(_use_log_color, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_log_color()));
+
+	_show_labels = new QAction(this);
+	_show_labels->setIcon(QIcon(":/labeled-axis"));
+	_show_labels->setCheckable(true);
+	_show_labels->setChecked(false);
+	_show_labels->setShortcut(Qt::Key_T);
+	_show_labels->setText("Toggle labels visibility");
+	_show_labels->setToolTip("Activate/deactivate labels display on axes (" +
+	                         _show_labels->shortcut().toString() + ")");
+	addAction(_show_labels);
+	parent->addAction(_show_labels);
+	connect(_show_labels, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_show_labels()));
 }
 
 /*****************************************************************************
@@ -64,12 +76,15 @@ void PVParallelView::PVHitCountViewParamsWidget::update_widgets()
 {
 	_autofit->blockSignals(true);
 	_use_log_color->blockSignals(true);
+	_show_labels->blockSignals(true);
 
 	_autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
 	_use_log_color->setChecked(parent_hcv()->use_log_color());
+	_show_labels->setChecked(parent_hcv()->show_labels());
 
 	_autofit->blockSignals(false);
 	_use_log_color->blockSignals(false);
+	_show_labels->blockSignals(false);
 }
 
 /*****************************************************************************
