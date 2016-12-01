@@ -44,10 +44,10 @@ PVRush::PVAggregator::PVAggregator()
 {
 }
 
-void PVRush::PVAggregator::release_inputs()
+void PVRush::PVAggregator::release_inputs(bool cancel_first /* = false */)
 {
 	for (PVRush::PVRawSourceBase_p raw_source : _inputs) {
-		raw_source->release_input();
+		raw_source->release_input(cancel_first);
 	}
 }
 

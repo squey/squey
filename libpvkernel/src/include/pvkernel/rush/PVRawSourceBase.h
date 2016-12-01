@@ -36,7 +36,7 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	PVRawSourceBase(const PVRawSourceBase& src) = delete;
 
   public:
-	virtual void release_input() {}
+	virtual void release_input(bool /*cancel_first*/ = false) {}
 
   public:
 	chunk_index last_elt_index() { return _last_elt_index; }
