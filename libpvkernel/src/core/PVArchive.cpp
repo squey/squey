@@ -126,7 +126,8 @@ void PVCore::PVArchive::extract(QString const& path,
 	archive_write_disk_set_options(ext, flags);
 	archive_write_disk_set_standard_lookup(ext);
 	if ((r = archive_read_open_filename(a, filename, 10240)) != 0) {
-		throw PVCore::ArchiveUncompressFail("Unable to read from file : " + std::string(filename));
+		throw PVCore::ArchiveUncompressFail(std::string(archive_error_string(a)) +
+		                                    std::string(filename));
 	}
 	r = archive_read_next_header(a, &entry);
 	bool read_raw = false;
