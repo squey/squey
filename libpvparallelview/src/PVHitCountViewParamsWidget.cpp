@@ -35,6 +35,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_autofit->setCheckable(true);
 	_autofit->setChecked(false);
 	_autofit->setShortcut(Qt::Key_F);
+	_autofit->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	_autofit->setText("View auto-fit on selected events");
 	_autofit->setToolTip("Activate/deactivate horizontal auto-fit on selected events (" +
 	                     _autofit->shortcut().toString() + ")");
@@ -47,6 +48,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_use_log_color->setCheckable(true);
 	_use_log_color->setChecked(false);
 	_use_log_color->setShortcut(Qt::Key_L);
+	_use_log_color->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	_use_log_color->setText("Logarithmic colormap");
 	_use_log_color->setToolTip(
 	    "Activate/deactivate use of a logarithmic colormap for visible events (" +
@@ -60,6 +62,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	_show_labels->setCheckable(true);
 	_show_labels->setChecked(false);
 	_show_labels->setShortcut(Qt::Key_T);
+	_show_labels->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	_show_labels->setText("Toggle labels visibility");
 	_show_labels->setToolTip("Activate/deactivate labels display on axes (" +
 	                         _show_labels->shortcut().toString() + ")");

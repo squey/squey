@@ -34,6 +34,7 @@ PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterVi
 	_show_labels->setChecked(false);
 	_show_labels->setShortcut(Qt::Key_T);
 	_show_labels->setText("Toggle labels visibility");
+	_show_labels->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	_show_labels->setToolTip("Activate/deactivate labels display on axes (" +
 	                         _show_labels->shortcut().toString() + ")");
 	addAction(_show_labels);
