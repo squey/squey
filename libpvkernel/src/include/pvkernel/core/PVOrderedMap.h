@@ -82,6 +82,13 @@ class PVOrderedMap
 	 */
 	PVOrderedMap() = default;
 
+	PVOrderedMap(std::initializer_list<PVOrderedMapNode<Key, Value>> l)
+	{
+		for (const auto& n : l) {
+			_nodes.emplace_back(n);
+		}
+	}
+
 	/**
 	 * \brief Removes all elements from the container.
 	 *
