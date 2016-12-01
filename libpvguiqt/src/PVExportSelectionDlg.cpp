@@ -82,7 +82,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	const QString default_name_filter = QFileDialog::selectedNameFilter();
 	QCheckBox* compression = new QCheckBox("On-the-fly compression");
 	compression->setEnabled(false);
-	_compression_type = new QComboBox;
+	QComboBox* compression_type = new QComboBox;
 	auto update_name_filter = [&, default_name_filter](const QString& filter = QString()) {
 		QStringList name_filters = {default_name_filter};
 		if (not filter.isNull()) {
@@ -95,19 +95,16 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 		}
 		setDefaultSuffix(filter);
 	};
-	connect(_compression_type,
+	connect(compression_type,
 	        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
 	        [=](const QString& filter) { update_name_filter(filter); });
-	_compression_type->addItems([&]() {
+	compression_type->addItems([&]() {
 		QStringList l;
-		size_t idx = 0;
-		for (size_t c = 1; c < (size_t)PVCore::PVExporter::CompressionType::COUNT; c++) {
-			PVCore::PVExporter::CompressionType comp = (PVCore::PVExporter::CompressionType)c;
-			if (std::ifstream(PVCore::PVExporter::executable(comp)).good()) {
-				l << QString::fromStdString(PVCore::PVExporter::extension(comp));
+		for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
+			if (std::ifstream(PVCore::PVStreamingCompressor::executable(extension)).good()) {
+				l << QString::fromStdString(extension);
 				compression->setChecked(true);
 				compression->setEnabled(true);
-				_compression_type->setItemData(idx++, QVariant::fromValue(c));
 			}
 		}
 		return l;
@@ -115,12 +112,12 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	connect(compression, &QCheckBox::stateChanged,
 	        [&, default_name_filter, update_name_filter](int state) {
 		        bool enabled = (Qt::CheckState)state == Qt::CheckState::Checked;
-		        update_name_filter(enabled ? _compression_type->currentText() : QString());
-		        _compression_type->setEnabled(enabled);
+		        update_name_filter(enabled ? compression_type->currentText() : QString());
+		        compression_type->setEnabled(enabled);
 		    });
 	QHBoxLayout* compression_layout = new QHBoxLayout();
 	compression_layout->addWidget(compression);
-	compression_layout->addWidget(_compression_type);
+	compression_layout->addWidget(compression_type);
 	compression_layout->addStretch();
 	left_layout->addLayout(compression_layout);
 
@@ -296,8 +293,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 
 	// Export selected lines
 	PVCore::PVExporter exp(file.fileName().toStdString(), sel, column_indexes, step_count,
-	                       export_func, export_selection_dlg.compression_type(), sep_char,
-	                       quote_char, header);
+	                       export_func, sep_char, quote_char, header);
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_maximum(nrows);
@@ -315,6 +311,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 				    exp.export_rows(start);
 				    start += step_count;
 				    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
+					    exp.cancel();
 					    return;
 				    }
 			    }

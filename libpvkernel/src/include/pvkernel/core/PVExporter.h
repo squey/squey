@@ -8,6 +8,7 @@
 #define __PVCORE_PVEXPORTER_H__
 
 #include <pvkernel/core/PVColumnIndexes.h> // for PVColumnIndexes
+#include <pvkernel/core/PVStreamingCompressor.h>
 
 #include "pvbase/types.h" // for PVRow
 
@@ -29,11 +30,8 @@ struct PVExportError : public std::runtime_error {
 
 class PVExporter
 {
-  public:
-	enum class CompressionType { NONE, GZ, BZ2, ZIP, COUNT };
-
   private:
-	static const std::unordered_map<size_t, std::pair<std::string, std::string>> _compressors;
+	static const std::unordered_map<size_t, std::pair<std::string, std::string>> _binaries;
 
   public:
 	static const std::string default_sep_char;
@@ -49,43 +47,27 @@ class PVExporter
 	           const PVCore::PVColumnIndexes& column_indexes,
 	           PVRow step_count,
 	           const export_func& f,
-	           CompressionType compression_type = CompressionType::NONE,
 	           const std::string& sep_char = default_sep_char,
 	           const std::string& quote_char = default_quote_char,
 	           const std::string& header = std::string());
-
-	~PVExporter();
 
   public:
 	void export_rows(size_t start_index);
 
 	void set_step_count(PVRow step) { _step_count = step; }
 
-	static const std::string& extension(PVExporter::CompressionType compression_type);
-	static std::string executable(PVExporter::CompressionType compression_type);
-
+	void cancel();
 	void wait_finished();
 
   private:
-	void init();
-
-  private:
 	std::string _file_path;
-	int _fd;
 	const PVCore::PVSelBitField& _sel;
 	const PVCore::PVColumnIndexes& _column_indexes;
 	PVRow _step_count;
-	CompressionType _compression_type;
 	const std::string _sep_char;
 	const std::string _quote_char;
 	export_func _f;
-
-	// compression
-	pid_t _compression_pid = 0;
-	int _compression_status = 0;
-	int _compression_fd;
-	int _compression_error_fd;
-	bool _finished = false;
+	PVCore::PVStreamingCompressor _compressor;
 };
 
 } // namespace PVCore
