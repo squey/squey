@@ -123,6 +123,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
 	bool show_bg() const { return _show_bg; }
+	bool show_labels() const { return _show_labels; }
 
   private Q_SLOTS:
 	void do_update_all();
@@ -133,6 +134,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	void update_img_sel(PVParallelView::PVZoneRendering_p zr, int zid);
 
 	void toggle_unselected_zombie_visibility();
+	void toggle_show_labels();
 
   private:
 	inline PVZonesManager const& get_zones_manager() const
@@ -162,6 +164,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
 	PVZoneTree const& get_zone_tree() const;
 	void set_scatter_view_zone(PVZoneID const zid);
+
+	PVScatterViewParamsWidget* params_widget() { return _params_widget; }
 
   private Q_SLOTS:
 	void do_zoom_change(int axes);
@@ -193,6 +197,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	PVWidgets::PVHelpWidget* _help_widget;
 
 	bool _show_bg;
+	bool _show_labels;
 };
 } // namespace PVParallelView
 

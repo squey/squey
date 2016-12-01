@@ -23,6 +23,7 @@
 
 #include <inendi/PVView.h>
 
+#include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
@@ -57,6 +58,7 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
     , _backend(backend)
     , _view_deleted(false)
     , _show_bg(true)
+    , _show_labels(false)
 {
 	set_gl_viewport();
 
@@ -147,6 +149,8 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 	_help_widget->newTable();
 	_help_widget->addTextFromFile(":help-mouse-scatter-view");
+	_help_widget->newColumn();
+	_help_widget->addTextFromFile(":help-shortcuts-scatter-view");
 	_help_widget->finalizeText();
 
 	// Register view for unselected & zombie events toggle
@@ -305,6 +309,32 @@ void PVParallelView::PVScatterView::toggle_unselected_zombie_visibility()
 	get_viewport()->update();
 }
 
+/******************************************************************************
+ * PVParallelView::PVScatterView::toggle_show_labels
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::toggle_show_labels()
+{
+	_show_labels = !_show_labels;
+	params_widget()->update_widgets();
+
+	if (_show_labels) {
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(false);
+			    pbox.set_extended_status("Computing X-axis labels index");
+			    get_x_labels_cache().initialize();
+			    pbox.set_extended_status("Computing Y-axis labels index");
+			    get_y_labels_cache().initialize();
+			},
+		    "Initializing labels indices...", this);
+	}
+
+	recompute_decorations();
+	reconfigure_view();
+	get_viewport()->update();
+}
+
 /*****************************************************************************
  * PVParallelView::PVScatterView::do_update_all
  *****************************************************************************/
@@ -439,12 +469,20 @@ void PVParallelView::PVScatterView::set_enabled(bool en)
 
 QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
-	return get_elided_text(get_x_labels_cache().get(value));
+	if (_show_labels) {
+		return get_elided_text(get_x_labels_cache().get(value));
+	} else {
+		return {};
+	}
 }
 
 QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value)
 {
-	return get_elided_text(get_y_labels_cache().get(value));
+	if (_show_labels) {
+		return get_elided_text(get_y_labels_cache().get(value));
+	} else {
+		return {};
+	}
 }
 
 ////

@@ -175,7 +175,10 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 	l += 2 * SCALE_VALUE_OFFSET;
 	r = (r / 2) + SCALE_VALUE_OFFSET;
 
-	if ((l > margin_left) || (r > margin_right) || (t != margin_top)) {
+	l = std::max(l, DEFAULT_HMARGIN);
+	r = std::max(r, DEFAULT_HMARGIN);
+
+	if ((l != margin_left) || (r != margin_right) || (t != margin_top)) {
 		set_scene_margins(l, r, t, margin_bottom);
 	}
 }

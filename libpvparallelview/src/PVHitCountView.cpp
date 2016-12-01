@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVProgressBox.h>
+
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <inendi/PVView.h>
@@ -98,6 +100,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
     , _auto_x_zoom_sel(false)
     , _do_auto_scale(false)
     , _use_log_color(false)
+    , _show_labels(false)
 {
 	set_gl_viewport();
 
@@ -584,6 +587,30 @@ void PVParallelView::PVHitCountView::toggle_log_color()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVHitCountView::toggle_show_labels
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::toggle_show_labels()
+{
+	_show_labels = !_show_labels;
+	params_widget()->update_widgets();
+
+	if (_show_labels) {
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(false);
+			    pbox.set_extended_status("Computing Y-axis labels index");
+			    get_y_labels_cache().initialize();
+			},
+		    "Initializing labels index...", this);
+	}
+
+	recompute_decorations();
+	reconfigure_view();
+	get_viewport()->update();
+}
+
+/*****************************************************************************
  * PVParallelView::PVHitCountView::set_params_widget_position
  *****************************************************************************/
 
@@ -598,11 +625,19 @@ void PVParallelView::PVHitCountView::set_params_widget_position()
 
 QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value)
 {
-	// Number of Occurrence
-	return get_elided_text(QString::number(value));
+	if (_show_labels) {
+		// Number of Occurrence
+		return get_elided_text(QString::number(value));
+	} else {
+		return {};
+	}
 }
 
 QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value)
 {
-	return get_elided_text(get_y_labels_cache().get(value));
+	if (_show_labels) {
+		return get_elided_text(get_y_labels_cache().get(value));
+	} else {
+		return {};
+	}
 }

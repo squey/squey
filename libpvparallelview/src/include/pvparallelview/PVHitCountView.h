@@ -138,6 +138,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
 	inline bool use_log_color() const { return _use_log_color; }
+	inline bool show_labels() const { return _show_labels; }
 
 	bool show_bg() const { return _show_bg; }
 
@@ -148,6 +149,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
   protected Q_SLOTS:
 	void toggle_auto_x_zoom_sel();
 	void toggle_log_color();
+	void toggle_show_labels();
 
   private:
 	void reset_view();
@@ -198,6 +200,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	bool _auto_x_zoom_sel;
 	bool _do_auto_scale;
 	bool _use_log_color;
+	bool _show_labels;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> _x_zoom_converter;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> _y_zoom_converter;
 

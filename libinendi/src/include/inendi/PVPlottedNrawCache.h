@@ -38,6 +38,11 @@ class PVPlottedNrawCache
 
   public:
 	/**
+	 * Create the index if not created
+	 */
+	void initialize();
+
+	/**
 	 * Invalidate all cached entries
 	 */
 	void invalidate();
@@ -69,9 +74,10 @@ class PVPlottedNrawCache
 
   private:
 	PVCore::PVLRUCache<int64_t, QString> _cache;
+	entries_t _entries;
+	const Inendi::PVView& _view;
 	const PVRush::PVNraw& _nraw;
 	PVCol _col;
-	entries_t _entries;
 };
 
 } // namespace Inendi
