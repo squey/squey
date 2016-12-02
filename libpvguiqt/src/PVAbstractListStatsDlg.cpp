@@ -403,8 +403,11 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_copy_values_menu = new QMenu();
 	_copy_values_act->setMenu(_copy_values_menu);
 	_copy_values_with_count_act = new QAction("with count", this);
+	_copy_values_with_count_act->setShortcut(
+	    QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_C));
 	_copy_values_menu->addAction(_copy_values_with_count_act);
 	_copy_values_without_count_act = new QAction("without count", this);
+	_copy_values_without_count_act->setShortcut(QKeySequence::Copy);
 	_copy_values_menu->addAction(_copy_values_without_count_act);
 
 	// layer creation actions
@@ -987,4 +990,25 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 PVGuiQt::PVAbstractListStatsDlg* PVGuiQt::__impl::PVListStringsDelegate::d() const
 {
 	return static_cast<PVGuiQt::PVAbstractListStatsDlg*>(parent());
+}
+
+/******************************************************************************
+ *
+ * PVAbstractListStatsDlg::keyPressEvent
+ *
+ *****************************************************************************/
+void PVGuiQt::PVAbstractListStatsDlg::keyPressEvent(QKeyEvent* event)
+{
+	if (event->matches(QKeySequence::Copy)) {
+		_values_view->table_model()->commit_selection();
+		model().set_copy_count(false);
+		copy_selected_to_clipboard();
+	} else if ((event->modifiers() & Qt::ControlModifier) &&
+	           (event->modifiers() & Qt::ShiftModifier) && event->key() == Qt::Key_C) {
+		_values_view->table_model()->commit_selection();
+		model().set_copy_count(true);
+		copy_selected_to_clipboard();
+	} else {
+		PVListDisplayDlg::keyPressEvent(event);
+	}
 }
