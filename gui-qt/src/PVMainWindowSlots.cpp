@@ -683,7 +683,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
-	current_view()->set_selection_view(~current_view()->get_real_output_selection());
+	current_view()->select_inverse();
 }
 
 /******************************************************************************
