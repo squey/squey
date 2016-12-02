@@ -578,12 +578,12 @@ void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView& vie
 	 * aren't really
 	 * constants */
 	if (use_modifiers && modifiers == AND_MODIFIER) {
-		view_sp.process_post_filter_layer(view_sp.get_real_output_selection() & sel);
+		view_sp.set_selection_view(view_sp.get_real_output_selection() & sel);
 	} else if (use_modifiers && modifiers == NAND_MODIFIER) {
-		view_sp.process_post_filter_layer(view_sp.get_real_output_selection() - sel);
+		view_sp.set_selection_view(view_sp.get_real_output_selection() - sel);
 	} else if (use_modifiers && modifiers == OR_MODIFIER) {
-		view_sp.process_post_filter_layer(view_sp.get_real_output_selection() | sel);
+		view_sp.set_selection_view(view_sp.get_real_output_selection() | sel);
 	} else {
-		view_sp.process_post_filter_layer(sel);
+		view_sp.set_selection_view(sel);
 	}
 }
