@@ -31,7 +31,7 @@ const std::string PVCore::PVExporter::default_quote_char = "\"";
 PVCore::PVExporter::PVExporter(const std::string& file_path,
                                const PVCore::PVSelBitField& sel,
                                const PVCore::PVColumnIndexes& column_indexes,
-                               PVRow step_count,
+                               PVRow total_row_count,
                                const export_func& f,
                                const std::string& sep_char /* = default_sep_char */,
                                const std::string& quote_char, /* = default_quote_char */
@@ -40,10 +40,10 @@ PVCore::PVExporter::PVExporter(const std::string& file_path,
     : _file_path(file_path)
     , _sel(sel)
     , _column_indexes(column_indexes)
-    , _step_count(step_count)
+    , _total_row_count(total_row_count)
+    , _f(f)
     , _sep_char(sep_char)
     , _quote_char(quote_char)
-    , _f(f)
     , _compressor(file_path)
 {
 	assert(_column_indexes.size() != 0);
@@ -53,11 +53,14 @@ PVCore::PVExporter::PVExporter(const std::string& file_path,
 	}
 }
 
-void PVCore::PVExporter::export_rows(size_t start_index)
+size_t PVCore::PVExporter::export_rows(PVRow sc /* = 0 */)
 {
-	const size_t thread_count = std::thread::hardware_concurrency();
+	PVRow step_count =
+	    std::min((sc ? sc : _total_row_count), _total_row_count - _exported_row_count);
 
 	int thread_index = -1;
+	const size_t thread_count = std::thread::hardware_concurrency();
+	const size_t range = step_count / thread_count;
 
 	tbb::parallel_pipeline(
 	    thread_count /* = max_number_of_live_token */,
@@ -69,10 +72,9 @@ void PVCore::PVExporter::export_rows(size_t start_index)
 			        return {};
 		        }
 
-		        const size_t range = _step_count / thread_count;
-		        const size_t begin_index = start_index + (thread_index * range);
+		        const size_t begin_index = _exported_row_count + (thread_index * range);
 		        const size_t len = (size_t)thread_index == (thread_count - 1)
-		                               ? _step_count - ((thread_count - 1) * range)
+		                               ? step_count - ((thread_count - 1) * range)
 		                               : range;
 		        const size_t end_index = begin_index + len;
 
@@ -106,6 +108,8 @@ void PVCore::PVExporter::export_rows(size_t start_index)
 			            throw PVExportError(e.what());
 		            }
 		        }));
+
+	return _exported_row_count += step_count;
 }
 
 void PVCore::PVExporter::cancel()

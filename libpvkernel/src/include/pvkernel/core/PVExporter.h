@@ -30,9 +30,6 @@ struct PVExportError : public std::runtime_error {
 
 class PVExporter
 {
-  private:
-	static const std::unordered_map<size_t, std::pair<std::string, std::string>> _binaries;
-
   public:
 	static const std::string default_sep_char;
 	static const std::string default_quote_char;
@@ -45,16 +42,14 @@ class PVExporter
 	PVExporter(const std::string& file_path,
 	           const PVCore::PVSelBitField& sel,
 	           const PVCore::PVColumnIndexes& column_indexes,
-	           PVRow step_count,
+	           PVRow total_row_count,
 	           const export_func& f,
 	           const std::string& sep_char = default_sep_char,
 	           const std::string& quote_char = default_quote_char,
 	           const std::string& header = std::string());
 
   public:
-	void export_rows(size_t start_index);
-
-	void set_step_count(PVRow step) { _step_count = step; }
+	size_t export_rows(PVRow step_count = 0);
 
 	void cancel();
 	void wait_finished();
@@ -63,11 +58,12 @@ class PVExporter
 	std::string _file_path;
 	const PVCore::PVSelBitField& _sel;
 	const PVCore::PVColumnIndexes& _column_indexes;
-	PVRow _step_count;
+	PVRow _total_row_count = 0;
+	export_func _f;
 	const std::string _sep_char;
 	const std::string _quote_char;
-	export_func _f;
 	PVCore::PVStreamingCompressor _compressor;
+	PVRow _exported_row_count = 0;
 };
 
 } // namespace PVCore

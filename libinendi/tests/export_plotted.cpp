@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 	auto start = std::chrono::system_clock::now();
 
 	PVCore::PVExporter exp(output_tmp_file, sel, col_indexes, nraw.row_count(), export_func);
-	exp.export_rows(0);
+	exp.export_rows();
 	exp.wait_finished();
 
 	auto end = std::chrono::system_clock::now();

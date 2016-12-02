@@ -72,20 +72,13 @@ import_export(const std::string& input_file, const std::string& format, bool can
 
 	PVCore::PVExporter exp(output_file, sel, col_indexes, nraw.row_count(), export_func);
 
-	PVRow starting_row = 0;
 	const PVRow nrows = nraw.row_count();
-	PVRow step_count = std::min(STEP_COUNT, nrows);
 
 	while (true) {
-		starting_row = sel.find_next_set_bit(starting_row, nrows);
-		if (starting_row == PVROW_INVALID_VALUE) {
+		size_t exported_row_count = exp.export_rows(STEP_COUNT);
+		if (exported_row_count == nrows) {
 			break;
 		}
-
-		step_count = std::min(step_count, nrows - starting_row);
-		exp.set_step_count(step_count);
-		exp.export_rows(starting_row);
-		starting_row += step_count;
 
 		if (cancel) {
 			exp.cancel();

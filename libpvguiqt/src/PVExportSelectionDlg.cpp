@@ -273,9 +273,6 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
 	PVRow nrows = nraw.row_count();
 
-	PVRow start = 0;
-	PVRow step_count = std::min(STEP_COUNT, nrows);
-
 	// Progress Bar for export advancement
 	bool export_internal_values = export_selection_dlg._export_internal_values->isChecked();
 
@@ -292,24 +289,19 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	}
 
 	// Export selected lines
-	PVCore::PVExporter exp(file.fileName().toStdString(), sel, column_indexes, step_count,
-	                       export_func, sep_char, quote_char, header);
+	PVCore::PVExporter exp(file.fileName().toStdString(), sel, column_indexes, nrows, export_func,
+	                       sep_char, quote_char, header);
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_maximum(nrows);
 		    try {
 			    while (true) {
-				    start = sel.find_next_set_bit(start, nrows);
-				    if (start == PVROW_INVALID_VALUE) {
+				    size_t exported_row_count = exp.export_rows(STEP_COUNT);
+				    pbox.set_value(exported_row_count);
+				    if (exported_row_count == nrows) {
 					    break;
 				    }
 
-				    pbox.set_value(start);
-
-				    step_count = std::min(step_count, nrows - start);
-				    exp.set_step_count(step_count);
-				    exp.export_rows(start);
-				    start += step_count;
 				    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
 					    exp.cancel();
 					    return;

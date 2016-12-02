@@ -218,7 +218,7 @@ void PVRush::PVNraw::dump_csv(std::string const& file_path /* = "" */) const
 	        const std::string& quote) { return export_line(row, cols, sep, quote); };
 
 	PVCore::PVExporter exp(file_path, sel, cols, row_count(), export_func);
-	exp.export_rows(0);
+	exp.export_rows();
 	exp.wait_finished();
 }
 
