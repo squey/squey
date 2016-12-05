@@ -185,12 +185,12 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"s", "%S"},
 
 	                                                               // fractional second
-	                                                               {"SSSSSS", "%F"},
-	                                                               {"SSSSS", "%F"},
-	                                                               {"SSSS", "%F"},
-	                                                               {"SSS", "%F"},
-	                                                               {"SS", "%F"},
-	                                                               {"S", "%F"},
+	                                                               {"SSSSSS", "%f"},
+	                                                               {"SSSSS", "%f"},
+	                                                               {"SSSS", "%f"},
+	                                                               {"SSS", "%f"},
+	                                                               {"SS", "%f"},
+	                                                               {"S", "%f"},
 
 	                                                               // am/pm marker
 	                                                               {"aaa", "%p"},
