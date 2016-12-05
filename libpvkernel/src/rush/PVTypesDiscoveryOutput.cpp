@@ -54,6 +54,10 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"d/M/yy",
 	"d/M/yy H:m:s",
 	"d/M/yyyy H:m:s",
+	"dd.MM.yyyy",
+	"dd.MM.yyyy H:m:s",
+	"dd.MM.yy",
+	"dd.MM.yy H:m:s",
 	"yyyy/M/d",
 	"H:m:s",
 	"H%m%s",
@@ -65,7 +69,9 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"yy H%m%s.S",
 	"yyyy-M-d H:m:ss.S",
 	"yy-M-d H:mm:ss.SSS",
-	"yy-M-d H:mm:ss.SSS V"
+	"yy-M-d H:mm:ss.SSS V",
+	"dd.MM.yyyy H:m:s.S",
+	"dd.MM.yy H:m:s.S"
 }};
 // clang-format on
 
