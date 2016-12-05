@@ -55,6 +55,7 @@ int main()
 
 	// boost
 	testcases.emplace_back("datetime_us", "yyyy-M-d H:m:ss.S", "2017-03-19 10:00:59.001000");
+	testcases.emplace_back("datetime_us", "yyyy-M-d H:m:ss.S", "2017-03-19 10:00:59.000000");
 	testcases.emplace_back("datetime_us", "yyyy-M-d'T'H:m:ss.S", "2012-03-19T10:00:59.123",
 	                       "2012-03-19T10:00:59.123000");
 	testcases.emplace_back("datetime_us", "d/M/yyyy H:m:s.S", "19/02/2014 15:55:47.723000");
