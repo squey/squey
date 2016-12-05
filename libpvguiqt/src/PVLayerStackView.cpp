@@ -288,8 +288,7 @@ void PVGuiQt::PVLayerStackView::boolean_op_on_selection_with_this_layer(int laye
 
 	Inendi::PVSelection selection = (view.get_real_output_selection().*f)(layer.get_selection());
 
-	view.set_selection_view(selection);
-	view.process_layer_stack(selection);
+	view.set_selection_view(selection, true);
 }
 
 void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
