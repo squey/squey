@@ -647,7 +647,7 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 	PVRow start, end;
 	_nraw_widget->get_autodetect_args(start, end);
 
-	bool is_row_count_known = end != 0;
+	bool is_row_count_known = end != PVROW_INVALID_VALUE;
 	if (not is_row_count_known) {
 		end = EXTRACTED_ROW_COUNT_LIMIT;
 	}
