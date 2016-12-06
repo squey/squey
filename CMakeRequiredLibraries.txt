@@ -176,3 +176,11 @@ find_package(PVCOP REQUIRED)
 ###############################################################################      
 
 find_package(PVLicense REQUIRED)
+
+###############################################################################
+# type_safe library
+###############################################################################
+add_definitions(-DTYPE_SAFE_ENABLE_WRAPPER=0)
+add_definitions(-DTYPE_SAFE_ENABLE_ASSERTIONS=0)
+include_directories(AFTER third-party/type_safe/external/debug_assert) 
+include_directories(AFTER third-party/type_safe/include)
