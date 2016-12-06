@@ -71,13 +71,6 @@ class PVExportSelectionDlg : public QFileDialog
 	/** Separator to use for quoted fields */
 	QString quote_char() const { return _quote_char->keySequence().toString(); }
 
-	PVCore::PVExporter::CompressionType compression_type() const
-	{
-		return (PVCore::PVExporter::CompressionType)_compression_type
-		    ->itemData(_compression_type->currentIndex())
-		    .toUInt();
-	}
-
 	/** Wether we want to export an header line or not. */
 	inline bool export_columns_header() const { return _columns_header->isChecked(); }
 
@@ -89,7 +82,6 @@ class PVExportSelectionDlg : public QFileDialog
 	void show_axes_combination_widget();
 
   private:
-	QComboBox* _compression_type;
 	PVAxesCombinationWidget*
 	    _axes_combination_widget; //!< The axis combination widget to select axis to export
 	PVWidgets::QKeySequenceWidget* _quote_char;     //!< Character to use to quote a field

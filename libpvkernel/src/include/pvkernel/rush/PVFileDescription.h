@@ -23,7 +23,8 @@ class PVFileDescription : public PVInputDescription
 	PVFileDescription(QString const& path) : _path(QDir().absoluteFilePath(path))
 	{
 		if (not QFile::exists(_path)) {
-			throw PVRush::BadInputDescription("Input file doesn't exists");
+			throw PVRush::BadInputDescription("Input file '" + _path.toStdString() +
+			                                  "' doesn't exists");
 		}
 	}
 

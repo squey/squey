@@ -295,8 +295,10 @@ class PVUnicodeSource : public PVRawSourceBase
 
 		// Read data from input
 		char* begin_read = _curc->end();
-		size_t r = _input->operator()(begin_read, _curc->avail());
+		size_t r, c;
+		std::tie(r, c) = _input->operator()(begin_read, _curc->avail());
 		size_t chunk_size = r;
+		size_t compressed_chunk_size = c;
 
 		if (r == 0) { // No more data to read.
 			if (_curc->size() > 0) {
@@ -328,8 +330,9 @@ class PVUnicodeSource : public PVRawSourceBase
 			_curc = _curc->realloc_grow(_chunk_size / 10);
 
 			b = start_offset + _curc->begin();
-			r = _input->operator()(_curc->end(), _curc->avail());
+			std::tie(r, c) = _input->operator()(_curc->end(), _curc->avail());
 			chunk_size += r;
+			compressed_chunk_size += c;
 			buffer_end = _curc->end() + r;
 
 			end = get_end_from_charset(_curc->end(), r);
@@ -338,8 +341,8 @@ class PVUnicodeSource : public PVRawSourceBase
 		// Process the read data
 		// Copy remaining chars in the next chunk
 		_nextc->set_end(std::copy(end, buffer_end, _nextc->begin()));
-		chunk_size -= (buffer_end - end);
-		_curc->set_init_size(chunk_size);
+		_curc->set_init_size(compressed_chunk_size *
+		                     (1 - ((double)(buffer_end - end) / chunk_size)));
 
 		while (true) {
 			try {
@@ -394,7 +397,12 @@ class PVUnicodeSource : public PVRawSourceBase
 
 	QString human_name() override { return _input->human_name(); }
 
-	void release_input() override { _input.reset(); }
+	void release_input(bool cancel_first) override
+	{
+		if (cancel_first)
+			_input->cancel();
+		_input.reset();
+	}
 
 	void prepare_for_nelts(chunk_index /*nelts*/) override {}
 

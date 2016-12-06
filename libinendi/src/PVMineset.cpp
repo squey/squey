@@ -311,7 +311,7 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 		        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
 		PVCore::PVExporter exp(data_file, sel, column_indexes, nraw.row_count(), export_func,
 		                       "\t" /* = default_sep_char */);
-		exp.export_rows(0);
+		exp.export_rows();
 	}
 
 	// Compress dataset

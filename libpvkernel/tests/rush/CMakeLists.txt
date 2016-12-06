@@ -38,6 +38,7 @@ PV_ADD_TEST_CONV_UTF8("charset/utf8_windows1252" 10048576)
 add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
 add_test(TestAggregator1 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
 add_test(TestAggregator2 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set2)
+add_test(TestAggregator3 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set3)
 
 # Test for filters
 add_pv_compile_test(Trush_filter_grep LINKS ${LINK_LIBRARIES} FILES filter_grep.cpp helpers.cpp)

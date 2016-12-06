@@ -25,12 +25,18 @@ add_pv_compile_test(Tinendi_format LINKS ${LINK_LIBRARIES} FILES format.cpp)
 add_test(Tinendi_format Tinendi_format)
 
 add_pv_compile_test(Tqt_new_layer_dialog LINKS ${LINK_LIBRARIES} FILES new_layer_dialog.cpp)
+
 add_pv_compile_test(Tinendi_export_selection LINKS ${LINK_LIBRARIES} FILES export_selection.cpp)
-add_test(Tinendi_export_selection Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log ${TESTS_FILES_DIR}/formats/proxy.log.format)
+add_test(Tinendi_export_selection Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format ${TESTS_FILES_DIR}/sources/proxy.log)
 if(MINESET)
 	add_pv_compile_test(Tinendi_export_selection_to_mineset LINKS ${LINK_LIBRARIES} FILES export_selection_to_mineset.cpp)
 	add_test(Tinendi_export_selection_to_mineset Tinendi_export_selection_to_mineset ${TESTS_FILES_DIR}/sources/proxy_mineset.log ${TESTS_FILES_DIR}/formats/proxy.log.format)
 endif(MINESET)
+
+add_test(Tinendi_export_small_selection_gz Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)
+add_test(Tinendi_export_small_selection_bz2 Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.bz2 ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)
+add_test(Tinendi_export_small_selection_zip Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.zip ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)
+
 add_test(Tinendi_formatter_number Tinendi_export_selection ${TESTS_FILES_DIR}/picviz/formatter_number.csv ${TESTS_FILES_DIR}/picviz/formatter_number.csv.format)
 
 add_pv_compile_test(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_copy.cpp)
@@ -215,3 +221,11 @@ add_test(Tinendi_axes_combination Tinendi_axes_combination)
 
 add_pv_compile_test(Tinendi_view_unselected_zombie_toggle LINKS ${LINK_LIBRARIES} FILES view_unselected_zombie_toggle.cpp)
 add_test(Tinendi_view_unselected_zombie_toggle Tinendi_view_unselected_zombie_toggle)
+
+# Cancel import
+add_pv_compile_test(Tinendi_cancel_import LINKS ${LINK_LIBRARIES} FILES cancel_import.cpp)
+add_test(Tinendi_cancel_import Tinendi_cancel_import ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format)
+
+# Cancel exmport
+add_pv_compile_test(Tinendi_cancel_export LINKS ${LINK_LIBRARIES} FILES cancel_export.cpp)
+add_test(Tinendi_cancel_export Tinendi_cancel_export ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format)

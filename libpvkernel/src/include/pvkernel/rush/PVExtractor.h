@@ -58,7 +58,7 @@ class PVExtractor
 	 */
 	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
 
-	void release_inputs() { _agg.release_inputs(); }
+	void release_inputs(bool cancel_first = false) { _agg.release_inputs(cancel_first); }
 
 	size_t max_size() const { return _max_value; }
 

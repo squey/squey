@@ -55,68 +55,8 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
                                              list_inputs& inputs,
                                              QWidget* parent) const
 {
-	bool check_archives = true;
-	bool extract_all_archive = false;
-	for (int i = 0; i < filenames.size(); i++) {
-		QString const& path = filenames[i];
-		bool add_original = true;
-		if (check_archives && PVCore::PVArchive::is_archive(path)) {
-			PVLOG_DEBUG("(import-files) %s is an archive.\n", qPrintable(path));
-			QStringList extracted;
-			int ret;
-			if (!extract_all_archive) {
-				QMessageBox box_ext(
-				    QMessageBox::Question, "Import files: archive detected",
-				    QString("'%1' has been detected as an archive. Do you want to extract it to a "
-				            "temporary directory and import its content ?")
-				        .arg(path),
-				    QMessageBox::YesToAll | QMessageBox::Yes | QMessageBox::No |
-				        QMessageBox::NoToAll | QMessageBox::Cancel,
-				    parent);
-				ret = box_ext.exec();
-			} else {
-				ret = QMessageBox::Yes;
-			}
-			switch (ret) {
-			case QMessageBox::YesToAll:
-				extract_all_archive = true;
-			case QMessageBox::Yes: {
-				// Create a temporary directory of name "/tmp/inendi-archivename-XXXXXX"
-				QFileInfo fi(path);
-				QString tmp_dir = PVCore::PVDirectory::temp_dir(QString("inendi-") + fi.fileName() +
-				                                                QString("-XXXXXXXX"));
-				if (tmp_dir.isEmpty()) {
-					PVLOG_WARN("Extraction of %s: unable to create a temporary directory !\n",
-					           qPrintable(path));
-					break;
-				}
-				_tmp_dir_to_delete.push_back(tmp_dir);
-				PVLOG_INFO("Extract archive %s to %s...\n", qPrintable(path), qPrintable(tmp_dir));
-				try {
-					PVCore::PVArchive::extract(filenames[i], tmp_dir, extracted);
-					add_original = false;
-					for (int j = 0; j < extracted.count(); j++) {
-						inputs.push_back(PVInputDescription_p(new PVFileDescription(extracted[j])));
-					}
-				} catch (PVCore::ArchiveUncompressFail const& e) {
-					PVLOG_WARN("Failed to extract archive %s. Loading as a regular file...\n",
-					           qPrintable(path));
-				}
-				break;
-			}
-			case QMessageBox::Cancel:
-				return false;
-			case QMessageBox::NoToAll:
-				check_archives = false;
-			case QMessageBox::No:
-			default:
-				break;
-			}
-		}
-
-		if (add_original) {
-			inputs.push_back(PVInputDescription_p(new PVFileDescription(path)));
-		}
+	for (QString const& filename : filenames) {
+		inputs.push_back(PVInputDescription_p(new PVFileDescription(filename)));
 	}
 
 	if (inputs.size() >= _limit_nfds - 200) {

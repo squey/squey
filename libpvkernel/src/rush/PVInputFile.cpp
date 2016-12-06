@@ -9,38 +9,39 @@
 #include <pvkernel/rush/PVInputFile.h>
 
 #include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR
+#include <pvkernel/core/PVArchive.h>
 
 #include <cerrno>
 #include <fstream>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 
-PVRush::PVInputFile::PVInputFile(const char* path) : _path(path)
+PVRush::PVInputFile::PVInputFile(const char* path) : _path(path), _decompressor(_path)
 {
-	_file.open(path, std::ifstream::in);
-	if (_file.fail()) {
-		int err = errno;
-		PVLOG_ERROR("Unable to open %s.\n", path);
-		throw PVInputFileOpenException(path, err);
-	}
 }
 
 PVRush::PVInputFile::~PVInputFile()
 {
-	if (_file.is_open()) {
-		_file.close();
+}
+
+PVRush::PVInputFile::chunk_sizes_t PVRush::PVInputFile::operator()(char* buffer, size_t n)
+{
+	try {
+		return _decompressor.read(buffer, n);
+	} catch (const PVCore::PVStreamingDecompressorError& e) {
+		throw PVInputException(e.what());
 	}
 }
 
-size_t PVRush::PVInputFile::operator()(char* buffer, size_t n)
+void PVRush::PVInputFile::cancel()
 {
-	_file.read(buffer, n);
-	size_t ret = _file.gcount();
-	return ret;
+	_decompressor.cancel();
 }
 
 void PVRush::PVInputFile::seek_begin()
 {
-	_file.clear();
-	_file.seekg(0);
+	_decompressor.reset();
 }
 
 QString PVRush::PVInputFile::human_name()
@@ -50,12 +51,7 @@ QString PVRush::PVInputFile::human_name()
 
 uint64_t PVRush::PVInputFile::file_size()
 {
-	uint64_t cur_off = _file.tellg();
-	_file.clear();
-	_file.seekg(0, std::ios::end);
-	uint64_t size = _file.tellg();
-	_file.seekg(cur_off, std::ios::beg);
-	return size;
+	return std::ifstream(_path, std::ifstream::ate | std::ifstream::binary).tellg();
 }
 
 IMPL_INPUT(PVRush::PVInputFile)

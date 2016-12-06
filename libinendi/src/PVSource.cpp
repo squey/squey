@@ -71,7 +71,7 @@ void Inendi::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 {
 	job->wait_end();
 	_inv_elts = job->get_invalid_evts();
-	_extractor.release_inputs();
+	_extractor.release_inputs(not job->running());
 }
 
 PVRush::PVNraw& Inendi::PVSource::get_rushnraw()

@@ -61,7 +61,7 @@ class PVAggregator
 	void add_input(PVRush::PVRawSourceBase_p in);
 
   public:
-	void release_inputs();
+	void release_inputs(bool cancel_first = false);
 
   public:
 	/*! \brief Read a chunk from the aggregator.

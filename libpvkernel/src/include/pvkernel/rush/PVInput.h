@@ -21,7 +21,8 @@ namespace PVRush
 class PVInput
 {
   public:
-	typedef PVInput_p p_type;
+	using p_type = PVInput_p;
+	using chunk_sizes_t = std::pair<size_t /*uncompressed*/, size_t /*compressed*/>;
 
   public:
 	virtual ~PVInput() = default;
@@ -30,8 +31,9 @@ class PVInput
 	// This method must read at most n bytes and put the result in buffer and returns the number of
 	// bytes actually read.
 	// It returns 0 if no more data is available
-	virtual size_t operator()(char* buffer, size_t n) = 0;
+	virtual chunk_sizes_t operator()(char* buffer, size_t n) = 0;
 	// Seek to the beggining of the input
+	virtual void cancel() = 0;
 	virtual void seek_begin() = 0;
 	virtual QString human_name() = 0;
 };

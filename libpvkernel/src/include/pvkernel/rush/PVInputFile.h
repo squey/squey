@@ -8,13 +8,16 @@
 #ifndef PVINPUTFILE_FILE_H
 #define PVINPUTFILE_FILE_H
 
+#include <pvkernel/core/PVStreamingCompressor.h>
 #include <pvkernel/rush/PVInput.h> // for PVInputException, etc
 
+#include <atomic>
 #include <cstddef> // for size_t
 #include <cstdint> // for uint64_t
 #include <cstring> // for strerror
 #include <fstream> // for ifstream
 #include <string>  // for allocator, operator+, etc
+#include <thread>
 
 #include <QString>
 
@@ -29,7 +32,8 @@ class PVInputFile : public PVInput
 	~PVInputFile() override;
 
   public:
-	size_t operator()(char* buffer, size_t n) override;
+	chunk_sizes_t operator()(char* buffer, size_t n) override;
+	void cancel() override;
 	void seek_begin() override;
 	QString human_name() override;
 
@@ -37,9 +41,9 @@ class PVInputFile : public PVInput
 	// File specific
 	uint64_t file_size();
 
-  protected:
-	std::ifstream _file;
+  private:
 	std::string _path;
+	PVCore::PVStreamingDecompressor _decompressor;
 
 	CLASS_INPUT(PVRush::PVInputFile)
 };
