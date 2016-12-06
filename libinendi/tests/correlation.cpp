@@ -107,7 +107,24 @@ int main()
 	PV_ASSERT_VALID(std::equal(v1.begin(), v1.end(), v2.begin()));
 
 	/**
-	 * Remove correlation
+	 * Remove correlation on view2
+	 */
+	env.root.correlations().remove(correlation.view2);
+	PV_ASSERT_VALID(not env.root.correlations().exists(view1, PVCol(2)));
+	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
+	PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
+
+	/**
+	 * Re-add correlation
+	 */
+	env.root.correlations().add(correlation);
+	PV_ASSERT_VALID(env.root.correlations().exists(view1, PVCol(2)));
+	PV_ASSERT_VALID(
+	    env.root.correlations().exists(Inendi::PVCorrelation{view1, PVCol(2), view2, PVCol(2)}));
+	PV_ASSERT_VALID(env.root.correlations().correlation(view1) != nullptr);
+
+	/**
+	 * Re-remove correlation on view1
 	 */
 	env.root.correlations().remove(correlation.view1);
 	PV_ASSERT_VALID(not env.root.correlations().exists(view1, PVCol(2)));

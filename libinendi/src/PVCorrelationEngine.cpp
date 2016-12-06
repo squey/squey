@@ -27,7 +27,12 @@ void Inendi::PVCorrelationEngine::add(const PVCorrelation& c)
 
 void Inendi::PVCorrelationEngine::remove(const Inendi::PVView* view)
 {
-	_correlations.erase(view);
+	for (const auto& c : _correlations) {
+		if (view == c.second.view1 or view == c.second.view2) {
+			_correlations.erase(c.first);
+			break;
+		}
+	}
 }
 
 bool Inendi::PVCorrelationEngine::exists(const PVCorrelation& c) const
