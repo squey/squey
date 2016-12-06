@@ -1,3 +1,21 @@
+4.2.2 (2016-12-06)
+------------------
+
+This minor release fixes:
+* fixed search sometime using a wrong column after an axes combination change
+* fixed float search sometime failing due to rounding precision
+* fixed crash with correlation on a closed source
+* special values search plugin was not distributed
+* fixed inendi-logstats plugins loading error
+* format builder : ignoring headers is now effective immediately
+* fixed ctrl+c / ctrl+shift+c keyboard shortcut in statistic views
+* force display of milliseconds in '.S' time pattern to avoid import errors after an export
+* cancellation of preview filter doesn't affect current selection anymore
+* fixed display of row indices in statistic views
+* proper reset of inter-axes space when changing the axes combination
+* changing layer doesn't affect the current selection anymore
+* opt-in labels display in scatter view
+
 4.2.1 (2016-11-03)
 ------------------
 
