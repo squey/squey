@@ -70,6 +70,7 @@ PVCore::PVHSVColor Inendi::PVView::_default_zombie_line_properties(HSV_COLOR_BLA
  *****************************************************************************/
 Inendi::PVView::PVView(PVPlotted& plotted)
     : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
+    , _view_selection(get_row_count())
     , post_filter_layer("post_filter_layer", get_row_count())
     , layer_stack_output_layer("view_layer_stack_output_layer", get_row_count())
     , output_layer("output_layer", get_row_count())
@@ -103,8 +104,9 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 
 	_layer_stack_refreshed.emit();
 
-	post_filter_layer.get_selection().select_all();
-	process_layer_stack(post_filter_layer.get_selection());
+	// does not call ::select_all() to avoid calling uselessly ::process_post_filter_layer()
+	_view_selection.select_all();
+	process_layer_stack();
 }
 
 /******************************************************************************
@@ -394,12 +396,15 @@ void Inendi::PVView::process_correlation()
  * Inendi::PVView::process_layer_stack
  *
  *****************************************************************************/
-void Inendi::PVView::process_layer_stack(Inendi::PVSelection const& sel)
+void Inendi::PVView::process_layer_stack(bool emit_signal)
 {
 	layer_stack.process(layer_stack_output_layer, get_row_count());
-	_update_layer_stack_output_layer.emit();
 
-	process_post_filter_layer(sel);
+	if (emit_signal) {
+		_update_layer_stack_output_layer.emit();
+	}
+
+	process_post_filter_layer(emit_signal);
 }
 
 /******************************************************************************
@@ -407,18 +412,20 @@ void Inendi::PVView::process_layer_stack(Inendi::PVSelection const& sel)
  * Inendi::PVView::process_post_filter_layer
  *
  *****************************************************************************/
-void Inendi::PVView::process_post_filter_layer(Inendi::PVSelection const& to_use)
+void Inendi::PVView::process_post_filter_layer(bool emit_signal)
 {
-	/* We cut the resulting selection with what is available in the layer_stack */
-	/* We are in ALL edit_mode */
-	post_filter_layer.get_selection().inplace_and(layer_stack_output_layer.get_selection(), to_use);
+	/* Updating the post_filter_layer selection */
+	post_filter_layer.get_selection().inplace_and(layer_stack_output_layer.get_selection(),
+	                                              _view_selection);
 
 	/* We simply copy the lines_properties */
 	post_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
 
-	_update_output_selection.emit();
+	if (emit_signal) {
+		_update_output_selection.emit();
+	}
 
-	process_output_layer();
+	process_output_layer(emit_signal);
 }
 
 /******************************************************************************
@@ -426,7 +433,7 @@ void Inendi::PVView::process_post_filter_layer(Inendi::PVSelection const& to_use
  * Inendi::PVView::process_output_layer
  *
  *****************************************************************************/
-void Inendi::PVView::process_output_layer()
+void Inendi::PVView::process_output_layer(bool emit_signal)
 {
 	PVLOG_DEBUG("Inendi::PVView::process_output_layer\n");
 
@@ -467,7 +474,9 @@ void Inendi::PVView::process_output_layer()
 		}
 	}
 
-	_update_output_layer.emit();
+	if (emit_signal) {
+		_update_output_layer.emit();
+	}
 
 	process_correlation();
 }
@@ -483,7 +492,7 @@ void Inendi::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 	PVLayer& active_layer = layer_stack.get_selected_layer();
 
 	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(), c);
-	process_layer_stack(get_real_output_selection());
+	process_layer_stack();
 }
 
 /******************************************************************************
@@ -528,9 +537,15 @@ void Inendi::PVView::set_selection_from_layer(PVLayer const& layer)
  * Inendi::PVView::set_selection_view
  *
  *****************************************************************************/
-void Inendi::PVView::set_selection_view(PVSelection const& sel)
+void Inendi::PVView::set_selection_view(PVSelection const& sel, bool update_ls)
 {
-	process_post_filter_layer(sel);
+	_view_selection = sel;
+
+	if (update_ls) {
+		process_layer_stack();
+	} else {
+		process_post_filter_layer();
+	}
 }
 
 /******************************************************************************
@@ -566,16 +581,20 @@ void Inendi::PVView::move_selected_layer_to(int new_index)
 
 void Inendi::PVView::select_all()
 {
-	Inendi::PVSelection sel(get_row_count());
-	sel.select_all();
-	process_post_filter_layer(sel);
+	_view_selection.select_all();
+	process_post_filter_layer();
 }
 
 void Inendi::PVView::select_none()
 {
-	Inendi::PVSelection sel(get_row_count());
-	sel.select_none();
-	process_post_filter_layer(sel);
+	_view_selection.select_none();
+	process_post_filter_layer();
+}
+
+void Inendi::PVView::select_inverse()
+{
+	_view_selection.select_inverse();
+	process_post_filter_layer();
 }
 
 std::string Inendi::PVView::get_name() const
@@ -707,8 +726,11 @@ Inendi::PVView& Inendi::PVView::serialize_read(PVCore::PVSerializeObject& so,
 	view.layer_stack = Inendi::PVLayerStack::serialize_read(*ls_obj);
 
 	so.set_current_status("Processing layer stack...");
-	Inendi::PVSelection sel(view.get_row_count());
-	sel.select_all();
-	view.process_layer_stack(sel);
+
+	/* as PVView' constructor has already reset _view_selection to "all", just need to rebuild
+	 * the layer-stack.
+	 */
+	view.process_layer_stack();
+
 	return view;
 }

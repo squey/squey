@@ -229,16 +229,16 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	// Expand the selection on Shift
 	// Replace the old selection without modifiers
 	if ((modifiers & Qt::ShiftModifier) and (modifiers & Qt::ControlModifier)) {
-		lib_view().process_post_filter_layer(lib_view().get_real_output_selection() &
-		                                     table_model()->current_selection());
+		lib_view().set_selection_view(lib_view().get_real_output_selection() &
+		                              table_model()->current_selection());
 	} else if (modifiers & Qt::ControlModifier) {
-		lib_view().process_post_filter_layer(lib_view().get_real_output_selection() -
-		                                     table_model()->current_selection());
+		lib_view().set_selection_view(lib_view().get_real_output_selection() -
+		                              table_model()->current_selection());
 	} else if (modifiers & Qt::ShiftModifier) {
-		lib_view().process_post_filter_layer(lib_view().get_real_output_selection() |
-		                                     table_model()->current_selection());
+		lib_view().set_selection_view(lib_view().get_real_output_selection() |
+		                              table_model()->current_selection());
 	} else {
-		lib_view().process_post_filter_layer(table_model()->current_selection());
+		lib_view().set_selection_view(table_model()->current_selection());
 	}
 
 	table_model()->reset_selection();
@@ -702,7 +702,7 @@ void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 		}
 	}
 
-	lib_view().process_layer_stack(lib_view().get_real_output_selection());
+	lib_view().process_layer_stack();
 }
 
 /******************************************************************************

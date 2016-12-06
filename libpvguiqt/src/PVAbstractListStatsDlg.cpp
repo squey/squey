@@ -782,7 +782,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 	ls.set_selected_layer_index(old_selected_layer_index);
 
-	lib_view()->process_layer_stack(old_sel);
+	/* as the layer-stack has been changed, force its update at the same time as we restore the
+	 * original selection
+	 */
+	lib_view()->set_selection_view(old_sel, true);
 }
 
 /******************************************************************************
@@ -889,8 +892,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 	ls.set_selected_layer_index(old_selected_layer_index);
 
-	// we can update the layer-stack once all layers have been created
-	lib_view()->process_layer_stack(old_sel);
+	/* as the layer-stack has been changed, force its update at the same time as we restore the
+	 * original selection
+	 */
+	lib_view()->set_selection_view(old_sel, true);
 }
 
 /******************************************************************************

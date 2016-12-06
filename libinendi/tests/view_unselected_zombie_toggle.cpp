@@ -40,7 +40,7 @@ int main()
 	 * Make first layer invisible (so first line is a zombie)
 	 */
 	view->toggle_layer_stack_layer_n_visible_state(0);
-	view->process_layer_stack(sel);
+	view->set_selection_view(sel, true);
 
 	/**
 	 * Unselect the third line.

@@ -163,13 +163,21 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void set_layer_stack_selected_layer_index(int index);
 
 	void set_selection_from_layer(PVLayer const& layer);
-	void set_selection_view(PVSelection const& sel);
+
+	/**
+	 * Set the current selected events set
+	 *
+	 * @param sel the new selection
+	 * @param update_ls a flag to tell to update the layer-stack or the post filter layer
+	 */
+	void set_selection_view(PVSelection const& sel, bool update_ls = false);
 
 	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
 
 	void select_all();
 	void select_none();
+	void select_inverse();
 
 	void toggle_listing_unselected_visibility();
 	void toggle_listing_zombie_visibility();
@@ -209,24 +217,27 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void process_correlation();
 
 	/**
-	 * Compute a merge of all visibles layer of the layer stack.
+	 * Compute a merge of all visibles layer of the layer stack into layer_stack_output_layerq
 	 *
-	 * * Save data in layer_stack_output_layer.
+	 * @param emit_signal a flag to notify listeners that a change occurs or not
 	 */
-	void process_layer_stack(Inendi::PVSelection const& sel);
+	void process_layer_stack(bool emit_signal = true);
 
 	/**
-	 * Set correct selection to post_filter_layer.
+	 * Recompute post_filter_layer selection
 	 *
-	 * * Copy color (FIXME : done every time, should be done only once).
-	 * * Merge selection with layer_stack selection.
+	 * @param emit_signal a flag to notify listeners that a change occurs or not
+	 *
+	 * @todo this method always copies the lines properties while it should do it only once
 	 */
-	void process_post_filter_layer(Inendi::PVSelection const& sel);
+	void process_post_filter_layer(bool emit_signal = true);
 
 	/**
 	 * Compute output layer from post_filter_layer data.
+	 *
+	 * @param emit_signal a flag to notify listeners that a change occurs or not
 	 */
-	void process_output_layer();
+	void process_output_layer(bool emit_signal = true);
 
 	/******************************************************************************
 	******************************************************************************
@@ -312,6 +323,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	sigc::signal<void> _about_to_be_delete;
 
   protected:
+	PVSelection _view_selection; //!< pre layer-stack masking selection
 	PVLayer
 	    post_filter_layer; //!< Contains selection and color lines for in progress view computation.
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack

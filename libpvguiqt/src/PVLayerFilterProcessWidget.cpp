@@ -180,10 +180,8 @@ void PVGuiQt::PVLayerFilterProcessWidget::reject()
 	// Restore original arguments of this layer filter
 	*_args_widget->get_args() = _args_org;
 
-	// Update everything
-	Inendi::PVSelection sel(_view->get_row_count());
-	sel.select_all();
-	_view->process_layer_stack(sel);
+	// Restore view' post filter layer state
+	_view->process_post_filter_layer();
 
 	QDialog::reject();
 }
@@ -208,7 +206,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	    current_selected_layer.get_lines_properties(),
 	    _view->get_post_filter_layer().get_selection());
 
-	_view->process_layer_stack(_view->get_post_filter_layer().get_selection());
+	_view->set_selection_view(_view->get_real_output_selection(), true);
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
@@ -257,8 +255,17 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 	// been updated yet !)
 	_preview_btn->setFocus(Qt::MouseFocusReason);
 
+	/* Make sure the view is in its initial state but no need to notify views that
+	 * something has changed because it will be done after the process() call
+	 */
+	_view->process_layer_stack(false);
+
 	process();
 
+	/* As process() updates view' post_filter_layer, we can not call
+	 * PVView::process_post_filter_layer()
+	 */
+	_view->_update_output_selection.emit();
 	_view->process_output_layer();
 }
 
