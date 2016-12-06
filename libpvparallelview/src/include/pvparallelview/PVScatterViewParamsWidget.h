@@ -25,6 +25,9 @@ class PVScatterViewParamsWidget : public QToolBar
   public:
 	explicit PVScatterViewParamsWidget(PVScatterView* parent);
 
+  public:
+	void update_widgets();
+
   private Q_SLOTS:
 	void set_selection_mode(int mode);
 
@@ -32,6 +35,7 @@ class PVScatterViewParamsWidget : public QToolBar
 	PVScatterView* parent_sv();
 
   private:
+	QAction* _show_labels;
 	QSignalMapper* _sel_mode_signal_mapper;
 	QToolButton* _sel_mode_button;
 };

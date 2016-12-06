@@ -132,7 +132,7 @@ depend of the client's windows settings. */
 	 *
 	 * @return the label corresponding to value
 	 */
-	virtual QString get_x_value_at(const qint64 value) const;
+	virtual QString get_x_value_at(const qint64 value);
 
 	/**
 	 * Return the text to print on the y scale for a given value
@@ -144,7 +144,7 @@ depend of the client's windows settings. */
 	 *
 	 * @return the label corresponding to value
 	 */
-	virtual QString get_y_value_at(const qint64 value) const;
+	virtual QString get_y_value_at(const qint64 value);
 
 	int get_x_axis_length() const { return _x_axis_length; }
 

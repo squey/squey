@@ -20,6 +20,7 @@
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVHitCountView.h>
+#include <pvparallelview/PVHitCountViewBackend.h>
 #include <pvparallelview/PVScatterView.h>
 
 #include <iostream>
@@ -98,12 +99,16 @@ PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* par
 PVParallelView::PVHitCountView*
 PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* parent)
 {
-	const auto& plotted = lib_view()->get_parent<Inendi::PVPlotted>();
-	const uint32_t* uint_plotted =
-	    plotted.get_column_pointer(lib_view()->get_axes_combination().get_nraw_axis(axis));
+	PVHitCountViewBackend* backend;
 
-	PVHitCountView* view =
-	    new PVHitCountView(*lib_view(), uint_plotted, lib_view()->get_row_count(), axis, parent);
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(false);
+		    backend = new PVHitCountViewBackend(*lib_view(), axis);
+		},
+	    "Initializing hit-count view...", parent);
+
+	PVHitCountView* view = new PVHitCountView(*lib_view(), backend, axis, parent);
 
 	_hit_count_views.push_back(view);
 
@@ -113,15 +118,18 @@ PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* 
 PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(const PVCombCol axis,
                                                                               QWidget* parent)
 {
+	PVScatterViewBackend* backend;
+
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(false);
 		    _zones_manager.request_zoomed_zone(axis);
+		    backend = new PVScatterViewBackend(*lib_view(), _zones_manager, axis, _processor_bg,
+		                                       _processor_sel);
 		},
 	    "Initializing scatter view...", parent);
 
-	PVScatterView* view =
-	    new PVScatterView(*lib_view(), _zones_manager, axis, _processor_bg, _processor_sel, parent);
+	PVScatterView* view = new PVScatterView(*lib_view(), backend, axis, parent);
 
 	_scatter_views.push_back(view);
 

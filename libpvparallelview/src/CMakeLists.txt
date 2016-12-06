@@ -75,11 +75,13 @@ PVZoomableDrawingAreaInteractorHomothetic.cpp
 
 # views
 PVHitCountView.cpp
+PVHitCountViewBackend.cpp
 PVHitCountViewInteractor.cpp
 PVHitCountViewParamsWidget.cpp
 PVHitCountViewSelectionRectangle.cpp
 
 PVScatterView.cpp
+PVScatterViewBackend.cpp
 PVScatterViewInteractor.cpp
 PVScatterViewImage.cpp
 PVScatterViewImagesManager.cpp
