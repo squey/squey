@@ -8,14 +8,19 @@
 #ifndef __PVSCATTERVIEW_H__
 #define __PVSCATTERVIEW_H__
 
-#include <sigc++/sigc++.h>
-
 #include <inendi/PVAxesCombination.h>
 
-#include <pvparallelview/PVScatterViewImagesManager.h>
+#include <pvparallelview/common.h>
+#include <pvparallelview/PVScatterViewBackend.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoneRendering_types.h>
+
+#include <boost/noncopyable.hpp>
+
+#include <sigc++/sigc++.h>
+
+#include <memory>
 
 class QPainter;
 
@@ -81,10 +86,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   public:
 	PVScatterView(Inendi::PVView& pvview_sp,
-	              PVZonesManager const& zm,
+	              PVScatterViewBackend* backend,
 	              PVCol const axis_index,
-	              PVZonesProcessor& zp_bg,
-	              PVZonesProcessor& zp_sel,
 	              QWidget* parent = nullptr);
 	~PVScatterView() override;
 
@@ -111,8 +114,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
   protected:
 	void drawBackground(QPainter* painter, const QRectF& rect) override;
 	void keyPressEvent(QKeyEvent* event) override;
-	QString get_x_value_at(const qint64 value) const override;
-	QString get_y_value_at(const qint64 value) const override;
+	QString get_x_value_at(const qint64 value) override;
+	QString get_y_value_at(const qint64 value) override;
 
   protected:
 	void set_params_widget_position();
@@ -120,6 +123,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
 	bool show_bg() const { return _show_bg; }
+	bool show_labels() const { return _show_labels; }
 
   private Q_SLOTS:
 	void do_update_all();
@@ -130,16 +134,38 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	void update_img_sel(PVParallelView::PVZoneRendering_p zr, int zid);
 
 	void toggle_unselected_zombie_visibility();
+	void toggle_show_labels();
 
   private:
 	inline PVZonesManager const& get_zones_manager() const
 	{
 		return get_images_manager().get_zones_manager();
 	}
-	inline PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
-	inline PVScatterViewImagesManager const& get_images_manager() const { return _images_manager; }
+
+	inline PVScatterViewImagesManager& get_images_manager()
+	{
+		return _backend->get_images_manager();
+	}
+
+	inline PVScatterViewImagesManager const& get_images_manager() const
+	{
+		return _backend->get_images_manager();
+	}
+
+	inline Inendi::PVPlottedNrawCache& get_x_labels_cache()
+	{
+		return _backend->get_x_labels_cache();
+	}
+
+	inline Inendi::PVPlottedNrawCache& get_y_labels_cache()
+	{
+		return _backend->get_y_labels_cache();
+	}
+
 	PVZoneTree const& get_zone_tree() const;
 	void set_scatter_view_zone(PVZoneID const zid);
+
+	PVScatterViewParamsWidget* params_widget() { return _params_widget; }
 
   private Q_SLOTS:
 	void do_zoom_change(int axes);
@@ -147,7 +173,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   private:
 	Inendi::PVView& _view;
-	PVScatterViewImagesManager _images_manager;
+	std::unique_ptr<PVScatterViewBackend> _backend;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>* _zoom_converter;
 
@@ -171,6 +197,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	PVWidgets::PVHelpWidget* _help_widget;
 
 	bool _show_bg;
+	bool _show_labels;
 };
 } // namespace PVParallelView
 

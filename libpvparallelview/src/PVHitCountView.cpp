@@ -5,6 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
+#include <pvkernel/core/PVProgressBox.h>
+
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <inendi/PVView.h>
@@ -87,19 +89,18 @@ void __print_scalar(const char* text, const V& v)
  *****************************************************************************/
 
 PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
-                                               const uint32_t* col_plotted,
-                                               const PVRow nrows,
+                                               PVHitCountViewBackend* backend,
                                                const PVCol axis_index,
                                                QWidget* parent)
     : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
     , _pvview(pvview_sp)
-    , _axis_index(axis_index)
-    , _hit_graph_manager(col_plotted, nrows, 2, layer_stack_output_selection(), real_selection())
+    , _backend(backend)
     , _view_deleted(false)
     , _show_bg(true)
     , _auto_x_zoom_sel(false)
     , _do_auto_scale(false)
     , _use_log_color(false)
+    , _show_labels(false)
 {
 	set_gl_viewport();
 
@@ -455,6 +456,7 @@ void PVParallelView::PVHitCountView::do_zoom_change(int axes)
 	}
 	_sel_rect->set_handles_scale(1. / get_transform().m11(), 1. / get_transform().m22());
 
+	get_y_labels_cache().invalidate();
 	_update_all_timer.start();
 }
 
@@ -476,7 +478,6 @@ void PVParallelView::PVHitCountView::do_update_all()
 	int zoom_value, zoom_level;
 	double alpha;
 
-	get_hit_graph_manager().set_layer_sel(layer_stack_output_selection());
 	zoom_value = get_y_axis_zoom().get_clamped_value();
 
 	if (zoom_value < 0) {
@@ -585,6 +586,30 @@ void PVParallelView::PVHitCountView::toggle_log_color()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVHitCountView::toggle_show_labels
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::toggle_show_labels()
+{
+	_show_labels = !_show_labels;
+	params_widget()->update_widgets();
+
+	if (_show_labels) {
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(false);
+			    pbox.set_extended_status("Computing Y-axis labels index");
+			    get_y_labels_cache().initialize();
+			},
+		    "Initializing labels index...", this);
+	}
+
+	recompute_decorations();
+	reconfigure_view();
+	get_viewport()->update();
+}
+
+/*****************************************************************************
  * PVParallelView::PVHitCountView::set_params_widget_position
  *****************************************************************************/
 
@@ -596,33 +621,21 @@ void PVParallelView::PVHitCountView::set_params_widget_position()
 	_params_widget->raise();
 }
 
-QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value) const
+QString PVParallelView::PVHitCountView::get_x_value_at(const qint64 value)
 {
-	// Number of Occurrence
-	return get_elided_text(QString::number(value));
+	if (_show_labels) {
+		// Number of Occurrence
+		return get_elided_text(QString::number(value));
+	} else {
+		return {};
+	}
 }
 
-QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value) const
+QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value)
 {
-	const uint32_t* plotted = get_hit_graph_manager().get_plotted();
-	const uint32_t nrows = get_hit_graph_manager().get_nrows();
-	const uint32_t nbits = get_hit_graph_manager().nbits();
-
-	const uint32_t init_value = (value >> uint32_t(32 - nbits));
-	const uint32_t range = (1UL << uint32_t(32 - nbits));
-	// Search for plotted value (on significant bits) for every rows of the NRaw.
-	// We add a threshold on search for "nearest value"
-	for (uint32_t searched_value = init_value;
-	     searched_value < std::min(range, init_value + (range >> 4)); searched_value++) {
-		for (size_t i = 0; i < nrows; i++) {
-			const uint32_t v = (plotted[i] >> uint32_t(32 - nbits));
-			if (v == searched_value) {
-				return get_elided_text(QString::fromStdString(
-				    _pvview.get_rushnraw_parent().at_string(i, _axis_index)));
-			}
-		}
+	if (_show_labels) {
+		return get_elided_text(get_y_labels_cache().get(value));
+	} else {
+		return {};
 	}
-
-	return get_elided_text(
-	    "None"); // QString::number(value >> uint32_t(32 - std::log2(buffer_size)));
 }

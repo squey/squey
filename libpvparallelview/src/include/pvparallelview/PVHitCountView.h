@@ -15,9 +15,12 @@
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
+#include <pvparallelview/PVHitCountViewBackend.h>
 
 #include <QTimer>
 #include <QSize>
+
+#include <memory>
 
 class QWidget;
 
@@ -68,8 +71,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
   public:
 	PVHitCountView(Inendi::PVView& pvview_sp,
-	               const uint32_t* col_plotted,
-	               const PVRow nrows,
+	               PVHitCountViewBackend* backend,
 	               const PVCol axis_index,
 	               QWidget* parent = nullptr);
 
@@ -87,13 +89,22 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	inline uint32_t get_max_count() const { return _max_count; }
 
 	inline Inendi::PVView& lib_view() { return _pvview; }
+	inline Inendi::PVView const& lib_view() const { return _pvview; }
 
 	inline const PVHitGraphBlocksManager& get_hit_graph_manager() const
 	{
-		return _hit_graph_manager;
+		return _backend->get_hit_graph_manager();
 	}
 
-	inline PVHitGraphBlocksManager& get_hit_graph_manager() { return _hit_graph_manager; }
+	inline PVHitGraphBlocksManager& get_hit_graph_manager()
+	{
+		return _backend->get_hit_graph_manager();
+	}
+
+	inline Inendi::PVPlottedNrawCache& get_y_labels_cache()
+	{
+		return _backend->get_y_labels_cache();
+	}
 
   public:
 	PVHitCountViewSelectionRectangle* get_selection_rect() const { return _sel_rect; }
@@ -127,16 +138,18 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
 	inline bool auto_x_zoom_sel() const { return _auto_x_zoom_sel; }
 	inline bool use_log_color() const { return _use_log_color; }
+	inline bool show_labels() const { return _show_labels; }
 
 	bool show_bg() const { return _show_bg; }
 
 	void set_params_widget_position();
-	QString get_x_value_at(const qint64 value) const override;
-	QString get_y_value_at(const qint64 value) const override;
+	QString get_x_value_at(const qint64 value) override;
+	QString get_y_value_at(const qint64 value) override;
 
   protected Q_SLOTS:
 	void toggle_auto_x_zoom_sel();
 	void toggle_log_color();
+	void toggle_show_labels();
 
   private:
 	void reset_view();
@@ -177,10 +190,9 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
   private:
 	Inendi::PVView& _pvview;
-	PVCol _axis_index;
 	QTimer _update_all_timer;
 
-	PVHitGraphBlocksManager _hit_graph_manager;
+	std::unique_ptr<PVHitCountViewBackend> _backend;
 	bool _view_deleted;
 	uint64_t _max_count;
 	int _block_zoom_value;
@@ -188,6 +200,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	bool _auto_x_zoom_sel;
 	bool _do_auto_scale;
 	bool _use_log_color;
+	bool _show_labels;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> _x_zoom_converter;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps> _y_zoom_converter;
 

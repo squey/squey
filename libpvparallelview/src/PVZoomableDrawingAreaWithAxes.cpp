@@ -123,7 +123,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_ticks_per_level(int n)
  * PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at
  *****************************************************************************/
 
-QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint64 pos) const
+QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint64 pos)
 {
 	return get_elided_text(QString::number(pos));
 }
@@ -132,7 +132,7 @@ QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_x_value_at(const qint
  * PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at
  *****************************************************************************/
 
-QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at(const qint64 pos) const
+QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_y_value_at(const qint64 pos)
 {
 	return get_elided_text(QString::number(pos));
 }
@@ -169,12 +169,15 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 	    fm.boundingRect(get_y_value_at(-view_in_scene.y())).width(),
 	    fm.boundingRect(get_y_value_at(-(view_in_scene.y() + view_in_scene.height()))).width());
 
-	int r = fm.boundingRect(get_y_value_at(-(view_in_scene.x() + view_in_scene.width()))).width();
+	int r = fm.boundingRect(get_x_value_at(-(view_in_scene.x() + view_in_scene.width()))).width();
 
 	l += 2 * SCALE_VALUE_OFFSET;
 	r = (r / 2) + SCALE_VALUE_OFFSET;
 
-	if ((l > margin_left) || (r > margin_right) || (t != margin_top)) {
+	l = std::max(l, DEFAULT_HMARGIN);
+	r = std::max(r, DEFAULT_HMARGIN);
+
+	if ((l != margin_left) || (r != margin_right) || (t != margin_top)) {
 		set_scene_margins(l, r, t, margin_bottom);
 	}
 }

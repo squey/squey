@@ -39,6 +39,7 @@ class PVHitCountViewParamsWidget : public QToolBar
   private:
 	QAction* _autofit;
 	QAction* _use_log_color;
+	QAction* _show_labels;
 	QSignalMapper* _signal_mapper;
 	QToolButton* _sel_mode_button;
 };
