@@ -136,7 +136,7 @@ void PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so) const
 	int size = _axes_comb.size();
 	so.attribute_write("size", size);
 	for (size_t i = 0; i < _axes_comb.size(); i++) {
-		so.attribute_write(QString::number(i), QVariant(_axes_comb[i]));
+		so.attribute_write(QString::number(i), QVariant(_axes_comb[i].value()));
 	}
 }
 } // namespace Inendi

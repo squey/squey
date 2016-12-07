@@ -10,39 +10,41 @@
 
 #include <limits>
 
-#include "typed_builtin.h"
+#include <QtGlobal>
+
+#include <type_safe/strong_typedef.hpp>
+
 #include <pvlogger.h>
 
-class PVCol : public __impl::PVTypedBuiltin<PVCol>
-{
-  public:
-	using __impl::PVTypedBuiltin<PVCol>::PVTypedBuiltin;
-};
-
-namespace std
-{
-template <>
-struct hash<PVCol> {
-	size_t operator()(const PVCol& c) const { return std::hash<typename PVCol::value_type>()(c); }
-};
-}
-
-class PVCombCol : public __impl::PVTypedBuiltin<PVCombCol>
-{
-  public:
-	using __impl::PVTypedBuiltin<PVCombCol>::PVTypedBuiltin;
-};
-
-namespace std
-{
-template <>
-struct hash<PVCombCol> {
-	size_t operator()(const PVCombCol& c) const
-	{
-		return std::hash<typename PVCombCol::value_type>()(c);
+#define DEFINE_STRONG_TYPEDEF(type, underlying_type)                                               \
+                                                                                                   \
+	struct type : type_safe::strong_typedef<type, underlying_type>,                                \
+	              type_safe::strong_typedef_op::integer_arithmetic<type> {                         \
+		using type_safe::strong_typedef<type, underlying_type>::strong_typedef;                    \
+		using value_type = underlying_type;                                                        \
+		static constexpr const value_type INVALID_VALUE = std::numeric_limits<value_type>::max();  \
+                                                                                                   \
+		constexpr operator const value_type&() const noexcept                                      \
+		{                                                                                          \
+			return type_safe::strong_typedef<type, underlying_type>::operator const value_type&(); \
+		}                                                                                          \
+                                                                                                   \
+		const value_type& value() const noexcept { return operator const value_type&(); }          \
+	};                                                                                             \
+                                                                                                   \
+	namespace std                                                                                  \
+	{                                                                                              \
+	template <>                                                                                    \
+	struct hash<type> {                                                                            \
+		size_t operator()(const type& c) const                                                     \
+		{                                                                                          \
+			return std::hash<type::value_type>()(c.value());                                       \
+		}                                                                                          \
+	};                                                                                             \
 	}
-};
-}
+
+DEFINE_STRONG_TYPEDEF(PVCol, int)
+DEFINE_STRONG_TYPEDEF(PVCombCol, int)
 
 using PVRow = quint32;
 using chunk_index = quint64;

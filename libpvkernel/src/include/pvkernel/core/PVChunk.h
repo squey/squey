@@ -194,7 +194,7 @@ class PVChunk
 	void allocate_fields_buffer(PVRow nelts, PVCol nfields)
 	{
 		//_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
-		const size_t fields_size = sizeof(__node_list_field) * nfields * nelts;
+		const size_t fields_size = sizeof(__node_list_field) * nfields.value() * nelts;
 		//_p_chunk_fields = mmap(nullptr, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE |
 		// MAP_ANONYMOUS, -1, 0);
 		_p_chunk_fields = tbb::scalable_allocator<char>().allocate(fields_size);

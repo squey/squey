@@ -456,25 +456,25 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	for (PVCombCol i(0); i < axes.size(); i++) {
 		if (i != comb_col) {
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
-			action_col_count_by->setData(QVariant(i));
+			action_col_count_by->setData(QVariant(i.value()));
 			_menu_col_count_by->addAction(action_col_count_by);
 
 			QAction* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
-			action_col_min_by->setData(QVariant(i));
+			action_col_min_by->setData(QVariant(i.value()));
 			_menu_col_min_by->addAction(action_col_min_by);
 
 			QAction* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
-			action_col_max_by->setData(QVariant(i));
+			action_col_max_by->setData(QVariant(i.value()));
 			_menu_col_max_by->addAction(action_col_max_by);
 
 			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
-				action_col_sum_by->setData(QVariant(i));
+				action_col_sum_by->setData(QVariant(i.value()));
 				_menu_col_sum_by->addAction(action_col_sum_by);
 
 				QAction* action_col_avg_by = new QAction(axes[i], _menu_col_avg_by);
-				action_col_avg_by->setData(QVariant(i));
+				action_col_avg_by->setData(QVariant(i.value()));
 				_menu_col_avg_by->addAction(action_col_avg_by);
 			}
 		}

@@ -17,7 +17,7 @@
 
 void PVCore::PVChunk::init_elements_fields()
 {
-	PVCol nfields_src = _source->get_number_cols_to_reserve() + 2;
+	PVCol nfields_src = _source->get_number_cols_to_reserve() + PVCol(2);
 	PVRow nelts = _elts.size();
 	allocate_fields_buffer(nelts, nfields_src);
 	void* chunk_fields = _p_chunk_fields;
