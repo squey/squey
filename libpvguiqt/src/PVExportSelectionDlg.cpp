@@ -110,7 +110,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 		return l;
 	}());
 	connect(compression, &QCheckBox::stateChanged,
-	        [&, default_name_filter, update_name_filter](int state) {
+	        [&, default_name_filter, update_name_filter, compression_type](int state) {
 		        bool enabled = (Qt::CheckState)state == Qt::CheckState::Checked;
 		        update_name_filter(enabled ? compression_type->currentText() : QString());
 		        compression_type->setEnabled(enabled);
