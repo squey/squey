@@ -79,47 +79,21 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	left_layout->addWidget(_columns_header);
 
 	// Compression
-	const QString default_name_filter = QFileDialog::selectedNameFilter();
-	QCheckBox* compression = new QCheckBox("On-the-fly compression");
-	compression->setEnabled(false);
-	QComboBox* compression_type = new QComboBox;
-	auto update_name_filter = [&, default_name_filter](const QString& filter = QString()) {
-		QStringList name_filters = {default_name_filter};
-		if (not filter.isNull()) {
-			const QString& name_filter = filter + " Files (*" + filter + ")";
+	QStringList name_filters = {".csv files (*.csv)"};
+	for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
+		if (std::ifstream(PVCore::PVStreamingCompressor::executable(extension)).good()) {
+			const QString& name_filter =
+			    QString::fromStdString(".csv." + extension + " files (*.csv." + extension + ")");
 			name_filters << name_filter;
 		}
-		setNameFilters(name_filters);
-		if (not filter.isNull()) {
-			selectNameFilter(name_filters.at(1));
-		}
-		setDefaultSuffix(filter);
-	};
-	connect(compression_type,
-	        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
-	        [=](const QString& filter) { update_name_filter(filter); });
-	compression_type->addItems([&]() {
-		QStringList l;
-		for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
-			if (std::ifstream(PVCore::PVStreamingCompressor::executable(extension)).good()) {
-				l << QString::fromStdString(extension);
-				compression->setChecked(true);
-				compression->setEnabled(true);
-			}
-		}
-		return l;
-	}());
-	connect(compression, &QCheckBox::stateChanged,
-	        [&, default_name_filter, update_name_filter, compression_type](int state) {
-		        bool enabled = (Qt::CheckState)state == Qt::CheckState::Checked;
-		        update_name_filter(enabled ? compression_type->currentText() : QString());
-		        compression_type->setEnabled(enabled);
-		    });
-	QHBoxLayout* compression_layout = new QHBoxLayout();
-	compression_layout->addWidget(compression);
-	compression_layout->addWidget(compression_type);
-	compression_layout->addStretch();
-	left_layout->addLayout(compression_layout);
+	}
+	setNameFilters(name_filters);
+	auto suffix_from_filter = [](const QString& filter) { return filter.split(" ")[0]; };
+	size_t suffix_index = (name_filters.size() > 1) ? 1 : 0;
+	selectNameFilter(name_filters.at(suffix_index));
+	setDefaultSuffix(suffix_from_filter(name_filters.at(suffix_index)));
+	connect(this, &QFileDialog::filterSelected,
+	        [&](const QString& filter) { setDefaultSuffix(suffix_from_filter(filter)); });
 
 	// Define csv specific character
 	QFormLayout* char_layout = new QFormLayout();
