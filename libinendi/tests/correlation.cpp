@@ -107,12 +107,23 @@ int main()
 	PV_ASSERT_VALID(std::equal(v1.begin(), v1.end(), v2.begin()));
 
 	/**
-	 * Remove correlation on view2
+	 * Add reciprocal correlation
 	 */
-	env.root.correlations().remove(correlation.view2);
-	PV_ASSERT_VALID(not env.root.correlations().exists(view1, PVCol(2)));
+	Inendi::PVCorrelation reciprocal_correlation{view2, correlation.col2, view1, correlation.col1};
+	env.root.correlations().add(reciprocal_correlation);
+	PV_ASSERT_VALID(env.root.correlations().exists(reciprocal_correlation));
+	PV_ASSERT_VALID(env.root.correlations().exists(correlation));
+
+	/**
+	 * Remove all correlations (by removing view2 in both ways)
+	 */
+	env.root.correlations().remove(correlation.view2, true);
+	PV_ASSERT_VALID(not env.root.correlations().exists(view1, correlation.col1));
+	PV_ASSERT_VALID(not env.root.correlations().exists(view2, reciprocal_correlation.col1));
 	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
+	PV_ASSERT_VALID(not env.root.correlations().exists(reciprocal_correlation));
 	PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
+	PV_ASSERT_VALID(env.root.correlations().correlation(view2) == nullptr);
 
 	/**
 	 * Re-add correlation
@@ -139,6 +150,17 @@ int main()
 	env.root.correlations().add(new_correlation);
 	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
 	PV_ASSERT_VALID(env.root.correlations().exists(new_correlation));
+
+	/**
+	 * Check that removing view1 remove all correlations
+	 */
+	view1->get_parent().remove_child(*view1);
+	PV_ASSERT_VALID(not env.root.correlations().exists(view1, correlation.col1));
+	PV_ASSERT_VALID(not env.root.correlations().exists(view2, reciprocal_correlation.col1));
+	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
+	PV_ASSERT_VALID(not env.root.correlations().exists(reciprocal_correlation));
+	PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
+	PV_ASSERT_VALID(env.root.correlations().correlation(view2) == nullptr);
 
 #endif
 

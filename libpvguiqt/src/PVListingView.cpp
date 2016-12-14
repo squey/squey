@@ -596,13 +596,14 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 
 				Inendi::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2};
 				bool existing_correlation = root.correlations().exists(correlation);
+
 				axis_action->setChecked(existing_correlation);
 
 				connect(axis_action, &QAction::triggered, [=, &root]() {
 					if (not existing_correlation) {
 						root.correlations().add(correlation);
 					} else {
-						root.correlations().remove(&lib_view());
+						root.correlations().remove(correlation.view1);
 					}
 					// refresh headers to show correlation icon right now
 					horizontalHeader()->viewport()->update();
