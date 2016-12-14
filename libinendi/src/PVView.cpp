@@ -119,7 +119,7 @@ Inendi::PVView::~PVView()
 	PVLOG_DEBUG("In PVView destructor: 0x%x\n", this);
 
 	// remove correlation
-	get_parent<Inendi::PVRoot>().correlations().remove(this);
+	get_parent<Inendi::PVRoot>().correlations().remove(this, true /*both_ways*/);
 
 #ifdef WITH_MINESET
 	for (const std::string& mineset_dataset : _mineset_datasets) {

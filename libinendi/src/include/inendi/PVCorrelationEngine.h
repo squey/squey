@@ -48,9 +48,10 @@ class PVCorrelationEngine
 	/**
 	 * Deactivate an existing correlation
 	 *
-	 * @param view1 the origin view
+	 * @param view the origin view1
+	 * @param both_ways specify if view2 is also removed from correlations
 	 */
-	void remove(const Inendi::PVView* view1);
+	void remove(const Inendi::PVView* view1, bool both_ways = false);
 
 	/**
 	 * Return the associated correlation for a given view
