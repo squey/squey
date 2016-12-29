@@ -11,6 +11,7 @@
 
 #include <inendi/PVAxis.h>
 #include <inendi/PVView.h>
+#include <inendi/PVSource.h>
 
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVAxisLabel.h>
@@ -192,8 +193,25 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
                                                const QStyleOptionGraphicsItem* option,
                                                QWidget* widget)
 {
-	painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth, _axis_length + (2 * axis_extend),
-	                  _axis_fmt.get_color().toQColor());
+	const PVCombCol comb_col = get_combined_axis_column();
+	PVCol col = _lib_view.get_axes_combination().get_nraw_axis(comb_col);
+	bool has_invalid = _lib_view.get_parent<Inendi::PVSource>().has_invalid(col);
+
+	if (not has_invalid) {
+		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
+		                  _axis_length + (2 * axis_extend), _axis_fmt.get_color().toQColor());
+	} else {
+		const double valid_range = (1 - Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE);
+
+		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
+		                  ((_axis_length * valid_range) + (axis_extend) + 2),
+		                  _axis_fmt.get_color().toQColor());
+
+		// draw a circle for invalid values
+		painter->setBrush(_axis_fmt.get_color().toQColor());
+		painter->drawEllipse(QPoint(1, _axis_length - 1), PVParallelView::AxisWidth,
+		                     PVParallelView::AxisWidth);
+	}
 
 #ifdef INENDI_DEVELOPER_MODE
 	if (common::show_bboxes()) {

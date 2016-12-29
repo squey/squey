@@ -83,8 +83,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterMultipleSearch)
 	args[PVCore::PVArgumentKey(ARG_NAME_TYPE, QObject::tr(ARG_DESC_TYPE))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("Valid values") << QString("Invalid values")
 	                                     << QString("All values"),
-	                       0));
-
+	                       2));
 	return args;
 }
 
@@ -95,7 +94,7 @@ enum ESearchOptions {
 	CASE_INSENSITIVE = 1 << 2
 };
 
-enum EType { VALID = 1 << 0, INVALID = 1 << 1, EMPTY = 1 << 2 };
+enum EType { VALID = 1 << 0, INVALID = 1 << 1 };
 
 /******************************************************************************
  *
@@ -128,23 +127,25 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	std::vector<std::string> exps_utf8;
 	exps_utf8.resize(exps.size());
 
-	bool search_empty_values = false;
 #pragma omp parallel for
 	for (int i = 0; i < exps.size(); i++) {
 		QString const& str = exps[i];
-		if (!str.isEmpty()) {
-			exps_utf8[i] = str.toUtf8().constData();
-		} else {
-			search_empty_values = true;
-		}
+		exps_utf8[i] = str.toUtf8().constData();
 	}
-
-	type |= (EMPTY * search_empty_values);
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	PVSelection& out_sel = out.get_selection();
 
 	const pvcop::db::array& column = nraw.column(axis_id);
+
+	PVSelection in_sel = in.get_selection();
+	if (type == VALID) {
+		if (column.invalid_selection()) {
+			in_sel &= ~column.invalid_selection();
+		}
+	} else if (type == INVALID) {
+		in_sel = PVSelection(column.invalid_selection(in.get_selection()));
+	}
 
 	BENCH_START(subselect);
 
@@ -152,80 +153,62 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 
 	switch (opts) {
 	case (EXACT_MATCH): {
-		try {
-			pvcop::db::array converted_array = pvcop::db::algo::to_array(column, exps_utf8);
-			if (type & VALID) {
-				search_values(axis_id, converted_array, in.get_selection(), out_sel);
-			}
-			if (type & EMPTY) {
-				nraw.empty_values_search(axis_id, in.get_selection(), out_sel);
-			}
-		} catch (pvcop::db::exception::partially_converted_error& e) {
-			if ((type & VALID) && e.incomplete_array().size() > 0) {
-				search_values(axis_id, e.incomplete_array(), in.get_selection(), out_sel);
-			}
-			if (type & INVALID) {
-				const auto& inv = e.bad_values();
-				nraw.unconvertable_values_search(axis_id, inv, in.get_selection(), out_sel);
-			}
-			if (type & EMPTY) {
-				nraw.empty_values_search(axis_id, in.get_selection(), out_sel);
-			}
+		pvcop::db::array converted_values =
+		    pvcop::db::algo::to_array(column, exps_utf8, &_unconverted_values);
 
-			// Propagate exception if needed
-			if (not((type & INVALID) || (type & EMPTY)) &&
-			    std::string(nraw.column_formatter(axis_id)->name()) != "string") {
-				_unconverted_values = e.bad_values();
-				throw PVLayerFilter::error(); // we should maybe not throw through plugin API and
-				                              // set a flag instead...
-			}
+		pvcop::db::algo::subselect(column, converted_values, in_sel, out_sel);
+
+		// Propagate exception if needed
+		if (not nraw.column(axis_id).is_string() and not _unconverted_values.empty()) {
+			throw PVLayerFilter::error(); // we should maybe not throw through plugin API and
+			                              // set a flag instead...
 		}
 	} break;
 	case (EXACT_MATCH | CASE_INSENSITIVE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			return strcasecmp(array_value.c_str(), exp_value.c_str()) == 0;
 		};
-		search_values_if(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
+		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
 			return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
 		};
-		search_values_if(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
+		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION | CASE_INSENSITIVE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
 			return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
 		};
-		search_values_if(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
+		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (REGULAR_EXPRESSION): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
 			return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
 		};
-		search_values_if(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
+		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (REGULAR_EXPRESSION | CASE_INSENSITIVE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
 			return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
 		};
-		search_values_if(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
+		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (CASE_INSENSITIVE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			return strcasestr(array_value.c_str(), exp_value.c_str()) != nullptr;
 		};
-		search_values_if(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
+		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (NONE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			return strstr(array_value.c_str(), exp_value.c_str()) != nullptr;
 		};
-		search_values_if(axis_id, exps_utf8, type, in.get_selection(), out_sel, predicate);
+		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	default: {
 		assert(false);
@@ -237,86 +220,8 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	if (not include) {
 		// invert selection
 		BENCH_START(invert_selection);
-		pvcop::core::algo::invert_selection(out_sel);
-		out_sel &= in.get_selection();
+		out_sel = ~out_sel & in.get_selection();
 		BENCH_END(invert_selection, "invert_selection", 1, 1, 1, 1);
-	}
-}
-
-void Inendi::PVLayerFilterMultipleSearch::remove_default_invalid_values(
-    PVCol col_idx, const Inendi::PVSelection& in_sel, Inendi::PVSelection& out_sel) const
-{
-	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-	const pvcop::db::array& column = nraw.column(col_idx);
-
-	pvcop::db::array empty_array(column.type(), 1, true);
-
-	Inendi::PVSelection ambiguous_values_sel(column.size());
-	ambiguous_values_sel.select_none();
-	pvcop::db::algo::subselect(column, empty_array, in_sel, ambiguous_values_sel);
-
-	PVSelection tmp_sel(column.size());
-	tmp_sel.select_none();
-	nraw.unconvertable_values_search(col_idx, ambiguous_values_sel, tmp_sel);
-
-	out_sel &= ~tmp_sel;
-
-	tmp_sel.select_none();
-	nraw.empty_values_search(col_idx, ambiguous_values_sel & ~tmp_sel, tmp_sel);
-
-	out_sel &= ~tmp_sel;
-}
-
-void Inendi::PVLayerFilterMultipleSearch::search_values(PVCol col_idx,
-                                                        const pvcop::db::array& search_array,
-                                                        const PVSelection& in_sel,
-                                                        Inendi::PVSelection& out_sel) const
-{
-	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-	const pvcop::db::array& column = nraw.column(col_idx);
-
-	pvcop::db::algo::subselect(column, search_array, in_sel, out_sel);
-
-	/**
-	 * Remove potential invalid values from selection if the search list
-	 * contains default values
-	 */
-	pvcop::db::array empty_array(column.type(), 1, true);
-
-	PVSelection all_search_values_sel(search_array.size());
-	all_search_values_sel.select_all();
-	PVSelection default_values_sel(search_array.size());
-	default_values_sel.select_none();
-
-	pvcop::db::algo::subselect(search_array, empty_array, all_search_values_sel,
-	                           default_values_sel);
-	bool remove_invalid_values = not default_values_sel.is_empty();
-
-	if (remove_invalid_values) {
-		remove_default_invalid_values(col_idx, out_sel, out_sel);
-	}
-}
-
-void Inendi::PVLayerFilterMultipleSearch::search_values_if(
-    PVCol col,
-    const std::vector<std::string>& exps,
-    size_t type,
-    const PVSelection& in_sel,
-    Inendi::PVSelection& out_sel,
-    std::function<bool(const std::string&, const std::string&)> predicate) const
-{
-	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-
-	if (type & VALID) {
-		const pvcop::db::array& column = nraw.column(col);
-		pvcop::db::algo::subselect_if(column, exps, predicate, in_sel, out_sel);
-		remove_default_invalid_values(col, out_sel, out_sel);
-	}
-	if (type & INVALID) {
-		nraw.unconvertable_values_search(col, exps, in_sel, out_sel, predicate);
-	}
-	if (type & EMPTY) {
-		nraw.empty_values_search(col, in_sel, out_sel);
 	}
 }
 
@@ -353,11 +258,6 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_m
     PVRow row, PVCombCol col, PVCol org_col, QString const& v)
 {
 	PVCore::PVArgumentList args = search_value_menu(row, col, org_col, v);
-
-	// Only search on valid values by default (allows better input checking)
-	PVCore::PVEnumType e = args[ARG_NAME_TYPE].value<PVCore::PVEnumType>();
-	e.set_sel(0);
-	args[ARG_NAME_TYPE].setValue(e);
 
 	args.set_edition_flag(true);
 

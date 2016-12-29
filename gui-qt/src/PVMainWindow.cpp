@@ -969,34 +969,56 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 	}
 }
 
-static QString bad_conversions_as_string(
-    const PVRush::PVNraw::unconvertable_values_t::bad_conversions_t& bad_conversions,
-    const Inendi::PVSource* src)
+static size_t invalid_columns_count(const Inendi::PVSource* src)
+{
+	const PVRush::PVNraw& nraw = src->get_rushnraw();
+
+	size_t invalid_columns_count = 0;
+	for (PVCol col(0); col < nraw.column_count(); col++) {
+		invalid_columns_count += nraw.column(col).has_invalid();
+	}
+
+	return invalid_columns_count;
+}
+
+static QString bad_conversions_as_string(const Inendi::PVSource* src)
 {
 	QStringList l;
 
 	auto const& ax = src->get_format().get_axes();
+	const PVRush::PVNraw& nraw = src->get_rushnraw();
 
 	size_t max_values = 1000;
 
-	for (const auto& bad_conversion : bad_conversions) {
+	for (size_t row = 0; row < nraw.row_count(); row++) {
+		for (PVCol col(0); col < nraw.column_count(); col++) {
 
-		const PVRow row = bad_conversion.first;
-		QString str("row #" + QString::number(row + 1) + " :");
+			const pvcop::db::array& column = nraw.column(col);
+			if (not column.has_invalid()) {
+				continue;
+			}
 
-		for (const auto& bad_field : bad_conversion.second) {
-			const PVCol col = (PVCol)bad_field.first;
-			const QString& axis_name = ax[col].get_name();
-			const QString& axis_type = ax[col].get_type();
+			if (not column.is_valid(row)) {
+				const std::string invalid_value = column.at(row);
 
-			str += " " + axis_name + " (" + axis_type + ") : \"" +
-			       QString::fromStdString(bad_field.second) + "\"";
-		}
+				if (invalid_value == "") {
+					continue;
+				}
+				QString str("row #" + QString::number(row + 1) + " :");
+				const QString& axis_name = ax[col].get_name();
+				const QString& axis_type = ax[col].get_type();
 
-		l << str;
-		if (max_values-- == 0) {
-			l << "There are more errors but we only show first 1000 errors. Fix you format type!";
-			break;
+				str += " " + axis_name + " (" + axis_type + ") : \"" +
+				       QString::fromStdString(invalid_value) + "\"";
+
+				l << str;
+
+				if (max_values-- == 0) {
+					l << "There are more errors but only the first 1000 are shown. You may want to "
+					     "fix your format types.";
+					break;
+				}
+			}
 		}
 	}
 
@@ -1107,19 +1129,22 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 		}
 		QMessageBox::critical(this, "Cannot load sources", msg);
 		return false;
-	} else if (size_t bc_count = src->get_rushnraw().unconvertable_values().bad_conversions_count) {
-		// We can continue with it but user have to know that some values are
-		// incorrect.
-		QMessageBox warning_message(QMessageBox::Warning, "Failed conversion(s)",
-		                            "\n" + QString::number(bc_count) +
-		                                " conversions from text to binary failed during import...",
-		                            QMessageBox::Ok, this);
-		warning_message.setInformativeText("Such values are displayed in italic in the "
-		                                   "listing, but are treated as default values "
-		                                   "elsewhere.");
-		warning_message.setDetailedText(bad_conversions_as_string(
-		    src->get_rushnraw().unconvertable_values().bad_conversions(), src));
-		warning_message.exec();
+	} else {
+		size_t inv_col_count = invalid_columns_count(src);
+		const QString& details = bad_conversions_as_string(src);
+		if (inv_col_count > 0 and not details.isEmpty()) {
+			// We can continue with it but user have to know that some values are
+			// incorrect.
+			QMessageBox warning_message(
+			    QMessageBox::Warning, "Failed conversion(s)",
+			    "\n" + QString::number(inv_col_count) + "/" +
+			        QString::number(src->get_nraw_column_count()) +
+			        " column(s) have some values that failed to be properly "
+			        "converted from text to binary during import...",
+			    QMessageBox::Ok, this);
+			warning_message.setDetailedText(details);
+			warning_message.exec();
+		}
 	}
 
 	BENCH_STOP(lff);

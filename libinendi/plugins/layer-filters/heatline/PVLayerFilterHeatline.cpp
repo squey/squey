@@ -89,10 +89,7 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 
 	pvcop::db::groups group;
 	pvcop::db::extents extents;
-	pvcop::db::selection& pvsel = out.get_selection();
-
-	// Set correct size to selection.
-	pvcop::db::selection sel(pvsel, 0, col.size());
+	const Inendi::PVSelection& sel = out.get_selection();
 
 	col.group(group, extents, sel);
 

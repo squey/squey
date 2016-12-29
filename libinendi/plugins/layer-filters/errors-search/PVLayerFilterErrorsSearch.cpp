@@ -15,6 +15,8 @@
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 
+#include <pvcop/db/algo.h>
+
 #include <QMessageBox>
 
 #define ARG_NAME_AXIS "axis"
@@ -49,7 +51,7 @@ DEFAULT_ARGS_FILTER(Inendi::PVLayerFilterErrorsSearch)
 	args[PVCore::PVArgumentKey(ARG_NAME_TYPE, QObject::tr(ARG_DESC_TYPE))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("Empty values") << QString("Invalid values")
 	                                     << QString("Empty and invalid values"),
-	                       0));
+	                       2));
 	args[PVCore::PVArgumentKey(ARG_NAME_INCLUDE, QObject::tr(ARG_DESC_INCLUDE))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
 	return args;
@@ -72,22 +74,26 @@ void Inendi::PVLayerFilterErrorsSearch::operator()(PVLayer const& in, PVLayer& o
 	size_t type = _args[ARG_NAME_TYPE].value<PVCore::PVEnumType>().get_sel_index() + 1;
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
+	const pvcop::db::array& column = nraw.column(col);
 
 	PVSelection& out_sel = out.get_selection();
 
 	out_sel.select_none();
 
-	if (type & EMPTY) {
-		nraw.empty_values_search(col, in.get_selection(), out_sel);
+	if (((type & EMPTY) and column.is_string()) or (type == EMPTY) or
+	    (type == INVALID and not column.is_string())) {
+		pvcop::db::array empty_array = column.to_array(std::vector<std::string>{{""}});
+		pvcop::db::algo::subselect(column, empty_array, in.get_selection(), out_sel);
 	}
-	if (type & INVALID) {
-		nraw.unconvertable_values_search(col, in.get_selection(), out_sel);
+	if ((type & INVALID) and (not column.is_string())) {
+		if (column.invalid_selection()) {
+			out_sel = PVSelection((in.get_selection() & column.invalid_selection()) & ~out_sel);
+		}
 	}
 
 	if (not include) {
 		// invert selection
-		pvcop::core::algo::invert_selection(out_sel);
-		out_sel &= in.get_selection();
+		out_sel = ~out_sel & in.get_selection();
 	}
 
 	BENCH_END(errors_search, "errors_search", 1, 1, 1, 1);

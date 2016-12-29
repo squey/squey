@@ -18,6 +18,7 @@ class PVPlottingFilterPort : public PVPlottingFilter
   public:
 	void operator()(pvcop::db::array const& mapped,
 	                pvcop::db::array const& minmax,
+	                const pvcop::db::selection& invalid_selection,
 	                pvcop::core::array<value_type>& dest) override;
 	QString get_human_name() const override { return QString("TCP/UDP port"); }
 

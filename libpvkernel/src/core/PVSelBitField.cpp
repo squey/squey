@@ -266,7 +266,7 @@ PVCore::PVSelBitField& PVCore::PVSelBitField::and_not(const PVSelBitField& rhs)
 PVCore::PVSelBitField PVCore::PVSelBitField::operator~() const
 {
 	PVCore::PVSelBitField res = *this;
-	pvcop::core::algo::invert_selection(res);
+	res._selection = ~res._selection;
 	return res;
 }
 

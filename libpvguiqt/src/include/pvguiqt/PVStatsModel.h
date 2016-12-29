@@ -125,6 +125,15 @@ class PVStatsModel : public PVAbstractTableModel
 				return _selection_brush;
 			}
 			break;
+		case (Qt::FontRole): {
+			if (index.column() == 0) {
+				QFont f;
+				if (not _col1.is_valid(row)) {
+					f.setItalic(true); // Set invalid values in italic
+				}
+				return f;
+			}
+		}
 		default:
 			break;
 		}
@@ -140,7 +149,7 @@ class PVStatsModel : public PVAbstractTableModel
 			const pvcop::db::array& column = (col_idx == 0) ? _col1 : _col2;
 
 			BENCH_START(sort);
-			_display.sorting() = pvcop::db::indexes::parallel_sort(column);
+			_display.sorting() = column.parallel_sort();
 			BENCH_END(sort, "sort", column.size(), /*column.mem_size() / column.size()*/ 1,
 			          column.size(), /*column.mem_size() / column.size()*/ 1);
 		}

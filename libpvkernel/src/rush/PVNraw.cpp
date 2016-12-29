@@ -107,9 +107,6 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 	// may be invalid or empty or we may skip the end when enough data is extracted.
 	PVRow local_row = elts.size();
 
-	// TODO : We should check that EXTRACTED_ROW_COUNT_LIMIT is not reach.
-	//        This is not trivial because chunks are written in parallel...
-
 	for (PVCore::PVElement* elt : elts) {
 
 		PVCore::PVElement& e = *elt;
@@ -128,13 +125,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 		}
 	}
 
-	try {
-		snk.write_chunk_by_row(chunk.agg_index(), local_row, pvcop_fields.data());
-	} catch (const pvcop::types::exception::partially_converted_chunk_error& e) {
-
-#pragma omp critical
-		_unconvertable_values.merge(e);
-	}
+	snk.write_chunk_by_row(chunk.agg_index(), local_row, pvcop_fields.data());
 
 #pragma omp atomic
 	_real_nrows += local_row;
@@ -249,95 +240,6 @@ std::string PVRush::PVNraw::export_line(PVRow idx,
 	return line;
 }
 
-void PVRush::PVNraw::unconvertable_values_search(PVCol col,
-                                                 const PVCore::PVSelBitField& in_sel,
-                                                 PVCore::PVSelBitField& out_sel) const
-{
-	auto const& bad_values = _unconvertable_values.bad_conversions();
-
-	for (auto const& bad_value : bad_values) {
-
-		PVRow row = bad_value.first;
-		if (in_sel.get_line(row)) {
-
-			auto const& bad_cols = bad_value.second;
-			if (bad_cols.find(col) != bad_cols.end()) {
-				out_sel.set_bit_fast(row);
-			}
-		}
-	}
-}
-
-void PVRush::PVNraw::unconvertable_values_search(PVCol col,
-                                                 const std::vector<std::string>& exps,
-                                                 const PVCore::PVSelBitField& in_sel,
-                                                 PVCore::PVSelBitField& out_sel) const
-{
-	std::unordered_set<std::string> e(exps.begin(), exps.end());
-
-	auto const& bad_values = _unconvertable_values.bad_conversions();
-
-	for (auto const& bad_value : bad_values) {
-
-		PVRow row = bad_value.first;
-		if (in_sel.get_line(row)) {
-
-			auto const& bad_cols = bad_value.second;
-			auto it = bad_cols.find(col);
-			if (it != bad_cols.end() && e.find(it->second) != e.end()) {
-				out_sel.set_bit_fast(row);
-			}
-		}
-	}
-}
-
-void PVRush::PVNraw::unconvertable_values_search(
-    PVCol col,
-    const std::vector<std::string>& exps,
-    const PVCore::PVSelBitField& in_sel,
-    PVCore::PVSelBitField& out_sel,
-    std::function<bool(const std::string&, const std::string&)> predicate) const
-{
-	auto const& bad_values = _unconvertable_values.bad_conversions();
-
-	for (auto const& bad_value : bad_values) {
-
-		PVRow row = bad_value.first;
-		if (in_sel.get_line(row)) {
-
-			auto const& bad_cols = bad_value.second;
-			auto it = bad_cols.find(col);
-
-			if (it != bad_cols.end()) {
-				const std::string& invalid_value = it->second;
-				bool match = std::any_of(exps.begin(), exps.end(), [&](const std::string& exp) {
-					return predicate(invalid_value, exp);
-				});
-				if (match) {
-					out_sel.set_bit_fast(row);
-				}
-			}
-		}
-	}
-}
-
-void PVRush::PVNraw::empty_values_search(PVCol col,
-                                         const PVCore::PVSelBitField& in_sel,
-                                         PVCore::PVSelBitField& out_sel) const
-{
-	auto const& empty_values = _unconvertable_values.empty_conversions();
-
-	for (auto const& empty_value : empty_values) {
-		PVRow row = empty_value.first;
-		if (in_sel.get_line(row)) {
-			auto const& empty_cols = empty_value.second;
-			if (empty_cols.find(col) != empty_cols.end()) {
-				out_sel.set_bit_fast(row);
-			}
-		}
-	}
-}
-
 void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Saving raw data...");
@@ -350,62 +252,6 @@ void PVRush::PVNraw::serialize_write(PVCore::PVSerializeObject& so) const
 	so.set_current_status("Saving valid elements information...");
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
 	_valid_rows_sel.serialize_write(*sel_obj);
-
-	// Serialize invalid value
-	so.set_current_status("Saving uncorrectly converted elements information...");
-	int idx = 0;
-	auto const& bad_values = _unconvertable_values.bad_conversions();
-	int bad_conv_row_count = bad_values.size();
-	so.attribute_write("bad_conv/row_count", bad_conv_row_count);
-	for (auto const& bad_value : bad_values) {
-		so.attribute_write("bad_conv/" + QString::number(idx) + "/row", bad_value.first);
-		auto const& bad_cols = bad_value.second;
-		int bad_conv_col_count = bad_cols.size();
-		so.attribute_write("bad_conv/" + QString::number(idx) + "/col_count", bad_conv_col_count);
-		int idx_col = 0;
-		for (auto const& bad_col : bad_cols) {
-			so.attribute_write("bad_conv/" + QString::number(idx) + "/" + QString::number(idx_col) +
-			                       "/col",
-			                   bad_col.first);
-			QString value = QString::fromStdString(bad_col.second);
-			so.attribute_write("bad_conv/" + QString::number(idx) + "/" + QString::number(idx_col) +
-			                       "/value",
-			                   value);
-			idx_col++;
-		}
-		idx++;
-	}
-
-	so.set_current_status("Saving empty fields information...");
-	auto const& empty_values = _unconvertable_values.empty_conversions();
-
-	std::vector<PVCore::PVSelBitField> sels(column_count(), PVCore::PVSelBitField(row_count()));
-	for (size_t col = 0; col < sels.size(); col++) {
-		sels[col].select_none();
-	}
-
-	std::unordered_set<PVCol> empty_cols_indexes;
-
-	for (auto const& empty_value : empty_values) {
-		PVRow row = empty_value.first;
-		auto const& empty_cols = empty_value.second;
-		for (auto const& empty_col : empty_cols) {
-			sels[empty_col].set_bit_fast(row);
-			empty_cols_indexes.insert(PVCol(empty_col));
-		}
-	}
-
-	std::stringstream str_col_indexes;
-	std::copy(empty_cols_indexes.begin(), empty_cols_indexes.end(),
-	          std::ostream_iterator<PVCol>(str_col_indexes, ","));
-
-	so.attribute_write("empty_conv/columns", QString::fromStdString(str_col_indexes.str()));
-
-	for (PVCol col : empty_cols_indexes) {
-		PVCore::PVSerializeObject_p sel_obj =
-		    so.create_object("empty_conv_col_" + QString::number(col));
-		sels[col].serialize_write(*sel_obj);
-	}
 }
 
 PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
@@ -422,43 +268,6 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 	nraw._valid_elements_count = vec;
 	PVCore::PVSerializeObject_p sel_obj = so.create_object("valid_elts");
 	nraw._valid_rows_sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
-
-	// Serialize invalid values
-	so.set_current_status("Loading uncorrectly converted elements information...");
-	int bad_conv_row_count = so.attribute_read<int>("bad_conv/row_count");
-	for (int i = 0; i < bad_conv_row_count; i++) {
-		int row = so.attribute_read<int>("bad_conv/" + QString::number(i) + "/row");
-		int bad_conv_col_count =
-		    so.attribute_read<int>("bad_conv/" + QString::number(i) + "/col_count");
-		for (int j = 0; j < bad_conv_col_count; j++) {
-			int col = so.attribute_read<int>("bad_conv/" + QString::number(i) + "/" +
-			                                 QString::number(j) + "/col");
-			QString value = so.attribute_read<QString>("bad_conv/" + QString::number(i) + "/" +
-			                                           QString::number(j) + "/value");
-			nraw._unconvertable_values.add(row, col, value.toStdString());
-		}
-	}
-
-	so.set_current_status("Loading empty elements information...");
-	QString str_col_indexes = so.attribute_read<QString>("empty_conv/columns");
-	QStringList list_col_indexes = str_col_indexes.split(",", QString::SkipEmptyParts);
-	std::vector<size_t> empty_cols_indexes;
-	for (const QString& str_idx : list_col_indexes) {
-		empty_cols_indexes.emplace_back(str_idx.toUInt());
-	}
-
-	for (size_t col = 0; col < empty_cols_indexes.size(); col++) {
-
-		PVCore::PVSerializeObject_p sel_obj =
-		    so.create_object("empty_conv_col_" + QString::number(empty_cols_indexes[col]));
-		PVCore::PVSelBitField sel = PVCore::PVSelBitField::serialize_read(*sel_obj);
-
-		for (size_t row = 0; row < sel.count(); row++) {
-			if (sel.get_line_fast(row)) {
-				nraw._unconvertable_values.add(row, empty_cols_indexes[col], "");
-			}
-		}
-	}
 
 	return nraw;
 }

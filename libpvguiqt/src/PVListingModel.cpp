@@ -74,7 +74,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	case Qt::ToolTipRole: {
 		const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
 
-		return QString::fromStdString(src.get_input_value(r, org_col));
+		return QString::fromStdString(src.get_value(r, org_col));
 	}
 
 	// Set alignment
@@ -119,7 +119,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 
 		const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
 
-		if (src.has_conversion_failed(r, org_col)) {
+		if (not src.is_valid(r, org_col)) {
 			f.setItalic(true);
 		}
 
@@ -135,31 +135,37 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
  * PVGuiQt::PVListingModel::headerData
  *
  *****************************************************************************/
-QVariant PVGuiQt::PVListingModel::headerData(int s, Qt::Orientation orientation, int role) const
+QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientation, int role) const
 {
-	PVCombCol section(s);
+	PVCombCol comb_col(orientation == Qt::Horizontal ? row : 0);
+	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 
 	switch (role) {
 	// Horizontal header contains axis labels and Vertical is line number
 	case (Qt::DisplayRole):
 		if (orientation == Qt::Horizontal) {
-			if (section >= 0) {
-				return _view.get_axis_name(section);
+			if (comb_col >= 0) {
+				return _view.get_axis_name(comb_col);
 			}
-		} else if (section >= 0) {
+		} else if (comb_col >= 0) {
 			assert(orientation == Qt::Vertical && "No others possible orientations.");
-			return rowIndex(section) + 1; // Start counting rows from 1 for display
+			return rowIndex(row) + 1; // Start counting rows from 1 for display
 		}
 		break;
 	// Selected lines are bold, others use class specific font
 	case (Qt::FontRole):
-		if (orientation == Qt::Vertical and section >= 0) {
-			if (_view.get_real_output_selection().get_line(section)) {
+		if (orientation == Qt::Vertical and row >= 0) {
+			if (_view.get_real_output_selection().get_line(row)) {
 				QFont f(_vheader_font);
 				f.setBold(true);
 				return f;
 			}
 			return _vheader_font;
+		} else if (orientation == Qt::Horizontal) {
+			QFont f;
+			const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
+			f.setItalic(src.has_invalid(col));
+			return f;
 		}
 		break;
 	// Define header alignment
@@ -172,25 +178,26 @@ QVariant PVGuiQt::PVListingModel::headerData(int s, Qt::Orientation orientation,
 		break;
 	// Define tooltip text
 	case (Qt::ToolTipRole):
-		const Inendi::PVRoot& root = _view.get_parent<Inendi::PVRoot>();
-		const Inendi::PVCorrelation* correlation = root.correlations().correlation(&_view);
+		if (orientation == Qt::Horizontal) {
+			const Inendi::PVRoot& root = _view.get_parent<Inendi::PVRoot>();
+			const Inendi::PVCorrelation* correlation = root.correlations().correlation(&_view);
 
-		PVCol col1 = _view.get_axes_combination().get_nraw_axis(section);
+			if (correlation and correlation->col1 == col) {
 
-		if (correlation and correlation->col1 == col1) {
+				const QString& orig_source =
+				    QString::fromStdString(_view.get_parent<Inendi::PVSource>().get_name());
+				const QString& orig_axis = _view.get_axis_name(comb_col);
+				const QString& dest_source = QString::fromStdString(
+				    correlation->view2->get_parent<Inendi::PVSource>().get_name());
+				const QString& dest_axis =
+				    correlation->view2->get_nraw_axis_name(correlation->col2);
 
-			const QString& orig_source =
-			    QString::fromStdString(_view.get_parent<Inendi::PVSource>().get_name());
-			const QString& orig_axis = _view.get_axis_name(section);
-			const QString& dest_source = QString::fromStdString(
-			    correlation->view2->get_parent<Inendi::PVSource>().get_name());
-			const QString& dest_axis = correlation->view2->get_nraw_axis_name(correlation->col2);
-
-			return QString("Active correlation :\n%1 (%2) -> %3 (%4)")
-			    .arg(orig_source)
-			    .arg(orig_axis)
-			    .arg(dest_source)
-			    .arg(dest_axis);
+				return QString("Active correlation :\n%1 (%2) -> %3 (%4)")
+				    .arg(orig_source)
+				    .arg(orig_axis)
+				    .arg(dest_source)
+				    .arg(dest_axis);
+			}
 		}
 		break;
 	}

@@ -17,7 +17,7 @@
 #include <inendi/PVSource.h>
 
 #include <pvcop/types/factory.h>
-#include <pvcop/collection.h>
+#include <pvcop/types/formatter/formatter_interface.h>
 
 #include <fstream>
 #include <string>
@@ -219,9 +219,9 @@ class LocalMinesetFormat
 			 * Convert time to ISO 8601 standard
 			 */
 			if (axis.get_type() == "time") {
-				auto f = nraw.column_formatter(axis.index);
+				auto f = nraw.column(axis.index).formatter();
 
-				pvcop::collection::formatter_sp formatter_datetime;
+				pvcop::types::formatter_interface::shared_ptr formatter_datetime;
 				if (std::string(f->name()) == "datetime") {
 					formatter_datetime = std::shared_ptr<pvcop::types::formatter_interface>(
 					    pvcop::types::factory::create("datetime", "%Y-%m-%dT%H:%M:%SZ"));
@@ -235,7 +235,7 @@ class LocalMinesetFormat
 				}
 
 				_datetime_formatters[axis.index] = f;
-				nraw.collection().set_formatter(axis.index, formatter_datetime);
+				nraw.column(axis.index).set_formatter(formatter_datetime);
 			}
 		}
 	}
@@ -249,13 +249,12 @@ class LocalMinesetFormat
 
 		// Put datetime formatters back
 		for (const auto& datetime_formatter_it : _datetime_formatters) {
-			nraw.collection().set_formatter(datetime_formatter_it.first,
-			                                datetime_formatter_it.second);
+			nraw.column(datetime_formatter_it.first).set_formatter(datetime_formatter_it.second);
 		}
 	}
 
   private:
-	std::unordered_map<size_t, pvcop::collection::formatter_sp>
+	std::unordered_map<size_t, pvcop::types::formatter_interface::shared_ptr>
 	    _datetime_formatters; //!< Updates format.
 	Inendi::PVView& _view;    //!< Changed view.
 };
