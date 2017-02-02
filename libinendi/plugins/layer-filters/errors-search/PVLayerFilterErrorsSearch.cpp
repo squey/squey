@@ -93,7 +93,8 @@ void Inendi::PVLayerFilterErrorsSearch::operator()(PVLayer const& in, PVLayer& o
 
 	if (not include) {
 		// invert selection
-		out_sel = ~out_sel & in.get_selection();
+		out_sel = ~out_sel;
+		out_sel &= in.get_selection();
 	}
 
 	BENCH_END(errors_search, "errors_search", 1, 1, 1, 1);
