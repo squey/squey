@@ -34,6 +34,9 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::arra
   public:
 	using value_type = plotting_t;
 
+	// amount of reserved space to separate valid from invalid values
+	static constexpr const double INVALID_RESERVED_PERCENT_RANGE = 0.05;
+
   public:
 	typedef std::shared_ptr<PVPlottingFilter> p_type;
 	typedef PVPlottingFilter FilterT;
@@ -43,6 +46,7 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::arra
   public:
 	virtual void operator()(pvcop::db::array const& mapped,
 	                        pvcop::db::array const& minmax,
+	                        const pvcop::db::selection& invalid_selection,
 	                        pvcop::core::array<value_type>& dest) = 0;
 
 	virtual QString get_human_name() const = 0;

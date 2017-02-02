@@ -84,7 +84,7 @@ void run_stats(cmd_options opts)
 		const PVRush::PVFormat format = env._format;
 		const PVRush::PVNraw& nraw = env._nraw;
 		tmp_collector_path = nraw.dir();
-		size_t row_count = pvcop::core::algo::bit_count(env._nraw.valid_rows_sel());
+		size_t row_count = env._nraw.valid_rows_sel().bit_count();
 
 		pvlogger::info() << row_count << " rows / " << nraw.row_count() << std::endl;
 
@@ -104,8 +104,7 @@ void run_stats(cmd_options opts)
 				std::cout << '\t' << stream.str() << std::endl;
 
 				if (opts.extended_stats) {
-					pvcop::db::indexes indexes =
-					    pvcop::db::indexes::parallel_sort(distinct_values_count);
+					pvcop::db::indexes indexes = distinct_values_count.parallel_sort();
 					const auto& sorted = indexes.to_core_array();
 
 					const auto& counts = distinct_values_count.to_core_array<uint64_t>();

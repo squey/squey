@@ -380,7 +380,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	QStringList l;
 	for (PVRow line : listing_model()->shown_lines()) {
 		if (listing_model()->current_selection().get_line_fast(line)) {
-			l << QString::fromStdString(src.get_input_value(line, col));
+			l << QString::fromStdString(src.get_value(line, col));
 		}
 	}
 	_ctxt_v = l.join("\n");

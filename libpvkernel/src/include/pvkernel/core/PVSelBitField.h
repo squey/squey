@@ -58,11 +58,19 @@ class PVSelBitField
 	explicit PVSelBitField(PVRow count);
 	PVSelBitField(PVSelBitField const& o);
 	PVSelBitField(PVSelBitField&& o) = default;
+	PVSelBitField(pvcop_selection_t&& o) : _selection(std::move(o)) {}
 	PVSelBitField& operator=(PVSelBitField const&);
 	PVSelBitField& operator=(PVSelBitField&&) = default;
 
 	operator pvcop_selection_t&();
 	operator const pvcop_selection_t&() const;
+
+	pvcop_selection_t::iterator begin() { return _selection.begin(); }
+	pvcop_selection_t::iterator end() { return _selection.end(); };
+	pvcop_selection_t::const_iterator begin() const { return _selection.begin(); }
+	pvcop_selection_t::const_iterator end() const { return _selection.end(); };
+	pvcop_selection_t::const_iterator cbegin() { return _selection.cbegin(); };
+	pvcop_selection_t::const_iterator cend() { return _selection.cend(); };
 
 	PVRow count() const { return _selection.size(); }
 
@@ -497,7 +505,7 @@ class PVSelBitField
 	static PVCore::PVSelBitField serialize_read(PVCore::PVSerializeObject& so);
 
   protected:
-	pvcop::core::memarray<bool> _selection;
+	pvcop_selection_t _selection;
 };
 } // namespace PVCore
 

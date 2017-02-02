@@ -76,19 +76,18 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	std::string get_value(PVRow row, PVCol col) const;
 
 	/**
-	 * Get the original value encountered during import, even if it
-	 * has failed to be converted correctly
-	 */
-	std::string get_input_value(PVRow row, PVCol col, bool* failed = nullptr) const;
-
-	/**
 	 * Check if the value encountered during import has failed
 	 * to be converted correctly
 	 *
 	 * @return true if the conversion has failed
 	 *         false otherwise
 	 */
-	bool has_conversion_failed(PVRow row, PVCol col) const;
+	bool is_valid(PVRow row, PVCol col) const;
+
+	/**
+	 * Check if a column contains at least one invalid value
+	 */
+	bool has_invalid(PVCol col) const;
 
 	/**
 	 * Return the number of row in the datastorage.

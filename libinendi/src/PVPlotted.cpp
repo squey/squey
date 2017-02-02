@@ -83,9 +83,10 @@ int Inendi::PVPlotted::create_table()
 
 		boost::this_thread::interruption_point();
 
-		plotting_filter->operator()(get_parent().get_column(j),
-		                            get_parent().get_properties_for_col(j).get_minmax(),
-		                            _plotteds[j].to_core_array<value_type>());
+		plotting_filter->operator()(
+		    get_parent().get_column(j), get_parent().get_properties_for_col(j).get_minmax(),
+		    get_parent<Inendi::PVSource>().get_rushnraw().column(j).invalid_selection(),
+		    _plotteds[j].to_core_array<value_type>());
 
 		boost::this_thread::interruption_point();
 		get_properties_for_col(j).set_uptodate();

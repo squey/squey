@@ -32,7 +32,7 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
   public:
 	pvcop::db::array operator()(PVCol const col, PVRush::PVNraw const& nraw) override
 	{
-		auto f = nraw.column_formatter(col);
+		auto f = nraw.column(col).formatter();
 		const pvcop::db::array& array = nraw.column(col);
 		pvcop::db::array dest(pvcop::db::type_uint32, array.size());
 		auto& dest_array = dest.to_core_array<uint32_t>();

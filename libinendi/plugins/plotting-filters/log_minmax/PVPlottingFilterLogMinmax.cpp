@@ -14,14 +14,19 @@
 template <class T>
 static void compute_log_plotting(pvcop::db::array const& mapped,
                                  pvcop::db::array const& minmax,
+                                 const pvcop::db::selection& invalid_selection,
                                  pvcop::core::array<Inendi::PVPlottingFilter::value_type>& dest)
 {
+	using value_type = Inendi::PVPlottingFilter::value_type;
+
 	auto& mm = minmax.to_core_array<T>();
 	double ymin = (double)mm[0];
 	double ymax = (double)mm[1];
 
 	if (ymin == ymax) {
-		std::fill_n(dest.begin(), mapped.size(), 1UL << 31);
+		for (size_t i = 0; i < mapped.size(); i++) {
+			dest[i] = invalid_selection and invalid_selection[i] ? ~value_type(0) : 1UL << 31;
+		}
 		return;
 	}
 
@@ -33,35 +38,44 @@ static void compute_log_plotting(pvcop::db::array const& mapped,
 		ymax += offset;
 	}
 
+	const double invalid_range =
+	    invalid_selection ? Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE : 0;
+	const size_t valid_offset = std::numeric_limits<value_type>::max() * invalid_range;
 	const double ratio =
-	    std::numeric_limits<Inendi::PVPlottingFilter::value_type>::max() / (std::log2(ymax / ymin));
+	    (std::numeric_limits<value_type>::max() * (1 - invalid_range)) / (std::log2(ymax / ymin));
 	auto& values = mapped.to_core_array<T>();
+
 #pragma omp parallel for
 	for (size_t i = 0; i < mapped.size(); i++) {
-		dest[i] = ~Inendi::PVPlottingFilter::value_type(
-		    ratio * (std::log2((std::max<double>(ymin, (double)values[i] + offset)) / ymin)));
+		bool invalid = invalid_selection and invalid_selection[i];
+		dest[i] = ~value_type(
+		    invalid
+		        ? 0
+		        : ratio * (std::log2((std::max<double>(ymin, (double)values[i] + offset)) / ymin)) +
+		              valid_offset);
 	}
 }
 
 void Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
                                                    pvcop::db::array const& minmax,
+                                                   const pvcop::db::selection& invalid_selection,
                                                    pvcop::core::array<value_type>& dest)
 {
 	assert(dest);
 
-	if (mapped.type() == pvcop::db::type_string) {
-		compute_log_plotting<string_index_t>(mapped, minmax, dest);
+	if (mapped.is_string()) {
+		compute_log_plotting<string_index_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_int32) {
-		compute_log_plotting<int32_t>(mapped, minmax, dest);
+		compute_log_plotting<int32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint32) {
-		compute_log_plotting<uint32_t>(mapped, minmax, dest);
+		compute_log_plotting<uint32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint64) {
-		compute_log_plotting<uint64_t>(mapped, minmax, dest);
+		compute_log_plotting<uint64_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint128) {
-		compute_log_plotting<pvcop::db::uint128_t>(mapped, minmax, dest);
+		compute_log_plotting<pvcop::db::uint128_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_float) {
-		compute_log_plotting<float>(mapped, minmax, dest);
+		compute_log_plotting<float>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_double) {
-		compute_log_plotting<double>(mapped, minmax, dest);
+		compute_log_plotting<double>(mapped, minmax, invalid_selection, dest);
 	}
 }

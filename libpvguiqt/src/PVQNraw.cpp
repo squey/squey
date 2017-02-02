@@ -44,9 +44,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 	    [&, c](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 
-		    pvcop::db::selection s = ((pvcop::db::selection)sel).slice(0, col_in.size());
-
-		    pvcop::db::algo::distinct(col_in, col1_out, col2_out, s);
+		    pvcop::db::algo::distinct(col_in, col1_out, col2_out, sel);
 
 		    pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 		    std::string min_str = minmax.at(0);
@@ -57,7 +55,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 		    std::istringstream max_buf(max_str);
 		    max_buf >> max;
 
-		    count = pvcop::core::algo::bit_count(s);
+		    count = pvcop::core::algo::bit_count(sel);
 		},
 	    QObject::tr("Computing values..."), parent);
 
@@ -113,9 +111,8 @@ static bool show_stats_dialog(const QString& title,
 	auto ret_pbox = PVCore::PVProgressBox::progress(
 	    [&, col1, col2](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
-		    pvcop::db::selection s = ((pvcop::db::selection)sel).slice(0, col1_in.size());
 
-		    op(col1_in, col2_in, col1_out, col2_out, s);
+		    op(col1_in, col2_in, col1_out, col2_out, sel);
 
 		    pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
 		    std::string min_str = minmax.at(0);
@@ -134,7 +131,7 @@ static bool show_stats_dialog(const QString& title,
 			    abs_max = pvcop::db::algo::sum(col2_out);
 			    break;
 		    case ABS_MAX_OP::COUNT:
-			    abs_max = (double)pvcop::core::algo::bit_count(s);
+			    abs_max = (double)pvcop::core::algo::bit_count(sel);
 			    break;
 		    }
 		},

@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.column(PVCol(0));
 
-	pvcop::db::indexes indexes = pvcop::db::indexes::parallel_sort(column);
+	pvcop::db::indexes indexes = column.parallel_sort();
 	auto& order = indexes.to_core_array();
 	std::reverse(order.begin(), order.end()); // plotteds are still inverted...
 

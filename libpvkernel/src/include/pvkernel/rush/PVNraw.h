@@ -16,7 +16,6 @@
 
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
-#include <pvcop/types/exception/partially_converted_chunk_error.h>
 
 namespace PVCore
 {
@@ -45,9 +44,6 @@ class PVControllerJob;
  */
 class PVNraw
 {
-  public:
-	using unconvertable_values_t = pvcop::types::exception::partially_converted_chunk_error;
-
   public:
 	static const std::string config_nraw_tmp;
 	static const std::string default_tmp_path;
@@ -111,11 +107,6 @@ class PVNraw
 
 	const pvcop::db::read_dict* column_dict(PVCol col) const { return _collection->dict(col); }
 
-	pvcop::collection::formatter_sp column_formatter(PVCol col) const
-	{
-		return _collection->formatter(col);
-	}
-
 	std::string dir() const { return _collection->rootdir(); }
 
 	/**
@@ -152,28 +143,6 @@ class PVNraw
 	 */
 	void dump_csv(const std::string& file_path = "") const;
 
-	const unconvertable_values_t& unconvertable_values() const { return _unconvertable_values; }
-
-	void unconvertable_values_search(PVCol col,
-	                                 const PVCore::PVSelBitField& in_sel,
-	                                 PVCore::PVSelBitField& out_sel) const;
-
-	void unconvertable_values_search(PVCol col,
-	                                 const std::vector<std::string>& exps,
-	                                 const PVCore::PVSelBitField& in_sel,
-	                                 PVCore::PVSelBitField& out_sel) const;
-
-	void unconvertable_values_search(
-	    PVCol col,
-	    const std::vector<std::string>& exps,
-	    const PVCore::PVSelBitField& in_sel,
-	    PVCore::PVSelBitField& out_sel,
-	    std::function<bool(const std::string&, const std::string&)> predicate) const;
-
-	void empty_values_search(PVCol col,
-	                         const PVCore::PVSelBitField& in_sel,
-	                         PVCore::PVSelBitField& out_sel) const;
-
 	const PVCore::PVSelBitField& valid_rows_sel() const { return _valid_rows_sel; }
 	size_t get_valid_row_count() const { return _valid_elements_count; }
 
@@ -198,7 +167,6 @@ class PVNraw
 	size_t _real_nrows;                                     //!< Current number of line in the NRaw.
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
-	unconvertable_values_t _unconvertable_values;
 	PVCore::PVSelBitField _valid_rows_sel;
 	size_t _valid_elements_count;
 };

@@ -107,35 +107,19 @@ std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
 	return _nraw.at_string(row, col);
 }
 
-std::string Inendi::PVSource::get_input_value(PVRow row, PVCol col, bool* res) const
+bool Inendi::PVSource::is_valid(PVRow row, PVCol col) const
 {
 	assert(row < get_row_count());
 	assert(col < get_nraw_column_count());
 
-	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
-
-	bool conversion_failed;
-	std::string str = unconv.get(row, col, &conversion_failed);
-
-	if (res) {
-		*res = conversion_failed;
-	}
-
-	if (conversion_failed) {
-		return str;
-	} else {
-		return get_value(row, col);
-	}
+	return get_rushnraw().column(col).is_valid(row);
 }
 
-bool Inendi::PVSource::has_conversion_failed(PVRow row, PVCol col) const
+bool Inendi::PVSource::has_invalid(PVCol col) const
 {
-	assert(row < get_row_count());
 	assert(col < get_nraw_column_count());
 
-	const PVRush::PVNraw::unconvertable_values_t& unconv = get_rushnraw().unconvertable_values();
-
-	return unconv.has_failed(row, col);
+	return get_rushnraw().column(col).has_invalid();
 }
 
 QString Inendi::PVSource::get_window_name() const

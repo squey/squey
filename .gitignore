@@ -4,3 +4,4 @@ inspector.sh
 */tests/bin
 */tests/*/bin
 .gdb_history
+third-party/*
