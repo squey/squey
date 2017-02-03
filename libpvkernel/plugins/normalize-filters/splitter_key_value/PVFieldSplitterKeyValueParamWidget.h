@@ -40,6 +40,7 @@ class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 	void update_children_count();
 	void copy_keys();
 	void paste_keys();
+	void selection_has_changed();
 
   private:
 	void add_new_keys(QStringList& keys);
@@ -50,6 +51,10 @@ class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 	PVWidgets::QKeySequenceWidget* _quote_char;
 	QLineEdit* _separator_char_lineedit;
 	QLineEdit* _affectation_operator_lineedit;
+	QPushButton* _del_button;
+	QPushButton* _up_button;
+	QPushButton* _down_button;
+	QPushButton* _copy_button;
 
 	QListWidget* _keys_list;
 

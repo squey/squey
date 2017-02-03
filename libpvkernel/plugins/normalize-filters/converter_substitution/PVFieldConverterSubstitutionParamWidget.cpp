@@ -166,7 +166,7 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	_substrings_table_widget = new QTableWidget;
 	_substrings_table_widget->setColumnCount(2);
 	_substrings_table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-	_substrings_table_widget->setSelectionMode(QAbstractItemView::MultiSelection);
+	_substrings_table_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	_substrings_table_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	_substrings_table_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	_substrings_table_widget->verticalHeader()->setVisible(false);
@@ -176,23 +176,23 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 
 	QVBoxLayout* buttons_layout = new QVBoxLayout();
 
-	QPushButton* del_button = new QPushButton(tr("Delete"));
-	QPushButton* up_button = new QPushButton(tr("Move up"));
-	QPushButton* down_button = new QPushButton(tr("Move down"));
+	_del_button = new QPushButton(tr("Delete"));
+	_up_button = new QPushButton(tr("Move up"));
+	_down_button = new QPushButton(tr("Move down"));
 	QPushButton* import_button = new QPushButton(tr("Import"));
 	import_button->setEnabled(false);
 	QPushButton* export_button = new QPushButton(tr("Export"));
 	export_button->setEnabled(false);
 
-	del_button->setIcon(QIcon(":/red-cross"));
-	up_button->setIcon(QIcon(":/go-up"));
-	down_button->setIcon(QIcon(":/go-down"));
+	_del_button->setIcon(QIcon(":/red-cross"));
+	_up_button->setIcon(QIcon(":/go-up"));
+	_down_button->setIcon(QIcon(":/go-down"));
 	import_button->setIcon(QIcon(":/import_file"));
 	export_button->setIcon(QIcon(":/export_file"));
 
-	buttons_layout->addWidget(del_button);
-	buttons_layout->addWidget(up_button);
-	buttons_layout->addWidget(down_button);
+	buttons_layout->addWidget(_del_button);
+	buttons_layout->addWidget(_up_button);
+	buttons_layout->addWidget(_down_button);
 	buttons_layout->addWidget(import_button);
 	buttons_layout->addWidget(export_button);
 
@@ -217,16 +217,18 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	        &PVFieldConverterSubstitutionParamWidget::update_params);
 	connect(add_button, &QPushButton::clicked, this,
 	        &PVFilter::PVFieldConverterSubstitutionParamWidget::add_new_row);
-	connect(del_button, &QPushButton::clicked, this,
+	connect(_del_button, &QPushButton::clicked, this,
 	        &PVFilter::PVFieldConverterSubstitutionParamWidget::del_selected_rows);
-	connect(up_button, &QPushButton::clicked, this,
+	connect(_up_button, &QPushButton::clicked, this,
 	        &PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_up);
-	connect(down_button, &QPushButton::clicked, this,
+	connect(_down_button, &QPushButton::clicked, this,
 	        &PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_down);
 	connect(_replace_line_edit, &QLineEdit::textChanged,
 	        [=]() { add_button->setEnabled(not _replace_line_edit->text().isEmpty()); });
 	connect(_invert_button, &QPushButton::toggled, this,
 	        &PVFieldConverterSubstitutionParamWidget::invert_layouts);
+	connect(_substrings_table_widget, &QTableWidget::itemSelectionChanged, this,
+	        &PVFieldConverterSubstitutionParamWidget::selection_has_changed);
 
 	_invert_button->setChecked(args["invert_order"].toBool());
 
@@ -242,6 +244,31 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::invert_layouts()
 	layout->addWidget(widget);
 
 	update_params();
+}
+
+void PVFilter::PVFieldConverterSubstitutionParamWidget::selection_has_changed()
+{
+	QModelIndexList selection = _substrings_table_widget->selectionModel()->selectedRows();
+
+	if (selection.isEmpty()) {
+		_del_button->setDisabled(true);
+		_up_button->setDisabled(true);
+		_down_button->setDisabled(true);
+
+		return;
+	}
+
+	QAbstractItemModel* model = _substrings_table_widget->model();
+
+	/* must sort keys to make first() have the smallest row index and last() have the greatest
+	 * row index
+	 */
+	qSort(selection.begin(), selection.end(), std::less<QModelIndex>());
+
+	_up_button->setEnabled(selection.first().row() > 0);
+	_down_button->setEnabled(selection.last().row() < (model->rowCount() - 1));
+
+	_del_button->setEnabled(true);
 }
 
 void PVFilter::PVFieldConverterSubstitutionParamWidget::populate_substrings_table(
@@ -305,6 +332,10 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_up()
 	      [](const QModelIndex& i1, const QModelIndex& i2) { return i1.row() < i2.row(); });
 	int selected_row_count = selected_rows.count();
 
+	/* use temporarily MultiSelection to keep origin selection in spite of item move
+	 */
+	_substrings_table_widget->setSelectionMode(QAbstractItemView::MultiSelection);
+
 	for (int i = 0; i < selected_row_count; i++) {
 		int row_index = selected_rows.at(i).row();
 
@@ -322,6 +353,10 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_up()
 		}
 	}
 
+	/* restore original selection mode
+	 */
+	_substrings_table_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
 	update_params();
 }
 
@@ -337,6 +372,10 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_down()
 	qSort(selected_rows.begin(), selected_rows.end(),
 	      [](const QModelIndex& i1, const QModelIndex& i2) { return i1.row() < i2.row(); });
 	int selected_row_count = selected_rows.count();
+
+	/* use temporarily MultiSelection to keep origin selection in spite of item move
+	 */
+	_substrings_table_widget->setSelectionMode(QAbstractItemView::MultiSelection);
 
 	for (int i = selected_row_count; i > 0; i--) {
 		int row_index = selected_rows.at(i - 1).row();
@@ -354,6 +393,10 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_down()
 			_substrings_table_widget->removeRow(row_index);
 		}
 	}
+
+	/* restore original selection mode
+	 */
+	_substrings_table_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	update_params();
 }

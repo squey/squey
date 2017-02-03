@@ -100,24 +100,24 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	QVBoxLayout* buttons_layout = new QVBoxLayout();
 
 	QPushButton* add_button = new QPushButton(tr("Add"));
-	QPushButton* del_button = new QPushButton(tr("Delete"));
-	QPushButton* up_button = new QPushButton(tr("Move up"));
-	QPushButton* down_button = new QPushButton(tr("Move down"));
-	QPushButton* copy_button = new QPushButton(tr("Copy"));
+	_del_button = new QPushButton(tr("Delete"));
+	_up_button = new QPushButton(tr("Move up"));
+	_down_button = new QPushButton(tr("Move down"));
+	_copy_button = new QPushButton(tr("Copy"));
 	QPushButton* paste_button = new QPushButton(tr("Paste"));
 
 	add_button->setIcon(QIcon(":/document-new"));
-	del_button->setIcon(QIcon(":/red-cross"));
-	up_button->setIcon(QIcon(":/go-up"));
-	down_button->setIcon(QIcon(":/go-down"));
-	copy_button->setIcon(QIcon(":/edit-copy"));
+	_del_button->setIcon(QIcon(":/red-cross"));
+	_up_button->setIcon(QIcon(":/go-up"));
+	_down_button->setIcon(QIcon(":/go-down"));
+	_copy_button->setIcon(QIcon(":/edit-copy"));
 	paste_button->setIcon(QIcon(":/edit-paste"));
 
 	buttons_layout->addWidget(add_button);
-	buttons_layout->addWidget(del_button);
-	buttons_layout->addWidget(up_button);
-	buttons_layout->addWidget(down_button);
-	buttons_layout->addWidget(copy_button);
+	buttons_layout->addWidget(_del_button);
+	buttons_layout->addWidget(_up_button);
+	buttons_layout->addWidget(_down_button);
+	buttons_layout->addWidget(_copy_button);
 	buttons_layout->addWidget(paste_button);
 
 	QGroupBox* keys_groupbox = new QGroupBox("Keys");
@@ -150,11 +150,14 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	connect(_quote_char, SIGNAL(keySequenceChanged(const QKeySequence&)), this,
 	        SLOT(update_params()));
 	connect(add_button, SIGNAL(clicked(bool)), this, SLOT(add_new_key()));
-	connect(del_button, SIGNAL(clicked(bool)), this, SLOT(del_keys()));
-	connect(up_button, SIGNAL(clicked(bool)), this, SLOT(move_key_up()));
-	connect(down_button, SIGNAL(clicked(bool)), this, SLOT(move_key_down()));
-	connect(copy_button, SIGNAL(clicked(bool)), this, SLOT(copy_keys()));
+	connect(_del_button, SIGNAL(clicked(bool)), this, SLOT(del_keys()));
+	connect(_up_button, SIGNAL(clicked(bool)), this, SLOT(move_key_up()));
+	connect(_down_button, SIGNAL(clicked(bool)), this, SLOT(move_key_down()));
+	connect(_copy_button, SIGNAL(clicked(bool)), this, SLOT(copy_keys()));
 	connect(paste_button, SIGNAL(clicked(bool)), this, SLOT(paste_keys()));
+	connect(_keys_list, SIGNAL(itemSelectionChanged()), this, SLOT(selection_has_changed()));
+
+	selection_has_changed();
 
 	return _param_widget;
 }
@@ -250,6 +253,17 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()
 {
 	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
 
+	if (keys.isEmpty()) {
+		return;
+	}
+
+	/* keys must be necessarily ordered (decreasing order of their indices in the QListWidget) to
+	 * make the move down work.
+	 */
+	qSort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
+		return _keys_list->row(i1) > _keys_list->row(i2);
+	});
+
 	if (_keys_list->row(keys.last()) < (_keys_list->count() - 1)) {
 		for (QListWidgetItem* key : keys) {
 			int currentIndex = _keys_list->row(key);
@@ -264,6 +278,17 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()
 void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
 {
 	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
+
+	if (keys.isEmpty()) {
+		return;
+	}
+
+	/* keys must be necessarily ordered (increasing order of their indices in the QListWidget) to
+	 * make the move up work.
+	 */
+	qSort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
+		return _keys_list->row(i1) < _keys_list->row(i2);
+	});
 
 	if (_keys_list->row(keys.first()) > 0) {
 		for (QListWidgetItem* key : keys) {
@@ -293,4 +318,30 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::paste_keys()
 	strings = strings.simplified();
 	QStringList strings_list = strings.split(" ");
 	add_new_keys(strings_list);
+}
+
+void PVFilter::PVFieldSplitterKeyValueParamWidget::selection_has_changed()
+{
+	QList<QListWidgetItem*> keys = _keys_list->selectedItems();
+
+	if (keys.isEmpty()) {
+		_del_button->setDisabled(true);
+		_up_button->setDisabled(true);
+		_down_button->setDisabled(true);
+		_copy_button->setDisabled(true);
+
+		return;
+	}
+
+	/* must sort keys to make first() have the smallest index and last() have the greatest index
+	 */
+	qSort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
+		return _keys_list->row(i1) < _keys_list->row(i2);
+	});
+
+	_up_button->setEnabled(_keys_list->row(keys.first()) > 0);
+	_down_button->setEnabled(_keys_list->row(keys.last()) < (_keys_list->count() - 1));
+
+	_del_button->setEnabled(true);
+	_copy_button->setEnabled(true);
 }
