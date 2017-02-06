@@ -67,7 +67,7 @@ class PVFormatUnknownType : public PVFormatException
 	using PVFormatException::PVFormatException;
 };
 
-class PVFormatNoTimeMapping : public PVFormatException
+class PVFormatInvalidTime : public PVFormatException
 {
   public:
 	using PVFormatException::PVFormatException;

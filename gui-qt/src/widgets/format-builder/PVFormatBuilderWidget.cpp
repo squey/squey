@@ -968,6 +968,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		assert(not _inputs.empty() && "At least one file ahve to be seleced");
 	}
 
+	bool has_error = false;
+
 	try {
 		// Get the first input selected
 		_log_input = _inputs.front();
@@ -1040,18 +1042,29 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		update_table(rstart, rend);
 
 	} catch (PVRush::PVInputException& e) {
-		_log_input = PVRush::PVInputDescription_p();
-		QMessageBox err(QMessageBox::Critical, tr("Error"),
-		                tr("Error while importing a source: %1").arg(QString(e.what())));
-		err.show();
-		return;
+		QMessageBox::critical(this, "Error",
+		                      "Error while importing a source: " + QString(e.what()));
+		has_error = true;
 	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
 		QMessageBox::critical(this, "Error", e.what());
-		return;
+		has_error = true;
 	} catch (PVRush::PVFormatInvalid const& e) {
 		QMessageBox::critical(this, "Error",
 		                      "The current format is not valid. We can't perform an import : " +
 		                          QString(e.what()));
+		has_error = true;
+	} catch (PVRush::PVFormatInvalidTime const& e) {
+		QMessageBox::critical(this, "Error", e.what());
+		has_error = true;
+	}
+
+	if (has_error) {
+		// make sure to reset possibly altered member variables.
+		_log_input = PVRush::PVInputDescription_p();
+		_log_source.reset();
+		_log_sc.reset();
+		_nraw.reset(new PVRush::PVNraw());
+		_nraw_output.reset(new PVRush::PVNrawOutput(*_nraw));
 		return;
 	}
 

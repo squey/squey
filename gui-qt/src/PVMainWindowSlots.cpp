@@ -313,10 +313,8 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 			remove_source(src_p);
 			return false;
 		}
-	} catch (const PVRush::PVFormatNoTimeMapping& e) {
-		QMessageBox::critical(
-		    this, tr("Fatal error while loading source..."),
-		    (std::string("\nNo mapping format specified for axis '") + e.what() + "'").c_str());
+	} catch (const PVRush::PVFormatInvalidTime& e) {
+		QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
 		return false;
 	}
 
