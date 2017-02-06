@@ -277,7 +277,8 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 			std::string time_format = axe.get_type_format().toStdString();
 
 			if (time_format.empty()) {
-				throw PVFormatNoTimeMapping(axe.get_name().toStdString());
+				throw PVFormatInvalidTime("No type format for axis '" +
+				                          axe.get_name().toStdString() + "'");
 			}
 
 			formatters.emplace_back(get_datetime_formatter_desc(time_format));
