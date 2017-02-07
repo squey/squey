@@ -914,7 +914,15 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 
 	if (index.column() == 1) {
 		const pvcop::db::array& col2_array = d()->model().stat_col();
+
 		int real_index = d()->model().rowIndex(index);
+
+		if (col2_array.has_invalid() and col2_array.invalid_selection()[real_index]) {
+			painter->drawText(option.rect.x(), option.rect.y(), option.rect.width(),
+			                  option.rect.height(), Qt::AlignCenter, "N/A");
+			return;
+		}
+
 		double occurence_count = QString::fromStdString(col2_array.at(real_index)).toDouble();
 		double ratio = occurence_count / d()->max_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());
