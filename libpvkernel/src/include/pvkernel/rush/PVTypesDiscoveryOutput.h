@@ -34,7 +34,8 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
   public:
 	using autodet_type_t =
 	    std::vector<std::pair<std::pair<std::string, std::string>, std::vector<std::string>>>;
-	using type_desc_t = std::pair<std::string, std::string>;
+	using type_desc_t =
+	    std::tuple<std::string, std::string, std::string>; /* type, type_format, name */
 
   public:
 	// This is the output of a TBB pipeline
@@ -61,6 +62,7 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 	autodet_type_t _types;
 	std::vector<pvcop::types::formatter_interface*> _formatters;
 	types_desc_t _types_desc;
+	std::vector<std::string> _names;
 	matching_formatters_t _matching_formatters;
 	size_t _column_count = 0;
 	size_t _row_count = 0;

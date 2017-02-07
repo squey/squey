@@ -186,6 +186,7 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 {
 	_types = supported_types();
 	_column_count = format.get_storage_format().size();
+	_names.resize(_column_count);
 
 	for (const auto& type : _types) {
 		pvcop::formatter_desc fd = get_formatter_desc(type.first.first, type.first.second);
@@ -199,6 +200,8 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 {
 	assert(_matching_formatters.size() == _column_count);
+
+	bool first_chunk = chunk->index() == 0;
 
 	matching_formatters_t matching_formatters(_column_count,
 	                                          std::vector<bool>(_formatters.size(), true));
@@ -229,7 +232,8 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 				/**
 				 * Disable mutually exclusive formatters to speed-up autodetection
 				 */
-				if (not(local_row == 0 && matching_formatters[col][idx])) {
+				if ((not(local_row == 0 and matching_formatters[col][idx])) or
+				    (first_chunk and local_row == 0)) {
 					continue;
 				}
 				for (size_t i = 0; i < _formatters.size(); i++) {
@@ -241,6 +245,24 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 				}
 			}
 			col++;
+		}
+
+		// extract axes name for header
+		if (first_chunk and local_row == 0) {
+			bool is_header = std::all_of(
+			    matching_formatters.begin(), matching_formatters.end(), [](const auto& f) {
+				    return std::all_of(f.begin(), f.end(), [](bool v) { return not v; });
+				});
+			if (is_header) {
+				size_t col = 0;
+				for (PVCore::PVField const& field : fields) {
+					std::string f(field.begin(), field.end());
+					_names[col] = f;
+					std::fill(matching_formatters[col].begin(), matching_formatters[col].end(),
+					          true);
+					col++;
+				}
+			}
 		}
 		local_row++;
 	}
@@ -265,17 +287,30 @@ void PVRush::PVTypesDiscoveryOutput::job_has_finished(const PVControllerJob::inv
 {
 	assert(_matching_formatters.size() == _column_count);
 
+	const auto& mf = _matching_formatters;
+	bool not_all_strings = std::any_of(mf.begin(), mf.end(), [](const auto& f) {
+		return std::any_of(f.begin(), f.end(), [](bool v) { return v; });
+	});
+
 	for (size_t col = 0; col < _column_count; col++) {
+
 		bool formatter_found = false;
+		std::string col_name =
+		    not_all_strings ? ((col == 0 and not _names[col].empty() and _names[col][0] == '#')
+		                           ? _names[col].substr(1, _names[col].size() - 1)
+		                           : _names[col])
+		                    : "";
+
 		for (size_t idx = 0; idx < _formatters.size(); idx++) {
 			if (_matching_formatters[col][idx]) {
-				_types_desc.emplace_back(_types[idx].first.first, _types[idx].first.second);
+				_types_desc.emplace_back(_types[idx].first.first, _types[idx].first.second,
+				                         col_name);
 				formatter_found = true;
 				break;
 			}
 		}
 		if (not formatter_found) {
-			_types_desc.emplace_back("string", ""); // default to string type
+			_types_desc.emplace_back("string", "", col_name); // default to string type
 		}
 	}
 }

@@ -20,16 +20,6 @@ static constexpr const char* types_format = TEST_FOLDER "/picviz/axes_types_disc
 static constexpr const char* time_filename = TEST_FOLDER "/picviz/time_types_discovery.csv";
 static constexpr const char* time_format = TEST_FOLDER "/picviz/time_types_discovery.csv.format";
 
-static const std::array<std::pair<std::string, std::vector<std::string>>, 8> AXES_TYPES{
-    {{"number_int32", {""}},
-     {"number_uint32", {"", "%#x", "%#o"}},
-     {"number_float", {""}},
-     {"number_double", {""}},
-     {"ipv4", {""}},
-     {"ipv6", {""}},
-     {"mac_address", {""}},
-     {"string", {""}}}};
-
 static double discover_types(const std::string& filename,
                              const PVRush::PVFormat& format,
                              PVRush::PVTypesDiscoveryOutput& type_discovery_output)
@@ -59,31 +49,31 @@ int main()
 {
 	pvtest::init_ctxt();
 
+	PVRush::PVFormat types_fmt("", types_format);
+
 	PVRush::PVTypesDiscoveryOutput types_discovery_output;
-	double time =
-	    discover_types(types_filename, PVRush::PVFormat("", types_format), types_discovery_output);
+	double time = discover_types(types_filename, types_fmt, types_discovery_output);
 
 #ifndef INSPECTOR_BENCH
 	PVCol col(0);
-	for (const auto& formatter : AXES_TYPES) {
-		const std::string formatter_name = formatter.first;
-		for (const auto& formatter_params : formatter.second) {
-			std::string type;
-			std::string type_format;
-			std::tie(type, type_format) = types_discovery_output.type_desc(col++);
-			PV_VALID(type, formatter_name);
-			PV_VALID(type_format, formatter_params);
-		}
+	for (PVCol col(0); col < (PVCol)types_fmt.get_storage_format().size(); col++) {
+		std::string type;
+		std::string type_format;
+		std::string axe_name;
+		std::tie(type, type_format, axe_name) = types_discovery_output.type_desc(col);
+		PV_VALID(type + type_format, axe_name);
 	}
 #endif // INSPECTOR_BENCH
 
 	PVRush::PVTypesDiscoveryOutput time_discovery_output;
-	PVRush::PVFormat format("", time_format);
-	time += discover_types(time_filename, format, time_discovery_output);
+	PVRush::PVFormat time_fmt("", time_format);
+	time += discover_types(time_filename, time_fmt, time_discovery_output);
 
 #ifndef INSPECTOR_BENCH
-	for (PVCol col(0); col < (PVCol)format.get_storage_format().size(); col++) {
-		PV_VALID(time_discovery_output.type_desc(col).first, std::string("time"));
+	for (PVCol col(0); col < (PVCol)time_fmt.get_storage_format().size(); col++) {
+		std::string type;
+		std::tie(type, std::ignore, std::ignore) = time_discovery_output.type_desc(col);
+		PV_VALID(type, std::string("time"));
 	}
 #endif // INSPECTOR_BENCH
 
