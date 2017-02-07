@@ -652,9 +652,10 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 		end = EXTRACTED_ROW_COUNT_LIMIT;
 	}
 
+	PVRush::PVTypesDiscoveryOutput type_discovery_output;
+
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
-		    PVRush::PVTypesDiscoveryOutput type_discovery_output;
 		    PVRush::PVFormat format = get_format_from_dom();
 		    QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
 		    list_inputs << _log_input;
@@ -694,24 +695,39 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 		    if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL) {
 			    return;
 		    }
-
-		    // TODO : it would be nice to ignore axes set by user...
-
-		    // Update format with discovered axes types
-		    QDomElement& dom = myTreeModel->getRootDom();
-		    QDomNodeList axes = dom.elementsByTagName("axis");
-		    for (PVCol i(0); i < axes.size(); i++) {
-			    QDomElement ax = axes.at(i).toElement();
-			    std::string type;
-			    std::string type_format;
-			    std::tie(type, type_format) = type_discovery_output.type_desc(i);
-			    ax.setAttribute("type", type.c_str());
-			    ax.setAttribute("type_format", type_format.c_str());
-		    }
-
-		    QMetaObject::invokeMethod(this, "slotExtractorPreview");
 		},
 	    QObject::tr("Autodetecting axes types..."), nullptr);
+
+	// TODO : it would be nice to ignore axes set by user...
+
+	// Update format with discovered axes types
+	QDomElement& dom = myTreeModel->getRootDom();
+	QDomNodeList axes = dom.elementsByTagName("axis");
+	bool has_header = false;
+	for (PVCol i(0); i < axes.size(); i++) {
+		QDomElement ax = axes.at(i).toElement();
+		std::string type;
+		std::string type_format;
+		std::string axe_name;
+		std::tie(type, type_format, axe_name) = type_discovery_output.type_desc(i);
+		ax.setAttribute("type", type.c_str());
+		ax.setAttribute("type_format", type_format.c_str());
+		if (not axe_name.empty() and myTreeModel->get_first_line() == 0) {
+			ax.setAttribute("name", axe_name.c_str());
+			has_header = true;
+		}
+	}
+
+	if (has_header) {
+		if (QMessageBox::question(this, "Header detected",
+		                          "A header has been detected: use it to fill axes name ?") ==
+		    QMessageBox::Yes) {
+			_options_widget->set_lines_range(1, myTreeModel->get_line_count());
+		}
+	}
+
+	// Run preview
+	slotExtractorPreview();
 }
 
 void PVInspector::PVFormatBuilderWidget::update_types_autodetection_count(
@@ -965,7 +981,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		                                   this)) {
 			return; // This means that the user pressed the "cancel" button
 		}
-		assert(not _inputs.empty() && "At least one file ahve to be seleced");
+		assert(not _inputs.empty() && "At least one file have to be selected");
 	}
 
 	bool has_error = false;
@@ -1007,7 +1023,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 				PVCore::dump_argument_list(sp->get_args());
 
 				QString msg =
-				    tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n")
+				    tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n\n")
 				        .arg(sp->registered_name())
 				        .arg(first_input_name)
 				        .arg(naxes);
@@ -1021,6 +1037,7 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			if (not is_dom_empty()) {
 				update_types_autodetection_count(format);
 				slotAutoDetectAxesTypes();
+				format.set_first_line(myTreeModel->get_first_line());
 			} else {
 				QMessageBox::information(this, "Splitter not automatically detected",
 				                         "The splitter was not automatically detected.\nYou have "

@@ -110,6 +110,7 @@ class PVFormat
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 
 	size_t get_first_line() const { return _first_line; }
+	void set_first_line(size_t first_line) { _first_line = first_line; }
 	size_t get_line_count() const { return _line_count; }
 
 	bool have_grep_filter() const { return _have_grep_filter; }

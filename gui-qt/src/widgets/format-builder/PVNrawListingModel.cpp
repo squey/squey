@@ -65,7 +65,8 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 	}
 	case (Qt::FontRole): {
 		QFont f;
-		f.setItalic(not is_element_valid);
+		f.setItalic(not is_element_valid or
+		            not _nraw->column((PVCol)index.column()).is_valid(index.row()));
 		return f;
 	}
 	};
