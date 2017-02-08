@@ -90,20 +90,23 @@ int main()
 	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
-	const Inendi::PVSelection& sel = view2->get_post_filter_layer().get_selection();
-	size_t count = sel.bit_count();
-	PV_VALID(count, 82UL);
+	const Inendi::PVSelection& sel1 = view1->get_post_filter_layer().get_selection();
+	size_t count1 = sel1.bit_count();
+	const Inendi::PVSelection& sel2 = view2->get_post_filter_layer().get_selection();
+	size_t count2 = sel2.bit_count();
+	PV_VALID(count1, 11UL);
+	PV_VALID(count2, 84UL);
 
-	std::vector<size_t> v1({1332, 1485, 1540, 1875, 1877, 1966, 3156, 3159, 3199, 5689, 5762, 5764,
-	                        5767, 5791, 5843, 6003, 6009, 6177, 6205, 6213, 6221, 6252, 6260, 6293,
-	                        6294, 6295, 6297, 6298, 6299, 6300, 6301, 6305, 6306, 6307, 6308, 6309,
-	                        6311, 6313, 6314, 6315, 6317, 6319, 6320, 6321, 6323, 6324, 6325, 6329,
-	                        6332, 6333, 6335, 6337, 6340, 6341, 6343, 6344, 6346, 6349, 6350, 6354,
-	                        6356, 6357, 6358, 6359, 6362, 6365, 6366, 6370, 6374, 6383, 6384, 6385,
-	                        6410, 6411, 6414, 6420, 9703, 9704, 9747, 9969, 9970, 9974});
+	std::vector<size_t> v1(
+	    {1332, 1485, 1540, 1875, 1877, 1966, 3156, 3159, 3199, 5689, 5762, 5764, 5767, 5791,
+	     5843, 6003, 6009, 6177, 6205, 6213, 6221, 6252, 6260, 6293, 6294, 6295, 6297, 6298,
+	     6299, 6300, 6301, 6305, 6306, 6307, 6308, 6309, 6311, 6313, 6314, 6315, 6317, 6319,
+	     6320, 6321, 6323, 6324, 6325, 6329, 6332, 6333, 6335, 6337, 6340, 6341, 6343, 6344,
+	     6346, 6349, 6350, 6354, 6356, 6357, 6358, 6359, 6362, 6365, 6366, 6370, 6374, 6383,
+	     6384, 6385, 6410, 6411, 6414, 6420, 9703, 9704, 9747, 9969, 9970, 9974, 9998, 9999});
 
 	std::vector<size_t> v2;
-	sel.visit_selected_lines([&](PVRow const row) { v2.push_back(row); });
+	sel2.visit_selected_lines([&](PVRow const row) { v2.push_back(row); });
 	PV_ASSERT_VALID(std::equal(v1.begin(), v1.end(), v2.begin()));
 
 	/**
