@@ -103,6 +103,8 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 		}
 	}
 
+	void refresh() { Q_EMIT clicked(currentIndex()); }
+
 	/**
 	 * Move down the selected element.
 	 */
@@ -120,8 +122,6 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
   public Q_SLOTS:
 	void slotDataHasChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&);
 	void slotSelectNext();
-  Q_SIGNALS:
-	void refresh();
 };
 } // namespace PVInspector
 #endif /* MYTREEVIEW_H */
