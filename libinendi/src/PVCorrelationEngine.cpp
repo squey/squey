@@ -104,8 +104,7 @@ Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1
 	const pvcop::db::array& col1_in = src1.get_rushnraw().column(col1);
 	const pvcop::db::array& col2_in = src2.get_rushnraw().column(col2);
 
-	pvcop::db::array col1_out1;
-	pvcop::db::array col1_out2;
+	pvcop::db::array col1_distinct;
 
 	PVSelection in_sel(col2_in.size());
 	in_sel.select_all();
@@ -113,9 +112,40 @@ Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1
 	PVSelection out_sel(in_sel.count());
 	out_sel.select_none();
 
-	pvcop::db::algo::distinct(col1_in, col1_out1, col1_out2, view1->get_real_output_selection());
+	pvcop::db::algo::distinct(col1_in, col1_distinct, view1->get_real_output_selection());
 
-	pvcop::db::algo::subselect(col2_in, col1_out1, in_sel, out_sel);
+	bool is_string = col1_in.type() == pvcop::db::type_string;
+	if (not is_string) {
+		if (col1_distinct.has_invalid()) {
+			pvcop::db::algo::subselect(col2_in, col1_distinct.join(col1_distinct.valid_selection()),
+			                           col2_in.valid_selection(), out_sel);
+		} else {
+			pvcop::db::algo::subselect(col2_in, col1_distinct, col2_in.valid_selection(), out_sel);
+		}
+	}
+
+	// propagate strings or invalid values
+	if ((col1_distinct.has_invalid() and col2_in.has_invalid()) or is_string) {
+		PVSelection invalid_out_sel(out_sel.count());
+		invalid_out_sel.select_none();
+		pvcop::db::array string_array;
+		if (is_string) {
+			string_array = std::move(col1_distinct);
+		} else { // invalid values
+			string_array = col1_distinct.join(col1_distinct.invalid_selection());
+		}
+
+		std::vector<std::string> expr(string_array.size());
+		for (size_t i = 0; i < string_array.size(); i++) {
+			expr[i] = string_array.at(i);
+		}
+
+		pvcop::db::algo::subselect(
+		    col2_in, pvcop::db::algo::to_array(col2_in, expr),
+		    is_string ? pvcop::core::selection() : col2_in.invalid_selection(), invalid_out_sel);
+
+		out_sel |= invalid_out_sel;
+	}
 
 	view2->set_selection_view(out_sel);
 
