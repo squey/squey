@@ -49,8 +49,8 @@ PVParallelView::PVBCIBackendImageOpenCL::~PVBCIBackendImageOpenCL()
 
 void PVParallelView::PVBCIBackendImageOpenCL::copy_device_to_host_async(cl::Event* event) const
 {
-	_queue.enqueueReadBuffer(_device_buffer, CL_FALSE, 0, size_pixel() * sizeof(pixel_t),
-	                         _host_addr, nullptr, event);
+	inendi_verify_opencl(_queue.enqueueReadBuffer(
+	    _device_buffer, CL_FALSE, 0, size_pixel() * sizeof(pixel_t), _host_addr, nullptr, event));
 }
 
 /******************************************************************************
