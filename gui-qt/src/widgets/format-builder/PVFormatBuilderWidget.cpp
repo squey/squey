@@ -726,6 +726,9 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 		}
 	}
 
+	// Refresh params widget
+	myTreeView->refresh();
+
 	// Run preview
 	slotExtractorPreview();
 }
