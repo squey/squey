@@ -33,8 +33,8 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	main_layout->setSizeConstraint(QLayout::SetFixedSize);
 
 	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"" +
-	                  QString(INENDI_VERSION_NAME) +
-	                  "\"<br/>(c) 2014 Picviz Labs SAS, 2015 ESI Group<br/>";
+	                  QString(INENDI_VERSION_NAME) + "\"<br/>© 2015 Picviz Labs SAS<br/>© 2015-" +
+	                  QString::number(QDate::currentDate().year()) + " ESI Group<br/>";
 
 	content += "<br/>contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
