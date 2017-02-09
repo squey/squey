@@ -150,6 +150,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion()
 	        [this](int) {
 		        updatePlotMapping();
 		        node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR), mapPlotType->get_sel_type());
+		        if (mapPlotType->get_sel_type() == "string") {
+			        node->setAttribute(QString(PVFORMAT_AXIS_MAPPING_STR), "string");
+			        comboMapping->set_mode("string");
+		        }
 		        Q_EMIT signalRefreshView();
 		    });
 
@@ -212,7 +216,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	Inendi::PVMappingFilter::p_type map_lib = get_mapping_lib_filter();
 	QString node_mapping = node->getMappingProperties(map_lib->get_default_args(), _args_mapping);
 	if (node_mapping.isEmpty()) {
-		comboMapping->select_default();
+		if (node_type == "string") {
+			comboMapping->set_mode("string");
+		} else {
+			comboMapping->select_default();
+		}
 	} else {
 		comboMapping->set_mode(node_mapping);
 	}
