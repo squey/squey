@@ -67,7 +67,11 @@ int main()
 		        cal->get(UCAL_MINUTE, err) < cal_2->get(UCAL_MINUTE, err)) or
 		       (cal->get(UCAL_HOUR_OF_DAY, err) == cal_2->get(UCAL_HOUR_OF_DAY, err) and
 		        cal->get(UCAL_MINUTE, err) == cal_2->get(UCAL_MINUTE, err) and
-		        cal->get(UCAL_SECOND, err) < cal_2->get(UCAL_SECOND, err));
+		        cal->get(UCAL_SECOND, err) < cal_2->get(UCAL_SECOND, err)) or
+		       (cal->get(UCAL_HOUR_OF_DAY, err) == cal_2->get(UCAL_HOUR_OF_DAY, err) and
+		        cal->get(UCAL_MINUTE, err) == cal_2->get(UCAL_MINUTE, err) and
+		        cal->get(UCAL_SECOND, err) == cal_2->get(UCAL_SECOND, err) and
+		        cal->get(UCAL_MILLISECOND, err) < cal_2->get(UCAL_MILLISECOND, err));
 	});
 
 	uint32_t prev = mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[order[0]];
