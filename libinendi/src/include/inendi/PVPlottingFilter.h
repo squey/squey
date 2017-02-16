@@ -51,6 +51,19 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::arra
 
 	virtual QString get_human_name() const = 0;
 	virtual std::set<plotting_capability> list_usable_type() const = 0;
+
+  public:
+	template <typename T>
+	static std::pair<double, double> extract_minmax(const pvcop::db::array& minmax)
+	{
+		auto& mm = minmax.to_core_array<T>();
+
+		if (not minmax) {
+			return std::make_pair(0.0, 0.0);
+		} else {
+			return std::make_pair((double)mm[0], (double)mm[1]);
+		}
+	}
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;

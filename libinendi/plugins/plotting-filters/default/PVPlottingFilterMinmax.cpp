@@ -19,9 +19,9 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
                                     const pvcop::db::selection& invalid_selection,
                                     pvcop::core::array<Inendi::PVPlottingFilter::value_type>& dest)
 {
-	auto& mm = minmax.to_core_array<T>();
-	double ymin = (double)mm[0];
-	double ymax = (double)mm[1];
+	double ymin;
+	double ymax;
+	std::tie(ymin, ymax) = Inendi::PVPlottingFilter::extract_minmax<T>(minmax);
 
 	if (ymin == ymax) {
 		const plotting_t mid = std::numeric_limits<plotting_t>::max() / 2;
