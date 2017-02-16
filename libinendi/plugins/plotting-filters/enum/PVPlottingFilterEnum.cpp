@@ -39,9 +39,8 @@ void Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped,
 	}
 
 	const size_t distinct_count =
-	    extents.size() - (extents.has_invalid()
-	                          ? (pvcop::core::algo::bit_count(extents.invalid_selection()) - 1)
-	                          : 0);
+	    extents.size() -
+	    (extents.has_invalid() ? (pvcop::core::algo::bit_count(extents.invalid_selection())) : 0);
 	const double invalid_range = Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE;
 	const size_t valid_offset =
 	    invalid_selection ? std::numeric_limits<value_type>::max() * invalid_range : 0;

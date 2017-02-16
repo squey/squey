@@ -110,7 +110,7 @@ void Inendi::PVMapped::compute()
 		_trans_table[j] = mapping_filter->operator()(j, nraw);
 
 		get_properties_for_col(j).set_minmax(
-		    mapping_filter->get_minmax(get_column(j), nraw.valid_rows_sel()));
+		    mapping_filter->get_minmax(get_column(j), nraw.column(j).valid_selection()));
 
 		get_properties_for_col(j).set_uptodate();
 		invalidate_plotted_children_column(j);
