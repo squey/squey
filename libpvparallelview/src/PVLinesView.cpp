@@ -898,7 +898,7 @@ uint32_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width() const
  *****************************************************************************/
 void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::increase_zoom_level()
 {
-	if (_base_zoom_level <= max_zoom_level) {
+	if (_base_zoom_level < max_zoom_level) {
 		++_base_zoom_level;
 	}
 }
