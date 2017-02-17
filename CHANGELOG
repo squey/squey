@@ -1,3 +1,22 @@
+4.3 "Pie" (2017-02-17)
+----------------
+
+This major release adds the following features and improvements:
+* header and axes type autodetection in format builder
+* boolean operations on layers
+* substrings support in converter substitution
+* complete handling of invalid values in statistics and parallel coordinates
+* export performance drastically improved
+* on-the-fly decompression and compression (import and export)
+* reduced RAM consumption ('default' mapping is no longer using memory)
+* support for 'double' type
+* correlation support for 'string' type
+* show one layer only in layerstack
+* improved display of statistics in parallel coordinates view
+* axes/columns correspondance with mouse click in format builder
+* invalid values are displayed in italic in format builder
+* various bugfix
+
 4.2.2 (2016-12-06)
 ------------------
 
@@ -27,8 +46,8 @@ This minor release fixes:
 * invalid values were sometimes not internally treated as zero
 * message box when filesystem permissions are insufficient to import data
 
-4.2.0 (2016-10-11)
-------------------
+4.2 "Pierrick" (2016-10-11)
+----------------
 
 This major release adds the following features:
 * support for 'mac_address' and 'ipv6' types (can also be used in correlations)
@@ -89,7 +108,7 @@ This minor release fixes:
 * fix data collection naming
 * fix documentation link in about box
 
-4.1 (2016-06-10)
+4.1 "Hercule" (2016-06-10)
 ------------------
 
 This major release adds the following features:
@@ -118,8 +137,8 @@ This minor release fixes:
 * error message is displayed when time mapping is not specified
 * minor memory leaks
 
-4.0.0 "Phoenix" (2016-02-12)
-----------------------------
+4.0 "Phoenix" (2016-02-12)
+--------------------------
 
 * Complete rewrite of the data storage backend
   - reduced memory footprint
@@ -178,8 +197,8 @@ This minor release fixes:
 This minor release fixes:
 * fix crash in statistics panel
 
-3.4.0 "Atlas" (2014-09-11)
---------------------------
+3.4 "Atlas" (2014-09-11)
+------------------------
 
 This major release adds the following features:
 
@@ -209,8 +228,8 @@ This major release fixes or improves:
 * the axes combination editor was not consistent when clicking on "Cancel"
 * bugfix in URL splitter
 
-3.3.0 "Titan" (2014-04-25)
---------------------------
+3.3 "Titan" (2014-04-25)
+------------------------
 
 This major release adds the following features:
 
@@ -249,8 +268,8 @@ This major release fixes or improves:
 * less constraining selection rectangle in the full parallel view
 * clarification and uniformization of dialogs and menus
 
-3.2.0 "Bifrost" (2013-11-12)
-----------------------------
+3.2 "Bifrost" (2013-11-12)
+--------------------------
 
 This major release adds the following features:
 
@@ -285,8 +304,8 @@ This major release fixes or improves:
  * fix offset when changing parallel view size
  * various minors gui improvements
 
-3.1.0 "Adrien" (2013-05-31)
----------------------------
+3.1 "Adrien" (2013-05-31)
+-------------------------
 
 This major release add the following features:
 
@@ -396,8 +415,8 @@ This minor release fixes:
  * has been applied invalid lines were displayed in some rare cases in the
  * zoomed parallel views
 
-3.0.0 "Retribution" (2012-11-12)
---------------------------------
+3.0 "Retribution" (2012-11-12)
+------------------------------
 
 This major release add the following features:
 
@@ -427,8 +446,8 @@ This minor release fixes:
  * various bug in the format builder (espacially within the regular expression helper)
 
 
-2.6.0 "Carlsberg" (2012-07-24)
-------------------------------
+2.6 "Carlsberg" (2012-07-24)
+----------------------------
 
 New features:
 
@@ -443,8 +462,8 @@ Bug fixes:
  * URL splitter giving strange values for the 'port' and 'variable' fields
  * Format builder creating invalid parameter for the "filter" plugin
 
-2.5.0 "Dean" (2012-04-11)
--------------------------
+2.5 "Dean" (2012-04-11)
+-----------------------
 
 New features:
 
@@ -475,8 +494,8 @@ This minor release fixes:
 This minor release adds the features:
  * show the number of invalid elements during an extraction
 
-2.4.0 (2012-01-23)
-------------------
+2.4 (2012-01-23)
+----------------
 
 New features:
  * sorting plugins allow columns to be sorted according to their types
