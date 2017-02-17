@@ -87,7 +87,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	/**
 	 * Check if a column contains at least one invalid value
 	 */
-	bool has_invalid(PVCol col) const;
+	pvcop::db::INVALID_TYPE has_invalid(PVCol col) const;
 
 	/**
 	 * Return the number of row in the datastorage.

@@ -975,7 +975,8 @@ static size_t invalid_columns_count(const Inendi::PVSource* src)
 
 	size_t invalid_columns_count = 0;
 	for (PVCol col(0); col < nraw.column_count(); col++) {
-		invalid_columns_count += nraw.column(col).has_invalid();
+		invalid_columns_count +=
+		    bool(nraw.column(col).has_invalid() & pvcop::db::INVALID_TYPE::INVALID);
 	}
 
 	return invalid_columns_count;
@@ -994,7 +995,7 @@ static QString bad_conversions_as_string(const Inendi::PVSource* src)
 		for (PVCol col(0); col < nraw.column_count(); col++) {
 
 			const pvcop::db::array& column = nraw.column(col);
-			if (not column.has_invalid()) {
+			if (not(column.has_invalid() & pvcop::db::INVALID_TYPE::INVALID)) {
 				continue;
 			}
 
@@ -1004,6 +1005,7 @@ static QString bad_conversions_as_string(const Inendi::PVSource* src)
 				if (invalid_value == "") {
 					continue;
 				}
+
 				QString str("row #" + QString::number(row + 1) + " :");
 				const QString& axis_name = ax[col].get_name();
 				const QString& axis_type = ax[col].get_type();
