@@ -164,7 +164,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 		} else if (orientation == Qt::Horizontal) {
 			QFont f;
 			const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
-			f.setItalic(src.has_invalid(col));
+			f.setItalic(src.has_invalid(col) & pvcop::db::INVALID_TYPE::INVALID);
 			return f;
 		}
 		break;

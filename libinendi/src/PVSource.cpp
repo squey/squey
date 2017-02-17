@@ -115,7 +115,7 @@ bool Inendi::PVSource::is_valid(PVRow row, PVCol col) const
 	return get_rushnraw().column(col).is_valid(row);
 }
 
-bool Inendi::PVSource::has_invalid(PVCol col) const
+pvcop::db::INVALID_TYPE Inendi::PVSource::has_invalid(PVCol col) const
 {
 	assert(col < get_nraw_column_count());
 

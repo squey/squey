@@ -195,9 +195,9 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 {
 	const PVCombCol comb_col = get_combined_axis_column();
 	PVCol col = _lib_view.get_axes_combination().get_nraw_axis(comb_col);
-	bool has_invalid = _lib_view.get_parent<Inendi::PVSource>().has_invalid(col);
+	pvcop::db::INVALID_TYPE invalid = _lib_view.get_parent<Inendi::PVSource>().has_invalid(col);
 
-	if (not has_invalid) {
+	if (not invalid) {
 		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
 		                  _axis_length + (2 * axis_extend), _axis_fmt.get_color().toQColor());
 	} else {
@@ -207,10 +207,18 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 		                  ((_axis_length * valid_range) + (axis_extend) + 2),
 		                  _axis_fmt.get_color().toQColor());
 
-		// draw a circle for invalid values
-		painter->setBrush(_axis_fmt.get_color().toQColor());
-		painter->drawEllipse(QPoint(1, _axis_length - 1), PVParallelView::AxisWidth,
-		                     PVParallelView::AxisWidth);
+		int width = PVParallelView::AxisWidth;
+
+		// draw a circle for invalid/empty values
+		if (invalid == pvcop::db::INVALID_TYPE::EMPTY) {
+			painter->setBrush(_axis_fmt.get_color().toQColor());
+		} else {
+			painter->setBrush(Qt::black);
+			painter->setPen(QPen(_axis_fmt.get_color().toQColor(), 1));
+			width--;
+		}
+
+		painter->drawEllipse(QPoint(1, _axis_length - 1), width, width);
 	}
 
 #ifdef INENDI_DEVELOPER_MODE
