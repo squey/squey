@@ -11,8 +11,9 @@
 // PVElasticSearchJsonConverter constructor
 ///////////////////////////////////////////////////////////////////////////////
 
-PVElasticSearchJsonConverter::PVElasticSearchJsonConverter(std::string const& qb_rule)
-    : PVQueryBuilderJsonConverter(qb_rule), _strbuf(), _writer(_strbuf)
+PVElasticSearchJsonConverter::PVElasticSearchJsonConverter(const PVCore::PVVersion& version,
+                                                           std::string const& qb_rule)
+    : PVQueryBuilderJsonConverter(qb_rule), _strbuf(), _writer(_strbuf), _version(version)
 {
 }
 
@@ -253,13 +254,26 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 	std::swap(_in_values, in_value_upper);
 	std::swap(_not_in_values, not_in_value_upper);
 
+	if (_version >= PVCore::PVVersion(5, 0, 0)) {
+		_writer.StartObject();
+		_writer.Key("bool");
+	}
+
 	_writer.StartObject();
 
 	if (obj["condition"] == "AND") {
-		_writer.Key("and");
+		if (_version < PVCore::PVVersion(5, 0, 0)) {
+			_writer.Key("and");
+		} else {
+			_writer.Key("must");
+		}
 	} else {
 		assert(obj["condition"] == "OR" && "Uncorrect condition");
-		_writer.Key("or");
+		if (_version < PVCore::PVVersion(5, 0, 0)) {
+			_writer.Key("or");
+		} else {
+			_writer.Key("should");
+		}
 	}
 
 	_writer.StartArray();
@@ -284,6 +298,10 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 
 	_writer.EndObject();
 
+	if (_version >= PVCore::PVVersion(5, 0, 0)) {
+		_writer.EndObject();
+	}
+
 	// Get back previous in and not_in information
 	std::swap(_in_values, in_value_upper);
 	std::swap(_not_in_values, not_in_value_upper);
@@ -305,7 +323,11 @@ std::string PVElasticSearchJsonConverter::rules_to_json()
 	_writer.StartObject();
 
 	// Use filter as we don't want document score and it is cached in memory
-	_writer.Key("filtered");
+	if (_version >= PVCore::PVVersion(5, 0, 0)) {
+		_writer.Key("constant_score");
+	} else {
+		_writer.Key("filtered");
+	}
 	_writer.StartObject();
 
 	_writer.Key("filter");

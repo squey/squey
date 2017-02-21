@@ -14,6 +14,7 @@
 #include <rapidjson/stringbuffer.h>
 
 #include <pvkernel/core/PVQueryBuilderJsonConverter.h>
+#include <pvkernel/core/PVVersion.h>
 
 /** Converter object from QueryBuilder json to ElasticSearch json
  */
@@ -24,7 +25,7 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 *
 	 * @param qb_rule : json input
 	 */
-	PVElasticSearchJsonConverter(std::string const& qb_rule);
+	PVElasticSearchJsonConverter(const PVCore::PVVersion& version, std::string const& qb_rule);
 
 	/** Translate querybuilder json to elasticsearch json
 	 *
@@ -37,6 +38,7 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	    _strbuf; //!< internal buffer to store elasticsearch json in construction document
 	rapidjson::Writer<rapidjson::StringBuffer>
 	    _writer; //!< internal object to create elasticsearch json file
+	PVCore::PVVersion _version;
 
   private:
 	/** Parse a condition and add it's infomations in the json in progress.

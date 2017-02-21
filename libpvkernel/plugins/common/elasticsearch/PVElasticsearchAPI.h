@@ -13,7 +13,11 @@
 
 #include "PVElasticsearchInfos.h"
 
+#include <pvkernel/core/PVVersion.h>
+
 #include <curl/curl.h>
+
+#include <rapidjson/document.h>
 
 namespace PVRush
 {
@@ -46,6 +50,11 @@ class PVElasticsearchAPI
 	 * @return true if successfully connected to the server, false otherwise.
 	 */
 	bool check_connection(std::string* error = nullptr) const;
+
+	/**
+	 * Return elasticsearch version
+	 */
+	PVCore::PVVersion version() const;
 
 	/** Fetch the list of indexes from the server
 	 *
@@ -144,7 +153,9 @@ class PVElasticsearchAPI
 	 *
 	 * @return true if the scroll was sucessfully initialized, false otherwise
 	 */
-	bool init_scroll(const PVRush::PVElasticsearchQuery& query, std::string* error = nullptr);
+	bool init_scroll(const PVRush::PVElasticsearchQuery& query,
+	                 std::string& json_buffer,
+	                 std::string* error = nullptr);
 
 	/** Get one batch of results from a query using Elasticsearch efficient scoll API.
 	 *
@@ -189,11 +200,19 @@ class PVElasticsearchAPI
 	 */
 	std::string socket() const;
 
+	/**
+	 * Check if the returned JSON content contains errors
+	 *
+	 * @return true if error, false otherwise
+	 */
+	bool has_error(const rapidjson::Document& json, std::string* error = nullptr) const;
+
   private:
 	CURL* _curl;                         // cURL request handler
 	PVRush::PVElasticsearchInfos _infos; // Contains all the info to reach Elasticsearch server
 	std::string _scroll_id;              // ID returned by Elasticsearch scroll API
 	size_t _scroll_count = 0; // total count of event that will be returned by a scrolling session
+	PVCore::PVVersion _version;
 };
 }
 

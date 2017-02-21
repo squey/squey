@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 		std::cout << error << std::endl;
 	}
 
-	PV_ASSERT_VALID(count == 10439);
+	PV_VALID(count, 10439UL);
 
 	/**************************************************************************
 	 * Check export query is correct
@@ -120,7 +120,7 @@ int main(int argc, char** argv)
 	std::ofstream output_stream(output_file, std::ios::out | std::ios::trunc);
 	PVRush::PVElasticsearchAPI::rows_chunk_t rows_array;
 
-	// Extract datas
+	// Extract data
 	bool query_end = false;
 	do {
 		query_end = elasticsearch.extract(query, rows_array, &error);
@@ -133,19 +133,17 @@ int main(int argc, char** argv)
 
 	// Count line in reference file
 	std::ifstream reference_file_stream(reference_file);
-	if (not reference_file_stream.good()) {
-		return 1;
-	}
+	PV_ASSERT_VALID(reference_file_stream.good());
 	size_t reference_file_line_count =
 	    std::count(std::istreambuf_iterator<char>(reference_file_stream),
 	               std::istreambuf_iterator<char>(), '\n');
 	PVRush::PVUtils::sort_file(reference_file.c_str(), reference_sorted_file.c_str());
+	PV_ASSERT_VALID(std::ifstream(reference_sorted_file).good());
 
 	// Count line in extracted file
 	std::ifstream output_file_stream(output_file);
-	if (not output_file_stream.good()) {
-		return 1;
-	}
+	PV_ASSERT_VALID(output_file_stream.good());
+
 	size_t output_file_line_count = std::count(std::istreambuf_iterator<char>(output_file_stream),
 	                                           std::istreambuf_iterator<char>(), '\n');
 	PVRush::PVUtils::sort_file(output_file.c_str());
@@ -155,6 +153,7 @@ int main(int argc, char** argv)
 	    (output_file_line_count == reference_file_line_count && output_file_line_count == count));
 
 	// Checksum of reference and exported files are sames
+	std::cout << std::endl << output_file << " - " << reference_sorted_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, reference_sorted_file));
 
 	/*

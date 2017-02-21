@@ -56,7 +56,10 @@ int main()
 	PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(ind);
 	auto& source = *src;
 
+	PV_VALID(source.get_size(), 10439UL);
+
 	std::string output_file = pvtest::get_tmp_filename();
+	std::string output_file_sorted = output_file + "_sorted";
 	// Extract source and split fields.
 	{
 		std::ofstream ofs(output_file);
@@ -76,10 +79,12 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
+	PVRush::PVUtils::sort_file(output_file.c_str(), output_file_sorted.c_str());
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
 #endif
 
 	std::remove(output_file.c_str());
+	std::remove(output_file_sorted.c_str());
 
 	return 0;
 }

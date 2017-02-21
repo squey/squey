@@ -208,7 +208,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 		}
 
 		pbox.set_value(count);
-		pbox.set_extended_status(std::to_string(count) + " lines already exported");
+		pbox.set_extended_status(QString("%L1 rows exported so far").arg(count));
 	} while (query_end == false);
 }
 
