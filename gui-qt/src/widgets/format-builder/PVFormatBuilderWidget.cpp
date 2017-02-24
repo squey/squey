@@ -719,8 +719,9 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 	}
 
 	if (has_header) {
-		if (QMessageBox::question(this, "Header detected",
-		                          "A header has been detected: use it to fill axes name ?") ==
+		if (QMessageBox::question(
+		        this, "Header detected",
+		        "A header has been detected: use it to fill the name of the axes?") ==
 		    QMessageBox::Yes) {
 			_options_widget->set_lines_range(1, myTreeModel->get_line_count());
 		}
