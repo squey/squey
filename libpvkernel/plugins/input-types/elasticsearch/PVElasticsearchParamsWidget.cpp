@@ -218,6 +218,7 @@ bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& 
 	                          PVElasticsearchInfos, PVElasticsearchQuery>::set_infos(infos);
 
 	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
+	_format_path->setText(infos.get_format());
 
 	return res;
 }
@@ -228,6 +229,7 @@ PVRush::PVElasticsearchInfos PVRush::PVElasticsearchParamsWidget::get_infos() co
 	    PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
 	                   PVElasticsearchQuery>::get_infos();
 	infos.set_index(_combo_index->currentText());
+	infos.set_format(_format_path->text());
 
 	return infos;
 }

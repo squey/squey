@@ -43,23 +43,23 @@ PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
 	presets_layout->addWidget(_presets_widget);
 
 	// Set connections
-	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this,
-	        SLOT(preset_load_slot()));
-	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this,
-	        SLOT(preset_new_slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this,
-	        SLOT(preset_save_slot()));
-	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this,
-	        SLOT(preset_remove_slot()));
+	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_load_clicked_Signal, this,
+	        &PVParamsWidgetBase::preset_load_slot);
+	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_new_clicked_Signal, this,
+	        &PVParamsWidgetBase::preset_new_slot);
+	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_save_clicked_Signal, this,
+	        &PVParamsWidgetBase::preset_save_slot);
 	connect(_auth_enabled_cb, &QCheckBox::stateChanged,
 	        [&] { _auth_grp->setEnabled(_auth_enabled_cb->isChecked()); });
-	connect(_count_btn, SIGNAL(clicked()), this, SLOT(query_result_count_slot()));
+	connect(_count_btn, &QPushButton::clicked, this, &PVParamsWidgetBase::query_result_count_slot);
 	connect(_query_type_cb, SIGNAL(currentIndexChanged(const QString&)), this,
 	        SLOT(query_type_changed_slot()));
-	connect(_check_connection_push_button, SIGNAL(clicked()), this, SLOT(check_connection_slot()));
-	connect(_export_pushbutton, SIGNAL(clicked()), this, SLOT(export_slot()));
-	connect(this, SIGNAL(load_preset_deferred(unsigned int)), this, SLOT(load_preset(unsigned int)),
+	connect(_check_connection_push_button, &QPushButton::clicked, this,
+	        &PVParamsWidgetBase::check_connection_slot);
+	connect(_export_pushbutton, &QPushButton::clicked, this, &PVParamsWidgetBase::export_slot);
+	connect(this, &PVParamsWidgetBase::load_preset_deferred, this, &PVParamsWidgetBase::load_preset,
 	        Qt::QueuedConnection);
+	connect(_format_button, &QPushButton::clicked, this, &PVParamsWidgetBase::load_format);
 
 	// Hide "format" tab for the moment
 	tabWidget->removeTab(2);
@@ -73,6 +73,22 @@ QString PVRush::PVParamsWidgetBase::get_query_type() const
 void PVRush::PVParamsWidgetBase::set_query_type(QString const& query_type)
 {
 	_query_type_cb->setCurrentIndex(_query_type_cb->findText(query_type));
+}
+
+void PVRush::PVParamsWidgetBase::load_format()
+{
+	QFileDialog file_dialog;
+	file_dialog.setWindowTitle("Load format from...");
+	file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
+	file_dialog.setOption(QFileDialog::DontUseNativeDialog, true);
+	file_dialog.setNameFilters(QStringList{"Formats (*.format)", "All files (*.*)"});
+
+	if (file_dialog.exec()) {
+		const QString format_path = file_dialog.selectedFiles().at(0);
+		if (not format_path.isEmpty()) {
+			_format_path->setText(format_path);
+		}
+	}
 }
 
 /*****************************************************************************

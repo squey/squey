@@ -25,6 +25,7 @@ class PVElasticsearchInfos
 	void set_importer(QString const& importer) { _importer = importer; }
 	void set_login(QString const& login) { _login = login; }
 	void set_password(QString const& password) { _password = password; }
+	void set_format(QString const& format) { _format = format; }
 
 	QString const& get_host() const { return _host; }
 	uint16_t get_port() const { return _port; }
@@ -32,11 +33,12 @@ class PVElasticsearchInfos
 	QString const& get_importer() const { return _importer; }
 	QString const& get_login() const { return _login; }
 	QString const& get_password() const { return _password; }
+	QString const& get_format() const { return _format; }
 
 	inline bool operator==(PVElasticsearchInfos const& o) const
 	{
 		return _host == o._host && _port == o._port && _index == o._index &&
-		       _importer == o._importer;
+		       _importer == o._importer && _format == o._format;
 	}
 
 	void serialize_write(PVCore::PVSerializeObject& so) const;
@@ -49,6 +51,7 @@ class PVElasticsearchInfos
 	QString _importer;
 	QString _login;
 	QString _password;
+	QString _format;
 };
 }
 
