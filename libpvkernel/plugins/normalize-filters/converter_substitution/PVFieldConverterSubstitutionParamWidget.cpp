@@ -61,7 +61,7 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	/**
 	 * whole field mode
 	 */
-	_whole_field_group_box = new QGroupBox("Whole fields");
+	_whole_field_group_box = new QGroupBox("Rewrite entier fields");
 	_whole_field_group_box->setCheckable(true);
 	_whole_field_group_box->setChecked(modes & PVFieldConverterSubstitution::WHOLE_FIELD);
 
@@ -142,7 +142,7 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	/**
 	 * Substrings mode
 	 */
-	_substrings_group_box = new QGroupBox("Substrings");
+	_substrings_group_box = new QGroupBox("Rewrite substrings");
 	_substrings_group_box->setCheckable(true);
 	_substrings_group_box->setChecked(modes & PVFieldConverterSubstitution::SUBSTRINGS);
 
