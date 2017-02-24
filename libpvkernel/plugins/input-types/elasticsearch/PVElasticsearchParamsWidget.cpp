@@ -145,6 +145,7 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 		_gb_query->setTitle("Query");
 		_reference_label->setText("");
 		_querybuilder->reset_rules();
+		index_changed_by_user_slot();
 		_querybuilder->setVisible(true);
 	} else { // EQueryType::JSON
 		_txt_query->setPlainText("{ \"query\" : { \"match_all\" : { } } }");
