@@ -55,12 +55,13 @@ void PVRush::PVSplunkQuery::save_to_qsettings(QSettings& settings) const
 	settings.setValue("port", _infos.get_port());
 	settings.setValue("query", _query);
 	settings.setValue("query_type", _query_type);
+	settings.setValue("format", _infos.get_format());
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVSplunkQuery::load_from_string(std::vector<std::string> const& vl)
 {
-	assert(vl.size() >= 4);
+	assert(vl.size() >= 5);
 
 	QString query = QString::fromStdString(vl[0]);
 	QString query_type = QString::fromStdString(vl[1]);
@@ -68,10 +69,11 @@ PVRush::PVSplunkQuery::load_from_string(std::vector<std::string> const& vl)
 	PVSplunkInfos infos;
 	infos.set_host(QString::fromStdString(vl[2]));
 	infos.set_port(std::stoi(vl[3]));
+	infos.set_format(QString::fromStdString(vl[4]));
 
-	if (vl.size() == 6) {
-		infos.set_login(QString::fromStdString(vl[4]));
-		infos.set_password(QString::fromStdString(vl[5]));
+	if (vl.size() == 7) {
+		infos.set_login(QString::fromStdString(vl[5]));
+		infos.set_password(QString::fromStdString(vl[6]));
 	}
 
 	return std::unique_ptr<PVSplunkQuery>(new PVSplunkQuery(infos, query, query_type));
@@ -81,6 +83,7 @@ std::vector<std::string> PVRush::PVSplunkQuery::desc_from_qsetting(QSettings con
 {
 	std::vector<std::string> res = {
 	    s.value("query").toString().toStdString(), s.value("query_type").toString().toStdString(),
-	    s.value("host").toString().toStdString(), s.value("port").toString().toStdString()};
+	    s.value("host").toString().toStdString(), s.value("port").toString().toStdString(),
+	    s.value("format").toString().toStdString()};
 	return res;
 }

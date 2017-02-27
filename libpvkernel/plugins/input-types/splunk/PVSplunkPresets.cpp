@@ -68,6 +68,7 @@ void PVRush::PVSplunkPresets::set(id_t id,
 	_settings.setValue("splunk_sourcetype", infos.get_splunk_sourcetype());
 	_settings.setValue("query", query);
 	_settings.setValue("query_type", query_type);
+	_settings.setValue("format", infos.get_format());
 	_settings.endGroup();
 }
 
@@ -88,6 +89,7 @@ bool PVRush::PVSplunkPresets::get(id_t id,
 		infos.set_splunk_index(_settings.value("splunk_index", "").toString());
 		infos.set_splunk_host(_settings.value("splunk_host", "").toString());
 		infos.set_splunk_sourcetype(_settings.value("splunk_sourcetype", "").toString());
+		infos.set_format(_settings.value("format", "").toString());
 		query = _settings.value("query", "").toString();
 		query_type = _settings.value("query_type", "").toString();
 		ret = true;

@@ -13,6 +13,7 @@ void PVRush::PVElasticsearchInfos::serialize_write(PVCore::PVSerializeObject& so
 	so.attribute_write("port", _port);
 	so.attribute_write("index", _index);
 	so.attribute_write("importer", _importer);
+	so.attribute_write("format", _format);
 	// Do not save credential as it is not encrypted
 }
 
@@ -24,6 +25,7 @@ PVRush::PVElasticsearchInfos::serialize_read(PVCore::PVSerializeObject& so)
 	info._port = so.attribute_read<uint16_t>("port");
 	info._index = so.attribute_read<QString>("index");
 	info._importer = so.attribute_read<QString>("importer");
+	info._format = so.attribute_read<QString>("format");
 
 	if (so.is_repaired_error()) {
 		QStringList v = QString::fromStdString(so.get_repaired_value()).split(";");

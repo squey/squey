@@ -54,6 +54,7 @@ void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
 	settings.setValue("port", _infos.get_port());
 	settings.setValue("index", _infos.get_index());
 	settings.setValue("importer", _infos.get_importer());
+	settings.setValue("format", _infos.get_format());
 
 	settings.setValue("query", _query);
 	settings.setValue("query_type", _query_type);
@@ -70,10 +71,11 @@ PVRush::PVElasticsearchQuery::load_from_string(std::vector<std::string> const& v
 	infos.set_port(std::stoi(vl[3]));
 	infos.set_index(QString::fromStdString(vl[4]));
 	infos.set_importer(QString::fromStdString(vl[5]));
+	infos.set_format(QString::fromStdString(vl[6]));
 
-	if (vl.size() == 8) {
-		infos.set_login(QString::fromStdString(vl[6]));
-		infos.set_password(QString::fromStdString(vl[7]));
+	if (vl.size() == 9) {
+		infos.set_login(QString::fromStdString(vl[7]));
+		infos.set_password(QString::fromStdString(vl[8]));
 	}
 
 	return std::unique_ptr<PVElasticsearchQuery>(
@@ -85,6 +87,7 @@ std::vector<std::string> PVRush::PVElasticsearchQuery::desc_from_qsetting(QSetti
 	std::vector<std::string> res = {
 	    s.value("query").toString().toStdString(), s.value("query_type").toString().toStdString(),
 	    s.value("host").toString().toStdString(),  s.value("port").toString().toStdString(),
-	    s.value("index").toString().toStdString(), s.value("importer").toString().toStdString()};
+	    s.value("index").toString().toStdString(), s.value("importer").toString().toStdString(),
+	    s.value("format").toString().toStdString()};
 	return res;
 }

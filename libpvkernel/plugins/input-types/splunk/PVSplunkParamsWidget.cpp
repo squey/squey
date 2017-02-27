@@ -140,6 +140,7 @@ bool PVRush::PVSplunkParamsWidget::set_infos(PVSplunkInfos const& infos)
 	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_splunk_index()));
 	_combo_host->setCurrentIndex(_combo_host->findText(infos.get_splunk_host()));
 	_combo_sourcetype->setCurrentIndex(_combo_sourcetype->findText(infos.get_splunk_sourcetype()));
+	_format_path->setText(infos.get_format());
 
 	return res;
 }
@@ -152,6 +153,7 @@ PVRush::PVSplunkInfos PVRush::PVSplunkParamsWidget::get_infos() const
 	infos.set_splunk_index(_combo_index->currentText());
 	infos.set_splunk_host(_combo_host->currentText());
 	infos.set_splunk_sourcetype(_combo_sourcetype->currentText());
+	infos.set_format(_format_path->text());
 
 	return infos;
 }

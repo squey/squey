@@ -145,6 +145,7 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 		_gb_query->setTitle("Query");
 		_reference_label->setText("");
 		_querybuilder->reset_rules();
+		index_changed_by_user_slot();
 		_querybuilder->setVisible(true);
 	} else { // EQueryType::JSON
 		_txt_query->setPlainText("{ \"query\" : { \"match_all\" : { } } }");
@@ -208,7 +209,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 		}
 
 		pbox.set_value(count);
-		pbox.set_extended_status(std::to_string(count) + " lines already exported");
+		pbox.set_extended_status(QString("%L1 rows exported so far").arg(count));
 	} while (query_end == false);
 }
 
@@ -218,6 +219,7 @@ bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& 
 	                          PVElasticsearchInfos, PVElasticsearchQuery>::set_infos(infos);
 
 	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
+	_format_path->setText(infos.get_format());
 
 	return res;
 }
@@ -228,6 +230,7 @@ PVRush::PVElasticsearchInfos PVRush::PVElasticsearchParamsWidget::get_infos() co
 	    PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
 	                   PVElasticsearchQuery>::get_infos();
 	infos.set_index(_combo_index->currentText());
+	infos.set_format(_format_path->text());
 
 	return infos;
 }

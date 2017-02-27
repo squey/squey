@@ -68,6 +68,7 @@ void PVRush::PVElasticsearchPresets::set(id_t id,
 	_settings.setValue("index", infos.get_index());
 	_settings.setValue("query", query);
 	_settings.setValue("query_type", query_type);
+	_settings.setValue("format", infos.get_format());
 	_settings.endGroup();
 }
 
@@ -88,6 +89,7 @@ bool PVRush::PVElasticsearchPresets::get(id_t id,
 		infos.set_index(_settings.value("index", "").toString());
 		query = _settings.value("query", "").toString();
 		query_type = _settings.value("query_type", "JSON").toString();
+		infos.set_format(_settings.value("format", "").toString());
 		ret = true;
 	}
 	_settings.endGroup();
