@@ -70,11 +70,18 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	switch (role) {
 
 	// Set content and tooltip
-	case Qt::DisplayRole:
+	case Qt::DisplayRole: {
+		const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
+		return QString::fromStdString(src.get_value(r, org_col));
+	}
 	case Qt::ToolTipRole: {
 		const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
-
-		return QString::fromStdString(src.get_value(r, org_col));
+		QString str = QString::fromStdString(src.get_value(r, org_col));
+		static constexpr const int WORDWRAP_SIZE = 200;
+		for (int i = WORDWRAP_SIZE; i < str.size(); i += WORDWRAP_SIZE) {
+			str.insert(i, "<br>");
+		}
+		return str;
 	}
 
 	// Set alignment
