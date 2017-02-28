@@ -957,7 +957,8 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 			occurence = PVStatsModel::format_occurence(occurence_count);
 			occurence_max_width =
 			    QFontMetrics(painter->font())
-			        .width(PVStatsModel::format_occurence(d()->relative_max_count()));
+			        .width(QLocale::system().toString(d()->relative_max_count(), 'f', 3));
+
 			margin -= occurence_max_width;
 			representation_count++;
 		}
