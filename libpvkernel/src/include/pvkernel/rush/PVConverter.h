@@ -42,7 +42,15 @@ class PVConverter
 		_ucnv = ucnv_open(converter_name.c_str(), &status);
 
 		if (U_FAILURE(status)) {
-			throw PVConverterCreationError("Fail to create ICU converter.");
+			// Force "UTF-8" charset if uchardet encoding is not supported by ICU
+			status = U_ZERO_ERROR;
+			_ucnv = ucnv_open("UTF-8", &status);
+
+			// Throw an exception if it still fails
+			if (U_FAILURE(status)) {
+				throw PVConverterCreationError("Unsupported charset encoding '" + converter_name +
+				                               "'");
+			}
 		}
 	}
 

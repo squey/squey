@@ -32,6 +32,7 @@
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
+#include <pvkernel/rush/PVConverter.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
 
@@ -1105,6 +1106,10 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 		    } catch (PVRush::UnicodeSourceError const&) {
 			    pbox.critical("Cannot create sources",
 			                  "File encoding does permit Inspector to perform extraction.");
+			    pbox.set_canceled();
+			    return;
+		    } catch (PVRush::PVConverterCreationError const& e) {
+			    pbox.critical("Unsupported charset", e.what());
 			    pbox.set_canceled();
 			    return;
 		    }
