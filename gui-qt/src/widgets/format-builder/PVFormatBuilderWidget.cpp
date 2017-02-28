@@ -22,6 +22,7 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/rush/PVConverter.h>
 
 #include <pvguiqt/PVAxesCombinationWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
@@ -1076,6 +1077,9 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		has_error = true;
 	} catch (PVRush::PVFormatInvalidTime const& e) {
 		QMessageBox::critical(this, "Error", e.what());
+		has_error = true;
+	} catch (PVRush::PVConverterCreationError const& e) {
+		QMessageBox::critical(this, "Unsupported charset", e.what());
 		has_error = true;
 	}
 
