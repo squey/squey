@@ -33,6 +33,7 @@ PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 20000)
 PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 200)
 PV_ADD_TEST_CONV_UTF8("charset/windows1250" 10048576)
 PV_ADD_TEST_CONV_UTF8("charset/utf8_windows1252" 10048576)
+PV_ADD_TEST_CONV_UTF8("charset/viscii" 10048576)
 
 # Test the aggregator
 add_pv_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
