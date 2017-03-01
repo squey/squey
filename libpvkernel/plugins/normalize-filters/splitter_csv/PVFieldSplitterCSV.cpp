@@ -53,12 +53,22 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 					return 0;
 				}
 
-				if (cstr[i - 1] != '\\') {
-					break;
+				if (cstr[i - 1] == '\\') {
+					// an escaped quote, we continue
+					++i;
+					continue;
 				}
 
-				// need to search further (and *after* the found quote)
-				++i;
+				if (((i + 1) < field.size()) and (cstr[i + 1] == _quote)) {
+					/* we have found a doubled quote, moving after them
+					 * to integrate them in the field
+					 */
+					i += 2;
+					continue;
+				}
+
+				// no need to search further, the final quote has been found
+				break;
 			}
 
 			// a quote, adding the new element
