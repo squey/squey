@@ -1170,7 +1170,7 @@ void PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility()
 
 	for (PVZoneID z = _lines_view.get_first_visible_zone_index();
 	     z <= _lines_view.get_last_visible_zone_index(); z++) {
-		_zones[z].bg->setVisible(visible);
+		_zones[_lines_view.get_zone_index_offset(z)].bg->setVisible(visible);
 	}
 }
 
