@@ -44,7 +44,7 @@ class PVMappingFilterTime24h : public PVMappingFilter
 				pvcop::types::formatter_datetime::gmtime_r(&t, &local_tm);
 
 				dest_array[row] =
-				    ((local_tm.tm_hour * 60) + local_tm.tm_min) * 60 + local_tm.tm_sec;
+				    (((local_tm.tm_hour * 60) + local_tm.tm_min) * 60 + local_tm.tm_sec) * 1000;
 			}
 		} else if (std::string(f->name()) == "datetime_us") {
 			auto& core_array = array.to_core_array<uint64_t>();
@@ -52,7 +52,8 @@ class PVMappingFilterTime24h : public PVMappingFilter
 			for (size_t row = 0; row < array.size(); row++) {
 				const boost::posix_time::ptime t =
 				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
-				dest_array[row] = t.time_of_day().total_seconds();
+				const auto& tod = t.time_of_day();
+				dest_array[row] = (tod.total_seconds() * 1000) + (tod.fractional_seconds() / 1000);
 			}
 		} else {
 			assert(std::string(f->name()) == "datetime_ms" && "Unknown datetime formatter");
@@ -79,6 +80,11 @@ class PVMappingFilterTime24h : public PVMappingFilter
 						continue;
 					}
 
+					int32_t millisec = cal->get(UCAL_MILLISECOND, err);
+					if (not U_SUCCESS(err)) {
+						continue;
+					}
+
 					int32_t sec = cal->get(UCAL_SECOND, err);
 					if (not U_SUCCESS(err)) {
 						continue;
@@ -93,7 +99,8 @@ class PVMappingFilterTime24h : public PVMappingFilter
 					if (not U_SUCCESS(err)) {
 						continue;
 					}
-					dest_array[row] = (sec + (min * 60) + (hour * 60 * 60));
+
+					dest_array[row] = ((sec + (min * 60) + (hour * 60 * 60)) * 1000) + millisec;
 				}
 			}
 		}
@@ -109,7 +116,7 @@ class PVMappingFilterTime24h : public PVMappingFilter
 		pvcop::db::array res(pvcop::db::type_uint32, 2);
 		auto res_array = res.to_core_array<uint32_t>();
 		res_array[0] = 0;
-		res_array[1] = 24 * 3600 - 1;
+		res_array[1] = (24 * 60 * 60 * 1000) - 1;
 		return res;
 	}
 
