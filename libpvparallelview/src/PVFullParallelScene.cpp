@@ -794,7 +794,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 	assert(_lines_view.is_zone_drawn(zone_id));
 
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-	const PVZoneID img_id = zone_id - _lines_view.get_first_visible_zone_index();
+	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
 
 	// Check whether the image needs scaling.
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
