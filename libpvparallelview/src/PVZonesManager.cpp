@@ -100,8 +100,7 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
  * PVParallelView::PVZonesManager::update_from_axes_comb
  *
  *****************************************************************************/
-std::vector<PVZoneID>
-PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& ac)
+void PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& ac)
 {
 	typedef std::pair<PVCol, PVCol> axes_pair_t;
 	typedef std::vector<axes_pair_t> axes_pair_list_t;
@@ -132,7 +131,7 @@ PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& 
 		axes_pair_list_t::iterator it = std::find(old_pairs.begin(), old_pairs.end(), axes_pair);
 
 		if (it == old_pairs.end()) {
-			// this zone has to be updated (when _zone will be updated)
+			// this zone has to be updated (when _zones will be updated)
 			zoneids.push_back(i);
 		} else {
 			// this zone is unchanged, copying it.
@@ -147,8 +146,6 @@ PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& 
 	for (PVZoneID zone_id : zoneids) {
 		update_zone(zone_id);
 	}
-
-	return zoneids;
 }
 
 /******************************************************************************
@@ -156,10 +153,9 @@ PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& 
  * PVParallelView::PVZonesManager::update_from_axes_comb
  *
  *****************************************************************************/
-std::vector<PVZoneID>
-PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const& view)
+void PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const& view)
 {
-	return update_from_axes_comb(view.get_axes_combination().get_combination());
+	update_from_axes_comb(view.get_axes_combination().get_combination());
 }
 
 /******************************************************************************

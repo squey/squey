@@ -328,15 +328,15 @@ void PVParallelView::PVLibView::axes_comb_about_to_be_updated()
 
 void PVParallelView::PVLibView::axes_comb_updated()
 {
-	std::vector<PVZoneID> modified_zones(get_zones_manager().update_from_axes_comb(*lib_view()));
+	get_zones_manager().update_from_axes_comb(*lib_view());
 
 	// Update preprocessors' number of zones
 	const PVZoneID nzones = get_zones_manager().get_number_of_managed_zones();
 	_processor_sel.set_number_zones(nzones);
 	_processor_bg.set_number_zones(nzones);
 
-	// Invalidate modified zones
-	for (PVZoneID const z : modified_zones) {
+	// Invalidate all zones
+	for (PVZoneID z = 0; z < nzones; ++z) {
 		_processor_sel.invalidate_zone_preprocessing(z);
 		_processor_bg.invalidate_zone_preprocessing(z);
 	}
