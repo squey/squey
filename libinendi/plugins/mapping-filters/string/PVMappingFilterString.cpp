@@ -135,7 +135,7 @@ pvcop::db::array Inendi::PVMappingFilterString::operator()(PVCol const col,
 #pragma omp parallel for
 		for (size_t dict_idx = 0; dict_idx < dict.size(); dict_idx++) {
 			const char* c = dict.key(dict_idx);
-			ret[dict_idx] = compute_str_factor(c, strlen(c), _case_sensitive);
+			ret[dict_idx] = compute_str_factor(c, strlen(c));
 		}
 
 		auto& core_array = array.to_core_array<string_index_t>();
