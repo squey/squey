@@ -41,11 +41,9 @@ class PVMappingModeWidget : public QWidget
 
   public:
 	PVComboBox* get_combo_box() { return _combo; }
-	PVCore::PVArgumentList const& get_cur_filter_params() const { return _cur_filter_params; }
 
   private:
 	PVComboBox* _combo;
-	PVCore::PVArgumentList _cur_filter_params;
 };
 } // namespace PVWidgets
 
