@@ -13,7 +13,12 @@
 
 PVElasticSearchJsonConverter::PVElasticSearchJsonConverter(const PVCore::PVVersion& version,
                                                            std::string const& qb_rule)
-    : PVQueryBuilderJsonConverter(qb_rule), _strbuf(), _writer(_strbuf), _version(version)
+    : PVQueryBuilderJsonConverter(qb_rule)
+    , _strbuf()
+    , _writer(_strbuf)
+    , _writer_negate(_strbuf_not)
+    , _current_writer(&_writer)
+    , _version(version)
 {
 }
 
@@ -23,8 +28,12 @@ PVElasticSearchJsonConverter::PVElasticSearchJsonConverter(const PVCore::PVVersi
 
 void PVElasticSearchJsonConverter::pre_not_()
 {
-	_writer.StartObject();
-	_writer.Key("not");
+	if (_version < PVCore::PVVersion(5, 0, 0)) {
+		_current_writer->StartObject();
+		_current_writer->Key("not");
+	} else {
+		_current_writer = &_writer_negate;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +42,14 @@ void PVElasticSearchJsonConverter::pre_not_()
 
 void PVElasticSearchJsonConverter::post_not_()
 {
-	_writer.EndObject();
+	if (_version < PVCore::PVVersion(5, 0, 0)) {
+		_current_writer->EndObject();
+	} else {
+		_negated_terms.emplace_back(_strbuf_not.GetString());
+		_strbuf_not.Clear();
+		_writer_negate.Reset(_strbuf_not);
+		_current_writer = &_writer;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,17 +58,17 @@ void PVElasticSearchJsonConverter::post_not_()
 
 void PVElasticSearchJsonConverter::suffix(rapidjson::Value const& id, rapidjson::Value const& value)
 {
-	_writer.StartObject();
-	_writer.Key("regexp");
-	_writer.StartObject();
+	_current_writer->StartObject();
+	_current_writer->Key("regexp");
+	_current_writer->StartObject();
 
-	_writer.Key(id.GetString());
+	_current_writer->Key(id.GetString());
 	std::string res = std::string("*") + value.GetString();
-	_writer.String(res.c_str());
+	_current_writer->String(res.c_str());
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,18 +78,18 @@ void PVElasticSearchJsonConverter::suffix(rapidjson::Value const& id, rapidjson:
 void PVElasticSearchJsonConverter::contains(rapidjson::Value const& id,
                                             rapidjson::Value const& value)
 {
-	_writer.StartObject();
+	_current_writer->StartObject();
 
-	_writer.Key("regexp");
-	_writer.StartObject();
+	_current_writer->Key("regexp");
+	_current_writer->StartObject();
 
-	_writer.Key(id.GetString());
+	_current_writer->Key(id.GetString());
 	std::string res = std::string("*") + value.GetString() + "*";
-	_writer.String(res.c_str());
+	_current_writer->String(res.c_str());
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,17 +98,17 @@ void PVElasticSearchJsonConverter::contains(rapidjson::Value const& id,
 
 void PVElasticSearchJsonConverter::prefix(rapidjson::Value const& id, rapidjson::Value const& value)
 {
-	_writer.StartObject();
+	_current_writer->StartObject();
 
-	_writer.Key("prefix");
-	_writer.StartObject();
+	_current_writer->Key("prefix");
+	_current_writer->StartObject();
 
-	_writer.Key(id.GetString());
-	_writer.String(value.GetString());
+	_current_writer->Key(id.GetString());
+	_current_writer->String(value.GetString());
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,17 +117,17 @@ void PVElasticSearchJsonConverter::prefix(rapidjson::Value const& id, rapidjson:
 
 void PVElasticSearchJsonConverter::equal(rapidjson::Value const& id, rapidjson::Value const& value)
 {
-	_writer.StartObject();
+	_current_writer->StartObject();
 
-	_writer.Key("term");
-	_writer.StartObject();
+	_current_writer->Key("term");
+	_current_writer->StartObject();
 
-	_writer.Key(id.GetString());
-	_writer.String(value.GetString());
+	_current_writer->Key(id.GetString());
+	_current_writer->String(value.GetString());
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,24 +138,24 @@ void PVElasticSearchJsonConverter::between(rapidjson::Value const& id,
                                            rapidjson::Value const& begin,
                                            rapidjson::Value const& end)
 {
-	_writer.StartObject();
+	_current_writer->StartObject();
 
-	_writer.Key("range");
-	_writer.StartObject();
+	_current_writer->Key("range");
+	_current_writer->StartObject();
 
-	_writer.Key(id.GetString());
-	_writer.StartObject();
+	_current_writer->Key(id.GetString());
+	_current_writer->StartObject();
 
-	_writer.Key("gte");
-	_writer.Int(std::stol(begin.GetString()));
-	_writer.Key("lte");
-	_writer.Int(std::stol(end.GetString()));
+	_current_writer->Key("gte");
+	_current_writer->Int(std::stol(begin.GetString()));
+	_current_writer->Key("lte");
+	_current_writer->Int(std::stol(end.GetString()));
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,22 +204,22 @@ void PVElasticSearchJsonConverter::compare(rapidjson::Value const& id,
                                            rapidjson::Value const& end,
                                            const char* op)
 {
-	_writer.StartObject();
+	_current_writer->StartObject();
 
-	_writer.Key("range");
-	_writer.StartObject();
+	_current_writer->Key("range");
+	_current_writer->StartObject();
 
-	_writer.Key(id.GetString());
-	_writer.StartObject();
+	_current_writer->Key(id.GetString());
+	_current_writer->StartObject();
 
-	_writer.Key(op);
-	_writer.Int(std::stol(end.GetString()));
+	_current_writer->Key(op);
+	_current_writer->Int(std::stol(end.GetString()));
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -222,22 +238,43 @@ void PVElasticSearchJsonConverter::is_empty(rapidjson::Value const& id)
 void PVElasticSearchJsonConverter::inject_in(map_t const& saved)
 {
 	for (auto& k_v : saved) {
-		_writer.StartObject();
+		_current_writer->StartObject();
 
-		_writer.Key("terms");
-		_writer.StartObject();
+		_current_writer->Key("terms");
+		_current_writer->StartObject();
 
-		_writer.Key(k_v.first.c_str());
-		_writer.StartArray();
+		_current_writer->Key(k_v.first.c_str());
+		_current_writer->StartArray();
 
 		for (const char* value : k_v.second) {
-			_writer.String(value);
+			_current_writer->String(value);
 		}
-		_writer.EndArray();
+		_current_writer->EndArray();
 
-		_writer.EndObject();
+		_current_writer->EndObject();
 
-		_writer.EndObject();
+		_current_writer->EndObject();
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// inject_not
+///////////////////////////////////////////////////////////////////////////////
+
+void PVElasticSearchJsonConverter::inject_not(std::vector<std::string> const& saved)
+{
+	for (auto& k_v : saved) {
+		_current_writer->StartObject();
+
+		_current_writer->Key("must_not");
+		_current_writer->StartArray();
+
+		for (const std::string& json_buffer : saved) {
+			_current_writer->String(json_buffer.c_str());
+		}
+		_current_writer->EndArray();
+
+		_current_writer->EndObject();
 	}
 }
 
@@ -250,33 +287,35 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 	// Swap in and not_in values to keep it local for the current group
 	map_t in_value_upper;
 	map_t not_in_value_upper;
+	std::vector<std::string> negated_terms;
 
 	std::swap(_in_values, in_value_upper);
 	std::swap(_not_in_values, not_in_value_upper);
+	std::swap(negated_terms, _negated_terms);
 
 	if (_version >= PVCore::PVVersion(5, 0, 0)) {
-		_writer.StartObject();
-		_writer.Key("bool");
+		_current_writer->StartObject();
+		_current_writer->Key("bool");
 	}
 
-	_writer.StartObject();
+	_current_writer->StartObject();
 
 	if (obj["condition"] == "AND") {
 		if (_version < PVCore::PVVersion(5, 0, 0)) {
-			_writer.Key("and");
+			_current_writer->Key("and");
 		} else {
-			_writer.Key("must");
+			_current_writer->Key("must");
 		}
 	} else {
 		assert(obj["condition"] == "OR" && "Uncorrect condition");
 		if (_version < PVCore::PVVersion(5, 0, 0)) {
-			_writer.Key("or");
+			_current_writer->Key("or");
 		} else {
-			_writer.Key("should");
+			_current_writer->Key("should");
 		}
 	}
 
-	_writer.StartArray();
+	_current_writer->StartArray();
 
 	for (rapidjson::Value::ConstValueIterator itr = obj["rules"].Begin(); itr != obj["rules"].End();
 	     ++itr) {
@@ -293,18 +332,22 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 	if (not _not_in_values.empty())
 		not_<PVElasticSearchJsonConverter>(&PVElasticSearchJsonConverter::inject_in,
 		                                   _not_in_values);
+	if (_version >= PVCore::PVVersion(5, 0, 0) and not _negated_terms.empty()) {
+		inject_not(negated_terms);
+	}
 
-	_writer.EndArray();
+	_current_writer->EndArray();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
 	if (_version >= PVCore::PVVersion(5, 0, 0)) {
-		_writer.EndObject();
+		_current_writer->EndObject();
 	}
 
 	// Get back previous in and not_in information
 	std::swap(_in_values, in_value_upper);
 	std::swap(_not_in_values, not_in_value_upper);
+	std::swap(negated_terms, _negated_terms);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -317,28 +360,28 @@ std::string PVElasticSearchJsonConverter::rules_to_json()
 		// If it is an empty input, output is empty too
 		return "";
 
-	_writer.StartObject();
+	_current_writer->StartObject();
 
-	_writer.Key("query");
-	_writer.StartObject();
+	_current_writer->Key("query");
+	_current_writer->StartObject();
 
 	// Use filter as we don't want document score and it is cached in memory
 	if (_version >= PVCore::PVVersion(5, 0, 0)) {
-		_writer.Key("constant_score");
+		_current_writer->Key("constant_score");
 	} else {
-		_writer.Key("filtered");
+		_current_writer->Key("filtered");
 	}
-	_writer.StartObject();
+	_current_writer->StartObject();
 
-	_writer.Key("filter");
+	_current_writer->Key("filter");
 
 	parse_condition(_doc);
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
-	_writer.EndObject();
+	_current_writer->EndObject();
 
 	return _strbuf.GetString();
 }

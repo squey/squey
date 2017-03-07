@@ -38,18 +38,58 @@ int main(int argc, char** argv)
 	 * Set Up an ElasticSearchQuery.
 	 * It contains all information required to define data to extract
 	 */
-	std::string query_type = "json";
-	std::string query_str = "{ \"query\" : { \"range\" : {"
-	                        "\"total_bytes\" : {"
-	                        "\"gte\": 350000"
-	                        "}"
-	                        "} } }";
-	PVRush::PVElasticsearchQuery query(infos, query_str.c_str(), query_type.c_str());
+	std::string query_str = R"###({
+	  "condition": "AND",
+	  "rules": [
+		{
+		  "id": "http_method",
+		  "field": "http_method",
+		  "type": "string",
+		  "input": "text",
+		  "operator": "equal",
+		  "value": "get"
+		},
+		{
+		  "id": "login",
+		  "field": "login",
+		  "type": "string",
+		  "input": "text",
+		  "operator": "not_equal",
+		  "value": "toto"
+		},
+		{
+		  "condition": "OR",
+		  "rules": [
+			{
+			  "id": "category",
+			  "field": "category",
+			  "type": "string",
+			  "input": "text",
+			  "operator": "equal",
+			  "value": "13"
+			},
+			{
+			  "id": "time_spent",
+			  "field": "time_spent",
+			  "type": "integer",
+			  "input": "text",
+			  "operator": "greater",
+			  "value": "10000"
+			}
+		  ]
+		}
+	  ],
+	  "valid": true
+	}
+	)###";
 
 	/*
 	 *  Set Up the API from Information
 	 */
 	PVRush::PVElasticsearchAPI elasticsearch(infos);
+
+	PVRush::PVElasticsearchQuery query(
+	    infos, QString(elasticsearch.rules_to_json(query_str.c_str()).c_str()), "json");
 
 	std::string error;
 
@@ -104,7 +144,7 @@ int main(int argc, char** argv)
 		std::cout << error << std::endl;
 	}
 
-	PV_VALID(count, 10439UL);
+	PV_VALID(count, 11468UL);
 
 	/**************************************************************************
 	 * Check export query is correct
