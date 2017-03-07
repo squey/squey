@@ -36,34 +36,6 @@ class PVLinesView
 
   private:
 	/**
-	 * It keep BCI and Image information for a given zone.
-	 */
-	struct SingleZoneImages {
-		std::shared_ptr<PVBCIBackendImage> sel;
-		std::shared_ptr<PVBCIBackendImage> bg;
-
-		PVZoneRenderingBCIBase_p last_zr_sel;
-		PVZoneRenderingBCIBase_p last_zr_bg;
-
-		SingleZoneImages() : last_zr_sel(), last_zr_bg() {}
-
-		SingleZoneImages(PVBCIDrawingBackend& backend, uint32_t zone_width)
-		    : last_zr_sel(), last_zr_bg()
-		{
-			create_image(backend, zone_width);
-		}
-
-		void create_image(PVBCIDrawingBackend& backend, uint32_t zone_width);
-		void set_width(uint32_t zone_width);
-
-		void cancel_last_sel();
-		void cancel_last_bg();
-
-		void cancel_all_and_wait();
-	};
-
-  public:
-	/**
 	 * It keeps zoom information for a given zone.
 	 */
 	struct ZoneWidthWithZoomLevel {
@@ -98,6 +70,33 @@ class PVLinesView
 	};
 
   public:
+	/**
+	 * It keep BCI and Image information for a given zone.
+	 */
+	struct SingleZoneImages {
+		std::shared_ptr<PVBCIBackendImage> sel;
+		std::shared_ptr<PVBCIBackendImage> bg;
+
+		PVZoneRenderingBCIBase_p last_zr_sel;
+		PVZoneRenderingBCIBase_p last_zr_bg;
+
+		SingleZoneImages() : last_zr_sel(), last_zr_bg() {}
+
+		SingleZoneImages(PVBCIDrawingBackend& backend, uint32_t zone_width)
+		    : last_zr_sel(), last_zr_bg()
+		{
+			create_image(backend, zone_width);
+		}
+
+		void create_image(PVBCIDrawingBackend& backend, uint32_t zone_width);
+		void set_width(uint32_t zone_width);
+
+		void cancel_last_sel();
+		void cancel_last_bg();
+
+		void cancel_all_and_wait();
+	};
+
 	using list_zone_images_t = std::vector<SingleZoneImages>;
 
   public:
@@ -154,9 +153,6 @@ class PVLinesView
 	//	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID)
 	//_zones_width.size()); return _zones_width[zone_id]; }
 	uint32_t get_zone_width(PVZoneID zone_id) const;
-
-	const list_zone_images_t& get_zones_images() const { return _list_of_single_zone_images; }
-	list_zone_images_t& get_zones_images() { return _list_of_single_zone_images; }
 
 	void increase_base_zoom_level_of_zone(PVZoneID zone_id);
 	void increase_global_zoom_level();

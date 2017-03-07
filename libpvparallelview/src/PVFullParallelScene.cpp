@@ -197,11 +197,10 @@ void PVParallelView::PVFullParallelScene::first_render()
 	// AG & JBL: FIXME: This must be called after the view has been shown.
 	// It seems like a magical QAbstractScrollbarArea stuff, investigation
 	// needed...
-	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view.get_zones_images();
-
+	const PVZoneID images_count = _lines_view.get_number_of_visible_zones();
 	// Add visible zones
-	_zones.reserve(images.size());
-	for (PVZoneID zone_id = 0; zone_id < (PVZoneID)images.size(); zone_id++) {
+	_zones.reserve(images_count);
+	for (PVZoneID zone_id = 0; zone_id < images_count; zone_id++) {
 		add_zone_image();
 	}
 
@@ -793,13 +792,12 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 {
 	assert(_lines_view.is_zone_drawn(zone_id));
 
-	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
 
 	// Check whether the image needs scaling.
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 
-	PVBCIBackendImage& img_bg = *images[img_id].bg;
+	PVBCIBackendImage& img_bg = *_lines_view.get_single_zone_images(zone_id).bg;
 
 	if (img_bg.width() != zone_width) {
 		return;
@@ -832,12 +830,11 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zone_id)
 void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 {
 	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
-	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 
 	// Check whether the image needs scaling.
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 
-	PVBCIBackendImage& img_sel = *images[img_id].sel;
+	PVBCIBackendImage& img_sel = *_lines_view.get_single_zone_images(zone_id).sel;
 
 	if (img_sel.width() != zone_width) {
 		return;
@@ -1078,10 +1075,9 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, i
 	}
 
 	if (zr) {
-		const PVZoneID img_id = _lines_view.get_zone_index_offset(zid);
-		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-		if (zr == images[img_id].last_zr_bg) {
-			images[img_id].last_zr_bg.reset();
+		PVLinesView::SingleZoneImages& images = _lines_view.get_single_zone_images(zid);
+		if (zr == images.last_zr_bg) {
+			images.last_zr_bg.reset();
 		}
 
 		bool should_cancel = zr->should_cancel();
@@ -1114,10 +1110,9 @@ void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRendering_p zr, 
 	}
 
 	if (zr) {
-		const PVZoneID img_id = _lines_view.get_zone_index_offset(zid);
-		PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
-		if (zr == images[img_id].last_zr_sel) {
-			images[img_id].last_zr_sel.reset();
+		PVLinesView::SingleZoneImages& images = _lines_view.get_single_zone_images(zid);
+		if (zr == images.last_zr_sel) {
+			images.last_zr_sel.reset();
 		}
 
 		bool should_cancel = zr->should_cancel();
