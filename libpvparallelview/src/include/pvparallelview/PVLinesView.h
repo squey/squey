@@ -220,16 +220,6 @@ class PVLinesView
   private:
 	PVZoneID get_image_index_of_zone(PVZoneID zone_id) const;
 
-	inline void update_zone_sel_img_width(PVZoneID zone_id)
-	{
-		get_single_zone_images(zone_id).sel->set_width(get_zone_width(zone_id));
-	}
-
-	inline void update_zone_bg_img_width(PVZoneID zone_id)
-	{
-		get_single_zone_images(zone_id).bg->set_width(get_zone_width(zone_id));
-	}
-
 	void visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> const& fzone);
 
 	PVZoneID set_new_view(int32_t new_view_x, uint32_t view_width)
