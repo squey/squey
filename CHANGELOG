@@ -1,3 +1,18 @@
+4.3.1 (2017-03-07)
+----------------
+
+This minor release fixes:
+* updated ElasticSearch plugin to support API 5.2.1+
+* unlimited strings length support
+* improved unknown charset encoding handling
+* 24h time mapping is now precise up to the millisecond
+* splitter csv : fixed quote character escaping when doubled
+* fixed sum by display with float/double columns
+* fixed a potential crash when toggling unselected lines
+* fixed zones sometimes displayed as grey squares
+* fixed some unecessary plotting recomputations when changing axes combination
+* improved Splunk and ElasticSearch plugins to store format
+
 4.3 "Pie" (2017-02-17)
 ----------------
 
