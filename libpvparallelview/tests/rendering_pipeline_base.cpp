@@ -38,7 +38,7 @@ PVParallelView::PVZoneRenderingBCI_p<10> new_zr(PVParallelView::PVBCIDrawingBack
 {
 	dst_img = backend.create_image(1024, 10);
 	PVParallelView::PVZoneRenderingBCI_p<10> zr(new PVParallelView::PVZoneRenderingBCI<10>(
-	    0,
+	    PVZoneID(0),
 	    [n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes) {
 		    for (size_t i = 0; i < n; i++) {
 			    codes[i].int_v = 0;

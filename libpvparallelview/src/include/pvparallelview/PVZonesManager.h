@@ -85,7 +85,7 @@ class PVZonesManager : public QObject
   public:
 	inline PVZoneID get_number_of_managed_zones() const
 	{
-		return _view.get_axes_combination().get_combination().size() - 1;
+		return PVZoneID(_view.get_axes_combination().get_combination().size() - 1);
 	}
 
   public:

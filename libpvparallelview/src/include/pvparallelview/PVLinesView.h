@@ -118,21 +118,24 @@ class PVLinesView
 	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
 	inline PVZoneID get_last_visible_zone_index() const
 	{
-		return std::min((PVZoneID)(_first_zone + get_number_of_visible_zones() - 1),
-		                get_number_of_managed_zones() - 1);
+		return std::min(_first_zone + get_number_of_visible_zones() - PVZoneID(1),
+		                get_number_of_managed_zones() - PVZoneID(1));
 	}
 	uint32_t get_left_border_position_of_zone_in_scene(PVZoneID zone_id) const;
 
 	PVZoneID get_number_of_managed_zones() const;
-	PVZoneID get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
+	PVZoneID get_number_of_visible_zones() const
+	{
+		return PVZoneID(_list_of_single_zone_images.size());
+	}
 
 	int32_t get_left_border_of_scene() const
 	{
-		return get_left_border_position_of_zone_in_scene(0);
+		return get_left_border_position_of_zone_in_scene(PVZoneID(0));
 	}
 	int32_t get_right_border_of_scene() const
 	{
-		const PVZoneID last_z = get_number_of_managed_zones() - 1;
+		const PVZoneID last_z(get_number_of_managed_zones() - 1);
 		return get_left_border_position_of_zone_in_scene(last_z) + 2 * PVParallelView::AxisWidth +
 		       get_zone_width(last_z);
 	}

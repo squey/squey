@@ -95,8 +95,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	        SLOT(scrollbar_released_Slot()));
 
 	// Add ALL axes
-	const PVZoneID nzones = _lines_view.get_number_of_managed_zones() + 1;
-	for (PVZoneID z = 0; z < nzones; z++) {
+	const PVZoneID nzones(_lines_view.get_number_of_managed_zones() + 1);
+	for (PVZoneID z(0); z < nzones; z++) {
 		add_axis(z);
 	}
 
@@ -200,7 +200,7 @@ void PVParallelView::PVFullParallelScene::first_render()
 	const PVZoneID images_count = _lines_view.get_number_of_visible_zones();
 	// Add visible zones
 	_zones.reserve(images_count);
-	for (PVZoneID zone_id = 0; zone_id < images_count; zone_id++) {
+	for (PVZoneID zone_id(0); zone_id < images_count; zone_id++) {
 		add_zone_image();
 	}
 
@@ -424,7 +424,7 @@ void PVParallelView::PVFullParallelScene::mouseReleaseEvent(QGraphicsSceneMouseE
  *****************************************************************************/
 int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
 {
-	const PVZoneID lastz = _lines_view.get_number_of_managed_zones() - 1;
+	const PVZoneID lastz(_lines_view.get_number_of_managed_zones() - 1);
 	int32_t pos = _lines_view.get_left_border_position_of_zone_in_scene(lastz);
 	pos += _lines_view.get_zone_width(lastz);
 	return pos;
@@ -624,7 +624,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 			_zones.resize(nb_zones_drawable);
 		} else {
 			_zones.reserve(nb_zones_drawable);
-			for (PVZoneID zone_id = _zones.size(); zone_id < nb_zones_drawable; zone_id++) {
+			for (PVZoneID zone_id(_zones.size()); zone_id < nb_zones_drawable; zone_id++) {
 				add_zone_image();
 			}
 		}
@@ -639,7 +639,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	_axes.resize(nb_zones + 1, nullptr);
 
 	for (size_t i = 0; i < _axes.size(); ++i) {
-		add_axis(i, i);
+		add_axis(PVZoneID(i), i);
 	}
 
 	_lines_view.reset_zones_width(avg_zones_width);
@@ -709,7 +709,7 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVCol nraw_col)
 {
-	PVZoneID zone_id = nraw_col;
+	PVZoneID zone_id(nraw_col);
 	_sel_rect.clear();
 
 	Inendi::PVSelection sel(_lib_view.get_row_count());
@@ -788,7 +788,7 @@ void PVParallelView::PVFullParallelScene::update_viewport()
  * PVParallelView::PVFullParallelScene::update_zone_pixmap_bg
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
+void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(PVZoneID zone_id)
 {
 	assert(_lines_view.is_zone_drawn(zone_id));
 
@@ -816,7 +816,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
  * PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zone_id)
+void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(PVZoneID zone_id)
 {
 	update_zone_pixmap_bg(zone_id);
 	update_zone_pixmap_sel(zone_id);
@@ -827,7 +827,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zone_id)
  * PVParallelView::PVFullParallelScene::update_zone_pixmap_sel
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
+void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(PVZoneID zone_id)
 {
 	assert(_lines_view.is_zone_drawn(zone_id));
 
@@ -862,21 +862,21 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 
 	// We start by updating all axes positions
-	PVZoneID nzones = (PVZoneID)_lines_view.get_number_of_managed_zones() + 1;
+	PVZoneID nzones(_lines_view.get_number_of_managed_zones() + 1);
 	uint32_t pos = 0;
 
 	_axes[0]->setPos(QPointF(0, 0));
-	PVZoneID z = 1;
+	PVZoneID z(1);
 	if (!update_all) {
 		uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
-		z = _lines_view.get_zone_from_scene_pos(view_x) + 1;
+		z = _lines_view.get_zone_from_scene_pos(view_x) + PVZoneID(1);
 	}
 	for (; z < nzones; z++) {
 		if (z < nzones - 1) {
 			pos = _lines_view.get_left_border_position_of_zone_in_scene(z);
 		} else {
 			// Special case for last axis
-			pos += _lines_view.get_zone_width(z - 1);
+			pos += _lines_view.get_zone_width(z - PVZoneID(1));
 		};
 
 		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
@@ -889,8 +889,8 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 		    QPointF(_lines_view.get_left_border_position_of_zone_in_scene(z), 0));
 	}
 
-	PVZoneID i;
-	for (i = 0; i < _lines_view.get_number_of_managed_zones(); ++i) {
+	PVZoneID i(0);
+	for (; i < _lines_view.get_number_of_managed_zones(); ++i) {
 		_axes[i]->set_zone_width(_lines_view.get_zone_width(i));
 		if (_show_min_max_values) {
 			// Need to be done because eluded text could change
@@ -1063,7 +1063,7 @@ void PVParallelView::PVFullParallelScene::update_axes_layer_min_max()
  * PVParallelView::PVFullParallelScene::zr_bg_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, PVZoneID zid)
 {
 	assert(QThread::currentThread() == this->thread());
 	if (_view_deleted) {
@@ -1099,7 +1099,7 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, i
  * PVParallelView::PVFullParallelScene::zr_sel_finished
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRendering_p zr, int zid)
+void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRendering_p zr, PVZoneID zid)
 {
 	assert(QThread::currentThread() == this->thread());
 	if (_view_deleted) {
