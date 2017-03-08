@@ -33,7 +33,9 @@ void PVFilter::PVFieldSplitterKeyValue::set_args(PVCore::PVArgumentList const& a
 	_affect = args.at("affectation").toString().toStdString();
 	_keys.clear();
 	for (auto const& key : args.at("keys").toStringList()) {
-		_keys.push_back(key.toStdString());
+		size_t quote_offset = key[0] == _quote and key[key.size() - 1] == _quote;
+		_keys.push_back(
+		    std::string(key.toStdString().c_str() + quote_offset, key.size() - (quote_offset * 2)));
 	}
 }
 
@@ -79,7 +81,11 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterKeyValue::one_to_many(
 			new_txt = end + _separator.size();
 		}
 
-		key_view[std::string(txt, aff - txt)] = std::make_tuple(start_value, end);
+		const char* key = txt;
+		size_t key_size = aff - txt;
+		size_t quote_offset = key[0] == _quote and key[key_size - 1] == _quote;
+		key_view[std::string(key + quote_offset, key_size - (quote_offset * 2))] =
+		    std::make_tuple(start_value, end);
 		txt = new_txt;
 	}
 
