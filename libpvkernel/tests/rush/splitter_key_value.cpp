@@ -41,7 +41,7 @@ int main()
 	args["sep"] = "  ";
 	args["quote"] = '"';
 	args["affectation"] = "=";
-	args["keys"] = QStringList() << "time"
+	args["keys"] = QStringList() << "\"time\""
 	                             << "fw"
 	                             << "tz"
 	                             << "startime"
