@@ -955,7 +955,7 @@ PVInspector::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p
 	    tree_model.addSplitterWithAxes(tree_model.index(0, 0, QModelIndex()), sp_widget, axes_name);
 	node->setFromArgumentList(sp->get_args());
 
-	return PVRush::PVFormat(tree_model.getRootDom(), true);
+	return PVRush::PVFormat(tree_model.getRootDom());
 }
 
 PVRush::PVFormat
@@ -1120,7 +1120,7 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom() const
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
-	return PVRush::PVFormat{rootDom, true};
+	return PVRush::PVFormat{rootDom};
 }
 
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
