@@ -407,7 +407,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 * @param zr the PVZoneRendering corresponding to the finished rendering
 	 * @param zone_id the zone id corresponding to the finished rendering
 	 */
-	void zr_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
+	void zr_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zone_id);
 
 	/**
 	 * The slot called when background visibility has to be toggled.

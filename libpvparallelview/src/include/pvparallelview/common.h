@@ -104,6 +104,11 @@ static const PVZoneID PVZONEID_INVALID = PVZoneID(PVZoneID::INVALID_VALUE);
 
 Q_DECLARE_METATYPE(PVZoneID);
 
+static bool _ __attribute((unused)) = []() {
+	qRegisterMetaType<PVZoneID>("PVZoneID");
+	return true;
+}();
+
 DEFINE_STRONG_TYPEDEF(PVZoneIDOffset, unsigned int)
 
 static constexpr const int BCI_BUFFERS_COUNT = 10;
