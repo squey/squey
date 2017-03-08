@@ -104,6 +104,8 @@ static const PVZoneID PVZONEID_INVALID = PVCol::INVALID_VALUE;
 
 Q_DECLARE_METATYPE(PVZoneID);
 
+DEFINE_STRONG_TYPEDEF(PVZoneIDOffset, unsigned int)
+
 static constexpr const int BCI_BUFFERS_COUNT = 10;
 
 #endif

@@ -457,7 +457,7 @@ void PVParallelView::PVFullParallelScene::scale_all_zones_images()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::scale_zone_images(PVZoneID zone_id)
 {
-	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
+	const PVZoneIDOffset img_id = _lines_view.get_zone_index_offset(zone_id);
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 
 	{
@@ -792,12 +792,12 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bg(int zone_id)
 {
 	assert(_lines_view.is_zone_drawn(zone_id));
 
-	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
+	const PVZoneIDOffset img_id = _lines_view.get_zone_index_offset(zone_id);
 
 	// Check whether the image needs scaling.
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 
-	PVBCIBackendImage& img_bg = *_lines_view.get_single_zone_images(zone_id).bg;
+	PVBCIBackendImage& img_bg = *_lines_view.get_single_zone_images(img_id).bg;
 
 	if (img_bg.width() != zone_width) {
 		return;
@@ -829,12 +829,14 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zone_id)
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(int zone_id)
 {
-	const PVZoneID img_id = _lines_view.get_zone_index_offset(zone_id);
+	assert(_lines_view.is_zone_drawn(zone_id));
+
+	const PVZoneIDOffset img_id = _lines_view.get_zone_index_offset(zone_id);
 
 	// Check whether the image needs scaling.
 	const uint32_t zone_width = _lines_view.get_zone_width(zone_id);
 
-	PVBCIBackendImage& img_sel = *_lines_view.get_single_zone_images(zone_id).sel;
+	PVBCIBackendImage& img_sel = *_lines_view.get_single_zone_images(img_id).sel;
 
 	if (img_sel.width() != zone_width) {
 		return;
@@ -1075,7 +1077,8 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, i
 	}
 
 	if (zr) {
-		PVLinesView::SingleZoneImages& images = _lines_view.get_single_zone_images(zid);
+		const PVZoneIDOffset zone_offset = _lines_view.get_zone_index_offset(zid);
+		PVLinesView::SingleZoneImages& images = _lines_view.get_single_zone_images(zone_offset);
 		if (zr == images.last_zr_bg) {
 			images.last_zr_bg.reset();
 		}
@@ -1110,7 +1113,8 @@ void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRendering_p zr, 
 	}
 
 	if (zr) {
-		PVLinesView::SingleZoneImages& images = _lines_view.get_single_zone_images(zid);
+		const PVZoneIDOffset zone_offset = _lines_view.get_zone_index_offset(zid);
+		PVLinesView::SingleZoneImages& images = _lines_view.get_single_zone_images(zone_offset);
 		if (zr == images.last_zr_sel) {
 			images.last_zr_sel.reset();
 		}

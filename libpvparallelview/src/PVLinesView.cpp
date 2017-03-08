@@ -474,7 +474,8 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(PVZoneID zone_id, 
 	assert(is_zone_drawn(zone_id));
 	assert(not _img_update_receiver or QThread::currentThread() == _img_update_receiver->thread());
 
-	SingleZoneImages& single_zone_images = get_single_zone_images(zone_id);
+	const PVZoneIDOffset zone_offset = get_zone_index_offset(zone_id);
+	SingleZoneImages& single_zone_images = get_single_zone_images(zone_offset);
 	// single_zone_images.cancel_last_bg();
 	const uint32_t width = get_zone_width(zone_id);
 	single_zone_images.bg->set_width(width);
@@ -510,7 +511,8 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(PVZoneID zone_id,
 	assert(is_zone_drawn(zone_id));
 	assert(not _img_update_receiver or QThread::currentThread() == _img_update_receiver->thread());
 
-	SingleZoneImages& single_zone_images = get_single_zone_images(zone_id);
+	const PVZoneIDOffset zone_offset = get_zone_index_offset(zone_id);
+	SingleZoneImages& single_zone_images = get_single_zone_images(zone_offset);
 	// single_zone_images.cancel_last_sel();
 	const uint32_t width = get_zone_width(zone_id);
 	single_zone_images.sel->set_width(width);

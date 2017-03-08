@@ -137,16 +137,16 @@ class PVLinesView
 		       get_zone_width(last_z);
 	}
 
-	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id)
+	inline SingleZoneImages& get_single_zone_images(const PVZoneIDOffset zone_offset)
 	{
-		return _list_of_single_zone_images[get_zone_index_offset(zone_id)];
+		return _list_of_single_zone_images[zone_offset];
 	}
 
 	PVZoneID get_zone_from_scene_pos(int32_t x) const;
-	PVZoneID get_zone_index_offset(PVZoneID zone_id)
+	PVZoneIDOffset get_zone_index_offset(PVZoneID zone_id) const
 	{
 		assert(is_zone_drawn(zone_id));
-		return zone_id - get_first_visible_zone_index();
+		return PVZoneIDOffset(zone_id - get_first_visible_zone_index());
 	}
 
 	inline const PVZonesManager& get_zones_manager() const { return _zm; }
