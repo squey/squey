@@ -36,34 +36,6 @@ class PVLinesView
 
   private:
 	/**
-	 * It keep BCI and Image information for a given zone.
-	 */
-	struct SingleZoneImages {
-		std::shared_ptr<PVBCIBackendImage> sel;
-		std::shared_ptr<PVBCIBackendImage> bg;
-
-		PVZoneRenderingBCIBase_p last_zr_sel;
-		PVZoneRenderingBCIBase_p last_zr_bg;
-
-		SingleZoneImages() : last_zr_sel(), last_zr_bg() {}
-
-		SingleZoneImages(PVBCIDrawingBackend& backend, uint32_t zone_width)
-		    : last_zr_sel(), last_zr_bg()
-		{
-			create_image(backend, zone_width);
-		}
-
-		void create_image(PVBCIDrawingBackend& backend, uint32_t zone_width);
-		void set_width(uint32_t zone_width);
-
-		void cancel_last_sel();
-		void cancel_last_bg();
-
-		void cancel_all_and_wait();
-	};
-
-  public:
-	/**
 	 * It keeps zoom information for a given zone.
 	 */
 	struct ZoneWidthWithZoomLevel {
@@ -98,6 +70,33 @@ class PVLinesView
 	};
 
   public:
+	/**
+	 * It keep BCI and Image information for a given zone.
+	 */
+	struct SingleZoneImages {
+		std::shared_ptr<PVBCIBackendImage> sel;
+		std::shared_ptr<PVBCIBackendImage> bg;
+
+		PVZoneRenderingBCIBase_p last_zr_sel;
+		PVZoneRenderingBCIBase_p last_zr_bg;
+
+		SingleZoneImages() : last_zr_sel(), last_zr_bg() {}
+
+		SingleZoneImages(PVBCIDrawingBackend& backend, uint32_t zone_width)
+		    : last_zr_sel(), last_zr_bg()
+		{
+			create_image(backend, zone_width);
+		}
+
+		void create_image(PVBCIDrawingBackend& backend, uint32_t zone_width);
+		void set_width(uint32_t zone_width);
+
+		void cancel_last_sel();
+		void cancel_last_bg();
+
+		void cancel_all_and_wait();
+	};
+
 	using list_zone_images_t = std::vector<SingleZoneImages>;
 
   public:
@@ -119,44 +118,44 @@ class PVLinesView
 	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
 	inline PVZoneID get_last_visible_zone_index() const
 	{
-		return std::min((PVZoneID)(_first_zone + get_number_of_visible_zones() - 1),
-		                get_number_of_managed_zones() - 1);
+		return std::min(_first_zone + get_number_of_visible_zones() - PVZoneID(1),
+		                get_number_of_managed_zones() - PVZoneID(1));
 	}
 	uint32_t get_left_border_position_of_zone_in_scene(PVZoneID zone_id) const;
 
 	PVZoneID get_number_of_managed_zones() const;
-	PVZoneID get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
+	PVZoneID get_number_of_visible_zones() const
+	{
+		return PVZoneID(_list_of_single_zone_images.size());
+	}
 
 	int32_t get_left_border_of_scene() const
 	{
-		return get_left_border_position_of_zone_in_scene(0);
+		return get_left_border_position_of_zone_in_scene(PVZoneID(0));
 	}
 	int32_t get_right_border_of_scene() const
 	{
-		const PVZoneID last_z = get_number_of_managed_zones() - 1;
+		const PVZoneID last_z(get_number_of_managed_zones() - 1);
 		return get_left_border_position_of_zone_in_scene(last_z) + 2 * PVParallelView::AxisWidth +
 		       get_zone_width(last_z);
 	}
 
-	inline SingleZoneImages& get_single_zone_images(const PVZoneID zone_id)
+	inline SingleZoneImages& get_single_zone_images(const PVZoneIDOffset zone_offset)
 	{
-		return _list_of_single_zone_images[get_zone_index_offset(zone_id)];
+		return _list_of_single_zone_images[zone_offset];
 	}
 
 	PVZoneID get_zone_from_scene_pos(int32_t x) const;
-	PVZoneID get_zone_index_offset(PVZoneID zone_id)
+	PVZoneIDOffset get_zone_index_offset(PVZoneID zone_id) const
 	{
 		assert(is_zone_drawn(zone_id));
-		return zone_id - get_first_visible_zone_index();
+		return PVZoneIDOffset(zone_id - get_first_visible_zone_index());
 	}
 
 	inline const PVZonesManager& get_zones_manager() const { return _zm; }
 	//	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID)
 	//_zones_width.size()); return _zones_width[zone_id]; }
 	uint32_t get_zone_width(PVZoneID zone_id) const;
-
-	const list_zone_images_t& get_zones_images() const { return _list_of_single_zone_images; }
-	list_zone_images_t& get_zones_images() { return _list_of_single_zone_images; }
 
 	void increase_base_zoom_level_of_zone(PVZoneID zone_id);
 	void increase_global_zoom_level();
@@ -223,16 +222,6 @@ class PVLinesView
 
   private:
 	PVZoneID get_image_index_of_zone(PVZoneID zone_id) const;
-
-	inline void update_zone_sel_img_width(PVZoneID zone_id)
-	{
-		get_single_zone_images(zone_id).sel->set_width(get_zone_width(zone_id));
-	}
-
-	inline void update_zone_bg_img_width(PVZoneID zone_id)
-	{
-		get_single_zone_images(zone_id).bg->set_width(get_zone_width(zone_id));
-	}
 
 	void visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> const& fzone);
 

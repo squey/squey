@@ -25,14 +25,17 @@ namespace __impl
 class ZoneCreation
 {
   public:
-	void operator()(const tbb::blocked_range<PVZoneID>& r) const
+	/* PVZoneID must not be used because it prevents TBB to do arithmetic on
+	 * blocked range
+	 */
+	void operator()(const tbb::blocked_range<PVZoneID::value_type>& r) const
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
 		PVParallelView::PVZoneTree::ProcessData pdata;
-		for (PVZoneID z = r.begin(); z != r.end(); z++) {
+		for (PVZoneID::value_type z = r.begin(); z != r.end(); z++) {
 			pdata.clear();
 			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zm->get_zone_processing(z), pdata);
+			ztree.process(zm->get_zone_processing(PVZoneID(z)), pdata);
 		}
 	}
 
@@ -60,7 +63,10 @@ PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view)
  *****************************************************************************/
 void PVParallelView::PVZonesManager::update_all()
 {
-	PVZoneID nzones = get_number_of_managed_zones();
+	/* PVZoneID must not be used because it prevents TBB to do arithmetic on
+	 * blocked range
+	 */
+	PVZoneID::value_type nzones = get_number_of_managed_zones();
 	PVLOG_INFO("(PVZonesManager::update_all) number of zones = %d\n", nzones);
 	assert(nzones >= 1);
 	_zones.clear();
@@ -70,7 +76,7 @@ void PVParallelView::PVZonesManager::update_all()
 	zc._zm = this;
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
-	tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
+	tbb::parallel_for(tbb::blocked_range<PVZoneID::value_type>(0, nzones, 8), zc);
 }
 
 /******************************************************************************
@@ -132,7 +138,7 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> co
 
 		if (it == old_pairs.end()) {
 			// this zone has to be updated (when _zones will be updated)
-			zoneids.push_back(i);
+			zoneids.push_back(PVZoneID(i));
 		} else {
 			// this zone is unchanged, copying it.
 			new_zones[i] = _zones[it - old_pairs.begin()];
@@ -210,12 +216,12 @@ QSet<PVZoneID> PVParallelView::PVZonesManager::list_cols_to_zones(QSet<PVCol> co
 	QSet<PVZoneID> ret;
 	for (PVCol c : cols) {
 		if (c == 0) {
-			ret << 0;
+			ret << PVZoneID(0);
 		} else if (c == get_number_of_managed_zones()) {
-			ret << c - 1;
+			ret << PVZoneID(c) - PVZoneID(1);
 		} else {
-			ret << c;
-			ret << c - 1;
+			ret << PVZoneID(c);
+			ret << PVZoneID(c) - PVZoneID(1);
 		}
 	}
 	return ret;

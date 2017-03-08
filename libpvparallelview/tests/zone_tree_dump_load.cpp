@@ -30,7 +30,7 @@ int main()
 
 	PVParallelView::PVZonesManager& zm = pv->get_zones_manager();
 
-	for (PVZoneID zid = 0; zid < zm.get_number_of_managed_zones(); ++zid) {
+	for (PVZoneID zid(0); zid < zm.get_number_of_managed_zones(); ++zid) {
 		std::cout << "testing zone " << zid << std::endl;
 		zm.get_zone_tree(zid);
 	}

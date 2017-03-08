@@ -115,7 +115,7 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
 
-	set_scatter_view_zone(zone_index);
+	set_scatter_view_zone(PVZoneID(zone_index));
 
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 

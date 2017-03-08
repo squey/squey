@@ -20,7 +20,7 @@ PVParallelView::PVScatterViewBackend::PVScatterViewBackend(const Inendi::PVView&
     : _x_labels_cache(view, view.get_axes_combination().get_nraw_axis(zone_index), 100)
     , _y_labels_cache(
           view, view.get_axes_combination().get_nraw_axis(PVCombCol(zone_index + 1)), 100)
-    , _images_manager(zone_index,
+    , _images_manager(PVZoneID(zone_index),
                       zp_bg,
                       zp_sel,
                       zm,
