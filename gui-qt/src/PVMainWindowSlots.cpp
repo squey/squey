@@ -254,9 +254,21 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 
 	PVRush::PVFormat format = src_desc.get_format();
 	if ((format.exists() == false) || (QFileInfo(format.get_full_path()).isReadable() == false)) {
-		QMessageBox::warning(
+		QMessageBox::critical(
 		    this, tr("Format \"%1\" can not be read").arg(format.get_format_name()),
 		    tr("Check that the file \"%1\" exists and is readable").arg(format.get_full_path()));
+		return false;
+	}
+
+	const size_t axes_count = format.get_axes().size();
+
+	if (axes_count < 2) {
+		const QString text((axes_count == 0) ? "no axis" : "only one axis");
+
+		QMessageBox::critical(
+		    this, tr("Format \"%1\" is invalid").arg(format.get_full_path()),
+		    tr("It has %2, it must define at least 2 axes to be usable.").arg(text));
+
 		return false;
 	}
 
