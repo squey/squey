@@ -93,6 +93,8 @@ class PVFormatBuilderWidget : public QMainWindow
 	bool saveAs();
 	void check_for_new_time_formats();
 
+	bool check_format_validity();
+
 	/**
 	 * init the toolsbar
 	 * @param vb
