@@ -33,6 +33,8 @@ int main(int argc, char** argv)
 	infos.set_host("http://connectors.srv.picviz");
 	infos.set_port(9200);
 	infos.set_index("proxy_sample");
+	infos.set_login("elastic");
+	infos.set_password("changeme");
 
 	/*
 	 * Set Up an ElasticSearchQuery.

@@ -74,7 +74,11 @@ bool PVRush::PVElasticsearchAPI::check_connection(std::string* error /* =  nullp
 
 	prepare_query(socket());
 
-	return perform_query(json_buffer, error);
+	perform_query(json_buffer, error);
+
+	rapidjson::Document json;
+	json.Parse<0>(json_buffer.c_str());
+	return not has_error(json, error);
 }
 
 PVCore::PVVersion PVRush::PVElasticsearchAPI::version() const
@@ -93,7 +97,8 @@ PVCore::PVVersion PVRush::PVElasticsearchAPI::version() const
 		}
 	}
 
-	return {};
+	// if we don't know the version, assume it's the last one
+	return {(size_t)-1, (size_t)-1, (size_t)-1};
 }
 
 PVRush::PVElasticsearchAPI::indexes_t
