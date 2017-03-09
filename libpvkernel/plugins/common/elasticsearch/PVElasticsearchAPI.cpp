@@ -121,7 +121,10 @@ PVRush::PVElasticsearchAPI::indexes(std::string* error /*= nullptr*/) const
 
 		for (rapidjson::Value::ConstMemberIterator itr = json_indexes.MemberBegin();
 		     itr != json_indexes.MemberEnd(); ++itr) {
-			indexes.emplace_back(itr->name.GetString());
+			// ignore internal indexes starting with a dot
+			if (itr->name.GetString()[0] != '.') {
+				indexes.emplace_back(itr->name.GetString());
+			}
 		}
 	}
 
