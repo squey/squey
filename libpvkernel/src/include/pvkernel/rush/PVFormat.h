@@ -85,7 +85,7 @@ class PVFormat
   public:
 	PVFormat();
 	PVFormat(QString const& format_name_, QString const& full_path_);
-	explicit PVFormat(QDomElement const& rootNode, bool forceOneAxis = false);
+	explicit PVFormat(QDomElement const& rootNode);
 
 	pvcop::formatter_desc_list get_storage_format() const;
 	std::unordered_set<std::string> get_time_formats() const;
@@ -121,10 +121,10 @@ class PVFormat
 	PVFilter::PVFieldsBaseFilter_p
 	xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata) const;
 
-	bool populate(bool forceOneAxis = false);
-	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
-	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
-	bool populate_from_xml(QString filename, bool forceOneAxis = false);
+	bool populate();
+	bool populate_from_parser(PVXmlParamParser& xml_parser);
+	bool populate_from_xml(QDomElement const& rootNode);
+	bool populate_from_xml(QString filename);
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const;

@@ -156,6 +156,8 @@ class PVXmlDomModel : public QAbstractItemModel
 	void setAxesNames(QStringList const& names);
 	void updateAxesCombination();
 
+	size_t get_axes_count() const { return _axes.size(); }
+
 	Inendi::PVAxesCombination& get_axes_combination() { return _axes_combination; }
 
   private:
