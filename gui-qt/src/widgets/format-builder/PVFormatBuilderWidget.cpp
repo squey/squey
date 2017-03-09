@@ -531,6 +531,10 @@ bool PVInspector::PVFormatBuilderWidget::save()
 	// Take focus, so any currently edited argument will be set
 	setFocus(Qt::MouseFocusReason);
 
+	if (!check_format_validity()) {
+		return false;
+	}
+
 	if (_cur_file.isEmpty()) {
 		return saveAs();
 	}
@@ -598,6 +602,21 @@ void PVInspector::PVFormatBuilderWidget::check_for_new_time_formats()
 	}
 }
 
+bool PVInspector::PVFormatBuilderWidget::check_format_validity()
+{
+	if (myTreeModel->get_axes_count() >= 2) {
+		return true;
+	}
+
+	auto res =
+	    QMessageBox::warning(this, "Invalid format...", "Your format has less than 2 axes and will "
+	                                                    "not be usable to import any data.<br><br>"
+	                                                    "Do you want to save it anyway?",
+	                         QMessageBox::Yes | QMessageBox::No);
+
+	return res == QMessageBox::Yes;
+}
+
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotSave
@@ -611,6 +630,10 @@ void PVInspector::PVFormatBuilderWidget::slotSave()
 bool PVInspector::PVFormatBuilderWidget::saveAs()
 {
 	setFocus(Qt::MouseFocusReason);
+
+	if (!check_format_validity()) {
+		return false;
+	}
 
 	QModelIndex index;
 	myTreeView->applyModification(myParamBord_old_model, index);
