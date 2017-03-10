@@ -7,6 +7,7 @@
 #ifndef __RUSH_LOGTSTATS_H__
 #define __RUSH_LOGTSTATS_H__
 
+#include <iomanip>
 #include <vector>
 #include <string>
 

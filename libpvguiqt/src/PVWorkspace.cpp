@@ -272,7 +272,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 	}
 
 	Inendi::PVView* view = nullptr;
-	PVCombCol axis_comb(PVCombCol::INVALID_VALUE);
+	PVCombCol axis_comb;
 	PVDisplays::PVDisplayViewAxisIf& display_if =
 	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewAxisIf>(*act, view,
 	                                                                              axis_comb);
@@ -281,7 +281,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 		return;
 	}
 
-	if (axis_comb == PVCombCol::INVALID_VALUE) {
+	if (axis_comb == PVCombCol()) {
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(
 		    PVCore::PVAxisIndexType(PVCol(0)));
@@ -311,7 +311,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 	}
 
 	Inendi::PVView* view = nullptr;
-	PVCombCol zone_idx(PVCombCol::INVALID_VALUE);
+	PVCombCol zone_idx;
 	PVDisplays::PVDisplayViewZoneIf& display_if =
 	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewZoneIf>(*act, view,
 	                                                                              zone_idx);
@@ -320,7 +320,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 		return;
 	}
 
-	if (zone_idx == PVCombCol::INVALID_VALUE) {
+	if (zone_idx == PVCombCol()) {
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(
 		    PVCore::PVZoneIndexType(0));

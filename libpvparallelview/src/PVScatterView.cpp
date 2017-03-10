@@ -376,7 +376,7 @@ void PVParallelView::PVScatterView::do_update_all()
 bool PVParallelView::PVScatterView::update_zones()
 {
 	PVCombCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
-	if (new_zone == PVCol::INVALID_VALUE) {
+	if (new_zone == PVCol()) {
 		// The left axis of the view have been remove, close the scatter view
 		return false;
 	} else if (new_zone == lib_view().get_column_count() - 1) {

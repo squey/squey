@@ -352,7 +352,7 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 {
 	PVCombCol axis = _pvview.get_axes_combination().get_first_comb_col(_nraw_col);
 
-	if (axis == PVCombCol::INVALID_VALUE) {
+	if (axis == PVCombCol()) {
 		/* a candidate can not be found to replace the old
 		 * axis; the zoom view must be closed.
 		 */

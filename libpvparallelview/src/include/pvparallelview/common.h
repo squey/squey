@@ -100,7 +100,7 @@ static const QMargins frame_offsets(3, 2, 3, 2);
 //#include <pvkernel/core/PVAllocators.h>
 
 DEFINE_STRONG_TYPEDEF(PVZoneID, int)
-static const PVZoneID PVZONEID_INVALID = PVZoneID(PVZoneID::INVALID_VALUE);
+static const PVZoneID PVZONEID_INVALID = PVZoneID();
 
 Q_DECLARE_METATYPE(PVZoneID);
 

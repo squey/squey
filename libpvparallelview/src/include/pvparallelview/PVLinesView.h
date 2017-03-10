@@ -214,7 +214,7 @@ class PVLinesView
 	inline bool set_all_zones_width(F const& f)
 	{
 		bool has_changed = false;
-		for (PVZoneID zone_id = 0; zone_id < (PVZoneID)_zones_width.size(); zone_id++) {
+		for (PVZoneID zone_id(0); zone_id < (PVZoneID)_zones_width.size(); zone_id++) {
 			has_changed |= set_zone_width(zone_id, f(get_zone_width(zone_id)));
 		}
 		return has_changed;
