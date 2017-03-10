@@ -31,7 +31,7 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 *
 	 * @return elasticsearch json input
 	 */
-	std::string rules_to_json();
+	std::string rules_to_json() override;
 
   private:
 	using not_map_t = std::unordered_map<std::string, const char*>;
