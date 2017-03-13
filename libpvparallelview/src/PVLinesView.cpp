@@ -86,10 +86,10 @@ void PVParallelView::PVLinesView::call_refresh_slots(PVZoneID zone_id)
 
 	QMetaObject::invokeMethod(_img_update_receiver, "zr_sel_finished", Qt::QueuedConnection,
 	                          Q_ARG(PVParallelView::PVZoneRendering_p, PVZoneRendering_p()),
-	                          Q_ARG(int, (int)zone_id));
+	                          Q_ARG(PVZoneID, zone_id));
 	QMetaObject::invokeMethod(_img_update_receiver, "zr_bg_finished", Qt::QueuedConnection,
 	                          Q_ARG(PVParallelView::PVZoneRendering_p, PVZoneRendering_p()),
-	                          Q_ARG(int, (int)zone_id));
+	                          Q_ARG(PVZoneID, zone_id));
 }
 
 /******************************************************************************
