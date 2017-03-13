@@ -1040,3 +1040,8 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 		_axes_combination.set_combination(comb);
 	}
 }
+
+size_t PVInspector::PVXmlDomModel::get_axes_count() const
+{
+	return getRootDom().elementsByTagName("axis").length();
+}
