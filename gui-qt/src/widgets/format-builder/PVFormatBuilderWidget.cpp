@@ -531,12 +531,12 @@ bool PVInspector::PVFormatBuilderWidget::save()
 	// Take focus, so any currently edited argument will be set
 	setFocus(Qt::MouseFocusReason);
 
-	if (!check_format_validity()) {
-		return false;
-	}
-
 	if (_cur_file.isEmpty()) {
 		return saveAs();
+	}
+
+	if (!check_format_validity()) {
+		return false;
 	}
 
 	bool save_xml = myTreeModel->saveXml(_cur_file);
