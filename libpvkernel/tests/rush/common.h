@@ -34,13 +34,8 @@ namespace pvtest
  */
 std::string get_tmp_filename()
 {
-	std::string out_path;
-	// Duplicate input log to make it bigger
-	out_path.resize(L_tmpnam);
-	// We assume that this name will not be use by another program before we create it.
-	tmpnam(&out_path.front());
-
-	return out_path;
+	char buffer[L_tmpnam];
+	return tmpnam(buffer);
 }
 
 /**
