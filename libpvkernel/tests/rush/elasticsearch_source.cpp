@@ -45,11 +45,55 @@ int main()
 	 * It contains all information required to define data to extract
 	 */
 	std::string query_type = "json";
-	std::string query_str = "{ \"query\" : { \"range\" : {"
-	                        "\"total_bytes\" : {"
-	                        "\"gte\": 350000"
-	                        "}"
-	                        "} } }";
+	std::string query_str = R"###({  
+		"query":{  
+			"constant_score":{  
+				"filter":{  
+					"bool":{  
+						"must":[  
+							{  
+								"term":{  
+									"http_method":"get"
+								}
+							},
+							{  
+								"bool":{  
+									"should":[  
+										{  
+											"range":{  
+												"time_spent":{  
+													"gt":10000
+												}
+											}
+										}
+									],
+									"must_not":[  
+										{  
+											"term":{  
+												"mime_type":"image/jpeg"
+											}
+										}
+									]
+								}
+							}
+						],
+						"must_not":[  
+							{  
+								"term":{  
+									"login":"11437"
+								}
+							},
+							{  
+								"term":{  
+									"login":"10715"
+								}
+							}
+						]
+					}
+				}
+			}
+		}
+	})###";
 	PVRush::PVInputDescription_p ind(
 	    new PVRush::PVElasticsearchQuery(infos, query_str.c_str(), query_type.c_str()));
 
@@ -58,7 +102,7 @@ int main()
 	PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(ind);
 	auto& source = *src;
 
-	PV_VALID(source.get_size(), 10439UL);
+	PV_VALID(source.get_size(), 9981UL);
 
 	std::string output_file = pvtest::get_tmp_filename();
 	std::string output_file_sorted = output_file + "_sorted";

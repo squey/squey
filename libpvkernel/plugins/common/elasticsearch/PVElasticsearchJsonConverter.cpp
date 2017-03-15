@@ -7,6 +7,8 @@
 
 #include "PVElasticsearchJsonConverter.h"
 
+#include <boost/algorithm/string/join.hpp>
+
 ///////////////////////////////////////////////////////////////////////////////
 // PVElasticSearchJsonConverter constructor
 ///////////////////////////////////////////////////////////////////////////////
@@ -263,19 +265,12 @@ void PVElasticSearchJsonConverter::inject_in(map_t const& saved)
 
 void PVElasticSearchJsonConverter::inject_not(std::vector<std::string> const& saved)
 {
-	for (auto& k_v : saved) {
-		_current_writer->StartObject();
+	_current_writer->RawString(",\"must_not\":[");
 
-		_current_writer->Key("must_not");
-		_current_writer->StartArray();
+	const std::string& all = boost::algorithm::join(saved, ",");
+	_current_writer->RawString(all.c_str());
 
-		for (const std::string& json_buffer : saved) {
-			_current_writer->String(json_buffer.c_str());
-		}
-		_current_writer->EndArray();
-
-		_current_writer->EndObject();
-	}
+	_current_writer->RawString("]");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -291,7 +286,7 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 
 	std::swap(_in_values, in_value_upper);
 	std::swap(_not_in_values, not_in_value_upper);
-	std::swap(negated_terms, _negated_terms);
+	std::swap(_negated_terms, negated_terms);
 
 	if (_version >= PVCore::PVVersion(5, 0, 0)) {
 		_current_writer->StartObject();
@@ -327,16 +322,22 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 	}
 
 	// Dump in and not_in values once they are fully gathered
-	if (not _in_values.empty())
+	if (not _in_values.empty()) {
 		inject_in(_in_values);
-	if (not _not_in_values.empty())
+	}
+	if (not _not_in_values.empty()) {
 		not_<PVElasticSearchJsonConverter>(&PVElasticSearchJsonConverter::inject_in,
 		                                   _not_in_values);
-	if (_version >= PVCore::PVVersion(5, 0, 0) and not _negated_terms.empty()) {
-		inject_not(negated_terms);
 	}
 
 	_current_writer->EndArray();
+
+	if (_version >= PVCore::PVVersion(5, 0, 0)) {
+		if (not _negated_terms.empty()) {
+			inject_not(_negated_terms);
+			_negated_terms.clear();
+		}
+	}
 
 	_current_writer->EndObject();
 
@@ -347,7 +348,7 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 	// Get back previous in and not_in information
 	std::swap(_in_values, in_value_upper);
 	std::swap(_not_in_values, not_in_value_upper);
-	std::swap(negated_terms, _negated_terms);
+	std::swap(_negated_terms, negated_terms);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -356,9 +357,10 @@ void PVElasticSearchJsonConverter::parse_condition(rapidjson::Value const& obj)
 
 std::string PVElasticSearchJsonConverter::rules_to_json()
 {
-	if (not _doc.IsObject() or not is_condition(_doc))
+	if (not _doc.IsObject() or not is_condition(_doc)) {
 		// If it is an empty input, output is empty too
 		return "";
+	}
 
 	_current_writer->StartObject();
 
