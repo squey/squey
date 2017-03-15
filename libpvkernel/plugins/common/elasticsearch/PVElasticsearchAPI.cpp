@@ -46,7 +46,8 @@ bool PVRush::PVElasticsearchAPI::has_error(const rapidjson::Document& json,
 			if (_version < PVCore::PVVersion(2, 0, 0)) {
 				*error = json["error"].GetString();
 			} else {
-				*error = json["error"]["root_cause"][0]["reason"].GetString();
+				const auto& reason = json["error"]["root_cause"][0]["reason"];
+				*error = reason.IsNull() ? "Unspecified error" : reason.GetString();
 			}
 		}
 		return true;
