@@ -338,7 +338,8 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(
 
 	sliders->setPos(0, 0);
 
-	connect(sliders, SIGNAL(sliders_moved()), this, SLOT(selection_slider_moved()));
+	connect(sliders, &PVSelectionAxisSliders::sliders_moved, this,
+	        &PVSlidersGroup::selection_slider_moved);
 
 	_selection_sliders[id] = sliders;
 }
@@ -364,7 +365,8 @@ void PVParallelView::PVSlidersGroup::add_new_zoomed_selection_sliders(
 
 	sliders->setPos(0, 0);
 
-	connect(sliders, SIGNAL(sliders_moved()), this, SLOT(selection_slider_moved()));
+	connect(sliders, &PVZoomedSelectionAxisSliders::sliders_moved, this,
+	        &PVSlidersGroup::selection_slider_moved);
 
 	_zoomed_selection_sliders[id] = sliders;
 }

@@ -119,10 +119,12 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
-	connect(this, SIGNAL(zoom_has_changed(int)), this, SLOT(do_zoom_change(int)));
-	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
-	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
-	connect(get_horizontal_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
+	connect(this, &PVScatterView::zoom_has_changed, this, &PVScatterView::do_zoom_change);
+	connect(this, &PVScatterView::pan_has_changed, this, &PVScatterView::do_pan_change);
+	connect(get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	        &PVScatterView::do_pan_change);
+	connect(get_horizontal_scrollbar(), &QScrollBar64::valueChanged, this,
+	        &PVScatterView::do_pan_change);
 
 	_params_widget = new PVScatterViewParamsWidget(this);
 	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");

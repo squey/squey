@@ -149,11 +149,12 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	addToGroup(_header_zone);
 	connect(_header_zone, &PVAxisHeader::new_selection_slider,
 	        [this]() { _sliders_group->add_selection_sliders(0, 1024); });
-	connect(_header_zone, SIGNAL(mouse_hover_entered(PVCombCol, bool)), this,
-	        SIGNAL(mouse_hover_entered(PVCombCol, bool)));
-	connect(_header_zone, SIGNAL(mouse_clicked(PVCombCol)), this, SIGNAL(mouse_clicked(PVCombCol)));
-	connect(_header_zone, SIGNAL(new_zoomed_parallel_view(PVCombCol)), this,
-	        SLOT(emit_new_zoomed_parallel_view(PVCombCol)));
+	connect(_header_zone, &PVAxisHeader::mouse_hover_entered, this,
+	        &PVAxisGraphicsItem::mouse_hover_entered);
+	connect(_header_zone, &PVAxisHeader::mouse_clicked, this, &PVAxisGraphicsItem::mouse_clicked);
+	connect(_header_zone,
+	        static_cast<void (PVAxisHeader::*)(PVCombCol)>(&PVAxisHeader::new_zoomed_parallel_view),
+	        this, &PVAxisGraphicsItem::new_zoomed_parallel_view);
 }
 
 PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()

@@ -91,13 +91,13 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	_sel_line->setZValue(1.e43);
 
 	addItem(_sel_line);
-	connect(_sel_line, SIGNAL(commit_volatile_selection()), this,
-	        SLOT(commit_volatile_selection_Slot()));
+	connect(_sel_line, &PVZoomedParallelViewSelectionLine::commit_volatile_selection, this,
+	        &PVZoomedParallelScene::commit_volatile_selection_Slot);
 
 	setSceneRect(-512, 0, 1024, 1024);
 
-	connect(_zpview->get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this,
-	        SLOT(scrollbar_changed_Slot(qint64)));
+	connect(_zpview->get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	        &PVZoomedParallelScene::scrollbar_changed_Slot);
 
 	connect(_zpview->params_widget(), &PVZoomedParallelViewParamsWidget::change_to_col, this,
 	        &PVZoomedParallelScene::change_to_col);
@@ -126,7 +126,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);
-	connect(&_updateall_timer, SIGNAL(timeout()), this, SLOT(updateall_timeout_Slot()));
+	connect(&_updateall_timer, &QTimer::timeout, this,
+	        &PVZoomedParallelScene::updateall_timeout_Slot);
 }
 
 /*****************************************************************************

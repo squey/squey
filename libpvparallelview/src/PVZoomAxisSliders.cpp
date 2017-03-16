@@ -45,8 +45,8 @@ void PVParallelView::PVZoomAxisSliders::initialize(id_t id, int64_t y_min, int64
 	_sl_min->set_value(y_min);
 	_sl_max->set_value(y_max);
 
-	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
-	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
+	connect(_sl_min, &PVZoomAxisSlider::slider_moved, this, &PVZoomAxisSliders::do_sliders_moved);
+	connect(_sl_max, &PVZoomAxisSlider::slider_moved, this, &PVZoomAxisSliders::do_sliders_moved);
 
 	_sliders_manager_p->_update_zoom_sliders.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVZoomAxisSliders::on_zoom_sliders_update));

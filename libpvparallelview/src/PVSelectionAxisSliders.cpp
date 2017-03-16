@@ -47,8 +47,10 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id, int64_t y_min, 
 	_sl_min->set_value(y_min);
 	_sl_max->set_value(y_max);
 
-	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
-	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
+	connect(_sl_min, &PVSelectionAxisSlider::slider_moved, this,
+	        &PVSelectionAxisSliders::do_sliders_moved);
+	connect(_sl_max, &PVSelectionAxisSlider::slider_moved, this,
+	        &PVSelectionAxisSliders::do_sliders_moved);
 
 	_sliders_manager_p->_update_selection_sliders.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVSelectionAxisSliders::on_selection_sliders_update));

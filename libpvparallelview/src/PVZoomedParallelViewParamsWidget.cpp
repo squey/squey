@@ -28,7 +28,8 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
 	_menu_toolbutton->setIcon(QIcon(":/select-axis"));
 
 	_axes = new QMenu();
-	connect(_axes, SIGNAL(triggered(QAction*)), this, SLOT(set_active_axis_action(QAction*)));
+	connect(_axes, &QMenu::triggered, this,
+	        &PVZoomedParallelViewParamsWidget::set_active_axis_action);
 
 	_menu_toolbutton->setMenu(_axes);
 }

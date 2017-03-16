@@ -25,7 +25,7 @@ PVParallelView::PVZoomedParallelViewSelectionLine::PVZoomedParallelViewSelection
 	_timer = new QTimer(this);
 	_timer->setSingleShot(true);
 
-	connect(_timer, SIGNAL(timeout()), this, SLOT(timeout()));
+	connect(_timer, &QTimer::timeout, this, &PVZoomedParallelViewSelectionLine::timeout);
 
 	clear();
 }
