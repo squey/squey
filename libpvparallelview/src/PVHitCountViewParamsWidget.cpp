@@ -23,7 +23,9 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
     : QToolBar(parent)
 {
 	_signal_mapper = new QSignalMapper(this);
-	QObject::connect(_signal_mapper, SIGNAL(mapped(int)), this, SLOT(set_selection_mode(int)));
+	QObject::connect(_signal_mapper,
+	                 static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this,
+	                 &PVHitCountViewParamsWidget::set_selection_mode);
 
 	_sel_mode_button =
 	    PVSelectionRectangle::add_selection_mode_selector(parent, this, _signal_mapper);
@@ -41,7 +43,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	                     _autofit->shortcut().toString() + ")");
 	addAction(_autofit);
 	parent->addAction(_autofit);
-	connect(_autofit, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_auto_x_zoom_sel()));
+	connect(_autofit, &QAction::toggled, parent_hcv(), &PVHitCountView::toggle_auto_x_zoom_sel);
 
 	_use_log_color = new QAction("Logarithmic colormap", this);
 	_use_log_color->setIcon(QIcon(":/colormap-log"));
@@ -55,7 +57,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	    _use_log_color->shortcut().toString() + ")");
 	addAction(_use_log_color);
 	parent->addAction(_use_log_color);
-	connect(_use_log_color, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_log_color()));
+	connect(_use_log_color, &QAction::toggled, parent_hcv(), &PVHitCountView::toggle_log_color);
 
 	_show_labels = new QAction(this);
 	_show_labels->setIcon(QIcon(":/labeled-axis"));
@@ -68,7 +70,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	                         _show_labels->shortcut().toString() + ")");
 	addAction(_show_labels);
 	parent->addAction(_show_labels);
-	connect(_show_labels, SIGNAL(toggled(bool)), parent_hcv(), SLOT(toggle_show_labels()));
+	connect(_show_labels, &QAction::toggled, parent_hcv(), &PVHitCountView::toggle_show_labels);
 }
 
 /*****************************************************************************

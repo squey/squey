@@ -7,6 +7,8 @@
 
 #include <math.h>
 
+#include <pvkernel/core/qmetaobject_helper.h>
+
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <inendi/PVStateMachine.h>
@@ -89,10 +91,10 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	// this scrollbar is totally useless
 	//_full_parallel_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderPressed()), this,
-	        SLOT(scrollbar_pressed_Slot()));
-	connect(_full_parallel_view->horizontalScrollBar(), SIGNAL(sliderReleased()), this,
-	        SLOT(scrollbar_released_Slot()));
+	connect(_full_parallel_view->horizontalScrollBar(), &QScrollBar::sliderPressed, this,
+	        &PVFullParallelScene::scrollbar_pressed_Slot);
+	connect(_full_parallel_view->horizontalScrollBar(), &QScrollBar::sliderReleased, this,
+	        &PVFullParallelScene::scrollbar_released_Slot);
 
 	// Add ALL axes
 	const PVZoneID nzones(_lines_view.get_number_of_managed_zones() + 1);
@@ -106,7 +108,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
 	_timer_render->setInterval(RENDER_TIMER_TIMEOUT);
-	connect(_timer_render, SIGNAL(timeout()), this, SLOT(render_all_zones_all_imgs()));
+	connect(_timer_render, &QTimer::timeout, this, &PVFullParallelScene::render_all_zones_all_imgs);
 }
 
 /******************************************************************************
@@ -149,12 +151,12 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 	axisw->get_sliders_group()->set_axis_scale(_zoom_y);
 	axisw->set_axis_length(_axis_length);
 
-	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(PVCol)), this,
-	        SLOT(update_selection_from_sliders_Slot(PVCol)));
-	connect(axisw, SIGNAL(new_zoomed_parallel_view(PVCombCol)), this,
-	        SLOT(emit_new_zoomed_parallel_view(PVCombCol)));
-	connect(axisw, SIGNAL(mouse_hover_entered(PVCombCol, bool)), this,
-	        SLOT(axis_hover_entered(PVCombCol, bool)));
+	connect(axisw->get_sliders_group(), &PVSlidersGroup::selection_sliders_moved, this,
+	        &PVFullParallelScene::update_selection_from_sliders_Slot);
+	connect(axisw, &PVAxisGraphicsItem::new_zoomed_parallel_view, this,
+	        &PVFullParallelScene::emit_new_zoomed_parallel_view);
+	connect(axisw, &PVAxisGraphicsItem::mouse_hover_entered, this,
+	        &PVFullParallelScene::axis_hover_entered);
 
 	addItem(axisw);
 
@@ -548,7 +550,8 @@ void PVParallelView::PVFullParallelScene::update_all()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVFullParallelScene::update_all, Qt::QueuedConnection);
 }
 
 /******************************************************************************
@@ -595,7 +598,9 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_new_selection", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_new_selection,
+	// Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVFullParallelScene::update_new_selection, Qt::QueuedConnection);
 }
 
 /******************************************************************************
@@ -657,7 +662,9 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_number_of_zones_async()
 {
-	QMetaObject::invokeMethod(this, "update_number_of_zones", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_number_of_zones,
+	// Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVFullParallelScene::update_number_of_zones, Qt::QueuedConnection);
 }
 
 QRectF PVParallelView::PVFullParallelScene::axes_scene_bounding_box() const

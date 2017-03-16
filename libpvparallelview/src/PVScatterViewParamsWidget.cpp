@@ -22,8 +22,9 @@ PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterVi
     : QToolBar(parent)
 {
 	_sel_mode_signal_mapper = new QSignalMapper(this);
-	QObject::connect(_sel_mode_signal_mapper, SIGNAL(mapped(int)), this,
-	                 SLOT(set_selection_mode(int)));
+	QObject::connect(_sel_mode_signal_mapper,
+	                 static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this,
+	                 &PVScatterViewParamsWidget::set_selection_mode);
 
 	_sel_mode_button =
 	    PVSelectionRectangle::add_selection_mode_selector(parent, this, _sel_mode_signal_mapper);
@@ -39,7 +40,7 @@ PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterVi
 	                         _show_labels->shortcut().toString() + ")");
 	addAction(_show_labels);
 	parent->addAction(_show_labels);
-	connect(_show_labels, SIGNAL(toggled(bool)), parent_sv(), SLOT(toggle_show_labels()));
+	connect(_show_labels, &QAction::toggled, parent_sv(), &PVScatterView::toggle_show_labels);
 }
 
 /*****************************************************************************

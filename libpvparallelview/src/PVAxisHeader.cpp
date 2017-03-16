@@ -70,7 +70,7 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 		menu.addSeparator();
 	}
 	QAction* ars = menu.addAction("New selection cursors");
-	connect(ars, SIGNAL(triggered()), this, SIGNAL(new_selection_slider()));
+	connect(ars, &QAction::triggered, this, &PVAxisHeader::new_selection_slider);
 
 	QAction* copy = menu.addAction("Copy axis name to clipboad");
 	copy->setIcon(QIcon(":/edit-paste.png"));

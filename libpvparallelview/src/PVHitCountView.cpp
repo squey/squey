@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/qmetaobject_helper.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
@@ -170,12 +171,13 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 
 	_update_all_timer.setInterval(RENDER_TIMEOUT);
 	_update_all_timer.setSingleShot(true);
-	connect(&_update_all_timer, SIGNAL(timeout()), this, SLOT(do_update_all()));
+	connect(&_update_all_timer, &QTimer::timeout, this, &PVHitCountView::do_update_all);
 
-	connect(this, SIGNAL(zoom_has_changed(int)), this, SLOT(do_zoom_change(int)));
-	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
+	connect(this, &PVHitCountView::zoom_has_changed, this, &PVHitCountView::do_zoom_change);
+	connect(this, &PVHitCountView::pan_has_changed, this, &PVHitCountView::do_pan_change);
 
-	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
+	connect(get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	        &PVHitCountView::do_pan_change);
 
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
@@ -256,7 +258,8 @@ void PVParallelView::PVHitCountView::set_x_axis_zoom()
 
 void PVParallelView::PVHitCountView::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVHitCountView::update_sel, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVHitCountView::update_sel, Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -265,7 +268,8 @@ void PVParallelView::PVHitCountView::update_new_selection_async()
 
 void PVParallelView::PVHitCountView::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVHitCountView::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVHitCountView::update_all, Qt::QueuedConnection);
 }
 
 /*****************************************************************************
