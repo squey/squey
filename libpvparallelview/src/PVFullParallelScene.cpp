@@ -7,6 +7,8 @@
 
 #include <math.h>
 
+#include <pvkernel/core/qmetaobject_helper.h>
+
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <inendi/PVStateMachine.h>
@@ -548,7 +550,8 @@ void PVParallelView::PVFullParallelScene::update_all()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVFullParallelScene::update_all, Qt::QueuedConnection);
 }
 
 /******************************************************************************
@@ -595,7 +598,9 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_new_selection", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_new_selection,
+	// Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVFullParallelScene::update_new_selection, Qt::QueuedConnection);
 }
 
 /******************************************************************************
@@ -657,7 +662,9 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_number_of_zones_async()
 {
-	QMetaObject::invokeMethod(this, "update_number_of_zones", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_number_of_zones,
+	// Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVFullParallelScene::update_number_of_zones, Qt::QueuedConnection);
 }
 
 QRectF PVParallelView::PVFullParallelScene::axes_scene_bounding_box() const

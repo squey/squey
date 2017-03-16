@@ -24,6 +24,7 @@
 #include <inendi/PVView.h>
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/qmetaobject_helper.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
@@ -217,7 +218,8 @@ void PVParallelView::PVScatterView::set_params_widget_position()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVScatterView::update_sel, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVScatterView::update_sel, Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -225,7 +227,8 @@ void PVParallelView::PVScatterView::update_new_selection_async()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVScatterView::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVScatterView::update_all, Qt::QueuedConnection);
 }
 
 /*****************************************************************************

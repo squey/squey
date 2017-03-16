@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/qmetaobject_helper.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
@@ -257,7 +258,8 @@ void PVParallelView::PVHitCountView::set_x_axis_zoom()
 
 void PVParallelView::PVHitCountView::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVHitCountView::update_sel, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVHitCountView::update_sel, Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -266,7 +268,8 @@ void PVParallelView::PVHitCountView::update_new_selection_async()
 
 void PVParallelView::PVHitCountView::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVHitCountView::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVHitCountView::update_all, Qt::QueuedConnection);
 }
 
 /*****************************************************************************

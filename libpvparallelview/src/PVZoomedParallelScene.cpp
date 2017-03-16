@@ -7,6 +7,7 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/qmetaobject_helper.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
@@ -797,12 +798,14 @@ void PVParallelView::PVZoomedParallelScene::updateall_timeout_Slot()
 
 void PVParallelView::PVZoomedParallelScene::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVZoomedParallelScene::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVZoomedParallelScene::update_all, Qt::QueuedConnection);
 }
 
 void PVParallelView::PVZoomedParallelScene::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVZoomedParallelScene::update_sel, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVZoomedParallelScene::update_sel, Qt::QueuedConnection);
 }
 
 /*****************************************************************************
