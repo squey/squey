@@ -338,6 +338,21 @@ void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
 	case Qt::Key_Left:
 		horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
 		break;
+	case Qt::Key_A:
+		if ((event->modifiers() == Qt::NoModifier) || (event->modifiers() & Qt::ControlModifier)) {
+			table_model()->reset_selection();
+			table_model()->current_selection().select_all();
+			viewport()->update();
+		}
+		break;
+	case Qt::Key_I:
+		if ((event->modifiers() == Qt::NoModifier) || (event->modifiers() & Qt::ControlModifier)) {
+			table_model()->commit_selection();
+			table_model()->clear_selection();
+			table_model()->current_selection().select_inverse();
+			viewport()->update();
+		}
+		break;
 	default:
 		PVTableView::keyPressEvent(event);
 	}
