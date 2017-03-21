@@ -168,16 +168,14 @@ int main(int argc, char** argv)
 	std::string reference_file = argv[1];
 	std::string reference_sorted_file = output_file + "_sorted";
 	std::ofstream output_stream(output_file, std::ios::out | std::ios::trunc);
-	PVRush::PVElasticsearchAPI::rows_chunk_t rows_array;
+	PVRush::PVElasticsearchAPI::rows_t rows;
 
 	// Extract data
 	bool query_end = false;
 	do {
-		query_end = elasticsearch.extract(query, rows_array, &error);
-		for (const PVRush::PVElasticsearchAPI::rows_t& rows : rows_array) {
-			for (const std::string& row : rows) {
-				output_stream << row.c_str() << std::endl;
-			}
+		query_end = elasticsearch.extract(query, rows, &error);
+		for (const std::string& row : rows) {
+			output_stream << row.c_str() << std::endl;
 		}
 	} while (query_end == false);
 
