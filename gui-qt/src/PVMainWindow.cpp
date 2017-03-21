@@ -1005,7 +1005,7 @@ static QString bad_conversions_as_string(const Inendi::PVSource* src)
 
 	size_t max_values = 1000;
 
-	for (size_t row = 0; row < nraw.row_count(); row++) {
+	for (size_t row = 0; row < nraw.row_count() and max_values > 0; row++) {
 		for (PVCol col(0); col < nraw.column_count(); col++) {
 
 			const pvcop::db::array& column = nraw.column(col);
