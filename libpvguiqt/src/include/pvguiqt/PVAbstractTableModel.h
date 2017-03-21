@@ -66,6 +66,11 @@ class PVAbstractTableModel : public QAbstractTableModel
 	void reset_selection();
 
 	/**
+	 * Clear current floating selection
+	 */
+	void clear_selection();
+
+	/**
 	 * Start a selection at a given row.
 	 *
 	 * @param[in] row : Where we start the selection
