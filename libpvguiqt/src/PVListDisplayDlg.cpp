@@ -87,11 +87,6 @@ void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& pos)
 		return;
 	}
 
-	if (index.column() != 0) {
-		// context menu only for the "value" column
-		return;
-	}
-
 	// Show the menu at the given pos
 	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
 
