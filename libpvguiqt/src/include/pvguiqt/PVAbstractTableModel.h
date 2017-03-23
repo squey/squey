@@ -239,6 +239,13 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 */
 	void sorted(PVCombCol col, Qt::SortOrder order);
 
+	/**
+	 * Wrap @a str with new-lines to make it usable as tooltip
+	 *
+	 * @return the wrapped version of @a str
+	 */
+	QString get_wrapped_string(const QString& str) const;
+
   protected:
 	/**
 	 * Apply the current selection mode to @p value

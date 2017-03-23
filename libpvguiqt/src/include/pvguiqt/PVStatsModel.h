@@ -114,6 +114,11 @@ class PVStatsModel : public PVAbstractTableModel
 				return QString::fromUtf8(str.c_str(), str.size());
 			}
 			break;
+		case Qt::ToolTipRole: {
+			std::string const& raw_str = _col1.at(row);
+			return get_wrapped_string(QString::fromUtf8(raw_str.c_str(), raw_str.size()));
+		}
+
 		case Qt::UserRole:
 			if (index.column() == 1) {
 				std::string const& str = _col2.at(row);
