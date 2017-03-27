@@ -171,8 +171,21 @@ PVRush::PVElasticsearchAPI::columns(const PVRush::PVElasticsearchQuery& query,
 
 		static const std::vector<std::string> invalid_cols = {"message", "type", "host", "path",
 		                                                      "geoip"};
+
+		// type mapping between elasticsearch and querybuilder
 		static const std::unordered_map<std::string, std::string> types_mapping = {
-		    {"long", "integer"}, {"float", "double"}, {"text", "string"}};
+		    {"long", "integer"},  {"integer", "integer"}, {"short", "integer"},
+		    {"byte", "integer"},  {"double", "double"},   {"float", "double"},
+		    {"date", "datetime"}, {"text", "string"},     {"keyword", "string"}};
+		auto map_type = [&](const std::string& type) -> std::string {
+			const auto& it = types_mapping.find(type);
+			if (it != types_mapping.end()) {
+				return it->second;
+			} else {
+				// fallback type for unkown types
+				return "string";
+			}
+		};
 
 		for (rapidjson::Value::ConstMemberIterator axe = json_axes.MemberBegin();
 		     axe != json_axes.MemberEnd(); ++axe) {
@@ -180,14 +193,21 @@ PVRush::PVElasticsearchAPI::columns(const PVRush::PVElasticsearchQuery& query,
 
 			if (std::find(invalid_cols.begin(), invalid_cols.end(), name) == invalid_cols.end() &&
 			    (name.size() > 0 && name[0] != '@')) {
-				std::string type = json_axes[name.c_str()]["type"].GetString();
-
-				const auto& it = types_mapping.find(type);
-				if (it != types_mapping.end()) {
-					type = it->second;
+				const auto& field = json_axes[name.c_str()];
+				if (field.HasMember("type")) {
+					std::string type = field["type"].GetString();
+					cols.emplace_back(name, map_type(type));
+				} else if (field.HasMember("properties")) {
+					const auto& properties = field["properties"];
+					for (rapidjson::Value::ConstMemberIterator property = properties.MemberBegin();
+					     property != properties.MemberEnd(); ++property) {
+						std::string prop_name = property->name.GetString();
+						if (properties[prop_name.c_str()].HasMember("type")) {
+							std::string type = properties[prop_name.c_str()]["type"].GetString();
+							cols.emplace_back(name + "." + prop_name, map_type(type));
+						}
+					}
 				}
-
-				cols.emplace_back(name, type);
 			}
 		}
 	}
