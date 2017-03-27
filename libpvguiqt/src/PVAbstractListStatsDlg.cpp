@@ -376,35 +376,21 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	//_values_view->setStyleSheet("QTableView::item { border-left: 1px solid grey;
 	//}");
 
-	QHBoxLayout* hbox = new QHBoxLayout();
-
-	_select_groupbox->setLayout(hbox);
-
-	QVBoxLayout* vl = new QVBoxLayout();
-
-	hbox->addLayout(vl, 1);
-
-	QRadioButton* r1 = new QRadioButton("by count");
-	QRadioButton* r2 = new QRadioButton("by frequency");
-
-	vl->addWidget(r1);
-	vl->addWidget(r2);
-
-	connect(r1, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_count(bool)));
-	connect(r2, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_frequency(bool)));
-
-	QPushButton* b = new QPushButton("Select");
-	connect(b, SIGNAL(clicked(bool)), this, SLOT(select_refresh(bool)));
-
-	vl->addWidget(b);
-
+	// the selection groupbox
 	_select_picker = new __impl::PVAbstractListStatsRangePicker(
 	    model().relative_min_count(), model().relative_max_count(), model().absolute_max_count());
 	_select_picker->use_logarithmic_scale(model().use_log_scale());
-	hbox->addWidget(_select_picker, 2);
+	_select_picker->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	_select_layout->addWidget(_select_picker, 1);
+
+	connect(_by_count_radio, &QRadioButton::toggled, this,
+	        &PVAbstractListStatsDlg::select_set_mode_count);
+	connect(_by_freq_radio, &QRadioButton::toggled, this,
+	        &PVAbstractListStatsDlg::select_set_mode_frequency);
+	connect(_select_button, &QPushButton::clicked, this, &PVAbstractListStatsDlg::select_refresh);
 
 	// set default mode to "count"
-	r1->click();
+	_by_count_radio->click();
 
 	// propagate the scale mode
 	_act_toggle_log->setChecked(model().use_log_scale());

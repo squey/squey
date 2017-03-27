@@ -111,15 +111,36 @@
    </item>
    <item>
     <widget class="QGroupBox" name="_select_groupbox">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>45</height>
-      </size>
-     </property>
      <property name="title">
       <string>Selection</string>
      </property>
+     <layout class="QHBoxLayout" name="_select_layout">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QRadioButton" name="_by_count_radio">
+          <property name="text">
+           <string>by count</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="_by_freq_radio">
+          <property name="text">
+           <string>by frequency</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="_select_button">
+          <property name="text">
+           <string>Select</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -146,7 +167,6 @@
               <height>0</height>
              </size>
             </property>
-            <zorder>gridLayoutWidget</zorder>
            </widget>
           </item>
           <item row="1" column="0">
