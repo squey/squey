@@ -41,7 +41,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 	BENCH_START(distinct_values);
 
 	auto ret_pbox = PVCore::PVProgressBox::progress(
-	    [&, c](PVCore::PVProgressBox& pbox) {
+	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 
 		    pvcop::db::algo::distinct(col_in, col1_out, col2_out, sel);
@@ -109,7 +109,7 @@ static bool show_stats_dialog(const QString& title,
 	BENCH_START(operation);
 
 	auto ret_pbox = PVCore::PVProgressBox::progress(
-	    [&, col1, col2](PVCore::PVProgressBox& pbox) {
+	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 
 		    op(col1_in, col2_in, col1_out, col2_out, sel);
