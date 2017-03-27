@@ -27,7 +27,6 @@ void Inendi::PVPlottingFilterEnum::operator()(pvcop::db::array const& mapped,
 	mapped.parallel_sort(extents);
 	pvcop::db::indexes indexes = extents.parallel_sort();
 	auto& sorted_extents = indexes.to_core_array();
-	auto& core_extents = extents.to_core_array();
 	auto& core_groups = groups.to_core_array();
 
 	if (extents.size() == 1) {
