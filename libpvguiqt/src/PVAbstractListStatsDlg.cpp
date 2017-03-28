@@ -571,7 +571,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	BENCH_START(select_values);
 
 	PVCore::PVProgressBox::progress(
-	    [this, row_count, vmax, vmin](PVCore::PVProgressBox& pbox) {
+	    [this, vmax, vmin](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 		    const pvcop::db::array& col2_array = model().stat_col();
 		    std::string min_, max_;
@@ -617,6 +617,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	// Update the viewport to display selection.
 	_values_view->viewport()->update();
 
+	(void)row_count;
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
 }
 
@@ -957,7 +958,8 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 			occurence = PVStatsModel::format_occurence(occurence_count);
 			occurence_max_width =
 			    QFontMetrics(painter->font())
-			        .width(PVStatsModel::format_occurence(d()->relative_max_count()));
+			        .width(QLocale::system().toString(d()->relative_max_count(), 'f', 3));
+
 			margin -= occurence_max_width;
 			representation_count++;
 		}

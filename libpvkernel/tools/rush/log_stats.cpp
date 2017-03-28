@@ -9,7 +9,6 @@
 #include <boost/program_options.hpp>
 #include <boost/tokenizer.hpp>
 
-#include <iomanip>
 #include <sstream>
 
 void validate(boost::any& v, std::vector<std::string> const& options, integers_list*, int32_t)

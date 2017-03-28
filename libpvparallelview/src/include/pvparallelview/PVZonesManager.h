@@ -44,8 +44,8 @@ class PVZonesManager : public QObject
   public:
 	void update_all();
 	void reset_axes_comb();
-	std::vector<PVZoneID> update_from_axes_comb(std::vector<PVCol> const& ac);
-	std::vector<PVZoneID> update_from_axes_comb(Inendi::PVView const& view);
+	void update_from_axes_comb(std::vector<PVCol> const& ac);
+	void update_from_axes_comb(Inendi::PVView const& view);
 	void update_zone(PVZoneID zone);
 	void reverse_zone(PVZoneID zone);
 	void add_zone(PVZoneID zone);
@@ -85,7 +85,7 @@ class PVZonesManager : public QObject
   public:
 	inline PVZoneID get_number_of_managed_zones() const
 	{
-		return _view.get_axes_combination().get_combination().size() - 1;
+		return PVZoneID(_view.get_axes_combination().get_combination().size() - 1);
 	}
 
   public:

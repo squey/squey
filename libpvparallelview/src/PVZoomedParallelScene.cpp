@@ -7,6 +7,7 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/qmetaobject_helper.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
@@ -91,13 +92,13 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	_sel_line->setZValue(1.e43);
 
 	addItem(_sel_line);
-	connect(_sel_line, SIGNAL(commit_volatile_selection()), this,
-	        SLOT(commit_volatile_selection_Slot()));
+	connect(_sel_line, &PVZoomedParallelViewSelectionLine::commit_volatile_selection, this,
+	        &PVZoomedParallelScene::commit_volatile_selection_Slot);
 
 	setSceneRect(-512, 0, 1024, 1024);
 
-	connect(_zpview->get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this,
-	        SLOT(scrollbar_changed_Slot(qint64)));
+	connect(_zpview->get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	        &PVZoomedParallelScene::scrollbar_changed_Slot);
 
 	connect(_zpview->params_widget(), &PVZoomedParallelViewParamsWidget::change_to_col, this,
 	        &PVZoomedParallelScene::change_to_col);
@@ -126,7 +127,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);
-	connect(&_updateall_timer, SIGNAL(timeout()), this, SLOT(updateall_timeout_Slot()));
+	connect(&_updateall_timer, &QTimer::timeout, this,
+	        &PVZoomedParallelScene::updateall_timeout_Slot);
 }
 
 /*****************************************************************************
@@ -352,7 +354,7 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 {
 	PVCombCol axis = _pvview.get_axes_combination().get_first_comb_col(_nraw_col);
 
-	if (axis == PVCombCol::INVALID_VALUE) {
+	if (axis == PVCombCol()) {
 		/* a candidate can not be found to replace the old
 		 * axis; the zoom view must be closed.
 		 */
@@ -670,7 +672,7 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRenderingBCI<bbits>
 	zr->set_render_finished_slot(this, slot);
 }
 
-void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, int zone_id)
+void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, PVZoneID zone_id)
 {
 	assert(is_zone_rendered(zone_id));
 	assert(QThread::currentThread() == this->thread());
@@ -796,12 +798,14 @@ void PVParallelView::PVZoomedParallelScene::updateall_timeout_Slot()
 
 void PVParallelView::PVZoomedParallelScene::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVZoomedParallelScene::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVZoomedParallelScene::update_all, Qt::QueuedConnection);
 }
 
 void PVParallelView::PVZoomedParallelScene::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVZoomedParallelScene::update_sel, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVZoomedParallelScene::update_sel, Qt::QueuedConnection);
 }
 
 /*****************************************************************************

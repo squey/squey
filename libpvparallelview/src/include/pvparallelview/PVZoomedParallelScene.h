@@ -322,7 +322,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 */
 	inline PVZoneID left_zone_id() const
 	{
-		return (_left_zone) ? _axis_index - 1 : PVZONEID_INVALID;
+		return (_left_zone) ? PVZoneID(_axis_index - 1) : PVZONEID_INVALID;
 	}
 
 	/**
@@ -330,7 +330,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 */
 	inline PVZoneID right_zone_id() const
 	{
-		return (_right_zone) ? _axis_index.value() : PVZONEID_INVALID;
+		return (_right_zone) ? PVZoneID(_axis_index.value()) : PVZONEID_INVALID;
 	}
 
 	/**
@@ -407,7 +407,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 * @param zr the PVZoneRendering corresponding to the finished rendering
 	 * @param zone_id the zone id corresponding to the finished rendering
 	 */
-	void zr_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
+	void zr_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zone_id);
 
 	/**
 	 * The slot called when background visibility has to be toggled.

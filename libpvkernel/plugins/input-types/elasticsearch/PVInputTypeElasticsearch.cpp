@@ -31,7 +31,11 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);
 
-	format = INENDI_BROWSE_FORMAT_STR;
+	if (params->get_format().isEmpty()) {
+		format = INENDI_BROWSE_FORMAT_STR;
+	} else {
+		format = params->get_format();
+	}
 
 	return true;
 }

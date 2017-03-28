@@ -24,6 +24,7 @@
 #include <inendi/PVView.h>
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/qmetaobject_helper.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
@@ -115,14 +116,16 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
 
-	set_scatter_view_zone(zone_index);
+	set_scatter_view_zone(PVZoneID(zone_index));
 
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
-	connect(this, SIGNAL(zoom_has_changed(int)), this, SLOT(do_zoom_change(int)));
-	connect(this, SIGNAL(pan_has_changed()), this, SLOT(do_pan_change()));
-	connect(get_vertical_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
-	connect(get_horizontal_scrollbar(), SIGNAL(valueChanged(qint64)), this, SLOT(do_pan_change()));
+	connect(this, &PVScatterView::zoom_has_changed, this, &PVScatterView::do_zoom_change);
+	connect(this, &PVScatterView::pan_has_changed, this, &PVScatterView::do_pan_change);
+	connect(get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	        &PVScatterView::do_pan_change);
+	connect(get_horizontal_scrollbar(), &QScrollBar64::valueChanged, this,
+	        &PVScatterView::do_pan_change);
 
 	_params_widget = new PVScatterViewParamsWidget(this);
 	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
@@ -215,7 +218,8 @@ void PVParallelView::PVScatterView::set_params_widget_position()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_new_selection_async()
 {
-	QMetaObject::invokeMethod(this, "update_sel", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVScatterView::update_sel, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVScatterView::update_sel, Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -223,7 +227,8 @@ void PVParallelView::PVScatterView::update_new_selection_async()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_all_async()
 {
-	QMetaObject::invokeMethod(this, "update_all", Qt::QueuedConnection);
+	// QMetaObject::invokeMethod(this, &PVScatterView::update_all, Qt::QueuedConnection);
+	PVCore::invokeMethod(this, &PVScatterView::update_all, Qt::QueuedConnection);
 }
 
 /*****************************************************************************
@@ -274,7 +279,7 @@ void PVParallelView::PVScatterView::update_sel()
 	get_images_manager().process_sel();
 }
 
-void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, int /*zone*/)
+void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, PVZoneID /*zone*/)
 {
 	assert(QThread::currentThread() == thread());
 	if (zr->should_cancel()) {
@@ -286,7 +291,7 @@ void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, int /*zo
 	get_viewport()->update();
 }
 
-void PVParallelView::PVScatterView::update_img_sel(PVZoneRendering_p zr, int /*zone*/)
+void PVParallelView::PVScatterView::update_img_sel(PVZoneRendering_p zr, PVZoneID /*zone*/)
 {
 	assert(QThread::currentThread() == thread());
 	if (zr->should_cancel()) {
@@ -376,7 +381,7 @@ void PVParallelView::PVScatterView::do_update_all()
 bool PVParallelView::PVScatterView::update_zones()
 {
 	PVCombCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
-	if (new_zone == PVCol::INVALID_VALUE) {
+	if (new_zone == PVCol()) {
 		// The left axis of the view have been remove, close the scatter view
 		return false;
 	} else if (new_zone == lib_view().get_column_count() - 1) {

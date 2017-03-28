@@ -150,9 +150,9 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	size_t qimage_height() const;
 
   private Q_SLOTS:
-	void update_zone_pixmap_bg(int zone_id);
-	void update_zone_pixmap_sel(int zone_id);
-	void update_zone_pixmap_bgsel(int zone_id);
+	void update_zone_pixmap_bg(PVZoneID zone_id);
+	void update_zone_pixmap_sel(PVZoneID zone_id);
+	void update_zone_pixmap_bgsel(PVZoneID zone_id);
 	void scale_zone_images(PVZoneID zone_id);
 
 	void update_selection_from_sliders_Slot(PVCol nraw_col);
@@ -169,8 +169,8 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
   private Q_SLOTS:
 	// Slots called from PVLinesView
-	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
-	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, int zone_id);
+	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zone_id);
+	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zone_id);
 
 	void render_all_zones_all_imgs();
 

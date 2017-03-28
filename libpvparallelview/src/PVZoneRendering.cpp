@@ -33,10 +33,10 @@ void PVParallelView::PVZoneRendering::finished(p_type const& this_sp)
 	// function.
 	if (_qobject_finished_success != nullptr && !_should_cancel) {
 		assert(QThread::currentThread() != _qobject_finished_success->thread());
-		const int zone_id = get_zone_id();
+		const PVZoneID zone_id = get_zone_id();
 		QMetaObject::invokeMethod(_qobject_finished_success, _qobject_slot, Qt::QueuedConnection,
 		                          Q_ARG(PVParallelView::PVZoneRendering_p, this_sp),
-		                          Q_ARG(int, zone_id));
+		                          Q_ARG(PVZoneID, zone_id));
 	}
 
 	_wait_cond.notify_all();

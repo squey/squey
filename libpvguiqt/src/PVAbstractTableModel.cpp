@@ -48,7 +48,6 @@ void PVAbstractTableModel::set_selection_mode(selection_mode_t mode)
 }
 
 /******************************************************************************
-+ *
  *
  * PVAbstractTableModel::reset_selection
  *
@@ -56,6 +55,16 @@ void PVAbstractTableModel::set_selection_mode(selection_mode_t mode)
 void PVAbstractTableModel::reset_selection()
 {
 	_current_selection.select_none();
+	clear_selection();
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableModel::clear_selection
+ *
+ *****************************************************************************/
+void PVAbstractTableModel::clear_selection()
+{
 	_start_sel = _end_sel = -1;
 }
 

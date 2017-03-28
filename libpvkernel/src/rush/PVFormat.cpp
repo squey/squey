@@ -45,9 +45,9 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	populate();
 }
 
-PVRush::PVFormat::PVFormat(QDomElement const& root_node, bool forceOneAxis) : PVFormat()
+PVRush::PVFormat::PVFormat(QDomElement const& root_node) : PVFormat()
 {
-	populate_from_xml(root_node, forceOneAxis);
+	populate_from_xml(root_node);
 }
 
 /**
@@ -314,10 +314,10 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 	return formatters;
 }
 
-bool PVRush::PVFormat::populate(bool forceOneAxis)
+bool PVRush::PVFormat::populate()
 {
 	if (!full_path.isEmpty()) {
-		return populate_from_xml(full_path, forceOneAxis);
+		return populate_from_xml(full_path);
 	}
 
 	throw std::runtime_error("We can't populate format without file");
@@ -410,43 +410,29 @@ void PVRush::PVFormat::debug() const
 	}
 }
 
-bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode, bool forceOneAxis)
+bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode)
 {
 	PVRush::PVXmlParamParser xml_parser(rootNode);
-	return populate_from_parser(xml_parser, forceOneAxis);
+	return populate_from_parser(xml_parser);
 }
 
-bool PVRush::PVFormat::populate_from_xml(QString filename, bool forceOneAxis)
+bool PVRush::PVFormat::populate_from_xml(QString filename)
 {
 	PVRush::PVXmlParamParser xml_parser(filename);
-	return populate_from_parser(xml_parser, forceOneAxis);
+	return populate_from_parser(xml_parser);
 }
 
-bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis)
+bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser)
 {
 	filters_params = xml_parser.getFields();
 	if (filters_params.empty()) {
-		throw PVFormatInvalid();
+		throw PVFormatInvalid("The format does not have any field");
 	}
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();
 	_fields_mask = xml_parser.getFieldsMask();
 	_first_line = xml_parser.get_first_line();
 	_line_count = xml_parser.get_line_count();
-
-	if (_axes.size() == 0 && forceOneAxis) {
-		// Only have one axis, a fake one
-		PVAxisFormat fake_ax(PVCol(-1));
-		fake_ax.set_name("Line");
-		fake_ax.set_type("string");
-		fake_ax.set_mapping("default");
-		fake_ax.set_plotting("default");
-		fake_ax.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
-		fake_ax.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
-		_axes.clear();
-		_axes.push_back(fake_ax);
-		_fields_mask.resize(1, true);
-	}
 
 	return true;
 }

@@ -145,6 +145,7 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 		_gb_query->setTitle("Query");
 		_reference_label->setText("");
 		_querybuilder->reset_rules();
+		index_changed_by_user_slot();
 		_querybuilder->setVisible(true);
 	} else { // EQueryType::JSON
 		_txt_query->setPlainText("{ \"query\" : { \"match_all\" : { } } }");
@@ -177,10 +178,10 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 
 	PVRush::PVElasticsearchAPI es(get_infos());
 	const PVElasticsearchQuery& query = get_query(error);
-	PVElasticsearchAPI::rows_chunk_t rows_array;
+	PVElasticsearchAPI::rows_t rows;
 
 	do {
-		query_end = es.extract(query, rows_array, error);
+		query_end = es.extract(query, rows, error);
 
 		// First extract have to be done to ge the scroll_count value.
 		pbox.set_maximum(es.scroll_count());
@@ -194,12 +195,10 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 			break;
 		}
 
-		for (const PVElasticsearchAPI::rows_t& rows : rows_array) {
-			for (const std::string& row : rows) {
-				output_stream << row.c_str() << endl;
-			}
-			count += rows.size();
+		for (const std::string& row : rows) {
+			output_stream << row.c_str() << endl;
 		}
+		count += rows.size();
 
 		if (output_stream.status() == QTextStream::WriteFailed) {
 			if (error) {
@@ -208,7 +207,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 		}
 
 		pbox.set_value(count);
-		pbox.set_extended_status(std::to_string(count) + " lines already exported");
+		pbox.set_extended_status(QString("%L1 rows exported so far").arg(count));
 	} while (query_end == false);
 }
 
@@ -218,6 +217,7 @@ bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& 
 	                          PVElasticsearchInfos, PVElasticsearchQuery>::set_infos(infos);
 
 	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
+	_format_path->setText(infos.get_format());
 
 	return res;
 }
@@ -228,6 +228,7 @@ PVRush::PVElasticsearchInfos PVRush::PVElasticsearchParamsWidget::get_infos() co
 	    PVParamsWidget<PVInputTypeElasticsearch, PVElasticsearchPresets, PVElasticsearchInfos,
 	                   PVElasticsearchQuery>::get_infos();
 	infos.set_index(_combo_index->currentText());
+	infos.set_format(_format_path->text());
 
 	return infos;
 }

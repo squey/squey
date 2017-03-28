@@ -178,7 +178,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 		}
 	} else {
 		// process the right side of zones
-		PVZoneTree const& ztree = lines_view.get_zones_manager().get_zone_tree(zone_id - 1);
+		PVZoneTree const& ztree =
+		    lines_view.get_zones_manager().get_zone_tree(zone_id - PVZoneID(1));
 
 		for (auto& range : ranges) {
 			uint64_t range_min = range.first;
@@ -244,13 +245,13 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 
 			if (need_zzt_min) {
 				PVZoomedZoneTree const& zztree =
-				    lines_view.get_zones_manager().get_zoom_zone_tree(zone_id - 1);
+				    lines_view.get_zones_manager().get_zoom_zone_tree(zone_id - PVZoneID(1));
 				nb_selected += zztree.compute_selection_y2(zzt_min_idx, range_min, range_max, sel);
 			}
 
 			if (need_zzt_max) {
 				PVZoomedZoneTree const& zztree =
-				    lines_view.get_zones_manager().get_zoom_zone_tree(zone_id - 1);
+				    lines_view.get_zones_manager().get_zoom_zone_tree(zone_id - PVZoneID(1));
 				nb_selected += zztree.compute_selection_y2(zzt_max_idx, range_min, range_max, sel);
 			}
 		}

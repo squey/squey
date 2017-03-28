@@ -32,6 +32,7 @@
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
+#include <pvkernel/rush/PVConverter.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
 
@@ -643,8 +644,21 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			return;
 		}
 	} else {
-		file_type_found = true;
-		discovered[choosenFormat] = inputs;
+		QFileInfo fi(choosenFormat);
+		QString format_name = "custom:" + choosenFormat;
+
+		PVRush::PVFormat format(format_name, choosenFormat);
+		formats[format_name] = format;
+
+		for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
+			PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
+			format_creator[format_name] = v;
+		}
+
+		if (fi.isReadable()) {
+			file_type_found = true;
+			discovered[format_name] = inputs;
+		}
 	}
 
 	treat_invalid_formats(formats_error);
@@ -991,7 +1005,7 @@ static QString bad_conversions_as_string(const Inendi::PVSource* src)
 
 	size_t max_values = 1000;
 
-	for (size_t row = 0; row < nraw.row_count(); row++) {
+	for (size_t row = 0; row < nraw.row_count() and max_values > 0; row++) {
 		for (PVCol col(0); col < nraw.column_count(); col++) {
 
 			const pvcop::db::array& column = nraw.column(col);
@@ -1092,6 +1106,10 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 		    } catch (PVRush::UnicodeSourceError const&) {
 			    pbox.critical("Cannot create sources",
 			                  "File encoding does permit Inspector to perform extraction.");
+			    pbox.set_canceled();
+			    return;
+		    } catch (PVRush::PVConverterCreationError const& e) {
+			    pbox.critical("Unsupported charset", e.what());
 			    pbox.set_canceled();
 			    return;
 		    }

@@ -50,28 +50,27 @@ int main()
 	std::iota(order.begin(), order.end(), 0);
 
 	std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) {
-		const boost::posix_time::ptime ta =
+		const boost::posix_time::ptime pt1 =
 		    *reinterpret_cast<const boost::posix_time::ptime*>(&array[a]);
-		const boost::posix_time::ptime tb =
+		const boost::posix_time::ptime pt2 =
 		    *reinterpret_cast<const boost::posix_time::ptime*>(&array[b]);
-		tm tm_a = to_tm(ta);
-		tm tm_b = to_tm(tb);
-		return tm_a.tm_hour > tm_b.tm_hour or
-		       (tm_a.tm_hour == tm_b.tm_hour and tm_a.tm_min > tm_b.tm_min) or
-		       (tm_a.tm_hour == tm_b.tm_hour and tm_a.tm_min == tm_b.tm_min and
-		        tm_a.tm_sec > tm_b.tm_sec);
+		const auto& t1 = pt1.time_of_day();
+		const auto& t2 = pt2.time_of_day();
+		return (
+		    t1.hours() > t2.hours() or (t1.hours() == t2.hours() and t1.minutes() > t2.minutes()) or
+		    (t1.hours() == t2.hours() and t1.minutes() == t2.minutes() and
+		     t1.seconds() > t2.seconds()) or
+		    (t1.hours() == t2.hours() and t1.minutes() == t2.minutes() and
+		     t1.seconds() == t2.seconds() and t1.fractional_seconds() > t2.fractional_seconds()));
 	});
 
 	uint32_t prev = plotted.get_column_pointer(PVCol(0))[order[0]];
-	constexpr double sec_per_24h = 3600 * 24 - 1;
-	constexpr double ratio = std::numeric_limits<uint32_t>::max() / sec_per_24h;
-	PV_VALID(prev, 0U);
 	for (size_t i = 0; i < column.size(); i++) {
 		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(PVCol(0))[order[i]]);
 		prev = plotted.get_column_pointer(PVCol(0))[order[i]];
 	}
-	// We only have a value one second after the beginning
-	PV_VALID(prev, (uint32_t)(std::numeric_limits<uint32_t>::max() - 1 * ratio + 1));
+	PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[order[0]] <
+	                plotted.get_column_pointer(PVCol(0))[order[column.size() - 1]]);
 
 #else
 	(void)plotted;

@@ -22,7 +22,8 @@
 	              type_safe::strong_typedef_op::integer_arithmetic<type> {                         \
 		using type_safe::strong_typedef<type, underlying_type>::strong_typedef;                    \
 		using value_type = underlying_type;                                                        \
-		static constexpr const value_type INVALID_VALUE = std::numeric_limits<value_type>::max();  \
+                                                                                                   \
+		type() : type(std::numeric_limits<underlying_type>::max()){};                              \
                                                                                                    \
 		constexpr operator const value_type&() const noexcept                                      \
 		{                                                                                          \

@@ -14,6 +14,7 @@ void PVRush::PVSplunkInfos::serialize_write(PVCore::PVSerializeObject& so) const
 	so.attribute_write("splunk_index", _splunk_index);
 	so.attribute_write("splunk_host", _splunk_host);
 	so.attribute_write("splunk_sourcetype", _splunk_sourcetype);
+	so.attribute_write("format", _format);
 }
 
 PVRush::PVSplunkInfos PVRush::PVSplunkInfos::serialize_read(PVCore::PVSerializeObject& so)
@@ -24,5 +25,6 @@ PVRush::PVSplunkInfos PVRush::PVSplunkInfos::serialize_read(PVCore::PVSerializeO
 	infos._splunk_index = so.attribute_read<QString>("splunk_index");
 	infos._splunk_host = so.attribute_read<QString>("splunk_host");
 	infos._splunk_sourcetype = so.attribute_read<QString>("splunk_sourcetype");
+	infos._format = so.attribute_read<QString>("format");
 	return infos;
 }

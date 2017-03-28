@@ -227,9 +227,9 @@ void PVCore::PVStreamingCompressor::do_wait_finished()
 		std::string error_msg;
 		return_status(&error_msg);
 
-		throw PVStreamingCompressorError("Compression failed" + error_msg.empty()
-		                                     ? ""
-		                                     : " with the following error message: " + error_msg);
+		throw PVStreamingCompressorError(
+		    "Compression failed" +
+		    (error_msg.empty() ? "" : " with the following error message: " + error_msg));
 	}
 }
 

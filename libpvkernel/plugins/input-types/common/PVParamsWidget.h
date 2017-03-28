@@ -65,6 +65,8 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	 */
 	virtual size_t query_result_count(std::string* error = nullptr) = 0;
 
+	QString get_format() const { return _format_path->text(); }
+
   protected:
 	QString get_query_type() const;
 	void set_query_type(QString const& query_type);
@@ -84,6 +86,7 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 
 	void check_connection_slot();
 	void query_result_count_slot();
+	void load_format();
 
   Q_SIGNALS:
 	// A bit hacky: this is to be able to call PVParamsWidget::set_info virtual pure function

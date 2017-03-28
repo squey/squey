@@ -155,7 +155,7 @@ void PVParallelView::PVAbstractAxisSlider::contextMenuEvent(QGraphicsSceneContex
 		QMenu menu;
 
 		QAction* rem = menu.addAction("Remove cursors");
-		connect(rem, SIGNAL(triggered()), _owner, SLOT(remove_from_axis()));
+		connect(rem, &QAction::triggered, _owner, &PVAbstractAxisSliders::remove_from_axis);
 
 		if (menu.exec(event->screenPos()) != nullptr) {
 			event->accept();

@@ -33,8 +33,8 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	_rect->clear();
 	_rect->set_pen_color(PVSelectionRectangle::rectangle_color);
 
-	connect(_rect, SIGNAL(geometry_has_changed(const QRectF&, const QRectF&)), this,
-	        SLOT(start_timer()));
+	connect(_rect, &PVSelectionRectangleItem::geometry_has_changed, this,
+	        &PVSelectionRectangle::start_timer);
 
 	QColor hc = PVSelectionRectangle::handle_color;
 	_rect->set_handles_pen_color(hc);
@@ -44,12 +44,13 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	_timer = new QTimer(this);
 	_timer->setSingleShot(true);
 
-	connect(_timer, SIGNAL(timeout()), this, SLOT(timeout()));
+	connect(_timer, &QTimer::timeout, this, &PVSelectionRectangle::timeout);
 
 	/* as commit is a virtual method, the chaining
 	 * timeout->commit_volatile_selection->commit is required
 	 */
-	connect(this, SIGNAL(commit_volatile_selection(bool)), this, SLOT(commit(bool)));
+	connect(this, &PVSelectionRectangle::commit_volatile_selection, this,
+	        &PVSelectionRectangle::commit);
 }
 
 /*****************************************************************************
@@ -127,7 +128,8 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
 	selection_mode->addAction(r_sel);
 	view->addAction(r_sel);
 	signal_mapper->setMapping(r_sel, SelectionMode::RECTANGLE);
-	QObject::connect(r_sel, SIGNAL(triggered(bool)), signal_mapper, SLOT(map()));
+	QObject::connect(r_sel, &QAction::triggered, signal_mapper,
+	                 static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 
 	// Horizontal selection
 	QAction* h_sel = new QAction("Horizontal", toolbar);
@@ -137,7 +139,8 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
 	selection_mode->addAction(h_sel);
 	view->addAction(h_sel);
 	signal_mapper->setMapping(h_sel, SelectionMode::HORIZONTAL);
-	QObject::connect(h_sel, SIGNAL(triggered(bool)), signal_mapper, SLOT(map()));
+	QObject::connect(h_sel, &QAction::triggered, signal_mapper,
+	                 static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 
 	// Vertical selection
 	QAction* v_sel = new QAction("Vertical", toolbar);
@@ -147,7 +150,8 @@ QToolButton* PVParallelView::PVSelectionRectangle::add_selection_mode_selector(
 	selection_mode->addAction(v_sel);
 	view->addAction(v_sel);
 	signal_mapper->setMapping(v_sel, SelectionMode::VERTICAL);
-	QObject::connect(v_sel, SIGNAL(triggered(bool)), signal_mapper, SLOT(map()));
+	QObject::connect(v_sel, &QAction::triggered, signal_mapper,
+	                 static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 
 	toolbar->addWidget(selection_mode);
 

@@ -22,6 +22,7 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/rush/PVConverter.h>
 
 #include <pvguiqt/PVAxesCombinationWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
@@ -534,6 +535,10 @@ bool PVInspector::PVFormatBuilderWidget::save()
 		return saveAs();
 	}
 
+	if (!check_format_validity()) {
+		return false;
+	}
+
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {
 		PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(_cur_file);
@@ -557,38 +562,59 @@ bool PVInspector::PVFormatBuilderWidget::save()
 
 void PVInspector::PVFormatBuilderWidget::check_for_new_time_formats()
 {
-	const std::unordered_set<std::string> time_formats = get_format_from_dom().get_time_formats();
-	std::unordered_set<std::string> supported_time_formats =
-	    PVRush::PVTypesDiscoveryOutput::supported_time_formats();
-	std::unordered_set<std::string> new_time_formats;
+	try {
+		const std::unordered_set<std::string> time_formats =
+		    get_format_from_dom().get_time_formats();
+		std::unordered_set<std::string> supported_time_formats =
+		    PVRush::PVTypesDiscoveryOutput::supported_time_formats();
+		std::unordered_set<std::string> new_time_formats;
 
-	for (const std::string& time_format : time_formats) {
-		auto it = supported_time_formats.find(time_format);
-		if (it == supported_time_formats.end() && time_format.find("epoch") == std::string::npos) {
-			new_time_formats.emplace(time_format);
+		for (const std::string& time_format : time_formats) {
+			auto it = supported_time_formats.find(time_format);
+			if (it == supported_time_formats.end() &&
+			    time_format.find("epoch") == std::string::npos) {
+				new_time_formats.emplace(time_format);
+			}
 		}
+
+		if (not new_time_formats.empty()) {
+			QStringList time_formats_list;
+			for (const std::string& time_format : new_time_formats) {
+				time_formats_list << QString::fromStdString(time_format);
+			}
+
+			bool multi = new_time_formats.size() > 1;
+			bool add_time_formats =
+			    QMessageBox::question(
+			        this, QString("New time format") + (multi ? "s" : "") + " detected",
+			        QString("The following time format") + (multi ? "s are" : " is") +
+			            " not currently enabled in axes type autodetection :" + "<br><br><i>" +
+			            time_formats_list.join("<br>") + "<br><br></i>Do you want to enable " +
+			            (multi ? "them" : "it") + " in future autodetections?",
+			        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes;
+
+			if (add_time_formats) {
+				PVRush::PVTypesDiscoveryOutput::append_time_formats(new_time_formats);
+			}
+		}
+	} catch (const PVRush::PVFormatInvalid& e) {
+		// there is no time format to gather if the format is invalid
+	}
+}
+
+bool PVInspector::PVFormatBuilderWidget::check_format_validity()
+{
+	if (myTreeModel->get_axes_count() >= 2) {
+		return true;
 	}
 
-	if (not new_time_formats.empty()) {
-		QStringList time_formats_list;
-		for (const std::string& time_format : new_time_formats) {
-			time_formats_list << QString::fromStdString(time_format);
-		}
+	auto res =
+	    QMessageBox::warning(this, "Invalid format...", "Your format has less than 2 axes and will "
+	                                                    "not be usable to import any data.<br><br>"
+	                                                    "Do you want to save it anyway?",
+	                         QMessageBox::Yes | QMessageBox::No);
 
-		bool multi = new_time_formats.size() > 1;
-		bool add_time_formats =
-		    QMessageBox::question(
-		        this, QString("New time format") + (multi ? "s" : "") + " detected",
-		        QString("The following time format") + (multi ? "s are" : " is") +
-		            " not currently enabled in axes type autodetection :" + "<br><br><i>" +
-		            time_formats_list.join("<br>") + "<br><br></i>Do you want to enable " +
-		            (multi ? "them" : "it") + " in future autodetections?",
-		        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes;
-
-		if (add_time_formats) {
-			PVRush::PVTypesDiscoveryOutput::append_time_formats(new_time_formats);
-		}
-	}
+	return res == QMessageBox::Yes;
 }
 
 /******************************************************************************
@@ -604,6 +630,10 @@ void PVInspector::PVFormatBuilderWidget::slotSave()
 bool PVInspector::PVFormatBuilderWidget::saveAs()
 {
 	setFocus(Qt::MouseFocusReason);
+
+	if (!check_format_validity()) {
+		return false;
+	}
 
 	QModelIndex index;
 	myTreeView->applyModification(myParamBord_old_model, index);
@@ -719,8 +749,9 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 	}
 
 	if (has_header) {
-		if (QMessageBox::question(this, "Header detected",
-		                          "A header has been detected: use it to fill axes name ?") ==
+		if (QMessageBox::question(
+		        this, "Header detected",
+		        "A header has been detected: use it to fill the name of the axes?") ==
 		    QMessageBox::Yes) {
 			_options_widget->set_lines_range(1, myTreeModel->get_line_count());
 		}
@@ -947,7 +978,7 @@ PVInspector::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p
 	    tree_model.addSplitterWithAxes(tree_model.index(0, 0, QModelIndex()), sp_widget, axes_name);
 	node->setFromArgumentList(sp->get_args());
 
-	return PVRush::PVFormat(tree_model.getRootDom(), true);
+	return PVRush::PVFormat(tree_model.getRootDom());
 }
 
 PVRush::PVFormat
@@ -1076,6 +1107,9 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	} catch (PVRush::PVFormatInvalidTime const& e) {
 		QMessageBox::critical(this, "Error", e.what());
 		has_error = true;
+	} catch (PVRush::PVConverterCreationError const& e) {
+		QMessageBox::critical(this, "Unsupported charset", e.what());
+		has_error = true;
 	}
 
 	if (has_error) {
@@ -1109,7 +1143,7 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom() const
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
-	return PVRush::PVFormat{rootDom, true};
+	return PVRush::PVFormat{rootDom};
 }
 
 void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)

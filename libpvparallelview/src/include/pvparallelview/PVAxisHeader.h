@@ -67,7 +67,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
   Q_SIGNALS:
 	void mouse_hover_entered(PVCombCol col, bool entered);
 	void mouse_clicked(PVCombCol col);
-	void new_zoomed_parallel_view(PVCombCol _axis_index);
+	void new_zoomed_parallel_view(PVCombCol axis_index);
 	void new_selection_slider();
 
   private Q_SLOTS:

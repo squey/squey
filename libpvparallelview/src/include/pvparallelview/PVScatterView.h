@@ -130,8 +130,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	void update_all();
 	void update_sel();
 
-	void update_img_bg(PVParallelView::PVZoneRendering_p zr, int zid);
-	void update_img_sel(PVParallelView::PVZoneRendering_p zr, int zid);
+	void update_img_bg(PVParallelView::PVZoneRendering_p zr, PVZoneID zid);
+	void update_img_sel(PVParallelView::PVZoneRendering_p zr, PVZoneID zid);
 
 	void toggle_unselected_zombie_visibility();
 	void toggle_show_labels();

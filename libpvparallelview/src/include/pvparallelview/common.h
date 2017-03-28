@@ -99,10 +99,17 @@ static const QMargins frame_offsets(3, 2, 3, 2);
 
 //#include <pvkernel/core/PVAllocators.h>
 
-using PVZoneID = PVCol::value_type;
-static const PVZoneID PVZONEID_INVALID = PVCol::INVALID_VALUE;
+DEFINE_STRONG_TYPEDEF(PVZoneID, int)
+static const PVZoneID PVZONEID_INVALID = PVZoneID();
 
 Q_DECLARE_METATYPE(PVZoneID);
+
+static bool _ __attribute((unused)) = []() {
+	qRegisterMetaType<PVZoneID>("PVZoneID");
+	return true;
+}();
+
+DEFINE_STRONG_TYPEDEF(PVZoneIDOffset, unsigned int)
 
 static constexpr const int BCI_BUFFERS_COUNT = 10;
 

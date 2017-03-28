@@ -11,6 +11,7 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvkernel/core/PVSerializeObject.h>
+#include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvcop/db/read_dict.h>
 
@@ -51,11 +52,9 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 	// c : the first bytes
 	// d : weak bits of the sum of the remaining bytes
 
-	assert(size <= 4096UL && "PVCOP give smaller str, string size would be too big");
-
 	// Compute "a" and set it in the first 4 bits of factor
 	uint8_t shift = 32 - 4;
-	const uint8_t a = int_log2(size);
+	const uint8_t a = int_log2(PVCore::clamp(1UL, size, (size_t)(1 << ((1 << 4) - 1))));
 	uint32_t factor = (a + 1) << shift; // +1 to separate 1 length strings from 0 length strings
 
 	// Compute "b" and set it in the shortest number of bits that may contains it after "a"
@@ -136,7 +135,7 @@ pvcop::db::array Inendi::PVMappingFilterString::operator()(PVCol const col,
 #pragma omp parallel for
 		for (size_t dict_idx = 0; dict_idx < dict.size(); dict_idx++) {
 			const char* c = dict.key(dict_idx);
-			ret[dict_idx] = compute_str_factor(c, strlen(c), _case_sensitive);
+			ret[dict_idx] = compute_str_factor(c, strlen(c));
 		}
 
 		auto& core_array = array.to_core_array<string_index_t>();

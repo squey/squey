@@ -14,29 +14,54 @@
 #include <rapidjson/stringbuffer.h>
 
 #include <pvkernel/core/PVQueryBuilderJsonConverter.h>
+#include <pvkernel/core/PVVersion.h>
 
 /** Converter object from QueryBuilder json to ElasticSearch json
  */
 class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 {
+  private:
+	class PVRawWriter : public rapidjson::Writer<rapidjson::StringBuffer>
+	{
+	  public:
+		using rapidjson::Writer<rapidjson::StringBuffer>::Writer;
+
+		bool RawString(const Ch* str)
+		{
+			for (size_t i = 0; str[i] != '\0'; i++) {
+				os_->Put(str[i]);
+			}
+			return true;
+		}
+	};
+
   public:
 	/** Parse json input to be processed
 	 *
 	 * @param qb_rule : json input
 	 */
-	PVElasticSearchJsonConverter(std::string const& qb_rule);
+	PVElasticSearchJsonConverter(const PVCore::PVVersion& version, std::string const& qb_rule);
 
 	/** Translate querybuilder json to elasticsearch json
 	 *
 	 * @return elasticsearch json input
 	 */
-	std::string rules_to_json();
+	std::string rules_to_json() override;
 
   private:
+	using not_map_t = std::unordered_map<std::string, const char*>;
+
 	rapidjson::StringBuffer
 	    _strbuf; //!< internal buffer to store elasticsearch json in construction document
-	rapidjson::Writer<rapidjson::StringBuffer>
-	    _writer; //!< internal object to create elasticsearch json file
+	rapidjson::StringBuffer
+	    _strbuf_not;     //!< internal buffer to store elasticsearch json in construction document
+	PVRawWriter _writer; // writer for normal operations
+	PVRawWriter _writer_negate; // writer for negated operations
+
+	PVRawWriter* _current_writer; // pointer to the proper writer
+	PVCore::PVVersion _version;
+
+	std::vector<std::string> _negated_terms;
 
   private:
 	/** Parse a condition and add it's infomations in the json in progress.
@@ -52,14 +77,15 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 *
 	 * @note in and not_in values are dumped once all rules are process.
 	 */
-	void parse_condition(rapidjson::Value const& obj);
+	void parse_condition(rapidjson::Value const& obj) override;
 
 	/** Generate between json
 	 *
 	 * {"range": {"id": {"gte" : begin, "lte": end}}}
 	 */
-	void
-	between(rapidjson::Value const& id, rapidjson::Value const& begin, rapidjson::Value const& end);
+	void between(rapidjson::Value const& id,
+	             rapidjson::Value const& begin,
+	             rapidjson::Value const& end) override;
 
 	/** Generic comparison for less/greater/less_or_equal/greater_or_equal */
 	void compare(rapidjson::Value const& id, rapidjson::Value const& end, const char*);
@@ -68,25 +94,25 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 *
 	 * {"regexp": {"id": "*value*"}}
 	 */
-	void contains(rapidjson::Value const& id, rapidjson::Value const& value);
+	void contains(rapidjson::Value const& id, rapidjson::Value const& value) override;
 
 	/** Generate is_empty json
 	 *
 	 * {"term": {"id": "value"}}
 	 */
-	void equal(rapidjson::Value const& id, rapidjson::Value const& value);
+	void equal(rapidjson::Value const& id, rapidjson::Value const& value) override;
 
 	/** Generate greater json
 	 *
 	 * {"range": {"id": {"gte" : "value"}}}
 	 */
-	void greater(rapidjson::Value const& id, rapidjson::Value const& end);
+	void greater(rapidjson::Value const& id, rapidjson::Value const& end) override;
 
 	/** Generate greater_or_equal json
 	 *
 	 * {"range": {"id": {"gt" : "value"}}}
 	 */
-	void greater_or_equal(rapidjson::Value const& id, rapidjson::Value const& end);
+	void greater_or_equal(rapidjson::Value const& id, rapidjson::Value const& end) override;
 
 	/** Push id/value in the in_values dict for later processing.
 	 */
@@ -97,25 +123,25 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 * ForEach key, values in saved:
 	 * {"terms": {"key": [values...]}}
 	 */
-	void inject_in(map_t const& saved);
+	void inject_in(map_t const& saved) override;
 
 	/** Generate is_empty json
 	 *
 	 * {"term": {"id": ""}}
 	 */
-	void is_empty(rapidjson::Value const& id);
+	void is_empty(rapidjson::Value const& id) override;
 
 	/** Generate less json
 	 *
 	 * {"range": {"id": {"lt" : "value"}}}
 	 */
-	void less(rapidjson::Value const& id, rapidjson::Value const& end);
+	void less(rapidjson::Value const& id, rapidjson::Value const& end) override;
 
 	/** Generate less_or_equal json
 	 *
 	 * {"range": {"id": {"lte" : "value"}}}
 	 */
-	void less_or_equal(rapidjson::Value const& id, rapidjson::Value const& end);
+	void less_or_equal(rapidjson::Value const& id, rapidjson::Value const& end) override;
 
 	/** Push id/value in the not_in_values dict for later processing.
 	 */
@@ -125,20 +151,26 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	 *
 	 * {"prefix": {"id": "value"}}
 	 */
-	void prefix(rapidjson::Value const& id, rapidjson::Value const& value);
+	void prefix(rapidjson::Value const& id, rapidjson::Value const& value) override;
 
 	/** Generate ends_with json
 	 *
 	 * {"regexp": {"id": "value*"}}
 	 */
-	void suffix(rapidjson::Value const& id, rapidjson::Value const& value);
+	void suffix(rapidjson::Value const& id, rapidjson::Value const& value) override;
 
 	/** Generic method to negate a node
 	 *
 	 * {"not": contains_condition }
 	 */
-	void pre_not_();
-	void post_not_();
+	void pre_not_() override;
+	void post_not_() override;
+
+	/** Put "not" operations in a must_not block (ES 5.0.0+)
+	 *
+	 * {"must_not": [{"term":{"id1":"value1"}}, {"term":{"id2":"value2"}}, ...]}
+	 */
+	void inject_not(std::vector<std::string> const& saved);
 };
 
 #endif

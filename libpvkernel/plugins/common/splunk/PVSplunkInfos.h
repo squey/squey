@@ -26,6 +26,7 @@ class PVSplunkInfos
 	void set_splunk_index(QString const& index) { _splunk_index = index; }
 	void set_splunk_host(QString const& host) { _splunk_host = host; }
 	void set_splunk_sourcetype(QString const& sourcetype) { _splunk_sourcetype = sourcetype; }
+	void set_format(QString const& format) { _format = format; }
 
 	QString const& get_host() const { return _host; }
 	uint16_t get_port() const { return _port; }
@@ -35,11 +36,13 @@ class PVSplunkInfos
 	QString const& get_splunk_index() const { return _splunk_index; }
 	QString const& get_splunk_host() const { return _splunk_host; }
 	QString const& get_splunk_sourcetype() const { return _splunk_sourcetype; }
+	QString const& get_format() const { return _format; }
 
 	inline bool operator==(PVSplunkInfos const& o) const
 	{
 		return _host == o._host && _port == o._port && _splunk_index == o._splunk_index &&
-		       _splunk_host == o._splunk_host && _splunk_sourcetype == o._splunk_sourcetype;
+		       _splunk_host == o._splunk_host && _splunk_sourcetype == o._splunk_sourcetype &&
+		       _format == o._format;
 	}
 
 	void serialize_write(PVCore::PVSerializeObject& so) const;
@@ -54,6 +57,7 @@ class PVSplunkInfos
 	QString _splunk_index;
 	QString _splunk_host;
 	QString _splunk_sourcetype;
+	QString _format;
 };
 }
 

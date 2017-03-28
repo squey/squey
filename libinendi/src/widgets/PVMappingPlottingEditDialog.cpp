@@ -228,7 +228,6 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			QString mode = map_combo->get_mode();
 
 			prop.set_mode(mode.toStdString());
-			prop.set_args(map_combo->get_cur_filter_params());
 		}
 		if (has_plotting()) {
 			PVWidgets::PVPlottingModeWidget* combo = dynamic_cast<PVWidgets::PVPlottingModeWidget*>(

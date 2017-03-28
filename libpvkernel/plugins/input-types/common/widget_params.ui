@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- @file -->
-<!-- @copyright (C) Picviz Labs 2011-March 2015 -->
-<!-- @copyright (C) ESI Group INENDI April 2015-2015 -->
 <ui version="4.0">
  <class>WidgetParams</class>
  <widget class="QDialog" name="WidgetParams">
@@ -46,7 +43,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -188,7 +185,7 @@
                <string/>
               </property>
               <property name="inputMethodHints">
-               <set>Qt::ImhNone</set>
+               <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
               </property>
               <property name="echoMode">
                <enum>QLineEdit::Password</enum>
@@ -235,22 +232,27 @@
           <layout class="QHBoxLayout" name="_custom_layout"/>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="QLabel" name="label_6">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+            <widget class="QLabel" name="label">
              <property name="text">
-              <string>Query type :</string>
+              <string>Format :</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="_query_type_cb"/>
+            <widget class="QLineEdit" name="_format_path">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="_format_button">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -266,8 +268,11 @@
             <string>Query</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0" colspan="4">
+            <item row="1" column="0" colspan="4">
              <widget class="QPlainTextEdit" name="_txt_query">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                 <horstretch>0</horstretch>
@@ -279,14 +284,14 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0" colspan="4">
+            <item row="2" column="0" colspan="4">
              <layout class="QGridLayout" name="_querybuilder_layout">
               <property name="sizeConstraint">
                <enum>QLayout::SetMaximumSize</enum>
               </property>
              </layout>
             </item>
-            <item row="2" column="0">
+            <item row="3" column="0">
              <widget class="QLabel" name="_reference_label">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-filters.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Elasticsearch Filters reference&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -299,7 +304,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="3">
+            <item row="3" column="3">
              <widget class="QPushButton" name="_export_pushbutton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -312,7 +317,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="2">
+            <item row="3" column="2">
              <widget class="QPushButton" name="_count_btn">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -324,6 +329,26 @@
                <string>Get result &amp;count</string>
               </property>
              </widget>
+            </item>
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Query type :</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="_query_type_cb"/>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
