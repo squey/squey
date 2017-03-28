@@ -37,17 +37,63 @@ int main()
 	infos.set_host("http://connectors.srv.picviz");
 	infos.set_port(9200);
 	infos.set_index("proxy_sample");
+	infos.set_login("elastic");
+	infos.set_password("changeme");
 
 	/*
 	 * Set Up an ElasticSearchQuery.
 	 * It contains all information required to define data to extract
 	 */
 	std::string query_type = "json";
-	std::string query_str = "{ \"query\" : { \"range\" : {"
-	                        "\"total_bytes\" : {"
-	                        "\"gte\": 350000"
-	                        "}"
-	                        "} } }";
+	std::string query_str = R"###({  
+		"query":{  
+			"constant_score":{  
+				"filter":{  
+					"bool":{  
+						"must":[  
+							{  
+								"term":{  
+									"http_method":"get"
+								}
+							},
+							{  
+								"bool":{  
+									"should":[  
+										{  
+											"range":{  
+												"time_spent":{  
+													"gt":10000
+												}
+											}
+										}
+									],
+									"must_not":[  
+										{  
+											"term":{  
+												"mime_type":"image/jpeg"
+											}
+										}
+									]
+								}
+							}
+						],
+						"must_not":[  
+							{  
+								"term":{  
+									"login":"11437"
+								}
+							},
+							{  
+								"term":{  
+									"login":"10715"
+								}
+							}
+						]
+					}
+				}
+			}
+		}
+	})###";
 	PVRush::PVInputDescription_p ind(
 	    new PVRush::PVElasticsearchQuery(infos, query_str.c_str(), query_type.c_str()));
 
@@ -56,10 +102,11 @@ int main()
 	PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(ind);
 	auto& source = *src;
 
-	PV_VALID(source.get_size(), 10439UL);
+	static constexpr const size_t MEGA = 1024 * 1024;
+	PV_VALID(source.get_size(), MEGA * 9981UL);
 
 	std::string output_file = pvtest::get_tmp_filename();
-	std::string output_file_sorted = output_file + "_sorted";
+	std::string ref_file_sorted = output_file + "_sorted";
 	// Extract source and split fields.
 	{
 		std::ofstream ofs(output_file);
@@ -79,12 +126,13 @@ int main()
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
-	PVRush::PVUtils::sort_file(output_file.c_str(), output_file_sorted.c_str());
-	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
+	PVRush::PVUtils::sort_file(output_file.c_str());
+	PVRush::PVUtils::sort_file(ref_file, ref_file_sorted.c_str());
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file_sorted));
 #endif
 
 	std::remove(output_file.c_str());
-	std::remove(output_file_sorted.c_str());
+	std::remove(ref_file_sorted.c_str());
 
 	return 0;
 }

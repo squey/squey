@@ -20,6 +20,21 @@
  */
 class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 {
+  private:
+	class PVRawWriter : public rapidjson::Writer<rapidjson::StringBuffer>
+	{
+	  public:
+		using rapidjson::Writer<rapidjson::StringBuffer>::Writer;
+
+		bool RawString(const Ch* str)
+		{
+			for (size_t i = 0; str[i] != '\0'; i++) {
+				os_->Put(str[i]);
+			}
+			return true;
+		}
+	};
+
   public:
 	/** Parse json input to be processed
 	 *
@@ -39,11 +54,11 @@ class PVElasticSearchJsonConverter : public PVCore::PVQueryBuilderJsonConverter
 	rapidjson::StringBuffer
 	    _strbuf; //!< internal buffer to store elasticsearch json in construction document
 	rapidjson::StringBuffer
-	    _strbuf_not; //!< internal buffer to store elasticsearch json in construction document
-	rapidjson::Writer<rapidjson::StringBuffer> _writer;        // writer for normal operations
-	rapidjson::Writer<rapidjson::StringBuffer> _writer_negate; // writer for negated operations
+	    _strbuf_not;     //!< internal buffer to store elasticsearch json in construction document
+	PVRawWriter _writer; // writer for normal operations
+	PVRawWriter _writer_negate; // writer for negated operations
 
-	rapidjson::Writer<rapidjson::StringBuffer>* _current_writer; // pointer to the proper writer
+	PVRawWriter* _current_writer; // pointer to the proper writer
 	PVCore::PVVersion _version;
 
 	std::vector<std::string> _negated_terms;

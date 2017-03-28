@@ -178,10 +178,10 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 
 	PVRush::PVElasticsearchAPI es(get_infos());
 	const PVElasticsearchQuery& query = get_query(error);
-	PVElasticsearchAPI::rows_chunk_t rows_array;
+	PVElasticsearchAPI::rows_t rows;
 
 	do {
-		query_end = es.extract(query, rows_array, error);
+		query_end = es.extract(query, rows, error);
 
 		// First extract have to be done to ge the scroll_count value.
 		pbox.set_maximum(es.scroll_count());
@@ -195,12 +195,10 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 			break;
 		}
 
-		for (const PVElasticsearchAPI::rows_t& rows : rows_array) {
-			for (const std::string& row : rows) {
-				output_stream << row.c_str() << endl;
-			}
-			count += rows.size();
+		for (const std::string& row : rows) {
+			output_stream << row.c_str() << endl;
 		}
+		count += rows.size();
 
 		if (output_stream.status() == QTextStream::WriteFailed) {
 			if (error) {

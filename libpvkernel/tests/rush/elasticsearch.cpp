@@ -33,6 +33,8 @@ int main(int argc, char** argv)
 	infos.set_host("http://connectors.srv.picviz");
 	infos.set_port(9200);
 	infos.set_index("proxy_sample");
+	infos.set_login("elastic");
+	infos.set_password("changeme");
 
 	/*
 	 * Set Up an ElasticSearchQuery.
@@ -55,18 +57,26 @@ int main(int argc, char** argv)
 		  "type": "string",
 		  "input": "text",
 		  "operator": "not_equal",
-		  "value": "toto"
+		  "value": "11437"
+		},
+		{
+		  "id": "login",
+		  "field": "login",
+		  "type": "string",
+		  "input": "text",
+		  "operator": "not_equal",
+		  "value": "10715"
 		},
 		{
 		  "condition": "OR",
 		  "rules": [
 			{
-			  "id": "category",
-			  "field": "category",
+			  "id": "mime_type",
+			  "field": "mime_type",
 			  "type": "string",
 			  "input": "text",
-			  "operator": "equal",
-			  "value": "13"
+			  "operator": "not_equal",
+			  "value": "image/jpeg"
 			},
 			{
 			  "id": "time_spent",
@@ -144,7 +154,7 @@ int main(int argc, char** argv)
 		std::cout << error << std::endl;
 	}
 
-	PV_VALID(count, 11468UL);
+	PV_VALID(count, 9981UL);
 
 	/**************************************************************************
 	 * Check export query is correct
@@ -158,16 +168,14 @@ int main(int argc, char** argv)
 	std::string reference_file = argv[1];
 	std::string reference_sorted_file = output_file + "_sorted";
 	std::ofstream output_stream(output_file, std::ios::out | std::ios::trunc);
-	PVRush::PVElasticsearchAPI::rows_chunk_t rows_array;
+	PVRush::PVElasticsearchAPI::rows_t rows;
 
 	// Extract data
 	bool query_end = false;
 	do {
-		query_end = elasticsearch.extract(query, rows_array, &error);
-		for (const PVRush::PVElasticsearchAPI::rows_t& rows : rows_array) {
-			for (const std::string& row : rows) {
-				output_stream << row.c_str() << std::endl;
-			}
+		query_end = elasticsearch.extract(query, rows, &error);
+		for (const std::string& row : rows) {
+			output_stream << row.c_str() << std::endl;
 		}
 	} while (query_end == false);
 
@@ -189,11 +197,12 @@ int main(int argc, char** argv)
 	PVRush::PVUtils::sort_file(output_file.c_str());
 
 	// Check number of line is the same with : reference_file / exported_file / count call
-	PV_ASSERT_VALID(
-	    (output_file_line_count == reference_file_line_count && output_file_line_count == count));
+	std::cout << output_file << " (" << output_file_line_count << ") - " << reference_sorted_file
+	          << " (" << reference_file_line_count << ")" << std::endl;
+	PV_VALID(output_file_line_count, reference_file_line_count);
+	PV_VALID(output_file_line_count, count);
 
 	// Checksum of reference and exported files are sames
-	std::cout << std::endl << output_file << " - " << reference_sorted_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, reference_sorted_file));
 
 	/*
