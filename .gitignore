@@ -5,3 +5,10 @@ inspector.sh
 */tests/*/bin
 .gdb_history
 third-party/*
+
+#Ignore doxygen compile documentation
+collection.qhc
+doxygen_sqlite3.db
+*/doc/html/
+*/doc/tags
+
