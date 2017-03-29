@@ -49,7 +49,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/**
 	 * Function to export asked line;
 	 */
-	virtual QString export_line(int) const = 0;
+	virtual QString export_line(int, const QString& fsep) const = 0;
 
 	/// Selection
 

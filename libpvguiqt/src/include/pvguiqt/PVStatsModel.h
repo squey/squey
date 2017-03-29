@@ -65,9 +65,8 @@ class PVStatsModel : public PVAbstractTableModel
 		return QVariant();
 	}
 
-	QString export_line(int row) const override
+	QString export_line(int row, const QString& fsep) const override
 	{
-		static const QString sep(",");
 		static const QString escaped_quote("\"\"");
 		static const QString quote("\"");
 
@@ -85,13 +84,13 @@ class PVStatsModel : public PVAbstractTableModel
 
 		double ratio = occurence_count / max_count();
 		if ((_format & ValueFormat::Count) == ValueFormat::Count) {
-			value.append(sep + quote + format_occurence(occurence_count) + quote);
+			value.append(fsep + quote + format_occurence(occurence_count) + quote);
 		}
 		if ((_format & ValueFormat::Scientific) == ValueFormat::Scientific) {
-			value.append(sep + quote + format_scientific_notation(ratio) + quote);
+			value.append(fsep + quote + format_scientific_notation(ratio) + quote);
 		}
 		if ((_format & ValueFormat::Percent) == ValueFormat::Percent) {
-			value.append(sep + quote + format_percentage(ratio) + quote);
+			value.append(fsep + quote + format_percentage(ratio) + quote);
 		}
 
 		return value;
