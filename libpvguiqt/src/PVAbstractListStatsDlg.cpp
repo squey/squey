@@ -426,8 +426,6 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_create_layers_for_values_act = new QAction("Create layers from those values", _values_view);
 	_ctxt_menu->addAction(_create_layers_for_values_act);
 
-	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
-
 	// Bind the click on header to sort the clicked column
 	connect(_values_view->horizontalHeader(), &QHeaderView::sectionClicked,
 	        [&](int col) { section_clicked(PVCol(col)); });
@@ -444,7 +442,6 @@ void PVGuiQt::PVAbstractListStatsDlg::sort()
 {
 	Qt::SortOrder order = _values_view->horizontalHeader()->sortIndicatorOrder();
 	model().sort(0, order);
-	_btn_sort->hide();
 }
 
 /******************************************************************************
