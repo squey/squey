@@ -228,7 +228,8 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 				std::string f(field.begin(), field.end());
 				bool pass_autodetect;
 				_formatters[idx]->from_string(f.c_str(), &t, 0, &pass_autodetect);
-				matching_formatters[col][idx] = matching_formatters[col][idx] and pass_autodetect;
+				matching_formatters[col][idx] =
+				    matching_formatters[col][idx] and (pass_autodetect or f.empty());
 
 				/**
 				 * Disable mutually exclusive formatters to speed-up autodetection
