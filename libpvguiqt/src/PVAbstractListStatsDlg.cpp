@@ -297,9 +297,10 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 		}
 	}
 
-	_values_view->horizontalHeader()->setSortIndicator(_sort_section,
-	                                                   Qt::SortOrder::AscendingOrder);
-	sort_by_column(_sort_section);
+	// Enable values view sorting capability
+	_values_view->horizontalHeader()->setSortIndicatorShown(true);
+	_values_view->setSortingEnabled(true);
+	_values_view->sortByColumn(PVCol(1), Qt::DescendingOrder);
 
 	_values_view->horizontalHeader()->show();
 	_values_view->verticalHeader()->show();
@@ -412,22 +413,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_create_layers_for_values_act = new QAction("Create layers from those values", _values_view);
 	_ctxt_menu->addAction(_create_layers_for_values_act);
 
-	// Bind the click on header to sort the clicked column
-	connect(_values_view->horizontalHeader(), &QHeaderView::sectionClicked,
-	        [&](int col) { section_clicked(PVCol(col)); });
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::section_clicked(PVCol col)
-{
-	// Sort
-	sort_by_column(col);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::sort()
-{
-	Qt::SortOrder order = _values_view->horizontalHeader()->sortIndicatorOrder();
-	model().sort(0, order);
 }
 
 /******************************************************************************
@@ -615,22 +601,6 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 
 	(void)row_count;
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(PVCol col)
-{
-	_values_view->horizontalHeader()->setSortIndicatorShown(true);
-
-	PVCol section = (PVCol)_values_view->horizontalHeader()->sortIndicatorSection();
-
-	Qt::SortOrder old_order = _values_view->horizontalHeader()->sortIndicatorOrder();
-	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not(bool) old_order
-	                                               : col == 0 ? Qt::SortOrder::AscendingOrder
-	                                                          : Qt::SortOrder::DescendingOrder;
-
-	model().sort(col, new_order);
-
-	_sort_section = section;
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,

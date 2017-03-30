@@ -84,7 +84,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	inline bool use_logarithmic_scale() { return model().use_log_scale(); }
 
   protected:
-	void sort_by_column(PVCol col);
 	bool process_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
 
@@ -101,8 +100,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
   protected Q_SLOTS:
 	void scale_changed(QAction* act);
 	void max_changed(QAction* act);
-	void section_clicked(PVCol col);
-	void sort();
 
   protected Q_SLOTS:
 	void select_set_mode_count(bool checked);
@@ -182,7 +179,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	 * while filing the context menu.
 	 */
 	QAction* _msearch_action_for_layer_creation;
-	PVCol _sort_section = PVCol(1);
 
 	// margins, spacings, and aligment sizes to render statistics
 	int _margin_stats;

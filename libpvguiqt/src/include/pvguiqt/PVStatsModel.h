@@ -57,6 +57,20 @@ class PVStatsModel : public PVAbstractTableModel
 				return (Qt::AlignRight + Qt::AlignVCenter);
 			}
 			break;
+		case Qt::InitialSortOrderRole:
+			// this role is to get the default sort order of a section
+			if (orientation == Qt::Vertical) {
+				// handling vertical header is not relevant
+				return QVariant();
+			}
+			if (section == 0) {
+				// the values column uses ascending
+				return Qt::AscendingOrder;
+			} else {
+				// the stats column uses descending
+				return Qt::DescendingOrder;
+			}
+			break;
 		default:
 			return QVariant();
 			break;
@@ -148,6 +162,8 @@ class PVStatsModel : public PVAbstractTableModel
 	void sort(int col_idx, Qt::SortOrder order) override
 	{
 		assert(col_idx == 0 || col_idx == 1);
+
+		Q_EMIT layoutAboutToBeChanged();
 
 		if (_display.sorted_column() != col_idx) {
 			const pvcop::db::array& column = (col_idx == 0) ? _col1 : _col2;
