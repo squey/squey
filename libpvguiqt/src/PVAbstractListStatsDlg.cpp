@@ -920,10 +920,13 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 		// initializing the text starting horizontal offset
 		int x = option.rect.x() + d()->_margin_stats;
 
+		// all texts must be placed the same way in their respective areas
+		int align_flags = Qt::AlignRight | Qt::AlignVCenter;
+
 		if (show_count) {
 			int field_size = d()->_field_size_count;
 
-			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), Qt::AlignRight,
+			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
 			                  PVStatsModel::format_occurence(occurence_count));
 			x += field_size;
 		}
@@ -935,7 +938,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 				x += d()->_spacing_cs;
 			}
 
-			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), Qt::AlignRight,
+			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
 			                  PVStatsModel::format_scientific_notation(ratio));
 			x += field_size;
 		}
@@ -949,7 +952,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 				x += d()->_spacing_cp;
 			}
 
-			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), Qt::AlignRight,
+			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
 			                  PVStatsModel::format_percentage(ratio));
 		}
 	}
