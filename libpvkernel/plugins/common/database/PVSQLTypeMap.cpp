@@ -84,29 +84,32 @@ QString PVRush::PVSQLTypeMapMysql::map_inendi(int type) const
 	case FIELD_TYPE_INT24:
 	case FIELD_TYPE_YEAR:
 	case FIELD_TYPE_LONGLONG:
-		return "integer";
+		return "number_int32";
+
 	case FIELD_TYPE_FLOAT:
-	case FIELD_TYPE_DOUBLE:
 	case FIELD_TYPE_DECIMAL:
-		return "float";
+		return "number_float";
+
+	case FIELD_TYPE_DOUBLE:
+		return "number_double";
+
+	// TODO : dates must be propely supported
 	case FIELD_TYPE_DATE:
-		return "time";
 	case FIELD_TYPE_TIME:
-		return "time";
 	case FIELD_TYPE_DATETIME:
-		return "time";
 	case FIELD_TYPE_TIMESTAMP:
-		return "time";
+		return "string";
+
 	case FIELD_TYPE_STRING:
 	case FIELD_TYPE_VAR_STRING:
 	case FIELD_TYPE_BLOB:
 	case FIELD_TYPE_TINY_BLOB:
 	case FIELD_TYPE_MEDIUM_BLOB:
 	case FIELD_TYPE_LONG_BLOB:
-		return "string";
 	case FIELD_TYPE_ENUM:
 	case FIELD_TYPE_SET:
-		return "enum";
+		return "string";
 	};
-	return "enum";
+
+	return "string";
 }

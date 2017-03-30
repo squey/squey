@@ -9,7 +9,6 @@
 
 #include "PVDatabaseParamsWidget.h"
 #include "PVDBPreviewWidget.h"
-#include "PVSQLTypeMap.h"
 #include "PVInputTypeDatabase.h"
 
 #include <QSqlDatabase>
@@ -177,13 +176,9 @@ PVRush::PVDBPresets::id_t PVRush::PVDatabaseParamsWidget::get_current_preset_id(
 
 void PVRush::PVDatabaseParamsWidget::preset_new_Slot(const QString& name)
 {
-	PVDBInfos new_infos;
-	get_dbinfos(new_infos);
-	QString query = get_query();
-
 	// Set the new presets
 	// ignore returned value
-	PVDBPresets::get().add(name, new_infos, query);
+	PVDBPresets::get().add(name, get_infos(), get_query());
 }
 
 void PVRush::PVDatabaseParamsWidget::preset_load_Slot(const QString& /*preset*/)
@@ -225,13 +220,7 @@ void PVRush::PVDatabaseParamsWidget::load_preset(PVDBPresets::id_t id)
 
 void PVRush::PVDatabaseParamsWidget::preset_save_Slot(const QString& /*preset*/)
 {
-	PVDBPresets::id_t id = get_current_preset_id();
-	QString query = get_query();
-
-	PVDBInfos new_infos;
-	get_dbinfos(new_infos);
-
-	PVDBPresets::get().set(id, new_infos, query);
+	PVDBPresets::get().set(get_current_preset_id(), get_infos(), get_query());
 }
 
 void PVRush::PVDatabaseParamsWidget::preset_remove_Slot(const QString& /*preset*/)
@@ -240,14 +229,18 @@ void PVRush::PVDatabaseParamsWidget::preset_remove_Slot(const QString& /*preset*
 	PVDBPresets::get().rm(id);
 }
 
-void PVRush::PVDatabaseParamsWidget::get_dbinfos(PVDBInfos& infos)
+PVRush::PVDBInfos PVRush::PVDatabaseParamsWidget::get_infos()
 {
+	PVDBInfos infos;
+
 	infos.set_type(get_current_driver());
 	infos.set_host(_txt_host->text());
 	infos.set_username(_txt_user->text());
 	infos.set_password(_txt_pwd->text());
 	infos.set_port(_txt_port->text().toUInt());
 	infos.set_dbname(_txt_dbname->text());
+
+	return infos;
 }
 
 QString PVRush::PVDatabaseParamsWidget::get_current_driver()
@@ -342,12 +335,8 @@ void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout,
 
 void PVRush::PVDatabaseParamsWidget::query_preview_Slot()
 {
-	// Get current infos
-	PVDBInfos new_infos;
-	get_dbinfos(new_infos);
-
 	PVDBPreviewWidget* dlg =
-	    new PVDBPreviewWidget(new_infos, get_query(), _txt_nrows->text().toUInt(), this);
+	    new PVDBPreviewWidget(get_infos(), get_query(), _txt_nrows->text().toUInt(), this);
 
 	if (!dlg->init()) {
 		return;
@@ -358,42 +347,25 @@ void PVRush::PVDatabaseParamsWidget::query_preview_Slot()
 
 void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 {
-	//_table_fields->clear();
-
-	PVDBInfos new_infos;
-	get_dbinfos(new_infos);
-
-	// Get a valid QSqlRecord
-	PVDBServ_p srv(new PVDBServ(new_infos));
+	PVDBServ_p srv(new PVDBServ(get_infos()));
 	PVDBQuery qr(srv, get_query());
 	if (!qr.connect_serv()) {
 		return;
 	}
-	QSqlQuery query = qr.to_query(0, 1);
-	query.exec();
-	QSqlRecord record = query.record();
 
-	// Create an XML dom representation that corresponds to a format
-	// that goes w/ these fields
-	_new_format_doc.clear();
-	PVXmlTreeNodeDom* new_format_root = PVRush::PVXmlTreeNodeDom::new_format(_new_format_doc);
+	_new_format_doc = qr.get_format_from_db_schema();
+	const PVRush::PVFormat& format = PVRush::PVFormat(_new_format_doc.documentElement());
+	const QList<QString>& db_types = qr.get_db_types();
 
-	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(get_current_driver());
-	// Go through that record
-	int nfields = record.count();
-	_table_fields->setRowCount(nfields);
-	for (int i = 0; i < nfields; i++) {
-		QSqlField field = record.field(i);
-		QString name = field.name();
+	_table_fields->setRowCount(format.get_axes().size());
+	for (int i = 0; i < _table_fields->rowCount(); i++) {
+		const PVAxisFormat& axis = format.get_axes()[i];
+		const QString& name = axis.get_name();
+		const QString& type = axis.get_type();
+
 		_table_fields->setItem(i, 0, new QTableWidgetItem(name));
-		// typeID isn't documented ! (well its name is in the detailed description of QSqlField, but
-		// that's it !)
-		int type_id = field.typeID();
-		_table_fields->setItem(i, 1, new QTableWidgetItem(type_map->map(type_id)));
-
-		QString pv_type = type_map->map_inendi(type_id);
-		_table_fields->setItem(i, 2, new QTableWidgetItem(pv_type));
-		new_format_root->addOneField(name, pv_type);
+		_table_fields->setItem(i, 1, new QTableWidgetItem(db_types[i]));
+		_table_fields->setItem(i, 2, new QTableWidgetItem(type));
 	}
 }
 

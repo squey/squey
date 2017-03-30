@@ -27,8 +27,7 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
 		return false;
 	}
 
-	PVDBInfos infos;
-	params->get_dbinfos(infos);
+	PVDBInfos infos = params->get_infos();
 	PVDBServ_p serv(new PVDBServ(infos));
 	PVInputDescription_p query(new PVDBQuery(serv, params->get_query()));
 
@@ -36,7 +35,6 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
 
 	if (params->is_format_custom()) {
 		PVRush::PVFormat custom_format(params->get_custom_format().documentElement());
-		;
 		new_formats["custom"] = custom_format;
 		format = "custom";
 	} else {
