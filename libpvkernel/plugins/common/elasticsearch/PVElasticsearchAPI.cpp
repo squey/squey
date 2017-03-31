@@ -1,3 +1,4 @@
+
 /**
  * @file
  *
@@ -224,9 +225,6 @@ PVRush::PVElasticsearchAPI::columns(const PVRush::PVElasticsearchQuery& query,
 
 		rapidjson::Value& json_axes = json_mappings[mapping_type.c_str()]["properties"];
 
-		static const std::vector<std::string> invalid_cols = {"message", "type", "host", "path",
-		                                                      "geoip"};
-
 		// type mapping between elasticsearch and querybuilder
 		static const std::unordered_map<std::string, std::string> types_mapping = {
 		    {"long", "integer"},  {"integer", "integer"}, {"short", "integer"},
@@ -246,21 +244,18 @@ PVRush::PVElasticsearchAPI::columns(const PVRush::PVElasticsearchQuery& query,
 		     axe != json_axes.MemberEnd(); ++axe) {
 			std::string name = axe->name.GetString();
 
-			if (std::find(invalid_cols.begin(), invalid_cols.end(), name) == invalid_cols.end() &&
-			    (name.size() > 0 && name[0] != '@')) {
-				const auto& field = json_axes[name.c_str()];
-				if (field.HasMember("type")) {
-					std::string type = field["type"].GetString();
-					cols.emplace_back(name, map_type(type));
-				} else if (field.HasMember("properties")) {
-					const auto& properties = field["properties"];
-					for (rapidjson::Value::ConstMemberIterator property = properties.MemberBegin();
-					     property != properties.MemberEnd(); ++property) {
-						std::string prop_name = property->name.GetString();
-						if (properties[prop_name.c_str()].HasMember("type")) {
-							std::string type = properties[prop_name.c_str()]["type"].GetString();
-							cols.emplace_back(name + "." + prop_name, map_type(type));
-						}
+			const auto& field = json_axes[name.c_str()];
+			if (field.HasMember("type")) {
+				std::string type = field["type"].GetString();
+				cols.emplace_back(name, map_type(type));
+			} else if (field.HasMember("properties")) {
+				const auto& properties = field["properties"];
+				for (rapidjson::Value::ConstMemberIterator property = properties.MemberBegin();
+				     property != properties.MemberEnd(); ++property) {
+					std::string prop_name = property->name.GetString();
+					if (properties[prop_name.c_str()].HasMember("type")) {
+						std::string type = properties[prop_name.c_str()]["type"].GetString();
+						cols.emplace_back(name + "." + prop_name, map_type(type));
 					}
 				}
 			}
