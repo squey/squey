@@ -136,7 +136,7 @@ double load_investigation()
 	auto sources = root.get_children<Inendi::PVSource>();
 	PV_VALID(sources.size(), 3UL);
 	auto source = sources.front();
-	PV_VALID(source->get_format().exists(), true);
+	PV_VALID(source->get_format().is_valid(), true);
 	PV_VALID(source->get_invalid_evts().size(), 1UL);
 	PV_VALID(source->get_invalid_evts().begin()->first, 0UL);
 	PV_VALID(source->get_invalid_evts().begin()->second,
