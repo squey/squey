@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(indexes.size() == 1 && indexes[0] == "proxy_sample");
+	PV_ASSERT_VALID(indexes.size() == 2 && indexes[0] == "proxy_sample");
 
 	/**************************************************************************
 	 * Check all columns are available
