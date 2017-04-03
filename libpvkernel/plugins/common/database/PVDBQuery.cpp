@@ -8,6 +8,12 @@
 #include "PVDBInfos.h"
 #include "PVDBQuery.h"
 
+#include <QSqlRecord>
+#include <QSqlField>
+
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include "PVSQLTypeMap.h"
+
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 PVRush::PVDBQuery::PVDBQuery()
@@ -29,12 +35,16 @@ PVRush::PVDBQuery::~PVDBQuery()
 
 bool PVRush::PVDBQuery::operator==(const PVInputDescription& other) const
 {
-	PVDBQuery& other_query = (PVDBQuery&)other;
-	return _infos->get_type() == other_query._infos->get_type() &&
-	       _infos->get_host() == other_query._infos->get_host() &&
-	       _infos->get_options() == other_query._infos->get_options() &&
-	       _infos->get_dbname() == other_query._infos->get_dbname() &&
-	       _infos->get_port() == other_query._infos->get_port();
+	PVDBQuery const* other_query = dynamic_cast<PVDBQuery const*>(&other);
+	if (not other_query) {
+		return false;
+	}
+
+	return _infos->get_type() == other_query->_infos->get_type() &&
+	       _infos->get_host() == other_query->_infos->get_host() &&
+	       _infos->get_options() == other_query->_infos->get_options() &&
+	       _infos->get_dbname() == other_query->_infos->get_dbname() &&
+	       _infos->get_port() == other_query->_infos->get_port();
 }
 
 QSqlQuery PVRush::PVDBQuery::to_query(chunk_index /*start*/, chunk_index /*nelts*/) const
@@ -48,6 +58,41 @@ QSqlQuery PVRush::PVDBQuery::to_query(chunk_index /*start*/, chunk_index /*nelts
 bool PVRush::PVDBQuery::connect_serv()
 {
 	return _infos->connect();
+}
+
+QDomDocument PVRush::PVDBQuery::get_format_from_db_schema() const
+{
+	QSqlQuery query = to_query(0, 1);
+	query.exec();
+	QSqlRecord record = query.record();
+
+	QDomDocument format_doc;
+	PVXmlTreeNodeDom* format_root = PVRush::PVXmlTreeNodeDom::new_format(format_doc);
+
+	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(_infos->get_type());
+	for (int i = 0; i < record.count(); i++) {
+		QSqlField field = record.field(i);
+		QString type = type_map->map_inendi(field.typeID());
+		format_root->addOneField(field.name(), type);
+	}
+
+	return format_doc;
+}
+
+QList<QString> PVRush::PVDBQuery::get_db_types() const
+{
+	QSqlQuery query = to_query(0, 1);
+	query.exec();
+	QSqlRecord record = query.record();
+
+	QList<QString> types;
+
+	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(_infos->get_type());
+	for (int i = 0; i < record.count(); i++) {
+		types.append(type_map->map(record.field(i).typeID()));
+	}
+
+	return types;
 }
 
 QString PVRush::PVDBQuery::last_error_serv()

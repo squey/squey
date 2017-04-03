@@ -43,11 +43,11 @@ database/PVDatabaseParamsWidget.h)
 set(DB_SRC_FILES
 ../common/database/PVDBInfos.cpp
 ../common/database/PVDBQuery.cpp
+../common/database/PVSQLTypeMap.cpp
 database/PVDBPresets.cpp
 database/PVDBPreviewWidget.cpp
 database/PVDatabaseParamsWidget.cpp
 database/PVInputTypeDatabase.cpp
-database/PVSQLTypeMap.cpp
 database/register.cpp)
 
 set(DB_UI

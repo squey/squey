@@ -17,6 +17,7 @@
 #include <QString>
 #include <QSqlQuery>
 #include <QMetaType>
+#include <QDomDocument>
 
 namespace PVRush
 {
@@ -40,8 +41,12 @@ class PVDBQuery : public PVInputDescription
 	QString human_name() const;
 
 	PVDBServ_p get_serv() { return _infos; };
+	const PVDBServ_p get_serv() const { return _infos; };
 
 	QSqlQuery to_query(chunk_index start, chunk_index nelts) const;
+
+	QDomDocument get_format_from_db_schema() const;
+	QList<QString> get_db_types() const;
 
 	bool connect_serv();
 	QString last_error_serv();
