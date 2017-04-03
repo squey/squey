@@ -39,6 +39,10 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent) : PVTableView(parent)
 
 	setSelectionMode(QAbstractItemView::NoSelection);
 
+	// enabling QSS for headers
+	horizontalHeader()->setObjectName("horizontalHeader_of_PVAbstractTableView");
+	verticalHeader()->setObjectName("verticalHeader_of_PVAbstractTableView");
+
 	// Show contextual menu on right click in the table (set menuPolicy to emit
 	// signals)
 	connect(this, &QWidget::customContextMenuRequested, this,
