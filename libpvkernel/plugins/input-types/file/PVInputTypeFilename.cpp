@@ -142,7 +142,7 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
 	assert(f);
 	QString path_custom_format = f->path() + QString(".format");
 	QFileInfo fi(path_custom_format);
-	QString format_custom_name = "custom:" + fi.fileName();
+	QString format_custom_name = fi.fileName();
 
 	if (fi.exists() && fi.isReadable()) {
 		formats[format_custom_name] = PVRush::PVFormat(format_custom_name, path_custom_format);
