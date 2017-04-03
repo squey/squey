@@ -118,6 +118,18 @@ add_pv_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filte
 add_test(Trush_filter_composition Trush_filter_composition)
 add_bench(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 
+# Plugin database
+find_package(Qt5Sql REQUIRED)
+include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
+set(DATABASE_SRC_FILES
+../../plugins/common/database/PVDBInfos.cpp
+../../plugins/common/database/PVDBQuery.cpp
+../../plugins/common/database/PVSQLTypeMap.cpp
+helpers.cpp)
+
+add_pv_compile_test(Trush_database LINKS ${LINK_LIBRARIES} pvkernel Qt5Sql FILES database.cpp ${DATABASE_SRC_FILES})
+add_test(Trush_database Trush_database ${TESTS_FILES_DIR})
+
 # Plugin sources
 add_pv_compile_test(Trush_splunk_source LINKS ${LINK_LIBRARIES}
 	FILES splunk_source.cpp helpers.cpp

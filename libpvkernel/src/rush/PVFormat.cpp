@@ -333,11 +333,9 @@ QString const& PVRush::PVFormat::get_full_path() const
 	return full_path;
 }
 
-bool PVRush::PVFormat::exists() const
+bool PVRush::PVFormat::is_valid() const
 {
-	QFileInfo fi(full_path);
-
-	return (fi.exists() && fi.isReadable());
+	return _axes.size() >= 2;
 }
 
 char* fill_spaces(QString str, int max_spaces)
@@ -425,8 +423,8 @@ bool PVRush::PVFormat::populate_from_xml(QString filename)
 bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser)
 {
 	filters_params = xml_parser.getFields();
-	if (filters_params.empty()) {
-		throw PVFormatInvalid("The format does not have any field");
+	if (xml_parser.getAxes().size() == 0) {
+		throw PVFormatInvalid("The format does not have any axis");
 	}
 	_axes = xml_parser.getAxes();
 	_axes_comb = xml_parser.getAxesCombination();

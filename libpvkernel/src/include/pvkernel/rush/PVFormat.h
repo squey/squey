@@ -104,7 +104,7 @@ class PVFormat
 	QString const& get_format_name() const;
 	QString const& get_full_path() const;
 
-	bool exists() const;
+	bool is_valid() const;
 
 	QList<PVAxisFormat> const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
