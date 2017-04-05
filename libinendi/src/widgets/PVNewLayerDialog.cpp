@@ -10,6 +10,8 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QApplication>
+#include <QCursor>
 
 PVWidgets::PVNewLayerDialog::PVNewLayerDialog(const QString& layer_name,
                                               bool hide_layers,
@@ -48,9 +50,19 @@ QString PVWidgets::PVNewLayerDialog::get_layer_name() const
 }
 
 QString PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(const QString& layer_name,
-                                                                    bool& hide_layers)
+                                                                    bool& hide_layers,
+                                                                    QWidget* parent_widget)
 {
-	auto dialog = new PVNewLayerDialog(layer_name, hide_layers);
+	QWidget* w = QApplication::widgetAt(QCursor::pos());
+
+	if (w == nullptr) {
+		/* We make sure this dialog can not be hidden under another window by giving it a
+		 * non-null parent. As no Inspector window (PVMainwindow, undocked graphic view,
+		 * etc.) has been found under the mouse cursor, we use the one invoking this method.
+		 */
+		w = parent_widget;
+	}
+	auto dialog = new PVNewLayerDialog(layer_name, hide_layers, w);
 	int res = dialog->exec();
 
 	dialog->deleteLater();
