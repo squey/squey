@@ -329,7 +329,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* in
 {
 	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers);
+	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
 	if (name.isEmpty()) {
 		return;
@@ -360,7 +360,8 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 
 	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers);
+	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
+
 	if (!name.isEmpty()) {
 
 		if (should_hide_layers) {

@@ -153,7 +153,7 @@ void PVGuiQt::PVLayerStackWidget::duplicate_layer()
 {
 	bool& should_hide_layers = ls_model()->lib_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
+	    ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
 	if (!name.isEmpty()) {
 
@@ -194,7 +194,7 @@ void PVGuiQt::PVLayerStackWidget::new_layer()
 {
 	bool& should_hide_layers = ls_model()->lib_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers);
+	    ls_model()->lib_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
 	if (!name.isEmpty()) {
 		if (should_hide_layers) {
