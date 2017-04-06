@@ -398,6 +398,23 @@ void PVAbstractTableModel::sorted(PVCombCol col, Qt::SortOrder order)
 
 /******************************************************************************
 *
+* PVAbstractTableModel::get_wrapped_string
+*
+*****************************************************************************/
+QString PVAbstractTableModel::get_wrapped_string(const QString& str) const
+{
+	static constexpr const int WORDWRAP_SIZE = 200;
+
+	QString res = str;
+
+	for (int i = WORDWRAP_SIZE; i < res.size(); i += WORDWRAP_SIZE) {
+		res.insert(i, "<br>");
+	}
+	return res;
+}
+
+/******************************************************************************
+*
 * PVAbstractTableModel::apply_selection_mode
 *
 *****************************************************************************/

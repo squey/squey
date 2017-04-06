@@ -28,7 +28,7 @@ class PVSimpleStringListModel : public PVAbstractTableModel
 	{
 	}
 
-	QString export_line(int row) const override
+	QString export_line(int row, const QString& /*fsep*/) const override
 	{
 		auto it = _values.begin();
 		std::advance(it, rowIndex(row));

@@ -57,6 +57,10 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
 	friend class __impl::PVListStringsDelegate;
 
+	static constexpr const int stats_minimal_column_width = 140;
+	static constexpr const int stats_default_spacing = 10;
+	static constexpr const int stats_default_margin = 20;
+
   public:
 	PVAbstractListStatsDlg(Inendi::PVView& view,
 	                       PVCol c,
@@ -80,7 +84,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	inline bool use_logarithmic_scale() { return model().use_log_scale(); }
 
   protected:
-	void sort_by_column(PVCol col);
 	bool process_context_menu(QAction* act) override;
 	void ask_for_copying_count() override;
 
@@ -97,8 +100,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
   protected Q_SLOTS:
 	void scale_changed(QAction* act);
 	void max_changed(QAction* act);
-	void section_clicked(PVCol col);
-	void sort();
 
   protected Q_SLOTS:
 	void select_set_mode_count(bool checked);
@@ -113,12 +114,33 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
   protected:
 	Inendi::PVView* lib_view() { return _view; }
 	void multiple_search(QAction* act, const QStringList& sl, bool hide_dialog = true);
-	void resize_section();
+
+	/**
+	 * Recompute the statistics related "lengths": margins, per statistic spacing, per
+	 * statistic sizes, widget column width.
+	 */
+	void update_stats_column_width();
 
 	/**
 	 * Handle keyboard shortcut for copy
 	 */
 	void keyPressEvent(QKeyEvent* event) override;
+
+	void resizeEvent(QResizeEvent* event) override;
+
+  private:
+	/**
+	 * Get the largest value that have the same digit count than v
+	 *
+	 * @param v the value to use as a base
+	 * @param p the wanted decimal part precision (in number of digit)
+	 *
+	 * @return the largest value that have the same digit count than v
+	 */
+	static double converting_digits_to_nines_at_given_precision(double v, int p = 0)
+	{
+		return pow(10, floor(log10(v)) + 1.0) - pow(0.1, p);
+	}
 
   protected:
 	Inendi::PVView* _view;
@@ -157,7 +179,15 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	 * while filing the context menu.
 	 */
 	QAction* _msearch_action_for_layer_creation;
-	PVCol _sort_section = PVCol(1);
+
+	// margins, spacings, and aligment sizes to render statistics
+	int _margin_stats;
+	int _spacing_cs; // space between count and scientific statistics
+	int _spacing_cp; // space between count and percentage statistics
+	int _spacing_sp; // space between scientific and percentage statistics
+	int _field_size_count;
+	int _field_size_scientific;
+	int _field_size_percentage;
 };
 
 namespace __impl

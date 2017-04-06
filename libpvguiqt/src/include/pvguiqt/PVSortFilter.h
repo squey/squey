@@ -17,11 +17,7 @@ namespace PVGuiQt
 class PVSortFilter
 {
   public:
-	explicit PVSortFilter(size_t row_count)
-	    : _filter(row_count)
-	    , _sort(row_count)
-	    , _sorted_column()
-	    , _sort_order(Qt::SortOrder::AscendingOrder)
+	explicit PVSortFilter(size_t row_count) : _filter(row_count), _sort(row_count)
 	{
 		auto& sort = _sort.to_core_array();
 		std::iota(sort.begin(), sort.end(), 0);

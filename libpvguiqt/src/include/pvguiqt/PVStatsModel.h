@@ -57,6 +57,20 @@ class PVStatsModel : public PVAbstractTableModel
 				return (Qt::AlignRight + Qt::AlignVCenter);
 			}
 			break;
+		case Qt::InitialSortOrderRole:
+			// this role is to get the default sort order of a section
+			if (orientation == Qt::Vertical) {
+				// handling vertical header is not relevant
+				return QVariant();
+			}
+			if (section == 0) {
+				// the values column uses ascending
+				return Qt::AscendingOrder;
+			} else {
+				// the stats column uses descending
+				return Qt::DescendingOrder;
+			}
+			break;
 		default:
 			return QVariant();
 			break;
@@ -65,9 +79,8 @@ class PVStatsModel : public PVAbstractTableModel
 		return QVariant();
 	}
 
-	QString export_line(int row) const override
+	QString export_line(int row, const QString& fsep) const override
 	{
-		static const QString sep(",");
 		static const QString escaped_quote("\"\"");
 		static const QString quote("\"");
 
@@ -85,13 +98,13 @@ class PVStatsModel : public PVAbstractTableModel
 
 		double ratio = occurence_count / max_count();
 		if ((_format & ValueFormat::Count) == ValueFormat::Count) {
-			value.append(sep + quote + format_occurence(occurence_count) + quote);
+			value.append(fsep + quote + format_occurence(occurence_count) + quote);
 		}
 		if ((_format & ValueFormat::Scientific) == ValueFormat::Scientific) {
-			value.append(sep + quote + format_scientific_notation(ratio) + quote);
+			value.append(fsep + quote + format_scientific_notation(ratio) + quote);
 		}
 		if ((_format & ValueFormat::Percent) == ValueFormat::Percent) {
-			value.append(sep + quote + format_percentage(ratio) + quote);
+			value.append(fsep + quote + format_percentage(ratio) + quote);
 		}
 
 		return value;
@@ -114,6 +127,11 @@ class PVStatsModel : public PVAbstractTableModel
 				return QString::fromUtf8(str.c_str(), str.size());
 			}
 			break;
+		case Qt::ToolTipRole: {
+			std::string const& raw_str = _col1.at(row);
+			return get_wrapped_string(QString::fromUtf8(raw_str.c_str(), raw_str.size()));
+		}
+
 		case Qt::UserRole:
 			if (index.column() == 1) {
 				std::string const& str = _col2.at(row);
@@ -144,6 +162,8 @@ class PVStatsModel : public PVAbstractTableModel
 	void sort(int col_idx, Qt::SortOrder order) override
 	{
 		assert(col_idx == 0 || col_idx == 1);
+
+		Q_EMIT layoutAboutToBeChanged();
 
 		if (_display.sorted_column() != col_idx) {
 			const pvcop::db::array& column = (col_idx == 0) ? _col1 : _col2;

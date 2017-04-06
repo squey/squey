@@ -49,7 +49,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/**
 	 * Function to export asked line;
 	 */
-	virtual QString export_line(int) const = 0;
+	virtual QString export_line(int, const QString& fsep) const = 0;
 
 	/// Selection
 
@@ -238,6 +238,13 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 * Set sorting contextual informations.
 	 */
 	void sorted(PVCombCol col, Qt::SortOrder order);
+
+	/**
+	 * Wrap @a str with new-lines to make it usable as tooltip
+	 *
+	 * @return the wrapped version of @a str
+	 */
+	QString get_wrapped_string(const QString& str) const;
 
   protected:
 	/**
