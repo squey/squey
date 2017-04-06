@@ -72,8 +72,13 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	// FONT stuff
 	QFontDatabase pv_font_database;
+
+	// FIXME: check fonts licenses to be sure we can distribute them with Inspector
+	pv_font_database.addApplicationFont(QString(":/Convergence-Regular.ttf"));
 	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
 	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
+	pv_font_database.addApplicationFont(QString(":/PT_Sans-Narrow-Web-Bold.ttf"));
+	pv_font_database.addApplicationFont(QString(":/PT_Sans-Narrow-Web-Regular.ttf"));
 
 	// import_source = nullptr;
 	report_started = false;

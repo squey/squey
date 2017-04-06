@@ -33,6 +33,11 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	assert(_model->parent() == nullptr && "Model should not have parent as we destroy it");
 	setupUi(this);
 
+	// Define default field separator
+	_field_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
+	_field_separator_button->setKeySequence(QKeySequence(Qt::Key_Comma));
+	_field_separator_button->setMaxNumKey(1);
+
 	// Define default line separator
 	_line_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_line_separator_button->setKeySequence(QKeySequence(Qt::Key_Return));
@@ -55,7 +60,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	_ctxt_menu = new QMenu(this);
 	_ctxt_menu->addAction(_copy_values_act);
 
-	_nb_values_edit->setText(QString().setNum(model->size()));
+	_nb_values_edit->setText(QString("%L1").arg(model->size()));
 
 	set_description(QString());
 
@@ -84,11 +89,6 @@ void PVGuiQt::PVListDisplayDlg::show_ctxt_menu(const QPoint& pos)
 
 	if (not index.isValid()) {
 		// no contextual menu outside of valid rows
-		return;
-	}
-
-	if (index.column() != 0) {
-		// context menu only for the "value" column
 		return;
 	}
 
@@ -124,11 +124,18 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
+	// Get the field separator to use for export (defined in UI)
+	QString fsep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
+	    _field_separator_button->keySequence())));
+	if (fsep.isEmpty()) {
+		fsep = ",";
+	}
+
 	// Get the line separator to use for export (defined in UI)
-	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
+	QString lsep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
 	    _line_separator_button->keySequence())));
-	if (sep.isEmpty()) {
-		sep = "\n";
+	if (lsep.isEmpty()) {
+		lsep = "\n";
 	}
 
 	QString content;
@@ -147,9 +154,9 @@ void PVGuiQt::PVListDisplayDlg::copy_selected_to_clipboard()
 			    }
 			    boost::this_thread::interruption_point();
 
-			    QString s = model().export_line(row);
+			    QString s = model().export_line(row, fsep);
 			    if (!s.isNull()) {
-				    content.append(s.append(sep));
+				    content.append(s.append(lsep));
 			    }
 		    }
 		},
@@ -189,11 +196,18 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 {
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
+	// Get the field separator to use for export (defined in UI)
+	QString fsep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
+	    _field_separator_button->keySequence())));
+	if (fsep.isEmpty()) {
+		fsep = ",";
+	}
+
 	// Get the line separator to use for export (defined in UI)
-	QString sep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
+	QString lsep(QChar::fromLatin1(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(
 	    _line_separator_button->keySequence())));
-	if (sep.isEmpty()) {
-		sep = "\n";
+	if (lsep.isEmpty()) {
+		lsep = "\n";
 	}
 
 	// Define parallel execution environment
@@ -212,9 +226,9 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 			        [&](const tbb::blocked_range<int>& range, QString l) -> QString {
 				        for (int i = range.begin(); i != range.end(); ++i) {
 					        boost::this_thread::interruption_point();
-					        QString s = _model->export_line(model().row_pos_to_index(i));
+					        QString s = _model->export_line(model().row_pos_to_index(i), fsep);
 					        if (!s.isNull()) {
-						        l.append(s.append(sep));
+						        l.append(s.append(lsep));
 					        }
 				        }
 				        return l;
