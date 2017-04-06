@@ -174,6 +174,9 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	connect(verticalHeader(), &QHeaderView::customContextMenuRequested, this,
 	        &PVGuiQt::PVListingView::show_vhead_ctxt_menu);
 
+	// enabling QSS for the horizontal headers
+	horizontalHeader()->setObjectName("horizontalHeader_of_PVAbstractTableView");
+
 	// Define help
 	_help_widget.hide();
 

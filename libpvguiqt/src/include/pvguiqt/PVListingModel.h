@@ -126,9 +126,11 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	 * Export row-th line in a QString.
 	 *
 	 * @param row: Element to export.
+	 * @param fsep: field separator
+	 *
 	 * @return row-th line as a QString.
 	 */
-	QString export_line(int row) const override;
+	QString export_line(int row, const QString& fsep) const override;
 
   private Q_SLOTS:
 	/**

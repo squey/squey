@@ -273,9 +273,9 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
  *****************************************************************************/
 PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
                                                         PVCol c,
-                                                        PVStatsModel* model,
+                                                        PVStatsModel* m,
                                                         QWidget* parent /* = nullptr */)
-    : PVListDisplayDlg(model, parent), _view(&view), _col(c)
+    : PVListDisplayDlg(m, parent), _view(&view), _col(c)
 {
 	QString search_multiples = "search-multiple";
 	Inendi::PVLayerFilter::p_type search_multiple =
@@ -297,17 +297,22 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 		}
 	}
 
-	_values_view->horizontalHeader()->setSortIndicator(_sort_section,
-	                                                   Qt::SortOrder::AscendingOrder);
-	sort_by_column(_sort_section);
+	// Enable values view sorting capability
+	_values_view->horizontalHeader()->setSortIndicatorShown(true);
+	_values_view->setSortingEnabled(true);
+	_values_view->sortByColumn(PVCol(1), Qt::DescendingOrder);
 
 	_values_view->horizontalHeader()->show();
 	_values_view->verticalHeader()->show();
-	_values_view->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
+	_values_view->horizontalHeader()->setStretchLastSection(false);
+	_values_view->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+	_values_view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+
 	_values_view->setAlternatingRowColors(true);
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
-	QString biggest_str = QString().fill('0', QString::number(model->size()).size() + 1);
+	QString biggest_str = QString().fill('0', QString::number(model().size()).size() + 1);
 	_values_view->verticalHeader()->setFixedWidth(QFontMetrics(font()).width(biggest_str));
 
 	// Add content for right click menu on vertical headers
@@ -349,14 +354,20 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_act_show_percentage->setChecked(true);
 
 	// Give formating information to the model
-	model->set_format(ValueFormat::Count, true);
-	model->set_format(ValueFormat::Percent, true);
-	connect(_act_show_count, &QAction::triggered,
-	        [model](bool e) { model->set_format(ValueFormat::Count, e); });
-	connect(_act_show_scientific_notation, &QAction::triggered,
-	        [model](bool e) { model->set_format(ValueFormat::Scientific, e); });
-	connect(_act_show_percentage, &QAction::triggered,
-	        [model](bool e) { model->set_format(ValueFormat::Percent, e); });
+	model().set_format(ValueFormat::Count, true);
+	model().set_format(ValueFormat::Percent, true);
+	connect(_act_show_count, &QAction::triggered, [&](bool e) {
+		model().set_format(ValueFormat::Count, e);
+		update_stats_column_width();
+	});
+	connect(_act_show_scientific_notation, &QAction::triggered, [&](bool e) {
+		model().set_format(ValueFormat::Scientific, e);
+		update_stats_column_width();
+	});
+	connect(_act_show_percentage, &QAction::triggered, [&](bool e) {
+		model().set_format(ValueFormat::Percent, e);
+		update_stats_column_width();
+	});
 
 	_hhead_ctxt_menu->addAction(_act_show_count);
 	_hhead_ctxt_menu->addAction(_act_show_scientific_notation);
@@ -366,38 +377,24 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	//_values_view->setStyleSheet("QTableView::item { border-left: 1px solid grey;
 	//}");
 
-	QHBoxLayout* hbox = new QHBoxLayout();
-
-	_select_groupbox->setLayout(hbox);
-
-	QVBoxLayout* vl = new QVBoxLayout();
-
-	hbox->addLayout(vl, 1);
-
-	QRadioButton* r1 = new QRadioButton("by count");
-	QRadioButton* r2 = new QRadioButton("by frequency");
-
-	vl->addWidget(r1);
-	vl->addWidget(r2);
-
-	connect(r1, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_count(bool)));
-	connect(r2, SIGNAL(toggled(bool)), this, SLOT(select_set_mode_frequency(bool)));
-
-	QPushButton* b = new QPushButton("Select");
-	connect(b, SIGNAL(clicked(bool)), this, SLOT(select_refresh(bool)));
-
-	vl->addWidget(b);
-
+	// the selection groupbox
 	_select_picker = new __impl::PVAbstractListStatsRangePicker(
-	    model->relative_min_count(), model->relative_max_count(), model->absolute_max_count());
-	_select_picker->use_logarithmic_scale(model->use_log_scale());
-	hbox->addWidget(_select_picker, 2);
+	    model().relative_min_count(), model().relative_max_count(), model().absolute_max_count());
+	_select_picker->use_logarithmic_scale(model().use_log_scale());
+	_select_picker->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	_select_layout->addWidget(_select_picker, 1);
+
+	connect(_by_count_radio, &QRadioButton::toggled, this,
+	        &PVAbstractListStatsDlg::select_set_mode_count);
+	connect(_by_freq_radio, &QRadioButton::toggled, this,
+	        &PVAbstractListStatsDlg::select_set_mode_frequency);
+	connect(_select_button, &QPushButton::clicked, this, &PVAbstractListStatsDlg::select_refresh);
 
 	// set default mode to "count"
-	r1->click();
+	_by_count_radio->click();
 
 	// propagate the scale mode
-	_act_toggle_log->setChecked(model->use_log_scale());
+	_act_toggle_log->setChecked(model().use_log_scale());
 
 	// Copy values menu
 	_copy_values_menu = new QMenu();
@@ -416,27 +413,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_create_layers_for_values_act = new QAction("Create layers from those values", _values_view);
 	_ctxt_menu->addAction(_create_layers_for_values_act);
 
-	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort()));
-
-	// Bind the click on header to sort the clicked column
-	connect(_values_view->horizontalHeader(), &QHeaderView::sectionClicked,
-	        [&](int col) { section_clicked(PVCol(col)); });
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
-
-	_values_view->resizeColumnToContents(0);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::section_clicked(PVCol col)
-{
-	// Sort
-	sort_by_column(col);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::sort()
-{
-	Qt::SortOrder order = _values_view->horizontalHeader()->sortIndicatorOrder();
-	model().sort(0, order);
-	_btn_sort->hide();
 }
 
 /******************************************************************************
@@ -513,6 +490,11 @@ void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 		_select_picker->use_logarithmic_scale(act == _act_toggle_absolute);
 		model().set_use_log_scale(act == _act_toggle_absolute);
 		_select_picker->use_absolute_max_count(act == _act_toggle_absolute);
+		/* as toggling absolute/relative mode changes the largest bounding-box
+		 * of scientific and percentage statistics, the statistics column has
+		 * to be updated.
+		 */
+		update_stats_column_width();
 		_values_view->update();
 		_values_view->horizontalHeader()->viewport()->update();
 	}
@@ -618,22 +600,6 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	_values_view->viewport()->update();
 
 	BENCH_END(select_values, "select_values", 0, 0, 1, row_count);
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::sort_by_column(PVCol col)
-{
-	_values_view->horizontalHeader()->setSortIndicatorShown(true);
-
-	PVCol section = (PVCol)_values_view->horizontalHeader()->sortIndicatorSection();
-
-	Qt::SortOrder old_order = _values_view->horizontalHeader()->sortIndicatorOrder();
-	Qt::SortOrder new_order = col == _sort_section ? (Qt::SortOrder) not(bool) old_order
-	                                               : col == 0 ? Qt::SortOrder::AscendingOrder
-	                                                          : Qt::SortOrder::DescendingOrder;
-
-	model().sort(col, new_order);
-
-	_sort_section = section;
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
@@ -941,69 +907,139 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 		    QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255));
 		painter->setPen(Qt::black);
 
-		// Draw occurence count and/or scientific notation and/or percentage
-		size_t occurence_max_width = 0;
-		size_t scientific_notation_max_width = 0;
-		size_t percentage_max_width = 0;
+		const bool show_count = d()->_act_show_count->isChecked();
+		const bool show_scientific = d()->_act_show_scientific_notation->isChecked();
+		const bool show_percentage = d()->_act_show_percentage->isChecked();
 
-		size_t margin = option.rect.width();
-
-		QString occurence;
-		QString scientific_notation;
-		QString percentage;
-
-		size_t representation_count = 0;
-		if (d()->_act_show_count->isChecked()) {
-			occurence = PVStatsModel::format_occurence(occurence_count);
-			occurence_max_width =
-			    QFontMetrics(painter->font())
-			        .width(QLocale::system().toString(d()->relative_max_count(), 'f', 3));
-
-			margin -= occurence_max_width;
-			representation_count++;
-		}
-		if (d()->_act_show_scientific_notation->isChecked()) {
-			scientific_notation = PVStatsModel::format_scientific_notation(ratio);
-			scientific_notation_max_width =
-			    QFontMetrics(painter->font()).width(PVStatsModel::format_scientific_notation(1));
-			margin -= scientific_notation_max_width;
-			representation_count++;
-		}
-		if (d()->_act_show_percentage->isChecked()) {
-			percentage = PVStatsModel::format_percentage(ratio);
-			percentage_max_width = QFontMetrics(painter->font())
-			                           .width(PVStatsModel::format_percentage(
-			                               d()->relative_max_count() / d()->max_count()));
-			margin -= percentage_max_width;
-			representation_count++;
+		if ((not show_count) and (not show_scientific) and (not show_percentage)) {
+			// no stats to draw
+			return;
 		}
 
-		margin /= representation_count + 1;
+		// initializing the text starting horizontal offset
+		int x = option.rect.x() + d()->_margin_stats;
 
-		int x = option.rect.x();
-		if (d()->_act_show_count->isChecked()) {
-			x += margin;
-			painter->drawText(x, option.rect.y(), occurence_max_width, option.rect.height(),
-			                  Qt::AlignRight, occurence);
-			x += occurence_max_width;
+		// all texts must be placed the same way in their respective areas
+		int align_flags = Qt::AlignRight | Qt::AlignVCenter;
+
+		if (show_count) {
+			int field_size = d()->_field_size_count;
+
+			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
+			                  PVStatsModel::format_occurence(occurence_count));
+			x += field_size;
 		}
-		if (d()->_act_show_scientific_notation->isChecked()) {
-			x += margin;
-			painter->drawText(x, option.rect.y(), scientific_notation_max_width,
-			                  option.rect.height(), Qt::AlignLeft, scientific_notation);
-			x += scientific_notation_max_width;
+
+		if (show_scientific) {
+			int field_size = d()->_field_size_scientific;
+
+			if (show_count) {
+				x += d()->_spacing_cs;
+			}
+
+			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
+			                  PVStatsModel::format_scientific_notation(ratio));
+			x += field_size;
 		}
-		if (d()->_act_show_percentage->isChecked()) {
-			x += margin;
-			painter->drawText(x, option.rect.y(), percentage_max_width, option.rect.height(),
-			                  Qt::AlignRight, percentage);
+
+		if (show_percentage) {
+			int field_size = d()->_field_size_percentage;
+
+			if (show_scientific) {
+				x += d()->_spacing_sp;
+			} else if (show_count) {
+				x += d()->_spacing_cp;
+			}
+
+			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
+			                  PVStatsModel::format_percentage(ratio));
 		}
 	}
 }
 
+/******************************************************************************
+ *
+ * PVGuiQt::__impl::PVListUniqStringsDelegate::d
+ *
+ *****************************************************************************/
+
 PVGuiQt::PVAbstractListStatsDlg* PVGuiQt::__impl::PVListStringsDelegate::d() const
 {
 	return static_cast<PVGuiQt::PVAbstractListStatsDlg*>(parent());
+}
+
+/******************************************************************************
+ *
+ * PVAbstractListStatsDlg::update_stats_column_width
+ *
+ *****************************************************************************/
+
+void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
+{
+	QFontMetrics fm(_values_view->font());
+
+	const bool show_count = _act_show_count->isChecked();
+	const bool show_scientific = _act_show_scientific_notation->isChecked();
+	const bool show_percentage = _act_show_percentage->isChecked();
+
+	// initialize the spacing
+	_spacing_cp = _spacing_cs = _spacing_sp = stats_default_spacing;
+
+	// compute widths for each statistic
+	if (show_count) {
+		double v = converting_digits_to_nines_at_given_precision(relative_max_count());
+		_field_size_count = fm.width(QLocale::system().toString(v, 'f', 0));
+	} else {
+		_field_size_count = 0;
+	}
+
+	if (show_scientific) {
+		double v = converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(),
+		                                                         0.001);
+		_field_size_scientific = fm.width(PVStatsModel::format_scientific_notation(v));
+	} else {
+		_field_size_scientific = 0;
+	}
+
+	if (show_percentage) {
+		double v = converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(),
+		                                                         0.001);
+		_field_size_percentage = fm.width(PVStatsModel::format_percentage(v));
+	} else {
+		_field_size_percentage = 0;
+	}
+
+	int column_width = _field_size_count + _field_size_scientific + _field_size_percentage;
+
+	// compute spacing between statistics
+	if (show_count and show_scientific and show_percentage) {
+		column_width += _spacing_cs + _spacing_sp;
+	} else if (show_count and show_scientific) {
+		column_width += _spacing_cs;
+	} else if (show_count and show_percentage) {
+		column_width += _spacing_cp;
+	} else if (show_scientific and show_percentage) {
+		column_width += _spacing_sp;
+	}
+
+	// compute margin size
+	if (show_count or show_scientific or show_percentage) {
+		// at least one statistic, make sure the stats column is not too small
+		if (column_width > stats_minimal_column_width) {
+			_margin_stats = stats_default_margin;
+		} else {
+			_margin_stats = std::max((stats_minimal_column_width - column_width) / 2,
+			                         (int)stats_default_margin);
+		}
+
+		column_width += 2 * _margin_stats;
+	} else {
+		// no shown stats, force a minimal width for the stat column
+		_margin_stats = 0;
+		column_width = stats_minimal_column_width;
+	}
+
+	_values_view->horizontalHeader()->resizeSection(1, column_width);
 }
 
 /******************************************************************************
@@ -1025,4 +1061,16 @@ void PVGuiQt::PVAbstractListStatsDlg::keyPressEvent(QKeyEvent* event)
 	} else {
 		PVListDisplayDlg::keyPressEvent(event);
 	}
+}
+
+/******************************************************************************
+ *
+ * PVAbstractListStatsDlg::resizeEvent
+ *
+ *****************************************************************************/
+
+void PVGuiQt::PVAbstractListStatsDlg::resizeEvent(QResizeEvent* event)
+{
+	PVListDisplayDlg::resizeEvent(event);
+	update_stats_column_width();
 }
