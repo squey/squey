@@ -69,6 +69,8 @@ void PVRush::PVElasticsearchPresets::set(id_t id,
 	_settings.setValue("query", query);
 	_settings.setValue("query_type", query_type);
 	_settings.setValue("format", infos.get_format());
+	_settings.setValue("is_format_custom", infos.is_format_custom());
+	_settings.setValue("filter_path", infos.get_filter_path());
 	_settings.endGroup();
 }
 
@@ -90,6 +92,8 @@ bool PVRush::PVElasticsearchPresets::get(id_t id,
 		query = _settings.value("query", "").toString();
 		query_type = _settings.value("query_type", "JSON").toString();
 		infos.set_format(_settings.value("format", "").toString());
+		infos.set_custom_format(_settings.value("is_format_custom", "").toString() == "true");
+		infos.set_filter_path(_settings.value("filter_path", "").toString());
 		ret = true;
 	}
 	_settings.endGroup();

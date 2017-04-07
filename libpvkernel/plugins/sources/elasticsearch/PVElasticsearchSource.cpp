@@ -70,18 +70,21 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 	PVElasticsearchAPI::rows_t rows;
 	_query_end = not _elasticsearch.extract(_query, rows);
 
-	PVCore::PVChunk* chunk;
-	chunk = PVCore::PVChunkMem<>::allocate(0, this);
+	// Create a chunk w/ no memory for its internal buffer
+	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
+	size_t chunk_size = 0;
 	chunk->set_index(_next_index);
 
-	for (const std::string& row : rows) {
+	for (const std::vector<std::string>& row : rows) {
 		PVCore::PVElement* elt = chunk->add_element();
 		elt->fields().clear();
-
-		PVCore::PVField f(*elt);
-		f.allocate_new(row.size());
-		memcpy(f.begin(), row.c_str(), row.size());
-		elt->fields().push_back(f);
+		for (const std::string& field : row) {
+			PVCore::PVField f(*elt);
+			f.allocate_new(field.size());
+			chunk_size += field.size();
+			memcpy(f.begin(), field.c_str(), field.size());
+			elt->fields().push_back(f);
+		}
 	}
 	chunk->set_init_size(rows.size() * MEGA);
 

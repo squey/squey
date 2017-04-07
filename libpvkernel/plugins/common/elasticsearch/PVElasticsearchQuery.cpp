@@ -55,6 +55,8 @@ void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
 	settings.setValue("index", _infos.get_index());
 	settings.setValue("importer", _infos.get_importer());
 	settings.setValue("format", _infos.get_format());
+	settings.setValue("is_format_custom", _infos.is_format_custom() ? "true" : "false");
+	settings.setValue("filter_path", _infos.get_filter_path());
 
 	settings.setValue("query", _query);
 	settings.setValue("query_type", _query_type);
@@ -72,10 +74,12 @@ PVRush::PVElasticsearchQuery::load_from_string(std::vector<std::string> const& v
 	infos.set_index(QString::fromStdString(vl[4]));
 	infos.set_importer(QString::fromStdString(vl[5]));
 	infos.set_format(QString::fromStdString(vl[6]));
+	infos.set_custom_format(QString::fromStdString(vl[7]) == "true");
+	infos.set_filter_path(QString::fromStdString(vl[8]));
 
-	if (vl.size() == 9) {
-		infos.set_login(QString::fromStdString(vl[7]));
-		infos.set_password(QString::fromStdString(vl[8]));
+	if (vl.size() == 11) {
+		infos.set_login(QString::fromStdString(vl[9]));
+		infos.set_password(QString::fromStdString(vl[10]));
 	}
 
 	return std::unique_ptr<PVElasticsearchQuery>(
@@ -84,10 +88,14 @@ PVRush::PVElasticsearchQuery::load_from_string(std::vector<std::string> const& v
 
 std::vector<std::string> PVRush::PVElasticsearchQuery::desc_from_qsetting(QSettings const& s)
 {
-	std::vector<std::string> res = {
-	    s.value("query").toString().toStdString(), s.value("query_type").toString().toStdString(),
-	    s.value("host").toString().toStdString(),  s.value("port").toString().toStdString(),
-	    s.value("index").toString().toStdString(), s.value("importer").toString().toStdString(),
-	    s.value("format").toString().toStdString()};
+	std::vector<std::string> res = {s.value("query").toString().toStdString(),
+	                                s.value("query_type").toString().toStdString(),
+	                                s.value("host").toString().toStdString(),
+	                                s.value("port").toString().toStdString(),
+	                                s.value("index").toString().toStdString(),
+	                                s.value("importer").toString().toStdString(),
+	                                s.value("format").toString().toStdString(),
+	                                s.value("is_format_custom").toString().toStdString(),
+	                                s.value("filter_path").toString().toStdString()};
 	return res;
 }

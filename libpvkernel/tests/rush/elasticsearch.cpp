@@ -11,6 +11,7 @@
 
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/PVExporter.h>
 
 #include "common.h"
 
@@ -32,9 +33,12 @@ int main(int argc, char** argv)
 	PVRush::PVElasticsearchInfos infos;
 	infos.set_host("http://connectors.srv.picviz");
 	infos.set_port(9200);
-	infos.set_index("proxy_sample");
+	infos.set_index("proxy_sample_geoip");
 	infos.set_login("elastic");
 	infos.set_password("changeme");
+	infos.set_filter_path(
+	    "category,geoip.city_name,geoip.country_name,http_method,login,mime_type,src_ip,status_"
+	    "code,time,time_spent,total_bytes,url,user_agent");
 
 	/*
 	 * Set Up an ElasticSearchQuery.
@@ -98,7 +102,7 @@ int main(int argc, char** argv)
 	 */
 	PVRush::PVElasticsearchAPI elasticsearch(infos);
 
-	PVRush::PVElasticsearchQuery query(
+	PVRush::PVElasticsearchQuery* query = new PVRush::PVElasticsearchQuery(
 	    infos, QString(elasticsearch.rules_to_json(query_str.c_str()).c_str()), "json");
 
 	std::string error;
@@ -127,89 +131,83 @@ int main(int argc, char** argv)
 	 * Check all columns are available
 	 * TODO : Check with no column?
 	 *************************************************************************/
-	PVRush::PVElasticsearchAPI::columns_t columns = elasticsearch.columns(query, &error);
+	PVRush::PVElasticsearchAPI::columns_t columns =
+	    elasticsearch.columns(infos.get_filter_path().toStdString(), &error);
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(columns == PVRush::PVElasticsearchAPI::columns_t({{"category", "string"},
-	                                                                  {"column13", "string"},
-	                                                                  {"http_method", "string"},
-	                                                                  {"login", "string"},
-	                                                                  {"mime_type", "string"},
-	                                                                  {"semi_colon", "string"},
-	                                                                  {"src_ip", "string"},
-	                                                                  {"status_code", "string"},
-	                                                                  {"time", "string"},
-	                                                                  {"time_spent", "integer"},
-	                                                                  {"total_bytes", "integer"},
-	                                                                  {"url", "string"},
-	                                                                  {"user_agent", "string"}}));
+
+	for (const auto& c : columns) {
+		pvlogger::info() << c.first << " : " << c.second << std::endl;
+	}
+
+	PV_ASSERT_VALID(columns ==
+	                PVRush::PVElasticsearchAPI::columns_t({{"category", "string"},
+	                                                       {"geoip.city_name", "string"},
+	                                                       {"geoip.country_name", "string"},
+	                                                       {"http_method", "string"},
+	                                                       {"login", "string"},
+	                                                       {"mime_type", "string"},
+	                                                       {"src_ip", "string"},
+	                                                       {"status_code", "string"},
+	                                                       {"time", "string"},
+	                                                       {"time_spent", "integer"},
+	                                                       {"total_bytes", "integer"},
+	                                                       {"url", "string"},
+	                                                       {"user_agent", "string"}}));
 
 	/**************************************************************************
 	 * Check query count is correct
 	 * TODO : What happen with no result?
 	 *************************************************************************/
-	size_t count = elasticsearch.count(query, &error);
+	size_t count = elasticsearch.count(*query, &error);
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-
-	PV_VALID(count, 9981UL);
+	PV_VALID(count, 219UL);
 
 	/**************************************************************************
-	 * Check export query is correct
-	 *
-	 * @note files are sorted before comparison because elasticsearch doesn't
-	 * return values in the same orders each times
-	 *
-	 * TODO : What happen with no result?
+	 * Import data
 	 *************************************************************************/
+	std::string ref_file = argv[1];
+	PVRush::PVSourceCreator_p sc =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("elasticsearch");
+	QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
+	list_inputs << PVRush::PVInputDescription_p(query);
+	PVRush::PVNraw nraw;
+	PVRush::PVNrawOutput output(nraw);
+	PVRush::PVFormat format(elasticsearch.get_format_from_mapping().documentElement());
+	PVRush::PVExtractor extractor(format, output, sc, list_inputs);
+
+	// Import data
+	auto start = std::chrono::system_clock::now();
+	PVRush::PVControllerJob_p job =
+	    extractor.process_from_agg_idxes(0, IMPORT_PIPELINE_ROW_COUNT_LIMIT);
+	job->wait_end();
+
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> diff = end - start;
+	std::cout << diff.count();
+
+	// Export selected lines
+	PVCore::PVSelBitField sel(nraw.row_count());
+	sel.select_all();
 	std::string output_file = pvtest::get_tmp_filename();
-	std::string reference_file = argv[1];
-	std::string reference_sorted_file = output_file + "_sorted";
-	std::ofstream output_stream(output_file, std::ios::out | std::ios::trunc);
-	PVRush::PVElasticsearchAPI::rows_t rows;
+	PVCore::PVExporter::export_func export_func =
+	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
+	PVCore::PVExporter exp(output_file, sel, format.get_axes_comb(), nraw.row_count(), export_func);
+	size_t exported_rows = exp.export_rows();
+	exp.wait_finished();
+	PV_VALID(exported_rows, 219UL);
 
-	// Extract data
-	bool query_end = false;
-	do {
-		query_end = elasticsearch.extract(query, rows, &error);
-		for (const std::string& row : rows) {
-			output_stream << row.c_str() << std::endl;
-		}
-	} while (query_end == false);
+#ifndef INSPECTOR_BENCH
+	// Check output is the same as the reference
+	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
+	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));
+#endif
 
-	// Count line in reference file
-	std::ifstream reference_file_stream(reference_file);
-	PV_ASSERT_VALID(reference_file_stream.good());
-	size_t reference_file_line_count =
-	    std::count(std::istreambuf_iterator<char>(reference_file_stream),
-	               std::istreambuf_iterator<char>(), '\n');
-	PVRush::PVUtils::sort_file(reference_file.c_str(), reference_sorted_file.c_str());
-	PV_ASSERT_VALID(std::ifstream(reference_sorted_file).good());
-
-	// Count line in extracted file
-	std::ifstream output_file_stream(output_file);
-	PV_ASSERT_VALID(output_file_stream.good());
-
-	size_t output_file_line_count = std::count(std::istreambuf_iterator<char>(output_file_stream),
-	                                           std::istreambuf_iterator<char>(), '\n');
-	PVRush::PVUtils::sort_file(output_file.c_str());
-
-	// Check number of line is the same with : reference_file / exported_file / count call
-	std::cout << output_file << " (" << output_file_line_count << ") - " << reference_sorted_file
-	          << " (" << reference_file_line_count << ")" << std::endl;
-	PV_VALID(output_file_line_count, reference_file_line_count);
-	PV_VALID(output_file_line_count, count);
-
-	// Checksum of reference and exported files are sames
-	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, reference_sorted_file));
-
-	/*
-	 * Do some clean up
-	 */
 	std::remove(output_file.c_str());
-	std::remove(reference_sorted_file.c_str());
 
 	return 0;
 }

@@ -39,6 +39,8 @@ int main()
 	infos.set_index("proxy_sample");
 	infos.set_login("elastic");
 	infos.set_password("changeme");
+	infos.set_filter_path("category,http_method,login,mime_type,src_ip,status_"
+	                      "code,time,time_spent,total_bytes,url,user_agent");
 
 	/*
 	 * Set Up an ElasticSearchQuery.
