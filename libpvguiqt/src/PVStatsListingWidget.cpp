@@ -290,7 +290,10 @@ void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
 	resize_panel();
 	for (PVCombCol col(0); col < _stats_panel->columnCount(); col++) {
 		for (int row = 0; row < _stats_panel->rowCount(); row++) {
-			((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col))->refresh(true);
+			__impl::PVCellWidgetBase* cell_widget =
+			    ((__impl::PVCellWidgetBase*)_stats_panel->cellWidget(row, col));
+			cell_widget->update_type_capabilities();
+			cell_widget->refresh(true);
 		}
 		_stats_panel->setColumnWidth(col, _listing_view->columnWidth(col));
 	}
@@ -404,16 +407,6 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	setLayout(_main_layout);
-
-	QString column_type = _view.get_parent<Inendi::PVSource>()
-	                          .get_format()
-	                          .get_axes()
-	                          .at(get_real_axis_col())
-	                          .get_type();
-	_is_summable =
-	    (column_type == "number_float" || column_type == "number_double" ||
-	     column_type == "number_uint32" ||
-	     column_type == "number_int32"); // FIXME : this should be capabilities, not types names !
 }
 
 void PVGuiQt::__impl::PVCellWidgetBase::context_menu_requested(const QPoint&)
@@ -651,6 +644,21 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 	QString sum_str = integer ? QString("%L1").arg((int64_t)sum) : QString("%L1").arg(sum, 0, 'f');
 
 	Q_EMIT refresh_impl_finished(sum_str); // We must go back on the Qt thread to update the GUI
+}
+
+void PVGuiQt::__impl::PVSumCellWidget::update_type_capabilities()
+{
+	QString column_type = _view.get_parent<Inendi::PVSource>()
+	                          .get_format()
+	                          .get_axes()
+	                          .at(get_real_axis_col())
+	                          .get_type();
+	_is_summable =
+	    (column_type == "number_float" || column_type == "number_double" ||
+	     column_type == "number_uint32" ||
+	     column_type == "number_int32"); // FIXME : this should be capabilities, not types names !
+
+	setEnabled(_is_summable);
 }
 
 /******************************************************************************
