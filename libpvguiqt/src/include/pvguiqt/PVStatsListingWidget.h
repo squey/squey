@@ -193,6 +193,7 @@ class PVCellWidgetBase : public QWidget
 	void refresh(bool use_cache = false);
 	void auto_refresh();
 	static void cancel_thread();
+	virtual void update_type_capabilities(){};
 
   protected Q_SLOTS:
 	void refreshed(QString value);
@@ -238,7 +239,7 @@ class PVCellWidgetBase : public QWidget
 	static tbb::task_group_context* _ctxt;
 	static bool _thread_running;
 
-	bool _is_summable;
+	bool _is_summable = false;
 };
 
 /**
@@ -270,11 +271,12 @@ class PVSumCellWidget : public PVCellWidgetBase
 	PVSumCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item)
 	    : PVCellWidgetBase(table, view, item)
 	{
-		setEnabled(_is_summable);
+		update_type_capabilities();
 	}
 
   public Q_SLOTS:
 	void refresh_impl() override;
+	void update_type_capabilities() override;
 };
 
 class PVMinCellWidget : public PVCellWidgetBase
@@ -313,7 +315,7 @@ class PVAverageCellWidget : public PVCellWidgetBase
 	PVAverageCellWidget(QTableWidget* table, Inendi::PVView& view, QTableWidgetItem* item)
 	    : PVCellWidgetBase(table, view, item)
 	{
-		setEnabled(_is_summable);
+		update_type_capabilities();
 	}
 
   public Q_SLOTS:
