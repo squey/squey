@@ -1,3 +1,21 @@
+4.3.2 (2017-04-11)
+----------------
+
+This minor release fixes:
+* fixed key-value splitter not properly discarding quotes surrounding keys
+* fixed Inf/NaN values support for float/double types
+* fixed a crash when too many invalid values were present at import
+* fixed a crash when using a format with less than two axes
+* fixed statistics panel sum/average operations that were sometime not available
+* fixed modal dialogs that could be displayed behind floating dock windows
+* fixed database plugin that was broken
+* fixed dependency toward pigz that was missing from packaging
+* fixed Ctrl+A/Ctrl+I selection shortcuts in statistics views
+* various fixes and display improvements in statistics views
+* elasticsearch : fixed requests sometime incompletely generated
+* elasticsearch : fixed authentification message in case of failure
+* elasticsearch : use new sliced API for parallel scrolling
+
 4.3.1 (2017-03-07)
 ----------------
 
