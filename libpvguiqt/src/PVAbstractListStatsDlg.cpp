@@ -995,16 +995,16 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 	}
 
 	if (show_scientific) {
-		double v = converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(),
-		                                                         0.001);
+		double v =
+		    converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(), 3);
 		_field_size_scientific = fm.width(PVStatsModel::format_scientific_notation(v));
 	} else {
 		_field_size_scientific = 0;
 	}
 
 	if (show_percentage) {
-		double v = converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(),
-		                                                         0.001);
+		double v =
+		    converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(), 3);
 		_field_size_percentage = fm.width(PVStatsModel::format_percentage(v));
 	} else {
 		_field_size_percentage = 0;
