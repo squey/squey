@@ -333,6 +333,7 @@ bool PVInspector::PVXmlDomModel::saveXml(QString xml_file)
 	xmlRootDom.setAttribute("version", version);
 
 	// Add the axes-combination
+	updateAxesCombination();
 	if (not _axes_combination.get_combination().empty()) {
 		QDomElement axis_comb_elt = xmlFile.createElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
 		QDomText axis_comb_txt = xmlFile.createTextNode(_axes_combination.to_string());
