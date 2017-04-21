@@ -77,12 +77,14 @@ bool PVRush::PVElasticsearchAPI::check_connection(std::string* error /* =  nullp
 	std::string json_buffer;
 
 	prepare_query(_curl, socket());
+	if (perform_query(_curl, json_buffer, error)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
 
-	perform_query(_curl, json_buffer, error);
+		return not has_error(json, error);
+	}
 
-	rapidjson::Document json;
-	json.Parse<0>(json_buffer.c_str());
-	return not has_error(json, error);
+	return false;
 }
 
 PVCore::PVVersion PVRush::PVElasticsearchAPI::version() const
@@ -557,13 +559,13 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
 		slice.AddMember("id", slice_id, json.GetAllocator());
 		slice.AddMember("max", slice_count, json.GetAllocator());
 		json.AddMember("slice", slice, json.GetAllocator());
-/*
-"slice": {
-    "id": 0,
-    "max": 12
-}
-*/
-#if 0
+		/*
+		"slice": {
+		    "id": 0,
+		    "max": 12
+		}
+		*/
+
 		rapidjson::Value sort;
 		sort.SetArray();
 		sort.PushBack("_doc", json.GetAllocator());
@@ -573,7 +575,6 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
 		    "_doc"
 		]
 		*/
-#endif
 	}
 
 	json.AddMember("size", max_result_window, json.GetAllocator());

@@ -12,10 +12,26 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/core/PVExporter.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include "common.h"
 
 #include <fstream>
+
+static const PVRush::PVElasticsearchAPI::columns_t ref_columns({{"category", "string"},
+                                                                {"geoip.city_name", "string"},
+                                                                {"geoip.country_name", "string"},
+                                                                {"http_method", "string"},
+                                                                {"login", "string"},
+                                                                {"mime_type", "string"},
+                                                                {"src_ip", "string"},
+                                                                {"status_code", "string"},
+                                                                {"time", "string"},
+                                                                {"time_spent", "integer"},
+                                                                {"total_bytes", "integer"},
+                                                                {"url", "string"},
+                                                                {"user_agent", "string"}});
+auto get_col_name = [](const auto& p) { return p.first; };
 
 int main(int argc, char** argv)
 {
@@ -36,9 +52,9 @@ int main(int argc, char** argv)
 	infos.set_index("proxy_sample_geoip");
 	infos.set_login("elastic");
 	infos.set_password("changeme");
-	infos.set_filter_path(
-	    "category,geoip.city_name,geoip.country_name,http_method,login,mime_type,src_ip,status_"
-	    "code,time,time_spent,total_bytes,url,user_agent");
+	infos.set_filter_path(QString::fromStdString(
+	    PVCore::join(boost::make_transform_iterator(ref_columns.begin(), get_col_name),
+	                 boost::make_transform_iterator(ref_columns.end(), get_col_name), ",")));
 
 	/*
 	 * Set Up an ElasticSearchQuery.
@@ -137,24 +153,7 @@ int main(int argc, char** argv)
 		std::cout << error << std::endl;
 	}
 
-	for (const auto& c : columns) {
-		pvlogger::info() << c.first << " : " << c.second << std::endl;
-	}
-
-	PV_ASSERT_VALID(columns ==
-	                PVRush::PVElasticsearchAPI::columns_t({{"category", "string"},
-	                                                       {"geoip.city_name", "string"},
-	                                                       {"geoip.country_name", "string"},
-	                                                       {"http_method", "string"},
-	                                                       {"login", "string"},
-	                                                       {"mime_type", "string"},
-	                                                       {"src_ip", "string"},
-	                                                       {"status_code", "string"},
-	                                                       {"time", "string"},
-	                                                       {"time_spent", "integer"},
-	                                                       {"total_bytes", "integer"},
-	                                                       {"url", "string"},
-	                                                       {"user_agent", "string"}}));
+	PV_ASSERT_VALID(columns == ref_columns);
 
 	/**************************************************************************
 	 * Check query count is correct

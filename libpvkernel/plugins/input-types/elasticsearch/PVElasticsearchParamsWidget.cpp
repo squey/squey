@@ -349,6 +349,10 @@ bool PVRush::PVElasticsearchParamsWidget::set_infos(PVElasticsearchInfos const& 
 	                          PVElasticsearchInfos, PVElasticsearchQuery>::set_infos(infos);
 	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
 
+	if (infos.get_index().isEmpty()) {
+		return true;
+	}
+
 	// update filter_path
 	reset_columns_tree_widget();
 	const std::string& filter_path = infos.get_filter_path().toStdString();
@@ -430,9 +434,11 @@ void PVRush::PVElasticsearchParamsWidget::set_query(QString const& query)
 	int query_type = _query_type_cb->currentIndex();
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
-		PVRush::PVElasticsearchAPI es(get_infos());
-		_querybuilder->set_filters(es.columns());
-		_querybuilder->set_rules(query.toStdString());
+		if (not get_infos().get_index().isEmpty()) {
+			PVRush::PVElasticsearchAPI es(get_infos());
+			_querybuilder->set_filters(es.columns());
+			_querybuilder->set_rules(query.toStdString());
+		}
 	} else {
 		_txt_query->setPlainText(query);
 	}
