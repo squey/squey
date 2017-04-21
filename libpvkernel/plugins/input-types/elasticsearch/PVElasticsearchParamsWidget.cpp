@@ -10,6 +10,7 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVUtils.h>
+#include <pvkernel/widgets/PVFilterableComboBox.h>
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -26,7 +27,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 {
 	QLabel* label_index = new QLabel("Index :");
 	_btn_refresh = new QPushButton("&Refresh");
-	_combo_index = new QComboBox();
+	_combo_index = new PVWidgets::PVFilterableComboBox();
 	_port_sb->setValue(PVElasticsearchAPI::DEFAULT_PORT);
 
 	_btn_refresh->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
@@ -468,9 +469,11 @@ bool PVRush::PVElasticsearchParamsWidget::fetch_server_data(const PVElasticsearc
 	QString old_index = _combo_index->currentText();
 
 	_combo_index->clear();
+	QStringList indexes_list;
 	for (const std::string& index : indexes) {
-		_combo_index->addItem(QString(index.c_str()));
+		indexes_list << (index.c_str());
 	}
+	_combo_index->set_string_list(indexes_list);
 
 	_combo_index->setCurrentIndex(_combo_index->findText(old_index));
 

@@ -18,8 +18,14 @@
 #include "PVElasticsearchPresets.h"
 
 #include <pvkernel/widgets/PVQueryBuilder.h>
+#include <pvkernel/widgets/PVQueryBuilder.h>
 
 #include "PVElasticsearchPresets.h"
+
+namespace PVWidgets
+{
+class PVFilterableComboBox;
+}
 
 namespace PVRush
 {
@@ -82,7 +88,7 @@ class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsear
 
   private:
 	QPushButton* _btn_refresh;
-	QComboBox* _combo_index;
+	PVWidgets::PVFilterableComboBox* _combo_index;
 	QTreeWidgetItem* _root_item = nullptr;
 };
 
