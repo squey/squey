@@ -65,6 +65,14 @@ void Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mappe
 
 	if (mapped.is_string()) {
 		compute_log_plotting<string_index_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_int8) {
+		compute_log_plotting<int8_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_uint8) {
+		compute_log_plotting<uint8_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_int16) {
+		compute_log_plotting<int16_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_uint16) {
+		compute_log_plotting<uint16_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_int32) {
 		compute_log_plotting<int32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint32) {

@@ -29,7 +29,8 @@ class PVMappingFilter4Bsort : public PVMappingFilter
 	std::unordered_set<std::string> list_usable_type() const override
 	{
 		return {"ipv4",          "time",         "number_float",  "number_int64",
-		        "number_uint64", "number_int32", "number_uint32", "string"};
+		        "number_uint64", "number_int32", "number_uint32", "number_int16",
+		        "number_uint16", "number_int8",  "number_uint8",  "string"};
 	}
 
   protected:
