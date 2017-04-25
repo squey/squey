@@ -64,6 +64,8 @@ void Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped,
 		compute_minmax_plotting<uint32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint64) {
 		compute_minmax_plotting<uint64_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_int64) {
+		compute_minmax_plotting<int64_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint128) {
 		compute_minmax_plotting<pvcop::db::uint128_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_float) {

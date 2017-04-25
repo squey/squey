@@ -28,6 +28,11 @@
 
 #include <pvcop/types/impl/formatter_factory.h>
 
+static const std::unordered_set<std::string> SUPPORTED_TYPES = {
+    "string",       "number_uint32", "number_int32",  "number_uint64",
+    "number_int64", "number_float",  "number_double", "time",
+    "ipv4",         "ipv6",          "mac_address"};
+
 PVRush::PVFormat::PVFormat() : format_name(""), full_path(""), _have_grep_filter(false)
 {
 }
@@ -273,6 +278,10 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 
 		std::string axe_type = axe.get_type().toStdString();
 
+		if (SUPPORTED_TYPES.find(axe_type) == SUPPORTED_TYPES.end()) {
+			throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
+		}
+
 		if (axe_type == "time") {
 			std::string time_format = axe.get_type_format().toStdString();
 
@@ -283,29 +292,8 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 
 			formatters.emplace_back(get_datetime_formatter_desc(time_format));
 		} else {
-			std::string formatter;
-			std::string formatter_params;
-
-			if (axe_type == "string") {
-				formatter = "string";
-			} else if (axe_type == "number_uint32") {
-				formatter = "number_uint32";
-				formatter_params = axe.get_type_format().toStdString();
-			} else if (axe_type == "number_int32") {
-				formatter = "number_int32";
-			} else if (axe_type == "number_float") {
-				formatter = "number_float";
-			} else if (axe_type == "number_double") {
-				formatter = "number_double";
-			} else if (axe_type == "ipv4") {
-				formatter = "ipv4";
-			} else if (axe_type == "ipv6") {
-				formatter = "ipv6";
-			} else if (axe_type == "mac_address") {
-				formatter = "mac_address";
-			} else {
-				throw PVRush::PVFormatUnknownType("Unknown axis type : " + axe_type);
-			}
+			std::string formatter = axe_type;
+			std::string formatter_params = axe.get_type_format().toStdString();
 
 			formatters.emplace_back(pvcop::formatter_desc(formatter, formatter_params));
 		}

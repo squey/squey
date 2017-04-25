@@ -657,10 +657,10 @@ void PVGuiQt::__impl::PVSumCellWidget::update_type_capabilities()
 	                          .get_axes()
 	                          .at(get_real_axis_col())
 	                          .get_type();
-	_is_summable =
-	    (column_type == "number_float" || column_type == "number_double" ||
-	     column_type == "number_uint32" ||
-	     column_type == "number_int32"); // FIXME : this should be capabilities, not types names !
+	_is_summable = (column_type == "number_float" || column_type == "number_double" ||
+	                column_type == "number_uint64" || column_type == "number_int64" ||
+	                column_type == "number_uint32" || column_type == "number_int32");
+	// FIXME : this should be capabilities, not types names !
 
 	setEnabled(_is_summable);
 }

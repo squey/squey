@@ -14,6 +14,8 @@ PVWidgets::PVAxisTypeWidget::PVAxisTypeWidget(QWidget* parent) : PVComboBox(pare
 	addItem("number_double");
 	addItem("number_int32");
 	addItem("number_uint32");
+	addItem("number_int64");
+	addItem("number_uint64");
 	addItem("time");
 	addItem("ipv4");
 	addItem("ipv6");
