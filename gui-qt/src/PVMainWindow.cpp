@@ -88,22 +88,28 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	// We activate all available Windows
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
 	_projects_tab_widget->show();
-	connect(_projects_tab_widget, SIGNAL(new_project()), this, SLOT(solution_new_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project()), this, SLOT(solution_load_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_project_from_path(const QString&)), this,
-	        SLOT(load_solution_and_create_mw(const QString&)));
-	connect(_projects_tab_widget, SIGNAL(save_project()), this, SLOT(solution_save_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)),
-	        this, SLOT(load_source_from_description_Slot(PVRush::PVSourceDescription)));
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::new_project, this,
+	        &PVMainWindow::solution_new_Slot);
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::load_project, this,
+	        &PVMainWindow::solution_load_Slot);
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::load_project_from_path, this,
+	        &PVMainWindow::load_solution_and_create_mw);
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::save_project, this,
+	        &PVMainWindow::solution_save_Slot);
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::load_source_from_description, this,
+	        &PVMainWindow::load_source_from_description_Slot);
 	connect(_projects_tab_widget, SIGNAL(import_type(const QString&)), this,
 	        SLOT(import_type_Slot(const QString&)));
-	connect(_projects_tab_widget, SIGNAL(new_format()), this, SLOT(new_format_Slot()));
-	connect(_projects_tab_widget, SIGNAL(load_format()), this, SLOT(open_format_Slot()));
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::new_format, this,
+	        &PVMainWindow::new_format_Slot);
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::load_format, this,
+	        &PVMainWindow::open_format_Slot);
 	connect(_projects_tab_widget, SIGNAL(edit_format(const QString&)), this,
 	        SLOT(edit_format_Slot(const QString&)));
-	connect(_projects_tab_widget, SIGNAL(is_empty()), this, SLOT(close_solution_Slot()));
-	connect(_projects_tab_widget, SIGNAL(active_project(bool)), this,
-	        SLOT(menu_activate_is_file_opened(bool)));
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::is_empty, this,
+	        &PVMainWindow::close_solution_Slot);
+	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::active_project, this,
+	        &PVMainWindow::menu_activate_is_file_opened);
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -467,7 +473,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 						QAction* action = new QAction(actions_name[i] + "...", previous_menu);
 						action->setObjectName(filter_name);
 						action->setStatusTip(status_tip);
-						connect(action, SIGNAL(triggered()), this, SLOT(filter_Slot()));
+						connect(action, &QAction::triggered, this, &PVMainWindow::filter_Slot);
 						previous_menu->addAction(action);
 					} else {
 						// we add a menu to the previous menu
@@ -483,7 +489,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 			QAction* action = new QAction(action_name + "...", menu);
 			action->setObjectName(filter_name);
 			action->setStatusTip(status_tip);
-			connect(action, SIGNAL(triggered()), this, SLOT(filter_Slot()));
+			connect(action, &QAction::triggered, this, &PVMainWindow::filter_Slot);
 
 			menu->addAction(action);
 		}

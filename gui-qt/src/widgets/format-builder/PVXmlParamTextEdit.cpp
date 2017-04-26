@@ -29,7 +29,7 @@ PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName, QVariant var)
 	sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
 	setSizePolicy(sp);
 
-	connect(this, SIGNAL(textChanged()), this, SLOT(slotHighLight()));
+	connect(this, &QTextEdit::textChanged, this, &PVXmlParamTextEdit::slotHighLight);
 }
 
 /******************************************************************************

@@ -63,10 +63,11 @@ void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields()
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardFilter::disableConnexion()
 {
-	disconnect(name, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+	disconnect(name, &QLineEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
 	disconnect(exp, SIGNAL(textChanged()), validWidget, SLOT(setRegEx(const QString&)));
-	disconnect(exp, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
-	disconnect(validWidget, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
+	disconnect(exp, &QTextEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
+	disconnect(validWidget, &QTextEdit::textChanged, this,
+	           &PVXmlParamWidgetBoardFilter::slotSetValues);
 }
 
 /******************************************************************************
@@ -121,13 +122,16 @@ QWidget* PVInspector::PVXmlParamWidgetBoardFilter::getWidgetToFocus()
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardFilter::initConnexion()
 {
-	connect(name, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
-	connect(name, SIGNAL(textChanged(const QString&)), this, SLOT(slotVerifRegExpInName()));
+	connect(name, &QLineEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
+	connect(name, &QLineEdit::textChanged, this,
+	        &PVXmlParamWidgetBoardFilter::slotVerifRegExpInName);
 	connect(exp, SIGNAL(textChanged()), validWidget, SLOT(setRegEx()));
-	connect(exp, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
-	connect(validWidget, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
+	connect(exp, &QTextEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
+	connect(validWidget, &QTextEdit::textChanged, this,
+	        &PVXmlParamWidgetBoardFilter::slotSetValues);
 	connect(typeOfFilter, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-	connect(buttonNext, SIGNAL(clicked()), this, SLOT(slotEmitNext()));
+	connect(buttonNext, &QAbstractButton::clicked, this,
+	        &PVXmlParamWidgetBoardFilter::slotEmitNext);
 }
 
 /******************************************************************************
@@ -189,8 +193,8 @@ void PVInspector::PVXmlParamWidgetBoardFilter::slotVerifRegExpInName()
 		bas.addWidget(&yes);
 
 		// connect the response button
-		connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
-		connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
+		connect(&no, &QAbstractButton::clicked, &confirm, &QDialog::reject);
+		connect(&yes, &QAbstractButton::clicked, &confirm, &QDialog::accept);
 
 		// if confirmed then apply
 		if (confirm.exec()) {

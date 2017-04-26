@@ -62,7 +62,7 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout,
 		button->setIcon(in->icon());
 		button->setCursor(in->cursor());
 
-		QObject::connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
+		QObject::connect(button, &QAbstractButton::clicked, action, &QAction::trigger);
 
 		layout->addWidget(button);
 	});

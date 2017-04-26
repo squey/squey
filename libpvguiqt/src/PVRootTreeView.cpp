@@ -42,9 +42,9 @@ PVGuiQt::PVRootTreeView::PVRootTreeView(QAbstractItemModel* model, QWidget* pare
 	_act_edit_mapping = new QAction(tr("Edit mapping..."), this);
 	_act_edit_plotting = new QAction(tr("Edit plotting..."), this);
 
-	connect(_act_new_view, SIGNAL(triggered()), this, SLOT(create_new_view()));
-	connect(_act_edit_plotting, SIGNAL(triggered()), this, SLOT(edit_plotting()));
-	connect(_act_edit_mapping, SIGNAL(triggered()), this, SLOT(edit_mapping()));
+	connect(_act_new_view, &QAction::triggered, this, &PVRootTreeView::create_new_view);
+	connect(_act_edit_plotting, &QAction::triggered, this, &PVRootTreeView::edit_plotting);
+	connect(_act_edit_mapping, &QAction::triggered, this, &PVRootTreeView::edit_mapping);
 }
 
 void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)

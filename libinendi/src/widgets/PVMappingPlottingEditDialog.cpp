@@ -90,8 +90,8 @@ void PVWidgets::PVMappingPlottingEditDialog::finish_layout()
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
 	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(btns, SIGNAL(accepted()), this, SLOT(save_settings()));
-	connect(btns, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(btns, &QDialogButtonBox::accepted, this, &PVMappingPlottingEditDialog::save_settings);
+	connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
 	_main_layout->addWidget(btns);
 }
 

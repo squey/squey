@@ -170,14 +170,17 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion()
 	connect(comboMapping->get_combo_box(),
 	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 	        &PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams);
-	connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
+	connect(_params_mapping, &PVWidgets::PVArgumentListWidget::args_changed_Signal, this,
+	        &PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsMapping);
 
 	connect(comboPlotting->get_combo_box(),
 	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 	        &PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams);
-	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
+	connect(_params_plotting, &PVWidgets::PVArgumentListWidget::args_changed_Signal, this,
+	        &PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting);
 
-	connect(btnTypeFormatHelp, SIGNAL(clicked()), this, SLOT(slotShowTypeFormatHelp()));
+	connect(btnTypeFormatHelp, &QAbstractButton::clicked, this,
+	        &PVInspector::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp);
 
 	// extra
 	connect(buttonColor, &PVXmlParamColorDialog::changed, [this]() {
@@ -191,7 +194,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion()
 	});
 
 	// button next axis
-	connect(buttonNextAxis, SIGNAL(clicked()), this, SLOT(slotGoNextAxis()));
+	connect(buttonNextAxis, &QAbstractButton::clicked, this,
+	        &PVInspector::PVXmlParamWidgetBoardAxis::slotGoNextAxis);
 }
 
 /******************************************************************************

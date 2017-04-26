@@ -40,16 +40,16 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* 
 	if (_filter_p->get_presets().can_have_presets()) {
 		_presets_widget = new PVWidgets::PVPresetsWidget(tr("Presets"));
 		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
-		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this,
-		        SLOT(load_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this,
-		        SLOT(add_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this,
-		        SLOT(save_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this,
-		        SLOT(remove_preset_Slot(const QString&)));
-		connect(_presets_widget, SIGNAL(preset_renamed_Signal(const QString&, const QString&)),
-		        this, SLOT(rename_preset_Slot(const QString&, const QString&)));
+		connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_load_clicked_Signal, this,
+		        &PVLayerFilterProcessWidget::load_preset_Slot);
+		connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_new_clicked_Signal, this,
+		        &PVLayerFilterProcessWidget::add_preset_Slot);
+		connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_save_clicked_Signal, this,
+		        &PVLayerFilterProcessWidget::save_preset_Slot);
+		connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_remove_clicked_Signal, this,
+		        &PVLayerFilterProcessWidget::remove_preset_Slot);
+		connect(_presets_widget, &PVWidgets::PVPresetsWidget::preset_renamed_Signal, this,
+		        &PVLayerFilterProcessWidget::rename_preset_Slot);
 		_presets_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 		_presets_widget->setMinimumSize(QSize(0, 130));
 	}
@@ -159,14 +159,15 @@ void PVGuiQt::PVLayerFilterProcessWidget::set_btns_layout()
 void PVGuiQt::PVLayerFilterProcessWidget::connect_btns()
 {
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
-	connect(_reset_btn, SIGNAL(pressed()), this, SLOT(reset_Slot()));
-	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
-	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
+	connect(_reset_btn, &QAbstractButton::pressed, this, &PVLayerFilterProcessWidget::reset_Slot);
+	connect(_preview_btn, &QAbstractButton::pressed, this,
+	        &PVLayerFilterProcessWidget::preview_Slot);
+	connect(_apply_btn, &QAbstractButton::pressed, this, &PVLayerFilterProcessWidget::save_Slot);
 	if (_help_btn) {
 		QMessageBox* msgBox =
 		    new QMessageBox(QMessageBox::Information, "Filter help",
 		                    _filter_p->detailed_description(), QMessageBox::Ok, this);
-		connect(_help_btn, SIGNAL(pressed()), msgBox, SLOT(exec()));
+		connect(_help_btn, &QAbstractButton::pressed, msgBox, &QDialog::exec);
 	}
 }
 

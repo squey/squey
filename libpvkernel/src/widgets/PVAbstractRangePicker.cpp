@@ -202,10 +202,12 @@ PVWidgets::__impl::PVAbstractRangeRamp::PVAbstractRangeRamp(QWidget* parent) : Q
 	setContentsMargins(0, 0, 0, 0);
 
 	_min_cursor = new PVAbstractRangeRampCursor(PVAbstractRangeRampCursor::MINIMUM, this);
-	connect(_min_cursor, SIGNAL(moved(int)), this, SLOT(min_cursor_moved(int)));
+	connect(_min_cursor, &PVAbstractRangeRampCursor::moved, this,
+	        &PVAbstractRangeRamp::min_cursor_moved);
 
 	_max_cursor = new PVAbstractRangeRampCursor(PVAbstractRangeRampCursor::MAXIMUM, this);
-	connect(_max_cursor, SIGNAL(moved(int)), this, SLOT(max_cursor_moved(int)));
+	connect(_max_cursor, &PVAbstractRangeRampCursor::moved, this,
+	        &PVAbstractRangeRamp::max_cursor_moved);
 }
 
 /*****************************************************************************
@@ -415,14 +417,18 @@ PVWidgets::PVAbstractRangePicker::PVAbstractRangePicker(const double& min_limit,
 
 void PVWidgets::PVAbstractRangePicker::connect_ranges_to_spinboxes()
 {
-	connect(_range_ramp, SIGNAL(min_changed(double)), this, SLOT(min_ramp_changed(double)));
-	connect(_range_ramp, SIGNAL(max_changed(double)), this, SLOT(max_ramp_changed(double)));
+	connect(_range_ramp, &__impl::PVAbstractRangeRamp::min_changed, this,
+	        &PVAbstractRangePicker::min_ramp_changed);
+	connect(_range_ramp, &__impl::PVAbstractRangeRamp::max_changed, this,
+	        &PVAbstractRangePicker::max_ramp_changed);
 }
 
 void PVWidgets::PVAbstractRangePicker::disconnect_ranges_from_spinboxes()
 {
-	disconnect(_range_ramp, SIGNAL(min_changed(double)), this, SLOT(min_ramp_changed(double)));
-	disconnect(_range_ramp, SIGNAL(max_changed(double)), this, SLOT(max_ramp_changed(double)));
+	disconnect(_range_ramp, &__impl::PVAbstractRangeRamp::min_changed, this,
+	           &PVAbstractRangePicker::min_ramp_changed);
+	disconnect(_range_ramp, &__impl::PVAbstractRangeRamp::max_changed, this,
+	           &PVAbstractRangePicker::max_ramp_changed);
 }
 
 void PVWidgets::PVAbstractRangePicker::connect_spinboxes_to_ranges()

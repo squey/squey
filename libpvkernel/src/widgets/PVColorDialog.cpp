@@ -131,10 +131,11 @@ PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* pa
 
 		// ...and other actions
 		QAction* act_save_color = new QAction(tr("Save current color"), color_label);
-		connect(act_save_color, SIGNAL(triggered()), this,
-		        SLOT(set_predefined_color_from_action()));
+		connect(act_save_color, &QAction::triggered, this,
+		        &PVColorDialog::set_predefined_color_from_action);
 		QAction* act_reset = new QAction(tr("Reset to white"), color_label);
-		connect(act_reset, SIGNAL(triggered()), this, SLOT(reset_predefined_color_from_action()));
+		connect(act_reset, &QAction::triggered, this,
+		        &PVColorDialog::reset_predefined_color_from_action);
 
 		color_label->addAction(act_save_color);
 		color_label->addAction(act_reset);
@@ -151,7 +152,8 @@ PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* pa
 		                          last_empty_col, GRID_COL_SIZE - last_empty_col);
 	}
 
-	connect(picker(), SIGNAL(color_changed_left(int)), this, SLOT(picker_color_changed(int)));
+	connect(picker(), &PVColorPicker::color_changed_left, this,
+	        &PVColorDialog::picker_color_changed);
 
 	set_color(c);
 }

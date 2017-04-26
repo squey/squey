@@ -62,9 +62,9 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 		setAttribute(Qt::WA_DeleteOnClose, true);
 	}
 
-	connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(drag_started(bool)));
-	connect(this, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(drag_ended()));
-	connect(view_widget, SIGNAL(destroyed(QObject*)), this, SLOT(close()));
+	connect(this, &QDockWidget::topLevelChanged, this, &PVViewDisplay::drag_started);
+	connect(this, &QDockWidget::dockLocationChanged, this, &PVViewDisplay::drag_ended);
+	connect(view_widget, &QObject::destroyed, this, &QWidget::close);
 
 	_screenSignalMapper = new QSignalMapper(this);
 	connect(_screenSignalMapper, SIGNAL(mapped(int)), this, SLOT(maximize_on_screen(int)));
@@ -137,8 +137,8 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 				_workspace = workspace;
 
 				disconnect(this, SIGNAL(try_automatic_tab_switch()), 0, 0);
-				connect(this, SIGNAL(try_automatic_tab_switch()), workspace,
-				        SIGNAL(try_automatic_tab_switch()));
+				connect(this, &PVViewDisplay::try_automatic_tab_switch, workspace,
+				        &PVWorkspaceBase::try_automatic_tab_switch);
 
 				QCursor::setPos(mapToGlobal(_press_pt));
 				move(mapToGlobal(_press_pt));
@@ -229,7 +229,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 			ctxt_menu->addAction(maximize_action);
 		} else if (_state == EState::CAN_RESTORE) {
 			QAction* restore_action = new QAction(tr("Restore"), this);
-			connect(restore_action, SIGNAL(triggered(bool)), this, SLOT(restore()));
+			connect(restore_action, &QAction::triggered, this, &PVViewDisplay::restore);
 			ctxt_menu->addAction(restore_action);
 		}
 

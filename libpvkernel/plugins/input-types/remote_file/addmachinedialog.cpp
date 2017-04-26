@@ -35,15 +35,15 @@ void AddMachineDialog::AddMachineDialogPrivate::initWidget()
 
 	machineName = new QLineEdit;
 	formLayout->addRow(tr("Machine name:"), machineName);
-	connect(machineName, SIGNAL(textChanged(const QString&)), qq, SLOT(slotTextChanged()));
+	connect(machineName, &QLineEdit::textChanged, qq, &AddMachineDialog::slotTextChanged);
 
 	hostName = new QLineEdit;
 	formLayout->addRow(tr("Hostname:"), hostName);
-	connect(hostName, SIGNAL(textChanged(const QString&)), qq, SLOT(slotTextChanged()));
+	connect(hostName, &QLineEdit::textChanged, qq, &AddMachineDialog::slotTextChanged);
 
 	buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(buttons, SIGNAL(accepted()), qq, SLOT(accept()));
-	connect(buttons, SIGNAL(rejected()), qq, SLOT(reject()));
+	connect(buttons, &QDialogButtonBox::accepted, qq, &QDialog::accept);
+	connect(buttons, &QDialogButtonBox::rejected, qq, &QDialog::reject);
 	layout->addWidget(buttons);
 
 	machineNameChanged();

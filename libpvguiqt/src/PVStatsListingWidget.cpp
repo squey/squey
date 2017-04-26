@@ -76,7 +76,8 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	hide_button->setToolTip(tr("Toggle stats panel visibility"));
 	hide_button->setMaximumHeight(10);
 	hide_button->setFlat(true);
-	connect(hide_button, SIGNAL(clicked(bool)), this, SLOT(toggle_stats_panel_visibility()));
+	connect(hide_button, &QAbstractButton::clicked, this,
+	        &PVStatsListingWidget::toggle_stats_panel_visibility);
 
 	main_layout->addWidget(_listing_view);
 	main_layout->addWidget(hide_button);
@@ -84,13 +85,13 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 
 	setLayout(main_layout);
 
-	connect(_listing_view->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this,
-	        SLOT(update_header_width(int, int, int)));
+	connect(_listing_view->horizontalHeader(), &QHeaderView::sectionResized, this,
+	        &PVStatsListingWidget::update_header_width);
 	_stats_panel->setVerticalHeader(new __impl::PVVerticalHeaderView(this));
 	_stats_panel->verticalHeader()->viewport()->installEventFilter(this);
-	connect(_listing_view, SIGNAL(resized()), this, SLOT(resize_panel()));
-	connect(_listing_view->horizontalScrollBar(), SIGNAL(valueChanged(int)), this,
-	        SLOT(update_scrollbar_position()));
+	connect(_listing_view, &PVListingView::resized, this, &PVStatsListingWidget::resize_panel);
+	connect(_listing_view->horizontalScrollBar(), &QAbstractSlider::valueChanged, this,
+	        &PVStatsListingWidget::update_scrollbar_position);
 
 	// Observe selection to handle automatic refresh mode
 	Inendi::PVView& view_sp = _listing_view->lib_view();
@@ -123,7 +124,7 @@ void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
 		act->setEnabled(_stats_panel->isRowHidden(row));
 		act->setChecked(!_stats_panel->isRowHidden(row));
 		act->setData(row);
-		connect(act, SIGNAL(triggered(bool)), this, SLOT(plugin_visibility_toggled(bool)));
+		connect(act, &QAction::triggered, this, &PVStatsListingWidget::plugin_visibility_toggled);
 		_vhead_ctxt_menu->addAction(act);
 	}
 }
@@ -360,7 +361,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	_refresh_icon->setIcon(_refresh_pixmap);
 	_refresh_icon->setFocusPolicy(Qt::NoFocus);
 	_refresh_icon->setToolTip("Refresh");
-	connect(_refresh_icon, SIGNAL(clicked(bool)), this, SLOT(refresh()));
+	connect(_refresh_icon, &QAbstractButton::clicked, this, &PVCellWidgetBase::refresh);
 
 	_loading_label = new PVLoadingLabel(this);
 	_loading_label->setMovie(get_movie());
@@ -378,9 +379,10 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	_autorefresh_icon->setFocusPolicy(Qt::NoFocus);
 	_autorefresh_icon->setToolTip("Toggle auto refresh");
 	_autorefresh_icon->setVisible(false); // Disabled before having a better job handling pipeline
-	connect(_autorefresh_icon, SIGNAL(clicked(bool)), this, SLOT(toggle_auto_refresh()));
+	connect(_autorefresh_icon, &QAbstractButton::clicked, this,
+	        &PVCellWidgetBase::toggle_auto_refresh);
 
-	connect(this, SIGNAL(refresh_impl_finished(QString)), this, SLOT(refreshed(QString)));
+	connect(this, &PVCellWidgetBase::refresh_impl_finished, this, &PVCellWidgetBase::refreshed);
 
 	_main_layout = new QHBoxLayout();
 	_main_layout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -400,10 +402,10 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	// Context menu
 	_ctxt_menu = new QMenu(this);
 	QAction* copy = new QAction(tr("Copy"), _ctxt_menu);
-	connect(copy, SIGNAL(triggered()), this, SLOT(copy_to_clipboard()));
+	connect(copy, &QAction::triggered, this, &PVCellWidgetBase::copy_to_clipboard);
 	_ctxt_menu->addAction(copy);
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-	        SLOT(context_menu_requested(const QPoint&)));
+	connect(this, &QWidget::customContextMenuRequested, this,
+	        &PVCellWidgetBase::context_menu_requested);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	setLayout(_main_layout);
@@ -592,7 +594,8 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	unique_values_dlg_icon->setIcon(QPixmap::fromImage(QImage(":/fileslist_black")));
 	unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
 	unique_values_dlg_icon->setToolTip("Show distinct values");
-	connect(unique_values_dlg_icon, SIGNAL(clicked(bool)), this, SLOT(show_unique_values_dlg()));
+	connect(unique_values_dlg_icon, &QAbstractButton::clicked, this,
+	        &PVUniqueValuesCellWidget::show_unique_values_dlg);
 	_customizable_layout->addWidget(unique_values_dlg_icon);
 }
 
@@ -615,7 +618,8 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 		if (not empty_sel) {
 			PVQNraw::show_unique_values(_view, _view.get_rushnraw_parent(), get_real_axis_col(),
 			                            _view.get_selection_visible_listing(), this, &_dialog);
-			connect(_dialog, SIGNAL(finished(int)), this, SLOT(unique_values_dlg_closed()));
+			connect(_dialog, &QDialog::finished, this,
+			        &PVUniqueValuesCellWidget::unique_values_dlg_closed);
 		}
 	} else {
 		_dialog->close();

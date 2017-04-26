@@ -62,9 +62,10 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget* parent) : QWidget(paren
 	setLayout(layout);
 	setFocusPolicy(Qt::WheelFocus);
 
-	connect(import_file, SIGNAL(clicked()), this, SLOT(slot_import_file()));
-	connect(export_file, SIGNAL(clicked()), this, SLOT(slot_export_file()));
-	connect(export_and_append_file, SIGNAL(clicked()), this, SLOT(slot_export_and_import_file()));
+	connect(import_file, &QAbstractButton::clicked, this, &PVPlainTextEditor::slot_import_file);
+	connect(export_file, &QAbstractButton::clicked, this, &PVPlainTextEditor::slot_export_file);
+	connect(export_and_append_file, &QAbstractButton::clicked, this,
+	        &PVPlainTextEditor::slot_export_and_import_file);
 }
 
 void PVWidgets::PVPlainTextEditor::save_to_file(const bool append)

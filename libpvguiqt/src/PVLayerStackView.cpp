@@ -52,8 +52,7 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	});
 
 	// Context menu
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-	        SLOT(show_ctxt_menu(const QPoint&)));
+	connect(this, &QWidget::customContextMenuRequested, this, &PVLayerStackView::show_ctxt_menu);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_ctxt_menu = new QMenu(this);

@@ -30,7 +30,8 @@ FileNameSelectorWidget::FileNameSelectorWidget(QWidget* parent) : QWidget(parent
 	m_selectPath = new QPushButton;
 	m_selectPath->setText(QLatin1String("..."));
 	m_selectPath->setFixedWidth(30);
-	connect(m_selectPath, SIGNAL(clicked()), SLOT(slotPathChanged()));
+	connect(m_selectPath, &QAbstractButton::clicked, this,
+	        &FileNameSelectorWidget::slotPathChanged);
 
 	layout->addWidget(m_selectPath);
 
@@ -113,8 +114,7 @@ void FileConnectionDialog::FileConnectionDialogPrivate::initWidget()
 
 	remotefile = new QLineEdit;
 	formLayout->addRow(tr("Remote File:"), remotefile);
-	connect(remotefile, SIGNAL(textChanged(const QString&)), qq,
-	        SLOT(slotTextChanged(const QString&)));
+	connect(remotefile, &QLineEdit::textChanged, qq, &FileConnectionDialog::slotTextChanged);
 
 	port = new QSpinBox;
 	port->setRange(0, 65535);
@@ -137,8 +137,8 @@ void FileConnectionDialog::FileConnectionDialogPrivate::initWidget()
 	layout->addWidget(ignoreSslError);
 
 	buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(buttons, SIGNAL(accepted()), qq, SLOT(accept()));
-	connect(buttons, SIGNAL(rejected()), qq, SLOT(reject()));
+	connect(buttons, &QDialogButtonBox::accepted, qq, &QDialog::accept);
+	connect(buttons, &QDialogButtonBox::rejected, qq, &QDialog::reject);
 	layout->addWidget(buttons);
 	remoteFileChanged(QString());
 	protocolChanged(0);

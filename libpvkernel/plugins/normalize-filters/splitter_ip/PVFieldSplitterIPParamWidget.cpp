@@ -70,7 +70,7 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 	layout->addWidget(groupBox);
 	_ipv4->setChecked(!args["ipv6"].toBool());
 	_ipv6->setChecked(args["ipv6"].toBool());
-	connect(_ipv4, SIGNAL(toggled(bool)), this, SLOT(set_ip_type()));
+	connect(_ipv4, &QAbstractButton::toggled, this, &PVFieldSplitterIPParamWidget::set_ip_type);
 
 	_label_list.clear();
 	_cb_list.clear();
@@ -86,7 +86,8 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 			    "QCheckBox::indicator:checked{ image: url(:/scissors_on); }"
 			    "QCheckBox::indicator:unchecked{ image: url(:/scissors_off); }");
 			checkbox->setCursor(QCursor(Qt::PointingHandCursor));
-			connect(checkbox, SIGNAL(stateChanged(int)), this, SLOT(update_child_count()));
+			connect(checkbox, &QCheckBox::stateChanged, this,
+			        &PVFieldSplitterIPParamWidget::update_child_count);
 			_cb_list.append(checkbox);
 			groups_layout->addWidget(_cb_list[i], 0, Qt::AlignHCenter);
 		}

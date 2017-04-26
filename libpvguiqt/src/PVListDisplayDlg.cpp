@@ -70,9 +70,10 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	        &PVListDisplayDlg::show_ctxt_menu);
 	_values_view->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	connect(_btn_copy_clipboard, SIGNAL(clicked()), this, SLOT(copy_all_to_clipboard()));
-	connect(_btn_copy_file, SIGNAL(clicked()), this, SLOT(copy_to_file()));
-	connect(_btn_append_file, SIGNAL(clicked()), this, SLOT(append_to_file()));
+	connect(_btn_copy_clipboard, &QAbstractButton::clicked, this,
+	        &PVListDisplayDlg::copy_all_to_clipboard);
+	connect(_btn_copy_file, &QAbstractButton::clicked, this, &PVListDisplayDlg::copy_to_file);
+	connect(_btn_append_file, &QAbstractButton::clicked, this, &PVListDisplayDlg::append_to_file);
 }
 
 PVGuiQt::PVListDisplayDlg::~PVListDisplayDlg()

@@ -43,9 +43,9 @@ PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* paren
 
 	ok->setDefault(true);
 	buttons_layout->addWidget(ok);
-	connect(ok, SIGNAL(pressed()), this, SLOT(ok_Slot()));
+	connect(ok, &QAbstractButton::pressed, this, &PVStringListChooserWidget::ok_Slot);
 	buttons_layout->addWidget(cancel);
-	connect(cancel, SIGNAL(pressed()), this, SLOT(reject()));
+	connect(cancel, &QAbstractButton::pressed, this, &QDialog::reject);
 
 	setLayout(main_layout);
 }

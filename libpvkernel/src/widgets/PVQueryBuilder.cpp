@@ -40,8 +40,8 @@ PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/)
 #endif
 {
 	// Javascript content must be executed on the main Qt thread to avoid crashs
-	connect(this, SIGNAL(run_javascript_signal(const QString&, QString*)), this,
-	        SLOT(run_javascript_slot(const QString&, QString*)));
+	connect(this, &PVQueryBuilder::run_javascript_signal, this,
+	        &PVQueryBuilder::run_javascript_slot);
 
 	reinit();
 }
@@ -66,7 +66,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 
 	// Trick to wait for the page to be properly loaded
 	QEventLoop loop;
-	connect(_view, SIGNAL(loadFinished(bool)), &loop, SLOT(quit()));
+	connect(_view, &QWebView::loadFinished, &loop, &QEventLoop::quit);
 	loop.exec();
 
 	if (layout() == nullptr) {

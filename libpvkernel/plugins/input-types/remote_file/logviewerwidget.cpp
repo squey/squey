@@ -73,15 +73,14 @@ class LogViewerWidget::LogViewerWidgetPrivate
 void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
 {
 	fileDownLoader = new FileDownLoader(qq);
-	connect(fileDownLoader, SIGNAL(downloadError(const QString&, int)), qq,
-	        SIGNAL(downloadError(const QString&, int)));
+	connect(fileDownLoader, &FileDownLoader::downloadError, qq, &LogViewerWidget::downloadError);
 
 	QHBoxLayout* layout = new QHBoxLayout;
 	layout->setMargin(0);
 	machineListWidget = new QListWidget;
 	layout->addWidget(machineListWidget);
-	connect(machineListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), qq,
-	        SLOT(slotFillFilesList(QListWidgetItem*)));
+	connect(machineListWidget, &QListWidget::currentItemChanged, qq,
+	        &LogViewerWidget::slotFillFilesList);
 
 	QVBoxLayout* fileLayout = new QVBoxLayout;
 	layout->addLayout(fileLayout);
@@ -96,30 +95,30 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
 
 	connect(filesTableWidget, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), qq->parent(),
 	        SLOT(slotDownloadFiles()));
-	connect(filesTableWidget, SIGNAL(itemClicked(QTableWidgetItem*)), qq,
-	        SLOT(slotUpdateButtons()));
+	connect(filesTableWidget, &QTableWidget::itemClicked, qq, &LogViewerWidget::slotUpdateButtons);
 	fileLayout->addWidget(filesTableWidget);
 
 	QHBoxLayout* actionLayout = new QHBoxLayout;
 	fileLayout->addLayout(actionLayout);
 
 	addFileToDownload = new QPushButton(tr("Add file..."));
-	connect(addFileToDownload, SIGNAL(clicked()), qq, SLOT(slotAddFile()));
+	connect(addFileToDownload, &QAbstractButton::clicked, qq, &LogViewerWidget::slotAddFile);
 	actionLayout->addWidget(addFileToDownload);
 
 	removeFileToDownload = new QPushButton(tr("Remove file"));
-	connect(removeFileToDownload, SIGNAL(clicked()), qq, SLOT(slotRemoveFile()));
+	connect(removeFileToDownload, &QAbstractButton::clicked, qq, &LogViewerWidget::slotRemoveFile);
 	actionLayout->addWidget(removeFileToDownload);
 
 	configureFileToDownload = new QPushButton(tr("Configure file"));
-	connect(configureFileToDownload, SIGNAL(clicked()), qq, SLOT(slotConfigureFile()));
+	connect(configureFileToDownload, &QAbstractButton::clicked, qq,
+	        &LogViewerWidget::slotConfigureFile);
 	actionLayout->addWidget(configureFileToDownload);
 
 	addMachineAction = new QAction(tr("Add new machine..."), qq);
-	connect(addMachineAction, SIGNAL(triggered(bool)), qq, SLOT(slotAddMachine()));
+	connect(addMachineAction, &QAction::triggered, qq, &LogViewerWidget::slotAddMachine);
 
 	removeMachineAction = new QAction(tr("Remove machine..."), qq);
-	connect(removeMachineAction, SIGNAL(triggered(bool)), qq, SLOT(slotRemoveMachine()));
+	connect(removeMachineAction, &QAction::triggered, qq, &LogViewerWidget::slotRemoveMachine);
 
 	qq->setLayout(layout);
 }

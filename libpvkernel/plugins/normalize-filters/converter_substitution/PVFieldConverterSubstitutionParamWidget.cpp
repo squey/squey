@@ -134,10 +134,10 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	        &PVFieldConverterSubstitutionParamWidget::update_params);
 	connect(_use_default_value_checkbox, &QCheckBox::stateChanged, this,
 	        &PVFieldConverterSubstitutionParamWidget::use_default_value_checkbox_changed);
-	connect(_separator_char, SIGNAL(keySequenceChanged(const QKeySequence&)), this,
-	        SLOT(update_params()));
-	connect(_quote_char, SIGNAL(keySequenceChanged(const QKeySequence&)), this,
-	        SLOT(update_params()));
+	connect(_separator_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged, this,
+	        &PVFieldConverterSubstitutionParamWidget::update_params);
+	connect(_quote_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged, this,
+	        &PVFieldConverterSubstitutionParamWidget::update_params);
 
 	/**
 	 * Substrings mode
