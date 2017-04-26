@@ -58,12 +58,22 @@ void Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped,
 
 	if (mapped.is_string()) {
 		compute_minmax_plotting<string_index_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_int8) {
+		compute_minmax_plotting<int8_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_uint8) {
+		compute_minmax_plotting<uint8_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_int16) {
+		compute_minmax_plotting<int16_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_uint16) {
+		compute_minmax_plotting<uint16_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_int32) {
 		compute_minmax_plotting<int32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint32) {
 		compute_minmax_plotting<uint32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint64) {
 		compute_minmax_plotting<uint64_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == pvcop::db::type_int64) {
+		compute_minmax_plotting<int64_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_uint128) {
 		compute_minmax_plotting<pvcop::db::uint128_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == pvcop::db::type_float) {

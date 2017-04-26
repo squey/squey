@@ -462,6 +462,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	QList<QAction*> max_by_actions;
 	QList<QAction*> sum_by_actions;
 	QList<QAction*> avg_by_actions;
+
 	for (PVCombCol i(0); i < axes.size(); i++) {
 		if (i != comb_col) {
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
@@ -489,8 +490,9 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			});
 
 			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
-			QStringList summable_types = {"number_int32", "number_uint32", "number_float",
-			                              "number_double"};
+			QStringList summable_types = {
+			    "number_int64", "number_uint64", "number_int32", "number_uint32", "number_uint16",
+			    "number_int16", "number_uint8",  "number_int8",  "number_float",  "number_double"};
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
 				sum_by_actions << action_col_sum_by;
