@@ -10,6 +10,7 @@
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVColorDialog.h>
+#include <pvkernel/widgets/PVFilterableMenu.h>
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVView.h>
@@ -122,23 +123,23 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
 	_hhead_ctxt_menu.addAction(_action_col_unique);
 
-	_menu_col_count_by = new QMenu(tr("Count by"), this);
+	_menu_col_count_by = new PVWidgets::PVFilterableMenu(tr("Count by"), this);
 	_menu_col_count_by->setIcon(QIcon(":/count_by"));
 	_hhead_ctxt_menu.addMenu(_menu_col_count_by);
 
-	_menu_col_sum_by = new QMenu(tr("Sum by"), this);
+	_menu_col_sum_by = new PVWidgets::PVFilterableMenu(tr("Sum by"), this);
 	_menu_col_sum_by->setIcon(QIcon(":/sum_by"));
 	_hhead_ctxt_menu.addMenu(_menu_col_sum_by);
 
-	_menu_col_min_by = new QMenu(tr("Min by"), this);
+	_menu_col_min_by = new PVWidgets::PVFilterableMenu(tr("Min by"), this);
 	_menu_col_min_by->setIcon(QIcon(":/min_by"));
 	_hhead_ctxt_menu.addMenu(_menu_col_min_by);
 
-	_menu_col_max_by = new QMenu(tr("Max by"), this);
+	_menu_col_max_by = new PVWidgets::PVFilterableMenu(tr("Max by"), this);
 	_menu_col_max_by->setIcon(QIcon(":/max_by"));
 	_hhead_ctxt_menu.addMenu(_menu_col_max_by);
 
-	_menu_col_avg_by = new QMenu(tr("Average by"), this);
+	_menu_col_avg_by = new PVWidgets::PVFilterableMenu(tr("Average by"), this);
 	_menu_col_avg_by->setIcon(QIcon(":/avg_by"));
 	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
 
@@ -455,33 +456,65 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	_menu_col_avg_by->setEnabled(not empty_sel);
 
 	const QStringList axes = lib_view().get_axes_names_list();
-	QStringList summable_types = {"number_int32", "number_uint32", "number_float", "number_double"};
+
+	QList<QAction*> count_by_actions;
+	QList<QAction*> min_by_actions;
+	QList<QAction*> max_by_actions;
+	QList<QAction*> sum_by_actions;
+	QList<QAction*> avg_by_actions;
 	for (PVCombCol i(0); i < axes.size(); i++) {
 		if (i != comb_col) {
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
-			action_col_count_by->setData(QVariant(i.value()));
-			_menu_col_count_by->addAction(action_col_count_by);
+			count_by_actions << action_col_count_by;
+			connect(action_col_count_by, &QAction::triggered, action_col_count_by, [=]() {
+				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
+				PVQNraw::show_count_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+				                       lib_view().get_selection_visible_listing(), this);
+			});
 
 			QAction* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
-			action_col_min_by->setData(QVariant(i.value()));
-			_menu_col_min_by->addAction(action_col_min_by);
+			min_by_actions << action_col_min_by;
+			connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=]() {
+				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
+				PVQNraw::show_min_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+				                     lib_view().get_selection_visible_listing(), this);
+			});
 
 			QAction* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
-			action_col_max_by->setData(QVariant(i.value()));
-			_menu_col_max_by->addAction(action_col_max_by);
+			max_by_actions << action_col_max_by;
+			connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=]() {
+				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
+				PVQNraw::show_max_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+				                     lib_view().get_selection_visible_listing(), this);
+			});
 
 			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
+			QStringList summable_types = {"number_int32", "number_uint32", "number_float",
+			                              "number_double"};
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
-				action_col_sum_by->setData(QVariant(i.value()));
-				_menu_col_sum_by->addAction(action_col_sum_by);
+				sum_by_actions << action_col_sum_by;
+				connect(action_col_sum_by, &QAction::triggered, action_col_sum_by, [=]() {
+					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
+					PVQNraw::show_sum_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					                     lib_view().get_selection_visible_listing(), this);
+				});
 
 				QAction* action_col_avg_by = new QAction(axes[i], _menu_col_avg_by);
-				action_col_avg_by->setData(QVariant(i.value()));
-				_menu_col_avg_by->addAction(action_col_avg_by);
+				avg_by_actions << action_col_avg_by;
+				connect(action_col_avg_by, &QAction::triggered, action_col_avg_by, [=]() {
+					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
+					PVQNraw::show_avg_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					                     lib_view().get_selection_visible_listing(), this);
+				});
 			}
 		}
 	}
+	_menu_col_count_by->addActions(count_by_actions);
+	_menu_col_min_by->addActions(min_by_actions);
+	_menu_col_max_by->addActions(max_by_actions);
+	_menu_col_sum_by->addActions(sum_by_actions);
+	_menu_col_avg_by->addActions(avg_by_actions);
 
 	_hhead_ctxt_menu.addSeparator();
 	_hhead_ctxt_menu.addAction(_action_col_copy);
@@ -504,29 +537,6 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		sort(comb_col, order);
 	} else if (sel == _action_col_copy) {
 		QApplication::clipboard()->setText(_view.get_axis_name(comb_col));
-	} else if (sel) {
-		PVCol col2 = _view.get_axes_combination().get_nraw_axis((PVCombCol)sel->data().toUInt());
-		if (sel->parent() == _menu_col_count_by) {
-			PVQNraw::show_count_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
-			                       lib_view().get_selection_visible_listing(),
-			                       this); // FIXME: AxesCombination
-		} else if (sel->parent() == _menu_col_sum_by) {
-			PVQNraw::show_sum_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
-			                     lib_view().get_selection_visible_listing(),
-			                     this); // FIXME: AxesCombination
-		} else if (sel->parent() == _menu_col_min_by) {
-			PVQNraw::show_min_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
-			                     lib_view().get_selection_visible_listing(),
-			                     this); // FIXME: AxesCombination
-		} else if (sel->parent() == _menu_col_max_by) {
-			PVQNraw::show_max_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
-			                     lib_view().get_selection_visible_listing(),
-			                     this); // FIXME: AxesCombination
-		} else if (sel->parent() == _menu_col_avg_by) {
-			PVQNraw::show_avg_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
-			                     lib_view().get_selection_visible_listing(),
-			                     this); // FIXME: AxesCombination
-		}
 	} else {
 		// No selected action
 	}
