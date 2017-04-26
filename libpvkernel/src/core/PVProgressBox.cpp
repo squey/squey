@@ -115,7 +115,7 @@ void PVCore::PVProgressBox::cancel()
 	if (_need_confirmation) {
 		QMessageBox confirm(QMessageBox::Question, tr("Confirm"), tr("Are you sure?"),
 		                    QMessageBox::Yes | QMessageBox::No, this);
-		connect(this, SIGNAL(accepted()), &confirm, SLOT(accept()));
+		connect(this, &QDialog::accepted, &confirm, &QDialog::accept);
 		if (confirm.exec() == QMessageBox::No) {
 			return;
 		}

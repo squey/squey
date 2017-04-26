@@ -55,8 +55,8 @@ PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString&
 
 	// the button box
 	auto button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(button_box, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(button_box, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(button_box, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(button_box, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	vlayout->addWidget(button_box);
 }

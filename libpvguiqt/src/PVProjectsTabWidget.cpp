@@ -118,9 +118,10 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Inendi::PVRoot* root, QWidget*
 
 	setLayout(main_layout);
 
-	connect(_tab_widget, SIGNAL(currentChanged(int)), this, SLOT(current_tab_changed(int)));
-	connect(_tab_widget->tabBar(), SIGNAL(tabCloseRequested(int)), this,
-	        SLOT(tab_close_requested(int)));
+	connect(_tab_widget, &QTabWidget::currentChanged, this,
+	        &PVProjectsTabWidget::current_tab_changed);
+	connect(_tab_widget->tabBar(), &QTabBar::tabCloseRequested, this,
+	        &PVProjectsTabWidget::tab_close_requested);
 
 	root->_scene_updated.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene));
@@ -142,16 +143,20 @@ void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	_stacked_widget->addWidget(_start_screen_widget);
 	connect(_start_screen_widget, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)),
 	        this, SIGNAL(load_source_from_description(PVRush::PVSourceDescription)));
-	connect(_start_screen_widget, SIGNAL(new_project()), this, SIGNAL(new_project()));
-	connect(_start_screen_widget, SIGNAL(load_project()), this, SIGNAL(load_project()));
-	connect(_start_screen_widget, SIGNAL(load_project_from_path(const QString&)), this,
-	        SIGNAL(load_project_from_path(const QString&)));
+	connect(_start_screen_widget, &PVStartScreenWidget::new_project, this,
+	        &PVProjectsTabWidget::new_project);
+	connect(_start_screen_widget, &PVStartScreenWidget::load_project, this,
+	        &PVProjectsTabWidget::load_project);
+	connect(_start_screen_widget, &PVStartScreenWidget::load_project_from_path, this,
+	        &PVProjectsTabWidget::load_project_from_path);
 	connect(_start_screen_widget, SIGNAL(import_type(const QString&)), this,
 	        SIGNAL(import_type(const QString&)));
-	connect(_start_screen_widget, SIGNAL(new_format()), this, SIGNAL(new_format()));
-	connect(_start_screen_widget, SIGNAL(load_format()), this, SIGNAL(load_format()));
-	connect(_start_screen_widget, SIGNAL(edit_format(const QString&)), this,
-	        SIGNAL(edit_format(const QString&)));
+	connect(_start_screen_widget, &PVStartScreenWidget::new_format, this,
+	        &PVProjectsTabWidget::new_format);
+	connect(_start_screen_widget, &PVStartScreenWidget::load_format, this,
+	        &PVProjectsTabWidget::load_format);
+	connect(_start_screen_widget, &PVStartScreenWidget::edit_format, this,
+	        &PVProjectsTabWidget::edit_format);
 }
 
 void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
@@ -166,10 +171,12 @@ PVGuiQt::PVSceneWorkspacesTabWidget*
 PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene& scene_p)
 {
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
-	connect(workspace_tab_widget, SIGNAL(workspace_dragged_outside(QWidget*)), this,
-	        SLOT(emit_workspace_dragged_outside(QWidget*)));
-	connect(workspace_tab_widget, SIGNAL(is_empty()), this, SLOT(close_project()));
-	connect(workspace_tab_widget, SIGNAL(project_modified()), this, SLOT(project_modified()));
+	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::workspace_dragged_outside, this,
+	        &PVProjectsTabWidget::emit_workspace_dragged_outside);
+	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::is_empty, this,
+	        &PVProjectsTabWidget::close_project);
+	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::project_modified, this,
+	        &PVProjectsTabWidget::project_modified);
 
 	int index = _tab_widget->count();
 	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p.get_name()));

@@ -21,7 +21,7 @@ PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog(QString name,
 	setColor(p_color);
 	setText(p_color);
 	parent = p_parent;
-	connect(this, SIGNAL(clicked()), this, SLOT(chooseColor()));
+	connect(this, &QAbstractButton::clicked, this, &PVXmlParamColorDialog::chooseColor);
 }
 
 /******************************************************************************
@@ -31,7 +31,7 @@ PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog(QString name,
  *****************************************************************************/
 PVInspector::PVXmlParamColorDialog::~PVXmlParamColorDialog()
 {
-	disconnect(this, SIGNAL(clicked()), this, SLOT(chooseColor()));
+	disconnect(this, &QAbstractButton::clicked, this, &PVXmlParamColorDialog::chooseColor);
 }
 
 /******************************************************************************

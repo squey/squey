@@ -255,9 +255,11 @@ void PVWidgets::QKeySequenceWidget::setMaxNumKey(quint32 n)
 void PVWidgets::QKeySequenceWidget::_connectingSlots()
 {
 	// connect signals to slots
-	connect(d_ptr->clearButton, SIGNAL(clicked()), this, SLOT(clearKeySequence()));
+	connect(d_ptr->clearButton, &QAbstractButton::clicked, this,
+	        &QKeySequenceWidget::clearKeySequence);
 	connect(&d_ptr->modifierlessTimeout, SIGNAL(timeout()), this, SLOT(doneRecording()));
-	connect(d_func()->shortcutButton, SIGNAL(clicked()), this, SLOT(captureKeySequence()));
+	connect(d_func()->shortcutButton, &QAbstractButton::clicked, this,
+	        &QKeySequenceWidget::captureKeySequence);
 }
 
 // Private class implementation

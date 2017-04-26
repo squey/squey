@@ -95,7 +95,7 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 	new_layer_Action->setStatusTip(tr("Create a new layer."));
 	new_layer_Action->setWhatsThis(tr("Use this to create a new layer."));
 	toolbar->addAction(new_layer_Action);
-	connect(new_layer_Action, SIGNAL(triggered()), this, SLOT(new_layer()));
+	connect(new_layer_Action, &QAction::triggered, this, &PVLayerStackWidget::new_layer);
 
 	// The move_up Action
 	move_up_Action = new QAction(tr("Move up"), this);
@@ -104,7 +104,7 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 	move_up_Action->setToolTip(tr("Move selected layer up."));
 	move_up_Action->setWhatsThis(tr("Use this to move the selected layer up."));
 	toolbar->addAction(move_up_Action);
-	connect(move_up_Action, SIGNAL(triggered()), this, SLOT(move_up()));
+	connect(move_up_Action, &QAction::triggered, this, &PVLayerStackWidget::move_up);
 
 	// The move_down Action
 	move_down_Action = new QAction(tr("Move down"), this);
@@ -113,7 +113,7 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 	move_down_Action->setToolTip(tr("Move selected layer down."));
 	move_down_Action->setWhatsThis(tr("Use this to move the selected layer down."));
 	toolbar->addAction(move_down_Action);
-	connect(move_down_Action, SIGNAL(triggered()), this, SLOT(move_down()));
+	connect(move_down_Action, &QAction::triggered, this, &PVLayerStackWidget::move_down);
 
 	// The duplicate_layer Action
 	duplicate_layer_Action = new QAction(tr("Duplicate layer"), this);
@@ -122,7 +122,8 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 	duplicate_layer_Action->setToolTip(tr("Duplicate selected layer."));
 	duplicate_layer_Action->setWhatsThis(tr("Use this to duplicate the selected layer."));
 	toolbar->addAction(duplicate_layer_Action);
-	connect(duplicate_layer_Action, SIGNAL(triggered()), this, SLOT(duplicate_layer()));
+	connect(duplicate_layer_Action, &QAction::triggered, this,
+	        &PVLayerStackWidget::duplicate_layer);
 
 	// The delete_layer Action
 	delete_layer_Action = new QAction(tr("Delete layer"), this);
@@ -131,7 +132,7 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 	delete_layer_Action->setToolTip(tr("Delete layer."));
 	delete_layer_Action->setWhatsThis(tr("Use this to delete the selected."));
 	toolbar->addAction(delete_layer_Action);
-	connect(delete_layer_Action, SIGNAL(triggered()), this, SLOT(delete_layer()));
+	connect(delete_layer_Action, &QAction::triggered, this, &PVLayerStackWidget::delete_layer);
 }
 
 /******************************************************************************

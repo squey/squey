@@ -233,53 +233,56 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 void PVInspector::PVMainWindow::connect_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	connect(solution_new_Action, SIGNAL(triggered()), this, SLOT(solution_new_Slot()));
-	connect(solution_load_Action, SIGNAL(triggered()), this, SLOT(solution_load_Slot()));
-	connect(solution_save_Action, SIGNAL(triggered()), this, SLOT(solution_save_Slot()));
-	connect(solution_saveas_Action, SIGNAL(triggered()), this, SLOT(solution_saveas_Slot()));
+	connect(solution_new_Action, &QAction::triggered, this, &PVMainWindow::solution_new_Slot);
+	connect(solution_load_Action, &QAction::triggered, this, &PVMainWindow::solution_load_Slot);
+	connect(solution_save_Action, &QAction::triggered, this, &PVMainWindow::solution_save_Slot);
+	connect(solution_saveas_Action, &QAction::triggered, this, &PVMainWindow::solution_saveas_Slot);
 
-	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
-	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
+	connect(project_new_Action, SIGNAL(triggered()), this,
+	        SLOT(project_new_Slot())); // new connect syntax breaks compilation
+	connect(export_selection_Action, &QAction::triggered, this,
+	        &PVMainWindow::export_selection_Slot);
 #ifdef WITH_MINESET
 	connect(export_selection_to_mineset_Action, SIGNAL(triggered()), this,
 	        SLOT(export_selection_to_mineset_Slot()));
 #endif
-	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
+	connect(quit_Action, &QAction::triggered, this, &PVMainWindow::quit_Slot);
 
-	connect(view_display_inv_elts_Action, SIGNAL(triggered()), this,
-	        SLOT(view_display_inv_elts_Slot()));
+	connect(view_display_inv_elts_Action, &QAction::triggered, this,
+	        &PVMainWindow::view_display_inv_elts_Slot);
 
-	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
-	connect(selection_none_Action, SIGNAL(triggered()), this, SLOT(selection_none_Slot()));
-	connect(selection_inverse_Action, SIGNAL(triggered()), this, SLOT(selection_inverse_Slot()));
-	connect(selection_from_current_layer_Action, SIGNAL(triggered()), this,
-	        SLOT(selection_set_from_current_layer_Slot()));
-	connect(selection_from_layer_Action, SIGNAL(triggered()), this,
-	        SLOT(selection_set_from_layer_Slot()));
+	connect(selection_all_Action, &QAction::triggered, this, &PVMainWindow::selection_all_Slot);
+	connect(selection_none_Action, &QAction::triggered, this, &PVMainWindow::selection_none_Slot);
+	connect(selection_inverse_Action, &QAction::triggered, this,
+	        &PVMainWindow::selection_inverse_Slot);
+	connect(selection_from_current_layer_Action, &QAction::triggered, this,
+	        &PVMainWindow::selection_set_from_current_layer_Slot);
+	connect(selection_from_layer_Action, &QAction::triggered, this,
+	        &PVMainWindow::selection_set_from_layer_Slot);
 
-	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
+	connect(set_color_Action, &QAction::triggered, this, &PVMainWindow::set_color_Slot);
 
-	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this,
-	        SLOT(commit_selection_to_new_layer_Slot()));
-	connect(move_selection_to_new_layer_Action, SIGNAL(triggered()), this,
-	        SLOT(move_selection_to_new_layer_Slot()));
+	connect(commit_selection_to_new_layer_Action, &QAction::triggered, this,
+	        &PVMainWindow::commit_selection_to_new_layer_Slot);
+	connect(move_selection_to_new_layer_Action, &QAction::triggered, this,
+	        &PVMainWindow::move_selection_to_new_layer_Slot);
 
-	connect(axes_combination_editor_Action, SIGNAL(triggered()), this,
-	        SLOT(axes_combination_editor_Slot())); //
+	connect(axes_combination_editor_Action, &QAction::triggered, this,
+	        &PVMainWindow::axes_combination_editor_Slot); //
 
-	connect(filter_reprocess_last_filter, SIGNAL(triggered()), this,
-	        SLOT(filter_reprocess_last_Slot()));
+	connect(filter_reprocess_last_filter, &QAction::triggered, this,
+	        &PVMainWindow::filter_reprocess_last_Slot);
 
-	connect(events_display_unselected_listing_Action, SIGNAL(triggered()), this,
-	        SLOT(events_display_unselected_listing_Slot()));
-	connect(events_display_zombies_listing_Action, SIGNAL(triggered()), this,
-	        SLOT(events_display_zombies_listing_Slot()));
-	connect(events_display_unselected_zombies_parallelview_Action, SIGNAL(triggered()), this,
-	        SLOT(events_display_unselected_zombies_parallelview_Slot()));
+	connect(events_display_unselected_listing_Action, &QAction::triggered, this,
+	        &PVMainWindow::events_display_unselected_listing_Slot);
+	connect(events_display_zombies_listing_Action, &QAction::triggered, this,
+	        &PVMainWindow::events_display_zombies_listing_Slot);
+	connect(events_display_unselected_zombies_parallelview_Action, &QAction::triggered, this,
+	        &PVMainWindow::events_display_unselected_zombies_parallelview_Slot);
 
-	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
-	connect(tools_open_format_Action, SIGNAL(triggered()), this, SLOT(open_format_Slot()));
-	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
+	connect(tools_new_format_Action, &QAction::triggered, this, &PVMainWindow::new_format_Slot);
+	connect(tools_open_format_Action, &QAction::triggered, this, &PVMainWindow::open_format_Slot);
+	connect(tools_cur_format_Action, &QAction::triggered, this, &PVMainWindow::cur_format_Slot);
 
-	connect(about_Action, SIGNAL(triggered()), this, SLOT(about_Slot()));
+	connect(about_Action, &QAction::triggered, this, &PVMainWindow::about_Slot);
 }

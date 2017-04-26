@@ -128,9 +128,9 @@ QDialog* PVWidgets::PVArgumentListWidget::create_dialog_for_arguments(
 	dlg->setLayout(main_layout);
 
 	// Connections
-	connect(btns, SIGNAL(accepted()), args_widget, SLOT(force_submit()));
-	connect(btns, SIGNAL(accepted()), dlg, SLOT(accept()));
-	connect(btns, SIGNAL(rejected()), dlg, SLOT(reject()));
+	connect(btns, &QDialogButtonBox::accepted, args_widget, &PVArgumentListWidget::force_submit);
+	connect(btns, &QDialogButtonBox::accepted, dlg, &QDialog::accept);
+	connect(btns, &QDialogButtonBox::rejected, dlg, &QDialog::reject);
 
 	return dlg;
 }
@@ -160,8 +160,8 @@ void PVWidgets::PVArgumentListWidget::init_widgets()
 
 	setLayout(main_layout);
 
-	connect(_args_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this,
-	        SLOT(args_changed_Slot(const QModelIndex&, const QModelIndex&)));
+	connect(_args_model, &QAbstractItemModel::dataChanged, this,
+	        &PVArgumentListWidget::args_changed_Slot);
 }
 
 /******************************************************************************

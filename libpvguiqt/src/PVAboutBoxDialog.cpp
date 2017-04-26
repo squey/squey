@@ -101,7 +101,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	setLayout(main_layout);
 
-	connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(ok, &QAbstractButton::clicked, this, &QDialog::accept);
 }
 
 void PVGuiQt::__impl::GraphicsView::resizeEvent(QResizeEvent* event)

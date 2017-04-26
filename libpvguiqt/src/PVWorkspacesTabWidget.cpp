@@ -35,7 +35,7 @@ PVGuiQt::PVSceneTabBar::PVSceneTabBar(PVSceneWorkspacesTabWidget* tab_widget)
 {
 	setTabsClosable(true);
 	connect(this, SIGNAL(tabCloseRequested(int)), tab_widget, SLOT(tab_close_requested(int)));
-	connect(this, SIGNAL(currentChanged(int)), _tab_widget, SLOT(tab_changed(int)));
+	connect(this, &QTabBar::currentChanged, _tab_widget, &PVSceneWorkspacesTabWidget::tab_changed);
 
 	setMovable(true);
 	setElideMode(Qt::ElideRight);

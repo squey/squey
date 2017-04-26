@@ -46,12 +46,14 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	_validate_btn = new QPushButton(tr("Validate..."));
 	QCheckBox* auto_validate_chkbox =
 	    new QCheckBox(tr("Auto-validate when time format is changed"));
-	connect(_validate_btn, SIGNAL(clicked()), this, SLOT(validate_time_strings()));
-	connect(auto_validate_chkbox, SIGNAL(stateChanged(int)), this,
-	        SLOT(activate_auto_validation(int)));
+	connect(_validate_btn, &QAbstractButton::clicked, this,
+	        &PVTimeFormatHelpDlg::validate_time_strings);
+	connect(auto_validate_chkbox, &QCheckBox::stateChanged, this,
+	        &PVTimeFormatHelpDlg::activate_auto_validation);
 
-	connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(time_formats_changed()));
-	connect(_ts_validate, SIGNAL(textChanged()), this, SLOT(time_strings_changed()));
+	connect(_tfs_edit, &QTextEdit::textChanged, this, &PVTimeFormatHelpDlg::time_formats_changed);
+	connect(_ts_validate, &QTextEdit::textChanged, this,
+	        &PVTimeFormatHelpDlg::time_strings_changed);
 
 	QGroupBox* grp_help = new QGroupBox(tr("Time format description"));
 	auto help_layout = new QVBoxLayout();
@@ -71,9 +73,9 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	bottom_layout->addWidget(_validate_btn, 5, 1);
 
 	auto dlg_btns = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
-	connect(dlg_btns, SIGNAL(accepted()), this, SLOT(update_tf_to_editor()));
-	connect(dlg_btns, SIGNAL(accepted()), this, SLOT(hide()));
-	connect(dlg_btns, SIGNAL(rejected()), this, SLOT(hide()));
+	connect(dlg_btns, &QDialogButtonBox::accepted, this, &PVTimeFormatHelpDlg::update_tf_to_editor);
+	connect(dlg_btns, &QDialogButtonBox::accepted, this, &QWidget::hide);
+	connect(dlg_btns, &QDialogButtonBox::rejected, this, &QWidget::hide);
 
 	auto main_layout = new QVBoxLayout();
 	main_layout->addWidget(grp_help);
@@ -202,11 +204,12 @@ void PVWidgets::PVTimeFormatHelpDlg::activate_auto_validation(int state)
 {
 	_auto_validate = state == Qt::Checked;
 	if (_auto_validate) {
-		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()),
-		        Qt::UniqueConnection);
+		connect(_tfs_edit, &QTextEdit::textChanged, this,
+		        &PVTimeFormatHelpDlg::validate_time_strings, Qt::UniqueConnection);
 		_validate_btn->setEnabled(false);
 	} else {
-		disconnect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()));
+		disconnect(_tfs_edit, &QTextEdit::textChanged, this,
+		           &PVTimeFormatHelpDlg::validate_time_strings);
 		_validate_btn->setEnabled(true);
 	}
 }
@@ -215,13 +218,14 @@ void PVWidgets::PVTimeFormatHelpDlg::validate_time_strings()
 {
 	bool auto_validate = _auto_validate;
 	if (auto_validate) {
-		disconnect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()));
+		disconnect(_tfs_edit, &QTextEdit::textChanged, this,
+		           &PVTimeFormatHelpDlg::validate_time_strings);
 	}
 	_validator_hl->set_time_format(_tfs_edit->toPlainText());
 	_validator_hl->rehighlight();
 	if (auto_validate) {
-		connect(_tfs_edit, SIGNAL(textChanged()), this, SLOT(validate_time_strings()),
-		        Qt::UniqueConnection);
+		connect(_tfs_edit, &QTextEdit::textChanged, this,
+		        &PVTimeFormatHelpDlg::validate_time_strings, Qt::UniqueConnection);
 	}
 
 	if (!_auto_validate) {

@@ -70,7 +70,7 @@ QWidget* PVFilter::PVFieldSplitterLengthParamWidget::get_param_widget()
 	_side->setFlat(true);
 	_side->setChecked(state);
 	set_button_text(state);
-	connect(_side, SIGNAL(toggled(bool)), this, SLOT(update_side(bool)));
+	connect(_side, &QAbstractButton::toggled, this, &PVFieldSplitterLengthParamWidget::update_side);
 
 	grid->addWidget(_side, 1, 1);
 

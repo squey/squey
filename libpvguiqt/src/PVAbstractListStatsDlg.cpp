@@ -317,12 +317,13 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 
 	// Add content for right click menu on vertical headers
 	_hhead_ctxt_menu = new QMenu(this);
-	connect(_values_view->horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)),
-	        this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+	connect(_values_view->horizontalHeader(), &QWidget::customContextMenuRequested, this,
+	        &PVAbstractListStatsDlg::show_hhead_ctxt_menu);
 
 	QActionGroup* act_group_scale = new QActionGroup(this);
 	act_group_scale->setExclusive(true);
-	connect(act_group_scale, SIGNAL(triggered(QAction*)), this, SLOT(scale_changed(QAction*)));
+	connect(act_group_scale, &QActionGroup::triggered, this,
+	        &PVAbstractListStatsDlg::scale_changed);
 	_act_toggle_linear = new QAction("Linear scale", act_group_scale);
 	_act_toggle_linear->setCheckable(true);
 	_act_toggle_log = new QAction("Logarithmic scale", act_group_scale);
@@ -333,7 +334,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 
 	QActionGroup* act_group_max = new QActionGroup(this);
 	act_group_max->setExclusive(true);
-	connect(act_group_max, SIGNAL(triggered(QAction*)), this, SLOT(max_changed(QAction*)));
+	connect(act_group_max, &QActionGroup::triggered, this, &PVAbstractListStatsDlg::max_changed);
 	_act_toggle_absolute = new QAction("Absolute max", act_group_max);
 	_act_toggle_absolute->setCheckable(true);
 	_act_toggle_absolute->setChecked(true);
@@ -647,7 +648,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	    new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
 
 	if (hide_dialog) {
-		connect(_ctxt_process, SIGNAL(accepted()), this, SLOT(close()));
+		connect(_ctxt_process, &QDialog::accepted, this, &QWidget::close);
 	}
 
 	if (custom_args.get_edition_flag()) {

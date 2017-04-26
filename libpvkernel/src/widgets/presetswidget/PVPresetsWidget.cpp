@@ -45,13 +45,12 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title,
 	_list->setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	// Connections
-	connect(_loadAct, SIGNAL(triggered()), this, SLOT(load_Slot()));
-	connect(_saveAct, SIGNAL(triggered()), this, SLOT(save_Slot()));
-	connect(_renameAct, SIGNAL(triggered()), this, SLOT(rename_Slot()));
-	connect(_removeAct, SIGNAL(triggered()), this, SLOT(remove_Slot()));
-	connect(_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(load_Slot()));
-	connect(_list, SIGNAL(itemChanged(QListWidgetItem*)), this,
-	        SLOT(item_changed_Slot(QListWidgetItem*)));
+	connect(_loadAct, &QAction::triggered, this, &PVPresetsWidget::load_Slot);
+	connect(_saveAct, &QAction::triggered, this, &PVPresetsWidget::save_Slot);
+	connect(_renameAct, &QAction::triggered, this, &PVPresetsWidget::rename_Slot);
+	connect(_removeAct, &QAction::triggered, this, &PVPresetsWidget::remove_Slot);
+	connect(_list, &QListWidget::itemDoubleClicked, this, &PVPresetsWidget::load_Slot);
+	connect(_list, &QListWidget::itemChanged, this, &PVPresetsWidget::item_changed_Slot);
 
 	// Layout
 	auto main_layout = new QVBoxLayout();
@@ -259,16 +258,15 @@ PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*
 	_btn_save = new QPushButton(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"));
 	QPushButton* btn_cancel =
 	    new QPushButton(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Cancel"));
-	connect(_btn_save, SIGNAL(clicked()), this, SLOT(save_Slot()));
-	connect(btn_cancel, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(_btn_save, &QAbstractButton::clicked, this, &PVSavePresetAsDialog::save_Slot);
+	connect(btn_cancel, &QAbstractButton::clicked, this, &QDialog::reject);
 
 	// Label
 	QLabel* label = new QLabel(tr("Preset:"));
 
 	// ComboBox
 	_comboBox = new QComboBox();
-	connect(_comboBox, SIGNAL(editTextChanged(const QString&)), this,
-	        SLOT(text_changed_Slot(const QString&)));
+	connect(_comboBox, &QComboBox::editTextChanged, this, &PVSavePresetAsDialog::text_changed_Slot);
 	_comboBox->setEditable(true);
 	if (!_parent->_last_preset_loaded.isEmpty()) {
 		_comboBox->addItem(_parent->_last_preset_loaded);

@@ -66,8 +66,10 @@ void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom* nodeOn
 	auto axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick, this);
 	lesWidgetDuLayout.push_back(axisboard);
 	layout->addWidget(axisboard);
-	connect(axisboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
-	connect(axisboard, SIGNAL(signalSelectNext()), this, SLOT(slotSelectNext()));
+	connect(axisboard, &PVXmlParamWidgetBoardAxis::signalRefreshView, this,
+	        &PVXmlParamWidget::slotEmitNeedApply);
+	connect(axisboard, &PVXmlParamWidgetBoardAxis::signalSelectNext, this,
+	        &PVXmlParamWidget::slotSelectNext);
 	type = filterParam;
 	// focus on name
 	axisboard->getWidgetToFocus()->setFocus();
@@ -84,8 +86,10 @@ void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom* node
 	auto filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter, this);
 	lesWidgetDuLayout.push_back(filterboard);
 	layout->addWidget(filterboard);
-	connect(filterboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
-	connect(filterboard, SIGNAL(signalEmitNext()), this, SLOT(slotSelectNext()));
+	connect(filterboard, &PVXmlParamWidgetBoardFilter::signalRefreshView, this,
+	        &PVXmlParamWidget::slotEmitNeedApply);
+	connect(filterboard, &PVXmlParamWidgetBoardFilter::signalEmitNext, this,
+	        &PVXmlParamWidget::slotSelectNext);
 	type = filterParam;
 
 	// focus name.
@@ -104,8 +108,10 @@ void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom* nodeS
 	regExpBoard->setData(nodeSplitter->getDataForRegexp());
 	lesWidgetDuLayout.push_back(regExpBoard);
 	layout->addWidget(regExpBoard);
-	connect(regExpBoard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
-	connect(this, SIGNAL(signalQuittingAParamBoard()), regExpBoard, SLOT(exit()));
+	connect(regExpBoard, &PVXmlParamWidgetBoardSplitterRegEx::signalRefreshView, this,
+	        &PVXmlParamWidget::slotEmitNeedApply);
+	connect(this, &PVXmlParamWidget::signalQuittingAParamBoard, regExpBoard,
+	        &PVXmlParamWidgetBoardSplitterRegEx::exit);
 
 	addListWidget();
 	type = filterParam;
@@ -131,7 +137,8 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom* no
 		addListWidget();
 		type = splitterParam;
 
-		connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+		connect(nodeSplitter, &PVRush::PVXmlTreeNodeDom::data_changed, this,
+		        &PVXmlParamWidget::slotEmitNeedApply);
 		// slotEmitNeedApply();
 		// focus on regexp
 		// w->getWidgetToFocus()->setFocus();
@@ -159,7 +166,8 @@ void PVInspector::PVXmlParamWidget::drawForConverter(PVRush::PVXmlTreeNodeDom* n
 		addListWidget();
 		type = splitterParam;
 
-		connect(nodeConverter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+		connect(nodeConverter, &PVRush::PVXmlTreeNodeDom::data_changed, this,
+		        &PVXmlParamWidget::slotEmitNeedApply);
 		// slotEmitNeedApply();
 		// focus on regexp
 		// w->getWidgetToFocus()->setFocus();

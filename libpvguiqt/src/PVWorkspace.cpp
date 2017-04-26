@@ -99,12 +99,12 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
 	PVViewDisplay* view_display =
 	    new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
 
-	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
+	connect(view_display, &QObject::destroyed, this, &PVWorkspaceBase::display_destroyed);
 
 	view_display->setWindowTitle(name());
 	addDockWidget(area, view_display);
-	connect(view_display, SIGNAL(try_automatic_tab_switch()), this,
-	        SIGNAL(try_automatic_tab_switch()));
+	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
+	        &PVWorkspaceBase::try_automatic_tab_switch);
 
 	_displays.append(view_display);
 
@@ -233,7 +233,7 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(QAction* act)
 		/* when the dock widget's "close" button is pressed, the
 		 * associated QAction has to be unchecked
 		 */
-		connect(view_d, SIGNAL(visibilityChanged(bool)), act, SLOT(setChecked(bool)));
+		connect(view_d, &QDockWidget::visibilityChanged, act, &QAction::setChecked);
 	}
 }
 

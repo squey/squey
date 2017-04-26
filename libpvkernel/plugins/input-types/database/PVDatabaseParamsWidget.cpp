@@ -90,22 +90,27 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	populate_presets();
 
 	// Set connections
-	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this,
-	        SLOT(preset_load_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this,
-	        SLOT(preset_new_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this,
-	        SLOT(preset_save_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this,
-	        SLOT(preset_remove_Slot(const QString&)));
+	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_load_clicked_Signal, this,
+	        &PVDatabaseParamsWidget::preset_load_Slot);
+	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_new_clicked_Signal, this,
+	        &PVDatabaseParamsWidget::preset_new_Slot);
+	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_save_clicked_Signal, this,
+	        &PVDatabaseParamsWidget::preset_save_Slot);
+	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_remove_clicked_Signal, this,
+	        &PVDatabaseParamsWidget::preset_remove_Slot);
 	connect(_combo_type, SIGNAL(currentIndexChanged(int)), this, SLOT(sql_type_changed_Slot(int)));
-	connect(_btn_query_preview, SIGNAL(clicked()), this, SLOT(query_preview_Slot()));
-	connect(_btn_update_fields, SIGNAL(clicked()), this, SLOT(update_fields_Slot()));
-	connect(_btn_edit_existing, SIGNAL(clicked()), this, SLOT(edit_existing_format_Slot()));
-	connect(_btn_edit_new, SIGNAL(clicked()), this, SLOT(edit_new_format_Slot()));
-	connect(_radio_use_existing, SIGNAL(toggled(bool)), this,
-	        SLOT(use_existing_format_toggle_Slot(bool)));
-	connect(_btn_sqlite_browse, SIGNAL(clicked()), this, SLOT(browse_sqlite_Slot()));
+	connect(_btn_query_preview, &QAbstractButton::clicked, this,
+	        &PVDatabaseParamsWidget::query_preview_Slot);
+	connect(_btn_update_fields, &QAbstractButton::clicked, this,
+	        &PVDatabaseParamsWidget::update_fields_Slot);
+	connect(_btn_edit_existing, &QAbstractButton::clicked, this,
+	        &PVDatabaseParamsWidget::edit_existing_format_Slot);
+	connect(_btn_edit_new, &QAbstractButton::clicked, this,
+	        &PVDatabaseParamsWidget::edit_new_format_Slot);
+	connect(_radio_use_existing, &QAbstractButton::toggled, this,
+	        &PVDatabaseParamsWidget::use_existing_format_toggle_Slot);
+	connect(_btn_sqlite_browse, &QAbstractButton::clicked, this,
+	        &PVDatabaseParamsWidget::browse_sqlite_Slot);
 
 	_combo_type->setCurrentIndex(0);
 	sql_type_changed_Slot(0);

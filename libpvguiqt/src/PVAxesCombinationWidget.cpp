@@ -20,16 +20,20 @@ PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(
 
 	update_all();
 
-	connect(_btn_axis_add, SIGNAL(clicked()), this, SLOT(axis_add_Slot()));
-	connect(_btn_axis_up, SIGNAL(clicked()), this, SLOT(axis_up_Slot()));
-	connect(_btn_axis_down, SIGNAL(clicked()), this, SLOT(axis_down_Slot()));
-	connect(_btn_axis_remove, SIGNAL(clicked()), this, SLOT(axis_remove_Slot()));
-	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort_Slot()));
-	connect(_btn_reset, SIGNAL(clicked()), this, SLOT(reset_comb_Slot()));
+	connect(_btn_axis_add, &QAbstractButton::clicked, this,
+	        &PVAxesCombinationWidget::axis_add_Slot);
+	connect(_btn_axis_up, &QAbstractButton::clicked, this, &PVAxesCombinationWidget::axis_up_Slot);
+	connect(_btn_axis_down, &QAbstractButton::clicked, this,
+	        &PVAxesCombinationWidget::axis_down_Slot);
+	connect(_btn_axis_remove, &QAbstractButton::clicked, this,
+	        &PVAxesCombinationWidget::axis_remove_Slot);
+	connect(_btn_sort, &QAbstractButton::clicked, this, &PVAxesCombinationWidget::sort_Slot);
+	connect(_btn_reset, &QAbstractButton::clicked, this, &PVAxesCombinationWidget::reset_comb_Slot);
 
 	_btn_sel_singleton->setEnabled(view != nullptr);
 	if (view != nullptr) {
-		connect(_btn_sel_singleton, SIGNAL(clicked()), this, SLOT(sel_singleton_Slot()));
+		connect(_btn_sel_singleton, &QAbstractButton::clicked, this,
+		        &PVAxesCombinationWidget::sel_singleton_Slot);
 	}
 }
 

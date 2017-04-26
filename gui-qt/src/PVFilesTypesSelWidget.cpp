@@ -250,10 +250,12 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	btn_layout->addWidget(cancel_btn);
 
 	// Connectors
-	connect(ok_btn, SIGNAL(pressed()), this, SLOT(accept()));
-	connect(cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
-	connect(_all_types_list, SIGNAL(itemSelectionChanged()), this, SLOT(apply_all()));
-	connect(_all_types_check, SIGNAL(stateChanged(int)), this, SLOT(all_types_check_Slot(int)));
+	connect(ok_btn, &QAbstractButton::pressed, this, &QDialog::accept);
+	connect(cancel_btn, &QAbstractButton::pressed, this, &QDialog::reject);
+	connect(_all_types_list, &QListWidget::itemSelectionChanged, this,
+	        &PVFilesTypesSelWidget::apply_all);
+	connect(_all_types_check, &QCheckBox::stateChanged, this,
+	        &PVFilesTypesSelWidget::all_types_check_Slot);
 
 	// Set the layouts
 	main_layout->addWidget(new QLabel("Multiple possible types have been "

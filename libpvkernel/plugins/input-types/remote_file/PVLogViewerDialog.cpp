@@ -44,8 +44,8 @@ PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent
 	rl_layout->addLayout(formatLayout);
 	rl_layout->addWidget(buttonBox);
 
-	connect(buttonBox, SIGNAL(accepted()), this, SLOT(slotDownloadFiles()));
-	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &PVLogViewerDialog::slotDownloadFiles);
+	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	setLayout(rl_layout);
 	setWindowTitle(tr("Import remote file"));

@@ -222,15 +222,18 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	QShortcut* sc;
 	sc = new QShortcut(QKeySequence(Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
-	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_widget()));
+	QObject::connect(sc, &QShortcut::activated, &pv_mw,
+	                 &PVInspector::PVMainWindow::get_screenshot_widget);
 
 	sc = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
-	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_window()));
+	QObject::connect(sc, &QShortcut::activated, &pv_mw,
+	                 &PVInspector::PVMainWindow::get_screenshot_window);
 
 	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
-	QObject::connect(sc, SIGNAL(activated()), &pv_mw, SLOT(get_screenshot_desktop()));
+	QObject::connect(sc, &QShortcut::activated, &pv_mw,
+	                 &PVInspector::PVMainWindow::get_screenshot_desktop);
 
 	return app.exec();
 }

@@ -89,9 +89,12 @@ QWidget* PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget()
 	layout->addWidget(table_validator_TableWidget);
 	layout->addWidget(btn_apply);
 
-	connect(expression_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotExpressionChanged()));
-	connect(fullline_checkBox, SIGNAL(stateChanged(int)), this, SLOT(slotFullineChanged(int)));
-	connect(validator_textEdit, SIGNAL(textChanged()), this, SLOT(slotUpdateTableValidator()));
+	connect(expression_lineEdit, &QLineEdit::textChanged, this,
+	        &PVFieldSplitterRegexpParamWidget::slotExpressionChanged);
+	connect(fullline_checkBox, &QCheckBox::stateChanged, this,
+	        &PVFieldSplitterRegexpParamWidget::slotFullineChanged);
+	connect(validator_textEdit, &QTextEdit::textChanged, this,
+	        &PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator);
 
 	update_data_display();
 	slotUpdateTableValidator();

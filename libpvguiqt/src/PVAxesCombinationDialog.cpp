@@ -24,11 +24,12 @@ PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView& view, 
 	setLayout(main_layout);
 
 	// Buttons
-	connect(_box_buttons, SIGNAL(accepted()), this, SLOT(commit_axes_comb_to_view()));
-	connect(_box_buttons, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(_box_buttons, SIGNAL(clicked(QAbstractButton*)), this,
-	        SLOT(box_btn_clicked(QAbstractButton*)));
-	connect(_box_buttons, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(_box_buttons, &QDialogButtonBox::accepted, this,
+	        &PVAxesCombinationDialog::commit_axes_comb_to_view);
+	connect(_box_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(_box_buttons, &QDialogButtonBox::clicked, this,
+	        &PVAxesCombinationDialog::box_btn_clicked);
+	connect(_box_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	setWindowTitle("Edit axes combination... [" + QString::fromStdString(view.get_name()) + "]");
 }

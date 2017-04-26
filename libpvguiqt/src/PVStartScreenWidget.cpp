@@ -316,10 +316,13 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	project_widget_layout->addStretch(1);
 
 	// Connections
-	connect(create_new_project_button, SIGNAL(clicked(bool)), this, SIGNAL(new_project()));
-	connect(open_project_button, SIGNAL(clicked(bool)), this, SIGNAL(load_project()));
-	connect(create_new_format_button, SIGNAL(clicked(bool)), this, SIGNAL(new_format()));
-	connect(edit_format_button, SIGNAL(clicked(bool)), this, SIGNAL(load_format()));
+	connect(create_new_project_button, &QAbstractButton::clicked, this,
+	        &PVStartScreenWidget::new_project);
+	connect(open_project_button, &QAbstractButton::clicked, this,
+	        &PVStartScreenWidget::load_project);
+	connect(create_new_format_button, &QAbstractButton::clicked, this,
+	        &PVStartScreenWidget::new_format);
+	connect(edit_format_button, &QAbstractButton::clicked, this, &PVStartScreenWidget::load_format);
 
 	PVCore::PVRecentItemsManager::apply_on_category(connecter{*this});
 
@@ -536,8 +539,8 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	text_label->setTextFormat(Qt::RichText);
 	text_label->setText(QString("<a href=\"%1;%2\">" + short_string + "</a>").arg(cat).arg(index));
 	text_label->setToolTip(long_string);
-	connect(text_label, SIGNAL(linkActivated(const QString&)), start_screen_widget,
-	        SLOT(dispatch_action(const QString&)));
+	connect(text_label, &QLabel::linkActivated, start_screen_widget,
+	        &PVStartScreenWidget::dispatch_action);
 	layout->addWidget(text_label);
 
 	setSizeHint(QSize(_widget->sizeHint().width(),
@@ -547,7 +550,7 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	// switch from checkbox to icon
 	_timer.setSingleShot(true);
 	_timer.setInterval(50);
-	connect(&_timer, SIGNAL(timeout()), this, SLOT(timeout()));
+	connect(&_timer, &QTimer::timeout, this, &PVListWidgetItem::timeout);
 }
 
 void PVGuiQt::__impl::PVListWidgetItem::timeout()
@@ -603,12 +606,12 @@ PVGuiQt::__impl::PVDeleteInvestigationDialog::PVDeleteInvestigationDialog(
 	_clear_history_cb = new QCheckBox("Clear from history");
 	_remove_cache_cb = new QCheckBox("Clear import cache");
 	_delete_investigation_cb = new QCheckBox("Delete investigation");
-	connect(_delete_investigation_cb, SIGNAL(stateChanged(int)), this,
-	        SLOT(delete_investigation_checked(int)));
+	connect(_delete_investigation_cb, &QCheckBox::stateChanged, this,
+	        &PVDeleteInvestigationDialog::delete_investigation_checked);
 
 	auto button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(button_box, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(button_box, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(button_box, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(button_box, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	QString c = start_screen_widget()->format_selected_item_string(PVCore::Category::PROJECTS);
 

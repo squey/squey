@@ -90,8 +90,8 @@ bool PVInspector::PVXmlParamWidgetBoardSplitterRegEx::confirmAndSave()
 	bas.addWidget(&yes);
 
 	// connect the response button
-	connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
-	connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
+	connect(&no, &QAbstractButton::clicked, &confirm, &QDialog::reject);
+	connect(&yes, &QAbstractButton::clicked, &confirm, &QDialog::accept);
 
 	// if confirmed then apply
 	return confirm.exec();
@@ -127,14 +127,19 @@ QVBoxLayout* PVInspector::PVXmlParamWidgetBoardSplitterRegEx::createTab(const QS
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::disableConnexion()
 {
-	disconnect(name, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+	disconnect(name, &QLineEdit::textChanged, this,
+	           &PVXmlParamWidgetBoardSplitterRegEx::slotSetValues);
 	disconnect(exp, SIGNAL(textChanged(const QString&)), validWidget,
 	           SLOT(setRegEx(const QString&)));
-	disconnect(exp, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+	disconnect(exp, &QTextEdit::textChanged, this,
+	           &PVXmlParamWidgetBoardSplitterRegEx::slotSetValues);
 	disconnect(exp, SIGNAL(textChanged(const QString&)), this, SLOT(regExCount(const QString&)));
-	disconnect(validWidget, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
-	disconnect(validWidget, SIGNAL(textChanged()), this, SLOT(slotNoteConfirmationNeeded()));
-	disconnect(btnApply, SIGNAL(clicked()), this, SLOT(slotSetConfirmedValues()));
+	disconnect(validWidget, &QTextEdit::textChanged, this,
+	           &PVXmlParamWidgetBoardSplitterRegEx::slotSetValues);
+	disconnect(validWidget, &QTextEdit::textChanged, this,
+	           &PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded);
+	disconnect(btnApply, &QAbstractButton::clicked, this,
+	           &PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues);
 }
 
 /******************************************************************************
@@ -216,25 +221,30 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::exit()
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initConnexion()
 {
 	// tab general
-	connect(name, SIGNAL(textChanged(const QString&)), this,
-	        SLOT(slotSetValues())); // to update tree view.
-	connect(name, SIGNAL(textChanged(const QString&)), this,
-	        SLOT(slotVerifRegExpInName())); // to verify if regexp is write in name.
+	connect(name, &QLineEdit::textChanged, this,
+	        &PVXmlParamWidgetBoardSplitterRegEx::slotSetValues); // to update tree view.
+	connect(name, &QLineEdit::textChanged, this,
+	        &PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName); // to verify if regexp is
+	                                                                     // write in name.
 	// tab regexp
 	connect(exp, SIGNAL(textChanged(const QString&)), validWidget,
 	        SLOT(setRegEx(const QString&))); // to update regexp
-	connect(exp, SIGNAL(textChanged(const QString&)), this,
-	        SLOT(slotNoteConfirmationNeeded())); // to note that we need to confirm change
+	connect(exp, &QTextEdit::textChanged, this,
+	        &PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded); // to note that we
+	                                                                          // need to confirm
+	                                                                          // change
 	connect(exp, SIGNAL(textChanged(const QString&)), this,
 	        SLOT(regExCount(const QString&))); // to update the numbre of field which are detected
 	// connect(validWidget, SIGNAL(textChanged()), this, SLOT(slotNoteConfirmationNeeded()));//to
 	// note that we need to confirm change
-	connect(validWidget, SIGNAL(textChanged()), this,
-	        SLOT(slotUpdateTable())); // to update the text validator
-	connect(checkSaveValidLog, SIGNAL(clicked(bool)), this, SLOT(slotSaveValidator(bool)));
-	connect(checkSaveValidLog, SIGNAL(clicked(bool)), this, SLOT(slotSetConfirmedValues()));
-	connect(btnApply, SIGNAL(clicked()), this,
-	        SLOT(slotSetConfirmedValues())); // to apply modification.
+	connect(validWidget, &QTextEdit::textChanged, this,
+	        &PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable); // to update the text validator
+	connect(checkSaveValidLog, &QAbstractButton::clicked, this,
+	        &PVXmlParamWidgetBoardSplitterRegEx::slotSaveValidator);
+	connect(checkSaveValidLog, &QAbstractButton::clicked, this,
+	        &PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues);
+	connect(btnApply, &QAbstractButton::clicked, this,
+	        &PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues); // to apply modification.
 }
 
 /******************************************************************************
@@ -412,8 +422,8 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName()
 		bas.addWidget(&yes);
 
 		// connect the response button
-		connect(&no, SIGNAL(clicked()), &confirm, SLOT(reject()));
-		connect(&yes, SIGNAL(clicked()), &confirm, SLOT(accept()));
+		connect(&no, &QAbstractButton::clicked, &confirm, &QDialog::reject);
+		connect(&yes, &QAbstractButton::clicked, &confirm, &QDialog::accept);
 
 		if (confirm.exec()) {           // if confirmed then apply...
 			exp->setText(name->text()); // push text

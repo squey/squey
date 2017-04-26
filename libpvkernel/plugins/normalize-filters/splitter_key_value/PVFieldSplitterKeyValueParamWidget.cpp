@@ -143,19 +143,26 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	layout->addWidget(structure_groupbox);
 	layout->addWidget(keys_groupbox);
 
-	connect(_affectation_operator_lineedit, SIGNAL(textChanged(const QString&)), this,
-	        SLOT(update_params()));
-	connect(_separator_char_lineedit, SIGNAL(textChanged(const QString&)), this,
-	        SLOT(update_params()));
-	connect(_quote_char, SIGNAL(keySequenceChanged(const QKeySequence&)), this,
-	        SLOT(update_params()));
-	connect(add_button, SIGNAL(clicked(bool)), this, SLOT(add_new_key()));
-	connect(_del_button, SIGNAL(clicked(bool)), this, SLOT(del_keys()));
-	connect(_up_button, SIGNAL(clicked(bool)), this, SLOT(move_key_up()));
-	connect(_down_button, SIGNAL(clicked(bool)), this, SLOT(move_key_down()));
-	connect(_copy_button, SIGNAL(clicked(bool)), this, SLOT(copy_keys()));
-	connect(paste_button, SIGNAL(clicked(bool)), this, SLOT(paste_keys()));
-	connect(_keys_list, SIGNAL(itemSelectionChanged()), this, SLOT(selection_has_changed()));
+	connect(_affectation_operator_lineedit, &QLineEdit::textChanged, this,
+	        &PVFieldSplitterKeyValueParamWidget::update_params);
+	connect(_separator_char_lineedit, &QLineEdit::textChanged, this,
+	        &PVFieldSplitterKeyValueParamWidget::update_params);
+	connect(_quote_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged, this,
+	        &PVFieldSplitterKeyValueParamWidget::update_params);
+	connect(add_button, &QAbstractButton::clicked, this,
+	        &PVFieldSplitterKeyValueParamWidget::add_new_key);
+	connect(_del_button, &QAbstractButton::clicked, this,
+	        &PVFieldSplitterKeyValueParamWidget::del_keys);
+	connect(_up_button, &QAbstractButton::clicked, this,
+	        &PVFieldSplitterKeyValueParamWidget::move_key_up);
+	connect(_down_button, &QAbstractButton::clicked, this,
+	        &PVFieldSplitterKeyValueParamWidget::move_key_down);
+	connect(_copy_button, &QAbstractButton::clicked, this,
+	        &PVFieldSplitterKeyValueParamWidget::copy_keys);
+	connect(paste_button, &QAbstractButton::clicked, this,
+	        &PVFieldSplitterKeyValueParamWidget::paste_keys);
+	connect(_keys_list, &QListWidget::itemSelectionChanged, this,
+	        &PVFieldSplitterKeyValueParamWidget::selection_has_changed);
 
 	selection_has_changed();
 
