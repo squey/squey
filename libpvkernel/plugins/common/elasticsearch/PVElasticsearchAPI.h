@@ -8,6 +8,8 @@
 #ifndef __PVELASTICSEARCHAPI_H__
 #define __PVELASTICSEARCHAPI_H__
 
+#include <QDomDocument>
+
 #include <vector>
 #include <string>
 
@@ -35,7 +37,13 @@ class PVElasticsearchAPI
   public:
 	using indexes_t = std::vector<std::string>;
 	using columns_t = std::vector<std::pair<std::string, std::string>>;
-	using rows_t = std::vector<std::string>;
+	using rows_t = std::vector<std::vector<std::string>>;
+	using filter_paths_t = std::vector<std::string>;
+	using visit_columns_f = std::function<void(const std::string& relative_name,
+	                                           const std::string& absolute_name,
+	                                           const std::string& type,
+	                                           bool is_leaf,
+	                                           bool is_last_child)>;
 
   public:
 	PVElasticsearchAPI(const PVElasticsearchInfos& infos);
@@ -69,8 +77,7 @@ class PVElasticsearchAPI
 	 *
 	 * @return the list of columns
 	 */
-	columns_t columns(const PVRush::PVElasticsearchQuery& query,
-	                  std::string* error = nullptr) const;
+	columns_t columns(const std::string& filter_path = {}, std::string* error = nullptr) const;
 
 	/** Get the number of lines returned by a given query using the "count" API
 	 *
@@ -89,6 +96,11 @@ class PVElasticsearchAPI
 	 * Return the maximum batch size allowed by the server for scroll operations
 	 */
 	size_t max_result_window(const std::string& index) const;
+
+	/*
+	 * Returns the format associated to the selected columns of the mapping
+	 */
+	QDomDocument get_format_from_mapping() const;
 
   public:
 	/** Get several batches of results from a query using Elasticsearch efficient scoll API.
@@ -151,6 +163,16 @@ class PVElasticsearchAPI
 	 */
 	bool is_sql_available() const;
 
+	/** Recursively visit all the columns of ES mapping (possibly filtered)
+	 *
+	 * @param f the function that is called against each column
+	 * @param filter_path filtering to apply to the mapping
+	 * @param error Store any occured error if provided
+	 */
+	void visit_columns(const visit_columns_f& f,
+	                   const std::string& filter_path = {},
+	                   std::string* error = nullptr) const;
+
   private:
 	/** Execute the request previously prepared by the prepare_query method.
 	 *
@@ -166,10 +188,11 @@ class PVElasticsearchAPI
 	                 const PVRush::PVElasticsearchQuery& query,
 	                 const size_t slice_id,
 	                 const size_t slice_count,
-	                 const size_t max_result_window,
-	                 std::string& json_buffer,
-	                 std::string* error = nullptr);
+	                 const size_t max_result_window);
 
+	/**
+	 * Keep the scroll_id contained in the received result batch (needed to query next result batch)
+	 */
 	void update_scroll_id(CURL* curl, const std::string& scroll_id) const;
 
 	/** Get one batch of results from a query using Elasticsearch efficient scoll API.
@@ -196,7 +219,7 @@ class PVElasticsearchAPI
 	bool parse_scroll_results(CURL* curl,
 	                          const std::string& json_data,
 	                          std::string& scroll_id,
-	                          rows_t& rows) const;
+	                          rows_t& rows);
 
   private:
 	/** Setup cURL handler before executing a request.

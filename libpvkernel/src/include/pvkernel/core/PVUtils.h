@@ -56,6 +56,24 @@ T deserialize_base64(const QString& str)
 	return result;
 }
 
+template <typename It>
+std::string join(It it_begin, It it_end, const std::string& separator)
+{
+	std::string ret;
+
+	if (it_begin != it_end) {
+		ret = *it_begin;
+		++it_begin;
+	}
+
+	for (; it_begin != it_end; ++it_begin) {
+		ret += separator;
+		ret += *it_begin;
+	}
+
+	return ret;
+}
+
 } // namespace PVCore
 
 #endif /* PVCORE_PVUTILS_H */

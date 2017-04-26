@@ -87,8 +87,6 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 
 		if (lsel.count() == 0) {
 			return QModelIndex();
-		} else if (!lsel[0].parent().isValid()) {
-			return QModelIndex();
 		} else {
 			return lsel[0];
 		}

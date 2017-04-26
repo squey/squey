@@ -1,3 +1,4 @@
+
 /**
  * @file
  *
@@ -9,17 +10,20 @@
 #include "PVElasticsearchInfos.h"
 #include "PVElasticsearchQuery.h"
 #include "PVElasticsearchJsonConverter.h"
+#include "PVElasticsearchSAXParser.h"
 
 #include <sstream>
 #include <thread>
-#include <unordered_map>
-#include <atomic>
 #include <cerrno>
 
 #include <curl/curl.h>
 
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+
+#include <pvkernel/core/PVUtils.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVFormat_types.h>
 
 static constexpr const size_t DEFAULT_SCROLL_SIZE = 10000;
 static constexpr const char SCROLL_TIMEOUT[] = "1m";
@@ -73,12 +77,14 @@ bool PVRush::PVElasticsearchAPI::check_connection(std::string* error /* =  nullp
 	std::string json_buffer;
 
 	prepare_query(_curl, socket());
+	if (perform_query(_curl, json_buffer, error)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
 
-	perform_query(_curl, json_buffer, error);
+		return not has_error(json, error);
+	}
 
-	rapidjson::Document json;
-	json.Parse<0>(json_buffer.c_str());
-	return not has_error(json, error);
+	return false;
 }
 
 PVCore::PVVersion PVRush::PVElasticsearchAPI::version() const
@@ -153,6 +159,22 @@ size_t PVRush::PVElasticsearchAPI::max_result_window(const std::string& index) c
 	return max_result_window;
 }
 
+static std::string get_filter_path_from_base(const std::string& filter_path,
+                                             const std::string& base = {},
+                                             const std::string& separator = ".")
+{
+	std::vector<std::string> relative_columns;
+	boost::algorithm::split(relative_columns, filter_path, boost::is_any_of(","));
+
+	std::vector<std::string> absolute_columns;
+	for (std::string& column : relative_columns) {
+		PVCore::replace(column, ".", separator);
+		absolute_columns.emplace_back(base.empty() ? column : base + "." + column);
+	}
+
+	return boost::algorithm::join(absolute_columns, ",");
+}
+
 PVRush::PVElasticsearchAPI::indexes_t
 PVRush::PVElasticsearchAPI::indexes(std::string* error /*= nullptr*/) const
 {
@@ -183,91 +205,149 @@ PVRush::PVElasticsearchAPI::indexes(std::string* error /*= nullptr*/) const
 	return indexes;
 }
 
-PVRush::PVElasticsearchAPI::columns_t
-PVRush::PVElasticsearchAPI::columns(const PVRush::PVElasticsearchQuery& query,
-                                    std::string* error /*= nullptr*/) const
+/*
+ * Recursively visit all the columns of the mapping
+ *
+ * @param json json object representing the mapping (possibily filtered by filter_path)
+ * @param f the function that is called against each column
+ */
+static void visit_columns_rec(const rapidjson::Value& json,
+                              const PVRush::PVElasticsearchAPI::visit_columns_f& f,
+                              const std::string& parent_name = {})
 {
-	columns_t cols;
+	size_t children_count = json.MemberCount();
+	size_t child_index = 0;
+	for (auto p = json.MemberBegin(); p != json.MemberEnd(); ++p, child_index++) {
+		const std::string& rel_name = p->name.GetString();
+		const std::string& abs_name = parent_name.empty() ? rel_name : parent_name + "." + rel_name;
 
-	const PVElasticsearchInfos& infos = query.get_infos();
+		const auto& field = json[rel_name.c_str()];
+		if (field.HasMember("type")) {
+			const std::string& type = field["type"].GetString();
+			f(rel_name, abs_name, type, true, child_index == children_count - 1);
+		} else if (field.HasMember("properties")) {
+			const rapidjson::Value& properties = field["properties"];
+			f(rel_name, abs_name, "", false, child_index == children_count - 1);
+			visit_columns_rec(properties, f, abs_name);
+		}
+	}
+}
 
-	if (infos.get_index().isEmpty()) {
+void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
+                                               const std::string& filter_path /* = "" */,
+                                               std::string* error /*= nullptr*/) const
+{
+	if (_infos.get_index().isEmpty()) {
 		if (error) {
 			*error = "No index specified";
 		}
-		return cols;
 	}
 
 	std::string json_buffer;
-	std::string url = socket() + "/" + infos.get_index().toStdString() + "/_mapping";
+	std::string url =
+	    socket() + "/" + _infos.get_index().toStdString() + "/_mapping" +
+	    (filter_path.empty() ? "" : ("?filter_path=" + get_filter_path_from_base(
+	                                                       filter_path, "**.mappings.**.properties",
+	                                                       ".properties.")));
 
 	prepare_query(_curl, url);
 	if (perform_query(_curl, json_buffer)) {
 		rapidjson::Document json;
 		json.Parse<0>(json_buffer.c_str());
-
 		if (has_error(json, error)) {
-			return cols;
+			return;
 		}
 
-		rapidjson::Value& json_mappings = json[infos.get_index().toStdString().c_str()]["mappings"];
+		const rapidjson::Value& mappings =
+		    json[_infos.get_index().toStdString().c_str()]["mappings"];
 
 		// Several mappings can potentially be defined but we can only chose one...
 		std::string mapping_type = "_default_";
-		for (rapidjson::Value::ConstMemberIterator mtype = json_mappings.MemberBegin();
-		     mtype != json_mappings.MemberEnd(); ++mtype) {
-			mapping_type = mtype->name.GetString();
+		for (auto m = mappings.MemberBegin(); m != mappings.MemberEnd(); ++m) {
+			mapping_type = m->name.GetString();
 			if (mapping_type.size() > 0 && mapping_type[0] != '_') {
 				break;
 			}
 		}
 
-		rapidjson::Value& json_axes = json_mappings[mapping_type.c_str()]["properties"];
+		const rapidjson::Value& properties = mappings[mapping_type.c_str()]["properties"];
+		visit_columns_rec(properties, f);
+	}
+}
 
-		static const std::vector<std::string> invalid_cols = {"message", "type", "host", "path",
-		                                                      "geoip"};
+PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::columns(
+    const std::string& filter_path /* = {} */, std::string* error /*= nullptr*/
+    ) const
+{
+	// type mapping between elasticsearch and querybuilder
+	static const std::unordered_map<std::string, std::string> types_mapping = {
+	    {"long", "integer"},  {"integer", "integer"}, {"short", "integer"},
+	    {"byte", "integer"},  {"double", "double"},   {"float", "double"},
+	    {"date", "datetime"}, {"text", "string"},     {"keyword", "string"}};
+	auto map_type = [&](const std::string& type) -> std::string {
+		const auto& it = types_mapping.find(type);
+		if (it != types_mapping.end()) {
+			return it->second;
+		} else {
+			// fallback type for unkown types
+			return "string";
+		}
+	};
 
-		// type mapping between elasticsearch and querybuilder
-		static const std::unordered_map<std::string, std::string> types_mapping = {
-		    {"long", "integer"},  {"integer", "integer"}, {"short", "integer"},
-		    {"byte", "integer"},  {"double", "double"},   {"float", "double"},
-		    {"date", "datetime"}, {"text", "string"},     {"keyword", "string"}};
-		auto map_type = [&](const std::string& type) -> std::string {
-			const auto& it = types_mapping.find(type);
-			if (it != types_mapping.end()) {
-				return it->second;
-			} else {
-				// fallback type for unkown types
-				return "string";
-			}
-		};
+	columns_t cols;
 
-		for (rapidjson::Value::ConstMemberIterator axe = json_axes.MemberBegin();
-		     axe != json_axes.MemberEnd(); ++axe) {
-			std::string name = axe->name.GetString();
+	visit_columns(
+	    [&](const std::string& /*rel_name*/, const std::string& abs_name, const std::string& type,
+	        bool is_leaf, bool /*is_last_child*/) {
+		    if (is_leaf) {
+			    cols.emplace_back(abs_name, map_type(type));
+		    }
+		},
+	    filter_path, error);
 
-			if (std::find(invalid_cols.begin(), invalid_cols.end(), name) == invalid_cols.end() &&
-			    (name.size() > 0 && name[0] != '@')) {
-				const auto& field = json_axes[name.c_str()];
-				if (field.HasMember("type")) {
-					std::string type = field["type"].GetString();
-					cols.emplace_back(name, map_type(type));
-				} else if (field.HasMember("properties")) {
-					const auto& properties = field["properties"];
-					for (rapidjson::Value::ConstMemberIterator property = properties.MemberBegin();
-					     property != properties.MemberEnd(); ++property) {
-						std::string prop_name = property->name.GetString();
-						if (properties[prop_name.c_str()].HasMember("type")) {
-							std::string type = properties[prop_name.c_str()]["type"].GetString();
-							cols.emplace_back(name + "." + prop_name, map_type(type));
-						}
-					}
-				}
-			}
+	return cols;
+}
+
+QDomDocument PVRush::PVElasticsearchAPI::get_format_from_mapping() const
+{
+	QDomDocument format_doc;
+	std::unique_ptr<PVXmlTreeNodeDom> format_root(PVRush::PVXmlTreeNodeDom::new_format(format_doc));
+
+	// type mapping between elasticsearch and inspector format
+	static const std::unordered_map<std::string, std::string> types_mapping = {
+	    {"long", "number_int32"},
+	    {"integer", "number_int32"},
+	    {"short", "number_int32"},
+	    {"byte", "number_int32"},
+	    {"double", "number_double"},
+	    {"float", "number_float"},
+	    {"date", "time"},
+	    {"ip", "ipv6"},
+	    {"text", "string"},
+	    {"keyword", "string"}};
+	auto map_type = [&](const std::string& type) -> std::string {
+		const auto& it = types_mapping.find(type);
+		if (it != types_mapping.end()) {
+			return it->second;
+		} else {
+			// fallback type for unkown types
+			return "string";
+		}
+	};
+
+	for (const std::pair<std::string, std::string>& col :
+	     columns(_infos.get_filter_path().toStdString())) {
+		const std::string& column_name = col.first;
+		const std::string& column_type = map_type(col.second);
+
+		PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
+		    QString::fromStdString(column_name), QString::fromStdString(column_type));
+		if (column_type == "time") {
+			node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "epochS");
 		}
 	}
 
-	return cols;
+	return format_doc;
 }
 
 size_t PVRush::PVElasticsearchAPI::count(const PVRush::PVElasticsearchQuery& query,
@@ -324,11 +404,10 @@ bool PVRush::PVElasticsearchAPI::extract(const PVRush::PVElasticsearchQuery& que
 	for (size_t i = 0; i < _slice_count; i++) {
 		CURL* curl = _curls[i].get();
 		std::string json_buffer;
-		rows_t& rows = local_rows[i];
 
 		scroll(curl, query, _init_scroll, i, _slice_count, _max_result_window, json_buffer, error);
 
-		parse_scroll_results(curl, json_buffer, _scroll_ids[i], rows);
+		parse_scroll_results(curl, json_buffer, _scroll_ids[i], local_rows[i]);
 	}
 	_init_scroll = false;
 
@@ -459,14 +538,14 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
                                              const PVRush::PVElasticsearchQuery& query,
                                              const size_t slice_id,
                                              const size_t slice_count,
-                                             const size_t max_result_window,
-                                             std::string& json_buffer,
-                                             std::string* error /* = nullptr */)
+                                             const size_t max_result_window)
 {
 	const PVElasticsearchInfos& infos = query.get_infos();
-	std::string url = socket() + "/" + infos.get_index().toStdString() +
-	                  "/_search?filter_path=hits.total,hits.hits._source,_scroll_id&scroll=" +
-	                  SCROLL_TIMEOUT;
+	std::string url =
+	    socket() + "/" + infos.get_index().toStdString() +
+	    "/_search?filter_path=_scroll_id,hits.total," +
+	    get_filter_path_from_base(infos.get_filter_path().toStdString(), "hits.hits._source") +
+	    "&scroll=" + SCROLL_TIMEOUT;
 	if (_version < PVCore::PVVersion(5, 0, 0)) {
 		url += "&search_type=scan";
 	}
@@ -486,9 +565,18 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
 		    "max": 12
 		}
 		*/
+
+		rapidjson::Value sort;
+		sort.SetArray();
+		sort.PushBack("_doc", json.GetAllocator());
+		json.AddMember("sort", sort, json.GetAllocator());
+		/*
+		"sort": [
+		    "_doc"
+		]
+		*/
 	}
 
-	json.AddMember("_source", "message", json.GetAllocator());
 	json.AddMember("size", max_result_window, json.GetAllocator());
 
 	rapidjson::StringBuffer strbuf;
@@ -496,19 +584,6 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
 	json.Accept(writer);
 
 	prepare_query(curl, url, strbuf.GetString());
-	if (perform_query(curl, json_buffer)) {
-		rapidjson::Document json;
-		json.Parse<0>(json_buffer.c_str());
-
-		if (has_error(json, error)) {
-			return false;
-		}
-
-		_scroll_count = json["hits"]["total"].GetUint();
-
-		_scroll_ids[slice_id] = json["_scroll_id"].GetString();
-		update_scroll_id(curl, _scroll_ids[slice_id]);
-	}
 
 	return true;
 }
@@ -523,6 +598,10 @@ void PVRush::PVElasticsearchAPI::update_scroll_id(CURL* curl, const std::string&
 	if (_version < PVCore::PVVersion(2, 0, 0)) {
 #endif
 		url += "=" + std::string(SCROLL_TIMEOUT);
+		url +=
+		    "&filter_path=_scroll_id,hits.total," +
+		    get_filter_path_from_base(_infos.get_filter_path().toStdString(), "hits.hits._source");
+
 		prepare_query(curl, url, scroll_id);
 #if SCROLL_API_POST
 	} else {
@@ -552,11 +631,7 @@ bool PVRush::PVElasticsearchAPI::scroll(CURL* curl,
                                         )
 {
 	if (init) {
-		bool res =
-		    init_scroll(curl, query, slice_id, slice_count, max_result_window, json_buffer, error);
-		if (_version >= PVCore::PVVersion(5, 2, 0)) {
-			return res;
-		}
+		init_scroll(curl, query, slice_id, slice_count, max_result_window);
 	}
 
 	return perform_query(curl, json_buffer, error);
@@ -565,34 +640,17 @@ bool PVRush::PVElasticsearchAPI::scroll(CURL* curl,
 bool PVRush::PVElasticsearchAPI::parse_scroll_results(CURL* curl,
                                                       const std::string& json_data,
                                                       std::string& scroll_id,
-                                                      rows_t& rows) const
+                                                      rows_t& rows)
 {
-	rapidjson::Document json;
-	json.Parse<0>(json_data.c_str());
-	std::string error;
-	if (json_data.empty() or has_error(json, &error)) {
-		return false;
-	}
+	rapidjson::Reader reader;
+	PVElasticsearchSAXParser parser(_infos.get_filter_path().toStdString(), rows);
+	rapidjson::StringStream ss(json_data.c_str());
+	reader.Parse(ss, parser);
 
-	rapidjson::Value& hits = json["hits"]["hits"];
+	scroll_id = parser.scroll_id();
 
-	rows.clear();
-	rows.reserve(hits.Size());
-
-	if (hits.Size() == 0) { // end of query
-		return false;
-	}
-
-	for (rapidjson::SizeType i = 0; i < hits.Size(); i++) {
-		const rapidjson::Value& message = (_version < PVCore::PVVersion(5, 0, 0))
-		                                      ? hits[i]["_source"]["message"][0]
-		                                      : hits[i]["_source"]["message"];
-		rows.emplace_back(message.GetString());
-	}
-
-	// update scroll_id with latest value
-	scroll_id = json["_scroll_id"].GetString();
 	update_scroll_id(curl, scroll_id);
+	_scroll_count = parser.total();
 
 	return true;
 }

@@ -14,7 +14,7 @@
 #include "../../common/elasticsearch/PVElasticsearchInfos.h"
 
 bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
-                                                    hash_formats& /*new_formats*/,
+                                                    hash_formats& new_formats,
                                                     list_inputs& inputs,
                                                     QString& format,
                                                     PVCore::PVArgumentList& /*args_ext*/,
@@ -31,10 +31,12 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);
 
-	if (params->get_format().isEmpty()) {
-		format = INENDI_BROWSE_FORMAT_STR;
+	if (params->is_format_custom()) {
+		PVRush::PVFormat custom_format(params->get_custom_format().documentElement());
+		new_formats["custom"] = std::move(custom_format);
+		format = "custom";
 	} else {
-		format = params->get_format();
+		format = params->get_format_path();
 	}
 
 	return true;

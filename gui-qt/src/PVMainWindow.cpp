@@ -1226,7 +1226,11 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 		display_inv_elts();
 	}
 
-	if (update_recent_items) {
+	/**
+	 * For the moment we can't add sources that have an auto generated format
+	 * not saved to disk.
+	 */
+	if (update_recent_items and not src.get_format().get_full_path().isEmpty()) {
 		// Add format as recent format
 		PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(
 		    src.get_format().get_full_path());

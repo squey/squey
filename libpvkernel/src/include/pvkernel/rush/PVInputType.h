@@ -84,6 +84,10 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 
 	void connect_parent(QObject const* parent) const
 	{
+		disconnect((QObject*)this, SIGNAL(edit_format_signal(QString const&, QWidget*)), parent,
+		           SLOT(edit_format_Slot(QString const&, QWidget*)));
+		disconnect((QObject*)this, SIGNAL(edit_format_signal(QDomDocument&, QWidget*)), parent,
+		           SLOT(edit_format_Slot(QDomDocument&, QWidget*)));
 		connect((QObject*)this, SIGNAL(edit_format_signal(QString const&, QWidget*)), parent,
 		        SLOT(edit_format_Slot(QString const&, QWidget*)));
 		connect((QObject*)this, SIGNAL(edit_format_signal(QDomDocument&, QWidget*)), parent,

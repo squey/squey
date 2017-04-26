@@ -42,6 +42,10 @@ PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
 	_presets_widget->setFixedHeight(250);
 	presets_layout->addWidget(_presets_widget);
 
+	_open_format_button->setIcon(QIcon(":/document-open.png"));
+	_edit_existing_format_button->setIcon(QIcon(":/edit-copy.png"));
+	_edit_custom_format_button->setIcon(QIcon(":/edit-copy.png"));
+
 	// Set connections
 	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_load_clicked_Signal, this,
 	        &PVParamsWidgetBase::preset_load_slot);
@@ -59,10 +63,11 @@ PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
 	connect(_export_pushbutton, &QPushButton::clicked, this, &PVParamsWidgetBase::export_slot);
 	connect(this, &PVParamsWidgetBase::load_preset_deferred, this, &PVParamsWidgetBase::load_preset,
 	        Qt::QueuedConnection);
-	connect(_format_button, &QPushButton::clicked, this, &PVParamsWidgetBase::load_format);
-
-	// Hide "format" tab for the moment
-	tabWidget->removeTab(2);
+	connect(_open_format_button, &QPushButton::clicked, this, &PVParamsWidgetBase::load_format);
+	connect(_edit_existing_format_button, &QPushButton::clicked, this,
+	        &PVParamsWidgetBase::edit_existing_format);
+	connect(_edit_custom_format_button, &QPushButton::clicked, this,
+	        &PVParamsWidgetBase::edit_custom_format);
 }
 
 QString PVRush::PVParamsWidgetBase::get_query_type() const
@@ -89,6 +94,16 @@ void PVRush::PVParamsWidgetBase::load_format()
 			_format_path->setText(format_path);
 		}
 	}
+}
+
+void PVRush::PVParamsWidgetBase::edit_existing_format()
+{
+	_in_t->edit_format(_format_path->text(), this);
+}
+
+void PVRush::PVParamsWidgetBase::edit_custom_format()
+{
+	_in_t->edit_format(_custom_format, this);
 }
 
 /*****************************************************************************

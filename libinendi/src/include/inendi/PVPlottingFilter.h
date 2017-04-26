@@ -58,7 +58,7 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::arra
 	{
 		auto& mm = minmax.to_core_array<T>();
 
-		if (not minmax) {
+		if (minmax.size() == 0) {
 			return std::make_pair(0.0, 0.0);
 		} else {
 			return std::make_pair((double)mm[0], (double)mm[1]);

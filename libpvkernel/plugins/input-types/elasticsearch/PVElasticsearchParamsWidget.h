@@ -18,8 +18,14 @@
 #include "PVElasticsearchPresets.h"
 
 #include <pvkernel/widgets/PVQueryBuilder.h>
+#include <pvkernel/widgets/PVQueryBuilder.h>
 
 #include "PVElasticsearchPresets.h"
+
+namespace PVWidgets
+{
+class PVFilterableComboBox;
+}
 
 namespace PVRush
 {
@@ -53,20 +59,12 @@ class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsear
 	QString get_server_query(std::string* error = nullptr) const override;
 	QString get_serialize_query() const override;
 
-  protected Q_SLOTS:
+  protected:
 	size_t query_result_count(std::string* error = nullptr) override;
 	bool fetch_server_data(const PVElasticsearchInfos& infos) override;
 	void query_type_changed_slot() override;
-
-  protected:
 	QString get_export_filters() override;
-
-  private Q_SLOTS:
-	void index_changed_by_user_slot();
-	void index_changed_slot(const QString& index);
-	void fetch_server_data_slot();
-
-  protected:
+	void accept() override;
 	PVElasticsearchInfos get_infos() const override;
 	bool set_infos(PVElasticsearchInfos const& infos) override;
 	void set_query(QString const& query) override;
@@ -74,14 +72,24 @@ class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsear
 	void export_query_result(QTextStream& output_stream,
 	                         PVCore::PVProgressBox& pbox,
 	                         std::string* error = nullptr) override;
-	void set_query_type(QString const& query_type);
+	void edit_custom_format() override;
 
   private:
+	void index_changed_slot(const QString& index);
+	void index_changed_by_user_slot();
+	void fetch_server_data_slot();
+	void update_custom_format();
+	void reset_columns_tree_widget();
+	void set_columns_tree_widget_selection(const QString& filter_path);
+	void tree_item_changed(QTreeWidgetItem* item, int column);
+	size_t get_selected_columns_count() const;
+	void set_query_type(QString const& query_type);
 	QString get_sql_query_prefix() const;
 
   private:
 	QPushButton* _btn_refresh;
-	QComboBox* _combo_index;
+	PVWidgets::PVFilterableComboBox* _combo_index;
+	QTreeWidgetItem* _root_item = nullptr;
 };
 
 } // namespace PVRush

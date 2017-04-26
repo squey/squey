@@ -65,7 +65,10 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	 */
 	virtual size_t query_result_count(std::string* error = nullptr) = 0;
 
-	QString get_format() const { return _format_path->text(); }
+	QString get_format_path() const { return _format_path->text(); }
+
+	const QDomDocument& get_custom_format() const { return _custom_format; }
+	bool is_format_custom() const { return _custom_format_radio->isChecked(); }
 
   protected:
 	QString get_query_type() const;
@@ -87,6 +90,8 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	void check_connection_slot();
 	void query_result_count_slot();
 	void load_format();
+	void edit_existing_format();
+	virtual void edit_custom_format();
 
   Q_SIGNALS:
 	// A bit hacky: this is to be able to call PVParamsWidget::set_info virtual pure function
@@ -99,6 +104,7 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	int64_t _last_load_preset;
 	PVInputType const* _in_t;
 	PVWidgets::PVQueryBuilder* _querybuilder = nullptr;
+	QDomDocument _custom_format;
 };
 
 template <typename Input, typename Presets, typename Infos, typename Query>
@@ -190,6 +196,8 @@ class PVParamsWidget : public PVParamsWidgetBase
 	{
 		_txt_host->setText(infos.get_host());
 		_port_sb->setValue(infos.get_port());
+		_format_path->setText(infos.get_format());
+		_existing_format_radio->setChecked(not infos.is_format_custom());
 
 		_auth_enabled_cb->setChecked(infos.get_login().isEmpty() == false);
 		_login_txt->setText(infos.get_login());
@@ -210,6 +218,8 @@ class PVParamsWidget : public PVParamsWidgetBase
 
 		infos.set_host(_txt_host->text());
 		infos.set_port(_port_sb->value());
+		infos.set_format(_format_path->text());
+		infos.set_custom_format(_custom_format_radio->isChecked());
 		if (_auth_enabled_cb->isChecked()) {
 			infos.set_login(_login_txt->text());
 			infos.set_password(_passwd_txt->text());
