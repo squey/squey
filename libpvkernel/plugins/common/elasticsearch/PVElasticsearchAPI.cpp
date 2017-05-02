@@ -315,12 +315,13 @@ QDomDocument PVRush::PVElasticsearchAPI::get_format_from_mapping() const
 
 	// type mapping between elasticsearch and inspector format
 	static const std::unordered_map<std::string, std::string> types_mapping = {
-	    {"long", "number_int32"},
+	    {"long", "number_int64"},
 	    {"integer", "number_int32"},
-	    {"short", "number_int32"},
-	    {"byte", "number_int32"},
+	    {"short", "number_int16"},
+	    {"byte", "number_int8"},
 	    {"double", "number_double"},
 	    {"float", "number_float"},
+	    {"half_float", "number_float"},
 	    {"date", "time"},
 	    {"ip", "ipv6"},
 	    {"text", "string"},
