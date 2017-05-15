@@ -99,13 +99,13 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
 	PVViewDisplay* view_display =
 	    new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
 
-	connect(view_display, &QObject::destroyed, this, &PVWorkspaceBase::display_destroyed);
+	// note : new connect syntax is causing a crash (Qt bug ?)
+	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 
 	view_display->setWindowTitle(name());
 	addDockWidget(area, view_display);
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
 	        &PVWorkspaceBase::try_automatic_tab_switch);
-
 	_displays.append(view_display);
 
 	return view_display;
