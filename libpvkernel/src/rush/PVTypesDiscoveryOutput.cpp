@@ -225,13 +225,14 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 		PVCol col(0);
 		for (PVCore::PVField const& field : fields) {
 			for (size_t idx = 0; idx < _formatters.size(); idx++) {
-				if (not matching_formatters[col][idx]) {
+				if (not matching_formatters[col][idx] or not _matching_formatters[col][idx]) {
 					continue;
 				}
 				pvcop::db::uint128_t t;
 				std::string f(field.begin(), field.end());
 				bool pass_autodetect;
 				_formatters[idx]->from_string(f.c_str(), &t, 0, &pass_autodetect);
+
 				matching_formatters[col][idx] =
 				    matching_formatters[col][idx] and (pass_autodetect or f.empty());
 
