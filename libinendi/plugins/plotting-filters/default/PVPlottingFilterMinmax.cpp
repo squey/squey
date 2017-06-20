@@ -45,7 +45,8 @@ static void compute_minmax_plotting(pvcop::db::array const& mapped,
 #pragma omp parallel for
 	for (size_t i = 0; i < values.size(); i++) {
 		bool invalid = invalid_selection and invalid_selection[i];
-		dest[i] = ~plotting_t(invalid ? 0 : ((double)values[i] - ymin) * ratio + valid_offset);
+		dest[i] = ~plotting_t(invalid ? 0 : (Inendi::extract_value(values[i]) - ymin) * ratio +
+		                                        valid_offset);
 	}
 }
 
@@ -58,27 +59,32 @@ void Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped,
 
 	if (mapped.is_string()) {
 		compute_minmax_plotting<string_index_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_int8) {
+	} else if (mapped.type() == "number_int8") {
 		compute_minmax_plotting<int8_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_uint8) {
+	} else if (mapped.type() == "number_uint8") {
 		compute_minmax_plotting<uint8_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_int16) {
+	} else if (mapped.type() == "number_int16") {
 		compute_minmax_plotting<int16_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_uint16) {
+	} else if (mapped.type() == "number_uint16") {
 		compute_minmax_plotting<uint16_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_int32) {
+	} else if (mapped.type() == "number_int32") {
 		compute_minmax_plotting<int32_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_uint32) {
+	} else if (mapped.type() == "number_uint32" or mapped.type() == "datetime" or
+	           mapped.type() == "ipv4") {
 		compute_minmax_plotting<uint32_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_uint64) {
+	} else if (mapped.type() == "number_uint64" or mapped.type() == "datetime_ms" or
+	           mapped.type() == "datetime_us") {
 		compute_minmax_plotting<uint64_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_int64) {
+	} else if (mapped.type() == "number_int64") {
 		compute_minmax_plotting<int64_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_uint128) {
+	} else if (mapped.type() == "number_uint128" or mapped.type() == "ipv6") {
 		compute_minmax_plotting<pvcop::db::uint128_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_float) {
+	} else if (mapped.type() == "number_float") {
 		compute_minmax_plotting<float>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == pvcop::db::type_double) {
+	} else if (mapped.type() == "number_double") {
 		compute_minmax_plotting<double>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == "duration") {
+		compute_minmax_plotting<boost::posix_time::time_duration>(mapped, minmax, invalid_selection,
+		                                                          dest);
 	}
 }

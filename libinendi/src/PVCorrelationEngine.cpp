@@ -114,7 +114,7 @@ Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1
 
 	pvcop::db::algo::distinct(col1_in, col1_distinct, view1->get_real_output_selection());
 
-	bool is_string = col1_in.type() == pvcop::db::type_string;
+	bool is_string = col1_in.is_string();
 	if (not is_string) {
 		if (col1_distinct.has_invalid()) {
 			pvcop::db::algo::subselect(col2_in, col1_distinct.join(col1_distinct.valid_selection()),

@@ -35,7 +35,7 @@ class PVMappingFilterHost : public PVMappingFilter
 
 	pvcop::db::array get_minmax(pvcop::db::array const&, pvcop::db::selection const&) const override
 	{
-		pvcop::db::array res(pvcop::db::type_uint32, 2);
+		pvcop::db::array res("number_uint32", 2);
 		auto res_array = res.to_core_array<uint32_t>();
 		res_array[0] = 0;
 		res_array[1] = std::numeric_limits<uint32_t>::max();

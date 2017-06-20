@@ -33,29 +33,23 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;
-
-	double min;
-	double max;
-	double count;
+	pvcop::db::array abs_max;
 
 	BENCH_START(distinct_values);
 
+	pvcop::db::array minmax;
 	auto ret_pbox = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 
 		    pvcop::db::algo::distinct(col_in, col1_out, col2_out, sel);
 
-		    pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
-		    std::string min_str = minmax.at(0);
-		    std::istringstream min_buf(min_str);
-		    min_buf >> min;
+		    minmax = pvcop::db::algo::minmax(col2_out);
 
-		    std::string max_str = minmax.at(1);
-		    std::istringstream max_buf(max_str);
-		    max_buf >> max;
-
-		    count = pvcop::core::algo::bit_count(sel);
+		    pvcop::db::array bit_count("number_uint64", 1);
+		    auto& bc = bit_count.to_core_array<uint64_t>();
+		    bc[0] = pvcop::core::algo::bit_count(sel);
+		    abs_max = std::move(bit_count);
 		},
 	    QObject::tr("Computing values..."), parent);
 
@@ -66,8 +60,9 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 		return false;
 	}
 
-	PVGuiQt::PVListUniqStringsDlg* dlg = new PVGuiQt::PVListUniqStringsDlg(
-	    view, c, std::move(col1_out), std::move(col2_out), count, min, max, parent);
+	PVGuiQt::PVListUniqStringsDlg* dlg =
+	    new PVGuiQt::PVListUniqStringsDlg(view, c, std::move(col1_out), std::move(col2_out),
+	                                      std::move(abs_max), std::move(minmax), parent);
 	dlg->setWindowTitle(
 	    "Distinct values of axe '" +
 	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(c).get_name() + "'");
@@ -98,10 +93,8 @@ static bool show_stats_dialog(const QString& title,
 
 	pvcop::db::array col1_out;
 	pvcop::db::array col2_out;
-
-	double rel_min;
-	double rel_max;
-	double abs_max;
+	pvcop::db::array minmax;
+	pvcop::db::array abs_max;
 
 	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
 	ctxt.reset();
@@ -114,25 +107,24 @@ static bool show_stats_dialog(const QString& title,
 
 		    op(col1_in, col2_in, col1_out, col2_out, sel);
 
-		    pvcop::db::array minmax = pvcop::db::algo::minmax(col2_out);
-		    std::string min_str = minmax.at(0);
-		    std::istringstream min_buf(min_str);
-		    min_buf >> rel_min;
-
-		    std::string max_str = minmax.at(1);
-		    std::istringstream max_buf(max_str);
-		    max_buf >> rel_max;
+		    minmax = pvcop::db::algo::minmax(col2_out);
 
 		    switch (abs_max_op) {
-		    case ABS_MAX_OP::MAX:
-			    abs_max = rel_max;
-			    break;
+		    case ABS_MAX_OP::MAX: {
+			    pvcop::db::indexes ind(1);
+			    auto& id = ind.to_core_array();
+			    id[0] = 1;
+			    abs_max = minmax.join(ind);
+		    } break;
 		    case ABS_MAX_OP::SUM:
 			    abs_max = pvcop::db::algo::sum(col2_out);
 			    break;
-		    case ABS_MAX_OP::COUNT:
-			    abs_max = (double)pvcop::core::algo::bit_count(sel);
-			    break;
+		    case ABS_MAX_OP::COUNT: {
+			    pvcop::db::array bit_count("number_uint64", 1);
+			    auto& bc = bit_count.to_core_array<uint64_t>();
+			    bc[0] = pvcop::core::algo::bit_count(sel);
+			    abs_max = std::move(bit_count);
+		    } break;
 		    }
 		},
 	    QObject::tr("Computing values..."), parent);
@@ -144,9 +136,9 @@ static bool show_stats_dialog(const QString& title,
 		return false;
 	}
 
-	PVGuiQt::PVGroupByStringsDlg* dlg =
-	    new PVGuiQt::PVGroupByStringsDlg(view, col1, col2, sel, std::move(col1_out),
-	                                     std::move(col2_out), abs_max, rel_min, rel_max, parent);
+	PVGuiQt::PVGroupByStringsDlg* dlg = new PVGuiQt::PVGroupByStringsDlg(
+	    view, col1, col2, sel, std::move(col1_out), std::move(col2_out), std::move(abs_max),
+	    std::move(minmax), parent);
 	dlg->setWindowTitle(
 	    title + " of axes '" +
 	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col1).get_name() +

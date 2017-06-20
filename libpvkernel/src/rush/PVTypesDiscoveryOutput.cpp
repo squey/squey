@@ -30,14 +30,15 @@ static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
      {{"number_uint32", "%#x"}, { "number_float", "number_double", "time" }},
      {{"number_uint64", ""},    { "number_float", "number_double", "time" }},
      {{"number_int64",  ""},    { "number_float", "number_double", "time" }},
-     {{"number_uint64", "%#lo"}, { "number_float", "number_double", "time" }},
-     {{"number_uint64", "%#lx"}, { "number_float", "number_double", "time" }},
+     {{"number_uint64", "%#lo"},{ "number_float", "number_double", "time" }},
+     {{"number_uint64", "%#lx"},{ "number_float", "number_double", "time" }},
      {{"number_float",  ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time" }},
      {{"number_double", ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time" }},
 
      {{"ipv4",          ""},    {}},
      {{"ipv6",          ""},    {}},
      {{"mac_address",   ""},    {}},
+	 {{"duration",      ""},    { "time" }},
 }};
 
 static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
@@ -245,7 +246,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 				}
 				for (size_t i = 0; i < _formatters.size(); i++) {
 					for (const std::string& excl_fmt : _types[idx].second) {
-						if (strcmp(_formatters[i]->name(), excl_fmt.c_str()) == 0) {
+						if (_formatters[i]->name() == excl_fmt.c_str()) {
 							matching_formatters[col][i] = false;
 						}
 					}

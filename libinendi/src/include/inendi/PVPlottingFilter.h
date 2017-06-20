@@ -22,10 +22,25 @@
 #include <string>  // for string
 #include <utility> // for pair
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 namespace Inendi
 {
 
+template <typename T>
+inline double extract_value(const T& value)
+{
+	return (double)value;
+}
+
+template <>
+inline double extract_value(const boost::posix_time::time_duration& value)
+{
+	return (double)value.total_microseconds();
+}
+
 using plotting_t = uint32_t;
+static constexpr const char plotting_type[] = "number_uint32";
 
 class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::array<plotting_t>&,
                                                                pvcop::db::array const&>,
@@ -61,7 +76,7 @@ class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::arra
 		if (minmax.size() == 0) {
 			return std::make_pair(0.0, 0.0);
 		} else {
-			return std::make_pair((double)mm[0], (double)mm[1]);
+			return std::make_pair(extract_value(mm[0]), extract_value(mm[1]));
 		}
 	}
 };

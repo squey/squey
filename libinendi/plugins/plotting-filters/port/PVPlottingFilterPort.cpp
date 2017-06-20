@@ -54,10 +54,10 @@ void Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped,
 {
 	assert(dest);
 
-	if (mapped.type() == pvcop::db::type_uint32) {
+	if (mapped.type() == "number_uint32") {
 		compute_port_plotting<uint32_t>(mapped, invalid_selection, dest);
 	} else {
-		assert(mapped.type() == pvcop::db::type_int32);
+		assert(mapped.type() == "number_int32");
 		compute_port_plotting<int32_t>(mapped, invalid_selection, dest);
 	}
 }

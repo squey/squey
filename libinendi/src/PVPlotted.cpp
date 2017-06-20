@@ -67,8 +67,7 @@ int Inendi::PVPlotted::create_table()
 	const PVCol mapped_col_count = get_nraw_column_count();
 
 	for (size_t i = 0; i < _columns.size(); i++) {
-		_plotteds.emplace_back(pvcop::db::type_traits::type<value_type>::get_type_id(),
-		                       get_row_count());
+		_plotteds.emplace_back(Inendi::plotting_type, get_row_count());
 	}
 
 	_last_updated_cols.clear();

@@ -26,12 +26,11 @@
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
 
-#include <pvcop/types/impl/formatter_factory.h>
-
 static const std::unordered_set<std::string> SUPPORTED_TYPES = {
-    "string",        "number_uint32", "number_int32", "number_uint64", "number_int64",
-    "number_uint16", "number_int16",  "number_uint8", "number_int8",   "number_float",
-    "number_double", "time",          "ipv4",         "ipv6",          "mac_address"};
+    "string",       "number_uint32", "number_int32",  "number_uint64",
+    "number_int64", "number_uint16", "number_int16",  "number_uint8",
+    "number_int8",  "number_float",  "number_double", "time",
+    "duration",     "ipv4",          "ipv6",          "mac_address"};
 
 PVRush::PVFormat::PVFormat() : format_name(""), full_path(""), _have_grep_filter(false)
 {

@@ -61,7 +61,7 @@ pvcop::db::array Inendi::PVMappingFilterHost::operator()(PVCol const col,
                                                          PVRush::PVNraw const& nraw)
 {
 	const pvcop::db::array& array = nraw.column(col);
-	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+	pvcop::db::array dest("number_uint32", array.size());
 	auto& dest_array = dest.to_core_array<uint32_t>();
 
 	// Store mapping for each dict value.

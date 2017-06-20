@@ -562,33 +562,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		    // Manual check for typing convertion to string.
 		    // FIXME : We should handle this with more specific widgets for each
 		    // type.
-		    switch (col2_array.type()) {
-		    case pvcop::db::type_t::type_uint32:
-			    min_ = std::to_string(static_cast<uint32_t>(vmin));
-			    max_ = std::to_string(static_cast<uint32_t>(vmax));
-			    break;
-		    case pvcop::db::type_t::type_int32:
-			    min_ = std::to_string(static_cast<int32_t>(vmin));
-			    max_ = std::to_string(static_cast<int32_t>(vmax));
-			    break;
-		    case pvcop::db::type_t::type_uint64:
-			    min_ = std::to_string(static_cast<uint64_t>(vmin));
-			    max_ = std::to_string(static_cast<uint64_t>(vmax));
-			    break;
-		    case pvcop::db::type_t::type_int64:
-			    min_ = std::to_string(static_cast<int64_t>(vmin));
-			    max_ = std::to_string(static_cast<int64_t>(vmax));
-			    break;
-		    case pvcop::db::type_t::type_double:
-			    min_ = std::to_string(static_cast<double>(vmin));
-			    max_ = std::to_string(static_cast<double>(vmax));
-			    break;
-		    default:
-			    PVLOG_ERROR(("Incorrect type to compute range selection." +
-			                 std::to_string(col2_array.type()))
-			                    .c_str());
-			    return;
-		    }
+		    min_ = std::to_string(vmin);
+		    max_ = std::to_string(vmax);
 		    model().reset_selection();
 		    Inendi::PVSelection& sel = model().current_selection();
 
@@ -885,15 +860,16 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 
 		int real_index = d()->model().rowIndex(index);
 
-		if (col2_array.has_invalid() and col2_array.invalid_selection()[real_index]) {
+		if (not col2_array.is_valid(real_index)) {
 			painter->drawText(option.rect.x(), option.rect.y(), option.rect.width(),
 			                  option.rect.height(), Qt::AlignCenter, "N/A");
 			return;
 		}
 
-		double occurence_count = QString::fromStdString(col2_array.at(real_index)).toDouble();
+		double occurence_count = d()->model().stat_as_double(real_index);
 		double ratio = occurence_count / d()->max_count();
 		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());
+
 		bool log_scale = d()->use_logarithmic_scale();
 
 		// Draw bounding rectangle
@@ -928,7 +904,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 			int field_size = d()->_field_size_count;
 
 			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
-			                  PVStatsModel::format_occurence(occurence_count));
+			                  QString::fromStdString(col2_array.at(real_index)));
 			x += field_size;
 		}
 
@@ -989,8 +965,12 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 
 	// compute widths for each statistic
 	if (show_count) {
-		double v = converting_digits_to_nines_at_given_precision(relative_max_count());
-		_field_size_count = fm.width(QLocale::system().toString(v, 'f', 0));
+		if (model().stat_col().type() == "duration") { // FIXME
+			_field_size_count = fm.width(QString::fromStdString(model().stat_col().at(0)));
+		} else {
+			double v = converting_digits_to_nines_at_given_precision(relative_max_count());
+			_field_size_count = fm.width(QLocale::system().toString(v, 'f', 0));
+		}
 	} else {
 		_field_size_count = 0;
 	}
