@@ -39,7 +39,7 @@ pvcop::db::array Inendi::PVMappingFilter4Bsort::operator()(PVCol const col,
 {
 	const pvcop::db::array& array = nraw.column(col);
 
-	pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+	pvcop::db::array dest("number_uint32", array.size());
 	auto& dest_array = dest.to_core_array<uint32_t>();
 
 	auto* string_dict = nraw.column_dict(col);

@@ -322,7 +322,8 @@ QDomDocument PVRush::PVElasticsearchAPI::get_format_from_mapping() const
 	    {"double", "number_double"},
 	    {"float", "number_float"},
 	    {"half_float", "number_float"},
-	    {"date", "time"},
+	    //{"date", "time"},
+	    {"date", "string"},
 	    {"ip", "ipv6"},
 	    {"text", "string"},
 	    {"keyword", "string"}};

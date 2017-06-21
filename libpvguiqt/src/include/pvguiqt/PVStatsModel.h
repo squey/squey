@@ -13,6 +13,8 @@
 
 #include <pvcop/db/types.h>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 namespace PVGuiQt
 {
 
@@ -23,17 +25,15 @@ class PVStatsModel : public PVAbstractTableModel
   public:
 	PVStatsModel(pvcop::db::array col1,
 	             pvcop::db::array col2,
-	             double absolute_max,
-	             double relative_min,
-	             double relative_max,
+	             pvcop::db::array abs_max,
+	             pvcop::db::array minmax,
 	             QWidget* parent = nullptr)
 	    : PVAbstractTableModel(col1.size(), parent)
 	    , _col1(std::move(col1))
 	    , _col2(std::move(col2))
 	    , _format(ValueFormat::Count)
-	    , _absolute_max_count(absolute_max)
-	    , _relative_min_count(relative_min)
-	    , _relative_max_count(relative_max)
+	    , _abs_max(std::move(abs_max))
+	    , _minmax(std::move(minmax))
 	{
 	}
 
@@ -224,17 +224,30 @@ class PVStatsModel : public PVAbstractTableModel
   public:
 	inline double max_count() const
 	{
-		return _use_absolute_max_count ? _absolute_max_count : _relative_max_count;
+		return _use_absolute_max_count ? absolute_max_count() : relative_max_count();
 	}
-	inline double relative_max_count() const { return _relative_max_count; }
-	inline double relative_min_count() const { return _relative_min_count; }
-	inline double absolute_max_count() const { return _absolute_max_count; }
+	inline double relative_max_count() const { return as_double(_minmax, 1); }
+	inline double relative_min_count() const { return as_double(_minmax, 0); }
+	inline double absolute_max_count() const { return as_double(_abs_max, 0); }
 	bool use_log_scale() const { return _use_logarithmic_scale; }
 	pvcop::db::array const& value_col() const { return _col1; }
 	pvcop::db::array const& stat_col() const { return _col2; }
 
+	double stat_as_double(size_t row) const { return as_double(_col2, row); }
+
   private:
-	using type_index = typename pvcop::db::type_traits::type_id<pvcop::db::type_index>::type;
+	double as_double(const pvcop::db::array& array, size_t row) const
+	{
+		if (array.type() == "duration") {
+			const auto& duration_array = array.to_core_array<boost::posix_time::time_duration>();
+			return (double)duration_array[row].total_microseconds();
+		} else {
+			return QString::fromStdString(array.at(row)).toDouble();
+		}
+	}
+
+  private:
+	using type_index = pvcop::db::index_t;
 
   private:
 	const pvcop::db::array _col1; //!< Values handled.
@@ -245,9 +258,8 @@ class PVStatsModel : public PVAbstractTableModel
 	// Export generic with other TableModels.
 	bool _copy_count; //!< If on line copy, we also copy values.
 
-	double _absolute_max_count;
-	double _relative_min_count;
-	double _relative_max_count;
+	const pvcop::db::array _abs_max;
+	const pvcop::db::array _minmax;
 
 	bool _use_absolute_max_count =
 	    true; // FIXME : should not be in the model as it only concern the display

@@ -98,7 +98,7 @@ int main()
 		pvcop::types::formatter_interface* fi =
 		    pvcop::types::factory::create(fd.name(), fd.parameters());
 
-		pvcop::db::array out_array(fi->storage_type_id(), 1);
+		pvcop::db::array out_array(fi->name(), 1);
 
 		const char* input_string = testcase.time_string_in.c_str();
 		const char* output_string = testcase.time_string_out.c_str();
@@ -118,7 +118,7 @@ int main()
 					return 1;
 				}
 
-				if (strcmp(fi->name(), testcase.formatter.c_str()) != 0) {
+				if (fi->name() != testcase.formatter.c_str()) {
 					std::cerr << "Formatter mismatch ! wanted: " << testcase.formatter
 					          << ", used: " << fi->name() << std::endl;
 					return 1;

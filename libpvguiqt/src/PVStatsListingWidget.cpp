@@ -641,13 +641,11 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 {
 	const pvcop::db::array& column = _view.get_rushnraw_parent().column(get_real_axis_col());
 
-	double sum = pvcop::db::algo::sum(column, _view.get_selection_visible_listing());
+	const pvcop::db::array& sum =
+	    pvcop::db::algo::sum(column, _view.get_selection_visible_listing());
 
-	double intpart;
-	bool integer = std::modf(sum, &intpart) == 0.0;
-	QString sum_str = integer ? QString("%L1").arg((int64_t)sum) : QString("%L1").arg(sum, 0, 'f');
-
-	Q_EMIT refresh_impl_finished(sum_str); // We must go back on the Qt thread to update the GUI
+	Q_EMIT refresh_impl_finished(
+	    QString::fromStdString(sum.at(0))); // We must go back on the Qt thread to update the GUI
 }
 
 void PVGuiQt::__impl::PVSumCellWidget::update_type_capabilities()
@@ -661,7 +659,8 @@ void PVGuiQt::__impl::PVSumCellWidget::update_type_capabilities()
 	                column_type == "number_uint64" || column_type == "number_int64" ||
 	                column_type == "number_uint32" || column_type == "number_int32" ||
 	                column_type == "number_uint16" || column_type == "number_int16" ||
-	                column_type == "number_uint8" || column_type == "number_int8");
+	                column_type == "number_uint8" || column_type == "number_int8" ||
+	                column_type == "duration");
 	// FIXME : this should be capabilities, not types names !
 
 	setEnabled(_is_summable);
@@ -712,11 +711,12 @@ void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 {
 	const pvcop::db::array& column = _view.get_rushnraw_parent().column(get_real_axis_col());
 
-	double avg = pvcop::db::algo::average(column, _view.get_selection_visible_listing());
+	const pvcop::db::array& avg =
+	    pvcop::db::algo::average(column, _view.get_selection_visible_listing());
 
-	double intpart;
-	bool integer = std::modf(avg, &intpart) == 0.0;
-	QString avg_str = integer ? QString("%L1").arg((int64_t)avg) : QString("%L1").arg(avg, 0, 'f');
+	// FIXME : check selection is not empty ?
+	// FIXME : add support for proper formatting
 
-	Q_EMIT refresh_impl_finished(avg_str); // We must go back on the Qt thread to update the GUI
+	Q_EMIT refresh_impl_finished(
+	    QString::fromStdString(avg.at(0))); // We must go back on the Qt thread to update the GUI
 }

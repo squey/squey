@@ -70,10 +70,15 @@ int main()
 	time += discover_types(time_filename, time_fmt, time_discovery_output);
 
 #ifndef INSPECTOR_BENCH
+	std::vector<std::string> axes_types(time_fmt.get_axes().size());
+	std::transform(time_fmt.get_axes().begin(), time_fmt.get_axes().end(), axes_types.begin(),
+	               [](const PVRush::PVAxisFormat& axis) {
+		               return axis.get_name().split("_")[0].toStdString();
+		           });
 	for (PVCol col(0); col < (PVCol)time_fmt.get_storage_format().size(); col++) {
 		std::string type;
 		std::tie(type, std::ignore, std::ignore) = time_discovery_output.type_desc(col);
-		PV_VALID(type, std::string("time"));
+		PV_VALID(type, axes_types[col]);
 	}
 #endif // INSPECTOR_BENCH
 

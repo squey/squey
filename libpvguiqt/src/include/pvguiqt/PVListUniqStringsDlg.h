@@ -24,14 +24,14 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 	                     PVCol c,
 	                     pvcop::db::array col1,
 	                     pvcop::db::array col2,
-	                     double abs_max,
-	                     double rel_min,
-	                     double rel_max,
+	                     pvcop::db::array abs_max,
+	                     pvcop::db::array minmax,
 	                     QWidget* parent = nullptr)
 	    : PVAbstractListStatsDlg(
 	          view,
 	          c,
-	          new PVStatsModel(std::move(col1), std::move(col2), abs_max, rel_min, rel_max),
+	          new PVStatsModel(
+	              std::move(col1), std::move(col2), std::move(abs_max), std::move(minmax)),
 	          parent)
 	{
 	}

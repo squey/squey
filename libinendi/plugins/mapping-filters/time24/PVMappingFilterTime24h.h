@@ -32,7 +32,7 @@ class PVMappingFilterTime24h : public PVMappingFilter
 	{
 		auto f = nraw.column(col).formatter();
 		const pvcop::db::array& array = nraw.column(col);
-		pvcop::db::array dest(pvcop::db::type_uint32, array.size());
+		pvcop::db::array dest("number_uint32", array.size());
 		auto& dest_array = dest.to_core_array<uint32_t>();
 
 		if (std::string(f->name()) == "datetime") {
@@ -113,7 +113,7 @@ class PVMappingFilterTime24h : public PVMappingFilter
 
 	pvcop::db::array get_minmax(pvcop::db::array const&, pvcop::db::selection const&) const override
 	{
-		pvcop::db::array res(pvcop::db::type_uint32, 2);
+		pvcop::db::array res("number_uint32", 2);
 		auto res_array = res.to_core_array<uint32_t>();
 		res_array[0] = 0;
 		res_array[1] = (24 * 60 * 60 * 1000) - 1;

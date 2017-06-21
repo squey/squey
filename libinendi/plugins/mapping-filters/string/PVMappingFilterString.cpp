@@ -124,7 +124,7 @@ pvcop::db::array Inendi::PVMappingFilterString::operator()(PVCol const col,
 	const pvcop::db::array& array = nraw.column(col);
 
 	using plotting_t = Inendi::PVPlottingFilter::value_type;
-	pvcop::db::array dest(pvcop::db::type_traits::type<plotting_t>::get_type_id(), array.size());
+	pvcop::db::array dest(Inendi::plotting_type, array.size());
 	auto& dest_array = dest.to_core_array<plotting_t>();
 
 	auto* string_dict = nraw.column_dict(col);
