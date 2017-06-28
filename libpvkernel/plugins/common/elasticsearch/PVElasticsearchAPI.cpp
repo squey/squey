@@ -275,7 +275,7 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 	}
 }
 
-PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::columns(
+PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::querybuilder_columns(
     const std::string& filter_path /* = {} */, std::string* error /*= nullptr*/
     ) const
 {
@@ -284,6 +284,48 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::columns(
 	    {"long", "integer"},  {"integer", "integer"}, {"short", "integer"},
 	    {"byte", "integer"},  {"double", "double"},   {"float", "double"},
 	    {"date", "datetime"}, {"text", "string"},     {"keyword", "string"}};
+	auto map_type = [&](const std::string& type) -> std::string {
+		const auto& it = types_mapping.find(type);
+		if (it != types_mapping.end()) {
+			return it->second;
+		} else {
+			// fallback type for unknown types
+			return "string";
+		}
+	};
+
+	columns_t cols;
+
+	visit_columns(
+	    [&](const std::string& /*rel_name*/, const std::string& abs_name, const std::string& type,
+	        bool is_leaf, bool /*is_last_child*/) {
+		    if (is_leaf) {
+			    cols.emplace_back(abs_name, map_type(type));
+		    }
+		},
+	    filter_path, error);
+
+	return cols;
+}
+
+PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns(
+    const std::string& filter_path /* = {} */, std::string* error /*= nullptr*/
+    ) const
+{
+	// type mapping between elasticsearch and inspector format
+	static const std::unordered_map<std::string, std::string> types_mapping = {
+	    {"long", "number_int64"},
+	    {"integer", "number_int32"},
+	    {"short", "number_int16"},
+	    {"byte", "number_int8"},
+	    {"double", "number_double"},
+	    {"float", "number_float"},
+	    {"half_float", "number_float"},
+	    //{"date", "time"},
+	    {"date", "string"},
+	    {"ip", "ipv6"},
+	    {"text", "string"},
+	    {"keyword", "string"}};
 	auto map_type = [&](const std::string& type) -> std::string {
 		const auto& it = types_mapping.find(type);
 		if (it != types_mapping.end()) {
@@ -313,34 +355,10 @@ QDomDocument PVRush::PVElasticsearchAPI::get_format_from_mapping() const
 	QDomDocument format_doc;
 	std::unique_ptr<PVXmlTreeNodeDom> format_root(PVRush::PVXmlTreeNodeDom::new_format(format_doc));
 
-	// type mapping between elasticsearch and inspector format
-	static const std::unordered_map<std::string, std::string> types_mapping = {
-	    {"long", "number_int64"},
-	    {"integer", "number_int32"},
-	    {"short", "number_int16"},
-	    {"byte", "number_int8"},
-	    {"double", "number_double"},
-	    {"float", "number_float"},
-	    {"half_float", "number_float"},
-	    //{"date", "time"},
-	    {"date", "string"},
-	    {"ip", "ipv6"},
-	    {"text", "string"},
-	    {"keyword", "string"}};
-	auto map_type = [&](const std::string& type) -> std::string {
-		const auto& it = types_mapping.find(type);
-		if (it != types_mapping.end()) {
-			return it->second;
-		} else {
-			// fallback type for unkown types
-			return "string";
-		}
-	};
-
 	for (const std::pair<std::string, std::string>& col :
-	     columns(_infos.get_filter_path().toStdString())) {
+	     format_columns(_infos.get_filter_path().toStdString())) {
 		const std::string& column_name = col.first;
-		const std::string& column_type = map_type(col.second);
+		const std::string& column_type = col.second;
 
 		PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
 		    QString::fromStdString(column_name), QString::fromStdString(column_type));

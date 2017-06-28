@@ -218,7 +218,7 @@ void PVRush::PVElasticsearchParamsWidget::index_changed_by_user_slot()
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
 		PVRush::PVElasticsearchAPI es(get_infos());
-		_querybuilder->set_filters(es.columns());
+		_querybuilder->set_filters(es.querybuilder_columns());
 	}
 
 	reset_columns_tree_widget();
@@ -273,7 +273,7 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 		_querybuilder->reset_rules();
 
 		PVRush::PVElasticsearchAPI es(get_infos());
-		_querybuilder->set_filters(es.columns());
+		_querybuilder->set_filters(es.querybuilder_columns());
 
 		_querybuilder->setVisible(true);
 	} else { // EQueryType::JSON
@@ -437,7 +437,7 @@ void PVRush::PVElasticsearchParamsWidget::set_query(QString const& query)
 	if (query_type == EQueryType::QUERY_BUILDER) {
 		if (not get_infos().get_index().isEmpty()) {
 			PVRush::PVElasticsearchAPI es(get_infos());
-			_querybuilder->set_filters(es.columns());
+			_querybuilder->set_filters(es.querybuilder_columns());
 			_querybuilder->set_rules(query.toStdString());
 		}
 	} else {

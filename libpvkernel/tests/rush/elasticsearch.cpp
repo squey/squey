@@ -19,16 +19,16 @@
 #include <fstream>
 
 static const PVRush::PVElasticsearchAPI::columns_t ref_columns({{"category", "string"},
-                                                                {"geoip.city_name", "string"},
-                                                                {"geoip.country_name", "string"},
+                                                                {"geoip.latitude", "number_float"},
+                                                                {"geoip.longitude", "number_float"},
                                                                 {"http_method", "string"},
                                                                 {"login", "string"},
                                                                 {"mime_type", "string"},
-                                                                {"src_ip", "string"},
+                                                                {"src_ip", "ipv6"},
                                                                 {"status_code", "string"},
                                                                 {"time", "string"},
-                                                                {"time_spent", "integer"},
-                                                                {"total_bytes", "integer"},
+                                                                {"time_spent", "number_int32"},
+                                                                {"total_bytes", "number_int32"},
                                                                 {"url", "string"},
                                                                 {"user_agent", "string"}});
 auto get_col_name = [](const auto& p) { return p.first; };
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
 	 * TODO : Check with no column?
 	 *************************************************************************/
 	PVRush::PVElasticsearchAPI::columns_t columns =
-	    elasticsearch.columns(infos.get_filter_path().toStdString(), &error);
+	    elasticsearch.format_columns(infos.get_filter_path().toStdString(), &error);
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_VALID(count, 219UL);
+	PV_VALID(count, 9981UL);
 
 	/**************************************************************************
 	 * Import data
@@ -198,7 +198,7 @@ int main(int argc, char** argv)
 	PVCore::PVExporter exp(output_file, sel, format.get_axes_comb(), nraw.row_count(), export_func);
 	size_t exported_rows = exp.export_rows();
 	exp.wait_finished();
-	PV_VALID(exported_rows, 219UL);
+	PV_VALID(exported_rows, 9981UL);
 
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference

@@ -77,7 +77,10 @@ class PVElasticsearchAPI
 	 *
 	 * @return the list of columns
 	 */
-	columns_t columns(const std::string& filter_path = {}, std::string* error = nullptr) const;
+	columns_t querybuilder_columns(const std::string& filter_path = {},
+	                               std::string* error = nullptr) const;
+	columns_t format_columns(const std::string& filter_path = {},
+	                         std::string* error = nullptr) const;
 
 	/** Get the number of lines returned by a given query using the "count" API
 	 *
