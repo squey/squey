@@ -904,7 +904,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 			int field_size = d()->_field_size_count;
 
 			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
-			                  QString::fromStdString(col2_array.at(real_index)));
+			                  PVStatsModel::format_occurence(occurence_count));
 			x += field_size;
 		}
 
