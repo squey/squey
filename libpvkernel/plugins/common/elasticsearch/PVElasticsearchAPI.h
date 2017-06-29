@@ -36,6 +36,7 @@ class PVElasticsearchAPI
 
   public:
 	using indexes_t = std::vector<std::string>;
+	using aliases_t = indexes_t;
 	using columns_t = std::vector<std::pair<std::string, std::string>>;
 	using rows_t = std::vector<std::vector<std::string>>;
 	using filter_paths_t = std::vector<std::string>;
@@ -70,6 +71,14 @@ class PVElasticsearchAPI
 	 * @return the list of indexes
 	 */
 	indexes_t indexes(std::string* error = nullptr) const;
+
+	/** Fetch the list of aliases from the server
+	 *
+	 * @param error Store any occured error if provided
+	 *
+	 * @return the list of aliases
+	 */
+	aliases_t aliases(std::string* error = nullptr) const;
 
 	/** Fetch the list of columns for a given index provided in the Query object
 	 *

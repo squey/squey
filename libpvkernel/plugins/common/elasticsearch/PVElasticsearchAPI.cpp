@@ -15,6 +15,7 @@
 #include <sstream>
 #include <thread>
 #include <cerrno>
+#include <unordered_set>
 
 #include <curl/curl.h>
 
@@ -195,14 +196,41 @@ PVRush::PVElasticsearchAPI::indexes(std::string* error /*= nullptr*/) const
 
 		for (rapidjson::Value::ConstMemberIterator itr = json_indexes.MemberBegin();
 		     itr != json_indexes.MemberEnd(); ++itr) {
-			// ignore internal indexes starting with a dot
-			if (itr->name.GetString()[0] != '.') {
-				indexes.emplace_back(itr->name.GetString());
-			}
+			indexes.emplace_back(itr->name.GetString());
 		}
 	}
 
+	std::sort(indexes.begin(), indexes.end());
+
 	return indexes;
+}
+
+PVRush::PVElasticsearchAPI::aliases_t
+PVRush::PVElasticsearchAPI::aliases(std::string* error /*= nullptr*/) const
+{
+	std::unordered_set<std::string> aliases_set;
+	aliases_t aliases;
+	std::string json_buffer;
+	std::string url = socket() + "/_cat/aliases?format=json&filter_path=alias";
+
+	prepare_query(_curl, url);
+	if (perform_query(_curl, json_buffer)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
+
+		if (has_error(json, error)) {
+			return aliases_t();
+		}
+
+		for (rapidjson::SizeType i = 0; i < json.Size(); i++) {
+			aliases_set.emplace(json[i]["alias"].GetString());
+		}
+	}
+
+	aliases.assign(aliases_set.begin(), aliases_set.end());
+	std::sort(aliases.begin(), aliases.end());
+	
+	return aliases;
 }
 
 /*
@@ -258,8 +286,11 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 			return;
 		}
 
-		const rapidjson::Value& mappings =
-		    json[_infos.get_index().toStdString().c_str()]["mappings"];
+		rapidjson::Value mappings;
+		for (auto m = json.MemberBegin(); m != json.MemberEnd(); ++m) {
+			mappings = json[m->name.GetString()]["mappings"];
+			break;
+		}
 
 		// Several mappings can potentially be defined but we can only chose one...
 		std::string mapping_type = "_default_";

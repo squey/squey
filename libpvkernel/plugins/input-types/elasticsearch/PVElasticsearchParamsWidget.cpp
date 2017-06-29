@@ -464,16 +464,18 @@ size_t PVRush::PVElasticsearchParamsWidget::query_result_count(std::string* erro
 bool PVRush::PVElasticsearchParamsWidget::fetch_server_data(const PVElasticsearchInfos& infos)
 {
 	PVRush::PVElasticsearchAPI es(infos);
-	PVRush::PVElasticsearchAPI::indexes_t indexes = es.indexes();
 
 	QString old_index = _combo_index->currentText();
 
 	_combo_index->clear();
-	QStringList indexes_list;
-	for (const std::string& index : indexes) {
-		indexes_list << (index.c_str());
+	QStringList indexes_and_alias_list;
+	for (const std::string& index : es.indexes()) {
+		indexes_and_alias_list << (index.c_str());
 	}
-	_combo_index->set_string_list(indexes_list);
+	for (const std::string& alias : es.aliases()) {
+		indexes_and_alias_list << (alias.c_str());
+	}
+	_combo_index->set_string_list(indexes_and_alias_list);
 
 	_combo_index->setCurrentIndex(_combo_index->findText(old_index));
 
