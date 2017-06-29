@@ -37,7 +37,8 @@ class PVElasticsearchAPI
   public:
 	using indexes_t = std::vector<std::string>;
 	using aliases_t = indexes_t;
-	using columns_t = std::vector<std::pair<std::string, std::string>>;
+	using columns_t = std::vector<std::pair<std::string, std::pair<std::string, std::string>>>;
+	using querybuilder_columns_t = std::vector<std::pair<std::string, std::string>>;
 	using rows_t = std::vector<std::vector<std::string>>;
 	using filter_paths_t = std::vector<std::string>;
 	using visit_columns_f = std::function<void(const std::string& relative_name,
@@ -86,8 +87,8 @@ class PVElasticsearchAPI
 	 *
 	 * @return the list of columns
 	 */
-	columns_t querybuilder_columns(const std::string& filter_path = {},
-	                               std::string* error = nullptr) const;
+	querybuilder_columns_t querybuilder_columns(const std::string& filter_path = {},
+	                                            std::string* error = nullptr) const;
 	columns_t format_columns(const std::string& filter_path = {},
 	                         std::string* error = nullptr) const;
 
@@ -232,6 +233,8 @@ class PVElasticsearchAPI
 	                          const std::string& json_data,
 	                          std::string& scroll_id,
 	                          rows_t& rows);
+
+	void detect_time_formats(columns_t& cols) const;
 
   private:
 	/** Setup cURL handler before executing a request.

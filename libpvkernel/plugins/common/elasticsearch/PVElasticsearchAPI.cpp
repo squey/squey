@@ -24,7 +24,12 @@
 
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
+
+#include <pvcop/db/array.h>
+#include <pvcop/types/factory.h>
+#include <pvcop/formatter_desc.h>
 
 static constexpr const size_t DEFAULT_SCROLL_SIZE = 10000;
 static constexpr const char SCROLL_TIMEOUT[] = "1m";
@@ -45,7 +50,7 @@ static size_t write_callback(void* contents, size_t size, size_t nmemb, void* us
 bool PVRush::PVElasticsearchAPI::has_error(const rapidjson::Document& json,
                                            std::string* error) const
 {
-	if (json.HasMember("error")) {
+	if (json.IsObject() and json.HasMember("error")) {
 		if (error) {
 			if (_version < PVCore::PVVersion(2, 0, 0)) {
 				*error = json["error"].GetString();
@@ -229,7 +234,7 @@ PVRush::PVElasticsearchAPI::aliases(std::string* error /*= nullptr*/) const
 
 	aliases.assign(aliases_set.begin(), aliases_set.end());
 	std::sort(aliases.begin(), aliases.end());
-	
+
 	return aliases;
 }
 
@@ -306,7 +311,7 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 	}
 }
 
-PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::querybuilder_columns(
+PVRush::PVElasticsearchAPI::querybuilder_columns_t PVRush::PVElasticsearchAPI::querybuilder_columns(
     const std::string& filter_path /* = {} */, std::string* error /*= nullptr*/
     ) const
 {
@@ -325,7 +330,7 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::querybuilder_c
 		}
 	};
 
-	columns_t cols;
+	querybuilder_columns_t cols;
 
 	visit_columns(
 	    [&](const std::string& /*rel_name*/, const std::string& abs_name, const std::string& type,
@@ -352,8 +357,7 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
 	    {"double", "number_double"},
 	    {"float", "number_float"},
 	    {"half_float", "number_float"},
-	    //{"date", "time"},
-	    {"date", "string"},
+	    {"date", "time"},
 	    {"ip", "ipv6"},
 	    {"text", "string"},
 	    {"keyword", "string"}};
@@ -373,12 +377,68 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
 	    [&](const std::string& /*rel_name*/, const std::string& abs_name, const std::string& type,
 	        bool is_leaf, bool /*is_last_child*/) {
 		    if (is_leaf) {
-			    cols.emplace_back(abs_name, map_type(type));
+			    cols.emplace_back(abs_name, std::make_pair(map_type(type), ""));
 		    }
 		},
 	    filter_path, error);
 
+	detect_time_formats(cols);
+
 	return cols;
+}
+
+void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
+{
+	std::vector<std::string> time_col_names;
+
+	for (const auto& col : cols) {
+		if (col.second.first == "time") {
+			time_col_names.emplace_back(col.first);
+		}
+	};
+
+	if (time_col_names.empty()) {
+		return;
+	}
+
+	// get one result search filtered on time columns
+	std::string json_buffer;
+	std::string filter_path =
+	    get_filter_path_from_base(boost::algorithm::join(time_col_names, ","), "hits.hits._source");
+	std::string url = socket() + "/" + _infos.get_index().toStdString() +
+	                  "/_search?size=1&filter_path=" + filter_path;
+
+	prepare_query(_curl, url);
+	if (perform_query(_curl, json_buffer)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
+
+		const rapidjson::Value& times = json["hits"]["hits"][0]["_source"];
+		for (const std::string& col : time_col_names) {
+			const std::string& time_value = times[col.c_str()].GetString();
+
+			std::string params;
+			for (const std::string& format :
+			     std::vector<std::string>{"epochS", "yyyy-MM-d'T'HH:mm:ss.S'Z'"}) {
+				const auto& fd = PVRush::PVFormat::get_datetime_formatter_desc(format);
+				pvcop::types::formatter_interface* fi =
+				    pvcop::types::factory::create(fd.name(), fd.parameters());
+				pvcop::db::array out_array(fi->name(), 1);
+				if (fi->from_string(time_value.c_str(), out_array.data(), 0)) {
+					params = format;
+					break;
+				}
+			}
+
+			auto it = std::find_if(cols.begin(), cols.end(),
+			                       [&](const auto& c) { return c.first == col; });
+			if (params.empty()) {
+				it->second.first = "string";
+			} else {
+				it->second.second = params;
+			}
+		}
+	}
 }
 
 QDomDocument PVRush::PVElasticsearchAPI::get_format_from_mapping() const
@@ -386,15 +446,15 @@ QDomDocument PVRush::PVElasticsearchAPI::get_format_from_mapping() const
 	QDomDocument format_doc;
 	std::unique_ptr<PVXmlTreeNodeDom> format_root(PVRush::PVXmlTreeNodeDom::new_format(format_doc));
 
-	for (const std::pair<std::string, std::string>& col :
-	     format_columns(_infos.get_filter_path().toStdString())) {
+	for (const auto& col : format_columns(_infos.get_filter_path().toStdString())) {
 		const std::string& column_name = col.first;
-		const std::string& column_type = col.second;
+		const std::string& column_type = col.second.first;
+		const std::string& column_format = col.second.second;
 
 		PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
 		    QString::fromStdString(column_name), QString::fromStdString(column_type));
 		if (column_type == "time") {
-			node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "epochS");
+			node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), column_format.c_str());
 		}
 	}
 
