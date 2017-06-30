@@ -18,19 +18,21 @@
 
 #include <fstream>
 
-static const PVRush::PVElasticsearchAPI::columns_t ref_columns({{"category", "string"},
-                                                                {"geoip.latitude", "number_float"},
-                                                                {"geoip.longitude", "number_float"},
-                                                                {"http_method", "string"},
-                                                                {"login", "string"},
-                                                                {"mime_type", "string"},
-                                                                {"src_ip", "ipv6"},
-                                                                {"status_code", "string"},
-                                                                {"time", "string"},
-                                                                {"time_spent", "number_int32"},
-                                                                {"total_bytes", "number_int32"},
-                                                                {"url", "string"},
-                                                                {"user_agent", "string"}});
+static const PVRush::PVElasticsearchAPI::columns_t
+    ref_columns({{"@timestamp", {"time", "yyyy-MM-d'T'HH:mm:ss.S'Z'"}},
+                 {"category", {"string", ""}},
+                 {"geoip.latitude", {"number_float", ""}},
+                 {"geoip.longitude", {"number_float", ""}},
+                 {"http_method", {"string", ""}},
+                 {"login", {"string", ""}},
+                 {"mime_type", {"string", ""}},
+                 {"src_ip", {"ipv6", ""}},
+                 {"status_code", {"string", ""}},
+                 {"time", {"time", "epochS"}},
+                 {"time_spent", {"number_int32", ""}},
+                 {"total_bytes", {"number_int32", ""}},
+                 {"url", {"string", ""}},
+                 {"user_agent", {"string", ""}}});
 auto get_col_name = [](const auto& p) { return p.first; };
 
 int main(int argc, char** argv)
@@ -141,7 +143,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_ASSERT_VALID(indexes.size() == 2 && indexes[0] == "proxy_sample");
+	PV_ASSERT_VALID(std::find(indexes.begin(), indexes.end(), "proxy_sample") != indexes.end());
 
 	/**************************************************************************
 	 * Check all columns are available

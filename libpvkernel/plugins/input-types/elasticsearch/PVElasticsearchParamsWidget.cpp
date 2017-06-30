@@ -14,6 +14,7 @@
 
 #include <QMessageBox>
 #include <QPushButton>
+#include <QDesktopWidget>
 
 static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
 static constexpr const char MATCH_ALL_QUERY[] = R"###({ "query" : { "match_all" : { } } })###";
@@ -25,7 +26,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
                      PVElasticsearchInfos,
                      PVElasticsearchQuery>(in_t, formats, parent)
 {
-	QLabel* label_index = new QLabel("Index :");
+	QLabel* label_index = new QLabel("Index/alias :");
 	_btn_refresh = new QPushButton("&Refresh");
 	_combo_index = new PVWidgets::PVFilterableComboBox();
 	_port_sb->setValue(PVElasticsearchAPI::DEFAULT_PORT);
@@ -78,6 +79,8 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	    "Logstash and will likely to cause conflicts.</p>"
 	    "</body>"
 	    "</html>");
+
+	setFixedHeight(QApplication::desktop()->availableGeometry().height() - 50);
 }
 
 QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const
@@ -464,16 +467,18 @@ size_t PVRush::PVElasticsearchParamsWidget::query_result_count(std::string* erro
 bool PVRush::PVElasticsearchParamsWidget::fetch_server_data(const PVElasticsearchInfos& infos)
 {
 	PVRush::PVElasticsearchAPI es(infos);
-	PVRush::PVElasticsearchAPI::indexes_t indexes = es.indexes();
 
 	QString old_index = _combo_index->currentText();
 
 	_combo_index->clear();
-	QStringList indexes_list;
-	for (const std::string& index : indexes) {
-		indexes_list << (index.c_str());
+	QStringList indexes_and_alias_list;
+	for (const std::string& index : es.indexes()) {
+		indexes_and_alias_list << (index.c_str());
 	}
-	_combo_index->set_string_list(indexes_list);
+	for (const std::string& alias : es.aliases()) {
+		indexes_and_alias_list << (alias.c_str());
+	}
+	_combo_index->set_string_list(indexes_and_alias_list);
 
 	_combo_index->setCurrentIndex(_combo_index->findText(old_index));
 
