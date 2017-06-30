@@ -38,7 +38,7 @@ PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
 
 	// Presets widget
 	_presets_widget = new PVWidgets::PVPresetsWidget(tr("Saved settings"));
-	_presets_widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	_presets_widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	_presets_widget->setFixedHeight(250);
 	presets_layout->addWidget(_presets_widget);
 

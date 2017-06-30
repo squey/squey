@@ -14,6 +14,7 @@
 
 #include <QMessageBox>
 #include <QPushButton>
+#include <QDesktopWidget>
 
 static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
 static constexpr const char MATCH_ALL_QUERY[] = R"###({ "query" : { "match_all" : { } } })###";
@@ -25,7 +26,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
                      PVElasticsearchInfos,
                      PVElasticsearchQuery>(in_t, formats, parent)
 {
-	QLabel* label_index = new QLabel("Index :");
+	QLabel* label_index = new QLabel("Index/alias :");
 	_btn_refresh = new QPushButton("&Refresh");
 	_combo_index = new PVWidgets::PVFilterableComboBox();
 	_port_sb->setValue(PVElasticsearchAPI::DEFAULT_PORT);
@@ -78,6 +79,8 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	    "Logstash and will likely to cause conflicts.</p>"
 	    "</body>"
 	    "</html>");
+
+	setFixedHeight(QApplication::desktop()->availableGeometry().height() - 50);
 }
 
 QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const
