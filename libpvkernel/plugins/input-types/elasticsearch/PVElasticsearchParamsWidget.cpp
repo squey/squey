@@ -162,6 +162,9 @@ static void visit_columns(QTreeWidgetItem* tree_item,
 static void visit_selected_columns(QTreeWidgetItem* tree_item,
                                    const std::function<void(QTreeWidgetItem*)>& f)
 {
+	if (not tree_item)
+		return;
+
 	static auto is_checked = [](const QTreeWidgetItem* item) {
 		return item->checkState(0) == Qt::Checked or item->checkState(0) == Qt::PartiallyChecked;
 	};
