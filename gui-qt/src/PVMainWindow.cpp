@@ -1026,10 +1026,15 @@ static QString bad_conversions_as_string(const Inendi::PVSource* src)
 	auto const& ax = src->get_format().get_axes();
 	const PVRush::PVNraw& nraw = src->get_rushnraw();
 
+	// We must cap the number of invalid values and their length because Qt could crash otherwise
+	size_t max_total_size = 10000;
 	size_t max_values = 1000;
 
-	for (size_t row = 0; row < nraw.row_count() and max_values > 0; row++) {
-		for (PVCol col(0); col < nraw.column_count(); col++) {
+	size_t total_size = 0;
+	bool end = false;
+
+	for (size_t row = 0; row < nraw.row_count() and not end; row++) {
+		for (PVCol col(0); col < nraw.column_count() and not end; col++) {
 
 			const pvcop::db::array& column = nraw.column(col);
 			if (not(column.has_invalid() & pvcop::db::INVALID_TYPE::INVALID)) {
@@ -1052,10 +1057,12 @@ static QString bad_conversions_as_string(const Inendi::PVSource* src)
 
 				l << str;
 
-				if (max_values-- == 0) {
-					l << "There are more errors but only the first 1000 are shown. You may want to "
-					     "fix your format types.";
-					break;
+				total_size += str.size();
+
+				if (max_values-- == 0 or total_size > max_total_size) {
+					l << "There are more errors but only the first are shown. You should edit your "
+					     "format and specify the proper types.";
+					end = true;
 				}
 			}
 		}
