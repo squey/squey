@@ -222,6 +222,9 @@ void PVGuiQt::PVLayerStackView::copy_to_clipboard()
 void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 {
 	QModelIndex idx_click = indexAt(pt);
+	if (not idx_click.isValid()) {
+		return; // don't create the menu if we are not over a layer
+	}
 
 	QAction* act = _ctxt_menu->exec(QCursor::pos());
 	if (act == _ctxt_menu_set_sel_layer) {
