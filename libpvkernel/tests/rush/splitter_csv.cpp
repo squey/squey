@@ -29,11 +29,13 @@ int main(int argc, char** argv)
 	const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/csv/proxy_sample.csv.out";
 #endif
 
-	if (argc == 3) {
+	size_t n = 15;
+	if (argc == 4) {
 		log_file = argv[1];
 #ifndef INSPECTOR_BENCH
 		ref_file = argv[2];
 #endif
+		n = std::atoi(argv[3]);
 	}
 
 	pvtest::TestSplitter ts(log_file, nb_dup);
@@ -41,6 +43,7 @@ int main(int argc, char** argv)
 	// Prepare splitter plugin
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("csv");
+	sp_lib_p->set_number_expected_fields(n);
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
 	args["sep"] = QVariant(QChar(','));

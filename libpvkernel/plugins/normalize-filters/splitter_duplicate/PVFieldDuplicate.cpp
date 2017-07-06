@@ -22,6 +22,7 @@ void PVFilter::PVFieldDuplicate::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 	_n = std::max((uint32_t)args.at("n").toUInt(), (uint32_t)2);
+	set_number_expected_fields(_n);
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldDuplicate)

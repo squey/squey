@@ -44,6 +44,9 @@ PVCore::list_fields& PVFieldsFilter<one_to_one>::operator()(PVCore::list_fields&
 template <>
 PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields& fields)
 {
+	assert(_fields_expected > 0 && "this splitter has not set its number of expected fields using "
+	                               "'set_number_expected_fields'");
+
 	PVCore::list_fields::iterator it, ite, it_cur;
 	ite = fields.end();
 	it = fields.begin();
@@ -51,8 +54,6 @@ PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields
 		it_cur = it;
 		it++;
 		size_t field_count = this->one_to_many(fields, it_cur, *it_cur);
-		// FIXME : _fields_expected is amnost not use. It should always be set for better invalid
-		// element detection.
 		if ((_fields_expected != 0 and field_count != _fields_expected) or field_count == 0) {
 			// The splitting didn't work
 			// Invalidate the parent

@@ -45,6 +45,9 @@ int main()
 	size_t nelts_org = std::get<0>(res);
 	size_t nelts_valid = std::get<1>(res);
 
+	pvlogger::info() << "nelts_org=" << nelts_org << std::endl;
+	pvlogger::info() << "nelts_valid=" << nelts_valid << std::endl;
+
 	PV_VALID(nelts_valid, nelts_org);
 
 #ifndef INSPECTOR_BENCH

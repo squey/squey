@@ -33,6 +33,7 @@ static constexpr size_t URL_NUMBER_FIELDS_CREATED = 10;
 PVFilter::PVFieldSplitterURL::PVFieldSplitterURL() : PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER_NOPARAM(PVFilter::PVFieldSplitterURL);
+	set_number_expected_fields(URL_NUMBER_FIELDS_CREATED);
 }
 
 static void set_field(int pos, PVCore::PVField** fields, char* str, furl_feature_t ff)
