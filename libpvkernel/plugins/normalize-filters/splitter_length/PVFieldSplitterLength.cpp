@@ -8,6 +8,7 @@
 PVFilter::PVFieldSplitterLength::PVFieldSplitterLength(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterLength, args);
+	set_number_expected_fields(2);
 }
 
 /******************************************************************************

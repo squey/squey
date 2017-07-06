@@ -77,6 +77,8 @@ void PVFilter::PVFieldSplitterDnsFqdn::set_args(PVCore::PVArgumentList const& ar
 	_subd3_rev = args.at(SUBD3_REV).toBool();
 
 	_need_inv = (_subd1 && _subd1_rev) || (_subd2 && _subd2_rev) || (_subd3 && _subd3_rev);
+
+	set_number_expected_fields(_tld1 + _tld2 + _tld3 + _subd1 + _subd2 + _subd3);
 }
 
 /******************************************************************************

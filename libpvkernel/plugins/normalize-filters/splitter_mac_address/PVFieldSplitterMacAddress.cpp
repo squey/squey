@@ -15,6 +15,7 @@ PVFilter::PVFieldSplitterMacAddress::PVFieldSplitterMacAddress()
     : PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER_NOPARAM(PVFilter::PVFieldSplitterMacAddress);
+	set_number_expected_fields(2);
 }
 
 /******************************************************************************
@@ -71,5 +72,5 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterMacAddress::one_to_many(
 		return 0;
 	}
 
-	return 6;
+	return 2;
 }

@@ -19,6 +19,8 @@ void PVFilter::PVFieldSplitterCSV::set_args(PVCore::PVArgumentList const& args)
 	FilterT::set_args(args);
 	_sep = args.at("sep").toChar().toLatin1();
 	_quote = args.at("quote").toChar().toLatin1();
+
+	// FIXME : should set its expected fields count
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)

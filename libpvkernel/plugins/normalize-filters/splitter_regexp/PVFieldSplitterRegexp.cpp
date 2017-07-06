@@ -50,13 +50,15 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 
 	_full_line = args.at("full-line").toBool();
 
-	std::string s = args.at("regexp").toString().toStdString();
+	QString s = args.at("regexp").toString();
 	try {
-		_regexp.assign(s);
+		_regexp.assign(s.toStdString());
 	} catch (const std::regex_error& e) {
 		throw PVFilter::PVFieldsFilterInvalidArguments(
-		    (std::string("Invalid regex : '") + s + "'").c_str());
+		    (std::string("Invalid regex : '") + s.toStdString() + "'").c_str());
 	}
+
+	set_number_expected_fields(QRegExp(args.at("regexp").toString()).captureCount());
 }
 
 /******************************************************************************

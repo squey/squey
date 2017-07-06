@@ -37,6 +37,8 @@ void PVFilter::PVFieldSplitterKeyValue::set_args(PVCore::PVArgumentList const& a
 		_keys.push_back(
 		    std::string(key.toStdString().c_str() + quote_offset, key.size() - (quote_offset * 2)));
 	}
+
+	set_number_expected_fields(_keys.size());
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterKeyValue)
