@@ -211,17 +211,18 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone
  * PVParallelView::PVZonesManager::list_cols_to_zones
  *
  *****************************************************************************/
-QSet<PVZoneID> PVParallelView::PVZonesManager::list_cols_to_zones(QSet<PVCol> const& cols) const
+QSet<PVZoneID>
+PVParallelView::PVZonesManager::list_cols_to_zones(QSet<PVCombCol> const& comb_cols) const
 {
 	QSet<PVZoneID> ret;
-	for (PVCol c : cols) {
-		if (c == 0) {
+	for (PVCombCol comb_col : comb_cols) {
+		if (comb_col == 0) {
 			ret << PVZoneID(0);
-		} else if (c == get_number_of_managed_zones()) {
-			ret << PVZoneID(c) - PVZoneID(1);
+		} else if (comb_col == get_number_of_managed_zones()) {
+			ret << PVZoneID(comb_col) - PVZoneID(1);
 		} else {
-			ret << PVZoneID(c);
-			ret << PVZoneID(c) - PVZoneID(1);
+			ret << PVZoneID(comb_col);
+			ret << PVZoneID(comb_col) - PVZoneID(1);
 		}
 	}
 	return ret;

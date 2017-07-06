@@ -226,15 +226,19 @@ void PVParallelView::PVLibView::plotting_updated()
 {
 	QList<PVCol> const& cols_updated =
 	    lib_view()->get_parent<Inendi::PVPlotted>().last_updated_cols();
+
 	if (cols_updated.size() == 0) {
 		return;
 	}
 
 	// Get list of combined columns
-	QSet<PVCol> combined_cols;
-	for (PVCol c : lib_view()->get_axes_combination().get_combination()) {
-		if (cols_updated.contains(c)) {
-			combined_cols.insert(c);
+	QSet<PVCombCol> combined_cols;
+	for (PVCol col : cols_updated) {
+		for (PVCombCol comb_col(0); comb_col < _zones_manager.get_number_of_managed_zones();
+		     comb_col++) {
+			if (lib_view()->get_axes_combination().get_nraw_axis(comb_col) == col) {
+				combined_cols.insert(comb_col);
+			}
 		}
 	}
 

@@ -50,7 +50,7 @@ class PVZonesManager : public QObject
 	void reverse_zone(PVZoneID zone);
 	void add_zone(PVZoneID zone);
 
-	QSet<PVZoneID> list_cols_to_zones(QSet<PVCol> const& cols) const;
+	QSet<PVZoneID> list_cols_to_zones(QSet<PVCombCol> const& comb_cols) const;
 
 	void request_zoomed_zone(PVZoneID zone);
 
