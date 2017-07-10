@@ -107,7 +107,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
 
-	_sliders_group = new PVSlidersGroup(sm_p, _axis_fmt.index, this);
+	_sliders_group = new PVSlidersGroup(sm_p, _comb_col, this);
 
 	addToGroup(get_sliders_group());
 	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);

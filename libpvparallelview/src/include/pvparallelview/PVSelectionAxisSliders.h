@@ -40,7 +40,7 @@ class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders, public sigc::t
 	void do_sliders_moved();
 
   private:
-	void on_selection_sliders_update(PVCol nraw_col, id_t id, int64_t y_min, int64_t y_max);
+	void on_selection_sliders_update(PVCombCol col, id_t id, int64_t y_min, int64_t y_max);
 
   private:
 	id_t _id;

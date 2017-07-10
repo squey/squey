@@ -39,7 +39,7 @@ class PVZoomAxisSliders : public PVAbstractRangeAxisSliders, public sigc::tracka
 	void do_sliders_moved();
 
   private:
-	void on_zoom_sliders_update(PVCol nraw_col,
+	void on_zoom_sliders_update(PVCombCol col,
 	                            id_t id,
 	                            int64_t y_min,
 	                            int64_t y_max,

@@ -44,7 +44,7 @@ class PVZoomedSelectionAxisSliders : public PVAbstractRangeAxisSliders, public s
 	void do_sliders_moved();
 
   private:
-	void on_zoomed_selection_sliders_update(PVCol nraw_col,
+	void on_zoomed_selection_sliders_update(PVCombCol col,
 	                                        PVSlidersManager::id_t id,
 	                                        int64_t y_min,
 	                                        int64_t y_max);

@@ -103,7 +103,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	connect(_zpview->params_widget(), &PVZoomedParallelViewParamsWidget::change_to_col, this,
 	        &PVZoomedParallelScene::change_to_col);
 
-	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _nraw_col);
+	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_index);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 
@@ -153,7 +153,7 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 
 	if (_pending_deletion == false) {
 		_pending_deletion = true;
-		_sliders_manager_p->del_zoom_sliders(_nraw_col, _sliders_group);
+		_sliders_manager_p->del_zoom_sliders(_axis_index, _sliders_group);
 	}
 
 	if (_sliders_group) {
@@ -383,7 +383,7 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(PVCombCol index)
 	_sliders_group->delete_own_zoom_slider();
 	delete _sliders_group;
 
-	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _nraw_col);
+	_sliders_group = new PVParallelView::PVSlidersGroup(_sliders_manager_p, _axis_index);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 
@@ -537,7 +537,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	uint64_t y_max =
 	    PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height, 0ULL, y_lim);
 
-	_sliders_manager_p->update_zoom_sliders(_nraw_col, _sliders_group, y_min, y_max,
+	_sliders_manager_p->update_zoom_sliders(_axis_index, _sliders_group, y_min, y_max,
 	                                        PVParallelView::PVSlidersManager::ZoomSliderNone);
 	_last_y_min = y_min;
 	_last_y_max = y_max;
@@ -911,7 +911,7 @@ void PVParallelView::PVZoomedParallelScene::cancel_and_wait_all_rendering()
  *****************************************************************************/
 
 void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
-    PVCol nraw_col,
+    PVCombCol col,
     PVSlidersManager::id_t id,
     int64_t y_min,
     int64_t y_max,
@@ -921,7 +921,7 @@ void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
 		return;
 	}
 
-	if ((nraw_col == _nraw_col) && (id == _sliders_group)) {
+	if ((col == _nraw_col) && (id == _sliders_group)) {
 		if (y_max < y_min) {
 			std::swap(y_min, y_max);
 		}
@@ -961,10 +961,10 @@ void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
  * PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del(PVCol nraw_col,
+void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del(PVCombCol col,
                                                                 PVSlidersManager::id_t id)
 {
-	if ((nraw_col == _nraw_col) && (id == _sliders_group)) {
+	if ((col == _nraw_col) && (id == _sliders_group)) {
 		if (_pending_deletion == false) {
 			_pending_deletion = true;
 			if (_zpview != nullptr) {
@@ -978,10 +978,10 @@ void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del(PVCol nraw_col,
  * PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del(PVCol nraw_col,
+void PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del(PVCombCol col,
                                                                       PVSlidersManager::id_t /*id*/)
 {
-	if (nraw_col == _nraw_col) {
+	if (col == _nraw_col) {
 		_selection_sliders = nullptr;
 		if (_zpview != nullptr) {
 			_zpview->get_viewport()->update();

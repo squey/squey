@@ -155,7 +155,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void update_zone_pixmap_bgsel(PVZoneID zone_id);
 	void scale_zone_images(PVZoneID zone_id);
 
-	void update_selection_from_sliders_Slot(PVCol nraw_col);
+	void update_selection_from_sliders_Slot(PVCombCol col);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 

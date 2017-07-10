@@ -44,7 +44,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	typedef std::vector<range_t> selection_ranges_t;
 
   public:
-	PVSlidersGroup(PVSlidersManager* sm_p, PVCol nraw_col, QGraphicsItem* parent = nullptr);
+	PVSlidersGroup(PVSlidersManager* sm_p, PVCombCol comb_col, QGraphicsItem* parent = nullptr);
 	/**
 	 * Disable copy/move constructor as many operations are based on its address
 	 */
@@ -52,7 +52,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	PVSlidersGroup(PVSlidersGroup&&) = delete;
 	~PVSlidersGroup() override;
 
-	PVCol get_nraw_col() const { return _nraw_col; }
+	PVCombCol get_col() const { return _col; }
 
 	void remove_selection_sliders();
 	void remove_zoom_slider();
@@ -76,10 +76,10 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	selection_ranges_t get_selection_ranges() const;
 
   Q_SIGNALS:
-	void selection_sliders_moved(PVCol nraw_col);
+	void selection_sliders_moved(PVCombCol col);
 
   protected Q_SLOTS:
-	void selection_slider_moved() { Q_EMIT selection_sliders_moved(_nraw_col); }
+	void selection_slider_moved() { Q_EMIT selection_sliders_moved(_col); }
 
   private:
 	/**
@@ -103,19 +103,18 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 	void del_zoomed_selection_sliders(id_t id);
 
   private:
-	void
-	on_new_zoom_slider(PVCol nraw_col, PVSlidersManager::id_t id, int64_t y_min, int64_t y_max);
-	void on_new_selection_sliders(PVCol nraw_col,
+	void on_new_zoom_slider(PVCombCol col, PVSlidersManager::id_t id, int64_t y_min, int64_t y_max);
+	void on_new_selection_sliders(PVCombCol col,
 	                              PVSlidersManager::id_t id,
 	                              int64_t y_min,
 	                              int64_t y_max);
-	void on_new_zoomed_selection_sliders(PVCol nraw_col,
+	void on_new_zoomed_selection_sliders(PVCombCol col,
 	                                     PVSlidersManager::id_t id,
 	                                     int64_t y_min,
 	                                     int64_t y_max);
-	void on_del_zoom_sliders(PVCol nraw_col, PVSlidersManager::id_t id);
-	void on_del_selection_sliders(PVCol nraw_col, PVSlidersManager::id_t id);
-	void on_del_zoomed_selection_sliders(PVCol nraw_col, PVSlidersManager::id_t id);
+	void on_del_zoom_sliders(PVCombCol col, PVSlidersManager::id_t id);
+	void on_del_selection_sliders(PVCombCol col, PVSlidersManager::id_t id);
+	void on_del_zoomed_selection_sliders(PVCombCol col, PVSlidersManager::id_t id);
 
   private:
 	typedef std::unordered_map<id_t, PVSelectionAxisSliders*> sas_set_t;
@@ -124,7 +123,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 
   private:
 	PVSlidersManager* _sliders_manager_p;
-	PVCol _nraw_col;
+	PVCombCol _col;
 	float _axis_scale;
 
 	sas_set_t _selection_sliders;

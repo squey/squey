@@ -415,13 +415,13 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	void toggle_unselected_zombie_visibility();
 
   private:
-	void on_zoom_sliders_update(PVCol nraw_col,
+	void on_zoom_sliders_update(PVCombCol col,
 	                            PVSlidersManager::id_t id,
 	                            int64_t y_min,
 	                            int64_t y_max,
 	                            PVSlidersManager::ZoomSliderChange change);
-	void on_zoom_sliders_del(PVCol nraw_col, PVSlidersManager::id_t id);
-	void on_zoomed_sel_sliders_del(PVCol nraw_col, PVSlidersManager::id_t id);
+	void on_zoom_sliders_del(PVCombCol col, PVSlidersManager::id_t id);
+	void on_zoomed_sel_sliders_del(PVCombCol col, PVSlidersManager::id_t id);
 
   private:
 	/**
