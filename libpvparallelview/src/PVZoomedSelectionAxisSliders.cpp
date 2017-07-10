@@ -72,7 +72,7 @@ void PVParallelView::PVZoomedSelectionAxisSliders::set_value(int64_t y_min, int6
 
 void PVParallelView::PVZoomedSelectionAxisSliders::remove_from_axis()
 {
-	_sliders_manager_p->del_zoomed_selection_sliders(_group->get_nraw_col(), _id);
+	_sliders_manager_p->del_zoomed_selection_sliders(_group->get_col(), _id);
 }
 
 /*****************************************************************************
@@ -83,7 +83,7 @@ void PVParallelView::PVZoomedSelectionAxisSliders::do_sliders_moved()
 {
 	Q_EMIT sliders_moved();
 
-	_sliders_manager_p->update_zoomed_selection_sliders(_group->get_nraw_col(), _id,
+	_sliders_manager_p->update_zoomed_selection_sliders(_group->get_col(), _id,
 	                                                    _sl_min->get_value(), _sl_max->get_value());
 }
 
@@ -92,9 +92,9 @@ void PVParallelView::PVZoomedSelectionAxisSliders::do_sliders_moved()
  *****************************************************************************/
 
 void PVParallelView::PVZoomedSelectionAxisSliders::on_zoomed_selection_sliders_update(
-    PVCol nraw_col, PVSlidersManager::id_t id, int64_t y_min, int64_t y_max)
+    PVCombCol col, PVSlidersManager::id_t id, int64_t y_min, int64_t y_max)
 {
-	if ((nraw_col == _group->get_nraw_col()) && (id == _id)) {
+	if ((col == _group->get_col()) && (id == _id)) {
 		if (y_max < y_min) {
 			std::swap(y_min, y_max);
 		}

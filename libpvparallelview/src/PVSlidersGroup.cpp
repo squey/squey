@@ -21,9 +21,9 @@
  *****************************************************************************/
 
 PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager* sm_p,
-                                               PVCol nraw_col,
+                                               PVCombCol col,
                                                QGraphicsItem* parent)
-    : QGraphicsItemGroup(parent), _sliders_manager_p(sm_p), _nraw_col(nraw_col), _axis_scale(1.0f)
+    : QGraphicsItemGroup(parent), _sliders_manager_p(sm_p), _col(col), _axis_scale(1.0f)
 {
 	// does not care about children events
 	// RH: this method is obsolete in Qt 4.8 and should be replaced with
@@ -33,8 +33,8 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager* sm_p,
 
 	// Populate this group with zoom slider based on the slider_manager information.
 	_sliders_manager_p->iterate_zoom_sliders(
-	    [&](PVCol nraw_col, const id_t id, const range_geometry_t& geom) {
-		    if (nraw_col != _nraw_col) {
+	    [&](PVCombCol col, const id_t id, const range_geometry_t& geom) {
+		    if (col != _col) {
 			    return;
 		    }
 
@@ -42,8 +42,8 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager* sm_p,
 		});
 
 	_sliders_manager_p->iterate_selection_sliders(
-	    [&](PVCol nraw_col, const id_t id, const range_geometry_t& geom) {
-		    if (nraw_col != _nraw_col) {
+	    [&](PVCombCol col, const id_t id, const range_geometry_t& geom) {
+		    if (col != _col) {
 			    return;
 		    }
 
@@ -51,8 +51,8 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager* sm_p,
 		});
 
 	_sliders_manager_p->iterate_zoomed_selection_sliders(
-	    [&](PVCol nraw_col, const id_t id, const range_geometry_t& geom) {
-		    if (nraw_col != _nraw_col) {
+	    [&](PVCombCol col, const id_t id, const range_geometry_t& geom) {
+		    if (col != _col) {
 			    return;
 		    }
 
@@ -133,7 +133,7 @@ void PVParallelView::PVSlidersGroup::remove_zoom_slider()
 
 void PVParallelView::PVSlidersGroup::delete_own_zoom_slider()
 {
-	_sliders_manager_p->del_zoom_sliders(_nraw_col, this);
+	_sliders_manager_p->del_zoom_sliders(_col, this);
 }
 
 /*****************************************************************************
@@ -183,7 +183,7 @@ PVParallelView::PVSlidersGroup::get_selection_ranges() const
 
 void PVParallelView::PVSlidersGroup::add_zoom_sliders(int64_t y_min, int64_t y_max)
 {
-	_sliders_manager_p->new_zoom_sliders(_nraw_col, this, y_min * BUCKET_ELT_COUNT,
+	_sliders_manager_p->new_zoom_sliders(_col, this, y_min * BUCKET_ELT_COUNT,
 	                                     y_max * BUCKET_ELT_COUNT);
 }
 
@@ -199,7 +199,7 @@ void PVParallelView::PVSlidersGroup::add_selection_sliders(int64_t y_min, int64_
 	auto sliders = new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p, this);
 	add_new_selection_sliders(sliders, sliders, y_min, y_max);
 
-	_sliders_manager_p->new_selection_sliders(_nraw_col, sliders, y_min, y_max);
+	_sliders_manager_p->new_selection_sliders(_col, sliders, y_min, y_max);
 }
 
 /*****************************************************************************
@@ -212,7 +212,7 @@ PVParallelView::PVSlidersGroup::add_zoomed_selection_sliders(int64_t y_min, int6
 	auto sliders = new PVZoomedSelectionAxisSliders(this, _sliders_manager_p, this);
 	add_new_zoomed_selection_sliders(sliders, sliders, y_min, y_max);
 
-	_sliders_manager_p->new_zoomed_selection_sliders(_nraw_col, sliders, y_min, y_max);
+	_sliders_manager_p->new_zoomed_selection_sliders(_col, sliders, y_min, y_max);
 
 	return sliders;
 }
@@ -375,12 +375,12 @@ void PVParallelView::PVSlidersGroup::add_new_zoomed_selection_sliders(
  * PVParallelView::PVSlidersGroup::on_new_zoom_slider
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::on_new_zoom_slider(PVCol nraw_col,
+void PVParallelView::PVSlidersGroup::on_new_zoom_slider(PVCombCol col,
                                                         PVSlidersManager::id_t id,
                                                         int64_t y_min,
                                                         int64_t y_max)
 {
-	if (nraw_col == _nraw_col) {
+	if (col == _col) {
 		if (id != this) {
 			add_new_zoom_sliders(id, y_min, y_max);
 		}
@@ -391,12 +391,12 @@ void PVParallelView::PVSlidersGroup::on_new_zoom_slider(PVCol nraw_col,
  * PVParallelView::PVSlidersGroup::on_new_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::on_new_selection_sliders(PVCol nraw_col,
+void PVParallelView::PVSlidersGroup::on_new_selection_sliders(PVCombCol col,
                                                               PVSlidersManager::id_t id,
                                                               int64_t y_min,
                                                               int64_t y_max)
 {
-	if (nraw_col == _nraw_col) {
+	if (col == _col) {
 		if (_selection_sliders.find(id) == _selection_sliders.end()) {
 			add_new_selection_sliders(nullptr, id, y_min, y_max);
 		}
@@ -407,12 +407,12 @@ void PVParallelView::PVSlidersGroup::on_new_selection_sliders(PVCol nraw_col,
  * PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders(PVCol nraw_col,
+void PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders(PVCombCol col,
                                                                      PVSlidersManager::id_t id,
                                                                      int64_t y_min,
                                                                      int64_t y_max)
 {
-	if (nraw_col == _nraw_col) {
+	if (col == _col) {
 		if (_zoomed_selection_sliders.find(id) == _zoomed_selection_sliders.end()) {
 			add_new_zoomed_selection_sliders(nullptr, id, y_min, y_max);
 		}
@@ -423,9 +423,9 @@ void PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders(PVCol nraw_
  * PVParallelView::PVSlidersGroup::on_del_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::on_del_zoom_sliders(PVCol nraw_col, PVSlidersManager::id_t id)
+void PVParallelView::PVSlidersGroup::on_del_zoom_sliders(PVCombCol col, PVSlidersManager::id_t id)
 {
-	if (nraw_col == _nraw_col) {
+	if (col == _col) {
 		del_zoom_sliders(id);
 	}
 }
@@ -434,10 +434,10 @@ void PVParallelView::PVSlidersGroup::on_del_zoom_sliders(PVCol nraw_col, PVSlide
  * PVParallelView::PVSlidersGroup::on_del_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::on_del_selection_sliders(PVCol nraw_col,
+void PVParallelView::PVSlidersGroup::on_del_selection_sliders(PVCombCol col,
                                                               PVSlidersManager::id_t id)
 {
-	if (nraw_col == _nraw_col) {
+	if (col == _col) {
 		del_selection_sliders(id);
 	}
 }
@@ -446,10 +446,10 @@ void PVParallelView::PVSlidersGroup::on_del_selection_sliders(PVCol nraw_col,
  * PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders(PVCol nraw_col,
+void PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders(PVCombCol col,
                                                                      PVSlidersManager::id_t id)
 {
-	if (nraw_col == _nraw_col) {
+	if (col == _col) {
 		del_zoomed_selection_sliders(id);
 	}
 }

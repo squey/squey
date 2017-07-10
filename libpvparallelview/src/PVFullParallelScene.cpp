@@ -714,9 +714,9 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
  * PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVCol nraw_col)
+void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVCombCol col)
 {
-	PVZoneID zone_id(nraw_col);
+	PVZoneID zone_id(col);
 	_sel_rect.clear();
 
 	Inendi::PVSelection sel(_lib_view.get_row_count());
