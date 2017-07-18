@@ -1,3 +1,20 @@
+4.4 "Rubberband" (2017-07-12)
+----------------
+
+This major release adds the following features:
+* elasticsearch: support of aliases, custom columns selection and automatic format creation
+* added the types uint8, int8, uint16, int16, uint64, int64, and duration
+* added autocompletion feature in combo boxes which makes selections between a huge amount of items much easier
+
+This major release fixes or improves:
+* fixed a crash in layerstack context menu
+* fixed autodetection sometime failing due to empty values
+* fixed a crash when changing mapping/plotting with a custom axes combination
+* fixed range selection in parallel/zoomed view with a custom axes combination
+* fixed a crash in invalid values messagebox with very long strings
+* fixed a crash in sorting values when columns contains a lot of invalid values
+* show a message with the command to increase max map area limit when the processed files are too huge
+
 4.3.2 (2017-04-11)
 ----------------
 
