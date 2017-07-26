@@ -22,7 +22,6 @@ source_elasticsearch
 source_splunk
 )
 
-
 set(SOURCES_DIST_FILES
 )
 

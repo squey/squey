@@ -8,6 +8,9 @@ add_subdirectory(normalize-filters)
 add_subdirectory(input-types)
 add_subdirectory(sources)
 
+# Add external plugin
+add_subdirectory(external/pcapsicum/inspector_plugins)
+
 ###############################################################################
 # Ressource declaration
 # These are default format files provided to users
