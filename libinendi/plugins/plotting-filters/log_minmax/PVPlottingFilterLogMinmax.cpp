@@ -73,10 +73,10 @@ void Inendi::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mappe
 		compute_log_plotting<int16_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_uint16") {
 		compute_log_plotting<uint16_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == "number_int32" or mapped.type() == "datetime" or
-	           mapped.type() == "ipv4") {
+	} else if (mapped.type() == "number_int32") {
 		compute_log_plotting<int32_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == "number_uint32") {
+	} else if (mapped.type() == "number_uint32" or mapped.type() == "datetime" or
+	           mapped.type() == "ipv4") {
 		compute_log_plotting<uint32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_uint64" or mapped.type() == "datetime_us" or
 	           mapped.type() == "datetime_ms") {
