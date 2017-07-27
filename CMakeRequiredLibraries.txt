@@ -148,12 +148,6 @@ find_package(CURL "7.38.0" REQUIRED)
 pkg_check_modules(SIGCPP REQUIRED sigc++-2.0)
 
 ###############################################################################
-# Check for License installation
-###############################################################################      
-
-find_package(PVLicense REQUIRED)
-
-###############################################################################
 # type_safe library
 ###############################################################################
 add_definitions(-DTYPE_SAFE_ENABLE_WRAPPER=0)
