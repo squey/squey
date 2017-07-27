@@ -5,3 +5,15 @@
 	path = libpvkernel/plugins/external/pcapsicum
 	url = git@gitlab.srv.picviz:picviz/pcapsicum.git
 	branch = master
+[submodule "libpvcop"]
+	path = libpvcop
+	url = git@gitlab.srv.picviz:picviz/libpvcop.git
+        branch = master
+[submodule "inendi-utils"]
+	path = inendi-utils
+	url = git@gitlab.srv.picviz:picviz/inendi-utils.git
+	branch = master
+[submodule "furl"]
+	path = furl
+	url = git@gitlab.srv.picviz:picviz/furl.git
+	branch = master

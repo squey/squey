@@ -111,7 +111,7 @@ set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
 set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5OpenGL)
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel pvhwloc ${OPENGL_LIBRARIES}
+set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})

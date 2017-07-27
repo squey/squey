@@ -98,11 +98,64 @@ add_dependencies(bench testsuite)
 # Define project dependencies
 ###############################################################################
 
+cmake_minimum_required(VERSION 2.8)
+include(ExternalProject)
+
+
+###############################################################################
+# furl
+###############################################################################
+
+ExternalProject_Add(furl
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/furl
+    BUILD_IN_SOURCE 1
+    STEP_TARGETS build
+  	EXCLUDE_FROM_ALL TRUE
+  	INSTALL_COMMAND cmake -E echo "Skipping install step."
+)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/include)
+set(FURL_STATIC_LIB ${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/libfurll-utf8.a)
+add_definitions(-DFURL_UTF8_CHAR)
+
+###############################################################################
+# inendi-utils
+###############################################################################
+pkg_check_modules(HWLOC REQUIRED hwloc)
+ExternalProject_Add(inendi-utils
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils
+    BUILD_IN_SOURCE 1
+    STEP_TARGETS build
+  	EXCLUDE_FROM_ALL TRUE
+  	INSTALL_COMMAND cmake -E echo "Skipping install step."
+)
+SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
+SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/src/libpvhwloc.so)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
+
+###############################################################################
+# libpvcop
+###############################################################################
+
+ExternalProject_Add(libpvcop
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop
+    BUILD_IN_SOURCE 1
+    STEP_TARGETS build
+  	EXCLUDE_FROM_ALL TRUE
+  	INSTALL_COMMAND cmake -E echo "Skipping install step."
+)
+SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/src/libpvcop.so)
+MESSAGE(STATUS PVCOP_LIBRARIES=${PVCOP_LIBRARIES})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
+
 declare_internal_library(pvkernel)
 declare_internal_library(inendi)
 declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
+
+add_dependencies(libpvcop inendi-utils)
+add_dependencies(pvkernel furl libpvcop)
 
 add_subdirectory(gui-qt)
 
