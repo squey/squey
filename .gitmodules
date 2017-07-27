@@ -4,3 +4,4 @@
 [submodule "libpvkernel/plugins/external/pcapsicum"]
 	path = libpvkernel/plugins/external/pcapsicum
 	url = git@gitlab.srv.picviz:picviz/pcapsicum.git
+	branch = master
