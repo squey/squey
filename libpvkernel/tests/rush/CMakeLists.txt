@@ -4,7 +4,7 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
+set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY} ${PVLOGGER_LIBRARIES})
 add_definitions(-fopenmp)
 
 # Temporary output directory for NRAW disk backend based tests

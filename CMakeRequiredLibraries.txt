@@ -141,35 +141,11 @@ endif(ICU_FOUND)
 ###############################################################################
 find_package(CURL "7.38.0" REQUIRED)
 
-################################################################################
-## Check for Hwloc installation
-################################################################################
-# TODO : Should be replace by PVHwloc
-pkg_check_modules(HWLOC REQUIRED hwloc)
-find_package(PVHwloc REQUIRED)
-
 ###############################################################################
-# Check for Furl installation
-###############################################################################
-
-set(FURL_STATIC_LIB /usr/local/lib/libfurll-utf8.a)
-if(EXISTS ${FURL_STATIC_LIB})
-  add_definitions(-DFURL_UTF8_CHAR)
-else()
-  message( FATAL_ERROR "FURL Can't be found" )
-endif ()
-
-###############################################################################
-# Check for PVCOP installation
+# Check for SIGCPP installation
 ###############################################################################      
 
 pkg_check_modules(SIGCPP REQUIRED sigc++-2.0)
-
-###############################################################################
-# Check for PVCOP installation
-###############################################################################      
-
-find_package(PVCOP REQUIRED)
 
 ###############################################################################
 # Check for License installation
