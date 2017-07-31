@@ -55,7 +55,7 @@ protected_words()
 	echo barrier clamp CLK_LOCAL_MEM_FENCE CLK_GLOBAL_MEM_FENCE
 
 	# actually used operations functions
-	echo atomic_min fabs fract
+	echo min atom_min atomic_min fabs fract
 
 	# it misses lots of operations/convertions functions...
 }
