@@ -85,7 +85,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
 	cl_int err;
-
+	const ulong max_mem = 4194304;
 	auto& config = PVCore::PVConfig::get().config();
 	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
 
@@ -140,7 +140,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	}
 
 	std::stringstream build_options;
-	build_options << "-DLOCAL_MEMORY_SIZE=" << std::min((ulong)4194304, (local_mem_size - 1));
+	build_options << "-DLOCAL_MEMORY_SIZE=" << std::min(max_mem, (local_mem_size - 1));
 	build_options << " -DHSV_COLOR_COUNT=" << (int)PVCore::PVHSVColor::color_max;
 	build_options << " -DHSV_COLOR_WHITE=" << (int)HSV_COLOR_WHITE.h();
 	build_options << " -DHSV_COLOR_BLACK=" << (int)HSV_COLOR_BLACK.h();
