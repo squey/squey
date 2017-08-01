@@ -84,9 +84,9 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
 	cl_int err;
-        const cl_uint Bbits = PARALLELVIEW_ZZT_BBITS;
-        const cl_uint image_height = PVParallelView::constants<Bbits>::image_height;
-        const size_t column_mem_size = image_height * sizeof(cl_uint);
+	const cl_uint Bbits = PARALLELVIEW_ZZT_BBITS;
+	const cl_uint image_height = PVParallelView::constants<Bbits>::image_height;
+	const size_t column_mem_size = image_height * sizeof(cl_uint);
 	const ulong max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
 
 	auto& config = PVCore::PVConfig::get().config();
