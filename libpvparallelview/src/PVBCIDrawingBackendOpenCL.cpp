@@ -62,7 +62,8 @@ struct opencl_kernel {
 
 		/* we make fit the highest number of image column in the work group local memory
 		 */
-		const size_t local_num_x = (dev.local_mem_size / column_mem_size) - 1;
+		const size_t local_num_x =
+		    std::min((ulong)width, (dev.local_mem_size / column_mem_size) - 1);
 		const size_t local_num_y = dev.work_group_size / local_num_x;
 
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
@@ -139,7 +140,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	}
 
 	std::stringstream build_options;
-	build_options << "-DLOCAL_MEMORY_SIZE=" << local_mem_size - 1;
+	build_options << "-DLOCAL_MEMORY_SIZE=" << std::min((ulong)4194304, (local_mem_size - 1));
 	build_options << " -DHSV_COLOR_COUNT=" << (int)PVCore::PVHSVColor::color_max;
 	build_options << " -DHSV_COLOR_WHITE=" << (int)HSV_COLOR_WHITE.h();
 	build_options << " -DHSV_COLOR_BLACK=" << (int)HSV_COLOR_BLACK.h();
