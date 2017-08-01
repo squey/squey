@@ -65,7 +65,6 @@ struct opencl_kernel {
 		const size_t local_num_x =
 		    std::min((ulong)width, (dev.local_mem_size / column_mem_size) - 1);
 		const size_t local_num_y = dev.work_group_size / local_num_x;
-
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
 		const size_t global_num_y = local_num_y;
 		const cl::NDRange global_work(global_num_x, global_num_y);
@@ -85,7 +84,11 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
 	cl_int err;
-	const ulong max_mem = 4194304;
+        const cl_uint Bbits = PARALLELVIEW_ZZT_BBITS;
+        const cl_uint image_height = PVParallelView::constants<Bbits>::image_height;
+        const size_t column_mem_size = image_height * sizeof(cl_uint);
+	const ulong max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
+
 	auto& config = PVCore::PVConfig::get().config();
 	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
 
