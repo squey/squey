@@ -23,10 +23,6 @@
 
 #include <QSettings>
 
-/* minimal required for OpenCL 1.0 devices
- */
-#define LOCAL_MEMORY_SIZE (16 * 1024)
-
 /******************************************************************************
  * opencl_kernel
  *****************************************************************************/
@@ -66,12 +62,11 @@ struct opencl_kernel {
 
 		/* we make fit the highest number of image column in the work group local memory
 		 */
-		const size_t local_num_x = std::min((size_t)width, LOCAL_MEMORY_SIZE / column_mem_size);
+		const size_t local_num_x =
+		    std::min((ulong)width, (dev.local_mem_size / column_mem_size) - 1);
 		const size_t local_num_y = dev.work_group_size / local_num_x;
-
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
 		const size_t global_num_y = local_num_y;
-
 		const cl::NDRange global_work(global_num_x, global_num_y);
 		const cl::NDRange local_work(local_num_x, local_num_y);
 
@@ -89,6 +84,10 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
 	cl_int err;
+	const cl_uint Bbits = PARALLELVIEW_ZZT_BBITS;
+	const cl_uint image_height = PVParallelView::constants<Bbits>::image_height;
+	const size_t column_mem_size = image_height * sizeof(cl_uint);
+	const ulong max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
 
 	auto& config = PVCore::PVConfig::get().config();
 	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
@@ -133,15 +132,22 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	 * dependant values and reverse can be passed at build time to decrease parameter
 	 * count and have better optimisations.
 	 */
+
+	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>(&err);
+	inendi_verify_opencl_var(err);
+
+	ulong local_mem_size;
+	for (auto& it : _devices) {
+		err = it.second.dev.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &local_mem_size);
+		inendi_verify_opencl_var(err);
+	}
+
 	std::stringstream build_options;
-	build_options << "-DLOCAL_MEMORY_SIZE=" << LOCAL_MEMORY_SIZE;
+	build_options << "-DLOCAL_MEMORY_SIZE=" << std::min(max_mem, (local_mem_size - 1));
 	build_options << " -DHSV_COLOR_COUNT=" << (int)PVCore::PVHSVColor::color_max;
 	build_options << " -DHSV_COLOR_WHITE=" << (int)HSV_COLOR_WHITE.h();
 	build_options << " -DHSV_COLOR_BLACK=" << (int)HSV_COLOR_BLACK.h();
 	build_options << " -DHSV_COLOR_RED=" << (int)HSV_COLOR_RED.h();
-
-	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>(&err);
-	inendi_verify_opencl_var(err);
 
 	err = program.build(devices, build_options.str().c_str());
 
@@ -172,6 +178,9 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	for (auto& it : _devices) {
 		err = _kernel.getWorkGroupInfo(it.second.dev, CL_KERNEL_WORK_GROUP_SIZE,
 		                               &it.second.work_group_size);
+		inendi_verify_opencl_var(err);
+
+		err = it.second.dev.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &it.second.local_mem_size);
 		inendi_verify_opencl_var(err);
 	}
 }
