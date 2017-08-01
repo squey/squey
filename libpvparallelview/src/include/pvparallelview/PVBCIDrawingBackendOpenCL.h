@@ -34,6 +34,7 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 		cl::Buffer buffer;
 		cl::CommandQueue queue;
 		size_t work_group_size;
+		cl_ulong local_mem_size;
 	};
 
   public:

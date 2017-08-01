@@ -76,14 +76,45 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 		inendi_verify_opencl_var(err);
 
 		if (devices.size() != 0) {
-			for (auto& device : devices) {
-				f(ctx, device);
-			}
 
 			std::string pname = platform.getInfo<CL_PLATFORM_NAME>(&err);
 			inendi_verify_opencl_var(err);
 
-			PVLOG_INFO("OpenCL backend found: %s\n", pname.c_str());
+			std::string pversion = platform.getInfo<CL_PLATFORM_VERSION>(&err);
+			inendi_verify_opencl_var(err);
+
+			std::string pvendor = platform.getInfo<CL_PLATFORM_VENDOR>(&err);
+			inendi_verify_opencl_var(err);
+
+			std::string pprofile = platform.getInfo<CL_PLATFORM_PROFILE>(&err);
+			inendi_verify_opencl_var(err);
+
+			PVLOG_INFO("OpenCL backend found: %s, Version: %s, Vendor: %s, Profil: %s\n",
+			           pname.c_str(), pversion.c_str(), pvendor.c_str(), pprofile.c_str());
+
+			std::string pextensions = platform.getInfo<CL_PLATFORM_EXTENSIONS>(&err);
+			inendi_verify_opencl_var(err);
+
+			PVLOG_INFO("OpenCL backend extensions: %s\n", pextensions.c_str());
+
+			for (auto& device : devices) {
+				f(ctx, device);
+
+				std::string dname = device.getInfo<CL_DEVICE_NAME>(&err);
+				inendi_verify_opencl_var(err);
+
+				std::string dversion = device.getInfo<CL_DEVICE_VERSION>(&err);
+				inendi_verify_opencl_var(err);
+
+				std::string dvendor = device.getInfo<CL_DEVICE_VENDOR>(&err);
+				inendi_verify_opencl_var(err);
+
+				std::string dprofile = device.getInfo<CL_DEVICE_PROFILE>(&err);
+				inendi_verify_opencl_var(err);
+
+				PVLOG_INFO("OpenCL device found: %s, Version: %s, Vendor: %s, Profil, %s\n",
+				           dname.c_str(), dversion.c_str(), dvendor.c_str(), dprofile.c_str());
+			}
 
 			return ctx;
 		}
