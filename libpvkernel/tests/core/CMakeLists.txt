@@ -4,23 +4,23 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-add_pv_compile_test(Tcore_file_helper LINKS pvkernel FILES file_helper.cpp)
+add_pv_compile_test(Tcore_file_helper LINKS ${LINK_LIBRARIES} FILES file_helper.cpp)
 add_test(Tcore_file_helper Tcore_file_helper)
 
-add_pv_compile_test(Tcore_intrinsics LINKS pvkernel FILES intrinsics.cpp)
+add_pv_compile_test(Tcore_intrinsics LINKS ${LINK_LIBRARIES} FILES intrinsics.cpp)
 add_test(Tcore_intrinsics Tcore_intrinsics)
 
-add_pv_compile_test(Tcore_visit_bits LINKS pvkernel ${OpenMP_LIBRARIES} FILES visit_bits.cpp)
+add_pv_compile_test(Tcore_visit_bits LINKS ${LINK_LIBRARIES} ${OpenMP_LIBRARIES} FILES visit_bits.cpp)
 add_test(Tcore_visit_bits Tcore_visit_bits)
 
-add_pv_compile_test(Tcore_bit_field_visit LINKS pvkernel ${OpenMP_LIBRARIES} FILES bit_field_visit.cpp)
+add_pv_compile_test(Tcore_bit_field_visit LINKS ${LINK_LIBRARIES} ${OpenMP_LIBRARIES} FILES bit_field_visit.cpp)
 add_test(Tcore_bit_field_visit Tcore_bit_field_visit)
 
-add_pv_compile_test(Tcore_argument_serialize LINKS pvkernel FILES argument_serialize.cpp)
+add_pv_compile_test(Tcore_argument_serialize LINKS ${LINK_LIBRARIES} FILES argument_serialize.cpp)
 add_test(Tcore_argument_serialize Tcore_argument_serialize)
 
-add_pv_compile_test(Tcore_network LINKS pvkernel FILES network.cpp)
+add_pv_compile_test(Tcore_network LINKS ${LINK_LIBRARIES} FILES network.cpp)
 add_test(Tcore_network Tcore_network)
 
-add_pv_compile_test(Tcore_timeformat LINKS pvkernel ${ICU_LIBRARY} FILES time-format.cpp)
+add_pv_compile_test(Tcore_timeformat LINKS ${LINK_LIBRARIES} ${ICU_LIBRARY} FILES time-format.cpp)
 add_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
