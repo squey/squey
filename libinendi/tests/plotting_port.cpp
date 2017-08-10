@@ -20,9 +20,12 @@ static constexpr int dupl = 200;
 #else
 static constexpr int dupl = 1;
 #endif
-
+using plotting_t = Inendi::PVPlottingFilter::value_type;
 static constexpr const char* csv_file = TEST_FOLDER "/picviz/plotting_port.csv";
 static constexpr const char* csv_file_format = TEST_FOLDER "/picviz/plotting_port.csv.format";
+static constexpr const plotting_t threshold1 = (0.3 * std::numeric_limits<plotting_t>::max()) - 1;
+static constexpr const plotting_t threshold2 = (0.6 * std::numeric_limits<plotting_t>::max()) - 1;
+static constexpr const plotting_t max_threshold = std::numeric_limits<plotting_t>::max();
 
 int main()
 {
@@ -47,9 +50,14 @@ int main()
 		PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[i] <
 		                plotted.get_column_pointer(PVCol(0))[i - 1]);
 		if (i < 1024) {
-			PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[i] > (1UL << 31));
+			PV_ASSERT_VALID(~plotting_t(plotted.get_column_pointer(PVCol(0))[i]) <= threshold1);
+		} else if (i >= 1024 && i <= 49151) {
+			PV_ASSERT_VALID(~plotting_t(plotted.get_column_pointer(PVCol(0))[i]) > threshold1 &&
+			                ~plotting_t(plotted.get_column_pointer(PVCol(0))[i]) <= threshold2);
 		} else {
-			PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[i] <= (1UL << 31));
+
+			PV_ASSERT_VALID(~plotting_t(plotted.get_column_pointer(PVCol(0))[i]) > threshold2 &&
+			                ~plotting_t(plotted.get_column_pointer(PVCol(0))[i]) <= max_threshold);
 		}
 	}
 
