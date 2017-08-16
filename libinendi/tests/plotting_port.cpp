@@ -63,6 +63,9 @@ int main()
 
 #else
 	(void)plotted;
+	(void)threshold1;
+	(void)threshold2;
+	(void)max_threshold;
 #endif
 
 	return 0;
