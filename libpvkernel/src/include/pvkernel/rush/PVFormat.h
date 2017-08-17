@@ -74,8 +74,8 @@ class PVFormatInvalidTime : public PVFormatException
 };
 
 /**
-* This is the Format class
-*/
+ * This is the Format class
+ */
 class PVFormat
 {
   public:

@@ -21,6 +21,8 @@ static constexpr int dupl = 200;
 static constexpr int dupl = 1;
 #endif
 using plotting_t = Inendi::PVPlottingFilter::value_type;
+using port_plotting_t = uint16_t;
+
 static constexpr const char* csv_file = TEST_FOLDER "/picviz/plotting_port.csv";
 static constexpr const char* csv_file_format = TEST_FOLDER "/picviz/plotting_port.csv.format";
 static constexpr const plotting_t threshold1 = (0.3 * std::numeric_limits<plotting_t>::max()) - 1;
@@ -44,7 +46,7 @@ int main()
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.column(PVCol(0));
-	auto& array = column.to_core_array<int32_t>();
+	auto& array = column.to_core_array<port_plotting_t>();
 
 	for (size_t i = 1; i < array.size(); i++) {
 		PV_ASSERT_VALID(plotted.get_column_pointer(PVCol(0))[i] <

@@ -44,8 +44,8 @@ PVInspector::PVXmlDomModel::~PVXmlDomModel() = default;
  *
  *****************************************************************************/
 /**
-* create a new index for the treeview.
-*/
+ * create a new index for the treeview.
+ */
 QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& parent) const
 {
 
@@ -90,9 +90,9 @@ QModelIndex PVInspector::PVXmlDomModel::indexOfChild(const QModelIndex& parent,
  *
  *****************************************************************************/
 /**
-* Get the parent index
-* @param child node
-*/
+ * Get the parent index
+ * @param child node
+ */
 QModelIndex PVInspector::PVXmlDomModel::parent(const QModelIndex& child) const
 {
 
@@ -137,8 +137,8 @@ int PVInspector::PVXmlDomModel::rowCount(const QModelIndex& parent) const
  *
  *****************************************************************************/
 /**
-* Return the number of raw.
-*/
+ * Return the number of raw.
+ */
 int PVInspector::PVXmlDomModel::columnCount(const QModelIndex&) const
 {
 	return 2;
@@ -150,8 +150,8 @@ int PVInspector::PVXmlDomModel::columnCount(const QModelIndex&) const
  *
  *****************************************************************************/
 /**
-* return the number of node from the root to the child.
-*/
+ * return the number of node from the root to the child.
+ */
 int PVInspector::PVXmlDomModel::countParent(const QModelIndex& index)
 {
 	if (index.parent().isValid() && nodeFromIndex(index)->getName() != "root") {
@@ -208,8 +208,8 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex& index, int role) co
  *
  *****************************************************************************/
 /**
-* Setup the root.
-*/
+ * Setup the root.
+ */
 void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom* node)
 {
 	beginResetModel();
@@ -223,9 +223,9 @@ void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom* node)
  *
  *****************************************************************************/
 /**
-* Return the node from the index.
-* @param index
-*/
+ * Return the node from the index.
+ * @param index
+ */
 PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModelIndex& index) const
 {
 	if (index.isValid()) {
@@ -903,7 +903,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 	tld.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	port.setAttribute("name", "Port");
-	setEltMappingPlotting(port, "number_int32", "default", "port");
+	// setEltMappingPlotting(port, "number_int32", "default", "port");
+	setEltMappingPlotting(port, "number_uint16", "default", "port");
 	port.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	port.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 

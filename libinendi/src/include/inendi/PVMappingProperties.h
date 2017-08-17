@@ -35,10 +35,10 @@ namespace Inendi
 {
 
 /**
-* \class PVMappingProperties
-*
-* \brief Stored functions and variables that can to be modified by those functions
-*/
+ * \class PVMappingProperties
+ *
+ * \brief Stored functions and variables that can to be modified by those functions
+ */
 class PVMappingProperties
 {
   public:

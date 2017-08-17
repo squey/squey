@@ -23,8 +23,8 @@ namespace Inendi
 {
 
 /**
-* \class PVSelection
-*/
+ * \class PVSelection
+ */
 class PVSelection : public PVCore::PVSelBitField
 {
   public:

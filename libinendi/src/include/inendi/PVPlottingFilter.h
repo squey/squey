@@ -40,6 +40,7 @@ inline double extract_value(const boost::posix_time::time_duration& value)
 }
 
 using plotting_t = uint32_t;
+
 static constexpr const char plotting_type[] = "number_uint32";
 
 class PVPlottingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::array<plotting_t>&,

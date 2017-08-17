@@ -113,6 +113,10 @@ void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		__impl::from8to9(doc);
 		version = "9";
 	}
+	if (version == "9") {
+		__impl::from9to10(doc);
+		version = "10";
+	}
 }
 
 void PVRush::PVFormatVersion::__impl::from0to1(QDomDocument& doc)
@@ -239,6 +243,21 @@ void PVRush::PVFormatVersion::__impl::from8to9(QDomDocument& doc)
 	}
 
 	doc.documentElement().setAttribute("version", "9");
+}
+
+void PVRush::PVFormatVersion::__impl::from9to10(QDomDocument& doc)
+{
+	QDomNodeList axis = doc.documentElement().elementsByTagName("axis");
+	for (int i = 0; i < axis.size(); i++) {
+		QDomElement ax = axis.at(i).toElement();
+		// Limit the choice of port plotting to uint16
+		QDomElement plotted = ax.namedItem("plotting").toElement();
+		QString plotting = plotted.attribute("mode");
+		if (plotting == "port") {
+			ax.setAttribute("type", "number_uint16");
+		}
+	}
+	doc.documentElement().setAttribute("version", "10");
 }
 
 void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)

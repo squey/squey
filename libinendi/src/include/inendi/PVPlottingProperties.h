@@ -31,10 +31,10 @@ namespace Inendi
 {
 
 /**
-* \class PVPlottingProperties
-*
-* \brief Stored functions and variables that can to be modified by those functions
-*/
+ * \class PVPlottingProperties
+ *
+ * \brief Stored functions and variables that can to be modified by those functions
+ */
 class PVPlottingProperties
 {
   public:
