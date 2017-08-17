@@ -28,10 +28,10 @@ int main(void)
 	size_t count;
 
 	/**********************************************************************
-	*
-	* We test creation and deletion of a inendi_selection_t
-	*
-	**********************************************************************/
+	 *
+	 * We test creation and deletion of a inendi_selection_t
+	 *
+	 **********************************************************************/
 
 	selection = new Inendi::PVSelection(SELECTION_COUNT);
 	delete (selection);
@@ -79,10 +79,10 @@ int main(void)
 	std::cout << "Visit sse test: " << (ref == test) << std::endl;
 
 	/**********************************************************************
-	*
-	* We test all Generic functions
-	*
-	**********************************************************************/
+	 *
+	 * We test all Generic functions
+	 *
+	 **********************************************************************/
 
 	std::cout << "we test bit_count() and select_all()\n";
 
@@ -231,10 +231,10 @@ int main(void)
 	**********************************************************************/
 
 	/**********************************************************************
-	*
-	* We test inendi_selection_A2A_inverse()
-	*
-	**********************************************************************/
+	 *
+	 * We test inendi_selection_A2A_inverse()
+	 *
+	 **********************************************************************/
 
 	std::cout << "\nWe test the operator~\n";
 	b.select_all();
@@ -250,10 +250,10 @@ int main(void)
 	}
 
 	/**********************************************************************
-	*
-	* We delete remaining objects
-	*
-	**********************************************************************/
+	 *
+	 * We delete remaining objects
+	 *
+	 **********************************************************************/
 	delete selection;
 	delete selection2;
 	delete selection3;

@@ -16,6 +16,8 @@ namespace Inendi
 class PVPlottingFilterPort : public PVPlottingFilter
 {
   public:
+	using port_plotting_t = uint16_t;
+
 	void operator()(pvcop::db::array const& mapped,
 	                pvcop::db::array const& minmax,
 	                const pvcop::db::selection& invalid_selection,
@@ -24,7 +26,7 @@ class PVPlottingFilterPort : public PVPlottingFilter
 
 	std::set<plotting_capability> list_usable_type() const override
 	{
-		return {{"number_uint32", "default"}, {"number_int32", "default"}};
+		return {{"number_uint16", "default"}};
 	}
 
 	CLASS_FILTER(PVPlottingFilterPort)

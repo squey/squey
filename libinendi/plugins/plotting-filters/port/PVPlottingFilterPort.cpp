@@ -7,14 +7,14 @@
 
 #include "PVPlottingFilterPort.h"
 
-using plotting_t = Inendi::PVPlottingFilter::value_type;
+using plotting_t = Inendi::PVPlottingFilterPort::value_type;
+using port_plotting_t = Inendi::PVPlottingFilterPort::port_plotting_t;
 
-template <class T>
 static void compute_port_plotting(pvcop::db::array const& mapped,
                                   const pvcop::db::selection& invalid_selection,
                                   pvcop::core::array<plotting_t>& dest)
 {
-	auto& values = mapped.to_core_array<T>();
+	auto& values = mapped.to_core_array<port_plotting_t>();
 
 	const double invalid_range =
 	    invalid_selection ? Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE : 0;
@@ -26,7 +26,7 @@ static void compute_port_plotting(pvcop::db::array const& mapped,
 
 #pragma omp parallel for
 	for (size_t i = 0; i < values.size(); i++) {
-		const T v = values[i];
+		const port_plotting_t v = values[i];
 		bool invalid = (invalid_selection and invalid_selection[i]);
 		double delta = 0;
 
@@ -70,10 +70,5 @@ void Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped,
 {
 	assert(dest);
 
-	if (mapped.type() == "number_uint32") {
-		compute_port_plotting<uint32_t>(mapped, invalid_selection, dest);
-	} else {
-		assert(mapped.type() == "number_int32");
-		compute_port_plotting<int32_t>(mapped, invalid_selection, dest);
-	}
+	compute_port_plotting(mapped, invalid_selection, dest);
 }

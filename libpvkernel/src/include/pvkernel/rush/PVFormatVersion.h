@@ -29,6 +29,7 @@ void from5to6(QDomDocument& doc);
 void from6to7(QDomDocument& doc);
 void from7to8(QDomDocument& doc);
 void from8to9(QDomDocument& doc);
+void from9to10(QDomDocument& doc);
 
 void _rec_0to1(QDomElement doc);
 void _rec_1to2(QDomElement doc);

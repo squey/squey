@@ -24,7 +24,7 @@ bool PVRush::PVSourceDescription::operator==(const PVSourceDescription& other) c
 	// FIXME: PVSourceCreator and PVFormat should have their own operator==
 
 	return _inputs.size() == other._inputs.size() && //!\\ compare lists size before applying
-	       // std::equal to avoid segfault !
+	                                                 // std::equal to avoid segfault !
 	       std::equal(boost::make_indirect_iterator(_inputs.begin()),
 	                  boost::make_indirect_iterator(_inputs.end()),
 	                  boost::make_indirect_iterator(other._inputs.begin())) &&
