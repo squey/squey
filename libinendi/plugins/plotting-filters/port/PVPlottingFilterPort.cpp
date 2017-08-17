@@ -69,7 +69,6 @@ void Inendi::PVPlottingFilterPort::operator()(pvcop::db::array const& mapped,
                                               pvcop::core::array<plotting_t>& dest)
 {
 	assert(dest);
-	// assert(mapped.type() == "number_uint16");
 
 	compute_port_plotting(mapped, invalid_selection, dest);
 }

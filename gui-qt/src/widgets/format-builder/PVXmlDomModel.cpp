@@ -903,7 +903,6 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 	tld.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	port.setAttribute("name", "Port");
-	// setEltMappingPlotting(port, "number_int32", "default", "port");
 	setEltMappingPlotting(port, "number_uint16", "default", "port");
 	port.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	port.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
