@@ -86,7 +86,7 @@ class PVUnicodeSource : public PVRawSourceBase
 	 *
 	 * @note Remove \r for \r\n new-line (windows style)
 	 */
-	void add_element(char* begin, char* it)
+	virtual void add_element(char* begin, char* it)
 	{
 		if (*(it - 1) == 0xd) {
 			_curc->add_element(begin, it - 1)->set_physical_end(it);
@@ -406,9 +406,11 @@ class PVUnicodeSource : public PVRawSourceBase
 
 	void prepare_for_nelts(chunk_index /*nelts*/) override {}
 
+  protected:
+	size_t _chunk_size; //!< Size of the chunk
+	PVInput_p _input;   //!< Input source where we read data
+
   private:
-	size_t _chunk_size;                //!< Size of the chunk
-	PVInput_p _input;                  //!< Input source where we read data
 	PVCore::PVChunk* _curc = nullptr;  //!< Pointer to current chunk.
 	PVCore::PVChunk* _nextc = nullptr; //!< Pointer to next chunk.
 	alloc_chunk _alloc;                //!< Allocator to create chunks
