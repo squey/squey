@@ -1243,7 +1243,8 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 	 * For the moment we can't add sources that have an auto generated format
 	 * not saved to disk.
 	 */
-	if (update_recent_items and not src.get_format().get_full_path().isEmpty()) {
+	if (update_recent_items and not src.get_format().get_full_path().isEmpty() and
+	    src.get_source_creator()->name() != "pcap") {
 		// Add format as recent format
 		PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(
 		    src.get_format().get_full_path());
