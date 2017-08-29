@@ -21,7 +21,7 @@ bool PVRush::PVInputTypeSplunk::createWidget(hash_formats const& formats,
                                              QWidget* parent) const
 {
 	connect_parent(parent);
-	PVSplunkParamsWidget* params = new PVSplunkParamsWidget(this, formats, parent);
+	std::unique_ptr<PVSplunkParamsWidget> params(new PVSplunkParamsWidget(this, formats, parent));
 	if (params->exec() == QDialog::Rejected) {
 		return false;
 	}
