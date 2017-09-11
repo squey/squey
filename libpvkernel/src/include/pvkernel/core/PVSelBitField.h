@@ -126,7 +126,7 @@ class PVSelBitField
 	 *
 	 * @return The number of selected line in that range
 	 */
-	size_t bit_count() const;
+	size_t bit_count(size_t start = 0, size_t end = 0) const;
 
 	bool is_empty() const;
 
