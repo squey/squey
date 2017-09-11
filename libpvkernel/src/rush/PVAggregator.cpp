@@ -46,8 +46,8 @@ PVRush::PVAggregator::PVAggregator()
 
 void PVRush::PVAggregator::release_inputs(bool cancel_first /* = false */)
 {
-	for (PVRush::PVRawSourceBase_p raw_source : _inputs) {
-		raw_source->release_input(cancel_first);
+	for (list_sources::iterator it = _cur_input; it != _inputs.end(); it++) {
+		(*it)->release_input(cancel_first);
 	}
 }
 
@@ -96,7 +96,8 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 	PVCore::PVChunk* ret = (*_cur_input)->operator()();
 
 	if (ret == nullptr) {
-		// No more chunks available from current input. Go on !
+		// Release input on-the-fly to reduce resources consumption
+		(*_cur_input)->release_input(false);
 		_cur_input++;
 		if (_cur_input == _inputs.end()) {
 			// No more data available. Return nullptr

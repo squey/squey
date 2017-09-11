@@ -401,7 +401,6 @@ class PVUnicodeSource : public PVRawSourceBase
 	{
 		if (cancel_first)
 			_input->cancel();
-		_input.reset();
 	}
 
 	void prepare_for_nelts(chunk_index /*nelts*/) override {}
