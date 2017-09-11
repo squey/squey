@@ -305,11 +305,11 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 
 		PVCore::PVColumnIndexes column_indexes = view.get_axes_combination().get_combination();
 
-		PVCore::PVExporter::export_func export_func =
+		PVCore::PVCSVExporter::export_func export_func =
 		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 		        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
-		PVCore::PVExporter exp(data_file, sel, column_indexes, nraw.row_count(), export_func,
-		                       "\t" /* = default_sep_char */);
+		PVCore::PVCSVExporter exp(data_file, sel, column_indexes, nraw.row_count(), export_func,
+		                          "\t" /* = default_sep_char */);
 		exp.export_rows();
 	}
 
