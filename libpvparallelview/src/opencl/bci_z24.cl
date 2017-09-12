@@ -167,11 +167,17 @@ kernel void DRAW(const global uint2* bci_codes,
 		}
 
 		const uint shared_v = color0 | code0.x;
-
-		atomic_min(&shared_img[get_local_id(0) + pixel_y00*get_local_size(0)], shared_v);
+		
+		size_t idx = get_local_id(0) + pixel_y00*get_local_size(0);
+		if (shared_img[idx] > shared_v) {
+			shared_img[idx] = shared_v;
+		}
 
 		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
-			atomic_min(&shared_img[get_local_id(0) + pixel_y0*get_local_size(0)], shared_v);
+			idx = get_local_id(0) + pixel_y0*get_local_size(0);
+			if (shared_img[idx] > shared_v) {
+				shared_img[idx] = shared_v;
+			}
 		}
 	}
 
