@@ -59,9 +59,13 @@ PVCore::PVSelBitField::operator const pvcop_selection_t&() const
  * PVCore::PVSelBitField::bit_count
  *
  *****************************************************************************/
-size_t PVCore::PVSelBitField::bit_count() const
+size_t PVCore::PVSelBitField::bit_count(size_t start /*= 0*/, size_t end /*= 0*/) const
 {
-	return pvcop::core::algo::bit_count(_selection);
+	if (end == 0) {
+		end = _selection.size() - 1;
+	}
+
+	return pvcop::core::algo::bit_count(_selection, start, end);
 }
 
 /******************************************************************************

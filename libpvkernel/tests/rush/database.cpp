@@ -68,13 +68,13 @@ int main()
 	PVCore::PVSelBitField sel(nraw.row_count());
 	sel.select_all();
 	std::string output_file = pvtest::get_tmp_filename();
-	PVCore::PVExporter::export_func export_func =
+	PVCore::PVCSVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
-	PVCore::PVExporter exp(output_file, sel, format.get_axes_comb(), nraw.row_count(), export_func);
-	size_t exported_rows = exp.export_rows();
-	exp.wait_finished();
-	PV_VALID(exported_rows, 134UL);
+	PVCore::PVCSVExporter exp(output_file, sel, format.get_axes_comb(), nraw.row_count(),
+	                          export_func);
+
+	exp.export_rows();
 
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference

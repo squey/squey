@@ -30,6 +30,7 @@
 #include <iostream>
 
 #include <QFile>
+#include <QTimer>
 
 #include "common.h"
 
@@ -64,28 +65,17 @@ import_export(const std::string& input_file, const std::string& format, bool can
 	const PVCore::PVColumnIndexes& col_indexes =
 	    view->get_parent<Inendi::PVSource>().get_format().get_axes_comb();
 
-	PVCore::PVExporter::export_func export_func =
+	PVCore::PVCSVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
+	PVCore::PVCSVExporter exp(output_file, sel, col_indexes, nraw.row_count(), export_func);
 
 	auto start = std::chrono::system_clock::now();
 
-	PVCore::PVExporter exp(output_file, sel, col_indexes, nraw.row_count(), export_func);
-
-	const PVRow nrows = nraw.row_count();
-
-	while (true) {
-		size_t exported_row_count = exp.export_rows(STEP_COUNT);
-		if (exported_row_count == nrows) {
-			break;
-		}
-
-		if (cancel) {
-			exp.cancel();
-			break;
-		}
+	if (cancel) {
+		exp.cancel();
 	}
-	exp.wait_finished();
+	exp.export_rows();
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;

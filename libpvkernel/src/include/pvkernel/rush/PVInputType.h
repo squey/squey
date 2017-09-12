@@ -12,7 +12,9 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVExporter.h>
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <QList>
 #include <QKeySequence>
@@ -41,6 +43,15 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	                          QString& format,
 	                          PVCore::PVArgumentList& args_ext,
 	                          QWidget* parent = nullptr) const = 0;
+	virtual std::unique_ptr<PVCore::PVExporterBase>
+	create_exporter(const std::string& /*output_file*/,
+	                const PVCore::PVSelBitField& /*sel*/,
+	                const list_inputs& /*inputs*/,
+	                PVRush::PVNraw const& /*nraw*/) const
+	{
+		return {};
+	}
+	virtual QString get_exporter_filter_string(const list_inputs& /*inputs*/) const { return {}; }
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	virtual QString human_name_serialize() const = 0;

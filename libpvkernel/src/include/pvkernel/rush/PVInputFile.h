@@ -40,6 +40,7 @@ class PVInputFile : public PVInput
   public:
 	// File specific
 	uint64_t file_size();
+	std::string file_path() const { return _path; }
 
   private:
 	std::string _path;

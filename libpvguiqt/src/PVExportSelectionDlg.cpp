@@ -24,8 +24,6 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/PVProgressBox.h>
 
-static const PVRow STEP_COUNT = 20000;
-
 PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
     Inendi::PVAxesCombination& custom_axes_combination,
     Inendi::PVView& view,
@@ -78,8 +76,18 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	_columns_header->setCheckState(Qt::CheckState::Checked);
 	left_layout->addWidget(_columns_header);
 
-	// Compression
-	QStringList name_filters = {".csv files (*.csv)"};
+	// Add input specific exporter filter string if any
+	QStringList name_filters;
+	const Inendi::PVSource& source = view.get_parent<Inendi::PVSource>();
+	const QString& specific_export_filter =
+	    source.get_source_creator()->supported_type_lib()->get_exporter_filter_string(
+	        source.get_inputs());
+	if (not specific_export_filter.isEmpty()) {
+		name_filters << specific_export_filter;
+	}
+
+	// Default CSV exporter
+	name_filters << ".csv files (*.csv)";
 	for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
 		if (std::ifstream(PVCore::PVStreamingCompressor::executable(extension)).good()) {
 			const QString& name_filter =
@@ -89,11 +97,22 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	}
 	setNameFilters(name_filters);
 	auto suffix_from_filter = [](const QString& filter) { return filter.split(" ")[0]; };
-	size_t suffix_index = (name_filters.size() > 1) ? 1 : 0;
-	selectNameFilter(name_filters.at(suffix_index));
-	setDefaultSuffix(suffix_from_filter(name_filters.at(suffix_index)));
-	connect(this, &QFileDialog::filterSelected,
-	        [&](const QString& filter) { setDefaultSuffix(suffix_from_filter(filter)); });
+
+	// Set specific exporter as default if any, .csv.gz otherwise
+	int gz_idx;
+	for (gz_idx = name_filters.size() - 1; gz_idx >= 0; gz_idx--) {
+		if (name_filters[gz_idx].contains("gz")) {
+			break;
+		}
+	}
+	int default_filter_index = specific_export_filter.isEmpty() ? gz_idx : 0;
+
+	setDefaultSuffix(suffix_from_filter(name_filters.at(default_filter_index)));
+	connect(this, &QFileDialog::filterSelected, [=](const QString& filter) {
+		setDefaultSuffix(suffix_from_filter(filter));
+		group_box->setVisible(filter.contains("*.csv"));
+	});
+	group_box->setVisible(specific_export_filter.isEmpty());
 
 	// Define csv specific character
 	QFormLayout* char_layout = new QFormLayout();
@@ -250,7 +269,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	// Progress Bar for export advancement
 	bool export_internal_values = export_selection_dlg._export_internal_values->isChecked();
 
-	PVCore::PVExporter::export_func export_func =
+	PVCore::PVCSVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
 	if (export_internal_values) {
@@ -262,26 +281,34 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 		};
 	}
 
+	const Inendi::PVSource& source = view.get_parent<Inendi::PVSource>();
+	std::unique_ptr<PVCore::PVExporterBase> exp =
+	    source.get_source_creator()->supported_type_lib()->create_exporter(
+	        file.fileName().toStdString(), sel, source.get_inputs(), nraw);
+
+	// Use default CSV exporter if input type doesn't define a specific one
+	if (export_selection_dlg.selectedNameFilter().contains("*.csv")) {
+		exp.reset(new PVCore::PVCSVExporter(file.fileName().toStdString(), sel, column_indexes,
+		                                    nrows, export_func, sep_char, quote_char, header));
+	}
+
 	// Export selected lines
-	PVCore::PVExporter exp(file.fileName().toStdString(), sel, column_indexes, nrows, export_func,
-	                       sep_char, quote_char, header);
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_maximum(nrows);
-		    try {
-			    while (true) {
-				    size_t exported_row_count = exp.export_rows(STEP_COUNT);
-				    pbox.set_value(exported_row_count);
-				    if (exported_row_count == nrows) {
-					    break;
-				    }
 
-				    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
-					    exp.cancel();
-					    return;
-				    }
+		    // setup progression tracking
+		    exp->set_progress_max_func(
+		        [&](size_t total_row_count) { pbox.set_maximum(total_row_count); });
+		    exp->set_progress_func([&](size_t exported_row_count) {
+			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
+				    exp->cancel();
+				    return;
 			    }
-			    exp.wait_finished();
+			    pbox.set_value(exported_row_count);
+			});
+
+		    try {
+			    exp->export_rows();
 		    } catch (const PVCore::PVExportError& e) {
 			    pbox.critical("Error when exporting data", e.what());
 			    std::remove(file.fileName().toStdString().c_str());

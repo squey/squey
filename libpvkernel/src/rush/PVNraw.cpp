@@ -204,13 +204,12 @@ void PVRush::PVNraw::dump_csv(std::string const& file_path /* = "" */) const
 	PVCore::PVSelBitField sel(row_count());
 	sel.select_all();
 
-	PVCore::PVExporter::export_func export_func =
+	PVCore::PVCSVExporter::export_func export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return export_line(row, cols, sep, quote); };
 
-	PVCore::PVExporter exp(file_path, sel, cols, row_count(), export_func);
+	PVCore::PVCSVExporter exp(file_path, sel, cols, row_count(), export_func);
 	exp.export_rows();
-	exp.wait_finished();
 }
 
 /*****************************************************************************

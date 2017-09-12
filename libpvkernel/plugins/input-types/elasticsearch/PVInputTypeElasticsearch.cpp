@@ -21,7 +21,8 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats const& formats,
                                                     QWidget* parent) const
 {
 	connect_parent(parent);
-	PVElasticsearchParamsWidget* params = new PVElasticsearchParamsWidget(this, formats, parent);
+	std::unique_ptr<PVElasticsearchParamsWidget> params(
+	    new PVElasticsearchParamsWidget(this, formats, parent));
 	if (params->exec() == QDialog::Rejected) {
 		return false;
 	}
