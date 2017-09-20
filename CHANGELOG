@@ -1,3 +1,10 @@
+4.4.1 (2017-09-12)
+----------------
+
+This minor release fixes:
+* fixed CUDA support with NVIDIA drivers 375
+* fixed a crash with IPv4 logarithmic plotting
+
 4.4 "Rubberband" (2017-07-12)
 ----------------
 
