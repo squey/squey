@@ -24,16 +24,16 @@ static constexpr const char* USER_TIME_FORMATS_FILENAME = "user_time_formats.ini
 // clang-format off
 static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
 //   {{ formatter, parameters}, { excluded_formatter_1, excluded_formatter_2, ...}}
-     {{"number_uint32", ""},    { "number_float", "number_double", "time" }},
-     {{"number_int32",  ""},    { "number_float", "number_double", "time" }},
-     {{"number_uint32", "%#o"}, { "number_float", "number_double", "time" }},
-     {{"number_uint32", "%#x"}, { "number_float", "number_double", "time" }},
-     {{"number_uint64", ""},    { "number_float", "number_double", "time" }},
-     {{"number_int64",  ""},    { "number_float", "number_double", "time" }},
-     {{"number_uint64", "%#lo"},{ "number_float", "number_double", "time" }},
-     {{"number_uint64", "%#lx"},{ "number_float", "number_double", "time" }},
-     {{"number_float",  ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time" }},
-     {{"number_double", ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time" }},
+     {{"number_uint32", ""},    { "number_float", "number_double", "time", "duration" }},
+     {{"number_int32",  ""},    { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint32", "%#o"}, { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint32", "%#x"}, { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", ""},    { "number_float", "number_double", "time", "duration" }},
+     {{"number_int64",  ""},    { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", "%#lo"},{ "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", "%#lx"},{ "number_float", "number_double", "time", "duration" }},
+     {{"number_float",  ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
+     {{"number_double", ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
 
      {{"ipv4",          ""},    {}},
      {{"ipv6",          ""},    {}},
