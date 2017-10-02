@@ -64,8 +64,6 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"dd.MM.yy",
 	"dd.MM.yy H:m:s",
 	"yyyy/M/d",
-	"H:m:s",
-	"H%m%s",
 	"d/M/yy H:m:s.S",
 	"d/M/yyyy H:m:s.S",
 	"d-M-yy H:m:s.S",
