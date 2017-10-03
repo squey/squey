@@ -125,7 +125,8 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
 	int exec_pipe[2];
 	pipe(exec_pipe);
 
-	switch (_child_pid = fork()) {
+	const std::string& cmd = executable(_extension);
+	switch (_child_pid = vfork()) {
 	case 0: { // child process
 		setpgid(0, 0);
 
@@ -150,7 +151,6 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
 		}
 		dup2(compression_fd, STDOUT_FILENO);
 
-		const std::string& cmd = executable(_extension);
 		if (execlp(cmd.c_str(), cmd.c_str(), (char*)nullptr) == -1) {
 			_exit(-1);
 		}
@@ -294,7 +294,8 @@ void PVCore::PVStreamingDecompressor::init()
 	/**
 	 * We need to spawn a new process to have unshared file descriptors
 	 */
-	switch (_child_pid = fork()) {
+	const std::string& cmd = executable(_extension);
+	switch (_child_pid = vfork()) {
 	case 0: { // child process
 		setpgid(0, 0);
 
@@ -314,7 +315,6 @@ void PVCore::PVStreamingDecompressor::init()
 		close(exec_pipe[STDIN_FILENO]);
 		fcntl(exec_pipe[STDOUT_FILENO], F_SETFD, FD_CLOEXEC);
 
-		const std::string& cmd = executable(_extension);
 		if (execlp(cmd.c_str(), cmd.c_str(), (char*)nullptr) == -1) {
 			write(exec_pipe[STDOUT_FILENO], std::to_string(errno).c_str(), sizeof(errno));
 			_exit(errno);
