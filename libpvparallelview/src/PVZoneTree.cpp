@@ -44,7 +44,7 @@ class TBBCreateTreeTask
 	{
 	}
 
-	void operator()()
+	void operator()() const
 	{
 		PVParallelView::PVZoneProcessing const& zp = _params.zp();
 
@@ -163,7 +163,7 @@ class TBBMergeTreesTask
 	{
 	}
 
-	void operator()()
+	void operator()() const
 	{
 		for (PVRow b = _params.range(_task_num).begin; b < _params.range(_task_num).end; ++b) {
 			if (_ztree->_treeb[b].count == 0) {
