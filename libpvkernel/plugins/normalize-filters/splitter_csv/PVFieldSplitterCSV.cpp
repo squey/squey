@@ -97,7 +97,13 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			b = cstr + i;
 			++n;
 
-			i = std::find(cstr + i, cstr + field.size(), _sep) - cstr;
+			// check for separator character not inside quotes
+			bool inside_quotes = false;
+			for (; i < field.size() and (cstr[i] != _sep or inside_quotes); i++) {
+				if (cstr[i] == _quote) {
+					inside_quotes = not inside_quotes;
+				}
+			}
 
 			if (i == field.size()) {
 				// all-right, we reach the end of line
