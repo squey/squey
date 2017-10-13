@@ -1,3 +1,9 @@
+4.4.2 (2017-10-13)
+----------------
+
+This minor release fixes:
+* splitter_csv wasn't correctly ignoring escaped separators in some cases
+
 4.4.1 (2017-09-12)
 ----------------
 
