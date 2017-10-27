@@ -1,3 +1,9 @@
+4.4.3 (2017-10-27)
+----------------
+
+This minor release fixes:
+* splitter_csv: allow enclosing quotes to be closed before the end of the field
+
 4.4.2 (2017-10-13)
 ----------------
 
