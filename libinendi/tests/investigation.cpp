@@ -178,10 +178,13 @@ double load_investigation()
 	pvcop::db::array const& mapping_values = mapped->get_column(PVCol(0));
 	auto mapping = mapping_values.to_core_array<string_index_t>();
 	std::ifstream ref_stream(ref_mapped_file);
+	size_t i = 0;
 	for (uint32_t v : mapping) {
 		uint32_t ref;
 		ref_stream >> ref;
-		PV_VALID(ref, v);
+		if (i++ > 0) {
+			PV_VALID(ref, v);
+		}
 	}
 
 	PV_VALID(mapped->get_properties_for_col(PVCol(0)).get_mode(), std::string("default"));
