@@ -38,12 +38,11 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 	char* cstr = field.begin();
 	char* b;
 	size_t n = 0;
-
 	size_t i = 0;
 
 	while (i < field.size()) {
 		if (cstr[i] == _quote) {
-			++i;
+			i++;
 			// quoted value
 			b = cstr + i;
 
@@ -52,7 +51,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 
 				if (i == field.size()) {
 					// we have found the end of line but not a quote
-					return 0;
+					l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
+					return ++n;
 				}
 
 				if (cstr[i - 1] == '\\') {
@@ -61,24 +61,33 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 					continue;
 				}
 
-				if (((i + 1) < field.size()) and (cstr[i + 1] == _quote)) {
+				if ((i + 1) == field.size()) {
+					break;
+				}
+
+				if ((cstr[i + 1] == _quote)) {
 					/* we have found a doubled quote, moving after them
 					 * to integrate them in the field
 					 */
 					i += 2;
 					continue;
 				}
-
-				// no need to search further, the final quote has been found
-				break;
+				// ensure that next char is a separator
+				if ((cstr[i + 1] == _sep)) {
+					break;
+				} else {
+					b--; // keep quote char at the begining of the field
+					i++; // and find next separator or end of line
+					goto find_sep;
+				}
 			}
 
 			// a quote, adding the new element
 			l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
-			++n;
+			n++;
 
 			// moving after the quote
-			++i;
+			i++;
 
 			if (i == field.size()) {
 				// all-right, we reach the end of line
@@ -91,12 +100,13 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			}
 
 			// skipping the separator
-			++i;
+			i++;
 		} else {
 			// non-quoted value
 			b = cstr + i;
-			++n;
 
+		find_sep:
+			n++;
 			// check for separator character not inside quotes
 			bool inside_quotes = false;
 			for (; i < field.size() and (cstr[i] != _sep or inside_quotes); i++) {
@@ -108,28 +118,25 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			if (i == field.size()) {
 				// all-right, we reach the end of line
 				l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
-
 				return n;
 			} else if (n == _fields_expected) {
 				// enough elements have been extracted, the last one contain the rest of the field
 				l.emplace(it_ins, *field.elt_parent(), b, field.end());
-
 				return n;
 			}
 
 			l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
 
 			// skipping the separator
-			++i;
+			i++;
 		}
 	}
 
 	/* we reach the last but empty field
 	 */
 	l.emplace(it_ins, *field.elt_parent(), cstr + i, field.end());
-	n++;
 
-	return n;
+	return ++n;
 }
 
 bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField& in_field)
