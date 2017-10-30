@@ -34,6 +34,70 @@ add_library(input_type_file SHARED ${FILE_SRC} ${FILE_MOC_SRC})
 target_link_libraries(input_type_file pvkernel ${ARCHIVE_LIBRARY})
 
 ################################################
+# PCAP input plugin
+################################################
+
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libpvkernel/plugins/input-types/")
+
+# LightPcapNg
+include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg/include)
+cmake_minimum_required(VERSION 2.8)
+include(ExternalProject)
+ExternalProject_Add(LightPcapNg
+    SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg
+    BUILD_IN_SOURCE 1
+    STEP_TARGETS build
+  	EXCLUDE_FROM_ALL TRUE
+  	INSTALL_COMMAND cmake -E echo "Skipping install step."
+)
+SET(LIGHTPCAPNG_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg)
+SET(LIGHTPCAPNG_LIBRARY ${LIGHTPCAPNG_LIBRARY_DIR}/liblight_pcapng_static.a)
+
+include_directories("../common/pcap/libpvpcap/include/")
+include_directories("pcap/pcap-gui/")
+
+# libraries
+add_subdirectory(../common/pcap/libpvpcap pvpcap)
+add_subdirectory(pcap/pcap-gui pcap-gui)
+
+# Define ressources
+SET(PCAP_MOC_HEADERS 
+pcap/PVPcapParamsWidget.h
+)
+
+SET(PCAP_SRC_FILES
+pcap/PVInputTypePcap.cpp
+pcap/PVPcapParamsWidget.cpp
+pcap/register.cpp
+)
+
+# Set rpath
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${PVKERNEL_PLUGIN}/input-types/")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# Generate moc files
+QT5_WRAP_CPP(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+# Generate linkage configuration
+add_library(input_type_pcap SHARED ${PCAP_SRC_FILES} ${PCAP_MOC_SRC})
+add_dependencies(pvpcap LightPcapNg)
+target_link_libraries(
+	input_type_pcap
+	pvkernel
+	${ARCHIVE_LIBRARY}
+	pcap-gui-widget
+	pvpcap
+	${LIGHTPCAPNG_LIBRARY}
+)
+
+set(INPUTS_DIST_LIST
+	input_type_pcap
+)
+
+INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/input-types
+				    RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/input-types)
+
+################################################
 # Database input plugin
 ################################################
 # Declare ressource

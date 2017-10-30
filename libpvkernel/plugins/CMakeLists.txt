@@ -3,13 +3,11 @@
 #
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
+include_directories(BEFORE common)
 
 add_subdirectory(normalize-filters)
 add_subdirectory(input-types)
 add_subdirectory(sources)
-
-# Add external plugin
-add_subdirectory(external/pcapsicum/inspector_plugins)
 
 ###############################################################################
 # Ressource declaration
@@ -28,3 +26,6 @@ normalize-helpers/text/syslog.format
 )
 
 INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-helpers/text)
+
+# install profile files
+INSTALL(DIRECTORY common/pcap/profiles DESTINATION ${PVKERNEL_PLUGIN}/input-types/pcap)
