@@ -43,8 +43,6 @@
 
 #include <boost/program_options.hpp>
 
-constexpr const char* license_file = "/etc/inendi/licenses/inendi-inspector.lic";
-
 static constexpr const char* email_address = EMAIL_ADDRESS_CONTACT;
 
 // #ifdef USE_UNIKEY
@@ -92,23 +90,20 @@ namespace bpo = boost::program_options;
 
 int run_inspector(QApplication& app, int argc, char* argv[])
 {
-	if (not QFile(license_file).exists()) {
+	if (not QFile(INENDI_LICENSE_PATH).exists()) {
 		QMessageBox::critical(nullptr, QObject::tr("INENDI-inspector"),
 		                      QObject::tr("You don't have you license file : %1. If you have a "
 		                                  "license file, rename "
 		                                  "it with this name, otherwise contact : <a "
 		                                  "href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
-		                          .arg(license_file)
+		                          .arg(INENDI_LICENSE_PATH)
 		                          .arg(email_address));
 		return 1;
 	}
 
-	// Set location to check for license file.
-	setenv("LM_LICENSE_FILE", license_file, 1);
-
-	Inendi::Utils::License::RAII_InitLicense license_manager;
-	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_FLEX_PREFIX,
-	                                                                 INENDI_FLEX_FEATURE);
+	Inendi::Utils::License::RAII_InitLicense license_manager(INENDI_LICENSE_PATH);
+	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
+	                                                                 INENDI_LICENSE_FEATURE);
 
 	// Program options
 	bpo::options_description desc_opts("Options");
@@ -151,7 +146,8 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 		}
 	}
 
-	Inendi::Utils::License::check_ram(INENDI_FLEX_PREFIX, INENDI_FLEX_FEATURE, INENDI_FLEX_MAXMEM);
+	Inendi::Utils::License::check_ram(INENDI_LICENSE_PREFIX, INENDI_LICENSE_FEATURE,
+	                                  INENDI_LICENSE_MAXMEM);
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
@@ -264,7 +260,7 @@ int main(int argc, char* argv[])
 			    QObject::tr("Your license has expired.<br><br>"
 			                "Copy your new license file at the following location : <b>%1</b> "
 			                "or contact <a href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
-			        .arg(license_file, email_address));
+			        .arg(INENDI_LICENSE_PATH, email_address));
 		}
 		return 1;
 	} catch (PVOpenCL::exception::no_backend_error const&) {

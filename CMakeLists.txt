@@ -130,7 +130,11 @@ ExternalProject_Add(inendi-utils
 )
 SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
 SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/src/libpvhwloc.so)
-SET(PVLICENSE_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/lib/libesiflex.a dl)
+SET(PVLICENSE_LIBRARIES
+    ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/lib/flexnet/libesiflex.a
+    ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/lib/sentinel/liblssrv64.a
+    dl
+)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
 SET(PVLICENSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/include)
