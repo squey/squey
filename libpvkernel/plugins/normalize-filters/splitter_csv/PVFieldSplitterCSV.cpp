@@ -65,7 +65,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 					break;
 				}
 
-				if ((cstr[i + 1] == _quote)) {
+				if (cstr[i + 1] == _quote) {
 					/* we have found a doubled quote, moving after them
 					 * to integrate them in the field
 					 */
@@ -73,7 +73,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 					continue;
 				}
 				// ensure that next char is a separator
-				if ((cstr[i + 1] == _sep)) {
+				if (cstr[i + 1] == _sep) {
 					break;
 				} else {
 					b--; // keep quote char at the begining of the field
