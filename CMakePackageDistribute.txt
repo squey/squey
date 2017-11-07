@@ -34,6 +34,13 @@ install(FILES "gui-qt/src/resources/icon.png" DESTINATION ${SHARE_RESSOURCES})
 install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION ${SHARE_RESSOURCES})
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
+# Install Gemalto Sentinel RMS echoid
+INSTALL(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/customization/echoid"
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-echoid
+    PERMISSIONS WORLD_EXECUTE
+)
+
 set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
 
 set(QTLIBS_MAJOR "5")
