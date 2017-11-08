@@ -89,8 +89,8 @@ add_definitions(-DINENDI_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 # Define email addresses
 ###############################################################################
 
-set(EMAIL_ADDRESS_CONTACT "centralsupport@esi-group.com")
-set(EMAIL_ADDRESS_SUPPORT "centralsupport@esi-group.com")
+set(EMAIL_ADDRESS_CONTACT "contact@esi-inendi.com")
+set(EMAIL_ADDRESS_SUPPORT "support@esi-inendi.com")
 
 add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
 add_definitions(-DEMAIL_ADDRESS_SUPPORT="${EMAIL_ADDRESS_SUPPORT}")

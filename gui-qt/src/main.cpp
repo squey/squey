@@ -31,6 +31,7 @@
 #include <pvkernel/opencl/common.h>
 #include <License.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include <inendi/common.h>
 
@@ -43,7 +44,7 @@
 
 #include <boost/program_options.hpp>
 
-static constexpr const char* email_address = EMAIL_ADDRESS_CONTACT;
+static constexpr const char* email_address = EMAIL_ADDRESS_SUPPORT;
 
 // #ifdef USE_UNIKEY
 // #include <UniKeyFR.h>
@@ -88,16 +89,32 @@ class DragNDropTransparencyHack : public QObject
 
 namespace bpo = boost::program_options;
 
+std::string get_locking_code()
+{
+	const std::string& echoid_output = PVCore::exec_cmd("inendi-echoid");
+	std::string locking_code;
+	std::istringstream iss(echoid_output);
+	std::string line;
+
+	while (std::getline(iss, line)) {
+		if (line.find("Locking Code 1     : ") != std::string::npos) {
+			return line.substr(23, 25);
+		}
+	}
+
+	return {};
+}
+
 int run_inspector(QApplication& app, int argc, char* argv[])
 {
 	if (not QFile(INENDI_LICENSE_PATH).exists()) {
-		QMessageBox::critical(nullptr, QObject::tr("INENDI-inspector"),
-		                      QObject::tr("You don't have you license file : %1. If you have a "
-		                                  "license file, rename "
-		                                  "it with this name, otherwise contact : <a "
-		                                  "href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
+
+		QMessageBox::critical(nullptr, QObject::tr("License not found"),
+		                      QObject::tr("No license file found !<br><br>If you have one, "
+		                                  "copy it to <b>%1</b>.<br><br>Otherwise get one with the "
+		                                  "following locking code:<br>%2")
 		                          .arg(INENDI_LICENSE_PATH)
-		                          .arg(email_address));
+		                          .arg(QString::fromStdString(get_locking_code())));
 		return 1;
 	}
 
@@ -255,12 +272,12 @@ int main(int argc, char* argv[])
 	} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
 		if (e.status_code ==
 		    Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::LICENSE_EXPIRED) {
-			QMessageBox::critical(
-			    nullptr, "License has expired",
-			    QObject::tr("Your license has expired.<br><br>"
-			                "Copy your new license file at the following location : <b>%1</b> "
-			                "or contact <a href=\"mailto:%2?subject=%5BINENDI%5D\">%2</a>")
-			        .arg(INENDI_LICENSE_PATH, email_address));
+			QMessageBox::critical(nullptr, QObject::tr("Expired license"),
+			                      QObject::tr("Your license has expired !<br>If you have one, "
+			                                  "copy it to <b>%1</b>.\n\nOtherwise get one with the "
+			                                  "following locking code:<br>%2")
+			                          .arg(INENDI_LICENSE_PATH)
+			                          .arg(QString::fromStdString(get_locking_code())));
 		}
 		return 1;
 	} catch (PVOpenCL::exception::no_backend_error const&) {
