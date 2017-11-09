@@ -8,6 +8,8 @@
 // Register the plugin in PVFilterLibrary
 //
 
+#include <License.h>
+#include <pvbase/general.h>
 #include <pvbase/export.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVInputType.h>
@@ -17,6 +19,8 @@
 // This method will be called by libpvrush
 LibCPPExport void register_class()
 {
-	// Register under a unique name
-	REGISTER_CLASS("file", PVRush::PVInputTypeFilename);
+	if (Inendi::Utils::License::RAII_LicenseFeature::is_available(INENDI_LICENSE_PREFIX,
+	                                                              "INSPECTOR_MODULE_TEXT")) {
+		REGISTER_CLASS("file", PVRush::PVInputTypeFilename);
+	}
 }

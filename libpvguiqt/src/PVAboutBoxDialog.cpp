@@ -50,8 +50,8 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	           "href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/>";
 
 	content += QString("Licence expiration in %1 days<br/>")
-	               .arg(Inendi::Utils::License::get_remaining_days(INENDI_FLEX_PREFIX,
-	                                                               INENDI_FLEX_FEATURE));
+	               .arg(Inendi::Utils::License::get_remaining_days(INENDI_LICENSE_PREFIX,
+	                                                               INENDI_LICENSE_FEATURE));
 
 	content += "<br/>With OpenCL support";
 	content += "<br/>QT version " + QString(QT_VERSION_STR);
