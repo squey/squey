@@ -1,5 +1,5 @@
-[submodule "third-party/type_safe"]
-	path = third-party/type_safe
+[submodule "external/type_safe"]
+	path = external/type_safe
 	url = https://github.com/foonathan/type_safe
 [submodule "libpvcop"]
 	path = libpvcop
