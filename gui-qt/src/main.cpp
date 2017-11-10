@@ -44,8 +44,6 @@
 
 #include <boost/program_options.hpp>
 
-static constexpr const char* email_address = EMAIL_ADDRESS_SUPPORT;
-
 // #ifdef USE_UNIKEY
 // #include <UniKeyFR.h>
 // #endif
