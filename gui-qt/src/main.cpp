@@ -105,7 +105,7 @@ std::string get_locking_code()
 
 int run_inspector(QApplication& app, int argc, char* argv[])
 {
-	if (not QFile(INENDI_LICENSE_PATH).exists()) {
+	if (not QFileInfo(INENDI_LICENSE_PATH).exists()) {
 
 		QMessageBox::critical(nullptr, QObject::tr("License not found"),
 		                      QObject::tr("No license file found !<br><br>If you have one, "
@@ -113,6 +113,13 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 		                                  "following locking code:<br>%2")
 		                          .arg(INENDI_LICENSE_PATH)
 		                          .arg(QString::fromStdString(get_locking_code())));
+		return 1;
+	} else if (not QFileInfo(INENDI_LICENSE_PATH).isReadable()) {
+		QMessageBox::critical(
+		    nullptr, QObject::tr("Unable to read license"),
+		    QObject::tr(
+		        "Your license file locate at <b>%1</b> has not the proper read permissions !")
+		        .arg(INENDI_LICENSE_PATH));
 		return 1;
 	}
 
