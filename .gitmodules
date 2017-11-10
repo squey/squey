@@ -16,3 +16,6 @@
 [submodule "libpvkernel/plugins/common/pcap/LightPcapNg"]
 	path = libpvkernel/plugins/common/pcap/LightPcapNg
 	url = https://github.com/rvelea/LightPcapNg
+[submodule "external/tbb"]
+	path = external/tbb
+	url = https://github.com/01org/tbb.git
