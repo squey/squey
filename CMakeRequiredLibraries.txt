@@ -17,19 +17,10 @@ include_directories(SYSTEM ${Qt5Core_INCLUDE_DIRS})
 # Define the Intel TBB Library
 ###############################################################################
 set(TBB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/external/tbb)
+set(TBB_BUILD_DIR ${TBB_ROOT}/build/linux_intel64_release)
 set(TBB_INCLUDE_DIRS ${TBB_ROOT}/include)
-set(TBB_BUILD_PREFIX "linux_intel64")
-set(TBB_BUILD_DIR ${TBB_ROOT}/build/${TBB_BUILD_PREFIX}_release)
-include(ExternalProject)
-ExternalProject_Add(tbb
-    SOURCE_DIR ${TBB_ROOT}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND cmake -E echo "Skipping configure step."
-    BUILD_COMMAND make tbb_build_prefix=${TBB_BUILD_PREFIX}
-    INSTALL_COMMAND cmake -E echo "Skipping install step."
-)
 include_directories(SYSTEM AFTER ${TBB_INCLUDE_DIRS})
-set(TBB_LIBRARIES ${TBB_ROOT}/build/${TBB_BUILD_PREFIX}_release/libtbb.so;${TBB_ROOT}/build/${TBB_BUILD_PREFIX}_release/libtbbmalloc.so)
+set(TBB_LIBRARIES ${TBB_BUILD_DIR}/libtbb.so;${TBB_BUILD_DIR}/libtbbmalloc.so)
 
 ###############################################################################
 # Define the OpenCL runtime

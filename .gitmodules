@@ -18,4 +18,5 @@
 	url = https://github.com/rvelea/LightPcapNg
 [submodule "external/tbb"]
 	path = external/tbb
-	url = https://github.com/01org/tbb.git
+	url = git@gitlab.srv.picviz:picviz/tbb.git
+        branch = tbb_2018
