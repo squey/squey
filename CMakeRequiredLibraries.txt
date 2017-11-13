@@ -16,16 +16,11 @@ include_directories(SYSTEM ${Qt5Core_INCLUDE_DIRS})
 ###############################################################################
 # Define the Intel TBB Library
 ###############################################################################
-
-set(TBB_ROOT_DIR /opt/tbb-latest)
-find_package(TBB 4.4 REQUIRED)
-
-message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
+set(TBB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/external/tbb)
+set(TBB_BUILD_DIR ${TBB_ROOT}/build/linux_intel64_release)
+set(TBB_INCLUDE_DIRS ${TBB_ROOT}/include)
 include_directories(SYSTEM AFTER ${TBB_INCLUDE_DIRS})
-
-if(CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
-	set(TBB_USE_DEBUG "1")
-endif()
+set(TBB_LIBRARIES ${TBB_BUILD_DIR}/libtbb.so;${TBB_BUILD_DIR}/libtbbmalloc.so)
 
 ###############################################################################
 # Define the OpenCL runtime
@@ -152,5 +147,5 @@ pkg_check_modules(SIGCPP REQUIRED sigc++-2.0)
 ###############################################################################
 add_definitions(-DTYPE_SAFE_ENABLE_WRAPPER=0)
 add_definitions(-DTYPE_SAFE_ENABLE_ASSERTIONS=0)
-include_directories(AFTER third-party/type_safe/external/debug_assert) 
-include_directories(AFTER third-party/type_safe/include)
+include_directories(AFTER external/type_safe/external/debug_assert)
+include_directories(AFTER external/type_safe/include)

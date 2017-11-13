@@ -53,8 +53,16 @@ if(NOT ${QT_WEBKIT})
 	set(QTWEBENGINE_PATCH "2")
 endif(NOT ${QT_WEBKIT})
 
-set(LINUX_TBB_PATH "/opt/tbb-latest/lib/intel64/gcc4.4/")
+###############################################################################
+# Intel Threading Building Blocks (TBB)
+###############################################################################
 set(TBB_MAJOR "2")
+
+install(FILES
+	${TBB_BUILD_DIR}/libtbb.so.${TBB_MAJOR}
+	${TBB_BUILD_DIR}/libtbbmalloc.so.${TBB_MAJOR}
+	DESTINATION ${CUSTOM_TBB_PATH})
+	
 
 set(LINUX_BOOST_PATH "/usr/lib/x86_64-linux-gnu")
 set(BOOST_VER "1.55.0")
@@ -94,14 +102,6 @@ install(FILES
 	${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
 	DESTINATION ${CUSTOM_QT_PATH})
 endif(NOT ${QT_WEBKIT})
-
-#
-# TBB
-#
-install(FILES
-	${LINUX_TBB_PATH}/libtbb.so.${TBB_MAJOR}
-	${LINUX_TBB_PATH}/libtbbmalloc.so.${TBB_MAJOR}
-	DESTINATION ${CUSTOM_TBB_PATH})
 
 # doc 
 if(DOC_ROOT_DIR)

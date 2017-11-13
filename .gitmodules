@@ -1,5 +1,5 @@
-[submodule "third-party/type_safe"]
-	path = third-party/type_safe
+[submodule "external/type_safe"]
+	path = external/type_safe
 	url = https://github.com/foonathan/type_safe
 [submodule "libpvcop"]
 	path = libpvcop
@@ -16,3 +16,7 @@
 [submodule "libpvkernel/plugins/common/pcap/LightPcapNg"]
 	path = libpvkernel/plugins/common/pcap/LightPcapNg
 	url = https://github.com/rvelea/LightPcapNg
+[submodule "external/tbb"]
+	path = external/tbb
+	url = git@gitlab.srv.picviz:picviz/tbb.git
+        branch = tbb_2018
