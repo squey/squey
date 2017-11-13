@@ -160,8 +160,7 @@ declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
 
-add_dependencies(libpvcop inendi-utils)
-add_dependencies(pvkernel furl libpvcop)
+add_dependencies(pvkernel furl libpvcop inendi-utils)
 
 add_subdirectory(gui-qt)
 
