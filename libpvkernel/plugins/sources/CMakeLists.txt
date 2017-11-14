@@ -16,12 +16,6 @@ include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
 # Ressource declaration
 ################################################
 
-set(SOURCES_DIST_LIST
-source_text_file
-source_elasticsearch
-source_splunk
-)
-
 set(SOURCES_DIST_FILES
 )
 
@@ -42,31 +36,6 @@ text_file/register.cpp
 # Create lib
 add_library(source_text_file SHARED ${TEXT_FILE_SRC})
 target_link_libraries(source_text_file pvkernel)
-
-###############################################################################
-# pcap sources
-###############################################################################
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libpvkernel/plugins/sources/")
-
-set(SOURCES_DIST_LIST
-	source_pcap
-)
-
-# Define ressources
-set(PCAP_SRC_FILES
-	pcap/PVSourceCreatorPcap.cpp
-	pcap/register.cpp
-	)
-
-# Create lib
-add_library(source_pcap SHARED ${PCAP_SRC_FILES})
-target_link_libraries(source_pcap pvkernel)
-
-###############################################################################
-# Define installation folders
-###############################################################################
-INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
-				     RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)
 
 ###############################################################################
 # database sources
@@ -119,6 +88,32 @@ splunk/register.cpp
 # Create lib
 add_library(source_splunk SHARED ${SPLUNK_SRC_FILES})
 target_link_libraries(source_splunk curl)
+
+###############################################################################
+# pcap sources
+###############################################################################
+
+# Define ressources
+set(PCAP_SRC_FILES
+	pcap/PVSourceCreatorPcap.cpp
+	pcap/register.cpp
+)
+
+# Create lib
+add_library(source_pcap SHARED ${PCAP_SRC_FILES})
+target_link_libraries(source_pcap pvkernel)
+
+###############################################################################
+# Define installation folders
+###############################################################################
+set(SOURCES_DIST_LIST
+source_text_file
+source_elasticsearch
+source_splunk
+source_pcap
+)
+INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
+				     RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)
 
 ###############################################################################
 # Define installation folders
