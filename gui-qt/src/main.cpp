@@ -39,6 +39,7 @@
 
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVViewDisplay.h>
+#include <pvguiqt/PVNrawDirectoryMessageBox.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
@@ -126,6 +127,11 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	Inendi::Utils::License::RAII_InitLicense license_manager(INENDI_LICENSE_PATH);
 	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
 	                                                                 INENDI_LICENSE_FEATURE);
+
+	// Ensure nraw tmp directory exists and is writable
+	{
+		PVNrawDirectoryMessageBox nraw_tmp_checker;
+	}
 
 	// Program options
 	bpo::options_description desc_opts("Options");
