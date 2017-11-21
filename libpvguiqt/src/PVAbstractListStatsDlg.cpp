@@ -535,8 +535,8 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	 * - p_{max} is the upper bound percentage
 	 * - N is the events count
 	 */
-	double vmin;
-	double vmax;
+	uint64_t vmin;
+	uint64_t vmax;
 	if (_select_is_count) {
 		vmin = _select_picker->get_range_min();
 		vmax = _select_picker->get_range_max();
@@ -557,17 +557,15 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	    [this, vmax, vmin](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 		    const pvcop::db::array& col2_array = model().stat_col();
-		    std::string min_, max_;
 
 		    // Manual check for typing convertion to string.
 		    // FIXME : We should handle this with more specific widgets for each
 		    // type.
-		    min_ = std::to_string(vmin);
-		    max_ = std::to_string(vmax);
 		    model().reset_selection();
 		    Inendi::PVSelection& sel = model().current_selection();
 
-		    pvcop::db::algo::range_select(col2_array, min_, max_, pvcop::db::selection(), sel);
+		    pvcop::db::algo::range_select(col2_array, std::to_string(vmin), std::to_string(vmax),
+		                                  pvcop::db::selection(), sel);
 
 		},
 	    QObject::tr("Computing selection..."), this);
