@@ -47,9 +47,9 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	content += EMAIL_ADDRESS_SUPPORT;
 	content += "</a><br/>";
 	content += "website - <a "
-	           "href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/>";
+	           "href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/><br/>";
 
-	content += QString("Licence expiration in %1 days<br/>")
+	content += QString("Licence expires in %1 days.<br/>")
 	               .arg(Inendi::Utils::License::get_remaining_days(INENDI_LICENSE_PREFIX,
 	                                                               INENDI_LICENSE_FEATURE));
 
@@ -86,9 +86,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	doc->setText("<br/>Reference Manual: <a href=\"file://" DOC_PATH
 	             "/inendi_inspector_reference_manual/index.html\">HTML</a> | "
 	             "<a href=\"file://" DOC_PATH
-	             "/inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>"
-	             "All documentations: <a href=\"file://" DOC_PATH "/\">local files</a> | "
-	             "<a href=\"https://docs.picviz.com\">docs.picviz.com</a><br/><br/>");
+	             "/inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>");
 	doc->setTextFormat(Qt::RichText);
 	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	doc->setOpenExternalLinks(true);
