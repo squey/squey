@@ -274,8 +274,9 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
                                                         PVCol c,
                                                         PVStatsModel* m,
+                                                        bool counts_are_integers /* = true */,
                                                         QWidget* parent /* = nullptr */)
-    : PVListDisplayDlg(m, parent), _view(&view), _col(c)
+    : PVListDisplayDlg(m, parent), _view(&view), _col(c), _counts_are_integers(counts_are_integers)
 {
 	QString search_multiples = "search-multiple";
 	Inendi::PVLayerFilter::p_type search_multiple =
@@ -967,7 +968,8 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 			_field_size_count = fm.width(QString::fromStdString(model().stat_col().at(0)));
 		} else {
 			double v = converting_digits_to_nines_at_given_precision(relative_max_count());
-			_field_size_count = fm.width(QLocale::system().toString(v, 'f', 0));
+			size_t precision = _counts_are_integers ? 0 : 3;
+			_field_size_count = fm.width(QLocale::system().toString(v, 'f', precision));
 		}
 	} else {
 		_field_size_count = 0;

@@ -28,12 +28,14 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	                    pvcop::db::array col2,
 	                    pvcop::db::array abs_max,
 	                    pvcop::db::array minmax,
+	                    bool counts_are_integers,
 	                    QWidget* parent = nullptr)
 	    : PVAbstractListStatsDlg(
 	          view,
 	          c1,
 	          new PVStatsModel(
 	              std::move(col1), std::move(col2), std::move(abs_max), std::move(minmax)),
+	          counts_are_integers,
 	          parent)
 	    , _col2(c2)
 	    , _sel(sel)
