@@ -65,6 +65,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	PVAbstractListStatsDlg(Inendi::PVView& view,
 	                       PVCol c,
 	                       PVStatsModel* model,
+	                       bool counts_are_integers = true,
 	                       QWidget* parent = nullptr);
 
 	void init(Inendi::PVView& view);
@@ -188,6 +189,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	int _field_size_count;
 	int _field_size_scientific;
 	int _field_size_percentage;
+	bool _counts_are_integers;
 };
 
 namespace __impl

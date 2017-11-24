@@ -81,6 +81,7 @@ template <typename F>
 static bool show_stats_dialog(const QString& title,
                               const F& op,
                               ABS_MAX_OP abs_max_op,
+                              bool counts_are_integers,
                               Inendi::PVView& view,
                               PVRush::PVNraw const& nraw,
                               PVCol col1,
@@ -138,7 +139,7 @@ static bool show_stats_dialog(const QString& title,
 
 	PVGuiQt::PVGroupByStringsDlg* dlg = new PVGuiQt::PVGroupByStringsDlg(
 	    view, col1, col2, sel, std::move(col1_out), std::move(col2_out), std::move(abs_max),
-	    std::move(minmax), parent);
+	    std::move(minmax), counts_are_integers, parent);
 	dlg->setWindowTitle(
 	    title + " of axes '" +
 	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col1).get_name() +
@@ -156,8 +157,8 @@ bool PVGuiQt::PVQNraw::show_count_by(Inendi::PVView& view,
                                      Inendi::PVSelection const& sel,
                                      QWidget* parent)
 {
-	return show_stats_dialog("Count by", &pvcop::db::algo::count_by, ABS_MAX_OP::COUNT, view, nraw,
-	                         col1, col2, sel, parent);
+	return show_stats_dialog("Count by", &pvcop::db::algo::count_by, ABS_MAX_OP::COUNT, true, view,
+	                         nraw, col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
@@ -167,8 +168,8 @@ bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
                                    Inendi::PVSelection const& sel,
                                    QWidget* parent)
 {
-	return show_stats_dialog("Sum by", &pvcop::db::algo::sum_by, ABS_MAX_OP::SUM, view, nraw, col1,
-	                         col2, sel, parent);
+	return show_stats_dialog("Sum by", &pvcop::db::algo::sum_by, ABS_MAX_OP::SUM, true, view, nraw,
+	                         col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView& view,
@@ -178,8 +179,8 @@ bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView& view,
                                    Inendi::PVSelection const& sel,
                                    QWidget* parent)
 {
-	return show_stats_dialog("Max by", &pvcop::db::algo::max_by, ABS_MAX_OP::MAX, view, nraw, col1,
-	                         col2, sel, parent);
+	return show_stats_dialog("Max by", &pvcop::db::algo::max_by, ABS_MAX_OP::MAX, true, view, nraw,
+	                         col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView& view,
@@ -189,8 +190,8 @@ bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView& view,
                                    Inendi::PVSelection const& sel,
                                    QWidget* parent)
 {
-	return show_stats_dialog("Min by", &pvcop::db::algo::min_by, ABS_MAX_OP::MAX, view, nraw, col1,
-	                         col2, sel, parent);
+	return show_stats_dialog("Min by", &pvcop::db::algo::min_by, ABS_MAX_OP::MAX, true, view, nraw,
+	                         col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_avg_by(Inendi::PVView& view,
@@ -200,6 +201,6 @@ bool PVGuiQt::PVQNraw::show_avg_by(Inendi::PVView& view,
                                    Inendi::PVSelection const& sel,
                                    QWidget* parent)
 {
-	return show_stats_dialog("Average by", &pvcop::db::algo::average_by, ABS_MAX_OP::MAX, view,
-	                         nraw, col1, col2, sel, parent);
+	return show_stats_dialog("Average by", &pvcop::db::algo::average_by, ABS_MAX_OP::MAX, false,
+	                         view, nraw, col1, col2, sel, parent);
 }
