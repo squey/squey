@@ -34,10 +34,15 @@ install(FILES "gui-qt/src/resources/icon.png" DESTINATION ${SHARE_RESSOURCES})
 install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION ${SHARE_RESSOURCES})
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
-# Install Gemalto Sentinel RMS echoid
+# Install Gemalto Sentinel RMS echoid and lsinit
 INSTALL(
     FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/customization/echoid"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-echoid
+    PERMISSIONS WORLD_EXECUTE
+)
+INSTALL(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/src/initdemo"
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-lsinit
     PERMISSIONS WORLD_EXECUTE
 )
 
