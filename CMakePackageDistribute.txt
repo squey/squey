@@ -41,7 +41,7 @@ INSTALL(
     PERMISSIONS WORLD_EXECUTE
 )
 INSTALL(
-    FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/src/initdemo"
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/out/x86_64/initdemo"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-lsinit
     PERMISSIONS WORLD_EXECUTE
 )
