@@ -290,6 +290,16 @@ int main(int argc, char* argv[])
 			                                  "following locking code:<br>%2")
 			                          .arg(INENDI_LICENSE_PATH)
 			                          .arg(QString::fromStdString(get_locking_code())));
+		} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
+		                                STATUS_CODE::HARDWARE_IDENTIFICATION_FAILED) {
+			QMessageBox::critical(
+			    nullptr, QObject::tr("Hardware identification error"),
+			    QObject::tr("This license does not allow you to run the software on this "
+			                "hardware.<br><br>Please, check you are using the proper license."));
+		} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
+		                                STATUS_CODE::UNKOWN_STATUS) {
+			QMessageBox::critical(nullptr, QObject::tr("License error"),
+			                      QObject::tr("%1").arg(e.what()));
 		}
 		return 1;
 	} catch (PVOpenCL::exception::no_backend_error const&) {
