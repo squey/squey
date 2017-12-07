@@ -7,6 +7,7 @@
 
 #include <pvguiqt/PVGroupByStringsDlg.h>
 
+#include <inendi/PVSource.h>
 #include <inendi/PVView.h>
 
 #include <pvkernel/rush/PVNraw.h>
@@ -56,10 +57,17 @@ bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 				},
 			    QObject::tr("Computing values..."), parentWidget());
 
+			QString col2_name = lib_view()
+			                        ->get_parent<Inendi::PVSource>()
+			                        .get_format()
+			                        .get_axes()
+			                        .at(_col2)
+			                        .get_name();
+
 			if (ret == PVCore::PVProgressBox::CancelState::CONTINUE) {
 				PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(
-				    *lib_view(), _col2, std::move(col1_out), std::move(col2_out), std::move(sum),
-				    std::move(minmax), parentWidget());
+				    *lib_view(), col2_name, _col2, std::move(col1_out), std::move(col2_out),
+				    std::move(sum), std::move(minmax), parentWidget());
 				dlg->setWindowTitle("Details of value '" + value + "'");
 				dlg->move(x() + width() + 10, y());
 				dlg->show();
