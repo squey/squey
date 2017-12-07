@@ -463,8 +463,14 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	QList<QAction*> sum_by_actions;
 	QList<QAction*> avg_by_actions;
 
+	QStringList summable_types = {"number_int64",  "number_uint64", "number_int32", "number_uint32",
+	                              "number_uint16", "number_int16",  "number_uint8", "number_int8",
+	                              "number_float",  "number_double", "duration"};
+
 	for (PVCombCol i(0); i < axes.size(); i++) {
 		if (i != comb_col) {
+			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
+
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
 			count_by_actions << action_col_count_by;
 			connect(action_col_count_by, &QAction::triggered, action_col_count_by, [=]() {
@@ -473,27 +479,26 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 				                       lib_view().get_selection_visible_listing(), this);
 			});
 
-			QAction* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
-			min_by_actions << action_col_min_by;
-			connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=]() {
-				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-				PVQNraw::show_min_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
-				                     lib_view().get_selection_visible_listing(), this);
-			});
+			if (summable_types.contains(axis_type)) {
+				QAction* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
+				min_by_actions << action_col_min_by;
+				connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=]() {
+					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
+					PVQNraw::show_min_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					                     lib_view().get_selection_visible_listing(), this);
+				});
+			}
 
-			QAction* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
-			max_by_actions << action_col_max_by;
-			connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=]() {
-				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-				PVQNraw::show_max_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
-				                     lib_view().get_selection_visible_listing(), this);
-			});
+			if (summable_types.contains(axis_type)) {
+				QAction* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
+				max_by_actions << action_col_max_by;
+				connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=]() {
+					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
+					PVQNraw::show_max_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					                     lib_view().get_selection_visible_listing(), this);
+				});
+			}
 
-			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
-			QStringList summable_types = {"number_int64",  "number_uint64", "number_int32",
-			                              "number_uint32", "number_uint16", "number_int16",
-			                              "number_uint8",  "number_int8",   "number_float",
-			                              "number_double", "duration"};
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
 				sum_by_actions << action_col_sum_by;
