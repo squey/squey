@@ -174,8 +174,20 @@ bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
                                    Inendi::PVSelection const& sel,
                                    QWidget* parent)
 {
-	return show_stats_dialog("Sum", &pvcop::db::algo::sum_by, ABS_MAX_OP::SUM, true, view, nraw,
-	                         col1, col2, sel, parent);
+	bool counts_are_integers = nraw.column(col1).formatter()->name() != "number_float" and
+	                           nraw.column(col2).formatter()->name() != "number_double";
+
+	QStringList signed_types = {"number_int8",  "number_int16", "number_int32",
+	                            "number_int64", "number_float", "number_double"};
+
+	ABS_MAX_OP max_op = ABS_MAX_OP::SUM;
+
+	if (signed_types.contains(QString::fromStdString(nraw.column(col2).formatter()->name()))) {
+		max_op = ABS_MAX_OP::MAX;
+	}
+
+	return show_stats_dialog("Sum", &pvcop::db::algo::sum_by, max_op, counts_are_integers, view,
+	                         nraw, col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView& view,

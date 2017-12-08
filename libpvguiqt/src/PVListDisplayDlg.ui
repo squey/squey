@@ -118,9 +118,9 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QRadioButton" name="_by_count_radio">
+         <widget class="QRadioButton" name="_by_value_radio">
           <property name="text">
-           <string>by count</string>
+           <string>by value</string>
           </property>
          </widget>
         </item>

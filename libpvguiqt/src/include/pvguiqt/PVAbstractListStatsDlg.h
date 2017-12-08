@@ -103,7 +103,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	void max_changed(QAction* act);
 
   protected Q_SLOTS:
-	void select_set_mode_count(bool checked);
+	void select_set_mode_value(bool checked);
 	void select_set_mode_frequency(bool checked);
 	void select_refresh(bool checked);
 
@@ -140,7 +140,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	 */
 	static double converting_digits_to_nines_at_given_precision(double v, int p = 0)
 	{
-		return pow(10, floor(log10(v)) + 1.0) - pow(0.1, p);
+		return -pow(10, floor(log10(v)) + 1.0) - pow(0.1, p);
 	}
 
   protected:
@@ -157,7 +157,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	QAction* _act_show_scientific_notation;
 
 	__impl::PVAbstractListStatsRangePicker* _select_picker;
-	bool _select_is_count;
+	bool _select_is_value;
 
 	QMenu* _copy_values_menu;
 	QAction* _copy_values_without_count_act;
