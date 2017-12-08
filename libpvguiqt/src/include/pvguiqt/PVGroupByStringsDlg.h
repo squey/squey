@@ -21,6 +21,9 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 {
   public:
 	PVGroupByStringsDlg(Inendi::PVView& view,
+	                    const QString& op_name,
+	                    const QString& col1_name,
+	                    const QString& col2_name,
 	                    PVCol c1,
 	                    PVCol c2,
 	                    const Inendi::PVSelection& sel,
@@ -30,13 +33,17 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	                    pvcop::db::array minmax,
 	                    bool counts_are_integers,
 	                    QWidget* parent = nullptr)
-	    : PVAbstractListStatsDlg(
-	          view,
-	          c1,
-	          new PVStatsModel(
-	              std::move(col1), std::move(col2), std::move(abs_max), std::move(minmax)),
-	          counts_are_integers,
-	          parent)
+	    : PVAbstractListStatsDlg(view,
+	                             c1,
+	                             new PVStatsModel(op_name,
+	                                              col1_name,
+	                                              col2_name,
+	                                              std::move(col1),
+	                                              std::move(col2),
+	                                              std::move(abs_max),
+	                                              std::move(minmax)),
+	                             counts_are_integers,
+	                             parent)
 	    , _col2(c2)
 	    , _sel(sel)
 	{

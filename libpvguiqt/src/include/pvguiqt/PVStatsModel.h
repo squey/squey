@@ -23,12 +23,18 @@ enum ValueFormat { Count = 1, Percent = 2, Scientific = 4 };
 class PVStatsModel : public PVAbstractTableModel
 {
   public:
-	PVStatsModel(pvcop::db::array col1,
+	PVStatsModel(const QString& op_name,
+	             const QString& col1_name,
+	             const QString& col2_name,
+	             pvcop::db::array col1,
 	             pvcop::db::array col2,
 	             pvcop::db::array abs_max,
 	             pvcop::db::array minmax,
 	             QWidget* parent = nullptr)
 	    : PVAbstractTableModel(col1.size(), parent)
+	    , _op_name(op_name)
+	    , _col1_name(col1_name)
+	    , _col2_name(col2_name)
 	    , _col1(std::move(col1))
 	    , _col2(std::move(col2))
 	    , _format(ValueFormat::Count)
@@ -45,7 +51,7 @@ class PVStatsModel : public PVAbstractTableModel
 				if (section == 1) {
 					return count_header();
 				}
-				return "Value";
+				return _col1_name;
 			}
 
 			return row_pos(section) + 1; // Start counting rows from 1 for display
@@ -217,8 +223,7 @@ class PVStatsModel : public PVAbstractTableModel
   private:
 	QString count_header() const
 	{
-		return QString("Count ") + " (" + (_use_logarithmic_scale ? "Log" : "Lin") + "/" +
-		       (_use_absolute_max_count ? "Abs" : "Rel") + ")";
+		return _col2_name.isNull() ? "Count" : _op_name + " on " + _col2_name;
 	}
 
   public:
@@ -250,6 +255,9 @@ class PVStatsModel : public PVAbstractTableModel
 	using type_index = pvcop::db::index_t;
 
   private:
+	QString _op_name;             // <! Name of the operation
+	QString _col1_name;           // <! Name of the first column
+	QString _col2_name;           // <! Name of the second column
 	const pvcop::db::array _col1; //!< Values handled.
 	const pvcop::db::array _col2; //!< Number of occurance for each values.
 

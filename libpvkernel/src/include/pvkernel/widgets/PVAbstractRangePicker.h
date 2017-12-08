@@ -268,7 +268,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 		if (_use_floating_point) {
 			return locale().toString(value, 'f', decimals());
 		} else {
-			return locale().toString((qulonglong)value);
+			return locale().toString((qlonglong)value);
 		}
 	}
 

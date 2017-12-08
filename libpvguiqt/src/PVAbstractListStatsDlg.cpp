@@ -95,7 +95,9 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 	double convert_to(const double& value) const override
 	{
 		if (_use_percent_mode) {
-			return value / max_count() * 100;
+			double neg_min_or_zero = std::min(_relative_min_count, 0.);
+			double res = (value - neg_min_or_zero) / (max_count() - neg_min_or_zero) * 100;
+			return res;
 		} else {
 			return value;
 		}
@@ -104,13 +106,15 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 	double convert_from(const double& value) const override
 	{
 		if (_use_percent_mode) {
-			return value * max_count() / 100;
+			double neg_min_or_zero = std::min(_relative_min_count, 0.);
+			double res = (value + neg_min_or_zero) * (max_count() + neg_min_or_zero) / 100;
+			return res;
 		} else {
 			return value;
 		}
 	}
 
-	void set_mode_count()
+	void set_mode_value()
 	{
 		_use_percent_mode = false;
 		_min_spinbox->use_floating_point(false);
@@ -198,15 +202,16 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 		double ratio1, ratio2, ratio3;
 		QColor color;
 
+		double pos_min_or_zero = std::max(_relative_min_count, 0.);
 		if (_use_logarithmic_scale &&
 		    _relative_min_count != _relative_max_count) { // If only one value, use
 			                                              // linear scale to avoid
 			                                              // divisions by 0.
-			ratio1 = PVCore::log_scale(_relative_min_count, 0., max_count());
+			ratio1 = PVCore::log_scale(pos_min_or_zero, 0., max_count());
 			ratio3 = PVCore::log_scale(_relative_max_count, 0., max_count());
 			ratio2 = ratio1 + (ratio3 - ratio1) / 2;
 		} else {
-			ratio1 = _relative_min_count / max_count();
+			ratio1 = pos_min_or_zero / max_count();
 			ratio2 = (_relative_min_count + (_relative_max_count - _relative_min_count) / 2) /
 			         max_count();
 			ratio3 = _relative_max_count / max_count();
@@ -386,14 +391,14 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_select_picker->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	_select_layout->addWidget(_select_picker, 1);
 
-	connect(_by_count_radio, &QRadioButton::toggled, this,
-	        &PVAbstractListStatsDlg::select_set_mode_count);
+	connect(_by_value_radio, &QRadioButton::toggled, this,
+	        &PVAbstractListStatsDlg::select_set_mode_value);
 	connect(_by_freq_radio, &QRadioButton::toggled, this,
 	        &PVAbstractListStatsDlg::select_set_mode_frequency);
 	connect(_select_button, &QPushButton::clicked, this, &PVAbstractListStatsDlg::select_refresh);
 
-	// set default mode to "count"
-	_by_count_radio->click();
+	// set default mode to "value"
+	_by_value_radio->click();
 
 	// propagate the scale mode
 	_act_toggle_log->setChecked(model().use_log_scale());
@@ -502,11 +507,11 @@ void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 	}
 }
 
-void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_count(bool checked)
+void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_value(bool checked)
 {
 	if (checked) {
-		_select_picker->set_mode_count();
-		_select_is_count = true;
+		_select_picker->set_mode_value();
+		_select_is_value = true;
 	}
 }
 
@@ -514,7 +519,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
 {
 	if (checked) {
 		_select_picker->set_mode_percent();
-		_select_is_count = false;
+		_select_is_value = false;
 	}
 }
 
@@ -536,9 +541,9 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	 * - p_{max} is the upper bound percentage
 	 * - N is the events count
 	 */
-	uint64_t vmin;
-	uint64_t vmax;
-	if (_select_is_count) {
+	int64_t vmin;
+	int64_t vmax;
+	if (_select_is_value) {
 		vmin = _select_picker->get_range_min();
 		vmax = _select_picker->get_range_max();
 	} else {
@@ -866,8 +871,10 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 		}
 
 		double occurence_count = d()->model().stat_as_double(real_index);
-		double ratio = occurence_count / d()->max_count();
-		double log_ratio = PVCore::log_scale(occurence_count, 0., d()->max_count());
+		double neg_min_or_zero = std::min(d()->relative_min_count(), 0.);
+		double ratio = (occurence_count - neg_min_or_zero) / (d()->max_count() - neg_min_or_zero);
+		double log_ratio = PVCore::log_scale((occurence_count - neg_min_or_zero), 0.,
+		                                     (d()->max_count() - neg_min_or_zero));
 
 		bool log_scale = d()->use_logarithmic_scale();
 

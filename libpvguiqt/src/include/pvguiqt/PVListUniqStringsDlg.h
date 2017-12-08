@@ -21,18 +21,23 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 {
   public:
 	PVListUniqStringsDlg(Inendi::PVView& view,
+	                     const QString& col1_name,
 	                     PVCol c,
 	                     pvcop::db::array col1,
 	                     pvcop::db::array col2,
 	                     pvcop::db::array abs_max,
 	                     pvcop::db::array minmax,
 	                     QWidget* parent = nullptr)
-	    : PVAbstractListStatsDlg(
-	          view,
-	          c,
-	          new PVStatsModel(
-	              std::move(col1), std::move(col2), std::move(abs_max), std::move(minmax)),
-	          parent)
+	    : PVAbstractListStatsDlg(view,
+	                             c,
+	                             new PVStatsModel("Count",
+	                                              col1_name,
+	                                              QString(),
+	                                              std::move(col1),
+	                                              std::move(col2),
+	                                              std::move(abs_max),
+	                                              std::move(minmax)),
+	                             parent)
 	{
 	}
 };
