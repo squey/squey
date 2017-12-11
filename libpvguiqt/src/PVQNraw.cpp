@@ -174,7 +174,7 @@ bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
                                    Inendi::PVSelection const& sel,
                                    QWidget* parent)
 {
-	bool counts_are_integers = nraw.column(col1).formatter()->name() != "number_float" and
+	bool counts_are_integers = nraw.column(col2).formatter()->name() != "number_float" and
 	                           nraw.column(col2).formatter()->name() != "number_double";
 
 	QStringList signed_types = {"number_int8",  "number_int16", "number_int32",

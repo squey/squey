@@ -140,7 +140,11 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	 */
 	static double converting_digits_to_nines_at_given_precision(double v, int p = 0)
 	{
-		return -pow(10, floor(log10(v)) + 1.0) - pow(0.1, p);
+		double res = pow(10, floor(log10(v)) + 1.0) - pow(0.1, p);
+		if (res > 0) {
+			return -res;
+		}
+		return res;
 	}
 
   protected:
