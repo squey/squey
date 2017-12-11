@@ -182,7 +182,8 @@ bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
 
 	ABS_MAX_OP max_op = ABS_MAX_OP::SUM;
 
-	if (signed_types.contains(QString::fromStdString(nraw.column(col2).formatter()->name()))) {
+	const QString& column_type = view.get_axes_combination().get_axis(col2).get_type();
+	if (signed_types.contains(column_type)) {
 		max_op = ABS_MAX_OP::MAX;
 	}
 
