@@ -974,7 +974,10 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 		if (model().stat_col().type() == "duration") { // FIXME
 			_field_size_count = fm.width(QString::fromStdString(model().stat_col().at(0)));
 		} else {
-			double v = converting_digits_to_nines_at_given_precision(relative_max_count());
+			double longest_val = (std::abs(relative_min_count()) < std::abs(relative_max_count()))
+			                         ? relative_max_count()
+			                         : relative_min_count();
+			double v = converting_digits_to_nines_at_given_precision(longest_val);
 			size_t precision = _counts_are_integers ? 0 : 3;
 			_field_size_count = fm.width(QLocale::system().toString(v, 'f', precision));
 		}
