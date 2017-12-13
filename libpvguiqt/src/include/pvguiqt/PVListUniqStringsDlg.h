@@ -37,6 +37,7 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 	                                              std::move(col2),
 	                                              std::move(abs_max),
 	                                              std::move(minmax)),
+	                             true, /* counts_are_integer */
 	                             parent)
 	{
 	}
