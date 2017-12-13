@@ -909,8 +909,14 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 		if (show_count) {
 			int field_size = d()->_field_size_count;
 
-			painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
-			                  PVStatsModel::format_occurence(occurence_count));
+			if (d()->model().stat_col().type() == "duration") { // FIXME
+				painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
+				                  QString::fromStdString(col2_array.at(real_index)));
+			} else {
+				painter->drawText(x, option.rect.y(), field_size, option.rect.height(), align_flags,
+				                  PVStatsModel::format_occurence(occurence_count));
+			}
+
 			x += field_size;
 		}
 
