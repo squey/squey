@@ -27,6 +27,9 @@ namespace pvpcap
 class JsonTreeItem
 {
   public:
+	enum class CHILDREN_SELECTION_STATE { UNSELECTED, PARTIALY_SELECTED, TOTALY_SELECTED, UNKOWN };
+
+  public:
 	explicit JsonTreeItem(rapidjson::Value* value, JsonTreeItem* parent = 0);
 	explicit JsonTreeItem(JsonTreeItem* parent = 0);
 	~JsonTreeItem();
@@ -45,9 +48,10 @@ class JsonTreeItem
 	 * True if one field of the protocol is selected
 	 * @return true or false
 	 */
-	bool is_selected() const;
+	CHILDREN_SELECTION_STATE selection_state() const;
 
-	bool is_any_child_selected() const;
+	void select_all_children();
+	void unselect_children();
 
 	JsonTreeItem* selected_child(int row);
 	int selected_child_count() const;
@@ -103,6 +107,11 @@ class PcapTreeModel : public QAbstractItemModel
 	 * A tree always have 1 column only.
 	 */
 	int columnCount(const QModelIndex& parent) const override;
+
+	/**
+	 * Set the checkbox state
+	 */
+	bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
 	/**
 	 * Get the name of the node.

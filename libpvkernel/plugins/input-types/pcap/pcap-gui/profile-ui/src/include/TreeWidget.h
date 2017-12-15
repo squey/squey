@@ -64,6 +64,7 @@ class TreeWidget : public QWidget
   private Q_SLOTS:
 	void on_select_button_clicked();
 	void update_field_model(const QModelIndex& index);
+	void update_field_model_with_selected_field(const QModelIndex& index);
 	/**
 	 * As a field's selection changed, update the TreeModel.
 	 */
@@ -75,6 +76,7 @@ class TreeWidget : public QWidget
   private:
 	Ui::TreeWidget* _ui;                //!< The ui generated interface.
 	pvpcap::PcapTreeModel* _tree_model; //!< Model to display the pcap Tree
+	QModelIndex _selected_protocol;     //!< Currently selected protocol
 };
 
 #endif // TREEWIDGET_H
