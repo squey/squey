@@ -16,6 +16,8 @@
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
+#include <libpvpcap/ws.h>
+
 namespace pvpcap
 {
 
@@ -74,33 +76,57 @@ rapidjson::Value& JsonTreeItem::value() const
 	return *_value;
 }
 
-bool JsonTreeItem::is_selected() const
+JsonTreeItem::CHILDREN_SELECTION_STATE JsonTreeItem::selection_state() const
 {
-	for (auto& v : (*_value)["fields"].GetArray()) {
-		if (v["select"].GetBool())
-			return true;
+	CHILDREN_SELECTION_STATE sel_state = CHILDREN_SELECTION_STATE::UNKOWN;
+
+	for (const auto& child : (*_value)["fields"].GetArray()) {
+		const std::string& filter_name = child["filter_name"].GetString();
+		if (pvpcap::ws_disabled_fields.find(filter_name) == pvpcap::ws_disabled_fields.end()) {
+			if (child["select"].GetBool()) { // child selected
+				if (sel_state == CHILDREN_SELECTION_STATE::UNSELECTED) {
+					return CHILDREN_SELECTION_STATE::PARTIALY_SELECTED;
+				} else {
+					sel_state = CHILDREN_SELECTION_STATE::TOTALY_SELECTED;
+				}
+			} else { // child unselected
+				if (sel_state == CHILDREN_SELECTION_STATE::TOTALY_SELECTED) {
+					return CHILDREN_SELECTION_STATE::PARTIALY_SELECTED;
+				} else {
+					sel_state = CHILDREN_SELECTION_STATE::UNSELECTED;
+				}
+			}
+		}
 	}
-	return false;
+	return sel_state;
 }
 
-bool JsonTreeItem::is_any_child_selected() const
+static void change_children_selection(rapidjson::Value* value, bool select_all)
 {
-	if (is_selected())
-		return true;
-
-	for (auto child : _children) {
-		return child->is_any_child_selected();
+	for (auto& child : (*value)["fields"].GetArray()) {
+		const std::string& filter_name = child["filter_name"].GetString();
+		if (pvpcap::ws_disabled_fields.find(filter_name) == pvpcap::ws_disabled_fields.end()) {
+			child["select"].SetBool(select_all);
+		}
 	}
+}
 
-	return false;
+void JsonTreeItem::select_all_children()
+{
+	change_children_selection(_value, true);
+}
+
+void JsonTreeItem::unselect_children()
+{
+	change_children_selection(_value, false);
 }
 
 JsonTreeItem* JsonTreeItem::selected_child(int row)
 {
 	JsonTreeItem* last_child = nullptr;
 
-	for (auto child : _children) {
-		if (child->is_any_child_selected()) {
+	for (const auto& child : _children) {
+		if (child->selection_state() == CHILDREN_SELECTION_STATE::PARTIALY_SELECTED) {
 			if (row <= 0)
 				return child;
 			row--;
@@ -113,8 +139,8 @@ JsonTreeItem* JsonTreeItem::selected_child(int row)
 int JsonTreeItem::selected_child_count() const
 {
 	int count = 0;
-	for (auto child : _children) {
-		if (child->is_any_child_selected()) {
+	for (const auto& child : _children) {
+		if (child->selection_state() == CHILDREN_SELECTION_STATE::PARTIALY_SELECTED) {
 			count++;
 		}
 	}
@@ -126,8 +152,8 @@ int JsonTreeItem::selected_row() const
 	int row = 0;
 
 	if (_parent) {
-		for (auto child : _parent->_children) {
-			if (child->is_any_child_selected()) {
+		for (const auto& child : _parent->_children) {
+			if (child->selection_state() == CHILDREN_SELECTION_STATE::PARTIALY_SELECTED) {
 				if (child == this)
 					return row;
 				row++;
@@ -249,6 +275,39 @@ int PcapTreeModel::rowCount(const QModelIndex& parent) const
  * PcapTreeModel::data
  *
  *************************************************************************/
+bool PcapTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+	if (not index.isValid()) {
+		return false;
+	}
+
+	if (role == Qt::CheckStateRole) {
+
+		JsonTreeItem* item = static_cast<JsonTreeItem*>(index.internalPointer());
+
+		switch ((Qt::CheckState)value.toInt()) {
+		case Qt::PartiallyChecked:
+		case Qt::Unchecked:
+			item->unselect_children();
+			break;
+		case Qt::Checked:
+			item->select_all_children();
+			break;
+		default:
+			assert(false);
+		}
+
+		return true;
+	}
+
+	return true;
+}
+
+/**************************************************************************
+ *
+ * PcapTreeModel::data
+ *
+ *************************************************************************/
 QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 {
 	if (not index.isValid())
@@ -312,10 +371,16 @@ QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 			// Show checkbox only for the first column.
 			JsonTreeItem* item = static_cast<JsonTreeItem*>(index.internalPointer());
 
-			if (item->is_selected())
+			switch (item->selection_state()) {
+			case JsonTreeItem::CHILDREN_SELECTION_STATE::UNSELECTED:
+				return Qt::Unchecked;
+			case JsonTreeItem::CHILDREN_SELECTION_STATE::PARTIALY_SELECTED:
 				return Qt::PartiallyChecked;
-
-			return Qt::Unchecked;
+			case JsonTreeItem::CHILDREN_SELECTION_STATE::TOTALY_SELECTED:
+				return Qt::Checked;
+			default:
+				assert(false);
+			}
 		}
 	}
 
@@ -360,8 +425,12 @@ QVariant PcapTreeModel::headerData(int section, Qt::Orientation orientation, int
  *************************************************************************/
 Qt::ItemFlags PcapTreeModel::flags(const QModelIndex& index) const
 {
-	if (!index.isValid()) {
+	if (not index.isValid()) {
 		return Qt::NoItemFlags;
+	}
+
+	if (index.column() == 0) {
+		return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
 	}
 
 	return QAbstractItemModel::flags(index);

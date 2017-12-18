@@ -13,8 +13,6 @@
 #include "include/ProtocolFieldListModel.h"
 #include "iostream"
 
-#include <pvlogger.h>
-
 namespace pvpcap
 {
 

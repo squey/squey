@@ -24,7 +24,13 @@ TreeWidget::TreeWidget(rapidjson::Document* json_data, QWidget* parent)
 	_ui->field_view->horizontalHeader()->setStretchLastSection(true);
 	_ui->tree_view->header()->setStretchLastSection(true);
 
-	connect(_ui->tree_view, &QTreeView::clicked, this, &TreeWidget::update_field_model);
+	// update field model only when selection changes, but update currently selected field also
+	connect(_ui->tree_view, &QTreeView::clicked, this,
+	        &TreeWidget::update_field_model_with_selected_field);
+	connect(_ui->tree_view->selectionModel(), &QItemSelectionModel::selectionChanged,
+	        [&](const QItemSelection& selected, const QItemSelection&) {
+		        update_field_model(selected.indexes()[0]);
+		    });
 }
 
 TreeWidget::~TreeWidget()
@@ -88,6 +94,13 @@ void TreeWidget::on_select_button_clicked()
 	}
 }
 
+void TreeWidget::update_field_model_with_selected_field(const QModelIndex& index)
+{
+	if (index == _selected_protocol) {
+		update_field_model(index);
+	}
+}
+
 void TreeWidget::update_field_model(const QModelIndex& index)
 {
 	// Remove old model. We can use Qt for this with this widget as parent but
@@ -125,6 +138,8 @@ void TreeWidget::update_field_model(const QModelIndex& index)
 
 	delete sm;
 	delete m;
+
+	_selected_protocol = index;
 }
 
 void TreeWidget::update_selection()
