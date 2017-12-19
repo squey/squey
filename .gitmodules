@@ -4,7 +4,7 @@
 [submodule "libpvcop"]
 	path = libpvcop
 	url = git@gitlab.srv.picviz:picviz/libpvcop.git
-	branch = master
+    	branch = master
 [submodule "inendi-utils"]
 	path = inendi-utils
 	url = git@gitlab.srv.picviz:picviz/inendi-utils.git
