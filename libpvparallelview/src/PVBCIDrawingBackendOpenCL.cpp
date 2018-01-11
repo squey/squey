@@ -165,7 +165,6 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 			}
 
 			std::string log = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
-
 			PVLOG_INFO("build log: %s\n", log.c_str());
 		}
 	}

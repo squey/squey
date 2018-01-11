@@ -1,0 +1,79 @@
+Description: fix CVE-2015-0295, CVE-2015-1858, CVE-2015-1859, CVE-2015-1860
+Origin: upstream,
+ http://code.qt.io/cgit/qt/qtbase.git/commit/?id=661f6bfd032dacc6
+ http://code.qt.io/cgit/qt/qtbase.git/commit/?id=d3048a29797ee2d8
+ http://code.qt.io/cgit/qt/qtbase.git/commit/?id=51ec7ebfe5f45d1c
+Last-Update: 2015-04-26
+
+--- a/src/gui/image/qbmphandler.cpp
++++ b/src/gui/image/qbmphandler.cpp
+@@ -322,12 +322,20 @@
+         }
+     } else if (comp == BMP_BITFIELDS && (nbits == 16 || nbits == 32)) {
+         red_shift = calc_shift(red_mask);
++        if (((red_mask >> red_shift) + 1) == 0)
++            return false;
+         red_scale = 256 / ((red_mask >> red_shift) + 1);
+         green_shift = calc_shift(green_mask);
++        if (((green_mask >> green_shift) + 1) == 0)
++            return false;
+         green_scale = 256 / ((green_mask >> green_shift) + 1);
+         blue_shift = calc_shift(blue_mask);
++        if (((blue_mask >> blue_shift) + 1) == 0)
++            return false;
+         blue_scale = 256 / ((blue_mask >> blue_shift) + 1);
+         alpha_shift = calc_shift(alpha_mask);
++        if (((alpha_mask >> alpha_shift) + 1) == 0)
++            return false;
+         alpha_scale = 256 / ((alpha_mask >> alpha_shift) + 1);
+     } else if (comp == BMP_RGB && (nbits == 24 || nbits == 32)) {
+         blue_mask = 0x000000ff;
+@@ -484,12 +492,6 @@
+                             p = data + (h-y-1)*bpl;
+                             break;
+                         case 2:                        // delta (jump)
+-                            // Protection
+-                            if ((uint)x >= (uint)w)
+-                                x = w-1;
+-                            if ((uint)y >= (uint)h)
+-                                y = h-1;
+-
+                             {
+                                 quint8 tmp;
+                                 d->getChar((char *)&tmp);
+@@ -497,6 +499,13 @@
+                                 d->getChar((char *)&tmp);
+                                 y += tmp;
+                             }
++
++                            // Protection
++                            if ((uint)x >= (uint)w)
++                                x = w-1;
++                            if ((uint)y >= (uint)h)
++                                y = h-1;
++
+                             p = data + (h-y-1)*bpl + x;
+                             break;
+                         default:                // absolute mode
+--- a/src/gui/image/qgifhandler.cpp
++++ b/src/gui/image/qgifhandler.cpp
+@@ -944,6 +944,8 @@
+ 
+ void QGIFFormat::nextY(unsigned char *bits, int bpl)
+ {
++    if (out_of_bounds)
++        return;
+     int my;
+     switch (interlace) {
+     case 0: // Non-interlaced
+--- a/src/plugins/imageformats/ico/qicohandler.cpp
++++ b/src/plugins/imageformats/ico/qicohandler.cpp
+@@ -575,7 +575,7 @@
+                 QImage::Format format = QImage::Format_ARGB32;
+                 if (icoAttrib.nbits == 24)
+                     format = QImage::Format_RGB32;
+-                else if (icoAttrib.ncolors == 2)
++                else if (icoAttrib.ncolors == 2 && icoAttrib.depth == 1)
+                     format = QImage::Format_Mono;
+                 else if (icoAttrib.ncolors > 0)
+                     format = QImage::Format_Indexed8;

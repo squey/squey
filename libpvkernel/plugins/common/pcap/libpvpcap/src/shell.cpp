@@ -88,9 +88,12 @@ extract_csv(splitted_files_t files,
 	}
 	cmd_opts[cmd.size()] = nullptr;
 
+	const size_t max_number_of_live_token =
+	    std::min(files.size(), (size_t)std::thread::hardware_concurrency());
+
 	size_t file_count = 0;
 	tbb::parallel_pipeline(
-	    /*max_number_of_live_token=*/std::thread::hardware_concurrency(),
+	    max_number_of_live_token,
 	    tbb::make_filter<void, splitted_file_t>(
 	        tbb::filter::serial_in_order,
 	        [&](tbb::flow_control& fc) {
@@ -116,11 +119,10 @@ extract_csv(splitted_files_t files,
 		        }
 		    }) &
 	        tbb::make_filter<splitted_file_t, void>(
-	            tbb::filter::parallel, [&](const splitted_file_t& pcap) {
+	            tbb::filter::parallel, [&](splitted_file_t pcap) {
 
 		            if (not pcap.path().empty()) {
-			            const char* pcap_path = (pcap.path()).c_str();
-			            const char* csv_path = (pcap.path() + ".csv").c_str();
+			            std::string csv_path = pcap.path() + ".csv";
 
 			            /**
 			             * using 'vfork' instead of 'fork' because of some very serious
@@ -128,9 +130,9 @@ extract_csv(splitted_files_t files,
 			             */
 			            pid_t pid = vfork();
 			            if (pid == 0) {
-				            int fd_in = open(pcap_path, O_RDONLY, O_CLOEXEC, 0);
-				            int fd_out =
-				                open(csv_path, O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
+				            int fd_in = open(pcap.path().c_str(), O_RDONLY, O_CLOEXEC, 0);
+				            int fd_out = open(csv_path.c_str(),
+				                              O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
 				            dup2(fd_out, STDOUT_FILENO);
 				            dup2(fd_in, STDIN_FILENO);
 				            if (execvp(cmd_opts[0], cmd_opts) == -1) {

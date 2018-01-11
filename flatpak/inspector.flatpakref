@@ -1,0 +1,7 @@
+[Flatpak Ref]
+Name=com.esi_inendi.Inspector
+Branch=master
+Title=Inspector
+Url=http://repo.esi-inendi.com/flatpak/
+RuntimeRepo=https://dl.flathub.org/repo/flathub.flatpakrepo
+IsRuntime=false

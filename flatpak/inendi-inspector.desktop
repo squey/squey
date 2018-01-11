@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=INENDI Inspector
+Comment=INENDI Inspector
+Icon=com.esi_inendi.Inspector.ico
+Exec=inspector_launcher.sh
+Categories=Application;Network;
+

@@ -1,0 +1,15 @@
+Description: prevent bad-ptrs deref in QNetworkConfigurationManagerPrivate
+Origin: upstream, http://code.qt.io/cgit/qt/qtbase.git/commit/?id=3f0f707d4b898a96
+Bug: https://bugs.debian.org/805265
+Last-Update: 2015-11-16
+
+--- a/src/network/bearer/qnetworkconfigmanager_p.cpp
++++ b/src/network/bearer/qnetworkconfigmanager_p.cpp
+@@ -83,6 +83,7 @@
+     QMutexLocker locker(&mutex);
+ 
+     qDeleteAll(sessionEngines);
++    sessionEngines.clear();
+     if (bearerThread)
+         bearerThread->quit();
+ }

@@ -31,19 +31,19 @@ add_definitions(-DINENDI_CONFIG="${INENDI_CONFIG}")
 
 install(FILES "pvconfig.ini" DESTINATION ${INENDI_CONFIG})
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION ${SHARE_RESSOURCES})
-install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION ${SHARE_RESSOURCES})
+install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 # Install Gemalto Sentinel RMS echoid and lsinit
 INSTALL(
     FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/customization/echoid"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-echoid
-    PERMISSIONS WORLD_EXECUTE
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 INSTALL(
     FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/out/x86_64/initdemo"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-lsinit
-    PERMISSIONS WORLD_EXECUTE
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE 
 )
 
 set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
@@ -61,52 +61,13 @@ endif(NOT ${QT_WEBKIT})
 ###############################################################################
 # Intel Threading Building Blocks (TBB)
 ###############################################################################
+
+
 set(TBB_MAJOR "2")
-
 install(FILES
-	${TBB_BUILD_DIR}/libtbb.so.${TBB_MAJOR}
-	${TBB_BUILD_DIR}/libtbbmalloc.so.${TBB_MAJOR}
-	DESTINATION ${CUSTOM_TBB_PATH})
-	
-
-set(LINUX_BOOST_PATH "/usr/lib/x86_64-linux-gnu")
-set(BOOST_VER "1.55.0")
-
-set(LINUX_MISCLIB_PATH_64 "/usr/lib/x86_64-linux-gnu")
-
-set(LINUX_LIB_PATH_64 "/lib/x86_64-linux-gnu")
-
-#
-# QT libraries
-#
-install(FILES
-	# QtBase
-	${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-	${LINUX_QT5_PATH}/libQt5Core.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-	${LINUX_QT5_PATH}/libQt5Gui.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-	${LINUX_QT5_PATH}/libQt5OpenGL.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-	${LINUX_QT5_PATH}/libQt5PrintSupport.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-	${LINUX_QT5_PATH}/libQt5Sql.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-	${LINUX_QT5_PATH}/libQt5Widgets.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR} ${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}
-	${LINUX_QT5_PATH}/libQt5Xml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
-	DESTINATION ${CUSTOM_QT_PATH})
-
-if(NOT ${QT_WEBKIT})
-install(FILES
-	${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
-	${LINUX_QT5_PATH}/libQt5WebEngine.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
-	${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
-	${LINUX_QT5_PATH}/libQt5WebEngineCore.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
-	${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}  ${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}
-	${LINUX_QT5_PATH}/libQt5WebEngineWidgets.so.${QTWEBENGINE_MAJOR}.${QTWEBENGINE_MINOR}.${QTWEBENGINE_PATCH}
-	DESTINATION ${CUSTOM_QT_PATH})
-endif(NOT ${QT_WEBKIT})
+${TBB_BUILD_DIR}/libtbb.so.${TBB_MAJOR}
+${TBB_BUILD_DIR}/libtbbmalloc.so.${TBB_MAJOR}
+DESTINATION ${CUSTOM_TBB_PATH})
 
 # doc 
 if(DOC_ROOT_DIR)
