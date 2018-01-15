@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <list>
+#include <numeric>
 
 namespace PVCore
 {

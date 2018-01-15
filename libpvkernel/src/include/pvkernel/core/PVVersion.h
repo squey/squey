@@ -8,6 +8,8 @@
 #ifndef __PVKERNEL_CORE_PVVERSION_H__
 #define __PVKERNEL_CORE_PVVERSION_H__
 
+#include <vector>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 

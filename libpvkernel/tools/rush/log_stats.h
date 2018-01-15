@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <numeric>
 
 #include "../../tests/rush/common.h"
 

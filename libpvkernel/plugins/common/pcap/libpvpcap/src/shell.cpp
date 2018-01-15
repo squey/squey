@@ -11,6 +11,7 @@
 #include "../include/libpvpcap/shell.h"
 
 #include <atomic>
+#include <numeric>
 #include <thread>
 #include <unordered_set>
 #include <mutex>

@@ -15,6 +15,8 @@
 
 #include <pvcop/db/read_dict.h>
 
+#include <numeric>
+
 /**
  * Compute integer log2 values.
  */

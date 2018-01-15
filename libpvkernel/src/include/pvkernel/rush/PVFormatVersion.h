@@ -8,6 +8,8 @@
 #ifndef PVFORMAT_VERSION_H
 #define PVFORMAT_VERSION_H
 
+#include <vector>
+
 #include <QDomDocument>
 #include <QString>
 

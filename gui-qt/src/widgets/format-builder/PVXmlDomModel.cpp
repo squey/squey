@@ -14,6 +14,8 @@
 
 #include <QString>
 
+#include <numeric>
+
 /******************************************************************************
  *
  * PVInspector::PVXmlDomModel::PVXmlDomModel

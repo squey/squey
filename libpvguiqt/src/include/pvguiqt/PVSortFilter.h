@@ -3,6 +3,7 @@
 
 #include <Qt>
 #include <vector>
+#include <numeric>
 
 #include <inendi/PVSelection.h>
 
