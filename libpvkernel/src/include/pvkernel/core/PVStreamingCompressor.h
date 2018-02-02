@@ -33,7 +33,6 @@ class PVStreamingBase
   protected:
 	static const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
 	    _supported_compressors;
-	static const std::string BINARIES_PATH;
 
   public:
 	PVStreamingBase(const std::string& path);
