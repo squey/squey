@@ -22,4 +22,4 @@
         branch = tbb_2018
 [submodule "doc"]
 	path = doc
-	url = git@gitlab.srv.picviz:picviz/picviz-inspector-manual.git
+	url = git@gitlab.srv.picviz:picviz/inendi-inspector-manual.git
