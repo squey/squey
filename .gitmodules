@@ -23,3 +23,6 @@
 [submodule "doc"]
 	path = doc
 	url = git@gitlab.srv.picviz:picviz/inendi-inspector-manual.git
+[submodule "flatpak/flatpak-dev-cli"]
+	path = flatpak/flatpak-dev-cli
+	url = git@gitlab.srv.picviz:picviz/flatpak-dev-cli.git
