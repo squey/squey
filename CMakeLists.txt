@@ -125,7 +125,7 @@ ExternalProject_Add(inendi-utils
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils
     BUILD_IN_SOURCE 1
     STEP_TARGETS build
-	EXCLUDE_FROM_ALL TRUE
+    BUILD_COMMAND $(MAKE)
 	INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
 SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
@@ -148,8 +148,9 @@ ExternalProject_Add(libpvcop
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop
     BUILD_IN_SOURCE 1
     STEP_TARGETS build
-  	EXCLUDE_FROM_ALL TRUE
+  	BUILD_COMMAND $(MAKE)
   	INSTALL_COMMAND cmake -E echo "Skipping install step."
+  	DEPENDS inendi-utils
 )
 SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/src/libpvcop.so)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
@@ -160,7 +161,8 @@ declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
 
-add_dependencies(pvkernel furl libpvcop inendi-utils)
+add_dependencies(pvkernel furl inendi-utils libpvcop)
+add_dependencies(libpvcop inendi-utils)
 
 add_subdirectory(gui-qt)
 
