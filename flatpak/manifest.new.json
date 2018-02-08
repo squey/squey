@@ -7,7 +7,7 @@
   "rename-desktop-file" : "inendi-inspector.desktop",
   "cleanup-commands": [
     "rm -rf /app/include /app/etc /app/sbin/ /app/lib/*.a /app/lib/*.la /app/lib/debug /app/examples /app/doc /app/mkspecs",
-    "cd /app/share && ls -I pocl -I doc -I applications -I icons | xargs rm -rf",
+    "cd /app/share && ls -I inendi -I pocl -I doc -I applications -I icons | xargs rm -rf",
     "cd /app/share/applications && ls -I inendi-inspector.desktop | xargs rm -rf",
     "cd /app/share/doc && ls -I inendi-inspector | xargs rm -rf",
     "cd /app/lib && find . -maxdepth 1 -type d -not -name . -not -name inendi-inspector -not -name clang -exec rm -rf {} +",
