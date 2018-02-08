@@ -487,6 +487,7 @@
       "buildsystem": "cmake",
       "config-opts": [
         "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_INSTALL_PREFIX=/app",
         "-DCMAKE_CXX_ARCH_FLAGS=-march=corei7",
         "-DUSER_TARGET=customer"
       ],
