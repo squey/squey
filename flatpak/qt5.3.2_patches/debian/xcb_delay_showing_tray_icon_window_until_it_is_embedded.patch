@@ -1,0 +1,37 @@
+Description: xcb: delay showing tray icon window until it is embedded
+ Otherwise there is a race condition: when the tray implementation
+ gets around to embedding the window, if it was already shown,
+ it will be unmapped, embedded, and then remapped. Some tray
+ implementations will resize the tray icon to 1 pixel wide in
+ that case. We also never want to show a window that was intended
+ for the tray in any other location, so it's better that it remain
+ invisible until we are sure it is embedded.
+Origin: upstream, https://code.qt.io/cgit/qt/qtbase.git/commit/?id=612953a626ec21b8
+Bug: https://bugs.debian.org/775398
+Bug: https://bugs.debian.org/847665
+Last-Update: 2016-12-26
+
+--- a/src/plugins/platforms/xcb/qxcbwindow.cpp
++++ b/src/plugins/platforms/xcb/qxcbwindow.cpp
+@@ -701,6 +701,9 @@
+     if (connection()->time() != XCB_TIME_CURRENT_TIME)
+         updateNetWmUserTime(connection()->time());
+ 
++    if (window()->objectName() == QLatin1String("QSystemTrayIconSysWindow"))
++        return; // defer showing until XEMBED_EMBEDDED_NOTIFY
++
+     Q_XCB_CALL(xcb_map_window(xcb_connection(), m_window));
+ 
+     if (QGuiApplication::modalWindow() == window())
+@@ -2130,7 +2133,10 @@
+     switch (event->data.data32[1]) {
+     case XEMBED_WINDOW_ACTIVATE:
+     case XEMBED_WINDOW_DEACTIVATE:
++        break;
+     case XEMBED_EMBEDDED_NOTIFY:
++        Q_XCB_CALL(xcb_map_window(xcb_connection(), m_window));
++        m_screen->windowShown(this);
+         break;
+     case XEMBED_FOCUS_IN:
+         Qt::FocusReason reason;
+

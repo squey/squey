@@ -48,6 +48,7 @@ ExternalProject_Add(LightPcapNg
     BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	EXCLUDE_FROM_ALL TRUE
+  	BUILD_COMMAND $(MAKE)
   	INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
 SET(LIGHTPCAPNG_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg)

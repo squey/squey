@@ -6,6 +6,7 @@
  */
 
 #include <cassert>
+#include <math.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVScatterViewDataInterface.h>

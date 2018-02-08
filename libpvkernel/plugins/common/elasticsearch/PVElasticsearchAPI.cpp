@@ -16,6 +16,7 @@
 #include <thread>
 #include <cerrno>
 #include <unordered_set>
+#include <numeric>
 
 #include <curl/curl.h>
 

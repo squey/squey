@@ -4,7 +4,7 @@
 [submodule "libpvcop"]
 	path = libpvcop
 	url = git@gitlab.srv.picviz:picviz/libpvcop.git
-        branch = master
+	branch = master
 [submodule "inendi-utils"]
 	path = inendi-utils
 	url = git@gitlab.srv.picviz:picviz/inendi-utils.git
@@ -20,3 +20,9 @@
 	path = external/tbb
 	url = git@gitlab.srv.picviz:picviz/tbb.git
         branch = tbb_2018
+[submodule "doc"]
+	path = doc
+	url = git@gitlab.srv.picviz:picviz/inendi-inspector-manual.git
+[submodule "flatpak/flatpak-dev-cli"]
+	path = flatpak/flatpak-dev-cli
+	url = git@gitlab.srv.picviz:picviz/flatpak-dev-cli.git

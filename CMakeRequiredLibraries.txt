@@ -4,6 +4,10 @@
 # @copyright (C) Picviz Labs 2010-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
+# Allows to develop the application in a Flatpak environment
+include_directories(SYSTEM /app/include)
+link_directories(/app/lib)
+
 ###############################################################################
 # Define the Qt Core package
 ###############################################################################
@@ -48,6 +52,7 @@ set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
+SET(BOOST_INCLUDEDIR /app/include)
 find_package(Boost 1.49 REQUIRED COMPONENTS date_time system thread program_options)
 
 message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
@@ -73,10 +78,10 @@ message(STATUS "OpenMP CXX FLAGS: ${OpenMP_CXX_FLAGS}")
 ###############################################################################
 # Check for libnuma
 ###############################################################################
-find_package(LibNUMA REQUIRED)
-if (LIBNUMA_FOUND)
-  set(LibNUMA_LIBRARIES "-lnuma")
-  message(STATUS "NUMA Libraries: ${LibNUMA_LIBRARIES}")
+find_package(NUMA REQUIRED)
+if (NUMA_FOUND)
+  message(STATUS "NUMA_LIBRARIES: ${NUMA_LIBRARIES}")
+  message(STATUS "NUMA_INCLUDE_DIRS: ${NUMA_INCLUDE_DIRS}")
 else()
   message(ERROR "libNUMA not found!")
 endif()
@@ -103,6 +108,7 @@ pkg_check_modules(ARCHIVE REQUIRED libarchive)
 ###############################################################################
 # Google Breakpad
 ###############################################################################
+set(BREAKPAD_INCLUDE_DIRS /usr/include/breakpad /app/include/breakpad /include/breakpad)
 pkg_check_modules(BREAKPAD REQUIRED breakpad-client)
 
 message(STATUS "Google Breakpad libraries: ${BREAKPAD_LIBRARIES}")
@@ -123,7 +129,7 @@ find_package(OpenGL REQUIRED)
 ###############################################################################
 # IBM ICU
 ###############################################################################
-find_package(ICU REQUIRED) 
+find_package(ICU REQUIRED)
 
 message(STATUS "ICU found: " ${ICU_FOUND})
 if(ICU_FOUND)
@@ -140,7 +146,7 @@ find_package(CURL "7.38.0" REQUIRED)
 # Check for SIGCPP installation
 ###############################################################################      
 
-pkg_check_modules(SIGCPP REQUIRED sigc++-2.0)
+find_package(SIGCPP REQUIRED)
 
 ###############################################################################
 # type_safe library

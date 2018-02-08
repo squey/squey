@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <bitset>
 #include <unordered_map>
+#include <numeric>
 
 #include <QDir>
 #include <QFileInfo>

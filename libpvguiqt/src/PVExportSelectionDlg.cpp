@@ -89,11 +89,9 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	// Default CSV exporter
 	name_filters << ".csv files (*.csv)";
 	for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
-		if (std::ifstream(PVCore::PVStreamingCompressor::executable(extension)).good()) {
-			const QString& name_filter =
-			    QString::fromStdString(".csv." + extension + " files (*.csv." + extension + ")");
-			name_filters << name_filter;
-		}
+		const QString& name_filter =
+		    QString::fromStdString(".csv." + extension + " files (*.csv." + extension + ")");
+		name_filters << name_filter;
 	}
 	setNameFilters(name_filters);
 	auto suffix_from_filter = [](const QString& filter) { return filter.split(" ")[0]; };

@@ -4,6 +4,8 @@
  * @copyright (C) ESI Group INENDI 2016
  */
 
+#include <numeric>
+
 #include <inendi/PVAxesCombination.h>
 
 #include <pvkernel/rush/PVFormat.h>

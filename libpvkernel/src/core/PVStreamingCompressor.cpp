@@ -23,8 +23,6 @@ const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
     PVCore::__impl::PVStreamingBase::_supported_compressors = {
         {"gz", {"pigz", "unpigz"}}, {"bz2", {"lbzip2", "lbunzip2"}}, {"zip", {"zip", "funzip"}}};
 
-const std::string PVCore::__impl::PVStreamingBase::BINARIES_PATH = "/usr/bin/";
-
 /******************************************************************************
  *
  * PVCore::PVStreamingBase
@@ -238,7 +236,7 @@ std::string PVCore::PVStreamingCompressor::executable(const std::string& extensi
 	std::string exec;
 	auto it = _supported_compressors.find(extension);
 	if (it != _supported_compressors.end()) {
-		exec = BINARIES_PATH + _supported_compressors.at(extension).first;
+		exec = _supported_compressors.at(extension).first;
 	}
 	return exec;
 }
@@ -455,7 +453,7 @@ std::string PVCore::PVStreamingDecompressor::executable(const std::string& exten
 	std::string exec;
 	auto it = _supported_compressors.find(extension);
 	if (it != _supported_compressors.end()) {
-		exec = BINARIES_PATH + _supported_compressors.at(extension).second;
+		exec = _supported_compressors.at(extension).second;
 	}
 	return exec;
 }

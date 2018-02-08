@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "" >> Makefile
+echo "install:" >> Makefile
+echo -e "\tinstall -m 0755 pigz /app/bin" >> Makefile
+echo -e "\tinstall -m 0755 unpigz /app/bin" >> Makefile
