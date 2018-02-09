@@ -30,8 +30,7 @@ add_definitions(-DINENDI_CONFIG="${INENDI_CONFIG}")
 ###############################################################################
 
 install(FILES "pvconfig.ini" DESTINATION ${INENDI_CONFIG})
-install(FILES "gui-qt/src/resources/icon.png" DESTINATION ${SHARE_RESSOURCES})
-install(FILES "gui-qt/src/resources/inendi-inspector.ico" DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons)
+install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME inendi-inspector.png)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 # Install Gemalto Sentinel RMS echoid and lsinit
