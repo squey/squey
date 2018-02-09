@@ -5,6 +5,7 @@
   "sdk": "org.freedesktop.Sdk",
   "command": "inspector_launcher.sh",
   "rename-desktop-file" : "inendi-inspector.desktop",
+  "rename-icon" : "inendi-inspector",
   "cleanup-commands": [
     "rm -rf /app/include /app/etc /app/sbin/ /app/lib/*.a /app/lib/*.la /app/lib/debug /app/examples /app/doc /app/mkspecs",
     "cd /app/share && ls -I inendi -I pocl -I doc -I applications -I icons | xargs rm -rf",
