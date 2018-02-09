@@ -106,7 +106,9 @@ std::string get_locking_code()
 
 int run_inspector(QApplication& app, int argc, char* argv[])
 {
-	if (not QFileInfo(INENDI_LICENSE_PATH).exists()) {
+	static const QString inend_license_path =
+	    QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
+	if (not QFileInfo(inend_license_path).exists()) {
 
 		QMessageBox::information(
 		    nullptr, QObject::tr("License not found"),
@@ -116,7 +118,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 		        .arg(INENDI_LICENSE_PATH)
 		        .arg(QString::fromStdString(get_locking_code())));
 		return 1;
-	} else if (not QFileInfo(INENDI_LICENSE_PATH).isReadable()) {
+	} else if (not QFileInfo(inend_license_path).isReadable()) {
 		QMessageBox::critical(
 		    nullptr, QObject::tr("Unable to read license"),
 		    QObject::tr(
@@ -125,7 +127,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 		return 1;
 	}
 
-	Inendi::Utils::License::RAII_InitLicense license_manager(INENDI_LICENSE_PATH);
+	Inendi::Utils::License::RAII_InitLicense license_manager(inend_license_path);
 	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
 	                                                                 INENDI_LICENSE_FEATURE);
 
