@@ -127,8 +127,8 @@ ExternalProject_Add(inendi-utils
     STEP_TARGETS build
     BUILD_COMMAND $(MAKE)
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
-    INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
+
 SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
 SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/src/libpvhwloc.so)
 SET(PVLICENSE_LIBRARIES
@@ -152,7 +152,6 @@ ExternalProject_Add(libpvcop
   	BUILD_COMMAND $(MAKE)
   	DEPENDS inendi-utils
   	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
-  	INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
 SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/src/libpvcop.so)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
