@@ -23,7 +23,7 @@
 static constexpr const char* INENDI_ORGANISATION = "ESI Group";
 static constexpr const char* INENDI_APPLICATIONNAME = "INENDI Inspector";
 
-static constexpr const char* INENDI_LICENSE_PATH = "/etc/inendi/licenses/inendi-inspector.lic";
+static constexpr const char* INENDI_LICENSE_PATH = "~/.inendi/licenses/inspector.lic";
 static constexpr const char* INENDI_LICENSE_PREFIX = "II";
 static constexpr const char* INENDI_LICENSE_FEATURE = "INSPECTOR";
 static constexpr const char* INENDI_LICENSE_MAXMEM = "MAXMEM";
