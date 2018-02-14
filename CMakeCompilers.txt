@@ -6,6 +6,16 @@
 
 set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace distrib)
 
+if (NOT DEFINED ARCH_TYPE)
+	set(ARCH_TYPE "native")
+endif()
+
+set(CMAKE_CXX_ARCH_FLAGS "-march=${ARCH_TYPE}")
+
+set(CMAKE_CXX_COMMON_FLAGS "-Wall -Wextra -std=c++14 ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_COMMON_FLAGS}")
+
 # Use ccache if installed
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
@@ -16,7 +26,6 @@ endif(CCACHE_FOUND)
 
 MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
-set(CMAKE_CXX_COMMON_FLAGS "-std=c++1y -Wall -Wextra ${CMAKE_CXX_COMMON_FLAGS}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(CMAKE_CXX_COMMON_FLAGS "-Qunused-arguments ${CMAKE_CXX_COMMON_FLAGS}")
 endif()

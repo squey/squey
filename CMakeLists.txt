@@ -111,6 +111,7 @@ ExternalProject_Add(furl
     BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	EXCLUDE_FROM_ALL TRUE
+  	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE}
   	INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/include)
@@ -126,7 +127,7 @@ ExternalProject_Add(inendi-utils
     BUILD_IN_SOURCE 1
     STEP_TARGETS build
     BUILD_COMMAND $(MAKE)
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
+    CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
 )
 
 SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
@@ -151,7 +152,7 @@ ExternalProject_Add(libpvcop
     STEP_TARGETS build
   	BUILD_COMMAND $(MAKE)
   	DEPENDS inendi-utils
-  	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
+  	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
 )
 SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/src/libpvcop.so)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
