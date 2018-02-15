@@ -49,7 +49,7 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 		return cl::Context();
 	}
 
-	pvlogger::info() << "platforms.size()=" << platforms.size() << " accelerated=" << accelerated << std::endl;
+	pvlogger::fatal() << "platforms.size()=" << platforms.size() << " accelerated=" << accelerated << std::endl;
 
 	auto& config = PVCore::PVConfig::get().config();
 	const int wanted_platform_index =
@@ -65,7 +65,7 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 
 		if (err == CL_DEVICE_NOT_FOUND) {
 			// there is no matching device
-			pvlogger::info() << "CL_DEVICE_NOT_FOUND" << std::endl;
+			pvlogger::fatal() << "CL_DEVICE_NOT_FOUND" << std::endl;
 			continue;
 		}
 
