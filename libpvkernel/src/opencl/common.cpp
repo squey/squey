@@ -18,6 +18,8 @@
 #include <QSettings>
 #include <QVariant>
 
+#include <pvlogger.h>
+
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 /*****************************************************************************
@@ -26,7 +28,7 @@ static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::device_func const& f)
 {
-	cl_int err;
+	cl_int err = 0;
 
 	cl_device_type type;
 	const char* type_name;

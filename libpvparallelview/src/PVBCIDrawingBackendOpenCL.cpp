@@ -151,7 +151,6 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 	err = program.build(devices, build_options.str().c_str());
 
-#ifdef INENDI_DEVELOPER_MODE
 	if (err != CL_SUCCESS) {
 		/* As we build (implicitly) on all devices, we check every for errors
 		 */
@@ -168,7 +167,6 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 			PVLOG_INFO("build log: %s\n", log.c_str());
 		}
 	}
-#endif
 	inendi_verify_opencl_var(err);
 
 	_kernel = cl::Kernel(program, "DRAW", &err);

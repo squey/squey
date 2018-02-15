@@ -1,0 +1,12 @@
+--- a/include/llvm/ADT/IntrusiveRefCntPtr.h
++++ b/include/llvm/ADT/IntrusiveRefCntPtr.h
+@@ -154,6 +154,9 @@
+     }
+ 
+     template <class X>
++    friend class IntrusiveRefCntPtr;
++
++    template <class X>
+     IntrusiveRefCntPtr(IntrusiveRefCntPtr<X>&& S) : Obj(S.get()) {
+       S.Obj = 0;
+     }
