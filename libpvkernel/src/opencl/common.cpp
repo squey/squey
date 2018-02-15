@@ -18,6 +18,8 @@
 #include <QSettings>
 #include <QVariant>
 
+#include <pvlogger.h>
+
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 /*****************************************************************************
@@ -26,7 +28,7 @@ static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::device_func const& f)
 {
-	cl_int err;
+	cl_int err = 0;
 
 	cl_device_type type;
 	const char* type_name;
@@ -47,6 +49,8 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 		return cl::Context();
 	}
 
+	pvlogger::info() << "platforms.size()=" << platforms.size() << " accelerated=" << accelerated << std::endl;
+
 	auto& config = PVCore::PVConfig::get().config();
 	const int wanted_platform_index =
 	    config.value("backend_opencl/platform_index", PLATFORM_ANY_INDEX).toInt();
@@ -61,6 +65,7 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 
 		if (err == CL_DEVICE_NOT_FOUND) {
 			// there is no matching device
+			pvlogger::info() << "CL_DEVICE_NOT_FOUND" << std::endl;
 			continue;
 		}
 
