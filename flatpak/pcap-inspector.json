@@ -1,0 +1,52 @@
+{
+  "app-id": "com.pcap_inspector.Inspector",
+  "base": "com.esi_inendi.Inspector",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "1.6",
+  "sdk": "org.freedesktop.Sdk",
+  "command": "inspector_launcher.sh",
+  "rename-desktop-file" : "pcap-inspector.desktop",
+  "rename-icon" : "pcap-inspector",
+  "finish-args": [
+    "--socket=x11",
+    "--socket=wayland",
+    "--share=network",
+    "--filesystem=host",
+    "--device=all"
+  ],
+  "modules": [
+    {
+      "name": "pcap-inspector",
+      "sources": [
+        {
+          "type": "shell",
+          "commands": [ "" ]
+        },
+        {
+          "type": "file",
+          "path": "pcap-inspector-configure",
+          "dest-filename": "configure"
+        },
+        {
+          "type": "file",
+          "path": "pcap-inspector-make",
+          "dest-filename": "Makefile"
+        },
+        {
+          "type": "file",
+          "path": "pcap-inspector.png"
+        },
+        {
+          "type": "file",
+          "path": "pcap-inspector.desktop"
+        }
+      ],
+      "post-install": [
+        "mkdir -p /app/share/icons/hicolor/128x128/apps",
+        "cp pcap-inspector.png /app/share/icons/hicolor/128x128/apps/",
+        "mkdir -p /app/share/applications",
+        "cp pcap-inspector.desktop /app/share/applications"
+      ]
+    }
+  ]
+}
