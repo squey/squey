@@ -49,8 +49,6 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 		return cl::Context();
 	}
 
-	pvlogger::fatal() << "platforms.size()=" << platforms.size() << " accelerated=" << accelerated << std::endl;
-
 	auto& config = PVCore::PVConfig::get().config();
 	const int wanted_platform_index =
 	    config.value("backend_opencl/platform_index", PLATFORM_ANY_INDEX).toInt();
