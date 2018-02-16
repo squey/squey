@@ -93,16 +93,6 @@
           "path": "qt5.3.2_patches/inendi/0003-Add-qint64-based-QScrollBar-class-aka-QScrollBar64.patch"
         },
         {
-          "type": "patch",
-          "path": "qt5.3.2_patches/inendi/0004-Add-64-bits-widgets-headers-in-Debian-dev-package.patch",
-          "use-git": true
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/inendi/0006-Ratify-things-in-Debian-build-system.patch",
-          "use-git": true
-        },
-        {
           "type": "file",
           "path": "qt5.3.2_patches/inendi/qabstractslider64.h",
           "dest-filename": "include/QtWidgets/qabstractslider64.h"
