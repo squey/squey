@@ -12,7 +12,7 @@
     "cd /app/share/applications && ls -I inendi-inspector.desktop | xargs rm -rf",
     "cd /app/share/doc && ls -I inendi-inspector | xargs rm -rf",
     "cd /app/lib && find . -maxdepth 1 -type d -not -name . -not -name inendi-inspector -not -name clang -exec rm -rf {} +",
-    "cd /app/bin && ls -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-4.0 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
+    "cd /app/bin && ls -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-3.5 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
     "cp /usr/bin/ld /app/bin && cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.2.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.2.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.2.0/crtendS.o /app/lib",
     "ln -s /usr/lib/libm.so.6 /app/lib/libm.so && ln -s /usr/lib/libc.so.6 /app/lib/libc.so && ln -s /usr/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && ln -s /usr/lib/libstdc++.so.6 /app/lib/libstdc++.so"
   ],
@@ -377,8 +377,12 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/4.0.1/llvm-4.0.1.src.tar.xz",
-          "sha256": "da783db1f82d516791179fe103c71706046561f7972b18f0049242dee6712b51"
+          "url": "http://releases.llvm.org/3.5.0/llvm-3.5.0.src.tar.xz",
+          "sha256": "28e199f368ef0a4666708f31c7991ad3bcc3a578342b0306526dd35f07595c03"
+        },
+        {
+          "type": "patch",
+          "path": "llvm_gcc_fix.patch"
         }
       ]
     },
@@ -407,22 +411,41 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/4.0.1/cfe-4.0.1.src.tar.xz",
-          "sha256": "61738a735852c23c3bdbe52d035488cdb2083013f384d67c1ba36fabebd8769b"
+          "url": "http://releases.llvm.org/3.5.0/cfe-3.5.0.src.tar.xz",
+          "sha256": "fc80992e004b06f6c7afb612de1cdaa9ac9d25811c55f94fcf7331d9b81cdb8b"
+        }
+      ]
+    },
+    {
+      "name": "opencl-headers",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "http://http.debian.net/debian/pool/main/k/khronos-opencl-headers/khronos-opencl-headers_2.1.orig.tar.xz",
+          "sha256": "4f0d0a156ed8d757071486d52eb37de843c599dc4ad2d76ccd9faaaf1f07fabb"
+        },
+        {
+          "type": "file",
+          "path": "configure-opencl-headers",
+          "dest-filename": "configure"
+        },
+        {
+          "type": "file",
+          "path": "make-opencl-headers",
+          "dest-filename": "Makefile"
         }
       ]
     },
     {
       "name": "portablecl",
-      "buildsystem": "cmake",
       "config-opts": [
-        "-DCLANGXX_FLAGS=-std=gnu++11"
+        "CLANGXX_FLAGS=-std=gnu++11"
       ],
       "sources": [
         {
           "type": "archive",
-          "url": "http://portablecl.org/downloads/pocl-0.14.tar.gz",
-          "sha256":"2127bf925a91fbbe3daf2f1bac0da5c8aceb16e2a9434977a3057eade974106a"
+          "url": "https://ayera.dl.sourceforge.net/project/pocl/pocl-0.10.tar.gz",
+          "sha256": "e9c38f774a77e61f66d850b705a5ba42d49356c40e75733db4c4811e091e5088"
         }
       ],
       "post-install": [
