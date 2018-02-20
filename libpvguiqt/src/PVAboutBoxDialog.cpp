@@ -19,10 +19,61 @@
 #include <QGLWidget>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QTabWidget>
+#include <QListWidget>
+#include <QDirIterator>
+#include <QTextEdit>
+#include <QTextStream>
 
 #include <pvguiqt/PVLogoScene.h>
 
 #include <cassert>
+
+static QString copying_dir()
+{
+	const char* path = getenv("COPYING_DIR");
+	if (path) {
+		return path;
+	}
+	return INENDI_COPYING_DIR;
+}
+
+class PVOpenSourceSoftwareWidget : public QWidget
+{
+  public:
+	PVOpenSourceSoftwareWidget(QWidget* parent = nullptr) : QWidget(parent)
+	{
+		QListWidget* oss_software_list = new QListWidget;
+
+		QDirIterator dir_it(copying_dir(), QDir::Files);
+		while (dir_it.hasNext()) {
+			oss_software_list->addItem(QFileInfo(dir_it.next()).fileName());
+		}
+		oss_software_list->sortItems();
+		oss_software_list->setMaximumWidth(oss_software_list->sizeHintForColumn(0) + 2);
+
+		QTextEdit* license_text = new QTextEdit;
+		license_text->setReadOnly(true);
+
+		QHBoxLayout* layout = new QHBoxLayout;
+
+		layout->addWidget(oss_software_list);
+		layout->addWidget(license_text);
+
+		connect(oss_software_list, &QListWidget::currentRowChanged, [=]() {
+			const QString& file_path =
+			    copying_dir() + "/" + oss_software_list->currentItem()->text();
+			QFile f(file_path);
+			f.open(QFile::ReadOnly | QFile::Text);
+			QTextStream in(&f);
+			license_text->setText(in.readAll());
+		});
+
+		oss_software_list->setCurrentRow(0);
+
+		setLayout(layout);
+	}
+};
 
 PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(parent)
 {
@@ -30,7 +81,6 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 
 	auto main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
-	main_layout->setSizeConstraint(QLayout::SetFixedSize);
 
 	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"" +
 	                  QString(INENDI_VERSION_NAME) + "\"<br/>© 2015 Picviz Labs SAS<br/>© 2015-" +
@@ -92,10 +142,21 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	doc->setOpenExternalLinks(true);
 	doc->setAlignment(Qt::AlignCenter);
 
-	main_layout->addLayout(_view3D_layout, 0, 0);
-	main_layout->addWidget(text, 1, 0);
-	main_layout->addWidget(doc, 2, 0);
-	main_layout->addWidget(ok, 3, 0);
+	QGridLayout* software_layout = new QGridLayout;
+	software_layout->setHorizontalSpacing(0);
+	software_layout->addLayout(_view3D_layout, 0, 0);
+	software_layout->addWidget(text, 1, 0);
+	software_layout->addWidget(doc, 2, 0);
+
+	QWidget* tab_software = new QWidget;
+	tab_software->setLayout(software_layout);
+
+	QTabWidget* tab_widget = new QTabWidget();
+	tab_widget->addTab(tab_software, "Software");
+	tab_widget->addTab(new PVOpenSourceSoftwareWidget, "Open source software");
+
+	main_layout->addWidget(tab_widget, 0, 0);
+	main_layout->addWidget(ok, 1, 0);
 
 	setLayout(main_layout);
 

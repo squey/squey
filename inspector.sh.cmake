@@ -11,6 +11,7 @@ IBRD=@CMAKE_BINARY_DIR@
 export PVKERNEL_PLUGIN_PATH=$IBRD/libpvkernel/plugins
 export INENDI_PLUGIN_PATH=$IBRD/libinendi/plugins
 export QUERY_BUILDER_PATH=$ISRD/libpvkernel/src/widgets/querybuilder
+export COPYING_DIR=$ISRD/COPYING
 export PVFORMAT_HELPER=$ISRD/libpvkernel/plugins
 
 # Migration from picviz to inendi
