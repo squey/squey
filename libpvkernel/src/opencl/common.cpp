@@ -18,8 +18,6 @@
 #include <QSettings>
 #include <QVariant>
 
-#include <pvlogger.h>
-
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 /*****************************************************************************
@@ -63,7 +61,6 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 
 		if (err == CL_DEVICE_NOT_FOUND) {
 			// there is no matching device
-			pvlogger::fatal() << "CL_DEVICE_NOT_FOUND" << std::endl;
 			continue;
 		}
 
