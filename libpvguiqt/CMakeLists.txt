@@ -9,6 +9,10 @@ project(libpvguiqt)
 include(CTest)
 set(CTEST_PROJECT_NAME "PVGuiQT")
 
+set(COPYING_DIR_NAME "COPYING")
+add_definitions(-DINENDI_COPYING_DIR="${SHARE_RESSOURCES}/${COPYING_DIR_NAME}")
+install(DIRECTORY ${inendi-inspector_SOURCE_DIR}/${COPYING_DIR_NAME} DESTINATION ${SHARE_RESSOURCES})
+
 ################################################
 # QT5 related include and check
 ################################################
