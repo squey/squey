@@ -9,8 +9,6 @@
 #include "PVPlottingFilterMinmax.h"
 #include <omp.h>
 
-#include <boost/multiprecision/cpp_int.hpp>
-
 using plotting_t = Inendi::PVPlottingFilter::value_type;
 
 template <class T>

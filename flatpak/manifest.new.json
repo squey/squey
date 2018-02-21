@@ -25,10 +25,39 @@
   ],
   "modules": [
     {
+      "name": "boost",
+      "buildsystem": "autotools",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2",
+          "sha256": "727a932322d94287b62abb1bd2d41723eec4356a7728909e38adb65ca25241ca"
+        },
+        {
+          "type": "file",
+          "path": "boost-configure",
+          "dest-filename": "configure"
+        }
+      ]
+    },
+    {
+        "name":"mysql",
+        "buildsystem": "cmake",
+        "builddir": true,
+        "sources": [
+        {
+          "type": "archive",
+          "url": "http://http.debian.net/debian/pool/main/m/mysql-5.7/mysql-5.7_5.7.21.orig.tar.gz",
+          "sha256": "ad29ecb6fb3c3571394fe231633a2d1d188d49e9eb749daa4e8799b7630daa09"
+        }
+      ]
+    },
+    {
       "name": "qt5-inendi",
       "config-opts": [
         "-opensource",
-        "-confirm-license"
+        "-confirm-license",
+        "-qt-sql-mysql"
       ],
       "sources": [
         {
@@ -145,22 +174,6 @@
           "type": "archive",
           "url": "https://github.com/google/googletest/archive/release-1.8.0.tar.gz",
           "sha256": "58a6f4277ca2bc8565222b3bbd58a177609e9c488e8a72649359ba51450db7d8"
-        }
-      ]
-    },
-    {
-      "name": "boost",
-      "buildsystem": "autotools",
-      "sources": [
-        {
-          "type": "archive",
-          "url": "https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2",
-          "sha256": "beae2529f759f6b3bf3f4969a19c2e9d6f0c503edcb2de4a61d1428519fcb3b0"
-        },
-        {
-          "type": "file",
-          "path": "boost-configure",
-          "dest-filename": "configure"
         }
       ]
     },
@@ -454,7 +467,7 @@
     },
     {
       "name": "inendi-inspector-doc",
-      "disabled":false,
+      "disabled":true,
       "build-options": {
         "env": {
           "DOCS": "documents/inendi_inspector_reference_manual",

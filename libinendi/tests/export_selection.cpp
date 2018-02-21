@@ -27,8 +27,8 @@ int main(int argc, char** argv)
 	if (not cmd.empty()) {
 		std::string output_file2 = import_export(output_file, format);
 		uncompressed_file = output_file2.substr(0, output_file2.find_last_of("."));
-		if (cmd == "/usr/bin/funzip") {
-			cmd = "/usr/bin/unzip -o -qq";
+		if (cmd == "funzip") {
+			cmd = "unzip -o -qq";
 			uncompressed_file = "-";
 		}
 		cmd += " " + output_file2;

@@ -18,6 +18,7 @@
 #include <chrono>
 #include <fstream>
 #include <string>
+#include <random>
 
 #ifndef INSPECTOR_BENCH
 constexpr size_t CHECK_COUNT = 10000;
