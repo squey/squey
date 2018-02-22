@@ -1,6 +1,6 @@
-INENDI Inspector is Copyright (C):
+INENDI Inspector Copyright (C):
 Copyright (C) Picviz Labs 2014
-Copyright (C) ESI Group INENDI 2015
+Copyright (C) ESI Group INENDI 2018
 
 All rights reserved.
 

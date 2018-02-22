@@ -3,7 +3,8 @@
 #
 # @copyright (C) ESI Group INENDI April 2016
 
-set(LINK_LIBRARIES pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY})
+set(LINK_LIBRARIES ${PVLICENSE_LIBRARIES} pvkernel)
+include_directories(${PVLICENSE_INCLUDE_DIR})
 add_definitions(-fopenmp)
 
 #inendi-logstats

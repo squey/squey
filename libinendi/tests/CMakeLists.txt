@@ -6,8 +6,8 @@
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(LINK_LIBRARIES pvkernel inendi ${TBB_LIBRARIES} ${ICU_LIBRARY}
-				   ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} ${PVLOGGER_LIBRARIES})
+set(LINK_LIBRARIES pvkernel ${PVLICENSE_LIBRARIES} inendi)
+include_directories(${PVLICENSE_INCLUDE_DIR})
 
 add_pv_compile_test(Tinendi_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp)
 add_test(Tinendi_heat_line Tinendi_heat_line)

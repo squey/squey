@@ -55,10 +55,6 @@ void init_ctxt()
 	QCoreApplication app(argc, &arg);
 
 	init_env();
-
-	// Load plugins to fill the nraw
-	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
-	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 }
 
 /**

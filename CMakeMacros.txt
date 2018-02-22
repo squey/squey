@@ -80,9 +80,9 @@ function(add_pv_compile_test test_exe)
 endfunction()
 
 function(add_bench bench_name)
-	add_pv_compile_test(BENCH_${bench_name} ${ARGN})
-	set_target_properties(BENCH_${bench_name} PROPERTIES COMPILE_FLAGS "-DINSPECTOR_BENCH ${PROGRAM_COMPILE_FLAGS}")
-	add_test(BENCH_${bench_name} ${CMAKE_SOURCE_DIR}/scripts/run_bench.py ${CMAKE_CURRENT_BINARY_DIR}/BENCH_${bench_name})
+	#add_pv_compile_test(BENCH_${bench_name} ${ARGN})
+	#set_target_properties(BENCH_${bench_name} PROPERTIES COMPILE_FLAGS "-DINSPECTOR_BENCH ${PROGRAM_COMPILE_FLAGS}")
+	#add_test(BENCH_${bench_name} ${CMAKE_SOURCE_DIR}/scripts/run_bench.py ${CMAKE_CURRENT_BINARY_DIR}/BENCH_${bench_name})
 endfunction()
 
 function(strcasecmp res str1 str2)

@@ -28,7 +28,6 @@ int main(int argc, char** argv)
 	// Initialization
 	pvtest::init_ctxt();
 
-	PVFilter::PVPluginsLoad::load_all_plugins();
 	// Format reading
 	QDir dir_files(argv[1]);
 	dir_files.setFilter(QDir::Files | QDir::Readable);
