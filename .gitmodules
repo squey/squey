@@ -26,3 +26,6 @@
 [submodule "flatpak/flatpak-dev-cli"]
 	path = flatpak/flatpak-dev-cli
 	url = git@gitlab.srv.picviz:picviz/flatpak-dev-cli.git
+[submodule "tests"]
+	path = tests
+	url = git@gitlab.srv.picviz:picviz/inendi-inspector-testsuite.git

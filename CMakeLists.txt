@@ -74,12 +74,6 @@ include(CMakePackageDistribute.txt)
 include_directories(AFTER "${inendi-inspector_SOURCE_DIR}/include")
 
 ###############################################################################
-# Define svn update tests files target
-###############################################################################
-# TODO : add builder account on SVN machine auth by ssh
-add_custom_target(update_tests_files COMMAND "${CMAKE_SOURCE_DIR}/tests/update-tests-files.sh" "${TESTS_FILES_DIR}" "${CMAKE_SOURCE_DIR}/tests/files-svn-rev")
-
-###############################################################################
 # Define tests targets
 ###############################################################################
 # Declare test suite target
@@ -88,10 +82,8 @@ add_custom_target(update_tests_files COMMAND "${CMAKE_SOURCE_DIR}/tests/update-t
 # `make love` will compile, download ref files and then run tests
 add_custom_target(testsuite)
 add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} -E \"BENCH|LONG\")
-add_dependencies(love update_tests_files)
 add_dependencies(love testsuite)
 add_custom_target(bench COMMAND ${CMAKE_CTEST_COMMAND} -R BENCH)
-add_dependencies(bench update_tests_files)
 add_dependencies(bench testsuite)
 
 ###############################################################################

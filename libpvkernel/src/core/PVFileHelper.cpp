@@ -14,6 +14,7 @@
 
 bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 {
+	errno = 0;
 	bool ret = false;
 	int fd = open(file_name, O_RDONLY);
 	if (fd < 0) {

@@ -11,7 +11,8 @@
 #include <iostream>
 #include <stdio.h>
 
-#define FILENAME "/tmp/test_file_helper.test"
+#define FILENAME                                                                                   \
+	"test_file_helper.test" // won't work on tmpfs, see https://lkml.org/lkml/2008/4/29/602
 
 int main()
 {
