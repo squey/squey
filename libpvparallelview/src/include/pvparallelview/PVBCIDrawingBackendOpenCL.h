@@ -75,7 +75,14 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	static void termination_cb(cl_event event, cl_int status, void* data);
 
   private:
+#if defined __GNUC__ && __GNUC__ >= 6
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
 	using devices_t = std::map<cl_int, device_t>;
+#if defined __GNUC__ && __GNUC__ >= 6
+#pragma GCC diagnostic pop
+#endif
 
   private:
 	cl::Context _context;
