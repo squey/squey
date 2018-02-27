@@ -24,12 +24,12 @@
         },
         {
           "type": "file",
-          "path": "pcap-inspector-configure",
+          "path": "no-configure",
           "dest-filename": "configure"
         },
         {
           "type": "file",
-          "path": "pcap-inspector-make",
+          "path": "no-make",
           "dest-filename": "Makefile"
         },
         {
