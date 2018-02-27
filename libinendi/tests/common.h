@@ -60,10 +60,6 @@ class TestEnv
 
 		init_env();
 
-		// Load plugins to fill the nraw
-		PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
-		PVRush::PVPluginsLoad::load_all_plugins();   // Sources
-
 		import(log_files, format_file, dup);
 
 		switch (until) {

@@ -102,6 +102,12 @@ struct visit_bits<uint8_t, F> : private visit_bits_base<uint8_t, F> {
 
 #ifdef __SSE4_1__
 // Specialisation if SSE4.1 is enabled
+
+#if defined __GNUC__ && __GNUC__ >= 6
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 template <typename F>
 struct visit_bits<__m128i, F> {
   private:
@@ -131,6 +137,11 @@ struct visit_bits<__m128i, F> {
 		visit_bits<uint64_t, F>::f(v2, f, offset + 64);
 	}
 };
+
+#if defined __GNUC__ && __GNUC__ >= 6
+#pragma GCC diagnostic pop
+#endif
+
 #endif
 } // namespace __impl
 

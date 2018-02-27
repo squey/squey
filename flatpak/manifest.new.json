@@ -481,7 +481,7 @@
         },
         {
           "type": "file",
-          "path": "documentation-configure",
+          "path": "no-configure",
           "dest-filename": "configure"
         }
       ]
@@ -489,6 +489,9 @@
     {
       "name": "inendi-inspector",
       "buildsystem": "cmake",
+      "run-tests" : true,
+      "test-rule" : "",
+      "test-commands" : [ "make -j `nproc` love" ],
       "config-opts": [
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_INSTALL_PREFIX=/app",

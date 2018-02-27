@@ -14,7 +14,7 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(COMMON_LIBRARIES pvparallelview pvguiqt inendi pvkernel ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES} ${PVLICENSE_LIBRARIES})
+set(COMMON_LIBRARIES pvparallelview pvguiqt ${PVLICENSE_LIBRARIES} inendi pvkernel)
 
 add_pv_compile_test(Tqt_listing_model LINKS ${COMMON_LIBRARIES} FILES listing_model.cpp common.cpp)
 

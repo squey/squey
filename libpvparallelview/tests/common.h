@@ -86,15 +86,6 @@ class TestEnv
 
 		init_env();
 
-		// Load plugins to fill the nraw
-		PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
-		PVRush::PVPluginsLoad::load_all_plugins();   // Sources
-		Inendi::common::load_mapping_filters();
-		Inendi::common::load_plotting_filters();
-
-		// Initialize sse4 detection
-		PVCore::PVIntrinsics::init_cpuid();
-
 		{
 			std::ifstream ifs(log_file);
 			std::string content{std::istreambuf_iterator<char>(ifs),

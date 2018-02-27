@@ -10,10 +10,6 @@ int main()
 
 	init_env();
 
-	// Load plugins to fill the nraw
-	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
-	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
-
 	PVRush::PVFormat format("my_format", TEST_FOLDER "/picviz/nginx.format");
 
 	Inendi::PVAxesCombination axe_comb(format);
