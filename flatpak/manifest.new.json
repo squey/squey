@@ -41,14 +41,22 @@
       ]
     },
     {
-        "name":"mysql",
-        "buildsystem": "cmake",
-        "builddir": true,
-        "sources": [
+      "name":"mysql",
+      "buildsystem": "cmake",
+      "config-opts": [
+        "-DWITHOUT_SERVER=ON",
+        "-DWITH_UNIT_TESTS=OFF"
+      ],
+      "builddir": true,
+      "sources": [
         {
           "type": "archive",
           "url": "http://http.debian.net/debian/pool/main/m/mysql-5.7/mysql-5.7_5.7.21.orig.tar.gz",
           "sha256": "ad29ecb6fb3c3571394fe231633a2d1d188d49e9eb749daa4e8799b7630daa09"
+        },
+        {
+          "type": "shell",
+          "commands": [ "sed -i '642d' CMakeLists.txt", "# Fix serverless build, see https://bugs.mysql.com/bug.php?id=87348" ]
         }
       ]
     },
