@@ -1,2 +1,5 @@
 #!/bin/bash
-source flatpak-dev-cli/setup-flatpak-dev.sh .. manifest.json
+
+./subs_vars.sh $@
+
+source flatpak-dev-cli/setup-flatpak-dev.sh .. inendi-inspector.json
