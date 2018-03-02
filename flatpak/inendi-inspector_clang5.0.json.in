@@ -12,7 +12,7 @@
     "cd /app/share/applications && ls -I inendi-inspector.desktop | xargs rm -rf",
     "cd /app/share/doc && ls -I inendi-inspector | xargs rm -rf",
     "cd /app/lib && find . -maxdepth 1 -type d -not -name . -not -name inendi-inspector -not -name clang -exec rm -rf {} +",
-    "cd /app/bin && ls -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-4.0 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
+    "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-5.0 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
     "cp /usr/bin/ld /app/bin && cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.2.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.2.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.2.0/crtendS.o /app/lib",
     "ln -s /usr/lib/libm.so.6 /app/lib/libm.so && ln -s /usr/lib/libc.so.6 /app/lib/libc.so && ln -s /usr/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && ln -s /usr/lib/libstdc++.so.6 /app/lib/libstdc++.so"
   ],
@@ -398,8 +398,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/4.0.1/llvm-4.0.1.src.tar.xz",
-          "sha256": "da783db1f82d516791179fe103c71706046561f7972b18f0049242dee6712b51"
+          "url": "http://releases.llvm.org/5.0.1/llvm-5.0.1.src.tar.xz",
+          "sha256": "5fa7489fc0225b11821cab0362f5813a05f2bcf2533e8a4ea9c9c860168807b0"
         }
       ]
     },
@@ -428,8 +428,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/4.0.1/cfe-4.0.1.src.tar.xz",
-          "sha256": "61738a735852c23c3bdbe52d035488cdb2083013f384d67c1ba36fabebd8769b"
+          "url": "http://releases.llvm.org/5.0.1/cfe-5.0.1.src.tar.xz",
+          "sha256": "135f6c9b0cd2da1aff2250e065946258eb699777888df39ca5a5b4fe5e23d0ff"
         }
       ]
     },
@@ -442,8 +442,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://portablecl.org/downloads/pocl-0.14.tar.gz",
-          "sha256":"2127bf925a91fbbe3daf2f1bac0da5c8aceb16e2a9434977a3057eade974106a"
+          "url": "https://github.com/pocl/pocl/archive/v1.1-RC2.tar.gz",
+          "sha256":"829a08eb0445b8c6c5086985d8bf4805539f755a31ee252c767ff8e79768514d"
         }
       ],
       "post-install": [
@@ -497,24 +497,36 @@
     {
       "name": "inendi-inspector",
       "buildsystem": "cmake",
+      "builddir": true,
       "run-tests" : true,
       "test-rule" : "",
-      "test-commands" : [ "make -j `nproc` love" ],
+      "test-commands" : [ "make -j `nproc` testsuite && run_cmd.sh ctest --output-on-failure --no-compress-output -T test" ],
       "config-opts": [
-        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
         "-DCMAKE_INSTALL_PREFIX=/app",
         "-DARCH_TYPE=corei7",
         "-DUSER_TARGET=customer"
       ],
+      "build-options" : {
+        "env": {
+            "CXX": "@@CXX_COMPILER@@"
+        },
+        "test-args": [
+          "--share=network",
+          "--filesystem=host"
+        ]
+      },
       "sources": [
         {
           "type": "git",
-          "path": ".."
+          "path": "..",
+          "branch": "@@BRANCH_NAME@@"
         }
       ],
       "post-install": [
-        "cp flatpak/inspector_launcher.sh /app/bin",
-        "mkdir -p /app/share/applications && cp flatpak/inendi-inspector.desktop /app/share/applications"
+        "cp ../flatpak/run_cmd.sh /app/bin",
+        "cp ../flatpak/inspector_launcher.sh /app/bin",
+        "mkdir -p /app/share/applications && cp ../flatpak/inendi-inspector.desktop /app/share/applications"
       ]
     }
   ]
