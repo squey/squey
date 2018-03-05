@@ -17,9 +17,26 @@ if(POLICY  CMP0026)
 endif()
 
 ###############################################################################
+# Configure build system
+###############################################################################
+# Use ninja build system if available
+OPTION(USE_NINJA "Use ninja build system" ON)
+if (USE_NINJA)
+    execute_process(COMMAND ninja --version ERROR_QUIET OUTPUT_VARIABLE NINJA_VERSION)
+    if ("${NINJA_VERSION}" GREATER_EQUAL "1.7.2")
+        message(STATUS "Using ninja build system as it is available.")
+        set(CMAKE_GENERATOR "Ninja")
+        set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    else ()
+        message(WARNING "Ninja build system not available, fallback to the default build system.")
+        set(USE_NINJA OFF)
+    endif ()
+endif ()
+
+###############################################################################
 # Configure linker
 ###############################################################################
-# Use ld.gold if it is available
+# Use ld.gold if available
 OPTION(USE_LD_GOLD "Use GNU gold linker" ON)
 if (USE_LD_GOLD)
     execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
@@ -77,7 +94,7 @@ include(CMakeVersionHandler.txt)
 # Define variable and repo required for tests
 include(CMakePVTests.txt)
 
-###############################################################################
+####################n###########################################################
 # Define distribution stuff
 ###############################################################################
 include(CMakePackage.txt)
@@ -114,10 +131,9 @@ include(ExternalProject)
 ###############################################################################
 # furl
 ###############################################################################
-set(FURL_STATIC_LIB ${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/libfurll-utf8.a)
+set(FURL_STATIC_LIB ${CMAKE_CURRENT_BINARY_DIR}/furl-prefix/src/furl-build/src/lib/libfurll-utf8.a)
 ExternalProject_Add(furl
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/furl
-    BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	EXCLUDE_FROM_ALL TRUE
   	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE}
@@ -131,11 +147,10 @@ add_definitions(-DFURL_UTF8_CHAR)
 # inendi-utils
 ###############################################################################
 pkg_check_modules(HWLOC REQUIRED hwloc)
-SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
-SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/src/libpvhwloc.so)
+SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvlogger/src/libpvlogger.so)
+SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvhwloc/src/libpvhwloc.so)
 ExternalProject_Add(inendi-utils
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils
-    BUILD_IN_SOURCE 1
     STEP_TARGETS build
     CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_WITH_INSTALL_RPATH=${CMAKE_BUILD_WITH_INSTALL_RPATH}
     BUILD_BYPRODUCTS ${PVLOGGER_LIBRARIES} ${PVHWLOC_LIBRARIES}
@@ -149,24 +164,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/include
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
 SET(PVLICENSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/include)
 
-add_library(libpvlogger SHARED IMPORTED)
-set_property(TARGET libpvlogger PROPERTY IMPORTED_LOCATION
-                ${PVLOGGER_LIBRARIES} )
-add_dependencies(libpvlogger inendi-utils)
-
-add_library(libpvhwloc SHARED IMPORTED)
-set_property(TARGET libpvhwloc PROPERTY IMPORTED_LOCATION
-                ${PVHWLOC_LIBRARIES} )
-add_dependencies(libpvhwloc inendi-utils)
-
-
 ###############################################################################
 # libpvcop
 ###############################################################################
-SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/src/libpvcop.so)
+SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop-prefix/src/libpvcop-build/src/libpvcop.so)
 ExternalProject_Add(libpvcop
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop
-    BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	DEPENDS inendi-utils
   	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
