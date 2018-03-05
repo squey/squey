@@ -27,11 +27,11 @@ static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
      {{"number_uint32", ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_int32",  ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_uint32", "%#o"}, { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint32", "%#x"}, { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint32", "0x%x"}, { "number_float", "number_double", "time", "duration" }},
      {{"number_uint64", ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_int64",  ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_uint64", "%#lo"},{ "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", "%#lx"},{ "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", "0x%lx"},{ "number_float", "number_double", "time", "duration" }},
      {{"number_float",  ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
      {{"number_double", ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
 
