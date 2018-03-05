@@ -43,16 +43,16 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libpvkernel/plugins/inpu
 include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg/include)
 cmake_minimum_required(VERSION 2.8)
 include(ExternalProject)
+SET(LIGHTPCAPNG_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg)
+SET(LIGHTPCAPNG_LIBRARY ${LIGHTPCAPNG_LIBRARY_DIR}/liblight_pcapng_static.a)
 ExternalProject_Add(LightPcapNg
     SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg
     BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	EXCLUDE_FROM_ALL TRUE
-  	BUILD_COMMAND $(MAKE)
+  	BUILD_BYPRODUCTS ${LIGHTPCAPNG_LIBRARY}
   	INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
-SET(LIGHTPCAPNG_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg)
-SET(LIGHTPCAPNG_LIBRARY ${LIGHTPCAPNG_LIBRARY_DIR}/liblight_pcapng_static.a)
 
 include_directories("../common/pcap/libpvpcap/include/")
 include_directories("pcap/pcap-gui/")
