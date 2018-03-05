@@ -17,9 +17,26 @@ if(POLICY  CMP0026)
 endif()
 
 ###############################################################################
+# Configure build system
+###############################################################################
+# Use ninja build system if available
+OPTION(USE_NINJA "Use ninja build system" ON)
+if (USE_NINJA)
+    execute_process(COMMAND ninja --version ERROR_QUIET OUTPUT_VARIABLE NINJA_VERSION)
+    if ("${NINJA_VERSION}" GREATER_EQUAL "1.7.2")
+        message(STATUS "Using ninja build system as it is available.")
+        set(CMAKE_GENERATOR "Ninja")
+        set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    else ()
+        message(WARNING "Ninja build system not available, fallback to the default build system.")
+        set(USE_NINJA OFF)
+    endif ()
+endif ()
+
+###############################################################################
 # Configure linker
 ###############################################################################
-# Use ld.gold if it is available
+# Use ld.gold if available
 OPTION(USE_LD_GOLD "Use GNU gold linker" ON)
 if (USE_LD_GOLD)
     execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
@@ -77,7 +94,7 @@ include(CMakeVersionHandler.txt)
 # Define variable and repo required for tests
 include(CMakePVTests.txt)
 
-###############################################################################
+####################n###########################################################
 # Define distribution stuff
 ###############################################################################
 include(CMakePackage.txt)
@@ -114,10 +131,11 @@ include(ExternalProject)
 ###############################################################################
 # furl
 ###############################################################################
+# ./release_build/furl-prefix/src/furl-build/src/lib/libfurll-utf8.a
+message(STATUS "FURL=${CMAKE_CURRENT_BINARY_DIR}")
 set(FURL_STATIC_LIB ${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/libfurll-utf8.a)
 ExternalProject_Add(furl
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/furl
-    BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	EXCLUDE_FROM_ALL TRUE
   	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE}
