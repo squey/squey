@@ -44,10 +44,10 @@ include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg/
 cmake_minimum_required(VERSION 2.8)
 include(ExternalProject)
 SET(LIGHTPCAPNG_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg)
-SET(LIGHTPCAPNG_LIBRARY ${LIGHTPCAPNG_LIBRARY_DIR}/liblight_pcapng_static.a)
+message(STATUS LIGHTPCAPNG_LIBRARY_CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR})
+SET(LIGHTPCAPNG_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/LightPcapNg-prefix/src/LightPcapNg-build/liblight_pcapng_static.a)
 ExternalProject_Add(LightPcapNg
     SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg
-    BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	EXCLUDE_FROM_ALL TRUE
   	BUILD_BYPRODUCTS ${LIGHTPCAPNG_LIBRARY}

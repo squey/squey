@@ -131,9 +131,7 @@ include(ExternalProject)
 ###############################################################################
 # furl
 ###############################################################################
-# ./release_build/furl-prefix/src/furl-build/src/lib/libfurll-utf8.a
-message(STATUS "FURL=${CMAKE_CURRENT_BINARY_DIR}")
-set(FURL_STATIC_LIB ${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/libfurll-utf8.a)
+set(FURL_STATIC_LIB ${CMAKE_CURRENT_BINARY_DIR}/furl-prefix/src/furl-build/src/lib/libfurll-utf8.a)
 ExternalProject_Add(furl
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/furl
     STEP_TARGETS build
@@ -149,11 +147,10 @@ add_definitions(-DFURL_UTF8_CHAR)
 # inendi-utils
 ###############################################################################
 pkg_check_modules(HWLOC REQUIRED hwloc)
-SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
-SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/src/libpvhwloc.so)
+SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvlogger/src/libpvlogger.so)
+SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvhwloc/src/libpvhwloc.so)
 ExternalProject_Add(inendi-utils
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils
-    BUILD_IN_SOURCE 1
     STEP_TARGETS build
     CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_WITH_INSTALL_RPATH=${CMAKE_BUILD_WITH_INSTALL_RPATH}
     BUILD_BYPRODUCTS ${PVLOGGER_LIBRARIES} ${PVHWLOC_LIBRARIES}
@@ -167,24 +164,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/include
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
 SET(PVLICENSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/include)
 
-add_library(libpvlogger SHARED IMPORTED)
-set_property(TARGET libpvlogger PROPERTY IMPORTED_LOCATION
-                ${PVLOGGER_LIBRARIES} )
-add_dependencies(libpvlogger inendi-utils)
-
-add_library(libpvhwloc SHARED IMPORTED)
-set_property(TARGET libpvhwloc PROPERTY IMPORTED_LOCATION
-                ${PVHWLOC_LIBRARIES} )
-add_dependencies(libpvhwloc inendi-utils)
-
-
 ###############################################################################
 # libpvcop
 ###############################################################################
-SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/src/libpvcop.so)
+SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop-prefix/src/libpvcop-build/src/libpvcop.so)
 ExternalProject_Add(libpvcop
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop
-    BUILD_IN_SOURCE 1
     STEP_TARGETS build
   	DEPENDS inendi-utils
   	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
