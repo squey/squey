@@ -4,7 +4,7 @@
 # @copyright (C) Picviz Labs 2011-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.7)
 
 project(inendi-inspector)
 
@@ -15,23 +15,6 @@ cmake_policy(SET CMP0002 OLD)
 if(POLICY  CMP0026)
 	cmake_policy(SET CMP0026 OLD)
 endif()
-
-###############################################################################
-# Configure build system
-###############################################################################
-# Use ninja build system if available
-OPTION(USE_NINJA "Use ninja build system" ON)
-if (USE_NINJA)
-    execute_process(COMMAND ninja --version ERROR_QUIET OUTPUT_VARIABLE NINJA_VERSION)
-    if ("${NINJA_VERSION}" GREATER_EQUAL "1.7.2")
-        message(STATUS "Using ninja build system as it is available.")
-        set(CMAKE_GENERATOR "Ninja")
-        set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    else ()
-        message(WARNING "Ninja build system not available, fallback to the default build system.")
-        set(USE_NINJA OFF)
-    endif ()
-endif ()
 
 ###############################################################################
 # Configure linker
@@ -48,7 +31,7 @@ if (USE_LD_GOLD)
         message(WARNING "GNU gold linker isn't available, using the default system linker.")
         set(USE_LD_GOLD OFF)
     endif ()
-endif ()
+endif () 
 
 ###############################################################################
 # Define testing environment
