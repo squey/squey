@@ -164,6 +164,16 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/include
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
 SET(PVLICENSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/include)
 
+add_library(libpvlogger SHARED IMPORTED)
+set_property(TARGET libpvlogger PROPERTY IMPORTED_LOCATION
+                ${PVLOGGER_LIBRARIES} )
+add_dependencies(libpvlogger inendi-utils)
+
+add_library(libpvhwloc SHARED IMPORTED)
+set_property(TARGET libpvhwloc PROPERTY IMPORTED_LOCATION
+                ${PVHWLOC_LIBRARIES} )
+add_dependencies(libpvhwloc inendi-utils)
+
 ###############################################################################
 # libpvcop
 ###############################################################################
