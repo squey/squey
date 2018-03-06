@@ -4,18 +4,16 @@
 # @copyright (C) Picviz Labs 2011-March 2015
 # @copyright (C) ESI Group INENDI April 2015-2015
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.3) # 3.4 break the build
 
 project(inendi-inspector)
 
-#set(CMAKE_VERBOSE_MAKEFILE ON)
 cmake_policy(SET CMP0002 OLD)
 
 # this policy remains to "OLD" until the release process uses cmake 3.x
 if(POLICY  CMP0026)
 	cmake_policy(SET CMP0026 OLD)
 endif()
-
 ###############################################################################
 # Configure linker
 ###############################################################################
