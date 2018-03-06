@@ -133,19 +133,19 @@ pkg_check_modules(HWLOC REQUIRED hwloc)
 SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvlogger/src/libpvlogger.so)
 SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvhwloc/src/libpvhwloc.so)
 ExternalProject_Add(inendi-utils
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/inendi-utils
     STEP_TARGETS build
     CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_WITH_INSTALL_RPATH=${CMAKE_BUILD_WITH_INSTALL_RPATH}
     BUILD_BYPRODUCTS ${PVLOGGER_LIBRARIES} ${PVHWLOC_LIBRARIES}
 )
 SET(PVLICENSE_LIBRARIES
-    ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/lib/flexnet/libesiflex.a
-    ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/lib/sentinel/liblssrv64.a
+    ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/lib/flexnet/libesiflex.a
+    ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/lib/sentinel/liblssrv64.a
     dl
 )
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvlogger/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
-SET(PVLICENSE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/include)
+include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/libpvlogger/include)
+include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
+SET(PVLICENSE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/include)
 
 add_library(libpvlogger SHARED IMPORTED)
 set_property(TARGET libpvlogger PROPERTY IMPORTED_LOCATION
