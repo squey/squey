@@ -16,3 +16,7 @@ doxygen_sqlite3.db
 /flatpak/repo
 /.flatpak-builder/
 /flatpak/
+.cproject
+.project
+.settings/
+release_build/
