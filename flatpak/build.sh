@@ -12,4 +12,6 @@ else
     flatpak-builder $DIR/build $DIR/inendi-inspector.json --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir=$DIR/gnupg --ccache  --force-clean --delete-build-dirs --build-only || exit 4
 fi
 
-
+if [ ! -z "$UPLOAD_URL" -a ! -z "$REPO_DIR" ]; then
+    ./ostree-releng-scripts/rsync-repos --rsync-opt "-e ssh -p $UPLOAD_PORT" --src $REPO_DIR/ --dest $UPLOAD_URL
+fi
