@@ -29,3 +29,6 @@
 [submodule "tests"]
 	path = tests
 	url = git@gitlab.srv.picviz:picviz/inendi-inspector-testsuite.git
+[submodule "flatpak/ostree-releng-scripts"]
+	path = flatpak/ostree-releng-scripts
+	url = https://github.com/ostreedev/ostree-releng-scripts.git
