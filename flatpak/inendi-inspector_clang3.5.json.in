@@ -525,7 +525,7 @@
       "builddir": true,
       "run-tests" : true,
       "test-rule" : "",
-      "test-commands" : [ "ninja testsuite && run_cmd.sh ctest --output-on-failure --no-compress-output -T test" ],
+      "test-commands" : [ "ninja inspector_testsuite && run_cmd.sh ctest --output-on-failure --no-compress-output -T test -R INSPECTOR_TEST" ],
       "config-opts": [
         "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
         "-DCMAKE_INSTALL_PREFIX=/app",

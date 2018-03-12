@@ -52,12 +52,12 @@ endmacro()
 ###############################################################################
 # Function to define a test
 #
-# Syntax to use it : add_pv_compile_test(binary_name LINKS libs_to_link FILES files_to_compile)
+# Syntax to use it : add_inspector_compile_test(binary_name LINKS libs_to_link FILES files_to_compile)
 #
 # Compilation for tests declared with this function arre added to the testsuite
 # dependency
 ###############################################################################
-function(add_pv_compile_test test_exe)
+function(add_inspector_compile_test test_exe)
 	# Define all kinds of arguments
 	set(options)
 	set(oneValueArgs)
@@ -72,17 +72,21 @@ function(add_pv_compile_test test_exe)
 	
 	add_definitions("-DTEST_FOLDER=\"${TESTS_FILES_DIR}\"")
 	# Now, we have all arguments, compile the executable
-	add_executable(${test_exe} EXCLUDE_FROM_ALL ${files})
+	add_executable(INSPECTOR_TEST_${test_exe} EXCLUDE_FROM_ALL ${files})
 	# Link library with it
-	target_link_libraries(${test_exe} ${links})
-	# All of this will be done on the already defined testsuite target
-	add_dependencies(testsuite ${test_exe})
+	target_link_libraries(INSPECTOR_TEST_${test_exe} ${links})
+	# All of this will be done on the already defined inspector_testsuite target
+	add_dependencies(inspector_testsuite INSPECTOR_TEST_${test_exe})
+endfunction()
+
+function(add_inspector_test test_exe test_name)
+	add_test(INSPECTOR_TEST_${test_exe} INSPECTOR_TEST_${test_name} ${ARGN})
 endfunction()
 
 function(add_bench bench_name)
-	#add_pv_compile_test(BENCH_${bench_name} ${ARGN})
-	#set_target_properties(BENCH_${bench_name} PROPERTIES COMPILE_FLAGS "-DINSPECTOR_BENCH ${PROGRAM_COMPILE_FLAGS}")
-	#add_test(BENCH_${bench_name} ${CMAKE_SOURCE_DIR}/scripts/run_bench.py ${CMAKE_CURRENT_BINARY_DIR}/BENCH_${bench_name})
+	#add_inspector_compile_test(INSPECTOR_BENCH_${bench_name} ${ARGN})
+	#set_target_properties(INSPECTOR_BENCH_${bench_name} PROPERTIES COMPILE_FLAGS "-DINSPECTOR_BENCH ${PROGRAM_COMPILE_FLAGS}")
+	#add_inspector_test(INSPECTOR_BENCH_${bench_name} ${CMAKE_SOURCE_DIR}/scripts/run_bench.py ${CMAKE_CURRENT_BINARY_DIR}/INSPECTOR_BENCH_${bench_name})
 endfunction()
 
 function(strcasecmp res str1 str2)
