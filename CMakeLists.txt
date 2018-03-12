@@ -14,6 +14,7 @@ cmake_policy(SET CMP0002 OLD)
 if(POLICY  CMP0026)
 	cmake_policy(SET CMP0026 OLD)
 endif()
+
 ###############################################################################
 # Configure linker
 ###############################################################################
@@ -93,21 +94,25 @@ include_directories(AFTER "${inendi-inspector_SOURCE_DIR}/include")
 ###############################################################################
 # Declare test suite target
 # It has been populated thanks to the declare_pv_test macro
-# `make testsuite` will compile tests
-# `make love` will compile, download ref files and then run tests
-add_custom_target(testsuite)
-add_custom_target(love COMMAND ${CMAKE_CTEST_COMMAND} -E \"BENCH|LONG\")
-add_dependencies(love testsuite)
-add_custom_target(bench COMMAND ${CMAKE_CTEST_COMMAND} -R BENCH)
-add_dependencies(bench testsuite)
+
+add_custom_target(inspector_testsuite)
+if (CMAKE_CONFIGURATION_TYPES)
+    add_custom_target(inspector_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R INSPECTOR_TEST_
+        --force-new-ctest-process --output-on-failure
+        --build-config "$<CONFIGURATION>")
+else()
+    add_custom_target(inspector_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R INSPECTOR_TEST_
+        --force-new-ctest-process --output-on-failure)
+endif()
+
+add_dependencies(inspector_run_testsuite inspector_testsuite)
+add_custom_target(inspector_bench COMMAND ${CMAKE_CTEST_COMMAND} -R INSPECTOR_BENCH_)
+add_dependencies(inspector_bench inspector_testsuite)
 
 ###############################################################################
 # Define project dependencies
 ###############################################################################
-
-cmake_minimum_required(VERSION 2.8)
 include(ExternalProject)
-
 
 ###############################################################################
 # furl
@@ -127,55 +132,30 @@ add_definitions(-DFURL_UTF8_CHAR)
 ###############################################################################
 # inendi-utils
 ###############################################################################
-pkg_check_modules(HWLOC REQUIRED hwloc)
-SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvlogger/src/libpvlogger.so)
-SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils-prefix/src/inendi-utils-build/libpvhwloc/src/libpvhwloc.so)
-ExternalProject_Add(inendi-utils
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}/inendi-utils
-    STEP_TARGETS build
-    CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_WITH_INSTALL_RPATH=${CMAKE_BUILD_WITH_INSTALL_RPATH}
-    BUILD_BYPRODUCTS ${PVLOGGER_LIBRARIES} ${PVHWLOC_LIBRARIES}
-)
+SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
+SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils/libpvhwloc/src/libpvhwloc.so)
 SET(PVLICENSE_LIBRARIES
     ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/lib/flexnet/libesiflex.a
     ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/lib/sentinel/liblssrv64.a
     dl
 )
+include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/core/license/include)
 include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/libpvlogger/include)
 include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
-SET(PVLICENSE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/include)
-
-add_library(libpvlogger SHARED IMPORTED)
-set_property(TARGET libpvlogger PROPERTY IMPORTED_LOCATION
-                ${PVLOGGER_LIBRARIES} )
-add_dependencies(libpvlogger inendi-utils)
-
-add_library(libpvhwloc SHARED IMPORTED)
-set_property(TARGET libpvhwloc PROPERTY IMPORTED_LOCATION
-                ${PVHWLOC_LIBRARIES} )
-add_dependencies(libpvhwloc inendi-utils)
+add_subdirectory(inendi-utils)
 
 ###############################################################################
 # libpvcop
 ###############################################################################
-SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop-prefix/src/libpvcop-build/src/libpvcop.so)
-ExternalProject_Add(libpvcop
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libpvcop
-    STEP_TARGETS build
-  	DEPENDS inendi-utils
-  	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
-  	BUILD_BYPRODUCTS ${PVCOP_LIBRARIES}
-)
+add_subdirectory(libpvcop)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
+SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop/src/libpvcop.so)
 
 declare_internal_library(pvkernel)
 declare_internal_library(inendi)
 declare_internal_library(pvdisplays)
 declare_internal_library(pvparallelview)
 declare_internal_library(pvguiqt)
-
-add_dependencies(pvkernel furl inendi-utils libpvcop)
-add_dependencies(libpvcop inendi-utils)
 
 add_subdirectory(gui-qt)
 
