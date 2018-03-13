@@ -9,6 +9,7 @@
 #define __PVCORE_PVNRAWCACHEMANAGER_H__
 
 #include <memory>
+#include <functional>
 
 #include <QDirIterator>
 #include <QSettings>

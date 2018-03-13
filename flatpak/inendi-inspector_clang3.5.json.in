@@ -3,6 +3,7 @@
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
+  "sdk-extensions": [ "org.freedesktop.Sdk.Extension.gcc7" ],
   "command": "inspector_launcher.sh",
   "rename-desktop-file" : "inendi-inspector.desktop",
   "rename-icon" : "inendi-inspector",
@@ -536,6 +537,7 @@
         "env": {
             "CXX": "@@CXX_COMPILER@@"
         },
+        "append-ld-library-path" : "/usr/lib/sdk/gcc7/lib",
         "test-args": [
           "--share=network",
           "--filesystem=host"
