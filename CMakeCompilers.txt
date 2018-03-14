@@ -12,9 +12,26 @@ endif()
 
 set(CMAKE_CXX_ARCH_FLAGS "-march=${ARCH_TYPE}")
 
-set(CMAKE_CXX_COMMON_FLAGS "-Wall -Wextra -std=c++14 ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
+set(CMAKE_CXX_COMMON_FLAGS "-Wall -Wextra -std=c++17 ${CMAKE_CXX_ARCH_FLAGS}")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_COMMON_FLAGS}")
+
+###############################################################################
+# Configure linker
+###############################################################################
+# Use ld.gold if available
+OPTION(USE_LD_GOLD "Use GNU gold linker" ON)
+if (USE_LD_GOLD)
+    execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
+    if ("${LD_VERSION}" MATCHES "GNU gold")
+        message(STATUS "using GNU gold linker as it is available.")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
+    else ()
+        message(WARNING "GNU gold linker isn't available, using the default system linker.")
+        set(USE_LD_GOLD OFF)
+    endif ()
+endif () 
 
 # Use ccache if installed
 find_program(CCACHE_FOUND ccache)
@@ -29,33 +46,14 @@ MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(CMAKE_CXX_COMMON_FLAGS "-Qunused-arguments ${CMAKE_CXX_COMMON_FLAGS}")
 endif()
-                             
-set(LD_IS_GOLD_USED FALSE)
 
-if (USE_LTO)
+OPTION(USE_LTO "Use LTO" OFF)
+message("USE_LTO="${USE_LTO})
+if (USE_LD_GOLD AND USE_LTO)
+	message(STATUS "LTO will be used.")
 	if (CMAKE_COMPILER_IS_GNUCC)
 		set(LTO_CXX_FLAGS "-flto")
 		set(LTO_LINK_FLAGS "-flto")
-
-		GET_GCC_VERSION(GCC_MAJOR GCC_MINOR)
-		message(STATUS "LTO will be used with GCC version ${GCC_MAJOR}.${GCC_MINOR}")
-		if ((${GCC_MAJOR} LESS 5) AND (${GCC_MINOR} LESS 8))
-			# Gold needs to be used for LTO to work. Let's try if we find it !
-			find_program(GOLD_EXE gold)
-			if (GOLD_EXE-NOTFOUND)
-				message(FATAL "LTO can't be used without the gold linker and current GCC version (${GCC_MAJOR}.${GCC_MINOR})")
-			endif()
-			# Gold found, let's make a symlink for ld to it and use it
-			set(GOLD_BIN_DIR "${CMAKE_BINARY_DIR}/bin/gold/")
-			file(MAKE_DIRECTORY "${GOLD_BIN_DIR}")
-			execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${GOLD_EXE}" "${GOLD_BIN_DIR}/ld")
-			
-			# "-lrt" needs to be add since GNU ld does it by default, but not GNU gold!
-			set(LTO_LINK_FLAGS "${LTO_LINK_FLAGS} -B${GOLD_BIN_DIR} -Wl,--threads -lrt")
-			set(LD_IS_GOLD_USED TRUE)
-			
-			message(STATUS "GNU gold is used for LTO and linking")
-		endif()
 	endif()
 else()
 	message(STATUS "LTO won't be used.")
@@ -84,6 +82,8 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-Ofast -ggdb -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS
 list(APPEND CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
 list(APPEND CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
 list(APPEND CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
+
+message(STATUS CMAKE_CXX_FLAGS_RELWITHDEBINFO=${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 
 # due to a GCC problem, instrinsics must be exluded from instrumentation
 # http://nic.uoregon.edu/pipermail/tau-users/2012-September/000713.htm

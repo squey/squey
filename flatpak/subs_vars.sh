@@ -12,7 +12,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BRANCH_NAME=master
 TAG_NAME=
 BUILD_TYPE=Release
-CXX_COMPILER=g++
+CXX_COMPILER=/usr/lib/sdk/gcc7/bin/g++
 EXPORT_BUILD=false
 REPO_DIR=
 UPLOAD_URL=
@@ -42,7 +42,7 @@ fi
 
 # Manualy substitute variables since flatpak-builder doesn't seem to support this yet as version 0.10.8
 if [ ! -z "$TAG_NAME" ]; then
-    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s/@@CXX_COMPILER@@/$CXX_COMPILER/g" -e "/@@BRANCH_NAME@@/c\          \"tag\": \"$TAG_NAME\"" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 2
+    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "/@@BRANCH_NAME@@/c\          \"tag\": \"$TAG_NAME\"" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 2
 else
-    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s/@@CXX_COMPILER@@/$CXX_COMPILER/g" -e "s/@@BRANCH_NAME@@/$BRANCH_NAME/g" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 3
+    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "s/@@BRANCH_NAME@@/$BRANCH_NAME/g" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 3
 fi
