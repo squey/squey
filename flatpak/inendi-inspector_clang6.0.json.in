@@ -13,7 +13,7 @@
     "cd /app/share/applications && ls -I inendi-inspector.desktop | xargs rm -rf",
     "cd /app/share/doc && ls -I inendi-inspector | xargs rm -rf",
     "cd /app/lib && find . -maxdepth 1 -type d -not -name . -not -name inendi-inspector -not -name clang -exec rm -rf {} +",
-    "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-3.5 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
+    "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-6.0 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
     "cp /usr/bin/ld /app/bin && cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.2.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.2.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.2.0/crtendS.o /app/lib",
     "ln -s /usr/lib/libm.so.6 /app/lib/libm.so && ln -s /usr/lib/libc.so.6 /app/lib/libc.so && cp /usr/lib/sdk/gcc7/lib/libgcc_s.so.1 /app/lib && ln -s /app/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && cp /usr/lib/sdk/gcc7/lib/libstdc++.so.6 /app/lib && ln -s /app/lib/libstdc++.so.6 /app/lib/libstdc++.so"
   ],
@@ -423,12 +423,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/3.5.0/llvm-3.5.0.src.tar.xz",
-          "sha256": "28e199f368ef0a4666708f31c7991ad3bcc3a578342b0306526dd35f07595c03"
-        },
-        {
-          "type": "patch",
-          "path": "llvm_gcc_fix.patch"
+          "url": "http://releases.llvm.org/6.0.0/llvm-6.0.0.src.tar.xz",
+          "sha256": "1ff53c915b4e761ef400b803f07261ade637b0c269d99569f18040f3dcee4408"
         }
       ]
     },
@@ -458,49 +454,28 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/3.5.0/cfe-3.5.0.src.tar.xz",
-          "sha256": "fc80992e004b06f6c7afb612de1cdaa9ac9d25811c55f94fcf7331d9b81cdb8b"
-        }
-      ]
-    },
-    {
-      "name": "opencl-headers",
-      "sources": [
-        {
-          "type": "archive",
-          "url": "http://http.debian.net/debian/pool/main/k/khronos-opencl-headers/khronos-opencl-headers_2.1.orig.tar.xz",
-          "sha256": "4f0d0a156ed8d757071486d52eb37de843c599dc4ad2d76ccd9faaaf1f07fabb"
-        },
-        {
-          "type": "file",
-          "path": "configure-opencl-headers",
-          "dest-filename": "configure"
-        },
-        {
-          "type": "file",
-          "path": "make-opencl-headers",
-          "dest-filename": "Makefile"
+          "url": "http://releases.llvm.org/6.0.0/cfe-6.0.0.src.tar.xz",
+          "sha256": "e07d6dd8d9ef196cfc8e8bb131cbd6a2ed0b1caf1715f9d05b0f0eeaddb6df32"
         }
       ]
     },
     {
       "name": "portablecl",
-      "build-options" : {
-        "env": {
-          "CLANGXX_FLAGS": "-std=gnu++11",
-          "LLVM_CONFIG": "/app/bin/llvm-config",
-          "KERNELLIB_HOST_CPU_VARIANTS": "distro"
-        }
-      },
+      "buildsystem": "cmake",
+      "config-opts": [
+        "-DCLANGXX_FLAGS=-std=gnu++11",
+        "-DWITH_LLVM_CONFIG=/app/bin/llvm-config",
+        "-DKERNELLIB_HOST_CPU_VARIANTS=distro"
+      ],
       "sources": [
         {
           "type": "archive",
-          "url": "https://ayera.dl.sourceforge.net/project/pocl/pocl-0.10.tar.gz",
-          "sha256": "e9c38f774a77e61f66d850b705a5ba42d49356c40e75733db4c4811e091e5088"
+          "url": "https://github.com/pocl/pocl/archive/v1.1.tar.gz",
+          "sha256":"1e8dd0693a88c84937754df947b202871a40545b1b0a97ebefa370b0281c3c53"
         }
       ],
       "post-install": [
-        "cp --parent include/CL/cl.hpp /app"
+        "cp --parent include/CL/cl*.hpp /app"
       ]
     },
     {

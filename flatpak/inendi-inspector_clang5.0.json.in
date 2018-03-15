@@ -3,6 +3,7 @@
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
+  "sdk-extensions": [ "org.freedesktop.Sdk.Extension.gcc7" ],
   "command": "inspector_launcher.sh",
   "rename-desktop-file" : "inendi-inspector.desktop",
   "rename-icon" : "inendi-inspector",
@@ -355,7 +356,7 @@
     },
     {
       "name": "llvm",
-      "cmake": true,
+      "buildsystem": "cmake-ninja",
       "builddir": true,
       "build-options": {
         "arch": {
@@ -367,6 +368,7 @@
         }
       },
       "config-opts": [
+        "-GNinja",
         "-DCMAKE_C_FLAGS_RELEASE:STRING=-DNDEBUG",
         "-DCMAKE_CXX_FLAGS_RELEASE:STRING=-DNDEBUG",
         "-DBUILD_SHARED_LIBS:BOOL=ON",
@@ -405,13 +407,14 @@
     },
     {
       "name": "clang",
-      "cmake": true,
+      "buildsystem": "cmake-ninja",
       "builddir": true,
       "build-options": {
         "cflags": "-g1",
         "cxxflags": "-g1"
       },
       "config-opts": [
+        "-GNinja",
         "-DCMAKE_C_FLAGS_RELEASE:STRING=-DNDEBUG",
         "-DCMAKE_CXX_FLAGS_RELEASE:STRING=-DNDEBUG",
         "-DBUILD_SHARED_LIBS:BOOL=ON",
@@ -437,7 +440,9 @@
       "name": "portablecl",
       "buildsystem": "cmake",
       "config-opts": [
-        "-DCLANGXX_FLAGS=-std=gnu++11"
+        "-DCLANGXX_FLAGS=-std=gnu++11",
+        "-DWITH_LLVM_CONFIG=/app/bin/llvm-config",
+        "-DKERNELLIB_HOST_CPU_VARIANTS=distro"
       ],
       "sources": [
         {

@@ -13,7 +13,7 @@
     "cd /app/share/applications && ls -I inendi-inspector.desktop | xargs rm -rf",
     "cd /app/share/doc && ls -I inendi-inspector | xargs rm -rf",
     "cd /app/lib && find . -maxdepth 1 -type d -not -name . -not -name inendi-inspector -not -name clang -exec rm -rf {} +",
-    "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-3.5 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
+    "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-3.6 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
     "cp /usr/bin/ld /app/bin && cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.2.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.2.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.2.0/crtendS.o /app/lib",
     "ln -s /usr/lib/libm.so.6 /app/lib/libm.so && ln -s /usr/lib/libc.so.6 /app/lib/libc.so && cp /usr/lib/sdk/gcc7/lib/libgcc_s.so.1 /app/lib && ln -s /app/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && cp /usr/lib/sdk/gcc7/lib/libstdc++.so.6 /app/lib && ln -s /app/lib/libstdc++.so.6 /app/lib/libstdc++.so"
   ],
@@ -423,8 +423,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/3.5.0/llvm-3.5.0.src.tar.xz",
-          "sha256": "28e199f368ef0a4666708f31c7991ad3bcc3a578342b0306526dd35f07595c03"
+          "url": "http://releases.llvm.org/3.6.0/llvm-3.6.0.src.tar.xz",
+          "sha256": "b39a69e501b49e8f73ff75c9ad72313681ee58d6f430bfad4d81846fe92eb9ce"
         },
         {
           "type": "patch",
@@ -458,8 +458,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://releases.llvm.org/3.5.0/cfe-3.5.0.src.tar.xz",
-          "sha256": "fc80992e004b06f6c7afb612de1cdaa9ac9d25811c55f94fcf7331d9b81cdb8b"
+          "url": "http://releases.llvm.org/3.6.0/cfe-3.6.0.src.tar.xz",
+          "sha256": "be0e69378119fe26f0f2f74cffe82b7c26da840c9733fe522ed3c1b66b11082d"
         }
       ]
     },
@@ -495,8 +495,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "https://ayera.dl.sourceforge.net/project/pocl/pocl-0.10.tar.gz",
-          "sha256": "e9c38f774a77e61f66d850b705a5ba42d49356c40e75733db4c4811e091e5088"
+          "url": "http://portablecl.org/downloads/pocl-0.11.tar.gz",
+          "sha256": "24bb801fb87d104b66faaa95d1890776fdeabb37ad1b12fb977281737c7f29bb"
         }
       ],
       "post-install": [
