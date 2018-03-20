@@ -13,9 +13,9 @@
     "cd /app/share/applications && ls -I inendi-inspector.desktop | xargs rm -rf",
     "cd /app/share/doc && ls -I inendi-inspector | xargs rm -rf",
     "cd /app/lib && find . -maxdepth 1 -type d -not -name . -not -name inendi-inspector -not -name clang -exec rm -rf {} +",
-    "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I clang-4.0 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
-    "cp /usr/bin/ld /app/bin && cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.2.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.2.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.2.0/crtendS.o /app/lib",
-    "ln -s /usr/lib/libm.so.6 /app/lib/libm.so && ln -s /usr/lib/libc.so.6 /app/lib/libc.so && cp /usr/lib/sdk/gcc7/lib/libgcc_s.so.1 /app/lib && ln -s /app/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && cp /usr/lib/sdk/gcc7/lib/libstdc++.so.6 /app/lib && ln -s /app/lib/libstdc++.so.6 /app/lib/libstdc++.so"
+    "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I lld -I ld.lld -I clang-4.0 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
+    "cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.2.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.2.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.2.0/crtendS.o /app/lib",
+    "ln -s /usr/lib/libc.so.6 /app/lib/libc.so && cp /usr/lib/sdk/gcc7/lib/libgcc_s.so.1 /app/lib && ln -s /app/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && cp /usr/lib/sdk/gcc7/lib/libstdc++.so.6 /app/lib && ln -s /app/lib/libstdc++.so.6 /app/lib/libstdc++.so"
   ],
   "finish-args": [
     "--socket=x11",
@@ -460,11 +460,32 @@
       ]
     },
     {
+      "name": "lld",
+      "buildsystem": "cmake-ninja",
+      "builddir": true,
+      "config-opts": [
+        "-GNinja",
+        "-DCMAKE_C_FLAGS_RELEASE:STRING=-DNDEBUG",
+        "-DCMAKE_CXX_FLAGS_RELEASE:STRING=-DNDEBUG",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DLLVM_CONFIG:FILEPATH=/app/bin/llvm-config"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "http://releases.llvm.org/4.0.1/lld-4.0.1.src.tar.xz",
+          "sha256": "63ce10e533276ca353941ce5ab5cc8e8dcd99dbdd9c4fa49f344a212f29d36ed"
+        }
+      ]
+    },
+    {
       "name": "portablecl",
       "buildsystem": "cmake",
       "config-opts": [
         "-DWITH_LLVM_CONFIG=/app/bin/llvm-config",
-        "-DLLC_HOST_CPU=x86-64"
+        "-DEXTRA_HOST_LD_FLAGS=-L/app/lib",
+        "-DLINK_COMMAND=/app/bin/ld.lld",
+        "-DLLC_HOST_CPU=corei7"
       ],
       "sources": [
         {
@@ -526,6 +547,7 @@
         }
       ],
       "post-install": [
+        "ln -s /usr/lib/libm.so.6 /app/lib/libm.so",
         "cp ../flatpak/run_cmd.sh /app/bin",
         "cp ../flatpak/inspector_launcher.sh /app/bin",
         "mkdir -p /app/share/applications && cp ../flatpak/inendi-inspector.desktop /app/share/applications"
