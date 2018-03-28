@@ -11,12 +11,15 @@
 
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/core/PVSpinBoxType.h>
 
 #include "pcap/PVPcapDescription.h"
+#include "pcap/PVPcapExporterWidget.h"
 
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QCheckBox>
 
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -142,31 +145,33 @@ bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats const& /*fo
 	return load_files(params->csv_paths(), inputs, parent);
 }
 
+PVWidgets::PVExporterWidgetInterface*
+PVPcapsicum::PVInputTypePcap::create_exporter_widget(const list_inputs& inputs,
+                                                     PVRush::PVNraw const& nraw) const
+{
+	return new PVGuiQt::PVPcapExporterWidget(inputs, nraw);
+}
+
 /**
  * Returns true if all the input pcap files supports the pcapng format
  */
 static bool is_pcapng_compatible(const PVRush::PVInputType::list_inputs& inputs)
 {
-	bool is_pcapng_compatible =
-	    std::all_of(inputs.begin(), inputs.end(), [](const auto& input_type_desc) {
-		    PVRush::PVPcapDescription* fd =
-		        dynamic_cast<PVRush::PVPcapDescription*>(input_type_desc.get());
-		    return (QFileInfo(fd->original_pcap_path()).suffix() == "pcapng");
-		});
-
-	return is_pcapng_compatible;
+	return std::all_of(inputs.begin(), inputs.end(), [](const auto& input_type_desc) {
+		PVRush::PVPcapDescription* fd =
+		    dynamic_cast<PVRush::PVPcapDescription*>(input_type_desc.get());
+		return (QFileInfo(fd->original_pcap_path()).suffix() == "pcapng");
+	});
 }
 
-std::unique_ptr<PVCore::PVExporterBase>
-PVPcapsicum::PVInputTypePcap::create_exporter(const std::string& output_file,
-                                              const PVCore::PVSelBitField& sel,
-                                              const list_inputs& inputs,
+std::unique_ptr<PVRush::PVExporterBase>
+PVPcapsicum::PVInputTypePcap::create_exporter(const list_inputs& inputs,
                                               PVRush::PVNraw const& nraw) const
 {
 	if (is_pcapng_compatible(inputs)) {
-		return std::make_unique<PVCore::PVPcapNgExporter>(output_file, sel, inputs, nraw);
+		return std::make_unique<PVRush::PVPcapNgExporter>(inputs, nraw);
 	} else {
-		return std::make_unique<PVCore::PVPcapExporter>(output_file, sel, inputs, nraw);
+		return std::make_unique<PVRush::PVPcapExporter>(inputs, nraw);
 	}
 }
 

@@ -9,10 +9,10 @@
 #define INENDI_PVINPUTTYPEPCAP_H
 
 #include <pvkernel/rush/PVInputType.h>
-#include <pvkernel/core/PVExporter.h>
 
 #include "PVPcapParamsWidget.h"
 #include "PVPcapExporter.h"
+#include "PVPcapExporterWidget.h"
 #include "pcap/PVPcapDescription.h"
 
 #include <QString>
@@ -38,11 +38,11 @@ class PVInputTypePcap : public PVRush::PVInputTypeDesc<PVRush::PVPcapDescription
 	                  PVCore::PVArgumentList& args_ext,
 	                  QWidget* parent = nullptr) const override;
 
-	std::unique_ptr<PVCore::PVExporterBase>
-	create_exporter(const std::string& output_file,
-	                const PVCore::PVSelBitField& sel,
-	                const list_inputs& inputs,
-	                PVRush::PVNraw const& nraw) const override;
+	/* exporter */
+	std::unique_ptr<PVRush::PVExporterBase>
+	create_exporter(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
+	PVWidgets::PVExporterWidgetInterface*
+	create_exporter_widget(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
 	QString get_exporter_filter_string(const list_inputs& inputs) const override;
 
 	QString name() const override;

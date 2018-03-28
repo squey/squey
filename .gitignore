@@ -20,3 +20,5 @@ doxygen_sqlite3.db
 .project
 .settings/
 release_build/
+/external/
+/debug_build/

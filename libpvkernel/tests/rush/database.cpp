@@ -9,8 +9,7 @@
 
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/inendi_assert.h>
-#include <pvkernel/core/PVExporter.h>
-
+#include <pvkernel/rush/PVCSVExporter.h>
 #include "common.h"
 #include "helpers.h"
 
@@ -68,13 +67,11 @@ int main()
 	PVCore::PVSelBitField sel(nraw.row_count());
 	sel.select_all();
 	std::string output_file = pvtest::get_tmp_filename();
-	PVCore::PVCSVExporter::export_func export_func =
+	PVRush::PVCSVExporter::export_func_f export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
-	PVCore::PVCSVExporter exp(output_file, sel, format.get_axes_comb(), nraw.row_count(),
-	                          export_func);
-
-	exp.export_rows();
+	PVRush::PVCSVExporter exp(format.get_axes_comb(), nraw.row_count(), export_func);
+	exp.export_rows(output_file, sel);
 
 #ifndef INSPECTOR_BENCH
 	// Check output is the same as the reference
