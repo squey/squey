@@ -6,15 +6,14 @@
 
 #include <inendi/PVMineset.h>
 #include <inendi/PVView.h>
+#include <inendi/PVSource.h>
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/PVExporter.h>
-
-#include <inendi/PVSource.h>
+#include <pvkernel/rush/PVCSVExporter.h>
 
 #include <pvcop/types/factory.h>
 #include <pvcop/types/formatter/formatter_interface.h>
@@ -305,12 +304,12 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 
 		PVCore::PVColumnIndexes column_indexes = view.get_axes_combination().get_combination();
 
-		PVCore::PVCSVExporter::export_func export_func =
+		PVRush::PVCSVExporter::export_func_f export_func =
 		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 		        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
-		PVCore::PVCSVExporter exp(data_file, sel, column_indexes, nraw.row_count(), export_func,
+		PVRush::PVCSVExporter exp(column_indexes, nraw.row_count(), export_func,
 		                          "\t" /* = default_sep_char */);
-		exp.export_rows();
+		exp.export_rows(data_file, sel);
 	}
 
 	// Compress dataset

@@ -16,7 +16,7 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/core/PVDirectory.h>
-#include <pvkernel/core/PVExporter.h>
+#include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/core/PVStreamingCompressor.h>
 
@@ -65,17 +65,17 @@ import_export(const std::string& input_file, const std::string& format, bool can
 	const PVCore::PVColumnIndexes& col_indexes =
 	    view->get_parent<Inendi::PVSource>().get_format().get_axes_comb();
 
-	PVCore::PVCSVExporter::export_func export_func =
+	PVRush::PVCSVExporter::export_func_f export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
-	PVCore::PVCSVExporter exp(output_file, sel, col_indexes, nraw.row_count(), export_func);
+	PVRush::PVCSVExporter exp(col_indexes, nraw.row_count(), export_func);
 
 	auto start = std::chrono::system_clock::now();
 
 	if (cancel) {
 		exp.cancel();
 	}
-	exp.export_rows();
+	exp.export_rows(output_file, sel);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;

@@ -48,7 +48,6 @@ core/PVConfig.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp
 core/PVQueryBuilderJsonConverter.cpp
-core/PVExporter.cpp
 core/PVStreamingCompressor.cpp
 core/PVVersion.cpp
 )
@@ -110,6 +109,7 @@ rush/PVXmlTreeNodeDom.cpp
 rush/PVRawSourceBase.cpp
 rush/PVSourceDescription.cpp
 rush/PVNrawCacheManager.cpp
+rush/PVCSVExporter.cpp
 
 #uchardetect, from Mozilla's nsUniversalDetector
 third_party/uchardetect/CharDistribution.cpp

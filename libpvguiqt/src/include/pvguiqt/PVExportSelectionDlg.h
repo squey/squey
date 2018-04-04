@@ -13,8 +13,7 @@
 #include <QCheckBox>
 #include <QRadioButton>
 
-#include <pvkernel/core/PVExporter.h>
-#include <pvkernel/widgets/qkeysequencewidget.h>
+#include <pvkernel/rush/PVExporter.h>
 
 namespace PVWidgets
 {
@@ -49,49 +48,24 @@ class PVExportSelectionDlg : public QFileDialog
 	 */
 	static void export_selection(Inendi::PVView& view, const Inendi::PVSelection& sel);
 
-  private: // Interfaces used to export the selection
-	enum class AxisCombinationKind { ALL, CURRENT, CUSTOM };
-
 	/** Create a FileDialog to export selection
 	 *
 	 * @param custom_axes_combination : Combination of axis selected using the view menu
 	 * @param view : The view to export
 	 * @param parent : parent widget (as usual in Qt)
 	 */
-	PVExportSelectionDlg(Inendi::PVAxesCombination& custom_axes_combination,
-	                     Inendi::PVView& view,
-	                     QWidget* parent = 0);
+	PVExportSelectionDlg(Inendi::PVView& view, QWidget* parent = 0);
 
-	/** Return the kind of axis combination we want to export. */
-	AxisCombinationKind combination_kind() const;
-
-	/** Separator to use between csv fields */
-	QString separator_char() const { return _separator_char->keySequence().toString(); }
-
-	/** Separator to use for quoted fields */
-	QString quote_char() const { return _quote_char->keySequence().toString(); }
-
-	/** Wether we want to export an header line or not. */
-	inline bool export_columns_header() const { return _columns_header->isChecked(); }
-
-  private Q_SLOTS:
-	/** Enable or disable the button to edit custom axis exported. */
-	void show_edit_axes_widget(bool show);
-
-	/** Show the widget to edit axis combination */
-	void show_axes_combination_widget();
+  public:
+	PVRush::PVExporterBase& exporter()
+	{
+		return _is_source_exporter ? *_source_exporter : *_exporter;
+	}
 
   private:
-	PVAxesCombinationWidget*
-	    _axes_combination_widget; //!< The axis combination widget to select axis to export
-	PVWidgets::QKeySequenceWidget* _quote_char;     //!< Character to use to quote a field
-	PVWidgets::QKeySequenceWidget* _separator_char; //!< Character to use as a csv separator
-	QCheckBox* _columns_header;          //!< Box to say if we want to export header line or not
-	QCheckBox* _export_internal_values;  //!< Specify exporting plotted instead of nraw
-	QPushButton* _edit_axes_combination; //!< The edit button to select custom axis
-	QRadioButton* _all_axis;             //!< Buttom if all axis are exported
-	QRadioButton* _current_axis;         //!< Button to export only axis from current view
-	QRadioButton* _custom_axis;          //!< Button if custom selected axis are exported
+	bool _is_source_exporter;
+	PVRush::PVExporterBase* _exporter = nullptr;
+	PVRush::PVExporterBase* _source_exporter = nullptr; // exporter specific to the source, if any
 };
 } // namespace PVGuiQt
 

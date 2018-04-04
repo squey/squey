@@ -11,8 +11,6 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/core/PVExporter.h>
-
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -28,6 +26,7 @@
 #include <numeric>
 #include <unordered_set>
 #include <omp.h>
+#include <pvkernel/rush/PVCSVExporter.h>
 
 const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
 const std::string PVRush::PVNraw::default_tmp_path = "/tmp/inendi";
@@ -205,12 +204,12 @@ void PVRush::PVNraw::dump_csv(std::string const& file_path /* = "" */) const
 	PVCore::PVSelBitField sel(row_count());
 	sel.select_all();
 
-	PVCore::PVCSVExporter::export_func export_func =
+	PVRush::PVCSVExporter::export_func_f export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) { return export_line(row, cols, sep, quote); };
 
-	PVCore::PVCSVExporter exp(file_path, sel, cols, row_count(), export_func);
-	exp.export_rows();
+	PVRush::PVCSVExporter exp(cols, row_count(), export_func);
+	exp.export_rows(file_path, sel);
 }
 
 /*****************************************************************************

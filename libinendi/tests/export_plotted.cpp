@@ -7,7 +7,7 @@
 
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/core/PVUtils.h>
-#include <pvkernel/core/PVExporter.h>
+#include <pvkernel/rush/PVCSVExporter.h>
 
 #include <sys/stat.h>
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	const PVCore::PVColumnIndexes& col_indexes =
 	    view->get_parent<Inendi::PVSource>().get_format().get_axes_comb();
 
-	PVCore::PVCSVExporter::export_func export_func =
+	PVRush::PVCSVExporter::export_func_f export_func =
 	    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 	        const std::string& quote) {
 		    return view->get_parent<Inendi::PVPlotted>().export_line(row, cols, sep, quote);
@@ -47,8 +47,8 @@ int main(int argc, char** argv)
 
 	auto start = std::chrono::system_clock::now();
 
-	PVCore::PVCSVExporter exp(output_tmp_file, sel, col_indexes, nraw.row_count(), export_func);
-	exp.export_rows();
+	PVRush::PVCSVExporter exp(col_indexes, nraw.row_count(), export_func);
+	exp.export_rows(output_tmp_file, sel);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
