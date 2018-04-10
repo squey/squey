@@ -40,6 +40,7 @@
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVNrawDirectoryMessageBox.h>
+#include <pvguiqt/PVLicenseDialog.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
@@ -88,66 +89,8 @@ class DragNDropTransparencyHack : public QObject
 
 namespace bpo = boost::program_options;
 
-std::string get_locking_code()
-{
-	const std::string& echoid_output = PVCore::exec_cmd("inendi-echoid");
-	std::string locking_code;
-	std::istringstream iss(echoid_output);
-	std::string line;
-
-	while (std::getline(iss, line)) {
-		if (line.find("Locking Code 1     : ") != std::string::npos) {
-			return line.substr(23, 25);
-		}
-	}
-
-	return {};
-}
-
 int run_inspector(QApplication& app, int argc, char* argv[])
 {
-	static const QString inendi_license_path =
-	    QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
-	if (not QFileInfo(inendi_license_path).exists()) {
-
-		QMessageBox::information(
-		    nullptr, QObject::tr("License not found"),
-		    QObject::tr("No license file found !<br><br>If you have one, "
-		                "copy it to <b>%1</b>.<br><br>Otherwise get one with the "
-		                "following locking code:<br>%2")
-		        .arg(INENDI_LICENSE_PATH)
-		        .arg(QString::fromStdString(get_locking_code())));
-		return 1;
-	} else if (not QFileInfo(inendi_license_path).isReadable()) {
-		QMessageBox::critical(
-		    nullptr, QObject::tr("Unable to read license"),
-		    QObject::tr(
-		        "Your license file locate at <b>%1</b> has not the proper read permissions !")
-		        .arg(INENDI_LICENSE_PATH));
-		return 1;
-	}
-
-	Inendi::Utils::License::RAII_InitLicense license_manager(
-	    inendi_license_path.toStdString().c_str());
-	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
-	                                                                 INENDI_LICENSE_FEATURE);
-
-	// Check at least two CPU cores are available
-	if (std::thread::hardware_concurrency() == 1) {
-
-		QMessageBox::critical(
-		    nullptr, QObject::tr("Not enough available CPU cores"),
-		    QObject::tr("At least 2 CPU cores are required in order to run the software.<br><br>"
-		                "If you are running the software inside a virtual machine or a container, "
-		                "please increase the number of CPU cores."));
-		return 1;
-	}
-
-	// Ensure nraw tmp directory exists and is writable
-	{
-		PVNrawDirectoryMessageBox nraw_tmp_checker;
-	}
-
 	// Program options
 	bpo::options_description desc_opts("Options");
 	desc_opts.add_options()("help", "produce help message")(
@@ -194,6 +137,59 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	std::string product_name;
 	product_name = vm["product"].as<std::string>();
 	PVCore::PVConfig::set_product_name(product_name);
+
+	static const QString inendi_license_path =
+	    QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
+	if (not QFileInfo(inendi_license_path).exists()) {
+		if (not PVGuiQt::PVLicenseDialog::show_no_license(inendi_license_path,
+		                                                  QString::fromStdString(product_name))) {
+			return 1;
+		}
+	}
+
+	Inendi::Utils::License::RAII_InitLicense license_manager(
+	    inendi_license_path.toStdString().c_str());
+
+	bool license_ok = false;
+	do {
+		try {
+			Inendi::Utils::License::RAII_LicenseFeature full_program_license(
+			    INENDI_LICENSE_PREFIX, INENDI_LICENSE_FEATURE);
+			license_ok = true;
+		} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
+			if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::
+			                         LICENSE_EXPIRED) {
+				PVGuiQt::PVLicenseDialog::show_license_expired(
+				    inendi_license_path, QString::fromStdString(product_name));
+			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
+			                                STATUS_CODE::HARDWARE_IDENTIFICATION_FAILED) {
+				PVGuiQt::PVLicenseDialog::show_bad_license(inendi_license_path,
+				                                           QString::fromStdString(product_name));
+			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
+			                                STATUS_CODE::UNKOWN_STATUS) {
+				PVGuiQt::PVLicenseDialog::show_license_unknown_error(
+				    inendi_license_path, QString::fromStdString(product_name));
+			}
+		}
+	} while (not license_ok);
+	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
+	                                                                 INENDI_LICENSE_FEATURE);
+
+	// Check at least two CPU cores are available
+	if (std::thread::hardware_concurrency() == 1) {
+
+		QMessageBox::critical(
+		    nullptr, QObject::tr("Not enough available CPU cores"),
+		    QObject::tr("At least 2 CPU cores are required in order to run the software.<br><br>"
+		                "If you are running the software inside a virtual machine or a container, "
+		                "please increase the number of CPU cores."));
+		return 1;
+	}
+
+	// Ensure nraw tmp directory exists and is writable
+	{
+		PVNrawDirectoryMessageBox nraw_tmp_checker;
+	}
 
 	Inendi::Utils::License::check_ram(INENDI_LICENSE_PREFIX, INENDI_LICENSE_FEATURE,
 	                                  INENDI_LICENSE_MAXMEM);
@@ -301,27 +297,6 @@ int main(int argc, char* argv[])
 	QApplication app(argc, argv);
 	try {
 		return run_inspector(app, argc, argv);
-	} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
-		if (e.status_code ==
-		    Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::LICENSE_EXPIRED) {
-			QMessageBox::critical(nullptr, QObject::tr("Expired license"),
-			                      QObject::tr("Your license has expired !<br>If you have one, "
-			                                  "copy it to <b>%1</b>.\n\nOtherwise get one with the "
-			                                  "following locking code:<br>%2")
-			                          .arg(INENDI_LICENSE_PATH)
-			                          .arg(QString::fromStdString(get_locking_code())));
-		} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
-		                                STATUS_CODE::HARDWARE_IDENTIFICATION_FAILED) {
-			QMessageBox::critical(
-			    nullptr, QObject::tr("Hardware identification error"),
-			    QObject::tr("This license does not allow you to run the software on this "
-			                "hardware.<br><br>Please, check you are using the proper license."));
-		} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
-		                                STATUS_CODE::UNKOWN_STATUS) {
-			QMessageBox::critical(nullptr, QObject::tr("License error"),
-			                      QObject::tr("%1").arg(e.what()));
-		}
-		return 1;
 	} catch (PVOpenCL::exception::no_backend_error const&) {
 		QString msg("No valid backend found. Please, check your system:<ul>");
 		msg += "<li>user configuration in " + PVCore::PVConfig::user_path() + "</li>";
