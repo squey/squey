@@ -156,6 +156,8 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	bpo::options_description hidden_opts("Hidden options");
 	hidden_opts.add_options()("input-file", bpo::value<std::vector<std::string>>(),
 	                          "path to the file to load");
+	hidden_opts.add_options()(
+	    "product", bpo::value<std::string>()->default_value("inendi-inspector"), "product name");
 	bpo::options_description all_opts;
 	all_opts.add(desc_opts).add(hidden_opts);
 
@@ -188,6 +190,10 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 			files.push_back(QString::fromLocal8Bit(arg.c_str(), arg.size()));
 		}
 	}
+
+	std::string product_name;
+	product_name = vm["product"].as<std::string>();
+	PVCore::PVConfig::set_product_name(product_name);
 
 	Inendi::Utils::License::check_ram(INENDI_LICENSE_PREFIX, INENDI_LICENSE_FEATURE,
 	                                  INENDI_LICENSE_MAXMEM);
