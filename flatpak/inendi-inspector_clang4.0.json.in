@@ -527,7 +527,7 @@
         "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
         "-DCMAKE_INSTALL_PREFIX=/app",
         "-DARCH_TYPE=corei7",
-        "-DUSER_TARGET=customer"
+        "-DUSER_TARGET=@@USER_TARGET@@"
       ],
       "build-options" : {
         "env": {

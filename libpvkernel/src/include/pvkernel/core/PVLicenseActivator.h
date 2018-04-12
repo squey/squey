@@ -50,10 +50,6 @@ static size_t curl_write_callback(void* contents, size_t size, size_t nmemb, voi
 
 class PVLicenseActivator
 {
-  private:
-	static constexpr const char INSPECTOR_REST_API_DOMAIN[] = "http://34.245.16.17:8080";
-	static constexpr const char AUTH_TOKEN[] = "c6f4ee83acb9d32ba97f4399e2c0a98bbd8e60dd";
-
   public:
 	enum class EError {
 		// Both license types
@@ -95,12 +91,13 @@ class PVLicenseActivator
 #endif
 
 		const std::string INSPECTOR_REST_API_ENDPOINT =
-		    std::string(INSPECTOR_REST_API_DOMAIN) + "/licensing/activate_license/";
+		    std::string(INSPECTOR_REST_API_SOCKET) + "/licensing/activate_license/";
 		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_REST_API_ENDPOINT.c_str());
 
 		std::unique_ptr<curl_slist, std::function<void(curl_slist*)>> headers(
 		    nullptr, [](curl_slist* headers) { curl_slist_free_all(headers); });
-		std::string auth_token_header{std::string("Authorization: Token ") + AUTH_TOKEN};
+		std::string auth_token_header{std::string("Authorization: Token ") +
+		                              INSPECTOR_REST_API_AUTH_TOKEN};
 		std::string content_type_header{"Content-Type: application/json"};
 		curl_slist* headers_list = nullptr;
 		headers_list = curl_slist_append(headers_list, auth_token_header.c_str());

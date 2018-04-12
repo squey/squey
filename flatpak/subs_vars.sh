@@ -2,7 +2,7 @@
 
 usage() { echo "Usage: $0 [--branch=<branch_name>] [--build_type=<build_type>] [--compiler=<cxx_compiler>]" 1>&2; exit 1; }
 
-OPTS=`getopt -o r:b:a:t:c:u:p --long repo:,branch:,tag:,build-type:,compiler:,upload:,port: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o r:m:b:a:t:c:u:p --long repo:,branch:,tag:,build-type:,user-target:,compiler:,upload:,port: -n 'parse-options' -- "$@"`
 
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 
@@ -12,6 +12,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BRANCH_NAME=master
 TAG_NAME=
 BUILD_TYPE=Release
+USER_TARGET=developer
 CXX_COMPILER=/usr/lib/sdk/gcc7/bin/g++
 EXPORT_BUILD=false
 REPO_DIR=
@@ -23,6 +24,7 @@ while true; do
     -b | --branch ) BRANCH_NAME="$2"; shift 2 ;;
     -a | --tag ) TAG_NAME="$2"; shift 2 ;;
     -t | --build-type ) BUILD_TYPE="$2"; shift 2 ;;
+    -m | --user-target ) USER_TARGET="$2"; shift 2 ;;
     -c | --compiler ) CXX_COMPILER="$2"; shift 2 ;;
     -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
     -u | --upload ) UPLOAD_URL="$2"; shift 2 ;;
@@ -42,7 +44,7 @@ fi
 
 # Manualy substitute variables since flatpak-builder doesn't seem to support this yet as version 0.10.8
 if [ ! -z "$TAG_NAME" ]; then
-    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "/@@BRANCH_NAME@@/c\          \"tag\": \"$TAG_NAME\"" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 2
+    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s/@@USER_TARGET@@/$USER_TARGET/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "/@@BRANCH_NAME@@/c\          \"tag\": \"$TAG_NAME\"" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 2
 else
-    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "s/@@BRANCH_NAME@@/$BRANCH_NAME/g" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 3
+    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s/@@USER_TARGET@@/$USER_TARGET/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "s/@@BRANCH_NAME@@/$BRANCH_NAME/g" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 3
 fi
