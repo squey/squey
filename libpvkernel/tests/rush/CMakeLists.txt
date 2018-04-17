@@ -132,7 +132,7 @@ add_inspector_compile_test(Trush_splunk_source LINKS ${LINK_LIBRARIES}
 	FILES splunk_source.cpp helpers.cpp
 	../../plugins/common/splunk/PVSplunkInfos.cpp
 	../../plugins/common/splunk/PVSplunkQuery.cpp)
-add_inspector_test(Trush_splunk_source Trush_splunk_source)
+#add_inspector_test(Trush_splunk_source Trush_splunk_source)
 add_bench(Trush_splunk_source LINKS ${LINK_LIBRARIES}
 	FILES splunk_source.cpp helpers.cpp
 	../../plugins/common/splunk/PVSplunkInfos.cpp
@@ -199,7 +199,7 @@ set(SPLUNK_SRC_FILES
 ../../plugins/common/splunk/PVSplunkJsonConverter.cpp
 )
 add_inspector_compile_test(Trush_splunk LINKS ${LINK_LIBRARIES} pvkernel curl FILES splunk.cpp ${SPLUNK_SRC_FILES})
-add_inspector_test(Trush_splunk Trush_splunk ${TESTS_FILES_DIR}/exports/Trush_splunk)
+#add_inspector_test(Trush_splunk Trush_splunk ${TESTS_FILES_DIR}/exports/Trush_splunk)
 
 # Datetime ICU to boost
 add_inspector_compile_test(Trush_datetime_support LINKS ${LINK_LIBRARIES} FILES datetime_support.cpp)
