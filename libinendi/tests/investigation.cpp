@@ -175,8 +175,8 @@ double load_investigation()
 
 	PV_VALID(mapped->get_name(), std::string("other"));
 
-	pvcop::db::array const& mapping_values = mapped->get_column(PVCol(0));
-	auto mapping = mapping_values.to_core_array<string_index_t>();
+	pvcop::db::array const& mapping_values = mapped->get_column(PVCol(2));
+	auto mapping = mapping_values.to_core_array<uint32_t>();
 	std::ifstream ref_stream(ref_mapped_file);
 	size_t i = 0;
 	for (uint32_t v : mapping) {
