@@ -465,7 +465,7 @@ bool PcapTreeModel::load(QString filename, bool& canceled)
 	splitted_files_t files =
 	    pvpcap::extract_csv(pvpcap::split_pcap(filename.toStdString(),
 	                                           PVRush::PVNrawCacheManager::nraw_dir().toStdString(),
-	                                           false /* no need to preserve flows */, canceled),
+	                                           true /* preserve flows */, canceled),
 	                        cmd, canceled);
 
 	// merge documents and delete intermediary files

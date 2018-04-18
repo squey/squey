@@ -207,29 +207,6 @@
       ]
     },
     {
-      "name": "libpcap",
-      "sources": [
-        {
-          "type": "archive",
-          "url": "http://www.tcpdump.org/release/libpcap-1.8.1.tar.gz",
-          "sha256": "673dbc69fdc3f5a86fb5759ab19899039a8e5e6c631749e48dcd9c6f0c83541e"
-        }
-      ]
-    },
-    {
-      "name": "tshark",
-      "config-opts": [
-        "--enable-wireshark=no"
-      ],
-      "sources": [
-        {
-          "type": "archive",
-          "url": "https://1.eu.dl.wireshark.org/src/wireshark-2.4.4.tar.xz",
-          "sha256": "049a758e39422dcd536d7f75cebbfaa44e4f305d602bf22964d6459821126f58"
-        }
-      ]
-    },
-    {
       "name": "pigz",
       "sources": [
         {
@@ -496,8 +473,31 @@
       ]
     },
     {
+      "name": "libpcap",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "http://www.tcpdump.org/release/libpcap-1.8.1.tar.gz",
+          "sha256": "673dbc69fdc3f5a86fb5759ab19899039a8e5e6c631749e48dcd9c6f0c83541e"
+        }
+      ]
+    },
+    {
+      "name": "tshark",
+      "config-opts": [
+        "--enable-wireshark=no"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://1.eu.dl.wireshark.org/src/wireshark-2.4.6.tar.xz",
+          "sha256": "8e965fd282bc0c09e7c4eba5f08a555d0ccf40a7d1544b939e01b90bc893d5fe"
+        }
+      ]
+    },
+    {
       "name": "inendi-inspector-doc",
-      "disabled":false,
+      "disabled":true,
       "build-options": {
         "env": {
           "DOCS": "documents/inendi_inspector_reference_manual",
