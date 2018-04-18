@@ -39,13 +39,18 @@
         {
           "type": "file",
           "path": "pcap-inspector.desktop"
+        },
+        {
+          "type": "file",
+          "path": "pcap-inspector_launcher.sh"
         }
       ],
       "post-install": [
         "mkdir -p /app/share/icons/hicolor/128x128/apps",
         "cp pcap-inspector.png /app/share/icons/hicolor/128x128/apps/",
         "mkdir -p /app/share/applications",
-        "cp pcap-inspector.desktop /app/share/applications"
+        "cp pcap-inspector.desktop /app/share/applications",
+        "cp pcap-inspector_launcher.sh /app/bin"
       ]
     }
   ]
