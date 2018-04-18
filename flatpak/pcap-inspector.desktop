@@ -3,6 +3,6 @@ Type=Application
 Encoding=UTF-8
 Name=PCAP Inspector
 Comment=PCAP Inspector
-Exec=inspector_launcher.sh
+Exec=pcap-inspector_launcher.sh
 Categories=Application;Network;
 

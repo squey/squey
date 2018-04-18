@@ -4,7 +4,7 @@
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
-  "command": "inspector_launcher.sh --product=pcap-inspector",
+  "command": "pcap-inspector_launcher.sh",
   "rename-desktop-file" : "pcap-inspector.desktop",
   "rename-icon" : "pcap-inspector",
   "finish-args": [
