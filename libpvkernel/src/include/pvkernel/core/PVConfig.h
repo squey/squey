@@ -53,6 +53,16 @@ class PVConfig
 	 */
 	static std::string user_dir();
 
+	/**
+	 * return the name of the product (ex: pcap-inspector, inendi-inspector, etc)
+	 */
+	static std::string product_name();
+
+	/**
+	 * set the name of the product
+	 */
+	static void set_product_name(const std::string& product_name);
+
   private:
 	// private stuffs for a singleton declaration
 	PVConfig();
@@ -67,6 +77,7 @@ class PVConfig
 	static PVConfig_p _pvconfig;
 	QSettings* _config;
 	QString _username;
+	std::string _product_name;
 };
 } // namespace PVCore
 

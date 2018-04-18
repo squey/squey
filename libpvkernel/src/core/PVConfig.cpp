@@ -132,3 +132,19 @@ std::string PVCore::PVConfig::user_dir()
 	return (QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator())
 	    .toStdString();
 }
+
+/*****************************************************************************
+ * PVCore::PVConfig::product_name
+ *****************************************************************************/
+std::string PVCore::PVConfig::product_name()
+{
+	return get()._product_name;
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::set_product_name
+ *****************************************************************************/
+void PVCore::PVConfig::set_product_name(const std::string& product_name)
+{
+	get()._product_name = product_name;
+}

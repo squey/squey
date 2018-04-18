@@ -497,7 +497,7 @@
     },
     {
       "name": "inendi-inspector-doc",
-      "disabled":true,
+      "disabled":false,
       "build-options": {
         "env": {
           "DOCS": "documents/inendi_inspector_reference_manual",
@@ -527,7 +527,7 @@
         "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
         "-DCMAKE_INSTALL_PREFIX=/app",
         "-DARCH_TYPE=corei7",
-        "-DUSER_TARGET=customer"
+        "-DUSER_TARGET=@@USER_TARGET@@"
       ],
       "build-options" : {
         "env": {
