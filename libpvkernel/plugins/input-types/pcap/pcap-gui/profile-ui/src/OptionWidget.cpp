@@ -2,6 +2,7 @@
 #include "ui_OptionWidget.h"
 
 #include <QStringList>
+#include <QFileDialog>
 
 OptionWidget::OptionWidget(rapidjson::Document& json_data, QWidget* parent)
     : QWidget(parent), _ui(new Ui::OptionWidget), _json_data(json_data)
@@ -29,6 +30,29 @@ void OptionWidget::load_option_from_json()
 
 		_ui->occurrence_edit->setText(options["occurrence"].GetString());
 		_ui->aggregator_edit->setText(options["aggregator"].GetString());
+
+		// TCP/IP
+		if (options.HasMember("tcp.desegment_tcp_streams")) {
+			_ui->reassemble_stream_checkbox->setChecked(
+			    options["tcp.desegment_tcp_streams"].GetBool());
+		}
+		if (options.HasMember("ip.defragment")) {
+			_ui->defragment_ip_streams_checkbox->setChecked(options["ip.defragment"].GetBool());
+		}
+
+		// Name resolution
+		if (options.HasMember("nameres.network_name")) {
+			_ui->resolve_ip_checkbox_checkbox->setChecked(
+			    options["nameres.network_name"].GetBool());
+		}
+		if (options.HasMember("nameres.dns_pkt_addr_resolution")) {
+			_ui->use_pcap_for_address_resolution->setChecked(
+			    options["nameres.dns_pkt_addr_resolution"].GetBool());
+		}
+		if (options.HasMember("nameres.use_external_name_resolver")) {
+			_ui->query_dn_server_checkbox->setChecked(
+			    options["nameres.use_external_name_resolver"].GetBool());
+		}
 	}
 }
 
@@ -114,5 +138,96 @@ void OptionWidget::on_quote_edit_textEdited(const QString& text)
 	if (not _json_data.IsNull()) {
 		_json_data["options"]["quote"].SetString(text.toStdString().c_str(),
 		                                         _json_data.GetAllocator());
+	}
+}
+
+void OptionWidget::on_reassemble_stream_checkbox_clicked(bool checked /*= false*/)
+{
+	if (not _json_data.IsNull()) {
+		if (not _json_data["options"].HasMember("tcp.desegment_tcp_streams")) {
+			rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();
+			rapidjson::Value val;
+			val.SetBool(checked);
+			_json_data["options"].AddMember("tcp.desegment_tcp_streams", val, alloc);
+		} else {
+			_json_data["options"]["tcp.desegment_tcp_streams"].SetBool(checked);
+		}
+	}
+}
+
+void OptionWidget::on_defragment_ip_streams_checkbox_clicked(bool checked /*= false*/)
+{
+	if (not _json_data.IsNull()) {
+		if (not _json_data["options"].HasMember("ip.defragment")) {
+			rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();
+			rapidjson::Value val;
+			val.SetBool(checked);
+			_json_data["options"].AddMember("ip.defragment", val, alloc);
+		} else {
+			_json_data["options"]["ip.defragment"].SetBool(checked);
+		}
+	}
+}
+
+void OptionWidget::on_resolve_ip_checkbox_checkbox_clicked(bool checked /*= false*/)
+{
+	if (not _json_data.IsNull()) {
+		if (not _json_data["options"].HasMember("nameres.network_name")) {
+			rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();
+			rapidjson::Value val;
+			val.SetBool(checked);
+			_json_data["options"].AddMember("nameres.network_name", val, alloc);
+		} else {
+			_json_data["options"]["nameres.network_name"].SetBool(checked);
+		}
+	}
+}
+
+void OptionWidget::on_use_pcap_for_address_resolution_clicked(bool checked /*= false*/)
+{
+	if (not _json_data.IsNull()) {
+		if (not _json_data["options"].HasMember("nameres.dns_pkt_addr_resolution")) {
+			rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();
+			rapidjson::Value val;
+			val.SetBool(checked);
+			_json_data["options"].AddMember("nameres.dns_pkt_addr_resolution", val, alloc);
+		} else {
+			_json_data["options"]["nameres.dns_pkt_addr_resolution"].SetBool(checked);
+		}
+	}
+}
+
+void OptionWidget::on_query_dn_server_checkbox_clicked(bool checked /*= false*/)
+{
+	if (not _json_data.IsNull()) {
+		if (not _json_data["options"].HasMember("nameres.use_external_name_resolver")) {
+			rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();
+			rapidjson::Value val;
+			val.SetBool(checked);
+			_json_data["options"].AddMember("nameres.use_external_name_resolver", val, alloc);
+		} else {
+			_json_data["options"]["nameres.use_external_name_resolver"].SetBool(checked);
+		}
+	}
+}
+
+void OptionWidget::on_geoip_db_button_clicked(bool /*checked = false*/)
+{
+	if (not _json_data.IsNull()) {
+		std::string dirname =
+		    QFileDialog::getExistingDirectory(this, tr("Open GeoIP Database directory"), "",
+		                                      QFileDialog::ShowDirsOnly)
+		        .toStdString();
+		if (not dirname.empty()) {
+			if (not _json_data["options"].HasMember("geoip_db_paths")) {
+				rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();
+				rapidjson::Value val;
+				val.SetString(dirname.c_str(), dirname.size(), _json_data.GetAllocator());
+				_json_data["options"].AddMember("geoip_db_paths", val, alloc);
+			} else {
+				_json_data["options"]["geoip_db_paths"].SetString(dirname.c_str(), dirname.size(),
+				                                                  _json_data.GetAllocator());
+			}
+		}
 	}
 }

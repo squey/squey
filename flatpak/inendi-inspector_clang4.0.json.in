@@ -22,6 +22,7 @@
     "--socket=wayland",
     "--share=network",
     "--filesystem=host",
+    "--nofilesystem=~/.wireshark/geoip_db_paths",
     "--device=all"
   ],
   "modules": [
