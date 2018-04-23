@@ -1,5 +1,6 @@
 {
   "app-id": "com.esi_inendi.Inspector",
+  "branch": "master",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
