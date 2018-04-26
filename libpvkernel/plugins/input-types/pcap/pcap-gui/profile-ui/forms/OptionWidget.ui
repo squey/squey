@@ -331,7 +331,23 @@ padding:
         <item>
          <widget class="QLabel" name="geoip_db_label">
           <property name="text">
-           <string>database directories :</string>
+           <string>database directory :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="geoip_db_path_label">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::RichText</enum>
+          </property>
+          <property name="openExternalLinks">
+           <bool>true</bool>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::TextBrowserInteraction</set>
           </property>
          </widget>
         </item>
@@ -361,8 +377,6 @@ padding:
        <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </item>
      </layout>
-     <zorder>geoip_db_label</zorder>
-     <zorder>verticalLayoutWidget</zorder>
      <zorder></zorder>
     </widget>
    </item>

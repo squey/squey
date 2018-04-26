@@ -18,6 +18,9 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
 
+#include <QDir>
+#include <QFileInfo>
+
 namespace pvpcap
 {
 
@@ -546,13 +549,17 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 	    json_data["options"]["nameres.use_external_name_resolver"].GetBool()) {
 		name_resolving_flags += "N";
 	}
+	std::string geoip_db_paths = "/var/run/host/usr/share/GeoIP/";
 	if (json_data["options"].HasMember("geoip_db_paths")) {
-		std::string geoip_db_paths = json_data["options"]["geoip_db_paths"].GetString();
-		std::ofstream geoip_db_paths_file("~/.wireshark/geoip_db_paths", std::ios_base::trunc);
-		geoip_db_paths_file << geoip_db_paths << std::endl;
-		opts.emplace_back("-oip.use_geoip:TRUE");
-		opts.emplace_back("-oipv6.use_geoip:TRUE");
+		geoip_db_paths = json_data["options"]["geoip_db_paths"].GetString();
 	}
+	QString geoip_db_paths_filename = "~/.wireshark/maxmind_db_paths";
+	geoip_db_paths_filename.replace(QString('~'), QDir::homePath());
+	QDir().mkdir(QFileInfo(geoip_db_paths_filename).dir().path());
+	std::ofstream geoip_db_paths_file(geoip_db_paths_filename.toStdString(), std::ios_base::trunc);
+	geoip_db_paths_file << "\"" << geoip_db_paths << "\"" << std::endl;
+	opts.emplace_back("-oip.use_geoip:TRUE");
+	opts.emplace_back("-oipv6.use_geoip:TRUE");
 	if (not name_resolving_flags.empty()) {
 		opts.emplace_back("-N" + name_resolving_flags);
 	}

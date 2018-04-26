@@ -53,6 +53,12 @@ void OptionWidget::load_option_from_json()
 			_ui->query_dn_server_checkbox->setChecked(
 			    options["nameres.use_external_name_resolver"].GetBool());
 		}
+		if (options.HasMember("geoip_db_paths")) {
+			std::string dirname = options["geoip_db_paths"].GetString();
+			QString path_url = QString("<a href=\"file://") + QString::fromStdString(dirname) +
+			                   QString("\">") + QString::fromStdString(dirname) + QString("</a>");
+			_ui->geoip_db_path_label->setText(path_url);
+		}
 	}
 }
 
@@ -228,6 +234,9 @@ void OptionWidget::on_geoip_db_button_clicked(bool /*checked = false*/)
 				_json_data["options"]["geoip_db_paths"].SetString(dirname.c_str(), dirname.size(),
 				                                                  _json_data.GetAllocator());
 			}
+			QString path_url = QString("<a href=\"file://") + QString::fromStdString(dirname) +
+			                   QString("\">") + QString::fromStdString(dirname) + QString("</a>");
+			_ui->geoip_db_path_label->setText(path_url);
 		}
 	}
 }
