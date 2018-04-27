@@ -13,11 +13,13 @@
 #include "../include/libpvpcap/exception.h"
 
 #include <iostream>
-#include <pvlogger.h>
 
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
+
+#include <QDir>
+#include <QFileInfo>
 
 namespace pvpcap
 {
@@ -523,16 +525,52 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 	opts.emplace_back("-Eaggregator=" + aggregator);
 	opts.emplace_back(std::string("-Equote=") + pvpcap::QUOTE);
 
+	// TCP/IP
+	if (json_data["options"].HasMember("tcp.desegment_tcp_streams") &&
+	    not json_data["options"]["tcp.desegment_tcp_streams"].GetBool()) {
+		opts.emplace_back("-otcp.desegment_tcp_streams:FALSE");
+	}
+	if (json_data["options"].HasMember("ip.defragment") &&
+	    not json_data["options"]["ip.defragment"].GetBool()) {
+		opts.emplace_back("-oip.defragment:FALSE");
+	}
+
+	// Name resolution (see https://www.wireshark.org/docs/man-pages/tshark.html)
+	std::string name_resolving_flags;
+	if (json_data["options"].HasMember("nameres.network_name") &&
+	    json_data["options"]["nameres.network_name"].GetBool()) {
+		name_resolving_flags += "n";
+	}
+	if (json_data["options"].HasMember("nameres.dns_pkt_addr_resolution") &&
+	    json_data["options"]["nameres.dns_pkt_addr_resolution"].GetBool()) {
+		name_resolving_flags += "d";
+	}
+	if (json_data["options"].HasMember("nameres.use_external_name_resolver") &&
+	    json_data["options"]["nameres.use_external_name_resolver"].GetBool()) {
+		name_resolving_flags += "N";
+	}
+	std::string geoip_db_paths = "/var/run/host/usr/share/GeoIP/";
+	if (json_data["options"].HasMember("geoip_db_paths")) {
+		geoip_db_paths = json_data["options"]["geoip_db_paths"].GetString();
+	}
+	QString geoip_db_paths_filename = "~/.wireshark/maxmind_db_paths";
+	geoip_db_paths_filename.replace(QString('~'), QDir::homePath());
+	QDir().mkdir(QFileInfo(geoip_db_paths_filename).dir().path());
+	std::ofstream geoip_db_paths_file(geoip_db_paths_filename.toStdString(), std::ios_base::trunc);
+	geoip_db_paths_file << "\"" << geoip_db_paths << "\"" << std::endl;
+	opts.emplace_back("-oip.use_geoip:TRUE");
+	opts.emplace_back("-oipv6.use_geoip:TRUE");
+	if (not name_resolving_flags.empty()) {
+		opts.emplace_back("-N" + name_resolving_flags);
+	}
+
 	// disable some tcp reconstructions options
 	opts.emplace_back("-otcp.summary_in_tree:TRUE");
 	opts.emplace_back("-otcp.check_checksum:FALSE");
-	opts.emplace_back("-otcp.desegment_tcp_streams:FALSE");
 	opts.emplace_back("-otcp.analyze_sequence_numbers:TRUE");
 	opts.emplace_back("-otcp.relative_sequence_numbers:FALSE");
 	opts.emplace_back("-otcp.track_bytes_in_flight:FALSE");
 	opts.emplace_back("-otcp.calculate_timestamps:FALSE");
-	opts.emplace_back("-otcp.try_heuristic_first:FALSE");
-	opts.emplace_back("-otcp.dissect_experimental_options_with_magic:TRUE");
 
 	opts.emplace_back("-r-");
 

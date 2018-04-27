@@ -15,44 +15,35 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QGroupBox {
-    border: 1px solid gray;
-    margin-top: 0.5em;
-}
-
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 10px;
-    padding: 0 3px 0 3px;
-}</string>
-     </property>
+    <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
-      <string>Wireshark special fields</string>
+      <string>Special fields</string>
      </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
       <item>
-       <widget class="QCheckBox" name="source_check">
+       <widget class="QCheckBox" name="protocol_check">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Protocol</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="info_check">
         <property name="font">
          <font>
           <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Source</string>
+         <string>Info</string>
         </property>
        </widget>
       </item>
@@ -69,26 +60,14 @@ QGroupBox::title {
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="protocol_check">
+       <widget class="QCheckBox" name="source_check">
         <property name="font">
          <font>
           <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Protocol</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="info_check">
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Info</string>
+         <string>Source</string>
         </property>
        </widget>
       </item>
@@ -120,19 +99,25 @@ QGroupBox::title {
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QGroupBox {
-    border: 1px solid gray;
-    margin-top: 0.5em;
+      <string notr="true">QGroupBox
+{
+border:
+        1px solid gray;
+        margin - top : 0.5em;
 }
 
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 10px;
-    padding: 0 3px 0 3px;
+QGroupBox::title
+{
+        subcontrol - origin : margin;
+left:
+        10px;
+padding:
+        0 3px 0 3px;
 }</string>
      </property>
      <property name="title">
-      <string>Wireshark filters</string>
+      <string>Wireshark
+        filters</string>
      </property>
      <property name="flat">
       <bool>false</bool>
@@ -163,15 +148,20 @@ QGroupBox::title {
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QGroupBox {
-    border: 1px solid gray;
-    margin-top: 0.5em;
+      <string notr="true">QGroupBox
+{
+border:
+        1px solid gray;
+        margin - top : 0.5em;
 }
 
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 10px;
-    padding: 0 3px 0 3px;
+QGroupBox::title
+{
+        subcontrol - origin : margin;
+left:
+        10px;
+padding:
+        0 3px 0 3px;
 }</string>
      </property>
      <property name="title">
@@ -184,28 +174,28 @@ QGroupBox::title {
       <item row="1" column="2">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Occurrence ( f | l | a )</string>
+         <string>Occurrence(f | l | a)</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Separator ( /t | /s | &lt;character&gt; )</string>
+         <string>Separator(/ t | / s | &lt;character &gt;)</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Aggregator ( , | /s | &lt;character&gt; )</string>
+         <string>Aggregator(, | / s | &lt;character &gt;)</string>
         </property>
        </widget>
       </item>
       <item row="2" column="2">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Quote ( d | s | n )</string>
+         <string>Quote(d | s |n)</string>
         </property>
        </widget>
       </item>
@@ -251,6 +241,143 @@ QGroupBox::title {
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="tcp_options_groupbox">
+     <property name="title">
+      <string>TCP/IP</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="reassemble_stream_checkbox">
+        <property name="toolTip">
+         <string>Whether fragmented IPv4 datagrams should be reassembled</string>
+        </property>
+        <property name="text">
+         <string>Reassemble TCP streams</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="defragment_ip_streams_checkbox">
+        <property name="text">
+         <string>Defragment IP streams</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="name_resolution_options_groupbox">
+     <property name="title">
+      <string>Name resolution</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="resolve_ip_checkbox_checkbox">
+        <property name="toolTip">
+         <string>Resolve IPv4, IPv6, and IPX addresses into host names.</string>
+        </property>
+        <property name="text">
+         <string>Resolve IP addresses</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="use_pcap_for_address_resolution">
+        <property name="toolTip">
+         <string>Whether address/name pairs found in captured DNS packets should be used by Wireshark for name resolution.</string>
+        </property>
+        <property name="text">
+         <string>Use PCAP data for addresses resolution</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="query_dn_server_checkbox">
+        <property name="toolTip">
+         <string>Use your system's configured name resolver (usually DNS) to resolve network names.</string>
+        </property>
+        <property name="text">
+         <string>Query DNS server</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>GeoIP</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="geoip_db_label">
+          <property name="text">
+           <string>database directory :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="geoip_db_path_label">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::RichText</enum>
+          </property>
+          <property name="openExternalLinks">
+           <bool>true</bool>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::TextBrowserInteraction</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="geoip_db_button">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
+      </item>
+     </layout>
+     <zorder></zorder>
     </widget>
    </item>
    <item>

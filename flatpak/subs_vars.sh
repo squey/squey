@@ -1,6 +1,9 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [--branch=<branch_name>] [--build_type=<build_type>] [--compiler=<cxx_compiler>]" 1>&2; exit 1; }
+usage() {
+echo "Usage: $0 [--branch=<branch_name>] [--tag=<tag_name>] [--build_type=<build_type>] [--compiler=<cxx_compiler>]"
+echo "                  [--user-target=<USER_TARGET>] [--repo=<repository_path>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
+}
 
 OPTS=`getopt -o r:m:b:a:t:c:u:p --long repo:,branch:,tag:,build-type:,user-target:,compiler:,upload:,port: -n 'parse-options' -- "$@"`
 
@@ -34,6 +37,7 @@ while true; do
   esac
 done
 
+echo "BRANCH_NAME"=$BRANCH_NAME
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [ $CURRENT_BRANCH == "HEAD" ]; then
     git fetch -a
@@ -46,5 +50,5 @@ fi
 if [ ! -z "$TAG_NAME" ]; then
     sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s/@@USER_TARGET@@/$USER_TARGET/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "/@@BRANCH_NAME@@/c\          \"tag\": \"$TAG_NAME\"" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 2
 else
-    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s/@@USER_TARGET@@/$USER_TARGET/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "s/@@BRANCH_NAME@@/$BRANCH_NAME/g" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 3
+    sed -e "s/@@BUILD_TYPE@@/$BUILD_TYPE/g" -e "s/@@USER_TARGET@@/$USER_TARGET/g" -e "s#@@CXX_COMPILER@@#$CXX_COMPILER#g" -e "s/@@BRANCH_NAME@@/$BRANCH_NAME/g" -e "s/\"branch\": \"master\"/\"branch\": \"$BRANCH_NAME\"/g" $DIR/inendi-inspector.json.in > $DIR/inendi-inspector.json || exit 3
 fi
