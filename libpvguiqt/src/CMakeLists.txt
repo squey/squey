@@ -109,7 +109,7 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES}
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets Qt5OpenGL)
+set(QT5_LIBS Qt5Core Qt5Xml Qt5Gui Qt5Widgets Qt5OpenGL)
 
 set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
@@ -118,3 +118,30 @@ target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
 INSTALL(TARGETS pvguiqt LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
                         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+                        
+                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+
+################################################
+# Crash reporter
+################################################
+function(compile_and_install_tool tool_exe)
+	# Define all kinds of arguments
+	set(options)
+	set(oneValueArgs)
+	set(multiValueArgs FILES LINKS)
+	
+	# Call cmake_parse_arguments to extract information in variables
+	cmake_parse_arguments(_WRAP_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+	set(args ${_WRAP_TEST_UNPARSED_ARGUMENTS})
+	set(files ${_WRAP_TEST_FILES})
+	set(links ${_WRAP_TEST_LINKS})
+
+	add_executable(${tool_exe} ${files})
+	target_link_libraries(${tool_exe} ${links})
+	INSTALL(TARGETS ${tool_exe} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+endfunction()
+
+compile_and_install_tool(inendi-crashreport LINKS ${LINK_LIBRARIES} ${QT5_LIBS} pvkernel curl FILES crash_report.cpp)
+
+

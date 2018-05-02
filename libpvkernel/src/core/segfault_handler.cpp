@@ -12,6 +12,8 @@
 
 #include <client/linux/handler/exception_handler.h>
 
+static constexpr const char BREAKPAD_MINIDUMP_FOLDER[] = "/tmp";
+
 static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
                           void* /*context*/,
                           bool succeeded)
@@ -20,9 +22,7 @@ static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
 		/* we are in the child process
 		 */
 
-		// xmessage is part of x11-utils which is always installed with X11
-		execlp("xmessage", "xmessage", "-title", "INENDI Inspector crash report", "-center",
-		       "The crash report file path is:", descriptor.path(), nullptr);
+		execlp("inendi-crashreport", "inendi-crashreport", descriptor.path(), nullptr);
 
 		// if execlp returns (i.e. it has failed), we print the message in the log
 		PVLOG_ERROR("Crash report file: %s\n", descriptor.path());
@@ -33,7 +33,7 @@ static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
 
 void init_segfault_handler()
 {
-	static google_breakpad::MinidumpDescriptor descriptor("/tmp");
+	static google_breakpad::MinidumpDescriptor descriptor(BREAKPAD_MINIDUMP_FOLDER);
 	static google_breakpad::ExceptionHandler eh(descriptor, nullptr, dump_callback, nullptr, true,
 	                                            -1);
 }
