@@ -359,6 +359,13 @@ padding:
          </widget>
         </item>
         <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Download MaxMind GeoLite2 database for free at &lt;/span&gt;&lt;a href=&quot;https://dev.maxmind.com/geoip/geoip2/geolite2&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;dev.maxmind.com/geoip/geoip2/geolite2&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
