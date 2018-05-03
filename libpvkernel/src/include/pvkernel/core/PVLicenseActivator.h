@@ -9,6 +9,7 @@
 #define __PVKERNEL_PVLICENSEACTIVATOR_H__
 
 #include <pvkernel/core/PVUtils.h>
+#include <pvkernel/core/PVRESTAPI.h>
 
 #include <curl/curl.h>
 
@@ -30,16 +31,6 @@
 
 namespace PVCore
 {
-
-#define INSPECTOR_REST_API_DOMAIN "http://34.245.246.226"
-#ifdef INENDI_DEVELOPER_MODE
-#define INSPECTOR_REST_API_PORT ":8080"
-#define INSPECTOR_REST_API_AUTH_TOKEN "1ae64b54eddfb65d65dc7da6d6891624f039e256"
-#else // USER_TARGET=customer
-#define INSPECTOR_REST_API_PORT ""
-#define INSPECTOR_REST_API_AUTH_TOKEN "b170327aa762b93dedd506b5fc9d9539f899ee55"
-#endif
-#define INSPECTOR_REST_API_SOCKET INSPECTOR_REST_API_DOMAIN INSPECTOR_REST_API_PORT
 
 static size_t curl_write_callback(void* contents, size_t size, size_t nmemb, void* userp)
 {
