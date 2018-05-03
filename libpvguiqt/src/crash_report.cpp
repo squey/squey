@@ -5,11 +5,10 @@
  * @copyright (C) ESI Group INENDI April 2015-2018
  */
 
-#include <pvguiqt/PVCrashReporter.h>
-
 #include <QApplication>
 
 #include <iostream>
+#include "include/pvguiqt/PVCrashReporterDialog.h"
 
 int main(int argc, char* argv[])
 {
@@ -21,7 +20,7 @@ int main(int argc, char* argv[])
 	}
 	std::string minidump_path = argv[1];
 
-	PVGuiQt::PVCrashReporter crash_reporter(minidump_path);
+	PVGuiQt::PVCrashReporterDialog crash_reporter(minidump_path);
 	crash_reporter.show();
 
 	return app.exec();
