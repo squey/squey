@@ -28,12 +28,12 @@ void test_online_trial_activation()
 	PVCore::PVLicenseActivator::EError ret_code;
 
 	// Activation service unavailable (NO_INTERNET_CONNECTION)
-	char* http_proxy = std::getenv("http_proxy");
-	setenv("http_proxy", "http://0.0.0.0", true); // Simulate internet disconnection
+	char* https_proxy = std::getenv("https_proxy");
+	setenv("https_proxy", "https://0.0.0.0", true); // Simulate internet disconnection
 	ret_code = PVCore::PVLicenseActivator(online_license_path)
 	               .online_activation("validated@testsuite.com", "0000-*000 0000 0000 0000",
 	                                  "demo_pcap-inspector");
-	setenv("http_proxy", http_proxy ? http_proxy : "", true); // reset HTTP Proxy value
+	setenv("https_proxy", https_proxy ? https_proxy : "", true); // reset HTTPS Proxy value
 	PV_ASSERT_VALID(ret_code == PVCore::PVLicenseActivator::EError::NO_INTERNET_CONNECTION);
 
 	// Activation service unavailable (ACTIVATION_SERVICE_UNAVAILABLE)
