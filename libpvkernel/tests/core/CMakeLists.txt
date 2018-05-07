@@ -27,3 +27,6 @@ add_inspector_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel
 
 add_inspector_compile_test(Tcore_license_activation LINKS ${LINK_LIBRARIES} curl FILES license_activation.cpp)
 add_inspector_test(Tcore_license_activation Tcore_license_activation)
+
+add_inspector_compile_test(Tcore_crash_reporter LINKS ${LINK_LIBRARIES} curl FILES crash_reporter.cpp)
+add_inspector_test(Tcore_crash_reporter Tcore_crash_reporter)
