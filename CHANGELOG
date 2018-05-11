@@ -1,3 +1,15 @@
+4.5.0 (2018-05-14)
+----------------
+
+This major release adds the following features:
+* pcap import module
+* universal linux installation support through flatpak
+* crash reporter dialog
+* new software activation method
+
+This major release fixes or improves:
+* various bug fixes
+
 4.4.3 (2017-10-27)
 ----------------
 
