@@ -147,12 +147,11 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 		}
 	}
 
-	Inendi::Utils::License::RAII_InitLicense license_manager(
-	    inendi_license_path.toStdString().c_str());
-
 	bool license_ok = false;
 	do {
 		try {
+			Inendi::Utils::License::RAII_InitLicense license_manager(
+			    inendi_license_path.toStdString().c_str());
 			Inendi::Utils::License::RAII_LicenseFeature full_program_license(
 			    INENDI_LICENSE_PREFIX, INENDI_LICENSE_FEATURE);
 			license_ok = true;
@@ -172,6 +171,8 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 			}
 		}
 	} while (not license_ok);
+	Inendi::Utils::License::RAII_InitLicense license_manager(
+	    inendi_license_path.toStdString().c_str());
 	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
 	                                                                 INENDI_LICENSE_FEATURE);
 
