@@ -125,9 +125,9 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		axes_combination_widget->hide();
 
 		QObject::connect(custom_axis, &QRadioButton::toggled,
-		                 [&](bool show) { edit_axes_combination->setEnabled(show); });
+		                 [=](bool show) { edit_axes_combination->setEnabled(show); });
 		QObject::connect(edit_axes_combination, &QPushButton::clicked,
-		                 [&]() { axes_combination_widget->show(); });
+		                 [=]() { axes_combination_widget->show(); });
 
 		//////
 		// Rows to export
