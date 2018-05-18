@@ -42,6 +42,8 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		// Export column name
 		QCheckBox* export_header = new QCheckBox("Export column names as header");
 		export_header->setChecked(_exporter.get_export_header());
+		QObject::connect(export_header, &QCheckBox::stateChanged,
+		                 [&](int state) { _exporter.set_export_header(state); });
 
 		export_header->setCheckState(Qt::CheckState::Checked);
 		left_layout->addWidget(export_header);
@@ -56,6 +58,10 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		separator_char->setKeySequence(QKeySequence(","));
 		separator_char->setMaxNumKey(1);
 		char_layout->addRow("Fields separator:", separator_char);
+		QObject::connect(separator_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
+		                 [&](const QKeySequence& keySequence) {
+			                 _exporter.set_sep_char(keySequence.toString().toStdString());
+			             });
 
 		// Quote character
 		PVWidgets::QKeySequenceWidget* quote_char = new PVWidgets::QKeySequenceWidget();
@@ -63,6 +69,10 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		quote_char->setKeySequence(QKeySequence("\""));
 		quote_char->setMaxNumKey(1);
 		char_layout->addRow("Quote character:", quote_char);
+		QObject::connect(quote_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
+		                 [&](const QKeySequence& keySequence) {
+			                 _exporter.set_quote_char(keySequence.toString().toStdString());
+			             });
 
 		left_layout->addLayout(char_layout);
 
