@@ -111,21 +111,21 @@ static const std::unordered_map<std::string, std::string> ws_types_mapping = {
     {"FT_STRINGZPAD", "string"},
 };
 
-static const std::unordered_set<std::string> ws_disabled_fields = {
-    "frame.offset_shift",
-    "frame.time_delta",
-    "frame.time_delta_displayed",
-    "frame.ref_time",
-    "frame.number",
-    "frame.marked",
-    "frame.ignored",
-    "frame.coloring_rule.name",
-    "frame.coloring_rule.string",
-    "http.response.line",
-    "http.request.line",
-    "tcp.stream",
-    "udp.stream",
-};
+static const std::unordered_set<std::string> ws_disabled_fields = {"frame.offset_shift",
+                                                                   "frame.time_delta",
+                                                                   "frame.time_delta_displayed",
+                                                                   "frame.ref_time",
+                                                                   "frame.number",
+                                                                   "frame.marked",
+                                                                   "frame.ignored",
+                                                                   "frame.coloring_rule.name",
+                                                                   "frame.coloring_rule.string",
+                                                                   "http.response.line",
+                                                                   "http.request.line",
+                                                                   "tcp.stream",
+                                                                   "udp.stream",
+                                                                   "sip.msg_hdr",
+                                                                   "sip.auth"};
 
 inline std::string ws_map_type(const std::string& type)
 {
