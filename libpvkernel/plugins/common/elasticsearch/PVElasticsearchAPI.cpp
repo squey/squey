@@ -70,12 +70,14 @@ PVRush::PVElasticsearchAPI::PVElasticsearchAPI(const PVRush::PVElasticsearchInfo
     : _curl(nullptr), _infos(infos)
 {
 	_curl = curl_easy_init();
-
+	std::string content_type_header{"Content-Type: application/json"};
+	_curl_headers = curl_slist_append(_curl_headers, content_type_header.c_str());
 	_version = version();
 }
 
 PVRush::PVElasticsearchAPI::~PVElasticsearchAPI()
 {
+	curl_slist_free_all(_curl_headers);
 	curl_easy_cleanup(_curl);
 }
 
@@ -786,6 +788,9 @@ void PVRush::PVElasticsearchAPI::prepare_query(CURL* curl,
 	}
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
 	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, true);
+
+	// Set Content-Type header to "application/json"
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, _curl_headers);
 }
 
 bool PVRush::PVElasticsearchAPI::perform_query(CURL* curl,
