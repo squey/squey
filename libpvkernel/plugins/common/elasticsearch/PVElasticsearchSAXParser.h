@@ -207,6 +207,14 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 		return true;
 	}
 
+	bool Double(double value)
+	{
+		if (_state == ExpectColumnName) {
+			_rows.back()[_col_idx] = std::to_string(value);
+		}
+		return true;
+	}
+
   private:
 	/*
 	 * Return the absolute name of the current column (ex : parent_name.parent_name.column_name)
