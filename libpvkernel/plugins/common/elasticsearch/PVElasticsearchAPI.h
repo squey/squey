@@ -281,6 +281,7 @@ class PVElasticsearchAPI
 
 	using curlp_t = std::unique_ptr<CURL, std::function<void(CURL*)>>;
 	std::vector<curlp_t> _curls;
+	curl_slist* _curl_headers = nullptr;
 	std::vector<std::string> _scroll_ids;
 };
 }

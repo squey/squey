@@ -522,6 +522,7 @@
     },
     {
       "name": "inendi-inspector-doc",
+      "disabled": true,
       "build-options": {
         "env": {
           "DOCS": "documents/inendi_inspector_reference_manual",
