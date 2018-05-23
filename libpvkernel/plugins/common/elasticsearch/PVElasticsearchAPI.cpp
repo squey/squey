@@ -704,20 +704,15 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
 
 void PVRush::PVElasticsearchAPI::update_scroll_id(CURL* curl, const std::string& scroll_id) const
 {
-	std::string url = socket() + "/_search/scroll?scroll";
+	std::string url = socket() + "/_search/scroll";
 
-#define SCROLL_API_POST 0 // should work according to the documentation, but doesn't
-
-#if SCROLL_API_POST
-	if (_version < PVCore::PVVersion(2, 0, 0)) {
-#endif
-		url += "=" + std::string(SCROLL_TIMEOUT);
+	if (_version < PVCore::PVVersion(6, 0, 0)) {
+		url += "?scroll=" + std::string(SCROLL_TIMEOUT);
 		url +=
 		    "&filter_path=_scroll_id,hits.total," +
 		    get_filter_path_from_base(_infos.get_filter_path().toStdString(), "hits.hits._source");
 
 		prepare_query(curl, url, scroll_id);
-#if SCROLL_API_POST
 	} else {
 		rapidjson::Document json;
 		json.SetObject();
@@ -731,7 +726,6 @@ void PVRush::PVElasticsearchAPI::update_scroll_id(CURL* curl, const std::string&
 
 		prepare_query(curl, url, strbuf.GetString());
 	}
-#endif
 }
 
 bool PVRush::PVElasticsearchAPI::scroll(CURL* curl,
@@ -777,6 +771,7 @@ void PVRush::PVElasticsearchAPI::prepare_query(CURL* curl,
 	curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 	curl_easy_setopt(curl, CURLOPT_POST, not body.empty());
+
 	if (not body.empty()) {
 		curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, body.c_str());
 	}
