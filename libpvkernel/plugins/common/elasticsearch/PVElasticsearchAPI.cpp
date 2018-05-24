@@ -168,7 +168,8 @@ size_t PVRush::PVElasticsearchAPI::max_result_window(const std::string& index) c
 	return max_result_window;
 }
 
-static std::string get_filter_path_from_base(const std::string& filter_path,
+static std::string get_filter_path_from_base(CURL* curl,
+                                             const std::string& filter_path,
                                              const std::string& base = {},
                                              const std::string& separator = ".")
 {
@@ -177,6 +178,11 @@ static std::string get_filter_path_from_base(const std::string& filter_path,
 
 	std::vector<std::string> absolute_columns;
 	for (std::string& column : relative_columns) {
+		// URL encode columns
+		char* url_encoded_column = curl_easy_escape(curl, column.c_str(), column.size());
+		column = url_encoded_column;
+		curl_free(url_encoded_column);
+
 		PVCore::replace(column, ".", separator);
 		absolute_columns.emplace_back(base.empty() ? column : base + "." + column);
 	}
@@ -282,9 +288,10 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 	std::string json_buffer;
 	std::string url =
 	    socket() + "/" + _infos.get_index().toStdString() + "/_mapping" +
-	    (filter_path.empty() ? "" : ("?filter_path=" + get_filter_path_from_base(
-	                                                       filter_path, "**.mappings.**.properties",
-	                                                       ".properties.")));
+	    (filter_path.empty() ? "" : ("?filter_path=" +
+	                                 get_filter_path_from_base(_curl, filter_path,
+	                                                           "**.mappings.**.properties",
+	                                                           ".properties.")));
 
 	prepare_query(_curl, url);
 	if (perform_query(_curl, json_buffer)) {
@@ -406,8 +413,8 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 
 	// get one result search filtered on time columns
 	std::string json_buffer;
-	std::string filter_path =
-	    get_filter_path_from_base(boost::algorithm::join(time_col_names, ","), "hits.hits._source");
+	std::string filter_path = get_filter_path_from_base(
+	    _curl, boost::algorithm::join(time_col_names, ","), "hits.hits._source");
 	std::string url = socket() + "/" + _infos.get_index().toStdString() +
 	                  "/_search?size=1&filter_path=" + filter_path;
 
@@ -655,11 +662,12 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
                                              const size_t max_result_window)
 {
 	const PVElasticsearchInfos& infos = query.get_infos();
-	std::string url =
-	    socket() + "/" + infos.get_index().toStdString() +
-	    "/_search?filter_path=_scroll_id,hits.total," +
-	    get_filter_path_from_base(infos.get_filter_path().toStdString(), "hits.hits._source") +
-	    "&scroll=" + SCROLL_TIMEOUT;
+
+	std::string url = socket() + "/" + infos.get_index().toStdString() +
+	                  "/_search?filter_path=_scroll_id,hits.total," +
+	                  get_filter_path_from_base(curl, infos.get_filter_path().toStdString(),
+	                                            "hits.hits._source") +
+	                  "&scroll=" + SCROLL_TIMEOUT;
 	if (_version < PVCore::PVVersion(5, 0, 0)) {
 		url += "&search_type=scan";
 	}
@@ -693,6 +701,19 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
 
 	json.AddMember("size", max_result_window, json.GetAllocator());
 
+	// Source filtering
+	std::vector<std::string> columns;
+	const std::string& filter_path = infos.get_filter_path().toStdString();
+	boost::algorithm::split(columns, filter_path, boost::is_any_of(","));
+	rapidjson::Value source;
+	source.SetArray();
+	for (const std::string& column : columns) {
+		rapidjson::Value col;
+		col.SetString(column.c_str(), json.GetAllocator());
+		source.PushBack(col, json.GetAllocator());
+	}
+	json.AddMember("_source", source, json.GetAllocator());
+
 	rapidjson::StringBuffer strbuf;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
 	json.Accept(writer);
@@ -708,9 +729,9 @@ void PVRush::PVElasticsearchAPI::update_scroll_id(CURL* curl, const std::string&
 
 	if (_version < PVCore::PVVersion(6, 0, 0)) {
 		url += "?scroll=" + std::string(SCROLL_TIMEOUT);
-		url +=
-		    "&filter_path=_scroll_id,hits.total," +
-		    get_filter_path_from_base(_infos.get_filter_path().toStdString(), "hits.hits._source");
+		url += "&filter_path=_scroll_id,hits.total," +
+		       get_filter_path_from_base(curl, _infos.get_filter_path().toStdString(),
+		                                 "hits.hits._source");
 
 		prepare_query(curl, url, scroll_id);
 	} else {
