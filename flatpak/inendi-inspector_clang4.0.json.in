@@ -33,7 +33,7 @@
       "sources": [
         {
           "type": "archive",
-          "url": "https://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2",
+          "url": "https://netcologne.dl.sourceforge.net/project/boost/boost/1.59.0/boost_1_59_0.tar.bz2",
           "sha256": "727a932322d94287b62abb1bd2d41723eec4356a7728909e38adb65ca25241ca"
         },
         {
@@ -318,7 +318,7 @@
       "sources": [
         {
           "type": "archive",
-          "url": "https://sourceforge.net/projects/asciidoc/files/asciidoc/8.6.9/asciidoc-8.6.9.tar.gz",
+          "url": "https://freefr.dl.sourceforge.net/project/asciidoc/asciidoc/8.6.9/asciidoc-8.6.9.tar.gz",
           "sha256": "78db9d0567c8ab6570a6eff7ffdf84eadd91f2dfc0a92a2d0105d323cab4e1f0"
         }
       ]
