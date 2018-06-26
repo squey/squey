@@ -74,6 +74,7 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	PVRush::PVElasticsearchAPI::rows_t& get_rows() { return _rows; }
 	const std::string& scroll_id() const { return _scroll_id; }
 	uint32_t total() const { return _total; }
+	bool end() const { return _state == End; }
 
   public:
 	/*
@@ -97,10 +98,24 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	bool EndObject(size_t)
 	{
 		if (_state == ExpectColumnName) {
-			_column_name.pop_back();
+			if (_pop_name) {
+				_column_name.pop_back();
+			}
 			if (_column_name.size() == 0) {
 				_state = ArrayHitsStarted;
 			}
+		}
+
+		return true;
+	}
+
+	/*
+	 * Method called each time an array ends
+	 */
+	bool EndArray(size_t elementCount)
+	{
+		if (_state == ArrayHitsStarted and elementCount == 0) {
+			_state = End;
 		}
 
 		return true;
@@ -232,7 +247,8 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 		ArrayHitsStarted,
 		ExpectObjectSourceStart,
 		ObjectSourceStarted,
-		ExpectColumnName
+		ExpectColumnName,
+		End
 	} _state;
 
 	PVRush::PVElasticsearchAPI::rows_t& _rows;

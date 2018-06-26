@@ -232,7 +232,7 @@ PVRush::PVElasticsearchAPI::aliases(std::string* error /*= nullptr*/) const
 		rapidjson::Document json;
 		json.Parse<0>(json_buffer.c_str());
 
-		if (has_error(json, error)) {
+		if (json.IsNull() or has_error(json, error)) {
 			return aliases_t();
 		}
 
@@ -521,6 +521,7 @@ bool PVRush::PVElasticsearchAPI::extract(const PVRush::PVElasticsearchQuery& que
 
 	std::vector<rows_t> local_rows(_slice_count);
 
+	std::atomic<bool> end(false);
 #pragma omp parallel for schedule(static, 1)
 	for (size_t i = 0; i < _slice_count; i++) {
 		CURL* curl = _curls[i].get();
@@ -528,7 +529,7 @@ bool PVRush::PVElasticsearchAPI::extract(const PVRush::PVElasticsearchQuery& que
 
 		scroll(curl, query, _init_scroll, i, _slice_count, _max_result_window, json_buffer, error);
 
-		parse_scroll_results(curl, json_buffer, _scroll_ids[i], local_rows[i]);
+		end = end | parse_scroll_results(curl, json_buffer, _scroll_ids[i], local_rows[i]);
 	}
 	_init_scroll = false;
 
@@ -541,7 +542,7 @@ bool PVRush::PVElasticsearchAPI::extract(const PVRush::PVElasticsearchQuery& que
 		            std::make_move_iterator(local_row.end()));
 	}
 
-	return rows.size() > 0;
+	return not end;
 }
 
 size_t PVRush::PVElasticsearchAPI::scroll_count() const
@@ -727,26 +728,17 @@ void PVRush::PVElasticsearchAPI::update_scroll_id(CURL* curl, const std::string&
 {
 	std::string url = socket() + "/_search/scroll";
 
-	if (_version < PVCore::PVVersion(6, 0, 0)) {
-		url += "?scroll=" + std::string(SCROLL_TIMEOUT);
-		url += "&filter_path=_scroll_id,hits.total," +
-		       get_filter_path_from_base(curl, _infos.get_filter_path().toStdString(),
-		                                 "hits.hits._source");
+	rapidjson::Document json;
+	json.SetObject();
+	json.AddMember("scroll", SCROLL_TIMEOUT, json.GetAllocator());
+	rapidjson::Value sid(scroll_id.c_str(), json.GetAllocator());
+	json.AddMember("scroll_id", sid, json.GetAllocator());
 
-		prepare_query(curl, url, scroll_id);
-	} else {
-		rapidjson::Document json;
-		json.SetObject();
-		json.AddMember("scroll", SCROLL_TIMEOUT, json.GetAllocator());
-		rapidjson::Value sid(scroll_id.c_str(), json.GetAllocator());
-		json.AddMember("scroll_id", sid, json.GetAllocator());
+	rapidjson::StringBuffer strbuf;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+	json.Accept(writer);
 
-		rapidjson::StringBuffer strbuf;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
-		json.Accept(writer);
-
-		prepare_query(curl, url, strbuf.GetString());
-	}
+	prepare_query(curl, url, strbuf.GetString());
 }
 
 bool PVRush::PVElasticsearchAPI::scroll(CURL* curl,
@@ -781,7 +773,7 @@ bool PVRush::PVElasticsearchAPI::parse_scroll_results(CURL* curl,
 	update_scroll_id(curl, scroll_id);
 	_scroll_count = parser.total();
 
-	return true;
+	return parser.end();
 }
 
 void PVRush::PVElasticsearchAPI::prepare_query(CURL* curl,
