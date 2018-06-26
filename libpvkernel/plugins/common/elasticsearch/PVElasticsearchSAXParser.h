@@ -112,10 +112,26 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	/*
 	 * Method called each time an array ends
 	 */
+	bool StartArray()
+	{
+		if (_state == ExpectColumnName) {
+			_state = ArrayStarted;
+		}
+
+		return true;
+	}
+
+	/*
+	 * Method called each time an array ends
+	 */
 	bool EndArray(size_t elementCount)
 	{
 		if (_state == ArrayHitsStarted and elementCount == 0) {
 			_state = End;
+		} else if (_state == ArrayStarted) {
+			_rows.back()[_col_idx] = boost::algorithm::join(_array_values, ", ");
+			_array_values.clear();
+			_state = ExpectColumnName;
 		}
 
 		return true;
@@ -166,6 +182,8 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 			_state = ExpectObjectHitsStart;
 		} else if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = std::string(str, len);
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back(str, len);
 		}
 		return true;
 	}
@@ -174,6 +192,8 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	{
 		if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = "";
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back("");
 		}
 		return true;
 	}
@@ -182,7 +202,10 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	{
 		if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = value ? "true" : "false";
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back(value ? "true" : "false");
 		}
+
 		return true;
 	}
 
@@ -190,7 +213,10 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	{
 		if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = std::to_string(value);
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back(std::to_string(value));
 		}
+
 		return true;
 	}
 
@@ -202,6 +228,8 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 		}
 		if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = std::to_string(value);
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back(std::to_string(value));
 		}
 		return true;
 	}
@@ -210,6 +238,8 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	{
 		if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = std::to_string(value);
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back(std::to_string(value));
 		}
 		return true;
 	}
@@ -218,6 +248,8 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	{
 		if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = std::to_string(value);
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back(std::to_string(value));
 		}
 		return true;
 	}
@@ -226,6 +258,8 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	{
 		if (_state == ExpectColumnName) {
 			_rows.back()[_col_idx] = std::to_string(value);
+		} else if (_state == ArrayStarted) {
+			_array_values.emplace_back(std::to_string(value));
 		}
 		return true;
 	}
@@ -248,6 +282,7 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 		ExpectObjectSourceStart,
 		ObjectSourceStarted,
 		ExpectColumnName,
+		ArrayStarted,
 		End
 	} _state;
 
@@ -261,6 +296,7 @@ class PVElasticsearchSAXParser : public rapidjson::BaseReaderHandler<>
 	std::vector<std::string> _column_name; // stack of current column ancestor names
 	size_t _col_idx;                       // column index used to store column value into `_rows`
 	bool _pop_name; // whenever should discard last column name from the stack
+	std::vector<std::string> _array_values;
 };
 
 #endif // __PVELASTICSEARCHSAXPARSER_H__
