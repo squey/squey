@@ -92,6 +92,12 @@ class PVElasticsearchAPI
 	columns_t format_columns(const std::string& filter_path = {},
 	                         std::string* error = nullptr) const;
 
+	/** Narrow numeric types based on max value aggregation
+	 *
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/master/search-aggregations-metrics-max-aggregation.html
+	 */
+	void narrow_numeric_types(columns_t& cols) const;
+
 	/** Get the number of lines returned by a given query using the "count" API
 	 *
 	 * @param error Store any occured error if provided

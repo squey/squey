@@ -29,8 +29,8 @@ static const PVRush::PVElasticsearchAPI::columns_t
                  {"src_ip", {"ipv6", ""}},
                  {"status_code", {"string", ""}},
                  {"time", {"time", "epochS"}},
-                 {"time_spent", {"number_int32", ""}},
-                 {"total_bytes", {"number_int32", ""}},
+                 {"time_spent", {"number_uint32", ""}},
+                 {"total_bytes", {"number_uint32", ""}},
                  {"url", {"string", ""}},
                  {"user_agent", {"string", ""}}});
 auto get_col_name = [](const auto& p) { return p.first; };
