@@ -360,10 +360,10 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
 {
 	// type mapping between elasticsearch and inspector format
 	static const std::unordered_map<std::string, std::string> types_mapping = {
-	    {"long", "number_int64"},
-	    {"integer", "number_int32"},
-	    {"short", "number_int16"},
-	    {"byte", "number_int8"},
+	    {"long", "long"},
+	    {"integer", "integer"},
+	    {"short", "short"},
+	    {"byte", "byte"},
 	    {"double", "number_double"},
 	    {"float", "number_float"},
 	    {"half_float", "number_float"},
@@ -392,9 +392,140 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
 		},
 	    filter_path, error);
 
+	// Narrow numeric types based on aggregation max value
+	narrow_numeric_types(cols);
+
 	detect_time_formats(cols);
 
 	return cols;
+}
+
+void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
+{
+	std::unordered_set<std::string> numeric_types{{"long", "integer", "short", "byte"}};
+
+	std::vector<std::tuple<std::string, int64_t, uint64_t>> types_ranges{
+	    {{"number_uint8", std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max()},
+	     {"number_int8", std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max()},
+	     {"number_uint16", std::numeric_limits<uint16_t>::min(),
+	      std::numeric_limits<uint16_t>::max()},
+	     {"number_int16", std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max()},
+	     {"number_uint32", std::numeric_limits<uint32_t>::min(),
+	      std::numeric_limits<uint32_t>::max()},
+	     {"number_int32", std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max()},
+	     {"number_uint64", std::numeric_limits<uint64_t>::min(),
+	      std::numeric_limits<uint64_t>::max()},
+	     {"number_int64", std::numeric_limits<int64_t>::min(),
+	      std::numeric_limits<int64_t>::max()}}};
+
+	std::vector<size_t> numeric_col_indexes;
+	for (size_t i = 0; i < cols.size(); i++) {
+		auto& col = cols[i];
+		if (numeric_types.find(col.second.first) != numeric_types.end()) {
+			numeric_col_indexes.emplace_back(i);
+		}
+	}
+
+	rapidjson::Document json;
+	json.SetObject();
+
+	rapidjson::Value aggs;
+	aggs.SetObject();
+
+	for (size_t index : numeric_col_indexes) {
+		const std::string& fname = cols[index].first;
+
+		rapidjson::Value field_name_min_str;
+		field_name_min_str.SetString(fname.c_str(), json.GetAllocator());
+
+		rapidjson::Value field_name_max_str;
+		field_name_max_str.SetString(fname.c_str(), json.GetAllocator());
+
+		rapidjson::Value fieldname_min;
+		fieldname_min.SetObject();
+		fieldname_min.AddMember("field", field_name_min_str, json.GetAllocator());
+
+		rapidjson::Value min;
+		min.SetObject();
+		min.AddMember("min", fieldname_min, json.GetAllocator());
+
+		rapidjson::Value fieldname_max;
+		fieldname_max.SetObject();
+		fieldname_max.AddMember("field", field_name_max_str, json.GetAllocator());
+
+		rapidjson::Value max;
+		max.SetObject();
+		max.AddMember("max", fieldname_max, json.GetAllocator());
+
+		rapidjson::Value min_field;
+		min_field.SetString((fname + ".min").c_str(), json.GetAllocator());
+
+		rapidjson::Value max_field;
+		max_field.SetString((fname + ".max").c_str(), json.GetAllocator());
+
+		aggs.AddMember(min_field, min, json.GetAllocator());
+		aggs.AddMember(max_field, max, json.GetAllocator());
+	}
+
+	json.AddMember("aggs", aggs, json.GetAllocator());
+
+	rapidjson::StringBuffer strbuf;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+	json.Accept(writer);
+
+	std::unordered_map<std::string, std::pair<double, double>> values_ranges;
+	std::string json_buffer;
+	std::string url = socket() + "/" + _infos.get_index().toStdString() + "/_search?size=0";
+	prepare_query(_curl, url, strbuf.GetString());
+	if (perform_query(_curl, json_buffer)) {
+		rapidjson::Document json;
+		json.Parse<0>(json_buffer.c_str());
+
+		const rapidjson::Value& aggregations = json["aggregations"];
+		for (auto agg = aggregations.MemberBegin(); agg != aggregations.MemberEnd(); ++agg) {
+			const std::string& value_name = agg->name.GetString();
+			double value = aggregations[value_name.c_str()]["value"].GetDouble();
+
+			const std::string& field_name = value_name.substr(0, value_name.size() - 4);
+			const std::string& operation_name = value_name.substr(value_name.size() - 3);
+
+			if (operation_name == "min") {
+				values_ranges[field_name].first = value;
+			} else {
+				values_ranges[field_name].second = value;
+			}
+		}
+	}
+
+	for (size_t index : numeric_col_indexes) {
+		auto& fname = cols[index].first;
+		const std::pair<double, double>& range = values_ranges.at(fname);
+		double value_min = range.first;
+		double value_max = range.second;
+
+		std::string smallest_type;
+		for (const auto& type_range : types_ranges) {
+			const std::string& type_name = std::get<0>(type_range);
+			int64_t type_min = std::get<1>(type_range);
+			uint64_t type_max = std::get<2>(type_range);
+
+			if (value_min >= type_min and value_max <= type_max) {
+				smallest_type = type_name;
+				break;
+			}
+		}
+		cols[index].second.first = smallest_type;
+	}
+
+	/*
+	POST /<index_name>/_search?size=0
+	{
+	  "aggs" : {
+	    "<field_name>.max" : { "max" : { "field" : "<field_name>" } },
+	    "<field_name>.min" : { "min" : { "field" : "<field_name>" } }
+	  }
+	}
+	*/
 }
 
 void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
