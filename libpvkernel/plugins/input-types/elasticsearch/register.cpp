@@ -18,8 +18,8 @@
 // This method will be called by libpvrush
 LibCPPExport void register_class()
 {
-	if (Inendi::Utils::License::RAII_LicenseFeature::is_available(
-	        INENDI_LICENSE_PREFIX, "INSPECTOR_MODULE_ELASTICSEARCH")) {
+	if (Inendi::Utils::License::RAII_LicenseFeature::is_available(INENDI_LICENSE_PREFIX,
+	                                                              "INSPECTOR_MODULE_ES")) {
 		REGISTER_CLASS("elasticsearch", PVRush::PVInputTypeElasticsearch);
 	}
 }
