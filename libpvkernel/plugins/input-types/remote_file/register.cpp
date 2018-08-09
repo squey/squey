@@ -19,7 +19,7 @@
 LibCPPExport void register_class()
 {
 	if (Inendi::Utils::License::RAII_LicenseFeature::is_available(INENDI_LICENSE_PREFIX,
-	                                                              "INSPECTOR_MODULE_REMOTETEXT")) {
+	                                                              "INSPECTOR_MODULE_RTEXT")) {
 		REGISTER_CLASS("remote_file", PVRush::PVInputTypeRemoteFilename);
 	}
 }

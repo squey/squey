@@ -515,8 +515,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "https://1.eu.dl.wireshark.org/src/wireshark-2.6.0.tar.xz",
-          "sha256": "711c7f01d27a8817d58277a5487cef3e3c7bab1c8caaf8f4c92aa21015b9117f"
+          "url": "https://www.wireshark.org/download/src/wireshark-2.6.2.tar.xz",
+          "sha256": "49b2895ee3ba17ef9ef0aebfdc4d32a778e0f36ccadde184516557d5f3357094"
         }
       ]
     },
