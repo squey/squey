@@ -1,3 +1,9 @@
+4.5.1 (2018-08-27)
+----------------
+
+This minor release fixes:
+* elasticsearch : support API version 6.0, double type, array values + RAM consumption optimisation
+
 4.5.0 (2018-05-14)
 ----------------
 
