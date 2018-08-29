@@ -54,12 +54,12 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://http.debian.net/debian/pool/main/m/mysql-5.7/mysql-5.7_5.7.21.orig.tar.gz",
-          "sha256": "ad29ecb6fb3c3571394fe231633a2d1d188d49e9eb749daa4e8799b7630daa09"
+          "url": "http://ftp.debian.org/debian/pool/main/m/mysql-5.7/mysql-5.7_5.7.23.orig.tar.gz",
+          "sha256": "d05700ec5c1c6dae9311059dc1713206c29597f09dbd237bf0679b3c6438e87a"
         },
         {
           "type": "shell",
-          "commands": [ "sed -i '642d' CMakeLists.txt", "# Fix serverless build, see https://bugs.mysql.com/bug.php?id=87348" ]
+          "commands": [ "sed -i '641d' CMakeLists.txt", "# Fix serverless build, see https://bugs.mysql.com/bug.php?id=87348" ]
         }
       ]
     },
