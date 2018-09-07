@@ -542,6 +542,25 @@
       ]
     },
     {
+      "name": "tbb",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://github.com/01org/tbb/archive/2018_U5.tar.gz",
+          "sha256": "c4c2896af527392496c5e01ef8579058a71b6eebbd695924cd138841c13f07be"
+        },
+        {
+          "type": "file",
+          "path": "no-configure",
+          "dest-filename": "configure"
+        },
+        {
+          "type": "patch",
+          "path": "tbb_makefile.patch"
+        }
+      ]
+    },
+    {
       "name": "inendi-inspector",
       "buildsystem": "cmake-ninja",
       "builddir": true,

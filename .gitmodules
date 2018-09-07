@@ -16,10 +16,6 @@
 [submodule "libpvkernel/plugins/common/pcap/LightPcapNg"]
 	path = libpvkernel/plugins/common/pcap/LightPcapNg
 	url = https://github.com/rvelea/LightPcapNg
-[submodule "external/tbb"]
-	path = external/tbb
-	url = git@gitlab.srv.picviz:picviz/tbb.git
-        branch = tbb_2018
 [submodule "doc"]
 	path = doc
 	url = git@gitlab.srv.picviz:picviz/inendi-inspector-manual.git

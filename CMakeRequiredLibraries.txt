@@ -20,9 +20,8 @@ include_directories(SYSTEM ${Qt5Core_INCLUDE_DIRS})
 ###############################################################################
 # Define the Intel TBB Library
 ###############################################################################
-set(TBB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/external/tbb)
-set(TBB_BUILD_DIR ${TBB_ROOT}/build/linux_intel64_release)
-set(TBB_INCLUDE_DIRS ${TBB_ROOT}/include)
+set(TBB_BUILD_DIR /app/lib)
+set(TBB_INCLUDE_DIRS /app/include)
 include_directories(SYSTEM AFTER ${TBB_INCLUDE_DIRS})
 set(TBB_LIBRARIES ${TBB_BUILD_DIR}/libtbb.so;${TBB_BUILD_DIR}/libtbbmalloc.so)
 
