@@ -1,3 +1,9 @@
+4.5.2 (2018-09-26)
+----------------
+
+This minor release fixes:
+* licensing support for Microsoft WSL
+
 4.5.1 (2018-08-27)
 ----------------
 
