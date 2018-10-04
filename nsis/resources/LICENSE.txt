@@ -1,0 +1,5 @@
+PCAP Inspector Copyright (C):
+Copyright (C) Picviz Labs 2012-2015
+Copyright (C) ESI Group / INENDI 2015-2018
+
+All rights reserved.
