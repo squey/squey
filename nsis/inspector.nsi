@@ -301,7 +301,7 @@ Function .onInit
 	; Check windows version
 	${WinVerGetBuild} $0
 	${IfNot} ${AtLeastWin10}
-	${AndIf} $0 < 16070
+	${OrIf} $0 < 16070
 		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL : $\r$\n > Windows 10 64 bits build 1607$\r$\n > Windows Server 2019"
 		Quit
 	${EndIf}
@@ -309,7 +309,7 @@ Function .onInit
 	; Check if WSL needs to be enabled
 	ExecDos::exec '$WINDIR\SysNative\cmd.exe /C wslconfig.exe /l'
 	Pop $0
-	${If} $0 != 0
+	${If} $0 == 9009 ; 9009=MSG_DIR_BAD_COMMAND_OR_FILE
 		MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL) needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
 		ok:
 			ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
