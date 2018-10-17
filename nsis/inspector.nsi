@@ -264,6 +264,7 @@ Section
 	File "resources\install_inspector.sh"
 	File "resources\setup_config_dir.sh"
 	File "resources\run_inspector.cmd"
+	File "resources\update_wsl.sh"
 	File "resources\update_inspector.sh"
 	File "resources\SilentCMD.exe"
 	File "resources\${PRODUCT_NAME}.ico"

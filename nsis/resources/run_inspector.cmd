@@ -44,6 +44,8 @@ if %stop_vcxsrv% == true if %instance_count% == 0 (
 	reg delete "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" /v "%inspector_path%\VcXsrv\vcxsrv.exe" /f >nul 2>&1
 )
 
-@REM Update
+@REM Update WSL and Inspector
 "%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 0 -n inspector_linux
+"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/update_wsl.sh"
+"%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 1000 -n inspector_linux
 "%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/update_inspector.sh"
