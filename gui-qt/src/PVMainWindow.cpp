@@ -50,6 +50,8 @@
 
 #include <boost/thread.hpp>
 
+#include <sys/utsname.h> // uname
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::PVMainWindow
@@ -122,8 +124,13 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	/**
 	 * Show warning message when no GPU accelerated device has been found
+	 * Except under WSL where GPU is not supported yet
+	 * (https://wpdev.uservoice.com/forums/266908-command-prompt-console-windows-subsystem-for-l/suggestions/16108045-opencl-cuda-gpu-support)
 	 */
-	if (not PVParallelView::common::is_gpu_accelerated()) {
+	struct utsname uname_buf;
+	uname(&uname_buf);
+	bool is_microsoft_wsl = strstr(uname_buf.release, "Microsoft") != NULL;
+	if (not PVParallelView::common::is_gpu_accelerated() and not is_microsoft_wsl) {
 		/* the warning icon
 		 */
 		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
