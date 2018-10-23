@@ -8,7 +8,7 @@
 #include <math.h>
 
 #include <pvkernel/core/qmetaobject_helper.h>
-
+#include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <inendi/PVStateMachine.h>
@@ -157,6 +157,24 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const zone_id, int i
 	        &PVFullParallelScene::emit_new_zoomed_parallel_view);
 	connect(axisw, &PVAxisGraphicsItem::mouse_hover_entered, this,
 	        &PVFullParallelScene::axis_hover_entered);
+	connect(axisw, &PVAxisGraphicsItem::change_mapping, [this, axisw](QString mode) {
+		Inendi::PVMapped& mapped = _lib_view.get_parent<Inendi::PVMapped>();
+		Inendi::PVMappingProperties& plp =
+		    mapped.get_properties_for_col(axisw->get_original_axis_column());
+		plp.set_mode(mode.toStdString());
+		PVCore::PVProgressBox::progress(
+		    [&mapped](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
+		    QObject::tr("Updating mapping..."), nullptr);
+	});
+	connect(axisw, &PVAxisGraphicsItem::change_plotting, [this, axisw](QString mode) {
+		Inendi::PVPlotted& plotted = _lib_view.get_parent<Inendi::PVPlotted>();
+		Inendi::PVPlottingProperties& plp =
+		    plotted.get_properties_for_col(axisw->get_original_axis_column());
+		plp.set_mode(mode.toStdString());
+		PVCore::PVProgressBox::progress(
+		    [&plotted](PVCore::PVProgressBox& /*pbox*/) { plotted.update_plotting(); },
+		    QObject::tr("Updating plotting..."), nullptr);
+	});
 
 	addItem(axisw);
 

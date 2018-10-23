@@ -88,6 +88,8 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	PVCol get_original_axis_column() const { return _axis_fmt.index; }
 
+	QString get_axis_type() const { return _axis_fmt.get_type(); }
+
 	QRectF get_top_decoration_scene_bbox() const;
 	QRectF get_bottom_decoration_scene_bbox() const;
 
@@ -127,6 +129,8 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	void new_zoomed_parallel_view(PVCombCol comb_col);
 	void mouse_hover_entered(PVCombCol axis, bool entered);
 	void mouse_clicked(PVCombCol axis);
+	void change_mapping(QString const& selected_mapping);
+	void change_plotting(QString const& selected_plotting);
 
   private:
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
