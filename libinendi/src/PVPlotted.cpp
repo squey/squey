@@ -73,7 +73,17 @@ int Inendi::PVPlotted::create_table()
 	_last_updated_cols.clear();
 	_minmax_values.resize(mapped_col_count);
 
+	auto const& axes_format = get_parent<Inendi::PVSource>().get_format().get_axes();
+
 	for (PVCol j(0); j < mapped_col_count; j++) {
+		auto const& mapping_mode = get_parent<PVMapped>().get_properties_for_col(j).get_mode();
+		auto usable_pt = get_properties_for_col(j).get_plotting_filter()->list_usable_type();
+		if (not usable_pt.empty() and
+		    usable_pt.count(
+		        std::make_pair(axes_format[j].get_type().toStdString(), mapping_mode)) == 0) {
+			get_properties_for_col(j).set_mode("default");
+		}
+
 		if (get_properties_for_col(j).is_uptodate()) {
 			continue;
 		}

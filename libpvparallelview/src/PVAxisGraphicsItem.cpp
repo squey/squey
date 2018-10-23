@@ -155,6 +155,9 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	connect(_header_zone,
 	        static_cast<void (PVAxisHeader::*)(PVCombCol)>(&PVAxisHeader::new_zoomed_parallel_view),
 	        this, &PVAxisGraphicsItem::new_zoomed_parallel_view);
+	connect(_header_zone, &PVAxisHeader::change_mapping, this, &PVAxisGraphicsItem::change_mapping);
+	connect(_header_zone, &PVAxisHeader::change_plotting, this,
+	        &PVAxisGraphicsItem::change_plotting);
 }
 
 PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
