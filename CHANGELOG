@@ -1,3 +1,9 @@
+4.5.3 (2018-10-24)
+----------------
+
+* Fix crash when changing a mapping with an incompatible plotting
+* Add support for changing mapping/plotting from a right click on an axis
+
 4.5.2 (2018-09-26)
 ----------------
 
