@@ -160,8 +160,7 @@ ManifestDPIAware true
   !insertmacro MUI_PAGE_FINISH
 
   !insertmacro MUI_UNPAGE_CONFIRM
-  !define MUI_PAGE_CUSTOMFUNCTION_LEAVE un.LeaveCustomPage
-  UninstPage custom un.CustomUninstallerPage
+  UninstPage custom un.CustomUninstallerPage un.LeaveCustomPage
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_UNPAGE_FINISH
   
@@ -237,7 +236,7 @@ Function InstallInspector
     DetailPrint "Preparing WSL..."
 	nsExec::ExecToLog 'LxRunOffline\LxRunOffline.exe install -n ${WSL_DISTRO_NAME} -d linux -f wsl\install.tar.gz'
 	AccessControl::GrantOnFile "$INSTDIR\linux" "(BU)" "FullAccess" ; Give builtin users full access to modify linux files
-	RMDir /r "wsl" ; FIXME
+	RMDir /r "$INSTDIR\wsl"
 	Delete "${LINUX_ARCHIVE}"
 	
 	; Install Inspector
@@ -413,7 +412,7 @@ Function un.LeaveCustomPage
 	SetRegView 64
 
 	${NSD_GetState} $CheckboxConfig $0
-	${If} $0 == 0
+	${If} $0 == ${BST_UNCHECKED}
 		nsExec::ExecToStack '$WINDIR\SysNative\cmd.exe /C echo %APPDATA%'
 		Pop $0
 		Pop $1
