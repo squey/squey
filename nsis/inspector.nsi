@@ -301,8 +301,8 @@ Function .onInit
 	; Check windows version
 	${WinVerGetBuild} $0
 	${IfNot} ${AtLeastWin10}
-	${OrIf} $0 < 16070
-		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL : $\r$\n > Windows 10 64 bits build 1607$\r$\n > Windows Server 2019"
+	${OrIf} $0 < 17134
+		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL : $\r$\n > Windows 10 64 bits version 1803$\r$\n > Windows Server 2019"
 		Quit
 	${EndIf}
 
