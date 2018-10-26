@@ -40,7 +40,6 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats,
 	QStringList formats_name = formats.keys();
 	formats_name.sort();
 
-	formats_name.prepend(QString(INENDI_AUTOMATIC_FORMAT_STR));
 	formats_name.prepend(QString(INENDI_BROWSE_FORMAT_STR));
 	formats_name.prepend(QString(INENDI_LOCAL_FORMAT_STR));
 

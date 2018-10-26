@@ -36,7 +36,6 @@ enum Category {
 	SOURCES,
 	USED_FORMATS,
 	EDITED_FORMATS,
-	SUPPORTED_FORMATS,
 
 	LAST
 };
@@ -97,8 +96,7 @@ class PVRecentItemsManager
 	template <class F, Category... c>
 	static void apply_on_category(F&& f)
 	{
-		__apply_on_category<F, PROJECTS, SOURCES, USED_FORMATS, EDITED_FORMATS, SUPPORTED_FORMATS>(
-		    std::forward<F>(f));
+		__apply_on_category<F, PROJECTS, SOURCES, USED_FORMATS, EDITED_FORMATS>(std::forward<F>(f));
 	}
 
 	/*! \brief Return a source description from the settings current group.
@@ -152,10 +150,6 @@ class PVRecentItemsManager
 	std::vector<PVCore::PVSerializedSource> sources_description_list();
 	void remove_invalid_source();
 
-	/*! \brief Return the supported formats as a list
-	 */
-	std::vector<std::string> supported_format_list() const;
-
   private:
 	PVRecentItemsManager();
 	PVRecentItemsManager(const PVRecentItemsManager&);
@@ -168,8 +162,7 @@ class PVRecentItemsManager
 	QSettings _recents_settings;
 	const int64_t _max_recent_items = 30;
 	const QStringList _recents_items_keys = {"recent_projects", "recent_sources",
-	                                         "recent_used_formats", "recent_edited_formats",
-	                                         "supported_formats"};
+	                                         "recent_used_formats", "recent_edited_formats"};
 };
 } // namespace PVCore
 

@@ -238,24 +238,6 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	_recent_list_widgets[PVCore::Category::EDITED_FORMATS] = recent_edited_formats_list;
 	_recent_push_buttons[PVCore::Category::EDITED_FORMATS] = clear_edited_format_history;
 
-	// supported
-	auto format_supported_widget_line = new QFrame(format_widget);
-	format_supported_widget_line->setFrameShape(QFrame::HLine);
-	QLabel* format_text_supported_label = new QLabel("Supported formats:", format_widget);
-	format_text_supported_label->setObjectName("PVStartScreenWidget_text");
-	format_widget_layout->addWidget(format_supported_widget_line);
-	format_widget_layout->addWidget(format_text_supported_label);
-
-	auto supported_formats_layout = new QVBoxLayout();
-	format_widget_layout->addLayout(supported_formats_layout);
-	auto supported_formats_list = new custom_listwidget_t();
-	supported_formats_layout->addWidget(supported_formats_list);
-	supported_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	supported_formats_list->verticalScrollBar()->setObjectName(
-	    "verticalScrollBar_of_PVListingView");
-	_recent_list_widgets[PVCore::Category::SUPPORTED_FORMATS] = supported_formats_list;
-	_recent_push_buttons[PVCore::Category::SUPPORTED_FORMATS] = nullptr;
-
 	// projects (text and line)
 	auto project_widget_line = new QFrame(import_widget);
 	project_widget_line->setFrameShape(QFrame::HLine);
@@ -388,10 +370,6 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 	}
 	case PVCore::Category::EDITED_FORMATS:
 	case PVCore::Category::USED_FORMATS: {
-		Q_EMIT edit_format(var.toString());
-		break;
-	}
-	case PVCore::Category::SUPPORTED_FORMATS: {
 		Q_EMIT edit_format(var.toString());
 		break;
 	}
@@ -563,10 +541,6 @@ void PVGuiQt::__impl::PVListWidgetItem::timeout()
 
 bool PVGuiQt::__impl::PVListWidgetItem::eventFilter(QObject* obj, QEvent* event)
 {
-	if (_cat == PVCore::Category::SUPPORTED_FORMATS) {
-		return false;
-	}
-
 	if (obj == _icon_label) {
 		if (event->type() == QEvent::Enter) {
 			set_icon_visible(false);

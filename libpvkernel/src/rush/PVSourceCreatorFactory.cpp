@@ -54,30 +54,6 @@ PVRush::PVSourceCreatorFactory::filter_creators_pre_discovery(PVRush::list_creat
 	return pre_discovered_c;
 }
 
-PVRush::hash_format_creator
-PVRush::PVSourceCreatorFactory::get_supported_formats(list_creators const& lcr)
-{
-	list_creators::const_iterator it;
-	hash_format_creator ret;
-	for (it = lcr.begin(); it != lcr.end(); it++) {
-		PVSourceCreator_p sc = *it;
-		hash_formats const& src_formats = sc->get_supported_formats();
-		PVLOG_INFO("Found %d formats.\n", src_formats.size());
-		hash_formats::const_iterator it_sf;
-		for (it_sf = src_formats.begin(); it_sf != src_formats.end(); it_sf++) {
-			if (ret.contains(it_sf.key())) {
-				PVLOG_WARN("Two source creators plugins using the same input type define the same "
-				           "format !\n");
-				continue;
-			}
-			PVLOG_INFO("Found format %s\n", qPrintable(it_sf.key()));
-			ret.insert(it_sf.key(), pair_format_creator(it_sf.value(), sc));
-		}
-	}
-
-	return ret;
-}
-
 float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_,
                                                      PVInputDescription_p input,
                                                      bool* cancellation)
@@ -185,7 +161,7 @@ PVRush::PVSourceCreatorFactory::discover_input(PVInputType_p input_type, PVInput
 	std::multimap<float, pair_format_creator> ret;
 	PVRush::list_creators creators = filter_creators_pre_discovery(
 	    PVRush::PVSourceCreatorFactory::get_by_input_type(input_type), input);
-	PVRush::hash_format_creator formats_creators = get_supported_formats(creators);
+	PVRush::hash_format_creator formats_creators;
 	PVRush::hash_format_creator::const_iterator it_fc;
 	for (it_fc = formats_creators.begin(); it_fc != formats_creators.end(); it_fc++) {
 		float success = 0.0f;

@@ -194,28 +194,6 @@ void PVCore::PVRecentItemsManager::clear_missing_files()
 	remove_missing_files(Category::EDITED_FORMATS);
 }
 
-std::vector<std::string> PVCore::PVRecentItemsManager::supported_format_list() const
-{
-	std::vector<std::string> res;
-
-	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
-	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
-
-	for (const auto& it : lf) {
-		PVRush::PVInputType_p in = it.value();
-
-		PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in);
-		PVRush::hash_format_creator format_creator =
-		    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
-
-		for (auto itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
-			res.emplace_back(itfc.value().first.get_full_path().toStdString());
-		}
-	}
-
-	return res;
-}
-
 uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
     const PVRush::PVSourceDescription& source_description)
 {
@@ -367,13 +345,6 @@ typename list_type<Category::EDITED_FORMATS>::type
 PVRecentItemsManager::get_list<Category::EDITED_FORMATS>()
 {
 	return items_list<Category::EDITED_FORMATS>();
-}
-
-template <>
-typename list_type<Category::SUPPORTED_FORMATS>::type
-PVRecentItemsManager::get_list<Category::SUPPORTED_FORMATS>()
-{
-	return supported_format_list();
 }
 
 template <>

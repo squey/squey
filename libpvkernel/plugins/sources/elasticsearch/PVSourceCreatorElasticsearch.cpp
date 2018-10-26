@@ -17,11 +17,6 @@ PVRush::PVSourceCreatorElasticsearch::create_source_from_input(PVInputDescriptio
 	return src;
 }
 
-PVRush::hash_formats PVRush::PVSourceCreatorElasticsearch::get_supported_formats() const
-{
-	return PVRush::PVFormat::list_formats_in_dir(name(), name());
-}
-
 QString PVRush::PVSourceCreatorElasticsearch::supported_type() const
 {
 	return QString("elasticsearch");

@@ -16,11 +16,6 @@ PVRush::PVSourceCreatorSplunk::create_source_from_input(PVInputDescription_p inp
 	return src;
 }
 
-PVRush::hash_formats PVRush::PVSourceCreatorSplunk::get_supported_formats() const
-{
-	return PVRush::PVFormat::list_formats_in_dir(name(), name());
-}
-
 QString PVRush::PVSourceCreatorSplunk::supported_type() const
 {
 	return QString("splunk");

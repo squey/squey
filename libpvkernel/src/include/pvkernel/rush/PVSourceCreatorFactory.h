@@ -27,7 +27,6 @@ class PVSourceCreatorFactory
 {
   public:
 	static list_creators get_by_input_type(PVInputType_p in_t);
-	static hash_format_creator get_supported_formats(list_creators const& lcr);
 	static float discover_input(pair_format_creator format,
 	                            PVInputDescription_p input,
 	                            bool* cancellation = nullptr);
