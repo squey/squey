@@ -90,7 +90,7 @@ class PVZoneRendering
 	inline bool should_cancel() const { return _should_cancel; }
 	void cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr);
 
-	inline bool valid() const { return _zone_id != (PVZoneID)PVZONEID_INVALID; }
+	inline bool valid() const { return _zone_id != PVZONEID_INVALID; }
 
 	inline void set_render_finished_slot(QObject* receiver, const char* slot)
 	{

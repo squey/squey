@@ -28,14 +28,15 @@ class ZoneCreation
 	/* PVZoneID must not be used because it prevents TBB to do arithmetic on
 	 * blocked range
 	 */
-	void operator()(const tbb::blocked_range<PVZoneID::value_type>& r) const
+	void operator()(const tbb::blocked_range<size_t>& r) const
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
 		PVParallelView::PVZoneTree::ProcessData pdata;
-		for (PVZoneID::value_type z = r.begin(); z != r.end(); z++) {
+		for (size_t index = r.begin(); index != r.end(); ++index) {
 			pdata.clear();
-			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zm->get_zone_processing(PVZoneID(z)), pdata);
+			auto & [ zid, zone ] = zm->_zones[index];
+			PVZoneTree& ztree = zone.ztree();
+			ztree.process(zm->get_zone_processing(zid), pdata);
 		}
 	}
 
@@ -50,10 +51,9 @@ class ZoneCreation
  * PVParallelView::PVZonesManager::PVZonesManager
  *
  *****************************************************************************/
-PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view)
-    : _view(view), _axes_comb(view.get_axes_combination().get_combination())
+PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view) : _view(view)
 {
-	update_all();
+	update_from_axes_comb(_view);
 }
 
 /******************************************************************************
@@ -61,22 +61,22 @@ PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view)
  * PVParallelView::PVZonesManager::update_all
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::update_all()
+void PVParallelView::PVZonesManager::update_all(bool reinit_zones)
 {
-	/* PVZoneID must not be used because it prevents TBB to do arithmetic on
-	 * blocked range
-	 */
-	PVZoneID::value_type nzones = get_number_of_managed_zones();
+	size_t nzones = get_number_of_zones();
 	PVLOG_INFO("(PVZonesManager::update_all) number of zones = %d\n", nzones);
 	assert(nzones >= 1);
-	_zones.clear();
-	_zones.resize(nzones);
+	if (reinit_zones) {
+		for (auto& zone : _zones) {
+			zone.second = PVZone();
+		}
+	}
 
 	__impl::ZoneCreation zc;
 	zc._zm = this;
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
-	tbb::parallel_for(tbb::blocked_range<PVZoneID::value_type>(0, nzones, 8), zc);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, nzones, 8), zc);
 }
 
 /******************************************************************************
@@ -86,19 +86,55 @@ void PVParallelView::PVZonesManager::update_all()
  *****************************************************************************/
 void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 {
-	assert(zone_id < (PVZoneID)_zones.size());
+	PVZone& zone = get_zone(zone_id);
 
-	_zones[zone_id] = PVZone();
+	zone = PVZone();
 
 	PVZoneProcessing zp = get_zone_processing(zone_id);
 	PVParallelView::PVZoneTree::ProcessData pdata;
 	pdata.clear();
 
-	PVZoneTree& ztree = _zones[zone_id].ztree();
+	PVZoneTree& ztree = zone.ztree();
 	ztree.process(zp, pdata);
 
-	PVZoomedZoneTree& zztree = _zones[zone_id].zoomed_ztree();
+	PVZoomedZoneTree& zztree = zone.zoomed_ztree();
 	zztree.reset();
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVZonesManager::acquire_zone
+ *
+ *****************************************************************************/
+auto PVParallelView::PVZonesManager::acquire_zone(PVZoneID zone_id) -> ZoneRetainer
+{
+	if (not _zone_indices.count(zone_id)) {
+		PVLOG_DEBUG("PVZonesManager::acquire_zone(%d:%d)\n", zone_id.first, zone_id.second);
+		_zone_indices.emplace(zone_id, _zones.size());
+		_zones.emplace_back(zone_id, PVZone{});
+		update_zone(zone_id);
+	}
+	return ZoneRetainer{*this, zone_id};
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVZonesManager::release_zone
+ *
+ *****************************************************************************/
+void PVParallelView::PVZonesManager::release_zone(PVZoneID zone_id)
+{
+	if (zone_id == PVZONEID_INVALID) {
+		return;
+	}
+
+	PVLOG_DEBUG("PVZonesManager::release_zone(%d:%d)\n", zone_id.first, zone_id.second);
+
+	if (_zones_ref_count.count(zone_id)) {
+		return;
+	}
+
+	update_from_axes_comb(_axes_comb);
 }
 
 /******************************************************************************
@@ -108,50 +144,61 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
  *****************************************************************************/
 void PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> const& ac)
 {
-	typedef std::pair<PVCol, PVCol> axes_pair_t;
-	typedef std::vector<axes_pair_t> axes_pair_list_t;
-
 	/* the principle is to contruct a new PVZone list by collecting
 	 * unchanged PVZone from the old PVZone list. So that, only the new
 	 * entries of the new list are updated.
 	 */
 
-	/* to help finding unchanged zones, we use a list of axis index pair
-	 * to identify them.
-	 */
-	axes_pair_list_t old_pairs;
-	PVCol old_nb_pairs(_axes_comb.size() - 1);
-	old_pairs.reserve(old_nb_pairs);
+	size_t new_managed_sized = ac.size() >= 2 ? ac.size() - 1 : 0;
+	size_t old_managed_size = _axes_comb.size() - 1;
+	size_t old_total_size = _zones.size();
 
-	for (PVCol i(0); i < old_nb_pairs; ++i) {
-		old_pairs.push_back(std::make_pair(_axes_comb[i], _axes_comb[i + 1]));
-	}
+	decltype(_zones) _new_zones;
+	decltype(_zone_indices) _new_zone_indices;
+	std::vector<PVZoneID> to_be_updated_new_zones;
 
-	std::vector<PVZoneID> zoneids;
-	PVCol new_nb_pairs(ac.size() - 1);
-	std::vector<PVZone> new_zones(new_nb_pairs);
+	// Not exact but reasonnable asumption
+	_new_zones.reserve(_zones.size() + new_managed_sized - old_managed_size);
 
 	// iterate on the new axes combination to find reusable zones
-	for (PVCol i(0); i < new_nb_pairs; i++) {
-		axes_pair_t axes_pair = std::make_pair(ac[i], ac[i + 1]);
-		axes_pair_list_t::iterator it = std::find(old_pairs.begin(), old_pairs.end(), axes_pair);
-
-		if (it == old_pairs.end()) {
-			// this zone has to be updated (when _zones will be updated)
-			zoneids.push_back(PVZoneID(i));
-		} else {
+	for (size_t i = 0; i < new_managed_sized; ++i) {
+		PVZoneID zid{ac[i], ac[i + 1]};
+		if (auto it = _zone_indices.find(zid); it != _zone_indices.end()) {
 			// this zone is unchanged, copying it.
-			new_zones[i] = _zones[it - old_pairs.begin()];
+			_new_zones.push_back(_zones[it->second]);
+		} else {
+			// this zone has to be updated (when _zones will be updated)
+			_new_zones.emplace_back(zid, PVZone{});
+			to_be_updated_new_zones.push_back(zid);
+		}
+		_new_zone_indices.emplace(zid, i);
+	}
+
+	// zones that are still owned by ZoneRetainer are copied too
+	for (auto& old_zone : _zones) {
+		if (_zones_ref_count.count(old_zone.first) > 0 &&
+		    not _new_zone_indices.count(old_zone.first)) {
+			_new_zone_indices.emplace(old_zone.first, _new_zones.size() - 1);
+			_new_zones.push_back(old_zone);
 		}
 	}
 
-	_zones = new_zones;
 	_axes_comb = ac;
+	std::swap(_zones, _new_zones);
+	std::swap(_zone_indices, _new_zone_indices);
 
 	// finally, the new zones are updated
-	for (PVZoneID zone_id : zoneids) {
-		update_zone(zone_id);
+	if (old_total_size == 0) {
+		update_all(false);
+	} else {
+		for (auto& to_be_updated : to_be_updated_new_zones) {
+			update_zone(to_be_updated);
+		}
 	}
+
+	PVLOG_DEBUG("PVParallelView::PVZonesManager::update_from_axes_comb: %d zones (%d zones from "
+	            "axes combination)\n",
+	            _zones.size(), _axes_comb.size() - 1);
 }
 
 /******************************************************************************
@@ -174,7 +221,7 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	tbb::task_scheduler_init init(nthreads);
 
-	PVZoomedZoneTree& zztree = _zones[zone_id].zoomed_ztree();
+	PVZoomedZoneTree& zztree = get_zoom_zone_tree(zone_id);
 
 	if (zztree.is_initialized()) {
 		return;
@@ -182,7 +229,7 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 
 	BENCH_START(zztree);
 	PVZoneProcessing zp = get_zone_processing(zone_id);
-	PVZoneTree& ztree = _zones[zone_id].ztree();
+	PVZoneTree& ztree = get_zone(zone_id).ztree();
 	zztree.process(zp, ztree);
 	BENCH_END(zztree, "ZZTREES PROCESS", 1, 1, 1, 1);
 }
@@ -195,34 +242,32 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id,
                                                         const Inendi::PVSelection& sel)
 {
-	assert(zone_id < (PVZoneID)_zones.size());
-	_zones[zone_id].filter_by_sel(sel);
+	get_zone(zone_id).filter_by_sel(sel);
 }
 
 void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id,
                                                                    const Inendi::PVSelection& sel)
 {
-	assert(zone_id < (PVZoneID)_zones.size());
-	_zones[zone_id].filter_by_sel_background(sel);
+	get_zone(zone_id).filter_by_sel_background(sel);
 }
 
 /******************************************************************************
  *
- * PVParallelView::PVZonesManager::list_cols_to_zones
+ * PVParallelView::PVZonesManager::list_cols_to_zones_indices
  *
  *****************************************************************************/
-QSet<PVZoneID>
-PVParallelView::PVZonesManager::list_cols_to_zones(QSet<PVCombCol> const& comb_cols) const
+std::unordered_set<PVZoneID>
+PVParallelView::PVZonesManager::list_cols_to_zones_indices(QSet<PVCombCol> const& comb_cols) const
 {
-	QSet<PVZoneID> ret;
+	std::unordered_set<PVZoneID> ret;
 	for (PVCombCol comb_col : comb_cols) {
 		if (comb_col == 0) {
-			ret << PVZoneID(0);
-		} else if (comb_col == get_number_of_managed_zones()) {
-			ret << PVZoneID(comb_col) - PVZoneID(1);
+			ret.emplace(_axes_comb[comb_col], _axes_comb[comb_col + 1]);
+		} else if (comb_col == PVCombCol(get_number_of_axes_comb_zones())) {
+			ret.emplace(_axes_comb[comb_col - 1], _axes_comb[comb_col]);
 		} else {
-			ret << PVZoneID(comb_col);
-			ret << PVZoneID(comb_col) - PVZoneID(1);
+			ret.emplace(_axes_comb[comb_col], _axes_comb[comb_col + 1]);
+			ret.emplace(_axes_comb[comb_col - 1], _axes_comb[comb_col]);
 		}
 	}
 	return ret;

@@ -460,7 +460,7 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 		++_renderable_zone_number;
 	}
 
-	if (_axis_index < get_zones_manager().get_number_of_managed_zones()) {
+	if (size_t(_axis_index) < get_zones_manager().get_number_of_axes_comb_zones()) {
 		_right_zone = new zone_desc_t;
 		_right_zone->bg_image = common::backend().create_image(image_width, bbits);
 		_right_zone->sel_image = common::backend().create_image(image_width, bbits);

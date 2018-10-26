@@ -115,23 +115,32 @@ PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* 
 	return view;
 }
 
-PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(const PVCombCol axis,
-                                                                              QWidget* parent)
+PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
+    PVCombCol const axis_x, PVCombCol const axis_y, QWidget* parent)
 {
 	PVScatterViewBackend* backend;
+
+	PVZoneID zone_id{lib_view()->get_axes_combination().get_nraw_axis(axis_x),
+	                 lib_view()->get_axes_combination().get_nraw_axis(axis_y)};
 
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(false);
-		    _zones_manager.request_zoomed_zone(PVZoneID(axis));
-		    backend = new PVScatterViewBackend(*lib_view(), _zones_manager, axis, _processor_bg,
-		                                       _processor_sel);
+		    PVZonesManager::ZoneRetainer zretainer = _zones_manager.acquire_zone(zone_id);
+		    _zones_manager.request_zoomed_zone(zone_id);
+		    backend = new PVScatterViewBackend(*lib_view(), _zones_manager, std::move(zretainer),
+		                                       zone_id, _processor_bg, _processor_sel);
 		},
 	    "Initializing scatter view...", parent);
 
-	PVScatterView* view = new PVScatterView(*lib_view(), backend, axis, parent);
+	PVScatterView* view = new PVScatterView(*lib_view(), backend, zone_id, parent);
 
 	_scatter_views.push_back(view);
+
+	// Update preprocessors' number of zones
+	const size_t nzones = get_zones_manager().get_number_of_zones();
+	_processor_sel.reset_number_zones(nzones);
+	_processor_bg.reset_number_zones(nzones);
 
 	return view;
 }
@@ -139,10 +148,14 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(co
 void PVParallelView::PVLibView::request_zoomed_zone_trees(const PVCombCol axis)
 {
 	if (axis > 0) {
-		_zones_manager.request_zoomed_zone(PVZoneID(axis) - PVZoneID(1));
+		_zones_manager.request_zoomed_zone(
+		    PVZoneID{lib_view()->get_axes_combination().get_nraw_axis(PVCombCol(axis - 1)),
+		             lib_view()->get_axes_combination().get_nraw_axis(axis)});
 	}
-	if (axis < _zones_manager.get_number_of_managed_zones()) {
-		_zones_manager.request_zoomed_zone(PVZoneID(axis));
+	if (size_t(axis) < _zones_manager.get_number_of_axes_comb_zones()) {
+		_zones_manager.request_zoomed_zone(
+		    PVZoneID{lib_view()->get_axes_combination().get_nraw_axis(axis),
+		             lib_view()->get_axes_combination().get_nraw_axis(PVCombCol(axis + 1))});
 	}
 }
 
@@ -174,8 +187,8 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 void PVParallelView::PVLibView::selection_updated()
 {
 	// Set zones state as invalid in the according PVZonesProcessor
-	for (PVZoneID z(0); z < get_zones_manager().get_number_of_managed_zones(); z++) {
-		_processor_sel.invalidate_zone_preprocessing(z);
+	for (size_t z(0); z < get_zones_manager().get_number_of_zones(); z++) {
+		_processor_sel.invalidate_zone_preprocessing(get_zones_manager().get_zone_id(z));
 	}
 
 	for (PVFullParallelScene* view : _parallel_scenes) {
@@ -198,9 +211,9 @@ void PVParallelView::PVLibView::selection_updated()
 void PVParallelView::PVLibView::layer_stack_output_layer_updated()
 {
 	// Invalidate all background-related preprocessing
-	for (PVZoneID z(0); z < get_zones_manager().get_number_of_managed_zones(); z++) {
-		_processor_bg.invalidate_zone_preprocessing(z);
-		_processor_sel.invalidate_zone_preprocessing(z);
+	for (size_t z(0); z < get_zones_manager().get_number_of_zones(); z++) {
+		_processor_bg.invalidate_zone_preprocessing(get_zones_manager().get_zone_id(z));
+		_processor_sel.invalidate_zone_preprocessing(get_zones_manager().get_zone_id(z));
 	}
 }
 void PVParallelView::PVLibView::output_layer_updated()
@@ -234,8 +247,8 @@ void PVParallelView::PVLibView::plotting_updated()
 	// Get list of combined columns
 	QSet<PVCombCol> combined_cols;
 	for (PVCol col : cols_updated) {
-		for (PVCombCol comb_col(0); comb_col < _zones_manager.get_number_of_managed_zones();
-		     comb_col++) {
+		for (PVCombCol comb_col(0);
+		     size_t(comb_col) < _zones_manager.get_number_of_axes_comb_zones(); comb_col++) {
 			if (lib_view()->get_axes_combination().get_nraw_axis(comb_col) == col) {
 				combined_cols.insert(comb_col);
 			}
@@ -243,7 +256,8 @@ void PVParallelView::PVLibView::plotting_updated()
 	}
 
 	// Get zones from that list of columns
-	QSet<PVZoneID> zones_to_update = get_zones_manager().list_cols_to_zones(combined_cols);
+	std::unordered_set<PVZoneID> zones_to_update =
+	    get_zones_manager().list_cols_to_zones_indices(combined_cols);
 
 	for (PVFullParallelScene* view : _parallel_scenes) {
 		view->set_enabled(false);
@@ -266,12 +280,11 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	QList<PVScatterView*> concerned_scatter;
 	for (PVScatterView* view : _scatter_views) {
-		for (PVZoneID z : zones_to_update) {
-			if (view->get_zone_index() == z) {
-				view->set_enabled(false);
-				concerned_scatter.push_back(view);
-				break;
-			}
+		PVZoneID zid = view->get_zone_id();
+		if (cols_updated.indexOf(zid.first) != -1 or cols_updated.indexOf(zid.second) != -1) {
+			view->set_enabled(false);
+			concerned_scatter.push_back(view);
+			zones_to_update.insert(zid);
 		}
 	}
 
@@ -300,7 +313,7 @@ void PVParallelView::PVLibView::plotting_updated()
 
 	for (PVScatterView* view : concerned_scatter) {
 		view->set_enabled(true);
-		request_zoomed_zone_trees((PVCombCol)view->get_zone_index());
+		_zones_manager.request_zoomed_zone(view->get_zone_id());
 		view->update_zones();
 		view->update_all_async();
 	}
@@ -335,14 +348,14 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	get_zones_manager().update_from_axes_comb(*lib_view());
 
 	// Update preprocessors' number of zones
-	const PVZoneID nzones = get_zones_manager().get_number_of_managed_zones();
-	_processor_sel.set_number_zones(nzones);
-	_processor_bg.set_number_zones(nzones);
+	const size_t nzones = get_zones_manager().get_number_of_zones();
+	_processor_sel.reset_number_zones(nzones);
+	_processor_bg.reset_number_zones(nzones);
 
 	// Invalidate all zones
-	for (PVZoneID z(0); z < nzones; ++z) {
-		_processor_sel.invalidate_zone_preprocessing(z);
-		_processor_bg.invalidate_zone_preprocessing(z);
+	for (size_t z(0); z < nzones; ++z) {
+		_processor_sel.invalidate_zone_preprocessing(get_zones_manager().get_zone_id(z));
+		_processor_bg.invalidate_zone_preprocessing(get_zones_manager().get_zone_id(z));
 	}
 
 	for (PVFullParallelScene* view : _parallel_scenes) {
@@ -415,7 +428,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	    [&](PVCore::PVProgressBox& /*pbox*/) {
 		    for (PVScatterView* view : _scatter_views) {
 			    view->set_enabled(true);
-			    request_zoomed_zone_trees((PVCombCol)view->get_zone_index());
+			    _zones_manager.request_zoomed_zone(view->get_zone_id());
 			    view->update_all_async();
 		    }
 		},

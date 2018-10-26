@@ -8,6 +8,9 @@
 #ifndef PVPARALLELVIEW_PVZONESMANAGER_H
 #define PVPARALLELVIEW_PVZONESMANAGER_H
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include <QObject>
 
 #include <pvkernel/core/PVAlgorithms.h>
@@ -42,67 +45,119 @@ class PVZonesManager : public QObject
 	PVZonesManager(PVZonesManager const&) = delete;
 
   public:
-	void update_all();
+	class ZoneRetainer
+	{
+		friend class PVZonesManager;
+
+	  private:
+		ZoneRetainer(PVZonesManager& zm, PVZoneID zid) : zone_id(zid), _zm(zm)
+		{
+			_zm._zones_ref_count.insert(zone_id);
+		}
+
+	  public:
+		ZoneRetainer(ZoneRetainer&& o) : zone_id(o.zone_id), _zm(o._zm)
+		{
+			o.zone_id = PVZONEID_INVALID;
+		}
+		~ZoneRetainer()
+		{
+			_zm._zones_ref_count.extract(zone_id);
+			_zm.release_zone(zone_id);
+		}
+
+	  private:
+		PVZoneID zone_id;
+		PVZonesManager& _zm;
+	};
+
+  public:
+	void update_all(bool reinit_zones = true);
 	void reset_axes_comb();
 	void update_from_axes_comb(std::vector<PVCol> const& ac);
 	void update_from_axes_comb(Inendi::PVView const& view);
 	void update_zone(PVZoneID zone);
-	void reverse_zone(PVZoneID zone);
-	void add_zone(PVZoneID zone);
+	[[nodiscard]] auto acquire_zone(PVZoneID zone) -> ZoneRetainer;
+	void release_zone(PVZoneID zone);
 
-	QSet<PVZoneID> list_cols_to_zones(QSet<PVCombCol> const& comb_cols) const;
+	std::unordered_set<PVZoneID> list_cols_to_zones_indices(QSet<PVCombCol> const& comb_cols) const;
 
 	void request_zoomed_zone(PVZoneID zone);
 
   public:
-	PVZoneTree const& get_zone_tree(PVZoneID z) const
-	{
-		assert(z < get_number_of_managed_zones());
-		return _zones[z].ztree();
-	}
+	PVZoneTree const& get_zone_tree(PVZoneID z) const { return get_zone(z).ztree(); }
 
-	PVZoneTree& get_zone_tree(PVZoneID z)
-	{
-		assert(z < get_number_of_managed_zones());
-		return _zones[z].ztree();
-	}
+	PVZoneTree& get_zone_tree(PVZoneID z) { return get_zone(z).ztree(); }
 
 	PVZoomedZoneTree const& get_zoom_zone_tree(PVZoneID z) const
 	{
-		assert(z < get_number_of_managed_zones());
-		return _zones[z].zoomed_ztree();
+		return get_zone(z).zoomed_ztree();
 	}
 
-	PVZoomedZoneTree& get_zoom_zone_tree(PVZoneID z)
-	{
-		assert(z < get_number_of_managed_zones());
-		return _zones[z].zoomed_ztree();
-	}
+	PVZoomedZoneTree& get_zoom_zone_tree(PVZoneID z) { return get_zone(z).zoomed_ztree(); }
 
 	void filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel);
 	void filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel);
 
   public:
-	inline PVZoneID get_number_of_managed_zones() const
+	/* Get the number of managed zones from axes combination. Some zones are independant (e.g. a
+	 * random scatter view) and thus not counted. */
+	[[deprecated]] inline size_t get_number_of_managed_zones() const
 	{
-		return PVZoneID(_view.get_axes_combination().get_combination().size() - 1);
+		return _view.get_axes_combination().get_combination().size() - 1;
 	}
+
+	size_t get_number_of_axes_comb_zones() const
+	{
+		auto sz = _view.get_axes_combination().get_combination().size();
+		return sz >= 2 ? sz - 1 : 0;
+	}
+	size_t get_number_of_zones() const { return _zones.size(); }
+
+	/* Get the index currently associated with the ZoneID. The index is invalidated at any call to
+	 * `update_from_axes_comb`. */
+	// size_t get_zone_index(PVZoneID z) const { return _zone_indices.find(z)->second; }
+	std::unordered_set<size_t> get_zone_indices(PVZoneID z) const
+	{
+		auto pr = _zone_indices.equal_range(z);
+		std::unordered_set<size_t> zi_set;
+		std::for_each(pr.first, pr.second,
+		              [&zi_set](auto zid_zix) { zi_set.insert(zid_zix.second); });
+		return zi_set;
+	}
+	PVZoneID get_zone_id(size_t index) const { return _zones[index].first; }
+	bool has_zone(PVZoneID z) const { return _zone_indices.count(z) > 0; }
 
   public:
 	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
 		const auto& plotted = _view.get_parent<Inendi::PVPlotted>();
-		const auto& ac = _view.get_axes_combination();
 
-		return {_view.get_row_count(), plotted.get_column_pointer(ac.get_nraw_axis(PVCombCol(z))),
-		        plotted.get_column_pointer(ac.get_nraw_axis(PVCombCol(z + 1)))};
+		return {_view.get_row_count(), plotted.get_column_pointer(z.first),
+		        plotted.get_column_pointer(z.second)};
 	}
 
   protected:
 	const Inendi::PVView& _view;
 	// _axes_comb is copied to handle update once the axes_combination have been update in the view.
 	std::vector<PVCol> _axes_comb;
-	std::vector<PVZone> _zones;
+	std::vector<std::pair<PVZoneID, PVZone>> _zones;
+	std::unordered_multimap<PVZoneID, decltype(_zones)::size_type> _zone_indices;
+	// reference counting for non-managed zones, works with ZoneRetainer.
+	std::unordered_multiset<PVZoneID> _zones_ref_count;
+
+  protected:
+	PVZone& get_zone(PVZoneID z)
+	{
+		assert(_zone_indices.count(z) > 0);
+		return _zones[_zone_indices.find(z)->second].second;
+	}
+
+	PVZone const& get_zone(PVZoneID z) const
+	{
+		assert(_zone_indices.count(z) > 0);
+		return _zones[_zone_indices.find(z)->second].second;
+	}
 };
 } // namespace PVParallelView
 

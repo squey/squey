@@ -13,6 +13,7 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBuffers.h>
+#include <pvparallelview/PVZonesManager.h>
 // The order here is important
 #include <pvparallelview/PVZoneRenderingBCI.h>
 #include <pvparallelview/PVRenderingPipelinePreprocessRouter.h>
@@ -86,7 +87,7 @@ class PVRenderingPipeline : boost::noncopyable
 		             input_port_cancel_type& node_cancel_job,
 		             preprocess_func_type const& f,
 		             PVCore::PVHSVColor const* colors,
-		             size_t nzones);
+		             PVZonesManager const& zm);
 
 		/**
 		 * Input where we should push "token ZoneRedering"
@@ -133,7 +134,7 @@ class PVRenderingPipeline : boost::noncopyable
   public:
 	PVZonesProcessor declare_processor(Preprocessor::preprocess_func_type const& f,
 	                                   PVCore::PVHSVColor const* colors,
-	                                   size_t nzones);
+	                                   PVZonesManager const& zm);
 
 	void cancel_all();
 	void wait_for_all();

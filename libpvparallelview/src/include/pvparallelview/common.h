@@ -99,17 +99,45 @@ static const QMargins frame_offsets(3, 2, 3, 2);
 
 //#include <pvkernel/core/PVAllocators.h>
 
-DEFINE_STRONG_TYPEDEF(PVZoneID, int)
-static const PVZoneID PVZONEID_INVALID = PVZoneID();
+struct PVZoneID : std::pair<PVCol, PVCol> {
+	using pair::pair;
+};
+static constexpr PVZoneID PVZONEID_INVALID = PVZoneID(PVCol(-1), PVCol(-1));
+static constexpr size_t PVZONEINDEX_INVALID = size_t(-1);
+
+constexpr bool operator!=(PVZoneID const& lhs, PVZoneID const& rhs)
+{
+	return lhs.first != rhs.first || lhs.second != lhs.second;
+}
+constexpr bool operator==(PVZoneID const& lhs, PVZoneID const& rhs)
+{
+	return not(lhs != rhs);
+}
+
+inline std::ostream& operator<<(std::ostream& os, PVZoneID const& z)
+{
+	return os << z.first << ":" << z.second;
+}
+
+namespace std
+{
+template <>
+struct hash<PVZoneID> {
+	size_t operator()(PVZoneID const& c) const
+	{
+		return (int64_t(c.first) << 32) + int64_t(c.second);
+	}
+};
+}
 
 Q_DECLARE_METATYPE(PVZoneID);
+Q_DECLARE_METATYPE(size_t);
 
 static bool _ __attribute((unused)) = []() {
 	qRegisterMetaType<PVZoneID>("PVZoneID");
+	qRegisterMetaType<size_t>("size_t");
 	return true;
 }();
-
-DEFINE_STRONG_TYPEDEF(PVZoneIDOffset, unsigned int)
 
 static constexpr const int BCI_BUFFERS_COUNT = 10;
 

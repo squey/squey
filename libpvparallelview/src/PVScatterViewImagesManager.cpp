@@ -109,6 +109,13 @@ void PVParallelView::PVScatterViewImagesManager::process_bg(DataProcessParams co
 
 	connect_zr(*zr, "update_img_bg");
 
+	// if (_zr_bg) {
+	// 	_zr_bg->cancel();
+	// }
+	// _zr_bg = zr;
+	// _zp_bg.add_job(zr);
+	// The code below is black magic, so if it breaks, the code above is fine.
+
 	PVZoneRenderingScatter_p old_zr = _zr_bg;
 	_zr_bg = zr;
 	if (old_zr) {
@@ -133,6 +140,13 @@ void PVParallelView::PVScatterViewImagesManager::process_sel(
 		}));
 
 	connect_zr(*zr, "update_img_sel");
+
+	// if (_zr_sel) {
+	// 	_zr_sel->cancel();
+	// }
+	// _zr_sel = zr;
+	// _zp_sel.add_job(zr);
+	// The code below is black magic, so if it breaks, the code above is fine.
 
 	PVZoneRenderingScatter_p old_zr = _zr_sel;
 	_zr_sel = zr;

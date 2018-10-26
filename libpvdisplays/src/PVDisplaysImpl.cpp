@@ -9,6 +9,8 @@
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVClassLibrary.h>
 
+#include <inendi/PVView.h>
+
 #include <pvdisplays/PVDisplaysImpl.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 
@@ -69,8 +71,12 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu,
 {
 	visit_displays_by_if<PVDisplayViewZoneIf>(
 	    [&](PVDisplayViewZoneIf& interface) {
-		    QAction* act = action_bound_to_params(interface, view, axis_comb);
-		    act->setText(interface.axis_menu_name(view, axis_comb));
+		    QAction* act = action_bound_to_params(
+		        interface, view, axis_comb,
+		        view->is_last_axis(axis_comb) ? PVCombCol() : PVCombCol(axis_comb + 1), true);
+		    act->setText(interface.axis_menu_name(view, axis_comb, view->is_last_axis(axis_comb)
+		                                                               ? PVCombCol()
+		                                                               : PVCombCol(axis_comb + 1)));
 		    act->setIcon(interface.toolbar_icon());
 		    connect(act, SIGNAL(triggered()), receiver, slot);
 		    menu.addAction(act);

@@ -57,7 +57,7 @@ class PVScatterViewImagesManager : boost::noncopyable
 	const QImage& get_image_sel() const;
 	const QImage& get_image_all() const;
 
-	PVZoneID get_zone_index() const { return _zid; }
+	PVZoneID get_zone_id() const { return _zid; }
 	PVZonesManager const& get_zones_manager() const { return _zm; }
 
   public:
