@@ -62,43 +62,6 @@ class PVMainWindow : public QMainWindow
 
 	friend class PVStartScreenWidget;
 
-  private:
-	struct PVFormatDetectCtxt {
-		PVFormatDetectCtxt(PVRush::PVInputType::list_inputs const& inputs_,
-		                   QHash<QString, PVRush::PVInputDescription_p>& hash_input_name_,
-		                   PVRush::hash_formats& formats_,
-		                   PVRush::hash_format_creator& format_creator_,
-		                   map_files_types& files_multi_formats_,
-		                   QHash<QString, PVRush::PVInputType::list_inputs>& discovered_,
-		                   QHash<QString, std::pair<QString, QString>>& formats_error_,
-		                   PVRush::list_creators& lcr_,
-		                   PVRush::PVInputType_p in_t_,
-		                   QHash<QString, PVCore::PVMeanValue<float>>& discovered_types_)
-		    : inputs(inputs_)
-		    , hash_input_name(hash_input_name_)
-		    , formats(formats_)
-		    , format_creator(format_creator_)
-		    , files_multi_formats(files_multi_formats_)
-		    , discovered(discovered_)
-		    , formats_error(formats_error_)
-		    , lcr(lcr_)
-		    , in_t(in_t_)
-		    , discovered_types(discovered_types_)
-		{
-		}
-
-		PVRush::PVInputType::list_inputs const& inputs;
-		QHash<QString, PVRush::PVInputDescription_p>& hash_input_name;
-		PVRush::hash_formats& formats;
-		PVRush::hash_format_creator& format_creator;
-		map_files_types& files_multi_formats;
-		QHash<QString, PVRush::PVInputType::list_inputs>& discovered;
-		QHash<QString, std::pair<QString, QString>>& formats_error;
-		PVRush::list_creators& lcr;
-		PVRush::PVInputType_p in_t;
-		QHash<QString, PVCore::PVMeanValue<float>>& discovered_types;
-	};
-
   public:
 	PVMainWindow(QWidget* parent = 0);
 
@@ -217,11 +180,6 @@ class PVMainWindow : public QMainWindow
 	void create_menus();
 	void create_filters_menu_and_actions();
 	void create_actions_import_types(QMenu* menu);
-
-	// AG: that needs to be redesigned. I outlined this code as an automatic outliner would do, so
-	// that
-	// a progress box can cancel this process.
-	void auto_detect_formats(PVFormatDetectCtxt ctxt);
 
   private:
 	bool is_project_untitled() { return _projects_tab_widget->is_current_project_untitled(); }

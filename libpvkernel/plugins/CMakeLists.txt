@@ -15,18 +15,5 @@ add_subdirectory(sources)
 # These are default format files provided to users
 ###############################################################################
 
-SET(NORMALIZE_TEXT_FORMAT_FILES
-normalize-helpers/text/apache.access.format
-normalize-helpers/text/bluecoat.format
-normalize-helpers/text/bind.query.format
-normalize-helpers/text/iis.format
-normalize-helpers/text/iptables.format
-normalize-helpers/text/ssh-login.format
-normalize-helpers/text/squid.format
-normalize-helpers/text/syslog.format
-)
-
-INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-helpers/text)
-
 # install profile files
 INSTALL(DIRECTORY common/pcap/profiles DESTINATION ${PVKERNEL_PLUGIN}/input-types/pcap)

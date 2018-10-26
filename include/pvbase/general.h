@@ -34,9 +34,8 @@ static constexpr const int PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT = 1000000;
 static constexpr const int FORMATBUILDER_EXTRACT_START_DEFAULT = 0;
 static constexpr const int FORMATBUILDER_EXTRACT_END_DEFAULT = 100;
 
-static constexpr const char* INENDI_AUTOMATIC_FORMAT_STR = "[auto detection...]";
-static constexpr const char* INENDI_LOCAL_FORMAT_STR = "[default local format]";
-static constexpr const char* INENDI_BROWSE_FORMAT_STR = "[choose my format...]";
+static constexpr const char* INENDI_LOCAL_FORMAT_STR = "Default local format";
+static constexpr const char* INENDI_BROWSE_FORMAT_STR = "Custom format";
 
 static constexpr const char PVCORE_DIRECTORY_SEP = ';';
 

@@ -39,7 +39,6 @@ class PVSourceCreator : public PVCore::PVRegistrableClass<PVSourceCreator>
 		return type_lib->clone<PVInputType>();
 	}
 	virtual QString name() const = 0;
-	virtual hash_formats get_supported_formats() const = 0;
 
 	// "pre-discovery" is called before processing the source into the TBB filters created
 	// by its PVFormat objects. If this function returns false, this PVSourceCreator is

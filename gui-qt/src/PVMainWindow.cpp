@@ -224,108 +224,6 @@ Inendi::PVRoot const& PVInspector::PVMainWindow::get_root() const
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::auto_detect_formats
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
-{
-	// Go through the inputs
-	for (auto const& input : ctxt.inputs) {
-		QString in_str = input->human_name();
-		ctxt.hash_input_name[in_str] = input;
-
-		// Pre-discovery to have some sources already eliminated and
-		// save the custom formats of the remaining sources
-		PVRush::list_creators pre_discovered_creators;
-		PVRush::hash_formats custom_formats;
-		for (PVRush::PVSourceCreator_p sc : ctxt.lcr) {
-			if (sc->pre_discovery(input)) {
-				pre_discovered_creators.push_back(sc);
-				ctxt.in_t->get_custom_formats(input, custom_formats);
-			}
-		}
-
-		// Load possible formats of the remaining sources
-		PVRush::hash_format_creator dis_format_creator =
-		    PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
-
-		// Add the custom formats
-		for (auto it_cus_f = custom_formats.begin(); it_cus_f != custom_formats.end(); it_cus_f++) {
-			// Save this custom format to the global formats object
-			ctxt.formats.insert(it_cus_f.key(), it_cus_f.value());
-
-			for (auto src_creator : ctxt.lcr) {
-				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), src_creator);
-				dis_format_creator[it_cus_f.key()] = v;
-
-				// Save this format/creator pair to the "format_creator" object
-				ctxt.format_creator[it_cus_f.key()] = v;
-			}
-		}
-
-		// Try every possible format
-		QHash<QString, PVCore::PVMeanValue<float>> file_types;
-		tbb::tick_count dis_start = tbb::tick_count::now();
-
-		QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
-		QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
-		bool input_exception = false;
-		std::string input_exception_str;
-#pragma omp parallel for
-		for (int i = 0; i < dis_format_creator.size(); i++) {
-			// PVRush::pair_format_creator const& pfc = itfc.value();
-			PVRush::pair_format_creator const& pfc = dis_v.at(i);
-			// QString const& str_format = itfc.key();
-			QString const& str_format = dis_formats.at(i);
-			try {
-				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(
-				    pfc, input, &_auto_detect_cancellation);
-
-				if (success_rate > 0) {
-#pragma omp critical
-					{
-						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n",
-						           qPrintable(in_str), qPrintable(str_format), success_rate);
-						file_types[str_format].push(success_rate);
-						ctxt.discovered_types[str_format].push(success_rate);
-					}
-				}
-			} catch (PVRush::PVFormatInvalid& e) {
-#pragma omp critical
-				{
-					ctxt.formats_error[pfc.first.get_full_path()] =
-					    std::pair<QString, QString>(pfc.first.get_format_name(), e.what());
-				}
-				continue;
-			} catch (PVRush::PVInputException& e) {
-#pragma omp critical
-				{
-					input_exception = true;
-					input_exception_str = e.what();
-				}
-			}
-		}
-		tbb::tick_count dis_end = tbb::tick_count::now();
-		PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n",
-		           (dis_end - dis_start).seconds());
-		if (input_exception) {
-			PVLOG_ERROR("PVInput exception: %s\n", input_exception_str.c_str());
-			continue;
-		}
-
-		if (file_types.count() == 1) {
-			// We got the formats that matches this input
-			ctxt.discovered[file_types.keys()[0]].push_back(input);
-		} else {
-			if (file_types.count() > 1) {
-				ctxt.files_multi_formats[in_str] = file_types.keys();
-			}
-		}
-	}
-}
-
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::closeEvent
  *
  *****************************************************************************/
@@ -522,14 +420,9 @@ void PVInspector::PVMainWindow::close_solution_Slot()
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
-	PVRush::hash_format_creator format_creator =
-	    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
+	PVRush::hash_format_creator format_creator;
 
 	PVRush::hash_formats formats, new_formats;
-
-	for (auto itfc = format_creator.begin(); itfc != format_creator.end(); ++itfc) {
-		formats[itfc.key()] = itfc.value().first;
-	}
 
 	// Create the input widget
 	QString choosenFormat;
@@ -580,24 +473,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	bool file_type_found = false;
 
 	try {
-		if (choosenFormat.compare(INENDI_AUTOMATIC_FORMAT_STR) == 0) {
-			set_auto_detect_cancellation(false);
-
-			if (PVCore::PVProgressBox::progress(
-			        [&](PVCore::PVProgressBox& pbox) {
-				        pbox.set_enable_cancel(true);
-				        connect(&pbox, SIGNAL(rejected()), this,
-				                SLOT(set_auto_detect_cancellation()));
-				        auto_detect_formats(PVFormatDetectCtxt(
-				            inputs, hash_input_name, formats, format_creator, files_multi_formats,
-				            discovered, formats_error, lcr, in_t, discovered_types));
-				    },
-			        tr("Auto-detecting file format..."),
-			        this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
-				return;
-			}
-			file_type_found = (discovered.size() > 0) | (files_multi_formats.size() > 0);
-		} else if (choosenFormat.compare(INENDI_LOCAL_FORMAT_STR) == 0) {
+		if (choosenFormat.compare(INENDI_LOCAL_FORMAT_STR) == 0) {
 			PVRush::hash_formats custom_formats;
 			PVRush::list_creators pre_discovered_creators;
 
@@ -627,64 +503,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				file_type_found = true;
 				discovered[custom_formats.keys()[0]] = inputs;
 			}
-		} else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
-			/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
-			 * because this latter does not used QFileDialog's global environment
-			 * like last used current directory.
-			 */
-			QFileDialog* fdialog = new QFileDialog(this);
-
-			fdialog->setOption(QFileDialog::DontUseNativeDialog, true);
-			fdialog->setNameFilter("Formats (*.format)");
-			fdialog->setWindowTitle("Load format from...");
-
-			int ret = fdialog->exec();
-
-			if (ret == QDialog::Accepted) {
-				QString format_path = fdialog->selectedFiles().at(0);
-				QFileInfo fi(format_path);
-				QString format_name = fi.dir().path();
-
-				PVRush::PVFormat format(format_name, format_path);
-				formats[format_name] = format;
-
-				for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
-					PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
-					format_creator[format_name] = v;
-				}
-
-				if (fi.isReadable()) {
-					file_type_found = true;
-					discovered[format_name] = inputs;
-				}
-			}
-
-			delete fdialog;
-
-			if (ret == QDialog::Rejected) {
-				return;
-			}
-		} else {
-			if (choosenFormat != "custom") {
-				QFileInfo fi(choosenFormat);
-				QString format_name = choosenFormat;
-
-				PVRush::PVFormat format(format_name, choosenFormat);
-				formats[format_name] = format;
-
-				for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
-					PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
-					format_creator[format_name] = v;
-				}
-
-				if (fi.isReadable()) {
-					file_type_found = true;
-					discovered[format_name] = inputs;
-				}
-			} else {
-				file_type_found = true;
-				discovered["custom"] = inputs;
-			}
+		} else if (choosenFormat == "custom") {
+			file_type_found = true;
+			discovered["custom"] = inputs;
 		}
 	} catch (const PVRush::PVInvalidFile& e) {
 		QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
@@ -694,32 +515,43 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	treat_invalid_formats(formats_error);
 
 	if (!file_type_found) {
-		QString msg;
-		if (choosenFormat.compare(INENDI_AUTOMATIC_FORMAT_STR) == 0) {
-			msg = "<p>Automatic format detection reported <strong>no valid "
-			      "format</strong>.</p>";
-			msg += "<p>Please note that automatic format detection is only applied "
-			       "on a small subset of the provided sources.</p>";
-			msg += "<p><strong>Trick:</strong> if you know the format of these "
-			       "sources, and if it contains one or more filters that invalidate "
-			       "a lot of elements, you should avoid automatic format detection "
-			       "and select this format by hand in the import sources dialog.</p>";
-		} else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
-			msg = "<p>No valid format file found.</p>";
-			msg += "<p>Check for file permission on the chosen format file.</p>";
-		} else if (choosenFormat.compare(INENDI_LOCAL_FORMAT_STR) == 0) {
-			// must never happens
-			msg = "<p>No valid local format file found.</p>";
-			msg += "<ul>";
-			msg += "<li>the source's directory contains a readable format file named "
-			       "<em>inendi.format</em> (or <em>picviz.format</em> for backward "
-			       "compatibility)</li>";
-			msg += "<li>the source file has a format file whose name is "
-			       "<em>file.ext<strong>.format</strong></em></li>";
-			msg += "</ul>";
+		/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
+		 * because this latter does not used QFileDialog's global environment
+		 * like last used current directory.
+		 */
+
+		QFileDialog* fdialog = new QFileDialog(this);
+
+		fdialog->setOption(QFileDialog::DontUseNativeDialog, true);
+		fdialog->setNameFilter("Formats (*.format)");
+		fdialog->setWindowTitle("Load format from...");
+
+		int ret = fdialog->exec();
+
+		if (ret == QDialog::Accepted) {
+			QString format_path = fdialog->selectedFiles().at(0);
+			QFileInfo fi(format_path);
+			QString format_name = fi.dir().path();
+
+			PVRush::PVFormat format(format_name, format_path);
+			formats[format_name] = format;
+
+			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
+				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
+				format_creator[format_name] = v;
+			}
+
+			if (fi.isReadable()) {
+				file_type_found = true;
+				discovered[format_name] = inputs;
+			}
 		}
-		QMessageBox::warning(this, "Cannot import sources", msg);
-		return;
+
+		delete fdialog;
+
+		if (ret == QDialog::Rejected) {
+			return;
+		}
 	}
 
 	if (discovered_types.size() > 1) {
@@ -900,8 +732,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 
 	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
-	PVRush::hash_format_creator format_creator =
-	    PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
+	PVRush::hash_format_creator format_creator;
 
 	PVRush::hash_formats formats;
 	{
@@ -931,8 +762,6 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 			format_creator["custom:arg"] = v;
 		}
 		format = "custom:arg";
-	} else {
-		format = INENDI_AUTOMATIC_FORMAT_STR;
 	}
 
 	import_type(in_file, files_in, formats, format_creator, format);

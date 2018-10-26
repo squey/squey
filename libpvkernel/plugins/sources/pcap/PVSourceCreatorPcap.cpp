@@ -34,11 +34,6 @@ PVPcapsicum::PVSourceCreatorPcap::create_source_from_input(PVRush::PVInputDescri
 	return src;
 }
 
-PVRush::hash_formats PVPcapsicum::PVSourceCreatorPcap::get_supported_formats() const
-{
-	return PVRush::PVFormat::list_formats_in_dir(name(), name());
-}
-
 QString PVPcapsicum::PVSourceCreatorPcap::supported_type() const
 {
 	return QString("pcap");

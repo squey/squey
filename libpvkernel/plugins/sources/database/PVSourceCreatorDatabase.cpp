@@ -22,11 +22,6 @@ PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p i
 	return src;
 }
 
-PVRush::hash_formats PVRush::PVSourceCreatorDatabase::get_supported_formats() const
-{
-	return PVRush::PVFormat::list_formats_in_dir(name(), name());
-}
-
 QString PVRush::PVSourceCreatorDatabase::supported_type() const
 {
 	return QString("database");

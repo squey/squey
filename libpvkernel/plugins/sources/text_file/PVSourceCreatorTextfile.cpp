@@ -34,11 +34,6 @@ PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p i
 	return src;
 }
 
-PVRush::hash_formats PVRush::PVSourceCreatorTextfile::get_supported_formats() const
-{
-	return PVRush::PVFormat::list_formats_in_dir(name(), name());
-}
-
 QString PVRush::PVSourceCreatorTextfile::supported_type() const
 {
 	return QString("file");
