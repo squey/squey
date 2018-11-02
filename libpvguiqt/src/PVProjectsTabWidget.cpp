@@ -310,6 +310,10 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	    (_stacked_widget->count() <= FIRST_PROJECT_INDEX)) {
 		Q_EMIT active_project(false);
 	} else {
+		const auto& scenes_list = _root->get_children<Inendi::PVScene>();
+		auto it = scenes_list.begin();
+		std::advance(it, index - 1);
+		_root->select_scene(**it);
 		Q_EMIT active_project(true);
 	}
 
