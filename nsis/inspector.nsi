@@ -307,31 +307,29 @@ Function .onInit
 	${EndIf}
 
 	; Check if WSL needs to be enabled
-	ExecDos::exec '$WINDIR\SysNative\cmd.exe /C wslconfig.exe /l'
-	Pop $0
-	${If} $0 == 9009 ; 9009=MSG_DIR_BAD_COMMAND_OR_FILE
-		MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL) needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
-		ok:
-			ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
-			Pop $0
-			${If} $0 != 3010 ; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
-				MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL failed. Aborting."
-				Quit
-			${EndIf}
-			
-			; Automatically setup installer to autostart once after reboot
-			WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "${NAME}" "$EXEPATH"
-			
-			; Ask user for a reboot
-			MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
-			yes:
-				Reboot
-			no:
-				Quit
-		cancel:
+	IfFileExists "$WINDIR\SysNative\wslconfig.exe" skip
+	MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL) needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
+	ok:
+		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
+		Pop $0
+		${If} $0 != 3010 ; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
+			MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL failed. Aborting."
 			Quit
-	${EndIf}
-	
+		${EndIf}
+
+		; Automatically setup installer to autostart once after reboot
+		WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "${NAME}" "$EXEPATH"
+
+		; Ask user for a reboot
+		MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
+		yes:
+			Reboot
+		no:
+			Quit
+	cancel:
+		Quit
+	skip:
+
 FunctionEnd
 
 ;--------------------------------
