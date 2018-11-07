@@ -151,6 +151,16 @@ static const std::unordered_map<std::string, std::string> ws_map_special_fields 
     {"info", "_ws.col.Info"},
 };
 
+/**
+ * Returns the directory where are stored Wireshark profiles
+ */
+std::string get_wireshark_profiles_dir();
+
+/**
+ * Returns all Wireshark profiles paths
+ */
+std::vector<std::string> get_wireshark_profiles_paths();
+
 std::string ws_protocols_dict_path();
 
 /**

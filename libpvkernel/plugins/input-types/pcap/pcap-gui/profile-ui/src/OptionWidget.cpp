@@ -1,8 +1,15 @@
 #include "include/OptionWidget.h"
 #include "ui_OptionWidget.h"
+#include "pcap-gui.h"
+#include <libpvpcap/ws.h>
 
 #include <QStringList>
 #include <QFileDialog>
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 OptionWidget::OptionWidget(rapidjson::Document& json_data, QWidget* parent)
     : QWidget(parent), _ui(new Ui::OptionWidget), _json_data(json_data)
@@ -11,6 +18,13 @@ OptionWidget::OptionWidget(rapidjson::Document& json_data, QWidget* parent)
 
 	_ui->wireshark_filter_group->setVisible(false);
 	_ui->wireshark_rewrite_ptions_group->setVisible(false);
+
+	// Populate wireshark profiles combo box
+	for (const std::string& profile_path : pvpcap::get_wireshark_profiles_paths()) {
+		_ui->ws_profiles_combobox->addItem(
+		    QFileInfo(QString::fromStdString(profile_path)).fileName());
+	}
+	_ui->ws_profiles_combobox->setCurrentText("Default");
 }
 
 OptionWidget::~OptionWidget()
@@ -58,6 +72,16 @@ void OptionWidget::load_option_from_json()
 			QString path_url = QString("<a href=\"file://") + QString::fromStdString(dirname) +
 			                   QString("\">") + QString::fromStdString(dirname) + QString("</a>");
 			_ui->geoip_db_path_label->setText(path_url);
+		}
+		if (options.HasMember("wireshark_profile")) {
+			const std::string& wireshark_profile = options["wireshark_profile"].GetString();
+			_ui->ws_profiles_combobox->setCurrentText(QString::fromStdString(wireshark_profile));
+			if (_ui->ws_profiles_combobox->currentText() !=
+			    QString::fromStdString(wireshark_profile)) {
+				PVPcapsicum::check_wireshark_profile_exists(_json_data);
+			}
+		} else {
+			_ui->ws_profiles_combobox->setCurrentText("Default");
 		}
 	}
 }
@@ -237,6 +261,25 @@ void OptionWidget::on_geoip_db_button_clicked(bool /*checked = false*/)
 			QString path_url = QString("<a href=\"file://") + QString::fromStdString(dirname) +
 			                   QString("\">") + QString::fromStdString(dirname) + QString("</a>");
 			_ui->geoip_db_path_label->setText(path_url);
+		}
+	}
+}
+
+void OptionWidget::on_ws_profiles_combobox_currentTextChanged(const QString& text)
+{
+	if (not _json_data.IsNull()) {
+		if (not _json_data["options"].HasMember("wireshark_profile") and text != "Default") {
+			rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();
+			rapidjson::Value val;
+			val.SetString(text.toStdString().c_str(), text.size(), _json_data.GetAllocator());
+			_json_data["options"].AddMember("wireshark_profile", val, alloc);
+		} else {
+			if (text != "Default") {
+				_json_data["options"]["wireshark_profile"].SetString(
+				    text.toStdString().c_str(), text.size(), _json_data.GetAllocator());
+			} else {
+				_json_data["options"].RemoveMember("wireshark_profile");
+			}
 		}
 	}
 }

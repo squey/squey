@@ -31,6 +31,8 @@ class OptionWidget : public QWidget
 	void on_protocol_check_clicked(bool checked = false);
 	void on_info_check_clicked(bool checked = false);
 
+	void on_ws_profiles_combobox_currentTextChanged(const QString& text);
+
 	// TCP/IP
 	void on_reassemble_stream_checkbox_clicked(bool checked = false);
 	void on_defragment_ip_streams_checkbox_clicked(bool checked = false);

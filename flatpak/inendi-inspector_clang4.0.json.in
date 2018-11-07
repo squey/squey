@@ -23,7 +23,6 @@
     "--socket=wayland",
     "--share=network",
     "--filesystem=host",
-    "--nofilesystem=~/.wireshark",
     "--device=all"
   ],
   "modules": [

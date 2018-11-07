@@ -6,6 +6,7 @@
  */
 
 #include "PVPcapParamsWidget.h"
+#include <libpvpcap/ws.h>
 
 PVPcapsicum::PVPcapParamsWidget::PVPcapParamsWidget(QWidget* parent)
     : QDialog(parent), _selection_widget(new SelectionWidget)
