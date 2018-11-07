@@ -503,7 +503,20 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				file_type_found = true;
 				discovered[custom_formats.keys()[0]] = inputs;
 			}
-		} else if (choosenFormat == "custom") {
+		} else if (choosenFormat != "custom") {
+			QFileInfo fi(choosenFormat);
+			QString format_name = choosenFormat;
+			PVRush::PVFormat format(format_name, choosenFormat);
+			formats[format_name] = format;
+			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
+				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
+				format_creator[format_name] = v;
+			}
+			if (fi.isReadable()) {
+				file_type_found = true;
+				discovered[format_name] = inputs;
+			}
+		} else {
 			file_type_found = true;
 			discovered["custom"] = inputs;
 		}
