@@ -41,6 +41,8 @@
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVNrawDirectoryMessageBox.h>
 #include <pvguiqt/PVLicenseDialog.h>
+#include <pvguiqt/PVAboutBoxDialog.h>
+#include <pvguiqt/PVChangelogMessage.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
@@ -251,6 +253,11 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	PVInspector::PVMainWindow pv_mw;
 	pv_mw.show();
 	splash.finish(&pv_mw);
+
+	// Show changelog if software version has changed
+	{
+		PVGuiQt::PVChangelogMessage changelog_msg(&pv_mw);
+	}
 
 	if (files.size() > 0) {
 		pv_mw.load_files(files, format);

@@ -75,6 +75,27 @@ class PVOpenSourceSoftwareWidget : public QWidget
 	}
 };
 
+class PVChangeLogWidget : public QWidget
+{
+  public:
+	PVChangeLogWidget(QWidget* parent = nullptr) : QWidget(parent)
+	{
+		QTextEdit* changelog_text = new QTextEdit;
+		changelog_text->setReadOnly(true);
+
+		QHBoxLayout* layout = new QHBoxLayout;
+
+		layout->addWidget(changelog_text);
+
+		QFile f("/app/share/inendi/inspector/CHANGELOG");
+		f.open(QFile::ReadOnly | QFile::Text);
+		QTextStream in(&f);
+		changelog_text->setText(in.readAll());
+
+		setLayout(layout);
+	}
+};
+
 PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(parent)
 {
 	setWindowTitle("About INENDI Inspector");
@@ -151,16 +172,25 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	QWidget* tab_software = new QWidget;
 	tab_software->setLayout(software_layout);
 
-	QTabWidget* tab_widget = new QTabWidget();
-	tab_widget->addTab(tab_software, "Software");
-	tab_widget->addTab(new PVOpenSourceSoftwareWidget, "Open source software");
+	_tab_widget = new QTabWidget();
+	_tab_widget->addTab(tab_software, "Software");
+	_changelog_tab = new PVChangeLogWidget;
+	_tab_widget->addTab(_changelog_tab, "Changelog");
+	_tab_widget->addTab(new PVOpenSourceSoftwareWidget, "Open source software");
 
-	main_layout->addWidget(tab_widget, 0, 0);
+	main_layout->addWidget(_tab_widget, 0, 0);
 	main_layout->addWidget(ok, 1, 0);
 
 	setLayout(main_layout);
 
 	connect(ok, &QAbstractButton::clicked, this, &QDialog::accept);
+
+	resize(520, 550);
+}
+
+void PVGuiQt::PVAboutBoxDialog::select_changelog_tab()
+{
+	_tab_widget->setCurrentWidget(_changelog_tab);
 }
 
 void PVGuiQt::__impl::GraphicsView::resizeEvent(QResizeEvent* event)
