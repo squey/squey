@@ -21,8 +21,51 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <pwd.h>
+
 namespace pvpcap
 {
+
+// https://github.com/wireshark/wireshark/blob/29d48ec873e8a17280b9295159f7a946cf5ad558/wsutil/filesystem.c#L1230
+
+std::string get_wireshark_profiles_dir()
+{
+	std::string wireshark_profile_dir;
+
+	struct stat info;
+	const char* homedir;
+	if ((homedir = getenv("HOME")) == NULL) {
+		homedir = getpwuid(getuid())->pw_dir;
+	}
+
+	// Check if "$XDG_CONFIG_HOME/wireshark" exists (but don't use env var in flatpak)
+	wireshark_profile_dir = std::string(homedir) + "/.config/wireshark/profiles";
+	if (stat(wireshark_profile_dir.c_str(), &info) == 0 and S_ISDIR(info.st_mode)) {
+		return wireshark_profile_dir;
+	}
+
+	// Check if "~/.wireshark" exists for backward compatibility
+	wireshark_profile_dir = std::string(homedir) + "/.wireshark/profiles";
+	if (stat(wireshark_profile_dir.c_str(), &info) == 0 and S_ISDIR(info.st_mode)) {
+		return wireshark_profile_dir;
+	}
+
+	return wireshark_profile_dir;
+}
+
+std::vector<std::string> get_wireshark_profiles_paths()
+{
+	const std::string& wireshark_profiles_dir = get_wireshark_profiles_dir();
+	std::vector<std::string> wireshark_profiles;
+	QDir dir(wireshark_profiles_dir.c_str());
+	for (const QString& profile_name :
+	     dir.entryList(QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot, QDir::Name)) {
+		QString profile_path(QString::fromStdString(wireshark_profiles_dir) + QDir::separator() +
+		                     profile_name);
+		wireshark_profiles.emplace_back(profile_path.toStdString());
+	}
+	return wireshark_profiles;
+}
 
 std::string ws_protocols_dict_path()
 {
@@ -571,6 +614,13 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 	opts.emplace_back("-otcp.relative_sequence_numbers:FALSE");
 	opts.emplace_back("-otcp.track_bytes_in_flight:FALSE");
 	opts.emplace_back("-otcp.calculate_timestamps:FALSE");
+
+	// Add wireshark profile if any
+	if (json_data["options"].HasMember("wireshark_profile")) {
+		const std::string& wireshark_profile =
+		    json_data["options"]["wireshark_profile"].GetString();
+		opts.emplace_back("-C" + wireshark_profile);
+	}
 
 	opts.emplace_back("-r-");
 

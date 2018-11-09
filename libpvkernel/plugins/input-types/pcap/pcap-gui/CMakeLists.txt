@@ -34,13 +34,15 @@ SET(PCAP_GUI_MOC_HEADER
     profile-ui/src/include/ProfileWidget.h
     profile-ui/src/include/TreeWidget.h
     profile-ui/src/include/OptionWidget.h
-    
+
     profile-ui/models/include/PcapTreeModel.h
     profile-ui/models/include/PcapTreeSelectionModel.h
     profile-ui/models/include/ProtocolFieldListModel.h
 )
 
 SET(PCAP_GUI_SRC
+	pcap-gui.cpp
+
 	import-ui/src/ProgressWidget.cpp
     import-ui/src/SelectionWidget.cpp
 
@@ -49,7 +51,7 @@ SET(PCAP_GUI_SRC
     profile-ui/src/ProfileWidget.cpp
     profile-ui/src/TreeWidget.cpp
     profile-ui/src/OptionWidget.cpp
-    
+
     profile-ui/models/PcapTreeModel.cpp
     profile-ui/models/PcapTreeSelectionModel.cpp
     profile-ui/models/ProtocolFieldListModel.cpp

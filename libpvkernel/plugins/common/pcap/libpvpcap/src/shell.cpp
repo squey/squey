@@ -9,6 +9,7 @@
  */
 
 #include "../include/libpvpcap/shell.h"
+#include "../include/libpvpcap/ws.h"
 
 #include <atomic>
 #include <numeric>
@@ -20,13 +21,16 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <pwd.h>
 
 #include <pvkernel/core/PVConfig.h>
 #include <QDir>
 
 #include <tbb/pipeline.h>
 
-#include <pvlogger.h>
+#include <string_view>
+
+extern char** environ;
 
 namespace pvpcap
 {
@@ -89,6 +93,21 @@ extract_csv(splitted_files_t files,
 	}
 	cmd_opts[cmd.size()] = nullptr;
 
+	// Override XDG_CONFIG_HOME variable to find wireshark profiles
+	const char* homedir;
+	if ((homedir = getenv("HOME")) == NULL) {
+		homedir = getpwuid(getuid())->pw_dir;
+	}
+	std::basic_string<char*> env_vars(environ);
+	std::string xdg_config_home("XDG_CONFIG_HOME=");
+	auto it = std::find_if(
+	    env_vars.begin(), env_vars.end(), [&xdg_config_home](std::string_view env_var) {
+		    return env_var.substr(0, xdg_config_home.size()).compare(xdg_config_home) == 0;
+		});
+	assert(it != env_vars.end());
+	std::string xdg_config_home_value = get_wireshark_profiles_dir();
+	*it = xdg_config_home_value.data();
+
 	const size_t max_number_of_live_token =
 	    std::min(files.size(), (size_t)std::thread::hardware_concurrency());
 
@@ -136,7 +155,7 @@ extract_csv(splitted_files_t files,
 				                              O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
 				            dup2(fd_out, STDOUT_FILENO);
 				            dup2(fd_in, STDIN_FILENO);
-				            if (execvp(cmd_opts[0], cmd_opts) == -1) {
+				            if (execvpe(cmd_opts[0], cmd_opts, env_vars.data()) == -1) {
 					            _exit(-1);
 				            }
 			            } else {

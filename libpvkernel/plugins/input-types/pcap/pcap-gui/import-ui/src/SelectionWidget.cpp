@@ -1,7 +1,9 @@
 #include "include/SelectionWidget.h"
+#include "pcap-gui.h"
 
 #include <QScreen>
 #include <QGuiApplication>
+#include <QMessageBox>
 
 #include "ui_SelectionWidget.h"
 
@@ -133,6 +135,7 @@ void SelectionWidget::on_process_import_button_clicked()
 
 	// load json data from selected profile
 	pvpcap::load_profile_data(_json_data, profile_path.toStdString());
+	PVPcapsicum::check_wireshark_profile_exists(_json_data);
 
 	QDialog* progess_dialog = new QDialog(this);
 	_progress_widget = new ProgressWidget(_pcap_paths, get_tshark_cmd(), progess_dialog);
