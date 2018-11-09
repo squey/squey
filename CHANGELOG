@@ -1,3 +1,13 @@
+4.5.4 (2018-11-09)
+----------------
+
+* Support of Wireshark profiles in PCAP module (useful to decipher SSL/TLS)
+* Changelog is displayed after application updates
+* Allow manual browsing of format file when not automatically found
+* Fix duplicated columns support in PCAP module
+* Fix invalid values support in statistics views with float/double
+* Fix Data Collection displayed names
+
 4.5.3 (2018-10-24)
 ----------------
 
