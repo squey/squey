@@ -44,6 +44,7 @@ PVInputTypeMenuEntries.cpp
 PVImportSourceToProjectDlg.cpp
 PVStatsListingWidget.cpp
 PVExportSelectionDlg.cpp
+PVChangelogMessage.cpp
 
 # Displays that will be registered to libpvdisplays
 PVDisplaySourceDataTree.cpp
