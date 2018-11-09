@@ -379,7 +379,7 @@ QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 			case JsonTreeItem::CHILDREN_SELECTION_STATE::TOTALY_SELECTED:
 				return Qt::Checked;
 			default:
-				assert(false);
+				return Qt::Unchecked;
 			}
 		}
 	}
