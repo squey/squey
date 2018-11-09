@@ -12,7 +12,7 @@
 #include "../include/libpvpcap/ws.h"
 #include "../include/libpvpcap/exception.h"
 
-#include <iostream>
+#include <unordered_set>
 
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -530,8 +530,14 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 {
 	std::vector<std::string> ts_fields;
 
+	// Removed duplicated fields
+	std::unordered_set<std::string> distinct_fields;
 	visit_fields(json_data, [&](const rapidjson::Value& field) {
-		ts_fields.emplace_back(field["filter_name"].GetString());
+		const std::string& field_name = field["filter_name"].GetString();
+		if (distinct_fields.find(field_name) == distinct_fields.end()) {
+			ts_fields.emplace_back(field_name);
+			distinct_fields.emplace(field_name);
+		}
 	});
 
 	// add wireshark specials fields
