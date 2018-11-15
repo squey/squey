@@ -311,31 +311,41 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 	}
 
 	Inendi::PVView* view = nullptr;
-	PVCombCol zone_idx;
+	PVCombCol zone_index_first;
+	PVCombCol zone_index_second;
+	bool ask_for_box = false;
 	PVDisplays::PVDisplayViewZoneIf& display_if =
-	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewZoneIf>(*act, view,
-	                                                                              zone_idx);
+	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewZoneIf>(
+	        *act, view, zone_index_first, zone_index_second, ask_for_box);
 
 	if (!view) {
 		return;
 	}
 
-	if (zone_idx == PVCombCol()) {
+	if (zone_index_first == PVCombCol() || zone_index_second == PVCombCol() || ask_for_box) {
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(
-		    PVCore::PVZoneIndexType(0));
+		    PVCore::PVZoneIndexType(zone_index_first == PVCombCol() ? 0 : zone_index_first,
+		                            zone_index_second == PVCombCol() ? 0 : zone_index_second));
 		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
 		        PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args,
 		        this)) {
 			return;
 		}
-		zone_idx = (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index();
+		zone_index_first =
+		    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_first();
+		zone_index_second =
+		    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_second();
 	}
 
-	QWidget* w = PVDisplays::get().get_widget(display_if, view, zone_idx);
-	add_view_display(
-	    view, w, [&, view, zone_idx]() { return display_if.widget_title(view, zone_idx); },
-	    display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
+	QWidget* w =
+	    PVDisplays::get().get_widget(display_if, view, zone_index_first, zone_index_second);
+	add_view_display(view, w,
+	                 [&, view, zone_index_first, zone_index_second]() {
+		                 return display_if.widget_title(view, zone_index_first, zone_index_second);
+		             },
+	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
+	                 true);
 }
 
 /******************************************************************************

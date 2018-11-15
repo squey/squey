@@ -51,13 +51,14 @@ bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
                                              PVScatterViewBackend* backend,
-                                             PVCombCol const zone_index,
+                                             PVZoneID const zone_id,
                                              QWidget* parent /*= nullptr*/
                                              )
     : PVZoomableDrawingAreaWithAxes(parent)
     , _view(pvview_sp)
     , _backend(backend)
     , _view_deleted(false)
+    , _zone_id(zone_id)
     , _show_bg(true)
     , _show_labels(false)
 {
@@ -116,7 +117,7 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
 
-	set_scatter_view_zone(PVZoneID(zone_index));
+	set_scatter_view_zone(zone_id);
 
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
@@ -190,7 +191,7 @@ PVParallelView::PVScatterView::~PVScatterView()
 
 PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree() const
 {
-	return get_zones_manager().get_zone_tree(get_zone_index());
+	return get_zones_manager().get_zone_tree(get_zone_id());
 }
 
 /*****************************************************************************
@@ -380,32 +381,22 @@ void PVParallelView::PVScatterView::do_update_all()
 
 bool PVParallelView::PVScatterView::update_zones()
 {
-	PVCombCol new_zone = lib_view().get_axes_combination().get_first_comb_col(_nraw_col);
-	if (new_zone == PVCol()) {
-		// The left axis of the view have been remove, close the scatter view
-		return false;
-	} else if (new_zone == lib_view().get_column_count() - 1) {
-		// It is the right most axes, we can't create a scatter with another axes. Close the scatter
-		// view.
-		return false;
-	}
-	// TODO : We should also close if the right axes is removed.
-
-	set_scatter_view_zone((PVZoneID)new_zone);
+	set_scatter_view_zone(_zone_id);
 
 	return true;
 }
 
 void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
-	_nraw_col = lib_view().get_axes_combination().get_nraw_axis((PVCombCol)zid);
+	_zone_id = zid;
+
 	get_images_manager().set_zone(zid);
 	PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
 	_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
 
 	// TODO: register axis name change through the hive
-	set_x_legend(lib_view().get_axis_name((PVCombCol)zid));
-	set_y_legend(lib_view().get_axis_name(PVCombCol(zid + 1)));
+	set_x_legend(lib_view().get_nraw_axis_name(zid.first));
+	set_y_legend(lib_view().get_nraw_axis_name(zid.second));
 }
 
 /*****************************************************************************

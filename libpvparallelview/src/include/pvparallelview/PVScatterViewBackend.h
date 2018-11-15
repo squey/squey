@@ -10,6 +10,7 @@
 #include <inendi/PVPlottedNrawCache.h>
 
 #include <pvparallelview/PVScatterViewImagesManager.h>
+#include <pvparallelview/PVZonesManager.h>
 
 namespace Inendi
 {
@@ -28,7 +29,8 @@ class PVScatterViewBackend
   public:
 	PVScatterViewBackend(const Inendi::PVView& view,
 	                     const PVZonesManager& zm,
-	                     const PVCombCol zone_index,
+	                     PVZonesManager::ZoneRetainer zone_retainer,
+	                     const PVZoneID zone_id,
 	                     PVZonesProcessor& zp_bg,
 	                     PVZonesProcessor& zp_sel);
 
@@ -38,6 +40,7 @@ class PVScatterViewBackend
 	PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
 
   private:
+	PVZonesManager::ZoneRetainer _zone_retainer;
 	Inendi::PVPlottedNrawCache _x_labels_cache;
 	Inendi::PVPlottedNrawCache _y_labels_cache;
 	PVScatterViewImagesManager _images_manager;

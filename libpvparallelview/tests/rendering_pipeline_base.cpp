@@ -7,9 +7,12 @@
 
 #include <pvkernel/core/PVHSVColor.h>
 
+#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoneRendering.h>
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
+#include <pvparallelview/common.h>
 
 #include <QApplication>
 #include <QDialog>
@@ -19,6 +22,8 @@
 
 #include <iostream>
 #include <chrono>
+
+#include "common.h"
 
 void show_qimage(QString const& title, QImage const& img)
 {
@@ -38,7 +43,7 @@ PVParallelView::PVZoneRenderingBCI_p<10> new_zr(PVParallelView::PVBCIDrawingBack
 {
 	dst_img = backend.create_image(1024, 10);
 	PVParallelView::PVZoneRenderingBCI_p<10> zr(new PVParallelView::PVZoneRenderingBCI<10>(
-	    PVZoneID(0),
+	    PVZoneID(0, 1),
 	    [n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes) {
 		    for (size_t i = 0; i < n; i++) {
 			    codes[i].int_v = 0;
@@ -52,6 +57,9 @@ PVParallelView::PVZoneRenderingBCI_p<10> new_zr(PVParallelView::PVBCIDrawingBack
 	    dst_img, 0, 1024));
 	return zr;
 }
+
+const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
+const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
 int main(int argc, char** argv)
 {
@@ -77,6 +85,11 @@ int main(int argc, char** argv)
 	size_t n = std::atoll(argv[1]);
 #endif
 
+	PVParallelView::common::RAII_backend_init resources;
+	TestEnv env(filename, fileformat);
+	PVParallelView::PVLibView* pv = env.get_lib_view();
+	PVParallelView::PVZonesManager& zm = pv->get_zones_manager();
+
 	PVParallelView::PVBCIDrawingBackendOpenCL& backend =
 	    PVParallelView::PVBCIDrawingBackendOpenCL::get();
 	std::unique_ptr<PVParallelView::PVRenderingPipeline> pipeline(
@@ -96,7 +109,7 @@ int main(int argc, char** argv)
 		    (void)z;
 #endif
 		},
-	    colors, 2);
+	    colors, zm);
 
 #define NJOBS 40
 	std::vector<PVParallelView::PVZoneRenderingBCI_p<10>> zrs;

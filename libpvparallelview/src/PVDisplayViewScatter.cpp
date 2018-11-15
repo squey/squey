@@ -25,11 +25,12 @@ PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
  *****************************************************************************/
 
 QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view,
-                                                         PVCombCol axis_comb,
+                                                         PVCombCol axis_comb_x,
+                                                         PVCombCol axis_comb_y,
                                                          QWidget* parent) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	QWidget* widget = lib_view->create_scatter_view(axis_comb, parent);
+	QWidget* widget = lib_view->create_scatter_view(axis_comb_x, axis_comb_y, parent);
 
 	return widget;
 }
@@ -48,10 +49,11 @@ QIcon PVDisplays::PVDisplayViewScatter::toolbar_icon() const
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewScatter::widget_title(Inendi::PVView* view,
-                                                       PVCombCol axis_comb) const
+                                                       PVCombCol axis_comb_x,
+                                                       PVCombCol axis_comb_y) const
 {
-	return QString("Scatter view on axes '" + view->get_axis_name(axis_comb) + "' and '" +
-	               view->get_axis_name(axis_comb + PVCombCol(1)) + "'");
+	return QString("Scatter view on axes '" + view->get_axis_name(axis_comb_x) + "' and '" +
+	               view->get_axis_name(axis_comb_y) + "'");
 }
 
 /*****************************************************************************
@@ -59,7 +61,8 @@ QString PVDisplays::PVDisplayViewScatter::widget_title(Inendi::PVView* view,
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewScatter::axis_menu_name(Inendi::PVView const* /*view*/,
-                                                         PVCombCol /*axis_comb*/
+                                                         PVCombCol /*axis_comb_x*/,
+                                                         PVCombCol /*axis_comb_y*/
                                                          ) const
 {
 	return QString("New scatter view with axis...");

@@ -59,7 +59,7 @@ class PVZonesProcessor
 	 * @note : Zones to recompute should be invalidate.
 	 * @fixme : Every zone should certainly be invalidate in this case.
 	 */
-	void set_number_zones(const PVZoneID n);
+	void reset_number_zones(const size_t n);
 
 	/**
 	 * Invalidate a zone so that it will be recompute from preprocessing.
@@ -76,7 +76,7 @@ class PVZonesProcessor
 	                                                 Inendi::PVSelection const& sel);
 
 	/**
-	 * Create a ZonesProcessor for backgorund image.
+	 * Create a ZonesProcessor for background image.
 	 */
 	static PVZonesProcessor declare_background_processor_zm_sel(PVRenderingPipeline& pipeline,
 	                                                            PVZonesManager& zm,

@@ -116,23 +116,23 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void helpEvent(QGraphicsSceneHelpEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 
-	inline QPointF map_to_axis(PVZoneID zone_id, QPointF p) const
+	inline QPointF map_to_axis(size_t zone_index, QPointF p) const
 	{
-		return _axes[zone_id]->mapFromScene(p);
+		return _axes[zone_index]->mapFromScene(p);
 	}
-	inline QPointF map_from_axis(PVZoneID zone_id, QPointF p) const
+	inline QPointF map_from_axis(size_t zone_index, QPointF p) const
 	{
-		return _axes[zone_id]->mapToScene(p);
+		return _axes[zone_index]->mapToScene(p);
 	}
-	QRect map_to_axis(PVZoneID zone_id, QRectF rect) const
+	QRect map_to_axis(size_t zone_index, QRectF rect) const
 	{
-		QRect r = _axes[zone_id]->map_from_scene(rect);
+		QRect r = _axes[zone_index]->map_from_scene(rect);
 
 		// top and bottom must be corrected according to the y zoom factor
 		r.setTop(r.top() / _zoom_y);
 		r.setBottom(r.bottom() / _zoom_y);
 
-		const int32_t zone_width = _lines_view.get_zone_width(zone_id);
+		const int32_t zone_width = _lines_view.get_zone_width(zone_index);
 		if (r.width() + r.x() > zone_width) {
 			r.setRight(zone_width - 1);
 		}
@@ -143,17 +143,17 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	bool sliders_moving() const;
 
 	void add_zone_image();
-	void add_axis(PVZoneID const zone_id, int index = -1);
+	void add_axis(size_t const zone_index, int index = -1);
 
 	inline PVBCIDrawingBackend& backend() const { return _lines_view.backend(); }
 
 	size_t qimage_height() const;
 
   private Q_SLOTS:
-	void update_zone_pixmap_bg(PVZoneID zone_id);
-	void update_zone_pixmap_sel(PVZoneID zone_id);
-	void update_zone_pixmap_bgsel(PVZoneID zone_id);
-	void scale_zone_images(PVZoneID zone_id);
+	void update_zone_pixmap_bgsel(size_t zone_index);
+	void update_zone_pixmap_bg(size_t zone_index);
+	void update_zone_pixmap_sel(size_t zone_index);
+	void scale_zone_images(size_t zone_index);
 
 	void update_selection_from_sliders_Slot(PVCombCol col);
 	void scrollbar_pressed_Slot();
@@ -169,8 +169,10 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
   private Q_SLOTS:
 	// Slots called from PVLinesView
-	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zone_id);
-	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zone_id);
+	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zid);
+	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zid);
+	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, size_t zone_index);
+	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, size_t zone_index);
 
 	void render_all_zones_all_imgs();
 

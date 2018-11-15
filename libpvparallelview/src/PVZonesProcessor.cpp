@@ -20,8 +20,7 @@ PVParallelView::PVZonesProcessor::declare_processor_zm_sel(PVRenderingPipeline& 
                                                            Inendi::PVSelection const& sel)
 {
 	return pipeline.declare_processor(
-	    [&](PVZoneID zone_id) { zm.filter_zone_by_sel(zone_id, sel); }, colors,
-	    zm.get_number_of_managed_zones());
+	    [&](PVZoneID zone_id) { zm.filter_zone_by_sel(zone_id, sel); }, colors, zm);
 }
 
 PVParallelView::PVZonesProcessor
@@ -32,8 +31,7 @@ PVParallelView::PVZonesProcessor::declare_background_processor_zm_sel(
     Inendi::PVSelection const& sel)
 {
 	return pipeline.declare_processor(
-	    [&](PVZoneID zone_id) { zm.filter_zone_by_sel_background(zone_id, sel); }, colors,
-	    zm.get_number_of_managed_zones());
+	    [&](PVZoneID zone_id) { zm.filter_zone_by_sel_background(zone_id, sel); }, colors, zm);
 }
 
 /******************************************************************************
@@ -48,10 +46,10 @@ void PVParallelView::PVZonesProcessor::invalidate_zone_preprocessing(const PVZon
 
 /******************************************************************************
  *
- * PVParallelView::PVZonesProcessor::set_number_zones
+ * PVParallelView::PVZonesProcessor::reset_number_zones
  *
  *****************************************************************************/
-void PVParallelView::PVZonesProcessor::set_number_zones(const PVZoneID zone_id)
+void PVParallelView::PVZonesProcessor::reset_number_zones(const size_t n)
 {
-	_preprocess.set_zones_count(zone_id);
+	_preprocess.reset_zones_count(n);
 }

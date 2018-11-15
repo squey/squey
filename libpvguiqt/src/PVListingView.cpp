@@ -429,12 +429,9 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		                                              SLOT(create_view_axis_widget()),
 		                                              (Inendi::PVView*)&lib_view(), comb_col);
 
-		// Do not show view which need the next axis for the last axis.
-		if (!lib_view().is_last_axis(comb_col)) {
-			PVDisplays::get().add_displays_view_zone_menu(_hhead_ctxt_menu, container,
-			                                              SLOT(create_view_zone_widget()),
-			                                              (Inendi::PVView*)&lib_view(), comb_col);
-		}
+		PVDisplays::get().add_displays_view_zone_menu(_hhead_ctxt_menu, container,
+		                                              SLOT(create_view_zone_widget()),
+		                                              (Inendi::PVView*)&lib_view(), comb_col);
 		_hhead_ctxt_menu.addSeparator();
 	}
 	_action_col_unique->setEnabled(not empty_sel);

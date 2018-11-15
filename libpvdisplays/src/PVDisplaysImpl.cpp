@@ -8,11 +8,16 @@
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/widgets/PVFilterableMenu.h>
+
+#include <inendi/PVView.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 
 #include <QMenu>
+#include <QString>
+#include <QAction>
 
 PVDisplays::PVDisplaysImpl* PVDisplays::PVDisplaysImpl::_instance = nullptr;
 
@@ -69,11 +74,38 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu,
 {
 	visit_displays_by_if<PVDisplayViewZoneIf>(
 	    [&](PVDisplayViewZoneIf& interface) {
-		    QAction* act = action_bound_to_params(interface, view, axis_comb);
-		    act->setText(interface.axis_menu_name(view, axis_comb));
-		    act->setIcon(interface.toolbar_icon());
-		    connect(act, SIGNAL(triggered()), receiver, slot);
-		    menu.addAction(act);
+		    const QStringList& axes = view->get_axes_names_list();
+		    const QString& view_menu_title = interface.axis_menu_name(
+		        view, axis_comb,
+		        view->is_last_axis(axis_comb) ? PVCombCol() : PVCombCol(axis_comb + 1));
+		    PVWidgets::PVFilterableMenu* axes_menu =
+		        new PVWidgets::PVFilterableMenu(view_menu_title, &menu);
+		    QList<QAction*> actions;
+		    QAction* next_axis = nullptr;
+
+		    for (PVCombCol i(0); i < view->get_axes_combination().get_axes_count(); i++) {
+			    if (i != axis_comb) {
+				    auto create_action = [&]() {
+					    QAction* act =
+					        action_bound_to_params(interface, view, axis_comb, PVCombCol(i), false);
+					    act->setText(axes[i]);
+					    connect(act, SIGNAL(triggered()), receiver, slot);
+
+					    return act;
+					};
+
+				    actions << create_action();
+
+				    if (i == (axis_comb + 1)) {
+					    next_axis = create_action();
+				    }
+			    }
+		    }
+
+		    axes_menu->addAction(next_axis); // Shortcut for next axis
+		    axes_menu->addSeparator();
+		    axes_menu->addActions(actions);
+		    menu.addMenu(axes_menu);
 
 		},
 	    PVDisplayIf::ShowInCtxtMenu);

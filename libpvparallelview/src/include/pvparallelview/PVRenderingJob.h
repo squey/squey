@@ -42,7 +42,7 @@ class PVRenderingJob : public QObject
 	void zone_finished(PVZoneID z) { Q_EMIT zone_rendered(z); }
 
   Q_SIGNALS:
-	void zone_rendered(int z);
+	void zone_rendered(PVZoneID z);
 
   protected:
 	tbb::atomic<bool> _should_cancel;

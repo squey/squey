@@ -21,8 +21,8 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 {
   public:
 	struct barycenter {
-		PVZoneID zone_id1;
-		PVZoneID zone_id2;
+		size_t zone_index1;
+		size_t zone_index2;
 		double factor1;
 		double factor2;
 
@@ -30,8 +30,8 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
 
 		void clear()
 		{
-			zone_id1 = PVZONEID_INVALID;
-			zone_id2 = PVZONEID_INVALID;
+			zone_index1 = PVZONEINDEX_INVALID;
+			zone_index2 = PVZONEINDEX_INVALID;
 			factor1 = 0.0;
 			factor2 = 0.0;
 		}

@@ -215,10 +215,10 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	{
 		bool ret = false;
 		if (_left_zone) {
-			ret |= (z == _axis_index - 1);
+			ret |= (get_zones_manager().get_zone_indices(z).count(_axis_index - 1) > 0);
 		}
 		if (_right_zone) {
-			ret |= (z == _axis_index);
+			ret |= (get_zones_manager().get_zone_indices(z).count(_axis_index) > 0);
 		}
 		return ret;
 	}
@@ -322,7 +322,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 */
 	inline PVZoneID left_zone_id() const
 	{
-		return (_left_zone) ? PVZoneID(_axis_index - 1) : PVZONEID_INVALID;
+		return (_left_zone) ? _zm.get_zone_id(_axis_index - 1) : PVZONEID_INVALID;
 	}
 
 	/**
@@ -330,7 +330,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 */
 	inline PVZoneID right_zone_id() const
 	{
-		return (_right_zone) ? PVZoneID(_axis_index.value()) : PVZONEID_INVALID;
+		return (_right_zone) ? _zm.get_zone_id(_axis_index) : PVZONEID_INVALID;
 	}
 
 	/**

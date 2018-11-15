@@ -112,52 +112,50 @@ class PVLinesView
 
 	void cancel_and_wait_all_rendering();
 
-	void decrease_base_zoom_level_of_zone(PVZoneID zone_id);
-	void decrease_global_zoom_level();
-
-	inline PVZoneID get_first_visible_zone_index() const { return _first_zone; }
-	inline PVZoneID get_last_visible_zone_index() const
+	inline size_t get_first_visible_zone_index() const { return _first_zone; }
+	inline size_t get_last_visible_zone_index() const
 	{
-		return std::min(_first_zone + get_number_of_visible_zones() - PVZoneID(1),
-		                get_number_of_managed_zones() - PVZoneID(1));
+		return std::min(_first_zone + get_number_of_visible_zones() - 1,
+		                get_number_of_managed_zones() - 1);
 	}
-	uint32_t get_left_border_position_of_zone_in_scene(PVZoneID zone_id) const;
+	uint32_t get_left_border_position_of_zone_in_scene(size_t zone_index) const;
 
-	PVZoneID get_number_of_managed_zones() const;
-	PVZoneID get_number_of_visible_zones() const
-	{
-		return PVZoneID(_list_of_single_zone_images.size());
-	}
+	size_t get_number_of_managed_zones() const;
+	size_t get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
 
 	int32_t get_left_border_of_scene() const
 	{
-		return get_left_border_position_of_zone_in_scene(PVZoneID(0));
+		return get_left_border_position_of_zone_in_scene(0);
 	}
 	int32_t get_right_border_of_scene() const
 	{
-		const PVZoneID last_z(get_number_of_managed_zones() - 1);
+		const size_t last_z = get_number_of_managed_zones() - 1;
 		return get_left_border_position_of_zone_in_scene(last_z) + 2 * PVParallelView::AxisWidth +
 		       get_zone_width(last_z);
 	}
 
-	inline SingleZoneImages& get_single_zone_images(const PVZoneIDOffset zone_offset)
+	inline SingleZoneImages& get_single_zone_images(const size_t zone_offset)
 	{
 		return _list_of_single_zone_images[zone_offset];
 	}
 
-	PVZoneID get_zone_from_scene_pos(int32_t x) const;
-	PVZoneIDOffset get_zone_index_offset(PVZoneID zone_id) const
+	PVZoneID get_zone_from_scene_pos(int32_t abs_pos) const;
+	size_t get_zone_index_from_scene_pos(int32_t abs_pos) const;
+	size_t get_zone_index_offset(size_t zone_index) const
 	{
-		assert(is_zone_drawn(zone_id));
-		return PVZoneIDOffset(zone_id - get_first_visible_zone_index());
+		assert(is_zone_drawn(zone_index));
+		return zone_index - get_first_visible_zone_index();
 	}
 
 	inline const PVZonesManager& get_zones_manager() const { return _zm; }
 	//	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID)
 	//_zones_width.size()); return _zones_width[zone_id]; }
-	uint32_t get_zone_width(PVZoneID zone_id) const;
+	uint32_t get_zone_width(size_t zone_index) const;
 
-	void increase_base_zoom_level_of_zone(PVZoneID zone_id);
+	void decrease_base_zoom_level_of_zone(size_t zone_index);
+	void decrease_global_zoom_level();
+
+	void increase_base_zoom_level_of_zone(size_t zone_index);
 	void increase_global_zoom_level();
 
 	/**
@@ -170,23 +168,23 @@ class PVLinesView
 	 */
 	bool initialize_zones_width(int view_width);
 
-	bool is_zone_drawn(PVZoneID zone_id) const
+	bool is_zone_drawn(size_t zone_index) const
 	{
-		return (zone_id >= get_first_visible_zone_index() &&
-		        zone_id <= get_last_visible_zone_index());
+		return (zone_index >= get_first_visible_zone_index() &&
+		        zone_index <= get_last_visible_zone_index());
 	}
 
-	void render_all_zones_bg_image(int32_t view_x, uint32_t view_width, const float zoom_y);
 	void render_all_zones_images(int32_t view_x, uint32_t view_width, const float zoom_y);
+	void render_all_zones_bg_image(int32_t view_x, uint32_t view_width, const float zoom_y);
 	void render_all_zones_sel_image(int32_t view_x, uint32_t view_width, const float zoom_y);
-	void render_single_zone_bg_image(PVZoneID zone_id, const float zoom_y);
-	void render_single_zone_images(PVZoneID zone_id, const float zoom_y);
-	void render_single_zone_sel_image(PVZoneID zone_id, const float zoom_y);
+	void render_single_zone_images(size_t zone_index, const float zoom_y);
+	void render_single_zone_bg_image(size_t zone_index, const float zoom_y);
+	void render_single_zone_sel_image(size_t zone_index, const float zoom_y);
 
-	void set_nb_drawable_zones(PVZoneID nb_zones);
+	void set_nb_drawable_zones(size_t nb_zones);
 
 	void set_zone_max_width(uint32_t w);
-	bool set_zone_width(PVZoneID zone_id, uint32_t width);
+	bool set_zone_width(size_t zone_index, uint32_t width);
 	// bool set_zone_width_and_render(PVZoneID zone_id, uint32_t width);
 
 	void translate(int32_t view_x, uint32_t view_width, const float zoom_y);
@@ -214,46 +212,46 @@ class PVLinesView
 	inline bool set_all_zones_width(F const& f)
 	{
 		bool has_changed = false;
-		for (PVZoneID zone_id(0); zone_id < (PVZoneID)_zones_width.size(); zone_id++) {
-			has_changed |= set_zone_width(zone_id, f(get_zone_width(zone_id)));
+		for (size_t zone_index = 0; zone_index < _zones_width.size(); ++zone_index) {
+			has_changed |= set_zone_width(zone_index, f(get_zone_width(zone_index)));
 		}
 		return has_changed;
 	}
 
   private:
-	PVZoneID get_image_index_of_zone(PVZoneID zone_id) const;
+	size_t get_image_index_of_zone(size_t zone_id) const;
 
-	void visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> const& fzone);
+	void visit_all_zones_to_render(uint32_t view_width, std::function<void(size_t)> const& fzone);
 
-	PVZoneID set_new_view(int32_t new_view_x, uint32_t view_width)
+	size_t set_new_view(int32_t new_view_x, uint32_t view_width)
 	{
 		// Change view_x
 		_visible_view_x = new_view_x;
 
 		// and set new first zone
-		PVZoneID previous_first_zone = _first_zone;
+		size_t previous_first_zone = _first_zone;
 		_first_zone = update_and_get_first_zone_from_viewport(new_view_x, view_width);
 
 		// Returns the previous first zone index
 		return previous_first_zone;
 	}
 
-	void do_translate(PVZoneID previous_first_zone,
+	void do_translate(size_t previous_first_zone,
 	                  uint32_t view_width,
-	                  std::function<void(PVZoneID)> fzone_draw);
+	                  std::function<void(size_t)> fzone_draw);
 
-	PVZoneID update_and_get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
+	size_t update_and_get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
 
-	void left_rotate_single_zone_images(PVZoneID s);
-	void right_rotate_single_zone_images(PVZoneID s);
+	void left_rotate_single_zone_images(size_t s);
+	void right_rotate_single_zone_images(size_t s);
 
 	void connect_zr(PVZoneRenderingBCIBase* zr, const char* slot);
-	void call_refresh_slots(PVZoneID zone_id);
+	void call_refresh_slots(size_t zone_index);
 
   private:
 	PVBCIDrawingBackend& _backend;
 
-	PVZoneID _first_zone;
+	size_t _first_zone;
 
 	QObject* _img_update_receiver;
 

@@ -29,6 +29,8 @@ QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 # Declare the new library and linkage options
 ################################################
 
+include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
+
 add_library(pvdisplays SHARED ${SRC_FILES} ${MOC_SRC})
 
 set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
@@ -41,3 +43,4 @@ target_link_libraries(pvdisplays ${PVDISPLAYS_LINK_LIBRARIES})
 
 INSTALL(TARGETS pvdisplays LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
                            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+

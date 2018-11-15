@@ -11,6 +11,7 @@
 #include <inendi/PVAxesCombination.h>
 
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVScatterViewBackend.h>
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
@@ -87,7 +88,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
   public:
 	PVScatterView(Inendi::PVView& pvview_sp,
 	              PVScatterViewBackend* backend,
-	              PVCombCol const axis_index,
+	              PVZoneID const zone_id,
 	              QWidget* parent = nullptr);
 	~PVScatterView() override;
 
@@ -99,7 +100,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	inline Inendi::PVView& lib_view() { return _view; }
 	inline Inendi::PVView const& lib_view() const { return _view; }
 
-	PVZoneID get_zone_index() const { return get_images_manager().get_zone_index(); }
+	PVZoneID get_zone_id() const { return get_images_manager().get_zone_id(); }
 
 	bool update_zones();
 
@@ -191,7 +192,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	QRectF _last_image_margined_viewport;
 	QTransform _last_image_mv2s;
 
-	PVCol _nraw_col;
+	PVZoneID _zone_id;
 
 	PVScatterViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget* _help_widget;

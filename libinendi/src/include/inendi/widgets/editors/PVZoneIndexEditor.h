@@ -22,7 +22,7 @@ namespace PVWidgets
 /**
  * \class PVZoneIndexEditor
  */
-class PVZoneIndexEditor : public QComboBox
+class PVZoneIndexEditor : public QWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(
@@ -38,6 +38,8 @@ class PVZoneIndexEditor : public QComboBox
 
   protected:
 	Inendi::PVView const& _view;
+	QComboBox* _first_cb;
+	QComboBox* _second_cb;
 };
 } // namespace PVWidgets
 

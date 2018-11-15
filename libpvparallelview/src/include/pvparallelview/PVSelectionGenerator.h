@@ -37,7 +37,7 @@ void compute_selection_from_parallel_view_rect(int32_t width,
 
 uint32_t compute_selection_from_parallel_view_sliders(
     PVLinesView& lines_view,
-    PVZoneID zone_id,
+    size_t zone_index,
     const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
     Inendi::PVSelection& sel);
 

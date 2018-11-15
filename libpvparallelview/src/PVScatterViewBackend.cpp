@@ -12,15 +12,17 @@
  * PVParallelView::PVScatterViewBackend::PVScatterViewBackend
  *****************************************************************************/
 
-PVParallelView::PVScatterViewBackend::PVScatterViewBackend(const Inendi::PVView& view,
-                                                           const PVZonesManager& zm,
-                                                           const PVCombCol zone_index,
-                                                           PVZonesProcessor& zp_bg,
-                                                           PVZonesProcessor& zp_sel)
-    : _x_labels_cache(view, view.get_axes_combination().get_nraw_axis(zone_index), 100)
-    , _y_labels_cache(
-          view, view.get_axes_combination().get_nraw_axis(PVCombCol(zone_index + 1)), 100)
-    , _images_manager(PVZoneID(zone_index),
+PVParallelView::PVScatterViewBackend::PVScatterViewBackend(
+    const Inendi::PVView& view,
+    const PVZonesManager& zm,
+    PVZonesManager::ZoneRetainer zone_retainer,
+    const PVZoneID zone_id,
+    PVZonesProcessor& zp_bg,
+    PVZonesProcessor& zp_sel)
+    : _zone_retainer(std::move(zone_retainer))
+    , _x_labels_cache(view, zone_id.first, 100)
+    , _y_labels_cache(view, zone_id.second, 100)
+    , _images_manager(zone_id,
                       zp_bg,
                       zp_sel,
                       zm,
