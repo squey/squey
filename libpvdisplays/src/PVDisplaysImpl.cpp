@@ -89,6 +89,7 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu,
 					    QAction* act =
 					        action_bound_to_params(interface, view, axis_comb, PVCombCol(i), false);
 					    act->setText(axes[i]);
+					    act->setIcon(interface.toolbar_icon());
 					    connect(act, SIGNAL(triggered()), receiver, slot);
 
 					    return act;
