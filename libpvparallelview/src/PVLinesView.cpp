@@ -182,7 +182,7 @@ void PVParallelView::PVLinesView::do_translate(size_t previous_first_zone,
 			}
 		}
 
-		for (size_t zone_index = last_z - 1; zone_index >= first_z_to_render; --zone_index) {
+		for (size_t zone_index = first_z_to_render; zone_index < last_z; ++zone_index) {
 			fzone_draw(zone_index);
 		}
 	}
@@ -232,15 +232,16 @@ PVParallelView::PVLinesView::update_and_get_first_zone_from_viewport(int32_t vie
 	}
 
 	// 'counter_of_visible_zones_to_draw' can now be considered as "secure" zones.
-	size_t ret;
+	int64_t ret;
 	if ((counter_of_visible_zones_to_draw & 1) == 0) {
 		ret = zone_index_of_first_visible_zone - (counter_of_visible_zones_to_draw / 2);
 	} else {
 		ret = zone_index_of_first_visible_zone - (counter_of_visible_zones_to_draw / 2) - 1;
 	}
 
-	ret = PVCore::clamp(ret, size_t(0),
-	                    std::max(size_t(0), total_number_of_zones - get_number_of_visible_zones()));
+	ret = PVCore::clamp(ret, int64_t(0),
+	                    static_cast<int64_t>(std::max(
+	                        size_t(0), total_number_of_zones - get_number_of_visible_zones())));
 
 	return ret;
 }
