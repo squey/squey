@@ -466,7 +466,8 @@ void PVParallelView::PVScatterView::set_enabled(bool en)
 QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
 	if (_show_labels) {
-		return get_elided_text(get_x_labels_cache().get(value));
+		return get_elided_text(get_x_labels_cache().get(
+		    std::numeric_limits<Inendi::PVPlotted::value_type>::max() - value));
 	} else {
 		return {};
 	}

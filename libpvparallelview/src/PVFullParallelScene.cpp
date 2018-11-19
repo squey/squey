@@ -457,7 +457,7 @@ int32_t PVParallelView::PVFullParallelScene::pos_last_axis() const
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
 {
-	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
+	const int32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.render_all_zones_images(view_x, view_width, _zoom_y);
 }
