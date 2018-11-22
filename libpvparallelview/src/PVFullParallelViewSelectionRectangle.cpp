@@ -100,7 +100,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 	const size_t zone_index_end =
 	    get_lines_view().get_zone_index_from_scene_pos(srect.x() + srect.width());
 
-	Inendi::PVSelection sel(lib_view().get_row_count());
+	Inendi::PVSelection sel(scene_parent()->lib_view().get_row_count());
 	sel.select_none();
 
 	for (size_t z = zone_index_start; z <= zone_index_end; z++) {
@@ -116,16 +116,8 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 
 	store();
 
-	PVSelectionGenerator::process_selection(lib_view(), sel, use_selection_modifiers);
-}
-
-/*****************************************************************************
- * PVParallelView::PVFullParallelViewSelectionRectangle::lib_view
- *****************************************************************************/
-
-Inendi::PVView& PVParallelView::PVFullParallelViewSelectionRectangle::lib_view()
-{
-	return scene_parent()->lib_view();
+	PVSelectionGenerator::process_selection(scene_parent()->lib_view(), sel,
+	                                        use_selection_modifiers);
 }
 
 /*****************************************************************************

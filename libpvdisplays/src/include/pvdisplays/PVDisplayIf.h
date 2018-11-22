@@ -217,6 +217,12 @@ class PVDisplayViewAxisIf : public PVDisplayIf,
 	}
 
   protected:
+	virtual bool should_add_to_menu(Inendi::PVView* /*view*/, PVCombCol /*axis_comb*/)
+	{
+		return true;
+	}
+
+  protected:
 	QWidget*
 	get_unique_widget(Inendi::PVView* view, PVCombCol axis_comb, QWidget* parent = nullptr);
 

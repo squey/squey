@@ -55,6 +55,7 @@ PVDisplayViewFullParallel.cpp
 PVDisplayViewZoomedParallel.cpp
 PVDisplayViewHitCount.cpp
 PVDisplayViewScatter.cpp
+PVDisplayViewTimeseries.cpp
 
 # ZoomableDrawingArea & co
 PVZoomableDrawingArea.cpp
@@ -89,6 +90,10 @@ PVScatterViewDataInterface.cpp
 PVScatterViewDataImpl.cpp
 PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
+
+PVSeriesView.cpp
+PVSeriesViewZoomer.cpp
+PVSeriesViewWidget.cpp
 )
 
 set(OPENCL_SRC_FILES

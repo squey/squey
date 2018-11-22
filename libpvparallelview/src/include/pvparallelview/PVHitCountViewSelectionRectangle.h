@@ -44,13 +44,6 @@ class PVHitCountViewSelectionRectangle : public PVParallelView::PVSelectionRecta
 	 */
 	void commit(bool use_selection_modifiers) override;
 
-	/**
-	 * get the Inendi::PVView associated with the hit-count view
-	 *
-	 * @return the associated Inendi::PVView
-	 */
-	Inendi::PVView& lib_view() override;
-
   private:
 	PVHitCountView* _hcv;
 };

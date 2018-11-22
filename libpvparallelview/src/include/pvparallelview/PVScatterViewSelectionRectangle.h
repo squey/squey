@@ -28,8 +28,6 @@ class PVScatterViewSelectionRectangle : public PVSelectionRectangle
   protected:
 	void commit(bool use_selection_modifiers) override;
 
-	Inendi::PVView& lib_view() override;
-
   private:
 	const uint32_t* _y1_plotted;
 	const uint32_t* _y2_plotted;

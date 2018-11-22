@@ -67,7 +67,7 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
 	r.setX(x_min);
 	r.setWidth(x_delta);
 
-	Inendi::PVView& view = lib_view();
+	Inendi::PVView& view = _sv->lib_view();
 
 	Inendi::PVSelection sel(view.get_row_count());
 	sel.select_none();
@@ -89,13 +89,4 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
 	}
 
 	PVSelectionGenerator::process_selection(view, sel, use_selection_modifiers);
-}
-
-/*****************************************************************************
- * PVParallelView::PVScatterViewSelectionRectangle::lib_view
- *****************************************************************************/
-
-Inendi::PVView& PVParallelView::PVScatterViewSelectionRectangle::lib_view()
-{
-	return _sv->lib_view();
 }

@@ -30,7 +30,7 @@ PVParallelView::PVHitCountViewSelectionRectangle::PVHitCountViewSelectionRectang
 void PVParallelView::PVHitCountViewSelectionRectangle::commit(bool use_selection_modifiers)
 {
 	QRectF r = get_rect();
-	Inendi::PVView& view = lib_view();
+	Inendi::PVView& view = _hcv->lib_view();
 
 	unsigned int modifiers = (unsigned int)QApplication::keyboardModifiers();
 	modifiers &= ~Qt::KeypadModifier;
@@ -41,19 +41,10 @@ void PVParallelView::PVHitCountViewSelectionRectangle::commit(bool use_selection
 		use_selectable = false;
 	}
 
-	Inendi::PVSelection sel(lib_view().get_row_count());
+	Inendi::PVSelection sel(view.get_row_count());
 	sel.select_none();
 
 	PVSelectionGenerator::compute_selection_from_hit_count_view_rect(
 	    _hcv->get_hit_graph_manager(), r, _hcv->get_max_count(), sel, use_selectable);
 	PVSelectionGenerator::process_selection(view, sel, use_selection_modifiers);
-}
-
-/*****************************************************************************
- * PVParallelView::PVHitCountViewSelectionRectangle::lib_view
- *****************************************************************************/
-
-Inendi::PVView& PVParallelView::PVHitCountViewSelectionRectangle::lib_view()
-{
-	return _hcv->lib_view();
 }
