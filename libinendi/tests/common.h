@@ -50,7 +50,8 @@ class TestEnv
 	TestEnv(std::vector<std::string> const& log_files,
 	        std::string const& format_file,
 	        size_t dup,
-	        ProcessUntil until = ProcessUntil::Source)
+	        ProcessUntil until = ProcessUntil::Source,
+	        const std::string& nraw_loading_from_disk_dir = "")
 	{
 		// Need this core application to find plugins path.
 		std::string prog_name = "test_inendi";
@@ -60,7 +61,7 @@ class TestEnv
 
 		init_env();
 
-		import(log_files, format_file, dup);
+		import(log_files, format_file, dup, true, nraw_loading_from_disk_dir);
 
 		switch (until) {
 		case ProcessUntil::Source:
@@ -83,8 +84,13 @@ class TestEnv
 	TestEnv(std::string const& log_file,
 	        std::string const& format_file,
 	        size_t dup,
-	        ProcessUntil until = ProcessUntil::Source)
-	    : TestEnv(std::vector<std::string>{log_file}, format_file, dup, until)
+	        ProcessUntil until = ProcessUntil::Source,
+	        const std::string& nraw_loading_from_disk_dir = "")
+	    : TestEnv(std::vector<std::string>{log_file},
+	              format_file,
+	              dup,
+	              until,
+	              nraw_loading_from_disk_dir)
 	{
 	}
 
@@ -183,7 +189,8 @@ class TestEnv
 	Inendi::PVSource& import(std::vector<std::string> const& log_files,
 	                         std::string const& format_file,
 	                         size_t dup,
-	                         bool new_scene = true)
+	                         bool new_scene = true,
+	                         const std::string& nraw_loading_from_disk_dir = "")
 	{
 
 		if (dup != 1 and log_files.size() > 1) {
@@ -231,8 +238,13 @@ class TestEnv
 		Inendi::PVScene* scene =
 		    (new_scene) ? &root.emplace_add_child("scene") : root.get_children().front();
 		Inendi::PVSource& src = scene->emplace_add_child(inputs, sc_file, format);
-		PVRush::PVControllerJob_p job = src.extract(0);
-		src.wait_extract_end(job);
+
+		if (not nraw_loading_from_disk_dir.empty()) {
+			src.get_rushnraw().load_from_disk(nraw_loading_from_disk_dir);
+		} else {
+			PVRush::PVControllerJob_p job = src.extract(0);
+			src.wait_extract_end(job);
+		}
 		return src;
 	}
 
