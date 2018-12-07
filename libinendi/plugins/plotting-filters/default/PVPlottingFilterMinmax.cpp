@@ -70,9 +70,10 @@ void Inendi::PVPlottingFilterMinmax::operator()(pvcop::db::array const& mapped,
 	} else if (mapped.type() == "number_uint32" or mapped.type() == "datetime" or
 	           mapped.type() == "ipv4") {
 		compute_minmax_plotting<uint32_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == "number_uint64" or mapped.type() == "datetime_ms" or
-	           mapped.type() == "datetime_us") {
+	} else if (mapped.type() == "number_uint64" or mapped.type() == "datetime_ms") {
 		compute_minmax_plotting<uint64_t>(mapped, minmax, invalid_selection, dest);
+	} else if (mapped.type() == "datetime_us") {
+		compute_minmax_plotting<boost::posix_time::ptime>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_int64") {
 		compute_minmax_plotting<int64_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_uint128" or mapped.type() == "ipv6") {

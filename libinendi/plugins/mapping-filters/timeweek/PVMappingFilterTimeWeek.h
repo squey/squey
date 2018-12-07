@@ -50,11 +50,10 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 				    60 * (local_tm.tm_min + 60 * (local_tm.tm_hour + 24 * local_tm.tm_wday));
 			}
 		} else if (std::string(f->name()) == "datetime_us") {
-			auto& core_array = array.to_core_array<uint64_t>();
+			auto& core_array = array.to_core_array<boost::posix_time::ptime>();
 #pragma omp parallel for
 			for (size_t row = 0; row < array.size(); row++) {
-				const boost::posix_time::ptime t =
-				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
+				const boost::posix_time::ptime t = core_array[row];
 				dest_array[row] = t.time_of_day().total_seconds() +
 				                  60 * 60 * 24 * t.date().day_of_week().as_number();
 			}
