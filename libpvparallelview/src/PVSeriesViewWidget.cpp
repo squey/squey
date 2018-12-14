@@ -59,23 +59,19 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		timeseries_list_widget->item(i)->setForeground(color); // FIXME
 	}
 
-	// QObject::connect(timeseries_list_widget, &QListWidget::itemSelectionChanged, [plot,
-	// timeseries = std::move(timeseries)]() {
-	// plot->detachItems();
-	// plot->replot();
-
-	// FIXME : should put newly selected timeserie on top
-	// 	for (PVCombCol i(0); i < timeseries.size(); i++) {
-	// 		if (timeseries_list_widget->item(i)->isSelected()) {
-	// 			QwtPlotCurve* curve = new QwtPlotCurve("Curve");
-	// 			curve->setData(
-	// 			    new PVSeriesData(_sampler->averaged_time(),
-	// _sampler->averaged_timeserie(i)));
-	// 			curve->setPen(timeseries_list_widget->item(i)->foreground().color());
-	// 			curve->attach(plot);
-	// 		}
-	// 	}
-	//	});
+	QObject::connect(timeseries_list_widget, &QListWidget::itemSelectionChanged,
+	                 [ plot, timeseries_list_widget, timeseries_size = timeseries.size() ]() {
+		                 // FIXME : should put newly selected timeserie on top
+		                 std::vector<size_t> seriesDrawOrder;
+		                 for (PVCombCol i(0); i < timeseries_size; ++i) {
+			                 if (timeseries_list_widget->item(i)->isSelected()) {
+				                 seriesDrawOrder.push_back(i);
+				                 // timeseries_list_widget->item(i)->foreground().color()
+			                 }
+		                 }
+		                 plot->showSeries(std::move(seriesDrawOrder));
+		                 plot->updateGL();
+		             });
 
 	/*
 	    // Zoom

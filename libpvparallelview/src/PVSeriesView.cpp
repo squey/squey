@@ -56,6 +56,27 @@ void PVSeriesView::setBackgroundColor(QColor const& bgcol)
 	m_backgroundColor = bgcol;
 }
 
+void PVSeriesView::showSeries(std::vector<size_t> seriesDrawOrder)
+{
+	std::swap(m_seriesDrawOrder, seriesDrawOrder);
+
+	makeCurrent();
+
+	GLint max_elemv = 0;
+	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &max_elemv);
+	m_linesPerVboCount =
+	    std::min(static_cast<size_t>(max_elemv / m_verticesCount), m_seriesDrawOrder.size());
+
+	compute_dbo_GL();
+
+	m_vbo.bind();
+	m_vbo.allocate(m_linesPerVboCount * m_verticesCount * sizeof(Vertex));
+	assert(m_vbo.size() > 0);
+	m_vbo.release();
+
+	doneCurrent();
+}
+
 void PVSeriesView::initializeGL()
 {
 	initializeOpenGLFunctions();
@@ -142,23 +163,7 @@ void PVSeriesView::resizeGL(int w, int h)
 
 	m_program->setUniformValue(m_sizeLocation, QVector4D(0, 0, 0, m_verticesCount));
 
-	{
-		m_dbo.bind();
-
-		m_dbo.allocate(m_linesPerVboCount * sizeof(DrawArraysIndirectCommand));
-		assert(m_dbo.size() > 0);
-		DrawArraysIndirectCommand* dbo_bytes =
-		    static_cast<DrawArraysIndirectCommand*>(m_dbo.map(QOpenGLBuffer::WriteOnly));
-		assert(dbo_bytes);
-		std::generate(dbo_bytes, dbo_bytes + m_linesPerVboCount,
-		              [ line = 0, verticesCount = m_verticesCount ]() mutable {
-			              return DrawArraysIndirectCommand{GLuint(verticesCount), 1,
-			                                               GLuint((line++) * verticesCount), 0};
-			          });
-
-		m_dbo.unmap();
-		m_dbo.release();
-	}
+	compute_dbo_GL();
 
 	m_vbo.bind();
 	m_vbo.allocate(m_linesPerVboCount * m_verticesCount * sizeof(Vertex));
@@ -193,21 +198,22 @@ void PVSeriesView::paintGL()
 	int vbo_size = m_vbo.size();
 	size_t line_byte_size = m_verticesCount * sizeof(Vertex);
 
-	for (size_t line = 0; line < m_linesCount;) {
+	for (size_t line = 0; line < m_seriesDrawOrder.size();) {
 		{
 			void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, vbo_size,
 			                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
 			                                       GL_MAP_UNSYNCHRONIZED_BIT);
 
 			assert(vbo_bytes);
-			for (size_t line_end = std::min(line + m_linesPerVboCount, m_linesCount);
+			for (size_t line_end = std::min(line + m_linesPerVboCount, m_seriesDrawOrder.size());
 			     line < line_end; ++line) {
 				// qDebug() << "Line " << line;
 				// for(int i = 0; i < m_verticesCount; ++i){
 				// 	qDebug() << m_rss.averaged_timeserie(line)[i];
 				// }
 				std::memcpy(reinterpret_cast<uint8_t*>(vbo_bytes) + line * line_byte_size,
-				            reinterpret_cast<uint8_t const*>(m_rss.averaged_timeserie(line).data()),
+				            reinterpret_cast<uint8_t const*>(
+				                m_rss.averaged_timeserie(m_seriesDrawOrder[line]).data()),
 				            line_byte_size);
 			}
 			m_vbo.unmap();
@@ -243,6 +249,26 @@ void PVSeriesView::paintGL()
 	qDebug() << "paintGL:" << diff.count();
 
 	// debugAvailableMemory();
+}
+
+void PVSeriesView::compute_dbo_GL()
+{
+	m_dbo.bind();
+
+	auto lines_count = m_seriesDrawOrder.size();
+
+	m_dbo.allocate(lines_count * sizeof(DrawArraysIndirectCommand));
+	assert(m_dbo.size() > 0);
+	DrawArraysIndirectCommand* dbo_bytes =
+	    static_cast<DrawArraysIndirectCommand*>(m_dbo.map(QOpenGLBuffer::WriteOnly));
+	assert(dbo_bytes);
+	std::generate(dbo_bytes, dbo_bytes + lines_count, [ line = 0, this ]() mutable {
+		return DrawArraysIndirectCommand{GLuint(m_verticesCount), 1,
+		                                 GLuint((line++) * m_verticesCount), 0};
+	});
+
+	m_dbo.unmap();
+	m_dbo.release();
 }
 
 } // namespace PVParallelView

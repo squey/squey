@@ -43,13 +43,16 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 
 	void setBackgroundColor(QColor const& bgcol);
 
+	void showSeries(std::vector<size_t> seriesDrawOrder);
+
   protected:
-  public:
 	void initializeGL() override;
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
 	void debugAvailableMemory();
+
+	void compute_dbo_GL();
 
   private:
 	struct Vertex {
@@ -59,6 +62,7 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	};
 
 	Inendi::PVRangeSubSampler& m_rss;
+	std::vector<size_t> m_seriesDrawOrder;
 
 	QOpenGLVertexArrayObject m_vao;
 	QOpenGLBuffer m_vbo;
@@ -76,9 +80,6 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	int m_sizeLocation = 0;
 
 	int m_w = 0, m_h = 0;
-
-  public:
-	QRectF m_vpRect;
 
 	void (*glMultiDrawArraysIndirect)(GLenum mode,
 	                                  const void* indirect,
