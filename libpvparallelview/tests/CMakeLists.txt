@@ -54,6 +54,6 @@ add_inspector_test(Trendering_pipeline_base Trendering_pipeline_base 1000)
 add_bench(rendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)
 
 #GL Timeseries
-QT5_WRAP_CPP(MOC_SRC PVSeriesViewSelectionRectangle.h PVSeriesView.h OPTIONS ${QT5_WRAP_OPTIONS})
-add_inspector_compile_test(Tpview_gl_timeseries LINKS ${LINK_LIBRARIES} Qt5OpenGL Qt5OpenGLExtensions FILES PVSeriesViewSelectionRectangle.cpp PVSeriesView.cpp gl_timeseries.cpp ${MOC_SRC})
-add_inspector_test(Tpview_gl_timeseries Tpview_gl_timeseries)
+QT5_WRAP_CPP(MOC_SRC PVSeriesViewSelectionRectangle.h OPTIONS ${QT5_WRAP_OPTIONS})
+add_inspector_compile_test(Tpview_gl_timeseries LINKS ${LINK_LIBRARIES} Qt5OpenGL Qt5OpenGLExtensions FILES PVSeriesViewSelectionRectangle.cpp gl_timeseries.cpp ${MOC_SRC})
+#add_inspector_test(Tpview_gl_timeseries Tpview_gl_timeseries)

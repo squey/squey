@@ -94,6 +94,7 @@ PVScatterViewParamsWidget.cpp
 PVSeriesView.cpp
 PVSeriesViewZoomer.cpp
 PVSeriesViewWidget.cpp
+PVSeriesViewWidget.cpp
 )
 
 set(OPENCL_SRC_FILES
@@ -124,6 +125,8 @@ include/pvparallelview/PVHitCountView.h
 include/pvparallelview/PVHitCountViewParamsWidget.h
 include/pvparallelview/PVScatterView.h
 include/pvparallelview/PVScatterViewParamsWidget.h
+include/pvparallelview/PVSeriesView.h
+include/pvparallelview/PVSeriesViewWidget.h
 )
 
 ################################################

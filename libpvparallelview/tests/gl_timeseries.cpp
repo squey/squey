@@ -27,7 +27,7 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <QApplication>
 
-#include "PVSeriesView.h"
+#include <pvparallelview/PVSeriesView.h>
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -74,35 +74,13 @@ int main(int argc, char** argv)
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
 	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries);
-	sampler.subsample(0, 200);
+	sampler.subsample();
 
-	PVSeriesView* myView = new PVSeriesView(sampler);
+	PVParallelView::PVSeriesView* myView = new PVParallelView::PVSeriesView(sampler);
 
 	myView->setBackgroundColor(QColor(10, 10, 10, 255));
 
-	// myView->showMaximized();
+	myView->showMaximized();
 
-	QGraphicsScene scene;
-	scene.setBackgroundBrush(Qt::NoBrush);
-	scene.setForegroundBrush(Qt::NoBrush);
-	PVDecoratedSeriesView* dsv = new PVDecoratedSeriesView(&scene);
-	// myView->resize(400,400);
-	// dsv->setStyleSheet("background: transparent; border:none;");
-
-	QGraphicsItem* item = scene.addText("QGraphicsTextItem");
-	item->setFlags(QGraphicsItem::ItemIsMovable);
-
-	// dsv->setRenderHint(QPainter::Antialiasing, false);
-	// dsv->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-	dsv->setCacheMode(QGraphicsView::CacheBackground);
-	dsv->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-	dsv->setViewport(myView);
-
-	dsv->resize(400, 400);
-
-	// dsv->setParent(myView);
-	// myView->showMaximized();
-
-	dsv->show();
 	return a.exec();
 }

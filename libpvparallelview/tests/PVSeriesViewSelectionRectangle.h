@@ -10,7 +10,7 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSelectionRectangle.h>
 
-#include "PVSeriesView.h"
+#include <pvparallelview/PVSeriesView.h>
 
 namespace PVParallelView
 {

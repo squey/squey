@@ -1,9 +1,12 @@
-#include "PVSeriesView.h"
+#include <pvparallelview/PVSeriesView.h>
 
 #include <cassert>
 #include <cstring>
 #include <cmath>
 #include <mutex>
+
+namespace PVParallelView
+{
 
 #define SHADER(x) #x
 #define LOAD_GL_FUNC(x)                                                                            \
@@ -18,7 +21,7 @@ struct DrawArraysIndirectCommand {
 };
 
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
-    : PVOpenGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+    : PVOpenGLWidget(/*QGLFormat(QGL::SampleBuffers),*/ parent)
     , m_rss(rss)
     , m_dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
 {
@@ -129,7 +132,7 @@ void PVSeriesView::resizeGL(int w, int h)
 	// glFrustum(0,0,0,0,0.5,1);
 
 	m_rss.set_sampling_count(w);
-	m_rss.subsample();
+	m_rss.resubsample();
 	m_verticesCount = m_rss.samples_count();
 	m_linesCount = m_rss.timeseries_count();
 
@@ -241,3 +244,5 @@ void PVSeriesView::paintGL()
 
 	// debugAvailableMemory();
 }
+
+} // namespace PVParallelView
