@@ -41,7 +41,7 @@ include(CMakeCompilers.txt)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${inendi-inspector_SOURCE_DIR}/cmake)
 
 # FIXME : This is a Hack waiting for QWebEngine integration
-set(QT_WEBKIT 1)
+set(QT_WEBKIT 0)
 if(${QT_WEBKIT})
 	add_definitions(-DQT_WEBKIT)
 	message(STATUS "Using QtWebKit")

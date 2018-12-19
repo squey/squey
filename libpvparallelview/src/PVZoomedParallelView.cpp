@@ -11,7 +11,7 @@
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
 
-#include <QScrollBar64>
+#include <QScrollBar>
 #include <QPainter>
 
 /*****************************************************************************

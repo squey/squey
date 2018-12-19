@@ -35,7 +35,7 @@
 #include <QButtonGroup>
 #include <QGraphicsScene>
 #include <QPainter>
-#include <QScrollBar64>
+#include <QScrollBar>
 #include <QThread>
 #include <QToolBar>
 #include <QToolButton>
@@ -123,9 +123,9 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 	connect(this, &PVScatterView::zoom_has_changed, this, &PVScatterView::do_zoom_change);
 	connect(this, &PVScatterView::pan_has_changed, this, &PVScatterView::do_pan_change);
-	connect(get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	connect(get_vertical_scrollbar(), &QScrollBar::valueChanged, this,
 	        &PVScatterView::do_pan_change);
-	connect(get_horizontal_scrollbar(), &QScrollBar64::valueChanged, this,
+	connect(get_horizontal_scrollbar(), &QScrollBar::valueChanged, this,
 	        &PVScatterView::do_pan_change);
 
 	_params_widget = new PVScatterViewParamsWidget(this);

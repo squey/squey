@@ -16,6 +16,7 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QMenu>
+#include <QHeaderView>
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVAlgorithms.h>

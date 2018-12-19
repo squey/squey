@@ -5,13 +5,13 @@ Subject: [PATCH 1/6] Fix rectangle intersection issue because of floating
  point overflow
 
 ---
- src/corelib/tools/qrect.cpp | 14 ++++++--------
+ qtbase/src/corelib/tools/qrect.cpp | 14 ++++++--------
  1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/src/corelib/tools/qrect.cpp b/src/corelib/tools/qrect.cpp
+diff --git a/qtbase/src/corelib/tools/qrect.cpp b/qtbase/src/corelib/tools/qrect.cpp
 index 382793f..6f55310 100644
---- a/src/corelib/tools/qrect.cpp
-+++ b/src/corelib/tools/qrect.cpp
+--- a/qtbase/src/corelib/tools/qrect.cpp
++++ b/qtbase/src/corelib/tools/qrect.cpp
 @@ -2281,14 +2281,18 @@ QRectF QRectF::operator&(const QRectF &r) const
  
  bool QRectF::intersects(const QRectF &r) const

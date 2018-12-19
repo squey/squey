@@ -53,7 +53,7 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::increment_zoom_
  * PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::adjust_pan
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::adjust_pan(QScrollBar64* /*xsb*/,
-                                                                            QScrollBar64* /*ysb*/)
+void PVParallelView::PVZoomableDrawingAreaConstraintsHomothetic::adjust_pan(QScrollBar* /*xsb*/,
+                                                                            QScrollBar* /*ysb*/)
 {
 }

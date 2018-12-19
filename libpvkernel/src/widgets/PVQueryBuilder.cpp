@@ -66,7 +66,11 @@ void PVWidgets::PVQueryBuilder::reinit()
 
 	// Trick to wait for the page to be properly loaded
 	QEventLoop loop;
+#ifdef QT_WEBKIT
 	connect(_view, &QWebView::loadFinished, &loop, &QEventLoop::quit);
+#else
+	connect(_view, &QWebEngineView::loadFinished, &loop, &QEventLoop::quit);
+#endif
 	loop.exec();
 
 	if (layout() == nullptr) {

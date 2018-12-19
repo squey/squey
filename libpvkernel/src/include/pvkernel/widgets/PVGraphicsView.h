@@ -18,7 +18,7 @@
 
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 
-class QScrollBar64;
+class QScrollBar;
 
 class QGridLayout;
 class QGraphicsScene;
@@ -41,7 +41,7 @@ class PVViewportEventFilter;
 /**
  * @class PVGraphicsView
  *
- * @brief a widget which mimics QGraphicsView but which uses QScrollbar64.
+ * @brief a widget which mimics QGraphicsView but which uses QScrollBar.
  *
  * This widget reproduces QGraphicsView's behaviours used in INENDI Inspector.
  * So that, the differences are:
@@ -456,14 +456,14 @@ class PVGraphicsView : public QWidget
 	 *
 	 * @return the horizontal scrollbar
 	 */
-	QScrollBar64* get_horizontal_scrollbar() const { return _hbar; }
+	QScrollBar* get_horizontal_scrollbar() const { return _hbar; }
 
 	/**
 	 * get the vertical scrollbar
 	 *
 	 * @return the vertical scrollbar
 	 */
-	QScrollBar64* get_vertical_scrollbar() const { return _vbar; }
+	QScrollBar* get_vertical_scrollbar() const { return _vbar; }
 
 	/**
 	 * Sets the policy for the horizontal scrollbar.
@@ -889,8 +889,8 @@ class PVGraphicsView : public QWidget
 
   private:
 	QGridLayout* _layout;
-	QScrollBar64* _hbar;
-	QScrollBar64* _vbar;
+	QScrollBar* _hbar;
+	QScrollBar* _vbar;
 	QWidget* _viewport;
 
 	QGraphicsScene* _scene;

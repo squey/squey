@@ -23,7 +23,7 @@ class PVZoomableDrawingAreaConstraintsHomothetic : public PVZoomableDrawingAreaC
 
 	bool increment_zoom_value(int /*axes*/, int value, PVAxisZoom& zx, PVAxisZoom& zy) override;
 
-	void adjust_pan(QScrollBar64* xsb, QScrollBar64* ysb) override;
+	void adjust_pan(QScrollBar* xsb, QScrollBar* ysb) override;
 };
 } // namespace PVParallelView
 

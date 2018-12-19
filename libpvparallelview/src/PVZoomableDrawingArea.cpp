@@ -10,7 +10,7 @@
 #include <pvparallelview/PVZoomableDrawingArea.h>
 
 #include <QGraphicsScene>
-#include <QScrollBar64>
+#include <QScrollBar>
 #include <QMouseEvent>
 #include <QWheelEvent>
 

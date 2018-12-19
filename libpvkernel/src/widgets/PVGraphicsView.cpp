@@ -18,7 +18,7 @@
 #include <QGridLayout>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QScrollBar64>
+#include <QScrollBar>
 
 #ifndef QT_NO_OPENGL
 #include <QGLWidget>
@@ -890,8 +890,8 @@ void PVWidgets::PVGraphicsView::init()
 
 	_viewport_event_filter = new __impl::PVViewportEventFilter(this);
 
-	_hbar = new QScrollBar64(Qt::Horizontal);
-	_vbar = new QScrollBar64(Qt::Vertical);
+	_hbar = new QScrollBar(Qt::Horizontal);
+	_vbar = new QScrollBar(Qt::Vertical);
 
 	set_viewport(new QWidget());
 

@@ -38,6 +38,7 @@
 #include <QInputDialog>
 #include <QMenu>
 #include <QPainter>
+#include <QHeaderView>
 
 /******************************************************************************
  * PVGuiQt::__impl::PVAbstractListStatsRangePicker

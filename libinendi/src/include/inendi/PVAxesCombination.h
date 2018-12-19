@@ -12,6 +12,7 @@
 #include <QString>     // for QString
 #include <QStringList> // for QStringList
 
+#include <vector>
 #include <cstddef> // for size_t
 
 namespace PVCore

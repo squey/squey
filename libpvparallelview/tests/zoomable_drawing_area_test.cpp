@@ -8,7 +8,7 @@
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QScrollBar64>
+#include <QScrollBar>
 #include <QScrollBar>
 #include <QPainter>
 #include <QMouseEvent>
@@ -72,7 +72,7 @@ class PVZoomableDrawingAreaInteractorHomothetic
 			QPoint delta = _pan_reference - event->pos();
 			_pan_reference = event->pos();
 
-			QScrollBar64* sb;
+			QScrollBar* sb;
 
 			sb = zda->get_horizontal_scrollbar();
 			sb->setValue(sb->value() + delta.x());
@@ -136,7 +136,7 @@ class PVZoomableDrawingAreaConstraintsHomothetic
 		return true;
 	}
 
-	void adjust_pan(QScrollBar64* /*xsb*/, QScrollBar64* /*ysb*/) override {}
+	void adjust_pan(QScrollBar* /*xsb*/, QScrollBar* /*ysb*/) override {}
 };
 
 /*****************************************************************************
@@ -168,7 +168,7 @@ class PVZoomableDrawingAreaInteractorFree : public PVParallelView::PVZoomableDra
 			QPoint delta = _pan_reference - event->pos();
 			_pan_reference = event->pos();
 
-			QScrollBar64* sb;
+			QScrollBar* sb;
 
 			sb = zda->get_horizontal_scrollbar();
 			sb->setValue(sb->value() + delta.x());
@@ -247,7 +247,7 @@ class PVZoomableDrawingAreaConstraintsFree : public PVParallelView::PVZoomableDr
 		return true;
 	}
 
-	void adjust_pan(QScrollBar64* /*xsb*/, QScrollBar64* /*ysb*/) override {}
+	void adjust_pan(QScrollBar* /*xsb*/, QScrollBar* /*ysb*/) override {}
 };
 
 /*****************************************************************************
@@ -279,7 +279,7 @@ class PVZoomableDrawingAreaInteractorZPV : public PVParallelView::PVZoomableDraw
 			QPoint delta = _pan_reference - event->pos();
 			_pan_reference = event->pos();
 
-			QScrollBar64* sb = zda->get_vertical_scrollbar();
+			QScrollBar* sb = zda->get_vertical_scrollbar();
 			sb->setValue(sb->value() + delta.y());
 			pan_has_changed(zda);
 			event->setAccepted(true);
@@ -342,7 +342,7 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
 		return true;
 	}
 
-	void adjust_pan(QScrollBar64* xsb, QScrollBar64* /*ysb*/) override
+	void adjust_pan(QScrollBar* xsb, QScrollBar* /*ysb*/) override
 	{
 		int64_t mid = ((int64_t)xsb->maximum() + xsb->minimum()) / 2;
 		xsb->setValue(mid);

@@ -4,7 +4,7 @@
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
-  "sdk-extensions": [ "org.freedesktop.Sdk.Extension.gcc7" ],
+  "sdk-extensions": [ "org.freedesktop.Sdk.Extension.gcc7", "org.freedesktop.Sdk.Extension.golang" ],
   "command": "inspector_launcher.sh",
   "rename-desktop-file" : "inendi-inspector.desktop",
   "rename-icon" : "inendi-inspector",
@@ -59,120 +59,6 @@
         {
           "type": "shell",
           "commands": [ "sed -i '641d' CMakeLists.txt", "# Fix serverless build, see https://bugs.mysql.com/bug.php?id=87348" ]
-        }
-      ]
-    },
-    {
-      "name": "qt5-inendi",
-      "config-opts": [
-        "-opensource",
-        "-confirm-license",
-        "-qt-sql-mysql"
-      ],
-      "sources": [
-        {
-          "type": "archive",
-          "url": "http://http.debian.net/debian/pool/main/q/qtbase-opensource-src/qtbase-opensource-src_5.3.2+dfsg.orig.tar.xz",
-          "sha256": "0e68ab39c4b9ef858c9de3167627668d4ecd8c222600feac2f4939e72f9816fe"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/fix_bug_in_internal_comparison_operator.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/fix_imagehandlers_cves.diff"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/fix_sparc_atomics.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/gnukfreebsd.diff"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/hurd_opengl_incldir.diff"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/mips_more_pre-mips32.diff"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/networkconfig_prevent_bad_deref.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/remove_google_adsense.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/remove_icon_from_example.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/revert_upstream_bsymbolic_change.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/debian/xcb_delay_showing_tray_icon_window_until_it_is_embedded.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/inendi/0001-Fix-rectangle-intersection-issue-because-of-floating.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/inendi/0002-Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch"
-        },
-        {
-          "type": "patch",
-          "path": "qt5.3.2_patches/inendi/0003-Add-qint64-based-QScrollBar-class-aka-QScrollBar64.patch"
-        },
-        {
-          "type": "file",
-          "path": "qt5.3.2_patches/inendi/qabstractslider64.h",
-          "dest-filename": "include/QtWidgets/qabstractslider64.h"
-        },
-        {
-          "type": "file",
-          "path": "qt5.3.2_patches/inendi/qscrollbar64.h",
-          "dest-filename": "include/QtWidgets/qscrollbar64.h"
-        },
-        {
-          "type": "file",
-          "path": "qt5.3.2_patches/inendi/QAbstractSlider64",
-          "dest-filename": "include/QtWidgets/QAbstractSlider64"
-        },
-        {
-          "type": "file",
-          "path": "qt5.3.2_patches/inendi/QScrollBar64",
-          "dest-filename": "include/QtWidgets/QScrollBar64"
-        }
-      ]
-    },
-    {
-      "name": "qtwebkit5",
-      "sources": [
-        {
-          "type": "archive",
-          "url": "http://http.debian.net/debian/pool/main/q/qtwebkit-opensource-src/qtwebkit-opensource-src_5.3.2+dfsg.orig.tar.xz",
-          "sha256": "138b39a4fb77c61e30ff28bc07726bd5a7bd54030169c51539854ae2665c7497"
-        },
-        {
-          "type": "file",
-          "path": "webkit-configure",
-          "dest-filename": "configure"
-        },
-        {
-          "type": "patch",
-          "path": "webkit_5.3.2_patches/fix_gcc5_compile.patch"
-        },
-        {
-          "type": "patch",
-          "path": "webkit_5.3.2_patches/glibc_2.43.patch"
         }
       ]
     },
@@ -521,7 +407,7 @@
     },
     {
       "name": "inendi-inspector-doc",
-      "disabled": false,
+      "disabled": true,
       "build-options": {
         "env": {
           "DOCS": "documents/inendi_inspector_reference_manual",
@@ -556,6 +442,92 @@
         {
           "type": "patch",
           "path": "tbb_makefile.patch"
+        }
+      ]
+    },
+    {
+      "name": "qt5",
+      "config-opts": [
+        "-opensource",
+        "-confirm-license",
+        "-sql-mysql",
+        "-sql-sqlite"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://download.qt.io/archive/qt/5.12/5.12.0/single/qt-everywhere-src-5.12.0.tar.xz",
+          "sha256": "356f42d9087718f22f03d13d0c2cdfb308f91dc3cf0c6318bed33f2094cd9d6c"
+        },
+        {
+          "type": "patch",
+          "path": "qt5.12_patches/inendi/0001-Fix-rectangle-intersection-issue-because-of-floating.patch"
+        },
+        {
+          "type": "patch",
+          "path": "qt5.12_patches/inendi/0002-Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch"
+        }
+      ]
+    },
+    {
+      "name": "nspr",
+      "config-opts": [
+        "--disable-debug",
+        "--enable-optimize",
+        "--enable-64bit"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://ftp.mozilla.org/pub/nspr/releases/v4.20/src/nspr-4.20.tar.gz",
+          "sha256": "2c8964913da89ffbaf464d49ce44d79e8804e1794ef9a8c52a7bff7224d1556e"
+        },
+        {
+          "type": "shell",
+          "commands": [ "mv nspr/* ." ]
+        }
+      ]
+    },
+    {
+      "name": "nss",
+      "buildsystem": "simple",
+      "build-commands": [
+          "cd nss && make nss_build_all USE_64=1 BUILD_OPT=1",
+          "./install.sh"
+       ],
+      "sources": [
+        {
+         "type": "archive",
+         "url": "https://ftp.mozilla.org/pub/security/nss/releases/NSS_3_41_RTM/src/nss-3.41-with-nspr-4.20.tar.gz",
+         "sha256": "ded45c065cd0a4508cd9301f16daa2259d56dad205b31406e314573a1f3b7cb9"
+        },
+        {
+          "type": "patch",
+          "path": "nss-standalone.patch"
+        },
+        {
+          "type": "file",
+          "path": "nss-install.sh",
+          "dest-filename": "install.sh"
+        }
+      ]
+    },
+    {
+      "name": "qt5-webengine",
+      "disabled": false,
+      "buildsystem": "simple",
+      "build-commands": [
+          "qmake && make -j $(nproc) ; make -j $(nproc) && make install"
+       ],
+      "sources": [
+       {
+          "type": "archive",
+          "url": "https://download.qt.io/official_releases/qt/5.12/5.12.0/submodules/qtwebengine-everywhere-src-5.12.0.tar.xz",
+          "sha256": "bd581e390a30e0f74d41b0e3334b3cf612dd4af23de36a3bf5931d5b4453687c"
+        },
+        {
+          "type": "patch",
+          "path": "qtwebengine-no-udev.patch"
         }
       ]
     },

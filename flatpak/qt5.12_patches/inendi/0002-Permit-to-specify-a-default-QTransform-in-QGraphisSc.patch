@@ -9,15 +9,15 @@ default QTransform constructor is used instead, breaking the zoom.
 
 We add new methods to set a default transformation to use as default one
 ---
- src/widgets/graphicsview/qgraphicsscene.cpp | 25 ++++++++++++++++++++++++-
- src/widgets/graphicsview/qgraphicsscene.h   |  3 +++
- src/widgets/graphicsview/qgraphicsscene_p.h |  3 +++
+ qtbase/src/widgets/graphicsview/qgraphicsscene.cpp | 25 ++++++++++++++++++++++++-
+ qtbase/src/widgets/graphicsview/qgraphicsscene.h   |  3 +++
+ qtbase/src/widgets/graphicsview/qgraphicsscene_p.h |  3 +++
  3 files changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/src/widgets/graphicsview/qgraphicsscene.cpp b/src/widgets/graphicsview/qgraphicsscene.cpp
+diff --git a/qtbase/src/widgets/graphicsview/qgraphicsscene.cpp b/qtbase/src/widgets/graphicsview/qgraphicsscene.cpp
 index bccdb1f..c3112f6 100644
---- a/src/widgets/graphicsview/qgraphicsscene.cpp
-+++ b/src/widgets/graphicsview/qgraphicsscene.cpp
+--- a/qtbase/src/widgets/graphicsview/qgraphicsscene.cpp
++++ b/qtbase/src/widgets/graphicsview/qgraphicsscene.cpp
 @@ -1117,7 +1117,7 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::itemsAtPosition(const QPoint &scre
      Q_Q(const QGraphicsScene);
      QGraphicsView *view = widget ? qobject_cast<QGraphicsView *>(widget->parentWidget()) : 0;
@@ -57,10 +57,10 @@ index bccdb1f..c3112f6 100644
  /*!
      \since 4.6
  
-diff --git a/src/widgets/graphicsview/qgraphicsscene.h b/src/widgets/graphicsview/qgraphicsscene.h
+diff --git a/qtbase/src/widgets/graphicsview/qgraphicsscene.h b/qtbase/src/widgets/graphicsview/qgraphicsscene.h
 index cde0eda..3f39981 100644
---- a/src/widgets/graphicsview/qgraphicsscene.h
-+++ b/src/widgets/graphicsview/qgraphicsscene.h
+--- a/qtbase/src/widgets/graphicsview/qgraphicsscene.h
++++ b/qtbase/src/widgets/graphicsview/qgraphicsscene.h
 @@ -249,6 +249,9 @@ public:
  
      bool sendEvent(QGraphicsItem *item, QEvent *event);
@@ -71,10 +71,10 @@ index cde0eda..3f39981 100644
  public Q_SLOTS:
      void update(const QRectF &rect = QRectF());
      void invalidate(const QRectF &rect = QRectF(), SceneLayers layers = AllLayers);
-diff --git a/src/widgets/graphicsview/qgraphicsscene_p.h b/src/widgets/graphicsview/qgraphicsscene_p.h
+diff --git a/qtbase/src/widgets/graphicsview/qgraphicsscene_p.h b/qtbase/src/widgets/graphicsview/qgraphicsscene_p.h
 index 9e5bcec..b491b7d 100644
---- a/src/widgets/graphicsview/qgraphicsscene_p.h
-+++ b/src/widgets/graphicsview/qgraphicsscene_p.h
+--- a/qtbase/src/widgets/graphicsview/qgraphicsscene_p.h
++++ b/qtbase/src/widgets/graphicsview/qgraphicsscene_p.h
 @@ -69,6 +69,7 @@
  #include <QtCore/qset.h>
  #include <QtGui/qfont.h>

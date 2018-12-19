@@ -13,7 +13,7 @@
 
 #include <QPaintEvent>
 #include <QApplication>
-#include <QScrollBar64>
+#include <QScrollBar>
 
 /******************************************************************************
  *
@@ -28,8 +28,8 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent)
 	setMinimumHeight(300);
 	setFrameShape(QFrame::NoFrame);
 
-	((QScrollBar64*)verticalScrollBar())->setObjectName("verticalScrollBar_of_PVListingView");
-	((QScrollBar64*)horizontalScrollBar())->setObjectName("horizontalScrollBar_of_PVListingView");
+	((QScrollBar*)verticalScrollBar())->setObjectName("verticalScrollBar_of_PVListingView");
+	((QScrollBar*)horizontalScrollBar())->setObjectName("horizontalScrollBar_of_PVListingView");
 
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
