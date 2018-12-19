@@ -7,6 +7,7 @@
 #include <pvparallelview/PVSeriesViewWidget.h>
 
 #include <pvparallelview/PVSeriesView.h>
+#include <pvparallelview/PVSeriesViewZoomer.h>
 #include <pvkernel/widgets/PVRangeEdit.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <inendi/PVSource.h>
@@ -70,8 +71,11 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 			                 }
 		                 }
 		                 plot->showSeries(std::move(seriesDrawOrder));
-		                 plot->updateGL();
+		                 plot->update();
 		             });
+
+	PVSeriesViewZoomer* zoomer = new PVSeriesViewZoomer(plot, *_sampler);
+	plot->showAllSeries();
 
 	/*
 	    // Zoom
@@ -112,7 +116,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	QHBoxLayout* hlayout = new QHBoxLayout;
 
-	hlayout->addWidget(plot);
+	hlayout->addWidget(zoomer);
 	hlayout->addWidget(timeseries_list_widget);
 
 	layout->addLayout(hlayout);

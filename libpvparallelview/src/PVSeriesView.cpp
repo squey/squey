@@ -21,7 +21,7 @@ struct DrawArraysIndirectCommand {
 };
 
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
-    : PVOpenGLWidget(/*QGLFormat(QGL::SampleBuffers),*/ parent)
+    : PVOpenGLWidget(parent)
     , m_rss(rss)
     , m_dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
 {
@@ -29,12 +29,7 @@ PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
 
 PVSeriesView::~PVSeriesView()
 {
-	makeCurrent();
-	m_program.release();
-	m_dbo.destroy();
-	m_vbo.destroy();
-	m_vao.destroy();
-	doneCurrent();
+	cleanupGL();
 }
 
 void PVSeriesView::debugAvailableMemory()
@@ -56,32 +51,33 @@ void PVSeriesView::setBackgroundColor(QColor const& bgcol)
 	m_backgroundColor = bgcol;
 }
 
+void PVSeriesView::showAllSeries()
+{
+	m_seriesDrawOrder.resize(m_rss.timeseries_count());
+	std::iota(m_seriesDrawOrder.begin(), m_seriesDrawOrder.end(), 0);
+	showSeries(m_seriesDrawOrder);
+}
+
 void PVSeriesView::showSeries(std::vector<size_t> seriesDrawOrder)
 {
 	std::swap(m_seriesDrawOrder, seriesDrawOrder);
 
 	makeCurrent();
 
-	GLint max_elemv = 0;
-	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &max_elemv);
-	m_linesPerVboCount =
-	    std::min(static_cast<size_t>(max_elemv / m_verticesCount), m_seriesDrawOrder.size());
-
 	compute_dbo_GL();
-
-	m_vbo.bind();
-	m_vbo.allocate(m_linesPerVboCount * m_verticesCount * sizeof(Vertex));
-	assert(m_vbo.size() > 0);
-	m_vbo.release();
 
 	doneCurrent();
 }
 
 void PVSeriesView::initializeGL()
 {
+	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &PVSeriesView::cleanupGL);
+
 	initializeOpenGLFunctions();
 	LOAD_GL_FUNC(glMultiDrawArraysIndirect);
 	LOAD_GL_FUNC(glMapBufferRange);
+
+	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_GL_max_elements_vertices);
 
 	qDebug() << "Context:" << QString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
@@ -141,34 +137,52 @@ void main(void) {
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
 	qDebug() << "initialiseGL:" << diff.count();
+
+	resizeGL(m_w, m_h);
+
+	if (m_wasCleanedUp) {
+		m_wasCleanedUp = false;
+		update();
+	}
+}
+
+void PVSeriesView::cleanupGL()
+{
+	if (m_wasCleanedUp) {
+		return;
+	}
+	qDebug() << "cleanupGL";
+	makeCurrent();
+	if (m_program) {
+		m_program->release();
+		m_program.reset();
+	}
+	m_dbo.destroy();
+	m_vbo.destroy();
+	m_vao.destroy();
+	doneCurrent();
+	m_wasCleanedUp = true;
 }
 
 void PVSeriesView::resizeGL(int w, int h)
 {
 	qDebug() << "resizeGL(" << w << ", " << h << ")";
 	m_vao.bind();
-	m_w = w;
-	m_h = h;
-	glViewport(0, 0, w, h);
-	// glFrustum(0,0,0,0,0.5,1);
 
-	m_rss.set_sampling_count(w);
-	m_rss.resubsample();
-	m_verticesCount = m_rss.samples_count();
-	m_linesCount = m_rss.timeseries_count();
+	if (w != m_w or h != m_h) {
+		m_w = w;
+		m_h = h;
+		glViewport(0, 0, w, h);
+		// glFrustum(0,0,0,0,0.5,1);
 
-	GLint max_elemv = 0;
-	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &max_elemv);
-	m_linesPerVboCount = std::min(static_cast<size_t>(max_elemv / m_verticesCount), m_linesCount);
-
-	m_program->setUniformValue(m_sizeLocation, QVector4D(0, 0, 0, m_verticesCount));
+		m_rss.set_sampling_count(w);
+		m_rss.resubsample();
+		m_verticesCount = m_rss.samples_count();
+	}
 
 	compute_dbo_GL();
 
-	m_vbo.bind();
-	m_vbo.allocate(m_linesPerVboCount * m_verticesCount * sizeof(Vertex));
-	assert(m_vbo.size() > 0);
-	m_vbo.release();
+	m_program->setUniformValue(m_sizeLocation, QVector4D(0, 0, 0, m_verticesCount));
 
 	m_vao.release();
 }
@@ -237,11 +251,7 @@ void PVSeriesView::paintGL()
 	}
 
 	m_vbo.release();
-
 	m_dbo.release();
-
-	// m_vbo.release();
-	// m_program->release();
 	m_vao.release();
 
 	auto end = std::chrono::system_clock::now();
@@ -253,9 +263,16 @@ void PVSeriesView::paintGL()
 
 void PVSeriesView::compute_dbo_GL()
 {
-	m_dbo.bind();
-
 	auto lines_count = m_seriesDrawOrder.size();
+
+	if (lines_count <= 0 or m_verticesCount <= 0) {
+		return;
+	}
+
+	m_linesPerVboCount =
+	    std::min(static_cast<size_t>(m_GL_max_elements_vertices / m_verticesCount), lines_count);
+
+	m_dbo.bind();
 
 	m_dbo.allocate(lines_count * sizeof(DrawArraysIndirectCommand));
 	assert(m_dbo.size() > 0);
@@ -269,6 +286,11 @@ void PVSeriesView::compute_dbo_GL()
 
 	m_dbo.unmap();
 	m_dbo.release();
+
+	m_vbo.bind();
+	m_vbo.allocate(m_linesPerVboCount * m_verticesCount * sizeof(Vertex));
+	assert(m_vbo.size() > 0);
+	m_vbo.release();
 }
 
 } // namespace PVParallelView

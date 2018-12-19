@@ -43,10 +43,12 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 
 	void setBackgroundColor(QColor const& bgcol);
 
+	void showAllSeries();
 	void showSeries(std::vector<size_t> seriesDrawOrder);
 
   protected:
 	void initializeGL() override;
+	void cleanupGL();
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
@@ -80,6 +82,10 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	int m_sizeLocation = 0;
 
 	int m_w = 0, m_h = 0;
+
+	bool m_wasCleanedUp = false;
+
+	GLint m_GL_max_elements_vertices = 0;
 
 	void (*glMultiDrawArraysIndirect)(GLenum mode,
 	                                  const void* indirect,
