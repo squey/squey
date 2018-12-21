@@ -45,19 +45,17 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	timeseries_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
 	timeseries_list_widget->setAlternatingRowColors(true);
 
-	for (PVCombCol i(0); i < timeseries.size(); i++) {
-		// QwtPlotCurve* curve = new QwtPlotCurve("Curve");
-		QColor color(rand() % 256, rand() % 256, rand() % 256);
-
-		// curve->setData(
-		//     new PVSeriesData(_sampler->averaged_time(), _sampler->averaged_timeserie(i)));
-		// curve->setPen(color);
-		// curve->attach(plot);
-
-		if (axes_comb.get_axis(i).get_type().left(6) == "number") {
-			timeseries_list_widget->item(i)->setSelected(true);
+	{
+		std::vector<size_t> seriesDrawOrder;
+		for (PVCombCol i(0); i < timeseries.size(); i++) {
+			QColor color(rand() % 256, rand() % 256, rand() % 256);
+			if (axes_comb.get_axis(i).get_type().left(6) == "number") {
+				timeseries_list_widget->item(i)->setSelected(true);
+				seriesDrawOrder.push_back(i);
+			}
+			timeseries_list_widget->item(i)->setForeground(color); // FIXME
 		}
-		timeseries_list_widget->item(i)->setForeground(color); // FIXME
+		plot->showSeries(std::move(seriesDrawOrder));
 	}
 
 	QObject::connect(timeseries_list_widget, &QListWidget::itemSelectionChanged,
@@ -75,25 +73,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		             });
 
 	PVSeriesViewZoomer* zoomer = new PVSeriesViewZoomer(plot, *_sampler);
-	plot->showAllSeries();
-
-	/*
-	    // Zoom
-	    PVPlotZoomer* zoomer = new PVPlotZoomer(*_sampler, plot->canvas());
-	    zoomer->setTrackerMode(QwtPicker::AlwaysOn);
-	    zoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
-	   Qt::ControlModifier);
-	    zoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
-	    zoomer->setRubberBandPen(QColor(Qt::red));
-	    zoomer->setTrackerPen(QColor(Qt::white));
-	*/
-
-	/*
-	    // finally, refresh the plot
-	    plot->enableAxis(0, false);
-	    plot->enableAxis(1, false);
-	    plot->replot();
-	*/
+	zoomer->setZoomRectColor(Qt::red);
 
 	auto minmax_changed_f = [this, plot](const pvcop::db::array& minmax) {
 		_sampler->subsample(minmax);

@@ -11,13 +11,18 @@ namespace PVParallelView
 {
 
 struct PVSeriesViewZoomerRectangleFragment : public QWidget {
-	PVSeriesViewZoomerRectangleFragment(QWidget* parent = nullptr) : QWidget(parent) {}
+	PVSeriesViewZoomerRectangleFragment(QWidget* parent = nullptr)
+	    : QWidget(parent), color(255, 0, 0, 255)
+	{
+	}
 
 	void paintEvent(QPaintEvent*) override
 	{
 		QPainter painter(this);
-		painter.fillRect(rect(), QColor(255, 0, 0, 255));
+		painter.fillRect(rect(), color);
 	}
+
+	QColor color;
 };
 
 PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
@@ -53,7 +58,11 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 	for (auto& fragment : m_fragments) {
 		fragment->hide();
 	}
-	zoomIn(m_zoomRect.normalized());
+	if (event->pos() == m_zoomRect.topLeft()) {
+		zoomOut();
+	} else {
+		zoomIn(m_zoomRect.normalized());
+	}
 }
 
 void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
@@ -162,6 +171,18 @@ void PVSeriesViewZoomer::updateZoom(Zoom const& zoom)
 	qDebug() << "Zoom stack (current:" << m_currentZoomIndex << "):";
 	for (auto& zoom : m_zoomStack) {
 		qDebug() << "\t" << zoom.minX << zoom.maxX << zoom.minY << zoom.maxY;
+	}
+}
+
+QColor PVSeriesViewZoomer::getZoomRectColor() const
+{
+	return static_cast<PVSeriesViewZoomerRectangleFragment*>(m_fragments[0])->color;
+}
+
+void PVSeriesViewZoomer::setZoomRectColor(QColor const& color)
+{
+	for (auto& fragment : m_fragments) {
+		static_cast<PVSeriesViewZoomerRectangleFragment*>(fragment)->color = color;
 	}
 }
 }

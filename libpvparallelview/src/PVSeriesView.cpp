@@ -98,15 +98,27 @@ void main(void) {
     float line = floor(gl_VertexID / size.w);
     lineColor = vec4(fract((line + 1) * 0.7), fract(2 * (line + 1) * 0.7), fract(3 * (line + 1) * 0.7), 1);
     vec4 wvertex = vertex;
-    wvertex.y = wvertex.x / 16384;// ((1 << 14) - 1);
+    wvertex.y = vertex.x / 16384;// ((1 << 14) - 1);
     wvertex.x = mod(gl_VertexID, size.w) / (size.w - 1);
+    int vx = int(vertex.x);
+    if(bool(vx & (1 << 15))) { //if out of range
+    	if(bool(vx & (1 << 14))) { //if overflow
+    		wvertex.y = 1.5;
+    	} else { //else underflow
+    		wvertex.y = -0.5;
+    	}
+    } else if(bool(vx & (1 << 14))) { //else if no value
+    	lineColor = vec4(0.,0.,0.,0.);
+    	wvertex.y = 0.5;
+    }
     gl_Position.xy = vec2(fma(wvertex.x, 2, -1), fma(wvertex.y, 2, -1));
 }));
 	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,
 "#version 450\n" SHADER(
-in vec4 lineColor; out vec4 FragColor;
+in vec4 lineColor;
+out vec4 FragColor;
 void main(void) {
-	FragColor = lineColor;
+	FragColor = lineColor*floor(lineColor.a);
 	// FragColor = vec4(1,1,1,1);
 }));
 	// clang-format on

@@ -39,6 +39,9 @@ class PVSeriesViewZoomer : public QWidget
 	void zoomOut();
 	void resetZoom();
 
+	QColor getZoomRectColor() const;
+	void setZoomRectColor(QColor const& color);
+
   protected:
 	void mousePressEvent(QMouseEvent*) override;
 	void mouseReleaseEvent(QMouseEvent*) override;
