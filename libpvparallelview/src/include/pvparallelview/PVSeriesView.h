@@ -12,6 +12,8 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLFunctions>
 #include <QtGlobal>
+#include <QOpenGLTexture>
+#include <QOpenGLFramebufferObject>
 #if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
 #include <QGLWidget>
 #include <QGLShaderProgram>
@@ -46,15 +48,22 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	void showAllSeries();
 	void showSeries(std::vector<size_t> seriesDrawOrder);
 
+	void onResampled();
+
   protected:
 	void initializeGL() override;
 	void cleanupGL();
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
+	void onAboutToCompose();
+	void onFrameSwapped();
+
 	void debugAvailableMemory();
 
 	void compute_dbo_GL();
+
+	void softPaintGL();
 
   private:
 	struct Vertex {
@@ -70,6 +79,8 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	QOpenGLBuffer m_vbo;
 	QOpenGLBuffer m_dbo;
 	std::unique_ptr<QOpenGLShaderProgram> m_program;
+	std::unique_ptr<QOpenGLFramebufferObject> m_fbo;
+	std::unique_ptr<QOpenGLTexture> m_fbtexture;
 
 	std::optional<QColor> m_backgroundColor;
 
@@ -83,6 +94,8 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 
 	int m_w = 0, m_h = 0;
 
+	bool m_needHardRedraw = true;
+
 	bool m_wasCleanedUp = false;
 
 	GLint m_GL_max_elements_vertices = 0;
@@ -95,6 +108,18 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	                          GLintptr offset,
 	                          GLsizeiptr length,
 	                          GLbitfield access) = nullptr;
+	void (*glBlitFramebuffer)(GLint srcX0,
+	                          GLint srcY0,
+	                          GLint srcX1,
+	                          GLint srcY1,
+	                          GLint dstX0,
+	                          GLint dstY0,
+	                          GLint dstX1,
+	                          GLint dstY1,
+	                          GLbitfield mask,
+	                          GLenum filter) = nullptr;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> startCompositionTimer;
 };
 
 } // namespace PVParallelView

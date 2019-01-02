@@ -4,6 +4,8 @@
 #include <cstring>
 #include <cmath>
 #include <mutex>
+#include <QCoreApplication>
+#include <QPainter>
 
 namespace PVParallelView
 {
@@ -25,6 +27,14 @@ PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
     , m_rss(rss)
     , m_dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
 {
+	// QSurfaceFormat format;
+	// format.setSamples(16);
+	// setFormat(format);
+	QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+	qDebug() << "Qt::AA_DontCreateNativeWidgetSiblings:"
+	         << QCoreApplication::testAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+
+	// setUpdateBehavior(QOpenGLWidget::PartialUpdate);
 }
 
 PVSeriesView::~PVSeriesView()
@@ -67,15 +77,26 @@ void PVSeriesView::showSeries(std::vector<size_t> seriesDrawOrder)
 	compute_dbo_GL();
 
 	doneCurrent();
+
+	m_needHardRedraw = true;
+}
+
+void PVSeriesView::onResampled()
+{
+	m_needHardRedraw = true;
+	update();
 }
 
 void PVSeriesView::initializeGL()
 {
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &PVSeriesView::cleanupGL);
+	// connect(this, &QOpenGLWidget::aboutToCompose, this, &PVSeriesView::onAboutToCompose);
+	// connect(this, &QOpenGLWidget::frameSwapped, this, &PVSeriesView::onFrameSwapped);
 
 	initializeOpenGLFunctions();
 	LOAD_GL_FUNC(glMultiDrawArraysIndirect);
 	LOAD_GL_FUNC(glMapBufferRange);
+	LOAD_GL_FUNC(glBlitFramebuffer);
 
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_GL_max_elements_vertices);
 
@@ -165,10 +186,10 @@ void PVSeriesView::cleanupGL()
 	}
 	qDebug() << "cleanupGL";
 	makeCurrent();
-	if (m_program) {
-		m_program->release();
-		m_program.reset();
-	}
+	m_fbtexture->destroy();
+	m_fbtexture.reset();
+	m_fbo.reset();
+	m_program.reset();
 	m_dbo.destroy();
 	m_vbo.destroy();
 	m_vao.destroy();
@@ -190,6 +211,8 @@ void PVSeriesView::resizeGL(int w, int h)
 		m_rss.set_sampling_count(w);
 		m_rss.resubsample();
 		m_verticesCount = m_rss.samples_count();
+
+		m_fbo = std::make_unique<QOpenGLFramebufferObject>(m_w, m_h);
 	}
 
 	compute_dbo_GL();
@@ -197,10 +220,17 @@ void PVSeriesView::resizeGL(int w, int h)
 	m_program->setUniformValue(m_sizeLocation, QVector4D(0, 0, 0, m_verticesCount));
 
 	m_vao.release();
+
+	m_needHardRedraw = true;
 }
 
 void PVSeriesView::paintGL()
 {
+	if (not m_needHardRedraw) {
+		softPaintGL();
+		return;
+	}
+
 	glViewport(0, 0, m_w, m_h);
 	auto start = std::chrono::system_clock::now();
 
@@ -214,6 +244,7 @@ void PVSeriesView::paintGL()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// glEnable(GL_MULTISAMPLE);
 	// glEnable(GL_LINE_SMOOTH);
 	// glLineWidth(3.f);
 
@@ -270,6 +301,11 @@ void PVSeriesView::paintGL()
 	std::chrono::duration<double> diff = end - start;
 	qDebug() << "paintGL:" << diff.count();
 
+	m_fbtexture = std::make_unique<QOpenGLTexture>(grabFramebuffer().mirrored(),
+	                                               QOpenGLTexture::DontGenerateMipMaps);
+
+	m_needHardRedraw = false;
+
 	// debugAvailableMemory();
 }
 
@@ -303,6 +339,34 @@ void PVSeriesView::compute_dbo_GL()
 	m_vbo.allocate(m_linesPerVboCount * m_verticesCount * sizeof(Vertex));
 	assert(m_vbo.size() > 0);
 	m_vbo.release();
+}
+
+void PVSeriesView::softPaintGL()
+{
+	// glViewport(0, 0, m_w, m_h);
+	// glClear(GL_COLOR_BUFFER_BIT);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo->handle());
+	// glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+	                       m_fbtexture->textureId(), 0);
+	glBlitFramebuffer(0, 0, m_w, m_h, 0, 0, m_w, m_h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	qDebug() << "softPaintGL";
+}
+
+void PVSeriesView::onAboutToCompose()
+{
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> diff = end - startCompositionTimer;
+	qDebug() << "compositionGL interval:" << diff.count();
+	startCompositionTimer = std::chrono::high_resolution_clock::now();
+}
+
+void PVSeriesView::onFrameSwapped()
+{
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> diff = end - startCompositionTimer;
+	qDebug() << "compositionGL:" << diff.count();
 }
 
 } // namespace PVParallelView

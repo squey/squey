@@ -39,6 +39,8 @@ class PVSeriesViewZoomer : public QWidget
 	void zoomOut();
 	void resetZoom();
 
+	void moveZoomBy(QPoint offset);
+
 	QColor getZoomRectColor() const;
 	void setZoomRectColor(QColor const& color);
 
@@ -52,7 +54,8 @@ class PVSeriesViewZoomer : public QWidget
 	void resizeEvent(QResizeEvent*) override;
 
   private:
-	void updateZoom(Zoom const& zoom);
+	void updateZoom();
+	void clampZoom(Zoom& zoom) const;
 
   private:
 	PVSeriesView* m_seriesView;
@@ -61,6 +64,11 @@ class PVSeriesViewZoomer : public QWidget
 	bool m_selecting = false;
 	QRect m_zoomRect;
 	std::array<QWidget*, 4> m_fragments{nullptr};
+
+	bool m_moving = false;
+	QPoint m_moveStart;
+
+	QTimer* m_animationTimer;
 
 	std::vector<Zoom> m_zoomStack;
 	size_t m_currentZoomIndex = 0;
