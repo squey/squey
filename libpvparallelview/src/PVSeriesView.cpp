@@ -1,6 +1,7 @@
 #include <pvparallelview/PVSeriesView.h>
 
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
 #include <cmath>
 #include <mutex>
@@ -27,12 +28,16 @@ PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
     , m_rss(rss)
     , m_dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
 {
-	// QSurfaceFormat format;
-	// format.setSamples(16);
-	// setFormat(format);
 	QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
 	qDebug() << "Qt::AA_DontCreateNativeWidgetSiblings:"
 	         << QCoreApplication::testAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+
+	if (std::getenv("PVOPENGL45") != nullptr) {
+		QSurfaceFormat format;
+		format.setVersion(4, 5);
+		format.setProfile(QSurfaceFormat::CoreProfile);
+		setFormat(format);
+	}
 
 	// setUpdateBehavior(QOpenGLWidget::PartialUpdate);
 }
