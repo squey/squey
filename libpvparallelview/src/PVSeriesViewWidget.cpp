@@ -46,12 +46,12 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	timeseries_list_widget->setAlternatingRowColors(true);
 
 	{
-		std::vector<size_t> seriesDrawOrder;
+		std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder;
 		for (PVCombCol i(0); i < timeseries.size(); i++) {
 			QColor color(rand() % 256, rand() % 256, rand() % 256);
 			if (axes_comb.get_axis(i).get_type().left(6) == "number") {
 				timeseries_list_widget->item(i)->setSelected(true);
-				seriesDrawOrder.push_back(i);
+				seriesDrawOrder.push_back({i, color});
 			}
 			timeseries_list_widget->item(i)->setForeground(color); // FIXME
 		}
@@ -61,11 +61,11 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	QObject::connect(timeseries_list_widget, &QListWidget::itemSelectionChanged,
 	                 [ plot, timeseries_list_widget, timeseries_size = timeseries.size() ]() {
 		                 // FIXME : should put newly selected timeserie on top
-		                 std::vector<size_t> seriesDrawOrder;
+		                 std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder;
 		                 for (PVCombCol i(0); i < timeseries_size; ++i) {
 			                 if (timeseries_list_widget->item(i)->isSelected()) {
-				                 seriesDrawOrder.push_back(i);
-				                 // timeseries_list_widget->item(i)->foreground().color()
+				                 seriesDrawOrder.push_back(
+				                     {i, timeseries_list_widget->item(i)->foreground().color()});
 			                 }
 		                 }
 		                 plot->showSeries(std::move(seriesDrawOrder));

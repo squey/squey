@@ -40,13 +40,18 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	Q_OBJECT
 
   public:
+	struct SerieDrawInfo {
+		size_t dataIndex;
+		QColor color;
+	};
+
+  public:
 	explicit PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent = 0);
 	virtual ~PVSeriesView();
 
 	void setBackgroundColor(QColor const& bgcol);
 
-	void showAllSeries();
-	void showSeries(std::vector<size_t> seriesDrawOrder);
+	void showSeries(std::vector<SerieDrawInfo> seriesDrawOrder);
 
 	void onResampled();
 
@@ -62,6 +67,8 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	void debugAvailableMemory();
 
 	void compute_dbo_GL();
+	void fill_vbo_GL(size_t const lineBegin, size_t const lineEnd);
+	void fill_cbo_GL(size_t const lineBegin, size_t const lineEnd);
 
 	void softPaintGL();
 
@@ -72,11 +79,25 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 		GLushort y;
 	};
 
+	struct CboBlock {
+		GLfloat colorR;
+		GLfloat colorG;
+		GLfloat colorB;
+	};
+
+	struct DrawArraysIndirectCommand {
+		GLuint count;
+		GLuint instanceCount;
+		GLuint first;
+		GLuint baseInstance;
+	};
+
 	Inendi::PVRangeSubSampler& m_rss;
-	std::vector<size_t> m_seriesDrawOrder;
+	std::vector<SerieDrawInfo> m_seriesDrawOrder;
 
 	QOpenGLVertexArrayObject m_vao;
 	QOpenGLBuffer m_vbo;
+	QOpenGLBuffer m_cbo;
 	QOpenGLBuffer m_dbo;
 	std::unique_ptr<QOpenGLShaderProgram> m_program;
 	std::unique_ptr<QOpenGLFramebufferObject> m_fbo;
@@ -118,6 +139,7 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	                          GLint dstY1,
 	                          GLbitfield mask,
 	                          GLenum filter) = nullptr;
+	void (*glVertexAttribDivisor)(GLuint index, GLuint divisor) = nullptr;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startCompositionTimer;
 };

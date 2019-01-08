@@ -16,13 +16,6 @@ namespace PVParallelView
 	x = reinterpret_cast<decltype(x)>(context()->getProcAddress(#x));                              \
 	assert(x != nullptr);
 
-struct DrawArraysIndirectCommand {
-	GLuint count;
-	GLuint instanceCount;
-	GLuint first;
-	GLuint baseInstance;
-};
-
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
     : PVOpenGLWidget(parent)
     , m_rss(rss)
@@ -66,14 +59,7 @@ void PVSeriesView::setBackgroundColor(QColor const& bgcol)
 	m_backgroundColor = bgcol;
 }
 
-void PVSeriesView::showAllSeries()
-{
-	m_seriesDrawOrder.resize(m_rss.timeseries_count());
-	std::iota(m_seriesDrawOrder.begin(), m_seriesDrawOrder.end(), 0);
-	showSeries(m_seriesDrawOrder);
-}
-
-void PVSeriesView::showSeries(std::vector<size_t> seriesDrawOrder)
+void PVSeriesView::showSeries(std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder)
 {
 	std::swap(m_seriesDrawOrder, seriesDrawOrder);
 
@@ -102,6 +88,7 @@ void PVSeriesView::initializeGL()
 	LOAD_GL_FUNC(glMultiDrawArraysIndirect);
 	LOAD_GL_FUNC(glMapBufferRange);
 	LOAD_GL_FUNC(glBlitFramebuffer);
+	LOAD_GL_FUNC(glVertexAttribDivisor);
 
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_GL_max_elements_vertices);
 
@@ -118,13 +105,16 @@ void PVSeriesView::initializeGL()
 	m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
 "#version 450\n" SHADER(
 in vec4 vertex;
+in vec3 color;
 out vec4 lineColor;
 uniform vec4 size;
 void main(void) {
-    float line = floor(gl_VertexID / size.w);
-    lineColor = vec4(fract((line + 1) * 0.7), fract(2 * (line + 1) * 0.7), fract(3 * (line + 1) * 0.7), 1);
+    //float line = floor(gl_VertexID / size.w);
+    //float line = gl_InstanceID;
+    //lineColor = vec4(fract((line + 1) * 0.7), fract(2 * (line + 1) * 0.7), fract(3 * (line + 1) * 0.7), 1);
+    lineColor = vec4(color, 1);
     vec4 wvertex = vertex;
-    wvertex.y = vertex.x / 16384;// ((1 << 14) - 1);
+    wvertex.y = vertex.x / 16383;// ((1 << 14) - 1);
     wvertex.x = mod(gl_VertexID, size.w) / (size.w - 1);
     int vx = int(vertex.x);
     if(bool(vx & (1 << 15))) { //if out of range
@@ -151,10 +141,10 @@ void main(void) {
 
 	m_program->link();
 	qDebug() << m_program->log();
-	m_program->bind();
 
 	m_vao.create();
 	m_vbo.create();
+	m_cbo.create();
 	m_dbo.create();
 
 	m_vao.bind();
@@ -169,6 +159,15 @@ void main(void) {
 	glVertexAttribPointer(0, 1, GL_UNSIGNED_SHORT, GL_FALSE, 0, 0x0);
 
 	m_vbo.release();
+
+	m_cbo.bind();
+	m_vbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0x0);
+	glVertexAttribDivisor(1, 1);
+
+	m_cbo.release();
 
 	m_vao.release();
 
@@ -196,6 +195,7 @@ void PVSeriesView::cleanupGL()
 	m_fbo.reset();
 	m_program.reset();
 	m_dbo.destroy();
+	m_cbo.destroy();
 	m_vbo.destroy();
 	m_vao.destroy();
 	doneCurrent();
@@ -255,31 +255,11 @@ void PVSeriesView::paintGL()
 
 	m_dbo.bind();
 
-	m_vbo.bind();
-
-	int vbo_size = m_vbo.size();
-	size_t line_byte_size = m_verticesCount * sizeof(Vertex);
-
 	for (size_t line = 0; line < m_seriesDrawOrder.size();) {
-		{
-			void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, vbo_size,
-			                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
-			                                       GL_MAP_UNSYNCHRONIZED_BIT);
-
-			assert(vbo_bytes);
-			for (size_t line_end = std::min(line + m_linesPerVboCount, m_seriesDrawOrder.size());
-			     line < line_end; ++line) {
-				// qDebug() << "Line " << line;
-				// for(int i = 0; i < m_verticesCount; ++i){
-				// 	qDebug() << m_rss.averaged_timeserie(line)[i];
-				// }
-				std::memcpy(reinterpret_cast<uint8_t*>(vbo_bytes) + line * line_byte_size,
-				            reinterpret_cast<uint8_t const*>(
-				                m_rss.averaged_timeserie(m_seriesDrawOrder[line]).data()),
-				            line_byte_size);
-			}
-			m_vbo.unmap();
-		}
+		auto lineEnd = std::min(line + m_linesPerVboCount, m_seriesDrawOrder.size());
+		fill_vbo_GL(line, lineEnd);
+		fill_cbo_GL(line, lineEnd);
+		line = lineEnd;
 
 		for (int b = 0; b < m_batches; ++b) {
 			glMultiDrawArraysIndirect(
@@ -298,7 +278,6 @@ void PVSeriesView::paintGL()
 		}
 	}
 
-	m_vbo.release();
 	m_dbo.release();
 	m_vao.release();
 
@@ -333,8 +312,9 @@ void PVSeriesView::compute_dbo_GL()
 	    static_cast<DrawArraysIndirectCommand*>(m_dbo.map(QOpenGLBuffer::WriteOnly));
 	assert(dbo_bytes);
 	std::generate(dbo_bytes, dbo_bytes + lines_count, [ line = 0, this ]() mutable {
+		size_t drawIndex = line++;
 		return DrawArraysIndirectCommand{GLuint(m_verticesCount), 1,
-		                                 GLuint((line++) * m_verticesCount), 0};
+		                                 GLuint(drawIndex * m_verticesCount), drawIndex};
 	});
 
 	m_dbo.unmap();
@@ -344,6 +324,46 @@ void PVSeriesView::compute_dbo_GL()
 	m_vbo.allocate(m_linesPerVboCount * m_verticesCount * sizeof(Vertex));
 	assert(m_vbo.size() > 0);
 	m_vbo.release();
+
+	m_cbo.bind();
+	m_cbo.allocate(m_linesPerVboCount * sizeof(CboBlock));
+	assert(m_cbo.size() > 0);
+	m_cbo.release();
+}
+
+void PVSeriesView::fill_vbo_GL(size_t const lineBegin, size_t const lineEnd)
+{
+	size_t const line_byte_size = m_verticesCount * sizeof(Vertex);
+
+	m_vbo.bind();
+	void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
+	                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
+	                                       GL_MAP_UNSYNCHRONIZED_BIT);
+	assert(vbo_bytes);
+	for (size_t line = lineBegin; line < lineEnd; ++line) {
+		std::memcpy(reinterpret_cast<uint8_t*>(vbo_bytes) + (line - lineBegin) * line_byte_size,
+		            reinterpret_cast<uint8_t const*>(
+		                m_rss.averaged_timeserie(m_seriesDrawOrder[line].dataIndex).data()),
+		            line_byte_size);
+	}
+	m_vbo.unmap();
+	m_vbo.release();
+}
+
+void PVSeriesView::fill_cbo_GL(size_t const lineBegin, size_t const lineEnd)
+{
+	m_cbo.bind();
+	CboBlock* cbo_bytes = static_cast<CboBlock*>(glMapBufferRange(
+	    GL_ARRAY_BUFFER, 0, m_cbo.size(),
+	    GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT));
+	assert(cbo_bytes);
+	for (size_t line = lineBegin; line < lineEnd; ++line) {
+		cbo_bytes[line - lineBegin].colorR = m_seriesDrawOrder[line].color.redF();
+		cbo_bytes[line - lineBegin].colorG = m_seriesDrawOrder[line].color.greenF();
+		cbo_bytes[line - lineBegin].colorB = m_seriesDrawOrder[line].color.blueF();
+	}
+	m_cbo.unmap();
+	m_cbo.release();
 }
 
 void PVSeriesView::softPaintGL()
