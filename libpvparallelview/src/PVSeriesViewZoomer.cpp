@@ -13,8 +13,9 @@ namespace PVParallelView
 {
 
 struct PVSeriesViewZoomerRectangleFragment : public QWidget {
-	PVSeriesViewZoomerRectangleFragment(QWidget* parent = nullptr)
-	    : QWidget(parent), color(255, 0, 0, 255)
+	PVSeriesViewZoomerRectangleFragment(QWidget* parent = nullptr,
+	                                    QColor color = QColor(255, 0, 0, 255))
+	    : QWidget(parent), color(color)
 	{
 	}
 
@@ -33,11 +34,17 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
     : QWidget(parent), m_seriesView(child), m_rss(sampler), m_animationTimer(new QTimer(this))
 {
 	child->setParent(this);
+	child->setAttribute(Qt::WA_TransparentForMouseEvents);
+	for (auto& fragment : m_crossHairsFragments) {
+		fragment = new PVSeriesViewZoomerRectangleFragment(child, QColor(255, 100, 50, 255));
+		fragment->hide();
+	}
 	for (auto& fragment : m_fragments) {
 		fragment = new PVSeriesViewZoomerRectangleFragment(child);
 		fragment->hide();
 	}
 	resetZoom();
+	setMouseTracking(true);
 }
 
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
@@ -96,6 +103,28 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 	if (m_moving) {
 		moveZoomBy(event->pos() - m_moveStart);
 		m_moveStart = event->pos();
+	}
+	if (not m_selecting and not m_moving) {
+		m_crossHairsFragments[0]->setGeometry(0, event->pos().y(), event->pos().x() - 10, 1);
+		m_crossHairsFragments[1]->setGeometry(event->pos().x(), 0, 1, event->pos().y() - 10);
+		m_crossHairsFragments[2]->setGeometry(event->pos().x() + 10, event->pos().y(),
+		                                      width() - event->pos().x() - 10, 1);
+		m_crossHairsFragments[3]->setGeometry(event->pos().x(), event->pos().y() + 10, 1,
+		                                      height() - event->pos().y() - 10);
+		for (auto& fragment : m_crossHairsFragments) {
+			fragment->show();
+		}
+	} else {
+		for (auto& fragment : m_crossHairsFragments) {
+			fragment->hide();
+		}
+	}
+}
+
+void PVSeriesViewZoomer::leaveEvent(QEvent*)
+{
+	for (auto& fragment : m_crossHairsFragments) {
+		fragment->hide();
 	}
 }
 

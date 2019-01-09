@@ -48,6 +48,7 @@ class PVSeriesViewZoomer : public QWidget
 	void mousePressEvent(QMouseEvent*) override;
 	void mouseReleaseEvent(QMouseEvent*) override;
 	void mouseMoveEvent(QMouseEvent*) override;
+	void leaveEvent(QEvent* event) override;
 
 	void wheelEvent(QWheelEvent*) override;
 
@@ -64,6 +65,7 @@ class PVSeriesViewZoomer : public QWidget
 	bool m_selecting = false;
 	QRect m_zoomRect;
 	std::array<QWidget*, 4> m_fragments{nullptr};
+	std::array<QWidget*, 4> m_crossHairsFragments{nullptr};
 
 	bool m_moving = false;
 	QPoint m_moveStart;
