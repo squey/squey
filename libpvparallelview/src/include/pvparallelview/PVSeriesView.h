@@ -67,8 +67,14 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	void debugAvailableMemory();
 
 	void compute_dbo_GL();
+	void fill_dbo_GL();
 	void fill_vbo_GL(size_t const lineBegin, size_t const lineEnd);
 	void fill_cbo_GL(size_t const lineBegin, size_t const lineEnd);
+	void draw_GL(size_t const lineBegin, size_t const lineEnd);
+	void draw_GL_4_3(size_t const lineBegin, size_t const lineEnd);
+	void draw_GL_3_3(size_t const lineBegin, size_t const lineEnd);
+
+	void setupShaders_GL();
 
 	void softPaintGL();
 
@@ -109,8 +115,6 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	int m_linesPerVboCount = 0;
 	size_t m_linesCount = 0;
 
-	int m_batches = 1;
-
 	int m_sizeLocation = 0;
 
 	int m_w = 0, m_h = 0;
@@ -140,6 +144,10 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	                          GLbitfield mask,
 	                          GLenum filter) = nullptr;
 	void (*glVertexAttribDivisor)(GLuint index, GLuint divisor) = nullptr;
+	void (*glDrawArraysInstanced)(GLenum mode,
+	                              GLint first,
+	                              GLsizei count,
+	                              GLsizei primcount) = nullptr;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startCompositionTimer;
 };
