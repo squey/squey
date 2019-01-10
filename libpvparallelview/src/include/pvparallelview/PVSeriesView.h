@@ -65,6 +65,7 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	void onFrameSwapped();
 
 	void debugAvailableMemory();
+	void debugErrors();
 
 	void compute_dbo_GL();
 	void fill_dbo_GL();

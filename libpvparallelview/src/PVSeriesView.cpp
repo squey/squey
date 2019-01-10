@@ -59,6 +59,29 @@ void PVSeriesView::debugAvailableMemory()
 	qDebug() << cur_avail_mem_kb << " available on total " << total_mem_kb;
 }
 
+void PVSeriesView::debugErrors()
+{
+#define PVCASE_GLERROR(val)                                                                        \
+	case (val):                                                                                    \
+		qDebug() << #val;                                                                          \
+		break;
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		qDebug() << "glGetError:" << err;
+		switch (err) {
+			PVCASE_GLERROR(GL_INVALID_ENUM)
+			PVCASE_GLERROR(GL_INVALID_VALUE)
+			PVCASE_GLERROR(GL_INVALID_OPERATION)
+			PVCASE_GLERROR(GL_STACK_OVERFLOW)
+			PVCASE_GLERROR(GL_STACK_UNDERFLOW)
+			PVCASE_GLERROR(GL_OUT_OF_MEMORY)
+		default:
+			qDebug() << "Unknown_GL_error";
+			break;
+		}
+	}
+}
+
 void PVSeriesView::setBackgroundColor(QColor const& bgcol)
 {
 	m_backgroundColor = bgcol;
@@ -97,6 +120,8 @@ void PVSeriesView::initializeGL()
 	LOAD_GL_FUNC(glDrawArraysInstanced);
 
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_GL_max_elements_vertices);
+
+	qDebug() << "GL_MAX_ELEMENTS_VERTICES" << m_GL_max_elements_vertices;
 
 	qDebug() << "Context:" << QString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
@@ -139,6 +164,8 @@ void PVSeriesView::initializeGL()
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
 	qDebug() << "initialiseGL:" << diff.count();
+
+	debugErrors();
 
 	resizeGL(m_w, m_h);
 
@@ -192,6 +219,9 @@ void PVSeriesView::resizeGL(int w, int h)
 	m_vao.release();
 
 	m_needHardRedraw = true;
+
+	debugAvailableMemory();
+	debugErrors();
 }
 
 void PVSeriesView::paintGL()
@@ -237,7 +267,7 @@ void PVSeriesView::paintGL()
 
 	m_needHardRedraw = false;
 
-	// debugAvailableMemory();
+	debugErrors();
 }
 
 void PVSeriesView::compute_dbo_GL()
@@ -375,8 +405,8 @@ void PVSeriesView::setupShaders_GL()
     //float line = gl_InstanceID;
     //lineColor = vec4(fract((line + 1) * 0.7), fract(2 * (line + 1) * 0.7), fract(3 * (line + 1) * 0.7), 1);
 	vertexShader += version ?
-"	lineColor = vec4(color, 1);\n" :
-"	lineColor = vec4(size.rgb, 1);\n";
+"    lineColor = vec4(color, 1);\n" :
+"    lineColor = vec4(size.rgb, 1);\n";
 	vertexShader += R"SHADER(
     vec4 wvertex = vertex;
     wvertex.y = vertex.x / 16383;// ((1 << 14) - 1);
