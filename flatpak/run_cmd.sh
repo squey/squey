@@ -17,4 +17,14 @@ if [ -n "$NVIDIA_VERSION" ]; then
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NVIDIA_EXTRA_LIBS_PATH
 fi
 
+# DCV compatibility
+: "${DCV_GL_DIR:=/var/lib/dcv-gl/lib64}"
+: "${DCV_GL_FLATPAK_DIR:=/var/lib/dcv-gl/flatpak}"
+if [ -d ${DCV_GL_FLATPAK_DIR} ]; then
+    mkdir -p "${DCV_GL_DIR}"
+    ln -s "/usr/lib/libGL.so.1.0.0" "${DCV_GL_DIR}/libGL_SYS.so.1.0.0"
+    export LD_PRELOAD="${DCV_GL_FLATPAK_DIR}/libGL_WRAPPER.so.1.0.0 ${DCV_GL_FLATPAK_DIR}/libGL_DCV.so $LD_PRELOAD"
+    export LD_LIBRARY_PATH=${DCV_GL_FLATPAK_DIR}:$LD_LIBRARY_PATH
+fi
+
 eval $@
