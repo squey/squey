@@ -167,10 +167,9 @@ void PVSeriesView::initializeGL()
 
 	debugErrors();
 
-	resizeGL(m_w, m_h);
-
 	if (m_wasCleanedUp) {
 		m_wasCleanedUp = false;
+		resizeGL(m_w, m_h);
 		update();
 	}
 }
@@ -208,9 +207,9 @@ void PVSeriesView::resizeGL(int w, int h)
 		m_rss.set_sampling_count(w);
 		m_rss.resubsample();
 		m_verticesCount = m_rss.samples_count();
-
-		m_fbo = std::make_unique<QOpenGLFramebufferObject>(m_w, m_h);
 	}
+
+	m_fbo = std::make_unique<QOpenGLFramebufferObject>(m_w, m_h);
 
 	compute_dbo_GL();
 
