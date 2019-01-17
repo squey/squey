@@ -1,0 +1,141 @@
+#! /bin/bash
+
+# chkconfig: 3 99 01
+# description: The NICE DCV startup script.
+# processname: dcvserverinit
+
+### BEGIN INIT INFO
+# Provides: dcvserverinit
+# Required-Start: $local_fs $remote_fs $syslog $network
+# Required-Stop: $local_fs $remote_fs $syslog $network
+# Default-Start: 3
+# Default-Stop: 0 1 2 4 5 6
+# Short-Description: The NICE DCV startup script.
+# Description: A service that runs ensures DCV runs at startup.
+### END INIT INFO
+
+SYSTEMCTL=$(which systemctl 2> /dev/null)
+DCVGLADMIN=$(which dcvgladmin 2> /dev/null)
+NVIDIA_DRIVER_PARAMS="--dkms --silent"
+
+_dir=/opt/dcv-install
+_log_file="${_dir}/dcvserverinit.log"
+
+_nvidia_driver_default_link="NVIDIA-Linux-x86_64.run"
+_nvidia_driver_g3_link="NVIDIA-Linux-x86_64-g3.run"
+
+. "${_dir}/conf.sh"
+
+log() {
+    echo $1 >> ${_log_file}
+}
+
+enable_graphical() {
+    if [ -n "${SYSTEMCTL}" ]; then
+        log "Starting graphical target using systemd"
+        ${SYSTEMCTL} isolate graphical.target 2>> ${_log_file} >> ${_log_file}
+    else
+        log "Starting graphical target using init 5"
+        init 5 2>> ${_log_file} >> ${_log_file}
+    fi
+}
+
+log "Starting service..."
+
+instance_type=$(curl http://169.254.169.254/latest/meta-data/instance-type)
+case "${instance_type}" in
+g3.*)
+    # FIXME: GRID drivers for g3 are not working on CentOS7.5 (kernel is not compatible); using the latest public drivers
+    #_nvidia_driver_link=${_nvidia_driver_g3_link}
+    _nvidia_driver_link=${_nvidia_driver_default_link}
+    ;;
+*)
+    _nvidia_driver_link=${_nvidia_driver_default_link}
+    ;;
+esac
+
+# Install nvidia driver
+if [ -e "${_dir}/${_nvidia_driver_link}" ]; then
+    if [ -n "${DCVGLADMIN}" ]; then
+        log "Disabling DCV GL"
+        ${DCVGLADMIN} disable 2>> ${_log_file} >> ${_log_file}
+    fi
+    
+    systemctl stop lightdm
+
+    log "Installing Nvidia driver ${_dir}/${_nvidia_driver_link}"
+
+    pushd "${_dir}" > /dev/null
+    eval "/bin/bash ${_nvidia_driver_link} ${NVIDIA_DRIVER_PARAMS}"
+    unlink "${_nvidia_driver_link}"
+    popd > /dev/null
+
+    modprobe nvidia 2>> ${_log_file} >> ${_log_file}
+
+    xconfig_params="--enable-all-gpus --preserve-busid"
+    case "${instance_type}" in
+    g3.*)
+        ;;
+    *)
+        xconfig_params="${xconfig_params} --use-display-device=None"
+        ;;
+    esac
+
+    nvidia-xconfig ${xconfig_params} 2>> ${_log_file} >> ${_log_file}
+
+    case "${instance_type}" in
+    g3.*)
+        # from http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/activate_grid.html
+        cat /etc/nvidia/gridd.conf.template | sed 's/FeatureType=/FeatureType=2/g' > /etc/nvidia/gridd.conf
+        service nvidia-gridd restart
+
+        # from http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/optimize_gpu.html
+        nvidia-smi -pm 1
+        nvidia-smi --auto-boost-default=0
+        ;;
+    *)
+        ;;
+    esac
+
+    if [ -n "${DCVGLADMIN}" ]; then
+        log "Re-enabling DCV GL"
+        ${DCVGLADMIN} enable 2>> ${_log_file} >> ${_log_file}
+    fi
+    
+else
+    log "Nvidia driver ${_dir}/${_nvidia_driver_link} not found, skip installation"
+fi
+
+# Enable graphical system
+enable_graphical &
+
+# Signal cloud formation that we are done
+if [ ! -f ${_dir}/wait-handle-sent ]; then
+    log "Signalling cloud formation"
+    i=0
+    while : ; do
+        /opt/aws/bin/cfn-signal -e 0 "${wait_handle}" 2>> ${_log_file} >> ${_log_file}
+        if [ "$?" -ne "0" ] ; then
+            if [ "$i" -eq "25" ] ; then
+                log "Failed to signal, stop service"
+                exit 0
+            else
+                log "Failed to signal ($i), wait and retry"
+                ((i++))
+                sleep 0.2
+            fi
+        else
+            log "Cloud formation signaled"
+            break
+        fi
+    done
+    touch ${_dir}/wait-handle-sent
+
+    update-rc.d -f dcvserverinit remove
+    rm /etc/init.d/dcvserverinit
+    log "Disabled dcvserverinit service"
+    
+    reboot
+fi
+
+# ex:set ts=4 et:
