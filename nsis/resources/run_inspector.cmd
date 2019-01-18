@@ -34,7 +34,7 @@ if %errorlevel% == 1 (
 
 @REM Run Inspector
 "%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 1000 -n inspector_linux
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run %1"
+"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --share=ipc --env=QTWEBENGINE_CHROMIUM_FLAGS='--disable-dev-shm-usage' %1"
 
 @REM Stop VcXsrv if needed
 set instance_count_cmd="tasklist /FI "imagename eq inendi-inspector" 2>nul | find /I /C "inendi-inspector""
