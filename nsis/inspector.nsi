@@ -39,6 +39,15 @@ ManifestDPIAware true
 	!define WSL_DISTRO_NAME "inspector_linux"
 	
 	!define StrRep "!insertmacro StrRep"
+	
+	!define /date FILE_VERSION "%Y.%m.%d.%H"
+	!define /date PRODUCT_VERSION "%Y-%m-%d %H:%M:%S"
+	!define /date YEAR "%Y"
+    VIProductVersion "${FILE_VERSION}"
+    VIAddVersionKey ProductName "${INTERNAL_NAME}"
+    VIAddVersionKey FileVersion "${FILE_VERSION}"
+    VIAddVersionKey ProductVersion "${PRODUCT_VERSION}"
+    VIAddVersionKey LegalCopyright "(C) ESI Group ${YEAR}"
 
 !macro StrRep output string old new
     Push `${string}`
