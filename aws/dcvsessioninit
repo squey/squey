@@ -1,0 +1,5 @@
+/opt/inspector-install/cuda-devices
+/opt/inspector-install/inspector_loop.sh &
+
+xsetroot -solid "#0b2f40"
+exec /usr/bin/kwin

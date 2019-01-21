@@ -1,0 +1,429 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "INENDI Inspector",
+  "Parameters": {
+    "KeyPairName": {
+      "Description": "Keypair associated with the EC2 instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "MinLength": "1",
+      "ConstraintDescription": "Must provide a keypair to be associated with the EC2 instance"
+    },
+    "Product": {
+        "Type": "String",
+        "AllowedValues": [
+            "INENDI Inspector",
+            "PCAP Inspector"
+        ],
+        "Default": "INENDI Inspector"
+    },
+    "InstanceType": {
+      "Description": "EC2 instance type",
+      "Type": "String",
+      "Default": "g3.4xlarge",
+      "AllowedValues": [
+        "t2.small",
+        "t2.medium",
+        "t2.large",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlarge",
+        "m5.large",
+        "m5.xlarge",
+        "m5.2xlarge",
+        "m5.4xlarge",
+        "m5.12xlarge",
+        "m5.24xlarge",
+        "c4.large",
+        "c4.xlarge",
+        "c4.2xlarge",
+        "c4.4xlarge",
+        "c4.8xlarge",
+        "c5.large",
+        "c5.xlarge",
+        "c5.2xlarge",
+        "c5.4xlarge",
+        "c5.9xlarge",
+        "c5.18xlarge",
+        "i2.xlarge",
+        "i2.2xlarge",
+        "i2.4xlarge",
+        "i2.8xlarge",
+        "g3.4xlarge",
+        "g3.8xlarge",
+        "g3.16xlarge"
+      ]
+    },
+    "DiskSize" : {
+        "Description": "Disk size in GB",
+        "Type": "Number",
+        "Default": "100",
+        "MinValue": "30"
+    },
+    "UserName": {
+      "Type": "String",
+      "AllowedPattern": "^[a-z_][a-z0-9_-]*[$]?$",
+      "MinLength": "1",
+      "MaxLength": "31"
+    },
+    "UserPasswd": {
+      "Description": "Password for \"inspector\" user. The default password is Ch4ng3M3! ",
+      "MinLength": "8",
+      "Type": "String",
+      "AllowedPattern": "^((?=.*[a-z])(?=.*[A-Z])(?=.*[\\d])|(?=.*[a-z])(?=.*[A-Z])(?=.*[\\W_])|(?=.*[a-z])(?=.*[\\d])(?=.*[\\W_])|(?=.*[A-Z])(?=.*[\\d])(?=.*[\\W_])).+$",
+      "ConstraintDescription": "Password must contain at least one element from three of the following sets: lowercase letters, uppercase letters, base 10 digits, non-alphanumeric characters",
+      "NoEcho" : "true"
+    },
+    "OsVersion": {
+      "Type": "String",
+      "AllowedValues": [
+        "Ubuntu1804"
+      ],
+      "Default": "Ubuntu1804"
+    }
+  },
+  "Mappings": {
+    "RegionMap": {
+      "ap-northeast-1": {
+        "Ubuntu1804": "ami-0f2c38ac2e37197be"
+      },
+      "ap-northeast-2": {
+        "Ubuntu1804": "ami-0dc961dd0c2c83bdd"
+      },
+      "ap-northeast-3": {
+        "Ubuntu1804": "None"
+      },
+      "ap-south-1": {
+        "Ubuntu1804": "ami-0dba8796fe499ae48"
+      },
+      "ap-southeast-1": {
+        "Ubuntu1804": "ami-08540b8d2f7fa85a5"
+      },
+      "ap-southeast-2": {
+        "Ubuntu1804": "ami-0bbcf853aaf6ca4a6"
+      },
+      "ca-central-1": {
+        "Ubuntu1804": "ami-0de195e1958cc0d52"
+      },
+      "eu-central-1": {
+        "Ubuntu1804": "ami-0332a5c40cf835528"
+      },
+      "eu-west-1": {
+        "Ubuntu1804": "ami-001b0e20a92d8db1e"
+      },
+      "eu-west-2": {
+        "Ubuntu1804": "ami-0573b1dbbd809d6c3"
+      },
+      "eu-west-3": {
+        "Ubuntu1804": "ami-07b2287c6776361c8"
+      },
+      "sa-east-1": {
+        "Ubuntu1804": "ami-04ab6be036f8635bd"
+      },
+      "us-east-1": {
+        "Ubuntu1804": "ami-0edd3706ab2e952c4"
+      },
+      "us-east-2": {
+        "Ubuntu1804": "ami-050553a7784d00d21"
+      },
+      "us-west-1": {
+        "Ubuntu1804": "ami-065ebd3e6b63c75d5"
+      },
+      "us-west-2": {
+        "Ubuntu1804": "ami-00f13b45242aff065"
+      }
+    }
+  },
+  "Conditions": {
+      "CreateLinux"   : { "Fn::Or" : [ { "Fn::Equals" : [ {"Ref": "OsVersion"}, "Ubuntu1804" ] }, { "Fn::Equals" : [ {"Ref": "OsVersion"}, "Ubuntu1804" ] } ] }
+  },
+  "Resources": {
+    "LinuxInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Condition" : "CreateLinux",     
+      "Properties": {
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "IamInstanceProfile": {
+          "Ref": "RootInstanceProfile"
+        },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "RegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Ref": "OsVersion"
+            }
+          ]
+        },
+        "SecurityGroupIds": [{
+          "Ref": "DCVSecurityGroup"
+        }],
+        "Tags" : [{ 
+          "Key" : "RemoteVisualization",
+          "Value" : "DCV-preview"
+        },
+        { 
+          "Key" : "Name",
+          "Value" : { "Ref": "AWS::StackName" }
+        },
+        { 
+          "Key" : "DCV",
+          "Value" : "DCV2017"
+        }],
+        "KeyName": {
+          "Ref": "KeyPairName"
+        },
+        "BlockDeviceMappings" : [
+            {
+                "DeviceName" : "/dev/sda1",
+                "Ebs" : {
+                    "VolumeSize" : {
+                        "Ref" : "DiskSize"
+                    },
+                    "VolumeType" : "gp2"
+                }
+            }
+        ],
+        "UserData": {
+        "Fn::Base64": { "Fn::Join":["", [
+            "#!/bin/bash\n",
+            "apt-get update\n",
+            "apt-get -y install python-setuptools awscli\n",
+            "python /usr/lib/python2.7/dist-packages/easy_install.py --script-dir /opt/aws/bin https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+            "/opt/aws/bin/cfn-init -v ",
+                " -r LinuxInstance ",
+                " --region ", { "Ref": "AWS::Region" },
+                " --configsets dcv ",
+                " -s ", { "Ref": "AWS::StackName" }, "\n"
+        ]]}}
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Init" : {
+          "configSets" : {
+            "dcv" : [
+              "download_dcv",
+              "install_dcv"
+            ]
+          },
+          "download_dcv" : {
+            "files": {
+              "/opt/dcv-install/install.sh": {
+                "source": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "https://s3-eu-west-1.amazonaws.com/inendi-inspector/dcv-server-install.sh"
+                    ]
+                  ]
+                },
+                "authentication": "S3AccessCreds"
+              },
+              "/opt/dcv-install/xorg.conf": {
+                "source": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "https://s3-eu-west-1.amazonaws.com/nice-dcv-cfn/xorg.conf"
+                    ]
+                  ]
+                },
+                "authentication": "S3AccessCreds"
+              },
+              "/opt/dcv-install/conf.sh": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "dcv_bucket=\"nice-dcv-cfn\"\n",
+                      "dep_bucket=\"nice-dcv-cfn\"\n",
+                      "dcv_pkg_name=\"nice-dcv-server-2017.1.latest\"\n",
+                      "user_name=\"", { "Ref": "UserName" }, "\"\n",
+                      "user_pass=\"", { "Ref": "UserPasswd" }, "\"\n",
+                      "product=\"", { "Ref": "Product" }, "\"\n",
+                      "log_level=\"info\"\n",
+                      "wait_handle=\"", { "Ref": "InstanceWaitHandle" }, "\"\n"
+                    ]
+                  ]
+                }
+              }
+            }
+          },
+          "install_dcv" : {
+            "commands": {
+              "install": {
+                "command": "bash -x /opt/dcv-install/install.sh > /opt/dcv-install/install.log  2>&1",
+                "ignoreErrors": "true"
+              }
+            }
+          }
+        },
+        "AWS::CloudFormation::Authentication": {
+          "S3AccessCreds": {
+            "type": "S3",
+            "roleName": {
+              "Ref": "RootRole"
+            }
+          }
+        },
+        "AWS::CloudFormation::Designer": {
+          "id": "e5cac32e-b5c6-46ba-9430-1f9b7275b5b6"
+        }
+      }
+    },
+    "RootRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "6f9e3cf3-dc65-4bcc-a7aa-298486effe69"
+        }
+      }
+    },
+    "RolePolicies": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "DcvInstallAccess",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:*",
+                "s3:*"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": "arn:aws:s3:::nice-dcv-cfn/*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "RootRole"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "7160187f-0a7e-451f-bcb1-85783245c504"
+        }
+      }
+    },
+    "RootInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "RootRole"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "a36c5fb2-26ae-49c8-bffb-628118f2cd10"
+        }
+      }
+    },
+    "LinuxInstanceWaitCondition": {
+      "Type": "AWS::CloudFormation::WaitCondition",
+      "Condition" : "CreateLinux",     
+      "DependsOn": "LinuxInstance",
+      "Properties": {
+        "Handle": {
+          "Ref": "InstanceWaitHandle"
+        },
+        "Timeout": "5400"
+      }
+    },
+    "InstanceWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
+    },
+    "DCVSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "DCV Security Group",
+        "SecurityGroupIngress" : [
+          {"IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": "0.0.0.0/0"},
+          {"IpProtocol": "tcp", "FromPort": "80", "ToPort": "80", "CidrIp": "0.0.0.0/0"},
+          {"IpProtocol": "tcp", "FromPort": "443", "ToPort": "443", "CidrIp": "0.0.0.0/0"}
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "LinuxInstanceId": { 
+      "Value": { "Ref": "LinuxInstance" },
+      "Condition" : "CreateLinux"     
+    },
+    "LinuxPublicDNS": {
+      "Value": { "Fn::GetAtt": [ "LinuxInstance", "PublicDnsName" ] },
+      "Condition" : "CreateLinux",
+      "Description": "DNS Name of the newly created EC2 instance"
+    },
+    "LinuxPublicIp": {
+      "Value": { "Fn::GetAtt": [ "LinuxInstance", "PublicIp" ] },
+      "Condition" : "CreateLinux",
+      "Description": "Public Ip of the newly created EC2 instance"
+    },
+    "LinuxDcvURL": {
+      "Value": { "Fn::Join": [ "", [ "https://", { "Fn::GetAtt": [ "LinuxInstance", "PublicIp" ] }, ":8080" ] ] },
+      "Condition" : "CreateLinux",
+      "Description": "Dcv connection URL for the newly created EC2 instance"
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface" : {
+      "ParameterGroups" : [
+        {
+          "Label" : { "default": "Credentials" },
+          "Parameters" : [ "UserName", "UserPasswd", "KeyPairName" ]
+        },
+        {
+          "Label" : { "default": "EC2" },
+          "Parameters" : [ "InstanceType", "DiskSize" ]
+        },
+        {
+          "Label" : { "default": "Software" },
+          "Parameters" : [ "Product", "OsVersion" ]
+        }
+      ],
+      "ParameterLabels" : {
+        "InstanceType": {"default": "Instance Type:"},
+        "DiskSize": {"default": "Disk Size:"},
+        "KeyPairName": {"default": "Key pair name:"},
+        "UserPasswd": {"default": "Password:"},
+        "OsVersion": {"default": "Operating System:"}
+      }
+    }
+  }
+}
