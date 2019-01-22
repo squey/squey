@@ -49,13 +49,13 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 {
-	if (event->button() == Qt::RightButton) {
+	if (event->button() == Qt::LeftButton) {
 		m_selecting = true;
-		QToolTip::showText(event->globalPos(), tr("Zoom"), this);
+		// QToolTip::showText(event->globalPos(), tr("Zoom"), this);
 		m_zoomRect.moveTo(event->pos());
-	} else if (event->button() == Qt::LeftButton) {
+	} else if (event->button() == Qt::RightButton) {
 		m_moving = true;
-		QToolTip::showText(event->globalPos(), tr("Moving"), this);
+		// QToolTip::showText(event->globalPos(), tr("Moving"), this);
 		m_moveStart = event->pos();
 	} else if (event->button() == Qt::MidButton) {
 		using namespace std::chrono;
@@ -66,7 +66,7 @@ void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 
 void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 {
-	if (m_selecting && event->button() == Qt::RightButton) {
+	if (m_selecting && event->button() == Qt::LeftButton) {
 		m_selecting = false;
 		QToolTip::hideText();
 		for (auto& fragment : m_fragments) {
@@ -77,7 +77,7 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 		} else {
 			zoomIn(m_zoomRect.normalized());
 		}
-	} else if (m_moving && event->button() == Qt::LeftButton) {
+	} else if (m_moving && event->button() == Qt::RightButton) {
 		m_moving = false;
 		QToolTip::hideText();
 		moveZoomBy(event->pos() - m_moveStart);
