@@ -14,28 +14,18 @@
 #include <QtGlobal>
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
-#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
-#include <QGLWidget>
-#include <QGLShaderProgram>
-#include <QGLShader>
-#include <QGLBuffer>
-using PVOpenGLWidget = QGLWidget;
-using QOpenGLShader = QGLShader;
-using QOpenGLShaderProgram = QGLShaderProgram;
-using QOpenGLBuffer = QGLBuffer;
-#else
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
 #include <QOpenGLBuffer>
-using PVOpenGLWidget = QOpenGLWidget;
-#endif
 
 namespace PVParallelView
 {
 
-class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
+class PVSeriesViewCompat;
+
+class PVSeriesView : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
 	Q_OBJECT
 
@@ -61,6 +51,9 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
+	void paintEvent(QPaintEvent* event) override;
+	void resizeEvent(QResizeEvent* event) override;
+
 	void onAboutToCompose();
 	void onFrameSwapped();
 
@@ -72,8 +65,6 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	void fill_vbo_GL(size_t const lineBegin, size_t const lineEnd);
 	void fill_cbo_GL(size_t const lineBegin, size_t const lineEnd);
 	void draw_GL(size_t const lineBegin, size_t const lineEnd);
-	void draw_GL_4_3(size_t const lineBegin, size_t const lineEnd);
-	void draw_GL_3_3(size_t const lineBegin, size_t const lineEnd);
 
 	void setupShaders_GL();
 
@@ -110,6 +101,9 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	std::unique_ptr<QOpenGLFramebufferObject> m_fbo;
 	std::unique_ptr<QOpenGLTexture> m_fbtexture;
 
+	QPixmap m_pixmap;
+	std::unique_ptr<PVSeriesViewCompat> m_seriesViewCompat;
+
 	std::optional<QColor> m_backgroundColor;
 
 	int m_verticesCount = 0;
@@ -130,25 +124,6 @@ class PVSeriesView : public PVOpenGLWidget, protected QOpenGLFunctions
 	                                  const void* indirect,
 	                                  GLsizei drawcount,
 	                                  GLsizei stride) = nullptr;
-	void* (*glMapBufferRange)(GLenum target,
-	                          GLintptr offset,
-	                          GLsizeiptr length,
-	                          GLbitfield access) = nullptr;
-	void (*glBlitFramebuffer)(GLint srcX0,
-	                          GLint srcY0,
-	                          GLint srcX1,
-	                          GLint srcY1,
-	                          GLint dstX0,
-	                          GLint dstY0,
-	                          GLint dstX1,
-	                          GLint dstY1,
-	                          GLbitfield mask,
-	                          GLenum filter) = nullptr;
-	void (*glVertexAttribDivisor)(GLuint index, GLuint divisor) = nullptr;
-	void (*glDrawArraysInstanced)(GLenum mode,
-	                              GLint first,
-	                              GLsizei count,
-	                              GLsizei primcount) = nullptr;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startCompositionTimer;
 };

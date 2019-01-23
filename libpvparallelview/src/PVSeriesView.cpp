@@ -7,9 +7,70 @@
 #include <mutex>
 #include <QCoreApplication>
 #include <QPainter>
+#include <QResizeEvent>
 
 namespace PVParallelView
 {
+
+class PVSeriesViewCompat : public QWidget
+{
+
+  public:
+	PVSeriesViewCompat(Inendi::PVRangeSubSampler& rss, QWidget* parent = nullptr)
+	    : QWidget(parent), m_rss(rss)
+	{
+		setAutoFillBackground(true);
+	}
+
+	void setBackgroundColor(QColor const& bgcol) { setPalette(QPalette(bgcol)); }
+
+	void showSeries(std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder)
+	{
+		std::swap(m_seriesDrawOrder, seriesDrawOrder);
+	}
+
+  protected:
+	void paintEvent(QPaintEvent* event) override
+	{
+		QPainter painter(this);
+		std::vector<QPoint> points;
+		for (auto& serieDraw : m_seriesDrawOrder) {
+			painter.setPen(serieDraw.color);
+			auto& serieData = m_rss.averaged_timeserie(serieDraw.dataIndex);
+			for (int j = 0; j < serieData.size();) {
+				points.clear();
+				while (j < serieData.size()) {
+					int vertex = serieData[j];
+					if (vertex & (1 << 15)) {     // if out of range
+						if (vertex & (1 << 14)) { // if overflow
+							vertex = (1 << 15);
+						} else { // else underflow
+							vertex = -(1 << 15);
+						}
+					} else if (vertex & (1 << 14)) { // else if no value
+						while (serieData[++j] & (1 << 14))
+							;
+						break;
+					}
+					points.push_back(QPoint(j, height() - vertex * height() / (1 << 14)));
+					++j;
+				}
+				if (j == serieData.size() && points.size() > 1) {
+					qDebug() << points.back();
+				}
+				if (points.size() > 1) {
+					painter.drawPolyline(points.data(), points.size());
+				} else if (points.size() == 1) {
+					painter.drawPoint(points.front());
+				}
+			}
+		}
+		painter.end();
+	}
+
+	Inendi::PVRangeSubSampler& m_rss;
+	std::vector<PVSeriesView::SerieDrawInfo> m_seriesDrawOrder;
+};
 
 #define SHADER(x) #x
 #define LOAD_GL_FUNC(x)                                                                            \
@@ -17,25 +78,25 @@ namespace PVParallelView
 	assert(x != nullptr);
 
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
-    : PVOpenGLWidget(parent)
+    : QOpenGLWidget(parent)
     , m_rss(rss)
     , m_dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
 {
-	QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
-	qDebug() << "Qt::AA_DontCreateNativeWidgetSiblings:"
-	         << QCoreApplication::testAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+	// QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+	// qDebug() << "Qt::AA_DontCreateNativeWidgetSiblings:"
+	//          << QCoreApplication::testAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
 
 	if (std::getenv("PVOPENGL45") != nullptr) {
 		QSurfaceFormat format;
 		format.setVersion(4, 5);
 		format.setProfile(QSurfaceFormat::CoreProfile);
 		setFormat(format);
-	} else {
-		// QSurfaceFormat format;
-		// format.setVersion(3, 3);
-		// format.setProfile(QSurfaceFormat::CoreProfile);
-		// setFormat(format);
 	}
+
+	// QSurfaceFormat format;
+	// format.setVersion(3, 3);
+	// format.setProfile(QSurfaceFormat::CoreProfile);
+	// setFormat(format);
 
 	// setUpdateBehavior(QOpenGLWidget::PartialUpdate);
 }
@@ -85,17 +146,21 @@ void PVSeriesView::debugErrors()
 void PVSeriesView::setBackgroundColor(QColor const& bgcol)
 {
 	m_backgroundColor = bgcol;
+	if (m_seriesViewCompat) {
+		m_seriesViewCompat->setBackgroundColor(bgcol);
+	}
 }
 
 void PVSeriesView::showSeries(std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder)
 {
-	std::swap(m_seriesDrawOrder, seriesDrawOrder);
-
-	makeCurrent();
-
-	compute_dbo_GL();
-
-	doneCurrent();
+	if (m_seriesViewCompat) {
+		m_seriesViewCompat->showSeries(std::move(seriesDrawOrder));
+	} else {
+		std::swap(m_seriesDrawOrder, seriesDrawOrder);
+		makeCurrent();
+		compute_dbo_GL();
+		doneCurrent();
+	}
 
 	m_needHardRedraw = true;
 }
@@ -112,17 +177,23 @@ void PVSeriesView::initializeGL()
 	// connect(this, &QOpenGLWidget::aboutToCompose, this, &PVSeriesView::onAboutToCompose);
 	// connect(this, &QOpenGLWidget::frameSwapped, this, &PVSeriesView::onFrameSwapped);
 
+	if (format().majorVersion() < 4 or format().minorVersion() < 3) {
+		if (m_seriesViewCompat) {
+			return;
+		}
+		qDebug() << "PVSeriesView: GL Context under 4.3 (current:" << format().majorVersion() << "."
+		         << format().minorVersion() << "), using soft renderer";
+		m_seriesViewCompat = std::make_unique<PVSeriesViewCompat>(m_rss, nullptr);
+		m_seriesViewCompat->setBackgroundColor(*m_backgroundColor);
+		m_seriesViewCompat->showSeries(std::move(m_seriesDrawOrder));
+		return;
+	}
+
 	initializeOpenGLFunctions();
 	LOAD_GL_FUNC(glMultiDrawArraysIndirect);
-	LOAD_GL_FUNC(glMapBufferRange);
-	LOAD_GL_FUNC(glBlitFramebuffer);
-	LOAD_GL_FUNC(glVertexAttribDivisor);
-	LOAD_GL_FUNC(glDrawArraysInstanced);
 
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_GL_max_elements_vertices);
-
 	qDebug() << "GL_MAX_ELEMENTS_VERTICES" << m_GL_max_elements_vertices;
-
 	qDebug() << "Context:" << QString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
 	auto start = std::chrono::system_clock::now();
@@ -142,22 +213,26 @@ void PVSeriesView::initializeGL()
 
 	m_sizeLocation = m_program->uniformLocation("size");
 
-	m_vbo.bind();
-	m_vbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
+	{
+		m_vbo.bind();
+		m_vbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 1, GL_UNSIGNED_SHORT, GL_FALSE, 0, 0x0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 1, GL_UNSIGNED_SHORT, GL_FALSE, 0, 0x0);
 
-	m_vbo.release();
+		m_vbo.release();
+	}
 
-	m_cbo.bind();
-	m_vbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
+	{
+		m_cbo.bind();
+		m_cbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
 
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0x0);
-	glVertexAttribDivisor(1, 1);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0x0);
+		glVertexAttribDivisor(1, 1);
 
-	m_cbo.release();
+		m_cbo.release();
+	}
 
 	m_vao.release();
 
@@ -176,6 +251,9 @@ void PVSeriesView::initializeGL()
 
 void PVSeriesView::cleanupGL()
 {
+	if (m_seriesViewCompat) {
+		return;
+	}
 	if (m_wasCleanedUp) {
 		return;
 	}
@@ -195,6 +273,9 @@ void PVSeriesView::cleanupGL()
 
 void PVSeriesView::resizeGL(int w, int h)
 {
+	if (m_seriesViewCompat) {
+		return;
+	}
 	qDebug() << "resizeGL(" << w << ", " << h << ")";
 	m_vao.bind();
 
@@ -219,12 +300,15 @@ void PVSeriesView::resizeGL(int w, int h)
 
 	m_needHardRedraw = true;
 
-	debugAvailableMemory();
+	// debugAvailableMemory();
 	debugErrors();
 }
 
 void PVSeriesView::paintGL()
 {
+	if (m_seriesViewCompat) {
+		return;
+	}
 	if (not m_needHardRedraw) {
 		softPaintGL();
 		return;
@@ -349,30 +433,18 @@ void PVSeriesView::fill_cbo_GL(size_t const lineBegin, size_t const lineEnd)
 
 void PVSeriesView::draw_GL(size_t const lineBegin, size_t const lineEnd)
 {
-	if (format().majorVersion() >= 4 && format().minorVersion() >= 3) {
-		draw_GL_4_3(lineBegin, lineEnd);
-	} else {
-		draw_GL_3_3(lineBegin, lineEnd);
-	}
-}
-
-void PVSeriesView::draw_GL_4_3(size_t const lineBegin, size_t const lineEnd)
-{
 	m_dbo.bind();
 	glMultiDrawArraysIndirect(GL_LINE_STRIP, 0, lineEnd - lineBegin,
 	                          sizeof(DrawArraysIndirectCommand));
 	m_dbo.release();
-}
 
-void PVSeriesView::draw_GL_3_3(size_t const lineBegin, size_t const lineEnd)
-{
-	for (size_t line = 0; line < lineEnd - lineBegin; ++line) {
-		m_program->setUniformValue(m_sizeLocation, QVector4D(m_seriesDrawOrder[line].color.redF(),
-		                                                     m_seriesDrawOrder[line].color.greenF(),
-		                                                     m_seriesDrawOrder[line].color.blueF(),
-		                                                     m_verticesCount));
-		glDrawArraysInstanced(GL_LINE_STRIP, line * m_verticesCount, m_verticesCount, 1);
-	}
+	// for (size_t line = 0; line < lineEnd - lineBegin; ++line) {
+	// 	m_program->setUniformValue(m_sizeLocation, QVector4D(m_seriesDrawOrder[line].color.redF(),
+	// 	                                                     m_seriesDrawOrder[line].color.greenF(),
+	// 	                                                     m_seriesDrawOrder[line].color.blueF(),
+	// 	                                                     m_verticesCount));
+	// 	glDrawArrays(GL_LINE_STRIP, line * m_verticesCount, m_verticesCount);
+	// }
 }
 
 // clang-format off
@@ -380,33 +452,18 @@ void PVSeriesView::setupShaders_GL()
 {
 	m_program = std::make_unique<QOpenGLShaderProgram>(context());
 
-	bool version = format().majorVersion() >= 4 && format().minorVersion() >= 3;
-
-	std::string vertexShader = version ?
-"#version 430\n" :
-"#version 330\n";
-	vertexShader +=
-"in vec4 vertex;\n";
-	if (version) {
-		vertexShader +=
-"in vec3 color;\n";
-	}
-	vertexShader +=
-"out vec4 lineColor;\n"
-"uniform vec4 size;\n";
-	if (not version) {
-		vertexShader +=
-"#define fma(a,b,c) (((a)*(b))+(c))\n";
-	}
-	vertexShader +=
-"void main(void) {\n";
+	std::string vertexShader =
+"#version 430\n" SHADER(
+in vec4 vertex;
+in vec3 color;
+out vec4 lineColor;
+uniform vec4 size;
+void main(void) {
     //float line = floor(gl_VertexID / size.w);
     //float line = gl_InstanceID;
     //lineColor = vec4(fract((line + 1) * 0.7), fract(2 * (line + 1) * 0.7), fract(3 * (line + 1) * 0.7), 1);
-	vertexShader += version ?
-"    lineColor = vec4(color, 1);\n" :
-"    lineColor = vec4(size.rgb, 1);\n";
-	vertexShader += R"SHADER(
+    lineColor = vec4(color, 1);
+    //lineColor = vec4(size.rgb, 1);
     vec4 wvertex = vertex;
     wvertex.y = vertex.x / 16383;// ((1 << 14) - 1);
     wvertex.x = mod(gl_VertexID, size.w) / (size.w - 1);
@@ -422,12 +479,10 @@ void PVSeriesView::setupShaders_GL()
     	wvertex.y = 0.5;
     }
     gl_Position.xy = vec2(fma(wvertex.x, 2, -1), fma(wvertex.y, 2, -1));
-})SHADER";
+});
 
-	std::string fragmentShader = version ?
-"#version 430\n" :
-"#version 330\n";
-	fragmentShader += SHADER(
+	std::string fragmentShader =
+"#version 430\n" SHADER(
 in vec4 lineColor;
 out vec4 FragColor;
 void main(void) {
@@ -454,6 +509,33 @@ void PVSeriesView::softPaintGL()
 	glBlitFramebuffer(0, 0, m_w, m_h, 0, 0, m_w, m_h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	qDebug() << "softPaintGL";
+}
+
+void PVSeriesView::paintEvent(QPaintEvent* event)
+{
+	QOpenGLWidget::paintEvent(event);
+	if (m_seriesViewCompat) {
+		if (m_needHardRedraw) {
+			qDebug() << "compat hard paint";
+			m_pixmap = m_seriesViewCompat->grab();
+			m_needHardRedraw = false;
+		}
+		qDebug() << "compat paint";
+		QPainter painter(this);
+		painter.drawPixmap(0, 0, m_pixmap);
+	}
+}
+
+void PVSeriesView::resizeEvent(QResizeEvent* event)
+{
+	QOpenGLWidget::resizeEvent(event);
+	if (m_seriesViewCompat) {
+		qDebug() << "compat resize";
+		m_rss.set_sampling_count(event->size().width());
+		m_rss.resubsample();
+		m_seriesViewCompat->resize(event->size());
+		m_needHardRedraw = true;
+	}
 }
 
 void PVSeriesView::onAboutToCompose()
