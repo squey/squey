@@ -98,6 +98,7 @@ void Inendi::PVRangeSubSampler::subsample(double first_ratio,
 	static const func_map_t func_map = [&]() {
 		func_map_t map;
 		map.insert({"number_uint32", &minmax_subrange<uint32_t>});
+		map.insert({"number_uint64", &minmax_subrange<uint64_t>});
 		map.insert({"datetime", &minmax_subrange<uint32_t>});
 		map.insert({"datetime_ms", &minmax_subrange<uint64_t>});
 		map.insert({"datetime_us", &minmax_subrange<boost::posix_time::ptime>});
@@ -140,6 +141,7 @@ void Inendi::PVRangeSubSampler::subsample(size_t first /*= 0*/,
 	static const func_map_t func_map = [&]() {
 		func_map_t map;
 		map.insert({"number_uint32", &PVRangeSubSampler::compute_ranges_values_count<uint32_t>});
+		map.insert({"number_uint64", &PVRangeSubSampler::compute_ranges_values_count<uint64_t>});
 		map.insert({"datetime", &PVRangeSubSampler::compute_ranges_values_count<uint32_t>});
 		map.insert({"datetime_ms", &PVRangeSubSampler::compute_ranges_values_count<uint64_t>});
 		map.insert({"datetime_us",

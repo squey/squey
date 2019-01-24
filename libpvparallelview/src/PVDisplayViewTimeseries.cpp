@@ -33,17 +33,19 @@ QIcon PVDisplays::PVDisplayViewTimeseries::toolbar_icon() const
 QString PVDisplays::PVDisplayViewTimeseries::widget_title(Inendi::PVView* view,
                                                           PVCombCol /*axis_comb*/) const
 {
-	return "Timeseries view [" + QString::fromStdString(view->get_name()) + "]";
+	return "Series view [" + QString::fromStdString(view->get_name()) + "]";
 }
 
 QString PVDisplays::PVDisplayViewTimeseries::axis_menu_name(Inendi::PVView const* /*view*/,
                                                             PVCombCol /*axis_comb*/) const
 {
-	return QString("New timeseries view");
+	return QString("New series view");
 }
 
 bool PVDisplays::PVDisplayViewTimeseries::should_add_to_menu(Inendi::PVView* view,
                                                              PVCombCol axis_comb)
 {
-	return view->get_axis(axis_comb).get_type().left(4) == "time";
+	return view->get_axis(axis_comb).get_type().left(4) == "time" or
+	       view->get_axis(axis_comb).get_type() == "number_uint32" or
+	       view->get_axis(axis_comb).get_type() == "number_uint64";
 }

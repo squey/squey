@@ -8,14 +8,16 @@
 #ifndef __PVWIDGETS_RANGEEDIT_H__
 #define __PVWIDGETS_RANGEEDIT_H__
 
+#include <QApplication>
 #include <QDateTimeEdit>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QStyle>
 #include <QWidget>
 
 #include <pvkernel/rush/PVFormat.h>
-
+#include <pvkernel/widgets/PVLongLongSpinBox.h>
 #include <pvcop/db/array.h>
 #include <pvcop/formatter_desc.h>
 
@@ -38,14 +40,17 @@ class PVIntegerRangeEdit : public PVRangeEdit
 	PVIntegerRangeEdit(const pvcop::db::array& minmax, func_type f, QWidget* parent = nullptr)
 	    : PVRangeEdit(parent), _minmax(minmax.copy()), _validate_f(f)
 	{
-		int min = QString(minmax.at(0).c_str()).toInt();
-		int max = QString(minmax.at(1).c_str()).toInt();
+		qlonglong min = QString(minmax.at(0).c_str()).toLongLong();
+		qlonglong max = QString(minmax.at(1).c_str()).toLongLong();
 
-		_from_widget = new QSpinBox;
+		_from_widget = new PVWidgets::PVLongLongSpinBox;
+		int spin_width = QFontMetrics(_from_widget->font()).width(QString::number(max)) + 25;
+		_from_widget->setFixedWidth(spin_width);
 		_from_widget->setMinimum(min);
 		_from_widget->setMaximum(max);
 		_from_widget->setValue(min);
-		_to_widget = new QSpinBox;
+		_to_widget = new PVWidgets::PVLongLongSpinBox;
+		_to_widget->setFixedWidth(spin_width);
 		_to_widget->setMinimum(min);
 		_to_widget->setMaximum(max);
 		_to_widget->setValue(max);
@@ -59,16 +64,16 @@ class PVIntegerRangeEdit : public PVRangeEdit
 
 		setLayout(layout);
 
-		connect(_from_widget,
-		        static_cast<void (QSpinBox::*)(const QString&)>(&QSpinBox::valueChanged),
-		        [&](const QString& value) {
-			        _to_widget->setMinimum(value.toInt());
+		connect(_from_widget, static_cast<void (PVWidgets::PVLongLongSpinBox::*)(qlonglong)>(
+		                          &PVWidgets::PVLongLongSpinBox::valueChanged),
+		        [&](qlonglong value) {
+			        _to_widget->setMinimum(value);
 			        update_minmax(value, false);
 			    });
-		connect(_to_widget,
-		        static_cast<void (QSpinBox::*)(const QString&)>(&QSpinBox::valueChanged),
-		        [&](const QString& value) {
-			        _from_widget->setMaximum(value.toInt());
+		connect(_to_widget, static_cast<void (PVWidgets::PVLongLongSpinBox::*)(qlonglong)>(
+		                        &PVWidgets::PVLongLongSpinBox::valueChanged),
+		        [&](qlonglong value) {
+			        _from_widget->setMaximum(value);
 			        update_minmax(value, true);
 			    });
 		connect(_ok, &QPushButton::clicked, [&]() { _validate_f(_minmax); });
@@ -78,15 +83,15 @@ class PVIntegerRangeEdit : public PVRangeEdit
 	const pvcop::db::array& minmax() const { return _minmax; }
 
   private:
-	void update_minmax(const QString& value, bool max)
+	void update_minmax(qlonglong value, bool max)
 	{
 		const pvcop::types::formatter_interface::shared_ptr& dtf = _minmax.formatter();
-		dtf->from_string(value.toStdString().c_str(), _minmax.data(), max);
+		dtf->from_string(std::to_string(value).c_str(), _minmax.data(), max);
 	}
 
   private:
-	QSpinBox* _from_widget;
-	QSpinBox* _to_widget;
+	PVWidgets::PVLongLongSpinBox* _from_widget;
+	PVWidgets::PVLongLongSpinBox* _to_widget;
 	QPushButton* _ok;
 
 	pvcop::db::array _minmax;

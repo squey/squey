@@ -83,7 +83,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	PVWidgets::PVRangeEdit* range_edit = nullptr;
 	if (_sampler->minmax_time().formatter()->name().find("datetime") == 0) {
 		range_edit = new PVWidgets::PVDateTimeRangeEdit(_sampler->minmax_time(), minmax_changed_f);
-	} else if (_sampler->minmax_time().formatter()->name().find("number_uint32") == 0) {
+	} else if (_sampler->minmax_time().formatter()->name().find("number_uint") == 0) {
 		range_edit = new PVWidgets::PVIntegerRangeEdit(_sampler->minmax_time(), minmax_changed_f);
 	}
 
