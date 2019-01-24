@@ -218,10 +218,18 @@ void PVSeriesViewZoomer::moveZoomBy(QPoint offset)
 	}
 	m_zoomStack.resize(m_currentZoomIndex + 1);
 	Zoom& zoom = m_zoomStack.back();
-	zoom.minX -= offset.x() * (zoom.maxX - zoom.minX) / double(size().width());
-	zoom.maxX -= offset.x() * (zoom.maxX - zoom.minX) / double(size().width());
-	zoom.minY += offset.y() * (zoom.maxY - zoom.minY) / double(size().height());
-	zoom.maxY += offset.y() * (zoom.maxY - zoom.minY) / double(size().height());
+	{
+		double offsetX = offset.x() * (zoom.maxX - zoom.minX) / double(size().width());
+		offsetX = std::clamp(offsetX, -(1. - zoom.maxX), zoom.minX);
+		zoom.minX -= offsetX;
+		zoom.maxX -= offsetX;
+	}
+	{
+		double offsetY = offset.y() * (zoom.maxY - zoom.minY) / double(size().height());
+		offsetY = std::clamp(offsetY, -zoom.minY, 1. - zoom.maxY);
+		zoom.minY += offsetY;
+		zoom.maxY += offsetY;
+	}
 	updateZoom();
 }
 
