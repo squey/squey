@@ -15,6 +15,7 @@
 #include <pvkernel/core/PVCompList.h>
 #include <pvkernel/core/PVUtils.h>
 
+#include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVAxisFormat.h>
@@ -522,12 +523,12 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 
 	QString fname = so.attribute_read<QString>("filename");
 	QString full_path = so.file_read(fname);
-	char pattern[] = "/tmp/investigation_tmp_XXXXXX";
-	char* tmp_dir = mkdtemp(pattern);
-	std::string new_full_path = tmp_dir + ("/" + fname.toStdString());
-	std::rename(full_path.toStdString().c_str(), new_full_path.c_str());
+	QString pattern = PVRush::PVNrawCacheManager::nraw_dir() + "/investigation_tmp_XXXXXX";
+	QString tmp_dir = mkdtemp(pattern.toLatin1().data());
+	QString new_full_path = tmp_dir + "/" + fname;
+	std::rename(full_path.toStdString().c_str(), new_full_path.toStdString().c_str());
 
-	return {format_name, QString::fromStdString(new_full_path)};
+	return {format_name, new_full_path};
 }
 
 void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so) const

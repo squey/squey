@@ -1,3 +1,10 @@
+4.5.5 (2019-01-29)
+----------------
+
+* Add time format support for "yyyy-M-d'T'H:m:s'Z'" in autodetection
+* Fix permission error when updating license file
+* Fix problems related to investigations under Windows 10
+
 4.5.4 (2018-11-09)
 ----------------
 

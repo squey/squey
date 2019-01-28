@@ -74,7 +74,8 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"yy-M-d H:mm:ss.SSS",
 	"yy-M-d H:mm:ss.SSS V",
 	"dd.MM.yyyy H:m:s.S",
-	"dd.MM.yy H:m:s.S"
+	"dd.MM.yy H:m:s.S",
+	"yyyy-M-d'T'H:m:s'Z'"
 }};
 // clang-format on
 

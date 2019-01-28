@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <cstdlib> // for mkdtemp
 
@@ -55,5 +56,5 @@ QString PVCore::PVDirectory::temp_dir(QDir const& directory, QString const& patt
 
 QString PVCore::PVDirectory::temp_dir(QString const& pattern)
 {
-	return temp_dir(QDir::temp(), pattern);
+	return temp_dir(PVRush::PVNrawCacheManager::nraw_dir(), pattern);
 }
