@@ -113,9 +113,13 @@ void test_offline_activation()
 	PVCore::PVLicenseActivator::EError ret_code;
 
 	// NO_ERROR
+	PVCore::PVLicenseActivator activator(offline_license_path);
 	QFile(offline_license_path).remove();
-	ret_code =
-	    PVCore::PVLicenseActivator(offline_license_path).offline_activation(online_license_path);
+	ret_code = activator.offline_activation(online_license_path);
+	PV_ASSERT_VALID(ret_code == PVCore::PVLicenseActivator::EError::NO_ERROR);
+
+	// NO_ERROR again
+	ret_code = activator.offline_activation(online_license_path);
 	PV_ASSERT_VALID(ret_code == PVCore::PVLicenseActivator::EError::NO_ERROR);
 
 	// UNABLE_TO_READ_LICENSE_FILE
