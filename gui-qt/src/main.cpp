@@ -48,6 +48,8 @@
 
 #include <boost/program_options.hpp>
 
+#include <QtWebEngineWidgets/QWebEngineView>
+
 // #ifdef USE_UNIKEY
 // #include <UniKeyFR.h>
 // #endif
@@ -249,6 +251,11 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	app.setWindowIcon(QIcon(":/inendi"));
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
+
+	QWebEngineView dummy_webengine; // workaround to avoid Chromium terminate with
+	                                // "FATAL:file_path_watcher_linux.cc(226)] Check failed: 1024 >
+	                                // inotify_fd_"
+	dummy_webengine.show();
 
 	PVInspector::PVMainWindow pv_mw;
 	pv_mw.show();
