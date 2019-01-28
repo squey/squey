@@ -18,6 +18,8 @@
 #include <rapidjson/stringbuffer.h>
 
 #include <QDir>
+#include <QFile>
+#include <QDateTime>
 #include <QFileInfo>
 #include <QString>
 
@@ -145,6 +147,13 @@ class PVLicenseActivator
 
 		if (not QFileInfo(user_license_path).isReadable()) {
 			return EError::UNABLE_TO_READ_LICENSE_FILE;
+		}
+
+		// Rename the old license if any
+		if (QFile(_inendi_license_path.c_str()).exists()) {
+			QFile::rename(QString(_inendi_license_path.c_str()),
+			              QString(_inendi_license_path.c_str()) + "." +
+			                  QString::number(QDateTime::currentMSecsSinceEpoch()));
 		}
 
 		if (not ensure_license_folder_exists() or
