@@ -50,8 +50,11 @@ class PVRangeSubSampler
 	size_t samples_count() const { return _sampling_count; }
 	size_t total_count() const { return _time.size(); }
 	size_t timeseries_count() const { return _timeseries.size(); }
-	const std::vector<display_type>& averaged_timeserie(size_t index) { return _avg_matrix[index]; }
-	const std::vector<display_type>& averaged_time() { return _time_iota; }
+	const std::vector<display_type>& averaged_timeserie(size_t index) const
+	{
+		return _avg_matrix[index];
+	}
+	const std::vector<display_type>& averaged_time() const { return _time_iota; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
 
 	void
