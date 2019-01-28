@@ -448,10 +448,20 @@
     {
       "name": "qt5",
       "config-opts": [
-        "-opensource",
         "-confirm-license",
+        "-opensource",
         "-sql-mysql",
-        "-sql-sqlite"
+        "-sql-sqlite",
+        "-platform", "linux-g++",
+        "-optimized-qmake",
+        "-nomake", "examples",
+        "-nomake", "tests",
+        "-accessibility",
+        "-dbus-linked",
+        "-fontconfig",
+        "-glib",
+        "-system-proxies",
+        "-gtk"
       ],
       "sources": [
         {
