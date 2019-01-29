@@ -8,6 +8,7 @@
 #include <QCoreApplication>
 #include <QPainter>
 #include <QResizeEvent>
+#include <QOffscreenSurface>
 
 namespace PVParallelView
 {
@@ -103,7 +104,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	};
 
   public:
-	explicit PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler& rss, QWidget* parent = 0);
+	explicit PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& rss, QWidget* parent = 0);
 	virtual ~PVSeriesRendererOpenGL();
 
 	static bool hasCapability();
@@ -182,10 +183,66 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	std::chrono::time_point<std::chrono::high_resolution_clock> startCompositionTimer;
 };
 
+class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer,
+                                  public QOffscreenSurface,
+                                  public QWidget
+{
+  public:
+	virtual ~PVSeriesRendererOffscreen() = default;
+
+	virtual void setBackgroundColor(QColor const& bgcol) { m_glRenderer.setBackgroundColor(bgcol); }
+	virtual void resize(QSize const& size) { m_glRenderer.resize(size); }
+	virtual QPixmap grab() { return m_glRenderer.grab(); }
+
+	PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss)
+	    : PVSeriesAbstractRenderer(rss)
+	    , QOffscreenSurface()
+	    , QWidget(nullptr)
+	    , m_glRenderer(rss, this)
+	{
+		QSurfaceFormat format;
+		format.setVersion(4, 3);
+		format.setProfile(QSurfaceFormat::CoreProfile);
+		setFormat(format);
+		QOffscreenSurface::create();
+		m_glRenderer.setFormat(QOffscreenSurface::format());
+		qDebug() << "Could init QOffscreenSurface:" << isValid();
+	}
+
+	static bool hasCapability()
+	{
+		QSurfaceFormat format;
+		format.setVersion(4, 3);
+		format.setProfile(QSurfaceFormat::CoreProfile);
+
+		QOffscreenSurface offsc;
+		offsc.setFormat(format);
+		offsc.create();
+		if (not offsc.isValid()) {
+			return false;
+		}
+		QOpenGLContext qogl;
+		qogl.setFormat(offsc.format());
+		return qogl.create() && qogl.format().version() >= qMakePair(4, 3);
+	}
+
+  protected:
+	virtual void onShowSeries()
+	{
+		m_glRenderer.showSeries(std::move(m_seriesDrawOrder));
+		m_glRenderer.onShowSeries();
+	}
+
+	PVSeriesRendererOpenGL m_glRenderer;
+};
+
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
     : QWidget(parent), m_rss(rss)
 {
-	if (PVSeriesRendererOpenGL::hasCapability()) {
+	if (PVSeriesRendererOffscreen::hasCapability()) {
+		qDebug() << "Choosing PVSeriesRendererOffscreen";
+		m_renderer = std::make_unique<PVSeriesRendererOffscreen>(m_rss);
+	} else if (PVSeriesRendererOpenGL::hasCapability()) {
 		qDebug() << "Choosing PVSeriesRendererOpenGL";
 		m_renderer = std::make_unique<PVSeriesRendererOpenGL>(m_rss);
 	} else {
@@ -241,7 +298,8 @@ void PVSeriesView::resizeEvent(QResizeEvent* event)
 	x = reinterpret_cast<decltype(x)>(context()->getProcAddress(#x));                              \
 	assert(x != nullptr);
 
-PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler& rss, QWidget* parent)
+PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& rss,
+                                               QWidget* parent)
     : PVSeriesAbstractRenderer(rss)
     , QOpenGLWidget(parent)
     , m_dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
@@ -340,6 +398,11 @@ void PVSeriesRendererOpenGL::initializeGL()
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_GL_max_elements_vertices);
 	qDebug() << "GL_MAX_ELEMENTS_VERTICES" << m_GL_max_elements_vertices;
 	qDebug() << "Context:" << QString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+	qDebug() << "Screen:" << context()->screen();
+	qDebug() << "Surface:" << context()->surface()->surfaceClass()
+	         << context()->surface()->surfaceType()
+	         << "(supports OpenGL:" << context()->surface()->supportsOpenGL() << ")"
+	         << context()->surface()->size();
 
 	auto start = std::chrono::system_clock::now();
 

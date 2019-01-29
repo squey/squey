@@ -12,8 +12,7 @@
 #include <pvparallelview/PVSeriesViewWidget.h>
 
 PVDisplays::PVDisplayViewTimeseries::PVDisplayViewTimeseries()
-    : PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
-                          "Timeseries view")
+    : PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Series view")
 {
 }
 
@@ -26,7 +25,7 @@ QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Inendi::PVView* view
 
 QIcon PVDisplays::PVDisplayViewTimeseries::toolbar_icon() const
 {
-	return QIcon(":/view-parallel-zoomed");
+	return QIcon(":/view-series");
 }
 
 // FIXME : Hidden argument reflect bad design properties, inheritance should certainly be improved.

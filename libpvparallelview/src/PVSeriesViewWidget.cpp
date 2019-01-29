@@ -48,7 +48,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	{
 		std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder;
 		for (PVCombCol i(0); i < timeseries.size(); i++) {
-			QColor color(rand() % 256, rand() % 256, rand() % 256);
+			QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
 			if (axes_comb.get_axis(i).get_type().left(6) == "number") {
 				timeseries_list_widget->item(i)->setSelected(true);
 				seriesDrawOrder.push_back({i, color});
