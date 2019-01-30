@@ -26,6 +26,9 @@ class PVSeriesViewZoomer : public QWidget
 		double maxX;
 		double minY;
 		double maxY;
+
+		double width() const { return maxX - minX; }
+		double height() const { return maxY - minY; }
 	};
 
   public:
@@ -37,6 +40,7 @@ class PVSeriesViewZoomer : public QWidget
 	void zoomIn(QRect zoomInRect);
 	void zoomIn(QPoint center);
 	void zoomOut();
+	void zoomOut(QPoint center);
 	void resetZoom();
 
 	void moveZoomBy(QPoint offset);
@@ -75,7 +79,7 @@ class PVSeriesViewZoomer : public QWidget
 	std::vector<Zoom> m_zoomStack;
 	size_t m_currentZoomIndex = 0;
 
-	const double m_centeredZoomRadius = 0.1;
+	const double m_centeredZoomFactor = 0.8;
 };
 }
 

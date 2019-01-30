@@ -183,9 +183,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	std::chrono::time_point<std::chrono::high_resolution_clock> startCompositionTimer;
 };
 
-class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer,
-                                  public QOffscreenSurface,
-                                  public QWidget
+class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffscreenSurface
 {
   public:
 	virtual ~PVSeriesRendererOffscreen() = default;
@@ -195,10 +193,7 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer,
 	virtual QPixmap grab() { return m_glRenderer.grab(); }
 
 	PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss)
-	    : PVSeriesAbstractRenderer(rss)
-	    , QOffscreenSurface()
-	    , QWidget(nullptr)
-	    , m_glRenderer(rss, this)
+	    : PVSeriesAbstractRenderer(rss), QOffscreenSurface(), m_glRenderer(rss)
 	{
 		QSurfaceFormat format;
 		format.setVersion(4, 3);
@@ -219,6 +214,12 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer,
 		offsc.setFormat(format);
 		offsc.create();
 		if (not offsc.isValid()) {
+			qDebug() << "Imposible to create QOffscreenSurface";
+			QOffscreenSurface offsc_crash;
+			offsc_crash.create();
+			if (not offsc_crash.isValid()) {
+				qDebug() << "Absolutely impossible to create any QOffscreenSurface";
+			}
 			return false;
 		}
 		QOpenGLContext qogl;
