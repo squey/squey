@@ -45,6 +45,7 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 	}
 	resetZoom();
 	setMouseTracking(true);
+	setFocusPolicy(Qt::ClickFocus);
 }
 
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
@@ -68,18 +69,18 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 {
 	if (m_selecting && event->button() == Qt::LeftButton) {
 		m_selecting = false;
-		QToolTip::hideText();
+		// QToolTip::hideText();
 		for (auto& fragment : m_fragments) {
 			fragment->hide();
 		}
 		if (event->pos() == m_zoomRect.topLeft()) {
-			zoomOut();
+			zoomOut(event->pos());
 		} else {
-			zoomIn(m_zoomRect.normalized());
+			zoomIn(normalizedZoomRect(event->modifiers() & Qt::ControlModifier));
 		}
 	} else if (m_moving && event->button() == Qt::RightButton) {
 		m_moving = false;
-		QToolTip::hideText();
+		// QToolTip::hideText();
 		moveZoomBy(event->pos() - m_moveStart);
 	} else if (event->button() == Qt::MidButton) {
 		m_animationTimer->stop();
@@ -91,11 +92,7 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 	if (m_selecting) {
 		m_zoomRect.setBottomRight(QPoint(std::clamp(event->pos().x(), 0, size().width() - 1),
 		                                 std::clamp(event->pos().y(), 0, size().height() - 1)));
-		auto zr = m_zoomRect.normalized();
-		m_fragments[0]->setGeometry(zr.x(), zr.y(), zr.width(), 1);
-		m_fragments[1]->setGeometry(zr.x(), zr.y(), 1, zr.height());
-		m_fragments[2]->setGeometry(zr.x(), zr.y() + zr.height(), zr.width(), 1);
-		m_fragments[3]->setGeometry(zr.x() + zr.width(), zr.y(), 1, zr.height());
+		updateZoomGeometry(event->modifiers() & Qt::ControlModifier);
 		for (auto& fragment : m_fragments) {
 			fragment->show();
 		}
@@ -121,6 +118,24 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 	}
 }
 
+void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Control) {
+		if (m_selecting) {
+			updateZoomGeometry(true);
+		}
+	}
+}
+
+void PVSeriesViewZoomer::keyReleaseEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Control) {
+		if (m_selecting) {
+			updateZoomGeometry(false);
+		}
+	}
+}
+
 void PVSeriesViewZoomer::leaveEvent(QEvent*)
 {
 	for (auto& fragment : m_crossHairsFragments) {
@@ -131,7 +146,7 @@ void PVSeriesViewZoomer::leaveEvent(QEvent*)
 void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 {
 	if (event->angleDelta().y() > 0) {
-		zoomIn(event->pos());
+		zoomIn(event->pos(), event->modifiers() & Qt::ControlModifier);
 	} else if (event->angleDelta().y() < 0) {
 		zoomOut(event->pos());
 	}
@@ -140,6 +155,25 @@ void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 void PVSeriesViewZoomer::resizeEvent(QResizeEvent* event)
 {
 	m_seriesView->resize(event->size());
+}
+
+QRect PVSeriesViewZoomer::normalizedZoomRect(bool rectangular) const
+{
+	auto zr = m_zoomRect.normalized();
+	if (not rectangular) {
+		zr.setY(0);
+		zr.setHeight(size().height());
+	}
+	return zr;
+}
+
+void PVSeriesViewZoomer::updateZoomGeometry(bool rectangular)
+{
+	auto zr = normalizedZoomRect(rectangular);
+	m_fragments[0]->setGeometry(zr.x(), zr.y(), zr.width(), 1);
+	m_fragments[1]->setGeometry(zr.x(), zr.y(), 1, zr.height());
+	m_fragments[2]->setGeometry(zr.x(), zr.y() + zr.height(), zr.width(), 1);
+	m_fragments[3]->setGeometry(zr.x() + zr.width(), zr.y(), 1, zr.height());
 }
 
 void PVSeriesViewZoomer::zoomIn(QRect zoomInRect)
@@ -159,7 +193,7 @@ void PVSeriesViewZoomer::zoomIn(QRect zoomInRect)
 	updateZoom();
 }
 
-void PVSeriesViewZoomer::zoomIn(QPoint center)
+void PVSeriesViewZoomer::zoomIn(QPoint center, bool rectangular)
 {
 	qDebug() << "zoomIn" << center;
 	// if (m_currentZoomIndex + 1 < m_zoomStack.size()) {
@@ -169,8 +203,9 @@ void PVSeriesViewZoomer::zoomIn(QPoint center)
 	// }
 	assert(m_centeredZoomFactor < 1 && m_centeredZoomFactor > 0);
 	zoomIn(QRect(center.x() - center.x() * m_centeredZoomFactor,
-	             center.y() - center.y() * m_centeredZoomFactor,
-	             m_centeredZoomFactor * size().width(), m_centeredZoomFactor * size().height()));
+	             center.y() - center.y() * (rectangular ? m_centeredZoomFactor : 1),
+	             m_centeredZoomFactor * size().width(),
+	             (rectangular ? m_centeredZoomFactor : 1) * size().height()));
 }
 
 void PVSeriesViewZoomer::zoomOut()

@@ -38,7 +38,7 @@ class PVSeriesViewZoomer : public QWidget
 	virtual ~PVSeriesViewZoomer() = default;
 
 	void zoomIn(QRect zoomInRect);
-	void zoomIn(QPoint center);
+	void zoomIn(QPoint center, bool rectangular);
 	void zoomOut();
 	void zoomOut(QPoint center);
 	void resetZoom();
@@ -53,6 +53,8 @@ class PVSeriesViewZoomer : public QWidget
 	void mouseReleaseEvent(QMouseEvent*) override;
 	void mouseMoveEvent(QMouseEvent*) override;
 	void leaveEvent(QEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
 
 	void wheelEvent(QWheelEvent*) override;
 
@@ -61,6 +63,10 @@ class PVSeriesViewZoomer : public QWidget
   private:
 	void updateZoom();
 	void clampZoom(Zoom& zoom) const;
+
+  private:
+	QRect normalizedZoomRect(bool rectangular) const;
+	void updateZoomGeometry(bool rectangular);
 
   private:
 	PVSeriesView* m_seriesView;
