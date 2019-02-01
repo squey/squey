@@ -15,12 +15,32 @@
 
 #include <numeric>
 #include <math.h>
+#include <unordered_set>
 
 namespace Inendi
 {
 
 class PVRangeSubSampler
 {
+  private:
+	struct SamplingParams {
+		size_t first = 0;
+		size_t last = 0;
+		size_t min = 0;
+		size_t max = 0;
+
+		SamplingParams(size_t first = 0, size_t last = 0, size_t min = 0, size_t max = 0)
+		    : first(first), last(last), min(min), max(max)
+		{
+		}
+
+		bool operator==(const SamplingParams& rhs) const
+		{
+			return rhs.first == first and rhs.last == last and rhs.min == min and rhs.max == max;
+		}
+		bool operator!=(const SamplingParams& rhs) const { return not(*this == rhs); }
+	};
+
   private:
 	static constexpr const size_t reserved_bits = 2;
 	using value_type = Inendi::PVPlotted::value_type;
@@ -63,6 +83,8 @@ class PVRangeSubSampler
 	void subsample(size_t first = 0, size_t last = 0, size_t min = 0, size_t max = 0);
 
 	void resubsample();
+
+	void update_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries = {});
 
   private:
 	void allocate_internal_structures();
@@ -114,13 +136,10 @@ class PVRangeSubSampler
   private:
 	size_t _sampling_count;
 
-	size_t _first = 0;
-	size_t _last = 0;
-	size_t _min = 0;
-	size_t _max = 0;
-
 	const pvcop::db::array& _time;
 	const std::vector<pvcop::core::array<value_type>> _timeseries;
+	std::unordered_set<size_t> _selected_timeseries;
+	std::vector<size_t> _timeseries_to_subsample;
 
 	pvcop::db::indexes _sorted_indexes;
 	pvcop::core::array<uint32_t> _sort;
@@ -133,6 +152,10 @@ class PVRangeSubSampler
 
 	std::vector<size_t> _ranges_values_counts;
 	std::vector<std::vector<display_type>> _avg_matrix;
+
+	SamplingParams _last_params;
+
+	bool _reset = false;
 };
 
 } // namespace Inendi

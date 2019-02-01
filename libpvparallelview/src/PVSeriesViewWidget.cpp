@@ -34,14 +34,14 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	}
 
 	_sampler.reset(new Inendi::PVRangeSubSampler(time, timeseries));
-	_sampler->subsample();
 
 	PVSeriesView* plot = new PVSeriesView(*_sampler);
 	plot->setBackgroundColor(QColor(10, 10, 10, 255));
 
 	QListWidget* timeseries_list_widget = new QListWidget;
 	timeseries_list_widget->setFixedWidth(200);
-	timeseries_list_widget->addItems(axes_comb.get_combined_names());
+	timeseries_list_widget->addItems(
+	    axes_comb.get_combined_names()); // FIXME : add only compatible axes
 	timeseries_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
 	timeseries_list_widget->setAlternatingRowColors(true);
 
@@ -55,22 +55,32 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 			}
 			timeseries_list_widget->item(i)->setForeground(color); // FIXME
 		}
-		plot->showSeries(std::move(seriesDrawOrder));
 	}
 
+	auto update_selected_timeseries =
+	    [ plot, timeseries_list_widget, timeseries_size = timeseries.size(),
+		  this ](bool resample = true)
+	{
+		// FIXME : should put newly selected timeserie on top
+		std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder;
+		std::unordered_set<size_t> selected_timeseries;
+		selected_timeseries.reserve(timeseries_size);
+		for (const QListWidgetItem* item : timeseries_list_widget->selectedItems()) {
+			const int item_row = timeseries_list_widget->row(item);
+			seriesDrawOrder.push_back({item_row, item->foreground().color()});
+			selected_timeseries.emplace(item_row);
+		}
+		_sampler->update_selected_timeseries(selected_timeseries);
+		if (resample) {
+			_sampler->resubsample();
+		}
+		plot->showSeries(std::move(seriesDrawOrder));
+		plot->update();
+	};
+
 	QObject::connect(timeseries_list_widget, &QListWidget::itemSelectionChanged,
-	                 [ plot, timeseries_list_widget, timeseries_size = timeseries.size() ]() {
-		                 // FIXME : should put newly selected timeserie on top
-		                 std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder;
-		                 for (PVCombCol i(0); i < timeseries_size; ++i) {
-			                 if (timeseries_list_widget->item(i)->isSelected()) {
-				                 seriesDrawOrder.push_back(
-				                     {i, timeseries_list_widget->item(i)->foreground().color()});
-			                 }
-		                 }
-		                 plot->showSeries(std::move(seriesDrawOrder));
-		                 plot->update();
-		             });
+	                 update_selected_timeseries);
+	update_selected_timeseries(false);
 
 	PVSeriesViewZoomer* zoomer = new PVSeriesViewZoomer(plot, *_sampler);
 	zoomer->setZoomRectColor(Qt::red);
