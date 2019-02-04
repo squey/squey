@@ -273,7 +273,7 @@ void PVSeriesView::onResampled()
 	update();
 }
 
-void PVSeriesView::paintEvent(QPaintEvent* event)
+void PVSeriesView::paintEvent(QPaintEvent*)
 {
 	if (m_needHardRedraw) {
 		qDebug() << "hard paint";
@@ -282,16 +282,27 @@ void PVSeriesView::paintEvent(QPaintEvent* event)
 	}
 	qDebug() << "soft paint";
 	QPainter painter(this);
-	painter.drawPixmap(0, 0, m_pixmap);
+	painter.drawPixmap(0, 0, width(), height(), m_pixmap);
 }
 
-void PVSeriesView::resizeEvent(QResizeEvent* event)
+void PVSeriesView::resizeEvent(QResizeEvent*)
 {
-	qDebug() << "resize";
-	m_rss.set_sampling_count(event->size().width());
-	m_rss.resubsample();
-	m_renderer->resize(event->size());
-	m_needHardRedraw = true;
+	m_resizingTimer.start(200, this);
+}
+
+void PVSeriesView::timerEvent(QTimerEvent* event)
+{
+	// We need to check for both types of mouse release, because it can vary on which type happens
+	// when resizing.
+	if (event->timerId() == m_resizingTimer.timerId()) {
+		qDebug() << "resize";
+		m_rss.set_sampling_count(size().width());
+		m_rss.resubsample();
+		m_renderer->resize(size());
+		m_needHardRedraw = true;
+		m_resizingTimer.stop();
+		update();
+	}
 }
 
 #define SHADER(x) #x

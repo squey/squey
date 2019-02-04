@@ -19,6 +19,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
 #include <QOpenGLBuffer>
+#include <QBasicTimer>
 
 namespace PVParallelView
 {
@@ -45,11 +46,13 @@ class PVSeriesView : public QWidget
   protected:
 	void paintEvent(QPaintEvent* event) override;
 	void resizeEvent(QResizeEvent* event) override;
+	void timerEvent(QTimerEvent* event) override;
 
   private:
 	std::unique_ptr<PVSeriesAbstractRenderer> m_renderer;
 	QPixmap m_pixmap;
 	bool m_needHardRedraw = true;
+	QBasicTimer m_resizingTimer;
 
 	Inendi::PVRangeSubSampler& m_rss;
 };
