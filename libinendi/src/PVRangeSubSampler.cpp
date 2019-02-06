@@ -194,10 +194,9 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	// matrix of average values
 	_avg_matrix.resize(_timeseries.size() /* row count */,
 	                   std::vector<display_type>(_ranges_values_counts.size()));
-	if (_selected_timeseries.empty() or _reset) {
-		_timeseries_to_subsample.resize(_timeseries.size());
-		std::iota(_timeseries_to_subsample.begin(), _timeseries_to_subsample.end(), 0);
-	}
+	_timeseries_to_subsample.clear();
+	std::copy(_selected_timeseries.begin(), _selected_timeseries.end(),
+			  std::back_inserter(_timeseries_to_subsample));
 }
 
 void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,

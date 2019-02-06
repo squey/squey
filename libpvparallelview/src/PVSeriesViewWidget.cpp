@@ -40,25 +40,29 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	QListWidget* timeseries_list_widget = new QListWidget;
 	timeseries_list_widget->setFixedWidth(200);
-	timeseries_list_widget->addItems(
-	    axes_comb.get_combined_names()); // FIXME : add only compatible axes
+	for (PVCol col(0); col < nraw.column_count(); col++) {
+		const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);
+		if (axis.get_type().startsWith("number_") or axis.get_type().startsWith("duration")) {
+			QListWidgetItem* item = new QListWidgetItem(axis.get_name());
+			item->setData(Qt::UserRole, QVariant(col.value()));
+			timeseries_list_widget->addItem(item);
+		}
+	}
 	timeseries_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
 	timeseries_list_widget->setAlternatingRowColors(true);
 
 	{
 		std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder;
-		for (PVCombCol i(0); i < timeseries.size(); i++) {
+		for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
 			QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-			if (axes_comb.get_axis(i).get_type().left(6) == "number") {
-				timeseries_list_widget->item(i)->setSelected(true);
-				seriesDrawOrder.push_back({i, color});
-			}
+			timeseries_list_widget->item(i)->setSelected(true);
+			seriesDrawOrder.push_back({i, color});
 			timeseries_list_widget->item(i)->setForeground(color); // FIXME
 		}
 	}
 
 	auto update_selected_timeseries =
-	    [ plot, timeseries_list_widget, timeseries_size = timeseries.size(),
+	    [ plot, timeseries_list_widget, timeseries_size = timeseries_list_widget->count(),
 		  this ](bool resample = true)
 	{
 		// FIXME : should put newly selected timeserie on top
@@ -66,9 +70,9 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		std::unordered_set<size_t> selected_timeseries;
 		selected_timeseries.reserve(timeseries_size);
 		for (const QListWidgetItem* item : timeseries_list_widget->selectedItems()) {
-			const int item_row = timeseries_list_widget->row(item);
-			seriesDrawOrder.push_back({item_row, item->foreground().color()});
-			selected_timeseries.emplace(item_row);
+			const int item_col = item->data(Qt::UserRole).toInt();
+			seriesDrawOrder.push_back({item_col, item->foreground().color()});
+			selected_timeseries.emplace(item_col);
 		}
 		_sampler->update_selected_timeseries(selected_timeseries);
 		if (resample) {
