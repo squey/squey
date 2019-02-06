@@ -235,11 +235,8 @@ void PVParallelView::PVLibView::output_layer_updated()
 	}
 }
 
-void PVParallelView::PVLibView::plotting_updated()
+void PVParallelView::PVLibView::plotting_updated(QList<PVCol> const& cols_updated)
 {
-	QList<PVCol> const& cols_updated =
-	    lib_view()->get_parent<Inendi::PVPlotted>().last_updated_cols();
-
 	if (cols_updated.size() == 0) {
 		return;
 	}

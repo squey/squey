@@ -101,10 +101,14 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		range_edit = new PVWidgets::PVIntegerRangeEdit(_sampler->minmax_time(), minmax_changed_f);
 	}
 
-	view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect([this, plot]() {
-		_sampler->resubsample();
-		plot->update();
-	});
+	view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	    [this, plot](const QList<PVCol>& plotteds_updated) {
+		    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
+		                                                  plotteds_updated.end());
+		    _sampler->resubsample(updated_timeseries);
+		    plot->onResampled();
+		    plot->update();
+		});
 
 	QVBoxLayout* layout = new QVBoxLayout;
 

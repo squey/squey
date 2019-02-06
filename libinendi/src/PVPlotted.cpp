@@ -300,7 +300,7 @@ PVRow Inendi::PVPlotted::get_col_max_row(PVCol const c) const
 void Inendi::PVPlotted::update_plotting()
 {
 	create_table();
-	_plotted_updated.emit();
+	_plotted_updated.emit(_last_updated_cols);
 }
 
 QList<PVCol> Inendi::PVPlotted::get_columns_to_update() const

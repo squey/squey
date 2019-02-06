@@ -82,7 +82,7 @@ class PVRangeSubSampler
 	void subsample(const pvcop::db::array& minmax, size_t min = 0, size_t max = 0);
 	void subsample(size_t first = 0, size_t last = 0, size_t min = 0, size_t max = 0);
 
-	void resubsample();
+	void resubsample(const std::unordered_set<size_t>& timeseries = {});
 
 	void update_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries = {});
 

@@ -63,7 +63,7 @@ class PVLibView : public sigc::trackable
 	void view_about_to_be_deleted();
 	void axes_comb_about_to_be_updated();
 	void axes_comb_updated();
-	void plotting_updated();
+	void plotting_updated(QList<PVCol> const& cols_updated);
 
   private:
 	Inendi::PVView* _view;

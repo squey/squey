@@ -210,7 +210,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	}
 
   public:
-	sigc::signal<void> _plotted_updated;
+	sigc::signal<void(QList<PVCol>)> _plotted_updated;
 
   private:
 	plotteds_t _plotteds;

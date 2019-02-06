@@ -174,8 +174,13 @@ void Inendi::PVRangeSubSampler::update_selected_timeseries(
 	}
 }
 
-void Inendi::PVRangeSubSampler::resubsample()
+void Inendi::PVRangeSubSampler::resubsample(const std::unordered_set<size_t>& timeseries /*= {}*/)
 {
+	if (not timeseries.empty()) {
+		_timeseries_to_subsample.clear();
+		std::copy(timeseries.begin(), timeseries.end(),
+		          std::back_inserter(_timeseries_to_subsample));
+	}
 	subsample(_last_params.first, _last_params.last, _last_params.min, _last_params.max);
 }
 
@@ -196,7 +201,7 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	                   std::vector<display_type>(_ranges_values_counts.size()));
 	_timeseries_to_subsample.clear();
 	std::copy(_selected_timeseries.begin(), _selected_timeseries.end(),
-			  std::back_inserter(_timeseries_to_subsample));
+	          std::back_inserter(_timeseries_to_subsample));
 }
 
 void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
@@ -208,7 +213,9 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 
 #pragma omp parallel for
 	for (size_t k = 0; k < _timeseries_to_subsample.size(); k++) {
+
 		const size_t i = _timeseries_to_subsample[k];
+
 		size_t start = first;
 		size_t end = first;
 		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
