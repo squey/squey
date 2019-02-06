@@ -92,9 +92,8 @@ PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
 
 PVSeriesView.cpp
+PVSeriesViewWidget.cpp
 PVSeriesViewZoomer.cpp
-PVSeriesViewWidget.cpp
-PVSeriesViewWidget.cpp
 )
 
 set(OPENCL_SRC_FILES
@@ -127,6 +126,7 @@ include/pvparallelview/PVScatterView.h
 include/pvparallelview/PVScatterViewParamsWidget.h
 include/pvparallelview/PVSeriesView.h
 include/pvparallelview/PVSeriesViewWidget.h
+include/pvparallelview/PVSeriesViewZoomer.h
 )
 
 ################################################

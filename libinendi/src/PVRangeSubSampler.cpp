@@ -138,6 +138,12 @@ void Inendi::PVRangeSubSampler::subsample(size_t first /*= 0*/,
 	}
 	_last_params = SamplingParams(first, last, min, max);
 
+	pvlogger::info() << "PVRangeSubSampler::subsample(first:" << first << ", last:" << last
+	                 << ", min:" << min << ", max:" << max
+	                 << ", _sampling_count:" << _sampling_count << ", _reset:" << _reset
+	                 << ", _timeseries_to_subsample.size():" << _timeseries_to_subsample.size()
+	                 << ")\n";
+
 	typedef void (PVRangeSubSampler::*compute_ranges_values_count_func_t)(size_t, size_t);
 	using func_map_t = std::unordered_map<std::string, compute_ranges_values_count_func_t>;
 	static const func_map_t func_map = [&]() {

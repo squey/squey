@@ -51,14 +51,10 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	timeseries_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
 	timeseries_list_widget->setAlternatingRowColors(true);
 
-	{
-		std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder;
-		for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
-			QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-			timeseries_list_widget->item(i)->setSelected(true);
-			seriesDrawOrder.push_back({i, color});
-			timeseries_list_widget->item(i)->setForeground(color); // FIXME
-		}
+	for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
+		QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
+		timeseries_list_widget->item(i)->setSelected(true);
+		timeseries_list_widget->item(i)->setForeground(color); // FIXME
 	}
 
 	auto update_selected_timeseries =

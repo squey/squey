@@ -12,6 +12,137 @@
 namespace PVParallelView
 {
 
+PVViewZoomer::PVViewZoomer(QWidget* parent) : QWidget(parent)
+{
+}
+
+void PVViewZoomer::zoomIn(QRect zoomInRect)
+{
+	qDebug() << "zoomIn" << zoomInRect;
+	m_zoomStack.resize(m_currentZoomIndex + 1);
+	Zoom const& currentZoom = m_zoomStack[m_currentZoomIndex];
+	m_zoomStack.push_back(Zoom{
+	    currentZoom.minX + currentZoom.width() * (zoomInRect.x() / double(size().width())),
+	    currentZoom.minX +
+	        currentZoom.width() * ((zoomInRect.x() + zoomInRect.width()) / double(size().width())),
+	    currentZoom.minY +
+	        currentZoom.height() *
+	            (1. - (zoomInRect.y() + zoomInRect.height()) / double(size().height())),
+	    currentZoom.minY + currentZoom.height() * (1. - zoomInRect.y() / double(size().height()))});
+	++m_currentZoomIndex;
+	updateZoom();
+}
+
+void PVViewZoomer::zoomIn(QPoint center, bool rectangular, double zoomFactor)
+{
+	qDebug() << "zoomIn" << center;
+	// if (m_currentZoomIndex + 1 < m_zoomStack.size()) {
+	// 	++m_currentZoomIndex;
+	// 	updateZoom();
+	// 	return;
+	// }
+	assert(zoomFactor < 1 && zoomFactor > 0);
+	zoomIn(QRect(center.x() - center.x() * zoomFactor,
+	             center.y() - center.y() * (rectangular ? zoomFactor : 1),
+	             zoomFactor * size().width(), (rectangular ? zoomFactor : 1) * size().height()));
+}
+
+void PVViewZoomer::zoomOut()
+{
+	qDebug() << "zoomOut";
+	if (m_currentZoomIndex == 0) {
+		return;
+	}
+	--m_currentZoomIndex;
+	updateZoom();
+}
+
+void PVViewZoomer::zoomOut(QPoint center)
+{
+	qDebug() << "zoomOut" << center;
+	if (m_currentZoomIndex == 0) {
+		return;
+	}
+	Zoom oldZoom = m_zoomStack[m_currentZoomIndex];
+	--m_currentZoomIndex;
+	Zoom targetZoom = m_zoomStack[m_currentZoomIndex];
+
+	QPointF centerRatio{double(center.x()) / double(size().width()),
+	                    1. - double(center.y()) / double(size().height())};
+	QPointF fixedCenter{oldZoom.minX + centerRatio.x() * oldZoom.width(),
+	                    oldZoom.minY + centerRatio.y() * oldZoom.height()};
+	QPointF targetTopLeft{fixedCenter.x() - centerRatio.x() * targetZoom.width(),
+	                      fixedCenter.y() - centerRatio.y() * targetZoom.height()};
+
+	targetTopLeft.rx() = std::clamp(targetTopLeft.x(), 0., 1. - targetZoom.width());
+	targetTopLeft.ry() = std::clamp(targetTopLeft.y(), 0., 1. - targetZoom.height());
+
+	m_zoomStack[m_currentZoomIndex] =
+	    Zoom{targetTopLeft.x(), targetTopLeft.x() + targetZoom.width(), targetTopLeft.y(),
+	         targetTopLeft.y() + targetZoom.height()};
+
+	updateZoom();
+}
+
+void PVViewZoomer::resetZoom()
+{
+	m_zoomStack.clear();
+	m_zoomStack.push_back(Zoom{0., 1., 0., 1.});
+	m_currentZoomIndex = 0;
+	updateZoom();
+}
+
+void PVViewZoomer::moveZoomBy(QPoint offset)
+{
+	if (m_currentZoomIndex == 0) {
+		return;
+	}
+	m_zoomStack.resize(m_currentZoomIndex + 1);
+	Zoom& zoom = m_zoomStack.back();
+	{
+		double offsetX = offset.x() * zoom.width() / double(size().width());
+		offsetX = std::clamp(offsetX, -(1. - zoom.maxX), zoom.minX);
+		zoom.minX -= offsetX;
+		zoom.maxX -= offsetX;
+	}
+	{
+		double offsetY = offset.y() * zoom.height() / double(size().height());
+		offsetY = std::clamp(offsetY, -zoom.minY, 1. - zoom.maxY);
+		zoom.minY += offsetY;
+		zoom.maxY += offsetY;
+	}
+	updateZoom();
+}
+
+QRect PVViewZoomer::normalizedZoomRect(QRect zoomRect, bool rectangular) const
+{
+	auto zr = zoomRect.normalized();
+	if (not rectangular) {
+		zr.setY(0);
+		zr.setHeight(size().height());
+	}
+	return zr;
+}
+
+void PVViewZoomer::clampZoom(Zoom& zoom)
+{
+	zoom.minX = std::clamp(zoom.minX, 0., 1.);
+	zoom.maxX = std::clamp(zoom.maxX, 0., 1.);
+	zoom.minY = std::clamp(zoom.minY, 0., 1.);
+	zoom.maxY = std::clamp(zoom.maxY, 0., 1.);
+}
+
+void PVViewZoomer::updateZoom()
+{
+	updateZoom(currentZoom());
+	zoomUpdated(currentZoom());
+
+	qDebug() << "Zoom stack (current:" << m_currentZoomIndex << "):";
+	for (auto& zoom : m_zoomStack) {
+		qDebug() << "\t" << zoom.minX << zoom.maxX << zoom.minY << zoom.maxY;
+	}
+}
+
 struct PVSeriesViewZoomerRectangleFragment : public QWidget {
 	PVSeriesViewZoomerRectangleFragment(QWidget* parent = nullptr,
 	                                    QColor color = QColor(255, 0, 0, 255))
@@ -31,7 +162,7 @@ struct PVSeriesViewZoomerRectangleFragment : public QWidget {
 PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
                                        Inendi::PVRangeSubSampler& sampler,
                                        QWidget* parent)
-    : QWidget(parent), m_seriesView(child), m_rss(sampler), m_animationTimer(new QTimer(this))
+    : PVViewZoomer(parent), m_seriesView(child), m_rss(sampler), m_animationTimer(new QTimer(this))
 {
 	child->setParent(this);
 	child->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -76,7 +207,7 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 		if (event->pos() == m_zoomRect.topLeft()) {
 			zoomOut(event->pos());
 		} else {
-			zoomIn(normalizedZoomRect(event->modifiers() & Qt::ControlModifier));
+			zoomIn(normalizedZoomRect(m_zoomRect, event->modifiers() & Qt::ControlModifier));
 		}
 	} else if (m_moving && event->button() == Qt::RightButton) {
 		m_moving = false;
@@ -146,7 +277,7 @@ void PVSeriesViewZoomer::leaveEvent(QEvent*)
 void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 {
 	if (event->angleDelta().y() > 0) {
-		zoomIn(event->pos(), event->modifiers() & Qt::ControlModifier);
+		zoomIn(event->pos(), event->modifiers() & Qt::ControlModifier, m_centeredZoomFactor);
 	} else if (event->angleDelta().y() < 0) {
 		zoomOut(event->pos());
 	}
@@ -157,142 +288,19 @@ void PVSeriesViewZoomer::resizeEvent(QResizeEvent* event)
 	m_seriesView->resize(event->size());
 }
 
-QRect PVSeriesViewZoomer::normalizedZoomRect(bool rectangular) const
-{
-	auto zr = m_zoomRect.normalized();
-	if (not rectangular) {
-		zr.setY(0);
-		zr.setHeight(size().height());
-	}
-	return zr;
-}
-
 void PVSeriesViewZoomer::updateZoomGeometry(bool rectangular)
 {
-	auto zr = normalizedZoomRect(rectangular);
+	auto zr = normalizedZoomRect(m_zoomRect, rectangular);
 	m_fragments[0]->setGeometry(zr.x(), zr.y(), zr.width(), 1);
 	m_fragments[1]->setGeometry(zr.x(), zr.y(), 1, zr.height());
 	m_fragments[2]->setGeometry(zr.x(), zr.y() + zr.height(), zr.width(), 1);
 	m_fragments[3]->setGeometry(zr.x() + zr.width(), zr.y(), 1, zr.height());
 }
 
-void PVSeriesViewZoomer::zoomIn(QRect zoomInRect)
+void PVSeriesViewZoomer::updateZoom(Zoom zoom)
 {
-	qDebug() << "zoomIn" << zoomInRect;
-	m_zoomStack.resize(m_currentZoomIndex + 1);
-	Zoom const& currentZoom = m_zoomStack[m_currentZoomIndex];
-	m_zoomStack.push_back(Zoom{
-	    currentZoom.minX + currentZoom.width() * (zoomInRect.x() / double(size().width())),
-	    currentZoom.minX +
-	        currentZoom.width() * ((zoomInRect.x() + zoomInRect.width()) / double(size().width())),
-	    currentZoom.minY +
-	        currentZoom.height() *
-	            (1. - (zoomInRect.y() + zoomInRect.height()) / double(size().height())),
-	    currentZoom.minY + currentZoom.height() * (1. - zoomInRect.y() / double(size().height()))});
-	++m_currentZoomIndex;
-	updateZoom();
-}
-
-void PVSeriesViewZoomer::zoomIn(QPoint center, bool rectangular)
-{
-	qDebug() << "zoomIn" << center;
-	// if (m_currentZoomIndex + 1 < m_zoomStack.size()) {
-	// 	++m_currentZoomIndex;
-	// 	updateZoom();
-	// 	return;
-	// }
-	assert(m_centeredZoomFactor < 1 && m_centeredZoomFactor > 0);
-	zoomIn(QRect(center.x() - center.x() * m_centeredZoomFactor,
-	             center.y() - center.y() * (rectangular ? m_centeredZoomFactor : 1),
-	             m_centeredZoomFactor * size().width(),
-	             (rectangular ? m_centeredZoomFactor : 1) * size().height()));
-}
-
-void PVSeriesViewZoomer::zoomOut()
-{
-	qDebug() << "zoomOut";
-	if (m_currentZoomIndex == 0) {
-		return;
-	}
-	--m_currentZoomIndex;
-	updateZoom();
-}
-
-void PVSeriesViewZoomer::zoomOut(QPoint center)
-{
-	qDebug() << "zoomOut" << center;
-	if (m_currentZoomIndex == 0) {
-		return;
-	}
-	Zoom oldZoom = m_zoomStack[m_currentZoomIndex];
-	--m_currentZoomIndex;
-	Zoom targetZoom = m_zoomStack[m_currentZoomIndex];
-
-	QPointF centerRatio{double(center.x()) / double(size().width()),
-	                    1. - double(center.y()) / double(size().height())};
-	QPointF fixedCenter{oldZoom.minX + centerRatio.x() * oldZoom.width(),
-	                    oldZoom.minY + centerRatio.y() * oldZoom.height()};
-	QPointF targetTopLeft{fixedCenter.x() - centerRatio.x() * targetZoom.width(),
-	                      fixedCenter.y() - centerRatio.y() * targetZoom.height()};
-
-	targetTopLeft.rx() = std::clamp(targetTopLeft.x(), 0., 1. - targetZoom.width());
-	targetTopLeft.ry() = std::clamp(targetTopLeft.y(), 0., 1. - targetZoom.height());
-
-	m_zoomStack[m_currentZoomIndex] =
-	    Zoom{targetTopLeft.x(), targetTopLeft.x() + targetZoom.width(), targetTopLeft.y(),
-	         targetTopLeft.y() + targetZoom.height()};
-
-	updateZoom();
-}
-
-void PVSeriesViewZoomer::resetZoom()
-{
-	m_zoomStack.clear();
-	m_zoomStack.push_back(Zoom{0., 1., 0., 1.});
-	m_currentZoomIndex = 0;
-	updateZoom();
-}
-
-void PVSeriesViewZoomer::moveZoomBy(QPoint offset)
-{
-	if (m_currentZoomIndex == 0) {
-		return;
-	}
-	m_zoomStack.resize(m_currentZoomIndex + 1);
-	Zoom& zoom = m_zoomStack.back();
-	{
-		double offsetX = offset.x() * zoom.width() / double(size().width());
-		offsetX = std::clamp(offsetX, -(1. - zoom.maxX), zoom.minX);
-		zoom.minX -= offsetX;
-		zoom.maxX -= offsetX;
-	}
-	{
-		double offsetY = offset.y() * zoom.height() / double(size().height());
-		offsetY = std::clamp(offsetY, -zoom.minY, 1. - zoom.maxY);
-		zoom.minY += offsetY;
-		zoom.maxY += offsetY;
-	}
-	updateZoom();
-}
-
-void PVSeriesViewZoomer::updateZoom()
-{
-	Zoom& zoom = m_zoomStack[m_currentZoomIndex];
-	clampZoom(zoom);
 	m_rss.subsample(zoom.minX, zoom.maxX, zoom.minY, zoom.maxY);
 	m_seriesView->onResampled();
-	qDebug() << "Zoom stack (current:" << m_currentZoomIndex << "):";
-	for (auto& zoom : m_zoomStack) {
-		qDebug() << "\t" << zoom.minX << zoom.maxX << zoom.minY << zoom.maxY;
-	}
-}
-
-void PVSeriesViewZoomer::clampZoom(Zoom& zoom) const
-{
-	zoom.minX = std::clamp(zoom.minX, 0., 1.);
-	zoom.maxX = std::clamp(zoom.maxX, 0., 1.);
-	zoom.minY = std::clamp(zoom.minY, 0., 1.);
-	zoom.maxY = std::clamp(zoom.maxY, 0., 1.);
 }
 
 QColor PVSeriesViewZoomer::getZoomRectColor() const

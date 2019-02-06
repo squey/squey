@@ -19,8 +19,10 @@ namespace PVParallelView
 
 class PVSeriesView;
 
-class PVSeriesViewZoomer : public QWidget
+class PVViewZoomer : public QWidget
 {
+	Q_OBJECT
+  public:
 	struct Zoom {
 		double minX;
 		double maxX;
@@ -31,19 +33,42 @@ class PVSeriesViewZoomer : public QWidget
 		double height() const { return maxY - minY; }
 	};
 
-  public:
-	PVSeriesViewZoomer(PVSeriesView* child,
-	                   Inendi::PVRangeSubSampler& sampler,
-	                   QWidget* parent = nullptr);
-	virtual ~PVSeriesViewZoomer() = default;
+	PVViewZoomer(QWidget* parent = nullptr);
 
 	void zoomIn(QRect zoomInRect);
-	void zoomIn(QPoint center, bool rectangular);
+	void zoomIn(QPoint center, bool rectangular, double zoomFactor);
 	void zoomOut();
 	void zoomOut(QPoint center);
 	void resetZoom();
 
 	void moveZoomBy(QPoint offset);
+
+	Zoom currentZoom() const { return m_zoomStack[m_currentZoomIndex]; }
+	QRect normalizedZoomRect(QRect zoomRect, bool rectangular) const;
+
+	static void clampZoom(Zoom& zoom);
+
+  Q_SIGNALS:
+	void zoomUpdated(Zoom zoom);
+
+  protected:
+	virtual void updateZoom(Zoom) {}
+
+  private:
+	void updateZoom();
+
+  private:
+	std::vector<Zoom> m_zoomStack;
+	size_t m_currentZoomIndex = 0;
+};
+
+class PVSeriesViewZoomer : public PVViewZoomer
+{
+  public:
+	PVSeriesViewZoomer(PVSeriesView* child,
+	                   Inendi::PVRangeSubSampler& sampler,
+	                   QWidget* parent = nullptr);
+	virtual ~PVSeriesViewZoomer() = default;
 
 	QColor getZoomRectColor() const;
 	void setZoomRectColor(QColor const& color);
@@ -60,12 +85,9 @@ class PVSeriesViewZoomer : public QWidget
 
 	void resizeEvent(QResizeEvent*) override;
 
-  private:
-	void updateZoom();
-	void clampZoom(Zoom& zoom) const;
+	void updateZoom(Zoom zoom) override;
 
   private:
-	QRect normalizedZoomRect(bool rectangular) const;
 	void updateZoomGeometry(bool rectangular);
 
   private:
@@ -81,9 +103,6 @@ class PVSeriesViewZoomer : public QWidget
 	QPoint m_moveStart;
 
 	QTimer* m_animationTimer;
-
-	std::vector<Zoom> m_zoomStack;
-	size_t m_currentZoomIndex = 0;
 
 	const double m_centeredZoomFactor = 0.8;
 };

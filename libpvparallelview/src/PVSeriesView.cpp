@@ -172,6 +172,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	int m_sizeLocation = 0;
 
 	bool m_wasCleanedUp = false;
+	bool m_needReallocateBuffers = false;
 
 	GLint m_GL_max_elements_vertices = 0;
 
@@ -228,28 +229,26 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 	}
 
   protected:
-	virtual void onShowSeries()
-	{
-		m_glRenderer.showSeries(std::move(m_seriesDrawOrder));
-		m_glRenderer.onShowSeries();
-	}
+	virtual void onShowSeries() { m_glRenderer.showSeries(std::move(m_seriesDrawOrder)); }
 
 	PVSeriesRendererOpenGL m_glRenderer;
 };
 
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
-    : QWidget(parent), m_rss(rss)
+    : QWidget(parent), m_pixmap(size()), m_rss(rss)
 {
-	if (PVSeriesRendererOffscreen::hasCapability()) {
+	/*if (PVSeriesRendererOffscreen::hasCapability()) {
 		qDebug() << "Choosing PVSeriesRendererOffscreen";
 		m_renderer = std::make_unique<PVSeriesRendererOffscreen>(m_rss);
-	} else if (PVSeriesRendererOpenGL::hasCapability()) {
+	} else*/ if (PVSeriesRendererOpenGL::
+	                                                            hasCapability()) {
 		qDebug() << "Choosing PVSeriesRendererOpenGL";
 		m_renderer = std::make_unique<PVSeriesRendererOpenGL>(m_rss);
 	} else {
 		qDebug() << "Choosing PVSeriesRendererQPainter";
 		m_renderer = std::make_unique<PVSeriesRendererQPainter>(m_rss);
 	}
+	m_pixmap.fill(Qt::green);
 }
 
 PVSeriesView::~PVSeriesView() = default;
@@ -275,7 +274,7 @@ void PVSeriesView::onResampled()
 
 void PVSeriesView::paintEvent(QPaintEvent*)
 {
-	if (m_needHardRedraw) {
+	if (m_needHardRedraw && not m_resizingTimer.isActive()) {
 		qDebug() << "hard paint";
 		m_pixmap = m_renderer->grab();
 		m_needHardRedraw = false;
@@ -285,15 +284,20 @@ void PVSeriesView::paintEvent(QPaintEvent*)
 	painter.drawPixmap(0, 0, width(), height(), m_pixmap);
 }
 
-void PVSeriesView::resizeEvent(QResizeEvent*)
+void PVSeriesView::resizeEvent(QResizeEvent* event)
 {
-	m_resizingTimer.start(200, this);
+	m_rss.set_sampling_count(size().width());
+	m_rss.resubsample();
+	m_renderer->resize(size());
+	m_needHardRedraw = true;
+	update();
+	qDebug() << "resizeEvent:" << event->size();
+	// m_resizingTimer.stop();
+	// m_resizingTimer.start(200, this);
 }
 
 void PVSeriesView::timerEvent(QTimerEvent* event)
 {
-	// We need to check for both types of mouse release, because it can vary on which type happens
-	// when resizing.
 	if (event->timerId() == m_resizingTimer.timerId()) {
 		qDebug() << "resize";
 		m_rss.set_sampling_count(size().width());
@@ -322,6 +326,8 @@ PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& 
 		format.setProfile(QSurfaceFormat::CoreProfile);
 		setFormat(format);
 	}
+
+	qDebug() << "default size" << size();
 
 	// QSurfaceFormat format;
 	// format.setVersion(3, 3);
@@ -391,9 +397,7 @@ void PVSeriesRendererOpenGL::setBackgroundColor(QColor const& bgcol)
 
 void PVSeriesRendererOpenGL::onShowSeries()
 {
-	makeCurrent();
-	compute_dbo_GL();
-	doneCurrent();
+	m_needReallocateBuffers = true;
 }
 
 void PVSeriesRendererOpenGL::initializeGL()
@@ -492,7 +496,7 @@ void PVSeriesRendererOpenGL::resizeGL(int w, int h)
 
 	glViewport(0, 0, w, h);
 
-	compute_dbo_GL();
+	m_needReallocateBuffers = true;
 
 	m_program->setUniformValue(m_sizeLocation, QVector4D(0, 0, 0, w));
 
@@ -520,6 +524,11 @@ void PVSeriesRendererOpenGL::paintGL()
 	// glEnable(GL_MULTISAMPLE);
 	// glEnable(GL_LINE_SMOOTH);
 	// glLineWidth(3.f);
+
+	if (m_needReallocateBuffers) {
+		m_needReallocateBuffers = false;
+		compute_dbo_GL();
+	}
 
 	for (size_t line = 0; line < m_seriesDrawOrder.size();) {
 		auto lineEnd = std::min(line + m_linesPerVboCount, m_seriesDrawOrder.size());
