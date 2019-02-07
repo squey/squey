@@ -66,6 +66,7 @@ class PVRangeSubSampler
 	                  size_t sampling_count = 2048);
 
 	void set_sampling_count(size_t sampling_count);
+	void set_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries = {});
 
 	size_t samples_count() const { return _sampling_count; }
 	size_t total_count() const { return _time.size(); }
@@ -76,18 +77,16 @@ class PVRangeSubSampler
 	}
 	const std::vector<display_type>& averaged_time() const { return _time_iota; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
+	pvcop::db::array minmax_subrange(double first_ratio, double last_ratio);
 
 	void
 	subsample(double first_ratio, double last_ratio, double min_ratio = 0, double max_ratio = 0);
 	void subsample(const pvcop::db::array& minmax, size_t min = 0, size_t max = 0);
-	void subsample(size_t first = 0, size_t last = 0, size_t min = 0, size_t max = 0);
-
 	void resubsample(const std::unordered_set<size_t>& timeseries = {});
-
-	void update_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries = {});
 
   private:
 	void allocate_internal_structures();
+	void subsample(size_t first = 0, size_t last = 0, size_t min = 0, size_t max = 0);
 
 	template <typename T>
 	void compute_ranges_values_count(size_t first, size_t last)

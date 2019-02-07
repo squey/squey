@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
 	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries);
-	sampler.subsample();
+	sampler.resubsample();
 
 	PVParallelView::PVSeriesView* myView = new PVParallelView::PVSeriesView(sampler);
 

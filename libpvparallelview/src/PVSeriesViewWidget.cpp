@@ -70,7 +70,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 			seriesDrawOrder.push_back({item_col, item->foreground().color()});
 			selected_timeseries.emplace(item_col);
 		}
-		_sampler->update_selected_timeseries(selected_timeseries);
+		_sampler->set_selected_timeseries(selected_timeseries);
 		if (resample) {
 			_sampler->resubsample();
 		}
@@ -96,6 +96,11 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	} else if (_sampler->minmax_time().formatter()->name().find("number_uint") == 0) {
 		range_edit = new PVWidgets::PVIntegerRangeEdit(_sampler->minmax_time(), minmax_changed_f);
 	}
+
+	QObject::connect(zoomer, &PVSeriesViewZoomer::zoomUpdated,
+	                 [range_edit, this](const PVViewZoomer::Zoom& zoom) {
+		                 range_edit->set_minmax(_sampler->minmax_subrange(zoom.minX, zoom.maxX));
+		             });
 
 	view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
 	    [this, plot](const QList<PVCol>& plotteds_updated) {

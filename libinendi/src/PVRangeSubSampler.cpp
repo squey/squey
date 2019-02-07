@@ -57,7 +57,7 @@ void Inendi::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
 
 template <typename T>
 static pvcop::db::array
-minmax_subrange(const pvcop::db::array& minmax, double first_ratio, double last_ratio)
+_minmax_subrange(const pvcop::db::array& minmax, double first_ratio, double last_ratio)
 {
 	pvcop::db::array rel_minmax(minmax.formatter()->name(), 2);
 	rel_minmax.set_formatter(minmax.formatter());
@@ -87,28 +87,34 @@ minmax_subrange(const pvcop::db::array& minmax, double first_ratio, double last_
 	return rel_minmax;
 }
 
-void Inendi::PVRangeSubSampler::subsample(double first_ratio,
-                                          double last_ratio,
-                                          double min_ratio /*= 0*/,
-                                          double max_ratio /*= 0*/)
+pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(double first_ratio, double last_ratio)
 {
 	typedef pvcop::db::array (*minmax_subrange_func_t)(const pvcop::db::array&, double, double);
 	using func_map_t = std::unordered_map<std::string, minmax_subrange_func_t>;
 	static const func_map_t func_map = [&]() {
 		func_map_t map;
-		map.insert({"number_uint32", &minmax_subrange<uint32_t>});
-		map.insert({"number_uint64", &minmax_subrange<uint64_t>});
-		map.insert({"datetime", &minmax_subrange<uint32_t>});
-		map.insert({"datetime_ms", &minmax_subrange<uint64_t>});
-		map.insert({"datetime_us", &minmax_subrange<boost::posix_time::ptime>});
+		map.insert({"number_uint32", &_minmax_subrange<uint32_t>});
+		map.insert({"number_uint64", &_minmax_subrange<uint64_t>});
+		map.insert({"datetime", &_minmax_subrange<uint32_t>});
+		map.insert({"datetime_ms", &_minmax_subrange<uint64_t>});
+		map.insert({"datetime_us", &_minmax_subrange<boost::posix_time::ptime>});
 		return map;
 	}();
+
+	auto minmax_subrange_f = func_map.at(_minmax.formatter()->name());
+	return minmax_subrange_f(_minmax, first_ratio, last_ratio);
+}
+
+void Inendi::PVRangeSubSampler::subsample(double first_ratio,
+                                          double last_ratio,
+                                          double min_ratio /*= 0*/,
+                                          double max_ratio /*= 0*/)
+{
 
 	const value_type min = min_ratio * std::numeric_limits<value_type>::max();
 	const value_type max = max_ratio * std::numeric_limits<value_type>::max();
 
-	auto minmax_subrange_f = func_map.at(_minmax.formatter()->name());
-	subsample(minmax_subrange_f(_minmax, first_ratio, last_ratio), min, max);
+	subsample(minmax_subrange(first_ratio, last_ratio), min, max);
 }
 
 void Inendi::PVRangeSubSampler::subsample(const pvcop::db::array& minmax,
@@ -167,7 +173,7 @@ void Inendi::PVRangeSubSampler::subsample(size_t first /*= 0*/,
 	compute_ranges_average(first, last, min, max);
 }
 
-void Inendi::PVRangeSubSampler::update_selected_timeseries(
+void Inendi::PVRangeSubSampler::set_selected_timeseries(
     const std::unordered_set<size_t>& selected_timeseries /* = {} */)
 {
 	if (not selected_timeseries.empty()) {
