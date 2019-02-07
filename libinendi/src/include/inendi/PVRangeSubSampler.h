@@ -26,17 +26,27 @@ class PVRangeSubSampler
 	struct SamplingParams {
 		size_t first = 0;
 		size_t last = 0;
+		pvcop::db::array minmax = {};
 		size_t min = 0;
 		size_t max = 0;
 
-		SamplingParams(size_t first = 0, size_t last = 0, size_t min = 0, size_t max = 0)
-		    : first(first), last(last), min(min), max(max)
+		SamplingParams(size_t first = 0,
+		               size_t last = 0,
+		               const pvcop::db::array& minmax = {},
+		               size_t min = 0,
+		               size_t max = 0)
+		    : first(first)
+		    , last(last)
+		    , minmax((bool)minmax ? minmax.copy() : pvcop::db::array())
+		    , min(min)
+		    , max(max)
 		{
 		}
 
 		bool operator==(const SamplingParams& rhs) const
 		{
-			return rhs.first == first and rhs.last == last and rhs.min == min and rhs.max == max;
+			return rhs.first == first and rhs.last == last and rhs.minmax == minmax and
+			       rhs.min == min and rhs.max == max;
 		}
 		bool operator!=(const SamplingParams& rhs) const { return not(*this == rhs); }
 	};
@@ -75,7 +85,6 @@ class PVRangeSubSampler
 	{
 		return _avg_matrix[index];
 	}
-	const std::vector<display_type>& averaged_time() const { return _time_iota; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
 	pvcop::db::array minmax_subrange(double first_ratio, double last_ratio);
 
@@ -86,29 +95,24 @@ class PVRangeSubSampler
 
   private:
 	void allocate_internal_structures();
-	void subsample(size_t first = 0, size_t last = 0, size_t min = 0, size_t max = 0);
+	void subsample(
+	    size_t first, size_t last, const pvcop::db::array& minmax, size_t min = 0, size_t max = 0);
 
 	template <typename T>
-	void compute_ranges_values_count(size_t first, size_t last)
+	void compute_ranges_values_count(size_t first, size_t last, const pvcop::db::array& minmax)
 	{
 		BENCH_START(compute_ranges_values_count);
 
 		pvcop::core::array<T> core_sampled_time = _sampled_time.to_core_array<T>();
 		pvcop::core::array<T> core_time = _time.to_core_array<T>();
+		pvcop::core::array<T> core_minmax = minmax.to_core_array<T>();
 
-		T start;
-		T end;
-		if (_sort) {
-			start = core_time[_sort[first]];
-			end = core_time[_sort[last - 1]];
-		} else {
-			start = core_time[first];
-			end = core_time[last - 1];
-		}
+		T min = core_minmax[0];
+		T max = core_minmax[1];
 
-		const auto& interval = (end - start) / (_sampling_count);
+		const auto& interval = (max - min) / (_sampling_count);
 		for (size_t i = 0; i < _sampled_time.size(); i++) {
-			core_sampled_time[i] = start + (interval * (i + 1));
+			core_sampled_time[i] = min + (interval * (i + 1));
 		}
 
 		size_t j = first;
@@ -146,8 +150,6 @@ class PVRangeSubSampler
 	pvcop::db::array _sampled_time;
 
 	pvcop::db::array _minmax;
-
-	std::vector<display_type> _time_iota; // FIXME
 
 	std::vector<size_t> _ranges_values_counts;
 	std::vector<std::vector<display_type>> _avg_matrix;

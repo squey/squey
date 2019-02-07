@@ -47,6 +47,7 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
 	}
 
 	_minmax = _time.join(minmax_indexes);
+	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
 }
 
 void Inendi::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
@@ -121,12 +122,13 @@ void Inendi::PVRangeSubSampler::subsample(const pvcop::db::array& minmax,
                                           size_t min /*= 0*/,
                                           size_t max /*= 0*/)
 {
-	auto[first, last] = _time.equal_range(minmax, _sorted_indexes);
-	subsample(first, last, min, max);
+	auto[first, past_end] = _time.equal_range(minmax, _sorted_indexes);
+	subsample(first, past_end - 1, minmax, min, max);
 }
 
-void Inendi::PVRangeSubSampler::subsample(size_t first /*= 0*/,
-                                          size_t last /*= 0*/,
+void Inendi::PVRangeSubSampler::subsample(size_t first,
+                                          size_t last,
+                                          const pvcop::db::array& minmax,
                                           size_t min /*= 0*/,
                                           size_t max /*= 0*/)
 {
@@ -138,11 +140,11 @@ void Inendi::PVRangeSubSampler::subsample(size_t first /*= 0*/,
 	}
 
 	// Resample every selected timeseries if params have changed
-	if (SamplingParams(first, last, min, max) != _last_params) {
+	if (SamplingParams(first, last, minmax.copy(), min, max) != _last_params) {
 		_timeseries_to_subsample =
 		    std::vector<size_t>(_selected_timeseries.begin(), _selected_timeseries.end());
 	}
-	_last_params = SamplingParams(first, last, min, max);
+	_last_params = SamplingParams(first, last, minmax.copy(), min, max);
 
 	pvlogger::info() << "PVRangeSubSampler::subsample(first:" << first << ", last:" << last
 	                 << ", min:" << min << ", max:" << max
@@ -150,7 +152,8 @@ void Inendi::PVRangeSubSampler::subsample(size_t first /*= 0*/,
 	                 << ", _timeseries_to_subsample.size():" << _timeseries_to_subsample.size()
 	                 << ")\n";
 
-	typedef void (PVRangeSubSampler::*compute_ranges_values_count_func_t)(size_t, size_t);
+	typedef void (PVRangeSubSampler::*compute_ranges_values_count_func_t)(size_t, size_t,
+	                                                                      const pvcop::db::array&);
 	using func_map_t = std::unordered_map<std::string, compute_ranges_values_count_func_t>;
 	static const func_map_t func_map = [&]() {
 		func_map_t map;
@@ -169,7 +172,7 @@ void Inendi::PVRangeSubSampler::subsample(size_t first /*= 0*/,
 	}
 
 	auto compute_ranges_values_count_f = func_map.at(_time.formatter()->name());
-	((*this).*compute_ranges_values_count_f)(first, last);
+	((*this).*compute_ranges_values_count_f)(first, last, minmax);
 	compute_ranges_average(first, last, min, max);
 }
 
@@ -193,17 +196,17 @@ void Inendi::PVRangeSubSampler::resubsample(const std::unordered_set<size_t>& ti
 		std::copy(timeseries.begin(), timeseries.end(),
 		          std::back_inserter(_timeseries_to_subsample));
 	}
-	subsample(_last_params.first, _last_params.last, _last_params.min, _last_params.max);
+	subsample(_last_params.first, _last_params.last, _last_params.minmax, _last_params.min,
+	          _last_params.max);
 }
 
 void Inendi::PVRangeSubSampler::allocate_internal_structures()
 {
+	assert(_sampling_count >= 2);
+
 	// time interval array
 	_sampled_time = pvcop::db::array(_time.formatter()->name(), _sampling_count - 2);
 	_sampled_time.set_formatter(_time.formatter());
-
-	_time_iota = std::vector<display_type>(_sampled_time.size());
-	std::iota(_time_iota.begin(), _time_iota.end(), 0);
 
 	// range values count
 	_ranges_values_counts = std::vector<size_t>(_sampling_count);
@@ -211,6 +214,7 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	// matrix of average values
 	_avg_matrix.resize(_timeseries.size() /* row count */,
 	                   std::vector<display_type>(_ranges_values_counts.size()));
+
 	_timeseries_to_subsample.clear();
 	std::copy(_selected_timeseries.begin(), _selected_timeseries.end(),
 	          std::back_inserter(_timeseries_to_subsample));
