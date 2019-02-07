@@ -14,6 +14,7 @@ namespace PVParallelView
 
 PVViewZoomer::PVViewZoomer(QWidget* parent) : QWidget(parent)
 {
+	m_zoomStack.push_back(Zoom{0., 1., 0., 1.});
 }
 
 void PVViewZoomer::zoomIn(QRect zoomInRect)
@@ -174,7 +175,6 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 		fragment = new PVSeriesViewZoomerRectangleFragment(child);
 		fragment->hide();
 	}
-	resetZoom();
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 }
