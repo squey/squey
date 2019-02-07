@@ -113,7 +113,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 
 	void resize(QSize const& size) override { QWidget::resize(size); }
 
-	QPixmap grab() override { return QWidget::grab(); }
+	QPixmap grab() override { return QWidget::grab(QRect(QPoint(0, 0), size())); }
 
 	void onShowSeries() override;
 
@@ -122,6 +122,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
   protected:
 	void initializeGL() override;
 	void cleanupGL();
+	void resizeEvent(QResizeEvent* event) override;
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
@@ -173,6 +174,8 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 
 	bool m_wasCleanedUp = false;
 	bool m_needReallocateBuffers = false;
+	bool m_blockPaint = false;
+	QSize m_oldSize;
 
 	GLint m_GL_max_elements_vertices = 0;
 
@@ -286,14 +289,14 @@ void PVSeriesView::paintEvent(QPaintEvent*)
 
 void PVSeriesView::resizeEvent(QResizeEvent* event)
 {
-	m_rss.set_sampling_count(size().width());
-	m_rss.resubsample();
-	m_renderer->resize(size());
-	m_needHardRedraw = true;
-	update();
+	// m_rss.set_sampling_count(size().width());
+	// m_rss.resubsample();
+	// m_renderer->resize(size());
+	// m_needHardRedraw = true;
+	// update();
 	qDebug() << "resizeEvent:" << event->size();
-	// m_resizingTimer.stop();
-	// m_resizingTimer.start(200, this);
+	m_resizingTimer.stop();
+	m_resizingTimer.start(200, this);
 }
 
 void PVSeriesView::timerEvent(QTimerEvent* event)
@@ -489,6 +492,17 @@ void PVSeriesRendererOpenGL::cleanupGL()
 	m_wasCleanedUp = true;
 }
 
+void PVSeriesRendererOpenGL::resizeEvent(QResizeEvent* event)
+{
+	if (not m_wasCleanedUp and event->size() == m_oldSize) {
+		return;
+	}
+	m_blockPaint = true;
+	QOpenGLWidget::resizeEvent(event);
+	m_blockPaint = false;
+	m_oldSize = size();
+}
+
 void PVSeriesRendererOpenGL::resizeGL(int w, int h)
 {
 	qDebug() << "resizeGL(" << w << ", " << h << ")";
@@ -508,6 +522,10 @@ void PVSeriesRendererOpenGL::resizeGL(int w, int h)
 
 void PVSeriesRendererOpenGL::paintGL()
 {
+	if (m_blockPaint) {
+		return;
+	}
+
 	glViewport(0, 0, width(), height());
 	auto start = std::chrono::system_clock::now();
 
