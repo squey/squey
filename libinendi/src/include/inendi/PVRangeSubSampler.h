@@ -92,6 +92,7 @@ class PVRangeSubSampler
 	subsample(double first_ratio, double last_ratio, double min_ratio = 0, double max_ratio = 0);
 	void subsample(const pvcop::db::array& minmax, size_t min = 0, size_t max = 0);
 	void resubsample(const std::unordered_set<size_t>& timeseries = {});
+	bool valid() const;
 
   private:
 	void allocate_internal_structures();
@@ -135,6 +136,9 @@ class PVRangeSubSampler
 	}
 
 	void compute_ranges_average(size_t first, size_t /*last*/, size_t min, size_t max);
+
+  public:
+	sigc::signal<void()> _subsampled;
 
   private:
 	size_t _sampling_count;

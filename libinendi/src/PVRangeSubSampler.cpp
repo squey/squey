@@ -174,6 +174,8 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 	auto compute_ranges_values_count_f = func_map.at(_time.formatter()->name());
 	((*this).*compute_ranges_values_count_f)(first, last, minmax);
 	compute_ranges_average(first, last, min, max);
+
+	_subsampled.emit();
 }
 
 void Inendi::PVRangeSubSampler::set_selected_timeseries(
@@ -218,6 +220,11 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	_timeseries_to_subsample.clear();
 	std::copy(_selected_timeseries.begin(), _selected_timeseries.end(),
 	          std::back_inserter(_timeseries_to_subsample));
+}
+
+bool Inendi::PVRangeSubSampler::valid() const
+{
+	return _avg_matrix.size() > 0;
 }
 
 void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
