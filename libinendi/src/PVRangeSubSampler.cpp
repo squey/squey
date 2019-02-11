@@ -218,8 +218,10 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	assert(_ranges_values_counts.size() > 0);
 
 	// matrix of average values
-	_avg_matrix.resize(_timeseries.size() /* row count */,
-	                   std::vector<display_type>(_ranges_values_counts.size()));
+	_avg_matrix.resize(_timeseries.size());
+	for (auto& vec : _avg_matrix) {
+		vec.resize(_ranges_values_counts.size());
+	}
 
 	_timeseries_to_subsample.clear();
 	std::copy(_selected_timeseries.begin(), _selected_timeseries.end(),
