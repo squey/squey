@@ -49,18 +49,21 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 
 	void setBackgroundColor(QColor const& bgcol) override { setPalette(QPalette(bgcol)); }
 
-	void resize(QSize const& size) { return QWidget::resize(size); }
-	QPixmap grab() { return QWidget::grab(); }
+	void resize(QSize const& size) override { return QWidget::resize(size); }
+	QPixmap grab() override { return QWidget::grab(); }
 
   protected:
-	void paintEvent(QPaintEvent* event) override
+	void paintEvent(QPaintEvent*) override
 	{
+		if (not m_rss.valid()) {
+			return;
+		}
 		QPainter painter(this);
 		std::vector<QPoint> points;
 		for (auto& serieDraw : m_seriesDrawOrder) {
 			painter.setPen(serieDraw.color);
 			auto& serieData = m_rss.averaged_timeserie(serieDraw.dataIndex);
-			for (int j = 0; j < serieData.size();) {
+			for (size_t j = 0; j < serieData.size();) {
 				points.clear();
 				while (j < serieData.size()) {
 					int vertex = serieData[j];
@@ -71,15 +74,12 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 							vertex = -(1 << 15);
 						}
 					} else if (vertex & (1 << 14)) { // else if no value
-						while (serieData[++j] & (1 << 14))
+						while (++j < serieData.size() && (serieData[j] & (1 << 14)))
 							;
 						break;
 					}
 					points.push_back(QPoint(j, height() - vertex * height() / (1 << 14)));
 					++j;
-				}
-				if (j == serieData.size() && points.size() > 1) {
-					qDebug() << points.back();
 				}
 				if (points.size() > 1) {
 					painter.drawPolyline(points.data(), points.size());
@@ -240,18 +240,19 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
     : QWidget(parent), m_pixmap(size()), m_rss(rss)
 {
-	/*if (PVSeriesRendererOffscreen::hasCapability()) {
+	if (PVSeriesRendererOffscreen::hasCapability()) {
 		qDebug() << "Choosing PVSeriesRendererOffscreen";
 		m_renderer = std::make_unique<PVSeriesRendererOffscreen>(m_rss);
-	} else*/ if (PVSeriesRendererOpenGL::
-	                                                            hasCapability()) {
+	} else if (PVSeriesRendererOpenGL::hasCapability()) {
 		qDebug() << "Choosing PVSeriesRendererOpenGL";
 		m_renderer = std::make_unique<PVSeriesRendererOpenGL>(m_rss);
 	} else {
 		qDebug() << "Choosing PVSeriesRendererQPainter";
 		m_renderer = std::make_unique<PVSeriesRendererQPainter>(m_rss);
 	}
-	m_pixmap.fill(Qt::green);
+	m_pixmap.fill(Qt::black);
+
+	m_rss._subsampled.connect([this] { refresh(); });
 }
 
 PVSeriesView::~PVSeriesView() = default;
@@ -265,11 +266,9 @@ void PVSeriesView::setBackgroundColor(QColor const& bgcol)
 void PVSeriesView::showSeries(std::vector<SerieDrawInfo> seriesDrawOrder)
 {
 	m_renderer->showSeries(std::move(seriesDrawOrder));
-	m_needHardRedraw = true;
-	update();
 }
 
-void PVSeriesView::onResampled()
+void PVSeriesView::refresh()
 {
 	m_needHardRedraw = true;
 	update();
@@ -277,7 +276,7 @@ void PVSeriesView::onResampled()
 
 void PVSeriesView::paintEvent(QPaintEvent*)
 {
-	if (m_needHardRedraw && not m_resizingTimer.isActive()) {
+	if (m_needHardRedraw) {
 		qDebug() << "hard paint";
 		m_pixmap = m_renderer->grab();
 		m_needHardRedraw = false;
@@ -287,29 +286,9 @@ void PVSeriesView::paintEvent(QPaintEvent*)
 	painter.drawPixmap(0, 0, width(), height(), m_pixmap);
 }
 
-void PVSeriesView::resizeEvent(QResizeEvent* event)
+void PVSeriesView::resizeEvent(QResizeEvent*)
 {
-	// m_rss.set_sampling_count(size().width());
-	// m_rss.resubsample();
-	// m_renderer->resize(size());
-	// m_needHardRedraw = true;
-	// update();
-	qDebug() << "resizeEvent:" << event->size();
-	m_resizingTimer.stop();
-	m_resizingTimer.start(200, this);
-}
-
-void PVSeriesView::timerEvent(QTimerEvent* event)
-{
-	if (event->timerId() == m_resizingTimer.timerId()) {
-		qDebug() << "resize";
-		m_rss.set_sampling_count(size().width());
-		m_rss.resubsample();
-		m_renderer->resize(size());
-		m_needHardRedraw = true;
-		m_resizingTimer.stop();
-		update();
-	}
+	m_renderer->resize(size());
 }
 
 #define SHADER(x) #x
@@ -522,7 +501,7 @@ void PVSeriesRendererOpenGL::resizeGL(int w, int h)
 
 void PVSeriesRendererOpenGL::paintGL()
 {
-	if (m_blockPaint) {
+	if (m_blockPaint or not m_rss.valid()) {
 		return;
 	}
 
@@ -598,8 +577,8 @@ void PVSeriesRendererOpenGL::fill_dbo_GL()
 	DrawArraysIndirectCommand* dbo_bytes =
 	    static_cast<DrawArraysIndirectCommand*>(m_dbo.map(QOpenGLBuffer::WriteOnly));
 	assert(dbo_bytes);
-	std::generate(dbo_bytes, dbo_bytes + m_linesPerVboCount, [ line = 0, this ]() mutable {
-		size_t drawIndex = line++;
+	std::generate(dbo_bytes, dbo_bytes + m_linesPerVboCount, [ line = 0u, this ]() mutable {
+		uint32_t drawIndex = line++;
 		return DrawArraysIndirectCommand{GLuint(width()), 1, GLuint(drawIndex * width()),
 		                                 drawIndex};
 	});

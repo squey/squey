@@ -8,6 +8,7 @@
 #define _PVPARALLELVIEW_PVSERIESVIEWZOOMER_H_
 
 #include <QWidget>
+#include <QBasicTimer>
 
 namespace Inendi
 {
@@ -84,6 +85,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	void wheelEvent(QWheelEvent*) override;
 
 	void resizeEvent(QResizeEvent*) override;
+	void timerEvent(QTimerEvent* event) override;
 
 	void updateZoom(Zoom zoom) override;
 
@@ -93,6 +95,8 @@ class PVSeriesViewZoomer : public PVViewZoomer
   private:
 	PVSeriesView* m_seriesView;
 	Inendi::PVRangeSubSampler& m_rss;
+
+	QBasicTimer m_resizingTimer;
 
 	bool m_selecting = false;
 	QRect m_zoomRect;

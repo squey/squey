@@ -41,18 +41,16 @@ class PVSeriesView : public QWidget
 
 	void setBackgroundColor(QColor const& bgcol);
 	void showSeries(std::vector<SerieDrawInfo> seriesDrawOrder);
-	void onResampled();
+	void refresh();
 
   protected:
 	void paintEvent(QPaintEvent* event) override;
 	void resizeEvent(QResizeEvent* event) override;
-	void timerEvent(QTimerEvent* event) override;
 
   private:
 	std::unique_ptr<PVSeriesAbstractRenderer> m_renderer;
 	QPixmap m_pixmap;
 	bool m_needHardRedraw = false;
-	QBasicTimer m_resizingTimer;
 
 	Inendi::PVRangeSubSampler& m_rss;
 };

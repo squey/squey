@@ -283,9 +283,20 @@ void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 	}
 }
 
-void PVSeriesViewZoomer::resizeEvent(QResizeEvent* event)
+void PVSeriesViewZoomer::resizeEvent(QResizeEvent*)
 {
-	m_seriesView->resize(event->size());
+	m_resizingTimer.stop();
+	m_resizingTimer.start(200, this);
+	m_seriesView->resize(size());
+}
+
+void PVSeriesViewZoomer::timerEvent(QTimerEvent* event)
+{
+	if (event->timerId() == m_resizingTimer.timerId()) {
+		m_rss.set_sampling_count(size().width());
+		updateZoom(currentZoom());
+		m_resizingTimer.stop();
+	}
 }
 
 void PVSeriesViewZoomer::updateZoomGeometry(bool rectangular)
@@ -300,7 +311,6 @@ void PVSeriesViewZoomer::updateZoomGeometry(bool rectangular)
 void PVSeriesViewZoomer::updateZoom(Zoom zoom)
 {
 	m_rss.subsample(zoom.minX, zoom.maxX, zoom.minY, zoom.maxY);
-	m_seriesView->onResampled();
 }
 
 QColor PVSeriesViewZoomer::getZoomRectColor() const
