@@ -73,7 +73,8 @@ int main(int argc, char** argv)
 		// for (size_t i : { 18, 19, 20, 21 }) {
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
-	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries);
+	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries,
+	                                  view->get_real_output_selection());
 	sampler.resubsample();
 
 	PVParallelView::PVSeriesView* myView = new PVParallelView::PVSeriesView(sampler);
