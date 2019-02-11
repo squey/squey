@@ -15,10 +15,21 @@
 
 #include <numeric>
 #include <math.h>
+#include <type_traits>
 #include <unordered_set>
 
 namespace Inendi
 {
+
+template <typename T>
+struct PVRangeSubSamplerIntervalType {
+	using value_type = double;
+};
+
+template <>
+struct PVRangeSubSamplerIntervalType<boost::posix_time::ptime> {
+	using value_type = boost::posix_time::time_duration;
+};
 
 class PVRangeSubSampler
 {
@@ -35,11 +46,7 @@ class PVRangeSubSampler
 		               const pvcop::db::array& minmax = {},
 		               size_t min = 0,
 		               size_t max = 0)
-		    : first(first)
-		    , last(last)
-		    , minmax((bool)minmax ? minmax.copy() : pvcop::db::array())
-		    , min(min)
-		    , max(max)
+		    : first(first), last(last), minmax(minmax.copy()), min(min), max(max)
 		{
 		}
 
@@ -102,6 +109,9 @@ class PVRangeSubSampler
 	template <typename T>
 	void compute_ranges_values_count(size_t first, size_t last, const pvcop::db::array& minmax)
 	{
+		assert(_sampled_time.size() == _sampling_count - 1);
+		assert(_ranges_values_counts.size() == _sampling_count);
+
 		BENCH_START(compute_ranges_values_count);
 
 		pvcop::core::array<T> core_sampled_time = _sampled_time.to_core_array<T>();
@@ -111,9 +121,10 @@ class PVRangeSubSampler
 		T min = core_minmax[0];
 		T max = core_minmax[1];
 
-		const auto& interval = (max - min) / (_sampling_count);
+		using interval_t = typename PVRangeSubSamplerIntervalType<T>::value_type;
+		const interval_t& interval = (interval_t)(max - min) / (_sampling_count);
 		for (size_t i = 0; i < _sampled_time.size(); i++) {
-			core_sampled_time[i] = min + (interval * (i + 1));
+			core_sampled_time[i] = (T)(min + (interval * (i + 1)));
 		}
 
 		size_t j = first;

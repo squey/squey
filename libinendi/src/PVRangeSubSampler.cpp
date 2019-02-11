@@ -133,7 +133,7 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
                                           size_t max /*= 0*/)
 {
 	if (last == 0) {
-		last = _time.size();
+		last = _time.size() - 1;
 	}
 	if (max == 0) {
 		max = std::numeric_limits<size_t>::max();
@@ -207,11 +207,14 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	assert(_sampling_count >= 2);
 
 	// time interval array
-	_sampled_time = pvcop::db::array(_time.formatter()->name(), _sampling_count - 2);
+	_sampled_time = pvcop::db::array(_time.formatter()->name(), _sampling_count - 1);
 	_sampled_time.set_formatter(_time.formatter());
 
 	// range values count
 	_ranges_values_counts = std::vector<size_t>(_sampling_count);
+
+	assert(_timeseries.size() > 0);
+	assert(_ranges_values_counts.size() > 0);
 
 	// matrix of average values
 	_avg_matrix.resize(_timeseries.size() /* row count */,
