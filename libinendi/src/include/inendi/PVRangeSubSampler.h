@@ -141,7 +141,8 @@ class PVRangeSubSampler
 			_ranges_values_counts[i] = j - old_j;
 			old_j = j;
 		}
-		_ranges_values_counts[_ranges_values_counts.size() - 1] = last - old_j;
+		_ranges_values_counts[_ranges_values_counts.size() - 1] = last - old_j + 1;
+		assert(old_j <= last + 1);
 
 		BENCH_END(compute_ranges_values_count, "compute_ranges_values_count", _sampled_time.size(),
 		          1, _sampled_time.size(), 1);
