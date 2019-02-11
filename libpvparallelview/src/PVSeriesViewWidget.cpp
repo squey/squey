@@ -33,7 +33,8 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
 
-	_sampler.reset(new Inendi::PVRangeSubSampler(time, timeseries));
+	_sampler.reset(
+	    new Inendi::PVRangeSubSampler(time, timeseries, view->get_real_output_selection()));
 
 	PVSeriesView* plot = new PVSeriesView(*_sampler);
 	plot->setBackgroundColor(QColor(10, 10, 10, 255));
@@ -102,6 +103,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		                 range_edit->set_minmax(_sampler->minmax_subrange(zoom.minX, zoom.maxX));
 		             });
 
+	// Subscribe to plotting changes
 	view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
 	    [this, plot](const QList<PVCol>& plotteds_updated) {
 		    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
@@ -110,6 +112,13 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		    plot->onResampled();
 		    plot->update();
 		});
+
+	// Subscribe to selection changes
+	view->_update_output_selection.connect([this, plot]() {
+		_sampler->resubsample();
+		plot->onResampled();
+		plot->update();
+	});
 
 	QVBoxLayout* layout = new QVBoxLayout;
 

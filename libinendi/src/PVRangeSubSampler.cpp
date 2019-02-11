@@ -20,8 +20,9 @@
 Inendi::PVRangeSubSampler::PVRangeSubSampler(
     const pvcop::db::array& time,
     const std::vector<pvcop::core::array<value_type>>& timeseries,
+    const pvcop::db::selection& sel,
     size_t sampling_count /*= 2048*/)
-    : _time(time), _timeseries(timeseries), _minmax()
+    : _time(time), _timeseries(timeseries), _sel(sel), _minmax()
 {
 	set_sampling_count(
 	    sampling_count); // should be the number of horizontal visible pixels in the plot
@@ -111,7 +112,6 @@ void Inendi::PVRangeSubSampler::subsample(double first_ratio,
                                           double min_ratio /*= 0*/,
                                           double max_ratio /*= 0*/)
 {
-
 	const value_type min = min_ratio * std::numeric_limits<value_type>::max();
 	const value_type max = max_ratio * std::numeric_limits<value_type>::max();
 
@@ -147,8 +147,9 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 	_last_params = SamplingParams(first, last, minmax.copy(), min, max);
 
 	pvlogger::info() << "PVRangeSubSampler::subsample(first:" << first << ", last:" << last
-	                 << ", min:" << min << ", max:" << max
-	                 << ", _sampling_count:" << _sampling_count << ", _reset:" << _reset
+	                 << ",minmax: " << minmax.at(0) << " .. " << minmax.at(1) << ", min:" << min
+	                 << ", max:" << max << ", _sampling_count:" << _sampling_count
+	                 << ", _reset:" << _reset
 	                 << ", _timeseries_to_subsample.size():" << _timeseries_to_subsample.size()
 	                 << ")\n";
 
@@ -246,18 +247,25 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 		size_t end = first;
 		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
 		for (size_t j = 0; j < _ranges_values_counts.size(); j++) {
-			const size_t value_count = _ranges_values_counts[j];
-			end += value_count;
+			const size_t values_count = _ranges_values_counts[j];
+			end += values_count;
+			const size_t selected_values_count =
+			    (start != end) ? pvcop::core::algo::bit_count(_sel, start, end - 1) : 0;
 			uint64_t sum = 0;
 			for (size_t k = start; k < end; k++) {
-				sum += (std::numeric_limits<value_type>::max() -
-				        (_sort ? timeserie[_sort[k]] : timeserie[k]));
+				if (_sort) {
+					if (_sel[_sort[k]]) {
+						sum += (std::numeric_limits<value_type>::max() - timeserie[_sort[k]]);
+					}
+				} else if (_sel[k]) {
+					sum += (std::numeric_limits<value_type>::max() - timeserie[k]);
+				}
 			}
 			start = end;
-			if (value_count == 0) {
+			if (selected_values_count == 0) {
 				_avg_matrix[i][j] = no_value; // no value in range
 			} else {
-				const uint64_t raw_value = sum / value_count;
+				const uint64_t raw_value = sum / selected_values_count;
 				if (min != 0 and raw_value < min) { // underflow
 					_avg_matrix[i][j] = underflow_value;
 				} else if (raw_value > max) { // overflow

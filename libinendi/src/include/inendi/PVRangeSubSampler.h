@@ -80,6 +80,7 @@ class PVRangeSubSampler
   public:
 	PVRangeSubSampler(const pvcop::db::array& time,
 	                  const std::vector<pvcop::core::array<value_type>>& timeseries,
+	                  const pvcop::db::selection& sel,
 	                  size_t sampling_count = 2048);
 
 	void set_sampling_count(size_t sampling_count);
@@ -158,6 +159,7 @@ class PVRangeSubSampler
 	const std::vector<pvcop::core::array<value_type>> _timeseries;
 	std::unordered_set<size_t> _selected_timeseries;
 	std::vector<size_t> _timeseries_to_subsample;
+	const pvcop::db::selection& _sel;
 
 	pvcop::db::indexes _sorted_indexes;
 	pvcop::core::array<uint32_t> _sort;
