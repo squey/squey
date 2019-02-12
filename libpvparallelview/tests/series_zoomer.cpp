@@ -9,13 +9,36 @@
 #include <pvparallelview/PVSeriesViewZoomer.h>
 #include <pvparallelview/common.h>
 
+#include <QApplication>
+
 #include "common.h"
 
-int main()
+using namespace PVParallelView;
+using Zoom = PVViewZoomer::Zoom;
+
+bool operator==(Zoom const& a, Zoom const& b)
 {
+	return a.minX == b.minX && a.maxX == b.maxX && a.minY == b.minY && a.maxY == b.maxY;
+}
+
+std::ostream& operator<<(std::ostream& out, Zoom const& z)
+{
+	return out << "minX:" << z.minX << ", maxX:" << z.maxX << ", minY:" << z.minY
+	           << ", maxY:" << z.maxY;
+}
+
+Zoom mkZoom(double minX, double maxX, double minY, double maxY)
+{
+	return {minX, maxX, minY, maxY};
+}
+
+int main(int argc, char* argv[])
+{
+	QApplication app(argc, argv);
+
 	PVViewZoomer vz;
 	vz.resize(1000, 1000);
-	PV_VALID(vz.currentZoom(), Zoom{0., 1., 0., 1.});
+	PV_VALID(vz.currentZoom(), mkZoom(0., 1., 0., 1.));
 	vz.zoomIn(QRect{400, 0, 200, 1000});
-	PV_VALID(vz.currentZoom(), Zoom{0.4, 0.6, 0., 1.});
+	PV_VALID(vz.currentZoom(), mkZoom(0.4, 0.6, 0., 1.));
 }

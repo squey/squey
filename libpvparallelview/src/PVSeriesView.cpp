@@ -691,9 +691,9 @@ void main(void) {
 	EmitVertex();
 	if (gl_in[1].gl_Position.y > 2) {
 		geolineColor = lineColor[0];
-		gl_Position = gl_in[0].gl_Position + vec4(2/size.w,0, 0,0);
+		bool adjust = gl_in[0].gl_Position.x < 0;
+		gl_Position = gl_in[0].gl_Position + vec4(fma(float(adjust), 2, -1)*2/size.w, 0, 0, 0);
 		EmitVertex();
-		EndPrimitive();
 		return;
 	}
 	geolineColor = lineColor[1];

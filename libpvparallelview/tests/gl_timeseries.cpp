@@ -44,14 +44,12 @@
 static constexpr const size_t ts_count = 40000;
 static constexpr const size_t points_count = 2000;
 
-static constexpr const char* csv_file = "/srv/logs/FUSION_MAINTENANCE_2016_cat_date.csv";
-static constexpr const char* csv_file_format =
-    "/srv/logs/FUSION_MAINTENANCE_2016_cat_date.csv.format";
+static constexpr const char* csv_file = TEST_FOLDER "/picviz/timeserie_fusion.csv";
+static constexpr const char* csv_file_format = TEST_FOLDER "/picviz/timeserie_fusion.csv.format";
 
 int main(int argc, char** argv)
 {
-	pvtest::TestEnv env(csv_file, csv_file_format, 1, pvtest::ProcessUntil::Source,
-	                    "/srv/logs/constellium_nraw");
+	pvtest::TestEnv env(csv_file, csv_file_format, 1, pvtest::ProcessUntil::Source);
 
 	env.compute_mappings();
 	env.compute_plottings();
