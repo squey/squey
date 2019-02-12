@@ -93,7 +93,7 @@ class PVRangeSubSampler
 	{
 		return _avg_matrix[index];
 	}
-	const std::vector<size_t>& range_value_count() const { return _ranges_values_counts; }
+	const std::vector<size_t>& ranges_values_counts() const { return _ranges_values_counts; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
 	pvcop::db::array minmax_subrange(double first_ratio, double last_ratio);
 

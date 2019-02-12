@@ -255,12 +255,9 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 			    (start != end) ? pvcop::core::algo::bit_count(_sel, start, end - 1) : 0;
 			uint64_t sum = 0;
 			for (size_t k = start; k < end; k++) {
-				if (_sort) {
-					if (_sel[_sort[k]]) {
-						sum += (std::numeric_limits<value_type>::max() - timeserie[_sort[k]]);
-					}
-				} else if (_sel[k]) {
-					sum += (std::numeric_limits<value_type>::max() - timeserie[k]);
+				auto v = not _sort ? k : _sort[k];
+				if (_sel[v]) {
+					sum += (std::numeric_limits<value_type>::max() - timeserie[v]);
 				}
 			}
 			start = end;
