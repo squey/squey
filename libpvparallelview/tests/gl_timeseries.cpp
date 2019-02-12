@@ -51,7 +51,7 @@ static constexpr const char* csv_file_format =
 int main(int argc, char** argv)
 {
 	pvtest::TestEnv env(csv_file, csv_file_format, 1, pvtest::ProcessUntil::Source,
-	                    "/srv/logs/constellium_nraw_small");
+	                    "/srv/logs/constellium_nraw");
 
 	env.compute_mappings();
 	env.compute_plottings();
@@ -62,26 +62,75 @@ int main(int argc, char** argv)
 	const auto& plotteds_vector = plotteds.front()->get_plotteds();
 
 	Inendi::PVView* view = env.root.get_children<Inendi::PVView>().front();
+	view->select_all();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 
 	QApplication a(argc, argv);
 
-	// a.setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
-
 	std::vector<pvcop::core::array<uint32_t>> timeseries;
 	for (size_t i = 1; i < plotteds_vector.size(); i++) {
-		// for (size_t i : { 18, 19, 20, 21 }) {
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
 	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries,
 	                                  view->get_real_output_selection());
-	sampler.resubsample();
 
-	PVParallelView::PVSeriesView* myView = new PVParallelView::PVSeriesView(sampler);
+	std::unordered_set<size_t> selected_timeseries;
+	for (int i = 0; i < timeseries.size(); ++i) {
+		selected_timeseries.emplace(i);
+	}
+	sampler.set_selected_timeseries(selected_timeseries);
 
-	myView->setBackgroundColor(QColor(10, 10, 10, 255));
+	sampler.set_sampling_count(1600);
 
-	myView->showMaximized();
+	{
+		PVParallelView::PVSeriesView plot(sampler, nullptr,
+		                                  PVParallelView::PVSeriesView::Backend::QPainter);
 
-	return a.exec();
+		plot.setBackgroundColor(QColor(100, 10, 10, 255));
+
+		std::vector<PVParallelView::PVSeriesView::SerieDrawInfo> seriesDrawOrder;
+		std::unordered_set<size_t> selected_timeseries;
+		for (size_t i = 0; i < timeseries.size(); ++i) {
+			seriesDrawOrder.push_back(
+			    {i, QColor(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100)});
+		}
+		plot.showSeries(std::move(seriesDrawOrder));
+
+		plot.resize(1600, 900);
+
+		sampler.resubsample();
+
+		plot.grab();
+		plot.refresh();
+		plot.grab();
+		sampler.resubsample();
+		plot.grab();
+	}
+	{
+		PVParallelView::PVSeriesView plot(sampler, nullptr,
+		                                  PVParallelView::PVSeriesView::Backend::OpenGL);
+
+		plot.setBackgroundColor(QColor(100, 10, 10, 255));
+
+		std::vector<PVParallelView::PVSeriesView::SerieDrawInfo> seriesDrawOrder;
+		std::unordered_set<size_t> selected_timeseries;
+		for (size_t i = 0; i < timeseries.size(); ++i) {
+			seriesDrawOrder.push_back(
+			    {i, QColor(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100)});
+		}
+		plot.showSeries(std::move(seriesDrawOrder));
+
+		plot.resize(1600, 900);
+
+		sampler.resubsample();
+
+		plot.grab();
+		plot.refresh();
+		plot.grab();
+		sampler.resubsample();
+		plot.grab();
+	}
+
+	// plot.show();
+	// return a.exec();
 }

@@ -36,7 +36,11 @@ class PVSeriesView : public QWidget
 		QColor color;
 	};
 
-	explicit PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent = 0);
+	enum class Backend { QPainter, OpenGL, OffscreenOpenGL, Default = 0xffff };
+
+	explicit PVSeriesView(Inendi::PVRangeSubSampler& rss,
+	                      QWidget* parent = 0,
+	                      Backend backend = Backend::Default);
 	virtual ~PVSeriesView();
 
 	void setBackgroundColor(QColor const& bgcol);

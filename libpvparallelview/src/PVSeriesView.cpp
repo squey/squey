@@ -237,13 +237,13 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 	PVSeriesRendererOpenGL m_glRenderer;
 };
 
-PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent)
+PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, QWidget* parent, Backend backend)
     : QWidget(parent), m_pixmap(size()), m_rss(rss)
 {
-	if (PVSeriesRendererOffscreen::hasCapability()) {
+	if (backend >= Backend::OffscreenOpenGL && PVSeriesRendererOffscreen::hasCapability()) {
 		qDebug() << "Choosing PVSeriesRendererOffscreen";
 		m_renderer = std::make_unique<PVSeriesRendererOffscreen>(m_rss);
-	} else if (PVSeriesRendererOpenGL::hasCapability()) {
+	} else if (backend >= Backend::OpenGL && PVSeriesRendererOpenGL::hasCapability()) {
 		qDebug() << "Choosing PVSeriesRendererOpenGL";
 		m_renderer = std::make_unique<PVSeriesRendererOpenGL>(m_rss);
 	} else {
@@ -277,11 +277,14 @@ void PVSeriesView::refresh()
 void PVSeriesView::paintEvent(QPaintEvent*)
 {
 	if (m_needHardRedraw) {
-		qDebug() << "hard paint";
+		// qDebug() << "hard paint";
+		BENCH_START(paint_series);
 		m_pixmap = m_renderer->grab();
+		BENCH_END(paint_series, "paint_series", 1, 1, 1, 1);
+
 		m_needHardRedraw = false;
 	}
-	qDebug() << "soft paint";
+	// qDebug() << "soft paint";
 	QPainter painter(this);
 	painter.drawPixmap(0, 0, width(), height(), m_pixmap);
 }
@@ -308,8 +311,6 @@ PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& 
 		format.setProfile(QSurfaceFormat::CoreProfile);
 		setFormat(format);
 	}
-
-	qDebug() << "default size" << size();
 
 	// QSurfaceFormat format;
 	// format.setVersion(3, 3);
@@ -647,7 +648,7 @@ void PVSeriesRendererOpenGL::setupShaders_GL()
 "#version 430\n" SHADER(
 in vec4 vertex;
 in vec3 color;
-out vec4 lineColor;
+flat out vec4 lineColor;
 uniform vec4 size;
 void main(void) {
     //float line = floor(gl_VertexID / size.w);
@@ -656,8 +657,8 @@ void main(void) {
     lineColor = vec4(color, 1);
     //lineColor = vec4(size.rgb, 1);
     vec4 wvertex = vertex;
-    wvertex.y = vertex.x / 16383;// ((1 << 14) - 1);
-    wvertex.x = mod(gl_VertexID, size.w) / (size.w - 1);
+    wvertex.y = vertex.x / (1 << 14);
+    wvertex.x = (mod(gl_VertexID, size.w)) / (size.w - 1);
     int vx = int(vertex.x);
     if(bool(vx & (1 << 15))) { //if out of range
     	if(bool(vx & (1 << 14))) { //if overflow
@@ -666,22 +667,52 @@ void main(void) {
     		wvertex.y = -0.5;
     	}
     } else if(bool(vx & (1 << 14))) { //else if no value
-    	lineColor = vec4(0.,0.,0.,0.);
-    	wvertex.y = 0.5;
+    	//lineColor = vec4(0.,0.,0.,0.);
+    	wvertex.y = 2.5;
     }
     gl_Position.xy = vec2(fma(wvertex.x, 2, -1), fma(wvertex.y, 2, -1));
 });
 
+	std::string geometryShader =
+"#version 430\n" SHADER(
+layout(lines) in;
+flat in vec4 lineColor[];
+layout(line_strip, max_vertices = 2) out;
+flat out vec4 geolineColor;
+
+uniform vec4 size;
+
+void main(void) {
+	if (gl_in[0].gl_Position.y > 2) {
+		return;
+	}
+	geolineColor = lineColor[0];
+	gl_Position = gl_in[0].gl_Position;
+	EmitVertex();
+	if (gl_in[1].gl_Position.y > 2) {
+		geolineColor = lineColor[0];
+		gl_Position = gl_in[0].gl_Position + vec4(2/size.w,0, 0,0);
+		EmitVertex();
+		EndPrimitive();
+		return;
+	}
+	geolineColor = lineColor[1];
+	gl_Position = gl_in[1].gl_Position;
+	EmitVertex();
+});
+
 	std::string fragmentShader =
 "#version 430\n" SHADER(
-in vec4 lineColor;
+flat in vec4 geolineColor;
 out vec4 FragColor;
 void main(void) {
-	FragColor = lineColor*floor(lineColor.a);
+	FragColor = geolineColor;
+	// FragColor = geolineColor*floor(geolineColor.a);
 	// FragColor = vec4(1,1,1,1);
 });
 
 	m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShader.c_str());
+	m_program->addShaderFromSourceCode(QOpenGLShader::Geometry, geometryShader.c_str());
 	m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShader.c_str());
 
 	m_program->link();
