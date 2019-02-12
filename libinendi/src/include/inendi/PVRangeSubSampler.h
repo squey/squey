@@ -93,19 +93,23 @@ class PVRangeSubSampler
 	{
 		return _avg_matrix[index];
 	}
+	const std::vector<size_t>& range_value_count() const { return _ranges_values_counts; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
 	pvcop::db::array minmax_subrange(double first_ratio, double last_ratio);
 
 	void
 	subsample(double first_ratio, double last_ratio, double min_ratio = 0, double max_ratio = 0);
-	void subsample(const pvcop::db::array& minmax, size_t min = 0, size_t max = 0);
+	void subsample(const pvcop::db::array& minmax, uint32_t min = 0, uint32_t max = 0);
 	void resubsample(const std::unordered_set<size_t>& timeseries = {});
 	bool valid() const;
 
   private:
 	void allocate_internal_structures();
-	void subsample(
-	    size_t first, size_t last, const pvcop::db::array& minmax, size_t min = 0, size_t max = 0);
+	void subsample(size_t first,
+	               size_t last,
+	               const pvcop::db::array& minmax,
+	               uint32_t min = 0,
+	               uint32_t max = 0);
 
 	template <typename T>
 	void compute_ranges_values_count(size_t first, size_t last, const pvcop::db::array& minmax)

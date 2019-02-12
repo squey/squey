@@ -119,8 +119,8 @@ void Inendi::PVRangeSubSampler::subsample(double first_ratio,
 }
 
 void Inendi::PVRangeSubSampler::subsample(const pvcop::db::array& minmax,
-                                          size_t min /*= 0*/,
-                                          size_t max /*= 0*/)
+                                          uint32_t min /*= 0*/,
+                                          uint32_t max /*= 0*/)
 {
 	auto[first, past_end] = _time.equal_range(minmax, _sorted_indexes);
 	subsample(first, past_end - 1, minmax, min, max);
@@ -129,14 +129,14 @@ void Inendi::PVRangeSubSampler::subsample(const pvcop::db::array& minmax,
 void Inendi::PVRangeSubSampler::subsample(size_t first,
                                           size_t last,
                                           const pvcop::db::array& minmax,
-                                          size_t min /*= 0*/,
-                                          size_t max /*= 0*/)
+                                          uint32_t min /*= 0*/,
+                                          uint32_t max /*= 0*/)
 {
 	if (last == 0) {
 		last = _time.size() - 1;
 	}
 	if (max == 0) {
-		max = std::numeric_limits<size_t>::max();
+		max = std::numeric_limits<uint32_t>::max();
 	}
 
 	// Resample every selected timeseries if params have changed
