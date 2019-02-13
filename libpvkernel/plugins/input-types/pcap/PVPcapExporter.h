@@ -8,6 +8,7 @@
 
 #include <QDesktopServices>
 #include <QCheckBox>
+#include <QUrl>
 
 #include "pcap/PVPcapDescription.h"
 #include <pvkernel/rush/PVInputFile.h>

@@ -17,13 +17,10 @@
  *
  *****************************************************************************/
 PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget* parent)
-    : QFileDialog(parent)
+    : PVWidgets::PVFileDialog(parent)
 {
 	setWindowTitle("Import file");
 	setFileMode(QFileDialog::ExistingFiles);
-
-	// Set this flags to make sure we can access the layout.
-	setOption(QFileDialog::DontUseNativeDialog);
 
 	QGridLayout* this_layout = (QGridLayout*)layout();
 

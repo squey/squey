@@ -35,6 +35,7 @@
 #include <pvkernel/rush/PVConverter.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVStateMachine.h>
@@ -533,9 +534,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		 * like last used current directory.
 		 */
 
-		QFileDialog* fdialog = new QFileDialog(this);
+		PVWidgets::PVFileDialog* fdialog = new PVWidgets::PVFileDialog(this);
 
-		fdialog->setOption(QFileDialog::DontUseNativeDialog, true);
 		fdialog->setNameFilter("Formats (*.format)");
 		fdialog->setWindowTitle("Load format from...");
 
@@ -834,8 +834,8 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 		filename.append(default_prefix);
 	}
 
-	QString img_name =
-	    QFileDialog::getSaveFileName(this, title, filename, QString("PNG Image (*.png)"));
+	QString img_name = PVWidgets::PVFileDialog::getSaveFileName(this, title, filename,
+	                                                            QString("PNG Image (*.png)"));
 
 	if (img_name.isEmpty()) {
 		return;

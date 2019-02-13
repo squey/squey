@@ -2,7 +2,6 @@
 #define SELECTIONWIDGET_H
 
 #include <QDialog>
-#include <QFileDialog>
 #include <QVBoxLayout>
 #include <QWidget>
 

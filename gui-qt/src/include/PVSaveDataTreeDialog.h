@@ -8,7 +8,7 @@
 #ifndef PVSAVEDATATREEDIALOG_H
 #define PVSAVEDATATREEDIALOG_H
 
-#include <QFileDialog>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 class QString;
 class QCheckBox;
@@ -17,7 +17,7 @@ class QWidget;
 namespace PVInspector
 {
 
-class PVSaveDataTreeDialog : public QFileDialog
+class PVSaveDataTreeDialog : public PVWidgets::PVFileDialog
 {
   public:
 	PVSaveDataTreeDialog(QString const& suffix, QString const& filter, QWidget* parent);

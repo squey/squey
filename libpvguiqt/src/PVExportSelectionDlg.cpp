@@ -23,7 +23,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 
 PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVView& view, QWidget* parent /* = 0 */)
-    : QFileDialog(parent)
+    : PVWidgets::PVFileDialog(parent)
 {
 	// Set this flags to make sure we can access the layout.
 	setOption(QFileDialog::DontUseNativeDialog);

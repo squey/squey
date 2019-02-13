@@ -16,7 +16,8 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 
-#include <QFileDialog>
+#include <pvkernel/widgets/PVFileDialog.h>
+
 #include <QTextStream>
 
 namespace PVWidgets
@@ -235,8 +236,8 @@ class PVParamsWidget : public PVParamsWidgetBase
 		get_query(&error);
 
 		if (error.empty()) {
-			QString csv_filename =
-			    QFileDialog::getSaveFileName(this, "Export to...", "", get_export_filters());
+			QString csv_filename = PVWidgets::PVFileDialog::getSaveFileName(
+			    this, "Export to...", "", get_export_filters());
 
 			if (csv_filename.isEmpty() == false) {
 

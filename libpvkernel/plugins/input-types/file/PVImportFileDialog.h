@@ -8,7 +8,7 @@
 #ifndef PVRUSH_PVIMPORTFILEDIALOG_H
 #define PVRUSH_PVIMPORTFILEDIALOG_H
 
-#include <QFileDialog>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 class QComboBox;
 
@@ -20,7 +20,7 @@ namespace PVRush
  *
  * Speciale FileDialog with option to choose the format.
  */
-class PVImportFileDialog : public QFileDialog
+class PVImportFileDialog : public PVWidgets::PVFileDialog
 {
 	Q_OBJECT
 

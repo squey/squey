@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
@@ -473,7 +474,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				        QString new_file;
 
 				        pbox.exec_gui([&]() {
-					        new_file = QFileDialog::getOpenFileName(
+					        new_file = PVWidgets::PVFileDialog::getOpenFileName(
 					            this, tr("Select new file path..."), old_path);
 					    });
 

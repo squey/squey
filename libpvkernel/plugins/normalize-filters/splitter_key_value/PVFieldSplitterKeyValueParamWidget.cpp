@@ -17,7 +17,6 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QInputDialog>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QApplication>
 #include <QClipboard>

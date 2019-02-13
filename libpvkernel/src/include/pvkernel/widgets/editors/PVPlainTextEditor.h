@@ -8,11 +8,11 @@
 #ifndef PVCORE_PVPLAINTEXTEDITOR_H
 #define PVCORE_PVPLAINTEXTEDITOR_H
 
-#include <QFileDialog>
 #include <QWidget>
 #include <QPlainTextEdit>
 
 #include <pvkernel/core/PVPlainTextType.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 namespace PVWidgets
 {
@@ -45,7 +45,7 @@ class PVPlainTextEditor : public QWidget
 	QPlainTextEdit* _text_edit;
 
   private:
-	QFileDialog _file_dlg;
+	PVWidgets::PVFileDialog _file_dlg;
 };
 } // namespace PVWidgets
 

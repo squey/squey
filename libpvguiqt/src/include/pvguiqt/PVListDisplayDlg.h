@@ -15,7 +15,7 @@
 
 #include <QVector>
 #include <QDialog>
-#include <QFileDialog>
+#include <QFile>
 
 namespace PVGuiQt
 {

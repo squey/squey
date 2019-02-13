@@ -9,7 +9,6 @@
 #define __PVGUIQT_PVNRAWDIRECTORYMESSAGEBOX_H__
 
 #include <QMessageBox>
-#include <QFileDialog>
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -42,7 +41,7 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 			exec();
 
 			if (clickedButton() == browser_button) {
-				nraw_tmp = QFileDialog::getExistingDirectory();
+				nraw_tmp = PVWidgets::PVFileDialog::getExistingDirectory();
 				if (not nraw_tmp.isEmpty()) {
 					PVCore::PVConfig::get().config().setValue(config_nraw_tmp, nraw_tmp);
 				}

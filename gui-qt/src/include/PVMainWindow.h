@@ -19,6 +19,7 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #include <inendi/PVLayerFilter.h>
 #include <inendi/PVSelection.h>
@@ -235,7 +236,7 @@ class PVMainWindow : public QMainWindow
 	QStackedWidget* pv_centralWidget;
 	QVBoxLayout* pv_mainLayout;
 	QVBoxLayout* pv_startLayout;
-	QFileDialog _load_solution_dlg;
+	PVWidgets::PVFileDialog _load_solution_dlg;
 
 	QString _current_save_root_folder;
 

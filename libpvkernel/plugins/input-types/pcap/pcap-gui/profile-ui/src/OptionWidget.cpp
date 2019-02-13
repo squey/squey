@@ -4,12 +4,13 @@
 #include <libpvpcap/ws.h>
 
 #include <QStringList>
-#include <QFileDialog>
 
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include <pvkernel/widgets/PVFileDialog.h>
 
 OptionWidget::OptionWidget(rapidjson::Document& json_data, QWidget* parent)
     : QWidget(parent), _ui(new Ui::OptionWidget), _json_data(json_data)
@@ -245,8 +246,8 @@ void OptionWidget::on_geoip_db_button_clicked(bool /*checked = false*/)
 {
 	if (not _json_data.IsNull()) {
 		std::string dirname =
-		    QFileDialog::getExistingDirectory(this, tr("Open GeoIP Database directory"), "",
-		                                      QFileDialog::ShowDirsOnly)
+		    PVWidgets::PVFileDialog::getExistingDirectory(this, tr("Open GeoIP Database directory"),
+		                                                  "", QFileDialog::ShowDirsOnly)
 		        .toStdString();
 		if (not dirname.empty()) {
 			if (not _json_data["options"].HasMember("geoip_db_paths")) {
