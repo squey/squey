@@ -68,13 +68,13 @@ void test(const testcase& test)
 		PV_VALID(sampler.samples_count(), sampling_count);
 		PV_VALID(avg_ts.size(), sampling_count);
 
-		PVRow indexes_count = std::accumulate(sampler.ranges_values_counts().begin(),
-		                                      sampler.ranges_values_counts().end(), 0);
+		PVRow indexes_count =
+		    std::accumulate(sampler.histogram().begin(), sampler.histogram().end(), 0);
 		PV_VALID(indexes_count, nraw.row_count());
 
 		std::ifstream f;
 		f.open(test.file_path + ".output_ranges_" + std::to_string(sampling_count));
-		for (const auto& v : sampler.ranges_values_counts()) {
+		for (const auto& v : sampler.histogram()) {
 			size_t range_values_count;
 			f >> range_values_count;
 			PV_VALID(range_values_count, v);

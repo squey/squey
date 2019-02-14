@@ -153,17 +153,17 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 	                 << ", _timeseries_to_subsample.size():" << _timeseries_to_subsample.size()
 	                 << ")\n";
 
-	typedef void (PVRangeSubSampler::*compute_ranges_values_count_func_t)(size_t, size_t,
-	                                                                      const pvcop::db::array&);
-	using func_map_t = std::unordered_map<std::string, compute_ranges_values_count_func_t>;
+	typedef void (PVRangeSubSampler::*compute_histogram_func_t)(size_t, size_t,
+	                                                            const pvcop::db::array&);
+	using func_map_t = std::unordered_map<std::string, compute_histogram_func_t>;
 	static const func_map_t func_map = [&]() {
 		func_map_t map;
-		map.insert({"number_uint32", &PVRangeSubSampler::compute_ranges_values_count<uint32_t>});
-		map.insert({"number_uint64", &PVRangeSubSampler::compute_ranges_values_count<uint64_t>});
-		map.insert({"datetime", &PVRangeSubSampler::compute_ranges_values_count<uint32_t>});
-		map.insert({"datetime_ms", &PVRangeSubSampler::compute_ranges_values_count<uint64_t>});
-		map.insert({"datetime_us",
-		            &PVRangeSubSampler::compute_ranges_values_count<boost::posix_time::ptime>});
+		map.insert({"number_uint32", &PVRangeSubSampler::compute_histogram<uint32_t>});
+		map.insert({"number_uint64", &PVRangeSubSampler::compute_histogram<uint64_t>});
+		map.insert({"datetime", &PVRangeSubSampler::compute_histogram<uint32_t>});
+		map.insert({"datetime_ms", &PVRangeSubSampler::compute_histogram<uint64_t>});
+		map.insert(
+		    {"datetime_us", &PVRangeSubSampler::compute_histogram<boost::posix_time::ptime>});
 		return map;
 	}();
 
@@ -207,20 +207,16 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 {
 	assert(_sampling_count >= 2);
 
-	// time interval array
-	_sampled_time = pvcop::db::array(_time.formatter()->name(), _sampling_count - 1);
-	_sampled_time.set_formatter(_time.formatter());
-
 	// range values count
-	_ranges_values_counts = std::vector<size_t>(_sampling_count);
+	_histogram = std::vector<size_t>(_sampling_count);
 
 	assert(_timeseries.size() > 0);
-	assert(_ranges_values_counts.size() > 0);
+	assert(_histogram.size() > 0);
 
 	// matrix of average values
 	_avg_matrix.resize(_timeseries.size());
 	for (auto& vec : _avg_matrix) {
-		vec.resize(_ranges_values_counts.size());
+		vec.resize(_histogram.size());
 	}
 
 	_timeseries_to_subsample.clear();
@@ -248,8 +244,8 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 		size_t start = first;
 		size_t end = first;
 		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
-		for (size_t j = 0; j < _ranges_values_counts.size(); j++) {
-			const size_t values_count = _ranges_values_counts[j];
+		for (size_t j = 0; j < _histogram.size(); j++) {
+			const size_t values_count = _histogram[j];
 			end += values_count;
 			const size_t selected_values_count =
 			    (start != end) ? pvcop::core::algo::bit_count(_sel, start, end - 1) : 0;
@@ -278,5 +274,5 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 	}
 
 	BENCH_END(computing_average, "computing_average", _time.size(), sizeof(uint64_t),
-	          _sampled_time.size(), sizeof(uint64_t));
+	          _sampling_count, sizeof(uint64_t));
 }

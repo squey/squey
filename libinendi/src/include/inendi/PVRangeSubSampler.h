@@ -93,7 +93,7 @@ class PVRangeSubSampler
 	{
 		return _avg_matrix[index];
 	}
-	const std::vector<size_t>& ranges_values_counts() const { return _ranges_values_counts; }
+	const std::vector<size_t>& histogram() const { return _histogram; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
 	pvcop::db::array minmax_subrange(double first_ratio, double last_ratio);
 
@@ -112,14 +112,12 @@ class PVRangeSubSampler
 	               uint32_t max = 0);
 
 	template <typename T>
-	void compute_ranges_values_count(size_t first, size_t last, const pvcop::db::array& minmax)
+	void compute_histogram(size_t first, size_t last, const pvcop::db::array& minmax)
 	{
-		assert(_sampled_time.size() == _sampling_count - 1);
-		assert(_ranges_values_counts.size() == _sampling_count);
+		assert(_histogram.size() == _sampling_count);
 
-		BENCH_START(compute_ranges_values_count);
+		BENCH_START(compute_histogram);
 
-		pvcop::core::array<T> core_sampled_time = _sampled_time.to_core_array<T>();
 		pvcop::core::array<T> core_time = _time.to_core_array<T>();
 		pvcop::core::array<T> core_minmax = minmax.to_core_array<T>();
 
@@ -128,28 +126,33 @@ class PVRangeSubSampler
 
 		using interval_t = typename PVRangeSubSamplerIntervalType<T>::value_type;
 		const interval_t& interval = (interval_t)(max - min) / (_sampling_count);
-		for (size_t i = 0; i < _sampled_time.size(); i++) {
-			core_sampled_time[i] = (T)(min + (interval * (i + 1)));
-		}
 
-		size_t j = first;
-		size_t old_j = j;
-		for (size_t i = 0; i < core_sampled_time.size(); i++) {
+		auto sorted_begin_it = _sort.cbegin() + first;
+		auto sorted_end_it = _sort.cbegin() + last + 1;
+		auto begin_it = core_time.cbegin() + first;
+		auto end_it = core_time.cbegin() + last + 1;
+
+		//#pragma omp parallel for firstprivate(sorted_begin_it, begin_it) // working but slower
+		for (size_t i = 0; i < _sampling_count - 1; i++) {
+			const T value = (T)(min + (interval * (i + 1)));
 			if (_sort) {
-				while (core_time[_sort[j]] < core_sampled_time[i])
-					j++;
+				sorted_begin_it = std::lower_bound(
+				    sorted_begin_it, sorted_end_it, 0,
+				    [this, &core_time, value](size_t j, size_t) { return core_time[j] < value; });
+				begin_it = core_time.cbegin() + std::distance(_sort.cbegin(), sorted_begin_it);
 			} else {
-				while (core_time[j] < core_sampled_time[i])
-					j++;
+				begin_it = std::lower_bound(begin_it, end_it, value);
 			}
-			_ranges_values_counts[i] = j - old_j;
-			old_j = j;
+			_histogram[i] = std::distance(core_time.cbegin(), begin_it);
 		}
-		_ranges_values_counts[_ranges_values_counts.size() - 1] = last - old_j + 1;
-		assert(old_j <= last + 1);
+		_histogram.back() = last + 1;
 
-		BENCH_END(compute_ranges_values_count, "compute_ranges_values_count", _sampled_time.size(),
-		          1, _sampled_time.size(), 1);
+		// Transform indexes into histogram
+		size_t first_range = _histogram.front() - first;
+		std::adjacent_difference(_histogram.begin(), _histogram.end(), _histogram.begin());
+		_histogram.front() = first_range;
+
+		BENCH_END(compute_histogram, "compute_histogram", _sampling_count, 1, _sampling_count, 1);
 	}
 
 	void compute_ranges_average(size_t first, size_t /*last*/, size_t min, size_t max);
@@ -169,11 +172,9 @@ class PVRangeSubSampler
 	pvcop::db::indexes _sorted_indexes;
 	pvcop::core::array<uint32_t> _sort;
 
-	pvcop::db::array _sampled_time;
-
 	pvcop::db::array _minmax;
 
-	std::vector<size_t> _ranges_values_counts;
+	std::vector<size_t> _histogram;
 	std::vector<std::vector<display_type>> _avg_matrix;
 
 	SamplingParams _last_params;
