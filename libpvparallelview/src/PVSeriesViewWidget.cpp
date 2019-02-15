@@ -14,6 +14,7 @@
 #include <inendi/PVRangeSubSampler.h>
 
 #include <QListWidget>
+#include <QStateMachine>
 
 PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        PVCombCol axis_comb,
@@ -38,6 +39,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	PVSeriesView* plot = new PVSeriesView(*_sampler);
 	plot->setBackgroundColor(QColor(10, 10, 10, 255));
+	plot->setDrawMode(PVSeriesView::DrawMode::Points);
 
 	QListWidget* timeseries_list_widget = new QListWidget;
 	timeseries_list_widget->setFixedWidth(200);
@@ -86,9 +88,28 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	PVSeriesViewZoomer* zoomer = new PVSeriesViewZoomer(plot, *_sampler);
 	zoomer->setZoomRectColor(Qt::red);
 
-	auto minmax_changed_f = [this, plot](const pvcop::db::array& minmax) {
-		_sampler->subsample(minmax);
-	};
+	QPushButton* draw_mode_button = new QPushButton();
+	{
+		QStateMachine* qsm = new QStateMachine(draw_mode_button);
+		QState* lines = new QState(qsm);
+		QState* points = new QState(qsm);
+		lines->assignProperty(draw_mode_button, "text", "Lines");
+		points->assignProperty(draw_mode_button, "text", "Points");
+		lines->addTransition(draw_mode_button, &QPushButton::clicked, points);
+		points->addTransition(draw_mode_button, &QPushButton::clicked, lines);
+		connect(lines, &QState::entered, [plot] {
+			plot->setDrawMode(PVSeriesView::DrawMode::Lines);
+			plot->refresh();
+		});
+		connect(points, &QState::entered, [plot] {
+			plot->setDrawMode(PVSeriesView::DrawMode::Points);
+			plot->refresh();
+		});
+		qsm->setInitialState(lines);
+		qsm->start();
+	}
+
+	auto minmax_changed_f = [this](const pvcop::db::array& minmax) { _sampler->subsample(minmax); };
 
 	PVWidgets::PVRangeEdit* range_edit = nullptr;
 	if (_sampler->minmax_time().formatter()->name().find("datetime") == 0) {
@@ -122,6 +143,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	layout->addLayout(hlayout);
 	layout->addWidget(range_edit);
+	layout->addWidget(draw_mode_button);
 
 	setLayout(layout);
 }

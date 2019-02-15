@@ -93,7 +93,7 @@ pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(double first_ratio, 
 {
 	typedef pvcop::db::array (*minmax_subrange_func_t)(const pvcop::db::array&, double, double);
 	using func_map_t = std::unordered_map<std::string, minmax_subrange_func_t>;
-	static const func_map_t func_map = [&]() {
+	static const func_map_t func_map = []() {
 		func_map_t map;
 		map.insert({"number_uint32", &_minmax_subrange<uint32_t>});
 		map.insert({"number_uint64", &_minmax_subrange<uint64_t>});

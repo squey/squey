@@ -9,17 +9,7 @@
 
 #include <inendi/PVRangeSubSampler.h>
 
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLFunctions>
-#include <QtGlobal>
-#include <QOpenGLTexture>
-#include <QOpenGLFramebufferObject>
-#include <QOpenGLWidget>
-#include <QOpenGLExtraFunctions>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLShader>
-#include <QOpenGLBuffer>
-#include <QBasicTimer>
+#include <QWidget>
 
 namespace PVParallelView
 {
@@ -36,7 +26,9 @@ class PVSeriesView : public QWidget
 		QColor color;
 	};
 
-	enum class Backend { QPainter, OpenGL, OffscreenOpenGL, Default = 0xffff };
+	enum class DrawMode { Points, Lines, Default = Lines };
+
+	enum class Backend { QPainter, OpenGL, OffscreenOpenGL, Default = OffscreenOpenGL };
 
 	explicit PVSeriesView(Inendi::PVRangeSubSampler& rss,
 	                      QWidget* parent = 0,
@@ -47,16 +39,28 @@ class PVSeriesView : public QWidget
 	void showSeries(std::vector<SerieDrawInfo> seriesDrawOrder);
 	void refresh();
 
+	void setDrawMode(DrawMode);
+	static Backend capability(Backend);
+	static DrawMode capability(Backend, DrawMode);
+
+	template <class... Args>
+	auto capability(Args&&... args)
+	{
+		return capability(m_backend, std::forward<Args>(args)...);
+	}
+
   protected:
 	void paintEvent(QPaintEvent* event) override;
 	void resizeEvent(QResizeEvent* event) override;
 
   private:
+	Inendi::PVRangeSubSampler& m_rss;
 	std::unique_ptr<PVSeriesAbstractRenderer> m_renderer;
+	const Backend m_backend;
 	QPixmap m_pixmap;
 	bool m_needHardRedraw = false;
 
-	Inendi::PVRangeSubSampler& m_rss;
+	auto make_renderer(Backend backend) -> Backend;
 };
 
 } // namespace PVParallelView

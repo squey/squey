@@ -8,6 +8,7 @@
 #include <QPainter>
 
 #include <QTimer>
+#include <QDebug>
 
 namespace PVParallelView
 {
@@ -294,6 +295,7 @@ void PVSeriesViewZoomer::timerEvent(QTimerEvent* event)
 {
 	if (event->timerId() == m_resizingTimer.timerId()) {
 		m_rss.set_sampling_count(size().width());
+		// m_rss.set_sampling_count(64);
 		updateZoom(currentZoom());
 		m_resizingTimer.stop();
 	}

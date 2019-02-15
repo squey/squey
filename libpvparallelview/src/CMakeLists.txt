@@ -91,6 +91,7 @@ PVScatterViewDataImpl.cpp
 PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
 
+PVSeriesRendererOpenGL.cpp
 PVSeriesView.cpp
 PVSeriesViewWidget.cpp
 PVSeriesViewZoomer.cpp
