@@ -198,6 +198,9 @@ void Inendi::PVRangeSubSampler::resubsample(const std::unordered_set<size_t>& ti
 		_timeseries_to_subsample.clear();
 		std::copy(timeseries.begin(), timeseries.end(),
 		          std::back_inserter(_timeseries_to_subsample));
+	} else {
+		_timeseries_to_subsample =
+		    std::vector<size_t>(_selected_timeseries.begin(), _selected_timeseries.end());
 	}
 	subsample(_last_params.first, _last_params.last, _last_params.minmax, _last_params.min,
 	          _last_params.max);

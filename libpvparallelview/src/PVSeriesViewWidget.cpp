@@ -124,7 +124,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		             });
 
 	// Subscribe to plotting changes
-	view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	_plotting_change_connection = view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
 	    [this](const QList<PVCol>& plotteds_updated) {
 		    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
 		                                                  plotteds_updated.end());
@@ -132,7 +132,8 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		});
 
 	// Subscribe to selection changes
-	view->_update_output_selection.connect([this]() { _sampler->resubsample(); });
+	_selection_change_connection =
+	    view->_update_output_selection.connect([this]() { _sampler->resubsample(); });
 
 	QVBoxLayout* layout = new QVBoxLayout;
 

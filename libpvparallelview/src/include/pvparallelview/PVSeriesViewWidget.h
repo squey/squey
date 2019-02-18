@@ -26,6 +26,16 @@ class PVSeriesViewWidget : public QWidget
 
   private:
 	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
+
+	struct Disconnector : public sigc::connection {
+		using sigc::connection::connection;
+		using sigc::connection::operator=;
+		Disconnector(Disconnector&&) = delete;
+		~Disconnector() { disconnect(); }
+	};
+
+	Disconnector _plotting_change_connection;
+	Disconnector _selection_change_connection;
 };
 }
 

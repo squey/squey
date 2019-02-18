@@ -43,12 +43,15 @@ PVSeriesRendererOpenGL::~PVSeriesRendererOpenGL()
 
 bool PVSeriesRendererOpenGL::capability()
 {
-	QOpenGLContext qogl;
-	QSurfaceFormat format;
-	format.setVersion(4, 3);
-	format.setProfile(QSurfaceFormat::CoreProfile);
-	qogl.setFormat(format);
-	return qogl.create() && qogl.format().version() >= qMakePair(4, 3);
+	static const bool s_opengl_capable = [] {
+		QOpenGLContext qogl;
+		QSurfaceFormat format;
+		format.setVersion(4, 3);
+		format.setProfile(QSurfaceFormat::CoreProfile);
+		qogl.setFormat(format);
+		return qogl.create() && qogl.format().version() >= qMakePair(4, 3);
+	}();
+	return s_opengl_capable;
 }
 
 void PVSeriesRendererOpenGL::debugAvailableMemory()
@@ -388,7 +391,7 @@ void main(void) {
     //lineColor = vec4(size.rgb, 1);
     vec4 wvertex = vertex;
     wvertex.y = vertex.x / (1 << 14);
-    wvertex.x = (mod(gl_VertexID, size.z)) / (size.z - 1);
+    wvertex.x = (gl_VertexID % int(size.z)) / (size.z - 1);
     int vx = int(vertex.x);
     if(bool(vx & (1 << 15))) { //if out of range
     	if(bool(vx & (1 << 14))) { //if overflow
@@ -401,7 +404,7 @@ void main(void) {
     	wvertex.y = 2.5;
     	wvertex.z = 1;
     }
-    gl_Position.xyz = vec3(fma(wvertex.x, 2, -1), fma(wvertex.y, 2, -1), wvertex.z);
+    gl_Position.xyz = vec3(fma(wvertex.x, 2.0, -1.0), fma(wvertex.y, 2.0, -1.0), wvertex.z);
 });
 
 	std::string_view geometryShaderLines =
