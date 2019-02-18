@@ -44,8 +44,9 @@ class PVViewZoomer : public QWidget
 
 	void moveZoomBy(QPoint offset);
 
-	Zoom currentZoom() const { return m_zoomStack[m_currentZoomIndex]; }
 	QRect normalizedZoomRect(QRect zoomRect, bool rectangular) const;
+	Zoom rectToZoom(QRect const& rect) const;
+	Zoom currentZoom() const { return m_zoomStack[m_currentZoomIndex]; }
 
 	static void clampZoom(Zoom& zoom);
 
@@ -65,6 +66,7 @@ class PVViewZoomer : public QWidget
 
 class PVSeriesViewZoomer : public PVViewZoomer
 {
+	Q_OBJECT
   public:
 	PVSeriesViewZoomer(PVSeriesView* child,
 	                   Inendi::PVRangeSubSampler& sampler,
@@ -73,6 +75,9 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	QColor getZoomRectColor() const;
 	void setZoomRectColor(QColor const& color);
+
+  Q_SIGNALS:
+	void selectionCommit(Zoom selection);
 
   protected:
 	void mousePressEvent(QMouseEvent*) override;
@@ -91,6 +96,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
   private:
 	void updateZoomGeometry(bool rectangular);
+	void updateSelectionGeometry();
 
   private:
 	PVSeriesView* m_seriesView;
@@ -98,9 +104,12 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	QBasicTimer m_resizingTimer;
 
-	bool m_selecting = false;
+	bool m_zooming = false;
 	QRect m_zoomRect;
-	std::array<QWidget*, 4> m_fragments{nullptr};
+	std::array<QWidget*, 4> m_zoomFragments{nullptr};
+	bool m_selecting = false;
+	QRect m_selectionRect;
+	std::array<QWidget*, 2> m_selectionFragments{nullptr};
 	std::array<QWidget*, 4> m_crossHairsFragments{nullptr};
 
 	bool m_moving = false;

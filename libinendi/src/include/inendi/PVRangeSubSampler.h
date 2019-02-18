@@ -96,6 +96,7 @@ class PVRangeSubSampler
 	const std::vector<size_t>& histogram() const { return _histogram; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
 	pvcop::db::array minmax_subrange(double first_ratio, double last_ratio);
+	const pvcop::db::indexes& sorted_indexes() const { return _sorted_indexes; }
 
 	void
 	subsample(double first_ratio, double last_ratio, double min_ratio = 0, double max_ratio = 0);

@@ -119,9 +119,25 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	}
 
 	QObject::connect(zoomer, &PVSeriesViewZoomer::zoomUpdated,
-	                 [range_edit, this](const PVViewZoomer::Zoom& zoom) {
+	                 [range_edit, this](PVViewZoomer::Zoom zoom) {
 		                 range_edit->set_minmax(_sampler->minmax_subrange(zoom.minX, zoom.maxX));
 		             });
+
+	QObject::connect(zoomer, &PVSeriesViewZoomer::selectionCommit, [range_edit, &time, &nraw, view,
+	                                                                this](PVViewZoomer::Zoom zoom) {
+		const pvcop::db::array& minmax = _sampler->minmax_subrange(zoom.minX, zoom.maxX);
+		range_edit->set_minmax(minmax);
+		const auto& sorted_indexes = _sampler->sorted_indexes();
+		pvcop::db::range_t selected_range = time.equal_range(minmax, sorted_indexes);
+		const auto& sort = sorted_indexes ? sorted_indexes.to_core_array()
+		                                  : pvcop::core::array<pvcop::db::index_t>();
+		Inendi::PVSelection sel(nraw.row_count());
+		sel.select_none(); // Not sur if needed
+		for (size_t i = selected_range.begin; i < selected_range.end; i++) {
+			sel.set_bit_fast(sort ? sort[i] : i);
+		}
+		view->set_selection_view(sel);
+	});
 
 	// Subscribe to plotting changes
 	_plotting_change_connection = view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
