@@ -13,6 +13,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QStyle>
 #include <QWidget>
 
@@ -110,6 +111,74 @@ class PVIntegerRangeEdit : public PVRangeEdit
   private:
 	PVWidgets::PVLongLongSpinBox* _from_widget;
 	PVWidgets::PVLongLongSpinBox* _to_widget;
+	QPushButton* _ok;
+};
+
+class PVDoubleRangeEdit : public PVRangeEdit
+{
+  public:
+	PVDoubleRangeEdit(const pvcop::db::array& minmax, func_type f, QWidget* parent = nullptr)
+	    : PVRangeEdit(minmax, f, parent)
+	{
+		_from_widget = new QDoubleSpinBox;
+		_to_widget = new QDoubleSpinBox;
+		set_minmax(minmax);
+		_ok = new QPushButton("&Ok");
+
+		QHBoxLayout* layout = new QHBoxLayout;
+		layout->addWidget(_from_widget);
+		layout->addWidget(_to_widget);
+		layout->addWidget(_ok);
+		layout->addStretch();
+
+		setLayout(layout);
+
+		connect(_from_widget,
+		        static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		        [&](double value) {
+			        _to_widget->setMinimum(value);
+			        update_minmax(value, false);
+			    });
+		connect(_to_widget,
+		        static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		        [&](double value) {
+			        _from_widget->setMaximum(value);
+			        update_minmax(value, true);
+			    });
+		connect(_ok, &QPushButton::clicked, [&]() { _validate_f(_minmax); });
+	}
+
+	void set_minmax(const pvcop::db::array& minmax) override
+	{
+		_minmax = minmax.copy();
+
+		assert(_from_widget);
+		assert(_to_widget);
+
+		double min = QString(_minmax.at(0).c_str()).toDouble();
+		double max = QString(_minmax.at(1).c_str()).toDouble();
+
+		// int spin_width = QFontMetrics(_from_widget->font()).width(QString::number(max)) + 25;
+		//_from_widget->setFixedWidth(spin_width);
+		_from_widget->setMinimum(min);
+		_from_widget->setMaximum(max);
+		_from_widget->setValue(min);
+		//_to_widget->setFixedWidth(spin_width);
+		_to_widget->setMinimum(min);
+		_to_widget->setMaximum(max);
+		_to_widget->setValue(max);
+	}
+
+  private:
+	void update_minmax(double value, bool max)
+	{
+		const pvcop::types::formatter_interface::shared_ptr& dtf = _minmax.formatter();
+		dtf->from_string(std::to_string(value).c_str(), _minmax.data(), max);
+	}
+
+  private:
+	QDoubleSpinBox* _from_widget;
+	QDoubleSpinBox* _to_widget;
 	QPushButton* _ok;
 };
 

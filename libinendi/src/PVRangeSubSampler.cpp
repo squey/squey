@@ -95,6 +95,8 @@ pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(double first_ratio, 
 	using func_map_t = std::unordered_map<std::string, minmax_subrange_func_t>;
 	static const func_map_t func_map = []() {
 		func_map_t map;
+		map.insert({"number_float", &_minmax_subrange<float>});
+		map.insert({"number_double", &_minmax_subrange<double>});
 		map.insert({"number_uint32", &_minmax_subrange<uint32_t>});
 		map.insert({"number_uint64", &_minmax_subrange<uint64_t>});
 		map.insert({"datetime", &_minmax_subrange<uint32_t>});
@@ -158,6 +160,8 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 	using func_map_t = std::unordered_map<std::string, compute_histogram_func_t>;
 	static const func_map_t func_map = [&]() {
 		func_map_t map;
+		map.insert({"number_float", &PVRangeSubSampler::compute_histogram<float>});
+		map.insert({"number_double", &PVRangeSubSampler::compute_histogram<double>});
 		map.insert({"number_uint32", &PVRangeSubSampler::compute_histogram<uint32_t>});
 		map.insert({"number_uint64", &PVRangeSubSampler::compute_histogram<uint64_t>});
 		map.insert({"datetime", &PVRangeSubSampler::compute_histogram<uint32_t>});

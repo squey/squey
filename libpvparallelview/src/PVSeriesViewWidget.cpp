@@ -111,9 +111,12 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	auto minmax_changed_f = [this](const pvcop::db::array& minmax) { _sampler->subsample(minmax); };
 
-	PVWidgets::PVRangeEdit* range_edit = nullptr;
+	PVWidgets::PVRangeEdit* range_edit = nullptr; // TODO : use a factory
 	if (_sampler->minmax_time().formatter()->name().find("datetime") == 0) {
 		range_edit = new PVWidgets::PVDateTimeRangeEdit(_sampler->minmax_time(), minmax_changed_f);
+	} else if (_sampler->minmax_time().formatter()->name().find("number_float") == 0 or
+	           _sampler->minmax_time().formatter()->name().find("number_double") == 0) {
+		range_edit = new PVWidgets::PVDoubleRangeEdit(_sampler->minmax_time(), minmax_changed_f);
 	} else if (_sampler->minmax_time().formatter()->name().find("number_uint") == 0) {
 		range_edit = new PVWidgets::PVIntegerRangeEdit(_sampler->minmax_time(), minmax_changed_f);
 	}
