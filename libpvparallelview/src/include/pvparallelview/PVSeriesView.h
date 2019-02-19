@@ -26,13 +26,13 @@ class PVSeriesView : public QWidget
 		QColor color;
 	};
 
-	enum class DrawMode { Points, Lines, Default = Lines };
+	enum class DrawMode { Lines, Points, Default = Lines };
 
 	enum class Backend { QPainter, OpenGL, OffscreenOpenGL, Default = OffscreenOpenGL };
 
 	explicit PVSeriesView(Inendi::PVRangeSubSampler& rss,
-	                      QWidget* parent = 0,
-	                      Backend backend = Backend::Default);
+	                      Backend backend = Backend::Default,
+	                      QWidget* parent = 0);
 	virtual ~PVSeriesView();
 
 	void setBackgroundColor(QColor const& bgcol);

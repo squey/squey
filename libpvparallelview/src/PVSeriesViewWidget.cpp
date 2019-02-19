@@ -37,9 +37,8 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	_sampler.reset(
 	    new Inendi::PVRangeSubSampler(time, timeseries, view->get_real_output_selection()));
 
-	PVSeriesView* plot = new PVSeriesView(*_sampler);
+	PVSeriesView* plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 	plot->setBackgroundColor(QColor(10, 10, 10, 255));
-	plot->setDrawMode(PVSeriesView::DrawMode::Points);
 
 	QListWidget* timeseries_list_widget = new QListWidget;
 	timeseries_list_widget->setFixedWidth(200);
@@ -70,7 +69,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		selected_timeseries.reserve(timeseries_size);
 		for (const QListWidgetItem* item : timeseries_list_widget->selectedItems()) {
 			const int item_col = item->data(Qt::UserRole).toInt();
-			seriesDrawOrder.push_back({item_col, item->foreground().color()});
+			seriesDrawOrder.push_back({size_t(item_col), item->foreground().color()});
 			selected_timeseries.emplace(item_col);
 		}
 		_sampler->set_selected_timeseries(selected_timeseries);
@@ -92,19 +91,21 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	{
 		QStateMachine* qsm = new QStateMachine(draw_mode_button);
 		QState* lines = new QState(qsm);
-		QState* points = new QState(qsm);
 		lines->assignProperty(draw_mode_button, "text", "Lines");
-		points->assignProperty(draw_mode_button, "text", "Points");
-		lines->addTransition(draw_mode_button, &QPushButton::clicked, points);
-		points->addTransition(draw_mode_button, &QPushButton::clicked, lines);
 		connect(lines, &QState::entered, [plot] {
 			plot->setDrawMode(PVSeriesView::DrawMode::Lines);
 			plot->refresh();
 		});
-		connect(points, &QState::entered, [plot] {
-			plot->setDrawMode(PVSeriesView::DrawMode::Points);
-			plot->refresh();
-		});
+		if (plot->capability(PVSeriesView::DrawMode::Points) == PVSeriesView::DrawMode::Points) {
+			QState* points = new QState(qsm);
+			points->assignProperty(draw_mode_button, "text", "Points");
+			connect(points, &QState::entered, [plot] {
+				plot->setDrawMode(PVSeriesView::DrawMode::Points);
+				plot->refresh();
+			});
+			lines->addTransition(draw_mode_button, &QPushButton::clicked, points);
+			points->addTransition(draw_mode_button, &QPushButton::clicked, lines);
+		}
 		qsm->setInitialState(lines);
 		qsm->start();
 	}

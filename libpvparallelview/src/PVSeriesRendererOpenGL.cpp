@@ -54,6 +54,14 @@ bool PVSeriesRendererOpenGL::capability()
 	return s_opengl_capable;
 }
 
+auto PVSeriesRendererOpenGL::capability(PVSeriesView::DrawMode mode) -> PVSeriesView::DrawMode
+{
+	if (mode == PVSeriesView::DrawMode::Lines || mode == PVSeriesView::DrawMode::Points) {
+		return mode;
+	}
+	return PVSeriesView::DrawMode::Lines;
+}
+
 void PVSeriesRendererOpenGL::debugAvailableMemory()
 {
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048

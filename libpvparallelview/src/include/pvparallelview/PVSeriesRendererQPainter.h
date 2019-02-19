@@ -25,13 +25,16 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 	}
 
 	static constexpr bool capability() { return true; }
-	static PVSeriesView::DrawMode capability(PVSeriesView::DrawMode)
+	static PVSeriesView::DrawMode capability(PVSeriesView::DrawMode mode)
 	{
+		if (mode == PVSeriesView::DrawMode::Lines || mode == PVSeriesView::DrawMode::Points) {
+			return mode;
+		}
 		return PVSeriesView::DrawMode::Lines;
 	}
 
 	void setBackgroundColor(QColor const& bgcol) override { setPalette(QPalette(bgcol)); }
-	void setDrawMode(PVSeriesView::DrawMode) override {}
+	void setDrawMode(PVSeriesView::DrawMode mode) override { m_drawMode = capability(mode); }
 
 	void resize(QSize const& size) override { return QWidget::resize(size); }
 	QPixmap grab() override { return QWidget::grab(); }
@@ -62,18 +65,28 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 							;
 						break;
 					}
-					points.push_back(QPoint(j, height() - vertex * height() / (1 << 14)));
+					points.push_back(
+					    QPoint(j, (height() - 1) - vertex * (height() - 1) / ((1 << 14) - 1)));
 					++j;
 				}
-				if (points.size() > 1) {
-					painter.drawPolyline(points.data(), points.size());
-				} else if (points.size() == 1) {
-					painter.drawPoint(points.front());
+				if (m_drawMode == PVSeriesView::DrawMode::Lines) {
+					if (points.size() > 1) {
+						painter.drawPolyline(points.data(), points.size());
+					} else if (points.size() == 1) {
+						painter.drawPoint(points.front());
+					}
+				} else if (m_drawMode == PVSeriesView::DrawMode::Points) {
+					painter.drawPoints(points.data(), points.size());
+				} else {
+					assert("Can't draw in unknown mode ");
 				}
 			}
 		}
 		painter.end();
 	}
+
+  private:
+	PVSeriesView::DrawMode m_drawMode = PVSeriesView::DrawMode::Lines;
 };
 
 } // namespace PVParallelView

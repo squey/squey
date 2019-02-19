@@ -34,7 +34,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	virtual ~PVSeriesRendererOpenGL();
 
 	static bool capability();
-	static PVSeriesView::DrawMode capability(PVSeriesView::DrawMode dm) { return dm; }
+	static PVSeriesView::DrawMode capability(PVSeriesView::DrawMode);
 
 	void setBackgroundColor(QColor const& bgcol) override;
 	void setDrawMode(PVSeriesView::DrawMode) override;
