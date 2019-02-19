@@ -39,25 +39,28 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 
 	static bool capability()
 	{
-		QSurfaceFormat format;
-		format.setVersion(4, 3);
-		format.setProfile(QSurfaceFormat::CoreProfile);
+		static const bool s_offscreenopengl_capable = [] {
+			QSurfaceFormat format;
+			format.setVersion(4, 3);
+			format.setProfile(QSurfaceFormat::CoreProfile);
 
-		QOffscreenSurface offsc;
-		offsc.setFormat(format);
-		offsc.create();
-		if (not offsc.isValid()) {
-			qDebug() << "Imposible to create QOffscreenSurface";
-			QOffscreenSurface offsc_crash;
-			offsc_crash.create();
-			if (not offsc_crash.isValid()) {
-				qDebug() << "Absolutely impossible to create any QOffscreenSurface";
+			QOffscreenSurface offsc;
+			offsc.setFormat(format);
+			offsc.create();
+			if (not offsc.isValid()) {
+				qDebug() << "Imposible to create QOffscreenSurface";
+				QOffscreenSurface offsc_crash;
+				offsc_crash.create();
+				if (not offsc_crash.isValid()) {
+					qDebug() << "Absolutely impossible to create any QOffscreenSurface";
+				}
+				return false;
 			}
-			return false;
-		}
-		QOpenGLContext qogl;
-		qogl.setFormat(offsc.format());
-		return qogl.create() && qogl.format().version() >= qMakePair(4, 3);
+			QOpenGLContext qogl;
+			qogl.setFormat(offsc.format());
+			return qogl.create() && qogl.format().version() >= qMakePair(4, 3);
+		}();
+		return s_offscreenopengl_capable;
 	}
 
 	template <class... Args>

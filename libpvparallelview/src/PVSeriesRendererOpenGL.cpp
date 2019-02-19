@@ -390,7 +390,7 @@ void main(void) {
     lineColor = vec4(color, 1);
     //lineColor = vec4(size.rgb, 1);
     vec4 wvertex = vertex;
-    wvertex.y = vertex.x / (1 << 14);
+    wvertex.y = vertex.x / ((1 << 14) - 1);
     wvertex.x = (gl_VertexID % int(size.z)) / (size.z - 1);
     int vx = int(vertex.x);
     if(bool(vx & (1 << 15))) { //if out of range
