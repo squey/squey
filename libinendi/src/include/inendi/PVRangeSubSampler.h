@@ -128,6 +128,8 @@ class PVRangeSubSampler
 		T min = core_minmax[0];
 		T max = core_minmax[1];
 
+		const pvcop::db::selection& invalid_sel = _time.invalid_selection();
+
 		using interval_t = typename PVRangeSubSamplerIntervalType<T>::value_type;
 		const interval_t& interval = (interval_t)(max - min) / (_sampling_count);
 
@@ -142,7 +144,9 @@ class PVRangeSubSampler
 			if (_sort) {
 				sorted_begin_it = std::lower_bound(
 				    sorted_begin_it, sorted_end_it, 0,
-				    [this, &core_time, value](size_t j, size_t) { return core_time[j] < value; });
+				    [this, &core_time, &invalid_sel, value](size_t j, size_t) {
+					    return core_time[j] < value and (not invalid_sel or not invalid_sel[j]);
+					});
 				begin_it = core_time.cbegin() + std::distance(_sort.cbegin(), sorted_begin_it);
 			} else {
 				begin_it = std::lower_bound(begin_it, end_it, value);

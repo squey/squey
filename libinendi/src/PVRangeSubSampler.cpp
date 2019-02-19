@@ -29,7 +29,7 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
 
 	BENCH_START(sort);
 
-	if (not _time.is_sorted()) {
+	if (not _time.is_sorted()) { // FIXME
 		_sorted_indexes = time.parallel_sort();
 		_sort = _sorted_indexes.to_core_array();
 	}
@@ -39,12 +39,17 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
 	pvcop::db::indexes minmax_indexes(2);
 	auto minmax_core_indexes = minmax_indexes.to_core_array();
 
+	const size_t last_valid_index =
+	    _time.valid_selection()
+	        ? pvcop::core::algo::find_nth_last_set_bit(_time.valid_selection(), 1, 0, _time.size())
+	        : _time.size() - 1;
+
 	if (_sorted_indexes) {
 		minmax_core_indexes[0] = _sort[0];
-		minmax_core_indexes[1] = _sort[_time.size() - 1];
+		minmax_core_indexes[1] = _sort[last_valid_index];
 	} else {
 		minmax_core_indexes[0] = 0;
-		minmax_core_indexes[1] = _time.size() - 1;
+		minmax_core_indexes[1] = last_valid_index;
 	}
 
 	_minmax = _time.join(minmax_indexes);
@@ -243,6 +248,9 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 {
 	BENCH_START(computing_average);
 
+	// Remove invalid values from selection
+	const pvcop::db::selection& valid_sel = _time.valid_selection(_sel);
+
 #pragma omp parallel for
 	for (size_t k = 0; k < _timeseries_to_subsample.size(); k++) {
 
@@ -255,11 +263,11 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 			const size_t values_count = _histogram[j];
 			end += values_count;
 			const size_t selected_values_count =
-			    (start != end) ? pvcop::core::algo::bit_count(_sel, start, end - 1) : 0;
+			    (start != end) ? pvcop::core::algo::bit_count(valid_sel, start, end - 1) : 0;
 			uint64_t sum = 0;
 			for (size_t k = start; k < end; k++) {
 				auto v = not _sort ? k : _sort[k];
-				if (_sel[v]) {
+				if (valid_sel[v]) {
 					sum += (std::numeric_limits<value_type>::max() - timeserie[v]);
 				}
 			}
