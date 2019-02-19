@@ -26,7 +26,7 @@ class PVSeriesView : public QWidget
 		QColor color;
 	};
 
-	enum class DrawMode { Lines, Points, Default = Lines };
+	enum class DrawMode { Lines, Points, LinesAlways, Default = Lines };
 
 	enum class Backend { QPainter, OpenGL, OffscreenOpenGL, Default = OffscreenOpenGL };
 

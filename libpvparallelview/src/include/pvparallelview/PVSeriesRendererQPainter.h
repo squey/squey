@@ -27,7 +27,8 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 	static constexpr bool capability() { return true; }
 	static PVSeriesView::DrawMode capability(PVSeriesView::DrawMode mode)
 	{
-		if (mode == PVSeriesView::DrawMode::Lines || mode == PVSeriesView::DrawMode::Points) {
+		if (mode == PVSeriesView::DrawMode::Lines || mode == PVSeriesView::DrawMode::Points ||
+		    mode == PVSeriesView::DrawMode::LinesAlways) {
 			return mode;
 		}
 		return PVSeriesView::DrawMode::Lines;
@@ -47,11 +48,17 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 		}
 		QPainter painter(this);
 		std::vector<QPoint> points;
+		auto draw_lines = [&painter, &points]() {
+			if (points.size() > 1) {
+				painter.drawPolyline(points.data(), points.size());
+			} else if (points.size() == 1) {
+				painter.drawPoint(points.front());
+			}
+		};
 		for (auto& serieDraw : m_seriesDrawOrder) {
 			painter.setPen(serieDraw.color);
 			auto& serieData = m_rss.averaged_timeserie(serieDraw.dataIndex);
 			for (size_t j = 0; j < serieData.size();) {
-				points.clear();
 				while (j < serieData.size()) {
 					int vertex = serieData[j];
 					if (vertex & (1 << 15)) {     // if out of range
@@ -70,16 +77,16 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 					++j;
 				}
 				if (m_drawMode == PVSeriesView::DrawMode::Lines) {
-					if (points.size() > 1) {
-						painter.drawPolyline(points.data(), points.size());
-					} else if (points.size() == 1) {
-						painter.drawPoint(points.front());
-					}
-				} else if (m_drawMode == PVSeriesView::DrawMode::Points) {
-					painter.drawPoints(points.data(), points.size());
-				} else {
-					assert("Can't draw in unknown mode ");
+					draw_lines();
+					points.clear();
 				}
+			}
+			if (m_drawMode == PVSeriesView::DrawMode::Points) {
+				painter.drawPoints(points.data(), points.size());
+				points.clear();
+			} else if (m_drawMode == PVSeriesView::DrawMode::LinesAlways) {
+				draw_lines();
+				points.clear();
 			}
 		}
 		painter.end();

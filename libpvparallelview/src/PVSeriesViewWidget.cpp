@@ -90,23 +90,29 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	QPushButton* draw_mode_button = new QPushButton();
 	{
 		QStateMachine* qsm = new QStateMachine(draw_mode_button);
-		QState* lines = new QState(qsm);
-		lines->assignProperty(draw_mode_button, "text", "Lines");
-		connect(lines, &QState::entered, [plot] {
-			plot->setDrawMode(PVSeriesView::DrawMode::Lines);
-			plot->refresh();
-		});
-		if (plot->capability(PVSeriesView::DrawMode::Points) == PVSeriesView::DrawMode::Points) {
-			QState* points = new QState(qsm);
-			points->assignProperty(draw_mode_button, "text", "Points");
-			connect(points, &QState::entered, [plot] {
-				plot->setDrawMode(PVSeriesView::DrawMode::Points);
-				plot->refresh();
-			});
-			lines->addTransition(draw_mode_button, &QPushButton::clicked, points);
-			points->addTransition(draw_mode_button, &QPushButton::clicked, lines);
+		std::vector<QState*> states;
+		auto add_state = [plot, qsm, draw_mode_button, &states](PVSeriesView::DrawMode mode,
+		                                                        QString text) -> QState* {
+			if (plot->capability(mode) == mode) {
+				QState* state = new QState(qsm);
+				state->assignProperty(draw_mode_button, "text", std::move(text));
+				connect(state, &QState::entered, [plot, mode] {
+					plot->setDrawMode(mode);
+					plot->refresh();
+				});
+				states.push_back(state);
+				return state;
+			}
+			return nullptr;
+		};
+		add_state(PVSeriesView::DrawMode::Lines, "Lines");
+		add_state(PVSeriesView::DrawMode::Points, "Points");
+		add_state(PVSeriesView::DrawMode::LinesAlways, "Lines Always");
+		for (size_t i = 0; i < states.size(); ++i) {
+			states[i]->addTransition(draw_mode_button, &QPushButton::clicked,
+			                         states[(i + 1) % states.size()]);
 		}
-		qsm->setInitialState(lines);
+		qsm->setInitialState(states.front());
 		qsm->start();
 	}
 
