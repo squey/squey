@@ -8,6 +8,7 @@
 #include "inendi/PVRangeSubSampler.h"
 
 #include <pvcop/db/array.h>
+#include <pvcop/db/algo.h>
 #include <pvcop/types/datetime_us.h>
 #include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
 #include <inendi/PVPlotted.h>
@@ -20,9 +21,10 @@
 Inendi::PVRangeSubSampler::PVRangeSubSampler(
     const pvcop::db::array& time,
     const std::vector<pvcop::core::array<value_type>>& timeseries,
+    const PVRush::PVNraw& nraw,
     const pvcop::db::selection& sel,
     size_t sampling_count /*= 2048*/)
-    : _time(time), _timeseries(timeseries), _sel(sel), _minmax()
+    : _time(time), _timeseries(timeseries), _nraw(nraw), _sel(sel), _minmax()
 {
 	set_sampling_count(
 	    sampling_count); // should be the number of horizontal visible pixels in the plot
@@ -36,23 +38,7 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
 
 	BENCH_END(sort, "sort", _time.size(), sizeof(uint64_t), _time.size(), sizeof(uint64_t));
 
-	pvcop::db::indexes minmax_indexes(2);
-	auto minmax_core_indexes = minmax_indexes.to_core_array();
-
-	const size_t last_valid_index =
-	    _time.valid_selection()
-	        ? pvcop::core::algo::find_nth_last_set_bit(_time.valid_selection(), 1, 0, _time.size())
-	        : _time.size() - 1;
-
-	if (_sorted_indexes) {
-		minmax_core_indexes[0] = _sort[0];
-		minmax_core_indexes[1] = _sort[last_valid_index];
-	} else {
-		minmax_core_indexes[0] = 0;
-		minmax_core_indexes[1] = last_valid_index;
-	}
-
-	_minmax = _time.join(minmax_indexes);
+	_minmax = pvcop::db::algo::minmax(_time);
 	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
 }
 
@@ -259,15 +245,17 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 		size_t start = first;
 		size_t end = first;
 		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
+		const pvcop::db::selection& ts_valid_sel =
+		    _nraw.column(PVCol(i)).valid_selection(valid_sel);
 		for (size_t j = 0; j < _histogram.size(); j++) {
 			const size_t values_count = _histogram[j];
 			end += values_count;
 			const size_t selected_values_count =
-			    (start != end) ? pvcop::core::algo::bit_count(valid_sel, start, end - 1) : 0;
+			    (start != end) ? pvcop::core::algo::bit_count(ts_valid_sel, start, end - 1) : 0;
 			uint64_t sum = 0;
 			for (size_t k = start; k < end; k++) {
 				auto v = not _sort ? k : _sort[k];
-				if (valid_sel[v]) {
+				if (ts_valid_sel[v]) {
 					sum += (std::numeric_limits<value_type>::max() - timeserie[v]);
 				}
 			}

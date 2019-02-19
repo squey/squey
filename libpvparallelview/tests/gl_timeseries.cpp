@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 	for (size_t i = 1; i < plotteds_vector.size(); i++) {
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
-	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries,
+	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries, nraw,
 	                                  view->get_real_output_selection());
 
 	std::unordered_set<size_t> selected_timeseries;

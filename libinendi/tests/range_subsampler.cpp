@@ -42,7 +42,7 @@ void test(const testcase& test)
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
 
-	Inendi::PVRangeSubSampler sampler(nraw.column(test.col_time), timeseries,
+	Inendi::PVRangeSubSampler sampler(nraw.column(test.col_time), timeseries, nraw,
 	                                  view->get_real_output_selection());
 
 	view->select_all();

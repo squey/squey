@@ -12,6 +12,7 @@
 #include <pvcop/types/datetime_us.h>
 #include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
 #include <inendi/PVPlotted.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <numeric>
 #include <math.h>
@@ -83,6 +84,7 @@ class PVRangeSubSampler
   public:
 	PVRangeSubSampler(const pvcop::db::array& time,
 	                  const std::vector<pvcop::core::array<value_type>>& timeseries,
+	                  const PVRush::PVNraw& nraw,
 	                  const pvcop::db::selection& sel,
 	                  size_t sampling_count = 2048);
 
@@ -173,6 +175,7 @@ class PVRangeSubSampler
 
 	const pvcop::db::array& _time;
 	const std::vector<pvcop::core::array<value_type>> _timeseries;
+	const PVRush::PVNraw& _nraw;
 	std::unordered_set<size_t> _selected_timeseries;
 	std::vector<size_t> _timeseries_to_subsample;
 	const pvcop::db::selection& _sel;

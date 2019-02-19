@@ -35,7 +35,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	}
 
 	_sampler.reset(
-	    new Inendi::PVRangeSubSampler(time, timeseries, view->get_real_output_selection()));
+	    new Inendi::PVRangeSubSampler(time, timeseries, nraw, view->get_real_output_selection()));
 
 	PVSeriesView* plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 	plot->setBackgroundColor(QColor(10, 10, 10, 255));
