@@ -52,6 +52,7 @@ class PVFullParallelView : public QGraphicsView
 	{
 		_selected_events_number = selected_events_number;
 	}
+	void set_axes_number(uint32_t axes_number) { _axes_number = axes_number; }
 
   protected:
 	void resizeEvent(QResizeEvent* event) override;
@@ -75,6 +76,7 @@ class PVFullParallelView : public QGraphicsView
 
 	uint32_t _total_events_number = 0;
 	uint32_t _selected_events_number = 0;
+	uint32_t _axes_number = 0;
 	bool _first_resize;
 };
 } // namespace PVParallelView

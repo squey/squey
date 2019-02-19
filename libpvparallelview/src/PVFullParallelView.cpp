@@ -81,11 +81,12 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 	const QString sel_text = QString("%L1").arg(_selected_events_number);
 	const QString sep_text = QString(" /");
-	const QString total_text = QString(" %L1").arg(_total_events_number);
+	const QString total_text = QString(" %L1 Rows").arg(_total_events_number);
 	const QString percent_prefix_text(" (");
 	const QString percent_suffix_text(" %)");
 	const QString percent_text = QString("%1").arg(
 	    (uint32_t)(100.0 * (double)_selected_events_number / (double)_total_events_number), 3);
+	const QString axes_number_text = QString(" %L1 Axes").arg(_axes_number);
 
 	/* to have a fixed sized frame, the selection count size is deduced from the total count
 	 * value (without the extra space)
@@ -108,11 +109,12 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	const QSize percent_prefix_size = fm.size(Qt::TextSingleLine, percent_prefix_text);
 	const QSize percent_suffix_size = fm.size(Qt::TextSingleLine, percent_suffix_text);
 	const QSize percent_size = fm.size(Qt::TextSingleLine, percent_text);
+	const QSize axes_number_text_size = fm.size(Qt::TextSingleLine, axes_number_text);
 	const QSize percent_spacing_size = fm.size(Qt::TextSingleLine, "000");
 
 	const int text_width = max_sel_size.width() + sep_size.width() + total_size.width() +
 	                       percent_prefix_size.width() + percent_suffix_size.width() +
-	                       percent_spacing_size.width();
+	                       percent_spacing_size.width() + axes_number_text_size.width();
 	const int text_height =
 	    std::max(std::max(std::max(max_sel_size.height(), sep_size.height()),
 	                      std::max(total_size.height(), percent_spacing_size.height())),
@@ -159,6 +161,10 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 		text_pos.rx() += percent_size.width();
 
 		painter->drawText(text_pos, percent_suffix_text);
+		text_pos.rx() += percent_suffix_size.width();
+
+		painter->setPen(frame_text_color);
+		painter->drawText(text_pos, axes_number_text);
 	}
 
 #ifdef INENDI_DEVELOPER_MODE

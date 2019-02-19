@@ -591,6 +591,7 @@ void PVParallelView::PVFullParallelScene::update_selected_event_number()
 {
 	const PVRow nlines = lib_view().get_real_output_selection().bit_count();
 	graphics_view()->set_selected_events_number(nlines);
+	graphics_view()->set_axes_number(lib_view().get_column_count());
 }
 
 /******************************************************************************
