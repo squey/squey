@@ -33,6 +33,9 @@ struct PVRangeSubSamplerIntervalType<boost::posix_time::ptime> {
 
 class PVRangeSubSampler
 {
+  public:
+	using zoom_f = double;
+
   private:
 	struct SamplingParams {
 		size_t first = 0;
@@ -95,11 +98,11 @@ class PVRangeSubSampler
 	}
 	const std::vector<size_t>& histogram() const { return _histogram; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
-	pvcop::db::array minmax_subrange(double first_ratio, double last_ratio);
+	pvcop::db::array minmax_subrange(zoom_f first_ratio, zoom_f last_ratio);
 	const pvcop::db::indexes& sorted_indexes() const { return _sorted_indexes; }
 
 	void
-	subsample(double first_ratio, double last_ratio, double min_ratio = 0, double max_ratio = 0);
+	subsample(zoom_f first_ratio, zoom_f last_ratio, zoom_f min_ratio = 0, zoom_f max_ratio = 0);
 	void subsample(const pvcop::db::array& minmax, uint32_t min = 0, uint32_t max = 0);
 	void resubsample(const std::unordered_set<size_t>& timeseries = {});
 	bool valid() const;

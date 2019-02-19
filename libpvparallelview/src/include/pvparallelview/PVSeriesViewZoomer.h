@@ -24,20 +24,21 @@ class PVViewZoomer : public QWidget
 {
 	Q_OBJECT
   public:
+	using zoom_f = long double;
 	struct Zoom {
-		double minX;
-		double maxX;
-		double minY;
-		double maxY;
+		zoom_f minX;
+		zoom_f maxX;
+		zoom_f minY;
+		zoom_f maxY;
 
-		double width() const { return maxX - minX; }
-		double height() const { return maxY - minY; }
+		zoom_f width() const { return maxX - minX; }
+		zoom_f height() const { return maxY - minY; }
 	};
 
 	PVViewZoomer(QWidget* parent = nullptr);
 
 	void zoomIn(QRect zoomInRect);
-	void zoomIn(QPoint center, bool rectangular, double zoomFactor);
+	void zoomIn(QPoint center, bool rectangular, zoom_f zoomFactor);
 	void zoomOut();
 	void zoomOut(QPoint center);
 	void resetZoom();
@@ -117,7 +118,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	QTimer* m_animationTimer;
 
-	const double m_centeredZoomFactor = 0.8;
+	const zoom_f m_centeredZoomFactor = 0.8;
 };
 }
 

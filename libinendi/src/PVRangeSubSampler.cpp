@@ -57,9 +57,9 @@ void Inendi::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
 	_reset = true;
 }
 
-template <typename T>
+template <typename T, typename ratio_f>
 static pvcop::db::array
-_minmax_subrange(const pvcop::db::array& minmax, double first_ratio, double last_ratio)
+_minmax_subrange(const pvcop::db::array& minmax, ratio_f first_ratio, ratio_f last_ratio)
 {
 	pvcop::db::array rel_minmax(minmax.formatter()->name(), 2);
 	rel_minmax.set_formatter(minmax.formatter());
@@ -89,19 +89,19 @@ _minmax_subrange(const pvcop::db::array& minmax, double first_ratio, double last
 	return rel_minmax;
 }
 
-pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(double first_ratio, double last_ratio)
+pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(zoom_f first_ratio, zoom_f last_ratio)
 {
-	typedef pvcop::db::array (*minmax_subrange_func_t)(const pvcop::db::array&, double, double);
+	typedef pvcop::db::array (*minmax_subrange_func_t)(const pvcop::db::array&, zoom_f, zoom_f);
 	using func_map_t = std::unordered_map<std::string, minmax_subrange_func_t>;
 	static const func_map_t func_map = []() {
 		func_map_t map;
-		map.insert({"number_float", &_minmax_subrange<float>});
-		map.insert({"number_double", &_minmax_subrange<double>});
-		map.insert({"number_uint32", &_minmax_subrange<uint32_t>});
-		map.insert({"number_uint64", &_minmax_subrange<uint64_t>});
-		map.insert({"datetime", &_minmax_subrange<uint32_t>});
-		map.insert({"datetime_ms", &_minmax_subrange<uint64_t>});
-		map.insert({"datetime_us", &_minmax_subrange<boost::posix_time::ptime>});
+		map.insert({"number_float", &_minmax_subrange<float, zoom_f>});
+		map.insert({"number_double", &_minmax_subrange<double, zoom_f>});
+		map.insert({"number_uint32", &_minmax_subrange<uint32_t, zoom_f>});
+		map.insert({"number_uint64", &_minmax_subrange<uint64_t, zoom_f>});
+		map.insert({"datetime", &_minmax_subrange<uint32_t, zoom_f>});
+		map.insert({"datetime_ms", &_minmax_subrange<uint64_t, zoom_f>});
+		map.insert({"datetime_us", &_minmax_subrange<boost::posix_time::ptime, zoom_f>});
 		return map;
 	}();
 
@@ -109,10 +109,10 @@ pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(double first_ratio, 
 	return minmax_subrange_f(_minmax, first_ratio, last_ratio);
 }
 
-void Inendi::PVRangeSubSampler::subsample(double first_ratio,
-                                          double last_ratio,
-                                          double min_ratio /*= 0*/,
-                                          double max_ratio /*= 0*/)
+void Inendi::PVRangeSubSampler::subsample(zoom_f first_ratio,
+                                          zoom_f last_ratio,
+                                          zoom_f min_ratio /*= 0*/,
+                                          zoom_f max_ratio /*= 0*/)
 {
 	const value_type min = min_ratio * std::numeric_limits<value_type>::max();
 	const value_type max = max_ratio * std::numeric_limits<value_type>::max();
@@ -273,7 +273,7 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 				} else if (raw_value > max) { // overflow
 					_avg_matrix[i][j] = overflow_value;
 				} else {
-					_avg_matrix[i][j] = (display_type)(((double)(raw_value - min) / (max - min)) *
+					_avg_matrix[i][j] = (display_type)((zoom_f(raw_value - min) / (max - min)) *
 					                                   display_type_max_val); // nominal value
 				}
 			}

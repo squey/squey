@@ -81,8 +81,7 @@ int main(int argc, char** argv)
 	sampler.set_sampling_count(1600);
 
 	{
-		PVParallelView::PVSeriesView plot(sampler, nullptr,
-		                                  PVParallelView::PVSeriesView::Backend::QPainter);
+		PVParallelView::PVSeriesView plot(sampler, PVParallelView::PVSeriesView::Backend::QPainter);
 
 		plot.setBackgroundColor(QColor(100, 10, 10, 255));
 
@@ -105,8 +104,7 @@ int main(int argc, char** argv)
 		plot.grab();
 	}
 	{
-		PVParallelView::PVSeriesView plot(sampler, nullptr,
-		                                  PVParallelView::PVSeriesView::Backend::OpenGL);
+		PVParallelView::PVSeriesView plot(sampler, PVParallelView::PVSeriesView::Backend::OpenGL);
 
 		plot.setBackgroundColor(QColor(100, 10, 10, 255));
 

@@ -107,7 +107,8 @@ void PVSeriesRendererOpenGL::setBackgroundColor(QColor const& bgcol)
 
 void PVSeriesRendererOpenGL::setDrawMode(PVSeriesView::DrawMode mode)
 {
-	m_drawMode = mode;
+	m_drawMode = capability(mode);
+	m_needToResetDrawMode = true;
 }
 
 void PVSeriesRendererOpenGL::onShowSeries()
@@ -239,9 +240,9 @@ void PVSeriesRendererOpenGL::paintGL()
 		m_backgroundColor = std::nullopt;
 	}
 
-	if (m_drawMode) {
-		setDrawMode_GL(*m_drawMode);
-		m_drawMode = std::nullopt;
+	if (m_needToResetDrawMode) {
+		m_needToResetDrawMode = false;
+		setDrawMode_GL();
 	}
 
 	m_program->setUniformValue(m_sizeLocation, QVector4D(0, 0, m_rss.samples_count(), width()));
@@ -270,14 +271,14 @@ void PVSeriesRendererOpenGL::paintGL()
 	debugErrors();
 }
 
-void PVSeriesRendererOpenGL::setDrawMode_GL(PVSeriesView::DrawMode mode)
+void PVSeriesRendererOpenGL::setDrawMode_GL()
 {
-	if (mode == PVSeriesView::DrawMode::Lines) {
+	if (m_drawMode == PVSeriesView::DrawMode::Lines) {
 		// glEnable(GL_LINE_SMOOTH);
 		// glLineWidth(3.f);
 		m_program = m_programLines.get();
 		m_glDrawMode = GL_LINE_STRIP;
-	} else if (mode == PVSeriesView::DrawMode::Points) {
+	} else if (m_drawMode == PVSeriesView::DrawMode::Points) {
 		// glPointSize(5.f);
 		m_program = m_programPoints.get();
 		m_glDrawMode = GL_POINTS;
@@ -443,6 +444,34 @@ void main(void) {
 	EmitVertex();
 });
 
+	std::string_view geometryShaderLinesAlways =
+"#version 430\n" SHADER(
+layout(lines_adjacency) in;
+smooth in vec4 lineColor[];
+layout(line_strip, max_vertices = 2) out;
+smooth out vec4 geolineColor;
+
+uniform vec4 size;
+
+void main(void) {
+	if (gl_in[0].gl_Position.y > 2) {
+		return;
+	}
+	geolineColor = lineColor[0];
+	gl_Position = gl_in[0].gl_Position;
+	EmitVertex();
+	if (gl_in[1].gl_Position.y > 2) {
+		geolineColor = lineColor[0];
+		bool adjust = gl_in[0].gl_Position.x < 0;
+		gl_Position = gl_in[0].gl_Position + vec4(fma(float(adjust), 2, -1)*2/size.w, 0, 0, 0);
+		EmitVertex();
+		return;
+	}
+	geolineColor = lineColor[1];
+	gl_Position = gl_in[1].gl_Position;
+	EmitVertex();
+});
+
 	std::string_view fragmentShaderLines =
 "#version 430\n" SHADER(
 smooth in vec4 geolineColor;
@@ -472,6 +501,13 @@ void main(void) {
 	m_programPoints->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderPoints.data());
 	m_programPoints->link();
 	qDebug() << m_programPoints->log();
+
+	m_programLinesAlways = std::make_unique<QOpenGLShaderProgram>(context());
+	m_programLinesAlways->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShader.data());
+	m_programLinesAlways->addShaderFromSourceCode(QOpenGLShader::Geometry, geometryShaderLinesAlways.data());
+	m_programLinesAlways->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderLines.data());
+	m_programLinesAlways->link();
+	qDebug() << m_programLinesAlways->log();
 }
 // clang-format on
 

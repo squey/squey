@@ -60,7 +60,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	void debugAvailableMemory();
 	void debugErrors();
 
-	void setDrawMode_GL(PVSeriesView::DrawMode);
+	void setDrawMode_GL();
 
 	void compute_dbo_GL();
 	void fill_dbo_GL();
@@ -97,9 +97,11 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	QOpenGLShaderProgram* m_program = nullptr;
 	std::unique_ptr<QOpenGLShaderProgram> m_programLines;
 	std::unique_ptr<QOpenGLShaderProgram> m_programPoints;
+	std::unique_ptr<QOpenGLShaderProgram> m_programLinesAlways;
 
 	std::optional<QColor> m_backgroundColor;
-	std::optional<PVSeriesView::DrawMode> m_drawMode;
+	bool m_needToResetDrawMode = false;
+	PVSeriesView::DrawMode m_drawMode;
 	GLenum m_glDrawMode = GL_LINE_STRIP;
 
 	int m_linesPerVboCount = 0;
