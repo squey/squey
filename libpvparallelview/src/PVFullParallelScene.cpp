@@ -96,6 +96,32 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	connect(_full_parallel_view->horizontalScrollBar(), &QScrollBar::sliderReleased, this,
 	        &PVFullParallelScene::scrollbar_released_Slot);
 
+	struct EventFilter : public QObject {
+		std::function<void()> callback;
+		bool eventFilter(QObject* obj, QEvent* event)
+		{
+			if (event->type() == QEvent::MouseButtonRelease) {
+				callback();
+				obj->removeEventFilter(this);
+				return true;
+			}
+			return false;
+		}
+	};
+
+	EventFilter* eventFilter = new EventFilter();
+	eventFilter->callback = [this]() { scrollbar_released_Slot(); };
+
+	connect(_full_parallel_view->horizontalScrollBar(), &QScrollBar::actionTriggered,
+	        [this, eventFilter](int action) {
+		        if (action == QAbstractSlider::SliderSingleStepAdd ||
+		            action == QAbstractSlider::SliderSingleStepSub ||
+		            action == QAbstractSlider::SliderPageStepAdd ||
+		            action == QAbstractSlider::SliderPageStepSub) {
+			        _full_parallel_view->horizontalScrollBar()->installEventFilter(eventFilter);
+		        }
+		    });
+
 	// Add ALL axes
 	const size_t nzones(_lines_view.get_number_of_managed_zones() + 1);
 	for (size_t z(0); z < nzones; z++) {
