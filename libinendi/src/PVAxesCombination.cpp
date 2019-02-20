@@ -102,8 +102,9 @@ bool PVAxesCombination::is_default()
 
 void PVAxesCombination::sort_by_name()
 {
-	std::sort(_axes_comb.begin(), _axes_comb.end(),
-	          [this](PVCol c1, PVCol c2) { return _axes[c1].get_name() < _axes[c2].get_name(); });
+	std::stable_sort(_axes_comb.begin(), _axes_comb.end(), [this](PVCol c1, PVCol c2) {
+		return _axes[c1].get_name() < _axes[c2].get_name();
+	});
 }
 
 QString PVAxesCombination::to_string() const
