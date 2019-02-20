@@ -30,8 +30,8 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	const pvcop::db::array& time = nraw.column(col);
 
 	std::vector<pvcop::core::array<uint32_t>> timeseries;
-	for (PVCol i : axes_comb.get_combination()) {
-		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
+	for (PVCol col(0); col < nraw.column_count(); col++) {
+		timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
 	}
 
 	_sampler.reset(
@@ -55,8 +55,15 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
 		QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-		timeseries_list_widget->item(i)->setSelected(true);
 		timeseries_list_widget->item(i)->setForeground(color); // FIXME
+	}
+
+	const std::vector<PVCol>& combination = axes_comb.get_combination();
+	for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
+		PVCol j(timeseries_list_widget->item(i)->data(Qt::UserRole).toUInt());
+		if (std::find(combination.begin(), combination.end(), j) != combination.end()) {
+			timeseries_list_widget->item(i)->setSelected(true);
+		}
 	}
 
 	auto update_selected_timeseries =
