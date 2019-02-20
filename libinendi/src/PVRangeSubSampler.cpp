@@ -250,12 +250,12 @@ void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
 		for (size_t j = 0; j < _histogram.size(); j++) {
 			const size_t values_count = _histogram[j];
 			end += values_count;
-			const size_t selected_values_count =
-			    (start != end) ? pvcop::core::algo::bit_count(ts_valid_sel, start, end - 1) : 0;
+			size_t selected_values_count = 0;
 			uint64_t sum = 0;
 			for (size_t k = start; k < end; k++) {
 				auto v = not _sort ? k : _sort[k];
 				if (ts_valid_sel[v]) {
+					selected_values_count++;
 					sum += (std::numeric_limits<value_type>::max() - timeserie[v]);
 				}
 			}
