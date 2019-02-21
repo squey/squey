@@ -96,9 +96,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVView& view, QWidge
 	}
 	group_box->setLayout(stacked_layout);
 
-	setDefaultSuffix(suffix_from_filter(name_filters.at(default_filter_index)));
-	_is_source_exporter = not name_filters.at(default_filter_index).contains("*.csv");
-	QObject::connect(this, &QFileDialog::filterSelected, [=](const QString& filter) {
+	auto filter_selected_f = [=](const QString& filter) {
 		setDefaultSuffix(suffix_from_filter(filter));
 		_is_source_exporter = not filter.contains("*.csv");
 		stacked_layout->setCurrentIndex(_is_source_exporter);
@@ -106,7 +104,9 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVView& view, QWidge
 		// force filters to reset as setting 'QFileDialog::Directory' erase them
 		setNameFilters(name_filters);
 		selectNameFilter(filter);
-	});
+	};
+	QObject::connect(this, &QFileDialog::filterSelected, filter_selected_f);
+	filter_selected_f(name_filters.at(default_filter_index));
 }
 
 /* This is the static function used to export a selection.
