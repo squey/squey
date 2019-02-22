@@ -123,7 +123,11 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		qsm->start();
 	}
 
-	auto minmax_changed_f = [this](const pvcop::db::array& minmax) { _sampler->subsample(minmax); };
+	auto minmax_changed_f = [this, zoomer](const pvcop::db::array& minmax) {
+		PVViewZoomer::Zoom zoom = zoomer->currentZoom();
+		std::tie(zoom.minX, zoom.maxX) = _sampler->minmax_ratio(minmax);
+		zoomer->resetAndZoomIn(zoom);
+	};
 
 	PVWidgets::PVRangeEdit* range_edit = nullptr; // TODO : use a factory
 	if (_sampler->minmax_time().formatter()->name().find("datetime") == 0) {

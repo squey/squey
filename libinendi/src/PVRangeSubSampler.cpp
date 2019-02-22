@@ -80,7 +80,8 @@ _minmax_subrange(const pvcop::db::array& minmax, ratio_f first_ratio, ratio_f la
 	return rel_minmax;
 }
 
-pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(zoom_f first_ratio, zoom_f last_ratio)
+pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(zoom_f first_ratio,
+                                                            zoom_f last_ratio) const
 {
 	typedef pvcop::db::array (*minmax_subrange_func_t)(const pvcop::db::array&, zoom_f, zoom_f);
 	using func_map_t = std::unordered_map<std::string, minmax_subrange_func_t>;
@@ -98,6 +99,59 @@ pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(zoom_f first_ratio, 
 
 	auto minmax_subrange_f = func_map.at(_minmax.formatter()->name());
 	return minmax_subrange_f(_minmax, first_ratio, last_ratio);
+}
+
+template <typename T, typename ratio_f>
+static std::pair<ratio_f, ratio_f> _minmax_ratio(const pvcop::db::array& global_minmax,
+                                                 const pvcop::db::array& local_minmax)
+{
+	const pvcop::core::array<T>& core_global_minmax = global_minmax.to_core_array<T>();
+	const pvcop::core::array<T>& core_local_minmax = local_minmax.to_core_array<T>();
+
+	T global_min = core_global_minmax[0];
+	T global_max = core_global_minmax[1];
+	T local_min = core_local_minmax[0];
+	T local_max = core_local_minmax[1];
+
+	auto duration = global_max - global_min;
+	ratio_f first_ratio;
+	ratio_f last_ratio;
+
+	if
+		constexpr(std::is_same<T, boost::posix_time::ptime>::value)
+		{
+			auto duration_us = duration.total_microseconds();
+			first_ratio = (local_min - global_min).total_microseconds() / (ratio_f)duration_us;
+			last_ratio = (local_max - global_min).total_microseconds() / (ratio_f)duration_us;
+		}
+	else {
+		first_ratio = (local_min - global_min) / (ratio_f)duration;
+		last_ratio = (local_max - global_min) / (ratio_f)duration;
+	}
+
+	return std::make_pair(first_ratio, last_ratio);
+}
+
+std::pair<Inendi::PVRangeSubSampler::zoom_f, Inendi::PVRangeSubSampler::zoom_f>
+Inendi::PVRangeSubSampler::minmax_ratio(const pvcop::db::array& minmax) const
+{
+	typedef std::pair<zoom_f, zoom_f> (*minmax_ratio_func_t)(const pvcop::db::array&,
+	                                                         const pvcop::db::array&);
+	using func_map_t = std::unordered_map<std::string, minmax_ratio_func_t>;
+	static const func_map_t func_map = []() {
+		func_map_t map;
+		map.insert({"number_float", &_minmax_ratio<float, zoom_f>});
+		map.insert({"number_double", &_minmax_ratio<double, zoom_f>});
+		map.insert({"number_uint32", &_minmax_ratio<uint32_t, zoom_f>});
+		map.insert({"number_uint64", &_minmax_ratio<uint64_t, zoom_f>});
+		map.insert({"datetime", &_minmax_ratio<uint32_t, zoom_f>});
+		map.insert({"datetime_ms", &_minmax_ratio<uint64_t, zoom_f>});
+		map.insert({"datetime_us", &_minmax_ratio<boost::posix_time::ptime, zoom_f>});
+		return map;
+	}();
+
+	auto minmax_ratio_f = func_map.at(minmax.formatter()->name());
+	return minmax_ratio_f(_minmax, minmax);
 }
 
 void Inendi::PVRangeSubSampler::subsample(zoom_f first_ratio,
