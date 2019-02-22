@@ -95,6 +95,15 @@ void PVViewZoomer::resetZoom()
 	updateZoom();
 }
 
+void PVViewZoomer::resetAndZoomIn(Zoom zoom)
+{
+	m_zoomStack.clear();
+	m_zoomStack.push_back(Zoom{0., 1., 0., 1.});
+	m_zoomStack.push_back(zoom);
+	m_currentZoomIndex = 1;
+	updateZoom();
+}
+
 void PVViewZoomer::moveZoomBy(QPoint offset)
 {
 	if (m_currentZoomIndex == 0) {

@@ -42,6 +42,7 @@ class PVViewZoomer : public QWidget
 	void zoomOut();
 	void zoomOut(QPoint center);
 	void resetZoom();
+	void resetAndZoomIn(Zoom zoom);
 
 	void moveZoomBy(QPoint offset);
 
