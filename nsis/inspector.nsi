@@ -274,7 +274,7 @@ Section
 	File "resources\run_inspector.cmd"
 	File "resources\update_wsl.sh"
 	File "resources\update_inspector.sh"
-	File "resources\SilentCMD.exe"
+	File "resources\hideexec.exe" ; http://code.kliu.org/misc/hideexec/
 	File "resources\${PRODUCT_NAME}.ico"
 	
 	Call InstallVcXsrv
@@ -292,13 +292,13 @@ SectionEnd
 Section "Start Menu Shortcut" SecStartMenuShortcut
 	; Create start menu shortcut
 	SetShellVarContext all
-	CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$INSTDIR\SilentCMD.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
+	CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
 SectionEnd
 
 Section "Desktop Shortcut" SecDesktopShortcut
     ; Create desktop shortcut
 	SetShellVarContext all
-	CreateShortCut "$DESKTOP\${DISPLAY_NAME}.lnk" "$INSTDIR\SilentCMD.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
+	CreateShortCut "$DESKTOP\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
 SectionEnd
 
 ;--------------------------------

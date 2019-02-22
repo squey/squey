@@ -35,6 +35,9 @@ if %errorlevel% == 1 (
 	set stop_vcxsrv=true
 )
 
+@REM Register WSL distro for user
+"%inspector_path%\LxRunOffline\LxRunOffline.exe" rg -n inspector_linux -d "%inspector_path%\linux" > nul 2>&1
+
 @REM Run Inspector
 "%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 1000 -n inspector_linux
 "%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' %1"
