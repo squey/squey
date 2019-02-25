@@ -23,16 +23,18 @@ template <class T>
 class PVViewArgumentEditorCreator : public QItemEditorCreatorBase
 {
   public:
-	explicit inline PVViewArgumentEditorCreator(Inendi::PVView const& view)
-	    : propertyName(T::staticMetaObject.userProperty().name()), _view(view)
+	template <class... Args>
+	explicit inline PVViewArgumentEditorCreator(Args const&... args)
+	    : propertyName(T::staticMetaObject.userProperty().name())
+	    , _create([&args...](QWidget* parent) { return new T(args..., parent); })
 	{
 	}
-	inline QWidget* createWidget(QWidget* parent) const override { return new T(_view, parent); }
+	inline QWidget* createWidget(QWidget* parent) const override { return _create(parent); }
 	inline QByteArray valuePropertyName() const override { return propertyName; }
 
   private:
 	QByteArray propertyName;
-	Inendi::PVView const& _view;
+	std::function<QWidget*(QWidget*)> _create;
 };
 } // namespace PVWidgets
 

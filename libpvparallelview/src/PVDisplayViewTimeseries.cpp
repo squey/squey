@@ -42,8 +42,8 @@ QString PVDisplays::PVDisplayViewTimeseries::axis_menu_name(Inendi::PVView const
 	return QString("New series view");
 }
 
-bool PVDisplays::PVDisplayViewTimeseries::should_add_to_menu(Inendi::PVView* view,
-                                                             PVCombCol axis_comb)
+bool PVDisplays::PVDisplayViewTimeseries::should_add_to_menu(Inendi::PVView const* view,
+                                                             PVCombCol axis_comb) const
 {
 	return view->get_axis(axis_comb).get_type().left(4) == "time" or
 	       view->get_axis(axis_comb).get_type() == "number_uint32" or

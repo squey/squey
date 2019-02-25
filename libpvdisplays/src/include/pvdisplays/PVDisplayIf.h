@@ -215,9 +215,7 @@ class PVDisplayViewAxisIf : public PVDisplayIf,
 	{
 		return QString();
 	}
-
-  protected:
-	virtual bool should_add_to_menu(Inendi::PVView* /*view*/, PVCombCol /*axis_comb*/)
+	virtual bool should_add_to_menu(Inendi::PVView const* /*view*/, PVCombCol /*axis_comb*/) const
 	{
 		return true;
 	}

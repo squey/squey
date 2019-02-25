@@ -21,6 +21,8 @@ class PVDisplayViewAxesCombination : public PVDisplayViewIf
 
   public:
 	QWidget* create_widget(Inendi::PVView* view, QWidget* parent) const override;
+	QIcon toolbar_icon() const override;
+	QString widget_title(Inendi::PVView* view) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewAxesCombination)
 };

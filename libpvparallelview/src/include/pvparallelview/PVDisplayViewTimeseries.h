@@ -25,9 +25,7 @@ class PVDisplayViewTimeseries : public PVDisplayViewAxisIf
 	QIcon toolbar_icon() const override;
 	QString widget_title(Inendi::PVView* view, PVCombCol axis_comb) const override;
 	QString axis_menu_name(Inendi::PVView const* view, PVCombCol axis_comb) const override;
-
-  protected:
-	bool should_add_to_menu(Inendi::PVView* view, PVCombCol axis_comb) override;
+	bool should_add_to_menu(Inendi::PVView const* view, PVCombCol axis_comb) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewTimeseries)
 };
