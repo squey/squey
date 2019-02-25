@@ -31,7 +31,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 
   public:
 	explicit PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& rss, QWidget* parent = 0);
-	virtual ~PVSeriesRendererOpenGL();
+	virtual ~PVSeriesRendererOpenGL() noexcept;
 
 	static bool capability();
 	static PVSeriesView::DrawMode capability(PVSeriesView::DrawMode);
@@ -42,8 +42,6 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	void resize(QSize const& size) override { QWidget::resize(size); }
 
 	QPixmap grab() override { return QWidget::grab(QRect(QPoint(0, 0), size())); }
-
-	void onShowSeries() override;
 
 	void onResampled();
 
@@ -62,7 +60,9 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 
 	void setDrawMode_GL();
 
+	int lines_per_vbo() const;
 	void compute_dbo_GL();
+	void allocate_buffer_GL(QOpenGLBuffer& buffer, int expected_size);
 	void fill_dbo_GL();
 	void fill_vbo_GL(size_t const lineBegin, size_t const lineEnd);
 	void fill_cbo_GL(size_t const lineBegin, size_t const lineEnd);
@@ -109,7 +109,6 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	int m_sizeLocation = 0;
 
 	bool m_wasCleanedUp = false;
-	bool m_needReallocateBuffers = false;
 	bool m_blockPaint = false;
 	QSize m_oldSize;
 

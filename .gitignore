@@ -22,3 +22,4 @@ doxygen_sqlite3.db
 release_build/
 /external/
 /debug_build/
+.vscode/

@@ -111,11 +111,6 @@ void PVSeriesRendererOpenGL::setDrawMode(PVSeriesView::DrawMode mode)
 	m_needToResetDrawMode = true;
 }
 
-void PVSeriesRendererOpenGL::onShowSeries()
-{
-	m_needReallocateBuffers = true;
-}
-
 void PVSeriesRendererOpenGL::initializeGL()
 {
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
@@ -220,12 +215,12 @@ void PVSeriesRendererOpenGL::resizeEvent(QResizeEvent* event)
 void PVSeriesRendererOpenGL::resizeGL(int w, int h)
 {
 	qDebug() << "resizeGL(" << w << ", " << h << ")";
-	m_needReallocateBuffers = true;
 }
 
 void PVSeriesRendererOpenGL::paintGL()
 {
-	if (m_blockPaint or not m_rss.valid()) {
+	if (m_blockPaint or not m_rss.valid() or m_rss.samples_count() <= 0 or
+	    m_seriesDrawOrder.empty()) {
 		return;
 	}
 
@@ -249,10 +244,9 @@ void PVSeriesRendererOpenGL::paintGL()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	if (m_needReallocateBuffers) {
-		m_needReallocateBuffers = false;
-		compute_dbo_GL();
-	}
+	m_linesPerVboCount = lines_per_vbo();
+
+	fill_dbo_GL();
 
 	for (size_t line = 0; line < m_seriesDrawOrder.size();) {
 		auto lineEnd = std::min(line + m_linesPerVboCount, m_seriesDrawOrder.size());
@@ -287,36 +281,24 @@ void PVSeriesRendererOpenGL::setDrawMode_GL()
 	m_sizeLocation = m_program->uniformLocation("size");
 }
 
-void PVSeriesRendererOpenGL::compute_dbo_GL()
+int PVSeriesRendererOpenGL::lines_per_vbo() const
 {
-	auto lines_count = m_seriesDrawOrder.size();
+	return std::min(static_cast<size_t>(m_GL_max_elements_vertices / m_rss.samples_count()),
+	                m_seriesDrawOrder.size());
+}
 
-	if (lines_count <= 0 or m_rss.samples_count() <= 0) {
-		return;
+void PVSeriesRendererOpenGL::allocate_buffer_GL(QOpenGLBuffer& buffer, int expected_size)
+{
+	if (buffer.size() != expected_size) {
+		buffer.allocate(expected_size);
+		assert(buffer.size() == expected_size);
 	}
-
-	m_linesPerVboCount = std::min(
-	    static_cast<size_t>(m_GL_max_elements_vertices / m_rss.samples_count()), lines_count);
-
-	fill_dbo_GL();
-
-	m_vbo.bind();
-	m_vbo.allocate(m_linesPerVboCount * m_rss.samples_count() * sizeof(Vertex));
-	assert(m_vbo.size() > 0);
-	m_vbo.release();
-
-	m_cbo.bind();
-	m_cbo.allocate(m_linesPerVboCount * sizeof(CboBlock));
-	assert(m_cbo.size() > 0);
-	m_cbo.release();
 }
 
 void PVSeriesRendererOpenGL::fill_dbo_GL()
 {
 	m_dbo.bind();
-
-	m_dbo.allocate(m_linesPerVboCount * sizeof(DrawArraysIndirectCommand));
-	assert(m_dbo.size() > 0);
+	allocate_buffer_GL(m_dbo, m_linesPerVboCount * sizeof(DrawArraysIndirectCommand));
 	DrawArraysIndirectCommand* dbo_bytes =
 	    static_cast<DrawArraysIndirectCommand*>(m_dbo.map(QOpenGLBuffer::WriteOnly));
 	assert(dbo_bytes);
@@ -325,7 +307,6 @@ void PVSeriesRendererOpenGL::fill_dbo_GL()
 		return DrawArraysIndirectCommand{GLuint(m_rss.samples_count()), 1,
 		                                 GLuint(drawIndex * m_rss.samples_count()), drawIndex};
 	});
-
 	m_dbo.unmap();
 	m_dbo.release();
 }
@@ -335,6 +316,7 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const lineBegin, size_t const li
 	size_t const line_byte_size = m_rss.samples_count() * sizeof(Vertex);
 
 	m_vbo.bind();
+	allocate_buffer_GL(m_vbo, m_linesPerVboCount * line_byte_size);
 	void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
 	                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
 	                                       GL_MAP_UNSYNCHRONIZED_BIT);
@@ -352,6 +334,7 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const lineBegin, size_t const li
 void PVSeriesRendererOpenGL::fill_cbo_GL(size_t const lineBegin, size_t const lineEnd)
 {
 	m_cbo.bind();
+	allocate_buffer_GL(m_cbo, m_linesPerVboCount * sizeof(CboBlock));
 	CboBlock* cbo_bytes = static_cast<CboBlock*>(glMapBufferRange(
 	    GL_ARRAY_BUFFER, 0, m_cbo.size(),
 	    GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT));
