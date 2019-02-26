@@ -16,6 +16,7 @@
 #include <QDoubleSpinBox>
 #include <QStyle>
 #include <QWidget>
+#include <QSpinBox>
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/widgets/PVLongLongSpinBox.h>
@@ -27,7 +28,7 @@ namespace PVWidgets
 
 class PVRangeEdit : public QWidget
 {
-  protected:
+  public:
 	using func_type = std::function<void(const pvcop::db::array& minmax)>;
 
   public:
@@ -46,14 +47,15 @@ class PVRangeEdit : public QWidget
 	func_type _validate_f;
 };
 
-class PVIntegerRangeEdit : public PVRangeEdit
+template <typename SpinType, typename T>
+class PVNumberRangeEdit : public PVRangeEdit
 {
   public:
-	PVIntegerRangeEdit(const pvcop::db::array& minmax, func_type f, QWidget* parent = nullptr)
+	PVNumberRangeEdit(const pvcop::db::array& minmax, func_type f, QWidget* parent = nullptr)
 	    : PVRangeEdit(minmax, f, parent)
 	{
-		_from_widget = new PVWidgets::PVLongLongSpinBox;
-		_to_widget = new PVWidgets::PVLongLongSpinBox;
+		_from_widget = new SpinType;
+		_to_widget = new SpinType;
 		set_minmax(minmax);
 		_ok = new QPushButton("&Ok");
 
@@ -65,15 +67,13 @@ class PVIntegerRangeEdit : public PVRangeEdit
 
 		setLayout(layout);
 
-		connect(_from_widget, static_cast<void (PVWidgets::PVLongLongSpinBox::*)(qlonglong)>(
-		                          &PVWidgets::PVLongLongSpinBox::valueChanged),
-		        [&](qlonglong value) {
+		connect(_from_widget, static_cast<void (SpinType::*)(T)>(&SpinType::valueChanged),
+		        [&](T value) {
 			        _to_widget->setMinimum(value);
 			        update_minmax(value, false);
 			    });
-		connect(_to_widget, static_cast<void (PVWidgets::PVLongLongSpinBox::*)(qlonglong)>(
-		                        &PVWidgets::PVLongLongSpinBox::valueChanged),
-		        [&](qlonglong value) {
+		connect(_to_widget, static_cast<void (SpinType::*)(T)>(&SpinType::valueChanged),
+		        [&](T value) {
 			        _from_widget->setMaximum(value);
 			        update_minmax(value, true);
 			    });
@@ -109,9 +109,27 @@ class PVIntegerRangeEdit : public PVRangeEdit
 	}
 
   private:
-	PVWidgets::PVLongLongSpinBox* _from_widget;
-	PVWidgets::PVLongLongSpinBox* _to_widget;
+	SpinType* _from_widget;
+	SpinType* _to_widget;
 	QPushButton* _ok;
+};
+
+class PVLongLongRangeEdit : public PVNumberRangeEdit<PVWidgets::PVLongLongSpinBox, qlonglong>
+{
+  public:
+	PVLongLongRangeEdit(const pvcop::db::array& minmax, func_type f, QWidget* parent = nullptr)
+	    : PVNumberRangeEdit<PVWidgets::PVLongLongSpinBox, qlonglong>(minmax, f, parent)
+	{
+	}
+};
+
+class PVIntegerRangeEdit : public PVNumberRangeEdit<QSpinBox, int>
+{
+  public:
+	PVIntegerRangeEdit(const pvcop::db::array& minmax, func_type f, QWidget* parent = nullptr)
+	    : PVNumberRangeEdit<QSpinBox, int>(minmax, f, parent)
+	{
+	}
 };
 
 class PVDoubleRangeEdit : public PVRangeEdit
@@ -285,6 +303,28 @@ class PVDateTimeRangeEdit : public PVRangeEdit
 	QDateTimeEdit* _from_widget;
 	QDateTimeEdit* _to_widget;
 	QPushButton* _ok;
+};
+
+class PVRangeEditFactory
+{
+  public:
+	static PVRangeEdit* create(const pvcop::db::array& minmax, PVRangeEdit::func_type f)
+	{
+		PVWidgets::PVRangeEdit* range_edit = nullptr;
+
+		if (minmax.formatter()->name().find("datetime") == 0) {
+			range_edit = new PVWidgets::PVDateTimeRangeEdit(minmax, f);
+		} else if (minmax.formatter()->name().find("number_float") == 0 or
+		           minmax.formatter()->name().find("number_double") == 0) {
+			range_edit = new PVWidgets::PVDoubleRangeEdit(minmax, f);
+		} else if (minmax.formatter()->name().find("number_uint") == 0) {
+			range_edit = new PVWidgets::PVLongLongRangeEdit(minmax, f);
+		} else if (minmax.formatter()->name().find("number_int") == 0) {
+			range_edit = new PVWidgets::PVIntegerRangeEdit(minmax, f);
+		}
+
+		return range_edit;
+	}
 };
 
 } // namespace PVWidgets

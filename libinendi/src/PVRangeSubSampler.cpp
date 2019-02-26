@@ -48,110 +48,16 @@ void Inendi::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
 	_reset = true;
 }
 
-template <typename T, typename ratio_f>
-static pvcop::db::array
-_minmax_subrange(const pvcop::db::array& minmax, ratio_f first_ratio, ratio_f last_ratio)
+pvcop::db::array Inendi::PVRangeSubSampler::ratio_to_minmax(zoom_f ratio1, zoom_f ratio2) const
 {
-	pvcop::db::array rel_minmax(minmax.formatter()->name(), 2);
-	rel_minmax.set_formatter(minmax.formatter());
 
-	pvcop::core::array<T> core_rel_minmax = rel_minmax.to_core_array<T>();
-	const pvcop::core::array<T>& core_minmax = minmax.to_core_array<T>();
-
-	T abs_min = core_minmax[0];
-	T abs_max = core_minmax[1];
-
-	auto duration = abs_max - abs_min;
-
-	if
-		constexpr(std::is_same<T, boost::posix_time::ptime>::value)
-		{
-			auto duration_us = duration.total_microseconds();
-			core_rel_minmax[0] =
-			    abs_min + boost::posix_time::microseconds(first_ratio * duration_us);
-			core_rel_minmax[1] =
-			    abs_min + boost::posix_time::microseconds(last_ratio * duration_us);
-		}
-	else {
-		core_rel_minmax[0] = abs_min + (duration * first_ratio);
-		core_rel_minmax[1] = abs_min + (duration * last_ratio);
-	}
-
-	return rel_minmax;
-}
-
-pvcop::db::array Inendi::PVRangeSubSampler::minmax_subrange(zoom_f first_ratio,
-                                                            zoom_f last_ratio) const
-{
-	typedef pvcop::db::array (*minmax_subrange_func_t)(const pvcop::db::array&, zoom_f, zoom_f);
-	using func_map_t = std::unordered_map<std::string, minmax_subrange_func_t>;
-	static const func_map_t func_map = []() {
-		func_map_t map;
-		map.insert({"number_float", &_minmax_subrange<float, zoom_f>});
-		map.insert({"number_double", &_minmax_subrange<double, zoom_f>});
-		map.insert({"number_uint32", &_minmax_subrange<uint32_t, zoom_f>});
-		map.insert({"number_uint64", &_minmax_subrange<uint64_t, zoom_f>});
-		map.insert({"datetime", &_minmax_subrange<uint32_t, zoom_f>});
-		map.insert({"datetime_ms", &_minmax_subrange<uint64_t, zoom_f>});
-		map.insert({"datetime_us", &_minmax_subrange<boost::posix_time::ptime, zoom_f>});
-		return map;
-	}();
-
-	auto minmax_subrange_f = func_map.at(_minmax.formatter()->name());
-	return minmax_subrange_f(_minmax, first_ratio, last_ratio);
-}
-
-template <typename T, typename ratio_f>
-static std::pair<ratio_f, ratio_f> _minmax_ratio(const pvcop::db::array& global_minmax,
-                                                 const pvcop::db::array& local_minmax)
-{
-	const pvcop::core::array<T>& core_global_minmax = global_minmax.to_core_array<T>();
-	const pvcop::core::array<T>& core_local_minmax = local_minmax.to_core_array<T>();
-
-	T global_min = core_global_minmax[0];
-	T global_max = core_global_minmax[1];
-	T local_min = core_local_minmax[0];
-	T local_max = core_local_minmax[1];
-
-	auto duration = global_max - global_min;
-	ratio_f first_ratio;
-	ratio_f last_ratio;
-
-	if
-		constexpr(std::is_same<T, boost::posix_time::ptime>::value)
-		{
-			auto duration_us = duration.total_microseconds();
-			first_ratio = (local_min - global_min).total_microseconds() / (ratio_f)duration_us;
-			last_ratio = (local_max - global_min).total_microseconds() / (ratio_f)duration_us;
-		}
-	else {
-		first_ratio = (local_min - global_min) / (ratio_f)duration;
-		last_ratio = (local_max - global_min) / (ratio_f)duration;
-	}
-
-	return std::make_pair(first_ratio, last_ratio);
+	return _time.ratio_to_minmax(ratio1, ratio2, _minmax);
 }
 
 std::pair<Inendi::PVRangeSubSampler::zoom_f, Inendi::PVRangeSubSampler::zoom_f>
-Inendi::PVRangeSubSampler::minmax_ratio(const pvcop::db::array& minmax) const
+Inendi::PVRangeSubSampler::minmax_to_ratio(const pvcop::db::array& minmax) const
 {
-	typedef std::pair<zoom_f, zoom_f> (*minmax_ratio_func_t)(const pvcop::db::array&,
-	                                                         const pvcop::db::array&);
-	using func_map_t = std::unordered_map<std::string, minmax_ratio_func_t>;
-	static const func_map_t func_map = []() {
-		func_map_t map;
-		map.insert({"number_float", &_minmax_ratio<float, zoom_f>});
-		map.insert({"number_double", &_minmax_ratio<double, zoom_f>});
-		map.insert({"number_uint32", &_minmax_ratio<uint32_t, zoom_f>});
-		map.insert({"number_uint64", &_minmax_ratio<uint64_t, zoom_f>});
-		map.insert({"datetime", &_minmax_ratio<uint32_t, zoom_f>});
-		map.insert({"datetime_ms", &_minmax_ratio<uint64_t, zoom_f>});
-		map.insert({"datetime_us", &_minmax_ratio<boost::posix_time::ptime, zoom_f>});
-		return map;
-	}();
-
-	auto minmax_ratio_f = func_map.at(minmax.formatter()->name());
-	return minmax_ratio_f(_minmax, minmax);
+	return _time.minmax_to_ratio(minmax, _minmax);
 }
 
 void Inendi::PVRangeSubSampler::subsample(zoom_f first_ratio,
@@ -162,7 +68,7 @@ void Inendi::PVRangeSubSampler::subsample(zoom_f first_ratio,
 	const value_type min = min_ratio * std::numeric_limits<value_type>::max();
 	const value_type max = max_ratio * std::numeric_limits<value_type>::max();
 
-	subsample(minmax_subrange(first_ratio, last_ratio), min, max);
+	subsample(ratio_to_minmax(first_ratio, last_ratio), min, max);
 }
 
 void Inendi::PVRangeSubSampler::subsample(const pvcop::db::array& minmax,
@@ -200,29 +106,12 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 	                 << ", _timeseries_to_subsample.size():" << _timeseries_to_subsample.size()
 	                 << ")\n";
 
-	typedef void (PVRangeSubSampler::*compute_histogram_func_t)(size_t, size_t,
-	                                                            const pvcop::db::array&);
-	using func_map_t = std::unordered_map<std::string, compute_histogram_func_t>;
-	static const func_map_t func_map = [&]() {
-		func_map_t map;
-		map.insert({"number_float", &PVRangeSubSampler::compute_histogram<float>});
-		map.insert({"number_double", &PVRangeSubSampler::compute_histogram<double>});
-		map.insert({"number_uint32", &PVRangeSubSampler::compute_histogram<uint32_t>});
-		map.insert({"number_uint64", &PVRangeSubSampler::compute_histogram<uint64_t>});
-		map.insert({"datetime", &PVRangeSubSampler::compute_histogram<uint32_t>});
-		map.insert({"datetime_ms", &PVRangeSubSampler::compute_histogram<uint64_t>});
-		map.insert(
-		    {"datetime_us", &PVRangeSubSampler::compute_histogram<boost::posix_time::ptime>});
-		return map;
-	}();
-
 	if (_reset) {
 		allocate_internal_structures(); // start and end are not included
 		_reset = false;
 	}
 
-	auto compute_ranges_values_count_f = func_map.at(_time.formatter()->name());
-	((*this).*compute_ranges_values_count_f)(first, last, minmax);
+	_time.histogram(first, last, minmax, _sorted_indexes, _histogram);
 	compute_ranges_average(first, last, min, max);
 
 	_subsampled.emit();

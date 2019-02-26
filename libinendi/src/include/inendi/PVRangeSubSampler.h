@@ -22,16 +22,6 @@
 namespace Inendi
 {
 
-template <typename T>
-struct PVRangeSubSamplerIntervalType {
-	using value_type = double;
-};
-
-template <>
-struct PVRangeSubSamplerIntervalType<boost::posix_time::ptime> {
-	using value_type = boost::posix_time::time_duration;
-};
-
 class PVRangeSubSampler
 {
   public:
@@ -100,8 +90,8 @@ class PVRangeSubSampler
 	}
 	const std::vector<size_t>& histogram() const { return _histogram; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
-	pvcop::db::array minmax_subrange(zoom_f first_ratio, zoom_f last_ratio) const;
-	std::pair<zoom_f, zoom_f> minmax_ratio(const pvcop::db::array& minmax) const;
+	pvcop::db::array ratio_to_minmax(zoom_f ratio1, zoom_f ratio2) const;
+	std::pair<zoom_f, zoom_f> minmax_to_ratio(const pvcop::db::array& minmax) const;
 	const pvcop::db::indexes& sorted_indexes() const { return _sorted_indexes; }
 
 	void
@@ -118,54 +108,6 @@ class PVRangeSubSampler
 	               const pvcop::db::array& minmax,
 	               uint32_t min = 0,
 	               uint32_t max = 0);
-
-	template <typename T>
-	void compute_histogram(size_t first, size_t last, const pvcop::db::array& minmax)
-	{
-		assert(_histogram.size() == _sampling_count);
-
-		BENCH_START(compute_histogram);
-
-		pvcop::core::array<T> core_time = _time.to_core_array<T>();
-		pvcop::core::array<T> core_minmax = minmax.to_core_array<T>();
-
-		T min = core_minmax[0];
-		T max = core_minmax[1];
-
-		const pvcop::db::selection& invalid_sel = _time.invalid_selection();
-
-		using interval_t = typename PVRangeSubSamplerIntervalType<T>::value_type;
-		const interval_t& interval = (interval_t)(max - min) / (_sampling_count);
-
-		auto sorted_begin_it = _sort.cbegin() + first;
-		auto sorted_end_it = _sort.cbegin() + last + 1;
-		auto begin_it = core_time.cbegin() + first;
-		auto end_it = core_time.cbegin() + last + 1;
-
-		//#pragma omp parallel for firstprivate(sorted_begin_it, begin_it) // working but slower
-		for (size_t i = 0; i < _sampling_count - 1; i++) {
-			const T value = (T)(min + (interval * (i + 1)));
-			if (_sort) {
-				sorted_begin_it = std::lower_bound(
-				    sorted_begin_it, sorted_end_it, 0,
-				    [this, &core_time, &invalid_sel, value](size_t j, size_t) {
-					    return core_time[j] < value and (not invalid_sel or not invalid_sel[j]);
-					});
-				begin_it = core_time.cbegin() + std::distance(_sort.cbegin(), sorted_begin_it);
-			} else {
-				begin_it = std::lower_bound(begin_it, end_it, value);
-			}
-			_histogram[i] = std::distance(core_time.cbegin(), begin_it);
-		}
-		_histogram.back() = last + 1;
-
-		// Transform indexes into histogram
-		size_t first_range = _histogram.front() - first;
-		std::adjacent_difference(_histogram.begin(), _histogram.end(), _histogram.begin());
-		_histogram.front() = first_range;
-
-		BENCH_END(compute_histogram, "compute_histogram", _sampling_count, 1, _sampling_count, 1);
-	}
 
 	void compute_ranges_average(size_t first, size_t /*last*/, size_t min, size_t max);
 

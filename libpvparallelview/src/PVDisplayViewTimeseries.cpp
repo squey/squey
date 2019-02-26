@@ -46,8 +46,5 @@ bool PVDisplays::PVDisplayViewTimeseries::should_add_to_menu(Inendi::PVView cons
                                                              PVCombCol axis_comb) const
 {
 	return view->get_axis(axis_comb).get_type().left(4) == "time" or
-	       view->get_axis(axis_comb).get_type() == "number_uint32" or
-	       view->get_axis(axis_comb).get_type() == "number_uint64" or
-	       view->get_axis(axis_comb).get_type() == "number_float" or
-	       view->get_axis(axis_comb).get_type() == "number_double";
+	       view->get_axis(axis_comb).get_type().left(7) == "number_";
 }

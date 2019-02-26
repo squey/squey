@@ -125,28 +125,21 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	auto minmax_changed_f = [this, zoomer](const pvcop::db::array& minmax) {
 		PVViewZoomer::Zoom zoom = zoomer->currentZoom();
-		std::tie(zoom.minX, zoom.maxX) = _sampler->minmax_ratio(minmax);
+		std::tie(zoom.minX, zoom.maxX) = _sampler->minmax_to_ratio(minmax);
 		zoomer->resetAndZoomIn(zoom);
 	};
 
-	PVWidgets::PVRangeEdit* range_edit = nullptr; // TODO : use a factory
-	if (_sampler->minmax_time().formatter()->name().find("datetime") == 0) {
-		range_edit = new PVWidgets::PVDateTimeRangeEdit(_sampler->minmax_time(), minmax_changed_f);
-	} else if (_sampler->minmax_time().formatter()->name().find("number_float") == 0 or
-	           _sampler->minmax_time().formatter()->name().find("number_double") == 0) {
-		range_edit = new PVWidgets::PVDoubleRangeEdit(_sampler->minmax_time(), minmax_changed_f);
-	} else if (_sampler->minmax_time().formatter()->name().find("number_uint") == 0) {
-		range_edit = new PVWidgets::PVIntegerRangeEdit(_sampler->minmax_time(), minmax_changed_f);
-	}
+	PVWidgets::PVRangeEdit* range_edit =
+	    PVWidgets::PVRangeEditFactory::create(_sampler->minmax_time(), minmax_changed_f);
 
 	QObject::connect(zoomer, &PVSeriesViewZoomer::zoomUpdated,
 	                 [range_edit, this](PVViewZoomer::Zoom zoom) {
-		                 range_edit->set_minmax(_sampler->minmax_subrange(zoom.minX, zoom.maxX));
+		                 range_edit->set_minmax(_sampler->ratio_to_minmax(zoom.minX, zoom.maxX));
 		             });
 
 	QObject::connect(zoomer, &PVSeriesViewZoomer::selectionCommit, [range_edit, &time, &nraw, view,
 	                                                                this](PVViewZoomer::Zoom zoom) {
-		const pvcop::db::array& minmax = _sampler->minmax_subrange(zoom.minX, zoom.maxX);
+		const pvcop::db::array& minmax = _sampler->ratio_to_minmax(zoom.minX, zoom.maxX);
 		range_edit->set_minmax(minmax);
 		const auto& sorted_indexes = _sampler->sorted_indexes();
 		pvcop::db::range_t selected_range = time.equal_range(minmax, sorted_indexes);
