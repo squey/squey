@@ -229,28 +229,30 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 }
 
 void Inendi::PVRangeSubSampler::set_selected_timeseries(
-    const std::unordered_set<size_t>& selected_timeseries /* = {} */)
+    const std::unordered_set<size_t>& selected_timeseries)
 {
-	if (not selected_timeseries.empty()) {
-		_timeseries_to_subsample.clear();
-		std::copy_if(selected_timeseries.begin(), selected_timeseries.end(),
-		             std::back_inserter(_timeseries_to_subsample), [this](size_t index) {
-			             return _selected_timeseries.find(index) == _selected_timeseries.end();
-			         });
-		_selected_timeseries = selected_timeseries;
-	}
+	_timeseries_to_subsample.clear();
+	std::copy_if(selected_timeseries.begin(), selected_timeseries.end(),
+	             std::back_inserter(_timeseries_to_subsample), [this](size_t index) {
+		             return _selected_timeseries.find(index) == _selected_timeseries.end();
+		         });
+	_selected_timeseries = selected_timeseries;
 }
 
-void Inendi::PVRangeSubSampler::resubsample(const std::unordered_set<size_t>& timeseries /*= {}*/)
+void Inendi::PVRangeSubSampler::resubsample()
 {
-	if (not timeseries.empty()) {
-		_timeseries_to_subsample.clear();
-		std::copy(timeseries.begin(), timeseries.end(),
-		          std::back_inserter(_timeseries_to_subsample));
-	} else {
-		_timeseries_to_subsample =
-		    std::vector<size_t>(_selected_timeseries.begin(), _selected_timeseries.end());
-	}
+	_timeseries_to_subsample =
+	    std::vector<size_t>(_selected_timeseries.begin(), _selected_timeseries.end());
+
+	subsample(_last_params.first, _last_params.last, _last_params.minmax, _last_params.min,
+	          _last_params.max);
+}
+
+void Inendi::PVRangeSubSampler::resubsample(const std::unordered_set<size_t>& timeseries)
+{
+	_timeseries_to_subsample.clear();
+	std::copy(timeseries.begin(), timeseries.end(), std::back_inserter(_timeseries_to_subsample));
+
 	subsample(_last_params.first, _last_params.last, _last_params.minmax, _last_params.min,
 	          _last_params.max);
 }

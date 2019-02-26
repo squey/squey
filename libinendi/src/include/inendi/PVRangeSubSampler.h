@@ -89,7 +89,7 @@ class PVRangeSubSampler
 	                  size_t sampling_count = 2048);
 
 	void set_sampling_count(size_t sampling_count);
-	void set_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries = {});
+	void set_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries);
 
 	size_t samples_count() const { return _sampling_count; }
 	size_t total_count() const { return _time.size(); }
@@ -107,7 +107,8 @@ class PVRangeSubSampler
 	void
 	subsample(zoom_f first_ratio, zoom_f last_ratio, zoom_f min_ratio = 0, zoom_f max_ratio = 0);
 	void subsample(const pvcop::db::array& minmax, uint32_t min = 0, uint32_t max = 0);
-	void resubsample(const std::unordered_set<size_t>& timeseries = {});
+	void resubsample();
+	void resubsample(const std::unordered_set<size_t>& timeseries);
 	bool valid() const;
 
   private:

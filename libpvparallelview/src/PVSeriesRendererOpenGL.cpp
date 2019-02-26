@@ -221,6 +221,11 @@ void PVSeriesRendererOpenGL::paintGL()
 {
 	if (m_blockPaint or not m_rss.valid() or m_rss.samples_count() <= 0 or
 	    m_seriesDrawOrder.empty()) {
+		if (m_backgroundColor) {
+			glClearColor(m_backgroundColor->redF(), m_backgroundColor->greenF(),
+			             m_backgroundColor->blueF(), m_backgroundColor->alphaF());
+		}
+		glClear(GL_COLOR_BUFFER_BIT);
 		return;
 	}
 
