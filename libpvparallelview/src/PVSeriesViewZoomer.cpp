@@ -203,6 +203,14 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 		fragment = new PVSeriesViewZoomerRectangleFragment(child, QColor(20, 255, 50, 255));
 		fragment->hide();
 	}
+	for (auto& chronotip : m_chronotips) {
+		chronotip = new QLabel(child);
+		chronotip->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+		chronotip->setAutoFillBackground(true);
+		chronotip->hide();
+	}
+	m_chronotips[0]->setAlignment(Qt::AlignRight);
+	m_chronotips[1]->setAlignment(Qt::AlignLeft);
 	setMouseTracking(true);
 	setFocusPolicy(Qt::ClickFocus);
 }
@@ -234,9 +242,8 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 	if (m_zooming && event->button() == Qt::LeftButton) {
 		m_zooming = false;
 		// QToolTip::hideText();
-		for (auto& fragment : m_zoomFragments) {
-			fragment->hide();
-		}
+		hideFragments(m_chronotips);
+		hideFragments(m_zoomFragments);
 		if (event->pos() == m_zoomRect.topLeft()) {
 			zoomOut(event->pos());
 		} else {
@@ -244,9 +251,7 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 		}
 	} else if (m_selecting && event->button() == Qt::LeftButton) {
 		m_selecting = false;
-		for (auto& fragment : m_selectionFragments) {
-			fragment->hide();
-		}
+		hideFragments(m_selectionFragments);
 		selectionCommit(rectToZoom(normalizedZoomRect(m_selectionRect, false)));
 	} else if (m_moving && event->button() == Qt::RightButton) {
 		m_moving = false;
@@ -263,38 +268,30 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 		m_zoomRect.setBottomRight(QPoint(std::clamp(event->pos().x(), 0, size().width() - 1),
 		                                 std::clamp(event->pos().y(), 0, size().height() - 1)));
 		updateZoomGeometry(event->modifiers() & Qt::ControlModifier);
-		for (auto& fragment : m_zoomFragments) {
-			fragment->show();
-		}
+		showFragments(m_zoomFragments);
+		updateChronotips(m_zoomRect);
 	}
 	if (m_selecting) {
 		m_selectionRect.setBottomRight(
 		    QPoint(std::clamp(event->pos().x(), 0, size().width() - 1),
 		           std::clamp(event->pos().y(), 0, size().height() - 1)));
 		updateSelectionGeometry();
-		for (auto& fragment : m_selectionFragments) {
-			fragment->show();
-		}
+		showFragments(m_selectionFragments);
+		updateChronotips(m_selectionRect);
 	}
 	if (m_moving) {
 		moveZoomBy(event->pos() - m_moveStart);
 		m_moveStart = event->pos();
+		updateChronotips(event->pos());
 	}
-	if (not m_zooming and not m_selecting and not m_moving) {
-		m_crossHairsFragments[0]->setGeometry(0, event->pos().y(), event->pos().x() - 10, 1);
-		m_crossHairsFragments[1]->setGeometry(event->pos().x(), 0, 1, event->pos().y() - 10);
-		m_crossHairsFragments[2]->setGeometry(event->pos().x() + 10, event->pos().y(),
-		                                      width() - event->pos().x() - 10, 1);
-		m_crossHairsFragments[3]->setGeometry(event->pos().x(), event->pos().y() + 10, 1,
-		                                      height() - event->pos().y() - 10);
-		for (auto& fragment : m_crossHairsFragments) {
-			fragment->show();
-		}
+	if (not m_zooming and not m_selecting) {
+		updateCrossHairsGeometry(event->pos());
+		showFragments(m_crossHairsFragments);
+		updateChronotips(event->pos());
 	} else {
-		for (auto& fragment : m_crossHairsFragments) {
-			fragment->hide();
-		}
+		hideFragments(m_crossHairsFragments);
 	}
+	showFragments(m_chronotips);
 }
 
 void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
@@ -317,9 +314,8 @@ void PVSeriesViewZoomer::keyReleaseEvent(QKeyEvent* event)
 
 void PVSeriesViewZoomer::leaveEvent(QEvent*)
 {
-	for (auto& fragment : m_crossHairsFragments) {
-		fragment->hide();
-	}
+	hideFragments(m_crossHairsFragments);
+	hideFragments(m_chronotips);
 }
 
 void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
@@ -363,9 +359,75 @@ void PVSeriesViewZoomer::updateSelectionGeometry()
 	m_selectionFragments[1]->setGeometry(zr.x() + zr.width(), zr.y(), 1, zr.height());
 }
 
+void PVSeriesViewZoomer::updateCrossHairsGeometry(QPoint pos)
+{
+	m_crossHairsFragments[0]->setGeometry(0, pos.y(), pos.x() - 10, 1);
+	m_crossHairsFragments[1]->setGeometry(pos.x(), 0, 1, pos.y() - 10);
+	m_crossHairsFragments[2]->setGeometry(pos.x() + 10, pos.y(), width() - pos.x() - 10, 1);
+	m_crossHairsFragments[3]->setGeometry(pos.x(), pos.y() + 10, 1, height() - pos.y() - 10);
+}
+
+void PVSeriesViewZoomer::updateChronotipGeometry(size_t chrono_index, QPoint pos)
+{
+	bool chronotips_top = (pos.y() < height() / 2)
+	                          ? pos.y() > 3 * m_chronotips[0]->height()
+	                          : pos.y() > height() - 3 * m_chronotips[0]->height();
+	bool force_chronotips_right = pos.x() < m_chronotips[0]->width();
+	bool force_chronotips_left = pos.x() > width() - m_chronotips[1]->width();
+	int chronotips_y_0 =
+	    chronotips_top ? 0 : force_chronotips_left or force_chronotips_right
+	                             ? height() - m_chronotips[0]->height() - m_chronotips[1]->height()
+	                             : height() - m_chronotips[0]->height();
+	int chronotips_y_1 =
+	    chronotips_top
+	        ? force_chronotips_left or force_chronotips_right ? m_chronotips[0]->height() : 0
+	        : height() - m_chronotips[1]->height();
+	if (chrono_index == 0) {
+		m_chronotips[0]->move(force_chronotips_right ? pos.x() + 1
+		                                             : pos.x() - m_chronotips[0]->width(),
+		                      chronotips_y_0);
+	} else {
+		m_chronotips[1]->move(force_chronotips_left ? pos.x() - m_chronotips[1]->width()
+		                                            : pos.x() + 1,
+		                      chronotips_y_1);
+	}
+}
+
+template <class T>
+void PVSeriesViewZoomer::showFragments(T const& fragments) const
+{
+	for (auto& fragment : fragments) {
+		fragment->show();
+	}
+}
+
+template <class T>
+void PVSeriesViewZoomer::hideFragments(T const& fragments) const
+{
+	for (auto& fragment : fragments) {
+		fragment->hide();
+	}
+}
+
 void PVSeriesViewZoomer::updateZoom(Zoom zoom)
 {
 	m_rss.subsample(zoom.minX, zoom.maxX, zoom.minY, zoom.maxY);
+}
+
+void PVSeriesViewZoomer::updateChronotips(QPoint point)
+{
+	updateChronotips(QRect(point.x(), point.y(), 1, 1));
+}
+
+void PVSeriesViewZoomer::updateChronotips(QRect rect)
+{
+	rect = normalizedZoomRect(rect, true);
+	Zoom coveredZoom = rectToZoom(rect);
+	pvcop::db::array subrange = m_rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
+	m_chronotips[0]->setText((subrange.at(0) + ">").c_str());
+	m_chronotips[1]->setText(("<" + subrange.at(1)).c_str());
+	updateChronotipGeometry(0, rect.topLeft());
+	updateChronotipGeometry(1, rect.bottomRight());
 }
 
 QColor PVSeriesViewZoomer::getZoomRectColor() const

@@ -8,6 +8,7 @@
 #define _PVPARALLELVIEW_PVSERIESVIEWZOOMER_H_
 
 #include <QWidget>
+#include <QLabel>
 #include <QBasicTimer>
 
 namespace Inendi
@@ -95,10 +96,18 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	void timerEvent(QTimerEvent* event) override;
 
 	void updateZoom(Zoom zoom) override;
+	void updateChronotips(QPoint point);
+	void updateChronotips(QRect rect);
 
   private:
 	void updateZoomGeometry(bool rectangular);
 	void updateSelectionGeometry();
+	void updateCrossHairsGeometry(QPoint pos);
+	void updateChronotipGeometry(size_t chrono_index, QPoint pos);
+	template <class T>
+	void showFragments(T const& fragments) const;
+	template <class T>
+	void hideFragments(T const& fragments) const;
 
   private:
 	PVSeriesView* m_seriesView;
@@ -113,6 +122,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	QRect m_selectionRect;
 	std::array<QWidget*, 2> m_selectionFragments{nullptr};
 	std::array<QWidget*, 4> m_crossHairsFragments{nullptr};
+	std::array<QLabel*, 2> m_chronotips{nullptr};
 
 	bool m_moving = false;
 	QPoint m_moveStart;
