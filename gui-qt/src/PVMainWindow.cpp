@@ -28,6 +28,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVWSLHelper.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -128,10 +129,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	 * Except under WSL where GPU is not supported yet
 	 * (https://wpdev.uservoice.com/forums/266908-command-prompt-console-windows-subsystem-for-l/suggestions/16108045-opencl-cuda-gpu-support)
 	 */
-	struct utsname uname_buf;
-	uname(&uname_buf);
-	bool is_microsoft_wsl = strstr(uname_buf.release, "Microsoft") != NULL;
-	if (not PVParallelView::common::is_gpu_accelerated() and not is_microsoft_wsl) {
+	if (not PVParallelView::common::is_gpu_accelerated() and
+	    not PVCore::PVWSLHelper::is_microsoft_wsl()) {
 		/* the warning icon
 		 */
 		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
