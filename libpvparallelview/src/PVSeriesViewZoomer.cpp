@@ -374,22 +374,30 @@ void PVSeriesViewZoomer::updateChronotipGeometry(size_t chrono_index, QPoint pos
 	                          : pos.y() > height() - 3 * m_chronotips[0]->height();
 	bool force_chronotips_right = pos.x() < m_chronotips[0]->width();
 	bool force_chronotips_left = pos.x() > width() - m_chronotips[1]->width();
-	int chronotips_y_0 =
-	    chronotips_top ? 0 : force_chronotips_left or force_chronotips_right
-	                             ? height() - m_chronotips[0]->height() - m_chronotips[1]->height()
-	                             : height() - m_chronotips[0]->height();
-	int chronotips_y_1 =
-	    chronotips_top
-	        ? force_chronotips_left or force_chronotips_right ? m_chronotips[0]->height() : 0
-	        : height() - m_chronotips[1]->height();
 	if (chrono_index == 0) {
+		int chronotips_y_0 = chronotips_top ? 0 : force_chronotips_left or force_chronotips_right
+		                                              ? height() - m_chronotips[0]->height() -
+		                                                    m_chronotips[1]->height()
+		                                              : height() - m_chronotips[0]->height();
 		m_chronotips[0]->move(force_chronotips_right ? pos.x() + 1
 		                                             : pos.x() - m_chronotips[0]->width(),
 		                      chronotips_y_0);
-	} else {
+	} else if (chrono_index == 1) {
+		int chronotips_y_1 =
+		    chronotips_top
+		        ? force_chronotips_left or force_chronotips_right ? m_chronotips[0]->height() : 0
+		        : height() - m_chronotips[1]->height();
 		m_chronotips[1]->move(force_chronotips_left ? pos.x() - m_chronotips[1]->width()
 		                                            : pos.x() + 1,
 		                      chronotips_y_1);
+	} else if (chrono_index == 2) {
+		bool percenttips_left = pos.x() > 2 * m_chronotips[2]->width();
+		m_chronotips[2]->move(percenttips_left ? 0 : width() - m_chronotips[2]->width(),
+		                      pos.y() + 1);
+	} else if (chrono_index == 3) {
+		bool percenttips_left = pos.x() > 2 * m_chronotips[3]->width();
+		m_chronotips[3]->move(percenttips_left ? 0 : width() - m_chronotips[3]->width(),
+		                      pos.y() - m_chronotips[3]->height());
 	}
 }
 
@@ -426,8 +434,12 @@ void PVSeriesViewZoomer::updateChronotips(QRect rect)
 	pvcop::db::array subrange = m_rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
 	m_chronotips[0]->setText((subrange.at(0) + ">").c_str());
 	m_chronotips[1]->setText(("<" + subrange.at(1)).c_str());
+	m_chronotips[2]->setText((std::to_string(coveredZoom.minY) + "%").c_str());
+	m_chronotips[3]->setText((std::to_string(coveredZoom.maxY) + "%").c_str());
 	updateChronotipGeometry(0, rect.topLeft());
 	updateChronotipGeometry(1, rect.bottomRight());
+	updateChronotipGeometry(2, rect.bottomRight());
+	updateChronotipGeometry(3, rect.topLeft());
 }
 
 QColor PVSeriesViewZoomer::getZoomRectColor() const

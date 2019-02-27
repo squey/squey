@@ -122,7 +122,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	QRect m_selectionRect;
 	std::array<QWidget*, 2> m_selectionFragments{nullptr};
 	std::array<QWidget*, 4> m_crossHairsFragments{nullptr};
-	std::array<QLabel*, 2> m_chronotips{nullptr};
+	std::array<QLabel*, 4> m_chronotips{nullptr};
 
 	bool m_moving = false;
 	QPoint m_moveStart;
