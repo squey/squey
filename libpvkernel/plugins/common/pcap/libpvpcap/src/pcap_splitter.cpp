@@ -29,6 +29,33 @@
 #include <pvhwloc.h>
 #include <pvlogger.h>
 
+static std::pair<in6_addr, in6_addr> srcip_dstip(const sniff_ip* ip, bool ipv4)
+{
+	in6_addr ip_src;
+	in6_addr ip_dst;
+
+	if (ipv4) {
+		uint32_t ipv4_src = ip->ip_src.s_addr;
+		ip_src.s6_addr32[0] = 0;
+		ip_src.s6_addr32[1] = 0;
+		ip_src.s6_addr32[2] = 0x0000FFFF;
+		ip_src.s6_addr32[3] = ipv4_src;
+
+		uint32_t ipv4_dst = ip->ip_dst.s_addr;
+		ip_dst.s6_addr32[0] = 0;
+		ip_dst.s6_addr32[1] = 0;
+		ip_dst.s6_addr32[2] = 0x0000FFFF;
+		ip_dst.s6_addr32[3] = ipv4_dst;
+	} else {
+		const ip6_hdr* ipv6_h = reinterpret_cast<const ip6_hdr*>(ip);
+
+		ip_src = ipv6_h->ip6_src;
+		ip_dst = ipv6_h->ip6_dst;
+	}
+
+	return std::make_pair(ip_src, ip_dst);
+}
+
 /**
  * @class LRUList
  * A template class that implements a LRU cache with limited size. Each time the user puts an
@@ -430,28 +457,15 @@ class FlowSplitter : public PacketSplitter
 		if (eth_proto == ETH_P_IPV6) {
 			const sniff_ip* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
 			protocol = ip->ip_p;
-			size_ip = IP_HL(ip) * 4;
-
-			const ip6_hdr* ipv6_h = reinterpret_cast<const ip6_hdr*>(packet + sizeof(ethhdr));
-
-			ip_src = ipv6_h->ip6_src;
-			ip_dst = ipv6_h->ip6_dst;
+			std::tie(ip_src, ip_dst) = srcip_dstip(ip, false);
 		} else if (eth_proto == ETH_P_IP) {
 			const sniff_ip* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
 			protocol = ip->ip_p;
-			size_ip = IP_HL(ip) * 4;
-
-			uint32_t ipv4_src = ip->ip_src.s_addr;
-			ip_src.s6_addr32[0] = 0;
-			ip_src.s6_addr32[1] = 0;
-			ip_src.s6_addr32[2] = 0x0000FFFF;
-			ip_src.s6_addr32[3] = ipv4_src;
-
-			uint32_t ipv4_dst = ip->ip_dst.s_addr;
-			ip_dst.s6_addr32[0] = 0;
-			ip_dst.s6_addr32[1] = 0;
-			ip_dst.s6_addr32[2] = 0x0000FFFF;
-			ip_dst.s6_addr32[3] = ipv4_dst;
+			std::tie(ip_src, ip_dst) = srcip_dstip(ip, true);
+		} else if (eth_proto == ETH_P_8021Q) { // 802.1Q VLAN Extended Header
+			const sniff_ip* ipq = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr) + 4);
+			protocol = ipq->ip_p;
+			std::tie(ip_src, ip_dst) = srcip_dstip(ipq, IP_V(ipq) == 4);
 		} else {
 			protocol = eth_proto;
 		}
