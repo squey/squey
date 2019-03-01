@@ -1,11 +1,11 @@
 #!/bin/bash
 
 usage() {
-echo "Usage: $0 [--branch=<branch_name>] [--tag=<tag_name>] [--build_type=<build_type>] [--compiler=<cxx_compiler>]"
+echo "Usage: $0 [--branch=<branch_name>] [--state-dir=<state_dir>] [--tag=<tag_name>] [--build_type=<build_type>] [--compiler=<cxx_compiler>]"
 echo "                  [--user-target=<USER_TARGET>] [--repo=<repository_path>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
 }
 
-OPTS=`getopt -o r:m:b:a:t:c:u:p --long repo:,branch:,tag:,build-type:,user-target:,compiler:,upload:,port: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o r:m:b:s:a:t:c:u:p --long repo:,branch:,state-dir:,tag:,build-type:,user-target:,compiler:,upload:,port: -n 'parse-options' -- "$@"`
 
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 
@@ -21,10 +21,12 @@ EXPORT_BUILD=false
 REPO_DIR=
 UPLOAD_URL=
 UPLOAD_PORT=22
+STATE_DIR=".flatpak-builder"
 
 while true; do
   case "$1" in
     -b | --branch ) BRANCH_NAME="$2"; shift 2 ;;
+    -s | --state-dir ) STATE_DIR="$2"; shift 2 ;;
     -a | --tag ) TAG_NAME="$2"; shift 2 ;;
     -t | --build-type ) BUILD_TYPE="$2"; shift 2 ;;
     -m | --user-target ) USER_TARGET="$2"; shift 2 ;;
