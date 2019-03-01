@@ -64,3 +64,7 @@ rm -rf "/etc/nginx/sites-available/default"
 ln -s "${_dir}/nginx.conf" "/etc/nginx/sites-available/default"
 systemctl enable nginx
 systemctl restart nginx
+
+# Increase the maximum number of memory map areas
+echo 'vm.max_map_count=1966080' >> /etc/sysctl.conf
+sysctl -p
