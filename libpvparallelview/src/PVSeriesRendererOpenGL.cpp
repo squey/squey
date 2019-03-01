@@ -56,7 +56,8 @@ bool PVSeriesRendererOpenGL::capability()
 
 auto PVSeriesRendererOpenGL::capability(PVSeriesView::DrawMode mode) -> PVSeriesView::DrawMode
 {
-	if (mode == PVSeriesView::DrawMode::Lines || mode == PVSeriesView::DrawMode::Points) {
+	if (mode == PVSeriesView::DrawMode::Lines || mode == PVSeriesView::DrawMode::Points ||
+	    mode == PVSeriesView::DrawMode::LinesAlways) {
 		return mode;
 	}
 	return PVSeriesView::DrawMode::Lines;
@@ -281,6 +282,9 @@ void PVSeriesRendererOpenGL::setDrawMode_GL()
 		// glPointSize(5.f);
 		m_program = m_programPoints.get();
 		m_glDrawMode = GL_POINTS;
+	} else if (m_drawMode == PVSeriesView::DrawMode::LinesAlways) {
+		m_program = m_programLinesAlways.get();
+		m_glDrawMode = GL_LINE_STRIP_ADJACENCY;
 	}
 	m_program->bind();
 	m_sizeLocation = m_program->uniformLocation("size");
@@ -288,7 +292,8 @@ void PVSeriesRendererOpenGL::setDrawMode_GL()
 
 int PVSeriesRendererOpenGL::lines_per_vbo() const
 {
-	return std::min(static_cast<size_t>(m_GL_max_elements_vertices / m_rss.samples_count()),
+	size_t vertices_per_line = m_rss.samples_count();
+	return std::min(static_cast<size_t>(m_GL_max_elements_vertices / vertices_per_line),
 	                m_seriesDrawOrder.size());
 }
 
@@ -302,38 +307,92 @@ void PVSeriesRendererOpenGL::allocate_buffer_GL(QOpenGLBuffer& buffer, int expec
 
 void PVSeriesRendererOpenGL::fill_dbo_GL()
 {
+	size_t vertices_per_line = m_rss.samples_count();
 	m_dbo.bind();
 	allocate_buffer_GL(m_dbo, m_linesPerVboCount * sizeof(DrawArraysIndirectCommand));
 	DrawArraysIndirectCommand* dbo_bytes =
 	    static_cast<DrawArraysIndirectCommand*>(m_dbo.map(QOpenGLBuffer::WriteOnly));
 	assert(dbo_bytes);
-	std::generate(dbo_bytes, dbo_bytes + m_linesPerVboCount, [ line = 0u, this ]() mutable {
-		uint32_t drawIndex = line++;
-		return DrawArraysIndirectCommand{GLuint(m_rss.samples_count()), 1,
-		                                 GLuint(drawIndex * m_rss.samples_count()), drawIndex};
-	});
+	std::generate(dbo_bytes, dbo_bytes + m_linesPerVboCount,
+	              [ line = 0u, vertices_per_line, this ]() mutable {
+		              uint32_t drawIndex = line++;
+		              return DrawArraysIndirectCommand{GLuint(vertices_per_line), 1,
+		                                               GLuint(drawIndex * vertices_per_line),
+		                                               drawIndex};
+		          });
 	m_dbo.unmap();
 	m_dbo.release();
 }
 
 void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const lineBegin, size_t const lineEnd)
 {
-	size_t const line_byte_size = m_rss.samples_count() * sizeof(Vertex);
+	size_t vertices_per_line = m_rss.samples_count();
+	size_t const line_byte_size = vertices_per_line * sizeof(Vertex);
 
-	m_vbo.bind();
-	allocate_buffer_GL(m_vbo, m_linesPerVboCount * line_byte_size);
-	void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
-	                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
-	                                       GL_MAP_UNSYNCHRONIZED_BIT);
-	assert(vbo_bytes);
-	for (size_t line = lineBegin; line < lineEnd; ++line) {
-		std::memcpy(reinterpret_cast<uint8_t*>(vbo_bytes) + (line - lineBegin) * line_byte_size,
-		            reinterpret_cast<uint8_t const*>(
-		                m_rss.averaged_timeserie(m_seriesDrawOrder[line].dataIndex).data()),
-		            line_byte_size);
+	if (m_drawMode == PVSeriesView::DrawMode::LinesAlways) {
+		m_vbo.bind();
+		allocate_buffer_GL(m_vbo, m_linesPerVboCount * line_byte_size);
+		void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
+		                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
+		                                       GL_MAP_UNSYNCHRONIZED_BIT);
+		assert(vbo_bytes);
+		auto is_invalid = [](GLushort value) {
+			return (value & (1 << 14)) and not(value & (1 << 15));
+		};
+		auto next_valid = [is_invalid](auto begin, auto end) {
+			return std::find_if(begin, end, [is_invalid](auto x) { return not is_invalid(x); });
+		};
+		for (size_t line = lineBegin; line < lineEnd; ++line) {
+			auto const& av_ts = m_rss.averaged_timeserie(m_seriesDrawOrder[line].dataIndex);
+			Vertex* vertex_bytes =
+			    reinterpret_cast<Vertex*>(vbo_bytes) + (line - lineBegin) * vertices_per_line;
+			for (size_t j = 0; j < vertices_per_line; ++j) {
+				auto vertex = av_ts[j];
+				if (j >= 1 and is_invalid(vertex)) { // current is blank
+					if (is_invalid(av_ts[j - 1])) {  // prev_1 is blank
+						if (j >= 2) {
+							if (is_invalid(av_ts[j - 2])) { // prev_2 is blank
+								vertex_bytes[j] = Vertex{vertex};
+							} else {
+								auto next_valid_it = next_valid(av_ts.begin() + j, av_ts.end());
+								if (next_valid_it != av_ts.end()) {
+									vertex_bytes[j] = Vertex{GLushort(1 << 14) + *next_valid_it};
+								} else {
+									vertex_bytes[j] = Vertex{vertex};
+								}
+							}
+						} else {
+							vertex_bytes[j] = Vertex{vertex};
+						}
+					} else {
+						auto next_valid_it = next_valid(av_ts.begin() + j, av_ts.end());
+						vertex_bytes[j] =
+						    Vertex{GLushort(1 << 14) +
+						           GLushort(std::distance(av_ts.begin() + j, next_valid_it))};
+					}
+				} else {
+					vertex_bytes[j] = Vertex{vertex};
+				}
+			}
+		}
+		m_vbo.unmap();
+		m_vbo.release();
+	} else {
+		m_vbo.bind();
+		allocate_buffer_GL(m_vbo, m_linesPerVboCount * line_byte_size);
+		void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
+		                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
+		                                       GL_MAP_UNSYNCHRONIZED_BIT);
+		assert(vbo_bytes);
+		for (size_t line = lineBegin; line < lineEnd; ++line) {
+			std::memcpy(reinterpret_cast<uint8_t*>(vbo_bytes) + (line - lineBegin) * line_byte_size,
+			            reinterpret_cast<uint8_t const*>(
+			                m_rss.averaged_timeserie(m_seriesDrawOrder[line].dataIndex).data()),
+			            line_byte_size);
+		}
+		m_vbo.unmap();
+		m_vbo.release();
 	}
-	m_vbo.unmap();
-	m_vbo.release();
 }
 
 void PVSeriesRendererOpenGL::fill_cbo_GL(size_t const lineBegin, size_t const lineEnd)
@@ -397,7 +456,7 @@ void main(void) {
     		wvertex.y = -0.5;
     	}
     } else if(bool(vx & (1 << 14))) { //else if no value
-    	//lineColor = vec4(0.,0.,0.,0.);
+    	lineColor = vec4(gl_VertexID, vertex.x, 0., 0.);
     	wvertex.y = 2.5;
     	wvertex.z = 1;
     }
@@ -427,7 +486,7 @@ void main(void) {
 		EmitVertex();
 		return;
 	}
-	geolineColor = lineColor[1];
+	geolineColor = lineColor[0];
 	gl_Position = gl_in[1].gl_Position;
 	EmitVertex();
 });
@@ -436,27 +495,55 @@ void main(void) {
 "#version 430\n" SHADER(
 layout(lines_adjacency) in;
 smooth in vec4 lineColor[];
-layout(line_strip, max_vertices = 2) out;
+layout(line_strip, max_vertices = 6) out;
 smooth out vec4 geolineColor;
 
 uniform vec4 size;
 
 void main(void) {
-	if (gl_in[0].gl_Position.y > 2) {
-		return;
-	}
-	geolineColor = lineColor[0];
-	gl_Position = gl_in[0].gl_Position;
-	EmitVertex();
-	if (gl_in[1].gl_Position.y > 2) {
-		geolineColor = lineColor[0];
-		bool adjust = gl_in[0].gl_Position.x < 0;
-		gl_Position = gl_in[0].gl_Position + vec4(fma(float(adjust), 2, -1)*2/size.w, 0, 0, 0);
-		EmitVertex();
+    if (gl_PrimitiveIDIn == 0 && lineColor[0].a != 0) {
+        geolineColor = lineColor[0];
+        gl_Position = gl_in[0].gl_Position;
+        EmitVertex();
+        geolineColor = lineColor[1];
+        gl_Position = gl_in[1].gl_Position;
+        EmitVertex();
+        EndPrimitive();
+    }
+    if (gl_PrimitiveIDIn == size.z - 2 && lineColor[2].a != 0 && lineColor[3].a != 0) {
+        geolineColor = lineColor[2];
+        gl_Position = gl_in[2].gl_Position;
+        EmitVertex();
+        geolineColor = lineColor[3];
+        gl_Position = gl_in[3].gl_Position;
+        EmitVertex();
+        EndPrimitive();
+    }
+	if (lineColor[1].a == 0) {
 		return;
 	}
 	geolineColor = lineColor[1];
 	gl_Position = gl_in[1].gl_Position;
+	EmitVertex();
+	if (lineColor[2].a == 0) {
+        int vertexId = int(lineColor[2].x) % int(size.z) + (int(lineColor[2].y) & ((1 << 14) - 1));
+        if (vertexId >= size.z) {
+            return;
+        }
+		geolineColor = lineColor[1];
+        vec2 wvertex;
+        wvertex.x = vertexId / (size.z - 1);
+        if (bool(int(lineColor[3].y) & (1 << 14))) {
+            wvertex.y = (int(lineColor[3].y) & ((1 << 14) - 1)) / float((1 << 14) - 1);
+            gl_Position.xy = vec2(fma(wvertex.x, 2.0, -1.0), fma(wvertex.y, 2.0, -1.0));
+        } else {
+            gl_Position.xy = vec2(fma(wvertex.x, 2.0, -1.0), gl_in[3].gl_Position.y);
+        }
+		EmitVertex();
+		return;
+	}
+	geolineColor = lineColor[2];
+	gl_Position = gl_in[2].gl_Position;
 	EmitVertex();
 });
 
