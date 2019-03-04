@@ -212,7 +212,7 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 	m_chronotips[0]->setAlignment(Qt::AlignRight);
 	m_chronotips[1]->setAlignment(Qt::AlignLeft);
 	setMouseTracking(true);
-	setFocusPolicy(Qt::ClickFocus);
+	setCursor(Qt::BlankCursor);
 }
 
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)

@@ -15,11 +15,12 @@
 
 #include <QListWidget>
 #include <QStateMachine>
+#include <QKeyEvent>
 
 PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        PVCombCol axis_comb,
                                                        QWidget* parent /*= nullptr*/)
-    : QWidget(parent)
+    : QWidget(parent), _help_widget(this)
 {
 	auto plotteds = view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
 	const Inendi::PVAxesCombination& axes_comb = view->get_axes_combination();
@@ -168,8 +169,10 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	    view->_update_output_selection.connect([this]() { _sampler->resubsample(); });
 
 	QVBoxLayout* layout = new QVBoxLayout;
+	layout->setContentsMargins(0, 0, 0, 0);
 
 	QHBoxLayout* hlayout = new QHBoxLayout;
+	hlayout->setContentsMargins(0, 0, 0, 0);
 
 	hlayout->addWidget(zoomer);
 	hlayout->addWidget(timeseries_list_widget);
@@ -178,5 +181,42 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	layout->addWidget(range_edit);
 	layout->addWidget(draw_mode_button);
 
+	// Define help
+	setFocusPolicy(Qt::StrongFocus);
+	_help_widget.hide();
+
+	_help_widget.initTextFromFile("series view's help", ":help-style");
+	_help_widget.addTextFromFile(":help-mouse-series-view");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-selection");
+
+	_help_widget.newTable();
+	_help_widget.addTextFromFile(":help-application");
+	_help_widget.newColumn();
+	_help_widget.finalizeText();
+
 	setLayout(layout);
+}
+
+void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
+{
+	if (PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+		if (_help_widget.isHidden()) {
+			_help_widget.popup(this, PVWidgets::PVTextPopupWidget::AlignTop,
+			                   PVWidgets::PVTextPopupWidget::ExpandAll);
+		}
+		return;
+	}
+
+	QWidget::keyPressEvent(event);
+}
+
+void PVParallelView::PVSeriesViewWidget::enterEvent(QEvent*)
+{
+	setFocus(Qt::MouseFocusReason);
+}
+
+void PVParallelView::PVSeriesViewWidget::leaveEvent(QEvent*)
+{
+	clearFocus();
 }

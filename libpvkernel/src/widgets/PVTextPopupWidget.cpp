@@ -90,7 +90,6 @@ static QRect reconfigure_geometry(
 		break;
 	case PVWidgets::PVTextPopupWidget::AlignTop:
 	default:
-		new_geom.moveTop(parent_geom.top());
 		break;
 	}
 
