@@ -436,6 +436,9 @@ void PVSeriesViewZoomer::updateChronotips(QRect rect)
 	m_chronotips[1]->setText(("<" + subrange.at(1)).c_str());
 	m_chronotips[2]->setText((std::to_string(coveredZoom.minY) + "%").c_str());
 	m_chronotips[3]->setText((std::to_string(coveredZoom.maxY) + "%").c_str());
+	for (auto* chronotip : m_chronotips) {
+		chronotip->adjustSize();
+	}
 	updateChronotipGeometry(0, rect.topLeft());
 	updateChronotipGeometry(1, rect.bottomRight());
 	updateChronotipGeometry(2, rect.bottomRight());

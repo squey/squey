@@ -61,19 +61,20 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 			for (size_t j = 0; j < serieData.size();) {
 				while (j < serieData.size()) {
 					int vertex = serieData[j];
+					QPoint point(j, (height() - 1) - vertex * (height() - 1) / ((1 << 14) - 1));
 					if (vertex & (1 << 15)) {     // if out of range
 						if (vertex & (1 << 14)) { // if overflow
-							vertex = (1 << 15);
+							point = QPoint(j, -1);
 						} else { // else underflow
-							vertex = -(1 << 15);
+							point = QPoint(j, height());
 						}
 					} else if (vertex & (1 << 14)) { // else if no value
-						while (++j < serieData.size() && (serieData[j] & (1 << 14)))
+						while (++j < serieData.size() and
+						       (serieData[j] & (1 << 14) and not(serieData[j] & (1 << 15))))
 							;
 						break;
 					}
-					points.push_back(
-					    QPoint(j, (height() - 1) - vertex * (height() - 1) / ((1 << 14) - 1)));
+					points.push_back(point);
 					++j;
 				}
 				if (m_drawMode == PVSeriesView::DrawMode::Lines) {
@@ -85,6 +86,10 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 				painter.drawPoints(points.data(), points.size());
 				points.clear();
 			} else if (m_drawMode == PVSeriesView::DrawMode::LinesAlways) {
+				if (not points.empty()) {
+					points.insert(points.begin(), QPoint(0, points[0].y()));
+					points.insert(points.end(), QPoint(width() - 1, points.back().y()));
+				}
 				draw_lines();
 				points.clear();
 			}

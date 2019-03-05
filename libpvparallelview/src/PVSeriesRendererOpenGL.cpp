@@ -329,13 +329,14 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const lineBegin, size_t const li
 	size_t vertices_per_line = m_rss.samples_count();
 	size_t const line_byte_size = vertices_per_line * sizeof(Vertex);
 
+	m_vbo.bind();
+	allocate_buffer_GL(m_vbo, m_linesPerVboCount * line_byte_size);
+	void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
+	                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
+	                                       GL_MAP_UNSYNCHRONIZED_BIT);
+	assert(vbo_bytes);
+
 	if (m_drawMode == PVSeriesView::DrawMode::LinesAlways) {
-		m_vbo.bind();
-		allocate_buffer_GL(m_vbo, m_linesPerVboCount * line_byte_size);
-		void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
-		                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
-		                                       GL_MAP_UNSYNCHRONIZED_BIT);
-		assert(vbo_bytes);
 		auto is_invalid = [](GLushort value) {
 			return (value & (1 << 14)) and not(value & (1 << 15));
 		};
@@ -348,51 +349,39 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const lineBegin, size_t const li
 			    reinterpret_cast<Vertex*>(vbo_bytes) + (line - lineBegin) * vertices_per_line;
 			for (size_t j = 0; j < vertices_per_line; ++j) {
 				auto vertex = av_ts[j];
-				if (j >= 1 and is_invalid(vertex)) { // current is blank
-					if (is_invalid(av_ts[j - 1])) {  // prev_1 is blank
-						if (j >= 2) {
-							if (is_invalid(av_ts[j - 2])) { // prev_2 is blank
-								vertex_bytes[j] = Vertex{vertex};
-							} else {
-								auto next_valid_it = next_valid(av_ts.begin() + j, av_ts.end());
-								if (next_valid_it != av_ts.end()) {
-									vertex_bytes[j] = Vertex{GLushort(1 << 14) + *next_valid_it};
-								} else {
-									vertex_bytes[j] = Vertex{vertex};
-								}
-							}
-						} else {
-							vertex_bytes[j] = Vertex{vertex};
-						}
-					} else {
+				if (is_invalid(vertex)) {
+					if (j < 1 or not is_invalid(av_ts[j - 1])) {
 						auto next_valid_it = next_valid(av_ts.begin() + j, av_ts.end());
-						vertex_bytes[j] =
-						    Vertex{GLushort(1 << 14) +
-						           GLushort(std::distance(av_ts.begin() + j, next_valid_it))};
+						vertex_bytes[j] = Vertex{
+						    GLushort((1 << 14) + std::distance(av_ts.begin() + j, next_valid_it))};
+						continue;
+					} else if (j < 2 or not is_invalid(av_ts[j - 2])) {
+						auto next_valid_it = next_valid(av_ts.begin() + j, av_ts.end());
+						auto next_valid_value =
+						    next_valid_it != av_ts.end() ? *next_valid_it : av_ts[j - 2];
+						if ((next_valid_value & (0b11 << 14)) == (0b11 << 14)) {
+							next_valid_value = (1 << 14) - 1;
+						} else if ((next_valid_value & (0b10 << 14)) == (0b10 << 14)) {
+							next_valid_value = 0;
+						}
+						vertex_bytes[j] = Vertex{GLushort((1 << 14) + next_valid_value)};
+						continue;
 					}
-				} else {
-					vertex_bytes[j] = Vertex{vertex};
 				}
+				vertex_bytes[j] = Vertex{vertex};
 			}
 		}
-		m_vbo.unmap();
-		m_vbo.release();
 	} else {
-		m_vbo.bind();
-		allocate_buffer_GL(m_vbo, m_linesPerVboCount * line_byte_size);
-		void* vbo_bytes = glMapBufferRange(GL_ARRAY_BUFFER, 0, m_vbo.size(),
-		                                   GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT |
-		                                       GL_MAP_UNSYNCHRONIZED_BIT);
-		assert(vbo_bytes);
 		for (size_t line = lineBegin; line < lineEnd; ++line) {
 			std::memcpy(reinterpret_cast<uint8_t*>(vbo_bytes) + (line - lineBegin) * line_byte_size,
 			            reinterpret_cast<uint8_t const*>(
 			                m_rss.averaged_timeserie(m_seriesDrawOrder[line].dataIndex).data()),
 			            line_byte_size);
 		}
-		m_vbo.unmap();
-		m_vbo.release();
 	}
+
+	m_vbo.unmap();
+	m_vbo.release();
 }
 
 void PVSeriesRendererOpenGL::fill_cbo_GL(size_t const lineBegin, size_t const lineEnd)
@@ -417,8 +406,6 @@ void PVSeriesRendererOpenGL::draw_GL(size_t const lineBegin, size_t const lineEn
 	m_dbo.bind();
 	glMultiDrawArraysIndirect(m_glDrawMode, 0, lineEnd - lineBegin,
 	                          sizeof(DrawArraysIndirectCommand));
-	// glMultiDrawArraysIndirect(GL_POINTS, 0, lineEnd - lineBegin,
-	//                           sizeof(DrawArraysIndirectCommand));
 	m_dbo.release();
 
 	// for (size_t line = 0; line < lineEnd - lineBegin; ++line) {
@@ -440,27 +427,24 @@ in vec3 color;
 smooth out vec4 lineColor;
 uniform vec4 size;
 void main(void) {
-    //float line = floor(gl_VertexID / size.w);
-    //float line = gl_InstanceID;
-    //lineColor = vec4(fract((line + 1) * 0.7), fract(2 * (line + 1) * 0.7), fract(3 * (line + 1) * 0.7), 1);
-    lineColor = vec4(color, 1);
-    //lineColor = vec4(size.rgb, 1);
-    vec4 wvertex = vertex;
-    wvertex.y = vertex.x / ((1 << 14) - 1);
-    wvertex.x = (gl_VertexID % int(size.z)) / (size.z - 1);
-    int vx = int(vertex.x);
-    if(bool(vx & (1 << 15))) { //if out of range
-    	if(bool(vx & (1 << 14))) { //if overflow
-    		wvertex.y = 1.5;
-    	} else { //else underflow
-    		wvertex.y = -0.5;
-    	}
-    } else if(bool(vx & (1 << 14))) { //else if no value
-    	lineColor = vec4(gl_VertexID, vertex.x, 0., 0.);
-    	wvertex.y = 2.5;
-    	wvertex.z = 1;
-    }
-    gl_Position.xyz = vec3(fma(wvertex.x, 2.0, -1.0), fma(wvertex.y, 2.0, -1.0), wvertex.z);
+	lineColor = vec4(color, 1);
+	//lineColor = vec4(size.rgb, 1);
+	vec4 wvertex = vertex;
+	wvertex.y = vertex.x / ((1 << 14) - 1);
+	wvertex.x = (gl_VertexID % int(size.z)) / (size.z - 1);
+	wvertex.xy = vec2(fma(wvertex.x, 2.0, -1.0), fma(wvertex.y, 2.0, -1.0));
+	int vx = int(vertex.x);
+	if(bool(vx & (1 << 15))) { //if out of range
+		if(bool(vx & (1 << 14))) { //if overflow
+			wvertex.y = 1.001;
+		} else { //else underflow
+			wvertex.y = -1.001;
+		}
+	} else if(bool(vx & (1 << 14))) { //else if no value
+		lineColor = vec4(color, 0);
+		wvertex.xy = vec2(gl_VertexID, vertex.x);
+	}
+	gl_Position.xy = wvertex.xy;
 });
 
 	std::string_view geometryShaderLines =
@@ -473,21 +457,21 @@ smooth out vec4 geolineColor;
 uniform vec4 size;
 
 void main(void) {
-	if (gl_in[0].gl_Position.y > 2) {
+	if (lineColor[0].a == 0) {
 		return;
 	}
 	geolineColor = lineColor[0];
-	gl_Position = gl_in[0].gl_Position;
+	gl_Position.xy = gl_in[0].gl_Position.xy;
 	EmitVertex();
-	if (gl_in[1].gl_Position.y > 2) {
+	if (lineColor[1].a == 0) {
 		geolineColor = lineColor[0];
 		bool adjust = gl_in[0].gl_Position.x < 0;
-		gl_Position = gl_in[0].gl_Position + vec4(fma(float(adjust), 2, -1)*2/size.w, 0, 0, 0);
+		gl_Position.xy = gl_in[0].gl_Position.xy + vec2(fma(float(adjust), 2, -1)*2/size.w, 0);
 		EmitVertex();
 		return;
 	}
 	geolineColor = lineColor[0];
-	gl_Position = gl_in[1].gl_Position;
+	gl_Position.xy = gl_in[1].gl_Position.xy;
 	EmitVertex();
 });
 
@@ -500,51 +484,62 @@ smooth out vec4 geolineColor;
 
 uniform vec4 size;
 
+void emitShortVertex(in const int index)
+{
+	geolineColor = lineColor[index];
+	gl_Position.xy = gl_in[index].gl_Position.xy;
+	EmitVertex();
+}
+
+vec2 emitLongVertex(in const int index)
+{
+	geolineColor = vec4(lineColor[index].rgb, 1);
+	int vertexId = int(gl_in[index].gl_Position.x) % int(size.z) + (int(gl_in[index].gl_Position.y) & ((1 << 14) - 1));
+	const int valindex = index + 1;
+	vec2 wvertex;
+	wvertex.x = vertexId / (size.z - 1);
+	wvertex.x = fma(wvertex.x, 2.0, -1.0);
+	if (lineColor[valindex].a == 0) {
+		wvertex.y = (int(gl_in[valindex].gl_Position.y) & ((1 << 14) - 1)) / float((1 << 14) - 1);
+		wvertex.y = fma(wvertex.y, 2.0, -1.0);
+	} else {
+		wvertex.y = gl_in[valindex].gl_Position.y;
+	}
+	gl_Position.xy = wvertex;
+	EmitVertex();
+	return wvertex;
+}
+
 void main(void) {
-    if (gl_PrimitiveIDIn == 0 && lineColor[0].a != 0) {
-        geolineColor = lineColor[0];
-        gl_Position = gl_in[0].gl_Position;
-        EmitVertex();
-        geolineColor = lineColor[1];
-        gl_Position = gl_in[1].gl_Position;
-        EmitVertex();
-        EndPrimitive();
-    }
-    if (gl_PrimitiveIDIn == size.z - 2 && lineColor[2].a != 0 && lineColor[3].a != 0) {
-        geolineColor = lineColor[2];
-        gl_Position = gl_in[2].gl_Position;
-        EmitVertex();
-        geolineColor = lineColor[3];
-        gl_Position = gl_in[3].gl_Position;
-        EmitVertex();
-        EndPrimitive();
-    }
+	if (gl_PrimitiveIDIn == 0) {
+		if (lineColor[0].a != 0 && lineColor[1].a != 0) {
+			emitShortVertex(0);
+			emitShortVertex(1);
+		} else if (lineColor[0].a != 0) {
+			emitShortVertex(0);
+			emitLongVertex(1);
+		} else {
+			vec2 wert = emitLongVertex(0);
+			geolineColor = vec4(lineColor[0].rgb, 1);
+			gl_Position.xy = vec2(-1, wert.y);
+			EmitVertex();
+		}
+		EndPrimitive();
+	}
+	if (gl_PrimitiveIDIn == size.z - 2 && lineColor[2].a != 0 && lineColor[3].a != 0) {
+		emitShortVertex(2);
+		emitShortVertex(3);
+		EndPrimitive();
+	}
 	if (lineColor[1].a == 0) {
 		return;
 	}
-	geolineColor = lineColor[1];
-	gl_Position = gl_in[1].gl_Position;
-	EmitVertex();
+	emitShortVertex(1);
 	if (lineColor[2].a == 0) {
-        int vertexId = int(lineColor[2].x) % int(size.z) + (int(lineColor[2].y) & ((1 << 14) - 1));
-        if (vertexId >= size.z) {
-            return;
-        }
-		geolineColor = lineColor[1];
-        vec2 wvertex;
-        wvertex.x = vertexId / (size.z - 1);
-        if (bool(int(lineColor[3].y) & (1 << 14))) {
-            wvertex.y = (int(lineColor[3].y) & ((1 << 14) - 1)) / float((1 << 14) - 1);
-            gl_Position.xy = vec2(fma(wvertex.x, 2.0, -1.0), fma(wvertex.y, 2.0, -1.0));
-        } else {
-            gl_Position.xy = vec2(fma(wvertex.x, 2.0, -1.0), gl_in[3].gl_Position.y);
-        }
-		EmitVertex();
-		return;
+		emitLongVertex(2);
+	} else {
+		emitShortVertex(2);
 	}
-	geolineColor = lineColor[2];
-	gl_Position = gl_in[2].gl_Position;
-	EmitVertex();
 });
 
 	std::string_view fragmentShaderLines =
