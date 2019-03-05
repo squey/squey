@@ -251,14 +251,15 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
 
-	QWebEngineView dummy_webengine; // workaround to avoid Chromium terminate with
-	                                // "FATAL:file_path_watcher_linux.cc(226)] Check failed: 1024 >
-	                                // inotify_fd_"
-	dummy_webengine.show();
-
 	PVInspector::PVMainWindow pv_mw;
 	pv_mw.show();
 	splash.finish(&pv_mw);
+
+	QWebEngineView dummy_webengine(&pv_mw); // workaround to avoid Chromium terminate with
+	// "FATAL:file_path_watcher_linux.cc(226)] Check failed: 1024 >
+	// inotify_fd_"
+	dummy_webengine.show();
+	dummy_webengine.hide();
 
 	// Show changelog if software version has changed
 	{
