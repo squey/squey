@@ -25,6 +25,7 @@
 #include <inendi/PVSelection.h>
 
 #include <pvguiqt/PVProjectsTabWidget.h>
+#include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <PVFilesTypesSelWidget.h>
 
@@ -108,7 +109,7 @@ class PVMainWindow : public QMainWindow
 	bool event(QEvent* event) override;
 
   public Q_SLOTS:
-	void about_Slot();
+	void about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab);
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();
 	void selection_set_from_current_layer_Slot();
@@ -198,6 +199,7 @@ class PVMainWindow : public QMainWindow
 	QMenu* help_Menu;
 
 	QAction* about_Action;
+	QAction* refman_Action;
 	QAction* axes_combination_editor_Action;
 	QAction* events_display_unselected_listing_Action;
 	QAction* events_display_zombies_listing_Action;

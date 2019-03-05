@@ -41,7 +41,6 @@
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVNrawDirectoryMessageBox.h>
 #include <pvguiqt/PVLicenseDialog.h>
-#include <pvguiqt/PVAboutBoxDialog.h>
 #include <pvguiqt/PVChangelogMessage.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>

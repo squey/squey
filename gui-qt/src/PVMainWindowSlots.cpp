@@ -56,9 +56,12 @@
 
 int PVInspector::PVMainWindow::sequence_n = 1;
 
-void PVInspector::PVMainWindow::about_Slot()
+void PVInspector::PVMainWindow::about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab)
 {
-	PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(this);
+	PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(tab, this);
+	if (tab == PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL) {
+		about_dialog->resize(1550, 950);
+	}
 	about_dialog->exec();
 	about_dialog->deleteLater();
 }

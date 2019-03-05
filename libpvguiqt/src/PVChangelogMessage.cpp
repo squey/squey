@@ -30,8 +30,7 @@ PVGuiQt::PVChangelogMessage::PVChangelogMessage(QWidget* parent /* = nullptr*/)
 	}
 
 	if (current_version != previous_version) {
-		PVGuiQt::PVAboutBoxDialog aboutbox(parent);
-		aboutbox.select_changelog_tab();
+		PVGuiQt::PVAboutBoxDialog aboutbox(PVGuiQt::PVAboutBoxDialog::Tab::CHANGELOG, parent);
 		aboutbox.exec();
 	}
 
