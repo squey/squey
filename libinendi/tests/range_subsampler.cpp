@@ -62,7 +62,7 @@ void test(const testcase& test)
 		sampler.set_selected_timeseries(selected_ts);
 
 		sampler.resubsample();
-		const auto& avg_ts = sampler.averaged_timeserie(test.col_ts);
+		const auto& avg_ts = sampler.sampled_timeserie(test.col_ts);
 
 		PV_VALID(sampler.valid(), true);
 		PV_VALID(sampler.samples_count(), sampling_count);

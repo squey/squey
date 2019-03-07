@@ -25,6 +25,13 @@ namespace Inendi
 class PVRangeSubSampler
 {
   public:
+	enum SAMPLING_MODE {
+		MEAN,
+		MIN,
+		MAX,
+	};
+
+  public:
 	using zoom_f = double;
 
   private:
@@ -78,15 +85,22 @@ class PVRangeSubSampler
 	                  const pvcop::db::selection& sel,
 	                  size_t sampling_count = 2048);
 
+	template <SAMPLING_MODE mode>
+	void set_sampling_mode()
+	{
+		_compute_ranges_reduction_f = [this](auto... args) {
+			compute_ranges_reduction<mode>(args...);
+		};
+	}
 	void set_sampling_count(size_t sampling_count);
 	void set_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries);
 
 	size_t samples_count() const { return _sampling_count; }
 	size_t total_count() const { return _time.size(); }
 	size_t timeseries_count() const { return _timeseries.size(); }
-	const std::vector<display_type>& averaged_timeserie(size_t index) const
+	const std::vector<display_type>& sampled_timeserie(size_t index) const
 	{
-		return _avg_matrix[index];
+		return _ts_matrix[index];
 	}
 	const std::vector<size_t>& histogram() const { return _histogram; }
 	const pvcop::db::array& minmax_time() const { return _minmax; }
@@ -111,6 +125,12 @@ class PVRangeSubSampler
 
 	void compute_ranges_average(size_t first, size_t /*last*/, size_t min, size_t max);
 
+	template <SAMPLING_MODE mode>
+	void compute_ranges_reduction(size_t first, size_t /*last*/, size_t min, size_t max);
+
+	template <typename F>
+	void compute_ranges_reduction(size_t first, size_t /*last*/, size_t min, size_t max);
+
   public:
 	sigc::signal<void()> _subsampled;
 
@@ -130,12 +150,118 @@ class PVRangeSubSampler
 	pvcop::db::array _minmax;
 
 	std::vector<size_t> _histogram;
-	std::vector<std::vector<display_type>> _avg_matrix;
+	std::vector<std::vector<display_type>> _ts_matrix;
 
 	SamplingParams _last_params;
 
 	bool _reset = false;
+
+	std::function<void(size_t, size_t, size_t, size_t)> _compute_ranges_reduction_f;
 };
+
+template <Inendi::PVRangeSubSampler::SAMPLING_MODE M>
+struct sampling_mode_t {
+	static constexpr const Inendi::PVRangeSubSampler::SAMPLING_MODE mode = M;
+};
+
+template <Inendi::PVRangeSubSampler::SAMPLING_MODE mode, typename... T>
+struct func_resolver {
+	using type = std::tuple_element_t<mode, std::tuple<T...>>;
+	static_assert(type::mode == mode,
+	              "func_resolver parameters must be ordered according to SAMPLING_MODE enum");
+};
+
+template <Inendi::PVRangeSubSampler::SAMPLING_MODE mode>
+void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
+                                                         size_t /*last*/,
+                                                         size_t min,
+                                                         size_t max)
+{
+
+	struct mean_t : sampling_mode_t<SAMPLING_MODE::MEAN> {
+		inline static void map(uint64_t& accum, uint32_t value)
+		{
+			accum += (std::numeric_limits<uint32_t>::max() - value);
+		}
+		inline static uint64_t reduce(uint64_t accum, uint32_t value_count)
+		{
+			return accum / value_count;
+		}
+	};
+
+	struct min_t : sampling_mode_t<SAMPLING_MODE::MIN> {
+		inline static void map(uint64_t& accum, uint32_t value)
+		{
+			accum = std::min(std::numeric_limits<uint32_t>::max() - value, (uint32_t)accum);
+		}
+		inline static uint64_t reduce(uint64_t accum, uint32_t) { return accum; }
+	};
+
+	struct max_t : sampling_mode_t<SAMPLING_MODE::MAX> {
+		inline static void map(uint64_t& accum, uint32_t value)
+		{
+			accum = std::max(std::numeric_limits<uint32_t>::max() - value, (uint32_t)accum);
+		}
+		inline static uint64_t reduce(uint64_t accum, uint32_t) { return accum; }
+	};
+
+	compute_ranges_reduction<typename func_resolver<mode, mean_t, min_t, max_t>::type>(
+	    first, (size_t)0, min, max);
+}
+
+template <typename F>
+void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
+                                                         size_t /*last*/,
+                                                         size_t min,
+                                                         size_t max)
+{
+	BENCH_START(compute_ranges_reduction);
+
+	// Remove invalid values from selection
+	const pvcop::db::selection& valid_sel = _time.valid_selection(_sel);
+
+#pragma omp parallel for
+	for (size_t k = 0; k < _timeseries_to_subsample.size(); k++) {
+
+		const size_t i = _timeseries_to_subsample[k];
+
+		size_t start = first;
+		size_t end = first;
+		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
+		const pvcop::db::selection& ts_valid_sel =
+		    _nraw.column(PVCol(i)).valid_selection(valid_sel);
+		for (size_t j = 0; j < _histogram.size(); j++) {
+			const size_t values_count = _histogram[j];
+			end += values_count;
+			size_t selected_values_count = 0;
+			uint64_t accum = 0;
+			for (size_t k = start; k < end; k++) {
+				auto v = not _sort ? k : _sort[k];
+				if (ts_valid_sel[v]) {
+					selected_values_count++;
+					F::map(accum, timeserie[v]);
+				}
+			}
+			start = end;
+			if (selected_values_count == 0) {
+				_ts_matrix[i][j] = no_value; // no value in range
+			} else {
+				const uint64_t raw_value = F::reduce(accum, selected_values_count);
+				if (min != 0 and raw_value < min) { // underflow
+					_ts_matrix[i][j] = underflow_value;
+				} else if (raw_value > max) { // overflow
+					_ts_matrix[i][j] = overflow_value;
+				} else {
+					_ts_matrix[i][j] = (display_type)((zoom_f(raw_value - min) / (max - min)) *
+					                                  display_type_max_val); // nominal value
+				}
+			}
+		}
+	}
+
+	BENCH_END(compute_ranges_reduction, "compute_ranges_reduction", _time.size(), sizeof(uint64_t),
+	          _sampling_count, sizeof(uint64_t));
+}
 
 } // namespace Inendi
 

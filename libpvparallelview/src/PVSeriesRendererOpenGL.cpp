@@ -344,7 +344,7 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const lineBegin, size_t const li
 			return std::find_if(begin, end, [is_invalid](auto x) { return not is_invalid(x); });
 		};
 		for (size_t line = lineBegin; line < lineEnd; ++line) {
-			auto const& av_ts = m_rss.averaged_timeserie(m_seriesDrawOrder[line].dataIndex);
+			auto const& av_ts = m_rss.sampled_timeserie(m_seriesDrawOrder[line].dataIndex);
 			Vertex* vertex_bytes =
 			    reinterpret_cast<Vertex*>(vbo_bytes) + (line - lineBegin) * vertices_per_line;
 			for (size_t j = 0; j < vertices_per_line; ++j) {
@@ -375,7 +375,7 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const lineBegin, size_t const li
 		for (size_t line = lineBegin; line < lineEnd; ++line) {
 			std::memcpy(reinterpret_cast<uint8_t*>(vbo_bytes) + (line - lineBegin) * line_byte_size,
 			            reinterpret_cast<uint8_t const*>(
-			                m_rss.averaged_timeserie(m_seriesDrawOrder[line].dataIndex).data()),
+			                m_rss.sampled_timeserie(m_seriesDrawOrder[line].dataIndex).data()),
 			            line_byte_size);
 		}
 	}

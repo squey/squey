@@ -40,6 +40,8 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
 
 	_minmax = pvcop::db::algo::minmax(_time);
 	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
+
+	set_sampling_mode<SAMPLING_MODE::MEAN>();
 }
 
 void Inendi::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
@@ -99,20 +101,22 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 	}
 	_last_params = SamplingParams(first, last, minmax.copy(), min, max);
 
+#ifdef INENDI_DEVELOPER_MODE
 	pvlogger::info() << "PVRangeSubSampler::subsample(first:" << first << ", last:" << last
 	                 << ",minmax: " << minmax.at(0) << " .. " << minmax.at(1) << ", min:" << min
 	                 << ", max:" << max << ", _sampling_count:" << _sampling_count
 	                 << ", _reset:" << _reset
 	                 << ", _timeseries_to_subsample.size():" << _timeseries_to_subsample.size()
 	                 << ")\n";
+#endif
 
 	if (_reset) {
-		allocate_internal_structures(); // start and end are not included
+		allocate_internal_structures();
 		_reset = false;
 	}
 
 	_time.histogram(first, last, minmax, _sorted_indexes, _histogram);
-	compute_ranges_average(first, last, min, max);
+	_compute_ranges_reduction_f(first, last, min, max);
 
 	_subsampled.emit();
 }
@@ -157,8 +161,8 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	assert(_histogram.size() > 0);
 
 	// matrix of average values
-	_avg_matrix.resize(_timeseries.size());
-	for (auto& vec : _avg_matrix) {
+	_ts_matrix.resize(_timeseries.size());
+	for (auto& vec : _ts_matrix) {
 		vec.resize(_histogram.size());
 	}
 
@@ -169,58 +173,5 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 
 bool Inendi::PVRangeSubSampler::valid() const
 {
-	return _avg_matrix.size() > 0;
-}
-
-void Inendi::PVRangeSubSampler::compute_ranges_average(size_t first,
-                                                       size_t /*last*/,
-                                                       size_t min,
-                                                       size_t max)
-{
-	BENCH_START(computing_average);
-
-	// Remove invalid values from selection
-	const pvcop::db::selection& valid_sel = _time.valid_selection(_sel);
-
-#pragma omp parallel for
-	for (size_t k = 0; k < _timeseries_to_subsample.size(); k++) {
-
-		const size_t i = _timeseries_to_subsample[k];
-
-		size_t start = first;
-		size_t end = first;
-		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
-		const pvcop::db::selection& ts_valid_sel =
-		    _nraw.column(PVCol(i)).valid_selection(valid_sel);
-		for (size_t j = 0; j < _histogram.size(); j++) {
-			const size_t values_count = _histogram[j];
-			end += values_count;
-			size_t selected_values_count = 0;
-			uint64_t sum = 0;
-			for (size_t k = start; k < end; k++) {
-				auto v = not _sort ? k : _sort[k];
-				if (ts_valid_sel[v]) {
-					selected_values_count++;
-					sum += (std::numeric_limits<value_type>::max() - timeserie[v]);
-				}
-			}
-			start = end;
-			if (selected_values_count == 0) {
-				_avg_matrix[i][j] = no_value; // no value in range
-			} else {
-				const uint64_t raw_value = sum / selected_values_count;
-				if (min != 0 and raw_value < min) { // underflow
-					_avg_matrix[i][j] = underflow_value;
-				} else if (raw_value > max) { // overflow
-					_avg_matrix[i][j] = overflow_value;
-				} else {
-					_avg_matrix[i][j] = (display_type)((zoom_f(raw_value - min) / (max - min)) *
-					                                   display_type_max_val); // nominal value
-				}
-			}
-		}
-	}
-
-	BENCH_END(computing_average, "computing_average", _time.size(), sizeof(uint64_t),
-	          _sampling_count, sizeof(uint64_t));
+	return _ts_matrix.size() > 0;
 }

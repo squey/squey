@@ -57,7 +57,7 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 		};
 		for (auto& serieDraw : m_seriesDrawOrder) {
 			painter.setPen(serieDraw.color);
-			auto& serieData = m_rss.averaged_timeserie(serieDraw.dataIndex);
+			auto& serieData = m_rss.sampled_timeserie(serieDraw.dataIndex);
 			for (size_t j = 0; j < serieData.size();) {
 				while (j < serieData.size()) {
 					int vertex = serieData[j];
