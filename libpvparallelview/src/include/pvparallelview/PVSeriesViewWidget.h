@@ -46,6 +46,13 @@ class PVSeriesViewWidget : public QWidget
 
 	PVWidgets::PVHelpWidget _help_widget;
 };
+
+struct SerieListItemData {
+	PVCol col;
+	QColor color;
+};
 }
+
+Q_DECLARE_METATYPE(PVParallelView::SerieListItemData)
 
 #endif // __PVPARALLELVIEW_PVSERIESVIEWWIDGET_H__

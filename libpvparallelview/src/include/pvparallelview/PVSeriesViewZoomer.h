@@ -81,6 +81,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
   Q_SIGNALS:
 	void selectionCommit(Zoom selection);
+	void cursorMoved(QPoint position);
 
   protected:
 	void mousePressEvent(QMouseEvent*) override;

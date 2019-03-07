@@ -288,6 +288,7 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 		updateCrossHairsGeometry(event->pos());
 		showFragments(m_crossHairsFragments);
 		updateChronotips(event->pos());
+		cursorMoved(event->pos());
 	} else {
 		hideFragments(m_crossHairsFragments);
 	}

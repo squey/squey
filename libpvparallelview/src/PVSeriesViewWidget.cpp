@@ -16,6 +16,9 @@
 #include <QListWidget>
 #include <QStateMachine>
 #include <QKeyEvent>
+#include <QStyledItemDelegate>
+#include <QPainter>
+#include <QScrollBar>
 
 PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        PVCombCol axis_comb,
@@ -41,29 +44,54 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	PVSeriesView* plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 	plot->setBackgroundColor(QColor(10, 10, 10, 255));
 
+	struct StyleDelegate : public QStyledItemDelegate {
+		StyleDelegate(QWidget* parent = nullptr) : QStyledItemDelegate(parent) {}
+		void paint(QPainter* painter,
+		           const QStyleOptionViewItem& option,
+		           const QModelIndex& index) const override
+		{
+			auto color = index.model()->data(index, Qt::UserRole).value<SerieListItemData>().color;
+			if ((option.state & QStyle::State_Selected)) {
+				painter->fillRect(option.rect, color);
+				painter->setPen(Qt::black);
+				painter->drawText(option.rect,
+				                  index.model()->data(index, Qt::DisplayRole).toString());
+			} else {
+				// painter->fillRect(option.rect, color);
+				painter->setPen(color);
+				painter->drawText(option.rect,
+				                  index.model()->data(index, Qt::DisplayRole).toString());
+			}
+		}
+	};
+
 	QListWidget* timeseries_list_widget = new QListWidget;
 	timeseries_list_widget->setFixedWidth(200);
+	timeseries_list_widget->setItemDelegate(new StyleDelegate());
 	for (PVCol col(0); col < nraw.column_count(); col++) {
 		const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);
 		if (axis.get_type().startsWith("number_") or axis.get_type().startsWith("duration")) {
 			QListWidgetItem* item = new QListWidgetItem(axis.get_name());
-			item->setData(Qt::UserRole, QVariant(col.value()));
+			QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
+			item->setData(Qt::UserRole, QVariant::fromValue(SerieListItemData{col, color}));
+			item->setBackgroundColor(color);
 			timeseries_list_widget->addItem(item);
 		}
 	}
 	timeseries_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
-	timeseries_list_widget->setAlternatingRowColors(true);
+	// timeseries_list_widget->setAlternatingRowColors(true);
 
-	for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
-		QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-		timeseries_list_widget->item(i)->setForeground(color); // FIXME
-	}
+	// for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
+	// 	QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
+	// 	timeseries_list_widget->item(i)->setForeground(color); // FIXME
+	// }
 
 	const std::vector<PVCol>& combination = axes_comb.get_combination();
 	for (PVCol i(0); i < timeseries_list_widget->count(); i++) {
-		PVCol j(timeseries_list_widget->item(i)->data(Qt::UserRole).toUInt());
+		auto item = timeseries_list_widget->item(i);
+		PVCol j = item->data(Qt::UserRole).value<SerieListItemData>().col;
 		if (std::find(combination.begin(), combination.end(), j) != combination.end()) {
-			timeseries_list_widget->item(i)->setSelected(true);
+			item->setSelected(true);
 		}
 	}
 
@@ -76,9 +104,9 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		std::unordered_set<size_t> selected_timeseries;
 		selected_timeseries.reserve(timeseries_size);
 		for (const QListWidgetItem* item : timeseries_list_widget->selectedItems()) {
-			const int item_col = item->data(Qt::UserRole).toInt();
-			seriesDrawOrder.push_back({size_t(item_col), item->foreground().color()});
-			selected_timeseries.emplace(item_col);
+			auto item_data = item->data(Qt::UserRole).value<SerieListItemData>();
+			seriesDrawOrder.push_back({size_t(item_data.col), item_data.color});
+			selected_timeseries.emplace(item_data.col);
 		}
 		_sampler->set_selected_timeseries(selected_timeseries);
 		if (resample) {
@@ -168,6 +196,43 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	_selection_change_connection =
 	    view->_update_output_selection.connect([this]() { _sampler->resubsample(); });
 
+	QListWidget* selected_series_list = new QListWidget;
+	selected_series_list->setFixedWidth(timeseries_list_widget->width());
+	selected_series_list->adjustSize();
+
+	QObject::connect(
+	    zoomer, &PVSeriesViewZoomer::cursorMoved,
+	    [selected_series_list, timeseries_list_widget, zoomer, this](QPoint pos) {
+		    selected_series_list->clear();
+		    for (const QListWidgetItem* item : timeseries_list_widget->selectedItems()) {
+			    const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
+			    auto& av_ts = _sampler->sampled_timeserie(item_col);
+			    constexpr int radius = 10;
+			    for (int r = -radius; r < radius; ++r) {
+				    auto av_ts_value = av_ts[pos.x() + r] * uint32_t(zoomer->height());
+				    auto min_value = Inendi::PVRangeSubSampler::display_type_max_val *
+				                     (zoomer->height() - pos.y() - radius - 1);
+				    auto max_value = Inendi::PVRangeSubSampler::display_type_max_val *
+				                     (zoomer->height() - pos.y() + radius);
+				    if (min_value < av_ts_value and av_ts_value < max_value) {
+					    QListWidgetItem* selected_item = new QListWidgetItem(item->text());
+					    selected_item->setData(Qt::UserRole, item->data(Qt::UserRole));
+					    selected_item->setBackground(
+					        item->data(Qt::UserRole).value<SerieListItemData>().color);
+					    selected_series_list->addItem(selected_item);
+					    break;
+				    }
+			    }
+		    }
+		    auto count = selected_series_list->count();
+		    auto scrollbar = selected_series_list->horizontalScrollBar();
+		    selected_series_list->setMaximumHeight(
+		        count > 0
+		            ? (count + 1) * selected_series_list->sizeHintForRow(0) +
+		                  (scrollbar->isVisible() ? scrollbar->height() : 0)
+		            : 0);
+		});
+
 	QVBoxLayout* layout = new QVBoxLayout;
 	layout->setContentsMargins(0, 0, 0, 0);
 
@@ -175,7 +240,10 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	hlayout->setContentsMargins(0, 0, 0, 0);
 
 	hlayout->addWidget(zoomer);
-	hlayout->addWidget(timeseries_list_widget);
+	auto* vlayout = new QVBoxLayout;
+	vlayout->addWidget(timeseries_list_widget);
+	vlayout->addWidget(selected_series_list);
+	hlayout->addLayout(vlayout);
 
 	layout->addLayout(hlayout);
 	layout->addWidget(range_edit);
