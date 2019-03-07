@@ -186,6 +186,10 @@
         <file alias="selection-horizontal">resources/selection-horizontal.png</file>
         <file alias="selection-vertical">resources/selection-vertical.png</file>
 
+		<file alias="series-view-lines">resources/series-view-lines.png</file>
+        <file alias="series-view-linesalways">resources/series-view-linesalways.png</file>
+        <file alias="series-view-points">resources/series-view-points.png</file>
+
         <file alias="labeled-axis">resources/labeled-axis.png</file>
 
         <file alias="select-axis">resources/select-axis.png</file>

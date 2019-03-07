@@ -7,6 +7,7 @@
 #include <pvparallelview/PVSeriesViewWidget.h>
 
 #include <pvparallelview/PVSeriesView.h>
+#include <pvparallelview/PVSeriesViewParamsWidget.h>
 #include <pvparallelview/PVSeriesViewZoomer.h>
 #include <pvkernel/widgets/PVRangeEdit.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -25,6 +26,9 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        QWidget* parent /*= nullptr*/)
     : QWidget(parent), _help_widget(this)
 {
+
+	_params_widget = new PVSeriesViewParamsWidget(this);
+
 	auto plotteds = view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
 	const Inendi::PVAxesCombination& axes_comb = view->get_axes_combination();
 	PVCol col = axes_comb.get_nraw_axis(axis_comb);
@@ -41,8 +45,8 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	_sampler.reset(
 	    new Inendi::PVRangeSubSampler(time, timeseries, nraw, view->get_real_output_selection()));
 
-	PVSeriesView* plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
-	plot->setBackgroundColor(QColor(10, 10, 10, 255));
+	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
+	_plot->setBackgroundColor(QColor(10, 10, 10, 255));
 
 	struct StyleDelegate : public QStyledItemDelegate {
 		StyleDelegate(QWidget* parent = nullptr) : QStyledItemDelegate(parent) {}
@@ -96,7 +100,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	}
 
 	auto update_selected_timeseries =
-	    [ plot, timeseries_list_widget, timeseries_size = timeseries_list_widget->count(),
+	    [ timeseries_list_widget, timeseries_size = timeseries_list_widget->count(),
 		  this ](bool resample = true)
 	{
 		// FIXME : should put newly selected timeserie on top
@@ -112,45 +116,16 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		if (resample) {
 			_sampler->resubsample();
 		}
-		plot->showSeries(std::move(seriesDrawOrder));
-		plot->update();
+		_plot->showSeries(std::move(seriesDrawOrder));
+		_plot->update();
 	};
 
 	QObject::connect(timeseries_list_widget, &QListWidget::itemSelectionChanged,
 	                 update_selected_timeseries);
 	update_selected_timeseries(false);
 
-	PVSeriesViewZoomer* zoomer = new PVSeriesViewZoomer(plot, *_sampler);
+	PVSeriesViewZoomer* zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 	zoomer->setZoomRectColor(Qt::red);
-
-	QPushButton* draw_mode_button = new QPushButton();
-	{
-		QStateMachine* qsm = new QStateMachine(draw_mode_button);
-		std::vector<QState*> states;
-		auto add_state = [plot, qsm, draw_mode_button, &states](PVSeriesView::DrawMode mode,
-		                                                        QString text) -> QState* {
-			if (plot->capability(mode) == mode) {
-				QState* state = new QState(qsm);
-				state->assignProperty(draw_mode_button, "text", std::move(text));
-				connect(state, &QState::entered, [plot, mode] {
-					plot->setDrawMode(mode);
-					plot->refresh();
-				});
-				states.push_back(state);
-				return state;
-			}
-			return nullptr;
-		};
-		add_state(PVSeriesView::DrawMode::Lines, "Lines");
-		add_state(PVSeriesView::DrawMode::Points, "Points");
-		add_state(PVSeriesView::DrawMode::LinesAlways, "Lines Always");
-		for (size_t i = 0; i < states.size(); ++i) {
-			states[i]->addTransition(draw_mode_button, &QPushButton::clicked,
-			                         states[(i + 1) % states.size()]);
-		}
-		qsm->setInitialState(states.front());
-		qsm->start();
-	}
 
 	auto minmax_changed_f = [this, zoomer](const pvcop::db::array& minmax) {
 		PVViewZoomer::Zoom zoom = zoomer->currentZoom();
@@ -245,9 +220,13 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	vlayout->addWidget(selected_series_list);
 	hlayout->addLayout(vlayout);
 
+	QHBoxLayout* bottom_layout = new QHBoxLayout;
+	bottom_layout->addWidget(range_edit);
+	bottom_layout->addStretch();
+	bottom_layout->addWidget(_params_widget);
+
 	layout->addLayout(hlayout);
-	layout->addWidget(range_edit);
-	layout->addWidget(draw_mode_button);
+	layout->addLayout(bottom_layout);
 
 	// Define help
 	setFocusPolicy(Qt::StrongFocus);

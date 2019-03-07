@@ -21,8 +21,13 @@ class PVRangeSubSampler;
 namespace PVParallelView
 {
 
+class PVSeriesView;
+class PVSeriesViewParamsWidget;
+
 class PVSeriesViewWidget : public QWidget
 {
+	friend class PVSeriesViewParamsWidget;
+
   public:
 	PVSeriesViewWidget(Inendi::PVView* view, PVCombCol axis_comb, QWidget* parent = nullptr);
 
@@ -33,6 +38,7 @@ class PVSeriesViewWidget : public QWidget
 
   private:
 	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
+	PVSeriesView* _plot;
 
 	struct Disconnector : public sigc::connection {
 		using sigc::connection::connection;
@@ -44,6 +50,7 @@ class PVSeriesViewWidget : public QWidget
 	Disconnector _plotting_change_connection;
 	Disconnector _selection_change_connection;
 
+	PVSeriesViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget _help_widget;
 };
 

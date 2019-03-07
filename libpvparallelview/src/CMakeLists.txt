@@ -94,6 +94,7 @@ PVScatterViewParamsWidget.cpp
 PVSeriesRendererOpenGL.cpp
 PVSeriesView.cpp
 PVSeriesViewWidget.cpp
+PVSeriesViewParamsWidget.cpp
 PVSeriesViewZoomer.cpp
 )
 
@@ -127,6 +128,7 @@ include/pvparallelview/PVScatterView.h
 include/pvparallelview/PVScatterViewParamsWidget.h
 include/pvparallelview/PVSeriesView.h
 include/pvparallelview/PVSeriesViewWidget.h
+include/pvparallelview/PVSeriesViewParamsWidget.h
 include/pvparallelview/PVSeriesViewZoomer.h
 )
 

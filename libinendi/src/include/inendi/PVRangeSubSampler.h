@@ -123,8 +123,6 @@ class PVRangeSubSampler
 	               uint32_t min = 0,
 	               uint32_t max = 0);
 
-	void compute_ranges_average(size_t first, size_t /*last*/, size_t min, size_t max);
-
 	template <SAMPLING_MODE mode>
 	void compute_ranges_reduction(size_t first, size_t /*last*/, size_t min, size_t max);
 
@@ -162,6 +160,8 @@ class PVRangeSubSampler
 template <Inendi::PVRangeSubSampler::SAMPLING_MODE M>
 struct sampling_mode_t {
 	static constexpr const Inendi::PVRangeSubSampler::SAMPLING_MODE mode = M;
+	inline static uint64_t init() { return 0; }
+	inline static uint64_t reduce(uint64_t accum, uint32_t) { return accum; }
 };
 
 template <Inendi::PVRangeSubSampler::SAMPLING_MODE mode, typename... T>
@@ -190,11 +190,11 @@ void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 	};
 
 	struct min_t : sampling_mode_t<SAMPLING_MODE::MIN> {
+		inline static uint64_t init() { return std::numeric_limits<uint64_t>::max(); }
 		inline static void map(uint64_t& accum, uint32_t value)
 		{
 			accum = std::min(std::numeric_limits<uint32_t>::max() - value, (uint32_t)accum);
 		}
-		inline static uint64_t reduce(uint64_t accum, uint32_t) { return accum; }
 	};
 
 	struct max_t : sampling_mode_t<SAMPLING_MODE::MAX> {
@@ -202,7 +202,6 @@ void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 		{
 			accum = std::max(std::numeric_limits<uint32_t>::max() - value, (uint32_t)accum);
 		}
-		inline static uint64_t reduce(uint64_t accum, uint32_t) { return accum; }
 	};
 
 	compute_ranges_reduction<typename func_resolver<mode, mean_t, min_t, max_t>::type>(
@@ -234,7 +233,7 @@ void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 			const size_t values_count = _histogram[j];
 			end += values_count;
 			size_t selected_values_count = 0;
-			uint64_t accum = 0;
+			uint64_t accum = F::init();
 			for (size_t k = start; k < end; k++) {
 				auto v = not _sort ? k : _sort[k];
 				if (ts_valid_sel[v]) {
