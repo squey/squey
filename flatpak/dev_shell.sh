@@ -1,4 +1,5 @@
 #!/bin/bash
+flatpak update --user -y
 
 ./subs_vars.sh $@
 
