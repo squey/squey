@@ -8,6 +8,7 @@
 #define __PVPARALLELVIEW_PVSERIESVIEWWIDGET_H__
 
 #include <QWidget>
+#include <QListWidget>
 
 #include <inendi/PVView.h>
 
@@ -22,6 +23,7 @@ namespace PVParallelView
 {
 
 class PVSeriesView;
+class PVSeriesViewZoomer;
 class PVSeriesViewParamsWidget;
 
 class PVSeriesViewWidget : public QWidget
@@ -37,8 +39,17 @@ class PVSeriesViewWidget : public QWidget
 	void leaveEvent(QEvent*) override;
 
   private:
+	void update_selected_series();
+	bool is_in_region(QRect region, PVCol col) const;
+
+  private:
 	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
 	PVSeriesView* _plot;
+	PVSeriesViewZoomer* _zoomer;
+	QListWidget* _series_list_widget;
+
+	bool _update_selected_series_resample = false;
+	bool _synchro_selected_list = false;
 
 	struct Disconnector : public sigc::connection {
 		using sigc::connection::connection;

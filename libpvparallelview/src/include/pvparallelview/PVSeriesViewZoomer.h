@@ -76,17 +76,29 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	                   QWidget* parent = nullptr);
 	virtual ~PVSeriesViewZoomer() = default;
 
-	QColor getZoomRectColor() const;
-	void setZoomRectColor(QColor const& color);
+	enum class SelectorMode { CrossHairs = 0, Zooming = 1, Selecting = 2, Hunting = 3 };
+
+	SelectorMode currentSelectorMode() const { return m_selectorMode; }
+
+	QColor getSelectorColor(SelectorMode mode) const { return m_selectorColors[size_t(mode)]; }
+	void setSelectorColor(SelectorMode mode, QColor color)
+	{
+		m_selectorColors[size_t(mode)] = color;
+	}
+
+	int getCrossHairsRadius() const { return m_crossHairsRadius; }
+	void setCrossHairsRadius(int radius) { m_crossHairsRadius = radius; }
 
   Q_SIGNALS:
 	void selectionCommit(Zoom selection);
-	void cursorMoved(QPoint position);
+	void cursorMoved(QRect region);
+	void huntCommit(QRect region, bool addition);
 
   protected:
 	void mousePressEvent(QMouseEvent*) override;
 	void mouseReleaseEvent(QMouseEvent*) override;
 	void mouseMoveEvent(QMouseEvent*) override;
+	void enterEvent(QEvent* event) override;
 	void leaveEvent(QEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 	void keyReleaseEvent(QKeyEvent* event) override;
@@ -101,14 +113,14 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	void updateChronotips(QRect rect);
 
   private:
-	void updateZoomGeometry(bool rectangular);
-	void updateSelectionGeometry();
+	void updateSelectorGeometry(bool rectangular);
 	void updateCrossHairsGeometry(QPoint pos);
 	void updateChronotipGeometry(size_t chrono_index, QPoint pos);
 	template <class T>
 	void showFragments(T const& fragments) const;
 	template <class T>
 	void hideFragments(T const& fragments) const;
+	QRect crossHairsRect(QPoint pos) const;
 
   private:
 	PVSeriesView* m_seriesView;
@@ -116,13 +128,16 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	QBasicTimer m_resizingTimer;
 
-	bool m_zooming = false;
-	QRect m_zoomRect;
-	std::array<QWidget*, 4> m_zoomFragments{nullptr};
-	bool m_selecting = false;
-	QRect m_selectionRect;
-	std::array<QWidget*, 2> m_selectionFragments{nullptr};
-	std::array<QWidget*, 4> m_crossHairsFragments{nullptr};
+	SelectorMode m_selectorMode = SelectorMode::CrossHairs;
+	QRect m_selectorRect;
+	std::array<QWidget*, 4> m_selectorFragments{nullptr};
+	std::array<QColor, 4> m_selectorColors{
+	    QColor(255, 100, 50, 255), // CrossHairs
+	    QColor(255, 0, 0, 255),    // Zooming
+	    QColor(20, 255, 50, 255),  // Selecting
+	    QColor(20, 20, 255, 255)   // Hunting
+	};
+	int m_crossHairsRadius = 10;
 	std::array<QLabel*, 4> m_chronotips{nullptr};
 
 	bool m_moving = false;

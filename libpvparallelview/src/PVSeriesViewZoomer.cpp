@@ -191,16 +191,9 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 {
 	child->setParent(this);
 	child->setAttribute(Qt::WA_TransparentForMouseEvents);
-	for (auto& fragment : m_crossHairsFragments) {
-		fragment = new PVSeriesViewZoomerRectangleFragment(child, QColor(255, 100, 50, 255));
-		fragment->hide();
-	}
-	for (auto& fragment : m_zoomFragments) {
-		fragment = new PVSeriesViewZoomerRectangleFragment(child);
-		fragment->hide();
-	}
-	for (auto& fragment : m_selectionFragments) {
-		fragment = new PVSeriesViewZoomerRectangleFragment(child, QColor(20, 255, 50, 255));
+	for (auto& fragment : m_selectorFragments) {
+		fragment = new PVSeriesViewZoomerRectangleFragment(
+		    child, m_selectorColors[size_t(m_selectorMode)]);
 		fragment->hide();
 	}
 	for (auto& chronotip : m_chronotips) {
@@ -211,22 +204,43 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 	}
 	m_chronotips[0]->setAlignment(Qt::AlignRight);
 	m_chronotips[1]->setAlignment(Qt::AlignLeft);
+	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking(true);
 	setCursor(Qt::BlankCursor);
 }
 
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 {
-	if (event->button() == Qt::LeftButton) {
-		if (event->modifiers() & Qt::ShiftModifier) {
-			m_selecting = true;
-			m_selectionRect.moveTo(event->pos());
-		} else {
-			m_zooming = true;
-			// QToolTip::showText(event->globalPos(), tr("Zoom"), this);
-			m_zoomRect.moveTo(event->pos());
+	if (m_selectorMode == SelectorMode::CrossHairs) {
+		if (event->button() == Qt::LeftButton) {
+			if (event->modifiers() & Qt::ShiftModifier) {
+				m_selectorMode = SelectorMode::Selecting;
+				m_selectorRect = QRect(event->pos(), QSize(0, 0));
+				updateSelectorGeometry(false);
+			} else {
+				m_selectorMode = SelectorMode::Zooming;
+				m_selectorRect = QRect(event->pos(), QSize(0, 0));
+				updateSelectorGeometry(event->modifiers() & Qt::ControlModifier);
+			}
 		}
-	} else if (event->button() == Qt::RightButton) {
+	} else if (m_selectorMode == SelectorMode::Zooming) {
+		if (event->button() == Qt::LeftButton) {
+			m_selectorRect = QRect(event->pos(), QSize(0, 0));
+			updateSelectorGeometry(event->modifiers() & Qt::ControlModifier);
+		}
+	} else if (m_selectorMode == SelectorMode::Selecting) {
+		if (event->button() == Qt::LeftButton) {
+			m_selectorRect = QRect(event->pos(), QSize(0, 0));
+			updateSelectorGeometry(false);
+		}
+	} else if (m_selectorMode == SelectorMode::Hunting) {
+		if (event->button() == Qt::LeftButton) {
+			m_selectorRect = QRect(event->pos(), QSize(0, 0));
+			updateSelectorGeometry(true);
+		}
+	}
+
+	if (event->button() == Qt::RightButton) {
 		m_moving = true;
 		// QToolTip::showText(event->globalPos(), tr("Moving"), this);
 		m_moveStart = event->pos();
@@ -239,21 +253,36 @@ void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 
 void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 {
-	if (m_zooming && event->button() == Qt::LeftButton) {
-		m_zooming = false;
-		// QToolTip::hideText();
-		hideFragments(m_chronotips);
-		hideFragments(m_zoomFragments);
-		if (event->pos() == m_zoomRect.topLeft()) {
-			zoomOut(event->pos());
-		} else {
-			zoomIn(normalizedZoomRect(m_zoomRect, event->modifiers() & Qt::ControlModifier));
+	if (m_selectorMode == SelectorMode::CrossHairs) {
+
+	} else if (m_selectorMode == SelectorMode::Zooming) {
+		if (event->button() == Qt::LeftButton) {
+			if (event->pos() == m_selectorRect.topLeft()) {
+				zoomOut(event->pos());
+			} else {
+				zoomIn(
+				    normalizedZoomRect(m_selectorRect, event->modifiers() & Qt::ControlModifier));
+			}
+			m_selectorMode = SelectorMode::CrossHairs;
+			updateCrossHairsGeometry(event->pos());
 		}
-	} else if (m_selecting && event->button() == Qt::LeftButton) {
-		m_selecting = false;
-		hideFragments(m_selectionFragments);
-		selectionCommit(rectToZoom(normalizedZoomRect(m_selectionRect, false)));
-	} else if (m_moving && event->button() == Qt::RightButton) {
+	} else if (m_selectorMode == SelectorMode::Selecting) {
+		if (event->button() == Qt::LeftButton) {
+			selectionCommit(rectToZoom(normalizedZoomRect(m_selectorRect, false)));
+			m_selectorMode = SelectorMode::CrossHairs;
+			updateCrossHairsGeometry(event->pos());
+		}
+	} else if (m_selectorMode == SelectorMode::Hunting) {
+		if (event->button() == Qt::LeftButton) {
+			huntCommit(m_selectorRect.isNull() ? crossHairsRect(m_selectorRect.topLeft())
+			                                   : normalizedZoomRect(m_selectorRect, true),
+			           not(event->modifiers() & Qt::ControlModifier));
+			m_selectorMode = SelectorMode::CrossHairs;
+			updateCrossHairsGeometry(event->pos());
+		}
+	}
+
+	if (m_moving && event->button() == Qt::RightButton) {
 		m_moving = false;
 		// QToolTip::hideText();
 		moveZoomBy(event->pos() - m_moveStart);
@@ -264,59 +293,101 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 
 void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 {
-	if (m_zooming) {
-		m_zoomRect.setBottomRight(QPoint(std::clamp(event->pos().x(), 0, size().width() - 1),
-		                                 std::clamp(event->pos().y(), 0, size().height() - 1)));
-		updateZoomGeometry(event->modifiers() & Qt::ControlModifier);
-		showFragments(m_zoomFragments);
-		updateChronotips(m_zoomRect);
+	if (not(event->buttons() & Qt::LeftButton)) {
+		m_selectorRect.setTopLeft(event->pos());
 	}
-	if (m_selecting) {
-		m_selectionRect.setBottomRight(
-		    QPoint(std::clamp(event->pos().x(), 0, size().width() - 1),
-		           std::clamp(event->pos().y(), 0, size().height() - 1)));
-		updateSelectionGeometry();
-		showFragments(m_selectionFragments);
-		updateChronotips(m_selectionRect);
+	m_selectorRect.setSize(
+	    QSize(std::clamp(event->pos().x(), 0, size().width()) - m_selectorRect.left(),
+	          std::clamp(event->pos().y(), 0, size().height()) - m_selectorRect.top()));
+	if (m_selectorMode == SelectorMode::CrossHairs) {
+		updateCrossHairsGeometry(event->pos());
+		updateChronotips(event->pos());
+	} else {
+		if (m_selectorMode == SelectorMode::Zooming) {
+			updateSelectorGeometry(event->modifiers() & Qt::ControlModifier);
+		} else if (m_selectorMode == SelectorMode::Selecting) {
+			updateSelectorGeometry(false);
+		} else if (m_selectorMode == SelectorMode::Hunting) {
+			updateSelectorGeometry(true);
+			if (event->buttons() & Qt::LeftButton) {
+				cursorMoved(normalizedZoomRect(m_selectorRect, true));
+			} else {
+				cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
+			}
+		}
+		updateChronotips(m_selectorRect);
 	}
 	if (m_moving) {
 		moveZoomBy(event->pos() - m_moveStart);
 		m_moveStart = event->pos();
 		updateChronotips(event->pos());
 	}
-	if (not m_zooming and not m_selecting) {
-		updateCrossHairsGeometry(event->pos());
-		showFragments(m_crossHairsFragments);
-		updateChronotips(event->pos());
-		cursorMoved(event->pos());
-	} else {
-		hideFragments(m_crossHairsFragments);
-	}
-	showFragments(m_chronotips);
 }
 
 void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Control) {
-		if (m_zooming) {
-			updateZoomGeometry(true);
+		if (m_selectorMode == SelectorMode::Zooming) {
+			updateSelectorGeometry(true);
+			return;
+		}
+	} else if (event->key() == Qt::Key_H) {
+		if (m_selectorMode == SelectorMode::CrossHairs) {
+			m_selectorMode = SelectorMode::Hunting;
+			m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
+			                              m_selectorRect.top() + m_selectorRect.height()),
+			                       QSize(0, 0));
+			updateSelectorGeometry(true);
+			updateChronotips(m_selectorRect);
+			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
+			return;
+		} else if (m_selectorMode == SelectorMode::Hunting) {
+			m_selectorMode = SelectorMode::CrossHairs;
+			m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
+			                              m_selectorRect.top() + m_selectorRect.height()),
+			                       QSize(0, 0));
+			updateSelectorGeometry(true);
+			updateChronotips(m_selectorRect);
+			return;
+		}
+	} else if (event->key() == Qt::Key_Escape) {
+		if (m_selectorMode != SelectorMode::CrossHairs) {
+			m_selectorMode = SelectorMode::CrossHairs;
+			m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
+			                              m_selectorRect.top() + m_selectorRect.height()),
+			                       QSize(0, 0));
+			updateCrossHairsGeometry(m_selectorRect.topLeft());
+			updateChronotips(m_selectorRect.topLeft());
+			return;
 		}
 	}
+	QWidget::keyPressEvent(event);
 }
 
 void PVSeriesViewZoomer::keyReleaseEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Control) {
-		if (m_zooming) {
-			updateZoomGeometry(false);
+		if (m_selectorMode == SelectorMode::Zooming) {
+			updateSelectorGeometry(false);
+			return;
 		}
 	}
+	QWidget::keyReleaseEvent(event);
+}
+
+void PVSeriesViewZoomer::enterEvent(QEvent*)
+{
+	activateWindow();
+	setFocus(Qt::MouseFocusReason);
 }
 
 void PVSeriesViewZoomer::leaveEvent(QEvent*)
 {
-	hideFragments(m_crossHairsFragments);
-	hideFragments(m_chronotips);
+	clearFocus();
+	if (m_selectorMode == SelectorMode::CrossHairs) {
+		hideFragments(m_selectorFragments);
+		hideFragments(m_chronotips);
+	}
 }
 
 void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
@@ -344,28 +415,47 @@ void PVSeriesViewZoomer::timerEvent(QTimerEvent* event)
 	}
 }
 
-void PVSeriesViewZoomer::updateZoomGeometry(bool rectangular)
+void PVSeriesViewZoomer::updateSelectorGeometry(bool rectangular)
 {
-	auto zr = normalizedZoomRect(m_zoomRect, rectangular);
-	m_zoomFragments[0]->setGeometry(zr.x(), zr.y(), zr.width(), 1);
-	m_zoomFragments[1]->setGeometry(zr.x(), zr.y(), 1, zr.height());
-	m_zoomFragments[2]->setGeometry(zr.x(), zr.y() + zr.height(), zr.width(), 1);
-	m_zoomFragments[3]->setGeometry(zr.x() + zr.width(), zr.y(), 1, zr.height());
-}
-
-void PVSeriesViewZoomer::updateSelectionGeometry()
-{
-	auto zr = normalizedZoomRect(m_selectionRect, false);
-	m_selectionFragments[0]->setGeometry(zr.x(), zr.y(), 1, zr.height());
-	m_selectionFragments[1]->setGeometry(zr.x() + zr.width(), zr.y(), 1, zr.height());
+	auto& fragments = m_selectorFragments;
+	for (auto& fragment : fragments) {
+		static_cast<PVSeriesViewZoomerRectangleFragment*>(fragment)->color =
+		    m_selectorColors[size_t(m_selectorMode)];
+	}
+	if (m_selectorRect.size() == QSize(0, 0)) {
+		updateCrossHairsGeometry(m_selectorRect.topLeft());
+		return;
+	}
+	auto nr = normalizedZoomRect(m_selectorRect, rectangular);
+	fragments[1]->setGeometry(nr.x(), nr.y(), 1, nr.height());
+	fragments[3]->setGeometry(nr.x() + nr.width(), nr.y(), 1, nr.height());
+	fragments[1]->show();
+	fragments[3]->show();
+	if (rectangular) {
+		fragments[0]->setGeometry(nr.x(), nr.y(), nr.width(), 1);
+		fragments[2]->setGeometry(nr.x(), nr.y() + nr.height(), nr.width(), 1);
+		fragments[0]->show();
+		fragments[2]->show();
+	} else {
+		fragments[0]->hide();
+		fragments[2]->hide();
+	}
 }
 
 void PVSeriesViewZoomer::updateCrossHairsGeometry(QPoint pos)
 {
-	m_crossHairsFragments[0]->setGeometry(0, pos.y(), pos.x() - 10, 1);
-	m_crossHairsFragments[1]->setGeometry(pos.x(), 0, 1, pos.y() - 10);
-	m_crossHairsFragments[2]->setGeometry(pos.x() + 10, pos.y(), width() - pos.x() - 10, 1);
-	m_crossHairsFragments[3]->setGeometry(pos.x(), pos.y() + 10, 1, height() - pos.y() - 10);
+	auto& fragments = m_selectorFragments;
+	for (auto& fragment : fragments) {
+		static_cast<PVSeriesViewZoomerRectangleFragment*>(fragment)->color =
+		    m_selectorColors[size_t(m_selectorMode)];
+	}
+	fragments[0]->setGeometry(0, pos.y(), pos.x() - m_crossHairsRadius, 1);
+	fragments[1]->setGeometry(pos.x(), 0, 1, pos.y() - m_crossHairsRadius);
+	fragments[2]->setGeometry(pos.x() + m_crossHairsRadius, pos.y(),
+	                          width() - pos.x() - m_crossHairsRadius, 1);
+	fragments[3]->setGeometry(pos.x(), pos.y() + m_crossHairsRadius, 1,
+	                          height() - pos.y() - m_crossHairsRadius);
+	showFragments(fragments);
 }
 
 void PVSeriesViewZoomer::updateChronotipGeometry(size_t chrono_index, QPoint pos)
@@ -407,6 +497,7 @@ void PVSeriesViewZoomer::showFragments(T const& fragments) const
 {
 	for (auto& fragment : fragments) {
 		fragment->show();
+		fragment->update();
 	}
 }
 
@@ -444,17 +535,13 @@ void PVSeriesViewZoomer::updateChronotips(QRect rect)
 	updateChronotipGeometry(1, rect.bottomRight());
 	updateChronotipGeometry(2, rect.bottomRight());
 	updateChronotipGeometry(3, rect.topLeft());
+	showFragments(m_chronotips);
 }
 
-QColor PVSeriesViewZoomer::getZoomRectColor() const
+QRect PVSeriesViewZoomer::crossHairsRect(QPoint pos) const
 {
-	return static_cast<PVSeriesViewZoomerRectangleFragment*>(m_zoomFragments[0])->color;
-}
-
-void PVSeriesViewZoomer::setZoomRectColor(QColor const& color)
-{
-	for (auto& fragment : m_zoomFragments) {
-		static_cast<PVSeriesViewZoomerRectangleFragment*>(fragment)->color = color;
-	}
+	return QRect(pos.x() - m_crossHairsRadius, pos.y() - m_crossHairsRadius,
+	             2 * m_crossHairsRadius + 1, 2 * m_crossHairsRadius + 1)
+	    .intersected(rect());
 }
 }
