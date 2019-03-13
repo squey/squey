@@ -29,7 +29,9 @@ class PVSeriesViewParamsWidget : public QToolBar
 	QToolButton* add_rendering_mode_selector();
 	QToolButton* add_sampling_mode_selector();
 
+	void set_rendering_mode(QAction* action);
 	void set_rendering_mode();
+	void set_sampling_mode(QAction* action);
 	void set_sampling_mode();
 
 	void update_mode_selector(QToolButton* button, int mode_index);
