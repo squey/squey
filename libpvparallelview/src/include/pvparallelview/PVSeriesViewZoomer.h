@@ -79,6 +79,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	enum class SelectorMode { CrossHairs = 0, Zooming = 1, Selecting = 2, Hunting = 3 };
 
 	SelectorMode currentSelectorMode() const { return m_selectorMode; }
+	void changeSelectorMode(SelectorMode const mode);
 
 	QColor getSelectorColor(SelectorMode mode) const { return m_selectorColors[size_t(mode)]; }
 	void setSelectorColor(SelectorMode mode, QColor color)
@@ -90,6 +91,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	void setCrossHairsRadius(int radius) { m_crossHairsRadius = radius; }
 
   Q_SIGNALS:
+	void selectorModeChanged(SelectorMode previousMode, SelectorMode currentMode);
 	void selectionCommit(Zoom selection);
 	void cursorMoved(QRect region);
 	void huntCommit(QRect region, bool addition);
@@ -113,6 +115,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	void updateChronotips(QRect rect);
 
   private:
+	void updateSelectorAndChronotips();
 	void updateSelectorGeometry(bool rectangular);
 	void updateCrossHairsGeometry(QPoint pos);
 	void updateChronotipGeometry(size_t chrono_index, QPoint pos);
@@ -139,6 +142,8 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	};
 	int m_crossHairsRadius = 10;
 	std::array<QLabel*, 4> m_chronotips{nullptr};
+
+	bool m_control_modifier = false;
 
 	bool m_moving = false;
 	QPoint m_moveStart;

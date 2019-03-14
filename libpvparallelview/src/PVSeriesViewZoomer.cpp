@@ -209,34 +209,44 @@ PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
 	setCursor(Qt::BlankCursor);
 }
 
+void PVSeriesViewZoomer::changeSelectorMode(SelectorMode const mode)
+{
+	const auto previousMode = m_selectorMode;
+	if (mode == previousMode) {
+		return;
+	}
+	if (mode == SelectorMode::CrossHairs) {
+		m_selectorMode = SelectorMode::CrossHairs;
+		m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
+		                              m_selectorRect.top() + m_selectorRect.height()),
+		                       QSize(0, 0));
+		updateSelectorAndChronotips();
+	}
+	if (previousMode == SelectorMode::CrossHairs) {
+		m_selectorMode = mode;
+		m_selectorRect = QRect(m_selectorRect.topLeft(), QSize(0, 0));
+		updateSelectorAndChronotips();
+	} else {
+		m_selectorMode = mode;
+		updateSelectorAndChronotips();
+	}
+	if (m_selectorMode != previousMode) {
+		selectorModeChanged(previousMode, m_selectorMode);
+	}
+}
+
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 {
-	if (m_selectorMode == SelectorMode::CrossHairs) {
-		if (event->button() == Qt::LeftButton) {
+	if (event->button() == Qt::LeftButton) {
+		if (m_selectorMode == SelectorMode::CrossHairs) {
 			if (event->modifiers() & Qt::ShiftModifier) {
-				m_selectorMode = SelectorMode::Selecting;
-				m_selectorRect = QRect(event->pos(), QSize(0, 0));
-				updateSelectorGeometry(false);
+				changeSelectorMode(SelectorMode::Selecting);
 			} else {
-				m_selectorMode = SelectorMode::Zooming;
-				m_selectorRect = QRect(event->pos(), QSize(0, 0));
-				updateSelectorGeometry(event->modifiers() & Qt::ControlModifier);
+				changeSelectorMode(SelectorMode::Zooming);
 			}
-		}
-	} else if (m_selectorMode == SelectorMode::Zooming) {
-		if (event->button() == Qt::LeftButton) {
+		} else {
 			m_selectorRect = QRect(event->pos(), QSize(0, 0));
-			updateSelectorGeometry(event->modifiers() & Qt::ControlModifier);
-		}
-	} else if (m_selectorMode == SelectorMode::Selecting) {
-		if (event->button() == Qt::LeftButton) {
-			m_selectorRect = QRect(event->pos(), QSize(0, 0));
-			updateSelectorGeometry(false);
-		}
-	} else if (m_selectorMode == SelectorMode::Hunting) {
-		if (event->button() == Qt::LeftButton) {
-			m_selectorRect = QRect(event->pos(), QSize(0, 0));
-			updateSelectorGeometry(true);
+			updateSelectorAndChronotips();
 		}
 	}
 
@@ -253,32 +263,23 @@ void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 
 void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 {
-	if (m_selectorMode == SelectorMode::CrossHairs) {
-
-	} else if (m_selectorMode == SelectorMode::Zooming) {
-		if (event->button() == Qt::LeftButton) {
+	if (event->button() == Qt::LeftButton) {
+		if (m_selectorMode == SelectorMode::Zooming) {
 			if (event->pos() == m_selectorRect.topLeft()) {
 				zoomOut(event->pos());
 			} else {
-				zoomIn(
-				    normalizedZoomRect(m_selectorRect, event->modifiers() & Qt::ControlModifier));
+				zoomIn(normalizedZoomRect(m_selectorRect & rect(),
+				                          event->modifiers() & Qt::ControlModifier));
 			}
-			m_selectorMode = SelectorMode::CrossHairs;
-			updateCrossHairsGeometry(event->pos());
-		}
-	} else if (m_selectorMode == SelectorMode::Selecting) {
-		if (event->button() == Qt::LeftButton) {
+			changeSelectorMode(SelectorMode::CrossHairs);
+		} else if (m_selectorMode == SelectorMode::Selecting) {
 			selectionCommit(rectToZoom(normalizedZoomRect(m_selectorRect, false)));
-			m_selectorMode = SelectorMode::CrossHairs;
-			updateCrossHairsGeometry(event->pos());
-		}
-	} else if (m_selectorMode == SelectorMode::Hunting) {
-		if (event->button() == Qt::LeftButton) {
+			changeSelectorMode(SelectorMode::CrossHairs);
+		} else if (m_selectorMode == SelectorMode::Hunting) {
 			huntCommit(m_selectorRect.isNull() ? crossHairsRect(m_selectorRect.topLeft())
 			                                   : normalizedZoomRect(m_selectorRect, true),
 			           not(event->modifiers() & Qt::ControlModifier));
-			m_selectorMode = SelectorMode::CrossHairs;
-			updateCrossHairsGeometry(event->pos());
+			changeSelectorMode(SelectorMode::CrossHairs);
 		}
 	}
 
@@ -299,23 +300,13 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 	m_selectorRect.setSize(
 	    QSize(std::clamp(event->pos().x(), 0, size().width()) - m_selectorRect.left(),
 	          std::clamp(event->pos().y(), 0, size().height()) - m_selectorRect.top()));
-	if (m_selectorMode == SelectorMode::CrossHairs) {
-		updateCrossHairsGeometry(event->pos());
-		updateChronotips(event->pos());
-	} else {
-		if (m_selectorMode == SelectorMode::Zooming) {
-			updateSelectorGeometry(event->modifiers() & Qt::ControlModifier);
-		} else if (m_selectorMode == SelectorMode::Selecting) {
-			updateSelectorGeometry(false);
-		} else if (m_selectorMode == SelectorMode::Hunting) {
-			updateSelectorGeometry(true);
-			if (event->buttons() & Qt::LeftButton) {
-				cursorMoved(normalizedZoomRect(m_selectorRect, true));
-			} else {
-				cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
-			}
+	updateSelectorAndChronotips();
+	if (m_selectorMode == SelectorMode::Hunting) {
+		if (event->buttons() & Qt::LeftButton) {
+			cursorMoved(normalizedZoomRect(m_selectorRect, true));
+		} else {
+			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
 		}
-		updateChronotips(m_selectorRect);
 	}
 	if (m_moving) {
 		moveZoomBy(event->pos() - m_moveStart);
@@ -327,39 +318,21 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Control) {
-		if (m_selectorMode == SelectorMode::Zooming) {
-			updateSelectorGeometry(true);
-			return;
-		}
+		m_control_modifier = true;
+		updateSelectorAndChronotips();
+		return;
 	} else if (event->key() == Qt::Key_H) {
 		if (m_selectorMode == SelectorMode::CrossHairs) {
-			m_selectorMode = SelectorMode::Hunting;
-			m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
-			                              m_selectorRect.top() + m_selectorRect.height()),
-			                       QSize(0, 0));
-			updateSelectorGeometry(true);
-			updateChronotips(m_selectorRect);
+			changeSelectorMode(SelectorMode::Hunting);
 			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
 			return;
 		} else if (m_selectorMode == SelectorMode::Hunting) {
-			m_selectorMode = SelectorMode::CrossHairs;
-			m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
-			                              m_selectorRect.top() + m_selectorRect.height()),
-			                       QSize(0, 0));
-			updateSelectorGeometry(true);
-			updateChronotips(m_selectorRect);
+			changeSelectorMode(SelectorMode::CrossHairs);
 			return;
 		}
 	} else if (event->key() == Qt::Key_Escape) {
-		if (m_selectorMode != SelectorMode::CrossHairs) {
-			m_selectorMode = SelectorMode::CrossHairs;
-			m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
-			                              m_selectorRect.top() + m_selectorRect.height()),
-			                       QSize(0, 0));
-			updateCrossHairsGeometry(m_selectorRect.topLeft());
-			updateChronotips(m_selectorRect.topLeft());
-			return;
-		}
+		changeSelectorMode(SelectorMode::CrossHairs);
+		return;
 	}
 	QWidget::keyPressEvent(event);
 }
@@ -367,10 +340,9 @@ void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 void PVSeriesViewZoomer::keyReleaseEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Control) {
-		if (m_selectorMode == SelectorMode::Zooming) {
-			updateSelectorGeometry(false);
-			return;
-		}
+		m_control_modifier = false;
+		updateSelectorAndChronotips();
+		return;
 	}
 	QWidget::keyReleaseEvent(event);
 }
@@ -415,16 +387,30 @@ void PVSeriesViewZoomer::timerEvent(QTimerEvent* event)
 	}
 }
 
+void PVSeriesViewZoomer::updateSelectorAndChronotips()
+{
+	if (m_selectorMode == SelectorMode::CrossHairs or m_selectorRect.isNull()) {
+		updateCrossHairsGeometry(m_selectorRect.topLeft());
+	} else if (m_selectorMode == SelectorMode::Zooming) {
+		updateSelectorGeometry(m_control_modifier);
+	} else if (m_selectorMode == SelectorMode::Selecting) {
+		updateSelectorGeometry(false);
+	} else if (m_selectorMode == SelectorMode::Hunting) {
+		updateSelectorGeometry(true);
+	}
+	if (m_selectorRect.isNull() and rect().contains(m_selectorRect.topLeft())) {
+		updateChronotips(m_selectorRect.topLeft());
+	} else {
+		updateChronotips(m_selectorRect & rect());
+	}
+}
+
 void PVSeriesViewZoomer::updateSelectorGeometry(bool rectangular)
 {
 	auto& fragments = m_selectorFragments;
 	for (auto& fragment : fragments) {
 		static_cast<PVSeriesViewZoomerRectangleFragment*>(fragment)->color =
 		    m_selectorColors[size_t(m_selectorMode)];
-	}
-	if (m_selectorRect.size() == QSize(0, 0)) {
-		updateCrossHairsGeometry(m_selectorRect.topLeft());
-		return;
 	}
 	auto nr = normalizedZoomRect(m_selectorRect, rectangular);
 	fragments[1]->setGeometry(nr.x(), nr.y(), 1, nr.height());
@@ -519,9 +505,9 @@ void PVSeriesViewZoomer::updateChronotips(QPoint point)
 	updateChronotips(QRect(point.x(), point.y(), 1, 1));
 }
 
-void PVSeriesViewZoomer::updateChronotips(QRect rect)
+void PVSeriesViewZoomer::updateChronotips(QRect rect_in)
 {
-	rect = normalizedZoomRect(rect, true);
+	auto rect = normalizedZoomRect(rect_in, true);
 	Zoom coveredZoom = rectToZoom(rect);
 	pvcop::db::array subrange = m_rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
 	m_chronotips[0]->setText((subrange.at(0) + ">").c_str());
