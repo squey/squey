@@ -107,6 +107,7 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
 
 	view_display->setWindowTitle(name());
 	addDockWidget(area, view_display);
+	resizeDocks({view_display}, {500}, Qt::Horizontal); // Hack to fix children widgets sizes
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
 	        &PVWorkspaceBase::try_automatic_tab_switch);
 	_displays.append(view_display);
