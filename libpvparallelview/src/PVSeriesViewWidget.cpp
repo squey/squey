@@ -184,15 +184,23 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		});
 
 	QObject::connect(_zoomer, &PVSeriesViewZoomer::huntCommit, [this](QRect region, bool addition) {
-		_update_selected_series_resample = false;
-		for (QListWidgetItem* item : _series_list_widget->selectedItems()) {
-			const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-			if (is_in_region(region, item_col) == not addition) {
+		auto selected_items_list = _series_list_widget->selectedItems();
+		decltype(selected_items_list) deselect_list;
+		std::copy_if(
+		    selected_items_list.begin(), selected_items_list.end(),
+		    std::back_inserter(deselect_list), [region, addition, this](QListWidgetItem* item) {
+			    const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
+			    return is_in_region(region, item_col) == not addition;
+			});
+		// Deselect those not in region unless there would be none left
+		if (deselect_list.size() < selected_items_list.size()) {
+			_update_selected_series_resample = false;
+			for (auto* item : deselect_list) {
 				item->setSelected(false);
 			}
+			_update_selected_series_resample = true;
+			update_selected_series();
 		}
-		_update_selected_series_resample = true;
-		update_selected_series();
 	});
 
 	auto synchro_list = [](auto list_src, auto list_dest) {
