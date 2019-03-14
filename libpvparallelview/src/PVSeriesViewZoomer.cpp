@@ -381,8 +381,12 @@ void PVSeriesViewZoomer::resizeEvent(QResizeEvent*)
 void PVSeriesViewZoomer::timerEvent(QTimerEvent* event)
 {
 	if (event->timerId() == m_resizingTimer.timerId()) {
-		m_rss.set_sampling_count(size().width());
-		updateZoom(currentZoom());
+		if (m_rss.samples_count() != size().width()) {
+			m_rss.set_sampling_count(size().width());
+			updateZoom(currentZoom());
+		} else {
+			m_seriesView->refresh();
+		}
 		m_resizingTimer.stop();
 	}
 }
