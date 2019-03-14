@@ -293,13 +293,20 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	_help_widget.hide();
 
 	_help_widget.initTextFromFile("series view's help", ":help-style");
-	_help_widget.addTextFromFile(":help-mouse-series-view");
+	_help_widget.addTextFromFile(":help-series-view-navigation");
 	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-selection");
-
+	_help_widget.addTextFromFile(":help-series-view-selection");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-series-view-hunting");
 	_help_widget.newTable();
-	_help_widget.addTextFromFile(":help-application");
+	_help_widget.addTextFromFile(":help-series-view-rendering");
 	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-series-view-sampling");
+	_help_widget.newTable();
+	_help_widget.addTextFromFile(":help-selection");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-application");
+
 	_help_widget.finalizeText();
 
 	setLayout(layout);

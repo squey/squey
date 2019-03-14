@@ -323,7 +323,7 @@ void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 		m_control_modifier = true;
 		updateSelectorAndChronotips();
 		return;
-	} else if (event->key() == Qt::Key_H) {
+	} else if (event->key() == Qt::Key_X) {
 		if (m_selectorMode == SelectorMode::CrossHairs) {
 			changeSelectorMode(SelectorMode::Hunting);
 			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));

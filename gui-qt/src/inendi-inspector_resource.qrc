@@ -179,7 +179,11 @@
 	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
 	<file alias="help-mouse-scatter-view">resources/help/view-mouse-scatter.html</file>
 	<file alias="help-shortcuts-scatter-view">resources/help/view-shortcuts-scatter.html</file>
-	<file alias="help-mouse-series-view">resources/help/view-mouse-series.html</file>
+	<file alias="help-series-view-navigation">resources/help/view-series-navigation.html</file>
+	<file alias="help-series-view-selection">resources/help/view-series-selection.html</file>
+	<file alias="help-series-view-hunting">resources/help/view-series-hunting.html</file>
+	<file alias="help-series-view-rendering">resources/help/view-series-rendering.html</file>
+	<file alias="help-series-view-sampling">resources/help/view-series-sampling.html</file>
 
         <!-- VIEW ICONS -->
         <file alias="selection-rectangle">resources/selection-rectangle.png</file>
