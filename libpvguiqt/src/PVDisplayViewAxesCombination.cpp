@@ -11,7 +11,7 @@
 #include <inendi/PVView.h>
 
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar, "Axes combination")
+    : PVDisplayViewIf(/*PVDisplayIf::ShowInToolbar, "Axes combination"*/)
 {
 }
 
