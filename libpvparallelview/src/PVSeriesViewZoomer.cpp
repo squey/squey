@@ -238,6 +238,7 @@ void PVSeriesViewZoomer::changeSelectorMode(SelectorMode const mode)
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
+		m_left_button_down = true;
 		if (m_selectorMode == SelectorMode::CrossHairs) {
 			if (event->modifiers() & Qt::ShiftModifier) {
 				changeSelectorMode(SelectorMode::Selecting);
@@ -264,6 +265,7 @@ void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
+		m_left_button_down = false;
 		if (m_selectorMode == SelectorMode::Zooming) {
 			if (event->pos() == m_selectorRect.topLeft()) {
 				zoomOut(event->pos());
@@ -356,7 +358,7 @@ void PVSeriesViewZoomer::enterEvent(QEvent*)
 void PVSeriesViewZoomer::leaveEvent(QEvent*)
 {
 	clearFocus();
-	if (m_selectorMode == SelectorMode::CrossHairs) {
+	if (not m_left_button_down) {
 		hideFragments(m_selectorFragments);
 		hideFragments(m_chronotips);
 	}

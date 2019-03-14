@@ -144,6 +144,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	std::array<QLabel*, 4> m_chronotips{nullptr};
 
 	bool m_control_modifier = false;
+	bool m_left_button_down = false;
 
 	bool m_moving = false;
 	QPoint m_moveStart;
