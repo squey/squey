@@ -27,9 +27,6 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        QWidget* parent /*= nullptr*/)
     : QWidget(parent), _help_widget(this)
 {
-
-	_params_widget = new PVSeriesViewParamsWidget(this);
-
 	auto plotteds = view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
 	const Inendi::PVAxesCombination& axes_comb = view->get_axes_combination();
 	PVCol col = axes_comb.get_nraw_axis(axis_comb);
@@ -267,6 +264,8 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	selected_series_list->installEventFilter(new SynchroFilter{
 	    [this] { _synchro_selected_list = true; }, [this] { _synchro_selected_list = false; }});
+
+	_params_widget = new PVSeriesViewParamsWidget(this);
 
 	QVBoxLayout* layout = new QVBoxLayout;
 	layout->setContentsMargins(0, 0, 0, 0);

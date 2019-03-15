@@ -1,6 +1,7 @@
 #include <pvparallelview/PVSeriesViewParamsWidget.h>
 #include <pvparallelview/PVSeriesViewWidget.h>
 #include <pvparallelview/PVSeriesView.h>
+#include <pvparallelview/PVSeriesViewZoomer.h>
 
 #include <pvparallelview/common.h>
 
@@ -13,12 +14,55 @@
 PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVSeriesViewWidget* parent)
     : /*QToolBar(parent),*/ _series_view_widget(parent)
 {
+	add_selection_activator();
+	add_hunting_activator();
+	addSeparator();
 	add_rendering_mode_selector();
 	add_sampling_mode_selector();
 
 	setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	setAutoFillBackground(true);
 	adjustSize();
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator()
+{
+	QAction* sel = new QAction(this);
+	sel->setIcon(QIcon(":/zoom-autofit-horizontal"));
+	sel->setCheckable(true);
+	sel->setChecked(false);
+	sel->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+	sel->setText("Select interval");
+	sel->setToolTip("Activate/deactivate select interval mode");
+	addAction(sel);
+	connect(sel, &QAction::triggered, [zoomer = _series_view_widget->_zoomer](bool checked) {
+		zoomer->changeSelectorMode(checked ? PVSeriesViewZoomer::SelectorMode::Selecting
+		                                   : PVSeriesViewZoomer::SelectorMode::CrossHairs);
+	});
+	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selectorModeChanged,
+	        [sel](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
+		        sel->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Selecting);
+		    });
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator()
+{
+	QAction* hunt = new QAction(this);
+	hunt->setIcon(QIcon(":/zoom-autofit-both"));
+	hunt->setCheckable(true);
+	hunt->setChecked(false);
+	hunt->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+	hunt->setText("Select series");
+	hunt->setToolTip("Activate/deactivate select series mode");
+	addAction(hunt);
+	connect(hunt, &QAction::triggered, [zoomer = _series_view_widget->_zoomer](bool checked) {
+		zoomer->changeSelectorMode(checked ? PVSeriesViewZoomer::SelectorMode::Hunting
+		                                   : PVSeriesViewZoomer::SelectorMode::CrossHairs);
+	});
+	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selectorModeChanged,
+	        [hunt](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
+		        hunt->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Hunting);
+		    });
 }
 
 QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_selector()

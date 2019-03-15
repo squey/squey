@@ -332,6 +332,15 @@ void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 			changeSelectorMode(SelectorMode::CrossHairs);
 			return;
 		}
+	} else if (event->key() == Qt::Key_S) {
+		if (m_selectorMode == SelectorMode::CrossHairs) {
+			changeSelectorMode(SelectorMode::Selecting);
+			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
+			return;
+		} else if (m_selectorMode == SelectorMode::Selecting) {
+			changeSelectorMode(SelectorMode::CrossHairs);
+			return;
+		}
 	} else if (event->key() == Qt::Key_Escape) {
 		changeSelectorMode(SelectorMode::CrossHairs);
 		return;
