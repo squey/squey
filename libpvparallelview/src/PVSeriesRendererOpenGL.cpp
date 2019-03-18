@@ -444,7 +444,7 @@ void main(void) {
 		lineColor = vec4(color, 0);
 		wvertex.xy = vec2(gl_VertexID, vertex.x);
 	}
-	gl_Position.xy = wvertex.xy;
+	gl_Position.xyzw = wvertex.xyzw;
 });
 
 	std::string_view geometryShaderLines =
@@ -461,7 +461,7 @@ void main(void) {
 		return;
 	}
 	geolineColor = lineColor[0];
-	gl_Position.xy = gl_in[0].gl_Position.xy;
+	gl_Position = gl_in[0].gl_Position;
 	EmitVertex();
 	if (lineColor[1].a == 0) {
 		geolineColor = lineColor[0];
@@ -471,7 +471,7 @@ void main(void) {
 		return;
 	}
 	geolineColor = lineColor[0];
-	gl_Position.xy = gl_in[1].gl_Position.xy;
+	gl_Position = gl_in[1].gl_Position;
 	EmitVertex();
 });
 
@@ -526,7 +526,7 @@ void main(void) {
 		}
 		EndPrimitive();
 	}
-	if (gl_PrimitiveIDIn == size.z - 2 && lineColor[2].a != 0 && lineColor[3].a != 0) {
+	if (gl_PrimitiveIDIn == size.z - 4 && lineColor[2].a != 0 && lineColor[3].a != 0) {
 		emitShortVertex(2);
 		emitShortVertex(3);
 		EndPrimitive();
