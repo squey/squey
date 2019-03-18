@@ -42,6 +42,7 @@ class PVViewZoomer : public QWidget
 	void zoomIn(QPoint center, bool rectangular, zoom_f zoomFactor);
 	void zoomOut();
 	void zoomOut(QPoint center);
+	void zoomOut(QPoint center, bool rectangular, zoom_f zoomFactor);
 	void resetZoom();
 	void resetAndZoomIn(Zoom zoom);
 
@@ -60,6 +61,7 @@ class PVViewZoomer : public QWidget
 	virtual void updateZoom(Zoom) {}
 
   private:
+	void zoomOut(QPoint center, Zoom oldZoom, Zoom targetZoom);
 	void updateZoom();
 
   private:

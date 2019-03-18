@@ -51,15 +51,9 @@ void PVViewZoomer::zoomOut()
 	updateZoom();
 }
 
-void PVViewZoomer::zoomOut(QPoint center)
+void PVViewZoomer::zoomOut(QPoint center, Zoom oldZoom, Zoom targetZoom)
 {
 	qDebug() << "zoomOut" << center;
-	if (m_currentZoomIndex == 0) {
-		return;
-	}
-	Zoom oldZoom = m_zoomStack[m_currentZoomIndex];
-	--m_currentZoomIndex;
-	Zoom targetZoom = m_zoomStack[m_currentZoomIndex];
 
 	struct PointF {
 		zoom_f _x;
@@ -85,6 +79,35 @@ void PVViewZoomer::zoomOut(QPoint center)
 	         targetTopLeft.y() + targetZoom.height()};
 
 	updateZoom();
+}
+
+void PVViewZoomer::zoomOut(QPoint center)
+{
+	if (m_currentZoomIndex == 0) {
+		return;
+	}
+	Zoom oldZoom = m_zoomStack[m_currentZoomIndex];
+	--m_currentZoomIndex;
+	Zoom targetZoom = m_zoomStack[m_currentZoomIndex];
+	zoomOut(center, oldZoom, targetZoom);
+}
+
+void PVViewZoomer::zoomOut(QPoint center, bool rectangular, zoom_f zoomFactor)
+{
+	if (m_currentZoomIndex == 0) {
+		return;
+	}
+	Zoom oldZoom = m_zoomStack[m_currentZoomIndex];
+	Zoom targetZoom = oldZoom;
+	targetZoom.minX = 0;
+	targetZoom.maxX = std::min(oldZoom.width() / zoomFactor, zoom_f(1));
+	if (rectangular) {
+		targetZoom.minY = 0;
+		targetZoom.maxY = std::min(oldZoom.height() / zoomFactor, zoom_f(1));
+	}
+	m_zoomStack.resize(2);
+	m_currentZoomIndex = 1;
+	zoomOut(center, oldZoom, targetZoom);
 }
 
 void PVViewZoomer::resetZoom()
@@ -378,7 +401,7 @@ void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 	if (event->angleDelta().y() > 0) {
 		zoomIn(event->pos(), event->modifiers() & Qt::ControlModifier, m_centeredZoomFactor);
 	} else if (event->angleDelta().y() < 0) {
-		zoomOut(event->pos());
+		zoomOut(event->pos(), event->modifiers() & Qt::ControlModifier, m_centeredZoomFactor);
 	}
 }
 
@@ -392,7 +415,7 @@ void PVSeriesViewZoomer::resizeEvent(QResizeEvent*)
 void PVSeriesViewZoomer::timerEvent(QTimerEvent* event)
 {
 	if (event->timerId() == m_resizingTimer.timerId()) {
-		if (m_rss.samples_count() != size().width()) {
+		if (m_rss.samples_count() != size_t(size().width())) {
 			m_rss.set_sampling_count(size().width());
 			updateZoom(currentZoom());
 		} else {
