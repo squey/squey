@@ -20,20 +20,23 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
   public:
 	virtual ~PVSeriesRendererOffscreen() = default;
 
-	virtual void setBackgroundColor(QColor const& bgcol) { m_glRenderer.setBackgroundColor(bgcol); }
-	virtual void resize(QSize const& size) { m_glRenderer.resize(size); }
-	virtual QPixmap grab() { return m_glRenderer.grab(); }
-	virtual void setDrawMode(PVSeriesView::DrawMode mode) { m_glRenderer.setDrawMode(mode); }
+	virtual void set_background_color(QColor const& bgcol)
+	{
+		_gl_renderer.set_background_color(bgcol);
+	}
+	virtual void resize(QSize const& size) { _gl_renderer.resize(size); }
+	virtual QPixmap grab() { return _gl_renderer.grab(); }
+	virtual void set_draw_mode(PVSeriesView::DrawMode mode) { _gl_renderer.set_draw_mode(mode); }
 
 	PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss)
-	    : PVSeriesAbstractRenderer(rss), QOffscreenSurface(), m_glRenderer(rss)
+	    : PVSeriesAbstractRenderer(rss), QOffscreenSurface(), _gl_renderer(rss)
 	{
 		QSurfaceFormat format;
 		format.setVersion(4, 3);
 		format.setProfile(QSurfaceFormat::CoreProfile);
 		setFormat(format);
 		QOffscreenSurface::create();
-		m_glRenderer.setFormat(QOffscreenSurface::format());
+		_gl_renderer.setFormat(QOffscreenSurface::format());
 		qDebug() << "Could init QOffscreenSurface:" << isValid();
 	}
 
@@ -70,9 +73,9 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 	}
 
   protected:
-	virtual void onShowSeries() { m_glRenderer.showSeries(std::move(m_seriesDrawOrder)); }
+	virtual void onShowSeries() { _gl_renderer.show_series(std::move(_series_draw_order)); }
 
-	PVSeriesRendererOpenGL m_glRenderer;
+	PVSeriesRendererOpenGL _gl_renderer;
 };
 
 } // namespace PVParallelView

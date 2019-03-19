@@ -34,8 +34,8 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 		return PVSeriesView::DrawMode::Lines;
 	}
 
-	void setBackgroundColor(QColor const& bgcol) override { setPalette(QPalette(bgcol)); }
-	void setDrawMode(PVSeriesView::DrawMode mode) override { m_drawMode = capability(mode); }
+	void set_background_color(QColor const& bgcol) override { setPalette(QPalette(bgcol)); }
+	void set_draw_mode(PVSeriesView::DrawMode mode) override { _draw_mode = capability(mode); }
 
 	void resize(QSize const& size) override { return QWidget::resize(size); }
 	QPixmap grab() override { return QWidget::grab(); }
@@ -43,7 +43,7 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
   protected:
 	void paintEvent(QPaintEvent*) override
 	{
-		if (not m_rss.valid()) {
+		if (not _rss.valid()) {
 			return;
 		}
 		QPainter painter(this);
@@ -55,12 +55,12 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 				painter.drawPoint(points.front());
 			}
 		};
-		for (auto& serieDraw : m_seriesDrawOrder) {
-			painter.setPen(serieDraw.color);
-			auto& serieData = m_rss.sampled_timeserie(serieDraw.dataIndex);
-			for (size_t j = 0; j < serieData.size();) {
-				while (j < serieData.size()) {
-					int vertex = serieData[j];
+		for (auto& serie_draw : _series_draw_order) {
+			painter.setPen(serie_draw.color);
+			auto& serie_data = _rss.sampled_timeserie(serie_draw.dataIndex);
+			for (size_t j = 0; j < serie_data.size();) {
+				while (j < serie_data.size()) {
+					int vertex = serie_data[j];
 					QPoint point(j, (height() - 1) - vertex * (height() - 1) / ((1 << 14) - 1));
 					if (vertex & (1 << 15)) {     // if out of range
 						if (vertex & (1 << 14)) { // if overflow
@@ -69,23 +69,23 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 							point = QPoint(j, height());
 						}
 					} else if (vertex & (1 << 14)) { // else if no value
-						while (++j < serieData.size() and
-						       (serieData[j] & (1 << 14) and not(serieData[j] & (1 << 15))))
+						while (++j < serie_data.size() and
+						       (serie_data[j] & (1 << 14) and not(serie_data[j] & (1 << 15))))
 							;
 						break;
 					}
 					points.push_back(point);
 					++j;
 				}
-				if (m_drawMode == PVSeriesView::DrawMode::Lines) {
+				if (_draw_mode == PVSeriesView::DrawMode::Lines) {
 					draw_lines();
 					points.clear();
 				}
 			}
-			if (m_drawMode == PVSeriesView::DrawMode::Points) {
+			if (_draw_mode == PVSeriesView::DrawMode::Points) {
 				painter.drawPoints(points.data(), points.size());
 				points.clear();
-			} else if (m_drawMode == PVSeriesView::DrawMode::LinesAlways) {
+			} else if (_draw_mode == PVSeriesView::DrawMode::LinesAlways) {
 				if (not points.empty()) {
 					points.insert(points.begin(), QPoint(0, points[0].y()));
 					points.insert(points.end(), QPoint(width() - 1, points.back().y()));
@@ -98,7 +98,7 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 	}
 
   private:
-	PVSeriesView::DrawMode m_drawMode = PVSeriesView::DrawMode::Lines;
+	PVSeriesView::DrawMode _draw_mode = PVSeriesView::DrawMode::Lines;
 };
 
 } // namespace PVParallelView

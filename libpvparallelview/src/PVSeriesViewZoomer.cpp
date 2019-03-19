@@ -15,45 +15,40 @@ namespace PVParallelView
 
 PVViewZoomer::PVViewZoomer(QWidget* parent) : QWidget(parent)
 {
-	m_zoomStack.push_back(Zoom{0., 1., 0., 1.});
+	_zoom_stack.push_back(Zoom{0., 1., 0., 1.});
 }
 
-void PVViewZoomer::zoomIn(QRect zoomInRect)
+void PVViewZoomer::zoom_in(QRect zoom_in_rect)
 {
-	qDebug() << "zoomIn" << zoomInRect;
-	m_zoomStack.resize(m_currentZoomIndex + 1);
-	m_zoomStack.push_back(rectToZoom(zoomInRect));
-	++m_currentZoomIndex;
-	updateZoom();
+	qDebug() << "zoom_in" << zoom_in_rect;
+	_zoom_stack.resize(_current_zoom_index + 1);
+	_zoom_stack.push_back(rect_to_zoom(zoom_in_rect));
+	++_current_zoom_index;
+	update_zoom();
 }
 
-void PVViewZoomer::zoomIn(QPoint center, bool rectangular, zoom_f zoomFactor)
+void PVViewZoomer::zoom_in(QPoint center, bool rectangular, zoom_f zoom_factor)
 {
-	qDebug() << "zoomIn" << center;
-	// if (m_currentZoomIndex + 1 < m_zoomStack.size()) {
-	// 	++m_currentZoomIndex;
-	// 	updateZoom();
-	// 	return;
-	// }
-	assert(zoomFactor < 1 && zoomFactor > 0);
-	zoomIn(QRect(center.x() - center.x() * zoomFactor,
-	             center.y() - center.y() * (rectangular ? zoomFactor : 1),
-	             zoomFactor * size().width(), (rectangular ? zoomFactor : 1) * size().height()));
+	qDebug() << "zoom_in" << center;
+	assert(zoom_factor < 1 && zoom_factor > 0);
+	zoom_in(QRect(center.x() - center.x() * zoom_factor,
+	              center.y() - center.y() * (rectangular ? zoom_factor : 1),
+	              zoom_factor * size().width(), (rectangular ? zoom_factor : 1) * size().height()));
 }
 
-void PVViewZoomer::zoomOut()
+void PVViewZoomer::zoom_out()
 {
-	qDebug() << "zoomOut";
-	if (m_currentZoomIndex == 0) {
+	qDebug() << "zoom_out";
+	if (_current_zoom_index == 0) {
 		return;
 	}
-	--m_currentZoomIndex;
-	updateZoom();
+	--_current_zoom_index;
+	update_zoom();
 }
 
-void PVViewZoomer::zoomOut(QPoint center, Zoom oldZoom, Zoom targetZoom)
+void PVViewZoomer::zoom_out(QPoint center, Zoom old_zoom, Zoom target_zoom)
 {
-	qDebug() << "zoomOut" << center;
+	qDebug() << "zoom_out" << center;
 
 	struct PointF {
 		zoom_f _x;
@@ -64,76 +59,78 @@ void PVViewZoomer::zoomOut(QPoint center, Zoom oldZoom, Zoom targetZoom)
 		zoom_f& ry() { return _y; }
 	};
 
-	PointF centerRatio{zoom_f(center.x()) / zoom_f(size().width()),
-	                   1. - zoom_f(center.y()) / zoom_f(size().height())};
-	PointF fixedCenter{oldZoom.minX + centerRatio.x() * oldZoom.width(),
-	                   oldZoom.minY + centerRatio.y() * oldZoom.height()};
-	PointF targetTopLeft{fixedCenter.x() - centerRatio.x() * targetZoom.width(),
-	                     fixedCenter.y() - centerRatio.y() * targetZoom.height()};
+	PointF center_ratio{zoom_f(center.x()) / zoom_f(size().width()),
+	                    1. - zoom_f(center.y()) / zoom_f(size().height())};
+	PointF fixed_center{old_zoom.minX + center_ratio.x() * old_zoom.width(),
+	                    old_zoom.minY + center_ratio.y() * old_zoom.height()};
+	PointF target_top_left{fixed_center.x() - center_ratio.x() * target_zoom.width(),
+	                       fixed_center.y() - center_ratio.y() * target_zoom.height()};
 
-	targetTopLeft.rx() = std::clamp(targetTopLeft.x(), zoom_f(0), zoom_f(1) - targetZoom.width());
-	targetTopLeft.ry() = std::clamp(targetTopLeft.y(), zoom_f(0), zoom_f(1) - targetZoom.height());
+	target_top_left.rx() =
+	    std::clamp(target_top_left.x(), zoom_f(0), zoom_f(1) - target_zoom.width());
+	target_top_left.ry() =
+	    std::clamp(target_top_left.y(), zoom_f(0), zoom_f(1) - target_zoom.height());
 
-	m_zoomStack[m_currentZoomIndex] =
-	    Zoom{targetTopLeft.x(), targetTopLeft.x() + targetZoom.width(), targetTopLeft.y(),
-	         targetTopLeft.y() + targetZoom.height()};
+	_zoom_stack[_current_zoom_index] =
+	    Zoom{target_top_left.x(), target_top_left.x() + target_zoom.width(), target_top_left.y(),
+	         target_top_left.y() + target_zoom.height()};
 
-	updateZoom();
+	update_zoom();
 }
 
-void PVViewZoomer::zoomOut(QPoint center)
+void PVViewZoomer::zoom_out(QPoint center)
 {
-	if (m_currentZoomIndex == 0) {
+	if (_current_zoom_index == 0) {
 		return;
 	}
-	Zoom oldZoom = m_zoomStack[m_currentZoomIndex];
-	--m_currentZoomIndex;
-	Zoom targetZoom = m_zoomStack[m_currentZoomIndex];
-	zoomOut(center, oldZoom, targetZoom);
+	Zoom old_zoom = _zoom_stack[_current_zoom_index];
+	--_current_zoom_index;
+	Zoom target_zoom = _zoom_stack[_current_zoom_index];
+	zoom_out(center, old_zoom, target_zoom);
 }
 
-void PVViewZoomer::zoomOut(QPoint center, bool rectangular, zoom_f zoomFactor)
+void PVViewZoomer::zoom_out(QPoint center, bool rectangular, zoom_f zoom_factor)
 {
-	if (m_currentZoomIndex == 0) {
+	if (_current_zoom_index == 0) {
 		return;
 	}
-	Zoom oldZoom = m_zoomStack[m_currentZoomIndex];
-	Zoom targetZoom = oldZoom;
-	targetZoom.minX = 0;
-	targetZoom.maxX = std::min(oldZoom.width() / zoomFactor, zoom_f(1));
+	Zoom old_zoom = _zoom_stack[_current_zoom_index];
+	Zoom target_zoom = old_zoom;
+	target_zoom.minX = 0;
+	target_zoom.maxX = std::min(old_zoom.width() / zoom_factor, zoom_f(1));
 	if (rectangular) {
-		targetZoom.minY = 0;
-		targetZoom.maxY = std::min(oldZoom.height() / zoomFactor, zoom_f(1));
+		target_zoom.minY = 0;
+		target_zoom.maxY = std::min(old_zoom.height() / zoom_factor, zoom_f(1));
 	}
-	m_zoomStack.resize(2);
-	m_currentZoomIndex = 1;
-	zoomOut(center, oldZoom, targetZoom);
+	_zoom_stack.resize(2);
+	_current_zoom_index = 1;
+	zoom_out(center, old_zoom, target_zoom);
 }
 
-void PVViewZoomer::resetZoom()
+void PVViewZoomer::reset_zoom()
 {
-	m_zoomStack.clear();
-	m_zoomStack.push_back(Zoom{0., 1., 0., 1.});
-	m_currentZoomIndex = 0;
-	updateZoom();
+	_zoom_stack.clear();
+	_zoom_stack.push_back(Zoom{0., 1., 0., 1.});
+	_current_zoom_index = 0;
+	update_zoom();
 }
 
-void PVViewZoomer::resetAndZoomIn(Zoom zoom)
+void PVViewZoomer::reset_and_zoom_in(Zoom zoom)
 {
-	m_zoomStack.clear();
-	m_zoomStack.push_back(Zoom{0., 1., 0., 1.});
-	m_zoomStack.push_back(zoom);
-	m_currentZoomIndex = 1;
-	updateZoom();
+	_zoom_stack.clear();
+	_zoom_stack.push_back(Zoom{0., 1., 0., 1.});
+	_zoom_stack.push_back(zoom);
+	_current_zoom_index = 1;
+	update_zoom();
 }
 
-void PVViewZoomer::moveZoomBy(QPoint offset)
+void PVViewZoomer::move_zoom_by(QPoint offset)
 {
-	if (m_currentZoomIndex == 0) {
+	if (_current_zoom_index == 0) {
 		return;
 	}
-	m_zoomStack.resize(m_currentZoomIndex + 1);
-	Zoom& zoom = m_zoomStack.back();
+	_zoom_stack.resize(_current_zoom_index + 1);
+	Zoom& zoom = _zoom_stack.back();
 	{
 		zoom_f offsetX = offset.x() * zoom.width() / zoom_f(size().width());
 		offsetX = std::clamp(offsetX, -(1. - zoom.maxX), zoom.minX);
@@ -146,12 +143,12 @@ void PVViewZoomer::moveZoomBy(QPoint offset)
 		zoom.minY += offsetY;
 		zoom.maxY += offsetY;
 	}
-	updateZoom();
+	update_zoom();
 }
 
-QRect PVViewZoomer::normalizedZoomRect(QRect zoomRect, bool rectangular) const
+QRect PVViewZoomer::normalized_zoom_rect(QRect zoom_rect, bool rectangular) const
 {
-	auto zr = zoomRect.normalized();
+	auto zr = zoom_rect.normalized();
 	if (not rectangular) {
 		zr.setY(0);
 		zr.setHeight(size().height());
@@ -159,19 +156,19 @@ QRect PVViewZoomer::normalizedZoomRect(QRect zoomRect, bool rectangular) const
 	return zr;
 }
 
-auto PVViewZoomer::rectToZoom(QRect const& rect) const -> Zoom
+auto PVViewZoomer::rect_to_zoom(QRect const& rect) const -> Zoom
 {
-	Zoom const& currentZoom = m_zoomStack[m_currentZoomIndex];
+	Zoom const& current_zoom = _zoom_stack[_current_zoom_index];
 	return Zoom{
-	    currentZoom.minX + currentZoom.width() * (rect.x() / zoom_f(size().width())),
-	    currentZoom.minX +
-	        currentZoom.width() * ((rect.x() + rect.width()) / zoom_f(size().width())),
-	    currentZoom.minY +
-	        currentZoom.height() * (1. - (rect.y() + rect.height()) / zoom_f(size().height())),
-	    currentZoom.minY + currentZoom.height() * (1. - rect.y() / zoom_f(size().height()))};
+	    current_zoom.minX + current_zoom.width() * (rect.x() / zoom_f(size().width())),
+	    current_zoom.minX +
+	        current_zoom.width() * ((rect.x() + rect.width()) / zoom_f(size().width())),
+	    current_zoom.minY +
+	        current_zoom.height() * (1. - (rect.y() + rect.height()) / zoom_f(size().height())),
+	    current_zoom.minY + current_zoom.height() * (1. - rect.y() / zoom_f(size().height()))};
 }
 
-void PVViewZoomer::clampZoom(Zoom& zoom)
+void PVViewZoomer::clamp_zoom(Zoom& zoom)
 {
 	zoom.minX = std::clamp(zoom.minX, zoom_f(0), zoom_f(1));
 	zoom.maxX = std::clamp(zoom.maxX, zoom_f(0), zoom_f(1));
@@ -179,16 +176,16 @@ void PVViewZoomer::clampZoom(Zoom& zoom)
 	zoom.maxY = std::clamp(zoom.maxY, zoom_f(0), zoom_f(1));
 }
 
-void PVViewZoomer::updateZoom()
+void PVViewZoomer::update_zoom()
 {
-	updateZoom(currentZoom());
-	zoomUpdated(currentZoom());
+	update_zoom(current_zoom());
+	zoom_updated(current_zoom());
 
-	qDebug() << "Zoom stack (current:" << m_currentZoomIndex << "):";
-	for (auto& zoom : m_zoomStack) {
-		qDebug() << "\t" << std::to_string(zoom.minX).c_str() << std::to_string(zoom.maxX).c_str()
-		         << std::to_string(zoom.minY).c_str() << std::to_string(zoom.maxY).c_str();
-	}
+	// qDebug() << "Zoom stack (current:" << _current_zoom_index << "):";
+	// for (auto& zoom : _zoom_stack) {
+	// 	qDebug() << "\t" << std::to_string(zoom.minX).c_str() << std::to_string(zoom.maxX).c_str()
+	// 	         << std::to_string(zoom.minY).c_str() << std::to_string(zoom.maxY).c_str();
+	// }
 }
 
 struct PVSeriesViewZoomerRectangleFragment : public QWidget {
@@ -210,162 +207,160 @@ struct PVSeriesViewZoomerRectangleFragment : public QWidget {
 PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
                                        Inendi::PVRangeSubSampler& sampler,
                                        QWidget* parent)
-    : PVViewZoomer(parent), m_seriesView(child), m_rss(sampler), m_animationTimer(new QTimer(this))
+    : PVViewZoomer(parent), _series_view(child), _rss(sampler), _animation_timer(new QTimer(this))
 {
 	child->setParent(this);
 	child->setAttribute(Qt::WA_TransparentForMouseEvents);
-	for (auto& fragment : m_selectorFragments) {
+	for (auto& fragment : _selector_fragments) {
 		fragment = new PVSeriesViewZoomerRectangleFragment(
-		    child, m_selectorColors[size_t(m_selectorMode)]);
+		    child, _selector_colors[size_t(_selector_mode)]);
 		fragment->hide();
 	}
-	for (auto& chronotip : m_chronotips) {
+	for (auto& chronotip : _chronotips) {
 		chronotip = new QLabel(child);
 		chronotip->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 		chronotip->setAutoFillBackground(true);
 		chronotip->hide();
 	}
-	m_chronotips[0]->setAlignment(Qt::AlignRight);
-	m_chronotips[1]->setAlignment(Qt::AlignLeft);
+	_chronotips[0]->setAlignment(Qt::AlignRight);
+	_chronotips[1]->setAlignment(Qt::AlignLeft);
 	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking(true);
 	setCursor(Qt::BlankCursor);
 }
 
-void PVSeriesViewZoomer::changeSelectorMode(SelectorMode const mode)
+void PVSeriesViewZoomer::change_selector_mode(SelectorMode const mode)
 {
-	const auto previousMode = m_selectorMode;
-	if (mode == previousMode) {
+	const auto previous_mode = _selector_mode;
+	if (mode == previous_mode) {
 		return;
 	}
 	if (mode == SelectorMode::CrossHairs) {
-		m_selectorMode = SelectorMode::CrossHairs;
-		m_selectorRect = QRect(QPoint(m_selectorRect.left() + m_selectorRect.width(),
-		                              m_selectorRect.top() + m_selectorRect.height()),
+		_selector_mode = SelectorMode::CrossHairs;
+		_selector_rect = QRect(QPoint(_selector_rect.left() + _selector_rect.width(),
+		                              _selector_rect.top() + _selector_rect.height()),
 		                       QSize(0, 0));
-		updateSelectorAndChronotips();
+		update_selector_and_chronotips();
 	}
-	if (previousMode == SelectorMode::CrossHairs) {
-		m_selectorMode = mode;
-		m_selectorRect = QRect(m_selectorRect.topLeft(), QSize(0, 0));
-		updateSelectorAndChronotips();
+	if (previous_mode == SelectorMode::CrossHairs) {
+		_selector_mode = mode;
+		_selector_rect = QRect(_selector_rect.topLeft(), QSize(0, 0));
+		update_selector_and_chronotips();
 	} else {
-		m_selectorMode = mode;
-		updateSelectorAndChronotips();
+		_selector_mode = mode;
+		update_selector_and_chronotips();
 	}
-	if (m_selectorMode != previousMode) {
-		selectorModeChanged(previousMode, m_selectorMode);
+	if (_selector_mode != previous_mode) {
+		selector_mode_changed(previous_mode, _selector_mode);
 	}
 }
 
 void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
-		m_left_button_down = true;
-		if (m_selectorMode == SelectorMode::CrossHairs) {
+		_left_button_down = true;
+		if (_selector_mode == SelectorMode::CrossHairs) {
 			if (event->modifiers() & Qt::ShiftModifier) {
-				changeSelectorMode(SelectorMode::Selecting);
+				change_selector_mode(SelectorMode::Selecting);
 			} else {
-				changeSelectorMode(SelectorMode::Zooming);
+				change_selector_mode(SelectorMode::Zooming);
 			}
 		} else {
-			m_selectorRect = QRect(event->pos(), QSize(0, 0));
-			updateSelectorAndChronotips();
+			_selector_rect = QRect(event->pos(), QSize(0, 0));
+			update_selector_and_chronotips();
 		}
 	}
 
 	if (event->button() == Qt::RightButton) {
-		m_moving = true;
-		// QToolTip::showText(event->globalPos(), tr("Moving"), this);
-		m_moveStart = event->pos();
+		_moving = true;
+		_move_start = event->pos();
 	} else if (event->button() == Qt::MidButton) {
 		using namespace std::chrono;
-		m_animationTimer->callOnTimeout([this] { moveZoomBy({-1, 0}); });
-		m_animationTimer->start(36ms);
+		_animation_timer->callOnTimeout([this] { move_zoom_by({-1, 0}); });
+		_animation_timer->start(36ms);
 	}
 }
 
 void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
-		m_left_button_down = false;
-		if (m_selectorMode == SelectorMode::Zooming) {
-			if (event->pos() == m_selectorRect.topLeft()) {
-				zoomOut(event->pos());
+		_left_button_down = false;
+		if (_selector_mode == SelectorMode::Zooming) {
+			if (event->pos() == _selector_rect.topLeft()) {
+				zoom_out(event->pos());
 			} else {
-				zoomIn(normalizedZoomRect(m_selectorRect & rect(),
-				                          event->modifiers() & Qt::ControlModifier));
+				zoom_in(normalized_zoom_rect(_selector_rect & rect(),
+				                             event->modifiers() & Qt::ControlModifier));
 			}
-			changeSelectorMode(SelectorMode::CrossHairs);
-		} else if (m_selectorMode == SelectorMode::Selecting) {
-			selectionCommit(rectToZoom(normalizedZoomRect(m_selectorRect, false)));
-			changeSelectorMode(SelectorMode::CrossHairs);
-		} else if (m_selectorMode == SelectorMode::Hunting) {
-			huntCommit(m_selectorRect.isNull() ? crossHairsRect(m_selectorRect.topLeft())
-			                                   : normalizedZoomRect(m_selectorRect, true),
-			           not(event->modifiers() & Qt::ControlModifier));
-			changeSelectorMode(SelectorMode::CrossHairs);
+			change_selector_mode(SelectorMode::CrossHairs);
+		} else if (_selector_mode == SelectorMode::Selecting) {
+			selection_commit(rect_to_zoom(normalized_zoom_rect(_selector_rect, false)));
+			change_selector_mode(SelectorMode::CrossHairs);
+		} else if (_selector_mode == SelectorMode::Hunting) {
+			hunt_commit(_selector_rect.isNull() ? cross_hairs_rect(_selector_rect.topLeft())
+			                                    : normalized_zoom_rect(_selector_rect, true),
+			            not(event->modifiers() & Qt::ControlModifier));
+			change_selector_mode(SelectorMode::CrossHairs);
 		}
 	}
 
-	if (m_moving && event->button() == Qt::RightButton) {
-		m_moving = false;
-		// QToolTip::hideText();
-		moveZoomBy(event->pos() - m_moveStart);
+	if (_moving && event->button() == Qt::RightButton) {
+		_moving = false;
+		move_zoom_by(event->pos() - _move_start);
 	} else if (event->button() == Qt::MidButton) {
-		m_animationTimer->stop();
+		_animation_timer->stop();
 	}
 }
 
 void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 {
 	if (not(event->buttons() & Qt::LeftButton)) {
-		m_selectorRect.setTopLeft(event->pos());
+		_selector_rect.setTopLeft(event->pos());
 	}
-	m_selectorRect.setSize(
-	    QSize(std::clamp(event->pos().x(), 0, size().width()) - m_selectorRect.left(),
-	          std::clamp(event->pos().y(), 0, size().height()) - m_selectorRect.top()));
-	updateSelectorAndChronotips();
-	if (m_selectorMode == SelectorMode::Hunting) {
+	_selector_rect.setSize(
+	    QSize(std::clamp(event->pos().x(), 0, size().width()) - _selector_rect.left(),
+	          std::clamp(event->pos().y(), 0, size().height()) - _selector_rect.top()));
+	update_selector_and_chronotips();
+	if (_selector_mode == SelectorMode::Hunting) {
 		if (event->buttons() & Qt::LeftButton) {
-			cursorMoved(normalizedZoomRect(m_selectorRect, true));
+			cursor_moved(normalized_zoom_rect(_selector_rect, true));
 		} else {
-			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
+			cursor_moved(cross_hairs_rect(_selector_rect.topLeft()));
 		}
 	}
-	if (m_moving) {
-		moveZoomBy(event->pos() - m_moveStart);
-		m_moveStart = event->pos();
-		updateChronotips(event->pos());
+	if (_moving) {
+		move_zoom_by(event->pos() - _move_start);
+		_move_start = event->pos();
+		update_chronotips(event->pos());
 	}
 }
 
 void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Control) {
-		m_control_modifier = true;
-		updateSelectorAndChronotips();
+		_control_modifier = true;
+		update_selector_and_chronotips();
 		return;
 	} else if (event->key() == Qt::Key_X) {
-		if (m_selectorMode == SelectorMode::CrossHairs) {
-			changeSelectorMode(SelectorMode::Hunting);
-			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
+		if (_selector_mode == SelectorMode::CrossHairs) {
+			change_selector_mode(SelectorMode::Hunting);
+			cursor_moved(cross_hairs_rect(_selector_rect.topLeft()));
 			return;
-		} else if (m_selectorMode == SelectorMode::Hunting) {
-			changeSelectorMode(SelectorMode::CrossHairs);
+		} else if (_selector_mode == SelectorMode::Hunting) {
+			change_selector_mode(SelectorMode::CrossHairs);
 			return;
 		}
 	} else if (event->key() == Qt::Key_S) {
-		if (m_selectorMode == SelectorMode::CrossHairs) {
-			changeSelectorMode(SelectorMode::Selecting);
-			cursorMoved(crossHairsRect(m_selectorRect.topLeft()));
+		if (_selector_mode == SelectorMode::CrossHairs) {
+			change_selector_mode(SelectorMode::Selecting);
+			cursor_moved(cross_hairs_rect(_selector_rect.topLeft()));
 			return;
-		} else if (m_selectorMode == SelectorMode::Selecting) {
-			changeSelectorMode(SelectorMode::CrossHairs);
+		} else if (_selector_mode == SelectorMode::Selecting) {
+			change_selector_mode(SelectorMode::CrossHairs);
 			return;
 		}
 	} else if (event->key() == Qt::Key_Escape) {
-		changeSelectorMode(SelectorMode::CrossHairs);
+		change_selector_mode(SelectorMode::CrossHairs);
 		return;
 	}
 	QWidget::keyPressEvent(event);
@@ -374,8 +369,8 @@ void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 void PVSeriesViewZoomer::keyReleaseEvent(QKeyEvent* event)
 {
 	if (event->key() == Qt::Key_Control) {
-		m_control_modifier = false;
-		updateSelectorAndChronotips();
+		_control_modifier = false;
+		update_selector_and_chronotips();
 		return;
 	}
 	QWidget::keyReleaseEvent(event);
@@ -390,67 +385,67 @@ void PVSeriesViewZoomer::enterEvent(QEvent*)
 void PVSeriesViewZoomer::leaveEvent(QEvent*)
 {
 	clearFocus();
-	if (not m_left_button_down) {
-		hideFragments(m_selectorFragments);
-		hideFragments(m_chronotips);
+	if (not _left_button_down) {
+		hide_fragments(_selector_fragments);
+		hide_fragments(_chronotips);
 	}
 }
 
 void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 {
 	if (event->angleDelta().y() > 0) {
-		zoomIn(event->pos(), event->modifiers() & Qt::ControlModifier, m_centeredZoomFactor);
+		zoom_in(event->pos(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
 	} else if (event->angleDelta().y() < 0) {
-		zoomOut(event->pos(), event->modifiers() & Qt::ControlModifier, m_centeredZoomFactor);
+		zoom_out(event->pos(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
 	}
 }
 
 void PVSeriesViewZoomer::resizeEvent(QResizeEvent*)
 {
-	m_resizingTimer.stop();
-	m_resizingTimer.start(200, this);
-	m_seriesView->resize(size());
+	_resizing_timer.stop();
+	_resizing_timer.start(200, this);
+	_series_view->resize(size());
 }
 
 void PVSeriesViewZoomer::timerEvent(QTimerEvent* event)
 {
-	if (event->timerId() == m_resizingTimer.timerId()) {
-		if (m_rss.samples_count() != size_t(size().width())) {
-			m_rss.set_sampling_count(size().width());
-			updateZoom(currentZoom());
+	if (event->timerId() == _resizing_timer.timerId()) {
+		if (_rss.samples_count() != size_t(size().width())) {
+			_rss.set_sampling_count(size().width());
+			update_zoom(current_zoom());
 		} else {
-			m_seriesView->refresh();
+			_series_view->refresh();
 		}
-		m_resizingTimer.stop();
+		_resizing_timer.stop();
 	}
 }
 
-void PVSeriesViewZoomer::updateSelectorAndChronotips()
+void PVSeriesViewZoomer::update_selector_and_chronotips()
 {
-	if (m_selectorMode == SelectorMode::CrossHairs or m_selectorRect.isNull()) {
-		updateCrossHairsGeometry(m_selectorRect.topLeft());
-	} else if (m_selectorMode == SelectorMode::Zooming) {
-		updateSelectorGeometry(m_control_modifier);
-	} else if (m_selectorMode == SelectorMode::Selecting) {
-		updateSelectorGeometry(false);
-	} else if (m_selectorMode == SelectorMode::Hunting) {
-		updateSelectorGeometry(true);
+	if (_selector_mode == SelectorMode::CrossHairs or _selector_rect.isNull()) {
+		update_cross_hairs_geometry(_selector_rect.topLeft());
+	} else if (_selector_mode == SelectorMode::Zooming) {
+		update_selector_geometry(_control_modifier);
+	} else if (_selector_mode == SelectorMode::Selecting) {
+		update_selector_geometry(false);
+	} else if (_selector_mode == SelectorMode::Hunting) {
+		update_selector_geometry(true);
 	}
-	if (m_selectorRect.isNull() and rect().contains(m_selectorRect.topLeft())) {
-		updateChronotips(m_selectorRect.topLeft());
+	if (_selector_rect.isNull() and rect().contains(_selector_rect.topLeft())) {
+		update_chronotips(_selector_rect.topLeft());
 	} else {
-		updateChronotips(m_selectorRect & rect());
+		update_chronotips(_selector_rect & rect());
 	}
 }
 
-void PVSeriesViewZoomer::updateSelectorGeometry(bool rectangular)
+void PVSeriesViewZoomer::update_selector_geometry(bool rectangular)
 {
-	auto& fragments = m_selectorFragments;
+	auto& fragments = _selector_fragments;
 	for (auto& fragment : fragments) {
 		static_cast<PVSeriesViewZoomerRectangleFragment*>(fragment)->color =
-		    m_selectorColors[size_t(m_selectorMode)];
+		    _selector_colors[size_t(_selector_mode)];
 	}
-	auto nr = normalizedZoomRect(m_selectorRect, rectangular);
+	auto nr = normalized_zoom_rect(_selector_rect, rectangular);
 	fragments[1]->setGeometry(nr.x(), nr.y(), 1, nr.height());
 	fragments[3]->setGeometry(nr.x() + nr.width(), nr.y(), 1, nr.height());
 	fragments[1]->show();
@@ -466,58 +461,57 @@ void PVSeriesViewZoomer::updateSelectorGeometry(bool rectangular)
 	}
 }
 
-void PVSeriesViewZoomer::updateCrossHairsGeometry(QPoint pos)
+void PVSeriesViewZoomer::update_cross_hairs_geometry(QPoint pos)
 {
-	auto& fragments = m_selectorFragments;
+	auto& fragments = _selector_fragments;
 	for (auto& fragment : fragments) {
 		static_cast<PVSeriesViewZoomerRectangleFragment*>(fragment)->color =
-		    m_selectorColors[size_t(m_selectorMode)];
+		    _selector_colors[size_t(_selector_mode)];
 	}
-	fragments[0]->setGeometry(0, pos.y(), pos.x() - m_crossHairsRadius, 1);
-	fragments[1]->setGeometry(pos.x(), 0, 1, pos.y() - m_crossHairsRadius);
-	fragments[2]->setGeometry(pos.x() + m_crossHairsRadius, pos.y(),
-	                          width() - pos.x() - m_crossHairsRadius, 1);
-	fragments[3]->setGeometry(pos.x(), pos.y() + m_crossHairsRadius, 1,
-	                          height() - pos.y() - m_crossHairsRadius);
-	showFragments(fragments);
+	fragments[0]->setGeometry(0, pos.y(), pos.x() - _cross_hairs_radius, 1);
+	fragments[1]->setGeometry(pos.x(), 0, 1, pos.y() - _cross_hairs_radius);
+	fragments[2]->setGeometry(pos.x() + _cross_hairs_radius, pos.y(),
+	                          width() - pos.x() - _cross_hairs_radius, 1);
+	fragments[3]->setGeometry(pos.x(), pos.y() + _cross_hairs_radius, 1,
+	                          height() - pos.y() - _cross_hairs_radius);
+	show_fragments(fragments);
 }
 
-void PVSeriesViewZoomer::updateChronotipGeometry(size_t chrono_index, QPoint pos)
+void PVSeriesViewZoomer::update_chronotip_geometry(size_t chrono_index, QPoint pos)
 {
 	bool chronotips_top = (pos.y() < height() / 2)
-	                          ? pos.y() > 3 * m_chronotips[0]->height()
-	                          : pos.y() > height() - 3 * m_chronotips[0]->height();
-	bool force_chronotips_right = pos.x() < m_chronotips[0]->width();
-	bool force_chronotips_left = pos.x() > width() - m_chronotips[1]->width();
+	                          ? pos.y() > 3 * _chronotips[0]->height()
+	                          : pos.y() > height() - 3 * _chronotips[0]->height();
+	bool force_chronotips_right = pos.x() < _chronotips[0]->width();
+	bool force_chronotips_left = pos.x() > width() - _chronotips[1]->width();
 	if (chrono_index == 0) {
 		int chronotips_y_0 = chronotips_top ? 0 : force_chronotips_left or force_chronotips_right
-		                                              ? height() - m_chronotips[0]->height() -
-		                                                    m_chronotips[1]->height()
-		                                              : height() - m_chronotips[0]->height();
-		m_chronotips[0]->move(force_chronotips_right ? pos.x() + 1
-		                                             : pos.x() - m_chronotips[0]->width(),
-		                      chronotips_y_0);
+		                                              ? height() - _chronotips[0]->height() -
+		                                                    _chronotips[1]->height()
+		                                              : height() - _chronotips[0]->height();
+		_chronotips[0]->move(force_chronotips_right ? pos.x() + 1
+		                                            : pos.x() - _chronotips[0]->width(),
+		                     chronotips_y_0);
 	} else if (chrono_index == 1) {
 		int chronotips_y_1 =
 		    chronotips_top
-		        ? force_chronotips_left or force_chronotips_right ? m_chronotips[0]->height() : 0
-		        : height() - m_chronotips[1]->height();
-		m_chronotips[1]->move(force_chronotips_left ? pos.x() - m_chronotips[1]->width()
-		                                            : pos.x() + 1,
-		                      chronotips_y_1);
+		        ? force_chronotips_left or force_chronotips_right ? _chronotips[0]->height() : 0
+		        : height() - _chronotips[1]->height();
+		_chronotips[1]->move(force_chronotips_left ? pos.x() - _chronotips[1]->width()
+		                                           : pos.x() + 1,
+		                     chronotips_y_1);
 	} else if (chrono_index == 2) {
-		bool percenttips_left = pos.x() > 2 * m_chronotips[2]->width();
-		m_chronotips[2]->move(percenttips_left ? 0 : width() - m_chronotips[2]->width(),
-		                      pos.y() + 1);
+		bool percenttips_left = pos.x() > 2 * _chronotips[2]->width();
+		_chronotips[2]->move(percenttips_left ? 0 : width() - _chronotips[2]->width(), pos.y() + 1);
 	} else if (chrono_index == 3) {
-		bool percenttips_left = pos.x() > 2 * m_chronotips[3]->width();
-		m_chronotips[3]->move(percenttips_left ? 0 : width() - m_chronotips[3]->width(),
-		                      pos.y() - m_chronotips[3]->height());
+		bool percenttips_left = pos.x() > 2 * _chronotips[3]->width();
+		_chronotips[3]->move(percenttips_left ? 0 : width() - _chronotips[3]->width(),
+		                     pos.y() - _chronotips[3]->height());
 	}
 }
 
 template <class T>
-void PVSeriesViewZoomer::showFragments(T const& fragments) const
+void PVSeriesViewZoomer::show_fragments(T const& fragments) const
 {
 	for (auto& fragment : fragments) {
 		fragment->show();
@@ -526,46 +520,46 @@ void PVSeriesViewZoomer::showFragments(T const& fragments) const
 }
 
 template <class T>
-void PVSeriesViewZoomer::hideFragments(T const& fragments) const
+void PVSeriesViewZoomer::hide_fragments(T const& fragments) const
 {
 	for (auto& fragment : fragments) {
 		fragment->hide();
 	}
 }
 
-void PVSeriesViewZoomer::updateZoom(Zoom zoom)
+void PVSeriesViewZoomer::update_zoom(Zoom zoom)
 {
-	m_rss.subsample(zoom.minX, zoom.maxX, zoom.minY, zoom.maxY);
+	_rss.subsample(zoom.minX, zoom.maxX, zoom.minY, zoom.maxY);
 }
 
-void PVSeriesViewZoomer::updateChronotips(QPoint point)
+void PVSeriesViewZoomer::update_chronotips(QPoint point)
 {
-	updateChronotips(QRect(point.x(), point.y(), 1, 1));
+	update_chronotips(QRect(point.x(), point.y(), 1, 1));
 }
 
-void PVSeriesViewZoomer::updateChronotips(QRect rect_in)
+void PVSeriesViewZoomer::update_chronotips(QRect rect_in)
 {
-	auto rect = normalizedZoomRect(rect_in, true);
-	Zoom coveredZoom = rectToZoom(rect);
-	pvcop::db::array subrange = m_rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
-	m_chronotips[0]->setText((subrange.at(0) + ">").c_str());
-	m_chronotips[1]->setText(("<" + subrange.at(1)).c_str());
-	m_chronotips[2]->setText((std::to_string(coveredZoom.minY) + "%").c_str());
-	m_chronotips[3]->setText((std::to_string(coveredZoom.maxY) + "%").c_str());
-	for (auto* chronotip : m_chronotips) {
+	auto rect = normalized_zoom_rect(rect_in, true);
+	Zoom coveredZoom = rect_to_zoom(rect);
+	pvcop::db::array subrange = _rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
+	_chronotips[0]->setText((subrange.at(0) + ">").c_str());
+	_chronotips[1]->setText(("<" + subrange.at(1)).c_str());
+	_chronotips[2]->setText((std::to_string(coveredZoom.minY) + "%").c_str());
+	_chronotips[3]->setText((std::to_string(coveredZoom.maxY) + "%").c_str());
+	for (auto* chronotip : _chronotips) {
 		chronotip->adjustSize();
 	}
-	updateChronotipGeometry(0, rect.topLeft());
-	updateChronotipGeometry(1, rect.bottomRight());
-	updateChronotipGeometry(2, rect.bottomRight());
-	updateChronotipGeometry(3, rect.topLeft());
-	showFragments(m_chronotips);
+	update_chronotip_geometry(0, rect.topLeft());
+	update_chronotip_geometry(1, rect.bottomRight());
+	update_chronotip_geometry(2, rect.bottomRight());
+	update_chronotip_geometry(3, rect.topLeft());
+	show_fragments(_chronotips);
 }
 
-QRect PVSeriesViewZoomer::crossHairsRect(QPoint pos) const
+QRect PVSeriesViewZoomer::cross_hairs_rect(QPoint pos) const
 {
-	return QRect(pos.x() - m_crossHairsRadius, pos.y() - m_crossHairsRadius,
-	             2 * m_crossHairsRadius + 1, 2 * m_crossHairsRadius + 1)
+	return QRect(pos.x() - _cross_hairs_radius, pos.y() - _cross_hairs_radius,
+	             2 * _cross_hairs_radius + 1, 2 * _cross_hairs_radius + 1)
 	    .intersected(rect());
 }
 }

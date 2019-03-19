@@ -38,35 +38,35 @@ class PVViewZoomer : public QWidget
 
 	PVViewZoomer(QWidget* parent = nullptr);
 
-	void zoomIn(QRect zoomInRect);
-	void zoomIn(QPoint center, bool rectangular, zoom_f zoomFactor);
-	void zoomOut();
-	void zoomOut(QPoint center);
-	void zoomOut(QPoint center, bool rectangular, zoom_f zoomFactor);
-	void resetZoom();
-	void resetAndZoomIn(Zoom zoom);
+	void zoom_in(QRect zoom_in_rect);
+	void zoom_in(QPoint center, bool rectangular, zoom_f zoom_factor);
+	void zoom_out();
+	void zoom_out(QPoint center);
+	void zoom_out(QPoint center, bool rectangular, zoom_f zoom_factor);
+	void reset_zoom();
+	void reset_and_zoom_in(Zoom zoom);
 
-	void moveZoomBy(QPoint offset);
+	void move_zoom_by(QPoint offset);
 
-	QRect normalizedZoomRect(QRect zoomRect, bool rectangular) const;
-	Zoom rectToZoom(QRect const& rect) const;
-	Zoom currentZoom() const { return m_zoomStack[m_currentZoomIndex]; }
+	QRect normalized_zoom_rect(QRect zoomRect, bool rectangular) const;
+	Zoom rect_to_zoom(QRect const& rect) const;
+	Zoom current_zoom() const { return _zoom_stack[_current_zoom_index]; }
 
-	static void clampZoom(Zoom& zoom);
+	static void clamp_zoom(Zoom& zoom);
 
   Q_SIGNALS:
-	void zoomUpdated(Zoom zoom);
+	void zoom_updated(Zoom zoom);
 
   protected:
-	virtual void updateZoom(Zoom) {}
+	virtual void update_zoom(Zoom) {}
 
   private:
-	void zoomOut(QPoint center, Zoom oldZoom, Zoom targetZoom);
-	void updateZoom();
+	void zoom_out(QPoint center, Zoom oldZoom, Zoom targetZoom);
+	void update_zoom();
 
   private:
-	std::vector<Zoom> m_zoomStack;
-	size_t m_currentZoomIndex = 0;
+	std::vector<Zoom> _zoom_stack;
+	size_t _current_zoom_index = 0;
 };
 
 class PVSeriesViewZoomer : public PVViewZoomer
@@ -80,23 +80,23 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	enum class SelectorMode { CrossHairs = 0, Zooming = 1, Selecting = 2, Hunting = 3 };
 
-	SelectorMode currentSelectorMode() const { return m_selectorMode; }
-	void changeSelectorMode(SelectorMode const mode);
+	SelectorMode current_selector_mode() const { return _selector_mode; }
+	void change_selector_mode(SelectorMode const mode);
 
-	QColor getSelectorColor(SelectorMode mode) const { return m_selectorColors[size_t(mode)]; }
-	void setSelectorColor(SelectorMode mode, QColor color)
+	QColor get_selector_color(SelectorMode mode) const { return _selector_colors[size_t(mode)]; }
+	void set_selector_color(SelectorMode mode, QColor color)
 	{
-		m_selectorColors[size_t(mode)] = color;
+		_selector_colors[size_t(mode)] = color;
 	}
 
-	int getCrossHairsRadius() const { return m_crossHairsRadius; }
-	void setCrossHairsRadius(int radius) { m_crossHairsRadius = radius; }
+	int get_cross_hairs_radius() const { return _cross_hairs_radius; }
+	void set_cross_hairs_radius(int radius) { _cross_hairs_radius = radius; }
 
   Q_SIGNALS:
-	void selectorModeChanged(SelectorMode previousMode, SelectorMode currentMode);
-	void selectionCommit(Zoom selection);
-	void cursorMoved(QRect region);
-	void huntCommit(QRect region, bool addition);
+	void selector_mode_changed(SelectorMode previous_mode, SelectorMode current_mode);
+	void selection_commit(Zoom selection);
+	void cursor_moved(QRect region);
+	void hunt_commit(QRect region, bool addition);
 
   protected:
 	void mousePressEvent(QMouseEvent*) override;
@@ -112,48 +112,48 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	void resizeEvent(QResizeEvent*) override;
 	void timerEvent(QTimerEvent* event) override;
 
-	void updateZoom(Zoom zoom) override;
-	void updateChronotips(QPoint point);
-	void updateChronotips(QRect rect);
+	void update_zoom(Zoom zoom) override;
+	void update_chronotips(QPoint point);
+	void update_chronotips(QRect rect);
 
   private:
-	void updateSelectorAndChronotips();
-	void updateSelectorGeometry(bool rectangular);
-	void updateCrossHairsGeometry(QPoint pos);
-	void updateChronotipGeometry(size_t chrono_index, QPoint pos);
+	void update_selector_and_chronotips();
+	void update_selector_geometry(bool rectangular);
+	void update_cross_hairs_geometry(QPoint pos);
+	void update_chronotip_geometry(size_t chrono_index, QPoint pos);
 	template <class T>
-	void showFragments(T const& fragments) const;
+	void show_fragments(T const& fragments) const;
 	template <class T>
-	void hideFragments(T const& fragments) const;
-	QRect crossHairsRect(QPoint pos) const;
+	void hide_fragments(T const& fragments) const;
+	QRect cross_hairs_rect(QPoint pos) const;
 
   private:
-	PVSeriesView* m_seriesView;
-	Inendi::PVRangeSubSampler& m_rss;
+	PVSeriesView* _series_view;
+	Inendi::PVRangeSubSampler& _rss;
 
-	QBasicTimer m_resizingTimer;
+	QBasicTimer _resizing_timer;
 
-	SelectorMode m_selectorMode = SelectorMode::CrossHairs;
-	QRect m_selectorRect;
-	std::array<QWidget*, 4> m_selectorFragments{nullptr};
-	std::array<QColor, 4> m_selectorColors{
+	SelectorMode _selector_mode = SelectorMode::CrossHairs;
+	QRect _selector_rect;
+	std::array<QWidget*, 4> _selector_fragments{nullptr};
+	std::array<QColor, 4> _selector_colors{
 	    QColor(255, 100, 50, 255), // CrossHairs
 	    QColor(255, 0, 0, 255),    // Zooming
 	    QColor(20, 255, 50, 255),  // Selecting
 	    QColor(20, 20, 255, 255)   // Hunting
 	};
-	int m_crossHairsRadius = 10;
-	std::array<QLabel*, 4> m_chronotips{nullptr};
+	int _cross_hairs_radius = 10;
+	std::array<QLabel*, 4> _chronotips{nullptr};
 
-	bool m_control_modifier = false;
-	bool m_left_button_down = false;
+	bool _control_modifier = false;
+	bool _left_button_down = false;
 
-	bool m_moving = false;
-	QPoint m_moveStart;
+	bool _moving = false;
+	QPoint _move_start;
 
-	QTimer* m_animationTimer;
+	QTimer* _animation_timer;
 
-	const zoom_f m_centeredZoomFactor = 0.8;
+	const zoom_f _centered_zoom_factor = 0.8;
 };
 }
 

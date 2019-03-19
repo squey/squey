@@ -27,7 +27,7 @@ namespace PVParallelView
 	case backend:                                                                                  \
 		if (Renderer::capability()) {                                                              \
 			qDebug() << "Choosing " << #backend "( " #Renderer " )";                               \
-			m_renderer = std::make_unique<Renderer>(m_rss);                                        \
+			_renderer = std::make_unique<Renderer>(_rss);                                          \
 			return backend;                                                                        \
 		}                                                                                          \
 		[[fallthrough]];
@@ -56,60 +56,57 @@ auto PVSeriesView::capability(Backend backend) -> Backend
 		return Renderer::capability(test);
 
 PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, Backend backend, QWidget* parent)
-    : QWidget(parent), m_rss(rss), m_backend(make_renderer(backend)), m_pixmap(size())
+    : QWidget(parent), _rss(rss), _backend(make_renderer(backend)), _pixmap(size())
 {
-	m_pixmap.fill(Qt::black);
+	_pixmap.fill(Qt::black);
 
-	m_rss._subsampled.connect([this] { refresh(); });
+	_rss._subsampled.connect([this] { refresh(); });
 }
 
 PVSeriesView::~PVSeriesView() = default;
 
-void PVSeriesView::setBackgroundColor(QColor const& bgcol)
+void PVSeriesView::set_background_color(QColor const& bgcol)
 {
 	setPalette(QPalette(bgcol));
-	m_renderer->setBackgroundColor(bgcol);
+	_renderer->set_background_color(bgcol);
 }
 
-void PVSeriesView::showSeries(std::vector<SerieDrawInfo> seriesDrawOrder)
+void PVSeriesView::show_series(std::vector<SerieDrawInfo> series_draw_order)
 {
-	m_renderer->showSeries(std::move(seriesDrawOrder));
+	_renderer->show_series(std::move(series_draw_order));
 }
 
-auto PVSeriesView::capability(Backend backend, DrawMode drawMode) -> DrawMode
+auto PVSeriesView::capability(Backend backend, DrawMode draw_mode) -> DrawMode
 {
-	SWITCH_BACKEND(backend, drawMode)
+	SWITCH_BACKEND(backend, draw_mode)
 }
 
-void PVSeriesView::setDrawMode(DrawMode dm)
+void PVSeriesView::set_draw_mode(DrawMode dm)
 {
-	m_renderer->setDrawMode(dm);
+	_renderer->set_draw_mode(dm);
 }
 
 void PVSeriesView::refresh()
 {
-	m_needHardRedraw = true;
+	_need_hard_redraw = true;
 	update();
 }
 
 void PVSeriesView::paintEvent(QPaintEvent*)
 {
-	if (m_needHardRedraw) {
-		// qDebug() << "hard paint";
+	if (_need_hard_redraw) {
 		BENCH_START(paint_series);
-		m_pixmap = m_renderer->grab();
+		_pixmap = _renderer->grab();
 		BENCH_END(paint_series, "paint_series", 1, 1, 1, 1);
-
-		m_needHardRedraw = false;
+		_need_hard_redraw = false;
 	}
-	// qDebug() << "soft paint";
 	QPainter painter(this);
-	painter.drawPixmap(0, 0, width(), height(), m_pixmap);
+	painter.drawPixmap(0, 0, width(), height(), _pixmap);
 }
 
 void PVSeriesView::resizeEvent(QResizeEvent*)
 {
-	m_renderer->resize(size());
+	_renderer->resize(size());
 }
 
 } // namespace PVParallelView

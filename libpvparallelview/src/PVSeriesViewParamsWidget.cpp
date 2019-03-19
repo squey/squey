@@ -36,10 +36,10 @@ void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator()
 	sel->setToolTip("Activate/deactivate select interval mode");
 	addAction(sel);
 	connect(sel, &QAction::triggered, [zoomer = _series_view_widget->_zoomer](bool checked) {
-		zoomer->changeSelectorMode(checked ? PVSeriesViewZoomer::SelectorMode::Selecting
-		                                   : PVSeriesViewZoomer::SelectorMode::CrossHairs);
+		zoomer->change_selector_mode(checked ? PVSeriesViewZoomer::SelectorMode::Selecting
+		                                     : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selectorModeChanged,
+	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 	        [sel](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
 		        sel->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Selecting);
 		    });
@@ -56,10 +56,10 @@ void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator()
 	hunt->setToolTip("Activate/deactivate select series mode");
 	addAction(hunt);
 	connect(hunt, &QAction::triggered, [zoomer = _series_view_widget->_zoomer](bool checked) {
-		zoomer->changeSelectorMode(checked ? PVSeriesViewZoomer::SelectorMode::Hunting
-		                                   : PVSeriesViewZoomer::SelectorMode::CrossHairs);
+		zoomer->change_selector_mode(checked ? PVSeriesViewZoomer::SelectorMode::Hunting
+		                                     : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selectorModeChanged,
+	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 	        [hunt](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
 		        hunt->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Hunting);
 		    });
@@ -128,7 +128,7 @@ void PVParallelView::PVSeriesViewParamsWidget::set_rendering_mode(QAction* actio
 
 	PVSeriesView& plot = *_series_view_widget->_plot;
 
-	plot.setDrawMode((PVSeriesView::DrawMode)mode);
+	plot.set_draw_mode((PVSeriesView::DrawMode)mode);
 	plot.refresh();
 
 	update_mode_selector(_rendering_mode_button, mode_index);

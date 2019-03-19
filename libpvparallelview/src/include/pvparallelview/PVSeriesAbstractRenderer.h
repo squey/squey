@@ -17,25 +17,25 @@ class PVSeriesAbstractRenderer
   public:
 	virtual ~PVSeriesAbstractRenderer() = default;
 
-	virtual void setBackgroundColor(QColor const& bgcol) = 0;
+	virtual void set_background_color(QColor const& bgcol) = 0;
 	virtual void resize(QSize const& size) = 0;
 	virtual QPixmap grab() = 0;
 
-	virtual void setDrawMode(PVSeriesView::DrawMode) = 0;
+	virtual void set_draw_mode(PVSeriesView::DrawMode) = 0;
 
-	void showSeries(std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder)
+	void show_series(std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder)
 	{
-		std::swap(m_seriesDrawOrder, seriesDrawOrder);
-		onShowSeries();
+		std::swap(_series_draw_order, seriesDrawOrder);
+		on_show_series();
 	}
 
   protected:
-	PVSeriesAbstractRenderer(Inendi::PVRangeSubSampler const& rss) : m_rss(rss) {}
+	PVSeriesAbstractRenderer(Inendi::PVRangeSubSampler const& rss) : _rss(rss) {}
 
-	virtual void onShowSeries() {}
+	virtual void on_show_series() {}
 
-	Inendi::PVRangeSubSampler const& m_rss;
-	std::vector<PVSeriesView::SerieDrawInfo> m_seriesDrawOrder;
+	Inendi::PVRangeSubSampler const& _rss;
+	std::vector<PVSeriesView::SerieDrawInfo> _series_draw_order;
 };
 
 } // namespace PVParallelView

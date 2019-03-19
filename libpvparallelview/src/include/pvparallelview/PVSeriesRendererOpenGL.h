@@ -36,14 +36,14 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	static bool capability();
 	static PVSeriesView::DrawMode capability(PVSeriesView::DrawMode);
 
-	void setBackgroundColor(QColor const& bgcol) override;
-	void setDrawMode(PVSeriesView::DrawMode) override;
+	void set_background_color(QColor const& bgcol) override;
+	void set_draw_mode(PVSeriesView::DrawMode) override;
 
 	void resize(QSize const& size) override { QWidget::resize(size); }
 
 	QPixmap grab() override { return QWidget::grab(QRect(QPoint(0, 0), size())); }
 
-	void onResampled();
+	void on_resampled();
 
   protected:
 	void initializeGL() override;
@@ -52,28 +52,23 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
-	void onAboutToCompose();
-	void onFrameSwapped();
+	void debug_available_memory();
+	void debug_errors();
 
-	void debugAvailableMemory();
-	void debugErrors();
-
-	void setDrawMode_GL();
+	void set_draw_mode_GL();
 
 	int lines_per_vbo() const;
 	void compute_dbo_GL();
 	void allocate_buffer_GL(QOpenGLBuffer& buffer, int expected_size);
 	void fill_dbo_GL();
-	void fill_vbo_GL(size_t const lineBegin, size_t const lineEnd);
-	void fill_cbo_GL(size_t const lineBegin, size_t const lineEnd);
-	void draw_GL(size_t const lineBegin, size_t const lineEnd);
+	void fill_vbo_GL(size_t const line_begin, size_t const line_end);
+	void fill_cbo_GL(size_t const line_begin, size_t const line_end);
+	void draw_GL(size_t const line_begin, size_t const line_end);
 
-	void setupShaders_GL();
+	void setup_shaders_GL();
 
   private:
 	struct Vertex {
-		// GLfloat x;
-		// GLfloat y;
 		GLushort y;
 	};
 
@@ -90,36 +85,34 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 		GLuint baseInstance;
 	};
 
-	QOpenGLVertexArrayObject m_vao;
-	QOpenGLBuffer m_vbo;
-	QOpenGLBuffer m_cbo;
-	QOpenGLBuffer m_dbo;
-	QOpenGLShaderProgram* m_program = nullptr;
-	std::unique_ptr<QOpenGLShaderProgram> m_programLines;
-	std::unique_ptr<QOpenGLShaderProgram> m_programPoints;
-	std::unique_ptr<QOpenGLShaderProgram> m_programLinesAlways;
+	QOpenGLVertexArrayObject _vao;
+	QOpenGLBuffer _vbo;
+	QOpenGLBuffer _cbo;
+	QOpenGLBuffer _dbo;
+	QOpenGLShaderProgram* _program = nullptr;
+	std::unique_ptr<QOpenGLShaderProgram> _program_Lines;
+	std::unique_ptr<QOpenGLShaderProgram> _program_Points;
+	std::unique_ptr<QOpenGLShaderProgram> _program_LinesAlways;
 
-	std::optional<QColor> m_backgroundColor;
-	bool m_needToResetDrawMode = false;
-	PVSeriesView::DrawMode m_drawMode;
-	GLenum m_glDrawMode = GL_LINE_STRIP;
+	std::optional<QColor> _background_color;
+	bool _need_to_reset_draw_mode = false;
+	PVSeriesView::DrawMode _draw_mode;
+	GLenum _gl_draw_mode = GL_LINE_STRIP;
 
-	int m_linesPerVboCount = 0;
+	int _lines_per_vbo_count = 0;
 
-	int m_sizeLocation = 0;
+	int _size_location = 0;
 
-	bool m_wasCleanedUp = false;
-	bool m_blockPaint = false;
-	QSize m_oldSize;
+	bool _was_cleaned_up = false;
+	bool _block_paint = false;
+	QSize _old_size;
 
-	GLint m_GL_max_elements_vertices = 0;
+	GLint _GL_max_elements_vertices = 0;
 
 	void (*glMultiDrawArraysIndirect)(GLenum mode,
 	                                  const void* indirect,
 	                                  GLsizei drawcount,
 	                                  GLsizei stride) = nullptr;
-
-	std::chrono::time_point<std::chrono::high_resolution_clock> startCompositionTimer;
 };
 
 } // namespace PVParallelView

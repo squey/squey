@@ -35,18 +35,18 @@ class PVSeriesView : public QWidget
 	                      QWidget* parent = 0);
 	virtual ~PVSeriesView();
 
-	void setBackgroundColor(QColor const& bgcol);
-	void showSeries(std::vector<SerieDrawInfo> seriesDrawOrder);
+	void set_background_color(QColor const& bgcol);
+	void show_series(std::vector<SerieDrawInfo> series_draw_order);
 	void refresh();
 
-	void setDrawMode(DrawMode);
+	void set_draw_mode(DrawMode);
 	static Backend capability(Backend);
 	static DrawMode capability(Backend, DrawMode);
 
 	template <class... Args>
 	auto capability(Args&&... args)
 	{
-		return capability(m_backend, std::forward<Args>(args)...);
+		return capability(_backend, std::forward<Args>(args)...);
 	}
 
   protected:
@@ -54,11 +54,11 @@ class PVSeriesView : public QWidget
 	void resizeEvent(QResizeEvent* event) override;
 
   private:
-	Inendi::PVRangeSubSampler& m_rss;
-	std::unique_ptr<PVSeriesAbstractRenderer> m_renderer;
-	const Backend m_backend;
-	QPixmap m_pixmap;
-	bool m_needHardRedraw = false;
+	Inendi::PVRangeSubSampler& _rss;
+	std::unique_ptr<PVSeriesAbstractRenderer> _renderer;
+	const Backend _backend;
+	QPixmap _pixmap;
+	bool _need_hard_redraw = false;
 
 	auto make_renderer(Backend backend) -> Backend;
 };
