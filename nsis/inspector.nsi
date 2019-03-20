@@ -23,7 +23,7 @@ ManifestDPIAware true
     !define NAME "Inspector"
     !define OUTFILE "${PRODUCT_NAME}_installer.exe"
 	
-	; VcXsrv 
+	; VcXsrv
 	!define VCXSRV_MAIN_REG_KEY "SOFTWARE\VcXsrv"
 	!define VCXSRV_REG_KEY "Install_Dir_64"
 	!define VCXSRV_HTTP_LINK "https://sourceforge.net/projects/vcxsrv/files/latest/download"
@@ -164,7 +164,7 @@ ManifestDPIAware true
   # These indented statements modify settings for MUI_PAGE_FINISH
   !define MUI_FINISHPAGE_NOAUTOCLOSE
   !define MUI_FINISHPAGE_RUN
-  !define MUI_FINISHPAGE_RUN_TEXT "Run PCAP Inspector"
+  !define MUI_FINISHPAGE_RUN_TEXT "Run ${DISPLAY_NAME}"
   !define MUI_FINISHPAGE_RUN_FUNCTION "RunInspector"
   !insertmacro MUI_PAGE_FINISH
 
@@ -260,7 +260,7 @@ Function InstallInspector
 FunctionEnd
 
 ;--------------------------------
-;        Section PCAP Inspector
+;        Section Inspector
 ;--------------------------------
 Section
 	SetRegView 64
@@ -274,7 +274,7 @@ Section
 	File "resources\run_inspector.cmd"
 	File "resources\update_wsl.sh"
 	File "resources\update_inspector.sh"
-	File "resources\SilentCMD.exe"
+	File "resources\hideexec.exe" ; http://code.kliu.org/misc/hideexec/
 	File "resources\${PRODUCT_NAME}.ico"
 	
 	Call InstallVcXsrv
@@ -292,13 +292,13 @@ SectionEnd
 Section "Start Menu Shortcut" SecStartMenuShortcut
 	; Create start menu shortcut
 	SetShellVarContext all
-	CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$INSTDIR\SilentCMD.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
+	CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
 SectionEnd
 
 Section "Desktop Shortcut" SecDesktopShortcut
     ; Create desktop shortcut
 	SetShellVarContext all
-	CreateShortCut "$DESKTOP\${DISPLAY_NAME}.lnk" "$INSTDIR\SilentCMD.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
+	CreateShortCut "$DESKTOP\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
 SectionEnd
 
 ;--------------------------------

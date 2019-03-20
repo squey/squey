@@ -29,6 +29,7 @@ PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
 PVCorrelationEngine.cpp
+PVRangeSubSampler.cpp
 
 plugins.cpp
 )

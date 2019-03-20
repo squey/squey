@@ -34,7 +34,7 @@
 #include <QLineEdit>
 #include <QPainter>
 #include <QResizeEvent>
-#include <QScrollBar64>
+#include <QScrollBar>
 #include <QVBoxLayout>
 
 #define RENDER_TIMEOUT 75 // in ms
@@ -176,7 +176,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 	connect(this, &PVHitCountView::zoom_has_changed, this, &PVHitCountView::do_zoom_change);
 	connect(this, &PVHitCountView::pan_has_changed, this, &PVHitCountView::do_pan_change);
 
-	connect(get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	connect(get_vertical_scrollbar(), &QScrollBar::valueChanged, this,
 	        &PVHitCountView::do_pan_change);
 
 	_help_widget = new PVWidgets::PVHelpWidget(this);

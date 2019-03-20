@@ -9,6 +9,7 @@
 #include <pvkernel/widgets/PVColorDialog.h>
 
 #include <QMouseEvent>
+#include <QAction>
 
 // static PVCore::PVHSVColor g_predefined_colors[] = {HSV_COLOR_WHITE, HSV_COLOR_RED,
 // HSV_COLOR_GREEN, HSV_COLOR_BLUE};

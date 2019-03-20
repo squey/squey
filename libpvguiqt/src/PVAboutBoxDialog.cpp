@@ -24,6 +24,7 @@
 #include <QDirIterator>
 #include <QTextEdit>
 #include <QTextStream>
+#include <QtWebEngineWidgets/QWebEngineView>
 
 #include <pvguiqt/PVLogoScene.h>
 
@@ -96,7 +97,29 @@ class PVChangeLogWidget : public QWidget
 	}
 };
 
-PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(parent)
+class PVReferenceManual : public QWebEngineView
+{
+  public:
+	PVReferenceManual()
+	{
+		setContextMenuPolicy(Qt::NoContextMenu);
+#ifdef INENDI_DEVELOPER_MODE
+		connect(this, &QWebEngineView::loadFinished, [this](bool ok) {
+			if (not ok) {
+				load(QUrl(
+				    std::string("file://" INENDI_SOURCE_DIRECTORY
+				                "/doc/outputs/inendi_inspector_reference_manual/single/index.html")
+				        .c_str()));
+			}
+		});
+#endif
+		load(QUrl(std::string("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html")
+		              .c_str()));
+	}
+};
+
+PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* parent /*= 0*/)
+    : QDialog(parent)
 {
 	setWindowTitle("About INENDI Inspector");
 
@@ -176,6 +199,8 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	_tab_widget->addTab(tab_software, "Software");
 	_changelog_tab = new PVChangeLogWidget;
 	_tab_widget->addTab(_changelog_tab, "Changelog");
+	_reference_manual_tab = new PVReferenceManual;
+	_tab_widget->addTab(_reference_manual_tab, "Reference Manual");
 	_tab_widget->addTab(new PVOpenSourceSoftwareWidget, "Open source software");
 
 	main_layout->addWidget(_tab_widget, 0, 0);
@@ -186,11 +211,13 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(QWidget* parent /*= 0*/) : QDialog(p
 	connect(ok, &QAbstractButton::clicked, this, &QDialog::accept);
 
 	resize(520, 550);
+
+	select_tab(tab);
 }
 
-void PVGuiQt::PVAboutBoxDialog::select_changelog_tab()
+void PVGuiQt::PVAboutBoxDialog::select_tab(Tab tab)
 {
-	_tab_widget->setCurrentWidget(_changelog_tab);
+	_tab_widget->setCurrentIndex(tab);
 }
 
 void PVGuiQt::__impl::GraphicsView::resizeEvent(QResizeEvent* event)

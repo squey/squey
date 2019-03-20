@@ -112,6 +112,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "Help" menu entry
 	 **************************/
 	about_Action = new QAction(tr("&About"), this);
+	refman_Action = new QAction(tr("Reference &Manual"), this);
 }
 
 /******************************************************************************
@@ -191,6 +192,7 @@ void PVInspector::PVMainWindow::create_menus()
 
 	help_Menu = menubar->addMenu(tr("&Help"));
 	help_Menu->addAction(about_Action);
+	help_Menu->addAction(refman_Action);
 }
 
 /******************************************************************************
@@ -284,5 +286,8 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(tools_open_format_Action, &QAction::triggered, this, &PVMainWindow::open_format_Slot);
 	connect(tools_cur_format_Action, &QAction::triggered, this, &PVMainWindow::cur_format_Slot);
 
-	connect(about_Action, &QAction::triggered, this, &PVMainWindow::about_Slot);
+	connect(about_Action, &QAction::triggered,
+	        [this]() { about_Slot(PVGuiQt::PVAboutBoxDialog::Tab::SOFTWARE); });
+	connect(refman_Action, &QAction::triggered,
+	        [this]() { about_Slot(PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL); });
 }

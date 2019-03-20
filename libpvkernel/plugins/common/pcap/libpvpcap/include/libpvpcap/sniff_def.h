@@ -11,6 +11,8 @@
 #include <netinet/ip.h>      //Provides declarations for ip header
 #include <netinet/ip6.h>
 
+#define IP_V(ip) (((ip)->ip_vhl) >> 4)
+
 // IP header
 struct sniff_ip {
 	u_char ip_vhl;                 /* version << 4 | header length >> 2 */

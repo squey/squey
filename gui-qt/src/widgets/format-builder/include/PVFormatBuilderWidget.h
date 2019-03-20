@@ -15,7 +15,6 @@
 #include <QPushButton>
 #include <QWidget>
 #include <QToolBar>
-#include <QFileDialog>
 #include <QAction>
 #include <QString>
 #include <QMenuBar>
@@ -33,6 +32,7 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -195,7 +195,7 @@ class PVFormatBuilderWidget : public QMainWindow
   private:
 	PVRush::PVInputType::list_inputs _inputs; //!< List of input files.
 
-	QFileDialog _file_dialog;
+	PVWidgets::PVFileDialog _file_dialog;
 
 	// FIXME: Those variables names are crap!
 	PVXmlTreeView* myTreeView;

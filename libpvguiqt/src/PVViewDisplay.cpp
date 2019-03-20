@@ -300,7 +300,7 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 	}
 }
 
-void PVGuiQt::PVViewDisplay::plotting_updated()
+void PVGuiQt::PVViewDisplay::plotting_updated(QList<PVCol> const& /*cols_updated*/)
 {
 	setWindowTitle(_name());
 }

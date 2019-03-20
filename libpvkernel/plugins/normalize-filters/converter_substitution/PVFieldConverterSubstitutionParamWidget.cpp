@@ -10,9 +10,9 @@
 
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/core/PVUtils.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #include <QAction>
-#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -456,7 +456,7 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::update_params()
 
 void PVFilter::PVFieldConverterSubstitutionParamWidget::browse_conversion_file()
 {
-	QFileDialog fd;
+	PVWidgets::PVFileDialog fd;
 
 	QString filename = fd.getOpenFileName(nullptr, tr("Open File"), "", tr("Files (*.*)"));
 	if (!filename.isEmpty()) {

@@ -13,8 +13,11 @@
 #include <QContextMenuEvent>
 #include <QDockWidget>
 #include <QEvent>
+#include <QList>
 #include <QFocusEvent>
 #include <QSignalMapper>
+
+#include <pvbase/types.h>
 
 #include <sigc++/sigc++.h>
 
@@ -80,7 +83,7 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 
 	/*! \brief Create the view display right click menu.
 	 */
-	void plotting_updated();
+	void plotting_updated(QList<PVCol> const& cols_updated);
 
 	void restore();
 

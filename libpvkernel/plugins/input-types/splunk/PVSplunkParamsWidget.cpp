@@ -14,7 +14,6 @@
 
 #include <QMessageBox>
 #include <QPushButton>
-#include <QFileDialog>
 
 static const char* query_types[] = {"Query Builder", "Splunk search API"};
 static const size_t UNCORRECT_COUNT = -1;

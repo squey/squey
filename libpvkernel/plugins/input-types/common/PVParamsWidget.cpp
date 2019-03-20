@@ -82,10 +82,9 @@ void PVRush::PVParamsWidgetBase::set_query_type(QString const& query_type)
 
 void PVRush::PVParamsWidgetBase::load_format()
 {
-	QFileDialog file_dialog;
+	PVWidgets::PVFileDialog file_dialog;
 	file_dialog.setWindowTitle("Load format from...");
 	file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
-	file_dialog.setOption(QFileDialog::DontUseNativeDialog, true);
 	file_dialog.setNameFilters(QStringList{"Formats (*.format)", "All files (*.*)"});
 
 	if (file_dialog.exec()) {

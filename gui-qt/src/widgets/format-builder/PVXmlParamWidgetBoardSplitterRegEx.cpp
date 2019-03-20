@@ -6,6 +6,7 @@
  */
 
 #include <PVXmlParamWidgetBoardSplitterRegEx.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #define dbg                                                                                        \
 	{                                                                                              \
@@ -327,9 +328,8 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotOpenLogValid()
 {
-	QFileDialog fd;
-	QString urlFile =
-	    fd.getOpenFileName(nullptr, QString("Select the file."), "."); // open file chooser
+	QString urlFile = PVWidgets::PVFileDialog::getOpenFileName(nullptr, QString("Select the file."),
+	                                                           "."); // open file chooser
 	QFile f(urlFile);
 	if (f.exists()) { // if the file is valid
 		if (!f.open(QIODevice::ReadOnly | QIODevice::Text))

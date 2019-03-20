@@ -7,7 +7,7 @@
 
 #include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 
-#include <QScrollBar64>
+#include <QScrollBar>
 
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::PVZoomableDrawingAreaInteractorHomothetic
@@ -45,7 +45,7 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::mouseMoveEvent(
 		QPoint delta = _pan_reference - event->pos();
 		_pan_reference = event->pos();
 
-		QScrollBar64* sb;
+		QScrollBar* sb;
 
 		sb = zda->get_horizontal_scrollbar();
 		sb->setValue(sb->value() + delta.x());

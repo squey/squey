@@ -16,10 +16,12 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QMenu>
+#include <QHeaderView>
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
@@ -262,8 +264,8 @@ void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)
 	if (append) {
 		options = QFileDialog::DontConfirmOverwrite;
 	}
-	QString path = QFileDialog::getSaveFileName(this, tr("Save to file..."), QString(), QString(),
-	                                            nullptr, options);
+	QString path = PVWidgets::PVFileDialog::getSaveFileName(this, tr("Save to file..."), QString(),
+	                                                        QString(), nullptr, options);
 	if (path.isEmpty()) {
 		return;
 	}

@@ -61,7 +61,7 @@ bool PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::increment_zoom_valu
  * PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::adjust_pan
  *****************************************************************************/
 
-void PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::adjust_pan(QScrollBar64* /*xsb*/,
-                                                                        QScrollBar64* /*ysb*/)
+void PVParallelView::PVZoomableDrawingAreaConstraintsMajorY::adjust_pan(QScrollBar* /*xsb*/,
+                                                                        QScrollBar* /*ysb*/)
 {
 }

@@ -10,7 +10,8 @@
 
 #include <inendi/PVView.h>
 
-PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination() : PVDisplayViewIf()
+PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
+    : PVDisplayViewIf(/*PVDisplayIf::ShowInToolbar, "Axes combination"*/)
 {
 }
 
@@ -20,4 +21,14 @@ QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView*
 	PVGuiQt::PVAxesCombinationDialog* dlg = new PVGuiQt::PVAxesCombinationDialog(*view, parent);
 
 	return dlg;
+}
+
+QIcon PVDisplays::PVDisplayViewAxesCombination::toolbar_icon() const
+{
+	return QIcon(":/view-layerstack");
+}
+
+QString PVDisplays::PVDisplayViewAxesCombination::widget_title(Inendi::PVView* view) const
+{
+	return "Axes combination [" + QString::fromStdString(view->get_name()) + "]";
 }

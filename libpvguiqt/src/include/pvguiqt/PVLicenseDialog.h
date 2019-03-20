@@ -9,7 +9,6 @@
 #define __PVGUIQT_PVLICENSEDIALOG_H__
 
 #include <QMessageBox>
-#include <QFileDialog>
 #include <QApplication>
 #include <QClipboard>
 #include <QSpacerItem>
@@ -22,6 +21,7 @@
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVLicenseActivator.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 namespace PVGuiQt
 {
@@ -142,9 +142,8 @@ class PVLicenseDialog : public QDialog
 		browse_license_file_button->adjustSize();
 		browse_license_file_button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 		connect(browse_license_file_button, &QPushButton::clicked, [=]() {
-			_user_license_path =
-			    QFileDialog::getOpenFileName(this, "Browse your license file", QDir::homePath(),
-			                                 QString("License file (*.lic)"));
+			_user_license_path = PVWidgets::PVFileDialog::getOpenFileName(
+			    this, "Browse your license file", "", QString("License file (*.lic)"));
 			offline_radiobutton->setChecked(not _user_license_path.isEmpty());
 			buttons->button(QDialogButtonBox::Ok)->setEnabled(not _user_license_path.isEmpty());
 		});

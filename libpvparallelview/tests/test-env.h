@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <pvbase/general.h>
 
+#include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <inendi/common.h>

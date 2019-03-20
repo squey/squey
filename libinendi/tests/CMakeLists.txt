@@ -226,6 +226,10 @@ add_inspector_test(Tinendi_view_unselected_zombie_toggle Tinendi_view_unselected
 add_inspector_compile_test(Tinendi_cancel_import LINKS ${LINK_LIBRARIES} FILES cancel_import.cpp)
 add_inspector_test(Tinendi_cancel_import Tinendi_cancel_import ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format)
 
-# Cancel exmport
+# Cancel export
 add_inspector_compile_test(Tinendi_cancel_export LINKS ${LINK_LIBRARIES} FILES cancel_export.cpp)
 add_inspector_test(Tinendi_cancel_export Tinendi_cancel_export ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format)
+
+# Range subsampler
+add_inspector_compile_test(Tinendi_range_subsampler LINKS ${LINK_LIBRARIES} FILES range_subsampler.cpp)
+add_inspector_test(Tinendi_range_subsampler Tinendi_range_subsampler)

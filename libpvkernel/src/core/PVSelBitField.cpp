@@ -474,7 +474,8 @@ void PVCore::PVSelBitField::serialize_write(PVCore::PVSerializeObject& so) const
 PVCore::PVSelBitField PVCore::PVSelBitField::serialize_read(PVCore::PVSerializeObject& so)
 {
 	int size = so.attribute_read<int>("selection_size");
+	size_t mem_size = pvcop::core::__impl::bit_manip::to_mem_size(size);
 	PVCore::PVSelBitField sel(size);
-	so.buffer_read("selection_data", sel._selection.data(), size);
+	so.buffer_read("selection_data", sel._selection.data(), mem_size);
 	return sel;
 }

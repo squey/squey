@@ -22,6 +22,9 @@ set inspector_path_linux=%inspector_path_linux: =\ %
 set appdata_cmd=wsl wslpath -a "%APPDATA%"
 for /F "tokens=*" %%i in ('%appdata_cmd%') do set appdata_path_linux=%%i
 set appdata_path_linux=%appdata_path_linux: =\ %
+set userprofile_cmd=wsl wslpath -u "%userprofile%"
+for /F "tokens=*" %%i in ('%userprofile_cmd%') do set userprofile_path=%%i
+set userprofile_path=%userprofile_path: =\ %
 
 @REM Run VcXsrv if not already running
 reg add "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" /v "%inspector_path%\VcXsrv\vcxsrv.exe" /t REG_SZ /d "~ HIGHDPIAWARE" /f > nul 2>&1
@@ -32,9 +35,12 @@ if %errorlevel% == 1 (
 	set stop_vcxsrv=true
 )
 
+@REM Register WSL distro for user
+"%inspector_path%\LxRunOffline\LxRunOffline.exe" rg -n inspector_linux -d "%inspector_path%\linux" > nul 2>&1
+
 @REM Run Inspector
 "%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 1000 -n inspector_linux
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --share=ipc --env=QTWEBENGINE_CHROMIUM_FLAGS='--disable-dev-shm-usage' %1"
+"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' %1"
 
 @REM Stop VcXsrv if needed
 set instance_count_cmd="tasklist /FI "imagename eq inendi-inspector" 2>nul | find /I /C "inendi-inspector""

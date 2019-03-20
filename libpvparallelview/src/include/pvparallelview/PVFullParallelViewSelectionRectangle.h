@@ -49,8 +49,6 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
   protected:
 	void commit(bool use_selection_modifiers) override;
 
-	Inendi::PVView& lib_view() override;
-
   private:
 	void store();
 

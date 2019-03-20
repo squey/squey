@@ -5,6 +5,8 @@
 #include <QGuiApplication>
 #include <QMessageBox>
 
+#include <pvkernel/widgets/PVFileDialog.h>
+
 #include "ui_SelectionWidget.h"
 
 #include "../include/libpvpcap.h"
@@ -79,8 +81,8 @@ void SelectionWidget::load_select_profile_combobox_list()
 
 void SelectionWidget::on_add_button_clicked()
 {
-	QStringList filenames = QFileDialog::getOpenFileNames(this, tr("Open PCAP files"), "",
-	                                                      tr("PCAP files (*.pcap *.pcapng)"));
+	QStringList filenames = PVWidgets::PVFileDialog::getOpenFileNames(
+	    this, tr("Open PCAP files"), "", tr("PCAP files (*.pcap *.pcapng)"));
 
 	// Prevent input pcap files to be duplicated
 	for (const QString& filename : filenames) {

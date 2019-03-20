@@ -9,11 +9,11 @@
 #define __PVGUIQT_PVEXPORTSELECTIONDLG_H__
 
 #include <QComboBox>
-#include <QFileDialog>
 #include <QCheckBox>
 #include <QRadioButton>
 
 #include <pvkernel/rush/PVExporter.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 namespace PVWidgets
 {
@@ -34,9 +34,9 @@ class PVAxesCombinationWidget;
 
 /** Specific widget to export a selection to csv.
  *
- * Pop a QFileDialog to specify filename and the kind of export and do it.
+ * Pop a file dialog to specify filename and the kind of export and do it.
  */
-class PVExportSelectionDlg : public QFileDialog
+class PVExportSelectionDlg : public PVWidgets::PVFileDialog
 {
 	Q_OBJECT;
 

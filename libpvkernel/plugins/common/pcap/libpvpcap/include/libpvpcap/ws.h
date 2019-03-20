@@ -89,7 +89,7 @@ static const std::unordered_map<std::string, std::string> ws_types_mapping = {
     {"FT_FLOAT", "number_float"},
     {"FT_DOUBLE", "number_double"},
     {"FT_ABSOLUTE_TIME", "time"},
-    {"FT_RELATIVE_TIME", "duration"},
+    {"FT_RELATIVE_TIME", "number_double"},
     {"FT_STRING", "string"},
     {"FT_STRINGZ", "string"},
     {"FT_UINT_STRING", "string"},

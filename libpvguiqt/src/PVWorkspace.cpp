@@ -17,14 +17,17 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVSimpleStringListModel.h>
+#include <pvguiqt/PVAxisIndexFilteredEditor.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
+#include <inendi/widgets/PVViewArgumentEditorCreator.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVZoneIndexType.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
 
 /******************************************************************************
  *
@@ -104,6 +107,7 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
 
 	view_display->setWindowTitle(name());
 	addDockWidget(area, view_display);
+	resizeDocks({view_display}, {500}, Qt::Horizontal); // Hack to fix children widgets sizes
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
 	        &PVWorkspaceBase::try_automatic_tab_switch);
 	_displays.append(view_display);
@@ -285,9 +289,13 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(
 		    PVCore::PVAxisIndexType(PVCol(0)));
-		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
-		        PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args,
-		        this)) {
+		auto* factory = PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory();
+		auto* axis_index_creator =
+		    new PVWidgets::PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexFilteredEditor>(
+		        *view, display_if);
+		factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
+		                        axis_index_creator);
+		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(factory, args, this)) {
 			return;
 		}
 		axis_comb = (PVCombCol)args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();

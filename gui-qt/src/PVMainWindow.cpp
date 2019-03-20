@@ -28,6 +28,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVWSLHelper.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -35,6 +36,7 @@
 #include <pvkernel/rush/PVConverter.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVStateMachine.h>
@@ -127,10 +129,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	 * Except under WSL where GPU is not supported yet
 	 * (https://wpdev.uservoice.com/forums/266908-command-prompt-console-windows-subsystem-for-l/suggestions/16108045-opencl-cuda-gpu-support)
 	 */
-	struct utsname uname_buf;
-	uname(&uname_buf);
-	bool is_microsoft_wsl = strstr(uname_buf.release, "Microsoft") != NULL;
-	if (not PVParallelView::common::is_gpu_accelerated() and not is_microsoft_wsl) {
+	if (not PVParallelView::common::is_gpu_accelerated() and
+	    not PVCore::PVWSLHelper::is_microsoft_wsl()) {
 		/* the warning icon
 		 */
 		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
@@ -533,9 +533,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		 * like last used current directory.
 		 */
 
-		QFileDialog* fdialog = new QFileDialog(this);
+		PVWidgets::PVFileDialog* fdialog = new PVWidgets::PVFileDialog(this);
 
-		fdialog->setOption(QFileDialog::DontUseNativeDialog, true);
 		fdialog->setNameFilter("Formats (*.format)");
 		fdialog->setWindowTitle("Load format from...");
 
@@ -834,8 +833,8 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 		filename.append(default_prefix);
 	}
 
-	QString img_name =
-	    QFileDialog::getSaveFileName(this, title, filename, QString("PNG Image (*.png)"));
+	QString img_name = PVWidgets::PVFileDialog::getSaveFileName(this, title, filename,
+	                                                            QString("PNG Image (*.png)"));
 
 	if (img_name.isEmpty()) {
 		return;

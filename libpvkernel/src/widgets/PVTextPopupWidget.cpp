@@ -78,7 +78,6 @@ static QRect reconfigure_geometry(
 		break;
 	case PVWidgets::PVTextPopupWidget::AlignLeft:
 	default:
-		new_geom.moveLeft(parent_geom.left());
 		break;
 	}
 	switch (align & AlignVertMask) {
@@ -90,7 +89,6 @@ static QRect reconfigure_geometry(
 		break;
 	case PVWidgets::PVTextPopupWidget::AlignTop:
 	default:
-		new_geom.moveTop(parent_geom.top());
 		break;
 	}
 

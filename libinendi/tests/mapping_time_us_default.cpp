@@ -42,7 +42,7 @@ int main()
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.column(PVCol(0));
-	auto& array = column.to_core_array<uint64_t>();
+	auto& array = column.to_core_array<boost::posix_time::ptime>();
 
 	std::vector<uint64_t> order(column.size());
 	std::iota(order.begin(), order.end(), 0);
@@ -50,10 +50,13 @@ int main()
 	std::sort(order.begin(), order.end(),
 	          [&array](uint64_t a, uint64_t b) { return array[a] < array[b]; });
 
-	uint64_t prev = mapped.get_column(PVCol(0)).to_core_array<uint64_t>()[order[0]];
+	boost::posix_time::ptime prev =
+	    mapped.get_column(PVCol(0)).to_core_array<boost::posix_time::ptime>()[order[0]];
 	for (size_t i = 0; i < column.size(); i++) {
-		PV_ASSERT_VALID(prev <= mapped.get_column(PVCol(0)).to_core_array<uint64_t>()[order[i]]);
-		prev = mapped.get_column(PVCol(0)).to_core_array<uint64_t>()[order[i]];
+		PV_ASSERT_VALID(
+		    prev <=
+		    mapped.get_column(PVCol(0)).to_core_array<boost::posix_time::ptime>()[order[i]]);
+		prev = mapped.get_column(PVCol(0)).to_core_array<boost::posix_time::ptime>()[order[i]];
 	}
 #else
 	(void)mapped;

@@ -47,11 +47,10 @@ class PVMappingFilterTime24h : public PVMappingFilter
 				    (((local_tm.tm_hour * 60) + local_tm.tm_min) * 60 + local_tm.tm_sec) * 1000;
 			}
 		} else if (std::string(f->name()) == "datetime_us") {
-			auto& core_array = array.to_core_array<uint64_t>();
+			auto& core_array = array.to_core_array<boost::posix_time::ptime>();
 #pragma omp parallel for
 			for (size_t row = 0; row < array.size(); row++) {
-				const boost::posix_time::ptime t =
-				    *reinterpret_cast<const boost::posix_time::ptime*>(&core_array[row]);
+				const boost::posix_time::ptime t = core_array[row];
 				const auto& tod = t.time_of_day();
 				dest_array[row] = (tod.total_seconds() * 1000) + (tod.fractional_seconds() / 1000);
 			}

@@ -44,16 +44,14 @@ int main()
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.column(PVCol(0));
-	auto& array = column.to_core_array<uint64_t>();
+	auto& array = column.to_core_array<boost::posix_time::ptime>();
 
 	std::vector<uint32_t> order(column.size());
 	std::iota(order.begin(), order.end(), 0);
 
 	std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) {
-		const boost::posix_time::ptime ta =
-		    *reinterpret_cast<const boost::posix_time::ptime*>(&array[a]);
-		const boost::posix_time::ptime tb =
-		    *reinterpret_cast<const boost::posix_time::ptime*>(&array[b]);
+		const boost::posix_time::ptime ta = array[a];
+		const boost::posix_time::ptime tb = array[b];
 		tm tm_a = to_tm(ta);
 		tm tm_b = to_tm(tb);
 		return tm_a.tm_wday > tm_b.tm_wday or

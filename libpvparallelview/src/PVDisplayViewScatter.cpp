@@ -52,8 +52,9 @@ QString PVDisplays::PVDisplayViewScatter::widget_title(Inendi::PVView* view,
                                                        PVCombCol axis_comb_x,
                                                        PVCombCol axis_comb_y) const
 {
-	return QString("Scatter view on axes '" + view->get_axis_name(axis_comb_x) + "' and '" +
-	               view->get_axis_name(axis_comb_y) + "'");
+	return QString("Scatter view [" + QString::fromStdString(view->get_name()) + " on axes '" +
+	               view->get_axis_name(axis_comb_x) + "' and '" + view->get_axis_name(axis_comb_y) +
+	               "']");
 }
 
 /*****************************************************************************

@@ -41,12 +41,13 @@
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVNrawDirectoryMessageBox.h>
 #include <pvguiqt/PVLicenseDialog.h>
-#include <pvguiqt/PVAboutBoxDialog.h>
 #include <pvguiqt/PVChangelogMessage.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
 #include <boost/program_options.hpp>
+
+#include <QtWebEngineWidgets/QWebEngineView>
 
 // #ifdef USE_UNIKEY
 // #include <UniKeyFR.h>
@@ -254,6 +255,12 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	pv_mw.show();
 	splash.finish(&pv_mw);
 
+	QWebEngineView dummy_webengine(&pv_mw); // workaround to avoid Chromium terminate with
+	// "FATAL:file_path_watcher_linux.cc(226)] Check failed: 1024 >
+	// inotify_fd_"
+	dummy_webengine.show();
+	dummy_webengine.hide();
+
 	// Show changelog if software version has changed
 	{
 		PVGuiQt::PVChangelogMessage changelog_msg(&pv_mw);
@@ -269,7 +276,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	/* set the screenshot shortcuts as global shortcuts
 	 */
 	QShortcut* sc;
-	sc = new QShortcut(QKeySequence(Qt::Key_P), &pv_mw);
+	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
 	                 &PVInspector::PVMainWindow::get_screenshot_widget);

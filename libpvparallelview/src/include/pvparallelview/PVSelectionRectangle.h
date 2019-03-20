@@ -288,11 +288,6 @@ class PVSelectionRectangle : public QObject
 	 */
 	virtual void commit(bool use_selection_modifiers) = 0;
 
-	/**
-	 * method to override to implement PVView retrieval
-	 */
-	virtual Inendi::PVView& lib_view() = 0;
-
   private:
 	void move_by(qreal hstep, qreal vstep);
 	void grow_by(qreal hratio, qreal vratio);

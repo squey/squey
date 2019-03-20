@@ -1,4 +1,3 @@
-#include <QFileDialog>
 #include <QTableView>
 #include <QProgressDialog>
 
@@ -8,6 +7,8 @@
 #include "rapidjson/document.h"
 
 #include <profile-ui/models/include/ProtocolFieldListModel.h>
+
+#include <pvkernel/widgets/PVFileDialog.h>
 
 TreeWidget::TreeWidget(rapidjson::Document* json_data, QWidget* parent)
     : QWidget(parent)
@@ -46,8 +47,8 @@ TreeWidget::~TreeWidget()
 
 void TreeWidget::on_select_button_clicked()
 {
-	QString filename = QFileDialog::getOpenFileName(this, tr("Open PCAP file"), "",
-	                                                tr("PCAP file (*.pcap *.pcapng)"));
+	QString filename = PVWidgets::PVFileDialog::getOpenFileName(this, tr("Open PCAP file"), "",
+	                                                            tr("PCAP file (*.pcap *.pcapng)"));
 
 	if (not filename.isEmpty()) {
 		_ui->select_edit->setText(filename);

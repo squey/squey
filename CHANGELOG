@@ -1,3 +1,13 @@
+4.6.0 (2018-03-19)
+----------------
+
+This major release adds the following features:
+* Timeseries support
+* Scatter view creation from any pair of axes
+* Change mappings/plottings directly from axes menu
+* Improved file dialogs under Windows 10 (with user home and drives)
+* Reference manual displayed inside the application
+
 4.5.5 (2019-01-29)
 ----------------
 

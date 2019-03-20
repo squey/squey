@@ -12,7 +12,7 @@
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <QScrollBar64>
+#include <QScrollBar>
 
 /*****************************************************************************
  * PVParallelView::PVHitCountViewInteractor::PVHitCountViewInteractor
@@ -83,7 +83,7 @@ bool PVParallelView::PVHitCountViewInteractor::keyPressEvent(PVZoomableDrawingAr
 
 			hcv->reconfigure_view();
 
-			QScrollBar64* sb = hcv->get_horizontal_scrollbar();
+			QScrollBar* sb = hcv->get_horizontal_scrollbar();
 			sb->setValue(0);
 
 			zda->get_viewport()->update();

@@ -23,6 +23,7 @@
 #include <utility> // for pair
 
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <pvcop/types/datetime_us.h>
 
 namespace Inendi
 {
@@ -37,6 +38,12 @@ template <>
 inline double extract_value(const boost::posix_time::time_duration& value)
 {
 	return (double)value.total_microseconds();
+}
+
+template <>
+inline double extract_value(const boost::posix_time::ptime& value)
+{
+	return (double)pvcop::types::formatter_datetime_us::cal(value).as_value;
 }
 
 using plotting_t = uint32_t;

@@ -56,12 +56,13 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu,
 {
 	visit_displays_by_if<PVDisplayViewAxisIf>(
 	    [&](PVDisplayViewAxisIf& interface) {
-		    QAction* act = action_bound_to_params(interface, view, axis_comb);
-		    act->setText(interface.axis_menu_name(view, axis_comb));
-		    act->setIcon(interface.toolbar_icon());
-		    connect(act, SIGNAL(triggered()), receiver, slot);
-		    menu.addAction(act);
-
+		    if (interface.should_add_to_menu(view, axis_comb)) {
+			    QAction* act = action_bound_to_params(interface, view, axis_comb);
+			    act->setText(interface.axis_menu_name(view, axis_comb));
+			    act->setIcon(interface.toolbar_icon());
+			    connect(act, SIGNAL(triggered()), receiver, slot);
+			    menu.addAction(act);
+		    }
 		},
 	    PVDisplayIf::ShowInCtxtMenu);
 }

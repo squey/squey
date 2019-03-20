@@ -178,6 +178,7 @@ include/pvkernel/widgets/editors/PVTimeFormatEditor.h
 include/pvkernel/widgets/editors/PVPercentRangeEditor.h
 
 include/pvkernel/widgets/PVQueryBuilder.h
+include/pvkernel/widgets/PVLongLongSpinBox.h
 )
 
 set(WIDGETS_SRC_FILES
@@ -203,14 +204,12 @@ widgets/PVUtils.cpp
 
 widgets/PVPopupWidget.cpp
 widgets/PVTextPopupWidget.cpp
-
 widgets/PVHelpWidget.cpp
-
 widgets/PVAbstractRangePicker.cpp
-
 widgets/PVLayerNamingPatternDialog.cpp
-
 widgets/PVQueryBuilder.cpp
+widgets/PVLongLongSpinBox.cpp
+widgets/PVFileDialog.cpp
 )
 
 SET(UI_FILES

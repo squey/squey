@@ -24,7 +24,7 @@
 
 #include <QMetaObject>
 #include <QThread>
-#include <QScrollBar64>
+#include <QScrollBar>
 #include <QPainter>
 
 /**
@@ -97,7 +97,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 
 	setSceneRect(-512, 0, 1024, 1024);
 
-	connect(_zpview->get_vertical_scrollbar(), &QScrollBar64::valueChanged, this,
+	connect(_zpview->get_vertical_scrollbar(), &QScrollBar::valueChanged, this,
 	        &PVZoomedParallelScene::scrollbar_changed_Slot);
 
 	connect(_zpview->params_widget(), &PVZoomedParallelViewParamsWidget::change_to_col, this,
@@ -240,7 +240,7 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->buttons() == Qt::RightButton) {
-		QScrollBar64* sb = _zpview->get_vertical_scrollbar();
+		QScrollBar* sb = _zpview->get_vertical_scrollbar();
 		qint64 delta = _pan_reference_y - event->screenPos().y();
 		_pan_reference_y = event->screenPos().y();
 		qint64 v = sb->value();
@@ -276,7 +276,7 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 		}
 	} else if (event->modifiers() == SLOW_PAN_MODIFIER) {
 		// precise panning
-		QScrollBar64* sb = _zpview->get_vertical_scrollbar();
+		QScrollBar* sb = _zpview->get_vertical_scrollbar();
 		if (event->delta() > 0) {
 			qint64 v = sb->value();
 			if (v > sb->minimum()) {
@@ -290,11 +290,11 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 		}
 	} else if (event->modifiers() == PAN_MODIFIER) {
 		// panning
-		QScrollBar64* sb = _zpview->get_vertical_scrollbar();
+		QScrollBar* sb = _zpview->get_vertical_scrollbar();
 		if (event->delta() > 0) {
-			sb->triggerAction(QAbstractSlider64::SliderSingleStepSub);
+			sb->triggerAction(QAbstractSlider::SliderSingleStepSub);
 		} else {
-			sb->triggerAction(QAbstractSlider64::SliderSingleStepAdd);
+			sb->triggerAction(QAbstractSlider::SliderSingleStepAdd);
 		}
 	}
 
@@ -740,7 +740,7 @@ void PVParallelView::PVZoomedParallelScene::update_zoom(bool need_recomputation)
 	 * of the selection rectangle, the scene's bounding box can change;
 	 * so that its center could not be 0...
 	 */
-	QScrollBar64* sb = _zpview->get_horizontal_scrollbar();
+	QScrollBar* sb = _zpview->get_horizontal_scrollbar();
 	int64_t mid = ((int64_t)sb->maximum() + sb->minimum()) / 2;
 	sb->setValue(mid);
 

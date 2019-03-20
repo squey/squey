@@ -44,16 +44,14 @@ int main()
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Inendi::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.column(PVCol(0));
-	auto& array = column.to_core_array<uint64_t>();
+	auto& array = column.to_core_array<boost::posix_time::ptime>();
 
 	std::vector<uint32_t> order(column.size());
 	std::iota(order.begin(), order.end(), 0);
 
 	std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) {
-		const boost::posix_time::ptime ta =
-		    *reinterpret_cast<const boost::posix_time::ptime*>(&array[a]);
-		const boost::posix_time::ptime tb =
-		    *reinterpret_cast<const boost::posix_time::ptime*>(&array[b]);
+		const boost::posix_time::ptime ta = array[a];
+		const boost::posix_time::ptime tb = array[b];
 		tm tm_a = to_tm(ta);
 		tm tm_b = to_tm(tb);
 		return tm_a.tm_wday > tm_b.tm_wday or
@@ -67,12 +65,7 @@ int main()
 	uint32_t prev = plotted.get_column_pointer(PVCol(0))[order[0]];
 	const double sec_per_week = std::log2(7 * 24 * 3600);
 	const double ratio = std::numeric_limits<uint32_t>::max() / sec_per_week;
-	PV_VALID(prev, ~(uint32_t)(std::log2(7 * 24 * 3600 -
-	                                     (60 -
-	                                      to_tm(*reinterpret_cast<const boost::posix_time::ptime*>(
-	                                                &array[order[0]]))
-	                                          .tm_sec) +
-	                                     1) *
+	PV_VALID(prev, ~(uint32_t)(std::log2(7 * 24 * 3600 - (60 - to_tm(array[order[0]]).tm_sec) + 1) *
 	                           ratio));
 	for (size_t i = 0; i < column.size(); i++) {
 		PV_ASSERT_VALID(prev <= plotted.get_column_pointer(PVCol(0))[order[i]]);

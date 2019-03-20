@@ -9,7 +9,6 @@
 #define PVXMLPARAMWIDGETBOARDSPLITTERREGEX_H
 #include <QWidget>
 #include <QDir>
-#include <QFileDialog>
 #include <QStringList>
 #include <QRegExp>
 #include <QVBoxLayout>

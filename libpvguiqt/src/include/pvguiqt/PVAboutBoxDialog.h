@@ -27,11 +27,14 @@ class GraphicsView;
 
 class PVAboutBoxDialog : public QDialog
 {
+  public:
+	enum Tab { SOFTWARE, CHANGELOG, REFERENCE_MANUAL, OPEN_SOURCE_SOFTWARE };
+
 	friend class __impl::GraphicsView;
 
   public:
-	explicit PVAboutBoxDialog(QWidget* parent = nullptr);
-	void select_changelog_tab();
+	explicit PVAboutBoxDialog(Tab = SOFTWARE, QWidget* parent = nullptr);
+	void select_tab(Tab);
 
   private:
 	__impl::GraphicsView* _view3D;
@@ -39,6 +42,7 @@ class PVAboutBoxDialog : public QDialog
 
 	QTabWidget* _tab_widget;
 	QWidget* _changelog_tab;
+	QWidget* _reference_manual_tab;
 };
 
 namespace __impl

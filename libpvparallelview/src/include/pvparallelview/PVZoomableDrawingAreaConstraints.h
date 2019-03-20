@@ -10,7 +10,7 @@
 
 #include <pvparallelview/PVAxisZoom.h>
 
-class QScrollBar64;
+class QScrollBar;
 
 namespace PVParallelView
 {
@@ -87,7 +87,7 @@ class PVZoomableDrawingAreaConstraints
 	 * @param xsb the horizontal view's scrollbar
 	 * @param ysb the vertical view's scrollbar
 	 */
-	virtual void adjust_pan(QScrollBar64* xsb, QScrollBar64* ysb) = 0;
+	virtual void adjust_pan(QScrollBar* xsb, QScrollBar* ysb) = 0;
 
   protected:
 	/**

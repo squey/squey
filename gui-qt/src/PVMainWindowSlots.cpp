@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
@@ -55,9 +56,12 @@
 
 int PVInspector::PVMainWindow::sequence_n = 1;
 
-void PVInspector::PVMainWindow::about_Slot()
+void PVInspector::PVMainWindow::about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab)
 {
-	PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(this);
+	PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(tab, this);
+	if (tab == PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL) {
+		about_dialog->resize(1550, 950);
+	}
 	about_dialog->exec();
 	about_dialog->deleteLater();
 }
@@ -473,7 +477,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				        QString new_file;
 
 				        pbox.exec_gui([&]() {
-					        new_file = QFileDialog::getOpenFileName(
+					        new_file = PVWidgets::PVFileDialog::getOpenFileName(
 					            this, tr("Select new file path..."), old_path);
 					    });
 

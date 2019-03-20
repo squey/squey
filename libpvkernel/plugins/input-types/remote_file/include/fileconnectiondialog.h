@@ -12,7 +12,8 @@
 #include "connectionsettings.h"
 
 #include <QDialog>
-#include <QFileDialog>
+
+#include <pvkernel/widgets/PVFileDialog.h>
 
 class QLineEdit;
 class QPushButton;
@@ -32,7 +33,7 @@ class FileNameSelectorWidget : public QWidget
   private:
 	QLineEdit* m_path;
 	QPushButton* m_selectPath;
-	QFileDialog _file_dlg;
+	PVWidgets::PVFileDialog _file_dlg;
 };
 
 class LOGVIEWER_EXPORT FileConnectionDialog : public QDialog

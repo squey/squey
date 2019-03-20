@@ -8,10 +8,11 @@
 #ifndef PVLAYERSTACKVIEW_H
 #define PVLAYERSTACKVIEW_H
 
-#include <QFileDialog>
 #include <QTableView>
 
 #include <functional>
+
+#include <pvkernel/widgets/PVFileDialog.h>
 
 namespace Inendi
 {
@@ -80,8 +81,8 @@ class PVLayerStackView : public QTableView
 	QAction* _ctxt_menu_activate_intersection;
 	QAction* _ctxt_menu_activate_symmetric_differrence;
 
-	QFileDialog _layer_dialog;
-	QFileDialog _layerstack_dialog;
+	PVWidgets::PVFileDialog _layer_dialog;
+	PVWidgets::PVFileDialog _layerstack_dialog;
 };
 } // namespace PVGuiQt
 

@@ -1,0 +1,14 @@
+diff --git a/src/core/config/linux.pri b/src/core/config/linux.pri
+index 9918e1bb..54abf300 100644
+--- a/src/core/config/linux.pri
++++ b/src/core/config/linux.pri
+@@ -24,6 +24,9 @@
+     !use_gold_linker: gn_args += use_gold=false
+ }
+ 
++# Disable UDev
++gn_args += use_udev=false
++
+ qtConfig(webengine-system-x11): hasX11Dependencies() {
+    gn_args += ozone_platform_x11=true
+ }
