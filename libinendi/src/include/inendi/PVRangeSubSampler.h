@@ -65,18 +65,20 @@ class PVRangeSubSampler
 
   public:
 	using display_type = uint16_t;
-	static constexpr const size_t display_type_max_val =
-	    (1 << (size_t)(std::numeric_limits<value_type>::digits -
-	                   std::numeric_limits<display_type>::digits - reserved_bits)) -
-	    1;
+	static constexpr const size_t display_value_bits =
+	    std::numeric_limits<display_type>::digits - reserved_bits;
+	static constexpr const display_type display_type_min_val = 0;
+	static constexpr const display_type display_type_max_val = (1 << display_value_bits) - 1;
 
   public:
-	static constexpr const display_type no_value =
-	    0b01 << (std::numeric_limits<display_type>::digits - reserved_bits);
-	static constexpr const display_type underflow_value =
-	    0b10 << (std::numeric_limits<display_type>::digits - reserved_bits);
-	static constexpr const display_type overflow_value =
-	    0b11 << (std::numeric_limits<display_type>::digits - reserved_bits);
+	static constexpr const display_type no_value = 0b01 << display_value_bits;
+	static constexpr const display_type underflow_value = 0b10 << display_value_bits;
+	static constexpr const display_type overflow_value = 0b11 << display_value_bits;
+
+	static constexpr bool display_match(display_type d, display_type mask)
+	{
+		return ((d >> display_value_bits) << display_value_bits) == mask;
+	}
 
   public:
 	PVRangeSubSampler(const pvcop::db::array& time,

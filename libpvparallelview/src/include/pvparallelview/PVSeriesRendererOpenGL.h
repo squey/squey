@@ -22,6 +22,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
                                public QOpenGLWidget,
                                protected QOpenGLExtraFunctions
 {
+	using PVRSS = Inendi::PVRangeSubSampler;
 
   public:
 	struct SerieDrawInfo {

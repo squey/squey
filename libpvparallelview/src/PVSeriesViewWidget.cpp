@@ -59,7 +59,6 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 				painter->drawText(option.rect,
 				                  index.model()->data(index, Qt::DisplayRole).toString());
 			} else {
-				// painter->fillRect(option.rect, color);
 				painter->setPen(color);
 				painter->drawText(option.rect,
 				                  index.model()->data(index, Qt::DisplayRole).toString());
@@ -81,12 +80,6 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		}
 	}
 	_series_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
-	// _series_list_widget->setAlternatingRowColors(true);
-
-	// for (PVCol i(0); i < _series_list_widget->count(); i++) {
-	// 	QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-	// 	_series_list_widget->item(i)->setForeground(color); // FIXME
-	// }
 
 	const std::vector<PVCol>& combination = axes_comb.get_combination();
 	for (PVCol i(0); i < _series_list_widget->count(); i++) {
@@ -364,9 +357,9 @@ bool PVParallelView::PVSeriesViewWidget::is_in_region(QRect region, PVCol col) c
 	for (int pos_x = region.left(); pos_x < region.left() + region.width(); ++pos_x) {
 		auto av_ts_value = av_ts[pos_x] * uint32_t(_zoomer->height());
 		auto min_value = Inendi::PVRangeSubSampler::display_type_max_val *
-		                 (_zoomer->height() - (region.top() + region.height()));
-		auto max_value =
-		    Inendi::PVRangeSubSampler::display_type_max_val * (_zoomer->height() - region.top());
+		                 uint32_t(_zoomer->height() - (region.top() + region.height()));
+		auto max_value = Inendi::PVRangeSubSampler::display_type_max_val *
+		                 uint32_t(_zoomer->height() - region.top());
 		if (min_value < av_ts_value and av_ts_value < max_value) {
 			return true;
 		}

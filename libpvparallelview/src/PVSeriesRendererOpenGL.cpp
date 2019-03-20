@@ -326,11 +326,9 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const line_begin, size_t const l
 	assert(vbo_bytes);
 
 	if (_draw_mode == PVSeriesView::DrawMode::LinesAlways) {
-		auto is_invalid = [](GLushort value) {
-			return (value & (1 << 14)) and not(value & (1 << 15));
-		};
-		auto next_valid = [is_invalid](auto begin, auto end) {
-			return std::find_if(begin, end, [is_invalid](auto x) { return not is_invalid(x); });
+		auto next_valid = [](auto begin, auto end) {
+			return std::find_if(
+			    begin, end, [](auto x) { return not PVRSS::display_match(x, PVRSS::no_value); });
 		};
 #pragma omp parallel for
 		for (size_t line = line_begin; line < line_end; ++line) {
@@ -339,22 +337,22 @@ void PVSeriesRendererOpenGL::fill_vbo_GL(size_t const line_begin, size_t const l
 			    reinterpret_cast<Vertex*>(vbo_bytes) + (line - line_begin) * vertices_per_line;
 			for (size_t j = 0; j < vertices_per_line; ++j) {
 				auto vertex = av_ts[j];
-				if (is_invalid(vertex)) {
-					if (j < 1 or not is_invalid(av_ts[j - 1])) {
+				if (PVRSS::display_match(vertex, PVRSS::no_value)) {
+					if (j < 1 or not PVRSS::display_match(av_ts[j - 1], PVRSS::no_value)) {
 						auto next_valid_it = next_valid(av_ts.begin() + j, av_ts.end());
-						vertex_bytes[j] = Vertex{
-						    GLushort((1 << 14) + std::distance(av_ts.begin() + j, next_valid_it))};
+						vertex_bytes[j] = Vertex{GLushort(
+						    PVRSS::no_value + std::distance(av_ts.begin() + j, next_valid_it))};
 						continue;
-					} else if (j < 2 or not is_invalid(av_ts[j - 2])) {
+					} else if (j < 2 or not PVRSS::display_match(av_ts[j - 2], PVRSS::no_value)) {
 						auto next_valid_it = next_valid(av_ts.begin() + j, av_ts.end());
 						auto next_valid_value =
 						    next_valid_it != av_ts.end() ? *next_valid_it : av_ts[j - 2];
-						if ((next_valid_value & (0b11 << 14)) == (0b11 << 14)) {
-							next_valid_value = (1 << 14) - 1;
-						} else if ((next_valid_value & (0b10 << 14)) == (0b10 << 14)) {
-							next_valid_value = 0;
+						if (PVRSS::display_match(next_valid_value, PVRSS::overflow_value)) {
+							next_valid_value = PVRSS::display_type_max_val;
+						} else if (PVRSS::display_match(next_valid_value, PVRSS::underflow_value)) {
+							next_valid_value = PVRSS::display_type_min_val;
 						}
-						vertex_bytes[j] = Vertex{GLushort((1 << 14) + next_valid_value)};
+						vertex_bytes[j] = Vertex{GLushort(PVRSS::no_value + next_valid_value)};
 						continue;
 					}
 				}
@@ -417,11 +415,12 @@ in vec4 vertex;
 in vec3 color;
 smooth out vec4 lineColor;
 uniform vec4 size;
+const int max_value = (1 << 14) - 1;
 void main(void) {
 	lineColor = vec4(color, 1);
 	//lineColor = vec4(size.rgb, 1);
 	vec4 wvertex = vertex;
-	wvertex.y = vertex.x / ((1 << 14) - 1);
+	wvertex.y = vertex.x / max_value;
 	wvertex.x = (gl_VertexID % int(size.z)) / (size.z - 1);
 	wvertex.xy = vec2(fma(wvertex.x, 2.0, -1.0), fma(wvertex.y, 2.0, -1.0));
 	int vx = int(vertex.x);
@@ -475,6 +474,8 @@ smooth out vec4 geolineColor;
 
 uniform vec4 size;
 
+const int max_value = (1 << 14) - 1;
+
 void emitShortVertex(in const int index)
 {
 	geolineColor = lineColor[index];
@@ -485,13 +486,13 @@ void emitShortVertex(in const int index)
 vec2 emitLongVertex(in const int index)
 {
 	geolineColor = vec4(lineColor[index].rgb, 1);
-	int vertexId = int(gl_in[index].gl_Position.x) % int(size.z) + (int(gl_in[index].gl_Position.y) & ((1 << 14) - 1));
+	int vertexId = int(gl_in[index].gl_Position.x) % int(size.z) + (int(gl_in[index].gl_Position.y) & max_value);
 	const int valindex = index + 1;
 	vec2 wvertex;
 	wvertex.x = vertexId / (size.z - 1);
 	wvertex.x = fma(wvertex.x, 2.0, -1.0);
 	if (lineColor[valindex].a == 0) {
-		wvertex.y = (int(gl_in[valindex].gl_Position.y) & ((1 << 14) - 1)) / float((1 << 14) - 1);
+		wvertex.y = (int(gl_in[valindex].gl_Position.y) & max_value) / float(max_value);
 		wvertex.y = fma(wvertex.y, 2.0, -1.0);
 	} else {
 		wvertex.y = gl_in[valindex].gl_Position.y;

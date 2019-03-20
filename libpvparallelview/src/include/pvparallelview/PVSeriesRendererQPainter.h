@@ -16,6 +16,7 @@ namespace PVParallelView
 
 class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 {
+	using PVRSS = Inendi::PVRangeSubSampler;
 
   public:
 	PVSeriesRendererQPainter(Inendi::PVRangeSubSampler const& rss, QWidget* parent = nullptr)
@@ -61,17 +62,16 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 			for (size_t j = 0; j < serie_data.size();) {
 				while (j < serie_data.size()) {
 					int vertex = serie_data[j];
-					QPoint point(j, (height() - 1) - vertex * (height() - 1) / ((1 << 14) - 1));
-					if (vertex & (1 << 15)) {     // if out of range
-						if (vertex & (1 << 14)) { // if overflow
-							point = QPoint(j, -1);
-						} else { // else underflow
-							point = QPoint(j, height());
-						}
-					} else if (vertex & (1 << 14)) { // else if no value
+					QPoint point(j, (height() - 1) -
+					                    vertex * (height() - 1) / PVRSS::display_type_max_val);
+					if (PVRSS::display_match(vertex, PVRSS::overflow_value)) {
+						point = QPoint(j, -1);
+					} else if (PVRSS::display_match(vertex, PVRSS::underflow_value)) {
+						point = QPoint(j, height());
+					} else if (PVRSS::display_match(vertex, PVRSS::no_value)) {
 						while (++j < serie_data.size() and
-						       (serie_data[j] & (1 << 14) and not(serie_data[j] & (1 << 15))))
-							;
+						       PVRSS::display_match(serie_data[j], PVRSS::no_value)) {
+						}
 						break;
 					}
 					points.push_back(point);
