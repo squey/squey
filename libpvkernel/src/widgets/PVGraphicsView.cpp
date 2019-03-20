@@ -921,8 +921,8 @@ void PVWidgets::PVGraphicsView::set_viewport(QWidget* w)
 	_viewport->setMouseTracking(mouse_tracking);
 
 	// Connect hbar and vbar valueChanged events
-	connect(_hbar, SIGNAL(valueChanged(qint64)), _viewport, SLOT(update()));
-	connect(_vbar, SIGNAL(valueChanged(qint64)), _viewport, SLOT(update()));
+	connect(_hbar, SIGNAL(valueChanged(qint32)), _viewport, SLOT(update()));
+	connect(_vbar, SIGNAL(valueChanged(qint32)), _viewport, SLOT(update()));
 
 	_viewport->installEventFilter(_viewport_event_filter);
 	_layout->addWidget(_viewport, 0, 0);
