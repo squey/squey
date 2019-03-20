@@ -83,15 +83,15 @@ int main(int argc, char** argv)
 	{
 		PVParallelView::PVSeriesView plot(sampler, PVParallelView::PVSeriesView::Backend::QPainter);
 
-		plot.setBackgroundColor(QColor(100, 10, 10, 255));
+		plot.set_background_color(QColor(100, 10, 10, 255));
 
-		std::vector<PVParallelView::PVSeriesView::SerieDrawInfo> seriesDrawOrder;
+		std::vector<PVParallelView::PVSeriesView::SerieDrawInfo> series_draw_order;
 		std::unordered_set<size_t> selected_timeseries;
 		for (size_t i = 0; i < timeseries.size(); ++i) {
-			seriesDrawOrder.push_back(
+			series_draw_order.push_back(
 			    {i, QColor(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100)});
 		}
-		plot.showSeries(std::move(seriesDrawOrder));
+		plot.show_series(std::move(series_draw_order));
 
 		plot.resize(1600, 900);
 
@@ -106,15 +106,15 @@ int main(int argc, char** argv)
 	{
 		PVParallelView::PVSeriesView plot(sampler, PVParallelView::PVSeriesView::Backend::OpenGL);
 
-		plot.setBackgroundColor(QColor(100, 10, 10, 255));
+		plot.set_background_color(QColor(100, 10, 10, 255));
 
-		std::vector<PVParallelView::PVSeriesView::SerieDrawInfo> seriesDrawOrder;
+		std::vector<PVParallelView::PVSeriesView::SerieDrawInfo> series_draw_order;
 		std::unordered_set<size_t> selected_timeseries;
 		for (size_t i = 0; i < timeseries.size(); ++i) {
-			seriesDrawOrder.push_back(
+			series_draw_order.push_back(
 			    {i, QColor(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100)});
 		}
-		plot.showSeries(std::move(seriesDrawOrder));
+		plot.show_series(std::move(series_draw_order));
 
 		plot.resize(1600, 900);
 
