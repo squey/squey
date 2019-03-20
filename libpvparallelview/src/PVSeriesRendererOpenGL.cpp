@@ -19,10 +19,10 @@ PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& 
     , QOpenGLWidget(parent)
     , _dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
 {
-	// QSurfaceFormat format;
-	// format.setVersion(3, 3);
-	// format.setProfile(QSurfaceFormat::CoreProfile);
-	// setFormat(format);
+	QSurfaceFormat format;
+	format.setVersion(4, 3);
+	format.setProfile(QSurfaceFormat::CoreProfile);
+	setFormat(format);
 
 	// setUpdateBehavior(QOpenGLWidget::PartialUpdate);
 
