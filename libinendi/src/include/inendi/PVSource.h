@@ -118,7 +118,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	{
 		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs).toStdString();
 	}
-	QString get_format_name() const { return _format.get_format_name(); }
+	QString get_format_name() const { return get_format().get_format_name(); }
 	QString get_window_name() const;
 	QString get_tooltip() const;
 
@@ -128,6 +128,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVView const* current_view() const;
 
 	PVRush::PVFormat const& get_format() const { return _format; }
+	PVRush::PVFormat const& get_original_format() const { return _original_format; }
 
 	std::string get_serialize_description() const override { return "Source: " + get_name(); }
 
@@ -153,8 +154,9 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVView* _last_active_view = nullptr;
 
 	PVRush::PVFormat
-	    _format;          //!< Format use to create the source (also contains metadata like colors)
-	PVRush::PVNraw _nraw; //!< NRaw data
+	    _original_format; //!< Format use to create the source (also contains metadata like colors)
+	PVRush::PVFormat _format; //!< Original format with potential additional "input_name" column
+	PVRush::PVNraw _nraw;     //!< NRaw data
 	PVRush::PVInputType::list_inputs _inputs;
 	PVRush::PVNrawOutput _output;
 

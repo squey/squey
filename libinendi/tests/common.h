@@ -216,12 +216,13 @@ class TestEnv
 
 		// Input file
 		QString path_file = QString::fromStdString(new_path);
-		PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+		PVRush::PVInputDescription_p file(
+		    new PVRush::PVFileDescription(path_file, log_files.size() > 1));
 		inputs << file;
 
 		for (size_t i = 1; i < log_files.size(); i++) {
-			inputs << PVRush::PVInputDescription_p(
-			    new PVRush::PVFileDescription(QString::fromStdString(log_files[i])));
+			inputs << PVRush::PVInputDescription_p(new PVRush::PVFileDescription(
+			    QString::fromStdString(log_files[i]), log_files.size() > 1));
 		}
 
 		// Load the given format file

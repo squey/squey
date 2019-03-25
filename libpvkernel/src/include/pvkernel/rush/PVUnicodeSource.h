@@ -40,6 +40,9 @@ class PVUnicodeSource : public PVRawSourceBase
 	using PVChunkAlloc = PVCore::PVChunkMem<Allocator>;
 
   public:
+	static constexpr const char MULTI_INPUTS_SEPARATOR = ';';
+
+  public:
 	PVUnicodeSource(PVInput_p input, size_t chunk_size, const alloc_chunk& alloc = alloc_chunk())
 	    : PVRawSourceBase()
 	    , _chunk_size(chunk_size)

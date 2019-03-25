@@ -10,6 +10,7 @@
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
+#include "PVTextFileSource.h"
 
 #include <QDir>
 #include <QStringList>
@@ -29,7 +30,7 @@ PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p i
 	if (size_chunk <= 0) {
 		size_chunk = 4096 * 100; // Aligned on a page boundary (4ko)
 	}
-	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, size_chunk));
+	source_p src = source_p(new PVTextFileSource(ifile, file, size_chunk));
 
 	return src;
 }

@@ -834,7 +834,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 	}
 
 	Inendi::PVSource& cur_src = current_view()->get_parent<Inendi::PVSource>();
-	PVRush::PVFormat const& format = cur_src.get_format();
+	PVRush::PVFormat const& format = cur_src.get_original_format();
 	if (format.get_full_path().isEmpty()) {
 		return;
 	}

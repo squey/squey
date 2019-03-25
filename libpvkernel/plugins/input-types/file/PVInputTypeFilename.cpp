@@ -55,7 +55,8 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
                                              QWidget* parent) const
 {
 	for (QString const& filename : filenames) {
-		inputs.push_back(PVInputDescription_p(new PVFileDescription(filename)));
+		inputs.push_back(
+		    PVInputDescription_p(new PVFileDescription(filename, filenames.size() > 1)));
 	}
 
 	if (inputs.size() >= _limit_nfds - 200) {

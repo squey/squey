@@ -24,12 +24,13 @@ Inendi::PVSource::PVSource(Inendi::PVScene& scene,
                            PVRush::PVSourceCreator_p sc,
                            PVRush::PVFormat const& format)
     : PVCore::PVDataTreeChild<PVScene, PVSource>(scene)
-    , _format(format)
+    , _original_format(format)
+    , _format(inputs.size() > 1 ? _original_format.add_input_name_column() : format)
     , _nraw()
     , _inputs(inputs)
     , _output(_nraw)
     , _src_plugin(sc)
-    , _extractor(_format, _output, _src_plugin, _inputs)
+    , _extractor(get_format(), _output, _src_plugin, _inputs)
 {
 	if (inputs.empty()) {
 		throw PVRush::PVInputException("Source can't be created without input");
@@ -96,7 +97,7 @@ PVRow Inendi::PVSource::get_valid_row_count() const
 
 PVCol Inendi::PVSource::get_nraw_column_count() const
 {
-	return PVCol(_format.get_axes().size());
+	return PVCol(get_format().get_axes().size());
 }
 
 std::string Inendi::PVSource::get_value(PVRow row, PVCol col) const
@@ -165,7 +166,7 @@ void Inendi::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 	// Save the format
 	so.set_current_status("Saving format...");
 	PVCore::PVSerializeObject_p format_obj = so.create_object("format");
-	_format.serialize_write(*format_obj);
+	_original_format.serialize_write(*format_obj);
 
 	// Serialize Input description to reload data if required.
 	QString type_name = _src_plugin->supported_type();

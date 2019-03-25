@@ -132,7 +132,7 @@ void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVDBQuery::load_from_string(std::vector<std::string> const&)
+PVRush::PVDBQuery::load_from_string(std::vector<std::string> const&, bool /* multi_inputs */)
 {
 	throw PVRush::BadInputDescription("Incomplete input for DBQuery");
 }

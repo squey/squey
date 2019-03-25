@@ -18,6 +18,7 @@
 #include <pvkernel/rush/PVXmlParamParser.h> // for PVXmlParamParser, etc
 #include <pvkernel/rush/PVXmlParamParserData.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h> // for PVXmlTreeNodeDom
+#include <pvkernel/rush/PVUnicodeSource.h>
 
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsFilterReg_p, etc
 
@@ -42,7 +43,8 @@
 
 // PVXmlParamParser class
 
-PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
+PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile,
+                                           bool add_input_column_name /* = false */)
 {
 	QFile xmlfile(nameFile);
 
@@ -60,9 +62,60 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 		                        .toStdString());
 	}
 	PVRush::PVFormatVersion::to_current(docXml);
+	if (add_input_column_name) {
+		addInputNameColumn(docXml);
+	}
 	parseFromRootNode(docXml.documentElement());
 
 	xmlfile.close();
+}
+
+void PVRush::PVXmlParamParser::addInputNameColumn(QDomDocument& xml)
+{
+	// Create CSV splitter for input names column
+	QDomElement csv_splitter_dom = xml.createElement(PVFORMAT_XML_TAG_SPLITTER_STR);
+	csv_splitter_dom.setAttribute(PVFORMAT_FILTER_TYPE_STR, "csv");
+	csv_splitter_dom.setAttribute("quote", "\"");
+	csv_splitter_dom.setAttribute("sep",
+	                              QString(PVRush::PVUnicodeSource<>::MULTI_INPUTS_SEPARATOR));
+
+	QDomElement field = xml.createElement(PVFORMAT_XML_TAG_FIELD_STR);
+	csv_splitter_dom.appendChild(field);
+	QDomElement axis = xml.createElement(PVFORMAT_XML_TAG_AXIS_STR);
+
+	QDomElement mapping = xml.createElement(PVFORMAT_XML_TAG_MAPPING);
+	mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, PVFORMAT_AXIS_MAPPING_DEFAULT);
+	QDomElement plotting = xml.createElement(PVFORMAT_XML_TAG_PLOTTING);
+	plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, PVFORMAT_AXIS_PLOTTING_DEFAULT);
+	axis.appendChild(mapping);
+	axis.appendChild(plotting);
+
+	axis.setAttribute(PVFORMAT_AXIS_NAME_STR, "file_name");
+	axis.setAttribute(PVFORMAT_AXIS_TYPE_STR, "string");
+	field.appendChild(axis);
+
+	QDomElement field2 = xml.createElement(PVFORMAT_XML_TAG_FIELD_STR);
+	csv_splitter_dom.appendChild(field2);
+
+	QDomNode root_splitter = xml.documentElement().firstChildElement(PVFORMAT_XML_TAG_SPLITTER_STR);
+	root_splitter.parentNode().removeChild(root_splitter);
+	QDomNode param = xml.documentElement();
+	param.appendChild(csv_splitter_dom);
+	field2.appendChild(root_splitter);
+
+	// Recompute axis combination to insert "input_name" as first axis
+	QDomNode axes_combination = xml.documentElement().firstChildElement("axes-combination");
+	axes_combination.parentNode().removeChild(axes_combination);
+	QStringList comb = axes_combination.toElement().text().split(",");
+	for (QString& str : comb) {
+		str = QString::number(str.toUInt() + 1);
+	}
+	comb.insert(0, QString::number(0));
+	QString new_axes_comb = comb.join(",");
+	QDomElement ac = xml.createElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
+	QDomText new_axes_comb_text_node = xml.createTextNode(new_axes_comb);
+	ac.appendChild(new_axes_comb_text_node);
+	xml.documentElement().appendChild(ac);
 }
 
 PVRush::PVXmlParamParser::PVXmlParamParser(QDomElement const& rootNode)
