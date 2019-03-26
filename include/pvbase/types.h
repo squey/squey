@@ -11,6 +11,7 @@
 #include <limits>
 
 #include <QtGlobal>
+#include <QMetaType>
 
 #include <type_safe/strong_typedef.hpp>
 
@@ -46,6 +47,21 @@
 
 DEFINE_STRONG_TYPEDEF(PVCol, int)
 DEFINE_STRONG_TYPEDEF(PVCombCol, int)
+
+Q_DECLARE_METATYPE(PVCol)
+Q_DECLARE_METATYPE(PVCombCol)
+
+template <class Stream>
+Stream& operator<<(Stream& stream, PVCol col)
+{
+	return stream << static_cast<PVCol::value_type>(col);
+}
+
+template <class Stream>
+Stream& operator>>(Stream& stream, PVCol col)
+{
+	return stream >> static_cast<PVCol::value_type&>(col);
+}
 
 using PVRow = quint32;
 using chunk_index = quint64;

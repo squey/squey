@@ -62,6 +62,11 @@ QStringList PVAxesCombination::get_combined_names() const
 	return l;
 }
 
+PVCol PVAxesCombination::get_nraw_axes_count() const
+{
+	return PVCol(_axes.size());
+}
+
 PVCombCol PVAxesCombination::get_axes_count() const
 {
 	return PVCombCol(_axes_comb.size());

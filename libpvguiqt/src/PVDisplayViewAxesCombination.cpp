@@ -6,12 +6,13 @@
  */
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
+#include <pvguiqt/PVAxesCombinationWidget.h>
 #include <pvguiqt/PVDisplayViewAxesCombination.h>
 
 #include <inendi/PVView.h>
 
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
-    : PVDisplayViewIf(/*PVDisplayIf::ShowInToolbar, "Axes combination"*/)
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar, "Axes combination")
 {
 }
 
@@ -25,7 +26,7 @@ QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView*
 
 QIcon PVDisplays::PVDisplayViewAxesCombination::toolbar_icon() const
 {
-	return QIcon(":/view-layerstack");
+	return QIcon(":/view-datatree");
 }
 
 QString PVDisplays::PVDisplayViewAxesCombination::widget_title(Inendi::PVView* view) const

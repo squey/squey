@@ -48,6 +48,7 @@ class PVAxesCombination
 	std::vector<PVCol> const& get_combination() const;
 	QStringList get_nraw_names() const;
 	QStringList get_combined_names() const;
+	PVCol get_nraw_axes_count() const;
 	PVCombCol get_axes_count() const;
 	PVCombCol get_first_comb_col(PVCol nraw_col) const;
 	QString to_string() const;
