@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>789</width>
-    <height>522</height>
+    <height>548</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,7 +84,29 @@
           <property name="text">
            <string/>
           </property>
+          <property name="icon">
+           <iconset theme=":/reload"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>22</height>
+           </size>
+          </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
         <item>
          <widget class="QToolButton" name="_btn_axis_add_before">
@@ -93,6 +115,15 @@
           </property>
           <property name="text">
            <string/>
+          </property>
+          <property name="icon">
+           <iconset theme=":/insert_before"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>22</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -103,6 +134,15 @@
           </property>
           <property name="text">
            <string/>
+          </property>
+          <property name="icon">
+           <iconset theme=":/insert_after"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>22</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -184,6 +224,15 @@
             <property name="text">
              <string/>
             </property>
+            <property name="icon">
+             <iconset theme=":/select_all"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -193,6 +242,41 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/select_invert"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_btn_sel_singleton">
+            <property name="toolTip">
+             <string>Select axes with only one value</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/single_value_axis"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
@@ -204,6 +288,15 @@
             <property name="text">
              <string/>
             </property>
+            <property name="icon">
+             <iconset theme=":/move_top"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -213,6 +306,15 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/move_up"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -224,6 +326,15 @@
             <property name="text">
              <string/>
             </property>
+            <property name="icon">
+             <iconset theme=":/gather"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -233,6 +344,15 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/move_down"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -244,6 +364,22 @@
             <property name="text">
              <string/>
             </property>
+            <property name="icon">
+             <iconset theme=":/move_bottom"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
            </widget>
           </item>
           <item>
@@ -253,6 +389,15 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/remove"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -264,6 +409,15 @@
             <property name="text">
              <string/>
             </property>
+            <property name="icon">
+             <iconset theme=":/remove_duplicate"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item>
@@ -274,16 +428,14 @@
             <property name="text">
              <string/>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="_btn_sel_singleton">
-            <property name="toolTip">
-             <string>Select axes with
-only one value</string>
+            <property name="icon">
+             <iconset theme=":/sort_az"/>
             </property>
-            <property name="text">
-             <string/>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
