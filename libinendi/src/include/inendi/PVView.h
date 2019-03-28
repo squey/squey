@@ -192,7 +192,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	void recompute_all_selectable_count();
 
-#ifdef WITH_MINESET
 	/**
 	 * Save added dataset to mineset to remove them at the end of the inspection.
 	 */
@@ -200,7 +199,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	{
 		_mineset_datasets.emplace_back(dataset_url);
 	}
-#endif
 
 	/******************************************************************************
 	******************************************************************************
@@ -345,9 +343,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVCol _active_axis;
 	QColor _color;
 
-#ifdef WITH_MINESET
 	std::vector<std::string> _mineset_datasets; //!< Names of the exported dataset.
-#endif
 
   private:
 	static PVCore::PVHSVColor _default_zombie_line_properties; //!< Default color for Zombies lines.

@@ -34,9 +34,7 @@ PVRangeSubSampler.cpp
 plugins.cpp
 )
 
-if (MINESET)
 set(SRC_FILES ${SRC_FILES} PVMineset.cpp)
-endif()
 
 set(WIDGETS_MOC_HEADERS
 include/inendi/widgets/PVMappingPlottingEditDialog.h
