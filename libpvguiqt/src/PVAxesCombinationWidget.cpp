@@ -65,7 +65,7 @@ void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::axis_add_before_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_org = ordered_selected(_list_org);
 	if (selected_org.empty()) {
 		return;
@@ -87,7 +87,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_add_before_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::axis_add_after_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_org = ordered_selected(_list_org);
 	if (selected_org.empty()) {
 		return;
@@ -122,7 +122,7 @@ void PVGuiQt::PVAxesCombinationWidget::invert_selection_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = ordered_selected(_list_used);
 	if (selected_used.empty()) {
 		return;
@@ -143,7 +143,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = ordered_selected(_list_used).toStdList();
 	if (selected_used.empty()) {
 		return;
@@ -165,7 +165,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::move_top_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = ordered_selected(_list_used);
 	if (selected_used.empty()) {
 		return;
@@ -184,7 +184,7 @@ void PVGuiQt::PVAxesCombinationWidget::move_top_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::move_bottom_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = ordered_selected(_list_used);
 	if (selected_used.empty()) {
 		return;
@@ -204,7 +204,7 @@ void PVGuiQt::PVAxesCombinationWidget::move_bottom_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::gather_selected_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = ordered_selected(_list_used);
 	if (selected_used.count() < 2) {
 		return;
@@ -225,7 +225,7 @@ void PVGuiQt::PVAxesCombinationWidget::gather_selected_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = _list_used->selectedItems();
 	if (selected_used.empty()) {
 		return;
@@ -238,7 +238,7 @@ void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::remove_duplicates_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = ordered_selected(_list_used);
 	std::vector<QListWidgetItem*> to_remove;
 	auto find_all_to_remove = [&to_remove](int count, auto item_at) {
@@ -265,11 +265,23 @@ void PVGuiQt::PVAxesCombinationWidget::remove_duplicates_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::sort_Slot()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	auto selected_used = ordered_selected(_list_used);
 	if (selected_used.count() < 2) {
-		_axes_combination.sort_by_name();
-		update_used_axes();
+		std::vector<QListWidgetItem*> sorted_selected;
+		sorted_selected.reserve(_list_used->count());
+		for (int i = 0; i < _list_used->count(); ++i) {
+			sorted_selected.push_back(_list_used->item(i));
+		}
+		std::stable_sort(sorted_selected.begin(), sorted_selected.end(),
+		                 [](auto a, auto b) { return a->text() < b->text(); });
+		for (int i = _list_used->count(); i-- > 0;) {
+			_list_used->takeItem(i);
+		}
+		for (auto i = 0; i < sorted_selected.size(); ++i) {
+			_list_used->addItem(sorted_selected[i]);
+		}
+		_list_used->selectAll();
 	} else {
 		auto sorted_selected = selected_used.toVector();
 		std::stable_sort(sorted_selected.begin(), sorted_selected.end(),
@@ -302,7 +314,7 @@ void PVGuiQt::PVAxesCombinationWidget::update_orig_axes()
 
 void PVGuiQt::PVAxesCombinationWidget::update_used_axes()
 {
-	enable_drop(false);
+	DisableDnD ddd(this);
 	_list_used->clear();
 	for (PVCol col : _axes_combination.get_combination()) {
 		auto const& axis = _axes_combination.get_axis(col);
@@ -311,7 +323,6 @@ void PVGuiQt::PVAxesCombinationWidget::update_used_axes()
 		_list_used->addItem(item);
 	}
 	_label_axes_used->setText(QString::number(_list_used->count()) + " Axes");
-	enable_drop(true);
 }
 
 void PVGuiQt::PVAxesCombinationWidget::update_all()
@@ -357,6 +368,11 @@ void PVGuiQt::PVAxesCombinationWidget::sel_singleton_Slot()
 
 void PVGuiQt::PVAxesCombinationWidget::update_combination()
 {
+	if (_list_used->count() < 2) {
+		_axes_combination.reset_to_default();
+		_label_axes_used->setText(QString::number(_axes_combination.get_axes_count()) + " Axes");
+		return;
+	}
 	std::vector<PVCol> new_comb;
 	new_comb.reserve(_list_used->count());
 	for (int i = 0; i < _list_used->count(); ++i) {
@@ -365,7 +381,6 @@ void PVGuiQt::PVAxesCombinationWidget::update_combination()
 	}
 	_axes_combination.set_combination(new_comb);
 	_label_axes_used->setText(QString::number(_list_used->count()) + " Axes");
-	enable_drop(true);
 }
 
 void PVGuiQt::PVAxesCombinationWidget::enable_drop(bool enable)

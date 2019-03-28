@@ -74,6 +74,13 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	QMetaObject::Connection _connection_dnd_inserted;
 	QMetaObject::Connection _connection_dnd_moved;
 	QMetaObject::Connection _connection_dnd_removed;
+
+	struct DisableDnD {
+		PVAxesCombinationWidget* const parent;
+		DisableDnD(auto* parent) : parent(parent) { parent->enable_drop(false); }
+		~DisableDnD() { parent->enable_drop(true); }
+		DisableDnD(DisableDnD&&) = delete;
+	};
 };
 } // namespace PVGuiQt
 
