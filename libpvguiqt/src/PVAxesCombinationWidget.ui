@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- @file -->
-<!-- @copyright (C) Picviz Labs 2010-March 2015 -->
-<!-- @copyright (C) ESI Group INENDI April 2015-2015 -->
 <ui version="4.0">
  <class>PVAxesCombinationWidget</class>
  <widget class="QWidget" name="PVAxesCombinationWidget">
@@ -9,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>631</width>
-    <height>457</height>
+    <width>789</width>
+    <height>548</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,14 +23,41 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Original axes list</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Original axes</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="_label_axes_org">
+            <property name="text">
+             <string>0 Axes</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QListWidget" name="_list_org"/>
+         <widget class="QListWidget" name="_list_org">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DragOnly</enum>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -53,9 +77,72 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="_btn_axis_add">
+         <widget class="QToolButton" name="_btn_reset">
+          <property name="toolTip">
+           <string>Reset to original list</string>
+          </property>
           <property name="text">
-           <string>&gt;</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme=":/reload"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>22</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="_btn_axis_add_before">
+          <property name="toolTip">
+           <string>Insert before</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme=":/insert_before"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>22</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="_btn_axis_add_after">
+          <property name="toolTip">
+           <string>Insert after</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme=":/insert_after"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>22</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -79,14 +166,34 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Used axes list</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Used axes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="_label_axes_used">
+              <property name="text">
+               <string>0 Axes</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QListWidget" name="_list_used">
+            <property name="dragDropMode">
+             <enum>QAbstractItemView::DragDrop</enum>
+            </property>
+            <property name="defaultDropAction">
+             <enum>Qt::MoveAction</enum>
+            </property>
             <property name="selectionMode">
              <enum>QAbstractItemView::ExtendedSelection</enum>
             </property>
@@ -110,46 +217,225 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="_btn_axis_up">
+           <widget class="QToolButton" name="_btn_select_all">
+            <property name="toolTip">
+             <string>Select all</string>
+            </property>
             <property name="text">
-             <string>Up</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/select_all"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="_btn_axis_down">
+           <widget class="QToolButton" name="_btn_invert_selection">
+            <property name="toolTip">
+             <string>Invert selection</string>
+            </property>
             <property name="text">
-             <string>Down</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/select_invert"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="_btn_axis_remove">
+           <widget class="QToolButton" name="_btn_sel_singleton">
+            <property name="toolTip">
+             <string>Select axes with only one value</string>
+            </property>
             <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/single_value_axis"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_btn_axis_top">
+            <property name="toolTip">
+             <string>Move Top</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/move_top"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_btn_axis_up">
+            <property name="toolTip">
+             <string>Move Up</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/move_up"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_btn_gather">
+            <property name="toolTip">
+             <string>Gather</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/gather"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_btn_axis_down">
+            <property name="toolTip">
+             <string>Move Down</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/move_down"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_btn_axis_bottom">
+            <property name="toolTip">
+             <string>Move Bottom</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/move_bottom"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="_btn_axis_remove">
+            <property name="toolTip">
              <string>Remove</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="_btn_sort">
             <property name="text">
-             <string>Sort</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/remove"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="_btn_sel_singleton">
+           <widget class="QToolButton" name="_btn_remove_duplicates">
+            <property name="toolTip">
+             <string>Remove duplicates</string>
+            </property>
             <property name="text">
-             <string>Select axes with
-only one value</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/remove_duplicate"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="_btn_reset">
+           <widget class="QToolButton" name="_btn_sort">
+            <property name="toolTip">
+             <string>Sort selected axes</string>
+            </property>
             <property name="text">
-             <string>Reset to
-original list</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme=":/sort_az"/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
             </property>
            </widget>
           </item>

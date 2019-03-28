@@ -1,18 +1,18 @@
 <!-- @file -->
 <!-- @copyright (C) Picviz Labs 2011-March 2015 -->
-<!-- @copyright (C) ESI Group INENDI April 2015-2015 -->
+<!-- @copyright (C) ESI Group INENDI April 2015-2019 -->
 <RCC>
     <qresource prefix="/">
 	<!-- OLD STUFF to be checked or changed -->
 
 	<file alias="background-window.png">resources/background-window.png</file>
-        <file alias="window-icon.png">resources/inspector.png</file>
-        <file alias="logo.png">resources/logo.png</file>
-        <file alias="logo_text.png">resources/logo_text.png</file>
-        <file>resources/filelink-32.png</file>
-        <file>resources/standardbutton-open-32.png</file>
-        <file alias="save">resources/standardbutton-save-32.png</file>
-        <file>resources/up-32.png</file>
+	<file alias="window-icon.png">resources/inspector.png</file>
+	<file alias="logo.png">resources/logo.png</file>
+	<file alias="logo_text.png">resources/logo_text.png</file>
+	<file>resources/filelink-32.png</file>
+	<file>resources/standardbutton-open-32.png</file>
+	<file alias="save">resources/standardbutton-save-32.png</file>
+	<file>resources/up-32.png</file>
 	<file alias="brush.png">resources/brush.png</file>
 	<file alias="hide.png">resources/hide.png</file>
 	<file alias="less.png">resources/less.png</file>
@@ -185,30 +185,46 @@
 	<file alias="help-series-view-rendering">resources/help/view-series-rendering.html</file>
 	<file alias="help-series-view-sampling">resources/help/view-series-sampling.html</file>
 
-        <!-- VIEW ICONS -->
-        <file alias="selection-rectangle">resources/selection-rectangle.png</file>
-        <file alias="selection-horizontal">resources/selection-horizontal.png</file>
-        <file alias="selection-vertical">resources/selection-vertical.png</file>
+	<!-- VIEW ICONS -->
+	<file alias="selection-rectangle">resources/selection-rectangle.png</file>
+	<file alias="selection-horizontal">resources/selection-horizontal.png</file>
+	<file alias="selection-vertical">resources/selection-vertical.png</file>
 
-		<file alias="series-view-lines">resources/series-view-lines.png</file>
-        <file alias="series-view-linesalways">resources/series-view-linesalways.png</file>
-        <file alias="series-view-points">resources/series-view-points.png</file>
+	<file alias="series-view-lines">resources/series-view-lines.png</file>
+	<file alias="series-view-linesalways">resources/series-view-linesalways.png</file>
+	<file alias="series-view-points">resources/series-view-points.png</file>
 
-        <file alias="labeled-axis">resources/labeled-axis.png</file>
+	<file alias="labeled-axis">resources/labeled-axis.png</file>
 
-        <file alias="select-axis">resources/select-axis.png</file>
+	<file alias="select-axis">resources/select-axis.png</file>
 
-        <file alias="colormap-log">resources/colormap-log.png</file>
+	<file alias="colormap-log">resources/colormap-log.png</file>
 
-        <file alias="zoom-autofit-both">resources/zoom-autofit-both.png</file>
-        <file alias="zoom-autofit-horizontal">resources/zoom-autofit-horizontal.png</file>
-        <file alias="zoom-autofit-vertical">resources/zoom-autofit-vertical.png</file>
-        
-    <!-- INPUT TYPES -->
-    <file alias="elasticsearch_icon">resources/elasticsearch.png</file>
-    
-     <!-- CORRELATION -->
-     <file alias="bind">resources/link.png</file>
-    
-    </qresource>
+	<file alias="zoom-autofit-both">resources/zoom-autofit-both.png</file>
+	<file alias="zoom-autofit-horizontal">resources/zoom-autofit-horizontal.png</file>
+	<file alias="zoom-autofit-vertical">resources/zoom-autofit-vertical.png</file>
+
+	<file alias="reload">resources/22x22/reload.png</file>
+	<file alias="insert_before">resources/22x22/insert-before.png</file>
+	<file alias="insert_after">resources/22x22/insert-after.png</file>
+
+	<file alias="select_all">resources/22x22/select.png</file>
+	<file alias="select_invert">resources/22x22/select-invert.png</file>
+	<file alias="move_top">resources/22x22/max_by.png</file>
+	<file alias="move_up">resources/trafik/elements-interface/icone-monter-noir.png</file>
+	<file alias="gather">resources/22x22/gather.png</file>
+	<file alias="move_down">resources/trafik/elements-interface/icone-descendre-noir.png</file>
+	<file alias="move_bottom">resources/22x22/min_by.png</file>
+	<file alias="remove">resources/trafik/elements-interface/icone-supprimer-noir.png</file>
+	<file alias="remove_duplicate">resources/22x22/remove-duplicate.png</file>
+	<file alias="single_value_axis">resources/single_value_axis.png</file>
+	<file alias="sort_az">resources/22x22/sort-22.png</file>
+
+	<!-- INPUT TYPES -->
+	<file alias="elasticsearch_icon">resources/elasticsearch.png</file>
+
+	<!-- CORRELATION -->
+	<file alias="bind">resources/link.png</file>
+
+	</qresource>
 </RCC>

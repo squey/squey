@@ -11,6 +11,7 @@
 #include <pvguiqt/PVAxesCombinationWidget.h>
 
 #include <QVBoxLayout>
+#include <QPushButton>
 
 PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent)
     : QDialog(parent), _temp_axes_comb(view.get_axes_combination()), _lib_view(view)
