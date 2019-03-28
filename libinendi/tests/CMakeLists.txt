@@ -28,10 +28,10 @@ add_inspector_compile_test(Tqt_new_layer_dialog LINKS ${LINK_LIBRARIES} FILES ne
 
 add_inspector_compile_test(Tinendi_export_selection LINKS ${LINK_LIBRARIES} FILES export_selection.cpp)
 add_inspector_test(Tinendi_export_selection Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format ${TESTS_FILES_DIR}/sources/proxy.log)
-if(MINESET)
+if(MINESET_TESTS)
 	add_inspector_compile_test(Tinendi_export_selection_to_mineset LINKS ${LINK_LIBRARIES} FILES export_selection_to_mineset.cpp)
 	add_inspector_test(Tinendi_export_selection_to_mineset Tinendi_export_selection_to_mineset ${TESTS_FILES_DIR}/sources/proxy_mineset.log ${TESTS_FILES_DIR}/formats/proxy.log.format)
-endif(MINESET)
+endif(MINESET_TESTS)
 
 add_inspector_test(Tinendi_export_small_selection_gz Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)
 add_inspector_test(Tinendi_export_small_selection_bz2 Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.bz2 ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)

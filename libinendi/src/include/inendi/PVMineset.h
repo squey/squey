@@ -4,8 +4,8 @@
  * @copyright (C) ESI Group INENDI 2016
  */
 
-#ifndef __INENDI_PVMINETSET_H__
-#define __INENDI_PVMINETSET_H__
+#ifndef __INENDI_PVMINESET_H__
+#define __INENDI_PVMINESET_H__
 
 #include <curl/curl.h>
 
@@ -33,6 +33,11 @@ class PVMineset
 	struct mineset_error : public std::runtime_error {
 		using std::runtime_error::runtime_error;
 	};
+
+	/**
+	 * Returns true if the config contains a "[mineset]" group
+	 */
+	static bool is_enabled();
 
 	/**
 	 * Extracts the selected rows of a view with its
@@ -84,4 +89,4 @@ class PVMineset
 };
 }
 
-#endif // __INENDI_PVMINETSET_H__
+#endif // __INENDI_PVMINESET_H__

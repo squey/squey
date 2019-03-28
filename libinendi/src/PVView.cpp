@@ -5,9 +5,7 @@
  * @copyright (C) ESI Group INENDI April 2015-2015
  */
 
-#ifdef WITH_MINESET
 #include <inendi/PVMineset.h>
-#endif
 
 #include <inendi/PVAxesCombination.h>   // for PVAxesCombination
 #include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
@@ -121,12 +119,10 @@ Inendi::PVView::~PVView()
 	// remove correlation
 	get_parent<Inendi::PVRoot>().correlations().remove(this, true /*both_ways*/);
 
-#ifdef WITH_MINESET
 	for (const std::string& mineset_dataset : _mineset_datasets) {
 		std::thread req(Inendi::PVMineset::delete_dataset, mineset_dataset);
 		req.detach();
 	}
-#endif
 
 	get_parent<PVRoot>().view_being_deleted(this);
 }

@@ -234,7 +234,8 @@ class LocalMinesetFormat
 				}
 
 				_datetime_formatters[axis.index] = f;
-				nraw.column(axis.index).set_formatter(formatter_datetime);
+				const_cast<pvcop::db::array&>(nraw.column(axis.index))
+				    .set_formatter(formatter_datetime);
 			}
 		}
 	}
@@ -248,7 +249,8 @@ class LocalMinesetFormat
 
 		// Put datetime formatters back
 		for (const auto& datetime_formatter_it : _datetime_formatters) {
-			nraw.column(datetime_formatter_it.first).set_formatter(datetime_formatter_it.second);
+			const_cast<pvcop::db::array&>(nraw.column(PVCol(datetime_formatter_it.first)))
+			    .set_formatter(datetime_formatter_it.second);
 		}
 	}
 
@@ -265,13 +267,18 @@ class LocalMinesetFormat
  * [mineset]
  * login=
  * password=
- * host =
+ * url =
  */
 Inendi::PVMineset::PVMineset()
     : _login(PVCore::PVConfig::get().config().value("mineset/login").toString().toStdString())
     , _password(PVCore::PVConfig::get().config().value("mineset/password").toString().toStdString())
     , _url(PVCore::PVConfig::get().config().value("mineset/url").toString().toStdString())
 {
+}
+
+bool Inendi::PVMineset::is_enabled()
+{
+	return PVCore::PVConfig::get().config().childGroups().contains("mineset");
 }
 
 /**
@@ -300,8 +307,6 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 
 		LocalMinesetFormat lf(view);
 
-		std::ofstream data_file(dataset_base_path + ".data");
-
 		PVCore::PVColumnIndexes column_indexes = view.get_axes_combination().get_combination();
 
 		PVRush::PVCSVExporter::export_func_f export_func =
@@ -309,7 +314,7 @@ std::string Inendi::PVMineset::import_dataset(Inendi::PVView& view)
 		        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
 		PVRush::PVCSVExporter exp(column_indexes, nraw.row_count(), export_func,
 		                          "\t" /* = default_sep_char */);
-		exp.export_rows(data_file, sel);
+		exp.export_rows(dataset_base_path + ".data", sel);
 	}
 
 	// Compress dataset
