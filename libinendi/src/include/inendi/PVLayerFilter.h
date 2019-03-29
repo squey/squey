@@ -49,8 +49,7 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 
   public:
 	// This is used for context menu integration (in the NRAW listing)
-	typedef std::function<PVCore::PVArgumentList(PVRow, PVCombCol, PVCol, QString const&)>
-	    ctxt_menu_f;
+	typedef std::function<PVCore::PVArgumentList(PVRow, PVCombCol, PVCol, QString&)> ctxt_menu_f;
 	// This QHash will be used for specifying a list of couple (name, function) that will be used in
 	// the context menu
 	typedef PVCore::PVOrderedMap<QString, ctxt_menu_f> hash_menu_function_t;
