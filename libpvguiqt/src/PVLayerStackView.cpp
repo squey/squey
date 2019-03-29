@@ -199,9 +199,7 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 
 Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
-	QVariant var =
-	    ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
-	return *reinterpret_cast<Inendi::PVLayer*>(var.value<void*>());
+	return ls_model()->lib_layer_stack().get_layer_n(model_idx);
 }
 
 /******************************************************************************
