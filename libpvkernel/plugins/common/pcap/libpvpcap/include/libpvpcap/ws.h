@@ -75,7 +75,7 @@ Other explanation on https://www.wireshark.org/docs/wsar_html/epan/ftypes_8h_sou
 static const std::unordered_map<std::string, std::string> ws_types_mapping = {
     {"FT_NONE Label", "string"},
     {"FT_PROTOCOL", "string"},
-    {"FT_BOOLEAN", "string"}, /* not supported */
+    {"FT_BOOLEAN", "number_uint8"}, /* should be stored on bool */
     {"FT_UINT8", "number_uint8"},
     {"FT_UINT16", "number_uint16"},
     {"FT_UINT24", "number_uint32"},
