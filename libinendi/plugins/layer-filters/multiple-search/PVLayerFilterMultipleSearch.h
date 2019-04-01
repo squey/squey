@@ -32,11 +32,10 @@ class PVLayerFilterMultipleSearch : public PVLayerFilter
 
   public:
 	static PVCore::PVArgumentList
-	search_value_menu(PVRow row, PVCombCol col, PVCol org_col, QString const& v);
+	search_value_menu(PVRow row, PVCombCol col, PVCol org_col, QString& v);
 	static PVCore::PVArgumentList
-	search_using_value_menu(PVRow row, PVCombCol col, PVCol org_col, QString const& v);
-	static PVCore::PVArgumentList
-	search_menu(PVRow row, PVCombCol col, PVCol org_col, QString const& v);
+	search_using_value_menu(PVRow row, PVCombCol col, PVCol org_col, QString& v);
+	static PVCore::PVArgumentList search_menu(PVRow row, PVCombCol col, PVCol org_col, QString& v);
 
 	void show_error(QWidget* parent) const override;
 
