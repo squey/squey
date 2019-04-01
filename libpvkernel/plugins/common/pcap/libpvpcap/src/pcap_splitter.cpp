@@ -456,14 +456,17 @@ class FlowSplitter : public PacketSplitter
 
 		if (eth_proto == ETH_P_IPV6) {
 			const sniff_ip* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
+			size_ip = IP_HL(ip) * 4;
 			protocol = ip->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ip, false);
 		} else if (eth_proto == ETH_P_IP) {
 			const sniff_ip* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
+			size_ip = IP_HL(ip) * 4;
 			protocol = ip->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ip, true);
 		} else if (eth_proto == ETH_P_8021Q) { // 802.1Q VLAN Extended Header
 			const sniff_ip* ipq = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr) + 4);
+			size_ip = IP_HL(ipq) * 4;
 			protocol = ipq->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ipq, IP_V(ipq) == 4);
 		} else {
@@ -501,8 +504,6 @@ class FlowSplitter : public PacketSplitter
 		uint64_t ip_dst_hi = half_ipv6(ip_dst.s6_addr32[2], ip_dst.s6_addr32[3]).u64;
 		if (ip_src_lo < ip_dst_lo or (ip_src_lo == ip_dst_lo and ip_src_hi < ip_dst_hi)) {
 			std::swap(ip_src, ip_dst);
-		}
-		if (ip_src_port > ip_dst_port) {
 			std::swap(ip_src_port, ip_dst_port);
 		}
 
