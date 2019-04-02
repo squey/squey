@@ -222,8 +222,7 @@ void PVAbstractTableModel::move_by(int inc_elts, size_t page_step)
 	} else if (inc_elts < 0 and new_pos < 0) {
 		// Reach previous page
 		// Number of page scroll back
-		// -1 as we keep positif _pos_in_page
-		int decp = new_pos / static_cast<int>(_page_size) - 1;
+		int decp = new_pos / static_cast<int>(_page_size);
 		if ((decp + static_cast<int>(_current_page)) < 0) {
 			// Reach the start of the listing
 			_current_page = 0;
@@ -237,7 +236,7 @@ void PVAbstractTableModel::move_by(int inc_elts, size_t page_step)
 		// It is not the end of the last page but almost the end so we stop
 		// now to show the last line at the bottom of the screen
 		_current_page = _page_number - 1;
-		_pos_in_page = std::max<int>(0, _last_page_size - page_step - 1);
+		_pos_in_page = std::max<int>(0, int(_last_page_size) - int(page_step) - 1);
 	} else {
 		// Scroll in the current page
 		_pos_in_page = new_pos;
@@ -296,7 +295,7 @@ void PVAbstractTableModel::move_to_end(size_t page_step)
 	_current_page = _page_number - 1;
 	// It may happen that _last_page_size is 1 less than page_step du to
 	// incomplete last row
-	_pos_in_page = std::max<int>(0, _last_page_size - page_step - 1);
+	_pos_in_page = std::max<int>(0, int(_last_page_size) - int(page_step) - 1);
 }
 
 /******************************************************************************
@@ -359,7 +358,8 @@ void PVAbstractTableModel::update_pages(size_t nbr_tick, size_t page_step)
 bool PVAbstractTableModel::is_last_pos() const
 {
 	return (_page_number - 1) == _current_page and
-	       _pos_in_page == static_cast<size_t>(std::max<int>(0, _last_page_size - _page_step - 1));
+	       _pos_in_page ==
+	           static_cast<size_t>(std::max<int>(0, int(_last_page_size) - int(_page_step) - 1));
 }
 
 /******************************************************************************
