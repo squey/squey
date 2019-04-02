@@ -222,7 +222,6 @@ void PVAbstractTableModel::move_by(int inc_elts, size_t page_step)
 	} else if (inc_elts < 0 and new_pos < 0) {
 		// Reach previous page
 		// Number of page scroll back
-		// -1 as we keep positif _pos_in_page
 		int decp = new_pos / static_cast<int>(_page_size);
 		if ((decp + static_cast<int>(_current_page)) < 0) {
 			// Reach the start of the listing
