@@ -98,7 +98,7 @@ class PVPcapSource : public PVUnicodeSource<>
   private:
 	PVPcapDescription* _input_desc = nullptr;
 
-	std::vector<std::string> _temp_elements;
+	std::deque<std::string> _temp_elements;
 	size_t _packet_count = 0;
 
 	std::string _original_pcap_filename;
