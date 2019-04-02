@@ -78,7 +78,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 		nlines = EXTRACTED_ROW_COUNT_LIMIT;
 	}
 
-	return process_from_agg_idxes(start, start + nlines);
+	return process_from_agg_idxes(start, start + nlines - 1);
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start,
