@@ -454,8 +454,7 @@ PVGuiQt::PVWorkspaceBase::get_view_widgets(Inendi::PVView* view)
 template <class T>
 void PVGuiQt::PVSourceWorkspace::fill_display()
 {
-	for (typename list_display<T>::value_type const& p :
-	     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
+	for (auto const& p : std::get<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
 		for (QAction* act : p.first->menu()->actions()) {
 			p.first->menu()->removeAction(act);
 		}
@@ -466,8 +465,7 @@ void PVGuiQt::PVSourceWorkspace::fill_display()
 
 		// AG: this category could go into PVDisplayViewIf w/ a
 		// PVCore::PVArgumentList object with one axis !
-		for (typename list_display<T>::value_type const& p :
-		     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
+		for (auto const& p : std::get<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
 			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view, PVCombCol());
 			act->setText(action_name + "...");
 			p.first->menu()->addAction(act);
@@ -491,7 +489,7 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 			    btn->setMenu(new QMenu);
 			    _toolbar->addWidget(btn);
 
-			    get_typed_arg<typename PVSourceWorkspace::list_display<T>>(_tool_buttons)
+			    std::get<typename PVSourceWorkspace::list_display<T>>(_tool_buttons)
 			        << std::make_pair(btn, &obj);
 
 			    connect(btn->menu(), &QMenu::aboutToShow, [this]() { fill_display<T>(); });

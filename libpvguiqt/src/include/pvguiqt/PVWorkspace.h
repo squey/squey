@@ -22,33 +22,6 @@ class QWidget;
 
 #include <inendi/PVView.h>
 
-/**
- * This helper function is std::get with type as parameter available only from C++14
- */
-template <class T, size_t I, class... U>
-typename std::enable_if<
-    std::is_same<typename std::tuple_element<I, std::tuple<U...>>::type, T>::value,
-    T&>::type
-__get_typed_arg(std::tuple<U...>& t)
-{
-	return std::get<I>(t);
-}
-
-template <class T, size_t I, class... U>
-typename std::enable_if<
-    not std::is_same<typename std::tuple_element<I, std::tuple<U...>>::type, T>::value,
-    T&>::type
-__get_typed_arg(std::tuple<U...>& t)
-{
-	return __get_typed_arg<T, I - 1>(t);
-}
-
-template <class T, class... U>
-T& get_typed_arg(std::tuple<U...>& u)
-{
-	return __get_typed_arg<T, sizeof...(U)-1>(u);
-}
-
 namespace Inendi
 {
 class PVView;
