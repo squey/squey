@@ -245,7 +245,7 @@ void PVParallelView::PVLibView::plotting_updated(QList<PVCol> const& cols_update
 	QSet<PVCombCol> combined_cols;
 	for (PVCol col : cols_updated) {
 		for (PVCombCol comb_col(0);
-		     size_t(comb_col) < _zones_manager.get_number_of_axes_comb_zones(); comb_col++) {
+		     size_t(comb_col) < _zones_manager.get_number_of_axes_comb_zones() + 1; comb_col++) {
 			if (lib_view()->get_axes_combination().get_nraw_axis(comb_col) == col) {
 				combined_cols.insert(comb_col);
 			}
