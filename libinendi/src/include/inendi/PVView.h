@@ -148,6 +148,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	PVLayer const& get_output_layer() const { return output_layer; }
 
 	std::string get_name() const;
+	void set_name(std::string name);
+
 	QString get_window_name() const;
 
 	QColor get_color() const { return _color; }
@@ -342,6 +344,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	id_t _view_id;
 	PVCol _active_axis;
 	QColor _color;
+	std::string _name;
 
 	std::vector<std::string> _mineset_datasets; //!< Names of the exported dataset.
 

@@ -11,6 +11,7 @@
 class QAction;
 class QEvent;
 class QToolButton;
+class QComboBox;
 class QObject;
 class QWidget;
 #include <QList>
@@ -139,23 +140,16 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 
   public:
 	template <class T>
-	struct Tag {
-	};
-
-	template <class T>
-	void create_view_dispatch(QAction*, Tag<T>);
-
-	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewIf>)
+	void create_view_dispatch(QAction* act)
 	{
-		create_view_widget(act);
-	}
-	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewAxisIf>)
-	{
-		create_view_axis_widget(act);
-	}
-	void create_view_dispatch(QAction* act, Tag<PVDisplays::PVDisplayViewZoneIf>)
-	{
-		create_view_zone_widget(act);
+		if
+			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewIf>) create_view_widget(act);
+		else if
+			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewAxisIf>)
+			    create_view_axis_widget(act);
+		else if
+			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewZoneIf>)
+			    create_view_zone_widget(act);
 	}
 
   private Q_SLOTS:
@@ -233,21 +227,14 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	inline PVGuiQt::PVListDisplayDlg* get_source_invalid_evts_dlg() const { return _inv_evts_dlg; }
 
 	template <class T>
-	void fill_display();
-
-	template <class T>
 	void populate_display();
 
   private:
 	Inendi::PVSource* _source = nullptr;
-	QToolBar* _toolbar;
+	QToolBar* _toolbar = nullptr;
+	QComboBox* _toolbar_combo_views = nullptr;
 
 	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.
-
-	std::tuple<typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewIf>,
-	           typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewAxisIf>,
-	           typename PVSourceWorkspace::list_display<PVDisplays::PVDisplayViewZoneIf>>
-	    _tool_buttons;
 };
 } // namespace PVGuiQt
 
