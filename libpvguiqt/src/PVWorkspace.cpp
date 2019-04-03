@@ -488,7 +488,6 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 			    btn->setPopupMode(QToolButton::InstantPopup);
 			    btn->setIcon(obj.toolbar_icon());
 			    btn->setToolTip(obj.tooltip_str());
-			    // btn->setMenu(new QMenu);
 			    _toolbar->addWidget(btn);
 
 			    connect(btn, &QToolButton::released, [this, &obj]() {
