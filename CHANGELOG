@@ -1,4 +1,17 @@
-4.6.0 (2019-03-21)
+4.6.1 (2019-04-03)
+------------------
+
+This minor release fixes:
+* Changing mapping/plotting for the last axis wasn't immediately done
+* Layer renaming was renaming the wrong layer
+* Empty values being ignored in search when mixed with non-empty values
+* "Stop at line count" option was loading one too many line
+* [PCAP] "stream_id" inconsequencies
+* [PCAP] FT_BOOLEAN values ordering in parallel coordinates
+* [PCAP] crash while loading different investigations using the same dataset
+* [PCAP] potential crash while loading data
+
+4.6 (2019-03-21)
 ----------------
 
 This major release adds the following features:
