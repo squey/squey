@@ -46,7 +46,7 @@ class PVElasticsearchQuery : public PVInputDescription
   public:
 	virtual void save_to_qsettings(QSettings& settings) const;
 	static std::unique_ptr<PVRush::PVInputDescription>
-	load_from_string(std::vector<std::string> const&);
+	load_from_string(std::vector<std::string> const&, bool multi_inputs);
 	static std::vector<std::string> desc_from_qsetting(QSettings const& s);
 
   public:

@@ -115,6 +115,8 @@ class PVFormat
 
 	bool have_grep_filter() const { return _have_grep_filter; }
 
+	PVFormat add_input_name_column() const;
+
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
   private:

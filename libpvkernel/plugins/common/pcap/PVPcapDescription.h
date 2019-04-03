@@ -23,20 +23,18 @@ class PVPcapDescription : public PVFileDescription
 	                  size_t pcap_streams_id_offset,
 	                  pvpcap::splitted_file_t::vector_uint32_sp si,
 	                  bool multi_inputs)
-	    : PVFileDescription(csv_path)
+	    : PVFileDescription(csv_path, multi_inputs)
 	    , _original_pcap_path(original_pcap_path)
 	    , _pcap_packets_count_offset(pcap_packets_count_offset)
 	    , _packets_indexes(pi)
 	    , _pcap_streams_id_offset(pcap_streams_id_offset)
 	    , _streams_ids(si)
-	    , _multi_inputs(multi_inputs)
 	{
 	}
 
 	QString original_pcap_path() const { return _original_pcap_path; }
 	size_t pcap_packets_count_offset() const { return _pcap_packets_count_offset; }
 	size_t pcap_streams_id_offset() const { return _pcap_streams_id_offset; }
-	bool multi_inputs() const { return _multi_inputs; }
 	const pvpcap::splitted_file_t::vector_uint32_t& packets_indexes() const
 	{
 		return *_packets_indexes.get();
@@ -89,7 +87,6 @@ class PVPcapDescription : public PVFileDescription
 	pvpcap::splitted_file_t::vector_uint32_sp _packets_indexes;
 	size_t _pcap_streams_id_offset;
 	pvpcap::splitted_file_t::vector_uint32_sp _streams_ids;
-	bool _multi_inputs;
 };
 
 } // namespace PVRush

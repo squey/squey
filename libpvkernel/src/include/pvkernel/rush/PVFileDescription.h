@@ -10,6 +10,8 @@
 
 #include <pvkernel/rush/PVInputDescription.h>
 
+#include <pvcop/db/format.h>
+
 #include <QFile>
 
 namespace PVRush
@@ -20,7 +22,8 @@ class PVFileDescription : public PVInputDescription
 	friend class PVCore::PVSerializeObject;
 
   public:
-	PVFileDescription(QString const& path) : _path(QDir().absoluteFilePath(path))
+	PVFileDescription(QString const& path, bool multi_inputs = false)
+	    : _path(QDir().absoluteFilePath(path)), _multi_inputs(multi_inputs)
 	{
 		if (not QFile::exists(_path)) {
 			throw PVRush::BadInputDescription("Input file '" + _path.toStdString() +
@@ -37,6 +40,7 @@ class PVFileDescription : public PVInputDescription
   public:
 	QString human_name() const override { return _path; }
 	QString path() const { return _path; }
+	bool multi_inputs() const { return _multi_inputs; }
 
   public:
 	void save_to_qsettings(QSettings& settings) const override
@@ -45,10 +49,10 @@ class PVFileDescription : public PVInputDescription
 	}
 
 	static std::unique_ptr<PVRush::PVInputDescription>
-	load_from_string(std::vector<std::string> const& path)
+	load_from_string(pvcop::db::format const& format, bool multi_inputs)
 	{
 		return std::unique_ptr<PVFileDescription>(
-		    new PVFileDescription(QString::fromStdString(path[0])));
+		    new PVFileDescription(QString::fromStdString(format[0]), multi_inputs));
 	}
 
 	static std::vector<std::string> desc_from_qsetting(QSettings const& s)
@@ -67,8 +71,10 @@ class PVFileDescription : public PVInputDescription
 			so.file_write(fname, _path);
 			// FIXME : Before, we still reload data from original file, never from packed file.
 			so.attribute_write("file_path", fname);
+			so.attribute_write("multi_inputs", _multi_inputs);
 		} else {
 			so.attribute_write("file_path", _path);
+			so.attribute_write("multi_inputs", _multi_inputs);
 		}
 	}
 
@@ -76,10 +82,11 @@ class PVFileDescription : public PVInputDescription
 	{
 		so.set_current_status("Loading source file information...");
 		QString path = so.attribute_read<QString>("file_path");
+		bool multi_inputs = so.attribute_read<bool>("multi_inputs");
 
 		// File exists, continue with it
 		if (QFileInfo(path).isReadable()) {
-			return std::unique_ptr<PVInputDescription>(new PVFileDescription(path));
+			return std::unique_ptr<PVInputDescription>(new PVFileDescription(path, multi_inputs));
 		}
 
 		// File doesn't exists. Look for packed file
@@ -98,11 +105,12 @@ class PVFileDescription : public PVInputDescription
 			}
 		}
 
-		return std::unique_ptr<PVInputDescription>(new PVFileDescription(path));
+		return std::unique_ptr<PVInputDescription>(new PVFileDescription(path, multi_inputs));
 	}
 
   protected:
 	QString _path;
+	bool _multi_inputs;
 };
 } // namespace PVRush
 

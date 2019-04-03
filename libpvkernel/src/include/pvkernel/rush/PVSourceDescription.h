@@ -38,7 +38,7 @@ class PVSourceDescription
 	{
 		PVRush::PVInputType_p input_type_p = _source_creator_p->supported_type_lib();
 		for (auto const& p : s.input_desc) {
-			_inputs << input_type_p->load_input_from_string(p);
+			_inputs << input_type_p->load_input_from_string(p, s.input_desc.size() > 1);
 		}
 	}
 

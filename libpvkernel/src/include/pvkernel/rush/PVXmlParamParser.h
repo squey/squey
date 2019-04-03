@@ -40,7 +40,7 @@ class PVXmlParamParser
 	using fields_mask_t = std::vector<bool>;
 
   public:
-	explicit PVXmlParamParser(QString const& nameFile);
+	explicit PVXmlParamParser(QString const& nameFile, bool add_input_column_name = false);
 	explicit PVXmlParamParser(QDomElement const& rootNode);
 	virtual ~PVXmlParamParser();
 
@@ -59,6 +59,7 @@ class PVXmlParamParser
   private:
 	void pushFilter(const QDomElement& elt, int newId);
 	void parseFromRootNode(QDomElement const& node);
+	void addInputNameColumn(QDomDocument& xml);
 	void setAxesCombinationFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromString(QString const& str);
 	void setLinesRangeFromRootNode(QDomElement const& rootNode);

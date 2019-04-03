@@ -63,7 +63,8 @@ void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVElasticsearchQuery::load_from_string(std::vector<std::string> const& vl)
+PVRush::PVElasticsearchQuery::load_from_string(std::vector<std::string> const& vl,
+                                               bool /*multi_inputs*/)
 {
 	QString query = QString::fromStdString(vl[0]);
 	QString query_type = QString::fromStdString(vl[1]);

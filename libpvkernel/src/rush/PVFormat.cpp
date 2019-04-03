@@ -55,6 +55,16 @@ PVRush::PVFormat::PVFormat(QDomElement const& root_node) : PVFormat()
 	populate_from_xml(root_node);
 }
 
+PVRush::PVFormat PVRush::PVFormat::add_input_name_column() const
+{
+	PVRush::PVFormat new_format;
+
+	PVRush::PVXmlParamParser xml_parser(full_path, true);
+	new_format.populate_from_parser(xml_parser);
+
+	return new_format;
+}
+
 /**
  * ICU : http://userguide.icu-project.org/formatparse/datetime
  * boost : http://www.boost.org/doc/libs/1_55_0/doc/html/date_time/date_time_io.html

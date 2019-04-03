@@ -759,8 +759,8 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 	PVRush::PVInputType::list_inputs files_in;
 	{
 		for (QString filename : files) {
-			files_in.push_back(
-			    PVRush::PVInputDescription_p(new PVRush::PVFileDescription(filename)));
+			files_in.push_back(PVRush::PVInputDescription_p(
+			    new PVRush::PVFileDescription(filename, files.size() > 1)));
 		}
 	}
 
@@ -1091,15 +1091,15 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 	 * For the moment we can't add sources that have an auto generated format
 	 * not saved to disk.
 	 */
-	if (update_recent_items and not src.get_format().get_full_path().isEmpty() and
+	if (update_recent_items and not src.get_original_format().get_full_path().isEmpty() and
 	    src.get_source_creator()->name() != "pcap") {
 		// Add format as recent format
 		PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(
-		    src.get_format().get_full_path());
+		    src.get_original_format().get_full_path());
 
 		// Add source as recent source
 		PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),
-		                                               src.get_format());
+		                                               src.get_original_format());
 	}
 }
 

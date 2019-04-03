@@ -59,7 +59,7 @@ void PVRush::PVSplunkQuery::save_to_qsettings(QSettings& settings) const
 }
 
 std::unique_ptr<PVRush::PVInputDescription>
-PVRush::PVSplunkQuery::load_from_string(std::vector<std::string> const& vl)
+PVRush::PVSplunkQuery::load_from_string(std::vector<std::string> const& vl, bool /*multi_inputs*/)
 {
 	assert(vl.size() >= 5);
 
