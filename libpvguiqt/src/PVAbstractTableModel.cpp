@@ -204,11 +204,10 @@ int PVAbstractTableModel::rowCount(const QModelIndex&) const
 void PVAbstractTableModel::move_by(int inc_elts, size_t page_step)
 {
 	// Compute new position
-	int new_pos = static_cast<int>(_pos_in_page) + inc_elts;
+	int new_pos = int(_pos_in_page) + inc_elts;
 
 	// Reach next page but not the last one
-	if (inc_elts > 0 and static_cast<size_t>(new_pos) >= _page_size and
-	    _current_page != _page_number - 1) {
+	if (inc_elts > 0 and size_t(new_pos) >= _page_size and _current_page != _page_number - 1) {
 		int incp = new_pos / _page_size; // Number of new page scrolled
 		if (incp + _current_page >= _page_number) {
 			// Reach the end of the listing
@@ -222,21 +221,21 @@ void PVAbstractTableModel::move_by(int inc_elts, size_t page_step)
 	} else if (inc_elts < 0 and new_pos < 0) {
 		// Reach previous page
 		// Number of page scroll back
-		int decp = new_pos / static_cast<int>(_page_size);
-		if ((decp + static_cast<int>(_current_page)) < 0) {
+		int decp = new_pos / int(_page_size) - 1;
+		if ((decp + int(_current_page)) < 0) {
 			// Reach the start of the listing
 			_current_page = 0;
 			_pos_in_page = 0;
 		} else {
 			// go to the correct previous page
 			_current_page += decp;
-			_pos_in_page = new_pos - decp * _page_size;
+			_pos_in_page = std::min(new_pos - decp * _page_size, _page_size - 1);
 		}
 	} else if ((new_pos + _current_page * _page_size) >= (_display.size() - page_step)) {
 		// It is not the end of the last page but almost the end so we stop
 		// now to show the last line at the bottom of the screen
 		_current_page = _page_number - 1;
-		_pos_in_page = std::max<int>(0, int(_last_page_size) - int(page_step) - 1);
+		_pos_in_page = 0;
 	} else {
 		// Scroll in the current page
 		_pos_in_page = new_pos;
