@@ -236,10 +236,14 @@ PVCore::PVArgumentKeyList Inendi::PVLayerFilterMultipleSearch::get_args_keys_for
 PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PVRow /*row*/,
                                                                               PVCombCol /*col*/,
                                                                               PVCol org_col,
-                                                                              QString const& v)
+                                                                              QString& v)
 {
 	PVCore::PVArgumentList args = default_args();
 
+	// Move empty string on top if present to avoid ignoring it later
+	if (v.right(1) == "\n") {
+		v = QString("\n") + v.left(v.size() - 1);
+	}
 	// Show a carriage return just to be more explicit about the fact we are searching for empty
 	// lines
 	args[ARG_NAME_EXPS].setValue(PVCore::PVPlainTextType(v.isEmpty() ? "\n" : v));
@@ -255,8 +259,10 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PV
 	return args;
 }
 
-PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_menu(
-    PVRow row, PVCombCol col, PVCol org_col, QString const& v)
+PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_menu(PVRow row,
+                                                                                    PVCombCol col,
+                                                                                    PVCol org_col,
+                                                                                    QString& v)
 {
 	PVCore::PVArgumentList args = search_value_menu(row, col, org_col, v);
 
@@ -268,7 +274,7 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_using_value_m
 PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_menu(PVRow /*row*/,
                                                                         PVCombCol /*col*/,
                                                                         PVCol org_col,
-                                                                        QString const& /*v*/)
+                                                                        QString& /*v*/)
 {
 	PVCore::PVArgumentList args = default_args();
 

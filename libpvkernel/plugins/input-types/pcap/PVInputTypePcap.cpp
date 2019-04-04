@@ -120,9 +120,14 @@ bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats const& /*fo
 	auto res = params->exec();
 
 	_input_paths = params->pcap_paths();
+	QString format_dir;
 	for (pvpcap::splitted_file_t const& filename : params->csv_paths()) {
-		_tmp_dir_to_delete.insert(
-		    QFileInfo(QString::fromStdString(filename.path())).dir().absolutePath());
+		const QString& dir_to_del =
+		    QFileInfo(QString::fromStdString(filename.path())).dir().absolutePath();
+		_tmp_dir_to_delete.insert(dir_to_del);
+		if (format_dir.isEmpty()) {
+			format_dir = dir_to_del;
+		}
 	}
 
 	if (res == QDialog::Rejected or params->is_canceled()) {
@@ -131,7 +136,8 @@ bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats const& /*fo
 
 	// store format in first temporary directory
 	const QDomDocument& xml = params->get_format();
-	QString format_path = *_tmp_dir_to_delete.begin() + "/inendi.format";
+	QString format_path =
+	    format_dir + "/" + QString::number(QDateTime::currentMSecsSinceEpoch()) + ".format";
 	QFile format_file(format_path);
 	format_file.open(QIODevice::WriteOnly);
 	QTextStream text_stream(&format_file);

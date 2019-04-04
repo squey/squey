@@ -53,46 +53,6 @@ Other explanation on https://www.wireshark.org/docs/wsar_html/epan/ftypes_8h_sou
 
 #include <unordered_map>
 
-// type mapping between wireshark and inspector
-static const std::unordered_map<std::string, std::string> ws_types_mapping = {
-    {"FT_NONE Label", "string"},
-    {"FT_PROTOCOL", "string"},
-    {"FT_BOOLEAN", "string"}, /* not supported */
-    {"FT_UINT8", "number_uint8"},
-    {"FT_UINT16", "number_uint16"},
-    {"FT_UINT24", "number_uint32"},
-    {"FT_UINT32", "number_uint32"},
-    {"FT_UINT64", "number_uint64"},
-    {"FT_INT8", "number_int8"},
-    {"FT_INT16", "number_int16"},
-    {"FT_INT24", "number_int32"},
-    {"FT_INT32", "number_int32"},
-    {"FT_INT64", "number_int64"},
-    {"FT_FLOAT", "number_float"},
-    {"FT_DOUBLE", "number_double"},
-    {"FT_ABSOLUTE_TIME", "time"},
-    {"FT_RELATIVE_TIME", "time"},
-    {"FT_STRING", "string"},
-    {"FT_STRINGZ", "string"},
-    {"FT_UINT_STRING", "string"},
-    {"FT_ETHER", "mac_address"},
-    {"FT_BYTES", "string"},      /* not supported - number_int8 ? */
-    {"FT_UINT_BYTES", "string"}, /* not supported - number_uint8 ? */
-    {"FT_IPv4", "ipv4"},
-    {"FT_IPv6", "ipv6"},
-    {"FT_IPXNET", "number_uint32"},
-    {"FT_FRAMENUM", "number_uint32"},
-    {"FT_PCRE", "string"},      /* not supported */
-    {"FT_GUID", "string"},      /* not supported */
-    {"FT_OID", "string"},       /* not supported */
-    {"FT_EUI64", "string"},     /* not supported */
-    {"FT_AX25", "string"},      /* not supported */
-    {"FT_VINES", "string"},     /* not supported */
-    {"FT_REL_OID", "string"},   /* not supported */
-    {"FT_SYSTEM_ID", "string"}, /* not supported */
-    {"FT_STRINGZPAD", "string"},
-};
-
 auto ws_map_type = [&](const std::string& type) -> std::string {
 	const auto& it = ws_types_mapping.find(type);
 	if (it != ws_types_mapping.end()) {

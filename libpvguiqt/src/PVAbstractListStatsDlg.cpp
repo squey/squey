@@ -611,7 +611,8 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	// Set the arguments
 	_ctxt_args = lib_view()->get_last_args_filter(filter_name);
 
-	PVCore::PVArgumentList custom_args = args_f(0U, (PVCombCol)0, _col, sl.join("\n"));
+	QString s = sl.join("\n");
+	PVCore::PVArgumentList custom_args = args_f(0U, (PVCombCol)0, _col, s);
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
