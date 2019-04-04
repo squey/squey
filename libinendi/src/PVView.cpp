@@ -594,8 +594,16 @@ void Inendi::PVView::select_inverse()
 
 std::string Inendi::PVView::get_name() const
 {
-	return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>().get_name() + "/" +
-	       get_parent<PVPlotted>().get_name() + ")";
+	if (_name.empty()) {
+		return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>().get_name() +
+		       "/" + get_parent<PVPlotted>().get_name() + ")";
+	}
+	return _name;
+}
+
+void Inendi::PVView::set_name(std::string name)
+{
+	_name = std::move(name);
 }
 
 QString Inendi::PVView::get_window_name() const

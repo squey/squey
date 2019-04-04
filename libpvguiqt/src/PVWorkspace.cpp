@@ -392,6 +392,37 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 		},
 	    PVDisplays::PVDisplayIf::ShowInToolbar & PVDisplays::PVDisplayIf::UniquePerParameters);
 
+	class PVToolbarComboViews : public QComboBox
+	{
+		Inendi::PVSource* _source;
+
+	  public:
+		PVToolbarComboViews(decltype(_source) source) : QComboBox(), _source(source)
+		{
+			fill_views();
+		}
+		void fill_views()
+		{
+			clear();
+			QPixmap pm(24, 24);
+			for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
+				pm.fill(view->get_color());
+				addItem(QIcon(pm), QString::fromStdString(view->get_name()),
+				        QVariant::fromValue(view));
+			}
+		}
+
+	  protected:
+		void showPopup() override
+		{
+			fill_views();
+			QComboBox::showPopup();
+		}
+	};
+
+	_toolbar_combo_views = new PVToolbarComboViews(_source);
+	_toolbar->addWidget(_toolbar_combo_views);
+
 	_toolbar->addSeparator();
 
 	populate_display<PVDisplays::PVDisplayViewIf>();
@@ -405,10 +436,6 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 	populate_display<PVDisplays::PVDisplayViewZoneIf>();
 
 	_toolbar->addSeparator();
-
-	fill_display<PVDisplays::PVDisplayViewZoneIf>();
-	fill_display<PVDisplays::PVDisplayViewAxisIf>();
-	fill_display<PVDisplays::PVDisplayViewIf>();
 
 	bool already_center = false;
 	// Only one central widget is possible for QDockWidget.
@@ -452,33 +479,6 @@ PVGuiQt::PVWorkspaceBase::get_view_widgets(Inendi::PVView* view)
 }
 
 template <class T>
-void PVGuiQt::PVSourceWorkspace::fill_display()
-{
-	for (typename list_display<T>::value_type const& p :
-	     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
-		for (QAction* act : p.first->menu()->actions()) {
-			p.first->menu()->removeAction(act);
-		}
-	}
-
-	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
-		QString action_name = QString::fromStdString(view->get_name());
-
-		// AG: this category could go into PVDisplayViewIf w/ a
-		// PVCore::PVArgumentList object with one axis !
-		for (typename list_display<T>::value_type const& p :
-		     get_typed_arg<PVSourceWorkspace::list_display<T>>(_tool_buttons)) {
-			QAction* act = PVDisplays::get().action_bound_to_params(*p.second, view, PVCombCol());
-			act->setText(action_name + "...");
-			p.first->menu()->addAction(act);
-
-			connect(act, &QAction::triggered,
-			        [this, act]() { create_view_dispatch(act, Tag<T>{}); });
-		}
-	}
-}
-
-template <class T>
 void PVGuiQt::PVSourceWorkspace::populate_display()
 {
 	PVDisplays::get().visit_displays_by_if<T>(
@@ -488,13 +488,14 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 			    btn->setPopupMode(QToolButton::InstantPopup);
 			    btn->setIcon(obj.toolbar_icon());
 			    btn->setToolTip(obj.tooltip_str());
-			    btn->setMenu(new QMenu);
 			    _toolbar->addWidget(btn);
 
-			    get_typed_arg<typename PVSourceWorkspace::list_display<T>>(_tool_buttons)
-			        << std::make_pair(btn, &obj);
-
-			    connect(btn->menu(), &QMenu::aboutToShow, [this]() { fill_display<T>(); });
+			    connect(btn, &QToolButton::released, [this, &obj]() {
+				    QAction* act = PVDisplays::get().action_bound_to_params(
+				        obj, _toolbar_combo_views->currentData().value<Inendi::PVView*>(),
+				        PVCombCol());
+				    create_view_dispatch<T>(act);
+				});
 		    }
 		},
 	    PVDisplays::PVDisplayIf::ShowInToolbar);
