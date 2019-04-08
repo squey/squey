@@ -49,18 +49,19 @@ void PVDisplays::PVDisplaysImpl::load_plugins()
 }
 
 void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu,
-                                                             QObject* receiver,
-                                                             const char* slot,
+                                                             PVDisplaysContainer* container,
                                                              Inendi::PVView* view,
-                                                             PVCombCol axis_comb) const
+                                                             PVCombCol axis_comb)
 {
-	visit_displays_by_if<PVDisplayViewAxisIf>(
-	    [&](PVDisplayViewAxisIf& interface) {
-		    if (interface.should_add_to_menu(view, axis_comb)) {
-			    QAction* act = action_bound_to_params(interface, view, axis_comb);
-			    act->setText(interface.axis_menu_name(view, axis_comb));
+	visit_displays_by_if<PVDisplayViewDataIf>(
+	    [&](PVDisplayViewDataIf& interface) {
+		    if (interface.should_add_to_menu(view, {axis_comb})) {
+			    QAction* act = new QAction();
+			    act->setText(interface.axis_menu_name(view, {axis_comb}));
 			    act->setIcon(interface.toolbar_icon());
-			    connect(act, SIGNAL(triggered()), receiver, slot);
+			    connect(act, &QAction::triggered, [&interface, view, axis_comb, container]() {
+				    container->create_view_axis_widget(interface, view, axis_comb);
+				});
 			    menu.addAction(act);
 		    }
 		},
@@ -68,10 +69,9 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu,
 }
 
 void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu,
-                                                             QObject* receiver,
-                                                             const char* slot,
+                                                             PVDisplaysContainer* container,
                                                              Inendi::PVView* view,
-                                                             PVCombCol axis_comb) const
+                                                             PVCombCol axis_comb)
 {
 	visit_displays_by_if<PVDisplayViewZoneIf>(
 	    [&](PVDisplayViewZoneIf& interface) {
@@ -87,11 +87,13 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu,
 		    for (PVCombCol i(0); i < view->get_axes_combination().get_axes_count(); i++) {
 			    if (i != axis_comb) {
 				    auto create_action = [&]() {
-					    QAction* act =
-					        action_bound_to_params(interface, view, axis_comb, PVCombCol(i), false);
+					    QAction* act = new QAction();
 					    act->setText(axes[i]);
-					    connect(act, SIGNAL(triggered()), receiver, slot);
-
+					    connect(act, &QAction::triggered,
+					            [container, &interface, view, axis_comb, i]() {
+						            container->create_view_zone_widget(interface, view, axis_comb,
+						                                               PVCombCol(i));
+						        });
 					    return act;
 					};
 
@@ -110,10 +112,4 @@ void PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(QMenu& menu,
 
 		},
 	    PVDisplayIf::ShowInCtxtMenu);
-}
-
-PVDisplays::PVDisplaysContainer*
-PVDisplays::PVDisplaysImpl::get_parent_container(QWidget* self) const
-{
-	return PVCore::get_qobject_parent_of_type<PVDisplaysContainer*>(self);
 }

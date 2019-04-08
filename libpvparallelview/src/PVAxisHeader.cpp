@@ -55,17 +55,14 @@ PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view,
 
 void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
-	QWidget* parent_view = event->widget();
-	PVDisplays::PVDisplaysContainer* container =
-	    PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(parent_view);
-
 	QMenu menu;
 
-	if (container) {
-		PVDisplays::get().add_displays_view_axis_menu(
-		    menu, container, SLOT(create_view_axis_widget()), (Inendi::PVView*)&_view, _comb_col);
-		PVDisplays::get().add_displays_view_zone_menu(
-		    menu, container, SLOT(create_view_zone_widget()), (Inendi::PVView*)&_view, _comb_col);
+	if (auto* container =
+	        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(event->widget())) {
+		PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(menu, container,
+		                                                        (Inendi::PVView*)&_view, _comb_col);
+		PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(menu, container,
+		                                                        (Inendi::PVView*)&_view, _comb_col);
 		menu.addSeparator();
 	}
 	QAction* ars = menu.addAction("New selection cursors");

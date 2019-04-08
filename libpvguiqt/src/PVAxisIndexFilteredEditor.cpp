@@ -17,7 +17,7 @@
  *
  *****************************************************************************/
 PVWidgets::PVAxisIndexFilteredEditor::PVAxisIndexFilteredEditor(
-    Inendi::PVView const& view, PVDisplays::PVDisplayViewAxisIf const& display_if, QWidget* parent)
+    Inendi::PVView const& view, PVDisplays::PVDisplayViewDataIf const& display_if, QWidget* parent)
     : QComboBox(parent), _view(view), _display_if(display_if)
 {
 }
@@ -32,7 +32,7 @@ void PVWidgets::PVAxisIndexFilteredEditor::set_axis_index(PVCore::PVAxisIndexTyp
 	clear();
 	auto axes_names = _view.get_axes_names_list();
 	for (int i = 0; i < axes_names.size(); ++i) {
-		if (_display_if.should_add_to_menu(&_view, PVCombCol(i))) {
+		if (_display_if.should_add_to_menu((Inendi::PVView*)&_view, {PVCombCol(i)})) {
 			addItem(axes_names[i]);
 			setItemData(count() - 1, QVariant(i));
 		}

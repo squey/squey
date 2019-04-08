@@ -12,7 +12,7 @@
 #include <pvparallelview/PVDisplayViewScatter.h>
 
 /*****************************************************************************
- * PVDisplays::PVDisplayViewScatter::PVDisplayViewHitCount
+ * PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter
  *****************************************************************************/
 
 PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()

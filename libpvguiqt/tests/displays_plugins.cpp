@@ -51,21 +51,21 @@ int main(int argc, char** argv)
 	PVGuiQt::common::register_displays();
 
 	// Display all the possible Qt displays of this view and source
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
+	PVDisplays::PVDisplaysImpl::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 	    [&](PVDisplays::PVDisplayViewIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, view);
+		    QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(obj, view);
 		    w->show();
 		});
 
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
+	PVDisplays::PVDisplaysImpl::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, &src);
+		    QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(obj, &src);
 		    w->show();
 		});
 
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewAxisIf>(
-	    [&](PVDisplays::PVDisplayViewAxisIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, view, PVCombCol(1));
+	PVDisplays::PVDisplaysImpl::visit_displays_by_if<PVDisplays::PVDisplayViewDataIf>(
+	    [&](PVDisplays::PVDisplayViewDataIf& obj) {
+		    QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(obj, view, PVCombCol(1));
 		    w->show();
 		});
 

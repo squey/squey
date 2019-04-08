@@ -197,26 +197,17 @@ void PVGuiQt::PVWorkspaceBase::display_destroyed(QObject* object /*= 0*/)
 	_displays.removeAll(display);
 }
 
-void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(QAction* act)
+void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
+    QAction* act, PVDisplays::PVDisplaySourceIf& display_if, Inendi::PVSource* src)
 {
 	// All this should be the same than create_view_widget w/ a
 	// PVCore::PVArgumentList passed to create_widget
-	if (!act) {
-		act = qobject_cast<QAction*>(sender());
-		if (!act) {
-			return;
-		}
-	}
-
-	Inendi::PVSource* src = nullptr;
-	PVDisplays::PVDisplaySourceIf& display_if =
-	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplaySourceIf>(*act, src);
 
 	if (!src) {
 		return;
 	}
 
-	QWidget* w = PVDisplays::get().get_widget(display_if, src);
+	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, src);
 	if (!w) {
 		return;
 	}
@@ -241,45 +232,25 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(QAction* act)
 	}
 }
 
-void PVGuiQt::PVWorkspaceBase::create_view_widget(QAction* act)
+void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& display_if,
+                                                  Inendi::PVView* view)
 {
-	if (!act) {
-		act = qobject_cast<QAction*>(sender());
-		if (!act) {
-			return;
-		}
-	}
-
-	Inendi::PVView* view = nullptr;
-	PVDisplays::PVDisplayViewIf& display_if =
-	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewIf>(*act, view);
-
 	if (!view) {
 		return;
 	}
 
-	QWidget* w = PVDisplays::get().get_widget(display_if, view);
+	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view);
 	add_view_display(view, w, [&, view]() { return display_if.widget_title(view); },
 	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
 	                 true);
 }
 
-void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
+void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& display_if,
+                                                       Inendi::PVView* view,
+                                                       PVCombCol axis_comb)
 {
 	// All this should be the same than create_view_widget w/ a
 	// PVCore::PVArgumentList passed to create_widget
-	if (!act) {
-		act = qobject_cast<QAction*>(sender());
-		if (!act) {
-			return;
-		}
-	}
-
-	Inendi::PVView* view = nullptr;
-	PVCombCol axis_comb;
-	PVDisplays::PVDisplayViewAxisIf& display_if =
-	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewAxisIf>(*act, view,
-	                                                                              axis_comb);
 
 	if (!view) {
 		return;
@@ -301,36 +272,26 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(QAction* act)
 		axis_comb = (PVCombCol)args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();
 	}
 
-	QWidget* w = PVDisplays::get().get_widget(display_if, view, axis_comb);
+	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, std::vector{axis_comb});
 	add_view_display(
-	    view, w, [&, view, axis_comb]() { return display_if.widget_title(view, axis_comb); },
+	    view, w,
+	    [&display_if, view, axis_comb]() { return display_if.widget_title(view, {axis_comb}); },
 	    display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
 }
 
-void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
+void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(PVDisplays::PVDisplayViewZoneIf& display_if,
+                                                       Inendi::PVView* view,
+                                                       PVCombCol zone_index_first,
+                                                       PVCombCol zone_index_second)
 {
 	// All this should be the same than create_view_widget w/ a
 	// PVCore::PVArgumentList passed to create_widget
-	if (!act) {
-		act = qobject_cast<QAction*>(sender());
-		if (!act) {
-			return;
-		}
-	}
-
-	Inendi::PVView* view = nullptr;
-	PVCombCol zone_index_first;
-	PVCombCol zone_index_second;
-	bool ask_for_box = false;
-	PVDisplays::PVDisplayViewZoneIf& display_if =
-	    PVDisplays::get().get_params_from_action<PVDisplays::PVDisplayViewZoneIf>(
-	        *act, view, zone_index_first, zone_index_second, ask_for_box);
 
 	if (!view) {
 		return;
 	}
 
-	if (zone_index_first == PVCombCol() || zone_index_second == PVCombCol() || ask_for_box) {
+	if (zone_index_first == PVCombCol() || zone_index_second == PVCombCol()) {
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(
 		    PVCore::PVZoneIndexType(zone_index_first == PVCombCol() ? 0 : zone_index_first,
@@ -346,8 +307,8 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(QAction* act)
 		    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_second();
 	}
 
-	QWidget* w =
-	    PVDisplays::get().get_widget(display_if, view, zone_index_first, zone_index_second);
+	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, zone_index_first,
+	                                                    zone_index_second);
 	add_view_display(view, w,
 	                 [&, view, zone_index_first, zone_index_second]() {
 		                 return display_if.widget_title(view, zone_index_first, zone_index_second);
@@ -380,15 +341,16 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 	_toolbar->setIconSize(QSize(24, 24));
 	addToolBar(_toolbar);
 
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
-	    [&](PVDisplays::PVDisplaySourceIf& obj) {
-		    QAction* act = PVDisplays::get().action_bound_to_params(obj, source, PVCombCol());
+	PVDisplays::PVDisplaysImpl::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
+	    [this](PVDisplays::PVDisplaySourceIf& obj) {
+		    QAction* act = new QAction();
 		    act->setCheckable(true);
 		    act->setIcon(obj.toolbar_icon());
 		    act->setToolTip(obj.tooltip_str());
 		    _toolbar->addAction(act);
 
-		    connect(act, SIGNAL(triggered()), this, SLOT(toggle_unique_source_widget()));
+		    connect(act, &QAction::triggered,
+		            [this, act, &obj] { toggle_unique_source_widget(act, obj, _source); });
 		},
 	    PVDisplays::PVDisplayIf::ShowInToolbar & PVDisplays::PVDisplayIf::UniquePerParameters);
 
@@ -429,7 +391,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	_toolbar->addSeparator();
 
-	populate_display<PVDisplays::PVDisplayViewAxisIf>();
+	populate_display<PVDisplays::PVDisplayViewDataIf>();
 
 	_toolbar->addSeparator();
 
@@ -441,9 +403,9 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 	// Only one central widget is possible for QDockWidget.
 	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
 		// Create default widgets
-		PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
+		PVDisplays::PVDisplaysImpl::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 		    [&](PVDisplays::PVDisplayViewIf& obj) {
-			    QWidget* w = PVDisplays::get().get_widget(obj, view);
+			    QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(obj, view);
 
 			    std::function<QString()> name = [&, view]() { return obj.widget_title(view); };
 			    const bool as_central = obj.default_position_as_central_hint();
@@ -481,7 +443,7 @@ PVGuiQt::PVWorkspaceBase::get_view_widgets(Inendi::PVView* view)
 template <class T>
 void PVGuiQt::PVSourceWorkspace::populate_display()
 {
-	PVDisplays::get().visit_displays_by_if<T>(
+	PVDisplays::PVDisplaysImpl::visit_displays_by_if<T>(
 	    [&](T& obj) {
 		    if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
 			    QToolButton* btn = new QToolButton(_toolbar);
@@ -491,10 +453,8 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 			    _toolbar->addWidget(btn);
 
 			    connect(btn, &QToolButton::released, [this, &obj]() {
-				    QAction* act = PVDisplays::get().action_bound_to_params(
-				        obj, _toolbar_combo_views->currentData().value<Inendi::PVView*>(),
-				        PVCombCol());
-				    create_view_dispatch<T>(act);
+				    create_view_dispatch<T>(
+				        obj, _toolbar_combo_views->currentData().value<Inendi::PVView*>());
 				});
 		    }
 		},

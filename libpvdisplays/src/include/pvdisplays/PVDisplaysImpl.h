@@ -19,12 +19,6 @@ class PVDisplaysContainer;
 
 class PVDisplaysImpl : public QObject
 {
-  public:
-	struct ActionParams {
-		PVDisplayIf* disp_if;
-		QVariant params;
-	};
-
   private:
 	PVDisplaysImpl()
 	{
@@ -37,7 +31,7 @@ class PVDisplaysImpl : public QObject
 
   public:
 	template <typename If, typename F>
-	void visit_displays_by_if(F const& f, int flags = 0) const
+	static void visit_displays_by_if(F const& f, int flags = 0)
 	{
 		// Interface of 'F' must be void f(If& obj), or with a base of If;
 		typename PVCore::PVClassLibrary<If>::list_classes const& lc =
@@ -52,7 +46,7 @@ class PVDisplaysImpl : public QObject
 	}
 
 	template <typename If, typename... P>
-	QWidget* get_widget(If& interface, P&&... args) const
+	static QWidget* get_widget(If& interface, P&&... args)
 	{
 		if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
 			return interface.get_unique_widget(std::forward<P>(args)...);
@@ -61,50 +55,14 @@ class PVDisplaysImpl : public QObject
 		return interface.create_widget(std::forward<P>(args)...);
 	}
 
-	template <typename If, typename... P>
-	If& get_params_from_action(QAction& action, P&&... args) const
-	{
-		QVariant org_data = action.data();
-
-		ActionParams p = action.data().value<ActionParams>();
-		If* interface = dynamic_cast<If*>(p.disp_if);
-		assert(interface);
-
-		action.setData(p.params);
-		interface->get_params_from_action(action, std::forward<P>(args)...);
-		action.setData(org_data);
-
-		return *interface;
-	}
-
-	template <typename If, typename... P>
-	inline QAction* action_bound_to_params(If& interface, P&&... args) const
-	{
-		// Get the action from the interface and add the interface itself as an argument to QAction
-		QAction* act = interface.action_bound_to_params(std::forward<P>(args)...);
-		ActionParams p;
-		p.disp_if = static_cast<PVDisplayIf*>(&interface);
-		p.params = act->data();
-
-		QVariant var;
-		var.setValue<ActionParams>(p);
-		act->setData(var);
-
-		return act;
-	}
-
-	void add_displays_view_axis_menu(QMenu& menu,
-	                                 QObject* receiver,
-	                                 const char* slot,
-	                                 Inendi::PVView* view,
-	                                 PVCombCol axis_comb) const;
-	void add_displays_view_zone_menu(QMenu& menu,
-	                                 QObject* receiver,
-	                                 const char* slot,
-	                                 Inendi::PVView* view,
-	                                 PVCombCol axis_comb) const;
-
-	PVDisplaysContainer* get_parent_container(QWidget* self) const;
+	static void add_displays_view_axis_menu(QMenu& menu,
+	                                        PVDisplaysContainer* container,
+	                                        Inendi::PVView* view,
+	                                        PVCombCol axis_comb);
+	static void add_displays_view_zone_menu(QMenu& menu,
+	                                        PVDisplaysContainer* container,
+	                                        Inendi::PVView* view,
+	                                        PVCombCol axis_comb);
 
   private:
 	void load_plugins();
@@ -113,12 +71,6 @@ class PVDisplaysImpl : public QObject
 	static PVDisplaysImpl* _instance;
 };
 
-inline PVDisplaysImpl& get()
-{
-	return PVDisplaysImpl::get();
-}
 } // namespace PVDisplays
-
-Q_DECLARE_METATYPE(PVDisplays::PVDisplaysImpl::ActionParams)
 
 #endif

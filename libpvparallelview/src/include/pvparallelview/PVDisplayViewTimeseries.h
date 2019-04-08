@@ -14,18 +14,18 @@
 namespace PVDisplays
 {
 
-class PVDisplayViewTimeseries : public PVDisplayViewAxisIf
+class PVDisplayViewTimeseries : public PVDisplayViewDataIf
 {
   public:
 	PVDisplayViewTimeseries();
 
   public:
 	QWidget*
-	create_widget(Inendi::PVView* view, PVCombCol axis_comb, QWidget* parent) const override;
+	create_widget(Inendi::PVView* view, Params const& data, QWidget* parent) const override;
 	QIcon toolbar_icon() const override;
-	QString widget_title(Inendi::PVView* view, PVCombCol axis_comb) const override;
-	QString axis_menu_name(Inendi::PVView const* view, PVCombCol axis_comb) const override;
-	bool should_add_to_menu(Inendi::PVView const* view, PVCombCol axis_comb) const override;
+	QString widget_title(Inendi::PVView* view, Params const& data) const override;
+	QString axis_menu_name(Inendi::PVView* view, Params const& data) const override;
+	bool should_add_to_menu(Inendi::PVView* view, Params const& data) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewTimeseries)
 };

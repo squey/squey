@@ -33,6 +33,7 @@ Q_DECLARE_METATYPE(Inendi::PVView*)
 
 namespace PVDisplays
 {
+class PVDisplaySourceIf;
 class PVDisplayViewIf;
 class PVDisplayViewAxisIf;
 class PVDisplayViewZoneIf;
@@ -116,6 +117,14 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	                                   std::function<QString()> name,
 	                                   bool delete_on_close);
 
+	/*! \brief Create or display the widget used by the view display.
+	 *
+	 *  \param[in] act The QAction triggering the creation/display of the widget.
+	 */
+	void toggle_unique_source_widget(QAction* act,
+	                                 PVDisplays::PVDisplaySourceIf& display_if,
+	                                 Inendi::PVSource* src);
+
 	/*! \brief Return the workspace located under the mouse.
 	 */
 	static PVWorkspaceBase* workspace_under_mouse();
@@ -136,20 +145,21 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
 	 */
-	void create_view_widget(QAction* act = nullptr) override;
+	void create_view_widget(PVDisplays::PVDisplayViewIf& interface, Inendi::PVView* view) override;
 
   public:
 	template <class T>
-	void create_view_dispatch(QAction* act)
+	void create_view_dispatch(T& interface, Inendi::PVView* view)
 	{
 		if
-			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewIf>) create_view_widget(act);
+			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewIf>)
+			    create_view_widget(interface, view);
 		else if
-			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewAxisIf>)
-			    create_view_axis_widget(act);
+			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewDataIf>)
+			    create_view_axis_widget(interface, view, PVCombCol());
 		else if
 			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewZoneIf>)
-			    create_view_zone_widget(act);
+			    create_view_zone_widget(interface, view, PVCombCol(), PVCombCol());
 	}
 
   private Q_SLOTS:
@@ -157,19 +167,18 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
 	 */
-	void create_view_axis_widget(QAction* act = nullptr) override;
+	void create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& interface,
+	                             Inendi::PVView* view,
+	                             PVCombCol axis_comb) override;
 
 	/*! \brief Create the widget used by the view display with zone parameter.
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
 	 */
-	void create_view_zone_widget(QAction* act = nullptr) override;
-
-	/*! \brief Create or display the widget used by the view display.
-	 *
-	 *  \param[in] act The QAction triggering the creation/display of the widget.
-	 */
-	void toggle_unique_source_widget(QAction* act = nullptr) override;
+	void create_view_zone_widget(PVDisplays::PVDisplayViewZoneIf& interface,
+	                             Inendi::PVView* view,
+	                             PVCombCol zone_index_first,
+	                             PVCombCol zone_index_second) override;
 
 	/*! \brief Switch a view display with the central widget.
 	 *

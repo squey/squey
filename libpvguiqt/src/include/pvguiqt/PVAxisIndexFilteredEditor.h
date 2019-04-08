@@ -31,7 +31,7 @@ class PVAxisIndexFilteredEditor : public QComboBox
 
   public:
 	explicit PVAxisIndexFilteredEditor(Inendi::PVView const& view,
-	                                   PVDisplays::PVDisplayViewAxisIf const& display_if,
+	                                   PVDisplays::PVDisplayViewDataIf const& display_if,
 	                                   QWidget* parent = 0);
 
   public:
@@ -40,7 +40,7 @@ class PVAxisIndexFilteredEditor : public QComboBox
 
   protected:
 	Inendi::PVView const& _view;
-	PVDisplays::PVDisplayViewAxisIf const& _display_if;
+	PVDisplays::PVDisplayViewDataIf const& _display_if;
 };
 } // namespace PVWidgets
 

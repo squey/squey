@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
-    : PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+    : PVDisplayViewDataIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
                           "Hit count view")
 {
 }
@@ -26,9 +26,10 @@ PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
  *****************************************************************************/
 
 QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view,
-                                                          PVCombCol axis_comb,
+                                                          Params const& data,
                                                           QWidget* parent) const
 {
+	auto axis_comb = data.at(0);
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
 	QWidget* widget = lib_view->create_hit_count_view(axis_comb, parent);
 
@@ -49,8 +50,9 @@ QIcon PVDisplays::PVDisplayViewHitCount::toolbar_icon() const
  *****************************************************************************/
 
 QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view,
-                                                        PVCombCol axis_comb) const
+                                                        Params const& data) const
 {
+	auto axis_comb = data.at(0);
 	return "Hit count view [" + QString::fromStdString(view->get_name()) + " on axis '" +
 	       view->get_axis_name(axis_comb) + "']";
 }
@@ -59,8 +61,7 @@ QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view,
  * PVDisplays::PVDisplayViewHitCount::axis_menu_name
  *****************************************************************************/
 
-QString PVDisplays::PVDisplayViewHitCount::axis_menu_name(Inendi::PVView const* /*view*/,
-                                                          PVCombCol /*axis_comb*/) const
+QString PVDisplays::PVDisplayViewHitCount::axis_menu_name(Inendi::PVView*, Params const&) const
 {
 	return QString("New hit count view");
 }
