@@ -146,6 +146,7 @@ class PVAbstractTableView : public PVTableView
 	void show_rclick_menu(QPoint const& p);
 
   Q_SIGNALS:
+	void selection_commited();
 	void validate_selection();
 };
 } // namespace PVGuiQt

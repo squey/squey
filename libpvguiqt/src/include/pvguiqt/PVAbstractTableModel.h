@@ -87,6 +87,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/**
 	 * Commit the "in progress" selection in the current selection.
 	 *
+	 *
 	 * We use this mechanism to handle mouse movement during selection.
 	 */
 	void commit_selection();

@@ -288,6 +288,9 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent* event)
 		if ((row_pos + rowHeight(clc_row) + horizontalHeader()->height()) > (height() + 1)) {
 			move_by(1);
 		}
+
+		table_model()->commit_selection();
+
 	} else if (event->button() == Qt::RightButton) {
 		QModelIndex index = indexAt(event->pos());
 
@@ -386,6 +389,8 @@ void PVAbstractTableView::mouseReleaseEvent(QMouseEvent* event)
 {
 	viewport()->update();
 	event->accept();
+	table_model()->commit_selection();
+	Q_EMIT selection_commited();
 }
 
 /******************************************************************************

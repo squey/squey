@@ -327,6 +327,15 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	connect(_values_view->horizontalHeader(), &QWidget::customContextMenuRequested, this,
 	        &PVAbstractListStatsDlg::show_hhead_ctxt_menu);
 
+	connect(_values_view, &PVAbstractTableView::selection_commited, [this]() {
+		QStringList values;
+
+		model().current_selection().visit_selected_lines(
+		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
+
+		multiple_search(_msearch_action_for_layer_creation, values, false);
+	});
+
 	QActionGroup* act_group_scale = new QActionGroup(this);
 	act_group_scale->setExclusive(true);
 	connect(act_group_scale, &QActionGroup::triggered, this,
@@ -629,13 +638,13 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	    new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
 
 	if (hide_dialog) {
-		connect(_ctxt_process, &QDialog::accepted, this, &QWidget::close);
+	    connect(_ctxt_process, &QDialog::accepted, this, &QWidget::close);
 	}
 
 	if (custom_args.get_edition_flag()) {
 		_ctxt_process->show();
 	} else {
-		_ctxt_process->save_Slot();
+		_ctxt_process->preview_Slot();
 	}
 }
 
