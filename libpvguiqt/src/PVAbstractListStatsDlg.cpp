@@ -304,6 +304,9 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 		}
 	}
 
+	// Subscribe to selection change
+	_selection_change_connection = view._update_output_selection.connect([]() {});
+
 	// Enable values view sorting capability
 	_values_view->horizontalHeader()->setSortIndicatorShown(true);
 	_values_view->setSortingEnabled(true);

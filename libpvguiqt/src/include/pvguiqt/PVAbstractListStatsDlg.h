@@ -12,6 +12,7 @@
 #include <pvguiqt/PVStatsModel.h>     // for PVStatsModel
 
 #include <pvkernel/core/PVArgument.h> // for PVArgumentList
+#include <pvkernel/core/PVDisconnector.h>
 
 #include <QStringList>
 #include <QStyledItemDelegate>
@@ -194,6 +195,8 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	int _field_size_scientific;
 	int _field_size_percentage;
 	bool _counts_are_integers;
+
+	PVCore::PVDisconnector _selection_change_connection;
 };
 
 namespace __impl
