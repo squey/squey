@@ -53,31 +53,25 @@ class PVPcapSource : public PVUnicodeSource<>
 		                                              _input_desc->pcap_streams_id_offset()) +
 		                               pvpcap::SEPARATOR;
 
-		_temp_elements.emplace_back();
-		std::string& new_element = _temp_elements.back();
-		new_element.resize(
-		    element_size + global_frame_number.size() + stream_id.size() +
-		    (_input_desc->multi_inputs() ? (_original_pcap_filename.size() + 1) : 0));
+		size_t new_size = element_size + global_frame_number.size() + stream_id.size() +
+		                  (_input_desc->multi_inputs() ? (_original_pcap_filename.size() + 1) : 0);
+		PVCore::PVElement* new_element = PVUnicodeSource<>::add_uninitialized_element(new_size);
 
-		std::copy(global_frame_number.begin(), global_frame_number.end(), new_element.begin());
+		std::copy(global_frame_number.begin(), global_frame_number.end(), new_element->begin());
 
 		std::copy(stream_id.begin(), stream_id.end(),
-		          new_element.begin() + global_frame_number.size());
+		          new_element->begin() + global_frame_number.size());
 
 		size_t len = 0;
 		if (_input_desc->multi_inputs()) {
 			std::copy(_original_pcap_filename.begin(), _original_pcap_filename.end(),
-			          new_element.begin() + global_frame_number.size() + stream_id.size());
-			new_element[global_frame_number.size() + stream_id.size() +
-			            _original_pcap_filename.size()] = pvpcap::SEPARATOR[0];
+			          new_element->begin() + global_frame_number.size() + stream_id.size());
+			*(new_element->begin() + (global_frame_number.size() + stream_id.size() +
+			                          _original_pcap_filename.size())) = pvpcap::SEPARATOR[0];
 			len = _original_pcap_filename.size() + 1;
 		}
 		std::copy(begin, end,
-		          new_element.begin() + global_frame_number.size() + stream_id.size() + len);
-
-		char* new_begin = const_cast<char*>(new_element.data());
-		char* new_end = const_cast<char*>(new_element.data() + new_element.size());
-		PVUnicodeSource<>::add_element(new_begin, new_end);
+		          new_element->begin() + global_frame_number.size() + stream_id.size() + len);
 
 		_packet_count++;
 	}
@@ -97,8 +91,6 @@ class PVPcapSource : public PVUnicodeSource<>
 
   private:
 	PVPcapDescription* _input_desc = nullptr;
-
-	std::deque<std::string> _temp_elements;
 	size_t _packet_count = 0;
 
 	std::string _original_pcap_filename;
