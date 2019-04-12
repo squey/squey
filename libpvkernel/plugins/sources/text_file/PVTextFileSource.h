@@ -39,20 +39,13 @@ class PVTextFileSource : public PVUnicodeSource<>
 	void add_element(char* begin, char* end) override
 	{
 		if (_input_desc->multi_inputs()) {
-			size_t element_size = std::distance(begin, end);
+			size_t new_size = std::distance(begin, end) + _path_name.size() + 1;
+			PVCore::PVElement* new_element = PVUnicodeSource<>::add_uninitialized_element(new_size);
 
-			_temp_elements.emplace_back();
-			std::string& new_element = _temp_elements.back();
-			new_element.resize(element_size + _path_name.size() + 1);
-
-			size_t len = 0;
-			std::copy(_path_name.begin(), _path_name.end(), new_element.begin());
-			new_element[_path_name.size()] = PVRush::PVUnicodeSource<>::MULTI_INPUTS_SEPARATOR;
-			len = _path_name.size() + 1;
-			std::copy(begin, end, new_element.begin() + len);
-			char* new_begin = const_cast<char*>(new_element.data());
-			char* new_end = const_cast<char*>(new_element.data() + new_element.size());
-			PVUnicodeSource<>::add_element(new_begin, new_end);
+			std::copy(_path_name.begin(), _path_name.end(), new_element->begin());
+			*(new_element->begin() + _path_name.size()) =
+			    PVRush::PVUnicodeSource<>::MULTI_INPUTS_SEPARATOR;
+			std::copy(begin, end, new_element->begin() + _path_name.size() + 1);
 		} else {
 			PVUnicodeSource<>::add_element(begin, end);
 		}
@@ -60,7 +53,6 @@ class PVTextFileSource : public PVUnicodeSource<>
 
   private:
 	std::string _path_name;
-	std::deque<std::string> _temp_elements; // FIXME : should not increase memory consumption
 	PVFileDescription* _input_desc = nullptr;
 };
 } // namespace PVRush
