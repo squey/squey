@@ -181,7 +181,7 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 	case Qt::Key_F2:
 		int model_index = ls_model()->lib_layer_stack().get_selected_layer_index();
-		Inendi::PVLayer& layer = get_layer_from_idx(model_index);
+		Inendi::PVLayer& layer = ls_model()->lib_layer_stack().get_layer_n(model_index);
 		QString current_name = layer.get_name();
 		QString name = QInputDialog::getText(this, "Rename current layer", "New layer name:",
 		                                     QLineEdit::Normal, current_name);
@@ -199,7 +199,9 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 
 Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
-	return ls_model()->lib_layer_stack().get_layer_n(model_idx);
+	QVariant var =
+	    ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
+	return *reinterpret_cast<Inendi::PVLayer*>(var.value<void*>());
 }
 
 /******************************************************************************
