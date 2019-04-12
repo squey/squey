@@ -21,6 +21,7 @@ class PVSourceCreatorPcap : public PVRush::PVSourceCreator
 	source_p create_source_from_input(PVRush::PVInputDescription_p input) const override;
 	QString supported_type() const override;
 	bool pre_discovery(PVRush::PVInputDescription_p input) const override;
+	bool custom_multi_inputs() const override { return true; }
 	QString name() const override;
 
 	CLASS_REGISTRABLE(PVSourceCreatorPcap)
