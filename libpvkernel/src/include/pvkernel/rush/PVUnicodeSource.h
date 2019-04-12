@@ -99,6 +99,16 @@ class PVUnicodeSource : public PVRawSourceBase
 	}
 
 	/**
+	 * Add an uninitialized element with an allocated buffer
+	 */
+	virtual PVCore::PVElement* add_uninitialized_element(size_t n)
+	{
+		PVCore::PVElement* elt = _curc->add_element();
+		elt->allocate_new(n);
+		return elt;
+	}
+
+	/**
 	 * Split a full chunk in elements on new-line.
 	 *
 	 * @warning: we guess that end is an end of element.
