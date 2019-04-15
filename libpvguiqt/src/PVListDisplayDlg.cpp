@@ -35,6 +35,8 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	assert(_model->parent() == nullptr && "Model should not have parent as we destroy it");
 	setupUi(this);
 
+	setAttribute(Qt::WA_DeleteOnClose);
+
 	// Define default field separator
 	_field_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_field_separator_button->setKeySequence(QKeySequence(Qt::Key_Comma));

@@ -93,6 +93,19 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 		update_gradient();
 	}
 
+	void set_relative_min_count(double relative_min_count)
+	{
+		_relative_min_count = relative_min_count;
+	}
+	void set_relative_max_count(double relative_max_count)
+	{
+		_relative_max_count = relative_max_count;
+	}
+	void set_absolute_max_count(double absolute_max_count)
+	{
+		_absolute_max_count = absolute_max_count;
+	}
+
 	double convert_to(const double& value) const override
 	{
 		if (_use_percent_mode) {
@@ -115,48 +128,31 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 		}
 	}
 
-	void set_mode_value()
+	void set_mode_value(bool use_value_mode)
 	{
-		_use_percent_mode = false;
-		_min_spinbox->use_floating_point(false);
-		_max_spinbox->use_floating_point(false);
+		_use_percent_mode = not use_value_mode;
+		_min_spinbox->use_floating_point(_use_percent_mode);
+		_max_spinbox->use_floating_point(_use_percent_mode);
 
 		disconnect_spinboxes_from_ranges();
 
-		get_min_spinbox()->setDecimals(0);
-		get_max_spinbox()->setDecimals(0);
+		get_min_spinbox()->setDecimals(_use_percent_mode);
+		get_max_spinbox()->setDecimals(_use_percent_mode);
 
-		get_min_spinbox()->setSingleStep(1);
-		get_max_spinbox()->setSingleStep(1);
+		get_min_spinbox()->setSingleStep(use_value_mode);
+		get_max_spinbox()->setSingleStep(use_value_mode);
 
-		get_min_spinbox()->setSuffix("");
-		get_max_spinbox()->setSuffix("");
-
-		set_limits(_relative_min_count, _relative_max_count);
-		set_range_min(convert_from(get_range_min()));
-		set_range_max(convert_from(get_range_max()));
-
-		connect_spinboxes_to_ranges();
-	}
-
-	void set_mode_percent()
-	{
-		_use_percent_mode = true;
-		_min_spinbox->use_floating_point(true);
-		_max_spinbox->use_floating_point(true);
-
-		disconnect_spinboxes_from_ranges();
-
-		get_min_spinbox()->setDecimals(1);
-		get_max_spinbox()->setDecimals(1);
-
-		get_min_spinbox()->setSingleStep(0.1);
-		get_max_spinbox()->setSingleStep(0.1);
-
-		get_min_spinbox()->setSuffix(" %");
-		get_max_spinbox()->setSuffix(" %");
-
-		use_absolute_max_count(_use_absolute_max_count);
+		if (use_value_mode) {
+			get_min_spinbox()->setSuffix("");
+			get_max_spinbox()->setSuffix("");
+			set_limits(_relative_min_count, _relative_max_count);
+			set_range_min(convert_from(get_range_min()));
+			set_range_max(convert_from(get_range_max()));
+		} else {
+			get_min_spinbox()->setSuffix(" %");
+			get_max_spinbox()->setSuffix(" %");
+			use_absolute_max_count(_use_absolute_max_count);
+		}
 
 		connect_spinboxes_to_ranges();
 	}
@@ -279,10 +275,14 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
  *****************************************************************************/
 PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
                                                         PVCol c,
-                                                        PVStatsModel* m,
+                                                        const create_model_f& f,
                                                         bool counts_are_integers /* = true */,
                                                         QWidget* parent /* = nullptr */)
-    : PVListDisplayDlg(m, parent), _view(&view), _col(c), _counts_are_integers(counts_are_integers)
+    : PVListDisplayDlg(f(view, c, view.get_real_output_selection()), parent)
+    , _view(&view)
+    , _col(c)
+    , _create_model_f(f)
+    , _counts_are_integers(counts_are_integers)
 {
 	QString search_multiples = "search-multiple";
 	Inendi::PVLayerFilter::p_type search_multiple =
@@ -305,7 +305,33 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	}
 
 	// Subscribe to selection change
-	_selection_change_connection = view._update_output_selection.connect([]() {});
+	_selection_change_connection = view._update_output_selection.connect([this]() {
+		bool use_log_scale = use_logarithmic_scale();
+		PVCombCol sorted_col = model().sorted_col();
+		Qt::SortOrder sort_order = model().sort_order();
+		_model = _create_model_f(*_view, _col, _view->get_real_output_selection());
+		model().set_use_log_scale(use_log_scale);
+		model().set_use_absolute(_act_toggle_absolute->isChecked());
+		_values_view->setModel(_model);
+
+		_values_view->sortByColumn(sorted_col, sort_order);
+
+		_nb_values_edit->setText(QString("%L1").arg(model().size()));
+
+		if (model().size() == 0) {
+			_select_groupbox->setVisible(false);
+			groupBox_2->setVisible(false);
+		} else {
+			_select_groupbox->setVisible(true);
+			groupBox_2->setVisible(true);
+			_select_picker->set_relative_max_count(model().relative_max_count());
+			_select_picker->set_relative_min_count(model().relative_min_count());
+			_select_picker->set_absolute_max_count(model().absolute_max_count());
+			_select_picker->use_logarithmic_scale(model().use_log_scale());
+			_select_picker->set_mode_value(_by_value_radio->isChecked());
+			update_stats_column_width();
+		}
+	});
 
 	// Enable values view sorting capability
 	_values_view->horizontalHeader()->setSortIndicatorShown(true);
@@ -404,10 +430,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_select_picker->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	_select_layout->addWidget(_select_picker, 1);
 
-	connect(_by_value_radio, &QRadioButton::toggled, this,
-	        &PVAbstractListStatsDlg::select_set_mode_value);
-	connect(_by_freq_radio, &QRadioButton::toggled, this,
-	        &PVAbstractListStatsDlg::select_set_mode_frequency);
+	connect(_by_value_radio, &QRadioButton::toggled, [this]() { select_set_mode_value(true); });
+	connect(_by_freq_radio, &QRadioButton::toggled, [this]() { select_set_mode_value(false); });
 	connect(_select_button, &QPushButton::clicked, this, &PVAbstractListStatsDlg::select_refresh);
 
 	// set default mode to "value"
@@ -522,18 +546,8 @@ void PVGuiQt::PVAbstractListStatsDlg::max_changed(QAction* act)
 
 void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_value(bool checked)
 {
-	if (checked) {
-		_select_picker->set_mode_value();
-		_select_is_value = true;
-	}
-}
-
-void PVGuiQt::PVAbstractListStatsDlg::select_set_mode_frequency(bool checked)
-{
-	if (checked) {
-		_select_picker->set_mode_percent();
-		_select_is_value = false;
-	}
+	_select_picker->set_mode_value(checked);
+	_select_is_value = checked;
 }
 
 void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
@@ -590,6 +604,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 	    QObject::tr("Computing selection..."), this);
 
 	// Update the viewport to display selection.
+	Q_EMIT _values_view->selection_commited();
 	_values_view->viewport()->update();
 
 	(void)row_count;
@@ -641,13 +656,15 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	    new PVGuiQt::PVLayerFilterProcessWidget(lib_view(), _ctxt_args, fclone, _values_view);
 
 	if (hide_dialog) {
-	    connect(_ctxt_process, &QDialog::accepted, this, &QWidget::close);
+		connect(_ctxt_process, &QDialog::accepted, this, &QWidget::close);
 	}
 
 	if (custom_args.get_edition_flag()) {
 		_ctxt_process->show();
 	} else {
+		_selection_change_connection.block();
 		_ctxt_process->preview_Slot();
+		_selection_change_connection.unblock();
 	}
 }
 

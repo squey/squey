@@ -22,13 +22,10 @@
 
 #include <pvkernel/core/inendi_bench.h>
 
-bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
-                                          PVRush::PVNraw const& nraw,
-                                          PVCol c,
-                                          Inendi::PVSelection const& sel,
-                                          QWidget* parent,
-                                          QDialog** dialog /*= nullptr*/)
+PVGuiQt::PVStatsModel*
+distinct_values_create_model(const Inendi::PVView& view, PVCol c, Inendi::PVSelection const& sel)
 {
+	const PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 	const pvcop::db::array& col_in = nraw.column(c);
 
 	pvcop::db::array col1_out;
@@ -38,7 +35,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 	BENCH_START(distinct_values);
 
 	pvcop::db::array minmax;
-	auto ret_pbox = PVCore::PVProgressBox::progress(
+	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(true);
 
@@ -51,22 +48,24 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
 		    bc[0] = pvcop::core::algo::bit_count(sel);
 		    abs_max = std::move(bit_count);
 		},
-	    QObject::tr("Computing values..."), parent);
+	    QObject::tr("Computing values..."), /*parent*/ nullptr);
 
 	BENCH_END(distinct_values, "distinct values", col_in.size(), 4, col1_out.size(), 4);
-
-	if (ret_pbox != PVCore::PVProgressBox::CancelState::CONTINUE ||
-	    col2_out.size() == 0) { // FIXME : col1_out.size() == 0 should not happen anymore
-		return false;
-	}
 
 	QString col1_name =
 	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(c).get_name();
 
-	PVGuiQt::PVListUniqStringsDlg* dlg = new PVGuiQt::PVListUniqStringsDlg(
-	    view, col1_name, c, std::move(col1_out), std::move(col2_out), std::move(abs_max),
-	    std::move(minmax), parent);
-	dlg->setWindowTitle("Distinct values of axe '" + col1_name + "'");
+	return new PVGuiQt::PVStatsModel("Count", col1_name, QString(), std::move(col1_out),
+	                                 std::move(col2_out), std::move(abs_max), std::move(minmax));
+}
+
+bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
+                                          PVCol c,
+                                          QWidget* parent,
+                                          QDialog** dialog /*= nullptr*/)
+{
+	PVGuiQt::PVListUniqStringsDlg* dlg =
+	    new PVGuiQt::PVListUniqStringsDlg(view, c, &distinct_values_create_model, parent);
 	dlg->show();
 	if (dialog) {
 		// Save the current dialog to close the old one when you open a new one.
@@ -84,68 +83,69 @@ static bool show_stats_dialog(const QString& op_name,
                               ABS_MAX_OP abs_max_op,
                               bool counts_are_integers,
                               Inendi::PVView& view,
-                              PVRush::PVNraw const& nraw,
                               PVCol col1,
                               PVCol col2,
                               Inendi::PVSelection const& sel,
                               QWidget* parent)
 {
-	const pvcop::db::array& col1_in = nraw.column(col1);
-	const pvcop::db::array& col2_in = nraw.column(col2);
+	auto create_groupby_model = [=](const Inendi::PVView& view, PVCol,
+	                                Inendi::PVSelection const& sel) -> PVGuiQt::PVStatsModel* {
+		const PVRush::PVNraw& nraw = view.get_rushnraw_parent();
+		const pvcop::db::array& col1_in = nraw.column(col1);
+		const pvcop::db::array& col2_in = nraw.column(col2);
 
-	pvcop::db::array col1_out;
-	pvcop::db::array col2_out;
-	pvcop::db::array minmax;
-	pvcop::db::array abs_max;
+		pvcop::db::array col1_out;
+		pvcop::db::array col2_out;
+		pvcop::db::array minmax;
+		pvcop::db::array abs_max;
 
-	tbb::task_group_context ctxt(tbb::task_group_context::isolated);
-	ctxt.reset();
+		tbb::task_group_context ctxt(tbb::task_group_context::isolated);
+		ctxt.reset();
 
-	BENCH_START(operation);
+		BENCH_START(operation);
 
-	auto ret_pbox = PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_enable_cancel(true);
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(true);
 
-		    op(col1_in, col2_in, col1_out, col2_out, sel);
+			    op(col1_in, col2_in, col1_out, col2_out, sel);
 
-		    minmax = pvcop::db::algo::minmax(col2_out);
+			    minmax = pvcop::db::algo::minmax(col2_out);
 
-		    switch (abs_max_op) {
-		    case ABS_MAX_OP::MAX: {
-			    pvcop::db::indexes ind(1);
-			    auto& id = ind.to_core_array();
-			    id[0] = 1;
-			    abs_max = minmax.join(ind);
-		    } break;
-		    case ABS_MAX_OP::SUM:
-			    abs_max = pvcop::db::algo::sum(col2_out);
-			    break;
-		    case ABS_MAX_OP::COUNT: {
-			    pvcop::db::array bit_count("number_uint64", 1);
-			    auto& bc = bit_count.to_core_array<uint64_t>();
-			    bc[0] = pvcop::core::algo::bit_count(sel);
-			    abs_max = std::move(bit_count);
-		    } break;
-		    }
-		},
-	    QObject::tr("Computing values..."), parent);
+			    switch (abs_max_op) {
+			    case ABS_MAX_OP::MAX: {
+				    pvcop::db::indexes ind(1);
+				    auto& id = ind.to_core_array();
+				    id[0] = 1;
+				    abs_max = minmax.join(ind);
+			    } break;
+			    case ABS_MAX_OP::SUM:
+				    abs_max = pvcop::db::algo::sum(col2_out);
+				    break;
+			    case ABS_MAX_OP::COUNT: {
+				    pvcop::db::array bit_count("number_uint64", 1);
+				    auto& bc = bit_count.to_core_array<uint64_t>();
+				    bc[0] = pvcop::core::algo::bit_count(sel);
+				    abs_max = std::move(bit_count);
+			    } break;
+			    }
+			},
+		    QObject::tr("Computing values..."), parent);
 
-	BENCH_END(operation, op_name.toStdString().c_str(), col1_in.size(), 4, col2_in.size(), 4);
+		BENCH_END(operation, op_name.toStdString().c_str(), col1_in.size(), 4, col2_in.size(), 4);
 
-	if (ret_pbox != PVCore::PVProgressBox::CancelState::CONTINUE ||
-	    col1_out.size() == 0) { // FIXME : col1_out.size() == 0 should not happen anymore
-		return false;
-	}
+		QString col1_name =
+		    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col1).get_name();
+		QString col2_name =
+		    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col2).get_name();
 
-	QString col1_name =
-	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col1).get_name();
-	QString col2_name =
-	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col2).get_name();
+		return new PVGuiQt::PVStatsModel(op_name, col1_name, col2_name, std::move(col1_out),
+		                                 std::move(col2_out), std::move(abs_max),
+		                                 std::move(minmax));
+	};
 
 	PVGuiQt::PVGroupByStringsDlg* dlg = new PVGuiQt::PVGroupByStringsDlg(
-	    view, op_name, col1_name, col2_name, col1, col2, sel, std::move(col1_out),
-	    std::move(col2_out), std::move(abs_max), std::move(minmax), counts_are_integers, parent);
+	    view, col1, col2, create_groupby_model, sel, counts_are_integers, parent);
 	dlg->setWindowTitle(
 	    op_name + " by of axes '" +
 	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col1).get_name() +
@@ -156,24 +156,17 @@ static bool show_stats_dialog(const QString& op_name,
 	return true;
 }
 
-bool PVGuiQt::PVQNraw::show_count_by(Inendi::PVView& view,
-                                     PVRush::PVNraw const& nraw,
-                                     PVCol col1,
-                                     PVCol col2,
-                                     Inendi::PVSelection const& sel,
-                                     QWidget* parent)
+bool PVGuiQt::PVQNraw::show_count_by(
+    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
 	return show_stats_dialog("Count", &pvcop::db::algo::count_by, ABS_MAX_OP::COUNT, true, view,
-	                         nraw, col1, col2, sel, parent);
+	                         col1, col2, sel, parent);
 }
 
-bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
-                                   PVRush::PVNraw const& nraw,
-                                   PVCol col1,
-                                   PVCol col2,
-                                   Inendi::PVSelection const& sel,
-                                   QWidget* parent)
+bool PVGuiQt::PVQNraw::show_sum_by(
+    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
+	const PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 	bool counts_are_integers = nraw.column(col2).formatter()->name() != "number_float" and
 	                           nraw.column(col2).formatter()->name() != "number_double";
 
@@ -188,38 +181,26 @@ bool PVGuiQt::PVQNraw::show_sum_by(Inendi::PVView& view,
 	}
 
 	return show_stats_dialog("Sum", &pvcop::db::algo::sum_by, max_op, counts_are_integers, view,
-	                         nraw, col1, col2, sel, parent);
-}
-
-bool PVGuiQt::PVQNraw::show_max_by(Inendi::PVView& view,
-                                   PVRush::PVNraw const& nraw,
-                                   PVCol col1,
-                                   PVCol col2,
-                                   Inendi::PVSelection const& sel,
-                                   QWidget* parent)
-{
-	return show_stats_dialog("Max", &pvcop::db::algo::max_by, ABS_MAX_OP::MAX, true, view, nraw,
 	                         col1, col2, sel, parent);
 }
 
-bool PVGuiQt::PVQNraw::show_min_by(Inendi::PVView& view,
-                                   PVRush::PVNraw const& nraw,
-                                   PVCol col1,
-                                   PVCol col2,
-                                   Inendi::PVSelection const& sel,
-                                   QWidget* parent)
+bool PVGuiQt::PVQNraw::show_max_by(
+    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
-	return show_stats_dialog("Min", &pvcop::db::algo::min_by, ABS_MAX_OP::MAX, true, view, nraw,
-	                         col1, col2, sel, parent);
+	return show_stats_dialog("Max", &pvcop::db::algo::max_by, ABS_MAX_OP::MAX, true, view, col1,
+	                         col2, sel, parent);
 }
 
-bool PVGuiQt::PVQNraw::show_avg_by(Inendi::PVView& view,
-                                   PVRush::PVNraw const& nraw,
-                                   PVCol col1,
-                                   PVCol col2,
-                                   Inendi::PVSelection const& sel,
-                                   QWidget* parent)
+bool PVGuiQt::PVQNraw::show_min_by(
+    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
+{
+	return show_stats_dialog("Min", &pvcop::db::algo::min_by, ABS_MAX_OP::MAX, true, view, col1,
+	                         col2, sel, parent);
+}
+
+bool PVGuiQt::PVQNraw::show_avg_by(
+    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
 {
 	return show_stats_dialog("Average", &pvcop::db::algo::average_by, ABS_MAX_OP::MAX, false, view,
-	                         nraw, col1, col2, sel, parent);
+	                         col1, col2, sel, parent);
 }

@@ -210,6 +210,7 @@ class PVStatsModel : public PVAbstractTableModel
 
 	void set_copy_count(bool v) { _copy_count = v; }
 	void set_use_absolute(bool a) { _use_absolute_max_count = a; }
+	bool use_absolute() const { return _use_absolute_max_count; }
 	void set_format(ValueFormat f, bool e)
 	{
 		if (e) {

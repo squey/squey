@@ -234,6 +234,9 @@ class PVAbstractTableModel : public QAbstractTableModel
 		return _display.row_pos_to_index(_current_page * _page_size + _pos_in_page);
 	}
 
+	PVCombCol sorted_col() const { return _sorted_col; }
+	Qt::SortOrder sort_order() const { return _sort_order; }
+
   protected:
 	/**
 	 * Set sorting contextual informations.
@@ -280,6 +283,9 @@ class PVAbstractTableModel : public QAbstractTableModel
 	bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress"
 	// selection to current selection.
 	selection_mode_t _selection_mode; //!< the selection mode
+
+	PVCombCol _sorted_col;
+	Qt::SortOrder _sort_order;
 };
 } // namespace PVGuiQt
 #endif

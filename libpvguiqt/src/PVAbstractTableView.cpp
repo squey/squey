@@ -193,7 +193,7 @@ void PVAbstractTableView::update_on_move()
  *****************************************************************************/
 void PVAbstractTableView::new_range(int min, int max)
 {
-	if (model()) {
+	if (model() and table_model()->size() > 0) {
 		// min == max means we have only the current page so it contains every lines
 		// without
 		// scroll. The page size must be big enought to get them all.
@@ -299,7 +299,6 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent* event)
 
 			table_model()->reset_selection();
 			table_model()->start_selection(clc_row);
-			table_model()->commit_selection();
 		}
 	}
 }
@@ -387,6 +386,9 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
  *****************************************************************************/
 void PVAbstractTableView::mouseReleaseEvent(QMouseEvent* event)
 {
+	if (table_model()->current_selection().is_empty()) {
+		return;
+	}
 	viewport()->update();
 	event->accept();
 	table_model()->commit_selection();

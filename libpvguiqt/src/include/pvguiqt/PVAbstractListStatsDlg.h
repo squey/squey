@@ -62,10 +62,14 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	static constexpr const int stats_default_spacing = 10;
 	static constexpr const int stats_default_margin = 20;
 
+  protected:
+	using create_model_f =
+	    std::function<PVStatsModel*(const Inendi::PVView&, PVCol, const Inendi::PVSelection&)>;
+
   public:
 	PVAbstractListStatsDlg(Inendi::PVView& view,
 	                       PVCol c,
-	                       PVStatsModel* model,
+	                       const create_model_f& f,
 	                       bool counts_are_integers = true,
 	                       QWidget* parent = nullptr);
 
@@ -105,7 +109,6 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
   protected Q_SLOTS:
 	void select_set_mode_value(bool checked);
-	void select_set_mode_frequency(bool checked);
 	void select_refresh(bool checked);
 
 	/**
@@ -151,6 +154,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
   protected:
 	Inendi::PVView* _view;
 	PVCol _col;
+	create_model_f _create_model_f;
 
 	QAction* _act_toggle_linear;
 	QAction* _act_toggle_log;
