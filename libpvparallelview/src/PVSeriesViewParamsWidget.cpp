@@ -6,14 +6,19 @@
 #include <pvparallelview/common.h>
 
 #include <inendi/PVRangeSubSampler.h>
+#include <inendi/widgets/PVAxisComboBox.h>
 
 #include <QSignalMapper>
 #include <QShortcut>
 #include <QToolButton>
+#include <QAction>
 
-PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVSeriesViewWidget* parent)
+PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol abscissa,
+                                                                   PVSeriesViewWidget* parent)
     : /*QToolBar(parent),*/ _series_view_widget(parent)
 {
+	add_abscissa_selector(abscissa);
+	addSeparator();
 	add_selection_activator();
 	add_hunting_activator();
 	addSeparator();
@@ -23,6 +28,17 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVSeriesViewW
 	setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	setAutoFillBackground(true);
 	adjustSize();
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::add_abscissa_selector(PVCol axis)
+{
+	auto abscissa_selector =
+	    new PVWidgets::PVAxisComboBox(_series_view_widget->_view->get_axes_combination(),
+	                                  PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes);
+	abscissa_selector->set_current_axis(axis);
+	addWidget(abscissa_selector);
+	connect(abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) { _series_view_widget->set_abscissa(axis); });
 }
 
 void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator()

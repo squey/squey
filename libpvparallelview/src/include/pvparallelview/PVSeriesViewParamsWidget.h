@@ -8,6 +8,8 @@
 #ifndef _PVPARALLELVIEW_PVSERIESVIEWPARAMSWIDGET_H_
 #define _PVPARALLELVIEW_PVSERIESVIEWPARAMSWIDGET_H_
 
+#include <pvbase/types.h>
+
 #include <QToolBar>
 
 class QToolButton;
@@ -23,9 +25,10 @@ class PVSeriesViewParamsWidget : public QToolBar
 	Q_OBJECT
 
   public:
-	PVSeriesViewParamsWidget(PVSeriesViewWidget* parent);
+	PVSeriesViewParamsWidget(PVCol abscissa, PVSeriesViewWidget* parent);
 
   private:
+	void add_abscissa_selector(PVCol axis);
 	QToolButton* add_rendering_mode_selector();
 	QToolButton* add_sampling_mode_selector();
 	void add_selection_activator();

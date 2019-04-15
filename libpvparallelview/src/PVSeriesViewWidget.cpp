@@ -25,15 +25,40 @@
 PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        PVCombCol axis_comb,
                                                        QWidget* parent /*= nullptr*/)
-    : QWidget(parent), _help_widget(this)
+    : QWidget(parent), _view(view), _help_widget(this)
 {
-	auto plotteds = view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
-	const Inendi::PVAxesCombination& axes_comb = view->get_axes_combination();
-	PVCol col = axes_comb.get_nraw_axis(axis_comb);
-	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
+	// Define help
+	setFocusPolicy(Qt::StrongFocus);
+	_help_widget.hide();
+
+	_help_widget.initTextFromFile("series view's help", ":help-style");
+	_help_widget.addTextFromFile(":help-series-view-navigation");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-series-view-selection");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-series-view-hunting");
+	_help_widget.newTable();
+	_help_widget.addTextFromFile(":help-series-view-rendering");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-series-view-sampling");
+	_help_widget.newTable();
+	_help_widget.addTextFromFile(":help-selection");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-application");
+
+	_help_widget.finalizeText();
+
+	set_abscissa(_view->get_axes_combination().get_nraw_axis(axis_comb));
+}
+
+void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
+{
+	auto plotteds = _view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
+	const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
+	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	const auto& plotteds_vector = plotteds.front()->get_plotteds();
 
-	const pvcop::db::array& time = nraw.column(col);
+	const pvcop::db::array& time = nraw.column(abscissa);
 
 	std::vector<pvcop::core::array<uint32_t>> timeseries;
 	for (PVCol col(0); col < nraw.column_count(); col++) {
@@ -41,7 +66,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	}
 
 	_sampler.reset(
-	    new Inendi::PVRangeSubSampler(time, timeseries, nraw, view->get_real_output_selection()));
+	    new Inendi::PVRangeSubSampler(time, timeseries, nraw, _view->get_real_output_selection()));
 
 	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 	_plot->set_background_color(QColor(10, 10, 10, 255));
@@ -116,7 +141,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	QObject::connect(
 	    _zoomer, &PVSeriesViewZoomer::selection_commit,
-	    [range_edit, &time, &nraw, view, this](PVViewZoomer::Zoom zoom) {
+	    [range_edit, &time, &nraw, this](PVViewZoomer::Zoom zoom) {
 		    const pvcop::db::array& minmax = _sampler->ratio_to_minmax(zoom.minX, zoom.maxX);
 		    range_edit->set_minmax(minmax);
 		    const auto& sorted_indexes = _sampler->sorted_indexes();
@@ -128,11 +153,11 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		    for (size_t i = selected_range.begin; i < selected_range.end; i++) {
 			    sel.set_bit_fast(sort ? sort[i] : i);
 		    }
-		    view->set_selection_view(sel);
+		    _view->set_selection_view(sel);
 		});
 
 	// Subscribe to plotting changes
-	_plotting_change_connection = view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	_plotting_change_connection = _view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
 	    [this](const QList<PVCol>& plotteds_updated) {
 		    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
 		                                                  plotteds_updated.end());
@@ -141,7 +166,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	// Subscribe to selection changes
 	_selection_change_connection =
-	    view->_update_output_selection.connect([this]() { _sampler->resubsample(); });
+	    _view->_update_output_selection.connect([this]() { _sampler->resubsample(); });
 
 	QListWidget* selected_series_list = new QListWidget;
 	selected_series_list->setFixedWidth(_series_list_widget->width());
@@ -259,50 +284,44 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	selected_series_list->installEventFilter(new SynchroFilter{
 	    [this] { _synchro_selected_list = true; }, [this] { _synchro_selected_list = false; }});
 
-	_params_widget = new PVSeriesViewParamsWidget(this);
+	std::vector<QWidget*> replaceable_widgets{_zoomer, _series_list_widget, selected_series_list,
+	                                          range_edit};
 
-	QVBoxLayout* layout = new QVBoxLayout;
-	layout->setContentsMargins(0, 0, 0, 0);
+	if (layout() != nullptr) {
+		_layout_replacer(replaceable_widgets);
+	} else {
+		_params_widget = new PVSeriesViewParamsWidget(abscissa, this);
 
-	QHBoxLayout* hlayout = new QHBoxLayout;
-	hlayout->setContentsMargins(0, 0, 0, 0);
+		QVBoxLayout* layout = new QVBoxLayout;
+		layout->setContentsMargins(0, 0, 0, 0);
 
-	hlayout->addWidget(_zoomer);
-	auto* vlayout = new QVBoxLayout;
-	vlayout->addWidget(_series_list_widget);
-	vlayout->addWidget(selected_series_list);
-	hlayout->addLayout(vlayout);
+		QHBoxLayout* hlayout = new QHBoxLayout;
+		hlayout->setContentsMargins(0, 0, 0, 0);
 
-	QHBoxLayout* bottom_layout = new QHBoxLayout;
-	bottom_layout->addWidget(range_edit);
-	bottom_layout->addStretch();
-	bottom_layout->addWidget(_params_widget);
+		hlayout->addWidget(_zoomer);
+		auto* vlayout = new QVBoxLayout;
+		vlayout->addWidget(_series_list_widget);
+		vlayout->addWidget(selected_series_list);
+		hlayout->addLayout(vlayout);
 
-	layout->addLayout(hlayout);
-	layout->addLayout(bottom_layout);
+		QHBoxLayout* bottom_layout = new QHBoxLayout;
+		bottom_layout->addWidget(range_edit);
+		bottom_layout->addStretch();
+		bottom_layout->addWidget(_params_widget);
 
-	// Define help
-	setFocusPolicy(Qt::StrongFocus);
-	_help_widget.hide();
+		layout->addLayout(hlayout);
+		layout->addLayout(bottom_layout);
 
-	_help_widget.initTextFromFile("series view's help", ":help-style");
-	_help_widget.addTextFromFile(":help-series-view-navigation");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-series-view-selection");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-series-view-hunting");
-	_help_widget.newTable();
-	_help_widget.addTextFromFile(":help-series-view-rendering");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-series-view-sampling");
-	_help_widget.newTable();
-	_help_widget.addTextFromFile(":help-selection");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-application");
+		setLayout(layout);
+	}
 
-	_help_widget.finalizeText();
-
-	setLayout(layout);
+	_layout_replacer = [this, replaceable_widgets](std::vector<QWidget*> const& new_widgets) {
+		QLayout* global_layout = layout();
+		for (size_t i = 0; i < replaceable_widgets.size(); ++i) {
+			delete global_layout->replaceWidget(replaceable_widgets[i], new_widgets[i]);
+			delete replaceable_widgets[i];
+		}
+	};
 }
 
 void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)

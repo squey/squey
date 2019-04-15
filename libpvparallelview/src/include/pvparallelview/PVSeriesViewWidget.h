@@ -40,10 +40,13 @@ class PVSeriesViewWidget : public QWidget
 	void leaveEvent(QEvent*) override;
 
   private:
+	void set_abscissa(PVCol axis);
 	void update_selected_series();
 	bool is_in_region(QRect region, PVCol col) const;
 
   private:
+	Inendi::PVView* _view;
+	std::function<void(std::vector<QWidget*> const&)> _layout_replacer;
 	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
 	PVSeriesView* _plot;
 	PVSeriesViewZoomer* _zoomer;
