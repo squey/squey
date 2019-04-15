@@ -18,7 +18,8 @@
  * PVParallelView::PVZoomedParallelView::PVZoomedParallelView
  *****************************************************************************/
 
-PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
+PVParallelView::PVZoomedParallelView::PVZoomedParallelView(
+    Inendi::PVAxesCombination const& axes_comb, QWidget* parent)
     : PVWidgets::PVGraphicsView(parent)
 {
 	setMinimumHeight(300);
@@ -36,12 +37,10 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
 	_help_widget->addTextFromFile(":help-application");
 
 	_help_widget->newTable();
-	_help_widget->addTextFromFile(":help-mouse-zoomed-paralllel-view");
+	_help_widget->addTextFromFile(":help-mouse-zoomed-parallel-view");
 	_help_widget->finalizeText();
 
-	_params_widget = new PVZoomedParallelViewParamsWidget(this);
-	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
-	_params_widget->setAutoFillBackground(true);
+	_params_widget = new PVZoomedParallelViewParamsWidget(axes_comb, this);
 	_params_widget->adjustSize();
 }
 

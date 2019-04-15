@@ -87,7 +87,8 @@ PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* par
 		},
 	    "Initializing zoomed parallel view...", parent);
 
-	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
+	PVParallelView::PVZoomedParallelView* view =
+	    new PVParallelView::PVZoomedParallelView(lib_view()->get_axes_combination(), parent);
 	PVParallelView::PVZoomedParallelScene* scene = new PVParallelView::PVZoomedParallelScene(
 	    view, *lib_view(), &_sliders_manager, _processor_sel, _processor_bg, _zones_manager, axis);
 	_zoomed_parallel_scenes.push_back(scene);
@@ -118,29 +119,31 @@ PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* 
 PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
     PVCombCol const axis_x, PVCombCol const axis_y, QWidget* parent)
 {
-	PVScatterViewBackend* backend;
+	PVZoneID zone_id{
+	    axis_x == PVCombCol() ? PVCol() : lib_view()->get_axes_combination().get_nraw_axis(axis_x),
+	    axis_y == PVCombCol() ? PVCol() : lib_view()->get_axes_combination().get_nraw_axis(axis_y)};
 
-	PVZoneID zone_id{lib_view()->get_axes_combination().get_nraw_axis(axis_x),
-	                 lib_view()->get_axes_combination().get_nraw_axis(axis_y)};
+	auto create_backend = [this](PVZoneID zone_id, QWidget* parent = nullptr) {
+		std::unique_ptr<PVScatterViewBackend> backend;
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(false);
+			    PVZonesManager::ZoneRetainer zretainer = _zones_manager.acquire_zone(zone_id);
+			    _zones_manager.request_zoomed_zone(zone_id);
+			    backend = std::make_unique<PVScatterViewBackend>(*lib_view(), _zones_manager,
+			                                                     std::move(zretainer), zone_id,
+			                                                     _processor_bg, _processor_sel);
+			},
+		    "Initializing scatter view...", parent);
+		// Update preprocessors' number of zones
+		const size_t nzones = get_zones_manager().get_number_of_zones();
+		_processor_sel.reset_number_zones(nzones);
+		_processor_bg.reset_number_zones(nzones);
+		return backend;
+	};
 
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_enable_cancel(false);
-		    PVZonesManager::ZoneRetainer zretainer = _zones_manager.acquire_zone(zone_id);
-		    _zones_manager.request_zoomed_zone(zone_id);
-		    backend = new PVScatterViewBackend(*lib_view(), _zones_manager, std::move(zretainer),
-		                                       zone_id, _processor_bg, _processor_sel);
-		},
-	    "Initializing scatter view...", parent);
-
-	PVScatterView* view = new PVScatterView(*lib_view(), backend, zone_id, parent);
-
+	PVScatterView* view = new PVScatterView(*lib_view(), create_backend, zone_id, parent);
 	_scatter_views.push_back(view);
-
-	// Update preprocessors' number of zones
-	const size_t nzones = get_zones_manager().get_number_of_zones();
-	_processor_sel.reset_number_zones(nzones);
-	_processor_bg.reset_number_zones(nzones);
 
 	return view;
 }
@@ -379,21 +382,17 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	_zoomed_parallel_scenes = new_zps;
 
-	scatter_view_list_t new_svs;
+	// scatter_view_list_t new_svs;
 
-	for (size_t i = 0; i < _scatter_views.size(); ++i) {
-		PVScatterView* sv = _scatter_views[i];
-		_scatter_views[i] = nullptr;
+	// for (size_t i = 0; i < _scatter_views.size(); ++i) {
+	// 	PVScatterView* sv = _scatter_views[i];
+	// 	_scatter_views[i] = nullptr;
 
-		if (sv->update_zones()) {
-			// the ZPS can still exist
-			new_svs.push_back(sv);
-		} else {
-			sv->parentWidget()->close();
-		}
-	}
+	// 	// the ZPS can still exist
+	// 	new_svs.push_back(sv);
+	// }
 
-	_scatter_views = new_svs;
+	// _scatter_views = new_svs;
 
 	hit_count_view_list_t new_hcvs;
 

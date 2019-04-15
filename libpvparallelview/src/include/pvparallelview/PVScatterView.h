@@ -86,8 +86,11 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	};
 
   public:
+	using backend_unique_ptr_t = std::unique_ptr<PVScatterViewBackend>;
+	using create_backend_t = std::function<backend_unique_ptr_t(PVZoneID, QWidget*)>;
+
 	PVScatterView(Inendi::PVView& pvview_sp,
-	              PVScatterViewBackend* backend,
+	              create_backend_t create_backend,
 	              PVZoneID const zone_id,
 	              QWidget* parent = nullptr);
 	~PVScatterView() override;
@@ -163,6 +166,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 		return _backend->get_y_labels_cache();
 	}
 
+	void update_labels_cache();
+
 	PVZoneTree const& get_zone_tree() const;
 	void set_scatter_view_zone(PVZoneID const zid);
 
@@ -174,7 +179,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   private:
 	Inendi::PVView& _view;
-	std::unique_ptr<PVScatterViewBackend> _backend;
+	backend_unique_ptr_t _backend;
+	create_backend_t _create_backend;
 	bool _view_deleted;
 	PVZoomConverterScaledPowerOfTwo<zoom_steps>* _zoom_converter;
 

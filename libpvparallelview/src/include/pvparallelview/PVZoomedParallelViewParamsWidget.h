@@ -11,6 +11,7 @@
 #include <QToolBar>
 
 #include <pvbase/types.h>
+#include <inendi/widgets/PVAxisComboBox.h>
 
 class QStringList;
 class QMenu;
@@ -25,22 +26,17 @@ class PVZoomedParallelViewParamsWidget : public QToolBar
 	Q_OBJECT
 
   public:
-	explicit PVZoomedParallelViewParamsWidget(PVZoomedParallelView* parent);
+	explicit PVZoomedParallelViewParamsWidget(Inendi::PVAxesCombination const& axes_comb,
+	                                          QWidget* parent);
 
   public:
-	void build_axis_menu(int active_axis, const QStringList& sl);
+	void build_axis_menu(PVCombCol active_axis);
 
   Q_SIGNALS:
 	void change_to_col(PVCombCol new_axis);
 
-  private Q_SLOTS:
-	void set_active_axis_action(QAction* act);
-
   private:
-	QToolButton* _menu_toolbutton;
-	QMenu* _axes;
-	QAction* _active_axis_action;
-	PVCombCol _active_axis;
+	PVWidgets::PVAxisComboBox* _menu;
 };
 } // namespace PVParallelView
 

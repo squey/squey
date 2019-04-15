@@ -98,6 +98,18 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_x_legend(const QString& 
 	}
 }
 
+void PVParallelView::PVZoomableDrawingAreaWithAxes::set_x_legend(PVWidgets::PVAxisComboBox* legend)
+{
+	if (_x_legend_widget != legend) {
+		_x_legend_widget = legend;
+		_x_legend_widget->setParent(this);
+		_x_legend_widget->adjustSize();
+		_x_legend_widget->move(get_viewport()->rect().width() - _x_legend_widget->width(),
+		                       get_viewport()->rect().height() - _x_legend_widget->height());
+		get_viewport()->update();
+	}
+}
+
 /*****************************************************************************
  * PVParallelView::PVZoomableDrawingAreaWithAxes::set_y_legend
  *****************************************************************************/
@@ -106,6 +118,17 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::set_y_legend(const QString& 
 {
 	if (_y_legend != legend) {
 		_y_legend = legend;
+		get_viewport()->update();
+	}
+}
+
+void PVParallelView::PVZoomableDrawingAreaWithAxes::set_y_legend(PVWidgets::PVAxisComboBox* legend)
+{
+	if (_y_legend_widget != legend) {
+		_y_legend_widget = legend;
+		_y_legend_widget->setParent(this);
+		_y_legend_widget->adjustSize();
+		_y_legend_widget->move(0, 0);
 		get_viewport()->update();
 	}
 }
@@ -182,6 +205,16 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::recompute_decorations()
 
 	if ((l != margin_left) || (r != margin_right) || (t != margin_top)) {
 		set_scene_margins(l, r, t, margin_bottom);
+	}
+
+	if (_x_legend_widget) {
+		_x_legend_widget->adjustSize();
+		_x_legend_widget->move(get_viewport()->rect().width() - _x_legend_widget->width(),
+		                       get_viewport()->rect().height() - _x_legend_widget->height());
+	}
+	if (_y_legend_widget) {
+		_y_legend_widget->adjustSize();
+		_y_legend_widget->move(0, 0);
 	}
 }
 

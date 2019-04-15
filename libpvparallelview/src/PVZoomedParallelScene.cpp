@@ -428,7 +428,7 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 
 	/* have a coherent param widget
 	 */
-	_zpview->params_widget()->build_axis_menu(_axis_index, _pvview.get_axes_names_list());
+	_zpview->params_widget()->build_axis_menu(_axis_index);
 
 	/* the zones
 	 */
@@ -674,7 +674,7 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRenderingBCI<bbits>
 
 void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, PVZoneID zone_id)
 {
-	assert(is_zone_rendered(zone_id));
+	// assert(is_zone_rendered(zone_id));
 	assert(QThread::currentThread() == this->thread());
 	bool zr_catch = true;
 

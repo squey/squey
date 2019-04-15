@@ -50,13 +50,13 @@ using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
-                                             PVScatterViewBackend* backend,
+                                             create_backend_t create_backend,
                                              PVZoneID const zone_id,
                                              QWidget* parent /*= nullptr*/
                                              )
     : PVZoomableDrawingAreaWithAxes(parent)
     , _view(pvview_sp)
-    , _backend(backend)
+    , _create_backend(create_backend)
     , _view_deleted(false)
     , _zone_id(zone_id)
     , _show_bg(true)
@@ -119,6 +119,33 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 	set_scatter_view_zone(zone_id);
 
+	auto x_legend = new PVWidgets::PVAxisComboBox(
+	    _view.get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::BothOriginalCombinationAxes);
+	auto y_legend = new PVWidgets::PVAxisComboBox(
+	    _view.get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::BothOriginalCombinationAxes);
+	x_legend->set_current_axis(get_zone_id().first);
+	y_legend->set_current_axis(get_zone_id().second);
+	set_x_legend(x_legend);
+	set_y_legend(y_legend);
+	connect(x_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) {
+		        if (axis == PVCol()) {
+			        return;
+		        }
+		        PVZoneID zone_id{axis, get_zone_id().second};
+		        set_scatter_view_zone(zone_id);
+		    });
+	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) {
+		        if (axis == PVCol()) {
+			        return;
+		        }
+		        PVZoneID zone_id{get_zone_id().first, axis};
+		        set_scatter_view_zone(zone_id);
+		    });
+
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
 	connect(this, &PVScatterView::zoom_has_changed, this, &PVScatterView::do_zoom_change);
@@ -133,8 +160,6 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 	set_params_widget_position();
-
-	get_images_manager().set_img_update_receiver(this);
 
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
@@ -324,6 +349,14 @@ void PVParallelView::PVScatterView::toggle_show_labels()
 	_show_labels = !_show_labels;
 	params_widget()->update_widgets();
 
+	update_labels_cache();
+	recompute_decorations();
+	reconfigure_view();
+	get_viewport()->update();
+}
+
+void PVParallelView::PVScatterView::update_labels_cache()
+{
 	if (_show_labels) {
 		PVCore::PVProgressBox::progress(
 		    [&](PVCore::PVProgressBox& pbox) {
@@ -335,10 +368,6 @@ void PVParallelView::PVScatterView::toggle_show_labels()
 			},
 		    "Initializing labels indices...", this);
 	}
-
-	recompute_decorations();
-	reconfigure_view();
-	get_viewport()->update();
 }
 
 /*****************************************************************************
@@ -381,8 +410,6 @@ void PVParallelView::PVScatterView::do_update_all()
 
 bool PVParallelView::PVScatterView::update_zones()
 {
-	set_scatter_view_zone(_zone_id);
-
 	return true;
 }
 
@@ -390,13 +417,20 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
 	_zone_id = zid;
 
-	get_images_manager().set_zone(zid);
+	_backend = _create_backend(_zone_id, this);
+	auto& img_manager = _backend->get_images_manager();
+	img_manager.set_zone(zid);
+	img_manager.set_img_update_receiver(this);
+
 	PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
 	_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
 
-	// TODO: register axis name change through the hive
-	set_x_legend(lib_view().get_nraw_axis_name(zid.first));
-	set_y_legend(lib_view().get_nraw_axis_name(zid.second));
+	set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
+	               zoom_min);
+	update_labels_cache();
+	recompute_decorations();
+	reconfigure_view();
+	do_update_all();
 }
 
 /*****************************************************************************

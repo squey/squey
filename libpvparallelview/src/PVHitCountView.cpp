@@ -37,6 +37,8 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 
+#include <utility>
+
 #define RENDER_TIMEOUT 75 // in ms
 
 /**
@@ -159,7 +161,25 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 	set_alignment(Qt::AlignLeft | Qt::AlignTop);
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 	set_x_legend("Occurrence count");
-	set_y_legend(pvview_sp.get_axis_name(axis_index));
+	auto y_legend = new PVWidgets::PVAxisComboBox(
+	    pvview_sp.get_axes_combination(), PVWidgets::PVAxisComboBox::AxesShown::CombinationAxes);
+	y_legend->set_current_axis(axis_index);
+	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol, PVCombCol axis) {
+		        PVHitCountViewBackend* backend;
+
+		        PVCore::PVProgressBox::progress(
+		            [&](PVCore::PVProgressBox& pbox) {
+			            pbox.set_enable_cancel(false);
+			            backend = new PVHitCountViewBackend(_pvview, axis);
+			        },
+		            "Initializing hit-count view...", this);
+
+		        _backend.reset(backend);
+		        reset_view();
+		        update_all();
+		    });
+	set_y_legend(y_legend);
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
 
@@ -281,7 +301,7 @@ bool PVParallelView::PVHitCountView::update_zones()
 	/* RH: no need to follows the axis_id yet. We need informations to
 	 * retrieve the plotted pointer...
 	 */
-	return false;
+	return true;
 }
 
 /*****************************************************************************
