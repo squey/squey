@@ -33,9 +33,9 @@ QIcon PVDisplays::PVDisplayViewTimeseries::toolbar_icon() const
 QString PVDisplays::PVDisplayViewTimeseries::widget_title(Inendi::PVView* view,
                                                           Params const& data) const
 {
-	auto axis_comb = data.at(0);
-	return "Series view [" + QString::fromStdString(view->get_name()) + " on axis '" +
-	       view->get_axis_name(axis_comb) + "']";
+	// auto axis_comb = data.at(0);
+	return "Series view [" + QString::fromStdString(view->get_name()) + /*" on axis '" +
+	       view->get_axis_name(axis_comb) + */ "']";
 }
 
 QString PVDisplays::PVDisplayViewTimeseries::axis_menu_name(Inendi::PVView*, Params const&) const

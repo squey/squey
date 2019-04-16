@@ -48,9 +48,9 @@ class PVSeriesViewWidget : public QWidget
 	Inendi::PVView* _view;
 	std::function<void(std::vector<QWidget*> const&)> _layout_replacer;
 	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
-	PVSeriesView* _plot;
-	PVSeriesViewZoomer* _zoomer;
-	QListWidget* _series_list_widget;
+	PVSeriesView* _plot = nullptr;
+	PVSeriesViewZoomer* _zoomer = nullptr;
+	QListWidget* _series_list_widget = nullptr;
 
 	bool _update_selected_series_resample = false;
 	bool _synchro_selected_list = false;

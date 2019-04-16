@@ -38,7 +38,9 @@ PVWidgets::PVAxisComboBox::PVAxisComboBox(Inendi::PVAxesCombination const& axes_
 
 void PVWidgets::PVAxisComboBox::set_current_axis(PVCombCol axis)
 {
-	if (_axes_shown & AxesShown::CombinationAxes) {
+	if (axis == PVCombCol()) {
+		setCurrentIndex(-1);
+	} else if (_axes_shown & AxesShown::CombinationAxes) {
 		setCurrentIndex(axis);
 	} else {
 		setCurrentIndex(_axes_comb.get_nraw_axis(axis));
@@ -47,7 +49,9 @@ void PVWidgets::PVAxisComboBox::set_current_axis(PVCombCol axis)
 
 void PVWidgets::PVAxisComboBox::set_current_axis(PVCol axis)
 {
-	if (_axes_shown == AxesShown::OriginalAxes) {
+	if (axis == PVCol()) {
+		setCurrentIndex(-1);
+	} else if (_axes_shown == AxesShown::OriginalAxes) {
 		setCurrentIndex(axis);
 	} else if (_axes_shown == AxesShown::BothOriginalCombinationAxes) {
 		setCurrentIndex(count() - _axes_comb.get_nraw_axes_count() + int(axis));

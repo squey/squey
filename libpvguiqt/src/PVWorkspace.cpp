@@ -256,21 +256,21 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(PVDisplays::PVDisplayView
 		return;
 	}
 
-	if (axis_comb == PVCombCol()) {
-		PVCore::PVArgumentList args;
-		args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(
-		    PVCore::PVAxisIndexType(PVCol(0)));
-		auto* factory = PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory();
-		auto* axis_index_creator =
-		    new PVWidgets::PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexFilteredEditor>(
-		        *view, display_if);
-		factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
-		                        axis_index_creator);
-		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(factory, args, this)) {
-			return;
-		}
-		axis_comb = (PVCombCol)args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();
-	}
+	// if (axis_comb == PVCombCol()) {
+	// 	PVCore::PVArgumentList args;
+	// 	args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(
+	// 	    PVCore::PVAxisIndexType(PVCol(0)));
+	// 	auto* factory = PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory();
+	// 	auto* axis_index_creator =
+	// 	    new PVWidgets::PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexFilteredEditor>(
+	// 	        *view, display_if);
+	// 	factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
+	// 	                        axis_index_creator);
+	// 	if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(factory, args, this)) {
+	// 		return;
+	// 	}
+	// 	axis_comb = (PVCombCol)args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();
+	// }
 
 	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, std::vector{axis_comb});
 	add_view_display(
@@ -291,21 +291,21 @@ void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(PVDisplays::PVDisplayView
 		return;
 	}
 
-	if (zone_index_first == PVCombCol() || zone_index_second == PVCombCol()) {
-		PVCore::PVArgumentList args;
-		args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(
-		    PVCore::PVZoneIndexType(zone_index_first == PVCombCol() ? 0 : zone_index_first,
-		                            zone_index_second == PVCombCol() ? 0 : zone_index_second));
-		if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
-		        PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args,
-		        this)) {
-			return;
-		}
-		zone_index_first =
-		    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_first();
-		zone_index_second =
-		    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_second();
-	}
+	// if (zone_index_first == PVCombCol() || zone_index_second == PVCombCol()) {
+	// 	PVCore::PVArgumentList args;
+	// 	args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(
+	// 	    PVCore::PVZoneIndexType(zone_index_first == PVCombCol() ? 0 : zone_index_first,
+	// 	                            zone_index_second == PVCombCol() ? 0 : zone_index_second));
+	// 	if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
+	// 	        PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args,
+	// 	        this)) {
+	// 		return;
+	// 	}
+	// 	zone_index_first =
+	// 	    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_first();
+	// 	zone_index_second =
+	// 	    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_second();
+	// }
 
 	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, zone_index_first,
 	                                                    zone_index_second);
