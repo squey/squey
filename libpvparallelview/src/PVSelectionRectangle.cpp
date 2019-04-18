@@ -218,7 +218,7 @@ void PVParallelView::PVSelectionRectangle::move_by(qreal hstep, qreal vstep)
 	const qreal height = old_rect.height();
 
 	begin(QPointF(x, y));
-	end(QPointF(x + width, y + height), false);
+	end(QPointF(x + width, y + height), false, true);
 }
 
 /*****************************************************************************
@@ -238,5 +238,5 @@ void PVParallelView::PVSelectionRectangle::grow_by(qreal hratio, qreal vratio)
 	qreal voffset = (height - height * vratio);
 
 	begin(QPointF(x - hoffset, y - voffset));
-	end(QPointF(x + hoffset + width, y + voffset + height), false);
+	end(QPointF(x + hoffset + width, y + voffset + height), false, true);
 }

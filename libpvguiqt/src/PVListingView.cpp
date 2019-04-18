@@ -472,7 +472,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			count_by_actions << action_col_count_by;
 			connect(action_col_count_by, &QAction::triggered, action_col_count_by, [=]() {
 				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-				PVQNraw::show_count_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+				PVQNraw::show_count_by(lib_view(), col, col2,
 				                       lib_view().get_selection_visible_listing(), this);
 			});
 
@@ -481,7 +481,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 				min_by_actions << action_col_min_by;
 				connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_min_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					PVQNraw::show_min_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
 				});
 			}
@@ -491,7 +491,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 				max_by_actions << action_col_max_by;
 				connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_max_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					PVQNraw::show_max_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
 				});
 			}
@@ -501,7 +501,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 				sum_by_actions << action_col_sum_by;
 				connect(action_col_sum_by, &QAction::triggered, action_col_sum_by, [=]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_sum_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					PVQNraw::show_sum_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
 				});
 
@@ -509,7 +509,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 				avg_by_actions << action_col_avg_by;
 				connect(action_col_avg_by, &QAction::triggered, action_col_avg_by, [=]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_avg_by(lib_view(), lib_view().get_rushnraw_parent(), col, col2,
+					PVQNraw::show_avg_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
 				});
 			}
@@ -535,8 +535,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 	// Process actions
 	if (sel == _action_col_unique) {
-		PVQNraw::show_unique_values(lib_view(), lib_view().get_rushnraw_parent(), col,
-		                            lib_view().get_selection_visible_listing(), this);
+		PVQNraw::show_unique_values(lib_view(), col, this);
 	} else if (sel == _action_col_sort) {
 		Qt::SortOrder order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
 		sort(comb_col, order);

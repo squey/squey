@@ -616,8 +616,7 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 	if (!_dialog) {
 		bool empty_sel = _view.get_output_layer().get_selection().is_empty();
 		if (not empty_sel) {
-			PVQNraw::show_unique_values(_view, _view.get_rushnraw_parent(), get_real_axis_col(),
-			                            _view.get_selection_visible_listing(), this, &_dialog);
+			PVQNraw::show_unique_values(_view, get_real_axis_col(), this, &_dialog);
 			connect(_dialog, &QDialog::finished, this,
 			        &PVUniqueValuesCellWidget::unique_values_dlg_closed);
 		}

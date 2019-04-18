@@ -156,9 +156,7 @@ int PVAbstractTableModel::rowIndex(PVRow index) const
 {
 	// Compute index with : pagination information + offset from the start of
 	// the "screen"
-
 	size_t idx = row_pos(index);
-
 	return _display.row_pos_to_index(idx);
 }
 
@@ -176,7 +174,6 @@ int PVAbstractTableModel::row_pos(PVRow index) const
 {
 	// Compute index with : pagination information + offset from the start of
 	// the "screen"
-
 	return (_current_page * _page_size + _pos_in_page) + (index - _current_page);
 }
 
@@ -393,6 +390,8 @@ void PVAbstractTableModel::sorted(PVCombCol col, Qt::SortOrder order)
 	commit_selection();
 	// And reset the range selection which does not have sense anymore.
 	_end_sel = _start_sel = -1;
+	_sorted_col = col;
+	_sort_order = order;
 }
 
 /******************************************************************************

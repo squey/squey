@@ -13,6 +13,7 @@
 #include <inendi/PVView.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <pvkernel/core/PVDisconnector.h>
 
 namespace Inendi
 {
@@ -51,15 +52,8 @@ class PVSeriesViewWidget : public QWidget
 	bool _update_selected_series_resample = false;
 	bool _synchro_selected_list = false;
 
-	struct Disconnector : public sigc::connection {
-		using sigc::connection::connection;
-		using sigc::connection::operator=;
-		Disconnector(Disconnector&&) = delete;
-		~Disconnector() { disconnect(); }
-	};
-
-	Disconnector _plotting_change_connection;
-	Disconnector _selection_change_connection;
+	PVCore::PVDisconnector _plotting_change_connection;
+	PVCore::PVDisconnector _selection_change_connection;
 
 	PVSeriesViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget _help_widget;
