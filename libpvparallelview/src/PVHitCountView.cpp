@@ -92,12 +92,12 @@ void __print_scalar(const char* text, const V& v)
  *****************************************************************************/
 
 PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
-                                               PVHitCountViewBackend* backend,
+                                               create_backend_t create_backend,
                                                const PVCombCol axis_index,
                                                QWidget* parent)
     : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
     , _pvview(pvview_sp)
-    , _backend(backend)
+    , _create_backend(create_backend)
     , _view_deleted(false)
     , _show_bg(true)
     , _auto_x_zoom_sel(false)
@@ -107,15 +107,19 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 {
 	set_gl_viewport();
 
-	/* computing the highest scene width to setup it... and do the first
-	 * run to initialize the manager's buffers :-)
-	 */
-	get_hit_graph_manager().change_and_process_view(0, 0, .5);
-	_max_count = get_hit_graph_manager().get_max_count_all();
+	if (axis_index != PVCombCol()) {
+		_backend = _create_backend(axis_index, this);
 
-	QRectF r(0, 0, _max_count, 1L << 32);
-	set_scene_rect(r);
-	get_scene()->setSceneRect(r);
+		/* computing the highest scene width to setup it... and do the first
+		* run to initialize the manager's buffers :-)
+		*/
+		get_hit_graph_manager().change_and_process_view(0, 0, .5);
+		_max_count = get_hit_graph_manager().get_max_count_all();
+
+		QRectF r(0, 0, _max_count, 1L << 32);
+		set_scene_rect(r);
+		get_scene()->setSceneRect(r);
+	}
 
 	/* X zoom converter
 	 */
@@ -166,18 +170,28 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 	y_legend->set_current_axis(axis_index);
 	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
 	        [this](PVCol, PVCombCol axis) {
-		        PVHitCountViewBackend* backend;
+		        _backend = _create_backend(axis, this);
 
-		        PVCore::PVProgressBox::progress(
-		            [&](PVCore::PVProgressBox& pbox) {
-			            pbox.set_enable_cancel(false);
-			            backend = new PVHitCountViewBackend(_pvview, axis);
-			        },
-		            "Initializing hit-count view...", this);
+		        /* computing the highest scene width to setup it... and do the first
+		        * run to initialize the manager's buffers :-)
+		        */
+		        get_hit_graph_manager().change_and_process_view(0, 0, .5);
+		        _max_count = get_hit_graph_manager().get_max_count_all();
 
-		        _backend.reset(backend);
+		        _sel_rect->set_x_range(0, _max_count);
+		        _sel_rect->set_y_range(0, UINT32_MAX);
+
+		        QRectF r(0, 0, _max_count, 1L << 32);
+		        set_scene_rect(r);
+		        get_scene()->setSceneRect(r);
+
 		        reset_view();
+
+		        recompute_decorations();
+		        reconfigure_view();
+
 		        update_all();
+		        do_update_all();
 		    });
 	set_y_legend(y_legend);
 	set_decoration_color(Qt::white);
@@ -357,46 +371,49 @@ void PVParallelView::PVHitCountView::request_auto_scale()
 
 void PVParallelView::PVHitCountView::drawBackground(QPainter* painter, const QRectF& margined_rect)
 {
-	painter->save();
-	const QRect margined_viewport = QRect(-1, -1, get_x_axis_length() + 4, get_y_axis_length() + 2);
-	painter->setClipRegion(margined_viewport, Qt::IntersectClip);
-	// int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
-	int img_top = map_margined_from_scene(QPointF(0, get_hit_graph_manager().last_y_min())).y();
+	if (_backend) {
+		painter->save();
+		const QRect margined_viewport =
+		    QRect(-1, -1, get_x_axis_length() + 4, get_y_axis_length() + 2);
+		painter->setClipRegion(margined_viewport, Qt::IntersectClip);
+		// int img_top = map_margined_from_scene(QPointF(0, _block_base_pos)).y();
+		int img_top = map_margined_from_scene(QPointF(0, get_hit_graph_manager().last_y_min())).y();
 
-	int block_view_offset = -img_top;
+		int block_view_offset = -img_top;
 
-	int zoom_level = get_y_axis_zoom().get_clamped_value();
-	double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
+		int zoom_level = get_y_axis_zoom().get_clamped_value();
+		double rel_y_scale = y_zoom_to_scale(zoom_level - _block_zoom_value);
 
-	painter->setPen(Qt::white);
+		painter->setPen(Qt::white);
 
-	int x_axis_right =
-	    std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(), get_x_axis_length());
+		int x_axis_right = std::min((int)map_margined_from_scene(QPointF(_max_count, 0.)).x(),
+		                            get_x_axis_length());
 
-	if (show_bg()) {
-		painter->setOpacity(0.25);
-		// BENCH_START(hcv_draw_all);
+		if (show_bg()) {
+			painter->setOpacity(0.25);
+			// BENCH_START(hcv_draw_all);
+			draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
+			           get_hit_graph_manager().buffer_all(), 0);
+
+			// painter->setOpacity(0.25);
+			// BENCH_START(hcv_draw_selectable);
+			draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
+			           get_hit_graph_manager().buffer_selectable(), 63);
+			// BENCH_STOP(hcv_draw_selectable);
+			// BENCH_STAT_TIME(hcv_draw_selectable);
+		}
+
+		// selected events
+		painter->setOpacity(1.0);
+		// BENCH_START(hcv_draw_selected);
 		draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
-		           get_hit_graph_manager().buffer_all(), 0);
+		           get_hit_graph_manager().buffer_selected(), 255);
+		// BENCH_STOP(hcv_draw_selected);
+		// BENCH_STAT_TIME(hcv_draw_selected);
+		painter->restore();
 
-		// painter->setOpacity(0.25);
-		// BENCH_START(hcv_draw_selectable);
-		draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
-		           get_hit_graph_manager().buffer_selectable(), 63);
-		// BENCH_STOP(hcv_draw_selectable);
-		// BENCH_STAT_TIME(hcv_draw_selectable);
+		draw_decorations(painter, margined_rect);
 	}
-
-	// selected events
-	painter->setOpacity(1.0);
-	// BENCH_START(hcv_draw_selected);
-	draw_lines(painter, x_axis_right, block_view_offset, rel_y_scale,
-	           get_hit_graph_manager().buffer_selected(), 255);
-	// BENCH_STOP(hcv_draw_selected);
-	// BENCH_STAT_TIME(hcv_draw_selected);
-	painter->restore();
-
-	draw_decorations(painter, margined_rect);
 }
 
 void PVParallelView::PVHitCountView::drawForeground(QPainter* /*painter*/, const QRectF& /*rect*/)
@@ -500,6 +517,10 @@ void PVParallelView::PVHitCountView::do_pan_change()
 
 void PVParallelView::PVHitCountView::do_update_all()
 {
+	if (not _backend) {
+		return;
+	}
+
 	int zoom_value, zoom_level;
 	double alpha;
 

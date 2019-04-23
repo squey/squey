@@ -100,16 +100,19 @@ PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* par
 PVParallelView::PVHitCountView*
 PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* parent)
 {
-	PVHitCountViewBackend* backend;
+	auto create_backend = [this](PVCombCol axis, QWidget* parent = nullptr) {
+		std::unique_ptr<PVHitCountViewBackend> backend;
 
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_enable_cancel(false);
-		    backend = new PVHitCountViewBackend(*lib_view(), axis);
-		},
-	    "Initializing hit-count view...", parent);
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(false);
+			    backend = std::make_unique<PVHitCountViewBackend>(*lib_view(), axis);
+			},
+		    "Initializing hit-count view...", parent);
+		return backend;
+	};
 
-	PVHitCountView* view = new PVHitCountView(*lib_view(), backend, axis, parent);
+	PVHitCountView* view = new PVHitCountView(*lib_view(), create_backend, axis, parent);
 
 	_hit_count_views.push_back(view);
 

@@ -103,7 +103,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	inline Inendi::PVView& lib_view() { return _view; }
 	inline Inendi::PVView const& lib_view() const { return _view; }
 
-	PVZoneID get_zone_id() const { return get_images_manager().get_zone_id(); }
+	PVZoneID get_zone_id() const { return _zone_id; }
 
 	bool update_zones();
 
@@ -113,7 +113,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	static void toggle_show_quadtrees() { _show_quadtrees = !_show_quadtrees; }
 
   public:
-	PVScatterViewSelectionRectangle* get_selection_rect() const { return _sel_rect; }
+	PVScatterViewSelectionRectangle* get_selection_rect() const { return _sel_rect.get(); }
 
   protected:
 	void drawBackground(QPainter* painter, const QRectF& rect) override;
@@ -182,13 +182,13 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	backend_unique_ptr_t _backend;
 	create_backend_t _create_backend;
 	bool _view_deleted;
-	PVZoomConverterScaledPowerOfTwo<zoom_steps>* _zoom_converter;
+	std::unique_ptr<PVZoomConverterScaledPowerOfTwo<zoom_steps>> _zoom_converter;
 
-	PVZoomableDrawingAreaInteractor* _h_interactor;
-	PVZoomableDrawingAreaInteractor* _sv_interactor;
+	std::unique_ptr<PVZoomableDrawingAreaInteractor> _h_interactor;
+	std::unique_ptr<PVZoomableDrawingAreaInteractor> _sv_interactor;
 
-	PVScatterViewSelectionRectangle* _sel_rect;
-	PVSelectionRectangleInteractor* _sel_rect_interactor;
+	std::unique_ptr<PVScatterViewSelectionRectangle> _sel_rect;
+	std::unique_ptr<PVSelectionRectangleInteractor> _sel_rect_interactor;
 
 	static bool _show_quadtrees;
 
