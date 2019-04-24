@@ -80,12 +80,12 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 PVParallelView::PVZoomedParallelView*
 PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* parent)
 {
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_enable_cancel(false);
-		    request_zoomed_zone_trees(axis);
-		},
-	    "Initializing zoomed parallel view...", parent);
+	// PVCore::PVProgressBox::progress(
+	//     [&](PVCore::PVProgressBox& pbox) {
+	// 	    pbox.set_enable_cancel(false);
+	// 	    request_zoomed_zone_trees(axis);
+	// 	},
+	//     "Initializing zoomed parallel view...", parent);
 
 	PVParallelView::PVZoomedParallelView* view =
 	    new PVParallelView::PVZoomedParallelView(lib_view()->get_axes_combination(), parent);

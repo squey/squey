@@ -28,6 +28,9 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
 	_menu = new PVWidgets::PVAxisComboBox(
 	    axes_comb, PVWidgets::PVAxisComboBox::AxesShown::CombinationAxes, this);
 	addWidget(_menu);
+
+	connect(_menu, &PVWidgets::PVAxisComboBox::current_axis_changed, this,
+	        [this](PVCol, PVCombCol comb_col) { change_to_col(comb_col); });
 }
 
 /*****************************************************************************
@@ -36,9 +39,8 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
 
 void PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu(PVCombCol active_axis)
 {
-	disconnect(_menu, &PVWidgets::PVAxisComboBox::current_axis_changed, this, nullptr);
+	blockSignals(true);
 	_menu->refresh_axes();
 	_menu->set_current_axis(active_axis);
-	connect(_menu, &PVWidgets::PVAxisComboBox::current_axis_changed, this,
-	        [this](PVCol, PVCombCol comb_col) { change_to_col(comb_col); });
+	blockSignals(false);
 }

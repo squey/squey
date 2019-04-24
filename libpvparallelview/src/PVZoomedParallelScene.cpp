@@ -88,7 +88,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	_zpview->setMaximumWidth(1024);
 	_zpview->setMaximumHeight(1024);
 
-	_sel_line = new PVZoomedParallelViewSelectionLine(zpview);
+	_sel_line = new PVZoomedParallelViewSelectionLine(_zpview);
 	_sel_line->setZValue(1.e43);
 
 	addItem(_sel_line);
@@ -414,6 +414,10 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 		_zpview->get_vertical_scrollbar()->setValue(0);
 	}
 
+	if (_axis_index == PVCombCol()) {
+		return;
+	}
+
 	_zpview->set_displayed_axis_name(
 	    _pvview.get_axes_combination().get_axis(_axis_index).get_name());
 
@@ -477,6 +481,10 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter* painter,
                                                            const QRectF& /*rect*/)
 {
+	if (_axis_index == PVCombCol()) {
+		return;
+	}
+
 	QRect screen_rect = _zpview->get_viewport()->rect();
 	int screen_center = screen_rect.center().x() + 1;
 
