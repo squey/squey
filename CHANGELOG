@@ -1,3 +1,9 @@
+4.6.2 (2019-04-26)
+------------------
+This minor release fixes:
+* Database connector crash
+* Boolean operations on layers use wrong layer
+
 4.6.1 (2019-04-03)
 ------------------
 
