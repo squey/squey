@@ -333,6 +333,15 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 		}
 	});
 
+	QPushButton* sync_button = new QPushButton;
+	connect(sync_button, &QPushButton::toggled,
+	        [&](bool checked) { _selection_change_connection.block(not checked); });
+	sync_button->setIcon(QIcon(":/refresh"));
+	sync_button->setToolTip("Keep in sync with selection");
+	sync_button->setCheckable(true);
+	sync_button->setChecked(true);
+	horizontalLayout_3->addWidget(sync_button);
+
 	// Enable values view sorting capability
 	_values_view->horizontalHeader()->setSortIndicatorShown(true);
 	_values_view->setSortingEnabled(true);

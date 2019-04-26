@@ -205,6 +205,7 @@
 	<file alias="zoom-autofit-vertical">resources/zoom-autofit-vertical.png</file>
 
 	<file alias="reload">resources/22x22/reload.png</file>
+	<file alias="refresh">resources/22x22/refresh.png</file>
 	<file alias="insert_before">resources/22x22/insert-before.png</file>
 	<file alias="insert_after">resources/22x22/insert-after.png</file>
 
