@@ -49,9 +49,13 @@ database/PVDBSource.cpp
 database/register.cpp
 )
 
+# For QSQLDatabase
+find_package(Qt5Sql REQUIRED)
+include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
+
 # Create lib
 add_library(source_database SHARED ${DB_SRC})
-target_link_libraries(source_database pvkernel)
+target_link_libraries(source_database pvkernel Qt5Sql)
 
 ###############################################################################
 # Elasticsearch
