@@ -44,14 +44,14 @@ class PVSQLTypeMapODBC : public PVSQLTypeMap
 {
   public:
 	QString map(int /*type*/) const { return "unknown"; }
-	QString map_inendi(int /*type*/) const { return "enum"; }
+	QString map_inendi(int /*type*/) const { return "string"; }
 };
 
 class PVSQLTypeMapSQLite : public PVSQLTypeMap
 {
   public:
 	QString map(int /*type*/) const { return "unknown"; }
-	QString map_inendi(int /*type*/) const { return "enum"; }
+	QString map_inendi(int /*type*/) const { return "string"; }
 };
 }
 
