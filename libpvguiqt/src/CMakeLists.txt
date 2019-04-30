@@ -52,7 +52,6 @@ PVDisplayViewAxesCombination.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp
 
-PVAxisIndexFilteredEditor.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -82,7 +81,6 @@ include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVStatsListingWidget.h
 include/pvguiqt/PVExportSelectionDlg.h
-include/pvguiqt/PVAxisIndexFilteredEditor.h
 )
 
 SET(UI_FILES

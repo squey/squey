@@ -428,8 +428,6 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		// creation.
 		PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(
 		    _hhead_ctxt_menu, container, (Inendi::PVView*)&lib_view(), comb_col);
-		PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(
-		    _hhead_ctxt_menu, container, (Inendi::PVView*)&lib_view(), comb_col);
 		_hhead_ctxt_menu.addSeparator();
 	}
 	_action_col_unique->setEnabled(not empty_sel);

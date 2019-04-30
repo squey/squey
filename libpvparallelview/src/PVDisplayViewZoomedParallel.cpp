@@ -21,7 +21,7 @@ QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* 
                                                                 Params const& data,
                                                                 QWidget* parent) const
 {
-	auto axis_comb = data.at(0);
+	auto axis_comb = data.size() > 0 ? data.at(0) : PVCombCol();
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
 	QWidget* widget = lib_view->create_zoomed_view(axis_comb, parent);
 

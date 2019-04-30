@@ -20,7 +20,7 @@ QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Inendi::PVView* view
                                                             Params const& data,
                                                             QWidget* parent) const
 {
-	auto axis_comb = data.at(0);
+	auto axis_comb = data.size() > 0 ? data.at(0) : PVCombCol();
 	return new PVParallelView::PVSeriesViewWidget(view, axis_comb, parent);
 }
 
@@ -30,10 +30,8 @@ QIcon PVDisplays::PVDisplayViewTimeseries::toolbar_icon() const
 }
 
 // FIXME : Hidden argument reflect bad design properties, inheritance should certainly be improved.
-QString PVDisplays::PVDisplayViewTimeseries::widget_title(Inendi::PVView* view,
-                                                          Params const& data) const
+QString PVDisplays::PVDisplayViewTimeseries::widget_title(Inendi::PVView* view, Params const&) const
 {
-	// auto axis_comb = data.at(0);
 	return "Series view [" + QString::fromStdString(view->get_name()) + /*" on axis '" +
 	       view->get_axis_name(axis_comb) + */ "']";
 }
@@ -43,10 +41,14 @@ QString PVDisplays::PVDisplayViewTimeseries::axis_menu_name(Inendi::PVView*, Par
 	return QString("New series view");
 }
 
-bool PVDisplays::PVDisplayViewTimeseries::should_add_to_menu(Inendi::PVView* view,
-                                                             Params const& data) const
+void PVDisplays::PVDisplayViewTimeseries::add_to_axis_menu(
+    QMenu& menu,
+    PVCombCol axis_comb,
+    Inendi::PVView* view,
+    PVDisplays::PVDisplaysContainer* container)
 {
-	auto axis_comb = data.at(0);
-	return view->get_axis(axis_comb).get_type().left(4) == "time" or
-	       view->get_axis(axis_comb).get_type().left(7) == "number_";
+	if (view->get_axis(axis_comb).get_type().left(4) == "time" or
+	    view->get_axis(axis_comb).get_type().left(7) == "number_") {
+		PVDisplayViewDataIf::add_to_axis_menu(menu, axis_comb, view, container);
+	}
 }

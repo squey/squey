@@ -11,13 +11,13 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QMenu>
+#include <QComboBox>
 
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVSimpleStringListModel.h>
-#include <pvguiqt/PVAxisIndexFilteredEditor.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
 
@@ -105,7 +105,6 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
 	// note : new connect syntax is causing a crash (Qt bug ?)
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 
-	view_display->setWindowTitle(name());
 	addDockWidget(area, view_display);
 	resizeDocks({view_display}, {500}, Qt::Horizontal); // Hack to fix children widgets sizes
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
@@ -247,7 +246,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& d
 
 void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& display_if,
                                                        Inendi::PVView* view,
-                                                       PVCombCol axis_comb)
+                                                       std::vector<PVCombCol> params)
 {
 	// All this should be the same than create_view_widget w/ a
 	// PVCore::PVArgumentList passed to create_widget
@@ -256,65 +255,10 @@ void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(PVDisplays::PVDisplayView
 		return;
 	}
 
-	// if (axis_comb == PVCombCol()) {
-	// 	PVCore::PVArgumentList args;
-	// 	args[PVCore::PVArgumentKey("axis", tr("New view on axis"))].setValue(
-	// 	    PVCore::PVAxisIndexType(PVCol(0)));
-	// 	auto* factory = PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory();
-	// 	auto* axis_index_creator =
-	// 	    new PVWidgets::PVViewArgumentEditorCreator<PVWidgets::PVAxisIndexFilteredEditor>(
-	// 	        *view, display_if);
-	// 	factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
-	// 	                        axis_index_creator);
-	// 	if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(factory, args, this)) {
-	// 		return;
-	// 	}
-	// 	axis_comb = (PVCombCol)args["axis"].value<PVCore::PVAxisIndexType>().get_axis_index();
-	// }
-
-	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, std::vector{axis_comb});
+	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, params);
 	add_view_display(
-	    view, w,
-	    [&display_if, view, axis_comb]() { return display_if.widget_title(view, {axis_comb}); },
+	    view, w, [&display_if, view, params]() { return display_if.widget_title(view, params); },
 	    display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
-}
-
-void PVGuiQt::PVWorkspaceBase::create_view_zone_widget(PVDisplays::PVDisplayViewZoneIf& display_if,
-                                                       Inendi::PVView* view,
-                                                       PVCombCol zone_index_first,
-                                                       PVCombCol zone_index_second)
-{
-	// All this should be the same than create_view_widget w/ a
-	// PVCore::PVArgumentList passed to create_widget
-
-	if (!view) {
-		return;
-	}
-
-	// if (zone_index_first == PVCombCol() || zone_index_second == PVCombCol()) {
-	// 	PVCore::PVArgumentList args;
-	// 	args[PVCore::PVArgumentKey("zone", tr("New view on zone"))].setValue(
-	// 	    PVCore::PVZoneIndexType(zone_index_first == PVCombCol() ? 0 : zone_index_first,
-	// 	                            zone_index_second == PVCombCol() ? 0 : zone_index_second));
-	// 	if (!PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
-	// 	        PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args,
-	// 	        this)) {
-	// 		return;
-	// 	}
-	// 	zone_index_first =
-	// 	    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_first();
-	// 	zone_index_second =
-	// 	    (PVCombCol)args["zone"].value<PVCore::PVZoneIndexType>().get_zone_index_second();
-	// }
-
-	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, zone_index_first,
-	                                                    zone_index_second);
-	add_view_display(view, w,
-	                 [&, view, zone_index_first, zone_index_second]() {
-		                 return display_if.widget_title(view, zone_index_first, zone_index_second);
-		             },
-	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
-	                 true);
 }
 
 /******************************************************************************
@@ -392,10 +336,6 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 	_toolbar->addSeparator();
 
 	populate_display<PVDisplays::PVDisplayViewDataIf>();
-
-	_toolbar->addSeparator();
-
-	populate_display<PVDisplays::PVDisplayViewZoneIf>();
 
 	_toolbar->addSeparator();
 

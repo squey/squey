@@ -59,10 +59,6 @@ class PVDisplaysImpl : public QObject
 	                                        PVDisplaysContainer* container,
 	                                        Inendi::PVView* view,
 	                                        PVCombCol axis_comb);
-	static void add_displays_view_zone_menu(QMenu& menu,
-	                                        PVDisplaysContainer* container,
-	                                        Inendi::PVView* view,
-	                                        PVCombCol axis_comb);
 
   private:
 	void load_plugins();

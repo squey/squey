@@ -14,22 +14,21 @@
 namespace PVDisplays
 {
 
-class PVDisplayViewScatter : public PVDisplayViewZoneIf
+class PVDisplayViewScatter : public PVDisplayViewDataIf
 {
   public:
 	PVDisplayViewScatter();
 
   public:
-	QWidget* create_widget(Inendi::PVView* view,
-	                       PVCombCol axis_comb_x,
-	                       PVCombCol axis_comb_y,
-	                       QWidget* parent) const override;
+	QWidget*
+	create_widget(Inendi::PVView* view, Params const& params, QWidget* parent) const override;
 	QIcon toolbar_icon() const override;
-	QString
-	widget_title(Inendi::PVView* view, PVCombCol axis_comb_x, PVCombCol axis_comb_y) const override;
-	QString axis_menu_name(Inendi::PVView const* view,
-	                       PVCombCol axis_comb_x,
-	                       PVCombCol axis_comb_y) const override;
+	QString widget_title(Inendi::PVView* view, Params const& params) const override;
+	QString axis_menu_name(Inendi::PVView* view, Params const& params) const override;
+	void add_to_axis_menu(QMenu& menu,
+	                      PVCombCol axis_comb,
+	                      Inendi::PVView*,
+	                      PVDisplaysContainer* container) override;
 
 	CLASS_REGISTRABLE(PVDisplayViewScatter)
 };

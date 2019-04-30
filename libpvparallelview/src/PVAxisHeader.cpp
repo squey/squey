@@ -61,8 +61,6 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 	        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(event->widget())) {
 		PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(menu, container,
 		                                                        (Inendi::PVView*)&_view, _comb_col);
-		PVDisplays::PVDisplaysImpl::add_displays_view_zone_menu(menu, container,
-		                                                        (Inendi::PVView*)&_view, _comb_col);
 		menu.addSeparator();
 	}
 	QAction* ars = menu.addAction("New selection cursors");

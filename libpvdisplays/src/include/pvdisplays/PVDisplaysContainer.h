@@ -21,7 +21,6 @@ namespace PVDisplays
 
 class PVDisplayViewIf;
 class PVDisplayViewDataIf;
-class PVDisplayViewZoneIf;
 
 class PVDisplaysContainer : public QMainWindow
 {
@@ -35,11 +34,7 @@ class PVDisplaysContainer : public QMainWindow
 	                                Inendi::PVView* view) = 0;
 	virtual void create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& interface,
 	                                     Inendi::PVView* view,
-	                                     PVCombCol axis_comb) = 0;
-	virtual void create_view_zone_widget(PVDisplays::PVDisplayViewZoneIf& interface,
-	                                     Inendi::PVView* view,
-	                                     PVCombCol zone_index_first,
-	                                     PVCombCol zone_index_second) = 0;
+	                                     std::vector<PVCombCol> params) = 0;
 };
 } // namespace PVDisplays
 

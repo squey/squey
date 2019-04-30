@@ -156,10 +156,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 			    create_view_widget(interface, view);
 		else if
 			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewDataIf>)
-			    create_view_axis_widget(interface, view, PVCombCol());
-		else if
-			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewZoneIf>)
-			    create_view_zone_widget(interface, view, PVCombCol(), PVCombCol());
+			    create_view_axis_widget(interface, view);
 	}
 
   private Q_SLOTS:
@@ -169,16 +166,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& interface,
 	                             Inendi::PVView* view,
-	                             PVCombCol axis_comb) override;
-
-	/*! \brief Create the widget used by the view display with zone parameter.
-	 *
-	 *  \param[in] act The QAction triggering the creation of the widget.
-	 */
-	void create_view_zone_widget(PVDisplays::PVDisplayViewZoneIf& interface,
-	                             Inendi::PVView* view,
-	                             PVCombCol zone_index_first,
-	                             PVCombCol zone_index_second) override;
+	                             std::vector<PVCombCol> params = {}) override;
 
 	/*! \brief Switch a view display with the central widget.
 	 *
