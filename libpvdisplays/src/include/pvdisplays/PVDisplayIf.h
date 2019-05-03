@@ -13,12 +13,18 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
+#include <pvdisplays/PVDisplaysContainer.h>
+
+#include <QMenu>
 #include <QAction>
 #include <QIcon>
 #include <QMetaType>
 #include <QWidget>
+#include <QString>
 
 #include <unordered_map>
+#include <vector>
+#include <any>
 
 namespace Inendi
 {
@@ -28,14 +34,10 @@ class PVView;
 
 namespace PVDisplays
 {
-
-class PVDisplaysImpl;
 class PVDisplaysContainer;
 
 class PVDisplayIf
 {
-	friend class PVDisplaysImpl;
-
   public:
 	typedef enum {
 		UniquePerParameters = 1,
@@ -82,33 +84,26 @@ class PVDisplayIf
 template <class T>
 class PVDisplayDataTreeIf : public PVDisplayIf
 {
-	friend class PVDisplaysImpl;
-
-	typedef typename std::remove_pointer<T>::type value_type;
-	typedef std::unordered_map<value_type*, QWidget*> hash_widgets_t;
+	using value_type = std::remove_pointer_t<T>;
+	using hash_widgets_t = std::unordered_map<value_type*, QWidget*>;
 
   public:
-	explicit PVDisplayDataTreeIf(int flags = 0,
-	                             QString const& tooltip_str = QString(),
-	                             Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
-	    : PVDisplayIf(flags, tooltip_str, def_pos)
-	{
-	}
+	using Params = std::vector<std::any>;
 
-  public:
+	using PVDisplayIf::PVDisplayIf;
+
 	virtual QString widget_title(value_type* /*obj*/) const { return QString(); }
 
-  protected:
-	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr)
+	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {})
 	{
 		if (auto it = _widgets.find(obj); it != _widgets.end()) {
 			return it->second;
 		}
-		return _widgets[obj] = create_widget(obj, parent);
+		return _widgets[obj] = create_widget(obj, parent, data);
 	}
 
-  protected:
-	virtual QWidget* create_widget(value_type* obj, QWidget* parent = nullptr) const = 0;
+	virtual QWidget*
+	create_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {}) const = 0;
 
   private:
 	hash_widgets_t _widgets;
@@ -118,15 +113,24 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Inendi::PVView>,
                         public PVCore::PVRegistrableClass<PVDisplayViewIf>
 {
   public:
-	typedef PVDisplayViewIf RegAs;
-	typedef std::shared_ptr<RegAs> p_type;
+	using RegAs = PVDisplayViewIf;
+	using p_type = std::shared_ptr<RegAs>;
 
-  public:
-	explicit PVDisplayViewIf(int flags = 0,
-	                         QString const& tooltip_str = QString(),
-	                         Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
-	    : PVDisplayDataTreeIf<Inendi::PVView>(flags, tooltip_str, def_pos)
+	using PVDisplayDataTreeIf::PVDisplayDataTreeIf;
+
+	virtual QString axis_menu_name(Inendi::PVView*) const { return QString(); }
+	virtual void add_to_axis_menu(QMenu& menu,
+	                              PVCombCol axis_comb,
+	                              Inendi::PVView* view,
+	                              PVDisplaysContainer* container)
 	{
+		QAction* act = new QAction();
+		act->setText(axis_menu_name(view));
+		act->setIcon(toolbar_icon());
+		act->connect(act, &QAction::triggered, [this, view, axis_comb, container]() {
+			container->create_view_widget(*this, view, {axis_comb});
+		});
+		menu.addAction(act);
 	}
 };
 
@@ -134,70 +138,53 @@ class PVDisplaySourceIf : public PVDisplayDataTreeIf<Inendi::PVSource>,
                           public PVCore::PVRegistrableClass<PVDisplaySourceIf>
 {
   public:
-	typedef PVDisplaySourceIf RegAs;
-	typedef std::shared_ptr<RegAs> p_type;
-
-  public:
-	explicit PVDisplaySourceIf(int flags = 0,
-	                           QString const& tooltip_str = QString(),
-	                           Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
-	    : PVDisplayDataTreeIf<Inendi::PVSource>(flags, tooltip_str, def_pos)
-	{
-	}
-};
-
-class PVDisplayViewDataIf : public PVDisplayIf,
-                            public PVCore::PVRegistrableClass<PVDisplayViewDataIf>
-{
-	friend class PVDisplaysImpl;
-
-  public:
-	using Params = std::vector<PVCombCol>;
-
-  private:
-	using map_widgets_t = QMap<Inendi::PVView*, QWidget*>;
-
-  public:
-	explicit PVDisplayViewDataIf(int flags = 0,
-	                             QString const& tooltip_str = QString(),
-	                             Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
-	    : PVDisplayIf(flags, tooltip_str, def_pos)
-	{
-	}
-
-  public:
-	virtual QString widget_title(Inendi::PVView*, Params const&) const { return QString(); }
-	virtual QString axis_menu_name(Inendi::PVView*, Params const&) const { return QString(); }
-	virtual void add_to_axis_menu(QMenu& menu,
-	                              PVCombCol axis_comb,
-	                              Inendi::PVView*,
-	                              PVDisplaysContainer* container);
-
-  protected:
-	QWidget* get_unique_widget(Inendi::PVView* view, Params const& data, QWidget* parent = nullptr)
-	{
-		if (auto it = _widgets.find(view); it != _widgets.end()) {
-			return it.value();
-		}
-		return _widgets[view] = create_widget(view, data, parent);
-	}
-
-  protected:
-	virtual QWidget*
-	create_widget(Inendi::PVView* view, Params const& data, QWidget* parent = nullptr) const = 0;
-
-  private:
-	map_widgets_t _widgets;
-
-  public:
-	using RegAs = PVDisplayViewDataIf;
+	using RegAs = PVDisplaySourceIf;
 	using p_type = std::shared_ptr<RegAs>;
+
+	using PVDisplayDataTreeIf::PVDisplayDataTreeIf;
 };
 
-using ViewAxisParams = std::tuple<Inendi::PVView*, PVCombCol>;
-} // namespace PVDisplays
+/******************************
+ * Helper functions
+ * ****************************/
 
-Q_DECLARE_METATYPE(PVDisplays::ViewAxisParams)
-Q_DECLARE_METATYPE(PVDisplays::PVDisplayViewDataIf::Params)
+template <typename If, typename F>
+void visit_displays_by_if(F const& f, int flags = 0)
+{
+	// Interface of 'F' must be void f(If& obj), or with a base of If;
+	typename PVCore::PVClassLibrary<If>::list_classes const& lc =
+	    PVCore::PVClassLibrary<If>::get().get_list();
+	// `lc' is of type QHash<QString,shared_pointer<If>>
+	for (auto it = lc.begin(); it != lc.end(); it++) {
+		If& obj = *(it->value());
+		if (obj.match_flags(flags)) {
+			f(obj);
+		}
+	}
+}
+
+template <typename If, typename... P>
+QWidget* get_widget(If& interface, P&&... args)
+{
+	if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
+		return interface.get_unique_widget(std::forward<P>(args)...);
+	}
+
+	return interface.create_widget(std::forward<P>(args)...);
+}
+
+inline void add_displays_view_axis_menu(QMenu& menu,
+                                        PVDisplaysContainer* container,
+                                        Inendi::PVView* view,
+                                        PVCombCol axis_comb)
+{
+	visit_displays_by_if<PVDisplayViewIf>(
+	    [&](PVDisplayViewIf& interface) {
+		    interface.add_to_axis_menu(menu, axis_comb, view, container);
+		},
+	    PVDisplayIf::ShowInCtxtMenu);
+}
+
+} // namespace PVDisplays
 
 #endif

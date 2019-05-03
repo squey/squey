@@ -14,10 +14,6 @@
 #include <pvdisplays/PVDisplaysImpl.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 
-#include <QMenu>
-#include <QString>
-#include <QAction>
-
 PVDisplays::PVDisplaysImpl* PVDisplays::PVDisplaysImpl::_instance = nullptr;
 
 static const char* plugins_get_displays_dir()
@@ -45,30 +41,4 @@ void PVDisplays::PVDisplaysImpl::load_plugins()
 	} else {
 		PVLOG_INFO("%d display plugins have been loaded.\n", ret);
 	}
-}
-
-void PVDisplays::PVDisplayViewDataIf::add_to_axis_menu(QMenu& menu,
-                                                       PVCombCol axis_comb,
-                                                       Inendi::PVView* view,
-                                                       PVDisplays::PVDisplaysContainer* container)
-{
-	QAction* act = new QAction();
-	act->setText(axis_menu_name(view, {axis_comb}));
-	act->setIcon(toolbar_icon());
-	act->connect(act, &QAction::triggered, [this, view, axis_comb, container]() {
-		container->create_view_axis_widget(*this, view, {axis_comb});
-	});
-	menu.addAction(act);
-}
-
-void PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(QMenu& menu,
-                                                             PVDisplaysContainer* container,
-                                                             Inendi::PVView* view,
-                                                             PVCombCol axis_comb)
-{
-	visit_displays_by_if<PVDisplayViewDataIf>(
-	    [&](PVDisplayViewDataIf& interface) {
-		    interface.add_to_axis_menu(menu, axis_comb, view, container);
-		},
-	    PVDisplayIf::ShowInCtxtMenu);
 }

@@ -24,7 +24,7 @@
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
-#include <pvdisplays/PVDisplaysImpl.h>
+#include <pvdisplays/PVDisplayIf.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -426,8 +426,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
 		// Add entries to the horizontal header context menu for new widgets
 		// creation.
-		PVDisplays::PVDisplaysImpl::add_displays_view_axis_menu(
-		    _hhead_ctxt_menu, container, (Inendi::PVView*)&lib_view(), comb_col);
+		PVDisplays::add_displays_view_axis_menu(_hhead_ctxt_menu, container,
+		                                        (Inendi::PVView*)&lib_view(), comb_col);
 		_hhead_ctxt_menu.addSeparator();
 	}
 	_action_col_unique->setEnabled(not empty_sel);

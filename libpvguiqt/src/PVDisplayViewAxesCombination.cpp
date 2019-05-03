@@ -12,12 +12,13 @@
 #include <inendi/PVView.h>
 
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar, "Axes combination")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters, "Axes combination")
 {
 }
 
 QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView* view,
-                                                                 QWidget* parent) const
+                                                                 QWidget* parent,
+                                                                 Params const&) const
 {
 	PVGuiQt::PVAxesCombinationDialog* dlg = new PVGuiQt::PVAxesCombinationDialog(*view, parent);
 

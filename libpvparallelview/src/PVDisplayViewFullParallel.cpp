@@ -24,7 +24,8 @@ PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
 }
 
 QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Inendi::PVView* view,
-                                                              QWidget* parent) const
+                                                              QWidget* parent,
+                                                              Params const&) const
 {
 	PVParallelView::PVLibView* lib_view;
 

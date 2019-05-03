@@ -24,7 +24,8 @@ PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
 }
 
 QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view,
-                                                         QWidget* parent) const
+                                                         QWidget* parent,
+                                                         Params const&) const
 {
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(*view);
 	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(*view, parent);

@@ -19,7 +19,7 @@
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVSimpleStringListModel.h>
 
-#include <pvdisplays/PVDisplaysImpl.h>
+#include <pvdisplays/PVDisplayIf.h>
 
 #include <inendi/widgets/PVArgumentListWidgetFactory.h>
 #include <inendi/widgets/PVViewArgumentEditorCreator.h>
@@ -93,7 +93,7 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent* event)
 PVGuiQt::PVViewDisplay*
 PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
                                            QWidget* view_widget,
-                                           std::function<QString()> name,
+                                           QString name,
                                            bool can_be_central_display /*= true*/,
                                            bool delete_on_close /* = true*/,
                                            Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
@@ -116,7 +116,7 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Inendi::PVView* view,
                                                                       QWidget* view_widget,
-                                                                      std::function<QString()> name,
+                                                                      QString name,
                                                                       bool delete_on_close)
 {
 	PVViewDisplay* view_display =
@@ -159,10 +159,7 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 		display_dock->setStyleSheet("");
 
 		// Exchange name functions
-		std::function<QString()> tmp_name;
-		tmp_name = central_dock->_name;
-		central_dock->_name = display_dock->_name;
-		display_dock->_name = tmp_name;
+		central_dock->_name.swap(display_dock->_name);
 
 		// Exchange views and view events registering
 		Inendi::PVView* central_view = central_dock->get_view();
@@ -206,7 +203,7 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
 		return;
 	}
 
-	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, src);
+	QWidget* w = PVDisplays::get_widget(display_if, src);
 	if (!w) {
 		return;
 	}
@@ -222,7 +219,7 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
 		view_d->setVisible(!view_d->isVisible());
 	} else {
 		view_d = add_view_display(
-		    nullptr, w, [&, src]() { return display_if.widget_title(src); },
+		    nullptr, w, display_if.widget_title(src),
 		    display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), false);
 		/* when the dock widget's "close" button is pressed, the
 		 * associated QAction has to be unchecked
@@ -232,33 +229,17 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
 }
 
 void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& display_if,
-                                                  Inendi::PVView* view)
+                                                  Inendi::PVView* view,
+                                                  std::vector<std::any> params)
 {
 	if (!view) {
 		return;
 	}
 
-	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view);
-	add_view_display(view, w, [&, view]() { return display_if.widget_title(view); },
+	QWidget* w = PVDisplays::get_widget(display_if, view, nullptr, params);
+	add_view_display(view, w, display_if.widget_title(view),
 	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
 	                 true);
-}
-
-void PVGuiQt::PVWorkspaceBase::create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& display_if,
-                                                       Inendi::PVView* view,
-                                                       std::vector<PVCombCol> params)
-{
-	// All this should be the same than create_view_widget w/ a
-	// PVCore::PVArgumentList passed to create_widget
-
-	if (!view) {
-		return;
-	}
-
-	QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(display_if, view, params);
-	add_view_display(
-	    view, w, [&display_if, view, params]() { return display_if.widget_title(view, params); },
-	    display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true);
 }
 
 /******************************************************************************
@@ -285,7 +266,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 	_toolbar->setIconSize(QSize(24, 24));
 	addToolBar(_toolbar);
 
-	PVDisplays::PVDisplaysImpl::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
+	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [this](PVDisplays::PVDisplaySourceIf& obj) {
 		    QAction* act = new QAction();
 		    act->setCheckable(true);
@@ -335,19 +316,15 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	_toolbar->addSeparator();
 
-	populate_display<PVDisplays::PVDisplayViewDataIf>();
-
-	_toolbar->addSeparator();
-
 	bool already_center = false;
 	// Only one central widget is possible for QDockWidget.
 	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
 		// Create default widgets
-		PVDisplays::PVDisplaysImpl::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
+		PVDisplays::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 		    [&](PVDisplays::PVDisplayViewIf& obj) {
-			    QWidget* w = PVDisplays::PVDisplaysImpl::get_widget(obj, view);
+			    QWidget* w = PVDisplays::get_widget(obj, view);
 
-			    std::function<QString()> name = [&, view]() { return obj.widget_title(view); };
+			    QString name = obj.widget_title(view);
 			    const bool as_central = obj.default_position_as_central_hint();
 
 			    const bool delete_on_close =
@@ -383,20 +360,20 @@ PVGuiQt::PVWorkspaceBase::get_view_widgets(Inendi::PVView* view)
 template <class T>
 void PVGuiQt::PVSourceWorkspace::populate_display()
 {
-	PVDisplays::PVDisplaysImpl::visit_displays_by_if<T>(
+	PVDisplays::visit_displays_by_if<T>(
 	    [&](T& obj) {
-		    if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
-			    QToolButton* btn = new QToolButton(_toolbar);
-			    btn->setPopupMode(QToolButton::InstantPopup);
-			    btn->setIcon(obj.toolbar_icon());
-			    btn->setToolTip(obj.tooltip_str());
-			    _toolbar->addWidget(btn);
+		    // if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
+		    QToolButton* btn = new QToolButton(_toolbar);
+		    btn->setPopupMode(QToolButton::InstantPopup);
+		    btn->setIcon(obj.toolbar_icon());
+		    btn->setToolTip(obj.tooltip_str());
+		    _toolbar->addWidget(btn);
 
-			    connect(btn, &QToolButton::released, [this, &obj]() {
-				    create_view_dispatch<T>(
-				        obj, _toolbar_combo_views->currentData().value<Inendi::PVView*>());
-				});
-		    }
+		    connect(btn, &QToolButton::released, [this, &obj]() {
+			    create_view_widget(obj,
+			                       _toolbar_combo_views->currentData().value<Inendi::PVView*>());
+			});
+		    //}
 		},
 	    PVDisplays::PVDisplayIf::ShowInToolbar);
 }

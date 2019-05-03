@@ -10,6 +10,8 @@
 
 #include <pvbase/general.h>
 #include <QMainWindow>
+#include <vector>
+#include <any>
 
 namespace Inendi
 {
@@ -20,7 +22,6 @@ namespace PVDisplays
 {
 
 class PVDisplayViewIf;
-class PVDisplayViewDataIf;
 
 class PVDisplaysContainer : public QMainWindow
 {
@@ -31,10 +32,8 @@ class PVDisplaysContainer : public QMainWindow
 
   public Q_SLOTS:
 	virtual void create_view_widget(PVDisplays::PVDisplayViewIf& interface,
-	                                Inendi::PVView* view) = 0;
-	virtual void create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& interface,
-	                                     Inendi::PVView* view,
-	                                     std::vector<PVCombCol> params) = 0;
+	                                Inendi::PVView* view,
+	                                std::vector<std::any> params = {}) = 0;
 };
 } // namespace PVDisplays
 

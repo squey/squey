@@ -98,7 +98,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	PVViewDisplay* add_view_display(Inendi::PVView* view,
 	                                QWidget* view_display,
-	                                std::function<QString()> name,
+	                                QString name,
 	                                bool can_be_central_display = true,
 	                                bool delete_on_close = true,
 	                                Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
@@ -114,7 +114,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	PVViewDisplay* set_central_display(Inendi::PVView* view,
 	                                   QWidget* view_widget,
-	                                   std::function<QString()> name,
+	                                   QString name,
 	                                   bool delete_on_close);
 
 	/*! \brief Create or display the widget used by the view display.
@@ -145,29 +145,11 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
 	 */
-	void create_view_widget(PVDisplays::PVDisplayViewIf& interface, Inendi::PVView* view) override;
-
-  public:
-	template <class T>
-	void create_view_dispatch(T& interface, Inendi::PVView* view)
-	{
-		if
-			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewIf>)
-			    create_view_widget(interface, view);
-		else if
-			constexpr(std::is_same_v<T, PVDisplays::PVDisplayViewDataIf>)
-			    create_view_axis_widget(interface, view);
-	}
+	void create_view_widget(PVDisplays::PVDisplayViewIf& interface,
+	                        Inendi::PVView* view,
+	                        std::vector<std::any> params = {}) override;
 
   private Q_SLOTS:
-	/*! \brief Create the widget used by the view display with axis parameter.
-	 *
-	 *  \param[in] act The QAction triggering the creation of the widget.
-	 */
-	void create_view_axis_widget(PVDisplays::PVDisplayViewDataIf& interface,
-	                             Inendi::PVView* view,
-	                             std::vector<PVCombCol> params = {}) override;
-
 	/*! \brief Switch a view display with the central widget.
 	 *
 	 *  \param[in] display_dock The view display to switch as central widget.

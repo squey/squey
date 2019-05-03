@@ -12,16 +12,16 @@
 #include <pvparallelview/PVDisplayViewZoomedParallel.h>
 
 PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
-    : PVDisplayViewDataIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
-                          "Zoomed parallel view")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                      "Zoomed parallel view")
 {
 }
 
 QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* view,
-                                                                Params const& data,
-                                                                QWidget* parent) const
+                                                                QWidget* parent,
+                                                                Params const& data) const
 {
-	auto axis_comb = data.size() > 0 ? data.at(0) : PVCombCol();
+	auto axis_comb = data.size() > 0 ? std::any_cast<PVCombCol>(data.at(0)) : PVCombCol();
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
 	QWidget* widget = lib_view->create_zoomed_view(axis_comb, parent);
 
@@ -33,15 +33,12 @@ QIcon PVDisplays::PVDisplayViewZoomedParallel::toolbar_icon() const
 	return QIcon(":/view-parallel-zoomed");
 }
 
-// FIXME : Hidden argument reflect bad design properties, inheritance should certainly be improved.
-QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view,
-                                                              Params const&) const
+QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view) const
 {
 	return "Zoomed view [" + QString::fromStdString(view->get_name()) + "]";
 }
 
-QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView*,
-                                                                Params const&) const
+QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView*) const
 {
 	return QString("New zoomed parallel view");
 }
