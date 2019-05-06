@@ -98,9 +98,14 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {})
 	{
 		if (auto it = _widgets.find(obj); it != _widgets.end()) {
+			if (auto parent = it->second->parentWidget()) {
+				parent->deleteLater();
+			}
 			return it->second;
 		}
-		return _widgets[obj] = create_widget(obj, parent, data);
+		auto w = _widgets[obj] = create_widget(obj, parent, data);
+		w->connect(w, &QWidget::destroyed, [obj, this](QObject*) { _widgets.erase(obj); });
+		return w;
 	}
 
 	virtual QWidget*
