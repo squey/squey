@@ -21,6 +21,7 @@
 #include <QMetaType>
 #include <QWidget>
 #include <QString>
+#include <QDebug>
 
 #include <unordered_map>
 #include <vector>
@@ -120,18 +121,10 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Inendi::PVView>,
 
 	virtual QString axis_menu_name(Inendi::PVView*) const { return QString(); }
 	virtual void add_to_axis_menu(QMenu& menu,
+	                              PVCol axis,
 	                              PVCombCol axis_comb,
 	                              Inendi::PVView* view,
-	                              PVDisplaysContainer* container)
-	{
-		QAction* act = new QAction();
-		act->setText(axis_menu_name(view));
-		act->setIcon(toolbar_icon());
-		act->connect(act, &QAction::triggered, [this, view, axis_comb, container]() {
-			container->create_view_widget(*this, view, {axis_comb});
-		});
-		menu.addAction(act);
-	}
+	                              PVDisplaysContainer* container);
 };
 
 class PVDisplaySourceIf : public PVDisplayDataTreeIf<Inendi::PVSource>,
@@ -163,6 +156,19 @@ void visit_displays_by_if(F const& f, int flags = 0)
 	}
 }
 
+template <class If>
+If& display_view_if()
+{
+	If* display = nullptr;
+	visit_displays_by_if<PVDisplayViewIf>([&display](auto& obj) {
+		if (display == nullptr) {
+			display = dynamic_cast<If*>(&obj);
+		}
+	});
+	assert(display != nullptr);
+	return *display;
+}
+
 template <typename If, typename... P>
 QWidget* get_widget(If& interface, P&&... args)
 {
@@ -173,17 +179,25 @@ QWidget* get_widget(If& interface, P&&... args)
 	return interface.create_widget(std::forward<P>(args)...);
 }
 
-inline void add_displays_view_axis_menu(QMenu& menu,
-                                        PVDisplaysContainer* container,
-                                        Inendi::PVView* view,
-                                        PVCombCol axis_comb)
-{
-	visit_displays_by_if<PVDisplayViewIf>(
-	    [&](PVDisplayViewIf& interface) {
-		    interface.add_to_axis_menu(menu, axis_comb, view, container);
-		},
-	    PVDisplayIf::ShowInCtxtMenu);
-}
+/**
+ * @param axis is always valid
+ * @param axis_comb may be empty
+ **/
+void add_displays_view_axis_menu(QMenu& menu,
+                                 PVDisplaysContainer* container,
+                                 Inendi::PVView* view,
+                                 PVCol axis,
+                                 PVCombCol axis_comb = PVCombCol());
+
+/**
+ * @param axis_comb is used to compute PVCol axis
+ **/
+void add_displays_view_axis_menu(QMenu& menu,
+                                 PVDisplaysContainer* container,
+                                 Inendi::PVView* view,
+                                 PVCombCol axis_comb);
+
+PVCol col_param(Inendi::PVView* view, std::vector<std::any> const& params, size_t index);
 
 } // namespace PVDisplays
 

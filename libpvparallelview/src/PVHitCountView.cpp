@@ -93,7 +93,7 @@ void __print_scalar(const char* text, const V& v)
 
 PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
                                                create_backend_t create_backend,
-                                               const PVCombCol axis_index,
+                                               const PVCol axis,
                                                QWidget* parent)
     : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
     , _pvview(pvview_sp)
@@ -107,8 +107,8 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 {
 	set_gl_viewport();
 
-	if (axis_index != PVCombCol()) {
-		_backend = _create_backend(axis_index, this);
+	if (axis != PVCol()) {
+		_backend = _create_backend(axis, this);
 
 		/* computing the highest scene width to setup it... and do the first
 		* run to initialize the manager's buffers :-)
@@ -166,10 +166,11 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 	set_horizontal_scrollbar_policy(Qt::ScrollBarAlwaysOn);
 	set_x_legend("Occurrence count");
 	auto y_legend = new PVWidgets::PVAxisComboBox(
-	    pvview_sp.get_axes_combination(), PVWidgets::PVAxisComboBox::AxesShown::CombinationAxes);
-	y_legend->set_current_axis(axis_index);
+	    pvview_sp.get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::BothOriginalCombinationAxes);
+	y_legend->set_current_axis(axis);
 	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
-	        [this](PVCol, PVCombCol axis) {
+	        [this](PVCol axis, PVCombCol) {
 		        _backend = _create_backend(axis, this);
 
 		        /* computing the highest scene width to setup it... and do the first

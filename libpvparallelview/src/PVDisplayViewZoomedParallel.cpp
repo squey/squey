@@ -42,3 +42,20 @@ QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView*)
 {
 	return QString("New zoomed parallel view");
 }
+
+void PVDisplays::PVDisplayViewZoomedParallel::add_to_axis_menu(
+    QMenu& menu,
+    PVCol,
+    PVCombCol axis_comb,
+    Inendi::PVView* view,
+    PVDisplays::PVDisplaysContainer* container)
+{
+	if (axis_comb == PVCombCol()) {
+		return;
+	}
+	QAction* act = new QAction(toolbar_icon(), axis_menu_name(view));
+	act->connect(act, &QAction::triggered, [this, view, axis_comb, container]() {
+		container->create_view_widget(*this, view, {axis_comb});
+	});
+	menu.addAction(act);
+}

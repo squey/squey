@@ -18,11 +18,10 @@ PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
 
 QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view,
                                                           QWidget* parent,
-                                                          Params const& data) const
+                                                          Params const& params) const
 {
-	auto axis_comb = data.size() > 0 ? std::any_cast<PVCombCol>(data.at(0)) : PVCombCol();
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	QWidget* widget = lib_view->create_hit_count_view(axis_comb, parent);
+	QWidget* widget = lib_view->create_hit_count_view(col_param(view, params, 0), parent);
 
 	return widget;
 }

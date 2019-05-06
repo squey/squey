@@ -9,21 +9,25 @@
 #include <pvparallelview/PVSeriesView.h>
 #include <pvparallelview/PVSeriesViewParamsWidget.h>
 #include <pvparallelview/PVSeriesViewZoomer.h>
+#include <pvparallelview/PVDisplayViewScatter.h>
 #include <pvkernel/widgets/PVRangeEdit.h>
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/core/qobject_helpers.h>
 #include <inendi/PVSource.h>
 #include <inendi/PVRangeSubSampler.h>
+#include <pvdisplays/PVDisplayIf.h>
 
 #include <QStateMachine>
 #include <QKeyEvent>
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QScrollBar>
+#include <QMenu>
 
 #include <memory>
 
 PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
-                                                       PVCombCol axis_comb,
+                                                       PVCol axis,
                                                        QWidget* parent /*= nullptr*/)
     : QWidget(parent), _view(view), _help_widget(this)
 {
@@ -48,8 +52,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 
 	_help_widget.finalizeText();
 
-	set_abscissa(axis_comb == PVCombCol() ? PVCol()
-	                                      : _view->get_axes_combination().get_nraw_axis(axis_comb));
+	set_abscissa(axis);
 }
 
 void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
@@ -110,6 +113,33 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			}
 		}
 		_series_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
+
+		_series_list_widget->setContextMenuPolicy(Qt::CustomContextMenu);
+		connect(_series_list_widget, &QWidget::customContextMenuRequested, [this, abscissa](
+		                                                                       QPoint const& pos) {
+			auto item = _series_list_widget->itemAt(pos);
+			PVCol col = item->data(Qt::UserRole).value<SerieListItemData>().col;
+			QMenu item_menu;
+			auto scatter_action = new QAction(
+			    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>().toolbar_icon(),
+			    "Scatter view with abscissa", &item_menu);
+			connect(scatter_action, &QAction::triggered, [this, abscissa, col] {
+				if (auto container =
+				        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(
+				            this)) {
+					container->create_view_widget(
+					    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>(), _view,
+					    {abscissa, col});
+				}
+			});
+			item_menu.addAction(scatter_action);
+			item_menu.addSeparator();
+			if (auto container =
+			        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
+				PVDisplays::add_displays_view_axis_menu(item_menu, container, _view, col);
+			}
+			item_menu.exec(_series_list_widget->mapToGlobal(pos));
+		});
 
 		const std::vector<PVCol>& combination = axes_comb.get_combination();
 		for (PVCol i(0); i < _series_list_widget->count(); i++) {

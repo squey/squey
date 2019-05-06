@@ -18,10 +18,9 @@ PVDisplays::PVDisplayViewTimeseries::PVDisplayViewTimeseries()
 
 QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Inendi::PVView* view,
                                                             QWidget* parent,
-                                                            Params const& data) const
+                                                            Params const& params) const
 {
-	auto axis_comb = data.size() > 0 ? std::any_cast<PVCombCol>(data.at(0)) : PVCombCol();
-	return new PVParallelView::PVSeriesViewWidget(view, axis_comb, parent);
+	return new PVParallelView::PVSeriesViewWidget(view, col_param(view, params, 0), parent);
 }
 
 QIcon PVDisplays::PVDisplayViewTimeseries::toolbar_icon() const
@@ -42,12 +41,13 @@ QString PVDisplays::PVDisplayViewTimeseries::axis_menu_name(Inendi::PVView*) con
 
 void PVDisplays::PVDisplayViewTimeseries::add_to_axis_menu(
     QMenu& menu,
+    PVCol axis,
     PVCombCol axis_comb,
     Inendi::PVView* view,
     PVDisplays::PVDisplaysContainer* container)
 {
-	if (view->get_axis(axis_comb).get_type().left(4) == "time" or
-	    view->get_axis(axis_comb).get_type().left(7) == "number_") {
-		PVDisplayViewIf::add_to_axis_menu(menu, axis_comb, view, container);
+	if (view->get_axes_combination().get_axis(axis).get_type().left(4) == "time" or
+	    view->get_axes_combination().get_axis(axis).get_type().left(7) == "number_") {
+		PVDisplayViewIf::add_to_axis_menu(menu, axis, axis_comb, view, container);
 	}
 }

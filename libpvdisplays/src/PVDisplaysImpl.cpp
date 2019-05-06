@@ -9,8 +9,6 @@
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVClassLibrary.h>
 
-#include <inendi/PVView.h>
-
 #include <pvdisplays/PVDisplaysImpl.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 

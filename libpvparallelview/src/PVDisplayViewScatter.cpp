@@ -23,10 +23,9 @@ QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view,
                                                          QWidget* parent,
                                                          Params const& params) const
 {
-	auto axis_x = params.size() > 0 ? std::any_cast<PVCombCol>(params.at(0)) : PVCombCol();
-	auto axis_y = params.size() > 1 ? std::any_cast<PVCombCol>(params.at(1)) : PVCombCol();
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	QWidget* widget = lib_view->create_scatter_view(axis_x, axis_y, parent);
+	QWidget* widget = lib_view->create_scatter_view(col_param(view, params, 0),
+	                                                col_param(view, params, 1), parent);
 
 	return widget;
 }
@@ -49,12 +48,23 @@ QString PVDisplays::PVDisplayViewScatter::axis_menu_name(Inendi::PVView*) const
 }
 
 void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
+                                                        PVCol axis,
                                                         PVCombCol axis_comb,
                                                         Inendi::PVView* view,
                                                         PVDisplays::PVDisplaysContainer* container)
 {
-	const QStringList& axes = view->get_axes_names_list();
+	const QStringList& axes_names = view->get_axes_names_list();
 	const QString& view_menu_title = axis_menu_name(view);
+
+	if (axis_comb == PVCombCol()) {
+		auto act = new QAction(toolbar_icon(), axis_menu_name(view));
+		act->connect(act, &QAction::triggered, [container, this, view, axis]() {
+			container->create_view_widget(*this, view, {axis, PVCol()});
+		});
+		menu.addAction(act);
+		return;
+	}
+
 	PVWidgets::PVFilterableMenu* axes_menu =
 	    new PVWidgets::PVFilterableMenu(view_menu_title, &menu);
 	QList<QAction*> actions;
@@ -63,8 +73,7 @@ void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
 	for (PVCombCol i(0); i < view->get_axes_combination().get_axes_count(); i++) {
 		if (i != axis_comb) {
 			auto create_action = [&]() {
-				QAction* act = new QAction();
-				act->setText(axes[i]);
+				QAction* act = new QAction(axes_names[i]);
 				act->connect(act, &QAction::triggered, [container, this, view, axis_comb, i]() {
 					container->create_view_widget(*this, view, {axis_comb, PVCombCol(i)});
 				});
@@ -79,6 +88,7 @@ void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
 		}
 	}
 
+	axes_menu->setIcon(toolbar_icon());
 	axes_menu->addAction(next_axis); // Shortcut for next axis
 	axes_menu->addSeparator();
 	axes_menu->addActions(actions);

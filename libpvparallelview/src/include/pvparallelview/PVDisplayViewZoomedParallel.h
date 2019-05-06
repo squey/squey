@@ -25,6 +25,11 @@ class PVDisplayViewZoomedParallel : public PVDisplayViewIf
 	QIcon toolbar_icon() const override;
 	QString widget_title(Inendi::PVView* view) const override;
 	QString axis_menu_name(Inendi::PVView* view) const override;
+	void add_to_axis_menu(QMenu& menu,
+	                      PVCol axis,
+	                      PVCombCol axis_comb,
+	                      Inendi::PVView* view,
+	                      PVDisplaysContainer* container) override;
 
 	CLASS_REGISTRABLE(PVDisplayViewZoomedParallel)
 };

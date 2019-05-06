@@ -23,7 +23,7 @@ namespace PVParallelView
 class PVHitCountViewBackend
 {
   public:
-	PVHitCountViewBackend(const Inendi::PVView& view, const PVCombCol axis_index);
+	PVHitCountViewBackend(const Inendi::PVView& view, const PVCol axis);
 
 	Inendi::PVPlottedNrawCache& get_y_labels_cache() { return _y_labels_cache; }
 	PVHitGraphBlocksManager& get_hit_graph_manager() { return _hit_graph_manager; }

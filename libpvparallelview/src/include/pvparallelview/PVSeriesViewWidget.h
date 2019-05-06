@@ -32,7 +32,7 @@ class PVSeriesViewWidget : public QWidget
 	friend class PVSeriesViewParamsWidget;
 
   public:
-	PVSeriesViewWidget(Inendi::PVView* view, PVCombCol axis_comb, QWidget* parent = nullptr);
+	PVSeriesViewWidget(Inendi::PVView* view, PVCol axis, QWidget* parent = nullptr);
 
   protected:
 	void keyPressEvent(QKeyEvent* event) override;

@@ -97,10 +97,10 @@ PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* par
 	return view;
 }
 
-PVParallelView::PVHitCountView*
-PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* parent)
+PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view(PVCol const axis,
+                                                                                 QWidget* parent)
 {
-	auto create_backend = [this](PVCombCol axis, QWidget* parent = nullptr) {
+	auto create_backend = [this](PVCol axis, QWidget* parent = nullptr) {
 		std::unique_ptr<PVHitCountViewBackend> backend;
 
 		PVCore::PVProgressBox::progress(
@@ -119,12 +119,11 @@ PVParallelView::PVLibView::create_hit_count_view(PVCombCol const axis, QWidget* 
 	return view;
 }
 
-PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(
-    PVCombCol const axis_x, PVCombCol const axis_y, QWidget* parent)
+PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(PVCol const axis_x,
+                                                                              PVCol const axis_y,
+                                                                              QWidget* parent)
 {
-	PVZoneID zone_id{
-	    axis_x == PVCombCol() ? PVCol() : lib_view()->get_axes_combination().get_nraw_axis(axis_x),
-	    axis_y == PVCombCol() ? PVCol() : lib_view()->get_axes_combination().get_nraw_axis(axis_y)};
+	PVZoneID zone_id{axis_x, axis_y};
 
 	auto create_backend = [this](PVZoneID zone_id, QWidget* parent = nullptr) {
 		std::unique_ptr<PVScatterViewBackend> backend;

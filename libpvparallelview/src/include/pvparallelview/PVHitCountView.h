@@ -69,12 +69,12 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
   private:
 	using zoom_converter_t = PVZoomConverterScaledPowerOfTwo<zoom_steps>;
 	using backend_unique_ptr_t = std::unique_ptr<PVHitCountViewBackend>;
-	using create_backend_t = std::function<backend_unique_ptr_t(PVCombCol, QWidget*)>;
+	using create_backend_t = std::function<backend_unique_ptr_t(PVCol, QWidget*)>;
 
   public:
 	PVHitCountView(Inendi::PVView& pvview_sp,
 	               create_backend_t create_backend,
-	               const PVCombCol axis_index,
+	               const PVCol axis,
 	               QWidget* parent = nullptr);
 
 	~PVHitCountView() override;
