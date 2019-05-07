@@ -51,9 +51,13 @@ class PVDisplayIf
 
   protected:
 	explicit PVDisplayIf(int flags = 0,
-	                     QString tooltip_str = QString(),
+	                     QString tooltip_str = {},
+	                     QIcon toolbar_icon = {},
 	                     Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
-	    : _flags(flags), _tooltip_str(std::move(tooltip_str)), _default_pos(def_pos)
+	    : _flags(flags)
+	    , _tooltip_str(std::move(tooltip_str))
+	    , _default_pos(def_pos)
+	    , _toolbar_icon(toolbar_icon)
 	{
 	}
 
@@ -71,8 +75,7 @@ class PVDisplayIf
 		       match_flags(DefaultPresenceInSourceWorkspace);
 	}
 
-  public:
-	virtual QIcon toolbar_icon() const { return QIcon(); }
+	QIcon toolbar_icon() const { return _toolbar_icon; }
 
   private:
 	int _flags;
@@ -80,6 +83,7 @@ class PVDisplayIf
 	// When set to Qt::NoDockWidgetArea with the DefaultPresenceInSourceWorkspace flag on, it means
 	// that we want this widget as a central widget
 	Qt::DockWidgetArea _default_pos;
+	QIcon _toolbar_icon;
 };
 
 template <class T>
@@ -93,7 +97,7 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 
 	using PVDisplayIf::PVDisplayIf;
 
-	virtual QString widget_title(value_type* /*obj*/) const { return QString(); }
+	virtual QString widget_title(value_type* /*obj*/) const { return tooltip_str(); }
 
 	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {})
 	{
@@ -123,13 +127,26 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Inendi::PVView>,
 	using p_type = std::shared_ptr<RegAs>;
 
 	using PVDisplayDataTreeIf::PVDisplayDataTreeIf;
+	PVDisplayViewIf(int flags = 0,
+	                QString tooltip_str = {},
+	                QIcon toolbar_icon = {},
+	                QString axis_menu_name = {},
+	                Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
+	    : PVDisplayDataTreeIf(flags, tooltip_str, toolbar_icon, def_pos)
+	    , _axis_menu_name(axis_menu_name)
+	{
+	}
 
-	virtual QString axis_menu_name(Inendi::PVView*) const { return QString(); }
+	QString widget_title(Inendi::PVView* view) const override;
+
+	virtual QString axis_menu_name() const { return _axis_menu_name; }
 	virtual void add_to_axis_menu(QMenu& menu,
 	                              PVCol axis,
 	                              PVCombCol axis_comb,
 	                              Inendi::PVView* view,
 	                              PVDisplaysContainer* container);
+
+	QString _axis_menu_name;
 };
 
 class PVDisplaySourceIf : public PVDisplayDataTreeIf<Inendi::PVSource>,

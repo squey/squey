@@ -12,7 +12,10 @@
 #include <pvparallelview/PVDisplayViewHitCount.h>
 
 PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Hit count view")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                      "Hit count view",
+                      QIcon(":/view-hit-count"),
+                      "New hit count view")
 {
 }
 
@@ -24,20 +27,4 @@ QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view,
 	QWidget* widget = lib_view->create_hit_count_view(col_param(view, params, 0), parent);
 
 	return widget;
-}
-
-QIcon PVDisplays::PVDisplayViewHitCount::toolbar_icon() const
-{
-	return QIcon(":/view-hit-count");
-}
-
-QString PVDisplays::PVDisplayViewHitCount::widget_title(Inendi::PVView* view) const
-{
-	return "Hit count view [" + QString::fromStdString(view->get_name()) /* + " on axis '" +
-	       view->get_axis_name(axis_comb)*/ + "']";
-}
-
-QString PVDisplays::PVDisplayViewHitCount::axis_menu_name(Inendi::PVView*) const
-{
-	return QString("New hit count view");
 }

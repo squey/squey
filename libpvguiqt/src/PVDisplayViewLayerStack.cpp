@@ -14,6 +14,7 @@ PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Layer stack",
+                      QIcon(":/view-layerstack"),
                       Qt::RightDockWidgetArea)
 {
 }
@@ -24,14 +25,4 @@ QWidget* PVDisplays::PVDisplayViewLayerStack::create_widget(Inendi::PVView* view
 {
 	PVGuiQt::PVLayerStackWidget* widget = new PVGuiQt::PVLayerStackWidget(*view, parent);
 	return widget;
-}
-
-QIcon PVDisplays::PVDisplayViewLayerStack::toolbar_icon() const
-{
-	return QIcon(":/view-layerstack");
-}
-
-QString PVDisplays::PVDisplayViewLayerStack::widget_title(Inendi::PVView* view) const
-{
-	return "Layer stack [" + QString::fromStdString(view->get_name()) + "]";
 }

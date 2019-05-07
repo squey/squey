@@ -12,7 +12,10 @@
 #include <pvparallelview/PVSeriesViewWidget.h>
 
 PVDisplays::PVDisplayViewTimeseries::PVDisplayViewTimeseries()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Series view")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                      "Series view",
+                      QIcon(":/view-series"),
+                      "New series view")
 {
 }
 
@@ -21,22 +24,6 @@ QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Inendi::PVView* view
                                                             Params const& params) const
 {
 	return new PVParallelView::PVSeriesViewWidget(view, col_param(view, params, 0), parent);
-}
-
-QIcon PVDisplays::PVDisplayViewTimeseries::toolbar_icon() const
-{
-	return QIcon(":/view-series");
-}
-
-QString PVDisplays::PVDisplayViewTimeseries::widget_title(Inendi::PVView* view) const
-{
-	return "Series view [" + QString::fromStdString(view->get_name()) + /*" on axis '" +
-	       view->get_axis_name(axis_comb) + */ "']";
-}
-
-QString PVDisplays::PVDisplayViewTimeseries::axis_menu_name(Inendi::PVView*) const
-{
-	return QString("New series view");
 }
 
 void PVDisplays::PVDisplayViewTimeseries::add_to_axis_menu(

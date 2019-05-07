@@ -22,9 +22,6 @@ class PVDisplayViewZoomedParallel : public PVDisplayViewIf
   public:
 	QWidget*
 	create_widget(Inendi::PVView* view, QWidget* parent, Params const& data = {}) const override;
-	QIcon toolbar_icon() const override;
-	QString widget_title(Inendi::PVView* view) const override;
-	QString axis_menu_name(Inendi::PVView* view) const override;
 	void add_to_axis_menu(QMenu& menu,
 	                      PVCol axis,
 	                      PVCombCol axis_comb,

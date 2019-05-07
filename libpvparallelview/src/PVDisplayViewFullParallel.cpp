@@ -19,6 +19,7 @@ PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Full parallel view",
+                      QIcon(":/view-parallel-full"),
                       Qt::TopDockWidgetArea)
 {
 }
@@ -38,14 +39,4 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Inendi::PVView* vi
 
 	return lib_view->create_view(parent);
 	;
-}
-
-QIcon PVDisplays::PVDisplayViewFullParallel::toolbar_icon() const
-{
-	return QIcon(":/view-parallel-full");
-}
-
-QString PVDisplays::PVDisplayViewFullParallel::widget_title(Inendi::PVView* view) const
-{
-	return "Parallel view [" + QString::fromStdString(view->get_name()) + "]";
 }

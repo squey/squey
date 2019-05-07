@@ -22,9 +22,6 @@ class PVDisplayViewHitCount : public PVDisplayViewIf
   public:
 	QWidget*
 	create_widget(Inendi::PVView* view, QWidget* parent, Params const& data = {}) const override;
-	QIcon toolbar_icon() const override;
-	QString widget_title(Inendi::PVView* view) const override;
-	QString axis_menu_name(Inendi::PVView* view) const override;
 
 	CLASS_REGISTRABLE(PVDisplayViewHitCount)
 };

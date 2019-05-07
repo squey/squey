@@ -12,13 +12,18 @@
 namespace PVDisplays
 {
 
+QString PVDisplayViewIf::widget_title(Inendi::PVView* view) const
+{
+	return tooltip_str() + " [" + QString::fromStdString(view->get_name()) + "]";
+}
+
 void PVDisplayViewIf::add_to_axis_menu(QMenu& menu,
                                        PVCol axis,
                                        PVCombCol /*axis_comb*/,
                                        Inendi::PVView* view,
                                        PVDisplaysContainer* container)
 {
-	QAction* act = new QAction(toolbar_icon(), axis_menu_name(view));
+	QAction* act = new QAction(toolbar_icon(), axis_menu_name());
 	act->connect(act, &QAction::triggered, [this, view, axis, container]() {
 		container->create_view_widget(*this, view, {axis});
 	});

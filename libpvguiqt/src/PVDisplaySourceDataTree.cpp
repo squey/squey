@@ -13,7 +13,9 @@
 #include <pvguiqt/PVDisplaySourceDataTree.h>
 
 PVDisplays::PVDisplaySourceDataTree::PVDisplaySourceDataTree()
-    : PVDisplaySourceIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::UniquePerParameters, "Data tree")
+    : PVDisplaySourceIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::UniquePerParameters,
+                        "Data tree",
+                        QIcon(":/view-datatree"))
 {
 }
 
@@ -25,9 +27,4 @@ QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Inendi::PVSource* sr
 	PVGuiQt::PVRootTreeView* widget = new PVGuiQt::PVRootTreeView(model, parent);
 
 	return widget;
-}
-
-QIcon PVDisplays::PVDisplaySourceDataTree::toolbar_icon() const
-{
-	return QIcon(":/view-datatree");
 }

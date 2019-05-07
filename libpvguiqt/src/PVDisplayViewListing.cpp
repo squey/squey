@@ -19,6 +19,7 @@ PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Listing",
+                      QIcon(":/view-listing"),
                       Qt::NoDockWidgetArea)
 {
 }
@@ -38,14 +39,4 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view,
 	PVGuiQt::PVStatsListingWidget* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);
 
 	return stats_listing;
-}
-
-QIcon PVDisplays::PVDisplayViewListing::toolbar_icon() const
-{
-	return QIcon(":/view-listing");
-}
-
-QString PVDisplays::PVDisplayViewListing::widget_title(Inendi::PVView* view) const
-{
-	return "Listing [" + QString::fromStdString(view->get_name()) + "]";
 }

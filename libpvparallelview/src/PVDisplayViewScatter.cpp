@@ -15,7 +15,10 @@
 #include <pvparallelview/PVScatterView.h>
 
 PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Scatter view")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                      "Scatter view",
+                      QIcon(":/view-scatter"),
+                      "New scatter view with axis...")
 {
 }
 
@@ -30,34 +33,14 @@ QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view,
 	return widget;
 }
 
-QIcon PVDisplays::PVDisplayViewScatter::toolbar_icon() const
-{
-	return QIcon(":/view-scatter");
-}
-
-QString PVDisplays::PVDisplayViewScatter::widget_title(Inendi::PVView* view) const
-{
-	return QString("Scatter view [" + QString::fromStdString(view->get_name()) /* + " on axes '" +
-	               view->get_axis_name(axis_comb_x) + "' and '" + view->get_axis_name(axis_comb_y)*/ +
-	               "']");
-}
-
-QString PVDisplays::PVDisplayViewScatter::axis_menu_name(Inendi::PVView*) const
-{
-	return QString("New scatter view with axis...");
-}
-
 void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
                                                         PVCol axis,
                                                         PVCombCol axis_comb,
                                                         Inendi::PVView* view,
                                                         PVDisplays::PVDisplaysContainer* container)
 {
-	const QStringList& axes_names = view->get_axes_names_list();
-	const QString& view_menu_title = axis_menu_name(view);
-
 	if (axis_comb == PVCombCol()) {
-		auto act = new QAction(toolbar_icon(), axis_menu_name(view));
+		auto act = new QAction(toolbar_icon(), axis_menu_name());
 		act->connect(act, &QAction::triggered, [container, this, view, axis]() {
 			container->create_view_widget(*this, view, {axis, PVCol()});
 		});
@@ -66,9 +49,11 @@ void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
 	}
 
 	PVWidgets::PVFilterableMenu* axes_menu =
-	    new PVWidgets::PVFilterableMenu(view_menu_title, &menu);
+	    new PVWidgets::PVFilterableMenu(axis_menu_name(), &menu);
 	QList<QAction*> actions;
 	QAction* next_axis = nullptr;
+
+	const QStringList& axes_names = view->get_axes_names_list();
 
 	for (PVCombCol i(0); i < view->get_axes_combination().get_axes_count(); i++) {
 		if (i != axis_comb) {

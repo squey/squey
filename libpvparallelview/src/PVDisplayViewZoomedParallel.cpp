@@ -13,7 +13,9 @@
 
 PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
-                      "Zoomed parallel view")
+                      "Zoomed parallel view",
+                      QIcon(":/view-parallel-zoomed"),
+                      "New zoomed parallel view")
 {
 }
 
@@ -28,21 +30,6 @@ QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* 
 	return widget;
 }
 
-QIcon PVDisplays::PVDisplayViewZoomedParallel::toolbar_icon() const
-{
-	return QIcon(":/view-parallel-zoomed");
-}
-
-QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view) const
-{
-	return "Zoomed view [" + QString::fromStdString(view->get_name()) + "]";
-}
-
-QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView*) const
-{
-	return QString("New zoomed parallel view");
-}
-
 void PVDisplays::PVDisplayViewZoomedParallel::add_to_axis_menu(
     QMenu& menu,
     PVCol,
@@ -53,7 +40,7 @@ void PVDisplays::PVDisplayViewZoomedParallel::add_to_axis_menu(
 	if (axis_comb == PVCombCol()) {
 		return;
 	}
-	QAction* act = new QAction(toolbar_icon(), axis_menu_name(view));
+	QAction* act = new QAction(toolbar_icon(), axis_menu_name());
 	act->connect(act, &QAction::triggered, [this, view, axis_comb, container]() {
 		container->create_view_widget(*this, view, {axis_comb});
 	});
