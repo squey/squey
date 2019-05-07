@@ -13,6 +13,12 @@ namespace PVCore
 struct PVDisconnector : public sigc::connection {
 	using sigc::connection::connection;
 	using sigc::connection::operator=;
+	PVDisconnector& operator=(PVDisconnector const& other)
+	{
+		disconnect();
+		sigc::connection::operator=(other);
+		return *this;
+	}
 	PVDisconnector(PVDisconnector&&) = delete;
 	~PVDisconnector() { disconnect(); }
 };
