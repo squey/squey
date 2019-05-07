@@ -27,8 +27,11 @@ class PVAxisComboBox : public QComboBox
 		BothOriginalCombinationAxes = OriginalAxes | CombinationAxes
 	};
 
+	using axes_filter_t = std::function<bool(PVCol, PVCombCol)>;
+
 	explicit PVAxisComboBox(Inendi::PVAxesCombination const& axes_comb,
 	                        AxesShown shown = AxesShown::OriginalAxes,
+	                        axes_filter_t axes_filter = [](PVCol, PVCombCol) { return true; },
 	                        QWidget* parent = nullptr);
 
 	void set_current_axis(PVCol axis);
@@ -50,6 +53,7 @@ class PVAxisComboBox : public QComboBox
 	Inendi::PVAxesCombination const& _axes_comb;
 	AxesShown _axes_shown;
 	QPoint _drag_start_position;
+	axes_filter_t _axes_filter;
 };
 } // namespace PVWidgets
 

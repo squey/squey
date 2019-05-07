@@ -18,8 +18,9 @@
 
 PVWidgets::PVAxisComboBox::PVAxisComboBox(Inendi::PVAxesCombination const& axes_comb,
                                           AxesShown shown,
+                                          axes_filter_t axes_filter,
                                           QWidget* parent)
-    : QComboBox(parent), _axes_comb(axes_comb), _axes_shown(shown)
+    : QComboBox(parent), _axes_comb(axes_comb), _axes_shown(shown), _axes_filter(axes_filter)
 {
 	refresh_axes();
 	connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
@@ -73,8 +74,10 @@ void PVWidgets::PVAxisComboBox::refresh_axes()
 	clear();
 	if (_axes_shown & AxesShown::CombinationAxes) {
 		for (auto i = PVCombCol(0); i < _axes_comb.get_axes_count(); ++i) {
-			addItem(_axes_comb.get_axis(i).get_name(),
-			        QVariant::fromValue(_axes_comb.get_nraw_axis(i)));
+			if (_axes_filter(PVCol(), i)) {
+				addItem(_axes_comb.get_axis(i).get_name(),
+				        QVariant::fromValue(_axes_comb.get_nraw_axis(i)));
+			}
 		}
 	}
 	if (_axes_shown == AxesShown::BothOriginalCombinationAxes) {
@@ -82,7 +85,9 @@ void PVWidgets::PVAxisComboBox::refresh_axes()
 	}
 	if (_axes_shown & AxesShown::OriginalAxes) {
 		for (auto i = PVCol(0); i < _axes_comb.get_nraw_axes_count(); ++i) {
-			addItem(_axes_comb.get_axis(i).get_name(), QVariant::fromValue(i));
+			if (_axes_filter(i, PVCombCol())) {
+				addItem(_axes_comb.get_axis(i).get_name(), QVariant::fromValue(i));
+			}
 		}
 	}
 }

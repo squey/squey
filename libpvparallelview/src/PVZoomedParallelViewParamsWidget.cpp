@@ -25,8 +25,8 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
 	              frame_text_color.name(QColor::HexArgb) + "; }");
 	setAutoFillBackground(true);
 
-	_menu = new PVWidgets::PVAxisComboBox(
-	    axes_comb, PVWidgets::PVAxisComboBox::AxesShown::CombinationAxes, this);
+	_menu = new PVWidgets::PVAxisComboBox(axes_comb,
+	                                      PVWidgets::PVAxisComboBox::AxesShown::CombinationAxes);
 	addWidget(_menu);
 
 	connect(_menu, &PVWidgets::PVAxisComboBox::current_axis_changed, this,

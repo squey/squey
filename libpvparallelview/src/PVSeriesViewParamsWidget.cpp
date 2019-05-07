@@ -2,6 +2,7 @@
 #include <pvparallelview/PVSeriesViewWidget.h>
 #include <pvparallelview/PVSeriesView.h>
 #include <pvparallelview/PVSeriesViewZoomer.h>
+#include <pvparallelview/PVDisplayViewTimeseries.h>
 
 #include <pvparallelview/common.h>
 
@@ -33,9 +34,12 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol absciss
 
 void PVParallelView::PVSeriesViewParamsWidget::add_abscissa_selector(PVCol axis)
 {
-	auto abscissa_selector =
-	    new PVWidgets::PVAxisComboBox(_series_view_widget->_view->get_axes_combination(),
-	                                  PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes);
+	auto abscissa_selector = new PVWidgets::PVAxisComboBox(
+	    _series_view_widget->_view->get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes, [this](PVCol axis, PVCombCol) {
+		    return PVDisplays::display_view_if<PVDisplays::PVDisplayViewTimeseries>()
+		        .abscissa_filter(_series_view_widget->_view, axis);
+		});
 	abscissa_selector->set_current_axis(axis);
 	addWidget(abscissa_selector);
 	connect(abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
