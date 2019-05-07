@@ -40,6 +40,8 @@ class PVAxisComboBox : public QComboBox
 
 	void refresh_axes();
 
+	static constexpr auto MIME_TYPE_PVCOL = "application/vnd.inendi.pvcol";
+
   Q_SIGNALS:
 	void current_axis_changed(PVCol axis_col, PVCombCol axis_comb_col);
 

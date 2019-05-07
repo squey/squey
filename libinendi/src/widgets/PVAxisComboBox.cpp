@@ -110,7 +110,7 @@ void PVWidgets::PVAxisComboBox::mouseMoveEvent(QMouseEvent* event)
 	QDrag* drag = new QDrag(this);
 	QMimeData* mimeData = new QMimeData;
 
-	mimeData->setData("application/vnd.inendi.pvcol",
+	mimeData->setData(MIME_TYPE_PVCOL,
 	                  QByteArray::fromRawData(
 	                      reinterpret_cast<char const*>(&current_axis().value()), sizeof(PVCol)));
 	drag->setMimeData(mimeData);
@@ -120,15 +120,15 @@ void PVWidgets::PVAxisComboBox::mouseMoveEvent(QMouseEvent* event)
 
 void PVWidgets::PVAxisComboBox::dragEnterEvent(QDragEnterEvent* event)
 {
-	if (event->mimeData()->hasFormat("application/vnd.inendi.pvcol")) {
+	if (event->mimeData()->hasFormat(MIME_TYPE_PVCOL)) {
 		event->acceptProposedAction();
 	}
 }
 
 void PVWidgets::PVAxisComboBox::dropEvent(QDropEvent* event)
 {
-	PVCol axis_col(*reinterpret_cast<PVCol::value_type*>(
-	    event->mimeData()->data("application/vnd.inendi.pvcol").data()));
+	PVCol axis_col(
+	    *reinterpret_cast<PVCol::value_type*>(event->mimeData()->data(MIME_TYPE_PVCOL).data()));
 
 	set_current_axis(axis_col);
 
