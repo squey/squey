@@ -379,6 +379,11 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(PVCombCol index)
 	_axis_index = index;
 	_nraw_col = _pvview.get_axes_combination().get_nraw_axis(index);
 
+	if (_selection_sliders) {
+		_selection_sliders->remove_from_axis();
+		_selection_sliders = nullptr;
+	}
+
 	removeItem(_sliders_group);
 	_sliders_group->delete_own_zoom_slider();
 	delete _sliders_group;

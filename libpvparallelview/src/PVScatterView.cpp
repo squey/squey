@@ -200,10 +200,6 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 PVParallelView::PVScatterView::~PVScatterView()
 {
-	if (_backend) {
-		get_images_manager().cancel_all_and_wait();
-	}
-
 	if (!_view_deleted) {
 		common::get_lib_view(_view)->remove_scatter_view(this);
 	}
@@ -418,8 +414,8 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 	if (_zone_id.first != PVCol() && _zone_id.second != PVCol()) {
 		_backend = _create_backend(_zone_id, this);
 		auto& img_manager = _backend->get_images_manager();
-		img_manager.set_zone(zid);
 		img_manager.set_img_update_receiver(this);
+		img_manager.set_zone(zid);
 
 		PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
 		_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);

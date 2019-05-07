@@ -27,6 +27,11 @@ PVParallelView::PVScatterViewImagesManager::PVScatterViewImagesManager(
 	set_zone(zid);
 }
 
+PVParallelView::PVScatterViewImagesManager::~PVScatterViewImagesManager()
+{
+	cancel_all_and_wait();
+}
+
 void PVParallelView::PVScatterViewImagesManager::cancel_all_and_wait()
 {
 	if (_zr_bg) {
