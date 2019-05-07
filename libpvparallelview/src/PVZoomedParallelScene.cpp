@@ -687,7 +687,6 @@ void PVParallelView::PVZoomedParallelScene::connect_zr(PVZoneRenderingBCI<bbits>
 
 void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, PVZoneID zone_id)
 {
-	// assert(is_zone_rendered(zone_id));
 	assert(QThread::currentThread() == this->thread());
 	bool zr_catch = true;
 

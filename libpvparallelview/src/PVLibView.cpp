@@ -80,13 +80,6 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 PVParallelView::PVZoomedParallelView*
 PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* parent)
 {
-	// PVCore::PVProgressBox::progress(
-	//     [&](PVCore::PVProgressBox& pbox) {
-	// 	    pbox.set_enable_cancel(false);
-	// 	    request_zoomed_zone_trees(axis);
-	// 	},
-	//     "Initializing zoomed parallel view...", parent);
-
 	PVParallelView::PVZoomedParallelView* view =
 	    new PVParallelView::PVZoomedParallelView(lib_view()->get_axes_combination(), parent);
 	PVParallelView::PVZoomedParallelScene* scene = new PVParallelView::PVZoomedParallelScene(
@@ -383,34 +376,6 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	}
 
 	_zoomed_parallel_scenes = new_zps;
-
-	// scatter_view_list_t new_svs;
-
-	// for (size_t i = 0; i < _scatter_views.size(); ++i) {
-	// 	PVScatterView* sv = _scatter_views[i];
-	// 	_scatter_views[i] = nullptr;
-
-	// 	// the ZPS can still exist
-	// 	new_svs.push_back(sv);
-	// }
-
-	// _scatter_views = new_svs;
-
-	hit_count_view_list_t new_hcvs;
-
-	for (size_t i = 0; i < _hit_count_views.size(); ++i) {
-		PVHitCountView* hcv = _hit_count_views[i];
-		_hit_count_views[i] = nullptr;
-
-		if (hcv->update_zones()) {
-			// the ZPS can still exist
-			new_hcvs.push_back(hcv);
-		} else {
-			hcv->parentWidget()->close();
-		}
-	}
-
-	_hit_count_views = new_hcvs;
 
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& /*pbox*/) {
