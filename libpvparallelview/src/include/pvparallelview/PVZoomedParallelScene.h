@@ -440,6 +440,20 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 
 	struct zone_desc_t {
 		zone_desc_t() : last_zr_sel(), last_zr_bg() {}
+		~zone_desc_t()
+		{
+			PVZoneRenderingBCIBase_p zr = last_zr_sel;
+			if (zr) {
+				zr->set_render_finished_slot(nullptr, nullptr);
+			}
+
+			zr = last_zr_bg;
+			if (zr) {
+				zr->set_render_finished_slot(nullptr, nullptr);
+			}
+
+			cancel_and_wait_all();
+		}
 
 		inline void cancel_last_sel()
 		{
@@ -494,7 +508,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	PVZoomedParallelView* _zpview;
 	Inendi::PVView& _pvview;
 	PVSlidersManager* _sliders_manager_p;
-	PVSlidersGroup* _sliders_group;
+	std::unique_ptr<PVSlidersGroup> _sliders_group;
 	PVCombCol _axis_index;
 	PVCol _nraw_col;
 	PVZonesManager const& _zm;
@@ -507,8 +521,8 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	qint64 _pan_reference_y;
 
 	// about zones rendering/display
-	zone_desc_t* _left_zone;
-	zone_desc_t* _right_zone;
+	std::unique_ptr<zone_desc_t> _left_zone;
+	std::unique_ptr<zone_desc_t> _right_zone;
 	qreal _next_beta;
 	qreal _current_beta;
 	uint32_t _last_y_min;
