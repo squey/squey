@@ -19,7 +19,6 @@
 
 #include <QStateMachine>
 #include <QKeyEvent>
-#include <QStyledItemDelegate>
 #include <QPainter>
 #include <QScrollBar>
 #include <QMenu>
@@ -53,6 +52,22 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	_help_widget.finalizeText();
 
 	set_abscissa(axis);
+
+	// Subscribe to plotting changes
+	_plotting_change_connection = _view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	    [this](const QList<PVCol>& plotteds_updated) {
+		    if (_sampler) {
+			    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
+			                                                  plotteds_updated.end());
+			    _sampler->resubsample(updated_timeseries);
+		    }
+		});
+	// Subscribe to selection changes
+	_selection_change_connection = _view->_update_output_selection.connect([this]() {
+		if (_sampler) {
+			_sampler->resubsample();
+		}
+	});
 }
 
 void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
@@ -60,101 +75,27 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 	std::vector<QWidget*> replaceable_widgets;
 
 	if (abscissa != PVCol()) {
-		auto plotteds = _view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
-		const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
 		PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-		const auto& plotteds_vector = plotteds.front()->get_plotteds();
 
 		const pvcop::db::array& time = nraw.column(abscissa);
 
-		std::vector<pvcop::core::array<uint32_t>> timeseries;
-		for (PVCol col(0); col < nraw.column_count(); col++) {
-			timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
-		}
+		{
+			auto plotteds = _view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
+			const auto& plotteds_vector = plotteds.front()->get_plotteds();
 
-		_sampler.reset(new Inendi::PVRangeSubSampler(time, timeseries, nraw,
-		                                             _view->get_real_output_selection()));
+			std::vector<pvcop::core::array<uint32_t>> timeseries;
+			for (PVCol col(0); col < nraw.column_count(); col++) {
+				timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
+			}
+
+			_sampler.reset(new Inendi::PVRangeSubSampler(time, std::move(timeseries), nraw,
+			                                             _view->get_real_output_selection()));
+		}
 
 		_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 		_plot->set_background_color(QColor(10, 10, 10, 255));
 
-		struct StyleDelegate : public QStyledItemDelegate {
-			StyleDelegate(QWidget* parent = nullptr) : QStyledItemDelegate(parent) {}
-			void paint(QPainter* painter,
-			           const QStyleOptionViewItem& option,
-			           const QModelIndex& index) const override
-			{
-				auto color =
-				    index.model()->data(index, Qt::UserRole).value<SerieListItemData>().color;
-				if ((option.state & QStyle::State_Selected)) {
-					painter->fillRect(option.rect, color);
-					painter->setPen(Qt::black);
-					painter->drawText(option.rect,
-					                  index.model()->data(index, Qt::DisplayRole).toString());
-				} else {
-					painter->setPen(color);
-					painter->drawText(option.rect,
-					                  index.model()->data(index, Qt::DisplayRole).toString());
-				}
-			}
-		};
-
-		_series_list_widget = new QListWidget;
-		_series_list_widget->setFixedWidth(200);
-		_series_list_widget->setItemDelegate(new StyleDelegate());
-		for (PVCol col(0); col < nraw.column_count(); col++) {
-			const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);
-			if (axis.get_type().startsWith("number_") or axis.get_type().startsWith("duration")) {
-				QListWidgetItem* item = new QListWidgetItem(axis.get_name());
-				QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-				item->setData(Qt::UserRole, QVariant::fromValue(SerieListItemData{col, color}));
-				item->setBackgroundColor(color);
-				_series_list_widget->addItem(item);
-			}
-		}
-		_series_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
-
-		_series_list_widget->setContextMenuPolicy(Qt::CustomContextMenu);
-		connect(_series_list_widget, &QWidget::customContextMenuRequested, [this, abscissa](
-		                                                                       QPoint const& pos) {
-			auto item = _series_list_widget->itemAt(pos);
-			PVCol col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-			QMenu item_menu;
-			auto scatter_action = new QAction(
-			    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>().toolbar_icon(),
-			    "Scatter view with abscissa", &item_menu);
-			connect(scatter_action, &QAction::triggered, [this, abscissa, col] {
-				if (auto container =
-				        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(
-				            this)) {
-					container->create_view_widget(
-					    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>(), _view,
-					    {abscissa, col});
-				}
-			});
-			item_menu.addAction(scatter_action);
-			item_menu.addSeparator();
-			if (auto container =
-			        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
-				PVDisplays::add_displays_view_axis_menu(item_menu, container, _view, col);
-			}
-			item_menu.exec(_series_list_widget->mapToGlobal(pos));
-		});
-
-		const std::vector<PVCol>& combination = axes_comb.get_combination();
-		for (PVCol i(0); i < _series_list_widget->count(); i++) {
-			auto item = _series_list_widget->item(i);
-			PVCol j = item->data(Qt::UserRole).value<SerieListItemData>().col;
-			if (std::find(combination.begin(), combination.end(), j) != combination.end()) {
-				item->setSelected(true);
-			}
-		}
-
-		QObject::connect(_series_list_widget, &QListWidget::itemSelectionChanged, this,
-		                 &PVSeriesViewWidget::update_selected_series);
-		_update_selected_series_resample = false;
-		update_selected_series();
-		_update_selected_series_resample = true;
+		setup_series_list(abscissa);
 
 		_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 
@@ -191,137 +132,9 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			    _view->set_selection_view(sel);
 			});
 
-		// Subscribe to plotting changes
-		_plotting_change_connection =
-		    _view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
-		        [this](const QList<PVCol>& plotteds_updated) {
-			        std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
-			                                                      plotteds_updated.end());
-			        _sampler->resubsample(updated_timeseries);
-			    });
+		setup_selected_series_list(abscissa);
 
-		// Subscribe to selection changes
-		_selection_change_connection =
-		    _view->_update_output_selection.connect([this]() { _sampler->resubsample(); });
-
-		QListWidget* selected_series_list = new QListWidget;
-		selected_series_list->setFixedWidth(_series_list_widget->width());
-		selected_series_list->setMaximumHeight(0);
-		selected_series_list->setItemDelegate(new StyleDelegate());
-		selected_series_list->setSelectionMode(QAbstractItemView::MultiSelection);
-
-		QObject::connect(
-		    _zoomer, &PVSeriesViewZoomer::cursor_moved, [selected_series_list, this](QRect region) {
-			    selected_series_list->clear();
-			    for (const QListWidgetItem* item : _series_list_widget->selectedItems()) {
-				    const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-				    if (is_in_region(region, item_col)) {
-					    QListWidgetItem* selected_item = new QListWidgetItem(item->text());
-					    selected_item->setData(Qt::UserRole, item->data(Qt::UserRole));
-					    selected_item->setBackground(
-					        item->data(Qt::UserRole).value<SerieListItemData>().color);
-					    selected_series_list->addItem(selected_item);
-					    selected_item->setSelected(true);
-				    }
-			    }
-			    auto count = selected_series_list->count();
-			    auto scrollbar = selected_series_list->horizontalScrollBar();
-			    selected_series_list->setMaximumHeight(
-			        count > 0
-			            ? count * selected_series_list->sizeHintForRow(0) +
-			                  2 * selected_series_list->frameWidth() +
-			                  (scrollbar->isVisible() ? scrollbar->height() : 0)
-			            : 0);
-			});
-
-		QObject::connect(_zoomer, &PVSeriesViewZoomer::hunt_commit, [this](QRect region,
-		                                                                   bool addition) {
-			auto selected_items_list = _series_list_widget->selectedItems();
-			decltype(selected_items_list) deselect_list;
-			std::copy_if(
-			    selected_items_list.begin(), selected_items_list.end(),
-			    std::back_inserter(deselect_list), [region, addition, this](QListWidgetItem* item) {
-				    const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-				    return is_in_region(region, item_col) == not addition;
-				});
-			// Deselect those not in region unless there would be none left
-			if (deselect_list.size() < selected_items_list.size()) {
-				_update_selected_series_resample = false;
-				for (auto* item : deselect_list) {
-					item->setSelected(false);
-				}
-				_update_selected_series_resample = true;
-				update_selected_series();
-			}
-		});
-
-		auto synchro_list = [](auto list_src, auto list_dest) {
-			auto src_seleted_items = list_src->selectedItems();
-			for (int i = 0; i < list_dest->count(); ++i) {
-				QListWidgetItem* item = list_dest->item(i);
-				const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-				auto src_selected_it = std::find_if(
-				    src_seleted_items.begin(), src_seleted_items.end(),
-				    [item_col](QListWidgetItem* selected_item) {
-					    return item_col ==
-					           selected_item->data(Qt::UserRole).value<SerieListItemData>().col;
-					});
-				item->setSelected(src_selected_it != src_seleted_items.end());
-			}
-		};
-
-		auto semi_synchro_list = [](auto list_src, auto list_dest) {
-			for (int src_index = 0; src_index < list_src->count(); ++src_index) {
-				QListWidgetItem* src_item = list_src->item(src_index);
-				const PVCol src_item_col =
-				    src_item->data(Qt::UserRole).value<SerieListItemData>().col;
-				for (int dest_index = 0; dest_index < list_dest->count(); ++dest_index) {
-					QListWidgetItem* dest_item = list_dest->item(dest_index);
-					const PVCol dest_item_col =
-					    dest_item->data(Qt::UserRole).value<SerieListItemData>().col;
-					if (src_item_col == dest_item_col) {
-						dest_item->setSelected(src_item->isSelected());
-						break;
-					}
-				}
-			}
-		};
-
-		QObject::connect(_series_list_widget, &QListWidget::itemSelectionChanged,
-		                 [synchro_list, selected_series_list, this]() {
-			                 synchro_list(_series_list_widget, selected_series_list);
-			             });
-		QObject::connect(selected_series_list, &QListWidget::itemSelectionChanged,
-		                 [semi_synchro_list, selected_series_list, this]() {
-			                 if (_synchro_selected_list) {
-				                 semi_synchro_list(selected_series_list, _series_list_widget);
-			                 }
-			             });
-
-		struct SynchroFilter : QObject {
-			SynchroFilter(std::function<void()> enter, std::function<void()> leave)
-			    : enter(enter), leave(leave)
-			{
-			}
-			std::function<void()> enter;
-			std::function<void()> leave;
-			bool eventFilter(QObject* obj, QEvent* event) override
-			{
-				if (event->type() == QEvent::Enter) {
-					enter();
-					return true;
-				} else if (event->type() == QEvent::Leave) {
-					leave();
-					return true;
-				}
-				return QObject::eventFilter(obj, event);
-			}
-		};
-
-		selected_series_list->installEventFilter(new SynchroFilter{
-		    [this] { _synchro_selected_list = true; }, [this] { _synchro_selected_list = false; }});
-
-		replaceable_widgets = {_zoomer, _series_list_widget, selected_series_list, range_edit};
+		replaceable_widgets = {_zoomer, _series_list_widget, _selected_series_list, range_edit};
 	} else {
 		replaceable_widgets = {new QWidget, new QWidget, new QWidget, new QWidget};
 	}
@@ -361,6 +174,186 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			replaceable_widgets[i]->deleteLater();
 		}
 	};
+}
+
+void PVParallelView::PVSeriesViewWidget::setup_series_list(PVCol abscissa)
+{
+	_series_list_widget = new QListWidget;
+	_series_list_widget->setFixedWidth(200);
+	_series_list_widget->setItemDelegate(new StyleDelegate());
+
+	const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
+
+	PVCol column_count = _view->get_rushnraw_parent().column_count();
+	for (PVCol col(0); col < column_count; col++) {
+		const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);
+		if (axis.get_type().startsWith("number_") or axis.get_type().startsWith("duration")) {
+			QListWidgetItem* item = new QListWidgetItem(axis.get_name());
+			QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
+			item->setData(Qt::UserRole, QVariant::fromValue(SerieListItemData{col, color}));
+			item->setBackgroundColor(color);
+			_series_list_widget->addItem(item);
+		}
+	}
+	_series_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
+
+	_series_list_widget->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(_series_list_widget, &QWidget::customContextMenuRequested, [this, abscissa](
+	                                                                       QPoint const& pos) {
+		auto item = _series_list_widget->itemAt(pos);
+		PVCol col = item->data(Qt::UserRole).value<SerieListItemData>().col;
+		QMenu item_menu;
+		auto scatter_action = new QAction(
+		    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>().toolbar_icon(),
+		    "Scatter view with abscissa", &item_menu);
+		connect(scatter_action, &QAction::triggered, [this, abscissa, col] {
+			if (auto container =
+			        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
+				container->create_view_widget(
+				    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>(), _view,
+				    {abscissa, col});
+			}
+		});
+		item_menu.addAction(scatter_action);
+		item_menu.addSeparator();
+		if (auto container =
+		        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
+			PVDisplays::add_displays_view_axis_menu(item_menu, container, _view, col);
+		}
+		item_menu.exec(_series_list_widget->mapToGlobal(pos));
+	});
+
+	const std::vector<PVCol>& combination = axes_comb.get_combination();
+	for (PVCol i(0); i < _series_list_widget->count(); i++) {
+		auto item = _series_list_widget->item(i);
+		PVCol j = item->data(Qt::UserRole).value<SerieListItemData>().col;
+		if (std::find(combination.begin(), combination.end(), j) != combination.end()) {
+			item->setSelected(true);
+		}
+	}
+
+	QObject::connect(_series_list_widget, &QListWidget::itemSelectionChanged, this,
+	                 &PVSeriesViewWidget::update_selected_series);
+	_update_selected_series_resample = false;
+	update_selected_series();
+	_update_selected_series_resample = true;
+}
+
+void PVParallelView::PVSeriesViewWidget::setup_selected_series_list(PVCol /*abscissa*/)
+{
+	_selected_series_list = new QListWidget;
+	_selected_series_list->setFixedWidth(_series_list_widget->width());
+	_selected_series_list->setMaximumHeight(0);
+	_selected_series_list->setItemDelegate(new StyleDelegate());
+	_selected_series_list->setSelectionMode(QAbstractItemView::MultiSelection);
+
+	QObject::connect(_zoomer, &PVSeriesViewZoomer::cursor_moved, [this](QRect region) {
+		_selected_series_list->clear();
+		for (const QListWidgetItem* item : _series_list_widget->selectedItems()) {
+			const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
+			if (is_in_region(region, item_col)) {
+				QListWidgetItem* selected_item = new QListWidgetItem(item->text());
+				selected_item->setData(Qt::UserRole, item->data(Qt::UserRole));
+				selected_item->setBackground(
+				    item->data(Qt::UserRole).value<SerieListItemData>().color);
+				_selected_series_list->addItem(selected_item);
+				selected_item->setSelected(true);
+			}
+		}
+		auto count = _selected_series_list->count();
+		auto scrollbar = _selected_series_list->horizontalScrollBar();
+		_selected_series_list->setMaximumHeight(
+		    count > 0
+		        ? count * _selected_series_list->sizeHintForRow(0) +
+		              2 * _selected_series_list->frameWidth() +
+		              (scrollbar->isVisible() ? scrollbar->height() : 0)
+		        : 0);
+	});
+
+	QObject::connect(
+	    _zoomer, &PVSeriesViewZoomer::hunt_commit, [this](QRect region, bool addition) {
+		    auto selected_items_list = _series_list_widget->selectedItems();
+		    decltype(selected_items_list) deselect_list;
+		    std::copy_if(
+		        selected_items_list.begin(), selected_items_list.end(),
+		        std::back_inserter(deselect_list), [region, addition, this](QListWidgetItem* item) {
+			        const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
+			        return is_in_region(region, item_col) == not addition;
+			    });
+		    // Deselect those not in region unless there would be none left
+		    if (deselect_list.size() < selected_items_list.size()) {
+			    _update_selected_series_resample = false;
+			    for (auto* item : deselect_list) {
+				    item->setSelected(false);
+			    }
+			    _update_selected_series_resample = true;
+			    update_selected_series();
+		    }
+		});
+
+	auto synchro_list = [](auto list_src, auto list_dest) {
+		auto src_seleted_items = list_src->selectedItems();
+		for (int i = 0; i < list_dest->count(); ++i) {
+			QListWidgetItem* item = list_dest->item(i);
+			const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
+			auto src_selected_it = std::find_if(
+			    src_seleted_items.begin(), src_seleted_items.end(),
+			    [item_col](QListWidgetItem* selected_item) {
+				    return item_col ==
+				           selected_item->data(Qt::UserRole).value<SerieListItemData>().col;
+				});
+			item->setSelected(src_selected_it != src_seleted_items.end());
+		}
+	};
+
+	auto semi_synchro_list = [](auto list_src, auto list_dest) {
+		for (int src_index = 0; src_index < list_src->count(); ++src_index) {
+			QListWidgetItem* src_item = list_src->item(src_index);
+			const PVCol src_item_col = src_item->data(Qt::UserRole).value<SerieListItemData>().col;
+			for (int dest_index = 0; dest_index < list_dest->count(); ++dest_index) {
+				QListWidgetItem* dest_item = list_dest->item(dest_index);
+				const PVCol dest_item_col =
+				    dest_item->data(Qt::UserRole).value<SerieListItemData>().col;
+				if (src_item_col == dest_item_col) {
+					dest_item->setSelected(src_item->isSelected());
+					break;
+				}
+			}
+		}
+	};
+
+	QObject::connect(
+	    _series_list_widget, &QListWidget::itemSelectionChanged,
+	    [synchro_list, this]() { synchro_list(_series_list_widget, _selected_series_list); });
+	QObject::connect(_selected_series_list, &QListWidget::itemSelectionChanged,
+	                 [semi_synchro_list, this]() {
+		                 if (_synchro_selected_list) {
+			                 semi_synchro_list(_selected_series_list, _series_list_widget);
+		                 }
+		             });
+
+	struct SynchroFilter : QObject {
+		SynchroFilter(std::function<void()> enter, std::function<void()> leave)
+		    : enter(enter), leave(leave)
+		{
+		}
+		std::function<void()> enter;
+		std::function<void()> leave;
+		bool eventFilter(QObject* obj, QEvent* event) override
+		{
+			if (event->type() == QEvent::Enter) {
+				enter();
+				return true;
+			} else if (event->type() == QEvent::Leave) {
+				leave();
+				return true;
+			}
+			return QObject::eventFilter(obj, event);
+		}
+	};
+
+	_selected_series_list->installEventFilter(new SynchroFilter{
+	    [this] { _synchro_selected_list = true; }, [this] { _synchro_selected_list = false; }});
 }
 
 void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
@@ -423,4 +416,18 @@ bool PVParallelView::PVSeriesViewWidget::is_in_region(QRect region, PVCol col) c
 		}
 	}
 	return false;
+}
+
+void PVParallelView::PVSeriesViewWidget::StyleDelegate::paint(QPainter* painter,
+                                                              const QStyleOptionViewItem& option,
+                                                              const QModelIndex& index) const
+{
+	auto color = index.model()->data(index, Qt::UserRole).value<SerieListItemData>().color;
+	if ((option.state & QStyle::State_Selected)) {
+		painter->fillRect(option.rect, color);
+		painter->setPen(Qt::black);
+	} else {
+		painter->setPen(color);
+	}
+	painter->drawText(option.rect, index.model()->data(index, Qt::DisplayRole).toString());
 }

@@ -9,6 +9,7 @@
 
 #include <QWidget>
 #include <QListWidget>
+#include <QStyledItemDelegate>
 
 #include <inendi/PVView.h>
 
@@ -41,6 +42,8 @@ class PVSeriesViewWidget : public QWidget
 
   private:
 	void set_abscissa(PVCol axis);
+	void setup_series_list(PVCol abscissa);
+	void setup_selected_series_list(PVCol abscissa);
 	void update_selected_series();
 	bool is_in_region(QRect region, PVCol col) const;
 
@@ -51,9 +54,17 @@ class PVSeriesViewWidget : public QWidget
 	PVSeriesView* _plot = nullptr;
 	PVSeriesViewZoomer* _zoomer = nullptr;
 	QListWidget* _series_list_widget = nullptr;
+	QListWidget* _selected_series_list = nullptr;
 
 	bool _update_selected_series_resample = false;
 	bool _synchro_selected_list = false;
+
+	struct StyleDelegate : public QStyledItemDelegate {
+		StyleDelegate(QWidget* parent = nullptr) : QStyledItemDelegate(parent) {}
+		void paint(QPainter* painter,
+		           const QStyleOptionViewItem& option,
+		           const QModelIndex& index) const override;
+	};
 
 	PVCore::PVDisconnector _plotting_change_connection;
 	PVCore::PVDisconnector _selection_change_connection;
