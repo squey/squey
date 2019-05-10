@@ -115,14 +115,14 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	 */
 	PVViewDisplay(Inendi::PVView* view,
 	              QWidget* view_widget,
-	              std::function<QString()> name,
+	              QString name,
 	              bool can_be_central_widget,
 	              bool delete_on_close,
 	              PVWorkspaceBase* parent);
 
   private:
 	Inendi::PVView* _view;
-	std::function<QString()> _name;
+	QString _name;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
 	bool _can_be_central_widget;

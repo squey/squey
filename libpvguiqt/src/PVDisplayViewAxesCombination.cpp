@@ -12,24 +12,17 @@
 #include <inendi/PVView.h>
 
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar, "Axes combination")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters,
+                      "Axes combination",
+                      QIcon(":/view-datatree"))
 {
 }
 
 QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView* view,
-                                                                 QWidget* parent) const
+                                                                 QWidget* parent,
+                                                                 Params const&) const
 {
 	PVGuiQt::PVAxesCombinationDialog* dlg = new PVGuiQt::PVAxesCombinationDialog(*view, parent);
 
 	return dlg;
-}
-
-QIcon PVDisplays::PVDisplayViewAxesCombination::toolbar_icon() const
-{
-	return QIcon(":/view-datatree");
-}
-
-QString PVDisplays::PVDisplayViewAxesCombination::widget_title(Inendi::PVView* view) const
-{
-	return "Axes combination [" + QString::fromStdString(view->get_name()) + "]";
 }

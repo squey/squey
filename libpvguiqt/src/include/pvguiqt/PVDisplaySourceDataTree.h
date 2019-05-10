@@ -20,10 +20,8 @@ class PVDisplaySourceDataTree : public PVDisplaySourceIf
 	PVDisplaySourceDataTree();
 
   public:
-	QWidget* create_widget(Inendi::PVSource* src, QWidget* parent) const override;
-	QIcon toolbar_icon() const override;
-
-	QString widget_title(Inendi::PVSource*) const override { return QString("Data tree"); }
+	QWidget*
+	create_widget(Inendi::PVSource* src, QWidget* parent, Params const& data = {}) const override;
 
 	CLASS_REGISTRABLE(PVDisplaySourceDataTree)
 };

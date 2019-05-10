@@ -20,22 +20,16 @@ namespace PVCore
  * @param test_self to indicate if \a self has to be checked or not
  */
 template <typename T>
-typename std::remove_pointer<T>::type* get_qobject_hierarchy_of_type(QObject* self,
-                                                                     bool test_self = true)
+std::remove_pointer_t<T>* get_qobject_hierarchy_of_type(QObject* self, bool test_self = true)
 {
-	typedef typename std::remove_pointer<T>::type* pointer;
-
 	if (self == nullptr) {
 		return nullptr;
 	}
 
-	QObject* o = test_self ? self : self->parent();
-	while (o) {
-		pointer o_cast = dynamic_cast<pointer>(o);
-		if (o_cast) {
+	for (QObject* o = test_self ? self : self->parent(); o != nullptr; o = o->parent()) {
+		if (auto o_cast = dynamic_cast<std::remove_pointer_t<T>*>(o)) {
 			return o_cast;
 		}
-		o = o->parent();
 	}
 	return nullptr;
 }
@@ -46,7 +40,7 @@ typename std::remove_pointer<T>::type* get_qobject_hierarchy_of_type(QObject* se
  * @param self the widget to test
  */
 template <typename T>
-typename std::remove_pointer<T>::type* get_qobject_parent_of_type(QObject* self)
+std::remove_pointer_t<T>* get_qobject_parent_of_type(QObject* self)
 {
 	return get_qobject_hierarchy_of_type<T>(self, false);
 }

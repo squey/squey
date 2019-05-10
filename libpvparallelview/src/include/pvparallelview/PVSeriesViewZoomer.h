@@ -52,7 +52,7 @@ class PVViewZoomer : public QWidget
 	Zoom rect_to_zoom(QRect const& rect) const;
 	Zoom current_zoom() const { return _zoom_stack[_current_zoom_index]; }
 
-	static void clamp_zoom(Zoom& zoom);
+	static Zoom clamp_zoom(Zoom zoom);
 
   Q_SIGNALS:
 	void zoom_updated(Zoom zoom);

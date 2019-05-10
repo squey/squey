@@ -37,6 +37,7 @@ plugins.cpp
 set(SRC_FILES ${SRC_FILES} PVMineset.cpp)
 
 set(WIDGETS_MOC_HEADERS
+include/inendi/widgets/PVAxisComboBox.h
 include/inendi/widgets/PVMappingPlottingEditDialog.h
 include/inendi/widgets/PVNewLayerDialog.h
 
@@ -50,6 +51,7 @@ include/inendi/widgets/editors/PVZoneIndexEditor.h
 
 set(WIDGETS_SRC_FILES
 widgets/PVArgumentListWidgetFactory.cpp
+widgets/PVAxisComboBox.cpp
 widgets/PVAxisTypeWidget.cpp
 widgets/PVMappingModeWidget.cpp
 widgets/PVMappingPlottingEditDialog.cpp

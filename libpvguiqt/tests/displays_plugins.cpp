@@ -14,7 +14,7 @@
 #include <inendi/PVView.h>
 #include <inendi/PVRoot.h>
 
-#include <pvdisplays/PVDisplaysImpl.h>
+#include <pvdisplays/PVDisplayIf.h>
 
 #include <pvguiqt/common.h>
 
@@ -51,21 +51,15 @@ int main(int argc, char** argv)
 	PVGuiQt::common::register_displays();
 
 	// Display all the possible Qt displays of this view and source
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
+	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 	    [&](PVDisplays::PVDisplayViewIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, view);
+		    QWidget* w = PVDisplays::get_widget(obj, view);
 		    w->show();
 		});
 
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
+	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, &src);
-		    w->show();
-		});
-
-	PVDisplays::get().visit_displays_by_if<PVDisplays::PVDisplayViewAxisIf>(
-	    [&](PVDisplays::PVDisplayViewAxisIf& obj) {
-		    QWidget* w = PVDisplays::get().get_widget(obj, view, PVCombCol(1));
+		    QWidget* w = PVDisplays::get_widget(obj, &src);
 		    w->show();
 		});
 

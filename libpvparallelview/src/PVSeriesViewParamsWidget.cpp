@@ -2,20 +2,27 @@
 #include <pvparallelview/PVSeriesViewWidget.h>
 #include <pvparallelview/PVSeriesView.h>
 #include <pvparallelview/PVSeriesViewZoomer.h>
+#include <pvparallelview/PVDisplayViewTimeseries.h>
 
 #include <pvparallelview/common.h>
 
 #include <inendi/PVRangeSubSampler.h>
+#include <inendi/widgets/PVAxisComboBox.h>
 
 #include <QSignalMapper>
 #include <QShortcut>
 #include <QToolButton>
+#include <QAction>
 
-PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVSeriesViewWidget* parent)
+PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol abscissa,
+                                                                   PVSeriesViewWidget* parent)
     : /*QToolBar(parent),*/ _series_view_widget(parent)
 {
-	add_selection_activator();
-	add_hunting_activator();
+	bool enable = abscissa != PVCol();
+	add_abscissa_selector(abscissa);
+	addSeparator();
+	add_selection_activator(enable);
+	add_hunting_activator(enable);
 	addSeparator();
 	add_rendering_mode_selector();
 	add_sampling_mode_selector();
@@ -25,7 +32,24 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVSeriesViewW
 	adjustSize();
 }
 
-void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator()
+void PVParallelView::PVSeriesViewParamsWidget::add_abscissa_selector(PVCol axis)
+{
+	auto abscissa_selector = new PVWidgets::PVAxisComboBox(
+	    _series_view_widget->_view->get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes, [this](PVCol axis, PVCombCol) {
+		    return PVDisplays::display_view_if<PVDisplays::PVDisplayViewTimeseries>()
+		        .abscissa_filter(_series_view_widget->_view, axis);
+		});
+	abscissa_selector->set_current_axis(axis);
+	addWidget(abscissa_selector);
+	connect(abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) {
+		        _series_view_widget->set_abscissa(axis);
+		        change_abscissa(axis);
+		    });
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enable)
 {
 	QAction* sel = new QAction(this);
 	sel->setIcon(QIcon(":/zoom-autofit-horizontal"));
@@ -35,17 +59,25 @@ void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator()
 	sel->setText("Select interval");
 	sel->setToolTip("Activate/deactivate select interval mode");
 	addAction(sel);
-	connect(sel, &QAction::triggered, [zoomer = _series_view_widget->_zoomer](bool checked) {
-		zoomer->change_selector_mode(checked ? PVSeriesViewZoomer::SelectorMode::Selecting
-		                                     : PVSeriesViewZoomer::SelectorMode::CrossHairs);
+	connect(sel, &QAction::triggered, [this](bool checked) {
+		_series_view_widget->_zoomer->change_selector_mode(
+		    checked ? PVSeriesViewZoomer::SelectorMode::Selecting
+		            : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
-	        [sel](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
-		        sel->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Selecting);
-		    });
+	_bind_connections.push_back([sel, this] {
+		sel->setEnabled(true);
+		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
+		        [sel](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
+			        sel->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Selecting);
+			    });
+	});
+	if (enable) {
+		_bind_connections.back()();
+	}
+	sel->setEnabled(enable);
 }
 
-void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator()
+void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator(bool enable)
 {
 	QAction* hunt = new QAction(this);
 	hunt->setIcon(QIcon(":/zoom-autofit-both"));
@@ -55,14 +87,22 @@ void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator()
 	hunt->setText("Select series");
 	hunt->setToolTip("Activate/deactivate select series mode");
 	addAction(hunt);
-	connect(hunt, &QAction::triggered, [zoomer = _series_view_widget->_zoomer](bool checked) {
-		zoomer->change_selector_mode(checked ? PVSeriesViewZoomer::SelectorMode::Hunting
-		                                     : PVSeriesViewZoomer::SelectorMode::CrossHairs);
+	connect(hunt, &QAction::triggered, [this](bool checked) {
+		_series_view_widget->_zoomer->change_selector_mode(
+		    checked ? PVSeriesViewZoomer::SelectorMode::Hunting
+		            : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
-	        [hunt](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
-		        hunt->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Hunting);
-		    });
+	_bind_connections.push_back([hunt, this] {
+		hunt->setEnabled(true);
+		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
+		        [hunt](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
+			        hunt->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Hunting);
+			    });
+	});
+	if (enable) {
+		_bind_connections.back()();
+	}
+	hunt->setEnabled(enable);
 }
 
 QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_selector()
@@ -123,15 +163,20 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 
 void PVParallelView::PVSeriesViewParamsWidget::set_rendering_mode(QAction* action)
 {
-	int mode = action->data().toInt();
+	_rendering_mode = decltype(_rendering_mode)(action->data().toInt());
 	int mode_index = _rendering_mode_button->actions().indexOf(action);
 
-	PVSeriesView& plot = *_series_view_widget->_plot;
-
-	plot.set_draw_mode((PVSeriesView::DrawMode)mode);
-	plot.refresh();
+	if (_series_view_widget->_plot) {
+		set_rendering_mode(_rendering_mode);
+		_series_view_widget->_plot->refresh();
+	}
 
 	update_mode_selector(_rendering_mode_button, mode_index);
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::set_rendering_mode(PVSeriesView::DrawMode mode) const
+{
+	_series_view_widget->_plot->set_draw_mode(mode);
 }
 
 void PVParallelView::PVSeriesViewParamsWidget::set_rendering_mode()
@@ -194,11 +239,21 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 
 void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode(QAction* action)
 {
-	int mode = action->data().toInt();
+	_sampling_mode = decltype(_sampling_mode)(action->data().toInt());
 	int mode_index = _sampling_mode_button->actions().indexOf(action);
 
-	Inendi::PVRangeSubSampler& sampler = *_series_view_widget->_sampler;
+	if (_series_view_widget->_sampler) {
+		set_sampling_mode(_sampling_mode);
+		_series_view_widget->_sampler->resubsample();
+	}
 
+	update_mode_selector(_sampling_mode_button, mode_index);
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode(
+    Inendi::PVRangeSubSampler::SAMPLING_MODE mode) const
+{
+	Inendi::PVRangeSubSampler& sampler = *_series_view_widget->_sampler;
 	switch (mode) {
 	case Inendi::PVRangeSubSampler::SAMPLING_MODE::MEAN:
 		sampler.set_sampling_mode<Inendi::PVRangeSubSampler::SAMPLING_MODE::MEAN>();
@@ -210,10 +265,6 @@ void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode(QAction* action
 		sampler.set_sampling_mode<Inendi::PVRangeSubSampler::SAMPLING_MODE::MAX>();
 		break;
 	}
-
-	sampler.resubsample();
-
-	update_mode_selector(_sampling_mode_button, mode_index);
 }
 
 void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode()
@@ -235,4 +286,13 @@ void PVParallelView::PVSeriesViewParamsWidget::update_mode_selector(QToolButton*
 	if (action != nullptr) {
 		button->setIcon(action->icon());
 	}
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::change_abscissa(PVCol)
+{
+	for (auto& binder : _bind_connections) {
+		binder();
+	}
+	set_sampling_mode(_sampling_mode);
+	set_rendering_mode(_rendering_mode);
 }

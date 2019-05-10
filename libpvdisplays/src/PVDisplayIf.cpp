@@ -7,72 +7,60 @@
 
 #include <pvdisplays/PVDisplayIf.h>
 
-// PVDisplayViewAxisIf implementation
-QWidget* PVDisplays::PVDisplayViewAxisIf::get_unique_widget(Inendi::PVView* view,
-                                                            PVCombCol axis_comb,
-                                                            QWidget* parent)
-{
-	QWidget* ret;
-	map_widgets_t::const_iterator it = _widgets.find(Params(view, axis_comb));
+#include <inendi/PVView.h>
 
-	if (it == _widgets.end()) {
-		ret = create_widget(view, axis_comb, parent);
-		_widgets[Params(view, axis_comb)] = ret;
-	} else {
-		ret = it->second;
-		assert(ret->parent() == parent);
+namespace PVDisplays
+{
+
+QString PVDisplayViewIf::widget_title(Inendi::PVView* view) const
+{
+	return tooltip_str() + " [" + QString::fromStdString(view->get_name()) + "]";
+}
+
+void PVDisplayViewIf::add_to_axis_menu(QMenu& menu,
+                                       PVCol axis,
+                                       PVCombCol /*axis_comb*/,
+                                       Inendi::PVView* view,
+                                       PVDisplaysContainer* container)
+{
+	QAction* act = new QAction(toolbar_icon(), axis_menu_name());
+	act->connect(act, &QAction::triggered, [this, view, axis, container]() {
+		container->create_view_widget(*this, view, {axis});
+	});
+	menu.addAction(act);
+}
+
+void add_displays_view_axis_menu(QMenu& menu,
+                                 PVDisplaysContainer* container,
+                                 Inendi::PVView* view,
+                                 PVCol axis,
+                                 PVCombCol axis_comb)
+{
+	visit_displays_by_if<PVDisplayViewIf>(
+	    [&](PVDisplayViewIf& interface) {
+		    interface.add_to_axis_menu(menu, axis, axis_comb, view, container);
+		},
+	    PVDisplayIf::ShowInCtxtMenu);
+}
+
+void add_displays_view_axis_menu(QMenu& menu,
+                                 PVDisplaysContainer* container,
+                                 Inendi::PVView* view,
+                                 PVCombCol axis_comb)
+{
+	assert(axis_comb != PVCombCol());
+	add_displays_view_axis_menu(menu, container, view,
+	                            view->get_axes_combination().get_nraw_axis(axis_comb), axis_comb);
+}
+
+PVCol col_param(Inendi::PVView* view, std::vector<std::any> const& params, size_t index)
+{
+	if (index >= params.size()) {
+		return PVCol();
 	}
-
-	return ret;
-}
-
-QAction* PVDisplays::PVDisplayViewAxisIf::action_bound_to_params(Inendi::PVView* view,
-                                                                 PVCombCol axis_comb,
-                                                                 QObject* parent) const
-{
-	auto action = new QAction(parent);
-
-	Params p(view, axis_comb);
-	QVariant var;
-	var.setValue(p);
-	action->setData(var);
-
-	return action;
-}
-
-// PVDisplayViewZoneIf implementation
-QWidget* PVDisplays::PVDisplayViewZoneIf::get_unique_widget(Inendi::PVView* view,
-                                                            PVCombCol axis_comb_first,
-                                                            PVCombCol axis_comb_second,
-                                                            QWidget* parent)
-{
-	QWidget* ret;
-	map_widgets_t::const_iterator it =
-	    _widgets.find(Params(view, axis_comb_first, axis_comb_second, true));
-
-	if (it == _widgets.end()) {
-		ret = create_widget(view, axis_comb_first, axis_comb_second, parent);
-		_widgets[Params(view, axis_comb_first, axis_comb_second, true)] = ret;
-	} else {
-		ret = it->second;
-		assert(ret->parent() == parent);
+	if (auto* comb_col = std::any_cast<PVCombCol>(&params[index])) {
+		return view->get_axes_combination().get_nraw_axis(*comb_col);
 	}
-
-	return ret;
-}
-
-QAction* PVDisplays::PVDisplayViewZoneIf::action_bound_to_params(Inendi::PVView* view,
-                                                                 PVCombCol axis_comb_first,
-                                                                 PVCombCol axis_comb_second,
-                                                                 bool ask_for_box,
-                                                                 QObject* parent) const
-{
-	auto action = new QAction(parent);
-
-	Params p(view, axis_comb_first, axis_comb_second, ask_for_box);
-	QVariant var;
-	var.setValue(p);
-	action->setData(var);
-
-	return action;
+	return std::any_cast<PVCol>(params[index]);
+};
 }

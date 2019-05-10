@@ -13,12 +13,19 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
+#include <pvdisplays/PVDisplaysContainer.h>
+
+#include <QMenu>
 #include <QAction>
 #include <QIcon>
 #include <QMetaType>
 #include <QWidget>
+#include <QString>
+#include <QDebug>
 
 #include <unordered_map>
+#include <vector>
+#include <any>
 
 namespace Inendi
 {
@@ -28,13 +35,10 @@ class PVView;
 
 namespace PVDisplays
 {
-
-class PVDisplaysImpl;
+class PVDisplaysContainer;
 
 class PVDisplayIf
 {
-	friend class PVDisplaysImpl;
-
   public:
 	typedef enum {
 		UniquePerParameters = 1,
@@ -47,9 +51,13 @@ class PVDisplayIf
 
   protected:
 	explicit PVDisplayIf(int flags = 0,
-	                     QString tooltip_str = QString(),
+	                     QString tooltip_str = {},
+	                     QIcon toolbar_icon = {},
 	                     Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
-	    : _flags(flags), _tooltip_str(std::move(tooltip_str)), _default_pos(def_pos)
+	    : _flags(flags)
+	    , _tooltip_str(std::move(tooltip_str))
+	    , _default_pos(def_pos)
+	    , _toolbar_icon(toolbar_icon)
 	{
 	}
 
@@ -67,8 +75,7 @@ class PVDisplayIf
 		       match_flags(DefaultPresenceInSourceWorkspace);
 	}
 
-  public:
-	virtual QIcon toolbar_icon() const { return QIcon(); }
+	QIcon toolbar_icon() const { return _toolbar_icon; }
 
   private:
 	int _flags;
@@ -76,68 +83,37 @@ class PVDisplayIf
 	// When set to Qt::NoDockWidgetArea with the DefaultPresenceInSourceWorkspace flag on, it means
 	// that we want this widget as a central widget
 	Qt::DockWidgetArea _default_pos;
+	QIcon _toolbar_icon;
 };
 
 template <class T>
 class PVDisplayDataTreeIf : public PVDisplayIf
 {
-	friend class PVDisplaysImpl;
-
-	typedef typename std::remove_pointer<T>::type value_type;
-	typedef std::unordered_map<value_type*, QWidget*> hash_widgets_t;
+	using value_type = std::remove_pointer_t<T>;
+	using hash_widgets_t = std::unordered_map<value_type*, QWidget*>;
 
   public:
-	explicit PVDisplayDataTreeIf(int flags = 0,
-	                             QString const& tooltip_str = QString(),
-	                             Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
-	    : PVDisplayIf(flags, tooltip_str, def_pos)
-	{
-	}
+	using Params = std::vector<std::any>;
 
-  public:
-	virtual QString widget_title(value_type* /*obj*/) const { return QString(); }
+	using PVDisplayIf::PVDisplayIf;
 
-  protected:
-	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr)
+	virtual QString widget_title(value_type* /*obj*/) const { return tooltip_str(); }
+
+	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {})
 	{
-		QWidget* ret;
-		typename hash_widgets_t::const_iterator it = _widgets.find(obj);
-		if (it == _widgets.end()) {
-			ret = create_widget(obj, parent);
-			_widgets[obj] = ret;
-		} else {
-			ret = it->second;
+		if (auto it = _widgets.find(obj); it != _widgets.end()) {
+			if (auto parent = it->second->parentWidget()) {
+				parent->deleteLater();
+			}
+			return it->second;
 		}
-
-		return ret;
+		auto w = _widgets[obj] = create_widget(obj, parent, data);
+		w->connect(w, &QWidget::destroyed, [obj, this](QObject*) { _widgets.erase(obj); });
+		return w;
 	}
 
-	inline void get_params_from_action(QAction const& action, value_type*& ret)
-	{
-		ret = get_value_from_action(action);
-	}
-
-	QAction* action_bound_to_params(value_type* obj,
-	                                PVCombCol /*axis_comb*/,
-	                                QObject* parent = nullptr) const
-	{
-		auto action = new QAction(parent);
-
-		QVariant var;
-		var.setValue<void*>(reinterpret_cast<void*>(obj));
-		action->setData(var);
-
-		return action;
-	}
-
-  protected:
-	virtual QWidget* create_widget(value_type* obj, QWidget* parent = nullptr) const = 0;
-
-  private:
-	inline static value_type* get_value_from_action(QAction const& action)
-	{
-		return reinterpret_cast<value_type*>(action.data().value<void*>());
-	}
+	virtual QWidget*
+	create_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {}) const = 0;
 
   private:
 	hash_widgets_t _widgets;
@@ -147,217 +123,104 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Inendi::PVView>,
                         public PVCore::PVRegistrableClass<PVDisplayViewIf>
 {
   public:
-	typedef PVDisplayViewIf RegAs;
-	typedef std::shared_ptr<RegAs> p_type;
+	using RegAs = PVDisplayViewIf;
+	using p_type = std::shared_ptr<RegAs>;
 
-  public:
-	explicit PVDisplayViewIf(int flags = 0,
-	                         QString const& tooltip_str = QString(),
-	                         Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
-	    : PVDisplayDataTreeIf<Inendi::PVView>(flags, tooltip_str, def_pos)
+	using PVDisplayDataTreeIf::PVDisplayDataTreeIf;
+	PVDisplayViewIf(int flags = 0,
+	                QString tooltip_str = {},
+	                QIcon toolbar_icon = {},
+	                QString axis_menu_name = {},
+	                Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
+	    : PVDisplayDataTreeIf(flags, tooltip_str, toolbar_icon, def_pos)
+	    , _axis_menu_name(axis_menu_name)
 	{
 	}
+
+	QString widget_title(Inendi::PVView* view) const override;
+
+	virtual QString axis_menu_name() const { return _axis_menu_name; }
+	virtual void add_to_axis_menu(QMenu& menu,
+	                              PVCol axis,
+	                              PVCombCol axis_comb,
+	                              Inendi::PVView* view,
+	                              PVDisplaysContainer* container);
+
+	QString _axis_menu_name;
 };
 
 class PVDisplaySourceIf : public PVDisplayDataTreeIf<Inendi::PVSource>,
                           public PVCore::PVRegistrableClass<PVDisplaySourceIf>
 {
   public:
-	typedef PVDisplaySourceIf RegAs;
-	typedef std::shared_ptr<RegAs> p_type;
+	using RegAs = PVDisplaySourceIf;
+	using p_type = std::shared_ptr<RegAs>;
 
-  public:
-	explicit PVDisplaySourceIf(int flags = 0,
-	                           QString const& tooltip_str = QString(),
-	                           Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
-	    : PVDisplayDataTreeIf<Inendi::PVSource>(flags, tooltip_str, def_pos)
-	{
-	}
+	using PVDisplayDataTreeIf::PVDisplayDataTreeIf;
 };
 
-class PVDisplayViewAxisIf : public PVDisplayIf,
-                            public PVCore::PVRegistrableClass<PVDisplayViewAxisIf>
+/******************************
+ * Helper functions
+ * ****************************/
+
+template <typename If, typename F>
+void visit_displays_by_if(F const& f, int flags = 0)
 {
-	friend class PVDisplaysImpl;
-
-  public:
-	struct Params {
-		Params() : view(nullptr), axis_comb(0) {}
-		Params(const Params& o) = default;
-		Params(Inendi::PVView* view_, PVCombCol axis_comb_) : view(view_), axis_comb(axis_comb_) {}
-
-		Inendi::PVView* view;
-		PVCombCol axis_comb;
-
-		inline bool operator<(Params const& p) const
-		{
-			return view < p.view && axis_comb < p.axis_comb;
+	// Interface of 'F' must be void f(If& obj), or with a base of If;
+	typename PVCore::PVClassLibrary<If>::list_classes const& lc =
+	    PVCore::PVClassLibrary<If>::get().get_list();
+	// `lc' is of type QHash<QString,shared_pointer<If>>
+	for (auto it = lc.begin(); it != lc.end(); it++) {
+		If& obj = *(it->value());
+		if (obj.match_flags(flags)) {
+			f(obj);
 		}
-	};
-
-  private:
-	typedef std::map<Params, QWidget*> map_widgets_t;
-
-  public:
-	explicit PVDisplayViewAxisIf(int flags = 0,
-	                             QString const& tooltip_str = QString(),
-	                             Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
-	    : PVDisplayIf(flags, tooltip_str, def_pos)
-	{
 	}
+}
 
-  public:
-	virtual QString widget_title(Inendi::PVView* /*obj*/, PVCombCol /*axis_comb*/) const
-	{
-		return QString();
-	}
-	virtual QString axis_menu_name(Inendi::PVView const* /*obj*/, PVCombCol /*axis_comb*/) const
-	{
-		return QString();
-	}
-	virtual bool should_add_to_menu(Inendi::PVView const* /*view*/, PVCombCol /*axis_comb*/) const
-	{
-		return true;
-	}
-
-  protected:
-	QWidget*
-	get_unique_widget(Inendi::PVView* view, PVCombCol axis_comb, QWidget* parent = nullptr);
-
-	inline void
-	get_params_from_action(QAction const& action, Inendi::PVView*& view, PVCombCol& axis_comb)
-	{
-		Params p = get_params_from_action(action);
-		view = p.view;
-		axis_comb = p.axis_comb;
-	}
-
-	QAction* action_bound_to_params(Inendi::PVView* view,
-	                                PVCombCol axis_comb,
-	                                QObject* parent = nullptr) const;
-
-  protected:
-	virtual QWidget*
-	create_widget(Inendi::PVView* view, PVCombCol axis_comb, QWidget* parent = nullptr) const = 0;
-
-  private:
-	inline static Params get_params_from_action(QAction const& action)
-	{
-		return action.data().value<Params>();
-	}
-
-  private:
-	map_widgets_t _widgets;
-
-  public:
-	typedef PVDisplayViewAxisIf RegAs;
-	typedef std::shared_ptr<RegAs> p_type;
-};
-
-class PVDisplayViewZoneIf : public PVDisplayIf,
-                            public PVCore::PVRegistrableClass<PVDisplayViewZoneIf>
+template <class If>
+If& display_view_if()
 {
-	friend class PVDisplaysImpl;
-
-  public:
-	struct Params {
-		Params() : view(nullptr), axis_comb_first(0), axis_comb_second(0) {}
-		Params(const Params& o) = default;
-		Params(Inendi::PVView* view_,
-		       PVCombCol axis_comb_first_,
-		       PVCombCol axis_comb_second_,
-		       bool ask_for_box_)
-		    : view(view_)
-		    , axis_comb_first(axis_comb_first_)
-		    , axis_comb_second(axis_comb_second_)
-		    , ask_for_box(ask_for_box_)
-		{
+	If* display = nullptr;
+	visit_displays_by_if<PVDisplayViewIf>([&display](auto& obj) {
+		if (display == nullptr) {
+			display = dynamic_cast<If*>(&obj);
 		}
+	});
+	assert(display != nullptr);
+	return *display;
+}
 
-		Inendi::PVView* view;
-		PVCombCol axis_comb_first;
-		PVCombCol axis_comb_second;
-		bool ask_for_box;
-
-		inline bool operator<(Params const& p) const
-		{
-			return view < p.view && axis_comb_first < p.axis_comb_first &&
-			       axis_comb_second < p.axis_comb_second;
-		}
-	};
-
-  private:
-	typedef std::map<Params, QWidget*> map_widgets_t;
-
-  public:
-	explicit PVDisplayViewZoneIf(int flags = 0,
-	                             QString const& tooltip_str = QString(),
-	                             Qt::DockWidgetArea def_pos = Qt::TopDockWidgetArea)
-	    : PVDisplayIf(flags, tooltip_str, def_pos)
-	{
+template <typename If, typename... P>
+QWidget* get_widget(If& interface, P&&... args)
+{
+	if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
+		return interface.get_unique_widget(std::forward<P>(args)...);
 	}
 
-  public:
-	virtual QString widget_title(Inendi::PVView* /*obj*/,
-	                             PVCombCol /*axis_comb_first*/,
-	                             PVCombCol /*axis_comb_second*/) const
-	{
-		return QString();
-	}
-	virtual QString axis_menu_name(Inendi::PVView const* /*obj*/,
-	                               PVCombCol /*axis_comb_first*/,
-	                               PVCombCol /*axis_comb_second*/) const
-	{
-		return QString();
-	}
+	return interface.create_widget(std::forward<P>(args)...);
+}
 
-  protected:
-	QWidget* get_unique_widget(Inendi::PVView* view,
-	                           PVCombCol axis_comb_first,
-	                           PVCombCol axis_comb_second,
-	                           QWidget* parent = nullptr);
+/**
+ * @param axis is always valid
+ * @param axis_comb may be empty
+ **/
+void add_displays_view_axis_menu(QMenu& menu,
+                                 PVDisplaysContainer* container,
+                                 Inendi::PVView* view,
+                                 PVCol axis,
+                                 PVCombCol axis_comb = PVCombCol());
 
-	inline void get_params_from_action(QAction const& action,
-	                                   Inendi::PVView*& view,
-	                                   PVCombCol& axis_comb_first,
-	                                   PVCombCol& axis_comb_second,
-	                                   bool& ask_for_box)
-	{
-		Params p = get_params_from_action(action);
-		view = p.view;
-		axis_comb_first = p.axis_comb_first;
-		axis_comb_second = p.axis_comb_second;
-		ask_for_box = p.ask_for_box;
-	}
+/**
+ * @param axis_comb is used to compute PVCol axis
+ **/
+void add_displays_view_axis_menu(QMenu& menu,
+                                 PVDisplaysContainer* container,
+                                 Inendi::PVView* view,
+                                 PVCombCol axis_comb);
 
-	QAction* action_bound_to_params(Inendi::PVView* view,
-	                                PVCombCol axis_comb_first,
-	                                PVCombCol axis_comb_second = PVCombCol(),
-	                                bool ask_for_box = false,
-	                                QObject* parent = nullptr) const;
+PVCol col_param(Inendi::PVView* view, std::vector<std::any> const& params, size_t index);
 
-  protected:
-	virtual QWidget* create_widget(Inendi::PVView* view,
-	                               PVCombCol axis_comb_first,
-	                               PVCombCol axis_comb_second,
-	                               QWidget* parent = nullptr) const = 0;
-
-  private:
-	inline static Params get_params_from_action(QAction const& action)
-	{
-		return action.data().value<Params>();
-	}
-
-  private:
-	map_widgets_t _widgets;
-
-  public:
-	typedef PVDisplayViewZoneIf RegAs;
-	typedef std::shared_ptr<RegAs> p_type;
-};
 } // namespace PVDisplays
-
-Q_DECLARE_METATYPE(PVDisplays::PVDisplayViewAxisIf::Params)
-Q_DECLARE_METATYPE(PVDisplays::PVDisplayViewZoneIf::Params)
 
 #endif

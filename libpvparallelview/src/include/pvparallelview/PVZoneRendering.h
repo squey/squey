@@ -76,7 +76,13 @@ class PVZoneRendering
 	PVZoneRendering& operator=(PVZoneRendering const&) = delete;
 	PVZoneRendering& operator=(PVZoneRendering&&) = delete;
 
-	virtual ~PVZoneRendering() { assert(_job_after_canceled.zp == nullptr); }
+	virtual ~PVZoneRendering()
+	{
+		assert(_job_after_canceled.zp == nullptr);
+		set_render_finished_slot(nullptr, nullptr);
+		cancel();
+		wait_end();
+	}
 
   public:
 	inline PVZoneID get_zone_id() const { return _zone_id; }
@@ -94,6 +100,7 @@ class PVZoneRendering
 
 	inline void set_render_finished_slot(QObject* receiver, const char* slot)
 	{
+		boost::unique_lock<boost::mutex> lock(_wait_mut);
 		_qobject_finished_success = receiver;
 		_qobject_slot = slot;
 	}

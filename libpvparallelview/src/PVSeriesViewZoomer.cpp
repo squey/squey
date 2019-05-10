@@ -168,12 +168,13 @@ auto PVViewZoomer::rect_to_zoom(QRect const& rect) const -> Zoom
 	    current_zoom.minY + current_zoom.height() * (1. - rect.y() / zoom_f(size().height()))};
 }
 
-void PVViewZoomer::clamp_zoom(Zoom& zoom)
+auto PVViewZoomer::clamp_zoom(Zoom zoom) -> Zoom
 {
 	zoom.minX = std::clamp(zoom.minX, zoom_f(0), zoom_f(1));
 	zoom.maxX = std::clamp(zoom.maxX, zoom_f(0), zoom_f(1));
 	zoom.minY = std::clamp(zoom.minY, zoom_f(0), zoom_f(1));
 	zoom.maxY = std::clamp(zoom.maxY, zoom_f(0), zoom_f(1));
+	return zoom;
 }
 
 void PVViewZoomer::update_zoom()
@@ -294,7 +295,7 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 			}
 			change_selector_mode(SelectorMode::CrossHairs);
 		} else if (_selector_mode == SelectorMode::Selecting) {
-			selection_commit(rect_to_zoom(normalized_zoom_rect(_selector_rect, false)));
+			selection_commit(clamp_zoom(rect_to_zoom(normalized_zoom_rect(_selector_rect, false))));
 			change_selector_mode(SelectorMode::CrossHairs);
 		} else if (_selector_mode == SelectorMode::Hunting) {
 			hunt_commit(_selector_rect.isNull() ? cross_hairs_rect(_selector_rect.topLeft())
@@ -540,7 +541,7 @@ void PVSeriesViewZoomer::update_chronotips(QPoint point)
 void PVSeriesViewZoomer::update_chronotips(QRect rect_in)
 {
 	auto rect = normalized_zoom_rect(rect_in, true);
-	Zoom coveredZoom = rect_to_zoom(rect);
+	Zoom coveredZoom = clamp_zoom(rect_to_zoom(rect));
 	pvcop::db::array subrange = _rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
 	_chronotips[0]->setText((subrange.at(0) + ">").c_str());
 	_chronotips[1]->setText(("<" + subrange.at(1)).c_str());

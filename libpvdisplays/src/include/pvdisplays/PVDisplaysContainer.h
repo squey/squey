@@ -10,9 +10,18 @@
 
 #include <pvbase/general.h>
 #include <QMainWindow>
+#include <vector>
+#include <any>
+
+namespace Inendi
+{
+class PVView;
+}
 
 namespace PVDisplays
 {
+
+class PVDisplayViewIf;
 
 class PVDisplaysContainer : public QMainWindow
 {
@@ -22,10 +31,9 @@ class PVDisplaysContainer : public QMainWindow
 	explicit PVDisplaysContainer(QWidget* w) : QMainWindow(w) {}
 
   public Q_SLOTS:
-	virtual void create_view_widget(QAction* act = nullptr) = 0;
-	virtual void create_view_axis_widget(QAction* act = nullptr) = 0;
-	virtual void create_view_zone_widget(QAction* act = nullptr) = 0;
-	virtual void toggle_unique_source_widget(QAction* act = nullptr) = 0;
+	virtual void create_view_widget(PVDisplays::PVDisplayViewIf& interface,
+	                                Inendi::PVView* view,
+	                                std::vector<std::any> params = {}) = 0;
 };
 } // namespace PVDisplays
 

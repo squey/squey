@@ -27,7 +27,7 @@
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
                                       QWidget* view_widget,
-                                      std::function<QString()> name,
+                                      QString name,
                                       bool can_be_central_widget,
                                       bool delete_on_close,
                                       PVWorkspaceBase* workspace)
@@ -38,7 +38,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
     , _can_be_central_widget(can_be_central_widget)
 {
 	setWidget(view_widget);
-	setWindowTitle(_name());
+	setWindowTitle(_name);
 
 	setFocusPolicy(Qt::StrongFocus);
 	view_widget->setFocusPolicy(Qt::StrongFocus);
@@ -302,5 +302,5 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 
 void PVGuiQt::PVViewDisplay::plotting_updated(QList<PVCol> const& /*cols_updated*/)
 {
-	setWindowTitle(_name());
+	setWindowTitle(_name);
 }

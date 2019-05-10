@@ -12,39 +12,34 @@
 #include <pvparallelview/PVSeriesViewWidget.h>
 
 PVDisplays::PVDisplayViewTimeseries::PVDisplayViewTimeseries()
-    : PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu, "Series view")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                      "Series view",
+                      QIcon(":/view-series"),
+                      "New series view")
 {
 }
 
 QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Inendi::PVView* view,
-                                                            PVCombCol axis_comb,
-                                                            QWidget* parent) const
+                                                            QWidget* parent,
+                                                            Params const& params) const
 {
-	return new PVParallelView::PVSeriesViewWidget(view, axis_comb, parent);
+	return new PVParallelView::PVSeriesViewWidget(view, col_param(view, params, 0), parent);
 }
 
-QIcon PVDisplays::PVDisplayViewTimeseries::toolbar_icon() const
+bool PVDisplays::PVDisplayViewTimeseries::abscissa_filter(Inendi::PVView* view, PVCol axis) const
 {
-	return QIcon(":/view-series");
+	return view->get_axes_combination().get_axis(axis).get_type().left(4) == "time" or
+	       view->get_axes_combination().get_axis(axis).get_type().left(7) == "number_";
 }
 
-// FIXME : Hidden argument reflect bad design properties, inheritance should certainly be improved.
-QString PVDisplays::PVDisplayViewTimeseries::widget_title(Inendi::PVView* view,
-                                                          PVCombCol axis_comb) const
+void PVDisplays::PVDisplayViewTimeseries::add_to_axis_menu(
+    QMenu& menu,
+    PVCol axis,
+    PVCombCol axis_comb,
+    Inendi::PVView* view,
+    PVDisplays::PVDisplaysContainer* container)
 {
-	return "Series view [" + QString::fromStdString(view->get_name()) + " on axis '" +
-	       view->get_axis_name(axis_comb) + "']";
-}
-
-QString PVDisplays::PVDisplayViewTimeseries::axis_menu_name(Inendi::PVView const* /*view*/,
-                                                            PVCombCol /*axis_comb*/) const
-{
-	return QString("New series view");
-}
-
-bool PVDisplays::PVDisplayViewTimeseries::should_add_to_menu(Inendi::PVView const* view,
-                                                             PVCombCol axis_comb) const
-{
-	return view->get_axis(axis_comb).get_type().left(4) == "time" or
-	       view->get_axis(axis_comb).get_type().left(7) == "number_";
+	if (abscissa_filter(view, axis)) {
+		PVDisplayViewIf::add_to_axis_menu(menu, axis, axis_comb, view, container);
+	}
 }

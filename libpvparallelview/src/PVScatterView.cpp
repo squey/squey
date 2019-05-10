@@ -50,13 +50,13 @@ using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
-                                             PVScatterViewBackend* backend,
+                                             create_backend_t create_backend,
                                              PVZoneID const zone_id,
                                              QWidget* parent /*= nullptr*/
                                              )
     : PVZoomableDrawingAreaWithAxes(parent)
     , _view(pvview_sp)
-    , _backend(backend)
+    , _create_backend(create_backend)
     , _view_deleted(false)
     , _zone_id(zone_id)
     , _show_bg(true)
@@ -70,29 +70,29 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 	/* zoom converter
 	 */
-	_zoom_converter = new PVScatterViewZoomConverter<zoom_steps>();
-	get_x_axis_zoom().set_zoom_converter(_zoom_converter);
-	get_y_axis_zoom().set_zoom_converter(_zoom_converter);
+	_zoom_converter = std::make_unique<PVScatterViewZoomConverter<zoom_steps>>();
+	get_x_axis_zoom().set_zoom_converter(_zoom_converter.get());
+	get_y_axis_zoom().set_zoom_converter(_zoom_converter.get());
 
-	_sel_rect = new PVScatterViewSelectionRectangle(this);
+	_sel_rect = std::make_unique<PVScatterViewSelectionRectangle>(this);
 
 	/* interactor
 	 */
-	_sel_rect_interactor = declare_interactor<PVSelectionRectangleInteractor>(_sel_rect);
-	register_front_all(_sel_rect_interactor);
+	_sel_rect_interactor.reset(declare_interactor<PVSelectionRectangleInteractor>(_sel_rect.get()));
+	register_front_all(_sel_rect_interactor.get());
 
-	_h_interactor = declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>();
-	register_front_all(_h_interactor);
+	_h_interactor.reset(declare_interactor<PVZoomableDrawingAreaInteractorHomothetic>());
+	register_front_all(_h_interactor.get());
 
-	_sv_interactor = declare_interactor<PVScatterViewInteractor>();
-	register_front_all(_sv_interactor);
+	_sv_interactor.reset(declare_interactor<PVScatterViewInteractor>());
+	register_front_all(_sv_interactor.get());
 
 	install_default_scene_interactor();
 
 	// need to move them to front to allow view pan before sel rect move
-	register_front_one(QEvent::MouseButtonPress, _h_interactor);
-	register_front_one(QEvent::MouseButtonRelease, _h_interactor);
-	register_front_one(QEvent::MouseMove, _h_interactor);
+	register_front_one(QEvent::MouseButtonPress, _h_interactor.get());
+	register_front_one(QEvent::MouseButtonRelease, _h_interactor.get());
+	register_front_one(QEvent::MouseMove, _h_interactor.get());
 
 	/* constraints
 	 */
@@ -119,6 +119,33 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 	set_scatter_view_zone(zone_id);
 
+	auto x_legend = new PVWidgets::PVAxisComboBox(
+	    _view.get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::BothOriginalCombinationAxes);
+	auto y_legend = new PVWidgets::PVAxisComboBox(
+	    _view.get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::BothOriginalCombinationAxes);
+	x_legend->set_current_axis(_zone_id.first);
+	y_legend->set_current_axis(_zone_id.second);
+	set_x_legend(x_legend);
+	set_y_legend(y_legend);
+	connect(x_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) {
+		        if (axis == PVCol()) {
+			        return;
+		        }
+		        PVZoneID zone_id{axis, _zone_id.second};
+		        set_scatter_view_zone(zone_id);
+		    });
+	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) {
+		        if (axis == PVCol()) {
+			        return;
+		        }
+		        PVZoneID zone_id{_zone_id.first, axis};
+		        set_scatter_view_zone(zone_id);
+		    });
+
 	get_scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 
 	connect(this, &PVScatterView::zoom_has_changed, this, &PVScatterView::do_zoom_change);
@@ -133,8 +160,6 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 	set_params_widget_position();
-
-	get_images_manager().set_img_update_receiver(this);
 
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
@@ -175,23 +200,16 @@ PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
 
 PVParallelView::PVScatterView::~PVScatterView()
 {
-	get_images_manager().cancel_all_and_wait();
-
 	if (!_view_deleted) {
 		common::get_lib_view(_view)->remove_scatter_view(this);
 	}
 
-	delete _zoom_converter;
 	delete get_constraints();
-	delete _h_interactor;
-	delete _sv_interactor;
-	delete _sel_rect_interactor;
-	delete _sel_rect;
 }
 
 PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree() const
 {
-	return get_zones_manager().get_zone_tree(get_zone_id());
+	return get_zones_manager().get_zone_tree(_zone_id);
 }
 
 /*****************************************************************************
@@ -324,6 +342,14 @@ void PVParallelView::PVScatterView::toggle_show_labels()
 	_show_labels = !_show_labels;
 	params_widget()->update_widgets();
 
+	update_labels_cache();
+	recompute_decorations();
+	reconfigure_view();
+	get_viewport()->update();
+}
+
+void PVParallelView::PVScatterView::update_labels_cache()
+{
 	if (_show_labels) {
 		PVCore::PVProgressBox::progress(
 		    [&](PVCore::PVProgressBox& pbox) {
@@ -335,10 +361,6 @@ void PVParallelView::PVScatterView::toggle_show_labels()
 			},
 		    "Initializing labels indices...", this);
 	}
-
-	recompute_decorations();
-	reconfigure_view();
-	get_viewport()->update();
 }
 
 /*****************************************************************************
@@ -373,16 +395,15 @@ void PVParallelView::PVScatterView::do_update_all()
 
 	_last_image_mv2s = get_transform_from_margined_viewport() * get_transform_to_scene();
 
-	// PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
-	get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
-
+	if (_zone_id.first != PVCol() && _zone_id.second != PVCol()) {
+		// PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
+		get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
+	}
 	get_viewport()->update();
 }
 
 bool PVParallelView::PVScatterView::update_zones()
 {
-	set_scatter_view_zone(_zone_id);
-
 	return true;
 }
 
@@ -390,13 +411,22 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
 	_zone_id = zid;
 
-	get_images_manager().set_zone(zid);
-	PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
-	_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
+	if (_zone_id.first != PVCol() && _zone_id.second != PVCol()) {
+		_backend = _create_backend(_zone_id, this);
+		auto& img_manager = _backend->get_images_manager();
+		img_manager.set_img_update_receiver(this);
+		img_manager.set_zone(zid);
 
-	// TODO: register axis name change through the hive
-	set_x_legend(lib_view().get_nraw_axis_name(zid.first));
-	set_y_legend(lib_view().get_nraw_axis_name(zid.second));
+		PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
+		_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
+
+		set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
+		               zoom_min);
+		update_labels_cache();
+	}
+	recompute_decorations();
+	reconfigure_view();
+	do_update_all();
 }
 
 /*****************************************************************************

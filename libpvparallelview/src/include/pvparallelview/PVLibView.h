@@ -43,9 +43,9 @@ class PVLibView : public sigc::trackable
   public:
 	PVFullParallelView* create_view(QWidget* parent = nullptr);
 	PVZoomedParallelView* create_zoomed_view(PVCombCol const axis, QWidget* parent = nullptr);
-	PVHitCountView* create_hit_count_view(PVCombCol const axis, QWidget* parent = nullptr);
+	PVHitCountView* create_hit_count_view(PVCol const axis, QWidget* parent = nullptr);
 	PVScatterView*
-	create_scatter_view(PVCombCol const axis_x, PVCombCol const axis_y, QWidget* parent = nullptr);
+	create_scatter_view(PVCol const axis_x, PVCol const axis_y, QWidget* parent = nullptr);
 
 	void request_zoomed_zone_trees(const PVCombCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }

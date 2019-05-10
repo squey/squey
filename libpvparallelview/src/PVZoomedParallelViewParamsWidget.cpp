@@ -7,81 +7,40 @@
 
 #include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
 #include <pvparallelview/PVZoomedParallelView.h>
+#include <pvparallelview/common.h>
 
 #include <QAction>
 #include <QMenu>
-#include <QToolButton>
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidget
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidget(
-    PVParallelView::PVZoomedParallelView* parent)
+    Inendi::PVAxesCombination const& axes_comb, QWidget* parent)
     : QToolBar(parent)
 {
 	setIconSize(QSize(17, 17));
+	setStyleSheet("QToolBar {" + frame_qss_bg_color + "} QComboBox { font-weight: bold; color: " +
+	              frame_text_color.name(QColor::HexArgb) + "; }");
+	setAutoFillBackground(true);
 
-	_menu_toolbutton = new QToolButton(this);
-	addWidget(_menu_toolbutton);
-	_menu_toolbutton->setPopupMode(QToolButton::InstantPopup);
-	_menu_toolbutton->setIcon(QIcon(":/select-axis"));
+	_menu = new PVWidgets::PVAxisComboBox(axes_comb,
+	                                      PVWidgets::PVAxisComboBox::AxesShown::CombinationAxes);
+	addWidget(_menu);
 
-	_axes = new QMenu();
-	connect(_axes, &QMenu::triggered, this,
-	        &PVZoomedParallelViewParamsWidget::set_active_axis_action);
-
-	_menu_toolbutton->setMenu(_axes);
+	connect(_menu, &PVWidgets::PVAxisComboBox::current_axis_changed, this,
+	        [this](PVCol, PVCombCol comb_col) { change_to_col(comb_col); });
 }
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu(int active_axis,
-                                                                       const QStringList& sl)
+void PVParallelView::PVZoomedParallelViewParamsWidget::build_axis_menu(PVCombCol active_axis)
 {
-	_axes->clear();
-	int i = 0;
-	for (const QString& str : sl) {
-		QAction* act = _axes->addAction(str);
-		act->setData(i++);
-	}
-	auto const& actions = _axes->actions();
-	QAction* current_axis_action = actions.at(std::min(active_axis, actions.size() - 1));
-
-	// resetting active stuff
-	_active_axis_action = nullptr;
-	_active_axis = PVCombCol(-1);
-
-	set_active_axis_action(current_axis_action);
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelViewParamsWidget::set_active_axis_action(QAction* act)
-{
-	if (act == _active_axis_action) {
-		return;
-	}
-
-	if (_active_axis_action) {
-		_active_axis_action->setVisible(true);
-	}
-	act->setVisible(false);
-	_active_axis_action = act;
-
-	_menu_toolbutton->setToolTip(QString("Select displayed axis\ncurrent axis is \"") +
-	                             act->text() + "\"");
-
-	PVCombCol axis(act->data().toInt());
-	if (_active_axis >= 0) {
-		/* only if _active_axis has been initialized (after the first
-		 * call done by ::build_axis_menu(...))
-		 */
-		Q_EMIT change_to_col(axis);
-	}
-	_active_axis = axis;
+	blockSignals(true);
+	_menu->refresh_axes();
+	_menu->set_current_axis(active_axis);
+	blockSignals(false);
 }

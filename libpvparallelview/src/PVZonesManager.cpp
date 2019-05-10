@@ -178,8 +178,8 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> co
 	for (auto& old_zone : _zones) {
 		if (_zones_ref_count.count(old_zone.first) > 0 &&
 		    not _new_zone_indices.count(old_zone.first)) {
-			_new_zone_indices.emplace(old_zone.first, _new_zones.size() - 1);
 			_new_zones.push_back(old_zone);
+			_new_zone_indices.emplace(old_zone.first, _new_zones.size() - 1);
 		}
 	}
 

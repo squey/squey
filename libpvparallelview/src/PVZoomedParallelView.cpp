@@ -14,11 +14,8 @@
 #include <QScrollBar>
 #include <QPainter>
 
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelView::PVZoomedParallelView
- *****************************************************************************/
-
-PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
+PVParallelView::PVZoomedParallelView::PVZoomedParallelView(
+    Inendi::PVAxesCombination const& axes_comb, QWidget* parent)
     : PVWidgets::PVGraphicsView(parent)
 {
 	setMinimumHeight(300);
@@ -36,18 +33,12 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget* parent)
 	_help_widget->addTextFromFile(":help-application");
 
 	_help_widget->newTable();
-	_help_widget->addTextFromFile(":help-mouse-zoomed-paralllel-view");
+	_help_widget->addTextFromFile(":help-mouse-zoomed-parallel-view");
 	_help_widget->finalizeText();
 
-	_params_widget = new PVZoomedParallelViewParamsWidget(this);
-	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
-	_params_widget->setAutoFillBackground(true);
+	_params_widget = new PVZoomedParallelViewParamsWidget(axes_comb, this);
 	_params_widget->adjustSize();
 }
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelView::~PVZoomedParallelView
- *****************************************************************************/
 
 PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
 {
@@ -56,62 +47,16 @@ PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
 	}
 }
 
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelView::resizeEvent
- *****************************************************************************/
-
 void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent* event)
 {
 	PVWidgets::PVGraphicsView::resizeEvent(event);
 
-	PVParallelView::PVZoomedParallelScene* zps =
-	    (PVParallelView::PVZoomedParallelScene*)get_scene();
-	if (zps == nullptr) {
-		return;
+	if (auto zps = static_cast<PVParallelView::PVZoomedParallelScene*>(get_scene())) {
+		_params_widget->move({0, 0});
+		_params_widget->adjustSize();
+		_params_widget->raise();
+
+		bool need_recomputation = event->oldSize().height() != event->size().height();
+		zps->resize_display(need_recomputation);
 	}
-
-	bool need_recomputation = event->oldSize().height() != event->size().height();
-
-	QPoint pos(get_viewport()->width() - frame_offsets.right(), frame_offsets.top());
-
-	pos -= QPoint(_params_widget->width(), 0);
-	_params_widget->move(pos);
-	_params_widget->raise();
-
-	zps->resize_display(need_recomputation);
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelView::drawForeground
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelView::drawForeground(QPainter* painter, const QRectF& rect)
-{
-	PVGraphicsView::drawForeground(painter, rect);
-
-	painter->save();
-
-	QFont f(painter->font());
-	f.setWeight(QFont::Bold);
-	painter->setFont(f);
-
-	QFontMetrics fm = painter->fontMetrics();
-	const QSize text_size = fm.size(Qt::TextSingleLine, _display_axis_name);
-	const QRect frame(frame_offsets.left(), frame_offsets.top(),
-	                  text_size.width() + frame_margins.left() + frame_margins.right(),
-	                  text_size.height() + frame_margins.top() + frame_margins.bottom());
-
-	painter->setPen(Qt::NoPen);
-	painter->setBrush(frame_bg_color);
-	painter->drawRect(frame);
-
-	painter->setPen(QPen(frame_text_color, 0));
-	painter->setBrush(Qt::NoBrush);
-
-	const QPoint text_pos(frame.left() + frame_margins.left(),
-	                      frame.top() + frame_margins.top() + fm.ascent());
-
-	painter->drawText(text_pos, _display_axis_name);
-
-	painter->restore();
 }

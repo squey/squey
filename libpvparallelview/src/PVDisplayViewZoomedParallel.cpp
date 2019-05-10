@@ -12,35 +12,37 @@
 #include <pvparallelview/PVDisplayViewZoomedParallel.h>
 
 PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
-    : PVDisplayViewAxisIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
-                          "Zoomed parallel view")
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+                      "Zoomed parallel view",
+                      QIcon(":/view-parallel-zoomed"),
+                      "New zoomed parallel view")
 {
 }
 
 QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* view,
-                                                                PVCombCol axis_comb,
-                                                                QWidget* parent) const
+                                                                QWidget* parent,
+                                                                Params const& data) const
 {
+	auto axis_comb = data.size() > 0 ? std::any_cast<PVCombCol>(data.at(0)) : PVCombCol();
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
 	QWidget* widget = lib_view->create_zoomed_view(axis_comb, parent);
 
 	return widget;
 }
 
-QIcon PVDisplays::PVDisplayViewZoomedParallel::toolbar_icon() const
+void PVDisplays::PVDisplayViewZoomedParallel::add_to_axis_menu(
+    QMenu& menu,
+    PVCol,
+    PVCombCol axis_comb,
+    Inendi::PVView* view,
+    PVDisplays::PVDisplaysContainer* container)
 {
-	return QIcon(":/view-parallel-zoomed");
-}
-
-// FIXME : Hidden argument reflect bad design properties, inheritance should certainly be improved.
-QString PVDisplays::PVDisplayViewZoomedParallel::widget_title(Inendi::PVView* view,
-                                                              PVCombCol /*axis_comb*/) const
-{
-	return "Zoomed view [" + QString::fromStdString(view->get_name()) + "]";
-}
-
-QString PVDisplays::PVDisplayViewZoomedParallel::axis_menu_name(Inendi::PVView const* /*view*/,
-                                                                PVCombCol /*axis_comb*/) const
-{
-	return QString("New zoomed parallel view");
+	if (axis_comb == PVCombCol()) {
+		return;
+	}
+	QAction* act = new QAction(toolbar_icon(), axis_menu_name());
+	act->connect(act, &QAction::triggered, [this, view, axis_comb, container]() {
+		container->create_view_widget(*this, view, {axis_comb});
+	});
+	menu.addAction(act);
 }

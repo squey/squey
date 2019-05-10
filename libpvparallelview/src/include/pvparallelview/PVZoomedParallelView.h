@@ -14,6 +14,11 @@ class QPainter;
 class QStyleOptionGraphicsItem;
 class QWidget;
 
+namespace Inendi
+{
+class PVAxesCombination;
+}
+
 namespace PVWidgets
 {
 
@@ -43,7 +48,8 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	 *
 	 * @param parent parent widget
 	 */
-	explicit PVZoomedParallelView(QWidget* parent = nullptr);
+	explicit PVZoomedParallelView(Inendi::PVAxesCombination const& axes_comb,
+	                              QWidget* parent = nullptr);
 
 	/**
 	 * Destructor
@@ -57,19 +63,11 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	 */
 	void resizeEvent(QResizeEvent* event) override;
 
-	void set_displayed_axis_name(const QString& s) { _display_axis_name = s; }
-
-	/**
-	 *
-	 */
-	void drawForeground(QPainter* painter, const QRectF& rect) override;
-
   protected:
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 	PVZoomedParallelViewParamsWidget* params_widget() { return _params_widget; }
 
   private:
-	QString _display_axis_name;
 	PVWidgets::PVHelpWidget* _help_widget;
 	PVZoomedParallelViewParamsWidget* _params_widget;
 };

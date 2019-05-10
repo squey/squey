@@ -36,6 +36,8 @@ class PVScatterViewImagesManager : boost::noncopyable
 	                           const PVCore::PVHSVColor* colors,
 	                           Inendi::PVSelection const& sel);
 
+	~PVScatterViewImagesManager();
+
   public:
 	bool change_and_process_view(const uint64_t y1_min,
 	                             const uint64_t y1_max,

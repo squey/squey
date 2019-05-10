@@ -67,12 +67,14 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	constexpr static int digital_zoom_level = y_min_zoom_level - 1;
 
   private:
-	typedef PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
+	using zoom_converter_t = PVZoomConverterScaledPowerOfTwo<zoom_steps>;
+	using backend_unique_ptr_t = std::unique_ptr<PVHitCountViewBackend>;
+	using create_backend_t = std::function<backend_unique_ptr_t(PVCol, QWidget*)>;
 
   public:
 	PVHitCountView(Inendi::PVView& pvview_sp,
-	               PVHitCountViewBackend* backend,
-	               const PVCombCol axis_index,
+	               create_backend_t create_backend,
+	               const PVCol axis,
 	               QWidget* parent = nullptr);
 
 	~PVHitCountView() override;
@@ -192,7 +194,8 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	Inendi::PVView& _pvview;
 	QTimer _update_all_timer;
 
-	std::unique_ptr<PVHitCountViewBackend> _backend;
+	backend_unique_ptr_t _backend;
+	create_backend_t _create_backend;
 	bool _view_deleted;
 	uint64_t _max_count;
 	int _block_zoom_value;

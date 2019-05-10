@@ -9,6 +9,7 @@
 #define PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAWITHAXES_H
 
 #include <pvparallelview/PVZoomableDrawingArea.h>
+#include <inendi/widgets/PVAxisComboBox.h>
 
 #include <QString>
 
@@ -94,6 +95,8 @@ depend of the client's windows settings. */
 	 */
 	void set_x_legend(const QString& legend);
 
+	void set_x_legend(PVWidgets::PVAxisComboBox* legend);
+
 	/**
 	 * Return the legend of the horizontal axis
 	 */
@@ -105,6 +108,8 @@ depend of the client's windows settings. */
 	 * @param legend the text to use
 	 */
 	void set_y_legend(const QString& legend);
+
+	void set_y_legend(PVWidgets::PVAxisComboBox* legend);
 
 	/**
 	 * Return the legend of the vertical axis
@@ -167,6 +172,8 @@ depend of the client's windows settings. */
 	QColor _decoration_color;
 	QString _x_legend;
 	QString _y_legend;
+	PVWidgets::PVAxisComboBox* _x_legend_widget = nullptr;
+	PVWidgets::PVAxisComboBox* _y_legend_widget = nullptr;
 
 	int _ticks_per_level;
 

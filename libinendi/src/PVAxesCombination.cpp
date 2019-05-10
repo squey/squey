@@ -26,17 +26,19 @@ PVAxesCombination::PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes)
 
 PVRush::PVAxisFormat const& PVAxesCombination::get_axis(PVCombCol col) const
 {
+	assert(col != PVCombCol());
 	return _axes[_axes_comb[col]];
 }
 
 PVRush::PVAxisFormat const& PVAxesCombination::get_axis(PVCol col) const
 {
+	assert(col != PVCol());
 	return _axes[col];
 }
 
 PVCol PVAxesCombination::get_nraw_axis(PVCombCol col) const
 {
-	return _axes_comb[col];
+	return col == PVCombCol() ? PVCol() : _axes_comb[col];
 }
 
 std::vector<PVCol> const& PVAxesCombination::get_combination() const
