@@ -1,8 +1,8 @@
 /**
  * @file
  *
- *
- * @copyright (C) ESI Group INENDI 2017
+ * @copyright (C) Picviz Labs 2011-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2019
  */
 
 #include "PVPcapParamsWidget.h"

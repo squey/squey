@@ -108,6 +108,26 @@ add_library(source_pcap SHARED ${PCAP_SRC_FILES})
 target_link_libraries(source_pcap pvkernel)
 
 ###############################################################################
+# ERF sources
+###############################################################################
+
+# Define ressources
+set(ERF_SRC_FILES
+	erf/PVSourceCreatorERF.cpp
+	erf/register.cpp
+)
+
+set(ERF_LIBS
+    /app/lib/liberf_cpp_dp.so
+    /app/lib/libhdf5_cpp.so
+    /app/lib/libinendi_erfio.so
+)
+
+# Create lib
+add_library(source_erf SHARED ${ERF_SRC_FILES})
+target_link_libraries(source_erf pvkernel ${ERF_LIBS})
+
+###############################################################################
 # Define installation folders
 ###############################################################################
 set(SOURCES_DIST_LIST

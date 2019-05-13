@@ -225,6 +225,31 @@ add_library(input_type_splunk SHARED ${SPLUNK_UI_SRCS} ${SPLUNK_SRC_FILES} ${SPL
 target_link_libraries(input_type_splunk pvkernel curl)
 
 ###############################################################################
+# ERF input plugin
+###############################################################################
+# Declare ressources
+SET(ERF_MOC_HEADERS
+erf/PVERFParamsWidget.h)
+
+set(ERF_SRC_FILES
+erf/PVERFParamsWidget.cpp
+erf/PVInputTypeERF.cpp
+erf/register.cpp)
+
+# Generate Qt Specific files
+QT5_WRAP_CPP(ERF_MOC_SRCS ${ERF_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+
+set(ERF_LIBS
+    /app/lib/liberf_cpp_dp.so
+    /app/lib/libhdf5_cpp.so
+	  /app/lib/libinendi_erfio.so
+)
+
+# Generate linkage configuration
+add_library(input_type_erf SHARED ${ERF_MOC_SRCS} ${ERF_SRC_FILES})
+target_link_libraries(input_type_erf pvkernel ${ERF_LIBS})
+
+###############################################################################
 # Install plugins
 ###############################################################################
 
@@ -234,6 +259,7 @@ set(INPUTS_DIST_LIST
 	input_type_database
 	input_type_elasticsearch
 	input_type_splunk
+	input_type_erf
 	)
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/input-types
