@@ -133,6 +133,16 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVTextChunk const& chunk)
 	return true;
 }
 
+bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk const& chunk)
+{
+	pvcop::db::sink snk(*_collector);
+	snk.write_chunk_by_column(0, chunk.rows_count(), chunk.columns_chunk());
+
+	_real_nrows += chunk.rows_count();
+
+	return true;
+}
+
 /*****************************************************************************
  *
  * PVRush::PVNraw::load_done

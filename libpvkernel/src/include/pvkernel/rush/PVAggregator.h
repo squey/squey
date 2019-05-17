@@ -19,7 +19,7 @@
 
 namespace PVCore
 {
-class PVTextChunk;
+class PVChunk;
 } // namespace PVCore
 
 namespace PVRush
@@ -29,7 +29,7 @@ namespace PVRush
  *in a TBB pipeline.
  * Each PVRawSourceBase creates PVChunk objects which contains a local index (that defines the index
  *of its first element,
- * see PVCore::PVTextChunk for more informations). A global starting index is stored by PVAggregator
+ * see PVCore::PVChunk for more informations). A global starting index is stored by PVAggregator
  *that defines the global start
  * index of each source (stored in the _src_offsets object).
  *
@@ -69,11 +69,14 @@ class PVAggregator
 	 * responsability
 	 *        of the caller to free it using PVChunk::free.
 	 */
-	PVCore::PVTextChunk* operator()();
+	PVCore::PVChunk* operator()();
 
 	/*! \brief TBB-compatible pipeline input interface
 	 */
-	PVCore::PVTextChunk* operator()(tbb::flow_control& fc);
+	PVCore::PVChunk* operator()(tbb::flow_control& fc);
+
+  public:
+	EChunkType chunk_type() const;
 
   public:
 	/*! \brief Tell the aggregator to return chunks whose global indexes are between a given range.
@@ -109,8 +112,8 @@ class PVAggregator
 	bool& job_done() { return _job_done; }
 
   protected:
-	PVCore::PVTextChunk* read_until_start_index();
-	PVCore::PVTextChunk* next_chunk();
+	PVCore::PVChunk* read_until_start_index();
+	PVCore::PVChunk* next_chunk();
 
   protected:
 	list_sources _inputs;

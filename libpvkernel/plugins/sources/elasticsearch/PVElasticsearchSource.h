@@ -21,7 +21,7 @@
 namespace PVRush
 {
 
-class PVElasticsearchSource : public PVRawSourceBase
+class PVElasticsearchSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
 	PVElasticsearchSource(PVInputDescription_p input);

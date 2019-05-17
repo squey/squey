@@ -17,8 +17,7 @@
 #include <sstream>
 
 PVRush::PVSplunkSource::PVSplunkSource(PVInputDescription_p input)
-    : PVRawSourceBase()
-    , _next_index(0)
+    : _next_index(0)
     , _query(*dynamic_cast<PVSplunkQuery*>(input.get()))
     , _splunk(_query.get_infos())
 {

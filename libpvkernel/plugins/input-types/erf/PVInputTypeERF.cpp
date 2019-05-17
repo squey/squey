@@ -16,27 +16,14 @@ bool PVRush::PVInputTypeERF::createWidget(hash_formats const& formats,
                                           PVCore::PVArgumentList& /*args_ext*/,
                                           QWidget* parent) const
 {
-#if 0
-	connect_parent(parent);
-	std::unique_ptr<PVERFParamsWidget> params(
-	    new PVERFParamsWidget(this, formats, parent));
-	if (params->exec() == QDialog::Rejected) {
-		return false;
-	}
+	inputs.push_back(PVInputDescription_p(new PVERFDescription(
+	    "/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g.erfh5" /*"/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g_VV1.erfh5"*/)));
 
-	PVElasticsearchQuery* query = new PVElasticsearchQuery(params->get_query());
+	QString format_path("/srv/logs/VW/erf_all.csv.format");
+	PVRush::PVFormat f("", format_path);
+	new_formats["custom"] = std::move(f);
+	format = format_path;
 
-	PVInputDescription_p ind(query);
-	inputs.push_back(ind);
-
-	if (params->is_format_custom()) {
-		PVRush::PVFormat custom_format(params->get_custom_format().documentElement());
-		new_formats["custom"] = std::move(custom_format);
-		format = "custom";
-	} else {
-		format = params->get_format_path();
-	}
-#endif
 	return true;
 }
 

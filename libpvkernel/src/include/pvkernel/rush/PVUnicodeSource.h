@@ -33,7 +33,7 @@ class UnicodeSourceBufferOverflowError : public std::exception
  * It creates Chunks/Elements/Fields without BOM and in UTF-8
  */
 template <template <class T> class Allocator = PVCore::PVMMapAllocator>
-class PVUnicodeSource : public PVRawSourceBase
+class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
 	using alloc_chunk = Allocator<char>;
@@ -44,11 +44,7 @@ class PVUnicodeSource : public PVRawSourceBase
 
   public:
 	PVUnicodeSource(PVInput_p input, size_t chunk_size, const alloc_chunk& alloc = alloc_chunk())
-	    : PVRawSourceBase()
-	    , _chunk_size(chunk_size)
-	    , _input(input)
-	    , _alloc(alloc)
-	    , _utf8_converter("UTF-8")
+	    : _chunk_size(chunk_size), _input(input), _alloc(alloc), _utf8_converter("UTF-8")
 	{
 		assert(chunk_size > 10);
 		assert(input);

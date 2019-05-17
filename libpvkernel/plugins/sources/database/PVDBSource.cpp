@@ -16,7 +16,7 @@
 #define NCHUNKS 100
 
 PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk)
-    : PVRawSourceBase(), _query(query), _nelts_chunk(nelts_chunk)
+    : _query(query), _nelts_chunk(nelts_chunk)
 {
 	seek_begin();
 	if (!_query.connect_serv()) {

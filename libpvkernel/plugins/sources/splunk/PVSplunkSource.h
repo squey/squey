@@ -24,7 +24,7 @@ namespace PVRush
 
 class PVSplunkQuery;
 
-class PVSplunkSource : public PVRawSourceBase
+class PVSplunkSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
 	PVSplunkSource(PVInputDescription_p input);

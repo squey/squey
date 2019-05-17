@@ -10,10 +10,10 @@
 #include <pvkernel/rush/PVRawSourceBase.h>       // for PVRawSourceBase
 #include <pvkernel/rush/PVRawSourceBase_types.h> // for PVRawSourceBase_p
 
-#include <pvkernel/core/PVTextChunk.h> // for list_elts, PVChunk
-#include <pvkernel/core/PVConfig.h>    // for PVConfig
-#include <pvkernel/core/PVElement.h>   // for PVElement
-#include <pvkernel/core/PVLogger.h>    // for PVLOG_DEBUG
+#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVConfig.h>  // for PVConfig
+#include <pvkernel/core/PVElement.h> // for PVElement
+#include <pvkernel/core/PVLogger.h>  // for PVLOG_DEBUG
 
 #include <pvbase/general.h>
 #include <pvbase/types.h> // for chunk_index, PVCol
@@ -71,9 +71,9 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart,
 	(*_cur_input)->prepare_for_nelts(expected_nelts);
 }
 
-PVCore::PVTextChunk* PVRush::PVAggregator::read_until_start_index()
+PVCore::PVChunk* PVRush::PVAggregator::read_until_start_index()
 {
-	PVCore::PVTextChunk* ret = nullptr;
+	PVCore::PVChunk* ret = nullptr;
 	bool first = true;
 	while (_nstart >= _nread_elements) {
 		if (not first)
@@ -87,10 +87,10 @@ PVCore::PVTextChunk* PVRush::PVAggregator::read_until_start_index()
 	return ret;
 }
 
-PVCore::PVTextChunk* PVRush::PVAggregator::next_chunk()
+PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 {
 	// Get chunk from current input
-	PVCore::PVTextChunk* ret = (*_cur_input)->operator()();
+	PVCore::PVChunk* ret = (*_cur_input)->operator()();
 
 	if (ret == nullptr) {
 		// Release input on-the-fly to reduce resources consumption
@@ -108,25 +108,25 @@ PVCore::PVTextChunk* PVRush::PVAggregator::next_chunk()
 	if (ret == nullptr) {
 		throw PVRush::PVInputException((*_cur_input)->human_name().toStdString() + " is empty");
 	}
-	if (_begin_of_input and ret->c_elements().size() < _skip_lines_count) {
+	if (_begin_of_input and ret->rows_count() < _skip_lines_count) {
 		throw PVRush::PVInputException((*_cur_input)->human_name().toStdString() +
 		                               " doesn't have header");
 	}
 
-	_nread_elements += ret->c_elements().size();
+	_nread_elements += ret->rows_count();
 	ret->_agg_index = _cur_src_index + ret->_index;
 
 	return ret;
 }
 
-PVCore::PVTextChunk* PVRush::PVAggregator::operator()()
+PVCore::PVChunk* PVRush::PVAggregator::operator()()
 {
 	if (_nread_elements >= _nend) {
 		// This is the end of this job
 		return nullptr;
 	}
 
-	PVCore::PVTextChunk* ret;
+	PVCore::PVChunk* ret;
 	if (not _nread_elements) {
 		// We have to read until _nstart indexes to skip not required first
 		// line at the beginning fo the file.
@@ -136,21 +136,13 @@ PVCore::PVTextChunk* PVRush::PVAggregator::operator()()
 			return nullptr;
 		}
 		// First part of the chunk is useless.
-		chunk_index nelts_remove = ret->c_elements().size() - (_nread_elements - _nstart);
+		chunk_index nelts_remove = ret->rows_count() - (_nread_elements - _nstart);
 		if (ret->_index < _skip_lines_count) {
 			nelts_remove = std::max(_skip_lines_count, nelts_remove);
 		}
-
-		PVCore::list_elts& elts = ret->elements();
-		auto it_elt = elts.begin();
-		for (chunk_index i = 0; i < nelts_remove; i++) {
-			PVCore::PVElement::free(*it_elt);
-			auto it_er = it_elt;
-			it_elt++;
-			elts.erase(it_er);
-		}
+		ret->remove_nelts_front(nelts_remove);
 		_nend -= _nstart;
-		_nread_elements = elts.size();
+		_nread_elements = ret->rows_count();
 		ret->_agg_index = 0;
 		_cur_src_index = -ret->_index - nelts_remove;
 		_begin_of_input = false;
@@ -163,12 +155,7 @@ PVCore::PVTextChunk* PVRush::PVAggregator::operator()()
 		}
 
 		if (_begin_of_input) {
-			PVCore::list_elts& elts = ret->elements();
-			for (size_t i = 0; i < _skip_lines_count; ++i) {
-				auto it = elts.begin();
-				PVCore::PVElement::free(*it);
-				elts.erase(it);
-			}
+			ret->remove_nelts_front(_skip_lines_count);
 			_begin_of_input = false;
 			_nread_elements -= _skip_lines_count;
 			_nend -= _skip_lines_count;
@@ -176,27 +163,14 @@ PVCore::PVTextChunk* PVRush::PVAggregator::operator()()
 		}
 	}
 
-	chunk_index nelts = ret->c_elements().size();
+	chunk_index nelts = ret->rows_count();
 	if (ret->_agg_index + nelts > _nend) {
 		// We need to shrink that last chunk
 		// As we use std::list for elements, this will not be
 		// really efficient.
 		// TODO: profile this.
 		chunk_index nstart_rem = _nend + 1 - ret->_agg_index;
-		PVCore::list_elts& elts = ret->elements();
-		auto it_elt = elts.begin();
-		// Go to the nstart_rem ith element
-		for (chunk_index i = 0; i < nstart_rem; i++) {
-			it_elt++;
-		}
-
-		// And remove them all till the end
-		while (it_elt != elts.end()) {
-			PVCore::PVElement::free(*it_elt);
-			auto it_er = it_elt;
-			it_elt++;
-			elts.erase(it_er);
-		}
+		ret->remove_nelts_front(nelts - nstart_rem, nstart_rem);
 	}
 	// Define elements index once elements to remove are removed.
 	ret->set_elements_index();
@@ -204,18 +178,23 @@ PVCore::PVTextChunk* PVRush::PVAggregator::operator()()
 	return ret;
 }
 
-PVCore::PVTextChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc)
+PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc)
 {
 	if (_job_done) {
 		fc.stop();
 		return nullptr;
 	}
-	PVCore::PVTextChunk* ret = this->operator()();
+	PVCore::PVChunk* ret = this->operator()();
 	if (ret == nullptr) {
 		PVLOG_DEBUG("(PVAggregator::next_chunk) aggregator stop because of no more input datas\n");
 		fc.stop();
 	}
 	return ret;
+}
+
+PVRush::EChunkType PVRush::PVAggregator::chunk_type() const
+{
+	return (*_cur_input)->chunk_type();
 }
 
 void PVRush::PVAggregator::add_input(PVRush::PVRawSourceBase_p in)

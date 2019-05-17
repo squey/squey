@@ -173,8 +173,10 @@ class PVGuessReducingTree
 };
 } // namespace PVFilter
 
-void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVTextChunk* chunk)
+void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* c)
 {
+	PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
+	assert(chunk);
 	PVFilter::PVFieldsSplitter_p sp = _filter;
 	PVCore::list_fields lf_res;
 	PVCore::PVArgumentList args_match;
@@ -219,7 +221,9 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 PVFilter::PVFieldsSplitter_p
 PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol& naxes)
 {
-	PVCore::PVTextChunk* chunk = (*src)();
+	PVCore::PVChunk* chunk = (*src)();
+	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
+	assert(text_chunk);
 	PVFieldsSplitter_p ret;
 	if (!chunk) {
 		src->seek_begin();
@@ -251,7 +255,7 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			break;
 		}
 	}
-	chunk->free();
+	text_chunk->free();
 
 	return ret;
 }

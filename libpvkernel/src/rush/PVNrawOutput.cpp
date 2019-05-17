@@ -9,7 +9,8 @@
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVFormat.h>
 
-#include <pvkernel/core/PVTextChunk.h> // for PVChunk
+#include <pvkernel/core/PVTextChunk.h>
+#include <pvkernel/core/PVBinaryChunk.h>
 
 #include <pvbase/types.h> // for PVRow
 
@@ -21,11 +22,27 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
 {
 }
 
-void PVRush::PVNrawOutput::operator()(PVCore::PVTextChunk* out)
+void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	nraw_dest().add_chunk_utf16(*out);
+	pvlogger::info() << "PVRush::PVNrawOutput::operator() : " << out << std::endl;
 
-	_out_size += out->get_init_size();
+	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(out);
+	if (text_chunk) {
+		nraw_dest().add_chunk_utf16(*text_chunk);
+
+		_out_size += text_chunk->get_init_size();
+	} else {
+		PVCore::PVBinaryChunk* bin_chunk = dynamic_cast<PVCore::PVBinaryChunk*>(out);
+		assert(bin_chunk);
+
+		auto start = std::chrono::system_clock::now();
+
+		nraw_dest().add_bin_chunk(*bin_chunk);
+
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> diff = end - start;
+		pvlogger::error() << "add_bin_chunk : " << diff.count() << std::endl;
+	}
 
 	// Clear this chunk !
 	out->free();

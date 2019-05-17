@@ -13,8 +13,6 @@
 #include <pvkernel/core/PVField.h>   // for PVField
 #include <pvkernel/core/PVLogger.h>  // for PVLOG_ERROR
 
-#include "pvbase/types.h" // for chunk_index, PVCol, PVRow
-
 #include <tbb/scalable_allocator.h> // for scalable_allocator
 
 #include <cassert> // for assert
@@ -96,8 +94,12 @@ class PVTextChunk : public PVChunk
 	};
 
   public:
-	PVTextChunk() : _index(0), _init_size(0), _p_chunk_fields(nullptr){};
+	PVTextChunk() : _init_size(0), _p_chunk_fields(nullptr){};
 	virtual ~PVTextChunk() { free_structs(); }
+
+  public:
+	size_t rows_count() const override { return c_elements().size(); };
+
 	void free_structs()
 	{
 		// Free elements
@@ -150,7 +152,6 @@ class PVTextChunk : public PVChunk
 	size_t size() const { return (size_t)((uintptr_t)_logical_end - (uintptr_t)begin()); };
 	size_t avail() const { return (size_t)((uintptr_t)_physical_end - (uintptr_t)_logical_end); };
 
-	virtual void free() = 0;
 	virtual PVTextChunk* realloc_grow(size_t n) = 0;
 
 	chunk_index get_agg_index_of_element(PVElement const& elt)
@@ -173,10 +174,25 @@ class PVTextChunk : public PVChunk
 		return new_elt;
 	}
 
+	void remove_nelts_front(size_t nelts_remove, size_t nstart_rem = 0) override
+	{
+		auto it_elt = elements().begin();
+		// Go to the nstart_rem ith element
+		for (chunk_index i = 0; i < nstart_rem; i++) {
+			it_elt++;
+		}
+		for (chunk_index i = 0; i < nelts_remove; i++) {
+			PVCore::PVElement::free(*it_elt);
+			auto it_er = it_elt;
+			it_elt++;
+			elements().erase(it_er);
+		}
+	}
+
 	PVRush::PVRawSourceBase* source() const { return _source; };
 
   public:
-	void set_elements_index()
+	void set_elements_index() override
 	{
 		size_t i = 0;
 		for (auto& elt : _elts) {
@@ -221,8 +237,6 @@ class PVTextChunk : public PVChunk
 	char* _logical_end;
 	char* _physical_end;
 	list_elts _elts;
-	chunk_index _index;
-	chunk_index _agg_index;
 	PVRush::PVRawSourceBase* _source;
 	size_t _nelts_org;
 	size_t _nelts_valid;

@@ -243,3 +243,10 @@ add_bench(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_di
 # inendi-logstats
 add_inspector_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
 add_inspector_test(Trush_logstats Trush_logstats)
+
+# ERF
+include_directories(AFTER /app/include/erf/include)
+include_directories(AFTER /app/include/erf/include/c)
+include_directories(AFTER /app/include/erf/include/cpp)
+add_inspector_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} libinendi_erfio.so FILES erf.cpp)
+add_inspector_test(Trush_erf Trush_erf)

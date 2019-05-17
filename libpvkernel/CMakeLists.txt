@@ -62,6 +62,8 @@ include_directories(SYSTEM AFTER ${Boost_INCLUDE_DIR})
 include_directories(SYSTEM AFTER ${HWLOC_INCLUDE_DIRS})
 include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
 include_directories(AFTER "src/third_party/uchardetect")
+include_directories(AFTER /app/include/erf)
+include_directories(AFTER /app/include/erf/cpp)
 
 ###############################################################################
 # Configure subdirectories

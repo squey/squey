@@ -29,7 +29,7 @@ PVRush::PVSourceCreatorERF::create_source_from_input(PVRush::PVInputDescription_
 	if (size_chunk <= 0) {
 		size_chunk = 4096 * 100; // Aligned on a page boundary (4ko)
 	}
-	source_p src(new PVRush::PVERFSource<>(ifile, erf_desc, size_chunk));
+	source_p src(new PVRush::PVERFSource(ifile, erf_desc, size_chunk));
 
 	return src;
 }

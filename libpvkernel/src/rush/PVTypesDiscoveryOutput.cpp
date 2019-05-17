@@ -201,8 +201,10 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 	    matching_formatters_t(_column_count, std::vector<bool>(_formatters.size(), true));
 }
 
-void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVTextChunk* chunk)
+void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 {
+	PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
+	assert(chunk);
 	assert(_matching_formatters.size() == _column_count);
 
 	bool first_chunk = chunk->index() == 0;

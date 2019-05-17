@@ -20,7 +20,7 @@
 namespace PVRush
 {
 
-class PVDBSource : public PVRawSourceBase
+class PVDBSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
 	PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk);

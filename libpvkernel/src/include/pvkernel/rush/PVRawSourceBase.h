@@ -12,19 +12,22 @@
 
 #include <pvkernel/filter/PVFilterFunction.h> // for PVFilterFunctionBase
 
+#include <pvkernel/core/PVTextChunk.h>
+#include <pvkernel/core/PVBinaryChunk.h>
+
 #include "pvbase/types.h" // for PVCol, chunk_index
 
 #include <QString> // for QString
 
 namespace PVCore
 {
-class PVTextChunk;
+class PVChunk;
 } // namespace PVCore
 
 namespace PVRush
 {
 
-class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVTextChunk*, void>
+class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, void>
 {
   public:
 	typedef PVRawSourceBase_p p_type;
@@ -32,7 +35,6 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVTextChun
   public:
 	PVRawSourceBase();
 	~PVRawSourceBase() override = default;
-	;
 	PVRawSourceBase(const PVRawSourceBase& src) = delete;
 
   public:
@@ -52,13 +54,38 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVTextChun
 	virtual void seek_begin() = 0;
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;
 	virtual size_t get_size() const = 0;
-	virtual PVCore::PVTextChunk* operator()() = 0;
+	virtual PVCore::PVChunk* operator()() = 0;
+	virtual EChunkType chunk_type() const = 0;
 
   protected:
 	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can
 	                                     // correspond to a number of lines
 	PVCol _ncols_to_reserve;
 };
+
+template <typename ChunkType>
+class PVRawSourceBaseType : public PVRawSourceBase
+{
+  protected:
+	using chunk_type_t = ChunkType;
+
+  public:
+	using PVRawSourceBase::PVRawSourceBase;
+
+  public:
+	virtual EChunkType chunk_type() const
+	{
+		if
+			constexpr(std::is_same<ChunkType, PVCore::PVTextChunk>::value)
+			{
+				return EChunkType::TEXT;
+			}
+		else {
+			return EChunkType::BINARY;
+		}
+	}
+};
+
 } // namespace PVRush
 
-#endif
+#endif // PVRAWSOURCEBASE_FILE_H

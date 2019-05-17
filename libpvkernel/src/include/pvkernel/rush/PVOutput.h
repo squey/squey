@@ -25,9 +25,9 @@ class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVTextChunk
 
   public:
 	// This is the output of a TBB pipeline
-	// It takes a PVCore::PVTextChunk* as a parameter, and do whatever he wants with it
+	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
 	// It *must* call PVChunk->free() in the end !!
-	virtual void operator()(PVCore::PVTextChunk* out) = 0;
+	virtual void operator()(PVCore::PVChunk* out) = 0;
 
   public:
 	virtual PVRow get_rows_count() = 0;

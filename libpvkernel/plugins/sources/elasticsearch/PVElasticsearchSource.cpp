@@ -19,8 +19,7 @@
 static constexpr const size_t MEGA = 1024 * 1024;
 
 PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input)
-    : PVRawSourceBase()
-    , _next_index(0)
+    : _next_index(0)
     , _query(*dynamic_cast<PVElasticsearchQuery*>(input.get()))
     , _elasticsearch(_query.get_infos())
 {
