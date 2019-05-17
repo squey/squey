@@ -10,7 +10,7 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -88,7 +88,7 @@ void PVRush::PVNraw::init_collection(const std::string& path)
  *
  ****************************************************************************/
 
-bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
+bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVTextChunk const& chunk)
 {
 	assert(_collector && "We have to be in read state");
 

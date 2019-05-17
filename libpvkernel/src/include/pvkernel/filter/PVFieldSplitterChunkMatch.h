@@ -25,7 +25,7 @@ class PVFieldSplitterChunkMatch
 	{
 	}
 
-	void push_chunk(PVCore::PVChunk* chunk);
+	void push_chunk(PVCore::PVTextChunk* chunk);
 	bool get_match(PVCore::PVArgumentList& args, PVCol& nfields);
 
 	static PVFilter::PVFieldsSplitter_p get_match_on_input(PVRush::PVRawSourceBase_p src,

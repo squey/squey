@@ -8,7 +8,7 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVConfig.h>
 
@@ -85,7 +85,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 		for (int i = 0; i < INENDI_DISCOVERY_NCHUNKS; i++) {
 			// Create a chunk
-			PVCore::PVChunk* chunk = (*src)();
+			PVCore::PVTextChunk* chunk = (*src)();
 			if (chunk == nullptr) { // No more chunks !
 				break;
 			}

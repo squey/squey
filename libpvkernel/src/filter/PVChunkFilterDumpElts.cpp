@@ -22,7 +22,7 @@ PVFilter::PVChunkFilterDumpElts::PVChunkFilterDumpElts(std::map<size_t, std::str
  * PVFilter::PVChunkFilterDumpElts::operator()
  *
  *****************************************************************************/
-PVCore::PVChunk* PVFilter::PVChunkFilterDumpElts::operator()(PVCore::PVChunk* chunk)
+PVCore::PVTextChunk* PVFilter::PVChunkFilterDumpElts::operator()(PVCore::PVTextChunk* chunk)
 {
 	// TODO : This should be const
 	for (PVCore::PVElement* elt : chunk->elements()) {

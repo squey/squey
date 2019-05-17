@@ -11,7 +11,7 @@
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsSplitter_p
 
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList
-#include <pvkernel/core/PVChunk.h>        // for list_elts, PVChunk
+#include <pvkernel/core/PVTextChunk.h>    // for list_elts, PVChunk
 #include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS
 #include <pvkernel/core/PVElement.h>      // for list_fields, PVElement
 #include <pvkernel/core/PVLogger.h>       // for PVLOG_INFO
@@ -173,7 +173,7 @@ class PVGuessReducingTree
 };
 } // namespace PVFilter
 
-void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
+void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVTextChunk* chunk)
 {
 	PVFilter::PVFieldsSplitter_p sp = _filter;
 	PVCore::list_fields lf_res;
@@ -219,7 +219,7 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 PVFilter::PVFieldsSplitter_p
 PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol& naxes)
 {
-	PVCore::PVChunk* chunk = (*src)();
+	PVCore::PVTextChunk* chunk = (*src)();
 	PVFieldsSplitter_p ret;
 	if (!chunk) {
 		src->seek_begin();

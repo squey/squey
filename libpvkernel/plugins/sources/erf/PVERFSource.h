@@ -14,7 +14,7 @@
 
 #include <QString>
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -32,11 +32,11 @@ class PVERFSource : public PVRawSourceBase
   public:
 	PVERFSource(PVInput_p input, PVERFDescription* input_desc, size_t chunk_size) {}
 
-	QString human_name() override { return ""; };              // FIXME
-	void seek_begin() override{};                              // FIXME
-	void prepare_for_nelts(chunk_index nelts) override{};      // FIXME
-	size_t get_size() const override { return 0; };            // FIXME
-	PVCore::PVChunk* operator()() override { return nullptr; } // FIXME
+	QString human_name() override { return ""; };                  // FIXME
+	void seek_begin() override{};                                  // FIXME
+	void prepare_for_nelts(chunk_index nelts) override{};          // FIXME
+	size_t get_size() const override { return 0; };                // FIXME
+	PVCore::PVTextChunk* operator()() override { return nullptr; } // FIXME
 };
 
 } // namespace PVRush

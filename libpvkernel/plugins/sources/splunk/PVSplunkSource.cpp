@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 
@@ -41,7 +41,7 @@ void PVRush::PVSplunkSource::prepare_for_nelts(chunk_index /*nelts*/)
 {
 }
 
-PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
+PVCore::PVTextChunk* PVRush::PVSplunkSource::operator()()
 {
 	if (_query_end) {
 		_query_end = false;
@@ -53,10 +53,10 @@ PVCore::PVChunk* PVRush::PVSplunkSource::operator()()
 
 	_query_end = !_splunk.extract(_query, data);
 
-	PVCore::PVChunk* chunk;
+	PVCore::PVTextChunk* chunk;
 
 	size_t chunk_size = 0;
-	chunk = PVCore::PVChunkMem<>::allocate(0, this);
+	chunk = PVCore::PVTextChunkMem<>::allocate(0, this);
 	chunk->set_index(_next_index);
 
 	std::istringstream iss(data);

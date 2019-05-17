@@ -8,9 +8,9 @@
 #ifndef HELPERS_VALID_FILE_H
 #define HELPERS_VALID_FILE_H
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 
-void dump_chunk_csv(PVCore::PVChunk& c, std::ostream& out);
-void dump_chunk_raw(PVCore::PVChunk const& c);
+void dump_chunk_csv(PVCore::PVTextChunk& c, std::ostream& out);
+void dump_chunk_raw(PVCore::PVTextChunk const& c);
 
 #endif

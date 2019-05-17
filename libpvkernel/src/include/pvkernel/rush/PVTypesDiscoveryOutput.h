@@ -39,9 +39,9 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 
   public:
 	// This is the output of a TBB pipeline
-	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
+	// It takes a PVCore::PVTextChunk* as a parameter, and do whatever he wants with it
 	// It *must* call PVChunk->free() in the end !!
-	void operator()(PVCore::PVChunk* out) override;
+	void operator()(PVCore::PVTextChunk* out) override;
 	PVRow get_rows_count() override { return _row_count; }
 
   public:

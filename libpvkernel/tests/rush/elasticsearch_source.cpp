@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
@@ -115,7 +115,7 @@ int main()
 
 		std::chrono::duration<double> dur(0.);
 		auto start = std::chrono::steady_clock::now();
-		while (PVCore::PVChunk* pc = source()) {
+		while (PVCore::PVTextChunk* pc = source()) {
 			auto end = std::chrono::steady_clock::now();
 			dur += end - start;
 			dump_chunk_csv(*pc, ofs);

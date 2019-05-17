@@ -18,13 +18,13 @@
 
 namespace PVCore
 {
-class PVChunk;
+class PVTextChunk;
 } // namespace PVCore
 
 namespace PVRush
 {
 
-class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, void>
+class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVTextChunk*, void>
 {
   public:
 	typedef PVRawSourceBase_p p_type;
@@ -52,7 +52,7 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	virtual void seek_begin() = 0;
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;
 	virtual size_t get_size() const = 0;
-	virtual PVCore::PVChunk* operator()() = 0;
+	virtual PVCore::PVTextChunk* operator()() = 0;
 
   protected:
 	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can

@@ -14,7 +14,7 @@
 
 namespace PVCore
 {
-class PVChunk;
+class PVTextChunk;
 } // namespace PVCore
 
 namespace PVFilter
@@ -31,7 +31,7 @@ class PVChunkFilterRemoveInvalidElts : public PVChunkFilter
   public:
 	explicit PVChunkFilterRemoveInvalidElts(bool& job_done);
 
-	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+	PVCore::PVTextChunk* operator()(PVCore::PVTextChunk* chunk);
 
   protected:
 	size_t _current_agg_index;

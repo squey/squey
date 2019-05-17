@@ -9,7 +9,7 @@
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVFormat.h>
 
-#include <pvkernel/core/PVChunk.h> // for PVChunk
+#include <pvkernel/core/PVTextChunk.h> // for PVChunk
 
 #include <pvbase/types.h> // for PVRow
 
@@ -21,7 +21,7 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
 {
 }
 
-void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
+void PVRush::PVNrawOutput::operator()(PVCore::PVTextChunk* out)
 {
 	nraw_dest().add_chunk_utf16(*out);
 

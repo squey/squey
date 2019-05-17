@@ -6,8 +6,8 @@
  */
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
-#include <pvkernel/core/PVChunk.h>   // for PVChunk, list_elts
-#include <pvkernel/core/PVElement.h> // for PVElement
+#include <pvkernel/core/PVTextChunk.h> // for PVChunk, list_elts
+#include <pvkernel/core/PVElement.h>   // for PVElement
 
 #include <cstddef> // for size_t
 
@@ -16,7 +16,7 @@
  * PVFilter::PVChunkFilterByElt::operator()
  *
  *****************************************************************************/
-PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk) const
+PVCore::PVTextChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVTextChunk* chunk) const
 {
 	size_t nelts_valid = 0;
 

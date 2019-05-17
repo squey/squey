@@ -37,7 +37,7 @@ class PVUnicodeSource : public PVRawSourceBase
 {
   public:
 	using alloc_chunk = Allocator<char>;
-	using PVChunkAlloc = PVCore::PVChunkMem<Allocator>;
+	using PVChunkAlloc = PVCore::PVTextChunkMem<Allocator>;
 
   public:
 	static constexpr const char MULTI_INPUTS_SEPARATOR = ';';
@@ -302,7 +302,7 @@ class PVUnicodeSource : public PVRawSourceBase
 	 * * Add remaining character in the next chunk.
 	 * * Computed indexes.
 	 */
-	PVCore::PVChunk* operator()() override
+	PVCore::PVTextChunk* operator()() override
 	{
 		// The current chunk must be filled with data, then aligned and returned
 
@@ -319,7 +319,7 @@ class PVUnicodeSource : public PVRawSourceBase
 
 				_curc->init_elements_fields();
 
-				PVCore::PVChunk* ret = _curc;
+				PVCore::PVTextChunk* ret = _curc;
 				// _nextc is empty, so the next call to this function will return nullptr
 				_curc = _nextc;
 				return ret;
@@ -386,7 +386,7 @@ class PVUnicodeSource : public PVRawSourceBase
 		}
 
 		// Invert the chunks, allocate the new one and go on
-		PVCore::PVChunk* ret = _curc;
+		PVCore::PVTextChunk* ret = _curc;
 		_curc = _nextc;
 		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 		if (_nextc == nullptr) {
@@ -423,9 +423,9 @@ class PVUnicodeSource : public PVRawSourceBase
 	PVInput_p _input;   //!< Input source where we read data
 
   private:
-	PVCore::PVChunk* _curc = nullptr;  //!< Pointer to current chunk.
-	PVCore::PVChunk* _nextc = nullptr; //!< Pointer to next chunk.
-	alloc_chunk _alloc;                //!< Allocator to create chunks
+	PVCore::PVTextChunk* _curc = nullptr;  //!< Pointer to current chunk.
+	PVCore::PVTextChunk* _nextc = nullptr; //!< Pointer to next chunk.
+	alloc_chunk _alloc;                    //!< Allocator to create chunks
 
 	// Attribute for charset conversion to UTF-8
 	PVCharsetDetect _cd;                            //!< Charset detector

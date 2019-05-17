@@ -8,12 +8,12 @@
 #include "helpers.h"
 #include <iostream>
 
-using PVCore::PVChunk;
+using PVCore::PVTextChunk;
 using PVCore::PVElement;
 using PVCore::PVField;
 using PVCore::list_fields;
 
-void dump_chunk_csv(PVChunk& c, std::ostream& out)
+void dump_chunk_csv(PVTextChunk& c, std::ostream& out)
 {
 	for (PVElement* elt : c.elements()) {
 		if (not elt->valid() or elt->filtered()) {

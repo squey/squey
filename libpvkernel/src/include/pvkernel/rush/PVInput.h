@@ -8,7 +8,7 @@
 #ifndef PVINPUT_FILE_H
 #define PVINPUT_FILE_H
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
 #include <QString>

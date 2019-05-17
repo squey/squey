@@ -5,7 +5,7 @@
  * @copyright (C) ESI Group INENDI 2015-2015
  */
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 
@@ -57,7 +57,7 @@ size_t PVRush::PVElasticsearchSource::get_size() const
 	return _elasticsearch.count(_query) * MEGA;
 }
 
-PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
+PVCore::PVTextChunk* PVRush::PVElasticsearchSource::operator()()
 {
 	if (_query_end) {
 		_query_end = false;
@@ -71,7 +71,7 @@ PVCore::PVChunk* PVRush::PVElasticsearchSource::operator()()
 	_query_end = not _elasticsearch.extract(_query, rows);
 
 	// Create a chunk w/ no memory for its internal buffer
-	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
+	PVCore::PVTextChunk* chunk = PVCore::PVTextChunkMem<>::allocate(0, this);
 	size_t chunk_size = 0;
 	chunk->set_index(_next_index);
 

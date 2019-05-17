@@ -25,7 +25,7 @@ using namespace PVCore;
 
 void dump_agg(PVAggregator& agg, std::ostream& out)
 {
-	while (PVChunk* pc = agg()) {
+	while (PVTextChunk* pc = agg()) {
 		dump_chunk_csv(*pc, out);
 		pc->free();
 	}

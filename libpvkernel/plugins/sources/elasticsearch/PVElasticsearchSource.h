@@ -10,7 +10,7 @@
 
 #include <QString>
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -38,7 +38,7 @@ class PVElasticsearchSource : public PVRawSourceBase
 	 * It use line count for ES.
 	 */
 	size_t get_size() const override;
-	PVCore::PVChunk* operator()() override;
+	PVCore::PVTextChunk* operator()() override;
 
   protected:
 	chunk_index _next_index;

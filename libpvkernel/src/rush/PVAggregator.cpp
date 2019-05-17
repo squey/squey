@@ -10,10 +10,10 @@
 #include <pvkernel/rush/PVRawSourceBase.h>       // for PVRawSourceBase
 #include <pvkernel/rush/PVRawSourceBase_types.h> // for PVRawSourceBase_p
 
-#include <pvkernel/core/PVChunk.h>   // for list_elts, PVChunk
-#include <pvkernel/core/PVConfig.h>  // for PVConfig
-#include <pvkernel/core/PVElement.h> // for PVElement
-#include <pvkernel/core/PVLogger.h>  // for PVLOG_DEBUG
+#include <pvkernel/core/PVTextChunk.h> // for list_elts, PVChunk
+#include <pvkernel/core/PVConfig.h>    // for PVConfig
+#include <pvkernel/core/PVElement.h>   // for PVElement
+#include <pvkernel/core/PVLogger.h>    // for PVLOG_DEBUG
 
 #include <pvbase/general.h>
 #include <pvbase/types.h> // for chunk_index, PVCol
@@ -71,9 +71,9 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart,
 	(*_cur_input)->prepare_for_nelts(expected_nelts);
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::read_until_start_index()
+PVCore::PVTextChunk* PVRush::PVAggregator::read_until_start_index()
 {
-	PVCore::PVChunk* ret = nullptr;
+	PVCore::PVTextChunk* ret = nullptr;
 	bool first = true;
 	while (_nstart >= _nread_elements) {
 		if (not first)
@@ -87,10 +87,10 @@ PVCore::PVChunk* PVRush::PVAggregator::read_until_start_index()
 	return ret;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
+PVCore::PVTextChunk* PVRush::PVAggregator::next_chunk()
 {
 	// Get chunk from current input
-	PVCore::PVChunk* ret = (*_cur_input)->operator()();
+	PVCore::PVTextChunk* ret = (*_cur_input)->operator()();
 
 	if (ret == nullptr) {
 		// Release input on-the-fly to reduce resources consumption
@@ -119,14 +119,14 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 	return ret;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::operator()()
+PVCore::PVTextChunk* PVRush::PVAggregator::operator()()
 {
 	if (_nread_elements >= _nend) {
 		// This is the end of this job
 		return nullptr;
 	}
 
-	PVCore::PVChunk* ret;
+	PVCore::PVTextChunk* ret;
 	if (not _nread_elements) {
 		// We have to read until _nstart indexes to skip not required first
 		// line at the beginning fo the file.
@@ -204,13 +204,13 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()()
 	return ret;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc)
+PVCore::PVTextChunk* PVRush::PVAggregator::operator()(tbb::flow_control& fc)
 {
 	if (_job_done) {
 		fc.stop();
 		return nullptr;
 	}
-	PVCore::PVChunk* ret = this->operator()();
+	PVCore::PVTextChunk* ret = this->operator()();
 	if (ret == nullptr) {
 		PVLOG_DEBUG("(PVAggregator::next_chunk) aggregator stop because of no more input datas\n");
 		fc.stop();

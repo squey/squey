@@ -6,7 +6,7 @@
  */
 
 #include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
-#include <pvkernel/core/PVChunk.h>         // for list_elts, PVChunk
+#include <pvkernel/core/PVTextChunk.h>     // for list_elts, PVChunk
 #include <pvkernel/core/PVElement.h>       // for PVElement
 #include <pvkernel/filter/PVChunkFilter.h> // for PVChunkFilter
 
@@ -40,7 +40,8 @@ PVFilter::PVChunkFilterByEltCancellable::PVChunkFilterByEltCancellable(
  * PVFilter::PVChunkFilterByEltCancellable::operator()
  *
  *****************************************************************************/
-PVCore::PVChunk* PVFilter::PVChunkFilterByEltCancellable::operator()(PVCore::PVChunk* chunk) const
+PVCore::PVTextChunk* PVFilter::PVChunkFilterByEltCancellable::
+operator()(PVCore::PVTextChunk* chunk) const
 {
 	PVCore::list_elts& elts = chunk->elements();
 	auto it = elts.begin();

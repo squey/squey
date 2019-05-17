@@ -19,7 +19,7 @@
 
 namespace PVCore
 {
-class PVChunk;
+class PVTextChunk;
 } // namespace PVCore
 namespace PVRush
 {
@@ -38,9 +38,9 @@ class PVNrawOutput : public PVRush::PVOutput
 
   public:
 	// This is the output of a TBB pipeline
-	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it
+	// It takes a PVCore::PVTextChunk* as a parameter, and do whatever he wants with it
 	// It *must* call PVChunk->free() in the end !!
-	void operator()(PVCore::PVChunk* out) override;
+	void operator()(PVCore::PVTextChunk* out) override;
 
 	void set_nraw_dest(PVNraw& nraw) { _nraw_dest = &nraw; }
 

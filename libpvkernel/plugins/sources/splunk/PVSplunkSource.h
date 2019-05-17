@@ -8,7 +8,7 @@
 #ifndef PVSPLUNKSOURCE_FILE_H
 #define PVSPLUNKSOURCE_FILE_H
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
@@ -42,7 +42,7 @@ class PVSplunkSource : public PVRawSourceBase
 	 * As we don't have "free" metric, we return 0 for "unknown"
 	 */
 	size_t get_size() const override { return 0; }
-	PVCore::PVChunk* operator()() override;
+	PVCore::PVTextChunk* operator()() override;
 
   protected:
 	chunk_index _next_index;
