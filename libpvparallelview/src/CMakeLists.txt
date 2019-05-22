@@ -18,6 +18,8 @@ PVAxisGraphicsItem.cpp
 PVAxisLabel.cpp
 PVAxisHeader.cpp
 PVBCIBuffers.cpp
+PVBCIBackendImageQPainter.cpp
+PVBCIDrawingBackendQPainter.cpp
 PVFullParallelScene.cpp
 PVFullParallelView.cpp
 PVFullParallelViewSelectionRectangle.cpp

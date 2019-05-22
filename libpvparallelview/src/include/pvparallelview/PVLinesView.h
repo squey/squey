@@ -181,7 +181,7 @@ class PVLinesView
 	void render_single_zone_bg_image(size_t zone_index, const float zoom_y);
 	void render_single_zone_sel_image(size_t zone_index, const float zoom_y);
 
-	void set_nb_drawable_zones(size_t nb_zones);
+	void set_nb_drawable_zones(size_t nb_zones, int32_t view_x, uint32_t view_width);
 
 	void set_zone_max_width(uint32_t w);
 	bool set_zone_width(size_t zone_index, uint32_t width);

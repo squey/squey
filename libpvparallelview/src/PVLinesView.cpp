@@ -17,6 +17,7 @@
 #include <QObject>
 #include <QMetaMethod>
 #include <QThread>
+#include <QDebug>
 
 constexpr static int zoom_divisor = 5;
 constexpr static double zoom_root_value =
@@ -64,12 +65,13 @@ PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend,
     , _zm(zm)
     , _zone_max_width(zone_width)
 {
-	set_nb_drawable_zones(get_number_of_managed_zones());
-
+	const auto nb_of_managed_zones = get_number_of_managed_zones();
 	// We initialize all zones width
-	_zones_width.resize(get_number_of_managed_zones(), PVParallelView::ZoneDefaultWidth);
+	_zones_width.resize(nb_of_managed_zones, PVParallelView::ZoneDefaultWidth);
 	// We initialize all zones ZoneWidthWithZoomLevel
-	_list_of_zone_width_with_zoom_level.resize(get_number_of_managed_zones());
+	_list_of_zone_width_with_zoom_level.resize(nb_of_managed_zones);
+
+	set_nb_drawable_zones(nb_of_managed_zones, _visible_view_x, zone_width);
 }
 
 /******************************************************************************
@@ -440,6 +442,7 @@ void PVParallelView::PVLinesView::render_all_zones_images(int32_t view_x,
                                                           uint32_t view_width,
                                                           const float zoom_y)
 {
+	set_nb_drawable_zones(get_number_of_managed_zones(), view_x, view_width);
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width, [&](size_t zone_index) {
 		assert(is_zone_drawn(zone_index));
@@ -456,6 +459,7 @@ void PVParallelView::PVLinesView::render_all_zones_bg_image(int32_t view_x,
                                                             uint32_t view_width,
                                                             const float zoom_y)
 {
+	set_nb_drawable_zones(get_number_of_managed_zones(), view_x, view_width);
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width, [&](size_t zone_index) {
 		assert(is_zone_drawn(zone_index));
@@ -472,6 +476,7 @@ void PVParallelView::PVLinesView::render_all_zones_sel_image(int32_t view_x,
                                                              uint32_t view_width,
                                                              const float zoom_y)
 {
+	set_nb_drawable_zones(get_number_of_managed_zones(), view_x, view_width);
 	set_new_view(view_x, view_width);
 	visit_all_zones_to_render(view_width, [&](size_t zone_index) {
 		assert(is_zone_drawn(zone_index));
@@ -513,7 +518,9 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(size_t zone_index,
 	        PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
 		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci(colors, codes);
 		},
-	    single_zone_images.bg, 0, width, zoom_y,
+	    single_zone_images.bg, get_left_border_position_of_zone_in_scene(zone_index) -
+	                               get_left_border_position_of_zone_in_scene(_first_zone),
+	    width, zoom_y,
 	    false // not reversed
 	    ));
 
@@ -552,7 +559,9 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(size_t zone_index
 		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci_sel(colors,
 		                                                                                codes);
 		},
-	    single_zone_images.sel, 0, width, zoom_y,
+	    single_zone_images.sel, get_left_border_position_of_zone_in_scene(zone_index) -
+	                                get_left_border_position_of_zone_in_scene(_first_zone),
+	    width, zoom_y,
 	    false // not reversed
 	    ));
 
@@ -572,9 +581,17 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(size_t zone_index
  * PVParallelView::PVLinesView::set_nb_drawable_zones
  *
  *****************************************************************************/
-void PVParallelView::PVLinesView::set_nb_drawable_zones(size_t nb_zones)
+void PVParallelView::PVLinesView::set_nb_drawable_zones(size_t nb_zones,
+                                                        int32_t view_x,
+                                                        uint32_t view_width)
 {
-	nb_zones = std::min(nb_zones, size_t(MaxDrawnZones));
+	// nb_zones = std::min(nb_zones, size_t(MaxDrawnZones));
+	const size_t first_visible_zone_index = get_zone_index_from_scene_pos(view_x);
+	const size_t last_visible_zone_index = get_zone_index_from_scene_pos(view_x + view_width);
+	nb_zones = last_visible_zone_index + 1 - first_visible_zone_index;
+	qDebug() << "set_nb_drawable_zones: " << nb_zones << first_visible_zone_index
+	         << last_visible_zone_index;
+
 	size_t old_nzones = get_number_of_visible_zones();
 	if (nb_zones == old_nzones || nb_zones <= 0) {
 		// Le changement, c'est toujours pas maintenant.
@@ -636,8 +653,13 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 {
 	// First, set new view x (before launching anything in the future !! ;))
 
-	size_t previous_first_zone = set_new_view(view_x, view_width);
-	if (previous_first_zone == _first_zone) {
+	const size_t previous_visible_zones_count = get_number_of_visible_zones();
+
+	set_nb_drawable_zones(get_number_of_managed_zones(), view_x, view_width);
+
+	const size_t previous_first_zone = set_new_view(view_x, view_width);
+	if (previous_first_zone == _first_zone &&
+	    previous_visible_zones_count == get_number_of_visible_zones()) {
 		// "Le changement, c'est pas maintenant !"
 		return;
 	}
@@ -657,7 +679,7 @@ int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t vie
 {
 	size_t old_zones_count = _zones_width.size();
 	size_t new_zones_count = get_number_of_managed_zones();
-	set_nb_drawable_zones(new_zones_count);
+	set_nb_drawable_zones(new_zones_count, view_x, view_width);
 	_zones_width.resize(new_zones_count, PVParallelView::ZoneDefaultWidth);
 	_list_of_zone_width_with_zoom_level.resize(new_zones_count);
 	if (new_zones_count > 0) {
@@ -754,6 +776,8 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(
 		zones_to_draw--;
 	}
 	right_invisible_zone = current_zone_index;
+
+	// return; // DO NOT PROCESS HIDDEN ZONES
 
 	// Process hidden zones
 	while (zones_to_draw > 0) {

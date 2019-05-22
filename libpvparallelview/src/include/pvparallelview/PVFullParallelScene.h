@@ -106,6 +106,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void axis_hover_entered(PVCombCol col, bool entered);
 
   private:
+	void update_number_of_visible_zones();
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
 
