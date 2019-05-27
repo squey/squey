@@ -15,6 +15,7 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QStyle>
+#include <QLineEdit>
 #include <QWidget>
 #include <QSpinBox>
 
@@ -305,6 +306,90 @@ class PVDateTimeRangeEdit : public PVRangeEdit
 	QPushButton* _ok;
 };
 
+class PVDurationRangeEdit : public PVRangeEdit
+{
+	using func_type = std::function<void(const pvcop::db::array& minmax)>;
+
+  public:
+	PVDurationRangeEdit(const pvcop::db::array& minmax, func_type f, QWidget* parent = nullptr)
+	    : PVRangeEdit(minmax, f, parent)
+	{
+		_from_widget = new QLineEdit;
+		_to_widget = new QLineEdit;
+		_ok = new QPushButton("&Ok");
+
+		// Setup duration validator
+		QRegularExpression duration_re("\\b[0-9]+:[0-5][0-9]:[0-5][0-9]\\.[0-9]{6}\\b",
+		                               QRegularExpression::CaseInsensitiveOption);
+		QRegularExpressionValidator* re_val = new QRegularExpressionValidator(duration_re, this);
+		_from_widget->setValidator(re_val);
+		_to_widget->setValidator(re_val);
+		auto check_durations_valid_f = [&, re_val]() {
+			QString from = _from_widget->text();
+			QString to = _to_widget->text();
+			int pos = 0;
+			bool from_valid = re_val->validate(from, pos) == QValidator::Acceptable;
+			bool to_valid = re_val->validate(to, pos) == QValidator::Acceptable;
+			const QString& style_error = "QLineEdit{border: 1px solid red;}";
+			if (not from_valid) {
+				_from_widget->setStyleSheet(style_error);
+			} else {
+				_from_widget->setStyleSheet("");
+			}
+			if (not to_valid) {
+				_to_widget->setStyleSheet(style_error);
+			} else {
+				_to_widget->setStyleSheet("");
+			}
+			_ok->setEnabled(from_valid and to_valid);
+		};
+		connect(_from_widget, &QLineEdit::textChanged, check_durations_valid_f);
+		connect(_to_widget, &QLineEdit::textChanged, check_durations_valid_f);
+
+		set_minmax(minmax);
+
+		QHBoxLayout* layout = new QHBoxLayout;
+		layout->addWidget(_from_widget);
+		layout->addWidget(_to_widget);
+		layout->addWidget(_ok);
+		layout->addStretch();
+
+		setLayout(layout);
+
+		connect(_from_widget, &QLineEdit::textChanged,
+		        [&]() { update_minmax(_from_widget->text(), false); });
+		connect(_to_widget, &QLineEdit::textChanged,
+		        [&]() { update_minmax(_to_widget->text(), true); });
+		connect(_ok, &QPushButton::clicked, [&]() { _validate_f(_minmax); });
+	}
+
+	void set_minmax(const pvcop::db::array& minmax) override
+	{
+		_minmax = minmax.copy();
+
+		assert(_from_widget);
+		assert(_to_widget);
+
+		const std::string& min_duration_str = _minmax.at(0);
+		const std::string& max_duration_str = _minmax.at(1);
+
+		_from_widget->setText(min_duration_str.c_str());
+		_to_widget->setText(max_duration_str.c_str());
+	}
+
+  private:
+	void update_minmax(const QString& duration, bool max)
+	{
+		const pvcop::types::formatter_interface::shared_ptr& dtf = _minmax.formatter();
+		dtf->from_string(duration.toStdString().c_str(), _minmax.data(), max);
+	}
+
+  private:
+	QLineEdit* _from_widget;
+	QLineEdit* _to_widget;
+	QPushButton* _ok;
+};
+
 class PVRangeEditFactory
 {
   public:
@@ -314,6 +399,8 @@ class PVRangeEditFactory
 
 		if (minmax.formatter()->name().find("datetime") == 0) {
 			range_edit = new PVWidgets::PVDateTimeRangeEdit(minmax, f);
+		} else if (minmax.formatter()->name().find("duration") == 0) {
+			range_edit = new PVWidgets::PVDurationRangeEdit(minmax, f);
 		} else if (minmax.formatter()->name().find("number_float") == 0 or
 		           minmax.formatter()->name().find("number_double") == 0) {
 			range_edit = new PVWidgets::PVDoubleRangeEdit(minmax, f);
