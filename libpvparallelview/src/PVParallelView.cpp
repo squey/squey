@@ -118,8 +118,11 @@ namespace common
  ************************************************************/
 RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	//_instance->init_backends<PVBCIDrawingBackendOpenCL>();
-	_instance->init_backends<PVBCIDrawingBackendQPainter>();
+	if (PVBCIDrawingBackendOpenCL::get().is_gpu_accelerated()) {
+		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
+	} else {
+		_instance->init_backends<PVBCIDrawingBackendQPainter>();
+	}
 }
 } // namespace common
 } // namespace PVParallelView

@@ -60,7 +60,7 @@ operator()(PVBCIBackendImage_p& backend_img,
 
 		size_t valid_begin =
 		    std::distance(codes, std::lower_bound(codes, codes + n, PVBCICodeBase{},
-		                                          [](auto const& a, auto const& b) {
+		                                          [](auto const& a, auto const&) {
 			                                          return a.as_10.int_v < PVROW_INVALID_VALUE;
 			                                      }));
 
