@@ -406,27 +406,6 @@
       ]
     },
     {
-      "name": "inendi-inspector-doc",
-      "disabled": false,
-      "build-options": {
-        "env": {
-          "DOCS": "documents/inendi_inspector_reference_manual",
-          "INSTALLROOT": "/app/share/doc/inendi-inspector"
-        }
-      },
-      "sources": [
-        {
-          "type": "git",
-          "path": "../doc"
-        },
-        {
-          "type": "file",
-          "path": "no-configure",
-          "dest-filename": "configure"
-        }
-      ]
-    },
-    {
       "name": "tbb",
       "sources": [
         {
@@ -538,6 +517,28 @@
         {
           "type": "patch",
           "path": "qtwebengine-no-udev.patch"
+        }
+      ]
+    },
+    {
+      "name": "inendi-inspector-doc",
+      "disabled": false,
+      "build-options": {
+        "env": {
+          "DOCS": "documents/inendi_inspector_reference_manual",
+          "INSTALLROOT": "/app/share/doc/inendi-inspector"
+        }
+      },
+      "sources": [
+        {
+          "type": "git",
+          "url": "ssh://git@gitlab.srv.picviz/picviz/inendi-inspector-manual.git",
+          "commit" : "ee7fc1b8ce1ca4bb9486a30cd900272d0e6571bc"
+        },
+        {
+          "type": "file",
+          "path": "no-configure",
+          "dest-filename": "configure"
         }
       ]
     },
