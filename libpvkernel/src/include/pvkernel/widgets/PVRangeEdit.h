@@ -357,10 +357,10 @@ class PVDurationRangeEdit : public PVRangeEdit
 		setLayout(layout);
 
 		connect(_from_widget, &QLineEdit::textChanged,
-		        [&]() { update_minmax(_from_widget->text(), false); });
+		        [this]() { update_minmax(_from_widget->text(), false); });
 		connect(_to_widget, &QLineEdit::textChanged,
-		        [&]() { update_minmax(_to_widget->text(), true); });
-		connect(_ok, &QPushButton::clicked, [&]() { _validate_f(_minmax); });
+		        [this]() { update_minmax(_to_widget->text(), true); });
+		connect(_ok, &QPushButton::clicked, [this]() { _validate_f(_minmax); });
 	}
 
 	void set_minmax(const pvcop::db::array& minmax) override

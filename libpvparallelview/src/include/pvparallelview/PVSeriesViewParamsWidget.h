@@ -16,6 +16,11 @@
 class QToolButton;
 class QSignalMapper;
 
+namespace PVWidgets
+{
+class PVAxisComboBox;
+}
+
 namespace PVParallelView
 {
 
@@ -49,7 +54,8 @@ class PVSeriesViewParamsWidget : public QToolBar
   private:
 	QToolButton* _rendering_mode_button = nullptr;
 	QToolButton* _sampling_mode_button = nullptr;
-	PVSeriesViewWidget* _series_view_widget;
+	PVSeriesViewWidget* _series_view_widget = nullptr;
+	PVWidgets::PVAxisComboBox* _abscissa_selector = nullptr;
 	std::vector<std::function<void()>> _bind_connections;
 	PVSeriesView::DrawMode _rendering_mode;
 	Inendi::PVRangeSubSampler::SAMPLING_MODE _sampling_mode;
