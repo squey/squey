@@ -30,6 +30,7 @@ class PVSeriesViewParamsWidget : public QToolBar
 
   private:
 	void add_abscissa_selector(PVCol axis);
+	void add_split_selector();
 	QToolButton* add_rendering_mode_selector();
 	QToolButton* add_sampling_mode_selector();
 	void add_selection_activator(bool enable);

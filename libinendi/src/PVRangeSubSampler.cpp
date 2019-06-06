@@ -23,8 +23,9 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
     const std::vector<pvcop::core::array<value_type>>& timeseries,
     const PVRush::PVNraw& nraw,
     const pvcop::db::selection& sel,
+    const pvcop::db::array* split /* =  nullptr */,
     size_t sampling_count /*= 2048*/)
-    : _time(time), _timeseries(timeseries), _nraw(nraw), _sel(sel), _minmax()
+    : _time(time), _timeseries(timeseries), _nraw(nraw), _sel(sel), _split(split), _minmax()
 {
 	set_sampling_count(
 	    sampling_count); // should be the number of horizontal visible pixels in the plot
@@ -42,6 +43,8 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
 	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
 
 	set_sampling_mode<SAMPLING_MODE::MEAN>();
+
+	allocate_internal_structures();
 }
 
 void Inendi::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
@@ -119,6 +122,7 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 	_compute_ranges_reduction_f(first, last, min, max);
 
 	_subsampled.emit();
+	_valid = true;
 }
 
 void Inendi::PVRangeSubSampler::set_selected_timeseries(
@@ -150,6 +154,24 @@ void Inendi::PVRangeSubSampler::resubsample(const std::unordered_set<size_t>& ti
 	          _last_params.max);
 }
 
+void Inendi::PVRangeSubSampler::set_split_column(const pvcop::db::array* split)
+{
+	_split_count = 1;
+	_split = split;
+	if (_split) {
+		_split_groups.~groups();
+		new (&_split_groups) pvcop::db::groups();
+		_split_extents.~extents();
+		new (&_split_extents) pvcop::db::extents();
+		_split->group(_split_groups, _split_extents);
+		_split_count = _split_extents.size();
+	}
+	_ts_matrix.resize(_timeseries.size() * _split_count);
+	for (auto& vec : _ts_matrix) {
+		vec.resize(_histogram.size());
+	}
+}
+
 void Inendi::PVRangeSubSampler::allocate_internal_structures()
 {
 	assert(_sampling_count >= 2);
@@ -161,10 +183,7 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 	assert(_histogram.size() > 0);
 
 	// matrix of average values
-	_ts_matrix.resize(_timeseries.size());
-	for (auto& vec : _ts_matrix) {
-		vec.resize(_histogram.size());
-	}
+	set_split_column(_split);
 
 	_timeseries_to_subsample.clear();
 	std::copy(_selected_timeseries.begin(), _selected_timeseries.end(),
@@ -173,5 +192,5 @@ void Inendi::PVRangeSubSampler::allocate_internal_structures()
 
 bool Inendi::PVRangeSubSampler::valid() const
 {
-	return _ts_matrix.size() > 0;
+	return _valid;
 }

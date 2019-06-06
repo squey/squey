@@ -16,6 +16,8 @@
 #include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/core/PVDisconnector.h>
 
+#include <pvcop/db/array.h>
+
 namespace Inendi
 {
 class PVRangeSubSampler;
@@ -42,10 +44,11 @@ class PVSeriesViewWidget : public QWidget
 
   private:
 	void set_abscissa(PVCol axis);
-	void setup_series_list(PVCol abscissa);
+	void set_split(PVCol axis);
+	void setup_series_list(PVCol abscissa, bool recreate_widget = true);
 	void setup_selected_series_list(PVCol abscissa);
 	void update_selected_series();
-	bool is_in_region(QRect region, PVCol col) const;
+	bool is_in_region(const QRect region, PVCol col) const;
 
   private:
 	Inendi::PVView* _view;
@@ -58,6 +61,8 @@ class PVSeriesViewWidget : public QWidget
 
 	bool _update_selected_series_resample = false;
 	bool _synchro_selected_list = false;
+
+	PVCol _split_axis;
 
 	struct StyleDelegate : public QStyledItemDelegate {
 		StyleDelegate(QWidget* parent = nullptr) : QStyledItemDelegate(parent) {}

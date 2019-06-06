@@ -88,8 +88,9 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 				timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
 			}
 
-			_sampler.reset(new Inendi::PVRangeSubSampler(time, std::move(timeseries), nraw,
-			                                             _view->get_real_output_selection()));
+			_sampler.reset(new Inendi::PVRangeSubSampler(
+			    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
+			    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis)));
 		}
 
 		_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
@@ -176,9 +177,19 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 	};
 }
 
-void PVParallelView::PVSeriesViewWidget::setup_series_list(PVCol abscissa)
+void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 {
-	_series_list_widget = new QListWidget;
+	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
+	_sampler->set_split_column(split == PVCol() ? nullptr : &nraw.column(split));
+}
+
+void PVParallelView::PVSeriesViewWidget::setup_series_list(PVCol abscissa,
+                                                           bool recreate_widget /* = true */)
+{
+	if (not _series_list_widget or recreate_widget) {
+		_series_list_widget = new QListWidget;
+	}
+	_series_list_widget->clear();
 	_series_list_widget->setFixedWidth(200);
 	_series_list_widget->setItemDelegate(new StyleDelegate());
 
@@ -188,11 +199,17 @@ void PVParallelView::PVSeriesViewWidget::setup_series_list(PVCol abscissa)
 	for (PVCol col(0); col < column_count; col++) {
 		const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);
 		if (axis.get_type().startsWith("number_") or axis.get_type().startsWith("duration")) {
-			QListWidgetItem* item = new QListWidgetItem(axis.get_name());
 			QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-			item->setData(Qt::UserRole, QVariant::fromValue(SerieListItemData{col, color}));
-			item->setBackgroundColor(color);
-			_series_list_widget->addItem(item);
+			for (size_t i = 0; i < _sampler->group_count(); i++) {
+				QListWidgetItem* item = new QListWidgetItem(
+				    axis.get_name() + (_sampler->group_count() > 1
+				                           ? (QString(" (") + _sampler->group_name(i).c_str() + ")")
+				                           : "")); // FIXME
+				item->setData(Qt::UserRole, QVariant::fromValue(SerieListItemData{
+				                                PVCol(_sampler->group_count() * col + i), color}));
+				item->setBackgroundColor(color);
+				_series_list_widget->addItem(item);
+			}
 		}
 	}
 	_series_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -404,15 +421,16 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 	_plot->update();
 }
 
-bool PVParallelView::PVSeriesViewWidget::is_in_region(QRect region, PVCol col) const
+bool PVParallelView::PVSeriesViewWidget::is_in_region(const QRect region, PVCol col) const
 {
-	auto& av_ts = _sampler->sampled_timeserie(col);
+	const auto min_value = Inendi::PVRangeSubSampler::display_type_max_val *
+	                       uint32_t(_zoomer->height() - (region.top() + region.height()));
+	const auto max_value = Inendi::PVRangeSubSampler::display_type_max_val *
+	                       uint32_t(_zoomer->height() - region.top());
+
+	const auto& av_ts = _sampler->sampled_timeserie(col);
 	for (int pos_x = region.left(); pos_x < region.left() + region.width(); ++pos_x) {
-		auto av_ts_value = av_ts[pos_x] * uint32_t(_zoomer->height());
-		auto min_value = Inendi::PVRangeSubSampler::display_type_max_val *
-		                 uint32_t(_zoomer->height() - (region.top() + region.height()));
-		auto max_value = Inendi::PVRangeSubSampler::display_type_max_val *
-		                 uint32_t(_zoomer->height() - region.top());
+		const auto av_ts_value = av_ts[pos_x] * uint32_t(_zoomer->height());
 		if (min_value < av_ts_value and av_ts_value < max_value) {
 			return true;
 		}

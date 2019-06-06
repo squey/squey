@@ -26,6 +26,7 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol absciss
 	addSeparator();
 	add_rendering_mode_selector();
 	add_sampling_mode_selector();
+	add_split_selector();
 
 	setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	setAutoFillBackground(true);
@@ -46,6 +47,24 @@ void PVParallelView::PVSeriesViewParamsWidget::add_abscissa_selector(PVCol axis)
 	        [this](PVCol axis, PVCombCol) {
 		        _series_view_widget->set_abscissa(axis);
 		        change_abscissa(axis);
+		    });
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
+{
+	auto split_selector = new PVWidgets::PVAxisComboBox(
+	    _series_view_widget->_view->get_axes_combination(),
+	    PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes, [this](PVCol axis, PVCombCol) {
+		    return true; // FIXME remove abscissa column
+		});
+	split_selector->insertItem(0, "", QVariant::fromValue(PVCol()));
+	split_selector->setCurrentIndex(0);
+	split_selector->setToolTip("Select which column to split series on");
+	addWidget(split_selector);
+	connect(split_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) {
+		        _series_view_widget->set_split(axis);
+		        _series_view_widget->setup_series_list(axis, false);
 		    });
 }
 
