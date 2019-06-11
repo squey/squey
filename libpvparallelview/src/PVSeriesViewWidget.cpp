@@ -257,9 +257,9 @@ void PVParallelView::PVSeriesViewWidget::setup_selected_series_list(PVCol /*absc
 				selected_item->setBackground(
 				    item->data(Qt::UserRole).value<SerieListItemData>().color);
 				_selected_series_list->addItem(selected_item);
-				selected_item->setSelected(true);
 			}
 		}
+		_selected_series_list->selectAll();
 		auto count = _selected_series_list->count();
 		auto scrollbar = _selected_series_list->horizontalScrollBar();
 		_selected_series_list->setMaximumHeight(
@@ -283,9 +283,11 @@ void PVParallelView::PVSeriesViewWidget::setup_selected_series_list(PVCol /*absc
 		    // Deselect those not in region unless there would be none left
 		    if (deselect_list.size() < selected_items_list.size()) {
 			    _update_selected_series_resample = false;
+			    _series_list_widget->blockSignals(true);
 			    for (auto* item : deselect_list) {
 				    item->setSelected(false);
 			    }
+			    _series_list_widget->blockSignals(false);
 			    _update_selected_series_resample = true;
 			    update_selected_series();
 		    }
