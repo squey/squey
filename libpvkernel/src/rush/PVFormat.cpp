@@ -321,6 +321,11 @@ bool PVRush::PVFormat::populate()
 	throw std::runtime_error("We can't populate format without file");
 }
 
+void PVRush::PVFormat::set_format_name(QString const& name)
+{
+	format_name = name;
+}
+
 QString const& PVRush::PVFormat::get_format_name() const
 {
 	return format_name;

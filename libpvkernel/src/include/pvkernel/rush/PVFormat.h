@@ -101,6 +101,7 @@ class PVFormat
 	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix,
 	                                                            QString const& dir);
 
+	void set_format_name(QString const& name);
 	QString const& get_format_name() const;
 	QString const& get_full_path() const;
 

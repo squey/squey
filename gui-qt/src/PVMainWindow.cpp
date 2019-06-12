@@ -463,11 +463,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
 	QHash<QString, PVRush::PVInputType::list_inputs> discovered;
-	QHash<QString, PVCore::PVMeanValue<float>> discovered_types; // format->mean_success_rate
-
 	QHash<QString, std::pair<QString, QString>> formats_error; // Errors w/ some formats
 
-	map_files_types files_multi_formats;
 	QHash<QString, PVRush::PVInputDescription_p> hash_input_name;
 
 	bool file_type_found = false;
@@ -527,7 +524,40 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 
 	treat_invalid_formats(formats_error);
 
+	// First, try complete autodetection
 	if (!file_type_found) {
+		for (auto& input : inputs) {
+			try {
+				PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(this);
+				editorWidget->show();
+				PVRush::PVFormat guess_format =
+				    editorWidget->load_log_and_guess_format(input, in_t);
+				if (not guess_format.is_valid() or not editorWidget->close()) {
+					PVLOG_ERROR("Could not autodetect format.");
+					return;
+				}
+				auto format_name = editorWidget->get_current_format_name();
+				if (format_name.isEmpty() or not QFile::exists(format_name)) {
+					PVLOG_ERROR("Format not saved.");
+					return;
+				}
+				guess_format.set_format_name(format_name);
+				formats[format_name] = guess_format;
+				for (auto& src_cr : lcr) {
+					PVRush::hash_format_creator::mapped_type v(guess_format, src_cr);
+					format_creator[format_name] = v;
+					discovered[format_name] << input;
+				}
+				file_type_found = true;
+			} catch (const PVRush::PVInvalidFile& e) {
+				QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
+				return;
+			}
+		}
+	}
+
+	if (!file_type_found) {
+
 		/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
 		 * because this latter does not used QFileDialog's global environment
 		 * like last used current directory.
@@ -566,67 +596,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		}
 	}
 
-	if (discovered_types.size() > 1) {
-		QStringList dis_types = discovered_types.keys();
-		QStringList dis_types_comment;
-		QList<PVCore::PVMeanValue<float>> rates = discovered_types.values();
-		for (PVCore::PVMeanValue<float> const& mean : rates) {
-			dis_types_comment << QString("mean success rate = %1%").arg(mean.compute_mean() * 100);
-		}
-
-		PVStringListChooserWidget* choosew = new PVStringListChooserWidget(
-		    this, "Multiple types have been detected.\nPlease choose the one(s) "
-		          "you need and press OK.",
-		    dis_types, dis_types_comment);
-		if (!choosew->exec())
-			return;
-		QStringList sel_types = choosew->get_sel_list();
-
-		QStringList to_remove;
-		if (dis_types.size() != sel_types.size()) {
-			// Remove types that are not in dis_types from 'discovered'
-			for (int i = 0; i < dis_types.size(); i++) {
-				QString const& t_ = dis_types[i];
-				if (sel_types.contains(t_))
-					continue;
-				discovered.remove(t_);
-				to_remove << t_;
-			}
-		}
-
-		// Remove the types to remove from files_multi_types
-		map_files_types::iterator it = files_multi_formats.begin();
-		while (it != files_multi_formats.end()) {
-			QStringList& types_ = (*it).second;
-			for (int i = 0; i < to_remove.size(); i++) {
-				types_.removeOne(to_remove[i]);
-			}
-			if (types_.size() == 1) {
-				discovered[types_[0]] << hash_input_name[(*it).first];
-				map_files_types::iterator it_rem = it;
-				++it;
-				files_multi_formats.erase(it_rem);
-			} else {
-				++it;
-			}
-		}
-	}
-
-	if (files_multi_formats.size() > 0) {
-		PVFilesTypesSelWidget* files_types_sel =
-		    new PVFilesTypesSelWidget(this, files_multi_formats);
-		if (!files_types_sel->exec())
-			return;
-		// Add everything to the discovered table
-		for (auto const& file_types : files_multi_formats) {
-			QStringList const& types_l = file_types.second;
-			QString const& input_name = file_types.first;
-			for (int i = 0; i < types_l.size(); i++) {
-				discovered[types_l[i]] << hash_input_name[input_name];
-			}
-		}
-	}
-
 	bool one_extraction_successful = false;
 	QStringList invalid_formats;
 	// Load a type of file per view
@@ -651,6 +620,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				one_extraction_successful = true;
 			}
 		} catch (Inendi::InvalidPlottingMapping const& e) {
+			invalid_formats.append(it.key() + ": " + e.what());
+		} catch (PVRush::PVInvalidFile const& e) {
 			invalid_formats.append(it.key() + ": " + e.what());
 		}
 	}

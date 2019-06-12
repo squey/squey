@@ -934,6 +934,21 @@ void PVInspector::PVFormatBuilderWidget::get_source_creator_from_inputs(
 	}
 }
 
+PVRush::PVFormat PVInspector::PVFormatBuilderWidget::load_log_and_guess_format(
+    const PVRush::PVInputDescription_p input, const PVRush::PVInputType_p& input_type)
+{
+	_log_input_type = input_type;
+
+	_inputs.clear();
+	_inputs.push_back(input);
+
+	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+
+	_cur_file = input->human_name() + ".format";
+
+	return get_format_from_dom();
+}
+
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::guess_format

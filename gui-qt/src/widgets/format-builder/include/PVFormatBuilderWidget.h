@@ -71,6 +71,11 @@ class PVFormatBuilderWidget : public QMainWindow
 	bool openFormat(QString const& path);
 	void openFormat(QDomDocument& doc);
 
+	QString get_current_format_name() const { return _cur_file; }
+
+	PVRush::PVFormat load_log_and_guess_format(const PVRush::PVInputDescription_p input,
+	                                           const PVRush::PVInputType_p& input_type);
+
   private:
 	int lastSplitterPluginAdding;
 
