@@ -96,165 +96,96 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 
 	sel.select_none();
 
+	const bool process_left_size_of_zones =
+	    zone_index < lines_view.get_zones_manager().get_number_of_axes_comb_zones();
+	zone_index = process_left_size_of_zones ? zone_index : zone_index - 1;
+	const auto compute_selection = process_left_size_of_zones
+	                                   ? &PVZoomedZoneTree::compute_selection_y1
+	                                   : &PVZoomedZoneTree::compute_selection_y2;
+
 	PVParallelView::PVBCode code_b;
 
-	if (zone_index < lines_view.get_zones_manager().get_number_of_axes_comb_zones()) {
-		// process the left side of zones
-		PVZoneTree const& ztree = lines_view.get_zones_manager().get_zone_tree(
-		    lines_view.get_zones_manager().get_zone_id(zone_index));
+	// process the left side of zones
+	PVZoneTree const& ztree = lines_view.get_zones_manager().get_zone_tree(
+	    lines_view.get_zones_manager().get_zone_id(zone_index));
 
-		for (auto& range : ranges) {
-			uint64_t range_min = range.first;
-			uint64_t range_max = range.second;
+	for (auto& range : ranges) {
+		uint64_t range_min = range.first;
+		uint64_t range_max = range.second;
 
-			uint32_t zt_min = range_min / BUCKET_ELT_COUNT;
-			uint32_t zt_max = range_max / BUCKET_ELT_COUNT;
+		uint32_t zt_min = range_min / BUCKET_ELT_COUNT;
+		uint32_t zt_max = range_max / BUCKET_ELT_COUNT;
 
-			uint64_t zt_range_min = zt_min * (uint64_t)BUCKET_ELT_COUNT;
-			uint64_t zt_range_max = zt_max * (uint64_t)BUCKET_ELT_COUNT;
+		uint64_t zt_range_min = zt_min * (uint64_t)BUCKET_ELT_COUNT;
+		uint64_t zt_range_max = zt_max * (uint64_t)BUCKET_ELT_COUNT;
 
-			bool need_zzt_min = false;
-			uint32_t zzt_min_idx = 0;
-			bool need_zzt_max = false;
-			uint32_t zzt_max_idx = 0;
+		bool need_zzt_min = false;
+		uint32_t zzt_min_idx = 0;
+		bool need_zzt_max = false;
+		uint32_t zzt_max_idx = 0;
 
-			if (zt_range_min != range_min) {
-				zzt_min_idx = zt_min;
-				++zt_min;
-				need_zzt_min = true;
-			}
+		if (zt_range_min != range_min) {
+			zzt_min_idx = zt_min;
+			++zt_min;
+			need_zzt_min = true;
+		}
 
-			if (zt_range_max != range_max) {
-				zzt_max_idx = zt_max;
-				need_zzt_max = true;
-			}
+		if (zt_range_max != range_max) {
+			zzt_max_idx = zt_max;
+			need_zzt_max = true;
+		}
 
-			if (zzt_max_idx == 1024) {
-				need_zzt_max = false;
-			}
+		if (zzt_max_idx == 1024) {
+			need_zzt_max = false;
+		}
 
-			if (need_zzt_min && need_zzt_max && (zzt_min_idx == zzt_max_idx)) {
-				/* it the two quadtrees must be traversed, make
-				 * sure they are different, otherwise the same
-				 * quadtree will be travers twice
-				 */
-				need_zzt_max = false;
-			}
+		if (need_zzt_min && need_zzt_max && (zzt_min_idx == zzt_max_idx)) {
+			/* it the two quadtrees must be traversed, make
+			    * sure they are different, otherwise the same
+			    * quadtree will be travers twice
+			    */
+			need_zzt_max = false;
+		}
 
-			for (PVRow t1 = zt_min; t1 < zt_max; ++t1) {
-				for (PVRow t2 = 0; t2 < 1024; ++t2) {
-					PVRow branch = (t2 * 1024) + t1;
-					PVRow r = ztree.get_first_elt_of_branch(branch);
-					if (r == PVROW_INVALID_VALUE) {
-						continue;
-					}
+		const uint32_t t1_min = process_left_size_of_zones ? zt_min : 0;
+		const uint32_t t1_max = process_left_size_of_zones ? zt_max : 1024;
+		const uint32_t t2_min = process_left_size_of_zones ? 0 : zt_min;
+		const uint32_t t2_max = process_left_size_of_zones ? 1024 : zt_max;
 
-					code_b.int_v = branch;
-					uint32_t y1 = code_b.s.l;
-					bool is_line_selected = ((zt_min <= y1) && (y1 <= zt_max));
-
-					if (is_line_selected == false) {
-						continue;
-					}
-
-					uint32_t branch_count = ztree.get_branch_count(branch);
-					for (size_t i = 0; i < branch_count; ++i) {
-						sel.set_bit_fast(ztree.get_branch_element(branch, i));
-					}
-					nb_selected += branch_count;
+		for (PVRow t1 = t1_min; t1 < t1_max; ++t1) {
+			for (PVRow t2 = t2_min; t2 < t2_max; ++t2) {
+				PVRow branch = (t2 * 1024) + t1;
+				PVRow r = ztree.get_first_elt_of_branch(branch);
+				if (r == PVROW_INVALID_VALUE) {
+					continue;
 				}
-			}
 
-			if (need_zzt_min) {
-				PVZoomedZoneTree const& zztree = lines_view.get_zones_manager().get_zoom_zone_tree(
-				    lines_view.get_zones_manager().get_zone_id(zone_index));
-				nb_selected += zztree.compute_selection_y1(zzt_min_idx, range_min, range_max, sel);
-			}
+				code_b.int_v = branch;
+				uint32_t y = process_left_size_of_zones ? code_b.s.l : code_b.s.r;
+				bool is_line_selected = ((zt_min <= y) and (y <= zt_max));
 
-			if (need_zzt_max) {
-				PVZoomedZoneTree const& zztree = lines_view.get_zones_manager().get_zoom_zone_tree(
-				    lines_view.get_zones_manager().get_zone_id(zone_index));
-				nb_selected += zztree.compute_selection_y1(zzt_max_idx, range_min, range_max, sel);
+				if (not is_line_selected) {
+					continue;
+				}
+
+				uint32_t branch_count = ztree.get_branch_count(branch);
+				for (size_t i = 0; i < branch_count; ++i) {
+					sel.set_bit_fast(ztree.get_branch_element(branch, i));
+				}
+				nb_selected += branch_count;
 			}
 		}
-	} else {
-		// process the right side of zones
-		PVZoneTree const& ztree = lines_view.get_zones_manager().get_zone_tree(
-		    lines_view.get_zones_manager().get_zone_id(zone_index - 1));
 
-		for (auto& range : ranges) {
-			uint64_t range_min = range.first;
-			uint64_t range_max = range.second;
+		if (need_zzt_min) {
+			PVZoomedZoneTree const& zztree = lines_view.get_zones_manager().get_zoom_zone_tree(
+			    lines_view.get_zones_manager().get_zone_id(zone_index));
+			nb_selected += (zztree.*compute_selection)(zzt_min_idx, range_min, range_max, sel);
+		}
 
-			uint32_t zt_min = range_min / BUCKET_ELT_COUNT;
-			uint32_t zt_max = range_max / BUCKET_ELT_COUNT;
-
-			uint64_t zt_range_min = zt_min * (uint64_t)BUCKET_ELT_COUNT;
-			uint64_t zt_range_max = zt_max * (uint64_t)BUCKET_ELT_COUNT;
-
-			bool need_zzt_min = false;
-			uint32_t zzt_min_idx = 0;
-			bool need_zzt_max = false;
-			uint32_t zzt_max_idx = 0;
-
-			if (zt_range_min != range_min) {
-				zzt_min_idx = zt_min;
-				++zt_min;
-				need_zzt_min = true;
-			}
-
-			if (zt_range_max != range_max) {
-				zzt_max_idx = zt_max;
-				need_zzt_max = true;
-			}
-
-			if (zzt_max_idx == 1024) {
-				need_zzt_max = false;
-			}
-
-			if (need_zzt_min && need_zzt_max && (zzt_min_idx == zzt_max_idx)) {
-				/* it the two quadtrees must be traversed, make
-				 * sure they are different, otherwise the same
-				 * quadtree will be travers twice
-				 */
-				need_zzt_max = false;
-			}
-
-			for (PVRow t1 = 0; t1 < 1024; ++t1) {
-				for (PVRow t2 = zt_min; t2 < zt_max; ++t2) {
-					PVRow branch = (t2 * 1024) + t1;
-					PVRow r = ztree.get_first_elt_of_branch(branch);
-					if (r == PVROW_INVALID_VALUE) {
-						continue;
-					}
-
-					code_b.int_v = branch;
-					uint32_t y2 = code_b.s.r;
-					bool is_line_selected = ((zt_min <= y2) && (y2 <= zt_max));
-
-					if (is_line_selected == false) {
-						continue;
-					}
-
-					uint32_t branch_count = ztree.get_branch_count(branch);
-					for (size_t i = 0; i < branch_count; ++i) {
-						sel.set_bit_fast(ztree.get_branch_element(branch, i));
-					}
-					nb_selected += branch_count;
-				}
-			}
-
-			if (need_zzt_min) {
-				PVZoomedZoneTree const& zztree = lines_view.get_zones_manager().get_zoom_zone_tree(
-				    lines_view.get_zones_manager().get_zone_id(zone_index - 1));
-				nb_selected += zztree.compute_selection_y2(zzt_min_idx, range_min, range_max, sel);
-			}
-
-			if (need_zzt_max) {
-				PVZoomedZoneTree const& zztree = lines_view.get_zones_manager().get_zoom_zone_tree(
-				    lines_view.get_zones_manager().get_zone_id(zone_index - 1));
-				nb_selected += zztree.compute_selection_y2(zzt_max_idx, range_min, range_max, sel);
-			}
+		if (need_zzt_max) {
+			PVZoomedZoneTree const& zztree = lines_view.get_zones_manager().get_zoom_zone_tree(
+			    lines_view.get_zones_manager().get_zone_id(zone_index));
+			nb_selected += (zztree.*compute_selection)(zzt_max_idx, range_min, range_max, sel);
 		}
 	}
 
