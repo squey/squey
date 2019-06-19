@@ -17,12 +17,14 @@
 #include <pvparallelview/PVAxisLabel.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVAxisHeader.h>
+#include <pvparallelview/PVHitGraphBlocksManager.h>
 
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QToolTip>
+#include <QDebug>
 
 #define PROPERTY_TOOLTIP_VALUE "inendi_property_tooltip"
 
@@ -204,6 +206,30 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 	if (not invalid) {
 		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
 		                  _axis_length + (2 * axis_extend), _axis_fmt.get_color().toQColor());
+		std::vector<size_t> histogram(_axis_length);
+
+		auto const& plotted = _lib_view.get_parent<Inendi::PVPlotted>();
+		auto col_data = plotted.get_column_pointer(col);
+
+		auto const& selection = _lib_view.get_real_output_selection();
+		selection.visit_selected_lines([&histogram, col_data, this](PVRow row) {
+			size_t pixel_y = uint64_t(col_data[row]) * _axis_length / (uint64_t(1) << 32);
+			++histogram[_axis_length - 1 - pixel_y];
+		});
+
+		for (size_t i = 0; i < histogram.size(); i += 1) {
+			size_t sum = 0;
+			for (size_t j = i >= 3 ? i - 3 : 0; j < std::min(i + 3, histogram.size()); ++j) {
+				sum += histogram[j];
+			}
+			painter->fillRect(
+			    0, _axis_length - i, PVParallelView::AxisWidth, 1,
+			    QColor::fromHsvF(std::max(0., 1. - double(sum) / double(selection.bit_count())) /
+			                         6.,
+			                     1, histogram[i] > 0, 1.));
+		}
+
+		// qDebug() << histogram;
 	} else {
 		const double valid_range = (1 - Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE);
 

@@ -41,7 +41,7 @@ static constexpr const int IMAGE_WIDTH = 2048;
 static constexpr const int PARALLELVIEW_IMAGE_HEIGHT = IMAGE_HEIGHT;
 static constexpr const int PARALLELVIEW_IMAGE_WIDTH = IMAGE_WIDTH;
 
-static constexpr const int PARALLELVIEW_AXIS_WIDTH = 3;
+static constexpr const int PARALLELVIEW_AXIS_WIDTH = 21;
 
 static_assert(PARALLELVIEW_AXIS_WIDTH != 1,
               "PARALLELVIEW_AXIS_WIDTH must be strictly greater than 1");
