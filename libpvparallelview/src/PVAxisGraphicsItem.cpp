@@ -205,9 +205,8 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
                                                const QStyleOptionGraphicsItem* option,
                                                QWidget* widget)
 {
-	const PVCombCol comb_col = get_combined_axis_column();
-	PVCol col = _lib_view.get_axes_combination().get_nraw_axis(comb_col);
-	pvcop::db::INVALID_TYPE invalid = _lib_view.get_parent<Inendi::PVSource>().has_invalid(col);
+	pvcop::db::INVALID_TYPE invalid =
+	    _lib_view.get_parent<Inendi::PVSource>().has_invalid(get_original_axis_column());
 
 	if (not invalid) {
 		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
@@ -220,6 +219,8 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
 		                  ((_axis_length * valid_range) + (axis_extend) + 2),
 		                  _axis_fmt.get_color().toQColor());
+		painter->drawImage(QRect{0, 0, PVParallelView::AxisWidth, _axis_length},
+		                   get_axis_density());
 
 		int width = PVParallelView::AxisWidth;
 
@@ -232,7 +233,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 			width--;
 		}
 
-		painter->drawEllipse(QPoint(1, _axis_length - 1), width, width);
+		painter->drawEllipse(QPoint(1, _axis_length - 1), 3, 3);
 	}
 
 #ifdef INENDI_DEVELOPER_MODE
