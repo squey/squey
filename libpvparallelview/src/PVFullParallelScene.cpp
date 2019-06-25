@@ -760,14 +760,21 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVCombCol col)
 {
-	size_t zone_index(col);
 	_sel_rect.clear();
 
 	Inendi::PVSelection sel(_lib_view.get_row_count());
-	sel.select_none();
+	sel.select_all();
 
-	PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
-	    _lines_view, zone_index, _axes[zone_index]->get_selection_ranges(), sel);
+	for (size_t zone_index = 0; zone_index < _axes.size(); ++zone_index) {
+		if (auto axis_selection_ranges = _axes[zone_index]->get_selection_ranges();
+		    not axis_selection_ranges.empty()) {
+			Inendi::PVSelection axis_sel(_lib_view.get_row_count());
+			axis_sel.select_none();
+			PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
+			    _lines_view, zone_index, axis_selection_ranges, axis_sel);
+			sel &= axis_sel;
+		}
+	}
 
 	PVSelectionGenerator::process_selection(_lib_view, sel);
 }
