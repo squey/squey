@@ -45,11 +45,6 @@ static int zoom_level_to_width(int32_t zoom_level, int base_width = PVParallelVi
 	                               PVParallelView::ZoneMaxWidth);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::PVLinesView
- *
- *****************************************************************************/
 PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend,
                                          PVZonesManager const& zm,
                                          PVZonesProcessor& zp_sel,
@@ -72,11 +67,6 @@ PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend,
 	_list_of_zone_width_with_zoom_level.resize(nb_of_managed_zones);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::call_refresh_slots
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::call_refresh_slots(size_t zone_index)
 {
 	// Call both zr_sel_finished and zr_bg_finished slots on _img_update_receiver
@@ -92,11 +82,6 @@ void PVParallelView::PVLinesView::call_refresh_slots(size_t zone_index)
 	                          Q_ARG(size_t, zone_index));
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::cancel_and_wait_all_rendering
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::cancel_and_wait_all_rendering()
 {
 	for (SingleZoneImages& single_zone_images : _list_of_single_zone_images) {
@@ -104,11 +89,6 @@ void PVParallelView::PVLinesView::cancel_and_wait_all_rendering()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::connect_zr
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::connect_zr(PVZoneRenderingBCIBase* zr, const char* slot)
 {
 	if (_img_update_receiver) {
@@ -116,48 +96,40 @@ void PVParallelView::PVLinesView::connect_zr(PVZoneRenderingBCIBase* zr, const c
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::get_left_border_position_of_zone_in_scene
- *
- *****************************************************************************/
 uint32_t
 PVParallelView::PVLinesView::get_left_border_position_of_zone_in_scene(size_t zone_index) const
 {
 	assert(zone_index < _list_of_zone_width_with_zoom_level.size());
 
-	// The first zone start in scene at absciss 0
-	uint32_t pos = 0;
+	// The first zone start in scene after the first axis which is at absciss 0
+	uint32_t pos = get_axis_width();
 
 	// We do stop after the right axis of the previous zone
 	for (size_t zin = 0; zin < zone_index; ++zin) {
-		pos += get_zone_width(zin) + PVParallelView::AxisWidth;
+		pos += get_zone_width(zin) + get_axis_width();
 	}
 
 	return pos;
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::get_number_of_managed_zones
- *
- *****************************************************************************/
+uint32_t PVParallelView::PVLinesView::get_right_border_of_scene() const
+{
+	return get_left_border_position_of_zone_in_scene(_list_of_zone_width_with_zoom_level.size() -
+	                                                 1) +
+	       get_zone_width(_list_of_zone_width_with_zoom_level.size() - 1) + get_axis_width();
+}
+
 size_t PVParallelView::PVLinesView::get_number_of_managed_zones() const
 {
 	return get_zones_manager().get_number_of_axes_comb_zones();
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::get_zone_index_from_scene_pos
- *
- *****************************************************************************/
 size_t PVParallelView::PVLinesView::get_zone_index_from_scene_pos(int32_t abs_pos) const
 {
 	size_t zone_index(0);
 	ssize_t pos = 0;
 	for (; zone_index < _list_of_zone_width_with_zoom_level.size() - 1; ++zone_index) {
-		pos += get_zone_width(zone_index) + PVParallelView::AxisWidth;
+		pos += get_axis_width() + get_zone_width(zone_index);
 		if (pos > abs_pos) {
 			break;
 		}
@@ -166,11 +138,6 @@ size_t PVParallelView::PVLinesView::get_zone_index_from_scene_pos(int32_t abs_po
 	return std::min(zone_index, _list_of_zone_width_with_zoom_level.size() - 1);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::get_zone_width
- *
- *****************************************************************************/
 uint32_t PVParallelView::PVLinesView::get_zone_width(size_t zone_index) const
 {
 	assert(zone_index < _list_of_zone_width_with_zoom_level.size());
@@ -178,22 +145,12 @@ uint32_t PVParallelView::PVLinesView::get_zone_width(size_t zone_index) const
 	return width;
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::increase_base_zoom_level_of_zone
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::increase_base_zoom_level_of_zone(size_t zone_index)
 {
 	assert(zone_index < _list_of_zone_width_with_zoom_level.size());
 	_list_of_zone_width_with_zoom_level[zone_index].increase_zoom_level();
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::increase_global_zoom_level
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::increase_global_zoom_level()
 {
 	for (ZoneWidthWithZoomLevel& z : _list_of_zone_width_with_zoom_level) {
@@ -201,22 +158,12 @@ void PVParallelView::PVLinesView::increase_global_zoom_level()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::decrease_base_zoom_level_of_zone
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::decrease_base_zoom_level_of_zone(size_t zone_index)
 {
 	assert(zone_index < _list_of_zone_width_with_zoom_level.size());
 	_list_of_zone_width_with_zoom_level[zone_index].decrease_zoom_level();
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::decrease_global_zoom_level
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::decrease_global_zoom_level()
 {
 	for (ZoneWidthWithZoomLevel& z : _list_of_zone_width_with_zoom_level) {
@@ -224,11 +171,6 @@ void PVParallelView::PVLinesView::decrease_global_zoom_level()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::initialize_zones_width
- *
- *****************************************************************************/
 bool PVParallelView::PVLinesView::initialize_zones_width(int view_width)
 {
 	bool fit_in_view = false;
@@ -253,11 +195,6 @@ bool PVParallelView::PVLinesView::initialize_zones_width(int view_width)
 	return fit_in_view;
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::render_all_zones_images
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::render_all_zones_images(int32_t view_x,
                                                           uint32_t view_width,
                                                           const float zoom_y)
@@ -269,11 +206,6 @@ void PVParallelView::PVLinesView::render_all_zones_images(int32_t view_x,
 	});
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::render_all_zones_bg_image
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::render_all_zones_bg_image(int32_t view_x,
                                                             uint32_t view_width,
                                                             const float zoom_y)
@@ -285,11 +217,6 @@ void PVParallelView::PVLinesView::render_all_zones_bg_image(int32_t view_x,
 	});
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::render_all_zones_sel_image
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::render_all_zones_sel_image(int32_t view_x,
                                                              uint32_t view_width,
                                                              const float zoom_y)
@@ -301,11 +228,6 @@ void PVParallelView::PVLinesView::render_all_zones_sel_image(int32_t view_x,
 	});
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::render_single_zone_images
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::render_single_zone_images(size_t zone_index, const float zoom_y)
 {
 	assert(is_zone_drawn(zone_index));
@@ -313,11 +235,6 @@ void PVParallelView::PVLinesView::render_single_zone_images(size_t zone_index, c
 	render_single_zone_sel_image(zone_index, zoom_y);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::render_single_zone_bg_image
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::render_single_zone_bg_image(size_t zone_index, const float zoom_y)
 {
 	assert(is_zone_drawn(zone_index));
@@ -350,11 +267,6 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(size_t zone_index,
 	single_zone_images.last_zr_bg = zr;
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::render_single_zone_sel_image
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::render_single_zone_sel_image(size_t zone_index,
                                                                const float zoom_y)
 {
@@ -426,11 +338,11 @@ void PVParallelView::PVLinesView::set_nb_drawable_zones(size_t nb_zones)
 	assert(_list_of_single_zone_images.size() == nb_zones);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::translate
- *
- *****************************************************************************/
+void PVParallelView::PVLinesView::set_axis_width(uint32_t width)
+{
+	_axis_width = width;
+}
+
 void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
 	const size_t previous_first_zone = _first_zone;
@@ -495,11 +407,6 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::update_number_of_zones
- *
- *****************************************************************************/
 int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t view_width)
 {
 	size_t old_zones_count = _list_of_zone_width_with_zoom_level.size();
@@ -509,11 +416,6 @@ int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t vie
 	return static_cast<int>(new_zones_count) - static_cast<int>(old_zones_count);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::get_average_zones_width
- *
- *****************************************************************************/
 int PVParallelView::PVLinesView::get_average_zones_width() const
 {
 	uint32_t sum = 0;
@@ -525,11 +427,6 @@ int PVParallelView::PVLinesView::get_average_zones_width() const
 	return sum / _list_of_zone_width_with_zoom_level.size();
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::reset_zones_width
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::reset_zones_width(int wanted_zone_width)
 {
 	wanted_zone_width = PVCore::clamp<int>(wanted_zone_width, ZoneMinWidth, ZoneMaxWidth);
@@ -554,11 +451,6 @@ void PVParallelView::PVLinesView::reset_zones_width(int wanted_zone_width)
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::visit_all_zones_to_render
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::visit_all_zones_to_render(
     std::function<void(size_t)> const& fzone)
 {
@@ -575,11 +467,6 @@ void PVParallelView::PVLinesView::visit_all_zones_to_render(
  ******************************************************************************
  *****************************************************************************/
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 {
 	// That copy is important if we are multi-threading!
@@ -598,11 +485,6 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_all_and_wait()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 {
 	// AG: that following copy is *important* !
@@ -612,11 +494,6 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_bg()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel()
 {
 	// AG: that following copy is *important* !
@@ -626,11 +503,6 @@ void PVParallelView::PVLinesView::SingleZoneImages::cancel_last_sel()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::SingleZoneImages::create_image
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::create_image(PVBCIDrawingBackend& backend,
                                                                  uint32_t width)
 {
@@ -638,11 +510,6 @@ void PVParallelView::PVLinesView::SingleZoneImages::create_image(PVBCIDrawingBac
 	bg = backend.create_image(width, PARALLELVIEW_ZT_BBITS);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::SingleZoneImages::set_width
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::SingleZoneImages::set_width(uint32_t width)
 {
 	sel->set_width(width);
@@ -657,11 +524,6 @@ void PVParallelView::PVLinesView::SingleZoneImages::set_width(uint32_t width)
  ******************************************************************************
  *****************************************************************************/
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::decrease_zoom_level
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::decrease_zoom_level()
 {
 	if (_base_zoom_level > min_zoom_level) {
@@ -669,41 +531,11 @@ void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::decrease_zoom_level()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_base_zoom_level
- *
- *****************************************************************************/
-int16_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_base_zoom_level() const
-{
-	return _base_zoom_level;
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_base_width
- *
- *****************************************************************************/
-int16_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_base_width() const
-{
-	return _base_width;
-}
-
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width
- *
- *****************************************************************************/
 uint32_t PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::get_width() const
 {
 	return zoom_level_to_width(_base_zoom_level, _base_width);
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::increase_zoom_level
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::increase_zoom_level()
 {
 	if (_base_zoom_level < max_zoom_level) {
@@ -711,11 +543,6 @@ void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::increase_zoom_level()
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_width
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_width(int16_t base_width)
 {
 	if ((base_width > 15) && (base_width < 2048)) {
@@ -723,11 +550,6 @@ void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_width(int16_t
 	}
 }
 
-/******************************************************************************
- *
- * PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_zoom_level
- *
- *****************************************************************************/
 void PVParallelView::PVLinesView::ZoneWidthWithZoomLevel::set_base_zoom_level(
     int16_t base_zoom_level)
 {

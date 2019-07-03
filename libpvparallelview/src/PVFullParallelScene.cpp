@@ -933,7 +933,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 
 	// We start by updating all axes positions
-	size_t nzones(_lines_view.get_number_of_managed_zones() + 1);
+	size_t naxes(_lines_view.get_number_of_managed_zones() + 1);
 	uint32_t pos = 0;
 
 	_axes[0]->setPos(QPointF(0, 0));
@@ -941,16 +941,11 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	if (!update_all) {
 		uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 		z = _lines_view.get_zone_index_from_scene_pos(view_x) + 1;
+		pos = _lines_view.get_left_border_position_of_zone_in_scene(z - 1);
 	}
-	for (; z < nzones; ++z) {
-		if (z < nzones - 1) {
-			pos = _lines_view.get_left_border_position_of_zone_in_scene(z);
-		} else {
-			// Special case for last axis
-			pos += _lines_view.get_zone_width(z - 1);
-		};
-
-		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
+	for (; z < naxes; ++z) {
+		pos += _lines_view.get_axis_width() + _lines_view.get_zone_width(z - 1);
+		_axes[z]->setPos(QPointF(pos, 0));
 	}
 
 	// We now update all zones positions
@@ -962,7 +957,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 
 	size_t i(0);
 	for (; i < _lines_view.get_number_of_managed_zones(); ++i) {
-		_axes[i]->set_zone_width(_lines_view.get_zone_width(i));
+		_axes[i]->set_zone_width(_lines_view.get_zone_width(i), _lines_view.get_axis_width());
 		if (_show_min_max_values) {
 			// Need to be done because eluded text could change
 			_axes[i]->update_axis_min_max_info();
@@ -971,7 +966,7 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all,
 	}
 
 	// Last axis needs a fake zone width, and update its info
-	_axes[i]->set_zone_width(256);
+	_axes[i]->set_zone_width(256, _lines_view.get_axis_width());
 	if (_show_min_max_values) {
 		_axes[i]->update_axis_min_max_info();
 		_axes[i]->update_layer_min_max_info();

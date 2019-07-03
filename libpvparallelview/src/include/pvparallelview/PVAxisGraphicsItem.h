@@ -94,9 +94,9 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	QRectF get_top_decoration_scene_bbox() const;
 	QRectF get_bottom_decoration_scene_bbox() const;
 
-	void set_axis_length(int l);
+	void set_axis_length(uint32_t l);
 
-	void set_zone_width(int w);
+	void set_zone_width(uint32_t zone_width, uint32_t axis_width);
 
 	QRect map_from_scene(QRectF rect) const
 	{
@@ -154,8 +154,9 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	PVSlidersGroup* _sliders_group;
 	PVAxisLabel* _label;
 	PVAxisHeader* _header_zone;
-	int _axis_length;
-	int _zone_width;
+	uint32_t _axis_length;
+	uint32_t _zone_width;
+	uint32_t _axis_width;
 	QGraphicsTextItem* _axis_min_value;
 	QGraphicsTextItem* _axis_max_value;
 	QGraphicsTextItem* _layer_min_value;

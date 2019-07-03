@@ -58,8 +58,10 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::update_position()
 		return;
 	}
 
-	if (zone_index1 >= get_lines_view().get_number_of_managed_zones() ||
-	    zone_index2 >= get_lines_view().get_number_of_managed_zones()) {
+	auto const& lines_view = get_lines_view();
+
+	if (zone_index1 >= lines_view.get_number_of_managed_zones() ||
+	    zone_index2 >= lines_view.get_number_of_managed_zones()) {
 		clear();
 		return;
 	}
@@ -67,10 +69,10 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::update_position()
 	double factor1 = _barycenter.factor1;
 	double factor2 = _barycenter.factor2;
 
-	double new_left = get_lines_view().get_left_border_position_of_zone_in_scene(zone_index1) +
-	                  (double)get_lines_view().get_zone_width(zone_index1) * factor1;
-	double new_right = get_lines_view().get_left_border_position_of_zone_in_scene(zone_index2) +
-	                   (double)get_lines_view().get_zone_width(zone_index2) * factor2;
+	double new_left = lines_view.get_left_border_position_of_zone_in_scene(zone_index1) +
+	                  double(lines_view.get_zone_width(zone_index1)) * factor1;
+	double new_right = lines_view.get_left_border_position_of_zone_in_scene(zone_index2) +
+	                   double(lines_view.get_zone_width(zone_index2)) * factor2;
 	double abs_top = get_rect().top();
 	double abs_bottom = get_rect().bottom();
 
@@ -90,27 +92,33 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 		return;
 	}
 
+	auto const& lines_view = get_lines_view();
+
 	// Too much on the right, stop drinking!
-	const int32_t pos_end = scene_parent()->pos_last_axis();
+	const int32_t pos_end = lines_view.get_right_border_of_scene();
 	if (srect.x() >= pos_end) {
 		return;
 	}
 
-	const size_t zone_index_start = get_lines_view().get_zone_index_from_scene_pos(srect.x());
+	const size_t zone_index_start = lines_view.get_zone_index_from_scene_pos(srect.x());
 	const size_t zone_index_end =
-	    get_lines_view().get_zone_index_from_scene_pos(srect.x() + srect.width());
+	    lines_view.get_zone_index_from_scene_pos(srect.x() + srect.width());
 
 	Inendi::PVSelection sel(scene_parent()->lib_view().get_row_count());
 	sel.select_none();
 
+	const int axis_width = lines_view.get_axis_width();
+
 	for (size_t z = zone_index_start; z <= zone_index_end; z++) {
 		QRect r = scene_parent()->map_to_axis(z, srect);
-		r.setX(std::max(0, r.x()));
-		r.setRight(std::min(pos_end - 1, r.right()));
+		const int zone_width = lines_view.get_zone_width(z);
+		const int rleft = r.left();
+		const int rright = r.right();
+		r.setLeft(std::clamp(rleft - axis_width, 0, zone_width));
+		r.setRight(std::clamp(rright - axis_width, 0, zone_width));
 		PVSelectionGenerator::compute_selection_from_parallel_view_rect(
-		    get_lines_view().get_zone_width(z),
-		    get_lines_view().get_zones_manager().get_zone_tree(
-		        get_lines_view().get_zones_manager().get_zone_id(z)),
+		    zone_width, lines_view.get_zones_manager().get_zone_tree(
+		                    lines_view.get_zones_manager().get_zone_id(z)),
 		    r, sel);
 	}
 
@@ -126,23 +134,20 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 
 void PVParallelView::PVFullParallelViewSelectionRectangle::store()
 {
-	size_t& zone_index1 = _barycenter.zone_index1;
-	size_t& zone_index2 = _barycenter.zone_index2;
-	double& factor1 = _barycenter.factor1;
-	double& factor2 = _barycenter.factor2;
+	auto const& lines_view = get_lines_view();
+	auto const& scene = *scene_parent();
+	const auto axis_width = lines_view.get_axis_width();
 
-	const double abs_left = get_rect().left();
-	const double abs_right = get_rect().right();
-
-	zone_index1 = get_lines_view().get_zone_index_from_scene_pos(abs_left);
-	const double z1_width = get_lines_view().get_zone_width(zone_index1);
-	const double alpha = scene_parent()->map_to_axis(zone_index1, QPointF(abs_left, 0)).x();
-	factor1 = (double)alpha / z1_width;
-
-	zone_index2 = get_lines_view().get_zone_index_from_scene_pos(abs_right);
-	const double z2_width = get_lines_view().get_zone_width(zone_index2);
-	const double beta = scene_parent()->map_to_axis(zone_index2, QPointF(abs_right, 0)).x();
-	factor2 = (double)beta / z2_width;
+	const auto barycenter_store = [axis_width, &lines_view, &scene](
+	    size_t& zone_index, double& factor, const double abs_pos) {
+		zone_index = lines_view.get_zone_index_from_scene_pos(abs_pos);
+		const double zone_width = lines_view.get_zone_width(zone_index);
+		const double x_pos = scene.map_to_axis(zone_index, QPointF(abs_pos, 0)).x();
+		const double alpha = std::max(0., x_pos - axis_width);
+		factor = alpha / zone_width;
+	};
+	barycenter_store(_barycenter.zone_index1, _barycenter.factor1, get_rect().left());
+	barycenter_store(_barycenter.zone_index2, _barycenter.factor2, get_rect().right());
 }
 
 /*****************************************************************************

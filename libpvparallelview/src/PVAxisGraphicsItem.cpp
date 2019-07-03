@@ -209,20 +209,18 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 	    _lib_view.get_parent<Inendi::PVSource>().has_invalid(get_original_axis_column());
 
 	if (not invalid) {
-		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
-		                  _axis_length + (2 * axis_extend), _axis_fmt.get_color().toQColor());
-		painter->drawImage(QRect{0, 0, PVParallelView::AxisWidth, _axis_length},
-		                   get_axis_density());
+		painter->fillRect(0, -axis_extend, _axis_width, _axis_length + (2 * axis_extend),
+		                  _axis_fmt.get_color().toQColor());
+		painter->drawImage(QRect{0, 0, int(_axis_width), int(_axis_length)}, get_axis_density());
 	} else {
 		const double valid_range = (1 - Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE);
 
-		painter->fillRect(0, -axis_extend, PVParallelView::AxisWidth,
+		painter->fillRect(0, -axis_extend, _axis_width,
 		                  ((_axis_length * valid_range) + (axis_extend) + 2),
 		                  _axis_fmt.get_color().toQColor());
-		painter->drawImage(QRect{0, 0, PVParallelView::AxisWidth, _axis_length},
-		                   get_axis_density());
+		painter->drawImage(QRect{0, 0, int(_axis_width), int(_axis_length)}, get_axis_density());
 
-		int width = PVParallelView::AxisWidth;
+		int width = _axis_width;
 
 		// draw a circle for invalid/empty values
 		if (invalid == pvcop::db::INVALID_TYPE::EMPTY) {
@@ -410,7 +408,7 @@ bool PVParallelView::PVAxisGraphicsItem::is_last_axis() const
 	return _lib_view.get_axes_combination().is_last_axis(_comb_col);
 }
 
-void PVParallelView::PVAxisGraphicsItem::set_axis_length(int l)
+void PVParallelView::PVAxisGraphicsItem::set_axis_length(uint32_t l)
 {
 	prepareGeometryChange();
 
@@ -424,10 +422,11 @@ void PVParallelView::PVAxisGraphicsItem::set_axis_length(int l)
 	update_layer_min_max_position();
 }
 
-void PVParallelView::PVAxisGraphicsItem::set_zone_width(int w)
+void PVParallelView::PVAxisGraphicsItem::set_zone_width(uint32_t zone_width, uint32_t axis_width)
 {
-	_zone_width = w;
-	_header_zone->set_width(w + PVParallelView::AxisWidth);
+	_zone_width = zone_width;
+	_axis_width = axis_width;
+	_header_zone->set_width(zone_width + axis_width);
 }
 
 void PVParallelView::PVAxisGraphicsItem::refresh_density()

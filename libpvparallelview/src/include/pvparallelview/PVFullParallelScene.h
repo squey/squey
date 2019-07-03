@@ -133,9 +133,10 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 		r.setTop(r.top() / _zoom_y);
 		r.setBottom(r.bottom() / _zoom_y);
 
-		const int32_t zone_width = _lines_view.get_zone_width(zone_index);
-		if (r.width() + r.x() > zone_width) {
-			r.setRight(zone_width - 1);
+		const int32_t total_zone_width =
+		    _lines_view.get_zone_width(zone_index) + _lines_view.get_axis_width();
+		if (r.width() + r.x() > total_zone_width) {
+			r.setRight(total_zone_width - 1);
 		}
 
 		return r;
