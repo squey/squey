@@ -42,9 +42,9 @@ void PVWidgets::PVAxisComboBox::set_current_axis(PVCombCol axis)
 	if (axis == PVCombCol()) {
 		setCurrentIndex(-1);
 	} else if (_axes_shown & AxesShown::CombinationAxes) {
-		setCurrentIndex(axis);
+		setCurrentIndex(findData(QVariant::fromValue(axis)));
 	} else {
-		setCurrentIndex(_axes_comb.get_nraw_axis(axis));
+		setCurrentIndex(findData(QVariant::fromValue(_axes_comb.get_nraw_axis(axis))));
 	}
 }
 
@@ -53,11 +53,11 @@ void PVWidgets::PVAxisComboBox::set_current_axis(PVCol axis)
 	if (axis == PVCol()) {
 		setCurrentIndex(-1);
 	} else if (_axes_shown == AxesShown::OriginalAxes) {
-		setCurrentIndex(axis);
+		setCurrentIndex(findData(QVariant::fromValue(axis)));
 	} else if (_axes_shown == AxesShown::BothOriginalCombinationAxes) {
-		setCurrentIndex(count() - _axes_comb.get_nraw_axes_count() + int(axis));
+		setCurrentIndex(findData(QVariant::fromValue(axis)));
 	} else {
-		setCurrentIndex(_axes_comb.get_first_comb_col(axis));
+		setCurrentIndex(findData(QVariant::fromValue(_axes_comb.get_first_comb_col(axis))));
 	}
 }
 
