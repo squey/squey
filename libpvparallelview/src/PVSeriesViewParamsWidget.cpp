@@ -26,6 +26,7 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol absciss
 	addSeparator();
 	add_rendering_mode_selector();
 	add_sampling_mode_selector();
+	add_split_selector();
 
 	setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
 	setAutoFillBackground(true);
@@ -34,18 +35,36 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol absciss
 
 void PVParallelView::PVSeriesViewParamsWidget::add_abscissa_selector(PVCol axis)
 {
-	auto abscissa_selector = new PVWidgets::PVAxisComboBox(
+	_abscissa_selector = new PVWidgets::PVAxisComboBox(
 	    _series_view_widget->_view->get_axes_combination(),
 	    PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes, [this](PVCol axis, PVCombCol) {
 		    return PVDisplays::display_view_if<PVDisplays::PVDisplayViewTimeseries>()
 		        .abscissa_filter(_series_view_widget->_view, axis);
 		});
-	abscissa_selector->set_current_axis(axis);
-	addWidget(abscissa_selector);
-	connect(abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	_abscissa_selector->set_current_axis(axis);
+	addWidget(_abscissa_selector);
+	connect(_abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
 	        [this](PVCol axis, PVCombCol) {
 		        _series_view_widget->set_abscissa(axis);
 		        change_abscissa(axis);
+		    });
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
+{
+	auto split_selector =
+	    new PVWidgets::PVAxisComboBox(_series_view_widget->_view->get_axes_combination(),
+	                                  PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes,
+	                                  [this](PVCol axis, PVCombCol) { return true; });
+	split_selector->insertItem(0, "", QVariant::fromValue(PVCol()));
+	split_selector->setCurrentIndex(0);
+	split_selector->setToolTip("Select which column to split series on");
+	addWidget(split_selector);
+	connect(split_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [this](PVCol axis, PVCombCol) {
+		        _series_view_widget->set_split(axis);
+		        _series_view_widget->setup_series_tree(axis);
+		        _series_view_widget->setup_selected_series_tree(axis);
 		    });
 }
 

@@ -521,8 +521,29 @@
       ]
     },
     {
+      "name": "extra-cmake-modules",
+      "buildsystem": "cmake",
+      "sources": [
+       {
+          "type": "git",
+          "url": "https://anongit.kde.org/extra-cmake-modules.git",
+          "commit": "5b5fec7ccbf0c42b15e9fac3c17b1362543aa0b3"
+        }
+      ]
+    },
+    {
+      "name": "kitemmodels",
+      "buildsystem": "cmake",
+      "sources": [
+       {
+          "type": "git",
+          "url": "https://anongit.kde.org/kitemmodels.git",
+          "commit": "b55c6d90f393d29ed5830e3e39880c732f4c5ea6"
+        }
+      ]
+    },
+    {
       "name": "inendi-inspector-doc",
-      "disabled": false,
       "build-options": {
         "env": {
           "DOCS": "documents/inendi_inspector_reference_manual",

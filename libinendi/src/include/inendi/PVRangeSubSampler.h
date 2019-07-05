@@ -85,6 +85,7 @@ class PVRangeSubSampler
 	                  const std::vector<pvcop::core::array<value_type>>& timeseries,
 	                  const PVRush::PVNraw& nraw,
 	                  const pvcop::db::selection& sel,
+	                  const pvcop::db::array* split = nullptr,
 	                  size_t sampling_count = 2048);
 
 	template <SAMPLING_MODE mode>
@@ -96,10 +97,16 @@ class PVRangeSubSampler
 	}
 	void set_sampling_count(size_t sampling_count);
 	void set_selected_timeseries(const std::unordered_set<size_t>& selected_timeseries);
+	void set_split_column(const pvcop::db::array* split);
 
 	size_t samples_count() const { return _sampling_count; }
 	size_t total_count() const { return _time.size(); }
 	size_t timeseries_count() const { return _timeseries.size(); }
+	size_t group_count() const { return _split_count; }
+	std::string group_name(size_t i) const
+	{
+		return _split ? _split->at(_split_extents.to_core_array()[i]) : "";
+	}
 	const std::vector<display_type>& sampled_timeserie(size_t index) const
 	{
 		return _ts_matrix[index];
@@ -143,6 +150,10 @@ class PVRangeSubSampler
 	std::unordered_set<size_t> _selected_timeseries;
 	std::vector<size_t> _timeseries_to_subsample;
 	const pvcop::db::selection& _sel;
+	const pvcop::db::array* _split;
+	pvcop::db::groups _split_groups;
+	pvcop::db::extents _split_extents;
+	size_t _split_count = 1;
 
 	pvcop::db::indexes _sorted_indexes;
 	pvcop::core::array<uint32_t> _sort;
@@ -155,6 +166,7 @@ class PVRangeSubSampler
 	SamplingParams _last_params;
 
 	bool _reset = false;
+	bool _valid = false;
 
 	std::function<void(size_t, size_t, size_t, size_t)> _compute_ranges_reduction_f;
 };
@@ -221,11 +233,20 @@ void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 	// Remove invalid values from selection
 	const pvcop::db::selection& valid_sel = _time.valid_selection(_sel);
 
-#pragma omp parallel for
-	for (size_t k = 0; k < _timeseries_to_subsample.size(); k++) {
+	const auto split_groups =
+	    _split ? _split_groups.to_core_array() : pvcop::core::array<pvcop::db::index_t>();
+	std::vector<uint64_t> accums(_split_count, F::init());
+	std::vector<uint64_t> selected_values_counts(_split_count, 0);
+	std::unordered_set<size_t> columns_to_subsample_set;
+	for (size_t t : _timeseries_to_subsample) {
+		columns_to_subsample_set.emplace(t / _split_count);
+	}
+	const std::vector<size_t> columns_to_subsample(columns_to_subsample_set.begin(),
+	                                               columns_to_subsample_set.end());
 
-		const size_t i = _timeseries_to_subsample[k];
-
+#pragma omp parallel for firstprivate(accums, selected_values_counts)
+	for (auto it = columns_to_subsample.begin(); it < columns_to_subsample.end(); ++it) {
+		size_t i = *it;
 		size_t start = first;
 		size_t end = first;
 		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
@@ -234,27 +255,34 @@ void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 		for (size_t j = 0; j < _histogram.size(); j++) {
 			const size_t values_count = _histogram[j];
 			end += values_count;
-			size_t selected_values_count = 0;
-			uint64_t accum = F::init();
+			std::fill(selected_values_counts.begin(), selected_values_counts.end(), 0);
+			std::fill(accums.begin(), accums.end(), F::init());
 			for (size_t k = start; k < end; k++) {
 				auto v = not _sort ? k : _sort[k];
+				const size_t group_index = _split ? split_groups[v] : 0;
+				uint64_t& accum = accums[group_index];
 				if (ts_valid_sel[v]) {
-					selected_values_count++;
+					selected_values_counts[group_index]++;
 					F::map(accum, timeserie[v]);
 				}
 			}
 			start = end;
-			if (selected_values_count == 0) {
-				_ts_matrix[i][j] = no_value; // no value in range
-			} else {
-				const uint64_t raw_value = F::reduce(accum, selected_values_count);
-				if (min != 0 and raw_value < min) { // underflow
-					_ts_matrix[i][j] = underflow_value;
-				} else if (raw_value > max) { // overflow
-					_ts_matrix[i][j] = overflow_value;
+			for (size_t group_index = 0; group_index < _split_count; group_index++) {
+				size_t& selected_values_count = selected_values_counts[group_index];
+				const size_t ii = (_split_count * i) + group_index;
+				if (selected_values_count == 0) {
+					_ts_matrix[ii][j] = no_value; // no value in range
 				} else {
-					_ts_matrix[i][j] = (display_type)((zoom_f(raw_value - min) / (max - min)) *
-					                                  display_type_max_val); // nominal value
+					uint64_t& accum = accums[group_index];
+					const uint64_t raw_value = F::reduce(accum, selected_values_count);
+					if (min != 0 and raw_value < min) { // underflow
+						_ts_matrix[ii][j] = underflow_value;
+					} else if (raw_value > max) { // overflow
+						_ts_matrix[ii][j] = overflow_value;
+					} else {
+						_ts_matrix[ii][j] = (display_type)((zoom_f(raw_value - min) / (max - min)) *
+						                                   display_type_max_val); // nominal value
+					}
 				}
 			}
 		}

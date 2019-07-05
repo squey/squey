@@ -29,6 +29,7 @@ QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Inendi::PVView* view
 bool PVDisplays::PVDisplayViewTimeseries::abscissa_filter(Inendi::PVView* view, PVCol axis) const
 {
 	return view->get_axes_combination().get_axis(axis).get_type().left(4) == "time" or
+	       view->get_axes_combination().get_axis(axis).get_type().left(8) == "duration" or
 	       view->get_axes_combination().get_axis(axis).get_type().left(7) == "number_";
 }
 

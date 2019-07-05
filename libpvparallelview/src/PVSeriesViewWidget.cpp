@@ -14,7 +14,6 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <inendi/PVSource.h>
-#include <inendi/PVRangeSubSampler.h>
 #include <pvdisplays/PVDisplayIf.h>
 
 #include <QStateMachine>
@@ -23,7 +22,11 @@
 #include <QScrollBar>
 #include <QMenu>
 
+#include <KF5/KItemModels/klinkitemselectionmodel.h>
+
 #include <memory>
+
+constexpr const size_t TREE_WIDGET_WIDTH = 200;
 
 PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        PVCol axis,
@@ -88,14 +91,15 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 				timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
 			}
 
-			_sampler.reset(new Inendi::PVRangeSubSampler(time, std::move(timeseries), nraw,
-			                                             _view->get_real_output_selection()));
+			_sampler.reset(new Inendi::PVRangeSubSampler(
+			    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
+			    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis)));
 		}
-
 		_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 		_plot->set_background_color(QColor(10, 10, 10, 255));
 
-		setup_series_list(abscissa);
+		setup_series_tree(abscissa);
+		setup_selected_series_tree(abscissa);
 
 		_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 
@@ -132,11 +136,9 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			    _view->set_selection_view(sel);
 			});
 
-		setup_selected_series_list(abscissa);
-
-		replaceable_widgets = {_zoomer, _series_list_widget, _selected_series_list, range_edit};
+		replaceable_widgets = {_zoomer, range_edit};
 	} else {
-		replaceable_widgets = {new QWidget, new QWidget, new QWidget, new QWidget};
+		replaceable_widgets = {new QWidget, new QWidget};
 	}
 
 	if (_layout_replacer && layout()) {
@@ -152,12 +154,12 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 
 		hlayout->addWidget(replaceable_widgets[0]);
 		auto* vlayout = new QVBoxLayout;
-		vlayout->addWidget(replaceable_widgets[1]);
-		vlayout->addWidget(replaceable_widgets[2]);
+		vlayout->addWidget(_series_tree_widget);
+		vlayout->addWidget(_selected_series_tree);
 		hlayout->addLayout(vlayout);
 
 		QHBoxLayout* bottom_layout = new QHBoxLayout;
-		bottom_layout->addWidget(replaceable_widgets[3]);
+		bottom_layout->addWidget(replaceable_widgets[1]);
 		bottom_layout->addStretch();
 		bottom_layout->addWidget(_params_widget);
 
@@ -176,186 +178,198 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 	};
 }
 
-void PVParallelView::PVSeriesViewWidget::setup_series_list(PVCol abscissa)
+void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 {
-	_series_list_widget = new QListWidget;
-	_series_list_widget->setFixedWidth(200);
-	_series_list_widget->setItemDelegate(new StyleDelegate());
+	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
+	_sampler->set_split_column(split == PVCol() ? nullptr : &nraw.column(split));
+	_split_axis = split;
+}
 
-	const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
-
-	PVCol column_count = _view->get_rushnraw_parent().column_count();
-	for (PVCol col(0); col < column_count; col++) {
-		const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);
-		if (axis.get_type().startsWith("number_") or axis.get_type().startsWith("duration")) {
-			QListWidgetItem* item = new QListWidgetItem(axis.get_name());
-			QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
-			item->setData(Qt::UserRole, QVariant::fromValue(SerieListItemData{col, color}));
-			item->setBackgroundColor(color);
-			_series_list_widget->addItem(item);
-		}
+void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
+{
+	delete _tree_model;
+	_tree_model = new PVSeriesTreeModel(_view, *_sampler);
+	_selection_model = new QItemSelectionModel(_tree_model);
+	if (not _series_tree_widget) {
+		delete _series_tree_widget;
+		_series_tree_widget = new PVSeriesTreeView();
 	}
-	_series_list_widget->setSelectionMode(QAbstractItemView::MultiSelection);
+	QItemSelectionModel* old_selection_model = _series_tree_widget->selectionModel();
+	_series_tree_widget->setModel(_tree_model);
+	_series_tree_widget->setSelectionModel(_selection_model);
+	delete old_selection_model;
+	_series_tree_widget->disconnect(); // disconnect local signals
 
-	_series_list_widget->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(_series_list_widget, &QWidget::customContextMenuRequested, [this, abscissa](
-	                                                                       QPoint const& pos) {
-		auto item = _series_list_widget->itemAt(pos);
-		PVCol col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-		QMenu item_menu;
-		auto scatter_action = new QAction(
-		    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>().toolbar_icon(),
-		    "Scatter view with abscissa", &item_menu);
-		connect(scatter_action, &QAction::triggered, [this, abscissa, col] {
-			if (auto container =
-			        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
-				container->create_view_widget(
-				    PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>(), _view,
-				    {abscissa, col});
+	_series_tree_widget->setHeaderHidden(true);
+	_series_tree_widget->setFixedWidth(TREE_WIDGET_WIDTH);
+
+	connect(_series_tree_widget, &PVSeriesTreeView::selection_changed, this,
+	        &PVSeriesViewWidget::update_selected_series);
+
+	// connect hunting rectangle
+	connect(_zoomer, &PVSeriesViewZoomer::hunt_commit, [this](QRect region, bool addition) {
+		const QModelIndexList& selected_indexes = _series_tree_widget->selectedIndexes();
+		QItemSelection deselect_list;
+		for (const QModelIndex& index : selected_indexes) {
+			const PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
+			if (is_splitted() and not index.parent().isValid()) {
+				continue; // Prevent unselecting whole axes in splitted mode
 			}
-		});
-		item_menu.addAction(scatter_action);
-		item_menu.addSeparator();
-		if (auto container =
-		        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
-			PVDisplays::add_displays_view_axis_menu(item_menu, container, _view, col);
+			if (is_in_region(region, index_id) == not addition) {
+				deselect_list.merge(QItemSelection(index, index), QItemSelectionModel::Select);
+			}
 		}
-		item_menu.exec(_series_list_widget->mapToGlobal(pos));
+		// Deselect those not in region unless there would be none left
+		if (deselect_list.size() < selected_indexes.size()) {
+			_series_tree_widget->selectionModel()->select(deselect_list,
+			                                              QItemSelectionModel::Deselect);
+		}
 	});
 
+	// connect context menu
+	_series_tree_widget->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(
+	    _series_tree_widget, &QWidget::customContextMenuRequested, this,
+	    [this, abscissa](QPoint const& pos) {
+		    const QModelIndex& index = _series_tree_widget->indexAt(pos);
+		    if (index.parent().isValid()) {
+			    return; // not a top level item (aka axis)
+		    }
+		    PVCol col = index.data(Qt::UserRole).value<PVCol>();
+		    QMenu item_menu;
+		    auto scatter_action = new QAction(
+		        PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>().toolbar_icon(),
+		        "Scatter view with abscissa", &item_menu);
+		    connect(scatter_action, &QAction::triggered, [this, abscissa, col] {
+			    if (auto container =
+			            PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(
+			                this)) {
+				    container->create_view_widget(
+				        PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>(), _view,
+				        {abscissa, col});
+			    }
+			});
+		    item_menu.addAction(scatter_action);
+		    item_menu.addSeparator();
+		    if (auto container =
+		            PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
+			    PVDisplays::add_displays_view_axis_menu(item_menu, container, _view, col);
+		    }
+		    item_menu.exec(_series_tree_widget->mapToGlobal(pos));
+		});
+
+	// Setup initial selection
+	const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
 	const std::vector<PVCol>& combination = axes_comb.get_combination();
-	for (PVCol i(0); i < _series_list_widget->count(); i++) {
-		auto item = _series_list_widget->item(i);
-		PVCol j = item->data(Qt::UserRole).value<SerieListItemData>().col;
+	QAbstractItemModel& model = *_series_tree_widget->model();
+	QItemSelection top_selection;
+	for (PVCol i(0); i < model.rowCount(); i++) {
+		const QModelIndex& index = model.index(i, 0);
+		PVCol j = index.data(Qt::UserRole).value<PVCol>();
 		if (std::find(combination.begin(), combination.end(), j) != combination.end()) {
-			item->setSelected(true);
+			top_selection.merge(QItemSelection(index, index), QItemSelectionModel::Select);
 		}
 	}
+	_series_tree_widget->selectionModel()->select(top_selection, QItemSelectionModel::Select);
 
-	QObject::connect(_series_list_widget, &QListWidget::itemSelectionChanged, this,
-	                 &PVSeriesViewWidget::update_selected_series);
 	_update_selected_series_resample = false;
 	update_selected_series();
 	_update_selected_series_resample = true;
 }
 
-void PVParallelView::PVSeriesViewWidget::setup_selected_series_list(PVCol /*abscissa*/)
+void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*abscissa*/)
 {
-	_selected_series_list = new QListWidget;
-	_selected_series_list->setFixedWidth(_series_list_widget->width());
-	_selected_series_list->setMaximumHeight(0);
-	_selected_series_list->setItemDelegate(new StyleDelegate());
-	_selected_series_list->setSelectionMode(QAbstractItemView::MultiSelection);
+	if (not _selected_series_tree) {
+		delete _selected_series_tree;
+		_selected_series_tree = new PVSeriesTreeView(true /*filtered*/);
+	}
+	_selected_series_tree->disconnect(); // disconnect local signals
+	PVSeriesTreeFilterProxyModel* filter_proxy_model = new PVSeriesTreeFilterProxyModel();
+	KLinkItemSelectionModel* selection_link_model =
+	    new KLinkItemSelectionModel(filter_proxy_model, _selection_model);
+	filter_proxy_model->setSourceModel(_tree_model);
+	_selected_series_tree->setModel(filter_proxy_model);
+	_selected_series_tree->setSelectionModel(selection_link_model); // sync selection
 
-	QObject::connect(_zoomer, &PVSeriesViewZoomer::cursor_moved, [this](QRect region) {
-		_selected_series_list->clear();
-		for (const QListWidgetItem* item : _series_list_widget->selectedItems()) {
-			const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-			if (is_in_region(region, item_col)) {
-				QListWidgetItem* selected_item = new QListWidgetItem(item->text());
-				selected_item->setData(Qt::UserRole, item->data(Qt::UserRole));
-				selected_item->setBackground(
-				    item->data(Qt::UserRole).value<SerieListItemData>().color);
-				_selected_series_list->addItem(selected_item);
-			}
-		}
-		_selected_series_list->selectAll();
-		auto count = _selected_series_list->count();
-		auto scrollbar = _selected_series_list->horizontalScrollBar();
-		_selected_series_list->setMaximumHeight(
-		    count > 0
-		        ? count * _selected_series_list->sizeHintForRow(0) +
-		              2 * _selected_series_list->frameWidth() +
-		              (scrollbar->isVisible() ? scrollbar->height() : 0)
-		        : 0);
-	});
+	_selected_series_tree->setFixedWidth(TREE_WIDGET_WIDTH);
+	_selected_series_tree->setHeaderHidden(true);
+	_selected_series_tree->setMaximumHeight(0);
+	_selected_series_tree->setSelectionMode(QAbstractItemView::MultiSelection);
 
-	QObject::connect(
-	    _zoomer, &PVSeriesViewZoomer::hunt_commit, [this](QRect region, bool addition) {
-		    auto selected_items_list = _series_list_widget->selectedItems();
-		    decltype(selected_items_list) deselect_list;
-		    std::copy_if(
-		        selected_items_list.begin(), selected_items_list.end(),
-		        std::back_inserter(deselect_list), [region, addition, this](QListWidgetItem* item) {
-			        const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-			        return is_in_region(region, item_col) == not addition;
-			    });
-		    // Deselect those not in region unless there would be none left
-		    if (deselect_list.size() < selected_items_list.size()) {
-			    _update_selected_series_resample = false;
-			    _series_list_widget->blockSignals(true);
-			    for (auto* item : deselect_list) {
-				    item->setSelected(false);
-			    }
-			    _series_list_widget->blockSignals(false);
-			    _update_selected_series_resample = true;
-			    update_selected_series();
-		    }
-		});
-
-	auto synchro_list = [](auto list_src, auto list_dest) {
-		auto src_seleted_items = list_src->selectedItems();
-		for (int i = 0; i < list_dest->count(); ++i) {
-			QListWidgetItem* item = list_dest->item(i);
-			const PVCol item_col = item->data(Qt::UserRole).value<SerieListItemData>().col;
-			auto src_selected_it = std::find_if(
-			    src_seleted_items.begin(), src_seleted_items.end(),
-			    [item_col](QListWidgetItem* selected_item) {
-				    return item_col ==
-				           selected_item->data(Qt::UserRole).value<SerieListItemData>().col;
-				});
-			item->setSelected(src_selected_it != src_seleted_items.end());
-		}
-	};
-
-	auto semi_synchro_list = [](auto list_src, auto list_dest) {
-		for (int src_index = 0; src_index < list_src->count(); ++src_index) {
-			QListWidgetItem* src_item = list_src->item(src_index);
-			const PVCol src_item_col = src_item->data(Qt::UserRole).value<SerieListItemData>().col;
-			for (int dest_index = 0; dest_index < list_dest->count(); ++dest_index) {
-				QListWidgetItem* dest_item = list_dest->item(dest_index);
-				const PVCol dest_item_col =
-				    dest_item->data(Qt::UserRole).value<SerieListItemData>().col;
-				if (src_item_col == dest_item_col) {
-					dest_item->setSelected(src_item->isSelected());
-					break;
+	connect(_zoomer, &PVSeriesViewZoomer::cursor_moved, [this, filter_proxy_model](QRect region) {
+		QItemSelection selection;
+		filter_proxy_model->clear_selection();
+		QSet<int> selected_ids;
+		for (const QModelIndex& index : _selection_model->selectedIndexes()) {
+			const PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
+			if ((index.parent().isValid() or not is_splitted()) and
+			    is_in_region(region, index_id)) {
+				selected_ids.insert(index_id);
+				QModelIndex source_index = filter_proxy_model->mapFromSource(index);
+				selection.merge(QItemSelection(source_index, source_index),
+				                QItemSelectionModel::Select);
+				if (is_splitted()) {
+					const PVCol parent_id = index.parent().data(Qt::UserRole).value<PVCol>();
+					selected_ids.insert(parent_id);
+					QModelIndex source_parent_index =
+					    filter_proxy_model->mapFromSource(index.parent());
+					selection.merge(QItemSelection(source_parent_index, source_parent_index),
+					                QItemSelectionModel::Select);
 				}
 			}
 		}
-	};
-
-	QObject::connect(
-	    _series_list_widget, &QListWidget::itemSelectionChanged,
-	    [synchro_list, this]() { synchro_list(_series_list_widget, _selected_series_list); });
-	QObject::connect(_selected_series_list, &QListWidget::itemSelectionChanged,
-	                 [semi_synchro_list, this]() {
-		                 if (_synchro_selected_list) {
-			                 semi_synchro_list(_selected_series_list, _series_list_widget);
-		                 }
-		             });
-
-	struct SynchroFilter : QObject {
-		SynchroFilter(std::function<void()> enter, std::function<void()> leave)
-		    : enter(enter), leave(leave)
-		{
+		auto count = selected_ids.count();
+		if (count) {
+			filter_proxy_model->set_selection(selected_ids);
+			_selected_series_tree->selectionModel()->select(selection, QItemSelectionModel::Select);
+			_selected_series_tree->expandAll();
 		}
-		std::function<void()> enter;
-		std::function<void()> leave;
-		bool eventFilter(QObject* obj, QEvent* event) override
-		{
-			if (event->type() == QEvent::Enter) {
-				enter();
-				return true;
-			} else if (event->type() == QEvent::Leave) {
-				leave();
-				return true;
-			}
-			return QObject::eventFilter(obj, event);
-		}
-	};
+		auto scrollbar = _selected_series_tree->horizontalScrollBar();
+		_selected_series_tree->setMaximumHeight(
+		    count > 0
+		        ? count * _selected_series_tree->sizeHintForRow(0) +
+		              2 * _selected_series_tree->frameWidth() +
+		              (scrollbar->isVisible() ? scrollbar->height() : 0)
+		        : 0);
+	});
+}
 
-	_selected_series_list->installEventFilter(new SynchroFilter{
-	    [this] { _synchro_selected_list = true; }, [this] { _synchro_selected_list = false; }});
+void PVParallelView::PVSeriesViewWidget::update_selected_series()
+{
+	std::vector<PVSeriesView::SerieDrawInfo> series_draw_order;
+	std::unordered_set<size_t> selected_timeseries;
+	selected_timeseries.reserve(_sampler->timeseries_count() * _sampler->group_count());
+	for (const QModelIndex& index : _series_tree_widget->selectedIndexes()) {
+		PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
+		if ((index.parent().isValid() or not is_splitted())) {
+			QColor index_color = index.data(Qt::BackgroundColorRole).value<QColor>();
+			series_draw_order.push_back({index_id, index_color});
+			selected_timeseries.emplace(index_id);
+		}
+	}
+	_sampler->set_selected_timeseries(selected_timeseries);
+	if (_update_selected_series_resample) {
+		_sampler->resubsample();
+	}
+	_plot->show_series(std::move(series_draw_order));
+	_plot->update();
+}
+
+bool PVParallelView::PVSeriesViewWidget::is_in_region(const QRect region, PVCol col) const
+{
+	const auto min_value = Inendi::PVRangeSubSampler::display_type_max_val *
+	                       uint32_t(_zoomer->height() - (region.top() + region.height()));
+	const auto max_value = Inendi::PVRangeSubSampler::display_type_max_val *
+	                       uint32_t(_zoomer->height() - region.top());
+
+	const auto& av_ts = _sampler->sampled_timeserie(col);
+	for (int pos_x = region.left(); pos_x < region.left() + region.width(); ++pos_x) {
+		const auto av_ts_value = av_ts[pos_x] * uint32_t(_zoomer->height());
+		if (min_value < av_ts_value and av_ts_value < max_value) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
@@ -368,7 +382,7 @@ void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
 		return;
 	}
 	if (event->key() == Qt::Key_A and event->modifiers() & Qt::ControlModifier) {
-		_series_list_widget->selectAll();
+		_series_tree_widget->selectAll();
 		return;
 	}
 
@@ -383,53 +397,4 @@ void PVParallelView::PVSeriesViewWidget::enterEvent(QEvent*)
 void PVParallelView::PVSeriesViewWidget::leaveEvent(QEvent*)
 {
 	clearFocus();
-}
-
-void PVParallelView::PVSeriesViewWidget::update_selected_series()
-{
-	// FIXME : should put newly selected timeserie on top
-	std::vector<PVSeriesView::SerieDrawInfo> series_draw_order;
-	std::unordered_set<size_t> selected_timeseries;
-	selected_timeseries.reserve(_sampler->timeseries_count());
-	for (const QListWidgetItem* item : _series_list_widget->selectedItems()) {
-		auto item_data = item->data(Qt::UserRole).value<SerieListItemData>();
-		series_draw_order.push_back({size_t(item_data.col), item_data.color});
-		selected_timeseries.emplace(item_data.col);
-	}
-	_sampler->set_selected_timeseries(selected_timeseries);
-	if (_update_selected_series_resample) {
-		_sampler->resubsample();
-	}
-	_plot->show_series(std::move(series_draw_order));
-	_plot->update();
-}
-
-bool PVParallelView::PVSeriesViewWidget::is_in_region(QRect region, PVCol col) const
-{
-	auto& av_ts = _sampler->sampled_timeserie(col);
-	for (int pos_x = region.left(); pos_x < region.left() + region.width(); ++pos_x) {
-		auto av_ts_value = av_ts[pos_x] * uint32_t(_zoomer->height());
-		auto min_value = Inendi::PVRangeSubSampler::display_type_max_val *
-		                 uint32_t(_zoomer->height() - (region.top() + region.height()));
-		auto max_value = Inendi::PVRangeSubSampler::display_type_max_val *
-		                 uint32_t(_zoomer->height() - region.top());
-		if (min_value < av_ts_value and av_ts_value < max_value) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void PVParallelView::PVSeriesViewWidget::StyleDelegate::paint(QPainter* painter,
-                                                              const QStyleOptionViewItem& option,
-                                                              const QModelIndex& index) const
-{
-	auto color = index.model()->data(index, Qt::UserRole).value<SerieListItemData>().color;
-	if ((option.state & QStyle::State_Selected)) {
-		painter->fillRect(option.rect, color);
-		painter->setPen(Qt::black);
-	} else {
-		painter->setPen(color);
-	}
-	painter->drawText(option.rect, index.model()->data(index, Qt::DisplayRole).toString());
 }
