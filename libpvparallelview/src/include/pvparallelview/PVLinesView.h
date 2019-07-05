@@ -115,13 +115,15 @@ class PVLinesView
 	inline size_t get_first_visible_zone_index() const { return _first_zone; }
 	inline size_t get_last_visible_zone_index() const
 	{
-		return std::min(_first_zone + get_number_of_visible_zones() - 1,
-		                get_number_of_managed_zones() - 1);
+		return get_zone_index_from_scene_pos(_visible_view_x + _visible_view_width);
 	}
 	uint32_t get_left_border_position_of_zone_in_scene(size_t zone_index) const;
 
 	size_t get_number_of_managed_zones() const;
-	size_t get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
+	size_t get_number_of_visible_zones() const
+	{
+		return get_last_visible_zone_index() - get_first_visible_zone_index() + 1;
+	}
 
 	int32_t get_left_border_of_scene() const
 	{
@@ -139,7 +141,6 @@ class PVLinesView
 		return _list_of_single_zone_images[zone_offset];
 	}
 
-	PVZoneID get_zone_from_scene_pos(int32_t abs_pos) const;
 	size_t get_zone_index_from_scene_pos(int32_t abs_pos) const;
 	size_t get_zone_index_offset(size_t zone_index) const
 	{
@@ -148,8 +149,7 @@ class PVLinesView
 	}
 
 	inline const PVZonesManager& get_zones_manager() const { return _zm; }
-	//	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID)
-	//_zones_width.size()); return _zones_width[zone_id]; }
+
 	uint32_t get_zone_width(size_t zone_index) const;
 
 	void decrease_base_zoom_level_of_zone(size_t zone_index);
@@ -180,8 +180,6 @@ class PVLinesView
 	void render_single_zone_images(size_t zone_index, const float zoom_y);
 	void render_single_zone_bg_image(size_t zone_index, const float zoom_y);
 	void render_single_zone_sel_image(size_t zone_index, const float zoom_y);
-
-	void set_nb_drawable_zones(size_t nb_zones, int32_t view_x, uint32_t view_width);
 
 	void set_zone_max_width(uint32_t w);
 	bool set_zone_width(size_t zone_index, uint32_t width);
@@ -223,24 +221,14 @@ class PVLinesView
 
 	void visit_all_zones_to_render(uint32_t view_width, std::function<void(size_t)> const& fzone);
 
-	size_t set_new_view(int32_t new_view_x, uint32_t view_width)
-	{
-		// Change view_x
-		_visible_view_x = new_view_x;
-
-		// and set new first zone
-		size_t previous_first_zone = _first_zone;
-		_first_zone = update_and_get_first_zone_from_viewport(new_view_x, view_width);
-
-		// Returns the previous first zone index
-		return previous_first_zone;
-	}
+	size_t set_new_view(int32_t new_view_x, uint32_t view_width);
+	void set_nb_drawable_zones(size_t nb_zones);
 
 	void do_translate(size_t previous_first_zone,
+	                  size_t previous_visible_zones_count,
 	                  uint32_t view_width,
+	                  list_zone_images_t zone_images_copy,
 	                  std::function<void(size_t)> fzone_draw);
-
-	size_t update_and_get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
 
 	void left_rotate_single_zone_images(size_t s);
 	void right_rotate_single_zone_images(size_t s);
@@ -262,6 +250,7 @@ class PVLinesView
 	PVZonesProcessor& _processor_bg;
 
 	int32_t _visible_view_x;
+	uint32_t _visible_view_width;
 
 	PVZonesManager const& _zm;
 	uint32_t _zone_max_width;
