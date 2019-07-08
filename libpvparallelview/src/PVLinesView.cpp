@@ -58,6 +58,7 @@ PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend,
                                          uint32_t zone_width)
     : _backend(backend)
     , _first_zone(0)
+    , _last_zone(0)
     , _img_update_receiver(img_update_receiver)
     , _processor_sel(zp_sel)
     , _processor_bg(zp_bg)
@@ -397,6 +398,7 @@ size_t PVParallelView::PVLinesView::set_new_view(int32_t new_view_x, uint32_t vi
 	// and set new first zone
 	size_t previous_first_zone = _first_zone;
 	_first_zone = get_zone_index_from_scene_pos(new_view_x);
+	_last_zone = get_zone_index_from_scene_pos(new_view_x + view_width);
 
 	set_nb_drawable_zones(get_number_of_visible_zones());
 
@@ -432,15 +434,13 @@ void PVParallelView::PVLinesView::set_nb_drawable_zones(size_t nb_zones)
 void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const float zoom_y)
 {
 	const size_t previous_first_zone = _first_zone;
-	const size_t previous_last_zone = get_last_visible_zone_index();
+	const size_t previous_last_zone = _last_zone;
 	auto zone_images_copy = _list_of_single_zone_images;
 
 	// First, set new view x (before launching anything in the future !! ;))
 	set_new_view(view_x, view_width);
 
-	const size_t last_zone = get_last_visible_zone_index();
-
-	if (previous_first_zone == _first_zone && previous_last_zone == last_zone) {
+	if (previous_first_zone == _first_zone && previous_last_zone == _last_zone) {
 		// "Le changement, c'est pas maintenant !"
 		return;
 	}
@@ -450,7 +450,7 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 		render_single_zone_images(zone_index, zoom_y);
 	};
 
-	if (_first_zone > previous_last_zone or last_zone < previous_first_zone) {
+	if (_first_zone > previous_last_zone or _last_zone < previous_first_zone) {
 		visit_all_zones_to_render(fzone_draw);
 		return;
 	}
@@ -469,7 +469,7 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 	};
 
 	// We test whether translation happened on the left or on the right.
-	if (_first_zone > previous_first_zone or last_zone > previous_last_zone) {
+	if (_first_zone > previous_first_zone or _last_zone > previous_last_zone) {
 		// The scene was translated to the left
 		if (previous_first_zone != _first_zone) {
 			std::rotate(zone_images_copy.begin(),
@@ -482,7 +482,7 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 			    _list_of_single_zone_images.begin());
 		}
 		keep_zones(_first_zone, previous_last_zone + 1);
-		draw_zones(previous_last_zone + 1, last_zone + 1);
+		draw_zones(previous_last_zone + 1, _last_zone + 1);
 	} else {
 		// The scene was translated to the right
 		if (previous_first_zone != _first_zone) {
@@ -490,7 +490,7 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 			            _list_of_single_zone_images.end() - (previous_first_zone - _first_zone),
 			            _list_of_single_zone_images.end());
 		}
-		keep_zones(previous_first_zone, last_zone + 1);
+		keep_zones(previous_first_zone, _last_zone + 1);
 		draw_zones(_first_zone, previous_first_zone);
 	}
 }
@@ -562,7 +562,7 @@ void PVParallelView::PVLinesView::reset_zones_width(int wanted_zone_width)
 void PVParallelView::PVLinesView::visit_all_zones_to_render(
     std::function<void(size_t)> const& fzone)
 {
-	for (size_t z = _first_zone, z_end = get_last_visible_zone_index() + 1; z < z_end; ++z) {
+	for (size_t z = _first_zone; z < _last_zone + 1; ++z) {
 		fzone(z);
 	}
 }

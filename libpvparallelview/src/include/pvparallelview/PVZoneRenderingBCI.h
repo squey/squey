@@ -83,8 +83,8 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 	                       size_t n,
 	                       std::function<void()> const& render_done = std::function<void()>())
 	{
-		backend(_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(), render_reversed(),
-		        render_done);
+		backend.render(_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(),
+		               render_reversed(), render_done);
 	}
 
   private:

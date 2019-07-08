@@ -113,10 +113,7 @@ class PVLinesView
 	void cancel_and_wait_all_rendering();
 
 	inline size_t get_first_visible_zone_index() const { return _first_zone; }
-	inline size_t get_last_visible_zone_index() const
-	{
-		return get_zone_index_from_scene_pos(_visible_view_x + _visible_view_width);
-	}
+	inline size_t get_last_visible_zone_index() const { return _last_zone; }
 
 	size_t get_number_of_managed_zones() const;
 	size_t get_number_of_visible_zones() const
@@ -204,6 +201,7 @@ class PVLinesView
 	PVBCIDrawingBackend& _backend;
 
 	size_t _first_zone;
+	size_t _last_zone;
 
 	QObject* _img_update_receiver;
 

@@ -49,14 +49,14 @@ class PVBCIDrawingBackend
 
   public:
 	// If this backend is synchronous, render_done must be ignored.
-	virtual void operator()(PVBCIBackendImage_p& dst_img,
-	                        size_t x_start,
-	                        size_t width,
-	                        PVBCICodeBase* codes,
-	                        size_t n,
-	                        const float zoom_y = 1.0f,
-	                        bool reverse = false,
-	                        std::function<void()> const& render_done = std::function<void()>()) = 0;
+	virtual void render(PVBCIBackendImage_p& dst_img,
+	                    size_t x_start,
+	                    size_t width,
+	                    PVBCICodeBase* codes,
+	                    size_t n,
+	                    const float zoom_y = 1.0f,
+	                    bool reverse = false,
+	                    std::function<void()> const& render_done = std::function<void()>()) = 0;
 };
 
 /**

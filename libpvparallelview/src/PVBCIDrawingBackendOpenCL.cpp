@@ -235,17 +235,17 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::free_bci(PVParallelView::PVBCICo
 }
 
 /*****************************************************************************
- * PVParallelView::PVBCIDrawingBackendOpenCL::operator()
+ * PVParallelView::PVBCIDrawingBackendOpenCL::render
  *****************************************************************************/
 
-void PVParallelView::PVBCIDrawingBackendOpenCL::operator()(PVBCIBackendImage_p& backend_img,
-                                                           size_t x_start,
-                                                           size_t width,
-                                                           PVBCICodeBase* codes,
-                                                           size_t n,
-                                                           const float zoom_y,
-                                                           bool reverse,
-                                                           std::function<void()> const& render_done)
+void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& backend_img,
+                                                       size_t x_start,
+                                                       size_t width,
+                                                       PVBCICodeBase* codes,
+                                                       size_t n,
+                                                       const float zoom_y,
+                                                       bool reverse,
+                                                       std::function<void()> const& render_done)
 {
 #ifdef NDEBUG
 	backend_image_t* dst_img = static_cast<backend_image_t*>(backend_img.get());

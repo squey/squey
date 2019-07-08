@@ -24,22 +24,17 @@ auto PVParallelView::PVBCIDrawingBackendQPainter::create_image(size_t image_widt
 {
 	qDebug() << "PVBCIDrawingBackendQPainter::create_image(" << image_width << ", " << height_bits
 	         << ")";
-	// if (not _backend_image) {
-	//     _backend_image = std::make_shared<PVBCIBackendImageQPainter>(image_width, height_bits);
-	// }
-	// return _backend_image;
 	return std::make_shared<PVBCIBackendImageQPainter>(image_width, height_bits);
 }
 
-void PVParallelView::PVBCIDrawingBackendQPainter::
-operator()(PVBCIBackendImage_p& backend_img,
-           size_t x_start,
-           size_t width,
-           PVBCICodeBase* codes,
-           size_t n,
-           const float zoom_y,
-           bool reverse,
-           std::function<void()> const& render_done)
+void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& backend_img,
+                                                         size_t x_start,
+                                                         size_t width,
+                                                         PVBCICodeBase* codes,
+                                                         size_t n,
+                                                         const float zoom_y,
+                                                         bool reverse,
+                                                         std::function<void()> const& render_done)
 {
 	std::thread th([=] {
 		auto backend = static_cast<backend_image_t*>(backend_img.get());
@@ -49,10 +44,6 @@ operator()(PVBCIBackendImage_p& backend_img,
 		backend->pixmap().fill(Qt::transparent);
 
 		QPainter painter(&backend->pixmap());
-
-		// painter.fillRect(QRect{0, 0, backend->width(), backend->height()}, Qt::green);
-		// painter.fillRect(QRect{0, 0, width, height}, Qt::red);
-		qDebug() << "x_start:" << x_start << " width:" << width << " zoom_y:" << zoom_y;
 
 		std::sort(codes, codes + n, [](PVBCICodeBase const& a, PVBCICodeBase const& b) {
 			return a.as_10.int_v > b.as_10.int_v;
@@ -66,19 +57,22 @@ operator()(PVBCIBackendImage_p& backend_img,
 
 		auto start = std::chrono::steady_clock::now();
 
+		const int x1 = reverse ? width : 0;
+		const int x2 = reverse ? 0 : width;
+
 		if (height_bits == 10) {
 			for (size_t i = valid_begin; i < n; ++i) {
 				painter.setPen(PVCore::PVHSVColor(codes[i].as_10.s.color).toQColor());
 				float left = codes[i].as_10.s.l / float(1 << height_bits);
 				float right = codes[i].as_10.s.r / float(1 << height_bits);
-				painter.drawLine(0, left * height, width, right * height);
+				painter.drawLine(x1, left * height, x2, right * height);
 			}
 		} else {
 			for (size_t i = valid_begin; i < n; ++i) {
 				painter.setPen(PVCore::PVHSVColor(codes[i].as_11.s.color).toQColor());
 				float left = codes[i].as_11.s.l / float(1 << height_bits);
 				float right = codes[i].as_11.s.r / float(1 << height_bits);
-				painter.drawLine(0, left * height, width, right * height);
+				painter.drawLine(x1, left * height, x2, right * height);
 			}
 		}
 
