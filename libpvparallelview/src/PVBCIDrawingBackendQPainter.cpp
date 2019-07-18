@@ -22,13 +22,11 @@ auto PVParallelView::PVBCIDrawingBackendQPainter::create_image(size_t image_widt
                                                                uint8_t height_bits)
     -> PVBCIBackendImage_p
 {
-	qDebug() << "PVBCIDrawingBackendQPainter::create_image(" << image_width << ", " << height_bits
-	         << ")";
 	return std::make_shared<PVBCIBackendImageQPainter>(image_width, height_bits);
 }
 
 void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& backend_img,
-                                                         size_t x_start,
+                                                         size_t /* x_start */,
                                                          size_t width,
                                                          PVBCICodeBase* codes,
                                                          size_t n,
@@ -39,7 +37,8 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 	std::thread th([=] {
 		auto backend = static_cast<backend_image_t*>(backend_img.get());
 		const auto height_bits = backend->height_bits();
-		const auto height = backend->height() * zoom_y;
+		const auto height = backend->height() * zoom_y +
+		                    2; // FIXME: this +2 is a workaround for similarity with OpenCL
 		backend->pixmap() = QImage(width, height, QImage::Format_ARGB32);
 		backend->pixmap().fill(Qt::transparent);
 
@@ -54,8 +53,6 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 		                                          [](auto const& a, auto const&) {
 			                                          return a.as_10.int_v < PVROW_INVALID_VALUE;
 			                                      }));
-
-		auto start = std::chrono::steady_clock::now();
 
 		const int x1 = reverse ? width : 0;
 		const int x2 = reverse ? 0 : width;
@@ -75,11 +72,6 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 				painter.drawLine(x1, left * height, x2, right * height);
 			}
 		}
-
-		auto end = std::chrono::steady_clock::now();
-		std::chrono::duration<double> diff = end - start;
-		std::cout << diff.count() << " s, lines:" << n - valid_begin << ", x_start:" << x_start
-		          << ", total_pixel:" << width * height << "\n";
 
 		render_done();
 	});

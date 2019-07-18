@@ -199,6 +199,15 @@ PVParallelView::PVBCIDrawingBackendOpenCL& PVParallelView::PVBCIDrawingBackendOp
 PVParallelView::PVBCIBackendImage_p
 PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t image_width, uint8_t height_bits)
 {
+	// The minimal possible > 0, this is a workaround (an ugly one)
+	return PVBCIBackendImage_p(create_new_image(nullptr, 2, height_bits));
+}
+
+auto PVParallelView::PVBCIDrawingBackendOpenCL::create_new_image(backend_image_t* in_place,
+                                                                 size_t image_width,
+                                                                 uint8_t height_bits)
+    -> backend_image_t*
+{
 	assert(_devices.size() >= 1);
 
 	if (_next_device == _devices.end()) {
@@ -208,12 +217,18 @@ PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t image_width, uint
 	// Create image on a device in a round robin way
 	const cl::CommandQueue& queue = _next_device->second.queue;
 
-	PVBCIBackendImage_p ret(new PVBCIBackendImageOpenCL(image_width, height_bits, _context, queue,
-	                                                    _next_device->first));
+	if (in_place == nullptr) {
+		in_place = new PVBCIBackendImageOpenCL(image_width, height_bits, _context, queue,
+		                                       _next_device->first);
+	} else {
+		in_place->~PVBCIBackendImageOpenCL();
+		new (in_place)
+		    PVBCIBackendImageOpenCL(image_width, height_bits, _context, queue, _next_device->first);
+	}
 
 	++_next_device;
 
-	return ret;
+	return in_place;
 }
 
 /*****************************************************************************
@@ -253,6 +268,12 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 	backend_image_t* dst_img = dynamic_cast<backend_image_t*>(backend_img.get());
 	assert(dst_img != nullptr);
 #endif
+
+	if (dst_img->width() != width) {
+		auto height_bits = dst_img->height_bits();
+		create_new_image(dst_img, width, height_bits);
+	}
+
 	device_t& dev = _devices[dst_img->index()];
 
 	cl_int err;

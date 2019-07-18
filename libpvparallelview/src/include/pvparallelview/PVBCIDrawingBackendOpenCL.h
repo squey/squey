@@ -74,6 +74,9 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	 */
 	static void termination_cb(cl_event event, cl_int status, void* data);
 
+	auto create_new_image(backend_image_t* in_place, size_t img_width, uint8_t height_bits)
+	    -> backend_image_t*;
+
   private:
 #if defined __GNUC__ && __GNUC__ >= 6
 #pragma GCC diagnostic push

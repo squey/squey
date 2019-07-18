@@ -72,7 +72,7 @@ class PVBCIBackendImageOpenCL : public PVParallelView::PVBCIBackendImage
 	inline size_t size_pixel() const { return _width * PVBCIBackendImage::height(); }
 
   private:
-	pixel_t* _host_addr;
+	pixel_t* _host_addr = nullptr;
 	cl::Buffer _host_buffer;
 	cl::Buffer _device_buffer;
 	uint32_t _width;

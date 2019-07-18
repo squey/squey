@@ -10,10 +10,9 @@ PVParallelView::PVBCIBackendImageQPainter::PVBCIBackendImageQPainter(const uint3
                                                                      const uint8_t height_bits)
     : PVBCIBackendImage(width, height_bits), _pixmap()
 {
-	//_pixmap.fill(Qt::cyan);
 }
 
-QImage PVParallelView::PVBCIBackendImageQPainter::qimage(size_t crop_height) const
+QImage PVParallelView::PVBCIBackendImageQPainter::qimage([[maybe_unused]] size_t crop_height) const
 {
 	assert(crop_height <= PVBCIBackendImage::height());
 

@@ -402,8 +402,8 @@ size_t PVParallelView::PVLinesView::set_new_view(int32_t new_view_x, uint32_t vi
 
 	set_nb_drawable_zones(get_number_of_visible_zones());
 
-	qDebug() << "set_new_view: " << get_number_of_visible_zones() << get_first_visible_zone_index()
-	         << get_last_visible_zone_index();
+	qDebug() << "set_new_view: " << get_number_of_visible_zones() << "("
+	         << get_first_visible_zone_index() << "->" << get_last_visible_zone_index() << ")";
 
 	// Returns the previous first zone index
 	return previous_first_zone;
