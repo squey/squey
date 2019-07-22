@@ -46,15 +46,16 @@ endif()
 # Define variables for Boost library
 ###############################################################################
 
-#set(Boost_DEBUG TRUE)
 set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
-SET(BOOST_INCLUDEDIR /app/include)
-find_package(Boost 1.49 REQUIRED COMPONENTS date_time system thread program_options)
+find_package(Boost 1.49 REQUIRED COMPONENTS thread date_time system program_options)
+add_definitions(-DBOOST_ALL_NO_LIB)
+add_definitions(-DBOOST_ALL_DYN_LINK)
 
-message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
+message(STATUS "Boost found: " ${Boost_FOUND})
+message(STATUS "Boost include dirs: " ${Boost_INCLUDEDIR})
+message(STATUS "Boost libraries: " ${Boost_LIBRARIES})
 include_directories(SYSTEM AFTER ${BOOST_INCLUDEDIR})
 
 ###############################################################################

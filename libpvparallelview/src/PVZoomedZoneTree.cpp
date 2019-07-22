@@ -694,11 +694,11 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 		     *
 		     * The "fast" way is to reject "bad" events...
 		     */
-		    if (unlikely(y1_min > e.y1)) {
+		    if (y1_min > e.y1) {
 			    return 0;
 		    }
 
-		    if (unlikely(y2_min > e.y2)) {
+		    if (y2_min > e.y2) {
 			    return 0;
 		    }
 
