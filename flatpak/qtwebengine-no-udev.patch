@@ -1,14 +1,12 @@
-diff --git a/src/core/config/linux.pri b/src/core/config/linux.pri
-index 9918e1bb..54abf300 100644
+index fcce4c316..8054cf362 100644
 --- a/src/core/config/linux.pri
 +++ b/src/core/config/linux.pri
-@@ -24,6 +24,9 @@
-     !use_gold_linker: gn_args += use_gold=false
- }
- 
-+# Disable UDev
-+gn_args += use_udev=false
-+
- qtConfig(webengine-system-x11): hasX11Dependencies() {
-    gn_args += ozone_platform_x11=true
- }
+@@ -6,7 +6,7 @@ gn_args += \
+     use_gio=false \
+     use_gnome_keyring=false \
+     linux_use_bundled_binutils=false \
+-    use_udev=true \
++    use_udev=false \
+     use_bundled_fontconfig=false \
+     use_sysroot=false \
+     enable_session_service=false \

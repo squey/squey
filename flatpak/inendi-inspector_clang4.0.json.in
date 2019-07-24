@@ -4,7 +4,7 @@
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
-  "sdk-extensions": [ "org.freedesktop.Sdk.Extension.gcc7", "org.freedesktop.Sdk.Extension.golang" ],
+  "sdk-extensions": [ "org.freedesktop.Sdk.Extension.gcc8", "org.freedesktop.Sdk.Extension.golang" ],
   "command": "inspector_launcher.sh",
   "rename-desktop-file" : "inendi-inspector.desktop",
   "rename-icon" : "inendi-inspector",
@@ -15,8 +15,8 @@
     "cd /app/share/doc && ls -I inendi-inspector | xargs rm -rf",
     "cd /app/lib && find . -maxdepth 1 -type d -not -name . -not -name inendi-inspector -not -name debug -not -name clang -exec rm -rf {} +",
     "cd /app/bin && ls -I run_cmd.sh -I inspector_launcher.sh -I inendi-inspector -I inendi-crashreport -I inendi-logstats -I inendi-echoid -I inendi-lsinit -I ld -I lld -I ld.lld -I clang-4.0 -I clang -I clang++ -I pwgen -I tshark -I lbzip2 -I lbunzip2 -I pigz -I unpigz |xargs rm -rf",
-    "cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.2.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.2.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.2.0/crtendS.o /app/lib",
-    "ln -s /usr/lib/libc.so.6 /app/lib/libc.so && cp /usr/lib/sdk/gcc7/lib/libgcc_s.so.1 /app/lib && ln -s /app/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && cp /usr/lib/sdk/gcc7/lib/libstdc++.so.6 /app/lib && ln -s /app/lib/libstdc++.so.6 /app/lib/libstdc++.so"
+    "cp /usr/lib/libbfd-2.27.0.20160806.so /usr/lib/crtn.o /usr/lib/crti.o /usr/lib/libmvec_nonshared.a /usr/lib/x86_64-unknown-linux/6.4.0/libgcc.a /usr/lib/x86_64-unknown-linux/6.4.0/crtbeginS.o /usr/lib/x86_64-unknown-linux/6.4.0/crtendS.o /app/lib",
+    "ln -s /usr/lib/libc.so.6 /app/lib/libc.so && cp /usr/lib/sdk/gcc8/lib/libgcc_s.so.1 /app/lib && ln -s /app/lib/libgcc_s.so.1 /app/lib/libgcc_s.so && cp /usr/lib/sdk/gcc8/lib/libstdc++.so.6 /app/lib && ln -s /app/lib/libstdc++.so.6 /app/lib/libstdc++.so"
   ],
   "finish-args": [
     "--socket=x11",
@@ -26,42 +26,6 @@
     "--device=all"
   ],
   "modules": [
-    {
-      "name": "boost",
-      "buildsystem": "autotools",
-      "sources": [
-        {
-          "type": "archive",
-          "url": "https://netcologne.dl.sourceforge.net/project/boost/boost/1.59.0/boost_1_59_0.tar.bz2",
-          "sha256": "727a932322d94287b62abb1bd2d41723eec4356a7728909e38adb65ca25241ca"
-        },
-        {
-          "type": "file",
-          "path": "boost-configure",
-          "dest-filename": "configure"
-        }
-      ]
-    },
-    {
-      "name":"mysql",
-      "buildsystem": "cmake",
-      "config-opts": [
-        "-DWITHOUT_SERVER=ON",
-        "-DWITH_UNIT_TESTS=OFF"
-      ],
-      "builddir": true,
-      "sources": [
-        {
-          "type": "archive",
-          "url": "http://ftp.debian.org/debian/pool/main/m/mysql-5.7/mysql-5.7_5.7.23.orig.tar.gz",
-          "sha256": "d05700ec5c1c6dae9311059dc1713206c29597f09dbd237bf0679b3c6438e87a"
-        },
-        {
-          "type": "shell",
-          "commands": [ "sed -i '641d' CMakeLists.txt", "# Fix serverless build, see https://bugs.mysql.com/bug.php?id=87348" ]
-        }
-      ]
-    },
     {
       "name": "gtest",
       "buildsystem": "cmake",
@@ -364,8 +328,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "http://www.tcpdump.org/release/libpcap-1.8.1.tar.gz",
-          "sha256": "673dbc69fdc3f5a86fb5759ab19899039a8e5e6c631749e48dcd9c6f0c83541e"
+          "url": "https://www.tcpdump.org/release/libpcap-1.9.0.tar.gz",
+          "sha256": "2edb88808e5913fdaa8e9c1fcaf272e19b2485338742b5074b9fe44d68f37019"
         }
       ]
     },
@@ -374,8 +338,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "https://c-ares.haxx.se/download/c-ares-1.14.0.tar.gz",
-          "sha256": "45d3c1fd29263ceec2afc8ff9cd06d5f8f889636eb4e80ce3cc7f0eaf7aadc6e"
+          "url": "https://c-ares.haxx.se/download/c-ares-1.15.0.tar.gz",
+          "sha256": "6cdb97871f2930530c97deb7cf5c8fa4be5a0b02c7cea6e7c7667672a39d6852"
         }
       ]
     },
@@ -394,14 +358,15 @@
     },
     {
       "name": "tshark",
+      "buildsystem": "cmake",
       "config-opts": [
-        "--enable-wireshark=no"
+        "-DBUILD_wireshark=0"
       ],
       "sources": [
         {
           "type": "archive",
-          "url": "https://www.wireshark.org/download/src/wireshark-2.6.4.tar.xz",
-          "sha256": "a06b007e6343f148b8b93443b2fcfc9bb3204311cd268565d54d1b71660bc861"
+          "url": "https://www.wireshark.org/download/src/wireshark-3.0.3.tar.xz",
+          "sha256": "af92729c781d870110885c31ebcbe4c4224ed51bb580d00c896fe9746994211c"
         }
       ]
     },
@@ -421,6 +386,42 @@
         {
           "type": "patch",
           "path": "tbb_makefile.patch"
+        }
+      ]
+    },
+    {
+      "name": "boost",
+      "buildsystem": "autotools",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://netcologne.dl.sourceforge.net/project/boost/boost/1.59.0/boost_1_59_0.tar.bz2",
+          "sha256": "727a932322d94287b62abb1bd2d41723eec4356a7728909e38adb65ca25241ca"
+        },
+        {
+          "type": "file",
+          "path": "boost-configure",
+          "dest-filename": "configure"
+        }
+      ]
+    },
+    {
+      "name":"mysql",
+      "buildsystem": "cmake",
+      "config-opts": [
+        "-DWITHOUT_SERVER=ON",
+        "-DWITH_UNIT_TESTS=OFF"
+      ],
+      "builddir": true,
+      "sources": [
+        {
+          "type": "archive",
+          "url": "http://ftp.debian.org/debian/pool/main/m/mysql-5.7/mysql-5.7_5.7.23.orig.tar.gz",
+          "sha256": "d05700ec5c1c6dae9311059dc1713206c29597f09dbd237bf0679b3c6438e87a"
+        },
+        {
+          "type": "shell",
+          "commands": [ "sed -i '641d' CMakeLists.txt", "# Fix serverless build, see https://bugs.mysql.com/bug.php?id=87348" ]
         }
       ]
     },
@@ -445,8 +446,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "https://download.qt.io/archive/qt/5.12/5.12.0/single/qt-everywhere-src-5.12.0.tar.xz",
-          "sha256": "356f42d9087718f22f03d13d0c2cdfb308f91dc3cf0c6318bed33f2094cd9d6c"
+          "url": "https://download.qt.io/archive/qt/5.13/5.13.0/single/qt-everywhere-src-5.13.0.tar.xz",
+          "sha256": "2cba31e410e169bd5cdae159f839640e672532a4687ea0f265f686421e0e86d6"
         },
         {
           "type": "patch",
@@ -468,8 +469,8 @@
       "sources": [
         {
           "type": "archive",
-          "url": "https://ftp.mozilla.org/pub/nspr/releases/v4.20/src/nspr-4.20.tar.gz",
-          "sha256": "2c8964913da89ffbaf464d49ce44d79e8804e1794ef9a8c52a7bff7224d1556e"
+          "url": "https://ftp.mozilla.org/pub/nspr/releases/v4.21/src/nspr-4.21.tar.gz",
+          "sha256": "15ea32c7b100217b6e3193bc03e77f485d9bf7504051443ba9ce86d1c17c6b5a"
         },
         {
           "type": "shell",
@@ -481,14 +482,14 @@
       "name": "nss",
       "buildsystem": "simple",
       "build-commands": [
-          "cd nss && make nss_build_all USE_64=1 BUILD_OPT=1",
+          "cd nss && make -j1 BUILD_OPT=1 NSS_DISABLE_GTESTS=1 NSPR_INCLUDE_DIR=/app/include/nspr USE_SYSTEM_ZLIB=1 ZLIB_LIBS=-lz NSS_ENABLE_WERROR=0 USE_64=1",
           "./install.sh"
        ],
       "sources": [
         {
          "type": "archive",
-         "url": "https://ftp.mozilla.org/pub/security/nss/releases/NSS_3_41_RTM/src/nss-3.41-with-nspr-4.20.tar.gz",
-         "sha256": "ded45c065cd0a4508cd9301f16daa2259d56dad205b31406e314573a1f3b7cb9"
+         "url": "https://ftp.mozilla.org/pub/security/nss/releases/NSS_3_45_RTM/src/nss-3.45-with-nspr-4.21.tar.gz",
+         "sha256": "fae11751100510d26f16a245f0db9a5b3d638ab28ce0bccd50d4314f7e526ba1"
         },
         {
           "type": "patch",
@@ -511,8 +512,8 @@
       "sources": [
        {
           "type": "archive",
-          "url": "https://download.qt.io/official_releases/qt/5.12/5.12.0/submodules/qtwebengine-everywhere-src-5.12.0.tar.xz",
-          "sha256": "bd581e390a30e0f74d41b0e3334b3cf612dd4af23de36a3bf5931d5b4453687c"
+          "url": "https://download.qt.io/official_releases/qt/5.13/5.13.0/submodules/qtwebengine-everywhere-src-5.13.0.tar.xz",
+          "sha256": "e0af82ecee1ab41b6732697f667b98b7b0c53164bebcfaad8070e88b2e064efe"
         },
         {
           "type": "patch",
@@ -580,7 +581,7 @@
         "env": {
             "CXX": "@@CXX_COMPILER@@"
         },
-        "append-ld-library-path" : "/usr/lib/sdk/gcc7/lib",
+        "append-ld-library-path" : "/usr/lib/sdk/gcc8/lib",
         "test-args": [
           "--share=network",
           "--filesystem=host"
