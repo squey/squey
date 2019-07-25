@@ -41,7 +41,7 @@ PVParallelView::PVZoneRenderingBCI_p<10> new_zr(PVParallelView::PVBCIDrawingBack
                                                 size_t n,
                                                 PVParallelView::PVBCIBackendImage_p& dst_img)
 {
-	dst_img = backend.create_image(1024, 10);
+	dst_img = backend.create_image(20, 10);
 	PVParallelView::PVZoneRenderingBCI_p<10> zr(new PVParallelView::PVZoneRenderingBCI<10>(
 	    PVZoneID(0, 1),
 	    [n](PVZoneID, PVCore::PVHSVColor const* colors_, PVParallelView::PVBCICode<10>* codes) {
@@ -54,7 +54,7 @@ PVParallelView::PVZoneRenderingBCI_p<10> new_zr(PVParallelView::PVBCIDrawingBack
 		    }
 		    return n;
 		},
-	    dst_img, 0, 1024));
+	    dst_img, 0, 20));
 	return zr;
 }
 
@@ -90,10 +90,8 @@ int main(int argc, char** argv)
 	PVParallelView::PVLibView* pv = env.get_lib_view();
 	PVParallelView::PVZonesManager& zm = pv->get_zones_manager();
 
-	PVParallelView::PVBCIDrawingBackendOpenCL& backend =
-	    PVParallelView::PVBCIDrawingBackendOpenCL::get();
-	std::unique_ptr<PVParallelView::PVRenderingPipeline> pipeline(
-	    new PVParallelView::PVRenderingPipeline(backend));
+	auto& backend = PVParallelView::common::backend();
+	auto& pipeline = PVParallelView::common::pipeline();
 
 	PVCore::PVHSVColor* colors = std::allocator<PVCore::PVHSVColor>().allocate(n);
 	for (size_t i = 0; i < n; i++) {
@@ -101,7 +99,7 @@ int main(int argc, char** argv)
 		                               HSV_COLOR_GREEN.h());
 	}
 
-	PVParallelView::PVZonesProcessor p = pipeline->declare_processor(
+	PVParallelView::PVZonesProcessor p = pipeline.declare_processor(
 	    [](PVZoneID z) {
 #ifndef INSPECTOR_BENCH
 		    std::cout << "Preprocess for zone " << z << std::endl;
