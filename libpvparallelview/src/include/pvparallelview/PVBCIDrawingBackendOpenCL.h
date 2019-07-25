@@ -57,14 +57,14 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	void free_bci(PVBCICodeBase* buf) override;
 
   public:
-	void operator()(PVBCIBackendImage_p& dst_img,
-	                size_t x_start,
-	                size_t width,
-	                PVBCICodeBase* codes,
-	                size_t n,
-	                const float zoom_y = 1.0f,
-	                bool reverse = false,
-	                std::function<void()> const& render_done = std::function<void()>()) override;
+	void render(PVBCIBackendImage_p& dst_img,
+	            size_t x_start,
+	            size_t width,
+	            PVBCICodeBase* codes,
+	            size_t n,
+	            const float zoom_y = 1.0f,
+	            bool reverse = false,
+	            std::function<void()> const& render_done = std::function<void()>()) override;
 
 	void wait_all() const override;
 
@@ -73,6 +73,9 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	 * Callback function called once image creation is done and back on computer.
 	 */
 	static void termination_cb(cl_event event, cl_int status, void* data);
+
+	auto create_new_image(backend_image_t* in_place, size_t img_width, uint8_t height_bits)
+	    -> backend_image_t*;
 
   private:
 #if defined __GNUC__ && __GNUC__ >= 6

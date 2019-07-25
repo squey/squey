@@ -55,8 +55,8 @@ class PVLinesView
 
 		void decrease_zoom_level();
 
-		int16_t get_base_zoom_level();
-		int16_t get_base_width();
+		int16_t get_base_zoom_level() const;
+		int16_t get_base_width() const;
 
 		uint32_t get_width() const;
 
@@ -113,25 +113,12 @@ class PVLinesView
 	void cancel_and_wait_all_rendering();
 
 	inline size_t get_first_visible_zone_index() const { return _first_zone; }
-	inline size_t get_last_visible_zone_index() const
-	{
-		return std::min(_first_zone + get_number_of_visible_zones() - 1,
-		                get_number_of_managed_zones() - 1);
-	}
-	uint32_t get_left_border_position_of_zone_in_scene(size_t zone_index) const;
+	inline size_t get_last_visible_zone_index() const { return _last_zone; }
 
 	size_t get_number_of_managed_zones() const;
-	size_t get_number_of_visible_zones() const { return _list_of_single_zone_images.size(); }
-
-	int32_t get_left_border_of_scene() const
+	size_t get_number_of_visible_zones() const
 	{
-		return get_left_border_position_of_zone_in_scene(0);
-	}
-	int32_t get_right_border_of_scene() const
-	{
-		const size_t last_z = get_number_of_managed_zones() - 1;
-		return get_left_border_position_of_zone_in_scene(last_z) + 2 * PVParallelView::AxisWidth +
-		       get_zone_width(last_z);
+		return get_last_visible_zone_index() - get_first_visible_zone_index() + 1;
 	}
 
 	inline SingleZoneImages& get_single_zone_images(const size_t zone_offset)
@@ -139,7 +126,8 @@ class PVLinesView
 		return _list_of_single_zone_images[zone_offset];
 	}
 
-	PVZoneID get_zone_from_scene_pos(int32_t abs_pos) const;
+	uint32_t get_left_border_position_of_zone_in_scene(size_t zone_index) const;
+
 	size_t get_zone_index_from_scene_pos(int32_t abs_pos) const;
 	size_t get_zone_index_offset(size_t zone_index) const
 	{
@@ -148,25 +136,12 @@ class PVLinesView
 	}
 
 	inline const PVZonesManager& get_zones_manager() const { return _zm; }
-	//	inline uint32_t get_zone_width(PVZoneID zone_id) const { assert(zone_id < (PVZoneID)
-	//_zones_width.size()); return _zones_width[zone_id]; }
-	uint32_t get_zone_width(size_t zone_index) const;
 
 	void decrease_base_zoom_level_of_zone(size_t zone_index);
 	void decrease_global_zoom_level();
 
 	void increase_base_zoom_level_of_zone(size_t zone_index);
 	void increase_global_zoom_level();
-
-	/**
-	 * Initialize the zones width for make them get in the viewport. If there not enough
-	 * space, the default zone width is used to make zones understandable.
-	 *
-	 * @param view_width the width of the view in which the zones should fit in
-	 *
-	 * @return true if the zones fit in width; otherwise false
-	 */
-	bool initialize_zones_width(int view_width);
 
 	bool is_zone_drawn(size_t zone_index) const
 	{
@@ -181,22 +156,21 @@ class PVLinesView
 	void render_single_zone_bg_image(size_t zone_index, const float zoom_y);
 	void render_single_zone_sel_image(size_t zone_index, const float zoom_y);
 
-	void set_nb_drawable_zones(size_t nb_zones);
-
-	void set_zone_max_width(uint32_t w);
-	bool set_zone_width(size_t zone_index, uint32_t width);
-	// bool set_zone_width_and_render(PVZoneID zone_id, uint32_t width);
-
 	void translate(int32_t view_x, uint32_t view_width, const float zoom_y);
 
 	int update_number_of_zones(int view_x, uint32_t view_width);
 
+	uint32_t get_zone_width(size_t zone_index) const;
+
 	/**
-	 * Get the average zones width
+	 * Initialize the zones width for make them get in the viewport. If there not enough
+	 * space, the default zone width is used to make zones understandable.
 	 *
-	 * @return the average zones width
+	 * @param view_width the width of the view in which the zones should fit in
+	 *
+	 * @return true if the zones fit in width; otherwise false
 	 */
-	int get_average_zones_width() const;
+	bool initialize_zones_width(int view_width);
 
 	/**
 	 * Reset the zones width to the given value
@@ -207,43 +181,18 @@ class PVLinesView
 	 */
 	void reset_zones_width(int wanted_zone_width);
 
-  public:
-	template <class F>
-	inline bool set_all_zones_width(F const& f)
-	{
-		bool has_changed = false;
-		for (size_t zone_index = 0; zone_index < _zones_width.size(); ++zone_index) {
-			has_changed |= set_zone_width(zone_index, f(get_zone_width(zone_index)));
-		}
-		return has_changed;
-	}
+	/**
+	 * Get the average zones width
+	 *
+	 * @return the average zones width
+	 */
+	int get_average_zones_width() const;
 
   private:
-	size_t get_image_index_of_zone(size_t zone_id) const;
+	void visit_all_zones_to_render(std::function<void(size_t)> const& fzone);
 
-	void visit_all_zones_to_render(uint32_t view_width, std::function<void(size_t)> const& fzone);
-
-	size_t set_new_view(int32_t new_view_x, uint32_t view_width)
-	{
-		// Change view_x
-		_visible_view_x = new_view_x;
-
-		// and set new first zone
-		size_t previous_first_zone = _first_zone;
-		_first_zone = update_and_get_first_zone_from_viewport(new_view_x, view_width);
-
-		// Returns the previous first zone index
-		return previous_first_zone;
-	}
-
-	void do_translate(size_t previous_first_zone,
-	                  uint32_t view_width,
-	                  std::function<void(size_t)> fzone_draw);
-
-	size_t update_and_get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
-
-	void left_rotate_single_zone_images(size_t s);
-	void right_rotate_single_zone_images(size_t s);
+	size_t set_new_view(int32_t new_view_x, uint32_t view_width);
+	void set_nb_drawable_zones(size_t nb_zones);
 
 	void connect_zr(PVZoneRenderingBCIBase* zr, const char* slot);
 	void call_refresh_slots(size_t zone_index);
@@ -252,6 +201,7 @@ class PVLinesView
 	PVBCIDrawingBackend& _backend;
 
 	size_t _first_zone;
+	size_t _last_zone;
 
 	QObject* _img_update_receiver;
 
@@ -262,11 +212,10 @@ class PVLinesView
 	PVZonesProcessor& _processor_bg;
 
 	int32_t _visible_view_x;
+	uint32_t _visible_view_width;
 
 	PVZonesManager const& _zm;
 	uint32_t _zone_max_width;
-
-	std::vector<uint32_t> _zones_width;
 };
 } // namespace PVParallelView
 

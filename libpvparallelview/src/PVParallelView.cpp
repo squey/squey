@@ -10,6 +10,7 @@
 #include <inendi/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
+#include <pvparallelview/PVBCIDrawingBackendQPainter.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVRenderingPipeline.h>
@@ -117,7 +118,11 @@ namespace common
  ************************************************************/
 RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
+	if (PVBCIDrawingBackendOpenCL::get().is_gpu_accelerated()) {
+		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
+	} else {
+		_instance->init_backends<PVBCIDrawingBackendQPainter>();
+	}
 }
 } // namespace common
 } // namespace PVParallelView

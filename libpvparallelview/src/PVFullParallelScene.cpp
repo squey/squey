@@ -486,6 +486,7 @@ void PVParallelView::PVFullParallelScene::render_all_zones_all_imgs()
 	const int32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.render_all_zones_images(view_x, view_width, _zoom_y);
+	update_number_of_visible_zones();
 }
 
 void PVParallelView::PVFullParallelScene::scale_all_zones_images()
@@ -567,6 +568,7 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 	uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	uint32_t view_width = _full_parallel_view->width();
 	_lines_view.translate(view_x, view_width, _zoom_y);
+	update_number_of_visible_zones();
 }
 
 /******************************************************************************
@@ -664,20 +666,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 
 	_lines_view.update_number_of_zones(view_x, view_width);
 	size_t const nb_zones = _lines_view.get_number_of_managed_zones();
-	size_t nb_zones_drawable = _lines_view.get_number_of_visible_zones();
-	if (_zones.size() != nb_zones_drawable) {
-		if (_zones.size() > nb_zones_drawable) {
-			for (size_t zone_index = nb_zones_drawable; zone_index < _zones.size(); ++zone_index) {
-				_zones[zone_index].remove(this);
-			}
-			_zones.resize(nb_zones_drawable);
-		} else {
-			_zones.reserve(nb_zones_drawable);
-			for (size_t zone_index(_zones.size()); zone_index < nb_zones_drawable; ++zone_index) {
-				add_zone_image();
-			}
-		}
-	}
+	update_number_of_visible_zones();
 
 	for (size_t i = 0; i < _axes.size(); ++i) {
 
@@ -709,6 +698,24 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones_async()
 	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_number_of_zones,
 	// Qt::QueuedConnection);
 	PVCore::invokeMethod(this, &PVFullParallelScene::update_number_of_zones, Qt::QueuedConnection);
+}
+
+void PVParallelView::PVFullParallelScene::update_number_of_visible_zones()
+{
+	size_t nb_zones_drawable = _lines_view.get_number_of_visible_zones();
+	if (_zones.size() != nb_zones_drawable) {
+		if (_zones.size() > nb_zones_drawable) {
+			for (size_t zone_index = nb_zones_drawable; zone_index < _zones.size(); ++zone_index) {
+				_zones[zone_index].remove(this);
+			}
+			_zones.resize(nb_zones_drawable);
+		} else {
+			_zones.reserve(nb_zones_drawable);
+			for (size_t zone_index(_zones.size()); zone_index < nb_zones_drawable; ++zone_index) {
+				add_zone_image();
+			}
+		}
+	}
 }
 
 QRectF PVParallelView::PVFullParallelScene::axes_scene_bounding_box() const
@@ -915,6 +922,8 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_sel(size_t zone_ind
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all, bool scale)
 {
+	update_number_of_visible_zones();
+
 	if (scale) {
 		scale_all_zones_images();
 	}

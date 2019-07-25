@@ -47,7 +47,7 @@ PVParallelView::PVBCIBackendImage_p do_test(size_t n, size_t width, int pattern)
 	PVParallelView::PVBCIBackendImage_p dst_img = backend.create_image(width, Bbits);
 
 	auto start = std::chrono::steady_clock::now();
-	backend(dst_img, 0, width, (PVParallelView::PVBCICodeBase*)codes, n);
+	backend.render(dst_img, 0, width, (PVParallelView::PVBCICodeBase*)codes, n);
 	backend.wait_all();
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> diff = end - start;
