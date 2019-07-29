@@ -430,24 +430,25 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 	const uint32_t* pcol_b = zp.plotted_b;
 
 	BENCH_START(zztree);
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, 256),
-	                  [&](tbb::blocked_range<size_t> const& range) {
-		                  pvquadtree* trees = this->_trees;
-		                  PVZoneTree& zt_(zt);
-		                  const uint32_t* pcol_a_ = pcol_a;
-		                  const uint32_t* pcol_b_ = pcol_b;
-		                  for (size_t i = range.begin(); i != range.end(); i++) {
-			                  pvquadtree& tree_i = trees[i];
-			                  for (size_t j = 0; j < zt_.get_branch_count(i); ++j) {
-				                  const PVRow r = zt_.get_branch_element(i, j);
+	tbb::parallel_for(
+	    tbb::blocked_range<size_t>(0, NBUCKETS, 256),
+	    [&](tbb::blocked_range<size_t> const& range) {
+		    pvquadtree* trees = this->_trees;
+		    PVZoneTree& zt_(zt);
+		    const uint32_t* pcol_a_ = pcol_a;
+		    const uint32_t* pcol_b_ = pcol_b;
+		    for (size_t i = range.begin(); i != range.end(); i++) {
+			    pvquadtree& tree_i = trees[i];
+			    for (size_t j = 0; j < zt_.get_branch_count(i); ++j) {
+				    const PVRow r = zt_.get_branch_element(i, j);
 
-				                  PVParallelView::PVQuadTreeEntry e(pcol_a_[r], pcol_b_[r], r);
-				                  tree_i.insert(e);
-			                  }
-			                  tree_i.compact();
-		                  }
-		              },
-	                  tbb::auto_partitioner());
+				    PVParallelView::PVQuadTreeEntry e(pcol_a_[r], pcol_b_[r], r);
+				    tree_i.insert(e);
+			    }
+			    tree_i.compact();
+		    }
+	    },
+	    tbb::auto_partitioner());
 	BENCH_END(zztree, "ZZTREE CREATION (PARALLEL)", 1, 1, 1, 1);
 }
 
@@ -485,7 +486,7 @@ PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t& ctx,
 		    if (e.idx < buffer[tlr.v]) {
 			    buffer[tlr.v] = e.idx;
 		    }
-		});
+	    });
 
 	BENCH_START(whole);
 	BENCH_START(extract);
@@ -586,7 +587,7 @@ PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t& ctx,
 		    if (e.idx < buffer[tlr.v]) {
 			    buffer[tlr.v] = e.idx;
 		    }
-		});
+	    });
 
 	BENCH_START(whole);
 	BENCH_START(extract);
@@ -713,37 +714,38 @@ void PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_y2_tbb(
 			    return 1;
 		    }
 		    return 0;
-		});
+	    });
 
 	BENCH_START(extract);
-	tbb::parallel_for(tbb::blocked_range2d<uint32_t>(t1_min, t1_max, t2_min, t2_max),
-	                  [&](const tbb::blocked_range2d<uint32_t>& r) {
-		                  pvquadtree* trees = _trees;
-		                  const insert_entry_y1_y2_f& insert_f_ = insert_f;
-		                  PVCore::PVHSVColor* const image_ = image;
-		                  PVRow const* const sel_elts_ = sel_elts;
+	tbb::parallel_for(
+	    tbb::blocked_range2d<uint32_t>(t1_min, t1_max, t2_min, t2_max),
+	    [&](const tbb::blocked_range2d<uint32_t>& r) {
+		    pvquadtree* trees = _trees;
+		    const insert_entry_y1_y2_f& insert_f_ = insert_f;
+		    PVCore::PVHSVColor* const image_ = image;
+		    PVRow const* const sel_elts_ = sel_elts;
 
-		                  for (uint32_t t2 = r.cols().begin(); t2 < r.cols().end(); ++t2) {
-			                  for (uint32_t t1 = r.rows().begin(); t1 < r.rows().end(); ++t1) {
-				                  PVRow tree_idx = (t2 * 1024) + t1;
+		    for (uint32_t t2 = r.cols().begin(); t2 < r.cols().end(); ++t2) {
+			    for (uint32_t t1 = r.rows().begin(); t1 < r.rows().end(); ++t1) {
+				    PVRow tree_idx = (t2 * 1024) + t1;
 
-				                  if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
-					                  /* when searching for entries using the selection, if there is
-					                   * no
-					                   * drawn selected event for the corresponding ZoneTree, it is
-					                   * useless
-					                   * to search for a selected event in the quadtree
-					                   */
-					                  continue;
-				                  }
+				    if (sel_elts_ && (sel_elts_[tree_idx] == PVROW_INVALID_VALUE)) {
+					    /* when searching for entries using the selection, if there is
+					     * no
+					     * drawn selected event for the corresponding ZoneTree, it is
+					     * useless
+					     * to search for a selected event in the quadtree
+					     */
+					    continue;
+				    }
 
-				                  /* lines extraction
-				                   */
-				                  extract_f(trees[tree_idx], image_, insert_f_);
-			                  }
-		                  }
-		              },
-	                  tbb::auto_partitioner(), *tbb_ctxt);
+				    /* lines extraction
+				     */
+				    extract_f(trees[tree_idx], image_, insert_f_);
+			    }
+		    }
+	    },
+	    tbb::auto_partitioner(), *tbb_ctxt);
 	BENCH_END(extract, "browse_trees_bci_by_y1_y2_tbb", 1, 1, 1, 1);
 }
 
@@ -778,7 +780,7 @@ PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t& ctx,
 		    if (e.idx < buffer[tlr.v]) {
 			    buffer[tlr.v] = e.idx;
 		    }
-		});
+	    });
 
 	BENCH_START(whole);
 	BENCH_START(extract);
@@ -815,7 +817,7 @@ PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t& ctx,
 				    extract_f(_trees[tree_idx], y2_count, quadtree_buffer, tlr_buffer, insert_f);
 			    }
 		    }
-		});
+	    });
 	BENCH_STOP(extract);
 
 	/* merging all TLR buffers
@@ -897,7 +899,7 @@ PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t& ctx,
 		    if (e.idx < buffer[tlr.v]) {
 			    buffer[tlr.v] = e.idx;
 		    }
-		});
+	    });
 
 	BENCH_START(whole);
 	BENCH_START(extract);
@@ -932,7 +934,7 @@ PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t& ctx,
 				    extract_f(_trees[tree_idx], y1_count, quadtree_buffer, tlr_buffer, insert_f);
 			    }
 		    }
-		});
+	    });
 	BENCH_STOP(extract);
 
 	/* merging all TLR buffers

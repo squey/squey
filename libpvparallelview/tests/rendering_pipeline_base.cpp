@@ -53,7 +53,7 @@ PVParallelView::PVZoneRenderingBCI_p<10> new_zr(PVParallelView::PVBCIDrawingBack
 			    codes[i].s.idx = i;
 		    }
 		    return n;
-		},
+	    },
 	    dst_img, 0, 20));
 	return zr;
 }
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 #else
 		    (void)z;
 #endif
-		},
+	    },
 	    colors, zm);
 
 #define NJOBS 40

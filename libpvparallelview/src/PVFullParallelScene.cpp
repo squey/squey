@@ -120,7 +120,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 		            action == QAbstractSlider::SliderPageStepSub) {
 			        _full_parallel_view->horizontalScrollBar()->installEventFilter(eventFilter);
 		        }
-		    });
+	        });
 
 	// Add ALL axes
 	const size_t nzones(_lines_view.get_number_of_managed_zones() + 1);

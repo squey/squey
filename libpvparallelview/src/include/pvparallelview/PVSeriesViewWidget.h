@@ -25,6 +25,11 @@ namespace Inendi
 class PVRangeSubSampler;
 }
 
+namespace PVWidgets
+{
+class PVRangeEdit;
+}
+
 namespace PVParallelView
 {
 
@@ -57,12 +62,14 @@ class PVSeriesViewWidget : public QWidget
 	void synchro_list(QTreeWidget* list_src, QTreeWidget* list_dest);
 	void semi_synchro_list(QTreeWidget* list_src, QTreeWidget* list_dest);
 	bool is_in_region(const QRect region, PVCol col) const;
+	void minmax_changed(const pvcop::db::array& minmax);
 
   private:
 	Inendi::PVView* _view;
 	std::function<void(std::vector<QWidget*> const&)> _layout_replacer;
 	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
 	PVSeriesView* _plot = nullptr;
+	PVWidgets::PVRangeEdit* _range_edit = nullptr;
 	PVSeriesViewZoomer* _zoomer = nullptr;
 	PVSeriesTreeView* _series_tree_widget = nullptr;
 	PVSeriesTreeView* _selected_series_tree = nullptr;
@@ -81,6 +88,6 @@ class PVSeriesViewWidget : public QWidget
 	PVSeriesViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget _help_widget;
 };
-}
+} // namespace PVParallelView
 
 #endif // __PVPARALLELVIEW_PVSERIESVIEWWIDGET_H__
