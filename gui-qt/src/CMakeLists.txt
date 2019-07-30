@@ -84,7 +84,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
 
-target_link_libraries(inendi-inspector ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
+target_link_libraries(inendi-inspector ssl crypto ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
     pvguiqt pvparallelview inendi pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY}
     ${OpenMP_LIBRARIES} ${PV_QT_LIBS} ${PVLICENSE_LIBRARIES})
 
