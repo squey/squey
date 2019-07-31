@@ -12,6 +12,10 @@
 find_package(Qt5Sql REQUIRED)
 include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
 
+# For QOpcUaClient
+find_package(Qt5OpcUa REQUIRED)
+include_directories(SYSTEM ${Qt5OpcUa_INCLUDE_DIRS})
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 ################################################
@@ -253,6 +257,40 @@ add_library(input_type_erf SHARED ${ERF_MOC_SRCS} ${ERF_SRC_FILES})
 target_link_libraries(input_type_erf pvkernel ${ERF_LIBS})
 
 ###############################################################################
+# OpcUa
+###############################################################################
+# Declare ressources
+set(OPCUA_SRC_FILES
+../common/opcua/PVOpcUaAPI.cpp
+../common/opcua/PVOpcUaInfos.cpp
+../common/opcua/PVOpcUaQuery.cpp
+../common/opcua/PVOpcUaTreeModel.cpp
+../common/opcua/PVOpcUaTreeItem.cpp
+common/PVParamsWidget.cpp
+opcua/PVOpcUaParamsWidget.cpp
+opcua/PVOpcUaPresets.cpp
+opcua/PVInputTypeOpcUa.cpp
+opcua/register.cpp
+)
+
+set(OPCUA_MOC_HEADERS
+common/PVParamsWidget.h
+opcua/PVOpcUaParamsWidget.h
+)
+
+set(OPCUA_UI
+common/widget_params.ui)
+
+# Generate Qt Specific files
+QT5_WRAP_CPP(OPCUA_MOC_SRCS ${OPCUA_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT5_WRAP_UI(OPCUA_UI_SRCS ${OPCUA_UI})
+
+set(OPCUA_LIBS Qt5OpcUa open62541 ssl crypto)
+
+add_library(input_type_opcua SHARED ${OPCUA_UI_SRCS} ${OPCUA_SRC_FILES} ${OPCUA_MOC_SRCS})
+target_link_libraries(input_type_opcua pvkernel ${OPCUA_LIBS})
+
+###############################################################################
 # Install plugins
 ###############################################################################
 
@@ -263,6 +301,7 @@ set(INPUTS_DIST_LIST
 	input_type_elasticsearch
 	input_type_splunk
 	input_type_erf
+	input_type_opcua
 	)
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/input-types

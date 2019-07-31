@@ -222,8 +222,6 @@ PVFilter::PVFieldsSplitter_p
 PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol& naxes)
 {
 	PVCore::PVChunk* chunk = (*src)();
-	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
-	assert(text_chunk);
 	PVFieldsSplitter_p ret;
 	if (!chunk) {
 		src->seek_begin();
@@ -232,6 +230,8 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			return ret;
 		}
 	}
+	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
+	assert(text_chunk);
 	LIB_CLASS(PVFilter::PVFieldsSplitter)
 	::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
 	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes::const_iterator it;

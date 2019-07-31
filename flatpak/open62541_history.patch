@@ -18,9 +18,18 @@ index 77ba54ac..cdd79267 100644
  UA_Client_HistoryUpdate_insert(UA_Client *client,
                                 const UA_NodeId *nodeId,
 diff --git a/src/client/ua_client_highlevel.c b/src/client/ua_client_highlevel.c
-index f605f7bf..9c5539a4 100644
+index f605f7bf..bdca3262 100644
 --- a/src/client/ua_client_highlevel.c
 +++ b/src/client/ua_client_highlevel.c
+@@ -474,7 +474,7 @@ __UA_Client_HistoryRead(UA_Client *client, const UA_NodeId *nodeId,
+     item.nodeId = *nodeId;
+     item.indexRange = indexRange;
+     item.continuationPoint = continuationPoint;
+-    item.dataEncoding = UA_QUALIFIEDNAME(0, "Default Binary");
++    //item.dataEncoding = UA_QUALIFIEDNAME(0, "Default Binary");
+ 
+     UA_HistoryReadRequest request;
+     UA_HistoryReadRequest_init(&request);
 @@ -623,6 +623,30 @@ UA_Client_HistoryRead_modified(UA_Client *client, const UA_NodeId *nodeId,
  }
  #endif // UA_ENABLE_EXPERIMENTAL_HISTORIZING

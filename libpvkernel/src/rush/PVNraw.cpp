@@ -144,6 +144,7 @@ bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk const& chunk)
 	// 	}
 	// }
 
+#pragma omp atomic
 	_real_nrows += chunk.rows_count();
 
 	return true;

@@ -22,12 +22,12 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw) {}
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(out);
-	if (text_chunk) {
+
+	if (PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(out)) {
 		nraw_dest().add_chunk_utf16(*text_chunk);
 	} else {
-		PVCore::PVBinaryChunk* bin_chunk = dynamic_cast<PVCore::PVBinaryChunk*>(out);
-		assert(bin_chunk);
+		assert(dynamic_cast<PVCore::PVBinaryChunk*>(out));
+		PVCore::PVBinaryChunk* bin_chunk = static_cast<PVCore::PVBinaryChunk*>(out);
 
 		nraw_dest().add_bin_chunk(*bin_chunk);
 	}

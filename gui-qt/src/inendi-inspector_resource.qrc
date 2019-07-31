@@ -227,6 +227,7 @@
 	<!-- INPUT TYPES -->
 	<file alias="elasticsearch_icon">resources/elasticsearch.png</file>
 	<file alias="erf_icon">resources/HDF_logo.png</file>
+	<file alias="opcua_icon">resources/opcua.png</file>
 
 	<!-- CORRELATION -->
 	<file alias="bind">resources/link.png</file>
