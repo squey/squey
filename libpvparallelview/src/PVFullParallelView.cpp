@@ -10,6 +10,7 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVFullParallelViewParamsWidget.h>
 
 #include <QPaintEvent>
 #include <QApplication>
@@ -51,6 +52,11 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent)
 	_help_widget->newColumn();
 	_help_widget->addTextFromFile(":help-shortcuts-full-parallel-view");
 	_help_widget->finalizeText();
+
+	_params_widget = new PVFullParallelViewParamsWidget(this);
+	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
+	_params_widget->setAutoFillBackground(true);
+	_params_widget->adjustSize();
 }
 
 /******************************************************************************
