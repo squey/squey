@@ -116,9 +116,9 @@ class PVZoneRenderingBCI : public PVZoneRenderingBCIBase
 	                   bool reversed = false)
 	    : PVZoneRenderingBCIBase(
 	          zone_id,
-	          [=](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICodeBase * codes) {
+	          [=](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) {
 		          return f_bci(z, colors, reinterpret_cast<PVBCICode<Bbits>*>(codes));
-		      },
+	          },
 	          dst_img,
 	          x_start,
 	          width,

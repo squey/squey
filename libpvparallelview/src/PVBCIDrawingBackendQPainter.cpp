@@ -52,7 +52,7 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 		    std::distance(codes, std::lower_bound(codes, codes + n, PVBCICodeBase{},
 		                                          [](auto const& a, auto const&) {
 			                                          return a.as_10.int_v < PVROW_INVALID_VALUE;
-			                                      }));
+		                                          }));
 
 		const int x1 = reverse ? width : 0;
 		const int x2 = reverse ? 0 : width;

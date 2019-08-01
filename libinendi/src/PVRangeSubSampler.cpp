@@ -25,19 +25,26 @@ Inendi::PVRangeSubSampler::PVRangeSubSampler(
     const pvcop::db::selection& sel,
     const pvcop::db::array* split /* =  nullptr */,
     size_t sampling_count /*= 2048*/)
-    : _time(time), _timeseries(timeseries), _nraw(nraw), _sel(sel), _split(split), _minmax()
+    : _original_time(time)
+    , _time(std::cref(time))
+    , _timeseries(timeseries)
+    , _nraw(nraw)
+    , _sel(sel)
+    , _split(split)
+    , _minmax()
 {
 	set_sampling_count(
 	    sampling_count); // should be the number of horizontal visible pixels in the plot
 
 	BENCH_START(sort);
 
-	if (not _time.is_sorted()) { // FIXME
+	if (not _time.get().is_sorted()) { // FIXME
 		_sorted_indexes = time.parallel_sort();
 		_sort = _sorted_indexes.to_core_array();
 	}
 
-	BENCH_END(sort, "sort", _time.size(), sizeof(uint64_t), _time.size(), sizeof(uint64_t));
+	BENCH_END(sort, "sort", _time.get().size(), sizeof(uint64_t), _time.get().size(),
+	          sizeof(uint64_t));
 
 	_minmax = pvcop::db::algo::minmax(_time);
 	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
@@ -56,13 +63,13 @@ void Inendi::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
 pvcop::db::array Inendi::PVRangeSubSampler::ratio_to_minmax(zoom_f ratio1, zoom_f ratio2) const
 {
 
-	return _time.ratio_to_minmax(ratio1, ratio2, _minmax);
+	return _time.get().ratio_to_minmax(ratio1, ratio2, _minmax);
 }
 
 std::pair<Inendi::PVRangeSubSampler::zoom_f, Inendi::PVRangeSubSampler::zoom_f>
 Inendi::PVRangeSubSampler::minmax_to_ratio(const pvcop::db::array& minmax) const
 {
-	return _time.minmax_to_ratio(minmax, _minmax);
+	return _time.get().minmax_to_ratio(minmax, _minmax);
 }
 
 void Inendi::PVRangeSubSampler::subsample(zoom_f first_ratio,
@@ -80,7 +87,7 @@ void Inendi::PVRangeSubSampler::subsample(const pvcop::db::array& minmax,
                                           uint32_t min /*= 0*/,
                                           uint32_t max /*= 0*/)
 {
-	auto[first, past_end] = _time.equal_range(minmax, _sorted_indexes);
+	auto [first, past_end] = _time.get().equal_range(minmax, _sorted_indexes);
 	subsample(first, past_end - 1, minmax, min, max);
 }
 
@@ -91,7 +98,7 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
                                           uint32_t max /*= 0*/)
 {
 	if (last == 0) {
-		last = _time.size() - 1;
+		last = _time.get().size() - 1;
 	}
 	if (max == 0) {
 		max = std::numeric_limits<uint32_t>::max();
@@ -118,7 +125,7 @@ void Inendi::PVRangeSubSampler::subsample(size_t first,
 		_reset = false;
 	}
 
-	_time.histogram(first, last, minmax, _sorted_indexes, _histogram);
+	_time.get().histogram(first, last, minmax, _sorted_indexes, _histogram);
 	_compute_ranges_reduction_f(first, last, min, max);
 
 	_subsampled.emit();
@@ -132,7 +139,7 @@ void Inendi::PVRangeSubSampler::set_selected_timeseries(
 	std::copy_if(selected_timeseries.begin(), selected_timeseries.end(),
 	             std::back_inserter(_timeseries_to_subsample), [this](size_t index) {
 		             return _selected_timeseries.find(index) == _selected_timeseries.end();
-		         });
+	             });
 	_selected_timeseries = selected_timeseries;
 }
 
@@ -165,7 +172,19 @@ void Inendi::PVRangeSubSampler::set_split_column(const pvcop::db::array* split)
 		new (&_split_extents) pvcop::db::extents();
 		_split->group(_split_groups, _split_extents);
 		_split_count = _split_extents.size();
+
+		const pvcop::db::array& min_times = _time.get().group_min(_split_groups, _split_extents);
+		_shifted_time = _time.get().subtract(min_times, _split_groups);
+		_time = std::cref(_shifted_time);
+
+	} else {
+		_time = std::cref(_original_time);
 	}
+	_minmax = std::move(_time.get().minmax());
+	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
+	_sorted_indexes = _time.get().parallel_sort();
+	_sort = _sorted_indexes.to_core_array();
+
 	_ts_matrix.resize(_timeseries.size() * _split_count);
 	for (auto& vec : _ts_matrix) {
 		vec.resize(_histogram.size());

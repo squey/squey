@@ -100,7 +100,7 @@ class PVRangeSubSampler
 	void set_split_column(const pvcop::db::array* split);
 
 	size_t samples_count() const { return _sampling_count; }
-	size_t total_count() const { return _time.size(); }
+	size_t total_count() const { return _time.get().size(); }
 	size_t timeseries_count() const { return _timeseries.size(); }
 	size_t group_count() const { return _split_count; }
 	std::string group_name(size_t i) const
@@ -144,7 +144,8 @@ class PVRangeSubSampler
   private:
 	size_t _sampling_count;
 
-	const pvcop::db::array& _time;
+	const pvcop::db::array& _original_time;
+	std::reference_wrapper<const pvcop::db::array> _time;
 	const std::vector<pvcop::core::array<value_type>> _timeseries;
 	const PVRush::PVNraw& _nraw;
 	std::unordered_set<size_t> _selected_timeseries;
@@ -154,6 +155,7 @@ class PVRangeSubSampler
 	pvcop::db::groups _split_groups;
 	pvcop::db::extents _split_extents;
 	size_t _split_count = 1;
+	pvcop::db::array _shifted_time;
 
 	pvcop::db::indexes _sorted_indexes;
 	pvcop::core::array<uint32_t> _sort;
@@ -231,7 +233,7 @@ void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 	BENCH_START(compute_ranges_reduction);
 
 	// Remove invalid values from selection
-	const pvcop::db::selection& valid_sel = _time.valid_selection(_sel);
+	const pvcop::db::selection& valid_sel = _time.get().valid_selection(_sel);
 
 	const auto split_groups =
 	    _split ? _split_groups.to_core_array() : pvcop::core::array<pvcop::db::index_t>();
@@ -288,8 +290,8 @@ void Inendi::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 		}
 	}
 
-	BENCH_END(compute_ranges_reduction, "compute_ranges_reduction", _time.size(), sizeof(uint64_t),
-	          _sampling_count, sizeof(uint64_t));
+	BENCH_END(compute_ranges_reduction, "compute_ranges_reduction", _time.get().size(),
+	          sizeof(uint64_t), _sampling_count, sizeof(uint64_t));
 }
 
 } // namespace Inendi

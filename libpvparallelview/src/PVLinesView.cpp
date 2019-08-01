@@ -334,7 +334,7 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(size_t zone_index,
 	    [&](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
 	        PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
 		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci(colors, codes);
-		},
+	    },
 	    single_zone_images.bg, 0, width, zoom_y,
 	    false // not reversed
 	    ));
@@ -373,7 +373,7 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(size_t zone_index
 	        PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
 		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci_sel(colors,
 		                                                                                codes);
-		},
+	    },
 	    single_zone_images.sel, 0, width, zoom_y,
 	    false // not reversed
 	    ));
