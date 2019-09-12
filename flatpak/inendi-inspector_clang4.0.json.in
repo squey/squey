@@ -23,6 +23,7 @@
     "--socket=wayland",
     "--share=network",
     "--filesystem=host",
+    "--filesystem=/var/lib/dcv-gl/flatpak",
     "--device=all"
   ],
   "modules": [

@@ -61,7 +61,18 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 			}
 			QOpenGLContext qogl;
 			qogl.setFormat(offsc.format());
-			return qogl.create() && qogl.format().version() >= qMakePair(4, 3);
+			if (not qogl.create()) {
+				qDebug() << "Could not create a QOpenGLContext out of the QOffscreenSurface";
+			} else if (qogl.format().version() < qMakePair(4, 3)) {
+				qDebug() << "Expecting 4.3+ but QOffscreenSurface could only deliver "
+				         << qogl.format().version();
+			} else if (not qogl.makeCurrent(&offsc)) {
+				qDebug() << "Could not make QOpenGLContext current on QOffscreenSurface";
+			} else {
+				qogl.doneCurrent();
+				return true;
+			}
+			return false;
 		}();
 		return s_offscreenopengl_capable;
 	}
