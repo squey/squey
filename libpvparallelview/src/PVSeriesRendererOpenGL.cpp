@@ -37,12 +37,23 @@ PVSeriesRendererOpenGL::~PVSeriesRendererOpenGL()
 bool PVSeriesRendererOpenGL::capability()
 {
 	static const bool s_opengl_capable = [] {
-		QOpenGLContext qogl;
+		QOpenGLWidget qoglwg;
 		QSurfaceFormat format;
 		format.setVersion(4, 3);
 		format.setProfile(QSurfaceFormat::CoreProfile);
-		qogl.setFormat(format);
-		return qogl.create() && qogl.format().version() >= qMakePair(4, 3);
+		qoglwg.setFormat(format);
+		qoglwg.resize(20, 20);
+		if (qoglwg.grabFramebuffer().isNull()) {
+			qDebug() << "Could not use a QOpenGLWidget to grab framebuffer";
+		} else if (not qoglwg.isValid()) {
+			qDebug() << "Could not create a valid QOpenGLWidget";
+		} else if (qoglwg.format().version() < qMakePair(4, 3)) {
+			qDebug() << "Expecting 4.3+ but QOpenGLWidget could only deliver "
+			         << qoglwg.format().version();
+		} else {
+			return true;
+		}
+		return false;
 	}();
 	return s_opengl_capable;
 }
@@ -303,12 +314,12 @@ void PVSeriesRendererOpenGL::fill_dbo_GL()
 	    static_cast<DrawArraysIndirectCommand*>(_dbo.map(QOpenGLBuffer::WriteOnly));
 	assert(dbo_bytes);
 	std::generate(dbo_bytes, dbo_bytes + _lines_per_vbo_count,
-	              [ line = 0u, vertices_per_line, this ]() mutable {
+	              [line = 0u, vertices_per_line, this]() mutable {
 		              uint32_t draw_index = line++;
 		              return DrawArraysIndirectCommand{GLuint(vertices_per_line), 1,
 		                                               GLuint(draw_index * vertices_per_line),
 		                                               draw_index};
-		          });
+	              });
 	_dbo.unmap();
 	_dbo.release();
 }
