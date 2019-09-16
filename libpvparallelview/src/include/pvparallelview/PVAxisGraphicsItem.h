@@ -117,6 +117,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	QColor get_title_color() const { return _axis_fmt.get_titlecolor().toQColor(); }
 
+	void enable_density(bool enable);
 	void refresh_density();
 	void render_density(int axis_length);
 	QImage get_axis_density();
@@ -163,6 +164,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	QGraphicsTextItem* _layer_max_value;
 	__impl::PVToolTipEventFilter* _event_filter;
 	bool _minmax_visible;
+	bool _axis_density_enabled = false;
 	QImage _axis_density;
 	bool _axis_density_need_refresh = false;
 	std::thread _axis_density_worker;

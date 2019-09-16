@@ -7,12 +7,16 @@
 #include <pvparallelview/PVFullParallelViewParamsWidget.h>
 #include <pvparallelview/PVFullParallelViewSelectionRectangle.h>
 #include <pvparallelview/PVFullParallelView.h>
+#include <pvparallelview/PVFullParallelScene.h>
 
 #include <QVBoxLayout>
 #include <QToolBar>
 #include <QCheckBox>
 #include <QSignalMapper>
 #include <QMenu>
+#include <QLineEdit>
+#include <QLabel>
+#include <QDebug>
 
 /*****************************************************************************
  * PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget
@@ -22,79 +26,45 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
     PVFullParallelView* parent)
     : QToolBar(parent)
 {
-	_signal_mapper = new QSignalMapper(this);
-	QObject::connect(_signal_mapper,
-	                 static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this,
-	                 &PVFullParallelViewParamsWidget::set_selection_mode);
-
-	_sel_mode_button =
-	    PVSelectionRectangle::add_selection_mode_selector(parent, this, _signal_mapper);
-
-	addSeparator();
-	setVisible(false);
-
-	// _autofit = new QAction(this);
-	// _autofit->setIcon(QIcon(":/zoom-autofit-horizontal"));
-	// _autofit->setCheckable(true);
-	// _autofit->setChecked(false);
-	// _autofit->setShortcut(Qt::Key_F);
-	// _autofit->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-	// _autofit->setText("View auto-fit on selected events");
-	// _autofit->setToolTip("Activate/deactivate horizontal auto-fit on selected events (" +
-	//                      _autofit->shortcut().toString() + ")");
-	// addAction(_autofit);
-	// parent->addAction(_autofit);
-	// connect(_autofit, &QAction::toggled, parent_hcv(),
-	// &PVFullParallelView::toggle_auto_x_zoom_sel);
-
-	// _use_log_color = new QAction("Logarithmic colormap", this);
-	// _use_log_color->setIcon(QIcon(":/colormap-log"));
-	// _use_log_color->setCheckable(true);
-	// _use_log_color->setChecked(false);
-	// _use_log_color->setShortcut(Qt::Key_L);
-	// _use_log_color->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-	// _use_log_color->setText("Logarithmic colormap");
-	// _use_log_color->setToolTip(
-	//     "Activate/deactivate use of a logarithmic colormap for visible events (" +
-	//     _use_log_color->shortcut().toString() + ")");
-	// addAction(_use_log_color);
-	// parent->addAction(_use_log_color);
-	// connect(_use_log_color, &QAction::toggled, parent_hcv(),
-	// &PVFullParallelView::toggle_log_color);
-
-	// _show_labels = new QAction(this);
-	// _show_labels->setIcon(QIcon(":/labeled-axis"));
-	// _show_labels->setCheckable(true);
-	// _show_labels->setChecked(false);
-	// _show_labels->setShortcut(Qt::Key_T);
-	// _show_labels->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-	// _show_labels->setText("Toggle labels visibility");
-	// _show_labels->setToolTip("Activate/deactivate labels display on axes (" +
-	//                          _show_labels->shortcut().toString() + ")");
-	// addAction(_show_labels);
-	// parent->addAction(_show_labels);
-	// connect(_show_labels, &QAction::toggled, parent_hcv(),
-	// &PVFullParallelView::toggle_show_labels);
+	auto density_action = addAction(QIcon(":/zoom-autofit-horizontal"), "Density on axes");
+	density_action->setCheckable(true);
+	density_action->setChecked(false);
+	density_action->setShortcut(Qt::Key_D);
+	QImage density_legend(60, 1, QImage::Format_ARGB32);
+	for (int i = 0; i < density_legend.width(); ++i) {
+		density_legend.setPixelColor(
+		    i, 0, QColor::fromHsvF((1. - double(i) / density_legend.width()) / 3., 1., 1.));
+	}
+	auto density_legend_label = new QLabel();
+	density_legend_label->setPixmap(
+	    QPixmap::fromImage(density_legend).scaled(density_legend.width(), 16));
+	auto dll_action = addWidget(density_legend_label);
+	dll_action->setVisible(false);
+	connect(density_action, &QAction::toggled, [this, dll_action](bool pushed) {
+		if (pushed) {
+			auto scene = static_cast<PVParallelView::PVFullParallelScene*>(parent_fpv()->scene());
+			scene->get_lines_view().set_axis_width(21);
+			scene->enable_density_on_axes(true);
+			scene->update_number_of_zones_async();
+			dll_action->setVisible(true);
+			adjustSize();
+		} else {
+			auto scene = static_cast<PVParallelView::PVFullParallelScene*>(parent_fpv()->scene());
+			scene->get_lines_view().set_axis_width(3);
+			scene->enable_density_on_axes(false);
+			scene->update_number_of_zones_async();
+			dll_action->setVisible(false);
+			adjustSize();
+		}
+	});
+	setVisible(true);
 }
 
 /*****************************************************************************
  * PVParallelView::PVFullParallelViewParamsWidget::update_widgets
  *****************************************************************************/
 
-void PVParallelView::PVFullParallelViewParamsWidget::update_widgets()
-{
-	// _autofit->blockSignals(true);
-	// _use_log_color->blockSignals(true);
-	// _show_labels->blockSignals(true);
-
-	// _autofit->setChecked(parent_hcv()->auto_x_zoom_sel());
-	// _use_log_color->setChecked(parent_hcv()->use_log_color());
-	// _show_labels->setChecked(parent_hcv()->show_labels());
-
-	// _autofit->blockSignals(false);
-	// _use_log_color->blockSignals(false);
-	// _show_labels->blockSignals(false);
-}
+void PVParallelView::PVFullParallelViewParamsWidget::update_widgets() {}
 
 /*****************************************************************************
  * PVParallelView::PVFullParallelViewParamsWidget::set_selection_mode
@@ -102,11 +72,6 @@ void PVParallelView::PVFullParallelViewParamsWidget::update_widgets()
 
 void PVParallelView::PVFullParallelViewParamsWidget::set_selection_mode(int mode)
 {
-	// PVFullParallelView* hcv = parent_hcv();
-	// hcv->get_selection_rect()->set_selection_mode(mode);
-	// hcv->fake_mouse_move();
-	// hcv->get_viewport()->update();
-
 	PVSelectionRectangle::update_selection_mode_selector(_sel_mode_button, mode);
 }
 
@@ -114,7 +79,8 @@ void PVParallelView::PVFullParallelViewParamsWidget::set_selection_mode(int mode
  * PVParallelView::PVFullParallelViewParamsWidget::parent_hcv
  *****************************************************************************/
 
-PVParallelView::PVFullParallelView* PVParallelView::PVFullParallelViewParamsWidget::parent_hcv()
+PVParallelView::PVFullParallelView*
+PVParallelView::PVFullParallelViewParamsWidget::parent_fpv() const
 {
 	assert(qobject_cast<PVFullParallelView*>(parentWidget()));
 	return static_cast<PVFullParallelView*>(parentWidget());

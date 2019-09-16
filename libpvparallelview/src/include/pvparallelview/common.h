@@ -41,7 +41,7 @@ static constexpr const int IMAGE_WIDTH = 2048;
 static constexpr const int PARALLELVIEW_IMAGE_HEIGHT = IMAGE_HEIGHT;
 static constexpr const int PARALLELVIEW_IMAGE_WIDTH = IMAGE_WIDTH;
 
-static constexpr const int PARALLELVIEW_AXIS_WIDTH = 21;
+static constexpr const int PARALLELVIEW_AXIS_WIDTH = 3;
 
 static_assert(PARALLELVIEW_AXIS_WIDTH != 1,
               "PARALLELVIEW_AXIS_WIDTH must be strictly greater than 1");
@@ -89,8 +89,8 @@ struct constants {
 /* common views information/stats constants
  */
 static const QColor frame_bg_color(0xff, 0xfe, 0xee, 0xdc);
-static const QString frame_qss_bg_color("background-color: " +
-                                        frame_bg_color.name(QColor::HexArgb) + ";");
+static const QString
+    frame_qss_bg_color("background-color: " + frame_bg_color.name(QColor::HexArgb) + ";");
 static const QColor frame_text_color(0x40, 0x40, 0x40);
 static const QMargins frame_margins(14, 6, 14, 7);
 static const QMargins frame_offsets(3, 2, 3, 2);
@@ -128,7 +128,7 @@ struct hash<PVZoneID> {
 		return (int64_t(c.first) << 32) + int64_t(c.second);
 	}
 };
-}
+} // namespace std
 
 Q_DECLARE_METATYPE(PVZoneID);
 Q_DECLARE_METATYPE(size_t);

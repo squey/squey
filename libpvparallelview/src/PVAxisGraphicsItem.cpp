@@ -113,7 +113,6 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_sliders_group = new PVSlidersGroup(sm_p, _comb_col, this);
 
 	addToGroup(get_sliders_group());
-	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
 
 	_label = new PVAxisLabel(view);
 	addToGroup(_label);
@@ -211,14 +210,20 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 	if (not invalid) {
 		painter->fillRect(0, -axis_extend, _axis_width, _axis_length + (2 * axis_extend),
 		                  _axis_fmt.get_color().toQColor());
-		painter->drawImage(QRect{0, 0, int(_axis_width), int(_axis_length)}, get_axis_density());
+		if (_axis_density_enabled) {
+			painter->drawImage(QRect{0, 0, int(_axis_width), int(_axis_length)},
+			                   get_axis_density());
+		}
 	} else {
 		const double valid_range = (1 - Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE);
 
 		painter->fillRect(0, -axis_extend, _axis_width,
 		                  ((_axis_length * valid_range) + (axis_extend) + 2),
 		                  _axis_fmt.get_color().toQColor());
-		painter->drawImage(QRect{0, 0, int(_axis_width), int(_axis_length)}, get_axis_density());
+		if (_axis_density_enabled) {
+			painter->drawImage(QRect{0, 0, int(_axis_width), int(_axis_length)},
+			                   get_axis_density());
+		}
 
 		int width = _axis_width;
 
@@ -427,19 +432,23 @@ void PVParallelView::PVAxisGraphicsItem::set_zone_width(uint32_t zone_width, uin
 	_zone_width = zone_width;
 	_axis_width = axis_width;
 	_header_zone->set_width(zone_width + axis_width);
+	get_sliders_group()->setPos(axis_width / 2, 0.);
+}
+
+void PVParallelView::PVAxisGraphicsItem::enable_density(bool enable)
+{
+	_axis_density_enabled = enable;
+	refresh_density();
 }
 
 void PVParallelView::PVAxisGraphicsItem::refresh_density()
 {
-	_axis_density_need_refresh = true;
-	qDebug() << "refresh_density" << get_original_axis_column();
+	_axis_density_need_refresh = _axis_density_enabled;
 }
 
 void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 {
 	BENCH_START(render_density);
-
-	_axis_density_worker_result = QImage(1, axis_length, QImage::Format::Format_ARGB32);
 
 	std::vector<size_t> histogram(axis_length);
 
@@ -461,11 +470,11 @@ void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 	for (size_t i = 0; i < histogram.size(); i += 1) {
 		size_t sum = 0;
 		for (size_t j = i >= 3 ? i - 3 : 0; j < std::min(i + 3, histogram.size()); ++j) {
-			sum += histogram[j];
+			sum += (3 - std::abs(int64_t(j) - int64_t(i))) * histogram[j];
 		}
 		_axis_density_worker_result.setPixelColor(
 		    0, axis_length - 1 - i,
-		    QColor::fromHsvF(std::max(0., 1. - double(sum) / double(selection.bit_count())) / 6., 1,
+		    QColor::fromHsvF(std::max(0., 1. - double(sum) / double(selection.bit_count())) / 3., 1,
 		                     histogram[i] > 0, 1.));
 	}
 
@@ -479,9 +488,10 @@ QImage PVParallelView::PVAxisGraphicsItem::get_axis_density()
 		if (not _axis_density_worker.joinable()) {
 			_axis_density_worker_canceled.test_and_set();
 			_axis_density_worker_finished.test_and_set();
-			_axis_density_worker = std::thread([ this, axis_length = _axis_length ] {
+			_axis_density_worker = std::thread([this, axis_length = _axis_length] {
 				render_density(_axis_length);
 				_axis_density_worker_finished.clear();
+				update(boundingRect());
 			});
 		} else {
 			_axis_density_worker_canceled.clear();

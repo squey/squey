@@ -33,7 +33,7 @@ class PVFullParallelViewParamsWidget : public QToolBar
 	void set_selection_mode(int mode);
 
   private:
-	PVFullParallelView* parent_hcv();
+	PVFullParallelView* parent_fpv() const;
 
   private:
 	QAction* _autofit;

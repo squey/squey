@@ -176,6 +176,7 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 
 	axisw->get_sliders_group()->set_axis_scale(_zoom_y);
 	axisw->set_axis_length(_axis_length);
+	axisw->enable_density(_density_on_axes_enabled);
 
 	connect(axisw->get_sliders_group(), &PVSlidersGroup::selection_sliders_moved, this,
 	        &PVFullParallelScene::update_selection_from_sliders_Slot);
@@ -729,6 +730,14 @@ QRectF PVParallelView::PVFullParallelScene::axes_scene_bounding_box() const
 		ret |= axis->sceneBoundingRect();
 	}
 	return ret;
+}
+
+void PVParallelView::PVFullParallelScene::enable_density_on_axes(bool enable_density)
+{
+	_density_on_axes_enabled = enable_density;
+	for (auto axis : _axes) {
+		axis->enable_density(enable_density);
+	}
 }
 
 /******************************************************************************
