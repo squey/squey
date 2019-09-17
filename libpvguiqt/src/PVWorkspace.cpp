@@ -37,9 +37,7 @@
 uint64_t PVGuiQt::PVWorkspaceBase::_z_order_counter = 0;
 bool PVGuiQt::PVWorkspaceBase::_drag_started = false;
 
-PVGuiQt::PVWorkspaceBase::~PVWorkspaceBase()
-{
-}
+PVGuiQt::PVWorkspaceBase::~PVWorkspaceBase() {}
 
 PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 {
@@ -97,7 +95,7 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
                                            bool can_be_central_display /*= true*/,
                                            bool delete_on_close /* = true*/,
                                            Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
-                                           )
+)
 {
 	PVViewDisplay* view_display =
 	    new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
@@ -257,6 +255,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 		_inv_evts_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
 		_inv_evts_dlg->setWindowTitle(tr("Invalid events"));
 		_inv_evts_dlg->set_description(tr("There were invalid events during the extraction:"));
+		_inv_evts_dlg->setAttribute(Qt::WA_DeleteOnClose, false);
 	}
 
 	_toolbar = new QToolBar(this);
@@ -276,7 +275,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 		    connect(act, &QAction::triggered,
 		            [this, act, &obj] { toggle_unique_source_widget(act, obj, _source); });
-		},
+	    },
 	    PVDisplays::PVDisplayIf::ShowInToolbar & PVDisplays::PVDisplayIf::UniquePerParameters);
 
 	class PVToolbarComboViews : public QComboBox
@@ -342,7 +341,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 				        obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
 				        delete_on_close, pos);
 			    }
-			},
+		    },
 		    PVDisplays::PVDisplayIf::DefaultPresenceInSourceWorkspace);
 	}
 }
@@ -372,8 +371,8 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 		    connect(btn, &QToolButton::released, [this, &obj]() {
 			    create_view_widget(obj,
 			                       _toolbar_combo_views->currentData().value<Inendi::PVView*>());
-			});
+		    });
 		    //}
-		},
+	    },
 	    PVDisplays::PVDisplayIf::ShowInToolbar);
 }
