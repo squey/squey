@@ -26,7 +26,7 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
     PVFullParallelView* parent)
     : QToolBar(parent)
 {
-	auto density_action = addAction(QIcon(":/zoom-autofit-horizontal"), "Density on axes");
+	auto density_action = addAction(QIcon(":/density-axis"), "Density on axes");
 	density_action->setCheckable(true);
 	density_action->setChecked(false);
 	density_action->setShortcut(Qt::Key_D);
@@ -41,21 +41,12 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
 	auto dll_action = addWidget(density_legend_label);
 	dll_action->setVisible(false);
 	connect(density_action, &QAction::toggled, [this, dll_action](bool pushed) {
-		if (pushed) {
-			auto scene = static_cast<PVParallelView::PVFullParallelScene*>(parent_fpv()->scene());
-			scene->get_lines_view().set_axis_width(21);
-			scene->enable_density_on_axes(true);
-			scene->update_number_of_zones_async();
-			dll_action->setVisible(true);
-			adjustSize();
-		} else {
-			auto scene = static_cast<PVParallelView::PVFullParallelScene*>(parent_fpv()->scene());
-			scene->get_lines_view().set_axis_width(3);
-			scene->enable_density_on_axes(false);
-			scene->update_number_of_zones_async();
-			dll_action->setVisible(false);
-			adjustSize();
-		}
+		auto scene = static_cast<PVParallelView::PVFullParallelScene*>(parent_fpv()->scene());
+		scene->get_lines_view().set_axis_width(pushed ? 21 : 3);
+		scene->enable_density_on_axes(pushed);
+		scene->update_number_of_zones_async();
+		dll_action->setVisible(pushed);
+		adjustSize();
 	});
 	setVisible(true);
 }

@@ -203,6 +203,7 @@
 	<file alias="zoom-autofit-both">resources/zoom-autofit-both.png</file>
 	<file alias="zoom-autofit-horizontal">resources/zoom-autofit-horizontal.png</file>
 	<file alias="zoom-autofit-vertical">resources/zoom-autofit-vertical.png</file>
+	<file alias="density-axis">resources/density-axis.png</file>
 
 	<file alias="reload">resources/22x22/reload.png</file>
 	<file alias="refresh">resources/22x22/refresh.png</file>
