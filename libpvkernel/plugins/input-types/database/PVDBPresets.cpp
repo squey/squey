@@ -8,12 +8,15 @@
 #include "PVDBPresets.h"
 
 #include <pvbase/general.h>
+#include <pvkernel/core/PVConfig.h>
 
 #include <QSettings>
 #include <QStringList>
 
 PVRush::PVDBPresets::PVDBPresets()
-    : _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+    : _settings(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+                    PVCore::PVConfig::PRESETS_FILENAME,
+                QSettings::IniFormat)
 {
 	_settings.beginGroup(PV_SETTINGS_INPUT_DB "presets");
 }

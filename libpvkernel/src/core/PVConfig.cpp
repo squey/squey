@@ -20,7 +20,6 @@
 #include <QFileInfo>
 
 constexpr const char* GLOBAL_CONFIG_FILENAME = INENDI_CONFIG "/pvconfig.ini";
-constexpr const char* CONFIG_FILENAME = "config.ini";
 
 PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 
@@ -56,6 +55,13 @@ PVCore::PVConfig::PVConfig()
 			PVLOG_ERROR("%s file doesn't exists\n", fi.filePath().toLatin1().data());
 			throw std::runtime_error("No config file found");
 		}
+	}
+
+	// Compatibility with old presets file
+	QSettings old_presets(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME);
+	if (QFileInfo(old_presets.fileName()).exists()) {
+		QDir().rename(old_presets.fileName(),
+		              QString::fromStdString(user_dir()) + QDir::separator() + PRESETS_FILENAME);
 	}
 
 	_config = new QSettings(fi.filePath(), QSettings::IniFormat);

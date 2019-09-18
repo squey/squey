@@ -6,6 +6,7 @@
  */
 
 #include <pvbase/general.h>
+#include <pvkernel/core/PVConfig.h>
 #include <QSettings>
 #include <QStringList>
 #include "PVElasticsearchPresets.h"
@@ -14,7 +15,9 @@ const char PVRush::PVElasticsearchPresets::PV_SETTINGS_INPUT[] =
     "plugins/input_type/elasticsearch/";
 
 PVRush::PVElasticsearchPresets::PVElasticsearchPresets()
-    : _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+    : _settings(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+                    PVCore::PVConfig::PRESETS_FILENAME,
+                QSettings::IniFormat)
 {
 	_settings.beginGroup(QString(PV_SETTINGS_INPUT) + "presets");
 }

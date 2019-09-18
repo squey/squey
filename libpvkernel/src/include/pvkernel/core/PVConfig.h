@@ -19,6 +19,10 @@ namespace PVCore
 
 class PVConfig
 {
+  public:
+	static constexpr const char* CONFIG_FILENAME = "config.ini";
+	static constexpr const char* PRESETS_FILENAME = "presets.ini";
+
 	typedef std::shared_ptr<PVConfig> PVConfig_p;
 
   public:

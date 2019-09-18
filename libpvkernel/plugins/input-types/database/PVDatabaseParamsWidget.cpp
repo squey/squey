@@ -11,6 +11,7 @@
 #include "PVDBPreviewWidget.h"
 #include "PVInputTypeDatabase.h"
 
+#include <pvkernel/core/PVConfig.h>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -61,9 +62,12 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
                                                        PVRush::hash_formats const& formats,
                                                        QWidget* parent)
     : QDialog(parent)
-    , _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+    , _settings(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+                    PVCore::PVConfig::PRESETS_FILENAME,
+                QSettings::IniFormat)
     , _in_t(in_t)
 {
+
 	// Create the UI
 	setupUi(this);
 

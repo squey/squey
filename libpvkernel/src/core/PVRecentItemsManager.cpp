@@ -12,6 +12,7 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVSourceDescription.h> // for PVSourceDescription
 
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include "pvkernel/core/PVClassLibrary.h" // for LIB_CLASS, etc
 #include "pvkernel/core/PVOrderedMap.h"
@@ -262,8 +263,8 @@ PVCore::PVSerializedSource PVCore::PVRecentItemsManager::deserialize_source_desc
 
 static QString get_recent_items_file()
 {
-	QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR +
-	             QDir::separator() + RECENTS_FILENAME);
+	QFileInfo fi(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+	             RECENTS_FILENAME);
 
 	if (fi.exists() == false) {
 		fi.dir().mkpath(fi.path());
