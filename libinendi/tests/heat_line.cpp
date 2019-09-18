@@ -48,11 +48,11 @@ void check_line_validity(Inendi::PVLayer const& out, size_t line)
 	if (line == 0) {
 		PV_VALID((int)out.get_lines_properties().get_line_properties(line).h(), 126);
 	} else if (line == 12499) {
-		PV_VALID((int)out.get_lines_properties().get_line_properties(line).h(), 92);
+		PV_VALID((int)out.get_lines_properties().get_line_properties(line).h(), 68);
 	} else if (line < 12500) {
-		PV_VALID((int)out.get_lines_properties().get_line_properties(line).h(), 112);
+		PV_VALID((int)out.get_lines_properties().get_line_properties(line).h(), 101);
 	} else {
-		PV_VALID((int)out.get_lines_properties().get_line_properties(line).h(), 59);
+		PV_VALID((int)out.get_lines_properties().get_line_properties(line).h(), 10);
 	}
 }
 
