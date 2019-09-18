@@ -637,7 +637,7 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.render_all_zones_sel_image(view_x, view_width, _zoom_y);
-	// TODO optimize : update only visible axes
+
 	for (auto axis : _axes) {
 		axis->refresh_density();
 	}

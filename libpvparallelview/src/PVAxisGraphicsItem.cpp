@@ -467,10 +467,13 @@ void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 
 	_axis_density_worker_result = QImage(1, axis_length, QImage::Format::Format_ARGB32);
 
-	for (size_t i = 0; i < histogram.size(); i += 1) {
+	constexpr size_t density_spread = 3;
+	const size_t histo_size = histogram.size();
+	for (size_t i = 0; i < histo_size; ++i) {
 		size_t sum = 0;
-		for (size_t j = i >= 3 ? i - 3 : 0; j < std::min(i + 3, histogram.size()); ++j) {
-			sum += (3 - std::abs(int64_t(j) - int64_t(i))) * histogram[j];
+		for (size_t j = i >= density_spread ? i - density_spread : 0;
+		     j < std::min(i + density_spread, histo_size); ++j) {
+			sum += (density_spread - std::abs(int64_t(j) - int64_t(i))) * histogram[j];
 		}
 		_axis_density_worker_result.setPixelColor(
 		    0, axis_length - 1 - i,
