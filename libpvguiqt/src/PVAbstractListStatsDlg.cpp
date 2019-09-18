@@ -214,13 +214,13 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 			ratio3 = _relative_max_count / max_count();
 		}
 
-		color = QColor::fromHsv((ratio1) * (0 - 120) + 120, 255, 255);
+		color = QColor::fromHsv((ratio1) * (0 - 240) + 240, 255, 255);
 		gradient.setColorAt(0, color);
 
-		color = QColor::fromHsv((ratio2) * (0 - 120) + 120, 255, 255);
+		color = QColor::fromHsv((ratio2) * (0 - 240) + 240, 255, 255);
 		gradient.setColorAt(0.5, color);
 
-		color = QColor::fromHsv((ratio3) * (0 - 120) + 120, 255, 255);
+		color = QColor::fromHsv((ratio3) * (0 - 240) + 240, 255, 255);
 		gradient.setColorAt(1, color);
 
 		_range_ramp->set_gradient(gradient);
@@ -615,8 +615,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 
 		    pvcop::db::algo::range_select(col2_array, std::to_string(vmin), std::to_string(vmax),
 		                                  pvcop::db::selection(), sel);
-
-		},
+	    },
 	    QObject::tr("Computing selection..."), this);
 
 	// Update the viewport to display selection.
@@ -936,7 +935,7 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 		painter->fillRect(
 		    option.rect.x(), option.rect.y(), option.rect.width() * (log_scale ? log_ratio : ratio),
 		    option.rect.height(),
-		    QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 120) + 120, 255, 255));
+		    QColor::fromHsv((log_scale ? log_ratio : ratio) * (0 - 240) + 240, 255, 255));
 		painter->setPen(Qt::black);
 
 		const bool show_count = d()->_act_show_count->isChecked();

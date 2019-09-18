@@ -25,7 +25,7 @@ PVWidgets::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor(QWid
 {
 	set_selection_mode(PVColorPicker::SelectionInterval);
 	set_allow_empty_interval(false);
-	set_x0(HSV_COLOR_GREEN.h());
+	set_x0(HSV_COLOR_BLUE.h());
 	set_x1(HSV_COLOR_RED.h());
 }
 

@@ -111,8 +111,8 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 		_backend = _create_backend(axis, this);
 
 		/* computing the highest scene width to setup it... and do the first
-		* run to initialize the manager's buffers :-)
-		*/
+		 * run to initialize the manager's buffers :-)
+		 */
 		get_hit_graph_manager().change_and_process_view(0, 0, .5);
 		_max_count = get_hit_graph_manager().get_max_count_all();
 
@@ -174,8 +174,8 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 		        _backend = _create_backend(axis, this);
 
 		        /* computing the highest scene width to setup it... and do the first
-		        * run to initialize the manager's buffers :-)
-		        */
+		         * run to initialize the manager's buffers :-)
+		         */
 		        get_hit_graph_manager().change_and_process_view(0, 0, .5);
 		        _max_count = get_hit_graph_manager().get_max_count_all();
 
@@ -193,7 +193,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
 
 		        update_all();
 		        do_update_all();
-		    });
+	        });
 	set_y_legend(y_legend);
 	set_decoration_color(Qt::white);
 	set_ticks_per_level(8);
@@ -482,7 +482,7 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter* painter,
 		// using fillRect is faster than drawLine... 10 times faster
 		// for the color-ramp, it's: ratio * (RED - GREEN) + GREEN
 		painter->fillRect(0, y_val, vx, 1,
-		                  QColor::fromHsv(ratio * (0 - 120) + 120, 255, hsv_value));
+		                  QColor::fromHsv(ratio * (0 - 240) + 240, 255, hsv_value));
 	}
 }
 
@@ -647,7 +647,7 @@ void PVParallelView::PVHitCountView::toggle_show_labels()
 			    pbox.set_enable_cancel(false);
 			    pbox.set_extended_status("Computing Y-axis labels index");
 			    get_y_labels_cache().initialize();
-			},
+		    },
 		    "Initializing labels index...", this);
 	}
 
