@@ -92,6 +92,8 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	QRectF axes_scene_bounding_box() const;
 
+	void enable_density_on_axes(bool enable_density);
+
   protected:
 	/**
 	 * recompute the selected event number and update the displayed statistics
@@ -133,9 +135,10 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 		r.setTop(r.top() / _zoom_y);
 		r.setBottom(r.bottom() / _zoom_y);
 
-		const int32_t zone_width = _lines_view.get_zone_width(zone_index);
-		if (r.width() + r.x() > zone_width) {
-			r.setRight(zone_width - 1);
+		const int32_t total_zone_width =
+		    _lines_view.get_zone_width(zone_index) + _lines_view.get_axis_width();
+		if (r.width() + r.x() > total_zone_width) {
+			r.setRight(total_zone_width - 1);
 		}
 
 		return r;
@@ -247,6 +250,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	tbb::atomic<bool> _view_deleted;
 
 	bool _show_min_max_values;
+	bool _density_on_axes_enabled = false;
 };
 } // namespace PVParallelView
 

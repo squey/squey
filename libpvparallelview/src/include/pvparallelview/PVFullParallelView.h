@@ -33,6 +33,7 @@ namespace PVParallelView
 
 class PVRenderingJob;
 class PVFullParallelScene;
+class PVFullParallelViewParamsWidget;
 
 class PVFullParallelView : public QGraphicsView
 {
@@ -73,6 +74,7 @@ class PVFullParallelView : public QGraphicsView
 
   private:
 	PVWidgets::PVHelpWidget* _help_widget;
+	PVFullParallelViewParamsWidget* _params_widget;
 
 	uint32_t _total_events_number = 0;
 	uint32_t _selected_events_number = 0;

@@ -22,6 +22,7 @@ PVBCIBackendImageQPainter.cpp
 PVBCIDrawingBackendQPainter.cpp
 PVFullParallelScene.cpp
 PVFullParallelView.cpp
+PVFullParallelViewParamsWidget.cpp
 PVFullParallelViewSelectionRectangle.cpp
 PVHitGraphBlocksManager.cpp
 PVHitGraphBuffer.cpp
@@ -109,6 +110,7 @@ SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
+include/pvparallelview/PVFullParallelViewParamsWidget.h
 include/pvparallelview/PVSelectionRectangleItem.h
 include/pvparallelview/PVSelectionRectangle.h
 include/pvparallelview/PVZoomedParallelViewSelectionLine.h

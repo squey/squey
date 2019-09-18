@@ -11,7 +11,6 @@
 #include <QPainter>
 
 #define SLIDER_HALF_WIDTH 12
-#define SLIDER_WIDTH (2 * SLIDER_HALF_WIDTH + PVParallelView::AxisWidth)
 #define MARGIN 16
 
 /*****************************************************************************

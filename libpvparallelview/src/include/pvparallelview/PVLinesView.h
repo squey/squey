@@ -41,32 +41,26 @@ class PVLinesView
 	struct ZoneWidthWithZoomLevel {
 		constexpr static int default_base_width = PVParallelView::ZoneBaseWidth;
 
-		ZoneWidthWithZoomLevel()
-		{
-			_base_width = default_base_width;
-			_base_zoom_level = 0;
-		}
+		ZoneWidthWithZoomLevel() = default;
 
 		ZoneWidthWithZoomLevel(int16_t base_width, int16_t base_zoom_level)
+		    : _base_width(base_width), _base_zoom_level(base_zoom_level)
 		{
-			_base_width = base_width;
-			_base_zoom_level = base_zoom_level;
 		}
 
-		void decrease_zoom_level();
-
-		int16_t get_base_zoom_level() const;
-		int16_t get_base_width() const;
-
-		uint32_t get_width() const;
-
-		void increase_zoom_level();
+		int16_t get_base_width() const { return _base_width; }
+		int16_t get_base_zoom_level() const { return _base_zoom_level; }
 
 		void set_base_width(int16_t base_width);
 		void set_base_zoom_level(int16_t base_zoom_level);
 
-		int16_t _base_width;
-		int16_t _base_zoom_level;
+		uint32_t get_width() const;
+
+		void increase_zoom_level();
+		void decrease_zoom_level();
+
+		int16_t _base_width = default_base_width;
+		int16_t _base_zoom_level = 0;
 	};
 
   public:
@@ -127,6 +121,7 @@ class PVLinesView
 	}
 
 	uint32_t get_left_border_position_of_zone_in_scene(size_t zone_index) const;
+	uint32_t get_right_border_of_scene() const;
 
 	size_t get_zone_index_from_scene_pos(int32_t abs_pos) const;
 	size_t get_zone_index_offset(size_t zone_index) const
@@ -155,6 +150,9 @@ class PVLinesView
 	void render_single_zone_images(size_t zone_index, const float zoom_y);
 	void render_single_zone_bg_image(size_t zone_index, const float zoom_y);
 	void render_single_zone_sel_image(size_t zone_index, const float zoom_y);
+
+	uint32_t get_axis_width() const { return _axis_width; }
+	void set_axis_width(uint32_t width);
 
 	void translate(int32_t view_x, uint32_t view_width, const float zoom_y);
 
@@ -216,6 +214,8 @@ class PVLinesView
 
 	PVZonesManager const& _zm;
 	uint32_t _zone_max_width;
+
+	uint32_t _axis_width = PVParallelView::AxisWidth;
 };
 } // namespace PVParallelView
 
