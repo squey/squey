@@ -23,6 +23,7 @@
 static constexpr const char* INENDI_ORGANISATION = "ESI Group";
 static constexpr const char* INENDI_APPLICATIONNAME = "INENDI Inspector";
 
+static constexpr const char* INENDI_GLOBAL_LICENSE_PATH = "/opt/inendi/inspector.lic";
 static constexpr const char* INENDI_LICENSE_PATH = "~/.inendi/licenses/inspector.lic";
 static constexpr const char* INENDI_LICENSE_PREFIX = "II";
 static constexpr const char* INENDI_LICENSE_FEATURE = "INSPECTOR";
