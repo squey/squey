@@ -117,8 +117,9 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 		r.setLeft(std::clamp(rleft - axis_width, 0, zone_width));
 		r.setRight(std::clamp(rright - axis_width, 0, zone_width));
 		PVSelectionGenerator::compute_selection_from_parallel_view_rect(
-		    zone_width, lines_view.get_zones_manager().get_zone_tree(
-		                    lines_view.get_zones_manager().get_zone_id(z)),
+		    zone_width,
+		    lines_view.get_zones_manager().get_zone_tree(
+		        lines_view.get_zones_manager().get_zone_id(z)),
 		    r, sel);
 	}
 
@@ -139,7 +140,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::store()
 	const auto axis_width = lines_view.get_axis_width();
 
 	const auto barycenter_store = [axis_width, &lines_view, &scene](
-	    size_t& zone_index, double& factor, const double abs_pos) {
+	                                  size_t& zone_index, double& factor, const double abs_pos) {
 		zone_index = lines_view.get_zone_index_from_scene_pos(abs_pos);
 		const double zone_width = lines_view.get_zone_width(zone_index);
 		const double x_pos = scene.map_to_axis(zone_index, QPointF(abs_pos, 0)).x();
