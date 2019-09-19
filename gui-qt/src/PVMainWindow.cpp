@@ -541,7 +541,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 					PVLOG_ERROR("Format not saved.");
 					return;
 				}
-				guess_format.set_format_name(format_name);
+				guess_format.set_full_path(format_name);
 				formats[format_name] = guess_format;
 				for (auto& src_cr : lcr) {
 					PVRush::hash_format_creator::mapped_type v(guess_format, src_cr);

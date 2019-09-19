@@ -33,19 +33,17 @@ static const std::unordered_set<std::string> SUPPORTED_TYPES = {
     "number_int8",  "number_float",  "number_double", "time",
     "duration",     "ipv4",          "ipv6",          "mac_address"};
 
-PVRush::PVFormat::PVFormat() : format_name(""), full_path(""), _have_grep_filter(false)
+PVRush::PVFormat::PVFormat() : _format_name(""), _full_path(""), _have_grep_filter(false)
 {
 }
 
-PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_) : PVFormat()
+PVRush::PVFormat::PVFormat(QString const& format_name, QString const& full_path)
+    : _format_name(format_name), _full_path(full_path), _have_grep_filter(false)
 {
-	full_path = full_path_;
-	format_name = format_name_;
-
-	if (format_name.isEmpty() && !full_path.isEmpty()) {
-		QFileInfo info(full_path);
+	if (_format_name.isEmpty() && !_full_path.isEmpty()) {
+		QFileInfo info(_full_path);
 		QString basename = info.baseName();
-		format_name = basename;
+		_format_name = basename;
 	}
 	populate();
 }
@@ -59,7 +57,7 @@ PVRush::PVFormat PVRush::PVFormat::add_input_name_column() const
 {
 	PVRush::PVFormat new_format;
 
-	PVRush::PVXmlParamParser xml_parser(full_path, true);
+	PVRush::PVXmlParamParser xml_parser(_full_path, true);
 	new_format.populate_from_parser(xml_parser);
 
 	return new_format;
@@ -314,8 +312,8 @@ pvcop::formatter_desc_list PVRush::PVFormat::get_storage_format() const
 
 bool PVRush::PVFormat::populate()
 {
-	if (!full_path.isEmpty()) {
-		return populate_from_xml(full_path);
+	if (!_full_path.isEmpty()) {
+		return populate_from_xml(_full_path);
 	}
 
 	throw std::runtime_error("We can't populate format without file");
@@ -323,17 +321,27 @@ bool PVRush::PVFormat::populate()
 
 void PVRush::PVFormat::set_format_name(QString const& name)
 {
-	format_name = name;
+	_format_name = name;
+}
+
+void PVRush::PVFormat::set_full_path(QString const& full_path)
+{
+	_full_path = full_path;
+	if (_format_name.isEmpty() && !_full_path.isEmpty()) {
+		QFileInfo info(_full_path);
+		QString basename = info.baseName();
+		_format_name = basename;
+	}
 }
 
 QString const& PVRush::PVFormat::get_format_name() const
 {
-	return format_name;
+	return _format_name;
 }
 
 QString const& PVRush::PVFormat::get_full_path() const
 {
-	return full_path;
+	return _full_path;
 }
 
 bool PVRush::PVFormat::is_valid() const
@@ -473,7 +481,7 @@ PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellatio
 
 std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_elt() const
 {
-	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
+	PVLOG_INFO("Create filters for format %s\n", qPrintable(_format_name));
 
 	std::unique_ptr<PVFilter::PVElementFilterByAxes> filter_by_axes(
 	    new PVFilter::PVElementFilterByAxes(_fields_mask));
@@ -549,10 +557,10 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.set_current_status("Saving format...");
-	so.attribute_write("name", format_name);
+	so.attribute_write("name", _format_name);
 
-	QFileInfo fi(full_path);
+	QFileInfo fi(_full_path);
 	QString fname = fi.fileName();
-	so.file_write(fname, full_path);
+	so.file_write(fname, _full_path);
 	so.attribute_write("filename", fname);
 }
