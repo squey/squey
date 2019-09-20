@@ -33,9 +33,7 @@ static const std::unordered_set<std::string> SUPPORTED_TYPES = {
     "number_int8",  "number_float",  "number_double", "time",
     "duration",     "ipv4",          "ipv6",          "mac_address"};
 
-PVRush::PVFormat::PVFormat() : _format_name(""), _full_path(""), _have_grep_filter(false)
-{
-}
+PVRush::PVFormat::PVFormat() : _format_name(""), _full_path(""), _have_grep_filter(false) {}
 
 PVRush::PVFormat::PVFormat(QString const& format_name, QString const& full_path)
     : _format_name(format_name), _full_path(full_path), _have_grep_filter(false)

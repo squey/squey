@@ -500,7 +500,12 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				file_type_found = true;
 				discovered[custom_formats.keys()[0]] = inputs;
 			}
-		} else if (choosenFormat != "custom") {
+		} else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
+			file_type_found = false;
+		} else if (choosenFormat == "custom") {
+			file_type_found = true;
+			discovered["custom"] = inputs;
+		} else {
 			QFileInfo fi(choosenFormat);
 			QString format_name = choosenFormat;
 			PVRush::PVFormat format(format_name, choosenFormat);
@@ -513,9 +518,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				file_type_found = true;
 				discovered[format_name] = inputs;
 			}
-		} else {
-			file_type_found = true;
-			discovered["custom"] = inputs;
 		}
 	} catch (const PVRush::PVInvalidFile& e) {
 		QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
@@ -525,7 +527,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	treat_invalid_formats(formats_error);
 
 	// First, try complete autodetection
-	if (!file_type_found) {
+	if (!file_type_found and choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) != 0) {
 		for (auto& input : inputs) {
 			try {
 				PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(this);
@@ -534,12 +536,18 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				    editorWidget->load_log_and_guess_format(input, in_t);
 				if (not guess_format.is_valid() or not editorWidget->close()) {
 					PVLOG_ERROR("Could not autodetect format.");
-					return;
+					QDialog editor_dialog(this);
+					editor_dialog.setModal(true);
+					auto size = editorWidget->size();
+					editorWidget->setParent(&editor_dialog);
+					editor_dialog.resize(size);
+					editorWidget->move(0, 0);
+					editor_dialog.exec();
 				}
 				auto format_name = editorWidget->get_current_format_name();
 				if (format_name.isEmpty() or not QFile::exists(format_name)) {
 					PVLOG_ERROR("Format not saved.");
-					return;
+					break;
 				}
 				guess_format.set_full_path(format_name);
 				formats[format_name] = guess_format;
@@ -551,7 +559,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				file_type_found = true;
 			} catch (const PVRush::PVInvalidFile& e) {
 				QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
-				return;
+				break;
 			}
 		}
 	}
@@ -904,7 +912,6 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 
 	auto ret = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
-
 		    pbox.set_cancel2_btn_text("Stop and process");
 		    pbox.set_cancel_btn_text("Discard");
 		    pbox.set_confirmation(true);
@@ -962,7 +969,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 			    pbox.set_canceled();
 			    return;
 		    }
-		},
+	    },
 	    QString("Extracting %1...").arg(src->get_format_name()), this);
 
 	if (ret == PVCore::PVProgressBox::CancelState::CANCEL) {
@@ -1038,7 +1045,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 		        plotted.emplace_add_child();
 
 		        pbox.set_value(3);
-		    },
+	        },
 	        tr("Processing..."), (QWidget*)this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		return false;
 	}

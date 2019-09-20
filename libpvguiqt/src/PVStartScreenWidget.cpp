@@ -365,7 +365,12 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 				p.push_back(dial.get_password().toStdString());
 			}
 		}
-		Q_EMIT load_source_from_description(PVRush::PVSourceDescription(ss));
+		try {
+			Q_EMIT load_source_from_description(PVRush::PVSourceDescription(ss));
+		} catch (std::runtime_error& e) {
+			PVLOG_ERROR(e.what());
+			refresh_all_recent_items();
+		}
 		break;
 	}
 	case PVCore::Category::EDITED_FORMATS:
@@ -625,6 +630,8 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 	QPushButton* clear_button = _recent_push_buttons[PVCore::Category::SOURCES];
 	list->setObjectName("RecentProjectItem");
 	list->clear();
+
+	PVCore::PVRecentItemsManager::get().clear_missing_files();
 
 	uint64_t index = 0;
 	for (auto const& sd :

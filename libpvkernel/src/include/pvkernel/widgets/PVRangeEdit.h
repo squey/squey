@@ -72,12 +72,12 @@ class PVNumberRangeEdit : public PVRangeEdit
 		        [&](T value) {
 			        _to_widget->setMinimum(value);
 			        update_minmax(value, false);
-			    });
+		        });
 		connect(_to_widget, static_cast<void (SpinType::*)(T)>(&SpinType::valueChanged),
 		        [&](T value) {
 			        _from_widget->setMaximum(value);
 			        update_minmax(value, true);
-			    });
+		        });
 		connect(_ok, &QPushButton::clicked, [&]() { _validate_f(_minmax); });
 	}
 
@@ -157,13 +157,13 @@ class PVDoubleRangeEdit : public PVRangeEdit
 		        [&](double value) {
 			        _to_widget->setMinimum(value);
 			        update_minmax(value, false);
-			    });
+		        });
 		connect(_to_widget,
 		        static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
 		        [&](double value) {
 			        _from_widget->setMaximum(value);
 			        update_minmax(value, true);
-			    });
+		        });
 		connect(_ok, &QPushButton::clicked, [&]() { _validate_f(_minmax); });
 	}
 
