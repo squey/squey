@@ -671,6 +671,7 @@
         {
           "type": "git",
           "path": "..",
+          "disable-shallow-clone": true,
           "branch": "@@BRANCH_NAME@@"
         }
       ],
