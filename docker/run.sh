@@ -10,4 +10,6 @@
 # GOOD
 # echo "kernel.unprivileged_userns_clone = 1" | sudo tee -a /etc/sysctl.d/00-local-userns.conf && sudo sysctl --system
 #docker run --cap-add SYS_ADMIN --cap-add SYS_CHROOT --security-opt apparmor=unconfined --security-opt seccomp=unconfined --runtime=nvidia --rm --name inendi-inspector -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 8443:8443 -d inendi/inspector
-docker run --privileged --runtime=nvidia --rm --name inendi-inspector -v /sys/fs/cgroup:/sys/fs/cgroup:ro -p 8443:8443 -d inendi/inspector
+docker run --privileged --runtime=nvidia --rm --name inendi-inspector -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /home/jbleonesio/dev/inendi-inspector/docker/dcvlogin:/opt/inendi/inspector/dcvlogin -p 443:443 -d inendi/inspector
+
+#  docker run --privileged -p 6080:80 -v /dev/shm:/dev/shm dorowu/ubuntu-desktop-lxde-vnc

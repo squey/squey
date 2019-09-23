@@ -1,5 +1,12 @@
-/opt/inspector-install/cuda-devices
-/opt/inspector-install/inspector_loop.sh &
+!#/bin/bash
 
-xsetroot -solid "#0b2f40"
-exec /usr/bin/kwin
+kwin_pid=`pidof kwin`
+if [ -z ${kwin_pid} ] || [ `ps -o uname= -p ${kwin_pid}` != "${USER}" ]
+then
+        /opt/inendi/inspector/cuda-devices
+        xsetroot -solid "#0b2f40"
+        XDG_CONFIG_HOME=/etc/kde5 /usr/bin/kwin &
+fi
+
+#xterm
+/opt/inendi/inspector/inspector_loop.sh

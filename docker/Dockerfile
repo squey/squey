@@ -15,6 +15,8 @@ RUN cat /etc/apt/sources.list
 RUN apt-get update && \
 apt-get -y install apt-utils pkg-config libglvnd-dev mesa-utils libglu1-mesa libglu1 ocl-icd-libopencl1 pciutils xfonts-base \
 lightdm xorg xserver-xorg-input-all xinit xserver-xorg xserver-xorg-video-all xserver-xorg-video-dummy xutils-dev kwin && \
+apt-get install -y python3 python3-pip crudini && \
+apt-get install -y nginx ssl-cert && \
 apt-get install -y pocl-opencl-icd mesa-utils ocl-icd-libopencl1 clinfo && \
 echo "/usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
 apt-get -yq install awscli wget patch xxd xterm && \
@@ -41,7 +43,7 @@ RUN echo "vm.max_map_count=1966080" > /etc/sysctl.d/00-local-max_map_count.conf
     
 # Download/install data
 RUN mkdir -p "${INSTALL_PATH}"
-COPY download_files.sh config.env .config.env data/* "${INSTALL_PATH}/"
+COPY download_files.sh env.conf .env.conf data/* "${INSTALL_PATH}/"
 RUN "${INSTALL_PATH}/download_files.sh" "${INSTALL_MODE}"
 
 # Workaround to avoid nvidia drivers to prevent flatpak container to be executed
@@ -57,6 +59,7 @@ RUN bash -c "patch -p1 /var/lib/dpkg/info/nice-dcv-server.postinst < ${INSTALL_P
 RUN rm -rf /opt/nice-dcv-*/nice-dcv-server*.deb
 RUN bash -c "dpkg -i /opt/nice-dcv-*/*.deb"; exit 0
 RUN apt-get --fix-broken install -y
+RUN systemctl enable dcvserver.service
 
 # Configure DCV license server
 ARG DCV_LICENSE_SERVER
@@ -68,21 +71,35 @@ RUN cp /usr/lib/x86_64-linux-gnu/dcv-gl/libGL* /var/lib/dcv-gl/flatpak
 RUN chmod +x "${INSTALL_PATH}/patch_strings_in_file.sh"
 RUN "${INSTALL_PATH}/patch_strings_in_file.sh" "/var/lib/dcv-gl/flatpak/libGL_WRAPPER.so.1.0.0" "%s/dcv-gl/libGL_DCV.so" "libGL_DCV.so"
 
-# Configure DCV session
-COPY dcvsessioninit /etc/dcv/dcvsessioninit
+# Configure DCV login handling
+COPY dcvsessioninit /etc/dcv/
 RUN chmod +x /etc/dcv/dcvsessioninit
-RUN cp "${INSTALL_PATH}/dcvsession.service" /lib/systemd/system
-RUN systemctl enable dcvserver.service
-RUN systemctl enable dcvsession.service
+COPY dcvlogin "${INSTALL_PATH}/dcvlogin"
+RUN chmod +x "${INSTALL_PATH}/dcvlogin/dcvlogin.py"
+RUN pip3 install --system --requirement "${INSTALL_PATH}/dcvlogin/requirements.txt"
+RUN sed -i "s|#auth-token-verifier=\(.*\)|auth-token-verifier=\"http://127.0.0.1:8444\"|g" /etc/dcv/dcv.conf
+RUN ln  -s "${INSTALL_PATH}/dcvlogin/dcvlogin.service" /lib/systemd/system &> /dev/null || true
+RUN rm -rf /etc/nginx/sites-available/default &> /dev/null || true
+RUN ln  -s "${INSTALL_PATH}/dcvlogin/nginx_proxy" /etc/nginx/sites-available/default &> /dev/null || true
+RUN systemctl enable nginx
+RUN systemctl enable dcvlogin
+RUN systemctl enable dcvsimpleextauth
 
 # Configure INENDI Inspector
-COPY inspector_loop.sh "${INSTALL_PATH}/inspector_loop.sh"
+COPY inspector_loop.sh "${INSTALL_PATH}/"
 RUN chmod +x "${INSTALL_PATH}/inspector_loop.sh"
-RUN chmod +x "${INSTALL_PATH}"/cuda-devices
+RUN chmod +x "${INSTALL_PATH}/cuda-devices"
 RUN mkdir -p /srv/tmp-inspector
 RUN useradd --system inendi
 RUN chown inendi: /srv/tmp-inspector
 RUN chmod g+w /srv/tmp-inspector
+
+# Configure KWin window manager
+RUN mkdir /etc/kde5
+RUN ln -s "${INSTALL_PATH}/kwinrc" /etc/kde5 &> /dev/null || true
+RUN ln -s "${INSTALL_PATH}/kwinrulesrc" /etc/kde5 &> /dev/null || true
+RUN chown inendi: /etc/kde5
+RUN chmod g+w /etc/kde5 -R
 
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source config.env
-source .config.env
+source env.conf
+source .env.conf
 
 INSTALL_MODE="online"
 [[ -d "data" ]] && INSTALL_MODE="offline"

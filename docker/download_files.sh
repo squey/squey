@@ -2,7 +2,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source "${DIR}/.config.env"
+source "${DIR}/.env.conf"
 
 install_mode="$1"
 if [ "$#" -eq 0 ]
