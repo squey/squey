@@ -608,11 +608,11 @@ bool PVInspector::PVFormatBuilderWidget::check_format_validity()
 		return true;
 	}
 
-	auto res =
-	    QMessageBox::warning(this, "Invalid format...", "Your format has less than 2 axes and will "
-	                                                    "not be usable to import any data.<br><br>"
-	                                                    "Do you want to save it anyway?",
-	                         QMessageBox::Yes | QMessageBox::No);
+	auto res = QMessageBox::warning(this, "Invalid format...",
+	                                "Your format has less than 2 axes and will "
+	                                "not be usable to import any data.<br><br>"
+	                                "Do you want to save it anyway?",
+	                                QMessageBox::Yes | QMessageBox::No);
 
 	return res == QMessageBox::Yes;
 }
@@ -725,7 +725,7 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 		    if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL) {
 			    return;
 		    }
-		},
+	    },
 	    QObject::tr("Autodetecting axes types..."), nullptr);
 
 	// TODO : it would be nice to ignore axes set by user...
@@ -932,6 +932,21 @@ void PVInspector::PVFormatBuilderWidget::get_source_creator_from_inputs(
 			break;
 		}
 	}
+}
+
+PVRush::PVFormat PVInspector::PVFormatBuilderWidget::load_log_and_guess_format(
+    const PVRush::PVInputDescription_p input, const PVRush::PVInputType_p& input_type)
+{
+	_log_input_type = input_type;
+
+	_inputs.clear();
+	_inputs.push_back(input);
+
+	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+
+	_cur_file = input->human_name() + ".format";
+
+	return get_format_from_dom();
 }
 
 /******************************************************************************

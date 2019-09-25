@@ -111,6 +111,8 @@ class PVRecentItemsManager
 	get_string_from_entry(PVCore::PVSerializedSource const& sd) const;
 	std::tuple<QString, QStringList> get_string_from_entry(PVRush::PVFormat const& f) const;
 
+	void clear_missing_files();
+
   private:
 	// Helper function to call a generic lambda on every category at compile time.
 	// Could be improve with generic lambda (cxx14) for now, we use only functors ...
@@ -129,8 +131,6 @@ class PVRecentItemsManager
 	 * items.
 	 */
 	uint64_t get_source_timestamp_to_replace(const PVRush::PVSourceDescription& source_description);
-
-	void clear_missing_files();
 
   private:
 	/*! \brief Return a list of recent items of a given category as a list of QString.

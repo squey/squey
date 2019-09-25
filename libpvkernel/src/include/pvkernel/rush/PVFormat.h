@@ -101,6 +101,8 @@ class PVFormat
 	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix,
 	                                                            QString const& dir);
 
+	void set_format_name(QString const& name);
+	void set_full_path(QString const& full_path);
 	QString const& get_format_name() const;
 	QString const& get_full_path() const;
 
@@ -133,8 +135,8 @@ class PVFormat
 	static PVFormat serialize_read(PVCore::PVSerializeObject& so);
 
   private:
-	QString format_name; // human readable name, displayed in a widget for instance
-	QString full_path;
+	QString _format_name; // human readable name, displayed in a widget for instance
+	QString _full_path;
 
 	// List of filters to apply
 	PVRush::PVXmlParamParser::list_params filters_params;

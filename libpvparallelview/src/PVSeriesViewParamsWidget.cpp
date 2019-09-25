@@ -40,14 +40,14 @@ void PVParallelView::PVSeriesViewParamsWidget::add_abscissa_selector(PVCol axis)
 	    PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes, [this](PVCol axis, PVCombCol) {
 		    return PVDisplays::display_view_if<PVDisplays::PVDisplayViewTimeseries>()
 		        .abscissa_filter(_series_view_widget->_view, axis);
-		});
+	    });
 	_abscissa_selector->set_current_axis(axis);
 	addWidget(_abscissa_selector);
 	connect(_abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
 	        [this](PVCol axis, PVCombCol) {
 		        _series_view_widget->set_abscissa(axis);
 		        change_abscissa(axis);
-		    });
+	        });
 }
 
 void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
@@ -65,7 +65,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
 		        _series_view_widget->set_split(axis);
 		        _series_view_widget->setup_series_tree(axis);
 		        _series_view_widget->setup_selected_series_tree(axis);
-		    });
+	        });
 }
 
 void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enable)
@@ -88,7 +88,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enab
 		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 		        [sel](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
 			        sel->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Selecting);
-			    });
+		        });
 	});
 	if (enable) {
 		_bind_connections.back()();
@@ -116,7 +116,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator(bool enable
 		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 		        [hunt](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
 			        hunt->setChecked(mode == PVSeriesViewZoomer::SelectorMode::Hunting);
-			    });
+		        });
 	});
 	if (enable) {
 		_bind_connections.back()();
