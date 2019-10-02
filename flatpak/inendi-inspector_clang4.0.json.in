@@ -455,6 +455,8 @@
         "-sql-mysql",
         "-sql-sqlite",
         "-platform", "linux-g++",
+        "-opengl", "es2",
+        "-opengles3",
         "-optimized-qmake",
         "-nomake", "examples",
         "-nomake", "tests",
