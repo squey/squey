@@ -31,7 +31,7 @@ reg add "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
 set stop_vcxsrv=false
 tasklist /fi "imagename eq vcxsrv.exe" | find "vcxsrv.exe" > nul 2>&1
 if %errorlevel% == 1 (
-	start "VcXsrv windows xserver.exe" "%inspector_path%\VcXsrv\vcxsrv.exe" :0 -ac -terminate -lesspointer -multiwindow -multimonitors -clipboard -nowgl -dpi auto -notrayicon -swrastwgl 
+	start "VcXsrv windows xserver.exe" "%inspector_path%\VcXsrv\vcxsrv.exe" :0 -ac -terminate -lesspointer -multiwindow -multimonitors -clipboard -dpi auto -notrayicon -swrastwgl 
 	set stop_vcxsrv=true
 )
 
