@@ -469,7 +469,7 @@ void main(void) {
 	if (lineColor[1].a == 0.0) {
 		geolineColor = lineColor[0];
 		bool adjust = gl_in[0].gl_Position.x < 0.0;
-		gl_Position.xy = gl_in[0].gl_Position.xy + vec2(fma(float(adjust), 2.0, -1.0)*2/size.w, 0);
+		gl_Position.xy = gl_in[0].gl_Position.xy + vec2(fma(float(adjust), 2.0, -1.0)*2.0/size.w, 0.0);
 		EmitVertex();
 		return;
 	}
@@ -498,14 +498,14 @@ void emitShortVertex(in const int index)
 
 vec2 emitLongVertex(in const int index)
 {
-	geolineColor = vec4(lineColor[index].rgb, 1);
+	geolineColor = vec4(lineColor[index].rgb, 1.0);
 	int vertexId = int(gl_in[index].gl_Position.x) % int(size.z) + (int(gl_in[index].gl_Position.y) & max_value);
-	const int valindex = index + 1;
+	int valindex = index + 1;
 	vec2 wvertex;
-	wvertex.x = vertexId / (size.z - 1);
+	wvertex.x = float(vertexId) / (size.z - 1.0);
 	wvertex.x = fma(wvertex.x, 2.0, -1.0);
-	if (lineColor[valindex].a == 0) {
-		wvertex.y = (int(gl_in[valindex].gl_Position.y) & max_value) / float(max_value);
+	if (lineColor[valindex].a == 0.0) {
+		wvertex.y = float(int(gl_in[valindex].gl_Position.y) & max_value) / float(max_value);
 		wvertex.y = fma(wvertex.y, 2.0, -1.0);
 	} else {
 		wvertex.y = gl_in[valindex].gl_Position.y;
@@ -517,30 +517,30 @@ vec2 emitLongVertex(in const int index)
 
 void main(void) {
 	if (gl_PrimitiveIDIn == 0) {
-		if (lineColor[0].a != 0 && lineColor[1].a != 0) {
+		if (lineColor[0].a != 0.0 && lineColor[1].a != 0.0) {
 			emitShortVertex(0);
 			emitShortVertex(1);
-		} else if (lineColor[0].a != 0) {
+		} else if (lineColor[0].a != 0.0) {
 			emitShortVertex(0);
 			emitLongVertex(1);
 		} else {
 			vec2 wert = emitLongVertex(0);
-			geolineColor = vec4(lineColor[0].rgb, 1);
-			gl_Position.xy = vec2(-1, wert.y);
+			geolineColor = vec4(lineColor[0].rgb, 1.0);
+			gl_Position.xy = vec2(-1.0, wert.y);
 			EmitVertex();
 		}
 		EndPrimitive();
 	}
-	if (gl_PrimitiveIDIn == size.z - 4 && lineColor[2].a != 0 && lineColor[3].a != 0) {
+	if (gl_PrimitiveIDIn == int(size.z) - 4 && lineColor[2].a != 0.0 && lineColor[3].a != 0.0) {
 		emitShortVertex(2);
 		emitShortVertex(3);
 		EndPrimitive();
 	}
-	if (lineColor[1].a == 0) {
+	if (lineColor[1].a == 0.0) {
 		return;
 	}
 	emitShortVertex(1);
-	if (lineColor[2].a == 0) {
+	if (lineColor[2].a == 0.0) {
 		emitLongVertex(2);
 	} else {
 		emitShortVertex(2);
@@ -548,20 +548,20 @@ void main(void) {
 })";
 
 	std::string_view fragment_shader_Lines =
-"#version 320 es\n" SHADER(
-smooth in vec4 geolineColor;
-out vec4 FragColor;
+"#version 320 es\n" R"(
+smooth in mediump vec4 geolineColor;
+out mediump vec4 FragColor;
 void main(void) {
 	FragColor = geolineColor;
-});
+})";
 
 	std::string_view fragment_shader_Points =
-"#version 320 es\n" SHADER(
-smooth in vec4 lineColor;
-out vec4 FragColor;
+"#version 320 es\n" R"(
+smooth in mediump vec4 lineColor;
+out mediump vec4 FragColor;
 void main(void) {
 	FragColor = lineColor;
-});
+})";
 
 	_program_Lines = std::make_unique<QOpenGLShaderProgram>(context());
 	_program_Lines->addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_shader.data());
