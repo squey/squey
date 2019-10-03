@@ -18,15 +18,15 @@
 // WORKAROUND
 void gluPerspective(double fovy, double aspect, double zNear, double zFar)
 {
-	// Start in projection mode.
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	double xmin, xmax, ymin, ymax;
-	ymax = zNear * tan(fovy * M_PI / 360.0);
-	ymin = -ymax;
-	xmin = ymin * aspect;
-	xmax = ymax * aspect;
-	glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
+	// // Start in projection mode.
+	// glMatrixMode(GL_PROJECTION);
+	// glLoadIdentity();
+	// double xmin, xmax, ymin, ymax;
+	// ymax = zNear * tan(fovy * M_PI / 360.0);
+	// ymin = -ymax;
+	// xmin = ymin * aspect;
+	// xmax = ymax * aspect;
+	// glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
 }
 
 QDialog* PVGuiQt::PVLogoScene::createDialog(const QString& windowTitle) const
@@ -68,39 +68,39 @@ void PVGuiQt::PVLogoScene::drawBackground(QPainter* painter, const QRectF&)
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (m_model) {
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		gluPerspective(70, width() / height(), 0.01, 1000);
+	// if (m_model) {
+	// 	glMatrixMode(GL_PROJECTION);
+	// 	glPushMatrix();
+	// 	glLoadIdentity();
+	// 	gluPerspective(70, width() / height(), 0.01, 1000);
 
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
+	// 	glMatrixMode(GL_MODELVIEW);
+	// 	glPushMatrix();
+	// 	glLoadIdentity();
 
-		// const float pos[] = { (m_lightPosition.x - width() / 2), (height() / 2 -
-		// m_lightPosition.y), m_lightPosition.z, 0 };
-		// glLightfv(GL_LIGHT0, GL_POSITION, pos);
-		glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
+	// 	// const float pos[] = { (m_lightPosition.x - width() / 2), (height() / 2 -
+	// 	// m_lightPosition.y), m_lightPosition.z, 0 };
+	// 	// glLightfv(GL_LIGHT0, GL_POSITION, pos);
+	// 	glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
 
-		const int delta = m_time.elapsed() - m_lastTime;
-		m_rotation += m_angularMomentum * (delta / 1000.0);
-		m_lastTime += delta;
+	// 	const int delta = m_time.elapsed() - m_lastTime;
+	// 	m_rotation += m_angularMomentum * (delta / 1000.0);
+	// 	m_lastTime += delta;
 
-		glTranslatef(0, 0, -m_distance);
-		glRotatef(m_rotation.x, 1, 0, 0);
-		glRotatef(m_rotation.y, 0, 1, 0);
-		glRotatef(m_rotation.z, 0, 0, 1);
+	// 	glTranslatef(0, 0, -m_distance);
+	// 	glRotatef(m_rotation.x, 1, 0, 0);
+	// 	glRotatef(m_rotation.y, 0, 1, 0);
+	// 	glRotatef(m_rotation.z, 0, 0, 1);
 
-		glEnable(GL_MULTISAMPLE);
-		m_model->render(m_wireframeEnabled, m_normalsEnabled);
-		glDisable(GL_MULTISAMPLE);
+	// 	glEnable(GL_MULTISAMPLE);
+	// 	m_model->render(m_wireframeEnabled, m_normalsEnabled);
+	// 	glDisable(GL_MULTISAMPLE);
 
-		glPopMatrix();
+	// 	glPopMatrix();
 
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-	}
+	// 	glMatrixMode(GL_PROJECTION);
+	// 	glPopMatrix();
+	// }
 
 	painter->endNativePainting();
 

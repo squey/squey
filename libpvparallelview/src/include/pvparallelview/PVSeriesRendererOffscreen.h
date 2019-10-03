@@ -32,7 +32,8 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 	    : PVSeriesAbstractRenderer(rss), QOffscreenSurface(), _gl_renderer(rss)
 	{
 		QSurfaceFormat format;
-		format.setVersion(4, 3);
+		format.setRenderableType(QSurfaceFormat::OpenGLES);
+		format.setVersion(3, 2);
 		format.setProfile(QSurfaceFormat::CoreProfile);
 		setFormat(format);
 		QOffscreenSurface::create();
@@ -44,7 +45,8 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 	{
 		static const bool s_offscreenopengl_capable = [] {
 			QSurfaceFormat format;
-			format.setVersion(4, 3);
+			format.setRenderableType(QSurfaceFormat::OpenGLES);
+			format.setVersion(3, 2);
 			format.setProfile(QSurfaceFormat::CoreProfile);
 
 			QOffscreenSurface offsc;
@@ -63,8 +65,8 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 			qogl.setFormat(offsc.format());
 			if (not qogl.create()) {
 				qDebug() << "Could not create a QOpenGLContext out of the QOffscreenSurface";
-			} else if (qogl.format().version() < qMakePair(4, 3)) {
-				qDebug() << "Expecting 4.3+ but QOffscreenSurface could only deliver "
+			} else if (qogl.format().version() < qMakePair(3, 2)) {
+				qDebug() << "Expecting 3.2+ but QOffscreenSurface could only deliver "
 				         << qogl.format().version();
 			} else if (not qogl.makeCurrent(&offsc)) {
 				qDebug() << "Could not make QOpenGLContext current on QOffscreenSurface";
