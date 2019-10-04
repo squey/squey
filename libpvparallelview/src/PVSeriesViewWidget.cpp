@@ -107,10 +107,10 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 		_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 		_plot->set_background_color(QColor(10, 10, 10, 255));
 
+		_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
+
 		setup_series_tree(abscissa);
 		setup_selected_series_tree(abscissa);
-
-		_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 
 		_range_edit = PVWidgets::PVRangeEditFactory::create(
 		    _sampler->minmax_time(),
