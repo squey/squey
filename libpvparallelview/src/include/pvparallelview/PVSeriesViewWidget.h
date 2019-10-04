@@ -63,6 +63,7 @@ class PVSeriesViewWidget : public QWidget
 	void semi_synchro_list(QTreeWidget* list_src, QTreeWidget* list_dest);
 	bool is_in_region(const QRect region, PVCol col) const;
 	void minmax_changed(const pvcop::db::array& minmax);
+	void select_all_series(bool use_axes_combination = true);
 
   private:
 	Inendi::PVView* _view;

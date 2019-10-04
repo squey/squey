@@ -200,6 +200,27 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 	_range_edit = range_edit;
 }
 
+void PVParallelView::PVSeriesViewWidget::select_all_series(bool use_axes_combination /* = true */)
+{
+	QAbstractItemModel& model = *_series_tree_widget->model();
+	QItemSelection top_selection;
+
+	const std::vector<PVCol>& axes = _view->get_axes_combination().get_combination();
+	for (PVCol i(0); i < model.rowCount(); i++) {
+		const QModelIndex& axis = model.index(i, 0);
+		PVCol c = axis.data(Qt::UserRole).value<PVCol>();
+		if (not use_axes_combination or std::find(axes.begin(), axes.end(), c) != axes.end()) {
+			top_selection.merge(QItemSelection(axis, axis), QItemSelectionModel::Select);
+			for (PVCol i(0); i < model.rowCount(axis); i++) {
+				const QModelIndex& index = model.index(i, 0, axis);
+				top_selection.merge(QItemSelection(index, index), QItemSelectionModel::Select);
+			}
+		}
+	}
+
+	_series_tree_widget->selectionModel()->select(top_selection, QItemSelectionModel::Select);
+}
+
 void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 {
 	delete _tree_model;
@@ -274,18 +295,7 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 	    });
 
 	// Setup initial selection
-	const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
-	const std::vector<PVCol>& combination = axes_comb.get_combination();
-	QAbstractItemModel& model = *_series_tree_widget->model();
-	QItemSelection top_selection;
-	for (PVCol i(0); i < model.rowCount(); i++) {
-		const QModelIndex& index = model.index(i, 0);
-		PVCol j = index.data(Qt::UserRole).value<PVCol>();
-		if (std::find(combination.begin(), combination.end(), j) != combination.end()) {
-			top_selection.merge(QItemSelection(index, index), QItemSelectionModel::Select);
-		}
-	}
-	_series_tree_widget->selectionModel()->select(top_selection, QItemSelectionModel::Select);
+	select_all_series();
 
 	_update_selected_series_resample = false;
 	update_selected_series();
@@ -396,7 +406,11 @@ void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
 		return;
 	}
 	if (event->key() == Qt::Key_A and event->modifiers() & Qt::ControlModifier) {
-		_series_tree_widget->selectAll();
+		if (event->modifiers() & Qt::ShiftModifier) {
+			select_all_series(false);
+		} else {
+			select_all_series();
+		}
 		return;
 	}
 

@@ -16,6 +16,7 @@
 #include <QPainter>
 #include <QStyledItemDelegate>
 #include <QSortFilterProxyModel>
+#include <QKeyEvent>
 
 #include <assert.h>
 
@@ -276,6 +277,16 @@ class PVSeriesTreeView : public QTreeView
 
   public:
 	using QTreeView::selectedIndexes;
+
+	void keyPressEvent(QKeyEvent* event)
+	{
+		if (event->key() == Qt::Key_A and (event->modifiers() == Qt::ControlModifier) or
+		    (event->modifiers() == Qt::ShiftModifier)) {
+			event->ignore();
+			return;
+		}
+		QTreeView::keyPressEvent(event);
+	}
 
   public:
 	void setSelectionModel(QItemSelectionModel* model)
