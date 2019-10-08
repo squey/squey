@@ -198,65 +198,57 @@
             "/opt/aws/bin/cfn-init -v ",
                 " -r LinuxInstance ",
                 " --region ", { "Ref": "AWS::Region" },
-                " --configsets dcv ",
+                " --configsets inspector ",
                 " -s ", { "Ref": "AWS::StackName" }, "\n"
         ]]}}
       },
       "Metadata": {
         "AWS::CloudFormation::Init" : {
           "configSets" : {
-            "dcv" : [
-              "download_dcv",
-              "install_dcv"
+            "inspector" : [
+              "deploy"
             ]
           },
-          "download_dcv" : {
+          "deploy" : {
             "files": {
-              "/opt/dcv-install/install.sh": {
+              "/opt/inendi/inspector/deploy.sh": {
                 "source": {
                   "Fn::Join": [
                     "",
                     [
-                      "https://s3-eu-west-1.amazonaws.com/inendi-inspector/dcv-server-install.sh"
+                      "https://s3-eu-west-1.amazonaws.com/inendi-inspector/deploy.sh"
                     ]
                   ]
                 },
                 "authentication": "S3AccessCreds"
               },
-              "/opt/dcv-install/xorg.conf": {
+              "/opt/inendi/inspector/inendi-inspector_docker.service": {
                 "source": {
                   "Fn::Join": [
                     "",
                     [
-                      "https://s3-eu-west-1.amazonaws.com/nice-dcv-cfn/xorg.conf"
+                      "https://s3-eu-west-1.amazonaws.com/inendi-inspector/inendi-inspector_docker.service"
                     ]
                   ]
                 },
                 "authentication": "S3AccessCreds"
               },
-              "/opt/dcv-install/conf.sh": {
+              "/opt/inendi/inspector/env_aws.conf": {
                 "content": {
                   "Fn::Join": [
                     "",
                     [
-                      "dcv_bucket=\"nice-dcv-cfn\"\n",
-                      "dep_bucket=\"nice-dcv-cfn\"\n",
-                      "dcv_pkg_name=\"nice-dcv-server-2017.1.latest\"\n",
-                      "user_name=\"", { "Ref": "UserName" }, "\"\n",
-                      "user_pass=\"", { "Ref": "UserPasswd" }, "\"\n",
-                      "product=\"", { "Ref": "Product" }, "\"\n",
-                      "log_level=\"info\"\n",
+                      "USER_NAME=\"", { "Ref": "UserName" }, "\"\n",
+                      "USER_PASSWORD=\"", { "Ref": "UserPasswd" }, "\"\n",
                       "wait_handle=\"", { "Ref": "InstanceWaitHandle" }, "\"\n"
                     ]
                   ]
                 }
               }
-            }
-          },
-          "install_dcv" : {
+            },
             "commands": {
-              "install": {
-                "command": "bash -x /opt/dcv-install/install.sh > /opt/dcv-install/install.log  2>&1",
+                "install": {
+                "command": "bash -x /opt/inendi/inspector/deploy.sh > /opt/inendi/inspector/deploy.log  2>&1",
                 "ignoreErrors": "true"
               }
             }

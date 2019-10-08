@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 
+################################################################################
+# Copyright (C) 2019 ESI Group
+# All Rights Reserved
+#
+# This software is the confidential and proprietary information
+# of ESI Group ("Confidential Information").
+# You shall not disclose such Confidential Information
+# and shall use it only in accordance with the terms of
+# the license agreement you entered into with ESI Group.
+################################################################################
+
+__author__ = "Jean-Baptiste Leonesio (jean-baptiste.leonesio@esi-group.com)"
+__copyright__ = "Copyright 2019, ESI Group"
+
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 import pam
@@ -87,5 +101,5 @@ httpd.socket = ssl.wrap_socket (
     keyfile='/etc/dcv/dcv.key',
     certfile='/etc/dcv/dcv.pem',
     server_side=True
-) # TODO : check DCV certificate location
+)
 httpd.serve_forever()

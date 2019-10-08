@@ -13,13 +13,13 @@ RUN echo "Acquire::http::Proxy \"$APT_PROXY\";" | tee /etc/apt/apt.conf.d/01prox
 RUN sed -i 's/# deb /deb /g' /etc/apt/sources.list
 RUN cat /etc/apt/sources.list
 RUN apt-get update && \
-apt-get -y install apt-utils pkg-config libglvnd-dev mesa-utils libglu1-mesa libglu1 ocl-icd-libopencl1 pciutils xfonts-base \
-lightdm xorg xserver-xorg-input-all xinit xserver-xorg xserver-xorg-video-all xserver-xorg-video-dummy xutils-dev kwin && \
+apt-get -y install apt-utils pkg-config libglvnd-dev libglu1-mesa libglu1 pciutils \
+xorg xserver-xorg-input-all xinit xserver-xorg xserver-xorg-video-all xserver-xorg-video-dummy xutils-dev kwin && \
 apt-get install -y python3 python3-pip crudini && \
 apt-get install -y nginx ssl-cert && \
 apt-get install -y pocl-opencl-icd mesa-utils ocl-icd-libopencl1 clinfo && \
 echo "/usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
-apt-get -yq install awscli wget patch xxd xterm && \
+apt-get -yq install wget patch xterm && \
 apt-get install -y systemd && \
 cd /lib/systemd/system/sysinit.target.wants/ && \
 ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 && \
@@ -33,28 +33,25 @@ rm -f /lib/systemd/system/multi-user.target.wants/* \
     /lib/systemd/system/plymouth* \
     /lib/systemd/system/systemd-update-utmp*
 
-# Configure dbus TODO : check if necessary
-RUN dbus-uuidgen > /var/lib/dbus/machine-id
-RUN mkdir -p /var/run/dbus
-
 # Allow non-privileged user namespaces and increase the maximum number of memory map areas
 RUN echo "kernel.unprivileged_userns_clone = 1" > /etc/sysctl.d/00-local-userns.conf
 RUN echo "vm.max_map_count=1966080" > /etc/sysctl.d/00-local-max_map_count.conf
     
 # Download/install data
 RUN mkdir -p "${INSTALL_PATH}"
-COPY download_files.sh env.conf .env.conf data/* "${INSTALL_PATH}/"
+COPY download_files.sh env.conf .env.conf resources/* data/* "${INSTALL_PATH}/"
 RUN "${INSTALL_PATH}/download_files.sh" "${INSTALL_MODE}"
 
 # Workaround to avoid nvidia drivers to prevent flatpak container to be executed
-COPY umount_proc_driver_nvidia.service "${INSTALL_PATH}"
+COPY resources/umount_proc_driver_nvidia.service "${INSTALL_PATH}"
 RUN cp "${INSTALL_PATH}/umount_proc_driver_nvidia.service" /lib/systemd/system
 RUN systemctl enable umount_proc_driver_nvidia.service
 
 # Install DCV server
 RUN find "${INSTALL_PATH}" -name "nice-dcv*.tgz" -exec tar zxvf "{}" -C "/opt" \;
+RUN rm -rf /opt/nice-dcv-*/nice-dcv-gl*.deb
 RUN dpkg --unpack /opt/nice-dcv-*/nice-dcv-server*.deb
-COPY postinst.patch "${INSTALL_PATH}"
+COPY resources/postinst.patch "${INSTALL_PATH}"
 RUN bash -c "patch -p1 /var/lib/dpkg/info/nice-dcv-server.postinst < ${INSTALL_PATH}/postinst.patch"
 RUN rm -rf /opt/nice-dcv-*/nice-dcv-server*.deb
 RUN bash -c "dpkg -i /opt/nice-dcv-*/*.deb"; exit 0
@@ -65,28 +62,22 @@ RUN systemctl enable dcvserver.service
 ARG DCV_LICENSE_SERVER
 RUN sed -i "s/#license-file = \"\"/license-file = \"${DCV_LICENSE_SERVER}\"/g" /etc/dcv/dcv.conf
 
-# Configure DCV OpenGL support
-RUN mkdir -p /var/lib/dcv-gl/flatpak
-RUN cp /usr/lib/x86_64-linux-gnu/dcv-gl/libGL* /var/lib/dcv-gl/flatpak
-RUN chmod +x "${INSTALL_PATH}/patch_strings_in_file.sh"
-RUN "${INSTALL_PATH}/patch_strings_in_file.sh" "/var/lib/dcv-gl/flatpak/libGL_WRAPPER.so.1.0.0" "%s/dcv-gl/libGL_DCV.so" "libGL_DCV.so"
-
 # Configure DCV login handling
-COPY dcvsessioninit /etc/dcv/
+COPY resources/dcvsessioninit /etc/dcv/
 RUN chmod +x /etc/dcv/dcvsessioninit
-COPY dcvlogin "${INSTALL_PATH}/dcvlogin"
+COPY resources/dcvlogin "${INSTALL_PATH}/dcvlogin"
 RUN chmod +x "${INSTALL_PATH}/dcvlogin/dcvlogin.py"
 RUN pip3 install --system --requirement "${INSTALL_PATH}/dcvlogin/requirements.txt"
 RUN sed -i "s|#auth-token-verifier=\(.*\)|auth-token-verifier=\"http://127.0.0.1:8444\"|g" /etc/dcv/dcv.conf
-RUN ln  -s "${INSTALL_PATH}/dcvlogin/dcvlogin.service" /lib/systemd/system &> /dev/null || true
-RUN rm -rf /etc/nginx/sites-available/default &> /dev/null || true
-RUN ln  -s "${INSTALL_PATH}/dcvlogin/nginx_proxy" /etc/nginx/sites-available/default &> /dev/null || true
+RUN ln -s "${INSTALL_PATH}/dcvlogin/dcvlogin.service" /lib/systemd/system || true
+RUN rm -rf /etc/nginx/sites-available/default || true
+RUN ln -s "${INSTALL_PATH}/dcvlogin/nginx_proxy" /etc/nginx/sites-available/default || true
 RUN systemctl enable nginx
 RUN systemctl enable dcvlogin
 RUN systemctl enable dcvsimpleextauth
 
 # Configure INENDI Inspector
-COPY inspector_loop.sh "${INSTALL_PATH}/"
+COPY resources/inspector_loop.sh "${INSTALL_PATH}/"
 RUN chmod +x "${INSTALL_PATH}/inspector_loop.sh"
 RUN chmod +x "${INSTALL_PATH}/cuda-devices"
 RUN mkdir -p /srv/tmp-inspector
@@ -96,8 +87,8 @@ RUN chmod g+w /srv/tmp-inspector
 
 # Configure KWin window manager
 RUN mkdir /etc/kde5
-RUN ln -s "${INSTALL_PATH}/kwinrc" /etc/kde5 &> /dev/null || true
-RUN ln -s "${INSTALL_PATH}/kwinrulesrc" /etc/kde5 &> /dev/null || true
+RUN ln -s "${INSTALL_PATH}/kwinrc" /etc/kde5 || true
+RUN ln -s "${INSTALL_PATH}/kwinrulesrc" /etc/kde5 || true
 RUN chown inendi: /etc/kde5
 RUN chmod g+w /etc/kde5 -R
 
