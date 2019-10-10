@@ -260,7 +260,8 @@ class PVSeriesTreeStyleDelegate : public QStyledItemDelegate
 		} else {
 			painter->setPen(color);
 		}
-		painter->drawText(option.rect, index.model()->data(index, Qt::DisplayRole).toString());
+		painter->drawText(option.rect, Qt::AlignLeft,
+		                  index.model()->data(index, Qt::DisplayRole).toString());
 	}
 };
 
