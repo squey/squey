@@ -188,6 +188,8 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	_sampler->set_split_column(split == PVCol() ? nullptr : &nraw.column(split));
+	_zoomer->disable_selecting_mode(split != PVCol());
+	pvlogger::info() << "disable_selecting_mode : " << (split != PVCol()) << std::endl;
 	_split_axis = split;
 
 	// Update range widget
