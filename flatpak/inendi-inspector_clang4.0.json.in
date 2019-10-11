@@ -464,6 +464,7 @@
         "-fontconfig",
         "-glib",
         "-system-proxies",
+        "-skip", "qtwebengine",
         "-gtk"
       ],
       "sources": [
@@ -474,11 +475,15 @@
         },
         {
           "type": "patch",
-          "path": "qt5.12_patches/inendi/0001-Fix-rectangle-intersection-issue-because-of-floating.patch"
+          "path": "qt5_patches/inendi/0001-Fix-rectangle-intersection-issue-because-of-floating.patch"
         },
         {
           "type": "patch",
-          "path": "qt5.12_patches/inendi/0002-Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch"
+          "path": "qt5_patches/inendi/0002-Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch"
+        },
+        {
+          "type": "patch",
+          "path": "qt5_patches/inendi/xcbegl.patch"
         }
       ]
     },

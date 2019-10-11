@@ -105,43 +105,105 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 
 		for (auto& conf : egl_configs) {
 			PRINT_CONFIGATTR(EGL_CONFIG_ID);
-			PRINT_CONFIGATTR(EGL_MAX_PBUFFER_PIXELS);
+			PRINT_CONFIGATTR(EGL_SURFACE_TYPE);
+			PRINT_CONFIGATTR(EGL_BUFFER_SIZE);
+			PRINT_CONFIGATTR(EGL_RED_SIZE);
+			PRINT_CONFIGATTR(EGL_GREEN_SIZE);
+			PRINT_CONFIGATTR(EGL_BLUE_SIZE);
+			PRINT_CONFIGATTR(EGL_LUMINANCE_SIZE);
+			PRINT_CONFIGATTR(EGL_ALPHA_SIZE);
+			PRINT_CONFIGATTR(EGL_ALPHA_MASK_SIZE);
+			PRINT_CONFIGATTR(EGL_BIND_TO_TEXTURE_RGB);
+			PRINT_CONFIGATTR(EGL_BIND_TO_TEXTURE_RGBA);
+			PRINT_CONFIGATTR(EGL_COLOR_BUFFER_TYPE);
 			PRINT_CONFIGATTR(EGL_CONFIG_CAVEAT);
 			PRINT_CONFIGATTR(EGL_CONFORMANT);
+			PRINT_CONFIGATTR(EGL_DEPTH_SIZE);
+			PRINT_CONFIGATTR(EGL_LEVEL);
+			PRINT_CONFIGATTR(EGL_MATCH_NATIVE_PIXMAP);
+			PRINT_CONFIGATTR(EGL_MAX_PBUFFER_WIDTH);
+			PRINT_CONFIGATTR(EGL_MAX_PBUFFER_HEIGHT);
+			PRINT_CONFIGATTR(EGL_MAX_PBUFFER_PIXELS);
+			PRINT_CONFIGATTR(EGL_MAX_SWAP_INTERVAL);
+			PRINT_CONFIGATTR(EGL_MIN_SWAP_INTERVAL);
+			PRINT_CONFIGATTR(EGL_NATIVE_RENDERABLE);
+			PRINT_CONFIGATTR(EGL_NATIVE_VISUAL_ID);
+			PRINT_CONFIGATTR(EGL_NATIVE_VISUAL_TYPE);
+			PRINT_CONFIGATTR(EGL_RENDERABLE_TYPE);
+			PRINT_CONFIGATTR(EGL_SAMPLE_BUFFERS);
+			PRINT_CONFIGATTR(EGL_SAMPLES);
+			PRINT_CONFIGATTR(EGL_STENCIL_SIZE);
 			PRINT_CONFIGATTR(EGL_SURFACE_TYPE);
+			PRINT_CONFIGATTR(EGL_TRANSPARENT_TYPE);
+			PRINT_CONFIGATTR(EGL_TRANSPARENT_RED_VALUE);
+			PRINT_CONFIGATTR(EGL_TRANSPARENT_GREEN_VALUE);
+			PRINT_CONFIGATTR(EGL_TRANSPARENT_BLUE_VALUE);
 			qDebug() << "Support of PBUFFER"
 			         << bool(get_config_attr(display, conf, EGL_SURFACE_TYPE) & EGL_PBUFFER_BIT);
 			qDebug() << "========================================";
 		}
+
+		EGLCHECK(eglBindAPI)(EGL_OPENGL_ES_API);
+		EGLint const context_attrs[]{EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 2,
+		                             EGL_NONE};
+
+		auto test_config = [context_attrs](EGLDisplay display, EGLConfig config) {
+			EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, context_attrs);
+			if (context == EGL_NO_CONTEXT) {
+				qDebug() << "eglCreateContext fails:" << eglGetError();
+				return false;
+			}
+
+			if (eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context) == EGL_FALSE) {
+				qDebug() << "eglMakeCurrent fails";
+				eglDestroyContext(display, context);
+				return false;
+			} else {
+				qDebug() << "eglMakeCurrent OK";
+				eglDestroyContext(display, context);
+				return true;
+			}
+		};
+
 		EGLConfig chosen_config = [&]() {
-			EGLint const attribs[]{EGL_SURFACE_TYPE, EGL_PBUFFER_BIT, EGL_RENDERABLE_TYPE,
-			                       EGL_OPENGL_ES2_BIT, EGL_NONE};
+			EGLint const attribs[]{EGL_SURFACE_TYPE,
+			                       EGL_PBUFFER_BIT,
+			                       EGL_RENDERABLE_TYPE,
+			                       EGL_OPENGL_ES2_BIT,
+			                       EGL_BUFFER_SIZE,
+			                       24,
+			                       EGL_NONE};
 			EGLConfig conf = 0;
 			EGLint numconf = 0;
-			if (eglChooseConfig(display, attribs, &conf, 1, &numconf) == EGL_FALSE) {
-				qDebug() << "eglChooseConfig fails:" << eglGetError();
+			eglChooseConfig(display, attribs, 0, 0, &numconf);
+			qDebug() << "Matching configs:" << numconf;
+
+			for (EGLint conf_id = 0; ++conf_id; ++conf_id) {
+				EGLint const conf_num_attribs[]{EGL_CONFIG_ID, conf_id, EGL_NONE};
+				if (eglChooseConfig(display, attribs, &conf, 1, &numconf) == EGL_FALSE) {
+					qDebug() << "eglChooseConfig fails:" << eglGetError();
+				}
+				if (numconf == 0) {
+					qDebug() << "eglChooseConfig could not find any matching config";
+				}
+				PRINT_CONFIGATTR(EGL_CONFIG_ID);
+				if (test_config(display, conf)) {
+					return conf;
+				}
 			}
-			if (numconf == 0) {
-				qDebug() << "eglChooseConfig could not find any matching config";
-			}
+			qDebug() << "No matching config could work";
 			return conf;
 		}();
 		// EGLSurface surface = eglCreatePbufferSurface(display, chosen_config, NULL);
 		// if (surface == EGL_NO_SURFACE) {
 		// 	qDebug() << "eglCreatePbufferSurface fails: " << eglGetError();
 		// }
-		EGLCHECK(eglBindAPI)(EGL_OPENGL_ES_API);
-
-		EGLint const context_attrs[]{EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 2,
-		                             EGL_NONE};
 
 		EGLContext context =
 		    eglCreateContext(display, chosen_config, EGL_NO_CONTEXT, context_attrs);
 		if (context == EGL_NO_CONTEXT) {
 			qDebug() << "eglCreateContext fails:" << eglGetError();
 		}
-
-		// auto* xcb = QXcbIntegration::instance();
 
 		QOffscreenSurface::setNativeHandle(new QEGLNativeContext(context, display));
 		QOffscreenSurface::create();
