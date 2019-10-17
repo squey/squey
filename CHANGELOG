@@ -1,3 +1,17 @@
+4.7 "Saphir" (2019-10-18)
+-------------------------
+
+This major release adds the following features:
+* Density on parallel coordinates axes
+* Series splitting on specified column
+* Multi-selectors on parallel coordinates
+* Multi-inputs file name column
+* Automatic format creation for CSV files
+* Axes selection directly from the views
+* Improved axes combination editor
+* Improved parallel coordinates rendering performances
+* Improved RAM consumption when loading multiple PCAP files
+
 4.6.2 (2019-04-26)
 ------------------
 This minor release fixes:
