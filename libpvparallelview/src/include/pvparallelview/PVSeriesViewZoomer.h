@@ -155,6 +155,6 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	const zoom_f _centered_zoom_factor = 0.8;
 };
-}
+} // namespace PVParallelView
 
 #endif // _PVPARALLELVIEW_PVSERIESVIEWZOOMER_H_
