@@ -23,7 +23,7 @@ PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& 
 {
 	QSurfaceFormat format;
 	format.setRenderableType(QSurfaceFormat::OpenGLES);
-	format.setVersion(3, 2);
+	format.setVersion(OpenGLES_version_major, OpenGLES_version_minor);
 	format.setProfile(QSurfaceFormat::CoreProfile);
 	setFormat(format);
 
@@ -43,7 +43,7 @@ bool PVSeriesRendererOpenGL::capability()
 		QOpenGLWidget qoglwg;
 		QSurfaceFormat format;
 		format.setRenderableType(QSurfaceFormat::OpenGLES);
-		format.setVersion(3, 2);
+		format.setVersion(OpenGLES_version_major, OpenGLES_version_minor);
 		format.setProfile(QSurfaceFormat::CoreProfile);
 		qoglwg.setFormat(format);
 		qoglwg.resize(20, 20);
@@ -51,9 +51,10 @@ bool PVSeriesRendererOpenGL::capability()
 			qDebug() << "Could not use a QOpenGLWidget to grab framebuffer";
 		} else if (not qoglwg.isValid()) {
 			qDebug() << "Could not create a valid QOpenGLWidget";
-		} else if (qoglwg.format().version() < qMakePair(3, 2)) {
-			qDebug() << "Expecting 3.2+ but QOpenGLWidget could only deliver "
-			         << qoglwg.format().version();
+		} else if (qoglwg.format().version() <
+		           qMakePair(OpenGLES_version_major, OpenGLES_version_minor)) {
+			qDebug() << "Expecting" << qMakePair(OpenGLES_version_major, OpenGLES_version_minor)
+			         << "but QOpenGLWidget could only deliver " << qoglwg.format().version();
 		} else {
 			return true;
 		}
@@ -122,51 +123,6 @@ void PVSeriesRendererOpenGL::set_draw_mode(PVSeriesView::DrawMode mode)
 
 void PVSeriesRendererOpenGL::initializeGL()
 {
-	auto nativeHandle = context()->nativeHandle().value<QEGLNativeContext>();
-
-	qDebug() << "\nEGL_CLIENT_APIS:" << eglQueryString(nativeHandle.display(), EGL_CLIENT_APIS)
-	         << "\nEGL_EXTENSIONS:" << eglQueryString(nativeHandle.display(), EGL_EXTENSIONS)
-	         << "\nEGL_VENDOR:" << eglQueryString(nativeHandle.display(), EGL_VENDOR)
-	         << "\nEGL_VERSION:" << eglQueryString(nativeHandle.display(), EGL_VERSION);
-
-	{
-#define EGLCHECK(func)                                                                             \
-	[&](auto&&... args) {                                                                          \
-		if (func(args...) == EGL_FALSE) {                                                          \
-			qDebug() << #func << "fails:" << eglGetError();                                        \
-		}                                                                                          \
-	}
-
-		qDebug() << "\nEGL_EXTENSIONS:" << eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
-
-		typedef void* EGLDeviceEXT;
-		EGLBoolean (*eglQueryDevicesEXT)(EGLint max_devices, EGLDeviceEXT * devices,
-		                                 EGLint * num_devices) = nullptr;
-		eglQueryDevicesEXT =
-		    reinterpret_cast<decltype(eglQueryDevicesEXT)>(eglGetProcAddress("eglQueryDevicesEXT"));
-		if (eglQueryDevicesEXT == nullptr) {
-			qDebug() << "eglQueryDevicesEXT not available";
-		}
-
-		EGLint num_devices = 0;
-		EGLCHECK(eglQueryDevicesEXT)(0, nullptr, &num_devices);
-		std::vector<EGLDeviceEXT> devices(num_devices);
-		EGLCHECK(eglQueryDevicesEXT)(num_devices, devices.data(), &num_devices);
-
-		qDebug() << "num_devices:" << num_devices;
-
-#define EGL_PLATFORM_DEVICE_EXT 0x313F
-		EGLAttrib const display_attrib_list[] = {EGL_NONE};
-		EGLDisplay display =
-		    eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[0], display_attrib_list);
-
-		if (display == nativeHandle.display()) {
-			qDebug() << "Native displays match NVIDIA !";
-		} else {
-			qDebug() << "Native displays does NOT match NVIDIA !";
-		}
-	}
-
 	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
 	        &PVSeriesRendererOpenGL::cleanupGL);
 
