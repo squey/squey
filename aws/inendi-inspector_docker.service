@@ -1,0 +1,17 @@
+[Unit]
+Description=INENDI Inspector Docker container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Environment=PATH=/usr/bin
+Environment=DOCKER=systemd-docker
+Environment=DOCKER_OPTS="--cgroups name=systemd"
+TimeoutStartSec=0
+Restart=always
+ExecStart=/opt/inendi/inspector/run.sh
+ExecStop=/usr/bin/docker stop inendi-inspector
+ExecStopPost=/usr/bin/docker rm -f inendi-inspector
+
+[Install]
+WantedBy=multi-user.target

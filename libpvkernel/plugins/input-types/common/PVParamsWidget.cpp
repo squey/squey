@@ -20,9 +20,7 @@
 PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
                                                PVRush::hash_formats const& /*formats*/,
                                                QWidget* parent)
-    : QDialog(parent)
-    , _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
-    , _in_t(in_t)
+    : QDialog(parent), _in_t(in_t)
 {
 	// Create the UI
 	setupUi(this);

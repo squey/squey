@@ -23,6 +23,8 @@
     "--socket=wayland",
     "--share=network",
     "--filesystem=host",
+    "--filesystem=/opt/inendi",
+    "--filesystem=~/.inendi",
     "--device=all"
   ],
   "modules": [

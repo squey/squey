@@ -1,0 +1,93 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="author" content="Jean-Baptiste Leonesio (jean-baptiste.leonesio@esi-group.com)">
+    <title>INENDI Inspector</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <script type="text/javascript" src="js/lib/jquery/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="particles.min.js"></script>
+    <link href="particles.css" rel="stylesheet" type="text/css" media="all">
+    <link href="css/main.css" rel="stylesheet" type="text/css" media="all">
+    <style type="text/css">
+    .btn-primary, .btn-primary:active, .btn-primary:focus, .btn-primary:active:focus {
+        background-color : #f15a23;
+        outline-color:transparent;
+    }
+    .btn-primary:hover {
+        background-color : #f59932;
+        outline-color:transparent;
+    }
+    #dcv-login-message {
+      opacity: 0;
+    }
+    #dcv-login-message.animated {
+      animation: fadeout 3s;
+    }
+    @keyframes fadeout {
+        0% { opacity: 1; }
+        66% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    </style>
+    <script>
+        $(document).ready(function(){
+            $("#signin").submit(function(e) {
+                e.preventDefault();
+                $.post(
+                    location.origin,
+                    {
+                        login : $("#login").val(),
+                        password : $("#password").val()
+                    },
+                    null,
+                    'text'
+                )
+                .done(function(data, textStatus) {
+                   window.location = data;
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    switch (jqXHR.status) {
+                        case 401:
+                            $("#error-message").text("Invalid credentials");
+                            break;
+                        case 403:
+                            $("#error-message").text("All DCV license tokens are in use");
+                            break;
+                        default:
+                            $("#error-message").text("Error code " + jqXHR.status);
+                    }
+                    var el = $('#dcv-login-message');
+                    el.before(el.clone(true));
+                    el.remove();
+                    $("#dcv-login-message").removeClass("animated").addClass("animated");
+                })
+                .always(function() {
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div id="particles-js">
+    <div class="dcv-login-container" style="display: flex;">
+        <div class="dcv-login">
+            <div class="dcv-logo">
+                <img src="esi_inendi.png">
+            </div>
+            <form id="signin" class="form-signin" action="" method="post">
+                <fieldset>
+                <input id="login" name="login" type="text" value="" class="form-control auth-token" placeholder="Username" required>
+                <input id="password" name="password" type="password" value="" class="form-control auth-token dcv-check-caps" placeholder="Password" data-original-title="" title="" required></fieldset>
+                <div id="dcv-login-message" class="dcv-login-message">
+                    <div class="photon-icon"></div>
+                    <span id="error-message"></span>
+                </div>
+                <button id="submit" class="btn btn-lg btn-primary btn-block" type="submit" data-dismiss="modal">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="particles_config.js"></script>
+</body>
+</html>

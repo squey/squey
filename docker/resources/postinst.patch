@@ -1,0 +1,25 @@
+diff --git a/postinst b/postinst
+old mode 100755
+new mode 100644
+index d061f56..7ab8778
+--- a/var/lib/dpkg/info/nice-dcv-server.postinst
++++ b/var/lib/dpkg/info/nice-dcv-server.postinst
+@@ -44,18 +44,6 @@ fi
+ EOF
+         fi
+ 
+-        if [ -n "$(dkms status -m eveusb -v 1.0.0)" ]; then
+-            echo "A DKMS eveusb module is already installed on your system, please remove it with command"
+-            echo "sudo dkms uninstall eveusb/1.0.0"
+-            exit 1
+-        fi
+-
+-        ln -sf /usr/share/dcv/eveusb /usr/src/eveusb-1.0.0
+-        dkms add -m eveusb -v 1.0.0 >&2
+-        dkms build -m eveusb -v 1.0.0 >&2
+-        dkms install -m eveusb -v 1.0.0 >&2
+-
+-        cp /usr/share/dcv/eveusb/90-eveusb.rules /lib/udev/rules.d
+     ;;
+ 
+     abort-upgrade|abort-remove|abort-deconfigure)

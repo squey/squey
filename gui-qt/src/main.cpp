@@ -141,12 +141,14 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	product_name = vm["product"].as<std::string>();
 	PVCore::PVConfig::set_product_name(product_name);
 
-	static const QString inendi_license_path =
-	    QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
+	static QString inendi_license_path = INENDI_GLOBAL_LICENSE_PATH;
 	if (not QFileInfo(inendi_license_path).exists()) {
-		if (not PVGuiQt::PVLicenseDialog::show_no_license(inendi_license_path,
-		                                                  QString::fromStdString(product_name))) {
-			return 1;
+		inendi_license_path = QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
+		if (not QFileInfo(inendi_license_path).exists()) {
+			if (not PVGuiQt::PVLicenseDialog::show_no_license(
+			        inendi_license_path, QString::fromStdString(product_name))) {
+				return 1;
+			}
 		}
 	}
 
