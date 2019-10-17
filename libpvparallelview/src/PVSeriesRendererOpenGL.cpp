@@ -4,6 +4,8 @@
 
 #include <QResizeEvent>
 #include <QSurface>
+#include <EGL/egl.h>
+#include <QtPlatformHeaders/QEGLNativeContext>
 
 namespace PVParallelView
 {
@@ -20,7 +22,8 @@ PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& 
     , _dbo(static_cast<QOpenGLBuffer::Type>(GL_DRAW_INDIRECT_BUFFER))
 {
 	QSurfaceFormat format;
-	format.setVersion(4, 3);
+	format.setRenderableType(QSurfaceFormat::OpenGLES);
+	format.setVersion(OpenGLES_version_major, OpenGLES_version_minor);
 	format.setProfile(QSurfaceFormat::CoreProfile);
 	setFormat(format);
 
@@ -39,7 +42,8 @@ bool PVSeriesRendererOpenGL::capability()
 	static const bool s_opengl_capable = [] {
 		QOpenGLWidget qoglwg;
 		QSurfaceFormat format;
-		format.setVersion(4, 3);
+		format.setRenderableType(QSurfaceFormat::OpenGLES);
+		format.setVersion(OpenGLES_version_major, OpenGLES_version_minor);
 		format.setProfile(QSurfaceFormat::CoreProfile);
 		qoglwg.setFormat(format);
 		qoglwg.resize(20, 20);
@@ -47,9 +51,10 @@ bool PVSeriesRendererOpenGL::capability()
 			qDebug() << "Could not use a QOpenGLWidget to grab framebuffer";
 		} else if (not qoglwg.isValid()) {
 			qDebug() << "Could not create a valid QOpenGLWidget";
-		} else if (qoglwg.format().version() < qMakePair(4, 3)) {
-			qDebug() << "Expecting 4.3+ but QOpenGLWidget could only deliver "
-			         << qoglwg.format().version();
+		} else if (qoglwg.format().version() <
+		           qMakePair(OpenGLES_version_major, OpenGLES_version_minor)) {
+			qDebug() << "Expecting" << qMakePair(OpenGLES_version_major, OpenGLES_version_minor)
+			         << "but QOpenGLWidget could only deliver " << qoglwg.format().version();
 		} else {
 			return true;
 		}
@@ -421,7 +426,7 @@ void PVSeriesRendererOpenGL::draw_GL(size_t const line_begin, size_t const line_
 void PVSeriesRendererOpenGL::setup_shaders_GL()
 {
 	std::string_view vertex_shader =
-"#version 430\n" SHADER(
+"#version 320 es\n" R"(
 in vec4 vertex;
 in vec3 color;
 smooth out vec4 lineColor;
@@ -431,8 +436,8 @@ void main(void) {
 	lineColor = vec4(color, 1);
 	//lineColor = vec4(size.rgb, 1);
 	vec4 wvertex = vertex;
-	wvertex.y = vertex.x / max_value;
-	wvertex.x = (gl_VertexID % int(size.z)) / (size.z - 1);
+	wvertex.y = vertex.x / float(max_value);
+	wvertex.x = float(gl_VertexID % int(size.z)) / (size.z - 1.0);
 	wvertex.xy = vec2(fma(wvertex.x, 2.0, -1.0), fma(wvertex.y, 2.0, -1.0));
 	int vx = int(vertex.x);
 	if(bool(vx & (1 << 15))) { //if out of range
@@ -446,10 +451,10 @@ void main(void) {
 		wvertex.xy = vec2(gl_VertexID, vertex.x);
 	}
 	gl_Position.xyzw = wvertex.xyzw;
-});
+})";
 
 	std::string_view geometry_shader_Lines =
-"#version 430\n" SHADER(
+"#version 320 es\n" R"(
 layout(lines) in;
 smooth in vec4 lineColor[];
 layout(line_strip, max_vertices = 2) out;
@@ -458,26 +463,26 @@ smooth out vec4 geolineColor;
 uniform vec4 size;
 
 void main(void) {
-	if (lineColor[0].a == 0) {
+	if (lineColor[0].a == 0.0) {
 		return;
 	}
 	geolineColor = lineColor[0];
 	gl_Position = gl_in[0].gl_Position;
 	EmitVertex();
-	if (lineColor[1].a == 0) {
+	if (lineColor[1].a == 0.0) {
 		geolineColor = lineColor[0];
-		bool adjust = gl_in[0].gl_Position.x < 0;
-		gl_Position.xy = gl_in[0].gl_Position.xy + vec2(fma(float(adjust), 2, -1)*2/size.w, 0);
+		bool adjust = gl_in[0].gl_Position.x < 0.0;
+		gl_Position.xy = gl_in[0].gl_Position.xy + vec2(fma(float(adjust), 2.0, -1.0)*2.0/size.w, 0.0);
 		EmitVertex();
 		return;
 	}
 	geolineColor = lineColor[0];
 	gl_Position = gl_in[1].gl_Position;
 	EmitVertex();
-});
+})";
 
 	std::string_view geometry_shader_LinesAlways =
-"#version 430\n" SHADER(
+"#version 320 es\n" R"(
 layout(lines_adjacency) in;
 smooth in vec4 lineColor[];
 layout(line_strip, max_vertices = 6) out;
@@ -496,14 +501,14 @@ void emitShortVertex(in const int index)
 
 vec2 emitLongVertex(in const int index)
 {
-	geolineColor = vec4(lineColor[index].rgb, 1);
+	geolineColor = vec4(lineColor[index].rgb, 1.0);
 	int vertexId = int(gl_in[index].gl_Position.x) % int(size.z) + (int(gl_in[index].gl_Position.y) & max_value);
-	const int valindex = index + 1;
+	int valindex = index + 1;
 	vec2 wvertex;
-	wvertex.x = vertexId / (size.z - 1);
+	wvertex.x = float(vertexId) / (size.z - 1.0);
 	wvertex.x = fma(wvertex.x, 2.0, -1.0);
-	if (lineColor[valindex].a == 0) {
-		wvertex.y = (int(gl_in[valindex].gl_Position.y) & max_value) / float(max_value);
+	if (lineColor[valindex].a == 0.0) {
+		wvertex.y = float(int(gl_in[valindex].gl_Position.y) & max_value) / float(max_value);
 		wvertex.y = fma(wvertex.y, 2.0, -1.0);
 	} else {
 		wvertex.y = gl_in[valindex].gl_Position.y;
@@ -515,51 +520,51 @@ vec2 emitLongVertex(in const int index)
 
 void main(void) {
 	if (gl_PrimitiveIDIn == 0) {
-		if (lineColor[0].a != 0 && lineColor[1].a != 0) {
+		if (lineColor[0].a != 0.0 && lineColor[1].a != 0.0) {
 			emitShortVertex(0);
 			emitShortVertex(1);
-		} else if (lineColor[0].a != 0) {
+		} else if (lineColor[0].a != 0.0) {
 			emitShortVertex(0);
 			emitLongVertex(1);
 		} else {
 			vec2 wert = emitLongVertex(0);
-			geolineColor = vec4(lineColor[0].rgb, 1);
-			gl_Position.xy = vec2(-1, wert.y);
+			geolineColor = vec4(lineColor[0].rgb, 1.0);
+			gl_Position.xy = vec2(-1.0, wert.y);
 			EmitVertex();
 		}
 		EndPrimitive();
 	}
-	if (gl_PrimitiveIDIn == size.z - 4 && lineColor[2].a != 0 && lineColor[3].a != 0) {
+	if (gl_PrimitiveIDIn == int(size.z) - 4 && lineColor[2].a != 0.0 && lineColor[3].a != 0.0) {
 		emitShortVertex(2);
 		emitShortVertex(3);
 		EndPrimitive();
 	}
-	if (lineColor[1].a == 0) {
+	if (lineColor[1].a == 0.0) {
 		return;
 	}
 	emitShortVertex(1);
-	if (lineColor[2].a == 0) {
+	if (lineColor[2].a == 0.0) {
 		emitLongVertex(2);
 	} else {
 		emitShortVertex(2);
 	}
-});
+})";
 
 	std::string_view fragment_shader_Lines =
-"#version 430\n" SHADER(
-smooth in vec4 geolineColor;
-out vec4 FragColor;
+"#version 320 es\n" R"(
+smooth in mediump vec4 geolineColor;
+out mediump vec4 FragColor;
 void main(void) {
 	FragColor = geolineColor;
-});
+})";
 
 	std::string_view fragment_shader_Points =
-"#version 430\n" SHADER(
-smooth in vec4 lineColor;
-out vec4 FragColor;
+"#version 320 es\n" R"(
+smooth in mediump vec4 lineColor;
+out mediump vec4 FragColor;
 void main(void) {
 	FragColor = lineColor;
-});
+})";
 
 	_program_Lines = std::make_unique<QOpenGLShaderProgram>(context());
 	_program_Lines->addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_shader.data());

@@ -10,7 +10,6 @@
 #include <pvparallelview/PVSeriesRendererOpenGL.h>
 
 #include <QOffscreenSurface>
-#include <QDebug>
 
 namespace PVParallelView
 {
@@ -18,7 +17,14 @@ namespace PVParallelView
 class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffscreenSurface
 {
   public:
-	virtual ~PVSeriesRendererOffscreen() = default;
+	constexpr static int OpenGLES_version_major = PVSeriesRendererOpenGL::OpenGLES_version_major,
+	                     OpenGLES_version_minor = PVSeriesRendererOpenGL::OpenGLES_version_minor;
+
+  public:
+	PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss);
+	virtual ~PVSeriesRendererOffscreen();
+
+	static bool capability();
 
 	void set_background_color(QColor const& bgcol) override
 	{
@@ -27,55 +33,6 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 	void resize(QSize const& size) override { _gl_renderer.resize(size); }
 	QPixmap grab() override { return _gl_renderer.grab(); }
 	void set_draw_mode(PVSeriesView::DrawMode mode) override { _gl_renderer.set_draw_mode(mode); }
-
-	PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss)
-	    : PVSeriesAbstractRenderer(rss), QOffscreenSurface(), _gl_renderer(rss)
-	{
-		QSurfaceFormat format;
-		format.setVersion(4, 3);
-		format.setProfile(QSurfaceFormat::CoreProfile);
-		setFormat(format);
-		QOffscreenSurface::create();
-		_gl_renderer.setFormat(QOffscreenSurface::format());
-		qDebug() << "Could init QOffscreenSurface:" << isValid();
-	}
-
-	static bool capability()
-	{
-		static const bool s_offscreenopengl_capable = [] {
-			QSurfaceFormat format;
-			format.setVersion(4, 3);
-			format.setProfile(QSurfaceFormat::CoreProfile);
-
-			QOffscreenSurface offsc;
-			offsc.setFormat(format);
-			offsc.create();
-			if (not offsc.isValid()) {
-				qDebug() << "Imposible to create QOffscreenSurface";
-				QOffscreenSurface offsc_crash;
-				offsc_crash.create();
-				if (not offsc_crash.isValid()) {
-					qDebug() << "Absolutely impossible to create any QOffscreenSurface";
-				}
-				return false;
-			}
-			QOpenGLContext qogl;
-			qogl.setFormat(offsc.format());
-			if (not qogl.create()) {
-				qDebug() << "Could not create a QOpenGLContext out of the QOffscreenSurface";
-			} else if (qogl.format().version() < qMakePair(4, 3)) {
-				qDebug() << "Expecting 4.3+ but QOffscreenSurface could only deliver "
-				         << qogl.format().version();
-			} else if (not qogl.makeCurrent(&offsc)) {
-				qDebug() << "Could not make QOpenGLContext current on QOffscreenSurface";
-			} else {
-				qogl.doneCurrent();
-				return true;
-			}
-			return false;
-		}();
-		return s_offscreenopengl_capable;
-	}
 
 	template <class... Args>
 	static auto capability(Args&&... args)

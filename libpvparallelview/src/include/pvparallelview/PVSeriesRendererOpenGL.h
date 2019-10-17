@@ -25,6 +25,8 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	using PVRSS = Inendi::PVRangeSubSampler;
 
   public:
+	constexpr static int OpenGLES_version_major = 3, OpenGLES_version_minor = 2;
+
 	struct SerieDrawInfo {
 		size_t dataIndex;
 		QColor color;

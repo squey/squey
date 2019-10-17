@@ -94,35 +94,35 @@ void PVGuiQt::PVLogoModel::render(bool wireframe, bool normals) const
 	/*glRotated(-90, 1, 0, 1);
 	glRotated(-45, 0, 1, 0);
 	glScalef(1.0f, 0.3f, 1.0f);*/
-	glEnable(GL_DEPTH_TEST);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	if (wireframe) {
-		glVertexPointer(3, GL_FLOAT, 0, (float*)m_points.data());
-		glDrawElements(GL_LINES, m_edgeIndices.size(), GL_UNSIGNED_INT, m_edgeIndices.data());
-	} else {
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glEnable(GL_COLOR_MATERIAL);
-		glShadeModel(GL_SMOOTH);
+	// glEnable(GL_DEPTH_TEST);
+	// glEnableClientState(GL_VERTEX_ARRAY);
+	// if (wireframe) {
+	// 	glVertexPointer(3, GL_FLOAT, 0, (float*)m_points.data());
+	// 	glDrawElements(GL_LINES, m_edgeIndices.size(), GL_UNSIGNED_INT, m_edgeIndices.data());
+	// } else {
+	// 	glEnable(GL_LIGHTING);
+	// 	glEnable(GL_LIGHT0);
+	// 	glEnable(GL_COLOR_MATERIAL);
+	// 	glShadeModel(GL_SMOOTH);
 
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, (float*)m_points.data());
-		glNormalPointer(GL_FLOAT, 0, (float*)m_normals.data());
-		glDrawElements(GL_TRIANGLES, m_pointIndices.size(), GL_UNSIGNED_INT, m_pointIndices.data());
+	// 	glEnableClientState(GL_NORMAL_ARRAY);
+	// 	glVertexPointer(3, GL_FLOAT, 0, (float*)m_points.data());
+	// 	glNormalPointer(GL_FLOAT, 0, (float*)m_normals.data());
+	// 	glDrawElements(GL_TRIANGLES, m_pointIndices.size(), GL_UNSIGNED_INT, m_pointIndices.data());
 
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_LIGHT0);
-		glDisable(GL_LIGHTING);
-	}
+	// 	glDisableClientState(GL_NORMAL_ARRAY);
+	// 	glDisable(GL_COLOR_MATERIAL);
+	// 	glDisable(GL_LIGHT0);
+	// 	glDisable(GL_LIGHTING);
+	// }
 
-	if (normals) {
-		QVector<PVPoint3D> normals;
-		for (int i = 0; i < m_normals.size(); ++i)
-			normals << m_points.at(i) << (m_points.at(i) + m_normals.at(i) * 0.02f);
-		glVertexPointer(3, GL_FLOAT, 0, (float*)normals.data());
-		glDrawArrays(GL_LINES, 0, normals.size());
-	}
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisable(GL_DEPTH_TEST);
+	// if (normals) {
+	// 	QVector<PVPoint3D> normals;
+	// 	for (int i = 0; i < m_normals.size(); ++i)
+	// 		normals << m_points.at(i) << (m_points.at(i) + m_normals.at(i) * 0.02f);
+	// 	glVertexPointer(3, GL_FLOAT, 0, (float*)normals.data());
+	// 	glDrawArrays(GL_LINES, 0, normals.size());
+	// }
+	// glDisableClientState(GL_VERTEX_ARRAY);
+	// glDisable(GL_DEPTH_TEST);
 }

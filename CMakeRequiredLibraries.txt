@@ -125,6 +125,7 @@ find_package(PCRE REQUIRED)
 # TODO : Check result and deduce OpenGL Support in Qt?
 ###############################################################################
 find_package(OpenGL REQUIRED)
+set(OPENGL_LIBRARIES ${OPENGL_LIBRARIES} EGL) # Force EGL as CMake is too old to find it
 
 ###############################################################################
 # IBM ICU

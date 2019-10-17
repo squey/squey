@@ -80,8 +80,8 @@ int main(int argc, char** argv)
 
 	sampler.set_sampling_count(1600);
 
-	{
-		PVParallelView::PVSeriesView plot(sampler, PVParallelView::PVSeriesView::Backend::QPainter);
+	auto show_plot = [&](PVParallelView::PVSeriesView::Backend backend, bool exec = false) {
+		PVParallelView::PVSeriesView plot(sampler, backend);
 
 		plot.set_background_color(QColor(100, 10, 10, 255));
 
@@ -102,31 +102,14 @@ int main(int argc, char** argv)
 		plot.grab();
 		sampler.resubsample();
 		plot.grab();
-	}
-	{
-		PVParallelView::PVSeriesView plot(sampler, PVParallelView::PVSeriesView::Backend::OpenGL);
 
-		plot.set_background_color(QColor(100, 10, 10, 255));
-
-		std::vector<PVParallelView::PVSeriesView::SerieDrawInfo> series_draw_order;
-		std::unordered_set<size_t> selected_timeseries;
-		for (size_t i = 0; i < timeseries.size(); ++i) {
-			series_draw_order.push_back(
-			    {i, QColor(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100)});
+		if (exec) {
+			plot.show();
+			a.exec();
 		}
-		plot.show_series(std::move(series_draw_order));
+	};
 
-		plot.resize(1600, 900);
-
-		sampler.resubsample();
-
-		plot.grab();
-		plot.refresh();
-		plot.grab();
-		sampler.resubsample();
-		plot.grab();
-	}
-
-	// plot.show();
-	// return a.exec();
+	// show_plot(PVParallelView::PVSeriesView::Backend::QPainter);
+	// show_plot(PVParallelView::PVSeriesView::Backend::OpenGL);
+	show_plot(PVParallelView::PVSeriesView::Backend::OffscreenOpenGL, true);
 }
