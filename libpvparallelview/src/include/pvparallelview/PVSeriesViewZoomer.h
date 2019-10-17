@@ -82,6 +82,13 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	SelectorMode current_selector_mode() const { return _selector_mode; }
 	void change_selector_mode(SelectorMode const mode);
+	void disable_selecting_mode(bool disabled) // TODO : implement selection mode on splitted series
+	{
+		_selecting_mode_disabled = disabled;
+		if (_selector_mode == SelectorMode::Selecting) {
+			change_selector_mode(SelectorMode::CrossHairs);
+		}
+	}
 
 	QColor get_selector_color(SelectorMode mode) const { return _selector_colors[size_t(mode)]; }
 	void set_selector_color(SelectorMode mode, QColor color)
@@ -154,7 +161,8 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	QTimer* _animation_timer;
 
 	const zoom_f _centered_zoom_factor = 0.8;
+	bool _selecting_mode_disabled = false;
 };
-}
+} // namespace PVParallelView
 
 #endif // _PVPARALLELVIEW_PVSERIESVIEWZOOMER_H_

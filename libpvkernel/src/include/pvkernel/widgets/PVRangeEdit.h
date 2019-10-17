@@ -319,7 +319,7 @@ class PVDurationRangeEdit : public PVRangeEdit
 		_ok = new QPushButton("&Ok");
 
 		// Setup duration validator
-		QRegularExpression duration_re("\\b[0-9]+:[0-5][0-9]:[0-5][0-9]\\.[0-9]{6}\\b",
+		QRegularExpression duration_re("\\b[0-9]+:[0-5][0-9]:[0-5][0-9](\\.[0-9]{6})?\\b",
 		                               QRegularExpression::CaseInsensitiveOption);
 		QRegularExpressionValidator* re_val = new QRegularExpressionValidator(duration_re, this);
 		_from_widget->setValidator(re_val);

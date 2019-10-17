@@ -107,10 +107,10 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 		_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 		_plot->set_background_color(QColor(10, 10, 10, 255));
 
+		_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
+
 		setup_series_tree(abscissa);
 		setup_selected_series_tree(abscissa);
-
-		_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 
 		_range_edit = PVWidgets::PVRangeEditFactory::create(
 		    _sampler->minmax_time(),
@@ -188,6 +188,8 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	_sampler->set_split_column(split == PVCol() ? nullptr : &nraw.column(split));
+	_zoomer->disable_selecting_mode(split != PVCol());
+	pvlogger::info() << "disable_selecting_mode : " << (split != PVCol()) << std::endl;
 	_split_axis = split;
 
 	// Update range widget
@@ -198,6 +200,27 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 	delete global_layout->replaceWidget(_range_edit, range_edit);
 	_range_edit->deleteLater();
 	_range_edit = range_edit;
+}
+
+void PVParallelView::PVSeriesViewWidget::select_all_series(bool use_axes_combination /* = true */)
+{
+	QAbstractItemModel& model = *_series_tree_widget->model();
+	QItemSelection top_selection;
+
+	const std::vector<PVCol>& axes = _view->get_axes_combination().get_combination();
+	for (PVCol i(0); i < model.rowCount(); i++) {
+		const QModelIndex& axis = model.index(i, 0);
+		PVCol c = axis.data(Qt::UserRole).value<PVCol>();
+		if (not use_axes_combination or std::find(axes.begin(), axes.end(), c) != axes.end()) {
+			top_selection.merge(QItemSelection(axis, axis), QItemSelectionModel::Select);
+			for (PVCol i(0); i < model.rowCount(axis); i++) {
+				const QModelIndex& index = model.index(i, 0, axis);
+				top_selection.merge(QItemSelection(index, index), QItemSelectionModel::Select);
+			}
+		}
+	}
+
+	_series_tree_widget->selectionModel()->select(top_selection, QItemSelectionModel::Select);
 }
 
 void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
@@ -274,18 +297,7 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 	    });
 
 	// Setup initial selection
-	const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
-	const std::vector<PVCol>& combination = axes_comb.get_combination();
-	QAbstractItemModel& model = *_series_tree_widget->model();
-	QItemSelection top_selection;
-	for (PVCol i(0); i < model.rowCount(); i++) {
-		const QModelIndex& index = model.index(i, 0);
-		PVCol j = index.data(Qt::UserRole).value<PVCol>();
-		if (std::find(combination.begin(), combination.end(), j) != combination.end()) {
-			top_selection.merge(QItemSelection(index, index), QItemSelectionModel::Select);
-		}
-	}
-	_series_tree_widget->selectionModel()->select(top_selection, QItemSelectionModel::Select);
+	select_all_series();
 
 	_update_selected_series_resample = false;
 	update_selected_series();
@@ -396,7 +408,11 @@ void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
 		return;
 	}
 	if (event->key() == Qt::Key_A and event->modifiers() & Qt::ControlModifier) {
-		_series_tree_widget->selectAll();
+		if (event->modifiers() & Qt::ShiftModifier) {
+			select_all_series(false);
+		} else {
+			select_all_series();
+		}
 		return;
 	}
 

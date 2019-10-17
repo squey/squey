@@ -159,13 +159,13 @@ QRect PVViewZoomer::normalized_zoom_rect(QRect zoom_rect, bool rectangular) cons
 auto PVViewZoomer::rect_to_zoom(QRect const& rect) const -> Zoom
 {
 	Zoom const& current_zoom = _zoom_stack[_current_zoom_index];
-	return Zoom{
-	    current_zoom.minX + current_zoom.width() * (rect.x() / zoom_f(size().width())),
-	    current_zoom.minX +
-	        current_zoom.width() * ((rect.x() + rect.width()) / zoom_f(size().width())),
-	    current_zoom.minY +
-	        current_zoom.height() * (1. - (rect.y() + rect.height()) / zoom_f(size().height())),
-	    current_zoom.minY + current_zoom.height() * (1. - rect.y() / zoom_f(size().height()))};
+	return Zoom{current_zoom.minX + current_zoom.width() * (rect.x() / zoom_f(size().width())),
+	            current_zoom.minX +
+	                current_zoom.width() * ((rect.x() + rect.width()) / zoom_f(size().width())),
+	            current_zoom.minY + current_zoom.height() *
+	                                    (1. - (rect.y() + rect.height()) / zoom_f(size().height())),
+	            current_zoom.minY +
+	                current_zoom.height() * (1. - rect.y() / zoom_f(size().height()))};
 }
 
 auto PVViewZoomer::clamp_zoom(Zoom zoom) -> Zoom
@@ -261,7 +261,7 @@ void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 	if (event->button() == Qt::LeftButton) {
 		_left_button_down = true;
 		if (_selector_mode == SelectorMode::CrossHairs) {
-			if (event->modifiers() & Qt::ShiftModifier) {
+			if (event->modifiers() & Qt::ShiftModifier and not _selecting_mode_disabled) {
 				change_selector_mode(SelectorMode::Selecting);
 			} else {
 				change_selector_mode(SelectorMode::Zooming);
@@ -352,7 +352,7 @@ void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 			return;
 		}
 	} else if (event->key() == Qt::Key_S) {
-		if (_selector_mode == SelectorMode::CrossHairs) {
+		if (_selector_mode == SelectorMode::CrossHairs and not _selecting_mode_disabled) {
 			change_selector_mode(SelectorMode::Selecting);
 			cursor_moved(cross_hairs_rect(_selector_rect.topLeft()));
 			return;
@@ -486,10 +486,11 @@ void PVSeriesViewZoomer::update_chronotip_geometry(size_t chrono_index, QPoint p
 	bool force_chronotips_right = pos.x() < _chronotips[0]->width();
 	bool force_chronotips_left = pos.x() > width() - _chronotips[1]->width();
 	if (chrono_index == 0) {
-		int chronotips_y_0 = chronotips_top ? 0 : force_chronotips_left or force_chronotips_right
-		                                              ? height() - _chronotips[0]->height() -
-		                                                    _chronotips[1]->height()
-		                                              : height() - _chronotips[0]->height();
+		int chronotips_y_0 =
+		    chronotips_top ? 0
+		                   : force_chronotips_left or force_chronotips_right
+		                         ? height() - _chronotips[0]->height() - _chronotips[1]->height()
+		                         : height() - _chronotips[0]->height();
 		_chronotips[0]->move(force_chronotips_right ? pos.x() + 1
 		                                            : pos.x() - _chronotips[0]->width(),
 		                     chronotips_y_0);
@@ -563,4 +564,4 @@ QRect PVSeriesViewZoomer::cross_hairs_rect(QPoint pos) const
 	             2 * _cross_hairs_radius + 1, 2 * _cross_hairs_radius + 1)
 	    .intersected(rect());
 }
-}
+} // namespace PVParallelView
