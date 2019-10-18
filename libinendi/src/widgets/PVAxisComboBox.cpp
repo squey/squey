@@ -42,7 +42,7 @@ void PVWidgets::PVAxisComboBox::set_current_axis(PVCombCol axis)
 	if (axis == PVCombCol()) {
 		setCurrentIndex(-1);
 	} else if (_axes_shown & AxesShown::CombinationAxes) {
-		setCurrentIndex(findData(QVariant::fromValue(axis)));
+		setCurrentIndex(axis);
 	} else {
 		setCurrentIndex(findData(QVariant::fromValue(_axes_comb.get_nraw_axis(axis))));
 	}
