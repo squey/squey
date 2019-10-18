@@ -33,7 +33,7 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
 	QImage density_legend(60, 1, QImage::Format_ARGB32);
 	for (int i = 0; i < density_legend.width(); ++i) {
 		density_legend.setPixelColor(
-		    i, 0, QColor::fromHsvF((1. - double(i) / density_legend.width()) / 3., 1., 1.));
+		    i, 0, QColor::fromHsvF((1. - double(i) / density_legend.width()) * 2 / 3., 1., 1.));
 	}
 	auto density_legend_label = new QLabel();
 	density_legend_label->setPixmap(
