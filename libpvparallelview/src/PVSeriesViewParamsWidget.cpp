@@ -66,6 +66,10 @@ void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
 		        _series_view_widget->setup_series_tree(axis);
 		        _series_view_widget->setup_selected_series_tree(axis);
 	        });
+	connect(
+	    _abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	    [split_selector](PVCol axis, PVCombCol) { split_selector->setEnabled(axis != PVCol()); });
+	split_selector->setEnabled(_abscissa_selector->currentData().value<PVCol>() != PVCol());
 }
 
 void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enable)
