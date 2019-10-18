@@ -477,8 +477,9 @@ void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 		}
 		_axis_density_worker_result.setPixelColor(
 		    0, axis_length - 1 - i,
-		    QColor::fromHsvF(std::max(0., 1. - double(sum) / double(selection.bit_count())) / 3., 1,
-		                     histogram[i] > 0, 1.));
+		    QColor::fromHsvF(std::max(0., 1. - double(sum) / double(selection.bit_count())) * 2 /
+		                         3.,
+		                     1, histogram[i] > 0, 1.));
 	}
 
 	BENCH_END(render_density, "render_density", _comb_col, 1, _comb_col, 1);
