@@ -138,9 +138,9 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			    _view->set_selection_view(sel);
 		    });
 
-		replaceable_widgets = {_zoomer, _range_edit};
+		replaceable_widgets = {_zoomer, _series_tree_widget, _selected_series_tree, _range_edit};
 	} else {
-		replaceable_widgets = {new QWidget, new QWidget};
+		replaceable_widgets = {new QWidget, new QWidget, new QWidget, new QWidget};
 	}
 
 	if (_layout_replacer && layout()) {
@@ -156,12 +156,12 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 
 		hlayout->addWidget(replaceable_widgets[0]);
 		auto* vlayout = new QVBoxLayout;
-		vlayout->addWidget(_series_tree_widget);
-		vlayout->addWidget(_selected_series_tree);
+		vlayout->addWidget(replaceable_widgets[1]);
+		vlayout->addWidget(replaceable_widgets[2]);
 		hlayout->addLayout(vlayout);
 
 		QHBoxLayout* bottom_layout = new QHBoxLayout;
-		bottom_layout->addWidget(replaceable_widgets[1]);
+		bottom_layout->addWidget(replaceable_widgets[3]);
 		bottom_layout->addStretch();
 		bottom_layout->addWidget(_params_widget);
 
