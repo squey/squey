@@ -14,7 +14,7 @@
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters,
                       "Axes combination",
-                      QIcon(":/view-datatree"))
+                      QIcon(":/view-axes-combination"))
 {
 }
 
@@ -23,6 +23,8 @@ QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView*
                                                                  Params const&) const
 {
 	PVGuiQt::PVAxesCombinationDialog* dlg = new PVGuiQt::PVAxesCombinationDialog(*view, parent);
+
+	dlg->connect(dlg, &QDialog::finished, [dlg](int) { delete dlg; });
 
 	return dlg;
 }
