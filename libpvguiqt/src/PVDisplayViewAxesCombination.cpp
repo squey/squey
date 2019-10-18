@@ -14,7 +14,7 @@
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters,
                       "Axes combination",
-                      QIcon(":/view-datatree"))
+                      QIcon(":/view-axes-combination"))
 {
 }
 
