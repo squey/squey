@@ -7,6 +7,4 @@
 
 #include "PVERFParamsWidget.h"
 
-PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent)
-{
-}
+PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent) {}

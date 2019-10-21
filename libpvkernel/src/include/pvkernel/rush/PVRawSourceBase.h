@@ -68,22 +68,13 @@ class PVRawSourceBaseType : public PVRawSourceBase
 {
   protected:
 	using chunk_type_t = ChunkType;
+	static constexpr auto chunk_type_v = ChunkType::chunk_type;
 
   public:
 	using PVRawSourceBase::PVRawSourceBase;
 
   public:
-	virtual EChunkType chunk_type() const
-	{
-		if
-			constexpr(std::is_same<ChunkType, PVCore::PVTextChunk>::value)
-			{
-				return EChunkType::TEXT;
-			}
-		else {
-			return EChunkType::BINARY;
-		}
-	}
+	virtual EChunkType chunk_type() const { return chunk_type_v; }
 };
 
 } // namespace PVRush

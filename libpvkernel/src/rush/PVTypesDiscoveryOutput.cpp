@@ -261,7 +261,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 			bool is_header = std::all_of(
 			    matching_formatters.begin(), matching_formatters.end(), [](const auto& f) {
 				    return std::all_of(f.begin(), f.end(), [](bool v) { return not v; });
-				});
+			    });
 			if (is_header) {
 				size_t col = 0;
 				for (PVCore::PVField const& field : fields) {

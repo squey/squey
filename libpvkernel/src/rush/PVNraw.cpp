@@ -39,9 +39,7 @@ const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
  *
  ****************************************************************************/
 
-PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0)
-{
-}
+PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0) {}
 
 /*****************************************************************************
  *

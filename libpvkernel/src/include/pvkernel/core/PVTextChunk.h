@@ -9,9 +9,10 @@
 #define PVTextChunk_FILE_H
 
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/core/PVElement.h> // for PVElement
-#include <pvkernel/core/PVField.h>   // for PVField
-#include <pvkernel/core/PVLogger.h>  // for PVLOG_ERROR
+#include <pvkernel/core/PVElement.h>             // for PVElement
+#include <pvkernel/core/PVField.h>               // for PVField
+#include <pvkernel/core/PVLogger.h>              // for PVLOG_ERROR
+#include <pvkernel/rush/PVRawSourceBase_types.h> // for EChunkType
 
 #include <tbb/scalable_allocator.h> // for scalable_allocator
 
@@ -96,6 +97,8 @@ class PVTextChunk : public PVChunk
   public:
 	PVTextChunk() : _init_size(0), _p_chunk_fields(nullptr){};
 	virtual ~PVTextChunk() { free_structs(); }
+
+	static constexpr PVRush::EChunkType chunk_type = PVRush::EChunkType::TEXT;
 
   public:
 	size_t rows_count() const override { return c_elements().size(); };

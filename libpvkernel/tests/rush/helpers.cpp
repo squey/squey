@@ -8,10 +8,10 @@
 #include "helpers.h"
 #include <iostream>
 
-using PVCore::PVTextChunk;
+using PVCore::list_fields;
 using PVCore::PVElement;
 using PVCore::PVField;
-using PVCore::list_fields;
+using PVCore::PVTextChunk;
 
 void dump_chunk_csv(PVTextChunk& c, std::ostream& out)
 {

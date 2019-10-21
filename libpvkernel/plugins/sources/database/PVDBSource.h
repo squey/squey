@@ -41,6 +41,6 @@ class PVDBSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	chunk_index _next_index;
 	QSqlQuery _sql_query;
 };
-}
+} // namespace PVRush
 
 #endif

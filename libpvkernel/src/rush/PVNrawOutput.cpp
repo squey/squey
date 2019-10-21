@@ -18,9 +18,7 @@
 #include <map>     // for map
 #include <string>  // for string
 
-PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
-{
-}
+PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw) {}
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {

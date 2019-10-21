@@ -41,6 +41,6 @@ class PVInputTypeERF : public PVInputTypeDesc<PVERFDescription>
 
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeERF)
 };
-}
+} // namespace PVRush
 
 #endif

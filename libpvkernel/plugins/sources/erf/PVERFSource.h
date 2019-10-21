@@ -24,8 +24,6 @@
 #include "PVERFSource.h"
 
 #include <pvkernel/core/PVBinaryChunk.h>
-
-#include <pvkernel/core/PVBinaryChunk.h>
 #include "inendi_erfio/inendi_erfio.h"
 
 namespace PVRush

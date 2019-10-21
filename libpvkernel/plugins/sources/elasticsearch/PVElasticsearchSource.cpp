@@ -29,22 +29,16 @@ PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input)
 	           qPrintable(infos.get_host()), infos.get_port(), qPrintable(infos.get_index()));
 }
 
-PVRush::PVElasticsearchSource::~PVElasticsearchSource()
-{
-}
+PVRush::PVElasticsearchSource::~PVElasticsearchSource() {}
 
 QString PVRush::PVElasticsearchSource::human_name()
 {
 	return QString("elasticsearch");
 }
 
-void PVRush::PVElasticsearchSource::seek_begin()
-{
-}
+void PVRush::PVElasticsearchSource::seek_begin() {}
 
-void PVRush::PVElasticsearchSource::prepare_for_nelts(chunk_index /*nelts*/)
-{
-}
+void PVRush::PVElasticsearchSource::prepare_for_nelts(chunk_index /*nelts*/) {}
 
 size_t PVRush::PVElasticsearchSource::get_size() const
 {

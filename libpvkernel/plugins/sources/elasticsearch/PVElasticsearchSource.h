@@ -49,6 +49,6 @@ class PVElasticsearchSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	bool _query_end = false;
 	std::string _scroll_id;
 };
-}
+} // namespace PVRush
 
 #endif

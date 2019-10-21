@@ -35,7 +35,6 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
 void PVRush::PVControllerJob::run_job()
 {
 	_executor = std::async(std::launch::async, [&]() {
-
 		// Configure the aggregator
 		_agg.process_indexes(_idx_begin, _idx_end, _max_n_elts);
 
@@ -60,7 +59,6 @@ void PVRush::PVControllerJob::run_job()
 		 */
 
 		job_has_run();
-
 	});
 }
 

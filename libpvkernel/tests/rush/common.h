@@ -252,6 +252,6 @@ class TestEnv
 	std::string _big_file_path;
 	bool _need_cleanup;
 };
-}
+} // namespace pvtest
 
 #endif

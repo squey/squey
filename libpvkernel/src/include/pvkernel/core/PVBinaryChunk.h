@@ -10,6 +10,7 @@
 
 #include <pvbase/general.h>
 #include <pvkernel/core/PVChunk.h>
+#include <pvkernel/rush/PVRawSourceBase_types.h> // for EChunkType
 
 #include <pvcop/db/sink.h>
 #include <pvcop/types/number.h>
@@ -22,6 +23,8 @@ namespace PVCore
 class PVBinaryChunk : public PVChunk
 {
   public:
+	static constexpr PVRush::EChunkType chunk_type = PVRush::EChunkType::BINARY;
+
 	PVBinaryChunk(size_t columns_count, size_t rows_count, PVRow start_index)
 	    : _rows_count(rows_count), _start_index(start_index)
 	{
@@ -50,6 +53,6 @@ class PVBinaryChunk : public PVChunk
 	pvcop::db::sink::columns_chunk_t _columns_chunk;
 };
 
-} // namespace PVRush
+} // namespace PVCore
 
 #endif // __PVCORE_PVBINARYCHUNK__

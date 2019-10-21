@@ -24,7 +24,7 @@ namespace types
 {
 class formatter_interface;
 }
-}
+} // namespace pvcop
 
 namespace PVRush
 {

@@ -7,6 +7,4 @@
 
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-PVRush::PVRawSourceBase::PVRawSourceBase() : _last_elt_index(0), _ncols_to_reserve(1)
-{
-}
+PVRush::PVRawSourceBase::PVRawSourceBase() : _last_elt_index(0), _ncols_to_reserve(1) {}

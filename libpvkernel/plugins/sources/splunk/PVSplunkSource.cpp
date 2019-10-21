@@ -23,22 +23,16 @@ PVRush::PVSplunkSource::PVSplunkSource(PVInputDescription_p input)
 {
 }
 
-PVRush::PVSplunkSource::~PVSplunkSource()
-{
-}
+PVRush::PVSplunkSource::~PVSplunkSource() {}
 
 QString PVRush::PVSplunkSource::human_name()
 {
 	return QString("splunk");
 }
 
-void PVRush::PVSplunkSource::seek_begin()
-{
-}
+void PVRush::PVSplunkSource::seek_begin() {}
 
-void PVRush::PVSplunkSource::prepare_for_nelts(chunk_index /*nelts*/)
-{
-}
+void PVRush::PVSplunkSource::prepare_for_nelts(chunk_index /*nelts*/) {}
 
 PVCore::PVTextChunk* PVRush::PVSplunkSource::operator()()
 {
