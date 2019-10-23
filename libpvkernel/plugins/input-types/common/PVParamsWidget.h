@@ -248,7 +248,7 @@ class PVParamsWidget : public PVParamsWidgetBase
 					PVCore::PVProgressBox::progress(
 					    [&](PVCore::PVProgressBox& pbox) {
 						    this->export_query_result(output_stream, pbox, &error);
-						},
+					    },
 					    "Exporting request result...", this);
 				}
 			}
@@ -300,7 +300,7 @@ class PVParamsWidget : public PVParamsWidgetBase
 
 	void preset_new_slot(const QString& name) override
 	{
-		QString query = get_server_query();
+		QString query = get_serialize_query();
 		QString query_type = get_query_type();
 
 		// Set the new presets
