@@ -39,13 +39,16 @@ class PVTextFileSource : public PVUnicodeSource<>
 	void add_element(char* begin, char* end) override
 	{
 		if (_input_desc->multi_inputs()) {
-			size_t new_size = std::distance(begin, end) + _path_name.size();
+			constexpr const size_t separator_size = 1;
+			bool trim_cr = (*(end - 1) == 0xd); // @note Remove \r for \r\n new-line (windows style)
+			size_t new_size =
+			    _path_name.size() + separator_size + std::distance(begin, end) - trim_cr;
 			PVCore::PVElement* new_element = PVUnicodeSource<>::add_uninitialized_element(new_size);
-
 			std::copy(_path_name.begin(), _path_name.end(), new_element->begin());
 			*(new_element->begin() + _path_name.size()) =
 			    PVRush::PVUnicodeSource<>::MULTI_INPUTS_SEPARATOR;
-			std::copy(begin, end - 1, new_element->begin() + _path_name.size() + 1);
+			std::copy(begin, end - trim_cr,
+			          new_element->begin() + _path_name.size() + separator_size);
 		} else {
 			PVUnicodeSource<>::add_element(begin, end);
 		}
