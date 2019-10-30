@@ -233,3 +233,7 @@ add_inspector_test(Tinendi_cancel_export Tinendi_cancel_export ${TESTS_FILES_DIR
 # Range subsampler
 add_inspector_compile_test(Tinendi_range_subsampler LINKS ${LINK_LIBRARIES} FILES range_subsampler.cpp)
 add_inspector_test(Tinendi_range_subsampler Tinendi_range_subsampler)
+
+# multi-inputs
+add_inspector_compile_test(Tinendi_multi_inputs LINKS ${LINK_LIBRARIES} FILES multi_inputs.cpp)
+add_inspector_test(Tinendi_multi_inputs Tinendi_multi_inputs)
