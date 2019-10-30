@@ -49,7 +49,7 @@ class TestEnv
 	 */
 	TestEnv(std::vector<std::string> const& log_files,
 	        std::string const& format_file,
-	        size_t dup,
+	        size_t dup = 1,
 	        ProcessUntil until = ProcessUntil::Source,
 	        const std::string& nraw_loading_from_disk_dir = "")
 	{
@@ -83,7 +83,7 @@ class TestEnv
 
 	TestEnv(std::string const& log_file,
 	        std::string const& format_file,
-	        size_t dup,
+	        size_t dup = 1,
 	        ProcessUntil until = ProcessUntil::Source,
 	        const std::string& nraw_loading_from_disk_dir = "")
 	    : TestEnv(std::vector<std::string>{log_file},
@@ -255,6 +255,6 @@ class TestEnv
   private:
 	std::vector<std::string> _big_file_paths;
 };
-}
+} // namespace pvtest
 
 #endif
