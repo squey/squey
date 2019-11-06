@@ -13,10 +13,13 @@
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
 #include <pvkernel/rush/PVFormat.h>
-
+#include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/core/PVProgressBox.h>
 
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVExportDlg.h>
+#include <pvkernel/widgets/PVCSVExporterWidget.h>
+#include <pvkernel/rush/PVCSVExporter.h>
 
 #include <QTextStream>
 
@@ -139,14 +142,20 @@ class PVParamsWidget : public PVParamsWidgetBase
 
 	/** Export the query result
 	 *
-	 * @param output_stream The output stream
+	 * @param compressor The output compressor
+	 * @param sep The CSV separator character
+	 * @param quote The CSV quote character
+	 * @param header Specify if a header should be exporter as well
 	 * @param pbox A reference to the progress bar of the export dialog
 	 * @param error Store any occured error if provided
 	 *
 	 * @return the result count returned by the query.
 	 *         0 if an error occured
 	 */
-	virtual void export_query_result(QTextStream& output_stream,
+	virtual void export_query_result(PVCore::PVStreamingCompressor& compressor,
+	                                 const std::string& sep,
+	                                 const std::string& quote,
+	                                 bool header,
 	                                 PVCore::PVProgressBox& pbox,
 	                                 std::string* error = nullptr) = 0;
 
@@ -236,25 +245,43 @@ class PVParamsWidget : public PVParamsWidgetBase
 		get_query(&error);
 
 		if (error.empty()) {
-			QString csv_filename = PVWidgets::PVFileDialog::getSaveFileName(
-			    this, "Export to...", "", get_export_filters());
+			// FileDialog for option selection and file to write
+			PVWidgets::PVExportDlg export_dlg;
 
-			if (csv_filename.isEmpty() == false) {
-
-				QFile f(csv_filename);
-				if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-
-					QTextStream output_stream(&f);
-					PVCore::PVProgressBox::progress(
-					    [&](PVCore::PVProgressBox& pbox) {
-						    this->export_query_result(output_stream, pbox, &error);
-					    },
-					    "Exporting request result...", this);
+			QFile file;
+			QString filename;
+			// Ask for file until a valid name is given or the action is aborted
+			while (true) {
+				int res = export_dlg.exec();
+				filename = export_dlg.selectedFiles()[0];
+				if (filename.isEmpty() || res == QDialog::Rejected) {
+					return;
 				}
-			}
-		}
 
-		if (error.empty() == false) {
+				file.setFileName(filename);
+				if (file.open(QIODevice::WriteOnly)) {
+
+					break;
+				}
+
+				// Error case
+				QMessageBox::critical(&export_dlg, tr("Error while exporting the selection"),
+				                      tr("Can not create the file \"%1\"").arg(filename));
+			}
+
+			// Export query
+			const PVRush::PVCSVExporter& exporter =
+			    dynamic_cast<PVRush::PVCSVExporter&>(export_dlg.exporter_widget()->exporter());
+			std::string sep = exporter.get_sep_char(), quote = exporter.get_quote_char();
+			bool header = exporter.get_export_header();
+			PVCore::PVStreamingCompressor compressor(filename.toStdString());
+			PVCore::PVProgressBox::progress(
+			    [&](PVCore::PVProgressBox& pbox) {
+				    this->export_query_result(compressor, sep, quote, header, pbox, &error);
+			    },
+			    "Exporting request result...", this);
+			compressor.wait_finished();
+		} else {
 			QMessageBox::critical(
 			    (QWidget*)QObject::parent(), tr("Export failed"),
 			    tr("Export failed with the following error:\n\n%1").arg(QString(error.c_str())));

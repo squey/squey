@@ -11,6 +11,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/widgets/PVFilterableComboBox.h>
+#include <pvkernel/widgets/PVExportDlg.h>
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -304,15 +305,32 @@ QString PVRush::PVElasticsearchParamsWidget::get_export_filters()
 	return "CSV File (*.csv)";
 }
 
-void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& output_stream,
-                                                              PVCore::PVProgressBox& pbox,
-                                                              std::string* error /*= nullptr*/)
+void PVRush::PVElasticsearchParamsWidget::export_query_result(
+    PVCore::PVStreamingCompressor& compressor,
+    const std::string& sep,
+    const std::string& quote,
+    bool header,
+    PVCore::PVProgressBox& pbox,
+    std::string* error /*= nullptr*/)
 {
 	size_t count = 0;
 	bool query_end = false;
 
 	PVRush::PVElasticsearchAPI es(get_infos());
 	const PVElasticsearchQuery& query = get_query(error);
+
+	if (header) {
+		const PVRush::PVElasticsearchAPI::columns_t& cols =
+		    es.format_columns(query.get_infos().get_filter_path().toStdString());
+		std::string h;
+		for (const auto & [ col_name, _ ] : cols) {
+			h += PVRush::PVUtils::safe_export(col_name, sep, quote) + sep;
+			(void)_;
+		}
+		h.resize(h.size() - 1); // remove last separator
+		compressor.write(h);
+		compressor.write("\n");
+	}
 
 	pbox.set_maximum(es.count(query));
 
@@ -332,18 +350,18 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(QTextStream& outpu
 		for (const std::vector<std::string>& row : rows) {
 			std::string v;
 			for (const std::string& col : row) {
-				v += PVRush::PVUtils::safe_export(col, ",", "\"") + ",";
+				v += PVRush::PVUtils::safe_export(col, sep, quote) + sep;
 			}
 			v.resize(v.size() - 1); // remove last separator
-			output_stream << v.c_str() << "\n";
-		}
-		count += rows.size();
-
-		if (output_stream.status() == QTextStream::WriteFailed) {
-			if (error) {
-				*error = "Write failed. Is your disk full ?";
+			try {
+				compressor.write(v);
+				compressor.write("\n");
+			} catch (const PVCore::PVStreamingCompressorError& e) {
+				*error = e.what();
+				return;
 			}
 		}
+		count += rows.size();
 
 		pbox.set_value(count);
 		pbox.set_extended_status(QString("%L1 rows exported so far").arg(count));

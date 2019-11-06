@@ -96,7 +96,10 @@ void PVRush::PVSplunkParamsWidget::query_type_changed_slot()
 	}
 }
 
-void PVRush::PVSplunkParamsWidget::export_query_result(QTextStream& output_stream,
+void PVRush::PVSplunkParamsWidget::export_query_result(PVCore::PVStreamingCompressor& compressor,
+                                                       const std::string& sep,
+                                                       const std::string& quote,
+                                                       bool header,
                                                        PVCore::PVProgressBox& pbox,
                                                        std::string* error /*= nullptr*/)
 {
@@ -104,6 +107,19 @@ void PVRush::PVSplunkParamsWidget::export_query_result(QTextStream& output_strea
 
 	PVRush::PVSplunkAPI splunk(get_infos());
 	const PVSplunkQuery& query = get_query(error);
+
+	if (header) {
+		const PVRush::PVSplunkAPI::columns_t& cols = splunk.columns();
+		std::string h;
+		for (const auto & [ col_name, _ ] : cols) {
+			h += PVRush::PVUtils::safe_export(col_name, sep, quote) + sep;
+			(void)_;
+		}
+		h.resize(h.size() - 1); // remove last separator
+		compressor.write(h);
+		compressor.write("\n");
+	}
+
 	std::string data;
 
 	do {
@@ -118,12 +134,10 @@ void PVRush::PVSplunkParamsWidget::export_query_result(QTextStream& output_strea
 			break;
 		}
 
-		output_stream << data.c_str();
-
-		if (output_stream.status() == QTextStream::WriteFailed) {
-			if (error) {
-				*error = "Write failed. Is your disk full ?";
-			}
+		try {
+			compressor.write(data);
+		} catch (const PVCore::PVStreamingCompressorError& e) {
+			*error = e.what();
 		}
 
 	} while (query_end == false);

@@ -9,7 +9,7 @@
 #define __BPVGUIQT_PVCSVEXPORTERWIDGET_H__
 
 #include <pvkernel/rush/PVCSVExporter.h>
-#include <pvkernel/widgets/PVExporterWidgetInterface.h>
+#include <pvkernel/widgets/PVCSVExporterWidget.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
 #include <inendi/PVAxesCombination.h>
 #include <inendi/PVView.h>
@@ -19,11 +19,11 @@
 namespace PVGuiQt
 {
 
-class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
+class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 {
   public:
 	PVCSVExporterWidget(Inendi::PVView const& view)
-	    : _exporter(PVRush::PVCSVExporter()), _custom_axes_combination(view.get_axes_combination())
+	    : PVWidgets::PVCSVExporterWidget(), _custom_axes_combination(view.get_axes_combination())
 	{
 		// Layout for export_layout is:
 		// --------------------export_layout---------------------------
@@ -31,57 +31,8 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		// ||  left_layout              |   right layout             ||
 		// |----------------------------------------------------------|
 		// ------------------------------------------------------------
-		QHBoxLayout* export_layout = new QHBoxLayout();
-		QVBoxLayout* left_layout = new QVBoxLayout();
 		QVBoxLayout* right_layout = new QVBoxLayout();
-		export_layout->addLayout(left_layout);
-		export_layout->addLayout(right_layout);
-
-		/// left_layout
-
-		// Export column name
-		QCheckBox* export_header = new QCheckBox("Export column names as header");
-		export_header->setChecked(_exporter.get_export_header());
-		QObject::connect(export_header, &QCheckBox::stateChanged,
-		                 [&](int state) { _exporter.set_export_header(state); });
-
-		export_header->setCheckState(Qt::CheckState::Checked);
-		left_layout->addWidget(export_header);
-
-		// Define csv specific character
-		QFormLayout* char_layout = new QFormLayout();
-		char_layout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
-
-		// Separator character
-		PVWidgets::QKeySequenceWidget* separator_char = new PVWidgets::QKeySequenceWidget();
-		separator_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-		separator_char->setKeySequence(QKeySequence(","));
-		separator_char->setMaxNumKey(1);
-		char_layout->addRow("Fields separator:", separator_char);
-		QObject::connect(separator_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
-		                 [&](const QKeySequence& keySequence) {
-			                 _exporter.set_sep_char(keySequence.toString().toStdString());
-			             });
-
-		// Quote character
-		PVWidgets::QKeySequenceWidget* quote_char = new PVWidgets::QKeySequenceWidget();
-		quote_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-		quote_char->setKeySequence(QKeySequence("\""));
-		quote_char->setMaxNumKey(1);
-		char_layout->addRow("Quote character:", quote_char);
-		QObject::connect(quote_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
-		                 [&](const QKeySequence& keySequence) {
-			                 _exporter.set_quote_char(keySequence.toString().toStdString());
-			             });
-
-		left_layout->addLayout(char_layout);
-
-		QCheckBox* export_internal_values =
-		    new QCheckBox("Export internal values instead of displayed values");
-		export_internal_values->setChecked(_exporter.get_export_internal_values());
-		QObject::connect(export_internal_values, &QCheckBox::stateChanged,
-		                 [&](int state) { _exporter.set_export_internal_values((bool)state); });
-		left_layout->addWidget(export_internal_values);
+		_export_layout->addLayout(right_layout);
 
 		/// right_layout
 
@@ -126,6 +77,15 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		custom_axes_combination_layout->addWidget(custom_axis);
 		custom_axes_combination_layout->addWidget(edit_axes_combination);
 		right_layout->addLayout(custom_axes_combination_layout);
+
+		// Export internal values
+		QCheckBox* export_internal_values =
+		    new QCheckBox("Export internal values instead of displayed values");
+		export_internal_values->setChecked(_exporter.get_export_internal_values());
+		QObject::connect(export_internal_values, &QCheckBox::stateChanged,
+		                 [&](int state) { _exporter.set_export_internal_values((bool)state); });
+		right_layout->addWidget(export_internal_values);
+
 		right_layout->addStretch();
 
 		// TODO : add an OK button
@@ -143,21 +103,17 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		// Rows to export
 		PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
 		_exporter.set_total_row_count(nraw.row_count());
-
+		const Inendi::PVPlotted& plotted = view.get_parent<Inendi::PVPlotted>();
 		PVRush::PVCSVExporter::export_func_f export_func =
 		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
-		        const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
-		if (_exporter.get_export_internal_values()) {
-			const Inendi::PVPlotted& plotted = view.get_parent<Inendi::PVPlotted>();
-			export_func = [&](PVRow row, const PVCore::PVColumnIndexes& cols,
-			                  const std::string& sep, const std::string& quote) {
-
-				return plotted.export_line(row, cols, sep, quote);
-			};
-		}
+		        const std::string& quote) {
+			    if (_exporter.get_export_internal_values()) {
+				    return plotted.export_line(row, cols, sep, quote);
+			    } else {
+				    return nraw.export_line(row, cols, sep, quote);
+			    }
+		    };
 		_exporter.set_export_func(export_func);
-
-		setLayout(export_layout);
 	}
 
   public:
