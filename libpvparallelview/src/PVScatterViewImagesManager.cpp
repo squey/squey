@@ -173,6 +173,12 @@ void PVParallelView::PVScatterViewImagesManager::process_all()
 	clear_dirty_rects(data.image_all());
 	clear_dirty_rects(data.image_sel());
 	data.process_all(_data_params, _sel);*/
+
+	cancel_all_and_wait();
+
+	PVParallelView::PVZoomedZoneTree const& zzt = get_zones_manager().get_zoom_zone_tree(_zid);
+	_data.set_zoomed_zone_tree(zzt);
+
 	process_sel();
 	process_bg();
 }
