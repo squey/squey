@@ -31,13 +31,7 @@
 #include <rapidjson/stringbuffer.h>
 
 PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/)
-    : QWidget(parent)
-    ,
-#ifdef QT_WEBKIT
-    _view(new QWebView)
-#else
-    _view(new QWebEngineView)
-#endif
+    : QWidget(parent), _view(new QWebEngineView)
 {
 	// Javascript content must be executed on the main Qt thread to avoid crashs
 	connect(this, &PVQueryBuilder::run_javascript_signal, this,
@@ -66,11 +60,7 @@ void PVWidgets::PVQueryBuilder::reinit()
 
 	// Trick to wait for the page to be properly loaded
 	QEventLoop loop;
-#ifdef QT_WEBKIT
-	connect(_view, &QWebView::loadFinished, &loop, &QEventLoop::quit);
-#else
 	connect(_view, &QWebEngineView::loadFinished, &loop, &QEventLoop::quit);
-#endif
 	loop.exec();
 
 	if (layout() == nullptr) {
@@ -218,9 +208,6 @@ void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript,
 {
 	QVariant r;
 
-#ifdef QT_WEBKIT
-	r = _view->page()->mainFrame()->evaluateJavaScript(javascript);
-#else
 	QEventLoop loop;
 
 	_view->page()->runJavaScript(javascript, [&](const QVariant& res) {
@@ -229,7 +216,6 @@ void PVWidgets::PVQueryBuilder::run_javascript_slot(const QString& javascript,
 	});
 
 	loop.exec(); // Trick to run asynchronous code synchronously
-#endif
 
 	if (result) {
 		*result = r.toString();
@@ -248,11 +234,9 @@ void PVWidgets::PVQueryBuilder::setVisible(bool v)
 
 void PVWidgets::PVQueryBuilder::workaround_qwebengine_refresh_bug()
 {
-#ifndef QT_WEBKIT
 	// Really really really ugly hack to workaround QWebEngine refresh bug
 	if (_view) {
 		_view->resize(_view->width() + 1, _view->height() + 1);
 		_view->resize(_view->width() - 1, _view->height() - 1);
 	}
-#endif
 }

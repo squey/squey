@@ -13,7 +13,7 @@
 #include <QRadioButton>
 
 #include <pvkernel/rush/PVExporter.h>
-#include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVExportDlg.h>
 
 namespace PVWidgets
 {
@@ -36,7 +36,7 @@ class PVAxesCombinationWidget;
  *
  * Pop a file dialog to specify filename and the kind of export and do it.
  */
-class PVExportSelectionDlg : public PVWidgets::PVFileDialog
+class PVExportSelectionDlg : public PVWidgets::PVExportDlg
 {
 	Q_OBJECT;
 

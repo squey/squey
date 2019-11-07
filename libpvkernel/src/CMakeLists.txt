@@ -179,6 +179,7 @@ include/pvkernel/widgets/editors/PVPercentRangeEditor.h
 
 include/pvkernel/widgets/PVQueryBuilder.h
 include/pvkernel/widgets/PVLongLongSpinBox.h
+include/pvkernel/widgets/PVExportDlg.h
 )
 
 set(WIDGETS_SRC_FILES
@@ -210,6 +211,7 @@ widgets/PVLayerNamingPatternDialog.cpp
 widgets/PVQueryBuilder.cpp
 widgets/PVLongLongSpinBox.cpp
 widgets/PVFileDialog.cpp
+widgets/PVExportDlg.cpp
 )
 
 SET(UI_FILES

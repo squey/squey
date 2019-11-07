@@ -58,7 +58,10 @@ class PVSplunkParamsWidget
 	bool set_infos(PVSplunkInfos const& infos) override;
 	void set_query(QString const& query) override;
 	bool check_connection(std::string* error = nullptr) override;
-	void export_query_result(QTextStream& output_stream,
+	void export_query_result(PVCore::PVStreamingCompressor& compressor,
+	                         const std::string& sep,
+	                         const std::string& quote,
+	                         bool header,
 	                         PVCore::PVProgressBox& pbox,
 	                         std::string* error = nullptr) override;
 	void set_query_type(QString const& query_type);

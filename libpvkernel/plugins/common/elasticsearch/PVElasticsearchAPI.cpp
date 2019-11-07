@@ -288,10 +288,13 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 	std::string json_buffer;
 	std::string url =
 	    socket() + "/" + _infos.get_index().toStdString() + "/_mapping" +
-	    (filter_path.empty() ? "" : ("?filter_path=" +
-	                                 get_filter_path_from_base(_curl, filter_path,
-	                                                           "**.mappings.**.properties",
-	                                                           ".properties.")));
+	    (filter_path.empty()
+	         ? ""
+	         : ("?filter_path=" + get_filter_path_from_base(_curl, filter_path,
+	                                                        _version < PVCore::PVVersion(7, 0, 0)
+	                                                            ? "**.mappings.**.properties"
+	                                                            : "**.mappings.properties",
+	                                                        ".properties.")));
 
 	prepare_query(_curl, url);
 	if (perform_query(_curl, json_buffer)) {
@@ -316,7 +319,11 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 			}
 		}
 
-		const rapidjson::Value& properties = mappings[mapping_type.c_str()]["properties"];
+		rapidjson::Value& properties = mappings[mapping_type.c_str()];
+		if (_version < PVCore::PVVersion(7, 0, 0)) {
+			properties = properties["properties"];
+		}
+
 		visit_columns_rec(properties, f);
 	}
 }
@@ -348,7 +355,7 @@ PVRush::PVElasticsearchAPI::querybuilder_columns_t PVRush::PVElasticsearchAPI::q
 		    if (is_leaf) {
 			    cols.emplace_back(abs_name, map_type(type));
 		    }
-		},
+	    },
 	    filter_path, error);
 
 	return cols;
@@ -389,7 +396,7 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
 		    if (is_leaf) {
 			    cols.emplace_back(abs_name, std::make_pair(map_type(type), ""));
 		    }
-		},
+	    },
 	    filter_path, error);
 
 	// Narrow numeric types based on aggregation max value
@@ -880,7 +887,7 @@ bool PVRush::PVElasticsearchAPI::scroll(CURL* curl,
                                         const size_t max_result_window,
                                         std::string& json_buffer,
                                         std::string* error /* = nullptr */
-                                        )
+)
 {
 	if (init) {
 		init_scroll(curl, query, slice_id, slice_count, max_result_window);

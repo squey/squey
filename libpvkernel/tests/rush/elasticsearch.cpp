@@ -26,9 +26,9 @@ static const PVRush::PVElasticsearchAPI::columns_t
                  {"http_method", {"string", ""}},
                  {"login", {"string", ""}},
                  {"mime_type", {"string", ""}},
-                 {"src_ip", {"ipv6", ""}},
+                 {"src_ip", {"string", ""}},
                  {"status_code", {"string", ""}},
-                 {"time", {"time", "epochS"}},
+                 {"time", {"string", ""}},
                  {"time_spent", {"number_uint32", ""}},
                  {"total_bytes", {"number_uint32", ""}},
                  {"url", {"string", ""}},
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 	if (not error.empty()) {
 		std::cout << error << std::endl;
 	}
-	PV_VALID(count, 9981UL);
+	PV_VALID(count, 219UL);
 
 	/**************************************************************************
 	 * Import data

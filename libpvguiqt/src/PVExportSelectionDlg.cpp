@@ -23,61 +23,30 @@
 #include <pvkernel/core/PVProgressBox.h>
 
 PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVView& view, QWidget* parent /* = 0 */)
-    : PVWidgets::PVFileDialog(parent)
+    : PVWidgets::PVExportDlg(parent)
 {
-	// Set this flags to make sure we can access the layout.
-	setOption(QFileDialog::DontUseNativeDialog);
-	setWindowTitle(tr("Export selection"));
-	setAcceptMode(QFileDialog::AcceptSave);
+	delete _groupbox->layout();
+	delete _exporter_widget;
 
 	// Use default CSV exporter if input type doesn't define a specific one
 	PVGuiQt::PVCSVExporterWidget* exporter_widget = new PVGuiQt::PVCSVExporterWidget(view);
 	_exporter = &exporter_widget->exporter();
 
-	// Get the layout from the QFileDialog
-	// Layout is:
-	// -----------------main_layout--------------------------------
-	// |           name bar where you can put filename/filedir    |
-	// ------------------------------------------------------------
-	// | dir tree | list of files                                 |
-	// ------------------------------------------------------------
-	// |filename_label | filename | valide_button                 |
-	// ------------------------------------------------------------
-	// |filetype_label | filetype | cancel_button                 |
-	// ------------------------------------------------------------
-	// |----------------group_box---------------------------------|
-	// ||                  export_layout                         ||
-	// |----------------------------------------------------------|
-	// ------------------------------------------------------------
-	QGridLayout* main_layout = static_cast<QGridLayout*>(layout());
-
-	QGroupBox* group_box = new QGroupBox();
-	main_layout->addWidget(group_box, 4, 0, 1, 3);
-
 	// Add input specific exporter filter string if any
-	QStringList name_filters;
 	const Inendi::PVSource& source = view.get_parent<Inendi::PVSource>();
 	const QString& specific_export_filter =
 	    source.get_source_creator()->supported_type_lib()->get_exporter_filter_string(
 	        source.get_inputs());
 	if (not specific_export_filter.isEmpty()) {
-		name_filters << specific_export_filter;
+		_name_filters.insert(0, specific_export_filter);
 	}
 
-	// Default CSV exporter
-	name_filters << ".csv files (*.csv)";
-	for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
-		const QString& name_filter =
-		    QString::fromStdString(".csv." + extension + " files (*.csv." + extension + ")");
-		name_filters << name_filter;
-	}
-	setNameFilters(name_filters);
-	auto suffix_from_filter = [](const QString& filter) { return filter.split(" ")[0]; };
+	setNameFilters(_name_filters);
 
 	// Set specific exporter as default if any, .csv.gz otherwise
 	int gz_idx;
-	for (gz_idx = name_filters.size() - 1; gz_idx >= 0; gz_idx--) {
-		if (name_filters[gz_idx].contains("gz")) {
+	for (gz_idx = _name_filters.size() - 1; gz_idx >= 0; gz_idx--) {
+		if (_name_filters[gz_idx].contains("gz")) {
 			break;
 		}
 	}
@@ -94,19 +63,17 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVView& view, QWidge
 		stacked_layout->addWidget(specific_export_widget);
 		stacked_layout->setCurrentIndex(1);
 	}
-	group_box->setLayout(stacked_layout);
+	_groupbox->setLayout(stacked_layout);
 
 	auto filter_selected_f = [=](const QString& filter) {
-		setDefaultSuffix(suffix_from_filter(filter));
+		_filter_selected_f(filter);
+
 		_is_source_exporter = not filter.contains("*.csv");
 		stacked_layout->setCurrentIndex(_is_source_exporter);
-
-		// force filters to reset as setting 'QFileDialog::Directory' erase them
-		setNameFilters(name_filters);
-		selectNameFilter(filter);
 	};
+	QObject::disconnect(_conn);
 	QObject::connect(this, &QFileDialog::filterSelected, filter_selected_f);
-	filter_selected_f(name_filters.at(default_filter_index));
+	filter_selected_f(_name_filters.at(default_filter_index));
 }
 
 /* This is the static function used to export a selection.
@@ -153,7 +120,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 				    return;
 			    }
 			    pbox.set_value(exported_row_count);
-			});
+		    });
 
 		    try {
 			    exporter.export_rows(file.fileName().toStdString(), sel);
@@ -161,6 +128,6 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 			    pbox.critical("Error when exporting data", e.what());
 			    std::remove(file.fileName().toStdString().c_str());
 		    }
-		},
+	    },
 	    "Selection export", nullptr);
 }
