@@ -20,13 +20,12 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QScrollBar>
+#include <QSplitter>
 #include <QMenu>
 
 #include <KF5/KItemModels/klinkitemselectionmodel.h>
 
 #include <memory>
-
-constexpr const size_t TREE_WIDGET_WIDTH = 200;
 
 PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
                                                        PVCol axis,
@@ -151,21 +150,29 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 		QVBoxLayout* layout = new QVBoxLayout;
 		layout->setContentsMargins(0, 0, 0, 0);
 
-		QHBoxLayout* hlayout = new QHBoxLayout;
-		hlayout->setContentsMargins(0, 0, 0, 0);
-
-		hlayout->addWidget(replaceable_widgets[0]);
+		QWidget* series_widget = new QWidget;
 		auto* vlayout = new QVBoxLayout;
+		vlayout->setContentsMargins(0, 0, 0, 0);
+
 		vlayout->addWidget(replaceable_widgets[1]);
 		vlayout->addWidget(replaceable_widgets[2]);
-		hlayout->addLayout(vlayout);
+		series_widget->setLayout(vlayout);
+
+		QSplitter* splitter = new QSplitter(Qt::Horizontal);
+		splitter->setSizePolicy(
+		    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+		splitter->addWidget(replaceable_widgets[0]);
+		splitter->addWidget(series_widget);
+		splitter->setContentsMargins(0, 0, 0, 0);
+		splitter->setStretchFactor(0, 1);
+		splitter->setStretchFactor(1, 0);
 
 		QHBoxLayout* bottom_layout = new QHBoxLayout;
 		bottom_layout->addWidget(replaceable_widgets[3]);
 		bottom_layout->addStretch();
 		bottom_layout->addWidget(_params_widget);
 
-		layout->addLayout(hlayout);
+		layout->addWidget(splitter);
 		layout->addLayout(bottom_layout);
 
 		setLayout(layout);
@@ -239,7 +246,6 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 	_series_tree_widget->disconnect(); // disconnect local signals
 
 	_series_tree_widget->setHeaderHidden(true);
-	_series_tree_widget->setFixedWidth(TREE_WIDGET_WIDTH);
 
 	connect(_series_tree_widget, &PVSeriesTreeView::selection_changed, this,
 	        &PVSeriesViewWidget::update_selected_series);
@@ -318,7 +324,6 @@ void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*absc
 	_selected_series_tree->setModel(filter_proxy_model);
 	_selected_series_tree->setSelectionModel(selection_link_model); // sync selection
 
-	_selected_series_tree->setFixedWidth(TREE_WIDGET_WIDTH);
 	_selected_series_tree->setHeaderHidden(true);
 	_selected_series_tree->setMaximumHeight(0);
 	_selected_series_tree->setSelectionMode(QAbstractItemView::MultiSelection);

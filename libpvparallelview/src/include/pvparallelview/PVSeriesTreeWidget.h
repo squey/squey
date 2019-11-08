@@ -56,7 +56,7 @@ class PVSeriesTreeItem
 
 	QVariant data(int role) const
 	{
-		if (role == Qt::DisplayRole) {
+		if (role == Qt::DisplayRole or role == Qt::ToolTipRole) {
 			return _item_text;
 		} else if (role == Qt::BackgroundColorRole) {
 			return _item_color;
