@@ -35,7 +35,7 @@ class PVBinaryChunk : public PVChunk
 	void set_column_chunk(PVCol col, std::vector<T>& vec_data)
 	{
 		_columns_chunk[col] = pvcop::db::sink::column_chunk_t(
-		    vec_data.data(), sizeof(T) * vec_data.size(),
+		    vec_data.data(), vec_data.size(), sizeof(T),
 		    std::string("number_") + pvcop::types::type_string<T>());
 	}
 
