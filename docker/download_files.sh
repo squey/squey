@@ -30,17 +30,20 @@ then
     fi
 
     # Export NVIDIA drivers bundle
-    echo "[2/3] Exporting NVIDIA drivers bundle ..."
-    if [ $runtime_not_installed -eq 1 ]
+    if [ ! -z ${GL_DRIVERS_VERSION} ]
     then
-        flatpak install --user -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
-    else
-        flatpak update --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
-    fi
-    flatpak build-bundle --runtime --runtime-repo=${FLATHUB_REPO} ~/.local/share/flatpak/repo "${DATA_PATH}/drivers.flatpak" "$DRIVERS_NAME" "$DRIVERS_BRANCH"
-    if [ $runtime_not_installed -eq 1 ]
-    then
-        flatpak uninstall --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        echo "[2/3] Exporting NVIDIA drivers bundle ..."
+        if [ $runtime_not_installed -eq 1 ]
+        then
+            flatpak install --user -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        else
+            flatpak update --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        fi
+        flatpak build-bundle --runtime --runtime-repo=${FLATHUB_REPO} ~/.local/share/flatpak/repo "${DATA_PATH}/drivers.flatpak" "$DRIVERS_NAME" "$DRIVERS_BRANCH"
+        if [ $runtime_not_installed -eq 1 ]
+        then
+            flatpak uninstall --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        fi
     fi
 
     # Export INENDI Inspector bundle
