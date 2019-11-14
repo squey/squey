@@ -18,7 +18,7 @@ docker cp resources/configure_auth.sh inspector-install:"${INSTALL_PATH}/"
 docker exec inspector-install bash "${INSTALL_PATH}/configure_auth.sh"
 
 # Configure DCV SSL certificate
-if [[ -f "${DCV_SSL_KEY_PATH}" ]] && [[ -f "${DCV_SSL_KEY_PATH}" ]]
+if [[ -f "${DCV_SSL_KEY_PATH}" ]] && [[ -f "${DCV_SSL_CERT_PATH}" ]]
 then
     docker cp "${DCV_SSL_CERT_PATH}" inspector-install:"${INSTALL_PATH}/"
     docker cp "${DCV_SSL_KEY_PATH}" inspector-install:"${INSTALL_PATH}/"
@@ -28,6 +28,10 @@ docker cp resources/configure_ssl.sh inspector-install:"${INSTALL_PATH}/"
 docker exec inspector-install bash "${INSTALL_PATH}/configure_ssl.sh"
 
 docker commit inspector-install inendi/inspector
-docker stop inspector-install
+
+function finish {
+    docker stop inspector-install
+}
+trap finish EXIT TERM KILL
 
 chmod +x run.sh

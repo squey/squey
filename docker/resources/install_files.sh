@@ -9,8 +9,11 @@ if [[ ${install_mode} == "offline" ]]
 then
     flatpak uninstall -y "${INSPECTOR_NAME}" &> /dev/null
     flatpak install -y "${DIR}/inendi-inspector.flatpak"
-    flatpak uninstall -y "${DRIVER_NAME}"  &> /dev/null
-    flatpak install -y "${DIR}/drivers.flatpak"
+    if [ -f "${DIR}/drivers.flatpak" ]
+    then
+        flatpak uninstall -y "${DRIVER_NAME}"  &> /dev/null
+        flatpak install -y "${DIR}/drivers.flatpak"
+    fi
     flatpak uninstall -y "${RUNTIME_NAME}"  &> /dev/null
     flatpak install -y "${DIR}/runtime.flatpak"
     rm -rf "${DIR}/*.flatpak"

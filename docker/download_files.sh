@@ -7,6 +7,8 @@ source "${DIR}/.env.conf"
 install_mode="$1"
 if [ "$#" -eq 0 ]
 then
+    mkdir "${DATA_PATH}" &> /dev/null
+
     command -v flatpak &> /dev/null || { echo >&2 "'flatpak' executable is required to execute this script."; exit 1; }
     command -v wget &> /dev/null || { echo >&2 "'wget' executable is required to execute this script."; exit 1; }
 
@@ -23,24 +25,29 @@ then
     else
         flatpak update --user -y "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
     fi
-    flatpak build-bundle --runtime --runtime-repo=${FLATHUB_REPO} ~/.local/share/flatpak/repo "${DATA_PATH}/runtime.flatpak" "$RUNTIME_NAME" "$RUNTIME_BRANCH"
+    flatpak build-bundle --runtime ~/.local/share/flatpak/repo "${DATA_PATH}/runtime.flatpak" "$RUNTIME_NAME" "$RUNTIME_BRANCH"
     if [ $runtime_not_installed -eq 1 ]
     then
         flatpak uninstall --user -y "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
     fi
 
     # Export NVIDIA drivers bundle
-    echo "[2/3] Exporting NVIDIA drivers bundle ..."
-    if [ $runtime_not_installed -eq 1 ]
+    if [ ! -z ${GL_DRIVERS_VERSION} ]
     then
-        flatpak install --user -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        echo "[2/3] Exporting NVIDIA drivers bundle ..."
+        if [ $runtime_not_installed -eq 1 ]
+        then
+            flatpak install --user -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        else
+            flatpak update --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        fi
+        flatpak build-bundle --runtime ~/.local/share/flatpak/repo "${DATA_PATH}/drivers.flatpak" "$DRIVERS_NAME" "$DRIVERS_BRANCH"
+        if [ $runtime_not_installed -eq 1 ]
+        then
+            flatpak uninstall --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        fi
     else
-        flatpak update --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
-    fi
-    flatpak build-bundle --runtime --runtime-repo=${FLATHUB_REPO} ~/.local/share/flatpak/repo "${DATA_PATH}/drivers.flatpak" "$DRIVERS_NAME" "$DRIVERS_BRANCH"
-    if [ $runtime_not_installed -eq 1 ]
-    then
-        flatpak uninstall --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
+        echo "[2/3] Skipping exporting NVIDIA drivers bundle as we don't have any GPU"
     fi
 
     # Export INENDI Inspector bundle
@@ -53,7 +60,7 @@ then
     else
         flatpak update --user -y "${INSPECTOR_NAME}" &> /dev/null
     fi
-    flatpak build-bundle --runtime-repo=${FLATHUB_REPO} ~/.local/share/flatpak/repo "${DATA_PATH}/inendi-inspector.flatpak" "${INSPECTOR_NAME}"
+    flatpak build-bundle ~/.local/share/flatpak/repo "${DATA_PATH}/inendi-inspector.flatpak" "${INSPECTOR_NAME}"
     if [ $inspector_not_installed -eq 1 ]
     then
         flatpak uninstall --user -y "${INSPECTOR_NAME}" &> /dev/null

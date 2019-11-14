@@ -11,7 +11,10 @@ docker run --privileged --runtime=nvidia --rm --name inspector-update -v /sys/fs
 if [[ ${INSTALL_MODE} == "offline" ]]
 then
     docker cp data/runtime.flatpak inspector-update:"${INSTALL_PATH}/"
-    docker cp data/drivers.flatpak inspector-update:"${INSTALL_PATH}/"
+    if [ -f "data/drivers.flatpak" ]
+    then
+        docker cp data/drivers.flatpak inspector-update:"${INSTALL_PATH}/"
+    fi
     docker cp data/inendi-inspector.flatpak inspector-update:"${INSTALL_PATH}/"
 fi
 
