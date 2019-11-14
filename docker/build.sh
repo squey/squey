@@ -28,6 +28,10 @@ docker cp resources/configure_ssl.sh inspector-install:"${INSTALL_PATH}/"
 docker exec inspector-install bash "${INSTALL_PATH}/configure_ssl.sh"
 
 docker commit inspector-install inendi/inspector
-docker stop inspector-install
+
+function finish {
+    docker stop inspector-install
+}
+trap finish EXIT TERM KILL
 
 chmod +x run.sh
