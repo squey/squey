@@ -7,6 +7,8 @@ source "${DIR}/.env.conf"
 install_mode="$1"
 if [ "$#" -eq 0 ]
 then
+    mkdir "${DATA_PATH}" &> /dev/null
+
     command -v flatpak &> /dev/null || { echo >&2 "'flatpak' executable is required to execute this script."; exit 1; }
     command -v wget &> /dev/null || { echo >&2 "'wget' executable is required to execute this script."; exit 1; }
 
@@ -44,6 +46,8 @@ then
         then
             flatpak uninstall --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
         fi
+    else
+        echo "[2/3] Skipping exporting NVIDIA drivers bundle as we don't have any GPU"
     fi
 
     # Export INENDI Inspector bundle
