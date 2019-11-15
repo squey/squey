@@ -2,6 +2,7 @@
 
 source env.conf
 source resources/.env.conf
+source resources/check_nvidia-docker.sh
 
 INSTALL_MODE="online"
 [[ -d "data" ]] && INSTALL_MODE="offline"
@@ -10,7 +11,7 @@ INSTALL_MODE="online"
 docker build --build-arg INSTALL_PATH="${INSTALL_PATH}" --build-arg INSTALL_MODE="${INSTALL_MODE}" --build-arg DCV_LICENSE_SERVER="${DCV_LICENSE_SERVER}" --build-arg APT_PROXY="${APT_PROXY}" . -f resources/Dockerfile -t inendi/inspector
 
 # Install INENDI Inspector
-docker run --privileged --runtime=nvidia --rm --name inspector-install -v /sys/fs/cgroup:/sys/fs/cgroup:ro -d inendi/inspector
+docker run --privileged ${NVIDIA_DOCKER_RUNTIME} --rm --name inspector-install -v /sys/fs/cgroup:/sys/fs/cgroup:ro -d inendi/inspector
 docker cp resources/install_files.sh inspector-install:"${INSTALL_PATH}/"
 docker exec inspector-install bash "${INSTALL_PATH}/install_files.sh" "${INSTALL_MODE}"
 
