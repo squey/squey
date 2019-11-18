@@ -538,11 +538,12 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 					PVLOG_ERROR("Could not autodetect format.");
 					QDialog editor_dialog(this);
 					editor_dialog.setModal(true);
-					auto size = editorWidget->size();
-					editorWidget->setParent(&editor_dialog);
-					editor_dialog.resize(size);
-					editorWidget->move(0, 0);
+					editor_dialog.resize(editorWidget->size());
+					QLayout* l = new QHBoxLayout();
+					l->addWidget(editorWidget);
+					editor_dialog.setLayout(l);
 					editor_dialog.exec();
+					guess_format = editorWidget->get_format_from_dom();
 				}
 				auto format_name = editorWidget->get_current_format_name();
 				if (format_name.isEmpty() or not QFile::exists(format_name)) {
