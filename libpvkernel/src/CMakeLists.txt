@@ -16,6 +16,7 @@ core/network.cpp
 core/inendi_intrin.cpp
 core/sse4detector.cpp
 core/segfault_handler.cpp
+core/serialize_numbers.cpp
 
 core/PVArchive.cpp
 core/PVArgument.cpp

@@ -9,13 +9,24 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 namespace PVRush
 {
 
 class PVERFDescription : public PVFileDescription
 {
   public:
-	PVERFDescription(QString const& path) : PVFileDescription(path, false /*multi_inputs*/) {}
+	PVERFDescription(QString const& path, rapidjson::Document&& selected_nodes)
+	    : PVFileDescription(path, false /*multi_inputs*/)
+	    , _selected_nodes(std::move(selected_nodes))
+	{
+	}
+
+  public:
+	rapidjson::Document& selected_nodes() { return _selected_nodes; }
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const override
@@ -31,6 +42,13 @@ class PVERFDescription : public PVFileDescription
 		} else {
 			so.attribute_write("file_path", _path);
 		}
+
+		// Serialize nodes selection
+		rapidjson::StringBuffer buffer;
+		buffer.Clear();
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		_selected_nodes.Accept(writer);
+		so.attribute_write("selected_nodes", buffer.GetString());
 	}
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
@@ -39,19 +57,22 @@ class PVERFDescription : public PVFileDescription
 		QString path = so.attribute_read<QString>("file_path");
 
 		// File exists, continue with it
-		if (QFileInfo(path).isReadable()) {
-			// FIXME : As long as the pcap preprocessing phase is not properly integrated to
-			//         the import pipeline, it will not be possible to reload an investigation
-			//         with a missing cache (ie. from the original pcap files)
-			return std::unique_ptr<PVInputDescription>(new PVERFDescription(path));
-		} else {
+		if (not QFileInfo(path).isReadable()) {
 			throw PVCore::PVSerializeReparaibleFileError(
 			    "Source file: '" + path.toStdString() + "' can't be found",
 			    so.get_logical_path().toStdString(), path.toStdString());
 		}
+
+		// Deserialize nodes selection
+		rapidjson::Document selected_nodes;
+		selected_nodes.Parse<0>(so.attribute_read<QString>("selected_nodes").toStdString().c_str());
+
+		return std::unique_ptr<PVInputDescription>(
+		    new PVERFDescription(path, std::move(selected_nodes)));
 	}
 
   private:
+	rapidjson::Document _selected_nodes;
 };
 
 } // namespace PVRush

@@ -229,10 +229,12 @@ target_link_libraries(input_type_splunk pvkernel curl)
 ###############################################################################
 # Declare ressources
 SET(ERF_MOC_HEADERS
-erf/PVERFParamsWidget.h)
+erf/PVERFParamsWidget.h
+erf/PVERFTreeModel.h)
 
 set(ERF_SRC_FILES
 erf/PVERFParamsWidget.cpp
+erf/PVERFTreeModel.cpp
 erf/PVInputTypeERF.cpp
 erf/register.cpp)
 

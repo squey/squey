@@ -8,6 +8,7 @@
 #include <pvbase/general.h>
 
 #include "PVInputTypeERF.h"
+#include "PVERFParamsWidget.h"
 
 bool PVRush::PVInputTypeERF::createWidget(hash_formats& formats,
                                           list_inputs& inputs,
@@ -15,13 +16,23 @@ bool PVRush::PVInputTypeERF::createWidget(hash_formats& formats,
                                           PVCore::PVArgumentList& /*args_ext*/,
                                           QWidget* parent) const
 {
-	inputs.push_back(PVInputDescription_p(new PVERFDescription(
-	    "/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g.erfh5" /*"/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g_VV1.erfh5"*/)));
+	PVERFParamsWidget* params = new PVERFParamsWidget(this, parent);
+	if (params->exec() == QDialog::Rejected) {
+		// return false;
+	}
 
-	QString format_path("/srv/logs/VW/erf_all.csv.format");
-	PVRush::PVFormat f("", format_path);
-	formats["custom"] = std::move(f);
-	format = format_path;
+	PVRush::PVERFDescription* desc =
+	    new PVRush::PVERFDescription(params->path(), params->get_selected_nodes());
+
+	PVInputDescription_p ind(desc);
+	inputs.push_back(ind);
+
+	const std::vector<QDomDocument> custom_formats = params->get_formats();
+	for (size_t i = 0; i < custom_formats.size(); i++) {
+		PVRush::PVFormat custom_format(custom_formats[i].documentElement());
+		formats[QString("custom") + QString::number(i)] = std::move(custom_format);
+	}
+	format = "custom";
 
 	return true;
 }

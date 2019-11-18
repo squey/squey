@@ -434,8 +434,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	if (!in_t->createWidget(formats, inputs, choosenFormat, args, this))
 		return; // This means that the user pressed the "cancel" button
 
-	formats["custom2"] = PVRush::PVFormat("", "/srv/logs/inendi-therm_simple.log.format");
-
 	import_type(in_t, inputs, formats, choosenFormat);
 }
 

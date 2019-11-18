@@ -9,6 +9,9 @@
 #define __PVERFPARAMSWIDGET_H__
 
 #include <QDialog>
+#include <QDomDocument>
+
+#include "PVERFTreeModel.h"
 
 namespace PVRush
 {
@@ -21,6 +24,14 @@ class PVERFParamsWidget : public QDialog
 
   public:
 	PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent);
+
+  public:
+	std::vector<QDomDocument> get_formats();
+	QString path() const;
+	rapidjson::Document get_selected_nodes() const;
+
+  private:
+	std::unique_ptr<PVRush::PVERFTreeModel> _model;
 };
 
 } // namespace PVRush

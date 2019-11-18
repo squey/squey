@@ -703,6 +703,7 @@
         "builddir": true,
         "config-opts": [
             "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
+            "-DERF_MULTI_PRECISION=1",
             "-DERF_ENCRYPTION=0"
         ],
         "sources": [
