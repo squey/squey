@@ -61,14 +61,20 @@ void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
 	split_selector->setToolTip("Select which column to split series on");
 	addWidget(split_selector);
 	connect(split_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
-	        [this](PVCol axis, PVCombCol) {
-		        _series_view_widget->set_split(axis);
-		        _series_view_widget->setup_series_tree(axis);
-		        _series_view_widget->setup_selected_series_tree(axis);
+	        [this, split_selector](PVCol axis, PVCombCol) {
+		        if (axis != _abscissa_selector->current_axis()) {
+			        _series_view_widget->set_split(axis);
+		        } else {
+			        split_selector->set_current_axis(PVCol());
+		        }
 	        });
-	connect(
-	    _abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
-	    [split_selector](PVCol axis, PVCombCol) { split_selector->setEnabled(axis != PVCol()); });
+	connect(_abscissa_selector, &PVWidgets::PVAxisComboBox::current_axis_changed,
+	        [split_selector](PVCol axis, PVCombCol) {
+		        split_selector->setEnabled(axis != PVCol());
+		        if (axis == split_selector->current_axis()) {
+			        split_selector->set_current_axis(PVCol());
+		        }
+	        });
 	split_selector->setEnabled(_abscissa_selector->currentData().value<PVCol>() != PVCol());
 }
 

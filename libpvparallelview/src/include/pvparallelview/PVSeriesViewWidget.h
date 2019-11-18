@@ -53,6 +53,8 @@ class PVSeriesViewWidget : public QWidget
 	void leaveEvent(QEvent*) override;
 
   private:
+	void setup_layout();
+	void update_layout();
 	void set_abscissa(PVCol axis);
 	void set_split(PVCol axis);
 	bool is_splitted() const { return _sampler->group_count() > 1; }
@@ -67,7 +69,6 @@ class PVSeriesViewWidget : public QWidget
 
   private:
 	Inendi::PVView* _view;
-	std::function<void(std::vector<QWidget*> const&)> _layout_replacer;
 	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
 	PVSeriesView* _plot = nullptr;
 	PVWidgets::PVRangeEdit* _range_edit = nullptr;
@@ -81,13 +82,16 @@ class PVSeriesViewWidget : public QWidget
 	bool _update_selected_series_resample = false;
 	bool _synchro_selected_list = false;
 
+	PVCol _abscissa_axis;
 	PVCol _split_axis;
 
 	PVCore::PVDisconnector _plotting_change_connection;
 	PVCore::PVDisconnector _selection_change_connection;
 
-	PVSeriesViewParamsWidget* _params_widget;
+	PVSeriesViewParamsWidget* _params_widget = nullptr;
 	PVWidgets::PVHelpWidget _help_widget;
+
+	std::vector<std::function<void()>> _updaters;
 };
 } // namespace PVParallelView
 

@@ -81,132 +81,164 @@ void PVParallelView::PVSeriesViewWidget::minmax_changed(const pvcop::db::array& 
 	_zoomer->reset_and_zoom_in(zoom);
 };
 
+void PVParallelView::PVSeriesViewWidget::setup_layout()
+{
+	auto replaceable = [this](auto** widget_ptr, auto replacer = nullptr) {
+		QWidget* widget = *widget_ptr ? *widget_ptr : new QWidget();
+		_updaters.push_back([this, widget_ptr, widget, replacer]() mutable {
+			auto new_widget = *widget_ptr;
+			if (new_widget != nullptr and widget != new_widget) {
+				if constexpr (std::is_same_v<decltype(replacer), std::nullptr_t>) {
+					delete widget->parentWidget()->layout()->replaceWidget(widget, new_widget);
+				} else {
+					replacer();
+				}
+				widget->deleteLater();
+				widget = new_widget;
+			}
+		});
+		return widget;
+	};
+
+	if (_params_widget == nullptr) {
+		_params_widget = new PVSeriesViewParamsWidget(_abscissa_axis, this);
+	}
+
+	if (QWidget::layout()) {
+		delete QWidget::layout();
+	}
+
+	QVBoxLayout* layout = new QVBoxLayout;
+	layout->setContentsMargins(0, 0, 0, 0);
+
+	QWidget* series_widget = new QWidget;
+	auto* vlayout = new QVBoxLayout;
+	vlayout->setContentsMargins(0, 0, 0, 0);
+
+	vlayout->addWidget(replaceable(&_series_tree_widget, nullptr));
+	vlayout->addWidget(replaceable(&_selected_series_tree, nullptr));
+	series_widget->setLayout(vlayout);
+
+	QSplitter* splitter = new QSplitter(Qt::Horizontal);
+	splitter->setSizePolicy(
+	    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+	splitter->addWidget(replaceable(&_zoomer, [splitter, this] { splitter->replaceWidget(0, _zoomer); }));
+	splitter->addWidget(series_widget);
+	splitter->setContentsMargins(0, 0, 0, 0);
+	splitter->setStretchFactor(0, 1);
+	splitter->setStretchFactor(1, 0);
+
+	QHBoxLayout* bottom_layout = new QHBoxLayout;
+	bottom_layout->addWidget(replaceable(&_range_edit, nullptr));
+	bottom_layout->addStretch();
+	bottom_layout->addWidget(_params_widget);
+
+	layout->addWidget(splitter);
+	layout->addLayout(bottom_layout);
+
+	setLayout(layout);
+}
+
+void PVParallelView::PVSeriesViewWidget::update_layout()
+{
+	if (layout() == nullptr) {
+		setup_layout();
+	} else {
+		for (auto& updater : _updaters) {
+			updater();
+		}
+	}
+}
+
 void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 {
-	std::vector<QWidget*> replaceable_widgets;
+	if (abscissa == PVCol()) {
+		update_layout();
+		return;
+	}
+	if (_abscissa_axis == abscissa) {
+		return;
+	}
+	_abscissa_axis = abscissa;
 
-	if (abscissa != PVCol()) {
-		PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-
-		const pvcop::db::array& time = nraw.column(abscissa);
-
-		{
-			auto plotteds = _view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
-			const auto& plotteds_vector = plotteds.front()->get_plotteds();
-
-			std::vector<pvcop::core::array<uint32_t>> timeseries;
-			for (PVCol col(0); col < nraw.column_count(); col++) {
-				timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
-			}
-
-			_sampler.reset(new Inendi::PVRangeSubSampler(
-			    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
-			    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis)));
-		}
-		_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
-		_plot->set_background_color(QColor(10, 10, 10, 255));
-
-		_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
-
-		setup_series_tree(abscissa);
-		setup_selected_series_tree(abscissa);
-
-		_range_edit = PVWidgets::PVRangeEditFactory::create(
-		    _sampler->minmax_time(),
-		    std::bind(&PVSeriesViewWidget::minmax_changed, this, std::placeholders::_1));
-
-		QObject::connect(
-		    _zoomer, &PVSeriesViewZoomer::zoom_updated, [this](PVViewZoomer::Zoom zoom) {
-			    _range_edit->set_minmax(_sampler->ratio_to_minmax(zoom.minX, zoom.maxX));
-		    });
-
-		QObject::connect(
-		    _zoomer, &PVSeriesViewZoomer::selection_commit,
-		    [&time, &nraw, this](PVViewZoomer::Zoom zoom) {
-			    const pvcop::db::array& minmax = _sampler->ratio_to_minmax(zoom.minX, zoom.maxX);
-			    _range_edit->set_minmax(minmax);
-			    const auto& sorted_indexes = _sampler->sorted_indexes();
-			    pvcop::db::range_t selected_range = time.equal_range(minmax, sorted_indexes);
-			    const auto& sort = sorted_indexes ? sorted_indexes.to_core_array()
-			                                      : pvcop::core::array<pvcop::db::index_t>();
-			    Inendi::PVSelection sel(nraw.row_count());
-			    sel.select_none(); // Not sur if needed
-			    for (size_t i = selected_range.begin; i < selected_range.end; i++) {
-				    sel.set_bit_fast(sort ? sort[i] : i);
-			    }
-			    _view->set_selection_view(sel);
-		    });
-
-		replaceable_widgets = {_zoomer, _series_tree_widget, _selected_series_tree, _range_edit};
-	} else {
-		replaceable_widgets = {new QWidget, new QWidget, new QWidget, new QWidget};
+	if (_split_axis == _abscissa_axis) {
+		_split_axis = PVCol();
 	}
 
-	if (_layout_replacer && layout()) {
-		_layout_replacer(replaceable_widgets);
-	} else {
-		_params_widget = new PVSeriesViewParamsWidget(abscissa, this);
+	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
-		QVBoxLayout* layout = new QVBoxLayout;
-		layout->setContentsMargins(0, 0, 0, 0);
+	const pvcop::db::array& time = nraw.column(abscissa);
 
-		QWidget* series_widget = new QWidget;
-		auto* vlayout = new QVBoxLayout;
-		vlayout->setContentsMargins(0, 0, 0, 0);
+	{
+		auto plotteds = _view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
+		const auto& plotteds_vector = plotteds.front()->get_plotteds();
 
-		vlayout->addWidget(replaceable_widgets[1]);
-		vlayout->addWidget(replaceable_widgets[2]);
-		series_widget->setLayout(vlayout);
-
-		QSplitter* splitter = new QSplitter(Qt::Horizontal);
-		splitter->setSizePolicy(
-		    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-		splitter->addWidget(replaceable_widgets[0]);
-		splitter->addWidget(series_widget);
-		splitter->setContentsMargins(0, 0, 0, 0);
-		splitter->setStretchFactor(0, 1);
-		splitter->setStretchFactor(1, 0);
-
-		QHBoxLayout* bottom_layout = new QHBoxLayout;
-		bottom_layout->addWidget(replaceable_widgets[3]);
-		bottom_layout->addStretch();
-		bottom_layout->addWidget(_params_widget);
-
-		layout->addWidget(splitter);
-		layout->addLayout(bottom_layout);
-
-		setLayout(layout);
-	}
-
-	_layout_replacer = [this, replaceable_widgets](std::vector<QWidget*> const& new_widgets) {
-		QLayout* global_layout = layout();
-		for (size_t i = 0; i < replaceable_widgets.size(); ++i) {
-			delete global_layout->replaceWidget(replaceable_widgets[i], new_widgets[i]);
-			replaceable_widgets[i]->deleteLater();
+		std::vector<pvcop::core::array<uint32_t>> timeseries;
+		for (PVCol col(0); col < nraw.column_count(); col++) {
+			timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
 		}
-	};
+
+		_sampler.reset(new Inendi::PVRangeSubSampler(
+		    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
+		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis)));
+	}
+	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
+	_plot->set_background_color(QColor(10, 10, 10, 255));
+
+	_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
+
+	setup_series_tree(abscissa);
+	setup_selected_series_tree(abscissa);
+
+	_range_edit = PVWidgets::PVRangeEditFactory::create(
+	    _sampler->minmax_time(),
+	    std::bind(&PVSeriesViewWidget::minmax_changed, this, std::placeholders::_1));
+
+	QObject::connect(_zoomer, &PVSeriesViewZoomer::zoom_updated, [this](PVViewZoomer::Zoom zoom) {
+		_range_edit->set_minmax(_sampler->ratio_to_minmax(zoom.minX, zoom.maxX));
+	});
+
+	QObject::connect(
+	    _zoomer, &PVSeriesViewZoomer::selection_commit,
+	    [&time, &nraw, this](PVViewZoomer::Zoom zoom) {
+		    const pvcop::db::array& minmax = _sampler->ratio_to_minmax(zoom.minX, zoom.maxX);
+		    _range_edit->set_minmax(minmax);
+		    const auto& sorted_indexes = _sampler->sorted_indexes();
+		    pvcop::db::range_t selected_range = time.equal_range(minmax, sorted_indexes);
+		    const auto& sort = sorted_indexes ? sorted_indexes.to_core_array()
+		                                      : pvcop::core::array<pvcop::db::index_t>();
+		    Inendi::PVSelection sel(nraw.row_count());
+		    sel.select_none(); // Not sur if needed
+		    for (size_t i = selected_range.begin; i < selected_range.end; i++) {
+			    sel.set_bit_fast(sort ? sort[i] : i);
+		    }
+		    _view->set_selection_view(sel);
+	    });
+
+	update_layout();
 }
 
 void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 {
-	if (split == _split_axis) {
+	if (split == _split_axis or split == _abscissa_axis) {
 		return;
 	}
+
+	_split_axis = split;
 
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 	_sampler->set_split_column(split == PVCol() ? nullptr : &nraw.column(split));
 	_zoomer->disable_selecting_mode(split != PVCol());
-	pvlogger::info() << "disable_selecting_mode : " << (split != PVCol()) << std::endl;
-	_split_axis = split;
 
 	// Update range widget
-	PVWidgets::PVRangeEdit* range_edit = PVWidgets::PVRangeEditFactory::create(
+	_range_edit = PVWidgets::PVRangeEditFactory::create(
 	    _sampler->minmax_time(),
 	    std::bind(&PVSeriesViewWidget::minmax_changed, this, std::placeholders::_1));
-	QLayout* global_layout = layout();
-	delete global_layout->replaceWidget(_range_edit, range_edit);
-	_range_edit->deleteLater();
-	_range_edit = range_edit;
+
+	setup_series_tree(_abscissa_axis);
+	setup_selected_series_tree(_abscissa_axis);
+
+	update_layout();
 }
 
 void PVParallelView::PVSeriesViewWidget::select_all_series(bool use_axes_combination /* = true */)
@@ -232,17 +264,13 @@ void PVParallelView::PVSeriesViewWidget::select_all_series(bool use_axes_combina
 
 void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 {
-	delete _tree_model;
 	_tree_model = new PVSeriesTreeModel(_view, *_sampler);
 	_selection_model = new QItemSelectionModel(_tree_model);
-	if (not _series_tree_widget) {
-		delete _series_tree_widget;
-		_series_tree_widget = new PVSeriesTreeView();
-	}
-	QItemSelectionModel* old_selection_model = _series_tree_widget->selectionModel();
+	_series_tree_widget = new PVSeriesTreeView();
+
+	_tree_model->setParent(_series_tree_widget);
 	_series_tree_widget->setModel(_tree_model);
 	_series_tree_widget->setSelectionModel(_selection_model);
-	delete old_selection_model;
 	_series_tree_widget->disconnect(); // disconnect local signals
 
 	_series_tree_widget->setHeaderHidden(true);
@@ -312,21 +340,20 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 
 void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*abscissa*/)
 {
-	if (not _selected_series_tree) {
-		delete _selected_series_tree;
-		_selected_series_tree = new PVSeriesTreeView(true /*filtered*/);
-	}
-	_selected_series_tree->disconnect(); // disconnect local signals
+	_selected_series_tree = new PVSeriesTreeView(true /*filtered*/);
 	PVSeriesTreeFilterProxyModel* filter_proxy_model = new PVSeriesTreeFilterProxyModel();
 	KLinkItemSelectionModel* selection_link_model =
 	    new KLinkItemSelectionModel(filter_proxy_model, _selection_model);
 	filter_proxy_model->setSourceModel(_tree_model);
+	filter_proxy_model->setParent(_selected_series_tree);
 	_selected_series_tree->setModel(filter_proxy_model);
 	_selected_series_tree->setSelectionModel(selection_link_model); // sync selection
 
 	_selected_series_tree->setHeaderHidden(true);
 	_selected_series_tree->setMaximumHeight(0);
 	_selected_series_tree->setSelectionMode(QAbstractItemView::MultiSelection);
+
+	disconnect(_zoomer, &PVSeriesViewZoomer::cursor_moved, 0, 0);
 
 	connect(_zoomer, &PVSeriesViewZoomer::cursor_moved, [this, filter_proxy_model](QRect region) {
 		QItemSelection selection;
