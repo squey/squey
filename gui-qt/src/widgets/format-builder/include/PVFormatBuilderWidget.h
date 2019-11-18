@@ -76,6 +76,11 @@ class PVFormatBuilderWidget : public QMainWindow
 	PVRush::PVFormat load_log_and_guess_format(const PVRush::PVInputDescription_p input,
 	                                           const PVRush::PVInputType_p& input_type);
 
+	/**
+	 * Get the PVFormat from its dom representation.
+	 */
+	PVRush::PVFormat get_format_from_dom() const;
+
   private:
 	int lastSplitterPluginAdding;
 
@@ -119,11 +124,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	 * Clear filter data and run extraction filling NRaw and invalid elements.
 	 */
 	void update_table(PVRow start, PVRow end);
-
-	/**
-	 * Get the PVFormat from its dom representation.
-	 */
-	PVRush::PVFormat get_format_from_dom() const;
 
 	/**
 	 * Try to find a matching splitter when we import a file without format.
