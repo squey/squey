@@ -16,6 +16,8 @@
 #include <inendi/PVSource.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
 
+#include <QButtonGroup>
+
 namespace PVGuiQt
 {
 
@@ -35,9 +37,11 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		_export_layout->addLayout(right_layout);
 
 		/// right_layout
+		QButtonGroup* button_group = new QButtonGroup(this);
 
 		// Use all axes combination
 		QRadioButton* all_axis = new QRadioButton("Use all axes combination");
+		button_group->addButton(all_axis);
 		QObject::connect(all_axis, &QRadioButton::toggled, [&](bool checked) {
 			if (checked) {
 				PVCore::PVColumnIndexes column_indexes;
@@ -53,6 +57,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 
 		// Use current axes combination
 		QRadioButton* current_axis = new QRadioButton("Use current axes combination");
+		button_group->addButton(current_axis);
 		QObject::connect(current_axis, &QRadioButton::toggled, [&](bool checked) {
 			if (checked) {
 				_exporter.set_column_indexes(view.get_axes_combination().get_combination());
@@ -65,6 +70,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		// Use custom axes combination
 		QHBoxLayout* custom_axes_combination_layout = new QHBoxLayout();
 		QRadioButton* custom_axis = new QRadioButton("Use custom axes combination");
+		button_group->addButton(custom_axis);
 		QObject::connect(custom_axis, &QRadioButton::toggled, [&](bool checked) {
 			if (checked) {
 				_exporter.set_column_indexes(_custom_axes_combination.get_combination());
@@ -85,6 +91,14 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		QObject::connect(export_internal_values, &QCheckBox::stateChanged,
 		                 [&](int state) { _exporter.set_export_internal_values((bool)state); });
 		right_layout->addWidget(export_internal_values);
+
+		QObject::connect(
+		    this, &PVWidgets::PVCSVExporterWidget::separator_char_changed,
+		    [&, button_group]() { Q_EMIT button_group->checkedButton()->toggled(true); });
+
+		QObject::connect(
+		    this, &PVWidgets::PVCSVExporterWidget::quote_char_changed,
+		    [&, button_group]() { Q_EMIT button_group->checkedButton()->toggled(true); });
 
 		right_layout->addStretch();
 

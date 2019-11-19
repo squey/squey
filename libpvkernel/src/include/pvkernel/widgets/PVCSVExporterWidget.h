@@ -12,6 +12,7 @@
 #include <pvkernel/widgets/PVExporterWidgetInterface.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
+#include <QCheckBox>
 #include <QFormLayout>
 
 namespace PVWidgets
@@ -19,6 +20,8 @@ namespace PVWidgets
 
 class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 {
+	Q_OBJECT
+
   public:
 	PVCSVExporterWidget() : _exporter(PVRush::PVCSVExporter())
 	{
@@ -56,6 +59,7 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		QObject::connect(separator_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
 		                 [&](const QKeySequence& keySequence) {
 			                 _exporter.set_sep_char(keySequence.toString().toStdString());
+			                 Q_EMIT separator_char_changed();
 		                 });
 
 		// Quote character
@@ -67,12 +71,17 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		QObject::connect(quote_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
 		                 [&](const QKeySequence& keySequence) {
 			                 _exporter.set_quote_char(keySequence.toString().toStdString());
+			                 Q_EMIT quote_char_changed();
 		                 });
 
 		left_layout->addLayout(char_layout);
 
 		setLayout(_export_layout);
 	}
+
+  Q_SIGNALS:
+	void separator_char_changed();
+	void quote_char_changed();
 
   public:
 	PVRush::PVCSVExporter& exporter() override { return _exporter; }
