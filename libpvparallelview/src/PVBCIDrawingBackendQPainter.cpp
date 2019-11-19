@@ -67,9 +67,21 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 		} else {
 			for (size_t i = valid_begin; i < n; ++i) {
 				painter.setPen(PVCore::PVHSVColor(codes[i].as_11.s.color).toQColor());
-				float left = codes[i].as_11.s.l / float(1 << height_bits);
-				float right = codes[i].as_11.s.r / float(1 << height_bits);
-				painter.drawLine(x1, left * height, x2, right * height);
+				if (codes[i].as_11.s.type == PVBCICode<11>::STRAIGHT) {
+					float left = codes[i].as_11.s.l;
+					float right = codes[i].as_11.s.r;
+					painter.drawLine(x1, left * zoom_y, x2, right * zoom_y);
+				} else if (codes[i].as_11.s.type == PVBCICode<11>::UP) {
+					float left = codes[i].as_11.s.l;
+					double right = codes[i].as_11.s.r;
+					right = right + right / (2 * zoom_y * left);
+					painter.drawLine(x1, left * zoom_y, reverse ? width - right : right, 0);
+				} else if (codes[i].as_11.s.type == PVBCICode<11>::DOWN) {
+					float left = codes[i].as_11.s.l;
+					double right = codes[i].as_11.s.r;
+					right = right - right / (2 * zoom_y * left);
+					painter.drawLine(x1, left * zoom_y, reverse ? width - right : right, height);
+				}
 			}
 		}
 
