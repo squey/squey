@@ -1,3 +1,15 @@
+4.7.1 (2019-11-19)
+------------------
+
+This minor release fixes:
+* fixed crash when changing the plotting of a scatter view axis
+* fixed rejected lines when last column is empty in multi-inputs
+* fixed zoomed parallel coordinate view rendering in software mode
+* fixed tab separator character in CSV export
+* fixed format modification not being saved in autodetection
+* fixed series names listing not resizable
+* elasticsearch 7.4.0 support and improved CSV export
+
 4.7 "Saphir" (2019-10-18)
 -------------------------
 
