@@ -180,6 +180,7 @@ include/pvkernel/widgets/editors/PVPercentRangeEditor.h
 include/pvkernel/widgets/PVQueryBuilder.h
 include/pvkernel/widgets/PVLongLongSpinBox.h
 include/pvkernel/widgets/PVExportDlg.h
+include/pvkernel/widgets/PVCSVExporterWidget.h
 )
 
 set(WIDGETS_SRC_FILES
