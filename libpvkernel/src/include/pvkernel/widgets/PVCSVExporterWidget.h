@@ -57,8 +57,9 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		separator_char->setMaxNumKey(1);
 		char_layout->addRow("Fields separator:", separator_char);
 		QObject::connect(separator_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
-		                 [&](const QKeySequence& keySequence) {
-			                 _exporter.set_sep_char(keySequence.toString().toStdString());
+		                 [&, separator_char](const QKeySequence& keySequence) {
+			                 char sep = separator_char->get_ascii_from_sequence(keySequence);
+			                 _exporter.set_sep_char(std::string(1, sep));
 			                 Q_EMIT separator_char_changed();
 		                 });
 

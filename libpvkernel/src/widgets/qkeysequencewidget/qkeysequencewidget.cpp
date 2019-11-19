@@ -438,6 +438,11 @@ void PVWidgets::QKeySequenceWidgetPrivate::updateDisplayShortcut()
 		str = noneSequenceText;
 	}
 
+	// if it is Tab
+	if (str == "\t") {
+		str = "Tab";
+	}
+
 	shortcutButton->setText(str);
 }
 
