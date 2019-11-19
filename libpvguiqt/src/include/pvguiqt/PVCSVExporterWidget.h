@@ -120,7 +120,6 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 	PVRush::PVCSVExporter& exporter() override { return _exporter; }
 
   private:
-	PVRush::PVCSVExporter _exporter;
 	Inendi::PVAxesCombination _custom_axes_combination;
 };
 
