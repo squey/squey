@@ -83,7 +83,7 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 
 /******************************************************************************
  *
-* PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot
+ * PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
@@ -183,7 +183,7 @@ void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
 		    } catch (const Inendi::PVMineset::mineset_error& e) {
 			    pbox.critical("Error when exporting current selection to Mineset", e.what());
 		    }
-		},
+	    },
 	    "Exporting data to Mineset...", this);
 }
 
@@ -450,7 +450,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				            boost::this_thread::interruption_point();
 				            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			            }
-			        })));
+		            })));
 
 		        while (true) {
 			        QString err_msg;
@@ -475,7 +475,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				        pbox.exec_gui([&]() {
 					        new_file = PVWidgets::PVFileDialog::getOpenFileName(
 					            this, tr("Select new file path..."), old_path);
-					    });
+				        });
 
 				        if (new_file.isEmpty()) {
 					        read_exception = PVCore::PVSerializeArchiveError(
@@ -492,6 +492,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 				        continue;
 			        } catch (PVCore::PVSerializeReparaibleCredentialError const& e) {
 				        QString login, password;
+#if 0 // Disable this for now as an investigation doesn't need to reuse credentials
 				        bool ok;
 				        pbox.exec_gui([&]() {
 					        PVGuiQt::CredentialDialog dial;
@@ -505,11 +506,12 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 					            "No credential provided to open this investigation");
 					        return;
 				        }
-
+#endif
 				        ar->set_repaired_value(e.logical_path(),
 				                               (login + ";" + password).toStdString());
 				        solution_has_been_fixed = true;
 				        reset_root();
+
 				        continue;
 			        } catch (...) {
 				        read_exception = PVCore::PVSerializeArchiveError(
@@ -520,7 +522,7 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 			        }
 			        break;
 		        }
-		    },
+	        },
 	        "Loading investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		reset_root();
 		return false;
@@ -582,7 +584,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, bool save_log
 				            boost::this_thread::interruption_point();
 				            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			            }
-			        })));
+		            })));
 
 		        get_root().set_path(file);
 		        get_root().save_to_file(ar);
@@ -599,7 +601,7 @@ void PVInspector::PVMainWindow::save_solution(QString const& file, bool save_log
 			                          QString::fromStdString(e.what()));
 			        pbox.set_canceled();
 		        }
-		    },
+	        },
 	        "Saving investigation...", this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
 		return;
 	}

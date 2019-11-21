@@ -127,7 +127,7 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 			parents.emplace_back(tree_item);
 		}
 
-		if (is_last_child) {
+		if (is_leaf and is_last_child) {
 			parents.pop_back();
 		}
 	});

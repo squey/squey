@@ -1,3 +1,10 @@
+4.7.2 (2019-11-21)
+------------------
+
+This minor release fixes:
+* fixed a crash when saving an investigation with an elasticsearch connector
+* fixed a bug in elasticsearch index nodes rendering/parsing
+
 4.7.1 (2019-11-19)
 ------------------
 
