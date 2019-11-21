@@ -148,6 +148,8 @@ class PVFormat
 	size_t _first_line;
 	size_t _line_count;
 
+	QDomDocument _dom;
+
 	mutable bool _have_grep_filter;
 };
 } // namespace PVRush
