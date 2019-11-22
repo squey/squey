@@ -111,6 +111,7 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 	_root_item->setText(0, "properties");
 	_root_item->setCheckState(0, Qt::Unchecked);
 	std::vector<QTreeWidgetItem*> parents({_root_item});
+	size_t pop_depth = 0;
 
 	PVRush::PVElasticsearchAPI es(get_infos());
 	es.visit_columns([&](const std::string& rel_name, const std::string& abs_name,
@@ -127,8 +128,16 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 			parents.emplace_back(tree_item);
 		}
 
-		if (is_leaf and is_last_child) {
-			parents.pop_back();
+		if (is_last_child) {
+			if (is_leaf) {
+				parents.pop_back();
+				if (pop_depth > 0) {
+					parents.pop_back();
+					pop_depth--;
+				}
+			} else {         // node
+				pop_depth++; // flag parent to be popped later on
+			}
 		}
 	});
 
@@ -323,7 +332,7 @@ void PVRush::PVElasticsearchParamsWidget::export_query_result(
 		const PVRush::PVElasticsearchAPI::columns_t& cols =
 		    es.format_columns(query.get_infos().get_filter_path().toStdString());
 		std::string h;
-		for (const auto & [ col_name, _ ] : cols) {
+		for (const auto& [col_name, _] : cols) {
 			h += PVRush::PVUtils::safe_export(col_name, sep, quote) + sep;
 			(void)_;
 		}
