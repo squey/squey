@@ -19,5 +19,9 @@ then
     rm -rf "${DIR}/*.flatpak"
 else # online installation
     flatpak install -y https://repo.esi-inendi.com/inendi-inspector.flatpakref
+    if [ ! -z ${GL_DRIVERS_VERSION} ]
+    then
+        flatpak install -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH"
+    fi
     flatpak update -y
 fi
