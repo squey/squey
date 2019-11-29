@@ -15,7 +15,7 @@ RUN cat /etc/apt/sources.list
 RUN apt-get update && \
 apt-get -y install apt-utils pkg-config libglvnd-dev libglu1-mesa libglu1 pciutils \
 xorg xserver-xorg-input-all xinit xserver-xorg xserver-xorg-video-all xserver-xorg-video-dummy xutils-dev kwin && \
-apt-get install -y python3 python3-pip crudini && \
+apt-get install -y python3 python3-pip crudini pamtester && \
 apt-get install -y nginx ssl-cert && \
 apt-get install -y pocl-opencl-icd mesa-utils ocl-icd-libopencl1 clinfo && \
 echo "/usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
