@@ -52,6 +52,11 @@ class no_backend_error : public std::runtime_error
 using device_func = std::function<void(cl::Context&, cl::Device&)>;
 
 /**
+ * @return a string containing version and devices used
+ */
+std::string opencl_version();
+
+/**
  * find the first OpenCL plateform matching @p accelerated and call @p f on each of its devices
  *
  * @param accelerated a boolean to indicate if the found backend must use decidated hardware or must

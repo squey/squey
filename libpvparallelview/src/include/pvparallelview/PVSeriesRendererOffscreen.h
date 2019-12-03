@@ -14,6 +14,10 @@
 namespace PVParallelView
 {
 
+bool egl_support();
+QString egl_vendor();
+QString opengl_version();
+
 class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffscreenSurface
 {
   public:

@@ -1,9 +1,12 @@
 #include <pvparallelview/PVSeriesRendererOffscreen.h>
 
+#include <pvkernel/core/PVConfig.h>
+#include <QSettings>
 #include <tuple>
 #include <QDebug>
 #include <EGL/egl.h>
 #include <QtPlatformHeaders/QEGLNativeContext>
+#include <GL/gl.h>
 
 namespace PVParallelView
 {
@@ -184,6 +187,39 @@ static EGLContext choose_config(EGLDisplay display)
 	return EGL_NO_CONTEXT;
 }
 
+bool egl_support()
+{
+	return PVSeriesRendererOffscreen::capability();
+}
+
+QString egl_vendor()
+{
+	if (not egl_support()) {
+		return {};
+	}
+	auto display = get_display(get_devices()[0]);
+	g_EGL_instance.acquire(display);
+	auto str = "EGL " + QString(eglQueryString(display, EGL_VERSION)) + " " +
+	           QString(eglQueryString(display, EGL_VENDOR));
+	g_EGL_instance.release(display);
+	return str;
+}
+
+QString opengl_version()
+{
+	if (not egl_support()) {
+		return {};
+	}
+	auto display = get_display(get_devices()[0]);
+	g_EGL_instance.acquire(display);
+	EGLContext context = choose_config(display);
+	eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context);
+	auto str = QString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+	eglDestroyContext(display, context);
+	g_EGL_instance.release(display);
+	return str;
+}
+
 PVSeriesRendererOffscreen::PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss)
     : PVSeriesAbstractRenderer(rss), QOffscreenSurface(), _gl_renderer(rss)
 {
@@ -232,6 +268,11 @@ PVSeriesRendererOffscreen::~PVSeriesRendererOffscreen()
 bool PVSeriesRendererOffscreen::capability()
 {
 	static const bool s_offscreenopengl_capable = [] {
+		if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
+			qDebug() << "backend_opencl/force_cpu is set to true in user config";
+			return false;
+		}
+
 		qDebug() << "EGL_EXTENSIONS:" << eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
 
 		std::vector<EGLDeviceEXT> devices = get_devices();

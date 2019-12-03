@@ -8,6 +8,7 @@
 	<file alias="background-window.png">resources/background-window.png</file>
 	<file alias="window-icon.png">resources/inspector.png</file>
 	<file alias="logo.png">resources/logo.png</file>
+	<file alias="logo_icon.png">resources/logo_icon.png</file>
 	<file alias="logo_text.png">resources/logo_text.png</file>
 	<file>resources/filelink-32.png</file>
 	<file>resources/standardbutton-open-32.png</file>
