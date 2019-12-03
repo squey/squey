@@ -1,5 +1,8 @@
 #include <pvparallelview/PVSeriesRendererOpenGL.h>
 
+#include <pvkernel/core/PVConfig.h>
+#include <QSettings>
+
 #include <cassert>
 
 #include <QResizeEvent>
@@ -40,6 +43,10 @@ PVSeriesRendererOpenGL::~PVSeriesRendererOpenGL()
 bool PVSeriesRendererOpenGL::capability()
 {
 	static const bool s_opengl_capable = [] {
+		if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
+			qDebug() << "backend_opencl/force_cpu is set to true in user config";
+			return false;
+		}
 		QOpenGLWidget qoglwg;
 		QSurfaceFormat format;
 		format.setRenderableType(QSurfaceFormat::OpenGLES);

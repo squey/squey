@@ -29,8 +29,6 @@ PVAbstractTableView.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
 PVTableView.cpp
-PVLogoModel.cpp
-PVLogoScene.cpp
 PVQNraw.cpp
 PVQMapped.cpp
 PVQPlotted.cpp
@@ -72,7 +70,6 @@ include/pvguiqt/PVTableView.h
 include/pvguiqt/PVRootTreeModel.h
 include/pvguiqt/PVRootTreeView.h
 include/pvguiqt/PVHiveDataTreeModel.h
-include/pvguiqt/PVLogoScene.h
 include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h
 include/pvguiqt/PVViewDisplay.h
@@ -81,6 +78,7 @@ include/pvguiqt/PVStartScreenWidget.h
 include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVStatsListingWidget.h
 include/pvguiqt/PVExportSelectionDlg.h
+include/pvguiqt/PVAboutBoxDialog.h
 )
 
 SET(UI_FILES
@@ -111,10 +109,10 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES}
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(QT5_LIBS Qt5Core Qt5Xml Qt5Gui Qt5Widgets Qt5OpenGL)
+set(QT5_LIBS Qt5Core Qt5Xml Qt5Gui Qt5Widgets Qt5OpenGL Qt53DCore Qt53DRender Qt53DInput Qt53DExtras)
 
 set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT5_LIBS})
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
