@@ -19,7 +19,6 @@ class PVSourceCreatorSplunk : public PVSourceCreator
   public:
 	source_p create_source_from_input(PVInputDescription_p input) const override;
 	QString supported_type() const override;
-	bool pre_discovery(PVInputDescription_p input) const override;
 	QString name() const override;
 
 	CLASS_REGISTRABLE(PVSourceCreatorSplunk)

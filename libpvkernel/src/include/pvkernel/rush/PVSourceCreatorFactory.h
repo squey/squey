@@ -26,14 +26,10 @@ typedef QHash<QString, pair_format_creator> hash_format_creator;
 class PVSourceCreatorFactory
 {
   public:
-	static list_creators get_by_input_type(PVInputType_p in_t);
+	static PVSourceCreator_p get_by_input_type(PVInputType_p in_t);
 	static float discover_input(pair_format_creator format,
 	                            PVInputDescription_p input,
 	                            bool* cancellation = nullptr);
-	static std::multimap<float, pair_format_creator> discover_input(PVInputType_p input_type,
-	                                                                PVInputDescription_p input);
-	static list_creators filter_creators_pre_discovery(PVRush::list_creators const& lcr,
-	                                                   PVInputDescription_p input);
 };
 } // namespace PVRush
 

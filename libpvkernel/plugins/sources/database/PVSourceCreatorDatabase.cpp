@@ -27,12 +27,6 @@ QString PVRush::PVSourceCreatorDatabase::supported_type() const
 	return QString("database");
 }
 
-bool PVRush::PVSourceCreatorDatabase::pre_discovery(PVInputDescription_p /*input*/) const
-{
-	// There is only one database source for now
-	return true;
-}
-
 QString PVRush::PVSourceCreatorDatabase::name() const
 {
 	return QString("database");

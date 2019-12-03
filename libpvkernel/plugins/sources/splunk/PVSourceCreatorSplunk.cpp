@@ -21,11 +21,6 @@ QString PVRush::PVSourceCreatorSplunk::supported_type() const
 	return QString("splunk");
 }
 
-bool PVRush::PVSourceCreatorSplunk::pre_discovery(PVInputDescription_p /*input*/) const
-{
-	return true;
-}
-
 QString PVRush::PVSourceCreatorSplunk::name() const
 {
 	return QString("splunk");

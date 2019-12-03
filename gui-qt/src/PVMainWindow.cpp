@@ -419,7 +419,7 @@ void PVInspector::PVMainWindow::close_solution_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
-	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
+	PVRush::PVSourceCreator_p src_creator = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator;
 
 	PVRush::hash_formats formats, new_formats;
@@ -438,11 +438,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	{
 		for (auto it = new_formats.begin(); it != new_formats.end(); it++) {
 			formats[it.key()] = it.value();
-			for (auto src_creator : lcr) {
-				PVRush::hash_format_creator::mapped_type v(it.value(), src_creator);
-				// Save this format/creator pair to the "format_creator" object
-				format_creator[it.key()] = v;
-			}
+			PVRush::hash_format_creator::mapped_type v(it.value(), src_creator);
+			// Save this format/creator pair to the "format_creator" object
+			format_creator[it.key()] = v;
 		}
 	}
 
@@ -460,7 +458,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
                                             PVRush::hash_format_creator& format_creator,
                                             QString const& choosenFormat)
 {
-	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
+	PVRush::PVSourceCreator_p sc = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
 	QHash<QString, PVRush::PVInputType::list_inputs> discovered;
 	QHash<QString, std::pair<QString, QString>> formats_error; // Errors w/ some formats
@@ -478,21 +476,14 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				QString in_str = (*input_it)->human_name();
 				hash_input_name[in_str] = *input_it;
 
-				for (auto cr_it = lcr.begin(); cr_it != lcr.end(); ++cr_it) {
-					PVRush::PVSourceCreator_p sc = *cr_it;
-					if (sc->pre_discovery(*input_it)) {
-						pre_discovered_creators.push_back(sc);
-						in_t->get_custom_formats(*input_it, custom_formats);
-					}
-				}
+				pre_discovered_creators.push_back(sc);
+				in_t->get_custom_formats(*input_it, custom_formats);
 
 				for (auto hf_it = custom_formats.begin(); hf_it != custom_formats.end(); ++hf_it) {
 					formats.insert(hf_it.key(), hf_it.value());
 
-					for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
-						PVRush::hash_format_creator::mapped_type v(hf_it.value(), *src_cr_it);
-						format_creator[hf_it.key()] = v;
-					}
+					PVRush::hash_format_creator::mapped_type v(hf_it.value(), sc);
+					format_creator[hf_it.key()] = v;
 				}
 			}
 
@@ -510,10 +501,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			QString format_name = choosenFormat;
 			PVRush::PVFormat format(format_name, choosenFormat);
 			formats[format_name] = format;
-			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
-				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
-				format_creator[format_name] = v;
-			}
+			PVRush::hash_format_creator::mapped_type v(format, sc);
+			format_creator[format_name] = v;
 			if (fi.isReadable()) {
 				file_type_found = true;
 				discovered[format_name] = inputs;
@@ -552,11 +541,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				}
 				guess_format.set_full_path(format_name);
 				formats[format_name] = guess_format;
-				for (auto& src_cr : lcr) {
-					PVRush::hash_format_creator::mapped_type v(guess_format, src_cr);
-					format_creator[format_name] = v;
-					discovered[format_name] << input;
-				}
+				PVRush::hash_format_creator::mapped_type v(guess_format, sc);
+				format_creator[format_name] = v;
+				discovered[format_name] << input;
 				file_type_found = true;
 			} catch (const PVRush::PVInvalidFile& e) {
 				QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
@@ -586,11 +573,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 
 			PVRush::PVFormat format(format_name, format_path);
 			formats[format_name] = format;
-
-			for (auto src_cr_it = lcr.begin(); src_cr_it != lcr.end(); ++src_cr_it) {
-				PVRush::hash_format_creator::mapped_type v(format, *src_cr_it);
-				format_creator[format_name] = v;
-			}
+			PVRush::hash_format_creator::mapped_type v(format, sc);
+			format_creator[format_name] = v;
 
 			if (fi.isReadable()) {
 				file_type_found = true;
@@ -723,7 +707,8 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 	}
 
 	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
+	PVRush::PVSourceCreator_p src_creator =
+	    PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
 	PVRush::hash_format_creator format_creator;
 
 	PVRush::hash_formats formats;
@@ -747,12 +732,9 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 	if (!format.isEmpty()) {
 		PVRush::PVFormat new_format("custom:arg", format);
 		formats["custom:arg"] = new_format;
-
-		for (auto src_creator : lcr) {
-			PVRush::hash_format_creator::mapped_type v(new_format, src_creator);
-			// Save this format/creator pair to the "format_creator" object
-			format_creator["custom:arg"] = v;
-		}
+		PVRush::hash_format_creator::mapped_type v(new_format, src_creator);
+		// Save this format/creator pair to the "format_creator" object
+		format_creator["custom:arg"] = v;
 		format = "custom:arg";
 	}
 

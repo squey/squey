@@ -39,11 +39,6 @@ QString PVRush::PVSourceCreatorERF::supported_type() const
 	return QString("erf");
 }
 
-bool PVRush::PVSourceCreatorERF::pre_discovery(PVRush::PVInputDescription_p /*input*/) const
-{
-	return true;
-}
-
 QString PVRush::PVSourceCreatorERF::name() const
 {
 	return QString("erf");
