@@ -181,7 +181,7 @@ Qt3DCore::QEntity* createScene()
 
 	// Material
 	auto* material = new Qt3DExtras::QPhongMaterial(rootEntity);
-	material->setAmbient(QColor(0xf1, 0x59, 0x22, 0xff));
+	material->setAmbient(QColor(0xf1, 0x40, 0x00, 0xff));
 	//material->setDiffuse(QColor(0xf1, 0x59, 0x22, 0xff));
 
 	Qt3DCore::QTransform* meshTransform = new Qt3DCore::QTransform;
@@ -259,33 +259,66 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	_view3D_layout = new QHBoxLayout();
 
 	if (PVParallelView::egl_support()) {
-		auto widget3d = new Qt3DExtras::Qt3DWindow();
-		{
-			Qt3DCore::QEntity* scene = createScene();
+		auto widget3d_maker = [this] {
+			auto widget3d = new Qt3DExtras::Qt3DWindow();
+			{
+				Qt3DCore::QEntity* scene = createScene();
 
-			// Camera
-			Qt3DRender::QCamera* camera = widget3d->camera();
-			camera->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
-			camera->setPosition(QVector3D(6.f, 0, 0));
-			camera->setViewCenter(QVector3D(0, 0, 0));
+				// Camera
+				Qt3DRender::QCamera* camera = widget3d->camera();
+				camera->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+				camera->setPosition(QVector3D(6.f, 0, 0));
+				camera->setViewCenter(QVector3D(0, 0, 0));
 
-			// For camera controls
-			// Qt3DExtras::QOrbitCameraController* camController =
-			//     new Qt3DExtras::QOrbitCameraController(scene);
-			// camController->setLinearSpeed(50.0f);
-			// camController->setLookSpeed(180.0f);
-			// camController->setCamera(camera);
+				// For camera controls
+				// Qt3DExtras::QOrbitCameraController* camController =
+				//     new Qt3DExtras::QOrbitCameraController(scene);
+				// camController->setLinearSpeed(50.0f);
+				// camController->setLookSpeed(180.0f);
+				// camController->setCamera(camera);
 
-			widget3d->resize(400, 400);
+				widget3d->resize(400, 400);
 
-			widget3d->setRootEntity(scene);
-		}
-		widget3d->defaultFrameGraph()->setClearColor(
-		    palette().color(QPalette::Normal, QPalette::Light));
+				widget3d->setRootEntity(scene);
+			}
+			widget3d->defaultFrameGraph()->setClearColor(
+			    palette().color(QPalette::Normal, QPalette::Light));
+			return widget3d;
+		};
+
+		auto widget3d = widget3d_maker();
 		auto windowcontainer = QWidget::createWindowContainer(widget3d);
 		windowcontainer->setSizePolicy(QSizePolicy::MinimumExpanding,
 		                               QSizePolicy::MinimumExpanding);
 		windowcontainer->setMinimumSize(QSize(200, 200));
+
+		struct EvFilter: public QObject
+		{
+			std::function<bool(QEvent*)> verif;
+			std::function<void()> f;
+			EvFilter(decltype(verif) ver, decltype(f) fun) : verif(ver), f(fun) {}
+			bool eventFilter(QObject* obj, QEvent* event)
+			{
+				if (verif(event)) {
+					f();
+				}
+				return QObject::eventFilter(obj, event);
+			}
+		};
+		widget3d->installEventFilter(
+		    new EvFilter([](QEvent* event) { return event->type() == QEvent::MouseButtonDblClick; },
+		                 [widget3d_maker] {
+			                 auto window = widget3d_maker();
+			                 window->setModality(Qt::WindowModality::ApplicationModal);
+			                 window->installEventFilter(new EvFilter(
+			                     [](QEvent* event) {
+				                     return event->type() == QEvent::KeyPress and
+				                            ((QKeyEvent*)event)->key() == Qt::Key_Escape;
+			                     },
+			                     [window] { window->close(); }));
+			                 window->showFullScreen();
+		                 }));
+
 		_view3D_layout->addWidget(windowcontainer, 0);
 	} else {
 		auto logo_icon_label = new QLabel;
