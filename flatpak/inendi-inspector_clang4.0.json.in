@@ -25,6 +25,7 @@
     "--filesystem=host",
     "--filesystem=/opt/inendi",
     "--filesystem=~/.inendi",
+    "--filesystem=/tmp",
     "--device=all"
   ],
   "modules": [
