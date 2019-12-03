@@ -311,7 +311,11 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 			                 auto window = widget3d_maker();
 			                 window->setModality(Qt::WindowModality::ApplicationModal);
 			                 window->installEventFilter(new EvFilter(
-			                     [](QEvent* event) {
+			                     [window](QEvent* event) {
+				                     if (event->type() == QEvent::Close) {
+					                     window->deleteLater(); // to prevent window handle leak and
+					                                            // crash at app quit
+				                     }
 				                     return event->type() == QEvent::KeyPress and
 				                            ((QKeyEvent*)event)->key() == Qt::Key_Escape;
 			                     },
