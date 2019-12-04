@@ -106,8 +106,7 @@ bool PVPcapsicum::PVInputTypePcap::load_files(pvpcap::splitted_files_t&& splitte
 	return inputs.size() > 0;
 }
 
-bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats const& /*formats*/,
-                                                PVRush::hash_formats& new_formats,
+bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats& formats,
                                                 PVRush::PVInputType::list_inputs& inputs,
                                                 QString& format,
                                                 PVCore::PVArgumentList& /*args_ext*/,
@@ -145,7 +144,7 @@ bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats const& /*fo
 	format_file.close();
 
 	PVRush::PVFormat f(xml.documentElement());
-	new_formats["custom"] = std::move(f);
+	formats["custom"] = std::move(f);
 	format = format_path;
 
 	return load_files(params->csv_paths(), inputs, parent);

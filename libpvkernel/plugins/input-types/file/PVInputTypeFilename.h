@@ -28,8 +28,7 @@ class PVInputTypeFilename : public PVInputTypeDesc<PVFileDescription>
 	virtual ~PVInputTypeFilename();
 
   public:
-	bool createWidget(hash_formats const& formats,
-	                  hash_formats& new_formats,
+	bool createWidget(hash_formats& formats,
 	                  list_inputs& inputs,
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,
@@ -59,6 +58,6 @@ class PVInputTypeFilename : public PVInputTypeDesc<PVFileDescription>
   protected:
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeFilename)
 };
-}
+} // namespace PVRush
 
 #endif

@@ -30,8 +30,7 @@ PVRush::PVInputTypeFilename::PVInputTypeFilename() : PVInputTypeDesc<PVFileDescr
 	}
 }
 
-bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats,
-                                               hash_formats& /*new_formats*/,
+bool PVRush::PVInputTypeFilename::createWidget(hash_formats& formats,
                                                list_inputs& inputs,
                                                QString& format,
                                                PVCore::PVArgumentList& /*args_ext*/,
@@ -157,7 +156,7 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
 	    custom_filenames.begin(), custom_filenames.end(), [&d](const QString& filename) {
 		    QFileInfo fi = QFileInfo(d.absoluteFilePath(filename));
 		    return fi.exists() && fi.isReadable();
-		});
+	    });
 
 	if (path_custom_dir_format == custom_filenames.end()) {
 		return res;

@@ -9,8 +9,7 @@
 
 #include "PVInputTypeERF.h"
 
-bool PVRush::PVInputTypeERF::createWidget(hash_formats const& formats,
-                                          hash_formats& new_formats,
+bool PVRush::PVInputTypeERF::createWidget(hash_formats& formats,
                                           list_inputs& inputs,
                                           QString& format,
                                           PVCore::PVArgumentList& /*args_ext*/,
@@ -21,7 +20,7 @@ bool PVRush::PVInputTypeERF::createWidget(hash_formats const& formats,
 
 	QString format_path("/srv/logs/VW/erf_all.csv.format");
 	PVRush::PVFormat f("", format_path);
-	new_formats["custom"] = std::move(f);
+	formats["custom"] = std::move(f);
 	format = format_path;
 
 	return true;

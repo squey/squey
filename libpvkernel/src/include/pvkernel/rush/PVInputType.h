@@ -38,8 +38,7 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	typedef list_inputs list_inputs_desc;
 
   public:
-	virtual bool createWidget(hash_formats const& formats,
-	                          hash_formats& new_formats,
+	virtual bool createWidget(hash_formats& formats,
 	                          list_inputs& inputs,
 	                          QString& format,
 	                          PVCore::PVArgumentList& args_ext,

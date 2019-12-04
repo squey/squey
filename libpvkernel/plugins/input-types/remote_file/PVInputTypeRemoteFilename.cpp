@@ -20,12 +20,9 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() : PVInputTypeFilename()
-{
-}
+PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() : PVInputTypeFilename() {}
 
-bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats,
-                                                     hash_formats& /*new_formats*/,
+bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
                                                      list_inputs& inputs,
                                                      QString& format,
                                                      PVCore::PVArgumentList& /*args_ext*/,

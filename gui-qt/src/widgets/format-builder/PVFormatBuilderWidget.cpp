@@ -1014,12 +1014,11 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	if (_inputs.isEmpty()) {
 
 		QString choosenFormat;
-		PVRush::hash_formats formats, new_formats;
+		PVRush::hash_formats formats;
 
 		// This case is only encountered when a source is loaded from the menu
 		PVCore::PVArgumentList args;
-		if (!_log_input_type->createWidget(formats, new_formats, _inputs, choosenFormat, args,
-		                                   this)) {
+		if (!_log_input_type->createWidget(formats, _inputs, choosenFormat, args, this)) {
 			return; // This means that the user pressed the "cancel" button
 		}
 		assert(not _inputs.empty() && "At least one file have to be selected");
