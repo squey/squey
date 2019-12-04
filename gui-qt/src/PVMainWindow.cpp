@@ -434,6 +434,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	if (!in_t->createWidget(formats, inputs, choosenFormat, args, this))
 		return; // This means that the user pressed the "cancel" button
 
+	formats["custom2"] = PVRush::PVFormat("", "/srv/logs/inendi-therm_simple.log.format");
+
 	import_type(in_t, inputs, formats, choosenFormat);
 }
 
@@ -560,31 +562,32 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	QStringList invalid_formats;
 	// Load a type of file per view
 
-	PVRush::PVFormat const& cur_format = formats[format_name];
+	for (PVRush::PVFormat const& cur_format : formats) {
 
-	PVRush::PVSourceDescription src_desc(inputs, sc, cur_format);
+		PVRush::PVSourceDescription src_desc(inputs, sc, cur_format);
 
-	try {
-		if (load_source_from_description_Slot(src_desc)) {
-			one_extraction_successful = true;
+		try {
+			if (load_source_from_description_Slot(src_desc)) {
+				one_extraction_successful = true;
+			}
+		} catch (Inendi::InvalidPlottingMapping const& e) {
+			invalid_formats.append(format_name + ": " + e.what());
+		} catch (PVRush::PVInvalidFile const& e) {
+			invalid_formats.append(format_name + ": " + e.what());
 		}
-	} catch (Inendi::InvalidPlottingMapping const& e) {
-		invalid_formats.append(format_name + ": " + e.what());
-	} catch (PVRush::PVInvalidFile const& e) {
-		invalid_formats.append(format_name + ": " + e.what());
-	}
 
-	if (not invalid_formats.isEmpty()) {
-		QMessageBox error_message(
-		    QMessageBox::Warning, "Invalid format",
-		    "Some format can't be use as types, mapping and plotting are not compatible.",
-		    QMessageBox::Ok, this);
-		error_message.setDetailedText(invalid_formats.join("\n"));
-		error_message.exec();
-	}
+		if (not invalid_formats.isEmpty()) {
+			QMessageBox error_message(
+			    QMessageBox::Warning, "Invalid format",
+			    "Some format can't be use as types, mapping and plotting are not compatible.",
+			    QMessageBox::Ok, this);
+			error_message.setDetailedText(invalid_formats.join("\n"));
+			error_message.exec();
+		}
 
-	if (!one_extraction_successful) {
-		return;
+		if (!one_extraction_successful) {
+			return;
+		}
 	}
 
 	_projects_tab_widget->setVisible(true);
