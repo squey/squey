@@ -47,12 +47,12 @@ PVRush::PVOpcUaParamsWidget::PVOpcUaParamsWidget(PVInputTypeOpcUa const* in_t,
 	_btn_refresh->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
 	_combo_index->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-	QHBoxLayout* custom_layout = new QHBoxLayout();
-	custom_layout->addWidget(label_index);
-	custom_layout->addWidget(_combo_index);
-	custom_layout->addWidget(_btn_refresh);
+	// QHBoxLayout* custom_layout = new QHBoxLayout();
+	// custom_layout->addWidget(label_index);
+	// custom_layout->addWidget(_combo_index);
+	// custom_layout->addWidget(_btn_refresh);
 
-	_custom_layout->addLayout(custom_layout);
+	// _custom_layout->addLayout(custom_layout);
 
 	_columns_tree_widget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -305,8 +305,8 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 	QString pkidir("/home/fchapelle/dev/qtopcua/lay2form/pkidir/");
 
 	QOpcUaPkiConfiguration pkiConfig;
-	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_client_certificate.der");
-	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_client_private_key.pem");
+	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
+	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
 	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
 	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
 	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
@@ -457,75 +457,49 @@ void PVRush::PVOpcUaParamsWidget::export_query_result(PVCore::PVStreamingCompres
 
 	using PVRush::PVUtils::safe_export;
 
-	if (header) {
-		// const PVRush::PVOpcUaAPI::columns_t& cols =
-		//     es.format_columns(query.get_infos().get_filter_path().toStdString());
-		// std::string h;
-		// for (const auto& [col_name, _] : cols) {
-		// 	h += PVRush::PVUtils::safe_export(col_name, sep, quote) + sep;
-		// 	(void)_;
-		// }
-		// h.resize(h.size() - 1); // remove last separator
-		// compressor.write(h);
-		// compressor.write("\n");
+	try {
+		if (header) {
+			compressor.write(safe_export("Source Timestamp", sep, quote) + sep +
+			                 safe_export("Data", sep, quote) + "\n");
+		}
 
-		compressor.write(safe_export("Source Timestamp", sep, quote) + sep +
-		                 safe_export("Server Timestamp", sep, quote) + sep +
-		                 safe_export("Data", sep, quote) + "\n");
-	}
+		// pbox.set_maximum(es.count(query));
 
-	// pbox.set_maximum(es.count(query));
+		for (auto& opcua_column : _opcua_treeview->selectionModel()->selectedRows()) {
 
-	for (auto& opcua_column : _opcua_treeview->selectionModel()->selectedRows()) {
-		auto column_node_id = opcua_column.siblingAtColumn(0).data(Qt::UserRole).value<QString>();
-		es.read_node_history(column_node_id, [&compressor, &sep, &quote](UA_HistoryData* data) {
-			qDebug() << __func__ << data->dataValuesSize;
-			for (UA_UInt32 i = 0; i < data->dataValuesSize; ++i) {
-				UA_DataValue& value = data->dataValues[i];
-				std::string v;
-				v += safe_export(std::to_string(value.sourceTimestamp), sep, quote) + sep;
-				v += safe_export(std::to_string(value.serverTimestamp), sep, quote) + sep;
-				//v += safe_export(std::to_string(value.value), sep, quote) + "\n";
-				v += safe_export("FakeData", sep, quote) + "\n";
-				compressor.write(v);
-				std::cout << __func__ << v;
+			if (error && error->empty() == false) {
+				return;
 			}
-			return true;
-		});
+
+			if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL ||
+			    pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL2) {
+				break;
+			}
+
+			auto column_node_id =
+			    opcua_column.siblingAtColumn(0).data(Qt::UserRole).value<QString>();
+			es.read_node_history(
+			    column_node_id, UA_DateTime_fromUnixTime(0), UA_DateTime_now(),
+			    [&compressor, &sep, &quote, &count](UA_HistoryData* data) {
+				    for (UA_UInt32 i = 0; i < data->dataValuesSize; ++i) {
+					    UA_DataValue& value = data->dataValues[i];
+					    std::string v;
+					    v += safe_export(std::to_string(value.sourceTimestamp), sep, quote) + sep;
+					    v += safe_export(std::to_string(value.serverTimestamp), sep, quote) + sep;
+					    v +=
+					        safe_export(PVOpcUaAPI::to_json_string(value.value), sep, quote) + "\n";
+					    compressor.write(v);
+				    }
+				    count += data->dataValuesSize;
+				    return true;
+			    });
+
+			pbox.set_value(count);
+			pbox.set_extended_status(QString("%L1 rows exported so far").arg(count));
+		}
+	} catch (const PVCore::PVStreamingCompressorError& e) {
+		*error = e.what();
 	}
-
-	do {
-		// PVOpcUaAPI::rows_t rows;
-		// query_end = not es.extract(query, rows, error);
-
-		if (error && error->empty() == false) {
-			return;
-		}
-
-		if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL ||
-		    pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL2) {
-			break;
-		}
-
-		// for (const std::vector<std::string>& row : rows) {
-		// 	std::string v;
-		// 	for (const std::string& col : row) {
-		// 		v += PVRush::PVUtils::safe_export(col, sep, quote) + sep;
-		// 	}
-		// 	v.resize(v.size() - 1); // remove last separator
-		// 	try {
-		// 		compressor.write(v);
-		// 		compressor.write("\n");
-		// 	} catch (const PVCore::PVStreamingCompressorError& e) {
-		// 		*error = e.what();
-		// 		return;
-		// 	}
-		// }
-		// count += rows.size();
-
-		pbox.set_value(count);
-		pbox.set_extended_status(QString("%L1 rows exported so far").arg(count));
-	} while (query_end == false);
 }
 
 bool PVRush::PVOpcUaParamsWidget::set_infos(PVOpcUaInfos const& infos)
@@ -718,17 +692,22 @@ void PVRush::PVOpcUaParamsWidget::update_custom_format()
 	std::unique_ptr<PVXmlTreeNodeDom> format_root(
 	    PVRush::PVXmlTreeNodeDom::new_format(_custom_format));
 
-	// PVRush::PVXmlTreeNodeDom* time_node = format_root->addOneField(QString("SourceTime"),
-	// QString("time")); time_node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR),
-	//                         PVFORMAT_AXIS_TYPE_FORMAT_DEFAULT);
+	PVRush::PVXmlTreeNodeDom* time_node =
+	    format_root->addOneField(QString("SourceTime"), QString("time"));
+	time_node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "yyyy-MM-d H:m:ss.S");
 
 	for (auto& opcua_column : _opcua_treeview->selectionModel()->selectedRows()) {
 		auto column_name = opcua_column.siblingAtColumn(5).data().value<QString>();
-		auto column_type = opcua_column.siblingAtColumn(3).data().value<QString>();
+		auto column_type = opcua_column.siblingAtColumn(3).data(Qt::UserRole).value<QString>();
 		qDebug() << "Selected NodeId:" << opcua_column.siblingAtColumn(4).data()
 		         << "ColumnName:" << column_name << "ColumnType:" << column_type;
-		PVRush::PVXmlTreeNodeDom* node =
-		    format_root->addOneField(column_name, QString("number_int32"));
+		auto node_id_open62541 = PVRush::PVOpcUaAPI::NodeId(column_type).open62541();
+		if (auto* data_type = UA_findDataType(&node_id_open62541)) {
+			PVRush::PVXmlTreeNodeDom* node =
+			    format_root->addOneField(column_name, QString(PVRush::PVOpcUaAPI::pvcop_type(data_type->typeIndex)));
+		} else {
+			PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(column_name, QString("string"));
+		}
 	}
 }
 

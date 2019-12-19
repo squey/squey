@@ -1,8 +1,25 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 734d9871..5b126b93 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -727,10 +727,11 @@ if(UA_ENABLE_JSON_ENCODING)
+     if(UA_ENABLE_PUBSUB)
+         list(APPEND lib_sources ${PROJECT_SOURCE_DIR}/src/pubsub/ua_pubsub_networkmessage_json.c)
+     endif()
+-    list(APPEND internal_headers ${PROJECT_SOURCE_DIR}/deps/jsmn/jsmn.h
++    list(APPEND exported_headers ${PROJECT_SOURCE_DIR}/deps/jsmn/jsmn.h
+                                  ${PROJECT_SOURCE_DIR}/deps/string_escape.h
+                                  ${PROJECT_SOURCE_DIR}/deps/itoa.h
+                                  ${PROJECT_SOURCE_DIR}/deps/atoi.h
++                                 ${PROJECT_SOURCE_DIR}/src/ua_util_internal.h
+                                  ${PROJECT_SOURCE_DIR}/src/ua_types_encoding_json.h)
+     list(APPEND lib_sources ${PROJECT_SOURCE_DIR}/deps/jsmn/jsmn.c
+                             ${PROJECT_SOURCE_DIR}/deps/string_escape.c
 diff --git a/include/open62541/client_highlevel.h b/include/open62541/client_highlevel.h
-index 77ba54ac..cdd79267 100644
+index 77ba54ac..58509460 100644
 --- a/include/open62541/client_highlevel.h
 +++ b/include/open62541/client_highlevel.h
-@@ -250,6 +250,14 @@ UA_Client_HistoryRead_modified(UA_Client *client, const UA_NodeId *nodeId,
+@@ -250,6 +250,22 @@ UA_Client_HistoryRead_modified(UA_Client *client, const UA_NodeId *nodeId,
                                    UA_TimestampsToReturn timestampsToReturn, void *callbackContext);
  #endif // UA_ENABLE_EXPERIMENTAL_HISTORIZING
  
@@ -14,11 +31,19 @@ index 77ba54ac..cdd79267 100644
 +                                  UA_TimestampsToReturn timestampsToReturn, void *callbackContext);
 +#endif // UA_ENABLE_EXPERIMENTAL_HISTORIZING
 +
++#ifdef UA_ENABLE_EXPERIMENTAL_HISTORIZING
++UA_StatusCode UA_EXPORT
++UA_Client_HistoryRead_processed(UA_Client *client, const UA_NodeId *nodeId,
++                                  const UA_HistoricalIteratorCallback callback,
++                                  UA_DateTime startTime, UA_DateTime endTime, UA_Double processingInterval, const UA_NodeId *aggregateType, UA_String indexRange,
++                                  UA_TimestampsToReturn timestampsToReturn, void *callbackContext);
++#endif // UA_ENABLE_EXPERIMENTAL_HISTORIZING
++
  UA_StatusCode UA_EXPORT
  UA_Client_HistoryUpdate_insert(UA_Client *client,
                                 const UA_NodeId *nodeId,
 diff --git a/src/client/ua_client_highlevel.c b/src/client/ua_client_highlevel.c
-index f605f7bf..bdca3262 100644
+index f605f7bf..fd101698 100644
 --- a/src/client/ua_client_highlevel.c
 +++ b/src/client/ua_client_highlevel.c
 @@ -474,7 +474,7 @@ __UA_Client_HistoryRead(UA_Client *client, const UA_NodeId *nodeId,
@@ -30,7 +55,7 @@ index f605f7bf..bdca3262 100644
  
      UA_HistoryReadRequest request;
      UA_HistoryReadRequest_init(&request);
-@@ -623,6 +623,30 @@ UA_Client_HistoryRead_modified(UA_Client *client, const UA_NodeId *nodeId,
+@@ -623,6 +623,61 @@ UA_Client_HistoryRead_modified(UA_Client *client, const UA_NodeId *nodeId,
  }
  #endif // UA_ENABLE_EXPERIMENTAL_HISTORIZING
  
@@ -58,6 +83,88 @@ index f605f7bf..bdca3262 100644
 +}
 +#endif // UA_ENABLE_EXPERIMENTAL_HISTORIZING
 +
++#ifdef UA_ENABLE_EXPERIMENTAL_HISTORIZING
++UA_StatusCode
++UA_Client_HistoryRead_processed(UA_Client *client, const UA_NodeId *nodeId,
++                                  const UA_HistoricalIteratorCallback callback,
++                                  UA_DateTime startTime, UA_DateTime endTime, UA_Double processingInterval, const UA_NodeId *aggregateType, UA_String indexRange,
++                                  UA_TimestampsToReturn timestampsToReturn, void *callbackContext) {
++
++    UA_AggregateConfiguration aggregateConfiguration;
++    UA_AggregateConfiguration_init(&aggregateConfiguration);
++    aggregateConfiguration.useServerCapabilitiesDefaults = true;
++
++    UA_ReadProcessedDetails details;
++    UA_ReadProcessedDetails_init(&details);
++    details.startTime = startTime;
++    details.endTime = endTime;
++    details.processingInterval = processingInterval;
++    details.aggregateTypeSize = 1;
++    details.aggregateType = aggregateType;
++    details.aggregateConfiguration = aggregateConfiguration;
++
++    UA_ExtensionObject detailsExtensionObject;
++    UA_ExtensionObject_init(&detailsExtensionObject);
++    detailsExtensionObject.content.decoded.type = &UA_TYPES[UA_TYPES_READPROCESSEDDETAILS];
++    detailsExtensionObject.content.decoded.data = &details;
++    detailsExtensionObject.encoding = UA_EXTENSIONOBJECT_DECODED;
++
++    return __UA_Client_HistoryRead_service(client, nodeId, callback, &detailsExtensionObject,
++                                              indexRange, timestampsToReturn, callbackContext);
++}
++#endif // UA_ENABLE_EXPERIMENTAL_HISTORIZING
++
  static UA_HistoryUpdateResponse
  __UA_Client_HistoryUpdate(UA_Client *client,
                            void *details,
+diff --git a/src/ua_securechannel.c b/src/ua_securechannel.c
+index 8340441c..b9d10ad5 100644
+--- a/src/ua_securechannel.c
++++ b/src/ua_securechannel.c
+@@ -71,15 +71,18 @@ UA_SecureChannel_setSecurityPolicy(UA_SecureChannel *channel,
+         UA_LOG_WARNING(securityPolicy->logger, UA_LOGCATEGORY_SECURITYPOLICY,
+                        "Security policy None is used to create SecureChannel. Accepting all certificates");
+     }
++    UA_LOG_WARNING(securityPolicy->logger, UA_LOGCATEGORY_SECURITYPOLICY, "1111");
+ 
+     retval = securityPolicy->channelModule.
+         newContext(securityPolicy, remoteCertificate, &channel->channelContext);
+     if(retval != UA_STATUSCODE_GOOD)
+         return retval;
++    UA_LOG_WARNING(securityPolicy->logger, UA_LOGCATEGORY_SECURITYPOLICY, "2222");
+ 
+     retval = UA_ByteString_copy(remoteCertificate, &channel->remoteCertificate);
+     if(retval != UA_STATUSCODE_GOOD)
+         return retval;
++    UA_LOG_WARNING(securityPolicy->logger, UA_LOGCATEGORY_SECURITYPOLICY, "3333");
+ 
+     UA_ByteString remoteCertificateThumbprint = {20, channel->remoteCertificateThumbprint};
+     retval = securityPolicy->asymmetricModule.
+diff --git a/src/ua_types_encoding_json.h b/src/ua_types_encoding_json.h
+index 39acdab7..c6c4fc1e 100644
+--- a/src/ua_types_encoding_json.h
++++ b/src/ua_types_encoding_json.h
+@@ -21,20 +21,20 @@ _UA_BEGIN_DECLS
+ 
+ #define TOKENCOUNT 1000
+     
+-size_t
++size_t UA_EXPORT
+ UA_calcSizeJson(const void *src, const UA_DataType *type,
+                 UA_String *namespaces, size_t namespaceSize,
+                 UA_String *serverUris, size_t serverUriSize,
+                 UA_Boolean useReversible) UA_FUNC_ATTR_WARN_UNUSED_RESULT;
+ 
+-UA_StatusCode
++UA_StatusCode UA_EXPORT
+ UA_encodeJson(const void *src, const UA_DataType *type,
+               uint8_t **bufPos, const uint8_t **bufEnd,
+               UA_String *namespaces, size_t namespaceSize,
+               UA_String *serverUris, size_t serverUriSize,
+               UA_Boolean useReversible) UA_FUNC_ATTR_WARN_UNUSED_RESULT;
+ 
+-UA_StatusCode
++UA_StatusCode UA_EXPORT
+ UA_decodeJson(const UA_ByteString *src, void *dst,
+               const UA_DataType *type) UA_FUNC_ATTR_WARN_UNUSED_RESULT;
+ 

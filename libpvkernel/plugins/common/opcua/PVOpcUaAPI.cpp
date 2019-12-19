@@ -8,6 +8,8 @@
 
 #include "PVOpcUaInfos.h"
 
+#include <system_error>
+
 #include <QOpcUaPkiConfiguration>
 #include <QDebug>
 #include <QRegExp>
@@ -22,6 +24,48 @@
 	          << part
 #define QDBGF_START qDebug() << "Start:" << __func__;
 #define QDBGF_END qDebug() << "End:" << __func__;
+
+std::error_category const& opcua_category()
+{
+	struct opcua_error_category: public std::error_category
+	{
+		const char* name() const noexcept override { return "open62541"; }
+		std::string message(int condition) const override {
+			return UA_StatusCode_name(static_cast<UA_StatusCode>(condition));
+		}
+	} category;
+
+	return category;
+}
+
+std::error_code make_opcua_error_code(UA_StatusCode status)
+{
+	return std::error_code(static_cast<int>(status), opcua_category());
+}
+
+template <class... Args>
+std::system_error make_opcua_error(UA_StatusCode status, Args&&... args)
+{
+	return std::system_error(make_opcua_error_code(status), std::forward<Args>(args)...);
+}
+
+template <class... Args>
+void check_opcua_code(UA_StatusCode status, Args&&... args)
+{
+	if (status != UA_STATUSCODE_GOOD){
+		throw make_opcua_error(status, std::forward<Args>(args)...);
+	}
+}
+
+static const std::unordered_map<int, const char*> opcua_to_pvcop_type{
+    {UA_TYPES_BOOLEAN, "number_uint8"}, {UA_TYPES_SBYTE, "number_int8"},
+    {UA_TYPES_BYTE, "number_uint8"},    {UA_TYPES_INT16, "number_int16"},
+    {UA_TYPES_UINT16, "number_uint16"}, {UA_TYPES_INT32, "number_int32"},
+    {UA_TYPES_UINT32, "number_uint32"}, {UA_TYPES_INT64, "number_int64"},
+    {UA_TYPES_UINT64, "number_uint64"}, {UA_TYPES_FLOAT, "number_float"},
+    {UA_TYPES_DOUBLE, "number_double"}, {UA_TYPES_STRING, "string"},
+    {UA_TYPES_DATETIME, "datetime_us"}, {UA_TYPES_GUID, "string"},
+    {UA_TYPES_BYTESTRING, "string"}};
 
 PVRush::PVOpcUaAPI::PVOpcUaAPI(PVOpcUaInfos const& infos) : _infos(infos)
 {
@@ -65,8 +109,8 @@ static auto pki_config()
 {
 	QString pkidir("/home/fchapelle/dev/qtopcua/lay2form/pkidir");
 	QOpcUaPkiConfiguration pkiConfig;
-	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_client_certificate.der");
-	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_client_private_key.pem");
+	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
+	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
 	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
 	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
 	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
@@ -201,14 +245,41 @@ static UA_Boolean read_node_history_static(UA_Client* client,
 	return static_cast<PVRush::PVOpcUaAPI*>(context)->read_history_data(nodeId, moreDataAvailable, data);
 }
 
-void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, std::function<bool(UA_HistoryData*)> callback)
+void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, UA_DateTime start_time, UA_DateTime end_time, std::function<bool(UA_HistoryData*)> callback)
 {
 	_read_callback = callback;
 	UA_NodeId node = node_id.open62541();
-	UA_StatusCode retval = UA_Client_HistoryRead_raw(
-	    _client, &node, read_node_history_static, UA_DateTime_fromUnixTime(0), UA_DateTime_now(),
-	    UA_STRING_NULL, false, 100, UA_TIMESTAMPSTORETURN_BOTH, (void*)this);
+	UA_StatusCode retval = UA_Client_HistoryRead_raw(_client, &node, read_node_history_static,
+	                                                 start_time, end_time, UA_STRING_NULL, false,
+	                                                 1000, UA_TIMESTAMPSTORETURN_BOTH, (void*)this);
+	// UA_NodeId aggregate_type = UA_NODEID_STRING_ALLOC(0, "Count");
+	// UA_NodeId aggregate_type = UA_NODEID_NUMERIC(0, 2352);
+	// UA_StatusCode retval = UA_Client_HistoryRead_processed(
+	//     _client, &node, read_node_history_static, UA_DateTime_now() - 100*UA_DATETIME_SEC,
+	//     UA_DateTime_now(), 0, &aggregate_type, UA_STRING_NULL, UA_TIMESTAMPSTORETURN_BOTH,
+	//     (void*)this);
 	qDebug() << "read_node_history" << QDBGSTS(retval);
+}
+
+UA_DateTime PVRush::PVOpcUaAPI::first_historical_datetime(NodeId node_id)
+{
+	UA_DateTime ret_val = 0;
+	_read_callback = [&ret_val](UA_HistoryData* data) {
+		if (data->dataValuesSize > 0) {
+			ret_val = data->dataValues[0].sourceTimestamp;
+			qDebug() << "FIRST DATA:";
+			print_datetime(data->dataValues[0].sourceTimestamp);
+			// print_datetime(data->dataValues[1].sourceTimestamp);
+			// print_datetime(data->dataValues[2].sourceTimestamp);
+			// print_datetime(data->dataValues[3].sourceTimestamp);
+		}
+		return false;
+	};
+	UA_NodeId node = node_id.open62541();
+	check_opcua_code(UA_Client_HistoryRead_raw(
+	    _client, &node, read_node_history_static, UA_DateTime(1*UA_DATETIME_SEC), UA_DateTime(0),
+	    UA_STRING_NULL, false, 1, UA_TIMESTAMPSTORETURN_BOTH, (void*)this));
+	return ret_val;
 }
 
 bool PVRush::PVOpcUaAPI::read_history_data(const UA_NodeId* nodeId,
@@ -252,4 +323,41 @@ PVRush::PVOpcUaAPI::NodeId::NodeId(QString id)
 PVRush::PVOpcUaAPI::NodeId::~NodeId()
 {
 	UA_NodeId_deleteMembers(&_node_id);
+}
+
+const char* PVRush::PVOpcUaAPI::pvcop_type(int opcua_type_index)
+{
+	if (auto it = opcua_to_pvcop_type.find(opcua_type_index); it != opcua_to_pvcop_type.end()) {
+		return it->second;
+	} else {
+		return "string";
+	}
+}
+
+std::string PVRush::PVOpcUaAPI::to_json_string(UA_Variant const& value)
+{
+	std::string json_value;
+	if (value.arrayLength) {
+		json_value.resize(UA_calcSizeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], nullptr, 0,
+		                                  nullptr, 0, true));
+		auto* json_value_pos = json_value.data();
+		auto* json_value_end = json_value.data() + json_value.size();
+		UA_encodeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], (uint8_t**)&json_value_pos,
+		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+	} else {
+		json_value.resize(
+		    UA_calcSizeJson(value.data, value.type, nullptr, 0, nullptr, 0, true));
+		auto* json_value_pos = json_value.data();
+		auto* json_value_end = json_value.data() + json_value.size();
+		UA_encodeJson(value.data, value.type, (uint8_t**)&json_value_pos,
+		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+	}
+	return json_value;
+}
+
+void PVRush::PVOpcUaAPI::print_datetime(UA_DateTime date)
+{
+	UA_DateTimeStruct dts = UA_DateTime_toStruct(date);
+	printf("%02u-%02u-%04u %02u:%02u:%02u.%03u\n", dts.day, dts.month, dts.year, dts.hour, dts.min,
+	       dts.sec, dts.milliSec);
 }

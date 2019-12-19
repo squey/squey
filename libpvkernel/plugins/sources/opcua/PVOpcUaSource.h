@@ -9,9 +9,13 @@
 
 #include <QString>
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/core/PVBinaryChunk.h>
+
+#include "../../common/opcua/PVOpcUaAPI.h"
 
 namespace PVRush
 {
@@ -34,16 +38,24 @@ class PVOpcUaSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
   protected:
 	chunk_index _next_index;
 
+	void fill_sourcetime();
+
   private:
 	PVOpcUaQuery& _query;
+	PVOpcUaAPI _api;
 	std::vector<std::unique_ptr<PVCore::PVBinaryChunk>> _chunks;
-	std::vector<int> _data;
+	std::vector<std::pair<std::vector<uint8_t>, UA_DataType const*>> _data;
+	std::vector<boost::posix_time::ptime> _sourcetimes;
+	std::vector<QString> _node_ids;
 
 	unsigned int _current_chunk = 0;
 	uint64_t _nodes_count = 0;
+	size_t _sourcetimes_current = 0;
 
-  private:
-	void connect_to_server();
+	UA_DateTime _query_start;
+	UA_DateTime _query_end;
+	int64_t _query_interval;
+	size_t _query_nb_of_times;
 };
 } // namespace PVRush
 

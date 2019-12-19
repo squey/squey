@@ -598,9 +598,10 @@
         "-DUA_ENABLE_ENCRYPTION=ON",
         "-DUA_ENABLE_HISTORIZING=ON",
         "-DUA_ENABLE_EXPERIMENTAL_HISTORIZING=ON",
+        "-DUA_ENABLE_JSON_ENCODING=ON",
         "-DBUILD_SHARED_LIBS=ON",
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DUA_LOGLEVEL=300"
+        "-DUA_LOGLEVEL=200"
       ],
       "sources": [
        {

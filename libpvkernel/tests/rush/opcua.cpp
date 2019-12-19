@@ -70,8 +70,8 @@ static auto pki_config()
 {
 	QString pkidir(PKI_DIR);
 	QOpcUaPkiConfiguration pkiConfig;
-	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_client_certificate.der");
-	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_client_private_key.pem");
+	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
+	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
 	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
 	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
 	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");

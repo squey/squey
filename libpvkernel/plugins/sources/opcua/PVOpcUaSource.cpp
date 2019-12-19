@@ -26,7 +26,7 @@
 #define QDBGF_END qDebug() << "End:" << __func__;
 
 PVRush::PVOpcUaSource::PVOpcUaSource(PVRush::PVInputDescription_p input)
-    : _query(dynamic_cast<PVOpcUaQuery&>(*input))
+    : _query(dynamic_cast<PVOpcUaQuery&>(*input)), _api(_query.infos())
 {
 	qDebug() << "PVOpcUaSource::operator()";
 	qDebug() << _query.human_name() << _query.get_query() << _query.get_query_type();
@@ -37,10 +37,19 @@ PVRush::PVOpcUaSource::PVOpcUaSource(PVRush::PVInputDescription_p input)
 	auto deserialized_query = serialized_query.split(QRegularExpression("\\;\\$\\;"));
 	qDebug() << deserialized_query;
 	_nodes_count = deserialized_query.size() / 3;
+	_data.resize(_nodes_count);
 	for (size_t i = 0; i < _nodes_count; ++i) {
 		// configure node per node
+		_node_ids.push_back(deserialized_query[3 * i]);
+		auto node_id_open62541 = PVOpcUaAPI::NodeId(deserialized_query[3 * i + 1]).open62541();
+		if (auto* data_type = UA_findDataType(&node_id_open62541)) {
+			_data[i].second = data_type;
+			qDebug() << "PVOpcUaSource: node " << i << " has datatype " << data_type->typeName;
+		} else {
+			_data[i].second = &UA_TYPES[UA_TYPES_STRING];
+			qDebug() << "PVOpcUaSource: Unknown type:" << deserialized_query[3 * i + 1];
+		}
 	}
-	// connect_to_server();
 }
 
 QString PVRush::PVOpcUaSource::human_name()
@@ -59,35 +68,159 @@ size_t PVRush::PVOpcUaSource::get_size() const
 
 PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
 {
-	if (_current_chunk != 0) {
+	if (_current_chunk == 0) {
+		fill_sourcetime();
+
+		for (size_t node = 0; node < _nodes_count; ++node) {
+			auto& [node_data, node_datatype] = _data[node];
+			const size_t elm_size = node_datatype->memSize;
+			node_data.reserve(elm_size * _query_nb_of_times);
+
+			UA_DateTime current_time = _query_start;
+			size_t current_time_index = 0;
+			_api.read_node_history(
+			    _node_ids[node], _query_start, _query_end,
+			    [this, elm_size, &node_data, &node_datatype, &current_time,
+			     &current_time_index](UA_HistoryData* data) {
+				    for (size_t i = 0; i < data->dataValuesSize; ++i) {
+					    auto& dataval = data->dataValues[i];
+					    if (dataval.value.type != node_datatype) {
+						    qDebug() << "Row has bad data type" << dataval.value.type->typeName
+						             << "(expected" << node_datatype->typeName << ")";
+						    continue;
+					    }
+						if (dataval.sourceTimestamp < current_time) {
+							if (node_data.empty()) {
+								qDebug() << __func__ << __LINE__;
+								PVOpcUaAPI::print_datetime(dataval.sourceTimestamp);
+								PVOpcUaAPI::print_datetime(current_time);
+							    qDebug() << "Should not happen, wrong data or wrong logic.";
+							    continue;
+						    }
+						    // Keep the last data for the interval
+						    memcpy(node_data.data() + node_data.size() - elm_size,
+						           dataval.value.data, elm_size);
+						    continue;
+						}
+					    // Fill the voids with zero or copy the last known element
+					    while (dataval.sourceTimestamp >= current_time + _query_interval and
+								current_time < _query_end) {
+							const size_t old_size = node_data.size();
+							node_data.resize(old_size + elm_size);
+							if (node_data.empty()) {
+								memset(node_data.data() + old_size, 0, elm_size);
+							} else {
+								memcpy(node_data.data() + old_size,
+										node_data.data() + old_size - elm_size,
+										elm_size);
+							}
+							current_time += _query_interval;
+							++current_time_index;
+						}
+						// Copy the data for the element
+						const size_t old_size = node_data.size();
+						node_data.resize(old_size + elm_size);
+						memcpy(node_data.data() + old_size, dataval.value.data,
+								elm_size);
+						current_time += _query_interval;
+						++current_time_index;
+				    }
+				    return true;
+			    });
+			// Zero the rest or copy the last known element
+			if (node_data.empty()) {
+				node_data.resize(elm_size * _query_nb_of_times, 0);
+			} else {
+				const size_t old_size = node_data.size();
+				node_data.resize(elm_size * _query_nb_of_times);
+				for (size_t i = old_size; i < elm_size * _query_nb_of_times; i += elm_size) {
+					memcpy(node_data.data() + i,
+					       node_data.data() + i - elm_size, elm_size);
+				}
+			}
+		}
+	}
+
+	if (_current_chunk > 0) {
 		return nullptr;
 	}
 
-	auto chsize = 1000;
+	auto chsize = _data[_current_chunk].first.size() / _data[_current_chunk].second->memSize;
 
-	PVCore::PVBinaryChunk& chunk = *_chunks.emplace_back(std::make_unique<PVCore::PVBinaryChunk>(_nodes_count, chsize, 0));
+	PVCore::PVBinaryChunk& chunk = *_chunks.emplace_back(
+	    std::make_unique<PVCore::PVBinaryChunk>(_nodes_count + 1, chsize, _sourcetimes_current));
 
-	_data.resize(chsize, 42);
-	for (int i = 0; i < chsize; ++i) {
-		_data[i] = i;
+	chunk.set_raw_column_chunk(PVCol(0), _sourcetimes.data() + _sourcetimes_current, chsize,
+	                           sizeof(boost::posix_time::ptime), "datetime_us");
+
+	for (size_t i = 0; i < _nodes_count; ++i) {
+		auto pvcop_type = PVRush::PVOpcUaAPI::pvcop_type(_data[i].second->typeIndex);
+		qDebug() << "PVCOPTYPE:" << pvcop_type;
+		chunk.set_raw_column_chunk(PVCol(1 + i), _data[i].first.data(), chsize,
+		                           _data[i].second->memSize, pvcop_type);
+		// if (i == _current_chunk) {
+		// 	chunk.set_raw_column_chunk(PVCol(1 + i),
+		// 	                           _data[i].first.data(), chsize,
+		// 	                           _data[i].second->memSize, pvcop_type);
+		// } else {
+		// 	chunk.set_invalid_column(PVCol(1 + i));
+		// 	chunk.set_raw_column_chunk(PVCol(1 + i), _empty_column.data(), chsize,
+		// 	                           _data[i].second->memSize, pvcop_type);
+		// }
 	}
-	for (int i = 0; i < _nodes_count; ++i) {
-		chunk.set_column_chunk(PVCol(i), _data);
-	}
-	chunk.set_rows_count(_data.size());
+	chunk.set_rows_count(chsize);
 	qDebug() << "chunk filled";
+	//_sourcetimes_current += chsize;
 	++_current_chunk;
 	return &chunk;
 
 	throw std::logic_error("Unimplemented");
 }
 
+void PVRush::PVOpcUaSource::fill_sourcetime()
+{
+	static const UA_DateTimeStruct time_zero_dts = UA_DateTime_toStruct(0);
+	static const boost::posix_time::ptime time_zero(
+	    boost::gregorian::date(time_zero_dts.year, time_zero_dts.month, time_zero_dts.day));
+
+	UA_DateTime first_historical_datetime = UA_DateTime_now();
+	std::cout << "node_ids:" << _node_ids.size() << " now():" << first_historical_datetime
+	          << std::endl;
+	for (auto& node_id : _node_ids) {
+		auto node_first_datetime = _api.first_historical_datetime(node_id);
+		qDebug() << node_id << " first datetime:";
+		PVOpcUaAPI::print_datetime(node_first_datetime);
+		if (node_first_datetime < first_historical_datetime) {
+			first_historical_datetime = node_first_datetime;
+		}
+	}
+	_query_start = first_historical_datetime;
+
+	//_query_start = UA_DateTime(0);// UA_DateTime_now() - 6000 * UA_DATETIME_SEC;
+	_query_end = UA_DateTime_now();
+	_query_interval = 20 * UA_DATETIME_SEC;
+	_query_nb_of_times = (_query_end - _query_start) / _query_interval + 1;
+	qDebug() << "QUERY_START";
+	PVOpcUaAPI::print_datetime(_query_start);
+	qDebug() << "QUERY_END";
+	PVOpcUaAPI::print_datetime(_query_end);
+	qDebug() << _query_start << _query_end << _query_nb_of_times;
+
+	_sourcetimes.reserve(_query_nb_of_times);
+
+	for (size_t i = 0; i < _query_nb_of_times; ++i) {
+		_sourcetimes.emplace_back(
+		    time_zero +
+		    boost::posix_time::microsec((_query_start + (i * _query_interval)) / UA_DATETIME_USEC));
+	}
+}
+
 static auto pki_config()
 {
 	QString pkidir("/home/fchapelle/dev/qtopcua/lay2form/pkidir");
 	QOpcUaPkiConfiguration pkiConfig;
-	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_client_certificate.der");
-	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_client_private_key.pem");
+	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
+	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
 	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
 	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
 	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
@@ -245,73 +378,4 @@ static UA_Boolean readRaw(const UA_HistoryData* data)
 
 	/* We want more data! */
 	return true;
-}
-
-static UA_Boolean readHist(UA_Client* client,
-                           const UA_NodeId* nodeId,
-                           UA_Boolean moreDataAvailable,
-                           const UA_ExtensionObject* data,
-                           void* unused)
-{
-	qDebug() << "Read historical callback (Has more data:" << moreDataAvailable << "):";
-	if (data->content.decoded.type == &UA_TYPES[UA_TYPES_HISTORYDATA]) {
-		return readRaw((UA_HistoryData*)data->content.decoded.data);
-	}
-	return true;
-}
-
-void PVRush::PVOpcUaSource::connect_to_server()
-{
-	QDBGF_START
-	UA_Client* client = UA_Client_new();
-	UA_ClientConfig* conf = UA_Client_getConfig(client);
-
-	{
-		auto pki = pki_config();
-		UA_ByteString localCertificate;
-		UA_ByteString privateKey;
-		UA_ByteString* trustList = nullptr;
-		int trustListSize = 0;
-		UA_ByteString* revocationList = nullptr;
-		int revocationListSize = 0;
-
-		if (loadFileToByteString(pki.clientCertificateFile(), &localCertificate) and
-		    loadFileToByteString(pki.privateKeyFile(), &privateKey) and
-		    loadAllFilesInDirectory(pki.trustListDirectory(), &trustList, &trustListSize) and
-		    loadAllFilesInDirectory(pki.revocationListDirectory(), &revocationList,
-		                            &revocationListSize)) {
-			UA_StatusCode retval = UA_ClientConfig_setDefaultEncryption(
-			    conf, localCertificate, privateKey, trustList, trustListSize, revocationList,
-			    revocationListSize);
-			qDebug() << "UA_ClientConfig_setDefaultEncryption():" << QDBGSTS(retval);
-		} else {
-			qDebug() << "Failed to load conf, aborting connection process.";
-		}
-	}
-
-	UA_StatusCode retval = UA_Client_connect_username(
-	    client, _query.infos().get_host().toUtf8().data(),
-	    _query.infos().get_login().toUtf8().data(), _query.infos().get_password().toUtf8().data());
-
-	qDebug() << "UA_Client_connect_username:" << QDBGSTS(retval);
-
-	/* Read historical values (uint32) */
-	printf("\nStart historical read:\n");
-	// UA_NodeId node = UA_NODEID_STRING(2, "MyLevel");
-	UA_NodeId node = UA_NODEID_NUMERIC(2, 2021);
-	retval = UA_Client_HistoryRead_raw(client, &node, readHist, UA_DateTime_fromUnixTime(0),
-	                                   UA_DateTime_now(), UA_STRING_NULL, false, 1000,
-	                                   UA_TIMESTAMPSTORETURN_BOTH, (void*)UA_FALSE);
-
-	// retval = UA_Client_HistoryRead_atTime(
-	//     client, &node, readHist, UA_DateTime_fromUnixTime(132113687876623850),
-	//     UA_STRING_NULL, false, UA_TIMESTAMPSTORETURN_BOTH, (void*)UA_FALSE);
-
-	// if (retval != UA_STATUSCODE_GOOD) {
-	// 	printf("Failed. %s\n", UA_StatusCode_name(retval));
-	// }
-
-	UA_Client_disconnect(client);
-	UA_Client_delete(client);
-	QDBGF_END
 }
