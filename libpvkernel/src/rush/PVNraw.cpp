@@ -134,7 +134,15 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVTextChunk const& chunk)
 bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk const& chunk)
 {
 	pvcop::db::sink snk(*_collector);
-	snk.write_chunk_by_column(0, chunk.rows_count(), chunk.columns_chunk());
+	snk.write_chunk_by_column(chunk.start_index(), chunk.rows_count(), chunk.columns_chunk());
+
+	// for (size_t col = 0; col < chunk.columns_chunk().size(); ++col) {
+	// 	if (chunk.is_invalid(PVCol(col))) {
+	// 		for (size_t row = 0; row < chunk.rows_count(); ++row) {
+	// 			snk.set_invalid(col, chunk.start_index() + row);
+	// 		}
+	// 	}
+	// }
 
 	_real_nrows += chunk.rows_count();
 
