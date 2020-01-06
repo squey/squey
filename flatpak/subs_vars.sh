@@ -18,6 +18,7 @@ BUILD_TYPE=RelWithDebInfo
 USER_TARGET=developer
 CXX_COMPILER=/usr/lib/sdk/gcc8/bin/g++
 EXPORT_BUILD=false
+EXPORT_PCAP_BUILD=false
 REPO_DIR=
 UPLOAD_URL=
 UPLOAD_PORT=22
@@ -34,6 +35,7 @@ while true; do
     -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
     -u | --upload ) UPLOAD_URL="$2"; shift 2 ;;
     -p | --port ) UPLOAD_PORT="$2"; shift 2 ;;
+    -i | --pcap-inspector ) EXPORT_PCAP_BUILD=true; shift 1 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
