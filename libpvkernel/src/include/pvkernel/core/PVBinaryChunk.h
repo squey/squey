@@ -40,9 +40,14 @@ class PVBinaryChunk : public PVChunk
 		    std::string("number_") + pvcop::types::type_string<T>());
 	}
 
-	void set_raw_column_chunk(PVCol col, const void* beg, size_t rows_count, size_t row_bytes_count, pvcop::db::type_t type)
+	void set_raw_column_chunk(PVCol col,
+	                          const void* beg,
+	                          size_t rows_count,
+	                          size_t row_bytes_count,
+	                          pvcop::db::type_t type)
 	{
-		_columns_chunk[col] = pvcop::db::sink::column_chunk_t(beg, rows_count, row_bytes_count, type);
+		_columns_chunk[col] =
+		    pvcop::db::sink::column_chunk_t(beg, rows_count, row_bytes_count, type);
 	}
 
 	void set_invalid(PVCol col, size_t row) { _invalids.insert({col, row}); }
@@ -56,7 +61,7 @@ class PVBinaryChunk : public PVChunk
 	size_t start_index() const { return _start_index; }
 	bool is_invalid(PVCol col) const { return _invalid_columns[col]; }
 
-	void free() override { pvlogger::info() << "free PVBinaryChunk" << std::endl; /* FIXME */ };
+	void free() override final { delete this; }
 
   private:
 	size_t _rows_count;

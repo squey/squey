@@ -27,20 +27,14 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(out);
 	if (text_chunk) {
 		nraw_dest().add_chunk_utf16(*text_chunk);
-
-		_out_size += text_chunk->get_init_size();
 	} else {
 		PVCore::PVBinaryChunk* bin_chunk = dynamic_cast<PVCore::PVBinaryChunk*>(out);
 		assert(bin_chunk);
 
-		auto start = std::chrono::system_clock::now();
-
 		nraw_dest().add_bin_chunk(*bin_chunk);
-
-		auto end = std::chrono::system_clock::now();
-		std::chrono::duration<double> diff = end - start;
-		pvlogger::error() << "add_bin_chunk : " << diff.count() << std::endl;
 	}
+
+	_out_size += out->get_init_size();
 
 	// Clear this chunk !
 	out->free();
