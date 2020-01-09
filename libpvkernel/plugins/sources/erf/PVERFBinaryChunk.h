@@ -14,28 +14,27 @@
 namespace PVRush
 {
 
+template <typename T>
 class PVERFBinaryChunk : public PVCore::PVBinaryChunk
 {
 	static constexpr const size_t MEGA = 1024 * 1024;
 
   public:
-	PVERFBinaryChunk(std::vector<std::vector<PVERFAPI::float_t>>&& results,
-	                 size_t row_count,
-	                 size_t start_index)
+	PVERFBinaryChunk(std::vector<std::vector<T>>&& results, size_t row_count, size_t start_index)
 	    : PVCore::PVBinaryChunk(results.size(), row_count, (PVRow)start_index)
 	    , _results(std::move(results))
 	{
 		PVCol col_count(0);
 		for (const auto& result : _results) {
-			set_raw_column_chunk(col_count++, (void*)(result.data()), result.size(),
-			                     sizeof(PVERFAPI::float_t), PVERFAPI::float_type);
+			set_raw_column_chunk(col_count++, (void*)(result.data()), result.size(), sizeof(T),
+			                     erf_type_traits<T>::string);
 		}
 
 		set_init_size(row_count * MEGA);
 	}
 
   private:
-	std::vector<std::vector<PVERFAPI::float_t>> _results;
+	std::vector<std::vector<T>> _results;
 };
 
 } // namespace PVRush

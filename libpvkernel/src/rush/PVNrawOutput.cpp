@@ -22,8 +22,6 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw) {}
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	pvlogger::info() << "PVRush::PVNrawOutput::operator() : " << out << std::endl;
-
 	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(out);
 	if (text_chunk) {
 		nraw_dest().add_chunk_utf16(*text_chunk);

@@ -44,7 +44,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	PVERFSource(PVInputDescription_p input)
 	    : _input_desc(dynamic_cast<PVRush::PVERFDescription*>(input.get()))
 	    , _erf(_input_desc->path().toStdString())
-	    , _selected_nodes(_input_desc->selected_nodes())
+	    , _selected_nodes(_input_desc->current_source_selected_nodes())
 
 	{
 		rapidjson::StringBuffer buffer;
@@ -61,18 +61,64 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	size_t get_size() const override { return 1102236 * MEGA; } // FIXME
 	PVCore::PVBinaryChunk* operator()() override
 	{
+		// TODO : DRY
 		if (_starting_row >= _total_row_count) {
 			return nullptr;
 		}
 
-		std::vector<std::vector<PVERFAPI::float_t>> results;
 		ERF_INT row_count = 0;
 
-		PVRush::PVERFBinaryChunk* chunk = nullptr;
+		PVCore::PVBinaryChunk* chunk = nullptr;
+
+		const rapidjson::Value* constant_connectivities =
+		    rapidjson::Pointer("/post/constant/connectivities").Get(_selected_nodes);
+		if (constant_connectivities) {
+			std::vector<std::vector<PVERFAPI::int_t>> results;
+
+			EString entity_type;
+
+			ErfElementIList element_list;
+			ErfErrorCode Status = _erf.stage()->GetElementList(0, element_list);
+			for (int i = 0; i < element_list.size(); i++) {
+				ErfElementI* element = element_list[i];
+
+				ERF_INT node_per_elem;
+				ERF_INT dim_count;
+				element->ReadHeader(row_count, node_per_elem, dim_count);
+				_total_row_count = row_count;
+
+				std::vector<PVERFAPI::int_t> res;
+				Status = element->ReadConnectivities(res);
+
+				results.emplace_back(std::move(res));
+
+				if (node_per_elem > 1) { // De-interlace multi-dimentional arrays
+					const std::vector<PVERFAPI::int_t>& orig = results.back();
+					std::vector<std::vector<PVERFAPI::int_t>> demux;
+					demux.resize(node_per_elem);
+					for (int i = 0; i < node_per_elem; i++) {
+						demux[i] = std::vector<PVERFAPI::int_t>(row_count);
+					}
+					for (size_t i = 0, c = 0; i < orig.size(); i += node_per_elem, c++) {
+						for (int j = 0; j < node_per_elem; j++) {
+							demux[j][c] = orig[i + j];
+						}
+					}
+					results.pop_back();
+					for (int i = 0; i < node_per_elem; i++) {
+						results.emplace_back(std::move(demux[i]));
+					}
+				}
+			}
+
+			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::int_t>(std::move(results), row_count,
+			                                                      _starting_row);
+		}
 
 		const rapidjson::Value* constant_entityresults =
 		    rapidjson::Pointer("/post/constant/entityresults").Get(_selected_nodes);
 		if (constant_entityresults) {
+			std::vector<std::vector<PVERFAPI::float_t>> results;
 			// bool entid = false;
 			EString entity_type;
 
@@ -82,8 +128,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 				ErfNodeI* node_group = vListOfNodeIPtr[i];
 
 				EString entity_type;
-				ERF_INT dim_count;
-				node_group->ReadHeader(entity_type, _total_row_count, dim_count);
+				ERF_INT node_per_elem;
+				node_group->ReadHeader(entity_type, _total_row_count, node_per_elem);
 				row_count = std::min(CHUNK_ROW_COUNT, _total_row_count - _starting_row);
 			}
 
@@ -104,32 +150,32 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 
 						EString entity_type;
 						ERF_INT total_row_count;
-						ERF_INT dim_count;
-						result->ReadHeader(entity_type, total_row_count, dim_count);
+						ERF_INT node_per_elem;
+						result->ReadHeader(entity_type, total_row_count, node_per_elem);
 
-						ERF_LLONG row_counts[] = {row_count, dim_count};
-						ERF_LLONG starting_rows[] = {_starting_row, 0 /* ? */};
+						ERF_LLONG row_counts[] = {row_count, node_per_elem};
+						ERF_LLONG starting_rows[] = {_starting_row, 0};
 						std::vector<PVERFAPI::float_t> res;
+
 						Status = result->ReadResultSelectiveValues(
 						    ERF_SEL_TYPE_HYPERSLAB, row_counts, starting_rows, 0, nullptr, res);
 
 						results.emplace_back(std::move(res));
 
-						if (dim_count > 1) { // De-interlace multi-dimentional arrays
+						if (node_per_elem > 1) { // De-interlace multi-dimentional arrays
 							const std::vector<PVERFAPI::float_t>& orig = results.back();
-							pvlogger::info() << "orig.size()" << orig.size() << std::endl;
 							std::vector<std::vector<PVERFAPI::float_t>> demux;
-							demux.resize(dim_count);
-							for (int i = 0; i < dim_count; i++) {
+							demux.resize(node_per_elem);
+							for (int i = 0; i < node_per_elem; i++) {
 								demux[i] = std::vector<PVERFAPI::float_t>(row_count);
 							}
-							for (size_t i = 0, c = 0; i < orig.size(); i += dim_count, c++) {
-								for (int j = 0; j < dim_count; j++) {
+							for (size_t i = 0, c = 0; i < orig.size(); i += node_per_elem, c++) {
+								for (int j = 0; j < node_per_elem; j++) {
 									demux[j][c] = orig[i + j];
 								}
 							}
 							results.pop_back();
-							for (int i = 0; i < dim_count; i++) {
+							for (int i = 0; i < node_per_elem; i++) {
 								results.emplace_back(std::move(demux[i]));
 							}
 						}
@@ -146,7 +192,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 				}
 			}
 
-			chunk = new PVRush::PVERFBinaryChunk(std::move(results), row_count, _starting_row);
+			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(std::move(results), row_count,
+			                                                        _starting_row);
 		}
 
 		_starting_row += row_count;

@@ -12,6 +12,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+#include <rapidjson/pointer.h>
 
 namespace PVRush
 {
@@ -23,10 +24,17 @@ class PVERFDescription : public PVFileDescription
 	    : PVFileDescription(path, false /*multi_inputs*/)
 	    , _selected_nodes(std::move(selected_nodes))
 	{
+		split_selected_nodes_by_sources(_selected_nodes);
 	}
 
   public:
 	rapidjson::Document& selected_nodes() { return _selected_nodes; }
+
+  public:
+	const rapidjson::Document& current_source_selected_nodes()
+	{
+		return _selected_nodes_by_source[_current_source_index++];
+	}
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const override
@@ -72,7 +80,26 @@ class PVERFDescription : public PVFileDescription
 	}
 
   private:
+	void split_selected_nodes_by_sources(const rapidjson::Document& selected_nodes)
+	{
+		std::vector<std::string> pointers_source = {"/post/constant/connectivities",
+		                                            "/post/constant/entityresults"};
+
+		for (const std::string& pointer_source : pointers_source) {
+			const rapidjson::Value* source_node =
+			    rapidjson::Pointer(pointer_source.c_str()).Get(_selected_nodes);
+			if (source_node) {
+				rapidjson::Document doc;
+				rapidjson::Pointer(pointer_source.c_str()).Set(doc, *source_node);
+				_selected_nodes_by_source.emplace_back(std::move(doc));
+			}
+		}
+	}
+
+  private:
 	rapidjson::Document _selected_nodes;
+	std::vector<rapidjson::Document> _selected_nodes_by_source;
+	size_t _current_source_index = 0;
 };
 
 } // namespace PVRush

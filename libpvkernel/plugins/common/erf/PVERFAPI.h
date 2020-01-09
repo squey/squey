@@ -29,16 +29,32 @@ namespace PVRush
  *
  *****************************************************************************/
 
+template <typename T>
+struct erf_type_traits {
+};
+template <>
+struct erf_type_traits<float> {
+	static constexpr const char* string = "number_float";
+};
+template <>
+struct erf_type_traits<double> {
+	static constexpr const char* string = "number_double";
+};
+template <>
+struct erf_type_traits<int32_t> {
+	static constexpr const char* string = "number_int32";
+};
+template <>
+struct erf_type_traits<int64_t> {
+	static constexpr const char* string = "number_int64";
+};
+
 class PVERFAPI
 {
   public:
+  public:
 	using float_t = float;
-	static constexpr const char* float_type =
-	    std::is_same<float_t, double>::value ? "number_double" : "number_float";
-
 	using int_t = ERF_INT;
-	static constexpr const char* int_type =
-	    std::is_same<int_t, int>::value ? "number_int32" : "number_int64";
 
   public:
 	template <typename NodeType>
@@ -60,8 +76,8 @@ class PVERFAPI
 		_lib_Initialized = false;
 		_stage_name = "post";
 
-		// Initialize the Library
-		ErfErrorCode Status = ErfLibManager::LibInitialize();
+		// Initialize the ERF library once and for all
+		static ErfErrorCode Status = []() { return ErfLibManager::LibInitialize(); }();
 
 		if (Status == ERF_SUCCESS) {
 			_lib_Initialized = true;
@@ -159,40 +175,33 @@ class PVERFAPI
 	{
 		std::vector<QDomDocument> formats;
 
-		/*const rapidjson::Value* constant_connectivities =
+		const rapidjson::Value* constant_connectivities =
 		    rapidjson::Pointer("/post/constant/connectivities").Get(selected_nodes);
 		if (constant_connectivities) {
-		    formats.emplace_back(QDomDocument());
-		    std::unique_ptr<PVXmlTreeNodeDom> format_root(
-		        PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
+			formats.emplace_back(QDomDocument());
+			std::unique_ptr<PVXmlTreeNodeDom> format_root(
+			    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
 
-		    for (const auto& entity_type : constant_connectivities->GetArray()) {
-		        std::string entity_type_name = entity_type.GetString();
+			for (const auto& entity_type : constant_connectivities->GetArray()) {
+				std::string entity_type_name = entity_type.GetString();
 
-		        ErfErrorCode status;
-		        ErfElementI* elem = _stage->GetElement(0, entity_type_name, status);
+				ErfErrorCode status;
+				ErfElementI* elem = _stage->GetElement(0, entity_type_name, status);
 
-		        ERF_INT row_count;
-		        ERF_INT node_per_elem;
-		        ERF_INT dim_count;
-		        elem->ReadHeader(row_count, node_per_elem, dim_count);
+				ERF_INT row_count;
+				ERF_INT node_per_elem;
+				ERF_INT dim_count;
+				elem->ReadHeader(row_count, node_per_elem, dim_count);
 
-		        for (size_t i = 0; i < node_per_elem; i++) {
-		            PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
-		                QString::fromStdString(
-		                    entity_type_name +
-		                    (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
-		                int_type);
-		        }
-		    }
-
-		    QString xml_str;
-		    QTextStream stream(&xml_str);
-		    QDomNode node = formats.back().firstChildElement("param");
-		    node.save(stream, 4);
-		    pvlogger::warn() << qPrintable(xml_str) << std::endl;
-
-		}*/
+				for (size_t i = 0; i < node_per_elem; i++) {
+					PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
+					    QString::fromStdString(
+					        entity_type_name +
+					        (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
+					    erf_type_traits<int_t>::string);
+				}
+			}
+		}
 
 		const rapidjson::Value* constant_entityresults =
 		    rapidjson::Pointer("/post/constant/entityresults").Get(selected_nodes);
@@ -237,16 +246,18 @@ class PVERFAPI
 								    QString::fromStdString(
 								        var_name +
 								        (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
-								    float_type);
+								    erf_type_traits<float_t>::string);
 							}
 						}
 					}
 				}
 			}
+		}
 
+		for (const QDomDocument& doc : formats) {
 			QString xml_str;
 			QTextStream stream(&xml_str);
-			QDomNode node = formats.back().firstChildElement("param");
+			QDomNode node = doc.firstChildElement("param");
 			node.save(stream, 4);
 			pvlogger::warn() << qPrintable(xml_str) << std::endl;
 		}
