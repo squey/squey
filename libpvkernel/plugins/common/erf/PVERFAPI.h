@@ -8,9 +8,10 @@
 #ifndef __RUSH_PVERFAPI_H__
 #define __RUSH_PVERFAPI_H__
 
-#define DOUBLE_PRECISION 1 // ERF Double precision
+//#define DOUBLE_PRECISION 1 // ERF Double precision
 
-#include "inendi_erfio/inendi_erfio.h"
+#include <ErfPublic.h>
+#include <ErfSpecType.h>
 
 #include <QDomDocument>
 #include <QTextStream>
@@ -28,14 +29,16 @@ namespace PVRush
  *
  *****************************************************************************/
 
-class PVERFAPI : public inendi_erf::inendi_erfio
+class PVERFAPI
 {
   public:
+	using float_t = float;
 	static constexpr const char* float_type =
-	    std::is_same<ERF_FLOAT, double>::value ? "number_double" : "number_float";
+	    std::is_same<float_t, double>::value ? "number_double" : "number_float";
 
+	using int_t = ERF_INT;
 	static constexpr const char* int_type =
-	    std::is_same<ERF_INT, int>::value ? "number_int32" : "number_int64";
+	    std::is_same<int_t, int>::value ? "number_int32" : "number_int64";
 
   public:
 	template <typename NodeType>
@@ -50,30 +53,31 @@ class PVERFAPI : public inendi_erf::inendi_erfio
 	    std::function<NodeType*(const std::string& name, bool is_leaf, bool is_last_child)>;
 
   public:
-	PVERFAPI(const std::string& erf_path) : inendi_erf::inendi_erfio(erf_path) {}
+	PVERFAPI(const std::string& erf_path)
+	{
+		_filer = 0;
+		_stage = 0;
+		_lib_Initialized = false;
+		_stage_name = "post";
+
+		// Initialize the Library
+		ErfErrorCode Status = ErfLibManager::LibInitialize();
+
+		if (Status == ERF_SUCCESS) {
+			_lib_Initialized = true;
+			// Create a filer interface
+			ErfOpenMode Mode = ERF_READ;
+			_filer = ErfFactory::CreateFiler(erf_path, ERF_READ, Status);
+			if (Status == 0 && _filer) {
+				_stage = _filer->GetStage(_stage_name);
+			}
+		}
+	}
+
+	~PVERFAPI() { delete _filer; }
 
   public:
-	int open_stage(std::string stagename)
-	{
-		int errCode = inendi_erf::inendi_erfio::open_stage(stagename);
-		if (not errCode) {
-			_parent_stages.emplace_back(m_pstage);
-		}
-		return errCode;
-	}
-
-	int close_stage()
-	{
-		int errCode = -1;
-		if (_parent_stages.size() > 0) {
-			m_pstage = _parent_stages.back();
-			_parent_stages.pop_back();
-			errCode = 0;
-		}
-		return errCode;
-	}
-
-	ErfStageIPtr stage() { return m_pstage; }
+	ErfStageIPtr stage() { return _stage; }
 
 	template <typename NodeType>
 	void visit_nodes(NodeType* root, const visit_node_f<NodeType>& f)
@@ -107,51 +111,44 @@ class PVERFAPI : public inendi_erf::inendi_erfio
 	void visit_nodes_impl(const create_node_f<NodeType>& f,
 	                      parents_nodes_stack_t<NodeType>& parents)
 	{
-		// Get stages names
-		std::vector<std::string> stage_names;
-		get_stage_names(stage_names);
-		for (size_t stage_index = 0; stage_index < stage_names.size(); stage_index++) {
-			// Get stage names
-			const std::string& stage_name = stage_names[stage_index];
-			f(stage_name, false, stage_index == stage_names.size() - 1);
 
-			f("constant", false, false);
+		f(_stage_name, false, true);
 
-			// Get connectivities names
-			std::vector<std::string> connectivity_types;
-			m_pstage->GetElementTypes(0, connectivity_types);
-			f("connectivities", false, false);
-			for (size_t i = 0; i < connectivity_types.size(); i++) {
-				f(connectivity_types[i], true, i == connectivity_types.size() - 1);
+		f("constant", false, false);
+
+		// Get connectivities names
+		std::vector<std::string> connectivity_types;
+		_stage->GetElementTypes(0, connectivity_types);
+		f("connectivities", false, false);
+		for (size_t i = 0; i < connectivity_types.size(); i++) {
+			f(connectivity_types[i], true, i == connectivity_types.size() - 1);
+		}
+
+		// Get entityresults names
+		f("entityresults", false, true);
+		std::vector<EString> entity_types;
+		std::vector<EString> element_types;
+		ErfErrorCode status = _stage->GetContourTypes(0, entity_types, element_types);
+		for (size_t i = 0; i < entity_types.size(); i++) {
+			f(entity_types[i], false, i == entity_types.size() - 1);
+			std::vector<EString> entity_groups;
+			status = _stage->GetContourGroups(0, ENTITY_RESULT, entity_types[i], entity_groups);
+			for (size_t j = 0; j < entity_groups.size(); j++) {
+				f(entity_groups[j], true, j == entity_groups.size() - 1);
 			}
+		}
 
-			// Get entityresults names
-			f("entityresults", false, true);
-			std::vector<EString> entity_types;
-			std::vector<EString> element_types;
-			ErfErrorCode status = m_pstage->GetContourTypes(0, entity_types, element_types);
-			for (size_t i = 0; i < entity_types.size(); i++) {
-				f(entity_types[i], false, i == entity_types.size() - 1);
-				std::vector<EString> entity_groups;
-				status =
-				    m_pstage->GetContourGroups(0, ENTITY_RESULT, entity_types[i], entity_groups);
-				for (size_t j = 0; j < entity_groups.size(); j++) {
-					f(entity_groups[j], true, j == entity_groups.size() - 1);
-				}
-			}
+		// Get state names
+		std::vector<EString> state_names;
+		_stage->GetStateNames(state_names);
+		if (state_names.size() > 0) {
+			f("singlestate", false, true);
+			// f("entityresults", false, true);
 
-			// Get state names
-			std::vector<EString> state_names;
-			m_pstage->GetStateNames(state_names);
-			if (state_names.size() > 0) {
-				f("singlestate", false, true);
-				// f("entityresults", false, true);
-
-				f("states", false, true);
-				for (size_t state_index = 0; state_index < state_names.size(); state_index++) {
-					const std::string& state_name = state_names[state_index];
-					f(state_name, true, state_index == state_names.size() - 1);
-				}
+			f("states", false, true);
+			for (size_t state_index = 0; state_index < state_names.size(); state_index++) {
+				const std::string& state_name = state_names[state_index];
+				f(state_name, true, state_index == state_names.size() - 1);
 			}
 		}
 	}
@@ -173,7 +170,7 @@ class PVERFAPI : public inendi_erf::inendi_erfio
 		        std::string entity_type_name = entity_type.GetString();
 
 		        ErfErrorCode status;
-		        ErfElementI* elem = m_pstage->GetElement(0, entity_type_name, status);
+		        ErfElementI* elem = _stage->GetElement(0, entity_type_name, status);
 
 		        ERF_INT row_count;
 		        ERF_INT node_per_elem;
@@ -217,12 +214,12 @@ class PVERFAPI : public inendi_erf::inendi_erfio
 					pvlogger::info() << entity_group_name << std::endl;
 
 					std::vector<EString> zones;
-					m_pstage->GetContourZones(0, ENTITY_RESULT, entity_type_name, entity_group_name,
-					                          zones);
+					_stage->GetContourZones(0, ENTITY_RESULT, entity_type_name, entity_group_name,
+					                        zones);
 					for (const std::string& zone : zones) {
 						ErfResultIPtr result;
-						m_pstage->GetContourResult(0, ENTITY_RESULT, entity_type_name,
-						                           entity_group_name, zone, result);
+						_stage->GetContourResult(0, ENTITY_RESULT, entity_type_name,
+						                         entity_group_name, zone, result);
 
 						std::vector<EString> var_names;
 						std::vector<EString> ovVariablesClass;
@@ -257,8 +254,11 @@ class PVERFAPI : public inendi_erf::inendi_erfio
 		return formats;
 	}
 
-  protected:
-	std::vector<ErfStageIPtr> _parent_stages;
+  private:
+	std::string _stage_name;
+	bool _lib_Initialized;
+	ErfFilerIPtr _filer;
+	ErfStageIPtr _stage;
 };
 
 } // namespace PVRush

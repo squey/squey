@@ -16,25 +16,28 @@ namespace PVRush
 
 class PVERFBinaryChunk : public PVCore::PVBinaryChunk
 {
-    static constexpr const size_t MEGA = 1024 * 1024;
+	static constexpr const size_t MEGA = 1024 * 1024;
 
   public:
-    PVERFBinaryChunk(std::vector<std::vector<ERF_FLOAT>>&& results, size_t row_count, size_t start_index)
-        : PVCore::PVBinaryChunk(results.size(), row_count, (PVRow) start_index)
-        , _results(std::move(results))
-    {
-        PVCol col_count(0);
-        for (const auto& result : _results) {
-            set_raw_column_chunk(col_count++, (void*)(result.data()), result.size(), sizeof(ERF_FLOAT), PVERFAPI::float_type);
-        }
+	PVERFBinaryChunk(std::vector<std::vector<PVERFAPI::float_t>>&& results,
+	                 size_t row_count,
+	                 size_t start_index)
+	    : PVCore::PVBinaryChunk(results.size(), row_count, (PVRow)start_index)
+	    , _results(std::move(results))
+	{
+		PVCol col_count(0);
+		for (const auto& result : _results) {
+			set_raw_column_chunk(col_count++, (void*)(result.data()), result.size(),
+			                     sizeof(PVERFAPI::float_t), PVERFAPI::float_type);
+		}
 
-        set_init_size(row_count * MEGA);
-    }
-	
+		set_init_size(row_count * MEGA);
+	}
+
   private:
-    std::vector<std::vector<ERF_FLOAT>> _results;
+	std::vector<std::vector<PVERFAPI::float_t>> _results;
 };
 
-} // namespace PVCore
+} // namespace PVRush
 
 #endif // __PVCORE_PVERFBINARYCHUNK__

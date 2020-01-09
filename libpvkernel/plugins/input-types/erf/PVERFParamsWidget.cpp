@@ -32,7 +32,7 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 
 	QSplitter* splitter = new QSplitter(Qt::Horizontal);
 
-	static constexpr const char path[] = "/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g.hdf5";
+	static constexpr const char path[] = "/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g_VV1.hdf5";
 
 	_model.reset(new PVRush::PVERFTreeModel(path));
 	PVRush::PVERFTreeView* tree = new PVRush::PVERFTreeView(_model.get(), parent);

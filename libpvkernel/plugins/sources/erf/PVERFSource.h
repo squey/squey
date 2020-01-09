@@ -65,7 +65,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 			return nullptr;
 		}
 
-		std::vector<std::vector<ERF_FLOAT>> results;
+		std::vector<std::vector<PVERFAPI::float_t>> results;
 		ERF_INT row_count = 0;
 
 		PVRush::PVERFBinaryChunk* chunk = nullptr;
@@ -109,18 +109,19 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 
 						ERF_LLONG row_counts[] = {row_count, dim_count};
 						ERF_LLONG starting_rows[] = {_starting_row, 0 /* ? */};
-						std::vector<ERF_FLOAT> res;
+						std::vector<PVERFAPI::float_t> res;
 						Status = result->ReadResultSelectiveValues(
 						    ERF_SEL_TYPE_HYPERSLAB, row_counts, starting_rows, 0, nullptr, res);
 
 						results.emplace_back(std::move(res));
 
 						if (dim_count > 1) { // De-interlace multi-dimentional arrays
-							const std::vector<ERF_FLOAT>& orig = results.back();
-							std::vector<std::vector<ERF_FLOAT>> demux;
+							const std::vector<PVERFAPI::float_t>& orig = results.back();
+							pvlogger::info() << "orig.size()" << orig.size() << std::endl;
+							std::vector<std::vector<PVERFAPI::float_t>> demux;
 							demux.resize(dim_count);
 							for (int i = 0; i < dim_count; i++) {
-								demux[i] = std::vector<ERF_FLOAT>(row_count);
+								demux[i] = std::vector<PVERFAPI::float_t>(row_count);
 							}
 							for (size_t i = 0, c = 0; i < orig.size(); i += dim_count, c++) {
 								for (int j = 0; j < dim_count; j++) {

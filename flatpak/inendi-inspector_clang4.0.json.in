@@ -703,7 +703,8 @@
         "builddir": true,
         "config-opts": [
             "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
-            "-DERF_MULTI_PRECISION=1",
+            "-DERF_MULTI_PRECISION=0",
+            "-DERF_DOUBLE_PRECISION=0",
             "-DERF_ENCRYPTION=0"
         ],
         "sources": [
@@ -711,26 +712,6 @@
           "type": "git",
           "url": "ssh://git@gitlab.esi-group.com/io/erf.git",
           "commit": "050fcf346d5fa03407e952d1c22775a386df4369"
-        }
-      ]
-    },
-    {
-        "name": "inendi_erfio",
-        "buildsystem": "cmake-ninja",
-        "builddir": true,
-        "config-opts": [
-            "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
-            "-DCMAKE_CXX_FLAGS=-isystem /app/include/erf -isystem /app/include/erf/cpp"
-        ],
-        "sources": [
-        {
-          "type": "git",
-          "url": "ssh://git@gitlab.esi-group.com/io/inendi_erf_io.git",
-          "commit": "e5537c7b9367b40a164c5f4885b3f65408477688"
-        },
-        {
-          "type": "shell",
-          "commands": [ "sed -i 's|erf::erf_cpp_dp|/app/lib/libhdf5_cpp.so /app/lib/liberf_cpp_dp.so|g' src/CMakeLists.txt" ]
         }
       ]
     },

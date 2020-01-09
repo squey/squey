@@ -118,9 +118,8 @@ set(ERF_SRC_FILES
 )
 
 set(ERF_LIBS
-    /app/lib/liberf_cpp_dp.so
     /app/lib/libhdf5_cpp.so
-    /app/lib/libinendi_erfio.so
+	/app/lib/liberf_cpp_sp.so
 )
 
 # Create lib

@@ -242,9 +242,8 @@ erf/register.cpp)
 QT5_WRAP_CPP(ERF_MOC_SRCS ${ERF_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 set(ERF_LIBS
-    /app/lib/liberf_cpp_dp.so
     /app/lib/libhdf5_cpp.so
-	  /app/lib/libinendi_erfio.so
+    /app/lib/liberf_cpp_sp.so
 )
 
 # Generate linkage configuration
