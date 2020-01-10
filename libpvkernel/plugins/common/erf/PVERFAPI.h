@@ -154,17 +154,34 @@ class PVERFAPI
 			}
 		}
 
-		// Get state names
-		std::vector<EString> state_names;
-		_stage->GetStateNames(state_names);
-		if (state_names.size() > 0) {
-			f("singlestate", false, true);
-			// f("entityresults", false, true);
+		// singlestate
+		status = _stage->GetContourTypes(1, entity_types, element_types);
+		const std::string& node_type = "NODE";
+		if (std::find(entity_types.begin(), entity_types.end(), node_type) != entity_types.end()) {
+			pvlogger::info() << "OK" << std::endl;
 
-			f("states", false, true);
-			for (size_t state_index = 0; state_index < state_names.size(); state_index++) {
-				const std::string& state_name = state_names[state_index];
-				f(state_name, true, state_index == state_names.size() - 1);
+			std::vector<EString> state_names;
+			_stage->GetStateNames(state_names);
+			if (state_names.size() > 0) {
+				f("singlestate", false, false);
+
+				f("entityresults", false, false);
+				std::vector<std::string> entity_groups;
+				_stage->GetContourGroups(1, ENTITY_RESULT, node_type, entity_groups);
+
+				f(node_type, false, true);
+
+				// Get entity groups names
+				for (size_t j = 0; j < entity_groups.size(); j++) {
+					f(entity_groups[j], true, j == entity_groups.size() - 1);
+				}
+
+				// Get state names
+				f("states", false, true);
+				for (size_t state_index = 0; state_index < state_names.size(); state_index++) {
+					const std::string& state_name = state_names[state_index];
+					f(state_name, true, state_index == state_names.size() - 1);
+				}
 			}
 		}
 	}
@@ -178,80 +195,19 @@ class PVERFAPI
 		const rapidjson::Value* constant_connectivities =
 		    rapidjson::Pointer("/post/constant/connectivities").Get(selected_nodes);
 		if (constant_connectivities) {
-			formats.emplace_back(QDomDocument());
-			std::unique_ptr<PVXmlTreeNodeDom> format_root(
-			    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
-
-			for (const auto& entity_type : constant_connectivities->GetArray()) {
-				std::string entity_type_name = entity_type.GetString();
-
-				ErfErrorCode status;
-				ErfElementI* elem = _stage->GetElement(0, entity_type_name, status);
-
-				ERF_INT row_count;
-				ERF_INT node_per_elem;
-				ERF_INT dim_count;
-				elem->ReadHeader(row_count, node_per_elem, dim_count);
-
-				for (size_t i = 0; i < node_per_elem; i++) {
-					PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
-					    QString::fromStdString(
-					        entity_type_name +
-					        (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
-					    erf_type_traits<int_t>::string);
-				}
-			}
+			add_connectivities(formats, constant_connectivities);
 		}
 
 		const rapidjson::Value* constant_entityresults =
 		    rapidjson::Pointer("/post/constant/entityresults").Get(selected_nodes);
 		if (constant_entityresults) {
+			add_entityresults(0, formats, constant_entityresults);
+		}
 
-			formats.emplace_back(QDomDocument());
-			std::unique_ptr<PVXmlTreeNodeDom> format_root(
-			    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
-
-			for (const auto& entity_type : constant_entityresults->GetObject()) {
-				const std::string& entity_type_name = entity_type.name.GetString();
-
-				/*PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
-				        QString::fromStdString("entid"), int_type);*/
-
-				for (const auto& entity_group : entity_type.value.GetArray()) {
-
-					const std::string& entity_group_name = entity_group.GetString();
-					pvlogger::info() << entity_group_name << std::endl;
-
-					std::vector<EString> zones;
-					_stage->GetContourZones(0, ENTITY_RESULT, entity_type_name, entity_group_name,
-					                        zones);
-					for (const std::string& zone : zones) {
-						ErfResultIPtr result;
-						_stage->GetContourResult(0, ENTITY_RESULT, entity_type_name,
-						                         entity_group_name, zone, result);
-
-						std::vector<EString> var_names;
-						std::vector<EString> ovVariablesClass;
-						std::vector<EString> VariablesKeys;
-						result->GetVariables(var_names, ovVariablesClass, VariablesKeys);
-
-						for (const std::string& var_name : var_names) {
-							EString entity_type;
-							ERF_INT row_count;
-							ERF_INT dim_count;
-							result->ReadHeader(entity_type, row_count, dim_count);
-
-							for (size_t i = 0; i < dim_count; i++) {
-								PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
-								    QString::fromStdString(
-								        var_name +
-								        (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
-								    erf_type_traits<float_t>::string);
-							}
-						}
-					}
-				}
-			}
+		const rapidjson::Value* singlestate_entityresults =
+		    rapidjson::Pointer("/post/singlestate/entityresults").Get(selected_nodes);
+		if (singlestate_entityresults) {
+			add_entityresults(1, formats, singlestate_entityresults);
 		}
 
 		for (const QDomDocument& doc : formats) {
@@ -263,6 +219,81 @@ class PVERFAPI
 		}
 
 		return formats;
+	}
+
+  private:
+	void add_connectivities(std::vector<QDomDocument>& formats,
+	                        const rapidjson::Value* connectivities) const
+	{
+		formats.emplace_back(QDomDocument());
+		std::unique_ptr<PVXmlTreeNodeDom> format_root(
+		    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
+
+		for (const auto& entity_type : connectivities->GetArray()) {
+			std::string entity_type_name = entity_type.GetString();
+
+			ErfErrorCode status;
+			ErfElementI* elem = _stage->GetElement(0, entity_type_name, status);
+
+			format_root->addOneField(QString::fromStdString("idele"),
+			                         erf_type_traits<int_t>::string);
+
+			format_root->addOneField(QString::fromStdString("pid"), erf_type_traits<int_t>::string);
+
+			format_root->addOneField(QString::fromStdString(entity_type_name),
+			                         erf_type_traits<int_t>::string);
+		}
+	}
+
+	void add_entityresults(ERF_INT StateId,
+	                       std::vector<QDomDocument>& formats,
+	                       const rapidjson::Value* entityresults) const
+	{
+		formats.emplace_back(QDomDocument());
+		std::unique_ptr<PVXmlTreeNodeDom> format_root(
+		    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
+
+		for (const auto& entity_type : entityresults->GetObject()) {
+			const std::string& entity_type_name = entity_type.name.GetString();
+
+			/*format_root->addOneField(
+			        QString::fromStdString("entid"), int_type);*/
+
+			for (const auto& entity_group : entity_type.value.GetArray()) {
+
+				const std::string& entity_group_name = entity_group.GetString();
+				pvlogger::info() << entity_group_name << std::endl;
+
+				std::vector<EString> zones;
+				_stage->GetContourZones(StateId, ENTITY_RESULT, entity_type_name, entity_group_name,
+				                        zones);
+				for (const std::string& zone : zones) {
+					ErfResultIPtr result;
+					_stage->GetContourResult(StateId, ENTITY_RESULT, entity_type_name,
+					                         entity_group_name, zone, result);
+
+					std::vector<EString> var_names;
+					std::vector<EString> ovVariablesClass;
+					std::vector<EString> VariablesKeys;
+					result->GetVariables(var_names, ovVariablesClass, VariablesKeys);
+
+					for (const std::string& var_name : var_names) {
+						EString entity_type;
+						ERF_INT row_count;
+						ERF_INT dim_count;
+						result->ReadHeader(entity_type, row_count, dim_count);
+
+						for (size_t i = 0; i < dim_count; i++) {
+							format_root->addOneField(
+							    QString::fromStdString(
+							        var_name +
+							        (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
+							    erf_type_traits<float_t>::string);
+						}
+					}
+				}
+			}
+		}
 	}
 
   private:

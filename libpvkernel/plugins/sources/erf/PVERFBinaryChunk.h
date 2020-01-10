@@ -20,11 +20,19 @@ class PVERFBinaryChunk : public PVCore::PVBinaryChunk
 	static constexpr const size_t MEGA = 1024 * 1024;
 
   public:
-	PVERFBinaryChunk(std::vector<std::vector<T>>&& results, size_t row_count, size_t start_index)
-	    : PVCore::PVBinaryChunk(results.size(), row_count, (PVRow)start_index)
+	PVERFBinaryChunk(std::vector<std::vector<PVERFAPI::int_t>>&& ids,
+	                 std::vector<std::vector<T>>&& results,
+	                 size_t row_count,
+	                 size_t start_index)
+	    : PVCore::PVBinaryChunk(ids.size() + results.size(), row_count, (PVRow)start_index)
+	    , _ids(std::move(ids))
 	    , _results(std::move(results))
 	{
 		PVCol col_count(0);
+		for (const auto& id : _ids) {
+			set_raw_column_chunk(col_count++, (void*)(id.data()), id.size(),
+			                     sizeof(PVERFAPI::int_t), erf_type_traits<PVERFAPI::int_t>::string);
+		}
 		for (const auto& result : _results) {
 			set_raw_column_chunk(col_count++, (void*)(result.data()), result.size(), sizeof(T),
 			                     erf_type_traits<T>::string);
@@ -34,6 +42,7 @@ class PVERFBinaryChunk : public PVCore::PVBinaryChunk
 	}
 
   private:
+	std::vector<std::vector<PVERFAPI::int_t>> _ids;
 	std::vector<std::vector<T>> _results;
 };
 

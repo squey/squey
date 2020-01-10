@@ -34,6 +34,33 @@
 namespace PVRush
 {
 
+template <typename T>
+void add_to_results(std::vector<std::vector<T>>& results,
+                    std::vector<T>&& todemux,
+                    int node_per_elem)
+{
+	results.emplace_back(std::move(todemux));
+
+	if (node_per_elem > 1) { // De-interlace multi-dimentional arrays
+		const std::vector<T>& orig = results.back();
+		size_t row_count = orig.size() / node_per_elem;
+		std::vector<std::vector<T>> demux;
+		demux.resize(node_per_elem);
+		for (int i = 0; i < node_per_elem; i++) {
+			demux[i] = std::vector<T>(row_count);
+		}
+		for (size_t i = 0, c = 0; i < orig.size(); i += node_per_elem, c++) {
+			for (int j = 0; j < node_per_elem; j++) {
+				demux[j][c] = orig[i + j];
+			}
+		}
+		results.pop_back();
+		for (int i = 0; i < node_per_elem; i++) {
+			results.emplace_back(std::move(demux[i]));
+		}
+	}
+}
+
 class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 {
   private:
@@ -52,6 +79,9 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 		_selected_nodes.Accept(writer);
 		pvlogger::fatal() << buffer.GetString() << std::endl;
+
+		assert(
+		    not _selected_nodes.IsNull()); // edit PVERFDescription::split_selected_nodes_by_sources
 	}
 	virtual ~PVERFSource() {}
 
@@ -69,6 +99,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 		ERF_INT row_count = 0;
 
 		PVCore::PVBinaryChunk* chunk = nullptr;
+		std::vector<std::vector<PVERFAPI::int_t>> ids;
 
 		const rapidjson::Value* constant_connectivities =
 		    rapidjson::Pointer("/post/constant/connectivities").Get(_selected_nodes);
@@ -82,123 +113,130 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 			for (int i = 0; i < element_list.size(); i++) {
 				ErfElementI* element = element_list[i];
 
+				// idele
+				std::vector<PVERFAPI::int_t> idele;
+				Status = element->ReadIds(idele);
+				ids.emplace_back(std::move(idele));
+
+				// pid
+				std::vector<PVERFAPI::int_t> pid;
+				Status = element->ReadPartIds(pid);
+				ids.emplace_back(std::move(pid));
+
+				// ic
 				ERF_INT node_per_elem;
 				ERF_INT dim_count;
 				element->ReadHeader(row_count, node_per_elem, dim_count);
+				row_count *= node_per_elem;
 				_total_row_count = row_count;
 
-				std::vector<PVERFAPI::int_t> res;
-				Status = element->ReadConnectivities(res);
+				expand(ids, node_per_elem);
 
-				results.emplace_back(std::move(res));
+				std::vector<PVERFAPI::int_t> values;
+				Status = element->ReadConnectivities(values);
 
-				if (node_per_elem > 1) { // De-interlace multi-dimentional arrays
-					const std::vector<PVERFAPI::int_t>& orig = results.back();
-					std::vector<std::vector<PVERFAPI::int_t>> demux;
-					demux.resize(node_per_elem);
-					for (int i = 0; i < node_per_elem; i++) {
-						demux[i] = std::vector<PVERFAPI::int_t>(row_count);
-					}
-					for (size_t i = 0, c = 0; i < orig.size(); i += node_per_elem, c++) {
-						for (int j = 0; j < node_per_elem; j++) {
-							demux[j][c] = orig[i + j];
-						}
-					}
-					results.pop_back();
-					for (int i = 0; i < node_per_elem; i++) {
-						results.emplace_back(std::move(demux[i]));
-					}
-				}
+				results.emplace_back(std::move(values));
 			}
 
-			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::int_t>(std::move(results), row_count,
-			                                                      _starting_row);
+			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::int_t>(
+			    std::move(ids), std::move(results), row_count, _starting_row);
 		}
 
 		const rapidjson::Value* constant_entityresults =
 		    rapidjson::Pointer("/post/constant/entityresults").Get(_selected_nodes);
 		if (constant_entityresults) {
 			std::vector<std::vector<PVERFAPI::float_t>> results;
-			// bool entid = false;
-			EString entity_type;
+			row_count = add_entityresults(0, constant_entityresults, ids, results);
 
-			std::vector<ErfNodeIPtr> vListOfNodeIPtr;
-			ErfErrorCode Status = _erf.stage()->GetNodeList(0, vListOfNodeIPtr);
-			for (int i = 0; i < vListOfNodeIPtr.size(); i++) {
-				ErfNodeI* node_group = vListOfNodeIPtr[i];
+			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
+			    std::move(ids), std::move(results), row_count, _starting_row);
+		}
 
-				EString entity_type;
-				ERF_INT node_per_elem;
-				node_group->ReadHeader(entity_type, _total_row_count, node_per_elem);
-				row_count = std::min(CHUNK_ROW_COUNT, _total_row_count - _starting_row);
-			}
+		const rapidjson::Value* singlestate_entityresults =
+		    rapidjson::Pointer("/post/singlestate/entityresults").Get(_selected_nodes);
+		if (singlestate_entityresults) {
+			std::vector<std::vector<PVERFAPI::float_t>> results;
+			row_count = add_entityresults(1, singlestate_entityresults, ids, results);
 
-			for (const auto& entity_type : constant_entityresults->GetObject()) {
-				const std::string& entity_type_name = entity_type.name.GetString();
+			pvlogger::info() << "OK" << std::endl;
 
-				for (const auto& entity_group : entity_type.value.GetArray()) {
-					const std::string& entity_group_name = entity_group.GetString();
-
-					std::vector<EString> zones;
-					_erf.stage()->GetContourZones(0, ENTITY_RESULT, entity_type_name,
-					                              entity_group_name, zones);
-					for (const std::string& zone : zones) {
-
-						ErfResultIPtr result = nullptr;
-						Status = _erf.stage()->GetContourResult(0, ENTITY_RESULT, entity_type_name,
-						                                        entity_group_name, zone, result);
-
-						EString entity_type;
-						ERF_INT total_row_count;
-						ERF_INT node_per_elem;
-						result->ReadHeader(entity_type, total_row_count, node_per_elem);
-
-						ERF_LLONG row_counts[] = {row_count, node_per_elem};
-						ERF_LLONG starting_rows[] = {_starting_row, 0};
-						std::vector<PVERFAPI::float_t> res;
-
-						Status = result->ReadResultSelectiveValues(
-						    ERF_SEL_TYPE_HYPERSLAB, row_counts, starting_rows, 0, nullptr, res);
-
-						results.emplace_back(std::move(res));
-
-						if (node_per_elem > 1) { // De-interlace multi-dimentional arrays
-							const std::vector<PVERFAPI::float_t>& orig = results.back();
-							std::vector<std::vector<PVERFAPI::float_t>> demux;
-							demux.resize(node_per_elem);
-							for (int i = 0; i < node_per_elem; i++) {
-								demux[i] = std::vector<PVERFAPI::float_t>(row_count);
-							}
-							for (size_t i = 0, c = 0; i < orig.size(); i += node_per_elem, c++) {
-								for (int j = 0; j < node_per_elem; j++) {
-									demux[j][c] = orig[i + j];
-								}
-							}
-							results.pop_back();
-							for (int i = 0; i < node_per_elem; i++) {
-								results.emplace_back(std::move(demux[i]));
-							}
-						}
-
-						/*if (not entid) {
-						    _ids.emplace_back(std::move(ids));
-						    chunk->set_raw_column_chunk(
-						        _col_count++,
-						        (void*)(_ids.back().data()),
-						        row_count, sizeof(ERF_INT), PVERFAPI::int_type);
-						    entid = true;
-						}*/
-					}
-				}
-			}
-
-			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(std::move(results), row_count,
-			                                                        _starting_row);
+			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
+			    std::move(ids), std::move(results), row_count, _starting_row);
 		}
 
 		_starting_row += row_count;
 
 		return chunk;
+	}
+
+  private:
+	ERF_INT add_entityresults(ERF_INT StateId,
+	                          const rapidjson::Value* entityresults,
+	                          std::vector<std::vector<PVERFAPI::int_t>>& ids,
+	                          std::vector<std::vector<PVERFAPI::float_t>>& results)
+	{
+		// bool entid = false;
+		EString entity_type;
+		ERF_INT row_count = 0;
+
+		for (const auto& entity_type : entityresults->GetObject()) {
+			const std::string& entity_type_name = entity_type.name.GetString();
+
+			for (const auto& entity_group : entity_type.value.GetArray()) {
+				const std::string& entity_group_name = entity_group.GetString();
+
+				std::vector<EString> zones;
+				_erf.stage()->GetContourZones(StateId, ENTITY_RESULT, entity_type_name,
+				                              entity_group_name, zones);
+				for (const std::string& zone : zones) {
+
+					ErfResultIPtr result = nullptr;
+					ErfErrorCode Status = _erf.stage()->GetContourResult(
+					    StateId, ENTITY_RESULT, entity_type_name, entity_group_name, zone, result);
+
+					EString entity_type;
+					ERF_INT node_per_elem;
+					result->ReadHeader(entity_type, row_count, node_per_elem);
+					_total_row_count = row_count;
+
+					ERF_LLONG row_counts[] = {row_count, node_per_elem};
+					ERF_LLONG starting_rows[] = {_starting_row, 0};
+					std::vector<PVERFAPI::float_t> values;
+
+					Status = result->ReadResultSelectiveValues(ERF_SEL_TYPE_HYPERSLAB, row_counts,
+					                                           starting_rows, 0, nullptr, values);
+
+					add_to_results(
+					    results, std::move(values),
+					    node_per_elem); // De-interlace multi-dimentional arrays if needed
+
+					/*if (not entid) {
+					    _ids.emplace_back(std::move(ids));
+					    chunk->set_raw_column_chunk(
+					        _col_count++,
+					        (void*)(_ids.back().data()),
+					        row_count, sizeof(ERF_INT), PVERFAPI::int_type);
+					    entid = true;
+					}*/
+				}
+			}
+		}
+
+		return row_count;
+	}
+
+	void expand(std::vector<std::vector<PVERFAPI::int_t>>& ids, size_t node_per_elem)
+	{
+		for (std::vector<PVERFAPI::int_t>& id : ids) {
+			std::vector<PVERFAPI::int_t> new_id(id.size() * node_per_elem);
+#pragma omp parallel for
+			for (size_t i = 0; i < id.size(); i++) {
+				for (size_t j = 0; j < node_per_elem; j++) {
+					new_id[(i * node_per_elem) + j] = id[i];
+				}
+			}
+			std::swap(id, new_id);
+		}
 	}
 
   private:

@@ -27,6 +27,13 @@ class PVERFDescription : public PVFileDescription
 		split_selected_nodes_by_sources(_selected_nodes);
 	}
 
+  public: // FIXME : not working properly
+	QString human_name() const override
+	{
+		std::vector<std::string> sources{"connectivities", "constant", "results"};
+		return QString::fromStdString(sources[_sources_index[_current_source_index - 1]]);
+	}
+
   public:
 	rapidjson::Document& selected_nodes() { return _selected_nodes; }
 
@@ -83,15 +90,19 @@ class PVERFDescription : public PVFileDescription
 	void split_selected_nodes_by_sources(const rapidjson::Document& selected_nodes)
 	{
 		std::vector<std::string> pointers_source = {"/post/constant/connectivities",
-		                                            "/post/constant/entityresults"};
+		                                            "/post/constant/entityresults",
+		                                            "/post/singlestate/entityresults"};
 
-		for (const std::string& pointer_source : pointers_source) {
+		for (size_t i = 0; i < pointers_source.size(); i++) {
+			const std::string& pointer_source = pointers_source[i];
 			const rapidjson::Value* source_node =
 			    rapidjson::Pointer(pointer_source.c_str()).Get(_selected_nodes);
 			if (source_node) {
 				rapidjson::Document doc;
 				rapidjson::Pointer(pointer_source.c_str()).Set(doc, *source_node);
 				_selected_nodes_by_source.emplace_back(std::move(doc));
+
+				_sources_index.emplace_back(i);
 			}
 		}
 	}
@@ -99,6 +110,7 @@ class PVERFDescription : public PVFileDescription
   private:
 	rapidjson::Document _selected_nodes;
 	std::vector<rapidjson::Document> _selected_nodes_by_source;
+	std::vector<size_t> _sources_index;
 	size_t _current_source_index = 0;
 };
 
