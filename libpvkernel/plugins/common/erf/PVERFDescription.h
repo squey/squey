@@ -89,9 +89,8 @@ class PVERFDescription : public PVFileDescription
   private:
 	void split_selected_nodes_by_sources(const rapidjson::Document& selected_nodes)
 	{
-		std::vector<std::string> pointers_source = {"/post/constant/connectivities",
-		                                            "/post/constant/entityresults",
-		                                            "/post/singlestate/entityresults"};
+		std::vector<std::string> pointers_source = {
+		    "/post/constant/connectivities", "/post/constant/entityresults", "/post/singlestate"};
 
 		for (size_t i = 0; i < pointers_source.size(); i++) {
 			const std::string& pointer_source = pointers_source[i];

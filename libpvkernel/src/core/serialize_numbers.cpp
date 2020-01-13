@@ -122,3 +122,14 @@ std::list<std::pair<size_t, size_t>> PVCore::deserialize_numbers(const std::stri
 
 	return ranges;
 }
+
+size_t PVCore::get_count_from_ranges(const std::list<std::pair<size_t, size_t>>& ranges)
+{
+	size_t count = 0;
+
+	for (auto [begin, end] : ranges) {
+		count += end - begin + 1;
+	}
+
+	return count;
+}

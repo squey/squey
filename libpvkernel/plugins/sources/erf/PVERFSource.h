@@ -19,6 +19,7 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/core/serialize_numbers.h>
 
 #include "../../common/erf/PVERFDescription.h"
 #include "../../common/erf/PVERFAPI.h"
@@ -64,7 +65,7 @@ void add_to_results(std::vector<std::vector<T>>& results,
 class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 {
   private:
-	static constexpr const size_t CHUNK_ROW_COUNT = 100000; // TODO : CHUNK_ELEM_COUNT
+	static constexpr const size_t CHUNK_ROW_COUNT = 1000000; // TODO : CHUNK_ELEM_COUNT
 	static constexpr const size_t MEGA = 1024 * 1024;
 
   public:
@@ -87,12 +88,12 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 
 	QString human_name() override { return "ERF"; }
 	void seek_begin() override {}
-	void prepare_for_nelts(chunk_index nelts) override {}       // FIXME
-	size_t get_size() const override { return 1102236 * MEGA; } // FIXME
+	void prepare_for_nelts(chunk_index nelts) override {}        // FIXME
+	size_t get_size() const override { return 11022360 * MEGA; } // FIXME
 	PVCore::PVBinaryChunk* operator()() override
 	{
 		// TODO : DRY
-		if (_starting_row >= _total_row_count) {
+		if (_source_starting_row >= _source_row_count) {
 			return nullptr;
 		}
 
@@ -128,7 +129,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 				ERF_INT dim_count;
 				element->ReadHeader(row_count, node_per_elem, dim_count);
 				row_count *= node_per_elem;
-				_total_row_count = row_count;
+				_source_row_count = row_count;
 
 				expand(ids, node_per_elem);
 
@@ -139,45 +140,74 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 			}
 
 			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::int_t>(
-			    std::move(ids), std::move(results), row_count, _starting_row);
+			    std::move(ids), std::move(results), row_count, _source_starting_row);
 		}
 
 		const rapidjson::Value* constant_entityresults =
 		    rapidjson::Pointer("/post/constant/entityresults").Get(_selected_nodes);
 		if (constant_entityresults) {
 			std::vector<std::vector<PVERFAPI::float_t>> results;
-			row_count = add_entityresults(0, constant_entityresults, ids, results);
+			row_count = add_entityresults(0, 1, constant_entityresults, ids, results);
 
 			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
-			    std::move(ids), std::move(results), row_count, _starting_row);
+			    std::move(ids), std::move(results), row_count, _source_starting_row);
+
+			_state_starting_row += row_count;
 		}
 
 		const rapidjson::Value* singlestate_entityresults =
 		    rapidjson::Pointer("/post/singlestate/entityresults").Get(_selected_nodes);
 		if (singlestate_entityresults) {
-			std::vector<std::vector<PVERFAPI::float_t>> results;
-			row_count = add_entityresults(1, singlestate_entityresults, ids, results);
+			if (_selected_states.empty()) {
+				const rapidjson::Value* singlestate_states =
+				    rapidjson::Pointer("/post/singlestate/states").Get(_selected_nodes);
+				if (singlestate_states) {
+					const std::string& states = singlestate_states->GetString();
+					_selected_states = PVCore::deserialize_numbers(states);
+					_states_count = PVCore::get_count_from_ranges(_selected_states);
+					_current_states_range = _selected_states.begin();
+					_state_id = _current_states_range->first + _range_index;
+				} else {
+					return nullptr;
+				}
+			}
 
-			pvlogger::info() << "OK" << std::endl;
+			std::vector<std::vector<PVERFAPI::float_t>> results;
+			row_count = add_entityresults(_state_id + 1, _states_count, singlestate_entityresults,
+			                              ids, results);
 
 			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
-			    std::move(ids), std::move(results), row_count, _starting_row);
+			    std::move(ids), std::move(results), row_count, _source_starting_row);
+
+			if (_state_starting_row >= _state_row_count) {
+				if (_state_id == _current_states_range->second) {
+					_current_states_range++;
+					_range_index = 0;
+				} else {
+					_range_index++;
+				}
+				_state_starting_row = 0;
+				_state_id = _current_states_range->first + _range_index;
+			} else {
+				_state_starting_row += row_count;
+			}
 		}
 
-		_starting_row += row_count;
+		_source_starting_row += row_count;
 
 		return chunk;
 	}
 
   private:
-	ERF_INT add_entityresults(ERF_INT StateId,
+	ERF_INT add_entityresults(ERF_INT state_id,
+	                          size_t states_count,
 	                          const rapidjson::Value* entityresults,
 	                          std::vector<std::vector<PVERFAPI::int_t>>& ids,
 	                          std::vector<std::vector<PVERFAPI::float_t>>& results)
 	{
 		// bool entid = false;
 		EString entity_type;
-		ERF_INT row_count = 0;
+		size_t row_count = 0;
 
 		for (const auto& entity_type : entityresults->GetObject()) {
 			const std::string& entity_type_name = entity_type.name.GetString();
@@ -186,25 +216,37 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 				const std::string& entity_group_name = entity_group.GetString();
 
 				std::vector<EString> zones;
-				_erf.stage()->GetContourZones(StateId, ENTITY_RESULT, entity_type_name,
+				_erf.stage()->GetContourZones(state_id, ENTITY_RESULT, entity_type_name,
 				                              entity_group_name, zones);
 				for (const std::string& zone : zones) {
 
 					ErfResultIPtr result = nullptr;
 					ErfErrorCode Status = _erf.stage()->GetContourResult(
-					    StateId, ENTITY_RESULT, entity_type_name, entity_group_name, zone, result);
+					    state_id, ENTITY_RESULT, entity_type_name, entity_group_name, zone, result);
 
 					EString entity_type;
 					ERF_INT node_per_elem;
-					result->ReadHeader(entity_type, row_count, node_per_elem);
-					_total_row_count = row_count;
+					result->ReadHeader(entity_type, _state_row_count, node_per_elem);
+					if (_source_row_count == std::numeric_limits<ERF_INT>::max()) {
+						_source_row_count = _state_row_count * states_count;
+					}
+					row_count =
+					    std::min(CHUNK_ROW_COUNT, (size_t)(_state_row_count - _state_starting_row));
 
 					ERF_LLONG row_counts[] = {row_count, node_per_elem};
-					ERF_LLONG starting_rows[] = {_starting_row, 0};
+					ERF_LLONG starting_rows[] = {_state_starting_row, 0};
 					std::vector<PVERFAPI::float_t> values;
 
 					Status = result->ReadResultSelectiveValues(ERF_SEL_TYPE_HYPERSLAB, row_counts,
 					                                           starting_rows, 0, nullptr, values);
+
+					///
+					// pvlogger::info() << "state_id=" << state_id << " Status=" << Status << "
+					// row_count=" << row_count << " values.size()=" << values.size() << "
+					// _state_starting_row=" << _state_starting_row << " _state_row_count=" <<
+					// _state_row_count << " _source_starting_row=" << _source_starting_row << "
+					// _source_row_count=" << _source_row_count << std::endl;
+					///
 
 					add_to_results(
 					    results, std::move(values),
@@ -241,8 +283,20 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 
   private:
 	PVRush::PVERFDescription* _input_desc;
-	size_t _starting_row = 0;
-	ERF_INT _total_row_count = std::numeric_limits<ERF_INT>::max();
+
+	// source
+	size_t _source_starting_row = 0;
+	ERF_INT _source_row_count = std::numeric_limits<ERF_INT>::max();
+
+	// states
+	std::list<std::pair<size_t, size_t>> _selected_states;
+	decltype(_selected_states)::iterator _current_states_range;
+	ERF_INT _state_starting_row = 0;
+	ERF_INT _state_row_count = 0;
+	size_t _range_index = 0;
+	size_t _states_count = 0;
+	size_t _state_id = 0;
+
 	PVRush::PVERFAPI _erf;
 	const rapidjson::Document& _selected_nodes;
 	// std::vector<std::vector<ERF_INT>> _ids;
