@@ -65,6 +65,8 @@ T* end(T (&array)[n])
 // Inspired from https://github.com/coreutils/coreutils/blob/master/src/set-fields.c
 std::list<std::pair<size_t, size_t>> deserialize_numbers(const std::string& numbers_list);
 
+size_t get_count_from_ranges(const std::list<std::pair<size_t, size_t>>& ranges);
+
 } // namespace PVCore
 
 #endif // __PVCORE_SERIALIZE_NUMBERS_H__
