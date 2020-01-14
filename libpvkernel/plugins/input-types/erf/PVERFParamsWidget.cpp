@@ -10,6 +10,7 @@
 #include "../../common/erf/PVERFAPI.h"
 
 #include <pvkernel/core/serialize_numbers.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #include <QTreeView>
 #include <QHBoxLayout>
@@ -17,6 +18,9 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QDialogButtonBox>
 
 #include <pvlogger.h>
 
@@ -28,13 +32,27 @@
 
 PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent)
 {
+	QScreen* screen = QGuiApplication::primaryScreen();
+	QRect screen_geometry = screen->geometry();
+	int height = screen_geometry.height();
+	int width = screen_geometry.width();
+
 	QHBoxLayout* layout = new QHBoxLayout();
 
 	QSplitter* splitter = new QSplitter(Qt::Horizontal);
+	splitter->setFixedSize(QSize(width / 3, height / 2));
 
-	static constexpr const char path[] = "/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g_VV1.hdf5";
+	// static constexpr const char path[] = "/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g_VV1.hdf5";
 
-	_model.reset(new PVRush::PVERFTreeModel(path));
+	PVWidgets::PVFileDialog fdialog(this);
+	fdialog.setNameFilter("ERF files (*.erf, *.erfh5");
+	fdialog.setWindowTitle("Open ERF file");
+	QString erf_path;
+	if (fdialog.exec() == QDialog::Accepted) {
+		erf_path = fdialog.selectedFiles().at(0);
+	}
+
+	_model.reset(new PVRush::PVERFTreeModel(erf_path));
 	PVRush::PVERFTreeView* tree = new PVRush::PVERFTreeView(_model.get(), parent);
 	tree->setSelectionMode(QAbstractItemView::MultiSelection);
 	tree->setAlternatingRowColors(true);
@@ -44,14 +62,16 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	QPushButton* export_btn = new QPushButton(">");
 	QPushButton* import_btn = new QPushButton("<");
 
-	QWidget* singlestate_widget = new QWidget;
+	{
+		QWidget* singlestate_widget = new QWidget;
 
-	QHBoxLayout* hlayout = new QHBoxLayout;
-	hlayout->addWidget(text);
-	hlayout->addWidget(export_btn);
-	hlayout->addWidget(import_btn);
+		QHBoxLayout* hlayout = new QHBoxLayout;
+		hlayout->addWidget(text);
+		hlayout->addWidget(export_btn);
+		hlayout->addWidget(import_btn);
 
-	singlestate_widget->setLayout(hlayout);
+		singlestate_widget->setLayout(hlayout);
+	}
 
 	connect(export_btn, &QPushButton::clicked, [=]() {
 		rapidjson::Document doc = _model->save();
@@ -71,11 +91,19 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	});
 
 	splitter->addWidget(tree);
-	splitter->addWidget(singlestate_widget);
+	// splitter->addWidget(singlestate_widget);
 
-	layout->addWidget(splitter);
+	QDialogButtonBox* dialog_buttons =
+	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	connect(dialog_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(dialog_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	setLayout(layout);
+	QVBoxLayout* vlayout = new QVBoxLayout;
+
+	vlayout->addWidget(splitter);
+	vlayout->addWidget(dialog_buttons);
+
+	setLayout(vlayout);
 }
 
 std::vector<QDomDocument> PVRush::PVERFParamsWidget::get_formats()

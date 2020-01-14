@@ -103,7 +103,7 @@ std::list<std::pair<size_t, size_t>> PVCore::deserialize_numbers(const std::stri
 		throw std::runtime_error("missing list of fields");
 	}
 
-	ranges.sort([](auto a, auto b) { return a.first < b.first ? true : a.first > b.first; });
+	ranges.sort();
 
 	// Merge range pairs (e.g. `2-5,3-4' becomes `2-5').
 #if 0

@@ -158,7 +158,6 @@ class PVERFAPI
 		status = _stage->GetContourTypes(1, entity_types, element_types);
 		const std::string& node_type = "NODE";
 		if (std::find(entity_types.begin(), entity_types.end(), node_type) != entity_types.end()) {
-			pvlogger::info() << "OK" << std::endl;
 
 			std::vector<EString> state_names;
 			_stage->GetStateNames(state_names);
@@ -245,7 +244,7 @@ class PVERFAPI
 		}
 	}
 
-	void add_entityresults(ERF_INT StateId,
+	void add_entityresults(ERF_INT state_id,
 	                       std::vector<QDomDocument>& formats,
 	                       const rapidjson::Value* entityresults) const
 	{
@@ -256,40 +255,37 @@ class PVERFAPI
 		for (const auto& entity_type : entityresults->GetObject()) {
 			const std::string& entity_type_name = entity_type.name.GetString();
 
-			/*format_root->addOneField(
-			        QString::fromStdString("entid"), int_type);*/
+			if (state_id > 0) {
+				format_root->addOneField(QString::fromStdString("state"),
+				                         erf_type_traits<int_t>::string);
+			}
+
+			format_root->addOneField(QString::fromStdString("entid"),
+			                         erf_type_traits<int_t>::string);
 
 			for (const auto& entity_group : entity_type.value.GetArray()) {
 
 				const std::string& entity_group_name = entity_group.GetString();
-				pvlogger::info() << entity_group_name << std::endl;
 
 				std::vector<EString> zones;
-				_stage->GetContourZones(StateId, ENTITY_RESULT, entity_type_name, entity_group_name,
-				                        zones);
+				_stage->GetContourZones(state_id, ENTITY_RESULT, entity_type_name,
+				                        entity_group_name, zones);
 				for (const std::string& zone : zones) {
 					ErfResultIPtr result;
-					_stage->GetContourResult(StateId, ENTITY_RESULT, entity_type_name,
+					_stage->GetContourResult(state_id, ENTITY_RESULT, entity_type_name,
 					                         entity_group_name, zone, result);
 
-					std::vector<EString> var_names;
-					std::vector<EString> ovVariablesClass;
-					std::vector<EString> VariablesKeys;
-					result->GetVariables(var_names, ovVariablesClass, VariablesKeys);
+					EString entity_type;
+					ERF_INT row_count;
+					ERF_INT dim_count;
+					result->ReadHeader(entity_type, row_count, dim_count);
 
-					for (const std::string& var_name : var_names) {
-						EString entity_type;
-						ERF_INT row_count;
-						ERF_INT dim_count;
-						result->ReadHeader(entity_type, row_count, dim_count);
-
-						for (size_t i = 0; i < dim_count; i++) {
-							format_root->addOneField(
-							    QString::fromStdString(
-							        var_name +
-							        (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
-							    erf_type_traits<float_t>::string);
-						}
+					for (size_t i = 0; i < dim_count; i++) {
+						format_root->addOneField(
+						    QString::fromStdString(
+						        entity_group_name +
+						        (dim_count > 1 ? ("/" + std::to_string(i + 1)) : "")),
+						    erf_type_traits<float_t>::string);
 					}
 				}
 			}
