@@ -58,6 +58,7 @@ class PVBinaryChunk : public PVChunk
 	const pvcop::db::sink::columns_chunk_t& columns_chunk() const { return _columns_chunk; }
 
 	size_t rows_count() const override { return _rows_count; }
+	size_t columns_count() const { return _columns_chunk.size(); }
 	size_t start_index() const { return _start_index; }
 	bool is_invalid(PVCol col) const { return _invalid_columns[col]; }
 

@@ -26,11 +26,7 @@
 #include "PVERFSource.h"
 #include "PVERFBinaryChunk.h"
 
-///
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-///
+#include <rapidjson/pointer.h>
 
 namespace PVRush
 {
@@ -65,8 +61,8 @@ void add_to_results(std::vector<std::vector<T>>& results,
 class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 {
   private:
-	static constexpr const size_t CHUNK_ROW_COUNT = 100000; // TODO : CHUNK_ELEM_COUNT
 	static constexpr const size_t MEGA = 1024 * 1024;
+	static constexpr const size_t CHUNK_ELEMENT_COUNT = 1000000;
 
   public:
 	PVERFSource(PVInputDescription_p input)
@@ -75,24 +71,25 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	    , _selected_nodes(_input_desc->current_source_selected_nodes())
 
 	{
-		rapidjson::StringBuffer buffer;
-		buffer.Clear();
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-		_selected_nodes.Accept(writer);
-		pvlogger::fatal() << buffer.GetString() << std::endl;
+		// edit PVERFDescription::split_selected_nodes_by_sources
+		assert(not _selected_nodes.IsNull());
 
-		assert(
-		    not _selected_nodes.IsNull()); // edit PVERFDescription::split_selected_nodes_by_sources
+		_first_chunk = operator()(); // extract first chunk to have stats
+		_row_count_by_chunk = CHUNK_ELEMENT_COUNT / _first_chunk->columns_count();
 	}
-	virtual ~PVERFSource() {}
 
 	QString human_name() override { return "ERF"; }
 	void seek_begin() override {}
-	void prepare_for_nelts(chunk_index nelts) override {}        // FIXME
-	size_t get_size() const override { return 11022360 * MEGA; } // FIXME
+	void prepare_for_nelts(chunk_index nelts) override {}
+	size_t get_size() const override { return _source_row_count * MEGA; }
 	PVCore::PVBinaryChunk* operator()() override
 	{
-		// TODO : DRY
+		if (_first_chunk != nullptr) {
+			PVCore::PVBinaryChunk* first_chunk = _first_chunk;
+			_first_chunk = nullptr;
+			return first_chunk;
+		}
+
 		if (_source_start_row >= _source_row_count) {
 			return nullptr;
 		}
@@ -240,8 +237,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 					if (_source_row_count == std::numeric_limits<ERF_INT>::max()) {
 						_source_row_count = _state_row_count * states_count;
 					}
-					row_count =
-					    std::min(CHUNK_ROW_COUNT, (size_t)(_state_row_count - _state_start_row));
+					row_count = std::min(_row_count_by_chunk,
+					                     (size_t)(_state_row_count - _state_start_row));
 
 					if (_state_start_row == 0 and not entid_init) {
 						std::vector<PVERFAPI::int_t> entid;
@@ -259,18 +256,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 					Status = result->ReadResultSelectiveValues(ERF_SEL_TYPE_HYPERSLAB, row_counts,
 					                                           start_rows, 0, nullptr, values);
 
-					add_to_results(
-					    results, std::move(values),
-					    node_per_elem); // De-interlace multi-dimentional arrays if needed
-
-					/*if (not entid) {
-					    _ids.emplace_back(std::move(ids));
-					    chunk->set_raw_column_chunk(
-					        _col_count++,
-					        (void*)(_ids.back().data()),
-					        row_count, sizeof(ERF_INT), PVERFAPI::int_type);
-					    entid = true;
-					}*/
+					// De-interlace multi-dimentional arrays if needed
+					add_to_results(results, std::move(values), node_per_elem);
 				}
 			}
 		}
@@ -311,6 +298,9 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	PVRush::PVERFAPI _erf;
 	const rapidjson::Document& _selected_nodes;
 	std::vector<std::vector<ERF_INT>> _ids;
+
+	PVCore::PVBinaryChunk* _first_chunk = nullptr;
+	size_t _row_count_by_chunk = 1;
 };
 
 } // namespace PVRush

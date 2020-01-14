@@ -18,7 +18,7 @@ bool PVRush::PVInputTypeERF::createWidget(hash_formats& formats,
 {
 	PVERFParamsWidget* params = new PVERFParamsWidget(this, parent);
 	if (params->exec() == QDialog::Rejected) {
-		// return false;
+		return false;
 	}
 
 	PVRush::PVERFDescription* desc =

@@ -209,14 +209,6 @@ class PVERFAPI
 			add_entityresults(1, formats, singlestate_entityresults);
 		}
 
-		for (const QDomDocument& doc : formats) {
-			QString xml_str;
-			QTextStream stream(&xml_str);
-			QDomNode node = doc.firstChildElement("param");
-			node.save(stream, 4);
-			pvlogger::warn() << qPrintable(xml_str) << std::endl;
-		}
-
 		return formats;
 	}
 
