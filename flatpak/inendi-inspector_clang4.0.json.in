@@ -673,12 +673,23 @@
       ]
     },
     {
+        "name": "zlib",
+        "sources": [
+        {
+          "type": "archive",
+          "url": "https://www.zlib.net/zlib-1.2.11.tar.gz",
+          "sha256": "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"
+        }
+      ]
+    },
+    {
         "name": "hdf5",
         "buildsystem": "cmake-ninja",
         "builddir": true,
         "config-opts": [
             "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
             "-DBUILD_SHARED_LIBS=1",
+            "-DHDF5_ENABLE_Z_LIB_SUPPORT=1",
             "-DHDF5_BUILD_CPP_LIB=1",
             "-DALLOW_UNSUPPORTED=1",
             "-DHDF5_ENABLE_THREADSAFE=1"
