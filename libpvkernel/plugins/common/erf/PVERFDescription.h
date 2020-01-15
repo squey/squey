@@ -89,21 +89,52 @@ class PVERFDescription : public PVFileDescription
   private:
 	void split_selected_nodes_by_sources(const rapidjson::Document& selected_nodes)
 	{
-		std::vector<std::string> pointers_source = {
-		    "/post/constant/connectivities", "/post/constant/entityresults", "/post/singlestate"};
+		std::vector<std::pair<std::string, std::string>> pointers_source = {
+		    {"/post/constant/connectivities", ""},
+			{"/post/constant/entityresults", ""},
+			{"/post/singlestate/entityresults", "/post/singlestate/states"}
+		};
 
-		for (size_t i = 0; i < pointers_source.size(); i++) {
-			const std::string& pointer_source = pointers_source[i];
+		size_t index = 0;
+		for (auto& [pointer_source, pointer_base] : pointers_source) {
 			const rapidjson::Value* source_node =
 			    rapidjson::Pointer(pointer_source.c_str()).Get(_selected_nodes);
 			if (source_node) {
-				rapidjson::Document doc;
-				rapidjson::Pointer(pointer_source.c_str()).Set(doc, *source_node);
-				_selected_nodes_by_source.emplace_back(std::move(doc));
+				if(source_node->IsObject()) {
+					for (const auto& entity_type : source_node->GetObject()) {
+						rapidjson::Document doc;
+						if (not pointer_base.empty()) {
+							const rapidjson::Value* base_node =
+								rapidjson::Pointer(pointer_base.c_str()).Get(_selected_nodes);
+							assert(base_node);
+							rapidjson::Pointer(pointer_base.c_str()).Set(doc, *base_node);
+						}
+						const std::string& subpointer_source = pointer_source + "/" + entity_type.name.GetString();
+						rapidjson::Pointer(subpointer_source.c_str()).Set(doc, entity_type.value);
+						_selected_nodes_by_source.emplace_back(std::move(doc));
 
-				_sources_index.emplace_back(i);
+						_sources_index.emplace_back(index++);
+					}
+				}
+				else {
+					rapidjson::Document doc;
+					rapidjson::Pointer(pointer_source.c_str()).Set(doc, *source_node);
+ 					_selected_nodes_by_source.emplace_back(std::move(doc));
+ 
+ 					_sources_index.emplace_back(index++);
+				}
 			}
 		}
+
+#if 0
+		for (const rapidjson::Document& doc : _selected_nodes_by_source) {
+			rapidjson::StringBuffer buffer;
+			buffer.Clear();
+			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+			doc.Accept(writer);
+			pvlogger::fatal() << buffer.GetString() << std::endl;
+		}
+#endif
 	}
 
   private:

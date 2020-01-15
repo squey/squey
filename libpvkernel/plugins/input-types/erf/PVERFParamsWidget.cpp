@@ -58,20 +58,20 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	tree->setAlternatingRowColors(true);
 	tree->expandAll();
 
+#if 0
 	QTextEdit* text = new QTextEdit;
 	QPushButton* export_btn = new QPushButton(">");
 	QPushButton* import_btn = new QPushButton("<");
 
-	{
-		QWidget* singlestate_widget = new QWidget;
+	QWidget* singlestate_widget = new QWidget;
 
-		QHBoxLayout* hlayout = new QHBoxLayout;
-		hlayout->addWidget(text);
-		hlayout->addWidget(export_btn);
-		hlayout->addWidget(import_btn);
+	QHBoxLayout* hlayout = new QHBoxLayout;
+	hlayout->addWidget(text);
+	hlayout->addWidget(export_btn);
+	hlayout->addWidget(import_btn);
 
-		singlestate_widget->setLayout(hlayout);
-	}
+	singlestate_widget->setLayout(hlayout);
+
 
 	connect(export_btn, &QPushButton::clicked, [=]() {
 		rapidjson::Document doc = _model->save();
@@ -89,9 +89,10 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 		selection.Parse<0>(json.toStdString().c_str());
 		tree->select(selection);
 	});
+#endif
 
 	splitter->addWidget(tree);
-	// splitter->addWidget(singlestate_widget);
+	//splitter->addWidget(singlestate_widget);
 
 	QDialogButtonBox* dialog_buttons =
 	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

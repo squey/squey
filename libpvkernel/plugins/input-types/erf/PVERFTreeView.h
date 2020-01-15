@@ -146,13 +146,16 @@ class PVERFTreeView : public QTreeView
 			return;
 		}
 
+		PVERFTreeItem* item = static_cast<PVERFTreeItem*>(index.internalPointer());
 		PVERFTreeItem* parent_item = static_cast<PVERFTreeItem*>(parent.internalPointer());
 		int chid_count = _model->rowCount(parent);
 		int selected_child_count = parent_item->selected_child_count();
 		Qt::CheckState parent_state =
-		    selected_child_count == 0
-		        ? Qt::Unchecked
-		        : (chid_count == selected_child_count ? Qt::Checked : Qt::PartiallyChecked);
+		    item->state() == Qt::PartiallyChecked
+		        ? Qt::PartiallyChecked
+		        : selected_child_count == 0
+		              ? Qt::Unchecked
+		              : (chid_count == selected_child_count ? Qt::Checked : Qt::PartiallyChecked);
 
 		set_item_state(parent, parent_state);
 		set_parents_state(parent);

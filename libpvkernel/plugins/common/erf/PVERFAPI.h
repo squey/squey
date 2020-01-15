@@ -155,32 +155,35 @@ class PVERFAPI
 		}
 
 		// singlestate
-		status = _stage->GetContourTypes(1, entity_types, element_types);
-		const std::string& node_type = "NODE";
-		if (std::find(entity_types.begin(), entity_types.end(), node_type) != entity_types.end()) {
-
+		std::vector<ERF_INT> state_ids;
+		_stage->GetStateIds(state_ids);
+		if (state_ids.size() > 0) {
+			status = _stage->GetContourTypes(state_ids[1], entity_types, element_types);
 			std::vector<EString> state_names;
 			_stage->GetStateNames(state_names);
-			if (state_names.size() > 0) {
-				f("singlestate", false, false);
 
-				f("entityresults", false, false);
+			f("singlestate", false, false);
+
+			f("entityresults", false, false);
+
+			for (size_t i = 0; i < entity_types.size(); i++) {
 				std::vector<std::string> entity_groups;
-				_stage->GetContourGroups(1, ENTITY_RESULT, node_type, entity_groups);
+				_stage->GetContourGroups(state_ids[1], ENTITY_RESULT, entity_types[i],
+				                         entity_groups);
 
-				f(node_type, false, true);
+				f(entity_types[i], false, i == entity_types.size() - 1);
 
 				// Get entity groups names
 				for (size_t j = 0; j < entity_groups.size(); j++) {
 					f(entity_groups[j], true, j == entity_groups.size() - 1);
 				}
+			}
 
-				// Get state names
-				f("states", false, true);
-				for (size_t state_index = 0; state_index < state_names.size(); state_index++) {
-					const std::string& state_name = state_names[state_index];
-					f(state_name, true, state_index == state_names.size() - 1);
-				}
+			// Get state names
+			f("states", false, true);
+			for (size_t state_index = 0; state_index < state_names.size(); state_index++) {
+				const std::string& state_name = state_names[state_index];
+				f(state_name, true, state_index == state_names.size() - 1);
 			}
 		}
 	}
@@ -190,6 +193,8 @@ class PVERFAPI
 	get_formats_from_selected_nodes(const rapidjson::Document& selected_nodes) const
 	{
 		std::vector<QDomDocument> formats;
+		std::vector<ERF_INT> state_ids;
+		_stage->GetStateIds(state_ids);
 
 		const rapidjson::Value* constant_connectivities =
 		    rapidjson::Pointer("/post/constant/connectivities").Get(selected_nodes);
@@ -206,8 +211,18 @@ class PVERFAPI
 		const rapidjson::Value* singlestate_entityresults =
 		    rapidjson::Pointer("/post/singlestate/entityresults").Get(selected_nodes);
 		if (singlestate_entityresults) {
-			add_entityresults(1, formats, singlestate_entityresults);
+			add_entityresults(state_ids[1], formats, singlestate_entityresults);
 		}
+
+#if 0
+		for (const QDomDocument& doc : formats) {
+			QString xml_str;
+			QTextStream stream(&xml_str);
+			QDomNode node = doc.firstChildElement("param");
+			node.save(stream, 4);
+			pvlogger::warn() << qPrintable(xml_str) << std::endl;
+		}
+#endif
 
 		return formats;
 	}
@@ -240,12 +255,12 @@ class PVERFAPI
 	                       std::vector<QDomDocument>& formats,
 	                       const rapidjson::Value* entityresults) const
 	{
-		formats.emplace_back(QDomDocument());
-		std::unique_ptr<PVXmlTreeNodeDom> format_root(
-		    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
-
 		for (const auto& entity_type : entityresults->GetObject()) {
 			const std::string& entity_type_name = entity_type.name.GetString();
+
+			formats.emplace_back(QDomDocument());
+			std::unique_ptr<PVXmlTreeNodeDom> format_root(
+			    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
 
 			if (state_id > 0) {
 				format_root->addOneField(QString::fromStdString("state"),

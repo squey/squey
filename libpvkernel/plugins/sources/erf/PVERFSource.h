@@ -74,8 +74,12 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 		// edit PVERFDescription::split_selected_nodes_by_sources
 		assert(not _selected_nodes.IsNull());
 
+		_erf.stage()->GetStateIds(_state_ids);
+
 		_first_chunk = operator()(); // extract first chunk to have stats
-		_row_count_by_chunk = CHUNK_ELEMENT_COUNT / _first_chunk->columns_count();
+		if (_first_chunk) {
+			_row_count_by_chunk = CHUNK_ELEMENT_COUNT / _first_chunk->columns_count();
+		}
 	}
 
 	QString human_name() override { return "ERF"; }
@@ -174,11 +178,11 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 			}
 
 			std::vector<std::vector<PVERFAPI::float_t>> results;
-			row_count = add_entityresults(_state_id + 1, _states_count, singlestate_entityresults,
-			                              _ids, results);
+			row_count = add_entityresults(_state_ids[_state_id], _states_count,
+			                              singlestate_entityresults, _ids, results);
 
 			std::vector<std::vector<PVERFAPI::int_t>> ids;
-			ids.emplace_back(row_count, _state_id + 1);
+			ids.emplace_back(row_count, _state_ids[_state_id]);
 			ids.emplace_back(_ids[0].begin() + _state_start_row,
 			                 _ids[0].begin() + _state_start_row + row_count);
 
@@ -294,6 +298,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	size_t _range_index = 0;
 	size_t _states_count = 0;
 	size_t _state_id = 0;
+	std::vector<ERF_INT> _state_ids;
 
 	PVRush::PVERFAPI _erf;
 	const rapidjson::Document& _selected_nodes;
