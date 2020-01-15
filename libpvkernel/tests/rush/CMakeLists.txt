@@ -245,8 +245,20 @@ add_inspector_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stat
 add_inspector_test(Trush_logstats Trush_logstats)
 
 # ERF
+set(ERF_LIBS
+    /app/lib/libhdf5_cpp.so
+	/app/lib/liberf_cpp_sp.so
+)
 include_directories(AFTER /app/include/erf/include)
 include_directories(AFTER /app/include/erf/include/c)
 include_directories(AFTER /app/include/erf/include/cpp)
-add_inspector_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} FILES erf.cpp)
-add_inspector_test(Trush_erf Trush_erf)
+add_inspector_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} ${ERF_LIBS} FILES erf.cpp)
+add_inspector_test(
+	Trush_erf Trush_erf
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.erfh5"
+	"{\"post\":{\"constant\":{\"connectivities\":[\"SHELL\"],\"entityresults\":{\"NODE\":[\"COORDINATE\"],\"SHELL\":[\"Domain\"]}},\"singlestate\":{\"entityresults\":{\"NODE\":[\"Velocity\"]},\"states\":\"3,20\"}}}"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output1"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output2"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output3"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output4"
+)
