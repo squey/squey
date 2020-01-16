@@ -134,6 +134,7 @@ source_text_file
 source_elasticsearch
 source_splunk
 source_pcap
+source_erf
 )
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
 				     RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)
