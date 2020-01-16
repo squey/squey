@@ -92,7 +92,7 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 #endif
 
 	splitter->addWidget(tree);
-	//splitter->addWidget(singlestate_widget);
+	// splitter->addWidget(singlestate_widget);
 
 	QDialogButtonBox* dialog_buttons =
 	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -107,17 +107,13 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	setLayout(vlayout);
 }
 
-std::vector<QDomDocument> PVRush::PVERFParamsWidget::get_formats()
+std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>>
+PVRush::PVERFParamsWidget::get_sources_info() const
 {
-	return PVERFAPI(_model->path().toStdString()).get_formats_from_selected_nodes(_model->save());
+	return PVERFAPI(_model->path().toStdString()).get_sources_info(_model->save());
 }
 
 QString PVRush::PVERFParamsWidget::path() const
 {
 	return _model->path();
-}
-
-rapidjson::Document PVRush::PVERFParamsWidget::get_selected_nodes() const
-{
-	return _model->save();
 }

@@ -9,7 +9,8 @@
 #define __PVERFPARAMSWIDGET_H__
 
 #include <QDialog>
-#include <QDomDocument>
+
+#include <pvkernel/rush/PVFormat.h>
 
 #include "PVERFTreeModel.h"
 
@@ -28,7 +29,8 @@ class PVERFParamsWidget : public QDialog
   public:
 	std::vector<QDomDocument> get_formats();
 	QString path() const;
-	rapidjson::Document get_selected_nodes() const;
+	std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>>
+	get_sources_info() const;
 
   private:
 	std::unique_ptr<PVRush::PVERFTreeModel> _model;

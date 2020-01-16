@@ -560,9 +560,17 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	QStringList invalid_formats;
 	// Load a type of file per view
 
-	for (PVRush::PVFormat const& cur_format : formats) {
+	size_t input_index = 0;
+	for (PVRush::PVFormat const& format : formats) {
+		PVRush::PVInputType::list_inputs in;
 
-		PVRush::PVSourceDescription src_desc(inputs, sc, cur_format);
+		if (formats.size() > 1) {
+			in.append(inputs[input_index++]);
+		} else {
+			in = inputs;
+		}
+
+		PVRush::PVSourceDescription src_desc(in, sc, format);
 
 		try {
 			if (load_source_from_description_Slot(src_desc)) {

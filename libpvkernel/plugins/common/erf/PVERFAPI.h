@@ -18,6 +18,9 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 #include <rapidjson/pointer.h>
 
 namespace PVRush
@@ -187,8 +190,25 @@ class PVERFAPI
 			}
 		}
 	}
-
+ 
   public:
+    std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>>
+    get_sources_info(const rapidjson::Document& selected_nodes) const
+	{
+		auto descs = get_selected_nodes_by_source(selected_nodes);
+		auto formats = get_formats_from_selected_nodes(selected_nodes);
+
+		assert(descs.size() == formats.size());
+
+		std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>> infos;
+		for(size_t i = 0; i < descs.size(); i++) {
+			infos.emplace_back(std::make_tuple(std::move(descs[i].first), std::move(descs[i].second), PVRush::PVFormat(formats[i].documentElement())));
+		}
+
+		return infos;
+	}
+
+  private:
 	std::vector<QDomDocument>
 	get_formats_from_selected_nodes(const rapidjson::Document& selected_nodes) const
 	{
@@ -225,6 +245,60 @@ class PVERFAPI
 #endif
 
 		return formats;
+	}
+
+	std::vector<std::pair<rapidjson::Document, std::string>>
+	get_selected_nodes_by_source(const rapidjson::Document& selected_nodes) const
+	{
+		std::vector<std::pair<rapidjson::Document, std::string>> selected_nodes_by_source;
+
+		std::vector<std::tuple<std::string /* pointer */, std::string /* pointer_base */,
+							std::string /* source_name */>>
+			pointers_source = {
+				{"/post/constant/connectivities", "", "connectivities"},
+				{"/post/constant/entityresults", "", "constant"},
+				{"/post/singlestate/entityresults", "/post/singlestate/states", "results"}};
+
+		size_t index = 0;
+		for (auto& [pointer_source, pointer_base, source_name] : pointers_source) {
+			const rapidjson::Value* source_node =
+				rapidjson::Pointer(pointer_source.c_str()).Get(selected_nodes);
+			if (source_node) {
+				std::vector<std::string> entity_types;
+				if (source_node->IsObject()) {
+					for (const auto& entity_type : source_node->GetObject()) {
+						rapidjson::Document doc;
+						if (not pointer_base.empty()) {
+							const rapidjson::Value* base_node =
+								rapidjson::Pointer(pointer_base.c_str()).Get(selected_nodes);
+							assert(base_node);
+							rapidjson::Pointer(pointer_base.c_str()).Set(doc, *base_node);
+						}
+						const std::string& subpointer_source =
+							pointer_source + "/" + entity_type.name.GetString();
+						rapidjson::Pointer(subpointer_source.c_str()).Set(doc, entity_type.value);
+						selected_nodes_by_source.emplace_back(
+							std::move(doc), source_name + "/" + entity_type.name.GetString());
+					}
+				} else {
+					rapidjson::Document doc;
+					rapidjson::Pointer(pointer_source.c_str()).Set(doc, *source_node);
+					selected_nodes_by_source.emplace_back(std::move(doc), source_name);
+				}
+			}
+		}
+
+	#if 0
+		for (const auto& [doc, source_name] : selected_nodes_by_source) {
+			rapidjson::StringBuffer buffer;
+			buffer.Clear();
+			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+			doc.Accept(writer);
+			pvlogger::fatal() << source_name << "=" << buffer.GetString() << std::endl;
+		}
+	#endif
+
+		return selected_nodes_by_source;
 	}
 
   private:

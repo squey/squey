@@ -68,7 +68,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	PVERFSource(PVInputDescription_p input)
 	    : _input_desc(dynamic_cast<PVRush::PVERFDescription*>(input.get()))
 	    , _erf(_input_desc->path().toStdString())
-	    , _selected_nodes(_input_desc->current_source_selected_nodes())
+	    , _selected_nodes(_input_desc->selected_nodes())
 
 	{
 		// edit PVERFDescription::split_selected_nodes_by_sources

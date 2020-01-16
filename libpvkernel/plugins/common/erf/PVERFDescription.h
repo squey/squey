@@ -20,27 +20,18 @@ namespace PVRush
 class PVERFDescription : public PVFileDescription
 {
   public:
-	PVERFDescription(QString const& path, rapidjson::Document&& selected_nodes)
+	PVERFDescription(QString const& path, QString const& name, rapidjson::Document&& selected_nodes)
 	    : PVFileDescription(path, false /*multi_inputs*/)
+	    , _name(name)
 	    , _selected_nodes(std::move(selected_nodes))
 	{
-		split_selected_nodes_by_sources(_selected_nodes);
 	}
 
   public: // FIXME : not working properly
-	QString human_name() const override
-	{
-		return QString::fromStdString(_source_names[_current_source_index - 1]);
-	}
+	QString human_name() const override { return _name; }
 
   public:
 	rapidjson::Document& selected_nodes() { return _selected_nodes; }
-
-  public:
-	const rapidjson::Document& current_source_selected_nodes()
-	{
-		return _selected_nodes_by_source[_current_source_index++];
-	}
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const override
@@ -56,6 +47,8 @@ class PVERFDescription : public PVFileDescription
 		} else {
 			so.attribute_write("file_path", _path);
 		}
+
+		so.attribute_write("name", _name);
 
 		// Serialize nodes selection
 		rapidjson::StringBuffer buffer;
@@ -77,78 +70,19 @@ class PVERFDescription : public PVFileDescription
 			    so.get_logical_path().toStdString(), path.toStdString());
 		}
 
+		QString name = so.attribute_read<QString>("name");
+
 		// Deserialize nodes selection
 		rapidjson::Document selected_nodes;
 		selected_nodes.Parse<0>(so.attribute_read<QString>("selected_nodes").toStdString().c_str());
 
 		return std::unique_ptr<PVInputDescription>(
-		    new PVERFDescription(path, std::move(selected_nodes)));
+		    new PVERFDescription(path, name, std::move(selected_nodes)));
 	}
 
   private:
-	void split_selected_nodes_by_sources(const rapidjson::Document& selected_nodes)
-	{
-		std::vector<std::tuple<std::string /* pointer */, std::string /* pointer_base */, std::string /* source_name */>> pointers_source = {
-		    {"/post/constant/connectivities", "", "connectivities"},
-			{"/post/constant/entityresults", "", "constant"},
-			{"/post/singlestate/entityresults", "/post/singlestate/states", "results"}
-		};
-
-		size_t index = 0;
-		for (auto& [pointer_source, pointer_base, source_name] : pointers_source) {
-			const rapidjson::Value* source_node =
-			    rapidjson::Pointer(pointer_source.c_str()).Get(_selected_nodes);
-			if (source_node) {
-				std::vector<std::string> entity_types;
-				if(source_node->IsObject()) {
-					for (const auto& entity_type : source_node->GetObject()) {
-						entity_types.emplace_back(entity_type.name.GetString());
-						rapidjson::Document doc;
-						if (not pointer_base.empty()) {
-							const rapidjson::Value* base_node =
-								rapidjson::Pointer(pointer_base.c_str()).Get(_selected_nodes);
-							assert(base_node);
-							rapidjson::Pointer(pointer_base.c_str()).Set(doc, *base_node);
-						}
-						const std::string& subpointer_source = pointer_source + "/" + entity_type.name.GetString();
-						rapidjson::Pointer(subpointer_source.c_str()).Set(doc, entity_type.value);
-						_selected_nodes_by_source.emplace_back(std::move(doc));
-					}
-				}
-				else {
-					rapidjson::Document doc;
-					rapidjson::Pointer(pointer_source.c_str()).Set(doc, *source_node);
- 					_selected_nodes_by_source.emplace_back(std::move(doc));
-				}
-
-				if (entity_types.size() > 1) {
-					for (const std::string& entity_type : entity_types) {
-						_source_names.emplace_back(source_name + "/" + entity_type);
-					}
-				}
-				else {
-					_source_names.emplace_back(source_name);
-				}
-
-			}
-		}
-
-#if 0
-		for (const rapidjson::Document& doc : _selected_nodes_by_source) {
-			rapidjson::StringBuffer buffer;
-			buffer.Clear();
-			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-			doc.Accept(writer);
-			pvlogger::fatal() << buffer.GetString() << std::endl;
-		}
-#endif
-	}
-
-  private:
+	QString _name;
 	rapidjson::Document _selected_nodes;
-	std::vector<rapidjson::Document> _selected_nodes_by_source;
-	std::vector<std::string> _source_names;
-	mutable size_t _current_source_index = 0;
 };
 
 } // namespace PVRush
