@@ -30,8 +30,7 @@ class PVERFDescription : public PVFileDescription
   public: // FIXME : not working properly
 	QString human_name() const override
 	{
-		std::vector<std::string> sources{"connectivities", "constant", "results"};
-		return QString::fromStdString(sources[_sources_index[_current_source_index - 1]]);
+		return QString::fromStdString(_source_names[_current_source_index - 1]);
 	}
 
   public:
@@ -89,19 +88,21 @@ class PVERFDescription : public PVFileDescription
   private:
 	void split_selected_nodes_by_sources(const rapidjson::Document& selected_nodes)
 	{
-		std::vector<std::pair<std::string, std::string>> pointers_source = {
-		    {"/post/constant/connectivities", ""},
-			{"/post/constant/entityresults", ""},
-			{"/post/singlestate/entityresults", "/post/singlestate/states"}
+		std::vector<std::tuple<std::string /* pointer */, std::string /* pointer_base */, std::string /* source_name */>> pointers_source = {
+		    {"/post/constant/connectivities", "", "connectivities"},
+			{"/post/constant/entityresults", "", "constant"},
+			{"/post/singlestate/entityresults", "/post/singlestate/states", "results"}
 		};
 
 		size_t index = 0;
-		for (auto& [pointer_source, pointer_base] : pointers_source) {
+		for (auto& [pointer_source, pointer_base, source_name] : pointers_source) {
 			const rapidjson::Value* source_node =
 			    rapidjson::Pointer(pointer_source.c_str()).Get(_selected_nodes);
 			if (source_node) {
+				std::vector<std::string> entity_types;
 				if(source_node->IsObject()) {
 					for (const auto& entity_type : source_node->GetObject()) {
+						entity_types.emplace_back(entity_type.name.GetString());
 						rapidjson::Document doc;
 						if (not pointer_base.empty()) {
 							const rapidjson::Value* base_node =
@@ -112,17 +113,23 @@ class PVERFDescription : public PVFileDescription
 						const std::string& subpointer_source = pointer_source + "/" + entity_type.name.GetString();
 						rapidjson::Pointer(subpointer_source.c_str()).Set(doc, entity_type.value);
 						_selected_nodes_by_source.emplace_back(std::move(doc));
-
-						_sources_index.emplace_back(index++);
 					}
 				}
 				else {
 					rapidjson::Document doc;
 					rapidjson::Pointer(pointer_source.c_str()).Set(doc, *source_node);
  					_selected_nodes_by_source.emplace_back(std::move(doc));
- 
- 					_sources_index.emplace_back(index++);
 				}
+
+				if (entity_types.size() > 1) {
+					for (const std::string& entity_type : entity_types) {
+						_source_names.emplace_back(source_name + "/" + entity_type);
+					}
+				}
+				else {
+					_source_names.emplace_back(source_name);
+				}
+
 			}
 		}
 
@@ -140,8 +147,8 @@ class PVERFDescription : public PVFileDescription
   private:
 	rapidjson::Document _selected_nodes;
 	std::vector<rapidjson::Document> _selected_nodes_by_source;
-	std::vector<size_t> _sources_index;
-	size_t _current_source_index = 0;
+	std::vector<std::string> _source_names;
+	mutable size_t _current_source_index = 0;
 };
 
 } // namespace PVRush
