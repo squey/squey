@@ -17,7 +17,7 @@ bool PVRush::PVInputTypeERF::createWidget(hash_formats& formats,
                                           QWidget* parent) const
 {
 	PVERFParamsWidget* params = new PVERFParamsWidget(this, parent);
-	if (params->exec() == QDialog::Rejected) {
+	if (params->result() == QDialog::Rejected or params->exec() == QDialog::Rejected) {
 		return false;
 	}
 

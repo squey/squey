@@ -24,11 +24,9 @@
 
 #include <pvlogger.h>
 
-///
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
-///
 
 PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent)
 {
@@ -42,15 +40,14 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	QSplitter* splitter = new QSplitter(Qt::Horizontal);
 	splitter->setFixedSize(QSize(width / 3, height / 2));
 
-	// static constexpr const char path[] = "/srv/logs/VW/BOOST_fill_sol_V01_OPT01_r02g_VV1.hdf5";
+	QString erf_path = PVWidgets::PVFileDialog::getOpenFileName(this, tr("Open ERF file"), "",
+	                                                            tr("ERF files (*.erf, *.erfh5"));
 
-	PVWidgets::PVFileDialog fdialog(this);
-	fdialog.setNameFilter("ERF files (*.erf, *.erfh5");
-	fdialog.setWindowTitle("Open ERF file");
-	QString erf_path;
-	if (fdialog.exec() == QDialog::Accepted) {
-		erf_path = fdialog.selectedFiles().at(0);
+	if (erf_path.isEmpty()) {
+		setResult(QDialog::Rejected);
+		return;
 	}
+	setResult(QDialog::Accepted);
 
 	_model.reset(new PVRush::PVERFTreeModel(erf_path));
 	PVRush::PVERFTreeView* tree = new PVRush::PVERFTreeView(_model.get(), parent);
