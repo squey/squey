@@ -5,7 +5,7 @@ echo "Usage: $0 [--branch=<branch_name>] [--state-dir=<state_dir>] [--tag=<tag_n
 echo "                  [--user-target=<USER_TARGET>] [--repo=<repository_path>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
 }
 
-OPTS=`getopt -o r:m:b:s:a:t:c:u:p --long repo:,branch:,state-dir:,tag:,build-type:,user-target:,compiler:,upload:,port: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o r:m:b:s:a:t:c:u:p:i --long repo:,branch:,state-dir:,tag:,build-type:,user-target:,compiler:,upload:,port,pcap-inspector: -n 'parse-options' -- "$@"`
 
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 
