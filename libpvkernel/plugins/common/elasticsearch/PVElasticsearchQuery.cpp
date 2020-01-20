@@ -26,7 +26,7 @@ bool PVRush::PVElasticsearchQuery::operator==(const PVInputDescription& other) c
 
 QString PVRush::PVElasticsearchQuery::human_name() const
 {
-	return QString("elasticsearch");
+	return _infos.get_index();
 }
 
 void PVRush::PVElasticsearchQuery::serialize_write(PVCore::PVSerializeObject& so) const
