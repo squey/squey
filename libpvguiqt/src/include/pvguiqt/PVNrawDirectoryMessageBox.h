@@ -26,16 +26,17 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 		}
 
 		setStandardButtons(QMessageBox::Ok);
-		setIcon(QMessageBox::Critical);
+		setIcon(QMessageBox::Information);
 		setWindowTitle("Temporary working directory error");
 		setText(
 		    QString(
 		        "The temporary working directory <b>%1</b> does not exists or is not writable. "
-		        "Please, fix this or chose another directory.<br><br>"
+		        "Please, change the permissions or chose another directory.<br><br>"
+				"This directory emplacement needs to be specified once and for all."
 		        "A fast underlying storage for this directory will provide better performances.")
 		        .arg(nraw_tmp));
 
-		QAbstractButton* browser_button = addButton(tr("..."), QMessageBox::ActionRole);
+		QAbstractButton* browser_button = addButton(tr("Browse..."), QMessageBox::ActionRole);
 
 		do {
 			exec();
