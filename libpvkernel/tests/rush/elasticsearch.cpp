@@ -19,7 +19,7 @@
 #include <fstream>
 
 static const PVRush::PVElasticsearchAPI::columns_t
-    ref_columns({{"@timestamp", {"time", "yyyy-MM-d'T'HH:mm:ss.S'Z'"}},
+    ref_columns({{"@timestamp", {"time", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"}},
                  {"category", {"string", ""}},
                  {"geoip.latitude", {"number_float", ""}},
                  {"geoip.longitude", {"number_float", ""}},

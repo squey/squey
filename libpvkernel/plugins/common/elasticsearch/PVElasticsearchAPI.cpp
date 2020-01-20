@@ -411,6 +411,11 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 {
 	std::unordered_set<std::string> numeric_types{{"long", "integer", "short", "byte"}};
 
+	std::unordered_map<std::string, std::string> default_types{{"long", "number_int64"},
+	                                                           {"integer", "number_int32"},
+	                                                           {"short", "number_int16"},
+	                                                           {"byte", "number_int8"}};
+
 	std::vector<std::tuple<std::string, int64_t, uint64_t>> types_ranges{
 	    {{"number_uint8", std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max()},
 	     {"number_int8", std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max()},
@@ -488,10 +493,18 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 		rapidjson::Document json;
 		json.Parse<0>(json_buffer.c_str());
 
+		if (not json.HasMember("aggregations")) {
+			return;
+		}
+
 		const rapidjson::Value& aggregations = json["aggregations"];
 		for (auto agg = aggregations.MemberBegin(); agg != aggregations.MemberEnd(); ++agg) {
 			const std::string& value_name = agg->name.GetString();
-			double value = aggregations[value_name.c_str()]["value"].GetDouble();
+			const rapidjson::Value& value_json = aggregations[value_name.c_str()]["value"];
+			if (not value_json.IsNumber()) {
+				continue;
+			}
+			double value = value_json.GetDouble();
 
 			const std::string& field_name = value_name.substr(0, value_name.size() - 4);
 			const std::string& operation_name = value_name.substr(value_name.size() - 3);
@@ -506,22 +519,26 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 
 	for (size_t index : numeric_col_indexes) {
 		auto& fname = cols[index].first;
-		const std::pair<double, double>& range = values_ranges.at(fname);
-		double value_min = range.first;
-		double value_max = range.second;
+		const auto& it = values_ranges.find(fname);
+		if (it != values_ranges.end()) {
+			double value_min = it->second.first;
+			double value_max = it->second.second;
 
-		std::string smallest_type;
-		for (const auto& type_range : types_ranges) {
-			const std::string& type_name = std::get<0>(type_range);
-			int64_t type_min = std::get<1>(type_range);
-			uint64_t type_max = std::get<2>(type_range);
+			std::string smallest_type;
+			for (const auto& type_range : types_ranges) {
+				const std::string& type_name = std::get<0>(type_range);
+				int64_t type_min = std::get<1>(type_range);
+				uint64_t type_max = std::get<2>(type_range);
 
-			if (value_min >= type_min and value_max <= type_max) {
-				smallest_type = type_name;
-				break;
+				if (value_min >= type_min and value_max <= type_max) {
+					smallest_type = type_name;
+					break;
+				}
 			}
+			cols[index].second.first = smallest_type;
+		} else { // fallback to default type
+			cols[index].second.first = default_types[cols[index].second.first];
 		}
-		cols[index].second.first = smallest_type;
 	}
 
 	/*
@@ -537,6 +554,88 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 
 void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 {
+	// https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+	std::multimap<std::string, std::string> dateformat_map = {
+	    {"epoch_millis", "epoch.S"},
+	    {"epoch_second", "epoch"},
+	    {"date_optional_time", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"},
+	    {"date_optional_time", "yyyy-MM-dd"},
+	    {"strict_date_optional_time", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"},
+	    {"strict_date_optional_time", "yyyy-MM-dd"},
+	    {"basic_date", "yyyyMMdd"},
+	    {"basic_date_time", "yyyyMMdd'T'HHmmss.SSSZ"},
+	    {"basic_date_time_no_millis", "yyyyMMdd'T'HHmmssZ"},
+	    {"basic_ordinal_date", "yyyyDDD"},
+	    {"basic_ordinal_date_time", "yyyyDDD'T'HHmmss.SSSZ"},
+	    {"basic_ordinal_date_time_no_millis", "yyyyDDD'T'HHmmssZ"},
+	    {"basic_time", "HHmmss.SSSZ"},
+	    {"basic_time_no_millis", "HHmmssZ"},
+	    {"basic_t_time", "'T'HHmmss.SSSZ"},
+	    {"basic_t_time_no_millis", "T'HHmmssZ"},
+	    {"basic_week_date", "xxxx'W'wwe"},
+	    {"strict_basic_week_date", "xxxx'W'wwe"},
+	    {"basic_week_date_time", "xxxx'W'wwe'T'HHmmss.SSSZ"},
+	    {"strict_basic_week_date_time", "xxxx'W'wwe'T'HHmmss.SSSZ"},
+	    {"basic_week_date_time_no_millis", "xxxx'W'wwe'T'HHmmssZ"},
+	    {"strict_basic_week_date_time_no_millis", "xxxx'W'wwe'T'HHmmssZ"},
+	    {"date", "strict_date"},
+	    {"date_hour", "yyyy-MM-dd'T'HH"},
+	    {"strict_date_hour", "yyyy-MM-dd'T'HH"},
+	    {"date_hour_minute", "yyyy-MM-dd'T'HH:mm"},
+	    {"strict_date_hour_minute", "yyyy-MM-dd'T'HH:mm"},
+	    {"date_hour_minute_second", "yyyy-MM-dd'T'HH:mm:ss"},
+	    {"strict_date_hour_minute_second", "yyyy-MM-dd'T'HH:mm:ss"},
+	    {"date_hour_minute_second_fraction", "yyyy-MM-dd'T'HH:mm:ss.SSS"},
+	    {"strict_date_hour_minute_second_fraction", "yyyy-MM-dd'T'HH:mm:ss.SSS"},
+	    {"date_hour_minute_second_millis", "yyyy-MM-dd'T'HH:mm:ss.SSS"},
+	    {"strict_date_hour_minute_second_millis", "yyyy-MM-dd'T'HH:mm:ss.SSS"},
+	    {"date_time", "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"},
+	    {"strict_date_time", "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"},
+	    {"date_time_no_millis", "yyyy-MM-dd'T'HH:mm:ssZZ"},
+	    {"strict_date_time_no_millis", "yyyy-MM-dd'T'HH:mm:ssZZ"},
+	    {"hour", "HH"},
+	    {"strict_hour", "HH"},
+	    {"hour_minute", "HH:mm"},
+	    {"strict_hour_minute", "HH:mm"},
+	    {"hour_minute_second", "HH:mm:ss"},
+	    {"strict_hour_minute_second", "HH:mm:ss"},
+	    {"hour_minute_second_fraction", "HH:mm:ss.SSS"},
+	    {"strict_hour_minute_second_fraction", "HH:mm:ss.SSS"},
+	    {"hour_minute_second_millis", "HH:mm:ss.SSS"},
+	    {"strict_hour_minute_second_millis", "HH:mm:ss.SSS"},
+	    {"ordinal_date", "yyyy-DDD"},
+	    {"strict_ordinal_date", "yyyy-DDD"},
+	    {"ordinal_date_time", "yyyy-DDD'T'HH:mm:ss.SSSZZ"},
+	    {"strict_ordinal_date_time", "yyyy-DDD'T'HH:mm:ss.SSSZZ"},
+	    {"ordinal_date_time_no_millis", "yyyy-DDD'T'HH:mm:ssZZ"},
+	    {"strict_ordinal_date_time_no_millis", "yyyy-DDD'T'HH:mm:ssZZ"},
+	    {"time", "HH:mm:ss.SSSZZ"},
+	    {"strict_time", "HH:mm:ss.SSSZZ"},
+	    {"time_no_millis", "HH:mm:ssZZ"},
+	    {"strict_time_no_millis", "HH:mm:ssZZ"},
+	    {"t_time", "'T'HH:mm:ss.SSSZZ"},
+	    {"strict_t_time", "'T'HH:mm:ss.SSSZZ"},
+	    {"t_time_no_millis", "'T'HH:mm:ssZZ"},
+	    {"strict_t_time_no_millis", "'T'HH:mm:ssZZ"},
+	    {"week_date", "xxxx-'W'ww-e"},
+	    {"strict_week_date", "xxxx-'W'ww-e"},
+	    {"week_date_time", "xxxx-'W'ww-e'T'HH:mm:ss.SSSZZ"},
+	    {"strict_week_date_time", "xxxx-'W'ww-e'T'HH:mm:ss.SSSZZ"},
+	    {"week_date_time_no_millis", "xxxx-'W'ww-e'T'HH:mm:ssZZ"},
+	    {"strict_week_date_time_no_millis", "xxxx-'W'ww-e'T'HH:mm:ssZZ"},
+	    {"weekyear", "xxxx"},
+	    {"strict_weekyear", "xxxx"},
+	    {"weekyear_week", "xxxx-'W'ww"},
+	    {"strict_weekyear_week", "xxxx-'W'ww"},
+	    {"weekyear_week_day", "xxxx-'W'ww-e"},
+	    {"strict_weekyear_week_day", "xxxx-'W'ww-e"},
+	    {"year", "yyyy"},
+	    {"strict_year", "yyyy"},
+	    {"year_month", "yyyy-MM"},
+	    {"strict_year_month", "yyyy-MM"},
+	    {"year_month_day", "yyyy-MM-dd"},
+	    {"strict_year_month_day", "yyyy-MM-dd"}};
+
 	std::vector<std::string> time_col_names;
 
 	for (const auto& col : cols) {
@@ -547,6 +646,40 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 
 	if (time_col_names.empty()) {
 		return;
+	}
+
+	// Get date formats from mapping
+	std::vector<std::vector<std::string>> time_col_formats;
+	{
+		std::string json_buffer;
+		std::string cols_names = boost::algorithm::join(time_col_names, ",");
+		std::string url = socket() + "/" + _infos.get_index().toStdString() + "/_mapping/field/" +
+		                  cols_names + "?include_defaults=true";
+
+		prepare_query(_curl, url);
+		if (perform_query(_curl, json_buffer)) {
+			rapidjson::Document json;
+			json.Parse<0>(json_buffer.c_str());
+
+			rapidjson::Value& dates = json[_infos.get_index().toStdString().c_str()]["mappings"];
+			if (dates.HasMember("_doc")) {
+				// for retro-compatibility purposes :
+				// see
+				// https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html
+				dates = dates["_doc"];
+			}
+			for (const std::string& col : time_col_names) {
+				const std::string format =
+				    dates[col.c_str()]["mapping"][col.c_str()]["format"].GetString();
+
+				std::vector<std::string> subformats;
+				boost::split(subformats, format, boost::is_any_of("||"));
+				subformats.erase(std::remove_if(subformats.begin(), subformats.end(),
+				                                [](const std::string& s) { return s.empty(); }));
+
+				time_col_formats.emplace_back(std::move(subformats));
+			}
+		}
 	}
 
 	// get one result search filtered on time columns
@@ -562,19 +695,38 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 		json.Parse<0>(json_buffer.c_str());
 
 		const rapidjson::Value& times = json["hits"]["hits"][0]["_source"];
-		for (const std::string& col : time_col_names) {
-			const std::string& time_value = times[col.c_str()].GetString();
-
+		for (size_t i = 0; i < time_col_names.size(); i++) {
+			const std::string& col = time_col_names[i];
+			std::string time_value;
+			if (times[col.c_str()].IsString()) {
+				time_value = times[col.c_str()].GetString();
+			}
 			std::string params;
-			for (const std::string& format :
-			     std::vector<std::string>{"epochS", "yyyy-MM-d'T'HH:mm:ss.S'Z'"}) {
-				const auto& fd = PVRush::PVFormat::get_datetime_formatter_desc(format);
-				pvcop::types::formatter_interface* fi =
-				    pvcop::types::factory::create(fd.name(), fd.parameters());
-				pvcop::db::array out_array(fi->name(), 1);
-				if (fi->from_string(time_value.c_str(), out_array.data(), 0)) {
-					params = format;
+			for (const std::string& mapping_format : time_col_formats[i]) {
+				if (not params.empty()) {
 					break;
+				}
+				auto parse_date = [&time_value](const std::string& format) -> std::string {
+					const auto& fd = PVRush::PVFormat::get_datetime_formatter_desc(format);
+					pvcop::types::formatter_interface* fi =
+					    pvcop::types::factory::create(fd.name(), fd.parameters());
+					pvcop::db::array out_array(fi->name(), 1);
+					if (fi->from_string(time_value.c_str(), out_array.data(), 0)) {
+						return format;
+					}
+					return {};
+				};
+
+				auto format_str_it = dateformat_map.equal_range(mapping_format);
+				for (auto it = format_str_it.first; it != format_str_it.second; ++it) {
+					const std::string& format = it->second;
+					params = parse_date(format);
+					if (not params.empty()) {
+						break;
+					}
+				}
+				if (format_str_it.first == dateformat_map.end()) { // not a built-in format
+					params = parse_date(mapping_format);
 				}
 			}
 

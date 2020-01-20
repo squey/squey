@@ -1,3 +1,12 @@
+4.7.5 (2020-01-20)
+------------------
+
+This minor release fixes or improves:
+* improve elasticsearch date handling
+* fix elasticsearch types narrowing to avoid crashes
+* display elasticsearch index as source name
+* improve temporary working directory message and icon
+
 4.7.4 (2019-12-03)
 ------------------
 
