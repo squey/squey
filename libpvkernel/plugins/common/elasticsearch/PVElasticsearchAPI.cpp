@@ -411,6 +411,11 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 {
 	std::unordered_set<std::string> numeric_types{{"long", "integer", "short", "byte"}};
 
+	std::unordered_map<std::string, std::string> default_types{{"long", "number_int64"},
+	                                                           {"integer", "number_int32"},
+	                                                           {"short", "number_int16"},
+	                                                           {"byte", "number_int8"}};
+
 	std::vector<std::tuple<std::string, int64_t, uint64_t>> types_ranges{
 	    {{"number_uint8", std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max()},
 	     {"number_int8", std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max()},
@@ -488,10 +493,18 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 		rapidjson::Document json;
 		json.Parse<0>(json_buffer.c_str());
 
+		if (not json.HasMember("aggregations")) {
+			return;
+		}
+
 		const rapidjson::Value& aggregations = json["aggregations"];
 		for (auto agg = aggregations.MemberBegin(); agg != aggregations.MemberEnd(); ++agg) {
 			const std::string& value_name = agg->name.GetString();
-			double value = aggregations[value_name.c_str()]["value"].GetDouble();
+			const rapidjson::Value& value_json = aggregations[value_name.c_str()]["value"];
+			if (not value_json.IsNumber()) {
+				continue;
+			}
+			double value = value_json.GetDouble();
 
 			const std::string& field_name = value_name.substr(0, value_name.size() - 4);
 			const std::string& operation_name = value_name.substr(value_name.size() - 3);
@@ -506,22 +519,26 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 
 	for (size_t index : numeric_col_indexes) {
 		auto& fname = cols[index].first;
-		const std::pair<double, double>& range = values_ranges.at(fname);
-		double value_min = range.first;
-		double value_max = range.second;
+		const auto& it = values_ranges.find(fname);
+		if (it != values_ranges.end()) {
+			double value_min = it->second.first;
+			double value_max = it->second.second;
 
-		std::string smallest_type;
-		for (const auto& type_range : types_ranges) {
-			const std::string& type_name = std::get<0>(type_range);
-			int64_t type_min = std::get<1>(type_range);
-			uint64_t type_max = std::get<2>(type_range);
+			std::string smallest_type;
+			for (const auto& type_range : types_ranges) {
+				const std::string& type_name = std::get<0>(type_range);
+				int64_t type_min = std::get<1>(type_range);
+				uint64_t type_max = std::get<2>(type_range);
 
-			if (value_min >= type_min and value_max <= type_max) {
-				smallest_type = type_name;
-				break;
+				if (value_min >= type_min and value_max <= type_max) {
+					smallest_type = type_name;
+					break;
+				}
 			}
+			cols[index].second.first = smallest_type;
+		} else { // fallback to default type
+			cols[index].second.first = default_types[cols[index].second.first];
 		}
-		cols[index].second.first = smallest_type;
 	}
 
 	/*
