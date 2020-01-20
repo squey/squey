@@ -110,13 +110,14 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 	_root_item->setExpanded(true);
 	_root_item->setText(0, "properties");
 	_root_item->setCheckState(0, Qt::Unchecked);
-	std::vector<QTreeWidgetItem*> parents({_root_item});
+
+	std::vector<std::pair<QTreeWidgetItem*, bool>> parents({std::make_pair(_root_item, true)});
 	size_t pop_depth = 0;
 
 	PVRush::PVElasticsearchAPI es(get_infos());
 	es.visit_columns([&](const std::string& rel_name, const std::string& abs_name,
 	                     const std::string& type, bool is_leaf, bool is_last_child) {
-		QTreeWidgetItem* tree_item = new QTreeWidgetItem(parents.back());
+		QTreeWidgetItem* tree_item = new QTreeWidgetItem(parents.back().first);
 
 		tree_item->setText(0, rel_name.c_str());
 		tree_item->setData(0, Qt::UserRole, QString::fromStdString(abs_name));
@@ -125,18 +126,15 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 		tree_item->setCheckState(0, Qt::Unchecked);
 
 		if (not is_leaf) { // node
-			parents.emplace_back(tree_item);
+			parents.emplace_back(tree_item, is_last_child);
 		}
 
 		if (is_last_child) {
 			if (is_leaf) {
-				parents.pop_back();
-				if (pop_depth > 0) {
+				while (parents.back().second) {
 					parents.pop_back();
-					pop_depth--;
 				}
-			} else {         // node
-				pop_depth++; // flag parent to be popped later on
+				parents.pop_back();
 			}
 		}
 	});
