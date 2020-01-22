@@ -207,7 +207,9 @@ class PVElasticsearchAPI
 	                 const PVRush::PVElasticsearchQuery& query,
 	                 const size_t slice_id,
 	                 const size_t slice_count,
-	                 const size_t max_result_window);
+	                 const size_t max_result_window,
+	                 std::string& json_buffer,
+	                 std::string* error = nullptr);
 
 	/**
 	 * Keep the scroll_id contained in the received result batch (needed to query next result batch)
@@ -284,12 +286,12 @@ class PVElasticsearchAPI
 	size_t _slice_count;
 	size_t _max_result_window;
 	PVCore::PVVersion _version;
-
+	mutable std::string _mapping_type; // for retro-compatibility
 	using curlp_t = std::unique_ptr<CURL, std::function<void(CURL*)>>;
 	std::vector<curlp_t> _curls;
 	curl_slist* _curl_headers = nullptr;
 	std::vector<std::string> _scroll_ids;
 };
-}
+} // namespace PVRush
 
 #endif // __PVELASTICSEARCHAPI_H__
