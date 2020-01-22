@@ -32,6 +32,8 @@
 #include <pvcop/types/factory.h>
 #include <pvcop/formatter_desc.h>
 
+#include <rapidjson/pointer.h>
+
 static constexpr const size_t DEFAULT_SCROLL_SIZE = 10000;
 static constexpr const char SCROLL_TIMEOUT[] = "1m";
 
@@ -190,6 +192,21 @@ static std::string get_filter_path_from_base(CURL* curl,
 	return boost::algorithm::join(absolute_columns, ",");
 }
 
+static std::vector<std::string> get_pointers_type_from_base(const std::string& filter_path,
+                                                            const std::string& base = {})
+{
+	std::vector<std::string> relative_columns;
+	boost::algorithm::split(relative_columns, filter_path, boost::is_any_of(","));
+
+	std::vector<std::string> absolute_columns;
+	for (std::string& column : relative_columns) {
+		PVCore::replace(column, ".", "/properties/");
+		absolute_columns.emplace_back(base.empty() ? column : base + "/" + column + "/type");
+	}
+
+	return absolute_columns;
+}
+
 PVRush::PVElasticsearchAPI::indexes_t
 PVRush::PVElasticsearchAPI::indexes(std::string* error /*= nullptr*/) const
 {
@@ -286,15 +303,7 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 	}
 
 	std::string json_buffer;
-	std::string url =
-	    socket() + "/" + _infos.get_index().toStdString() + "/_mapping" +
-	    (filter_path.empty()
-	         ? ""
-	         : ("?filter_path=" + get_filter_path_from_base(_curl, filter_path,
-	                                                        _version < PVCore::PVVersion(7, 0, 0)
-	                                                            ? "**.mappings.**.properties"
-	                                                            : "**.mappings.properties",
-	                                                        ".properties.")));
+	std::string url = socket() + "/" + _infos.get_index().toStdString() + "/_mapping";
 
 	prepare_query(_curl, url);
 	if (perform_query(_curl, json_buffer)) {
@@ -304,27 +313,42 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 			return;
 		}
 
-		rapidjson::Value mappings;
-		for (auto m = json.MemberBegin(); m != json.MemberEnd(); ++m) {
-			mappings = json[m->name.GetString()]["mappings"];
-			break;
-		}
-
-		// Several mappings can potentially be defined but we can only chose one...
-		std::string mapping_type = "_default_";
-		for (auto m = mappings.MemberBegin(); m != mappings.MemberEnd(); ++m) {
-			mapping_type = m->name.GetString();
-			if (mapping_type.size() > 0 && mapping_type[0] != '_') {
-				break;
+		_mapping_type.clear();
+		// for retro-compatibility purposes :
+		// https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html
+		{
+			const rapidjson::Value& mappings =
+			    json[_infos.get_index().toStdString().c_str()]["mappings"];
+			if (mappings.MemberCount() == 1) {
+				if (not mappings.HasMember("properties")) {
+					_mapping_type = mappings.GetObject().MemberBegin()->name.GetString();
+				}
+			} else {
+				_mapping_type = "_default_";
 			}
 		}
 
-		rapidjson::Value& properties = mappings[mapping_type.c_str()];
-		if (_version < PVCore::PVVersion(7, 0, 0)) {
-			properties = properties["properties"];
+		// filter fields client-side because "filter_path" usage can cause
+		// "too_long_frame_exception, An HTTP line is larger than 4096 bytes" error
+		if (not filter_path.empty()) {
+			const std::string& base =
+			    std::string("/") + _infos.get_index().toStdString() + "/mappings/" +
+			    (_mapping_type.empty() ? "" : (_mapping_type + "/")) + "properties";
+			const std::vector<std::string>& pointers =
+			    get_pointers_type_from_base(filter_path, base);
+			rapidjson::Document filtered_json;
+			for (const std::string& pointer : pointers) {
+				const rapidjson::Value* filtered = rapidjson::Pointer(pointer.c_str()).Get(json);
+				rapidjson::Pointer(pointer.c_str()).Set(filtered_json, *filtered);
+			}
+			json = std::move(filtered_json);
 		}
+		const rapidjson::Value& mappings =
+		    json[_infos.get_index().toStdString().c_str()]["mappings"];
 
-		visit_columns_rec(properties, f);
+		visit_columns_rec(_mapping_type.empty() ? mappings["properties"]
+		                                        : mappings[_mapping_type.c_str()]["properties"],
+		                  f);
 	}
 }
 
@@ -365,22 +389,9 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
     const std::string& filter_path /* = {} */, std::string* error /*= nullptr*/
     ) const
 {
-	// type mapping between elasticsearch and inspector format
-	static const std::unordered_map<std::string, std::string> types_mapping = {
-	    {"long", "long"},
-	    {"integer", "integer"},
-	    {"short", "short"},
-	    {"byte", "byte"},
-	    {"double", "number_double"},
-	    {"float", "number_float"},
-	    {"half_float", "number_float"},
-	    {"date", "time"},
-	    {"ip", "ipv6"},
-	    {"text", "string"},
-	    {"keyword", "string"}};
 	auto map_type = [&](const std::string& type) -> std::string {
-		const auto& it = types_mapping.find(type);
-		if (it != types_mapping.end()) {
+		const auto& it = types_mapping().find(type);
+		if (it != types_mapping().end()) {
 			return it->second;
 		} else {
 			// fallback type for unkown types
@@ -409,9 +420,7 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
 
 void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 {
-	std::unordered_set<std::string> numeric_types{{"long", "integer", "short", "byte"}};
-
-	std::unordered_map<std::string, std::string> default_types{{"long", "number_int64"},
+	std::unordered_map<std::string, std::string> numeric_types{{"long", "number_int64"},
 	                                                           {"integer", "number_int32"},
 	                                                           {"short", "number_int16"},
 	                                                           {"byte", "number_int8"}};
@@ -537,7 +546,7 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 			}
 			cols[index].second.first = smallest_type;
 		} else { // fallback to default type
-			cols[index].second.first = default_types[cols[index].second.first];
+			cols[index].second.first = numeric_types.find(cols[index].second.first)->second;
 		}
 	}
 
@@ -662,15 +671,19 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 			json.Parse<0>(json_buffer.c_str());
 
 			rapidjson::Value& dates = json[_infos.get_index().toStdString().c_str()]["mappings"];
-			if (dates.HasMember("_doc")) {
+			if (not _mapping_type.empty()) {
 				// for retro-compatibility purposes :
 				// see
 				// https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html
-				dates = dates["_doc"];
+				dates = dates[_mapping_type.c_str()];
 			}
 			for (const std::string& col : time_col_names) {
-				const std::string format =
-				    dates[col.c_str()]["mapping"][col.c_str()]["format"].GetString();
+				std::vector<std::string> col_name_hierarchy;
+				boost::split(col_name_hierarchy, col, boost::is_any_of("."));
+
+				const std::string& format =
+				    dates[col.c_str()]["mapping"][col_name_hierarchy.back().c_str()]["format"]
+				        .GetString();
 
 				std::vector<std::string> subformats;
 				boost::split(subformats, format, boost::is_any_of("||"));
@@ -683,55 +696,68 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 	}
 
 	// get one result search filtered on time columns
-	std::string json_buffer;
-	std::string filter_path = get_filter_path_from_base(
-	    _curl, boost::algorithm::join(time_col_names, ","), "hits.hits._source");
-	std::string url = socket() + "/" + _infos.get_index().toStdString() +
-	                  "/_search?size=1&filter_path=" + filter_path;
+	for (size_t i = 0; i < time_col_names.size(); i++) {
+		std::string json_buffer;
+		const std::string& col = time_col_names[i];
+		std::string filter_path = get_filter_path_from_base(_curl, col, "hits.hits._source");
+		std::string url = socket() + "/" + _infos.get_index().toStdString() +
+		                  "/_search?size=1&filter_path=" + filter_path;
 
-	prepare_query(_curl, url);
-	if (perform_query(_curl, json_buffer)) {
-		rapidjson::Document json;
-		json.Parse<0>(json_buffer.c_str());
+		// Filter-out null/empty values
+		rapidjson::Document filter;
+		rapidjson::Pointer("/query/constant_score/filter/exists/field").Set(filter, col.c_str());
+		rapidjson::StringBuffer body;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(body);
+		filter.Accept(writer);
 
-		const rapidjson::Value& times = json["hits"]["hits"][0]["_source"];
-		for (size_t i = 0; i < time_col_names.size(); i++) {
-			const std::string& col = time_col_names[i];
-			std::string time_value;
-			if (times[col.c_str()].IsString()) {
-				time_value = times[col.c_str()].GetString();
-			}
+		prepare_query(_curl, url, body.GetString());
+		if (perform_query(_curl, json_buffer)) {
+			rapidjson::Document json;
+			json.Parse<0>(json_buffer.c_str());
+
 			std::string params;
-			for (const std::string& mapping_format : time_col_formats[i]) {
-				if (not params.empty()) {
-					break;
-				}
-				auto parse_date = [&time_value](const std::string& format) -> std::string {
-					const auto& fd = PVRush::PVFormat::get_datetime_formatter_desc(format);
-					pvcop::types::formatter_interface* fi =
-					    pvcop::types::factory::create(fd.name(), fd.parameters());
-					pvcop::db::array out_array(fi->name(), 1);
-					if (fi->from_string(time_value.c_str(), out_array.data(), 0)) {
-						return format;
-					}
-					return {};
-				};
+			if (json.GetObject().MemberCount() > 0) {
+				std::string col_name_pointer = col;
+				PVCore::replace(col_name_pointer, ".", "/");
+				const rapidjson::Value* time =
+				    rapidjson::Pointer(
+				        (std::string("/hits/hits/0/_source/") + col_name_pointer).c_str())
+				        .Get(json);
+				if (time) {
+					std::string time_value = time->GetString();
+					for (const std::string& mapping_format : time_col_formats[i]) {
+						if (not params.empty()) {
+							break;
+						}
+						auto parse_date = [&time_value](const std::string& format) -> std::string {
+							const auto& fd = PVRush::PVFormat::get_datetime_formatter_desc(format);
+							pvcop::types::formatter_interface* fi =
+							    pvcop::types::factory::create(fd.name(), fd.parameters());
+							pvcop::db::array out_array(fi->name(), 1);
+							if (fi->from_string(time_value.c_str(), out_array.data(), 0)) {
+								return format;
+							}
+							return {};
+						};
 
-				auto format_str_it = dateformat_map.equal_range(mapping_format);
-				for (auto it = format_str_it.first; it != format_str_it.second; ++it) {
-					const std::string& format = it->second;
-					params = parse_date(format);
-					if (not params.empty()) {
-						break;
+						auto format_str_it = dateformat_map.equal_range(mapping_format);
+						for (auto it = format_str_it.first; it != format_str_it.second; ++it) {
+							const std::string& format = it->second;
+							params = parse_date(format);
+							if (not params.empty()) {
+								break;
+							}
+						}
+						if (format_str_it.first == dateformat_map.end()) { // not a built-in format
+							params = parse_date(mapping_format);
+						}
 					}
-				}
-				if (format_str_it.first == dateformat_map.end()) { // not a built-in format
-					params = parse_date(mapping_format);
 				}
 			}
 
 			auto it = std::find_if(cols.begin(), cols.end(),
 			                       [&](const auto& c) { return c.first == col; });
+
 			if (params.empty()) {
 				it->second.first = "string";
 			} else {
@@ -950,66 +976,90 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
                                              const PVRush::PVElasticsearchQuery& query,
                                              const size_t slice_id,
                                              const size_t slice_count,
-                                             const size_t max_result_window)
+                                             const size_t max_result_window,
+                                             std::string& json_buffer,
+                                             std::string* error /* = nullptr */)
 {
 	const PVElasticsearchInfos& infos = query.get_infos();
-
-	std::string url = socket() + "/" + infos.get_index().toStdString() +
-	                  "/_search?filter_path=_scroll_id,hits.total," +
-	                  get_filter_path_from_base(curl, infos.get_filter_path().toStdString(),
-	                                            "hits.hits._source") +
-	                  "&scroll=" + SCROLL_TIMEOUT;
-	if (_version < PVCore::PVVersion(5, 0, 0)) {
-		url += "&search_type=scan";
-	}
-
-	rapidjson::Document json;
-	json.Parse<0>(query.get_query().toStdString().c_str());
-
-	if (slice_count > 1) {
-		rapidjson::Value slice;
-		slice.SetObject();
-		slice.AddMember("id", slice_id, json.GetAllocator());
-		slice.AddMember("max", slice_count, json.GetAllocator());
-		json.AddMember("slice", slice, json.GetAllocator());
-		/*
-		"slice": {
-		    "id": 0,
-		    "max": 12
+	bool res = false;
+	bool disable_filter_path = false;
+	do {
+		const std::string& filter_path_var =
+		    "&filter_path=_scroll_id,hits.total," +
+		    get_filter_path_from_base(curl, infos.get_filter_path().toStdString(),
+		                              "hits.hits._source");
+		std::string url = socket() + "/" + infos.get_index().toStdString() +
+		                  "/_search?scroll=" + SCROLL_TIMEOUT +
+		                  (not disable_filter_path ? filter_path_var : "");
+		if (_version < PVCore::PVVersion(5, 0, 0)) {
+			url += "&search_type=scan";
 		}
-		*/
 
-		rapidjson::Value sort;
-		sort.SetArray();
-		sort.PushBack("_doc", json.GetAllocator());
-		json.AddMember("sort", sort, json.GetAllocator());
-		/*
-		"sort": [
-		    "_doc"
-		]
-		*/
-	}
+		rapidjson::Document json;
+		json.Parse<0>(query.get_query().toStdString().c_str());
 
-	json.AddMember("size", max_result_window, json.GetAllocator());
+		if (slice_count > 1) {
+			rapidjson::Value slice;
+			slice.SetObject();
+			slice.AddMember("id", slice_id, json.GetAllocator());
+			slice.AddMember("max", slice_count, json.GetAllocator());
+			json.AddMember("slice", slice, json.GetAllocator());
+			/*
+			"slice": {
+			    "id": 0,
+			    "max": 12
+			}
+			*/
 
-	// Source filtering
-	std::vector<std::string> columns;
-	const std::string& filter_path = infos.get_filter_path().toStdString();
-	boost::algorithm::split(columns, filter_path, boost::is_any_of(","));
-	rapidjson::Value source;
-	source.SetArray();
-	for (const std::string& column : columns) {
-		rapidjson::Value col;
-		col.SetString(column.c_str(), json.GetAllocator());
-		source.PushBack(col, json.GetAllocator());
-	}
-	json.AddMember("_source", source, json.GetAllocator());
+			rapidjson::Value sort;
+			sort.SetArray();
+			sort.PushBack("_doc", json.GetAllocator());
+			json.AddMember("sort", sort, json.GetAllocator());
+			/*
+			"sort": [
+			    "_doc"
+			]
+			*/
+		}
 
-	rapidjson::StringBuffer strbuf;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
-	json.Accept(writer);
+		json.AddMember("size", max_result_window, json.GetAllocator());
 
-	prepare_query(curl, url, strbuf.GetString());
+		// Source filtering
+		std::vector<std::string> columns;
+		const std::string& filter_path = infos.get_filter_path().toStdString();
+		boost::algorithm::split(columns, filter_path, boost::is_any_of(","));
+		rapidjson::Value source;
+		source.SetArray();
+		for (const std::string& column : columns) {
+			rapidjson::Value col;
+			col.SetString(column.c_str(), json.GetAllocator());
+			source.PushBack(col, json.GetAllocator());
+		}
+		json.AddMember("_source", source, json.GetAllocator());
+
+		rapidjson::StringBuffer strbuf;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+		json.Accept(writer);
+
+		prepare_query(curl, url, strbuf.GetString());
+
+		perform_query(curl, json_buffer, error);
+
+		rapidjson::Document json_scroll;
+		json_scroll.Parse<0>(json_buffer.c_str());
+		const rapidjson::Value* error_type =
+		    rapidjson::Pointer("/error/root_cause/0/type").Get(json_scroll);
+		if (error_type and std::string(error_type->GetString()) == "too_long_frame_exception") {
+			// disable filter_path and retry
+			disable_filter_path = true;
+			json_buffer.clear();
+			pvlogger::warn() << "Disabling 'filter_path' for this request as it caused "
+			                    "'too_long_frame_exception' error"
+			                 << std::endl;
+		} else {
+			res = true;
+		}
+	} while (res == false);
 
 	return true;
 }
@@ -1042,10 +1092,11 @@ bool PVRush::PVElasticsearchAPI::scroll(CURL* curl,
 )
 {
 	if (init) {
-		init_scroll(curl, query, slice_id, slice_count, max_result_window);
+		return init_scroll(curl, query, slice_id, slice_count, max_result_window, json_buffer,
+		                   error);
+	} else {
+		return perform_query(curl, json_buffer, error);
 	}
-
-	return perform_query(curl, json_buffer, error);
 }
 
 bool PVRush::PVElasticsearchAPI::parse_scroll_results(CURL* curl,

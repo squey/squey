@@ -1,3 +1,11 @@
+4.7.6 (2020-01-22)
+------------------
+
+This minor release fixes or improves:
+* address elasticsearch filter_path limitation to avoid crashes
+  when too many columns are selected
+* gracefully disable unsupported elasticsearch types
+
 4.7.5 (2020-01-20)
 ------------------
 
