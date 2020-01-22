@@ -34,6 +34,25 @@ class PVElasticsearchAPI
   public:
 	static constexpr size_t DEFAULT_PORT = 9200;
 
+	// type mapping between elasticsearch and inspector format
+	static const std::unordered_map<std::string, std::string>& types_mapping()
+	{
+		static const std::unordered_map<std::string, std::string> types_mapping = {
+		    {"long", "long"},
+		    {"integer", "integer"},
+		    {"short", "short"},
+		    {"byte", "byte"},
+		    {"double", "number_double"},
+		    {"float", "number_float"},
+		    {"half_float", "number_float"},
+		    {"date", "time"},
+		    {"ip", "ipv6"},
+		    {"text", "string"},
+		    {"keyword", "string"},
+		    {"boolean", "string"}};
+		return types_mapping;
+	}
+
   public:
 	using indexes_t = std::vector<std::string>;
 	using aliases_t = indexes_t;

@@ -192,8 +192,8 @@ static std::string get_filter_path_from_base(CURL* curl,
 	return boost::algorithm::join(absolute_columns, ",");
 }
 
-static std::vector<std::string> get_pointers_from_base(const std::string& filter_path,
-                                                       const std::string& base = {})
+static std::vector<std::string> get_pointers_type_from_base(const std::string& filter_path,
+                                                            const std::string& base = {})
 {
 	std::vector<std::string> relative_columns;
 	boost::algorithm::split(relative_columns, filter_path, boost::is_any_of(","));
@@ -201,7 +201,7 @@ static std::vector<std::string> get_pointers_from_base(const std::string& filter
 	std::vector<std::string> absolute_columns;
 	for (std::string& column : relative_columns) {
 		PVCore::replace(column, ".", "/properties/");
-		absolute_columns.emplace_back(base.empty() ? column : base + "/" + column);
+		absolute_columns.emplace_back(base.empty() ? column : base + "/" + column + "/type");
 	}
 
 	return absolute_columns;
@@ -334,7 +334,8 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 			const std::string& base =
 			    std::string("/") + _infos.get_index().toStdString() + "/mappings/" +
 			    (_mapping_type.empty() ? "" : (_mapping_type + "/")) + "properties";
-			const std::vector<std::string>& pointers = get_pointers_from_base(filter_path, base);
+			const std::vector<std::string>& pointers =
+			    get_pointers_type_from_base(filter_path, base);
 			rapidjson::Document filtered_json;
 			for (const std::string& pointer : pointers) {
 				const rapidjson::Value* filtered = rapidjson::Pointer(pointer.c_str()).Get(json);
@@ -388,22 +389,9 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
     const std::string& filter_path /* = {} */, std::string* error /*= nullptr*/
     ) const
 {
-	// type mapping between elasticsearch and inspector format
-	static const std::unordered_map<std::string, std::string> types_mapping = {
-	    {"long", "long"},
-	    {"integer", "integer"},
-	    {"short", "short"},
-	    {"byte", "byte"},
-	    {"double", "number_double"},
-	    {"float", "number_float"},
-	    {"half_float", "number_float"},
-	    {"date", "time"},
-	    {"ip", "ipv6"},
-	    {"text", "string"},
-	    {"keyword", "string"}};
 	auto map_type = [&](const std::string& type) -> std::string {
-		const auto& it = types_mapping.find(type);
-		if (it != types_mapping.end()) {
+		const auto& it = types_mapping().find(type);
+		if (it != types_mapping().end()) {
 			return it->second;
 		} else {
 			// fallback type for unkown types
@@ -432,9 +420,7 @@ PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns
 
 void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 {
-	std::unordered_set<std::string> numeric_types{{"long", "integer", "short", "byte"}};
-
-	std::unordered_map<std::string, std::string> default_types{{"long", "number_int64"},
+	std::unordered_map<std::string, std::string> numeric_types{{"long", "number_int64"},
 	                                                           {"integer", "number_int32"},
 	                                                           {"short", "number_int16"},
 	                                                           {"byte", "number_int8"}};
@@ -560,7 +546,7 @@ void PVRush::PVElasticsearchAPI::narrow_numeric_types(columns_t& cols) const
 			}
 			cols[index].second.first = smallest_type;
 		} else { // fallback to default type
-			cols[index].second.first = default_types[cols[index].second.first];
+			cols[index].second.first = numeric_types.find(cols[index].second.first)->second;
 		}
 	}
 
@@ -1067,6 +1053,9 @@ bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
 			// disable filter_path and retry
 			disable_filter_path = true;
 			json_buffer.clear();
+			pvlogger::warn() << "Disabling 'filter_path' for this request as it caused "
+			                    "'too_long_frame_exception' error"
+			                 << std::endl;
 		} else {
 			res = true;
 		}

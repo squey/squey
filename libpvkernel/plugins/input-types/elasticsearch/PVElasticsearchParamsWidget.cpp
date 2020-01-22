@@ -125,6 +125,16 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 		tree_item->setExpanded(true);
 		tree_item->setCheckState(0, Qt::Unchecked);
 
+		// disable unsupported types
+		if (not type.empty()) {
+			const auto& it = PVRush::PVElasticsearchAPI::types_mapping().find(type);
+			if (it == PVRush::PVElasticsearchAPI::types_mapping().end()) {
+				tree_item->setFlags(tree_item->flags() &
+				                    ~(Qt::ItemIsEditable | Qt::ItemIsSelectable |
+				                      Qt::ItemIsUserCheckable | Qt::ItemIsEnabled));
+			}
+		}
+
 		if (not is_leaf) { // node
 			parents.emplace_back(tree_item, is_last_child);
 		}
@@ -217,8 +227,10 @@ void PVRush::PVElasticsearchParamsWidget::tree_item_changed(QTreeWidgetItem* ite
 	if (column == 0) {
 		if (item->childCount() > 0) { // node
 			Qt::CheckState check_state = item->checkState(0);
-			visit_columns(item,
-			              [&](QTreeWidgetItem* child) { child->setCheckState(0, check_state); });
+			visit_columns(item, [&](QTreeWidgetItem* child) {
+				if (child->flags() & Qt::ItemIsEnabled)
+					child->setCheckState(0, check_state);
+			});
 		}
 		propagate_check_state(item);
 	}
