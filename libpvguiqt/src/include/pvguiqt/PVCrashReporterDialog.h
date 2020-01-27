@@ -68,23 +68,29 @@ class PVCrashReporterDialog : public QDialog
 	void send_crash()
 	{
 		std::string locking_code = PVCore::PVLicenseActivator::get_locking_code();
-		bool ret = PVCore::PVCrashReportSender::send(_minidump_path, INENDI_CURRENT_VERSION_STR,
-		                                             locking_code);
-		if (not ret) {
+		int ret = PVCore::PVCrashReportSender::send(_minidump_path, INENDI_CURRENT_VERSION_STR,
+		                                            locking_code);
+		if (ret == 413) { // Payload Too Large
+			QMessageBox::critical(this, "Error sending crash report",
+			                      "The crash report size exceeded the server accepted "
+			                      "size.<br>Please, send it by file sharing.");
+		} else if (ret != 0) {
 			QMessageBox::critical(
 			    this, "Error sending crash report",
-			    "Error when sending crash report.<br>Please, check your Internet connection.");
+			    QString("Please, check your Internet connection (HTTP status %1) ").arg(ret));
 		} else {
 			QMessageBox::information(this, "Crash report sent with success",
 			                         "Your crash report was properly sent.<br/>"
 			                         "Thank you for your support, we will do our best to fix this "
 			                         "problem as soon as possible.");
 		}
+
+		accept();
 	}
 
   private:
 	std::string _minidump_path;
 };
-}
+} // namespace PVGuiQt
 
 #endif // __PVGUIQT_PVCRASHREPORTER_H__

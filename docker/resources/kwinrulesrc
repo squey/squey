@@ -11,5 +11,14 @@ wmclass=inendi-inspector
 wmclasscomplete=false
 wmclassmatch=1
 
+[2]
+Description=Settings for inendi-crashreport
+above=true
+aboverule=2
+types=33
+wmclass=inendi-crashreport
+wmclasscomplete=false
+wmclassmatch=1
+
 [General]
-count=1
+count=2

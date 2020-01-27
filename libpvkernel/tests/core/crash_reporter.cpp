@@ -21,15 +21,12 @@ int main()
 	out << "this is the crash report data" << std::endl;
 	std::string version = std::string(INENDI_CURRENT_VERSION_STR) + "_dry-run";
 
-	bool ret1 =
-	    PVCore::PVCrashReportSender::send(minidump_path, version, "1111-*111 1111 1111 1111"); // OK
-	bool ret2 =
-	    PVCore::PVCrashReportSender::send(minidump_path, version, "!!!!-*!!! !!!! !!!! !!!!"); // KO
+	int ret =
+	    PVCore::PVCrashReportSender::send(minidump_path, version, "1111-*111 1111 1111 1111");
 
 	std::remove(minidump_path.c_str());
 
-	PV_ASSERT_VALID(ret1);
-	PV_ASSERT_VALID(not ret2);
+	PV_ASSERT_VALID(ret == 0);
 
 	return 0;
 }
