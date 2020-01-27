@@ -192,6 +192,7 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 		PVCore::PVProgressBox::progress(
 		    [&mapped](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
 		    QObject::tr("Updating mapping..."), nullptr);
+		axisw->refresh_density();
 	});
 	connect(axisw, &PVAxisGraphicsItem::change_plotting, [this, axisw](QString mode) {
 		Inendi::PVPlotted& plotted = _lib_view.get_parent<Inendi::PVPlotted>();
@@ -201,6 +202,7 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 		PVCore::PVProgressBox::progress(
 		    [&plotted](PVCore::PVProgressBox& /*pbox*/) { plotted.update_plotting(); },
 		    QObject::tr("Updating plotting..."), nullptr);
+		axisw->refresh_density();
 	});
 
 	addItem(axisw);
