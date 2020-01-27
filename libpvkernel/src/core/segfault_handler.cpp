@@ -9,10 +9,14 @@
 #include <pvkernel/core/segfault_handler.h>
 
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <pvbase/general.h>
 
 #include <client/linux/handler/exception_handler.h>
 
-static constexpr const char BREAKPAD_MINIDUMP_FOLDER[] = "/tmp";
+#define BREAKPAD_MINIDUMP_FOLDER "/tmp/inendi-inspector_" INENDI_CURRENT_VERSION_STR "_coredumps"
 
 static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
                           void* /*context*/,
@@ -33,6 +37,7 @@ static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
 
 void init_segfault_handler()
 {
+	mkdir(BREAKPAD_MINIDUMP_FOLDER, S_IRWXU | S_IRGRP | S_IXGRP);
 	static google_breakpad::MinidumpDescriptor descriptor(BREAKPAD_MINIDUMP_FOLDER);
 	static google_breakpad::ExceptionHandler eh(descriptor, nullptr, dump_callback, nullptr, true,
 	                                            -1);

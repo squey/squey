@@ -26,9 +26,9 @@ namespace PVCore
 class PVCrashReportSender
 {
   public:
-	static bool send(const std::string& minidump_path,
-	                 const std::string& version,
-	                 const std::string& locking_code)
+	static int send(const std::string& minidump_path,
+	                const std::string& version,
+	                const std::string& locking_code)
 	{
 		struct stat file_info;
 		FILE* fd = fopen(minidump_path.c_str(), "rb");
@@ -86,9 +86,13 @@ class PVCrashReportSender
 		long http_code = 0;
 		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
 
-		return curl_ret == CURLE_OK && http_code == 200;
+		if (http_code == 200) {
+			return 0;
+		} else {
+			return http_code;
+		}
 	}
 };
-}
+} // namespace PVCore
 
 #endif // __PVCRASHREPORTSENDER_H__

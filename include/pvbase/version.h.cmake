@@ -30,7 +30,7 @@ typedef unsigned int version_t;
 #define INENDI_VERSION_STR(major, minor, patch) _INENDI_VERSION_STR(major, minor, patch)
 
 #ifdef INENDI_DEVELOPER_MODE
-#define _INENDI_VERSION_STR(major, minor, patch) #major "." #minor "." #patch " (dev mode)"
+#define _INENDI_VERSION_STR(major, minor, patch) #major "." #minor "." #patch ".dev"
 #else
 #define _INENDI_VERSION_STR(major, minor, patch) #major "." #minor "." #patch
 #endif
