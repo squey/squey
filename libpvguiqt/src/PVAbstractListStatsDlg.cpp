@@ -283,6 +283,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
     , _col(c)
     , _create_model_f(f)
     , _counts_are_integers(counts_are_integers)
+    , _old_sel(_view->get_real_output_selection())
 {
 	QString search_multiples = "search-multiple";
 	Inendi::PVLayerFilter::p_type search_multiple =
@@ -309,12 +310,18 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 		bool use_log_scale = use_logarithmic_scale();
 		PVCombCol sorted_col = model().sorted_col();
 		Qt::SortOrder sort_order = model().sort_order();
-		_model = _create_model_f(*_view, _col, _view->get_real_output_selection());
-		model().set_use_log_scale(use_log_scale);
-		model().set_use_absolute(_act_toggle_absolute->isChecked());
-		_values_view->setModel(_model);
+		auto new_model = _create_model_f(*_view, _col, _view->get_real_output_selection());
+		new_model->set_use_log_scale(use_log_scale);
+		new_model->set_use_absolute(_act_toggle_absolute->isChecked());
+		_values_view->setModel(new_model);
+		_model->deleteLater();
+		_model = new_model;
 
-		_values_view->sortByColumn(sorted_col, sort_order);
+		_old_sel = _view->get_real_output_selection();
+
+		new_model->sort(sorted_col, sort_order);
+		// There may be a problem with our implementation of model/view sorting
+		// to avoid it we sort through the model instead of the view
 
 		_nb_values_edit->setText(QString("%L1").arg(model().size()));
 
@@ -672,7 +679,8 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 		_ctxt_process->show();
 	} else {
 		_selection_change_connection.block();
-		_ctxt_process->preview_Slot();
+		lib_view()->set_selection_view(_old_sel, false);
+		_ctxt_process->save_Slot();
 		_selection_change_connection.unblock();
 	}
 }

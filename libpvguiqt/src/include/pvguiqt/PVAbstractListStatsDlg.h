@@ -180,6 +180,8 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
 	PVCore::PVArgumentList _ctxt_args;
 
+	Inendi::PVSelection _old_sel;
+
   private:
 	/**
 	 * RH: a litle hack to replace a bigger one :-]

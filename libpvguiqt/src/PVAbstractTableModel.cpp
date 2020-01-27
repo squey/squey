@@ -31,6 +31,7 @@ PVAbstractTableModel::PVAbstractTableModel(int row_count, QObject* parent)
     , _end_sel(-1)
     , _in_select_mode(true)
     , _selection_mode(SET)
+	, _sorted_col(0)
 {
 	// Start with empty selection
 	_current_selection.select_none();
