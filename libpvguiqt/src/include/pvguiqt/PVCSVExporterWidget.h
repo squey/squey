@@ -36,6 +36,18 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		QVBoxLayout* right_layout = new QVBoxLayout();
 		_export_layout->addLayout(right_layout);
 
+		// left_layout
+		QCheckBox* export_rows_index = new QCheckBox("Export rows index");
+		QObject::connect(export_rows_index, &QCheckBox::stateChanged, [&](int state) {
+			_exporter.set_export_rows_index(state);
+			if (_selected_radio_button) { // force header regeneration
+				Q_EMIT _selected_radio_button->toggled(_selected_radio_button->isChecked());
+			}
+		});
+
+		export_rows_index->setCheckState(Qt::CheckState::Unchecked);
+		((QVBoxLayout*)_export_layout->itemAt(0)->layout())->insertWidget(1, export_rows_index);
+
 		/// right_layout
 		QButtonGroup* button_group = new QButtonGroup(this);
 
@@ -51,6 +63,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 				}
 				_exporter.set_column_indexes(column_indexes);
 				_exporter.set_header(view.get_axes_combination().get_nraw_names());
+				_selected_radio_button = all_axis;
 			}
 		});
 		right_layout->addWidget(all_axis);
@@ -62,6 +75,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 			if (checked) {
 				_exporter.set_column_indexes(view.get_axes_combination().get_combination());
 				_exporter.set_header(view.get_axes_combination().get_combined_names());
+				_selected_radio_button = current_axis;
 			}
 		});
 		current_axis->setChecked(true);
@@ -75,6 +89,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 			if (checked) {
 				_exporter.set_column_indexes(_custom_axes_combination.get_combination());
 				_exporter.set_header(_custom_axes_combination.get_combined_names());
+				_selected_radio_button = custom_axis;
 			}
 		});
 		QPushButton* edit_axes_combination = new QPushButton("Edit");
@@ -121,11 +136,16 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		PVRush::PVCSVExporter::export_func_f export_func =
 		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 		        const std::string& quote) {
-			    if (_exporter.get_export_internal_values()) {
-				    return plotted.export_line(row, cols, sep, quote);
-			    } else {
-				    return nraw.export_line(row, cols, sep, quote);
+			    std::string exported_row;
+			    if (_exporter.get_export_rows_index()) {
+				    exported_row = std::to_string(row + 1) + sep;
 			    }
+			    if (_exporter.get_export_internal_values()) {
+				    exported_row += plotted.export_line(row, cols, sep, quote);
+			    } else {
+				    exported_row += nraw.export_line(row, cols, sep, quote);
+			    }
+			    return exported_row;
 		    };
 		_exporter.set_export_func(export_func);
 	}
@@ -135,6 +155,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 
   private:
 	Inendi::PVAxesCombination _custom_axes_combination;
+	QRadioButton* _selected_radio_button = nullptr;
 };
 
 } // namespace PVGuiQt

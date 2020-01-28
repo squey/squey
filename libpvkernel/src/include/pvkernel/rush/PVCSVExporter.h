@@ -43,6 +43,9 @@ class PVCSVExporter : public PVRush::PVExporterBase
 	void set_quote_char(const std::string& quote_char) { _quote_char = quote_char; }
 	void set_header(QStringList column_names)
 	{
+		if (_export_rows_index) {
+			column_names.insert(0, "row_index");
+		}
 		PVRush::PVUtils::safe_export(column_names, _sep_char, _quote_char);
 		_header = std::string("#") +
 		          column_names.join(QString::fromStdString(_sep_char)).toStdString() + "\n";
@@ -52,6 +55,7 @@ class PVCSVExporter : public PVRush::PVExporterBase
 		_export_internal_values = export_internal_values;
 	}
 	void set_export_header(bool export_header) { _export_header = export_header; }
+	void set_export_rows_index(bool export_rows_index) { _export_rows_index = export_rows_index; }
 
 	const PVCore::PVColumnIndexes& get_column_indexes() const { return _column_indexes; }
 	PVRow get_total_row_count() const { return _total_row_count; }
@@ -60,6 +64,7 @@ class PVCSVExporter : public PVRush::PVExporterBase
 	const std::string& get_header() const { return _header; }
 	bool get_export_internal_values() const { return _export_internal_values; }
 	bool get_export_header() const { return _export_header; }
+	bool get_export_rows_index() const { return _export_rows_index; }
 
   public:
 	void export_rows(const std::string& file_path, const PVCore::PVSelBitField& sel);
@@ -73,8 +78,9 @@ class PVCSVExporter : public PVRush::PVExporterBase
 	bool _export_header = true;
 	std::string _header;
 	bool _export_internal_values = false;
+	bool _export_rows_index = false;
 };
 
-} // Inendi
+} // namespace PVRush
 
 #endif // __INENDI_PVCSVEXPORTER_H__
