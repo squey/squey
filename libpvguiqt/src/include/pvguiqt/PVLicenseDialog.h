@@ -40,6 +40,8 @@ class PVLicenseDialog : public QDialog
 		QString locking_code =
 		    QString::fromStdString(PVCore::PVLicenseActivator::get_locking_code());
 
+		QString host_id = QString::fromStdString(PVCore::PVLicenseActivator::get_host_id());
+
 		// Title
 		setWindowTitle(title);
 
@@ -95,7 +97,7 @@ class PVLicenseDialog : public QDialog
 			        }
 			        token_text->setText("");
 			        online_radiobutton->setChecked(true);
-			    });
+		        });
 		license_type_combobox->addItems(QStringList{"Trial", "Paid"});
 		auto check_email_valid_f = [=]() {
 			if (online_radiobutton->isChecked()) {
@@ -121,6 +123,8 @@ class PVLicenseDialog : public QDialog
 		offline_groupbox->setLayout(offline_groupbox_layout);
 		offline_layout->addWidget(offline_radiobutton);
 		offline_layout->addWidget(offline_groupbox);
+
+		// locking_code
 		QHBoxLayout* locking_code_layout = new QHBoxLayout;
 		QLineEdit* locking_code_text = new QLineEdit(locking_code);
 		locking_code_text->setFixedWidth(
@@ -137,6 +141,24 @@ class PVLicenseDialog : public QDialog
 		locking_code_layout->addWidget(new QLabel("Locking code: "));
 		locking_code_layout->addWidget(locking_code_text);
 		locking_code_layout->addWidget(copy_locking_code_button);
+
+		// host_id
+		QHBoxLayout* host_id_layout = new QHBoxLayout;
+		QLineEdit* host_id_text = new QLineEdit(host_id);
+		host_id_text->setFixedWidth(QFontMetrics(host_id_text->font()).width(host_id + "  "));
+		host_id_text->setFocusPolicy(Qt::NoFocus);
+		QPushButton* copy_host_id_button = new QPushButton();
+		connect(copy_host_id_button, &QPushButton::clicked,
+		        [=]() { QApplication::clipboard()->setText(host_id); });
+		copy_host_id_button->setToolTip("Copy to clipboard");
+		copy_host_id_button->setIcon(QIcon(":/edit-copy.png"));
+		copy_host_id_button->setFocusPolicy(Qt::NoFocus);
+		copy_host_id_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		host_id_text->setReadOnly(true);
+		host_id_layout->addWidget(new QLabel("Host ID: "));
+		host_id_layout->addWidget(host_id_text);
+		host_id_layout->addWidget(copy_host_id_button);
+
 		QHBoxLayout* license_file_layout = new QHBoxLayout;
 		QPushButton* browse_license_file_button = new QPushButton("...");
 		browse_license_file_button->adjustSize();
@@ -151,8 +173,33 @@ class PVLicenseDialog : public QDialog
 		license_file_layout->addSpacerItem(
 		    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		license_file_layout->addWidget(browse_license_file_button);
+
+		QHBoxLayout* license_server_layout = new QHBoxLayout;
+		license_server_layout->addWidget(new QLabel("License server: "));
+
+		QLineEdit* license_server_line_edit = new QLineEdit("");
+		license_server_line_edit->setToolTip("port@license-server");
+		QRegularExpression server_rx("\\b[0-9]{2,5}@[A-Z0-9.-]+\\b",
+		                             QRegularExpression::CaseInsensitiveOption);
+		license_server_line_edit->setValidator(new QRegularExpressionValidator(server_rx, this));
+		auto check_server_valid_f = [=]() {
+			if (offline_radiobutton->isChecked()) {
+				buttons->button(QDialogButtonBox::Ok)
+				    ->setEnabled(license_server_line_edit->hasAcceptableInput());
+			}
+			offline_radiobutton->setChecked(true);
+		};
+		connect(license_server_line_edit, &QLineEdit::textChanged, check_server_valid_f);
+		license_server_layout->addWidget(license_server_line_edit);
+
 		offline_groupbox_layout->addLayout(locking_code_layout);
+		if (product != "pcap-inspector") {
+			offline_groupbox_layout->addLayout(host_id_layout);
+		}
 		offline_groupbox_layout->addLayout(license_file_layout);
+		if (product != "pcap-inspector") {
+			offline_groupbox_layout->addLayout(license_server_layout);
+		}
 
 		QButtonGroup* radiobutton_group = new QButtonGroup(this);
 		radiobutton_group->addButton(online_radiobutton, 0);
@@ -178,7 +225,13 @@ class PVLicenseDialog : public QDialog
 		connect(buttons, &QDialogButtonBox::accepted, this, [=]() {
 			PVCore::PVLicenseActivator::EError err_code;
 			if (offline_radiobutton->isChecked()) {
-				err_code = offline_activation(_user_license_path, inendi_license_path);
+				if (QFileInfo(_user_license_path).exists()) {
+					err_code = offline_activation(_user_license_path, inendi_license_path);
+				} else { // use license server
+					PVCore::PVLicenseActivator::license_server() =
+					    license_server_line_edit->text().toStdString();
+					err_code = PVCore::PVLicenseActivator::EError::NO_ERROR;
+				}
 			} else {
 				std::string email = token_text->text().toStdString();
 				std::string activation_key = token_text->text().toStdString();
@@ -224,6 +277,26 @@ class PVLicenseDialog : public QDialog
 		PVLicenseDialog dlg(inendi_license_path, product, "Hardware identification error",
 		                    "This license does not allow you to run the software on this "
 		                    "hardware.<br>Please, check you are using the proper license.<br>",
+		                    QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical));
+		return dlg.exec() == QDialog::Accepted;
+	}
+
+	static bool show_memory_exceeded(const QString& inendi_license_path, const QString& product)
+	{
+		PVLicenseDialog dlg(
+		    inendi_license_path, product, "Maximum authorized memory exceeded",
+		    "This license does not allow you to run the software on a machine<br>"
+		    "with such a large amount of memory.<br><br>Please, upgrade your license.<br>",
+		    QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical));
+		return dlg.exec() == QDialog::Accepted;
+	}
+
+	static bool show_unable_to_contact_server_error(const QString& inendi_license_path,
+	                                                const QString& product)
+	{
+		PVLicenseDialog dlg(inendi_license_path, product, "Unable to contact license server",
+		                    "Please check that your license server is properly configured<br>"
+		                    "and accessible.<br>",
 		                    QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical));
 		return dlg.exec() == QDialog::Accepted;
 	}
