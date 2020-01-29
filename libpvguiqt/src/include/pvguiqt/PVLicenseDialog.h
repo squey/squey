@@ -190,6 +190,8 @@ class PVLicenseDialog : public QDialog
 			offline_radiobutton->setChecked(true);
 		};
 		connect(license_server_line_edit, &QLineEdit::textChanged, check_server_valid_f);
+		const QString& license_server = PVCore::PVConfig::value("license_server").toString();
+		license_server_line_edit->setText(license_server);
 		license_server_layout->addWidget(license_server_line_edit);
 
 		offline_groupbox_layout->addLayout(locking_code_layout);
@@ -228,9 +230,10 @@ class PVLicenseDialog : public QDialog
 				if (QFileInfo(_user_license_path).exists()) {
 					err_code = offline_activation(_user_license_path, inendi_license_path);
 				} else { // use license server
-					PVCore::PVLicenseActivator::license_server() =
-					    license_server_line_edit->text().toStdString();
+					const QString& license_server = license_server_line_edit->text();
+					PVCore::PVLicenseActivator::license_server() = license_server.toStdString();
 					err_code = PVCore::PVLicenseActivator::EError::NO_ERROR;
+					PVCore::PVConfig::set_value("license_server", license_server);
 				}
 			} else {
 				std::string email = token_text->text().toStdString();

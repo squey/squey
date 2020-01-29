@@ -144,7 +144,8 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	static QString inendi_license_path = INENDI_GLOBAL_LICENSE_PATH;
 	if (not QFileInfo(inendi_license_path).exists()) {
 		inendi_license_path = QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
-		if (not QFileInfo(inendi_license_path).exists()) {
+		const QString& license_server = PVCore::PVConfig::value("license_server").toString();
+		if (not QFileInfo(inendi_license_path).exists() and license_server.isEmpty()) {
 			if (not PVGuiQt::PVLicenseDialog::show_no_license(
 			        inendi_license_path, QString::fromStdString(product_name))) {
 				return 1;
@@ -155,9 +156,9 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	bool license_ok = false;
 	do {
 		try {
-			std::string license_server = PVCore::PVLicenseActivator::license_server();
-			if (not license_server.empty()) {
-				inendi_license_path = QString::fromStdString(license_server);
+			const QString& license_server = PVCore::PVConfig::value("license_server").toString();
+			if (not license_server.isEmpty()) {
+				inendi_license_path = license_server;
 			}
 
 			Inendi::Utils::License::RAII_InitLicense license_manager(
