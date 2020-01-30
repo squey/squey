@@ -1,3 +1,10 @@
+4.7.8 (2020-01-30)
+------------------
+
+This minor release fixes or improves:
+* network licenses support
+* option to export rows index in CSV exporter
+
 4.7.7 (2020-01-27)
 ------------------
 
