@@ -62,6 +62,10 @@ RUN systemctl enable dcvserver.service
 ARG DCV_LICENSE_SERVER
 RUN sed -i "s/#license-file = \"\"/license-file = \"${DCV_LICENSE_SERVER}\"/g" /etc/dcv/dcv.conf
 
+# Configure INENDI Inspector license server
+ARG INSPECTOR_LICENSE_SERVER
+RUN crudini --set "${INSTALL_PATH}/../inspector.conf" "" "license_server" "${INSPECTOR_LICENSE_SERVER}"
+
 # Configure DCV login handling
 COPY resources/dcvsessioninit /etc/dcv/
 RUN chmod +x /etc/dcv/dcvsessioninit

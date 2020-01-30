@@ -8,7 +8,7 @@ INSTALL_MODE="online"
 [[ -d "data" ]] && INSTALL_MODE="offline"
 
 # Build base image
-docker build --build-arg INSTALL_PATH="${INSTALL_PATH}" --build-arg INSTALL_MODE="${INSTALL_MODE}" --build-arg DCV_LICENSE_SERVER="${DCV_LICENSE_SERVER}" --build-arg APT_PROXY="${APT_PROXY}" . -f resources/Dockerfile -t inendi/inspector
+docker build --build-arg INSTALL_PATH="${INSTALL_PATH}" --build-arg INSTALL_MODE="${INSTALL_MODE}" --build-arg DCV_LICENSE_SERVER="${DCV_LICENSE_SERVER}" --build-arg INSPECTOR_LICENSE_SERVER="${INSPECTOR_LICENSE_SERVER}" --build-arg APT_PROXY="${APT_PROXY}" . -f resources/Dockerfile -t inendi/inspector
 
 # Install INENDI Inspector
 docker run --privileged ${NVIDIA_DOCKER_RUNTIME} --rm --name inspector-install -v /sys/fs/cgroup:/sys/fs/cgroup:ro -d inendi/inspector

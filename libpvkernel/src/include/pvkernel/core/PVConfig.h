@@ -9,6 +9,7 @@
 #define PVCORE_PVCONFIG_H
 
 #include <QString>
+#include <QVariant>
 
 #include <memory>
 
@@ -37,10 +38,17 @@ class PVConfig
 	 */
 	QString get_lists_dir() const;
 
+	QSettings& config() const; // TODO : remove me
+
 	/**
-	 * return a reference on the application's settings
+	 * return a value from the local then global config
 	 */
-	QSettings& config() const;
+	static QVariant value(const QString& name);
+
+	/**
+	 * set a value to the local config
+	 */
+	static void set_value(const QString& name, const QVariant& value);
 
 	/**
 	 * return the current user name
@@ -79,7 +87,8 @@ class PVConfig
 
   private:
 	static PVConfig_p _pvconfig;
-	QSettings* _config;
+	QSettings* _local_config;
+	QSettings* _global_config = nullptr;
 	QString _username;
 	std::string _product_name;
 };

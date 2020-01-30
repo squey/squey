@@ -19,7 +19,8 @@
 #include <QSettings>
 #include <QFileInfo>
 
-constexpr const char* GLOBAL_CONFIG_FILENAME = INENDI_CONFIG "/pvconfig.ini";
+static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/inendi/inspector.conf";
+static constexpr const char LOCAL_CONFIG_FILENAME[] = INENDI_CONFIG "/pvconfig.ini";
 
 PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 
@@ -47,7 +48,7 @@ PVCore::PVConfig::PVConfig()
 	if (!fi.exists()) {
 		fi.dir().mkpath(fi.path());
 
-		QFileInfo sys_fi(GLOBAL_CONFIG_FILENAME);
+		QFileInfo sys_fi(LOCAL_CONFIG_FILENAME);
 
 		if (sys_fi.exists()) {
 			QFile::copy(sys_fi.filePath(), fi.filePath());
@@ -64,7 +65,11 @@ PVCore::PVConfig::PVConfig()
 		              QString::fromStdString(user_dir()) + QDir::separator() + PRESETS_FILENAME);
 	}
 
-	_config = new QSettings(fi.filePath(), QSettings::IniFormat);
+	_local_config = new QSettings(fi.filePath(), QSettings::IniFormat);
+
+	if (QFileInfo(GLOBAL_CONFIG_FILENAME).exists()) {
+		_global_config = new QSettings(GLOBAL_CONFIG_FILENAME, QSettings::IniFormat);
+	}
 
 	_username = qgetenv("USER");
 }
@@ -75,9 +80,14 @@ PVCore::PVConfig::PVConfig()
 
 PVCore::PVConfig::~PVConfig()
 {
-	if (_config != nullptr) {
-		delete _config;
-		_config = nullptr;
+	if (_local_config != nullptr) {
+		delete _local_config;
+		_local_config = nullptr;
+	}
+
+	if (_global_config != nullptr) {
+		delete _global_config;
+		_global_config = nullptr;
 	}
 }
 
@@ -93,6 +103,41 @@ PVCore::PVConfig& PVCore::PVConfig::get()
 	return *_pvconfig;
 }
 
+QSettings& PVCore::PVConfig::config() const
+{
+	return *_local_config;
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::value
+ *****************************************************************************/
+
+QVariant PVCore::PVConfig::value(const QString& name)
+{
+	PVCore::PVConfig& config = get();
+	QVariant value;
+
+	if (config._global_config) {
+		value = config._global_config->value(name);
+	}
+	if (not value.isValid()) {
+		value = config._local_config->value(name);
+	}
+
+	return value;
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::set_value
+ *****************************************************************************/
+
+void PVCore::PVConfig::set_value(const QString& name, const QVariant& value)
+{
+	PVCore::PVConfig& config = get();
+
+	config._local_config->setValue(name, value);
+}
+
 /*****************************************************************************
  * PVCore::PVConfig::get_lists_dir
  *****************************************************************************/
@@ -100,15 +145,6 @@ PVCore::PVConfig& PVCore::PVConfig::get()
 QString PVCore::PVConfig::get_lists_dir() const
 {
 	return _config_dir + QDir::separator() + _lists_folder;
-}
-
-/*****************************************************************************
- * PVCore::PVConfig::config
- *****************************************************************************/
-
-QSettings& PVCore::PVConfig::config() const
-{
-	return *_config;
 }
 
 /*****************************************************************************

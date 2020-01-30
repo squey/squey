@@ -29,6 +29,9 @@
 #include <sstream>
 #include <unordered_map>
 
+// FlexNet
+#include "flexnet/esisw-flex.h"
+
 // REST API documentation : http://34.245.246.226:8080/licensing/docs/
 
 namespace PVCore
@@ -103,8 +106,9 @@ class PVLicenseActivator
 		    std::string("{") +
 		    (email.empty() ? "" : (std::string("   \"email\":\"") + email + "\",")) +
 		    "   \"locking_code\":\"" + locking_code + "\"," + "   \"activation_key\":\"" +
-		    activation_key + "\""
-		                     "}"};
+		    activation_key +
+		    "\""
+		    "}"};
 
 		curl_easy_setopt(curl.get(), CURLOPT_HTTPPOST, true);
 		curl_easy_setopt(curl.get(), CURLOPT_COPYPOSTFIELDS, post_body.c_str());
@@ -181,6 +185,23 @@ class PVLicenseActivator
 		return {};
 	}
 
+	static std::string get_host_id()
+	{
+		flexInitialise();
+
+		std::string host_id(flexGetHostID());
+
+		flexRelease();
+
+		return host_id;
+	}
+
+	static std::string& license_server()
+	{
+		static std::string license_server;
+		return license_server;
+	}
+
   private:
 	bool ensure_license_folder_exists() const
 	{
@@ -205,6 +226,7 @@ class PVLicenseActivator
   private:
 	std::string _inendi_license_path;
 };
-}
+
+} // namespace PVCore
 
 #endif // __PVKERNEL_PVLICENSEACTIVATOR_H__
