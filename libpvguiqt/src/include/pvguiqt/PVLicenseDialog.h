@@ -304,6 +304,17 @@ class PVLicenseDialog : public QDialog
 		return dlg.exec() == QDialog::Accepted;
 	}
 
+	static bool show_no_more_user_token_available_error(const QString& inendi_license_path,
+	                                                    const QString& product)
+	{
+		PVLicenseDialog dlg(
+		    inendi_license_path, product, "Available license count exceeded",
+		    "The number of available license is exceeded<br>"
+		    "Please, close some instances of the application or upgrade your license.<br>",
+		    QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical));
+		return dlg.exec() == QDialog::Accepted;
+	}
+
 	static bool show_license_unknown_error(const QString& inendi_license_path,
 	                                       const QString& product)
 	{

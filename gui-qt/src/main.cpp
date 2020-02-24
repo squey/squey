@@ -183,6 +183,10 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 				PVGuiQt::PVLicenseDialog::show_unable_to_contact_server_error(
 				    inendi_license_path, QString::fromStdString(product_name));
 			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
+			                                STATUS_CODE::NO_MORE_AVAILABLE_USER_TOKEN) {
+				PVGuiQt::PVLicenseDialog::show_no_more_user_token_available_error(
+				    inendi_license_path, QString::fromStdString(product_name));
+			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
 			                                STATUS_CODE::UNKOWN_STATUS) {
 				PVGuiQt::PVLicenseDialog::show_license_unknown_error(
 				    inendi_license_path, QString::fromStdString(product_name));
