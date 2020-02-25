@@ -256,7 +256,7 @@ add_inspector_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} ${ERF_LIBS} FILES e
 add_inspector_test(
 	Trush_erf Trush_erf
 	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.erfh5"
-	"{\"post\":{\"constant\":{\"connectivities\":[\"SHELL\"],\"entityresults\":{\"NODE\":[\"COORDINATE\"],\"SHELL\":[\"Domain\"]}},\"singlestate\":{\"entityresults\":{\"NODE\":[\"Velocity\"]},\"states\":\"3,20\"}}}"
+	"{\"post\":{\"constant\":{\"connectivities\":[\"SHELL\"],\"entityresults\":{\"NODE\":{\"list\":\"\", \"groups\":[\"COORDINATE\"]},\"SHELL\":[\"Domain\"]}},\"singlestate\":{\"entityresults\":{\"NODE\":{\"list\":\"\", \"groups\":[\"Velocity\"]}},\"states\":\"3,20\"}}}"
 	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output1"
 	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output2"
 	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output3"

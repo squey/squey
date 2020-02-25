@@ -250,6 +250,15 @@ class PVERFAPI
 	std::vector<std::pair<rapidjson::Document, std::string>>
 	get_selected_nodes_by_source(const rapidjson::Document& selected_nodes) const
 	{
+
+#if 0
+		rapidjson::StringBuffer buffer;
+		buffer.Clear();
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		selected_nodes.Accept(writer);
+		pvlogger::warn() << "selected_nodes=" << buffer.GetString() << std::endl;
+#endif
+
 		std::vector<std::pair<rapidjson::Document, std::string>> selected_nodes_by_source;
 
 		std::vector<std::tuple<std::string /* pointer */, std::string /* pointer_base */,
@@ -344,7 +353,9 @@ class PVERFAPI
 			format_root->addOneField(QString::fromStdString("entid"),
 			                         erf_type_traits<int_t>::string);
 
-			for (const auto& entity_group : entity_type.value.GetArray()) {
+			const auto& entity_groups = entity_type_name == "NODE" ? entity_type.value["groups"] : entity_type.value;
+
+			for (const auto& entity_group : entity_groups.GetArray()) {
 
 				const std::string& entity_group_name = entity_group.GetString();
 

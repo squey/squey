@@ -7,11 +7,29 @@
 
 #include <pvkernel/core/serialize_numbers.h>
 
+#include <numeric>
+
 #include <pvlogger.h>
 
-std::list<std::pair<size_t, size_t>> PVCore::deserialize_numbers(const std::string& numbers_list)
+size_t PVCore::get_count_from_ranges(const std::vector<std::pair<size_t, size_t>>& ranges)
 {
-	std::list<std::pair<size_t, size_t>> ranges;
+	size_t count = 0;
+
+	for (auto [begin, end] : ranges) {
+		count += end - begin + 1;
+	}
+
+	return count;
+}
+
+namespace __impl
+{
+
+// Inspired from https://github.com/coreutils/coreutils/blob/master/src/set-fields.c
+template <typename R, typename F>
+R deserialize_numbers(const std::string& numbers_list, const F& add_range_f)
+{
+	R ranges;
 
 	size_t initial = 0; // Value of first number in a range.
 	size_t value = 0;   // If nonzero, a number being accumulated.
@@ -59,19 +77,19 @@ std::list<std::pair<size_t, size_t>> PVCore::deserialize_numbers(const std::stri
 				// In any case, 'initial' contains the start of the range.
 				if (not rhs_specified) {
 					// 'n-'.  From 'initial' to end of line.
-					ranges.emplace_back(initial, UINTMAX_MAX);
+					add_range_f(ranges, initial, UINTMAX_MAX);
 				} else {
 					// 'm-n' or '-n' (1-n).
 					if (value < initial) {
 						throw std::runtime_error("invalid decreasing range");
 					}
 
-					ranges.emplace_back(initial, value);
+					add_range_f(ranges, initial, value);
 				}
 				value = 0;
 			} else {
 
-				ranges.emplace_back(value, value);
+				add_range_f(ranges, value, value);
 				value = 0;
 			}
 
@@ -103,7 +121,7 @@ std::list<std::pair<size_t, size_t>> PVCore::deserialize_numbers(const std::stri
 		throw std::runtime_error("missing list of fields");
 	}
 
-	ranges.sort();
+	std::sort(ranges.begin(), ranges.end());
 
 	// Merge range pairs (e.g. `2-5,3-4' becomes `2-5').
 #if 0
@@ -123,13 +141,25 @@ std::list<std::pair<size_t, size_t>> PVCore::deserialize_numbers(const std::stri
 	return ranges;
 }
 
-size_t PVCore::get_count_from_ranges(const std::list<std::pair<size_t, size_t>>& ranges)
+} // namespace __impl
+
+std::vector<std::pair<size_t, size_t>>
+PVCore::deserialize_numbers_as_ranges(const std::string& numbers_list)
 {
-	size_t count = 0;
+	auto add_range_f = [](auto& ranges, size_t begin, size_t end) {
+		ranges.emplace_back(begin, end);
+	};
+	return __impl::deserialize_numbers<std::vector<std::pair<size_t, size_t>>>(numbers_list,
+	                                                                           add_range_f);
+}
 
-	for (auto [begin, end] : ranges) {
-		count += end - begin + 1;
-	}
-
-	return count;
+std::vector<size_t> PVCore::deserialize_numbers_as_values(const std::string& numbers_list)
+{
+	auto add_range_f = [](auto& ranges, size_t begin, size_t end) {
+		size_t old_size = ranges.size();
+		size_t range_count = (end - begin + 1);
+		ranges.resize(ranges.size() + range_count);
+		std::iota(ranges.begin() + old_size, ranges.begin() + old_size + range_count, begin);
+	};
+	return __impl::deserialize_numbers<std::vector<size_t>>(numbers_list, add_range_f);
 }

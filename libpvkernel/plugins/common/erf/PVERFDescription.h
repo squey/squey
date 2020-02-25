@@ -25,9 +25,14 @@ class PVERFDescription : public PVFileDescription
 	    , _name(name)
 	    , _selected_nodes(std::move(selected_nodes))
 	{
+		rapidjson::StringBuffer buffer;
+		buffer.Clear();
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		_selected_nodes.Accept(writer);
+		pvlogger::info() << buffer.GetString() << std::endl;
 	}
 
-  public: // FIXME : not working properly
+  public:
 	QString human_name() const override { return _name; }
 
   public:

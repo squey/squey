@@ -12,6 +12,7 @@
 #include <pvkernel/core/serialize_numbers.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
+#include <QLabel>
 #include <QTreeView>
 #include <QHBoxLayout>
 #include <QSplitter>
@@ -21,6 +22,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QDialogButtonBox>
+#include <QStackedWidget>
 
 #include <pvlogger.h>
 
@@ -55,41 +57,60 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	tree->setAlternatingRowColors(true);
 	tree->expandAll();
 
-#if 0
-	QTextEdit* text = new QTextEdit;
-	QPushButton* export_btn = new QPushButton(">");
-	QPushButton* import_btn = new QPushButton("<");
+	QVBoxLayout* nodes_list_layout = new QVBoxLayout;
+	QLabel* nodes_list_label = new QLabel("Nodes list:");
 
-	QWidget* singlestate_widget = new QWidget;
+	auto store_list_f = [](QTextEdit* text_edit) {
+		// sender() in lambda function is always returning nullptr
+		QModelIndex index = text_edit->property("index").toModelIndex();
+		PVERFTreeItem* item = static_cast<PVERFTreeItem*>(index.internalPointer());
+		item->set_user_data(text_edit->toPlainText());
+	};
 
-	QHBoxLayout* hlayout = new QHBoxLayout;
-	hlayout->addWidget(text);
-	hlayout->addWidget(export_btn);
-	hlayout->addWidget(import_btn);
+	QStackedWidget* nodes_list_stacked_text = new QStackedWidget;
+	QTextEdit* nodes_list_text_constant = new QTextEdit;
+	connect(nodes_list_text_constant, &QTextEdit::textChanged,
+	        std::bind(store_list_f, nodes_list_text_constant));
+	QTextEdit* nodes_list_text_singlestate = new QTextEdit;
+	connect(nodes_list_text_singlestate, &QTextEdit::textChanged,
+	        std::bind(store_list_f, nodes_list_text_singlestate));
+	QTextEdit* states_list_text = new QTextEdit;
+	nodes_list_stacked_text->addWidget(nodes_list_text_constant);
+	nodes_list_stacked_text->addWidget(nodes_list_text_singlestate);
+	nodes_list_stacked_text->addWidget(states_list_text);
 
-	singlestate_widget->setLayout(hlayout);
-
-
-	connect(export_btn, &QPushButton::clicked, [=]() {
-		rapidjson::Document doc = _model->save();
-
-		rapidjson::StringBuffer buffer;
-		buffer.Clear();
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-		doc.Accept(writer);
-		text->setText(buffer.GetString());
-	});
-
-	connect(import_btn, &QPushButton::clicked, [=]() {
-		const QString& json = text->toPlainText();
-		rapidjson::Document selection;
-		selection.Parse<0>(json.toStdString().c_str());
-		tree->select(selection);
-	});
-#endif
+	nodes_list_layout->addWidget(nodes_list_label);
+	nodes_list_layout->addWidget(nodes_list_stacked_text);
+	QWidget* nodes_list_widget = new QWidget;
+	nodes_list_widget->setLayout(nodes_list_layout);
+	nodes_list_widget->setVisible(false);
 
 	splitter->addWidget(tree);
-	// splitter->addWidget(singlestate_widget);
+	splitter->addWidget(nodes_list_widget);
+	splitter->setStretchFactor(0, 2);
+	splitter->setStretchFactor(1, 1);
+
+	connect(tree, &PVRush::PVERFTreeView::current_changed,
+	        [=](const QModelIndex& current, const QModelIndex& /*previous*/) {
+		        size_t index = 0;
+		        static const std::unordered_map<std::string, size_t> text_index_map = {
+		            {"post.constant.entityresults.NODE", index++},
+		            {"post.singlestate.entityresults.NODE", index++},
+		            {"post.singlestate.states", index++}};
+		        if (current.isValid()) {
+			        PVERFTreeItem* item = static_cast<PVERFTreeItem*>(current.internalPointer());
+			        if (item->type() == PVERFTreeItem::EType::NODE or
+			            item->type() == PVERFTreeItem::EType::STATES) {
+				        QWidget* widget = nodes_list_stacked_text->widget(
+				            text_index_map.at(item->path().toStdString()));
+				        widget->setProperty("index", current);
+				        nodes_list_stacked_text->setCurrentWidget(widget);
+				        nodes_list_widget->setVisible(true);
+				        return;
+			        }
+		        }
+		        nodes_list_widget->setVisible(false);
+	        });
 
 	QDialogButtonBox* dialog_buttons =
 	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

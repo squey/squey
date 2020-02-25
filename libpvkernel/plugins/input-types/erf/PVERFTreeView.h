@@ -22,6 +22,8 @@ namespace PVRush
 
 class PVERFTreeView : public QTreeView
 {
+	Q_OBJECT;
+
   public:
 	PVERFTreeView(PVRush::PVERFTreeModel* model, QWidget* parent = 0)
 	    : QTreeView(parent), _model(model)
@@ -79,8 +81,8 @@ class PVERFTreeView : public QTreeView
 					    if (item->type() != PVERFTreeItem::EType::STATES) {
 						    return child;
 					    } else {
-						    std::list<std::pair<size_t, size_t>> l =
-						        PVCore::deserialize_numbers(child->GetString());
+						    std::vector<std::pair<size_t, size_t>> l =
+						        PVCore::deserialize_numbers_as_ranges(child->GetString());
 						    QItemSelection selection;
 						    for (auto [begin, end] : l) {
 							    selection.select(_model->index(begin, 0, index),
@@ -160,6 +162,15 @@ class PVERFTreeView : public QTreeView
 		set_item_state(parent, parent_state);
 		set_parents_state(parent);
 	}
+
+	void currentChanged(const QModelIndex& current, const QModelIndex& previous) override
+	{
+		QTreeView::currentChanged(current, previous);
+		Q_EMIT current_changed(current, previous);
+	}
+
+  Q_SIGNALS:
+	void current_changed(const QModelIndex&, const QModelIndex&);
 
   private:
 	PVRush::PVERFTreeModel* _model;

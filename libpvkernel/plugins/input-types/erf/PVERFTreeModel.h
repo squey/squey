@@ -24,7 +24,7 @@ namespace PVRush
 class PVERFTreeItem
 {
   public:
-	enum class EType { UNKOWN, STATES };
+	enum class EType { UNKOWN, NODE, STATES };
 
   public:
 	explicit PVERFTreeItem(const QList<QVariant>& data, bool is_node, PVERFTreeItem* parent = 0);
@@ -44,6 +44,10 @@ class PVERFTreeItem
 	PVERFTreeItem* parent() { return const_cast<PVERFTreeItem*>(std::as_const(*this).parent()); }
 
 	QVariant data(int column) const;
+
+	void set_user_data(const QVariant& user_data) { _user_data = user_data; }
+	const QVariant& user_data() const { return _user_data; }
+
 	QString path() const;
 	bool is_path(const QString& path) const;
 
@@ -66,6 +70,7 @@ class PVERFTreeItem
 	std::vector<PVERFTreeItem*> _children;
 
 	QList<QVariant> _data;
+	QVariant _user_data;
 	Qt::CheckState _state = Qt::CheckState::Unchecked;
 	bool _is_node;
 	EType _type = EType::UNKOWN;

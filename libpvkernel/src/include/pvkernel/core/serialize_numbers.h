@@ -14,6 +14,7 @@
 #include <iostream>
 #include <iterator>
 #include <cstddef>
+#include <algorithm>
 
 #define DECIMAL_DIGIT_ACCUMULATE(Accum, Digit_val, Type)                                           \
 	((void)(&(Accum) == (Type*)NULL), /* The type matches.  */ /* The type is unsigned.  */        \
@@ -62,10 +63,11 @@ T* end(T (&array)[n])
 	return array + n;
 }
 
-// Inspired from https://github.com/coreutils/coreutils/blob/master/src/set-fields.c
-std::list<std::pair<size_t, size_t>> deserialize_numbers(const std::string& numbers_list);
+std::vector<std::pair<size_t, size_t>>
+deserialize_numbers_as_ranges(const std::string& numbers_list);
+std::vector<size_t> deserialize_numbers_as_values(const std::string& numbers_list);
 
-size_t get_count_from_ranges(const std::list<std::pair<size_t, size_t>>& ranges);
+size_t get_count_from_ranges(const std::vector<std::pair<size_t, size_t>>& ranges);
 
 } // namespace PVCore
 

@@ -194,6 +194,9 @@ bool PVRush::PVERFTreeModel::load(const QString& path)
 		        new PVERFTreeItem(QList<QVariant>({name.c_str()}), not is_leaf, parent);
 		    if (item->is_path("post.singlestate.states")) {
 			    item->set_type(PVRush::PVERFTreeItem::EType::STATES);
+		    } else if (item->is_path("post.constant.entityresults.NODE") or
+		               item->is_path("post.singlestate.entityresults.NODE")) {
+			    item->set_type(PVRush::PVERFTreeItem::EType::NODE);
 		    }
 		    return item;
 	    });
@@ -211,7 +214,7 @@ rapidjson::Document PVRush::PVERFTreeModel::save() const
 		    PVERFTreeItem* item = static_cast<PVERFTreeItem*>(index.internalPointer());
 
 		    rapidjson::Value node_name;
-		    const std::string& name = index.data().toString().toStdString();
+		    std::string name = index.data().toString().toStdString();
 		    node_name.SetString(name.c_str(), alloc);
 
 		    if (item->is_node()) {
@@ -219,6 +222,29 @@ rapidjson::Document PVRush::PVERFTreeModel::save() const
 				    rapidjson::Value val;
 				    if (item->children_are_leafs()) {
 					    val.SetArray();
+					    if (item->type() ==
+					        PVERFTreeItem::EType::NODE) { // embed NODE groups in "groups" object
+						    val.SetObject();
+
+						    // "list"
+						    rapidjson::Value node_list;
+						    node_list.SetString(item->user_data().toString().toStdString().c_str(),
+						                        alloc);
+						    val.AddMember("list", node_list, alloc);
+
+						    // "groups"
+						    rapidjson::Value groups_array;
+						    groups_array.SetArray();
+						    rapidjson::Value groups_name;
+						    const std::string& groups_name_str = "groups";
+						    groups_name.SetString(groups_name_str.c_str(), alloc);
+						    val.AddMember(groups_name, groups_array, alloc);
+
+						    parent->AddMember(node_name, val, alloc);
+						    rapidjson::Value* child =
+						        &(*parent)[name.c_str()][groups_name_str.c_str()];
+						    return child;
+					    }
 				    } else {
 					    val.SetObject();
 				    }
