@@ -50,6 +50,8 @@ PVRush::PVOpcUaSource::PVOpcUaSource(PVRush::PVInputDescription_p input)
 			qDebug() << "PVOpcUaSource: Unknown type:" << deserialized_query[3 * i + 1];
 		}
 	}
+
+	setup_query();
 }
 
 QString PVRush::PVOpcUaSource::human_name()
@@ -69,7 +71,8 @@ size_t PVRush::PVOpcUaSource::get_size() const
 PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
 {
 	if (_current_chunk == 0) {
-		fill_sourcetime();
+
+		std::vector<bool> has_data(_query_nb_of_times, false);
 
 		for (size_t node = 0; node < _nodes_count; ++node) {
 			auto& [node_data, node_datatype] = _data[node];
@@ -80,7 +83,7 @@ PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
 			size_t current_time_index = 0;
 			_api.read_node_history(
 			    _node_ids[node], _query_start, _query_end,
-			    [this, elm_size, &node_data, &node_datatype, &current_time,
+			    [this, &has_data, elm_size, &node_data, &node_datatype, &current_time,
 			     &current_time_index](UA_HistoryData* data) {
 				    for (size_t i = 0; i < data->dataValuesSize; ++i) {
 					    auto& dataval = data->dataValues[i];
@@ -122,8 +125,9 @@ PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
 						node_data.resize(old_size + elm_size);
 						memcpy(node_data.data() + old_size, dataval.value.data,
 								elm_size);
-						current_time += _query_interval;
-						++current_time_index;
+					    has_data[current_time_index] = true;
+					    current_time += _query_interval;
+					    ++current_time_index;
 				    }
 				    return true;
 			    });
@@ -139,6 +143,32 @@ PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
 				}
 			}
 		}
+
+		for (size_t node = 0; node < _nodes_count; ++node) {
+			auto& [node_data, node_datatype] = _data[node];
+			const size_t elm_size = node_datatype->memSize;
+			size_t consolidated_data = 0;
+			for (size_t i = 0; i < has_data.size();) {
+				const size_t yes_data_start = i;
+				while (i < has_data.size() and has_data[i] == true) {
+					++i;
+				}
+				memmove(node_data.data() + consolidated_data * elm_size, node_data.data() + yes_data_start * elm_size, (i - yes_data_start) * elm_size);
+				consolidated_data += i - yes_data_start;
+				qDebug() << "Consolidated:" << consolidated_data << "/" << yes_data_start << "/" << i;
+				while (i < has_data.size() and has_data[i] == false) {
+					++i;
+				}
+			}
+			node_data.resize(consolidated_data * elm_size);
+			if (node_data.size() == std::count(begin(has_data), end(has_data), true) * elm_size) {
+				qDebug() << "OK reduction!";
+			} else {
+				qDebug() << "BAD reduction!";
+			}
+		}
+
+		fill_sourcetime(_query_start, has_data);
 	}
 
 	if (_current_chunk > 0) {
@@ -177,12 +207,8 @@ PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
 	throw std::logic_error("Unimplemented");
 }
 
-void PVRush::PVOpcUaSource::fill_sourcetime()
+void PVRush::PVOpcUaSource::setup_query()
 {
-	static const UA_DateTimeStruct time_zero_dts = UA_DateTime_toStruct(0);
-	static const boost::posix_time::ptime time_zero(
-	    boost::gregorian::date(time_zero_dts.year, time_zero_dts.month, time_zero_dts.day));
-
 	UA_DateTime first_historical_datetime = UA_DateTime_now();
 	std::cout << "node_ids:" << _node_ids.size() << " now():" << first_historical_datetime
 	          << std::endl;
@@ -198,20 +224,30 @@ void PVRush::PVOpcUaSource::fill_sourcetime()
 
 	//_query_start = UA_DateTime(0);// UA_DateTime_now() - 6000 * UA_DATETIME_SEC;
 	_query_end = UA_DateTime_now();
-	_query_interval = 20 * UA_DATETIME_SEC;
+	_query_interval = 200*UA_DATETIME_MSEC;
 	_query_nb_of_times = (_query_end - _query_start) / _query_interval + 1;
 	qDebug() << "QUERY_START";
 	PVOpcUaAPI::print_datetime(_query_start);
 	qDebug() << "QUERY_END";
 	PVOpcUaAPI::print_datetime(_query_end);
 	qDebug() << _query_start << _query_end << _query_nb_of_times;
+}
 
-	_sourcetimes.reserve(_query_nb_of_times);
+void PVRush::PVOpcUaSource::fill_sourcetime(UA_DateTime start_time,
+                                            std::vector<bool> const& has_data)
+{
+	static const UA_DateTimeStruct time_zero_dts = UA_DateTime_toStruct(0);
+	static const boost::posix_time::ptime time_zero(
+	    boost::gregorian::date(time_zero_dts.year, time_zero_dts.month, time_zero_dts.day));
 
-	for (size_t i = 0; i < _query_nb_of_times; ++i) {
-		_sourcetimes.emplace_back(
-		    time_zero +
-		    boost::posix_time::microsec((_query_start + (i * _query_interval)) / UA_DATETIME_USEC));
+	_sourcetimes.reserve(std::count(begin(has_data), end(has_data), true));
+
+	for (size_t i = 0; i < has_data.size(); ++i) {
+		if (has_data[i] == true) {
+			_sourcetimes.emplace_back(
+				time_zero +
+				boost::posix_time::microsec((start_time + (i * _query_interval)) / UA_DATETIME_USEC));
+		}
 	}
 }
 

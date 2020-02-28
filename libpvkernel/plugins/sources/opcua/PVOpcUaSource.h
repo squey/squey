@@ -38,7 +38,9 @@ class PVOpcUaSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
   protected:
 	chunk_index _next_index;
 
-	void fill_sourcetime();
+	void setup_query();
+
+	void fill_sourcetime(UA_DateTime start_time, std::vector<bool> const& has_data);
 
   private:
 	PVOpcUaQuery& _query;
