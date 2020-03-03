@@ -30,6 +30,8 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <pvkernel/widgets/PVMultipleFileDialog.h>
+
 PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent)
 {
 	QScreen* screen = QGuiApplication::primaryScreen();
@@ -42,16 +44,16 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	QSplitter* splitter = new QSplitter(Qt::Horizontal);
 	splitter->setFixedSize(QSize(width / 3, height / 2));
 
-	QString erf_path = PVWidgets::PVFileDialog::getOpenFileName(this, tr("Open ERF file"), "",
-	                                                            tr("ERF files (*.erf, *.erfh5"));
+	_paths = PVWidgets::PVMultipleFileDialog::getOpenFileNames(this, tr("Open ERF file"), "",
+	                                                           tr("ERF files (*.erf, *.erfh5)"));
 
-	if (erf_path.isEmpty()) {
+	if (_paths.isEmpty()) {
 		setResult(QDialog::Rejected);
 		return;
 	}
 	setResult(QDialog::Accepted);
 
-	_model.reset(new PVRush::PVERFTreeModel(erf_path));
+	_model.reset(new PVRush::PVERFTreeModel(_paths.front()));
 	PVRush::PVERFTreeView* tree = new PVRush::PVERFTreeView(_model.get(), parent);
 	tree->setSelectionMode(QAbstractItemView::MultiSelection);
 	tree->setAlternatingRowColors(true);
@@ -128,10 +130,6 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>>
 PVRush::PVERFParamsWidget::get_sources_info() const
 {
-	return PVERFAPI(_model->path().toStdString()).get_sources_info(_model->save());
-}
-
-QString PVRush::PVERFParamsWidget::path() const
-{
-	return _model->path();
+	return PVERFAPI(_paths.front().toStdString())
+	    .get_sources_info(_model->save(), _paths.size() > 1);
 }

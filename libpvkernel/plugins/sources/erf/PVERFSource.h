@@ -67,7 +67,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
   public:
 	PVERFSource(PVInputDescription_p input)
 	    : _input_desc(dynamic_cast<PVRush::PVERFDescription*>(input.get()))
-	    , _erf(_input_desc->path().toStdString())
+	    , _files_path(_input_desc->paths())
+	    , _erf(_files_path.front().toStdString())
 	    , _selected_nodes(_input_desc->selected_nodes())
 
 	{
@@ -101,7 +102,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	QString human_name() override { return "ERF"; }
 	void seek_begin() override {}
 	void prepare_for_nelts(chunk_index nelts) override {}
-	size_t get_size() const override { return _source_row_count * MEGA; }
+	size_t get_size() const override { return _source_row_count * MEGA * _files_path.size(); }
 	PVCore::PVBinaryChunk* operator()() override
 	{
 		if (_first_chunk != nullptr) {
@@ -111,9 +112,17 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 		}
 
 		if (_source_start_row >= _source_row_count) {
-			return nullptr;
+			if (_current_file_index == _files_path.size() - 1) {
+				return nullptr;
+			} else { // load next file
+				_erf.set_path(_files_path[++_current_file_index].toStdString());
+				_source_start_row = _state_start_row = _range_index = 0;
+				_current_states_range = _selected_states.begin();
+				_state_id = _current_states_range->first;
+			}
 		}
 
+		size_t nraw_start_row = (_current_file_index * _source_row_count) + _source_start_row;
 		ERF_INT row_count = 0;
 
 		PVCore::PVBinaryChunk* chunk = nullptr;
@@ -157,7 +166,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 			}
 
 			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::int_t>(
-			    std::move(_ids), std::move(results), row_count, _source_start_row);
+			    _files_path.size(), _current_file_index, std::move(_ids), std::move(results),
+			    row_count, nraw_start_row);
 		}
 
 		const rapidjson::Value* constant_entityresults =
@@ -171,7 +181,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 			                 _ids[0].begin() + _state_start_row + row_count);
 
 			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
-			    std::move(ids), std::move(results), row_count, _source_start_row);
+			    _files_path.size(), _current_file_index, std::move(ids), std::move(results),
+			    row_count, nraw_start_row);
 
 			_state_start_row += row_count;
 		}
@@ -203,7 +214,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 			                 _ids[0].begin() + _state_start_row + row_count);
 
 			chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
-			    std::move(ids), std::move(results), row_count, _source_start_row);
+			    _files_path.size(), _current_file_index, std::move(ids), std::move(results),
+			    row_count, nraw_start_row);
 
 			if (_state_start_row >= _state_row_count) {
 				if (_state_id == _current_states_range->second) {
@@ -322,6 +334,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 
   private:
 	PVRush::PVERFDescription* _input_desc;
+	QStringList _files_path;
+	size_t _current_file_index = 0;
 
 	// source
 	size_t _source_start_row = 0;

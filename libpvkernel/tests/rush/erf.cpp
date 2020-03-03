@@ -50,11 +50,13 @@ int main(int argc, char** argv)
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("erf");
 
 	size_t ref_index = 0;
-	for (auto& [selected_nodes, source_name, format] : erf.get_sources_info(selected_nodes)) {
+	for (auto& [selected_nodes, source_name, format] :
+	     erf.get_sources_info(selected_nodes, false)) {
 
 		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
-		PVRush::PVERFDescription* erf_desc = new PVRush::PVERFDescription(
-		    QString::fromStdString(erf_file), source_name.c_str(), std::move(selected_nodes));
+		PVRush::PVERFDescription* erf_desc =
+		    new PVRush::PVERFDescription(QStringList{QString::fromStdString(erf_file)},
+		                                 source_name.c_str(), std::move(selected_nodes));
 		list_inputs << PVRush::PVInputDescription_p(erf_desc);
 
 		PVRush::PVNraw nraw;

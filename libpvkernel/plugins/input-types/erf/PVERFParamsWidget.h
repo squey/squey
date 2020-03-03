@@ -28,12 +28,13 @@ class PVERFParamsWidget : public QDialog
 
   public:
 	std::vector<QDomDocument> get_formats();
-	QString path() const;
+	QStringList paths() const { return _paths; }
 	std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>>
 	get_sources_info() const;
 
   private:
 	std::unique_ptr<PVRush::PVERFTreeModel> _model;
+	QStringList _paths;
 };
 
 } // namespace PVRush

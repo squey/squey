@@ -51,6 +51,10 @@ template <>
 struct erf_type_traits<int64_t> {
 	static constexpr const char* string = "number_int64";
 };
+template <>
+struct erf_type_traits<uint16_t> {
+	static constexpr const char* string = "number_uint16";
+};
 
 class PVERFAPI
 {
@@ -74,8 +78,8 @@ class PVERFAPI
   public:
 	PVERFAPI(const std::string& erf_path)
 	{
-		_filer = 0;
-		_stage = 0;
+		_filer = nullptr;
+		_stage = nullptr;
 		_lib_Initialized = false;
 		_stage_name = "post";
 
@@ -84,13 +88,24 @@ class PVERFAPI
 
 		if (Status == ERF_SUCCESS) {
 			_lib_Initialized = true;
+			set_path(erf_path);
+		}
+	}
+
+	bool set_path(const std::string& erf_path)
+	{
+		if (_lib_Initialized) {
 			// Create a filer interface
 			ErfOpenMode Mode = ERF_READ;
+			delete _filer;
+			ErfErrorCode Status;
 			_filer = ErfFactory::CreateFiler(erf_path, ERF_READ, Status);
-			if (Status == 0 && _filer) {
+			if (Status == ERF_SUCCESS and _filer) {
 				_stage = _filer->GetStage(_stage_name);
 			}
+			return true;
 		}
+		return false;
 	}
 
 	~PVERFAPI() { delete _filer; }
@@ -193,10 +208,10 @@ class PVERFAPI
  
   public:
     std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>>
-    get_sources_info(const rapidjson::Document& selected_nodes) const
+    get_sources_info(const rapidjson::Document& selected_nodes, bool multi_inputs) const
 	{
 		auto descs = get_selected_nodes_by_source(selected_nodes);
-		auto formats = get_formats_from_selected_nodes(selected_nodes);
+		auto formats = get_formats_from_selected_nodes(selected_nodes, multi_inputs);
 
 		assert(descs.size() == formats.size());
 
@@ -210,7 +225,7 @@ class PVERFAPI
 
   private:
 	std::vector<QDomDocument>
-	get_formats_from_selected_nodes(const rapidjson::Document& selected_nodes) const
+	get_formats_from_selected_nodes(const rapidjson::Document& selected_nodes, bool multi_inputs) const
 	{
 		std::vector<QDomDocument> formats;
 		std::vector<ERF_INT> state_ids;
@@ -219,19 +234,19 @@ class PVERFAPI
 		const rapidjson::Value* constant_connectivities =
 		    rapidjson::Pointer("/post/constant/connectivities").Get(selected_nodes);
 		if (constant_connectivities) {
-			add_connectivities(formats, constant_connectivities);
+			add_connectivities(formats, constant_connectivities, multi_inputs);
 		}
 
 		const rapidjson::Value* constant_entityresults =
 		    rapidjson::Pointer("/post/constant/entityresults").Get(selected_nodes);
 		if (constant_entityresults) {
-			add_entityresults(0, formats, constant_entityresults);
+			add_entityresults(0, formats, constant_entityresults, multi_inputs);
 		}
 
 		const rapidjson::Value* singlestate_entityresults =
 		    rapidjson::Pointer("/post/singlestate/entityresults").Get(selected_nodes);
 		if (singlestate_entityresults) {
-			add_entityresults(state_ids[1], formats, singlestate_entityresults);
+			add_entityresults(state_ids[1], formats, singlestate_entityresults, multi_inputs);
 		}
 
 #if 0
@@ -312,11 +327,17 @@ class PVERFAPI
 
   private:
 	void add_connectivities(std::vector<QDomDocument>& formats,
-	                        const rapidjson::Value* connectivities) const
+	                        const rapidjson::Value* connectivities,
+							bool multi_inputs) const
 	{
 		formats.emplace_back(QDomDocument());
 		std::unique_ptr<PVXmlTreeNodeDom> format_root(
 		    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
+
+		if (multi_inputs) {
+			format_root->addOneField(QString::fromStdString("input"),
+			                         erf_type_traits<uint16_t>::string); //  FIXME use pvcop "string" type
+		}
 
 		for (const auto& entity_type : connectivities->GetArray()) {
 			std::string entity_type_name = entity_type.GetString();
@@ -336,7 +357,8 @@ class PVERFAPI
 
 	void add_entityresults(ERF_INT state_id,
 	                       std::vector<QDomDocument>& formats,
-	                       const rapidjson::Value* entityresults) const
+	                       const rapidjson::Value* entityresults,
+						   bool multi_inputs) const
 	{
 		for (const auto& entity_type : entityresults->GetObject()) {
 			const std::string& entity_type_name = entity_type.name.GetString();
@@ -344,6 +366,11 @@ class PVERFAPI
 			formats.emplace_back(QDomDocument());
 			std::unique_ptr<PVXmlTreeNodeDom> format_root(
 			    PVRush::PVXmlTreeNodeDom::new_format(formats.back()));
+
+			if (multi_inputs) {
+				format_root->addOneField(QString::fromStdString("input"),
+			                             erf_type_traits<uint16_t>::string); //  FIXME use pvcop "string" type
+			}
 
 			if (state_id > 0) {
 				format_root->addOneField(QString::fromStdString("state"),
@@ -386,9 +413,9 @@ class PVERFAPI
 
   private:
 	std::string _stage_name;
-	bool _lib_Initialized;
-	ErfFilerIPtr _filer;
-	ErfStageIPtr _stage;
+	bool _lib_Initialized = false;
+	ErfFilerIPtr _filer = nullptr;
+	ErfStageIPtr _stage = nullptr;
 };
 
 } // namespace PVRush

@@ -24,7 +24,7 @@ bool PVRush::PVInputTypeERF::createWidget(hash_formats& formats,
 	size_t source_index = 0;
 	for (auto& [selected_nodes, source_name, format] : params->get_sources_info()) {
 		PVRush::PVERFDescription* desc = new PVRush::PVERFDescription(
-		    params->path(), source_name.c_str(), std::move(selected_nodes));
+		    params->paths(), source_name.c_str(), std::move(selected_nodes));
 		PVInputDescription_p ind(desc);
 		inputs.push_back(ind);
 		formats[QString("custom") + QString::number(source_index++)] = std::move(format);
