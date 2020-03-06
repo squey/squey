@@ -31,6 +31,10 @@ R deserialize_numbers(const std::string& numbers_list, const F& add_range_f)
 {
 	R ranges;
 
+	if (numbers_list.empty()) {
+		return ranges;
+	}
+
 	size_t initial = 0; // Value of first number in a range.
 	size_t value = 0;   // If nonzero, a number being accumulated.
 	bool lhs_specified = false;

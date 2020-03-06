@@ -17,6 +17,7 @@
 #include <QTextStream>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/core/serialize_numbers.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
@@ -221,6 +222,91 @@ class PVERFAPI
 		}
 
 		return infos;
+	}
+
+	size_t memory_size(const rapidjson::Document& selected_nodes, size_t files_count) const 
+	{
+		size_t input_size = files_count > 1 ? sizeof(uint16_t) : 0;
+
+		size_t connectivity_size = 0;
+		const rapidjson::Value* connectivities = rapidjson::Pointer("/post/constant/connectivities").Get(selected_nodes);
+		if (connectivities) {
+			ErfElementIList element_list;
+			ErfErrorCode Status = _stage->GetElementList(0, element_list);
+			for (int i = 0; i < element_list.size(); i++) {
+				ErfElementI* element = element_list[i];
+				ERF_INT row_count;
+				ERF_INT node_per_elem;
+				ERF_INT dim_count;
+				element->ReadHeader(row_count, node_per_elem, dim_count);
+
+				 // (input) + "idele", "pid", "entity" + plotted
+				connectivity_size += (row_count * node_per_elem) * ((input_size + 3 * sizeof(int_t)) + (4 + (files_count > 1)) * sizeof(uint32_t));
+			}
+		}
+
+		auto entityresults_size = [&](const std::string& pointer, size_t state_id) {
+			size_t entityresults_size = 0;
+			const rapidjson::Value* entityresults = rapidjson::Pointer(pointer.c_str()).Get(selected_nodes);
+			if (entityresults) {
+				for (const auto& entity_type : entityresults->GetObject()) {
+					const std::string& entity_type_name = entity_type.name.GetString();
+					const auto& entity_groups = entity_type_name == "NODE" ? entity_type.value["groups"] : entity_type.value;
+
+					size_t nodes_count = 0;
+					if (entity_type_name == "NODE") {
+						const std::string& list =  entity_type.value["list"].GetString();
+						try {
+							const auto& ranges = PVCore::deserialize_numbers_as_ranges(list);
+							nodes_count = PVCore::get_count_from_ranges(ranges);
+						} catch (...) {
+						}
+					}
+
+					ERF_INT state_row_count;
+					for (const auto& entity_group : entity_groups.GetArray()) {
+						const std::string& entity_group_name = entity_group.GetString();
+						std::vector<EString> zones;
+						_stage->GetContourZones(state_id, ENTITY_RESULT, entity_type_name, entity_group_name, zones);
+						for (const std::string& zone : zones) {
+							ErfResultIPtr result = nullptr;
+							ErfErrorCode Status = _stage->GetContourResult(
+								state_id, ENTITY_RESULT, entity_type_name, entity_group_name, zone, result);
+
+							EString entity_type;
+							ERF_INT node_per_elem;
+							result->ReadHeader(entity_type, state_row_count, node_per_elem);
+
+							if (nodes_count == 0) {
+								nodes_count = state_row_count;
+							}
+							// FIXME disable if count or max is invalid
+
+							entityresults_size += (nodes_count * node_per_elem) * ((sizeof(float_t) + sizeof(uint32_t)));
+						}
+					}
+					entityresults_size += nodes_count * (input_size + 2 * sizeof(int_t) + (2 + files_count > 1) * sizeof(uint32_t));
+				}
+			}
+
+			return entityresults_size;
+		};
+
+		size_t constant_entityresults_size = entityresults_size("/post/constant/entityresults", 0);
+		size_t singlestate_entityresults_size = entityresults_size("/post/singlestate/entityresults", 1);
+		
+		size_t states_count = 0;
+		const rapidjson::Value* states = rapidjson::Pointer("/post/singlestate/states").Get(selected_nodes);
+		if (states) {
+			const std::string& states_list = states->GetString();
+			try {
+				const auto& ranges = PVCore::deserialize_numbers_as_ranges(states_list);
+				states_count = PVCore::get_count_from_ranges(ranges);
+			} catch (...) {
+			}
+		}
+
+		return files_count * (connectivity_size + constant_entityresults_size + (singlestate_entityresults_size * states_count));
 	}
 
   private:

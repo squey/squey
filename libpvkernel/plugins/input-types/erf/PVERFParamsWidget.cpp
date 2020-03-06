@@ -7,10 +7,13 @@
 
 #include "PVERFParamsWidget.h"
 #include "PVERFTreeView.h"
-#include "../../common/erf/PVERFAPI.h"
 
 #include <pvkernel/core/serialize_numbers.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVUtils.h>
+#include <pvkernel/widgets/PVMultipleFileDialog.h>
+#include <pvkernel/widgets/PVUtils.h>
 
 #include <QLabel>
 #include <QTreeView>
@@ -23,14 +26,14 @@
 #include <QScreen>
 #include <QDialogButtonBox>
 #include <QStackedWidget>
+#include <QStatusBar>
+#include <QTimer>
 
 #include <pvlogger.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
-
-#include <pvkernel/widgets/PVMultipleFileDialog.h>
 
 PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent)
 {
@@ -44,6 +47,9 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	QSplitter* splitter = new QSplitter(Qt::Horizontal);
 	splitter->setFixedSize(QSize(width / 3, height / 2));
 
+	QStatusBar* status_bar = new QStatusBar(this);
+	_status_bar_needs_refresh = true;
+
 	_paths = PVWidgets::PVMultipleFileDialog::getOpenFileNames(this, tr("Open ERF file"), "",
 	                                                           tr("ERF files (*.erf, *.erfh5)"));
 
@@ -52,6 +58,7 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 		return;
 	}
 	setResult(QDialog::Accepted);
+	_erf.reset(new PVERFAPI(_paths.front().toStdString()));
 
 	_model.reset(new PVRush::PVERFTreeModel(_paths.front()));
 	PVRush::PVERFTreeView* tree = new PVRush::PVERFTreeView(_model.get(), parent);
@@ -62,11 +69,12 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	QVBoxLayout* nodes_list_layout = new QVBoxLayout;
 	QLabel* nodes_list_label = new QLabel("Nodes list:");
 
-	auto store_list_f = [](QTextEdit* text_edit) {
+	auto store_list_f = [&](QTextEdit* text_edit) {
 		// sender() in lambda function is always returning nullptr
 		QModelIndex index = text_edit->property("index").toModelIndex();
 		PVERFTreeItem* item = static_cast<PVERFTreeItem*>(index.internalPointer());
 		item->set_user_data(text_edit->toPlainText());
+		_status_bar_needs_refresh = true;
 	};
 
 	QStackedWidget* nodes_list_stacked_text = new QStackedWidget;
@@ -114,15 +122,42 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 		        nodes_list_widget->setVisible(false);
 	        });
 
+	connect(tree, &PVRush::PVERFTreeView::model_changed,
+	        [&]() { _status_bar_needs_refresh = true; });
+
 	QDialogButtonBox* dialog_buttons =
 	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(dialog_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(dialog_buttons, &QDialogButtonBox::accepted, [this]() {
+		size_t bytes_count = _erf->memory_size(_model->save(), _paths.size());
+		if (bytes_count > PVCore::available_memory()) {
+			QMessageBox::StandardButton ret = QMessageBox::warning(
+			    this, "Not enough available memory", "Continuing could lead to a crash.",
+			    QMessageBox::Ok | QMessageBox::Cancel);
+			if (ret == QMessageBox::Cancel) {
+				return;
+			}
+		}
+		accept();
+	});
 	connect(dialog_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	QVBoxLayout* vlayout = new QVBoxLayout;
 
 	vlayout->addWidget(splitter);
 	vlayout->addWidget(dialog_buttons);
+	vlayout->addWidget(status_bar);
+
+	// update status bar every 1 sec
+	QTimer* status_bar_timer = new QTimer(this);
+	connect(status_bar_timer, &QTimer::timeout, [this, status_bar]() {
+		if (_status_bar_needs_refresh) {
+			size_t bytes_count = _erf->memory_size(_model->save(), _paths.size());
+			QString bytes_count_str = PVWidgets::PVUtils::bytes_to_human_readable(bytes_count);
+			status_bar->showMessage(QString("Approximative amount of RAM : ") + bytes_count_str);
+			_status_bar_needs_refresh = false;
+		}
+	});
+	status_bar_timer->start(1000);
 
 	setLayout(vlayout);
 }
@@ -130,6 +165,5 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 std::vector<std::tuple<rapidjson::Document, std::string, PVRush::PVFormat>>
 PVRush::PVERFParamsWidget::get_sources_info() const
 {
-	return PVERFAPI(_paths.front().toStdString())
-	    .get_sources_info(_model->save(), _paths.size() > 1);
+	return _erf->get_sources_info(_model->save(), _paths.size() > 1);
 }

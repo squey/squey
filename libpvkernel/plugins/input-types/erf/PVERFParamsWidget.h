@@ -13,6 +13,7 @@
 #include <pvkernel/rush/PVFormat.h>
 
 #include "PVERFTreeModel.h"
+#include "../../common/erf/PVERFAPI.h"
 
 namespace PVRush
 {
@@ -35,6 +36,8 @@ class PVERFParamsWidget : public QDialog
   private:
 	std::unique_ptr<PVRush::PVERFTreeModel> _model;
 	QStringList _paths;
+	std::unique_ptr<PVERFAPI> _erf;
+	bool _status_bar_needs_refresh;
 };
 
 } // namespace PVRush

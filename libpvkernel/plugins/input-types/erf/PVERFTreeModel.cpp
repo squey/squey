@@ -118,7 +118,7 @@ QString PVRush::PVERFTreeItem::path() const
 	return parents.join(".");
 }
 
-Qt::CheckState PVRush::PVERFTreeItem::state() const // TODO : rename to state()
+Qt::CheckState PVRush::PVERFTreeItem::state() const
 {
 	return _state;
 }

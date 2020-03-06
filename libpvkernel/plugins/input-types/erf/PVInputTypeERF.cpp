@@ -28,6 +28,8 @@ bool PVRush::PVInputTypeERF::createWidget(hash_formats& formats,
 		PVInputDescription_p ind(desc);
 		inputs.push_back(ind);
 		formats[QString("custom") + QString::number(source_index++)] = std::move(format);
+
+		// FIXME check JSON structure
 	}
 	format = "custom";
 

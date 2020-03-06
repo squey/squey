@@ -40,6 +40,8 @@ class PVERFTreeView : public QTreeView
 				_changing_check_state = true;
 				set_parents_state(index);
 				_changing_check_state = false;
+
+				Q_EMIT model_changed();
 			}
 		});
 
@@ -61,6 +63,8 @@ class PVERFTreeView : public QTreeView
 				        };
 				        change_states(sel.indexes(), Qt::Checked);
 				        change_states(desel.indexes(), Qt::Unchecked);
+
+				        Q_EMIT model_changed();
 			        }
 		        });
 	}
@@ -171,6 +175,7 @@ class PVERFTreeView : public QTreeView
 
   Q_SIGNALS:
 	void current_changed(const QModelIndex&, const QModelIndex&);
+	void model_changed();
 
   private:
 	PVRush::PVERFTreeModel* _model;

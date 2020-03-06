@@ -272,6 +272,7 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 					if (_node_list.empty()) {
 						_state_row_count = state_row_count;
 					}
+					// FIXME disable if count or max is invalid
 					if (_source_row_count == std::numeric_limits<ERF_INT>::max()) {
 						_source_row_count = _state_row_count * states_count;
 					}

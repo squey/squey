@@ -3,6 +3,8 @@
 #include <QGroupBox>
 #include <QListWidget>
 #include <QLineEdit>
+#include <QGridLayout>
+#include <QPushButton>
 
 namespace PVWidgets
 {
