@@ -101,7 +101,7 @@ class PVERFTreeModel : public QAbstractItemModel
   public:
 	bool load(const QString& path);
 	QString path() const { return _path; }
-	rapidjson::Document save() const;
+	rapidjson::Document save(ENodesType nodes_type = ENodesType::SELECTED) const;
 
   public:
 	QModelIndex

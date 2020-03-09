@@ -10,6 +10,7 @@
 
 #include <pvkernel/core/serialize_numbers.h>
 #include <pvkernel/core/PVUtils.h>
+#include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/widgets/PVUtils.h>
 #include <pvkernel/widgets/PVMultipleFileDialog.h>
@@ -57,6 +58,7 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 		setResult(QDialog::Rejected);
 		return;
 	}
+
 	setResult(QDialog::Accepted);
 	_erf.reset(new PVERFAPI(_paths.front().toStdString()));
 
@@ -65,6 +67,33 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 	tree->setSelectionMode(QAbstractItemView::MultiSelection);
 	tree->setAlternatingRowColors(true);
 	tree->expandAll();
+
+	// Check files structures
+	if (_paths.size() > 1) {
+		QStringList bad_files;
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& /*pbox*/) {
+			    const rapidjson::Document& ref_doc = _model->save(PVERFTreeModel::ENodesType::ALL);
+			    for (size_t i = 1; i < _paths.size(); i++) {
+				    const QString& path = _paths[i];
+				    const rapidjson::Document& doc =
+				        PVERFTreeModel(path).save(PVERFTreeModel::ENodesType::ALL);
+				    if (doc != ref_doc) {
+					    bad_files.append(path);
+				    }
+			    }
+		    },
+		    "Checking files structures...", this);
+		if (not bad_files.empty()) {
+			QMessageBox::critical(
+			    this, "Incompatible file structure",
+			    QString("The following file(s) have not the expected structure :<br><br> %1")
+			        .arg(bad_files.join("<br>")),
+			    QMessageBox::Ok);
+			setResult(QDialog::Rejected);
+			return;
+		}
+	}
 
 	QVBoxLayout* nodes_list_layout = new QVBoxLayout;
 	QLabel* nodes_list_label = new QLabel("Nodes list:");

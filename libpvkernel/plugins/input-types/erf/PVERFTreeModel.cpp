@@ -204,13 +204,14 @@ bool PVRush::PVERFTreeModel::load(const QString& path)
 	return true;
 }
 
-rapidjson::Document PVRush::PVERFTreeModel::save() const
+rapidjson::Document
+PVRush::PVERFTreeModel::save(ENodesType nodes_type /*= ENodesType::SELECTED*/) const
 {
 	rapidjson::Document doc;
 	rapidjson::Document::AllocatorType& alloc = doc.GetAllocator();
 
 	visit_nodes<rapidjson::Value>(
-	    ENodesType::SELECTED, &doc.SetObject(), [&](QModelIndex index, rapidjson::Value* parent) {
+	    nodes_type, &doc.SetObject(), [&](QModelIndex index, rapidjson::Value* parent) {
 		    PVERFTreeItem* item = static_cast<PVERFTreeItem*>(index.internalPointer());
 
 		    rapidjson::Value node_name;
@@ -227,10 +228,12 @@ rapidjson::Document PVRush::PVERFTreeModel::save() const
 						    val.SetObject();
 
 						    // "list"
-						    rapidjson::Value node_list;
-						    node_list.SetString(item->user_data().toString().toStdString().c_str(),
-						                        alloc);
-						    val.AddMember("list", node_list, alloc);
+						    if (nodes_type == ENodesType::SELECTED) {
+							    rapidjson::Value node_list;
+							    node_list.SetString(
+							        item->user_data().toString().toStdString().c_str(), alloc);
+							    val.AddMember("list", node_list, alloc);
+						    }
 
 						    // "groups"
 						    rapidjson::Value groups_array;
@@ -258,7 +261,7 @@ rapidjson::Document PVRush::PVERFTreeModel::save() const
 					    const QModelIndex& child = this->index(i, 0, index);
 					    PVERFTreeItem* child_item =
 					        static_cast<PVERFTreeItem*>(child.internalPointer());
-					    if (child_item->state() == Qt::Checked) {
+					    if (child_item->state() == Qt::Checked or nodes_type == ENodesType::ALL) {
 						    values.emplace_back(i);
 					    }
 				    }
