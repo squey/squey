@@ -302,15 +302,15 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 		return false;
 	}
 
-	QString pkidir("/home/fchapelle/dev/qtopcua/lay2form/pkidir/");
+	// QString pkidir("/home/fchapelle/dev/qtopcua/lay2form/pkidir/");
 
 	QOpcUaPkiConfiguration pkiConfig;
-	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
-	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
-	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
-	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
-	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
-	pkiConfig.setIssuerRevocationListDirectory(pkidir + "/issuers/crl");
+	// pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
+	// pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
+	// pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
+	// pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
+	// pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
+	// pkiConfig.setIssuerRevocationListDirectory(pkidir + "/issuers/crl");
 
 	QOpcUaAuthenticationInformation authInfo;
 	if (infos.get_login().isEmpty()) {
@@ -320,7 +320,7 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 	}
 
 	client->setAuthenticationInformation(authInfo);
-	client->setPkiConfiguration(pkiConfig);
+	//client->setPkiConfiguration(pkiConfig);
 	client->setApplicationIdentity(pkiConfig.applicationIdentity());
 
 	QObject::connect(
@@ -479,7 +479,7 @@ void PVRush::PVOpcUaParamsWidget::export_query_result(PVCore::PVStreamingCompres
 			auto column_node_id =
 			    opcua_column.siblingAtColumn(0).data(Qt::UserRole).value<QString>();
 			es.read_node_history(
-			    column_node_id, UA_DateTime_fromUnixTime(0), UA_DateTime_now(),
+			    column_node_id, UA_DateTime_fromUnixTime(0), UA_DateTime_now(), 10000,
 			    [&compressor, &sep, &quote, &count](UA_HistoryData* data) {
 				    for (UA_UInt32 i = 0; i < data->dataValuesSize; ++i) {
 					    UA_DataValue& value = data->dataValues[i];

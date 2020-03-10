@@ -245,13 +245,13 @@ static UA_Boolean read_node_history_static(UA_Client* client,
 	return static_cast<PVRush::PVOpcUaAPI*>(context)->read_history_data(nodeId, moreDataAvailable, data);
 }
 
-void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, UA_DateTime start_time, UA_DateTime end_time, std::function<bool(UA_HistoryData*)> callback)
+void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, UA_DateTime start_time, UA_DateTime end_time, uint32_t values_per_node, std::function<bool(UA_HistoryData*)> callback)
 {
 	_read_callback = callback;
 	UA_NodeId node = node_id.open62541();
-	UA_StatusCode retval = UA_Client_HistoryRead_raw(_client, &node, read_node_history_static,
-	                                                 start_time, end_time, UA_STRING_NULL, false,
-	                                                 1000, UA_TIMESTAMPSTORETURN_BOTH, (void*)this);
+	UA_StatusCode retval = UA_Client_HistoryRead_raw(
+	    _client, &node, read_node_history_static, start_time, end_time, UA_STRING_NULL, false,
+	    values_per_node, UA_TIMESTAMPSTORETURN_SOURCE, (void*)this);
 	// UA_NodeId aggregate_type = UA_NODEID_STRING_ALLOC(0, "Count");
 	// UA_NodeId aggregate_type = UA_NODEID_NUMERIC(0, 2352);
 	// UA_StatusCode retval = UA_Client_HistoryRead_processed(
@@ -269,9 +269,6 @@ UA_DateTime PVRush::PVOpcUaAPI::first_historical_datetime(NodeId node_id)
 			ret_val = data->dataValues[0].sourceTimestamp;
 			qDebug() << "FIRST DATA:";
 			print_datetime(data->dataValues[0].sourceTimestamp);
-			// print_datetime(data->dataValues[1].sourceTimestamp);
-			// print_datetime(data->dataValues[2].sourceTimestamp);
-			// print_datetime(data->dataValues[3].sourceTimestamp);
 		}
 		return false;
 	};

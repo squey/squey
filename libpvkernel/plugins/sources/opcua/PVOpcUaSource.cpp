@@ -43,10 +43,10 @@ PVRush::PVOpcUaSource::PVOpcUaSource(PVRush::PVInputDescription_p input)
 		_node_ids.push_back(deserialized_query[3 * i]);
 		auto node_id_open62541 = PVOpcUaAPI::NodeId(deserialized_query[3 * i + 1]).open62541();
 		if (auto* data_type = UA_findDataType(&node_id_open62541)) {
-			_data[i].second = data_type;
+			_data[i].type = data_type;
 			qDebug() << "PVOpcUaSource: node " << i << " has datatype " << data_type->typeName;
 		} else {
-			_data[i].second = &UA_TYPES[UA_TYPES_STRING];
+			_data[i].type = &UA_TYPES[UA_TYPES_STRING];
 			qDebug() << "PVOpcUaSource: Unknown type:" << deserialized_query[3 * i + 1];
 		}
 	}
@@ -68,114 +68,196 @@ size_t PVRush::PVOpcUaSource::get_size() const
 	return 0;
 }
 
-PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
+void PVRush::PVOpcUaSource::download_interval()
 {
-	if (_current_chunk == 0) {
+	std::vector<bool> has_data(_query_nb_of_times, false);
 
-		std::vector<bool> has_data(_query_nb_of_times, false);
+	for (size_t node = 0; node < _nodes_count; ++node) {
+		auto& node_data = _data[node];
+		const size_t elm_size = node_data.type->memSize;
+		node_data.values.reserve(elm_size * _query_nb_of_times);
 
-		for (size_t node = 0; node < _nodes_count; ++node) {
-			auto& [node_data, node_datatype] = _data[node];
-			const size_t elm_size = node_datatype->memSize;
-			node_data.reserve(elm_size * _query_nb_of_times);
-
-			UA_DateTime current_time = _query_start;
-			size_t current_time_index = 0;
-			_api.read_node_history(
-			    _node_ids[node], _query_start, _query_end,
-			    [this, &has_data, elm_size, &node_data, &node_datatype, &current_time,
-			     &current_time_index](UA_HistoryData* data) {
-				    for (size_t i = 0; i < data->dataValuesSize; ++i) {
-					    auto& dataval = data->dataValues[i];
-					    if (dataval.value.type != node_datatype) {
-						    qDebug() << "Row has bad data type" << dataval.value.type->typeName
-						             << "(expected" << node_datatype->typeName << ")";
+		UA_DateTime current_time = _query_start;
+		size_t current_time_index = 0;
+		_api.read_node_history(
+		    _node_ids[node], _query_start, _query_end, 10000,
+		    [this, &has_data, elm_size, &node_data, &current_time,
+		     &current_time_index](UA_HistoryData* data) {
+			    for (size_t i = 0; i < data->dataValuesSize; ++i) {
+				    auto& dataval = data->dataValues[i];
+				    if (dataval.value.type != node_data.type) {
+					    qDebug() << "Row has bad data type" << dataval.value.type->typeName
+					             << "(expected" << node_data.type->typeName << ")";
+					    continue;
+				    }
+				    if (dataval.sourceTimestamp < current_time) {
+					    if (node_data.values.empty()) {
+						    qDebug() << __func__ << __LINE__;
+						    PVOpcUaAPI::print_datetime(dataval.sourceTimestamp);
+						    PVOpcUaAPI::print_datetime(current_time);
+						    qDebug() << "Should not happen, wrong data or wrong logic.";
 						    continue;
 					    }
-						if (dataval.sourceTimestamp < current_time) {
-							if (node_data.empty()) {
-								qDebug() << __func__ << __LINE__;
-								PVOpcUaAPI::print_datetime(dataval.sourceTimestamp);
-								PVOpcUaAPI::print_datetime(current_time);
-							    qDebug() << "Should not happen, wrong data or wrong logic.";
-							    continue;
-						    }
-						    // Keep the last data for the interval
-						    memcpy(node_data.data() + node_data.size() - elm_size,
-						           dataval.value.data, elm_size);
-						    continue;
-						}
-					    // Fill the voids with zero or copy the last known element
-					    while (dataval.sourceTimestamp >= current_time + _query_interval and
-								current_time < _query_end) {
-							const size_t old_size = node_data.size();
-							node_data.resize(old_size + elm_size);
-							if (node_data.empty()) {
-								memset(node_data.data() + old_size, 0, elm_size);
-							} else {
-								memcpy(node_data.data() + old_size,
-										node_data.data() + old_size - elm_size,
-										elm_size);
-							}
-							current_time += _query_interval;
-							++current_time_index;
-						}
-						// Copy the data for the element
-						const size_t old_size = node_data.size();
-						node_data.resize(old_size + elm_size);
-						memcpy(node_data.data() + old_size, dataval.value.data,
-								elm_size);
-					    has_data[current_time_index] = true;
+					    // Keep the last data for the interval
+					    memcpy(node_data.values.data() + node_data.values.size() - elm_size, dataval.value.data,
+					           elm_size);
+					    continue;
+				    }
+				    // Fill the voids with zero or copy the last known element
+				    while (dataval.sourceTimestamp >= current_time + _query_interval and
+				           current_time < _query_end) {
+					    const size_t old_size = node_data.values.size();
+					    node_data.values.resize(old_size + elm_size);
+					    if (node_data.values.empty()) {
+						    memset(node_data.values.data() + old_size, 0, elm_size);
+					    } else {
+						    memcpy(node_data.values.data() + old_size,
+						           node_data.values.data() + old_size - elm_size, elm_size);
+					    }
 					    current_time += _query_interval;
 					    ++current_time_index;
 				    }
+				    // Copy the data for the element
+				    const size_t old_size = node_data.values.size();
+				    node_data.values.resize(old_size + elm_size);
+				    memcpy(node_data.values.data() + old_size, dataval.value.data, elm_size);
+				    has_data[current_time_index] = true;
+				    current_time += _query_interval;
+				    ++current_time_index;
+			    }
+			    return true;
+		    });
+		// Zero the rest or copy the last known element
+		if (node_data.values.empty()) {
+			node_data.values.resize(elm_size * _query_nb_of_times, 0);
+		} else {
+			const size_t old_size = node_data.values.size();
+			node_data.values.resize(elm_size * _query_nb_of_times);
+			for (size_t i = old_size; i < elm_size * _query_nb_of_times; i += elm_size) {
+				memcpy(node_data.values.data() + i, node_data.values.data() + i - elm_size, elm_size);
+			}
+		}
+	}
+
+	for (size_t node = 0; node < _nodes_count; ++node) {
+		auto& node_data = _data[node];
+		const size_t elm_size = node_data.type->memSize;
+		size_t consolidated_data = 0;
+		for (size_t i = 0; i < has_data.size();) {
+			const size_t yes_data_start = i;
+			while (i < has_data.size() and has_data[i] == true) {
+				++i;
+			}
+			memmove(node_data.values.data() + consolidated_data * elm_size,
+			        node_data.values.data() + yes_data_start * elm_size, (i - yes_data_start) * elm_size);
+			consolidated_data += i - yes_data_start;
+			qDebug() << "Consolidated:" << consolidated_data << "/" << yes_data_start << "/" << i;
+			while (i < has_data.size() and has_data[i] == false) {
+				++i;
+			}
+		}
+		node_data.values.resize(consolidated_data * elm_size);
+		assert(node_data.values.size() == std::count(begin(has_data), end(has_data), true) * elm_size);
+	}
+
+	fill_sourcetime_interval(_query_start, has_data);
+}
+
+void PVRush::PVOpcUaSource::download_full()
+{
+	for (size_t node = 0; node < _nodes_count; ++node) {
+		auto& node_data = _data[node];
+		const size_t elm_size = node_data.type->memSize;
+
+		_api.read_node_history(
+		    _node_ids[node], _query_start, _query_end, 10000,
+		    [this, elm_size, &node_data](UA_HistoryData* data) {
+			    for (size_t i = 0; i < data->dataValuesSize; ++i) {
+				    auto& dataval = data->dataValues[i];
+				    if (dataval.value.type != node_data.type) {
+					    qDebug() << "Row has bad data type" << dataval.value.type->typeName
+					             << "(expected" << node_data.type->typeName << ")";
+					    continue;
+				    }
+				    // Copy the data for the element
+				    const size_t old_size = node_data.values.size();
+				    node_data.values.resize(old_size + elm_size);
+				    memcpy(node_data.values.data() + old_size, dataval.value.data, elm_size);
+				    node_data.datetimes.push_back(dataval.sourceTimestamp);
+			    }
+			    return true;
+		    });
+	}
+
+	std::vector<size_t> counters(_nodes_count, 0);
+	std::vector<UA_DateTime> consolidated_datetimes;
+
+	while (true /*at least one counter is < node_data.datetimes.size()*/) {
+		auto min_node_it =
+		    std::min_element(begin(_data), end(_data), [this, &counters](auto& a, auto& b) {
+			    auto& a_counter = counters[std::distance(_data.data(), &a)];
+			    auto& b_counter = counters[std::distance(_data.data(), &b)];
+			    if (b_counter >= b.datetimes.size()) {
 				    return true;
-			    });
-			// Zero the rest or copy the last known element
-			if (node_data.empty()) {
-				node_data.resize(elm_size * _query_nb_of_times, 0);
-			} else {
-				const size_t old_size = node_data.size();
-				node_data.resize(elm_size * _query_nb_of_times);
-				for (size_t i = old_size; i < elm_size * _query_nb_of_times; i += elm_size) {
-					memcpy(node_data.data() + i,
-					       node_data.data() + i - elm_size, elm_size);
-				}
-			}
+			    }
+			    if (a_counter >= a.datetimes.size()) {
+				    return false;
+			    }
+			    return a.datetimes[a_counter] < b.datetimes[b_counter];
+		    });
+		auto& min_node_counter = counters[std::distance(begin(_data), min_node_it)];
+		if (min_node_counter >= min_node_it->datetimes.size()) {
+			break;
 		}
-
+		auto min_datetime = min_node_it->datetimes[min_node_counter];
+		consolidated_datetimes.push_back(min_datetime);
 		for (size_t node = 0; node < _nodes_count; ++node) {
-			auto& [node_data, node_datatype] = _data[node];
-			const size_t elm_size = node_datatype->memSize;
-			size_t consolidated_data = 0;
-			for (size_t i = 0; i < has_data.size();) {
-				const size_t yes_data_start = i;
-				while (i < has_data.size() and has_data[i] == true) {
-					++i;
-				}
-				memmove(node_data.data() + consolidated_data * elm_size, node_data.data() + yes_data_start * elm_size, (i - yes_data_start) * elm_size);
-				consolidated_data += i - yes_data_start;
-				qDebug() << "Consolidated:" << consolidated_data << "/" << yes_data_start << "/" << i;
-				while (i < has_data.size() and has_data[i] == false) {
-					++i;
-				}
-			}
-			node_data.resize(consolidated_data * elm_size);
-			if (node_data.size() == std::count(begin(has_data), end(has_data), true) * elm_size) {
-				qDebug() << "OK reduction!";
-			} else {
-				qDebug() << "BAD reduction!";
+			if (_data[node].datetimes[counters[node]] <= min_datetime) {
+				++counters[node];
 			}
 		}
+	}
 
-		fill_sourcetime(_query_start, has_data);
+	for (size_t node = 0; node < _nodes_count; ++node) {
+		auto& node_data = _data[node];
+		const size_t elm_size = node_data.type->memSize;
+		std::vector<uint8_t> consolidated_datavalues;
+		consolidated_datavalues.reserve(consolidated_datetimes.size() * elm_size);
+		size_t index_data = 0;
+		for (auto& datetime : consolidated_datetimes) {
+			const size_t old_size = consolidated_datavalues.size();
+			consolidated_datavalues.resize(old_size + elm_size);
+			if (node_data.datetimes[index_data] == datetime) {
+				memcpy(consolidated_datavalues.data() + old_size,
+				       node_data.values.data() + index_data * elm_size, elm_size);
+				++index_data;
+			} else { // node_data.datetimes[index_data] > datetime
+				if (index_data == 0) {
+					memset(consolidated_datavalues.data() + old_size, 0, elm_size);
+				} else {
+					memcpy(consolidated_datavalues.data() + old_size,
+					       node_data.values.data() + (index_data - 1) * elm_size, elm_size);
+				}
+			}
+		}
+		std::swap(consolidated_datavalues, node_data.values);
+	}
+
+	fill_sourcetime_full(consolidated_datetimes);
+}
+
+PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
+{
+	if (_current_chunk == 0) {
+		//download_interval();
+		download_full();
 	}
 
 	if (_current_chunk > 0) {
 		return nullptr;
 	}
 
-	auto chsize = _data[_current_chunk].first.size() / _data[_current_chunk].second->memSize;
+	auto chsize = _data[_current_chunk].values.size() / _data[_current_chunk].type->memSize;
 
 	PVCore::PVBinaryChunk& chunk = *_chunks.emplace_back(
 	    std::make_unique<PVCore::PVBinaryChunk>(_nodes_count + 1, chsize, _sourcetimes_current));
@@ -184,10 +266,10 @@ PVCore::PVBinaryChunk* PVRush::PVOpcUaSource::operator()()
 	                           sizeof(boost::posix_time::ptime), "datetime_us");
 
 	for (size_t i = 0; i < _nodes_count; ++i) {
-		auto pvcop_type = PVRush::PVOpcUaAPI::pvcop_type(_data[i].second->typeIndex);
+		auto pvcop_type = PVRush::PVOpcUaAPI::pvcop_type(_data[i].type->typeIndex);
 		qDebug() << "PVCOPTYPE:" << pvcop_type;
-		chunk.set_raw_column_chunk(PVCol(1 + i), _data[i].first.data(), chsize,
-		                           _data[i].second->memSize, pvcop_type);
+		chunk.set_raw_column_chunk(PVCol(1 + i), _data[i].values.data(), chsize,
+		                           _data[i].type->memSize, pvcop_type);
 		// if (i == _current_chunk) {
 		// 	chunk.set_raw_column_chunk(PVCol(1 + i),
 		// 	                           _data[i].first.data(), chsize,
@@ -233,8 +315,8 @@ void PVRush::PVOpcUaSource::setup_query()
 	qDebug() << _query_start << _query_end << _query_nb_of_times;
 }
 
-void PVRush::PVOpcUaSource::fill_sourcetime(UA_DateTime start_time,
-                                            std::vector<bool> const& has_data)
+void PVRush::PVOpcUaSource::fill_sourcetime_interval(UA_DateTime start_time,
+                                                     std::vector<bool> const& has_data)
 {
 	static const UA_DateTimeStruct time_zero_dts = UA_DateTime_toStruct(0);
 	static const boost::posix_time::ptime time_zero(
@@ -248,6 +330,21 @@ void PVRush::PVOpcUaSource::fill_sourcetime(UA_DateTime start_time,
 				time_zero +
 				boost::posix_time::microsec((start_time + (i * _query_interval)) / UA_DATETIME_USEC));
 		}
+	}
+}
+
+void PVRush::PVOpcUaSource::fill_sourcetime_full(std::vector<UA_DateTime> const& datetimes)
+{
+	static const UA_DateTimeStruct time_zero_dts = UA_DateTime_toStruct(0);
+	static const boost::posix_time::ptime time_zero(
+	    boost::gregorian::date(time_zero_dts.year, time_zero_dts.month, time_zero_dts.day));
+
+	_sourcetimes.reserve(datetimes.size());
+
+	for (auto& datetime : datetimes) {
+		_sourcetimes.emplace_back(
+		    time_zero +
+		    boost::posix_time::microsec(datetime / UA_DATETIME_USEC));
 	}
 }
 

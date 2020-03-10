@@ -40,13 +40,25 @@ class PVOpcUaSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 
 	void setup_query();
 
-	void fill_sourcetime(UA_DateTime start_time, std::vector<bool> const& has_data);
+	void download_interval();
+	void fill_sourcetime_interval(UA_DateTime start_time, std::vector<bool> const& has_data);
+
+	void download_full();
+	void fill_sourcetime_full(std::vector<UA_DateTime> const& datetimes);
 
   private:
 	PVOpcUaQuery& _query;
 	PVOpcUaAPI _api;
 	std::vector<std::unique_ptr<PVCore::PVBinaryChunk>> _chunks;
-	std::vector<std::pair<std::vector<uint8_t>, UA_DataType const*>> _data;
+
+	struct NodeData
+	{
+		std::vector<uint8_t> values;
+		std::vector<UA_DateTime> datetimes;
+		UA_DataType const* type;
+	};
+
+	std::vector<NodeData> _data;
 	std::vector<boost::posix_time::ptime> _sourcetimes;
 	std::vector<QString> _node_ids;
 

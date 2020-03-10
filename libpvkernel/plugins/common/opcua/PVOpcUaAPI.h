@@ -66,6 +66,7 @@ class PVOpcUaAPI
 	void read_node_history(NodeId node_id,
 	                       UA_DateTime start_time,
 	                       UA_DateTime end_time,
+	                       uint32_t values_per_node,
 	                       std::function<bool(UA_HistoryData*)> callback);
 
 	UA_DateTime first_historical_datetime(NodeId node_id);
