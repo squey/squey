@@ -214,6 +214,7 @@ widgets/PVQueryBuilder.cpp
 widgets/PVLongLongSpinBox.cpp
 widgets/PVFileDialog.cpp
 widgets/PVExportDlg.cpp
+widgets/PVMultipleFileDialog.cpp
 )
 
 SET(UI_FILES

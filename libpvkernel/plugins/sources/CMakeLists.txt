@@ -113,6 +113,8 @@ target_link_libraries(source_pcap pvkernel)
 
 # Define ressources
 set(ERF_SRC_FILES
+	../common/erf/PVERFAPI.cpp
+	erf/PVERFSource.cpp
 	erf/PVSourceCreatorERF.cpp
 	erf/register.cpp
 )

@@ -36,14 +36,12 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget* parent)
+PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* /*in_t*/, QWidget* parent)
 {
 	QScreen* screen = QGuiApplication::primaryScreen();
 	QRect screen_geometry = screen->geometry();
 	int height = screen_geometry.height();
 	int width = screen_geometry.width();
-
-	QHBoxLayout* layout = new QHBoxLayout();
 
 	QSplitter* splitter = new QSplitter(Qt::Horizontal);
 	splitter->setFixedSize(QSize(width / 3, height / 2));
@@ -74,7 +72,7 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* in_t, QWidget
 		PVCore::PVProgressBox::progress(
 		    [&](PVCore::PVProgressBox& /*pbox*/) {
 			    const rapidjson::Document& ref_doc = _model->save(PVERFTreeModel::ENodesType::ALL);
-			    for (size_t i = 1; i < _paths.size(); i++) {
+			    for (int i = 1; i < _paths.size(); i++) {
 				    const QString& path = _paths[i];
 				    const rapidjson::Document& doc =
 				        PVERFTreeModel(path).save(PVERFTreeModel::ENodesType::ALL);

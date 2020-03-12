@@ -252,7 +252,7 @@ set(ERF_LIBS
 include_directories(AFTER /app/include/erf/include)
 include_directories(AFTER /app/include/erf/include/c)
 include_directories(AFTER /app/include/erf/include/cpp)
-add_inspector_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} ${ERF_LIBS} FILES erf.cpp)
+add_inspector_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} ${ERF_LIBS} FILES erf.cpp ../../plugins/common/erf/PVERFAPI.cpp)
 add_inspector_test(
 	Trush_erf Trush_erf
 	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.erfh5"

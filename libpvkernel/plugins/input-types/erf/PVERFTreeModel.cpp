@@ -257,7 +257,7 @@ PVRush::PVERFTreeModel::save(ENodesType nodes_type /*= ENodesType::SELECTED*/) c
 			    } else {
 				    std::ostringstream list;
 				    std::vector<size_t> values;
-				    for (size_t i = 0; i < rowCount(index); i++) {
+				    for (int i = 0; i < rowCount(index); i++) {
 					    const QModelIndex& child = this->index(i, 0, index);
 					    PVERFTreeItem* child_item =
 					        static_cast<PVERFTreeItem*>(child.internalPointer());

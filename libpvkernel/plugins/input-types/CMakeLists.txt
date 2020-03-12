@@ -234,6 +234,7 @@ erf/PVERFTreeView.h
 erf/PVERFTreeModel.h)
 
 set(ERF_SRC_FILES
+../common/erf/PVERFAPI.cpp
 erf/PVERFParamsWidget.cpp
 erf/PVERFTreeModel.cpp
 erf/PVInputTypeERF.cpp
