@@ -1,0 +1,12 @@
+index fcce4c316..8054cf362 100644
+--- a/qtwebengine/src/buildtools/config/linux.pri
++++ b/qtwebengine/src/buildtools/config/linux.pri
+@@ -6,7 +6,7 @@ gn_args += \
+     use_gio=false \
+     use_gnome_keyring=false \
+     linux_use_bundled_binutils=false \
+-    use_udev=true \
++    use_udev=false \
+     use_bundled_fontconfig=false \
+     use_sysroot=false \
+     enable_session_service=false \

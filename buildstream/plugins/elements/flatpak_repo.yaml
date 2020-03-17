@@ -1,0 +1,10 @@
+config:
+  # elements (from the build dependencies) that should be staged in /
+  environment: []
+  # refs of which a copy is to be made using flatpak build-commit-from
+  # a list of mappings containing keys `src` and `dest`
+  copy-refs: []
+  # the mode of the ostree repo (one of archive, bare, bare-user, bare-user-only)
+  repo-mode: 'archive'
+  arch: '%{arch}'
+  branch: '%{branch}'

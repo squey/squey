@@ -19,6 +19,8 @@
 
 #include <omp.h>
 
+using namespace icu_64;
+
 namespace Inendi
 {
 

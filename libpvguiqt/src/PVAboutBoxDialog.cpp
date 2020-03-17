@@ -115,6 +115,7 @@ class PVReferenceManual : public QWebEngineView
 			}
 		});
 #endif
+		pvlogger::info() << std::string("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html") << std::endl;
 		load(QUrl(std::string("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html")
 		              .c_str()));
 	}

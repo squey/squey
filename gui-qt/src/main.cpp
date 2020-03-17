@@ -198,6 +198,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
 	                                                                 INENDI_LICENSE_FEATURE);
 
+
 	// Check at least two CPU cores are available
 	if (std::thread::hardware_concurrency() == 1) {
 

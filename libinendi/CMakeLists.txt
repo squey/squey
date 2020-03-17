@@ -15,8 +15,6 @@ find_package(Qt5Xml REQUIRED)
 include_directories(SYSTEM ${Qt5Xml_INCLUDE_DIRS})
 
 # For QOpenGLWidget
-find_package(Qt5OpenGLExtensions REQUIRED)
-include_directories(SYSTEM ${Qt5OpenGLExtensions_INCLUDE_DIRS})
 find_package(Qt5OpenGL REQUIRED)
 include_directories(SYSTEM ${Qt5OpenGL_INCLUDE_DIRS})
 

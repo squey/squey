@@ -1,0 +1,17 @@
+#!/bin/bash
+
+cd "$SOURCE_DIR"
+source buildstream/env.conf
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$GL_TARGET_DIR/lib"
+export PATH=$PATH:"$SOURCE_DIR"/inendi-utils/core/license/src/sentinel/customization
+
+echo "/app/lib/libpocl.so" > "$GL_TARGET_DIR/OpenCL/vendors/pocl.icd" 2> /dev/null
+
+for build_type in debug release
+do
+    BUILD_FOLDER="$build_type"_build
+    if [ ! -d "$BUILD_FOLDER" ]
+    then
+        cmake -B"$BUILD_FOLDER" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    fi
+done

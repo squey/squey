@@ -28,3 +28,9 @@
 [submodule "flatpak/ostree-releng-scripts"]
 	path = flatpak/ostree-releng-scripts
 	url = https://github.com/ostreedev/ostree-releng-scripts.git
+[submodule "buildstream/scripts/ostree-releng-scripts"]
+	path = buildstream/scripts/ostree-releng-scripts
+	url = https://github.com/ostreedev/ostree-releng-scripts.git
+[submodule "buildstream/plugins/bst-external"]
+	path = buildstream/plugins/bst-external
+	url = https://gitlab.com/BuildStream/bst-external.git
