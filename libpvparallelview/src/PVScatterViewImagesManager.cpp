@@ -101,11 +101,15 @@ void PVParallelView::PVScatterViewImagesManager::process_sel()
 
 void PVParallelView::PVScatterViewImagesManager::process_bg(DataProcessParams const& process_params)
 {
+	if (_zid.is_invalid()) {
+		return;
+	}
+
 	PVScatterViewData& data = _data;
 
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(
 	    _zid, data, process_params,
-	    [&](PVScatterViewDataInterface& data_if, DataProcessParams const& params,
+	    [](PVScatterViewDataInterface& data_if, DataProcessParams const& params,
 	        tbb::task_group_context& ctxt) {
 		    PVScatterViewImagesManager::copy_processed_in_processing(
 		        params, data_if.image_bg_processing(), data_if.image_bg());
@@ -133,11 +137,15 @@ void PVParallelView::PVScatterViewImagesManager::process_bg(DataProcessParams co
 void PVParallelView::PVScatterViewImagesManager::process_sel(
     DataProcessParams const& process_params)
 {
+	if (_zid.is_invalid()) {
+		return;
+	}
+
 	PVScatterViewData& data = _data;
 
 	PVZoneRenderingScatter_p zr(new PVZoneRenderingScatter(
 	    _zid, data, process_params,
-	    [&](PVScatterViewDataInterface& data_if, DataProcessParams const& params,
+	    [this](PVScatterViewDataInterface& data_if, DataProcessParams const& params,
 	        tbb::task_group_context& ctxt) {
 		    PVScatterViewImagesManager::copy_processed_in_processing(
 		        params, data_if.image_sel_processing(), data_if.image_sel());

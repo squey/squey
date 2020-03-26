@@ -141,31 +141,6 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	void toggle_show_labels();
 
   private:
-	inline PVZonesManager const& get_zones_manager() const
-	{
-		return get_images_manager().get_zones_manager();
-	}
-
-	inline PVScatterViewImagesManager& get_images_manager()
-	{
-		return _backend->get_images_manager();
-	}
-
-	inline PVScatterViewImagesManager const& get_images_manager() const
-	{
-		return _backend->get_images_manager();
-	}
-
-	inline Inendi::PVPlottedNrawCache& get_x_labels_cache()
-	{
-		return _backend->get_x_labels_cache();
-	}
-
-	inline Inendi::PVPlottedNrawCache& get_y_labels_cache()
-	{
-		return _backend->get_y_labels_cache();
-	}
-
 	void update_labels_cache();
 
 	PVZoneTree const& get_zone_tree() const;

@@ -101,8 +101,11 @@ static const QMargins frame_offsets(3, 2, 3, 2);
 
 struct PVZoneID : std::pair<PVCol, PVCol> {
 	using pair::pair;
+
+	constexpr bool is_valid() const { return first != PVCol() and second != PVCol(); }
+	constexpr bool is_invalid() const { return not is_valid(); }
 };
-static constexpr PVZoneID PVZONEID_INVALID = PVZoneID(PVCol(-1), PVCol(-1));
+static constexpr PVZoneID PVZONEID_INVALID = PVZoneID(PVCol(), PVCol());
 static constexpr size_t PVZONEINDEX_INVALID = size_t(-1);
 
 constexpr bool operator!=(PVZoneID const& lhs, PVZoneID const& rhs)
