@@ -24,7 +24,7 @@
 		using type_safe::strong_typedef<type, underlying_type>::strong_typedef;                    \
 		using value_type = underlying_type;                                                        \
                                                                                                    \
-		type() : type(std::numeric_limits<underlying_type>::max()){};                              \
+		constexpr type() : type(std::numeric_limits<underlying_type>::max()){};                    \
                                                                                                    \
 		constexpr operator const value_type&() const noexcept                                      \
 		{                                                                                          \

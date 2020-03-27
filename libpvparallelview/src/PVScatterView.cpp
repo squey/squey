@@ -209,7 +209,7 @@ PVParallelView::PVScatterView::~PVScatterView()
 
 PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree() const
 {
-	return get_zones_manager().get_zone_tree(_zone_id);
+	return _backend->get_images_manager().get_zones_manager().get_zone_tree(_zone_id);
 }
 
 /*****************************************************************************
@@ -269,8 +269,10 @@ void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 void PVParallelView::PVScatterView::do_zoom_change(int /*axes*/)
 {
-	get_x_labels_cache().invalidate();
-	get_y_labels_cache().invalidate();
+	if (_backend) {
+		_backend->get_x_labels_cache().invalidate();
+		_backend->get_y_labels_cache().invalidate();
+	}
 	do_update_all();
 }
 
@@ -287,7 +289,9 @@ void PVParallelView::PVScatterView::do_pan_change()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_all()
 {
-	get_images_manager().process_all();
+	if (_backend) {
+		_backend->get_images_manager().process_all();
+	}
 }
 
 /*****************************************************************************
@@ -295,7 +299,9 @@ void PVParallelView::PVScatterView::update_all()
  *****************************************************************************/
 void PVParallelView::PVScatterView::update_sel()
 {
-	get_images_manager().process_sel();
+	if (_backend) {
+		_backend->get_images_manager().process_sel();	
+	}
 }
 
 void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, PVZoneID /*zone*/)
@@ -305,8 +311,10 @@ void PVParallelView::PVScatterView::update_img_bg(PVZoneRendering_p zr, PVZoneID
 		return;
 	}
 
-	_image_bg.swap(get_images_manager().get_image_all(), _last_image_margined_viewport,
-	               _last_image_mv2s);
+	if (_backend) {
+		_image_bg.swap(_backend->get_images_manager().get_image_all(),
+		               _last_image_margined_viewport, _last_image_mv2s);
+	}
 	get_viewport()->update();
 }
 
@@ -317,8 +325,10 @@ void PVParallelView::PVScatterView::update_img_sel(PVZoneRendering_p zr, PVZoneI
 		return;
 	}
 
-	_image_sel.swap(get_images_manager().get_image_sel(), _last_image_margined_viewport,
-	                _last_image_mv2s);
+	if (_backend) {
+		_image_sel.swap(_backend->get_images_manager().get_image_sel(),
+		                _last_image_margined_viewport, _last_image_mv2s);
+	}
 	get_viewport()->update();
 }
 
@@ -350,14 +360,14 @@ void PVParallelView::PVScatterView::toggle_show_labels()
 
 void PVParallelView::PVScatterView::update_labels_cache()
 {
-	if (_show_labels) {
+	if (_show_labels and _backend) {
 		PVCore::PVProgressBox::progress(
-		    [&](PVCore::PVProgressBox& pbox) {
+		    [this](PVCore::PVProgressBox& pbox) {
 			    pbox.set_enable_cancel(false);
 			    pbox.set_extended_status("Computing X-axis labels index");
-			    get_x_labels_cache().initialize();
+			    _backend->get_x_labels_cache().initialize();
 			    pbox.set_extended_status("Computing Y-axis labels index");
-			    get_y_labels_cache().initialize();
+			    _backend->get_y_labels_cache().initialize();
 			},
 		    "Initializing labels indices...", this);
 	}
@@ -395,9 +405,9 @@ void PVParallelView::PVScatterView::do_update_all()
 
 	_last_image_mv2s = get_transform_from_margined_viewport() * get_transform_to_scene();
 
-	if (_zone_id.first != PVCol() && _zone_id.second != PVCol()) {
+	if (_backend) {
 		// PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
-		get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
+		_backend->get_images_manager().change_and_process_view(y1_min, y1_max, y2_min, y2_max, zoom, alpha);
 	}
 	get_viewport()->update();
 }
@@ -411,13 +421,13 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
 	_zone_id = zid;
 
-	if (_zone_id.first != PVCol() && _zone_id.second != PVCol()) {
+	if (_zone_id.is_valid()) {
 		_backend = _create_backend(_zone_id, this);
 		auto& img_manager = _backend->get_images_manager();
 		img_manager.set_img_update_receiver(this);
 		img_manager.set_zone(zid);
 
-		PVZoneProcessing zp = get_zones_manager().get_zone_processing(zid);
+		PVZoneProcessing zp = _backend->get_images_manager().get_zones_manager().get_zone_processing(zid);
 		_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
 
 		set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
@@ -450,7 +460,7 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	_image_sel.draw(this, painter);
 
 #ifdef INENDI_DEVELOPER_MODE
-	if (_show_quadtrees) {
+	if (_show_quadtrees and _backend) {
 		painter->setPen(QPen(Qt::white, 0));
 		painter->setOpacity(1.0);
 		const Inendi::PVSelection& sel = _view.get_real_output_selection();
@@ -488,15 +498,15 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 void PVParallelView::PVScatterView::set_enabled(bool en)
 {
 	setEnabled(en);
-	if (!en) {
-		get_images_manager().cancel_all_and_wait();
+	if (!en and _backend) {
+		_backend->get_images_manager().cancel_all_and_wait();
 	}
 }
 
 QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
-	if (_show_labels) {
-		return get_elided_text(get_x_labels_cache().get(
+	if (_show_labels and _backend) {
+		return get_elided_text(_backend->get_x_labels_cache().get(
 		    std::numeric_limits<Inendi::PVPlotted::value_type>::max() - value));
 	} else {
 		return {};
@@ -505,8 +515,8 @@ QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 
 QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value)
 {
-	if (_show_labels) {
-		return get_elided_text(get_y_labels_cache().get(value));
+	if (_show_labels and _backend) {
+		return get_elided_text(_backend->get_y_labels_cache().get(value));
 	} else {
 		return {};
 	}
