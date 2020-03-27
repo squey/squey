@@ -1,3 +1,9 @@
+4.7.9 (2020-03-27)
+------------------
+
+This minor release fixes or improves:
+* fixed a crash when creating a scatter view without axes
+
 4.7.8 (2020-01-30)
 ------------------
 
