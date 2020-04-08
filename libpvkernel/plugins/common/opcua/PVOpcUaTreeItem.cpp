@@ -21,6 +21,7 @@
 #include <QOpcUaXValue>
 #include <QMetaEnum>
 #include <QPixmap>
+#include <QtOpcUa/qopcuanodeids.h>
 
 namespace PVRush
 {
@@ -127,6 +128,24 @@ QVariant PVOpcUaTreeItem::data(int column)
 
 bool PVOpcUaTreeItem::has_history_access() const
 {
+	const QString typeId = m_opc_node->attribute(QOpcUa::NodeAttribute::DataType).toString();
+	switch (QOpcUa::namespace0IdFromNodeId(typeId)) {
+		case QOpcUa::NodeIds::Namespace0::Boolean:
+		case QOpcUa::NodeIds::Namespace0::SByte:
+		case QOpcUa::NodeIds::Namespace0::Byte:
+		case QOpcUa::NodeIds::Namespace0::Int16:
+		case QOpcUa::NodeIds::Namespace0::UInt16:
+		case QOpcUa::NodeIds::Namespace0::Int32:
+		case QOpcUa::NodeIds::Namespace0::UInt32:
+		case QOpcUa::NodeIds::Namespace0::Int64:
+		case QOpcUa::NodeIds::Namespace0::UInt64:
+		case QOpcUa::NodeIds::Namespace0::Float:
+		case QOpcUa::NodeIds::Namespace0::Double:
+		// case QOpcUa::NodeIds::Namespace0::String:
+		case QOpcUa::NodeIds::Namespace0::DateTime:
+			break;
+		default: return false;
+	}
 	return m_attributes_ready and
 	       (m_opc_node->attribute(QOpcUa::NodeAttribute::AccessLevel).toUInt() &
 	        quint8(QOpcUa::AccessLevelBit::HistoryRead));

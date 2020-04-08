@@ -22,7 +22,6 @@ PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw) {}
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-
 	if (PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(out)) {
 		nraw_dest().add_chunk_utf16(*text_chunk);
 	} else {

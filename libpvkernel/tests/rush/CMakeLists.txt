@@ -277,6 +277,9 @@ include_directories(SYSTEM ${open62541_INCLUDE_DIRS})
 set(OPCUA_SRC_FILES
 ../../plugins/common/opcua/PVOpcUaTreeItem.cpp
 ../../plugins/common/opcua/PVOpcUaTreeModel.cpp
+../../plugins/common/opcua/PVOpcUaAPI.cpp
+../../plugins/common/opcua/PVOpcUaInfos.cpp
+../../plugins/common/opcua/PVOpcUaQuery.cpp
 )
 add_inspector_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt5Network Qt5OpcUa open62541 /app/lib/libssl.so /app/lib/libcrypto.so FILES opcua.cpp ${OPCUA_SRC_FILES})
 add_inspector_test(Topcua Topcua)

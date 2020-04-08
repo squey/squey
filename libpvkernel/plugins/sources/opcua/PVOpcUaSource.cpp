@@ -235,17 +235,20 @@ auto PVRush::PVOpcUaSource::operator()() -> PVOpcUaBinaryChunk*
 
 	size_t chsize = _sourcetimes.size();
 
-	PVOpcUaBinaryChunk& chunk = *_chunks.emplace_back(
-	    std::make_unique<PVOpcUaBinaryChunk>(_nodes_count, chsize, 
-		                                     _sourcetimes_current, std::move(_sourcetimes)));
+	auto chunk = std::make_unique<PVOpcUaBinaryChunk>(_nodes_count, chsize, 
+		                       _sourcetimes_current, std::move(_sourcetimes));
 
 	for (size_t i = 0; i < _nodes_count; ++i) {
-		chunk.set_node_values(i, std::move(_data[i].chunk_values), _data[i].type);
+		chunk->set_node_values(i, std::move(_data[i].chunk_values), _data[i].type);
 	}
+
+	pvlogger::debug() << "Generated chunk of " << chsize
+	                  << " lines starting line " << _sourcetimes_current
+					  << std::endl;
 
 	_sourcetimes_current += chsize;
 	++_current_chunk;
-	return &chunk;
+	return chunk.release();
 }
 
 void PVRush::PVOpcUaSource::setup_query()
@@ -270,11 +273,6 @@ void PVRush::PVOpcUaSource::setup_query()
 	_query_end = UA_DateTime_now();
 	_query_interval = 200*UA_DATETIME_MSEC;
 	_query_nb_of_times = (_query_end - _query_start) / _query_interval + 1;
-	qDebug() << "QUERY_START";
-	PVOpcUaAPI::print_datetime(_query_start);
-	qDebug() << "QUERY_END";
-	PVOpcUaAPI::print_datetime(_query_end);
-	qDebug() << _query_start << _query_end << _query_nb_of_times;
 }
 
 void PVRush::PVOpcUaSource::fill_sourcetime_interval(UA_DateTime start_time,
@@ -375,15 +373,4 @@ void PVRush::PVOpcUaSource::consolidate_values_full(std::vector<UA_DateTime> con
 			read_index = 1;
 		}
 	}
-}
-
-static void printTimestamp(char const* name, UA_DateTime date)
-{
-	UA_DateTimeStruct dts = UA_DateTime_toStruct(date);
-	if (name)
-		printf("%s: %02u-%02u-%04u %02u:%02u:%02u.%03u, ", name, dts.day, dts.month, dts.year,
-		       dts.hour, dts.min, dts.sec, dts.milliSec);
-	else
-		printf("%02u-%02u-%04u %02u:%02u:%02u.%03u, ", dts.day, dts.month, dts.year, dts.hour,
-		       dts.min, dts.sec, dts.milliSec);
 }

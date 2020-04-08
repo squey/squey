@@ -109,10 +109,10 @@ void PVRush::PVOpcUaAPI::disconnect()
 
 static auto pki_config()
 {
-	QString pkidir("/home/fchapelle/dev/qtopcua/lay2form/pkidir");
+	QString pkidir("/home/---/pkidir");
 	QOpcUaPkiConfiguration pkiConfig;
-	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
-	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
+	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/certificate.der");
+	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/privatekey.pem");
 	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
 	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
 	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
@@ -254,12 +254,14 @@ void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, UA_DateTime start_tim
 	UA_StatusCode retval = UA_Client_HistoryRead_raw(
 	    _client, &node, read_node_history_static, start_time, end_time, UA_STRING_NULL, false,
 	    values_per_node, UA_TIMESTAMPSTORETURN_SOURCE, (void*)this);
-	// UA_NodeId aggregate_type = UA_NODEID_STRING_ALLOC(0, "Count");
-	// UA_NodeId aggregate_type = UA_NODEID_NUMERIC(0, 2352);
-	// UA_StatusCode retval = UA_Client_HistoryRead_processed(
-	//     _client, &node, read_node_history_static, UA_DateTime_now() - 100*UA_DATETIME_SEC,
-	//     UA_DateTime_now(), 0, &aggregate_type, UA_STRING_NULL, UA_TIMESTAMPSTORETURN_BOTH,
-	//     (void*)this);
+	#if 0 // Read_processed is not yet supported by servers
+	UA_NodeId aggregate_type = UA_NODEID_STRING_ALLOC(0, "Count");
+	UA_NodeId aggregate_type = UA_NODEID_NUMERIC(0, 2352);
+	UA_StatusCode retval = UA_Client_HistoryRead_processed(
+	    _client, &node, read_node_history_static, UA_DateTime_now() - 100*UA_DATETIME_SEC,
+	    UA_DateTime_now(), 0, &aggregate_type, UA_STRING_NULL, UA_TIMESTAMPSTORETURN_BOTH,
+	    (void*)this);
+	#endif
 	check_opcua_code(retval);
 }
 
@@ -326,7 +328,9 @@ const char* PVRush::PVOpcUaAPI::pvcop_type(int opcua_type_index)
 	if (auto it = opcua_to_pvcop_type.find(opcua_type_index); it != opcua_to_pvcop_type.end()) {
 		return it->second;
 	} else {
-		return "string";
+		// Use the shortest as it should be invalid all along
+		// In the future, consider turning it to string with to_json_string()
+		return "number_uint8";
 	}
 }
 

@@ -37,6 +37,9 @@ PVRush::PVOpcUaParamsWidget::PVOpcUaParamsWidget(PVInputTypeOpcUa const* in_t,
     : PVParamsWidget<PVInputTypeOpcUa, PVOpcUaPresets, PVOpcUaInfos, PVOpcUaQuery>(
           in_t, formats, parent)
 {
+	_txt_host->setText("opc.tcp://your-opcua-server.com:4840/");
+	_txt_host->setToolTip("opc.tcp://your-opcua-server.com:4840/");
+	label_3->setVisible(false);
 	_port_sb->setVisible(false);
 	tabWidget->removeTab(1);
 
@@ -51,7 +54,6 @@ PVRush::PVOpcUaParamsWidget::PVOpcUaParamsWidget(PVInputTypeOpcUa const* in_t,
 	
 	tabWidget->setCurrentIndex(0);
 
-	//setFixedHeight(QApplication::desktop()->availableGeometry().height() - 50);
 	resize(QApplication::desktop()->availableGeometry().height() - 50, QApplication::desktop()->availableGeometry().width() / 2);
 }
 
@@ -59,8 +61,6 @@ void PVRush::PVOpcUaParamsWidget::reset_columns_tree_widget()
 {
 	disconnect(_columns_tree_widget, &QTreeWidget::itemChanged, this,
 	           &PVOpcUaParamsWidget::tree_item_changed);
-
-	qDebug() << "reset_columns_tree_widget";
 
 	_columns_tree_widget->clear();
 	_root_item = new QTreeWidgetItem(_columns_tree_widget);
@@ -179,17 +179,6 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 {
 	const PVOpcUaInfos& infos = get_infos();
 
-	// SSL_library_init();
-	// SSL_load_error_strings();
-	// ERR_load_BIO_strings();
-	// OpenSSL_add_all_algorithms();
-	// OpenSSL_add_all_digests();
-
-	// qDebug() << "sslLibraryVersionString=" << QSslSocket::sslLibraryVersionString();
-	// qDebug() << "supportsSsl=" << QSslSocket::supportsSsl();
-
-	// return false;
-
 	QOpcUaProvider provider;
 	if (provider.availableBackends().isEmpty()) {
 		qDebug() << "No OpcUa backend available!";
@@ -202,15 +191,18 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 		return false;
 	}
 
-	// QString pkidir("/home/===/pkidir/");
 
 	QOpcUaPkiConfiguration pkiConfig;
-	// pkiConfig.setClientCertificateFile(pkidir + "/own/certs/certificate.der");
-	// pkiConfig.setPrivateKeyFile(pkidir + "/own/private/privatekey.pem");
-	// pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
-	// pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
-	// pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
-	// pkiConfig.setIssuerRevocationListDirectory(pkidir + "/issuers/crl");
+
+#if 0 // Not yet supported
+	QString pkidir("/home/===/pkidir/");
+	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/certificate.der");
+	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/privatekey.pem");
+	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
+	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
+	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
+	pkiConfig.setIssuerRevocationListDirectory(pkidir + "/issuers/crl");
+#endif
 
 	QOpcUaAuthenticationInformation authInfo;
 	if (infos.get_login().isEmpty()) {
@@ -220,7 +212,9 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 	}
 
 	client->setAuthenticationInformation(authInfo);
-	//client->setPkiConfiguration(pkiConfig);
+#if 0 // Not yet supported
+	client->setPkiConfiguration(pkiConfig);
+#endif
 	client->setApplicationIdentity(pkiConfig.applicationIdentity());
 
 	QObject::connect(
@@ -362,46 +356,17 @@ void PVRush::PVOpcUaParamsWidget::export_query_result(PVCore::PVStreamingCompres
 
 bool PVRush::PVOpcUaParamsWidget::set_infos(PVOpcUaInfos const& infos)
 {
-	bool res =
+	[[maybe_unused]] bool res =
 	    PVParamsWidget<PVInputTypeOpcUa, PVOpcUaPresets, PVOpcUaInfos, PVOpcUaQuery>::set_infos(
 	        infos);
 
-	if (infos.get_index().isEmpty()) {
-		return true;
-	}
-
-	// update filter_path
-	reset_columns_tree_widget();
-	const std::string& filter_path = infos.get_filter_path().toStdString();
-	std::unordered_set<std::string> selected_columns;
-	boost::split(selected_columns, filter_path, boost::is_any_of(","));
-
-	visit_columns(_root_item, [&](QTreeWidgetItem* item) {
-		const std::string& abs_name = item->data(0, Qt::UserRole).toString().toStdString();
-		if (selected_columns.find(abs_name) != selected_columns.end()) {
-			item->setCheckState(0, Qt::Checked);
-		}
-	});
-
-	return res;
+	return true;
 }
 
 PVRush::PVOpcUaInfos PVRush::PVOpcUaParamsWidget::get_infos() const
 {
 	PVRush::PVOpcUaInfos infos =
 	    PVParamsWidget<PVInputTypeOpcUa, PVOpcUaPresets, PVOpcUaInfos, PVOpcUaQuery>::get_infos();
-
-	infos.set_filter_path(_format_path->text());
-
-	// update filter_path
-	if (_root_item) {
-		std::vector<std::string> selected_columns;
-		visit_selected_columns(_root_item, [&](const QTreeWidgetItem* item) {
-			selected_columns.emplace_back(item->data(0, Qt::UserRole).toString().toStdString());
-		});
-		const std::string& filter_path = boost::algorithm::join(selected_columns, ",");
-		infos.set_filter_path(QString::fromStdString(filter_path));
-	}
 
 	return infos;
 }
@@ -521,7 +486,7 @@ void PVRush::PVOpcUaParamsWidget::update_custom_format()
 			PVRush::PVXmlTreeNodeDom* node =
 				format_root->addOneField(column_name, QString(PVRush::PVOpcUaAPI::pvcop_type(data_type->typeIndex)));
 		} else {
-			PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(column_name, QString("string"));
+			PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(column_name, QString("uint8"));
 		}
 	}
 }

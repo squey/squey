@@ -57,22 +57,16 @@ QVariant PVOpcUaTreeModel::headerData(int section, Qt::Orientation orientation, 
 		return QVariant();
 
 	if (orientation == Qt::Horizontal) {
-		if (section == 0)
-			return QString("BrowseName");
-		else if (section == 1)
-			return QString("Value");
-		else if (section == 2)
-			return QString("NodeClass");
-		else if (section == 3)
-			return QString("DataType");
-		else if (section == 4)
-			return QString("NodeId");
-		else if (section == 5)
-			return QString("DisplayName");
-		else if (section == 6)
-			return QString("Description");
-		else
-			return QString("Column %1").arg(section);
+		switch (section) {
+			case 0: return QString("BrowseName");
+			case 1:	return QString("Value");
+			case 2:	return QString("NodeClass");
+			case 3:	return QString("DataType");
+			case 4:	return QString("NodeId");
+			case 5:	return QString("DisplayName");
+			case 6:	return QString("Description");
+			default: return QString("Column %1").arg(section);
+		}
 	} else
 		return QString("Row %1").arg(section);
 }

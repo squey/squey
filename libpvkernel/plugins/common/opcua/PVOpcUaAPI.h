@@ -14,30 +14,6 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-// extern "C"
-// {
-// size_t UA_calcSizeJson(const void* src,
-//                        const UA_DataType* type,
-//                        UA_String* namespaces,
-//                        size_t namespaceSize,
-//                        UA_String* serverUris,
-//                        size_t serverUriSize,
-//                        UA_Boolean useReversible) __attribute__((warn_unused_result));
-
-// UA_StatusCode UA_encodeJson(const void* src,
-//                             const UA_DataType* type,
-//                             uint8_t** bufPos,
-//                             const uint8_t** bufEnd,
-//                             UA_String* namespaces,
-//                             size_t namespaceSize,
-//                             UA_String* serverUris,
-//                             size_t serverUriSize,
-//                             UA_Boolean useReversible) __attribute__((warn_unused_result));
-
-// UA_StatusCode UA_decodeJson(const UA_ByteString* src, void* dst, const UA_DataType* type)
-//     __attribute__((warn_unused_result));
-// }
-
 namespace PVRush
 {
 

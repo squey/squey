@@ -601,7 +601,7 @@
         "-DUA_ENABLE_JSON_ENCODING=ON",
         "-DBUILD_SHARED_LIBS=ON",
         "-DCMAKE_BUILD_TYPE=Release",
-        "-DUA_LOGLEVEL=200"
+        "-DUA_LOGLEVEL=300"
       ],
       "sources": [
        {
@@ -728,7 +728,7 @@
       ]
     },
     {
-      "name": "inendi-inspector2",
+      "name": "inendi-inspector",
       "buildsystem": "cmake-ninja",
       "builddir": true,
       "run-tests" : true,

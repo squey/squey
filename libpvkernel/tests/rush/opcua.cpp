@@ -22,6 +22,14 @@
 #include <open62541.h>
 
 #include "../../plugins/common/opcua/PVOpcUaTreeModel.h"
+#include "../../plugins/common/opcua/PVOpcUaQuery.h"
+
+#include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVCSVExporter.h>
+
+#include <pvkernel/core/inendi_assert.h>
+#include "common.h"
 
 static char* PKI_DIR = nullptr;
 static char* SERVER_URL = nullptr;
@@ -463,18 +471,97 @@ void qtopcua_connect(int argc, char** argv)
 	app.exec();
 }
 
+int test_source(int argc, char** argv)
+{
+	std::string const& format_file = TEST_FOLDER "/pvkernel/rush/opcua/opcua-testsuite.format";
+
+	pvtest::init_ctxt();
+
+	PVRush::PVOpcUaInfos infos;
+	infos.set_host("opc.tcp://opcua-testsuite.srv.picviz:4850/");
+
+	std::string query_str =
+	"ns=2;i=2011;$;ns=0;i=11;$;P6.1.1 Temperature;$;"
+	"ns=2;i=2015;$;ns=0;i=11;$;P6.2.1 FastSpeedDownward;$;"
+	"ns=2;i=2017;$;ns=0;i=11;$;P6.2.2 SlowSpeedDownward;$;"
+	"ns=2;i=2018;$;ns=0;i=11;$;P6.2.3 SlowSpeedUpward;$;"
+	"ns=2;i=2016;$;ns=0;i=11;$;P6.2.4 FastSpeedUpward;$;"
+	"ns=2;i=2019;$;ns=0;i=11;$;P6.2.5 FastSlowPosition;$;"
+	"ns=2;i=2020;$;ns=0;i=11;$;6.2.6 SlowFastPosition;$;";
+
+	const size_t expected_row_count = 193'953;
+
+	PVRush::PVFormat format("format", QString::fromStdString(format_file));
+
+	/**************************************************************************
+	 * Import data
+	 *************************************************************************/
+	PVRush::PVSourceCreator_p sc =
+	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("opcua");
+
+	QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
+	auto opcua_desc =
+		new PVRush::PVOpcUaQuery(infos, QString::fromStdString(query_str), QString());
+	list_inputs << PVRush::PVInputDescription_p(opcua_desc);
+
+	PVRush::PVNraw nraw;
+	PVRush::PVNrawOutput output(nraw);
+	PVRush::PVExtractor extractor(format, output, sc, list_inputs);
+
+	// Import data
+	auto start = std::chrono::system_clock::now();
+	PVRush::PVControllerJob_p job =
+		extractor.process_from_agg_idxes(0, IMPORT_PIPELINE_ROW_COUNT_LIMIT);
+	job->wait_end();
+
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> diff = end - start;
+	std::cout << diff.count();
+
+#ifndef INSPECTOR_BENCH
+	PV_ASSERT_VALID((nraw.row_count() == expected_row_count));
+#endif
+
+#if 0 // Test is too big to store ref_file in tests repository
+	// Export selected lines
+	PVCore::PVSelBitField sel(nraw.row_count());
+	sel.select_all();
+	const std::string& output_file = pvtest::get_tmp_filename();
+	PVRush::PVCSVExporter::export_func_f export_func =
+		[&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+			const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
+	PVRush::PVCSVExporter exp(format.get_axes_comb(), nraw.row_count(), export_func);
+
+	exp.export_rows(output_file, sel);
+
+#define INSPECTOR_BENCH
+#ifndef INSPECTOR_BENCH
+	// Check output is the same as the reference
+	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
+	PV_ASSERT_VALID(
+		PVRush::PVUtils::files_have_same_content(output_file, ref_file));
+#endif
+
+	std::remove(output_file.c_str());
+#endif
+
+	return 0;
+}
+
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
-	return EXIT_SUCCESS; // Bypass test for current prod, FIXME
+	//return EXIT_SUCCESS; // Bypass test for current prod, FIXME
+	return test_source(argc, argv);
 
-	if (!(PKI_DIR = getenv("OPCUA_PKIDIR")) or !(SERVER_URL = getenv("OPCUA_URL")) or
-	    !(SERVER_USER = getenv("OPCUA_USER")) or !(SERVER_PASSWORD = getenv("OPCUA_PASSWORD"))) {
-		qDebug() << "Please define env variables OPCUA_PKIDIR OPCUA_URL OPCUA_USER OPCUA_PASSWORD";
-		return EXIT_FAILURE;
-	}
+	// if (!(PKI_DIR = getenv("OPCUA_PKIDIR")) or !(SERVER_URL = getenv("OPCUA_URL")) or
+	//     !(SERVER_USER = getenv("OPCUA_USER")) or !(SERVER_PASSWORD = getenv("OPCUA_PASSWORD"))) {
+	// 	qDebug() << "Please define env variables OPCUA_PKIDIR OPCUA_URL OPCUA_USER OPCUA_PASSWORD";
+	// 	return EXIT_FAILURE;
+	// }
 
-	request_endpoints();
-	connect_to_server();
+	// request_endpoints();
+	// connect_to_server();
 
-	qtopcua_connect(argc, argv);
+	// qtopcua_connect(argc, argv);
 }
