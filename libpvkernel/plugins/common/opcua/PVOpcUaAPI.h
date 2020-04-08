@@ -12,6 +12,8 @@
 #include <QString>
 #include <functional>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 // extern "C"
 // {
 // size_t UA_calcSizeJson(const void* src,
@@ -58,6 +60,7 @@ class PVOpcUaAPI
 	static const char* pvcop_type(int opcua_type_index);
 	static std::string to_json_string(UA_Variant const& value);
 	static void print_datetime(UA_DateTime date);
+	static boost::posix_time::ptime to_ptime(UA_DateTime date);
 
 	PVOpcUaAPI(PVOpcUaInfos const& infos);
 	PVOpcUaAPI(PVOpcUaAPI&&) = delete;
@@ -67,7 +70,7 @@ class PVOpcUaAPI
 	                       UA_DateTime start_time,
 	                       UA_DateTime end_time,
 	                       uint32_t values_per_node,
-	                       std::function<bool(UA_HistoryData*)> callback);
+	                       std::function<bool(UA_HistoryData*, bool)> callback);
 
 	UA_DateTime first_historical_datetime(NodeId node_id);
 
@@ -84,7 +87,7 @@ class PVOpcUaAPI
   private:
 	PVOpcUaInfos const& _infos;
 	UA_Client* _client = nullptr;
-	std::function<bool(UA_HistoryData*)> _read_callback;
+	std::function<bool(UA_HistoryData*, bool)> _read_callback;
 };
 }
 

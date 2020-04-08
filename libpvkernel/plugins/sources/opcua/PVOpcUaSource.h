@@ -9,13 +9,11 @@
 
 #include <QString>
 
-#include "boost/date_time/posix_time/posix_time.hpp"
-
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVInputDescription.h>
-#include <pvkernel/core/PVBinaryChunk.h>
 
 #include "../../common/opcua/PVOpcUaAPI.h"
+#include "PVOpcUaBinaryChunk.h"
 
 namespace PVRush
 {
@@ -33,7 +31,7 @@ class PVOpcUaSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	void seek_begin() override;
 	void prepare_for_nelts(chunk_index nelts) override;
 	size_t get_size() const override;
-	PVCore::PVBinaryChunk* operator()() override;
+	PVOpcUaBinaryChunk* operator()() override;
 
   protected:
 	chunk_index _next_index;
@@ -44,18 +42,23 @@ class PVOpcUaSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	void fill_sourcetime_interval(UA_DateTime start_time, std::vector<bool> const& has_data);
 
 	void download_full();
+	auto consolidate_datetimes_full() const -> std::vector<UA_DateTime>;
+	void consolidate_values_full(std::vector<UA_DateTime> const& consolidated_datetimes);
 	void fill_sourcetime_full(std::vector<UA_DateTime> const& datetimes);
 
   private:
 	PVOpcUaQuery& _query;
 	PVOpcUaAPI _api;
-	std::vector<std::unique_ptr<PVCore::PVBinaryChunk>> _chunks;
+	std::vector<std::unique_ptr<PVOpcUaBinaryChunk>> _chunks;
 
 	struct NodeData
 	{
 		std::vector<uint8_t> values;
 		std::vector<UA_DateTime> datetimes;
-		UA_DataType const* type;
+		size_t read_index = 0;
+		bool has_more = true;
+		UA_DataType const* type = nullptr;
+		std::vector<uint8_t> chunk_values;
 	};
 
 	std::vector<NodeData> _data;
@@ -65,11 +68,12 @@ class PVOpcUaSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	unsigned int _current_chunk = 0;
 	uint64_t _nodes_count = 0;
 	size_t _sourcetimes_current = 0;
+	size_t _chunk_size = 1000;
 
-	UA_DateTime _query_start;
-	UA_DateTime _query_end;
-	int64_t _query_interval;
-	size_t _query_nb_of_times;
+	UA_DateTime _query_start = 0;
+	UA_DateTime _query_end = 0;
+	int64_t _query_interval = 0;
+	size_t _query_nb_of_times = 0;
 };
 } // namespace PVRush
 

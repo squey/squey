@@ -166,17 +166,17 @@ QPixmap PVOpcUaTreeItem::icon(int column) const
 
 	switch (m_node_class) {
 	case QOpcUa::NodeClass::Object:
-		c = Qt::darkGreen;
+		c = Qt::gray;
 		break;
 	case QOpcUa::NodeClass::Variable:
 		if (has_history_access()) {
-			c = Qt::red;
+			c = Qt::darkGreen;
 			break;
 		}
-		c = Qt::darkBlue;
+		c = Qt::darkRed;
 		break;
 	case QOpcUa::NodeClass::Method:
-		c = Qt::darkRed;
+		c = Qt::darkBlue;
 		break;
 	default:
 		c = Qt::gray;

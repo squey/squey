@@ -20,6 +20,7 @@
 
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QDesktopWidget>
 #include <QOpcUaClient>
 #include <QOpcUaProvider>
@@ -30,86 +31,28 @@
 // #include <QSslSocket>
 // #include <openssl/ssl.h>
 
-static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
-static constexpr const char MATCH_ALL_QUERY[] = R"###({ "query" : { "match_all" : { } } })###";
-
 PVRush::PVOpcUaParamsWidget::PVOpcUaParamsWidget(PVInputTypeOpcUa const* in_t,
                                                  PVRush::hash_formats const& formats,
                                                  QWidget* parent)
     : PVParamsWidget<PVInputTypeOpcUa, PVOpcUaPresets, PVOpcUaInfos, PVOpcUaQuery>(
           in_t, formats, parent)
 {
-	QLabel* label_index = new QLabel("Index/alias :");
-	_btn_refresh = new QPushButton("&Refresh");
-	_combo_index = new PVWidgets::PVFilterableComboBox();
-	//_port_sb->setValue(PVOpcUaAPI::DEFAULT_PORT);
-
-	_btn_refresh->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
-	_combo_index->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-
-	// QHBoxLayout* custom_layout = new QHBoxLayout();
-	// custom_layout->addWidget(label_index);
-	// custom_layout->addWidget(_combo_index);
-	// custom_layout->addWidget(_btn_refresh);
-
-	// _custom_layout->addLayout(custom_layout);
+	_port_sb->setVisible(false);
+	tabWidget->removeTab(1);
 
 	_columns_tree_widget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	connect(_combo_index,
-	        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this,
-	        &PVOpcUaParamsWidget::index_changed_slot);
-	connect(_combo_index, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this,
-	        &PVOpcUaParamsWidget::index_changed_by_user_slot);
-	connect(_btn_refresh, &QPushButton::clicked, this,
-	        &PVOpcUaParamsWidget::fetch_server_data_slot);
+	_help_label->setText(R"html(
+<html><head/><body>
+	<p>Currently able to load integer nodes.</p>
+	<p>Limitations of <a link="https://open62541.org">Open62541</a> implementation applies.</p>
+</body></html>
+		)html");
+	
+	tabWidget->setCurrentIndex(0);
 
-	for (const char* const qtype_name : query_types) {
-		_query_type_cb->addItem(qtype_name);
-	}
-
-	_help_label->setText(
-	    "<html>"
-	    "<head/>"
-	    "<body>"
-	    "<p><span style=\" text-decoration: underline;\">OpcUa limitation:</span><br/></p>"
-	    "<p><ul><li>The order of the lines returned by OpcUa queries does not respect the "
-	    "order of the lines as imported by Logstash.</li>"
-	    "<li>Requests use tokenized strings. If filters were applied during import, the search "
-	    "have to respect their constraints.<br/>"
-	    "<i>Eg : If a lowercase filter was used at import time, the according search must be done "
-	    "in lowercase too.</i></li></ul>"
-	    "</p><br/>"
-	    "<p><span style=\" text-decoration: underline;\">Logstash CSV plugin "
-	    "limitation:</span><br/></p>"
-	    "<p>When importing logs into OpcUa using Logstash CSV plugin, be careful not to "
-	    "name any of your columns "
-	    "<span style=\" font-weight:600;\">message</span>, <span style=\" "
-	    "font-weight:600;\">type</span>, "
-	    "<span style=\" font-weight:600;\">host</span>,<span style=\" font-weight:600;\"> "
-	    "path</span> or "
-	    "<span style=\" font-weight:600;\">geoip </span>because these are internally used by "
-	    "Logstash and will likely to cause conflicts.</p>"
-	    "</body>"
-	    "</html>");
-
-	setFixedHeight(QApplication::desktop()->availableGeometry().height() - 50);
-}
-
-QString PVRush::PVOpcUaParamsWidget::get_sql_query_prefix() const
-{
-	return QString("SELECT * FROM %1 WHERE ").arg(get_infos().get_index());
-}
-
-void PVRush::PVOpcUaParamsWidget::index_changed_slot(const QString& index)
-{
-	buttonBox->buttons()[0]->setEnabled(index != "");
-
-	QString query_type = _query_type_cb->currentText();
-
-	if (query_type == query_types[EQueryType::SQL]) {
-		_gb_query->setTitle(get_sql_query_prefix() + " ...");
-	}
+	//setFixedHeight(QApplication::desktop()->availableGeometry().height() - 50);
+	resize(QApplication::desktop()->availableGeometry().height() - 50, QApplication::desktop()->availableGeometry().width() / 2);
 }
 
 void PVRush::PVOpcUaParamsWidget::reset_columns_tree_widget()
@@ -125,41 +68,20 @@ void PVRush::PVOpcUaParamsWidget::reset_columns_tree_widget()
 	_root_item->setText(0, "properties");
 	_root_item->setCheckState(0, Qt::Unchecked);
 
-	for (auto& opcua_column : _opcua_treeview->selectionModel()->selectedRows()) {
-		auto column_node_id = opcua_column.siblingAtColumn(4).data();
-		auto column_name = opcua_column.siblingAtColumn(5).data().value<QString>();
-		auto column_type = opcua_column.siblingAtColumn(3).data().value<QString>();
-		qDebug() << "Selected NodeId:" << opcua_column.siblingAtColumn(4).data()
-		         << "ColumnName:" << column_name << "ColumnType:" << column_type;
+	auto deserialized_query = get_serialize_query().split(QRegularExpression("\\;\\$\\;"));
+	size_t nodes_count = deserialized_query.size() / 3;
+	for (size_t i = 0; i < nodes_count; ++i) {
+		// configure node per node
+		auto column_node_id = deserialized_query[3 * i + 0];
+		auto column_name = deserialized_query[3 * i + 1];
+		auto column_type = deserialized_query[3 * i + 2];
 		QTreeWidgetItem* tree_item = new QTreeWidgetItem(_root_item);
-		tree_item->setText(0, "(" + column_node_id.value<QString>() + ") " + column_name);
+		tree_item->setText(0, "(" + column_node_id + ") " + column_name);
 		tree_item->setData(0, Qt::UserRole, column_node_id);
 		tree_item->setText(1, column_type);
 		tree_item->setExpanded(true);
 		tree_item->setCheckState(0, Qt::Checked);
 	}
-
-	// std::vector<QTreeWidgetItem*> parents({_root_item});
-
-	// PVRush::PVOpcUaAPI es(get_infos());
-	// es.visit_columns([&](const std::string& rel_name, const std::string& abs_name,
-	//                      const std::string& type, bool is_leaf, bool is_last_child) {
-	// 	QTreeWidgetItem* tree_item = new QTreeWidgetItem(parents.back());
-
-	// 	tree_item->setText(0, rel_name.c_str());
-	// 	tree_item->setData(0, Qt::UserRole, QString::fromStdString(abs_name));
-	// 	tree_item->setText(1, type.c_str());
-	// 	tree_item->setExpanded(true);
-	// 	tree_item->setCheckState(0, Qt::Unchecked);
-
-	// 	if (not is_leaf) { // node
-	// 		parents.emplace_back(tree_item);
-	// 	}
-
-	// 	if (is_last_child) {
-	// 		parents.pop_back();
-	// 	}
-	// });
 
 	_columns_tree_widget->resizeColumnToContents(0);
 
@@ -248,18 +170,6 @@ void PVRush::PVOpcUaParamsWidget::tree_item_changed(QTreeWidgetItem* item, int c
 	_columns_tree_widget->blockSignals(false);
 }
 
-void PVRush::PVOpcUaParamsWidget::index_changed_by_user_slot()
-{
-	int query_type = _query_type_cb->currentIndex();
-
-	if (query_type == EQueryType::QUERY_BUILDER) {
-		// PVRush::PVOpcUaAPI es(get_infos());
-		// _querybuilder->set_filters(es.querybuilder_columns());
-	}
-
-	reset_columns_tree_widget();
-}
-
 void PVRush::PVOpcUaParamsWidget::fetch_server_data_slot()
 {
 	fetch_server_data(get_infos());
@@ -268,16 +178,6 @@ void PVRush::PVOpcUaParamsWidget::fetch_server_data_slot()
 bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullptr*/)
 {
 	const PVOpcUaInfos& infos = get_infos();
-
-	// PVRush::PVOpcUaAPI es(infos);
-
-	// bool ret = es.check_connection(error);
-
-	// if (ret) {
-	// 	fetch_server_data(infos);
-	// }
-
-	// return ret;
 
 	// SSL_library_init();
 	// SSL_load_error_strings();
@@ -302,11 +202,11 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 		return false;
 	}
 
-	// QString pkidir("/home/fchapelle/dev/qtopcua/lay2form/pkidir/");
+	// QString pkidir("/home/===/pkidir/");
 
 	QOpcUaPkiConfiguration pkiConfig;
-	// pkiConfig.setClientCertificateFile(pkidir + "/own/certs/lay2form_fchapelle_certificate.der");
-	// pkiConfig.setPrivateKeyFile(pkidir + "/own/private/lay2form_fchapelle_privatekey.pem");
+	// pkiConfig.setClientCertificateFile(pkidir + "/own/certs/certificate.der");
+	// pkiConfig.setPrivateKeyFile(pkidir + "/own/private/privatekey.pem");
 	// pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
 	// pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
 	// pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
@@ -328,9 +228,6 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 		    qDebug() << "Client state changed:" << state;
 		    if (state == QOpcUaClient::ClientState::Connected) {
 			    QOpcUaNode* node = client->node("ns=0;i=84");
-			    if (node) {
-				    qDebug() << "A node object has been created";
-			    }
 			    _opcua_treeview = new QTreeView(this);
 			    _opcua_treeview->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 			    _opcua_treeview->setTextElideMode(Qt::ElideRight);
@@ -344,7 +241,9 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 			    _opcua_treeview->setModel(treemodel);
 			    _opcua_treeview->header()->setSectionResizeMode(1 /* Value column*/,
 			                                                    QHeaderView::Interactive);
-			    tabWidget->addTab(_opcua_treeview, "Browse nodes");
+			    auto scroll_area = new QScrollArea;
+				scroll_area->setWidget(_opcua_treeview);
+				auto tab_index = tabWidget->addTab(scroll_area, "Browse nodes");
 			    connect(_opcua_treeview->selectionModel(), &QItemSelectionModel::selectionChanged,
 			            [this](const QItemSelection& selected, const QItemSelection& deselected) {
 				            reset_columns_tree_widget();
@@ -352,6 +251,7 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 					            //
 				            }
 			            });
+				tabWidget->setCurrentIndex(tab_index);
 		    }
 	    });
 
@@ -390,47 +290,6 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 
 void PVRush::PVOpcUaParamsWidget::query_type_changed_slot()
 {
-	// int query_type = _query_type_cb->currentIndex();
-
-	// _querybuilder->setVisible(false);
-	// _txt_query->setVisible(false);
-
-	// if (query_type == EQueryType::SQL) {
-	// 	_txt_query->setPlainText("");
-	// 	_reference_label->setText(
-	// 	    "<a href=\"https://github.com/NLPchina/elasticsearch-sql/\">"
-	// 	    "<span style=\" text-decoration: underline; color:#0000ff;\">OpcUa SQL plugin");
-	// 	PVRush::PVOpcUaAPI es(get_infos());
-	// 	if (es.is_sql_available()) {
-	// 		_gb_query->setTitle(get_sql_query_prefix() + " ...");
-	// 		_txt_query->setEnabled(true);
-	// 	} else {
-	// 		_txt_query->setPlainText("Please, install the SQL plugin to your OpcUa "
-	// 		                         "instance to support this feature.");
-	// 		_txt_query->setEnabled(false);
-	// 		// buttonBox->buttons()[0]->setEnabled(false);
-	// 	}
-	// 	_txt_query->setVisible(true);
-	// } else if (query_type == EQueryType::QUERY_BUILDER) {
-	// 	_gb_query->setTitle("Query");
-	// 	_reference_label->setText("");
-	// 	_querybuilder->reset_rules();
-
-	// 	// PVRush::PVOpcUaAPI es(get_infos());
-	// 	// _querybuilder->set_filters(es.querybuilder_columns());
-
-	// 	_querybuilder->setVisible(true);
-	// } else { // EQueryType::JSON
-	// 	_txt_query->setPlainText(MATCH_ALL_QUERY);
-	// 	_gb_query->setTitle("Query");
-	// 	_reference_label->setText("<a "
-	// 	                          "href=\"https://www.elastic.co/guide/en/elasticsearch/reference/"
-	// 	                          "current/query-dsl-filters.html\">"
-	// 	                          "<span style=\" text-decoration: underline; "
-	// 	                          "color:#0000ff;\">OpcUa Filters reference");
-	// 	_txt_query->setVisible(true);
-	// 	_txt_query->setEnabled(true);
-	// }
 }
 
 /*****************************************************************************
@@ -480,12 +339,11 @@ void PVRush::PVOpcUaParamsWidget::export_query_result(PVCore::PVStreamingCompres
 			    opcua_column.siblingAtColumn(0).data(Qt::UserRole).value<QString>();
 			es.read_node_history(
 			    column_node_id, UA_DateTime_fromUnixTime(0), UA_DateTime_now(), 10000,
-			    [&compressor, &sep, &quote, &count](UA_HistoryData* data) {
+			    [&compressor, &sep, &quote, &count](UA_HistoryData* data, bool) {
 				    for (UA_UInt32 i = 0; i < data->dataValuesSize; ++i) {
 					    UA_DataValue& value = data->dataValues[i];
 					    std::string v;
 					    v += safe_export(std::to_string(value.sourceTimestamp), sep, quote) + sep;
-					    v += safe_export(std::to_string(value.serverTimestamp), sep, quote) + sep;
 					    v +=
 					        safe_export(PVOpcUaAPI::to_json_string(value.value), sep, quote) + "\n";
 					    compressor.write(v);
@@ -507,7 +365,6 @@ bool PVRush::PVOpcUaParamsWidget::set_infos(PVOpcUaInfos const& infos)
 	bool res =
 	    PVParamsWidget<PVInputTypeOpcUa, PVOpcUaPresets, PVOpcUaInfos, PVOpcUaQuery>::set_infos(
 	        infos);
-	_combo_index->setCurrentIndex(_combo_index->findText(infos.get_index()));
 
 	if (infos.get_index().isEmpty()) {
 		return true;
@@ -534,7 +391,6 @@ PVRush::PVOpcUaInfos PVRush::PVOpcUaParamsWidget::get_infos() const
 	PVRush::PVOpcUaInfos infos =
 	    PVParamsWidget<PVInputTypeOpcUa, PVOpcUaPresets, PVOpcUaInfos, PVOpcUaQuery>::get_infos();
 
-	infos.set_index(_combo_index->currentText());
 	infos.set_filter_path(_format_path->text());
 
 	// update filter_path
@@ -553,94 +409,51 @@ PVRush::PVOpcUaInfos PVRush::PVOpcUaParamsWidget::get_infos() const
 QString PVRush::PVOpcUaParamsWidget::get_server_query(std::string* error /* = nullptr */) const
 {
 	QString q = get_serialize_query();
-	int query_type = _query_type_cb->currentIndex();
-
-	if (query_type == EQueryType::JSON) {
-		q = _txt_query->toPlainText();
-	} else {
-		// PVRush::PVOpcUaAPI es(get_infos());
-
-		// if (query_type == EQueryType::SQL) {
-		// 	q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString(), error).c_str();
-		// } else if (query_type == EQueryType::QUERY_BUILDER) {
-		// 	q = QString::fromStdString(es.rules_to_json(_querybuilder->get_rules()));
-		// 	if (q.isEmpty()) {
-		// 		q = MATCH_ALL_QUERY;
-		// 	}
-		// }
-	}
-
-	while (q.endsWith('\n'))
-		q.chop(1);
-
 	return q;
 }
 
 QString PVRush::PVOpcUaParamsWidget::get_serialize_query() const
 {
-	QString serialized;
-	for (auto& opcua_column : _opcua_treeview->selectionModel()->selectedRows()) {
-		auto column_node_id = opcua_column.siblingAtColumn(0).data(Qt::UserRole).value<QString>();
-		auto column_type = opcua_column.siblingAtColumn(3).data(Qt::UserRole).value<QString>();
-		auto column_name = opcua_column.siblingAtColumn(5).data(Qt::UserRole).value<QString>();
-		serialized += column_node_id + ";$;" + column_type + ";$;" + column_name + ";$;";
+	if (_opcua_treeview) {
+		QString serialized;
+		for (auto& opcua_column : _opcua_treeview->selectionModel()->selectedRows()) {
+			auto column_node_id = opcua_column.siblingAtColumn(0).data(Qt::UserRole).value<QString>();
+			auto column_type = opcua_column.siblingAtColumn(3).data(Qt::UserRole).value<QString>();
+			auto column_name = opcua_column.siblingAtColumn(5).data(Qt::UserRole).value<QString>();
+			serialized += column_node_id + ";$;" + column_type + ";$;" + column_name + ";$;";
+		}
+		qDebug() << __func__ << serialized;
+		return serialized;
+	} else {
+		qDebug() << __func__ << _serialized_query;
+		return _serialized_query;
 	}
-	return serialized;
 }
 
 void PVRush::PVOpcUaParamsWidget::set_query(QString const& query)
 {
+	_serialized_query = query;
+	reset_columns_tree_widget();
 	qDebug() << __func__ << query;
 }
 
 size_t PVRush::PVOpcUaParamsWidget::query_result_count(std::string* error /* = nullptr */)
 {
 	return 0;
-	// std::string err;
-	// PVRush::PVOpcUaAPI es(get_infos());
-	// const PVOpcUaQuery& query = get_query(&err);
-
-	// if (err.empty() == false) {
-	// 	if (error) {
-	// 		*error = err;
-	// 	}
-	// 	return 0;
-	// }
-
-	// return es.count(query, error);
 }
 
 bool PVRush::PVOpcUaParamsWidget::fetch_server_data(const PVOpcUaInfos& infos)
 {
-	// PVRush::PVOpcUaAPI es(infos);
-
-	// QString old_index = _combo_index->currentText();
-
-	// _combo_index->clear();
-	// QStringList indexes_and_alias_list;
-	// for (const std::string& index : es.indexes()) {
-	// 	indexes_and_alias_list << (index.c_str());
-	// }
-	// for (const std::string& alias : es.aliases()) {
-	// 	indexes_and_alias_list << (alias.c_str());
-	// }
-	// _combo_index->set_string_list(indexes_and_alias_list);
-
-	// _combo_index->setCurrentIndex(_combo_index->findText(old_index));
-
 	return true;
 }
 
 size_t PVRush::PVOpcUaParamsWidget::get_selected_columns_count() const
 {
-	// size_t selected_columns_count = 0;
-
-	// visit_selected_columns(_root_item,
-	//                        [&](const QTreeWidgetItem* /*item*/) { selected_columns_count++; });
-
-	// return selected_columns_count;
-
-	return _opcua_treeview->selectionModel()->selectedRows().size();
+	if (_opcua_treeview) {
+		return _opcua_treeview->selectionModel()->selectedRows().size();
+	} else {
+		return _serialized_query.split(QRegularExpression("\\;\\$\\;")).size() / 3;
+	}
 }
 
 static size_t get_first_level_fields_count(const QString& format_path)
@@ -667,7 +480,7 @@ static size_t get_first_level_fields_count(const QString& format_path)
 void PVRush::PVOpcUaParamsWidget::accept()
 {
 	size_t fields_count = get_selected_columns_count();
-	if (fields_count < 2) {
+	if (1 + fields_count < 2) {
 		QMessageBox::critical(this, "Invalid format error",
 		                      "At least two columns must be selected to have a valid format.");
 		return;
@@ -675,7 +488,7 @@ void PVRush::PVOpcUaParamsWidget::accept()
 
 	if (is_format_custom()) {
 		update_custom_format();
-	} else if (not(fields_count == get_first_level_fields_count(_format_path->text()))) {
+	} else if (1 + fields_count != get_first_level_fields_count(_format_path->text())) {
 		QMessageBox::critical(
 		    this, "Invalid format error",
 		    "Number of columns mismatchs between existing format and selected mapping.\n\n"
@@ -696,15 +509,17 @@ void PVRush::PVOpcUaParamsWidget::update_custom_format()
 	    format_root->addOneField(QString("SourceTime"), QString("time"));
 	time_node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "yyyy-MM-d H:m:ss.S");
 
-	for (auto& opcua_column : _opcua_treeview->selectionModel()->selectedRows()) {
-		auto column_name = opcua_column.siblingAtColumn(5).data().value<QString>();
-		auto column_type = opcua_column.siblingAtColumn(3).data(Qt::UserRole).value<QString>();
-		qDebug() << "Selected NodeId:" << opcua_column.siblingAtColumn(4).data()
-		         << "ColumnName:" << column_name << "ColumnType:" << column_type;
-		auto node_id_open62541 = PVRush::PVOpcUaAPI::NodeId(column_type).open62541();
+	set_query(get_serialize_query());
+
+	auto deserialized_query = _serialized_query.split(QRegularExpression("\\;\\$\\;"));
+	size_t nodes_count = deserialized_query.size() / 3;
+	for (size_t i = 0; i < nodes_count; ++i) {
+		// configure node per node
+		auto column_name = deserialized_query[3 * i + 2];
+		auto node_id_open62541 = PVOpcUaAPI::NodeId(deserialized_query[3 * i + 1]).open62541();
 		if (auto* data_type = UA_findDataType(&node_id_open62541)) {
 			PVRush::PVXmlTreeNodeDom* node =
-			    format_root->addOneField(column_name, QString(PVRush::PVOpcUaAPI::pvcop_type(data_type->typeIndex)));
+				format_root->addOneField(column_name, QString(PVRush::PVOpcUaAPI::pvcop_type(data_type->typeIndex)));
 		} else {
 			PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(column_name, QString("string"));
 		}

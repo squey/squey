@@ -27,7 +27,7 @@
 
 std::error_category const& opcua_category()
 {
-	struct opcua_error_category: public std::error_category
+	static struct opcua_error_category: public std::error_category
 	{
 		const char* name() const noexcept override { return "open62541"; }
 		std::string message(int condition) const override {
@@ -88,11 +88,13 @@ void PVRush::PVOpcUaAPI::connect_to_server()
 	if (_infos.get_login().isEmpty()) {
 		UA_StatusCode retval = UA_Client_connect(_client, endpoint_url);
 		qDebug() << "UA_Client_connect:" << QDBGSTS(retval);
+		check_opcua_code(retval);
 	} else {
-		auto login = _infos.get_login().toUtf8().data();
-		auto password = _infos.get_password().toUtf8().data();
-		UA_StatusCode retval = UA_Client_connect_username(_client, endpoint_url, login, password);
+		auto login = _infos.get_login().toUtf8();
+		auto password = _infos.get_password().toUtf8();
+		UA_StatusCode retval = UA_Client_connect_username(_client, endpoint_url, login.data(), password.data());
 		qDebug() << "UA_Client_connect_username:" << QDBGSTS(retval);
+		check_opcua_code(retval);
 	}
 }
 
@@ -245,7 +247,7 @@ static UA_Boolean read_node_history_static(UA_Client* client,
 	return static_cast<PVRush::PVOpcUaAPI*>(context)->read_history_data(nodeId, moreDataAvailable, data);
 }
 
-void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, UA_DateTime start_time, UA_DateTime end_time, uint32_t values_per_node, std::function<bool(UA_HistoryData*)> callback)
+void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, UA_DateTime start_time, UA_DateTime end_time, uint32_t values_per_node, std::function<bool(UA_HistoryData*, bool)> callback)
 {
 	_read_callback = callback;
 	UA_NodeId node = node_id.open62541();
@@ -258,17 +260,15 @@ void PVRush::PVOpcUaAPI::read_node_history(NodeId node_id, UA_DateTime start_tim
 	//     _client, &node, read_node_history_static, UA_DateTime_now() - 100*UA_DATETIME_SEC,
 	//     UA_DateTime_now(), 0, &aggregate_type, UA_STRING_NULL, UA_TIMESTAMPSTORETURN_BOTH,
 	//     (void*)this);
-	qDebug() << "read_node_history" << QDBGSTS(retval);
+	check_opcua_code(retval);
 }
 
 UA_DateTime PVRush::PVOpcUaAPI::first_historical_datetime(NodeId node_id)
 {
 	UA_DateTime ret_val = 0;
-	_read_callback = [&ret_val](UA_HistoryData* data) {
+	_read_callback = [&ret_val](UA_HistoryData* data, bool) {
 		if (data->dataValuesSize > 0) {
 			ret_val = data->dataValues[0].sourceTimestamp;
-			qDebug() << "FIRST DATA:";
-			print_datetime(data->dataValues[0].sourceTimestamp);
 		}
 		return false;
 	};
@@ -283,9 +283,8 @@ bool PVRush::PVOpcUaAPI::read_history_data(const UA_NodeId* nodeId,
                                            UA_Boolean moreDataAvailable,
                                            const UA_ExtensionObject* data)
 {
-	qDebug() << "Read historical callback (Has more data:" << moreDataAvailable << "):";
 	if (data->content.decoded.type == &UA_TYPES[UA_TYPES_HISTORYDATA]) {
-		return _read_callback((UA_HistoryData*)data->content.decoded.data);
+		return _read_callback((UA_HistoryData*)data->content.decoded.data, moreDataAvailable);
 	}
 	return true;
 }
@@ -357,4 +356,13 @@ void PVRush::PVOpcUaAPI::print_datetime(UA_DateTime date)
 	UA_DateTimeStruct dts = UA_DateTime_toStruct(date);
 	printf("%02u-%02u-%04u %02u:%02u:%02u.%03u\n", dts.day, dts.month, dts.year, dts.hour, dts.min,
 	       dts.sec, dts.milliSec);
+}
+
+boost::posix_time::ptime PVRush::PVOpcUaAPI::to_ptime(UA_DateTime date)
+{
+	static const UA_DateTimeStruct time_zero_dts = UA_DateTime_toStruct(0);
+	static const boost::posix_time::ptime time_zero(
+	    boost::gregorian::date(time_zero_dts.year, time_zero_dts.month, time_zero_dts.day));
+
+	return time_zero + boost::posix_time::microsec(date / UA_DATETIME_USEC);
 }

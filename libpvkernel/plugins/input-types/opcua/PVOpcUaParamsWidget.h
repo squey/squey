@@ -65,22 +65,19 @@ class PVOpcUaParamsWidget
 	void edit_custom_format() override;
 
   private:
-	void index_changed_slot(const QString& index);
-	void index_changed_by_user_slot();
 	void fetch_server_data_slot();
 	void update_custom_format();
 	void reset_columns_tree_widget();
 	void set_columns_tree_widget_selection(const QString& filter_path);
 	void tree_item_changed(QTreeWidgetItem* item, int column);
 	size_t get_selected_columns_count() const;
-	void set_query_type(QString const& query_type);
-	QString get_sql_query_prefix() const;
 
   private:
 	QPushButton* _btn_refresh;
 	PVWidgets::PVFilterableComboBox* _combo_index;
 	QTreeWidgetItem* _root_item = nullptr;
 	QTreeView* _opcua_treeview = nullptr;
+	QString _serialized_query;
 };
 
 } // namespace PVRush
