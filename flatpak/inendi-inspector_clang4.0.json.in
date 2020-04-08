@@ -728,7 +728,7 @@
       ]
     },
     {
-      "name": "inendi-inspector",
+      "name": "inendi-inspector2",
       "buildsystem": "cmake-ninja",
       "builddir": true,
       "run-tests" : true,

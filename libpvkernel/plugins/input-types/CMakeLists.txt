@@ -240,6 +240,7 @@ erf/PVERFTreeModel.h)
 set(ERF_SRC_FILES
 ../common/erf/PVERFAPI.cpp
 erf/PVERFParamsWidget.cpp
+erf/PVERFTreeView.cpp
 erf/PVERFTreeModel.cpp
 erf/PVInputTypeERF.cpp
 erf/register.cpp)
