@@ -49,7 +49,7 @@ class PVERFDescription : public PVFileDescription
 		so.set_current_status("Saving source file information...");
 
 		if (so.save_log_file()) {
-			for (const QString& path : _paths) { // FIXME
+			for (const QString& path : _paths) {
 				QFileInfo fi(path.front());
 				QString fname = fi.fileName();
 				so.file_write(fname, path);

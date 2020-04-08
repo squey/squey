@@ -20,7 +20,6 @@ bool PVRush::PVERFAPI::set_path(const std::string& erf_path)
 {
 	if (_lib_Initialized) {
 		// Create a filer interface
-		ErfOpenMode Mode = ERF_READ;
 		ErfErrorCode Status;
 		_filer.reset(ErfFactory::CreateFiler(erf_path, ERF_READ, Status));
 		if (Status == ERF_SUCCESS and _filer) {
@@ -60,7 +59,7 @@ size_t PVRush::PVERFAPI::memory_size(const rapidjson::Document& selected_nodes,
 	if (connectivities) {
 		ErfElementIList element_list;
 		ErfErrorCode Status = _stage->GetElementList(0, element_list);
-		for (int i = 0; i < element_list.size(); i++) {
+		for (size_t i = 0; i < element_list.size(); i++) {
 			ErfElementI* element = element_list[i];
 			ERF_INT row_count;
 			ERF_INT node_per_elem;
@@ -265,9 +264,6 @@ void PVRush::PVERFAPI::add_connectivities(std::vector<QDomDocument>& formats,
 
 	for (const auto& entity_type : connectivities->GetArray()) {
 		std::string entity_type_name = entity_type.GetString();
-
-		ErfErrorCode status;
-		ErfElementI* elem = _stage->GetElement(0, entity_type_name, status);
 
 		format_root->addOneField(QString::fromStdString("idele"), erf_type_traits<int_t>::string);
 
