@@ -8,12 +8,11 @@
 
 #include "PVOpcUaParamsWidget.h"
 
-bool PVRush::PVInputTypeOpcUa::createWidget(hash_formats const& formats,
-                                            hash_formats& new_formats,
-                                            list_inputs& inputs,
-                                            QString& format,
-                                            PVCore::PVArgumentList& /*args_ext*/,
-                                            QWidget* parent) const
+bool PVRush::PVInputTypeOpcUa::createWidget(hash_formats& formats,
+                                          list_inputs& inputs,
+                                          QString& format,
+                                          PVCore::PVArgumentList& /*args_ext*/,
+                                          QWidget* parent) const
 {
 	connect_parent(parent);
 	std::unique_ptr<PVOpcUaParamsWidget> params(new PVOpcUaParamsWidget(this, formats, parent));
@@ -28,7 +27,7 @@ bool PVRush::PVInputTypeOpcUa::createWidget(hash_formats const& formats,
 
 	if (params->is_format_custom()) {
 		PVRush::PVFormat custom_format(params->get_custom_format().documentElement());
-		new_formats["custom"] = std::move(custom_format);
+		formats["custom"] = std::move(custom_format);
 		format = "custom";
 	} else {
 		format = params->get_format_path();

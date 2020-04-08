@@ -21,11 +21,6 @@ QString PVRush::PVSourceCreatorOpcUa::supported_type() const
 	return QString("opcua");
 }
 
-bool PVRush::PVSourceCreatorOpcUa::pre_discovery(PVInputDescription_p /*input*/) const
-{
-	return true;
-}
-
 QString PVRush::PVSourceCreatorOpcUa::name() const
 {
 	return QString("opcua");
