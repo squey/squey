@@ -10,7 +10,7 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -39,9 +39,7 @@ const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
  *
  ****************************************************************************/
 
-PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0)
-{
-}
+PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0) {}
 
 /*****************************************************************************
  *
@@ -88,7 +86,7 @@ void PVRush::PVNraw::init_collection(const std::string& path)
  *
  ****************************************************************************/
 
-bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
+bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVTextChunk const& chunk)
 {
 	assert(_collector && "We have to be in read state");
 
@@ -129,6 +127,25 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVChunk const& chunk)
 
 #pragma omp atomic
 	_real_nrows += local_row;
+
+	return true;
+}
+
+bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk const& chunk)
+{
+	pvcop::db::sink snk(*_collector);
+	snk.write_chunk_by_column(chunk.start_index(), chunk.rows_count(), chunk.columns_chunk());
+
+	// for (size_t col = 0; col < chunk.columns_chunk().size(); ++col) {
+	// 	if (chunk.is_invalid(PVCol(col))) {
+	// 		for (size_t row = 0; row < chunk.rows_count(); ++row) {
+	// 			snk.set_invalid(col, chunk.start_index() + row);
+	// 		}
+	// 	}
+	// }
+
+#pragma omp atomic
+	_real_nrows += chunk.rows_count();
 
 	return true;
 }

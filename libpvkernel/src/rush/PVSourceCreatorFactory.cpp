@@ -8,7 +8,7 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVConfig.h>
 
@@ -16,14 +16,12 @@
 
 static constexpr int INENDI_DISCOVERY_NCHUNKS = 1;
 
-PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
+PVRush::PVSourceCreator_p PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
 {
 	QString itype = in_t->name();
 	LIB_CLASS(PVRush::PVSourceCreator)& src_creators = LIB_CLASS(PVRush::PVSourceCreator)::get();
 	LIB_CLASS(PVRush::PVSourceCreator)::list_classes const& list_creators = src_creators.get_list();
 	LIB_CLASS(PVRush::PVSourceCreator)::list_classes::const_iterator itc;
-
-	PVRush::list_creators lcreators_type;
 
 	for (itc = list_creators.begin(); itc != list_creators.end(); itc++) {
 		PVRush::PVSourceCreator_p sc = itc->value();
@@ -32,26 +30,10 @@ PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputT
 		}
 		PVRush::PVSourceCreator_p sc_clone = sc->clone<PVRush::PVSourceCreator>();
 		PVLOG_INFO("Found source for input type %s\n", qPrintable(in_t->human_name()));
-		lcreators_type.push_back(sc_clone);
+		return sc_clone;
 	}
 
-	return lcreators_type;
-}
-
-PVRush::list_creators
-PVRush::PVSourceCreatorFactory::filter_creators_pre_discovery(PVRush::list_creators const& lcr,
-                                                              PVInputDescription_p input)
-{
-	PVRush::list_creators::const_iterator itc;
-	PVRush::list_creators pre_discovered_c;
-	for (itc = lcr.begin(); itc != lcr.end(); itc++) {
-		PVRush::PVSourceCreator_p sc = *itc;
-		if (sc->pre_discovery(input)) {
-			pre_discovered_c.push_back(sc);
-		}
-	}
-
-	return pre_discovered_c;
+	return PVRush::PVSourceCreator_p();
 }
 
 float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_,
@@ -85,7 +67,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 		for (int i = 0; i < INENDI_DISCOVERY_NCHUNKS; i++) {
 			// Create a chunk
-			PVCore::PVChunk* chunk = (*src)();
+			PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>((*src)());
 			if (chunk == nullptr) { // No more chunks !
 				break;
 			}
@@ -153,27 +135,4 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		// Formats with filters containing invalid arguments are not candidates to auto discovery
 		return 0.0;
 	}
-}
-
-std::multimap<float, PVRush::pair_format_creator>
-PVRush::PVSourceCreatorFactory::discover_input(PVInputType_p input_type, PVInputDescription_p input)
-{
-	std::multimap<float, pair_format_creator> ret;
-	PVRush::list_creators creators = filter_creators_pre_discovery(
-	    PVRush::PVSourceCreatorFactory::get_by_input_type(input_type), input);
-	PVRush::hash_format_creator formats_creators;
-	PVRush::hash_format_creator::const_iterator it_fc;
-	for (it_fc = formats_creators.begin(); it_fc != formats_creators.end(); it_fc++) {
-		float success = 0.0f;
-		try {
-			success = discover_input(it_fc.value(), input);
-		} catch (...) {
-			continue;
-		}
-		if (success > 0) {
-			ret.insert(std::make_pair(success, it_fc.value()));
-		}
-	}
-
-	return ret;
 }

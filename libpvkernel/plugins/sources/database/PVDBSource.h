@@ -11,7 +11,7 @@
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVInput_types.h>
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 
 #include "../../common/database/PVDBQuery.h"
 
@@ -20,7 +20,7 @@
 namespace PVRush
 {
 
-class PVDBSource : public PVRawSourceBase
+class PVDBSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
 	PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk);
@@ -31,7 +31,7 @@ class PVDBSource : public PVRawSourceBase
 	void seek_begin() override;
 	void prepare_for_nelts(chunk_index nelts) override;
 	size_t get_size() const override { return 0; }
-	PVCore::PVChunk* operator()() override;
+	PVCore::PVTextChunk* operator()() override;
 
   protected:
 	PVDBQuery _query;
@@ -41,6 +41,6 @@ class PVDBSource : public PVRawSourceBase
 	chunk_index _next_index;
 	QSqlQuery _sql_query;
 };
-}
+} // namespace PVRush
 
 #endif

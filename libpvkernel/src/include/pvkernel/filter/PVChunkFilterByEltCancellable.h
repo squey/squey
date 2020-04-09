@@ -15,7 +15,7 @@
 
 namespace PVCore
 {
-class PVChunk;
+class PVTextChunk;
 } // namespace PVCore
 
 namespace PVFilter
@@ -27,7 +27,7 @@ class PVChunkFilterByEltCancellable : public PVChunkFilter
 	PVChunkFilterByEltCancellable(std::unique_ptr<PVElementFilter> elt_filter,
 	                              float timeout,
 	                              bool* cancellation = nullptr);
-	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk) const;
+	PVCore::PVTextChunk* operator()(PVCore::PVTextChunk* chunk) const;
 
   private:
 	std::unique_ptr<PVElementFilter> _elt_filter;

@@ -598,6 +598,7 @@
         "-DUA_ENABLE_ENCRYPTION=ON",
         "-DUA_ENABLE_HISTORIZING=ON",
         "-DUA_ENABLE_EXPERIMENTAL_HISTORIZING=ON",
+        "-DUA_ENABLE_JSON_ENCODING=ON",
         "-DBUILD_SHARED_LIBS=ON",
         "-DCMAKE_BUILD_TYPE=Release",
         "-DUA_LOGLEVEL=300"
@@ -650,6 +651,79 @@
           "type": "file",
           "path": "no-configure",
           "dest-filename": "configure"
+        }
+      ]
+    },
+    {
+      "name": "cmake",
+      "buildsystem": "simple",
+      "build-commands": [
+        "./bootstrap --parallel=$(nproc) --prefix=/app --docdir=share/doc/cmake && make -j $(nproc) && make install"
+      ],
+      "builddir": true,
+      "config-opts": [
+          "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
+          "-DENABLE_TESTING=OFF"
+      ],
+      "sources": [
+          {
+          "type": "archive",
+          "url": "https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3.tar.gz",
+          "sha256": "215d0b64e81307182b29b63e562edf30b3875b834efdad09b3fcb5a7d2f4b632"
+          }
+      ]
+    },
+    {
+        "name": "zlib",
+        "sources": [
+        {
+          "type": "archive",
+          "url": "https://www.zlib.net/zlib-1.2.11.tar.gz",
+          "sha256": "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"
+        }
+      ]
+    },
+    {
+        "name": "hdf5",
+        "buildsystem": "cmake-ninja",
+        "builddir": true,
+        "config-opts": [
+            "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
+            "-DBUILD_SHARED_LIBS=1",
+            "-DHDF5_ENABLE_Z_LIB_SUPPORT=1",
+            "-DHDF5_BUILD_CPP_LIB=1",
+            "-DALLOW_UNSUPPORTED=1",
+            "-DHDF5_ENABLE_THREADSAFE=1"
+        ],
+        "sources": [
+        {
+          "type": "archive",
+          "url": "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.14/src/hdf5-1.8.14.tar.bz2",
+          "sha256": "53722cb9f5977af2908f92fc1a3f8c597800a5cb448cfe5c75060d6335bb9bab"
+        },
+        {
+          "type": "shell",
+          "commands": [ "sed -i '18,20d' config/cmake/hdf5-config-version.cmake.in", "# Fix PACKAGE_FIND_VERSION_TWEAK var" ]
+        }
+        
+        
+      ]
+    },
+    {
+        "name": "erf",
+        "buildsystem": "cmake-ninja",
+        "builddir": true,
+        "config-opts": [
+            "-DCMAKE_BUILD_TYPE=@@BUILD_TYPE@@",
+            "-DERF_MULTI_PRECISION=0",
+            "-DERF_DOUBLE_PRECISION=0",
+            "-DERF_ENCRYPTION=0"
+        ],
+        "sources": [
+        {
+          "type": "git",
+          "url": "ssh://git@gitlab.esi-group.com/io/erf.git",
+          "commit": "050fcf346d5fa03407e952d1c22775a386df4369"
         }
       ]
     },

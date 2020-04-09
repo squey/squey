@@ -14,6 +14,8 @@
 #include <QDataStream>
 #include <QString>
 
+#include <sys/sysinfo.h>
+
 namespace PVCore
 {
 
@@ -70,6 +72,17 @@ std::string join(It it_begin, It it_end, const std::string& separator)
 	}
 
 	return ret;
+}
+
+inline size_t available_memory()
+{
+	struct sysinfo info;
+
+	if (sysinfo(&info) < 0) {
+		return 0;
+	}
+
+	return info.freeram;
 }
 
 } // namespace PVCore

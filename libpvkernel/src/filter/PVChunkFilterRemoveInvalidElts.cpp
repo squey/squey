@@ -7,7 +7,7 @@
 
 #include <pvkernel/filter/PVChunkFilterRemoveInvalidElts.h>
 
-#include <pvkernel/core/PVChunk.h>         // for PVChunk, list_elts
+#include <pvkernel/core/PVTextChunk.h>     // for PVChunk, list_elts
 #include <pvkernel/core/PVElement.h>       // for PVElement
 #include <pvkernel/filter/PVChunkFilter.h> // for PVChunkFilter
 
@@ -28,7 +28,8 @@ PVFilter::PVChunkFilterRemoveInvalidElts::PVChunkFilterRemoveInvalidElts(bool& j
  * PVFilter::PVChunkFilterRemoveInvalidElts::operator()
  *
  *****************************************************************************/
-PVCore::PVChunk* PVFilter::PVChunkFilterRemoveInvalidElts::operator()(PVCore::PVChunk* chunk)
+PVCore::PVTextChunk* PVFilter::PVChunkFilterRemoveInvalidElts::
+operator()(PVCore::PVTextChunk* chunk)
 {
 	auto& elts = chunk->elements();
 	auto it = elts.begin();

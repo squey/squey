@@ -6,7 +6,7 @@
  */
 
 #include "PVDBSource.h"
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 
@@ -16,7 +16,7 @@
 #define NCHUNKS 100
 
 PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk)
-    : PVRawSourceBase(), _query(query), _nelts_chunk(nelts_chunk)
+    : _query(query), _nelts_chunk(nelts_chunk)
 {
 	seek_begin();
 	if (!_query.connect_serv()) {
@@ -26,9 +26,7 @@ PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk)
 	_last_elt_index = 0;
 }
 
-PVRush::PVDBSource::~PVDBSource()
-{
-}
+PVRush::PVDBSource::~PVDBSource() {}
 
 QString PVRush::PVDBSource::human_name()
 {
@@ -48,7 +46,7 @@ void PVRush::PVDBSource::prepare_for_nelts(chunk_index nelts)
 	_sql_query = _query.to_query(_start, _min_nelts);
 }
 
-PVCore::PVChunk* PVRush::PVDBSource::operator()()
+PVCore::PVTextChunk* PVRush::PVDBSource::operator()()
 {
 	if (!_sql_query.isActive()) {
 		if (!_sql_query.exec()) {
@@ -63,7 +61,7 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 		            qPrintable(_sql_query.lastQuery()));
 	}
 	// Create a chunk w/ no memory for its internal buffer
-	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
+	PVCore::PVTextChunk* chunk = PVCore::PVTextChunkMem<>::allocate(0, this);
 	size_t chunk_size = 0;
 	chunk->set_index(_next_index);
 	PVLOG_INFO("_nelts_chunk=%d; _next_index=%d\n", _nelts_chunk, _next_index);

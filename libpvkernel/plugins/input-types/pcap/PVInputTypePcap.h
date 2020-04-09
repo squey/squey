@@ -31,8 +31,7 @@ class PVInputTypePcap : public PVRush::PVInputTypeDesc<PVRush::PVPcapDescription
 	virtual ~PVInputTypePcap();
 
   public:
-	bool createWidget(PVRush::hash_formats const& formats,
-	                  PVRush::hash_formats& new_formats,
+	bool createWidget(PVRush::hash_formats& formats,
 	                  PVRush::PVInputType::list_inputs& inputs,
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,

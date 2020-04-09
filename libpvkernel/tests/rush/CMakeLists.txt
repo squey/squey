@@ -243,3 +243,43 @@ add_bench(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_di
 # inendi-logstats
 add_inspector_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
 add_inspector_test(Trush_logstats Trush_logstats)
+
+# ERF
+set(ERF_LIBS
+    /app/lib/libhdf5_cpp.so
+	/app/lib/liberf_cpp_sp.so
+)
+include_directories(AFTER /app/include/erf/include)
+include_directories(AFTER /app/include/erf/include/c)
+include_directories(AFTER /app/include/erf/include/cpp)
+
+add_inspector_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} ${ERF_LIBS} FILES erf.cpp ../../plugins/common/erf/PVERFAPI.cpp)
+add_inspector_test(
+	Trush_erf Trush_erf
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.erfh5"
+	"{\"post\":{\"constant\":{\"connectivities\":[\"SHELL\"],\"entityresults\":{\"NODE\":{\"list\":\"\", \"groups\":[\"COORDINATE\"]},\"SHELL\":[\"Domain\"]}},\"singlestate\":{\"entityresults\":{\"NODE\":{\"list\":\"\", \"groups\":[\"Velocity\"]}},\"states\":\"3,20\"}}}"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output1"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output2"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output3"
+	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output4"
+)
+
+# OPC-UA
+find_package(Qt5OpcUa REQUIRED)
+include_directories(SYSTEM ${Qt5OpcUa_INCLUDE_DIRS})
+
+find_package(Qt5Network REQUIRED)
+include_directories(SYSTEM ${Qt5Network_INCLUDE_DIRS})
+
+find_package(open62541 REQUIRED)
+include_directories(SYSTEM ${open62541_INCLUDE_DIRS})
+
+set(OPCUA_SRC_FILES
+../../plugins/common/opcua/PVOpcUaTreeItem.cpp
+../../plugins/common/opcua/PVOpcUaTreeModel.cpp
+../../plugins/common/opcua/PVOpcUaAPI.cpp
+../../plugins/common/opcua/PVOpcUaInfos.cpp
+../../plugins/common/opcua/PVOpcUaQuery.cpp
+)
+add_inspector_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt5Network Qt5OpcUa open62541 /app/lib/libssl.so /app/lib/libcrypto.so FILES opcua.cpp ${OPCUA_SRC_FILES})
+add_inspector_test(Topcua Topcua)

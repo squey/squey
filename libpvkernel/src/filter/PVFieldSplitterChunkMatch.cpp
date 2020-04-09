@@ -11,7 +11,7 @@
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsSplitter_p
 
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList
-#include <pvkernel/core/PVChunk.h>        // for list_elts, PVChunk
+#include <pvkernel/core/PVTextChunk.h>    // for list_elts, PVChunk
 #include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS
 #include <pvkernel/core/PVElement.h>      // for list_fields, PVElement
 #include <pvkernel/core/PVLogger.h>       // for PVLOG_INFO
@@ -173,8 +173,10 @@ class PVGuessReducingTree
 };
 } // namespace PVFilter
 
-void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
+void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* c)
 {
+	PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
+	assert(chunk);
 	PVFilter::PVFieldsSplitter_p sp = _filter;
 	PVCore::list_fields lf_res;
 	PVCore::PVArgumentList args_match;
@@ -228,6 +230,8 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			return ret;
 		}
 	}
+	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
+	assert(text_chunk);
 	LIB_CLASS(PVFilter::PVFieldsSplitter)
 	::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
 	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes::const_iterator it;
@@ -251,7 +255,7 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			break;
 		}
 	}
-	chunk->free();
+	text_chunk->free();
 
 	return ret;
 }

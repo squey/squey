@@ -19,7 +19,7 @@
 namespace PVCore
 {
 
-class PVChunk;
+class PVTextChunk;
 
 using list_fields =
     std::list<PVField, PVPreAllocatedListAllocator<PVField, tbb::scalable_allocator<PVField>>>;
@@ -27,11 +27,11 @@ using list_fields =
 class PVElement : public PVBufferSlice
 {
 	friend class PVField;
-	friend class PVChunk;
+	friend class PVTextChunk;
 
   public:
-	PVElement(PVChunk* parent, char* begin, char* end);
-	explicit PVElement(PVChunk* parent);
+	PVElement(PVTextChunk* parent, char* begin, char* end);
+	explicit PVElement(PVTextChunk* parent);
 
   public:
 	PVElement(PVElement const& src) = delete;
@@ -44,8 +44,8 @@ class PVElement : public PVBufferSlice
 	void set_invalid();
 	bool filtered() const;
 	void set_filtered();
-	void set_parent(PVChunk* parent);
-	PVChunk* chunk_parent();
+	void set_parent(PVTextChunk* parent);
+	PVTextChunk* chunk_parent();
 	chunk_index get_elt_agg_index();
 	size_t get_chunk_index() const { return _chunk_index; }
 
@@ -56,14 +56,14 @@ class PVElement : public PVBufferSlice
 
   public:
 	// Element allocation and deallocation
-	static inline PVElement* construct(PVChunk* parent, char* begin, char* end)
+	static inline PVElement* construct(PVTextChunk* parent, char* begin, char* end)
 	{
 		PVElement* ret = _alloc.allocate(1);
 		new (ret) PVElement(parent, begin, end);
 		return ret;
 	}
 
-	static inline PVElement* construct(PVChunk* parent)
+	static inline PVElement* construct(PVTextChunk* parent)
 	{
 		PVElement* ret = _alloc.allocate(1);
 		new (ret) PVElement(parent);
@@ -82,13 +82,13 @@ class PVElement : public PVBufferSlice
 	void init_fields(void* fields_buf, size_t size_buf);
 
   private:
-	void init(PVChunk* parent);
+	void init(PVTextChunk* parent);
 
   protected:
 	bool _valid;
 	bool _filtered;
 	list_fields _fields;
-	PVChunk* _parent;
+	PVTextChunk* _parent;
 	buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
 	size_t _chunk_index;
 

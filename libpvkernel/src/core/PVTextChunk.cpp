@@ -8,14 +8,14 @@
 #include <pvkernel/rush/PVRawSourceBase.h> // for PVRawSourceBase
 
 #include "pvkernel/core/PVElement.h" // for PVElement
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 
 #include "pvbase/types.h" // for PVCol, PVRow
 
 #include <cstddef> // for size_t
 #include <cstdint> // for uintptr_t
 
-void PVCore::PVChunk::init_elements_fields()
+void PVCore::PVTextChunk::init_elements_fields()
 {
 	PVCol nfields_src = _source->get_number_cols_to_reserve() + PVCol(2);
 	PVRow nelts = _elts.size();

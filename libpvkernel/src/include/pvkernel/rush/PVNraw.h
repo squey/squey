@@ -10,6 +10,7 @@
 
 #include <fstream>
 
+#include <pvkernel/core/PVBinaryChunk.h>
 #include <pvkernel/core/PVColumnIndexes.h>
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/rush/PVControllerJob.h>
@@ -20,7 +21,7 @@
 namespace PVCore
 {
 class PVSelBitField;
-class PVChunk;
+class PVTextChunk;
 } // namespace PVCore
 
 namespace PVRush
@@ -115,7 +116,14 @@ class PVNraw
 	 * @note: Input data is in utf16 and it is saved using utf8
 	 * @note: We save a full chunk in a raw.
 	 */
-	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
+	bool add_chunk_utf16(PVCore::PVTextChunk const& chunk);
+
+	/**
+	 * Insert data in the NRaw.
+	 *
+	 * @note: Input data is in binary using "pvcop::db::sink::column_chunk_t"
+	 */
+	bool add_bin_chunk(PVCore::PVBinaryChunk const& chunk);
 
 	/**
 	 * Close the collector and start the collection as import is done.

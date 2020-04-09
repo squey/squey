@@ -12,6 +12,9 @@
 
 #include <pvkernel/filter/PVFilterFunction.h> // for PVFilterFunctionBase
 
+#include <pvkernel/core/PVTextChunk.h>
+#include <pvkernel/core/PVBinaryChunk.h>
+
 #include "pvbase/types.h" // for PVCol, chunk_index
 
 #include <QString> // for QString
@@ -32,7 +35,6 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
   public:
 	PVRawSourceBase();
 	~PVRawSourceBase() override = default;
-	;
 	PVRawSourceBase(const PVRawSourceBase& src) = delete;
 
   public:
@@ -53,12 +55,28 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;
 	virtual size_t get_size() const = 0;
 	virtual PVCore::PVChunk* operator()() = 0;
+	virtual EChunkType chunk_type() const = 0;
 
   protected:
 	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can
 	                                     // correspond to a number of lines
 	PVCol _ncols_to_reserve;
 };
+
+template <typename ChunkType>
+class PVRawSourceBaseType : public PVRawSourceBase
+{
+  protected:
+	using chunk_type_t = ChunkType;
+	static constexpr auto chunk_type_v = ChunkType::chunk_type;
+
+  public:
+	using PVRawSourceBase::PVRawSourceBase;
+
+  public:
+	virtual EChunkType chunk_type() const { return chunk_type_v; }
+};
+
 } // namespace PVRush
 
-#endif
+#endif // PVRAWSOURCEBASE_FILE_H

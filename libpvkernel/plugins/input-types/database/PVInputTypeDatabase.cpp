@@ -10,12 +10,9 @@
 
 #include "../../common/database/PVDBInfos.h"
 
-PVRush::PVInputTypeDatabase::PVInputTypeDatabase() : PVInputTypeDesc<PVDBQuery>()
-{
-}
+PVRush::PVInputTypeDatabase::PVInputTypeDatabase() : PVInputTypeDesc<PVDBQuery>() {}
 
-bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
-                                               hash_formats& new_formats,
+bool PVRush::PVInputTypeDatabase::createWidget(hash_formats& formats,
                                                list_inputs& inputs,
                                                QString& format,
                                                PVCore::PVArgumentList& /*args_ext*/,
@@ -35,7 +32,7 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
 
 	if (params->is_format_custom()) {
 		PVRush::PVFormat custom_format(params->get_custom_format().documentElement());
-		new_formats["custom"] = custom_format;
+		formats["custom"] = custom_format;
 		format = "custom";
 	} else {
 		format = params->get_existing_format();
@@ -44,9 +41,7 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats,
 	return true;
 }
 
-PVRush::PVInputTypeDatabase::~PVInputTypeDatabase()
-{
-}
+PVRush::PVInputTypeDatabase::~PVInputTypeDatabase() {}
 
 QString PVRush::PVInputTypeDatabase::name() const
 {

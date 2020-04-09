@@ -13,8 +13,7 @@
 
 #include "../../common/splunk/PVSplunkInfos.h"
 
-bool PVRush::PVInputTypeSplunk::createWidget(hash_formats const& formats,
-                                             hash_formats& /*new_formats*/,
+bool PVRush::PVInputTypeSplunk::createWidget(hash_formats& formats,
                                              list_inputs& inputs,
                                              QString& format,
                                              PVCore::PVArgumentList& /*args_ext*/,

@@ -8,7 +8,7 @@
 #ifndef PVOUTPUT_FILE_H
 #define PVOUTPUT_FILE_H
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
 #include <atomic>
@@ -19,7 +19,7 @@ namespace PVRush
 class PVFormat;
 class PVControllerJob;
 
-class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVChunk*>
+class PVOutput : public PVFilter::PVFilterFunctionBase<void, PVCore::PVTextChunk*>
 {
 	friend class PVControllerJob;
 

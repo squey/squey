@@ -86,7 +86,7 @@ class PVFileDialog : public QFileDialog
 
 	void setOptions(Options options);
 
-  private:
+  protected:
 	static void customize_for_wsl(QFileDialog& dialog);
 	static Options get_options(const Options& options);
 };

@@ -85,7 +85,7 @@ void PVRush::PVNrawCacheManager::delete_unused_cache()
 		    }
 
 		    return !has_opened_file;
-		});
+	    });
 	nraw_without_opened_files.sort();
 
 	QStringList nraws_used_by_investigation = list_nraws_used_by_investigations();

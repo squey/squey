@@ -116,8 +116,8 @@ class TestSplitter
 		size_t nelts_valid = 0;
 		double duration = 0.;
 
-		std::vector<PVCore::PVChunk*> _chunks;
-		while (PVCore::PVChunk* pc = (*_source.get())()) {
+		std::vector<PVCore::PVTextChunk*> _chunks;
+		while (PVCore::PVTextChunk* pc = (*_source.get())()) {
 			_chunks.push_back(pc);
 		}
 
@@ -127,7 +127,7 @@ class TestSplitter
 			double local_duration = 0.;
 #pragma omp for nowait
 			for (auto it = _chunks.begin(); it < _chunks.end(); ++it) {
-				PVCore::PVChunk* pc = *it;
+				PVCore::PVTextChunk* pc = *it;
 				auto start = std::chrono::steady_clock::now();
 				flt_f(pc);
 				std::chrono::duration<double> dur(std::chrono::steady_clock::now() - start);
@@ -252,6 +252,6 @@ class TestEnv
 	std::string _big_file_path;
 	bool _need_cleanup;
 };
-}
+} // namespace pvtest
 
 #endif

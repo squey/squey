@@ -9,7 +9,8 @@
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVFormat.h>
 
-#include <pvkernel/core/PVChunk.h> // for PVChunk
+#include <pvkernel/core/PVTextChunk.h>
+#include <pvkernel/core/PVBinaryChunk.h>
 
 #include <pvbase/types.h> // for PVRow
 
@@ -17,13 +18,18 @@
 #include <map>     // for map
 #include <string>  // for string
 
-PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw)
-{
-}
+PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw) {}
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	nraw_dest().add_chunk_utf16(*out);
+	if (PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(out)) {
+		nraw_dest().add_chunk_utf16(*text_chunk);
+	} else {
+		assert(dynamic_cast<PVCore::PVBinaryChunk*>(out));
+		PVCore::PVBinaryChunk* bin_chunk = static_cast<PVCore::PVBinaryChunk*>(out);
+
+		nraw_dest().add_bin_chunk(*bin_chunk);
+	}
 
 	_out_size += out->get_init_size();
 

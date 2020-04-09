@@ -10,7 +10,7 @@
 #include <pvkernel/rush/PVNraw.h> // for PVNraw
 #include <pvkernel/rush/PVFormat.h>
 
-#include <pvkernel/core/PVChunk.h> // for PVChunk
+#include <pvkernel/core/PVTextChunk.h> // for PVChunk
 #include <pvkernel/core/PVConfig.h>
 
 #include <pvbase/types.h> // for PVRow
@@ -201,8 +201,10 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 	    matching_formatters_t(_column_count, std::vector<bool>(_formatters.size(), true));
 }
 
-void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
+void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 {
+	PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
+	assert(chunk);
 	assert(_matching_formatters.size() == _column_count);
 
 	bool first_chunk = chunk->index() == 0;
@@ -259,7 +261,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* chunk)
 			bool is_header = std::all_of(
 			    matching_formatters.begin(), matching_formatters.end(), [](const auto& f) {
 				    return std::all_of(f.begin(), f.end(), [](bool v) { return not v; });
-				});
+			    });
 			if (is_header) {
 				size_t col = 0;
 				for (PVCore::PVField const& field : fields) {

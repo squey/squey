@@ -19,7 +19,7 @@
 
 namespace PVCore
 {
-class PVChunk;
+class PVTextChunk;
 } // namespace PVCore
 namespace PVRush
 {

@@ -22,11 +22,6 @@ QString PVRush::PVSourceCreatorElasticsearch::supported_type() const
 	return QString("elasticsearch");
 }
 
-bool PVRush::PVSourceCreatorElasticsearch::pre_discovery(PVInputDescription_p /*input*/) const
-{
-	return true;
-}
-
 QString PVRush::PVSourceCreatorElasticsearch::name() const
 {
 	return QString("elasticsearch");

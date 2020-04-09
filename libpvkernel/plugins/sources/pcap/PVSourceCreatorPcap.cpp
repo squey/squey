@@ -39,11 +39,6 @@ QString PVPcapsicum::PVSourceCreatorPcap::supported_type() const
 	return QString("pcap");
 }
 
-bool PVPcapsicum::PVSourceCreatorPcap::pre_discovery(PVRush::PVInputDescription_p /*input*/) const
-{
-	return true;
-}
-
 QString PVPcapsicum::PVSourceCreatorPcap::name() const
 {
 	return QString("pcap");

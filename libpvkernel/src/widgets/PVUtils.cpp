@@ -13,6 +13,8 @@
 #include <QFontMetrics>
 #include <QStringList>
 
+#include <math.h>
+
 QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, uint64_t nb_px)
 {
 	uint64_t str_width = QFontMetrics(font).width(s);
@@ -62,4 +64,15 @@ void PVWidgets::PVUtils::html_word_wrap_text(QString& string, const QFont& font,
 uint32_t PVWidgets::PVUtils::tooltip_max_width(QWidget* w)
 {
 	return QApplication::desktop()->screenGeometry(w).width() / 2;
+}
+
+QString PVWidgets::PVUtils::bytes_to_human_readable(size_t byte_count)
+{
+	QStringList suffix({"B", "KB", "MB", "GB", "TB", "PB", "EB"});
+	if (byte_count == 0) {
+		return QString::number(0) + suffix[0];
+	}
+	size_t place = std::floor(std::log(byte_count) / std::log(1024));
+	double num = byte_count / std::pow(1024, place);
+	return QString::number(num, 'f', 2) + " " + suffix[place];
 }

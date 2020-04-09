@@ -16,7 +16,7 @@
 
 namespace PVCore
 {
-class PVChunk;
+class PVTextChunk;
 } // namespace PVCore
 
 namespace PVFilter
@@ -35,7 +35,7 @@ class PVChunkFilterByElt : public PVChunkFilter
 	/**
 	 * Apply splitting to every elements from this chunk.
 	 */
-	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk) const;
+	PVCore::PVTextChunk* operator()(PVCore::PVTextChunk* chunk) const;
 
   protected:
 	std::unique_ptr<PVElementFilter> _elt_filter; // filter to apply for splitting.

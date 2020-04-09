@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 
 		std::chrono::duration<double> dur(0.);
 		auto start = std::chrono::steady_clock::now();
-		while (PVCore::PVChunk* pc = source()) {
+		while (PVCore::PVTextChunk* pc = source()) {
 			auto end = std::chrono::steady_clock::now();
 			dur += end - start;
 			dump_chunk_csv(*pc, ofs);

@@ -6,7 +6,7 @@
  */
 
 #include <pvkernel/core/PVBufferSlice.h> // for buf_list_t, PVBufferSlice
-#include <pvkernel/core/PVChunk.h>       // for PVChunk
+#include <pvkernel/core/PVTextChunk.h>   // for PVChunk
 #include <pvkernel/core/PVElement.h>     // for PVElement, list_fields
 
 #include <pvbase/types.h> // for chunk_index
@@ -20,12 +20,12 @@
 
 tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 
-PVCore::PVElement::PVElement(PVChunk* parent) : PVBufferSlice(_reallocated_buffers)
+PVCore::PVElement::PVElement(PVTextChunk* parent) : PVBufferSlice(_reallocated_buffers)
 {
 	init(parent);
 }
 
-PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end)
+PVCore::PVElement::PVElement(PVTextChunk* parent, char* begin, char* end)
     : PVBufferSlice(begin, end, _reallocated_buffers)
 {
 	init(parent);
@@ -39,7 +39,7 @@ PVCore::PVElement::~PVElement()
 	}
 }
 
-void PVCore::PVElement::init(PVChunk* parent)
+void PVCore::PVElement::init(PVTextChunk* parent)
 {
 	_valid = true;
 	_filtered = false;
@@ -82,12 +82,12 @@ PVCore::list_fields const& PVCore::PVElement::c_fields() const
 	return _fields;
 }
 
-void PVCore::PVElement::set_parent(PVChunk* parent)
+void PVCore::PVElement::set_parent(PVTextChunk* parent)
 {
 	_parent = parent;
 }
 
-PVCore::PVChunk* PVCore::PVElement::chunk_parent()
+PVCore::PVTextChunk* PVCore::PVElement::chunk_parent()
 {
 	return _parent;
 }
@@ -99,6 +99,6 @@ PVCore::buf_list_t& PVCore::PVElement::realloc_bufs()
 
 chunk_index PVCore::PVElement::get_elt_agg_index()
 {
-	PVChunk* parent = chunk_parent();
+	PVTextChunk* parent = chunk_parent();
 	return parent->get_agg_index_of_element(*this);
 }

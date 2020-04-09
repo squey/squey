@@ -22,8 +22,7 @@ namespace PVRush
 class PVInputTypeSplunk : public PVInputTypeDesc<PVSplunkQuery>
 {
   public:
-	bool createWidget(hash_formats const& formats,
-	                  hash_formats& new_formats,
+	bool createWidget(hash_formats& formats,
 	                  list_inputs& inputs,
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,

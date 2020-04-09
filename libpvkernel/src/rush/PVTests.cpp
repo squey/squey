@@ -32,47 +32,7 @@ bool PVRush::PVTests::get_file_sc(PVInputDescription_p file,
 		std::cerr << "Unable to load the file input type plugin !" << std::endl;
 		return false;
 	}
-	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
-
-	// Pre-discovery
-	PVRush::list_creators pre_discovered_c =
-	    PVRush::PVSourceCreatorFactory::filter_creators_pre_discovery(lcr, file);
-
-	PVRush::PVSourceCreator_p sc_file;
-	if (pre_discovered_c.size() == 0) {
-		std::cerr << "No source plugins can open the file " << qPrintable(file->human_name())
-		          << std::endl;
-		return false;
-	}
-	if (pre_discovered_c.size() == 1) {
-		sc_file = *(pre_discovered_c.begin());
-	} else {
-		// Take the source creator that have the highest success rate with the given format
-		float success_rate = -1;
-		PVRush::list_creators::const_iterator itc;
-		for (itc = pre_discovered_c.begin(); itc != pre_discovered_c.end(); itc++) {
-			PVRush::PVSourceCreator_p sc = *itc;
-			PVRush::pair_format_creator fcr(format, sc);
-			float sr_tmp;
-			try {
-				sr_tmp = PVRush::PVSourceCreatorFactory::discover_input(fcr, file);
-			} catch (...) {
-				continue;
-			}
-			if (sr_tmp > success_rate) {
-				success_rate = sr_tmp;
-				sc_file = sc;
-			}
-		}
-		if (!sc_file) {
-			// Take the first one
-			sc_file = pre_discovered_c.front();
-		}
-		std::cerr << "Chose source creator '" << qPrintable(sc_file->name())
-		          << "' with success rate of " << success_rate << std::endl;
-	}
-
-	sc = sc_file;
+	sc = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
 	return true;
 }

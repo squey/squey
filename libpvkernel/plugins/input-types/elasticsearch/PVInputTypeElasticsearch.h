@@ -21,8 +21,7 @@ namespace PVRush
 class PVInputTypeElasticsearch : public PVInputTypeDesc<PVElasticsearchQuery>
 {
   public:
-	bool createWidget(hash_formats const& formats,
-	                  hash_formats& new_formats,
+	bool createWidget(hash_formats& formats,
 	                  list_inputs& inputs,
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,
@@ -41,6 +40,6 @@ class PVInputTypeElasticsearch : public PVInputTypeDesc<PVElasticsearchQuery>
 
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeElasticsearch)
 };
-}
+} // namespace PVRush
 
 #endif

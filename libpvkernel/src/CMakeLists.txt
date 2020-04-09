@@ -16,6 +16,7 @@ core/network.cpp
 core/inendi_intrin.cpp
 core/sse4detector.cpp
 core/segfault_handler.cpp
+core/serialize_numbers.cpp
 
 core/PVArchive.cpp
 core/PVArgument.cpp
@@ -23,7 +24,7 @@ core/PVOriginalAxisIndexType.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
 core/PVBufferSlice.cpp
-core/PVChunk.cpp
+core/PVTextChunk.cpp
 core/PVColor.cpp
 core/PVCompList.cpp
 core/PVClassLibrary.cpp
@@ -213,6 +214,7 @@ widgets/PVQueryBuilder.cpp
 widgets/PVLongLongSpinBox.cpp
 widgets/PVFileDialog.cpp
 widgets/PVExportDlg.cpp
+widgets/PVMultipleFileDialog.cpp
 )
 
 SET(UI_FILES

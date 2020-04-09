@@ -40,12 +40,6 @@ QString PVRush::PVSourceCreatorTextfile::supported_type() const
 	return QString("file");
 }
 
-bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVInputDescription_p /*input*/) const
-{
-	// FIXME : We shouls check for no elasticsearch/splunk/others?
-	return true;
-}
-
 QString PVRush::PVSourceCreatorTextfile::name() const
 {
 	return QString("text");

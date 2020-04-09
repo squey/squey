@@ -9,7 +9,7 @@
 #define PVCONTROLLERJOB_FILE_H
 
 #include <pvkernel/rush/PVAggregator.h>
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
 #include <pvkernel/filter/PVChunkFilterRemoveInvalidElts.h>

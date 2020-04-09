@@ -141,9 +141,9 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 
 		if (need_zzt_min && need_zzt_max && (zzt_min_idx == zzt_max_idx)) {
 			/* it the two quadtrees must be traversed, make
-			    * sure they are different, otherwise the same
-			    * quadtree will be travers twice
-			    */
+			 * sure they are different, otherwise the same
+			 * quadtree will be travers twice
+			 */
 			need_zzt_max = false;
 		}
 

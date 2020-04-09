@@ -91,7 +91,6 @@ class PVMainWindow : public QMainWindow
 	void import_type(PVRush::PVInputType_p in_t,
 	                 PVRush::PVInputType::list_inputs const& inputs,
 	                 PVRush::hash_formats& formats,
-	                 PVRush::hash_format_creator& format_creator,
 	                 QString const& choosenFormat);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */

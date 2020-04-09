@@ -8,7 +8,7 @@
 #ifndef PVFILTER_PVCHUNKFILTERDUMPELTS_H
 #define PVFILTER_PVCHUNKFILTERDUMPELTS_H
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 
 #include <pvkernel/filter/PVChunkFilter.h>
 
@@ -27,7 +27,7 @@ class PVChunkFilterDumpElts : public PVChunkFilter
   public:
 	explicit PVChunkFilterDumpElts(std::map<size_t, std::string>& l);
 
-	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+	PVCore::PVTextChunk* operator()(PVCore::PVTextChunk* chunk);
 
   protected:
 	std::map<size_t, std::string>& _l; //!< List with invalid elements.

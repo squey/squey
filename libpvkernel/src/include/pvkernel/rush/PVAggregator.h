@@ -76,6 +76,9 @@ class PVAggregator
 	PVCore::PVChunk* operator()(tbb::flow_control& fc);
 
   public:
+	EChunkType chunk_type() const;
+
+  public:
 	/*! \brief Tell the aggregator to return chunks whose global indexes are between a given range.
 	 *  \param[in] nstart Global start index
 	 *  \param[in] nend Global end index

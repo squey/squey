@@ -908,29 +908,21 @@ void PVInspector::PVFormatBuilderWidget::get_source_creator_from_inputs(
 	PVLOG_DEBUG("Input: %s\n", qPrintable(input_type->human_name_of_input(input)));
 
 	// Get list of inputs from the plugin.
-	for (PVRush::PVSourceCreator_p sc :
-	     PVRush::PVSourceCreatorFactory::get_by_input_type(input_type)) {
-		if (sc->pre_discovery(input)) {
-			try {
-				source_creator = sc;
-				// The moni-extractor use the discovery source, as not that much processing is
-				// done (it can be handle locally for instance !)
-				raw_source_base = source_creator->create_source_from_input(input);
-			} catch (PVRush::PVFormatInvalid& e) {
-				source_creator.reset();
-				continue;
-			} catch (std::ios_base::failure const& e) {
-				// File can't be found, looks for another type.
-				source_creator.reset();
-				continue;
-			}
-			// If the log_source can't be create, look for another source.
-			if (raw_source_base.get() == nullptr) {
-				source_creator.reset();
-				continue;
-			}
-			break;
-		}
+	PVRush::PVSourceCreator_p sc = PVRush::PVSourceCreatorFactory::get_by_input_type(input_type);
+	try {
+		source_creator = sc;
+		// The moni-extractor use the discovery source, as not that much processing is
+		// done (it can be handle locally for instance !)
+		raw_source_base = source_creator->create_source_from_input(input);
+	} catch (PVRush::PVFormatInvalid& e) {
+		source_creator.reset();
+	} catch (std::ios_base::failure const& e) {
+		// File can't be found, looks for another type.
+		source_creator.reset();
+	}
+	// If the log_source can't be create, look for another source.
+	if (raw_source_base.get() == nullptr) {
+		source_creator.reset();
 	}
 }
 
@@ -1022,12 +1014,11 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 	if (_inputs.isEmpty()) {
 
 		QString choosenFormat;
-		PVRush::hash_formats formats, new_formats;
+		PVRush::hash_formats formats;
 
 		// This case is only encountered when a source is loaded from the menu
 		PVCore::PVArgumentList args;
-		if (!_log_input_type->createWidget(formats, new_formats, _inputs, choosenFormat, args,
-		                                   this)) {
+		if (!_log_input_type->createWidget(formats, _inputs, choosenFormat, args, this)) {
 			return; // This means that the user pressed the "cancel" button
 		}
 		assert(not _inputs.empty() && "At least one file have to be selected");

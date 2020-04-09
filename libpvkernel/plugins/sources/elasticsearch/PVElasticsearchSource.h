@@ -10,7 +10,7 @@
 
 #include <QString>
 
-#include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
@@ -21,7 +21,7 @@
 namespace PVRush
 {
 
-class PVElasticsearchSource : public PVRawSourceBase
+class PVElasticsearchSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
 	PVElasticsearchSource(PVInputDescription_p input);
@@ -38,7 +38,7 @@ class PVElasticsearchSource : public PVRawSourceBase
 	 * It use line count for ES.
 	 */
 	size_t get_size() const override;
-	PVCore::PVChunk* operator()() override;
+	PVCore::PVTextChunk* operator()() override;
 
   protected:
 	chunk_index _next_index;
@@ -49,6 +49,6 @@ class PVElasticsearchSource : public PVRawSourceBase
 	bool _query_end = false;
 	std::string _scroll_id;
 };
-}
+} // namespace PVRush
 
 #endif
