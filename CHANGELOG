@@ -1,3 +1,10 @@
+4.8 "Pangolin" (2020-04-09)
+-------------------------
+
+This major release adds the following features:
+* OPC-UA connector
+* ERF connector
+
 4.7.9 (2020-03-27)
 ------------------
 
