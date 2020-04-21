@@ -320,6 +320,7 @@ class PVAverageCellWidget : public PVCellWidgetBase
 
   public Q_SLOTS:
 	void refresh_impl() override;
+	void update_type_capabilities() override;
 };
 } // namespace __impl
 } // namespace PVGuiQt

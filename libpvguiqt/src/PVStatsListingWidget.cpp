@@ -647,6 +647,16 @@ void PVGuiQt::__impl::PVSumCellWidget::refresh_impl()
 	    QString::fromStdString(sum.at(0))); // We must go back on the Qt thread to update the GUI
 }
 
+static bool is_summable(QString column_type)
+{
+	return (column_type == "number_float" || column_type == "number_double" ||
+			column_type == "number_uint64" || column_type == "number_int64" ||
+			column_type == "number_uint32" || column_type == "number_int32" ||
+			column_type == "number_uint16" || column_type == "number_int16" ||
+			column_type == "number_uint8" || column_type == "number_int8" ||
+			column_type == "duration");
+}
+
 void PVGuiQt::__impl::PVSumCellWidget::update_type_capabilities()
 {
 	QString column_type = _view.get_parent<Inendi::PVSource>()
@@ -654,12 +664,7 @@ void PVGuiQt::__impl::PVSumCellWidget::update_type_capabilities()
 	                          .get_axes()
 	                          .at(get_real_axis_col())
 	                          .get_type();
-	_is_summable = (column_type == "number_float" || column_type == "number_double" ||
-	                column_type == "number_uint64" || column_type == "number_int64" ||
-	                column_type == "number_uint32" || column_type == "number_int32" ||
-	                column_type == "number_uint16" || column_type == "number_int16" ||
-	                column_type == "number_uint8" || column_type == "number_int8" ||
-	                column_type == "duration");
+	_is_summable = is_summable(column_type);
 	// FIXME : this should be capabilities, not types names !
 
 	setEnabled(_is_summable);
@@ -718,4 +723,17 @@ void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 
 	Q_EMIT refresh_impl_finished(
 	    QString::fromStdString(avg.at(0))); // We must go back on the Qt thread to update the GUI
+}
+
+void PVGuiQt::__impl::PVAverageCellWidget::update_type_capabilities()
+{
+	QString column_type = _view.get_parent<Inendi::PVSource>()
+	                          .get_format()
+	                          .get_axes()
+	                          .at(get_real_axis_col())
+	                          .get_type();
+	_is_summable = is_summable(column_type);
+	// FIXME : this should be capabilities, not types names !
+
+	setEnabled(_is_summable);
 }
