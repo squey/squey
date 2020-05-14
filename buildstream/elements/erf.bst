@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
   url: ssh://git@gitlab.esi-group.com/io/erf.git
-  ref: 8e891eb7af13f8ad1f2c8f85c7132c72f23a4be3
+  ref: 7f86c13e6c0d5e77128e9c42269f276c7bb645ec
   checkout-submodules: True
   submodules:
     cmake/ESICMakeModules:

@@ -5,9 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.14/src/hdf5-1.8.14.tar.bz2
-  ref: 53722cb9f5977af2908f92fc1a3f8c597800a5cb448cfe5c75060d6335bb9bab
-  
+  url: https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.bz2
+  ref: 97906268640a6e9ce0cde703d5a71c9ac3092eded729591279bf2e3ca9765f61
 
 variables:
   cmake-local: |
@@ -18,11 +17,6 @@ variables:
     -DALLOW_UNSUPPORTED=1 \
     -DHDF5_ENABLE_THREADSAFE=1 \
     -G"Ninja"
-    
-config:
-  configure-commands:
-    - sed -i '18,20d' config/cmake/hdf5-config-version.cmake.in
-    - "%{cmake}"
 
 depends:
 - base.bst
