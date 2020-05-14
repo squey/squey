@@ -118,10 +118,6 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		_is_gpu_accelerated = false;
 	}
 
-	if (_context() == nullptr) {
-		throw PVOpenCL::exception::no_backend_error();
-	}
-
 	_next_device = _devices.begin();
 
 	cl::Program program(_context, bci_z24_str, false, &err);

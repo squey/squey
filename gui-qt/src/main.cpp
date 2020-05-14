@@ -338,15 +338,6 @@ int main(int argc, char* argv[])
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
 
 	QApplication app(argc, argv);
-	try {
-		return run_inspector(app, argc, argv);
-	} catch (PVOpenCL::exception::no_backend_error const&) {
-		QString msg("No valid backend found. Please, check your system:<ul>");
-		msg += "<li>user configuration in " + PVCore::PVConfig::user_path() + "</li>";
-		msg += "<li>system configuration (missing driver, etc.)</li></ul>";
-
-		QMessageBox::critical(nullptr, "backend initialization", msg);
-		return 1;
-	}
+	return run_inspector(app, argc, argv);
 }
 //! [0]

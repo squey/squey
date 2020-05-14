@@ -2,6 +2,7 @@ kind: cmake
 
 depends:
 - base.bst
+- freedesktop-sdk.bst:bootstrap/gcc.bst
 - freedesktop-sdk.bst:bootstrap/zlib.bst
 - freedesktop-sdk.bst:bootstrap/glibc.bst
 - freedesktop-sdk.bst:bootstrap/openssl.bst

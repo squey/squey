@@ -1,9 +1,9 @@
 #!/bin/bash
 
-command -v "bst" &> /dev/null || { echo >&2 "'bst' executable not found, please install BuildStream 1.4.1"; exit 1; }
-command -v "flatpak" &> /dev/null || { echo >&2 "'flatpak' executable not found, please install Flatpak"; exit 1; }
+export PATH="${PATH}:${HOME}/.local/bin"
+
 command -v "pip3" &> /dev/null || { echo >&2 "'pip3' executable not found, please install python3-pip"; exit 1; }
-command -v "bindfs" &> /dev/null || { echo >&2 "'bindfs' executable not found, please install bindfs"; exit 1; }
+command -v "flatpak" &> /dev/null || { echo >&2 "'flatpak' executable not found, please install Flatpak"; exit 1; }
 
 source env.conf
 
@@ -23,8 +23,14 @@ else
 fi
 MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors  --mount files/.slm /var/.slm --mount /srv/tmp-inspector /srv/tmp-inspector"
 
-# Install bst-external plugins
+# Install Buildstream and bst-external plugins if needed
+command -v "bst" &> /dev/null || { pip3 install --user BuildStream==1.4.1; }
 python3 -c "import bst_external" &> /dev/null || pip3 install --user "$DIR/plugins/bst-external"
+
+function check_bindfs()
+{
+    command -v "bindfs" &> /dev/null || { echo >&2 "'bindfs' executable not found, please install bindfs (then log out and log back in)"; exit 1; }
+}
 
 # Use workspace to have persistence over CCACHE_DIR
 function open_workspace()
@@ -34,11 +40,12 @@ function open_workspace()
 
     CURRENT_WORKSPACE=`bst workspace list | grep "directory:" | awk -F ': ' '{print $2}'`
     if [ "$CURRENT_WORKSPACE" != "$WORKSPACE_PATH" ]; then
-    
-        if [ "$WORKSPACE_NAME" == "workspace_build" ];then
+        if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
+            check_bindfs
             bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../release_build"
             bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../debug_build"
-        elif [ "$WORKSPACE_NAME" == "workspace_dev" ];then
+        elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
+            check_bindfs
             bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/workspace_build"
         fi
     
@@ -49,11 +56,11 @@ function open_workspace()
             bst workspace open --no-checkout inendi-inspector.bst $WORKSPACE_PATH
         fi
         
-        if [ "$WORKSPACE_NAME" == "workspace_build" ];then
+        if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
             fusermount -u "$DIR/../release_build"
             fusermount -u "$DIR/../debug_build"
-        elif [ "$WORKSPACE_NAME" == "workspace_dev" ];then
-        fusermount -u "$DIR/workspace_build"
+        elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
+            fusermount -u "$DIR/workspace_build"
         fi
     fi
 }
