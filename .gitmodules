@@ -34,3 +34,6 @@
 [submodule "buildstream/plugins/bst-external"]
 	path = buildstream/plugins/bst-external
 	url = https://gitlab.com/BuildStream/bst-external.git
+[submodule "external/breakpad"]
+	path = external/breakpad
+	url = ssh://git@gitlab.srv.picviz/picviz/breakpad

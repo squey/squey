@@ -45,7 +45,7 @@ depends:
 - libsigcplusplus.bst
 - rapidjson.bst
 - libnuma.bst
-#- breakpad.bst
+- google-breakpad.bst
 - portablecl.bst
 - libpcap.bst
 - tshark.bst

@@ -14,11 +14,10 @@
 
 #include <pvbase/general.h>
 
-//#include <client/linux/handler/exception_handler.h>
+#include <client/linux/handler/exception_handler.h>
 
 #define BREAKPAD_MINIDUMP_FOLDER "/tmp/inendi-inspector_" INENDI_CURRENT_VERSION_STR "_coredumps"
 
-#if 0
 static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
                           void* /*context*/,
                           bool succeeded)
@@ -35,12 +34,11 @@ static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
 
 	return succeeded;
 }
-#endif
 
 void init_segfault_handler()
 {
 	mkdir(BREAKPAD_MINIDUMP_FOLDER, S_IRWXU | S_IRGRP | S_IXGRP);
-	//static google_breakpad::MinidumpDescriptor descriptor(BREAKPAD_MINIDUMP_FOLDER);
-	//static google_breakpad::ExceptionHandler eh(descriptor, nullptr, dump_callback, nullptr, true,
-	//                                            -1);
+	static google_breakpad::MinidumpDescriptor descriptor(BREAKPAD_MINIDUMP_FOLDER);
+	static google_breakpad::ExceptionHandler eh(descriptor, nullptr, dump_callback, nullptr, true,
+	                                            -1);
 }
