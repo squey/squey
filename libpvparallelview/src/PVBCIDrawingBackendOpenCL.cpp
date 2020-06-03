@@ -118,6 +118,11 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		_is_gpu_accelerated = false;
 	}
 
+	if (_context() == nullptr) {
+		PVLOG_INFO("No OpenCL support: no context available.\n");
+		return;
+	}
+
 	_next_device = _devices.begin();
 
 	cl::Program program(_context, bci_z24_str, false, &err);
