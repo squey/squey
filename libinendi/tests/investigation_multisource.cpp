@@ -34,7 +34,9 @@ double save_investigation()
 	auto it = sources.begin();
 	PV_VALID((*it)->get_name(), std::string("proxy.log"));
 	std::advance(it, 1);
-	PV_VALID((*it)->get_name(), std::string(TEST_FOLDER "/sources"));
+	const std::string& source1 = std::string(TEST_FOLDER "/sources");
+	const std::string& source2 = (*it)->get_name();
+	PV_ASSERT_VALID(source1.compare(source1.length() - source2.length(), source2.length(), source2) == 0);
 
 	env.compute_mappings();
 	env.compute_plottings();

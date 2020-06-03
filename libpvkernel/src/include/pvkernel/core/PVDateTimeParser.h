@@ -19,6 +19,8 @@
 
 #include <boost/pool/object_pool.hpp>
 
+using namespace icu_64;
+
 namespace PVCore
 {
 

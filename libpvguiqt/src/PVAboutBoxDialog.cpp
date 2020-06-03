@@ -115,6 +115,7 @@ class PVReferenceManual : public QWebEngineView
 			}
 		});
 #endif
+		pvlogger::info() << std::string("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html") << std::endl;
 		load(QUrl(std::string("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html")
 		              .c_str()));
 	}
@@ -345,6 +346,14 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	QPushButton* ok = new QPushButton("OK");
 
+	QPushButton* crash = new QPushButton("&Crash ☠");
+	crash->setToolTip("Generates a crash of the application in order to test the crash reporter");
+	connect(crash, &QPushButton::clicked, [](){
+		// taken from Google Breakpad
+		volatile int* a = reinterpret_cast<volatile int*>(NULL);
+  		*a = 1;
+	});
+
 	assert(DOC_PATH && "The documentation path is not defined.");
 
 	auto doc = new QLabel();
@@ -362,6 +371,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	software_layout->addLayout(_view3D_layout, 0, 0);
 	software_layout->addWidget(text, 1, 0);
 	software_layout->addWidget(doc, 2, 0);
+	software_layout->addWidget(crash, 3, 1);
 
 	QWidget* tab_software = new QWidget;
 	tab_software->setLayout(software_layout);

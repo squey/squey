@@ -110,7 +110,6 @@ pkg_check_modules(ARCHIVE REQUIRED libarchive)
 ###############################################################################
 set(BREAKPAD_INCLUDE_DIRS /usr/include/breakpad /app/include/breakpad /include/breakpad)
 pkg_check_modules(BREAKPAD REQUIRED breakpad-client)
-
 message(STATUS "Google Breakpad libraries: ${BREAKPAD_LIBRARIES}")
 message(STATUS "Google Breakpad include: ${BREAKPAD_INCLUDE_DIRS}")
 

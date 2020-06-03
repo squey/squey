@@ -125,7 +125,7 @@ set(DATABASE_SRC_FILES
 helpers.cpp)
 
 add_inspector_compile_test(Trush_database LINKS ${LINK_LIBRARIES} pvkernel Qt5Sql FILES database.cpp ${DATABASE_SRC_FILES})
-add_inspector_test(Trush_database Trush_database ${TESTS_FILES_DIR})
+#add_inspector_test(Trush_database Trush_database ${TESTS_FILES_DIR})
 
 # Plugin sources
 add_inspector_compile_test(Trush_splunk_source LINKS ${LINK_LIBRARIES}
@@ -281,5 +281,5 @@ set(OPCUA_SRC_FILES
 ../../plugins/common/opcua/PVOpcUaInfos.cpp
 ../../plugins/common/opcua/PVOpcUaQuery.cpp
 )
-add_inspector_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt5Network Qt5OpcUa open62541 /app/lib/libssl.so /app/lib/libcrypto.so FILES opcua.cpp ${OPCUA_SRC_FILES})
+add_inspector_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt5Network Qt5OpcUa open62541 ssl crypto FILES opcua.cpp ${OPCUA_SRC_FILES})
 add_inspector_test(Topcua Topcua)

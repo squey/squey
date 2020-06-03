@@ -119,7 +119,8 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	}
 
 	if (_context() == nullptr) {
-		throw PVOpenCL::exception::no_backend_error();
+		PVLOG_INFO("No OpenCL support: no context available.\n");
+		return;
 	}
 
 	_next_device = _devices.begin();

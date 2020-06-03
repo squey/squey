@@ -9,6 +9,7 @@
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <iostream>
+#include <filesystem>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,9 +31,12 @@ int main(int argc, char** argv)
 
 	const QString format_path =
 	    QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/28/field_enum.format");
-	PVRush::PVFormat format("org", format_path);
+	const std::string& out_path = pvtest::get_tmp_filename();
+	std::filesystem::copy(format_path.toStdString(), out_path);
+	PVRush::PVFormat format("org", QString::fromStdString(out_path));
 
-	int fd = open(qPrintable(format_path), O_RDWR);
+	int fd = open(out_path.c_str(), O_RDWR);
+	std::remove(out_path.c_str());
 	if (fd == -1) {
 		std::cerr << "Unable to open the format for reading/writing after PVFormat::populate() : "
 		          << strerror(errno) << std::endl;

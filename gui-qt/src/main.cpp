@@ -198,6 +198,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
 	                                                                 INENDI_LICENSE_FEATURE);
 
+
 	// Check at least two CPU cores are available
 	if (std::thread::hardware_concurrency() == 1) {
 
@@ -337,15 +338,6 @@ int main(int argc, char* argv[])
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
 
 	QApplication app(argc, argv);
-	try {
-		return run_inspector(app, argc, argv);
-	} catch (PVOpenCL::exception::no_backend_error const&) {
-		QString msg("No valid backend found. Please, check your system:<ul>");
-		msg += "<li>user configuration in " + PVCore::PVConfig::user_path() + "</li>";
-		msg += "<li>system configuration (missing driver, etc.)</li></ul>";
-
-		QMessageBox::critical(nullptr, "backend initialization", msg);
-		return 1;
-	}
+	return run_inspector(app, argc, argv);
 }
 //! [0]

@@ -16,6 +16,8 @@
 
 #include <unicode/calendar.h>
 
+using namespace icu_64;
+
 #ifdef INSPECTOR_BENCH
 // 10 000 000 lines.
 static constexpr int dupl = 200;

@@ -489,7 +489,7 @@ int test_source(int argc, char** argv)
 	"ns=2;i=2019;$;ns=0;i=11;$;P6.2.5 FastSlowPosition;$;"
 	"ns=2;i=2020;$;ns=0;i=11;$;6.2.6 SlowFastPosition;$;";
 
-	const size_t expected_row_count = 193'953;
+	const size_t expected_row_count = 193'960;
 
 	PVRush::PVFormat format("format", QString::fromStdString(format_file));
 
@@ -519,7 +519,7 @@ int test_source(int argc, char** argv)
 	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
-	PV_ASSERT_VALID((nraw.row_count() == expected_row_count));
+	PV_VALID(nraw.row_count(), (PVRow)expected_row_count);
 #endif
 
 #if 0 // Test is too big to store ref_file in tests repository

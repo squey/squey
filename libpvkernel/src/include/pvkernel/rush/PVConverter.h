@@ -15,6 +15,8 @@ extern "C" {
 #include <unicode/ucnv.h>
 }
 
+using namespace icu_64;
+
 namespace PVRush
 {
 

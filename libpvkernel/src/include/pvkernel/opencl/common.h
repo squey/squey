@@ -36,16 +36,6 @@
 namespace PVOpenCL
 {
 
-namespace exception
-{
-
-class no_backend_error : public std::runtime_error
-{
-  public:
-	no_backend_error() : std::runtime_error::runtime_error("No OpenCL backend found") {}
-};
-} // namespace exception
-
 /**
  * the function type used as find_first_usable_context(...) parameter
  */

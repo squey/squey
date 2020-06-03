@@ -74,7 +74,7 @@ int main()
 	testcases.emplace_back("datetime_ms", "dd-M-yy H:mm:ss:S", "19-02-14 15:55:47:123",
 	                       "19-2-14 15:55:47:1");
 	testcases.emplace_back("datetime_ms", "yy-M-d H:mm:ss.SSS V", "15-3-26 23:42:35.123 GMT",
-	                       "15-3-26 23:42:35.123 utc");
+	                       "15-3-26 23:42:35.123 gmt");
 
 	// testcases.emplace_back("datetime_ms", "hh 'o''clock' a, zzzz", 	"12 o'clock PM, Pacific
 	// Daylight Time"); // bug in ICU
