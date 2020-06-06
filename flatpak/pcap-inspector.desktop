@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Encoding=UTF-8
-Name=PCAP Inspector
-Comment=PCAP Inspector
-Exec=pcap-inspector_launcher.sh
-Categories=Application;Network;
-

@@ -1,3 +1,0 @@
-#!/bin/bash
-mkdir -p /app/include/CL &> /dev/null
-cp * /app/include/CL

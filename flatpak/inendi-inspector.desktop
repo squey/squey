@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Encoding=UTF-8
-Name=INENDI Inspector
-Comment=INENDI Inspector
-Exec=inspector_launcher.sh
-Categories=Application;Network;
-
