@@ -16,9 +16,12 @@ then
     fi
     flatpak uninstall -y "${RUNTIME_NAME}"  &> /dev/null
     flatpak install -y "${DIR}/runtime.flatpak"
+    flatpak uninstall -y "${SDK_NAME}"  &> /dev/null
+    flatpak install -y "${DIR}/sdk.flatpak"
     rm -rf "${DIR}/*.flatpak"
 else # online installation
     flatpak install -y https://repo.esi-inendi.com/inendi-inspector.flatpakref
+    flatpak install -y flathub "$SDK_NAME//$RUNTIME_BRANCH"
     if [ ! -z ${GL_DRIVERS_VERSION} ]
     then
         flatpak install -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH"

@@ -44,11 +44,12 @@ class PVCrashReporterDialog : public QDialog
 
 		QVBoxLayout* main_layout = new QVBoxLayout(this);
 
-		QLabel* text = new QLabel(
+		QLabel* text = new QLabel(QString(
 		    "<b>The program has crashed and we apologize for the inconvenience.</b><br/><br/>"
 		    "Please send us the crash report so we can diagnose and fix the problem.<br/>"
 		    "We will treat this report as confidential and only to improve this "
-		    "product.<br/><br/>");
+		    "product.<br/><br/>"
+			"The generated crash report is locally stored at the following path : <br/>%1").arg(minidump_path.c_str()));
 		QHBoxLayout* text_layout = new QHBoxLayout();
 		QLabel* icon_label = new QLabel();
 		QPixmap pixmap = QApplication::style()

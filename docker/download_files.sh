@@ -31,6 +31,22 @@ then
         flatpak uninstall --user -y "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
     fi
 
+    # Export Freedesktop Sdk bundle
+    echo "[1/3] Exporting Flatpak SDK bundle ..."
+    flatpak info "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
+    sdk_not_installed=$?
+    if [ $sdk_not_installed -eq 1 ]
+    then
+        flatpak install --user -y flathub "$SDK_NAME//$RUNTIME_BRANCH"  &> /dev/null
+    else
+        flatpak update --user -y "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
+    fi
+    flatpak build-bundle --runtime ~/.local/share/flatpak/repo "${DATA_PATH}/sdk.flatpak" "$SDK_NAME" "$RUNTIME_BRANCH"
+    if [ $sdk_not_installed -eq 1 ]
+    then
+        flatpak uninstall --user -y "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
+    fi
+
     # Export NVIDIA drivers bundle
     if [ ! -z ${GL_DRIVERS_VERSION} ]
     then
