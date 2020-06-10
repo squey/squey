@@ -137,11 +137,11 @@ double load_investigation()
 	PV_VALID(sources.size(), 3UL);
 	auto source = sources.front();
 	PV_VALID(source->get_format().is_valid(), true);
-	PV_VALID(source->get_invalid_evts().size(), 1UL);
-	PV_VALID(source->get_invalid_evts().begin()->first, 0UL);
-	PV_VALID(source->get_invalid_evts().begin()->second,
-	         std::string("343,10.107.73.75,TCP_CLIENT_REFRESH_MISS,200,4420,GET,http,updates,"
-	                     "updates.copernic.com,copernic.com,com,80,5986,application/octet-stream"));
+	PV_VALID(source->get_invalid_evts().size(), 0UL);
+	// PV_VALID(source->get_invalid_evts().begin()->first, 0UL);
+	// PV_VALID(source->get_invalid_evts().begin()->second,
+	//          std::string("343,10.107.73.75,TCP_CLIENT_REFRESH_MISS,200,4420,GET,http,updates,"
+	//                      "updates.copernic.com,copernic.com,com,80,5986,application/octet-stream"));
 
 	auto it = sources.begin();
 	PV_VALID((*it)->get_name(), std::string("proxy_1bad.log"));
@@ -157,10 +157,10 @@ double load_investigation()
 	 * Check Nraw
 	 */
 	PVRush::PVNraw const& nraw = source->get_rushnraw();
-	PV_VALID(nraw.valid_rows_sel().bit_count(), size_t(ROW_COUNT - 1));
+	PV_VALID(nraw.valid_rows_sel().bit_count(), size_t(ROW_COUNT));
 	PV_VALID(nraw.valid_rows_sel().count(), ROW_COUNT);
-	PV_VALID(nraw.valid_rows_sel().get_line(0), false);
-	PV_VALID(nraw.get_valid_row_count(), size_t(ROW_COUNT - 1));
+	PV_VALID(nraw.valid_rows_sel().get_line(0), true);
+	PV_VALID(nraw.get_valid_row_count(), size_t(ROW_COUNT));
 
 	PV_VALID(nraw.column(PVCol(2)).at(24), std::string("toto"));
 	PV_VALID(nraw.column(PVCol(2)).at(12), std::string());
@@ -191,7 +191,7 @@ double load_investigation()
 	auto const& minmax = mapped->get_properties_for_col(PVCol(0)).get_minmax();
 	auto core_minmax = minmax.to_core_array<string_index_t>();
 	PV_VALID(core_minmax[0], (string_index_t)0U);
-	PV_VALID(core_minmax[1], (string_index_t)90037U);
+	PV_VALID(core_minmax[1], (string_index_t)90038U);
 
 	/**
 	 * Check plotteds
@@ -216,7 +216,7 @@ double load_investigation()
 
 	PV_VALID(plotted->get_properties_for_col(PVCol(2)).get_mode(), std::string("default"));
 	PV_VALID(plotted->get_col_min_row(PVCol(2)), 75173U);
-	PV_VALID(plotted->get_col_max_row(PVCol(2)), 12U);
+	PV_VALID(plotted->get_col_max_row(PVCol(2)), 0U);
 
 	/**
 	 * Check view
