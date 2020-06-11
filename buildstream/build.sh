@@ -48,12 +48,16 @@ WORKSPACE_NAME="workspace_build"
 open_workspace "$WORKSPACE_NAME"
 
 # Use proper branch if specified
+ORIGIN="origin"
+if git rev-parse "tags/$BRANCH_NAME"; then
+    ORIGIN="tags"
+fi
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [ $CURRENT_BRANCH == "HEAD" -o $BRANCH_SPECIFIED = true ]; then
     pushd .
     cd "$DIR/$WORKSPACE_NAME"
     git fetch -a
-    git checkout -B $BRANCH_NAME origin/$BRANCH_NAME
+    git checkout -B $BRANCH_NAME $ORIGIN/$BRANCH_NAME
     git submodule update --recursive
     popd
 else
@@ -62,6 +66,7 @@ fi
 if [ $USER_TARGET == "customer" ]; then
     BRANCH_NAME="master"
 fi
+
 
 # Build INENDI Inspector
 BUILD_OPTIONS=""
