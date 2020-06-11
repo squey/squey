@@ -50,31 +50,31 @@ int main()
 
 	// Selected lines are visible
 	PV_VALID(view->get_selection_visible_listing().bit_count(),
-	         (size_t)(view->get_row_count() - 3));
+	         (size_t)(view->get_row_count() - 2));
 
 	view->toggle_listing_unselected_visibility();
 
 	// Selected and unselected lines are visible
 	PV_VALID(view->get_selection_visible_listing().bit_count(),
-	         (size_t)(view->get_row_count() - 2));
+	         (size_t)(view->get_row_count() - 1));
 
 	view->toggle_listing_zombie_visibility();
 
 	// Selected, unselected and zombi lines are visible
 	PV_VALID(view->get_selection_visible_listing().bit_count(),
-	         (size_t)(view->get_row_count() - 1));
+	         (size_t)(view->get_row_count() - 0));
 
 	view->toggle_listing_unselected_visibility();
 
 	// Selected and zombi lines are visible
 	PV_VALID(view->get_selection_visible_listing().bit_count(),
-	         (size_t)(view->get_row_count() - 2));
+	         (size_t)(view->get_row_count() - 1));
 
 	view->toggle_view_unselected_zombie_visibility();
 
 	//  No modification in listing selection
 	PV_VALID(view->get_selection_visible_listing().bit_count(),
-	         (size_t)(view->get_row_count() - 2));
+	         (size_t)(view->get_row_count() - 1));
 
 	return 0;
 }

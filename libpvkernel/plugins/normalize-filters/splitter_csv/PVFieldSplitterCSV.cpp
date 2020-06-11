@@ -52,7 +52,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 				if (i == field.size()) {
 					// we have found the end of line but not a quote
 					l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
-					return ++n;
+					++n;
+					goto eol;
 				}
 
 				if (cstr[i - 1] == '\\') {
@@ -91,12 +92,12 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 
 			if (i == field.size()) {
 				// all-right, we reach the end of line
-				return n;
+				goto eol;
 			}
 
 			if (cstr[i] != _sep) {
 				// not a value separator, should have one
-				return 0;
+				goto eol;
 			}
 
 			// skipping the separator
@@ -118,7 +119,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			if (i == field.size()) {
 				// all-right, we reach the end of line
 				l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
-				return n;
+				goto eol;
 			} else if (n == _fields_expected) {
 				// enough elements have been extracted, the last one contain the rest of the field
 				l.emplace(it_ins, *field.elt_parent(), b, field.end());
@@ -135,8 +136,15 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 	/* we reach the last but empty field
 	 */
 	l.emplace(it_ins, *field.elt_parent(), cstr + i, field.end());
+	++n;
 
-	return ++n;
+eol:
+	if (_fields_expected < std::numeric_limits<size_t>::max()) {
+		for (; n < _fields_expected; ++n) {
+			l.emplace(it_ins, *field.elt_parent());
+		}
+	}
+	return n;
 }
 
 bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField& in_field)

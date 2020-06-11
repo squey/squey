@@ -30,10 +30,15 @@ PVCore::PVBufferSlice::PVBufferSlice(buf_list_t& buf_list) : _buf_list(buf_list)
 PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_list)
     : _buf_list(buf_list)
 {
-	assert(end >= begin);
-	_begin = begin;
-	_end = end;
-	_physical_end = end;
+	if (end >= begin) {
+		_begin = begin;
+		_end = end;
+		_physical_end = end;
+	} else {
+		_begin = g_null_buf;
+		_end = g_null_buf_end;
+		_physical_end = g_null_buf_end;
+	}
 	_realloc_buf = nullptr;
 }
 

@@ -18,8 +18,8 @@ int main()
 
 	PV_VALID(env.get_nraw_size(), 3UL);
 
-	PV_VALID(env._nraw.get_valid_row_count(), 2UL);
-	PV_VALID(env._nraw.valid_rows_sel().get_line(2), false);
+	PV_VALID(env._nraw.get_valid_row_count(), 3UL);
+	PV_VALID(env._nraw.valid_rows_sel().get_line(2), true);
 
 	return 0;
 }
