@@ -19,15 +19,9 @@
 [submodule "doc"]
 	path = doc
 	url = git@gitlab.srv.picviz:picviz/inendi-inspector-manual.git
-[submodule "flatpak/flatpak-dev-cli"]
-	path = flatpak/flatpak-dev-cli
-	url = git@gitlab.srv.picviz:picviz/flatpak-dev-cli.git
 [submodule "tests"]
 	path = tests
 	url = git@gitlab.srv.picviz:picviz/inendi-inspector-testsuite.git
-[submodule "flatpak/ostree-releng-scripts"]
-	path = flatpak/ostree-releng-scripts
-	url = https://github.com/ostreedev/ostree-releng-scripts.git
 [submodule "buildstream/scripts/ostree-releng-scripts"]
 	path = buildstream/scripts/ostree-releng-scripts
 	url = https://github.com/ostreedev/ostree-releng-scripts.git
