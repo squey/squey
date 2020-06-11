@@ -1,3 +1,13 @@
+4.8.2 (2020-06-11)
+------------------
+
+This minor release fixes or improves:
+* fixed crash reports generation in docker
+* disabled average computation of type string to avoid crashes
+* CSV lines with less separators than expected are not considered invalid anymore
+* improved ERF parsing performance by a factor 10 when using a selection of nodes
+* updated flatpak runtime to 19.08 over aging 1.6
+
 4.8.1 (2020-04-12)
 ------------------
 
