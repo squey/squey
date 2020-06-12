@@ -86,14 +86,14 @@ fi
 # Export flatpak image
 rm -rf $DIR/build
 bst $BUILD_OPTIONS build flatpak/com.esi_inendi.Inspector.bst
-bst checkout flatpak/com.esi_inendi.Inspector.bst "$DIR/build"
+bst $BUILD_OPTIONS checkout flatpak/com.esi_inendi.Inspector.bst "$DIR/build"
 flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
 
 
 # Export flatpak Debug image
 rm -rf $DIR/build
 bst $BUILD_OPTIONS build flatpak/com.esi_inendi.Inspector.Debug.bst
-bst checkout flatpak/com.esi_inendi.Inspector.Debug.bst "$DIR/build"
+bst $BUILD_OPTIONS checkout flatpak/com.esi_inendi.Inspector.Debug.bst "$DIR/build"
 flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
 
 
@@ -101,7 +101,7 @@ if [ $EXPORT_PCAP_BUILD = true ]; then
     # Export flatpak image
     rm -rf $DIR/build
     bst $BUILD_OPTIONS build flatpak/com.pcap_inspector.Inspector.bst
-    bst checkout flatpak/com.pcap_inspector.Inspector.bst "$DIR/build"
+    bst $BUILD_OPTIONS checkout flatpak/com.pcap_inspector.Inspector.bst "$DIR/build"
     flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
 fi
 
@@ -111,7 +111,7 @@ if [ ! -z "$UPLOAD_URL" -a ! -z "$REPO_DIR" ]; then
 fi
 
 # Push artifacts
-bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '`
+#bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '`
 
 function cleanup {
   rm -rf $XDG_CONFIG_HOME/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
