@@ -80,7 +80,7 @@ bst $BUILD_OPTIONS build inendi-inspector.bst
 
 # Run testsuite with "bst shell" to have network access (bst hasn't a "test-commands" (yet?) like in flatpak-builder)
 if  [ "$RUN_TESTSUITE" = true ]; then
-    bash -c "bst shell $MOUNT_OPTS inendi-inspector.bst -- bash -c  'cp -r /build . && ln -s /tests . && cd build && run_cmd.sh ctest --output-on-failure -T test -R INSPECTOR_TEST'"
+    bash -c "bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c  'cp -r /build . && ln -s /tests . && cd build && run_cmd.sh ctest --output-on-failure -T test -R INSPECTOR_TEST'"
 fi
 
 # Export flatpak image
