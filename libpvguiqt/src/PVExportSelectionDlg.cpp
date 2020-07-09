@@ -18,12 +18,19 @@
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVView.h>
+#include <inendi/PVLayerStack.h>
 #include <inendi/PVSource.h>
 
 #include <pvkernel/core/PVProgressBox.h>
 
-PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Inendi::PVView& view, QWidget* parent /* = 0 */)
-    : PVWidgets::PVExportDlg(parent)
+#include <filesystem>
+
+PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
+	Inendi::PVView& view,
+	QWidget* parent /* = 0 */,
+	QFileDialog::AcceptMode accept_mode /* = QFileDialog::AcceptSave */,
+	QFileDialog::FileMode file_mode /* = QFileDialog::AnyFile */)
+    : PVWidgets::PVExportDlg(parent, accept_mode, file_mode)
 {
 	delete _groupbox->layout();
 	delete _exporter_widget;
@@ -130,4 +137,68 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 		    }
 	    },
 	    "Selection export", nullptr);
+}
+
+void PVGuiQt::PVExportSelectionDlg::export_layers(Inendi::PVView& view)
+{
+	const Inendi::PVLayerStack& layerstack = view.get_layer_stack();
+
+	PVGuiQt::PVExportSelectionDlg export_dialog(view, nullptr, QFileDialog::AcceptOpen, QFileDialog::Directory);
+	int res = export_dialog.exec();
+	QString dirname = export_dialog.selectedFiles()[0];
+	if (dirname.isEmpty() || res == QDialog::Rejected) {
+		return;
+	}
+
+	size_t total_row_count = 0;
+	for (size_t i = 0; i < layerstack.get_layer_count(); i++) {
+		total_row_count += layerstack.get_layer_n(i).get_selectable_count();
+	}
+
+	PVRush::PVExporterBase& exporter = export_dialog.exporter();
+
+	// Check if some files are being overwritten
+	std::vector<std::string> files_path;
+	bool overwritten = false;
+	for (size_t i = 0; i < layerstack.get_layer_count(); i++) {
+		files_path.emplace_back((dirname + "/" + layerstack.get_layer_n(i).get_name() + export_dialog.file_extension()).toStdString());
+		overwritten |= std::filesystem::exists(files_path.back());
+	}
+	if (overwritten) {
+		if (QMessageBox::warning(
+			nullptr,
+			"Overwrite files ?",
+			"Some files are being overwritten, do you want to continue ?",
+			QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+				return;
+			}
+	}
+
+	// Export selected lines
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& pbox) {
+		    // setup progression tracking
+		    exporter.set_progress_max_func(
+		        [&](size_t row_count) { pbox.set_maximum(row_count); },
+		        total_row_count);
+		    exporter.set_progress_func([&](size_t exported_row_count) {
+			    if (pbox.get_cancel_state() != PVCore::PVProgressBox::CancelState::CONTINUE) {
+				    exporter.cancel();
+				    return;
+			    }
+			    pbox.set_value(exported_row_count);
+		    });
+
+			for (size_t i = 0; i < layerstack.get_layer_count(); i++) { // TODO : global progress bar
+				const Inendi::PVLayer& layer = layerstack.get_layer_n(i);
+				const std::string& file_path = files_path[i];
+				try {
+					exporter.export_rows(file_path, layer.get_selection());
+				} catch (const PVRush::PVExportError& e) {
+					pbox.critical("Error when exporting data", e.what());
+					std::remove(file_path.c_str());
+				}
+			}
+	    },
+	    "Export layers", nullptr);
 }

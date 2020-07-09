@@ -51,6 +51,7 @@ class PVLayerStackView : public QTableView
 	void
 	boolean_op_on_selection_with_this_layer(int layer_idx, const operation_f& f, bool activate);
 
+  public:
 	Inendi::PVLayer& get_layer_from_idx(int model_idx);
 
   private Q_SLOTS:
