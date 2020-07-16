@@ -112,6 +112,7 @@
 	<file alias="move_layer_up_icon">resources/trafik/elements-interface/icone-monter-blanc.png</file>
 	<file alias="move_layer_down_icon">resources/trafik/elements-interface/icone-descendre-blanc.png</file>
 	<file alias="new_layer_icon">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
+    <file alias="export_all_layers_icon">resources/trafik/elements-interface/icone-sauvegarder-blanc.png</file>
 
 
 	<!-- START SCREEN -->

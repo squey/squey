@@ -18,12 +18,20 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 
-PVWidgets::PVExportDlg::PVExportDlg(QWidget* parent /* = 0 */) : PVWidgets::PVFileDialog(parent)
+#include <regex>
+
+PVWidgets::PVExportDlg::PVExportDlg(
+	QWidget* parent /* = 0 */,
+	QFileDialog::AcceptMode accept_mode /* = QFileDialog::AcceptSave */,
+	QFileDialog::FileMode file_mode /* = QFileDialog::AnyFile*/
+)
+	: PVWidgets::PVFileDialog(parent)
 {
 	// Set this flags to make sure we can access the layout.
 	setOption(QFileDialog::DontUseNativeDialog);
 	setWindowTitle(tr("Export selection"));
-	setAcceptMode(QFileDialog::AcceptSave);
+	setAcceptMode(accept_mode);
+	setFileMode(file_mode);
 
 	// Use default CSV exporter if input type doesn't define a specific one
 	_exporter_widget = new PVWidgets::PVCSVExporterWidget();
@@ -77,8 +85,18 @@ PVWidgets::PVExportDlg::PVExportDlg(QWidget* parent /* = 0 */) : PVWidgets::PVFi
 
 		// force filters to reset as setting 'QFileDialog::Directory' erase them
 		setNameFilters(_name_filters);
-		selectNameFilter(filter);
+		selectNameFilter(filter);		
 	};
 	_conn = QObject::connect(this, &QFileDialog::filterSelected, _filter_selected_f);
 	_filter_selected_f(_name_filters.at(default_filter_index));
+}
+
+QString PVWidgets::PVExportDlg::file_extension() const
+{
+	const std::string& str = selectedNameFilter().toStdString();
+	const std::regex base_regex(".*\\(\\*(.*)\\)");
+	std::smatch base_match;
+	std::regex_match(str, base_match, base_regex);
+	assert(base_match.length() == 1);
+	return QString::fromStdString(base_match[1].str());
 }

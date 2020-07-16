@@ -47,6 +47,8 @@ class PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	 * done in one step.
 	 */
 	static void export_selection(Inendi::PVView& view, const Inendi::PVSelection& sel);
+	
+	static void export_layers(Inendi::PVView& view);
 
 	/** Create a FileDialog to export selection
 	 *
@@ -54,7 +56,12 @@ class PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	 * @param view : The view to export
 	 * @param parent : parent widget (as usual in Qt)
 	 */
-	PVExportSelectionDlg(Inendi::PVView& view, QWidget* parent = 0);
+	PVExportSelectionDlg(
+		Inendi::PVView& view,
+		QWidget* parent = 0,
+		QFileDialog::AcceptMode accept_mode = QFileDialog::AcceptSave,
+	    QFileDialog::FileMode file_mode = QFileDialog::AnyFile
+	);
 
   public:
 	PVRush::PVExporterBase& exporter()
