@@ -189,7 +189,7 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Inendi::PVView& view)
 			    pbox.set_value(exported_row_count);
 		    });
 
-			for (size_t i = 0; i < layerstack.get_layer_count(); i++) { // TODO : global progress bar
+			for (size_t i = 0; i < layerstack.get_layer_count(); i++) {
 				const Inendi::PVLayer& layer = layerstack.get_layer_n(i);
 				const std::string& file_path = files_path[i];
 				try {

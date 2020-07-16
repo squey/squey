@@ -79,6 +79,8 @@ class PVCSVExporter : public PVRush::PVExporterBase
 	std::string _header;
 	bool _export_internal_values = false;
 	bool _export_rows_index = false;
+
+	size_t _exported_row_count = 0;
 };
 
 } // namespace PVRush
