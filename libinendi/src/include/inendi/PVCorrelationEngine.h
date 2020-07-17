@@ -17,6 +17,11 @@ namespace Inendi
 
 class PVView;
 
+enum class PVCorrelationType {
+	VALUES,
+	RANGE
+};
+
 /**
  * A simple correlation descriptor
  */
@@ -24,7 +29,8 @@ struct PVCorrelation {
 	const Inendi::PVView* view1; //!< the origin view
 	PVCol col1;                  //!< the origin column (original axis index)
 	Inendi::PVView* view2;       //!< the destination view
-	PVCol col2;                  //!< the destination column (original axis index)
+	PVCol col2;                  //!< the destination column (original axis index
+	PVCorrelationType type = PVCorrelationType::VALUES;      //!< the type of correlation
 };
 
 /**

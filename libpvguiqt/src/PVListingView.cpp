@@ -550,11 +550,16 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 {
 	const QString& this_axis_type = lib_view().get_axes_combination().get_axis(col).get_type();
-	QStringList correlation_types = {"number_int32", "number_uint32", "ipv4",
-	                                 "ipv6",         "mac_address",   "string"};
+	const QStringList& correlation_types_for_values = { "number_int8", "number_uint8", "number_int16", "number_uint16",
+												        "number_int32", "number_uint32", "number_int64", "number_uint64",
+												        "ipv4", "ipv6", "mac_address", "string" };
+	const QStringList& correlation_types_for_range =  { "number_int8", "number_uint8", "number_int16", "number_uint16",
+												        "number_int32", "number_uint32", "number_int64", "number_uint64",
+												        "ipv4", "ipv6", "mac_address", /*"strings"*/
+	                                                    "time", "duration", "number_float", "number_double" };
 
 	// Don't show correlation menu for unsupported axes types
-	if (not correlation_types.contains(this_axis_type)) {
+	if (not correlation_types_for_range.contains(this_axis_type)) {
 		return;
 	}
 
@@ -602,27 +607,41 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 					continue;
 				}
 
-				QAction* axis_action = new QAction(axis_name, this);
-				axis_action->setCheckable(true);
+				QMenu* type_menu = new QMenu(axis_name, this);
+				view_menu->addMenu(type_menu);
 
-				PVCol original_col1 = _view.get_axes_combination().get_nraw_axis(col);
+				// TODO : use QActionGroup for radio buttons
 
-				Inendi::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2};
-				bool existing_correlation = root.correlations().exists(correlation);
+				auto add_correlation_f = [&](const QString& correlation_type_name, Inendi::PVCorrelationType type){
+					QAction* action = new QAction(correlation_type_name, this);
+					action->setCheckable(true);
 
-				axis_action->setChecked(existing_correlation);
+					PVCol original_col1 = _view.get_axes_combination().get_nraw_axis(col);
 
-				connect(axis_action, &QAction::triggered, [=, &root]() {
-					if (not existing_correlation) {
-						root.correlations().add(correlation);
-					} else {
-						root.correlations().remove(correlation.view1);
-					}
-					// refresh headers to show correlation icon right now
-					horizontalHeader()->viewport()->update();
-				});
+					Inendi::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2, type};
+					bool existing_correlation = root.correlations().exists(correlation);
 
-				view_menu->addAction(axis_action);
+					action->setChecked(existing_correlation);
+
+					connect(action, &QAction::triggered, [=, &root]() {
+						if (not existing_correlation) {
+							root.correlations().add(correlation);
+						} else {
+							root.correlations().remove(correlation.view1);
+						}
+						// refresh headers to show correlation icon right now
+						horizontalHeader()->viewport()->update();
+					});
+
+					type_menu->addAction(action);
+				};
+
+				if (correlation_types_for_values.contains(axis_type)) {
+					add_correlation_f("distinct values", Inendi::PVCorrelationType::VALUES);
+				}
+				if (correlation_types_for_range.contains(axis_type)) {
+					add_correlation_f("minmax range", Inendi::PVCorrelationType::RANGE);
+				}
 
 				compatible_axes_count++;
 			}
