@@ -35,8 +35,10 @@ PVWidgets::PVPercentRangeEditor::PVPercentRangeEditor(QWidget* parent)
 	get_max_spinbox()->setSuffix(" %");
 
 	QLinearGradient lg;
-	lg.setColorAt(0.0, Qt::green);
-	lg.setColorAt(0.5, Qt::yellow);
+	lg.setColorAt(0.0, Qt::blue);
+	lg.setColorAt(0.25, Qt::cyan);
+	lg.setColorAt(0.5, Qt::green);
+	lg.setColorAt(0.75, Qt::yellow);
 	lg.setColorAt(1.0, Qt::red);
 
 	set_gradient(lg);
