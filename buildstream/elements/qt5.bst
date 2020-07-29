@@ -60,6 +60,9 @@ variables:
     -fontconfig \
     -glib \
     -system-proxies \
+    -no-feature-renameat2 \
+    -no-feature-getentropy \
+    -no-feature-statx \
     -gtk #\
     #-ccache
     

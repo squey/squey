@@ -55,8 +55,9 @@ bool Inendi::PVCorrelationEngine::exists(const PVCorrelation& c) const
 		PVCol c1 = corr->second.col1;
 		Inendi::PVView* v2 = corr->second.view2;
 		PVCol c2 = corr->second.col2;
+		PVCorrelationType type = corr->second.type;
 
-		return c.col1 == c1 and c.view2 == v2 and c.col2 == c2;
+		return c.col1 == c1 and c.view2 == v2 and c.col2 == c2 and c.type == type;
 	}
 
 	return false;
@@ -87,32 +88,15 @@ Inendi::PVCorrelationEngine::correlation(const Inendi::PVView* view) const
 	return &correlation->second;
 }
 
-Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1)
+static void process_values(
+	const pvcop::db::array& col1_in,
+	const pvcop::db::array& col2_in,
+	const Inendi::PVSelection& in_sel,
+	Inendi::PVSelection& out_sel
+)
 {
-	auto correlation = _correlations.find(view1);
-
-	if (correlation == _correlations.end()) {
-		return nullptr;
-	}
-
-	const Inendi::PVSource& src1 = view1->get_parent<Inendi::PVSource>();
-	PVCol col1 = correlation->second.col1;
-	Inendi::PVView* view2 = correlation->second.view2;
-	Inendi::PVSource& src2 = view2->get_parent<Inendi::PVSource>();
-	PVCol col2 = correlation->second.col2;
-
-	const pvcop::db::array& col1_in = src1.get_rushnraw().column(col1);
-	const pvcop::db::array& col2_in = src2.get_rushnraw().column(col2);
-
 	pvcop::db::array col1_distinct;
-
-	PVSelection in_sel(col2_in.size());
-	in_sel.select_all();
-
-	PVSelection out_sel(in_sel.count());
-	out_sel.select_none();
-
-	pvcop::db::algo::distinct(col1_in, col1_distinct, view1->get_real_output_selection());
+	pvcop::db::algo::distinct(col1_in, col1_distinct, in_sel);
 
 	bool is_string = col1_in.is_string();
 	if (not is_string) {
@@ -126,7 +110,7 @@ Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1
 
 	// propagate strings or invalid values
 	if ((col1_distinct.has_invalid() and col2_in.has_invalid()) or is_string) {
-		PVSelection invalid_out_sel(out_sel.count());
+		Inendi::PVSelection invalid_out_sel(out_sel.count());
 		invalid_out_sel.select_none();
 		pvcop::db::array string_array;
 		if (is_string) {
@@ -145,6 +129,45 @@ Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1
 		    is_string ? pvcop::core::selection() : col2_in.invalid_selection(), invalid_out_sel);
 
 		out_sel |= invalid_out_sel;
+	}
+}
+
+static void process_range(
+	const pvcop::db::array& col1_in,
+	const pvcop::db::array& col2_in,
+	const Inendi::PVSelection& in_sel,
+	Inendi::PVSelection& out_sel
+)
+{
+	pvcop::db::array minmax = pvcop::db::algo::minmax(col1_in, in_sel);
+	pvcop::db::algo::range_select(col2_in, minmax.at(0), minmax.at(1), col2_in.valid_selection(), out_sel);
+}
+
+Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1)
+{
+	auto correlation = _correlations.find(view1);
+
+	if (correlation == _correlations.end()) {
+		return nullptr;
+	}
+
+	const Inendi::PVSource& src1 = view1->get_parent<Inendi::PVSource>();
+	PVCol col1 = correlation->second.col1;
+	Inendi::PVView* view2 = correlation->second.view2;
+	Inendi::PVSource& src2 = view2->get_parent<Inendi::PVSource>();
+	PVCol col2 = correlation->second.col2;
+
+	const pvcop::db::array& col1_in = src1.get_rushnraw().column(col1);
+	const pvcop::db::array& col2_in = src2.get_rushnraw().column(col2);
+
+	PVSelection out_sel(col2_in.size());
+	out_sel.select_none();
+
+	if (correlation->second.type == PVCorrelationType::VALUES) {
+		process_values(col1_in, col2_in, view1->get_real_output_selection(), out_sel);
+	}
+	else if (correlation->second.type == PVCorrelationType::RANGE) {
+		process_range(col1_in, col2_in, view1->get_real_output_selection(), out_sel);
 	}
 
 	view2->set_selection_view(out_sel);

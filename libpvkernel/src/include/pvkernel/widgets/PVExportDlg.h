@@ -39,9 +39,15 @@ class PVExportDlg : public PVWidgets::PVFileDialog
 	 * @param parent : parent widget (as usual in Qt)
 	 */
   public:
-	PVExportDlg(QWidget* parent = 0);
+	PVExportDlg(
+		QWidget* parent = 0,
+		QFileDialog::AcceptMode accept_mode = QFileDialog::AcceptSave,
+	    QFileDialog::FileMode file_mode = QFileDialog::AnyFile
+	);
 
 	PVWidgets::PVExporterWidgetInterface* exporter_widget() { return _exporter_widget; }
+
+	QString file_extension() const;
 
   protected:
 	QStringList _name_filters;

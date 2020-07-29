@@ -67,16 +67,16 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	// Check result against reference file
-	int last_green = 255;
+	int last_blue = 255;
 	int last_red = 0;
 	std::ifstream plotted_values(outputvalues);
 
 	QColor qcolor = out.get_lines_properties().get_line_properties(0).toQColor();
-	PV_VALID(qcolor.green(), last_green);
+	PV_VALID(qcolor.blue(), last_blue);
 	PV_VALID(qcolor.red(), last_red);
 	qcolor =
 	    out.get_lines_properties().get_line_properties(out.get_selection().count() - 1).toQColor();
-	PV_VALID(qcolor.green(), 16);
+	PV_VALID(qcolor.blue(), 0);
 	PV_VALID(qcolor.red(), 255);
 
 	for (size_t i = 0; i < out.get_selection().count(); i++) {
@@ -88,13 +88,13 @@ int main()
 		uint8_t actual_color = color.h();
 
 		qcolor = color.toQColor();
-		int green = qcolor.green();
+		int blue = qcolor.blue();
 		int red = qcolor.red();
 
-		PV_ASSERT_VALID(green <= last_green);
+		PV_ASSERT_VALID(blue <= last_blue);
 		PV_ASSERT_VALID(red >= last_red);
 
-		last_green = green;
+		last_blue = blue;
 		last_red = red;
 
 		PV_VALID((size_t)actual_color, (size_t)wanted_color);

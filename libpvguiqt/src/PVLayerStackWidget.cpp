@@ -14,6 +14,7 @@
 #include <pvguiqt/PVLayerStackModel.h>
 #include <pvguiqt/PVLayerStackView.h>
 #include <pvguiqt/PVLayerStackWidget.h>
+#include <pvguiqt/PVExportSelectionDlg.h>
 
 #include <inendi/widgets/PVNewLayerDialog.h>
 
@@ -87,6 +88,7 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 	QAction* move_down_Action;
 	QAction* move_up_Action;
 	QAction* new_layer_Action;
+	QAction* export_all_layers_Action;
 	PVLOG_DEBUG("PVGuiQt::PVLayerStackWidget::%s\n", __FUNCTION__);
 
 	// The new_layer Action
@@ -133,11 +135,31 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 	delete_layer_Action->setWhatsThis(tr("Use this to delete the selected."));
 	toolbar->addAction(delete_layer_Action);
 	connect(delete_layer_Action, &QAction::triggered, this, &PVLayerStackWidget::delete_layer);
+
+	// Export all layers
+	const QString& export_all_layers_text = "Export all layers";
+	export_all_layers_Action = new QAction(export_all_layers_text, this);
+	export_all_layers_Action->setIcon(QIcon(":/export_all_layers_icon"));
+	export_all_layers_Action->setStatusTip(export_all_layers_text);
+	export_all_layers_Action->setToolTip(export_all_layers_text);
+	export_all_layers_Action->setWhatsThis(tr("Export each layer as a CSV file"));
+	toolbar->addAction(export_all_layers_Action);
+	connect(export_all_layers_Action, &QAction::triggered, this, &PVLayerStackWidget::export_all_layers);
 }
 
 /******************************************************************************
  *
- * PVGuiQt::PVLayerStackWidget::delete_layer
+ * PVGuiQt::PVLayerStackWidget::export_all_layers
+ *
+ *****************************************************************************/
+void PVGuiQt::PVLayerStackWidget::export_all_layers()
+{
+	PVExportSelectionDlg::export_layers(ls_model()->lib_view());
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVLayerStackWidget::export_all_layers
  *
  *****************************************************************************/
 void PVGuiQt::PVLayerStackWidget::delete_layer()

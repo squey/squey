@@ -66,9 +66,9 @@ void PVRush::PVCSVExporter::export_rows(const std::string& file_path,
 		compressor.write(_header);
 	}
 
+	size_t total_row_count = sel.bit_count();
 	size_t exported_row_count = 0;
-
-	while (exported_row_count < _total_row_count) {
+	while (exported_row_count < total_row_count) {
 
 		if (_canceled) {
 			compressor.cancel();
@@ -76,7 +76,7 @@ void PVRush::PVCSVExporter::export_rows(const std::string& file_path,
 			break;
 		}
 
-		size_t step_count = std::min(STEP_COUNT, _total_row_count - exported_row_count);
+		size_t step_count = std::min(STEP_COUNT, total_row_count - exported_row_count);
 
 		int thread_index = -1;
 		const size_t thread_count = std::thread::hardware_concurrency();
@@ -133,13 +133,14 @@ void PVRush::PVCSVExporter::export_rows(const std::string& file_path,
 		exported_row_count += step_count;
 
 		if (_f_progress) {
-			_f_progress(exported_row_count);
+			_f_progress(_exported_row_count + exported_row_count);
 		}
 	}
 
 	compressor.wait_finished();
 
 	if (_f_progress) {
-		_f_progress(_total_row_count);
+		_exported_row_count += total_row_count;
+		_f_progress(_exported_row_count);
 	}
 }

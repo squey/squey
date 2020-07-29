@@ -46,6 +46,7 @@ class PVLayerStackWidget : public QWidget
 	void move_down();
 	void move_up();
 	void new_layer();
+	void export_all_layers();
 
   private:
 	PVLayerStackView* _layer_stack_view;
