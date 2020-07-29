@@ -25,7 +25,7 @@ static constexpr unsigned int dupl = 100;
 static constexpr unsigned int dupl = 1;
 #endif
 
-void run_multiplesearch_filter(Inendi::PVView* view1)
+void run_multiplesearch_filter(Inendi::PVView* view1, PVCore::PVOriginalAxisIndexType ait, const PVCore::PVPlainTextType& text_values)
 {
 	constexpr char plugin_name[] = "search-multiple";
 	Inendi::PVLayerFilter::p_type filter_org =
@@ -36,8 +36,8 @@ void run_multiplesearch_filter(Inendi::PVView* view1)
 	Inendi::PVLayer& out = view1->get_post_filter_layer();
 	out.reset_to_empty_and_default_color();
 	Inendi::PVLayer& in = view1->get_layer_stack_output_layer();
-	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(PVCol(4) /* HTTP status */));
-	args["exps"].setValue(PVCore::PVPlainTextType("503"));
+	args["axis"].setValue(ait);
+	args["exps"].setValue(text_values);
 
 	plugin->set_view(view1);
 	plugin->set_output(&out);
@@ -83,7 +83,11 @@ int main()
 	 */
 	auto start = std::chrono::system_clock::now();
 
-	run_multiplesearch_filter(view1);
+	run_multiplesearch_filter(
+		view1,
+		PVCore::PVOriginalAxisIndexType(PVCol(4) /* HTTP status */),
+		PVCore::PVPlainTextType("503")
+	);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -153,6 +157,27 @@ int main()
 	env.root.correlations().add(new_correlation);
 	PV_ASSERT_VALID(not env.root.correlations().exists(correlation));
 	PV_ASSERT_VALID(env.root.correlations().exists(new_correlation));
+
+	/**
+	 * Check that range correlation is properly working
+	 */
+	{
+	env.root.correlations().remove(correlation.view2, true);
+	Inendi::PVCorrelation range_correlation{view1, PVCol(5), view2, PVCol(5), Inendi::PVCorrelationType::RANGE};
+	env.root.correlations().add(range_correlation);
+	run_multiplesearch_filter(
+		view1,
+		PVCore::PVOriginalAxisIndexType(PVCol(5) /* Total bytes */),
+		PVCore::PVPlainTextType("0\n999")
+	);
+	const Inendi::PVSelection& sel1 = view1->get_post_filter_layer().get_selection();
+	size_t count1 = sel1.bit_count();
+	const Inendi::PVSelection& sel2 = view2->get_post_filter_layer().get_selection();
+	size_t count2 = sel2.bit_count();
+	PV_VALID(count1, 138UL);
+	PV_VALID(count2, 3990UL);
+	}
+
 
 	/**
 	 * Check that removing view1 remove all correlations
