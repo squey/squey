@@ -2,6 +2,8 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "${DIR}/.env.conf"
+
 apt update && apt -y install software-properties-common && add-apt-repository ppa:alexlarsson/flatpak && apt install -y flatpak && rm -rf /var/lib/apt/lists/*
 
 install_mode="$1"
