@@ -1,3 +1,12 @@
+4.8.3 (2020-07-28)
+------------------
+
+This minor release fixes or improves:
+* all gradients are now ranging from blue to red to improve vizualisation insight
+* added an option to do correlations using minmax ranges instead of distinct values
+* export all layers at once using the standard export dialog
+* fixed a regression that was preventing older linux kernels to load the application
+
 4.8.2 (2020-06-11)
 ------------------
 
