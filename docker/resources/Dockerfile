@@ -39,7 +39,7 @@ RUN echo "vm.max_map_count=1966080" > /etc/sysctl.d/00-local-max_map_count.conf
     
 # Download/install data
 RUN mkdir -p "${INSTALL_PATH}"
-COPY download_files.sh env.conf .env.conf resources/* data/* "${INSTALL_PATH}/"
+COPY download_files.sh env.conf resources/* data/* "${INSTALL_PATH}/"
 RUN "${INSTALL_PATH}/download_files.sh" "${INSTALL_MODE}"
 
 # Workaround to avoid nvidia drivers to prevent flatpak container to be executed
